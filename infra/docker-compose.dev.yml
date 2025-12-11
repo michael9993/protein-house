@@ -2,12 +2,14 @@ services:
   postgres:
     image: postgres:15-alpine
     container_name: saleor-postgres-dev
+    env_file:
+      - .env
     environment:
-      POSTGRES_USER: saleor
-      POSTGRES_PASSWORD: saleor
-      POSTGRES_DB: saleor
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
       # Script to create additional database for Stripe app
@@ -23,8 +25,10 @@ services:
   redis:
     image: redis:7-alpine
     container_name: saleor-redis-dev
+    env_file:
+      - .env
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:6379"
     volumes:
       - redis-data:/data
     healthcheck:
@@ -41,10 +45,13 @@ services:
       context: ../saleor
       dockerfile: Dockerfile
     container_name: saleor-api-dev
+    env_file:
+      - .env
     # Use uvicorn (ASGI) instead of runserver (WSGI) to enable CORS handler
-    command: uvicorn saleor.asgi:application --host 0.0.0.0 --port 8000 --reload --lifespan off
+    # Port is set via environment variable SALEOR_API_PORT from .env
+    command: sh -c "uvicorn saleor.asgi:application --host 0.0.0.0 --port $${SALEOR_API_PORT} --reload --lifespan off"
     ports:
-      - "8000:8000"
+      - "${SALEOR_API_PORT}:${SALEOR_API_PORT}"
     volumes:
       # Mount only the source code (not entire /app to preserve installed packages)
       - ../saleor/saleor:/app/saleor
@@ -53,49 +60,40 @@ services:
       # Mount custom plugins if they exist
       - ../backend/plugins:/app/plugins/custom:ro
     environment:
-      # Core Settings
-      SECRET_KEY: ${SECRET_KEY:-changeme-in-production}
-      DEBUG: "True"
-      # ALLOWED_HOSTS: Tunnel domains (.trycloudflare.com, .ngrok.io) are automatically
-      # added in settings.py when DEBUG=True. You can override with specific hosts if needed.
-      # To allow all hosts, set: ALLOWED_HOSTS=*
-      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1,0.0.0.0,saleor-api}
-      ALLOWED_CLIENT_HOSTS: ${ALLOWED_CLIENT_HOSTS:-localhost:3000,localhost:3001,localhost:9000,127.0.0.1:9000}
-      # CORS: Allow all origins in development (includes tunnel URLs)
-      # The "*" wildcard allows all origins, including:
-      # - Local development (localhost, 127.0.0.1)
-      # - Tunnel URLs (trycloudflare.com, ngrok.io, etc.)
-      # In production, set specific origins instead of "*"
-      ALLOWED_GRAPHQL_ORIGINS: ${ALLOWED_GRAPHQL_ORIGINS:-*}
+      # Core Settings - All values from .env file
+      SECRET_KEY: ${SECRET_KEY}
+      DEBUG: ${DEBUG}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      ALLOWED_CLIENT_HOSTS: ${ALLOWED_CLIENT_HOSTS}
+      ALLOWED_GRAPHQL_ORIGINS: ${ALLOWED_GRAPHQL_ORIGINS}
 
-      # Database
-      DATABASE_URL: postgres://saleor:saleor@postgres:5432/saleor
+      # Database - Constructed from .env values
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
 
       # Redis
-      REDIS_URL: redis://redis:6379/0
+      REDIS_URL: ${REDIS_URL}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
 
       # Media Files
       MEDIA_ROOT: /app/media
       MEDIA_URL: /media/
 
-      # Email (Development - Console Backend)
-      EMAIL_URL: ${EMAIL_URL:-consolemail://}
-
-      # Celery
-      CELERY_BROKER_URL: redis://redis:6379/1
-      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      # Email
+      EMAIL_URL: ${EMAIL_URL}
 
       # Webhooks
-      WEBHOOK_SECRET_KEY: ${WEBHOOK_SECRET_KEY:-}
+      WEBHOOK_SECRET_KEY: ${WEBHOOK_SECRET_KEY}
 
       # Timezone
-      TIME_ZONE: ${TIME_ZONE:-UTC}
+      TIME_ZONE: ${TIME_ZONE}
+
+      # API Port (used by uvicorn command)
+      SALEOR_API_PORT: ${SALEOR_API_PORT}
 
       # Public URL - Used for JWT token issuer URL
-      # CRITICAL: When using tunnels, set SALEOR_API_TUNNEL_URL in .env
-      # This ensures JWT tokens have the correct issuer URL for signature verification
-      # Fallback order: tunnel URL -> localhost
-      PUBLIC_URL: ${SALEOR_API_TUNNEL_URL:-http://localhost:8000}
+      # Set SALEOR_API_TUNNEL_URL in .env for tunnels, or PUBLIC_URL for local
+      PUBLIC_URL: ${PUBLIC_URL}
 
       # Enable Playground in Development
       GRAPHQL_PLAYGROUND_ENABLED: "True"
@@ -112,7 +110,7 @@ services:
           "CMD",
           "python",
           "-c",
-          "import socket; s = socket.socket(); s.settimeout(2); result = s.connect_ex(('127.0.0.1', 8000)); s.close(); exit(0 if result == 0 else 1)",
+          "import socket, os; port = int(os.environ.get('SALEOR_API_PORT')); s = socket.socket(); s.settimeout(2); result = s.connect_ex(('127.0.0.1', port)); s.close(); exit(0 if result == 0 else 1)",
         ]
       interval: 10s
       timeout: 5s
@@ -133,14 +131,16 @@ services:
       - saleor-media:/app/media
       # Mount custom plugins
       - ../backend/plugins:/app/plugins/custom:ro
+    env_file:
+      - .env
     environment:
-      SECRET_KEY: ${SECRET_KEY:-changeme-in-production}
-      DATABASE_URL: postgres://saleor:saleor@postgres:5432/saleor
-      REDIS_URL: redis://redis:6379/0
-      CELERY_BROKER_URL: redis://redis:6379/1
-      CELERY_RESULT_BACKEND: redis://redis:6379/2
-      EMAIL_URL: ${EMAIL_URL:-consolemail://}
-      TIME_ZONE: ${TIME_ZONE:-UTC}
+      SECRET_KEY: ${SECRET_KEY}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_URL: ${REDIS_URL}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+      EMAIL_URL: ${EMAIL_URL}
+      TIME_ZONE: ${TIME_ZONE}
     depends_on:
       postgres:
         condition: service_healthy
@@ -166,7 +166,7 @@ services:
       - ../backend/plugins:/app/plugins/custom:ro
     environment:
       SECRET_KEY: ${SECRET_KEY:-changeme-in-production}
-      DATABASE_URL: postgres://saleor:saleor@postgres:5432/saleor
+      DATABASE_URL: postgres://${POSTGRES_USER:-saleor}:${POSTGRES_PASSWORD:-saleor}@postgres:5432/${POSTGRES_DB:-saleor}
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/2
@@ -189,8 +189,10 @@ services:
     working_dir: /app
     # Install pnpm and setup (only install if needed - pnpm handles caching automatically)
     command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --prefer-offline && pnpm run generate:main && pnpm run dev --host 0.0.0.0"
+    env_file:
+      - .env
     ports:
-      - "9000:9000" # Vite configured port
+      - "${DASHBOARD_PORT}:9000" # Vite configured port
     volumes:
       # Mount entire dashboard directory for hot-reload
       - ../dashboard:/app
@@ -199,21 +201,13 @@ services:
       # Cache pnpm store globally to avoid re-downloading packages
       - dashboard-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      # API URL for Dashboard GraphQL requests
-      # Fallback order: tunnel URL -> Docker service name (for server) -> localhost
-      # For browser access, use tunnel URL or localhost (browser can't resolve Docker service names)
-      API_URL: ${SALEOR_API_TUNNEL_URL:-http://localhost:8000}/graphql/
-      # Vite also uses this for browser access
-      VITE_API_URL: ${SALEOR_API_TUNNEL_URL:-http://localhost:8000}/graphql/
-      # Saleor Cloud Services (OPTIONAL - for App Marketplace and Extensions)
-      # These are ONLY needed if you want to use Saleor's official app marketplace.
-      # For self-hosted setups with only local apps, leave these empty to disable.
-      # To disable: Set APPS_MARKETPLACE_API_URL="" in .env
-      # To enable: Set APPS_MARKETPLACE_API_URL="https://apps.saleor.io/api/v2/saleor-apps" in .env
-      APPS_MARKETPLACE_API_URL: ${APPS_MARKETPLACE_API_URL:-}
-      EXTENSIONS_API_URL: ${EXTENSIONS_API_URL:-}
-      APP_MOUNT_URI: ${APP_MOUNT_URI:-/dashboard/}
-      STATIC_URL: ${STATIC_URL:-/dashboard/}
+      # API URL for Dashboard GraphQL requests - All from .env
+      API_URL: ${API_URL}
+      VITE_API_URL: ${VITE_API_URL}
+      APPS_MARKETPLACE_API_URL: ${APPS_MARKETPLACE_API_URL}
+      EXTENSIONS_API_URL: ${EXTENSIONS_API_URL}
+      APP_MOUNT_URI: ${APP_MOUNT_URI}
+      STATIC_URL: ${STATIC_URL}
       NODE_ENV: development
     depends_on:
       saleor-api:
@@ -228,7 +222,7 @@ services:
           "--quiet",
           "--tries=1",
           "--spider",
-          "http://localhost:9000",
+          "http://localhost:${DASHBOARD_PORT}",
         ]
       interval: 30s
       timeout: 10s
@@ -245,8 +239,10 @@ services:
     # Codegen will use SALEOR_API_URL (Docker service name) for server-side operations
     # Only install if node_modules doesn't exist or package.json changed (pnpm handles this automatically)
     command: sh -c "corepack enable && corepack prepare pnpm@9.6.0 --activate && pnpm install --prefer-offline && pnpm run dev"
+    env_file:
+      - .env
     ports:
-      - "3000:3000" # Next.js default port
+      - "${STOREFRONT_PORT}:3000" # Next.js default port
     volumes:
       # Mount entire storefront directory for hot-reload
       - ../storefront:/app
@@ -257,21 +253,15 @@ services:
       # Cache pnpm store globally to avoid re-downloading packages
       - storefront-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      # For browser access (client-side) - Fallback order: tunnel URL -> localhost
-      # Browser can't resolve Docker service names, so always use public URL
-      NEXT_PUBLIC_SALEOR_API_URL: ${SALEOR_API_TUNNEL_URL:-http://localhost:8000}/graphql/
-      # For server-side codegen - Fallback order: tunnel URL -> Docker service name
-      # When running in Docker, can use service name; when using tunnels, use tunnel URL
-      SALEOR_API_URL: ${SALEOR_API_TUNNEL_URL:-http://localhost:8000}/graphql/
-      # Optional: Storefront URL for canonical links
-      NEXT_PUBLIC_STOREFRONT_URL: ${STOREFRONT_TUNNEL_URL:-http://localhost:3000}
-      # Default channel
-      NEXT_PUBLIC_DEFAULT_CHANNEL: ${NEXT_PUBLIC_DEFAULT_CHANNEL:-default-channel}
-      # Optional: App token for authenticated requests (if needed)
-      SALEOR_APP_TOKEN: ${SALEOR_APP_TOKEN:-}
+      # All URLs from .env file
+      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+      SALEOR_API_URL: ${SALEOR_API_URL}
+      NEXT_PUBLIC_STOREFRONT_URL: ${NEXT_PUBLIC_STOREFRONT_URL}
+      NEXT_PUBLIC_DEFAULT_CHANNEL: ${NEXT_PUBLIC_DEFAULT_CHANNEL}
+      SALEOR_APP_TOKEN: ${SALEOR_APP_TOKEN}
       NODE_ENV: development
       # Next.js
-      PORT: 3000
+      PORT: ${STOREFRONT_PORT}
       HOSTNAME: 0.0.0.0
     depends_on:
       saleor-api:
@@ -286,7 +276,7 @@ services:
           "--quiet",
           "--tries=1",
           "--spider",
-          "http://localhost:3000",
+          "http://localhost:${STOREFRONT_PORT}",
         ]
       interval: 30s
       timeout: 10s
@@ -306,8 +296,10 @@ services:
     # Dev mode prevents Html import errors by skipping static page generation
     # Only install if needed - pnpm handles caching automatically
     command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-payment-stripe... --prefer-offline && cd apps/stripe && pnpm dev"
+    env_file:
+      - .env
     ports:
-      - "3002:3000" # Different port from storefront (3000) and dashboard (9000)
+      - "${STRIPE_APP_PORT}:3000" # Different port from storefront (3000) and dashboard (9000)
     volumes:
       # Mount entire apps repository (monorepo root) for catalog support
       # Apps folder is now inside saleor-platform directory
@@ -322,53 +314,31 @@ services:
       # Cache pnpm store globally to avoid re-downloading packages
       - stripe-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      # Saleor API connection
-      # Internal Docker communication (for server-to-server)
-      # Fallback order: tunnel URL -> Docker service name
-      SALEOR_API_URL: ${SALEOR_API_TUNNEL_URL:-http://localhost:8000}/graphql/
-      # Public URL for browser/registration (Dashboard needs to reach this)
-      # CRITICAL: This must be the tunnel URL when accessing via tunnel
-      # The register endpoint uses this to connect to Saleor from the browser
-      # Fallback order: tunnel URL -> localhost
-      NEXT_PUBLIC_SALEOR_API_URL: ${SALEOR_API_TUNNEL_URL:-http://localhost:8000}/graphql/
-      SALEOR_APP_TOKEN: ${STRIPE_APP_TOKEN:-}
+      # All configuration from .env file
+      # Stripe app uses same API URLs as storefront
+      SALEOR_API_URL: ${SALEOR_API_URL}
+      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+      SALEOR_APP_TOKEN: ${STRIPE_APP_TOKEN}
 
-      # Stripe API keys - Add these to .env file
-      # Get from: https://dashboard.stripe.com/test/apikeys
-      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-}
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
-      # Webhook secret - Get from Stripe CLI: stripe listen --forward-to <your-stripe-app-url>/api/webhooks/stripe
-      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      # Stripe API keys - From .env
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
 
       # App configuration
       APP_ID: stripe
       APP_NAME: Stripe
       APP_ENV: development
-      # App URL - used during installation for callbacks
-      # This is the public URL where the app is accessible (from host machine)
-      # Fallback order: tunnel URL -> localhost
-      APP_URL: ${STRIPE_APP_TUNNEL_URL:-http://localhost:3002}
-      # API Base URL - used for webhook URLs in manifest
-      # CRITICAL: Must match the tunnel URL when using tunnels, otherwise webhook signature verification will fail
-      # Fallback order: tunnel URL -> localhost
-      APP_API_BASE_URL: ${STRIPE_APP_TUNNEL_URL:-http://localhost:3002}
-      # CRITICAL: Use development mode to skip static generation
-      # This prevents Next.js from trying to statically generate pages during build
-      # which causes Html import errors for /config/new route
+      APP_URL: ${STRIPE_APP_URL}
+      APP_API_BASE_URL: ${STRIPE_APP_API_BASE_URL}
       NODE_ENV: development
 
-      # App Encryption Key (CRITICAL: Different from Saleor's SECRET_KEY and STRIPE_SECRET_KEY)
-      # This is used to encrypt sensitive data in the app's database (configs, tokens, etc.)
-      # Must be 32 bytes (64 hex characters) for AES-256 encryption
-      # Generate with: openssl rand -hex 32
-      # Set APP_SECRET_KEY in .env to use a custom key
-      SECRET_KEY: ${APP_SECRET_KEY:-a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456}
+      # App Encryption Key - From .env
+      SECRET_KEY: ${APP_SECRET_KEY}
       MANIFEST_APP_ID: stripe
 
-      # PostgreSQL connection - uses the same postgres service as Saleor but different database
-      # The stripe_app database is created automatically by init-stripe-database.sh
-      # All data (configs, transactions, auth tokens) is stored in PostgreSQL
-      DATABASE_URL: postgres://saleor:saleor@postgres:5432/stripe_app
+      # PostgreSQL connection - From .env
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/stripe_app
 
       # Disable instrumentation features in development to avoid errors
       OTEL_ENABLED: "false"

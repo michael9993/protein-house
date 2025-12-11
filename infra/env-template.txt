@@ -1,0 +1,99 @@
+# ============================================================================
+# SALEOR PLATFORM - UNIFIED ENVIRONMENT CONFIGURATION
+# ============================================================================
+# Copy this content to infra/.env
+# All configuration is managed here - docker-compose reads from .env
+# ============================================================================
+
+# ============================================================================
+# SERVICE PORTS
+# ============================================================================
+POSTGRES_PORT=5432
+REDIS_PORT=6379
+SALEOR_API_PORT=8000
+DASHBOARD_PORT=9000
+STOREFRONT_PORT=3000
+STRIPE_APP_PORT=3002
+
+# ============================================================================
+# DATABASE CONFIGURATION
+# ============================================================================
+POSTGRES_USER=saleor
+POSTGRES_PASSWORD=saleor
+POSTGRES_DB=saleor
+
+# ============================================================================
+# SALEOR API CONFIGURATION
+# ============================================================================
+# Django Secret Key - Generate a random string (REQUIRED)
+# Generate with: openssl rand -hex 32
+SECRET_KEY=changeme-in-production-generate-random-string-here
+
+# Debug mode (True/False)
+DEBUG=True
+
+# Allowed hosts (comma-separated)
+ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,saleor-api
+
+# Allowed client hosts (comma-separated, includes ports)
+ALLOWED_CLIENT_HOSTS=localhost:3000,localhost:3002,localhost:9000,127.0.0.1:9000
+
+# CORS allowed origins (* for development, specific URLs for production)
+ALLOWED_GRAPHQL_ORIGINS=*
+
+# Public URL - Used for JWT token issuer URL
+PUBLIC_URL=http://localhost:8000
+
+# Email configuration
+EMAIL_URL=consolemail://
+
+# Timezone
+TIME_ZONE=UTC
+
+# Webhook secret key (optional)
+WEBHOOK_SECRET_KEY=
+
+# Redis URLs (internal Docker service names)
+REDIS_URL=redis://redis:6379/0
+CELERY_BROKER_URL=redis://redis:6379/1
+CELERY_RESULT_BACKEND=redis://redis:6379/2
+
+# ============================================================================
+# TUNNEL URLs (Optional - only if using tunnels)
+# ============================================================================
+# Uncomment and set these if you're using Cloudflare/ngrok tunnels
+# SALEOR_API_TUNNEL_URL=https://your-api-tunnel.trycloudflare.com
+# STRIPE_APP_TUNNEL_URL=https://your-stripe-app-tunnel.trycloudflare.com
+# DASHBOARD_TUNNEL_URL=https://your-dashboard-tunnel.trycloudflare.com
+# STOREFRONT_TUNNEL_URL=https://your-storefront-tunnel.trycloudflare.com
+
+# ============================================================================
+# DASHBOARD CONFIGURATION
+# ============================================================================
+API_URL=http://localhost:8000/graphql/
+VITE_API_URL=http://localhost:8000/graphql/
+APPS_MARKETPLACE_API_URL=
+EXTENSIONS_API_URL=
+APP_MOUNT_URI=/dashboard/
+STATIC_URL=/dashboard/
+
+# ============================================================================
+# STOREFRONT CONFIGURATION
+# ============================================================================
+NEXT_PUBLIC_SALEOR_API_URL=http://localhost:8000/graphql/
+SALEOR_API_URL=http://localhost:8000/graphql/
+NEXT_PUBLIC_STOREFRONT_URL=http://localhost:3000
+NEXT_PUBLIC_DEFAULT_CHANNEL=default-channel
+SALEOR_APP_TOKEN=
+
+# ============================================================================
+# STRIPE PAYMENT APP CONFIGURATION
+# ============================================================================
+STRIPE_PUBLISHABLE_KEY=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+APP_SECRET_KEY=a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456
+STRIPE_APP_TOKEN=
+STRIPE_APP_URL=http://localhost:3002
+STRIPE_APP_API_BASE_URL=http://localhost:3002
+

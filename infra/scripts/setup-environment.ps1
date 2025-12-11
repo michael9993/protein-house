@@ -244,20 +244,146 @@ STRIPE_APP_TUNNEL_URL=$($config["STRIPE_APP_TUNNEL_URL"])
     
     if (-not $config.ContainsKey("DASHBOARD_TUNNEL_URL") -and -not $config.ContainsKey("STOREFRONT_TUNNEL_URL")) {
         $envContent += "`n"
-    }"`n""`n"
+    }
+}
+
+# Set default ports if not configured
+if (-not $config.ContainsKey("POSTGRES_PORT")) { $config["POSTGRES_PORT"] = "5432" }
+if (-not $config.ContainsKey("REDIS_PORT")) { $config["REDIS_PORT"] = "6379" }
+if (-not $config.ContainsKey("SALEOR_API_PORT")) { $config["SALEOR_API_PORT"] = "8000" }
+if (-not $config.ContainsKey("DASHBOARD_PORT")) { $config["DASHBOARD_PORT"] = "9000" }
+if (-not $config.ContainsKey("STOREFRONT_PORT")) { $config["STOREFRONT_PORT"] = "3000" }
+if (-not $config.ContainsKey("STRIPE_APP_PORT")) { $config["STRIPE_APP_PORT"] = "3002" }
+
+# Set default database config if not configured
+if (-not $config.ContainsKey("POSTGRES_USER")) { $config["POSTGRES_USER"] = "saleor" }
+if (-not $config.ContainsKey("POSTGRES_PASSWORD")) { $config["POSTGRES_PASSWORD"] = "saleor" }
+if (-not $config.ContainsKey("POSTGRES_DB")) { $config["POSTGRES_DB"] = "saleor" }
+
+# Build URLs based on tunnel or localhost
+$apiUrl = if ($WithTunnels -and $config.ContainsKey("SALEOR_API_TUNNEL_URL")) {
+    "$($config["SALEOR_API_TUNNEL_URL"])/graphql/"
+}
+else {
+    "http://localhost:$($config["SALEOR_API_PORT"])/graphql/"
+}
+
+$publicUrl = if ($WithTunnels -and $config.ContainsKey("SALEOR_API_TUNNEL_URL")) {
+    $config["SALEOR_API_TUNNEL_URL"]
+}
+else {
+    "http://localhost:$($config["SALEOR_API_PORT"])"
+}
+
+$storefrontUrl = if ($WithTunnels -and $config.ContainsKey("STOREFRONT_TUNNEL_URL")) {
+    $config["STOREFRONT_TUNNEL_URL"]
+}
+else {
+    "http://localhost:$($config["STOREFRONT_PORT"])"
+}
+
+$stripeAppUrl = if ($WithTunnels -and $config.ContainsKey("STRIPE_APP_TUNNEL_URL")) {
+    $config["STRIPE_APP_TUNNEL_URL"]
+}
+else {
+    "http://localhost:$($config["STRIPE_APP_PORT"])"
+}
+
+# Build ALLOWED_CLIENT_HOSTS with ports
+$allowedClientHosts = "localhost:$($config["STOREFRONT_PORT"]),localhost:$($config["STRIPE_APP_PORT"]),localhost:$($config["DASHBOARD_PORT"]),127.0.0.1:$($config["DASHBOARD_PORT"])"
+if ($WithTunnels -and $config.ContainsKey("SALEOR_API_TUNNEL_URL")) {
+    $tunnelDomain = ([System.Uri]$config["SALEOR_API_TUNNEL_URL"]).Host
+    $allowedClientHosts += ",$tunnelDomain"
 }
 
 $envContent += @"
 # ============================================================================
-# STRIPE PAYMENT APP
+# SERVICE PORTS
+# ============================================================================
+POSTGRES_PORT=$($config["POSTGRES_PORT"])
+REDIS_PORT=$($config["REDIS_PORT"])
+SALEOR_API_PORT=$($config["SALEOR_API_PORT"])
+DASHBOARD_PORT=$($config["DASHBOARD_PORT"])
+STOREFRONT_PORT=$($config["STOREFRONT_PORT"])
+STRIPE_APP_PORT=$($config["STRIPE_APP_PORT"])
+
+# ============================================================================
+# DATABASE CONFIGURATION
+# ============================================================================
+POSTGRES_USER=$($config["POSTGRES_USER"])
+POSTGRES_PASSWORD=$($config["POSTGRES_PASSWORD"])
+POSTGRES_DB=$($config["POSTGRES_DB"])
+
+# ============================================================================
+# SALEOR API CONFIGURATION
+# ============================================================================
+SECRET_KEY=$($config["SECRET_KEY"])
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,saleor-api
+ALLOWED_CLIENT_HOSTS=$allowedClientHosts
+ALLOWED_GRAPHQL_ORIGINS=*
+PUBLIC_URL=$publicUrl
+EMAIL_URL=consolemail://
+TIME_ZONE=UTC
+WEBHOOK_SECRET_KEY=
+
+# Redis URLs
+REDIS_URL=redis://redis:6379/0
+CELERY_BROKER_URL=redis://redis:6379/1
+CELERY_RESULT_BACKEND=redis://redis:6379/2
+
+"@
+
+if ($WithTunnels) {
+    $envContent += @"
+# ============================================================================
+# TUNNEL URLs
+# ============================================================================
+SALEOR_API_TUNNEL_URL=$($config["SALEOR_API_TUNNEL_URL"])
+STRIPE_APP_TUNNEL_URL=$($config["STRIPE_APP_TUNNEL_URL"])
+
+"@
+    if ($config.ContainsKey("DASHBOARD_TUNNEL_URL")) {
+        $envContent += "DASHBOARD_TUNNEL_URL=$($config["DASHBOARD_TUNNEL_URL"])`n"
+    }
+    if ($config.ContainsKey("STOREFRONT_TUNNEL_URL")) {
+        $envContent += "STOREFRONT_TUNNEL_URL=$($config["STOREFRONT_TUNNEL_URL"])`n"
+    }
+    $envContent += "`n"
+}
+
+$envContent += @"
+# ============================================================================
+# DASHBOARD CONFIGURATION
+# ============================================================================
+API_URL=$apiUrl
+VITE_API_URL=$apiUrl
+APPS_MARKETPLACE_API_URL=
+EXTENSIONS_API_URL=
+APP_MOUNT_URI=/dashboard/
+STATIC_URL=/dashboard/
+
+# ============================================================================
+# STOREFRONT CONFIGURATION
+# ============================================================================
+NEXT_PUBLIC_SALEOR_API_URL=$apiUrl
+SALEOR_API_URL=$apiUrl
+NEXT_PUBLIC_STOREFRONT_URL=$storefrontUrl
+NEXT_PUBLIC_DEFAULT_CHANNEL=default-channel
+SALEOR_APP_TOKEN=
+
+# ============================================================================
+# STRIPE PAYMENT APP CONFIGURATION
 # ============================================================================
 STRIPE_PUBLISHABLE_KEY=$($config["STRIPE_PUBLISHABLE_KEY"])
 STRIPE_SECRET_KEY=$($config["STRIPE_SECRET_KEY"])
 STRIPE_WEBHOOK_SECRET=$($config["STRIPE_WEBHOOK_SECRET"])
 APP_SECRET_KEY=$($config["APP_SECRET_KEY"])
-
-# App token (set this after installing the app in Dashboard)
 STRIPE_APP_TOKEN=
+
+# Stripe App URLs (same as storefront for API, but different app URL)
+STRIPE_APP_URL=$stripeAppUrl
+STRIPE_APP_API_BASE_URL=$stripeAppUrl
 
 "@
 
@@ -293,40 +419,45 @@ if ($WithTunnels) {
 }
 
 Write-Host "3. Access your services:" -ForegroundColor White
+$apiPort = $config.GetValueOrDefault("SALEOR_API_PORT", "8000")
+$dashboardPort = $config.GetValueOrDefault("DASHBOARD_PORT", "9000")
+$storefrontPort = $config.GetValueOrDefault("STOREFRONT_PORT", "3000")
+$stripePort = $config.GetValueOrDefault("STRIPE_APP_PORT", "3002")
+
 if ($WithTunnels) {
     Write-Host "   Saleor API:  $($config["SALEOR_API_TUNNEL_URL"])/graphql/" -ForegroundColor Gray
     if ($config.ContainsKey("DASHBOARD_TUNNEL_URL")) {
         Write-Host "   Dashboard:   $($config["DASHBOARD_TUNNEL_URL"]) (tunnel)" -ForegroundColor Gray
-        Write-Host "              or http://localhost:9000 (local)" -ForegroundColor DarkGray
+        Write-Host "              or http://localhost:$dashboardPort (local)" -ForegroundColor DarkGray
     }
     else {
-        Write-Host "   Dashboard:   http://localhost:9000" -ForegroundColor Gray
+        Write-Host "   Dashboard:   http://localhost:$dashboardPort" -ForegroundColor Gray
     }
     if ($config.ContainsKey("STOREFRONT_TUNNEL_URL")) {
         Write-Host "   Storefront:  $($config["STOREFRONT_TUNNEL_URL"]) (tunnel)" -ForegroundColor Gray
-        Write-Host "              or http://localhost:3000 (local)" -ForegroundColor DarkGray
+        Write-Host "              or http://localhost:$storefrontPort (local)" -ForegroundColor DarkGray
     }
     else {
-        Write-Host "   Storefront:  http://localhost:3000" -ForegroundColor Gray
+        Write-Host "   Storefront:  http://localhost:$storefrontPort" -ForegroundColor Gray
     }
     Write-Host "   Stripe App:  $($config["STRIPE_APP_TUNNEL_URL"])" -ForegroundColor Gray
 }
 else {
-    Write-Host "   Saleor API:  http://localhost:8000/graphql/" -ForegroundColor Gray
-    Write-Host "   Dashboard:   http://localhost:9000" -ForegroundColor Gray
-    Write-Host "   Storefront:  http://localhost:3000" -ForegroundColor Gray
-    Write-Host "   Stripe App:  http://localhost:3002" -ForegroundColor Gray
+    Write-Host "   Saleor API:  http://localhost:$apiPort/graphql/" -ForegroundColor Gray
+    Write-Host "   Dashboard:   http://localhost:$dashboardPort" -ForegroundColor Gray
+    Write-Host "   Storefront:  http://localhost:$storefrontPort" -ForegroundColor Gray
+    Write-Host "   Stripe App:  http://localhost:$stripePort" -ForegroundColor Gray
 }
 Write-Host ""
 
 Write-Host "4. Install the Stripe app:" -ForegroundColor White
-Write-Host "   a. Open Dashboard at http://localhost:9000" -ForegroundColor Gray
+Write-Host "   a. Open Dashboard at http://localhost:$dashboardPort" -ForegroundColor Gray
 Write-Host "   b. Go to Apps > Install App" -ForegroundColor Gray
 if ($WithTunnels) {
     Write-Host "   c. Enter manifest URL: $($config["STRIPE_APP_TUNNEL_URL"])/api/manifest" -ForegroundColor Gray
 }
 else {
-    Write-Host "   c. Enter manifest URL: http://localhost:3002/api/manifest" -ForegroundColor Gray
+    Write-Host "   c. Enter manifest URL: http://localhost:$stripePort/api/manifest" -ForegroundColor Gray
 }
 Write-Host "   d. Copy the app token and add it to .env as STRIPE_APP_TOKEN" -ForegroundColor Gray
 Write-Host "   e. Restart Stripe app: docker compose -f docker-compose.dev.yml restart saleor-stripe-app" -ForegroundColor Gray
