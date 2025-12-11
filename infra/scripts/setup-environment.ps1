@@ -244,7 +244,7 @@ STRIPE_APP_TUNNEL_URL=$($config["STRIPE_APP_TUNNEL_URL"])
     
     if (-not $config.ContainsKey("DASHBOARD_TUNNEL_URL") -and -not $config.ContainsKey("STOREFRONT_TUNNEL_URL")) {
         $envContent += "`n"
-    }"`n"
+    }"`n""`n"
 }
 
 $envContent += @"
