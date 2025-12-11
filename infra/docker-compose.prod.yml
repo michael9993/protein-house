@@ -1,0 +1,256 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: saleor-postgres-prod
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-saleor}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-saleor}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      # Script to create additional database for Stripe app
+      - ./scripts/init-stripe-database.sh:/docker-entrypoint-initdb.d/01-init-stripe-database.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-saleor}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - saleor-network
+    restart: always
+    # Security: Run as non-root user
+    user: "999:999"
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+
+  redis:
+    image: redis:7-alpine
+    container_name: saleor-redis-prod
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - saleor-network
+    restart: always
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+  saleor-api:
+    image: saleor/saleor:latest
+    container_name: saleor-api-prod
+    command: gunicorn saleor.wsgi:application --bind 0.0.0.0:8000 --workers 4 --threads 2 --timeout 60 --access-logfile - --error-logfile - --log-level info
+    environment:
+      # Core Settings
+      SECRET_KEY: ${SECRET_KEY}
+      DEBUG: "False"
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      ALLOWED_CLIENT_HOSTS: ${ALLOWED_CLIENT_HOSTS}
+
+      # Database
+      DATABASE_URL: postgres://${POSTGRES_USER:-saleor}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-saleor}
+
+      # Redis
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+
+      # Media Files
+      MEDIA_ROOT: /app/media
+      MEDIA_URL: ${MEDIA_URL:-/media/}
+
+      # Email
+      EMAIL_URL: ${EMAIL_URL}
+
+      # Celery
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD}@redis:6379/1
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD}@redis:6379/2
+
+      # Webhooks
+      WEBHOOK_SECRET_KEY: ${WEBHOOK_SECRET_KEY}
+
+      # Timezone
+      TIME_ZONE: ${TIME_ZONE:-UTC}
+
+      # Security
+      GRAPHQL_PLAYGROUND_ENABLED: "False"
+      SESSION_COOKIE_SECURE: "True"
+      CSRF_COOKIE_SECURE: "True"
+      SECURE_SSL_REDIRECT: "False" # Let Nginx handle this
+
+      # Performance
+      CACHE_URL: redis://:${REDIS_PASSWORD}@redis:6379/3
+    volumes:
+      - saleor-media:/app/media
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - saleor-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/graphql/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: "4"
+          memory: 4G
+        reservations:
+          cpus: "1"
+          memory: 1G
+
+  saleor-worker:
+    image: saleor/saleor:latest
+    container_name: saleor-worker-prod
+    command: celery -A saleor worker --app=saleor.celeryconf:app --loglevel=info --concurrency=4 --max-tasks-per-child=1000
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      DATABASE_URL: postgres://${POSTGRES_USER:-saleor}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-saleor}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD}@redis:6379/1
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD}@redis:6379/2
+      EMAIL_URL: ${EMAIL_URL}
+      TIME_ZONE: ${TIME_ZONE:-UTC}
+    volumes:
+      - saleor-media:/app/media
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      saleor-api:
+        condition: service_healthy
+    networks:
+      - saleor-network
+    restart: always
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+
+  saleor-scheduler:
+    image: saleor/saleor:latest
+    container_name: saleor-scheduler-prod
+    command: celery -A saleor beat --app=saleor.celeryconf:app --loglevel=info
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      DATABASE_URL: postgres://${POSTGRES_USER:-saleor}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-saleor}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD}@redis:6379/1
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD}@redis:6379/2
+      TIME_ZONE: ${TIME_ZONE:-UTC}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      saleor-api:
+        condition: service_healthy
+    networks:
+      - saleor-network
+    restart: always
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 128M
+
+  saleor-stripe-app:
+    build:
+      context: ../apps
+      dockerfile: apps/stripe/Dockerfile
+    container_name: saleor-stripe-app-prod
+    command: sh -c "cd apps/stripe && pnpm install && pnpm setup-postgres && pnpm start"
+    volumes:
+      - ../apps:/app
+    environment:
+      # Saleor API connection
+      SALEOR_API_URL: http://saleor-api:8000/graphql/
+      NEXT_PUBLIC_SALEOR_API_URL: ${STRIPE_APP_PUBLIC_URL:-https://your-domain.com/graphql/}
+
+      # Stripe API keys (set via environment variables)
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+
+      # App configuration
+      APP_ID: stripe
+      APP_NAME: Stripe
+      APP_ENV: production
+      APP_URL: ${STRIPE_APP_URL}
+      NODE_ENV: production
+
+      # Required by Stripe app
+      SECRET_KEY: ${STRIPE_APP_SECRET_KEY}
+      MANIFEST_APP_ID: stripe
+
+      # PostgreSQL connection - uses the same postgres service as Saleor but different database
+      # All data (configs, transactions, auth tokens) is stored in PostgreSQL
+      DATABASE_URL: postgres://${POSTGRES_USER:-saleor}:${POSTGRES_PASSWORD}@postgres:5432/stripe_app
+
+      # Instrumentation
+      OTEL_ENABLED: ${OTEL_ENABLED:-false}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      saleor-api:
+        condition: service_healthy
+    networks:
+      - saleor-network
+    restart: always
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  saleor-media:
+    driver: local
+
+networks:
+  saleor-network:
+    driver: bridge

@@ -1,0 +1,15 @@
+# Stripe App Configuration
+# Copy these to your .env file or add directly to docker-compose.dev.yml environment section
+
+# Stripe App Token (get from Saleor Dashboard -> Apps -> Create App)
+STRIPE_APP_TOKEN=
+
+# Your Stripe API Keys
+STRIPE_PUBLISHABLE_KEY=pk_test_51SbW3vRSxEtO1KfpqhsltJmFB7nzWVmCMR92tD7weRQ3OS0vyHWY8albZ5ADoUhhz2D9TIDVfvcZ7WGDJXdW3grG00x2nFVujr
+STRIPE_SECRET_KEY=sk_test_51SbW3vRSxEtO1Kfp8lvBmDfIDZiBvqUGYBdVeIUF5h06gRhSnW0id5XWPeBqNYKdoIiEDBCLP96XLK8PQMaU4GFR00IkOnDtc0
+
+# Stripe Webhook Secret (get from Stripe CLI - see instructions below)
+# Run: stripe listen --forward-to http://localhost:3001/api/webhooks/stripe
+# Copy the whsec_... value that appears
+STRIPE_WEBHOOK_SECRET=
+

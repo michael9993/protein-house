@@ -1,0 +1,5 @@
+# This directory is for custom Saleor plugins
+# Create your plugins here, e.g.:
+# backend/plugins/my_plugin/__init__.py
+# backend/plugins/my_plugin/plugin.py
+

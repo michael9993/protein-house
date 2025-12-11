@@ -1,0 +1,178 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+!.env.template
+!.env.*.example
+*.env
+!*.env.example
+!*.env.template
+
+# Infra directory - explicit exclusions
+infra/.env
+infra/.env.*
+infra/.env.backup
+!infra/.env.example
+!infra/.env.template
+
+# All .env files except examples and templates
+**/.env.local
+**/.env.development
+**/.env.production
+**/.env.backup
+**/.env
+!**/.env.example
+!**/.env.template
+!**/.env.*.example
+!**/.env.*.template
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+venv/
+ENV/
+env/
+.venv
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-store/
+.pnpm-debug.log*
+
+# Next.js
+.next/
+out/
+build/
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+.jest/
+
+# Docker
+docker-compose.override.yml
+*.dockerignore
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+postgres-data/
+redis-data/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.backup
+*.old
+
+# OS files
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# TypeScript
+*.tsbuildinfo
+
+# Secrets and credentials
+secrets/
+*.pem
+*.key
+*.cert
+*.p12
+*.pfx
+credentials.json
+service-account.json
+
+# Stripe
+stripe-secret-key.txt
+stripe-webhook-secret.txt
+
+# Saleor specific
+saleor/media/
+saleor/staticfiles/
+saleor/.coverage
+saleor/htmlcov/
+
+# Apps specific
+apps/.next/
+apps/node_modules/
+apps/.pnpm-store/
+
+# Dashboard specific
+dashboard/.next/
+dashboard/node_modules/
+dashboard/.pnpm-store/
+dashboard/dist/
+
+# Storefront specific
+storefront/.next/
+storefront/node_modules/
+storefront/.pnpm-store/
+storefront/.vercel
+
+# Backup folders
+*-backup/
+backup/
+backups/
+
+# PowerShell scripts output
+*.ps1.log
+
+# Tunnel URLs (may contain sensitive info)
+*-tunnel-url.txt
+tunnel-urls.txt
+

@@ -1,0 +1,10 @@
+HTTP/1.1 400 Bad Request
+Date: Sat, 06 Dec 2025 20:15:21 GMT
+Server: WSGIServer/0.2 CPython/3.12.12
+Content-Type: application/json
+Content-Length: 115
+X-Content-Type-Options: nosniff
+Referrer-Policy: same-origin
+Cross-Origin-Opener-Policy: same-origin
+
+{"errors": [{"message": "Unable to parse query.", "extensions": {"exception": {"code": "str", "stacktrace": []}}}]}
