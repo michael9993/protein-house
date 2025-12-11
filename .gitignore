@@ -176,3 +176,8 @@ backups/
 *-tunnel-url.txt
 tunnel-urls.txt
 
+
+# Ignore submodules
+apps/
+saleor/
+storefront/
