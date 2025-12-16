@@ -1,4 +1,5 @@
 import { ButtonLink } from "@dashboard/components/ButtonLink";
+import { iconSize, iconStrokeWidth } from "@dashboard/components/icons";
 import { TransactionActionEnum } from "@dashboard/graphql";
 import { Box, Button, Text } from "@saleor/macaw-ui-next";
 import { ExternalLink } from "lucide-react";
@@ -15,6 +16,7 @@ interface CardTitleProps {
   transaction: ExtendedOrderTransaction;
   onTransactionAction: OrderTransactionProps["onTransactionAction"];
   showActions?: boolean;
+  disabled?: boolean;
 }
 
 const TransactionTitle = ({
@@ -53,6 +55,7 @@ export const OrderTransactionCardTitle = ({
   transaction,
   onTransactionAction,
   showActions = true,
+  disabled = false,
 }: CardTitleProps) => {
   const intl = useIntl();
 
@@ -83,7 +86,7 @@ export const OrderTransactionCardTitle = ({
           size="large"
           __flex={1}
         >
-          <ExternalLink size="small" />
+          <ExternalLink size={iconSize.small} strokeWidth={iconStrokeWidth} />
 
           <TransactionTitle transaction={transaction} index={index} />
         </ButtonLink>
@@ -145,6 +148,7 @@ export const OrderTransactionCardTitle = ({
                 <Button
                   variant="secondary"
                   onClick={() => onTransactionAction(transaction.id, action)}
+                  disabled={disabled}
                 >
                   <FormattedMessage {...mapActionToMessage[action]} />
                 </Button>

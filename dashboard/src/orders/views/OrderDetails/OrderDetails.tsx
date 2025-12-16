@@ -2,7 +2,9 @@
 import { useApolloClient } from "@apollo/client";
 import { MetadataIdSchema } from "@dashboard/components/Metadata";
 import NotFoundPage from "@dashboard/components/NotFoundPage";
+import { SaleorThrobber } from "@dashboard/components/Throbber/SaleorThrobber";
 import { Task } from "@dashboard/containers/BackgroundTasks/types";
+import { useState } from "react";
 import {
   JobStatusEnum,
   OrderDetailsWithMetadataDocument,
@@ -60,7 +62,8 @@ const OrderDetails = ({ id, params }: OrderDetailsProps) => {
     },
   });
 
-  const { data, loading } = useOrderDetails(id);
+  const { data, loading, refetch, isRefetching } = useOrderDetails(id);
+  const [isCapturing, setIsCapturing] = useState(false);
 
   const order = data?.order;
 
@@ -100,7 +103,14 @@ const OrderDetails = ({ id, params }: OrderDetailsProps) => {
   };
 
   return (
-    <OrderDetailsMessages id={id} params={params}>
+    <OrderDetailsMessages
+      id={id}
+      params={params}
+      refetchOrder={refetch}
+      isRefetching={isRefetching}
+      isCapturing={isCapturing}
+      setIsCapturing={setIsCapturing}
+    >
       {orderMessages => (
         <OrderOperations
           order={id}
@@ -138,6 +148,7 @@ const OrderDetails = ({ id, params }: OrderDetailsProps) => {
             }
           }}
           onInvoiceSend={orderMessages.handleInvoiceSend}
+          onInvoiceDelete={orderMessages.handleInvoiceDelete}
           onTransactionActionSend={orderMessages.handleTransactionAction}
           onManualTransactionAdded={async data => {
             await apolloClient.refetchQueries({
@@ -166,88 +177,150 @@ const OrderDetails = ({ id, params }: OrderDetailsProps) => {
             orderPaymentMarkAsPaid,
             orderInvoiceRequest,
             orderInvoiceSend,
+            orderInvoiceDelete,
             orderTransactionAction,
             orderAddManualTransaction,
-          }) => (
-            <>
-              {!isOrderDraft && !isOrderUnconfirmed && (
-                <OrderNormalDetails
-                  id={id}
-                  params={params}
-                  loading={loading}
-                  data={data}
-                  orderAddNote={orderAddNote}
-                  orderUpdateNote={orderUpdateNote}
-                  orderInvoiceRequest={orderInvoiceRequest}
-                  handleSubmit={handleSubmit}
-                  orderUpdate={orderUpdate}
-                  orderCancel={orderCancel}
-                  orderPaymentMarkAsPaid={orderPaymentMarkAsPaid}
-                  orderVoid={orderVoid}
-                  orderPaymentCapture={orderPaymentCapture}
-                  orderFulfillmentApprove={orderFulfillmentApprove}
-                  orderFulfillmentCancel={orderFulfillmentCancel}
-                  orderFulfillmentUpdateTracking={orderFulfillmentUpdateTracking}
-                  orderInvoiceSend={orderInvoiceSend}
-                  orderTransactionAction={orderTransactionAction}
-                  orderAddManualTransaction={orderAddManualTransaction}
-                  updateMetadataOpts={updateMetadataOpts}
-                  updatePrivateMetadataOpts={updatePrivateMetadataOpts}
-                  openModal={openModal}
-                  closeModal={closeModal}
-                />
-              )}
-              {isOrderDraft && (
-                <OrderDraftDetails
-                  id={id}
-                  params={params}
-                  loading={loading}
-                  data={data}
-                  orderAddNote={orderAddNote}
-                  orderUpdateNote={orderUpdateNote}
-                  orderLineUpdate={orderLineUpdate}
-                  orderLineDelete={orderLineDelete}
-                  orderShippingMethodUpdate={orderShippingMethodUpdate}
-                  orderLinesAdd={orderLinesAdd}
-                  orderDraftUpdate={orderDraftUpdate}
-                  orderDraftCancel={orderDraftCancel}
-                  orderDraftFinalize={orderDraftFinalize}
-                  openModal={openModal}
-                  closeModal={closeModal}
-                />
-              )}
-              {isOrderUnconfirmed && (
-                <OrderUnconfirmedDetails
-                  id={id}
-                  params={params}
-                  data={data}
-                  orderAddNote={orderAddNote}
-                  orderUpdateNote={orderUpdateNote}
-                  orderLineUpdate={orderLineUpdate}
-                  orderLineDelete={orderLineDelete}
-                  orderInvoiceRequest={orderInvoiceRequest}
-                  handleSubmit={handleSubmit}
-                  orderUpdate={orderUpdate}
-                  orderCancel={orderCancel}
-                  orderShippingMethodUpdate={orderShippingMethodUpdate}
-                  orderLinesAdd={orderLinesAdd}
-                  orderPaymentMarkAsPaid={orderPaymentMarkAsPaid}
-                  orderVoid={orderVoid}
-                  orderPaymentCapture={orderPaymentCapture}
-                  orderFulfillmentApprove={orderFulfillmentApprove}
-                  orderFulfillmentCancel={orderFulfillmentCancel}
-                  orderFulfillmentUpdateTracking={orderFulfillmentUpdateTracking}
-                  orderInvoiceSend={orderInvoiceSend}
-                  updateMetadataOpts={updateMetadataOpts}
-                  updatePrivateMetadataOpts={updatePrivateMetadataOpts}
-                  orderTransactionAction={orderTransactionAction}
-                  orderAddManualTransaction={orderAddManualTransaction}
-                  openModal={openModal}
-                  closeModal={closeModal}
-                />
-              )}
-            </>
-          )}
+          }) => {
+            // Show spinner when capturing (mutation loading) or refetching after capture
+            const showSpinner = isCapturing || orderPaymentCapture.opts.loading || isRefetching;
+
+            return (
+              <>
+                {/* Spinner overlay when capturing payment */}
+                {showSpinner && (
+                  <div
+                    style={{
+                      position: "fixed",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      backgroundColor: "rgba(0, 0, 0, 0.5)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      zIndex: 9999,
+                      cursor: "wait",
+                    }}
+                    data-test-id="payment-capture-spinner-overlay"
+                  >
+                    <div
+                      style={{
+                        backgroundColor: "white",
+                        borderRadius: "8px",
+                        padding: "24px",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: "16px",
+                        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                      }}
+                    >
+                      <SaleorThrobber size={48} />
+                      <span
+                        style={{
+                          fontSize: "14px",
+                          fontWeight: 500,
+                          color: "#333",
+                        }}
+                      >
+                        {intl.formatMessage({
+                          id: "paymentCaptureLoading",
+                          defaultMessage: "Capturing payment and refreshing order details...",
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {!isOrderDraft && !isOrderUnconfirmed && (
+                  <OrderNormalDetails
+                    id={id}
+                    params={params}
+                    loading={loading}
+                    data={data}
+                    orderAddNote={orderAddNote}
+                    orderUpdateNote={orderUpdateNote}
+                    orderInvoiceRequest={orderInvoiceRequest}
+                    handleSubmit={handleSubmit}
+                    orderUpdate={orderUpdate}
+                    orderCancel={orderCancel}
+                    orderPaymentMarkAsPaid={orderPaymentMarkAsPaid}
+                    orderVoid={orderVoid}
+                    orderPaymentCapture={orderPaymentCapture}
+                    orderFulfillmentApprove={orderFulfillmentApprove}
+                    orderFulfillmentCancel={orderFulfillmentCancel}
+                    orderFulfillmentUpdateTracking={orderFulfillmentUpdateTracking}
+                    orderInvoiceSend={orderInvoiceSend}
+                    orderInvoiceDelete={orderInvoiceDelete}
+                    orderTransactionAction={orderTransactionAction}
+                    orderAddManualTransaction={orderAddManualTransaction}
+                    updateMetadataOpts={updateMetadataOpts}
+                    updatePrivateMetadataOpts={updatePrivateMetadataOpts}
+                    openModal={openModal}
+                    closeModal={closeModal}
+                    isRefetching={isRefetching}
+                    refetchOrder={orderMessages.refetchOrder}
+                    isCapturing={isCapturing}
+                    setIsCapturing={setIsCapturing}
+                  />
+                )}
+                {isOrderDraft && (
+                  <OrderDraftDetails
+                    id={id}
+                    params={params}
+                    loading={loading}
+                    data={data}
+                    orderAddNote={orderAddNote}
+                    orderUpdateNote={orderUpdateNote}
+                    orderLineUpdate={orderLineUpdate}
+                    orderLineDelete={orderLineDelete}
+                    orderShippingMethodUpdate={orderShippingMethodUpdate}
+                    orderLinesAdd={orderLinesAdd}
+                    orderDraftUpdate={orderDraftUpdate}
+                    orderDraftCancel={orderDraftCancel}
+                    orderDraftFinalize={orderDraftFinalize}
+                    openModal={openModal}
+                    closeModal={closeModal}
+                  />
+                )}
+                {isOrderUnconfirmed && (
+                  <OrderUnconfirmedDetails
+                    id={id}
+                    params={params}
+                    data={data}
+                    orderAddNote={orderAddNote}
+                    orderUpdateNote={orderUpdateNote}
+                    orderLineUpdate={orderLineUpdate}
+                    orderLineDelete={orderLineDelete}
+                    orderInvoiceRequest={orderInvoiceRequest}
+                    handleSubmit={handleSubmit}
+                    orderUpdate={orderUpdate}
+                    orderCancel={orderCancel}
+                    orderShippingMethodUpdate={orderShippingMethodUpdate}
+                    orderLinesAdd={orderLinesAdd}
+                    orderPaymentMarkAsPaid={orderPaymentMarkAsPaid}
+                    orderVoid={orderVoid}
+                    orderPaymentCapture={orderPaymentCapture}
+                    orderFulfillmentApprove={orderFulfillmentApprove}
+                    orderFulfillmentCancel={orderFulfillmentCancel}
+                    orderFulfillmentUpdateTracking={orderFulfillmentUpdateTracking}
+                    orderInvoiceSend={orderInvoiceSend}
+                    orderInvoiceDelete={orderInvoiceDelete}
+                    updateMetadataOpts={updateMetadataOpts}
+                    updatePrivateMetadataOpts={updatePrivateMetadataOpts}
+                    orderTransactionAction={orderTransactionAction}
+                    orderAddManualTransaction={orderAddManualTransaction}
+                    openModal={openModal}
+                    closeModal={closeModal}
+                    isRefetching={isRefetching}
+                    refetchOrder={orderMessages.refetchOrder}
+                    isCapturing={isCapturing}
+                    setIsCapturing={setIsCapturing}
+                  />
+                )}
+              </>
+            );
+          }}
         </OrderOperations>
       )}
     </OrderDetailsMessages>

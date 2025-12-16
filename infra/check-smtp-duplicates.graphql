@@ -1,0 +1,72 @@
+# Check for Duplicate SMTP Configurations and Webhooks
+# Run this in your GraphQL Playground or API
+
+query CheckSMTPDuplicates {
+  # Check all app installations
+  apps(first: 100) {
+    edges {
+      node {
+        id
+        name
+        isActive
+        
+        # Check webhooks for each app
+        webhooks {
+          id
+          name
+          targetUrl
+          isActive
+          
+          # Check async events (ORDER_CREATED, ORDER_FULFILLED, etc.)
+          asyncEvents {
+            eventType
+          }
+          
+          # Check sync events (if any)
+          syncEvents {
+            eventType
+          }
+        }
+      }
+    }
+  }
+}
+
+# ============================================================================
+# WHAT TO LOOK FOR:
+# ============================================================================
+# 
+# 1. SMTP APP DUPLICATES:
+#    - Look for multiple apps with name containing "SMTP"
+#    - Check if more than one is isActive: true
+#
+# 2. WEBHOOK DUPLICATES:
+#    - For the SMTP app, check webhooks array
+#    - Look for multiple webhooks with same eventType
+#    - Example: Two webhooks both handling ORDER_CREATED
+#
+# 3. DUPLICATE TARGET URLS:
+#    - Check if multiple webhooks point to the same targetUrl
+#    - Example: https://your-tunnel.trycloudflare.com/api/webhooks/order-created
+#
+# ============================================================================
+# HOW TO FIX DUPLICATES:
+# ============================================================================
+#
+# If you find duplicate webhooks, delete them with:
+#
+# mutation DeleteDuplicateWebhook {
+#   webhookDelete(id: "WEBHOOK_ID_HERE") {
+#     webhookErrors {
+#       field
+#       message
+#       code
+#     }
+#   }
+# }
+#
+# Replace WEBHOOK_ID_HERE with the actual webhook ID from the query results
+# Keep only ONE webhook for each event type per app
+#
+# ============================================================================
+

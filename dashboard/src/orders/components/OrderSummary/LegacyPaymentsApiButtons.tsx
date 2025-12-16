@@ -12,6 +12,8 @@ type Props = {
   onLegacyPaymentsApiCapture?: () => any;
   onLegacyPaymentsApiRefund?: () => any;
   onLegacyPaymentsApiVoid?: () => any;
+  isRefetching?: boolean;
+  isCapturing?: boolean;
 };
 
 export const LegacyPaymentsApiButtons = ({
@@ -24,6 +26,8 @@ export const LegacyPaymentsApiButtons = ({
   onLegacyPaymentsApiCapture,
   onLegacyPaymentsApiRefund,
   onLegacyPaymentsApiVoid,
+  isRefetching = false,
+  isCapturing = false,
 }: Props) => {
   const intl = useIntl();
 
@@ -33,7 +37,11 @@ export const LegacyPaymentsApiButtons = ({
         (canCapture || canRefund || canVoid || canMarkAsPaid) && (
           <>
             {canCapture && (
-              <Button variant="secondary" onClick={onLegacyPaymentsApiCapture}>
+              <Button
+                variant="secondary"
+                onClick={onLegacyPaymentsApiCapture}
+                disabled={isRefetching || isCapturing}
+              >
                 {intl.formatMessage({
                   defaultMessage: "Capture",
                   id: "+9HL0i",

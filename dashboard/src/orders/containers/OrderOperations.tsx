@@ -1,6 +1,8 @@
 import {
   CreateManualTransactionCaptureMutation,
   CreateManualTransactionCaptureMutationVariables,
+  InvoiceDeleteMutation,
+  InvoiceDeleteMutationVariables,
   InvoiceEmailSendMutation,
   InvoiceEmailSendMutationVariables,
   InvoiceRequestMutation,
@@ -42,6 +44,7 @@ import {
   OrderVoidMutation,
   OrderVoidMutationVariables,
   useCreateManualTransactionCaptureMutation,
+  useInvoiceDeleteMutation,
   useInvoiceEmailSendMutation,
   useInvoiceRequestMutation,
   useOrderCancelMutation,
@@ -138,6 +141,10 @@ interface OrderOperationsProps {
       InvoiceEmailSendMutation,
       InvoiceEmailSendMutationVariables
     >;
+    orderInvoiceDelete: PartialMutationProviderOutput<
+      InvoiceDeleteMutation,
+      InvoiceDeleteMutationVariables
+    >;
     orderTransactionAction: PartialMutationProviderOutput<
       OrderTransactionRequestActionMutation,
       OrderTransactionRequestActionMutationVariables
@@ -166,6 +173,7 @@ interface OrderOperationsProps {
   onOrderLineUpdate: (data: OrderLineUpdateMutation) => void;
   onInvoiceRequest: (data: InvoiceRequestMutation) => void;
   onInvoiceSend: (data: InvoiceEmailSendMutation) => void;
+  onInvoiceDelete: (data: InvoiceDeleteMutation) => void;
   onTransactionActionSend: (data: OrderTransactionRequestActionMutation) => void;
   onManualTransactionAdded: (data: CreateManualTransactionCaptureMutation) => void;
 }
@@ -191,6 +199,7 @@ const OrderOperations = ({
   onOrderMarkAsPaid,
   onInvoiceRequest,
   onInvoiceSend,
+  onInvoiceDelete,
   onTransactionActionSend,
   onManualTransactionAdded,
 }: OrderOperationsProps) => {
@@ -252,6 +261,9 @@ const OrderOperations = ({
   const invoiceEmailSend = useInvoiceEmailSendMutation({
     onCompleted: onInvoiceSend,
   });
+  const invoiceDelete = useInvoiceDeleteMutation({
+    onCompleted: onInvoiceDelete,
+  });
   const transactionActionSend = useOrderTransactionRequestActionMutation({
     onCompleted: onTransactionActionSend,
   });
@@ -273,6 +285,7 @@ const OrderOperations = ({
         orderFulfillmentUpdateTracking: getMutationProviderData(...updateTrackingNumber),
         orderInvoiceRequest: getMutationProviderData(...invoiceRequest),
         orderInvoiceSend: getMutationProviderData(...invoiceEmailSend),
+        orderInvoiceDelete: getMutationProviderData(...invoiceDelete),
         orderLineDelete: getMutationProviderData(...deleteOrderLine),
         orderLineUpdate: getMutationProviderData(...updateOrderLine),
         orderLinesAdd: getMutationProviderData(...addOrderLine),

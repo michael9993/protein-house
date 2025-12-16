@@ -99,10 +99,15 @@ interface OrderUnconfirmedDetailsProps {
     CreateManualTransactionCaptureMutationVariables
   >;
   orderInvoiceSend: any;
+  orderInvoiceDelete: any;
   updateMetadataOpts: any;
   updatePrivateMetadataOpts: any;
   openModal: any;
   closeModal: any;
+  isRefetching?: boolean;
+  refetchOrder?: () => void;
+  isCapturing?: boolean;
+  setIsCapturing?: (value: boolean) => void;
 }
 
 export const OrderUnconfirmedDetails = ({
@@ -126,13 +131,25 @@ export const OrderUnconfirmedDetails = ({
   orderFulfillmentCancel,
   orderFulfillmentUpdateTracking,
   orderInvoiceSend,
+  orderInvoiceDelete,
   updateMetadataOpts,
   updatePrivateMetadataOpts,
   orderTransactionAction,
   orderAddManualTransaction,
   openModal,
   closeModal,
+  isRefetching = false,
+  refetchOrder,
+  isCapturing: isCapturingProp = false,
+  setIsCapturing: setIsCapturingProp,
 }: OrderUnconfirmedDetailsProps) => {
+  // Use prop if provided, otherwise use local state
+  const [localIsCapturing, setLocalIsCapturing] = useState(false);
+  const isCapturing = setIsCapturingProp !== undefined ? isCapturingProp : localIsCapturing;
+  const setIsCapturing =
+    setIsCapturingProp !== undefined
+      ? setIsCapturingProp
+      : (value: boolean) => setLocalIsCapturing(value);
   const order = data.order;
   const shop = data.shop;
   const navigate = useNavigator();
@@ -290,8 +307,15 @@ export const OrderUnconfirmedDetails = ({
               })
             }
             onInvoiceSend={id => openModal("invoice-send", { id })}
+            onInvoiceDelete={id =>
+              orderInvoiceDelete.mutate({
+                id,
+              })
+            }
             onRefundAdd={() => openModal("add-refund")}
             onSubmit={handleSubmit}
+            isRefetching={isRefetching}
+            isCapturing={isCapturing}
           />
         </OrderLineDiscountProvider>
       </OrderDiscountProvider>
@@ -397,17 +421,26 @@ export const OrderUnconfirmedDetails = ({
         onConfirm={() => orderVoid.mutate({ id })}
       />
       <OrderPaymentDialog
-        confirmButtonState={orderPaymentCapture.opts.status}
+        confirmButtonState={isCapturing ? "loading" : orderPaymentCapture.opts.status}
         errors={orderPaymentCapture.opts.data?.orderCapture.errors || []}
         initial={order?.total.gross.amount}
         open={params.action === "capture"}
         onClose={closeModal}
-        onSubmit={variables =>
-          orderPaymentCapture.mutate({
-            ...variables,
-            id,
-          })
-        }
+        onSubmit={async variables => {
+          setIsCapturing(true);
+          try {
+            const result = await orderPaymentCapture.mutate({
+              ...variables,
+              id,
+            });
+            // If capture was successful, refetch order details
+            if (result?.data?.orderCapture?.errors?.length === 0 && refetchOrder) {
+              await refetchOrder();
+            }
+          } finally {
+            setIsCapturing(false);
+          }
+        }}
       />
       <OrderFulfillmentApproveDialog
         confirmButtonState={orderFulfillmentApprove.opts.status}

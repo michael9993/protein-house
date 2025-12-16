@@ -8,6 +8,7 @@ import { buttonMessages } from "@dashboard/intl";
 import { TableBody, TableCell } from "@material-ui/core";
 import { makeStyles } from "@saleor/macaw-ui";
 import { Button, Skeleton, Text } from "@saleor/macaw-ui-next";
+import { Trash2Icon } from "lucide-react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 const useStyles = makeStyles(
@@ -42,10 +43,11 @@ interface OrderInvoiceListProps {
   onInvoiceGenerate: () => void;
   onInvoiceClick: (invoiceId: string) => void;
   onInvoiceSend: (invoiceId: string) => void;
+  onInvoiceDelete?: (invoiceId: string) => void;
 }
 
 const OrderInvoiceList = (props: OrderInvoiceListProps) => {
-  const { invoices, onInvoiceGenerate, onInvoiceClick, onInvoiceSend } = props;
+  const { invoices, onInvoiceGenerate, onInvoiceClick, onInvoiceSend, onInvoiceDelete } = props;
   const classes = useStyles(props);
   const intl = useIntl();
   const generatedInvoices = invoices?.filter(invoice => invoice.status === "SUCCESS");
@@ -88,20 +90,30 @@ const OrderInvoiceList = (props: OrderInvoiceListProps) => {
                     className={onInvoiceClick ? classes.colNumberClickable : classes.colNumber}
                     onClick={() => onInvoiceClick(invoice.id)}
                   >
-                    <FormattedMessage
-                      id="m6IBe5"
-                      defaultMessage="Invoice"
-                      description="invoice number prefix"
-                    />{" "}
-                    {invoice.number}
-                    <Text size={2} fontWeight="light">
-                      <FormattedMessage
-                        id="F0AXNs"
-                        defaultMessage="created"
-                        description="invoice create date prefix"
-                      />{" "}
-                      <Date date={invoice.createdAt} plain />
-                    </Text>
+                    <div>
+                      <Text fontWeight="medium">
+                        <FormattedMessage
+                          id="m6IBe5"
+                          defaultMessage="Invoice"
+                          description="invoice number prefix"
+                        />{" "}
+                        {invoice.number}
+                      </Text>
+                      <Text
+                        size={2}
+                        fontWeight="light"
+                        color="default2"
+                        display="block"
+                        marginTop={1}
+                      >
+                        <FormattedMessage
+                          id="F0AXNs"
+                          defaultMessage="created"
+                          description="invoice create date prefix"
+                        />{" "}
+                        <Date date={invoice.createdAt} plain format="lll" />
+                      </Text>
+                    </div>
                   </TableCell>
                   {onInvoiceSend && (
                     <TableCell
@@ -110,6 +122,19 @@ const OrderInvoiceList = (props: OrderInvoiceListProps) => {
                     >
                       <Button>
                         <FormattedMessage {...buttonMessages.send} />
+                      </Button>
+                    </TableCell>
+                  )}
+                  {onInvoiceDelete && generatedInvoices.length > 1 && (
+                    <TableCell
+                      className={classes.colAction}
+                      onClick={e => {
+                        e.stopPropagation();
+                        onInvoiceDelete(invoice.id);
+                      }}
+                    >
+                      <Button variant="error">
+                        <Trash2Icon size={16} />
                       </Button>
                     </TableCell>
                   )}

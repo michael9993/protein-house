@@ -4,6 +4,7 @@ import { formatMoney } from "@dashboard/components/Money";
 import messages from "@dashboard/containers/BackgroundTasks/messages";
 import {
   CreateManualTransactionCaptureMutation,
+  InvoiceDeleteMutation,
   InvoiceEmailSendMutation,
   InvoiceRequestMutation,
   OrderCancelMutation,
@@ -64,14 +65,31 @@ interface OrderDetailsMessages {
     handleInvoiceGeneratePending: (data: InvoiceRequestMutation) => void;
     handleInvoiceGenerateFinished: (data: InvoiceRequestMutation) => void;
     handleInvoiceSend: (data: InvoiceEmailSendMutation) => void;
+    handleInvoiceDelete: (data: InvoiceDeleteMutation) => void;
     handleTransactionAction: (data: OrderTransactionRequestActionMutation) => void;
     handleAddManualTransaction: (data: CreateManualTransactionCaptureMutation) => void;
+    refetchOrder: () => void;
+    isRefetching: boolean;
+    isCapturing: boolean;
+    setIsCapturing: (value: boolean) => void;
   }) => React.ReactElement;
   id: string;
   params: OrderUrlQueryParams;
+  refetchOrder: () => void;
+  isRefetching: boolean;
+  isCapturing: boolean;
+  setIsCapturing: (value: boolean) => void;
 }
 
-export const OrderDetailsMessages = ({ children, id, params }: OrderDetailsMessages) => {
+export const OrderDetailsMessages = ({
+  children,
+  id,
+  params,
+  refetchOrder,
+  isRefetching,
+  isCapturing,
+  setIsCapturing,
+}: OrderDetailsMessages) => {
   const navigate = useNavigator();
   const notify = useNotifier();
   const intl = useIntl();
@@ -93,6 +111,12 @@ export const OrderDetailsMessages = ({ children, id, params }: OrderDetailsMessa
         }),
       });
       closeModal();
+      // Wait 10 seconds, then refetch order and refresh the page
+      setTimeout(() => {
+        refetchOrder();
+        // Refresh the page to show new changes
+        window.location.reload();
+      }, 10000);
     }
   };
   const handleOrderMarkAsPaid = (data: OrderMarkAsPaidMutation) => {
@@ -333,7 +357,7 @@ export const OrderDetailsMessages = ({ children, id, params }: OrderDetailsMessa
         text: intl.formatMessage({
           id: "ND5x+V",
           defaultMessage:
-            "We’re generating the invoice you requested. Please wait a couple of moments",
+            "We're generating the invoice you requested. Please wait a couple of moments",
         }),
         title: intl.formatMessage({
           id: "PKJqcq",
@@ -341,6 +365,8 @@ export const OrderDetailsMessages = ({ children, id, params }: OrderDetailsMessa
         }),
       });
       closeModal();
+      // Refetch order to show the pending invoice
+      setTimeout(() => refetchOrder(), 1000);
     }
   };
   const handleInvoiceGenerateFinished = (data: InvoiceRequestMutation) => {
@@ -353,6 +379,8 @@ export const OrderDetailsMessages = ({ children, id, params }: OrderDetailsMessa
         title: intl.formatMessage(messages.invoiceGenerateFinishedTitle),
       });
       closeModal();
+      // Refetch order to show the generated invoice immediately
+      refetchOrder();
     }
   };
   const handleInvoiceSend = (data: InvoiceEmailSendMutation) => {
@@ -366,6 +394,21 @@ export const OrderDetailsMessages = ({ children, id, params }: OrderDetailsMessa
         }),
       });
       closeModal();
+    }
+  };
+  const handleInvoiceDelete = (data: InvoiceDeleteMutation) => {
+    const errs = data.invoiceDelete?.errors;
+
+    if (errs.length === 0) {
+      notify({
+        status: "success",
+        text: intl.formatMessage({
+          id: "vM9quW",
+          defaultMessage: "Invoice deleted successfully",
+        }),
+      });
+      // Refetch order to update the invoice list
+      refetchOrder();
     }
   };
   const handleTransactionAction = (data: OrderTransactionRequestActionMutation) => {
@@ -416,6 +459,7 @@ export const OrderDetailsMessages = ({ children, id, params }: OrderDetailsMessa
     handleInvoiceGenerateFinished,
     handleInvoiceGeneratePending,
     handleInvoiceSend,
+    handleInvoiceDelete,
     handleNoteAdd,
     handleNoteUpdate,
     handleOrderCancel,
@@ -432,5 +476,9 @@ export const OrderDetailsMessages = ({ children, id, params }: OrderDetailsMessa
     handleUpdate,
     handleTransactionAction,
     handleAddManualTransaction,
+    refetchOrder,
+    isRefetching,
+    isCapturing,
+    setIsCapturing,
   });
 };

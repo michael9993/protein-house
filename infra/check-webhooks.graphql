@@ -1,0 +1,42 @@
+# Query to check webhook subscriptions
+query CheckInvoiceWebhooks {
+  webhooks(first: 100) {
+    edges {
+      node {
+        id
+        name
+        targetUrl
+        isActive
+        events {
+          eventType
+        }
+        app {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+
+# Query to check SMTP app installations
+query CheckApps {
+  apps(first: 100) {
+    edges {
+      node {
+        id
+        name
+        isActive
+        webhooks {
+          id
+          name
+          targetUrl
+          events {
+            eventType
+          }
+        }
+      }
+    }
+  }
+}
+

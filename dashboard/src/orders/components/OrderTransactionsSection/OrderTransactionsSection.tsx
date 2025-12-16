@@ -24,6 +24,7 @@ interface OrderTransactionsSectionProps {
   onPaymentVoid: () => any;
   onAddManualTransaction: () => any;
   onRefundAdd: () => void;
+  isCapturing?: boolean;
 }
 
 export const OrderTransactionsSection = ({
@@ -34,6 +35,7 @@ export const OrderTransactionsSection = ({
   onPaymentVoid,
   onAddManualTransaction,
   onRefundAdd,
+  isCapturing = false,
 }: OrderTransactionsSectionProps): JSX.Element => {
   const filteredPayments = useMemo(() => getFilteredPayments(order), [order]);
 
@@ -69,6 +71,7 @@ export const OrderTransactionsSection = ({
               index,
             }}
             onTransactionAction={onTransactionAction}
+            disabled={isCapturing}
           />
         ))}
         {filteredPayments.map(payment => (
@@ -78,6 +81,7 @@ export const OrderTransactionsSection = ({
             allPaymentMethods={shop?.availablePaymentGateways}
             onCapture={onPaymentCapture}
             onVoid={onPaymentVoid}
+            isCapturing={isCapturing}
           />
         ))}
         {order?.giftCards?.map(giftCard => (

@@ -94,6 +94,7 @@ interface OrderNormalDetailsProps {
   orderFulfillmentCancel: any;
   orderFulfillmentUpdateTracking: any;
   orderInvoiceSend: any;
+  orderInvoiceDelete: any;
   orderTransactionAction: PartialMutationProviderOutput<
     OrderTransactionRequestActionMutation,
     OrderTransactionRequestActionMutationVariables
@@ -106,6 +107,10 @@ interface OrderNormalDetailsProps {
   updatePrivateMetadataOpts: any;
   openModal: OpenModalFunction<OrderUrlDialog, OrderUrlQueryParams>;
   closeModal: CloseModalFunction;
+  isRefetching?: boolean;
+  refetchOrder?: () => void;
+  isCapturing?: boolean;
+  setIsCapturing?: (value: boolean) => void;
 }
 interface ApprovalState {
   fulfillment: FulfillmentFragment;
@@ -130,13 +135,25 @@ export const OrderNormalDetails = ({
   orderFulfillmentCancel,
   orderFulfillmentUpdateTracking,
   orderInvoiceSend,
+  orderInvoiceDelete,
   orderTransactionAction,
   orderAddManualTransaction,
   updateMetadataOpts,
   updatePrivateMetadataOpts,
   openModal,
   closeModal,
+  isRefetching = false,
+  refetchOrder,
+  isCapturing: isCapturingProp = false,
+  setIsCapturing: setIsCapturingProp,
 }: OrderNormalDetailsProps) => {
+  // Use prop if provided, otherwise use local state
+  const [localIsCapturing, setLocalIsCapturing] = useState(false);
+  const isCapturing = setIsCapturingProp !== undefined ? isCapturingProp : localIsCapturing;
+  const setIsCapturing =
+    setIsCapturingProp !== undefined
+      ? setIsCapturingProp
+      : (value: boolean) => setLocalIsCapturing(value);
   const order = data?.order;
   const shop = data?.shop;
   const navigate = useNavigator();
@@ -284,8 +301,15 @@ export const OrderNormalDetails = ({
           })
         }
         onInvoiceSend={id => openModal("invoice-send", { id })}
+        onInvoiceDelete={id =>
+          orderInvoiceDelete.mutate({
+            id,
+          })
+        }
         onRefundAdd={() => openModal("add-refund")}
         onSubmit={handleSubmit}
+        isRefetching={isRefetching}
+        isCapturing={isCapturing}
       />
       <OrderCannotCancelOrderDialog
         onClose={closeModal}
@@ -355,17 +379,26 @@ export const OrderNormalDetails = ({
         onConfirm={() => orderVoid.mutate({ id })}
       />
       <OrderPaymentDialog
-        confirmButtonState={orderPaymentCapture.opts.status}
+        confirmButtonState={isCapturing ? "loading" : orderPaymentCapture.opts.status}
         errors={orderPaymentCapture.opts.data?.orderCapture.errors || []}
         initial={order?.total.gross.amount}
         open={params.action === "capture"}
         onClose={closeModal}
-        onSubmit={variables =>
-          orderPaymentCapture.mutate({
-            ...variables,
-            id,
-          })
-        }
+        onSubmit={async variables => {
+          setIsCapturing(true);
+          try {
+            const result = await orderPaymentCapture.mutate({
+              ...variables,
+              id,
+            });
+            // If capture was successful, refetch order details
+            if (result?.data?.orderCapture?.errors?.length === 0 && refetchOrder) {
+              await refetchOrder();
+            }
+          } finally {
+            setIsCapturing(false);
+          }
+        }}
       />
       <OrderFulfillmentApproveDialog
         confirmButtonState={orderFulfillmentApprove.opts.status}

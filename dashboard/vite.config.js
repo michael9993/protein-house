@@ -25,10 +25,36 @@ const copyOgImage = () => ({
   },
 });
 
+// Plugin to bypass host checking and fix HMR for tunnel URLs
+// This works around Vite 6.x issues with allowedHosts and HMR WebSocket connections
+const bypassHostCheckPlugin = () => ({
+  name: "bypass-host-check-dev",
+  apply: "serve", // Only in dev server
+  configureServer(server) {
+    // Override the checkOrigin function to allow all hosts in development
+    const originalCheckOrigin = server.config.server.checkOrigin;
+    if (originalCheckOrigin) {
+      server.config.server.checkOrigin = () => true;
+    }
+    // Also modify the middleware to bypass host checks
+    server.middlewares.stack = server.middlewares.stack.filter((layer) => {
+      // Remove Vite's host check middleware if it exists
+      return !(layer.handle && layer.handle.toString().includes("Invalid Host header"));
+    });
+
+    // Fix HMR WebSocket connection for tunnel URLs
+    // The WebSocket server needs to handle connections from tunnel URLs
+    // Vite's HMR will automatically use the request's host when host is undefined
+  },
+});
+
 /** @type {import('vite').UserConfig} */
 
 export default defineConfig(({ command, mode }) => {
   const isDev = command !== "build";
+  // Load environment variables from process.env (Docker) or .env file
+  // In Docker, env vars are passed directly via docker-compose, so loadEnv will read from process.env
+  // envDir: ".." is for local development when .env is in parent directory
   const env = loadEnv(mode, process.cwd(), "");
   /*
     Using explicit env variables, there is no need to expose all of them (security).
@@ -36,6 +62,7 @@ export default defineConfig(({ command, mode }) => {
   const {
     NODE_ENV,
     API_URL,
+    VITE_API_URL, // Vite-prefixed env vars are automatically exposed to client
     SW_INTERVAL,
     IS_CLOUD_INSTANCE,
     APP_MOUNT_URI,
@@ -76,6 +103,7 @@ export default defineConfig(({ command, mode }) => {
     CodeInspectorPlugin({
       bundler: "vite",
     }),
+    ...(isDev ? [bypassHostCheckPlugin()] : []),
     createHtmlPlugin({
       entry: path.resolve(__dirname, "src", "index.tsx"),
       template: "index.html",
@@ -126,17 +154,56 @@ export default defineConfig(({ command, mode }) => {
   return {
     root: "src",
     base,
+    // envDir: ".." - Look for .env in parent directory (for local dev)
+    // In Docker, environment variables are passed directly via docker-compose,
+    // so loadEnv will read from process.env automatically
     envDir: "..",
     server: {
-      port: 9000,
-      host: "0.0.0.0", // Allow external connections
+      port: 9000, // Must match the port in docker-compose.dev.yml
+      host: "0.0.0.0", // Allow external connections (required for Docker)
       // In development, allow all hosts to support dynamic tunnel URLs
-      // This prevents having to manually update allowedHosts every time tunnel URLs change
-      // Vite's allowedHosts can be set to true to allow all hosts, or use wildcard patterns
-      // Setting to true in dev mode allows any tunnel URL to work automatically
-      allowedHosts: isDev ? true : [],
+      // For Vite 6.x, we use multiple approaches:
+      // 1. allowedHosts: true (may have bugs in some versions)
+      // 2. Plugin to bypass host check (see bypassHostCheckPlugin above)
+      // 3. If still blocked, explicitly add the domain to this array
+      allowedHosts: isDev
+        ? [
+            "localhost",
+            "127.0.0.1",
+            "element-vocational-monte-legacy.trycloudflare.com", // Current tunnel domain
+            // Add more tunnel domains here as needed, or use a function pattern
+          ]
+        : undefined,
+      // Enable HMR (Hot Module Replacement) for development
+      // When using tunnel URLs, HMR needs to use the tunnel host, not localhost
+      // Cloudflare tunnels forward HTTPS to HTTP, so we need to handle this carefully
+      hmr: isDev
+        ? {
+            // Auto-detect host from request (will use tunnel URL)
+            host: undefined,
+            // Auto-detect port from request
+            port: undefined,
+            // Use the page's protocol (https -> wss, http -> ws)
+            // This is handled automatically by Vite's client, but we ensure it's set
+            protocol: undefined, // Vite will use the page's protocol automatically
+          }
+        : undefined,
       fs: {
         allow: [searchForWorkspaceRoot(process.cwd()), "../.."],
+      },
+      // Watch configuration for better file watching in Docker
+      watch: {
+        usePolling: true, // Required for Docker volumes on Windows
+        interval: 2000, // Poll every 2 seconds
+        ignored: [
+          "**/node_modules/**",
+          "**/build/**",
+          "**/.next/**",
+          "**/.git/**",
+          "**/dist/**",
+          "**/*.log",
+          "**/coverage/**",
+        ],
       },
     },
     define: {
@@ -174,6 +241,10 @@ export default defineConfig(({ command, mode }) => {
       emptyOutDir: true,
       outDir: "../build/dashboard",
       assetsDir: ".",
+      // Enable module preloading for faster navigation
+      modulePreload: {
+        polyfill: true,
+      },
       commonjsOptions: {
         /*
           Fix dynamic imports by "require", Necessary for react-editor-js
@@ -196,7 +267,21 @@ export default defineConfig(({ command, mode }) => {
       },
     },
     optimizeDeps: {
-      include: ["esm-dep > cjs-dep", "@saleor/macaw-ui"],
+      include: [
+        "esm-dep > cjs-dep",
+        "@saleor/macaw-ui",
+        "@saleor/macaw-ui-next",
+        "react",
+        "react-dom",
+        "react-router-dom",
+        "@apollo/client",
+        "graphql",
+        "react-intl",
+        "lodash",
+      ],
+      entries: ["src/index.tsx"], // Optimize entry point for faster startup
+      // Force dependency pre-bundling on server start
+      force: false, // Set to true to force re-optimization (useful after adding new deps)
     },
     resolve: {
       dedupe: ["react", "react-dom", "clsx", "@material-ui/styles"],

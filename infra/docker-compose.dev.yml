@@ -283,6 +283,94 @@ services:
       retries: 5
       start_period: 120s
 
+  # SMTP App - Handles email notifications (fulfillment, invoices, etc.)
+  # This app sends emails via SMTP when webhook events are triggered
+  saleor-smtp-app:
+    image: node:22-alpine
+    container_name: saleor-smtp-app-dev
+    working_dir: /app
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-smtp... --prefer-offline && cd apps/smtp && pnpm dev"
+    env_file:
+      - .env
+    ports:
+      - "${SMTP_APP_PORT:-3001}:3000"
+    volumes:
+      - ../apps:/app
+      - smtp-app-node-modules:/app/node_modules
+      - smtp-app-pnpm-store:/root/.local/share/pnpm/store
+    environment:
+      SALEOR_API_URL: ${SALEOR_API_URL}
+      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+      STRIPE_APP_URL: ${STRIPE_APP_URL}
+      STRIPE_APP_API_BASE_URL: ${STRIPE_APP_API_BASE_URL}
+      NODE_ENV: development
+      # Disable OpenTelemetry/Sentry in development
+      OTEL_ENABLED: "false"
+      NEXT_PUBLIC_SENTRY_DSN: ""
+    depends_on:
+      saleor-api:
+        condition: service_healthy
+    networks:
+      - saleor-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Invoice App - Generates PDF invoices for orders
+  saleor-invoice-app:
+    image: node:22-alpine
+    container_name: saleor-invoice-app-dev
+    working_dir: /app
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-invoices... --prefer-offline && cd apps/invoices && pnpm dev"
+    env_file:
+      - .env
+    ports:
+      - "${INVOICE_APP_PORT:-3003}:3000"
+    volumes:
+      - ../apps:/app
+      - invoice-app-node-modules:/app/node_modules
+      - invoice-app-pnpm-store:/root/.local/share/pnpm/store
+    environment:
+      SALEOR_API_URL: ${SALEOR_API_URL}
+      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+      INVOICE_APP_URL: ${INVOICE_APP_URL}
+      INVOICE_APP_API_BASE_URL: ${INVOICE_APP_API_BASE_URL}
+      APP_API_BASE_URL: ${INVOICE_APP_URL}
+      NODE_ENV: development
+      # Disable OpenTelemetry/Sentry in development
+      OTEL_ENABLED: "false"
+      NEXT_PUBLIC_SENTRY_DSN: ""
+    depends_on:
+      saleor-api:
+        condition: service_healthy
+    networks:
+      - saleor-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
   # Stripe App - Saleor Payment App for Stripe
   # First, clone the apps repo: git clone https://github.com/saleor/apps.git (in parent directory)
   # Then create a Saleor App in Dashboard and get the App Token
@@ -378,6 +466,14 @@ volumes:
   stripe-app-next-cache:
     driver: local
   stripe-app-pnpm-store:
+    driver: local
+  smtp-app-node-modules:
+    driver: local
+  smtp-app-pnpm-store:
+    driver: local
+  invoice-app-node-modules:
+    driver: local
+  invoice-app-pnpm-store:
     driver: local
 
 networks:

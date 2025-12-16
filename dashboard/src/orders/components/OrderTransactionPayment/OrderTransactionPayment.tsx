@@ -23,6 +23,7 @@ interface OrderTransactionPaymentProps {
   allPaymentMethods: PaymentGatewayFragment[];
   onCapture: () => void;
   onVoid: () => void;
+  isCapturing?: boolean;
 }
 
 const OrderTransactionPayment = ({
@@ -30,6 +31,7 @@ const OrderTransactionPayment = ({
   allPaymentMethods,
   onCapture,
   onVoid,
+  isCapturing = false,
 }: OrderTransactionPaymentProps) => {
   const currency = payment.total.currency;
   const total = payment?.total?.amount ?? 0;
@@ -71,6 +73,7 @@ const OrderTransactionPayment = ({
       transaction={transactionFromPayment}
       fakeEvents={fakeEvents}
       onTransactionAction={handleTransactionAction}
+      disabled={isCapturing}
     />
   );
 };

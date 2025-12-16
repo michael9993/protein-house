@@ -1,3 +1,4 @@
+import { AllowLegacyGiftCardUse } from "@dashboard/channels/components/ChannelForm/AllowLegacyGiftCardUse";
 import { AutomaticallyCompleteCheckouts } from "@dashboard/channels/components/ChannelForm/AutomaticallyCompleteCheckouts";
 import {
   ChannelShippingZones,
@@ -6,9 +7,11 @@ import {
 import { DashboardCard } from "@dashboard/components/Card";
 import { Combobox } from "@dashboard/components/Combobox";
 import FormSpacer from "@dashboard/components/FormSpacer";
+import { iconSize, iconStrokeWidth } from "@dashboard/components/icons";
 import {
   ChannelErrorFragment,
   CountryCode,
+  isStagingSchema,
   MarkAsPaidStrategyEnum,
   StockSettingsInput,
   TransactionFlowStrategyEnum,
@@ -43,6 +46,7 @@ export interface FormData extends StockSettingsInput {
   allowUnpaidOrders: boolean;
   defaultTransactionFlowStrategy: TransactionFlowStrategyEnum;
   automaticallyCompleteCheckouts: boolean;
+  allowLegacyGiftCardUse?: boolean;
 }
 
 interface ChannelFormProps {
@@ -59,6 +63,7 @@ interface ChannelFormProps {
   onMarkAsPaidStrategyChange: () => void;
   onTransactionFlowStrategyChange: () => void;
   onAutomaticallyCompleteCheckoutsChange: () => void;
+  onAllowLegacyGiftCardUseChange?: () => void;
 }
 
 export const ChannelForm = ({
@@ -75,6 +80,7 @@ export const ChannelForm = ({
   onMarkAsPaidStrategyChange,
   onTransactionFlowStrategyChange,
   onAutomaticallyCompleteCheckoutsChange,
+  onAllowLegacyGiftCardUseChange,
 }: ChannelFormProps) => {
   const intl = useIntl();
   const [, copy] = useClipboard();
@@ -118,7 +124,7 @@ export const ChannelForm = ({
                 variant="tertiary"
                 onClick={() => copy(data.slug)}
                 textTransform="uppercase"
-                icon={<Copy />}
+                icon={<Copy size={iconSize.medium} strokeWidth={iconStrokeWidth} />}
               />
             }
           />
@@ -223,6 +229,15 @@ export const ChannelForm = ({
           isChecked={data.automaticallyCompleteCheckouts}
           disabled={disabled}
         />
+        <Box />
+        {isStagingSchema() && (
+          <AllowLegacyGiftCardUse
+            onChange={onAllowLegacyGiftCardUseChange ? onAllowLegacyGiftCardUseChange : () => {}}
+            hasError={!!formErrors.allowLegacyGiftCardUse}
+            isChecked={data.allowLegacyGiftCardUse!}
+            disabled={disabled}
+          />
+        )}
       </Box>
     </>
   );

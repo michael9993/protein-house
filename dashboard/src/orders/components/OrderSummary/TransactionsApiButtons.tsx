@@ -6,15 +6,21 @@ type Props = {
   hasNoPayment: boolean;
   canMarkAsPaid: boolean;
   onMarkAsPaid: () => any;
+  isRefetching?: boolean;
 };
 
-export const TransactionsApiButtons = ({ hasNoPayment, canMarkAsPaid, onMarkAsPaid }: Props) => {
+export const TransactionsApiButtons = ({
+  hasNoPayment,
+  canMarkAsPaid,
+  onMarkAsPaid,
+  isRefetching = false,
+}: Props) => {
   const intl = useIntl();
 
   return (
     hasNoPayment &&
     canMarkAsPaid && (
-      <Button variant="secondary" onClick={onMarkAsPaid}>
+      <Button variant="secondary" onClick={onMarkAsPaid} disabled={isRefetching}>
         <CheckIcon size={16} />
         {intl.formatMessage({
           defaultMessage: "Mark as Paid",

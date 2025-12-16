@@ -8,9 +8,10 @@ import { Consumer } from "./DateContext";
 interface DateProps {
   date: string;
   plain?: boolean;
+  format?: string;
 }
 
-const Date = ({ date, plain }: DateProps) => {
+const Date = ({ date, plain, format }: DateProps) => {
   const localizeDate = useDateLocalize();
   const getHumanized = (value: string, locale: string, currentDate: number) =>
     moment(value).locale(locale).from(currentDate);
@@ -21,7 +22,7 @@ const Date = ({ date, plain }: DateProps) => {
         <Consumer>
           {currentDate =>
             plain ? (
-              localizeDate(date)
+              localizeDate(date, format)
             ) : (
               <Tooltip>
                 <Tooltip.Trigger>
@@ -31,7 +32,7 @@ const Date = ({ date, plain }: DateProps) => {
                 </Tooltip.Trigger>
                 <Tooltip.Content side="bottom">
                   <Tooltip.Arrow />
-                  {localizeDate(date)}
+                  {localizeDate(date, format)}
                 </Tooltip.Content>
               </Tooltip>
             )

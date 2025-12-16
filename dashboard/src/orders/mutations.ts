@@ -470,6 +470,19 @@ export const invoiceEmailSendMutation = gql`
   }
 `;
 
+export const invoiceDeleteMutation = gql`
+  mutation InvoiceDelete($id: ID!) {
+    invoiceDelete(id: $id) {
+      errors {
+        ...InvoiceError
+      }
+      invoice {
+        id
+      }
+    }
+  }
+`;
+
 export const orderSettingsUpdateMutation = gql`
   mutation OrderSettingsUpdate(
     $orderSettingsInput: OrderSettingsUpdateInput!

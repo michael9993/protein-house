@@ -35,6 +35,7 @@ const OrderTransaction = ({
           transaction={transaction}
           onTransactionAction={onTransactionAction}
           showActions={showActions}
+          disabled={disabled}
         />
       </DashboardCard.Header>
 

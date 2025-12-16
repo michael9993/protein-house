@@ -23,11 +23,20 @@ type Props = PropsWithBox<
   {
     order: OrderDetailsFragment;
     onMarkAsPaid: () => any;
+    isRefetching?: boolean;
+    isCapturing?: boolean;
   } & (OrderSummaryWithLegacyApi | OrderSummaryWithoutLegacyApi)
 >;
 
 export const OrderSummary = (props: Props) => {
-  const { order, onMarkAsPaid, useLegacyPaymentsApi = false, ...restProps } = props;
+  const {
+    order,
+    onMarkAsPaid,
+    useLegacyPaymentsApi = false,
+    isRefetching = false,
+    isCapturing = false,
+    ...restProps
+  } = props;
   const intl = useIntl();
   const giftCardsAmount = OrderDetailsViewModel.getGiftCardsAmountUsed({
     id: order.id,
@@ -74,12 +83,15 @@ export const OrderSummary = (props: Props) => {
             onLegacyPaymentsApiVoid={
               "onLegacyPaymentsApiVoid" in props ? props.onLegacyPaymentsApiVoid : undefined
             }
+            isRefetching={isRefetching}
+            isCapturing={isCapturing}
           />
         ) : (
           <TransactionsApiButtons
             canMarkAsPaid={canMarkAsPaid}
             onMarkAsPaid={onMarkAsPaid}
             hasNoPayment={hasNoPayment}
+            isRefetching={isRefetching}
           />
         )}
       </Box>

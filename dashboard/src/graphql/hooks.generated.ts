@@ -12680,6 +12680,44 @@ export function useInvoiceEmailSendMutation(baseOptions?: ApolloReactHooks.Mutat
 export type InvoiceEmailSendMutationHookResult = ReturnType<typeof useInvoiceEmailSendMutation>;
 export type InvoiceEmailSendMutationResult = Apollo.MutationResult<Types.InvoiceEmailSendMutation>;
 export type InvoiceEmailSendMutationOptions = Apollo.BaseMutationOptions<Types.InvoiceEmailSendMutation, Types.InvoiceEmailSendMutationVariables>;
+export const InvoiceDeleteDocument = gql`
+    mutation InvoiceDelete($id: ID!) {
+  invoiceDelete(id: $id) {
+    errors {
+      ...InvoiceError
+    }
+    invoice {
+      id
+    }
+  }
+}
+    ${InvoiceErrorFragmentDoc}`;
+export type InvoiceDeleteMutationFn = Apollo.MutationFunction<Types.InvoiceDeleteMutation, Types.InvoiceDeleteMutationVariables>;
+
+/**
+ * __useInvoiceDeleteMutation__
+ *
+ * To run a mutation, you first call `useInvoiceDeleteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useInvoiceDeleteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [invoiceDeleteMutation, { data, loading, error }] = useInvoiceDeleteMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useInvoiceDeleteMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<Types.InvoiceDeleteMutation, Types.InvoiceDeleteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<Types.InvoiceDeleteMutation, Types.InvoiceDeleteMutationVariables>(InvoiceDeleteDocument, options);
+      }
+export type InvoiceDeleteMutationHookResult = ReturnType<typeof useInvoiceDeleteMutation>;
+export type InvoiceDeleteMutationResult = Apollo.MutationResult<Types.InvoiceDeleteMutation>;
+export type InvoiceDeleteMutationOptions = Apollo.BaseMutationOptions<Types.InvoiceDeleteMutation, Types.InvoiceDeleteMutationVariables>;
 export const OrderSettingsUpdateDocument = gql`
     mutation OrderSettingsUpdate($orderSettingsInput: OrderSettingsUpdateInput!, $shopSettingsInput: ShopSettingsInput!) {
   orderSettingsUpdate(input: $orderSettingsInput) {

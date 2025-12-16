@@ -5,6 +5,7 @@ import { CardSpacer } from "@dashboard/components/CardSpacer";
 import { ConfirmButtonTransitionState } from "@dashboard/components/ConfirmButton";
 import { useDevModeContext } from "@dashboard/components/DevModePanel/hooks";
 import Form from "@dashboard/components/Form";
+import { iconSize, iconStrokeWidth } from "@dashboard/components/icons";
 import { DetailPageLayout } from "@dashboard/components/Layouts";
 import { MetadataIdSchema } from "@dashboard/components/Metadata";
 import { Savebar } from "@dashboard/components/Savebar";
@@ -89,10 +90,13 @@ interface OrderDetailsPageProps {
   onInvoiceClick: (invoiceId: string) => any;
   onInvoiceGenerate: () => any;
   onInvoiceSend: (invoiceId: string) => any;
+  onInvoiceDelete: (invoiceId: string) => any;
   onTransactionAction: (transactionId: string, actionType: TransactionActionEnum) => any;
   onAddManualTransaction: () => any;
   onRefundAdd: () => void;
   onSubmit: (data: MetadataIdSchema) => SubmitPromise;
+  isRefetching?: boolean;
+  isCapturing?: boolean;
 }
 
 const OrderDetailsPage = (props: OrderDetailsPageProps) => {
@@ -119,6 +123,7 @@ const OrderDetailsPage = (props: OrderDetailsPageProps) => {
     onInvoiceClick,
     onInvoiceGenerate,
     onInvoiceSend,
+    onInvoiceDelete,
     onOrderReturn,
     onOrderLineAdd,
     onOrderLineChange,
@@ -132,6 +137,8 @@ const OrderDetailsPage = (props: OrderDetailsPageProps) => {
     onMarkAsPaid,
     onRefundAdd,
     onSubmit,
+    isRefetching = false,
+    isCapturing = false,
   } = props;
   const navigate = useNavigator();
   const intl = useIntl();
@@ -165,6 +172,7 @@ const OrderDetailsPage = (props: OrderDetailsPageProps) => {
       item: {
         label: intl.formatMessage(messages.cancelOrder),
         onSelect: onOrderCancel,
+        color: "critical1" as const,
       },
       shouldExist: canCancel,
     },
@@ -203,7 +211,7 @@ const OrderDetailsPage = (props: OrderDetailsPageProps) => {
               <Box position="relative" marginRight={3}>
                 <Button
                   variant="secondary"
-                  icon={<Code />}
+                  icon={<Code size={iconSize.medium} strokeWidth={iconStrokeWidth} />}
                   onClick={onOrderShowMetadata}
                   data-test-id="show-order-metadata"
                   title="Edit order metadata"
@@ -276,6 +284,8 @@ const OrderDetailsPage = (props: OrderDetailsPageProps) => {
                     onLegacyPaymentsApiCapture={onPaymentCapture}
                     onLegacyPaymentsApiRefund={onPaymentRefund}
                     onLegacyPaymentsApiVoid={onPaymentVoid}
+                    isRefetching={isRefetching}
+                    isCapturing={isCapturing}
                   />
                   <CardSpacer />
 
@@ -288,6 +298,7 @@ const OrderDetailsPage = (props: OrderDetailsPageProps) => {
                       onPaymentVoid={onPaymentVoid}
                       onAddManualTransaction={onAddManualTransaction}
                       onRefundAdd={onRefundAdd}
+                      isCapturing={isCapturing}
                     />
                   )}
                 </>
@@ -321,6 +332,7 @@ const OrderDetailsPage = (props: OrderDetailsPageProps) => {
                     onInvoiceClick={onInvoiceClick}
                     onInvoiceGenerate={onInvoiceGenerate}
                     onInvoiceSend={onInvoiceSend}
+                    onInvoiceDelete={onInvoiceDelete}
                   />
                   <CardSpacer />
                 </>

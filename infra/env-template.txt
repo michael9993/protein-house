@@ -64,6 +64,8 @@ CELERY_RESULT_BACKEND=redis://redis:6379/2
 # Uncomment and set these if you're using Cloudflare/ngrok tunnels
 # SALEOR_API_TUNNEL_URL=https://your-api-tunnel.trycloudflare.com
 # STRIPE_APP_TUNNEL_URL=https://your-stripe-app-tunnel.trycloudflare.com
+# SMTP_APP_TUNNEL_URL=https://your-smtp-app-tunnel.trycloudflare.com
+# INVOICE_APP_TUNNEL_URL=https://your-invoice-app-tunnel.trycloudflare.com
 # DASHBOARD_TUNNEL_URL=https://your-dashboard-tunnel.trycloudflare.com
 # STOREFRONT_TUNNEL_URL=https://your-storefront-tunnel.trycloudflare.com
 
@@ -96,4 +98,15 @@ APP_SECRET_KEY=a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456
 STRIPE_APP_TOKEN=
 STRIPE_APP_URL=http://localhost:3002
 STRIPE_APP_API_BASE_URL=http://localhost:3002
+
+# ============================================================================
+# SMTP EMAIL APP CONFIGURATION
+# ============================================================================
+SMTP_APP_PORT=3001
+
+# ============================================================================
+# INVOICE APP CONFIGURATION
+# ============================================================================
+INVOICE_APP_PORT=3003
+INVOICE_APP_URL=http://localhost:3003
 

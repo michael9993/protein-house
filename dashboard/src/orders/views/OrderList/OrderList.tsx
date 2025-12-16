@@ -24,7 +24,7 @@ import createSortHandler from "@dashboard/utils/handlers/sortHandler";
 import { mapEdgesToItems, mapNodeToChoice } from "@dashboard/utils/maps";
 import { getSortParams } from "@dashboard/utils/sort";
 import { useOnboarding } from "@dashboard/welcomePage/WelcomePageOnboarding/onboardingContext";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useIntl } from "react-intl";
 
 import OrderListPage from "../../components/OrderListPage/OrderListPage";
@@ -123,11 +123,36 @@ const OrderList = ({ params }: OrderListProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [params, settings.rowNumber, valueProvider.value],
   );
-  const { data } = useOrderListQuery({
+  const { data, refetch } = useOrderListQuery({
     displayLoader: true,
     skip: valueProvider.loading,
     variables: queryVariables,
+    // Poll every 10 seconds to check for new orders
+    pollInterval: 10000,
+    // Only poll when the page is visible (not in background tab)
+    notifyOnNetworkStatusChange: true,
   });
+
+  // Store the previous order count to detect new orders
+  const previousOrderCountRef = useRef<number>(0);
+  
+  useEffect(() => {
+    const currentOrderCount = data?.orders?.edges?.length || 0;
+    const previousOrderCount = previousOrderCountRef.current;
+    
+    // If we have a new order (count increased), show a notification
+    if (previousOrderCount > 0 && currentOrderCount > previousOrderCount) {
+      notify({
+        status: "success",
+        text: intl.formatMessage({
+          id: "newOrderDetected",
+          defaultMessage: "New order detected!",
+        }),
+      });
+    }
+    
+    previousOrderCountRef.current = currentOrderCount;
+  }, [data?.orders?.edges?.length, notify, intl]);
   const paginationValues = usePaginator({
     pageInfo: data?.orders?.pageInfo,
     paginationState,
