@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "saleor-app-invoices",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "next build",
+    "check-types": "tsc",
+    "dev": "NODE_OPTIONS='--inspect' next dev",
+    "fetch-schema": "curl https://raw.githubusercontent.com/saleor/saleor/${npm_package_config_saleor_schemaVersion}/saleor/graphql/schema.graphql > graphql/schema.graphql",
+    "generate": "graphql-codegen",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "start": "next start"
+  },
+  "config": {
+    "saleor": {
+      "schemaVersion": "3.20"
+    }
+  },
+  "dependencies": {
+    "@saleor/app-sdk": "link:../../node_modules/@saleor/app-sdk",
+    "@saleor/apps-logger": "workspace:*",
+    "@saleor/apps-otel": "workspace:*",
+    "@saleor/apps-shared": "workspace:*",
+    "@opentelemetry/api": "catalog:",
+    "@sentry/nextjs": "catalog:",
+    "graphql": "catalog:",
+    "graphql-tag": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "urql": "catalog:",
+    "pdfkit": "^0.15.0",
+    "dotenv": "catalog:"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "catalog:",
+    "@graphql-codegen/introspection": "catalog:",
+    "@graphql-codegen/schema-ast": "4.0.2",
+    "@graphql-codegen/typed-document-node": "catalog:",
+    "@graphql-codegen/typescript": "catalog:",
+    "@graphql-codegen/typescript-operations": "catalog:",
+    "@graphql-codegen/typescript-urql": "catalog:",
+    "@graphql-typed-document-node/core": "catalog:",
+    "@saleor/eslint-config-apps": "workspace:*",
+    "@saleor/typescript-config-apps": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/pdfkit": "^0.13.0",
+    "@types/react": "18.2.5",
+    "@types/react-dom": "18.2.5",
+    "eslint": "catalog:",
+    "graphql-config": "5.0.3",
+    "tsx": "catalog:",
+    "typescript": "5.8.2"
+  }
+}
+

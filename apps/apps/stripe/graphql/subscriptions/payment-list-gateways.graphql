@@ -1,0 +1,16 @@
+fragment PaymentListGatewaysEvent on PaymentListGateways {
+  ...EventMetadata
+  checkout {
+    id
+    channel {
+      id
+      slug
+    }
+  }
+}
+
+subscription PaymentListGateways {
+  event {
+    ...PaymentListGatewaysEvent
+  }
+}

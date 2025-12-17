@@ -176,8 +176,4 @@ backups/
 *-tunnel-url.txt
 tunnel-urls.txt
 
-
-# Ignore submodules
-apps/
-saleor/
-storefront/
+# Note: apps/, saleor/, and storefront/ are now part of this repo (not submodules)

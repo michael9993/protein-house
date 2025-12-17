@@ -1,0 +1,32 @@
+{
+  "https://refugees-fleece-peterson-incurred.trycloudflare.com/graphql/:QXBwOjIy": {
+    "configs": {
+      "d71153a8-d6ad-4f43-823b-0dca04d6bab1": {
+        "configId": "d71153a8-d6ad-4f43-823b-0dca04d6bab1",
+        "publishableKey": "pk_test_51SbW3vRSxEtO1KfpqhsltJmFB7nzWVmCMR92tD7weRQ3OS0vyHWY8albZ5ADoUhhz2D9TIDVfvcZ7WGDJXdW3grG00x2nFVujr",
+        "restrictedKey": "eba4de6fffc920a432befa1574962f25:f2cf8ea6930b758c8d0a44e771014cea8358d2f2dca49d6c5d8653f5f5ec7ade1a9b05bcac1cf060b9c59ab7ded5e86693d74651515a65c0a7d53f759138db84e2a7665efda9852abbace6fb4c1eb9fdeafd121f76fdd6b14d88ff287b6641925cbcff07965a255ed5399afcf0917249",
+        "webhookId": "we_1ScES7RSxEtO1Kfp5mx9aIln",
+        "webhookSecret": "5ff965e84ff493fa340ea9c4380fdc89:a4dc2e3fdd4a126672fa75892328c37dac171f5956d357077441d686043d66cb3bc9d3eae29c4b3fe76fc4877b325e70",
+        "label": "saleor "
+      }
+    },
+    "mappings": {
+      "Q2hhbm5lbDox": "d71153a8-d6ad-4f43-823b-0dca04d6bab1"
+    }
+  },
+  "https://refugees-fleece-peterson-incurred.trycloudflare.com/graphql/:QXBwOjI1": {
+    "configs": {
+      "737c3d2f-b183-4b57-b729-932bf94352ee": {
+        "configId": "737c3d2f-b183-4b57-b729-932bf94352ee",
+        "publishableKey": "pk_test_51SbW3vRSxEtO1KfpqhsltJmFB7nzWVmCMR92tD7weRQ3OS0vyHWY8albZ5ADoUhhz2D9TIDVfvcZ7WGDJXdW3grG00x2nFVujr",
+        "restrictedKey": "1d0069e548a321724e4ecef049d61ed7:b481e412612008e3a76bd155ec6a8c04762be4c2a35a4b614953d158a2aadf9131fcf63c8780aeaacf5d2a6318989c8d314a1c2033eb1c5f22a88e5017c58421e65a189f1bba75ddfcc797545a64a5cb794f875b8db94a6cafc4db59474e5b3dc7ad852104e203c1e64e369ce8de9846",
+        "webhookId": "we_1SccsWRSxEtO1Kfpjk3jeY8z",
+        "webhookSecret": "a82d33ca7195cc87682056d9b2fa4129:9280416253458c187565549d1c1940f7321c7d8d366f7e7712c3139d24b7218c64577de34a2ea64cd0b114a10f9233b0",
+        "label": "saleor"
+      }
+    },
+    "mappings": {
+      "Q2hhbm5lbDox": "737c3d2f-b183-4b57-b729-932bf94352ee"
+    }
+  }
+}
