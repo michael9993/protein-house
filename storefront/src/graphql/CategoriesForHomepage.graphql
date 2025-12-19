@@ -1,0 +1,28 @@
+# Fetch top-level categories for homepage display
+# Create categories in: Dashboard > Catalog > Categories
+# Add background images for visual appeal
+
+query CategoriesForHomepage($channel: String!, $first: Int = 8) {
+  categories(first: $first, level: 0) {
+    edges {
+      node {
+        id
+        name
+        slug
+        description
+        backgroundImage {
+          url
+          alt
+        }
+        products(channel: $channel, first: 1) {
+          totalCount
+        }
+        metadata {
+          key
+          value
+        }
+      }
+    }
+  }
+}
+

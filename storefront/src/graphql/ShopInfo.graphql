@@ -1,0 +1,31 @@
+# Fetch shop information and settings
+# Dashboard > Configuration > Site Settings
+
+query ShopInfo {
+  shop {
+    name
+    description
+    domain {
+      host
+      sslEnabled
+      url
+    }
+    defaultCountry {
+      code
+      country
+    }
+    defaultWeightUnit
+    companyAddress {
+      streetAddress1
+      streetAddress2
+      city
+      postalCode
+      country {
+        code
+        country
+      }
+      phone
+    }
+  }
+}
+

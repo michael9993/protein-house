@@ -1,0 +1,62 @@
+# Query to fetch products with filtering support
+# Filters can include: categories, price range, availability
+query ProductListFiltered(
+	$first: Int
+	$after: String
+	$channel: String!
+	$sortBy: ProductOrder
+	$filter: ProductFilterInput
+	$search: String
+) {
+	products(
+		first: $first
+		after: $after
+		channel: $channel
+		sortBy: $sortBy
+		filter: $filter
+		search: $search
+	) {
+		totalCount
+		edges {
+			node {
+				...ProductListItem
+			}
+			cursor
+		}
+		pageInfo {
+			hasNextPage
+			hasPreviousPage
+			startCursor
+			endCursor
+		}
+	}
+}
+
+# Query to fetch all categories for the filter sidebar
+query CategoriesForFilter($first: Int!, $channel: String!) {
+	categories(first: $first, level: 0) {
+		edges {
+			node {
+				id
+				name
+				slug
+				products(first: 1, channel: $channel) {
+					totalCount
+				}
+				children(first: 20) {
+					edges {
+						node {
+							id
+							name
+							slug
+							products(first: 1, channel: $channel) {
+								totalCount
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+

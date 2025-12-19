@@ -259,6 +259,15 @@ services:
       NEXT_PUBLIC_STOREFRONT_URL: ${NEXT_PUBLIC_STOREFRONT_URL}
       NEXT_PUBLIC_DEFAULT_CHANNEL: ${NEXT_PUBLIC_DEFAULT_CHANNEL}
       SALEOR_APP_TOKEN: ${SALEOR_APP_TOKEN}
+      # OAuth Configuration
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      FACEBOOK_APP_ID: ${FACEBOOK_APP_ID:-}
+      FACEBOOK_APP_SECRET: ${FACEBOOK_APP_SECRET:-}
+      # Internal Docker network URL for invoices app (server-to-server)
+      INVOICES_APP_INTERNAL_URL: http://saleor-invoice-app:3000
+      # Public URL for invoices app (for client downloads)
+      INVOICES_APP_URL: ${INVOICE_APP_URL}
       NODE_ENV: development
       # Next.js
       PORT: ${STOREFRONT_PORT}

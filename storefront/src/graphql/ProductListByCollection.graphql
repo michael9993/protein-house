@@ -1,10 +1,21 @@
 query ProductListByCollection($slug: String!, $channel: String!) {
 	collection(slug: $slug, channel: $channel) {
+		id
 		name
+		slug
 		description
 		seoDescription
 		seoTitle
+		backgroundImage {
+			url
+			alt
+		}
+		metadata {
+			key
+			value
+		}
 		products(first: 100) {
+			totalCount
 			edges {
 				node {
 					...ProductListItem

@@ -7,13 +7,47 @@ import { DeliveryMethodsSkeleton } from "@/checkout/sections/DeliveryMethods/Del
 import { AddressSectionSkeleton } from "@/checkout/components/AddressSectionSkeleton";
 import { getQueryParams } from "@/checkout/lib/utils/url";
 import { CollapseSection } from "@/checkout/sections/CheckoutForm/CollapseSection";
-import { Divider } from "@/checkout/components";
 import { UserShippingAddressSection } from "@/checkout/sections/UserShippingAddressSection";
 import { GuestShippingAddressSection } from "@/checkout/sections/GuestShippingAddressSection";
 import { UserBillingAddressSection } from "@/checkout/sections/UserBillingAddressSection";
 import { PaymentSection, PaymentSectionSkeleton } from "@/checkout/sections/PaymentSection";
 import { GuestBillingAddressSection } from "@/checkout/sections/GuestBillingAddressSection";
 import { useUser } from "@/checkout/hooks/useUser";
+
+interface CheckoutStepProps {
+	number: number;
+	title: string;
+	description?: string;
+	children: React.ReactNode;
+	isComplete?: boolean;
+}
+
+const CheckoutStep = ({ number, title, description, children, isComplete }: CheckoutStepProps) => (
+	<div className="rounded-xl border border-neutral-200 bg-white shadow-sm">
+		<div className="flex items-center gap-4 border-b border-neutral-100 px-6 py-4">
+			<div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+				isComplete 
+					? "bg-green-100 text-green-700" 
+					: "bg-neutral-900 text-white"
+			}`}>
+				{isComplete ? (
+					<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+					</svg>
+				) : (
+					number
+				)}
+			</div>
+			<div>
+				<h3 className="font-semibold text-neutral-900">{title}</h3>
+				{description && <p className="text-sm text-neutral-500">{description}</p>}
+			</div>
+		</div>
+		<div className="p-6">
+			{children}
+		</div>
+	</div>
+);
 
 export const CheckoutForm = () => {
 	const { user } = useUser();
@@ -23,33 +57,63 @@ export const CheckoutForm = () => {
 	const [showOnlyContact, setShowOnlyContact] = useState(!!passwordResetToken);
 
 	return (
-		<div className="flex flex-col items-end">
-			<div className="flex w-full flex-col rounded">
+		<div className="flex flex-col gap-6">
+			{/* Contact Section */}
+			<CheckoutStep 
+				number={1} 
+				title="Contact Information" 
+				description="We'll use this to send order updates"
+			>
 				<Suspense fallback={<ContactSkeleton />}>
 					<Contact setShowOnlyContact={setShowOnlyContact} />
 				</Suspense>
-				<>
-					{checkout?.isShippingRequired && (
-						<Suspense fallback={<AddressSectionSkeleton />}>
-							<CollapseSection collapse={showOnlyContact}>
-								<Divider />
-								<div className="py-4" data-testid="shippingAddressSection">
-									{user ? <UserShippingAddressSection /> : <GuestShippingAddressSection />}
-								</div>
+			</CheckoutStep>
+
+			{/* Shipping Address Section */}
+			{checkout?.isShippingRequired && (
+				<Suspense fallback={<AddressSectionSkeleton />}>
+					<CollapseSection collapse={showOnlyContact}>
+						<CheckoutStep 
+							number={2} 
+							title="Shipping Address" 
+							description="Where should we deliver?"
+						>
+							<div data-testid="shippingAddressSection">
+								{user ? <UserShippingAddressSection /> : <GuestShippingAddressSection />}
+							</div>
+						</CheckoutStep>
+						
+						{/* Billing Address */}
+						<div className="mt-6">
+							<CheckoutStep 
+								number={3} 
+								title="Billing Address" 
+								description="For your invoice"
+							>
 								{user ? <UserBillingAddressSection /> : <GuestBillingAddressSection />}
-							</CollapseSection>
-						</Suspense>
-					)}
-					<Suspense fallback={<DeliveryMethodsSkeleton />}>
-						<DeliveryMethods collapsed={showOnlyContact} />
-					</Suspense>
-					<Suspense fallback={<PaymentSectionSkeleton />}>
-						<CollapseSection collapse={showOnlyContact}>
-							<PaymentSection />
-						</CollapseSection>
-					</Suspense>
-				</>
-			</div>
+							</CheckoutStep>
+						</div>
+					</CollapseSection>
+				</Suspense>
+			)}
+
+			{/* Delivery Methods Section */}
+			<Suspense fallback={<DeliveryMethodsSkeleton />}>
+				<DeliveryMethods collapsed={showOnlyContact} />
+			</Suspense>
+
+			{/* Payment Section */}
+			<Suspense fallback={<PaymentSectionSkeleton />}>
+				<CollapseSection collapse={showOnlyContact}>
+					<CheckoutStep 
+						number={checkout?.isShippingRequired ? 5 : 2} 
+						title="Payment" 
+						description="Select your payment method"
+					>
+						<PaymentSection />
+					</CheckoutStep>
+				</CollapseSection>
+			</Suspense>
 		</div>
 	);
 };

@@ -17,13 +17,32 @@ fragment ProductListItem on Product {
 				}
 			}
 		}
+		priceRangeUndiscounted {
+			start {
+				gross {
+					amount
+					currency
+				}
+			}
+			stop {
+				gross {
+					amount
+					currency
+				}
+			}
+		}
 	}
 	category {
 		id
 		name
+		slug
 	}
 	thumbnail(size: 1024, format: WEBP) {
 		url
 		alt
+	}
+	variants {
+		id
+		quantityAvailable
 	}
 }

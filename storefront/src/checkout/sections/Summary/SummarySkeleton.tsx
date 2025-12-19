@@ -1,59 +1,70 @@
-import { Divider, Skeleton } from "@/checkout/components";
+import { Skeleton } from "@/checkout/components";
 
 export const SummarySkeleton = () => (
-	<div className="summary px-6 pt-6">
-		<div className="flex flex-col lg:hidden">
-			<div className="mb-6 flex flex-row items-center justify-between">
-				<Skeleton className="w-1/3" />
-				<Skeleton className="w-1/4" />
+	<div className="sticky top-8 h-fit w-full">
+		<div className="rounded-xl border border-neutral-200 bg-white shadow-sm">
+			{/* Header */}
+			<div className="border-b border-neutral-100 px-6 py-4">
+				<div className="flex items-center justify-between">
+					<Skeleton className="h-5 w-32" />
+					<Skeleton className="h-6 w-16 rounded-full" />
+				</div>
 			</div>
-			<Skeleton className="block h-8 w-5/12 sm:hidden" />
+
+			{/* Products Toggle */}
+			<div className="flex items-center justify-between px-6 py-3">
+				<Skeleton className="h-4 w-20" />
+				<Skeleton className="h-4 w-4" />
+			</div>
+
+			{/* Product Items */}
+			<div className="space-y-2 px-4 pb-2">
+				{[1, 2, 3].map((i) => (
+					<div key={i} className="flex items-center gap-3 rounded-lg p-2">
+						<Skeleton className="h-16 w-16 rounded-lg" />
+						<div className="flex-1 space-y-2">
+							<Skeleton className="h-4 w-32" />
+							<Skeleton className="h-3 w-20" />
+						</div>
+						<Skeleton className="h-4 w-16" />
+					</div>
+				))}
+			</div>
+
+			{/* Promo Code */}
+			<div className="border-t border-neutral-100 px-6 py-4">
+				<Skeleton className="h-10 w-full rounded-lg" />
+			</div>
+
+			{/* Price Breakdown */}
+			<div className="border-t border-neutral-100 px-6 py-4">
+				<div className="space-y-3">
+					<div className="flex items-center justify-between">
+						<Skeleton className="h-4 w-16" />
+						<Skeleton className="h-4 w-12" />
+					</div>
+					<div className="flex items-center justify-between">
+						<Skeleton className="h-4 w-16" />
+						<Skeleton className="h-4 w-12" />
+					</div>
+				</div>
+			</div>
+
+			{/* Total */}
+			<div className="rounded-b-xl bg-neutral-50 px-6 py-4">
+				<div className="flex items-center justify-between">
+					<div className="space-y-1">
+						<Skeleton className="h-5 w-12" />
+						<Skeleton className="h-3 w-24" />
+					</div>
+					<Skeleton className="h-6 w-20" />
+				</div>
+			</div>
 		</div>
-		<div className="hidden sm:block">
-			<div className="static mb-8 flex h-24 flex-row  items-center justify-between">
-				<div className="flex flex-col flex-wrap self-stretch">
-					<Skeleton className="h-18 w-18 mr-4" />
-					<Skeleton className="w-22 mb-4" />
-					<Skeleton className="w-18 mb-4" />
-					<Skeleton className="w-12" />
-				</div>
-				<div className="justify center flex flex-col items-end">
-					<Skeleton className="w-22 mb-4" />
-					<Skeleton className="w-18 mb-4" />
-				</div>
-			</div>
-			<div className="static mb-4 flex h-24 flex-row  items-center justify-between">
-				<div className="flex flex-col flex-wrap self-stretch">
-					<Skeleton className="h-18 w-18 mr-4" />
-					<Skeleton className="w-22 mb-4" />
-					<Skeleton className="w-18 mb-4" />
-				</div>
-				<div className="justify center flex flex-col items-end">
-					<Skeleton className="w-22 mb-4" />
-					<Skeleton className="w-18" />
-				</div>
-			</div>
-			<Skeleton className="mb-4 h-6" />
-			<Divider className="bg-neutral-100" />
-			<div className="flex flex-col">
-				<div className="mt-6 flex flex-row items-center justify-between">
-					<Skeleton className="w-22" />
-					<Skeleton className="w-18" />
-				</div>
-				<div className="my-6 flex flex-row items-center justify-between">
-					<Skeleton className="w-16" />
-					<Skeleton className="w-14" />
-				</div>
-				<div className="mb-6 flex flex-row items-center justify-between">
-					<Skeleton className="w-19" />
-					<Skeleton className="w-10" />
-				</div>
-				<Divider className="bg-neutral-100" />
-				<div className="my-6 flex flex-row items-center justify-between">
-					<Skeleton className="w-14" />
-					<Skeleton className="w-12" />
-				</div>
-			</div>
+
+		{/* Security Badge */}
+		<div className="mt-4 flex items-center justify-center">
+			<Skeleton className="h-4 w-40" />
 		</div>
 	</div>
 );

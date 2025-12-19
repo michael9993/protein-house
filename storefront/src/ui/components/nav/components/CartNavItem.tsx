@@ -1,25 +1,47 @@
-import { ShoppingBagIcon } from "lucide-react";
 import clsx from "clsx";
 import * as Checkout from "@/lib/checkout";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
+import { storeConfig } from "@/config";
 
 export const CartNavItem = async ({ channel }: { channel: string }) => {
 	const checkoutId = await Checkout.getIdFromCookies(channel);
 	const checkout = checkoutId ? await Checkout.find(checkoutId) : null;
+	const { branding } = storeConfig;
 
 	const lineCount = checkout ? checkout.lines.reduce((result, line) => result + line.quantity, 0) : 0;
 
 	return (
-		<LinkWithChannel href="/cart" className="relative flex items-center" data-testid="CartNavItem">
-			<ShoppingBagIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
+		<LinkWithChannel 
+			href="/cart" 
+			className="group relative flex items-center justify-center rounded-full p-2 transition-all duration-200 hover:bg-neutral-100" 
+			data-testid="CartNavItem"
+		>
+			{/* Modern Shopping Bag Icon */}
+			<svg 
+				className="h-6 w-6 text-neutral-700 transition-colors group-hover:text-neutral-900" 
+				fill="none" 
+				viewBox="0 0 24 24" 
+				stroke="currentColor"
+				strokeWidth={1.5}
+			>
+				<path 
+					strokeLinecap="round" 
+					strokeLinejoin="round" 
+					d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" 
+				/>
+			</svg>
+			
+			{/* Cart Badge */}
 			{lineCount > 0 ? (
 				<div
 					className={clsx(
-						"absolute bottom-0 right-0 -mb-2 -mr-2 flex h-4 flex-col items-center justify-center rounded bg-neutral-900 text-xs font-medium text-white",
-						lineCount > 9 ? "w-[3ch]" : "w-[2ch]",
+						"absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white shadow-sm transition-transform group-hover:scale-110",
+						lineCount > 9 && "h-5 w-6",
 					)}
+					style={{ backgroundColor: branding.colors.primary }}
 				>
-					{lineCount} <span className="sr-only">item{lineCount > 1 ? "s" : ""} in cart, view bag</span>
+					{lineCount > 99 ? "99+" : lineCount}
+					<span className="sr-only">{lineCount} item{lineCount > 1 ? "s" : ""} in cart, view bag</span>
 				</div>
 			) : (
 				<span className="sr-only">0 items in cart</span>

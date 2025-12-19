@@ -1,0 +1,38 @@
+# Mutation to add multiple lines to checkout at once
+mutation CheckoutAddLines($id: ID!, $lines: [CheckoutLineInput!]!) {
+	checkoutLinesAdd(id: $id, lines: $lines) {
+		checkout {
+			id
+			lines {
+				id
+				quantity
+				variant {
+					id
+					name
+					product {
+						name
+						slug
+					}
+				}
+				totalPrice {
+					gross {
+						amount
+						currency
+					}
+				}
+			}
+			totalPrice {
+				gross {
+					amount
+					currency
+				}
+			}
+		}
+		errors {
+			field
+			message
+			code
+		}
+	}
+}
+
