@@ -10,15 +10,36 @@ query ProductDetails($slug: String!, $channel: String!) {
 			url
 			alt
 		}
+		media {
+			id
+			url(size: 1024, format: WEBP)
+			alt
+			type
+		}
 		category {
 			id
 			name
+			slug
 		}
 		variants {
 			...VariantDetails
 		}
 		pricing {
 			priceRange {
+				start {
+					gross {
+						amount
+						currency
+					}
+				}
+				stop {
+					gross {
+						amount
+						currency
+					}
+				}
+			}
+			priceRangeUndiscounted {
 				start {
 					gross {
 						amount

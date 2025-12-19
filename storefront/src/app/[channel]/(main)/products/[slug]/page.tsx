@@ -5,14 +5,12 @@ import { type ResolvingMetadata, type Metadata } from "next";
 import xss from "xss";
 import { invariant } from "ts-invariant";
 import { type WithContext, type Product } from "schema-dts";
-import { AddButton } from "./AddButton";
-import { VariantSelector } from "@/ui/components/VariantSelector";
-import { ProductImageWrapper } from "@/ui/atoms/ProductImageWrapper";
+import { ProductDetailsDocument, ProductListDocument, CheckoutAddLineDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { formatMoney, formatMoneyRange } from "@/lib/utils";
-import { CheckoutAddLineDocument, ProductDetailsDocument, ProductListDocument } from "@/gql/graphql";
 import * as Checkout from "@/lib/checkout";
-import { AvailabilityMessage } from "@/ui/components/AvailabilityMessage";
+import { storeConfig } from "@/config";
+import { ProductDetailClient } from "./ProductDetailClient";
 
 export async function generateMetadata(
 	props: {
@@ -40,7 +38,7 @@ export async function generateMetadata(
 	const productNameAndVariant = variantName ? `${productName} - ${variantName}` : productName;
 
 	return {
-		title: `${product.name} | ${product.seoTitle || (await parent).title?.absolute}`,
+		title: `${product.name} | ${storeConfig.store.name}`,
 		description: product.seoDescription || productNameAndVariant,
 		alternates: {
 			canonical: process.env.NEXT_PUBLIC_STOREFRONT_URL
@@ -90,42 +88,23 @@ export default async function Page(props: {
 		notFound();
 	}
 
-	const firstImage = product.thumbnail;
+	// Parse description
 	const description = product?.description ? parser.parse(JSON.parse(product?.description)) : null;
+	const descriptionHtml = description ? description.map((content: string) => xss(content)).join("") : null;
 
-	const variants = product.variants;
+	// Build images array
+	const images = [
+		product.thumbnail && { url: product.thumbnail.url, alt: product.thumbnail.alt },
+		...(product.media?.map(m => ({ url: m.url, alt: m.alt })) || []),
+	].filter(Boolean) as Array<{ url: string; alt: string | null }>;
+
+	// Get variants info
+	const variants = product.variants || [];
 	const selectedVariantID = searchParams.variant;
-	const selectedVariant = variants?.find(({ id }) => id === selectedVariantID);
+	const selectedVariant = variants.find(({ id }) => id === selectedVariantID);
+	const isAvailable = variants.some((variant) => variant.quantityAvailable) ?? false;
 
-	async function addItem() {
-		"use server";
-
-		const checkout = await Checkout.findOrCreate({
-			checkoutId: await Checkout.getIdFromCookies(params.channel),
-			channel: params.channel,
-		});
-		invariant(checkout, "This should never happen");
-
-		await Checkout.saveIdToCookie(params.channel, checkout.id);
-
-		if (!selectedVariantID) {
-			return;
-		}
-
-		// TODO: error handling
-		await executeGraphQL(CheckoutAddLineDocument, {
-			variables: {
-				id: checkout.id,
-				productVariantId: decodeURIComponent(selectedVariantID),
-			},
-			cache: "no-cache",
-		});
-
-		revalidatePath("/cart");
-	}
-
-	const isAvailable = variants?.some((variant) => variant.quantityAvailable) ?? false;
-
+	// Calculate price
 	const price = selectedVariant?.pricing?.price?.gross
 		? formatMoney(selectedVariant.pricing.price.gross.amount, selectedVariant.pricing.price.gross.currency)
 		: isAvailable
@@ -135,6 +114,55 @@ export default async function Page(props: {
 				})
 			: "";
 
+	// Check for discount - from variant or product pricing
+	const variantUndiscounted = selectedVariant?.pricing?.priceUndiscounted?.gross;
+	const productUndiscounted = product?.pricing?.priceRangeUndiscounted?.start?.gross;
+	const currentPrice = selectedVariant?.pricing?.price?.gross || product?.pricing?.priceRange?.start?.gross;
+	
+	// Determine if there's a discount
+	const hasDiscount = variantUndiscounted 
+		? (currentPrice && variantUndiscounted.amount > currentPrice.amount)
+		: (productUndiscounted && currentPrice && productUndiscounted.amount > currentPrice.amount);
+	
+	const originalPrice = hasDiscount
+		? formatMoney(
+			variantUndiscounted?.amount || productUndiscounted?.amount || 0,
+			variantUndiscounted?.currency || productUndiscounted?.currency || "USD"
+		)
+		: null;
+
+	// Server action for adding to cart
+	async function addItem(formData: FormData) {
+		"use server";
+
+		const variantId = formData.get("variantId") as string;
+		const quantity = parseInt(formData.get("quantity") as string) || 1;
+
+		if (!variantId) return;
+
+		const checkout = await Checkout.findOrCreate({
+			checkoutId: await Checkout.getIdFromCookies(params.channel),
+			channel: params.channel,
+		});
+		invariant(checkout, "This should never happen");
+
+		await Checkout.saveIdToCookie(params.channel, checkout.id);
+
+		// Add line (quantity times if needed)
+		for (let i = 0; i < quantity; i++) {
+			await executeGraphQL(CheckoutAddLineDocument, {
+				variables: {
+					id: checkout.id,
+					productVariantId: decodeURIComponent(variantId),
+				},
+				cache: "no-cache",
+			});
+		}
+
+		revalidatePath("/cart");
+	}
+
+	// JSON-LD for SEO
 	const productJsonLd: WithContext<Product> = {
 		"@context": "https://schema.org",
 		"@type": "Product",
@@ -154,7 +182,6 @@ export default async function Page(props: {
 				}
 			: {
 					name: product.name,
-
 					description: product.seoDescription || product.name,
 					offers: {
 						"@type": "AggregateOffer",
@@ -169,56 +196,36 @@ export default async function Page(props: {
 	};
 
 	return (
-		<section className="mx-auto grid max-w-7xl p-8">
+		<>
 			<script
 				type="application/ld+json"
 				dangerouslySetInnerHTML={{
 					__html: JSON.stringify(productJsonLd),
 				}}
 			/>
-			<form className="grid gap-2 sm:grid-cols-2 lg:grid-cols-8" action={addItem}>
-				<div className="md:col-span-1 lg:col-span-5">
-					{firstImage && (
-						<ProductImageWrapper
-							priority={true}
-							alt={firstImage.alt ?? ""}
-							width={1024}
-							height={1024}
-							src={firstImage.url}
-						/>
-					)}
-				</div>
-				<div className="flex flex-col pt-6 sm:col-span-1 sm:px-6 sm:pt-0 lg:col-span-3 lg:pt-16">
-					<div>
-						<h1 className="mb-4 flex-auto text-3xl font-medium tracking-tight text-neutral-900">
-							{product?.name}
-						</h1>
-						<p className="mb-8 text-sm " data-testid="ProductElement_Price">
-							{price}
-						</p>
-
-						{variants && (
-							<VariantSelector
-								selectedVariant={selectedVariant}
-								variants={variants}
-								product={product}
-								channel={params.channel}
-							/>
-						)}
-						<AvailabilityMessage isAvailable={isAvailable} />
-						<div className="mt-8">
-							<AddButton disabled={!selectedVariantID || !selectedVariant?.quantityAvailable} />
-						</div>
-						{description && (
-							<div className="mt-8 space-y-6 text-sm text-neutral-500">
-								{description.map((content) => (
-									<div key={content} dangerouslySetInnerHTML={{ __html: xss(content) }} />
-								))}
-							</div>
-						)}
-					</div>
-				</div>
-			</form>
-		</section>
+			<ProductDetailClient
+				product={{
+					id: product.id,
+					name: product.name,
+					slug: product.slug,
+					description: descriptionHtml,
+					category: product.category?.name || null,
+					categorySlug: product.category?.slug || null,
+					price,
+					originalPrice,
+					isAvailable,
+					images,
+					variants: variants.map(v => ({
+						id: v.id,
+						name: v.name,
+						quantityAvailable: v.quantityAvailable || 0,
+						pricing: v.pricing,
+					})),
+				}}
+				selectedVariantId={selectedVariantID}
+				channel={params.channel}
+				addItemAction={addItem}
+			/>
+		</>
 	);
 }

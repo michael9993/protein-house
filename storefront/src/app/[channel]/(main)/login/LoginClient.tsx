@@ -1,0 +1,425 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { storeConfig } from "@/config";
+import { loginAction, registerAction, getOAuthUrl } from "./actions";
+
+interface LoginClientProps {
+	channel: string;
+	redirectUrl?: string;
+	initialError?: string;
+	confirmed?: boolean;
+}
+
+export function LoginClient({ channel, redirectUrl, initialError, confirmed }: LoginClientProps) {
+	const [isLogin, setIsLogin] = useState(true);
+	const [error, setError] = useState<string | null>(initialError || null);
+	const [showSuccess, setShowSuccess] = useState(confirmed || false);
+	const [showPassword, setShowPassword] = useState(false);
+	const [isPending, startTransition] = useTransition();
+	const router = useRouter();
+	const { branding, store } = storeConfig;
+
+	const handleSubmit = async (formData: FormData) => {
+		setError(null);
+		
+		startTransition(async () => {
+			const action = isLogin ? loginAction : registerAction;
+			const result = await action(formData);
+
+			if (result.error) {
+				setError(result.error);
+			} else if (result.success) {
+				router.push(redirectUrl || `/${channel}`);
+				router.refresh();
+			}
+		});
+	};
+
+	return (
+		<div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12">
+			<div className="w-full max-w-md">
+				{/* Logo */}
+				<div className="mb-8 text-center">
+					<Link 
+						href={`/${channel}`} 
+						className="inline-flex items-center gap-2 text-2xl font-bold"
+						style={{ color: branding.colors.primary }}
+					>
+						<svg className="h-10 w-10" viewBox="0 0 24 24" fill="currentColor">
+							<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+						</svg>
+						{store.name}
+					</Link>
+					<h1 className="mt-6 text-2xl font-bold text-neutral-900">
+						{isLogin ? "Welcome back" : "Create your account"}
+					</h1>
+					<p className="mt-2 text-neutral-600">
+						{isLogin 
+							? "Sign in to access your orders, wishlist and personalized recommendations" 
+							: "Join us to enjoy exclusive benefits and faster checkout"}
+					</p>
+				</div>
+
+				{/* Form Card */}
+				<div className="rounded-2xl bg-white p-8 shadow-lg ring-1 ring-neutral-100">
+					{/* Tab Switcher */}
+					<div className="mb-6 flex rounded-lg bg-neutral-100 p-1">
+						<button
+							type="button"
+							onClick={() => { setIsLogin(true); setError(null); }}
+							className={`flex-1 rounded-md py-2.5 text-sm font-medium transition-all ${
+								isLogin 
+									? "bg-white text-neutral-900 shadow-sm" 
+									: "text-neutral-600 hover:text-neutral-900"
+							}`}
+						>
+							Sign In
+						</button>
+						<button
+							type="button"
+							onClick={() => { setIsLogin(false); setError(null); }}
+							className={`flex-1 rounded-md py-2.5 text-sm font-medium transition-all ${
+								!isLogin 
+									? "bg-white text-neutral-900 shadow-sm" 
+									: "text-neutral-600 hover:text-neutral-900"
+							}`}
+						>
+							Sign Up
+						</button>
+					</div>
+
+					{/* Error Message */}
+					{error && (
+						<div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
+							<div className="flex items-start gap-2">
+								<svg className="h-5 w-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+								</svg>
+								<div className="flex-1">
+									<p className="font-medium">{error}</p>
+									{error.includes("Account already exists") && (
+										<div className="mt-2">
+											<p className="text-xs text-red-500 mb-2">
+												You already have an account with this email. Please sign in with your email and password below.
+											</p>
+											<button
+												type="button"
+												onClick={() => {
+													setIsLogin(true);
+													setError(null);
+												}}
+												className="text-xs font-medium text-red-700 underline hover:text-red-800"
+											>
+												Switch to Sign In →
+											</button>
+										</div>
+									)}
+								</div>
+							</div>
+						</div>
+					)}
+
+					<form action={handleSubmit} className="space-y-4">
+						{/* Name Fields (Sign Up Only) */}
+						{!isLogin && (
+							<div className="grid grid-cols-2 gap-4">
+								<div>
+									<label htmlFor="firstName" className="mb-1.5 block text-sm font-medium text-neutral-700">
+										First Name
+									</label>
+									<input
+										id="firstName"
+										name="firstName"
+										type="text"
+										required={!isLogin}
+										className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder-neutral-400 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20"
+										placeholder="John"
+									/>
+								</div>
+								<div>
+									<label htmlFor="lastName" className="mb-1.5 block text-sm font-medium text-neutral-700">
+										Last Name
+									</label>
+									<input
+										id="lastName"
+										name="lastName"
+										type="text"
+										required={!isLogin}
+										className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder-neutral-400 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20"
+										placeholder="Doe"
+									/>
+								</div>
+							</div>
+						)}
+
+						{/* Email */}
+						<div>
+							<label htmlFor="email" className="mb-1.5 block text-sm font-medium text-neutral-700">
+								Email Address
+							</label>
+							<input
+								id="email"
+								name="email"
+								type="email"
+								required
+								autoComplete="email"
+								className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder-neutral-400 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20"
+								placeholder="you@example.com"
+							/>
+						</div>
+
+						{/* Password */}
+						<div>
+							<div className="mb-1.5 flex items-center justify-between">
+								<label htmlFor="password" className="text-sm font-medium text-neutral-700">
+									Password
+								</label>
+								{isLogin && (
+									<Link 
+										href={`/${channel}/forgot-password`}
+										className="text-sm font-medium hover:underline"
+										style={{ color: branding.colors.primary }}
+									>
+										Forgot password?
+									</Link>
+								)}
+							</div>
+							<div className="relative">
+								<input
+									id="password"
+									name="password"
+									type={showPassword ? "text" : "password"}
+									required
+									minLength={8}
+									autoComplete={isLogin ? "current-password" : "new-password"}
+									className="w-full rounded-lg border border-neutral-200 px-4 py-3 pr-12 text-neutral-900 placeholder-neutral-400 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20"
+									placeholder={isLogin ? "Enter your password" : "At least 8 characters"}
+								/>
+								<button
+									type="button"
+									onClick={() => setShowPassword(!showPassword)}
+									className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+								>
+									{showPassword ? (
+										<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+										</svg>
+									) : (
+										<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+										</svg>
+									)}
+								</button>
+							</div>
+						</div>
+
+						{/* Confirm Password (Sign Up Only) */}
+						{!isLogin && (
+							<div>
+								<label htmlFor="confirmPassword" className="mb-1.5 block text-sm font-medium text-neutral-700">
+									Confirm Password
+								</label>
+								<input
+									id="confirmPassword"
+									name="confirmPassword"
+									type="password"
+									required={!isLogin}
+									minLength={8}
+									autoComplete="new-password"
+									className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder-neutral-400 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20"
+									placeholder="Confirm your password"
+								/>
+							</div>
+						)}
+
+						{/* Submit Button */}
+						<button
+							type="submit"
+							disabled={isPending}
+							className="flex w-full items-center justify-center gap-2 rounded-lg py-3.5 text-base font-semibold text-white transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+							style={{ backgroundColor: branding.colors.primary }}
+						>
+							{isPending ? (
+								<>
+									<svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+										<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+										<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+									</svg>
+									Processing...
+								</>
+							) : (
+								<>
+									{isLogin ? "Sign In" : "Create Account"}
+									<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+									</svg>
+								</>
+							)}
+						</button>
+					</form>
+
+					{/* Divider */}
+					<div className="my-6 flex items-center gap-4">
+						<div className="h-px flex-1 bg-neutral-200" />
+						<span className="text-sm text-neutral-500">or continue with</span>
+						<div className="h-px flex-1 bg-neutral-200" />
+					</div>
+
+					{/* Social Login */}
+					<div className="grid grid-cols-2 gap-3">
+						<SocialLoginButton
+							provider="google"
+							channel={channel}
+							redirectUrl={redirectUrl}
+							onError={(msg) => setError(msg)}
+						/>
+						<SocialLoginButton
+							provider="facebook"
+							channel={channel}
+							redirectUrl={redirectUrl}
+							onError={(msg) => setError(msg)}
+						/>
+					</div>
+					
+					{/* OAuth Info */}
+					<p className="mt-3 text-center text-xs text-neutral-400">
+						Social login requires configuration in Dashboard
+					</p>
+				</div>
+
+				{/* Benefits */}
+				<div className="mt-8 rounded-xl bg-neutral-50 p-6">
+					<h3 className="mb-4 text-sm font-semibold text-neutral-900">Why create an account?</h3>
+					<ul className="space-y-3">
+						{[
+							{ icon: "🚀", text: "Faster checkout with saved details" },
+							{ icon: "📦", text: "Track your orders in real-time" },
+							{ icon: "❤️", text: "Save items to your wishlist" },
+							{ icon: "🎁", text: "Exclusive member discounts & offers" },
+						].map((benefit, index) => (
+							<li key={index} className="flex items-center gap-3 text-sm text-neutral-600">
+								<span className="text-lg">{benefit.icon}</span>
+								{benefit.text}
+							</li>
+						))}
+					</ul>
+				</div>
+
+				{/* Terms */}
+				<p className="mt-6 text-center text-xs text-neutral-500">
+					By continuing, you agree to our{" "}
+					<Link href={`/${channel}/pages/terms-of-service`} className="underline hover:text-neutral-700">
+						Terms of Service
+					</Link>{" "}
+					and{" "}
+					<Link href={`/${channel}/pages/privacy-policy`} className="underline hover:text-neutral-700">
+						Privacy Policy
+					</Link>
+				</p>
+			</div>
+		</div>
+	);
+}
+
+/**
+ * Social Login Button Component
+ * Handles Google and Facebook OAuth login
+ */
+function SocialLoginButton({
+	provider,
+	channel,
+	redirectUrl,
+	onError,
+}: {
+	provider: "google" | "facebook";
+	channel: string;
+	redirectUrl?: string;
+	onError: (message: string) => void;
+}) {
+	const [isLoading, setIsLoading] = useState(false);
+
+	const handleSocialLogin = async () => {
+		setIsLoading(true);
+		try {
+			// Build redirect URL for OAuth callback - must match API route
+			const callbackUrl = `${window.location.origin}/api/auth/${provider}/callback`;
+			
+			// Build the final redirect URL after OAuth (where to send user after login)
+			const finalRedirectUrl = redirectUrl || `/${channel}`;
+			
+			const result = await getOAuthUrl(provider, callbackUrl, finalRedirectUrl);
+
+			if (result.error) {
+				console.error(`${provider} login error:`, result.error);
+				onError(result.error);
+				setIsLoading(false);
+				return;
+			}
+
+			// Validate URL before redirecting
+			if (result.url && typeof result.url === "string" && result.url.startsWith("http")) {
+				// Redirect to OAuth provider
+				window.location.href = result.url;
+			} else {
+				console.error(`${provider} invalid URL:`, result.url);
+				onError(`Invalid OAuth URL received. Please contact support.`);
+				setIsLoading(false);
+			}
+		} catch (error) {
+			console.error(`${provider} login error:`, error);
+			onError(`Failed to initiate ${provider} login. Please try again.`);
+			setIsLoading(false);
+		}
+	};
+
+	const providers = {
+		google: {
+			name: "Google",
+			icon: (
+				<svg className="h-5 w-5" viewBox="0 0 24 24">
+					<path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+					<path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+					<path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+					<path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+				</svg>
+			),
+		},
+		facebook: {
+			name: "Facebook",
+			icon: (
+				<svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+					<path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+				</svg>
+			),
+		},
+	};
+
+	const providerInfo = providers[provider];
+
+	return (
+		<button
+			type="button"
+			onClick={handleSocialLogin}
+			disabled={isLoading}
+			className={`flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+				provider === "facebook" 
+					? "border-[#1877F2] text-[#1877F2] hover:bg-[#1877F2]/5" 
+					: "border-neutral-200 text-neutral-700 hover:bg-neutral-50"
+			}`}
+		>
+			{isLoading ? (
+				<svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+					<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+					<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+				</svg>
+			) : (
+				providerInfo.icon
+			)}
+			{providerInfo.name}
+		</button>
+	);
+}

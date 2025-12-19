@@ -16,26 +16,37 @@ export const SummaryItem = ({ line, children }: SummaryItemProps) => {
 	const attributesText = useSummaryLineLineAttributesText(line);
 
 	return (
-		<li key={line.id} className="flex border-b py-4 last:border-none" data-testid="SummaryItem">
-			<div className="aspect-square h-16 w-16 flex-shrink-0 overflow-hidden rounded border bg-neutral-50 md:h-24 md:w-24 md:bg-white">
+		<li key={line.id} className="flex gap-3 rounded-lg p-2 transition-colors hover:bg-neutral-50" data-testid="SummaryItem">
+			{/* Product Image */}
+			<div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border border-neutral-200 bg-white">
 				{productImage ? (
 					<img
 						src={productImage.url}
 						alt={productImage.alt ?? ""}
-						className="h-full w-full object-contain object-center"
+						className="h-full w-full object-contain object-center p-1"
 					/>
 				) : (
-					<PhotoIcon />
+					<div className="flex h-full w-full items-center justify-center bg-neutral-100">
+						<PhotoIcon />
+					</div>
+				)}
+				{/* Quantity Badge */}
+				<span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-neutral-700 text-xs font-medium text-white">
+					{line.quantity}
+				</span>
+			</div>
+			
+			{/* Product Info */}
+			<div className="flex min-w-0 flex-1 flex-col justify-center">
+				<p className="truncate text-sm font-medium text-neutral-900">{productName}</p>
+				{attributesText && (
+					<p className="mt-0.5 truncate text-xs text-neutral-500">{attributesText}</p>
 				)}
 			</div>
-			<div className="relative flex flex-1 flex-col justify-between pl-4">
-				<div className="flex justify-between justify-items-start gap-4">
-					<div className="flex flex-col gap-y-1">
-						<p className="font-bold">{productName}</p>
-						<p className="text-xs text-neutral-500">{attributesText}</p>
-					</div>
-					{children}
-				</div>
+			
+			{/* Price Section */}
+			<div className="flex flex-shrink-0 items-center">
+				{children}
 			</div>
 		</li>
 	);

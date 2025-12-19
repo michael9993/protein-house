@@ -1,108 +1,142 @@
-import { ProductImageWrapper } from "@/ui/atoms/ProductImageWrapper";
-import { CheckoutLink } from "./CheckoutLink";
-import { DeleteLineButton } from "./DeleteLineButton";
 import * as Checkout from "@/lib/checkout";
-import { formatMoney, getHrefForVariant } from "@/lib/utils";
-import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
+import { formatMoney } from "@/lib/utils";
+import { executeGraphQL } from "@/lib/graphql";
+import { CheckoutDeleteLinesDocument, CheckoutAddLinesDocument, CheckoutCreateWithLinesDocument } from "@/gql/graphql";
+import { storeConfig } from "@/config";
+import { CartClient } from "./CartClient";
+import { revalidatePath } from "next/cache";
 
 export const metadata = {
-	title: "Shopping Cart · Saleor Storefront example",
+	title: `Shopping Cart | ${storeConfig.store.name}`,
+	description: "Review your shopping cart",
 };
 
 export default async function Page(props: { params: Promise<{ channel: string }> }) {
 	const params = await props.params;
 	const checkoutId = await Checkout.getIdFromCookies(params.channel);
-
 	const checkout = await Checkout.find(checkoutId);
 
-	if (!checkout || checkout.lines.length < 1) {
-		return (
-			<section className="mx-auto max-w-7xl p-8">
-				<h1 className="mt-8 text-3xl font-bold text-neutral-900">Your Shopping Cart is empty</h1>
-				<p className="my-12 text-sm text-neutral-500">
-					Looks like you haven’t added any items to the cart yet.
-				</p>
-				<LinkWithChannel
-					href="/products"
-					className="inline-block max-w-full rounded border border-transparent bg-neutral-900 px-6 py-3 text-center font-medium text-neutral-50 hover:bg-neutral-800 aria-disabled:cursor-not-allowed aria-disabled:bg-neutral-500 sm:px-16"
-				>
-					Explore products
-				</LinkWithChannel>
-			</section>
-		);
+	// Server action for deleting lines
+	async function deleteLineAction(lineId: string) {
+		"use server";
+		
+		const currentCheckoutId = await Checkout.getIdFromCookies(params.channel);
+		if (!currentCheckoutId) return;
+		
+		await executeGraphQL(CheckoutDeleteLinesDocument, {
+			variables: {
+				checkoutId: currentCheckoutId,
+				lineIds: [lineId],
+			},
+			cache: "no-cache",
+		});
+		
+		revalidatePath("/cart");
 	}
 
-	return (
-		<section className="mx-auto max-w-7xl p-8">
-			<h1 className="mt-8 text-3xl font-bold text-neutral-900">Your Shopping Cart</h1>
-			<form className="mt-12">
-				<ul
-					data-testid="CartProductList"
-					role="list"
-					className="divide-y divide-neutral-200 border-b border-t border-neutral-200"
-				>
-					{checkout.lines.map((item) => (
-						<li key={item.id} className="flex py-4">
-							<div className="aspect-square h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border bg-neutral-50 sm:h-32 sm:w-32">
-								{item.variant?.product?.thumbnail?.url && (
-									<ProductImageWrapper
-										src={item.variant.product.thumbnail.url}
-										alt={item.variant.product.thumbnail.alt ?? ""}
-										width={200}
-										height={200}
-									/>
-								)}
-							</div>
-							<div className="relative flex flex-1 flex-col justify-between p-4 py-2">
-								<div className="flex justify-between justify-items-start gap-4">
-									<div>
-										<LinkWithChannel
-											href={getHrefForVariant({
-												productSlug: item.variant.product.slug,
-												variantId: item.variant.id,
-											})}
-										>
-											<h2 className="font-medium text-neutral-700">{item.variant?.product?.name}</h2>
-										</LinkWithChannel>
-										<p className="mt-1 text-sm text-neutral-500">{item.variant?.product?.category?.name}</p>
-										{item.variant.name !== item.variant.id && Boolean(item.variant.name) && (
-											<p className="mt-1 text-sm text-neutral-500">Variant: {item.variant.name}</p>
-										)}
-									</div>
-									<p className="text-right font-semibold text-neutral-900">
-										{formatMoney(item.totalPrice.gross.amount, item.totalPrice.gross.currency)}
-									</p>
-								</div>
-								<div className="flex justify-between">
-									<div className="text-sm font-bold">Qty: {item.quantity}</div>
-									<DeleteLineButton checkoutId={checkoutId} lineId={item.id} />
-								</div>
-							</div>
-						</li>
-					))}
-				</ul>
+	// Server action for creating a temporary checkout with selected items only
+	// This creates a separate checkout for the checkout flow but keeps the original cart intact
+	async function createCheckoutWithItems(
+		items: { variantId: string; quantity: number }[],
+		channelSlug: string
+	): Promise<{ checkoutId: string } | null> {
+		"use server";
 
-				<div className="mt-12">
-					<div className="rounded border bg-neutral-50 px-4 py-2">
-						<div className="flex items-center justify-between gap-2 py-2">
-							<div>
-								<p className="font-semibold text-neutral-900">Your Total</p>
-								<p className="mt-1 text-sm text-neutral-500">Shipping will be calculated in the next step</p>
-							</div>
-							<div className="font-medium text-neutral-900">
-								{formatMoney(checkout.totalPrice.gross.amount, checkout.totalPrice.gross.currency)}
-							</div>
-						</div>
-					</div>
-					<div className="mt-10 text-center">
-						<CheckoutLink
-							checkoutId={checkoutId}
-							disabled={!checkout.lines.length}
-							className="w-full sm:w-1/3"
-						/>
-					</div>
-				</div>
-			</form>
-		</section>
+		try {
+			if (items.length === 0) return null;
+			if (!channelSlug) return null;
+
+			// Create a NEW checkout specifically for this checkout session with the selected items
+			const { checkoutCreate } = await executeGraphQL(CheckoutCreateWithLinesDocument, {
+				variables: {
+					channel: channelSlug,
+					lines: items.map(item => ({
+						variantId: item.variantId,
+						quantity: item.quantity,
+					})),
+				},
+				cache: "no-cache",
+			});
+
+			if (checkoutCreate?.errors && checkoutCreate.errors.length > 0) {
+				console.error("Error creating checkout:", checkoutCreate.errors);
+				return null;
+			}
+
+			const newCheckoutId = checkoutCreate?.checkout?.id;
+			if (!newCheckoutId) {
+				console.error("No checkout ID returned");
+				return null;
+			}
+
+			// IMPORTANT: Do NOT save the new checkout ID to cookies
+			// This keeps the original cart intact while creating a temporary checkout for purchase
+			// The original cart items will remain available when user returns
+			
+			return { checkoutId: newCheckoutId };
+		} catch (error) {
+			console.error("Error creating checkout with items:", error);
+			return null;
+		}
+	}
+
+	// Transform checkout data for client component
+	const cartData = checkout && checkout.lines ? {
+		id: checkout.id,
+		lines: checkout.lines.map(line => ({
+			id: line.id,
+			quantity: line.quantity,
+			totalPrice: {
+				gross: {
+					amount: line.totalPrice.gross.amount,
+					currency: line.totalPrice.gross.currency,
+				},
+			},
+			// Unit price from variant pricing
+			unitPrice: {
+				gross: {
+					amount: line.variant.pricing?.price?.gross.amount || (line.totalPrice.gross.amount / line.quantity),
+					currency: line.variant.pricing?.price?.gross.currency || line.totalPrice.gross.currency,
+				},
+			},
+			variant: {
+				id: line.variant.id,
+				name: line.variant.name,
+				quantityAvailable: 99, // Default since it's not in the query
+				product: {
+					slug: line.variant.product.slug,
+					name: line.variant.product.name,
+					thumbnail: line.variant.product.thumbnail ? {
+						url: line.variant.product.thumbnail.url,
+						alt: line.variant.product.thumbnail.alt || null,
+					} : null,
+					category: line.variant.product.category ? {
+						name: line.variant.product.category.name,
+					} : null,
+				},
+			},
+		})),
+		totalPrice: {
+			gross: {
+				amount: checkout.totalPrice.gross.amount,
+				currency: checkout.totalPrice.gross.currency,
+			},
+		},
+		// Use totalPrice as subtotal since we don't have separate subtotalPrice
+		subtotalPrice: {
+			gross: {
+				amount: checkout.totalPrice.gross.amount,
+				currency: checkout.totalPrice.gross.currency,
+			},
+		},
+	} : null;
+
+	return (
+		<CartClient
+			cart={cartData}
+			channel={params.channel}
+			deleteLineAction={deleteLineAction}
+			createCheckoutWithItems={createCheckoutWithItems}
+		/>
 	);
 }

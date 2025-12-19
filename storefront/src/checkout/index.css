@@ -1,3 +1,53 @@
 @import "react-toastify/dist/ReactToastify.css";
 @import "@adyen/adyen-web/dist/adyen.css";
 @import "./sections/PaymentSection/AdyenDropIn/adyenDropin.css";
+
+/* Print styles for order receipt */
+@media print {
+  /* Hide unnecessary elements */
+  .print\:hidden {
+    display: none !important;
+  }
+  
+  /* Show print-only elements */
+  .print\:block {
+    display: block !important;
+  }
+  
+  /* Reset backgrounds for printing */
+  body {
+    background: white !important;
+  }
+  
+  /* Page setup */
+  @page {
+    margin: 1cm;
+    size: A4;
+  }
+  
+  /* Ensure good contrast for printing */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Remove shadows and borders that don't print well */
+  .rounded-xl {
+    border-radius: 0.5rem !important;
+  }
+  
+  /* Ensure text is readable */
+  p, span, div {
+    color: #1a1a1a !important;
+  }
+  
+  /* Hide interactive elements */
+  button, a.hover\:bg-neutral-50 {
+    display: none !important;
+  }
+  
+  /* Print-friendly summary card */
+  .sticky {
+    position: static !important;
+  }
+}

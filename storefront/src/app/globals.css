@@ -2,6 +2,456 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================
+   STORE THEME CSS VARIABLES
+   ============================================
+   These are the default values. They will be
+   overridden by the StoreConfigProvider based
+   on the active store configuration.
+   ============================================ */
+
+:root {
+  /* Colors */
+  --store-primary: #2563EB;
+  --store-secondary: #1F2937;
+  --store-accent: #F59E0B;
+  --store-bg: #FFFFFF;
+  --store-surface: #F9FAFB;
+  --store-text: #111827;
+  --store-text-muted: #6B7280;
+  --store-success: #059669;
+  --store-warning: #D97706;
+  --store-error: #DC2626;
+  
+  /* Typography */
+  --store-font-heading: 'Inter', sans-serif;
+  --store-font-body: 'Inter', sans-serif;
+  --store-font-mono: 'JetBrains Mono', monospace;
+  
+  /* Spacing & Borders */
+  --store-radius: 8px;
+}
+
+/* Dark mode support (optional - can be configured per store) */
+@media (prefers-color-scheme: dark) {
+  :root.dark-mode-auto {
+    --store-bg: #0F172A;
+    --store-surface: #1E293B;
+    --store-text: #F8FAFC;
+    --store-text-muted: #94A3B8;
+  }
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
 body {
-	overflow-x: hidden;
+  overflow-x: hidden;
+  background-color: var(--store-bg);
+  color: var(--store-text);
+  font-family: var(--store-font-body);
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+@layer components {
+  /* Buttons */
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-4 py-2 font-medium transition-colors;
+    background-color: var(--store-primary);
+    color: white;
+    border-radius: var(--store-radius);
+  }
+  
+  .btn-primary:hover {
+    filter: brightness(0.9);
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-4 py-2 font-medium transition-colors;
+    background-color: var(--store-secondary);
+    color: white;
+    border-radius: var(--store-radius);
+  }
+  
+  .btn-outline {
+    @apply inline-flex items-center justify-center px-4 py-2 font-medium transition-colors;
+    border: 1px solid var(--store-primary);
+    color: var(--store-primary);
+    background-color: transparent;
+    border-radius: var(--store-radius);
+  }
+  
+  .btn-outline:hover {
+    background-color: var(--store-primary);
+    color: white;
+  }
+  
+  /* Cards */
+  .card {
+    background-color: var(--store-surface);
+    border-radius: var(--store-radius);
+  }
+  
+  /* Text colors */
+  .text-primary {
+    color: var(--store-primary);
+  }
+  
+  .text-secondary {
+    color: var(--store-secondary);
+  }
+  
+  .text-accent {
+    color: var(--store-accent);
+  }
+  
+  .text-muted {
+    color: var(--store-text-muted);
+  }
+  
+  /* Background colors */
+  .bg-primary {
+    background-color: var(--store-primary);
+  }
+  
+  .bg-secondary {
+    background-color: var(--store-secondary);
+  }
+  
+  .bg-surface {
+    background-color: var(--store-surface);
+  }
+  
+  /* Headings */
+  h1, h2, h3, h4, h5, h6, .heading {
+    font-family: var(--store-font-heading);
+  }
+  
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center px-2 py-0.5 text-xs font-medium;
+    border-radius: var(--store-radius);
+  }
+  
+  .badge-primary {
+    background-color: var(--store-primary);
+    color: white;
+  }
+  
+  .badge-accent {
+    background-color: var(--store-accent);
+    color: white;
+  }
+  
+  .badge-success {
+    background-color: var(--store-success);
+    color: white;
+  }
+  
+  .badge-warning {
+    background-color: var(--store-warning);
+    color: white;
+  }
+  
+  .badge-error {
+    background-color: var(--store-error);
+    color: white;
+  }
+  
+  /* Form elements */
+  .input {
+    @apply px-3 py-2 border transition-colors;
+    border-color: var(--store-text-muted);
+    border-radius: var(--store-radius);
+    background-color: var(--store-bg);
+  }
+  
+  .input:focus {
+    border-color: var(--store-primary);
+    outline: none;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--store-primary) 20%, transparent);
+  }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+/* ============================================
+   SKELETON LOADING
+   ============================================ */
+
+.skeleton {
+  @apply animate-pulse;
+  background: linear-gradient(
+    90deg,
+    var(--store-surface) 0%,
+    color-mix(in srgb, var(--store-surface) 80%, white) 50%,
+    var(--store-surface) 100%
+  );
+  background-size: 200% 100%;
+}
+
+/* ============================================
+   MODERN E-COMMERCE ENHANCEMENTS
+   ============================================ */
+
+/* Toast slide-in animation */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Product card hover effects */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus styles for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--store-primary);
+  outline-offset: 2px;
+}
+
+/* Selection color */
+::selection {
+  background-color: var(--store-primary);
+  color: white;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--store-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--store-text-muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--store-secondary);
+}
+
+/* Line clamp utilities */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Aspect ratio utilities (for older browsers) */
+.aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
+.aspect-video {
+  aspect-ratio: 16 / 9;
+}
+
+.aspect-4-3 {
+  aspect-ratio: 4 / 3;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, var(--store-primary) 0%, var(--store-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Hover lift effect */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
+}
+
+/* Image loading placeholder */
+.img-loading {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 0%,
+    #e0e0e0 50%,
+    #f0f0f0 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Price styling */
+.price-current {
+  color: var(--store-text);
+  font-weight: 700;
+}
+
+.price-original {
+  color: var(--store-text-muted);
+  text-decoration: line-through;
+}
+
+.price-sale {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+/* Badge animations */
+.badge-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Cart item animations */
+@keyframes cartItemAdded {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.cart-item-added {
+  animation: cartItemAdded 0.4s ease-out;
+}
+
+/* Loading dots */
+@keyframes loadingDots {
+  0%, 20% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.loading-dots span {
+  animation: loadingDots 1.4s infinite both;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Notification badge bounce */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-25%);
+  }
+}
+
+.notification-bounce {
+  animation: bounce 0.5s ease;
 }

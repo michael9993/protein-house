@@ -1,10 +1,12 @@
 HTTP/1.1 400 Bad Request
-Date: Sat, 06 Dec 2025 20:15:21 GMT
-Server: WSGIServer/0.2 CPython/3.12.12
-Content-Type: application/json
-Content-Length: 115
-X-Content-Type-Options: nosniff
-Referrer-Policy: same-origin
-Cross-Origin-Opener-Policy: same-origin
+date: Thu, 18 Dec 2025 02:41:35 GMT
+server: uvicorn
+content-length: 115
+content-type: application/json
+cross-origin-opener-policy: same-origin
+referrer-policy: same-origin
+x-content-type-options: nosniff
+access-control-allow-credentials: true
+traceparent: 00-7807bccff609af07dd6c7d2f6f966221-5b849568ab460744-01
 
 {"errors": [{"message": "Unable to parse query.", "extensions": {"exception": {"code": "str", "stacktrace": []}}}]}

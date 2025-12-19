@@ -1,0 +1,29 @@
+# Fetch collection with metadata for configurable content
+# Use metadata to store banner text, CTAs, etc.
+# Dashboard > Catalog > Collections > Edit > Metadata
+
+query CollectionWithMetadata($slug: String!, $channel: String!) {
+  collection(slug: $slug, channel: $channel) {
+    id
+    name
+    slug
+    description
+    backgroundImage {
+      url
+      alt
+    }
+    metadata {
+      key
+      value
+    }
+    products(first: 20) {
+      totalCount
+      edges {
+        node {
+          ...ProductListItem
+        }
+      }
+    }
+  }
+}
+

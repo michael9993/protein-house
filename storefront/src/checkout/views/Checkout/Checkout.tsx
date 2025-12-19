@@ -9,8 +9,13 @@ import { useCheckout } from "@/checkout/hooks/useCheckout";
 import { CheckoutSkeleton } from "@/checkout/views/Checkout/CheckoutSkeleton";
 
 export const Checkout = () => {
-	const { checkout, fetching: fetchingCheckout } = useCheckout();
+	const { checkout, fetching: fetchingCheckout, hasValidCheckoutId } = useCheckout();
 	const { loading: isAuthenticating } = useUser();
+
+	// If no valid checkout ID in URL, show not found
+	if (!hasValidCheckoutId) {
+		return <PageNotFound reason="missing" />;
+	}
 
 	const isCheckoutInvalid = !fetchingCheckout && !checkout && !isAuthenticating;
 
@@ -19,7 +24,7 @@ export const Checkout = () => {
 	const isEmptyCart = checkout && !checkout.lines.length;
 
 	return isCheckoutInvalid ? (
-		<PageNotFound />
+		<PageNotFound reason="invalid" />
 	) : isInitiallyAuthenticating ? (
 		<CheckoutSkeleton />
 	) : (

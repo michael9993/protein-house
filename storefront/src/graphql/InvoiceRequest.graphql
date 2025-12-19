@@ -1,0 +1,27 @@
+mutation InvoiceRequest($orderId: ID!) {
+	invoiceRequest(orderId: $orderId) {
+		errors {
+			field
+			message
+			code
+		}
+		invoice {
+			id
+			number
+			createdAt
+			url
+			status
+		}
+		order {
+			id
+			invoices {
+				id
+				number
+				createdAt
+				url
+				status
+			}
+		}
+	}
+}
+
