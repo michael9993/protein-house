@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Breadcrumbs } from "@/ui/components/Breadcrumbs";
 import { storeConfig } from "@/config";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
+import { useWishlist } from "@/lib/wishlist";
 
 interface ProductImage {
   url: string;
@@ -54,10 +55,11 @@ export function ProductDetailClient({
   const { branding, features } = storeConfig;
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const { addItem, removeItem, isInWishlist } = useWishlist();
   
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const isWishlisted = isInWishlist(product.id);
   const [activeTab, setActiveTab] = useState<"description" | "shipping" | "reviews">("description");
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
@@ -453,12 +455,39 @@ export function ProductDetailClient({
                 {/* Wishlist */}
                 {features.wishlist && (
                   <button
-                    onClick={() => setIsWishlisted(!isWishlisted)}
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (isWishlisted) {
+                        await removeItem(product.id);
+                      } else {
+                        // Get price from selected variant or first variant
+                        const selectedVariant = product.variants.find(v => v.id === effectiveVariantId);
+                        const price = selectedVariant?.pricing?.price?.gross?.amount || 
+                                     product.variants[0]?.pricing?.price?.gross?.amount || 0;
+                        const currency = selectedVariant?.pricing?.price?.gross?.currency || 
+                                       product.variants[0]?.pricing?.price?.gross?.currency || "USD";
+                        
+                        await addItem({
+                          id: product.id,
+                          name: product.name,
+                          slug: product.slug,
+                          price,
+                          originalPrice: product.originalPrice ? parseFloat(product.originalPrice.replace(/[^0-9.]/g, '')) : undefined,
+                          currency,
+                          image: product.images[0]?.url || "",
+                          imageAlt: product.images[0]?.alt || product.name,
+                          category: product.category || undefined,
+                          inStock: isInStock,
+                        });
+                      }
+                    }}
                     className={`flex h-12 w-12 items-center justify-center rounded-lg border transition-colors ${
                       isWishlisted
                         ? "border-red-200 bg-red-50 text-red-500"
                         : "border-neutral-300 text-neutral-600 hover:border-neutral-400"
                     }`}
+                    aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
                   >
                     <svg
                       className="h-5 w-5"

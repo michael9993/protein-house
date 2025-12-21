@@ -1,14 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useWishlist } from "@/lib/wishlist";
 
 interface AccountStatsGridProps {
 	totalOrders: number;
 	savedAddresses: number;
 	memberSince: string;
 }
-
-const WISHLIST_STORAGE_KEY = "sportzone_wishlist";
 
 // Icon components
 const OrdersIcon = () => (
@@ -37,23 +35,8 @@ const CalendarIcon = () => (
 );
 
 export function AccountStatsGrid({ totalOrders, savedAddresses, memberSince }: AccountStatsGridProps) {
-	const [wishlistCount, setWishlistCount] = useState<number | null>(null);
-
-	useEffect(() => {
-		// Load wishlist count from localStorage
-		try {
-			const stored = localStorage.getItem(WISHLIST_STORAGE_KEY);
-			if (stored) {
-				const items = JSON.parse(stored);
-				setWishlistCount(Array.isArray(items) ? items.length : 0);
-			} else {
-				setWishlistCount(0);
-			}
-		} catch (error) {
-			console.error("Failed to load wishlist count:", error);
-			setWishlistCount(0);
-		}
-	}, []);
+	const { itemCount, isLoading } = useWishlist();
+	const wishlistCount = isLoading ? null : itemCount;
 
 	const stats = [
 		{

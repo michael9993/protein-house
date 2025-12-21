@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { formatMoney, formatMoneyRange } from "@/lib/utils";
 import { storeConfig } from "@/config";
+import { useWishlist } from "@/lib/wishlist";
 
 interface ProductInfoProps {
   name: string;
@@ -23,6 +24,10 @@ interface ProductInfoProps {
 }
 
 export function ProductInfo({
+  productId,
+  productSlug,
+  productImage,
+  productImageAlt,
   name,
   description,
   price,
@@ -36,8 +41,9 @@ export function ProductInfo({
   isAddingToCart = false,
 }: ProductInfoProps) {
   const { branding, features } = storeConfig;
+  const { addItem, removeItem, isInWishlist } = useWishlist();
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const isWishlisted = isInWishlist(productId);
   const [activeTab, setActiveTab] = useState<"description" | "shipping" | "reviews">("description");
 
   const selectedVariant = variants?.find(v => v.id === selectedVariantId);
@@ -189,7 +195,34 @@ export function ProductInfo({
         {/* Wishlist Button */}
         {features.wishlist && (
           <button
-            onClick={() => setIsWishlisted(!isWishlisted)}
+            onClick={async (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (isWishlisted) {
+                await removeItem(productId);
+              } else {
+                // Parse price from string
+                const priceMatch = price.match(/[\d.]+/);
+                const priceValue = priceMatch ? parseFloat(priceMatch[0]) : 0;
+                const currencyMatch = price.match(/[A-Z]{3}/);
+                const currency = currencyMatch ? currencyMatch[0] : "USD";
+                
+                const originalPriceValue = originalPrice ? parseFloat(originalPrice.replace(/[^0-9.]/g, '')) : undefined;
+                
+                await addItem({
+                  id: productId,
+                  name,
+                  slug: productSlug,
+                  price: priceValue,
+                  originalPrice: originalPriceValue,
+                  currency,
+                  image: productImage || "",
+                  imageAlt: productImageAlt || name,
+                  category: category || undefined,
+                  inStock: isAvailable,
+                });
+              }
+            }}
             className={`flex h-12 w-12 items-center justify-center rounded-lg border transition-colors ${
               isWishlisted 
                 ? "border-red-200 bg-red-50 text-red-500" 

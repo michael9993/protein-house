@@ -10,8 +10,19 @@ interface WishlistClientProps {
 }
 
 export function WishlistClient({ channel }: WishlistClientProps) {
-	const { items, removeItem, clearWishlist } = useWishlist();
+	const { items, removeItem, clearWishlist, isLoading } = useWishlist();
 	const { branding } = storeConfig;
+
+	if (isLoading) {
+		return (
+			<div className="flex items-center justify-center py-12">
+				<div className="text-center">
+					<div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
+					<p className="mt-4 text-sm text-neutral-500">Loading wishlist...</p>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="space-y-6">
@@ -25,7 +36,7 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 				</div>
 				{items.length > 0 && (
 					<button
-						onClick={clearWishlist}
+						onClick={() => clearWishlist()}
 						className="text-sm font-medium text-neutral-600 hover:text-neutral-900"
 					>
 						Clear All
@@ -113,6 +124,7 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 											}}
 											className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-md transition-colors hover:bg-red-50"
 											title="Remove from wishlist"
+											type="button"
 										>
 											<svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
 												<path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
@@ -153,6 +165,7 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 											onClick={() => removeItem(item.id)}
 											className="flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 py-2.5 text-neutral-600 transition-colors hover:bg-neutral-50 hover:text-red-600"
 											title="Remove"
+											type="button"
 										>
 											<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 												<path

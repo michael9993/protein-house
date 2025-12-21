@@ -4,7 +4,8 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { storeConfig } from "@/config";
-import { loginAction, registerAction, getOAuthUrl } from "./actions";
+import { loginAction, registerAction } from "./actions";
+import { getOAuthUrl } from "./oauth-actions";
 
 interface LoginClientProps {
 	channel: string;
@@ -32,6 +33,12 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed }: L
 			if (result.error) {
 				setError(result.error);
 			} else if (result.success) {
+				// Dispatch login event for wishlist to reload
+				window.dispatchEvent(new CustomEvent("wishlist:login"));
+				
+				// Small delay to ensure cookies are set before navigation
+				// This helps the wishlist load correctly after login
+				await new Promise(resolve => setTimeout(resolve, 100));
 				router.push(redirectUrl || `/${channel}`);
 				router.refresh();
 			}
@@ -270,25 +277,14 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed }: L
 					</div>
 
 					{/* Social Login */}
-					<div className="grid grid-cols-2 gap-3">
+					<div className="flex justify-center">
 						<SocialLoginButton
 							provider="google"
 							channel={channel}
 							redirectUrl={redirectUrl}
 							onError={(msg) => setError(msg)}
 						/>
-						<SocialLoginButton
-							provider="facebook"
-							channel={channel}
-							redirectUrl={redirectUrl}
-							onError={(msg) => setError(msg)}
-						/>
 					</div>
-					
-					{/* OAuth Info */}
-					<p className="mt-3 text-center text-xs text-neutral-400">
-						Social login requires configuration in Dashboard
-					</p>
 				</div>
 
 				{/* Benefits */}
@@ -345,13 +341,21 @@ function SocialLoginButton({
 	const handleSocialLogin = async () => {
 		setIsLoading(true);
 		try {
-			// Build redirect URL for OAuth callback - must match API route
-			const callbackUrl = `${window.location.origin}/api/auth/${provider}/callback`;
+			// Only Google is supported via OpenID Connect plugin
+			if (provider !== "google") {
+				onError("Only Google login is currently supported");
+				setIsLoading(false);
+				return;
+			}
+
+			// Build redirect URL for OAuth callback
+			// Saleor will redirect here after processing OAuth
+			const callbackUrl = `${window.location.origin}/${channel}/auth/callback`;
 			
 			// Build the final redirect URL after OAuth (where to send user after login)
 			const finalRedirectUrl = redirectUrl || `/${channel}`;
 			
-			const result = await getOAuthUrl(provider, callbackUrl, finalRedirectUrl);
+			const result = await getOAuthUrl("google", callbackUrl, finalRedirectUrl);
 
 			if (result.error) {
 				console.error(`${provider} login error:`, result.error);
@@ -362,7 +366,7 @@ function SocialLoginButton({
 
 			// Validate URL before redirecting
 			if (result.url && typeof result.url === "string" && result.url.startsWith("http")) {
-				// Redirect to OAuth provider
+				// Redirect to OAuth provider (via Saleor)
 				window.location.href = result.url;
 			} else {
 				console.error(`${provider} invalid URL:`, result.url);

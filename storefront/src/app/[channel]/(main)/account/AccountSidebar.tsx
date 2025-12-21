@@ -140,7 +140,13 @@ export function AccountSidebar({ user, channel }: AccountSidebarProps) {
 				
 				{/* Sign Out */}
 				<div className="border-t border-neutral-100">
-					<form action={logout}>
+					<form 
+						action={logout}
+						onSubmit={() => {
+							// Dispatch logout event for wishlist to clear
+							window.dispatchEvent(new CustomEvent("wishlist:logout"));
+						}}
+					>
 						<button
 							type="submit"
 							className="flex w-full items-center gap-3 px-4 py-3 text-sm font-medium text-neutral-600 transition-colors hover:bg-red-50 hover:text-red-600"

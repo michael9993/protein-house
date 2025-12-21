@@ -1,1 +1,11 @@
- 
+mutation ExternalAuthenticationUrl($pluginId: String!, $input: JSONString!) {
+	externalAuthenticationUrl(pluginId: $pluginId, input: $input) {
+		authenticationData
+		errors {
+			field
+			message
+			code
+		}
+	}
+}
+

@@ -38,14 +38,14 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
   const isInStock = totalStock > 0;
   const isLowStock = totalStock > 0 && totalStock <= 5;
   
-  const handleWishlistClick = (e: React.MouseEvent) => {
+  const handleWishlistClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
     if (isWishlisted) {
-      removeItem(product.id);
+      await removeItem(product.id);
     } else {
-      addItem({
+      await addItem({
         id: product.id,
         name: product.name,
         slug: product.slug,

@@ -280,8 +280,16 @@ export default defineConfig(({ command, mode }) => {
         "lodash",
       ],
       entries: ["src/index.tsx"], // Optimize entry point for faster startup
-      // Force dependency pre-bundling on server start
-      force: false, // Set to true to force re-optimization (useful after adding new deps)
+      // Disable force to prevent cache corruption
+      // Clear cache manually if needed: rm -rf node_modules/.vite
+      force: false,
+      // Disable cache to prevent corruption issues in Docker
+      // Cache will be rebuilt on each restart but prevents missing chunk errors
+      holdUntilCrawlEnd: false,
+      esbuildOptions: {
+        // Ensure all exports are preserved
+        preserveSymlinks: false,
+      },
     },
     resolve: {
       dedupe: ["react", "react-dom", "clsx", "@material-ui/styles"],

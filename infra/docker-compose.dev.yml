@@ -183,18 +183,18 @@ services:
     restart: unless-stopped
 
   saleor-dashboard:
-    # Use local Dashboard code with Node dev environment
+    # Use local Dashboard code - Build and serve production build
     image: node:22-alpine
     container_name: saleor-dashboard-dev
     working_dir: /app
-    # Install pnpm and setup (only install if needed - pnpm handles caching automatically)
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --prefer-offline && pnpm run generate:main && pnpm run dev --host 0.0.0.0"
+    # Build dashboard and serve production build (avoids Vite dev server @fs issues with tunnels)
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --prefer-offline && pnpm run generate:main && pnpm run build && pnpm run preview --host 0.0.0.0 --port 9000"
     env_file:
       - .env
     ports:
-      - "${DASHBOARD_PORT}:9000" # Vite configured port
+      - "${DASHBOARD_PORT}:9000" # Vite preview port
     volumes:
-      # Mount entire dashboard directory for hot-reload
+      # Mount entire dashboard directory
       - ../dashboard:/app
       # Preserve node_modules
       - dashboard-node-modules:/app/node_modules
@@ -208,7 +208,7 @@ services:
       EXTENSIONS_API_URL: ${EXTENSIONS_API_URL}
       APP_MOUNT_URI: ${APP_MOUNT_URI}
       STATIC_URL: ${STATIC_URL}
-      NODE_ENV: development
+      NODE_ENV: production
     depends_on:
       saleor-api:
         condition: service_healthy
@@ -222,12 +222,12 @@ services:
           "--quiet",
           "--tries=1",
           "--spider",
-          "http://localhost:${DASHBOARD_PORT}",
+          "http://localhost:9000/dashboard/",
         ]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 120s
+      start_period: 300s
 
   saleor-storefront:
     # Use official Saleor Storefront (Next.js 15, React 19)
@@ -259,11 +259,6 @@ services:
       NEXT_PUBLIC_STOREFRONT_URL: ${NEXT_PUBLIC_STOREFRONT_URL}
       NEXT_PUBLIC_DEFAULT_CHANNEL: ${NEXT_PUBLIC_DEFAULT_CHANNEL}
       SALEOR_APP_TOKEN: ${SALEOR_APP_TOKEN}
-      # OAuth Configuration
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
-      FACEBOOK_APP_ID: ${FACEBOOK_APP_ID:-}
-      FACEBOOK_APP_SECRET: ${FACEBOOK_APP_SECRET:-}
       # Internal Docker network URL for invoices app (server-to-server)
       INVOICES_APP_INTERNAL_URL: http://saleor-invoice-app:3000
       # Public URL for invoices app (for client downloads)

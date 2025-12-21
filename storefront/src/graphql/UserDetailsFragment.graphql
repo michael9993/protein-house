@@ -8,6 +8,10 @@ fragment UserDetails on User {
 		url
 		alt
 	}
+	metadata {
+		key
+		value
+	}
 	addresses {
 		id
 		firstName

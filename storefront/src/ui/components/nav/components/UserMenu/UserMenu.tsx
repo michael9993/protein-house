@@ -143,7 +143,13 @@ export function UserMenu({ user }: Props) {
 					<div className="pt-2">
 						<Menu.Item>
 							{({ active }) => (
-								<form action={logout}>
+								<form 
+									action={logout}
+									onSubmit={() => {
+										// Dispatch logout event for wishlist to clear
+										window.dispatchEvent(new CustomEvent("wishlist:logout"));
+									}}
+								>
 									<button
 										type="submit"
 										className={clsx(
