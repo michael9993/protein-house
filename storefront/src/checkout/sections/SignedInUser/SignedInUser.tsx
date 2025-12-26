@@ -3,6 +3,7 @@ import { useSaleorAuthContext } from "@saleor/auth-sdk/react";
 import { SignInFormContainer, type SignInFormContainerProps } from "../Contact/SignInFormContainer";
 import { Button } from "@/checkout/components/Button";
 import { useUser } from "@/checkout/hooks/useUser";
+import { dispatchCheckoutLogout } from "@/lib/checkout-client";
 
 interface SignedInUserProps extends Pick<SignInFormContainerProps, "onSectionChange"> {
 	onSignOutSuccess: () => void;
@@ -14,6 +15,9 @@ export const SignedInUser: React.FC<SignedInUserProps> = ({ onSectionChange, onS
 	const { user } = useUser();
 
 	const handleLogout = async () => {
+		// Clear client-side checkout state for proper isolation
+		dispatchCheckoutLogout();
+		
 		signOut();
 		onSignOutSuccess();
 	};

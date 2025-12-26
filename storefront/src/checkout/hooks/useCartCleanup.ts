@@ -100,7 +100,7 @@ export const useAutoCartCleanup = (orderId: string | undefined) => {
 			setHasAttemptedCleanup(true);
 			cleanupCart().then((result) => {
 				if (result.success) {
-					console.log(`Cart cleanup: Removed ${result.removedCount} items from cart ${result.originalCartId}`);
+					// Removed excessive logging
 				}
 			});
 		}

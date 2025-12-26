@@ -3,6 +3,7 @@ import { executeGraphQL } from "@/lib/graphql";
 import { storeConfig } from "@/config";
 import { HomePage } from "./HomePage";
 import { homepageCollections, getHeroBannerConfig, getTestimonials, getFeaturedBrands } from "@/lib/cms";
+import { CartRestoreTrigger } from "./CartRestoreTrigger";
 
 // Dynamic metadata from store config
 export const metadata = {
@@ -33,8 +34,14 @@ export const metadata = {
  *   testimonials: testimonials_json (JSON array)
  *   brands: brands_json (JSON array)
  */
-export default async function Page(props: { params: Promise<{ channel: string }> }) {
+export default async function Page(
+	props: { 
+		params: Promise<{ channel: string }>;
+		searchParams?: Promise<{ restore_cart?: string }>;
+	}
+) {
 	const params = await props.params;
+	const searchParams = await props.searchParams;
 	const { channel } = params;
 	
 	// Fetch all data in parallel for better performance
@@ -108,15 +115,20 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 	})) || [];
 
 	return (
-		<HomePage
-			categories={categories}
-			featuredProducts={featuredProducts}
-			newArrivals={newArrivals}
-			bestSellers={bestSellers}
-			saleProducts={saleProducts}
-			heroBanner={heroBannerConfig}
-			testimonials={testimonialsData}
-			brands={brandsData}
-		/>
+		<>
+			{/* Client component to trigger cart restore after OAuth login */}
+			{/* This is needed because Server Actions can't modify cookies when called from Server Components */}
+			<CartRestoreTrigger channel={channel} />
+			<HomePage
+				categories={categories}
+				featuredProducts={featuredProducts}
+				newArrivals={newArrivals}
+				bestSellers={bestSellers}
+				saleProducts={saleProducts}
+				heroBanner={heroBannerConfig}
+				testimonials={testimonialsData}
+				brands={brandsData}
+			/>
+		</>
 	);
 }

@@ -906,9 +906,24 @@ def _create_order(
     )
 
     # Send the order confirmation email
-    transaction.on_commit(
-        lambda: send_order_confirmation(order_info, checkout.redirect_url, manager)
-    )
+    # Wrap in try-except to prevent email errors from failing the mutation
+    # The order is already created at this point, so we should catch any errors
+    def _send_confirmation_safely():
+        try:
+            send_order_confirmation(order_info, checkout.redirect_url, manager)
+        except Exception as e:
+            # Log the error but don't fail the mutation
+            # The order is already created successfully
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(
+                "Failed to send order confirmation email for order %s: %s",
+                order_info.order.id,
+                str(e),
+                exc_info=True,
+            )
+    
+    transaction.on_commit(_send_confirmation_safely)
 
     return order
 
@@ -1363,11 +1378,26 @@ def _post_create_order_actions(
     )
 
     # Send the order confirmation email
-    transaction.on_commit(
-        lambda: send_order_confirmation(
-            order_info, checkout_info.checkout.redirect_url, manager
-        )
-    )
+    # Wrap in try-except to prevent email errors from failing the mutation
+    # The order is already created at this point, so we should catch any errors
+    def _send_confirmation_safely():
+        try:
+            send_order_confirmation(
+                order_info, checkout_info.checkout.redirect_url, manager
+            )
+        except Exception as e:
+            # Log the error but don't fail the mutation
+            # The order is already created successfully
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(
+                "Failed to send order confirmation email for order %s: %s",
+                order_info.order.id,
+                str(e),
+                exc_info=True,
+            )
+    
+    transaction.on_commit(_send_confirmation_safely)
 
 
 def _create_order_from_checkout(

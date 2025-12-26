@@ -2,10 +2,12 @@
 
 import { getServerAuthClient } from "@/app/config";
 import { revalidatePath } from "next/cache";
+import { mergeGuestCartIntoUserCart } from "@/app/actions";
 
 export async function loginAction(formData: FormData) {
 	const email = formData.get("email")?.toString();
 	const password = formData.get("password")?.toString();
+	const channel = formData.get("channel")?.toString() || "default-channel";
 
 	if (!email || !password) {
 		return { error: "Email and password are required" };
@@ -18,6 +20,16 @@ export async function loginAction(formData: FormData) {
 		if (data?.tokenCreate?.errors && data.tokenCreate.errors.length > 0) {
 			const errorMessage = data.tokenCreate.errors[0]?.message || "Invalid credentials";
 			return { error: errorMessage };
+		}
+
+		// Restore user's cart from Saleor database on login
+		// This queries Saleor directly for the user's checkout - the source of truth
+		const { restoreUserCart } = await import("@/app/actions");
+		try {
+			await restoreUserCart(channel);
+		} catch (restoreError) {
+			console.error("[Login] Cart restore failed (non-fatal):", restoreError);
+			// Continue anyway - user is logged in, cart restore is best-effort
 		}
 
 		revalidatePath("/", "layout");
@@ -92,6 +104,16 @@ export async function registerAction(formData: FormData) {
 		// Auto-login after registration
 		const authClient = await getServerAuthClient();
 		await authClient.signIn({ email, password }, { cache: "no-store" });
+
+		// Professional cart merge: merge guest cart into user cart on signup
+		// This is the ONLY allowed case of cart merge (guest → user on signup/login)
+		const channel = formData.get("channel")?.toString() || "default-channel";
+		try {
+			await mergeGuestCartIntoUserCart(channel);
+		} catch (mergeError) {
+			console.error("[Register] Cart merge failed (non-fatal):", mergeError);
+			// Continue anyway - user is registered, cart merge is best-effort
+		}
 
 		revalidatePath("/", "layout");
 		return { success: true };

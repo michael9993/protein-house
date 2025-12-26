@@ -1,0 +1,17 @@
+mutation CheckoutCustomerAttach($checkoutId: ID!) {
+	checkoutCustomerAttach(id: $checkoutId) {
+		errors {
+			message
+			field
+			code
+		}
+		checkout {
+			id
+			user {
+				id
+				email
+			}
+		}
+	}
+}
+

@@ -159,6 +159,71 @@ export default async function Page(props: {
 			});
 		}
 
+		// CRITICAL: Re-fetch checkout after adding items to get updated state
+		// Then ensure checkout is saved to user metadata if user is logged in
+		const { getCurrentUser, saveUserCheckoutId } = await import("@/lib/checkout");
+		const { CheckoutFindDocument } = await import("@/gql/graphql");
+		const currentUser = await getCurrentUser();
+		
+		console.log(`[Add Item] 🔍 Checking if checkout should be saved to user metadata...`);
+		console.log(`[Add Item]    - Current user: ${currentUser?.id || "none"}`);
+		console.log(`[Add Item]    - Checkout ID: ${checkout.id}`);
+		
+		if (currentUser?.id) {
+			// Re-fetch checkout to get updated state (with items and user attachment)
+			try {
+				const { checkout: updatedCheckout } = await executeGraphQL(CheckoutFindDocument, {
+					variables: { id: checkout.id },
+					cache: "no-cache",
+				});
+				
+				if (updatedCheckout) {
+					console.log(`[Add Item]    - Updated checkout user: ${updatedCheckout.user?.id || "none"}`);
+					console.log(`[Add Item]    - Updated checkout lines: ${updatedCheckout.lines?.length || 0}`);
+					
+					if (updatedCheckout.user?.id === currentUser.id) {
+						await saveUserCheckoutId(currentUser.id, params.channel, updatedCheckout.id);
+						console.log(`[Add Item] ✅ Saved checkout ${updatedCheckout.id} to user metadata (key: checkoutId-${params.channel})`);
+						console.log(`[Add Item]    This ensures cart will be restored on next login and syncs across devices`);
+					} else {
+						console.log(`[Add Item] ⚠️  Warning: Checkout ${updatedCheckout.id} not attached to user ${currentUser.id}`);
+						console.log(`[Add Item]    - Expected user: ${currentUser.id}`);
+						console.log(`[Add Item]    - Checkout user: ${updatedCheckout.user?.id || "none"}`);
+						console.log(`[Add Item]    - Attempting to attach checkout to user...`);
+						
+						// Try to attach checkout to user
+						const { CheckoutCustomerAttachDocument } = await import("@/gql/graphql");
+						try {
+							await executeGraphQL(CheckoutCustomerAttachDocument, {
+								variables: { checkoutId: updatedCheckout.id },
+								cache: "no-cache",
+							});
+							// Re-fetch again to verify attachment
+							const { checkout: attachedCheckout } = await executeGraphQL(CheckoutFindDocument, {
+								variables: { id: updatedCheckout.id },
+								cache: "no-cache",
+							});
+							if (attachedCheckout && attachedCheckout.user?.id === currentUser.id) {
+								await saveUserCheckoutId(currentUser.id, params.channel, attachedCheckout.id);
+								console.log(`[Add Item] ✅ Successfully attached and saved checkout ${attachedCheckout.id}`);
+							}
+						} catch (attachError) {
+							console.error(`[Add Item] ❌ Failed to attach checkout to user:`, attachError);
+						}
+					}
+				}
+			} catch (error) {
+				console.error(`[Add Item] ❌ Error re-fetching checkout:`, error);
+				// Fallback: save anyway if checkout was attached before
+				if (checkout.user?.id === currentUser.id) {
+					await saveUserCheckoutId(currentUser.id, params.channel, checkout.id);
+					console.log(`[Add Item] ✅ Saved checkout ${checkout.id} (fallback - using original checkout)`);
+				}
+			}
+		} else {
+			console.log(`[Add Item] ℹ️  User not logged in - checkout not saved to user cookie (guest cart)`);
+		}
+
 		revalidatePath("/cart");
 	}
 

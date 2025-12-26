@@ -2,6 +2,7 @@ import graphene
 from django.core.exceptions import ValidationError
 
 from ....checkout import AddressType, models
+from ....core.exceptions import GiftCardNotApplicable, InsufficientStock
 from ....checkout.checkout_cleaner import (
     clean_checkout_shipping,
     validate_checkout_email,
@@ -347,18 +348,55 @@ class CheckoutComplete(BaseMutation, I18nMixin):
 
         site = get_site_promise(info.context).get()
 
-        order, action_required, action_data = complete_checkout(
-            checkout_info=checkout_info,
-            lines=lines,
-            manager=manager,
-            payment_data=payment_data or {},
-            store_source=store_source,
-            user=customer,
-            app=get_app_promise(info.context).get(),
-            site_settings=site.settings,
-            redirect_url=redirect_url,
-            metadata_list=metadata,
-        )
+        try:
+            order, action_required, action_data = complete_checkout(
+                checkout_info=checkout_info,
+                lines=lines,
+                manager=manager,
+                payment_data=payment_data or {},
+                store_source=store_source,
+                user=customer,
+                app=get_app_promise(info.context).get(),
+                site_settings=site.settings,
+                redirect_url=redirect_url,
+                metadata_list=metadata,
+            )
+        except (ValidationError, InsufficientStock, GiftCardNotApplicable) as e:
+            # These are validation errors that occur BEFORE order creation
+            # Re-raise them as-is - they indicate the checkout cannot be completed
+            raise
+        except Exception as e:
+            # Catch other exceptions that might occur AFTER order creation
+            # (e.g., during email notification generation)
+            # Check if order was already created despite the error
+            import logging
+            logger = logging.getLogger(__name__)
+            
+            order = order_models.Order.objects.get_by_checkout_token(
+                checkout_info.checkout.token
+            )
+            if order:
+                # Order was created successfully, return it even if there was an error
+                # This handles cases where order creation succeeds but notification fails
+                logger.warning(
+                    "Checkout completion had an error after order creation (order %s): %s. "
+                    "This may indicate a non-critical issue (e.g., email notification failure).",
+                    order.id,
+                    str(e),
+                    exc_info=True,
+                )
+                return CheckoutComplete(
+                    order=SyncWebhookControlContext(order),
+                    confirmation_needed=False,
+                    confirmation_data={},
+                )
+            # If no order was created, this is a critical error - re-raise it
+            logger.error(
+                "Checkout completion failed and no order was created: %s",
+                str(e),
+                exc_info=True,
+            )
+            raise
 
         # If gateway returns information that additional steps are required we need
         # to inform the frontend and pass all required data

@@ -1,4 +1,4 @@
-import React, { type FC, useCallback, useEffect, useState } from "react";
+import React, { type FC, useCallback, useEffect, useState, useRef } from "react";
 import { SignedInUser } from "../SignedInUser/SignedInUser";
 import { ResetPassword } from "../ResetPassword/ResetPassword";
 import { useCustomerAttach } from "@/checkout/hooks/useCustomerAttach";
@@ -17,7 +17,7 @@ interface ContactProps {
 
 export const Contact: FC<ContactProps> = ({ setShowOnlyContact }) => {
 	useCustomerAttach();
-	const { user, authenticated } = useUser();
+	const { user, authenticated, loading } = useUser();
 	const [email, setEmail] = useState(user?.email || "");
 
 	const [passwordResetShown, setPasswordResetShown] = useState(false);
@@ -34,6 +34,8 @@ export const Contact: FC<ContactProps> = ({ setShowOnlyContact }) => {
 
 	const passwordResetToken = getQueryParams().passwordResetToken;
 	const [currentSection, setCurrentSection] = useState<Section>(selectInitialSection());
+
+	// Removed excessive debug logging - only log errors if needed
 
 	const handleChangeSection = (section: Section) => () => {
 		if (onlyContactShownSections.includes(section)) {
@@ -56,11 +58,17 @@ export const Contact: FC<ContactProps> = ({ setShowOnlyContact }) => {
 		setShowOnlyContact(shouldShowOnlyContact);
 	}, [currentSection, setShowOnlyContact, shouldShowOnlyContact]);
 
+	// Update section when auth state changes (with guard to prevent loops)
+	const prevAuthenticatedRef = useRef<boolean | undefined>(undefined);
 	useEffect(() => {
-		if (authenticated && currentSection !== "signedInUser") {
-			setCurrentSection("signedInUser");
-		} else if (!authenticated && currentSection === "signedInUser") {
-			setCurrentSection("guestUser");
+		// Only update if authenticated state actually changed
+		if (prevAuthenticatedRef.current !== authenticated) {
+			prevAuthenticatedRef.current = authenticated;
+			if (authenticated && currentSection !== "signedInUser") {
+				setCurrentSection("signedInUser");
+			} else if (!authenticated && currentSection === "signedInUser") {
+				setCurrentSection("guestUser");
+			}
 		}
 	}, [authenticated, currentSection]);
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useCheckoutCustomerAttachMutation } from "@/checkout/graphql";
 import { useSubmit } from "@/checkout/hooks/useSubmit/useSubmit";
 import { useUser } from "@/checkout/hooks/useUser";
@@ -9,6 +9,7 @@ export const useCustomerAttach = () => {
 	const { authenticated } = useUser();
 
 	const [{ fetching: fetchingCustomerAttach }, customerAttach] = useCheckoutCustomerAttachMutation();
+	const hasAttachedRef = useRef(false);
 
 	const onSubmit = useSubmit<{}, typeof customerAttach>(
 		useMemo(
@@ -16,7 +17,7 @@ export const useCustomerAttach = () => {
 				hideAlerts: true,
 				scope: "checkoutCustomerAttach",
 				shouldAbort: () =>
-					!!checkout?.user?.id || !authenticated || fetchingCustomerAttach || fetchingCheckout,
+					!!checkout?.user?.id || !authenticated || fetchingCustomerAttach || fetchingCheckout || hasAttachedRef.current,
 				onSubmit: customerAttach,
 				parse: ({ languageCode, checkoutId }) => ({ languageCode, checkoutId }),
 				onError: ({ errors }) => {
@@ -36,7 +37,32 @@ export const useCustomerAttach = () => {
 		),
 	);
 
+	// Only attach once when conditions are met
 	useEffect(() => {
-		void onSubmit();
-	}, [onSubmit]);
+		// Skip if already attached or conditions not met
+		if (hasAttachedRef.current || !authenticated || !!checkout?.user?.id || fetchingCustomerAttach || fetchingCheckout) {
+			return;
+		}
+
+		// Mark as attempting to prevent repeated calls
+		hasAttachedRef.current = true;
+		
+		onSubmit().then(() => {
+			// Reset if attachment failed (will be checked by shouldAbort on next render)
+			if (!checkout?.user?.id) {
+				hasAttachedRef.current = false;
+			}
+		}).catch(() => {
+			hasAttachedRef.current = false;
+		});
+	}, [authenticated, checkout?.user?.id, fetchingCustomerAttach, fetchingCheckout, onSubmit]);
+
+	// Reset ref when checkout user changes (successful attach)
+	useEffect(() => {
+		if (checkout?.user?.id) {
+			hasAttachedRef.current = true;
+		} else if (!authenticated) {
+			hasAttachedRef.current = false;
+		}
+	}, [checkout?.user?.id, authenticated]);
 };

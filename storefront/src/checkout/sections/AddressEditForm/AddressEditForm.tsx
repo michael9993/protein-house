@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import React from "react";
+import React, { useState } from "react";
+import { toast } from "react-toastify";
 import { type AddressFormData } from "@/checkout/components/AddressForm/types";
 import { AddressForm, type AddressFormProps } from "@/checkout/components/AddressForm";
 import {
@@ -15,6 +16,7 @@ import { useFormSubmit } from "@/checkout/hooks/useFormSubmit";
 import { AddressFormActions } from "@/checkout/components/ManualSaveAddressForm";
 import { useAddressFormSchema } from "@/checkout/components/AddressForm/useAddressFormSchema";
 import { useSubmit } from "@/checkout/hooks/useSubmit/useSubmit";
+import { useUser } from "@/checkout/hooks/useUser";
 
 export interface AddressEditFormProps extends Pick<AddressFormProps, "title" | "availableCountries"> {
 	address: AddressFragment;
@@ -33,16 +35,39 @@ export const AddressEditForm: React.FC<AddressEditFormProps> = ({
 	const [{ fetching: updating }, userAddressUpdate] = useUserAddressUpdateMutation();
 	const [{ fetching: deleting }, userAddressDelete] = useUserAddressDeleteMutation();
 	const { setCountryCode, validationSchema } = useAddressFormSchema();
+	const { reload: reloadUser } = useUser();
+	const [isSuccess, setIsSuccess] = useState(false);
 
 	const onSubmit = useFormSubmit<AddressFormData, typeof userAddressUpdate>({
 		scope: "userAddressUpdate",
 		onSubmit: userAddressUpdate,
 		parse: (formData) => ({ id: address.id, address: { ...getAddressInputData(formData) } }),
-		onSuccess: ({ data: { address } }) => {
-			if (address) {
-				onUpdate(address);
+		onSuccess: async ({ data: { address: updatedAddress } }) => {
+			if (updatedAddress) {
+				// Show success state
+				setIsSuccess(true);
+				
+				// Show success toast notification
+				toast.success("Address updated successfully!", {
+					position: "top-right",
+					autoClose: 2000,
+					hideProgressBar: true,
+					className: "bg-green-50 border border-green-200 text-green-800",
+				});
+				
+				// Reload user data to get updated addresses list
+				await reloadUser();
+				
+				onUpdate(updatedAddress);
+				
+				// Close after showing success
+				setTimeout(() => {
+					setIsSuccess(false);
+					onClose();
+				}, 500);
+			} else {
+				onClose();
 			}
-			onClose();
 		},
 	});
 
@@ -77,11 +102,30 @@ export const AddressEditForm: React.FC<AddressEditFormProps> = ({
 	return (
 		<FormProvider form={{ ...form, handleChange: onChange }}>
 			<AddressForm title="Edit address" availableCountries={availableCountries}>
+				{isSuccess && (
+					<div className="mb-4 flex items-center gap-2 rounded-md bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">
+						<svg
+							className="h-5 w-5 flex-shrink-0 text-green-600"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M5 13l4 4L19 7"
+							/>
+						</svg>
+						<span>Address updated successfully!</span>
+					</div>
+				)}
 				<AddressFormActions
 					onSubmit={handleSubmit}
 					loading={updating || deleting}
 					onCancel={onClose}
 					onDelete={() => onAddressDelete({ id: address.id })}
+					success={isSuccess}
 				/>
 			</AddressForm>
 		</FormProvider>

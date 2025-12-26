@@ -6,6 +6,7 @@ import clsx from "clsx";
 import { type UserDetailsFragment } from "@/gql/graphql";
 import { logout } from "@/app/actions";
 import { storeConfig } from "@/config";
+import { dispatchCheckoutLogout } from "@/lib/checkout-client";
 
 interface AccountSidebarProps {
 	user: UserDetailsFragment;
@@ -143,8 +144,9 @@ export function AccountSidebar({ user, channel }: AccountSidebarProps) {
 					<form 
 						action={logout}
 						onSubmit={() => {
-							// Dispatch logout event for wishlist to clear
+							// Dispatch logout events for client-side cleanup
 							window.dispatchEvent(new CustomEvent("wishlist:logout"));
+							dispatchCheckoutLogout(); // Clear checkout localStorage
 						}}
 					>
 						<button

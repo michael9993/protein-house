@@ -8,6 +8,7 @@ import { UserAvatar } from "./components/UserAvatar";
 import { type UserDetailsFragment } from "@/gql/graphql";
 import { logout } from "@/app/actions";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
+import { dispatchCheckoutLogout } from "@/lib/checkout-client";
 
 type Props = {
 	user: UserDetailsFragment;
@@ -146,8 +147,9 @@ export function UserMenu({ user }: Props) {
 								<form 
 									action={logout}
 									onSubmit={() => {
-										// Dispatch logout event for wishlist to clear
+										// Dispatch logout events for client-side cleanup
 										window.dispatchEvent(new CustomEvent("wishlist:logout"));
+										dispatchCheckoutLogout(); // Clear checkout localStorage
 									}}
 								>
 									<button

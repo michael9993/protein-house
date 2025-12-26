@@ -225,9 +225,32 @@ class GraphQLView(View):
             if execution_result:
                 response = {}
                 if execution_result.errors:
+                    # Filter out non-critical Django development warnings
+                    # Only filter if the error message specifically contains the MEDIA_URL warning
+                    # and the mutation data is not null (meaning the mutation succeeded despite the warning)
+                    filtered_errors = []
+                    for e in execution_result.errors:
+                        error_str = str(e)
+                        is_media_url_warning = (
+                            isinstance(e, GraphQLError) and
+                            "runserver can't serve media if MEDIA_URL is within STATIC_URL" in error_str
+                        )
+                        # Only filter if it's the MEDIA_URL warning AND we have successful data
+                        # If checkoutComplete is null, don't filter - we need to see the real error
+                        if is_media_url_warning and execution_result.data:
+                            # Check if checkoutComplete exists and is not null
+                            checkout_complete = execution_result.data.get("checkoutComplete") if execution_result.data else None
+                            if checkout_complete is not None:
+                                # Mutation succeeded, safe to filter this warning
+                                continue
+                        # Keep all other errors
+                        filtered_errors.append(e)
+                    
                     response["errors"] = [
-                        self.format_error(e) for e in execution_result.errors
+                        self.format_error(e) for e in filtered_errors
                     ]
+                    # Remove any None values (in case format_error returns None for filtered errors)
+                    response["errors"] = [e for e in response["errors"] if e is not None]
                     # Error handling form `GraphQL-Core-Legacy` creates a multiple references cycles in
                     # the error object. We need to clear them.
                     clear_errors(execution_result.errors)

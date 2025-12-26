@@ -4,6 +4,7 @@ import { executeGraphQL } from "@/lib/graphql";
 import { CheckoutDeleteLinesDocument, CheckoutAddLinesDocument, CheckoutCreateWithLinesDocument } from "@/gql/graphql";
 import { storeConfig } from "@/config";
 import { CartClient } from "./CartClient";
+import { CartRestoreTrigger } from "./CartRestoreTrigger";
 import { revalidatePath } from "next/cache";
 
 export const metadata = {
@@ -13,8 +14,16 @@ export const metadata = {
 
 export default async function Page(props: { params: Promise<{ channel: string }> }) {
 	const params = await props.params;
-	const checkoutId = await Checkout.getIdFromCookies(params.channel);
-	const checkout = await Checkout.find(checkoutId);
+	
+	console.log(`[Cart Page] 🔍 Loading cart page for channel: ${params.channel}`);
+	
+	// Use resolveCheckout which handles:
+	// - Restoring user's saved checkout on login
+	// - Finding existing session checkout
+	// - Creating new checkout if needed
+	const { checkout } = await Checkout.resolveCheckout({ channel: params.channel });
+	
+	console.log(`[Cart Page] ✅ Checkout resolved: ${checkout?.id || "none"}, items: ${checkout?.lines?.length || 0}`);
 
 	// Server action for deleting lines
 	async function deleteLineAction(lineId: string) {
@@ -132,11 +141,16 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 	} : null;
 
 	return (
-		<CartClient
-			cart={cartData}
-			channel={params.channel}
-			deleteLineAction={deleteLineAction}
-			createCheckoutWithItems={createCheckoutWithItems}
-		/>
+		<>
+			{/* Client component to trigger cart restore when visiting cart page */}
+			{/* This ensures the user's saved cart is restored even if they didn't come from OAuth redirect */}
+			<CartRestoreTrigger channel={params.channel} />
+			<CartClient
+				cart={cartData}
+				channel={params.channel}
+				deleteLineAction={deleteLineAction}
+				createCheckoutWithItems={createCheckoutWithItems}
+			/>
+		</>
 	);
 }

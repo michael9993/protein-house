@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useTransition, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useTransition, useMemo, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { formatMoney, getHrefForVariant } from "@/lib/utils";
 import { storeConfig } from "@/config";
@@ -55,10 +55,19 @@ export function CartClient({
 }: CartClientProps) {
   const { branding, ecommerce } = storeConfig;
   const router = useRouter();
+  const pathname = usePathname();
   const [promoCode, setPromoCode] = useState("");
   const [deletingLines, setDeletingLines] = useState<Set<string>>(new Set());
   const [isPending, startTransition] = useTransition();
   const [isCreatingCheckout, setIsCreatingCheckout] = useState(false);
+  const [isNavigatingToCheckout, setIsNavigatingToCheckout] = useState(false);
+
+  // Reset navigation state when pathname changes (navigation completed)
+  useEffect(() => {
+    if (pathname && !pathname.includes('/checkout')) {
+      setIsNavigatingToCheckout(false);
+    }
+  }, [pathname]);
 
   // Selection state - default all items selected
   const [selectedItems, setSelectedItems] = useState<Set<string>>(() => {
@@ -129,10 +138,14 @@ export function CartClient({
   const handleProceedToCheckout = async () => {
     if (!cart || selectedItems.size === 0) return;
 
+    // Set navigating state to show loader
+    setIsNavigatingToCheckout(true);
+
     // If all items selected, use existing checkout
     if (allSelected) {
       // Use replace to avoid stacking checkout entries in history
       router.replace(`/checkout?checkout=${cart.id}`);
+      // Keep loading state - it will be cleared when page unloads or navigation completes
       return;
     }
 
@@ -158,17 +171,25 @@ export function CartClient({
           
           // Use replace to avoid stacking checkout entries in history
           router.replace(`/checkout?checkout=${result.checkoutId}`);
+          // Keep loading state - it will be cleared when page unloads or navigation completes
+        } else {
+          setIsNavigatingToCheckout(false);
         }
       } catch (error) {
         console.error("Failed to create checkout:", error);
+        setIsNavigatingToCheckout(false);
       } finally {
         setIsCreatingCheckout(false);
       }
     } else {
       // Fallback: use existing checkout (will include all items)
       router.replace(`/checkout?checkout=${cart.id}`);
+      // Keep loading state - it will be cleared when page unloads or navigation completes
     }
   };
+
+  // Loading overlay during navigation to checkout
+  const showLoadingOverlay = isNavigatingToCheckout;
 
   // Empty cart state
   if (!cart || cart.lines.length === 0) {
@@ -211,7 +232,20 @@ export function CartClient({
   const currency = cart.totalPrice.gross.currency;
 
   return (
-    <div className="min-h-screen bg-neutral-50/50">
+    <div className="min-h-screen bg-neutral-50/50 relative">
+      {/* Full-page loading overlay during navigation to checkout */}
+      {showLoadingOverlay && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-4">
+            <svg className="h-12 w-12 animate-spin text-neutral-600" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            <p className="text-lg font-medium text-neutral-700">Loading Checkout...</p>
+            <p className="text-sm text-neutral-500">Please wait while we prepare your checkout</p>
+          </div>
+        </div>
+      )}
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Free Shipping Progress */}
         {freeShippingThreshold && !hasReachedFreeShipping && amountToFreeShipping !== null && selectedSubtotal > 0 && (
@@ -556,17 +590,17 @@ export function CartClient({
               {/* Checkout Button */}
               <button
                 onClick={handleProceedToCheckout}
-                disabled={noneSelected || isCreatingCheckout}
+                disabled={noneSelected || isCreatingCheckout || isNavigatingToCheckout}
                 className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg py-3.5 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                 style={{ backgroundColor: branding.colors.primary }}
               >
-                {isCreatingCheckout ? (
+                {(isCreatingCheckout || isNavigatingToCheckout) ? (
                   <>
                     <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    Preparing Checkout...
+                    {isCreatingCheckout ? "Preparing Checkout..." : "Loading Checkout..."}
                   </>
                 ) : (
                   <>

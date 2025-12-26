@@ -2,6 +2,15 @@ query CheckoutFind($id: ID!) {
 	checkout(id: $id) {
 		id
 		email
+		# User ownership data for isolation checks
+		user {
+			id
+			email
+		}
+		# Channel for validation
+		channel {
+			slug
+		}
 		lines {
 			id
 			quantity

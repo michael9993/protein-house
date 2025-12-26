@@ -96,7 +96,7 @@ export const usePaymentGatewaysInitialize = () => {
 					setGatewayConfigs(mergedConfigs);
 				},
 				onError: ({ errors }) => {
-					console.log({ errors });
+					// Removed excessive logging
 					// On error, fall back to original gateways, extracting publishable key from config array
 					const fallbackConfigs = originalGateways.map((gw) => {
 						const publishableKey = gw.config?.find((c) => c.field === "stripePublishableKey")?.value;

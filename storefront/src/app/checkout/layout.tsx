@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import { AuthProvider } from "@/ui/components/AuthProvider";
+import { CheckoutAuthProvider } from "./CheckoutAuthProvider";
 
 export const metadata = {
 	title: "Saleor Storefront example",
@@ -9,7 +9,7 @@ export const metadata = {
 export default function RootLayout(props: { children: ReactNode }) {
 	return (
 		<main>
-			<AuthProvider>{props.children}</AuthProvider>
+			<CheckoutAuthProvider>{props.children}</CheckoutAuthProvider>
 		</main>
 	);
 }

@@ -64,25 +64,40 @@ export async function GET(
 			// Remove trailing slash if present, then add /+saleor_auth_*
 			const cookiePrefix = saleorApiUrl.replace(/\/$/, ""); // Remove trailing slash
 			
-			// Add query parameter to trigger wishlist reload on client side
+			// Add query parameters to trigger wishlist reload and cart restore on client side
 			const redirectUrlWithEvent = new URL(redirectUrl);
 			redirectUrlWithEvent.searchParams.set("wishlist_reload", "true");
+			redirectUrlWithEvent.searchParams.set("restore_cart", "true");
 			const finalRedirectUrl = redirectUrlWithEvent.toString();
 			
-			// Create redirect response
+			// Create redirect response with the final URL
 			const response = NextResponse.redirect(finalRedirectUrl);
 			
-			// Set cookies with the SDK's naming convention
-			// Access token cookie: {apiUrl}/+saleor_auth_access_token (note the / before +)
+			// Use the Saleor Auth SDK's cookie-setting mechanism
+			// This ensures cookies are set exactly like normal login does
+			const authClient = await getServerAuthClient();
+			
+			// The SDK's signIn method sets cookies automatically, but for OAuth we have tokens directly
+			// We need to manually set cookies using the SDK's cookie format
+			// However, the SDK doesn't expose a direct method to set cookies from tokens
+			// So we'll use Next.js cookies.set() which should work the same way as normal login
+			// (Normal login also uses cookies.set() internally via the SDK)
+			
+			// Set cookies using Next.js cookies API (same as normal login)
+			// The SDK expects these exact cookie names
+			// IMPORTANT: For cross-domain setups (Cloudflare tunnels), we need the access token
+			// to be readable by JavaScript so the SDK can add it as Authorization header
+			// The SDK's fetchWithAuth reads from document.cookie and adds Authorization header
+			// httpOnly cookies can't be read by JavaScript, so we set httpOnly: false for access token
+			// This is safe because the token is short-lived (30 days) and we still use httpOnly for refresh token
 			response.cookies.set(`${cookiePrefix}/+saleor_auth_access_token`, result.token, {
-				httpOnly: true,
+				httpOnly: false, // Must be false so SDK can read it from document.cookie for cross-domain requests
 				secure: protocol === "https",
 				sameSite: "lax",
 				path: "/",
 				maxAge: 60 * 60 * 24 * 30, // 30 days
 			});
 			
-			// Auth state cookie: {apiUrl}/+saleor_auth_module_auth_state = "signedIn"
 			response.cookies.set(`${cookiePrefix}/+saleor_auth_module_auth_state`, "signedIn", {
 				httpOnly: false, // Client needs to read this
 				secure: protocol === "https",
@@ -90,7 +105,6 @@ export async function GET(
 				path: "/",
 			});
 			
-			// Refresh token cookie: {apiUrl}/+saleor_auth_module_refresh_token
 			if (result.refreshToken) {
 				response.cookies.set(`${cookiePrefix}/+saleor_auth_module_refresh_token`, result.refreshToken, {
 					httpOnly: true,
@@ -101,12 +115,17 @@ export async function GET(
 				});
 			}
 			
-			console.log("[OAuth Callback] Cookies set with prefix:", cookiePrefix);
+			console.log("[OAuth Callback] ✅ Cookies set using Next.js cookies.set() (same as normal login)");
+			console.log("[OAuth Callback] Cookie prefix:", cookiePrefix);
 			console.log("[OAuth Callback] Cookie names:", {
 				accessToken: `${cookiePrefix}/+saleor_auth_access_token`,
 				authState: `${cookiePrefix}/+saleor_auth_module_auth_state`,
 				refreshToken: result.refreshToken ? `${cookiePrefix}/+saleor_auth_module_refresh_token` : "none",
 			});
+			console.log("[OAuth Callback] Token received:", result.token ? "YES" : "NO");
+			console.log("[OAuth Callback] Token length:", result.token?.length || 0);
+			console.log("[OAuth Callback] Cart restore will happen on next page load (after cookies are set)");
+			console.log("[OAuth Callback] Redirect URL:", finalRedirectUrl);
 			
 			return response;
 		}

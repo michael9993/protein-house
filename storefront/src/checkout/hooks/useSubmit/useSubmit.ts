@@ -42,6 +42,8 @@ export interface UseSubmitProps<
 			errors: ApiErrors<TData, TErrorCodes>;
 			customErrors: any[];
 			graphqlErrors: CombinedError[];
+			data?: MutationSuccessData<TMutationFn>;
+			rawResult?: MutationData<TMutationFn>;
 		},
 	) => void;
 	extractCustomErrors?: (data: MutationData<TMutationFn>) => any[];
@@ -114,6 +116,31 @@ export const useSubmit = <
 
 			const { success, data } = extractMutationData(result);
 
+			// Check if order was created even if there are errors (for checkoutComplete)
+			// This handles cases where GraphQL returns warnings but order is still created
+			// GraphQL can return both data and errors, so we need to check result.data even if result.error exists
+			let orderFromRawResult = null;
+			if (result.data) {
+				const checkoutCompleteData = (result.data as any)?.checkoutComplete;
+				orderFromRawResult = checkoutCompleteData?.order;
+				
+				// Log for debugging
+				if (orderFromRawResult) {
+					console.log("[useSubmit] ✅ Found order in raw result despite errors:", orderFromRawResult.id);
+				} else {
+					console.log("[useSubmit] 🔍 Checking for order in raw result:", {
+						hasData: !!result.data,
+						dataKeys: result.data ? Object.keys(result.data) : [],
+						hasCheckoutComplete: !!checkoutCompleteData,
+						checkoutCompleteKeys: checkoutCompleteData ? Object.keys(checkoutCompleteData) : [],
+					});
+				}
+			}
+
+			// If we have successful data OR an order was created, treat as success
+			const hasSuccessfulData = success && data;
+			const hasOrder = hasSuccessfulData || !!orderFromRawResult;
+
 			if (!hasErrors && success) {
 				onSuccess?.({ ...callbackProps, data });
 				setCheckoutUpdateState("success");
@@ -122,12 +149,37 @@ export const useSubmit = <
 				return { hasErrors, apiErrors, ...errorsRest };
 			}
 
-			onError?.({ ...callbackProps, errors: apiErrors, ...errorsRest });
+			// If order was created despite errors, call onSuccess instead of onError
+			if (hasOrder && orderFromRawResult) {
+				// Create a data object with the order for onSuccess
+				const orderData = { order: orderFromRawResult };
+				onSuccess?.({ ...callbackProps, data: orderData as any });
+				setCheckoutUpdateState("success");
+				onFinished?.();
+				return { hasErrors, apiErrors, ...errorsRest };
+			}
 
-			setCheckoutUpdateState("error");
+			// Call onError, but pass both extracted data and raw result so it can check if order was created
+			// The raw result contains the full response structure: result.data?.checkoutComplete?.order
+			onError?.({ 
+				...callbackProps, 
+				errors: apiErrors, 
+				...errorsRest, 
+				data: data || undefined,
+				rawResult: result, // Pass raw result so onError can check result.data directly
+			});
 
-			if (!hideAlerts && scope) {
-				showErrors(apiErrors, scope);
+			// Only set error state and show alerts if there's no successful data
+			// This prevents showing errors when order was created successfully
+			if (!hasSuccessfulData) {
+				setCheckoutUpdateState("error");
+
+				if (!hideAlerts && scope) {
+					showErrors(apiErrors, scope);
+				}
+			} else {
+				// Data exists despite errors - treat as success
+				setCheckoutUpdateState("success");
 			}
 
 			onFinished?.();

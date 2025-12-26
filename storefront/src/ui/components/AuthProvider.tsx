@@ -3,7 +3,7 @@
 import { SaleorAuthProvider, useAuthChange } from "@saleor/auth-sdk/react";
 import { invariant } from "ts-invariant";
 import { createSaleorAuthClient } from "@saleor/auth-sdk";
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import {
 	type Client,
 	Provider as UrqlProvider,
@@ -12,6 +12,7 @@ import {
 	dedupExchange,
 	fetchExchange,
 } from "urql";
+import { setupCheckoutLogoutListener, clearCheckoutLocalStorage } from "@/lib/checkout-client";
 
 const saleorApiUrl = process.env.NEXT_PUBLIC_SALEOR_API_URL;
 invariant(saleorApiUrl, "Missing NEXT_PUBLIC_SALEOR_API_URL env variable");
@@ -34,15 +35,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	invariant(saleorApiUrl, "Missing NEXT_PUBLIC_SALEOR_API_URL env variable");
 
 	const [urqlClient, setUrqlClient] = useState<Client>(() => makeUrqlClient());
+	
 	useAuthChange({
 		saleorApiUrl,
 		onSignedOut: () => {
+			// Reset URQL client to clear cache
 			setUrqlClient(makeUrqlClient());
+			// Clear checkout localStorage data
+			clearCheckoutLocalStorage();
 		},
 		onSignedIn: () => {
+			// Reset URQL client to use new auth context
 			setUrqlClient(makeUrqlClient());
 		},
 	});
+
+	// Set up listener for checkout:logout events
+	useEffect(() => {
+		return setupCheckoutLogoutListener();
+	}, []);
 
 	return (
 		<SaleorAuthProvider client={saleorAuthClient}>

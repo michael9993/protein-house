@@ -26,6 +26,9 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed }: L
 	const handleSubmit = async (formData: FormData) => {
 		setError(null);
 		
+		// Add channel to FormData for cart merge
+		formData.append("channel", channel);
+		
 		startTransition(async () => {
 			const action = isLogin ? loginAction : registerAction;
 			const result = await action(formData);

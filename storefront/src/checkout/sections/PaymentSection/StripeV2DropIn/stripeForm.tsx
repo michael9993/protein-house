@@ -13,7 +13,7 @@ import { useCheckoutComplete } from "@/checkout/hooks/useCheckoutComplete";
 const createPaymentElementOptions = (onReady?: () => void): StripePaymentElementOptions => ({
 	layout: "tabs",
 	onReady: () => {
-		console.log("PaymentElement ready");
+		// Removed excessive logging
 		onReady?.();
 	},
 });
@@ -80,7 +80,26 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 
 		try {
 			// First submit Stripe form to validate and get the payment method
-			const submitResult = await elements.submit();
+			let submitResult;
+			try {
+				submitResult = await elements.submit();
+			} catch (frameError: any) {
+				// Handle Stripe frame initialization errors
+				if (frameError?.message?.includes("Frame not initialized") || frameError?.message?.includes("frame")) {
+					console.warn("Stripe frame initialization issue, retrying...", frameError);
+					// Wait a bit and retry once
+					await new Promise(resolve => setTimeout(resolve, 500));
+					try {
+						submitResult = await elements.submit();
+					} catch (retryError) {
+						showCustomErrors([{ message: "Payment form is not ready. Please refresh the page and try again." }]);
+						setIsLoading(false);
+						return;
+					}
+				} else {
+					throw frameError;
+				}
+			}
 
 			if (submitResult.error) {
 				showCustomErrors([{ message: submitResult.error.message || "Payment validation failed" }]);
@@ -93,7 +112,7 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 				.selectedPaymentMethod;
 
 			// Initialize transaction with Saleor
-			console.log("🔵 Initializing transaction with gateway ID:", gatewayId);
+			// Removed excessive logging
 			const initializeResult = await transactionInitialize({
 				checkoutId: checkout.id,
 				amount: checkout.totalPrice.gross.amount,
@@ -106,7 +125,7 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 					},
 				},
 			});
-			console.log("🔵 Transaction initialize result:", initializeResult);
+			// Removed excessive logging
 
 			if (initializeResult.error) {
 				showCustomErrors([
@@ -137,7 +156,7 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 
 			// Extract client secret from the transaction data
 			const data = transactionData.data;
-			console.log("🔵 Transaction data:", data);
+			// Removed excessive logging
 			
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			const clientSecret = data?.paymentIntent?.stripeClientSecret as string | undefined;
@@ -159,28 +178,70 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 			});
 
 			// Confirm the payment with Stripe
-			const { error: confirmError } = await stripe.confirmPayment({
-				elements,
-				clientSecret,
-				confirmParams: {
-					return_url: returnUrl,
-					payment_method_data: {
-						billing_details: {
-							name: `${checkout.billingAddress?.firstName} ${checkout.billingAddress?.lastName}`.trim(),
-							email: checkout.email || "",
-							phone: checkout.billingAddress?.phone || "",
-							address: {
-								city: checkout.billingAddress?.city || "",
-								country: checkout.billingAddress?.country?.code || "",
-								line1: checkout.billingAddress?.streetAddress1 || "",
-								line2: checkout.billingAddress?.streetAddress2 || "",
-								postal_code: checkout.billingAddress?.postalCode || "",
-								state: checkout.billingAddress?.countryArea || "",
+			let confirmResult;
+			try {
+				confirmResult = await stripe.confirmPayment({
+					elements,
+					clientSecret,
+					confirmParams: {
+						return_url: returnUrl,
+						payment_method_data: {
+							billing_details: {
+								name: `${checkout.billingAddress?.firstName} ${checkout.billingAddress?.lastName}`.trim(),
+								email: checkout.email || "",
+								phone: checkout.billingAddress?.phone || "",
+								address: {
+									city: checkout.billingAddress?.city || "",
+									country: checkout.billingAddress?.country?.code || "",
+									line1: checkout.billingAddress?.streetAddress1 || "",
+									line2: checkout.billingAddress?.streetAddress2 || "",
+									postal_code: checkout.billingAddress?.postalCode || "",
+									state: checkout.billingAddress?.countryArea || "",
+								},
 							},
 						},
 					},
-				},
-			});
+				});
+			} catch (frameError: any) {
+				// Handle Stripe frame initialization errors during confirmation
+				if (frameError?.message?.includes("Frame not initialized") || frameError?.message?.includes("frame")) {
+					console.warn("Stripe frame error during confirmation, retrying...", frameError);
+					// Wait a bit and retry once
+					await new Promise(resolve => setTimeout(resolve, 500));
+					try {
+						confirmResult = await stripe.confirmPayment({
+							elements,
+							clientSecret,
+							confirmParams: {
+								return_url: returnUrl,
+								payment_method_data: {
+									billing_details: {
+										name: `${checkout.billingAddress?.firstName} ${checkout.billingAddress?.lastName}`.trim(),
+										email: checkout.email || "",
+										phone: checkout.billingAddress?.phone || "",
+										address: {
+											city: checkout.billingAddress?.city || "",
+											country: checkout.billingAddress?.country?.code || "",
+											line1: checkout.billingAddress?.streetAddress1 || "",
+											line2: checkout.billingAddress?.streetAddress2 || "",
+											postal_code: checkout.billingAddress?.postalCode || "",
+											state: checkout.billingAddress?.countryArea || "",
+										},
+									},
+								},
+							},
+						});
+					} catch (retryError) {
+						showCustomErrors([{ message: "Payment confirmation failed. Please try again." }]);
+						setIsLoading(false);
+						return;
+					}
+				} else {
+					throw frameError;
+				}
+			}
+
+			const { error: confirmError } = confirmResult;
 
 			if (confirmError) {
 				setIsLoading(false);

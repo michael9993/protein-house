@@ -55,8 +55,18 @@ urlpatterns = [
 
 if settings.DEBUG:
     from .core import views
+    import warnings
 
-    urlpatterns += static("/media/", document_root=settings.MEDIA_ROOT) + [
-        re_path(r"^static/(?P<path>.*)$", serve),
-        re_path(r"^$", views.home, name="home"),
-    ]
+    # Suppress the Django warning about MEDIA_URL within STATIC_URL
+    # This is a known limitation of Django's runserver in development
+    # In production, media files should be served by a web server (nginx, etc.)
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            message=".*runserver can't serve media if MEDIA_URL is within STATIC_URL.*",
+            category=UserWarning,
+        )
+        urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
+            re_path(r"^static/(?P<path>.*)$", serve),
+            re_path(r"^$", views.home, name="home"),
+        ]
