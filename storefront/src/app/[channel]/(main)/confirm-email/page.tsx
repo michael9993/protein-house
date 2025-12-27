@@ -18,27 +18,16 @@ export default async function ConfirmEmailPage({
 	const { channel } = await params;
 	const { email, token } = await searchParams;
 
-	// If email and token are provided, confirm the account
+	// If email and token are provided, try to confirm the account on the server
+	// However, we'll let the client handle it to show better error messages
+	// The server-side confirmation can fail silently, so we'll pass through to client
 	if (email && token) {
-		try {
-			const result = await executeGraphQL(ConfirmAccountDocument, {
-				variables: { email, token },
-				cache: "no-store",
-			});
-
-			if (result.confirmAccount?.errors && result.confirmAccount.errors.length > 0) {
-				// Redirect to login with error message
-				const errorMessage = result.confirmAccount.errors[0]?.message || "Invalid confirmation link";
-				redirect(`/${channel}/login?error=${encodeURIComponent(errorMessage)}`);
-			}
-
-			// Account confirmed successfully
-			// Redirect to login with success message
-			redirect(`/${channel}/login?confirmed=true`);
-		} catch (error) {
-			console.error("[Confirm Email] Error:", error);
-			redirect(`/${channel}/login?error=${encodeURIComponent("Failed to confirm account. Please try again.")}`);
-		}
+		// Decode URL parameters (they might be encoded)
+		const decodedEmail = decodeURIComponent(email);
+		const decodedToken = decodeURIComponent(token);
+		
+		// Pass decoded values to client component
+		return <ConfirmEmailClient channel={channel} email={decodedEmail} token={decodedToken} />;
 	}
 
 	// If no email/token, show the confirmation form

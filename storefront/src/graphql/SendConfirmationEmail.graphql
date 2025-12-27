@@ -1,0 +1,10 @@
+mutation SendConfirmationEmail($redirectUrl: String!, $channel: String!) {
+	sendConfirmationEmail(redirectUrl: $redirectUrl, channel: $channel) {
+		errors {
+			field
+			message
+			code
+		}
+	}
+}
+

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { storeConfig } from "@/config";
@@ -12,9 +12,11 @@ interface LoginClientProps {
 	redirectUrl?: string;
 	initialError?: string;
 	confirmed?: boolean;
+	initialEmail?: string;
+	autoResend?: boolean;
 }
 
-export function LoginClient({ channel, redirectUrl, initialError, confirmed }: LoginClientProps) {
+export function LoginClient({ channel, redirectUrl, initialError, confirmed, initialEmail, autoResend }: LoginClientProps) {
 	const [isLogin, setIsLogin] = useState(true);
 	const [error, setError] = useState<string | null>(initialError || null);
 	const [showSuccess, setShowSuccess] = useState(confirmed || false);
@@ -23,8 +25,41 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed }: L
 	const router = useRouter();
 	const { branding, store } = storeConfig;
 
+	// Auto-hide success message after 5 seconds
+	useEffect(() => {
+		if (showSuccess) {
+			const timer = setTimeout(() => setShowSuccess(false), 5000);
+			return () => clearTimeout(timer);
+		}
+	}, [showSuccess]);
+
+	// Auto-resend email after successful login if requested
+	useEffect(() => {
+		if (autoResend && initialEmail) {
+			// This will be handled after login success
+		}
+	}, [autoResend, initialEmail]);
+
 	const handleSubmit = async (formData: FormData) => {
 		setError(null);
+		
+		// If registering, store password temporarily for auto-login after confirmation
+		if (!isLogin) {
+			const password = formData.get("password")?.toString();
+			const email = formData.get("email")?.toString();
+			if (password && email) {
+				try {
+					// Store with multiple keys to handle URL encoding issues
+					const normalizedEmail = email.toLowerCase().trim();
+					sessionStorage.setItem(`pending_confirmation_${normalizedEmail}`, password);
+					// Also store with original email (in case it's used as-is)
+					sessionStorage.setItem(`pending_confirmation_${email}`, password);
+					console.log("[Register] ✅ Stored password temporarily for auto-login after confirmation");
+				} catch (e) {
+					console.warn("[Register] Could not store password in sessionStorage:", e);
+				}
+			}
+		}
 		
 		// Add channel to FormData for cart merge
 		formData.append("channel", channel);
@@ -36,6 +71,18 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed }: L
 			if (result.error) {
 				setError(result.error);
 			} else if (result.success) {
+				// If email confirmation is required, redirect to verification page
+				if (result.requiresConfirmation && result.email) {
+					router.push(`/${channel}/verify-email?email=${encodeURIComponent(result.email)}`);
+					return;
+				}
+				
+				// If auto-resend was requested, redirect to verify-email page to trigger resend
+				if (autoResend && initialEmail) {
+					router.push(`/${channel}/verify-email?email=${encodeURIComponent(initialEmail)}&autoResend=true`);
+					return;
+				}
+				
 				// Dispatch login event for wishlist to reload
 				window.dispatchEvent(new CustomEvent("wishlist:login"));
 				
@@ -100,6 +147,32 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed }: L
 							Sign Up
 						</button>
 					</div>
+
+					{/* Success Message (Email Confirmed) */}
+					{showSuccess && (
+						<div className="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-600">
+							<div className="flex items-start gap-2">
+								<svg className="h-5 w-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+								</svg>
+								<div className="flex-1">
+									<p className="font-medium">Your email has been confirmed successfully!</p>
+									<p className="mt-1 text-xs text-green-500">
+										You can now sign in to your account.
+									</p>
+								</div>
+								<button
+									type="button"
+									onClick={() => setShowSuccess(false)}
+									className="text-green-400 hover:text-green-600"
+								>
+									<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+									</svg>
+								</button>
+							</div>
+						</div>
+					)}
 
 					{/* Error Message */}
 					{error && (
@@ -170,15 +243,16 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed }: L
 							<label htmlFor="email" className="mb-1.5 block text-sm font-medium text-neutral-700">
 								Email Address
 							</label>
-							<input
-								id="email"
-								name="email"
-								type="email"
-								required
-								autoComplete="email"
-								className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder-neutral-400 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20"
-								placeholder="you@example.com"
-							/>
+								<input
+									id="email"
+									name="email"
+									type="email"
+									required
+									autoComplete="email"
+									defaultValue={initialEmail || ""}
+									className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder-neutral-400 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20"
+									placeholder="you@example.com"
+								/>
 						</div>
 
 						{/* Password */}

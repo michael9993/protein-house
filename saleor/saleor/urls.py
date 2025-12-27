@@ -4,6 +4,7 @@ from django.contrib.staticfiles.views import serve
 from django.urls import re_path
 from django.views.decorators.csrf import csrf_exempt
 
+from .account.views import confirm_and_login_view, resend_confirmation_email_view
 from .core.views import jwks
 from .graphql.api import backend, schema
 from .graphql.views import GraphQLView
@@ -51,6 +52,16 @@ urlpatterns = [
         name="thumbnail",
     ),
     re_path(r"^\.well-known/jwks.json$", jwks, name="jwks"),
+    re_path(
+        r"^resend-confirmation-email/$",
+        resend_confirmation_email_view,
+        name="resend-confirmation-email",
+    ),
+    re_path(
+        r"^confirm-and-login/$",
+        confirm_and_login_view,
+        name="confirm-and-login",
+    ),
 ]
 
 if settings.DEBUG:

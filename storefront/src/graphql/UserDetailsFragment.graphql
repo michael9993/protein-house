@@ -4,6 +4,7 @@ fragment UserDetails on User {
 	firstName
 	lastName
 	dateJoined
+	isConfirmed
 	avatar {
 		url
 		alt

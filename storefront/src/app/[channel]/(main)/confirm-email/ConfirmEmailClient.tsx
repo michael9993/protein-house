@@ -27,12 +27,21 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 		const urlEmail = searchParams.get("email");
 		const urlToken = searchParams.get("token");
 		
-		if (urlEmail && urlToken && !email && !token) {
-			setEmail(urlEmail);
-			setToken(urlToken);
-			handleConfirm(urlEmail, urlToken);
+		// Use props if available, otherwise use URL params
+		const emailToUse = initialEmail || urlEmail;
+		const tokenToUse = initialToken || urlToken;
+		
+		if (emailToUse && tokenToUse && status === "idle") {
+			// Decode URL parameters (they might be encoded)
+			const decodedEmail = decodeURIComponent(emailToUse);
+			const decodedToken = decodeURIComponent(tokenToUse);
+			
+			setEmail(decodedEmail);
+			setToken(decodedToken);
+			handleConfirm(decodedEmail, decodedToken);
 		}
-	}, [searchParams]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [searchParams, initialEmail, initialToken]);
 
 	const handleConfirm = async (confirmEmail: string, confirmToken: string) => {
 		if (!confirmEmail || !confirmToken) {
@@ -41,30 +50,76 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 			return;
 		}
 
+		// Ensure email and token are properly decoded
+		// Use try-catch in case they're already decoded
+		let decodedEmail = confirmEmail;
+		let decodedToken = confirmToken;
+		
+		try {
+			decodedEmail = decodeURIComponent(confirmEmail);
+			decodedToken = decodeURIComponent(confirmToken);
+		} catch (e) {
+			// If decoding fails, they might already be decoded - use as-is
+			console.log("[Confirm Email Client] URL decode not needed, using original values");
+		}
+
 		setStatus("loading");
 		setMessage("Confirming your account...");
 
 		try {
-			const result = await confirmAccountAction(confirmEmail, confirmToken);
+			// Use the new confirm-and-login action that automatically logs the user in
+			const { confirmAndLoginAction } = await import("./actions");
+			const result = await confirmAndLoginAction(decodedEmail, decodedToken, channel);
+			
+			console.log("[Confirm Email] Result:", { success: result.success, error: result.error });
 
 			if (!result.success) {
 				setStatus("error");
-				setMessage(result.error || "Failed to confirm account");
+				let errorMessage = result.error || "Failed to confirm account";
+				
+				// Provide helpful error messages
+				if (errorMessage.includes("Invalid") || errorMessage.includes("expired")) {
+					errorMessage = "This confirmation link is invalid or has expired. Please request a new confirmation email.";
+				} else if (errorMessage.includes("already")) {
+					errorMessage = "This account has already been confirmed. Redirecting to login...";
+					// If already confirmed, try to login anyway (endpoint will return tokens)
+					setTimeout(() => {
+						router.push(`/${channel}/login?confirmed=true`);
+					}, 2000);
+					return;
+				}
+				
+				setMessage(errorMessage);
 				return;
 			}
 
-			// Success
+			// Success - user is already logged in via tokens!
 			setStatus("success");
-			setMessage("Your account has been confirmed successfully! Redirecting to login...");
-
-			// Redirect to login after 2 seconds
-			setTimeout(() => {
-				router.push(`/${channel}/login?confirmed=true`);
-			}, 2000);
-		} catch (error) {
-			console.error("[Confirm Email] Error:", error);
+			setMessage("Account confirmed and logged in! Redirecting...");
+			
+			// Clear any stored passwords (no longer needed)
+			const emailVariants = [decodedEmail, email, decodedEmail.toLowerCase(), email.toLowerCase()];
+			for (const emailVariant of emailVariants) {
+				try {
+					sessionStorage.removeItem(`pending_confirmation_${emailVariant}`);
+				} catch (e) {
+					// Ignore
+				}
+			}
+			
+			// Dispatch login event for wishlist to reload
+			window.dispatchEvent(new CustomEvent("wishlist:login"));
+			
+			// Small delay to ensure cookies are set before navigation
+			await new Promise(resolve => setTimeout(resolve, 100));
+			
+			// Redirect to home page
+			router.push(`/${channel}`);
+			router.refresh();
+		} catch (error: any) {
+			console.error("[Confirm Email] Unexpected error:", error);
 			setStatus("error");
-			setMessage("Failed to confirm account. Please check your link and try again.");
+			setMessage("An unexpected error occurred. Please try again or request a new confirmation email.");
 		}
 	};
 
