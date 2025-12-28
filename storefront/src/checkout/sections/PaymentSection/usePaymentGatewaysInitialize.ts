@@ -117,14 +117,16 @@ export const usePaymentGatewaysInitialize = () => {
 
 	useEffect(() => {
 		void onSubmit();
-	}, []);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []); // Only run on mount
 
 	useEffect(() => {
 		if (billingCountry !== previousBillingCountry.current) {
 			previousBillingCountry.current = billingCountry;
 			void onSubmit();
 		}
-	}, [billingCountry, onSubmit]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [billingCountry]); // Only depend on billingCountry, not onSubmit to prevent unnecessary reruns
 
 	return {
 		fetching,

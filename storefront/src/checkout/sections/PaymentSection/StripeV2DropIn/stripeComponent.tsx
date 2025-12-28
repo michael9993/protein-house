@@ -2,7 +2,7 @@
 
 import { loadStripe, type Stripe, type StripeElementsOptions } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import { CheckoutForm } from "./stripeForm";
 import { useCheckout } from "@/checkout/hooks/useCheckout";
 
@@ -75,14 +75,41 @@ export const StripeComponent = ({ config }: { config: StripeConfig }) => {
 	}
 
 	// Memoize stripeOptions to prevent Elements from re-initializing
+	// Use ref to track previous values and only update when they actually change
 	const amount = Math.round(checkout.totalPrice.gross.amount * 100);
 	const currency = checkout.totalPrice.gross.currency?.toLowerCase() || "usd";
-	const stripeOptions: StripeElementsOptions = useMemo(() => ({
-		mode: "payment",
-		amount,
-		appearance: { theme: "stripe" },
-		currency,
-	}), [amount, currency]);
+	const previousAmountRef = useRef(amount);
+	const previousCurrencyRef = useRef(currency);
+	const previousOptionsRef = useRef<StripeElementsOptions | null>(null);
+	
+	// Only update options if amount or currency actually changed
+	// This prevents unnecessary re-initialization of Elements when Link is selected
+	const stripeOptions: StripeElementsOptions = useMemo(() => {
+		const hasChanged = previousAmountRef.current !== amount || previousCurrencyRef.current !== currency;
+		
+		// If nothing changed and we have previous options, return them to prevent recreation
+		if (!hasChanged && previousOptionsRef.current) {
+			return previousOptionsRef.current;
+		}
+		
+		// Update refs
+		previousAmountRef.current = amount;
+		previousCurrencyRef.current = currency;
+		
+		// Create new options
+		// Note: paymentMethodTypes should be in PaymentElement options, not Elements options
+		const newOptions: StripeElementsOptions = {
+			mode: "payment",
+			amount,
+			appearance: { theme: "stripe" },
+			currency,
+		};
+		
+		// Store for next comparison
+		previousOptionsRef.current = newOptions;
+		
+		return newOptions;
+	}, [amount, currency]);
 
 	// Extract the app identifier from the gateway ID
 	// Gateway ID from list is "app:stripe:stripe" but transaction needs just "stripe"
@@ -99,10 +126,12 @@ export const StripeComponent = ({ config }: { config: StripeConfig }) => {
 
 	// Pass the promise directly - Elements accepts Promise<Stripe | null>
 	// and will handle the async initialization
-	// Use publishableKey as key to prevent re-mounting when key hasn't changed
+	// Use stable key based on publishableKey to prevent re-mounting
+	// Don't include amount/currency in key to prevent remounts when totals change
+	// This prevents jittery UI when Link is selected or payment method changes
 	return (
 		<Elements 
-			key={publishableKey || 'stripe-elements'} 
+			key={`stripe-${publishableKey}`} 
 			options={stripeOptions} 
 			stripe={stripePromise}
 		>

@@ -12,6 +12,13 @@ import { useCheckoutComplete } from "@/checkout/hooks/useCheckoutComplete";
 // PaymentElement options - will be created with proper onReady handler
 const createPaymentElementOptions = (onReady?: () => void): StripePaymentElementOptions => ({
 	layout: "tabs",
+	// Enable Stripe Link for faster checkout
+	wallets: {
+		applePay: "auto",
+		googlePay: "auto",
+	},
+	// Enable Link payment method
+	paymentMethodTypes: ["card", "link"],
 	onReady: () => {
 		// Removed excessive logging
 		onReady?.();
@@ -55,9 +62,10 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 		if (elements && stripe && !initializedRef.current) {
 			initializedRef.current = true;
 			// Give Elements a moment to initialize before allowing PaymentElement to render
+			// Reduced timeout to minimize delay while still ensuring proper initialization
 			const timer = setTimeout(() => {
 				setElementsReady(true);
-			}, 200);
+			}, 100);
 			
 			return () => clearTimeout(timer);
 		}
@@ -108,8 +116,15 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 			}
 
 			// Extract selectedPaymentMethod from submit result
-			const selectedPaymentMethod = (submitResult as { selectedPaymentMethod?: string })
+			// Link payments work through the card flow, so if "link" is selected, use "card"
+			let selectedPaymentMethod = (submitResult as { selectedPaymentMethod?: string })
 				.selectedPaymentMethod;
+			
+			// Stripe Link payments use the card payment method flow
+			// The backend Stripe app doesn't recognize "link" as a separate payment method
+			if (selectedPaymentMethod === "link") {
+				selectedPaymentMethod = "card";
+			}
 
 			// Initialize transaction with Saleor
 			// Removed excessive logging
@@ -120,7 +135,7 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 					id: gatewayId,
 					data: {
 						paymentIntent: {
-							paymentMethod: selectedPaymentMethod,
+							paymentMethod: selectedPaymentMethod || "card", // Default to card if not specified
 						},
 					},
 				},
@@ -155,14 +170,42 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 			}
 
 			// Extract client secret from the transaction data
-			const data = transactionData.data;
-			// Removed excessive logging
+			// The data field is JSON and might be a string or already parsed object
+			// Stripe app returns: { paymentIntent: { stripeClientSecret: "..." } }
+			let data: any = transactionData.data;
 			
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-			const clientSecret = data?.paymentIntent?.stripeClientSecret as string | undefined;
+			// If data is a string, try to parse it
+			if (typeof data === "string") {
+				try {
+					data = JSON.parse(data);
+				} catch (e) {
+					console.error("Failed to parse transaction data as JSON:", e);
+					showCustomErrors([{ 
+						message: "Invalid payment data received. Please try again." 
+					}]);
+					setIsLoading(false);
+					return;
+				}
+			}
+			
+			// Extract client secret - Stripe app returns it at data.paymentIntent.stripeClientSecret
+			// Try multiple possible paths in case the structure varies
+			const clientSecret = 
+				data?.paymentIntent?.stripeClientSecret || 
+				data?.paymentIntent?.clientSecret ||
+				data?.stripeClientSecret ||
+				data?.clientSecret;
 
-			if (!clientSecret) {
-				console.error("⚠️ Client secret missing from transaction data", { data, transactionData });
+			if (!clientSecret || typeof clientSecret !== "string") {
+				console.error("⚠️ Client secret missing from transaction data", { 
+					data, 
+					transactionData,
+					dataType: typeof data,
+					dataKeys: data ? Object.keys(data) : [],
+					paymentIntentKeys: data?.paymentIntent ? Object.keys(data.paymentIntent) : [],
+					hasPaymentIntent: !!data?.paymentIntent,
+					paymentIntentType: typeof data?.paymentIntent,
+				});
 				showCustomErrors([{ 
 					message: "Payment initialization incomplete. The payment intent was created but the client secret is missing. Please try again." 
 				}]);
