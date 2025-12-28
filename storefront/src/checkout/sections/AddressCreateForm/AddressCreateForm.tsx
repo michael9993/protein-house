@@ -24,7 +24,7 @@ export const AddressCreateForm: React.FC<AddressCreateFormProps> = ({
 }) => {
 	const [, userAddressCreate] = useUserAddressCreateMutation();
 	const { setCountryCode, validationSchema } = useAddressFormSchema();
-	const { reload: reloadUser } = useUser();
+	const { user, authenticated, reload: reloadUser } = useUser();
 	const [isSuccess, setIsSuccess] = useState(false);
 
 	const onSubmit = useFormSubmit<AddressFormData, typeof userAddressCreate>({
@@ -33,9 +33,26 @@ export const AddressCreateForm: React.FC<AddressCreateFormProps> = ({
 			console.log("[AddressCreateForm] 🔍 ===== Starting address creation =====");
 			console.log("[AddressCreateForm] 🔍 Mutation variables:", vars);
 			console.log("[AddressCreateForm] 🔍 Current cookies:", typeof document !== "undefined" ? document.cookie : "N/A (server)");
+			console.log("[AddressCreateForm] 🔍 User state:", { authenticated, hasUserId: !!user?.id, userId: user?.id });
+			
+			// Check if user is actually authenticated before attempting mutation
+			if (!authenticated || !user?.id) {
+				const error = new Error("You must be signed in to create an address. Please sign in first.");
+				console.error("[AddressCreateForm] ❌ User not authenticated:", { authenticated, hasUserId: !!user?.id });
+				return {
+					data: undefined,
+					error: {
+						message: error.message,
+						graphQLErrors: [],
+						networkError: undefined,
+						response: undefined,
+					},
+				};
+			}
 			
 			// Log the mutation function details
 			console.log("[AddressCreateForm] 🔍 Mutation function:", userAddressCreate);
+			console.log("[AddressCreateForm] ℹ️ User is authenticated, proceeding with mutation. SDK's fetchWithAuth should handle authentication.");
 			
 			const result = await userAddressCreate(vars);
 			

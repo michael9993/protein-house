@@ -11,7 +11,7 @@ import {
 
 import { ToastContainer } from "react-toastify";
 import { useAuthChange, useSaleorAuthContext } from "@saleor/auth-sdk/react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { alertsContainerProps } from "./hooks/useAlerts/consts";
 import { RootViews } from "./views/RootViews";
 import { PageNotFound } from "@/checkout/views/PageNotFound";
@@ -20,6 +20,25 @@ import "./index.css";
 
 export const Root = ({ saleorApiUrl }: { saleorApiUrl: string }) => {
 	const saleorAuthClient = useSaleorAuthContext();
+	const [serverToken, setServerToken] = useState<string | null>(null);
+	const serverTokenRef = useRef<string | null>(null);
+	
+	// Get access token from server on mount (server has access to httpOnly cookies)
+	useEffect(() => {
+		(async () => {
+			try {
+				const { getAccessToken } = await import("@/app/actions");
+				const token = await getAccessToken();
+				if (token) {
+					setServerToken(token);
+					serverTokenRef.current = token; // Keep ref in sync
+					console.log("[Checkout URQL] ✅ Got access token from server");
+				}
+			} catch (error) {
+				console.error("[Checkout URQL] ❌ Error getting token from server:", error);
+			}
+		})();
+	}, []);
 
 	// Suppress Stripe "Frame not initialized" errors - these are non-critical
 	// and happen during PaymentElement initialization when canMakePayment is called
@@ -58,31 +77,118 @@ export const Root = ({ saleorApiUrl }: { saleorApiUrl: string }) => {
 				// Try to read access token from document.cookie (it's non-httpOnly for cross-domain support)
 				let accessToken: string | null = null;
 				if (typeof document !== "undefined") {
-					const cookies = document.cookie.split(";");
-					console.log("[Checkout URQL] 🔍 All cookies:", document.cookie);
+					const cookieString = document.cookie;
+					console.log("[Checkout URQL] 🔍 All cookies:", cookieString);
 					console.log("[Checkout URQL] 🔍 Looking for cookie:", accessTokenCookieName);
+					
+					// Parse cookies more carefully - handle cases where cookie name or value might contain special chars
+					const cookies = cookieString.split(";");
+					
+					// Try both exact match and URL-encoded versions
+					const searchNames = [
+						accessTokenCookieName,
+						encodeURIComponent(accessTokenCookieName),
+						decodeURIComponent(accessTokenCookieName),
+					];
+					
 					for (const cookie of cookies) {
-						const [name, value] = cookie.trim().split("=");
-						if (name === accessTokenCookieName) {
-							accessToken = decodeURIComponent(value);
-							console.log("[Checkout URQL] ✅ Found access token cookie, length:", accessToken.length);
-							break;
+						const trimmed = cookie.trim();
+						if (!trimmed) continue;
+						
+						// Find the first = sign (cookie name ends at first =)
+						const eqIndex = trimmed.indexOf("=");
+						if (eqIndex === -1) continue;
+						
+						const name = trimmed.substring(0, eqIndex);
+						const value = trimmed.substring(eqIndex + 1);
+						
+						// Try exact match
+						if (searchNames.includes(name)) {
+							try {
+								accessToken = decodeURIComponent(value);
+								console.log("[Checkout URQL] ✅ Found access token cookie (exact match), length:", accessToken.length);
+								break;
+							} catch {
+								// If decode fails, use raw value
+								accessToken = value;
+								console.log("[Checkout URQL] ✅ Found access token cookie (raw value), length:", accessToken.length);
+								break;
+							}
+						}
+						
+						// Try decoding the name
+						try {
+							const decodedName = decodeURIComponent(name);
+							if (searchNames.includes(decodedName)) {
+								try {
+									accessToken = decodeURIComponent(value);
+									console.log("[Checkout URQL] ✅ Found access token cookie (decoded name), length:", accessToken.length);
+									break;
+								} catch {
+									accessToken = value;
+									console.log("[Checkout URQL] ✅ Found access token cookie (decoded name, raw value), length:", accessToken.length);
+									break;
+								}
+							}
+						} catch {
+							// Ignore decode errors
+						}
+						
+						// Try encoding the name
+						try {
+							const encodedName = encodeURIComponent(name);
+							if (searchNames.includes(encodedName)) {
+								try {
+									accessToken = decodeURIComponent(value);
+									console.log("[Checkout URQL] ✅ Found access token cookie (encoded name), length:", accessToken.length);
+									break;
+								} catch {
+									accessToken = value;
+									console.log("[Checkout URQL] ✅ Found access token cookie (encoded name, raw value), length:", accessToken.length);
+									break;
+								}
+							}
+						} catch {
+							// Ignore encode errors
 						}
 					}
+					
 					if (!accessToken) {
 						console.warn("[Checkout URQL] ⚠️ Access token cookie not found in document.cookie");
+						// Log all cookie names for debugging
+						const allCookieNames = cookies
+							.map(c => {
+								const trimmed = c.trim();
+								const eqIndex = trimmed.indexOf("=");
+								return eqIndex === -1 ? trimmed : trimmed.substring(0, eqIndex);
+							})
+							.filter(Boolean);
+						console.log("[Checkout URQL] 🔍 Available cookie names:", allCookieNames);
+						console.log("[Checkout URQL] 🔍 Searched for:", searchNames);
 					}
 				}
 				
+				// Get current server token from ref (always up-to-date, even in closure)
+				const currentServerToken = serverTokenRef.current;
+				
 				// Prepare fetch options
+				// The SDK's fetchWithAuth will automatically:
+				// 1. Read cookies from document.cookie (for cross-domain)
+				// 2. Add Authorization header if access token is found
+				// 3. Include credentials for same-domain cookies
 				const fetchOptions: RequestInit = {
 					...init,
-					credentials: "include", // Still include credentials for cookies that might be sent
+					credentials: "include", // Include credentials for cookies
 					headers: {
 						...init?.headers,
-						// If we found an access token, add it as Authorization header
-						// This is necessary for cross-domain requests where cookies aren't sent
-						...(accessToken && {
+						// Priority: server token > manually found token > SDK's fetchWithAuth
+						// Server token is most reliable since it can read httpOnly cookies
+						// Use ref to get current value (closure-safe)
+						...(currentServerToken && {
+							Authorization: `Bearer ${currentServerToken}`,
+						}),
+						// Fallback to manually found token if server token not available
+						...(accessToken && !currentServerToken && {
 							Authorization: `Bearer ${accessToken}`,
 						}),
 					},
@@ -101,12 +207,41 @@ export const Root = ({ saleorApiUrl }: { saleorApiUrl: string }) => {
 					),
 				});
 				console.log("[Checkout URQL] 📤 Has Authorization header:", !!fetchOptions.headers && "Authorization" in fetchOptions.headers);
-				if (accessToken) {
-					console.log("[Checkout URQL] 📤 Access token (first 20 chars):", accessToken.substring(0, 20));
+				if (currentServerToken) {
+					console.log("[Checkout URQL] 📤 Using server token (first 20 chars):", currentServerToken.substring(0, 20));
+				} else if (accessToken) {
+					console.log("[Checkout URQL] 📤 Using manually found token (first 20 chars):", accessToken.substring(0, 20));
+				} else {
+					console.log("[Checkout URQL] ℹ️ No access token found, relying on SDK's fetchWithAuth");
 				}
 				
-				// Use the SDK's fetchWithAuth which will also try to add auth from cookies
-				// But our manual Authorization header takes precedence
+				// Try to get token from SDK's session if available (for debugging)
+				let sdkToken: string | null = null;
+				try {
+					// The SDK might have a way to get the current session/token
+					// Check if there's a getSession or similar method
+					if (typeof saleorAuthClient.getSession === "function") {
+						const session = await saleorAuthClient.getSession();
+						sdkToken = session?.token || null;
+						if (sdkToken) {
+							console.log("[Checkout URQL] ✅ SDK session token found, length:", sdkToken.length);
+							// Add it to headers if SDK didn't already
+							if (!fetchOptions.headers || !("Authorization" in (fetchOptions.headers as Record<string, unknown>))) {
+								fetchOptions.headers = {
+									...fetchOptions.headers,
+									Authorization: `Bearer ${sdkToken}`,
+								};
+								console.log("[Checkout URQL] 📤 Added Authorization header from SDK session");
+							}
+						}
+					}
+				} catch (error) {
+					// SDK might not have getSession method, that's OK
+					console.log("[Checkout URQL] ℹ️ SDK getSession not available or failed:", error);
+				}
+				
+				// Use the SDK's fetchWithAuth which handles cookie reading and Authorization header automatically
+				// This is the primary method - our manual token reading is just a fallback
 				const response = await saleorAuthClient.fetchWithAuth(input as NodeJS.fetch.RequestInfo, fetchOptions);
 				
 				// Log response details
@@ -121,6 +256,13 @@ export const Root = ({ saleorApiUrl }: { saleorApiUrl: string }) => {
 						const json = JSON.parse(text);
 						if (json.errors?.some((e: any) => e.message?.includes("AUTHENTICATED_USER"))) {
 							console.error("[Checkout URQL] ❌ Auth error in response:", json.errors);
+							console.error("[Checkout URQL] 🔍 Debug info:", {
+								hasServerToken: !!currentServerToken,
+								hasManualToken: !!accessToken,
+								hasSdkToken: !!sdkToken,
+								hasAuthHeader: !!(fetchOptions.headers && "Authorization" in (fetchOptions.headers as Record<string, unknown>)),
+								cookieString: typeof document !== "undefined" ? document.cookie.substring(0, 200) : "N/A",
+							});
 						} else {
 							console.log("[Checkout URQL] ✅ Request successful");
 						}

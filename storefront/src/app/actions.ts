@@ -54,6 +54,64 @@ export async function getCurrentUser() {
 }
 
 /**
+ * Gets the access token from cookies (server-side only).
+ * This is used by the checkout to authenticate GraphQL requests when
+ * the cookie isn't accessible via document.cookie (e.g., httpOnly cookies).
+ */
+export async function getAccessToken(): Promise<string | null> {
+	"use server";
+	
+	try {
+		const cookieStore = await cookies();
+		const saleorApiUrl = process.env.SALEOR_API_URL || process.env.NEXT_PUBLIC_SALEOR_API_URL || "";
+		
+		// The cookie name format is: {apiUrl}/+saleor_auth_access_token
+		// Where apiUrl might include /graphql or not
+		// IMPORTANT: Do NOT remove /graphql - the cookie name includes it!
+		// Just remove trailing slashes
+		const cookiePrefix = saleorApiUrl.replace(/\/+$/, "");
+		
+		// Try multiple cookie name formats based on how the URL might be structured
+		const possibleCookieNames = [
+			`${cookiePrefix}/+saleor_auth_access_token`, // Standard format (includes /graphql if URL has it)
+			`${cookiePrefix.replace(/\/graphql$/, "")}/+saleor_auth_access_token`, // Without /graphql
+			`${cookiePrefix}/graphql/+saleor_auth_access_token`, // With /graphql added
+		];
+		
+		// Also get all cookies to search through them
+		const allCookies = cookieStore.getAll();
+		console.log("[Get Access Token] 🔍 All cookie names:", allCookies.map(c => c.name).join(", "));
+		console.log("[Get Access Token] 🔍 Searching for:", possibleCookieNames);
+		console.log("[Get Access Token] 🔍 Saleor API URL:", saleorApiUrl);
+		
+		// Try exact matches first
+		for (const cookieName of possibleCookieNames) {
+			const token = cookieStore.get(cookieName)?.value;
+			if (token) {
+				console.log("[Get Access Token] ✅ Found access token with name:", cookieName);
+				return token;
+			}
+		}
+		
+		// Fallback: search for any cookie containing "saleor_auth_access_token"
+		// This handles cases where the cookie name might be URL-encoded or formatted differently
+		for (const cookie of allCookies) {
+			if (cookie.name.includes("saleor_auth_access_token") || cookie.name.includes("saleor_auth_access_token".replace(/_/g, "%5F"))) {
+				console.log("[Get Access Token] ✅ Found access token with partial match:", cookie.name);
+				return cookie.value;
+			}
+		}
+		
+		console.log("[Get Access Token] ⚠️ No access token found in cookies");
+		console.log("[Get Access Token] 🔍 Available cookie names for debugging:", allCookies.map(c => c.name));
+		return null;
+	} catch (error) {
+		console.error("[Get Access Token] ❌ Error:", error);
+		return null;
+	}
+}
+
+/**
  * Saves the user's checkout ID to metadata.
  * User carts are stored in metadata (server-side, syncs across devices).
  * Cookies are ONLY used for guest carts.

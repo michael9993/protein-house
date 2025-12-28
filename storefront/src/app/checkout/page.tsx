@@ -5,7 +5,7 @@ import { CheckoutBreadcrumbs } from "./CheckoutBreadcrumbs";
 import { storeConfig } from "@/config";
 
 export const metadata = {
-	title: `Checkout · ${storeConfig.storeName}`,
+	title: `Checkout${storeConfig.storeName ? ` · ${storeConfig.storeName}` : ""}`,
 };
 
 export default async function CheckoutPage(props: {
