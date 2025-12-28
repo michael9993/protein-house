@@ -78,6 +78,6 @@ if settings.DEBUG:
             category=UserWarning,
         )
         urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
-            re_path(r"^static/(?P<path>.*)$", serve),
-            re_path(r"^$", views.home, name="home"),
-        ]
+        re_path(r"^static/(?P<path>.*)$", serve),
+        re_path(r"^$", views.home, name="home"),
+    ]

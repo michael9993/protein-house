@@ -243,16 +243,16 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 							<label htmlFor="email" className="mb-1.5 block text-sm font-medium text-neutral-700">
 								Email Address
 							</label>
-								<input
-									id="email"
-									name="email"
-									type="email"
-									required
-									autoComplete="email"
+							<input
+								id="email"
+								name="email"
+								type="email"
+								required
+								autoComplete="email"
 									defaultValue={initialEmail || ""}
-									className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder-neutral-400 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20"
-									placeholder="you@example.com"
-								/>
+								className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder-neutral-400 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20"
+								placeholder="you@example.com"
+							/>
 						</div>
 
 						{/* Password */}

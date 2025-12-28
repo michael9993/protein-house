@@ -101,8 +101,8 @@ export async function registerAction(formData: FormData) {
 					};
 				};
 			};
-			errors?: Array<{ message?: string }>;
-		};
+					errors?: Array<{ message?: string }>;
+				};
 		
 		// Check for GraphQL errors
 		if (result.errors && result.errors.length > 0) {

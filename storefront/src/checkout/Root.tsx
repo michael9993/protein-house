@@ -139,13 +139,13 @@ export const Root = ({ saleorApiUrl }: { saleorApiUrl: string }) => {
 							const encodedName = encodeURIComponent(name);
 							if (searchNames.includes(encodedName)) {
 								try {
-									accessToken = decodeURIComponent(value);
+							accessToken = decodeURIComponent(value);
 									console.log("[Checkout URQL] ✅ Found access token cookie (encoded name), length:", accessToken.length);
 									break;
 								} catch {
 									accessToken = value;
 									console.log("[Checkout URQL] ✅ Found access token cookie (encoded name, raw value), length:", accessToken.length);
-									break;
+							break;
 								}
 							}
 						} catch {
