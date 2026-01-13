@@ -1,19 +1,42 @@
 import { Suspense } from "react";
-import { ProductListFilteredDocument, OrderDirection, ProductOrderField, CategoriesForFilterDocument } from "@/gql/graphql";
+import { ProductListFilteredDocument, CategoriesForFilterDocument, CategoriesForHomepageDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
-import { Breadcrumbs } from "@/ui/components/Breadcrumbs";
 import { storeConfig } from "@/config";
 import { SortBy } from "@/ui/components/SortBy";
 import { ProductFiltersWrapper } from "./ProductFiltersWrapper";
 import { ProductsGrid } from "./ProductsGrid";
+import { QuickFilters } from "./QuickFilters";
+import { ActiveFiltersTags } from "./ActiveFiltersTags";
+import { ProductSearch } from "./ProductSearch";
+import {
+  parseFiltersFromURL,
+  parseSortFromURL,
+  buildGraphQLFilter,
+  buildGraphQLSort,
+  hasActiveFilters,
+} from "@/lib/filters";
+import { fetchSizesForQuickFilters } from "./fetchSizes";
+import { fetchColorsForQuickFilters } from "./fetchColors";
 
-// Helper to get category IDs from slugs
+// ============================================================================
+// Metadata
+// ============================================================================
+
+export const metadata = {
+  title: `All Products | ${storeConfig.store.name}`,
+  description: `Browse all products at ${storeConfig.store.name}. Find the best deals and latest arrivals.`,
+};
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
 async function getCategoryIdsFromSlugs(slugs: string[], channel: string): Promise<string[]> {
 	if (slugs.length === 0) return [];
 	
 	const { categories } = await executeGraphQL(CategoriesForFilterDocument, {
 		variables: { first: 100, channel },
-		revalidate: 300, // Cache for 5 minutes
+    revalidate: 300,
 	});
 	
 	const categoryIds: string[] = [];
@@ -21,11 +44,9 @@ async function getCategoryIdsFromSlugs(slugs: string[], channel: string): Promis
 	
 	categories?.edges?.forEach(edge => {
 		const cat = edge.node;
-		// Check parent category
 		if (slugSet.has(cat.slug.toLowerCase())) {
 			categoryIds.push(cat.id);
 		}
-		// Check children
 		cat.children?.edges?.forEach(childEdge => {
 			const child = childEdge.node;
 			if (slugSet.has(child.slug.toLowerCase())) {
@@ -37,249 +58,543 @@ async function getCategoryIdsFromSlugs(slugs: string[], channel: string): Promis
 	return categoryIds;
 }
 
-export const metadata = {
-	title: `All Products | ${storeConfig.store.name}`,
-	description: `Browse all products at ${storeConfig.store.name}. Find the best deals and latest arrivals.`,
-};
-
-// Price range definitions for display
-const PRICE_RANGE_LABELS: Record<string, string> = {
-	"0-25": "Under $25",
-	"25-50": "$25 - $50",
-	"50-100": "$50 - $100",
-	"100-200": "$100 - $200",
-	"200+": "Over $200",
-};
-
-const getSortVariables = (sortParam?: string | string[]) => {
-	const sortValue = Array.isArray(sortParam) ? sortParam[0] : sortParam;
-
-	switch (sortValue) {
-		case "price-asc":
-			return { field: ProductOrderField.MinimalPrice, direction: OrderDirection.Asc };
-		case "price-desc":
-			return { field: ProductOrderField.MinimalPrice, direction: OrderDirection.Desc };
-		case "newest":
-			return { field: ProductOrderField.Date, direction: OrderDirection.Desc };
-		case "name-asc":
-			return { field: ProductOrderField.Name, direction: OrderDirection.Asc };
-		case "name-desc":
-			return { field: ProductOrderField.Name, direction: OrderDirection.Desc };
-		default:
-			return { field: ProductOrderField.Rating, direction: OrderDirection.Desc };
+async function getCollectionIdsFromSlugs(slugs: string[], channel: string): Promise<string[]> {
+	if (slugs.length === 0) return [];
+	
+	try {
+		const { getServerAuthClient } = await import("@/app/config");
+		const saleorApiUrl = process.env.SALEOR_API_URL || process.env.NEXT_PUBLIC_SALEOR_API_URL;
+		
+		const authClient = await getServerAuthClient();
+		const response = await authClient.fetchWithAuth(saleorApiUrl!, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				query: `
+					query CollectionsForFilter($channel: String!) {
+						collections(channel: $channel, first: 100) {
+							edges {
+								node {
+									id
+									slug
+								}
+							}
+						}
+					}
+				`,
+				variables: { channel },
+			}),
+			next: { revalidate: 300 },
+		});
+		
+		const result = (await response.json()) as { data?: { collections?: { edges?: any[] } } };
+		const slugSet = new Set(slugs.map(s => s.toLowerCase()));
+		
+		return result.data?.collections?.edges
+			?.filter(({ node }: { node: any }) => slugSet.has(node.slug.toLowerCase()))
+			?.map(({ node }: { node: any }) => node.id) || [];
+	} catch {
+		return [];
 	}
-};
+}
+
+/**
+ * Fetch categories for quick filters
+ */
+async function fetchCategoriesForQuickFilters(channel: string) {
+  try {
+    const { categories } = await executeGraphQL(CategoriesForHomepageDocument, {
+      variables: { channel, first: 10 },
+      revalidate: 300,
+    });
+    return categories?.edges?.map(({ node }: { node: any }) => {
+      const productImages = node.products?.edges
+        ?.flatMap(({ node: product }: { node: any }) => {
+          const images: Array<{ url: string; alt?: string }> = [];
+          if (product.thumbnail?.url) {
+            images.push({ url: product.thumbnail.url, alt: product.thumbnail.alt || product.name });
+          }
+          if (product.media?.length > 0) {
+            product.media.slice(0, 2).forEach((media: any) => {
+              if (media.url) images.push({ url: media.url, alt: media.alt || product.name });
+            });
+          }
+          return images;
+        })
+        .filter((img: any) => img.url)
+        .slice(0, 4) || [];
+
+      return {
+        id: node.id,
+        name: node.name,
+        slug: node.slug,
+        productCount: node.products?.totalCount || 0,
+        children: node.children?.edges?.map(({ node: child }: { node: any }) => ({
+          id: child.id,
+          slug: child.slug,
+        })) || [],
+        backgroundImage: node.backgroundImage ? {
+          url: node.backgroundImage.url,
+          alt: node.backgroundImage.alt,
+        } : undefined,
+        productImages: productImages.length > 0 ? productImages : undefined,
+      };
+    }).filter((cat: any) => cat.productCount > 0) || [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Fetch collections for quick filters
+ */
+async function fetchCollectionsForQuickFilters(channel: string) {
+  try {
+    const { getServerAuthClient } = await import("@/app/config");
+    const saleorApiUrl = process.env.SALEOR_API_URL || process.env.NEXT_PUBLIC_SALEOR_API_URL;
+    
+    const authClient = await getServerAuthClient();
+    const response = await authClient.fetchWithAuth(saleorApiUrl!, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: `
+          query CollectionsForQuickFilters($channel: String!) {
+            collections(channel: $channel, first: 10) {
+              edges {
+                node {
+                  id
+                  name
+                  slug
+                  backgroundImage {
+                    url
+                    alt
+                  }
+                  products(first: 4) {
+                    totalCount
+                    edges {
+                      node {
+                        id
+                        name
+                        thumbnail {
+                          url
+                          alt
+                        }
+                        media {
+                          url
+                          alt
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `,
+        variables: { channel },
+      }),
+      next: { revalidate: 300 },
+    });
+    
+    const result = (await response.json()) as { data?: { collections?: { edges?: any[] } } };
+    return result.data?.collections?.edges
+      ?.map(({ node }: { node: any }) => {
+        const productImages = node.products?.edges
+          ?.flatMap(({ node: product }: { node: any }) => {
+            const images: Array<{ url: string; alt?: string }> = [];
+            if (product.thumbnail?.url) {
+              images.push({ url: product.thumbnail.url, alt: product.thumbnail.alt || product.name });
+            }
+            if (product.media?.length > 0) {
+              product.media.slice(0, 2).forEach((media: any) => {
+                if (media.url) images.push({ url: media.url, alt: media.alt || product.name });
+              });
+            }
+            return images;
+          })
+          .filter((img: any) => img.url)
+          .slice(0, 4) || [];
+
+        return {
+          id: node.id,
+          name: node.name,
+          slug: node.slug,
+          productCount: node.products?.totalCount || 0,
+          backgroundImage: node.backgroundImage ? {
+            url: node.backgroundImage.url,
+            alt: node.backgroundImage.alt,
+          } : undefined,
+          productImages: productImages.length > 0 ? productImages : undefined,
+        };
+      })
+      .filter((col: any) => col.productCount > 0) || [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Fetch brands for quick filters
+ */
+async function fetchBrandsForQuickFilters(channel: string): Promise<{
+  brands: Array<{ id: string; name: string; slug: string; productCount: number }>;
+  attributeSlug: string | null;
+}> {
+  try {
+    const apiUrl = process.env.SALEOR_API_URL || process.env.NEXT_PUBLIC_SALEOR_API_URL;
+    if (!apiUrl) return { brands: [], attributeSlug: null };
+    return await fetchBrandsFromAttributes(apiUrl, channel);
+  } catch (error) {
+    console.warn("Failed to fetch brands:", error);
+    return { brands: [], attributeSlug: null };
+  }
+}
+
+/**
+ * Fallback: Extract brands from product attributes
+ */
+async function fetchBrandsFromAttributes(apiUrl: string, channel: string): Promise<{
+  brands: Array<{ id: string; name: string; slug: string; productCount: number }>;
+  attributeSlug: string | null;
+}> {
+  try {
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: `
+          query ProductsForBrands($channel: String!) {
+            products(first: 100, channel: $channel) {
+              edges {
+                cursor
+                node {
+                  id
+                  name
+                  attributes {
+                    attribute {
+                      id
+                      name
+                      slug
+                    }
+                    values {
+                      id
+                      name
+                      slug
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `,
+        variables: { channel },
+      }),
+      next: { revalidate: 300 },
+    });
+
+    if (!response.ok) {
+      return { brands: [], attributeSlug: null };
+    }
+
+    const responseData = (await response.json()) as { data?: any };
+    const { data } = responseData;
+    
+    if (!data?.products?.edges || data.products.edges.length === 0) {
+      return { brands: [], attributeSlug: null };
+    }
+
+    const brandsMap = new Map<string, { name: string; slug: string; count: number }>();
+    let detectedAttributeSlug: string | null = null;
+
+    data.products.edges.forEach((edge: any) => {
+      const product = edge.node;
+      if (!product.attributes || !Array.isArray(product.attributes)) return;
+
+      const brandAttr = product.attributes.find((attr: any) => {
+        const attrName = attr?.attribute?.name?.toLowerCase()?.trim();
+        const attrSlug = attr?.attribute?.slug?.toLowerCase()?.trim();
+        return attrName === "brand" || attrSlug === "brand" || attrSlug === "manufacturer";
+      });
+
+      if (brandAttr) {
+        if (!detectedAttributeSlug && brandAttr.attribute?.slug) {
+          detectedAttributeSlug = brandAttr.attribute.slug;
+        }
+
+        const brandValues = brandAttr.values || [];
+        if (brandValues.length > 0) {
+          brandValues.forEach((value: any) => {
+            const brandName = value?.name || value?.value;
+            if (brandName && typeof brandName === 'string' && brandName.trim()) {
+              const brandSlug = value.slug || 
+                brandName.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+              
+              if (brandSlug) {
+                if (!brandsMap.has(brandSlug)) {
+                  brandsMap.set(brandSlug, { name: brandName.trim(), slug: brandSlug, count: 0 });
+                }
+                brandsMap.get(brandSlug)!.count++;
+              }
+            }
+          });
+        }
+      }
+    });
+
+    const brands = Array.from(brandsMap.values())
+      .map((brand) => ({
+        id: `brand-${brand.slug}`,
+        name: brand.name,
+        slug: brand.slug,
+        productCount: brand.count,
+      }))
+      .sort((a, b) => (b.productCount || 0) - (a.productCount || 0))
+      .slice(0, 10);
+
+    return { 
+      brands, 
+      attributeSlug: detectedAttributeSlug || "brand"
+    };
+  } catch (error) {
+    console.warn("Failed to fetch brands from attributes:", error);
+    return { brands: [], attributeSlug: "brand" };
+  }
+}
+
+// ============================================================================
+// Page Component
+// ============================================================================
 
 export default async function Page(props: {
-	params: Promise<{ channel: string }>;
-	searchParams: Promise<{
-		sort?: string | string[];
-		categories?: string | string[];
-		priceRanges?: string | string[];
-		minPrice?: string | string[];
-		maxPrice?: string | string[];
-		inStock?: string | string[];
-		onSale?: string | string[];
-	}>;
+  params: Promise<{ channel: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-	const searchParams = await props.searchParams;
-	const params = await props.params;
+  const [params, searchParams] = await Promise.all([props.params, props.searchParams]);
+  const { channel } = params;
 
-	const sortVariables = getSortVariables(searchParams.sort);
+  const filters = parseFiltersFromURL(searchParams);
+  const sortValue = parseSortFromURL(searchParams);
+  
+  // Handle special sort options that require filtering
+  let adjustedFilters = { ...filters };
+  
+  // Apply "sale" filter when sorting by sale
+  if (sortValue && (sortValue as any) === "sale") {
+    adjustedFilters.onSale = true;
+  }
+  
+  // Apply "newest" - already handled by date-desc sort
+  
+  const sortVariables = buildGraphQLSort(sortValue);
 
-	// Parse filter params first
-	const selectedCategories = searchParams.categories 
-		? (Array.isArray(searchParams.categories) ? searchParams.categories[0] : searchParams.categories).split(",")
-		: [];
-	
-	// New price ranges (multiple checkboxes)
-	const priceRanges = searchParams.priceRanges 
-		? (Array.isArray(searchParams.priceRanges) ? searchParams.priceRanges[0] : searchParams.priceRanges).split(",")
-		: [];
-	
-	// Legacy min/max price (for backward compatibility)
-	const minPrice = searchParams.minPrice 
-		? parseFloat(Array.isArray(searchParams.minPrice) ? searchParams.minPrice[0] : searchParams.minPrice)
-		: undefined;
-	const maxPrice = searchParams.maxPrice 
-		? parseFloat(Array.isArray(searchParams.maxPrice) ? searchParams.maxPrice[0] : searchParams.maxPrice)
-		: undefined;
-	
-	const inStock = searchParams.inStock === "true";
-	const onSale = searchParams.onSale === "true";
+  // Fetch brands, sizes, and colors first to detect the attribute slugs (needed for filter)
+  const [brandsResult, sizesResult, colorsResult] = await Promise.all([
+    fetchBrandsForQuickFilters(channel),
+    fetchSizesForQuickFilters(channel),
+    fetchColorsForQuickFilters(channel),
+  ]);
+  const brandsForQuickFilters = brandsResult.brands;
+  const brandAttributeSlug = brandsResult.attributeSlug;
+  const sizeAttributeSlug = sizesResult.attributeSlug || "size"; // Default to "size" if not detected
+  const colorAttributeSlug = colorsResult.attributeSlug || "color"; // Default to "color" if not detected
 
-	// Get category IDs from slugs for server-side filtering
-	const categoryIds = await getCategoryIdsFromSlugs(selectedCategories, params.channel);
+  const [categoryIds, collectionIds] = await Promise.all([
+    getCategoryIdsFromSlugs(adjustedFilters.categories, channel),
+    getCollectionIdsFromSlugs(adjustedFilters.collections, channel),
+  ]);
 
-	// Build GraphQL filter
-	const buildFilter = () => {
-		const filter: Record<string, unknown> = {};
-		
-		// Category filter - use IDs fetched from slugs
-		if (categoryIds.length > 0) {
-			filter.categories = categoryIds;
-		}
-		
-		// Price filter - use price ranges or legacy min/max
-		if (priceRanges.length > 0) {
-			// Convert price ranges to gte/lte
-			// Take the widest range to cover all selected ranges
-			let minVal = Infinity;
-			let maxVal = 0;
-			
-			priceRanges.forEach(rangeId => {
-				const [minStr, maxStr] = rangeId.split("-");
-				const min = parseInt(minStr) || 0;
-				const max = maxStr === "+" ? Infinity : (parseInt(maxStr) || Infinity);
-				if (min < minVal) minVal = min;
-				if (max > maxVal) maxVal = max;
-			});
-			
-			if (minVal !== Infinity) {
-				filter.price = { gte: minVal, ...(maxVal !== Infinity ? { lte: maxVal } : {}) };
-			}
-		} else if (minPrice !== undefined || maxPrice !== undefined) {
-			filter.price = {
-				...(minPrice !== undefined ? { gte: minPrice } : {}),
-				...(maxPrice !== undefined ? { lte: maxPrice } : {}),
-			};
-		}
-		
-		// Stock filter
-		if (inStock) {
-			filter.stockAvailability = "IN_STOCK";
-		}
-		
-		// Sale filter - check if discounted
-		if (onSale) {
-			filter.isAvailable = true;
-		}
-		
-		return Object.keys(filter).length > 0 ? filter : undefined;
-	};
+  // Build filter with correct brand, size, and color attribute slugs
+  const graphqlFilter = buildGraphQLFilter({
+    filters: adjustedFilters,
+    categoryIds,
+    collectionIds,
+    brandAttributeSlug: brandAttributeSlug ? brandAttributeSlug : undefined,
+    sizeAttributeSlug: sizeAttributeSlug ? sizeAttributeSlug : undefined,
+    colorAttributeSlug: colorAttributeSlug ? colorAttributeSlug : undefined,
+  });
 
-	// Fetch initial products with filtering
-	const { products } = await executeGraphQL(ProductListFilteredDocument, {
+  const [{ products }, categoriesForQuickFilters, collectionsForQuickFilters] = await Promise.all([
+    executeGraphQL(ProductListFilteredDocument, {
 		variables: {
 			first: 24,
-			channel: params.channel,
+        channel,
 			sortBy: sortVariables,
-			filter: buildFilter(),
+        filter: graphqlFilter,
+        search: adjustedFilters.search || undefined,
 		},
 		revalidate: 60,
-	});
+    }),
+    fetchCategoriesForQuickFilters(channel),
+    fetchCollectionsForQuickFilters(channel),
+  ]);
 
 	const productCount = products?.totalCount || 0;
 	const initialProducts = products?.edges.map(({ node }) => node) || [];
 	const hasNextPage = products?.pageInfo.hasNextPage || false;
 	const endCursor = products?.pageInfo.endCursor || null;
 
-	const hasActiveFilters = selectedCategories.length > 0 || priceRanges.length > 0 || minPrice !== undefined || maxPrice !== undefined || inStock || onSale;
+  const activeFilters = hasActiveFilters(filters);
+  const hasQuickFilters = categoriesForQuickFilters.length > 0 || collectionsForQuickFilters.length > 0 || brandsForQuickFilters.length > 0;
+  const { branding } = storeConfig;
 
 	return (
-		<div className="min-h-screen bg-neutral-50/50">
-			<div className="mx-auto w-full max-w-[1920px] px-4 py-6 sm:px-6 lg:px-8">
-				{/* Breadcrumbs */}
-				<Breadcrumbs items={[{ label: "All Products" }]} />
+		<div className="min-h-screen bg-white">
+			<div className="flex">
+				{/* Left Sidebar - Narrower Width */}
+				<aside className="hidden lg:block lg:w-64 xl:w-72 lg:flex-shrink-0 lg:border-r lg:border-neutral-200">
+					<div className="sticky top-0 h-screen overflow-y-auto">
+						{/* Sidebar Header */}
+						<div 
+							className="px-5 py-6 border-b border-neutral-200"
+							style={{
+								background: `linear-gradient(135deg, ${branding.colors.primary}08 0%, transparent 100%)`,
+							}}
+						>
+							<h1 
+								className="text-2xl font-bold tracking-tight mb-2"
+								style={{ color: branding.colors.text }}
+							>
+								DISCOVER PRODUCTS
+							</h1>
+							<p className="text-sm text-neutral-600">
+								{productCount} {productCount === 1 ? "item" : "items"} available
+							</p>
+						</div>
 
-				{/* Page Header */}
-				<div className="mb-6 sm:mb-8">
-					<h1 className="text-2xl font-bold text-neutral-900 sm:text-3xl lg:text-4xl">
-						All Products
-					</h1>
-					<p className="mt-1 text-sm text-neutral-600 sm:mt-2 sm:text-base">
-						{productCount} {productCount === 1 ? "product" : "products"} available
-					</p>
-				</div>
-
-				<div className="flex gap-6 lg:gap-8">
-					{/* Filters Sidebar - Desktop */}
-					<aside className="hidden w-64 flex-shrink-0 lg:block">
-						<div className="sticky top-24">
-							<Suspense fallback={<div className="animate-pulse h-96 bg-neutral-200 rounded-lg" />}>
+						{/* Filters */}
+						<div className="px-5 py-5">
+							<Suspense fallback={<FiltersSkeleton />}>
 								<ProductFiltersWrapper 
-									channel={params.channel}
-									selectedCategories={selectedCategories}
+									channel={channel}
+									initialBrands={brandsForQuickFilters}
+									initialSizes={sizesResult.sizes}
+									initialColors={colorsResult.colors}
 								/>
 							</Suspense>
 						</div>
-					</aside>
+					</div>
+				</aside>
 
-					{/* Products Area */}
-					<div className="min-w-0 flex-1">
-						{/* Toolbar */}
-						<div className="mb-4 flex flex-col gap-3 rounded-lg bg-white p-3 shadow-sm sm:mb-6 sm:flex-row sm:items-center sm:justify-between sm:p-4">
+				{/* Main Content Area */}
+				<div className="flex-1 min-w-0">
+					{/* Quick Filters Section with Title */}
+					{hasQuickFilters && (
+						<div 
+							className="border-b border-neutral-200 animate-fade-in-up"
+							style={{
+								background: `linear-gradient(135deg, ${branding.colors.primary}08 0%, ${branding.colors.secondary}05 50%, transparent 100%)`,
+								animationDelay: "100ms",
+								animationFillMode: "both",
+							}}
+						>
+							<h2 
+								className="px-4 py-3 text-xl font-bold tracking-tight sm:px-6 lg:px-8"
+								style={{ color: branding.colors.text }}
+							>
+								Check Out Our Products
+							</h2>
+							<div className="w-full">
+								<QuickFilters
+									categories={categoriesForQuickFilters}
+									collections={collectionsForQuickFilters}
+									brands={brandsForQuickFilters}
+								/>
+							</div>
+						</div>
+					)}
+
+					{/* Products Content */}
+					<div className="px-4 py-6 sm:px-6 lg:px-8">
+						{/* Results Header with Search */}
+						<div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 							{/* Mobile Filter Button */}
-							<ProductFiltersWrapper 
-								channel={params.channel}
-								selectedCategories={selectedCategories}
-								mobileOnly
-							/>
+							<div className="lg:hidden">
+								<ProductFiltersWrapper 
+									channel={channel} 
+									mobileOnly
+									initialBrands={brandsForQuickFilters}
+									initialSizes={sizesResult.sizes}
+									initialColors={colorsResult.colors}
+								/>
+							</div>
 							
-							{/* Results count & Sort */}
-							<div className="flex items-center justify-between gap-4 sm:ml-auto">
-								<span className="text-sm text-neutral-500">
-									{productCount} {productCount === 1 ? "product" : "products"}
-								</span>
-								<SortBy />
+							{/* Search, Results & Sort */}
+							<div className="flex flex-1 items-center justify-between gap-4 sm:ml-auto lg:ml-0">
+								{/* Search Bar - Compact */}
+								<div className="flex-1 max-w-md">
+									<Suspense fallback={
+										<div className="h-9 bg-neutral-100 rounded-md animate-pulse" />
+									}>
+										<ProductSearch channel={channel} initialSearch={filters.search} />
+									</Suspense>
+								</div>
+								
+								{/* Results & Sort */}
+								<div className="flex items-center gap-4 flex-shrink-0">
+									<div className="text-sm text-neutral-600 whitespace-nowrap">
+										{filters.search ? (
+											<>
+												<span className="font-semibold text-neutral-900">{productCount.toLocaleString()}</span>
+												<span className="ml-1">for</span>
+												<span className="ml-1 font-semibold text-neutral-900">"{filters.search}"</span>
+											</>
+										) : (
+											<>
+												<span className="font-semibold text-neutral-900">{productCount.toLocaleString()}</span>
+												<span className="ml-1">results</span>
+											</>
+										)}
+									</div>
+									<SortBy />
+								</div>
 							</div>
 						</div>
 
 						{/* Active Filters Tags */}
-						{hasActiveFilters && (
-							<div className="mb-4 flex flex-wrap items-center gap-2">
-								<span className="text-sm font-medium text-neutral-600">Active:</span>
-								{selectedCategories.length > 0 && (
-									<span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-medium text-neutral-700 shadow-sm">
-										{selectedCategories.length} {selectedCategories.length === 1 ? "category" : "categories"}
-									</span>
-								)}
-								{priceRanges.map(rangeId => (
-									<span key={rangeId} className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-medium text-neutral-700 shadow-sm">
-										{PRICE_RANGE_LABELS[rangeId] || rangeId}
-									</span>
-								))}
-								{minPrice !== undefined && (
-									<span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-medium text-neutral-700 shadow-sm">
-										Min: ${minPrice}
-									</span>
-								)}
-								{maxPrice !== undefined && (
-									<span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-medium text-neutral-700 shadow-sm">
-										Max: ${maxPrice}
-									</span>
-								)}
-								{inStock && (
-									<span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-medium text-neutral-700 shadow-sm">
-										In Stock
-									</span>
-								)}
-								{onSale && (
-									<span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-medium text-neutral-700 shadow-sm">
-										On Sale
-									</span>
-								)}
+						{activeFilters && (
+							<div className="mb-6">
+								<ActiveFiltersTags 
+									filters={filters}
+									categories={categoriesForQuickFilters}
+									collections={collectionsForQuickFilters}
+									brands={brandsForQuickFilters}
+									sizes={sizesResult.sizes}
+									colors={colorsResult.colors}
+								/>
 							</div>
 						)}
 
-						{/* Products Grid with Infinite Scroll */}
+						{/* Products Grid */}
 						<ProductsGrid
 							initialProducts={initialProducts}
-							channel={params.channel}
+							channel={channel}
 							totalCount={productCount}
 							hasNextPage={hasNextPage}
 							endCursor={endCursor}
 							sortBy={sortVariables}
-							categoryFilter={selectedCategories}
-							priceRangesFilter={priceRanges}
-							minPriceFilter={minPrice}
-							maxPriceFilter={maxPrice}
-							inStockFilter={inStock}
-							onSaleFilter={onSale}
+							filters={filters}
 						/>
 					</div>
 				</div>
 			</div>
 		</div>
 	);
+}
+
+// ============================================================================
+// Sub-components
+// ============================================================================
+
+function FiltersSkeleton() {
+  return (
+    <div className="animate-pulse space-y-4">
+      <div className="h-8 bg-neutral-200 rounded-lg" />
+      <div className="space-y-3">
+        {[1, 2, 3, 4].map(i => (
+          <div key={i} className="h-4 bg-neutral-200 rounded" />
+        ))}
+      </div>
+    </div>
+  );
 }

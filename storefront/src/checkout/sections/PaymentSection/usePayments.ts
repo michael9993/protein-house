@@ -10,7 +10,14 @@ const paidStatuses: PaymentStatus[] = ["overpaid", "paidInFull", "authorized"];
 
 export const usePayments = () => {
 	const { checkout } = useCheckout();
-	const paymentStatus = usePaymentStatus(checkout);
+	const paymentStatus = usePaymentStatus(
+		checkout
+			? {
+					chargeStatus: checkout.chargeStatus,
+					authorizeStatus: checkout.authorizeStatus,
+				}
+			: { chargeStatus: "NONE" as const, authorizeStatus: "NONE" as const }
+	);
 
 	const { fetching, availablePaymentGateways } = usePaymentGatewaysInitialize();
 

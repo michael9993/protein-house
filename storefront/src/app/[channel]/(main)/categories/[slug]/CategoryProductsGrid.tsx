@@ -27,9 +27,9 @@ interface CategoryProductsGridProps {
 
 export function CategoryProductsGrid({
   initialProducts,
-  categorySlug,
-  channel,
-  totalCount,
+  categorySlug: _categorySlug,
+  channel: _channel,
+  totalCount: _totalCount,
   priceRangesFilter = [],
   minPriceFilter,
   maxPriceFilter,

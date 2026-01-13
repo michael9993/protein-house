@@ -17,7 +17,7 @@ const INVOICES_APP_PUBLIC_URL = process.env.INVOICES_APP_URL ||
 
 export async function POST(request: NextRequest) {
 	try {
-		const { orderId } = await request.json();
+		const { orderId } = (await request.json()) as { orderId?: string };
 
 		if (!orderId) {
 			return NextResponse.json(
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 			body: JSON.stringify({ orderId }),
 		});
 
-		const data = await response.json();
+		const data = (await response.json()) as { success?: boolean; message?: string; invoice?: { id?: string; number?: string } };
 		console.log("Invoice generation response:", data);
 
 		if (!response.ok) {
@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
 			body: JSON.stringify({ orderId }),
 		});
 
-		const data = await response.json();
+		const data = (await response.json()) as { success?: boolean; invoice?: { id?: string; number?: string } };
 
 		if (data.success && data.invoice?.id) {
 			// Return public URL for browser download

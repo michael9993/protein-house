@@ -18,8 +18,8 @@ interface SearchProductsGridProps {
 export function SearchProductsGrid({
   initialProducts,
   searchQuery,
-  channel,
-  totalCount,
+  channel: _channel,
+  totalCount: _totalCount,
   minPriceFilter,
   maxPriceFilter,
   inStockFilter,

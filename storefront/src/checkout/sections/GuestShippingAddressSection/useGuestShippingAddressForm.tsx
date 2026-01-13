@@ -16,9 +16,8 @@ import {
 import { useSetCheckoutFormValidationState } from "@/checkout/hooks/useSetCheckoutFormValidationState";
 
 export const useGuestShippingAddressForm = () => {
-	const {
-		checkout: { shippingAddress },
-	} = useCheckout();
+	const { checkout } = useCheckout();
+	const shippingAddress = checkout?.shippingAddress;
 
 	const [, checkoutShippingAddressUpdate] = useCheckoutShippingAddressUpdateMutation();
 	const { setCheckoutFormValidationState } = useSetCheckoutFormValidationState("shippingAddress");

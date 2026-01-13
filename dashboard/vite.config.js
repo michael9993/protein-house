@@ -63,6 +63,7 @@ export default defineConfig(({ command, mode }) => {
     NODE_ENV,
     API_URL,
     VITE_API_URL, // Vite-prefixed env vars are automatically exposed to client
+    DASHBOARD_TUNNEL_URL,
     SW_INTERVAL,
     IS_CLOUD_INSTANCE,
     APP_MOUNT_URI,
@@ -110,6 +111,7 @@ export default defineConfig(({ command, mode }) => {
       inject: {
         data: {
           API_URL,
+          DASHBOARD_TUNNEL_URL,
           APP_MOUNT_URI,
           APPS_MARKETPLACE_API_URL,
           EXTENSIONS_API_URL,
@@ -170,7 +172,8 @@ export default defineConfig(({ command, mode }) => {
         ? [
             "localhost",
             "127.0.0.1",
-            "element-vocational-monte-legacy.trycloudflare.com", // Current tunnel domain
+            DASHBOARD_TUNNEL_URL, // Current tunnel domain
+            "sentence-completely-dude-stakeholders.trycloudflare.com", // Cloudflare tunnel host
             // Add more tunnel domains here as needed, or use a function pattern
           ]
         : undefined,
@@ -206,6 +209,16 @@ export default defineConfig(({ command, mode }) => {
         ],
       },
     },
+    preview: {
+      port: 9000,
+      host: "0.0.0.0",
+      allowedHosts: [
+        "localhost",
+        "127.0.0.1",
+        DASHBOARD_TUNNEL_URL,
+        "sentence-completely-dude-stakeholders.trycloudflare.com", // Cloudflare tunnel host
+      ],
+    },
     define: {
       ...globals,
 
@@ -215,6 +228,7 @@ export default defineConfig(({ command, mode }) => {
       "process.env": {
         NODE_ENV,
         API_URL,
+        DASHBOARD_TUNNEL_URL,
         SW_INTERVAL,
         IS_CLOUD_INSTANCE,
         APP_MOUNT_URI,

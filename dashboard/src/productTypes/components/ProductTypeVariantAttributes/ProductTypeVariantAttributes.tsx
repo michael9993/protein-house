@@ -243,7 +243,11 @@ const ProductTypeVariantAttributes = (props: ProductTypeVariantAttributesProps) 
                         {!!variantSelectionDisabled && (
                           <Tooltip>
                             <Tooltip.Trigger>
-                              <CircleQuestionMark className={classes.colVariantDisabled} />
+                              <CircleQuestionMark
+                                size={iconSize.small}
+                                strokeWidth={iconStrokeWidthBySize.small}
+                                className={classes.colVariantDisabled}
+                              />
                             </Tooltip.Trigger>
                             <Tooltip.Content side="bottom">
                               <Tooltip.Arrow />

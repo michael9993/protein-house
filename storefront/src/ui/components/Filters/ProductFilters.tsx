@@ -1,10 +1,21 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { storeConfig } from "@/config";
+/**
+ * ProductFilters Component
+ * 
+ * Renders filter UI for products. Uses useProductFilters hook which
+ * ensures URL is the single source of truth - NO local state duplication.
+ */
 
-// Export the Category type for use in wrapper
+import React, { useState, useRef, useEffect, type ReactNode, type ChangeEvent } from "react";
+import { storeConfig } from "@/config";
+import { useProductFilters } from "@/hooks/useProductFilters";
+import { PriceRangeFilter } from "./PriceRangeFilter";
+
+// ============================================================================
+// Types
+// ============================================================================
+
 export interface Category {
   id: string;
   name: string;
@@ -13,43 +24,84 @@ export interface Category {
   children?: Category[];
 }
 
+export interface Collection {
+  id: string;
+  name: string;
+  slug: string;
+  productCount?: number;
+}
+
+export interface Brand {
+  id: string;
+  name: string;
+  slug: string;
+  productCount?: number;
+}
+
+export interface Size {
+  id: string;
+  name: string;
+  slug: string;
+  productCount?: number;
+}
+
+export interface Color {
+  id: string;
+  name: string;
+  slug: string;
+  productCount?: number;
+}
+
 interface ProductFiltersProps {
   categories?: Category[];
-  selectedCategoryIds?: string[];
-  minPrice?: number;
-  maxPrice?: number;
-  showInStock?: boolean;
-  onSale?: boolean;
-  onFilterChange?: (filters: FilterState) => void;
+  collections?: Collection[];
+  brands?: Brand[];
+  sizes?: Size[];
+  colors?: Color[];
 }
 
-export interface FilterState {
-  categories: string[]; // Using slugs for URL-friendly filtering
-  priceRanges: string[]; // Multiple price ranges
-  inStock: boolean;
-  onSale: boolean;
-}
+// ============================================================================
+// Helper Functions
+// ============================================================================
 
-const PRICE_RANGES = [
-  { id: "0-25", label: "Under $25", min: 0, max: 25 },
-  { id: "25-50", label: "$25 - $50", min: 25, max: 50 },
-  { id: "50-100", label: "$50 - $100", min: 50, max: 100 },
-  { id: "100-200", label: "$100 - $200", min: 100, max: 200 },
-  { id: "200+", label: "Over $200", min: 200, max: null },
-];
 
-// Helper to get all category slugs including children
-function getAllCategorySlugs(category: Category): string[] {
-  const slugs = [category.slug];
+function getChildCategorySlugs(category: Category): string[] {
+  const slugs: string[] = [];
   if (category.children && category.children.length > 0) {
     category.children.forEach(child => {
-      slugs.push(...getAllCategorySlugs(child));
+      slugs.push(child.slug);
+      slugs.push(...getChildCategorySlugs(child));
     });
   }
   return slugs;
 }
 
-// Helper to check if a category or any of its children is selected
+function areAllChildrenSelected(category: Category, selectedSlugs: string[]): boolean {
+  if (!category.children || category.children.length === 0) {
+    // If no children, check if the category itself is selected
+    return selectedSlugs.includes(category.slug);
+  }
+  
+  // Check if all direct children are selected
+  const allChildrenSelected = category.children.every(child => 
+    selectedSlugs.includes(child.slug) || areAllChildrenSelected(child, selectedSlugs)
+  );
+  
+  return allChildrenSelected;
+}
+
+function areSomeChildrenSelected(category: Category, selectedSlugs: string[]): boolean {
+  if (!category.children || category.children.length === 0) {
+    return false;
+  }
+  
+  // Check if at least one child is selected
+  return category.children.some(child => 
+    selectedSlugs.includes(child.slug) || 
+    isCategoryOrChildSelected(child, selectedSlugs)
+  );
+}
+
 function isCategoryOrChildSelected(category: Category, selectedSlugs: string[]): boolean {
   if (selectedSlugs.includes(category.slug)) return true;
   if (category.children) {
@@ -58,171 +110,152 @@ function isCategoryOrChildSelected(category: Category, selectedSlugs: string[]):
   return false;
 }
 
+// ============================================================================
+// Main Component
+// ============================================================================
+
 export function ProductFilters({ 
   categories = [], 
-  selectedCategoryIds = [],
-  showInStock = false,
-  onSale = false,
-  onFilterChange,
+  collections = [],
+  brands = [],
+  sizes = [],
+  colors = [],
 }: ProductFiltersProps) {
   const { branding } = storeConfig;
-  const router = useRouter();
-  const pathname = usePathname();
   
-  const searchParams = useSearchParams();
-  
-  // Local state for immediate UI feedback
-  const [expandedSections, setExpandedSections] = useState<string[]>(["categories", "price", "availability"]);
-  // Auto-expand all parent categories that have children
-  const [expandedCategories, setExpandedCategories] = useState<string[]>(() => {
-    return categories.filter(c => c.children && c.children.length > 0).map(c => c.slug);
-  });
-  const [localCategories, setLocalCategories] = useState<string[]>(selectedCategoryIds);
-  const [localPriceRanges, setLocalPriceRanges] = useState<string[]>([]);
-  const [localInStock, setLocalInStock] = useState(showInStock);
-  const [localOnSale, setLocalOnSale] = useState(onSale);
-
-  // Initialize price ranges from URL
+  // Debug: Log sizes when component receives them
   useEffect(() => {
-    const priceParam = searchParams.get("priceRanges");
-    if (priceParam) {
-      setLocalPriceRanges(priceParam.split(","));
+    if (sizes.length > 0) {
+      console.log("[ProductFilters] Received sizes:", sizes.length, sizes.map(s => `${s.name} (${s.slug})`));
+    } else {
+      console.log("[ProductFilters] No sizes received");
     }
-  }, [searchParams]);
+  }, [sizes]);
+  
+  // Use the centralized hook - URL is source of truth
+  const {
+    filters,
+    hasFilters,
+    toggleCollection,
+    toggleBrand,
+    toggleSize,
+    toggleColor,
+    toggleInStock,
+    toggleOnSale,
+    clearAll,
+    updateFilters,
+    isCategorySelected,
+    isCollectionSelected,
+    isBrandSelected,
+    isSizeSelected,
+    isColorSelected,
+  } = useProductFilters();
 
-  // Update URL with new filters
-  const updateFilters = useCallback((updates: Partial<{
-    categories: string[];
-    priceRanges: string[];
-    inStock: boolean;
-    onSale: boolean;
-  }>) => {
-    const params = new URLSearchParams(searchParams.toString());
-    
-    if (updates.categories !== undefined) {
-      if (updates.categories.length > 0) {
-        params.set("categories", updates.categories.join(","));
-      } else {
-        params.delete("categories");
+
+  // Load expanded sections from localStorage
+  const loadExpandedSections = (): string[] => {
+    if (typeof window === "undefined") return [];
+    try {
+      const saved = localStorage.getItem("saleor_filter_expanded_sections");
+      return saved ? (JSON.parse(saved) as string[]) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  // UI-only state for section expansion (not filter state) - Load from localStorage
+  const [expandedSections, setExpandedSections] = useState<string[]>(loadExpandedSections);
+  const [expandedCategories, setExpandedCategories] = useState<string[]>(() => 
+    categories.filter(c => c.children && c.children.length > 0).map(c => c.slug)
+  );
+
+  // Save expanded sections to localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("saleor_filter_expanded_sections", JSON.stringify(expandedSections));
+      } catch (error) {
+        console.warn("Failed to save expanded sections:", error);
       }
     }
-    
-    if (updates.priceRanges !== undefined) {
-      if (updates.priceRanges.length > 0) {
-        params.set("priceRanges", updates.priceRanges.join(","));
-      } else {
-        params.delete("priceRanges");
-        params.delete("minPrice");
-        params.delete("maxPrice");
-      }
-    }
-    
-    if (updates.inStock !== undefined) {
-      if (updates.inStock) {
-        params.set("inStock", "true");
-      } else {
-        params.delete("inStock");
-      }
-    }
-    
-    if (updates.onSale !== undefined) {
-      if (updates.onSale) {
-        params.set("onSale", "true");
-      } else {
-        params.delete("onSale");
-      }
-    }
-    
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [searchParams, pathname, router]);
+  }, [expandedSections]);
 
   const toggleSection = (section: string) => {
-    setExpandedSections((prev) =>
+    setExpandedSections((prev: string[]) =>
       prev.includes(section)
-        ? prev.filter((s) => s !== section)
+        ? prev.filter((s: string) => s !== section)
         : [...prev, section]
     );
   };
 
   const toggleCategoryExpand = (categorySlug: string) => {
-    setExpandedCategories((prev) =>
+    setExpandedCategories((prev: string[]) =>
       prev.includes(categorySlug)
-        ? prev.filter((s) => s !== categorySlug)
+        ? prev.filter((s: string) => s !== categorySlug)
         : [...prev, categorySlug]
     );
   };
 
+  // Handle category selection
   const handleCategoryChange = (category: Category, isChecked: boolean) => {
-    // Get all slugs for this category and its children
-    const allSlugs = getAllCategorySlugs(category);
+    const currentCategories = [...filters.categories];
+    let updatedCategories: string[];
     
-    let newCategories: string[];
-    if (isChecked) {
-      // Add all slugs (category + children)
-      newCategories = [...new Set([...localCategories, ...allSlugs])];
+    if (category.children && category.children.length > 0) {
+      // For categories with children: toggle all children, not the parent itself
+      const childSlugs = getChildCategorySlugs(category);
+      
+      if (isChecked) {
+        // Add all child slugs that aren't already selected
+        const slugsToAdd = childSlugs.filter(slug => !currentCategories.includes(slug));
+        updatedCategories = [...currentCategories, ...slugsToAdd];
+      } else {
+        // Remove all child slugs
+        updatedCategories = currentCategories.filter(slug => !childSlugs.includes(slug));
+      }
     } else {
-      // Remove all slugs (category + children)
-      newCategories = localCategories.filter(slug => !allSlugs.includes(slug));
+      // For categories without children: toggle the category itself
+      if (isChecked) {
+        if (!currentCategories.includes(category.slug)) {
+          updatedCategories = [...currentCategories, category.slug];
+        } else {
+          return; // Already selected, no change needed
+        }
+      } else {
+        updatedCategories = currentCategories.filter(slug => slug !== category.slug);
+      }
     }
     
-    setLocalCategories(newCategories);
-    updateFilters({ categories: newCategories });
-  };
-
-  const handlePriceRangeChange = (rangeId: string) => {
-    let newPriceRanges: string[];
-    
-    if (localPriceRanges.includes(rangeId)) {
-      // Remove this range
-      newPriceRanges = localPriceRanges.filter(r => r !== rangeId);
-    } else {
-      // Add this range
-      newPriceRanges = [...localPriceRanges, rangeId];
+    // Single update instead of multiple toggles
+    if (updatedCategories.length !== currentCategories.length) {
+      updateFilters({ categories: updatedCategories });
     }
-    
-    setLocalPriceRanges(newPriceRanges);
-    updateFilters({ priceRanges: newPriceRanges });
   };
-
-  const handleInStockChange = () => {
-    const newValue = !localInStock;
-    setLocalInStock(newValue);
-    updateFilters({ inStock: newValue });
-  };
-
-  const handleOnSaleChange = () => {
-    const newValue = !localOnSale;
-    setLocalOnSale(newValue);
-    updateFilters({ onSale: newValue });
-  };
-
-  const clearAll = () => {
-    setLocalCategories([]);
-    setLocalPriceRanges([]);
-    setLocalInStock(false);
-    setLocalOnSale(false);
-    router.push(pathname, { scroll: false });
-  };
-
-  const hasActiveFilters = localCategories.length > 0 || localPriceRanges.length > 0 || localInStock || localOnSale;
 
   // Render category with children
   const renderCategory = (category: Category, depth = 0) => {
     const hasChildren = category.children && category.children.length > 0;
     const isExpanded = expandedCategories.includes(category.slug);
-    const isChecked = localCategories.includes(category.slug);
-    const isPartiallyChecked = !isChecked && hasChildren && 
-      category.children!.some(child => isCategoryOrChildSelected(child, localCategories));
+    
+    // For categories with children: checked if ALL children are selected
+    // For categories without children: checked if the category itself is selected
+    const isChecked = hasChildren 
+      ? areAllChildrenSelected(category, filters.categories)
+      : isCategorySelected(category.slug);
+    
+    // Partially checked if SOME but not ALL children are selected
+    const isPartiallyChecked = hasChildren && 
+      areSomeChildrenSelected(category, filters.categories) && 
+      !areAllChildrenSelected(category, filters.categories);
 
     return (
       <div key={category.slug} className={depth > 0 ? "ml-4 mt-1" : ""}>
         <div className="flex items-center gap-2">
-          {/* Expand button for categories with children */}
           {hasChildren ? (
             <button
               type="button"
               onClick={() => toggleCategoryExpand(category.slug)}
-              className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded text-neutral-500 hover:bg-neutral-100"
+              className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded text-neutral-500 hover:bg-neutral-100 transition-colors"
             >
               <svg
                 className={`h-3 w-3 transition-transform ${isExpanded ? "rotate-90" : ""}`}
@@ -237,37 +270,22 @@ export function ProductFilters({
             <div className="w-5" />
           )}
           
-          <label className="flex flex-1 cursor-pointer items-center gap-2 py-1.5">
-            <div className="relative">
-              <input
-                type="checkbox"
+          <label className="flex flex-1 cursor-pointer items-center gap-3 py-2 hover:bg-neutral-50/50 rounded-lg px-2 -mx-2 transition-all duration-200 min-w-0">
+            <div className="relative flex-shrink-0">
+              <CategoryCheckbox
                 checked={isChecked}
-                onChange={(e) => handleCategoryChange(category, e.target.checked)}
-                className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2"
-                style={{ 
-                  accentColor: branding.colors.primary,
-                }}
+                indeterminate={isPartiallyChecked || false}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => handleCategoryChange(category, e.target.checked)}
+                accentColor={branding.colors.primary}
               />
-              {/* Indeterminate state indicator */}
-              {isPartiallyChecked && (
-                <div 
-                  className="pointer-events-none absolute inset-0 flex items-center justify-center"
-                >
-                  <div 
-                    className="h-2 w-2 rounded-sm"
-                    style={{ backgroundColor: branding.colors.primary }}
-                  />
-                </div>
-              )}
             </div>
-            <span className="flex-1 text-sm text-neutral-700">{category.name}</span>
+            <span className="flex-1 text-sm font-medium text-neutral-700 break-words min-w-0 overflow-hidden">{category.name}</span>
             {category.productCount !== undefined && category.productCount > 0 && (
-              <span className="text-xs text-neutral-400">({category.productCount})</span>
+              <span className="text-xs font-medium text-neutral-400">({category.productCount})</span>
             )}
           </label>
         </div>
         
-        {/* Children */}
         {hasChildren && isExpanded && (
           <div className="mt-1">
             {category.children!.map(child => renderCategory(child, depth + 1))}
@@ -278,162 +296,211 @@ export function ProductFilters({
   };
 
   return (
-    <aside className="w-full">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-neutral-200 pb-4">
-        <h2 className="text-lg font-semibold text-neutral-900">Filters</h2>
-        {hasActiveFilters && (
-          <button
-            onClick={clearAll}
-            className="text-sm font-medium transition-colors hover:opacity-80"
-            style={{ color: branding.colors.primary }}
-          >
-            Clear all
-          </button>
-        )}
-      </div>
-
-      {/* Categories */}
-      {categories.length > 0 && (
-        <div className="border-b border-neutral-200 py-4">
-          <button
-            onClick={() => toggleSection("categories")}
-            className="flex w-full items-center justify-between text-left"
-          >
-            <span className="text-sm font-semibold text-neutral-900">Category</span>
-            <svg
-              className={`h-5 w-5 text-neutral-500 transition-transform ${
-                expandedSections.includes("categories") ? "rotate-180" : ""
-              }`}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+    <aside className="flex h-full w-full flex-col animate-fade-in-up" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
+      {/* Scrollable Content - No header needed, title is in sidebar */}
+      <div className="flex-1 overflow-y-auto pr-2 -mr-2 scrollbar-thin">
+        {/* Clear All Button - At top if filters active */}
+        {hasFilters && (
+          <div className="mb-6 pb-6 border-b border-neutral-200/60">
+            <button
+              onClick={clearAll}
+              className="w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:opacity-90 hover:shadow-md"
+              style={{ backgroundColor: branding.colors.primary }}
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          
-          {expandedSections.includes("categories") && (
-            <div className="mt-4 max-h-72 space-y-1 overflow-y-auto pr-2">
+              Clear All Filters
+            </button>
+          </div>
+        )}
+
+        {/* Categories */}
+        {categories.length > 0 && (
+          <FilterSection
+            title="Category"
+            isExpanded={expandedSections.includes("categories")}
+            onToggle={() => toggleSection("categories")}
+          >
+            <div className="space-y-1">
               {categories.map(category => renderCategory(category))}
             </div>
-          )}
-        </div>
-      )}
-
-      {/* Price Range - Now with checkboxes */}
-      <div className="border-b border-neutral-200 py-4">
-        <button
-          onClick={() => toggleSection("price")}
-          className="flex w-full items-center justify-between text-left"
-        >
-          <span className="text-sm font-semibold text-neutral-900">Price</span>
-          <svg
-            className={`h-5 w-5 text-neutral-500 transition-transform ${
-              expandedSections.includes("price") ? "rotate-180" : ""
-            }`}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-        
-        {expandedSections.includes("price") && (
-          <div className="mt-4 space-y-2">
-            {PRICE_RANGES.map((range) => (
-              <label
-                key={range.id}
-                className="flex cursor-pointer items-center gap-3 py-1.5"
-              >
-                <input
-                  type="checkbox"
-                  checked={localPriceRanges.includes(range.id)}
-                  onChange={() => handlePriceRangeChange(range.id)}
-                  className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2"
-                  style={{ accentColor: branding.colors.primary }}
-                />
-                <span className="text-sm text-neutral-700">{range.label}</span>
-              </label>
-            ))}
-          </div>
+          </FilterSection>
         )}
-      </div>
 
-      {/* Availability */}
-      <div className="py-4">
-        <button
-          onClick={() => toggleSection("availability")}
-          className="flex w-full items-center justify-between text-left"
-        >
-          <span className="text-sm font-semibold text-neutral-900">Availability</span>
-          <svg
-            className={`h-5 w-5 text-neutral-500 transition-transform ${
-              expandedSections.includes("availability") ? "rotate-180" : ""
-            }`}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+        {/* Collections */}
+        {collections.length > 0 && (
+          <FilterSection
+            title="Collection"
+            isExpanded={expandedSections.includes("collections")}
+            onToggle={() => toggleSection("collections")}
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-        
-        {expandedSections.includes("availability") && (
-          <div className="mt-4 space-y-2">
-            <label className="flex cursor-pointer items-center gap-3 py-1.5">
+            <div className="space-y-1 max-h-64 overflow-y-auto">
+              {collections.map(collection => (
+                <label key={collection.id} className="flex cursor-pointer items-center gap-3 py-2 hover:bg-neutral-50/50 rounded-lg px-2 -mx-2 transition-all duration-200">
+                  <input
+                    type="checkbox"
+                    checked={isCollectionSelected(collection.slug)}
+                    onChange={() => toggleCollection(collection.slug)}
+                    className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
+                    style={{ accentColor: branding.colors.primary }}
+                  />
+                  <span className="flex-1 text-sm font-medium text-neutral-700 break-words min-w-0">{collection.name}</span>
+                  {collection.productCount !== undefined && collection.productCount > 0 && (
+                    <span className="text-xs font-medium text-neutral-400">({collection.productCount})</span>
+                  )}
+                </label>
+              ))}
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Brands */}
+        {brands.length > 0 && (
+          <FilterSection
+            title="Brand"
+            isExpanded={expandedSections.includes("brands")}
+            onToggle={() => toggleSection("brands")}
+          >
+            <div className="space-y-1 max-h-64 overflow-y-auto">
+              {brands.map(brand => (
+                <label key={brand.id} className="flex cursor-pointer items-center gap-3 py-2 hover:bg-neutral-50/50 rounded-lg px-2 -mx-2 transition-all duration-200 min-w-0">
+                  <input
+                    type="checkbox"
+                    checked={isBrandSelected(brand.slug)}
+                    onChange={() => toggleBrand(brand.slug)}
+                    className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
+                    style={{ accentColor: branding.colors.primary }}
+                  />
+                  <span className="flex-1 text-sm font-medium text-neutral-700 break-words min-w-0 overflow-hidden">{brand.name}</span>
+                  {brand.productCount !== undefined && brand.productCount > 0 && (
+                    <span className="text-xs font-medium text-neutral-400">({brand.productCount})</span>
+                  )}
+                </label>
+              ))}
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Sizes */}
+        {sizes.length > 0 && (
+          <FilterSection
+            title="Size"
+            isExpanded={expandedSections.includes("sizes")}
+            onToggle={() => toggleSection("sizes")}
+          >
+            <div className="space-y-1 max-h-64 overflow-y-auto">
+              {sizes.map(size => (
+                <label key={size.id} className="flex cursor-pointer items-center gap-3 py-2 hover:bg-neutral-50/50 rounded-lg px-2 -mx-2 transition-all duration-200 min-w-0">
+                  <input
+                    type="checkbox"
+                    checked={isSizeSelected(size.slug)}
+                    onChange={() => toggleSize(size.slug)}
+                    className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
+                    style={{ accentColor: branding.colors.primary }}
+                  />
+                  <span className="flex-1 text-sm font-medium text-neutral-700 break-words min-w-0 overflow-hidden">{size.name}</span>
+                  {size.productCount !== undefined && size.productCount > 0 && (
+                    <span className="text-xs font-medium text-neutral-400">({size.productCount})</span>
+                  )}
+                </label>
+              ))}
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Colors */}
+        {colors.length > 0 && (
+          <FilterSection
+            title="Color"
+            isExpanded={expandedSections.includes("colors")}
+            onToggle={() => toggleSection("colors")}
+          >
+            <div className="space-y-1 max-h-64 overflow-y-auto">
+              {colors.map(color => (
+                <label key={color.id} className="flex cursor-pointer items-center gap-3 py-2 hover:bg-neutral-50/50 rounded-lg px-2 -mx-2 transition-all duration-200 min-w-0">
+                  <input
+                    type="checkbox"
+                    checked={isColorSelected(color.slug)}
+                    onChange={() => toggleColor(color.slug)}
+                    className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
+                    style={{ accentColor: branding.colors.primary }}
+                  />
+                  <span className="flex-1 text-sm font-medium text-neutral-700 break-words min-w-0 overflow-hidden">{color.name}</span>
+                  {color.productCount !== undefined && color.productCount > 0 && (
+                    <span className="text-xs font-medium text-neutral-400">({color.productCount})</span>
+                  )}
+                </label>
+              ))}
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Price Range */}
+        <FilterSection
+          title="Price"
+          isExpanded={expandedSections.includes("price")}
+          onToggle={() => toggleSection("price")}
+        >
+          <PriceRangeFilter currencyCode="USD" />
+        </FilterSection>
+
+        {/* Availability */}
+        <FilterSection
+          title="Availability"
+          isExpanded={expandedSections.includes("availability")}
+          onToggle={() => toggleSection("availability")}
+          noBorder
+        >
+          <div className="space-y-2">
+            <label className="flex cursor-pointer items-center gap-3 py-2 hover:bg-neutral-50/50 rounded-lg px-2 -mx-2 transition-all duration-200">
               <input
                 type="checkbox"
-                checked={localInStock}
-                onChange={handleInStockChange}
-                className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2"
+                checked={filters.inStock}
+                onChange={toggleInStock}
+                className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
                 style={{ accentColor: branding.colors.primary }}
               />
-              <span className="text-sm text-neutral-700">In Stock Only</span>
+              <span className="text-sm font-medium text-neutral-700">In Stock Only</span>
             </label>
-            <label className="flex cursor-pointer items-center gap-3 py-1.5">
+            <label className="flex cursor-pointer items-center gap-3 py-2 hover:bg-neutral-50/50 rounded-lg px-2 -mx-2 transition-all duration-200">
               <input
                 type="checkbox"
-                checked={localOnSale}
-                onChange={handleOnSaleChange}
-                className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2"
+                checked={filters.onSale}
+                onChange={toggleOnSale}
+                className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
                 style={{ accentColor: branding.colors.primary }}
               />
-              <span className="text-sm text-neutral-700">On Sale</span>
+              <span className="text-sm font-medium text-neutral-700">On Sale</span>
             </label>
           </div>
-        )}
+        </FilterSection>
       </div>
 
       {/* Active Filters Summary (Mobile) */}
-      {hasActiveFilters && (
-        <div className="mt-4 rounded-lg bg-neutral-50 p-3 lg:hidden">
+      {hasFilters && (
+        <div className="mt-4 rounded-lg bg-neutral-50 p-3 lg:hidden flex-shrink-0">
           <p className="mb-2 text-xs font-medium text-neutral-500">Active Filters:</p>
           <div className="flex flex-wrap gap-2">
-            {localCategories.length > 0 && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-medium text-neutral-700 shadow-sm">
-                {localCategories.length} {localCategories.length === 1 ? "category" : "categories"}
-              </span>
+            {filters.categories.length > 0 && (
+              <FilterTag>
+                {filters.categories.length} {filters.categories.length === 1 ? "category" : "categories"}
+              </FilterTag>
             )}
-            {localPriceRanges.map(rangeId => {
-              const range = PRICE_RANGES.find(r => r.id === rangeId);
-              return range ? (
-                <span key={rangeId} className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-medium text-neutral-700 shadow-sm">
-                  {range.label}
-                </span>
-              ) : null;
-            })}
-            {localInStock && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-medium text-neutral-700 shadow-sm">
-                In Stock
-              </span>
+            {filters.collections.length > 0 && (
+              <FilterTag>
+                {filters.collections.length} {filters.collections.length === 1 ? "collection" : "collections"}
+              </FilterTag>
             )}
-            {localOnSale && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-medium text-neutral-700 shadow-sm">
-                On Sale
-              </span>
+            {filters.brands.length > 0 && (
+              <FilterTag>
+                {filters.brands.length} {filters.brands.length === 1 ? "brand" : "brands"}
+              </FilterTag>
             )}
+            {filters.colors.length > 0 && (
+              <FilterTag>
+                {filters.colors.length} {filters.colors.length === 1 ? "color" : "colors"}
+              </FilterTag>
+            )}
+            {filters.inStock && <FilterTag>In Stock</FilterTag>}
+            {filters.onSale && <FilterTag>On Sale</FilterTag>}
           </div>
         </div>
       )}
@@ -441,7 +508,106 @@ export function ProductFilters({
   );
 }
 
+// ============================================================================
+// Sub-components
+// ============================================================================
+
+function CategoryCheckbox({
+  checked,
+  indeterminate,
+  onChange,
+  accentColor,
+}: {
+  checked: boolean;
+  indeterminate: boolean;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  accentColor: string;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.indeterminate = indeterminate;
+    }
+  }, [indeterminate]);
+
+  return (
+    <input
+      ref={inputRef}
+      type="checkbox"
+      checked={checked}
+      onChange={onChange}
+      className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1"
+      style={{ accentColor }}
+    />
+  );
+}
+
+function FilterSection({ 
+  title, 
+  isExpanded, 
+  onToggle, 
+  children,
+  noBorder = false,
+}: { 
+  title: string;
+  isExpanded: boolean;
+  onToggle: () => void;
+  children: ReactNode;
+  noBorder?: boolean;
+}) {
+  const { branding } = storeConfig;
+  
+  return (
+    <div className={`${noBorder ? "py-5" : "border-b border-neutral-200/60 py-5"} transition-all duration-300`}>
+      <button
+        onClick={onToggle}
+        className="flex w-full items-center justify-between text-left group"
+      >
+        <span 
+          className="text-sm font-bold uppercase tracking-wider transition-colors group-hover:opacity-80"
+          style={{ color: branding.colors.text }}
+        >
+          {title}
+        </span>
+        <svg
+          className={`h-4 w-4 transition-all duration-200 ${isExpanded ? "rotate-180" : ""}`}
+          style={{ color: branding.colors.primary }}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2.5}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {isExpanded && (
+        <div 
+          className="mt-4 animate-fade-in-up"
+          style={{
+            animationDuration: "0.3s",
+            animationFillMode: "both",
+          }}
+        >
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FilterTag({ children }: { children: ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-medium text-neutral-700 shadow-sm">
+      {children}
+    </span>
+  );
+}
+
+// ============================================================================
 // Mobile Filter Drawer
+// ============================================================================
+
 export function MobileFilterDrawer({ 
   isOpen, 
   onClose, 
@@ -449,7 +615,7 @@ export function MobileFilterDrawer({
 }: { 
   isOpen: boolean; 
   onClose: () => void; 
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const { branding } = storeConfig;
   
@@ -498,5 +664,3 @@ export function MobileFilterDrawer({
   );
 }
 
-// Export price ranges for use in grid components
-export { PRICE_RANGES };

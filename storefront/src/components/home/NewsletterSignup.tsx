@@ -24,7 +24,7 @@ export function NewsletterSignup({
   buttonText = "Subscribe",
   successMessage = "Thanks for subscribing! Check your email for your discount code.",
 }: NewsletterSignupProps) {
-  const { branding, store } = useStoreConfig();
+  const { branding, store: _store } = useStoreConfig();
   const isEnabled = useFeature("newsletter");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");

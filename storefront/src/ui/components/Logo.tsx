@@ -3,14 +3,18 @@
 import Link from "next/link";
 import { usePathname, useParams } from "next/navigation";
 import { useStoreConfig } from "@/providers/StoreConfigProvider";
+import { DefaultChannelSlug } from "@/app/config";
 
 export const Logo = () => {
 	const pathname = usePathname();
 	const params = useParams();
 	const { store, branding } = useStoreConfig();
 	
-	// Get the channel from params or extract from pathname
-	const channel = params?.channel as string || pathname.split("/")[1] || "default-channel";
+	// Get the channel from params, extract from pathname, or use config default
+	const channel = (params?.channel as string) || 
+		(pathname.split("/").find((part, index) => 
+			index > 0 && part && part !== "api" && part !== "_next" && part !== "checkout"
+		)) || DefaultChannelSlug;
 	const homeUrl = `/${channel}`;
 
 	const logoContent = (

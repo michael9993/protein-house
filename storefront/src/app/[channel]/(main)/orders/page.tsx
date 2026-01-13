@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
 
-export default function OrdersRedirectPage({ 
+export default async function OrdersRedirectPage({ 
 	params 
 }: { 
-	params: { channel: string } 
+	params: Promise<{ channel: string }> 
 }) {
 	// Redirect old /orders path to new /account/orders
-	redirect(`/${params.channel}/account/orders`);
+	const { channel } = await params;
+	redirect(`/${channel}/account/orders`);
 }

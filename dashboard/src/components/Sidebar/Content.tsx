@@ -4,7 +4,6 @@ import { useAllRipplesModalState } from "@dashboard/ripples/state";
 import { Box } from "@saleor/macaw-ui-next";
 
 import { Menu } from "./menu";
-import { EnvironmentLink } from "./menu/EnvironmentLink";
 import { MountingPoint } from "./MountingPoint";
 import { UserInfo } from "./user";
 
@@ -23,11 +22,6 @@ export const SidebarContent = () => {
       <MountingPoint />
       <Menu />
       <Box>
-        {isAuthenticatedViaCloud && (
-          <Box paddingX={5} paddingBottom={2}>
-            <EnvironmentLink />
-          </Box>
-        )}
         <UserInfo />
       </Box>
       <AllRipplesModal

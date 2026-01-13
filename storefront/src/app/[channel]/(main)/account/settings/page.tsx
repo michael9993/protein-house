@@ -1,6 +1,5 @@
 import { CurrentUserDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
-import { storeConfig } from "@/config";
 import { SettingsClient } from "./SettingsClient";
 
 export const metadata = {

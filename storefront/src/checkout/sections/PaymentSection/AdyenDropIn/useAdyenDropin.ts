@@ -50,9 +50,9 @@ export const useAdyenDropin = (props: AdyenDropinProps) => {
 	const { config } = props;
 	const { id } = config;
 
-	const {
-		checkout: { id: checkoutId, totalPrice },
-	} = useCheckout();
+	const { checkout } = useCheckout();
+	const checkoutId = checkout?.id || "";
+	const totalPrice = checkout?.totalPrice;
 	const { authenticated } = useUser();
 	const { getMessageByErrorCode } = useErrorMessages(adyenErrorMessages);
 	const { errorMessages: commonErrorMessages } = useErrorMessages(apiErrorMessages);
@@ -258,7 +258,7 @@ export const useAdyenDropin = (props: AdyenDropinProps) => {
 
 		void onTransactionInitialize({
 			checkoutId,
-			amount: totalPrice.gross.amount,
+			amount: totalPrice?.gross?.amount || 0,
 			paymentGateway: {
 				id,
 				data: {
@@ -276,7 +276,7 @@ export const useAdyenDropin = (props: AdyenDropinProps) => {
 		onTransactionInitialize,
 		onTransactionProccess,
 		submitInProgress,
-		totalPrice.gross.amount,
+		totalPrice?.gross?.amount || 0,
 		validationState,
 		id,
 		setSubmitInProgress,

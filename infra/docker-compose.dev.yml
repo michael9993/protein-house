@@ -205,6 +205,7 @@ services:
       API_URL: ${API_URL}
       VITE_API_URL: ${VITE_API_URL}
       APPS_MARKETPLACE_API_URL: ${APPS_MARKETPLACE_API_URL}
+      DASHBOARD_TUNNEL_URL: ${DASHBOARD_TUNNEL_URL}
       EXTENSIONS_API_URL: ${EXTENSIONS_API_URL}
       APP_MOUNT_URI: ${APP_MOUNT_URI}
       STATIC_URL: ${STATIC_URL}
@@ -234,17 +235,19 @@ services:
     image: node:22-alpine
     container_name: saleor-storefront-dev
     working_dir: /app
-    # Install dependencies and start Next.js dev server
-    # The official storefront uses 'generate' script for codegen (runs automatically via predev hook)
+    # Install dependencies and start Next.js dev server OR production build
+    # Set STOREFRONT_MODE=production in .env to use production build
+    # Set STOREFRONT_MODE=dev (or leave unset) to use dev server
+    # The official storefront uses 'generate' script for codegen (runs automatically via predev/prebuild hooks)
     # Codegen will use SALEOR_API_URL (Docker service name) for server-side operations
     # Only install if node_modules doesn't exist or package.json changed (pnpm handles this automatically)
-    command: sh -c "corepack enable && corepack prepare pnpm@9.6.0 --activate && pnpm install --prefer-offline && pnpm run dev"
+    command: sh -c "corepack enable && corepack prepare pnpm@9.6.0 --activate && unset NODE_ENV && pnpm install --prefer-offline && if [ \"$${STOREFRONT_MODE:-dev}\" = \"production\" ]; then echo '🔍 Running type check before build...' && pnpm run type-check && echo '✅ Type check passed! Building production...' && export NODE_ENV=production && pnpm run build && echo 'Starting production server...' && pnpm run start; else echo 'Starting dev server...' && export NODE_ENV=development && pnpm run dev; fi"
     env_file:
       - .env
     ports:
       - "${STOREFRONT_PORT}:3000" # Next.js default port
     volumes:
-      # Mount entire storefront directory for hot-reload
+      # Mount entire storefront directory for hot-reload (dev) or source access (prod)
       - ../storefront:/app
       # Preserve node_modules
       - storefront-node-modules:/app/node_modules
@@ -257,13 +260,17 @@ services:
       NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
       SALEOR_API_URL: ${SALEOR_API_URL}
       NEXT_PUBLIC_STOREFRONT_URL: ${NEXT_PUBLIC_STOREFRONT_URL}
-      NEXT_PUBLIC_DEFAULT_CHANNEL: ${NEXT_PUBLIC_DEFAULT_CHANNEL}
-      SALEOR_APP_TOKEN: ${SALEOR_APP_TOKEN}
+      NEXT_PUBLIC_DEFAULT_CHANNEL: ${NEXT_PUBLIC_DEFAULT_CHANNEL:-}
+      SALEOR_APP_TOKEN: ${SALEOR_APP_TOKEN:-}
       # Internal Docker network URL for invoices app (server-to-server)
       INVOICES_APP_INTERNAL_URL: http://saleor-invoice-app:3000
       # Public URL for invoices app (for client downloads)
       INVOICES_APP_URL: ${INVOICE_APP_URL}
-      NODE_ENV: development
+      # Build mode: 'dev' (default) or 'production'
+      # Set STOREFRONT_MODE=production in .env to use production build
+      # Set STOREFRONT_MODE=dev (or leave unset) to use dev server
+      # NODE_ENV is set dynamically in the command based on STOREFRONT_MODE
+      STOREFRONT_MODE: ${STOREFRONT_MODE:-dev}
       # Next.js
       PORT: ${STOREFRONT_PORT}
       HOSTNAME: 0.0.0.0

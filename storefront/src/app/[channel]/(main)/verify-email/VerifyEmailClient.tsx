@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { storeConfig } from "@/config";
 import { resendConfirmationEmail } from "./actions";
 
@@ -12,8 +11,7 @@ interface VerifyEmailClientProps {
 	autoResend?: boolean;
 }
 
-export function VerifyEmailClient({ channel, email: initialEmail, autoResend }: VerifyEmailClientProps) {
-	const router = useRouter();
+export function VerifyEmailClient({ channel, email: initialEmail, autoResend: _autoResend }: VerifyEmailClientProps) {
 	const { branding, store } = storeConfig;
 	const [email] = useState(initialEmail);
 	const [isResending, setIsResending] = useState(false);

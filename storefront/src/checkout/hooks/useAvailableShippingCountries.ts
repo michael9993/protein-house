@@ -9,7 +9,7 @@ interface UseAvailableShippingCountries {
 export const useAvailableShippingCountries = (): UseAvailableShippingCountries => {
 	const { checkout } = useCheckout();
 	const [{ data }] = useChannelQuery({
-		variables: { slug: checkout.channel.slug },
+		variables: { slug: checkout?.channel?.slug || "" },
 		pause: !checkout?.channel.slug,
 	});
 

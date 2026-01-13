@@ -20,7 +20,7 @@ import "./index.css";
 
 export const Root = ({ saleorApiUrl }: { saleorApiUrl: string }) => {
 	const saleorAuthClient = useSaleorAuthContext();
-	const [serverToken, setServerToken] = useState<string | null>(null);
+	const [_serverToken, setServerToken] = useState<string | null>(null);
 	const serverTokenRef = useRef<string | null>(null);
 	
 	// Get access token from server on mount (server has access to httpOnly cookies)
@@ -220,8 +220,8 @@ export const Root = ({ saleorApiUrl }: { saleorApiUrl: string }) => {
 				try {
 					// The SDK might have a way to get the current session/token
 					// Check if there's a getSession or similar method
-					if (typeof saleorAuthClient.getSession === "function") {
-						const session = await saleorAuthClient.getSession();
+					if (typeof (saleorAuthClient as any).getSession === "function") {
+						const session = await (saleorAuthClient as any).getSession();
 						sdkToken = session?.token || null;
 						if (sdkToken) {
 							console.log("[Checkout URQL] ✅ SDK session token found, length:", sdkToken.length);
@@ -253,7 +253,7 @@ export const Root = ({ saleorApiUrl }: { saleorApiUrl: string }) => {
 					try {
 						const clonedResponse = response.clone();
 						const text = await clonedResponse.text();
-						const json = JSON.parse(text);
+						const json = JSON.parse(text) as any;
 						if (json.errors?.some((e: any) => e.message?.includes("AUTHENTICATED_USER"))) {
 							console.error("[Checkout URQL] ❌ Auth error in response:", json.errors);
 							console.error("[Checkout URQL] 🔍 Debug info:", {

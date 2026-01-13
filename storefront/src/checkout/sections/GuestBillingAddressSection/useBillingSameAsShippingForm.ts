@@ -29,7 +29,9 @@ export const useBillingSameAsShippingForm = (
 	{ autoSave, onSetBillingSameAsShipping }: BillingSameAsShippingFormProps = { autoSave: false },
 ) => {
 	const { checkout } = useCheckout();
-	const { billingAddress, shippingAddress, isShippingRequired } = checkout;
+	const billingAddress = checkout?.billingAddress;
+	const shippingAddress = checkout?.shippingAddress;
+	const isShippingRequired = checkout?.isShippingRequired;
 	const previousShippingAddress = useRef<OptionalAddress>(shippingAddress);
 	const previousIsShippingRequired = useRef(isShippingRequired);
 	const { setChangingBillingCountry } = useCheckoutUpdateStateActions();
@@ -62,12 +64,12 @@ export const useBillingSameAsShippingForm = (
 	});
 
 	const getInitialShippingAsBillingValue = useCallback(() => {
-		if (!checkout.isShippingRequired) {
+		if (!isShippingRequired) {
 			return false;
 		}
 
 		return !billingAddress || isMatchingAddress(shippingAddress, billingAddress);
-	}, [shippingAddress, billingAddress, checkout.isShippingRequired]);
+	}, [shippingAddress, billingAddress, isShippingRequired]);
 
 	const initialValues = {
 		billingSameAsShipping: getInitialShippingAsBillingValue(),

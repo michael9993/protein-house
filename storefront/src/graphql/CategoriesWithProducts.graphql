@@ -1,0 +1,42 @@
+# Fetch categories with their products for rotating image carousel
+# Used on products page to show category sections with rotating product images
+
+query CategoriesWithProducts($channel: String!, $first: Int = 6) {
+  categories(first: $first, level: 0) {
+    edges {
+      node {
+        id
+        name
+        slug
+        description
+        backgroundImage {
+          url
+          alt
+        }
+        products(channel: $channel, first: 8) {
+          totalCount
+          edges {
+            node {
+              id
+              name
+              slug
+              thumbnail {
+                url
+                alt
+              }
+              media {
+                url
+                alt
+              }
+              category {
+                name
+                slug
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

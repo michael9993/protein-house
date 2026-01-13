@@ -1,15 +1,30 @@
 import React from "react";
+import { useParams } from "next/navigation";
+import { DefaultChannelSlug } from "@/app/config";
 
 export const EmptyCartPage = () => {
-	const goToStore = () => {
+	const params = useParams();
+	
+	const getChannel = (): string => {
+		// Try to get from Next.js params first
+		if (params?.channel) {
+			return params.channel as string;
+		}
+		// Fallback to extracting from URL pathname
 		const pathParts = window.location.pathname.split("/");
-		const channel = pathParts[1] || "default-channel";
+		const channel = pathParts.find((part, index) => 
+			index > 0 && part && part !== "checkout" && part !== "api" && part !== "_next"
+		);
+		return channel || DefaultChannelSlug;
+	};
+
+	const goToStore = () => {
+		const channel = getChannel();
 		window.location.href = `/${channel}`;
 	};
 
 	const goToProducts = () => {
-		const pathParts = window.location.pathname.split("/");
-		const channel = pathParts[1] || "default-channel";
+		const channel = getChannel();
 		window.location.href = `/${channel}/products`;
 	};
 

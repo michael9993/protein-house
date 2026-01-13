@@ -72,8 +72,8 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 				setError(result.error);
 			} else if (result.success) {
 				// If email confirmation is required, redirect to verification page
-				if (result.requiresConfirmation && result.email) {
-					router.push(`/${channel}/verify-email?email=${encodeURIComponent(result.email)}`);
+				if ((result as any).requiresConfirmation && (result as any).email) {
+					router.push(`/${channel}/verify-email?email=${encodeURIComponent((result as any).email)}`);
 					return;
 				}
 				
@@ -96,10 +96,10 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 	};
 
 	return (
-		<div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12">
-			<div className="w-full max-w-md">
+		<div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12 animate-fade-in">
+			<div className="w-full max-w-md animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
 				{/* Logo */}
-				<div className="mb-8 text-center">
+				<div className="mb-8 text-center animate-fade-in-up" style={{ animationDelay: "150ms", animationFillMode: "both" }}>
 					<Link 
 						href={`/${channel}`} 
 						className="inline-flex items-center gap-2 text-2xl font-bold"
@@ -121,7 +121,7 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 				</div>
 
 				{/* Form Card */}
-				<div className="rounded-2xl bg-white p-8 shadow-lg ring-1 ring-neutral-100">
+				<div className="rounded-2xl bg-white p-8 shadow-lg ring-1 ring-neutral-100 animate-fade-in-up" style={{ animationDelay: "200ms", animationFillMode: "both" }}>
 					{/* Tab Switcher */}
 					<div className="mb-6 flex rounded-lg bg-neutral-100 p-1">
 						<button
@@ -365,7 +365,7 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 				</div>
 
 				{/* Benefits */}
-				<div className="mt-8 rounded-xl bg-neutral-50 p-6">
+				<div className="mt-8 rounded-xl bg-neutral-50 p-6 animate-fade-in-up" style={{ animationDelay: "250ms", animationFillMode: "both" }}>
 					<h3 className="mb-4 text-sm font-semibold text-neutral-900">Why create an account?</h3>
 					<ul className="space-y-3">
 						{[

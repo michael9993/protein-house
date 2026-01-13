@@ -1,17 +1,17 @@
 "use client";
 
+/**
+ * ProductsGrid Component
+ * 
+ * Displays products in a responsive grid with infinite scroll pagination.
+ * Optimized for mobile-first design with efficient spacing.
+ * Includes animations for filtering and product appearance.
+ */
+
 import { useEffect, useRef, useState, useCallback } from "react";
 import { ProductCard, ProductCardSkeleton } from "@/ui/components/ProductCard";
 import type { ProductListItemFragment, ProductOrder } from "@/gql/graphql";
-
-// Price range definitions - must match the filter component
-const PRICE_RANGES = [
-  { id: "0-25", min: 0, max: 25 },
-  { id: "25-50", min: 25, max: 50 },
-  { id: "50-100", min: 50, max: 100 },
-  { id: "100-200", min: 100, max: 200 },
-  { id: "200+", min: 200, max: null },
-];
+import { type FilterState, hasActiveFilters as checkActiveFilters } from "@/lib/filters";
 
 interface ProductsGridProps {
   initialProducts: ProductListItemFragment[];
@@ -20,90 +20,90 @@ interface ProductsGridProps {
   hasNextPage: boolean;
   endCursor: string | null;
   sortBy: ProductOrder;
-  categoryFilter?: string[];
-  minPriceFilter?: number;
-  maxPriceFilter?: number;
-  priceRangesFilter?: string[];
-  inStockFilter?: boolean;
-  onSaleFilter?: boolean;
+  filters: FilterState;
 }
 
 export function ProductsGrid({
   initialProducts,
   channel,
-  totalCount,
+  totalCount: _totalCount,
   hasNextPage: initialHasNextPage,
   endCursor: initialEndCursor,
   sortBy,
-  categoryFilter = [],
-  minPriceFilter,
-  maxPriceFilter,
-  priceRangesFilter = [],
-  inStockFilter,
-  onSaleFilter,
+  filters,
 }: ProductsGridProps) {
   const [products, setProducts] = useState<ProductListItemFragment[]>(initialProducts);
   const [hasNextPage, setHasNextPage] = useState(initialHasNextPage);
   const [endCursor, setEndCursor] = useState(initialEndCursor);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFiltering, setIsFiltering] = useState(false);
+  const [displayProducts, setDisplayProducts] = useState<ProductListItemFragment[]>(initialProducts);
   const loaderRef = useRef<HTMLDivElement>(null);
+  const prevFiltersRef = useRef<string>(JSON.stringify(filters));
+  const prevSortRef = useRef<string>(JSON.stringify(sortBy));
 
-  // Reset products when filters/sort change
+  // Detect filter/sort changes and show loading state
   useEffect(() => {
-    setProducts(initialProducts);
-    setHasNextPage(initialHasNextPage);
-    setEndCursor(initialEndCursor);
-  }, [initialProducts, initialHasNextPage, initialEndCursor]);
-
-  // Check if price matches any of the selected price ranges
-  const matchesPriceRanges = (price: number, ranges: string[]): boolean => {
-    if (ranges.length === 0) return true;
+    const currentFiltersStr = JSON.stringify(filters);
+    const currentSortStr = JSON.stringify(sortBy);
     
-    return ranges.some(rangeId => {
-      const range = PRICE_RANGES.find(r => r.id === rangeId);
-      if (!range) return false;
+    const filtersChanged = prevFiltersRef.current !== currentFiltersStr;
+    const sortChanged = prevSortRef.current !== currentSortStr;
+    
+    if (filtersChanged || sortChanged) {
+      setIsFiltering(true);
+      prevFiltersRef.current = currentFiltersStr;
+      prevSortRef.current = currentSortStr;
       
-      const aboveMin = price >= range.min;
-      const belowMax = range.max === null || price <= range.max;
-      return aboveMin && belowMax;
-    });
-  };
+      // Reset products when filters/sort change
+      setProducts(initialProducts);
+      setHasNextPage(initialHasNextPage);
+      setEndCursor(initialEndCursor);
+      
+      // Hide loading after a short delay to allow for smooth transition
+      const timer = setTimeout(() => {
+        setIsFiltering(false);
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [filters, sortBy, initialProducts, initialHasNextPage, initialEndCursor]);
 
-  // Apply client-side filters
-  // Note: Category filtering is now done server-side, so we skip client-side category filtering
-  const filteredProducts = products.filter((product) => {
+  // Update display products with animation delay
+  useEffect(() => {
+    if (!isFiltering) {
+      // Apply client-side filters for additional filtering after server-side
+      let filtered = products.filter((product) => {
+        if (filters.inStock) {
+          const hasStock = product.variants?.some(v => v.quantityAvailable && v.quantityAvailable > 0) ?? true;
+          if (!hasStock) return false;
+        }
 
-    // Price filter - support both legacy (min/max) and new (price ranges)
-    const price = product.pricing?.priceRange?.start?.gross?.amount;
-    if (price !== undefined) {
-      // New price ranges filter (multiple checkboxes)
-      if (priceRangesFilter.length > 0) {
-        if (!matchesPriceRanges(price, priceRangesFilter)) {
-          return false;
+        if (filters.onSale) {
+          const currentPrice = product.pricing?.priceRange?.start?.gross?.amount;
+          const originalPrice = product.pricing?.priceRangeUndiscounted?.start?.gross?.amount;
+          if (!currentPrice || !originalPrice || currentPrice >= originalPrice) return false;
+        }
+
+        return true;
+      });
+      
+      // Apply "sale" sort filter - show only products on sale (check URL parameter)
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const sortValue = urlParams.get("sort");
+        if (sortValue === "sale") {
+          filtered = filtered.filter((product) => {
+            const currentPrice = product.pricing?.priceRange?.start?.gross?.amount;
+            const originalPrice = product.pricing?.priceRangeUndiscounted?.start?.gross?.amount;
+            return currentPrice && originalPrice && currentPrice < originalPrice;
+          });
         }
       }
-      // Legacy min/max price filter (for backward compatibility)
-      else {
-        if (minPriceFilter !== undefined && price < minPriceFilter) return false;
-        if (maxPriceFilter !== undefined && price > maxPriceFilter) return false;
-      }
+      
+      setDisplayProducts(filtered);
     }
-
-    // In stock filter
-    if (inStockFilter) {
-      const hasStock = product.variants?.some(v => v.quantityAvailable && v.quantityAvailable > 0) ?? true;
-      if (!hasStock) return false;
-    }
-
-    // On sale filter
-    if (onSaleFilter) {
-      const currentPrice = product.pricing?.priceRange?.start?.gross?.amount;
-      const originalPrice = product.pricing?.priceRangeUndiscounted?.start?.gross?.amount;
-      if (!currentPrice || !originalPrice || currentPrice >= originalPrice) return false;
-    }
-
-    return true;
-  });
+  }, [products, filters, isFiltering, sortBy]);
 
   const loadMore = useCallback(async () => {
     if (isLoading || !hasNextPage || !endCursor) return;
@@ -117,9 +117,7 @@ export function ProductsGrid({
 
       const response = await fetch(apiUrl, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query: `
             query ProductListMore($first: Int!, $after: String!, $channel: String!, $sortBy: ProductOrder) {
@@ -133,53 +131,28 @@ export function ProductsGrid({
                     pricing {
                       priceRange {
                         start {
-                          gross {
-                            amount
-                            currency
-                          }
+                          gross { amount, currency }
                         }
                         stop {
-                          gross {
-                            amount
-                            currency
-                          }
+                          gross { amount, currency }
                         }
                       }
                       priceRangeUndiscounted {
                         start {
-                          gross {
-                            amount
-                            currency
-                          }
+                          gross { amount, currency }
                         }
                         stop {
-                          gross {
-                            amount
-                            currency
-                          }
+                          gross { amount, currency }
                         }
                       }
                     }
-                    category {
-                      id
-                      name
-                      slug
-                    }
-                    thumbnail(size: 1024, format: WEBP) {
-                      url
-                      alt
-                    }
-                    variants {
-                      id
-                      quantityAvailable
-                    }
+                    category { id, name, slug }
+                    thumbnail(size: 1024, format: WEBP) { url, alt }
+                    variants { id, quantityAvailable }
                   }
                   cursor
                 }
-                pageInfo {
-                  hasNextPage
-                  endCursor
-                }
+                pageInfo { hasNextPage, endCursor }
               }
             }
           `,
@@ -192,11 +165,11 @@ export function ProductsGrid({
         }),
       });
 
-      const { data } = await response.json();
+      const { data } = await response.json() as { data?: any };
       
       if (data?.products) {
         const newProducts = data.products.edges.map((edge: any) => edge.node);
-        setProducts((prev) => [...prev, ...newProducts]);
+        setProducts(prev => [...prev, ...newProducts]);
         setHasNextPage(data.products.pageInfo.hasNextPage);
         setEndCursor(data.products.pageInfo.endCursor);
       }
@@ -231,17 +204,19 @@ export function ProductsGrid({
     };
   }, [hasNextPage, isLoading, loadMore]);
 
-  const hasActiveFilters = categoryFilter.length > 0 || priceRangesFilter.length > 0 || minPriceFilter !== undefined || maxPriceFilter !== undefined || inStockFilter || onSaleFilter;
+  const hasFilters = checkActiveFilters(filters);
 
-  if (filteredProducts.length === 0 && !isLoading) {
+  if (displayProducts.length === 0 && !isLoading && !isFiltering) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg bg-white py-16 text-center shadow-sm">
-        <svg className="mb-4 h-16 w-16 text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-        </svg>
-        <p className="text-lg font-medium text-neutral-600">No products found</p>
-        <p className="mt-1 text-sm text-neutral-500">
-          {hasActiveFilters ? "Try adjusting your filters" : "Check back later for new products"}
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-neutral-200 bg-white/80 py-16 px-4 text-center shadow-sm sm:py-20 animate-fade-in">
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100 sm:h-20 sm:w-20">
+          <svg className="h-8 w-8 text-neutral-400 sm:h-10 sm:w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+        </div>
+        <p className="text-base font-semibold text-neutral-700 sm:text-lg">No products found</p>
+        <p className="mt-2 text-sm text-neutral-500 sm:text-base">
+          {hasFilters ? "Try adjusting your filters" : "Check back later for new products"}
         </p>
       </div>
     );
@@ -249,42 +224,93 @@ export function ProductsGrid({
 
   return (
     <>
-      {/* Product Grid */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-        {filteredProducts.map((product, index) => (
-          <ProductCard
+      {/* Loading Overlay for Filtering */}
+      {isFiltering && (
+        <div className="relative mb-6 rounded-xl border border-neutral-200 bg-white/95 backdrop-blur-sm p-12 shadow-sm">
+          <div className="flex flex-col items-center justify-center gap-4">
+            <div className="relative">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-neutral-200 border-t-transparent"></div>
+              <div 
+                className="absolute inset-0 h-12 w-12 animate-spin rounded-full border-4 border-transparent opacity-50"
+                style={{ 
+                  borderTopColor: "var(--store-primary, #3b82f6)",
+                  animationDirection: "reverse",
+                  animationDuration: "0.8s"
+                }}
+              ></div>
+            </div>
+            <p className="text-sm font-medium text-neutral-600">Filtering products...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Product Grid - 4 columns like SportZone */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 md:gap-6 lg:grid-cols-4 lg:gap-6 xl:grid-cols-4 xl:gap-6">
+        {!isFiltering && displayProducts.map((product, index) => (
+          <div
             key={product.id}
-            product={product}
-            priority={index < 8}
-            loading={index < 8 ? "eager" : "lazy"}
-          />
+            className="animate-fade-in-up"
+            style={{
+              animationDelay: `${Math.min(index * 50, 500)}ms`,
+              animationFillMode: "both",
+            }}
+          >
+            <ProductCard
+              product={product}
+              priority={index < 8}
+              loading={index < 8 ? "eager" : "lazy"}
+            />
+          </div>
         ))}
         
-        {/* Loading skeletons */}
-        {isLoading && (
+        {/* Loading skeletons during filtering */}
+        {isFiltering && (
+          <>
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div
+                key={`skeleton-${i}`}
+                className="animate-fade-in"
+                style={{
+                  animationDelay: `${i * 50}ms`,
+                  animationFillMode: "both",
+                }}
+              >
+                <ProductCardSkeleton />
+              </div>
+            ))}
+          </>
+        )}
+        
+        {/* Loading skeletons for pagination */}
+        {isLoading && !isFiltering && (
           <>
             {Array.from({ length: 4 }).map((_, i) => (
-              <ProductCardSkeleton key={`skeleton-${i}`} />
+              <ProductCardSkeleton key={`pagination-skeleton-${i}`} />
             ))}
           </>
         )}
       </div>
 
       {/* Infinite scroll trigger */}
-      <div ref={loaderRef} className="mt-8 flex items-center justify-center py-4">
-        {isLoading && (
-          <div className="flex items-center gap-2 text-neutral-500">
-            <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+      <div ref={loaderRef} className="mt-6 flex items-center justify-center py-6 sm:mt-8 sm:py-8">
+        {isLoading && !isFiltering && (
+          <div className="flex items-center gap-2.5 text-neutral-500 animate-fade-in">
+            <svg className="h-5 w-5 animate-spin sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            <span className="text-sm">Loading more products...</span>
+            <span className="text-sm font-medium sm:text-base">Loading more products...</span>
           </div>
         )}
-        {!hasNextPage && filteredProducts.length > 0 && !isLoading && (
-          <p className="text-sm text-neutral-500">
-            You've seen all {filteredProducts.length} products
-          </p>
+        {!hasNextPage && displayProducts.length > 0 && !isLoading && !isFiltering && (
+          <div className="text-center animate-fade-in">
+            <p className="text-sm font-medium text-neutral-600 sm:text-base">
+              You've seen all {displayProducts.length.toLocaleString()} products
+            </p>
+            <p className="mt-1 text-xs text-neutral-500 sm:text-sm">
+              Try adjusting your filters to see more
+            </p>
+          </div>
         )}
       </div>
     </>

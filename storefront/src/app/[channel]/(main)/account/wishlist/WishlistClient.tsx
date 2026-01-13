@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
+import { useState } from "react";
 import { useWishlist } from "@/lib/wishlist";
 import { storeConfig } from "@/config";
 import { formatMoney } from "@/lib/utils";
+import imageLoader from "@/lib/imageLoader";
 
 interface WishlistClientProps {
 	channel: string;
@@ -12,6 +15,7 @@ interface WishlistClientProps {
 export function WishlistClient({ channel }: WishlistClientProps) {
 	const { items, removeItem, clearWishlist, isLoading } = useWishlist();
 	const { branding } = storeConfig;
+	const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
 	if (isLoading) {
 		return (
@@ -25,9 +29,9 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 	}
 
 	return (
-		<div className="space-y-6">
+		<div className="space-y-6 animate-fade-in">
 			{/* Header */}
-			<div className="flex items-center justify-between">
+			<div className="flex items-center justify-between animate-fade-in-up" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
 				<div>
 					<h1 className="text-2xl font-bold text-neutral-900">My Wishlist</h1>
 					<p className="mt-1 text-neutral-500">
@@ -46,7 +50,7 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 
 			{/* Wishlist Grid */}
 			{items.length === 0 ? (
-				<div className="flex flex-col items-center justify-center rounded-xl bg-white px-6 py-16 text-center shadow-sm ring-1 ring-neutral-100">
+				<div className="flex flex-col items-center justify-center rounded-xl bg-white px-6 py-16 text-center shadow-sm ring-1 ring-neutral-100 animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
 					<div className="flex h-20 w-20 items-center justify-center rounded-full bg-red-50">
 						<svg className="h-10 w-10 text-red-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path
@@ -74,7 +78,7 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 				</div>
 			) : (
 				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-					{items.map((item) => {
+					{items.map((item, index) => {
 						const hasDiscount = item.originalPrice && item.originalPrice > item.price;
 						const discountPercent = hasDiscount
 							? Math.round((1 - item.price / item.originalPrice!) * 100)
@@ -83,15 +87,23 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 						return (
 							<div
 								key={item.id}
-								className="group overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-neutral-100"
+								className="group overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-neutral-100 animate-fade-in-up"
+								style={{ animationDelay: `${100 + index * 50}ms`, animationFillMode: "both" }}
 							>
 								<Link href={`/${channel}/products/${item.slug}`} className="block">
 									<div className="relative aspect-square overflow-hidden bg-neutral-100">
-										{item.image ? (
-											<img
+										{item.image && !imageErrors.has(item.id) ? (
+											<Image
 												src={item.image}
 												alt={item.imageAlt || item.name}
-												className="h-full w-full object-cover transition-transform group-hover:scale-105"
+												fill
+												loader={imageLoader}
+												className="object-cover transition-transform group-hover:scale-105"
+												sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+												unoptimized={item.image.startsWith("data:") || item.image.startsWith("blob:")}
+												onError={() => {
+													setImageErrors(prev => new Set(prev).add(item.id));
+												}}
 											/>
 										) : (
 											<div className="flex h-full w-full items-center justify-center text-neutral-400">

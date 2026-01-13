@@ -9,21 +9,15 @@ import { useEvent } from "@/checkout/hooks/useEvent";
 import { useTransactionInitializeMutation, useTransactionProcessMutation } from "@/checkout/graphql";
 import { useCheckoutComplete } from "@/checkout/hooks/useCheckoutComplete";
 
-// PaymentElement options - will be created with proper onReady handler
-const createPaymentElementOptions = (onReady?: () => void): StripePaymentElementOptions => ({
+// PaymentElement options - onReady is handled via PaymentElement's onReady prop, not in options
+const createPaymentElementOptions = (): StripePaymentElementOptions => ({
 	layout: "tabs",
 	// Enable Stripe Link for faster checkout
 	wallets: {
 		applePay: "auto",
 		googlePay: "auto",
 	},
-	// Enable Link payment method
-	paymentMethodTypes: ["card", "link"],
-	onReady: () => {
-		// Removed excessive logging
-		onReady?.();
-	},
-});
+} as StripePaymentElementOptions);
 
 // const getRedirectUrl = (checkoutId: string, transactionId: string) =>
 // 	`${window.location.origin}/checkout/${checkoutId}/payment/summary?transactionId=${transactionId}`;
@@ -49,10 +43,7 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 
 	// PaymentElement options - must be defined before any conditional returns (Rules of Hooks)
 	const paymentElementOptions = useMemo(
-		() => createPaymentElementOptions(() => {
-			// Mark as ready when PaymentElement fires onReady
-			setElementsReady(true);
-		}),
+		() => createPaymentElementOptions(),
 		[]
 	);
 
@@ -79,10 +70,23 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 	const handleSubmit: FormEventHandler<HTMLFormElement> = useEvent(async (e) => {
 		e.preventDefault();
 
+		console.log("[StripeForm] Pay now clicked", { gatewayId, hasStripe: !!stripe, hasElements: !!elements });
+
 		if (!stripe || !elements) {
+			console.error("[StripeForm] Stripe or Elements not available", { stripe: !!stripe, elements: !!elements });
 			showCustomErrors([{ message: "Payment system is not available. Please try again later." }]);
 			return;
 		}
+
+		if (!checkout?.id || !checkout?.totalPrice) {
+			console.error("[StripeForm] Checkout is not available");
+			showCustomErrors([{ message: "Checkout information is missing. Please refresh the page." }]);
+			return;
+		}
+
+		// Extract values after null check to satisfy TypeScript
+		const checkoutId = checkout.id;
+		const checkoutAmount = checkout.totalPrice.gross.amount;
 
 		setIsLoading(true);
 
@@ -90,7 +94,9 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 			// First submit Stripe form to validate and get the payment method
 			let submitResult;
 			try {
+				console.log("[StripeForm] Submitting Stripe form...");
 				submitResult = await elements.submit();
+				console.log("[StripeForm] Stripe form submitted", { hasError: !!submitResult.error, selectedPaymentMethod: (submitResult as any)?.selectedPaymentMethod });
 			} catch (frameError: any) {
 				// Handle Stripe frame initialization errors
 				if (frameError?.message?.includes("Frame not initialized") || frameError?.message?.includes("frame")) {
@@ -100,16 +106,19 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 					try {
 						submitResult = await elements.submit();
 					} catch (retryError) {
+						console.error("[StripeForm] Retry failed", retryError);
 						showCustomErrors([{ message: "Payment form is not ready. Please refresh the page and try again." }]);
 						setIsLoading(false);
 						return;
 					}
 				} else {
+					console.error("[StripeForm] Submit error", frameError);
 					throw frameError;
 				}
 			}
 
 			if (submitResult.error) {
+				console.error("[StripeForm] Stripe validation error", submitResult.error);
 				showCustomErrors([{ message: submitResult.error.message || "Payment validation failed" }]);
 				setIsLoading(false);
 				return;
@@ -127,10 +136,15 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 			}
 
 			// Initialize transaction with Saleor
-			// Removed excessive logging
+			console.log("[StripeForm] Initializing transaction", { 
+				checkoutId, 
+				amount: checkoutAmount,
+				gatewayId,
+				selectedPaymentMethod 
+			});
 			const initializeResult = await transactionInitialize({
-				checkoutId: checkout.id,
-				amount: checkout.totalPrice.gross.amount,
+				checkoutId,
+				amount: checkoutAmount,
 				paymentGateway: {
 					id: gatewayId,
 					data: {
@@ -139,6 +153,11 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 						},
 					},
 				},
+			});
+			console.log("[StripeForm] Transaction initialized", { 
+				hasError: !!initializeResult.error, 
+				hasData: !!initializeResult.data,
+				errors: initializeResult.data?.transactionInitialize?.errors 
 			});
 			// Removed excessive logging
 
@@ -340,7 +359,13 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 	// Render payment form
 	return (
 		<form className="my-8 flex flex-col gap-y-6" onSubmit={handleSubmit}>
-			<PaymentElement className="payment-element" options={paymentElementOptions} />
+			<PaymentElement 
+				className="payment-element" 
+				options={paymentElementOptions}
+				onReady={() => {
+					setElementsReady(true);
+				}}
+			/>
 			<button
 				className="h-12 items-center rounded-md bg-neutral-900 px-6 py-3 text-base font-medium leading-6 text-white shadow hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-70 hover:disabled:bg-neutral-700 aria-disabled:cursor-not-allowed aria-disabled:opacity-70 hover:aria-disabled:bg-neutral-700"
 				aria-disabled={isLoading || !stripe || !elements || !elementsReady}

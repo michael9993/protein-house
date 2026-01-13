@@ -33,13 +33,37 @@ export class PaymentListGatewaysUseCase {
     channelId: string;
     appId: string;
     saleorApiUrl: SaleorApiUrl;
+    token?: string; // Optional token for GraphQL client (for channel fetching fallback)
   }): Promise<
     Result<
       PaymentListGatewaysUseCaseResponsesType,
       AppIsNotConfiguredResponse | BrokenAppResponse
     >
   > {
-    const { channelId, appId, saleorApiUrl } = params;
+    const { channelId, appId, saleorApiUrl, token } = params;
+
+    this.logger.debug("Executing payment list gateways for channel", {
+      channelId,
+      appId,
+      saleorApiUrl: saleorApiUrl.toString(),
+    });
+
+    // Get root config to see what channel mappings exist
+    const rootConfigResult = await this.appConfigRepo.getRootConfig({
+      appId,
+      saleorApiUrl,
+    });
+
+    if (rootConfigResult.isOk()) {
+      const rootConfig = rootConfigResult.value;
+      const mappedChannels = Object.keys(rootConfig.chanelConfigMapping);
+      this.logger.debug("Available channel mappings in config", {
+        channelId,
+        mappedChannels,
+        mappingCount: mappedChannels.length,
+        isChannelMapped: mappedChannels.includes(channelId),
+      });
+    }
 
     const stripeConfigForThisChannel = await this.appConfigRepo.getStripeConfig({
       channelId,
@@ -51,8 +75,10 @@ export class PaymentListGatewaysUseCase {
       const config = stripeConfigForThisChannel.value;
 
       if (!config) {
-        this.logger.debug("No config for channel, returning empty gateways list", {
+        this.logger.warn("No config found for channel, returning empty gateways list", {
           channelId,
+          appId,
+          saleorApiUrl: saleorApiUrl.toString(),
         });
 
         // Return empty list if no config - this is valid, means gateway shouldn't appear
@@ -64,7 +90,15 @@ export class PaymentListGatewaysUseCase {
         );
       }
 
+      this.logger.info("Found Stripe config for channel", {
+        channelId,
+        configId: config.id,
+        hasPublishableKey: !!config.publishableKey,
+      });
+
       // Return Stripe gateway with publishable key in config
+      // Saleor will transform the ID to "app:{app.identifier}:stripe"
+      // The frontend filter supports "app:stripe:*" pattern, so "stripe" is correct
       return ok(
         new PaymentListGatewaysUseCaseResponses.Success({
           gateways: [
@@ -108,28 +142,176 @@ export class PaymentListGatewaysUseCase {
   async executeForAnyChannel(params: {
     appId: string;
     saleorApiUrl: SaleorApiUrl;
+    token?: string; // Optional token for GraphQL client
   }): Promise<
     Result<
       PaymentListGatewaysUseCaseResponsesType,
       AppIsNotConfiguredResponse | BrokenAppResponse
     >
   > {
-    const { appId, saleorApiUrl } = params;
+    const { appId, saleorApiUrl, token } = params;
 
     this.logger.debug("Checking if any channel has Stripe configured");
 
     // For queries without checkout context, try to get config from any channel
     // to include the publishable key. If no config found, return gateway without key
     // (the initialize webhook will provide it when checkout is created)
-    const anyChannelConfig = await this.appConfigRepo.getStripeConfig({
-      channelId: "default-channel", // Try default channel as fallback
+    // Try to get root config to find any channel with Stripe configured
+    const rootConfigResult = await this.appConfigRepo.getRootConfig({
       appId,
       saleorApiUrl,
     });
 
-    const publishableKey = anyChannelConfig.isOk() && anyChannelConfig.value
-      ? anyChannelConfig.value.publishableKey
-      : null;
+    let publishableKey: string | null = null;
+
+    if (rootConfigResult.isOk()) {
+      const rootConfig = rootConfigResult.value;
+      // Get all channel IDs that have configs assigned
+      const allConfigIds = new Set(Object.values(rootConfig.chanelConfigMapping));
+      
+      // Try each channel that has a config assigned
+      for (const [channelId] of Object.entries(rootConfig.chanelConfigMapping)) {
+        const channelConfig = await this.appConfigRepo.getStripeConfig({
+          channelId,
+          appId,
+          saleorApiUrl,
+        });
+        
+        if (channelConfig.isOk() && channelConfig.value) {
+          publishableKey = channelConfig.value.publishableKey;
+          this.logger.debug("Found Stripe config for channel", { channelId });
+          break;
+        }
+      }
+      
+      // If no config found in mappings, try to fetch channels from API and check each one
+      if (!publishableKey) {
+        try {
+          const { ChannelsFetcher } = await import("@/modules/saleor/channel-fetcher");
+          const { createInstrumentedGraphqlClient } = await import("@/lib/graphql-client");
+          
+          const client = createInstrumentedGraphqlClient({
+            saleorApiUrl,
+            token: token || undefined, // Use provided token if available
+          });
+          
+          const channelsFetcher = new ChannelsFetcher(client);
+          const channelsResult = await channelsFetcher.fetchChannels();
+          
+          if (channelsResult.isOk()) {
+            const channels = channelsResult.value;
+            if (channels && channels.length > 0) {
+              this.logger.debug("Fetched channels from API for fallback", { channelCount: channels.length });
+              
+              // Try each active channel
+              for (const channel of channels) {
+                if (!channel.isActive) continue;
+                
+                // Try with channel ID first
+                const channelConfigById = await this.appConfigRepo.getStripeConfig({
+                  channelId: channel.id,
+                  appId,
+                  saleorApiUrl,
+                });
+                
+                if (channelConfigById.isOk() && channelConfigById.value?.publishableKey) {
+                  publishableKey = channelConfigById.value.publishableKey;
+                  this.logger.debug("Found Stripe config for channel from API (by ID)", { 
+                    channelId: channel.id, 
+                    channelSlug: channel.slug 
+                  });
+                  break;
+                }
+                
+                // Try with channel slug as fallback
+                const channelConfigBySlug = await this.appConfigRepo.getStripeConfig({
+                  channelId: channel.slug,
+                  appId,
+                  saleorApiUrl,
+                });
+                
+                if (channelConfigBySlug.isOk() && channelConfigBySlug.value?.publishableKey) {
+                  publishableKey = channelConfigBySlug.value.publishableKey;
+                  this.logger.debug("Found Stripe config for channel from API (by slug)", { 
+                    channelId: channel.id, 
+                    channelSlug: channel.slug 
+                  });
+                  break;
+                }
+              }
+            }
+          }
+        } catch (error) {
+          this.logger.warn("Failed to fetch channels from API for fallback", {
+            error: error instanceof Error ? error.message : String(error),
+          });
+          // Continue without fallback - will return gateway without publishable key
+        }
+      }
+    } else {
+      // If root config fetch failed, try to fetch channels from API
+      try {
+        const { ChannelsFetcher } = await import("@/modules/saleor/channel-fetcher");
+        const { createInstrumentedGraphqlClient } = await import("@/lib/graphql-client");
+        
+        const client = createInstrumentedGraphqlClient({
+          saleorApiUrl,
+          token: token || undefined, // Use provided token if available
+        });
+        
+        const channelsFetcher = new ChannelsFetcher(client);
+        const channelsResult = await channelsFetcher.fetchChannels();
+        
+        if (channelsResult.isOk()) {
+          const channels = channelsResult.value;
+          if (channels && channels.length > 0) {
+            this.logger.debug("Fetched channels from API (root config failed)", { channelCount: channels.length });
+            
+            // Try each active channel
+            for (const channel of channels) {
+              if (!channel.isActive) continue;
+              
+              // Try with channel ID first
+              const channelConfigById = await this.appConfigRepo.getStripeConfig({
+                channelId: channel.id,
+                appId,
+                saleorApiUrl,
+              });
+              
+              if (channelConfigById.isOk() && channelConfigById.value?.publishableKey) {
+                publishableKey = channelConfigById.value.publishableKey;
+                this.logger.debug("Found Stripe config for channel from API (by ID)", { 
+                  channelId: channel.id, 
+                  channelSlug: channel.slug 
+                });
+                break;
+              }
+              
+              // Try with channel slug as fallback
+              const channelConfigBySlug = await this.appConfigRepo.getStripeConfig({
+                channelId: channel.slug,
+                appId,
+                saleorApiUrl,
+              });
+              
+              if (channelConfigBySlug.isOk() && channelConfigBySlug.value?.publishableKey) {
+                publishableKey = channelConfigBySlug.value.publishableKey;
+                this.logger.debug("Found Stripe config for channel from API (by slug)", { 
+                  channelId: channel.id, 
+                  channelSlug: channel.slug 
+                });
+                break;
+              }
+            }
+          }
+        }
+      } catch (error) {
+        this.logger.warn("Failed to fetch channels from API", {
+          error: error instanceof Error ? error.message : String(error),
+        });
+        // Continue without fallback - will return gateway without publishable key
+      }
+    }
 
     return ok(
       new PaymentListGatewaysUseCaseResponses.Success({

@@ -37,9 +37,30 @@ fragment ProductListItem on Product {
 		name
 		slug
 	}
+	collections {
+		id
+		name
+		slug
+	}
 	thumbnail(size: 1024, format: WEBP) {
 		url
 		alt
+	}
+	media {
+		url
+		alt
+	}
+	attributes {
+		attribute {
+			id
+			name
+			slug
+		}
+		values {
+			id
+			name
+			slug
+		}
 	}
 	variants {
 		id

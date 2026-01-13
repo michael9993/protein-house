@@ -14,7 +14,9 @@ interface DeliveryMethodsFormData {
 
 export const useDeliveryMethodsForm = (): UseFormReturn<DeliveryMethodsFormData> => {
 	const { checkout } = useCheckout();
-	const { shippingMethods, shippingAddress, deliveryMethod } = checkout;
+	const shippingMethods = checkout?.shippingMethods || [];
+	const shippingAddress = checkout?.shippingAddress;
+	const deliveryMethod = checkout?.deliveryMethod;
 	const [, updateDeliveryMethod] = useCheckoutDeliveryMethodUpdateMutation();
 	const { setCheckoutUpdateState } = useCheckoutUpdateStateChange("checkoutDeliveryMethodUpdate");
 
@@ -46,7 +48,7 @@ export const useDeliveryMethodsForm = (): UseFormReturn<DeliveryMethodsFormData>
 				scope: "checkoutDeliveryMethodUpdate",
 				onSubmit: updateDeliveryMethod,
 				shouldAbort: ({ formData: { selectedMethodId } }) =>
-					!selectedMethodId || selectedMethodId === checkout.deliveryMethod?.id,
+					!selectedMethodId || selectedMethodId === deliveryMethod?.id,
 				parse: ({ selectedMethodId, languageCode, checkoutId }) => ({
 					deliveryMethodId: selectedMethodId as string,
 					languageCode,
@@ -56,7 +58,7 @@ export const useDeliveryMethodsForm = (): UseFormReturn<DeliveryMethodsFormData>
 					return setValues({ selectedMethodId });
 				},
 			}),
-			[checkout.deliveryMethod?.id, updateDeliveryMethod],
+			[deliveryMethod?.id, updateDeliveryMethod],
 		),
 	);
 

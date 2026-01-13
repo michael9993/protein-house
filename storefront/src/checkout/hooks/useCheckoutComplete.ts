@@ -15,9 +15,8 @@ const isNonCriticalError = (error: { message?: string }): boolean => {
 };
 
 export const useCheckoutComplete = () => {
-	const {
-		checkout: { id: checkoutId },
-	} = useCheckout();
+	const { checkout } = useCheckout();
+	const checkoutId = checkout?.id || "";
 	const [{ fetching }, checkoutComplete] = useCheckoutCompleteMutation();
 
 	const onCheckoutComplete = useSubmit<{}, typeof checkoutComplete>(
@@ -272,6 +271,9 @@ export const useCheckoutComplete = () => {
 					const checkoutCompleteData = result.data?.checkoutComplete;
 					const order = checkoutCompleteData?.order;
 					
+					// Extract errors from checkoutComplete response
+					const checkoutErrors = checkoutCompleteData?.errors || [];
+					
 					if (order) {
 						// Order exists - filter out non-critical GraphQL errors
 						const graphqlErrors = result.error ? [result.error] : [];
@@ -286,7 +288,26 @@ export const useCheckoutComplete = () => {
 						}
 					}
 					
-					return [];
+					// Return checkout errors to be displayed to the user
+					// Format them to match the expected error structure
+					return checkoutErrors.map((error: any) => {
+						// Improve error messages for better user experience
+						let message = error.message || "An error occurred";
+						
+						// Make INSUFFICIENT_STOCK errors more user-friendly
+						if (error.code === "INSUFFICIENT_STOCK") {
+							// Remove product ID from message if present (e.g., "Insufficient product stock: 45" -> "Insufficient product stock")
+							message = message.replace(/:\s*\d+$/, "");
+							// Use a more user-friendly message
+							message = "Sorry, one or more items in your cart are no longer available in the requested quantity. Please update your cart and try again.";
+						}
+						
+						return {
+							message,
+							field: error.field || null,
+							code: error.code || "UNKNOWN",
+						};
+					});
 				},
 			}),
 			[checkoutComplete, checkoutId],

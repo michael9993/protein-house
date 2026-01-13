@@ -1,6 +1,8 @@
 import { type FallbackProps } from "react-error-boundary";
+import { useParams } from "next/navigation";
 import { Button } from "@/checkout/components/Button";
 import { ErrorContentWrapper } from "@/checkout/components/ErrorContentWrapper";
+import { DefaultChannelSlug } from "@/app/config";
 
 interface PageNotFoundProps extends Partial<FallbackProps> {
 	reason?: "missing" | "invalid" | "error";
@@ -11,16 +13,28 @@ export const PageNotFound = ({ error, reason = "error" }: PageNotFoundProps) => 
 		console.error(error);
 	}
 
-	const goToCart = () => {
-		// Navigate to default channel cart - we'll try to detect the channel from the URL
+	const params = useParams();
+	
+	const getChannel = (): string => {
+		// Try to get from Next.js params first
+		if (params?.channel) {
+			return params.channel as string;
+		}
+		// Fallback to extracting from URL pathname
 		const pathParts = window.location.pathname.split("/");
-		const channel = pathParts[1] || "default-channel";
+		const channel = pathParts.find((part, index) => 
+			index > 0 && part && part !== "checkout" && part !== "api" && part !== "_next"
+		);
+		return channel || DefaultChannelSlug;
+	};
+
+	const goToCart = () => {
+		const channel = getChannel();
 		window.location.href = `/${channel}/cart`;
 	};
 
 	const goToStore = () => {
-		const pathParts = window.location.pathname.split("/");
-		const channel = pathParts[1] || "default-channel";
+		const channel = getChannel();
 		window.location.href = `/${channel}`;
 	};
 

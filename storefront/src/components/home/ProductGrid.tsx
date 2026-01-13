@@ -183,20 +183,25 @@ function ProductCard({
   showWishlist, 
   showSaleBadge,
   branding,
-  ecommerce,
+  ecommerce: _ecommerce,
 }: ProductCardProps) {
   const priceRange = formatMoneyRange({
     start: product.pricing?.priceRange?.start?.gross,
     stop: product.pricing?.priceRange?.stop?.gross,
   });
 
-  // Check if product is on sale (has discount)
-  const isOnSale = product.pricing?.onSale;
+  // Check if product is on sale (compare start and stop prices)
+  const priceStart = product.pricing?.priceRange?.start?.gross?.amount;
+  const priceStop = product.pricing?.priceRange?.stop?.gross?.amount;
+  const isOnSale = priceStart && priceStop && priceStart < priceStop;
   
   return (
     <div 
-      className="group animate-fade-in"
-      style={{ animationDelay: `${index * 50}ms` }}
+      className="group animate-fade-in-up"
+      style={{ 
+        animationDelay: `${index * 50}ms`,
+        animationFillMode: "both",
+      }}
     >
       <LinkWithChannel href={`/products/${product.slug}`}>
         <div 

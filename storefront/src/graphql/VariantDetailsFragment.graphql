@@ -2,6 +2,18 @@ fragment VariantDetails on ProductVariant {
 	id
 	name
 	quantityAvailable
+	attributes {
+		attribute {
+			id
+			name
+			slug
+		}
+		values {
+			id
+			name
+			slug
+		}
+	}
 	pricing {
 		price {
 			gross {

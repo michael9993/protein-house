@@ -40,9 +40,9 @@ export function AddressesClient({
 	const [showAddForm, setShowAddForm] = useState(false);
 
 	return (
-		<div className="space-y-6">
+		<div className="space-y-6 animate-fade-in">
 			{/* Header */}
-			<div className="flex items-center justify-between">
+			<div className="flex items-center justify-between animate-fade-in-up" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
 				<div>
 					<h1 className="text-2xl font-bold text-neutral-900">My Addresses</h1>
 					<p className="mt-1 text-neutral-500">
@@ -65,7 +65,7 @@ export function AddressesClient({
 
 			{/* Add Address Form */}
 			{showAddForm && (
-				<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100">
+				<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100 animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
 					<h2 className="mb-4 text-lg font-semibold text-neutral-900">Add New Address</h2>
 					<p className="mb-4 text-sm text-neutral-500">
 						Adding new addresses requires going through checkout. Your addresses will be saved automatically when you complete a purchase.
@@ -90,7 +90,7 @@ export function AddressesClient({
 
 			{/* Addresses Grid */}
 			{addresses.length === 0 ? (
-				<div className="flex flex-col items-center justify-center rounded-xl bg-white px-6 py-16 text-center shadow-sm ring-1 ring-neutral-100">
+				<div className="flex flex-col items-center justify-center rounded-xl bg-white px-6 py-16 text-center shadow-sm ring-1 ring-neutral-100 animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
 					<div className="flex h-20 w-20 items-center justify-center rounded-full bg-neutral-100">
 						<svg className="h-10 w-10 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -113,15 +113,16 @@ export function AddressesClient({
 					</Link>
 				</div>
 			) : (
-				<div className="grid gap-4 sm:grid-cols-2">
-					{addresses.map((address) => {
+				<div className="grid gap-4 sm:grid-cols-2 animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
+					{addresses.map((address, index) => {
 						const isDefaultShipping = address.id === defaultShippingId || address.isDefaultShippingAddress;
 						const isDefaultBilling = address.id === defaultBillingId || address.isDefaultBillingAddress;
 						
 						return (
 							<div
 								key={address.id}
-								className="relative rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100"
+								className="relative rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100 animate-fade-in-up"
+								style={{ animationDelay: `${150 + index * 50}ms`, animationFillMode: "both" }}
 							>
 								{/* Badges */}
 								<div className="absolute right-4 top-4 flex gap-2">

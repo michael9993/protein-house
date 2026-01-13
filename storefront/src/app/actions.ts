@@ -5,19 +5,7 @@ import { getServerAuthClient } from "@/app/config";
 import { executeGraphQL } from "@/lib/graphql";
 import { CurrentUserDocument } from "@/gql/graphql";
 
-/**
- * Gets the current user ID if authenticated.
- */
-async function getCurrentUserId(): Promise<string | null> {
-	try {
-		const { me } = await executeGraphQL(CurrentUserDocument, {
-			cache: "no-cache",
-		});
-		return me?.id || null;
-	} catch {
-		return null;
-	}
-}
+// Removed unused function _getCurrentUserId
 
 /**
  * Gets user ID using CurrentUser query.
@@ -116,14 +104,13 @@ export async function getAccessToken(): Promise<string | null> {
  * User carts are stored in metadata (server-side, syncs across devices).
  * Cookies are ONLY used for guest carts.
  */
-export async function saveUserCheckoutId(userId: string, channel: string, checkoutId: string) {
+export async function saveUserCheckoutId(_userId: string, channel: string, checkoutId: string) {
 	"use server";
 	
 	const metadataKey = `checkoutId-${channel}`;
 	
 	try {
 		const { AccountUpdateDocument } = await import("@/gql/graphql");
-		const { TypedDocumentString } = await import("@/gql/graphql");
 		
 		// Get current user to read existing metadata
 		const currentUser = await executeGraphQL(CurrentUserDocument, {
@@ -164,7 +151,7 @@ export async function saveUserCheckoutId(userId: string, channel: string, checko
  * User carts are stored in metadata (server-side, syncs across devices).
  * Cookies are ONLY used for guest carts.
  */
-export async function getUserCheckoutId(userId: string, channel: string): Promise<string | null> {
+export async function getUserCheckoutId(_userId: string, channel: string): Promise<string | null> {
 	"use server";
 	
 	const metadataKey = `checkoutId-${channel}`;
@@ -218,7 +205,19 @@ export async function logout() {
 			
 			// Step 1: Save current checkout to user metadata before signing out
 			const cookieStore = await cookies();
-			const channels = ["default-channel"]; // Add other channels if needed
+			// Dynamically find all channels from checkout cookies
+			const allCookies = cookieStore.getAll();
+			const channels = new Set<string>();
+			
+			// Extract channels from checkout cookie names (format: checkoutId-{channel})
+			allCookies.forEach(cookie => {
+				if (cookie.name.startsWith("checkoutId-")) {
+					const channel = cookie.name.replace("checkoutId-", "");
+					if (channel) {
+						channels.add(channel);
+					}
+				}
+			});
 			
 			for (const channel of channels) {
 				const checkoutId = cookieStore.get(`checkoutId-${channel}`)?.value;
@@ -234,7 +233,20 @@ export async function logout() {
 		// Step 2: Clear session checkout cookies
 		console.log("[Logout] 🔍 Step 2: Clearing session checkout cookies...");
 		const cookieStore = await cookies();
-		const channels = ["default-channel"]; // Add other channels if needed
+		// Dynamically find all channels from checkout cookies
+		const allCookies = cookieStore.getAll();
+		const channels = new Set<string>();
+		
+		// Extract channels from checkout cookie names (format: checkoutId-{channel})
+		allCookies.forEach(cookie => {
+			if (cookie.name.startsWith("checkoutId-")) {
+				const channel = cookie.name.replace("checkoutId-", "");
+				if (channel) {
+					channels.add(channel);
+				}
+			}
+		});
+		
 		let deletedCount = 0;
 		
 		for (const channel of channels) {
@@ -388,7 +400,7 @@ export async function mergeGuestCartIntoUserCart(channel: string) {
 	
 	try {
 		const { executeGraphQL } = await import("@/lib/graphql");
-		const { CheckoutFindDocument, CheckoutLinesAddDocument } = await import("@/gql/graphql");
+		const { CheckoutFindDocument, CheckoutAddLinesDocument } = await import("@/gql/graphql");
 		
 		// Get guest checkout
 		const { checkout: guestCheckout } = await executeGraphQL(CheckoutFindDocument, {
@@ -435,9 +447,9 @@ export async function mergeGuestCartIntoUserCart(channel: string) {
 		})) || [];
 		
 		if (linesToAdd.length > 0) {
-			await executeGraphQL(CheckoutLinesAddDocument, {
+			await executeGraphQL(CheckoutAddLinesDocument, {
 				variables: {
-					checkoutId: userCheckout.id,
+					id: userCheckout.id,
 					lines: linesToAdd,
 				},
 				cache: "no-cache",

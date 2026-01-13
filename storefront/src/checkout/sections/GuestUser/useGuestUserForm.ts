@@ -47,7 +47,7 @@ export const useGuestUserForm = ({ initialEmail }: GuestUserFormProps) => {
 	}) as Schema<GuestUserFormData>;
 
 	const defaultFormData: GuestUserFormData = {
-		email: initialEmail || checkout.email || "",
+		email: initialEmail || checkout?.email || "",
 		password: "",
 		createAccount: false,
 	};

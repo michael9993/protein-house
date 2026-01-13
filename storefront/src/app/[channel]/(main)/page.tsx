@@ -41,7 +41,6 @@ export default async function Page(
 	}
 ) {
 	const params = await props.params;
-	const searchParams = await props.searchParams;
 	const { channel } = params;
 	
 	// Fetch all data in parallel for better performance

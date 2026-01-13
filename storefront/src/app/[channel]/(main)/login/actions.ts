@@ -2,12 +2,43 @@
 
 import { getServerAuthClient } from "@/app/config";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
+import { DefaultChannelSlug } from "@/app/config";
 import { mergeGuestCartIntoUserCart } from "@/app/actions";
+
+/**
+ * Extract channel from request URL or formData
+ */
+async function getChannelFromRequest(formData: FormData): Promise<string> {
+	// First try to get from formData
+	const channelFromForm = formData.get("channel")?.toString();
+	if (channelFromForm) {
+		return channelFromForm;
+	}
+	
+	// Try to extract from URL headers
+	try {
+		const headersList = await headers();
+		const pathname = headersList.get("x-pathname") || headersList.get("referer") || "";
+		const pathParts = pathname.split("/");
+		const channelFromPath = pathParts.find((part, index) => 
+			index > 0 && pathParts[index - 1] === "" && part && part !== "api" && part !== "_next"
+		);
+		if (channelFromPath) {
+			return channelFromPath;
+		}
+	} catch {
+		// Headers not available, fallback to default
+	}
+	
+	// Fallback to config default
+	return DefaultChannelSlug;
+}
 
 export async function loginAction(formData: FormData) {
 	const email = formData.get("email")?.toString();
 	const password = formData.get("password")?.toString();
-	const channel = formData.get("channel")?.toString() || "default-channel";
+	const channel = await getChannelFromRequest(formData);
 
 	if (!email || !password) {
 		return { error: "Email and password are required" };
@@ -45,7 +76,7 @@ export async function registerAction(formData: FormData) {
 	const password = formData.get("password")?.toString();
 	const firstName = formData.get("firstName")?.toString();
 	const lastName = formData.get("lastName")?.toString();
-	const channel = formData.get("channel")?.toString() || "default-channel";
+	const channel = await getChannelFromRequest(formData);
 
 	if (!email || !password) {
 		return { error: "Email and password are required" };
@@ -136,7 +167,6 @@ export async function registerAction(formData: FormData) {
 					
 					console.log("[Register] Login result and user check:", {
 						hasToken: !!loginResult.data.tokenCreate.token,
-						hasUserFromToken: !!loginResult.data.tokenCreate.user,
 						hasCurrentUser: !!currentUser,
 						currentUserId: currentUser?.id,
 						currentUserEmail: currentUser?.email,
@@ -187,9 +217,11 @@ export async function registerAction(formData: FormData) {
 		
 		// Check if login succeeded - if user is already confirmed, this means email already exists
 		if (loginResult.data?.tokenCreate?.token) {
-			const user = loginResult.data.tokenCreate.user;
+			// Query user separately to check isConfirmed
+			const { getCurrentUser } = await import("@/app/actions");
+			const currentUser = await getCurrentUser();
 			
-			if (user?.isConfirmed) {
+			if (currentUser?.isConfirmed) {
 				// User already exists and is confirmed - this was a duplicate registration attempt
 				console.warn("[Register] User already exists and is confirmed:", email);
 				return { 

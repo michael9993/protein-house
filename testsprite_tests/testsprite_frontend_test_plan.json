@@ -1,0 +1,570 @@
+[
+  {
+    "id": "TC001",
+    "title": "User Authentication - Successful Login",
+    "description": "Verify that a user with valid credentials can log in successfully and receive a JWT token with correct role-based access permissions.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the login page."
+      },
+      {
+        "type": "action",
+        "description": "Input valid username/email and password."
+      },
+      {
+        "type": "action",
+        "description": "Click the login button."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is authenticated and a valid JWT token is issued."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user role permissions are correctly applied in the system."
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "User Authentication - Failed Login with Incorrect Credentials",
+    "description": "Verify that a user cannot log in with invalid credentials and that proper error messages are shown.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the login page."
+      },
+      {
+        "type": "action",
+        "description": "Input invalid username/email or password."
+      },
+      {
+        "type": "action",
+        "description": "Click the login button."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login attempt fails with an appropriate error message."
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Product Management - Create New Product",
+    "description": "Ensure that an admin user can create a new product with variants, attributes, pricing, and inventory details.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as admin and navigate to the product creation page."
+      },
+      {
+        "type": "action",
+        "description": "Input product details including name, description, attributes, and pricing."
+      },
+      {
+        "type": "action",
+        "description": "Add product variants and set inventory counts."
+      },
+      {
+        "type": "action",
+        "description": "Click save to create the product."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the product has been created successfully and is visible in the product list."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify inventory and pricing details are correctly saved."
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Product Management - Edit Existing Product",
+    "description": "Verify that an admin user can edit an existing product's information, including updating inventory and pricing.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as admin and navigate to an existing product's edit page."
+      },
+      {
+        "type": "action",
+        "description": "Change product attributes, pricing, and inventory values."
+      },
+      {
+        "type": "action",
+        "description": "Save the changes."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updates are reflected accurately upon saving."
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Order Management - Complete Order Lifecycle",
+    "description": "Test the entire order lifecycle including order creation, fulfillment, invoicing, refunds, and status updates.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Place a new order via storefront with valid products and customer details."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the order is created with correct details and status is 'Pending'."
+      },
+      {
+        "type": "action",
+        "description": "As admin, fulfill the order and update status to 'Fulfilled'."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that fulfillment details are recorded and status updated correctly."
+      },
+      {
+        "type": "action",
+        "description": "Generate and download invoice for the order."
+      },
+      {
+        "type": "assertion",
+        "description": "Validate invoice accuracy and presence in order details."
+      },
+      {
+        "type": "action",
+        "description": "Issue a refund partially or fully on the order."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify refund status and that the order reflects the refund."
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Customer Account Management - View Order History",
+    "description": "Verify that a logged-in customer can view their complete order history and order details.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as a customer."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the account order history page."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all past orders are listed with correct statuses and details."
+      },
+      {
+        "type": "action",
+        "description": "Open individual order details."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify order details display correctly including items, prices, and shipping info."
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Discount System - Apply Valid Discount Code at Checkout",
+    "description": "Ensure a valid discount code can be applied successfully during checkout and reflected in order totals.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Add products to cart and proceed to checkout."
+      },
+      {
+        "type": "action",
+        "description": "Enter a valid discount code and apply it."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the discount is applied and total price is updated accordingly."
+      },
+      {
+        "type": "action",
+        "description": "Complete the checkout process."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the order reflects the discounted price."
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Discount System - Reject Invalid or Expired Discount Codes",
+    "description": "Verify that invalid or expired discount codes cannot be applied and proper error messages are shown.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Add items to cart and proceed to checkout."
+      },
+      {
+        "type": "action",
+        "description": "Input an invalid or expired discount code."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to apply the discount code."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the system rejects the code and displays an appropriate error message."
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Stripe Payment Integration - Successful Payment Flow",
+    "description": "Test the complete payment flow using Stripe including payment submission, webhook confirmation, and order status update.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Proceed to checkout with valid order details."
+      },
+      {
+        "type": "action",
+        "description": "Enter valid payment details and submit payment via Stripe."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify payment is accepted and processed by Stripe."
+      },
+      {
+        "type": "action",
+        "description": "Simulate Stripe webhook confirming payment success."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the order status updates to 'Paid' and receipt is generated."
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Stripe Payment Integration - Payment Failure Handling",
+    "description": "Ensure that payment failures via Stripe are handled gracefully with clear error messages and no order confirmation.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Proceed to checkout with valid order details."
+      },
+      {
+        "type": "action",
+        "description": "Enter invalid or declined payment details and submit payment."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify payment is rejected and appropriate error message is shown to the user."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that no order confirmation is issued and order status remains 'Pending' or 'Failed'."
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Admin Dashboard - Responsiveness and UI Elements",
+    "description": "Validate that the admin dashboard UI renders correctly and is responsive across desktop and mobile devices.",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Access the admin dashboard on desktop at various screen resolutions."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all UI components (tables, buttons, dialogs) display and function correctly."
+      },
+      {
+        "type": "action",
+        "description": "Access the admin dashboard on a mobile device or emulator."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify UI responsiveness and usability on small screens."
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Multi-Currency Pricing - Display and Checkout",
+    "description": "Verify that products display correct prices in the selected currency and the checkout reflects the chosen currency accurately.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Switch storefront currency to a target currency."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify product prices update to reflect the selected currency."
+      },
+      {
+        "type": "action",
+        "description": "Add products to cart and proceed to checkout."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify order totals and payment amounts use the selected currency."
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Internationalization - Language Switching and Content Translation",
+    "description": "Ensure that the storefront supports multiple languages and that UI elements and product content translate correctly upon language switch.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Access the storefront and switch language via locale selector."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all static UI elements translate appropriately."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify translated product names, descriptions, and other localized content appear correctly."
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Shipping Management - Configure Shipping Zones and Rates",
+    "description": "Verify that admin can create shipping zones, add shipping methods with rates, and that these are applied correctly during checkout.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as admin and navigate to shipping configuration."
+      },
+      {
+        "type": "action",
+        "description": "Create a new shipping zone for a specified region."
+      },
+      {
+        "type": "action",
+        "description": "Add one or more shipping methods with rates to the zone."
+      },
+      {
+        "type": "action",
+        "description": "Save configuration."
+      },
+      {
+        "type": "action",
+        "description": "From storefront, place an order with shipping address in the configured zone."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that appropriate shipping methods and rates are presented during checkout."
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Security - Role-Based Access Control Enforcement",
+    "description": "Ensure that users can access only authorized areas and features based on their assigned roles and permissions.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as a user with limited role/permission."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to access restricted admin features or APIs."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access is denied and appropriate error or forbidden message is shown."
+      },
+      {
+        "type": "action",
+        "description": "Log in as an admin or higher-privilege user."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify full access is granted to authorized features."
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "GraphQL API - Key Queries and Mutations Validity",
+    "description": "Test core GraphQL queries and mutations such as product retrieval, order creation, and customer data management to ensure API correctness.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send GraphQL query to retrieve product list with attributes."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response contains correct product data according to schema."
+      },
+      {
+        "type": "action",
+        "description": "Send mutation to create a new order with valid input."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify order is created and returned data matches input."
+      },
+      {
+        "type": "action",
+        "description": "Perform mutation to update customer details."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify customer data updates correctly in response."
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Checkout Flow - End-to-End Customer Order Placement",
+    "description": "Verify the complete customer shopping flow from product browsing, adding to cart, entering shipping/payment details, completing checkout, and receiving order confirmation.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Browse product catalog and select desired products."
+      },
+      {
+        "type": "action",
+        "description": "Add selected products to shopping cart."
+      },
+      {
+        "type": "action",
+        "description": "Proceed to checkout, enter shipping address and select shipping method."
+      },
+      {
+        "type": "action",
+        "description": "Enter valid payment details and complete the payment."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify order confirmation page is displayed with correct order summary."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify order details are visible in customer account order history."
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "Performance - API Response and Page Load Time",
+    "description": "Verify that key API responses return within 500 ms and that page loads in both admin and storefront meet sub-3 seconds benchmarks.",
+    "category": "performance",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Measure response time for common GraphQL queries e.g., product list, order details."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response times are less than 500 ms."
+      },
+      {
+        "type": "action",
+        "description": "Load key pages in admin dashboard and storefront at average network conditions."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify pages load within 3 seconds consistently."
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "Email Notification - SMTP Email Sending on Order Events",
+    "description": "Verify that order confirmation and shipping update emails are sent correctly via SMTP app after the respective events occur.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Place an order and complete payment."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify order confirmation email is sent to the customer."
+      },
+      {
+        "type": "action",
+        "description": "Update order status to shipped."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify shipping update email is sent to the customer."
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "App Management - Install and Configure Stripe App",
+    "description": "Ensure that the Stripe payment gateway app can be installed, configured, and activated via the admin interface.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as admin and navigate to app management."
+      },
+      {
+        "type": "action",
+        "description": "Install the Stripe app."
+      },
+      {
+        "type": "action",
+        "description": "Configure required Stripe API keys and settings."
+      },
+      {
+        "type": "action",
+        "description": "Activate the Stripe app."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the Stripe app is active and ready for payment processing."
+      }
+    ]
+  }
+]

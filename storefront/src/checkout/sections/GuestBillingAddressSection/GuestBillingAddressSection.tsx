@@ -8,9 +8,8 @@ import { useBillingSameAsShippingForm } from "@/checkout/sections/GuestBillingAd
 import { Checkbox } from "@/checkout/components";
 
 export const GuestBillingAddressSection = () => {
-	const {
-		checkout: { isShippingRequired },
-	} = useCheckout();
+	const { checkout } = useCheckout();
+	const isShippingRequired = checkout?.isShippingRequired;
 
 	const billingSameAsShippingForm = useBillingSameAsShippingForm({ autoSave: true });
 

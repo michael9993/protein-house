@@ -13,6 +13,7 @@ const isStripeGatewayId = (id: string): boolean => {
 		id === stripeV2GatewayId ||
 		id === "app:stripe:stripe" ||
 		id === "app.stripe.stripe" ||
+		id === "stripe" || // Raw ID from webhook (before Saleor transformation)
 		id.startsWith("app:stripe:") ||
 		id.startsWith("app.stripe.")
 	);

@@ -17,7 +17,7 @@ interface ContactProps {
 
 export const Contact: FC<ContactProps> = ({ setShowOnlyContact }) => {
 	useCustomerAttach();
-	const { user, authenticated, loading } = useUser();
+	const { user, authenticated, loading: _loading } = useUser();
 	const [email, setEmail] = useState(user?.email || "");
 
 	const [passwordResetShown, setPasswordResetShown] = useState(false);

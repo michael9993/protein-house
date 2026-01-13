@@ -18,9 +18,8 @@ import { type AddressFragment } from "@/checkout/graphql";
 interface UserBillingAddressSectionProps {}
 
 export const UserBillingAddressSection: React.FC<UserBillingAddressSectionProps> = ({}) => {
-	const {
-		checkout: { isShippingRequired },
-	} = useCheckout();
+	const { checkout } = useCheckout();
+	const isShippingRequired = checkout?.isShippingRequired;
 
 	const {
 		form,

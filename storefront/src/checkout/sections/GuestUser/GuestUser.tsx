@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
+import { useParams } from "next/navigation";
 import { SignInFormContainer, type SignInFormContainerProps } from "../Contact/SignInFormContainer";
 import { PasswordInput } from "@/checkout/components/PasswordInput";
 import { Checkbox } from "@/checkout/components/Checkbox";
@@ -7,6 +8,7 @@ import { useGuestUserForm } from "@/checkout/sections/GuestUser/useGuestUserForm
 import { FormProvider } from "@/checkout/hooks/useForm/FormProvider";
 import { useUser } from "@/checkout/hooks/useUser";
 import { getQueryParams } from "@/checkout/lib/utils/url";
+import { DefaultChannelSlug } from "@/app/config";
 
 type GuestUserProps = Pick<SignInFormContainerProps, "onSectionChange"> & {
 	onEmailChange: (email: string) => void;
@@ -18,12 +20,25 @@ export const GuestUser: React.FC<GuestUserProps> = ({
 	onEmailChange,
 	email: initialEmail,
 }) => {
-	const { authenticated, user, loading } = useUser();
+	const { authenticated, user: _user, loading: _loading } = useUser();
 	const form = useGuestUserForm({ initialEmail });
 	const { handleChange } = form;
 	const { createAccount } = form.values;
-	const [oauthError, setOauthError] = useState<string | null>(null);
+	const [_oauthError, setOauthError] = useState<string | null>(null);
 	const [isOauthLoading, setIsOauthLoading] = useState(false);
+	const params = useParams();
+
+	// Get channel from Next.js params, fallback to pathname extraction, then config default
+	const getChannel = (): string => {
+		if (params?.channel) {
+			return params.channel as string;
+		}
+		const pathParts = window.location.pathname.split("/");
+		const channel = pathParts.find((part, index) => 
+			index > 0 && part && part !== "checkout" && part !== "api" && part !== "_next"
+		);
+		return channel || DefaultChannelSlug;
+	};
 
 	// Only show "Already have an account?" and "Sign in" when user is NOT logged in
 	// Only show "I want to create account" checkbox when user is NOT logged in
@@ -39,8 +54,7 @@ export const GuestUser: React.FC<GuestUserProps> = ({
 		try {
 			const { getOAuthUrl } = await import("@/app/[channel]/(main)/login/oauth-actions");
 			const { checkoutId } = getQueryParams();
-			const pathParts = window.location.pathname.split("/");
-			const channel = pathParts[1] || "default-channel";
+			const channel = getChannel();
 			const callbackUrl = `${window.location.origin}/${channel}/auth/callback`;
 			const finalRedirectUrl = `/checkout?checkout=${checkoutId}`;
 			

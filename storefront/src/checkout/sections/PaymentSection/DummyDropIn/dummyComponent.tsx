@@ -19,6 +19,10 @@ export const DummyComponent = () => {
 	const isInProgress = completingCheckout || transactionInitializeState.fetching;
 
 	const onInitalizeClick = () => {
+		if (!checkout?.id) {
+			console.error("Checkout is not available");
+			return;
+		}
 		void transactionInitialize({
 			checkoutId: checkout.id,
 			paymentGateway: {

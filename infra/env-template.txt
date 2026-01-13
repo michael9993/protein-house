@@ -86,7 +86,14 @@ NEXT_PUBLIC_SALEOR_API_URL=http://localhost:8000/graphql/
 SALEOR_API_URL=http://localhost:8000/graphql/
 NEXT_PUBLIC_STOREFRONT_URL=http://localhost:3000
 NEXT_PUBLIC_DEFAULT_CHANNEL=default-channel
+# Comma-separated list of channel slugs (e.g., "default-channel,us-channel,eu-channel")
+# If set, this will be used instead of fetching from API (useful when SALEOR_APP_TOKEN lacks permissions)
+NEXT_PUBLIC_CHANNELS=
 SALEOR_APP_TOKEN=
+# Storefront build mode: 'dev' (default, hot-reload) or 'production' (optimized build)
+# Use production mode for speed testing and production-like behavior
+# Switch back to 'dev' for development with hot-reload
+STOREFRONT_MODE=dev
 
 # ============================================================================
 # STRIPE PAYMENT APP CONFIGURATION

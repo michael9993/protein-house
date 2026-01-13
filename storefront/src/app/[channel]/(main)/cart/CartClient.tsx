@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState, useTransition, useMemo, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { toast } from "react-toastify";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { formatMoney, getHrefForVariant } from "@/lib/utils";
 import { storeConfig } from "@/config";
@@ -20,6 +21,32 @@ interface CartLine {
     id: string;
     name: string;
     quantityAvailable: number;
+    attributes?: Array<{
+      attribute: {
+        id: string;
+        name: string;
+        slug: string;
+      };
+      values: Array<{
+        id: string;
+        name: string;
+        slug: string;
+      }>;
+    }> | null;
+    pricing?: {
+      price?: {
+        gross: {
+          amount: number;
+          currency: string;
+        };
+      } | null;
+      priceUndiscounted?: {
+        gross: {
+          amount: number;
+          currency: string;
+        };
+      } | null;
+    } | null;
     product: {
       slug: string;
       name: string;
@@ -43,7 +70,8 @@ interface CartData {
 interface CartClientProps {
   cart: CartData | null;
   channel: string;
-  deleteLineAction: (lineId: string) => Promise<void>;
+  deleteLineAction: (lineId: string, productSlug?: string) => Promise<void>;
+  updateLineQuantityAction: (lineId: string, quantity: number, productSlug?: string) => Promise<{ success: boolean; error?: string }>;
   createCheckoutWithItems?: (variantIds: { variantId: string; quantity: number }[], channel: string) => Promise<{ checkoutId: string } | null>;
 }
 
@@ -51,6 +79,7 @@ export function CartClient({
   cart, 
   channel, 
   deleteLineAction,
+  updateLineQuantityAction,
   createCheckoutWithItems,
 }: CartClientProps) {
   const { branding, ecommerce } = storeConfig;
@@ -58,7 +87,7 @@ export function CartClient({
   const pathname = usePathname();
   const [promoCode, setPromoCode] = useState("");
   const [deletingLines, setDeletingLines] = useState<Set<string>>(new Set());
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [isCreatingCheckout, setIsCreatingCheckout] = useState(false);
   const [isNavigatingToCheckout, setIsNavigatingToCheckout] = useState(false);
 
@@ -117,7 +146,149 @@ export function CartClient({
     });
   };
 
+  // Helper functions to extract variant attributes
+  const getAttributeFromVariant = (
+    variant: CartLine["variant"],
+    attributeName: string
+  ): { id: string; name: string; slug: string } | null => {
+    if (!variant?.attributes) return null;
+    
+    for (const attr of variant.attributes) {
+      const attrName = attr.attribute?.name?.trim().toLowerCase();
+      const attrSlug = attr.attribute?.slug?.trim().toLowerCase();
+      const searchName = attributeName.toLowerCase();
+      
+      if (attrName === searchName || attrSlug === searchName) {
+        const value = attr.values?.[0];
+        if (value) {
+          return {
+            id: value.id,
+            name: value.name,
+            slug: value.slug || value.name.toLowerCase().replace(/\s+/g, "-"),
+          };
+        }
+      }
+    }
+    
+    return null;
+  };
+  
+  const getColorFromVariant = (variant: CartLine["variant"]): { id: string; name: string; slug: string } | null => {
+    return getAttributeFromVariant(variant, "color") || getAttributeFromVariant(variant, "colour");
+  };
+  
+  // Helper function to convert color name to hex (basic mapping)
+  const getColorHex = (colorName: string): string => {
+    const colorMap: Record<string, string> = {
+      // Basic colors
+      black: "#000000",
+      white: "#FFFFFF",
+      gray: "#808080",
+      grey: "#808080",
+      red: "#FF0000",
+      blue: "#0000FF",
+      green: "#008000",
+      yellow: "#FFFF00",
+      orange: "#FFA500",
+      purple: "#800080",
+      pink: "#FFC0CB",
+      brown: "#A52A2A",
+      beige: "#F5F5DC",
+      navy: "#000080",
+      maroon: "#800000",
+      olive: "#808000",
+      lime: "#00FF00",
+      aqua: "#00FFFF",
+      teal: "#008080",
+      silver: "#C0C0C0",
+      gold: "#FFD700",
+      // Common variations
+      dark: "#2C2C2C",
+      light: "#E0E0E0",
+      charcoal: "#36454F",
+      cream: "#FFFDD0",
+      ivory: "#FFFFF0",
+      tan: "#D2B48C",
+      khaki: "#C3B091",
+      burgundy: "#800020",
+      coral: "#FF7F50",
+      salmon: "#FA8072",
+      peach: "#FFE5B4",
+      mint: "#98FB98",
+      turquoise: "#40E0D0",
+      lavender: "#E6E6FA",
+      violet: "#8B00FF",
+      indigo: "#4B0082",
+      cyan: "#00FFFF",
+      magenta: "#FF00FF",
+    };
+    
+    const normalized = colorName.toLowerCase().trim();
+    return colorMap[normalized] || "#6b7280"; // Default to gray if not found
+  };
+  
+  const isOnSale = (variant: CartLine["variant"]): boolean => {
+    if (!variant.pricing?.price || !variant.pricing.priceUndiscounted) return false;
+    return variant.pricing.price.gross.amount < variant.pricing.priceUndiscounted.gross.amount;
+  };
+
+  const [updatingQuantities, setUpdatingQuantities] = useState<Set<string>>(new Set());
+
+  const handleUpdateQuantity = async (lineId: string, newQuantity: number) => {
+    const line = cart?.lines.find(l => l.id === lineId);
+    if (!line) return;
+    
+    // Validate quantity
+    if (newQuantity < 1) {
+      toast.error("Quantity must be at least 1");
+      return;
+    }
+    
+    // Calculate total available stock (what's available + what's already in cart)
+    const totalAvailable = line.variant.quantityAvailable + line.quantity;
+    
+    // Only check stock limit when increasing quantity
+    // When decreasing, we're freeing up stock, so it's always allowed
+    if (newQuantity > line.quantity && newQuantity > totalAvailable) {
+      toast.error(`Only ${totalAvailable} items available in stock`);
+      return;
+    }
+    
+    // When decreasing, ensure we don't go below 1 (use Delete button instead)
+    if (newQuantity < 1) {
+      toast.error("Use the Delete button to remove items from cart");
+      return;
+    }
+    
+    setUpdatingQuantities(prev => new Set(prev).add(lineId));
+    
+    startTransition(async () => {
+      const result = await updateLineQuantityAction(
+        lineId,
+        newQuantity,
+        line.variant.product.slug
+      );
+      
+      setUpdatingQuantities(prev => {
+        const next = new Set(prev);
+        next.delete(lineId);
+        return next;
+      });
+      
+      if (result.success) {
+        toast.success("Quantity updated!");
+        router.refresh();
+      } else {
+        toast.error(result.error || "Failed to update quantity");
+      }
+    });
+  };
+
   const handleDeleteLine = async (lineId: string) => {
+    // Find the product slug for this line before deleting
+    const line = cart?.lines.find(l => l.id === lineId);
+    const productSlug = line?.variant.product.slug;
+    
     setDeletingLines(prev => new Set(prev).add(lineId));
     // Also remove from selected items
     setSelectedItems(prev => {
@@ -126,7 +297,7 @@ export function CartClient({
       return next;
     });
     startTransition(async () => {
-      await deleteLineAction(lineId);
+      await deleteLineAction(lineId, productSlug);
       setDeletingLines(prev => {
         const next = new Set(prev);
         next.delete(lineId);
@@ -194,9 +365,9 @@ export function CartClient({
   // Empty cart state
   if (!cart || cart.lines.length === 0) {
     return (
-      <div className="min-h-screen bg-neutral-50/50">
+      <div className="min-h-screen bg-neutral-50/50 animate-fade-in">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="text-center">
+          <div className="text-center animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
             <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-neutral-100">
               <svg className="h-12 w-12 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -232,7 +403,7 @@ export function CartClient({
   const currency = cart.totalPrice.gross.currency;
 
   return (
-    <div className="min-h-screen bg-neutral-50/50 relative">
+    <div className="min-h-screen bg-neutral-50/50 relative animate-fade-in">
       {/* Full-page loading overlay during navigation to checkout */}
       {showLoadingOverlay && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
@@ -249,7 +420,7 @@ export function CartClient({
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Free Shipping Progress */}
         {freeShippingThreshold && !hasReachedFreeShipping && amountToFreeShipping !== null && selectedSubtotal > 0 && (
-          <div className="mb-6 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 p-4 sm:mb-8">
+          <div className="mb-6 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 p-4 sm:mb-8 animate-fade-in-up" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100">
                 <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -275,7 +446,7 @@ export function CartClient({
         )}
 
         {hasReachedFreeShipping && selectedSubtotal > 0 && (
-          <div className="mb-6 rounded-xl bg-emerald-50 p-4 sm:mb-8">
+          <div className="mb-6 rounded-xl bg-emerald-50 p-4 sm:mb-8 animate-fade-in-up" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500">
                 <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -291,7 +462,7 @@ export function CartClient({
 
         <div className="lg:grid lg:grid-cols-12 lg:gap-x-8 xl:gap-x-12">
           {/* Cart Items */}
-          <div className="lg:col-span-7 xl:col-span-8">
+          <div className="lg:col-span-7 xl:col-span-8 animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
             <div className="rounded-xl bg-white p-4 shadow-sm sm:p-6">
               {/* Header with Select All */}
               <div className="flex flex-wrap items-center justify-between gap-4">
@@ -415,15 +586,31 @@ export function CartClient({
                       <div className="flex flex-1 flex-col">
                         <div className="flex justify-between gap-2">
                           <div className="flex-1">
-                            <LinkWithChannel
-                              href={getHrefForVariant({
-                                productSlug: item.variant.product.slug,
-                                variantId: item.variant.id,
-                              })}
-                              className="font-medium text-neutral-900 hover:text-neutral-700"
-                            >
-                              {item.variant.product.name}
-                            </LinkWithChannel>
+                            <div className="flex items-center gap-2">
+                              {/* Color cube/swatch */}
+                              {(() => {
+                                const color = getColorFromVariant(item.variant);
+                                if (color) {
+                                  return (
+                                    <div
+                                      className="h-4 w-4 flex-shrink-0 rounded border border-neutral-300"
+                                      style={{ backgroundColor: getColorHex(color.name) }}
+                                      title={color.name}
+                                    />
+                                  );
+                                }
+                                return null;
+                              })()}
+                              <LinkWithChannel
+                                href={getHrefForVariant({
+                                  productSlug: item.variant.product.slug,
+                                  variantId: item.variant.id,
+                                })}
+                                className="font-medium text-neutral-900 hover:text-neutral-700"
+                              >
+                                {item.variant.product.name}
+                              </LinkWithChannel>
+                            </div>
                             {item.variant.product.category?.name && (
                               <p className="mt-0.5 text-sm text-neutral-500">
                                 {item.variant.product.category.name}
@@ -434,24 +621,82 @@ export function CartClient({
                                 {item.variant.name}
                               </p>
                             )}
+                            {/* Display sale badge if on sale */}
+                            {isOnSale(item.variant) && (
+                              <span className="mt-1 inline-block rounded bg-red-500 px-2 py-0.5 text-xs font-semibold text-white">
+                                Sale
+                              </span>
+                            )}
                           </div>
                           <div className="text-right">
                             <p className="font-semibold text-neutral-900">
                               {formatMoney(item.totalPrice.gross.amount, item.totalPrice.gross.currency)}
                             </p>
+                            {isOnSale(item.variant) && item.variant.pricing?.priceUndiscounted && (
+                              <p className="mt-0.5 text-sm text-neutral-400 line-through">
+                                {formatMoney(
+                                  item.variant.pricing.priceUndiscounted.gross.amount * item.quantity,
+                                  item.variant.pricing.priceUndiscounted.gross.currency
+                                )}
+                              </p>
+                            )}
                             <p className="mt-0.5 text-xs text-neutral-500">
                               {formatMoney(item.unitPrice.gross.amount, item.unitPrice.gross.currency)} each
+                            </p>
+                            <p className={`mt-0.5 text-xs ${item.variant.quantityAvailable > 0 ? 'text-neutral-500' : 'text-red-600 font-medium'}`}>
+                              {item.variant.quantityAvailable > 0 
+                                ? `${item.variant.quantityAvailable} available`
+                                : 'Out of stock'}
                             </p>
                           </div>
                         </div>
 
                         {/* Quantity & Actions */}
                         <div className="mt-auto flex items-center justify-between pt-3">
-                          {/* Quantity Display */}
-                          <div className="flex items-center rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-2">
-                            <span className="text-sm font-medium text-neutral-700">
-                              Qty: {item.quantity}
-                            </span>
+                          {/* Quantity Controls */}
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                              disabled={item.quantity <= 1 || updatingQuantities.has(item.id) || isDeleting}
+                              className="flex h-8 w-8 items-center justify-center rounded border border-neutral-300 bg-white text-neutral-600 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+                              title={item.quantity <= 1 ? "Use Delete to remove item" : undefined}
+                            >
+                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                              </svg>
+                            </button>
+                            <div className="flex min-w-[3rem] items-center justify-center rounded border border-neutral-200 bg-neutral-50 px-3 py-1">
+                              {updatingQuantities.has(item.id) ? (
+                                <svg className="h-4 w-4 animate-spin text-neutral-500" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                </svg>
+                              ) : (
+                                <span className="text-sm font-medium text-neutral-700">
+                                  {item.quantity}
+                                </span>
+                              )}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                              disabled={
+                                item.variant.quantityAvailable === 0 ||
+                                updatingQuantities.has(item.id) ||
+                                isDeleting
+                              }
+                              className="flex h-8 w-8 items-center justify-center rounded border border-neutral-300 bg-white text-neutral-600 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+                              title={
+                                item.variant.quantityAvailable === 0
+                                  ? "No additional stock available"
+                                  : undefined
+                              }
+                            >
+                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                              </svg>
+                            </button>
                           </div>
 
                           {/* Actions */}
@@ -525,7 +770,7 @@ export function CartClient({
           </div>
 
           {/* Order Summary */}
-          <div className="mt-8 lg:col-span-5 lg:mt-0 xl:col-span-4">
+          <div className="mt-8 lg:col-span-5 lg:mt-0 xl:col-span-4 animate-fade-in-up" style={{ animationDelay: "150ms", animationFillMode: "both" }}>
             <div className="sticky top-24 rounded-xl bg-white p-4 shadow-sm sm:p-6">
               <h2 className="text-lg font-semibold text-neutral-900">
                 Order Summary

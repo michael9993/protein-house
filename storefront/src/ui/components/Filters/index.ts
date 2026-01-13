@@ -1,2 +1,3 @@
-export { ProductFilters, MobileFilterDrawer, type FilterState } from "./ProductFilters";
+export { ProductFilters, MobileFilterDrawer } from "./ProductFilters";
+export type { FilterState } from "@/lib/filters";
 

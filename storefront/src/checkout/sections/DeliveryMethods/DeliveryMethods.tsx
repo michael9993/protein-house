@@ -15,7 +15,8 @@ import { useUser } from "@/checkout/hooks/useUser";
 export const DeliveryMethods: React.FC<CommonSectionProps> = ({ collapsed }) => {
 	const { checkout } = useCheckout();
 	const { authenticated } = useUser();
-	const { shippingMethods, shippingAddress } = checkout;
+	const shippingMethods = checkout?.shippingMethods;
+	const shippingAddress = checkout?.shippingAddress;
 	const form = useDeliveryMethodsForm();
 	const { updateState } = useCheckoutUpdateState();
 
@@ -27,7 +28,7 @@ export const DeliveryMethods: React.FC<CommonSectionProps> = ({ collapsed }) => 
 		return `${min}-${max} business days`;
 	};
 
-	if (!checkout?.isShippingRequired || collapsed) {
+	if (!checkout || !checkout.isShippingRequired || collapsed) {
 		return null;
 	}
 
@@ -43,7 +44,7 @@ export const DeliveryMethods: React.FC<CommonSectionProps> = ({ collapsed }) => 
 					<DeliveryMethodsSkeleton />
 				) : (
 					<SelectBoxGroup label="delivery methods">
-						{shippingMethods?.map(
+						{(shippingMethods || [])?.map(
 							({ id, name, price, minimumDeliveryDays: min, maximumDeliveryDays: max }) => (
 								<SelectBox key={id} name="selectedMethodId" value={id}>
 									<div className="min-h-12 pointer-events-none flex grow flex-col justify-center">

@@ -14,8 +14,31 @@ query CategoriesForHomepage($channel: String!, $first: Int = 8) {
           url
           alt
         }
-        products(channel: $channel, first: 1) {
+        products(channel: $channel, first: 8) {
           totalCount
+          edges {
+            node {
+              id
+              name
+              slug
+              thumbnail {
+                url
+                alt
+              }
+              media {
+                url
+                alt
+              }
+            }
+          }
+        }
+        children(first: 50) {
+          edges {
+            node {
+              id
+              slug
+            }
+          }
         }
         metadata {
           key

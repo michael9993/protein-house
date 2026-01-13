@@ -17,7 +17,7 @@ import {
 
 export const useUserShippingAddressForm = () => {
 	const { checkout } = useCheckout();
-	const { shippingAddress } = checkout;
+	const shippingAddress = checkout?.shippingAddress;
 	const { user } = useUser();
 	const [, checkoutShippingAddressUpdate] = useCheckoutShippingAddressUpdateMutation();
 

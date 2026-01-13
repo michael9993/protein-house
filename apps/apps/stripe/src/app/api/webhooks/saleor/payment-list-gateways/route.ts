@@ -51,6 +51,13 @@ const handler = paymentListGatewaysWebhookDefinition.createHandler(
       setObservabilitySaleorApiUrl(saleorApiUrlResult.value, ctx.payload.version);
 
       const channelId = ctx.payload.checkout?.channel?.id;
+      const channelSlug = ctx.payload.checkout?.channel?.slug;
+
+      logger.debug("Payment list gateways webhook received", {
+        hasCheckout: !!ctx.payload.checkout,
+        channelId,
+        channelSlug,
+      });
 
       if (!channelId) {
         logger.info("No channel ID in payload (query without checkout context), returning gateway for any configured channel");
@@ -59,9 +66,10 @@ const handler = paymentListGatewaysWebhookDefinition.createHandler(
         const result = await useCase.executeForAnyChannel({
           appId: ctx.authData.appId,
           saleorApiUrl: saleorApiUrlResult.value,
+          token: ctx.authData.token, // Pass token for GraphQL client
         });
 
-        return result.match(
+      return result.match(
           (result) => {
             logger.info("Successfully processed webhook request (any channel)", {
               httpsStatusCode: result.statusCode,
@@ -97,11 +105,109 @@ const handler = paymentListGatewaysWebhookDefinition.createHandler(
         );
       }
 
-      const result = await useCase.execute({
+      // Try with channel ID first (GraphQL global ID)
+      let result = await useCase.execute({
         channelId,
         appId: ctx.authData.appId,
         saleorApiUrl: saleorApiUrlResult.value,
+        token: ctx.authData.token, // Pass token for GraphQL client (for channel fetching fallback)
       });
+
+      // If no config found with ID and we have a slug, try with slug as fallback
+      // This handles cases where mappings might be stored with slugs instead of IDs
+      if (result.isOk() && result.value.gateways.length === 0 && channelSlug) {
+        logger.debug("No config found with channel ID, trying with channel slug", {
+          channelId,
+          channelSlug,
+        });
+        
+        result = await useCase.execute({
+          channelId: channelSlug,
+          appId: ctx.authData.appId,
+          saleorApiUrl: saleorApiUrlResult.value,
+          token: ctx.authData.token, // Pass token for GraphQL client (for channel fetching fallback)
+        });
+      }
+      
+      // If still no config found, try fetching all channels from API and checking each one
+      // This handles cases where channel ID/slug might not match what's stored in config
+      if (result.isOk() && result.value.gateways.length === 0) {
+        logger.debug("No config found with channel ID or slug, trying to fetch channels from API", {
+          channelId,
+          channelSlug,
+        });
+        
+        try {
+          const { ChannelsFetcher } = await import("@/modules/saleor/channel-fetcher");
+          const { createInstrumentedGraphqlClient } = await import("@/lib/graphql-client");
+          
+          const client = createInstrumentedGraphqlClient({
+            saleorApiUrl: saleorApiUrlResult.value,
+            token: ctx.authData.token,
+          });
+          
+          const channelsFetcher = new ChannelsFetcher(client);
+          const channelsResult = await channelsFetcher.fetchChannels();
+          
+          if (channelsResult.isOk()) {
+            const channels = channelsResult.value;
+            logger.debug("Fetched channels from API", { 
+              channelCount: channels.length,
+              channelIds: channels.map(c => c.id),
+              channelSlugs: channels.map(c => c.slug),
+            });
+            
+            // Try to find the channel that matches the checkout channel
+            const matchingChannel = channels.find(
+              (ch) => ch.id === channelId || ch.slug === channelSlug || ch.slug === channelId
+            );
+            
+            if (matchingChannel) {
+              logger.debug("Found matching channel from API", {
+                channelId: matchingChannel.id,
+                channelSlug: matchingChannel.slug,
+              });
+              
+              // Try with the matching channel's ID
+              const channelConfigById = await useCase.execute({
+                channelId: matchingChannel.id,
+                appId: ctx.authData.appId,
+                saleorApiUrl: saleorApiUrlResult.value,
+                token: ctx.authData.token,
+              });
+              
+              if (channelConfigById.isOk() && channelConfigById.value.gateways.length > 0) {
+                logger.info("Found Stripe config using channel ID from API", {
+                  channelId: matchingChannel.id,
+                  channelSlug: matchingChannel.slug,
+                });
+                result = channelConfigById;
+              } else {
+                // Try with the matching channel's slug
+                const channelConfigBySlug = await useCase.execute({
+                  channelId: matchingChannel.slug,
+                  appId: ctx.authData.appId,
+                  saleorApiUrl: saleorApiUrlResult.value,
+                  token: ctx.authData.token,
+                });
+                
+                if (channelConfigBySlug.isOk() && channelConfigBySlug.value.gateways.length > 0) {
+                  logger.info("Found Stripe config using channel slug from API", {
+                    channelId: matchingChannel.id,
+                    channelSlug: matchingChannel.slug,
+                  });
+                  result = channelConfigBySlug;
+                }
+              }
+            }
+          }
+        } catch (error) {
+          logger.warn("Failed to fetch channels from API as fallback", {
+            error: error instanceof Error ? error.message : String(error),
+          });
+          // Continue with original result
+        }
+      }
 
       return result.match(
         (result) => {
@@ -178,3 +284,4 @@ export const POST = compose(
   appContextContainer.wrapRequest,
   withSpanAttributesAppRouter,
 )(handler);
+

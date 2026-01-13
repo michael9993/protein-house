@@ -22,9 +22,8 @@ interface GuestBillingAddressFormProps {
 }
 
 export const useGuestBillingAddressForm = ({ skipValidation }: GuestBillingAddressFormProps) => {
-	const {
-		checkout: { billingAddress },
-	} = useCheckout();
+	const { checkout } = useCheckout();
+	const billingAddress = checkout?.billingAddress;
 	const validationSchema = useAddressFormSchema();
 	const [, checkoutBillingAddressUpdate] = useCheckoutBillingAddressUpdateMutation();
 	const { setCheckoutFormValidationState } = useSetCheckoutFormValidationState("billingAddress");

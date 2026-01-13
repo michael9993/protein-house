@@ -19,10 +19,12 @@ export const supportedPaymentGateways = [adyenGatewayId, stripeV2GatewayId] as c
  */
 const isStripeGateway = (id: string): boolean => {
 	// Support both old format (saleor.app.payment.stripe) and new format (app:stripe:stripe or app.stripe.stripe)
+	// Also support raw "stripe" ID that Saleor might return before transformation
 	return (
 		id === stripeV2GatewayId ||
 		id === "app:stripe:stripe" ||
 		id === "app.stripe.stripe" ||
+		id === "stripe" || // Raw ID from webhook (before Saleor transformation)
 		id.startsWith("app:stripe:") ||
 		id.startsWith("app.stripe.")
 	);

@@ -2,8 +2,7 @@ import { Suspense } from "react";
 import { UserMenuContainer } from "./components/UserMenu/UserMenuContainer";
 import { CartNavItem } from "./components/CartNavItem";
 import { NavLinks } from "./components/NavLinks";
-import { MobileMenu } from "./components/MobileMenu";
-import { SearchBar } from "./components/SearchBar";
+import { ChannelPickerWrapper } from "./components/ChannelPickerWrapper";
 
 export const Nav = ({ channel }: { channel: string }) => {
 	return (
@@ -15,29 +14,25 @@ export const Nav = ({ channel }: { channel: string }) => {
 			
 			{/* Right Side Actions */}
 			<div className="ml-auto flex items-center gap-1 sm:gap-2">
-				{/* Search - Desktop only */}
-				<div className="hidden lg:flex">
-					<SearchBar channel={channel} />
+				{/* Channel/Currency Picker - Desktop only */}
+				<div className="hidden md:block">
+					<ChannelPickerWrapper />
 				</div>
 				
-				{/* User Account */}
-				<Suspense fallback={<div className="h-10 w-10 animate-pulse rounded-full bg-neutral-100" />}>
-					<UserMenuContainer />
-				</Suspense>
+				{/* User Account - Desktop only (mobile is in bottom nav) */}
+				<div className="hidden md:block">
+					<Suspense fallback={<div className="h-10 w-10 animate-pulse rounded-full bg-neutral-100" />}>
+						<UserMenuContainer />
+					</Suspense>
+				</div>
 				
-				{/* Cart */}
-				<Suspense fallback={<div className="h-10 w-10 animate-pulse rounded-full bg-neutral-100" />}>
-					<CartNavItem channel={channel} />
-				</Suspense>
+				{/* Cart - Desktop only (mobile is in bottom nav) */}
+				<div className="hidden md:block">
+					<Suspense fallback={<div className="h-10 w-10 animate-pulse rounded-full bg-neutral-100" />}>
+						<CartNavItem channel={channel} />
+					</Suspense>
+				</div>
 			</div>
-			
-			{/* Mobile Menu */}
-			<Suspense>
-				<MobileMenu>
-					<SearchBar channel={channel} />
-					<NavLinks channel={channel} />
-				</MobileMenu>
-			</Suspense>
 		</nav>
 	);
 };

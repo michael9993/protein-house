@@ -23,7 +23,7 @@ export const useCartCleanup = () => {
 				return { success: false, reason: "no_pending_cleanup" };
 			}
 
-			const cleanup: PendingCartCleanup = JSON.parse(storedCleanup);
+			const cleanup: PendingCartCleanup = JSON.parse(storedCleanup) as PendingCartCleanup;
 
 			// Check if cleanup data is too old (expired)
 			if (Date.now() - cleanup.timestamp > CLEANUP_MAX_AGE) {

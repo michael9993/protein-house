@@ -17,9 +17,9 @@ interface CollectionProductsGridProps {
 
 export function CollectionProductsGrid({
   initialProducts,
-  collectionSlug,
-  channel,
-  totalCount,
+  collectionSlug: _collectionSlug,
+  channel: _channel,
+  totalCount: _totalCount,
   minPriceFilter,
   maxPriceFilter,
   inStockFilter,

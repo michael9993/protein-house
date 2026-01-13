@@ -64,7 +64,7 @@ interface HomePageProps {
  */
 export function HomePage({
   categories,
-  featuredProducts,
+  featuredProducts: _featuredProducts, // Reserved for future use
   newArrivals,
   bestSellers,
   saleProducts,

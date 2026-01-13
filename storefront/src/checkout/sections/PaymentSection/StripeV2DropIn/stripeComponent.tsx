@@ -1,6 +1,6 @@
 "use client";
 
-import { loadStripe, type Stripe, type StripeElementsOptions } from "@stripe/stripe-js";
+import { loadStripe, type StripeElementsOptions } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { useMemo, useState, useRef } from "react";
 import { CheckoutForm } from "./stripeForm";
@@ -76,6 +76,9 @@ export const StripeComponent = ({ config }: { config: StripeConfig }) => {
 
 	// Memoize stripeOptions to prevent Elements from re-initializing
 	// Use ref to track previous values and only update when they actually change
+	if (!checkout?.totalPrice) {
+		return <div>Loading checkout information...</div>;
+	}
 	const amount = Math.round(checkout.totalPrice.gross.amount * 100);
 	const currency = checkout.totalPrice.gross.currency?.toLowerCase() || "usd";
 	const previousAmountRef = useRef(amount);

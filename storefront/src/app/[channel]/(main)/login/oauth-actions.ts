@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { executeGraphQL } from "@/lib/graphql";
 import { ExternalAuthenticationUrlDocument, ExternalObtainAccessTokensDocument } from "@/gql/graphql";
 
@@ -9,7 +8,7 @@ import { ExternalAuthenticationUrlDocument, ExternalObtainAccessTokensDocument }
  * Uses Saleor's OpenID Connect plugin
  */
 export async function getOAuthUrl(
-	provider: "google",
+	_provider: "google",
 	redirectUri: string,
 	finalRedirectUrl?: string
 ): Promise<{ url?: string; error?: string }> {
@@ -71,7 +70,7 @@ export async function getOAuthUrl(
 		try {
 			if (typeof authDataRaw === "string") {
 				// Parse as JSON string
-				authData = JSON.parse(authDataRaw);
+				authData = JSON.parse(authDataRaw) as { authorizationUrl?: string };
 				console.log("[OAuth] Parsed JSON string to object:", authData);
 			} else {
 				// Should not happen, but handle gracefully

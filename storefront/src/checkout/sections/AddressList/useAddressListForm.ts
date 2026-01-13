@@ -28,7 +28,7 @@ export const useAddressListForm = ({
 	defaultAddress,
 	checkAddressAvailability = false,
 }: UseAddressListProps) => {
-	const { user, reload: reloadUser } = useUser();
+	const { user, reload: _reloadUser } = useUser();
 
 	const { isAvailable } = useAddressAvailability(!checkAddressAvailability);
 
@@ -104,7 +104,7 @@ export const useAddressListForm = ({
 		await addressListUpdate(address, updatedAddressList);
 		
 		// If this was the first address (going from 0 to 1), ensure proper state
-		if (addressList.length === 0 && updatedAddressList.length === 1) {
+		if (addressList.length === 0 && updatedAddressList.length === 1 && address) {
 			// The addressListUpdate already handles selection and submission,
 			// but we ensure the form state is properly updated
 			// This is especially important for the first address scenario

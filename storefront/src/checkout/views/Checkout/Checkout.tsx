@@ -29,16 +29,16 @@ export const Checkout = () => {
 		<CheckoutSkeleton />
 	) : (
 		<ErrorBoundary FallbackComponent={PageNotFound}>
-			<div className="page">
+			<div className="page animate-fade-in">
 				{isEmptyCart ? (
 					<EmptyCartPage />
 				) : (
-					<div className="grid min-h-screen grid-cols-1 gap-x-16 lg:grid-cols-2">
+					<div className="grid min-h-screen grid-cols-1 gap-x-16 lg:grid-cols-2 animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
 						<Suspense fallback={<CheckoutFormSkeleton />}>
 							<CheckoutForm />
 						</Suspense>
 						<Suspense fallback={<SummarySkeleton />}>
-							<Summary {...checkout} />
+							{checkout && <Summary {...checkout} lines={checkout.lines || []} />}
 						</Suspense>
 					</div>
 				)}

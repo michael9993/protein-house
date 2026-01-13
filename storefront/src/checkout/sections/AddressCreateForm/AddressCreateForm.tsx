@@ -24,7 +24,7 @@ export const AddressCreateForm: React.FC<AddressCreateFormProps> = ({
 }) => {
 	const [, userAddressCreate] = useUserAddressCreateMutation();
 	const { setCountryCode, validationSchema } = useAddressFormSchema();
-	const { user, authenticated, reload: reloadUser } = useUser();
+	const { user, authenticated, reload } = useUser();
 	const [isSuccess, setIsSuccess] = useState(false);
 
 	const onSubmit = useFormSubmit<AddressFormData, typeof userAddressCreate>({
@@ -47,7 +47,10 @@ export const AddressCreateForm: React.FC<AddressCreateFormProps> = ({
 						networkError: undefined,
 						response: undefined,
 					},
-				};
+					operation: undefined,
+					stale: false,
+					hasNext: false,
+				} as any;
 			}
 			
 			// Log the mutation function details
@@ -142,7 +145,7 @@ export const AddressCreateForm: React.FC<AddressCreateFormProps> = ({
 				// Reload user data to get updated addresses list
 				// This ensures the address list is fresh and includes the new address
 				// The mutation returns updated user, but we need to refresh the context
-				await reloadUser();
+				await reload();
 				
 				// Call onSuccess which will:
 				// 1. Add the address to the address list (via useAddressListForm)

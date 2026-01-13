@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useStoreConfig } from "@/providers/StoreConfigProvider";
-import { useState } from "react";
 
 interface Testimonial {
   id: string;
@@ -92,7 +91,6 @@ export function Testimonials({
   subtitle = "Join thousands of satisfied customers who trust us for their sports gear",
 }: TestimonialsProps) {
   const { homepage, branding } = useStoreConfig();
-  const [activeIndex, setActiveIndex] = useState(0);
 
   // Don't render if disabled
   if (!homepage.sections.testimonials.enabled) {
@@ -132,7 +130,7 @@ export function Testimonials({
 
         {/* Testimonials Grid */}
         <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {displayTestimonials.map((testimonial, index) => (
+          {displayTestimonials.map((testimonial) => (
             <div
               key={testimonial.id}
               className="group relative overflow-hidden p-6 transition-all hover:-translate-y-1 hover:shadow-xl"

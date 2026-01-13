@@ -3,7 +3,6 @@ import { Summary, SummarySkeleton } from "@/checkout/sections/Summary";
 import { OrderInfo } from "@/checkout/sections/OrderInfo";
 import { useOrder } from "@/checkout/hooks/useOrder";
 import { useAutoCartCleanup } from "@/checkout/hooks/useCartCleanup";
-import { getFormattedMoney } from "@/checkout/lib/utils/money";
 
 export const OrderConfirmation = () => {
 	const { order } = useOrder();
@@ -17,14 +16,8 @@ export const OrderConfirmation = () => {
 		window.print();
 	}, []);
 
-	// Format date for display
-	const orderDate = order.created ? new Date(order.created).toLocaleDateString('en-US', {
-		year: 'numeric',
-		month: 'long',
-		day: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit'
-	}) : '';
+	// Format date for display (order date not available in OrderFragment)
+	const orderDate = '';
 
 	return (
 		<>

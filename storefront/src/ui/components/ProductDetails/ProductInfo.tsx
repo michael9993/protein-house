@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { formatMoney, formatMoneyRange } from "@/lib/utils";
+import { useState } from "react";
 import { storeConfig } from "@/config";
 import { useWishlist } from "@/lib/wishlist";
 
 interface ProductInfoProps {
+  productId: string;
+  productSlug: string;
+  productImage?: string | null;
+  productImageAlt?: string | null;
   name: string;
   description?: string | null;
   price: string;
@@ -67,7 +70,7 @@ export function ProductInfo({
       </h1>
 
       {/* Rating */}
-      {features.reviews && (
+      {features.productReviews && (
         <div className="mt-3 flex items-center gap-2">
           <div className="flex">
             {[1, 2, 3, 4, 5].map((star) => (

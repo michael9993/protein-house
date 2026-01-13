@@ -1,6 +1,3 @@
-import { redirect } from "next/navigation";
-import { executeGraphQL } from "@/lib/graphql";
-import { ConfirmAccountDocument } from "@/gql/graphql";
 import { ConfirmEmailClient } from "./ConfirmEmailClient";
 
 export const metadata = {

@@ -75,7 +75,8 @@ export async function GET(
 			
 			// Use the Saleor Auth SDK's cookie-setting mechanism
 			// This ensures cookies are set exactly like normal login does
-			const authClient = await getServerAuthClient();
+			// Note: getServerAuthClient() is called but result not used - kept for future SDK integration
+			void getServerAuthClient();
 			
 			// The SDK's signIn method sets cookies automatically, but for OAuth we have tokens directly
 			// We need to manually set cookies using the SDK's cookie format

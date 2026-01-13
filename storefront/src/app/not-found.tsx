@@ -2,7 +2,7 @@ import Link from "next/link";
 import { storeConfig } from "@/config";
 
 export default function NotFound() {
-  const { branding, store } = storeConfig;
+  const { branding } = storeConfig;
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4">

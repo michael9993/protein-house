@@ -1,5 +1,5 @@
 import { UserMenu } from "./UserMenu";
-import { CurrentUserDocument } from "@/gql/graphql";
+import { CurrentUserDocument, CurrentUserOrderListDocument, CurrentUserAddressesDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 
@@ -9,7 +9,21 @@ export async function UserMenuContainer() {
 	});
 
 	if (user) {
-		return <UserMenu user={user} />;
+		// Fetch counts for orders and addresses
+		const [ordersResult, addressesResult] = await Promise.all([
+			executeGraphQL(CurrentUserOrderListDocument, {
+				variables: { first: 1 }, // Just need the count
+				cache: "no-cache",
+			}).catch(() => ({ me: { orders: { totalCount: 0 } } })),
+			executeGraphQL(CurrentUserAddressesDocument, {
+				cache: "no-cache",
+			}).catch(() => ({ me: { addresses: [] } })),
+		]);
+
+		const ordersCount = ordersResult.me?.orders?.totalCount || 0;
+		const addressesCount = addressesResult.me?.addresses?.length || 0;
+
+		return <UserMenu user={user} ordersCount={ordersCount} addressesCount={addressesCount} />;
 	}
 
 	return (

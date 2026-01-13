@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 import { Breadcrumbs } from "@/ui/components/Breadcrumbs";
 import { storeConfig } from "@/config";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
@@ -17,6 +18,18 @@ interface ProductVariant {
   id: string;
   name: string;
   quantityAvailable: number;
+  attributes?: Array<{
+    attribute: {
+      id: string;
+      name: string;
+      slug: string;
+    };
+    values: Array<{
+      id: string;
+      name: string;
+      slug: string;
+    }>;
+  }> | null;
   pricing?: {
     price?: {
       gross: {
@@ -43,7 +56,7 @@ interface ProductDetailClientProps {
   };
   selectedVariantId?: string;
   channel: string;
-  addItemAction: (formData: FormData) => Promise<void>;
+  addItemAction: (formData: FormData) => Promise<{ success: boolean; error?: string }>;
 }
 
 export function ProductDetailClient({
@@ -62,24 +75,378 @@ export function ProductDetailClient({
   const isWishlisted = isInWishlist(product.id);
   const [activeTab, setActiveTab] = useState<"description" | "shipping" | "reviews">("description");
   const [isZoomed, setIsZoomed] = useState(false);
-  const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
+  const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 }); // Start at center for better zoom
   const [addedToCart, setAddedToCart] = useState(false);
   
-  // Check if product has variants that need selection (like size, color)
-  const hasMultipleVariants = product.variants.length > 1;
-  const singleVariant = product.variants.length === 1 ? product.variants[0] : null;
+  // Helper functions to extract attributes from variants
+  const getAttributeFromVariant = (
+    variant: ProductVariant,
+    attributeName: string
+  ): { id: string; name: string; slug: string } | null => {
+    if (!variant?.attributes) return null;
+    
+    for (const attr of variant.attributes) {
+      const attrName = attr.attribute?.name?.trim().toLowerCase();
+      const attrSlug = attr.attribute?.slug?.trim().toLowerCase();
+      const searchName = attributeName.toLowerCase();
+      
+      if (attrName === searchName || attrSlug === searchName) {
+        const value = attr.values?.[0];
+        if (value) {
+          return {
+            id: value.id,
+            name: value.name,
+            slug: value.slug || value.name.toLowerCase().replace(/\s+/g, "-"),
+          };
+        }
+      }
+    }
+    
+    return null;
+  };
   
-  // Auto-select variant if only one exists
-  const effectiveVariantId = selectedVariantId || singleVariant?.id;
-  const selectedVariant = product.variants.find(v => v.id === effectiveVariantId);
+  const getColorFromVariant = (variant: ProductVariant): { id: string; name: string; slug: string } | null => {
+    return getAttributeFromVariant(variant, "color") || getAttributeFromVariant(variant, "colour");
+  };
+  
+  const getSizeFromVariant = (variant: ProductVariant): { id: string; name: string; slug: string } | null => {
+    // Try multiple size attribute names
+    return getAttributeFromVariant(variant, "size") ||
+           getAttributeFromVariant(variant, "shoe size") ||
+           getAttributeFromVariant(variant, "clothing size");
+  };
+  
+  // Group variants by color and extract sizes per color
+  type ColorInfo = {
+    id: string;
+    name: string;
+    slug: string;
+    hex?: string; // For color swatches, we'll try to map color names to hex
+  };
+  
+  type SizeInfo = {
+    id: string;
+    name: string;
+    slug: string;
+    variantId: string;
+    quantityAvailable: number;
+  };
+  
+  const variantsByColor = new Map<string, {
+    color: ColorInfo;
+    sizes: Map<string, SizeInfo>;
+    variants: ProductVariant[];
+  }>();
+  
+  // Process all variants to group by color
+  product.variants.forEach((variant) => {
+    const color = getColorFromVariant(variant);
+    const size = getSizeFromVariant(variant);
+    
+    if (color) {
+      if (!variantsByColor.has(color.id)) {
+        variantsByColor.set(color.id, {
+          color: {
+            id: color.id,
+            name: color.name,
+            slug: color.slug,
+            hex: getColorHex(color.name),
+          },
+          sizes: new Map(),
+          variants: [],
+        });
+      }
+      
+      const colorGroup = variantsByColor.get(color.id)!;
+      colorGroup.variants.push(variant);
+      
+      if (size) {
+        if (!colorGroup.sizes.has(size.id)) {
+          colorGroup.sizes.set(size.id, {
+            id: size.id,
+            name: size.name,
+            slug: size.slug,
+            variantId: variant.id,
+            quantityAvailable: variant.quantityAvailable,
+          });
+        } else {
+          // Update if this variant has more stock
+          const existingSize = colorGroup.sizes.get(size.id)!;
+          if (variant.quantityAvailable > existingSize.quantityAvailable) {
+            existingSize.variantId = variant.id;
+            existingSize.quantityAvailable = variant.quantityAvailable;
+          }
+        }
+      }
+    }
+  });
+  
+  // Debug: Log color groups and their sizes
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[ProductDetail] Variants grouped by color:', Array.from(variantsByColor.entries()).map(([_colorId, group]) => ({
+      color: group.color.name,
+      sizesCount: group.sizes.size,
+      sizes: Array.from(group.sizes.values()).map(s => s.name),
+    })));
+  }
+  
+  const availableColors = Array.from(variantsByColor.values());
+  const hasColors = availableColors.length > 0;
+  const hasSizes = product.variants.some(v => getSizeFromVariant(v) !== null);
+  const hasMultipleVariants = product.variants.length > 1;
+  
+  // Check if we need to show selection (has colors or sizes)
+  const needsSelection = hasColors || (hasSizes && !hasColors);
+  
+  // State for selected color and size
+  const [selectedColorId, setSelectedColorId] = useState<string | null>(() => {
+    // Initialize from selected variant if available
+    if (selectedVariantId) {
+      const variant = product.variants.find(v => v.id === selectedVariantId);
+      const color = variant ? getColorFromVariant(variant) : null;
+      return color?.id || null;
+    }
+    // Default to first color if available
+    return availableColors.length > 0 ? availableColors[0].color.id : null;
+  });
+  
+  const [selectedSizeId, setSelectedSizeId] = useState<string | null>(() => {
+    // Initialize from selected variant if available
+    if (selectedVariantId) {
+      const variant = product.variants.find(v => v.id === selectedVariantId);
+      const size = variant ? getSizeFromVariant(variant) : null;
+      return size?.id || null;
+    }
+    return null;
+  });
+  
+  // Get available sizes for selected color (only in-stock sizes)
+  const selectedColorGroup = selectedColorId ? variantsByColor.get(selectedColorId) : null;
+  const availableSizesForColor = selectedColorGroup 
+    ? Array.from(selectedColorGroup.sizes.values())
+        .filter(sizeInfo => {
+          // Only include sizes that have in-stock variants
+          const variant = product.variants.find(v => v.id === sizeInfo.variantId);
+          return variant && variant.quantityAvailable > 0;
+        })
+        .sort((a, b) => {
+          // Sort sizes logically: XS, S, M, L, XL, XXL, then numbers
+          const sizeOrder = ["xs", "s", "m", "l", "xl", "xxl", "xxxl"];
+          const aLower = a.slug.toLowerCase();
+          const bLower = b.slug.toLowerCase();
+          const aIndex = sizeOrder.indexOf(aLower);
+          const bIndex = sizeOrder.indexOf(bLower);
+          
+          if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+          if (aIndex !== -1) return -1;
+          if (bIndex !== -1) return 1;
+          
+          // For numeric sizes, sort numerically
+          const aNum = parseFloat(aLower);
+          const bNum = parseFloat(bLower);
+          if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+          
+          // Otherwise, alphabetical
+          return aLower.localeCompare(bLower);
+        })
+    : [];
+  
+  // Find variant based on selected color and size
+  const findVariantByColorAndSize = (colorId: string | null, sizeId: string | null): ProductVariant | null => {
+    if (!colorId) return null;
+    
+    const colorGroup = variantsByColor.get(colorId);
+    if (!colorGroup) return null;
+    
+    if (sizeId) {
+      const sizeInfo = colorGroup.sizes.get(sizeId);
+      if (sizeInfo) {
+        const variant = product.variants.find(v => v.id === sizeInfo.variantId);
+        // Only return variant if it's in stock
+        return variant && variant.quantityAvailable > 0 ? variant : null;
+      }
+    }
+    
+    // If no size selected, return first available (in-stock) variant for this color
+    return colorGroup.variants.find(v => v.quantityAvailable > 0) || null;
+  };
+  
+  // Update effective variant based on selected color and size
+  // Only use selectedVariantId if the variant is in stock
+  let effectiveVariant: ProductVariant | null = null;
+  if (selectedVariantId) {
+    const variant = product.variants.find(v => v.id === selectedVariantId);
+    // Only use if variant exists and is in stock
+    if (variant && variant.quantityAvailable > 0) {
+      effectiveVariant = variant;
+    }
+  }
+  
+  // If no valid variant from selectedVariantId, try to find one from color/size
+  if (!effectiveVariant) {
+    effectiveVariant = findVariantByColorAndSize(selectedColorId, selectedSizeId);
+  }
+  
+  const effectiveVariantId = effectiveVariant?.id;
+  
+  // Helper function to convert color name to hex (basic mapping)
+  function getColorHex(colorName: string): string {
+    const colorMap: Record<string, string> = {
+      "red": "#ef4444",
+      "blue": "#3b82f6",
+      "green": "#10b981",
+      "yellow": "#fbbf24",
+      "orange": "#f97316",
+      "purple": "#a855f7",
+      "pink": "#ec4899",
+      "black": "#000000",
+      "white": "#ffffff",
+      "gray": "#6b7280",
+      "grey": "#6b7280",
+      "brown": "#92400e",
+      "navy": "#1e3a8a",
+      "beige": "#f5f5dc",
+      "tan": "#d2b48c",
+      "olive": "#808000",
+      "maroon": "#800000",
+      "teal": "#14b8a6",
+      "cyan": "#06b6d4",
+      "lime": "#84cc16",
+      "indigo": "#6366f1",
+      "violet": "#8b5cf6",
+      "coral": "#ff7f50",
+      "salmon": "#fa8072",
+      "gold": "#ffd700",
+      "silver": "#c0c0c0",
+    };
+    
+    const normalized = colorName.toLowerCase().trim();
+    return colorMap[normalized] || "#6b7280"; // Default gray if not found
+  }
+  
+  // Handle color selection
+  const handleColorSelect = (colorId: string) => {
+    setSelectedColorId(colorId);
+    setSelectedSizeId(null); // Reset size when color changes
+    
+    // Auto-select first available (in-stock) size for the new color
+    const colorGroup = variantsByColor.get(colorId);
+    if (colorGroup && colorGroup.sizes.size > 0) {
+      // Find first in-stock size
+      const firstAvailableSize = Array.from(colorGroup.sizes.values())
+        .find(sizeInfo => {
+          const variant = product.variants.find(v => v.id === sizeInfo.variantId);
+          return variant && variant.quantityAvailable > 0;
+        });
+      
+      if (firstAvailableSize) {
+        setSelectedSizeId(firstAvailableSize.id);
+        
+        // Update URL with new variant
+        const variant = findVariantByColorAndSize(colorId, firstAvailableSize.id);
+        if (variant) {
+          const params = new URLSearchParams();
+          params.set("variant", variant.id);
+          router.push(`/${channel}/products/${product.slug}?${params.toString()}`, { scroll: false });
+        }
+      }
+    } else {
+      // No sizes, just select first in-stock variant for this color
+      const variant = findVariantByColorAndSize(colorId, null);
+      if (variant) {
+        const params = new URLSearchParams();
+        params.set("variant", variant.id);
+        router.push(`/${channel}/products/${product.slug}?${params.toString()}`, { scroll: false });
+      }
+    }
+  };
+  
+  // Handle size selection
+  const handleSizeSelect = (sizeId: string) => {
+    setSelectedSizeId(sizeId);
+    
+    // Find variant for selected color + size
+    const variant = findVariantByColorAndSize(selectedColorId, sizeId);
+    if (variant) {
+      const params = new URLSearchParams();
+      params.set("variant", variant.id);
+      router.push(`/${channel}/products/${product.slug}?${params.toString()}`, { scroll: false });
+    }
+  };
+  
+  // Sync selected color/size with URL variant on mount or when variant changes
+  // Only sync if variant is in stock
+  useEffect(() => {
+    if (selectedVariantId) {
+      const variant = product.variants.find(v => v.id === selectedVariantId);
+      if (variant && variant.quantityAvailable > 0) {
+        const color = getColorFromVariant(variant);
+        const size = getSizeFromVariant(variant);
+        
+        if (color) setSelectedColorId(color.id);
+        if (size) setSelectedSizeId(size.id);
+      } else if (variant && variant.quantityAvailable === 0) {
+        // Variant is out of stock, clear the selection and find an in-stock alternative
+        const color = getColorFromVariant(variant);
+        if (color) {
+          // Try to find an in-stock variant for the same color
+          const colorGroup = variantsByColor.get(color.id);
+          if (colorGroup) {
+            const inStockVariant = colorGroup.variants.find(v => v.quantityAvailable > 0);
+            if (inStockVariant) {
+              const inStockColor = getColorFromVariant(inStockVariant);
+              const inStockSize = getSizeFromVariant(inStockVariant);
+              if (inStockColor) setSelectedColorId(inStockColor.id);
+              if (inStockSize) setSelectedSizeId(inStockSize.id);
+              
+              // Update URL with in-stock variant
+              const params = new URLSearchParams();
+              params.set("variant", inStockVariant.id);
+              router.replace(`/${channel}/products/${product.slug}?${params.toString()}`, { scroll: false });
+            }
+          }
+        }
+      }
+    }
+  }, [selectedVariantId, product.variants, channel, product.slug, router]);
+  
+  const selectedVariant = effectiveVariant;
   
   // Calculate stock info
-  const totalStock = product.variants.reduce((sum, v) => sum + v.quantityAvailable, 0);
-  const selectedStock = selectedVariant?.quantityAvailable || 0;
-  const displayStock = selectedVariant ? selectedStock : totalStock;
-  const isInStock = selectedVariant ? selectedStock > 0 : totalStock > 0;
+  // IMPORTANT: Only show stock for the selected variant, not aggregated stock
+  // This prevents showing "2 left" when the selected variant actually has 0 stock
+  const selectedStock = effectiveVariant?.quantityAvailable || 0;
+  const displayStock = selectedStock; // Always use selected variant stock, never aggregate
+  const isInStock = selectedStock > 0; // Only in stock if selected variant has stock
   const isLowStock = displayStock > 0 && displayStock <= 5;
-  const maxQuantity = selectedVariant?.quantityAvailable || 10;
+  // maxQuantity should be the actual available quantity, not a default
+  const maxQuantity = selectedStock; // Use selected variant stock only
+
+  // Debug logging
+  useEffect(() => {
+    console.log("[ProductDetail] Stock Debug Info:", {
+      productName: product.name,
+      selectedVariantId,
+      selectedColorId,
+      selectedSizeId,
+      effectiveVariantId,
+      effectiveVariant: effectiveVariant ? {
+        id: effectiveVariant.id,
+        name: effectiveVariant.name,
+        quantityAvailable: effectiveVariant.quantityAvailable,
+      } : null,
+      selectedStock,
+      displayStock,
+      isInStock,
+      maxQuantity: maxQuantity,
+      quantity,
+      allVariants: product.variants.map(v => ({
+        id: v.id,
+        name: v.name,
+        quantityAvailable: v.quantityAvailable,
+      })),
+    });
+  }, [selectedVariantId, selectedColorId, selectedSizeId, effectiveVariantId, effectiveVariant, selectedStock, displayStock, isInStock, maxQuantity, quantity, product.name, product.variants]);
   
   // Calculate discount
   const hasDiscount = product.originalPrice !== null;
@@ -88,42 +455,132 @@ export function ProductDetailClient({
         parseFloat(product.originalPrice.replace(/[^0-9.]/g, '')))) * 100)
     : 0;
 
-  // Auto-select single variant on mount
+  // Auto-select single variant on mount (only if in stock)
   useEffect(() => {
-    if (singleVariant && !selectedVariantId) {
+    const singleVariant = product.variants.length === 1 ? product.variants[0] : null;
+    if (singleVariant && singleVariant.quantityAvailable > 0 && !selectedVariantId) {
       const params = new URLSearchParams(window.location.search);
       params.set("variant", singleVariant.id);
       router.replace(`/${channel}/products/${product.slug}?${params.toString()}`, { scroll: false });
     }
-  }, [singleVariant, selectedVariantId, channel, product.slug, router]);
+  }, [selectedVariantId, channel, product.slug, product.variants, router]);
+
+  // Update quantity when maxQuantity changes to ensure it doesn't exceed available stock
+  useEffect(() => {
+    if (maxQuantity > 0 && quantity > maxQuantity) {
+      setQuantity(maxQuantity);
+    } else if (maxQuantity === 0 && quantity > 0) {
+      setQuantity(1); // Reset to 1 if variant becomes out of stock
+    }
+  }, [maxQuantity, quantity]);
 
   const handleVariantChange = (variantId: string) => {
+    const variant = product.variants.find(v => v.id === variantId);
+    if (variant) {
+      const color = getColorFromVariant(variant);
+      const size = getSizeFromVariant(variant);
+      
+      if (color) setSelectedColorId(color.id);
+      if (size) setSelectedSizeId(size.id);
+    }
+    
     const params = new URLSearchParams();
     params.set("variant", variantId);
     router.push(`/${channel}/products/${product.slug}?${params.toString()}`, { scroll: false });
   };
 
   const handleAddToCart = async () => {
-    if (!effectiveVariantId || !isInStock) return;
+    console.log("[Add to Cart] Button clicked:", {
+      effectiveVariantId,
+      isInStock,
+      quantity,
+      maxQuantity,
+      effectiveVariant: effectiveVariant ? {
+        id: effectiveVariant.id,
+        name: effectiveVariant.name,
+        quantityAvailable: effectiveVariant.quantityAvailable,
+      } : null,
+    });
+
+    if (!effectiveVariantId) {
+      console.error("[Add to Cart] ❌ No effectiveVariantId");
+      toast.error("Please select a variant");
+      return;
+    }
+
+    if (!isInStock) {
+      console.error("[Add to Cart] ❌ Not in stock:", {
+        effectiveVariantId,
+        selectedStock,
+        effectiveVariant: effectiveVariant ? {
+          id: effectiveVariant.id,
+          name: effectiveVariant.name,
+          quantityAvailable: effectiveVariant.quantityAvailable,
+        } : null,
+      });
+      toast.error("This item is out of stock");
+      return;
+    }
+
+    if (quantity > maxQuantity) {
+      console.error("[Add to Cart] ❌ Quantity exceeds max:", {
+        quantity,
+        maxQuantity,
+      });
+      toast.error(`Only ${maxQuantity} items available`);
+      return;
+    }
 
     const formData = new FormData();
     formData.append("variantId", effectiveVariantId);
     formData.append("quantity", quantity.toString());
 
+    console.log("[Add to Cart] ✅ Sending request:", {
+      variantId: effectiveVariantId,
+      quantity,
+    });
+
     startTransition(async () => {
-      await addItemAction(formData);
-      setAddedToCart(true);
-      setTimeout(() => setAddedToCart(false), 3000);
+      const result = await addItemAction(formData);
+      console.log("[Add to Cart] Result:", result);
+      if (result.success) {
+        setAddedToCart(true);
+        setTimeout(() => setAddedToCart(false), 3000);
+        toast.success("Item added to cart!");
+        
+        // Refresh the page to update stock quantity in real-time
+        // This ensures the quantity selector and stock display reflect the updated inventory
+        console.log("[Add to Cart] Refreshing page to update stock...");
+        router.refresh();
+      } else {
+        // Show error message to user
+        if (result.error) {
+          toast.error(result.error);
+          
+          // If it's a stock error, refresh the page to get updated stock data
+          if (result.error.includes("stock") || result.error.includes("available")) {
+            console.log("[Add to Cart] Stock error detected, refreshing page in 2 seconds...");
+            setTimeout(() => {
+              router.refresh();
+            }, 2000);
+          }
+        } else {
+          toast.error("Failed to add item to cart. Please try again.");
+        }
+      }
     });
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isZoomed) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
+    
+    // Update zoom position based on mouse position for panning when zoomed
     setZoomPosition({ x, y });
   };
+
 
   // Ensure we have at least one image
   const displayImages = product.images.length > 0 
@@ -131,9 +588,10 @@ export function ProductDetailClient({
     : [{ url: "/placeholder-product.jpg", alt: product.name }];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white animate-fade-in">
       <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Breadcrumbs */}
+        <div className="animate-fade-in">
         <Breadcrumbs
           items={[
             { label: "Products", href: "/products" },
@@ -143,10 +601,17 @@ export function ProductDetailClient({
             { label: product.name },
           ]}
         />
+        </div>
 
         <div className="mt-6 lg:grid lg:grid-cols-2 lg:gap-x-8 xl:gap-x-12">
           {/* Image Gallery */}
-          <div className="lg:sticky lg:top-24 lg:self-start">
+          <div 
+            className="lg:sticky lg:top-24 lg:self-start animate-fade-in-up"
+            style={{
+              animationDelay: "100ms",
+              animationFillMode: "both",
+            }}
+          >
             {/* Main Image with Discount Ribbon */}
             <div className="relative">
               {/* Discount Ribbon */}
@@ -176,9 +641,8 @@ export function ProductDetailClient({
               )}
 
               <div
-                className="relative aspect-square overflow-hidden rounded-2xl bg-neutral-100"
-                onMouseEnter={() => setIsZoomed(true)}
-                onMouseLeave={() => setIsZoomed(false)}
+                className="relative aspect-square overflow-hidden rounded-2xl bg-neutral-100 group"
+                onClick={() => setIsZoomed(!isZoomed)}
                 onMouseMove={handleMouseMove}
               >
                 {displayImages[selectedImageIndex]?.url ? (
@@ -187,10 +651,18 @@ export function ProductDetailClient({
                     alt={displayImages[selectedImageIndex].alt || product.name}
                     fill
                     priority
-                    className={`object-cover transition-transform duration-300 ${
-                      isZoomed ? "scale-150 cursor-zoom-out" : "cursor-zoom-in"
+                    className={`object-cover transition-all duration-300 ${
+                      isZoomed ? "cursor-zoom-out" : "cursor-zoom-in"
                     }`}
-                    style={isZoomed ? { transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%` } : undefined}
+                    style={isZoomed ? { 
+                      transform: `scale(2.5)`,
+                      transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                      transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                    } : {
+                      transform: "scale(1)",
+                      transformOrigin: "center center",
+                      transition: "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                    }}
                     sizes="(max-width: 1024px) 100vw, 50vw"
                   />
                 ) : (
@@ -201,12 +673,36 @@ export function ProductDetailClient({
                   </div>
                 )}
 
+                {/* Zoom Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsZoomed(!isZoomed);
+                  }}
+                  className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm transition-all hover:bg-white hover:scale-110"
+                  aria-label={isZoomed ? "Zoom out" : "Zoom in"}
+                >
+                  {isZoomed ? (
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
+                    </svg>
+                  ) : (
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                    </svg>
+                  )}
+                </button>
+
                 {/* Navigation Arrows - Only show if multiple images */}
                 {displayImages.length > 1 && (
                   <>
                     <button
-                      onClick={() => setSelectedImageIndex((prev) => (prev === 0 ? displayImages.length - 1 : prev - 1))}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm transition-colors hover:bg-white"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedImageIndex((prev) => (prev === 0 ? displayImages.length - 1 : prev - 1));
+                        setIsZoomed(false); // Reset zoom when changing images
+                      }}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm transition-colors hover:bg-white"
                       aria-label="Previous image"
                     >
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -214,8 +710,12 @@ export function ProductDetailClient({
                       </svg>
                     </button>
                     <button
-                      onClick={() => setSelectedImageIndex((prev) => (prev === displayImages.length - 1 ? 0 : prev + 1))}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm transition-colors hover:bg-white"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedImageIndex((prev) => (prev === displayImages.length - 1 ? 0 : prev + 1));
+                        setIsZoomed(false); // Reset zoom when changing images
+                      }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm transition-colors hover:bg-white"
                       aria-label="Next image"
                     >
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -240,11 +740,14 @@ export function ProductDetailClient({
                 {displayImages.map((image, index) => (
                   <button
                     key={index}
-                    onClick={() => setSelectedImageIndex(index)}
-                    className={`relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg transition-all sm:h-20 sm:w-20 ${
+                    onClick={() => {
+                      setSelectedImageIndex(index);
+                      setIsZoomed(false); // Reset zoom when changing images
+                    }}
+                    className={`relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg transition-all duration-300 sm:h-20 sm:w-20 ${
                       selectedImageIndex === index
-                        ? "ring-2 ring-offset-2"
-                        : "opacity-60 hover:opacity-100"
+                        ? "ring-2 ring-offset-2 scale-105"
+                        : "opacity-60 hover:opacity-100 hover:scale-105"
                     }`}
                     style={selectedImageIndex === index ? { "--tw-ring-color": branding.colors.primary } as React.CSSProperties : undefined}
                   >
@@ -262,7 +765,13 @@ export function ProductDetailClient({
           </div>
 
           {/* Product Info */}
-          <div className="mt-8 lg:mt-0">
+          <div 
+            className="mt-8 lg:mt-0 animate-fade-in-up"
+            style={{
+              animationDelay: "200ms",
+              animationFillMode: "both",
+            }}
+          >
             {/* Category */}
             {product.category && (
               <span
@@ -279,7 +788,7 @@ export function ProductDetailClient({
             </h1>
 
             {/* Rating */}
-            {features.reviews && (
+            {(features as any).reviews && (
               <div className="mt-3 flex items-center gap-2">
                 <div className="flex">
                   {[1, 2, 3, 4, 5].map((star) => (
@@ -338,14 +847,125 @@ export function ProductDetailClient({
               )}
             </div>
 
-            {/* Variants - Only show if multiple variants exist */}
-            {hasMultipleVariants && (
+            {/* Color Selection - Show as swatches */}
+            {hasColors && (
               <div className="mt-6">
-                <label className="block text-sm font-semibold text-neutral-900">
+                <label className="block text-sm font-semibold text-neutral-900 mb-3">
+                  Color
+                  {!selectedColorId && <span className="ml-1 text-red-500">*</span>}
+                </label>
+                <div className="flex flex-wrap gap-3">
+                  {availableColors.map((colorGroup) => {
+                    const isSelected = selectedColorId === colorGroup.color.id;
+                    const hasAvailableVariants = colorGroup.variants.some(v => v.quantityAvailable > 0);
+
+                    return (
+                      <button
+                        key={colorGroup.color.id}
+                        onClick={() => handleColorSelect(colorGroup.color.id)}
+                        disabled={!hasAvailableVariants}
+                        className={`group relative flex flex-col items-center gap-2 transition-all ${
+                          !hasAvailableVariants ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                        }`}
+                        aria-label={`Select color ${colorGroup.color.name}`}
+                      >
+                        {/* Color Swatch Cube */}
+                        <div
+                          className={`relative h-12 w-12 rounded-lg border-2 transition-all shadow-sm ${
+                            isSelected
+                              ? "border-neutral-900 scale-110 shadow-md"
+                              : "border-neutral-300 hover:border-neutral-400 hover:scale-105"
+                          }`}
+                          style={{
+                            backgroundColor: colorGroup.color.hex || "#6b7280",
+                          }}
+                        >
+                          {isSelected && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <svg
+                                className="h-5 w-5 text-white drop-shadow-lg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={3}
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                          )}
+                          {!hasAvailableVariants && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="h-px w-full bg-neutral-400 rotate-45" />
+                            </div>
+                          )}
+                        </div>
+                        {/* Color Name */}
+                        <span className={`text-xs font-medium text-center max-w-[60px] ${
+                          isSelected ? "text-neutral-900 font-semibold" : "text-neutral-600"
+                        }`}>
+                          {colorGroup.color.name}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Size Selection - Filtered by selected color */}
+            {hasSizes && selectedColorId && selectedColorGroup && selectedColorGroup.sizes.size > 0 && (
+              <div className="mt-6">
+                <label className="block text-sm font-semibold text-neutral-900 mb-3">
+                  Size
+                  {!selectedSizeId && <span className="ml-1 text-red-500">*</span>}
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {availableSizesForColor.map((sizeInfo) => {
+                    const isSelected = selectedSizeId === sizeInfo.id;
+                    const isAvailable = sizeInfo.quantityAvailable > 0;
+
+                    return (
+                      <button
+                        key={sizeInfo.id}
+                        onClick={() => handleSizeSelect(sizeInfo.id)}
+                        disabled={!isAvailable}
+                        className={`relative rounded-lg border-2 px-4 py-2.5 text-sm font-medium transition-all ${
+                          isSelected
+                            ? "border-transparent"
+                            : isAvailable
+                              ? "border-neutral-200 hover:border-neutral-300"
+                              : "cursor-not-allowed border-neutral-100 bg-neutral-50 text-neutral-400 line-through"
+                        }`}
+                        style={isSelected ? {
+                          backgroundColor: `${branding.colors.primary}15`,
+                          borderColor: branding.colors.primary,
+                          color: branding.colors.primary,
+                        } : undefined}
+                      >
+                        {sizeInfo.name}
+                        {isAvailable && sizeInfo.quantityAvailable <= 3 && (
+                          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white">
+                            {sizeInfo.quantityAvailable}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+                {!selectedSizeId && (
+                  <p className="mt-2 text-sm text-red-500">Please select a size</p>
+                )}
+              </div>
+            )}
+
+            {/* Fallback: Show all variants if no colors/sizes detected */}
+            {!hasColors && hasMultipleVariants && (
+              <div className="mt-6">
+                <label className="block text-sm font-semibold text-neutral-900 mb-3">
                   Select Option
                   {!selectedVariant && <span className="ml-1 text-red-500">*</span>}
                 </label>
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2">
                   {product.variants.map((variant) => {
                     const isSelected = variant.id === effectiveVariantId;
                     const isAvailable = variant.quantityAvailable > 0;
@@ -378,7 +998,7 @@ export function ProductDetailClient({
                     );
                   })}
                 </div>
-                {!selectedVariant && hasMultipleVariants && (
+                {!selectedVariant && (
                   <p className="mt-2 text-sm text-red-500">Please select an option</p>
                 )}
               </div>
@@ -403,14 +1023,18 @@ export function ProductDetailClient({
                     <input
                       type="number"
                       min="1"
-                      max={maxQuantity}
+                      max={maxQuantity || 1}
                       value={quantity}
-                      onChange={(e) => setQuantity(Math.min(maxQuantity, Math.max(1, parseInt(e.target.value) || 1)))}
+                      onChange={(e) => {
+                        const newQuantity = parseInt(e.target.value) || 1;
+                        // Clamp to available quantity
+                        setQuantity(Math.min(maxQuantity || 1, Math.max(1, newQuantity)));
+                      }}
                       className="w-16 border-x border-neutral-300 py-3 text-center text-base font-semibold focus:outline-none"
                     />
                     <button
-                      onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
-                      disabled={quantity >= maxQuantity}
+                      onClick={() => setQuantity(Math.min(maxQuantity || 1, quantity + 1))}
+                      disabled={quantity >= (maxQuantity || 1) || maxQuantity === 0}
                       className="flex h-12 w-12 items-center justify-center text-neutral-600 transition-colors hover:bg-neutral-100 disabled:opacity-50"
                     >
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -423,9 +1047,39 @@ export function ProductDetailClient({
                 {/* Add to Cart Button */}
                 <button
                   onClick={handleAddToCart}
-                  disabled={!effectiveVariantId || !isInStock || isPending || (hasMultipleVariants && !selectedVariant)}
+                  disabled={!effectiveVariantId || !isInStock || isPending || (needsSelection && !selectedVariant) || maxQuantity === 0}
                   className="flex flex-1 items-center justify-center gap-2 rounded-lg py-3.5 text-base font-semibold text-white transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:py-4"
                   style={{ backgroundColor: addedToCart ? "#059669" : branding.colors.primary }}
+                  onMouseEnter={() => {
+                    const isDisabled = !effectiveVariantId || !isInStock || isPending || (needsSelection && !selectedVariant) || maxQuantity === 0;
+                    if (isDisabled) {
+                      console.log("[Add to Cart] Button disabled - Debug info:", {
+                        effectiveVariantId,
+                        isInStock,
+                        maxQuantity,
+                        quantity,
+                        needsSelection,
+                        selectedVariant: selectedVariant ? { 
+                          id: selectedVariant.id, 
+                          name: selectedVariant.name,
+                          quantityAvailable: selectedVariant.quantityAvailable,
+                        } : null,
+                        effectiveVariant: effectiveVariant ? {
+                          id: effectiveVariant.id,
+                          name: effectiveVariant.name,
+                          quantityAvailable: effectiveVariant.quantityAvailable,
+                        } : null,
+                        isPending,
+                        disabledReasons: {
+                          noEffectiveVariantId: !effectiveVariantId,
+                          notInStock: !isInStock,
+                          isPending,
+                          needsSelectionButNoVariant: needsSelection && !selectedVariant,
+                          maxQuantityZero: maxQuantity === 0,
+                        },
+                      });
+                    }
+                  }}
                 >
                   {isPending ? (
                     <>
@@ -447,7 +1101,7 @@ export function ProductDetailClient({
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                       </svg>
-                      {!isInStock ? "Out of Stock" : hasMultipleVariants && !selectedVariant ? "Select Option" : "Add to Cart"}
+                      {!isInStock ? "Out of Stock" : needsSelection && !selectedVariant ? "Select Options" : "Add to Cart"}
                     </>
                   )}
                 </button>
@@ -517,7 +1171,13 @@ export function ProductDetailClient({
             </div>
 
             {/* Trust Badges */}
-            <div className="mt-8 grid grid-cols-3 gap-4 border-t border-neutral-200 pt-8">
+            <div 
+              className="mt-8 grid grid-cols-3 gap-4 border-t border-neutral-200 pt-8 animate-fade-in-up"
+              style={{
+                animationDelay: "250ms",
+                animationFillMode: "both",
+              }}
+            >
               <div className="flex flex-col items-center gap-1 text-center">
                 <svg className="h-6 w-6 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -540,7 +1200,13 @@ export function ProductDetailClient({
             </div>
 
             {/* Tabs */}
-            <div className="mt-8 border-t border-neutral-200 pt-8">
+            <div 
+              className="mt-8 border-t border-neutral-200 pt-8 animate-fade-in-up"
+              style={{
+                animationDelay: "300ms",
+                animationFillMode: "both",
+              }}
+            >
               <div className="flex gap-8 border-b border-neutral-200">
                 {(["description", "shipping", "reviews"] as const).map((tab) => (
                   <button

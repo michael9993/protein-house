@@ -1,5 +1,4 @@
 import { type FC } from "react";
-import clsx from "clsx";
 import { SummaryItem, type SummaryLine } from "./SummaryItem";
 import { PromoCodeAdd } from "./PromoCodeAdd";
 import { SummaryMoneyRow } from "./SummaryMoneyRow";
@@ -8,7 +7,7 @@ import { SummaryItemMoneyEditableSection } from "./SummaryItemMoneyEditableSecti
 import { ChevronDownIcon } from "@/checkout/ui-kit/icons";
 
 import { getFormattedMoney } from "@/checkout/lib/utils/money";
-import { Divider, Money } from "@/checkout/components";
+import { Money } from "@/checkout/components";
 import {
 	type CheckoutLineFragment,
 	type GiftCardFragment,

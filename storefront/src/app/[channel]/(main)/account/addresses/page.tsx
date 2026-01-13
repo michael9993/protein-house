@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { CurrentUserAddressesDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
-import { storeConfig } from "@/config";
 import { AddressesClient } from "./AddressesClient";
 
 export const metadata = {

@@ -8,8 +8,11 @@ import clsx from "clsx";
 
 const sortOptions = [
 	{ name: "A to Z", value: "name-asc" },
+	{ name: "Z to A", value: "name-desc" },
 	{ name: "Price: Low to High", value: "price-asc" },
 	{ name: "Price: High to Low", value: "price-desc" },
+	{ name: "Newest", value: "date-desc" },
+	{ name: "Sale", value: "sale" },
 ];
 
 export const SortBy = () => {

@@ -9,7 +9,9 @@ import { ConfirmAccountDocument } from "@/gql/graphql";
  * Confirm account and automatically log in the user.
  * This calls a custom Django endpoint that confirms the account and returns JWT tokens.
  */
-export async function confirmAndLoginAction(email: string, token: string, channel: string = "default-channel") {
+import { DefaultChannelSlug } from "@/app/config";
+
+export async function confirmAndLoginAction(email: string, token: string, channel: string = DefaultChannelSlug) {
 	try {
 		// Decode URL-encoded email and token
 		let decodedEmail = email;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useHomepageConfig, useStoreConfig } from "@/providers/StoreConfigProvider";
+import { useStoreConfig } from "@/providers/StoreConfigProvider";
 import { HeroImage } from "./HeroImage";
 import { HeroVideo } from "./HeroVideo";
 import { HeroSlider } from "./HeroSlider";

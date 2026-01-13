@@ -58,7 +58,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
 	}, []); // Empty deps - only run on mount
 
 	// Refetch user data when auth state changes (login/logout)
+	const saleorApiUrl = process.env.NEXT_PUBLIC_SALEOR_API_URL || process.env.SALEOR_API_URL || "";
 	useAuthChange({
+		saleorApiUrl,
 		onSignedIn: () => {
 			hasLoadedRef.current = false;
 			loadUser();

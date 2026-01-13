@@ -74,7 +74,7 @@ export const useSubmit = <
 		// @ts-expect-error -- something is fishy
 		scope,
 	);
-	const { showErrors } = useAlerts();
+	const { showErrors, showCustomErrors } = useAlerts();
 	const { checkout } = useCheckout();
 
 	const handleSubmit = useCallback(
@@ -94,6 +94,10 @@ export const useSubmit = <
 			}
 
 			setCheckoutUpdateState("loading");
+
+			if (!checkout) {
+				throw new Error("Checkout is not available");
+			}
 
 			const commonData: CommonVars = {
 				languageCode: "EN_US",
@@ -176,6 +180,10 @@ export const useSubmit = <
 
 				if (!hideAlerts && scope) {
 					showErrors(apiErrors, scope);
+					// Also show custom errors (e.g., from checkoutComplete.errors)
+					if (errorsRest.customErrors && errorsRest.customErrors.length > 0) {
+						showCustomErrors(errorsRest.customErrors, scope);
+					}
 				}
 			} else {
 				// Data exists despite errors - treat as success
@@ -189,8 +197,8 @@ export const useSubmit = <
 			onStart,
 			shouldAbort,
 			setCheckoutUpdateState,
-			checkout.channel.slug,
-			checkout.id,
+			checkout?.channel?.slug || "",
+			checkout?.id || "",
 			onSubmit,
 			parse,
 			extractCustomErrors,

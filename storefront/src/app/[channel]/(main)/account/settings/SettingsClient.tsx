@@ -9,7 +9,7 @@ interface SettingsClientProps {
 	channel: string;
 }
 
-export function SettingsClient({ user, channel }: SettingsClientProps) {
+export function SettingsClient({ user, channel: _channel }: SettingsClientProps) {
 	const [firstName, setFirstName] = useState(user.firstName || "");
 	const [lastName, setLastName] = useState(user.lastName || "");
 	const [email, setEmail] = useState(user.email);
@@ -68,9 +68,9 @@ export function SettingsClient({ user, channel }: SettingsClientProps) {
 	};
 
 	return (
-		<div className="space-y-8">
+		<div className="space-y-8 animate-fade-in">
 			{/* Header */}
-			<div>
+			<div className="animate-fade-in-up" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
 				<h1 className="text-2xl font-bold text-neutral-900">Account Settings</h1>
 				<p className="mt-1 text-neutral-500">
 					Manage your profile, security, and notification preferences
@@ -79,9 +79,10 @@ export function SettingsClient({ user, channel }: SettingsClientProps) {
 
 			{/* Status Message */}
 			{message && (
-				<div className={`flex items-center gap-3 rounded-lg px-4 py-3 ${
+				<div className={`flex items-center gap-3 rounded-lg px-4 py-3 animate-fade-in-up ${
 					message.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
-				}`}>
+				}`}
+				style={{ animationDelay: "100ms", animationFillMode: "both" }}>
 					{message.type === "success" ? (
 						<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -96,7 +97,7 @@ export function SettingsClient({ user, channel }: SettingsClientProps) {
 			)}
 
 			{/* Profile Information */}
-			<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100">
+			<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100 animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
 				<h2 className="text-lg font-semibold text-neutral-900">Profile Information</h2>
 				<p className="mt-1 text-sm text-neutral-500">
 					Update your personal details
@@ -157,7 +158,7 @@ export function SettingsClient({ user, channel }: SettingsClientProps) {
 			</div>
 
 			{/* Password */}
-			<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100">
+			<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100 animate-fade-in-up" style={{ animationDelay: "150ms", animationFillMode: "both" }}>
 				<h2 className="text-lg font-semibold text-neutral-900">Change Password</h2>
 				<p className="mt-1 text-sm text-neutral-500">
 					Update your password to keep your account secure
@@ -223,7 +224,7 @@ export function SettingsClient({ user, channel }: SettingsClientProps) {
 			</div>
 
 			{/* Notification Preferences */}
-			<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100">
+			<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100 animate-fade-in-up" style={{ animationDelay: "200ms", animationFillMode: "both" }}>
 				<h2 className="text-lg font-semibold text-neutral-900">Notification Preferences</h2>
 				<p className="mt-1 text-sm text-neutral-500">
 					Choose how you want to receive updates
@@ -280,7 +281,7 @@ export function SettingsClient({ user, channel }: SettingsClientProps) {
 			</div>
 
 			{/* Danger Zone */}
-			<div className="rounded-xl border border-red-200 bg-red-50 p-6">
+			<div className="rounded-xl border border-red-200 bg-red-50 p-6 animate-fade-in-up" style={{ animationDelay: "250ms", animationFillMode: "both" }}>
 				<h2 className="text-lg font-semibold text-red-900">Danger Zone</h2>
 				<p className="mt-1 text-sm text-red-700">
 					Permanently delete your account and all associated data

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useParams } from "next/navigation";
 import { Button } from "@/checkout/components/Button";
 import { PasswordInput } from "@/checkout/components/PasswordInput";
 import { TextInput } from "@/checkout/components/TextInput";
@@ -13,6 +14,7 @@ import { isValidEmail } from "@/checkout/lib/utils/common";
 import { useErrorMessages } from "@/checkout/hooks/useErrorMessages";
 import { useCheckout } from "@/checkout/hooks/useCheckout";
 import { getQueryParams } from "@/checkout/lib/utils/url";
+import { DefaultChannelSlug } from "@/app/config";
 
 interface SignInProps extends Pick<SignInFormContainerProps, "onSectionChange"> {
 	onSignInSuccess: () => void;
@@ -26,12 +28,24 @@ export const SignIn: React.FC<SignInProps> = ({
 	onEmailChange,
 	email: initialEmail,
 }) => {
-	const {
-		checkout: { email: checkoutEmail },
-	} = useCheckout();
+	const { checkout } = useCheckout();
+	const checkoutEmail = checkout?.email;
 	const { errorMessages } = useErrorMessages();
 	const [oauthError, setOauthError] = useState<string | null>(null);
 	const [isOauthLoading, setIsOauthLoading] = useState(false);
+	const params = useParams();
+
+	// Get channel from Next.js params, fallback to pathname extraction, then config default
+	const getChannel = (): string => {
+		if (params?.channel) {
+			return params.channel as string;
+		}
+		const pathParts = window.location.pathname.split("/");
+		const channel = pathParts.find((part, index) => 
+			index > 0 && part && part !== "checkout" && part !== "api" && part !== "_next"
+		);
+		return channel || DefaultChannelSlug;
+	};
 
 	const form = useSignInForm({
 		onSuccess: onSignInSuccess,
@@ -75,11 +89,8 @@ export const SignIn: React.FC<SignInProps> = ({
 			
 			// Get current checkout URL to redirect back after OAuth
 			const { checkoutId } = getQueryParams();
-			const currentUrl = window.location.href;
 			
-			// Determine the channel from the URL
-			const pathParts = window.location.pathname.split("/");
-			const channel = pathParts[1] || "default-channel";
+			const channel = getChannel();
 			
 			// OAuth callback URL
 			const callbackUrl = `${window.location.origin}/${channel}/auth/callback`;

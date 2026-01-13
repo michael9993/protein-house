@@ -238,7 +238,7 @@ function InvoiceModal({
 
 export function OrdersListClient({ orders, channel, statusColors, primaryColor }: OrdersListClientProps) {
 	const router = useRouter();
-	const [isPending, startTransition] = useTransition();
+	const [, startTransition] = useTransition();
 	const [loadingOrderId, setLoadingOrderId] = useState<string | null>(null);
 	const [showAllOrders, setShowAllOrders] = useState(false);
 	const [trackingModalOrder, setTrackingModalOrder] = useState<Order | null>(null);
@@ -272,7 +272,7 @@ export function OrdersListClient({ orders, channel, statusColors, primaryColor }
 				body: JSON.stringify({ orderId: invoiceModalOrder.id }),
 			});
 			
-			const data = await response.json();
+			const data = await response.json() as { success?: boolean; invoice?: { url?: string }; pending?: boolean; message?: string };
 			
 			if (data.success) {
 				if (data.invoice?.url) {
@@ -310,7 +310,7 @@ export function OrdersListClient({ orders, channel, statusColors, primaryColor }
 
 		try {
 			const response = await fetch(`/api/invoice/request?orderId=${orderId}`);
-			const data = await response.json();
+			const data = await response.json() as { success?: boolean; invoice?: { url?: string }; pending?: boolean; message?: string };
 
 			if (data.success && data.invoice?.url) {
 				showToast("Invoice ready! Opening download...", "success");
@@ -697,9 +697,4 @@ const CARRIER_CONFIGS: Array<{
 		url: (t) => `https://t.17track.net/en#nums=${t}`,
 	},
 ];
-
-function getCarrierTrackingUrl(carrier: string, trackingNumber: string): string {
-	const config = CARRIER_CONFIGS.find(c => c.name === carrier);
-	return config ? config.url(trackingNumber) : `https://t.17track.net/en#nums=${trackingNumber}`;
-}
 

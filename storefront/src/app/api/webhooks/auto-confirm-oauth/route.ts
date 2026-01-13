@@ -17,7 +17,7 @@ import { NextRequest, NextResponse } from "next/server";
  */
 export async function POST(request: NextRequest) {
 	try {
-		const payload = await request.json();
+		const payload = (await request.json()) as any;
 		
 		// Verify webhook signature if secret is configured
 		const webhookSecret = process.env.SALEOR_WEBHOOK_SECRET;
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
 			}),
 		});
 
-		const confirmResult = await confirmResponse.json();
+		const confirmResult = (await confirmResponse.json()) as { errors?: any[]; data?: { confirmAccount?: { errors?: any[]; user?: { isConfirmed?: boolean } } } };
 		
 		if (confirmResult.errors || confirmResult.data?.confirmAccount?.errors) {
 			console.error("[Auto-Confirm Webhook] Failed to confirm:", confirmResult.errors || confirmResult.data?.confirmAccount?.errors);

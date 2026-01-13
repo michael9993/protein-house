@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useStoreConfig } from "@/providers/StoreConfigProvider";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 
