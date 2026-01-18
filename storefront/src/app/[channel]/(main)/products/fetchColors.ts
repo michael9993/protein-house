@@ -43,7 +43,7 @@ export async function fetchColorsForQuickFilters(channel: string): Promise<{
         `,
         variables: { channel },
       }),
-      next: { revalidate: 300 },
+      next: { revalidate: 30 },
     });
 
     if (!response.ok) {

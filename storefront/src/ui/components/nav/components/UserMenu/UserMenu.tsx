@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useMemo } from "react";
 import clsx from "clsx";
 import { Menu, Transition } from "@headlessui/react";
 import { UserInfo } from "./components/UserInfo";
@@ -10,6 +10,7 @@ import { logout } from "@/app/actions";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { dispatchCheckoutLogout } from "@/lib/checkout-client";
 import { useWishlist } from "@/lib/wishlist";
+import { useBranding, useContentConfig } from "@/providers/StoreConfigProvider";
 
 type Props = {
 	user: UserDetailsFragment;
@@ -19,13 +20,15 @@ type Props = {
 
 export function UserMenu({ user, ordersCount = 0, addressesCount = 0 }: Props) {
 	const { itemCount: wishlistCount } = useWishlist();
+	const branding = useBranding();
+	const content = useContentConfig();
 
-	const menuItems = [
+	const menuItems = useMemo(() => [
 		{
 			section: "account",
 			items: [
 				{ 
-					label: "My Account", 
+					label: content.account.myAccountTitle, 
 					href: "/account",
 					count: undefined,
 					icon: (
@@ -35,7 +38,7 @@ export function UserMenu({ user, ordersCount = 0, addressesCount = 0 }: Props) {
 					),
 				},
 				{ 
-					label: "My Orders", 
+					label: content.account.ordersTitle, 
 					href: "/account/orders",
 					count: ordersCount,
 					icon: (
@@ -45,7 +48,7 @@ export function UserMenu({ user, ordersCount = 0, addressesCount = 0 }: Props) {
 					),
 				},
 				{ 
-					label: "Addresses", 
+					label: content.account.addressesTitle, 
 					href: "/account/addresses",
 					count: addressesCount,
 					icon: (
@@ -61,7 +64,7 @@ export function UserMenu({ user, ordersCount = 0, addressesCount = 0 }: Props) {
 			section: "preferences",
 			items: [
 				{ 
-					label: "Wishlist", 
+					label: content.account.wishlistTitle, 
 					href: "/account/wishlist",
 					count: wishlistCount,
 					icon: (
@@ -71,7 +74,7 @@ export function UserMenu({ user, ordersCount = 0, addressesCount = 0 }: Props) {
 					),
 				},
 				{ 
-					label: "Settings", 
+					label: content.account.settingsTitle, 
 					href: "/account/settings",
 					count: undefined,
 					icon: (
@@ -83,7 +86,7 @@ export function UserMenu({ user, ordersCount = 0, addressesCount = 0 }: Props) {
 				},
 			],
 		},
-	];
+	], [content.account, ordersCount, addressesCount, wishlistCount]);
 	return (
 		<Menu as="div" className="relative">
 			<Menu.Button className="group relative flex items-center gap-2 rounded-full p-2 transition-all duration-200 hover:bg-neutral-100">
@@ -111,7 +114,7 @@ export function UserMenu({ user, ordersCount = 0, addressesCount = 0 }: Props) {
 				leaveFrom="transform opacity-100 scale-100 translate-y-0"
 				leaveTo="transform opacity-0 scale-95 translate-y-1"
 			>
-				<Menu.Items className="absolute right-0 z-50 mt-2 w-64 origin-top-right rounded-xl bg-white py-2 shadow-lg ring-1 ring-black/5 focus:outline-none">
+				<Menu.Items className="absolute end-0 z-50 mt-2 w-64 origin-top-end rounded-xl bg-white py-2 shadow-lg ring-1 ring-black/5 focus:outline-none">
 					{/* User Info Header */}
 					<div className="border-b border-neutral-100 px-4 py-3">
 						<UserInfo user={user} />
@@ -135,20 +138,24 @@ export function UserMenu({ user, ordersCount = 0, addressesCount = 0 }: Props) {
 													: "text-neutral-600 hover:text-neutral-900"
 											)}
 										>
-											<span className={clsx(
-												"flex-shrink-0 transition-colors",
-												active ? "text-[#FF5722]" : "text-neutral-400"
-											)}>
+											<span 
+												className="flex-shrink-0 transition-colors"
+												style={{ color: active ? branding.colors.primary : undefined }}
+											>
 												{item.icon}
 											</span>
 											<span className="flex-1">{item.label}</span>
 											{item.count !== undefined && item.count > 0 && (
-												<span className={clsx(
-													"ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-semibold",
-													active 
-														? "bg-[#FF5722] text-white" 
-														: "bg-neutral-200 text-neutral-700"
-												)}>
+												<span 
+													className={clsx(
+														"ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-semibold",
+														!active && "bg-neutral-200 text-neutral-700"
+													)}
+													style={active ? { 
+														backgroundColor: branding.colors.primary, 
+														color: "white" 
+													} : undefined}
+												>
 													{item.count}
 												</span>
 											)}
@@ -183,7 +190,7 @@ export function UserMenu({ user, ordersCount = 0, addressesCount = 0 }: Props) {
 										<svg className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
 											<path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
 										</svg>
-										Sign Out
+										{content.account.signOutButton}
 									</button>
 								</form>
 							)}

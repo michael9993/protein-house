@@ -29,6 +29,15 @@ export const generateStaticParams = async () => {
 			}
 		} catch (error) {
 			console.error("[generateStaticParams] Failed to fetch channels from API:", error);
+			// If it's a timeout/network error, log a helpful message
+			if (error instanceof Error && (
+				error.message?.includes('fetch failed') ||
+				error.message?.includes('timeout') ||
+				(error.cause && (error.cause as any).code === 'ETIMEDOUT')
+			)) {
+				console.warn("[generateStaticParams] Network/timeout error detected. This may be due to unstable tunnel connection.");
+				console.warn("  Consider setting NEXT_PUBLIC_CHANNELS env variable as a fallback.");
+			}
 			// Fall through to env variable or default
 		}
 	}
@@ -74,6 +83,13 @@ async function getValidChannelSlugs(): Promise<string[]> {
 			if (error.message.includes("AUTHENTICATED_APP") || error.message.includes("AUTHENTICATED_STAFF_USER")) {
 				console.warn("[Channel Validation] Permission error detected. Falling back to env variable or default.");
 				console.warn("  To fix: Grant AUTHENTICATED_APP permission to your app token in Saleor");
+			}
+			// If it's a timeout/network error, log a helpful message
+			if (error.message?.includes('fetch failed') || 
+				error.message?.includes('timeout') ||
+				(error.cause && (error.cause as any).code === 'ETIMEDOUT')) {
+				console.warn("[Channel Validation] Network/timeout error detected. This may be due to unstable tunnel connection.");
+				console.warn("  Consider setting NEXT_PUBLIC_CHANNELS env variable as a fallback.");
 			}
 		}
 		// Fall through to env variable or default

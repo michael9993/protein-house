@@ -4,7 +4,7 @@ import {
 } from "@dashboard/channels/utils";
 import { FormsetData } from "@dashboard/hooks/useFormset";
 
-import { Product, Variant } from "./../types";
+import { Product, Variant } from "../types";
 import { AvailabilityCard } from "./AvailabilityCard";
 import {
   getAvailabilityCountForProduct,

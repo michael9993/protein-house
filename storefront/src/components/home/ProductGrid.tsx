@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useStoreConfig, useFeature } from "@/providers/StoreConfigProvider";
+import { useStoreConfig, useFeature, useContentConfig } from "@/providers/StoreConfigProvider";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { type ProductListItemFragment } from "@/gql/graphql";
 import { formatMoneyRange } from "@/lib/utils";
@@ -16,29 +16,6 @@ interface ProductGridProps {
   viewAllLink?: string;
   columns?: 2 | 3 | 4;
 }
-
-const defaultTitles: Record<ProductGridType, { title: string; subtitle: string; link: string }> = {
-  newArrivals: {
-    title: "New Arrivals",
-    subtitle: "Just dropped - the latest additions to our collection",
-    link: "/collections/new-arrivals",
-  },
-  bestSellers: {
-    title: "Best Sellers",
-    subtitle: "Our most popular products loved by customers",
-    link: "/collections/best-sellers",
-  },
-  onSale: {
-    title: "On Sale",
-    subtitle: "Don't miss these amazing deals",
-    link: "/collections/sale",
-  },
-  featured: {
-    title: "Featured Products",
-    subtitle: "Hand-picked for you",
-    link: "/products",
-  },
-};
 
 /**
  * ProductGrid Section
@@ -59,6 +36,7 @@ export function ProductGrid({
 }: ProductGridProps) {
   const { homepage, branding, ecommerce } = useStoreConfig();
   const hasWishlist = useFeature("wishlist");
+  const content = useContentConfig();
   
   // Get config for this section type
   const sectionConfig = type === "featured" 
@@ -73,8 +51,22 @@ export function ProductGrid({
   // Limit products to config limit
   const displayProducts = products.slice(0, sectionConfig.limit);
   
-  // Get default titles
-  const defaults = defaultTitles[type];
+  // Get titles from content config
+  const getTitleFromContent = () => {
+    switch (type) {
+      case "newArrivals":
+        return { title: content.homepage.newArrivalsTitle, subtitle: content.homepage.newArrivalsSubtitle, link: "/collections/new-arrivals" };
+      case "bestSellers":
+        return { title: content.homepage.bestSellersTitle, subtitle: content.homepage.bestSellersSubtitle, link: "/collections/best-sellers" };
+      case "onSale":
+        return { title: content.homepage.onSaleTitle, subtitle: content.homepage.onSaleSubtitle, link: "/collections/sale" };
+      case "featured":
+      default:
+        return { title: content.homepage.featuredTitle, subtitle: content.homepage.featuredSubtitle, link: "/products" };
+    }
+  };
+  
+  const defaults = getTitleFromContent();
   const displayTitle = title || defaults.title;
   const displaySubtitle = subtitle || defaults.subtitle;
   const displayLink = viewAllLink || defaults.link;
@@ -125,7 +117,7 @@ export function ProductGrid({
             className="hidden items-center gap-2 font-medium transition-all hover:gap-3 sm:inline-flex"
             style={{ color: branding.colors.primary }}
           >
-            View All
+            {content.general.viewAllButton}
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
@@ -143,6 +135,7 @@ export function ProductGrid({
               showSaleBadge={type === "onSale"}
               branding={branding}
               ecommerce={ecommerce}
+              content={content}
             />
           ))}
         </div>
@@ -154,7 +147,7 @@ export function ProductGrid({
             className="inline-flex items-center gap-2 font-medium"
             style={{ color: branding.colors.primary }}
           >
-            View All
+            {content.general.viewAllButton}
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
@@ -175,6 +168,7 @@ interface ProductCardProps {
   showSaleBadge: boolean;
   branding: any;
   ecommerce: any;
+  content: any;
 }
 
 function ProductCard({ 
@@ -184,6 +178,7 @@ function ProductCard({
   showSaleBadge,
   branding,
   ecommerce: _ecommerce,
+  content,
 }: ProductCardProps) {
   const priceRange = formatMoneyRange({
     start: product.pricing?.priceRange?.start?.gross,
@@ -229,7 +224,7 @@ function ProductCard({
                 className="rounded-full px-3 py-1 text-xs font-bold text-white"
                 style={{ backgroundColor: branding.colors.error }}
               >
-                Sale
+                {content.product.saleBadgeText}
               </span>
             )}
             {index < 2 && (
@@ -237,7 +232,7 @@ function ProductCard({
                 className="rounded-full px-3 py-1 text-xs font-bold text-white"
                 style={{ backgroundColor: branding.colors.primary }}
               >
-                New
+                {content.product.newBadgeText}
               </span>
             )}
           </div>
@@ -263,20 +258,6 @@ function ProductCard({
               </svg>
             </button>
           )}
-
-          {/* Quick Add Button */}
-          <div className="absolute bottom-3 left-3 right-3 translate-y-4 opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100">
-            <button 
-              className="w-full rounded-full py-3 text-sm font-semibold text-white transition-colors"
-              style={{ backgroundColor: branding.colors.primary }}
-              onClick={(e) => {
-                e.preventDefault();
-                // TODO: Quick add to cart
-              }}
-            >
-              Quick Add
-            </button>
-          </div>
         </div>
 
         {/* Product Info */}

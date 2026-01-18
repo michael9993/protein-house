@@ -8,7 +8,7 @@ import graphene
 from django.conf import settings
 from django.contrib.postgres.indexes import BTreeIndex, GinIndex
 from django.contrib.postgres.search import SearchVectorField
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models, transaction
 from django.db.models import JSONField, TextField
 from django.urls import reverse
@@ -41,6 +41,7 @@ from ..permission.enums import (
 )
 from ..seo.models import SeoModel, SeoModelTranslationWithSlug
 from ..tax.models import TaxClass
+from ..account.models import User
 from . import ProductMediaTypes, ProductTypeKind, managers
 
 ALL_PRODUCTS_PERMISSIONS = [
@@ -786,3 +787,186 @@ class CollectionTranslation(SeoModelTranslationWithSlug):
             }
         )
         return translated_keys
+
+
+class ProductReview(ModelWithMetadata):
+    """Product review and rating model."""
+    
+    REVIEW_STATUS_PENDING = "pending"
+    REVIEW_STATUS_APPROVED = "approved"
+    REVIEW_STATUS_REJECTED = "rejected"
+    
+    REVIEW_STATUS_CHOICES = [
+        (REVIEW_STATUS_PENDING, "Pending"),
+        (REVIEW_STATUS_APPROVED, "Approved"),
+        (REVIEW_STATUS_REJECTED, "Rejected"),
+    ]
+    
+    product = models.ForeignKey(
+        Product,
+        related_name="reviews",
+        on_delete=models.CASCADE,
+        db_index=True,
+    )
+    user = models.ForeignKey(
+        User,
+        related_name="product_reviews",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        db_index=True,
+    )
+    rating = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        help_text="Rating from 1 to 5",
+    )
+    title = models.CharField(max_length=255)
+    body = models.TextField()
+    images = JSONField(
+        blank=True,
+        default=list,
+        help_text="List of image URLs for the review",
+    )
+    helpful_count = models.PositiveIntegerField(default=0, db_index=True)
+    status = models.CharField(
+        max_length=20,
+        choices=REVIEW_STATUS_CHOICES,
+        default=REVIEW_STATUS_PENDING,
+        db_index=True,
+    )
+    is_verified_purchase = models.BooleanField(
+        default=False,
+        help_text="Whether the reviewer has purchased this product",
+    )
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        app_label = "product"
+        ordering = ("-created_at",)
+        indexes = [
+            *ModelWithMetadata.Meta.indexes,
+            models.Index(fields=["product", "status", "-created_at"]),
+            models.Index(fields=["user", "-created_at"]),
+            models.Index(fields=["product", "rating"]),
+            BTreeIndex(fields=["helpful_count"]),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(rating__gte=1) & models.Q(rating__lte=5),
+                name="product_review_rating_range",
+            ),
+        ]
+    
+    def __str__(self) -> str:
+        user_str = self.user.email if self.user else "Guest"
+        return f"Review for {self.product.name} by {user_str}"
+    
+    def __repr__(self) -> str:
+        class_ = type(self)
+        return f"<{class_.__module__}.{class_.__name__}(pk={self.pk!r}, product={self.product_id!r}, rating={self.rating!r})>"
+
+
+class ProductReviewHelpfulVote(models.Model):
+    """Model to track which users marked which reviews as helpful (prevents duplicate votes)."""
+    
+    review = models.ForeignKey(
+        ProductReview,
+        related_name="helpful_votes",
+        on_delete=models.CASCADE,
+        db_index=True,
+    )
+    user = models.ForeignKey(
+        User,
+        related_name="helpful_votes",
+        on_delete=models.CASCADE,
+        db_index=True,
+        null=True,
+        blank=True,
+    )
+    # For guest users, store IP address or session ID
+    guest_identifier = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="IP address or session ID for guest users",
+    )
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        app_label = "product"
+        unique_together = [
+            ("review", "user"),  # Authenticated users can only vote once per review
+            ("review", "guest_identifier"),  # Guest users can only vote once per review
+        ]
+        indexes = [
+            models.Index(fields=["review", "user"]),
+            models.Index(fields=["review", "guest_identifier"]),
+        ]
+
+    def __str__(self) -> str:
+        identifier = self.user.email if self.user else self.guest_identifier or "Guest"
+        return f"Helpful vote for review {self.review_id} by {identifier}"
+
+
+class StockAlert(models.Model):
+    """Stock alert model for notifying users when products are back in stock."""
+
+    product_variant = models.ForeignKey(
+        ProductVariant,
+        related_name="stock_alerts",
+        on_delete=models.CASCADE,
+        db_index=True,
+    )
+    user = models.ForeignKey(
+        User,
+        related_name="stock_alerts",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text="User account if subscribed while logged in",
+    )
+    email = models.EmailField(
+        db_index=True,
+        help_text="Email address to notify (required for guest users)",
+    )
+    is_active = models.BooleanField(
+        default=True,
+        db_index=True,
+        help_text="Whether the alert is active",
+    )
+    notified_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the user was last notified",
+    )
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        app_label = "product"
+        ordering = ("-created_at",)
+        indexes = [
+            models.Index(fields=["product_variant", "is_active"]),
+            models.Index(fields=["email", "is_active"]),
+            models.Index(fields=["user", "is_active"]),
+            models.Index(fields=["is_active", "-created_at"]),
+        ]
+        # Prevent duplicate active alerts for same variant and email
+        constraints = [
+            models.UniqueConstraint(
+                fields=["product_variant", "email"],
+                condition=models.Q(is_active=True),
+                name="unique_active_stock_alert",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        user_str = f" ({self.user.email})" if self.user else ""
+        status = "active" if self.is_active else "inactive"
+        return f"Stock alert for {self.product_variant} - {self.email}{user_str} - {status}"
+
+    def __repr__(self) -> str:
+        class_ = type(self)
+        return f"<{class_.__module__}.{class_.__name__}(pk={self.pk!r}, product_variant={self.product_variant_id!r}, email={self.email!r}, is_active={self.is_active!r})>"

@@ -16,9 +16,9 @@ export const SummaryItem = ({ line, children }: SummaryItemProps) => {
 	const attributesText = useSummaryLineLineAttributesText(line);
 
 	return (
-		<li key={line.id} className="flex gap-3 rounded-lg p-2 transition-colors hover:bg-neutral-50" data-testid="SummaryItem">
+		<li key={line.id} className="flex gap-3 rounded-lg p-2 transition-colors" data-testid="SummaryItem">
 			{/* Product Image */}
-			<div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border border-neutral-200 bg-white">
+			<div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border bg-white" style={{ borderColor: "var(--store-neutral-200)" }}>
 				{productImage ? (
 					<img
 						src={productImage.url}
@@ -26,21 +26,21 @@ export const SummaryItem = ({ line, children }: SummaryItemProps) => {
 						className="h-full w-full object-contain object-center p-1"
 					/>
 				) : (
-					<div className="flex h-full w-full items-center justify-center bg-neutral-100">
+					<div className="flex h-full w-full items-center justify-center" style={{ backgroundColor: "var(--store-neutral-100)" }}>
 						<PhotoIcon />
 					</div>
 				)}
 				{/* Quantity Badge */}
-				<span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-neutral-700 text-xs font-medium text-white">
+				<span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full text-xs font-medium text-white" style={{ backgroundColor: "var(--store-neutral-700)" }}>
 					{line.quantity}
 				</span>
 			</div>
 			
 			{/* Product Info */}
 			<div className="flex min-w-0 flex-1 flex-col justify-center">
-				<p className="truncate text-sm font-medium text-neutral-900">{productName}</p>
+				<p className="truncate text-sm font-medium" style={{ color: "var(--store-text)" }}>{productName}</p>
 				{attributesText && (
-					<p className="mt-0.5 truncate text-xs text-neutral-500">{attributesText}</p>
+					<p className="mt-0.5 truncate text-xs" style={{ color: "var(--store-text-muted)" }}>{attributesText}</p>
 				)}
 			</div>
 			

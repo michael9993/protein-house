@@ -3,30 +3,43 @@ import "./globals.css";
 import { Suspense, type ReactNode } from "react";
 import { type Metadata } from "next";
 import { DraftModeNotification } from "@/ui/components/DraftModeNotification";
-import { StoreConfigProvider } from "@/providers/StoreConfigProvider";
 import { ToastProvider, ToastContainer } from "@/ui/components/Toast";
 import { WishlistProvider } from "@/lib/wishlist";
 import { storeConfig } from "@/config";
 
 // Load multiple fonts for different store themes
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+// Using fallback fonts and display: 'swap' for better resilience
+const inter = Inter({ 
+	subsets: ["latin"], 
+	variable: "--font-inter",
+	display: "swap",
+	fallback: ["system-ui", "arial"]
+});
 const poppins = Poppins({ 
 	subsets: ["latin"], 
 	weight: ["400", "500", "600", "700"],
-	variable: "--font-poppins" 
+	variable: "--font-poppins",
+	display: "swap",
+	fallback: ["system-ui", "arial"]
 });
 const spaceGrotesk = Space_Grotesk({ 
 	subsets: ["latin"],
-	variable: "--font-space-grotesk"
+	variable: "--font-space-grotesk",
+	display: "swap",
+	fallback: ["system-ui", "arial"]
 });
 const bebasNeue = Bebas_Neue({ 
 	subsets: ["latin"],
 	weight: "400",
-	variable: "--font-bebas-neue"
+	variable: "--font-bebas-neue",
+	display: "swap",
+	fallback: ["Impact", "Arial Black", "sans-serif"]
 });
 const plusJakarta = Plus_Jakarta_Sans({ 
 	subsets: ["latin"],
-	variable: "--font-plus-jakarta"
+	variable: "--font-plus-jakarta",
+	display: "swap",
+	fallback: ["system-ui", "arial"]
 });
 
 // Dynamic metadata from store config
@@ -61,20 +74,23 @@ export default function RootLayout(props: { children: ReactNode }) {
 		plusJakarta.variable,
 	].join(" ");
 
+	// Note: RTL direction is handled dynamically by StoreConfigProvider's useEffect
+	// The channel layout's StoreConfigProvider receives fetched CMS config and sets document.dir
+	// We don't set dir here to avoid conflicts with dynamic CMS config
+
 	return (
-		<html lang={storeConfig.localization.defaultLocale.split("-")[0]} className="min-h-dvh">
+		<html lang="en" className="min-h-dvh">
 			<body className={`${fontVariables} ${inter.className} min-h-dvh`}>
-				<StoreConfigProvider>
-					<WishlistProvider>
-						<ToastProvider>
-							{children}
-							<ToastContainer />
-							<Suspense>
-								<DraftModeNotification />
-							</Suspense>
-						</ToastProvider>
-					</WishlistProvider>
-				</StoreConfigProvider>
+				{/* Note: StoreConfigProvider is only in channel layout to ensure RTL comes from CMS config only */}
+				<WishlistProvider>
+					<ToastProvider>
+						{children}
+						<ToastContainer />
+						<Suspense>
+							<DraftModeNotification />
+						</Suspense>
+					</ToastProvider>
+				</WishlistProvider>
 			</body>
 		</html>
 	);

@@ -12,10 +12,10 @@ export const Skeleton: React.FC<PropsWithChildren<SkeletonProps>> = ({
 	variant = "paragraph",
 }) => {
 	const classes = clsx(
-		"bg-neutral-100 mb-2 h-3 min-w-[250px] rounded",
+		"mb-2 h-3 min-w-[250px] rounded animate-pulse",
 		{ "mb-6 w-1/3": variant === "title", "h-3": variant === "paragraph" },
 		className,
 	);
 
-	return <div className={classes}>{children}</div>;
+	return <div className={classes} style={{ backgroundColor: "var(--store-neutral-100)" }}>{children}</div>;
 };

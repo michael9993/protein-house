@@ -23,13 +23,15 @@ interface CheckoutStepProps {
 }
 
 const CheckoutStep = ({ number, title, description, children, isComplete }: CheckoutStepProps) => (
-	<div className="rounded-xl border border-neutral-200 bg-white shadow-sm">
-		<div className="flex items-center gap-4 border-b border-neutral-100 px-6 py-4">
-			<div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-				isComplete 
-					? "bg-green-100 text-green-700" 
-					: "bg-neutral-900 text-white"
-			}`}>
+	<div className="rounded-xl border bg-white shadow-sm" style={{ borderColor: "var(--store-neutral-200)" }}>
+		<div className="flex items-center gap-4 border-b px-6 py-4" style={{ borderColor: "var(--store-neutral-100)" }}>
+			<div 
+				className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold"
+				style={isComplete 
+					? { backgroundColor: "var(--store-success-bg)", color: "var(--store-success-text)" }
+					: { backgroundColor: "var(--store-primary)", color: "white" }
+				}
+			>
 				{isComplete ? (
 					<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -39,8 +41,8 @@ const CheckoutStep = ({ number, title, description, children, isComplete }: Chec
 				)}
 			</div>
 			<div>
-				<h3 className="font-semibold text-neutral-900">{title}</h3>
-				{description && <p className="text-sm text-neutral-500">{description}</p>}
+				<h3 className="font-semibold" style={{ color: "var(--store-text)" }}>{title}</h3>
+				{description && <p className="text-sm" style={{ color: "var(--store-text-muted)" }}>{description}</p>}
 			</div>
 		</div>
 		<div className="p-6">

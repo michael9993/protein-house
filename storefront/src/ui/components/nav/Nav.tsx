@@ -12,8 +12,8 @@ export const Nav = ({ channel }: { channel: string }) => {
 				<NavLinks channel={channel} />
 			</ul>
 			
-			{/* Right Side Actions */}
-			<div className="ml-auto flex items-center gap-1 sm:gap-2">
+			{/* Right Side Actions (Left in RTL) - Uses logical margin for proper RTL support */}
+			<div className="ms-auto flex items-center gap-1 sm:gap-2">
 				{/* Channel/Currency Picker - Desktop only */}
 				<div className="hidden md:block">
 					<ChannelPickerWrapper />

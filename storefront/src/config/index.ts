@@ -24,10 +24,15 @@ export const storeConfig = sportsStoreConfig;
 export {
   type StoreConfig,
   type StoreType,
+  type HomepageSectionId,
   createStoreConfig,
   defaultStoreConfig,
   storeTypePresets,
   getThemeCSSVariables,
+  DEFAULT_RTL_LOCALES,
+  DEFAULT_SECTION_ORDER,
+  DEFAULT_FILTERS_TEXT,
+  DEFAULT_NOT_FOUND_TEXT,
 } from './store.config';
 
 // Export examples for reference

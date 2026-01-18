@@ -50,6 +50,7 @@ services:
     # Use uvicorn (ASGI) instead of runserver (WSGI) to enable CORS handler
     # Port is set via environment variable SALEOR_API_PORT from .env
     command: sh -c "uvicorn saleor.asgi:application --host 0.0.0.0 --port $${SALEOR_API_PORT} --reload --lifespan off"
+    # command: sh /app/scripts/wait-for-db-and-migrate.sh
     ports:
       - "${SALEOR_API_PORT}:${SALEOR_API_PORT}"
     volumes:
@@ -59,6 +60,8 @@ services:
       - saleor-media:/app/media
       # Mount custom plugins if they exist
       - ../backend/plugins:/app/plugins/custom:ro
+      # Mount migration script
+      # - ./scripts/wait-for-db-and-migrate.sh:/app/scripts/wait-for-db-and-migrate.sh:ro
     environment:
       # Core Settings - All values from .env file
       SECRET_KEY: ${SECRET_KEY}
@@ -114,8 +117,8 @@ services:
         ]
       interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 90s
+      retries: 10
+      start_period: 240s
 
   saleor-worker:
     # Use same build as API (local code)
@@ -209,7 +212,7 @@ services:
       EXTENSIONS_API_URL: ${EXTENSIONS_API_URL}
       APP_MOUNT_URI: ${APP_MOUNT_URI}
       STATIC_URL: ${STATIC_URL}
-      NODE_ENV: production
+      NODE_ENV: ${NODE_ENV}
     depends_on:
       saleor-api:
         condition: service_healthy
@@ -227,8 +230,8 @@ services:
         ]
       interval: 30s
       timeout: 10s
-      retries: 5
-      start_period: 300s
+      retries: 8
+      start_period: 360s
 
   saleor-storefront:
     # Use official Saleor Storefront (Next.js 15, React 19)
@@ -238,10 +241,10 @@ services:
     # Install dependencies and start Next.js dev server OR production build
     # Set STOREFRONT_MODE=production in .env to use production build
     # Set STOREFRONT_MODE=dev (or leave unset) to use dev server
-    # The official storefront uses 'generate' script for codegen (runs automatically via predev/prebuild hooks)
+    # Generate GraphQL types before starting dev server or building
     # Codegen will use SALEOR_API_URL (Docker service name) for server-side operations
     # Only install if node_modules doesn't exist or package.json changed (pnpm handles this automatically)
-    command: sh -c "corepack enable && corepack prepare pnpm@9.6.0 --activate && unset NODE_ENV && pnpm install --prefer-offline && if [ \"$${STOREFRONT_MODE:-dev}\" = \"production\" ]; then echo '🔍 Running type check before build...' && pnpm run type-check && echo '✅ Type check passed! Building production...' && export NODE_ENV=production && pnpm run build && echo 'Starting production server...' && pnpm run start; else echo 'Starting dev server...' && export NODE_ENV=development && pnpm run dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@9.6.0 --activate && unset NODE_ENV && pnpm install --prefer-offline && echo '🔍 Generating GraphQL types...' && pnpm run generate && if [ \"$${STOREFRONT_MODE:-dev}\" = \"production\" ]; then echo '🔍 Running type check before build...' && pnpm run type-check && echo '✅ Type check passed! Building production...' && export NODE_ENV=production && pnpm run build && echo 'Starting production server...' && pnpm run start; else echo 'Starting dev server...' && export NODE_ENV=development && pnpm run dev; fi"
     env_file:
       - .env
     ports:
@@ -266,6 +269,10 @@ services:
       INVOICES_APP_INTERNAL_URL: http://saleor-invoice-app:3000
       # Public URL for invoices app (for client downloads)
       INVOICES_APP_URL: ${INVOICE_APP_URL}
+      # Internal Docker network URL for storefront control app (server-to-server)
+      STOREFRONT_CONTROL_APP_INTERNAL_URL: http://saleor-storefront-control-app:3000
+      # Public URL for storefront control app (for client-side fetches)
+      STOREFRONT_CONTROL_APP_URL: ${STOREFRONT_CONTROL_APP_URL}
       # Build mode: 'dev' (default) or 'production'
       # Set STOREFRONT_MODE=production in .env to use production build
       # Set STOREFRONT_MODE=dev (or leave unset) to use dev server
@@ -291,8 +298,8 @@ services:
         ]
       interval: 30s
       timeout: 10s
-      retries: 5
-      start_period: 120s
+      retries: 8
+      start_period: 300s
 
   # SMTP App - Handles email notifications (fulfillment, invoices, etc.)
   # This app sends emails via SMTP when webhook events are triggered
@@ -455,6 +462,55 @@ services:
       - saleor-network
     restart: unless-stopped
 
+  # Storefront Control App - Dashboard extension for managing storefront UI configuration
+  # Manages: theme, features, homepage sections, filters, quickFilters, SEO per channel
+  saleor-storefront-control-app:
+    image: node:22-alpine
+    container_name: saleor-storefront-control-app-dev
+    working_dir: /app
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-storefront-control... --prefer-offline && cd apps/storefront-control && PORT=3000 pnpm dev"
+    env_file:
+      - .env
+    ports:
+      - "${STOREFRONT_CONTROL_APP_PORT:-3004}:3000"
+    volumes:
+      - ../apps:/app
+      - storefront-control-app-node-modules:/app/node_modules
+      - storefront-control-app-pnpm-store:/root/.local/share/pnpm/store
+    environment:
+      SALEOR_API_URL: ${SALEOR_API_URL}
+      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+      # Use tunnel URL for app registration (Dashboard needs to reach this)
+      STOREFRONT_CONTROL_APP_URL: ${STOREFRONT_CONTROL_APP_TUNNEL_URL:-${STOREFRONT_CONTROL_APP_URL}}
+      APP_API_BASE_URL: ${STOREFRONT_CONTROL_APP_TUNNEL_URL:-${STOREFRONT_CONTROL_APP_URL}}
+      # APL type: 'file' for local dev
+      APL: file
+      # Secret key for encrypting app metadata
+      SECRET_KEY: ${APP_SECRET_KEY}
+      NODE_ENV: development
+      # Disable OpenTelemetry/Sentry in development
+      OTEL_ENABLED: "false"
+      NEXT_PUBLIC_SENTRY_DSN: ""
+    depends_on:
+      saleor-api:
+        condition: service_healthy
+    networks:
+      - saleor-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
 volumes:
   postgres-data:
     driver: local
@@ -485,6 +541,10 @@ volumes:
   invoice-app-node-modules:
     driver: local
   invoice-app-pnpm-store:
+    driver: local
+  storefront-control-app-node-modules:
+    driver: local
+  storefront-control-app-pnpm-store:
     driver: local
 
 networks:

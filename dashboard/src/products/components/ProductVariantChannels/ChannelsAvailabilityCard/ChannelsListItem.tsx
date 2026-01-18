@@ -6,7 +6,7 @@ import { Text } from "@saleor/macaw-ui-next";
 import { Fragment } from "react";
 import { useIntl } from "react-intl";
 
-import { variantDetailsChannelsAvailabilityCardMessages as messages } from "./../messages";
+import { variantDetailsChannelsAvailabilityCardMessages as messages } from "../messages";
 
 interface ChannelsListItemProps {
   id: string;

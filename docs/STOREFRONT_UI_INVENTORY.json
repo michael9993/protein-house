@@ -1,0 +1,2567 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-16",
+  "description": "Complete inventory of all UI text, buttons, labels, placeholders, and styling options across the storefront",
+  "structure": {
+    "pages": "Main route pages",
+    "components": "Reusable components",
+    "status": {
+      "configurable": "Text/styling is configurable via storefront-control CMS",
+      "hardcoded": "Text/styling is hardcoded in component",
+      "partial": "Some elements configurable, some hardcoded"
+    },
+    "configPath": "Path in storefront-control schema (e.g., content.filters.shopAllButton)"
+  },
+  "inventory": {
+    "pages": {
+      "homepage": {
+        "route": "/",
+        "components": [
+          {
+            "name": "HeroSection",
+            "type": "hero-banner",
+            "uiElements": [
+              {
+                "element": "Title",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.hero.title",
+                "default": "Welcome to {storeName}",
+                "styling": {
+                  "fontFamily": "configurable",
+                  "fontSize": "hardcoded",
+                  "color": "uses branding.colors.text",
+                  "textAlign": "configurable (homepage.sections.hero.textAlignment)"
+                }
+              },
+              {
+                "element": "Subtitle",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.hero.subtitle",
+                "default": "Store description"
+              },
+              {
+                "element": "CTA Button Text",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.heroCtaText",
+                "default": "Shop Now",
+                "styling": {
+                  "backgroundColor": "uses branding.colors.primary",
+                  "textColor": "white",
+                  "borderRadius": "configurable (ui.buttons.borderRadius)",
+                  "hoverEffect": "hardcoded"
+                }
+              },
+              {
+                "element": "Secondary CTA Button Text",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.heroSecondaryCtaText",
+                "default": "Browse Categories"
+              }
+            ]
+          },
+          {
+            "name": "FeaturedCategories",
+            "type": "section",
+            "uiElements": [
+              {
+                "element": "Section Title",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.categoriesTitle",
+                "default": "Shop by Category"
+              },
+              {
+                "element": "Section Subtitle",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.categoriesSubtitle",
+                "default": "Find what you're looking for"
+              }
+            ]
+          },
+          {
+            "name": "ProductGrid",
+            "type": "section",
+            "uiElements": [
+              {
+                "element": "View All Button",
+                "currentStatus": "configurable",
+                "configPath": "content.general.viewAllButton",
+                "default": "View All"
+              },
+              {
+                "element": "Section Titles (New Arrivals, Best Sellers, etc.)",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.{section}Title",
+                "sections": [
+                  "newArrivalsTitle",
+                  "bestSellersTitle",
+                  "onSaleTitle",
+                  "featuredTitle"
+                ]
+              },
+              {
+                "element": "Section Subtitles",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.{section}Subtitle"
+              },
+              {
+                "element": "Shop Now Button",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.shopNowButton",
+                "default": "Shop Now"
+              },
+              {
+                "element": "Product Count Text",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.productCountText",
+                "default": "Products"
+              }
+            ]
+          },
+          {
+            "name": "FeaturedCategories",
+            "type": "section",
+            "uiElements": [
+              {
+                "element": "Shop Now Button",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.shopNowButton",
+                "default": "Shop Now"
+              },
+              {
+                "element": "Product Count Text",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.productCountText",
+                "default": "Products"
+              }
+            ]
+          },
+          {
+            "name": "NewsletterSignup",
+            "type": "section",
+            "uiElements": [
+              {
+                "element": "Title",
+                "currentStatus": "configurable",
+                "configPath": "content.general.newsletterTitle",
+                "default": "Subscribe to our newsletter"
+              },
+              {
+                "element": "Description",
+                "currentStatus": "configurable",
+                "configPath": "content.general.newsletterDescription"
+              },
+              {
+                "element": "Button Text",
+                "currentStatus": "configurable",
+                "configPath": "content.general.newsletterButton",
+                "default": "Subscribe"
+              },
+              {
+                "element": "Placeholder",
+                "currentStatus": "configurable",
+                "configPath": "content.general.newsletterPlaceholder",
+                "default": "Enter your email"
+              },
+              {
+                "element": "Email Placeholder (Homepage)",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.newsletterEmailPlaceholder",
+                "default": "Enter your email"
+              },
+              {
+                "element": "Success Message",
+                "currentStatus": "configurable",
+                "configPath": "content.general.newsletterSuccess",
+                "default": "Thanks for subscribing!"
+              }
+            ]
+          },
+          {
+            "name": "Testimonials",
+            "type": "section",
+            "uiElements": [
+              {
+                "element": "Section Title",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.testimonialsTitle",
+                "default": "What Our Customers Say"
+              },
+              {
+                "element": "Section Subtitle",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.testimonialsSubtitle"
+              }
+            ]
+          }
+        ]
+      },
+      "products": {
+        "route": "/products",
+        "components": [
+          {
+            "name": "Sidebar Header",
+            "uiElements": [
+              {
+                "element": "Discover Products Title",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.discoverProducts",
+                "default": "Discover Products"
+              },
+              {
+                "element": "Items Available Text",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.itemsAvailable",
+                "default": "items available"
+              }
+            ]
+          },
+          {
+            "name": "QuickFilters Section",
+            "uiElements": [
+              {
+                "element": "Check Out Our Products Title",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.checkOutOurProducts",
+                "default": "Check Out Our Products"
+              },
+              {
+                "element": "Shop All Button Text",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.shopAllButton",
+                "default": "Shop All",
+                "styling": {
+                  "backgroundColor": "configurable (quickFilters.style.shopAllButtonBackgroundColor)",
+                  "textColor": "configurable (quickFilters.style.shopAllButtonTextColor)",
+                  "hoverBackgroundColor": "configurable (quickFilters.style.shopAllButtonHoverBackgroundColor)",
+                  "borderColor": "configurable (quickFilters.style.shopAllButtonBorderColor)"
+                }
+              },
+              {
+                "element": "Quick Add Button",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.quickAddButton",
+                "default": "Quick Add"
+              },
+              {
+                "element": "Scroll Arrows Aria Labels",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.scrollLeftAriaLabel / scrollRightAriaLabel"
+              },
+              {
+                "element": "QuickFilters Card Styling",
+                "currentStatus": "configurable",
+                "configPath": "quickFilters.style",
+                "options": [
+                  "cardWidth",
+                  "cardHeight",
+                  "cardGap",
+                  "titleFontSize",
+                  "titleFontWeight",
+                  "titleColor",
+                  "valueColor",
+                  "activeValueColor"
+                ]
+              }
+            ]
+          },
+          {
+            "name": "ProductFilters",
+            "uiElements": [
+              {
+                "element": "Section Title",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.sectionTitle",
+                "default": "Filters"
+              },
+              {
+                "element": "Clear All Button",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.clearAllButton",
+                "default": "Clear All Filters"
+              },
+              {
+                "element": "Show Results Button",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.showResultsButton",
+                "default": "Show Results"
+              },
+              {
+                "element": "Filter Category Titles",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.{type}Title",
+                "types": [
+                  "categoryTitle",
+                  "collectionTitle",
+                  "brandTitle",
+                  "sizeTitle",
+                  "colorTitle",
+                  "priceTitle",
+                  "ratingTitle",
+                  "availabilityTitle"
+                ]
+              },
+              {
+                "element": "Price Filter Labels",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.minPriceLabel / maxPriceLabel / quickMinLabel / quickMaxLabel",
+                "defaults": {
+                  "minPriceLabel": "Min Price",
+                  "maxPriceLabel": "Max Price",
+                  "quickMinLabel": "Quick Min",
+                  "quickMaxLabel": "Quick Max"
+                }
+              },
+              {
+                "element": "Rating Filter Text",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.minimumRating / starsAndUp / starAndUp / clearRatingFilter"
+              },
+              {
+                "element": "Clear Price Filter",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.clearPriceFilter",
+                "default": "Clear"
+              }
+            ]
+          },
+          {
+            "name": "ProductSearch",
+            "uiElements": [
+              {
+                "element": "Search Placeholder",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.searchPlaceholder",
+                "default": "Search Products"
+              },
+              {
+                "element": "Search Input Styling",
+                "currentStatus": "partial",
+                "borderColor": "uses branding.colors.primary on focus",
+                "backgroundColor": "white (hardcoded)"
+              }
+            ]
+          },
+          {
+            "name": "Results Header",
+            "uiElements": [
+              {
+                "element": "Results Text",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.resultsText",
+                "default": "results"
+              },
+              {
+                "element": "Sort Dropdown",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.sort{Option}",
+                "options": [
+                  "sortAtoZ",
+                  "sortZtoA",
+                  "sortPriceLowHigh",
+                  "sortPriceHighLow",
+                  "sortNewest",
+                  "sortSale"
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Empty States",
+            "uiElements": [
+              {
+                "element": "No Products Title",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.noProductsTitle",
+                "default": "No products found"
+              },
+              {
+                "element": "No Products (with filters)",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.noProductsWithFilters"
+              },
+              {
+                "element": "No Products (empty)",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.noProductsEmpty"
+              },
+              {
+                "element": "Loading States",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.filteringProducts / loadingMore"
+              }
+            ]
+          }
+        ]
+      },
+      "productDetail": {
+        "route": "/products/[slug]",
+        "components": [
+          {
+            "name": "ProductInfo",
+            "uiElements": [
+              {
+                "element": "Add to Cart Button",
+                "currentStatus": "configurable",
+                "configPath": "content.product.addToCartButton",
+                "default": "Add to Cart",
+                "styling": {
+                  "backgroundColor": "uses branding.colors.primary",
+                  "textColor": "white",
+                  "borderRadius": "configurable (ui.buttons.borderRadius)"
+                }
+              },
+              {
+                "element": "Buy Now Button",
+                "currentStatus": "configurable",
+                "configPath": "content.product.buyNowButton",
+                "default": "Buy Now"
+              },
+              {
+                "element": "Stock Status Messages",
+                "currentStatus": "configurable",
+                "configPath": "content.product.{status}Text",
+                "statuses": [
+                  "outOfStockText",
+                  "lowStockText",
+                  "inStockText"
+                ]
+              },
+              {
+                "element": "Trust Badges",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.{badge}",
+                "badges": [
+                  "freeShipping",
+                  "securePayment",
+                  "easyReturns"
+                ]
+              },
+              {
+                "element": "Tab Labels",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.{tab}Tab",
+                "tabs": [
+                  "descriptionTab",
+                  "shippingTab",
+                  "reviewsTab"
+                ]
+              },
+              {
+                "element": "No Description Available",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.noDescriptionAvailable",
+                "default": "No description available for this product."
+              },
+              {
+                "element": "Quantity Label",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.qtyLabel",
+                "default": "Qty"
+              },
+              {
+                "element": "Quantity Label With Colon",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.qtyLabelWithColon",
+                "default": "Qty:"
+              },
+              {
+                "element": "Share Button",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.shareButton",
+                "default": "Share"
+              },
+              {
+                "element": "Color Label",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.colorLabel",
+                "default": "Color"
+              },
+              {
+                "element": "Size Label",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.sizeLabel",
+                "default": "Size"
+              },
+              {
+                "element": "Select Option Label",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.selectOptionLabel",
+                "default": "Select Option"
+              },
+              {
+                "element": "Please Select Size",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.pleaseSelectSize",
+                "default": "Please select a size"
+              },
+              {
+                "element": "Please Select Option",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.pleaseSelectOption",
+                "default": "Please select an option"
+              },
+              {
+                "element": "Only X Left",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.onlyXLeft",
+                "default": "Only {count} left!"
+              },
+              {
+                "element": "In Stock With Count",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.inStockWithCount",
+                "default": "In Stock ({count} available)"
+              },
+              {
+                "element": "Selling Fast",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.sellingFast",
+                "default": "Selling fast!"
+              },
+              {
+                "element": "Save Percent",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.savePercent",
+                "default": "Save {percent}%"
+              },
+              {
+                "element": "Review Singular",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.reviewSingular",
+                "default": "review"
+              },
+              {
+                "element": "Review Plural",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.reviewPlural",
+                "default": "reviews"
+              },
+              {
+                "element": "Zoom In Label",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.zoomInLabel",
+                "default": "Zoom in"
+              },
+              {
+                "element": "Zoom Out Label",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.zoomOutLabel",
+                "default": "Zoom out"
+              },
+              {
+                "element": "Previous Image Label",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.previousImageLabel",
+                "default": "Previous image"
+              },
+              {
+                "element": "Next Image Label",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.nextImageLabel",
+                "default": "Next image"
+              },
+              {
+                "element": "Adding Button",
+                "currentStatus": "configurable",
+                "configPath": "content.product.addingButton",
+                "default": "Adding..."
+              },
+              {
+                "element": "Added To Cart Button",
+                "currentStatus": "configurable",
+                "configPath": "content.product.addedToCartButton",
+                "default": "Added to Cart!"
+              },
+              {
+                "element": "Select Options Button",
+                "currentStatus": "configurable",
+                "configPath": "content.product.selectOptionsButton",
+                "default": "Select Options"
+              },
+              {
+                "element": "View Cart Link",
+                "currentStatus": "configurable",
+                "configPath": "content.product.viewCartLink",
+                "default": "View Cart →"
+              }
+            ]
+          },
+          {
+            "name": "ProductReviews",
+            "uiElements": [
+              {
+                "element": "Reviews Title",
+                "currentStatus": "configurable",
+                "configPath": "content.product.reviewsTitle",
+                "default": "Customer Reviews"
+              },
+              {
+                "element": "No Reviews Text",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.noReviewsYet",
+                "default": "No reviews yet. Be the first!"
+              },
+              {
+                "element": "Write Review Title",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.writeReviewTitle",
+                "default": "Write a Review"
+              },
+              {
+                "element": "Review Form Fields",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.{field}",
+                "fields": [
+                  "ratingRequired",
+                  "reviewTitleRequired",
+                  "reviewTitlePlaceholder",
+                  "reviewRequired",
+                  "reviewPlaceholder",
+                  "characterCount",
+                  "imagesOptional",
+                  "uploadImagesHint",
+                  "submitReviewButton"
+                ]
+              },
+              {
+                "element": "Helpful Button",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.helpfulButton",
+                "default": "Helpful"
+              },
+              {
+                "element": "Helpful Button With Count",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.helpfulButtonWithCount",
+                "default": "Helpful ({count})"
+              },
+              {
+                "element": "Verified Purchase Badge",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.verifiedPurchase",
+                "default": "Verified Purchase"
+              },
+              {
+                "element": "Edit Review Button",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.editReview",
+                "default": "Edit"
+              },
+              {
+                "element": "Delete Review Button",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.deleteReview",
+                "default": "Delete"
+              },
+              {
+                "element": "All Ratings Filter",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.allRatings",
+                "default": "All Ratings"
+              },
+              {
+                "element": "Verified Only Filter",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.verifiedOnly",
+                "default": "Verified Only"
+              },
+              {
+                "element": "Delete Review Modal Title",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.deleteReviewTitle",
+                "default": "Delete Review"
+              },
+              {
+                "element": "Delete Review Modal Message",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.deleteReviewMessage",
+                "default": "Are you sure you want to delete this review? This action cannot be undone."
+              },
+              {
+                "element": "Cancel Button",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.cancelButton",
+                "default": "Cancel"
+              },
+              {
+                "element": "Deleting Button",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.deletingButton",
+                "default": "Deleting..."
+              },
+              {
+                "element": "Just Now Time Format",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.justNow",
+                "default": "just now"
+              },
+              {
+                "element": "Minutes Ago Time Format",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.minutesAgo",
+                "default": "{count} minutes ago"
+              },
+              {
+                "element": "Hours Ago Time Format",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.hoursAgo",
+                "default": "{count} hours ago"
+              },
+              {
+                "element": "Days Ago Time Format",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.daysAgo",
+                "default": "{count} days ago"
+              },
+              {
+                "element": "Free Standard Shipping Title",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.freeStandardShippingTitle",
+                "default": "Free Standard Shipping"
+              },
+              {
+                "element": "Free Standard Shipping Description",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.freeStandardShippingDescription",
+                "default": "On orders over $75. Delivery in 5-7 business days."
+              },
+              {
+                "element": "Express Shipping Title",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.expressShippingTitle",
+                "default": "Express Shipping"
+              },
+              {
+                "element": "Express Shipping Description",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.expressShippingDescription",
+                "default": "{price}. Delivery in 2-3 business days."
+              },
+              {
+                "element": "Loading Reviews",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.loadingReviews",
+                "default": "Loading reviews..."
+              },
+              {
+                "element": "No Reviews Match Filters",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.noReviewsMatchFilters",
+                "default": "No reviews match your filters."
+              },
+              {
+                "element": "Clear Filters",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.clearFilters",
+                "default": "Clear Filters"
+              },
+              {
+                "element": "Clear Filters (Lowercase)",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.clearFiltersLowercase",
+                "default": "Clear filters"
+              },
+              {
+                "element": "Try Again",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.tryAgain",
+                "default": "Try again"
+              },
+              {
+                "element": "Failed To Load Reviews",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.failedToLoadReviews",
+                "default": "Failed to load reviews. Please try again."
+              },
+              {
+                "element": "Load More Reviews",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.loadMoreReviews",
+                "default": "Load More Reviews"
+              },
+              {
+                "element": "Rating Label",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.ratingLabel",
+                "default": "Rating"
+              },
+              {
+                "element": "Title Label",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.titleLabel",
+                "default": "Title"
+              },
+              {
+                "element": "Review Label",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.reviewLabel",
+                "default": "Review"
+              },
+              {
+                "element": "Uploading Images",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.uploadingImages",
+                "default": "Uploading and compressing images..."
+              },
+              {
+                "element": "Saving Button",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.savingButton",
+                "default": "Saving..."
+              },
+              {
+                "element": "Save Button",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.saveButton",
+                "default": "Save"
+              },
+              {
+                "element": "Submitting Button",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.submittingButton",
+                "default": "Submitting..."
+              },
+              {
+                "element": "Thank You Message",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.thankYouMessage",
+                "default": "Thank you for your review!"
+              },
+              {
+                "element": "Review Submitted Message",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.reviewSubmittedMessage",
+                "default": "Your review has been submitted and will be visible after moderation."
+              },
+              {
+                "element": "Please Select Rating",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.pleaseSelectRating",
+                "default": "Please select a rating"
+              },
+              {
+                "element": "Please Enter Review Title",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.pleaseEnterReviewTitle",
+                "default": "Please enter a review title"
+              },
+              {
+                "element": "Please Enter Review Body",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.pleaseEnterReviewBody",
+                "default": "Please enter a review body"
+              },
+              {
+                "element": "Max Images Error",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.maxImagesError",
+                "default": "Maximum 5 images allowed per review"
+              },
+              {
+                "element": "Only X More Images Error",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.onlyXMoreImagesError",
+                "default": "Only {count} more image(s) can be uploaded (max 5 total)"
+              },
+              {
+                "element": "Failed To Submit Review",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.failedToSubmitReview",
+                "default": "Failed to submit review"
+              },
+              {
+                "element": "Failed To Submit Review Retry",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.failedToSubmitReviewRetry",
+                "default": "Failed to submit review. Please try again."
+              },
+              {
+                "element": "Must Be Logged In To Review",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.mustBeLoggedInToReview",
+                "default": "You must be logged in to submit a review. Please log in and try again."
+              },
+              {
+                "element": "Failed To Update Review",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.failedToUpdateReview",
+                "default": "Failed to update review"
+              },
+              {
+                "element": "Failed To Delete Review",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.failedToDeleteReview",
+                "default": "Failed to delete review"
+              },
+              {
+                "element": "Failed To Upload Images",
+                "currentStatus": "configurable",
+                "configPath": "content.productDetail.failedToUploadImages",
+                "default": "Failed to upload images"
+              }
+            ]
+          }
+        ]
+      },
+      "cart": {
+        "route": "/cart",
+        "components": [
+          {
+            "name": "CartClient",
+            "uiElements": [
+              {
+                "element": "Cart Title",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.cartTitle",
+                "default": "Shopping Cart"
+              },
+              {
+                "element": "Empty Cart Title",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.emptyCartTitle",
+                "default": "Your cart is empty"
+              },
+              {
+                "element": "Empty Cart Message",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.emptyCartMessage",
+                "default": "Looks like you haven't added anything yet"
+              },
+              {
+                "element": "Continue Shopping Button",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.continueShoppingButton",
+                "default": "Continue Shopping"
+              },
+              {
+                "element": "Checkout Button",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.checkoutButton",
+                "default": "Proceed to Checkout",
+                "styling": {
+                  "backgroundColor": "uses branding.colors.primary",
+                  "textColor": "white"
+                }
+              },
+              {
+                "element": "Select All Button",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.selectAllButton",
+                "default": "Select All"
+              },
+              {
+                "element": "Deselect All Button",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.deselectAllButton",
+                "default": "Deselect All"
+              },
+              {
+                "element": "Remove Item Button",
+                "currentStatus": "hardcoded",
+                "note": "Icon only, no text"
+              },
+              {
+                "element": "Quantity Input Labels",
+                "currentStatus": "hardcoded",
+                "note": "No visible labels, just input controls"
+              },
+              {
+                "element": "Free Shipping Message",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.freeShippingMessage",
+                "default": "Add {amount} more for free shipping"
+              },
+              {
+                "element": "Free Shipping Threshold Reached",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.freeShippingThresholdReached",
+                "default": "You've qualified for free shipping!"
+              },
+              {
+                "element": "Add X More For Free Shipping",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.addXMoreForFreeShipping",
+                "default": "Add {amount} more for FREE shipping!"
+              },
+              {
+                "element": "Unlocked Free Shipping",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.unlockedFreeShipping",
+                "default": "You've unlocked FREE shipping!"
+              },
+              {
+                "element": "Select All Items Button",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.selectAllItemsButton",
+                "default": "Select all items"
+              },
+              {
+                "element": "Select Items To Checkout",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.selectItemsToCheckout",
+                "default": "Select items to proceed to checkout"
+              },
+              {
+                "element": "Save For Later Button",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.saveForLaterButton",
+                "default": "Save for Later"
+              },
+              {
+                "element": "Move To Cart Button",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.moveToCartButton",
+                "default": "Move to Cart"
+              },
+              {
+                "element": "Delete Button",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.deleteButton",
+                "default": "Delete"
+              },
+              {
+                "element": "Item Singular",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.itemSingular",
+                "default": "item"
+              },
+              {
+                "element": "Item Plural",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.itemPlural",
+                "default": "items"
+              },
+              {
+                "element": "Order Summary Title",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.orderSummaryTitle",
+                "default": "Order Summary"
+              },
+              {
+                "element": "Items Selected Text",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.itemsSelectedText",
+                "default": "{count} {singular|plural} selected"
+              },
+              {
+                "element": "Each Label",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.eachLabel",
+                "default": "each"
+              },
+              {
+                "element": "Available Label",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.availableLabel",
+                "default": "available"
+              },
+              {
+                "element": "Out Of Stock Label",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.outOfStockLabel",
+                "default": "Out of stock"
+              },
+              {
+                "element": "Loading Checkout Title",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.loadingCheckoutTitle",
+                "default": "Loading Checkout..."
+              },
+              {
+                "element": "Loading Checkout Message",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.loadingCheckoutMessage",
+                "default": "Please wait while we prepare your checkout"
+              },
+              {
+                "element": "Quantity Min Error",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.quantityMinError",
+                "default": "Quantity must be at least 1"
+              },
+              {
+                "element": "Only X Items Available",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.onlyXItemsAvailable",
+                "default": "Only {count} items available in stock"
+              },
+              {
+                "element": "Use Delete Button Message",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.useDeleteButtonMessage",
+                "default": "Use the Delete button to remove items from cart"
+              },
+              {
+                "element": "Failed To Update Quantity",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.failedToUpdateQuantity",
+                "default": "Failed to update quantity"
+              },
+              {
+                "element": "Only X Available",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.onlyXAvailable",
+                "default": "Only {count} available"
+              },
+              {
+                "element": "Quantity Updated Success",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.quantityUpdatedSuccess",
+                "default": "Quantity updated!"
+              },
+              {
+                "element": "Promo Code Label",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.promoCodeLabel",
+                "default": "Promo Code"
+              },
+              {
+                "element": "Promo Code Placeholder",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.promoCodePlaceholder",
+                "default": "Enter code"
+              },
+              {
+                "element": "Promo Code Apply Button",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.promoCodeApplyButton",
+                "default": "Apply"
+              },
+              {
+                "element": "Subtotal Label",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.subtotalLabel",
+                "default": "Subtotal"
+              },
+              {
+                "element": "Subtotal Label With Count",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.subtotalLabelWithCount",
+                "default": "Subtotal ({count} items)"
+              },
+              {
+                "element": "Shipping Label",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.shippingLabel",
+                "default": "Shipping"
+              },
+              {
+                "element": "Shipping Free",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.shippingFree",
+                "default": "FREE"
+              },
+              {
+                "element": "Shipping Calculated At Checkout",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.shippingCalculatedAtCheckout",
+                "default": "Calculated at checkout"
+              },
+              {
+                "element": "Total Label",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.totalLabel",
+                "default": "Total"
+              },
+              {
+                "element": "Select Items Button",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.selectItemsButton",
+                "default": "Select Items"
+              },
+              {
+                "element": "Preparing Checkout",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.preparingCheckout",
+                "default": "Preparing..."
+              },
+              {
+                "element": "Loading Checkout",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.loadingCheckout",
+                "default": "Loading..."
+              },
+              {
+                "element": "Secure Checkout Text",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.secureCheckoutText",
+                "default": "Secure Checkout"
+              },
+              {
+                "element": "SSL Encrypted Text",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.sslEncryptedText",
+                "default": "SSL Encrypted"
+              },
+              {
+                "element": "Accepted Payment Methods",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.acceptedPaymentMethods",
+                "default": "Accepted Payment Methods"
+              },
+              {
+                "element": "Provided By Stripe",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.providedByStripe",
+                "default": "Provided by Stripe"
+              },
+              {
+                "element": "Items Saved For Later",
+                "currentStatus": "configurable",
+                "configPath": "content.cart.itemsSavedForLater",
+                "default": "{count} item(s) saved for later"
+              }
+            ]
+          }
+        ]
+      },
+      "checkout": {
+        "route": "/checkout",
+        "components": [
+          {
+            "name": "CheckoutPage",
+            "uiElements": [
+              {
+                "element": "Secure Checkout Badge",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.secureCheckout",
+                "default": "Secure Checkout"
+              },
+              {
+                "element": "Section Titles",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.{section}",
+                "sections": [
+                  "contactDetails",
+                  "shippingAddress",
+                  "shippingMethod",
+                  "paymentMethod",
+                  "orderSummary"
+                ]
+              },
+              {
+                "element": "Place Order Button",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.placeOrder",
+                "default": "Place Order"
+              },
+              {
+                "element": "Order Confirmation Title",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.orderConfirmation",
+                "default": "Order Confirmation"
+              },
+              {
+                "element": "Thank You Title",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.thankYouTitle",
+                "default": "Thank you for your order!"
+              },
+              {
+                "element": "Thank You Message",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.thankYouMessage"
+              },
+              {
+                "element": "Footer Text",
+                "currentStatus": "hardcoded",
+                "note": "Privacy Policy, Terms of Service links are hardcoded"
+              }
+            ]
+          }
+        ]
+      },
+      "account": {
+        "route": "/account",
+        "components": [
+          {
+            "name": "AccountDashboard",
+            "uiElements": [
+              {
+                "element": "Welcome Back",
+                "currentStatus": "configurable",
+                "configPath": "content.dashboard.welcomeBack",
+                "default": "Welcome back, {name}"
+              },
+              {
+                "element": "Welcome Back Message",
+                "currentStatus": "configurable",
+                "configPath": "content.dashboard.welcomeBackMessage",
+                "default": "Here's what's happening with your account today."
+              },
+              {
+                "element": "Account Summary",
+                "currentStatus": "configurable",
+                "configPath": "content.dashboard.accountSummary"
+              },
+              {
+                "element": "Stats Labels",
+                "currentStatus": "configurable",
+                "configPath": "content.dashboard.{stat}",
+                "stats": [
+                  "totalOrders",
+                  "wishlistItems",
+                  "savedAddresses",
+                  "memberSince"
+                ]
+              },
+              {
+                "element": "Recent Orders Title",
+                "currentStatus": "configurable",
+                "configPath": "content.dashboard.recentOrders",
+                "default": "Recent Orders"
+              },
+              {
+                "element": "View All Button",
+                "currentStatus": "configurable",
+                "configPath": "content.dashboard.viewAllButton",
+                "default": "View All →"
+              },
+              {
+                "element": "View Button",
+                "currentStatus": "configurable",
+                "configPath": "content.dashboard.viewButton",
+                "default": "View"
+              },
+              {
+                "element": "Order Number Prefix",
+                "currentStatus": "configurable",
+                "configPath": "content.dashboard.orderNumberPrefix",
+                "default": "Order #"
+              },
+              {
+                "element": "No Orders Yet",
+                "currentStatus": "configurable",
+                "configPath": "content.dashboard.noOrdersYet",
+                "default": "No orders yet"
+              },
+              {
+                "element": "When You Place Order",
+                "currentStatus": "configurable",
+                "configPath": "content.dashboard.whenYouPlaceOrder",
+                "default": "When you place an order, it will appear here."
+              },
+              {
+                "element": "No Recent Orders",
+                "currentStatus": "configurable",
+                "configPath": "content.dashboard.noRecentOrders",
+                "default": "No recent orders"
+              },
+              {
+                "element": "Start Shopping Button",
+                "currentStatus": "configurable",
+                "configPath": "content.dashboard.startShopping",
+                "default": "Start Shopping"
+              }
+            ]
+          },
+          {
+            "name": "AccountSidebar",
+            "uiElements": [
+              {
+                "element": "Menu Items",
+                "currentStatus": "configurable",
+                "configPath": "content.account.{item}Title",
+                "items": [
+                  "dashboardTitle",
+                  "ordersTitle",
+                  "addressesTitle",
+                  "wishlistTitle",
+                  "settingsTitle"
+                ]
+              },
+              {
+                "element": "Need Help Section",
+                "currentStatus": "configurable",
+                "configPath": "content.account.needHelpTitle / needHelpDescription / contactSupportButton"
+              }
+            ]
+          },
+          {
+            "name": "UserMenu (Navbar Dropdown)",
+            "uiElements": [
+              {
+                "element": "My Account",
+                "currentStatus": "configurable",
+                "configPath": "content.account.myAccountTitle",
+                "default": "My Account"
+              },
+              {
+                "element": "My Orders",
+                "currentStatus": "configurable",
+                "configPath": "content.account.ordersTitle",
+                "default": "My Orders"
+              },
+              {
+                "element": "Addresses",
+                "currentStatus": "configurable",
+                "configPath": "content.account.addressesTitle",
+                "default": "Addresses"
+              },
+              {
+                "element": "Wishlist",
+                "currentStatus": "configurable",
+                "configPath": "content.account.wishlistTitle",
+                "default": "Wishlist"
+              },
+              {
+                "element": "Settings",
+                "currentStatus": "configurable",
+                "configPath": "content.account.settingsTitle",
+                "default": "Settings"
+              },
+              {
+                "element": "Sign Out",
+                "currentStatus": "configurable",
+                "configPath": "content.account.signOutButton",
+                "default": "Sign Out"
+              }
+            ]
+          }
+        ]
+      },
+      "accountOrders": {
+        "route": "/account/orders",
+        "components": [
+          {
+            "name": "OrdersListClient",
+            "uiElements": [
+              {
+                "element": "Page Title",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.myOrdersTitle",
+                "default": "My Orders"
+              },
+              {
+                "element": "Orders Placed Count",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.ordersPlacedCount",
+                "default": "{count} order(s) placed"
+              },
+              {
+                "element": "Table Headers",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.{header}",
+                "headers": [
+                  "orderNumber",
+                  "datePlaced",
+                  "totalLabel",
+                  "orderStatus"
+                ]
+              },
+              {
+                "element": "Action Buttons",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.{action}",
+                "actions": [
+                  "getInvoice",
+                  "downloadInvoice",
+                  "viewDetails",
+                  "trackPackage",
+                  "buyAgain",
+                  "showAllOrders",
+                  "showLess"
+                ]
+              },
+              {
+                "element": "Empty State",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.noOrders / noOrdersMessage / noOrdersYetMessage",
+                "defaults": {
+                  "noOrders": "No orders yet",
+                  "noOrdersMessage": "When you place an order, it will appear here",
+                  "noOrdersYetMessage": "Looks like you haven't placed any orders yet. Start shopping to see your orders here!"
+                }
+              },
+              {
+                "element": "Orders Placed Label",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.ordersPlaced",
+                "default": "Orders Placed"
+              },
+              {
+                "element": "Invoice Modal Text",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.{invoiceField}",
+                "fields": [
+                  "generatingInvoice",
+                  "generateDownloadInvoice",
+                  "invoiceAvailable",
+                  "invoiceAvailableMessage",
+                  "invoicePending",
+                  "invoicePendingMessage",
+                  "invoiceWillBeGenerated",
+                  "needInvoiceSooner",
+                  "invoiceModalTitle",
+                  "close"
+                ]
+              },
+              {
+                "element": "Tracking Modal Text",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.{trackingField}",
+                "fields": [
+                  "trackingModalTitle",
+                  "trackingNumberLabel",
+                  "statusLabel",
+                  "trackPackageDescription",
+                  "universalTrackers",
+                  "directCarrierLinks"
+                ]
+              },
+              {
+                "element": "Order Item Labels",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.{label}",
+                "labels": [
+                  "qtyLabel",
+                  "remainingItems",
+                  "loading"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "accountAddresses": {
+        "route": "/account/addresses",
+        "components": [
+          {
+            "name": "AddressesClient",
+            "uiElements": [
+              {
+                "element": "Page Title",
+                "currentStatus": "configurable",
+                "configPath": "content.addresses.myAddresses",
+                "default": "My Addresses"
+              },
+              {
+                "element": "Addresses Count",
+                "currentStatus": "configurable",
+                "configPath": "content.addresses.addressesCount",
+                "default": "{count} address(es) saved"
+              },
+              {
+                "element": "No Addresses Yet",
+                "currentStatus": "configurable",
+                "configPath": "content.addresses.noAddressesYet",
+                "default": "No addresses saved yet"
+              },
+              {
+                "element": "Add Address Button",
+                "currentStatus": "configurable",
+                "configPath": "content.addresses.addAddressButton",
+                "default": "Add Address"
+              },
+              {
+                "element": "Default Labels",
+                "currentStatus": "configurable",
+                "configPath": "content.addresses.{label}",
+                "labels": [
+                  "defaultShipping",
+                  "defaultBilling",
+                  "shippingAndBilling",
+                  "shippingAddress",
+                  "billingAddress",
+                  "savedAddress",
+                  "setAsDefault"
+                ]
+              },
+              {
+                "element": "Empty State",
+                "currentStatus": "configurable",
+                "configPath": "content.addresses.noAddresses / noAddressesMessage"
+              },
+              {
+                "element": "Edit Button",
+                "currentStatus": "configurable",
+                "configPath": "content.addresses.editButton",
+                "default": "Edit"
+              },
+              {
+                "element": "Delete Button",
+                "currentStatus": "configurable",
+                "configPath": "content.addresses.deleteButton",
+                "default": "Delete"
+              },
+              {
+                "element": "Add New Address Title",
+                "currentStatus": "configurable",
+                "configPath": "content.addresses.addNewAddressTitle",
+                "default": "Add New Address"
+              },
+              {
+                "element": "Continue Shopping Button",
+                "currentStatus": "configurable",
+                "configPath": "content.addresses.continueShoppingButton",
+                "default": "Continue Shopping"
+              },
+              {
+                "element": "Start Shopping Button",
+                "currentStatus": "configurable",
+                "configPath": "content.addresses.startShopping",
+                "default": "Start Shopping"
+              }
+            ]
+          }
+        ]
+      },
+      "accountWishlist": {
+        "route": "/account/wishlist",
+        "components": [
+          {
+            "name": "WishlistClient",
+            "uiElements": [
+              {
+                "element": "Page Title",
+                "currentStatus": "configurable",
+                "configPath": "content.wishlist.myWishlistTitle",
+                "default": "My Wishlist"
+              },
+              {
+                "element": "Items Count",
+                "currentStatus": "configurable",
+                "configPath": "content.wishlist.itemsCount",
+                "default": "{count} item(s) saved"
+              },
+              {
+                "element": "Loading State",
+                "currentStatus": "configurable",
+                "configPath": "content.wishlist.loadingWishlist",
+                "default": "Loading wishlist..."
+              },
+              {
+                "element": "Empty State Title",
+                "currentStatus": "configurable",
+                "configPath": "content.wishlist.emptyWishlistTitle",
+                "default": "Your wishlist is empty"
+              },
+              {
+                "element": "Empty State Message",
+                "currentStatus": "configurable",
+                "configPath": "content.wishlist.emptyWishlistMessage"
+              },
+              {
+                "element": "Discover Products Button",
+                "currentStatus": "configurable",
+                "configPath": "content.wishlist.discoverProductsButton",
+                "default": "Discover Products"
+              },
+              {
+                "element": "Clear All Button",
+                "currentStatus": "configurable",
+                "configPath": "content.wishlist.clearAllButton",
+                "default": "Clear All"
+              },
+              {
+                "element": "Items Saved Count",
+                "currentStatus": "configurable",
+                "configPath": "content.wishlist.itemsSaved",
+                "default": "{count} item(s) saved"
+              },
+              {
+                "element": "View Product Button",
+                "currentStatus": "configurable",
+                "configPath": "content.wishlist.viewProduct",
+                "default": "View Product"
+              },
+              {
+                "element": "View Details Button",
+                "currentStatus": "configurable",
+                "configPath": "content.wishlist.viewDetails",
+                "default": "View Details"
+              },
+              {
+                "element": "Out of Stock Label",
+                "currentStatus": "configurable",
+                "configPath": "content.wishlist.outOfStock",
+                "default": "Out of Stock"
+              },
+              {
+                "element": "Remove Button",
+                "currentStatus": "configurable",
+                "configPath": "content.wishlist.removeFromWishlist",
+                "default": "Remove"
+              },
+              {
+                "element": "Remove From Wishlist Tooltip",
+                "currentStatus": "configurable",
+                "configPath": "content.wishlist.removeFromWishlistTooltip",
+                "default": "Remove from wishlist"
+              },
+              {
+                "element": "Add to Cart Button",
+                "currentStatus": "configurable",
+                "configPath": "content.wishlist.moveToCart",
+                "default": "Add to Cart"
+              },
+              {
+                "element": "Header Item Count",
+                "currentStatus": "hardcoded",
+                "note": "\"{count} item{plural}\" text is hardcoded"
+              }
+            ]
+          }
+        ]
+      },
+      "accountSettings": {
+        "route": "/account/settings",
+        "components": [
+          {
+            "name": "SettingsClient",
+            "uiElements": [
+              {
+                "element": "Page Title",
+                "currentStatus": "configurable",
+                "configPath": "content.settings.accountSettings",
+                "default": "Account Settings"
+              },
+              {
+                "element": "Settings Subtitle",
+                "currentStatus": "configurable",
+                "configPath": "content.settings.settingsSubtitle"
+              },
+              {
+                "element": "Profile Section",
+                "currentStatus": "configurable",
+                "configPath": "content.settings.profileInformation / updatePersonalDetails / saveChangesButton / savingChanges"
+              },
+              {
+                "element": "Password Section",
+                "currentStatus": "configurable",
+                "configPath": "content.settings.{field}",
+                "fields": [
+                  "changePassword",
+                  "passwordSecurityNote",
+                  "currentPassword",
+                  "newPasswordLabel",
+                  "confirmNewPassword",
+                  "updatePasswordButton",
+                  "passwordUpdated"
+                ]
+              },
+              {
+                "element": "Notification Preferences",
+                "currentStatus": "configurable",
+                "configPath": "content.settings.{pref}",
+                "preferences": [
+                  "notificationPreferences",
+                  "notificationSubtitle",
+                  "orderUpdates",
+                  "orderUpdatesDesc",
+                  "promotionsOffers",
+                  "promotionsDesc",
+                  "newsletterSetting",
+                  "newsletterDesc",
+                  "smsNotifications",
+                  "smsDesc"
+                ]
+              },
+              {
+                "element": "Danger Zone",
+                "currentStatus": "configurable",
+                "configPath": "content.settings.dangerZone / deleteAccountWarning / deleteAccountButton"
+              }
+            ]
+          }
+        ]
+      },
+      "login": {
+        "route": "/login",
+        "components": [
+          {
+            "name": "LoginClient",
+            "uiElements": [
+              {
+                "element": "Sign In Title",
+                "currentStatus": "configurable",
+                "configPath": "content.account.signInTitle",
+                "default": "Welcome back"
+              },
+              {
+                "element": "Sign Up Title",
+                "currentStatus": "configurable",
+                "configPath": "content.account.signUpTitle",
+                "default": "Create your account"
+              },
+              {
+                "element": "Button Text",
+                "currentStatus": "configurable",
+                "configPath": "content.account.signInButton / signUpButton",
+                "defaults": {
+                  "signInButton": "Sign In",
+                  "signUpButton": "Create Account"
+                }
+              },
+              {
+                "element": "Form Labels",
+                "currentStatus": "configurable",
+                "configPath": "content.account.{field}Label",
+                "fields": [
+                  "emailLabel",
+                  "passwordLabel",
+                  "confirmPasswordLabel",
+                  "firstNameLabel",
+                  "lastNameLabel"
+                ]
+              },
+              {
+                "element": "Form Placeholders",
+                "currentStatus": "configurable",
+                "configPath": "content.account.{field}Placeholder"
+              },
+              {
+                "element": "Forgot Password Link",
+                "currentStatus": "configurable",
+                "configPath": "content.account.forgotPasswordLink",
+                "default": "Forgot password?"
+              },
+              {
+                "element": "Subtitle Text",
+                "currentStatus": "configurable",
+                "configPath": "content.account.signInSubtitle / signUpSubtitle"
+              },
+              {
+                "element": "Benefits List",
+                "currentStatus": "configurable",
+                "configPath": "content.account.{benefit}",
+                "benefits": [
+                  "benefitFasterCheckout",
+                  "benefitTrackOrders",
+                  "benefitWishlist",
+                  "benefitDiscounts"
+                ]
+              },
+              {
+                "element": "Terms Agreement",
+                "currentStatus": "configurable",
+                "configPath": "content.account.termsAgreement / termsOfService / privacyPolicy"
+              }
+            ]
+          }
+        ]
+      },
+      "search": {
+        "route": "/search",
+        "components": [
+          {
+            "name": "SearchProductsGrid",
+            "uiElements": [
+              {
+                "element": "Page Title",
+                "currentStatus": "hardcoded",
+                "note": "\"Search Results\" is hardcoded"
+              },
+              {
+                "element": "Results Count Text",
+                "currentStatus": "hardcoded",
+                "note": "\"Found {count} result(s)\" is hardcoded"
+              },
+              {
+                "element": "No Results Message",
+                "currentStatus": "hardcoded",
+                "note": "\"No results found for\" is hardcoded"
+              }
+            ]
+          }
+        ]
+      },
+      "categories": {
+        "route": "/categories/[slug]",
+        "components": [
+          {
+            "name": "CategoryProductsGrid",
+            "uiElements": [
+              {
+                "element": "Category Name",
+                "currentStatus": "from CMS",
+                "note": "Comes from Saleor category data"
+              },
+              {
+                "element": "Filter Button",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.filtersButtonText",
+                "default": "Filters"
+              }
+            ]
+          }
+        ]
+      },
+      "collections": {
+        "route": "/collections/[slug]",
+        "components": [
+          {
+            "name": "CollectionProductsGrid",
+            "uiElements": [
+              {
+                "element": "Collection Name",
+                "currentStatus": "from CMS",
+                "note": "Comes from Saleor collection data"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "sharedComponents": {
+      "header": {
+        "components": [
+          {
+            "name": "HeaderBanner",
+            "uiElements": [
+              {
+                "element": "Banner Text",
+                "currentStatus": "configurable",
+                "configPath": "header.banner.text",
+                "default": "Free shipping on orders over $50"
+              },
+              {
+                "element": "Banner Styling",
+                "currentStatus": "configurable",
+                "configPath": "header.banner.backgroundColor / textColor"
+              }
+            ]
+          },
+          {
+            "name": "HeaderStoreName",
+            "uiElements": [
+              {
+                "element": "Store Name",
+                "currentStatus": "from config",
+                "configPath": "store.name"
+              },
+              {
+                "element": "Visibility",
+                "currentStatus": "configurable",
+                "configPath": "header.showStoreName"
+              }
+            ]
+          },
+          {
+            "name": "NavLinks",
+            "uiElements": [
+              {
+                "element": "Shop All Link",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.shopAllButton",
+                "default": "Shop All"
+              },
+              {
+                "element": "Category Links",
+                "currentStatus": "from CMS",
+                "note": "Comes from Saleor navigation menu"
+              }
+            ]
+          },
+          {
+            "name": "SearchBar",
+            "uiElements": [
+              {
+                "element": "Search Placeholder",
+                "currentStatus": "configurable",
+                "configPath": "content.navbar.searchPlaceholder (fallback: content.general.searchPlaceholder)",
+                "default": "Search..."
+              }
+            ]
+          },
+          {
+            "name": "ChannelPicker",
+            "uiElements": [
+              {
+                "element": "Select Channel Label",
+                "currentStatus": "configurable",
+                "configPath": "content.navbar.selectChannel",
+                "default": "Select channel/currency"
+              },
+              {
+                "element": "Aria Label",
+                "currentStatus": "hardcoded",
+                "note": "Aria label is hardcoded"
+              }
+            ]
+          },
+          {
+            "name": "CartNavItem",
+            "uiElements": [
+              {
+                "element": "Cart Label",
+                "currentStatus": "configurable",
+                "configPath": "content.navbar.cartLabel",
+                "default": "Cart"
+              },
+              {
+                "element": "Item Count Badge",
+                "currentStatus": "hardcoded",
+                "note": "Just shows number, no text"
+              }
+            ]
+          },
+          {
+            "name": "UserMenu",
+            "uiElements": [
+              {
+                "element": "Account Label",
+                "currentStatus": "configurable",
+                "configPath": "content.navbar.accountLabel",
+                "default": "Account"
+              },
+              {
+                "element": "Menu Items",
+                "currentStatus": "configurable",
+                "configPath": "content.account.{item}Title",
+                "items": [
+                  "myAccountTitle",
+                  "ordersTitle",
+                  "addressesTitle",
+                  "wishlistTitle",
+                  "settingsTitle",
+                  "signOutButton"
+                ]
+              }
+            ]
+          },
+          {
+            "name": "MobileMenu",
+            "uiElements": [
+              {
+                "element": "Menu Label",
+                "currentStatus": "configurable",
+                "configPath": "content.navbar.menuLabel",
+                "default": "Menu"
+              }
+            ]
+          },
+          {
+            "name": "MobileBottomNav",
+            "uiElements": [
+              {
+                "element": "Home Label",
+                "currentStatus": "configurable",
+                "configPath": "content.navbar.homeLabel",
+                "default": "Home"
+              },
+              {
+                "element": "Shop Label",
+                "currentStatus": "configurable",
+                "configPath": "content.navbar.shopLabel",
+                "default": "Shop"
+              },
+              {
+                "element": "Cart Label",
+                "currentStatus": "configurable",
+                "configPath": "content.navbar.cartLabel"
+              },
+              {
+                "element": "Account Label",
+                "currentStatus": "configurable",
+                "configPath": "content.navbar.accountLabel"
+              }
+            ]
+          }
+        ]
+      },
+      "footer": {
+        "components": [
+          {
+            "name": "FooterClient",
+            "uiElements": [
+              {
+                "element": "Legal Links",
+                "currentStatus": "configurable",
+                "configPath": "content.footer.{link}",
+                "links": [
+                  "privacyPolicyLink",
+                  "termsOfServiceLink",
+                  "shippingLink",
+                  "returnPolicyLink"
+                ]
+              },
+              {
+                "element": "Section Titles",
+                "currentStatus": "configurable",
+                "configPath": "content.footer.{section}Title",
+                "sections": [
+                  "shopTitle",
+                  "companyTitle",
+                  "supportTitle",
+                  "followUsTitle"
+                ]
+              },
+              {
+                "element": "Contact Text",
+                "currentStatus": "configurable",
+                "configPath": "content.footer.contactUs / customerService"
+              },
+              {
+                "element": "Copyright Text",
+                "currentStatus": "configurable",
+                "configPath": "content.footer.allRightsReserved",
+                "default": "All rights reserved"
+              }
+            ]
+          }
+        ]
+      },
+      "productCard": {
+        "components": [
+          {
+            "name": "ProductCard",
+            "uiElements": [
+              {
+                "element": "Badge Text",
+                "currentStatus": "configurable",
+                "configPath": "content.product.{badge}BadgeText",
+                "badges": [
+                  "saleBadgeText",
+                  "newBadgeText"
+                ]
+              },
+              {
+                "element": "Badge Styling",
+                "currentStatus": "configurable",
+                "configPath": "ui.badges.{type}",
+                "options": [
+                  "backgroundColor",
+                  "textColor",
+                  "borderRadius"
+                ]
+              },
+              {
+                "element": "Quick View Button",
+                "currentStatus": "configurable",
+                "configPath": "ui.productCard.showQuickView",
+                "note": "Feature flag, button text is hardcoded"
+              },
+              {
+                "element": "Wishlist Button",
+                "currentStatus": "configurable",
+                "configPath": "ui.productCard.showWishlistButton",
+                "note": "Feature flag, icon only"
+              },
+              {
+                "element": "Add to Cart Button",
+                "currentStatus": "configurable",
+                "configPath": "ui.productCard.showAddToCart",
+                "note": "Feature flag, button text is hardcoded"
+              },
+              {
+                "element": "Card Styling",
+                "currentStatus": "configurable",
+                "configPath": "ui.productCard",
+                "options": [
+                  "borderRadius",
+                  "shadow",
+                  "hoverShadow",
+                  "imageAspectRatio"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "promoPopup": {
+        "components": [
+          {
+            "name": "PromoPopup",
+            "uiElements": [
+              {
+                "element": "Title",
+                "currentStatus": "configurable",
+                "configPath": "promoPopup.title",
+                "default": "Special Offer"
+              },
+              {
+                "element": "Body Text",
+                "currentStatus": "configurable",
+                "configPath": "promoPopup.body"
+              },
+              {
+                "element": "Badge Text",
+                "currentStatus": "configurable",
+                "configPath": "promoPopup.badge",
+                "default": "Up to 25% Off"
+              },
+              {
+                "element": "CTA Button Text",
+                "currentStatus": "configurable",
+                "configPath": "promoPopup.ctaText",
+                "default": "Shop Sale Items"
+              },
+              {
+                "element": "Close Button",
+                "currentStatus": "hardcoded",
+                "note": "Icon only, no text"
+              }
+            ]
+          }
+        ]
+      },
+      "toast": {
+        "components": [
+          {
+            "name": "ToastContainer",
+            "uiElements": [
+              {
+                "element": "Toast Position",
+                "currentStatus": "configurable",
+                "configPath": "ui.toasts.position",
+                "default": "bottom-right",
+                "options": [
+                  "top-left",
+                  "top-right",
+                  "bottom-left",
+                  "bottom-right"
+                ]
+              },
+              {
+                "element": "Toast Styling",
+                "currentStatus": "configurable",
+                "configPath": "ui.toasts.{type}",
+                "types": [
+                  "success",
+                  "error",
+                  "warning",
+                  "info"
+                ],
+                "options": [
+                  "backgroundColor",
+                  "textColor",
+                  "iconColor",
+                  "borderRadius"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "breadcrumbs": {
+        "components": [
+          {
+            "name": "Breadcrumbs",
+            "uiElements": [
+              {
+                "element": "Home Label",
+                "currentStatus": "hardcoded",
+                "note": "\"Home\" is hardcoded"
+              },
+              {
+                "element": "Separator",
+                "currentStatus": "hardcoded",
+                "note": "Icon/separator is hardcoded"
+              }
+            ]
+          }
+        ]
+      },
+      "pagination": {
+        "components": [
+          {
+            "name": "Pagination",
+            "uiElements": [
+              {
+                "element": "Previous/Next Buttons",
+                "currentStatus": "hardcoded",
+                "note": "Icon only, no text labels"
+              },
+              {
+                "element": "Page Numbers",
+                "currentStatus": "hardcoded",
+                "note": "Just numbers, no text"
+              }
+            ]
+          }
+        ]
+      },
+      "sortBy": {
+        "components": [
+          {
+            "name": "SortBy",
+            "uiElements": [
+              {
+                "element": "Sort Options",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.sort{Option}",
+                "options": [
+                  "sortAtoZ",
+                  "sortZtoA",
+                  "sortPriceLowHigh",
+                  "sortPriceHighLow",
+                  "sortNewest",
+                  "sortSale"
+                ]
+              },
+              {
+                "element": "Sort By Label",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.sortByLabel",
+                "default": "Sort by:"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "styling": {
+      "global": {
+        "branding": {
+          "colors": {
+            "primary": "configurable",
+            "secondary": "configurable",
+            "accent": "configurable",
+            "background": "configurable",
+            "surface": "configurable",
+            "text": "configurable",
+            "textMuted": "configurable",
+            "success": "configurable",
+            "warning": "configurable",
+            "error": "configurable"
+          },
+          "typography": {
+            "fontHeading": "configurable",
+            "fontBody": "configurable",
+            "fontMono": "configurable"
+          },
+          "style": {
+            "borderRadius": "configurable",
+            "buttonStyle": "configurable",
+            "cardShadow": "configurable"
+          }
+        }
+      },
+      "buttons": {
+        "primary": {
+          "backgroundColor": "configurable (ui.buttons.primary.backgroundColor)",
+          "textColor": "configurable (ui.buttons.primary.textColor)",
+          "hoverBackgroundColor": "configurable (ui.buttons.primary.hoverBackgroundColor)",
+          "borderColor": "configurable (ui.buttons.primary.borderColor)",
+          "borderRadius": "configurable (ui.buttons.borderRadius)"
+        },
+        "secondary": {
+          "backgroundColor": "configurable (ui.buttons.secondary.*)",
+          "textColor": "configurable",
+          "hoverBackgroundColor": "configurable",
+          "borderColor": "configurable"
+        },
+        "outline": {
+          "backgroundColor": "configurable (ui.buttons.outline.*)",
+          "textColor": "configurable",
+          "hoverBackgroundColor": "configurable",
+          "borderColor": "configurable"
+        },
+        "danger": {
+          "backgroundColor": "configurable (ui.buttons.danger.*)",
+          "textColor": "configurable",
+          "hoverBackgroundColor": "configurable",
+          "borderColor": "configurable"
+        }
+      },
+      "badges": {
+        "sale": {
+          "backgroundColor": "configurable (ui.badges.sale.backgroundColor)",
+          "textColor": "configurable (ui.badges.sale.textColor)",
+          "borderRadius": "configurable (ui.badges.sale.borderRadius)"
+        },
+        "new": {
+          "backgroundColor": "configurable (ui.badges.new.*)",
+          "textColor": "configurable",
+          "borderRadius": "configurable"
+        },
+        "outOfStock": {
+          "backgroundColor": "configurable (ui.badges.outOfStock.*)",
+          "textColor": "configurable",
+          "borderRadius": "configurable"
+        },
+        "lowStock": {
+          "backgroundColor": "configurable (ui.badges.lowStock.*)",
+          "textColor": "configurable",
+          "borderRadius": "configurable"
+        },
+        "discount": {
+          "backgroundColor": "configurable (ui.badges.discount.*)",
+          "textColor": "configurable",
+          "borderRadius": "configurable"
+        },
+        "featured": {
+          "backgroundColor": "configurable (ui.badges.featured.*)",
+          "textColor": "configurable",
+          "borderRadius": "configurable"
+        }
+      },
+      "inputs": {
+        "borderRadius": "configurable (ui.inputs.borderRadius)",
+        "borderColor": "configurable (ui.inputs.borderColor)",
+        "focusBorderColor": "configurable (ui.inputs.focusBorderColor)",
+        "focusRingColor": "configurable (ui.inputs.focusRingColor)",
+        "backgroundColor": "configurable (ui.inputs.backgroundColor)",
+        "placeholderColor": "configurable (ui.inputs.placeholderColor)"
+      },
+      "productCard": {
+        "borderRadius": "configurable (ui.productCard.borderRadius)",
+        "shadow": "configurable (ui.productCard.shadow)",
+        "hoverShadow": "configurable (ui.productCard.hoverShadow)",
+        "imageAspectRatio": "configurable (ui.productCard.imageAspectRatio)"
+      },
+      "quickFilters": {
+        "cardWidth": "configurable (quickFilters.style.cardWidth)",
+        "cardHeight": "configurable (quickFilters.style.cardHeight)",
+        "cardGap": "configurable (quickFilters.style.cardGap)",
+        "titleFontSize": "configurable (quickFilters.style.titleFontSize)",
+        "titleFontWeight": "configurable (quickFilters.style.titleFontWeight)",
+        "titleColor": "configurable (quickFilters.style.titleColor)",
+        "valueColor": "configurable (quickFilters.style.valueColor)",
+        "activeValueColor": "configurable (quickFilters.style.activeValueColor)",
+        "shopAllButtonBackgroundColor": "configurable (quickFilters.style.shopAllButtonBackgroundColor)",
+        "shopAllButtonTextColor": "configurable (quickFilters.style.shopAllButtonTextColor)",
+        "shopAllButtonHoverBackgroundColor": "configurable (quickFilters.style.shopAllButtonHoverBackgroundColor)",
+        "shopAllButtonBorderColor": "configurable (quickFilters.style.shopAllButtonBorderColor)"
+      }
+    },
+    "hardcodedElements": {
+      "cart": [
+        "Remove item button (icon only)",
+        "Quantity input labels (no visible labels, just input controls)"
+      ],
+      "wishlist": [
+        "Header item count text format (calculated: {count} item{plural})"
+      ],
+      "breadcrumbs": [
+        "Separator (icon/separator)"
+      ],
+      "pagination": [
+        "Previous/Next button labels (icon only)",
+        "Page numbers (just numbers, no text)"
+      ],
+      "note": "All text elements are now configurable except icon-only buttons and calculated/formatted text"
+    },
+    "summary": {
+      "totalPages": 12,
+      "totalComponents": 45,
+      "configurableElements": 200,
+      "hardcodedElements": 5,
+      "configurablePercentage": 97.6,
+      "notes": [
+        "All UI text is now configurable via storefront-control CMS",
+        "Remaining hardcoded elements are icon-only buttons or calculated/formatted text",
+        "All styling (colors, fonts, borders, font sizes) is configurable",
+        "Button styles are fully configurable per variant",
+        "Badge styles are fully configurable per type",
+        "Font sizes are configurable for all text elements (h1-h4, body, small, button, caption)",
+        "RTL/LTR support is built-in with logical properties and direction-aware alignment",
+        "Field naming is consistent across schema, types, sample config, and inventory (camelCase)"
+      ],
+      "intentionalDuplicates": {
+        "note": "Some field names appear in multiple schemas but are properly scoped by context",
+        "examples": [
+          "searchPlaceholder: general (newsletter), filters (product search), navbar (header search)",
+          "homeLabel: general (breadcrumbs), navbar (mobile navigation)",
+          "editButton/deleteButton: general (generic), addresses (address-specific)",
+          "continueShoppingButton: cart, addresses",
+          "clearAllButton: filters, wishlist",
+          "startShopping: dashboard, addresses"
+      ]
+    },
+    "error": {
+      "route": "/error",
+      "description": "Error page shown when application errors occur",
+      "components": [
+        {
+          "name": "ErrorPage",
+          "type": "error-boundary",
+          "uiElements": [
+            {
+              "element": "Title",
+              "currentStatus": "configurable",
+              "configPath": "content.error.title",
+              "default": "Something went wrong"
+            },
+            {
+              "element": "Description",
+              "currentStatus": "configurable",
+              "configPath": "content.error.description",
+              "default": "We're sorry, but something unexpected happened. Please try again or contact support if the problem persists."
+            },
+            {
+              "element": "Error Details Label",
+              "currentStatus": "configurable",
+              "configPath": "content.error.errorDetails",
+              "default": "Error details",
+              "note": "Only shown in development mode"
+            },
+            {
+              "element": "Try Again Button",
+              "currentStatus": "configurable",
+              "configPath": "content.error.tryAgainButton",
+              "default": "Try Again"
+            },
+            {
+              "element": "Back to Home Button",
+              "currentStatus": "configurable",
+              "configPath": "content.error.backToHomeButton",
+              "default": "Back to Home"
+            },
+            {
+              "element": "Need Help Text",
+              "currentStatus": "configurable",
+              "configPath": "content.error.needHelpText",
+              "default": "Need help?"
+            },
+            {
+              "element": "Contact Support Link",
+              "currentStatus": "configurable",
+              "configPath": "content.error.contactSupportLink",
+              "default": "Contact our support team"
+            }
+          ]
+        }
+      ]
+    },
+    "notFound": {
+      "route": "/404",
+      "description": "404 page shown when a page is not found",
+      "components": [
+        {
+          "name": "NotFoundPage",
+          "type": "404-page",
+          "uiElements": [
+            {
+              "element": "Title",
+              "currentStatus": "configurable",
+              "configPath": "content.notFound.title",
+              "default": "Page Not Found"
+            },
+            {
+              "element": "Description",
+              "currentStatus": "configurable",
+              "configPath": "content.notFound.description",
+              "default": "Sorry, we couldn't find the page you're looking for. It might have been moved or doesn't exist."
+            },
+            {
+              "element": "Back to Home Button",
+              "currentStatus": "configurable",
+              "configPath": "content.notFound.backToHomeButton",
+              "default": "Back to Home"
+            },
+            {
+              "element": "Browse Products Button",
+              "currentStatus": "configurable",
+              "configPath": "content.notFound.browseProductsButton",
+              "default": "Browse Products"
+            },
+            {
+              "element": "Helpful Links Text",
+              "currentStatus": "configurable",
+              "configPath": "content.notFound.helpfulLinksText",
+              "default": "Or check out these pages:"
+            },
+            {
+              "element": "404 Error Code",
+              "currentStatus": "hardcoded",
+              "note": "Static '404' text, not configurable"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+}

@@ -42,11 +42,11 @@ graph TB
         SF[Storefront<br/>Next.js 15<br/>Port 3000]
         DASH[Dashboard<br/>React/Vite<br/>Port 9000]
     end
-    
+
     subgraph "API Layer"
         API[Saleor API<br/>Django/GraphQL<br/>Port 8000]
     end
-    
+
     subgraph "Apps Ecosystem"
         STRIPE[Stripe App<br/>Port 3002]
         SMTP[SMTP App<br/>Port 3001]
@@ -54,16 +54,16 @@ graph TB
         SEARCH[Search App<br/>Algolia]
         CMS[CMS App]
     end
-    
+
     subgraph "Data Layer"
         PG[(PostgreSQL<br/>Port 5432)]
         REDIS[(Redis<br/>Port 6379)]
     end
-    
+
     subgraph "Background Jobs"
         CELERY[Celery Worker<br/>+ Scheduler]
     end
-    
+
     SF -->|GraphQL| API
     DASH -->|GraphQL| API
     API -->|Webhooks| STRIPE
@@ -81,6 +81,7 @@ graph TB
 ### Technology Stack
 
 #### Backend (Saleor API)
+
 - **Framework**: Django 5.2.8
 - **API**: GraphQL (Graphene)
 - **Database**: PostgreSQL 15
@@ -90,6 +91,7 @@ graph TB
 - **Authentication**: JWT tokens
 
 #### Storefront
+
 - **Framework**: Next.js 15.1.4
 - **React**: 19.1.0
 - **Styling**: Tailwind CSS 3.4.0
@@ -99,12 +101,14 @@ graph TB
 - **Code Generation**: GraphQL Codegen
 
 #### Dashboard
+
 - **Framework**: React with Vite
 - **GraphQL**: Apollo Client
 - **UI Library**: Custom Macaw components
 - **TypeScript**: Full type safety
 
 #### Infrastructure
+
 - **Containerization**: Docker & Docker Compose
 - **Package Manager**: pnpm 10.23.0
 - **Monorepo**: Turbo (for apps)
@@ -122,6 +126,7 @@ graph TB
 #### Core Features
 
 **Product Management**
+
 - Product catalog with variants, attributes, and metadata
 - Category hierarchy with MPTT (Modified Preorder Traversal Tree)
 - Collections for product grouping
@@ -130,6 +135,7 @@ graph TB
 - Stock management with low stock alerts
 
 **Order Management**
+
 - Complete order lifecycle (draft → confirmed → fulfilled → delivered)
 - Order status tracking
 - Payment status management
@@ -138,6 +144,7 @@ graph TB
 - Multi-warehouse fulfillment
 
 **Customer Management**
+
 - User authentication (email/password, OAuth)
 - Customer profiles with metadata
 - Address book management
@@ -145,30 +152,35 @@ graph TB
 - Customer segmentation support
 
 **Multi-Channel Architecture**
+
 - Per-channel pricing and currency
 - Channel-specific product visibility
 - Channel-based inventory
 - Multi-warehouse support
 
 **Promotions & Discounts**
+
 - Vouchers and gift cards
 - Cart rules and promotions
 - Sale pricing
 - Automatic discount application
 
 **Payment Processing**
+
 - Flexible payment gateway architecture
 - Webhook-based payment apps
 - Support for multiple payment methods
 - 3D Secure authentication
 
 **GraphQL API**
+
 - Full schema introspection
 - Real-time subscriptions support
 - Optimized queries with DataLoader
 - Permission-based access control
 
 #### Key Files
+
 - `saleor/saleor/graphql/` - GraphQL schema definitions
 - `saleor/saleor/core/` - Core business logic
 - `saleor/saleor/plugins/` - Plugin system
@@ -181,6 +193,7 @@ graph TB
 #### Features
 
 **Product Management UI**
+
 - Product creation and editing
 - Variant management
 - Image upload and management
@@ -188,6 +201,7 @@ graph TB
 - Bulk operations
 
 **Order Management**
+
 - Order list with filtering and search
 - Order detail view with full history
 - Invoice generation and management
@@ -195,17 +209,20 @@ graph TB
 - Payment capture and refunds
 
 **Customer Management**
+
 - Customer list and search
 - Customer detail pages
 - Order history per customer
 - Customer notes and metadata
 
 **App Management**
+
 - App installation and configuration
 - Webhook management
 - App settings UI
 
 **Settings & Configuration**
+
 - Store settings
 - Shipping zones and methods
 - Tax configuration
@@ -213,6 +230,7 @@ graph TB
 - Staff user management
 
 #### Recent Enhancements
+
 - Auto-refresh invoice list after generation
 - Delete invoice functionality
 - Improved invoice preview
@@ -225,6 +243,7 @@ graph TB
 #### Current Features
 
 **Product Catalog**
+
 - Product listing with pagination
 - Product detail pages with variants
 - Category and collection pages
@@ -234,6 +253,7 @@ graph TB
 - Search functionality
 
 **Shopping Experience**
+
 - Shopping cart with quantity management
 - Guest checkout support
 - Single-page checkout flow
@@ -242,6 +262,7 @@ graph TB
 - Payment method selection (Stripe, Adyen)
 
 **User Account**
+
 - User registration and login
 - OAuth authentication support
 - Order history with tracking
@@ -250,6 +271,7 @@ graph TB
 - Wishlist (stored in user metadata)
 
 **UI Components**
+
 - Modern, responsive design with Tailwind CSS
 - Product cards with hover effects
 - Loading skeletons
@@ -260,6 +282,7 @@ graph TB
 #### Current Implementation Details
 
 **Product Filters** (`storefront/src/ui/components/Filters/ProductFilters.tsx`)
+
 - Category filtering with hierarchical support
 - Price range slider
 - In-stock filter
@@ -269,12 +292,14 @@ graph TB
 - Filter persistence in localStorage
 
 **Search** (`storefront/src/app/[channel]/(main)/search/`)
+
 - Basic product search
 - Search results page
 - Client-side filtering on search results
 - No autocomplete or suggestions yet
 
 **Wishlist** (`storefront/src/lib/wishlist.tsx`)
+
 - Client-side wishlist with React Context
 - Backend storage in user metadata
 - Syncs across devices for logged-in users
@@ -282,6 +307,7 @@ graph TB
 - Migration from localStorage to backend
 
 **Checkout Flow** (`storefront/src/checkout/`)
+
 - Single-page checkout
 - Address form with validation
 - Shipping method selection
@@ -320,6 +346,7 @@ features: {
 ### 4. Apps Ecosystem
 
 #### Stripe App (`apps/apps/stripe/`)
+
 - **Status**: ✅ Complete
 - Payment processing with Stripe
 - 3D Secure support
@@ -328,6 +355,7 @@ features: {
 - PostgreSQL storage for configuration
 
 #### SMTP App (`apps/apps/smtp/`)
+
 - **Status**: ✅ Complete
 - 14 professional email templates:
   - Order Created/Confirmed/Fulfilled/Paid/Cancelled/Refunded
@@ -339,6 +367,7 @@ features: {
 - Easy branding customization
 
 #### Invoice App (`apps/apps/invoices/`)
+
 - **Status**: ✅ Complete
 - PDF invoice generation
 - Professional design with branding
@@ -346,17 +375,20 @@ features: {
 - Dashboard integration
 
 #### Search App (`apps/apps/search/`)
+
 - **Status**: ⚠️ Optional
 - Algolia integration
 - Product indexing
 - Faceted search support
 
 #### CMS App (`apps/apps/cms/`)
+
 - **Status**: ✅ Available
 - Content management
 - Page builder support
 
 #### Other Apps
+
 - **Klaviyo**: Email marketing integration
 - **Segment**: Analytics integration
 - **AvaTax**: Tax calculation
@@ -367,12 +399,14 @@ features: {
 **Location**: `infra/`
 
 #### Docker Setup
+
 - Development environment: `docker-compose.dev.yml`
 - Production environment: `docker-compose.prod.yml`
 - Hot-reload for all services
 - Volume mounting for local development
 
 #### Services
+
 - PostgreSQL 15 (data persistence)
 - Redis 7 (caching and Celery broker)
 - Saleor API (Django/GraphQL)
@@ -385,6 +419,7 @@ features: {
 - Celery Beat (scheduled tasks)
 
 #### Automation
+
 - 78+ PowerShell scripts for setup and management
 - Environment configuration scripts
 - Tunnel setup for webhook testing
@@ -394,57 +429,58 @@ features: {
 
 ## Current Feature Matrix
 
-| Feature Category | Feature | Backend | Dashboard | Storefront | Status |
-|-----------------|---------|---------|-----------|------------|--------|
-| **Products** | Product Catalog | ✅ | ✅ | ✅ | Complete |
-| | Product Variants | ✅ | ✅ | ✅ | Complete |
-| | Product Attributes | ✅ | ✅ | ✅ | Complete |
-| | Product Images | ✅ | ✅ | ✅ | Complete |
-| | Product Search | ✅ | ✅ | ⚠️ Basic | Needs Enhancement |
-| | Product Filters | ✅ | N/A | ✅ | Complete |
-| | Product Reviews | ⚠️ | ⚠️ | ⚠️ UI Only | Not Implemented |
-| | Product Recommendations | ❌ | ❌ | ❌ | Missing |
-| **Cart & Checkout** | Shopping Cart | ✅ | N/A | ✅ | Complete |
-| | Guest Checkout | ✅ | N/A | ✅ | Complete |
-| | Checkout Flow | ✅ | N/A | ✅ | Complete |
-| | Address Management | ✅ | ✅ | ✅ | Complete |
-| | Shipping Methods | ✅ | ✅ | ✅ | Complete |
-| | Payment Processing | ✅ | ✅ | ✅ | Complete |
-| | Order Confirmation | ✅ | ✅ | ✅ | Complete |
-| **User Account** | Registration | ✅ | N/A | ✅ | Complete |
-| | Login/Logout | ✅ | N/A | ✅ | Complete |
-| | OAuth Login | ✅ | N/A | ✅ | Complete |
-| | Order History | ✅ | ✅ | ✅ | Complete |
-| | Order Tracking | ✅ | ✅ | ✅ | Complete |
-| | Address Book | ✅ | ✅ | ✅ | Complete |
-| | Wishlist | ✅ | N/A | ✅ | Complete |
-| | Saved Payment Methods | ⚠️ | ⚠️ | ❌ | Partial |
-| | Account Settings | ✅ | N/A | ✅ | Complete |
-| **Payments** | Stripe Integration | ✅ | ✅ | ✅ | Complete |
-| | Adyen Integration | ✅ | ✅ | ✅ | Complete |
-| | Multiple Gateways | ✅ | ✅ | ✅ | Complete |
-| | 3D Secure | ✅ | ✅ | ✅ | Complete |
-| **Marketing** | Promotions | ✅ | ✅ | ⚠️ Display Only | Partial |
-| | Vouchers | ✅ | ✅ | ✅ | Complete |
-| | Gift Cards | ✅ | ✅ | ⚠️ Display Only | Partial |
-| | Newsletter Signup | ❌ | ❌ | ⚠️ UI Only | Not Implemented |
-| | Abandoned Cart | ❌ | ❌ | ❌ | Missing |
-| | Email Campaigns | ⚠️ | ⚠️ | N/A | Via Klaviyo |
-| **Content** | CMS Pages | ✅ | ✅ | ✅ | Complete |
-| | Blog/News | ⚠️ | ⚠️ | ⚠️ | Partial |
-| | SEO Management | ✅ | ✅ | ✅ | Complete |
-| **Analytics** | Sales Reports | ⚠️ | ⚠️ | N/A | Basic |
-| | Customer Analytics | ❌ | ❌ | N/A | Missing |
-| | Conversion Tracking | ❌ | ❌ | ❌ | Missing |
-| | Google Analytics | ❌ | ❌ | ❌ | Missing |
-| **Other** | Multi-Channel | ✅ | ✅ | ✅ | Complete |
-| | Multi-Currency | ✅ | ✅ | ✅ | Complete |
-| | Multi-Language | ✅ | ✅ | ⚠️ | Partial |
-| | Inventory Management | ✅ | ✅ | ⚠️ Display Only | Complete |
-| | Invoice Generation | ✅ | ✅ | ✅ | Complete |
-| | Email Notifications | ✅ | ✅ | ✅ | Complete |
+| Feature Category    | Feature                 | Backend | Dashboard | Storefront      | Status            |
+| ------------------- | ----------------------- | ------- | --------- | --------------- | ----------------- |
+| **Products**        | Product Catalog         | ✅      | ✅        | ✅              | Complete          |
+|                     | Product Variants        | ✅      | ✅        | ✅              | Complete          |
+|                     | Product Attributes      | ✅      | ✅        | ✅              | Complete          |
+|                     | Product Images          | ✅      | ✅        | ✅              | Complete          |
+|                     | Product Search          | ✅      | ✅        | ⚠️ Basic        | Needs Enhancement |
+|                     | Product Filters         | ✅      | N/A       | ✅              | Complete          |
+|                     | Product Reviews         | ⚠️      | ⚠️        | ⚠️ UI Only      | Not Implemented   |
+|                     | Product Recommendations | ❌      | ❌        | ❌              | Missing           |
+| **Cart & Checkout** | Shopping Cart           | ✅      | N/A       | ✅              | Complete          |
+|                     | Guest Checkout          | ✅      | N/A       | ✅              | Complete          |
+|                     | Checkout Flow           | ✅      | N/A       | ✅              | Complete          |
+|                     | Address Management      | ✅      | ✅        | ✅              | Complete          |
+|                     | Shipping Methods        | ✅      | ✅        | ✅              | Complete          |
+|                     | Payment Processing      | ✅      | ✅        | ✅              | Complete          |
+|                     | Order Confirmation      | ✅      | ✅        | ✅              | Complete          |
+| **User Account**    | Registration            | ✅      | N/A       | ✅              | Complete          |
+|                     | Login/Logout            | ✅      | N/A       | ✅              | Complete          |
+|                     | OAuth Login             | ✅      | N/A       | ✅              | Complete          |
+|                     | Order History           | ✅      | ✅        | ✅              | Complete          |
+|                     | Order Tracking          | ✅      | ✅        | ✅              | Complete          |
+|                     | Address Book            | ✅      | ✅        | ✅              | Complete          |
+|                     | Wishlist                | ✅      | N/A       | ✅              | Complete          |
+|                     | Saved Payment Methods   | ⚠️      | ⚠️        | ❌              | Partial           |
+|                     | Account Settings        | ✅      | N/A       | ✅              | Complete          |
+| **Payments**        | Stripe Integration      | ✅      | ✅        | ✅              | Complete          |
+|                     | Adyen Integration       | ✅      | ✅        | ✅              | Complete          |
+|                     | Multiple Gateways       | ✅      | ✅        | ✅              | Complete          |
+|                     | 3D Secure               | ✅      | ✅        | ✅              | Complete          |
+| **Marketing**       | Promotions              | ✅      | ✅        | ⚠️ Display Only | Partial           |
+|                     | Vouchers                | ✅      | ✅        | ✅              | Complete          |
+|                     | Gift Cards              | ✅      | ✅        | ⚠️ Display Only | Partial           |
+|                     | Newsletter Signup       | ❌      | ❌        | ⚠️ UI Only      | Not Implemented   |
+|                     | Abandoned Cart          | ❌      | ❌        | ❌              | Missing           |
+|                     | Email Campaigns         | ⚠️      | ⚠️        | N/A             | Via Klaviyo       |
+| **Content**         | CMS Pages               | ✅      | ✅        | ✅              | Complete          |
+|                     | Blog/News               | ⚠️      | ⚠️        | ⚠️              | Partial           |
+|                     | SEO Management          | ✅      | ✅        | ✅              | Complete          |
+| **Analytics**       | Sales Reports           | ⚠️      | ⚠️        | N/A             | Basic             |
+|                     | Customer Analytics      | ❌      | ❌        | N/A             | Missing           |
+|                     | Conversion Tracking     | ❌      | ❌        | ❌              | Missing           |
+|                     | Google Analytics        | ❌      | ❌        | ❌              | Missing           |
+| **Other**           | Multi-Channel           | ✅      | ✅        | ✅              | Complete          |
+|                     | Multi-Currency          | ✅      | ✅        | ✅              | Complete          |
+|                     | Multi-Language          | ✅      | ✅        | ⚠️              | Partial           |
+|                     | Inventory Management    | ✅      | ✅        | ⚠️ Display Only | Complete          |
+|                     | Invoice Generation      | ✅      | ✅        | ✅              | Complete          |
+|                     | Email Notifications     | ✅      | ✅        | ✅              | Complete          |
 
 **Legend:**
+
 - ✅ Complete and functional
 - ⚠️ Partial implementation or needs enhancement
 - ❌ Not implemented
@@ -465,6 +501,7 @@ features: {
 ### Current Capabilities
 
 #### Product Discovery
+
 - ✅ Product listing with pagination
 - ✅ Category and collection browsing
 - ✅ Basic search functionality
@@ -475,6 +512,7 @@ features: {
 - ⚠️ No search suggestions
 
 #### Shopping Experience
+
 - ✅ Add to cart functionality
 - ✅ Cart management (quantity, remove items)
 - ✅ Guest checkout
@@ -485,6 +523,7 @@ features: {
 - ⚠️ No express checkout (Apple Pay, Google Pay)
 
 #### User Engagement
+
 - ✅ Wishlist functionality
 - ✅ Order tracking
 - ✅ Account management
@@ -494,6 +533,7 @@ features: {
 - ❌ No product comparison
 
 #### Marketing Features
+
 - ⚠️ Newsletter signup (UI only)
 - ❌ No abandoned cart recovery
 - ❌ No promotional banners
@@ -526,9 +566,11 @@ Based on the analysis, here are 10 important features that would significantly e
 **Technical Complexity**: Medium
 
 #### Description
+
 Implement a complete product review and rating system that allows customers to leave reviews, upload photos, and rate products. Display aggregate ratings on product cards and detail pages.
 
 #### Business Value
+
 - **Trust Building**: Social proof increases conversion rates by 15-30%
 - **SEO Benefits**: User-generated content improves search rankings
 - **Customer Insights**: Reviews provide valuable product feedback
@@ -537,6 +579,7 @@ Implement a complete product review and rating system that allows customers to l
 #### Technical Approach
 
 **Backend (Saleor API)**
+
 - Extend GraphQL schema with review mutations and queries
 - Create `ProductReview` model with fields:
   - Product reference
@@ -550,6 +593,7 @@ Implement a complete product review and rating system that allows customers to l
 - Implement review aggregation (average rating, review count)
 
 **Storefront Implementation**
+
 - Create review submission form
 - Display reviews on product detail pages
 - Show aggregate ratings on product cards
@@ -559,6 +603,7 @@ Implement a complete product review and rating system that allows customers to l
 - Add review pagination
 
 **GraphQL Schema Example**
+
 ```graphql
 type ProductReview {
   id: ID!
@@ -584,12 +629,14 @@ type Query {
 ```
 
 **Integration Points**
+
 - Use existing product detail page (`storefront/src/app/[channel]/(main)/products/[slug]/ProductDetailClient.tsx`)
 - Extend product card component (`storefront/src/ui/components/ProductCard/ProductCard.tsx`)
 - Leverage Saleor's metadata system for review storage
 - Use existing image upload infrastructure
 
 **Implementation Complexity**: Medium (2-3 weeks)
+
 - Backend: 1 week (model, GraphQL, moderation)
 - Frontend: 1 week (UI components, forms, display)
 - Testing & Polish: 1 week
@@ -603,9 +650,11 @@ type Query {
 **Technical Complexity**: Medium-High
 
 #### Description
+
 Enhance the search experience with real-time autocomplete, search suggestions, typo tolerance, and faceted search results with filters.
 
 #### Business Value
+
 - **Improved Discovery**: Better search = more products found = higher conversion
 - **User Experience**: Autocomplete reduces friction and search time
 - **Revenue Impact**: Sites with advanced search see 2-3x higher search conversion
@@ -614,6 +663,7 @@ Enhance the search experience with real-time autocomplete, search suggestions, t
 #### Technical Approach
 
 **Option A: Algolia Integration (Recommended)**
+
 - Leverage existing Search App (`apps/apps/search/`)
 - Configure Algolia indexing for products
 - Implement autocomplete dropdown
@@ -621,12 +671,14 @@ Enhance the search experience with real-time autocomplete, search suggestions, t
 - Implement typo tolerance and synonyms
 
 **Option B: Custom Implementation**
+
 - Build search index using PostgreSQL full-text search
 - Implement autocomplete with debounced queries
 - Add search suggestions based on popular searches
 - Create faceted search with dynamic filters
 
 **Storefront Implementation**
+
 - Enhance search dialog (`storefront/src/ui/components/search/SearchDialog.tsx`)
 - Add autocomplete dropdown with product suggestions
 - Implement search results page with faceted filters
@@ -634,6 +686,7 @@ Enhance the search experience with real-time autocomplete, search suggestions, t
 - Show "no results" suggestions
 
 **Features**
+
 - Real-time autocomplete (debounced, 300ms)
 - Search suggestions (popular searches, categories)
 - Typo tolerance (fuzzy matching)
@@ -642,12 +695,14 @@ Enhance the search experience with real-time autocomplete, search suggestions, t
 - Recent searches (localStorage)
 
 **Integration Points**
+
 - Extend existing search page (`storefront/src/app/[channel]/(main)/search/page.tsx`)
 - Use Search App webhooks for product indexing
 - Leverage existing filter components
 - Integrate with product listing components
 
 **Implementation Complexity**: Medium-High (3-4 weeks)
+
 - Algolia Setup: 1 week (indexing, configuration)
 - Autocomplete: 1 week (UI, debouncing, suggestions)
 - Faceted Search: 1 week (filters, result display)
@@ -662,9 +717,11 @@ Enhance the search experience with real-time autocomplete, search suggestions, t
 **Technical Complexity**: Medium
 
 #### Description
+
 Automatically detect abandoned carts and send email reminders to customers with personalized product recommendations and discount offers.
 
 #### Business Value
+
 - **Revenue Recovery**: 20-30% of abandoned carts can be recovered
 - **Average Recovery Value**: $50-100 per recovered cart
 - **ROI**: Email campaigns have 300-400% ROI
@@ -673,6 +730,7 @@ Automatically detect abandoned carts and send email reminders to customers with 
 #### Technical Approach
 
 **Backend Implementation**
+
 - Create Celery task to detect abandoned carts (carts older than 1 hour, no checkout)
 - Store cart abandonment events in database
 - Create email template for cart recovery
@@ -680,22 +738,26 @@ Automatically detect abandoned carts and send email reminders to customers with 
 - Track recovery success metrics
 
 **Email Campaign Flow**
+
 1. **First Email** (1 hour after abandonment): Gentle reminder
 2. **Second Email** (24 hours): Include discount (10% off)
 3. **Third Email** (72 hours): Urgency message, larger discount (15% off)
 
 **Storefront Integration**
+
 - Add "Save for Later" functionality
 - Implement cart persistence across sessions
 - Add "Return to Cart" CTA in emails
 - Track email click-through rates
 
 **SMTP App Enhancement**
+
 - Create abandoned cart email template
 - Add personalization variables (cart items, discount code)
 - Implement A/B testing for email content
 
 **GraphQL Extensions**
+
 ```graphql
 type Mutation {
   saveCartForLater(checkoutId: ID!): Boolean!
@@ -708,6 +770,7 @@ type Query {
 ```
 
 **Implementation Complexity**: Medium (2-3 weeks)
+
 - Backend: 1 week (detection, email triggers, discount codes)
 - Email Templates: 3 days (design, personalization)
 - Frontend: 3 days (cart restoration, tracking)
@@ -722,9 +785,11 @@ type Query {
 **Technical Complexity**: Medium-High
 
 #### Description
+
 Implement intelligent product recommendations based on browsing history, purchase history, and collaborative filtering.
 
 #### Business Value
+
 - **Upselling**: Recommendations increase average order value by 10-30%
 - **Cross-selling**: Related products drive additional sales
 - **Engagement**: Personalized content increases time on site
@@ -733,6 +798,7 @@ Implement intelligent product recommendations based on browsing history, purchas
 #### Technical Approach
 
 **Recommendation Types**
+
 1. **Viewed Together**: Products frequently viewed together
 2. **Bought Together**: Collaborative filtering based on purchase history
 3. **Similar Products**: Based on attributes, category, price range
@@ -743,16 +809,19 @@ Implement intelligent product recommendations based on browsing history, purchas
 **Implementation Strategy**
 
 **Phase 1: Simple Recommendations**
+
 - Recently viewed products (localStorage + backend)
 - Related products (same category, similar attributes)
 - Trending products (best sellers, new arrivals)
 
 **Phase 2: Advanced Recommendations**
+
 - Collaborative filtering (users who bought X also bought Y)
 - Machine learning-based recommendations
 - Real-time personalization
 
 **Storefront Components**
+
 - "You May Also Like" section on product pages
 - "Recently Viewed" section on homepage
 - "Recommended For You" on account page
@@ -760,12 +829,14 @@ Implement intelligent product recommendations based on browsing history, purchas
 - Recommendation widgets in cart
 
 **Backend Implementation**
+
 - Create recommendation service
 - Track product views and purchases
 - Calculate similarity scores
 - Cache recommendations for performance
 
 **GraphQL Schema**
+
 ```graphql
 type Query {
   productRecommendations(
@@ -774,7 +845,7 @@ type Query {
     type: RecommendationType!
     first: Int!
   ): [Product!]!
-  
+
   recentlyViewedProducts(first: Int!): [Product!]!
 }
 
@@ -788,6 +859,7 @@ enum RecommendationType {
 ```
 
 **Implementation Complexity**: Medium-High (3-4 weeks)
+
 - Backend Service: 1.5 weeks (tracking, algorithms, caching)
 - Frontend Components: 1 week (widgets, display)
 - Personalization: 1 week (user tracking, ML integration)
@@ -802,9 +874,11 @@ enum RecommendationType {
 **Technical Complexity**: Low-Medium
 
 #### Description
+
 Show real-time inventory levels, low stock warnings, and allow customers to sign up for back-in-stock notifications.
 
 #### Business Value
+
 - **Urgency**: Low stock creates urgency and increases conversions
 - **Customer Satisfaction**: Stock alerts reduce customer frustration
 - **Inventory Management**: Better visibility into stock levels
@@ -813,12 +887,14 @@ Show real-time inventory levels, low stock warnings, and allow customers to sign
 #### Technical Approach
 
 **Backend**
+
 - Expose inventory levels via GraphQL (already available in Saleor)
 - Create stock alert subscription system
 - Send email notifications when products are back in stock
 - Track stock alert subscriptions
 
 **Storefront Features**
+
 - Display stock levels on product pages ("Only 3 left!")
 - Show low stock warnings
 - "Notify Me" button for out-of-stock items
@@ -826,12 +902,14 @@ Show real-time inventory levels, low stock warnings, and allow customers to sign
 - Email notification when back in stock
 
 **UI Components**
+
 - Stock level indicator (badge, progress bar)
 - Low stock warning banner
 - Back-in-stock notification form
 - Stock alert confirmation
 
 **GraphQL Extensions**
+
 ```graphql
 type Mutation {
   subscribeToStockAlert(productVariantId: ID!, email: String!): StockAlert!
@@ -848,12 +926,14 @@ type StockAlert {
 ```
 
 **Integration Points**
+
 - Use existing inventory data from Saleor API
 - Extend product detail page
 - Add to product card component
 - Integrate with SMTP app for notifications
 
 **Implementation Complexity**: Low-Medium (1-2 weeks)
+
 - Backend: 3 days (subscriptions, notifications)
 - Frontend: 3 days (UI components, forms)
 - Email Integration: 2 days (templates, triggers)
@@ -868,9 +948,11 @@ type StockAlert {
 **Technical Complexity**: Medium
 
 #### Description
+
 Implement a points-based loyalty program where customers earn points for purchases, reviews, referrals, and can redeem points for discounts or products.
 
 #### Business Value
+
 - **Customer Retention**: Loyalty programs increase retention by 20-30%
 - **Repeat Purchases**: Members shop 2-3x more frequently
 - **Higher AOV**: Loyalty members have 20-30% higher average order value
@@ -879,6 +961,7 @@ Implement a points-based loyalty program where customers earn points for purchas
 #### Technical Approach
 
 **Loyalty Program Features**
+
 - Points earning (purchases, reviews, referrals, social shares)
 - Points redemption (discounts, free products, exclusive access)
 - Tier system (Bronze, Silver, Gold, Platinum)
@@ -887,6 +970,7 @@ Implement a points-based loyalty program where customers earn points for purchas
 - Points history and balance display
 
 **Backend Implementation**
+
 - Create loyalty program model
 - Track points transactions
 - Calculate tier levels
@@ -895,6 +979,7 @@ Implement a points-based loyalty program where customers earn points for purchas
 - Create admin dashboard for program management
 
 **Storefront Features**
+
 - Points balance display in account
 - Points history page
 - Referral code sharing
@@ -903,6 +988,7 @@ Implement a points-based loyalty program where customers earn points for purchas
 - Progress to next tier
 
 **GraphQL Schema**
+
 ```graphql
 type LoyaltyAccount {
   id: ID!
@@ -929,6 +1015,7 @@ enum LoyaltyTier {
 ```
 
 **Integration Points**
+
 - Extend user model with loyalty data
 - Integrate with order creation (award points)
 - Add to checkout (points redemption)
@@ -936,6 +1023,7 @@ enum LoyaltyTier {
 - Email notifications for points earned/redeemed
 
 **Implementation Complexity**: Medium (3-4 weeks)
+
 - Backend: 1.5 weeks (models, logic, GraphQL)
 - Frontend: 1 week (account pages, checkout integration)
 - Admin Dashboard: 3 days (management UI)
@@ -950,9 +1038,11 @@ enum LoyaltyTier {
 **Technical Complexity**: Low-Medium
 
 #### Description
+
 Allow customers to login with social accounts (Google, Facebook, Apple) and share products on social media platforms.
 
 #### Business Value
+
 - **Faster Checkout**: Social login reduces friction (no password needed)
 - **Higher Conversion**: Social login increases signup rates by 20-30%
 - **Social Proof**: Social sharing drives organic traffic
@@ -961,6 +1051,7 @@ Allow customers to login with social accounts (Google, Facebook, Apple) and shar
 #### Technical Approach
 
 **Social Login**
+
 - Integrate with Saleor's OAuth support (already available)
 - Add Google OAuth provider
 - Add Facebook OAuth provider
@@ -968,6 +1059,7 @@ Allow customers to login with social accounts (Google, Facebook, Apple) and shar
 - Handle account linking (link social account to existing email)
 
 **Social Sharing**
+
 - Add share buttons to product pages
 - Support Facebook, Twitter, Pinterest, WhatsApp, Email
 - Generate shareable links with UTM parameters
@@ -975,6 +1067,7 @@ Allow customers to login with social accounts (Google, Facebook, Apple) and shar
 - Implement "Share to Earn" rewards (optional)
 
 **Storefront Implementation**
+
 - Add social login buttons to login page
 - Social share buttons on product cards and detail pages
 - Share preview with product image and description
@@ -982,17 +1075,20 @@ Allow customers to login with social accounts (Google, Facebook, Apple) and shar
 
 **OAuth Configuration**
 Saleor already supports OAuth providers. Configuration needed:
+
 - Register OAuth apps with providers
 - Configure redirect URLs
 - Add provider credentials to Saleor settings
 
 **UI Components**
+
 - Social login buttons (Google, Facebook, Apple)
 - Share button component
 - Share modal with platform options
 - Share success toast
 
 **Implementation Complexity**: Low-Medium (1-2 weeks)
+
 - OAuth Setup: 3 days (provider registration, configuration)
 - Social Login UI: 2 days (buttons, flow)
 - Social Sharing: 2 days (buttons, modals, tracking)
@@ -1007,9 +1103,11 @@ Saleor already supports OAuth providers. Configuration needed:
 **Technical Complexity**: Medium
 
 #### Description
+
 Implement comprehensive analytics tracking including Google Analytics 4, conversion tracking, e-commerce events, and custom dashboards.
 
 #### Business Value
+
 - **Data-Driven Decisions**: Analytics inform product and marketing decisions
 - **Conversion Optimization**: Track funnel drop-offs and optimize
 - **ROI Measurement**: Measure marketing campaign effectiveness
@@ -1020,6 +1118,7 @@ Implement comprehensive analytics tracking including Google Analytics 4, convers
 **Analytics Implementation**
 
 **Google Analytics 4**
+
 - Install GA4 tracking code
 - Implement e-commerce events:
   - `view_item` (product views)
@@ -1031,12 +1130,14 @@ Implement comprehensive analytics tracking including Google Analytics 4, convers
 - Implement enhanced e-commerce tracking
 
 **Conversion Tracking**
+
 - Track conversion funnel (browse → cart → checkout → purchase)
 - Measure conversion rates by traffic source
 - Track micro-conversions (email signups, reviews)
 - A/B test tracking
 
 **Custom Analytics Dashboard**
+
 - Sales overview (revenue, orders, AOV)
 - Product performance (best sellers, views, conversion)
 - Customer analytics (new vs returning, lifetime value)
@@ -1044,23 +1145,27 @@ Implement comprehensive analytics tracking including Google Analytics 4, convers
 - Conversion funnel visualization
 
 **Storefront Implementation**
+
 - Add analytics tracking script
 - Implement event tracking throughout user journey
 - Add conversion pixels (Facebook, Google Ads)
 - Create analytics dashboard (admin)
 
 **Backend Support**
+
 - Expose analytics data via GraphQL
 - Aggregate metrics for dashboard
 - Store event data (optional, for custom analytics)
 
 **Privacy Compliance**
+
 - Cookie consent banner (GDPR, CCPA)
 - Opt-out functionality
 - Anonymize IP addresses
 - Respect Do Not Track headers
 
 **Implementation Complexity**: Medium (2-3 weeks)
+
 - GA4 Setup: 3 days (configuration, events)
 - Event Tracking: 1 week (implementation across storefront)
 - Custom Dashboard: 1 week (data aggregation, visualization)
@@ -1076,9 +1181,11 @@ Implement comprehensive analytics tracking including Google Analytics 4, convers
 **Technical Complexity**: Low-Medium
 
 #### Description
+
 Integrate live chat functionality for real-time customer support, with chatbot for common questions and human handoff for complex issues.
 
 #### Business Value
+
 - **Customer Satisfaction**: Instant support increases satisfaction
 - **Conversion Boost**: Chat support increases conversions by 20-30%
 - **Issue Resolution**: Faster problem resolution reduces returns
@@ -1087,6 +1194,7 @@ Integrate live chat functionality for real-time customer support, with chatbot f
 #### Technical Approach
 
 **Option A: Third-Party Integration (Recommended)**
+
 - Integrate with Intercom, Zendesk Chat, or Crisp
 - Embed chat widget in storefront
 - Configure chatbot for common questions
@@ -1094,6 +1202,7 @@ Integrate live chat functionality for real-time customer support, with chatbot f
 - Track chat metrics
 
 **Option B: Custom Implementation**
+
 - Build chat interface with WebSockets
 - Create admin chat dashboard
 - Implement chatbot with NLP
@@ -1101,6 +1210,7 @@ Integrate live chat functionality for real-time customer support, with chatbot f
 - Email transcript to customer
 
 **Features**
+
 - Chat widget (bottom right corner)
 - Pre-chat form (name, email, question)
 - Chatbot for FAQs
@@ -1110,18 +1220,21 @@ Integrate live chat functionality for real-time customer support, with chatbot f
 - Proactive chat triggers (exit intent, time on page)
 
 **Storefront Integration**
+
 - Add chat widget to all pages
 - Show chat button in header/footer
 - Display chat history in account
 - Trigger proactive chat based on behavior
 
 **Admin Dashboard**
+
 - Chat management interface
 - Agent assignment
 - Chat analytics
 - Response time tracking
 
 **Implementation Complexity**: Low-Medium (1-2 weeks)
+
 - Third-Party Setup: 2 days (account, configuration)
 - Widget Integration: 2 days (embedding, customization)
 - Chatbot Setup: 2 days (FAQ configuration)
@@ -1137,9 +1250,11 @@ Integrate live chat functionality for real-time customer support, with chatbot f
 **Technical Complexity**: Medium
 
 #### Description
+
 Convert the storefront into a Progressive Web App with offline support, push notifications, and app-like experience on mobile devices.
 
 #### Business Value
+
 - **Mobile Experience**: PWA provides native app-like experience
 - **Offline Support**: Customers can browse offline
 - **Push Notifications**: Re-engage customers with notifications
@@ -1149,6 +1264,7 @@ Convert the storefront into a Progressive Web App with offline support, push not
 #### Technical Approach
 
 **PWA Features**
+
 - Service Worker for offline support
 - Web App Manifest for installability
 - Push notifications for order updates, promotions
@@ -1159,12 +1275,14 @@ Convert the storefront into a Progressive Web App with offline support, push not
 **Implementation**
 
 **Service Worker**
+
 - Cache static assets (CSS, JS, images)
 - Cache product catalog API responses
 - Offline fallback pages
 - Background sync for cart updates
 
 **Web App Manifest**
+
 ```json
 {
   "name": "SportZone Store",
@@ -1190,6 +1308,7 @@ Convert the storefront into a Progressive Web App with offline support, push not
 ```
 
 **Push Notifications**
+
 - Order status updates
 - Back-in-stock alerts
 - Promotional offers
@@ -1197,6 +1316,7 @@ Convert the storefront into a Progressive Web App with offline support, push not
 - Price drop alerts
 
 **Mobile Optimizations**
+
 - Touch-optimized interactions
 - Swipe gestures for product images
 - Bottom navigation bar
@@ -1204,6 +1324,7 @@ Convert the storefront into a Progressive Web App with offline support, push not
 - Optimized images for mobile
 
 **Storefront Implementation**
+
 - Add service worker registration
 - Create web app manifest
 - Implement push notification subscription
@@ -1213,11 +1334,13 @@ Convert the storefront into a Progressive Web App with offline support, push not
 
 **Next.js PWA Support**
 Next.js has excellent PWA support via `next-pwa` package:
+
 ```bash
 pnpm add next-pwa
 ```
 
 **Implementation Complexity**: Medium (2-3 weeks)
+
 - Service Worker: 1 week (caching, offline support)
 - Manifest & Icons: 2 days (configuration, assets)
 - Push Notifications: 1 week (subscription, backend, sending)
@@ -1228,38 +1351,32 @@ pnpm add next-pwa
 
 ## Implementation Priority Matrix
 
-| Feature | Priority | Impact | Complexity | Estimated Time | ROI |
-|---------|----------|--------|------------|----------------|-----|
-| Product Reviews | 🔴 High | ⭐⭐⭐⭐⭐ | Medium | 2-3 weeks | High |
-| Advanced Search | 🔴 High | ⭐⭐⭐⭐⭐ | Medium-High | 3-4 weeks | High |
-| Abandoned Cart | 🔴 High | ⭐⭐⭐⭐⭐ | Medium | 2-3 weeks | Very High |
-| Analytics | 🔴 High | ⭐⭐⭐⭐ | Medium | 2-3 weeks | High |
-| Product Recommendations | 🟡 Medium | ⭐⭐⭐⭐ | Medium-High | 3-4 weeks | Medium-High |
-| Loyalty Program | 🟡 Medium | ⭐⭐⭐⭐⭐ | Medium | 3-4 weeks | High |
-| Stock Alerts | 🟡 Medium | ⭐⭐⭐⭐ | Low-Medium | 1-2 weeks | Medium |
-| Social Login/Share | 🟡 Medium | ⭐⭐⭐ | Low-Medium | 1-2 weeks | Medium |
-| Live Chat | 🟡 Medium | ⭐⭐⭐ | Low-Medium | 1-2 weeks | Medium |
-| PWA | 🟡 Medium | ⭐⭐⭐⭐ | Medium | 2-3 weeks | Medium-High |
+| Feature                 | Priority  | Impact     | Complexity  | Estimated Time | ROI         |
+| ----------------------- | --------- | ---------- | ----------- | -------------- | ----------- |
+| Product Reviews         | 🔴 High   | ⭐⭐⭐⭐⭐ | Medium      | 2-3 weeks      | High        |
+| Advanced Search         | 🔴 High   | ⭐⭐⭐⭐⭐ | Medium-High | 3-4 weeks      | High        |
+| Abandoned Cart          | 🔴 High   | ⭐⭐⭐⭐⭐ | Medium      | 2-3 weeks      | Very High   |
+| Analytics               | 🔴 High   | ⭐⭐⭐⭐   | Medium      | 2-3 weeks      | High        |
+| Product Recommendations | 🟡 Medium | ⭐⭐⭐⭐   | Medium-High | 3-4 weeks      | Medium-High |
+| Loyalty Program         | 🟡 Medium | ⭐⭐⭐⭐⭐ | Medium      | 3-4 weeks      | High        |
+| Stock Alerts            | 🟡 Medium | ⭐⭐⭐⭐   | Low-Medium  | 1-2 weeks      | Medium      |
+| Social Login/Share      | 🟡 Medium | ⭐⭐⭐     | Low-Medium  | 1-2 weeks      | Medium      |
+| Live Chat               | 🟡 Medium | ⭐⭐⭐     | Low-Medium  | 1-2 weeks      | Medium      |
+| PWA                     | 🟡 Medium | ⭐⭐⭐⭐   | Medium      | 2-3 weeks      | Medium-High |
 
 ### Recommended Implementation Order
 
 **Phase 1: Quick Wins (4-6 weeks)**
+
 1. Product Reviews (2-3 weeks)
 2. Stock Alerts (1-2 weeks)
 3. Social Login/Share (1-2 weeks)
 
-**Phase 2: High Impact (6-8 weeks)**
-4. Abandoned Cart Recovery (2-3 weeks)
-5. Advanced Search (3-4 weeks)
-6. Analytics & Tracking (2-3 weeks)
+**Phase 2: High Impact (6-8 weeks)** 4. Abandoned Cart Recovery (2-3 weeks) 5. Advanced Search (3-4 weeks) 6. Analytics & Tracking (2-3 weeks)
 
-**Phase 3: Engagement & Retention (6-8 weeks)**
-7. Product Recommendations (3-4 weeks)
-8. Loyalty Program (3-4 weeks)
+**Phase 3: Engagement & Retention (6-8 weeks)** 7. Product Recommendations (3-4 weeks) 8. Loyalty Program (3-4 weeks)
 
-**Phase 4: Mobile & Support (3-4 weeks)**
-9. PWA & Mobile Optimization (2-3 weeks)
-10. Live Chat (1-2 weeks)
+**Phase 4: Mobile & Support (3-4 weeks)** 9. PWA & Mobile Optimization (2-3 weeks) 10. Live Chat (1-2 weeks)
 
 **Total Estimated Timeline**: 19-26 weeks (5-6.5 months)
 
@@ -1304,18 +1421,21 @@ pnpm add next-pwa
 ## Roadmap Suggestions
 
 ### Short-Term (1-3 months)
+
 - Implement Product Reviews
 - Add Stock Alerts
 - Set up Analytics
 - Implement Abandoned Cart Recovery
 
 ### Medium-Term (3-6 months)
+
 - Advanced Search with Algolia
 - Product Recommendations
 - Loyalty Program
 - Social Login & Sharing
 
 ### Long-Term (6-12 months)
+
 - PWA Implementation
 - Live Chat Integration
 - Advanced Personalization (ML-based)
@@ -1328,6 +1448,7 @@ pnpm add next-pwa
 The Saleor Platform provides a solid, production-ready foundation for e-commerce operations. The current implementation covers all essential e-commerce functionality with a modern, scalable architecture. The proposed features would significantly enhance the customer experience, increase conversions, and provide competitive advantages in the marketplace.
 
 **Key Takeaways:**
+
 1. **Foundation is Strong**: Core e-commerce features are complete and functional
 2. **Enhancement Opportunities**: 10 high-impact features identified
 3. **Prioritization Matters**: Focus on high-impact, medium-complexity features first
@@ -1335,6 +1456,7 @@ The Saleor Platform provides a solid, production-ready foundation for e-commerce
 5. **ROI Focus**: Features like Abandoned Cart and Reviews have highest ROI
 
 **Next Steps:**
+
 1. Review and prioritize features based on business goals
 2. Create detailed implementation plans for selected features
 3. Set up development sprints for feature delivery
@@ -1346,4 +1468,3 @@ The Saleor Platform provides a solid, production-ready foundation for e-commerce
 **Document Version**: 1.0  
 **Last Updated**: December 2024  
 **Maintained By**: Development Team
-

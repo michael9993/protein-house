@@ -3,8 +3,8 @@ import { Condition } from "@dashboard/discounts/models";
 import { Box, Button } from "@saleor/macaw-ui-next";
 import { Minus } from "lucide-react";
 
-import { RuleConditionName } from "../RuleConditionName/";
-import { RuleConditionType } from "../RuleConditionType/";
+import { RuleConditionName } from "../RuleConditionName";
+import { RuleConditionType } from "../RuleConditionType";
 import { RuleConditionValues } from "../RuleConditionValues";
 import { RuleInputWrapper } from "../RuleInputWrapper";
 

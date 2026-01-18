@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useStoreConfig } from "@/providers/StoreConfigProvider";
+import { useStoreConfig, useContentConfig } from "@/providers/StoreConfigProvider";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 
 interface Category {
@@ -26,11 +26,15 @@ interface FeaturedCategoriesProps {
  */
 export function FeaturedCategories({
   categories,
-  title = "Shop by Category",
-  subtitle = "Browse our collections",
+  title,
+  subtitle,
 }: FeaturedCategoriesProps) {
   const { homepage, branding } = useStoreConfig();
+  const content = useContentConfig();
   const config = homepage.sections.featuredCategories;
+  
+  const displayTitle = title || content.homepage.categoriesTitle;
+  const displaySubtitle = subtitle || content.homepage.categoriesSubtitle;
 
   // Don't render if disabled
   if (!config.enabled) {
@@ -49,13 +53,13 @@ export function FeaturedCategories({
             className="heading text-3xl font-bold tracking-tight sm:text-4xl"
             style={{ color: branding.colors.text }}
           >
-            {title}
+            {displayTitle}
           </h2>
           <p 
             className="mt-3 text-lg"
             style={{ color: branding.colors.textMuted }}
           >
-            {subtitle}
+            {displaySubtitle}
           </p>
         </div>
 
@@ -96,7 +100,7 @@ export function FeaturedCategories({
                 </h3>
                 {category.productCount !== undefined && (
                   <p className="mt-1 text-sm text-white/70">
-                    {category.productCount} Products
+                    {category.productCount} {content.homepage.productCountText}
                   </p>
                 )}
                 
@@ -105,7 +109,7 @@ export function FeaturedCategories({
                   className="mt-3 inline-flex items-center gap-2 text-sm font-medium transition-all group-hover:gap-3"
                   style={{ color: branding.colors.primary }}
                 >
-                  Shop Now
+                  {content.homepage.shopNowButton}
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>

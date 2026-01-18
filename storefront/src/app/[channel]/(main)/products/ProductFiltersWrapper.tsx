@@ -27,6 +27,9 @@ interface ProductFiltersWrapperProps {
   initialBrands?: Brand[];
   initialSizes?: Size[];
   initialColors?: Color[];
+  minPrice?: number;
+  maxPrice?: number;
+  currencyCode?: string;
 }
 
 export function ProductFiltersWrapper({ 
@@ -37,6 +40,9 @@ export function ProductFiltersWrapper({
   initialBrands,
   initialSizes,
   initialColors,
+  minPrice,
+  maxPrice,
+  currencyCode,
 }: ProductFiltersWrapperProps) {
   const { branding } = storeConfig;
   const { filterCount } = useProductFilters();
@@ -137,6 +143,10 @@ export function ProductFiltersWrapper({
             brands={brands}
             sizes={sizes}
             colors={colors}
+            channel={channel}
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            currencyCode={currencyCode}
           />
         </MobileFilterDrawer>
       </>
@@ -170,6 +180,10 @@ export function ProductFiltersWrapper({
         brands={brands}
         sizes={sizes}
         colors={colors}
+        channel={channel}
+        minPrice={minPrice}
+        maxPrice={maxPrice}
+        currencyCode={currencyCode}
       />
     </div>
   );

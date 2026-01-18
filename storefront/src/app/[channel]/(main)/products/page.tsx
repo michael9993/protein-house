@@ -1,7 +1,8 @@
 import { Suspense } from "react";
 import { ProductListFilteredDocument, CategoriesForFilterDocument, CategoriesForHomepageDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
-import { storeConfig } from "@/config";
+import { storeConfig, DEFAULT_FILTERS_TEXT } from "@/config";
+import { fetchStorefrontConfig } from "@/lib/storefront-control";
 import { SortBy } from "@/ui/components/SortBy";
 import { ProductFiltersWrapper } from "./ProductFiltersWrapper";
 import { ProductsGrid } from "./ProductsGrid";
@@ -17,6 +18,8 @@ import {
 } from "@/lib/filters";
 import { fetchSizesForQuickFilters } from "./fetchSizes";
 import { fetchColorsForQuickFilters } from "./fetchColors";
+import { computePriceRange } from "@/lib/price-utils";
+import { getChannelCurrency } from "@/lib/channel-utils";
 
 // ============================================================================
 // Metadata
@@ -36,7 +39,7 @@ async function getCategoryIdsFromSlugs(slugs: string[], channel: string): Promis
 	
 	const { categories } = await executeGraphQL(CategoriesForFilterDocument, {
 		variables: { first: 100, channel },
-    revalidate: 300,
+    revalidate: 30,
 	});
 	
 	const categoryIds: string[] = [];
@@ -84,7 +87,7 @@ async function getCollectionIdsFromSlugs(slugs: string[], channel: string): Prom
 				`,
 				variables: { channel },
 			}),
-			next: { revalidate: 300 },
+			next: { revalidate: 30 },
 		});
 		
 		const result = (await response.json()) as { data?: { collections?: { edges?: any[] } } };
@@ -105,7 +108,7 @@ async function fetchCategoriesForQuickFilters(channel: string) {
   try {
     const { categories } = await executeGraphQL(CategoriesForHomepageDocument, {
       variables: { channel, first: 10 },
-      revalidate: 300,
+      revalidate: 30,
     });
     return categories?.edges?.map(({ node }: { node: any }) => {
       const productImages = node.products?.edges
@@ -194,7 +197,7 @@ async function fetchCollectionsForQuickFilters(channel: string) {
         `,
         variables: { channel },
       }),
-      next: { revalidate: 300 },
+      next: { revalidate: 30 },
     });
     
     const result = (await response.json()) as { data?: { collections?: { edges?: any[] } } };
@@ -238,7 +241,7 @@ async function fetchCollectionsForQuickFilters(channel: string) {
  * Fetch brands for quick filters
  */
 async function fetchBrandsForQuickFilters(channel: string): Promise<{
-  brands: Array<{ id: string; name: string; slug: string; productCount: number }>;
+  brands: Array<{ id: string; name: string; slug: string; productCount: number; backgroundImage?: { url: string; alt?: string }; productImages?: Array<{ url: string; alt?: string }> }>;
   attributeSlug: string | null;
 }> {
   try {
@@ -255,7 +258,7 @@ async function fetchBrandsForQuickFilters(channel: string): Promise<{
  * Fallback: Extract brands from product attributes
  */
 async function fetchBrandsFromAttributes(apiUrl: string, channel: string): Promise<{
-  brands: Array<{ id: string; name: string; slug: string; productCount: number }>;
+  brands: Array<{ id: string; name: string; slug: string; productCount: number; backgroundImage?: { url: string; alt?: string }; productImages?: Array<{ url: string; alt?: string }> }>;
   attributeSlug: string | null;
 }> {
   try {
@@ -271,6 +274,14 @@ async function fetchBrandsFromAttributes(apiUrl: string, channel: string): Promi
                 node {
                   id
                   name
+                  thumbnail {
+                    url
+                    alt
+                  }
+                  media {
+                    url
+                    alt
+                  }
                   attributes {
                     attribute {
                       id
@@ -290,7 +301,7 @@ async function fetchBrandsFromAttributes(apiUrl: string, channel: string): Promi
         `,
         variables: { channel },
       }),
-      next: { revalidate: 300 },
+      next: { revalidate: 30 },
     });
 
     if (!response.ok) {
@@ -304,7 +315,13 @@ async function fetchBrandsFromAttributes(apiUrl: string, channel: string): Promi
       return { brands: [], attributeSlug: null };
     }
 
-    const brandsMap = new Map<string, { name: string; slug: string; count: number }>();
+    // Map brand slug -> { name, slug, count, productImages }
+    const brandsMap = new Map<string, { 
+      name: string; 
+      slug: string; 
+      count: number;
+      productImages: Map<string, { url: string; alt?: string }>; // Use Map to avoid duplicates
+    }>();
     let detectedAttributeSlug: string | null = null;
 
     data.products.edges.forEach((edge: any) => {
@@ -324,6 +341,25 @@ async function fetchBrandsFromAttributes(apiUrl: string, channel: string): Promi
 
         const brandValues = brandAttr.values || [];
         if (brandValues.length > 0) {
+          // Collect product images for this product
+          const productImages: Array<{ url: string; alt?: string }> = [];
+          if (product.thumbnail?.url) {
+            productImages.push({ 
+              url: product.thumbnail.url, 
+              alt: product.thumbnail.alt || product.name 
+            });
+          }
+          if (product.media?.length > 0) {
+            product.media.slice(0, 2).forEach((media: any) => {
+              if (media.url && !productImages.some(img => img.url === media.url)) {
+                productImages.push({ 
+                  url: media.url, 
+                  alt: media.alt || product.name 
+                });
+              }
+            });
+          }
+
           brandValues.forEach((value: any) => {
             const brandName = value?.name || value?.value;
             if (brandName && typeof brandName === 'string' && brandName.trim()) {
@@ -332,9 +368,22 @@ async function fetchBrandsFromAttributes(apiUrl: string, channel: string): Promi
               
               if (brandSlug) {
                 if (!brandsMap.has(brandSlug)) {
-                  brandsMap.set(brandSlug, { name: brandName.trim(), slug: brandSlug, count: 0 });
+                  brandsMap.set(brandSlug, { 
+                    name: brandName.trim(), 
+                    slug: brandSlug, 
+                    count: 0,
+                    productImages: new Map(),
+                  });
                 }
-                brandsMap.get(brandSlug)!.count++;
+                const brandData = brandsMap.get(brandSlug)!;
+                brandData.count++;
+                
+                // Add product images to brand (avoid duplicates by URL)
+                productImages.forEach(img => {
+                  if (img.url && !brandData.productImages.has(img.url)) {
+                    brandData.productImages.set(img.url, img);
+                  }
+                });
               }
             }
           });
@@ -343,12 +392,26 @@ async function fetchBrandsFromAttributes(apiUrl: string, channel: string): Promi
     });
 
     const brands = Array.from(brandsMap.values())
-      .map((brand) => ({
-        id: `brand-${brand.slug}`,
-        name: brand.name,
-        slug: brand.slug,
-        productCount: brand.count,
-      }))
+      .map((brand) => {
+        // Convert productImages Map to array, limit to 4 images
+        const productImagesArray = Array.from(brand.productImages.values())
+          .filter(img => img.url)
+          .slice(0, 4);
+        
+        // Use first product image as backgroundImage if available
+        const backgroundImage = productImagesArray.length > 0 
+          ? { url: productImagesArray[0].url, alt: productImagesArray[0].alt || brand.name }
+          : undefined;
+
+        return {
+          id: `brand-${brand.slug}`,
+          name: brand.name,
+          slug: brand.slug,
+          productCount: brand.count,
+          backgroundImage,
+          productImages: productImagesArray.length > 0 ? productImagesArray : undefined,
+        };
+      })
       .sort((a, b) => (b.productCount || 0) - (a.productCount || 0))
       .slice(0, 10);
 
@@ -423,7 +486,7 @@ export default async function Page(props: {
         filter: graphqlFilter,
         search: adjustedFilters.search || undefined,
 		},
-		revalidate: 60,
+		revalidate: 10,
     }),
     fetchCategoriesForQuickFilters(channel),
     fetchCollectionsForQuickFilters(channel),
@@ -434,9 +497,28 @@ export default async function Page(props: {
 	const hasNextPage = products?.pageInfo.hasNextPage || false;
 	const endCursor = products?.pageInfo.endCursor || null;
 
+	// Compute price range from products for filter defaults
+	// Also extract currency from product data (more reliable than API call)
+	const { minAvailablePrice, maxAvailablePrice, currencyCode: productsCurrencyCode } = computePriceRange(initialProducts);
+	
+	// If no currency from products (empty results or no products), fetch from channel as fallback
+	let currencyCode = productsCurrencyCode;
+	if (!currencyCode && channel) {
+		try {
+			const channelCurrency = await getChannelCurrency(channel);
+			currencyCode = channelCurrency || "";
+		} catch (error) {
+			console.warn("Failed to fetch channel currency:", error);
+		}
+	}
+
   const activeFilters = hasActiveFilters(filters);
   const hasQuickFilters = categoriesForQuickFilters.length > 0 || collectionsForQuickFilters.length > 0 || brandsForQuickFilters.length > 0;
-  const { branding } = storeConfig;
+  
+  // Fetch dynamic config from storefront-control
+  const dynamicConfig = await fetchStorefrontConfig(channel);
+  const { branding } = dynamicConfig;
+  const filtersText = dynamicConfig.content?.filters || storeConfig.content?.filters || DEFAULT_FILTERS_TEXT;
 
 	return (
 		<div className="min-h-screen bg-white">
@@ -455,10 +537,10 @@ export default async function Page(props: {
 								className="text-2xl font-bold tracking-tight mb-2"
 								style={{ color: branding.colors.text }}
 							>
-								DISCOVER PRODUCTS
+								{filtersText.discoverProducts.toUpperCase()}
 							</h1>
 							<p className="text-sm text-neutral-600">
-								{productCount} {productCount === 1 ? "item" : "items"} available
+								{productCount} {filtersText.itemsAvailable}
 							</p>
 						</div>
 
@@ -470,6 +552,9 @@ export default async function Page(props: {
 									initialBrands={brandsForQuickFilters}
 									initialSizes={sizesResult.sizes}
 									initialColors={colorsResult.colors}
+									minPrice={minAvailablePrice}
+									maxPrice={maxAvailablePrice}
+									currencyCode={currencyCode}
 								/>
 							</Suspense>
 						</div>
@@ -492,7 +577,7 @@ export default async function Page(props: {
 								className="px-4 py-3 text-xl font-bold tracking-tight sm:px-6 lg:px-8"
 								style={{ color: branding.colors.text }}
 							>
-								Check Out Our Products
+								{filtersText.checkOutOurProducts}
 							</h2>
 							<div className="w-full">
 								<QuickFilters
@@ -542,7 +627,7 @@ export default async function Page(props: {
 										) : (
 											<>
 												<span className="font-semibold text-neutral-900">{productCount.toLocaleString()}</span>
-												<span className="ml-1">results</span>
+												<span className="ml-1">{filtersText.resultsText}</span>
 											</>
 										)}
 									</div>
@@ -556,6 +641,7 @@ export default async function Page(props: {
 							<div className="mb-6">
 								<ActiveFiltersTags 
 									filters={filters}
+									channel={channel}
 									categories={categoriesForQuickFilters}
 									collections={collectionsForQuickFilters}
 									brands={brandsForQuickFilters}

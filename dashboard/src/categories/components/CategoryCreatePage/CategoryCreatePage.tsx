@@ -10,7 +10,7 @@ import useNavigator from "@dashboard/hooks/useNavigator";
 import { Box } from "@saleor/macaw-ui-next";
 import { useIntl } from "react-intl";
 
-import CategoryDetailsForm from "../../components/CategoryDetailsForm";
+import CategoryDetailsForm from "../CategoryDetailsForm";
 import CategoryCreateForm, { CategoryCreateData } from "./form";
 
 interface CategoryCreatePageProps {

@@ -512,6 +512,8 @@ export default async function Page(props: {
 						})) : (null as any),
 						pricing: v.pricing,
 					})) as any,
+					rating: (product as any).rating || null,
+					reviewCount: (product as any).reviews?.totalCount || null,
 				}}
 				selectedVariantId={selectedVariantID}
 				channel={params.channel}

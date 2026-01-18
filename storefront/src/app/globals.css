@@ -11,9 +11,12 @@
    ============================================ */
 
 :root {
-  /* Colors */
+  /* Base Colors */
   --store-primary: #2563EB;
+  --store-primary-hover: #1d4ed8;
+  --store-primary-light: rgba(37, 99, 235, 0.1);
   --store-secondary: #1F2937;
+  --store-secondary-hover: #111827;
   --store-accent: #F59E0B;
   --store-bg: #FFFFFF;
   --store-surface: #F9FAFB;
@@ -23,6 +26,53 @@
   --store-warning: #D97706;
   --store-error: #DC2626;
   
+  /* Success State Colors (for order confirmations, success messages) */
+  --store-success-bg: #ecfdf5;
+  --store-success-text: #065f46;
+  --store-success-border: #a7f3d0;
+  --store-success-light: #d1fae5;
+  
+  /* Info State Colors (for informational messages) */
+  --store-info: #2563eb;
+  --store-info-bg: #eff6ff;
+  --store-info-text: #1e40af;
+  --store-info-border: #bfdbfe;
+  --store-info-light: #dbeafe;
+  
+  /* Warning State Colors */
+  --store-warning-bg: #fffbeb;
+  --store-warning-text: #92400e;
+  --store-warning-border: #fde68a;
+  
+  /* Error State Colors */
+  --store-error-bg: #fef2f2;
+  --store-error-text: #991b1b;
+  --store-error-border: #fecaca;
+  
+  /* Interactive States */
+  --store-hover-bg: rgba(0, 0, 0, 0.05);
+  --store-focus-ring: rgba(37, 99, 235, 0.2);
+  --store-focus-border: var(--store-primary);
+  --store-disabled-opacity: 0.5;
+  --store-disabled-bg: #e5e7eb;
+  
+  /* Neutral Colors (for borders, dividers, etc.) */
+  --store-neutral-50: #fafafa;
+  --store-neutral-100: #f5f5f5;
+  --store-neutral-200: #e5e5e5;
+  --store-neutral-300: #d4d4d4;
+  --store-neutral-400: #a3a3a3;
+  --store-neutral-500: #737373;
+  --store-neutral-600: #525252;
+  --store-neutral-700: #404040;
+  --store-neutral-800: #262626;
+  --store-neutral-900: #171717;
+  
+  /* Mobile-specific */
+  --store-mobile-nav-bg: rgba(255, 255, 255, 0.95);
+  --store-mobile-menu-bg: rgba(245, 245, 245, 0.5);
+  --store-mobile-menu-active-bg: var(--store-neutral-100);
+  
   /* Typography */
   --store-font-heading: 'Inter', sans-serif;
   --store-font-body: 'Inter', sans-serif;
@@ -30,15 +80,94 @@
   
   /* Spacing & Borders */
   --store-radius: 8px;
+  --store-radius-sm: 4px;
+  --store-radius-lg: 16px;
+  --store-radius-full: 9999px;
 }
 
-/* Dark mode support (optional - can be configured per store) */
+/* Dark mode class-based (controlled by DarkModeProvider) */
+:root.dark {
+  --store-bg: #0f172a;
+  --store-surface: #1e293b;
+  --store-text: #f8fafc;
+  --store-text-muted: #94a3b8;
+  
+  /* Neutral colors for dark mode */
+  --store-neutral-50: #1e293b;
+  --store-neutral-100: #334155;
+  --store-neutral-200: #475569;
+  --store-neutral-300: #64748b;
+  --store-neutral-400: #94a3b8;
+  --store-neutral-500: #cbd5e1;
+  --store-neutral-600: #e2e8f0;
+  --store-neutral-700: #f1f5f9;
+  --store-neutral-800: #f8fafc;
+  --store-neutral-900: #ffffff;
+  
+  /* Success state in dark mode */
+  --store-success-bg: rgba(5, 150, 105, 0.2);
+  --store-success-text: #6ee7b7;
+  --store-success-border: rgba(5, 150, 105, 0.4);
+  
+  /* Info state in dark mode */
+  --store-info-bg: rgba(37, 99, 235, 0.2);
+  --store-info-text: #93c5fd;
+  --store-info-border: rgba(37, 99, 235, 0.4);
+  
+  /* Warning state in dark mode */
+  --store-warning-bg: rgba(217, 119, 6, 0.2);
+  --store-warning-text: #fcd34d;
+  --store-warning-border: rgba(217, 119, 6, 0.4);
+  
+  /* Error state in dark mode */
+  --store-error-bg: rgba(220, 38, 38, 0.2);
+  --store-error-text: #fca5a5;
+  --store-error-border: rgba(220, 38, 38, 0.4);
+  
+  /* Interactive states in dark mode */
+  --store-hover-bg: rgba(255, 255, 255, 0.05);
+  --store-disabled-bg: #334155;
+  
+  /* Mobile-specific in dark mode */
+  --store-mobile-nav-bg: rgba(15, 23, 42, 0.95);
+  --store-mobile-menu-bg: rgba(30, 41, 59, 0.5);
+  --store-mobile-menu-active-bg: var(--store-neutral-100);
+}
+
+/* Dark mode auto (follows system preference) */
 @media (prefers-color-scheme: dark) {
-  :root.dark-mode-auto {
-    --store-bg: #0F172A;
-    --store-surface: #1E293B;
-    --store-text: #F8FAFC;
-    --store-text-muted: #94A3B8;
+  :root.dark-auto {
+    --store-bg: #0f172a;
+    --store-surface: #1e293b;
+    --store-text: #f8fafc;
+    --store-text-muted: #94a3b8;
+    --store-neutral-50: #1e293b;
+    --store-neutral-100: #334155;
+    --store-neutral-200: #475569;
+    --store-neutral-300: #64748b;
+    --store-neutral-400: #94a3b8;
+    --store-neutral-500: #cbd5e1;
+    --store-neutral-600: #e2e8f0;
+    --store-neutral-700: #f1f5f9;
+    --store-neutral-800: #f8fafc;
+    --store-neutral-900: #ffffff;
+    --store-success-bg: rgba(5, 150, 105, 0.2);
+    --store-success-text: #6ee7b7;
+    --store-success-border: rgba(5, 150, 105, 0.4);
+    --store-info-bg: rgba(37, 99, 235, 0.2);
+    --store-info-text: #93c5fd;
+    --store-info-border: rgba(37, 99, 235, 0.4);
+    --store-warning-bg: rgba(217, 119, 6, 0.2);
+    --store-warning-text: #fcd34d;
+    --store-warning-border: rgba(217, 119, 6, 0.4);
+    --store-error-bg: rgba(220, 38, 38, 0.2);
+    --store-error-text: #fca5a5;
+    --store-error-border: rgba(220, 38, 38, 0.4);
+    --store-hover-bg: rgba(255, 255, 255, 0.05);
+    --store-disabled-bg: #334155;
+    --store-mobile-nav-bg: rgba(15, 23, 42, 0.95);
+    --store-mobile-menu-bg: rgba(30, 41, 59, 0.5);
+    --store-mobile-menu-active-bg: var(--store-neutral-100);
   }
 }
 
@@ -380,7 +509,7 @@ html {
 
 /* Glass effect */
 .glass {
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--store-mobile-nav-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -399,9 +528,9 @@ html {
 .img-loading {
   background: linear-gradient(
     90deg,
-    #f0f0f0 0%,
-    #e0e0e0 50%,
-    #f0f0f0 100%
+    var(--store-neutral-100) 0%,
+    var(--store-neutral-200) 50%,
+    var(--store-neutral-100) 100%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
@@ -419,7 +548,7 @@ html {
 }
 
 .price-sale {
-  color: #ef4444;
+  color: var(--store-error);
   font-weight: 700;
 }
 
@@ -517,4 +646,127 @@ html {
 
 .scrollbar-thin:hover::-webkit-scrollbar-thumb {
   background-color: rgb(163 163 163);
+}
+
+/* ============================================
+   AUTH/FORM INPUT STYLES (themed via CSS vars)
+   ============================================ */
+.auth-input {
+  background-color: var(--store-bg);
+  border-color: var(--store-neutral-200);
+  color: var(--store-text);
+}
+
+.auth-input::placeholder {
+  color: var(--store-neutral-400);
+}
+
+.auth-input:focus {
+  border-color: var(--store-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--store-focus-ring);
+}
+
+.auth-label {
+  color: var(--store-neutral-700);
+}
+
+/* Success state colors */
+.state-success {
+  background-color: var(--store-success-bg);
+  color: var(--store-success-text);
+  border-color: var(--store-success-border);
+}
+
+/* Error state colors */
+.state-error {
+  background-color: var(--store-error-bg);
+  color: var(--store-error-text);
+  border-color: var(--store-error-border);
+}
+
+/* Info state colors */
+.state-info {
+  background-color: var(--store-info-bg);
+  color: var(--store-info-text);
+  border-color: var(--store-info-border);
+}
+
+/* Warning state colors */
+.state-warning {
+  background-color: var(--store-warning-bg);
+  color: var(--store-warning-text);
+  border-color: var(--store-warning-border);
+}
+
+/* ============================================
+   RTL-SAFE CSS UTILITIES (Logical Properties)
+   ============================================ */
+
+/* Margin utilities using logical properties */
+.ms-auto { margin-inline-start: auto; }
+.me-auto { margin-inline-end: auto; }
+.ms-0 { margin-inline-start: 0; }
+.me-0 { margin-inline-end: 0; }
+.ms-1 { margin-inline-start: 0.25rem; }
+.me-1 { margin-inline-end: 0.25rem; }
+.ms-2 { margin-inline-start: 0.5rem; }
+.me-2 { margin-inline-end: 0.5rem; }
+.ms-3 { margin-inline-start: 0.75rem; }
+.me-3 { margin-inline-end: 0.75rem; }
+.ms-4 { margin-inline-start: 1rem; }
+.me-4 { margin-inline-end: 1rem; }
+.ms-6 { margin-inline-start: 1.5rem; }
+.me-6 { margin-inline-end: 1.5rem; }
+.ms-8 { margin-inline-start: 2rem; }
+.me-8 { margin-inline-end: 2rem; }
+
+/* Padding utilities using logical properties */
+.ps-0 { padding-inline-start: 0; }
+.pe-0 { padding-inline-end: 0; }
+.ps-1 { padding-inline-start: 0.25rem; }
+.pe-1 { padding-inline-end: 0.25rem; }
+.ps-2 { padding-inline-start: 0.5rem; }
+.pe-2 { padding-inline-end: 0.5rem; }
+.ps-3 { padding-inline-start: 0.75rem; }
+.pe-3 { padding-inline-end: 0.75rem; }
+.ps-4 { padding-inline-start: 1rem; }
+.pe-4 { padding-inline-end: 1rem; }
+.ps-6 { padding-inline-start: 1.5rem; }
+.pe-6 { padding-inline-end: 1.5rem; }
+.ps-8 { padding-inline-start: 2rem; }
+.pe-8 { padding-inline-end: 2rem; }
+
+/* Position utilities using logical properties */
+.start-0 { inset-inline-start: 0; }
+.end-0 { inset-inline-end: 0; }
+.start-auto { inset-inline-start: auto; }
+.end-auto { inset-inline-end: auto; }
+.start-4 { inset-inline-start: 1rem; }
+.end-4 { inset-inline-end: 1rem; }
+
+/* Border utilities using logical properties */
+.border-s { border-inline-start-width: 1px; }
+.border-e { border-inline-end-width: 1px; }
+.border-s-0 { border-inline-start-width: 0; }
+.border-e-0 { border-inline-end-width: 0; }
+.rounded-s { border-start-start-radius: var(--store-radius); border-end-start-radius: var(--store-radius); }
+.rounded-e { border-start-end-radius: var(--store-radius); border-end-end-radius: var(--store-radius); }
+
+/* Text alignment */
+.text-start { text-align: start; }
+.text-end { text-align: end; }
+
+/* Float utilities */
+.float-start { float: inline-start; }
+.float-end { float: inline-end; }
+
+/* RTL icon flip - apply to icons that need to flip in RTL */
+[dir="rtl"] .rtl-flip {
+  transform: scaleX(-1);
+}
+
+/* RTL arrow icon flip (chevrons, arrows) */
+[dir="rtl"] .rtl-flip-arrow {
+  transform: scaleX(-1);
 }

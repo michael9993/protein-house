@@ -24,7 +24,7 @@ export const AddressFormActions: React.FC<AddressFormActionsProps> = ({
 					<IconButton 
 						ariaLabel="Delete address" 
 						onClick={onDelete} 
-						icon={<TrashIcon aria-hidden className="text-red-600 hover:text-red-700 transition-colors" />} 
+						icon={<TrashIcon aria-hidden style={{ color: "var(--store-error)" }} className="transition-colors" />} 
 					/>
 				</div>
 			)}
@@ -45,7 +45,8 @@ export const AddressFormActions: React.FC<AddressFormActionsProps> = ({
 					label={
 						<span className="flex items-center gap-2">
 							<svg
-								className="h-4 w-4 text-green-600"
+								className="h-4 w-4"
+								style={{ color: "white" }}
 								fill="none"
 								viewBox="0 0 24 24"
 								stroke="currentColor"
@@ -60,7 +61,7 @@ export const AddressFormActions: React.FC<AddressFormActionsProps> = ({
 							Saved
 						</span>
 					}
-					className="bg-green-600 hover:bg-green-700 text-white border-green-600"
+					style={{ backgroundColor: "var(--store-success)", borderColor: "var(--store-success)", color: "white" }}
 				/>
 			) : (
 				<Button ariaLabel="Save address" onClick={onSubmit} label="Save address" />

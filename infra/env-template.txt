@@ -95,6 +95,18 @@ SALEOR_APP_TOKEN=
 # Switch back to 'dev' for development with hot-reload
 STOREFRONT_MODE=dev
 
+# GraphQL request timeout and retry configuration
+# Timeout in milliseconds (default: 30000 = 30 seconds)
+# Increase this if using slow/unstable tunnel connections (e.g., Cloudflare)
+GRAPHQL_TIMEOUT_MS=30000
+# Maximum number of retries for timeout/network errors (default: 4)
+# Increased from 2 to handle unstable connections (Cloudflare tunnels, etc.)
+# Retries handle: ETIMEDOUT, ECONNRESET, ECONNREFUSED, ENOTFOUND, and other network errors
+GRAPHQL_MAX_RETRIES=4
+# Initial retry delay in milliseconds (default: 1000 = 1 second)
+# Uses exponential backoff: delay * 2^attempt (1s, 2s, 4s, 8s, etc.)
+GRAPHQL_RETRY_DELAY_MS=1000
+
 # ============================================================================
 # STRIPE PAYMENT APP CONFIGURATION
 # ============================================================================
@@ -117,3 +129,10 @@ SMTP_APP_PORT=3001
 INVOICE_APP_PORT=3003
 INVOICE_APP_URL=http://localhost:3003
 
+# ============================================================================
+# STOREFRONT CONTROL APP CONFIGURATION
+# ============================================================================
+# Dashboard extension for managing storefront UI configuration per channel
+# Manages: theme, features, homepage sections, filters, quickFilters, SEO
+STOREFRONT_CONTROL_APP_PORT=3004
+STOREFRONT_CONTROL_APP_URL=http://localhost:3004

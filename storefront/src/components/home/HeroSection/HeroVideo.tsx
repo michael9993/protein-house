@@ -99,17 +99,17 @@ export function HeroVideo({
         </div>
       )}
       
-      {/* Gradient Overlay */}
+      {/* Gradient Overlay - uses logical properties for RTL support */}
       <div 
         className="absolute inset-0"
         style={{
-          background: `linear-gradient(to right, ${branding.colors.secondary}ee 0%, ${branding.colors.secondary}aa 40%, ${branding.colors.secondary}40 70%, transparent 100%)`,
+          background: `linear-gradient(to inline-end, ${branding.colors.secondary}ee 0%, ${branding.colors.secondary}aa 40%, ${branding.colors.secondary}40 70%, transparent 100%)`,
         }}
       />
       
       {/* Bottom Fade */}
       <div 
-        className="absolute bottom-0 left-0 right-0 h-32"
+        className="absolute bottom-0 start-0 end-0 h-32"
         style={{
           background: `linear-gradient(to top, ${branding.colors.background}, transparent)`,
         }}
@@ -165,7 +165,7 @@ export function HeroVideo({
             >
               {ctaText}
               <svg 
-                className="h-5 w-5 transition-transform group-hover:translate-x-1" 
+                className="h-5 w-5 transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1" 
                 fill="none" 
                 viewBox="0 0 24 24" 
                 stroke="currentColor"
@@ -204,8 +204,8 @@ export function HeroVideo({
         </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+      {/* Scroll Indicator - uses logical properties for RTL support */}
+      <div className="absolute bottom-8 start-1/2 -translate-x-1/2 rtl:translate-x-1/2">
         <div className="flex flex-col items-center gap-2 text-white/60">
           <span className="text-xs uppercase tracking-widest">Scroll</span>
           <div className="h-12 w-[1px] bg-gradient-to-b from-white/60 to-transparent" />

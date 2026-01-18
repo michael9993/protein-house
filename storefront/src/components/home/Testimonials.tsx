@@ -1,7 +1,36 @@
 "use client";
 
 import Image from "next/image";
-import { useStoreConfig } from "@/providers/StoreConfigProvider";
+import { useState } from "react";
+import { useStoreConfig, useContentConfig } from "@/providers/StoreConfigProvider";
+
+// Avatar component with error handling
+function Avatar({ src, name, backgroundColor }: { src?: string; name: string; backgroundColor: string }) {
+  const [imageError, setImageError] = useState(false);
+  
+  if (!src || imageError) {
+    return (
+      <div 
+        className="flex h-full w-full items-center justify-center text-sm font-bold text-white"
+        style={{ backgroundColor }}
+      >
+        {name.charAt(0)}
+      </div>
+    );
+  }
+  
+  return (
+    <Image
+      src={src}
+      alt={name}
+      width={40}
+      height={40}
+      className="h-full w-full object-cover"
+      onError={() => setImageError(true)}
+      unoptimized={src.startsWith('http')} // Don't optimize external URLs
+    />
+  );
+}
 
 interface Testimonial {
   id: string;
@@ -31,12 +60,13 @@ interface TestimonialsProps {
 }
 
 // Default testimonials for sports store
+// Note: Avatar images are optional - if not provided, initials will be displayed
 const defaultTestimonials: Testimonial[] = [
   {
     id: "1",
     name: "Marcus Johnson",
     role: "Professional Runner",
-    avatar: "/testimonials/avatar-1.jpg",
+    // avatar: undefined, // Will use initials fallback
     content: "The running shoes I got from SportZone are absolutely incredible. Best grip and comfort I've ever experienced. Shaved 2 minutes off my marathon time!",
     rating: 5,
     product: "Pro Runner X1",
@@ -45,7 +75,7 @@ const defaultTestimonials: Testimonial[] = [
     id: "2",
     name: "Sarah Chen",
     role: "Fitness Instructor",
-    avatar: "/testimonials/avatar-2.jpg",
+    // avatar: undefined, // Will use initials fallback
     content: "I've tried many sports brands, but nothing compares to the quality here. The training gear is durable, stylish, and perfect for high-intensity workouts.",
     rating: 5,
     product: "Training Essential Kit",
@@ -54,7 +84,7 @@ const defaultTestimonials: Testimonial[] = [
     id: "3",
     name: "David Rodriguez",
     role: "Basketball Coach",
-    avatar: "/testimonials/avatar-3.jpg",
+    // avatar: undefined, // Will use initials fallback
     content: "Outstanding customer service and fast shipping. The basketball gear for my team arrived in perfect condition. We're now fully equipped for the season!",
     rating: 5,
     product: "Team Basketball Set",
@@ -63,7 +93,7 @@ const defaultTestimonials: Testimonial[] = [
     id: "4",
     name: "Emma Thompson",
     role: "Yoga Enthusiast",
-    avatar: "/testimonials/avatar-4.jpg",
+    // avatar: undefined, // Will use initials fallback
     content: "Love the eco-friendly yoga mats and apparel. Great quality, beautiful designs, and I feel good knowing they're sustainably made.",
     rating: 5,
     product: "Eco Yoga Collection",
@@ -87,15 +117,19 @@ const defaultTestimonials: Testimonial[] = [
 export function Testimonials({
   testimonials = defaultTestimonials,
   cmsTestimonials = [],
-  title = "What Our Athletes Say",
-  subtitle = "Join thousands of satisfied customers who trust us for their sports gear",
+  title,
+  subtitle,
 }: TestimonialsProps) {
   const { homepage, branding } = useStoreConfig();
+  const content = useContentConfig();
 
   // Don't render if disabled
   if (!homepage.sections.testimonials.enabled) {
     return null;
   }
+
+  const displayTitle = title || content.homepage.testimonialsTitle;
+  const displaySubtitle = subtitle || content.homepage.testimonialsSubtitle;
 
   // Use CMS testimonials if available, otherwise use defaults
   const displayTestimonials: Testimonial[] = cmsTestimonials.length > 0
@@ -118,13 +152,13 @@ export function Testimonials({
             className="heading text-3xl font-bold tracking-tight sm:text-4xl"
             style={{ color: branding.colors.text }}
           >
-            {title}
+            {displayTitle}
           </h2>
           <p 
             className="mt-3 text-lg"
             style={{ color: branding.colors.textMuted }}
           >
-            {subtitle}
+            {displaySubtitle}
           </p>
         </div>
 
@@ -188,23 +222,12 @@ export function Testimonials({
 
               {/* Author */}
               <div className="mt-6 flex items-center gap-3">
-                <div 
-                  className="h-10 w-10 overflow-hidden rounded-full"
-                  style={{ backgroundColor: branding.colors.primary }}
-                >
-                  {testimonial.avatar ? (
-                    <Image
-                      src={testimonial.avatar}
-                      alt={testimonial.name}
-                      width={40}
-                      height={40}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-sm font-bold text-white">
-                      {testimonial.name.charAt(0)}
-                    </div>
-                  )}
+                <div className="h-10 w-10 overflow-hidden rounded-full">
+                  <Avatar 
+                    src={testimonial.avatar}
+                    name={testimonial.name}
+                    backgroundColor={branding.colors.primary}
+                  />
                 </div>
                 <div>
                   <p 

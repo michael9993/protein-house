@@ -2,7 +2,7 @@ import { SaleorThrobber } from "@dashboard/components/Throbber";
 import { infoMessages } from "@dashboard/extensions/messages";
 import { FormattedMessage } from "react-intl";
 
-import { InfoLabelsContainer } from "../InfoLabels/InfoLabelsContainer";
+import { InfoLabelsContainer } from "./InfoLabelsContainer";
 
 export const InstallationPendingInfo = () => {
   return (

@@ -3,6 +3,7 @@ import graphene
 from .....discount import PromotionType, events, models
 from .....graphql.core.mutations import ModelDeleteMutation
 from .....permission.enums import DiscountPermissions
+from .....product.tasks import recalculate_discounted_price_for_products_task
 from .....product.utils.product import (
     get_channel_to_products_map_from_rules,
     mark_products_in_channels_as_dirty,
@@ -67,6 +68,8 @@ class PromotionRuleDelete(ModelDeleteMutation):
 
         if channel_to_products_map:
             cls.call_event(mark_products_in_channels_as_dirty, channel_to_products_map)
+            # Trigger immediate price recalculation instead of waiting for scheduled task
+            recalculate_discounted_price_for_products_task.delay()
 
         app = get_app_promise(info.context).get()
         events.rule_deleted_event(info.context.user, app, [instance])

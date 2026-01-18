@@ -2,10 +2,12 @@
 
 import { useProductFilters } from "@/hooks/useProductFilters";
 import { storeConfig } from "@/config";
+import { useFiltersText } from "@/providers/StoreConfigProvider";
 import { type MouseEvent, useEffect, useState } from "react";
 
 export function StickyQuickFilters() {
   const { branding } = storeConfig;
+  const filtersText = useFiltersText();
   const { filters, toggleCategory, toggleCollection, toggleBrand } = useProductFilters();
   const [show, setShow] = useState(false);
   const [allItems, setAllItems] = useState<Array<{ id: string; name: string; slug: string; type: "category" | "collection" | "brand" }>>([]);
@@ -120,14 +122,14 @@ export function StickyQuickFilters() {
     }
   };
 
-  // Group by type
+  // Group by type - use filter text config for labels
   const categoriesList = allItems.filter(item => item.type === "category");
   const collectionsList = allItems.filter(item => item.type === "collection");
   const brandsList = allItems.filter(item => item.type === "brand");
   const groups = [
-    { items: categoriesList, label: "Categories" },
-    { items: collectionsList, label: "Collections" },
-    { items: brandsList, label: "Brands" },
+    { items: categoriesList, label: filtersText.categoryPlural },
+    { items: collectionsList, label: filtersText.collectionPlural },
+    { items: brandsList, label: filtersText.brandPlural },
   ].filter(group => group.items.length > 0);
 
   if (!show) return null;

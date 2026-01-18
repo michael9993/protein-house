@@ -90,7 +90,8 @@ export const GuestUser: React.FC<GuestUserProps> = ({
 					type="button"
 					onClick={handleGoogleSignIn}
 					disabled={isOauthLoading}
-					className="flex items-center justify-center gap-1.5 rounded border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+					className="flex items-center justify-center gap-1.5 rounded border bg-white px-3 py-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+					style={{ borderColor: "var(--store-neutral-200)", color: "var(--store-neutral-700)" }}
 					title="Sign in with Google"
 				>
 					{isOauthLoading ? (

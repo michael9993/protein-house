@@ -4,10 +4,11 @@
  * QuickFilters Component - Full Photo Design
  * 
  * Quick filter component with full-size photos and overlaid text
+ * Config-driven: Uses StoreConfig from context for settings/limits.
  */
 
 import { useProductFilters } from "@/hooks/useProductFilters";
-import { storeConfig } from "@/config";
+import { useStoreConfig, useQuickFiltersConfig, useFiltersText } from "@/providers/StoreConfigProvider";
 import Image from "next/image";
 import { useState, useRef, useEffect, type MouseEvent } from "react";
 import { CheckCircle2 } from "lucide-react";
@@ -56,12 +57,25 @@ interface QuickFiltersProps {
     name: string; 
     slug: string; 
     productCount?: number;
+    backgroundImage?: { url: string; alt?: string };
+    productImages?: Array<{ url: string; alt?: string }>;
   }>;
 }
 
 export function QuickFilters({ categories = [], collections = [], brands = [] }: QuickFiltersProps) {
-  const { branding } = storeConfig;
+  // Use config from context (per-channel)
+  const config = useStoreConfig();
+  const quickFiltersConfig = useQuickFiltersConfig(); // Always returns complete config with defaults
+  const filtersText = useFiltersText();
+  const { branding, localization } = config;
   const { filters, toggleCategory, toggleCollection, toggleBrand, updateFilters } = useProductFilters();
+  
+  // RTL detection
+  const isRtl = localization?.direction === 'rtl' || 
+    (localization?.direction === 'auto' && 
+     (localization?.rtlLocales || ['he', 'ar', 'fa', 'ur', 'yi', 'ps']).some(
+       rtl => localization?.defaultLocale?.toLowerCase().startsWith(rtl.toLowerCase())
+     ));
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const quickFiltersRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
@@ -69,22 +83,36 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
   const [currentImageIndices, setCurrentImageIndices] = useState<Record<string, number>>({});
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
+  // Don't render if quick filters are disabled
+  if (!quickFiltersConfig.enabled) {
+    return null;
+  }
+
+  const categoryLimit = quickFiltersConfig.categoryLimit;
+  const collectionLimit = quickFiltersConfig.collectionLimit;
+  const brandLimit = quickFiltersConfig.brandLimit;
+
   // Combine all items with their types and images
   const allItems: QuickFilterItem[] = [
-    ...categories.slice(0, 8).map(cat => ({ 
+    ...(quickFiltersConfig.showCategories ? categories.slice(0, categoryLimit).map(cat => ({ 
       ...cat, 
       type: "category" as const,
       children: cat.children || [],
       backgroundImage: cat.backgroundImage,
       productImages: cat.productImages,
-    })),
-    ...collections.slice(0, 6).map(col => ({ 
+    })) : []),
+    ...(quickFiltersConfig.showCollections ? collections.slice(0, collectionLimit).map(col => ({ 
       ...col, 
       type: "collection" as const,
       backgroundImage: col.backgroundImage,
       productImages: col.productImages,
-    })),
-    ...brands.slice(0, 6).map(brand => ({ ...brand, type: "brand" as const })),
+    })) : []),
+    ...(quickFiltersConfig.showBrands ? brands.slice(0, brandLimit).map(brand => ({ 
+      ...brand, 
+      type: "brand" as const,
+      backgroundImage: brand.backgroundImage,
+      productImages: brand.productImages,
+    })) : []),
   ];
 
   // Group consecutive items of the same type
@@ -261,19 +289,24 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
         }}
       >
       <div className="relative w-full h-[220px]">
-      {/* Scroll arrows - positioned outside the scroll container */}
+      {/* Scroll arrows - positioned outside the scroll container with RTL support */}
       {showLeftArrow && (
         <button
-          onClick={() => scroll("left")}
-          className="absolute left-0 top-1/2 z-30 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white border-2 shadow-xl backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:shadow-2xl"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            scroll(isRtl ? "right" : "left");
+          }}
+          className="absolute start-2 top-1/2 z-50 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white border-2 shadow-xl backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:shadow-2xl pointer-events-auto"
           style={{ 
             borderColor: branding.colors.primary + "40",
             boxShadow: `0 4px 12px ${branding.colors.primary}20`,
           }}
-          aria-label="Scroll left"
+          aria-label={filtersText.scrollLeftAriaLabel}
+          type="button"
         >
           <svg
-            className="h-6 w-6"
+            className="h-6 w-6 pointer-events-none rtl:rotate-180"
             style={{ color: branding.colors.primary }}
             fill="none"
             viewBox="0 0 24 24"
@@ -293,6 +326,7 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
           scrollbarWidth: "none",
           msOverflowStyle: "none",
           scrollBehavior: "smooth",
+          paddingLeft: showLeftArrow ? "60px" : "0",
         }}
       >
         {groupedItems.map((item) => {
@@ -422,19 +456,24 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
         })}
       </div>
 
-      {/* Right scroll arrow - positioned outside the scroll container */}
+      {/* Right scroll arrow - positioned outside the scroll container with RTL support */}
       {showRightArrow && (
         <button
-          onClick={() => scroll("right")}
-          className="absolute right-2 top-1/2 z-30 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white border-2 shadow-xl backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:shadow-2xl"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            scroll(isRtl ? "left" : "right");
+          }}
+          className="absolute end-2 top-1/2 z-50 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white border-2 shadow-xl backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:shadow-2xl pointer-events-auto"
           style={{ 
             borderColor: branding.colors.primary + "40",
             boxShadow: `0 4px 12px ${branding.colors.primary}20`,
           }}
-          aria-label="Scroll right"
+          aria-label={filtersText.scrollRightAriaLabel}
+          type="button"
         >
           <svg
-            className="h-6 w-6"
+            className="h-6 w-6 pointer-events-none rtl:rotate-180"
             style={{ color: branding.colors.primary }}
             fill="none"
             viewBox="0 0 24 24"

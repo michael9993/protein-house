@@ -1,7 +1,7 @@
 import { FlagList, GeneralFlagList } from "../availableFlags";
 import { FlagValue } from "../FlagContent";
 import { Strategy } from "../Strategy";
-import * as AvailableFlags from "./../availableFlags";
+import * as AvailableFlags from "../availableFlags";
 
 const byFlagPrefix = ([key, _]: [string, string]) => key.startsWith("FF");
 const toFlagList = (p: GeneralFlagList, [name, value]: [string, string]) => {

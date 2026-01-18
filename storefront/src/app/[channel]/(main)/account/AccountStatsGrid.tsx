@@ -1,6 +1,7 @@
 "use client";
 
 import { useWishlist } from "@/lib/wishlist";
+import { useDashboardText } from "@/providers/StoreConfigProvider";
 
 interface AccountStatsGridProps {
 	totalOrders: number;
@@ -37,28 +38,29 @@ const CalendarIcon = () => (
 export function AccountStatsGrid({ totalOrders, savedAddresses, memberSince }: AccountStatsGridProps) {
 	const { itemCount, isLoading } = useWishlist();
 	const wishlistCount = isLoading ? null : itemCount;
+	const dashboardText = useDashboardText();
 
 	const stats = [
 		{
-			label: "Total Orders",
+			label: dashboardText.totalOrders,
 			value: totalOrders,
 			icon: <OrdersIcon />,
 			color: "#3B82F6",
 		},
 		{
-			label: "Wishlist Items",
+			label: dashboardText.wishlistItems,
 			value: wishlistCount,
 			icon: <WishlistIcon />,
 			color: "#EF4444",
 		},
 		{
-			label: "Saved Addresses",
+			label: dashboardText.savedAddresses,
 			value: savedAddresses,
 			icon: <AddressIcon />,
 			color: "#10B981",
 		},
 		{
-			label: "Member Since",
+			label: dashboardText.memberSince,
 			value: memberSince,
 			icon: <CalendarIcon />,
 			color: "#8B5CF6",

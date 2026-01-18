@@ -1,0 +1,15 @@
+mutation MarkReviewHelpful($reviewId: ID!) {
+  productReviewMarkHelpful(reviewId: $reviewId) {
+    review {
+      id
+      helpfulCount
+    }
+    marked
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+

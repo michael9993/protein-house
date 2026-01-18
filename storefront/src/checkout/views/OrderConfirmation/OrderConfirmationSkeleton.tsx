@@ -7,7 +7,7 @@ export const OrderConfirmationSkeleton = () => {
 			{/* Left Column */}
 			<div className="space-y-8">
 				{/* Success Header Skeleton */}
-				<div className="rounded-xl border border-neutral-200 bg-neutral-50 p-6">
+				<div className="rounded-xl border p-6" style={{ borderColor: "var(--store-neutral-200)", backgroundColor: "var(--store-surface)" }}>
 					<div className="flex items-start gap-4">
 						<Skeleton className="h-12 w-12 rounded-full" />
 						<div className="flex-1 space-y-3">
@@ -20,7 +20,7 @@ export const OrderConfirmationSkeleton = () => {
 				</div>
 
 				{/* What's Next Skeleton */}
-				<div className="rounded-xl border border-neutral-200 bg-white p-6">
+				<div className="rounded-xl border bg-white p-6" style={{ borderColor: "var(--store-neutral-200)" }}>
 					<Skeleton className="mb-4 h-5 w-32" />
 					<div className="space-y-4">
 						{[1, 2, 3].map((i) => (
@@ -36,11 +36,11 @@ export const OrderConfirmationSkeleton = () => {
 				</div>
 
 				{/* Order Details Skeleton */}
-				<div className="rounded-xl border border-neutral-200 bg-white">
-					<div className="border-b border-neutral-100 px-6 py-4">
+				<div className="rounded-xl border bg-white" style={{ borderColor: "var(--store-neutral-200)" }}>
+					<div className="border-b px-6 py-4" style={{ borderColor: "var(--store-neutral-100)" }}>
 						<Skeleton className="h-5 w-28" />
 					</div>
-					<div className="divide-y divide-neutral-100">
+					<div className="divide-y" style={{ "--tw-divide-color": "var(--store-neutral-100)" } as React.CSSProperties}>
 						{[1, 2, 3].map((i) => (
 							<div key={i} className="flex items-start gap-3 px-6 py-4">
 								<Skeleton className="h-10 w-10 rounded-lg" />

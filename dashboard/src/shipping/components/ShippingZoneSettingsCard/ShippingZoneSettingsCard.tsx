@@ -5,7 +5,7 @@ import { Divider } from "@material-ui/core";
 import { Option } from "@saleor/macaw-ui-next";
 import { defineMessages, useIntl } from "react-intl";
 
-import { ShippingZoneUpdateFormData } from "../../components/ShippingZoneDetailsPage/types";
+import { ShippingZoneUpdateFormData } from "../ShippingZoneDetailsPage/types";
 import ChannelsSection from "./ChannelsSection";
 import WarehousesSection from "./WarehousesSection";
 

@@ -1,0 +1,9 @@
+query Channels {
+  channels {
+    id
+    slug
+    name
+    currencyCode
+    isActive
+  }
+}

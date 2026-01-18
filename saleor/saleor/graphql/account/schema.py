@@ -37,6 +37,8 @@ from .mutations.account import (
     AccountUpdate,
     ConfirmAccount,
     ConfirmEmailChange,
+    NewsletterSubscribe,
+    NewsletterUnsubscribe,
     RequestEmailChange,
     SendConfirmationEmail,
 )
@@ -309,6 +311,10 @@ class AccountMutations(graphene.ObjectType):
     account_update = AccountUpdate.Field()
     account_request_deletion = AccountRequestDeletion.Field()
     account_delete = AccountDelete.Field()
+
+    # Newsletter mutations
+    newsletter_subscribe = NewsletterSubscribe.Field()
+    newsletter_unsubscribe = NewsletterUnsubscribe.Field()
 
     # Staff mutations
     address_create = AddressCreate.Field()

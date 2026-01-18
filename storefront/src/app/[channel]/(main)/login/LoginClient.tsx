@@ -2,8 +2,9 @@
 
 import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { storeConfig } from "@/config";
+import { useBranding, useStoreInfo, useContentConfig } from "@/providers/StoreConfigProvider";
 import { loginAction, registerAction } from "./actions";
 import { getOAuthUrl } from "./oauth-actions";
 
@@ -23,7 +24,9 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 	const [showPassword, setShowPassword] = useState(false);
 	const [isPending, startTransition] = useTransition();
 	const router = useRouter();
-	const { branding, store } = storeConfig;
+	const branding = useBranding();
+	const store = useStoreInfo();
+	const content = useContentConfig();
 
 	// Auto-hide success message after 5 seconds
 	useEffect(() => {
@@ -95,8 +98,19 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 		});
 	};
 
+	// Create focus ring color with transparency
+	const focusRingColor = `${branding.colors.primary}33`; // 20% opacity
+
 	return (
 		<div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12 animate-fade-in">
+			{/* Inject dynamic focus styles */}
+			<style>{`
+				.auth-input:focus {
+					border-color: ${branding.colors.primary} !important;
+					box-shadow: 0 0 0 3px ${focusRingColor} !important;
+					outline: none !important;
+				}
+			`}</style>
 			<div className="w-full max-w-md animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
 				{/* Logo */}
 				<div className="mb-8 text-center animate-fade-in-up" style={{ animationDelay: "150ms", animationFillMode: "both" }}>
@@ -105,66 +119,87 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 						className="inline-flex items-center gap-2 text-2xl font-bold"
 						style={{ color: branding.colors.primary }}
 					>
-						<svg className="h-10 w-10" viewBox="0 0 24 24" fill="currentColor">
-							<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-						</svg>
-						{store.name}
+						{branding.logo && branding.logo !== "/logo.svg" ? (
+							<Image
+								src={branding.logo}
+								alt={branding.logoAlt || store.name}
+								width={140}
+								height={36}
+								className="h-9 w-auto"
+							/>
+						) : (
+							<>
+								<svg className="h-10 w-10" viewBox="0 0 24 24" fill="currentColor">
+									<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+								</svg>
+								{store.name}
+							</>
+						)}
 					</Link>
-					<h1 className="mt-6 text-2xl font-bold text-neutral-900">
-						{isLogin ? "Welcome back" : "Create your account"}
-					</h1>
-					<p className="mt-2 text-neutral-600">
-						{isLogin 
-							? "Sign in to access your orders, wishlist and personalized recommendations" 
-							: "Join us to enjoy exclusive benefits and faster checkout"}
-					</p>
+				<h1 className="mt-6 text-2xl font-bold" style={{ color: "var(--store-text)" }}>
+					{isLogin ? content.account.signInTitle : content.account.signUpTitle}
+				</h1>
+				<p className="mt-2" style={{ color: "var(--store-text-muted)" }}>
+					{isLogin 
+						? content.account.signInSubtitle 
+						: content.account.signUpSubtitle}
+				</p>
 				</div>
 
 				{/* Form Card */}
-				<div className="rounded-2xl bg-white p-8 shadow-lg ring-1 ring-neutral-100 animate-fade-in-up" style={{ animationDelay: "200ms", animationFillMode: "both" }}>
+				<div 
+					className="rounded-2xl p-8 shadow-lg ring-1 animate-fade-in-up" 
+					style={{ 
+						animationDelay: "200ms", 
+						animationFillMode: "both",
+						backgroundColor: "var(--store-bg)",
+					} as React.CSSProperties}
+				>
 					{/* Tab Switcher */}
-					<div className="mb-6 flex rounded-lg bg-neutral-100 p-1">
+					<div className="mb-6 flex rounded-lg p-1" style={{ backgroundColor: "var(--store-neutral-100)" }}>
 						<button
 							type="button"
 							onClick={() => { setIsLogin(true); setError(null); }}
-							className={`flex-1 rounded-md py-2.5 text-sm font-medium transition-all ${
-								isLogin 
-									? "bg-white text-neutral-900 shadow-sm" 
-									: "text-neutral-600 hover:text-neutral-900"
-							}`}
+							className="flex-1 rounded-md py-2.5 text-sm font-medium transition-all"
+							style={{
+								backgroundColor: isLogin ? "var(--store-bg)" : "transparent",
+								color: isLogin ? "var(--store-text)" : "var(--store-text-muted)",
+								boxShadow: isLogin ? "0 1px 2px 0 rgb(0 0 0 / 0.05)" : "none"
+							}}
 						>
-							Sign In
+							{content.account.signInButton}
 						</button>
 						<button
 							type="button"
 							onClick={() => { setIsLogin(false); setError(null); }}
-							className={`flex-1 rounded-md py-2.5 text-sm font-medium transition-all ${
-								!isLogin 
-									? "bg-white text-neutral-900 shadow-sm" 
-									: "text-neutral-600 hover:text-neutral-900"
-							}`}
+							className="flex-1 rounded-md py-2.5 text-sm font-medium transition-all"
+							style={{
+								backgroundColor: !isLogin ? "var(--store-bg)" : "transparent",
+								color: !isLogin ? "var(--store-text)" : "var(--store-text-muted)",
+								boxShadow: !isLogin ? "0 1px 2px 0 rgb(0 0 0 / 0.05)" : "none"
+							}}
 						>
-							Sign Up
+							{content.account.signUpButton}
 						</button>
 					</div>
 
 					{/* Success Message (Email Confirmed) */}
 					{showSuccess && (
-						<div className="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-600">
+						<div className="state-success mb-4 rounded-lg px-4 py-3 text-sm">
 							<div className="flex items-start gap-2">
 								<svg className="h-5 w-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
 								</svg>
 								<div className="flex-1">
-									<p className="font-medium">Your email has been confirmed successfully!</p>
-									<p className="mt-1 text-xs text-green-500">
-										You can now sign in to your account.
+									<p className="font-medium">{content.account.emailConfirmedMessage}</p>
+									<p className="mt-1 text-xs opacity-80">
+										{content.account.canNowSignIn}
 									</p>
 								</div>
 								<button
 									type="button"
 									onClick={() => setShowSuccess(false)}
-									className="text-green-400 hover:text-green-600"
+									className="opacity-70 hover:opacity-100"
 								>
 									<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -176,7 +211,7 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 
 					{/* Error Message */}
 					{error && (
-						<div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
+						<div className="state-error mb-4 rounded-lg px-4 py-3 text-sm">
 							<div className="flex items-start gap-2">
 								<svg className="h-5 w-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -185,8 +220,8 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 									<p className="font-medium">{error}</p>
 									{error.includes("Account already exists") && (
 										<div className="mt-2">
-											<p className="text-xs text-red-500 mb-2">
-												You already have an account with this email. Please sign in with your email and password below.
+											<p className="text-xs opacity-80 mb-2">
+												{content.account.accountExistsMessage}
 											</p>
 											<button
 												type="button"
@@ -194,9 +229,9 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 													setIsLogin(true);
 													setError(null);
 												}}
-												className="text-xs font-medium text-red-700 underline hover:text-red-800"
+												className="text-xs font-medium underline hover:opacity-80"
 											>
-												Switch to Sign In →
+												{content.account.switchToSignIn}
 											</button>
 										</div>
 									)}
@@ -210,38 +245,38 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 						{!isLogin && (
 							<div className="grid grid-cols-2 gap-4">
 								<div>
-									<label htmlFor="firstName" className="mb-1.5 block text-sm font-medium text-neutral-700">
-										First Name
+									<label htmlFor="firstName" className="auth-label mb-1.5 block text-sm font-medium">
+										{content.account.firstNameLabel}
 									</label>
-									<input
-										id="firstName"
-										name="firstName"
-										type="text"
-										required={!isLogin}
-										className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder-neutral-400 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20"
-										placeholder="John"
-									/>
+								<input
+									id="firstName"
+									name="firstName"
+									type="text"
+									required={!isLogin}
+									className="auth-input w-full rounded-lg border px-4 py-3 transition-colors"
+									placeholder="John"
+								/>
 								</div>
 								<div>
-									<label htmlFor="lastName" className="mb-1.5 block text-sm font-medium text-neutral-700">
-										Last Name
+									<label htmlFor="lastName" className="auth-label mb-1.5 block text-sm font-medium">
+										{content.account.lastNameLabel}
 									</label>
-									<input
-										id="lastName"
-										name="lastName"
-										type="text"
-										required={!isLogin}
-										className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder-neutral-400 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20"
-										placeholder="Doe"
-									/>
+								<input
+									id="lastName"
+									name="lastName"
+									type="text"
+									required={!isLogin}
+									className="auth-input w-full rounded-lg border px-4 py-3 transition-colors"
+									placeholder="Doe"
+								/>
 								</div>
 							</div>
 						)}
 
 						{/* Email */}
 						<div>
-							<label htmlFor="email" className="mb-1.5 block text-sm font-medium text-neutral-700">
-								Email Address
+							<label htmlFor="email" className="auth-label mb-1.5 block text-sm font-medium">
+								{content.account.emailLabel}
 							</label>
 							<input
 								id="email"
@@ -249,17 +284,17 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 								type="email"
 								required
 								autoComplete="email"
-									defaultValue={initialEmail || ""}
-								className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder-neutral-400 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20"
-								placeholder="you@example.com"
+								defaultValue={initialEmail || ""}
+								className="auth-input w-full rounded-lg border px-4 py-3 transition-colors"
+								placeholder={content.account.emailPlaceholder}
 							/>
 						</div>
 
 						{/* Password */}
 						<div>
 							<div className="mb-1.5 flex items-center justify-between">
-								<label htmlFor="password" className="text-sm font-medium text-neutral-700">
-									Password
+								<label htmlFor="password" className="auth-label text-sm font-medium">
+									{content.account.passwordLabel}
 								</label>
 								{isLogin && (
 									<Link 
@@ -267,7 +302,7 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 										className="text-sm font-medium hover:underline"
 										style={{ color: branding.colors.primary }}
 									>
-										Forgot password?
+										{content.account.forgotPasswordLink}
 									</Link>
 								)}
 							</div>
@@ -279,13 +314,14 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 									required
 									minLength={8}
 									autoComplete={isLogin ? "current-password" : "new-password"}
-									className="w-full rounded-lg border border-neutral-200 px-4 py-3 pr-12 text-neutral-900 placeholder-neutral-400 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20"
-									placeholder={isLogin ? "Enter your password" : "At least 8 characters"}
+									className="auth-input w-full rounded-lg border px-4 py-3 pe-12 transition-colors"
+									placeholder={content.account.passwordPlaceholder}
 								/>
 								<button
 									type="button"
 									onClick={() => setShowPassword(!showPassword)}
-									className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+									className="absolute right-3 top-1/2 -translate-y-1/2"
+									style={{ color: "var(--store-neutral-400)" }}
 								>
 									{showPassword ? (
 										<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -304,8 +340,8 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 						{/* Confirm Password (Sign Up Only) */}
 						{!isLogin && (
 							<div>
-								<label htmlFor="confirmPassword" className="mb-1.5 block text-sm font-medium text-neutral-700">
-									Confirm Password
+								<label htmlFor="confirmPassword" className="auth-label mb-1.5 block text-sm font-medium">
+									{content.account.confirmPasswordLabel}
 								</label>
 								<input
 									id="confirmPassword"
@@ -314,8 +350,8 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 									required={!isLogin}
 									minLength={8}
 									autoComplete="new-password"
-									className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder-neutral-400 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20"
-									placeholder="Confirm your password"
+									className="auth-input w-full rounded-lg border px-4 py-3 transition-colors"
+									placeholder={content.account.confirmPasswordPlaceholder}
 								/>
 							</div>
 						)}
@@ -333,12 +369,12 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 										<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
 										<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
 									</svg>
-									Processing...
+									{content.account.processingText}
 								</>
 							) : (
 								<>
-									{isLogin ? "Sign In" : "Create Account"}
-									<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									{isLogin ? content.account.signInButton : content.account.createAccountButton}
+									<svg className="h-5 w-5 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
 									</svg>
 								</>
@@ -348,9 +384,9 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 
 					{/* Divider */}
 					<div className="my-6 flex items-center gap-4">
-						<div className="h-px flex-1 bg-neutral-200" />
-						<span className="text-sm text-neutral-500">or continue with</span>
-						<div className="h-px flex-1 bg-neutral-200" />
+						<div className="h-px flex-1" style={{ backgroundColor: "var(--store-neutral-200)" }} />
+						<span className="text-sm" style={{ color: "var(--store-text-muted)" }}>{content.account.orContinueWith}</span>
+						<div className="h-px flex-1" style={{ backgroundColor: "var(--store-neutral-200)" }} />
 					</div>
 
 					{/* Social Login */}
@@ -365,16 +401,23 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 				</div>
 
 				{/* Benefits */}
-				<div className="mt-8 rounded-xl bg-neutral-50 p-6 animate-fade-in-up" style={{ animationDelay: "250ms", animationFillMode: "both" }}>
-					<h3 className="mb-4 text-sm font-semibold text-neutral-900">Why create an account?</h3>
+				<div 
+					className="mt-8 rounded-xl p-6 animate-fade-in-up" 
+					style={{ 
+						animationDelay: "250ms", 
+						animationFillMode: "both",
+						backgroundColor: "var(--store-surface)"
+					}}
+				>
+					<h3 className="mb-4 text-sm font-semibold" style={{ color: "var(--store-text)" }}>{content.account.whyCreateAccount}</h3>
 					<ul className="space-y-3">
 						{[
-							{ icon: "🚀", text: "Faster checkout with saved details" },
-							{ icon: "📦", text: "Track your orders in real-time" },
-							{ icon: "❤️", text: "Save items to your wishlist" },
-							{ icon: "🎁", text: "Exclusive member discounts & offers" },
+							{ icon: "🚀", text: content.account.benefitFasterCheckout },
+							{ icon: "📦", text: content.account.benefitTrackOrders },
+							{ icon: "❤️", text: content.account.benefitWishlist },
+							{ icon: "🎁", text: content.account.benefitDiscounts },
 						].map((benefit, index) => (
-							<li key={index} className="flex items-center gap-3 text-sm text-neutral-600">
+							<li key={index} className="flex items-center gap-3 text-sm" style={{ color: "var(--store-text-muted)" }}>
 								<span className="text-lg">{benefit.icon}</span>
 								{benefit.text}
 							</li>
@@ -383,14 +426,14 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 				</div>
 
 				{/* Terms */}
-				<p className="mt-6 text-center text-xs text-neutral-500">
-					By continuing, you agree to our{" "}
-					<Link href={`/${channel}/pages/terms-of-service`} className="underline hover:text-neutral-700">
-						Terms of Service
+				<p className="mt-6 text-center text-xs" style={{ color: "var(--store-text-muted)" }}>
+					{content.account.termsAgreement}{" "}
+					<Link href={`/${channel}/pages/terms-of-service`} className="underline hover:opacity-80">
+						{content.account.termsOfService}
 					</Link>{" "}
 					and{" "}
-					<Link href={`/${channel}/pages/privacy-policy`} className="underline hover:text-neutral-700">
-						Privacy Policy
+					<Link href={`/${channel}/pages/privacy-policy`} className="underline hover:opacity-80">
+						{content.account.privacyPolicy}
 					</Link>
 				</p>
 			</div>
@@ -486,11 +529,11 @@ function SocialLoginButton({
 			type="button"
 			onClick={handleSocialLogin}
 			disabled={isLoading}
-			className={`flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-				provider === "facebook" 
-					? "border-[#1877F2] text-[#1877F2] hover:bg-[#1877F2]/5" 
-					: "border-neutral-200 text-neutral-700 hover:bg-neutral-50"
-			}`}
+			className="flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+			style={provider === "facebook" 
+				? { borderColor: "#1877F2", color: "#1877F2" }
+				: { borderColor: "var(--store-neutral-200)", color: "var(--store-neutral-700)" }
+			}
 		>
 			{isLoading ? (
 				<svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">

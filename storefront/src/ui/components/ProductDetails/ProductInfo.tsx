@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { storeConfig } from "@/config";
 import { useWishlist } from "@/lib/wishlist";
+import { ReviewList, ReviewForm, RatingStars } from "../ProductReviews";
 
 interface ProductInfoProps {
   productId: string;
@@ -24,6 +25,8 @@ interface ProductInfoProps {
   onVariantSelect: (variantId: string) => void;
   onAddToCart: () => void;
   isAddingToCart?: boolean;
+  rating?: number | null;
+  reviewCount?: number | null;
 }
 
 export function ProductInfo({
@@ -42,12 +45,16 @@ export function ProductInfo({
   onVariantSelect,
   onAddToCart,
   isAddingToCart = false,
+  rating = null,
+  reviewCount = null,
 }: ProductInfoProps) {
   const { branding, features } = storeConfig;
   const { addItem, removeItem, isInWishlist } = useWishlist();
   const [quantity, setQuantity] = useState(1);
   const isWishlisted = isInWishlist(productId);
   const [activeTab, setActiveTab] = useState<"description" | "shipping" | "reviews">("description");
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewRefreshKey, setReviewRefreshKey] = useState(0);
 
   const selectedVariant = variants?.find(v => v.id === selectedVariantId);
   const isSelectedInStock = selectedVariant?.quantityAvailable ? selectedVariant.quantityAvailable > 0 : isAvailable;
@@ -70,21 +77,12 @@ export function ProductInfo({
       </h1>
 
       {/* Rating */}
-      {features.productReviews && (
-        <div className="mt-3 flex items-center gap-2">
-          <div className="flex">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <svg
-                key={star}
-                className={`h-5 w-5 ${star <= 4 ? "text-amber-400" : "text-neutral-300"}`}
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-            ))}
-          </div>
-          <span className="text-sm text-neutral-600">4.0 (24 reviews)</span>
+      {features.productReviews && rating !== null && rating !== undefined && rating > 0 && (
+        <div className="mt-3">
+          <RatingStars rating={rating} size="md" showValue />
+          {reviewCount !== null && reviewCount !== undefined && reviewCount > 0 && (
+            <span className="ml-2 text-sm text-neutral-600">({reviewCount} {reviewCount === 1 ? "review" : "reviews"})</span>
+          )}
         </div>
       )}
 
@@ -337,17 +335,40 @@ export function ProductInfo({
           )}
 
           {activeTab === "reviews" && (
-            <div className="text-center py-8">
-              <svg className="mx-auto h-12 w-12 text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-              <p className="mt-3 text-sm text-neutral-600">No reviews yet. Be the first to review this product!</p>
-              <button 
-                className="mt-4 text-sm font-medium"
-                style={{ color: branding.colors.primary }}
-              >
-                Write a Review
-              </button>
+            <div>
+              {showReviewForm ? (
+                <div className="mb-6">
+                  <ReviewForm
+                    productId={productId}
+                    onSuccess={() => {
+                      setShowReviewForm(false);
+                      // Trigger review list refresh
+                      setReviewRefreshKey((prev) => prev + 1);
+                    }}
+                    onCancel={() => setShowReviewForm(false)}
+                  />
+                </div>
+              ) : (
+                <div className="mb-6 text-center">
+                  <button
+                    onClick={() => setShowReviewForm(true)}
+                    className="rounded-md px-4 py-2 text-sm font-medium text-white"
+                    style={{ backgroundColor: branding.colors.primary }}
+                  >
+                    Write a Review
+                  </button>
+                </div>
+              )}
+              <ReviewList
+                key={reviewRefreshKey}
+                productId={productId}
+                averageRating={rating || 0}
+                reviewCount={reviewCount || 0}
+                onReviewSubmit={() => {
+                  setShowReviewForm(false);
+                  // This will trigger useEffect in ReviewList to reload
+                }}
+              />
             </div>
           )}
         </div>

@@ -8,6 +8,8 @@ from .account_set_default_address import AccountSetDefaultAddress
 from .account_update import AccountUpdate
 from .confirm_account import ConfirmAccount
 from .confirm_email_change import ConfirmEmailChange
+from .newsletter_subscribe import NewsletterSubscribe
+from .newsletter_unsubscribe import NewsletterUnsubscribe
 from .request_email_change import RequestEmailChange
 from .send_confirmation_email import SendConfirmationEmail
 
@@ -22,6 +24,8 @@ __all__ = [
     "AccountUpdate",
     "ConfirmAccount",
     "ConfirmEmailChange",
+    "NewsletterSubscribe",
+    "NewsletterUnsubscribe",
     "RequestEmailChange",
     "SendConfirmationEmail",
 ]

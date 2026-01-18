@@ -40,7 +40,7 @@ export async function fetchSizesForQuickFilters(channel: string): Promise<{ size
         `,
         variables: { channel },
       }),
-      next: { revalidate: 300 },
+      next: { revalidate: 30 },
     });
 
     if (!response.ok) {

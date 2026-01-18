@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { type UserDetailsFragment } from "@/gql/graphql";
-import { storeConfig } from "@/config";
+import { useBranding, useSettingsText, useContentConfig } from "@/providers/StoreConfigProvider";
 
 interface SettingsClientProps {
 	user: UserDetailsFragment;
@@ -18,7 +18,12 @@ export function SettingsClient({ user, channel: _channel }: SettingsClientProps)
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [saving, setSaving] = useState(false);
 	const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
-	const { branding } = storeConfig;
+	const branding = useBranding();
+	const settingsText = useSettingsText();
+	const contentConfig = useContentConfig();
+
+	// Focus ring color with transparency
+	const focusRingColor = `${branding.colors.primary}33`;
 
 	// Notification preferences
 	const [notifications, setNotifications] = useState({
@@ -69,11 +74,19 @@ export function SettingsClient({ user, channel: _channel }: SettingsClientProps)
 
 	return (
 		<div className="space-y-8 animate-fade-in">
+			{/* Inject dynamic focus styles */}
+			<style>{`
+				.settings-input:focus {
+					border-color: ${branding.colors.primary} !important;
+					box-shadow: 0 0 0 3px ${focusRingColor} !important;
+					outline: none !important;
+				}
+			`}</style>
 			{/* Header */}
 			<div className="animate-fade-in-up" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
-				<h1 className="text-2xl font-bold text-neutral-900">Account Settings</h1>
+				<h1 className="text-2xl font-bold text-neutral-900">{settingsText.accountSettings}</h1>
 				<p className="mt-1 text-neutral-500">
-					Manage your profile, security, and notification preferences
+					{settingsText.settingsSubtitle}
 				</p>
 			</div>
 
@@ -98,49 +111,49 @@ export function SettingsClient({ user, channel: _channel }: SettingsClientProps)
 
 			{/* Profile Information */}
 			<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100 animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
-				<h2 className="text-lg font-semibold text-neutral-900">Profile Information</h2>
+				<h2 className="text-lg font-semibold text-neutral-900">{settingsText.profileInformation}</h2>
 				<p className="mt-1 text-sm text-neutral-500">
-					Update your personal details
+					{settingsText.updatePersonalDetails}
 				</p>
 
 				<form onSubmit={handleProfileUpdate} className="mt-6 space-y-4">
 					<div className="grid gap-4 sm:grid-cols-2">
 						<div>
 							<label htmlFor="firstName" className="mb-1.5 block text-sm font-medium text-neutral-700">
-								First Name
+								{contentConfig.account.firstNameLabel}
 							</label>
 							<input
 								id="firstName"
 								type="text"
 								value={firstName}
 								onChange={(e) => setFirstName(e.target.value)}
-								className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20"
+								className="settings-input w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 transition-colors"
 							/>
 						</div>
 						<div>
 							<label htmlFor="lastName" className="mb-1.5 block text-sm font-medium text-neutral-700">
-								Last Name
+								{contentConfig.account.lastNameLabel}
 							</label>
 							<input
 								id="lastName"
 								type="text"
 								value={lastName}
 								onChange={(e) => setLastName(e.target.value)}
-								className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20"
+								className="settings-input w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 transition-colors"
 							/>
 						</div>
 					</div>
 
 					<div>
 						<label htmlFor="email" className="mb-1.5 block text-sm font-medium text-neutral-700">
-							Email Address
+							{contentConfig.account.emailLabel}
 						</label>
 						<input
 							id="email"
 							type="email"
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
-							className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20"
+							className="settings-input w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 transition-colors"
 						/>
 					</div>
 
@@ -151,7 +164,7 @@ export function SettingsClient({ user, channel: _channel }: SettingsClientProps)
 							className="inline-flex items-center gap-2 rounded-lg px-6 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
 							style={{ backgroundColor: branding.colors.primary }}
 						>
-							{saving ? "Saving..." : "Save Changes"}
+							{saving ? settingsText.savingChanges : settingsText.saveChangesButton}
 						</button>
 					</div>
 				</form>
@@ -159,15 +172,15 @@ export function SettingsClient({ user, channel: _channel }: SettingsClientProps)
 
 			{/* Password */}
 			<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100 animate-fade-in-up" style={{ animationDelay: "150ms", animationFillMode: "both" }}>
-				<h2 className="text-lg font-semibold text-neutral-900">Change Password</h2>
+				<h2 className="text-lg font-semibold text-neutral-900">{settingsText.changePassword}</h2>
 				<p className="mt-1 text-sm text-neutral-500">
-					Update your password to keep your account secure
+					{settingsText.passwordSecurityNote}
 				</p>
 
 				<form onSubmit={handlePasswordUpdate} className="mt-6 space-y-4">
 					<div>
 						<label htmlFor="currentPassword" className="mb-1.5 block text-sm font-medium text-neutral-700">
-							Current Password
+							{settingsText.currentPassword}
 						</label>
 						<input
 							id="currentPassword"
@@ -175,14 +188,14 @@ export function SettingsClient({ user, channel: _channel }: SettingsClientProps)
 							value={currentPassword}
 							onChange={(e) => setCurrentPassword(e.target.value)}
 							required
-							className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20"
+							className="settings-input w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 transition-colors"
 						/>
 					</div>
 
 					<div className="grid gap-4 sm:grid-cols-2">
 						<div>
 							<label htmlFor="newPassword" className="mb-1.5 block text-sm font-medium text-neutral-700">
-								New Password
+								{settingsText.newPasswordLabel}
 							</label>
 							<input
 								id="newPassword"
@@ -191,12 +204,12 @@ export function SettingsClient({ user, channel: _channel }: SettingsClientProps)
 								onChange={(e) => setNewPassword(e.target.value)}
 								required
 								minLength={8}
-								className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20"
+								className="settings-input w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 transition-colors"
 							/>
 						</div>
 						<div>
 							<label htmlFor="confirmPassword" className="mb-1.5 block text-sm font-medium text-neutral-700">
-								Confirm New Password
+								{settingsText.confirmNewPassword}
 							</label>
 							<input
 								id="confirmPassword"
@@ -205,7 +218,7 @@ export function SettingsClient({ user, channel: _channel }: SettingsClientProps)
 								onChange={(e) => setConfirmPassword(e.target.value)}
 								required
 								minLength={8}
-								className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20"
+								className="settings-input w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 transition-colors"
 							/>
 						</div>
 					</div>
@@ -217,7 +230,7 @@ export function SettingsClient({ user, channel: _channel }: SettingsClientProps)
 							className="inline-flex items-center gap-2 rounded-lg px-6 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
 							style={{ backgroundColor: branding.colors.primary }}
 						>
-							{saving ? "Updating..." : "Update Password"}
+							{saving ? settingsText.savingChanges : settingsText.updatePasswordButton}
 						</button>
 					</div>
 				</form>
@@ -225,32 +238,32 @@ export function SettingsClient({ user, channel: _channel }: SettingsClientProps)
 
 			{/* Notification Preferences */}
 			<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100 animate-fade-in-up" style={{ animationDelay: "200ms", animationFillMode: "both" }}>
-				<h2 className="text-lg font-semibold text-neutral-900">Notification Preferences</h2>
+				<h2 className="text-lg font-semibold text-neutral-900">{settingsText.notificationPreferences}</h2>
 				<p className="mt-1 text-sm text-neutral-500">
-					Choose how you want to receive updates
+					{settingsText.notificationSubtitle}
 				</p>
 
 				<div className="mt-6 space-y-4">
 					{[
 						{
 							id: "orderUpdates",
-							title: "Order Updates",
-							description: "Receive notifications about your order status",
+							title: settingsText.orderUpdates,
+							description: settingsText.orderUpdatesDesc,
 						},
 						{
 							id: "promotions",
-							title: "Promotions & Offers",
-							description: "Get notified about sales and exclusive deals",
+							title: settingsText.promotionsOffers,
+							description: settingsText.promotionsDesc,
 						},
 						{
 							id: "newsletter",
-							title: "Newsletter",
-							description: "Weekly updates about new arrivals and trends",
+							title: settingsText.newsletterSetting,
+							description: settingsText.newsletterDesc,
 						},
 						{
 							id: "sms",
-							title: "SMS Notifications",
-							description: "Receive text messages for important updates",
+							title: settingsText.smsNotifications,
+							description: settingsText.smsDesc,
 						},
 					].map((item) => (
 						<div
@@ -282,15 +295,15 @@ export function SettingsClient({ user, channel: _channel }: SettingsClientProps)
 
 			{/* Danger Zone */}
 			<div className="rounded-xl border border-red-200 bg-red-50 p-6 animate-fade-in-up" style={{ animationDelay: "250ms", animationFillMode: "both" }}>
-				<h2 className="text-lg font-semibold text-red-900">Danger Zone</h2>
+				<h2 className="text-lg font-semibold text-red-900">{settingsText.dangerZone}</h2>
 				<p className="mt-1 text-sm text-red-700">
-					Permanently delete your account and all associated data
+					{settingsText.deleteAccountWarning}
 				</p>
 				<button className="mt-4 inline-flex items-center gap-2 rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50">
 					<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
 					</svg>
-					Delete Account
+					{settingsText.deleteAccountButton}
 				</button>
 			</div>
 		</div>

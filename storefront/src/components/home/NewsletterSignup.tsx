@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useStoreConfig, useFeature } from "@/providers/StoreConfigProvider";
+import { useState, useEffect } from "react";
+import { useStoreConfig, useFeature, useContentConfig } from "@/providers/StoreConfigProvider";
 
 interface NewsletterSignupProps {
   title?: string;
@@ -11,28 +11,107 @@ interface NewsletterSignupProps {
   successMessage?: string;
 }
 
+const NEWSLETTER_STORAGE_KEY = "newsletter_subscribed";
+
+/**
+ * Check if user already subscribed (persisted in localStorage)
+ */
+function isAlreadySubscribed(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return localStorage.getItem(NEWSLETTER_STORAGE_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Mark user as subscribed in localStorage
+ */
+function markAsSubscribed(): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(NEWSLETTER_STORAGE_KEY, "true");
+  } catch {
+    // Ignore storage errors
+  }
+}
+
 /**
  * Newsletter Signup Section
  * 
  * Email subscription form with sports/energetic styling.
  * Configurable via store config (features.newsletter)
+ * 
+ * Features:
+ * - Email validation
+ * - Double-submit prevention
+ * - Persistent subscribed state (localStorage)
+ * - Loading/success/error states
  */
 export function NewsletterSignup({
-  title = "Join the Team",
-  subtitle = "Subscribe to our newsletter and get 10% off your first order, plus exclusive access to new arrivals and special offers.",
-  placeholder = "Enter your email",
-  buttonText = "Subscribe",
-  successMessage = "Thanks for subscribing! Check your email for your discount code.",
+  title,
+  subtitle,
+  placeholder,
+  buttonText,
+  successMessage,
 }: NewsletterSignupProps) {
   const { branding, store: _store } = useStoreConfig();
+  const content = useContentConfig();
   const isEnabled = useFeature("newsletter");
+  
+  // Use props or fall back to config values
+  const displayTitle = title ?? content.general.newsletterTitle;
+  const displaySubtitle = subtitle ?? content.general.newsletterDescription;
+  const displayPlaceholder = placeholder ?? content.homepage.newsletterEmailPlaceholder;
+  const displayButtonText = buttonText ?? content.general.newsletterButton;
+  const displaySuccessMessage = successMessage ?? content.general.newsletterSuccess;
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error" | "already_subscribed">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  // Check localStorage for previous subscription on mount
+  useEffect(() => {
+    setMounted(true);
+    if (isAlreadySubscribed()) {
+      setStatus("already_subscribed");
+    }
+  }, []);
 
   // Don't render if disabled
   if (!isEnabled) {
     return null;
+  }
+
+  // Show subscribed state if already subscribed
+  if (mounted && status === "already_subscribed") {
+    return (
+      <section 
+        className="relative overflow-hidden py-12"
+        style={{ backgroundColor: branding.colors.secondary }}
+      >
+        <div className="relative mx-auto max-w-4xl px-4 text-center">
+          <div 
+            className="inline-flex items-center gap-3 rounded-full px-6 py-4"
+            style={{ backgroundColor: `${branding.colors.success}20` }}
+          >
+            <svg 
+              className="h-6 w-6"
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke={branding.colors.success}
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            <span style={{ color: branding.colors.success }} className="font-medium">
+              {content.general.newsletterAlreadySubscribed}
+            </span>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,15 +124,74 @@ export function NewsletterSignup({
     }
 
     setStatus("loading");
+    setErrorMessage("");
 
-    // Simulate API call - replace with actual integration
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setStatus("success");
-      setEmail("");
-    } catch {
+      try {
+        // Dynamic import to handle missing GraphQL types gracefully
+        // @ts-ignore - GraphQL types will be generated after backend schema update
+        const gqlModule = await import("@/gql/graphql");
+        const NewsletterSubscribeDocument = gqlModule.NewsletterSubscribeDocument;
+        
+        if (!NewsletterSubscribeDocument) {
+          setStatus("error");
+          setErrorMessage("Newsletter subscription is not available yet. Please run 'pnpm run generate' to generate GraphQL types.");
+          return;
+        }
+        
+        // Client-side GraphQL fetch (no auth needed for newsletter subscription)
+        const apiUrl = process.env.NEXT_PUBLIC_SALEOR_API_URL;
+        if (!apiUrl) {
+          setStatus("error");
+          setErrorMessage("API URL not configured.");
+          return;
+        }
+        
+        const graphqlUrl = apiUrl.endsWith('/graphql/') || apiUrl.endsWith('/graphql') 
+          ? apiUrl 
+          : `${apiUrl.replace(/\/+$/, '')}/graphql/`;
+        
+        const response = await fetch(graphqlUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query: NewsletterSubscribeDocument.toString(),
+            variables: {
+              email: email.trim().toLowerCase(),
+              source: "homepage",
+            },
+          }),
+        });
+        
+        if (!response.ok) {
+          setStatus("error");
+          setErrorMessage("Failed to subscribe. Please try again.");
+          return;
+        }
+        
+        const result = await response.json() as any;
+
+      if (result?.newsletterSubscribe?.errors && result.newsletterSubscribe.errors.length > 0) {
+        setStatus("error");
+        setErrorMessage(result.newsletterSubscribe.errors[0].message || "Failed to subscribe. Please try again.");
+      } else if (result?.newsletterSubscribe?.subscribed) {
+        setStatus("success");
+        setEmail("");
+        markAsSubscribed(); // Persist subscribed state
+        
+        // Show success for longer, then show subscribed state
+        setTimeout(() => {
+          setStatus("already_subscribed");
+        }, 5000);
+      } else {
+        setStatus("error");
+        setErrorMessage("Something went wrong. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error subscribing to newsletter:", error);
       setStatus("error");
-      setErrorMessage("Something went wrong. Please try again.");
+      setErrorMessage("Failed to subscribe. Please try again.");
     }
   };
 
@@ -105,10 +243,10 @@ export function NewsletterSignup({
 
         {/* Title */}
         <h2 className="heading text-3xl font-bold text-white sm:text-4xl">
-          {title}
+          {displayTitle}
         </h2>
         <p className="mt-4 text-lg text-white/80">
-          {subtitle}
+          {displaySubtitle}
         </p>
 
         {/* Form */}
@@ -127,7 +265,7 @@ export function NewsletterSignup({
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
             <span style={{ color: branding.colors.success }} className="font-medium">
-              {successMessage}
+              {displaySuccessMessage}
             </span>
           </div>
         ) : (
@@ -141,7 +279,7 @@ export function NewsletterSignup({
                     setEmail(e.target.value);
                     if (status === "error") setStatus("idle");
                   }}
-                  placeholder={placeholder}
+                  placeholder={displayPlaceholder}
                   className="w-full rounded-full border-0 bg-white/10 px-6 py-4 text-white placeholder-white/50 backdrop-blur-sm focus:outline-none focus:ring-2"
                   style={{ 
                     boxShadow: status === "error" 
@@ -178,8 +316,8 @@ export function NewsletterSignup({
                   </>
                 ) : (
                   <>
-                    {buttonText}
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    {displayButtonText}
+                    <svg className="h-5 w-5 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
                   </>
@@ -195,19 +333,19 @@ export function NewsletterSignup({
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
-            <span>No spam, ever</span>
+            <span>{content.general.newsletterNoSpam}</span>
           </div>
           <div className="flex items-center gap-2">
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <span>Weekly updates</span>
+            <span>{content.general.newsletterWeeklyUpdates}</span>
           </div>
           <div className="flex items-center gap-2">
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-            <span>Exclusive offers</span>
+            <span>{content.general.newsletterExclusiveOffers}</span>
           </div>
         </div>
       </div>

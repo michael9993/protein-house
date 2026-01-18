@@ -1,0 +1,28 @@
+mutation UpdateProductReview($input: ProductReviewUpdateInput!) {
+  productReviewUpdate(input: $input) {
+    review {
+      id
+      rating
+      title
+      body
+      images
+      helpfulCount
+      status
+      isVerifiedPurchase
+      createdAt
+      updatedAt
+      user {
+        id
+        email
+        firstName
+        lastName
+      }
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+

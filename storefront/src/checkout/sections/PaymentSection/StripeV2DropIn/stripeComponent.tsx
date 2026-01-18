@@ -67,7 +67,7 @@ export const StripeComponent = ({ config }: { config: StripeConfig }) => {
 	}, [publishableKey]); // Only depend on publishableKey, not config
 
 	if (loadingError) {
-		return <div className="text-red-500">{loadingError}</div>;
+		return <div style={{ color: "var(--store-error)" }}>{loadingError}</div>;
 	}
 
 	if (!stripePromise) {

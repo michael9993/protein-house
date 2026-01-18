@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useStoreConfig } from "@/providers/StoreConfigProvider";
+import { useStoreConfig, useContentConfig } from "@/providers/StoreConfigProvider";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 
 interface HeroImageProps {
@@ -16,13 +16,16 @@ export function HeroImage({
   image = "/hero-sports.jpg",
   title,
   subtitle,
-  ctaText = "Shop Now",
+  ctaText,
   ctaLink = "/products",
 }: HeroImageProps) {
   const { store, branding } = useStoreConfig();
+  const content = useContentConfig();
 
   const heroTitle = title || store.tagline || `Welcome to ${store.name}`;
   const heroSubtitle = subtitle || store.description;
+  const heroCta = ctaText || content.homepage.heroCtaText;
+  const heroSecondaryCta = content.homepage.heroSecondaryCtaText;
 
   return (
     <section className="relative h-[70vh] min-h-[500px] w-full overflow-hidden">
@@ -63,7 +66,7 @@ export function HeroImage({
               className="btn-primary inline-flex items-center gap-2 px-8 py-4 text-lg font-semibold transition-all hover:scale-105"
               style={{ backgroundColor: branding.colors.primary }}
             >
-              {ctaText}
+              {heroCta}
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
@@ -72,14 +75,14 @@ export function HeroImage({
               href="/categories"
               className="btn-outline inline-flex items-center gap-2 border-2 border-white px-8 py-4 text-lg font-semibold text-white transition-all hover:bg-white hover:text-neutral-900"
             >
-              Browse Categories
+              {heroSecondaryCta}
             </LinkWithChannel>
           </div>
         </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+      {/* Scroll Indicator - uses logical properties for RTL support */}
+      <div className="absolute bottom-8 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 animate-bounce">
         <svg className="h-8 w-8 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
         </svg>

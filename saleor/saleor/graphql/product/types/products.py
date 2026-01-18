@@ -889,6 +889,54 @@ class ProductVariant(ChannelContextType[models.ProductVariant]):
         return [variants.get(root_id) for root_id in roots_ids]
 
 
+class ProductReview(ModelObjectType[models.ProductReview]):
+    id = graphene.GlobalID(required=True)
+    product = graphene.Field(lambda: Product, required=True)
+    user = graphene.Field(
+        account_types.User,
+        description="User who wrote the review. Null for guest reviews.",
+    )
+    rating = graphene.Int(required=True, description="Rating from 1 to 5")
+    title = graphene.String(required=True)
+    body = graphene.String(required=True)
+    images = NonNullList(graphene.String, description="List of image URLs")
+    helpful_count = graphene.Int(required=True)
+    status = graphene.Field(
+        "saleor.graphql.product.enums.ReviewStatusEnum", required=True
+    )
+    is_verified_purchase = graphene.Boolean(
+        required=True, description="Whether the reviewer has purchased this product"
+    )
+    created_at = DateTime(required=True)
+    updated_at = DateTime(required=True)
+
+    class Meta:
+        description = "Represents a product review."
+        model = models.ProductReview
+        interfaces = [relay.Node, ObjectWithMetadata]
+        doc_category = DOC_CATEGORY_PRODUCTS
+
+    @staticmethod
+    def resolve_product(root: models.ProductReview, info):
+        # Product type requires ChannelContext wrapper
+        # For dashboard/admin context, channel_slug can be None
+        return ChannelContext(node=root.product, channel_slug=None)
+
+    @staticmethod
+    def resolve_user(root: models.ProductReview, info):
+        return root.user
+
+    @staticmethod
+    def resolve_images(root: models.ProductReview, info):
+        return root.images or []
+
+
+class ProductReviewCountableConnection(CountableConnection):
+    class Meta:
+        doc_category = DOC_CATEGORY_PRODUCTS
+        node = ProductReview
+
+
 class ProductVariantCountableConnection(CountableConnection):
     class Meta:
         doc_category = DOC_CATEGORY_PRODUCTS
@@ -923,6 +971,10 @@ class Product(ChannelContextType[models.Product]):
         ProductVariant, description="Default variant of the product."
     )
     rating = graphene.Float(description="Rating of the product.")
+    reviews = ConnectionField(
+        ProductReviewCountableConnection,
+        description="List of reviews for this product.",
+    )
     channel = graphene.String(
         description=(
             "Channel given to retrieve this product. Also used by federation "
@@ -1667,6 +1719,26 @@ class Product(ChannelContextType[models.Product]):
             )
 
         return Promise.resolve(product_type).then(resolve_tax_class)
+
+    @staticmethod
+    def resolve_reviews(root: ChannelContext[models.Product], info, **kwargs):
+        """Resolve product reviews with pagination."""
+        from ...core.connection import create_connection_slice
+        from .products import ProductReviewCountableConnection
+        
+        qs = models.ProductReview.objects.using(
+            get_database_connection_name(info.context)
+        ).filter(
+            product_id=root.node.id,
+            status=models.ProductReview.REVIEW_STATUS_APPROVED,
+        )
+        
+        return create_connection_slice(
+            qs,
+            info,
+            kwargs,
+            ProductReviewCountableConnection,
+        )
 
     def resolve_charge_taxes(root: ChannelContext[models.Product], info):
         # Deprecated: this field is deprecated as it only checks whether there are any

@@ -5,7 +5,7 @@ export const DeliveryMethodsSkeleton = () => {
 	return (
 		<div className="py-6">
 			<Skeleton variant="title" className="w-1/3" />
-			<div className="rounded border border-neutral-200 px-6 pb-4 pt-6">
+			<div className="rounded border px-6 pb-4 pt-6" style={{ borderColor: "var(--store-neutral-200)" }}>
 				<Skeleton className="w-2/3" />
 				<Skeleton className="w-1/3" />
 			</div>

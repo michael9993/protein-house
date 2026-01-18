@@ -1,7 +1,14 @@
 import { redirect } from "next/navigation";
 import { SearchIcon } from "lucide-react";
+import { fetchStorefrontConfig } from "@/lib/storefront-control";
+import { storeConfig } from "@/config";
 
-export const SearchBar = ({ channel }: { channel: string }) => {
+export const SearchBar = async ({ channel }: { channel: string }) => {
+	const dynamicConfig = await fetchStorefrontConfig(channel);
+	const searchPlaceholder = dynamicConfig.content?.navbar?.searchPlaceholder || 
+	                          dynamicConfig.content?.general?.searchPlaceholder || 
+	                          storeConfig.content?.general?.searchPlaceholder || "Search...";
+
 	async function onSubmit(formData: FormData) {
 		"use server";
 		const search = formData.get("search") as string;
@@ -20,7 +27,7 @@ export const SearchBar = ({ channel }: { channel: string }) => {
 				<input
 					type="text"
 					name="search"
-					placeholder="Search for products..."
+					placeholder={searchPlaceholder}
 					autoComplete="on"
 					required
 					className="h-10 w-full rounded-md border border-neutral-300 bg-transparent bg-white px-4 py-2 pr-10 text-sm text-black placeholder:text-neutral-500 focus:border-black focus:ring-black"

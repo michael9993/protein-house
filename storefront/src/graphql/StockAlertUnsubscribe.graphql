@@ -1,0 +1,11 @@
+mutation StockAlertUnsubscribe($input: StockAlertUnsubscribeInput!) {
+  stockAlertUnsubscribe(input: $input) {
+    unsubscribed
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+

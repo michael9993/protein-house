@@ -1,6 +1,8 @@
 import { NavLink } from "./NavLink";
 import { executeGraphQL } from "@/lib/graphql";
 import { MenuGetBySlugDocument } from "@/gql/graphql";
+import { fetchStorefrontConfig } from "@/lib/storefront-control";
+import { storeConfig } from "@/config";
 
 export const NavLinks = async ({ channel }: { channel: string }) => {
 	const navLinks = await executeGraphQL(MenuGetBySlugDocument, {
@@ -8,11 +10,15 @@ export const NavLinks = async ({ channel }: { channel: string }) => {
 		revalidate: 60 * 60 * 24,
 	});
 
+	// Fetch config for Shop All button text
+	const dynamicConfig = await fetchStorefrontConfig(channel);
+	const shopAllText = dynamicConfig.content?.filters?.shopAllButton || storeConfig.content?.filters?.shopAllButton || "Shop All";
+
 	return (
 		<>
 			{/* Main Products Link - Always show first */}
 			<NavLink href="/products" className="font-medium">
-				Shop All
+				{shopAllText}
 			</NavLink>
 			
 			{/* Category Links from CMS */}

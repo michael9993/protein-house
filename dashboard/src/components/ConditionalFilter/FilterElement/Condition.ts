@@ -3,7 +3,7 @@ import { errorTracker } from "@dashboard/services/errorTracking";
 import { InitialProductStateResponse } from "../API/initialState/product/InitialProductStateResponse";
 import { LeftOperand } from "../LeftOperandsProvider";
 import { InitialResponseType } from "../types";
-import { UrlToken } from "./../ValueProvider/UrlToken";
+import { UrlToken } from "../ValueProvider/UrlToken";
 import { ConditionOptions, StaticElementName } from "./ConditionOptions";
 import { ConditionSelected } from "./ConditionSelected";
 import { ItemOption } from "./ConditionValue";

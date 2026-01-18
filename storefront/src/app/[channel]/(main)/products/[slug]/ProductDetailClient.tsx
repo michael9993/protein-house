@@ -5,9 +5,12 @@ import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { Breadcrumbs } from "@/ui/components/Breadcrumbs";
-import { storeConfig } from "@/config";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { useWishlist } from "@/lib/wishlist";
+import { ReviewList, ReviewForm, RatingStars } from "@/ui/components/ProductReviews";
+import { StockAlertButton } from "@/ui/components/StockAlert";
+import { ShareButton } from "@/ui/components/ProductSharing";
+import { useBranding, useFeature, useProductDetailText, useContentConfig } from "@/providers/StoreConfigProvider";
 
 interface ProductImage {
   url: string;
@@ -53,6 +56,8 @@ interface ProductDetailClientProps {
     isAvailable: boolean;
     images: ProductImage[];
     variants: ProductVariant[];
+    rating?: number | null;
+    reviewCount?: number | null;
   };
   selectedVariantId?: string;
   channel: string;
@@ -65,7 +70,11 @@ export function ProductDetailClient({
   channel,
   addItemAction,
 }: ProductDetailClientProps) {
-  const { branding, features } = storeConfig;
+  const branding = useBranding();
+  const wishlistEnabled = useFeature("wishlist");
+  const reviewsEnabled = useFeature("productReviews");
+  const productDetailText = useProductDetailText();
+  const content = useContentConfig();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const { addItem, removeItem, isInWishlist } = useWishlist();
@@ -77,6 +86,7 @@ export function ProductDetailClient({
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 }); // Start at center for better zoom
   const [addedToCart, setAddedToCart] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
   
   // Helper functions to extract attributes from variants
   const getAttributeFromVariant = (
@@ -680,7 +690,7 @@ export function ProductDetailClient({
                     setIsZoomed(!isZoomed);
                   }}
                   className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm transition-all hover:bg-white hover:scale-110"
-                  aria-label={isZoomed ? "Zoom out" : "Zoom in"}
+                  aria-label={isZoomed ? productDetailText.zoomOutLabel : productDetailText.zoomInLabel}
                 >
                   {isZoomed ? (
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -703,7 +713,7 @@ export function ProductDetailClient({
                         setIsZoomed(false); // Reset zoom when changing images
                       }}
                       className="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm transition-colors hover:bg-white"
-                      aria-label="Previous image"
+                      aria-label={productDetailText.previousImageLabel}
                     >
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -716,7 +726,7 @@ export function ProductDetailClient({
                         setIsZoomed(false); // Reset zoom when changing images
                       }}
                       className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm transition-colors hover:bg-white"
-                      aria-label="Next image"
+                      aria-label={productDetailText.nextImageLabel}
                     >
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -788,21 +798,12 @@ export function ProductDetailClient({
             </h1>
 
             {/* Rating */}
-            {(features as any).reviews && (
-              <div className="mt-3 flex items-center gap-2">
-                <div className="flex">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <svg
-                      key={star}
-                      className={`h-5 w-5 ${star <= 4 ? "text-amber-400" : "text-neutral-300"}`}
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                </div>
-                <span className="text-sm text-neutral-600">4.0 (24 reviews)</span>
+            {reviewsEnabled && product.rating !== null && product.rating !== undefined && (
+              <div className="mt-3">
+                <RatingStars rating={product.rating} size="md" showValue />
+                {product.reviewCount !== null && product.reviewCount !== undefined && (
+                  <span className="ml-2 text-sm text-neutral-600">({product.reviewCount} {product.reviewCount === 1 ? productDetailText.reviewSingular : productDetailText.reviewPlural})</span>
+                )}
               </div>
             )}
 
@@ -819,7 +820,7 @@ export function ProductDetailClient({
               )}
               {hasDiscount && discountPercent > 0 && (
                 <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-600">
-                  Save {discountPercent}%
+                  {productDetailText.savePercent.replace("{percent}", discountPercent.toString())}
                 </span>
               )}
             </div>
@@ -831,9 +832,9 @@ export function ProductDetailClient({
                 <span className={`text-sm font-medium ${isInStock ? (isLowStock ? "text-amber-600" : "text-emerald-600") : "text-red-600"}`}>
                   {isInStock 
                     ? isLowStock 
-                      ? `Only ${displayStock} left!` 
-                      : `In Stock (${displayStock} available)`
-                    : "Out of Stock"
+                      ? productDetailText.onlyXLeft.replace("{count}", displayStock.toString())
+                      : productDetailText.inStockWithCount.replace("{count}", displayStock.toString())
+                    : content.product.outOfStockText
                   }
                 </span>
               </div>
@@ -842,16 +843,27 @@ export function ProductDetailClient({
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  Selling fast!
+                  {productDetailText.sellingFast}
                 </span>
               )}
             </div>
+
+            {/* Stock Alert Button - Show when out of stock */}
+            {!isInStock && effectiveVariantId && (
+              <div className="mt-4">
+                <StockAlertButton
+                  variantId={effectiveVariantId}
+                  variantName={effectiveVariant?.name}
+                  isOutOfStock={!isInStock}
+                />
+              </div>
+            )}
 
             {/* Color Selection - Show as swatches */}
             {hasColors && (
               <div className="mt-6">
                 <label className="block text-sm font-semibold text-neutral-900 mb-3">
-                  Color
+                  {productDetailText.colorLabel}
                   {!selectedColorId && <span className="ml-1 text-red-500">*</span>}
                 </label>
                 <div className="flex flex-wrap gap-3">
@@ -916,7 +928,7 @@ export function ProductDetailClient({
             {hasSizes && selectedColorId && selectedColorGroup && selectedColorGroup.sizes.size > 0 && (
               <div className="mt-6">
                 <label className="block text-sm font-semibold text-neutral-900 mb-3">
-                  Size
+                  {productDetailText.sizeLabel}
                   {!selectedSizeId && <span className="ml-1 text-red-500">*</span>}
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -953,7 +965,7 @@ export function ProductDetailClient({
                   })}
                 </div>
                 {!selectedSizeId && (
-                  <p className="mt-2 text-sm text-red-500">Please select a size</p>
+                  <p className="mt-2 text-sm text-red-500">{productDetailText.pleaseSelectSize}</p>
                 )}
               </div>
             )}
@@ -962,7 +974,7 @@ export function ProductDetailClient({
             {!hasColors && hasMultipleVariants && (
               <div className="mt-6">
                 <label className="block text-sm font-semibold text-neutral-900 mb-3">
-                  Select Option
+                  {productDetailText.selectOptionLabel}
                   {!selectedVariant && <span className="ml-1 text-red-500">*</span>}
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -999,7 +1011,7 @@ export function ProductDetailClient({
                   })}
                 </div>
                 {!selectedVariant && (
-                  <p className="mt-2 text-sm text-red-500">Please select an option</p>
+                  <p className="mt-2 text-sm text-red-500">{productDetailText.pleaseSelectOption}</p>
                 )}
               </div>
             )}
@@ -1009,7 +1021,7 @@ export function ProductDetailClient({
               <div className="flex flex-col gap-4 sm:flex-row">
                 {/* Quantity Selector */}
                 <div className="flex items-center">
-                  <label className="mr-3 text-sm font-medium text-neutral-700">Qty:</label>
+                  <label className="mr-3 text-sm font-medium text-neutral-700">{productDetailText.qtyLabelWithColon}</label>
                   <div className="flex items-center rounded-lg border border-neutral-300">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -1087,27 +1099,27 @@ export function ProductDetailClient({
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                       </svg>
-                      Adding...
+                      {content.product.addingButton}
                     </>
                   ) : addedToCart ? (
                     <>
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      Added to Cart!
+                      {content.product.addedToCartButton}
                     </>
                   ) : (
                     <>
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                       </svg>
-                      {!isInStock ? "Out of Stock" : needsSelection && !selectedVariant ? "Select Options" : "Add to Cart"}
+                      {!isInStock ? content.product.outOfStockText : needsSelection && !selectedVariant ? content.product.selectOptionsButton : content.product.addToCartButton}
                     </>
                   )}
                 </button>
 
                 {/* Wishlist */}
-                {features.wishlist && (
+                {wishlistEnabled && (
                   <button
                     onClick={async (e) => {
                       e.preventDefault();
@@ -1143,10 +1155,10 @@ export function ProductDetailClient({
                     }`}
                     aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
                   >
-                    <svg
-                      className="h-5 w-5"
-                      fill={isWishlisted ? "currentColor" : "none"}
-                      viewBox="0 0 24 24"
+                    <svg 
+                      className="h-5 w-5" 
+                      fill={isWishlisted ? "currentColor" : "none"} 
+                      viewBox="0 0 24 24" 
                       stroke="currentColor"
                       strokeWidth={2}
                     >
@@ -1154,6 +1166,13 @@ export function ProductDetailClient({
                     </svg>
                   </button>
                 )}
+
+                {/* Share Button */}
+                <ShareButton
+                  productName={product.name}
+                  productUrl={typeof window !== "undefined" ? window.location.href : ""}
+                  productImage={product.images[0]?.url || null}
+                />
               </div>
 
               {/* View Cart Link */}
@@ -1164,7 +1183,7 @@ export function ProductDetailClient({
                     className="inline-flex items-center gap-2 text-sm font-medium transition-colors hover:opacity-80"
                     style={{ color: branding.colors.primary }}
                   >
-                    View Cart →
+                    {content.product.viewCartLink}
                   </LinkWithChannel>
                 </div>
               )}
@@ -1183,19 +1202,19 @@ export function ProductDetailClient({
                   <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
                 </svg>
-                <span className="text-xs font-medium text-neutral-600">Free Shipping</span>
+                <span className="text-xs font-medium text-neutral-600">{productDetailText.freeShipping}</span>
               </div>
               <div className="flex flex-col items-center gap-1 text-center">
                 <svg className="h-6 w-6 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
-                <span className="text-xs font-medium text-neutral-600">Secure Payment</span>
+                <span className="text-xs font-medium text-neutral-600">{productDetailText.securePayment}</span>
               </div>
               <div className="flex flex-col items-center gap-1 text-center">
                 <svg className="h-6 w-6 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                <span className="text-xs font-medium text-neutral-600">Easy Returns</span>
+                <span className="text-xs font-medium text-neutral-600">{productDetailText.easyReturns}</span>
               </div>
             </div>
 
@@ -1208,23 +1227,48 @@ export function ProductDetailClient({
               }}
             >
               <div className="flex gap-8 border-b border-neutral-200">
-                {(["description", "shipping", "reviews"] as const).map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`relative pb-4 text-sm font-medium capitalize transition-colors ${
-                      activeTab === tab ? "text-neutral-900" : "text-neutral-500 hover:text-neutral-700"
-                    }`}
-                  >
-                    {tab}
-                    {activeTab === tab && (
-                      <span
-                        className="absolute bottom-0 left-0 h-0.5 w-full"
-                        style={{ backgroundColor: branding.colors.primary }}
-                      />
-                    )}
-                  </button>
-                ))}
+                <button
+                  onClick={() => setActiveTab("description")}
+                  className={`relative pb-4 text-sm font-medium transition-colors ${
+                    activeTab === "description" ? "text-neutral-900" : "text-neutral-500 hover:text-neutral-700"
+                  }`}
+                >
+                  {productDetailText.descriptionTab}
+                  {activeTab === "description" && (
+                    <span
+                      className="absolute bottom-0 left-0 h-0.5 w-full"
+                      style={{ backgroundColor: branding.colors.primary }}
+                    />
+                  )}
+                </button>
+                <button
+                  onClick={() => setActiveTab("shipping")}
+                  className={`relative pb-4 text-sm font-medium transition-colors ${
+                    activeTab === "shipping" ? "text-neutral-900" : "text-neutral-500 hover:text-neutral-700"
+                  }`}
+                >
+                  {productDetailText.shippingTab}
+                  {activeTab === "shipping" && (
+                    <span
+                      className="absolute bottom-0 left-0 h-0.5 w-full"
+                      style={{ backgroundColor: branding.colors.primary }}
+                    />
+                  )}
+                </button>
+                <button
+                  onClick={() => setActiveTab("reviews")}
+                  className={`relative pb-4 text-sm font-medium transition-colors ${
+                    activeTab === "reviews" ? "text-neutral-900" : "text-neutral-500 hover:text-neutral-700"
+                  }`}
+                >
+                  {productDetailText.reviewsTab}
+                  {activeTab === "reviews" && (
+                    <span
+                      className="absolute bottom-0 left-0 h-0.5 w-full"
+                      style={{ backgroundColor: branding.colors.primary }}
+                    />
+                  )}
+                </button>
               </div>
 
               <div className="mt-6">
@@ -1233,7 +1277,7 @@ export function ProductDetailClient({
                     {product.description ? (
                       <div dangerouslySetInnerHTML={{ __html: product.description }} />
                     ) : (
-                      <p>No description available for this product.</p>
+                      <p>{productDetailText.noDescriptionAvailable}</p>
                     )}
                   </div>
                 )}
@@ -1245,8 +1289,8 @@ export function ProductDetailClient({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       <div>
-                        <p className="font-medium text-neutral-900">Free Standard Shipping</p>
-                        <p>On orders over $75. Delivery in 5-7 business days.</p>
+                        <p className="font-medium text-neutral-900">{productDetailText.freeStandardShippingTitle}</p>
+                        <p>{productDetailText.freeStandardShippingDescription}</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
@@ -1254,25 +1298,42 @@ export function ProductDetailClient({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       <div>
-                        <p className="font-medium text-neutral-900">Express Shipping</p>
-                        <p>$12.99. Delivery in 2-3 business days.</p>
+                        <p className="font-medium text-neutral-900">{productDetailText.expressShippingTitle}</p>
+                        <p>{productDetailText.expressShippingDescription.replace("{price}", "$12.99")}</p>
                       </div>
                     </div>
                   </div>
                 )}
 
                 {activeTab === "reviews" && (
-                  <div className="py-8 text-center">
-                    <svg className="mx-auto h-12 w-12 text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
-                    <p className="mt-3 text-sm text-neutral-600">No reviews yet. Be the first!</p>
-                    <button
-                      className="mt-4 text-sm font-medium"
-                      style={{ color: branding.colors.primary }}
-                    >
-                      Write a Review
-                    </button>
+                  <div>
+                    {showReviewForm ? (
+                      <div className="mb-6">
+                        <ReviewForm
+                          productId={product.id}
+                          onSuccess={() => {
+                            setShowReviewForm(false);
+                          }}
+                          onCancel={() => setShowReviewForm(false)}
+                        />
+                      </div>
+                    ) : (
+                      <div className="mb-6 text-right">
+                        <button
+                          onClick={() => setShowReviewForm(true)}
+                          className="rounded-md px-4 py-2 text-sm font-medium text-white"
+                          style={{ backgroundColor: branding.colors.primary }}
+                        >
+                          {content.product.writeReviewButton}
+                        </button>
+                      </div>
+                    )}
+                    <ReviewList
+                      productId={product.id}
+                      averageRating={product.rating || 0}
+                      reviewCount={product.reviewCount || 0}
+                      onReviewSubmit={() => setShowReviewForm(false)}
+                    />
                   </div>
                 )}
               </div>

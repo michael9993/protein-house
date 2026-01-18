@@ -11,7 +11,7 @@ import omit from "lodash/omit";
 import * as React from "react";
 import { useEffect, useState } from "react";
 
-import useStateFromProps from "./../useStateFromProps";
+import useStateFromProps from "../useStateFromProps";
 import { FormData } from "./types";
 import { useChangedData } from "./useChangedData";
 

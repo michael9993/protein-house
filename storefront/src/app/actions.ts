@@ -41,6 +41,443 @@ export async function getCurrentUser() {
 	}
 }
 
+import { TypedDocumentString } from "@/gql/graphql";
+
+// ProductReviews query document
+const ProductReviewsDocument = new TypedDocumentString(`
+  query ProductReviews(
+    $productId: ID!
+    $first: Int = 20
+    $after: String
+    $filterByRating: Int
+    $filterByVerified: Boolean
+  ) {
+    productReviews(
+      productId: $productId
+      first: $first
+      after: $after
+      filterByRating: $filterByRating
+      filterByVerified: $filterByVerified
+    ) {
+      edges {
+        node {
+          id
+          rating
+          title
+          body
+          images
+          helpfulCount
+          status
+          isVerifiedPurchase
+          createdAt
+          updatedAt
+          user {
+            id
+            email
+            firstName
+            lastName
+          }
+        }
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      totalCount
+    }
+  }
+`) as any;
+
+export interface ProductReview {
+  id: string;
+  rating: number;
+  title: string;
+  body: string;
+  images: string[];
+  helpfulCount: number;
+  status: string;
+  isVerifiedPurchase: boolean;
+  createdAt: string;
+  updatedAt: string;
+  user?: {
+    id: string;
+    email: string;
+    firstName?: string | null;
+    lastName?: string | null;
+  } | null;
+}
+
+export interface ProductReviewsResult {
+  reviews: ProductReview[];
+  pageInfo: {
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+    startCursor: string | null;
+    endCursor: string | null;
+  };
+  totalCount: number;
+}
+
+/**
+ * Fetch product reviews from the server
+ */
+export async function getProductReviews(
+  productId: string,
+  options?: {
+    first?: number;
+    after?: string | null;
+    filterByRating?: number | null;
+    filterByVerified?: boolean | null;
+  }
+): Promise<ProductReviewsResult | null> {
+  "use server";
+  
+  try {
+    const result = await executeGraphQL(ProductReviewsDocument, {
+      variables: {
+        productId,
+        first: options?.first ?? 20,
+        after: options?.after ?? undefined,
+        filterByRating: options?.filterByRating ?? undefined,
+        filterByVerified: options?.filterByVerified !== null && options?.filterByVerified !== undefined ? options.filterByVerified : undefined,
+      },
+      cache: "no-store",
+      withAuth: false, // Reviews are public, no auth needed
+    }) as any;
+
+    if (result?.productReviews) {
+      return {
+        reviews: result.productReviews.edges?.map((edge: any) => edge.node) || [],
+        pageInfo: result.productReviews.pageInfo || {
+          hasNextPage: false,
+          hasPreviousPage: false,
+          startCursor: null,
+          endCursor: null,
+        },
+        totalCount: result.productReviews.totalCount || 0,
+      };
+    }
+
+    return null;
+  } catch (error) {
+    console.error("[Product Reviews] Error fetching reviews:", error);
+    return null;
+  }
+}
+
+// CreateProductReview mutation document
+const CreateProductReviewDocument = new TypedDocumentString(`
+  mutation CreateProductReview($input: ProductReviewInput!) {
+    productReviewCreate(input: $input) {
+      review {
+        id
+        rating
+        title
+        body
+        images
+        helpfulCount
+        status
+        isVerifiedPurchase
+        createdAt
+        user {
+          id
+          email
+          firstName
+          lastName
+        }
+      }
+      errors {
+        field
+        message
+        code
+      }
+    }
+  }
+`) as any;
+
+export interface CreateReviewInput {
+  productId: string;
+  rating: number;
+  title: string;
+  body: string;
+  images?: string[];
+}
+
+export interface CreateReviewResult {
+  success: boolean;
+  review?: ProductReview;
+  error?: string;
+}
+
+/**
+ * Create a product review (server action)
+ */
+export async function createProductReview(input: CreateReviewInput): Promise<CreateReviewResult> {
+  "use server";
+  
+  try {
+    // Validate input
+    if (!input.rating || input.rating < 1 || input.rating > 5) {
+      return { success: false, error: "Rating must be between 1 and 5" };
+    }
+    
+    if (!input.title?.trim()) {
+      return { success: false, error: "Review title is required" };
+    }
+    
+    if (!input.body?.trim()) {
+      return { success: false, error: "Review body is required" };
+    }
+    
+    const result = await executeGraphQL(CreateProductReviewDocument, {
+      variables: {
+        input: {
+          productId: input.productId,
+          rating: input.rating,
+          title: input.title.trim(),
+          body: input.body.trim(),
+          images: input.images?.filter(Boolean) || [],
+        },
+      },
+      cache: "no-store",
+      withAuth: true, // Reviews may require authentication (optional, but good for verified purchases)
+    }) as any;
+
+    if (result?.productReviewCreate?.errors && result.productReviewCreate.errors.length > 0) {
+      return {
+        success: false,
+        error: result.productReviewCreate.errors[0].message || "Failed to submit review",
+      };
+    }
+
+    if (result?.productReviewCreate?.review) {
+      // Revalidate the product page to refresh rating and review count
+      const { revalidatePath } = await import("next/cache");
+      revalidatePath("/products", "layout");
+      
+      return {
+        success: true,
+        review: result.productReviewCreate.review,
+      };
+    }
+
+    return { success: false, error: "Unexpected response from server" };
+  } catch (error: any) {
+    console.error("[Product Reviews] Error creating review:", error);
+    return {
+      success: false,
+      error: error?.message || "Failed to submit review. Please try again.",
+    };
+  }
+}
+
+// MarkReviewHelpful mutation document
+const MarkReviewHelpfulDocument = new TypedDocumentString(`
+  mutation MarkReviewHelpful($reviewId: ID!) {
+    productReviewMarkHelpful(reviewId: $reviewId) {
+      review {
+        id
+        helpfulCount
+      }
+      marked
+      errors {
+        field
+        message
+        code
+      }
+    }
+  }
+`) as any;
+
+/**
+ * Mark a review as helpful (server action)
+ */
+export async function markReviewHelpful(reviewId: string): Promise<{ success: boolean; helpfulCount?: number; error?: string }> {
+  "use server";
+  
+  try {
+    const result = await executeGraphQL(MarkReviewHelpfulDocument, {
+      variables: {
+        reviewId,
+      },
+      cache: "no-store",
+      withAuth: false, // Marking helpful doesn't require auth
+    }) as any;
+
+    if (result?.productReviewMarkHelpful?.errors && result.productReviewMarkHelpful.errors.length > 0) {
+      return {
+        success: false,
+        error: result.productReviewMarkHelpful.errors[0].message || "Failed to mark review as helpful",
+      };
+    }
+
+    if (result?.productReviewMarkHelpful?.review) {
+      return {
+        success: true,
+        helpfulCount: result.productReviewMarkHelpful.review.helpfulCount,
+      };
+    }
+
+    return { success: false, error: "Unexpected response from server" };
+  } catch (error: any) {
+    console.error("[Product Reviews] Error marking review as helpful:", error);
+    return {
+      success: false,
+      error: error?.message || "Failed to mark review as helpful. Please try again.",
+    };
+  }
+}
+
+// UpdateProductReview mutation document
+const UpdateProductReviewDocument = new TypedDocumentString(`
+  mutation UpdateProductReview($input: ProductReviewUpdateInput!) {
+    productReviewUpdate(input: $input) {
+      review {
+        id
+        rating
+        title
+        body
+        images
+        helpfulCount
+        status
+        isVerifiedPurchase
+        createdAt
+        updatedAt
+        user {
+          id
+          email
+          firstName
+          lastName
+        }
+      }
+      errors {
+        field
+        message
+        code
+      }
+    }
+  }
+`) as any;
+
+// DeleteProductReview mutation document
+const DeleteProductReviewDocument = new TypedDocumentString(`
+  mutation DeleteProductReview($reviewId: ID!) {
+    productReviewDelete(reviewId: $reviewId) {
+      review {
+        id
+      }
+      errors {
+        field
+        message
+        code
+      }
+    }
+  }
+`) as any;
+
+export interface UpdateReviewInput {
+  reviewId: string;
+  rating?: number;
+  title?: string;
+  body?: string;
+  images?: string[];
+}
+
+export interface UpdateReviewResult {
+  success: boolean;
+  review?: ProductReview;
+  error?: string;
+}
+
+/**
+ * Update a product review (server action)
+ */
+export async function updateProductReview(input: UpdateReviewInput): Promise<UpdateReviewResult> {
+  "use server";
+  
+  try {
+    const result = await executeGraphQL(UpdateProductReviewDocument, {
+      variables: {
+        input: {
+          reviewId: input.reviewId,
+          rating: input.rating,
+          title: input.title?.trim(),
+          body: input.body?.trim(),
+          images: input.images?.filter(Boolean) || [],
+        },
+      },
+      cache: "no-store",
+      withAuth: true, // Requires authentication
+    }) as any;
+
+    if (result?.productReviewUpdate?.errors && result.productReviewUpdate.errors.length > 0) {
+      return {
+        success: false,
+        error: result.productReviewUpdate.errors[0].message || "Failed to update review",
+      };
+    }
+
+    if (result?.productReviewUpdate?.review) {
+      // Revalidate the product page to refresh rating
+      const { revalidatePath } = await import("next/cache");
+      revalidatePath("/products", "layout");
+      
+      return {
+        success: true,
+        review: result.productReviewUpdate.review,
+      };
+    }
+
+    return { success: false, error: "Unexpected response from server" };
+  } catch (error: any) {
+    console.error("[Product Reviews] Error updating review:", error);
+    return {
+      success: false,
+      error: error?.message || "Failed to update review. Please try again.",
+    };
+  }
+}
+
+/**
+ * Delete a product review (server action)
+ */
+export async function deleteProductReview(reviewId: string): Promise<{ success: boolean; error?: string }> {
+  "use server";
+  
+  try {
+    const result = await executeGraphQL(DeleteProductReviewDocument, {
+      variables: {
+        reviewId,
+      },
+      cache: "no-store",
+      withAuth: true, // Requires authentication
+    }) as any;
+
+    if (result?.productReviewDelete?.errors && result.productReviewDelete.errors.length > 0) {
+      return {
+        success: false,
+        error: result.productReviewDelete.errors[0].message || "Failed to delete review",
+      };
+    }
+
+    // Revalidate the product page to refresh rating and review count
+    const { revalidatePath } = await import("next/cache");
+    // Revalidate all product pages to ensure rating updates
+    revalidatePath("/products", "layout");
+    revalidatePath("/[channel]/products", "page");
+    
+    return { success: true };
+  } catch (error: any) {
+    console.error("[Product Reviews] Error deleting review:", error);
+    return {
+      success: false,
+      error: error?.message || "Failed to delete review. Please try again.",
+    };
+  }
+}
+
 /**
  * Gets the access token from cookies (server-side only).
  * This is used by the checkout to authenticate GraphQL requests when

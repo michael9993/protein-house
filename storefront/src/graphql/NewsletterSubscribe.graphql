@@ -1,0 +1,12 @@
+mutation NewsletterSubscribe($email: String!, $source: String) {
+  newsletterSubscribe(email: $email, source: $source) {
+    subscribed
+    alreadySubscribed
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+

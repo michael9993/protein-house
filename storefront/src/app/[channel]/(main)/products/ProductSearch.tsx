@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { storeConfig } from "@/config";
+import { useStoreConfig, useFiltersText } from "@/providers/StoreConfigProvider";
 import { Search, X } from "lucide-react";
 
 interface ProductSearchProps {
@@ -16,7 +16,8 @@ export function ProductSearch({ channel, initialSearch }: ProductSearchProps) {
   const [searchQuery, setSearchQuery] = useState(initialSearch || "");
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { branding } = storeConfig;
+  const { branding } = useStoreConfig();
+  const filtersText = useFiltersText();
 
   // Update search query when URL changes
   useEffect(() => {
@@ -86,7 +87,7 @@ export function ProductSearch({ channel, initialSearch }: ProductSearchProps) {
           onChange={(e) => setSearchQuery(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          placeholder="Search products..."
+          placeholder={filtersText.searchPlaceholder}
           className="w-full pl-9 pr-9 py-2 text-sm bg-transparent border-0 focus:outline-none focus:ring-0 placeholder:text-neutral-400"
           style={{ color: branding.colors.text }}
         />

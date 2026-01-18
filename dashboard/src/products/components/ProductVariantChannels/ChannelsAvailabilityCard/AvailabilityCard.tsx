@@ -6,7 +6,7 @@ import { Divider } from "@dashboard/components/Divider";
 import { FormsetData } from "@dashboard/hooks/useFormset";
 import { PropsWithChildren } from "react";
 
-import { ProductChannelListing } from "./../types";
+import { ProductChannelListing } from "../types";
 import { ChannelsListItem } from "./ChannelsListItem";
 import { useFilteredChannelListing } from "./useFilteredChannelListing";
 import CardContainer from "./VariantDetailsChannelsAvailabilityCardContainer";

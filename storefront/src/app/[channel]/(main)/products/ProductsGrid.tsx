@@ -12,6 +12,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { ProductCard, ProductCardSkeleton } from "@/ui/components/ProductCard";
 import type { ProductListItemFragment, ProductOrder } from "@/gql/graphql";
 import { type FilterState, hasActiveFilters as checkActiveFilters } from "@/lib/filters";
+import { useFiltersText } from "@/providers/StoreConfigProvider";
 
 interface ProductsGridProps {
   initialProducts: ProductListItemFragment[];
@@ -41,6 +42,7 @@ export function ProductsGrid({
   const loaderRef = useRef<HTMLDivElement>(null);
   const prevFiltersRef = useRef<string>(JSON.stringify(filters));
   const prevSortRef = useRef<string>(JSON.stringify(sortBy));
+  const filtersText = useFiltersText();
 
   // Detect filter/sort changes and show loading state
   useEffect(() => {
@@ -73,6 +75,9 @@ export function ProductsGrid({
   useEffect(() => {
     if (!isFiltering) {
       // Apply client-side filters for additional filtering after server-side
+      // NOTE: Rating filtering is done client-side because Saleor GraphQL schema
+      // does not support rating filtering directly in ProductFilterInput.
+      // This is a limitation - if products have ratings, we filter them here.
       let filtered = products.filter((product) => {
         if (filters.inStock) {
           const hasStock = product.variants?.some(v => v.quantityAvailable && v.quantityAvailable > 0) ?? true;
@@ -83,6 +88,20 @@ export function ProductsGrid({
           const currentPrice = product.pricing?.priceRange?.start?.gross?.amount;
           const originalPrice = product.pricing?.priceRangeUndiscounted?.start?.gross?.amount;
           if (!currentPrice || !originalPrice || currentPrice >= originalPrice) return false;
+        }
+
+        // Rating filter (client-side only - Saleor doesn't support it in GraphQL)
+        if (filters.rating !== undefined && filters.rating !== null) {
+          const productRating = (product as any).rating;
+          if (productRating === null || productRating === undefined) {
+            // If product has no rating, exclude it when filtering by rating
+            return false;
+          }
+          // Round rating to nearest integer for comparison
+          const roundedRating = Math.round(productRating);
+          if (roundedRating < filters.rating) {
+            return false;
+          }
         }
 
         return true;
@@ -214,9 +233,9 @@ export function ProductsGrid({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
           </svg>
         </div>
-        <p className="text-base font-semibold text-neutral-700 sm:text-lg">No products found</p>
+        <p className="text-base font-semibold text-neutral-700 sm:text-lg">{filtersText.noProductsTitle}</p>
         <p className="mt-2 text-sm text-neutral-500 sm:text-base">
-          {hasFilters ? "Try adjusting your filters" : "Check back later for new products"}
+          {hasFilters ? filtersText.noProductsWithFilters : filtersText.noProductsEmpty}
         </p>
       </div>
     );
@@ -239,7 +258,7 @@ export function ProductsGrid({
                 }}
               ></div>
             </div>
-            <p className="text-sm font-medium text-neutral-600">Filtering products...</p>
+            <p className="text-sm font-medium text-neutral-600">{filtersText.filteringProducts}</p>
           </div>
         </div>
       )}
@@ -299,16 +318,16 @@ export function ProductsGrid({
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            <span className="text-sm font-medium sm:text-base">Loading more products...</span>
+            <span className="text-sm font-medium sm:text-base">{filtersText.loadingMore}</span>
           </div>
         )}
         {!hasNextPage && displayProducts.length > 0 && !isLoading && !isFiltering && (
           <div className="text-center animate-fade-in">
             <p className="text-sm font-medium text-neutral-600 sm:text-base">
-              You've seen all {displayProducts.length.toLocaleString()} products
+              {filtersText.seenAllProducts.replace("{count}", displayProducts.length.toLocaleString())}
             </p>
             <p className="mt-1 text-xs text-neutral-500 sm:text-sm">
-              Try adjusting your filters to see more
+              {filtersText.tryAdjustingFilters}
             </p>
           </div>
         )}

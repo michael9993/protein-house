@@ -158,20 +158,21 @@ export const SignIn: React.FC<SignInProps> = ({
 					
 					{/* Divider */}
 					<div className="my-2 flex items-center gap-2">
-						<div className="h-px flex-1 bg-neutral-200" />
-						<span className="text-xs text-neutral-500">or</span>
-						<div className="h-px flex-1 bg-neutral-200" />
+						<div className="h-px flex-1" style={{ backgroundColor: "var(--store-neutral-200)" }} />
+						<span className="text-xs" style={{ color: "var(--store-text-muted)" }}>or</span>
+						<div className="h-px flex-1" style={{ backgroundColor: "var(--store-neutral-200)" }} />
 					</div>
 					
 					{/* Google Sign-in Button */}
 					{oauthError && (
-						<div className="text-sm text-red-600 mb-2">{oauthError}</div>
+						<div className="text-sm mb-2" style={{ color: "var(--store-error)" }}>{oauthError}</div>
 					)}
 					<button
 						type="button"
 						onClick={handleGoogleSignIn}
 						disabled={isOauthLoading}
-						className="flex w-full items-center justify-center gap-2 rounded border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+						className="flex w-full items-center justify-center gap-2 rounded border bg-white px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+						style={{ borderColor: "var(--store-neutral-200)", color: "var(--store-neutral-700)" }}
 					>
 						{isOauthLoading ? (
 							<svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">

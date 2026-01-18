@@ -11,6 +11,8 @@ import {
   placeholderCategories,
 } from "@/components/home";
 import { type HeroBannerConfig, type Testimonial, type FeaturedBrand } from "@/lib/cms";
+import { useHomepageConfig, useContentConfig } from "@/providers/StoreConfigProvider";
+import { DEFAULT_SECTION_ORDER, type HomepageSectionId } from "@/config";
 
 /**
  * Category data from Dashboard
@@ -72,6 +74,13 @@ export function HomePage({
   testimonials = [],
   brands = [],
 }: HomePageProps) {
+  // Get config from context
+  const homepageConfig = useHomepageConfig();
+  const contentConfig = useContentConfig();
+  const { sections } = homepageConfig;
+  const sectionOrder = homepageConfig.sectionOrder || DEFAULT_SECTION_ORDER;
+  const homepageContent = contentConfig.homepage;
+
   // Use Dashboard categories if available, otherwise use placeholders
   const displayCategories = categories.length > 0 
     ? categories.map(cat => ({
@@ -83,56 +92,91 @@ export function HomePage({
       }))
     : placeholderCategories;
 
+  // Section rendering map - each section component with its enabled check
+  const renderSection = (sectionId: HomepageSectionId): React.ReactNode => {
+    switch (sectionId) {
+      case 'hero':
+        if (!sections.hero.enabled) return null;
+        return <HeroSection key="hero" cmsConfig={heroBanner} />;
+
+      case 'featuredCategories':
+        if (!sections.featuredCategories.enabled) return null;
+        return (
+          <FeaturedCategories 
+            key="featuredCategories"
+            categories={displayCategories}
+            title={homepageContent.categoriesTitle}
+            subtitle={homepageContent.categoriesSubtitle}
+          />
+        );
+
+      case 'newArrivals':
+        if (!sections.newArrivals.enabled || newArrivals.length === 0) return null;
+        return (
+          <ProductGrid 
+            key="newArrivals"
+            products={newArrivals}
+            type="newArrivals"
+            title={homepageContent.newArrivalsTitle}
+            subtitle={homepageContent.newArrivalsSubtitle}
+          />
+        );
+
+      case 'bestSellers':
+        if (!sections.bestSellers.enabled || bestSellers.length === 0) return null;
+        return (
+          <ProductGrid 
+            key="bestSellers"
+            products={bestSellers}
+            type="bestSellers"
+            title={homepageContent.bestSellersTitle}
+            subtitle={homepageContent.bestSellersSubtitle}
+          />
+        );
+
+      case 'onSale':
+        if (!sections.onSale.enabled || saleProducts.length === 0) return null;
+        return (
+          <ProductGrid 
+            key="onSale"
+            products={saleProducts}
+            type="onSale"
+            title={homepageContent.onSaleTitle}
+            subtitle={homepageContent.onSaleSubtitle}
+          />
+        );
+
+      case 'featuredBrands':
+        if (!sections.featuredBrands.enabled) return null;
+        return <FeaturedBrands key="featuredBrands" cmsBrands={brands} />;
+
+      case 'testimonials':
+        if (!sections.testimonials.enabled) return null;
+        return <Testimonials key="testimonials" cmsTestimonials={testimonials} />;
+
+      case 'newsletter':
+        if (!sections.newsletter.enabled) return null;
+        return (
+          <NewsletterSignup 
+            key="newsletter"
+            title={contentConfig.general.newsletterTitle}
+            subtitle={contentConfig.general.newsletterDescription}
+            buttonText={contentConfig.general.newsletterButton}
+          />
+        );
+
+      case 'instagramFeed':
+        // Instagram feed not yet implemented
+        return null;
+
+      default:
+        return null;
+    }
+  };
+
   return (
     <main>
-      {/* Hero Section - can be controlled via "hero-banner" collection metadata */}
-      <HeroSection cmsConfig={heroBanner} />
-
-      {/* Featured Categories - from Dashboard > Catalog > Categories */}
-      <FeaturedCategories 
-        categories={displayCategories}
-        title="Shop by Category"
-        subtitle="Find the perfect gear for your game"
-      />
-
-      {/* New Arrivals - from Dashboard > Catalog > Collections > "new-arrivals" */}
-      <ProductGrid 
-        products={newArrivals}
-        type="newArrivals"
-        title="Just Dropped"
-        subtitle="Be the first to get our newest gear"
-      />
-
-      {/* Featured Brands - from "brands" collection or fallback to config */}
-      <FeaturedBrands cmsBrands={brands} />
-
-      {/* Best Sellers - from Dashboard > Catalog > Collections > "best-sellers" */}
-      <ProductGrid 
-        products={bestSellers}
-        type="bestSellers"
-        title="Fan Favorites"
-        subtitle="Top-rated products our athletes love"
-      />
-
-      {/* Testimonials - from "testimonials" collection or fallback */}
-      <Testimonials cmsTestimonials={testimonials} />
-
-      {/* On Sale - from Dashboard > Catalog > Collections > "sale" */}
-      {saleProducts.length > 0 && (
-        <ProductGrid 
-          products={saleProducts}
-          type="onSale"
-          title="Don't Miss Out"
-          subtitle="Limited time offers on premium gear"
-        />
-      )}
-
-      {/* Newsletter Signup */}
-      <NewsletterSignup 
-        title="Join the Team"
-        subtitle="Get 15% off your first order plus exclusive access to new releases and member-only deals."
-        buttonText="Sign Me Up"
-      />
+      {sectionOrder.map(sectionId => renderSection(sectionId))}
     </main>
   );
 }

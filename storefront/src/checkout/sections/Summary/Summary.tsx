@@ -43,12 +43,12 @@ export const Summary: FC<SummaryProps> = ({
 	return (
 		<div className="sticky top-8 h-fit w-full print:static">
 			{/* Summary Card */}
-			<div className="rounded-xl border border-neutral-200 bg-white shadow-sm print:shadow-none print:border-neutral-300">
+			<div className="rounded-xl border bg-white shadow-sm print:shadow-none" style={{ borderColor: "var(--store-neutral-200)" }}>
 				{/* Header */}
-				<div className="border-b border-neutral-100 px-6 py-4">
+				<div className="border-b px-6 py-4" style={{ borderColor: "var(--store-neutral-100)" }}>
 					<div className="flex items-center justify-between">
-						<h2 className="text-lg font-semibold text-neutral-900">Order Summary</h2>
-						<span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-sm font-medium text-neutral-600">
+						<h2 className="text-lg font-semibold" style={{ color: "var(--store-text)" }}>Order Summary</h2>
+						<span className="rounded-full px-2.5 py-0.5 text-sm font-medium" style={{ backgroundColor: "var(--store-neutral-100)", color: "var(--store-neutral-600)" }}>
 							{itemCount} {itemCount === 1 ? "item" : "items"}
 						</span>
 					</div>
@@ -56,7 +56,7 @@ export const Summary: FC<SummaryProps> = ({
 
 				{/* Products List */}
 				<details open className="group">
-					<summary className="flex cursor-pointer items-center justify-between px-6 py-3 text-sm font-medium text-neutral-700 hover:bg-neutral-50">
+					<summary className="flex cursor-pointer items-center justify-between px-6 py-3 text-sm font-medium" style={{ color: "var(--store-neutral-700)" }}>
 						<span className="flex items-center gap-2">
 							<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -80,13 +80,13 @@ export const Summary: FC<SummaryProps> = ({
 
 				{/* Promo Code Section - Hidden in print */}
 				{editable && (
-					<div className="border-t border-neutral-100 px-6 py-4 print:hidden">
+					<div className="border-t px-6 py-4 print:hidden" style={{ borderColor: "var(--store-neutral-100)" }}>
 						<PromoCodeAdd />
 					</div>
 				)}
 
 				{/* Price Breakdown */}
-				<div className="border-t border-neutral-100 px-6 py-4">
+				<div className="border-t px-6 py-4" style={{ borderColor: "var(--store-neutral-100)" }}>
 					<div className="space-y-3">
 						<SummaryMoneyRow label="Subtotal" money={subtotalPrice?.gross} ariaLabel="subtotal price" />
 						
@@ -122,26 +122,27 @@ export const Summary: FC<SummaryProps> = ({
 				</div>
 
 				{/* Total */}
-				<div className="rounded-b-xl bg-neutral-50 px-6 py-4">
+				<div className="rounded-b-xl px-6 py-4" style={{ backgroundColor: "var(--store-surface)" }}>
 					<div className="flex items-center justify-between">
 						<div>
-							<p className="text-lg font-bold text-neutral-900">Total</p>
-							<p className="text-xs text-neutral-500">
+							<p className="text-lg font-bold" style={{ color: "var(--store-text)" }}>Total</p>
+							<p className="text-xs" style={{ color: "var(--store-text-muted)" }}>
 								Includes {getFormattedMoney(totalPrice?.tax)} tax
 							</p>
 						</div>
-						<Money 
-							ariaLabel="total price" 
-							money={totalPrice?.gross} 
-							data-testid="totalOrderPrice"
-							className="text-xl font-bold text-neutral-900"
-						/>
+						<div className="text-xl font-bold" style={{ color: "var(--store-text)" }}>
+							<Money 
+								ariaLabel="total price" 
+								money={totalPrice?.gross} 
+								data-testid="totalOrderPrice"
+							/>
+						</div>
 					</div>
 				</div>
 			</div>
 
 			{/* Security Badge - Hidden in print */}
-			<div className="mt-4 flex items-center justify-center gap-2 text-xs text-neutral-500 print:hidden">
+			<div className="mt-4 flex items-center justify-center gap-2 text-xs print:hidden" style={{ color: "var(--store-text-muted)" }}>
 				<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
 				</svg>

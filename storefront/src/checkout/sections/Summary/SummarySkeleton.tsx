@@ -2,9 +2,9 @@ import { Skeleton } from "@/checkout/components";
 
 export const SummarySkeleton = () => (
 	<div className="sticky top-8 h-fit w-full">
-		<div className="rounded-xl border border-neutral-200 bg-white shadow-sm">
+		<div className="rounded-xl border bg-white shadow-sm" style={{ borderColor: "var(--store-neutral-200)" }}>
 			{/* Header */}
-			<div className="border-b border-neutral-100 px-6 py-4">
+			<div className="border-b px-6 py-4" style={{ borderColor: "var(--store-neutral-100)" }}>
 				<div className="flex items-center justify-between">
 					<Skeleton className="h-5 w-32" />
 					<Skeleton className="h-6 w-16 rounded-full" />
@@ -32,12 +32,12 @@ export const SummarySkeleton = () => (
 			</div>
 
 			{/* Promo Code */}
-			<div className="border-t border-neutral-100 px-6 py-4">
+			<div className="border-t px-6 py-4" style={{ borderColor: "var(--store-neutral-100)" }}>
 				<Skeleton className="h-10 w-full rounded-lg" />
 			</div>
 
 			{/* Price Breakdown */}
-			<div className="border-t border-neutral-100 px-6 py-4">
+			<div className="border-t px-6 py-4" style={{ borderColor: "var(--store-neutral-100)" }}>
 				<div className="space-y-3">
 					<div className="flex items-center justify-between">
 						<Skeleton className="h-4 w-16" />
@@ -51,7 +51,7 @@ export const SummarySkeleton = () => (
 			</div>
 
 			{/* Total */}
-			<div className="rounded-b-xl bg-neutral-50 px-6 py-4">
+			<div className="rounded-b-xl px-6 py-4" style={{ backgroundColor: "var(--store-surface)" }}>
 				<div className="flex items-center justify-between">
 					<div className="space-y-1">
 						<Skeleton className="h-5 w-12" />

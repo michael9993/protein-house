@@ -5,7 +5,7 @@ import { useState } from "react";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { formatMoneyRange, formatMoney } from "@/lib/utils";
 import type { ProductListItemFragment } from "@/gql/graphql";
-import { storeConfig } from "@/config";
+import { useBranding, useFeature, useUiConfig, useContentConfig, useBadgeStyle } from "@/providers/StoreConfigProvider";
 import { useWishlist } from "@/lib/wishlist";
 
 interface ProductCardProps {
@@ -14,11 +14,49 @@ interface ProductCardProps {
   priority?: boolean;
 }
 
+// Map border radius config to Tailwind classes
+const radiusMap: Record<"none" | "sm" | "md" | "lg" | "xl" | "full", string> = {
+  none: "rounded-none",
+  sm: "rounded-sm",
+  md: "rounded-md",
+  lg: "rounded-lg",
+  xl: "rounded-xl",
+  full: "rounded-full",
+};
+
+// Map shadow config to Tailwind classes
+const shadowMap = {
+  none: "",
+  sm: "shadow-sm",
+  md: "shadow-md",
+  lg: "shadow-lg",
+  xl: "shadow-xl",
+};
+
+// Map aspect ratio config
+const aspectRatioMap = {
+  square: "aspect-square",
+  portrait: "aspect-[3/4]",
+  landscape: "aspect-[4/3]",
+};
+
 export function ProductCard({ product, loading = "lazy", priority = false }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
   
-  const { branding, features } = storeConfig;
+  // Use hooks instead of direct config import
+  const branding = useBranding();
+  const wishlistEnabled = useFeature("wishlist");
+  const reviewsEnabled = useFeature("productReviews");
+  const ui = useUiConfig();
+  const content = useContentConfig();
+  const saleBadgeStyle = useBadgeStyle("sale");
+  const outOfStockBadgeStyle = useBadgeStyle("outOfStock");
+  const lowStockBadgeStyle = useBadgeStyle("lowStock");
+  
+  // Product card config
+  const cardConfig = ui.productCard;
+  
   const { addItem, removeItem, isInWishlist } = useWishlist();
   const isWishlisted = isInWishlist(product.id);
   
@@ -60,12 +98,19 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
     }
   };
 
+  // Get classes from config
+  const cardRadius = radiusMap[cardConfig.borderRadius] || "rounded-lg";
+  const cardShadow = shadowMap[cardConfig.shadow] || "";
+  const hoverShadow = shadowMap[cardConfig.hoverShadow] || "shadow-lg";
+  const imageAspect = aspectRatioMap[cardConfig.imageAspectRatio] || "aspect-square";
+
   return (
     <article 
-      className="group relative flex flex-col rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg"
+      className={`group relative flex flex-col ${cardRadius} overflow-hidden transition-all duration-300 ${cardShadow} hover:${hoverShadow}`}
       style={{
         border: `1px solid ${branding.colors.primary}20`,
-        backgroundColor: "white",
+        backgroundColor: branding.colors.surface,
+        boxShadow: isHovered ? `0 10px 40px ${branding.colors.primary}15` : undefined,
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -73,7 +118,7 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
       <LinkWithChannel href={`/products/${product.slug}`} className="block">
         {/* Image Container */}
         <div 
-          className="relative aspect-square overflow-hidden bg-neutral-100 transition-all duration-300"
+          className={`relative ${imageAspect} overflow-hidden bg-neutral-100 transition-all duration-300`}
           style={{
             borderBottom: `3px solid ${branding.colors.primary}30`,
           }}
@@ -114,27 +159,42 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
           <div className="absolute left-2 top-2 flex flex-col gap-1.5 sm:left-3 sm:top-3 sm:gap-2">
             {hasDiscount && discountPercent > 0 && (
               <span 
-                className="rounded px-2 py-1 text-xs font-bold text-white shadow-sm"
-                style={{ backgroundColor: branding.colors.primary }}
+                className={`${radiusMap[saleBadgeStyle.borderRadius] || "rounded"} px-2 py-1 text-xs font-bold shadow-sm`}
+                style={{ 
+                  backgroundColor: saleBadgeStyle.backgroundColor,
+                  color: saleBadgeStyle.color,
+                }}
               >
-                SALE -{discountPercent}%
+                {content.product.saleBadgeText} -{discountPercent}%
               </span>
             )}
             {!isInStock && (
-              <span className="rounded-full bg-neutral-800 px-2 py-0.5 text-[10px] font-medium text-white shadow-sm sm:px-2.5 sm:py-1 sm:text-xs">
-                Out of Stock
+              <span 
+                className={`${radiusMap[outOfStockBadgeStyle.borderRadius] || "rounded-full"} px-2 py-0.5 text-[10px] font-medium shadow-sm sm:px-2.5 sm:py-1 sm:text-xs`}
+                style={{ 
+                  backgroundColor: outOfStockBadgeStyle.backgroundColor,
+                  color: outOfStockBadgeStyle.color,
+                }}
+              >
+                {content.product.outOfStockText}
               </span>
             )}
             {isLowStock && (
-              <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-medium text-white shadow-sm sm:px-2.5 sm:py-1 sm:text-xs">
-                Only {totalStock} left
+              <span 
+                className={`${radiusMap[lowStockBadgeStyle.borderRadius] || "rounded-full"} px-2 py-0.5 text-[10px] font-medium shadow-sm sm:px-2.5 sm:py-1 sm:text-xs`}
+                style={{ 
+                  backgroundColor: lowStockBadgeStyle.backgroundColor,
+                  color: lowStockBadgeStyle.color,
+                }}
+              >
+                {content.product.lowStockText.replace("{count}", String(totalStock))}
               </span>
             )}
           </div>
 
 
           {/* Wishlist Button - Top Right */}
-          {features.wishlist && (
+          {wishlistEnabled && cardConfig.showWishlistButton && (
             <button
               onClick={handleWishlistClick}
               className={`absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-md transition-all duration-200 sm:right-3 sm:top-3 sm:h-9 sm:w-9 ${
@@ -193,19 +253,21 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
           </div>
 
           {/* Rating */}
-          {features.productReviews && (
+          {reviewsEnabled && (product as any).rating !== null && (product as any).rating !== undefined && (
             <div className="mt-2 flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <svg
                   key={star}
-                  className={`h-4 w-4 ${star <= 4 ? "text-amber-400" : "text-neutral-300"}`}
+                  className={`h-4 w-4 ${star <= Math.round((product as any).rating || 0) ? "text-amber-400" : "text-neutral-300"}`}
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
               ))}
-              <span className="ml-1 text-xs text-neutral-500">(4)</span>
+              {(product as any).reviews?.totalCount !== null && (product as any).reviews?.totalCount !== undefined && (
+                <span className="ml-1 text-xs text-neutral-500">({(product as any).reviews.totalCount})</span>
+              )}
             </div>
           )}
         </div>

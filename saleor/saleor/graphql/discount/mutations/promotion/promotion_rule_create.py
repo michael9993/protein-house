@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 
 from .....discount import events, models
 from .....permission.enums import DiscountPermissions
+from .....product.tasks import recalculate_discounted_price_for_products_task
 from .....product.utils.product import mark_products_in_channels_as_dirty
 from .....webhook.event_types import WebhookEventAsyncType
 from ....app.dataloaders import get_app_promise
@@ -106,6 +107,8 @@ class PromotionRuleCreate(DeprecatedModelMutation):
                     mark_products_in_channels_as_dirty,
                     dict.fromkeys(channel_ids, product_ids),
                 )
+                # Trigger immediate price recalculation instead of waiting for scheduled task
+                recalculate_discounted_price_for_products_task.delay()
 
         clear_promotion_old_sale_id(instance.promotion, save=True)
         app = get_app_promise(info.context).get()

@@ -24,7 +24,7 @@ import { Box, sprinkles } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { ListProps, ListViews, RelayToFlat } from "../../../types";
-import CategoryDetailsForm from "../../components/CategoryDetailsForm";
+import CategoryDetailsForm from "../CategoryDetailsForm";
 import CategoryBackground from "../CategoryBackground";
 import { CategoryProducts } from "../CategoryProducts";
 import { CategorySubcategories } from "../CategorySubcategories";

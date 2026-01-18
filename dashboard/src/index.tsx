@@ -48,6 +48,7 @@ import AppStateProvider from "./containers/AppState";
 import BackgroundTasksProvider from "./containers/BackgroundTasks";
 import { FeatureFlagsProviderWithUser } from "./featureFlags/FeatureFlagsProvider";
 import { giftCardsSectionUrlName } from "./giftCards/urls";
+import { reviewsSectionUrlName } from "./reviews/urls";
 import { apolloClient, saleorClient } from "./graphql/client";
 import { useLocationState } from "./hooks/useLocationState";
 import { commonMessages } from "./intl";
@@ -70,6 +71,7 @@ const ExtensionsSection = lazy(() =>
   import("./extensions").then(m => ({ default: m.ExtensionsSection })),
 );
 const GiftCardSection = lazy(() => import("./giftCards"));
+const ReviewsSection = lazy(() => import("./reviews"));
 const PageSection = lazy(() => import("./modeling"));
 const PageTypesSection = lazy(() => import("./modelTypes"));
 const OrdersSection = lazy(() => import("./orders"));
@@ -225,6 +227,11 @@ const Routes = () => {
                     permissions={[PermissionEnum.MANAGE_GIFT_CARD]}
                     path={giftCardsSectionUrlName}
                     component={GiftCardSection}
+                  />
+                  <SectionRoute
+                    permissions={[PermissionEnum.MANAGE_PRODUCTS]}
+                    path={reviewsSectionUrlName}
+                    component={ReviewsSection}
                   />
                   <SectionRoute
                     permissions={[PermissionEnum.MANAGE_DISCOUNTS]}

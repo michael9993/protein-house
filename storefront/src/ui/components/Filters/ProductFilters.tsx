@@ -5,12 +5,15 @@
  * 
  * Renders filter UI for products. Uses useProductFilters hook which
  * ensures URL is the single source of truth - NO local state duplication.
+ * 
+ * Config-driven: Uses StoreConfig from context for filter visibility/settings.
  */
 
 import React, { useState, useRef, useEffect, type ReactNode, type ChangeEvent } from "react";
-import { storeConfig } from "@/config";
+import { useStoreConfig, useFiltersConfig, useFiltersText } from "@/providers/StoreConfigProvider";
 import { useProductFilters } from "@/hooks/useProductFilters";
 import { PriceRangeFilter } from "./PriceRangeFilter";
+import { RatingFilter } from "./RatingFilter";
 
 // ============================================================================
 // Types
@@ -58,6 +61,10 @@ interface ProductFiltersProps {
   brands?: Brand[];
   sizes?: Size[];
   colors?: Color[];
+  channel?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  currencyCode?: string;
 }
 
 // ============================================================================
@@ -120,8 +127,16 @@ export function ProductFilters({
   brands = [],
   sizes = [],
   colors = [],
+  channel,
+  minPrice,
+  maxPrice,
+  currencyCode,
 }: ProductFiltersProps) {
-  const { branding } = storeConfig;
+  // Use config from context (per-channel)
+  const config = useStoreConfig();
+  const filtersConfig = useFiltersConfig();
+  const filtersText = useFiltersText();
+  const { branding } = config;
   
   // Debug: Log sizes when component receives them
   useEffect(() => {
@@ -307,17 +322,18 @@ export function ProductFilters({
               className="w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:opacity-90 hover:shadow-md"
               style={{ backgroundColor: branding.colors.primary }}
             >
-              Clear All Filters
+              {filtersText.clearAllButton}
             </button>
           </div>
         )}
 
-        {/* Categories */}
-        {categories.length > 0 && (
+        {/* Categories - config-driven visibility */}
+        {filtersConfig.categoryFilter.enabled && categories.length > 0 && (
           <FilterSection
-            title="Category"
+            title={filtersText.categoryTitle}
             isExpanded={expandedSections.includes("categories")}
             onToggle={() => toggleSection("categories")}
+            branding={branding}
           >
             <div className="space-y-1">
               {categories.map(category => renderCategory(category))}
@@ -325,12 +341,13 @@ export function ProductFilters({
           </FilterSection>
         )}
 
-        {/* Collections */}
-        {collections.length > 0 && (
+        {/* Collections - config-driven visibility */}
+        {filtersConfig.collectionFilter.enabled && collections.length > 0 && (
           <FilterSection
-            title="Collection"
+            title={filtersText.collectionTitle}
             isExpanded={expandedSections.includes("collections")}
             onToggle={() => toggleSection("collections")}
+            branding={branding}
           >
             <div className="space-y-1 max-h-64 overflow-y-auto">
               {collections.map(collection => (
@@ -352,12 +369,13 @@ export function ProductFilters({
           </FilterSection>
         )}
 
-        {/* Brands */}
-        {brands.length > 0 && (
+        {/* Brands - config-driven visibility */}
+        {filtersConfig.brandFilter.enabled && brands.length > 0 && (
           <FilterSection
-            title="Brand"
+            title={filtersText.brandTitle}
             isExpanded={expandedSections.includes("brands")}
             onToggle={() => toggleSection("brands")}
+            branding={branding}
           >
             <div className="space-y-1 max-h-64 overflow-y-auto">
               {brands.map(brand => (
@@ -379,12 +397,13 @@ export function ProductFilters({
           </FilterSection>
         )}
 
-        {/* Sizes */}
-        {sizes.length > 0 && (
+        {/* Sizes - config-driven visibility */}
+        {filtersConfig.sizeFilter.enabled && sizes.length > 0 && (
           <FilterSection
-            title="Size"
+            title={filtersText.sizeTitle}
             isExpanded={expandedSections.includes("sizes")}
             onToggle={() => toggleSection("sizes")}
+            branding={branding}
           >
             <div className="space-y-1 max-h-64 overflow-y-auto">
               {sizes.map(size => (
@@ -406,12 +425,13 @@ export function ProductFilters({
           </FilterSection>
         )}
 
-        {/* Colors */}
-        {colors.length > 0 && (
+        {/* Colors - config-driven visibility */}
+        {filtersConfig.colorFilter.enabled && colors.length > 0 && (
           <FilterSection
-            title="Color"
+            title={filtersText.colorTitle}
             isExpanded={expandedSections.includes("colors")}
             onToggle={() => toggleSection("colors")}
+            branding={branding}
           >
             <div className="space-y-1 max-h-64 overflow-y-auto">
               {colors.map(color => (
@@ -433,74 +453,98 @@ export function ProductFilters({
           </FilterSection>
         )}
 
-        {/* Price Range */}
-        <FilterSection
-          title="Price"
-          isExpanded={expandedSections.includes("price")}
-          onToggle={() => toggleSection("price")}
-        >
-          <PriceRangeFilter currencyCode="USD" />
-        </FilterSection>
+        {/* Price Range - config-driven visibility */}
+        {filtersConfig.priceFilter.enabled && (
+          <FilterSection
+            title={filtersText.priceTitle}
+            isExpanded={expandedSections.includes("price")}
+            onToggle={() => toggleSection("price")}
+            branding={branding}
+          >
+            <PriceRangeFilter 
+              channel={channel} 
+              minPrice={minPrice}
+              maxPrice={maxPrice}
+              currencyCode={currencyCode}
+              showQuickButtons={filtersConfig.priceFilter.showQuickButtons}
+            />
+          </FilterSection>
+        )}
 
-        {/* Availability */}
-        <FilterSection
-          title="Availability"
-          isExpanded={expandedSections.includes("availability")}
-          onToggle={() => toggleSection("availability")}
-          noBorder
-        >
-          <div className="space-y-2">
-            <label className="flex cursor-pointer items-center gap-3 py-2 hover:bg-neutral-50/50 rounded-lg px-2 -mx-2 transition-all duration-200">
-              <input
-                type="checkbox"
-                checked={filters.inStock}
-                onChange={toggleInStock}
-                className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
-                style={{ accentColor: branding.colors.primary }}
-              />
-              <span className="text-sm font-medium text-neutral-700">In Stock Only</span>
-            </label>
-            <label className="flex cursor-pointer items-center gap-3 py-2 hover:bg-neutral-50/50 rounded-lg px-2 -mx-2 transition-all duration-200">
-              <input
-                type="checkbox"
-                checked={filters.onSale}
-                onChange={toggleOnSale}
-                className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
-                style={{ accentColor: branding.colors.primary }}
-              />
-              <span className="text-sm font-medium text-neutral-700">On Sale</span>
-            </label>
-          </div>
-        </FilterSection>
+        {/* Rating - config-driven visibility */}
+        {filtersConfig.ratingFilter.enabled && (
+          <FilterSection
+            title={filtersText.ratingTitle}
+            isExpanded={expandedSections.includes("rating")}
+            onToggle={() => toggleSection("rating")}
+            branding={branding}
+          >
+            <RatingFilter />
+          </FilterSection>
+        )}
+
+        {/* Availability (Stock Filter) - config-driven visibility */}
+        {filtersConfig.stockFilter.enabled && (
+          <FilterSection
+            title={filtersText.availabilityTitle}
+            isExpanded={expandedSections.includes("availability")}
+            onToggle={() => toggleSection("availability")}
+            branding={branding}
+            noBorder
+          >
+            <div className="space-y-2">
+              <label className="flex cursor-pointer items-center gap-3 py-2 hover:bg-neutral-50/50 rounded-lg px-2 -mx-2 transition-all duration-200">
+                <input
+                  type="checkbox"
+                  checked={filters.inStock}
+                  onChange={toggleInStock}
+                  className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
+                  style={{ accentColor: branding.colors.primary }}
+                />
+                <span className="text-sm font-medium text-neutral-700">{filtersText.inStockOnly}</span>
+              </label>
+              <label className="flex cursor-pointer items-center gap-3 py-2 hover:bg-neutral-50/50 rounded-lg px-2 -mx-2 transition-all duration-200">
+                <input
+                  type="checkbox"
+                  checked={filters.onSale}
+                  onChange={toggleOnSale}
+                  className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
+                  style={{ accentColor: branding.colors.primary }}
+                />
+                <span className="text-sm font-medium text-neutral-700">{filtersText.onSale}</span>
+              </label>
+            </div>
+          </FilterSection>
+        )}
       </div>
 
       {/* Active Filters Summary (Mobile) */}
       {hasFilters && (
         <div className="mt-4 rounded-lg bg-neutral-50 p-3 lg:hidden flex-shrink-0">
-          <p className="mb-2 text-xs font-medium text-neutral-500">Active Filters:</p>
+          <p className="mb-2 text-xs font-medium text-neutral-500">{filtersText.activeFiltersLabel}</p>
           <div className="flex flex-wrap gap-2">
             {filters.categories.length > 0 && (
               <FilterTag>
-                {filters.categories.length} {filters.categories.length === 1 ? "category" : "categories"}
+                {filters.categories.length} {filters.categories.length === 1 ? filtersText.categorySingular : filtersText.categoryPlural}
               </FilterTag>
             )}
             {filters.collections.length > 0 && (
               <FilterTag>
-                {filters.collections.length} {filters.collections.length === 1 ? "collection" : "collections"}
+                {filters.collections.length} {filters.collections.length === 1 ? filtersText.collectionSingular : filtersText.collectionPlural}
               </FilterTag>
             )}
             {filters.brands.length > 0 && (
               <FilterTag>
-                {filters.brands.length} {filters.brands.length === 1 ? "brand" : "brands"}
+                {filters.brands.length} {filters.brands.length === 1 ? filtersText.brandSingular : filtersText.brandPlural}
               </FilterTag>
             )}
             {filters.colors.length > 0 && (
               <FilterTag>
-                {filters.colors.length} {filters.colors.length === 1 ? "color" : "colors"}
+                {filters.colors.length} {filters.colors.length === 1 ? filtersText.colorSingular : filtersText.colorPlural}
               </FilterTag>
             )}
-            {filters.inStock && <FilterTag>In Stock</FilterTag>}
-            {filters.onSale && <FilterTag>On Sale</FilterTag>}
+            {filters.inStock && <FilterTag>{filtersText.inStockOnly}</FilterTag>}
+            {filters.onSale && <FilterTag>{filtersText.onSale}</FilterTag>}
           </div>
         </div>
       )}
@@ -549,14 +593,15 @@ function FilterSection({
   onToggle, 
   children,
   noBorder = false,
+  branding,
 }: { 
   title: string;
   isExpanded: boolean;
   onToggle: () => void;
   children: ReactNode;
   noBorder?: boolean;
+  branding: { colors: { primary: string; text: string } };
 }) {
-  const { branding } = storeConfig;
   
   return (
     <div className={`${noBorder ? "py-5" : "border-b border-neutral-200/60 py-5"} transition-all duration-300`}>
@@ -617,7 +662,9 @@ export function MobileFilterDrawer({
   onClose: () => void; 
   children: ReactNode;
 }) {
-  const { branding } = storeConfig;
+  const config = useStoreConfig();
+  const filtersText = useFiltersText();
+  const { branding } = config;
   
   if (!isOpen) return null;
 
@@ -630,10 +677,10 @@ export function MobileFilterDrawer({
       />
       
       {/* Drawer */}
-      <div className="fixed inset-y-0 left-0 flex w-full max-w-xs flex-col bg-white shadow-xl">
+      <div className="fixed inset-y-0 start-0 flex w-full max-w-xs flex-col bg-white shadow-xl">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-4">
-          <h2 className="text-lg font-semibold text-neutral-900">Filters</h2>
+          <h2 className="text-lg font-semibold text-neutral-900">{filtersText.sectionTitle}</h2>
           <button
             onClick={onClose}
             className="flex h-10 w-10 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100"
@@ -656,7 +703,7 @@ export function MobileFilterDrawer({
             className="w-full rounded-lg py-3 text-sm font-semibold text-white"
             style={{ backgroundColor: branding.colors.primary }}
           >
-            Show Results
+            {filtersText.showResultsButton}
           </button>
         </div>
       </div>

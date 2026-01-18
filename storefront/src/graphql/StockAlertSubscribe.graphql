@@ -1,0 +1,12 @@
+mutation StockAlertSubscribe($input: StockAlertSubscribeInput!) {
+  stockAlertSubscribe(input: $input) {
+    subscribed
+    alreadySubscribed
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+

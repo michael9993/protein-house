@@ -1,0 +1,11 @@
+mutation NewsletterUnsubscribe($email: String!) {
+  newsletterUnsubscribe(email: $email) {
+    unsubscribed
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+

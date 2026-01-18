@@ -6,7 +6,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { formatMoney, getHrefForVariant } from "@/lib/utils";
-import { storeConfig } from "@/config";
+import { useBranding, useEcommerceSettings, useContentConfig, useButtonStyle, useBadgeStyle } from "@/providers/StoreConfigProvider";
 
 interface CartLine {
   id: string;
@@ -82,7 +82,13 @@ export function CartClient({
   updateLineQuantityAction,
   createCheckoutWithItems,
 }: CartClientProps) {
-  const { branding, ecommerce } = storeConfig;
+  // Use hooks for config
+  const branding = useBranding();
+  const ecommerce = useEcommerceSettings();
+  const content = useContentConfig();
+  const primaryButtonStyle = useButtonStyle("primary");
+  const saleBadgeStyle = useBadgeStyle("sale");
+  
   const router = useRouter();
   const pathname = usePathname();
   const [promoCode, setPromoCode] = useState("");
@@ -240,7 +246,7 @@ export function CartClient({
     
     // Validate quantity
     if (newQuantity < 1) {
-      toast.error("Quantity must be at least 1");
+      toast.error(content.cart.quantityMinError);
       return;
     }
     
@@ -250,13 +256,13 @@ export function CartClient({
     // Only check stock limit when increasing quantity
     // When decreasing, we're freeing up stock, so it's always allowed
     if (newQuantity > line.quantity && newQuantity > totalAvailable) {
-      toast.error(`Only ${totalAvailable} items available in stock`);
+      toast.error(content.cart.onlyXItemsAvailable.replace("{count}", totalAvailable.toString()));
       return;
     }
     
     // When decreasing, ensure we don't go below 1 (use Delete button instead)
     if (newQuantity < 1) {
-      toast.error("Use the Delete button to remove items from cart");
+      toast.error(content.cart.useDeleteButtonMessage);
       return;
     }
     
@@ -276,10 +282,10 @@ export function CartClient({
       });
       
       if (result.success) {
-        toast.success("Quantity updated!");
+        toast.success(content.cart.quantityUpdatedSuccess);
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to update quantity");
+        toast.error(result.error || content.cart.failedToUpdateQuantity);
       }
     });
   };
@@ -365,32 +371,38 @@ export function CartClient({
   // Empty cart state
   if (!cart || cart.lines.length === 0) {
     return (
-      <div className="min-h-screen bg-neutral-50/50 animate-fade-in">
+      <div className="min-h-screen animate-fade-in" style={{ backgroundColor: branding.colors.surface }}>
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="text-center animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
-            <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-neutral-100">
-              <svg className="h-12 w-12 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div 
+              className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full"
+              style={{ backgroundColor: `${branding.colors.primary}15` }}
+            >
+              <svg className="h-12 w-12" style={{ color: branding.colors.primary }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
             </div>
 
-            <h1 className="text-2xl font-bold text-neutral-900 sm:text-3xl">
-              Your cart is empty
+            <h1 className="text-2xl font-bold sm:text-3xl" style={{ color: branding.colors.text }}>
+              {content.cart.emptyCartTitle}
             </h1>
-            <p className="mt-3 text-neutral-600">
-              Looks like you haven't added any items to your cart yet.
+            <p className="mt-3" style={{ color: branding.colors.textMuted }}>
+              {content.cart.emptyCartMessage}
             </p>
 
             <div className="mt-8">
               <LinkWithChannel
                 href="/products"
-                className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                style={{ backgroundColor: branding.colors.primary }}
+                className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-sm font-semibold transition-opacity hover:opacity-90"
+                style={{ 
+                  backgroundColor: primaryButtonStyle.backgroundColor,
+                  color: primaryButtonStyle.color,
+                }}
               >
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
-                Start Shopping
+                {content.cart.continueShoppingButton}
               </LinkWithChannel>
             </div>
           </div>
@@ -412,8 +424,8 @@ export function CartClient({
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            <p className="text-lg font-medium text-neutral-700">Loading Checkout...</p>
-            <p className="text-sm text-neutral-500">Please wait while we prepare your checkout</p>
+            <p className="text-lg font-medium text-neutral-700">{content.cart.loadingCheckoutTitle}</p>
+            <p className="text-sm text-neutral-500">{content.cart.loadingCheckoutMessage}</p>
           </div>
         </div>
       )}
@@ -430,7 +442,7 @@ export function CartClient({
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-emerald-800">
-                  Add {formatMoney(amountToFreeShipping, currency)} more for FREE shipping!
+                  {content.cart.addXMoreForFreeShipping.replace("{amount}", formatMoney(amountToFreeShipping, currency))}
                 </p>
                 <div className="mt-2 h-2 overflow-hidden rounded-full bg-emerald-200">
                   <div
@@ -454,7 +466,7 @@ export function CartClient({
                 </svg>
               </div>
               <p className="font-medium text-emerald-800">
-                🎉 You've unlocked FREE shipping!
+                🎉 {content.cart.unlockedFreeShipping}
               </p>
             </div>
           </div>
@@ -466,8 +478,8 @@ export function CartClient({
             <div className="rounded-xl bg-white p-4 shadow-sm sm:p-6">
               {/* Header with Select All */}
               <div className="flex flex-wrap items-center justify-between gap-4">
-                <h1 className="text-xl font-bold text-neutral-900 sm:text-2xl">
-                  Shopping Cart ({totalItemCount} {totalItemCount === 1 ? "item" : "items"})
+                <h1 className="text-xl font-bold sm:text-2xl" style={{ color: branding.colors.text }}>
+                  {content.cart.cartTitle} ({totalItemCount} {totalItemCount === 1 ? content.cart.itemSingular : content.cart.itemPlural})
                 </h1>
                 
                 {/* Select All Controls */}
@@ -496,7 +508,7 @@ export function CartClient({
                         <div className="h-2 w-2 rounded-sm bg-neutral-400" />
                       )}
                     </div>
-                    {allSelected ? "Deselect All" : "Select All"}
+                    {allSelected ? content.cart.deselectAllButton : content.cart.selectAllButton}
                   </button>
                 </div>
               </div>
@@ -505,13 +517,13 @@ export function CartClient({
               {!allSelected && selectedItems.size > 0 && (
                 <div className="mt-4 flex items-center justify-between rounded-lg bg-blue-50 px-4 py-3">
                   <p className="text-sm text-blue-700">
-                    <span className="font-semibold">{selectedItemCount}</span> of {totalItemCount} items selected for checkout
+                    <span className="font-semibold">{selectedItemCount}</span> {selectedItemCount === 1 ? content.cart.itemSingular : content.cart.itemPlural} of {totalItemCount} {totalItemCount === 1 ? content.cart.itemSingular : content.cart.itemPlural} {content.cart.selectItemsToCheckout}
                   </p>
                   <button
                     onClick={() => setSelectedItems(new Set(cart.lines.map(line => line.id)))}
                     className="text-sm font-medium text-blue-700 hover:underline"
                   >
-                    Select all items
+                    {content.cart.selectAllItemsButton}
                   </button>
                 </div>
               )}
@@ -522,7 +534,7 @@ export function CartClient({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                   <p className="text-sm text-amber-700">
-                    Select items to proceed to checkout
+                    {content.cart.selectItemsToCheckout}
                   </p>
                 </div>
               )}
@@ -623,8 +635,14 @@ export function CartClient({
                             )}
                             {/* Display sale badge if on sale */}
                             {isOnSale(item.variant) && (
-                              <span className="mt-1 inline-block rounded bg-red-500 px-2 py-0.5 text-xs font-semibold text-white">
-                                Sale
+                              <span 
+                                className="mt-1 inline-block rounded px-2 py-0.5 text-xs font-semibold"
+                                style={{
+                                  backgroundColor: saleBadgeStyle.backgroundColor,
+                                  color: saleBadgeStyle.color,
+                                }}
+                              >
+                                {content.product.saleBadgeText}
                               </span>
                             )}
                           </div>
@@ -641,12 +659,12 @@ export function CartClient({
                               </p>
                             )}
                             <p className="mt-0.5 text-xs text-neutral-500">
-                              {formatMoney(item.unitPrice.gross.amount, item.unitPrice.gross.currency)} each
+                              {formatMoney(item.unitPrice.gross.amount, item.unitPrice.gross.currency)} {content.cart.eachLabel}
                             </p>
                             <p className={`mt-0.5 text-xs ${item.variant.quantityAvailable > 0 ? 'text-neutral-500' : 'text-red-600 font-medium'}`}>
                               {item.variant.quantityAvailable > 0 
-                                ? `${item.variant.quantityAvailable} available`
-                                : 'Out of stock'}
+                                ? `${item.variant.quantityAvailable} ${content.cart.availableLabel}`
+                                : content.cart.outOfStockLabel}
                             </p>
                           </div>
                         </div>
@@ -708,7 +726,7 @@ export function CartClient({
                                 onClick={() => handleSelectItem(item.id)}
                                 className="text-sm font-medium text-neutral-600 transition-colors hover:text-neutral-800"
                               >
-                                Save for Later
+                                {content.cart.saveForLaterButton}
                               </button>
                             )}
                             {!isSelected && (
@@ -718,7 +736,7 @@ export function CartClient({
                                 className="text-sm font-medium transition-colors hover:opacity-80"
                                 style={{ color: branding.colors.primary }}
                               >
-                                Move to Cart
+                                {content.cart.moveToCartButton}
                               </button>
                             )}
                             
@@ -741,7 +759,7 @@ export function CartClient({
                                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                   </svg>
-                                  Delete
+                                  {content.cart.deleteButton}
                                 </>
                               )}
                             </button>
@@ -763,7 +781,7 @@ export function CartClient({
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
                   </svg>
-                  Continue Shopping
+                  {content.cart.continueShoppingButton}
                 </LinkWithChannel>
               </div>
             </div>
@@ -773,10 +791,10 @@ export function CartClient({
           <div className="mt-8 lg:col-span-5 lg:mt-0 xl:col-span-4 animate-fade-in-up" style={{ animationDelay: "150ms", animationFillMode: "both" }}>
             <div className="sticky top-24 rounded-xl bg-white p-4 shadow-sm sm:p-6">
               <h2 className="text-lg font-semibold text-neutral-900">
-                Order Summary
+                {content.cart.orderSummaryTitle}
                 {!allSelected && selectedItems.size > 0 && (
                   <span className="ml-2 text-sm font-normal text-neutral-500">
-                    ({selectedItemCount} {selectedItemCount === 1 ? "item" : "items"} selected)
+                    ({selectedItemCount} {selectedItemCount === 1 ? content.cart.itemSingular : content.cart.itemPlural} selected)
                   </span>
                 )}
               </h2>
@@ -809,23 +827,25 @@ export function CartClient({
               {/* Summary Lines */}
               <dl className="mt-6 space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <dt className="text-neutral-600">Subtotal ({selectedItemCount} items)</dt>
+                  <dt className="text-neutral-600">
+                    {content.cart.subtotalLabelWithCount.replace("{count}", selectedItemCount.toString())}
+                  </dt>
                   <dd className="font-medium text-neutral-900">
                     {formatMoney(selectedSubtotal, currency)}
                   </dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-neutral-600">Shipping</dt>
+                  <dt className="text-neutral-600">{content.cart.shippingLabel}</dt>
                   <dd className="font-medium text-neutral-900">
                     {selectedSubtotal > 0 && hasReachedFreeShipping ? (
-                      <span className="text-emerald-600">FREE</span>
+                      <span className="text-emerald-600">{content.cart.shippingFree}</span>
                     ) : (
-                      "Calculated at checkout"
+                      content.cart.shippingCalculatedAtCheckout
                     )}
                   </dd>
                 </div>
                 <div className="flex justify-between border-t border-neutral-200 pt-3">
-                  <dt className="text-base font-semibold text-neutral-900">Total</dt>
+                  <dt className="text-base font-semibold text-neutral-900">{content.cart.totalLabel}</dt>
                   <dd className="text-base font-semibold text-neutral-900">
                     {formatMoney(selectedSubtotal, currency)}
                   </dd>
@@ -836,8 +856,11 @@ export function CartClient({
               <button
                 onClick={handleProceedToCheckout}
                 disabled={noneSelected || isCreatingCheckout || isNavigatingToCheckout}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg py-3.5 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-                style={{ backgroundColor: branding.colors.primary }}
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg py-3.5 text-sm font-semibold transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                style={{ 
+                  backgroundColor: primaryButtonStyle.backgroundColor,
+                  color: primaryButtonStyle.color,
+                }}
               >
                 {(isCreatingCheckout || isNavigatingToCheckout) ? (
                   <>
@@ -845,7 +868,7 @@ export function CartClient({
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    {isCreatingCheckout ? "Preparing Checkout..." : "Loading Checkout..."}
+                    {isCreatingCheckout ? "Preparing..." : "Loading..."}
                   </>
                 ) : (
                   <>
@@ -853,10 +876,10 @@ export function CartClient({
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                     {noneSelected
-                      ? "Select Items to Checkout"
+                      ? "Select Items"
                       : allSelected
-                      ? "Proceed to Checkout"
-                      : `Checkout ${selectedItemCount} Item${selectedItemCount !== 1 ? "s" : ""}`}
+                      ? content.cart.checkoutButton
+                      : `${content.cart.checkoutButton} (${selectedItemCount})`}
                   </>
                 )}
               </button>
@@ -864,7 +887,12 @@ export function CartClient({
               {/* Non-selected items note */}
               {!allSelected && selectedItems.size > 0 && (
                 <p className="mt-3 text-center text-xs text-neutral-500">
-                  {cart.lines.length - selectedItems.size} item{cart.lines.length - selectedItems.size !== 1 ? "s" : ""} saved for later
+                  {(() => {
+                    const savedCount = cart.lines.length - selectedItems.size;
+                    return content.cart.itemsSavedForLater
+                      .replace("{count}", savedCount.toString())
+                      .replace("item(s)", savedCount === 1 ? content.cart.itemSingular : content.cart.itemPlural);
+                  })()}
                 </p>
               )}
 
@@ -874,29 +902,60 @@ export function CartClient({
                   <svg className="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
-                  Secure Checkout
+                  {content.cart.secureCheckoutText}
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-neutral-500">
                   <svg className="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
-                  SSL Encrypted
+                  {content.cart.sslEncryptedText}
                 </div>
               </div>
 
               {/* Payment Methods */}
               <div className="mt-6 border-t border-neutral-200 pt-6">
-                <p className="mb-3 text-center text-xs text-neutral-500">Accepted Payment Methods</p>
-                <div className="flex items-center justify-center gap-3">
-                  {["Visa", "MC", "Amex", "PayPal"].map((method) => (
-                    <div
-                      key={method}
-                      className="flex h-8 w-12 items-center justify-center rounded border border-neutral-200 bg-neutral-50 text-[10px] font-medium text-neutral-500"
-                    >
-                      {method}
-                    </div>
-                  ))}
+                <p className="mb-3 text-center text-xs text-neutral-500">{content.cart.acceptedPaymentMethods}</p>
+                <div className="flex items-center justify-center gap-2 flex-wrap">
+                  {/* Visa */}
+                  <div className="flex h-8 w-14 items-center justify-center rounded border border-neutral-200 bg-white p-1.5">
+                    <svg className="h-full w-full" viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="48" height="32" rx="4" fill="#1434CB"/>
+                      <path d="M20 11h8l-4.5 10h-8l4.5-10z" fill="white"/>
+                      <path d="M28 11h4l2.5 10h-4l-2.5-10z" fill="#FF5F00"/>
+                    </svg>
+                  </div>
+                  {/* Mastercard */}
+                  <div className="flex h-8 w-14 items-center justify-center rounded border border-neutral-200 bg-white p-1.5">
+                    <svg className="h-full w-full" viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="48" height="32" rx="4" fill="#EB001B"/>
+                      <circle cx="18" cy="16" r="6" fill="#FF5F00"/>
+                      <circle cx="30" cy="16" r="6" fill="#EB001B"/>
+                    </svg>
+                  </div>
+                  {/* Google Pay */}
+                  <div className="flex h-8 w-14 items-center justify-center rounded border border-neutral-200 bg-white p-1">
+                    <svg className="h-full w-full" viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="48" height="32" rx="4" fill="#000000"/>
+                      <path d="M16 10h16v12h-16v-12z" fill="white"/>
+                      <path d="M18 12h12v8h-12v-8z" fill="#4285F4"/>
+                      <path d="M18 12h6v8h-6v-8z" fill="#EA4335"/>
+                      <path d="M24 12h6v4h-6v-4z" fill="#FBBC04"/>
+                      <path d="M24 16h6v4h-6v-4z" fill="#34A853"/>
+                    </svg>
+                  </div>
+                  {/* PayPal */}
+                  <div className="flex h-8 w-14 items-center justify-center rounded border border-neutral-200 bg-white p-1.5">
+                    <svg className="h-full w-full" viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="48" height="32" rx="4" fill="#0070BA"/>
+                      <path d="M18 12h8c2 0 3.5 1.5 3.5 3.5s-1.5 3.5-3.5 3.5h-6v3h-2v-10zm2 5h6c1 0 1.5-0.5 1.5-1.5s-0.5-1.5-1.5-1.5h-6v3z" fill="white"/>
+                    </svg>
+                  </div>
+                  {/* Link (Stripe) */}
+                  <div className="flex h-8 w-14 items-center justify-center rounded border border-neutral-200 bg-white p-1.5" style={{ backgroundColor: "#635BFF" }}>
+                    <span className="text-[9px] font-bold text-white">Link</span>
+                  </div>
                 </div>
+                <p className="mt-2 text-center text-[10px] text-neutral-400">{content.cart.providedByStripe}</p>
               </div>
             </div>
           </div>

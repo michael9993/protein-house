@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
-import { storeConfig } from "@/config";
+import { useStoreConfig, useFiltersText } from "@/providers/StoreConfigProvider";
 
 interface SearchResult {
   id: string;
@@ -20,7 +20,8 @@ interface SearchDialogProps {
 }
 
 export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
-  const { branding } = storeConfig;
+  const { branding } = useStoreConfig();
+  const filtersText = useFiltersText();
   const router = useRouter();
   const params = useParams();
   const channel = params.channel as string;
@@ -142,7 +143,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Search products..."
+              placeholder={filtersText.searchPlaceholder}
               className="w-full py-4 pl-12 pr-12 text-lg outline-none placeholder:text-neutral-400"
             />
             {query && (

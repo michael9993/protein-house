@@ -1,10 +1,14 @@
+"use client";
+
 import { type UserDetailsFragment } from "@/gql/graphql";
+import { useBranding } from "@/providers/StoreConfigProvider";
 
 type Props = {
 	user: UserDetailsFragment;
 };
 
 export const UserInfo = ({ user }: Props) => {
+	const branding = useBranding();
 	const userName = user.firstName && user.lastName 
 		? `${user.firstName} ${user.lastName}` 
 		: null;
@@ -23,7 +27,10 @@ export const UserInfo = ({ user }: Props) => {
 					className="h-10 w-10 rounded-full object-cover ring-2 ring-neutral-100"
 				/>
 			) : (
-				<div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FF5722] text-sm font-bold text-white">
+				<div 
+					className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white"
+					style={{ backgroundColor: branding.colors.primary }}
+				>
 					{initials}
 				</div>
 			)}

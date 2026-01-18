@@ -451,3 +451,48 @@ class Group(models.Model):
 
     def natural_key(self):
         return (self.name,)
+
+
+class NewsletterSubscription(models.Model):
+    """Newsletter subscription model for email marketing."""
+
+    email = models.EmailField(db_index=True, unique=True)
+    user = models.ForeignKey(
+        User,
+        related_name="newsletter_subscriptions",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text="User account if subscribed while logged in",
+    )
+    is_active = models.BooleanField(
+        default=True,
+        db_index=True,
+        help_text="Whether the subscription is active",
+    )
+    subscribed_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    unsubscribed_at = models.DateTimeField(null=True, blank=True)
+    source = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="Where the subscription came from (e.g., 'homepage', 'checkout')",
+    )
+
+    class Meta:
+        app_label = "account"
+        ordering = ("-subscribed_at",)
+        indexes = [
+            models.Index(fields=["email", "is_active"]),
+            models.Index(fields=["user", "is_active"]),
+            models.Index(fields=["is_active", "-subscribed_at"]),
+        ]
+
+    def __str__(self) -> str:
+        user_str = f" ({self.user.email})" if self.user else ""
+        status = "active" if self.is_active else "inactive"
+        return f"{self.email}{user_str} - {status}"
+
+    def __repr__(self) -> str:
+        class_ = type(self)
+        return f"<{class_.__module__}.{class_.__name__}(pk={self.pk!r}, email={self.email!r}, is_active={self.is_active!r})>"

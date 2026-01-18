@@ -62,9 +62,10 @@ export const PageNotFound = ({ error, reason = "error" }: PageNotFoundProps) => 
 
 	return (
 		<ErrorContentWrapper>
-			<div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-neutral-100">
+			<div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full" style={{ backgroundColor: "var(--store-neutral-100)" }}>
 				<svg
-					className="h-10 w-10 text-neutral-400"
+					className="h-10 w-10"
+					style={{ color: "var(--store-neutral-400)" }}
 					fill="none"
 					viewBox="0 0 24 24"
 					stroke="currentColor"
@@ -77,8 +78,8 @@ export const PageNotFound = ({ error, reason = "error" }: PageNotFoundProps) => 
 					/>
 				</svg>
 			</div>
-			<h2 className="mb-2 text-xl font-semibold text-neutral-900">{title}</h2>
-			<p className="mb-6 text-center text-neutral-600">{description}</p>
+			<h2 className="mb-2 text-xl font-semibold" style={{ color: "var(--store-text)" }}>{title}</h2>
+			<p className="mb-6 text-center" style={{ color: "var(--store-text-muted)" }}>{description}</p>
 			<div className="flex flex-col gap-3 sm:flex-row">
 				<Button 
 					ariaLabel="Return to cart" 

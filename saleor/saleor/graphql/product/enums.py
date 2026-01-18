@@ -48,6 +48,15 @@ class ProductTypeConfigurable(BaseEnum):
         doc_category = DOC_CATEGORY_PRODUCTS
 
 
+class ReviewStatusEnum(BaseEnum):
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
+    class Meta:
+        doc_category = DOC_CATEGORY_PRODUCTS
+
+
 class ProductTypeEnum(BaseEnum):
     DIGITAL = "digital"
     SHIPPABLE = "shippable"

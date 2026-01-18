@@ -52,7 +52,6 @@ export const AddressEditForm: React.FC<AddressEditFormProps> = ({
 					position: "top-right",
 					autoClose: 2000,
 					hideProgressBar: true,
-					className: "bg-green-50 border border-green-200 text-green-800",
 				});
 				
 				// Reload user data to get updated addresses list
@@ -103,9 +102,10 @@ export const AddressEditForm: React.FC<AddressEditFormProps> = ({
 		<FormProvider form={{ ...form, handleChange: onChange }}>
 			<AddressForm title="Edit address" availableCountries={availableCountries}>
 				{isSuccess && (
-					<div className="mb-4 flex items-center gap-2 rounded-md bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">
+					<div className="mb-4 flex items-center gap-2 rounded-md border px-4 py-3 text-sm" style={{ backgroundColor: "var(--store-success-bg)", borderColor: "var(--store-success-border)", color: "var(--store-success-text)" }}>
 						<svg
-							className="h-5 w-5 flex-shrink-0 text-green-600"
+							className="h-5 w-5 flex-shrink-0"
+							style={{ color: "var(--store-success)" }}
 							fill="none"
 							viewBox="0 0 24 24"
 							stroke="currentColor"

@@ -1,7 +1,7 @@
 import { Route } from "@dashboard/components/Router";
 
 import { siteSettingsPath } from "./urls";
-import SiteSettingsComponent from "./views/";
+import SiteSettingsComponent from "./views";
 
 const SiteSettings = () => {
   return <SiteSettingsComponent />;

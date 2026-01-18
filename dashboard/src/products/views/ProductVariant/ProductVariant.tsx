@@ -64,7 +64,7 @@ import {
   ProductVariantEditUrlDialog,
   ProductVariantEditUrlQueryParams,
 } from "../../urls";
-import { createVariantReorderHandler } from "./../ProductUpdate/handlers";
+import { createVariantReorderHandler } from "../ProductUpdate/handlers";
 import { useSubmitChannels } from "./useSubmitChannels";
 
 interface ProductUpdateProps {

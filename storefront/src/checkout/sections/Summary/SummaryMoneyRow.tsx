@@ -12,11 +12,11 @@ export const SummaryMoneyRow: React.FC<PropsWithChildren<SummaryMoneyRowProps>> 
 }) => {
 	return (
 		<div className="flex items-center justify-between text-sm">
-			<div className="flex items-center gap-1.5 text-neutral-600">
+			<div className="flex items-center gap-1.5" style={{ color: "var(--store-text-muted)" }}>
 				<span>{label}</span>
 				{children}
 			</div>
-			<Money {...moneyProps} className="font-medium text-neutral-900" />
+			<Money {...moneyProps} className="font-medium" />
 		</div>
 	);
 };

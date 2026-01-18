@@ -1,0 +1,44 @@
+query ProductReviews(
+  $productId: ID!
+  $first: Int = 20
+  $after: String
+  $filterByRating: Int
+  $filterByVerified: Boolean
+) {
+  productReviews(
+    productId: $productId
+    first: $first
+    after: $after
+    filterByRating: $filterByRating
+    filterByVerified: $filterByVerified
+  ) {
+    edges {
+      node {
+        id
+        rating
+        title
+        body
+        images
+        helpfulCount
+        status
+        isVerifiedPurchase
+        createdAt
+        updatedAt
+        user {
+          id
+          email
+          firstName
+          lastName
+        }
+      }
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    totalCount
+  }
+}
+

@@ -1,23 +1,20 @@
 "use client";
 
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
-import { storeConfig } from "@/config";
-import clsx from "clsx";
+import { useBranding } from "@/providers/StoreConfigProvider";
 
 export function MobileAccountButtonClient({ isActive }: { isActive: boolean }) {
-  const { branding } = storeConfig;
+  const branding = useBranding();
 
   // For now, just show sign in link - we can enhance this later to check auth status
   // The account page will handle redirecting if not logged in
   return (
     <LinkWithChannel
       href="/account"
-      className={clsx(
-        "flex flex-col items-center justify-center gap-1 rounded-lg px-3 py-2 transition-all duration-200",
-        isActive ? "text-white" : "text-neutral-600"
-      )}
+      className="flex flex-col items-center justify-center gap-1 rounded-lg px-3 py-2 transition-all duration-200"
       style={{
         backgroundColor: isActive ? branding.colors.primary : "transparent",
+        color: isActive ? "#ffffff" : "var(--store-text-muted)",
       }}
     >
       <svg 

@@ -68,15 +68,21 @@ export type MetadataManagerGraphqlClient = Pick<Client, "mutation" | "query">;
 async function fetchAllPrivateMetadata(
   client: MetadataManagerGraphqlClient,
 ): Promise<MetadataEntry[]> {
+  console.log("[fetchAllPrivateMetadata] Fetching app metadata...");
+  
   const { error, data } = await client
     .query<FetchAppPrivateMetadataQuery>(FetchAppDetailsQuery, {})
     .toPromise();
 
   if (error) {
+    console.error("[fetchAllPrivateMetadata] Error fetching metadata:", error);
     return [];
   }
 
-  return data?.app?.privateMetadata.map((md) => ({ key: md.key, value: md.value })) || [];
+  const entries = data?.app?.privateMetadata.map((md) => ({ key: md.key, value: md.value })) || [];
+  console.log(`[fetchAllPrivateMetadata] Found ${entries.length} metadata entries:`, entries.map(e => e.key));
+  
+  return entries;
 }
 
 async function updatePrivateMetadata(
@@ -84,6 +90,9 @@ async function updatePrivateMetadata(
   metadata: MetadataEntry[],
   appId: string,
 ) {
+  console.log(`[updatePrivateMetadata] Saving ${metadata.length} entries to appId: ${appId}`);
+  console.log("[updatePrivateMetadata] Keys:", metadata.map(m => m.key));
+  
   const { error: mutationError, data: mutationData } = await client
     .mutation<UpdateAppPrivateMetadataMutation>(UpdateAppMetadataMutation, {
       id: appId,
@@ -92,15 +101,18 @@ async function updatePrivateMetadata(
     .toPromise();
 
   if (mutationError) {
+    console.error("[updatePrivateMetadata] Mutation error:", mutationError);
     throw new Error(`Mutation error: ${mutationError.message}`);
   }
 
-  return (
-    mutationData?.updatePrivateMetadata?.item?.privateMetadata.map((md) => ({
-      key: md.key,
-      value: md.value,
-    })) || []
-  );
+  const result = mutationData?.updatePrivateMetadata?.item?.privateMetadata.map((md) => ({
+    key: md.key,
+    value: md.value,
+  })) || [];
+  
+  console.log(`[updatePrivateMetadata] Successfully saved. Result has ${result.length} entries`);
+  
+  return result;
 }
 
 export class EncryptedMetadataManagerFactory {

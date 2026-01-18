@@ -1,20 +1,26 @@
 import Link from "next/link";
+import Image from "next/image";
 import { invariant } from "ts-invariant";
 import { RootWrapper } from "./pageWrapper";
 import { CheckoutBreadcrumbs } from "./CheckoutBreadcrumbs";
-import { storeConfig } from "@/config";
+import { fetchStorefrontConfig } from "@/lib/storefront-control/fetch-config";
 
-export const metadata = {
-	title: `Checkout${storeConfig.store.name ? ` · ${storeConfig.store.name}` : ""}`,
-};
+export async function generateMetadata() {
+	const config = await fetchStorefrontConfig("default");
+	return {
+		title: `Checkout${config.store.name ? ` · ${config.store.name}` : ""}`,
+	};
+}
 
 export default async function CheckoutPage(props: {
 	searchParams: Promise<{ checkout?: string; order?: string }>;
 }) {
 	const searchParams = await props.searchParams;
-	const { branding, store: _store } = storeConfig;
+	const config = await fetchStorefrontConfig("default");
+	const { branding, store: _store, content } = config;
 	const storeName = _store.name;
 	const isOrderConfirmation = !!searchParams.order;
+	const checkoutText = content?.checkout;
 	
 	invariant(process.env.NEXT_PUBLIC_SALEOR_API_URL, "Missing NEXT_PUBLIC_SALEOR_API_URL env variable");
 
@@ -33,14 +39,28 @@ export default async function CheckoutPage(props: {
 						className="flex items-center gap-2 text-xl font-bold transition-opacity hover:opacity-80"
 						style={{ color: branding.colors.primary }}
 					>
-						{/* Logo icon removed - branding.logo is a string */}
-						{storeName}
+						{branding.logo && branding.logo !== "/logo.svg" ? (
+							<Image
+								src={branding.logo}
+								alt={branding.logoAlt || storeName}
+								width={120}
+								height={32}
+								className="h-8 w-auto"
+							/>
+						) : (
+							<>
+								<svg className="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
+									<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+								</svg>
+								{storeName}
+							</>
+						)}
 					</Link>
 					<div className="flex items-center gap-2 text-sm text-neutral-500 print:hidden">
 						<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
 						</svg>
-						<span>Secure Checkout</span>
+						<span>{checkoutText?.secureCheckout || "Secure Checkout"}</span>
 					</div>
 				</header>
 

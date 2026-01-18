@@ -5,7 +5,7 @@ import { InitialProductStateResponse } from "../API/initialState/product/Initial
 import { RowType, STATIC_OPTIONS } from "../constants";
 import { LeftOperand } from "../LeftOperandsProvider";
 import { InitialResponseType } from "../types";
-import { TokenType, UrlEntry, UrlToken } from "./../ValueProvider/UrlToken";
+import { TokenType, UrlEntry, UrlToken } from "../ValueProvider/UrlToken";
 import { Condition } from "./Condition";
 import { ConditionItem, ConditionOptions, StaticElementName } from "./ConditionOptions";
 import { ConditionSelected } from "./ConditionSelected";

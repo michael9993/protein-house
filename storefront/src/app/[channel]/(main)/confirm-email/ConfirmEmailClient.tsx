@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { storeConfig } from "@/config";
+import Image from "next/image";
+import { useBranding, useStoreInfo } from "@/providers/StoreConfigProvider";
 
 interface ConfirmEmailClientProps {
 	channel: string;
@@ -14,7 +15,11 @@ interface ConfirmEmailClientProps {
 export function ConfirmEmailClient({ channel, email: initialEmail, token: initialToken }: ConfirmEmailClientProps) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
-	const { branding, store } = storeConfig;
+	const branding = useBranding();
+	const store = useStoreInfo();
+	
+	// Focus ring color with transparency
+	const focusRingColor = `${branding.colors.primary}33`;
 	
 	const [email, setEmail] = useState(initialEmail || "");
 	const [token, setToken] = useState(initialToken || "");
@@ -129,6 +134,14 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 
 	return (
 		<div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12">
+			{/* Inject dynamic focus styles */}
+			<style>{`
+				.confirm-input:focus {
+					border-color: ${branding.colors.primary} !important;
+					box-shadow: 0 0 0 3px ${focusRingColor} !important;
+					outline: none !important;
+				}
+			`}</style>
 			<div className="w-full max-w-md">
 				{/* Logo */}
 				<div className="mb-8 text-center">
@@ -137,10 +150,22 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 						className="inline-flex items-center gap-2 text-2xl font-bold"
 						style={{ color: branding.colors.primary }}
 					>
-						<svg className="h-10 w-10" viewBox="0 0 24 24" fill="currentColor">
-							<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-						</svg>
-						{store.name}
+						{branding.logo && branding.logo !== "/logo.svg" ? (
+							<Image
+								src={branding.logo}
+								alt={branding.logoAlt || store.name}
+								width={120}
+								height={32}
+								className="h-8 w-auto"
+							/>
+						) : (
+							<>
+								<svg className="h-10 w-10" viewBox="0 0 24 24" fill="currentColor">
+									<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+								</svg>
+								{store.name}
+							</>
+						)}
 					</Link>
 					<h1 className="mt-6 text-2xl font-bold text-neutral-900">
 						Confirm Your Email
@@ -194,7 +219,7 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 									onChange={(e) => setEmail(e.target.value)}
 									required
 									disabled={!!initialEmail}
-									className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder-neutral-400 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20 disabled:bg-neutral-50 disabled:text-neutral-500"
+									className="confirm-input w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder-neutral-400 transition-colors disabled:bg-neutral-50 disabled:text-neutral-500"
 									placeholder="you@example.com"
 								/>
 							</div>
@@ -210,7 +235,7 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 									onChange={(e) => setToken(e.target.value)}
 									required
 									disabled={!!initialToken}
-									className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder-neutral-400 transition-colors focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/20 disabled:bg-neutral-50 disabled:text-neutral-500"
+									className="confirm-input w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder-neutral-400 transition-colors disabled:bg-neutral-50 disabled:text-neutral-500"
 									placeholder="Enter token from email"
 								/>
 								<p className="mt-1 text-xs text-neutral-500">

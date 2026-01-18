@@ -199,6 +199,77 @@ def resolve_variant(
 
 
 @traced_resolver
+def resolve_product_reviews(
+    info: ResolveInfo,
+    product_id: str,
+    first: int = 20,
+    after: str | None = None,
+    filter_by_rating: int | None = None,
+    filter_by_verified: bool | None = None,
+):
+    """Resolve product reviews with pagination and filtering."""
+    from ..core.connection import create_connection_slice
+    from ..core.utils import from_global_id_or_error
+    from .types import Product, ProductReviewCountableConnection
+    
+    try:
+        _type, product_pk = from_global_id_or_error(
+            product_id, only_type=Product
+        )
+    except Exception:
+        return create_connection_slice(
+            models.ProductReview.objects.none(),
+            info,
+            {"first": first, "after": after},
+            ProductReviewCountableConnection,
+        )
+    
+    qs = models.ProductReview.objects.using(
+        get_database_connection_name(info.context)
+    ).filter(
+        product_id=product_pk,
+        status=models.ProductReview.REVIEW_STATUS_APPROVED,
+    )
+    
+    # Apply filters
+    if filter_by_rating is not None:
+        qs = qs.filter(rating=filter_by_rating)
+    
+    if filter_by_verified is not None:
+        qs = qs.filter(is_verified_purchase=filter_by_verified)
+    
+    return create_connection_slice(
+        qs,
+        info,
+        {"first": first, "after": after},
+        ProductReviewCountableConnection,
+    )
+
+
+@traced_resolver
+def resolve_reviews(
+    _root,
+    info: ResolveInfo,
+    **kwargs,
+):
+    """Resolve all product reviews with filtering (for dashboard)."""
+    from ..core.connection import create_connection_slice, filter_connection_queryset
+    from .types import ProductReviewCountableConnection
+    
+    qs = models.ProductReview.objects.using(
+        get_database_connection_name(info.context)
+    ).all()
+    
+    qs = filter_connection_queryset(qs, kwargs, allow_replica=info.context.allow_replica)
+    
+    return create_connection_slice(
+        qs,
+        info,
+        kwargs,
+        ProductReviewCountableConnection,
+    )
+
+
 def resolve_product_variants(
     info: ResolveInfo,
     requestor,

@@ -6,7 +6,7 @@ import { ExclamationIcon } from "@dashboard/icons/ExclamationIcon";
 import { Box, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage } from "react-intl";
 
-import { InfoLabelsContainer } from "../InfoLabels/InfoLabelsContainer";
+import { InfoLabelsContainer } from "./InfoLabelsContainer";
 
 interface FailedWebhookInfoProps {
   date: string;

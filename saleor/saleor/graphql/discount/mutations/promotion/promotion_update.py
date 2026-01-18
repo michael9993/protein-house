@@ -7,6 +7,7 @@ from django.db import transaction
 from .....discount import PromotionType, events, models
 from .....discount.utils.promotion import mark_catalogue_promotion_rules_as_dirty
 from .....permission.enums import DiscountPermissions
+from .....product.tasks import recalculate_discounted_price_for_products_task
 from .....plugins.manager import PluginsManager
 from .....webhook.event_types import WebhookEventAsyncType
 from ....app.dataloaders import get_app_promise
@@ -109,6 +110,8 @@ class PromotionUpdate(DeprecatedModelMutation):
             "start_date" in cleaned_input or "end_date" in cleaned_input
         ):
             cls.call_event(mark_catalogue_promotion_rules_as_dirty, [instance.pk])
+            # Trigger immediate price recalculation instead of waiting for scheduled task
+            recalculate_discounted_price_for_products_task.delay()
 
     @classmethod
     def get_toggle_type(cls, instance, clean_input, previous_end_date) -> str | None:

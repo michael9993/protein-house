@@ -3,7 +3,7 @@ import useNotifier from "@dashboard/hooks/useNotifier";
 import { PropsWithChildren } from "react";
 import { useIntl } from "react-intl";
 
-import { UserContext } from "./";
+import { UserContext } from ".";
 import { useAuthProvider } from "./hooks/useAuthProvider";
 
 const AuthProvider = ({ children }: PropsWithChildren) => {

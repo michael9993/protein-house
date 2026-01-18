@@ -1,4 +1,4 @@
-import { AVAILABLE_FLAGS as GENERATED_FLAGS } from "./../../.featureFlags/generated";
+import { AVAILABLE_FLAGS as GENERATED_FLAGS } from "../../.featureFlags/generated";
 import { FlagValue } from "./FlagContent";
 
 export interface FlagDefinition {

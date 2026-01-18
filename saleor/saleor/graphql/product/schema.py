@@ -58,6 +58,7 @@ from .dataloaders.products import CategoryByIdLoader, CategoryBySlugLoader
 from .filters.category import CategoryFilterInput, CategoryWhereInput
 from .filters.collection import CollectionFilterInput, CollectionWhereInput
 from .filters.product import ProductFilterInput, ProductWhereInput
+from .filters.product_review import ProductReviewFilterInput
 from .filters.product_type import ProductTypeFilterInput
 from .filters.product_variant import ProductVariantFilterInput, ProductVariantWhereInput
 from .mutations import (
@@ -76,6 +77,12 @@ from .mutations import (
     ProductMediaDelete,
     ProductMediaReorder,
     ProductMediaUpdate,
+    ProductReviewCreate,
+    ProductReviewMarkHelpful,
+    ProductReviewUpdate,
+    ProductReviewDelete,
+    StockAlertSubscribe,
+    StockAlertUnsubscribe,
     ProductTypeCreate,
     ProductTypeDelete,
     ProductTypeUpdate,
@@ -118,6 +125,8 @@ from .resolvers import (
     resolve_digital_content_by_id,
     resolve_digital_contents,
     resolve_product,
+    resolve_product_reviews,
+    resolve_reviews,
     resolve_product_type_by_id,
     resolve_product_types,
     resolve_product_variants,
@@ -141,6 +150,8 @@ from .types import (
     DigitalContentCountableConnection,
     Product,
     ProductCountableConnection,
+    ProductReview,
+    ProductReviewCountableConnection,
     ProductType,
     ProductTypeCountableConnection,
     ProductVariant,
@@ -258,6 +269,54 @@ class ProductQueries(graphene.ObjectType):
         ),
         doc_category=DOC_CATEGORY_PRODUCTS,
     )
+    product_reviews = ConnectionField(
+        ProductReviewCountableConnection,
+        product_id=graphene.Argument(
+            graphene.ID,
+            required=True,
+            description="ID of the product to get reviews for.",
+        ),
+        first=graphene.Argument(
+            graphene.Int,
+            description="Return the first n elements from the list.",
+        ),
+        after=graphene.Argument(
+            graphene.String,
+            description="Return the elements in the list that come after the specified cursor.",
+        ),
+        filter_by_rating=graphene.Argument(
+            graphene.Int,
+            description="Filter reviews by rating (1-5).",
+        ),
+        filter_by_verified=graphene.Argument(
+            graphene.Boolean,
+            description="Filter reviews by verified purchase status.",
+        ),
+        description="List of product reviews.",
+    )
+    review = PermissionsField(
+        ProductReview,
+        id=graphene.Argument(
+            graphene.ID, description="ID of the review.", required=True
+        ),
+        description="Look up a product review by ID.",
+        permissions=[
+            ProductPermissions.MANAGE_PRODUCTS,
+        ],
+        doc_category=DOC_CATEGORY_PRODUCTS,
+    )
+    reviews = FilterConnectionField(
+        ProductReviewCountableConnection,
+        filter=ProductReviewFilterInput(
+            description="Filtering options for product reviews.",
+        ),
+        description="List of all product reviews. Requires MANAGE_PRODUCTS permission.",
+        permissions=[
+            ProductPermissions.MANAGE_PRODUCTS,
+        ],
+        doc_category=DOC_CATEGORY_PRODUCTS,
+    )
+
     products = FilterConnectionField(
         ProductCountableConnection,
         filter=ProductFilterInput(
@@ -555,6 +614,41 @@ class ProductQueries(graphene.ObjectType):
         return _resolve_products(None)
 
     @staticmethod
+    @traced_resolver
+    def resolve_review(_root, info: ResolveInfo, *, id):
+        from .types import ProductReview
+        
+        _type, review_pk = from_global_id_or_error(id, only_type=ProductReview)
+        return models.ProductReview.objects.using(
+            get_database_connection_name(info.context)
+        ).filter(pk=review_pk).first()
+
+    @staticmethod
+    @traced_resolver
+    def resolve_reviews(_root, info: ResolveInfo, **kwargs):
+        return resolve_reviews(_root, info, **kwargs)
+    
+    @staticmethod
+    def resolve_product_reviews(
+        _root,
+        info: ResolveInfo,
+        *,
+        product_id: str,
+        first: int = 20,
+        after: str | None = None,
+        filter_by_rating: int | None = None,
+        filter_by_verified: bool | None = None,
+    ):
+        return resolve_product_reviews(
+            info,
+            product_id,
+            first,
+            after,
+            filter_by_rating,
+            filter_by_verified,
+        )
+
+    @staticmethod
     def resolve_product_type(_root, info: ResolveInfo, *, id):
         _, id = from_global_id_or_error(id, ProductType)
         return resolve_product_type_by_id(info, id)
@@ -715,6 +809,14 @@ class ProductMutations(graphene.ObjectType):
     product_media_bulk_delete = ProductMediaBulkDelete.Field()
     product_media_reorder = ProductMediaReorder.Field()
     product_media_update = ProductMediaUpdate.Field()
+    
+    product_review_create = ProductReviewCreate.Field()
+    product_review_mark_helpful = ProductReviewMarkHelpful.Field()
+    product_review_update = ProductReviewUpdate.Field()
+    product_review_delete = ProductReviewDelete.Field()
+
+    stock_alert_subscribe = StockAlertSubscribe.Field()
+    stock_alert_unsubscribe = StockAlertUnsubscribe.Field()
 
     product_type_create = ProductTypeCreate.Field()
     product_type_delete = ProductTypeDelete.Field()

@@ -17,6 +17,7 @@ import {
   extensionsPluginSection,
 } from "@dashboard/extensions/urls";
 import { giftCardListUrl } from "@dashboard/giftCards/urls";
+import { reviewListUrl } from "@dashboard/reviews/urls";
 import { PermissionEnum } from "@dashboard/graphql";
 import { ConfigurationIcon } from "@dashboard/icons/Configuration";
 import { CustomersIcon } from "@dashboard/icons/Customers";
@@ -152,6 +153,13 @@ export function useMenuStructure() {
           id: "giftCards",
           url: giftCardListUrl(),
           permissions: [PermissionEnum.MANAGE_GIFT_CARD],
+          type: "item",
+        },
+        {
+          label: intl.formatMessage(sectionNames.reviews),
+          id: "reviews",
+          url: reviewListUrl(),
+          permissions: [PermissionEnum.MANAGE_PRODUCTS],
           type: "item",
         },
         ...mapToExtensionsItems(extensions.NAVIGATION_CATALOG, appExtensionsHeaderItem),

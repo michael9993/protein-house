@@ -7,6 +7,7 @@ from django.db import transaction
 from .....discount import PromotionType, events, models
 from .....discount.utils.promotion import get_current_products_for_rules
 from .....permission.enums import DiscountPermissions
+from .....product.tasks import recalculate_discounted_price_for_products_task
 from .....product.utils.product import mark_products_in_channels_as_dirty
 from .....webhook.event_types import WebhookEventAsyncType
 from ....app.dataloaders import get_app_promise
@@ -180,6 +181,8 @@ class PromotionRuleUpdate(DeprecatedModelMutation):
                     mark_products_in_channels_as_dirty,
                     dict.fromkeys(channel_ids_to_update, product_ids),
                 )
+                # Trigger immediate price recalculation instead of waiting for scheduled task
+                recalculate_discounted_price_for_products_task.delay()
         clear_promotion_old_sale_id(instance.promotion, save=True)
         app = get_app_promise(info.context).get()
         events.rule_updated_event(info.context.user, app, [instance])

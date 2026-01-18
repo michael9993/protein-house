@@ -1,0 +1,13 @@
+mutation DeleteProductReview($reviewId: ID!) {
+  productReviewDelete(reviewId: $reviewId) {
+    review {
+      id
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+

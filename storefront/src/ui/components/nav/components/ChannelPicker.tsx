@@ -116,7 +116,7 @@ export function ChannelPicker({ channels: initialChannels }: ChannelPickerProps)
 
 			{isOpen && (
 				<div 
-					className="absolute right-0 top-full z-50 mt-2 w-48 rounded-lg border border-neutral-200 bg-white shadow-lg"
+					className="absolute end-0 top-full z-50 mt-2 w-48 rounded-lg border border-neutral-200 bg-white shadow-lg"
 					style={{ minWidth: "200px" }}
 				>
 					<div className="py-1">

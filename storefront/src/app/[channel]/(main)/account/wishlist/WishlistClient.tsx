@@ -4,9 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { useWishlist } from "@/lib/wishlist";
-import { storeConfig } from "@/config";
 import { formatMoney } from "@/lib/utils";
 import imageLoader from "@/lib/imageLoader";
+import { useBranding, useWishlistText } from "@/providers/StoreConfigProvider";
 
 interface WishlistClientProps {
 	channel: string;
@@ -14,7 +14,8 @@ interface WishlistClientProps {
 
 export function WishlistClient({ channel }: WishlistClientProps) {
 	const { items, removeItem, clearWishlist, isLoading } = useWishlist();
-	const { branding } = storeConfig;
+	const brandingConfig = useBranding();
+	const wishlistText = useWishlistText();
 	const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
 	if (isLoading) {
@@ -22,7 +23,7 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 			<div className="flex items-center justify-center py-12">
 				<div className="text-center">
 					<div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
-					<p className="mt-4 text-sm text-neutral-500">Loading wishlist...</p>
+					<p className="mt-4 text-sm text-neutral-500">{wishlistText.loadingWishlist}</p>
 				</div>
 			</div>
 		);
@@ -33,9 +34,9 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 			{/* Header */}
 			<div className="flex items-center justify-between animate-fade-in-up" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
 				<div>
-					<h1 className="text-2xl font-bold text-neutral-900">My Wishlist</h1>
+					<h1 className="text-2xl font-bold text-neutral-900">{wishlistText.myWishlistTitle}</h1>
 					<p className="mt-1 text-neutral-500">
-						{items.length} item{items.length !== 1 ? "s" : ""} saved
+						{wishlistText.itemsCount.replace("{count}", items.length.toString())}
 					</p>
 				</div>
 				{items.length > 0 && (
@@ -43,7 +44,7 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 						onClick={() => clearWishlist()}
 						className="text-sm font-medium text-neutral-600 hover:text-neutral-900"
 					>
-						Clear All
+						{wishlistText.clearAllButton}
 					</button>
 				)}
 			</div>
@@ -61,16 +62,16 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 							/>
 						</svg>
 					</div>
-					<h2 className="mt-6 text-xl font-semibold text-neutral-900">Your wishlist is empty</h2>
+					<h2 className="mt-6 text-xl font-semibold text-neutral-900">{wishlistText.emptyWishlistTitle}</h2>
 					<p className="mt-2 max-w-sm text-neutral-500">
-						Save items you love by clicking the heart icon on any product.
+						{wishlistText.emptyWishlistMessage}
 					</p>
 					<Link
 						href={`/${channel}/products`}
 						className="mt-6 inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-						style={{ backgroundColor: branding.colors.primary }}
+						style={{ backgroundColor: brandingConfig.colors.primary }}
 					>
-						Discover Products
+						{wishlistText.discoverProductsButton}
 						<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
 						</svg>
@@ -120,7 +121,7 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 										{!item.inStock && (
 											<div className="absolute inset-0 flex items-center justify-center bg-black/50">
 												<span className="rounded-full bg-white px-4 py-2 text-sm font-medium text-neutral-900">
-													Out of Stock
+													{wishlistText.outOfStock}
 												</span>
 											</div>
 										)}
@@ -135,7 +136,7 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 												removeItem(item.id);
 											}}
 											className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-md transition-colors hover:bg-red-50"
-											title="Remove from wishlist"
+											title={wishlistText.removeFromWishlistTooltip}
 											type="button"
 										>
 											<svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
@@ -169,14 +170,14 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 										<Link
 											href={`/${channel}/products/${item.slug}`}
 											className="flex-1 rounded-lg py-2.5 text-center text-sm font-semibold text-white transition-opacity hover:opacity-90"
-											style={{ backgroundColor: item.inStock ? branding.colors.primary : "#9ca3af" }}
+											style={{ backgroundColor: item.inStock ? brandingConfig.colors.primary : "#9ca3af" }}
 										>
-											{item.inStock ? "View Product" : "View Details"}
+											{item.inStock ? wishlistText.viewProduct : wishlistText.viewDetails}
 										</Link>
 										<button
 											onClick={() => removeItem(item.id)}
 											className="flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 py-2.5 text-neutral-600 transition-colors hover:bg-neutral-50 hover:text-red-600"
-											title="Remove"
+											title={wishlistText.removeFromWishlistTooltip}
 											type="button"
 										>
 											<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -190,7 +191,7 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 										</button>
 									</div>
 									<p className="mt-3 text-center text-xs text-neutral-400">
-										Added {new Date(item.addedAt).toLocaleDateString()}
+										{wishlistText.addedOn.replace("{date}", new Date(item.addedAt).toLocaleDateString())}
 									</p>
 								</div>
 							</div>

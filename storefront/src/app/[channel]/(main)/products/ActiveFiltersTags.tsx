@@ -3,9 +3,13 @@
 import { useProductFilters } from "@/hooks/useProductFilters";
 import { storeConfig } from "@/config";
 import { type FilterState } from "@/lib/filters";
+import { getChannelCurrencyClient } from "@/lib/channel-utils";
+import { getCurrencySymbol } from "@/lib/currency";
+import { useState, useEffect } from "react";
 
 interface ActiveFiltersTagsProps {
   filters: FilterState;
+  channel?: string;
   categories?: Array<{ slug: string; name: string; children?: Array<{ slug: string }> }>;
   collections?: Array<{ slug: string; name: string }>;
   brands?: Array<{ slug: string; name: string }>;
@@ -15,6 +19,7 @@ interface ActiveFiltersTagsProps {
 
 export function ActiveFiltersTags({ 
   filters, 
+  channel,
   categories = [],
   collections = [],
   brands = [],
@@ -22,6 +27,20 @@ export function ActiveFiltersTags({
   colors = []
 }: ActiveFiltersTagsProps) {
   const { toggleCategory, toggleCollection, toggleBrand, toggleSize, toggleColor, toggleInStock, toggleOnSale, updateFilters, clearAll } = useProductFilters();
+  const [currencyCode, setCurrencyCode] = useState<string>("");
+
+  // Fetch channel currency if channel is provided
+  useEffect(() => {
+    if (channel) {
+      getChannelCurrencyClient(channel).then((code) => {
+        // Normalize currency code (trim, handle empty)
+        const normalized = code?.trim() || "";
+        setCurrencyCode(normalized);
+      });
+    } else {
+      setCurrencyCode("");
+    }
+  }, [channel]);
 
   const getCategoryName = (slug: string): string => {
     // Check direct categories
@@ -139,8 +158,16 @@ export function ActiveFiltersTags({
           (filters.priceMax !== undefined && filters.priceMax !== null)) && (
           <FilterTag
             onRemove={() => updateFilters({ priceMin: undefined, priceMax: undefined })}
-            label={formatPriceRange(filters.priceMin, filters.priceMax)}
+            label={formatPriceRange(filters.priceMin, filters.priceMax, currencyCode)}
             type="price"
+          />
+        )}
+        
+        {filters.rating !== undefined && filters.rating !== null && (
+          <FilterTag
+            onRemove={() => updateFilters({ rating: undefined })}
+            label={`${filters.rating} ${filters.rating === 1 ? "star" : "stars"} & up`}
+            type="rating"
           />
         )}
       </div>
@@ -148,22 +175,9 @@ export function ActiveFiltersTags({
   );
 }
 
-function formatPriceRange(min: number | undefined, max: number | undefined): string {
-  // Get currency symbol (default to $ for USD)
-  const getCurrencySymbol = (code: string = "USD"): string => {
-    const symbols: Record<string, string> = {
-      USD: "$",
-      EUR: "€",
-      GBP: "£",
-      JPY: "¥",
-      CAD: "C$",
-      AUD: "A$",
-      ILS: "₪",
-    };
-    return symbols[code.toUpperCase()] || code.toUpperCase();
-  };
-
-  const currencySymbol = getCurrencySymbol("USD"); // TODO: Get from channel/context
+function formatPriceRange(min: number | undefined, max: number | undefined, currencyCode: string): string {
+  // Get currency symbol (handles ILS, NIS, name variants, case variations)
+  const currencySymbol = getCurrencySymbol(currencyCode) || currencyCode || "";
 
   if (min !== undefined && max !== undefined) {
     return `${currencySymbol}${min.toFixed(2)} - ${currencySymbol}${max.toFixed(2)}`;
@@ -182,7 +196,7 @@ function FilterTag({
 }: {
   label: string;
   onRemove: () => void;
-  type: "category" | "collection" | "brand" | "size" | "color" | "price" | "availability";
+  type: "category" | "collection" | "brand" | "size" | "color" | "price" | "availability" | "rating";
 }) {
   const { branding } = storeConfig;
   

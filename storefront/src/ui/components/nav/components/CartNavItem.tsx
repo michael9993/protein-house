@@ -1,12 +1,21 @@
 import clsx from "clsx";
 import * as Checkout from "@/lib/checkout";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
-import { storeConfig } from "@/config";
+import { fetchStorefrontConfig } from "@/lib/storefront-control/fetch-config";
 
 export const CartNavItem = async ({ channel }: { channel: string }) => {
 	const checkoutId = await Checkout.getIdFromCookies(channel);
-	const checkout = checkoutId ? await Checkout.find(checkoutId) : null;
-	const { branding } = storeConfig;
+	let checkout = null;
+	if (checkoutId) {
+		try {
+			checkout = await Checkout.find(checkoutId);
+		} catch (error) {
+			// Silently handle errors - checkout might not be accessible
+			console.warn('[CartNavItem] Could not load checkout:', error);
+		}
+	}
+	const config = await fetchStorefrontConfig(channel);
+	const { branding } = config;
 
 	const lineCount = checkout ? checkout.lines.reduce((result, line) => result + line.quantity, 0) : 0;
 

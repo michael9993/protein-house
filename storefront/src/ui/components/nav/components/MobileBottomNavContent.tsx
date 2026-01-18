@@ -1,10 +1,9 @@
 "use client";
 
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
-import { storeConfig } from "@/config";
+import { useBranding } from "@/providers/StoreConfigProvider";
 import { MobileCartButtonClient } from "./MobileCartButtonClient";
 import { MobileAccountButtonClient } from "./MobileAccountButtonClient";
-import clsx from "clsx";
 
 export function MobileBottomNavContent({ 
   channel, 
@@ -21,15 +20,15 @@ export function MobileBottomNavContent({
   isCart: boolean;
   isAccount: boolean;
 }) {
-  const { branding } = storeConfig;
+  const branding = useBranding();
 
   return (
     <nav 
       className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
       style={{
-        backgroundColor: `${branding.colors.background}f5`,
+        backgroundColor: "var(--store-mobile-nav-bg)",
         backdropFilter: "blur(12px)",
-        borderTop: `1px solid ${branding.colors.textMuted}15`,
+        borderTop: "1px solid var(--store-neutral-200)",
         boxShadow: "0 -2px 10px rgba(0, 0, 0, 0.05)",
       }}
     >
@@ -37,14 +36,10 @@ export function MobileBottomNavContent({
         {/* Home */}
         <LinkWithChannel
           href="/"
-          className={clsx(
-            "flex flex-col items-center justify-center gap-1 rounded-lg px-3 py-2 transition-all duration-200",
-            isHome
-              ? "text-white"
-              : "text-neutral-600"
-          )}
+          className="flex flex-col items-center justify-center gap-1 rounded-lg px-3 py-2 transition-all duration-200"
           style={{
             backgroundColor: isHome ? branding.colors.primary : "transparent",
+            color: isHome ? "#ffffff" : "var(--store-text-muted)",
           }}
         >
           <svg 
@@ -66,14 +61,10 @@ export function MobileBottomNavContent({
         {/* Shop All */}
         <LinkWithChannel
           href="/products"
-          className={clsx(
-            "flex flex-col items-center justify-center gap-1 rounded-lg px-3 py-2 transition-all duration-200",
-            isProducts
-              ? "text-white"
-              : "text-neutral-600"
-          )}
+          className="flex flex-col items-center justify-center gap-1 rounded-lg px-3 py-2 transition-all duration-200"
           style={{
             backgroundColor: isProducts ? branding.colors.primary : "transparent",
+            color: isProducts ? "#ffffff" : "var(--store-text-muted)",
           }}
         >
           <svg 

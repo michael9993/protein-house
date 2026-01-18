@@ -17,19 +17,35 @@ export const Button: FC<ButtonProps> = ({
 	type = "button",
 	ariaLabel,
 	ariaDisabled,
+	style,
 	...rest
 }) => {
 	const classes = clsx(
-		"inline-flex h-10 items-center justify-center whitespace-nowrap rounded border active:outline-none",
+		"inline-flex h-10 items-center justify-center whitespace-nowrap rounded border active:outline-none transition-colors",
 		{
-			"bg-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-700 text-white px-4 aria-disabled:cursor-not-allowed aria-disabled:opacity-70 hover:aria-disabled:bg-neutral-700":
+			// Primary: uses CSS variables from StoreConfigProvider
+			"text-white px-4 aria-disabled:cursor-not-allowed aria-disabled:opacity-70":
 				variant === "primary",
-			"border-neutral-600 hover:border-neutral-700 hover:bg-neutral-300 active:bg-neutral-300 disabled:border-neutral-300 aria-disabled:border-neutral-300 bg-transparent disabled:bg-transparent aria-disabled:bg-transparent px-4":
+			// Secondary: border style with theme-aware colors
+			"bg-transparent disabled:bg-transparent aria-disabled:bg-transparent px-4 aria-disabled:cursor-not-allowed aria-disabled:opacity-70":
 				variant === "secondary",
-			"h-auto border-none bg-transparent p-0": variant === "tertiary",
+			// Tertiary: text-only button
+			"h-auto border-none bg-transparent p-0 hover:opacity-80": variant === "tertiary",
 		},
 		className,
 	);
+
+	// Build dynamic styles for variants using CSS variables
+	const dynamicStyle: React.CSSProperties = {
+		...style,
+		...(variant === "primary" && {
+			backgroundColor: "var(--store-primary, #1F2937)",
+		}),
+		...(variant === "secondary" && {
+			borderColor: "var(--store-neutral-300)",
+			color: "var(--store-text)",
+		}),
+	};
 
 	return (
 		<button
@@ -37,6 +53,7 @@ export const Button: FC<ButtonProps> = ({
 			aria-disabled={ariaDisabled}
 			disabled={disabled}
 			className={classes}
+			style={dynamicStyle}
 			type={type === "submit" ? "submit" : "button"}
 			{...rest}
 		>

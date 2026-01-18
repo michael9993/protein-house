@@ -28,7 +28,7 @@ export const PasswordInputComponent = <TName extends string>({
 	return (
 		<div className="space-y-0.5">
 			<div className="flex flex-col">
-				<label className="text-xs text-neutral-700">
+				<label className="auth-label">
 					{label}
 					{required && <span aria-hidden="true">*</span>}
 					<div className="relative mt-1 flex items-stretch shadow-sm">
@@ -41,21 +41,21 @@ export const PasswordInputComponent = <TName extends string>({
 							{...field}
 							{...props}
 							className={clsx(
-								"block w-full appearance-none rounded-md border-neutral-300 pr-10 transition-colors focus:border-neutral-300 focus:outline-none focus:ring focus:ring-neutral-200 focus:ring-opacity-50 active:border-neutral-200 active:outline-none",
-								{ "border-red-300": error },
+								"auth-input pr-10",
 								props.className,
 							)}
+							style={error ? { borderColor: "var(--store-error)" } : undefined}
 						/>
 						<IconButton
 							ariaLabel="change password visibility"
 							onClick={() => setPasswordVisible(!passwordVisible)}
 							icon={passwordVisible ? <EyeIcon /> : <EyeHiddenIcon />}
-							className="absolute right-0 mt-px flex h-10 w-10 items-center justify-center rounded-md  text-center focus:border-neutral-300 focus:outline-none focus:ring focus:ring-neutral-200 focus:ring-opacity-50 active:border-neutral-200 active:outline-none"
+							className="absolute right-0 mt-px flex h-10 w-10 items-center justify-center rounded-md text-center focus:outline-none"
 						/>
 					</div>
 				</label>
 			</div>
-			{error && <p className="text-sm text-red-500">{error}</p>}
+			{error && <p className="text-sm" style={{ color: "var(--store-error)" }}>{error}</p>}
 		</div>
 	);
 };

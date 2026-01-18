@@ -83,6 +83,7 @@ export interface AppListViewSettings {
   [ListViews.WEBHOOK_LIST]: ListSettings;
   [ListViews.TRANSLATION_ATTRIBUTE_VALUE_LIST]: ListSettings;
   [ListViews.GIFT_CARD_LIST]: ListSettings;
+  [ListViews.REVIEW_LIST]: ListSettings;
   [ListViews.ORDER_DETAILS_LIST]: ListSettings;
   [ListViews.ORDER_DRAFT_DETAILS_LIST]: ListSettings;
   [ListViews.PRODUCT_DETAILS]: ListSettings;
@@ -175,6 +176,9 @@ export const defaultListSettings: AppListViewSettings = {
   [ListViews.GIFT_CARD_LIST]: {
     rowNumber: PAGINATE_BY,
     columns: ["giftCardCode", "status", "tag", "product", "usedBy", "balance"],
+  },
+  [ListViews.REVIEW_LIST]: {
+    rowNumber: PAGINATE_BY,
   },
   [ListViews.ORDER_DETAILS_LIST]: {
     rowNumber: PAGINATE_BY,

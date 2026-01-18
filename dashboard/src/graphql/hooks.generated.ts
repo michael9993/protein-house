@@ -16239,6 +16239,165 @@ export function useModelTypesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryH
 export type ModelTypesQueryHookResult = ReturnType<typeof useModelTypesQuery>;
 export type ModelTypesLazyQueryHookResult = ReturnType<typeof useModelTypesLazyQuery>;
 export type ModelTypesQueryResult = Apollo.QueryResult<Types.ModelTypesQuery, Types.ModelTypesQueryVariables>;
+export const ProductReviewDeleteDocument = gql`
+    mutation ProductReviewDelete($reviewId: ID!) {
+  productReviewDelete(reviewId: $reviewId) {
+    errors {
+      field
+      message
+    }
+    productErrors {
+      field
+      message
+    }
+    review {
+      id
+    }
+  }
+}
+    `;
+export type ProductReviewDeleteMutationFn = Apollo.MutationFunction<Types.ProductReviewDeleteMutation, Types.ProductReviewDeleteMutationVariables>;
+
+/**
+ * __useProductReviewDeleteMutation__
+ *
+ * To run a mutation, you first call `useProductReviewDeleteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useProductReviewDeleteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [productReviewDeleteMutation, { data, loading, error }] = useProductReviewDeleteMutation({
+ *   variables: {
+ *      reviewId: // value for 'reviewId'
+ *   },
+ * });
+ */
+export function useProductReviewDeleteMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<Types.ProductReviewDeleteMutation, Types.ProductReviewDeleteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<Types.ProductReviewDeleteMutation, Types.ProductReviewDeleteMutationVariables>(ProductReviewDeleteDocument, options);
+      }
+export type ProductReviewDeleteMutationHookResult = ReturnType<typeof useProductReviewDeleteMutation>;
+export type ProductReviewDeleteMutationResult = Apollo.MutationResult<Types.ProductReviewDeleteMutation>;
+export type ProductReviewDeleteMutationOptions = Apollo.BaseMutationOptions<Types.ProductReviewDeleteMutation, Types.ProductReviewDeleteMutationVariables>;
+export const ProductReviewUpdateDocument = gql`
+    mutation ProductReviewUpdate($input: ProductReviewUpdateInput!) {
+  productReviewUpdate(input: $input) {
+    errors {
+      field
+      message
+    }
+    productErrors {
+      field
+      message
+    }
+    review {
+      id
+      rating
+      title
+      body
+      images
+      status
+    }
+  }
+}
+    `;
+export type ProductReviewUpdateMutationFn = Apollo.MutationFunction<Types.ProductReviewUpdateMutation, Types.ProductReviewUpdateMutationVariables>;
+
+/**
+ * __useProductReviewUpdateMutation__
+ *
+ * To run a mutation, you first call `useProductReviewUpdateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useProductReviewUpdateMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [productReviewUpdateMutation, { data, loading, error }] = useProductReviewUpdateMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useProductReviewUpdateMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<Types.ProductReviewUpdateMutation, Types.ProductReviewUpdateMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<Types.ProductReviewUpdateMutation, Types.ProductReviewUpdateMutationVariables>(ProductReviewUpdateDocument, options);
+      }
+export type ProductReviewUpdateMutationHookResult = ReturnType<typeof useProductReviewUpdateMutation>;
+export type ProductReviewUpdateMutationResult = Apollo.MutationResult<Types.ProductReviewUpdateMutation>;
+export type ProductReviewUpdateMutationOptions = Apollo.BaseMutationOptions<Types.ProductReviewUpdateMutation, Types.ProductReviewUpdateMutationVariables>;
+export const ReviewsDocument = gql`
+    query Reviews($first: Int, $after: String, $filter: ProductReviewFilterInput) {
+  reviews(first: $first, after: $after, filter: $filter) {
+    edges {
+      node {
+        id
+        rating
+        title
+        body
+        images
+        helpfulCount
+        status
+        isVerifiedPurchase
+        createdAt
+        updatedAt
+        product {
+          id
+          name
+          slug
+        }
+        user {
+          id
+          email
+          firstName
+          lastName
+        }
+      }
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    totalCount
+  }
+}
+    `;
+
+/**
+ * __useReviewsQuery__
+ *
+ * To run a query within a React component, call `useReviewsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useReviewsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useReviewsQuery({
+ *   variables: {
+ *      first: // value for 'first'
+ *      after: // value for 'after'
+ *      filter: // value for 'filter'
+ *   },
+ * });
+ */
+export function useReviewsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<Types.ReviewsQuery, Types.ReviewsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<Types.ReviewsQuery, Types.ReviewsQueryVariables>(ReviewsDocument, options);
+      }
+export function useReviewsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<Types.ReviewsQuery, Types.ReviewsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<Types.ReviewsQuery, Types.ReviewsQueryVariables>(ReviewsDocument, options);
+        }
+export type ReviewsQueryHookResult = ReturnType<typeof useReviewsQuery>;
+export type ReviewsLazyQueryHookResult = ReturnType<typeof useReviewsLazyQuery>;
+export type ReviewsQueryResult = Apollo.QueryResult<Types.ReviewsQuery, Types.ReviewsQueryVariables>;
 export const GlobalSearchDocument = gql`
     query GlobalSearch($query: String!, $includeOrders: Boolean!, $includeCategories: Boolean!, $includeCollections: Boolean!, $includeProducts: Boolean!, $includeVariants: Boolean!, $includeModels: Boolean!, $includeModelTypes: Boolean!) {
   orders(first: 10, filter: {search: $query}) @include(if: $includeOrders) {

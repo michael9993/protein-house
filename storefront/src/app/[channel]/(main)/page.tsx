@@ -58,34 +58,34 @@ export default async function Page(
 		// Collections from Dashboard > Catalog > Collections
 		executeGraphQL(ProductListByCollectionDocument, {
 			variables: { slug: homepageCollections.featured, channel },
-			revalidate: 60,
+			revalidate: 30,
 		}).catch(() => ({ collection: null })),
 		
 		executeGraphQL(ProductListByCollectionDocument, {
 			variables: { slug: homepageCollections.newArrivals, channel },
-			revalidate: 60,
+			revalidate: 30,
 		}).catch(() => ({ collection: null })),
 		
 		executeGraphQL(ProductListByCollectionDocument, {
 			variables: { slug: homepageCollections.bestSellers, channel },
-			revalidate: 60,
+			revalidate: 30,
 		}).catch(() => ({ collection: null })),
 		
 		executeGraphQL(ProductListByCollectionDocument, {
 			variables: { slug: homepageCollections.sale, channel },
-			revalidate: 60,
+			revalidate: 30,
 		}).catch(() => ({ collection: null })),
 		
 		// Fallback products if collections don't exist
 		executeGraphQL(ProductListDocument, {
 			variables: { first: 16, channel },
-			revalidate: 60,
+			revalidate: 30,
 		}).catch(() => ({ products: null })),
 
 		// Categories from Dashboard > Catalog > Categories
 		executeGraphQL(CategoriesForHomepageDocument, {
 			variables: { channel, first: 8 },
-			revalidate: 60,
+			revalidate: 30,
 		}).catch(() => ({ categories: null })),
 
 		// CMS-controlled content from collection metadata

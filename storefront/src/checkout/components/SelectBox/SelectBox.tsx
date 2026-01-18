@@ -27,11 +27,14 @@ export const SelectBox = <TFieldName extends string>({
 	return (
 		<label
 			className={clsx(
-				"relative mb-2 flex cursor-pointer flex-row items-center justify-start rounded border border-neutral-400 px-3 py-2",
-				"hover:border hover:border-neutral-500",
-				{ "border border-neutral-500": selected, "pointer-events-none hover:border-neutral-400": disabled },
+				"relative mb-2 flex cursor-pointer flex-row items-center justify-start rounded border px-3 py-2",
+				{ "pointer-events-none": disabled },
 				className,
 			)}
+			style={{ 
+				borderColor: selected ? "var(--store-primary)" : "var(--store-neutral-400)",
+				backgroundColor: selected ? "var(--store-primary-light)" : undefined
+			}}
 		>
 			<input
 				type="radio"
@@ -39,7 +42,8 @@ export const SelectBox = <TFieldName extends string>({
 				onChange={handleChange}
 				value={value}
 				checked={selected}
-				className="rounded-full border-neutral-300 text-neutral-600 shadow-sm focus:border-neutral-300 focus:ring focus:ring-neutral-200 focus:ring-opacity-50 focus:ring-offset-0"
+				className="rounded-full shadow-sm"
+				style={{ borderColor: "var(--store-neutral-300)", color: "var(--store-primary)" }}
 			/>
 			<span className="ml-2 block w-full">{children}</span>
 		</label>

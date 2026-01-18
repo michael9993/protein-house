@@ -1,6 +1,6 @@
 "use client";
 
-import { useStoreConfig } from "@/providers/StoreConfigProvider";
+import { useStoreConfig, useContentConfig } from "@/providers/StoreConfigProvider";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 
 interface Brand {
@@ -52,10 +52,14 @@ const defaultBrands: Brand[] = [
 export function FeaturedBrands({
   brands = defaultBrands,
   cmsBrands = [],
-  title = "Shop by Brand",
-  subtitle = "Trusted by the world's best athletes",
+  title,
+  subtitle,
 }: FeaturedBrandsProps) {
   const { homepage, branding } = useStoreConfig();
+  const content = useContentConfig();
+  
+  const displayTitle = title || content.homepage.brandsTitle;
+  const displaySubtitle = subtitle || content.homepage.brandsSubtitle;
 
   // Don't render if disabled
   if (!homepage.sections.featuredBrands.enabled) {
@@ -84,13 +88,13 @@ export function FeaturedBrands({
             className="heading text-3xl font-bold tracking-tight sm:text-4xl"
             style={{ color: branding.colors.text }}
           >
-            {title}
+            {displayTitle}
           </h2>
           <p 
             className="mt-3 text-lg"
             style={{ color: branding.colors.textMuted }}
           >
-            {subtitle}
+            {displaySubtitle}
           </p>
         </div>
 

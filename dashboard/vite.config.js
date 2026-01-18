@@ -173,7 +173,9 @@ export default defineConfig(({ command, mode }) => {
             "localhost",
             "127.0.0.1",
             DASHBOARD_TUNNEL_URL, // Current tunnel domain
-            "sentence-completely-dude-stakeholders.trycloudflare.com", // Cloudflare tunnel host
+            "marijuana-fork-winds-burton.trycloudflare.com", // Cloudflare tunnel host
+            "marijuana-fork-winds-burton.trycloudflare.com",
+
             // Add more tunnel domains here as needed, or use a function pattern
           ]
         : undefined,
@@ -216,7 +218,8 @@ export default defineConfig(({ command, mode }) => {
         "localhost",
         "127.0.0.1",
         DASHBOARD_TUNNEL_URL,
-        "sentence-completely-dude-stakeholders.trycloudflare.com", // Cloudflare tunnel host
+        "marijuana-fork-winds-burton.trycloudflare.com", // Cloudflare tunnel host
+        "marijuana-fork-winds-burton.trycloudflare.com",
       ],
     },
     define: {
@@ -324,3 +327,6 @@ export default defineConfig(({ command, mode }) => {
     esbuild: { jsx: "automatic" },
   };
 });
+
+
+
