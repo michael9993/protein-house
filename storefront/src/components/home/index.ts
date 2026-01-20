@@ -14,4 +14,6 @@ export { ProductGrid } from './ProductGrid';
 export { FeaturedBrands } from './FeaturedBrands';
 export { Testimonials } from './Testimonials';
 export { NewsletterSignup } from './NewsletterSignup';
+export { InstagramFeed } from './InstagramFeed';
+export { SectionHeader } from './SectionHeader';
 

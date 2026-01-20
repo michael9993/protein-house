@@ -5,14 +5,17 @@ import { fetchStorefrontConfig } from "@/lib/storefront-control";
 import { storeConfig } from "@/config";
 
 export const NavLinks = async ({ channel }: { channel: string }) => {
-	const navLinks = await executeGraphQL(MenuGetBySlugDocument, {
-		variables: { slug: "navbar", channel },
-		revalidate: 60 * 60 * 24,
-	});
+	// Fetch both in parallel to reduce connection overhead
+	const [navLinks, dynamicConfig] = await Promise.all([
+		executeGraphQL(MenuGetBySlugDocument, {
+			variables: { slug: "navbar", channel },
+			revalidate: 60 * 60 * 24,
+		}),
+		fetchStorefrontConfig(channel).catch(() => null), // Fallback gracefully if config fetch fails
+	]);
 
 	// Fetch config for Shop All button text
-	const dynamicConfig = await fetchStorefrontConfig(channel);
-	const shopAllText = dynamicConfig.content?.filters?.shopAllButton || storeConfig.content?.filters?.shopAllButton || "Shop All";
+	const shopAllText = dynamicConfig?.content?.filters?.shopAllButton || storeConfig.content?.filters?.shopAllButton || "Shop All";
 
 	return (
 		<>

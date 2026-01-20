@@ -521,7 +521,12 @@ export default async function Page(props: {
   const filtersText = dynamicConfig.content?.filters || storeConfig.content?.filters || DEFAULT_FILTERS_TEXT;
 
 	return (
-		<div className="min-h-screen bg-white">
+		<div 
+			className="min-h-screen"
+			style={{
+				background: `linear-gradient(135deg, ${branding.colors.primary}08 0%, ${branding.colors.secondary}05 50%, ${branding.colors.background} 100%)`,
+			}}
+		>
 			<div className="flex">
 				{/* Left Sidebar - Narrower Width */}
 				<aside className="hidden lg:block lg:w-64 xl:w-72 lg:flex-shrink-0 lg:border-r lg:border-neutral-200">
@@ -605,7 +610,7 @@ export default async function Page(props: {
 							</div>
 							
 							{/* Search, Results & Sort */}
-							<div className="flex flex-1 items-center justify-between gap-4 sm:ml-auto lg:ml-0">
+							<div className="flex flex-1 items-center justify-between gap-4 sm:ms-auto lg:ms-0">
 								{/* Search Bar - Compact */}
 								<div className="flex-1 max-w-md">
 									<Suspense fallback={
@@ -621,13 +626,13 @@ export default async function Page(props: {
 										{filters.search ? (
 											<>
 												<span className="font-semibold text-neutral-900">{productCount.toLocaleString()}</span>
-												<span className="ml-1">for</span>
-												<span className="ml-1 font-semibold text-neutral-900">"{filters.search}"</span>
+												<span className="ms-1">{filtersText.searchForText || "for"}</span>
+												<span className="ms-1 font-semibold text-neutral-900">"{filters.search}"</span>
 											</>
 										) : (
 											<>
 												<span className="font-semibold text-neutral-900">{productCount.toLocaleString()}</span>
-												<span className="ml-1">{filtersText.resultsText}</span>
+												<span className="ms-1">{filtersText.resultsText}</span>
 											</>
 										)}
 									</div>

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import Link from "next/link";
-import { useBranding, useContentConfig } from "@/providers/StoreConfigProvider";
+import { StoreConfigContext } from "@/providers/StoreConfigProvider";
+import { storeConfig } from "@/config";
 
 export default function Error({
   error,
@@ -11,9 +12,31 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const brandingConfig = useBranding();
-  const content = useContentConfig();
-  const errorText = content.error!;
+  // Safely get context with fallback - use context directly to avoid hook errors
+  const context = useContext(StoreConfigContext);
+  const config = context || storeConfig;
+  
+  const brandingConfig = config.branding;
+  const contentConfig = config.content || {
+    error: {
+      title: "Something went wrong",
+      description: "We're sorry, but something unexpected happened. Please try again or contact support if the problem persists.",
+      errorDetails: "Error details",
+      tryAgainButton: "Try Again",
+      backToHomeButton: "Back to Home",
+      needHelpText: "Need help?",
+      contactSupportLink: "Contact our support team",
+    },
+  };
+  const errorText = contentConfig.error || {
+    title: "Something went wrong",
+    description: "We're sorry, but something unexpected happened. Please try again or contact support if the problem persists.",
+    errorDetails: "Error details",
+    tryAgainButton: "Try Again",
+    backToHomeButton: "Back to Home",
+    needHelpText: "Need help?",
+    contactSupportLink: "Contact our support team",
+  };
 
   useEffect(() => {
     // Log the error to an error reporting service

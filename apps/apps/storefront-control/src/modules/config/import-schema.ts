@@ -235,3 +235,54 @@ export function formatDiffValue(value: unknown): string {
   if (typeof value === "object") return JSON.stringify(value);
   return String(value);
 }
+
+export function applySelectedConfigChanges(
+  current: StorefrontConfig,
+  incoming: StorefrontConfig,
+  acceptedPaths: string[]
+): StorefrontConfig {
+  const next = cloneConfig(current);
+  for (const path of acceptedPaths) {
+    if (!path) continue;
+    const value = getValueAtPath(incoming, path);
+    setValueAtPath(next, path, value);
+  }
+  return next;
+}
+
+function cloneConfig(config: StorefrontConfig): StorefrontConfig {
+  if (typeof structuredClone === "function") {
+    return structuredClone(config) as StorefrontConfig;
+  }
+  return JSON.parse(JSON.stringify(config)) as StorefrontConfig;
+}
+
+function getValueAtPath(source: StorefrontConfig, path: string): unknown {
+  const parts = path.split(".");
+  let current: unknown = source;
+  for (const part of parts) {
+    if (current === null || typeof current !== "object") return undefined;
+    current = (current as Record<string, unknown>)[part];
+  }
+  return current;
+}
+
+function setValueAtPath(target: StorefrontConfig, path: string, value: unknown): void {
+  const parts = path.split(".");
+  const lastKey = parts.pop();
+  if (!lastKey) return;
+  let current: Record<string, unknown> = target as Record<string, unknown>;
+
+  for (const part of parts) {
+    const next = current[part];
+    if (next && typeof next === "object") {
+      current = next as Record<string, unknown>;
+    } else {
+      current[part] = {};
+      current = current[part] as Record<string, unknown>;
+    }
+  }
+
+  current[lastKey] = value as never;
+}
+

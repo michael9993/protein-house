@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { AppLayout } from "@/modules/ui/app-layout";
 import { SectionCard } from "@/modules/ui/section-card";
 import { FormField } from "@/modules/ui/form-field";
+import { StickySaveBar } from "@/modules/ui/sticky-save-bar";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { IntegrationsSchema } from "@/modules/config/schema";
 import type { StorefrontConfig } from "@/modules/config/schema";
@@ -44,13 +45,20 @@ const IntegrationsPage: NextPage = () => {
   };
 
   if (!appBridgeState?.ready || isLoading) {
-    return <Box display="flex" justifyContent="center" alignItems="center" height="100vh"><Text>Loading...</Text></Box>;
+    return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}><span>Loading...</span></div>;
   }
 
   return (
     <AppLayout channelSlug={channelSlug} channelName={config?.store.name} activeTab="integrations">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <SectionCard title="Analytics" description="Tracking and analytics integrations">
+        <SectionCard
+          id="integrations-analytics"
+          title="Analytics"
+          description="Tracking and analytics integrations"
+          keywords={["analytics", "google", "facebook", "hotjar"]}
+          icon="📊"
+        >
+
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
             <FormField
               label="Google Analytics ID"
@@ -84,7 +92,14 @@ const IntegrationsPage: NextPage = () => {
           </Box>
         </SectionCard>
 
-        <SectionCard title="Marketing" description="Email marketing and automation">
+        <SectionCard
+          id="integrations-marketing"
+          title="Marketing"
+          description="Email marketing and automation"
+          keywords={["mailchimp", "klaviyo"]}
+          icon="📧"
+        >
+
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
             <FormField
               label="Mailchimp List ID"
@@ -103,7 +118,14 @@ const IntegrationsPage: NextPage = () => {
           </Box>
         </SectionCard>
 
-        <SectionCard title="Customer Support" description="Live chat and support tools">
+        <SectionCard
+          id="integrations-support"
+          title="Customer Support"
+          description="Live chat and support tools"
+          keywords={["intercom", "zendesk", "crisp"]}
+          icon="💬"
+        >
+
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4}>
             <FormField
               label="Intercom App ID"
@@ -129,7 +151,14 @@ const IntegrationsPage: NextPage = () => {
           </Box>
         </SectionCard>
 
-        <SectionCard title="Social Media" description="Your social media profile URLs">
+        <SectionCard
+          id="integrations-social"
+          title="Social Media"
+          description="Your social media profile URLs"
+          keywords={["facebook", "instagram", "tiktok", "pinterest"]}
+          icon="🌐"
+        >
+
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
             <FormField
               label="Facebook"
@@ -182,15 +211,14 @@ const IntegrationsPage: NextPage = () => {
           </Box>
         </SectionCard>
 
-        <Box display="flex" justifyContent="flex-end" gap={2} marginTop={4}>
-          <Button type="button" variant="secondary" onClick={() => reset(config?.integrations)} disabled={!isDirty}>Reset</Button>
-          <Button type="submit" variant="primary" disabled={!isDirty || updateMutation.isLoading}>
-            {updateMutation.isLoading ? "Saving..." : "Save Changes"}
-          </Button>
-        </Box>
-
-        {updateMutation.isSuccess && <Text color="success1" marginTop={2}>✓ Changes saved successfully</Text>}
-        {updateMutation.isError && <Text color="critical1" marginTop={2}>Error saving changes. Please try again.</Text>}
+        <StickySaveBar
+          isDirty={isDirty}
+          isLoading={updateMutation.isLoading}
+          isSuccess={updateMutation.isSuccess}
+          isError={updateMutation.isError}
+          onReset={() => reset(config?.integrations)}
+          onSubmit={handleSubmit(onSubmit)}
+        />
       </form>
     </AppLayout>
   );

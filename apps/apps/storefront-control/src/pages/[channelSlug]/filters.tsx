@@ -10,6 +10,7 @@ import { z } from "zod";
 import { AppLayout } from "@/modules/ui/app-layout";
 import { SectionCard } from "@/modules/ui/section-card";
 import { FormField } from "@/modules/ui/form-field";
+import { StickySaveBar } from "@/modules/ui/sticky-save-bar";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { FiltersSchema, QuickFiltersSchema } from "@/modules/config/schema";
 
@@ -94,13 +95,19 @@ const FiltersPage: NextPage = () => {
   const isSubmitting = saveStatus === "saving";
 
   if (!appBridgeState?.ready || isLoading) {
-    return <Box display="flex" justifyContent="center" alignItems="center" height="100vh"><Text>Loading...</Text></Box>;
+    return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}><span>Loading...</span></div>;
   }
 
   return (
     <AppLayout channelSlug={channelSlug} channelName={config?.store.name} activeTab="filters">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <SectionCard title="Product Filters" description="Configure which filters appear in product listings">
+        <SectionCard
+          id="filters-main"
+          title="Product Filters"
+          description="Configure which filters appear in product listings"
+          keywords={["filters", "price", "rating", "brand", "size"]}
+        >
+
           <Box display="flex" alignItems="center" gap={3} marginBottom={4} paddingBottom={4} borderBottomWidth={1} borderBottomStyle="solid" borderColor="default2">
             <Controller
               name="filters.enabled"
@@ -219,7 +226,14 @@ const FiltersPage: NextPage = () => {
           </Box>
         </SectionCard>
 
-        <SectionCard title="Quick Filters" description="Visual filter cards at the top of product listings">
+        <SectionCard
+          id="quick-filters"
+          title="Quick Filters"
+          description="Visual filter cards at the top of product listings"
+          keywords={["quick filters", "categories", "collections", "brands"]}
+          icon="⚡"
+        >
+
           <Box display="flex" alignItems="center" gap={3} marginBottom={4} paddingBottom={4} borderBottomWidth={1} borderBottomStyle="solid" borderColor="default2">
             <Controller
               name="quickFilters.enabled"
@@ -329,15 +343,15 @@ const FiltersPage: NextPage = () => {
           </Box>
         </SectionCard>
 
-        <Box display="flex" justifyContent="flex-end" gap={2} marginTop={4}>
-          <Button type="button" variant="secondary" onClick={() => reset({ filters: config?.filters, quickFilters: config?.quickFilters })} disabled={!isDirty}>Reset</Button>
-          <Button type="submit" variant="primary" disabled={!isDirty || isSubmitting}>
-            {isSubmitting ? "Saving..." : "Save Changes"}
-          </Button>
-        </Box>
-
-        {saveStatus === "success" && <Text color="success1" marginTop={2}>✓ Changes saved successfully</Text>}
-        {saveStatus === "error" && <Text color="critical1" marginTop={2}>Error saving changes: {saveError || "Unknown error. Check console for details."}</Text>}
+        <StickySaveBar
+          isDirty={isDirty}
+          isLoading={saveStatus === "saving"}
+          isSuccess={saveStatus === "success"}
+          isError={saveStatus === "error"}
+          onReset={() => reset({ filters: config?.filters, quickFilters: config?.quickFilters })}
+          onSubmit={handleSubmit(onSubmit)}
+          errorMessage={saveError || "Error saving changes. Please try again."}
+        />
       </form>
     </AppLayout>
   );

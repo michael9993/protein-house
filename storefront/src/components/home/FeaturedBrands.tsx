@@ -1,7 +1,11 @@
 "use client";
 
+import React from "react";
 import { useStoreConfig, useContentConfig } from "@/providers/StoreConfigProvider";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { SectionHeader } from "./SectionHeader";
+import { generateSectionBackground, generatePatternOverlay, type SectionBackgroundConfig } from "@/lib/section-backgrounds";
 
 interface Brand {
   id: string;
@@ -76,53 +80,113 @@ export function FeaturedBrands({
       }))
     : brands;
 
+  const { elementRef, isVisible } = useScrollAnimation({ threshold: 0.1, rootMargin: "0px 0px -80px 0px" });
+
+  // Get background config
+  const backgroundConfig = homepage.sections.featuredBrands.background as SectionBackgroundConfig | undefined;
+  const backgroundStyles = generateSectionBackground(backgroundConfig, branding);
+  const patternOverlay = generatePatternOverlay(backgroundConfig, branding);
+
+  const sectionStyles: React.CSSProperties = {
+    ...backgroundStyles,
+    transform: isVisible ? 'translateY(0)' : 'translateY(16px)',
+    transition: 'opacity 300ms ease-out, transform 300ms ease-out',
+    willChange: isVisible ? 'auto' : 'transform, opacity',
+  };
+
   return (
     <section 
-      className="py-16 sm:py-20"
-      style={{ backgroundColor: branding.colors.surface }}
+      ref={elementRef}
+      className={`premium-band py-16 sm:py-20 transition-opacity duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      style={sectionStyles}
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center">
-          <h2 
-            className="heading text-3xl font-bold tracking-tight sm:text-4xl"
-            style={{ color: branding.colors.text }}
-          >
-            {displayTitle}
-          </h2>
-          <p 
-            className="mt-3 text-lg"
-            style={{ color: branding.colors.textMuted }}
-          >
-            {displaySubtitle}
-          </p>
+      {/* Pattern overlay for pattern backgrounds */}
+      {patternOverlay && (
+        <div className="absolute inset-0" style={{ opacity: (backgroundConfig?.patternOpacity ?? 10) / 100 }}>
+          <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id={patternOverlay.patternId} width="40" height="40" patternUnits="userSpaceOnUse">
+                {backgroundConfig?.patternType === "grid" && (
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke={branding.colors.text} strokeWidth="1"/>
+                )}
+                {backgroundConfig?.patternType === "dots" && (
+                  <circle cx="10" cy="10" r="1.5" fill={branding.colors.text}/>
+                )}
+                {backgroundConfig?.patternType === "lines" && (
+                  <path d="M 0 20 L 40 20" fill="none" stroke={branding.colors.text} strokeWidth="1"/>
+                )}
+                {backgroundConfig?.patternType === "waves" && (
+                  <>
+                    <path d="M 0 30 Q 15 20, 30 30 T 60 30" fill="none" stroke={branding.colors.text} strokeWidth="1"/>
+                    <path d="M 0 40 Q 15 50, 30 40 T 60 40" fill="none" stroke={branding.colors.text} strokeWidth="1"/>
+                  </>
+                )}
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill={`url(#${patternOverlay.patternId})`} />
+          </svg>
         </div>
+      )}
+      <div className="premium-band-content relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
+        <SectionHeader
+          title={displayTitle}
+          subtitle={displaySubtitle}
+          type="brands"
+          align="center"
+        />
 
         {/* Brands Grid */}
-        <div className="mt-12 grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6">
-          {displayBrands.map((brand) => (
-            <LinkWithChannel
-              key={brand.id}
-              href={`/collections/${brand.slug}`}
-              className="group flex items-center justify-center p-6 transition-all hover:scale-110"
-              style={{ 
-                backgroundColor: branding.colors.background,
-                borderRadius: `var(--store-radius)`,
-                border: `1px solid ${branding.colors.textMuted}20`,
-              }}
-            >
-              <div className="relative h-12 w-24 opacity-60 grayscale transition-all group-hover:opacity-100 group-hover:grayscale-0">
-                {/* Placeholder for brand logo */}
-                <div 
-                  className="flex h-full w-full items-center justify-center text-sm font-bold"
-                  style={{ color: branding.colors.textMuted }}
-                >
-                  {brand.name}
+          <div className="mt-12 grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-6">
+            {displayBrands.map((brand, index) => (
+              <LinkWithChannel
+                key={brand.id}
+                href={`/collections/${brand.slug}`}
+                className="group relative flex items-center justify-center overflow-hidden border border-neutral-200/50 bg-white p-6 transition-shadow duration-200 ease-out"
+                style={{ 
+                  borderRadius: `var(--store-radius)`,
+                  boxShadow: `0 4px 16px -4px ${branding.colors.primary}15`,
+                  transform: 'translateY(0)',
+                  transition: 'box-shadow 200ms ease-out, transform 200ms ease-out',
+                  willChange: 'transform',
+                }}
+                onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = '0 12px 24px -8px rgba(0,0,0,0.15)';
+                }}
+                onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = `0 4px 16px -4px ${branding.colors.primary}15`;
+                }}
+              >
+                <div
+                  className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                  style={{
+                    background: `linear-gradient(135deg, ${branding.colors.primary}08, transparent 60%)`,
+                  }}
+                />
+                <div className="relative h-12 w-24 opacity-60 grayscale transition-all duration-300 group-hover:opacity-100 group-hover:grayscale-0">
+                  <span
+                    className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide opacity-0 transition-all duration-300 group-hover:opacity-100"
+                    style={{
+                      backgroundColor: `${branding.colors.primary}20`,
+                      color: branding.colors.primary,
+                      border: `1px solid ${branding.colors.primary}40`,
+                    }}
+                  >
+                    Partner
+                  </span>
+                  {/* Placeholder for brand logo */}
+                  <div 
+                    className="flex h-full w-full items-center justify-center text-sm font-bold uppercase tracking-wide"
+                    style={{ color: branding.colors.textMuted }}
+                  >
+                    {brand.name}
+                  </div>
                 </div>
-              </div>
-            </LinkWithChannel>
-          ))}
-        </div>
+              </LinkWithChannel>
+            ))}
+          </div>
 
         {/* View All Brands */}
         <div className="mt-10 text-center">

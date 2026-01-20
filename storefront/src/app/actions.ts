@@ -120,6 +120,436 @@ export interface ProductReviewsResult {
   totalCount: number;
 }
 
+// Review with product info for testimonials
+export interface ReviewWithProduct extends ProductReview {
+  product?: {
+    id: string;
+    name: string;
+    slug: string;
+  } | null;
+}
+
+/**
+ * Debug helper: Fetch a specific review by ID to check its properties
+ */
+export async function getReviewById(reviewId: string): Promise<ProductReview | null> {
+  "use server";
+  
+  try {
+    const { getServerAuthClient } = await import("@/app/config");
+    const saleorApiUrl = process.env.SALEOR_API_URL || process.env.NEXT_PUBLIC_SALEOR_API_URL;
+    
+    if (!saleorApiUrl) {
+      console.error("[Get Review By ID] No API URL configured");
+      return null;
+    }
+
+    const authClient = await getServerAuthClient();
+    
+    // Try the review query (requires MANAGE_PRODUCTS permission)
+    const reviewQuery = `
+      query GetReview($id: ID!) {
+        review(id: $id) {
+          id
+          rating
+          title
+          body
+          images
+          helpfulCount
+          status
+          isVerifiedPurchase
+          createdAt
+          updatedAt
+          product {
+            id
+            name
+            slug
+          }
+          user {
+            id
+            email
+            firstName
+            lastName
+          }
+        }
+      }
+    `;
+
+    const response = await authClient.fetchWithAuth(saleorApiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: reviewQuery,
+        variables: { id: reviewId },
+      }),
+      next: { revalidate: 0 },
+    });
+
+    if (response.ok) {
+      const result = (await response.json()) as {
+        data?: { review?: ProductReview & { product?: { id: string; name: string; slug: string } } };
+        errors?: any[];
+      };
+      
+      if (result.data?.review) {
+        console.log(`[Get Review By ID] ✅ Found review:`, {
+          id: result.data.review.id,
+          rating: result.data.review.rating,
+          status: result.data.review.status,
+          product: result.data.review.product?.name,
+        });
+        return result.data.review;
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.error("[Get Review By ID] Error:", error);
+    return null;
+  }
+}
+
+/**
+ * Fetch reviews from multiple products (for testimonials section)
+ * Only returns reviews with rating >= 4
+ */
+export async function getAllProductReviews(
+  channel: string,
+  options?: {
+    limit?: number; // Max number of reviews to return
+    minRating?: number; // Minimum rating (default: 4)
+  }
+): Promise<ReviewWithProduct[]> {
+  "use server";
+  
+  try {
+    const { executeGraphQL } = await import("@/lib/graphql");
+    const { ProductListDocument } = await import("@/gql/graphql");
+    const minRating = options?.minRating ?? 4;
+    const limit = options?.limit ?? 50;
+    
+    console.log(`[All Product Reviews] 🔍 Starting fetch for channel "${channel}", minRating: ${minRating}, limit: ${limit}`);
+
+    // Use public queries (like getProductReviews does) - no auth needed for reviews
+    // Fetch products first, then reviews for each product
+    console.log(`[All Product Reviews] 🔄 Fetching products and reviews using public queries...`);
+    
+    // First, fetch products using public query (like getProductReviews does)
+    const productsResult = await executeGraphQL(ProductListDocument, {
+      variables: {
+        channel,
+        first: 50, // Fetch up to 50 products
+      },
+      revalidate: 60,
+      withAuth: false, // Products are public
+    }) as any;
+
+    const products = productsResult.products?.edges?.map(({ node }: any) => ({
+      id: node.id,
+      name: node.name,
+      slug: node.slug,
+    })) || [];
+    
+    console.log(`[All Product Reviews] 📦 Found ${products.length} products`);
+    
+    if (products.length === 0) {
+      console.warn("[All Product Reviews] ⚠️ No products found in channel");
+      return [];
+    }
+
+    // Now fetch reviews for each product
+    const allReviews: ReviewWithProduct[] = [];
+    
+    // Fetch reviews for products in batches (to avoid too many requests)
+    const batchSize = 10;
+    for (let i = 0; i < products.length; i += batchSize) {
+      const batch = products.slice(i, i + batchSize);
+      
+      // Fetch reviews for each product in the batch using public query (like getProductReviews does)
+      const reviewPromises = batch.map(async (product) => {
+        try {
+          // Use the same approach as getProductReviews - public query with executeGraphQL
+          const reviewResult = await getProductReviews(product.id, {
+            first: 50, // Get more reviews to filter in JS (productReviews only returns approved)
+            filterByRating: undefined, // Don't filter by rating here - we'll filter >= minRating in JS
+            filterByVerified: undefined,
+          });
+
+          if (!reviewResult) {
+            return [];
+          }
+
+          const allProductReviews = reviewResult.reviews || [];
+          
+          if (allProductReviews.length > 0) {
+            const statusCounts = allProductReviews.reduce((acc, r) => {
+              acc[r.status] = (acc[r.status] || 0) + 1;
+              return acc;
+            }, {} as Record<string, number>);
+            const ratingCounts = allProductReviews.reduce((acc, r) => {
+              acc[r.rating] = (acc[r.rating] || 0) + 1;
+              return acc;
+            }, {} as Record<number, number>);
+            console.log(`[All Product Reviews] 📊 Product "${product.name}": ${allProductReviews.length} approved reviews`);
+            console.log(`[All Product Reviews] 📊 Status breakdown:`, statusCounts);
+            console.log(`[All Product Reviews] 📊 Rating breakdown:`, ratingCounts);
+          } else {
+            console.log(`[All Product Reviews] ⚠️ Product "${product.name}": No approved reviews found`);
+          }
+
+          // NOTE: productReviews query only returns APPROVED reviews, so we don't need to filter by status
+          // We only filter by rating >= minRating
+          const reviews = allProductReviews
+            .filter((review) => {
+              const hasMinRating = review.rating >= minRating;
+              
+              if (!hasMinRating && allProductReviews.length > 0) {
+                console.log(`[All Product Reviews] ⚠️ Review ${review.id} excluded: rating ${review.rating} < ${minRating} (minRating: ${minRating})`);
+              }
+              
+              return hasMinRating;
+            })
+            .map((review) => ({
+              ...review,
+              product: {
+                id: product.id,
+                name: product.name,
+                slug: product.slug,
+              },
+            } as ReviewWithProduct));
+
+          if (reviews.length > 0) {
+            console.log(`[All Product Reviews] ✅ Product "${product.name}": ${reviews.length} reviews match criteria (rating >= ${minRating}, approved)`);
+          } else if (allProductReviews.length > 0) {
+            console.log(`[All Product Reviews] ⚠️ Product "${product.name}": ${allProductReviews.length} approved reviews found, but none have rating >= ${minRating}`);
+            console.log(`[All Product Reviews] 💡 Tip: Reviews need to be approved AND have rating >= ${minRating} to appear in testimonials`);
+          }
+
+          return reviews;
+        } catch (error) {
+          console.error(`[All Product Reviews] ❌ Error fetching reviews for product ${product.id} (${product.name}):`, error);
+          return [];
+        }
+      });
+
+      const batchResults = await Promise.all(reviewPromises);
+      const batchReviews = batchResults.flat();
+      allReviews.push(...batchReviews);
+      
+      console.log(`[All Product Reviews] Batch ${Math.floor(i / batchSize) + 1}: Found ${batchReviews.length} reviews (total so far: ${allReviews.length})`);
+
+      // If we have enough reviews, stop fetching
+      if (allReviews.length >= limit) {
+        break;
+      }
+    }
+
+    console.log(`[All Product Reviews] 📊 Total reviews collected: ${allReviews.length}`);
+
+    if (allReviews.length === 0) {
+      console.warn(`[All Product Reviews] ⚠️ No reviews found matching criteria (rating >= ${minRating}, approved status)`);
+      console.warn(`[All Product Reviews] 💡 Tip: Reviews must be:`);
+      console.warn(`[All Product Reviews]    1. APPROVED (pending reviews won't show up)`);
+      console.warn(`[All Product Reviews]    2. Have rating >= ${minRating} stars`);
+      console.warn(`[All Product Reviews]    3. Belong to a product in the channel "${channel}"`);
+      return [];
+    }
+
+    // Shuffle and limit
+    const shuffled = allReviews.sort(() => Math.random() - 0.5);
+    const result = shuffled.slice(0, limit);
+    
+    const statusBreakdown = result.reduce((acc, r) => {
+      acc[r.status] = (acc[r.status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    
+    console.log(`[All Product Reviews] ✅ Returning ${result.length} reviews (from ${allReviews.length} total, minRating: ${minRating})`);
+    console.log(`[All Product Reviews] 📊 Status breakdown:`, statusBreakdown);
+    
+    return result;
+  } catch (error) {
+    console.error("[All Product Reviews] ❌ Fatal error:", error);
+    if (error instanceof Error) {
+      console.error("[All Product Reviews] Error message:", error.message);
+      console.error("[All Product Reviews] Error stack:", error.stack);
+    }
+    return [];
+  }
+}
+
+/**
+ * Get store statistics (average rating, customer count, orders delivered, satisfaction rate)
+ * Calculated from actual data
+ */
+export async function getStoreStatistics(channel: string): Promise<{
+  averageRating: number;
+  customerCount: number;
+  ordersDelivered: number;
+  satisfactionRate: number; // Percentage of 4+ star reviews
+}> {
+  "use server";
+  
+  try {
+    const { getServerAuthClient } = await import("@/app/config");
+    const saleorApiUrl = process.env.SALEOR_API_URL || process.env.NEXT_PUBLIC_SALEOR_API_URL;
+    
+    if (!saleorApiUrl) {
+      console.error("[Store Statistics] No API URL configured");
+      return { averageRating: 0, customerCount: 0, ordersDelivered: 0, satisfactionRate: 0 };
+    }
+
+    const authClient = await getServerAuthClient();
+    
+    console.log(`[Store Statistics] 🔍 Calculating statistics for channel "${channel}"...`);
+
+    // Fetch all reviews to calculate average rating and satisfaction rate
+    const allReviews = await getAllProductReviews(channel, {
+      limit: 1000, // Get as many as possible for accurate stats
+      minRating: 1, // Get all ratings, not just 4+
+    });
+
+    console.log(`[Store Statistics] 📊 Total reviews fetched: ${allReviews.length}`);
+
+    // Filter to only approved reviews for statistics
+    const approvedReviews = allReviews.filter(r => 
+      r.status === "approved" || r.status === "APPROVED"
+    );
+
+    console.log(`[Store Statistics] ✅ Approved reviews: ${approvedReviews.length}`);
+
+    // Calculate average rating from approved reviews only
+    const averageRating = approvedReviews.length > 0
+      ? approvedReviews.reduce((sum, review) => sum + review.rating, 0) / approvedReviews.length
+      : 0;
+
+    // Calculate satisfaction rate (percentage of 4+ star reviews)
+    const fourPlusStarReviews = approvedReviews.filter(r => r.rating >= 4).length;
+    const satisfactionRate = approvedReviews.length > 0
+      ? Math.round((fourPlusStarReviews / approvedReviews.length) * 100)
+      : 0;
+
+    console.log(`[Store Statistics] ⭐ Average rating: ${averageRating.toFixed(2)} (from ${approvedReviews.length} approved reviews)`);
+    console.log(`[Store Statistics] 🏆 Satisfaction rate: ${satisfactionRate}% (${fourPlusStarReviews}/${approvedReviews.length} are 4+ stars)`);
+
+    // For customer count and orders, we need to query the API
+    // Note: These queries might require permissions, so we'll try to get them
+    // If they fail, we'll use fallback values
+    let customerCount = 0;
+    let ordersDelivered = 0;
+
+    try {
+      // Try to get customer count (this might require permissions)
+      const customersQuery = `
+        query CustomerCount($channel: String!) {
+          customers(first: 1, filter: { dateJoined: { gte: "1970-01-01" } }) {
+            totalCount
+          }
+        }
+      `;
+
+      const customersResponse = await authClient.fetchWithAuth(saleorApiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: customersQuery,
+          variables: { channel },
+        }),
+        next: { revalidate: 300 }, // Cache for 5 minutes
+      });
+
+      if (customersResponse.ok) {
+        const customersResult = (await customersResponse.json()) as {
+          data?: { customers?: { totalCount?: number } };
+          errors?: any[];
+        };
+        
+        if (!customersResult.errors && customersResult.data?.customers?.totalCount !== undefined) {
+          customerCount = customersResult.data.customers.totalCount;
+        }
+      }
+    } catch (error) {
+      console.warn("[Store Statistics] Could not fetch customer count (requires MANAGE_USERS permission):", error);
+      // Use unique user count from reviews as fallback
+      const uniqueUsers = new Set(approvedReviews.map(r => r.user?.id).filter(Boolean));
+      customerCount = uniqueUsers.size > 0 ? uniqueUsers.size : (approvedReviews.length > 0 ? approvedReviews.length : 0);
+      console.log(`[Store Statistics] Using fallback customer count from reviews: ${customerCount} (${uniqueUsers.size} unique users, ${approvedReviews.length} total reviews)`);
+    }
+    
+    // If customer count is still 0 but we have reviews, use review count as estimate
+    if (customerCount === 0 && approvedReviews.length > 0) {
+      customerCount = approvedReviews.length;
+      console.log(`[Store Statistics] Using review count as customer count estimate: ${customerCount}`);
+    }
+
+    try {
+      // Try to get orders count (this requires MANAGE_ORDERS permission, might fail)
+      const ordersQuery = `
+        query OrdersCount($channel: String!) {
+          orders(first: 1, channel: $channel, filter: { status: [FULFILLED, PARTIALLY_FULFILLED] }) {
+            totalCount
+          }
+        }
+      `;
+
+      const ordersResponse = await authClient.fetchWithAuth(saleorApiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: ordersQuery,
+          variables: { channel },
+        }),
+        next: { revalidate: 300 }, // Cache for 5 minutes
+      });
+
+      if (ordersResponse.ok) {
+        const ordersResult = (await ordersResponse.json()) as {
+          data?: { orders?: { totalCount?: number } };
+          errors?: any[];
+        };
+        
+        if (!ordersResult.errors && ordersResult.data?.orders?.totalCount !== undefined) {
+          ordersDelivered = ordersResult.data.orders.totalCount;
+        }
+      }
+    } catch (error) {
+      console.warn("[Store Statistics] Could not fetch orders count (requires MANAGE_ORDERS permission):", error);
+      // Use verified purchase count as fallback estimate
+      const verifiedPurchases = approvedReviews.filter(r => r.isVerifiedPurchase).length;
+      ordersDelivered = verifiedPurchases > 0 ? verifiedPurchases : (approvedReviews.length > 0 ? approvedReviews.length : 0);
+      console.log(`[Store Statistics] Using fallback orders count: ${ordersDelivered} (${verifiedPurchases} verified purchases, ${approvedReviews.length} total reviews)`);
+    }
+    
+    // If orders delivered is still 0 but we have reviews, use review count as estimate
+    if (ordersDelivered === 0 && approvedReviews.length > 0) {
+      ordersDelivered = approvedReviews.length;
+      console.log(`[Store Statistics] Using review count as orders delivered estimate: ${ordersDelivered}`);
+    }
+
+    const finalStats = {
+      averageRating: Math.round(averageRating * 10) / 10, // Round to 1 decimal
+      customerCount,
+      ordersDelivered,
+      satisfactionRate,
+    };
+
+    console.log(`[Store Statistics] ✅ Final stats:`, {
+      ...finalStats,
+      totalApprovedReviews: approvedReviews.length,
+      totalReviews: allReviews.length,
+    });
+
+    return finalStats;
+  } catch (error) {
+    console.error("[Store Statistics] ❌ Error:", error);
+    if (error instanceof Error) {
+      console.error("[Store Statistics] Error message:", error.message);
+      console.error("[Store Statistics] Error stack:", error.stack);
+    }
+    return { averageRating: 0, customerCount: 0, ordersDelivered: 0, satisfactionRate: 0 };
+  }
+}
+
 /**
  * Fetch product reviews from the server
  */

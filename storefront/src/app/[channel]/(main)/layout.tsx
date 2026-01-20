@@ -7,11 +7,28 @@ import { executeGraphQL } from "@/lib/graphql";
 import { homepageCollections } from "@/lib/cms";
 import { StoreConfigProvider } from "@/providers/StoreConfigProvider";
 import { fetchStorefrontConfig } from "@/lib/storefront-control";
+import { ConfigSync } from "@/components/ConfigSync";
+import { PageTransition } from "@/components/PageTransition";
+import { DirectionSetter } from "@/components/DirectionSetter";
+import { resolveDirection } from "@/lib/direction";
 
-export const metadata = {
-	title: "Saleor Storefront example",
-	description: "Starter pack for building performant e-commerce experiences with Saleor.",
-};
+/**
+ * Generate metadata with direction attribute to prevent FOUC
+ */
+export async function generateMetadata(props: { params: Promise<{ channel: string }> }) {
+	const channel = (await props.params).channel;
+	const storeConfig = await fetchStorefrontConfig(channel);
+	const resolvedDirection = resolveDirection(storeConfig);
+	const resolvedLocale = storeConfig.localization?.defaultLocale || 'en-US';
+
+	return {
+		title: "Saleor Storefront example",
+		description: "Starter pack for building performant e-commerce experiences with Saleor.",
+		other: {
+			// This will be set via the blocking script, but we include it here for reference
+		},
+	};
+}
 
 /**
  * Fetch sale products to determine if there are active promotions
@@ -98,11 +115,38 @@ export default async function RootLayout(props: {
 		fetchStorefrontConfig(channel),
 	]);
 
+	// Debug logging to verify config is loaded
+	console.log(`[RootLayout] 📦 Config loaded for channel "${channel}":`);
+	console.log(`[RootLayout]    Store name: ${storeConfig.store.name}`);
+	console.log(`[RootLayout]    Store tagline: ${storeConfig.store.tagline}`);
+	console.log(`[RootLayout]    Primary color: ${storeConfig.branding.colors.primary}`);
+	console.log(`[RootLayout]    Direction: ${storeConfig.localization?.direction || "auto"}`);
+	console.log(`[RootLayout]    Default locale: ${storeConfig.localization?.defaultLocale || "en-US"}`);
+
+	// Resolve direction server-side (for blocking script and logging)
+	const resolvedDirection = resolveDirection(storeConfig);
+	const resolvedLocale = storeConfig.localization?.defaultLocale || 'en-US';
+
 	return (
-		<StoreConfigProvider config={storeConfig}>
-			<Header channel={channel} />
+		<>
+			{/* Blocking inline script - runs synchronously before React hydration */}
+			{/* This prevents FOUC by setting direction immediately */}
+			<script
+				dangerouslySetInnerHTML={{
+					__html: `document.documentElement.setAttribute('dir','${resolvedDirection}');document.documentElement.setAttribute('lang','${resolvedLocale}');`,
+				}}
+			/>
+			<StoreConfigProvider config={storeConfig}>
+				{/* Client-side direction setter - backup and for dynamic updates */}
+				<DirectionSetter config={storeConfig} />
+				<ConfigSync channel={channel} />
+				<Header channel={channel} />
 			<div className="flex min-h-[calc(100dvh-64px)] flex-col pb-16 md:pb-0">
-				<main className="flex-1">{props.children}</main>
+				<main className="flex-1">
+					<PageTransition>
+						{props.children}
+					</PageTransition>
+				</main>
 				<Footer channel={channel} />
 			</div>
 			{/* Promotion Popup - only renders client-side if there are active sales */}
@@ -115,6 +159,7 @@ export default async function RootLayout(props: {
 				promotionName={promoData.promotionName}
 				backgroundImage={promoData.backgroundImage}
 			/>
-		</StoreConfigProvider>
+			</StoreConfigProvider>
+		</>
 	);
 }

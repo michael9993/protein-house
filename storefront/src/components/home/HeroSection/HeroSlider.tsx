@@ -77,9 +77,10 @@ export function HeroSlider({
       {slides.map((slide, index) => (
         <div
           key={index}
-          className={`absolute inset-0 transition-opacity duration-500 ${
+          className={`absolute inset-0 transition-opacity duration-300 ease-out ${
             index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
           }`}
+          style={{ willChange: 'opacity' }}
         >
           {/* Background Image */}
           <Image
@@ -102,11 +103,16 @@ export function HeroSlider({
           {/* Content */}
           <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-center px-4 sm:px-6 lg:px-8">
             <div 
-              className={`max-w-2xl transition-all duration-500 ${
+              className={`max-w-2xl transition-opacity duration-300 ease-out ${
                 index === currentSlide 
-                  ? "translate-y-0 opacity-100" 
-                  : "translate-y-8 opacity-0"
+                  ? "opacity-100" 
+                  : "opacity-0"
               }`}
+              style={{
+                transform: index === currentSlide ? 'translateY(0)' : 'translateY(16px)',
+                transition: 'opacity 300ms ease-out, transform 300ms ease-out',
+                willChange: 'transform, opacity',
+              }}
             >
               <h1 
                 className="heading text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl"
@@ -119,7 +125,8 @@ export function HeroSlider({
               <div className="mt-8">
                 <LinkWithChannel
                   href={slide.ctaLink}
-                  className="btn-primary inline-flex items-center gap-2 px-8 py-4 text-lg font-semibold transition-all hover:scale-105"
+                  className="btn-primary inline-flex items-center gap-2 px-8 py-4 text-lg font-semibold transition-transform duration-200 ease-out hover:scale-[1.02]"
+                  style={{ willChange: 'transform' }}
                   style={{ backgroundColor: branding.colors.primary }}
                 >
                   {slide.ctaText}

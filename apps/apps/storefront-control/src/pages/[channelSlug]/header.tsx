@@ -1,5 +1,5 @@
+import React from "react";
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
-import { Box, Text, Button, Checkbox } from "@saleor/macaw-ui";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useForm, Controller } from "react-hook-form";
@@ -9,6 +9,8 @@ import { useEffect, useState } from "react";
 import { AppLayout } from "@/modules/ui/app-layout";
 import { SectionCard } from "@/modules/ui/section-card";
 import { FormField, SelectField } from "@/modules/ui/form-field";
+import { StickySaveBar } from "@/modules/ui/sticky-save-bar";
+import { SimpleCheckbox } from "@/modules/ui/simple-checkbox";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { HeaderSchema } from "@/modules/config/schema";
 import type { StorefrontConfig } from "@/modules/config/schema";
@@ -71,9 +73,9 @@ const HeaderPage: NextPage = () => {
 
   if (!appBridgeState?.ready || isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-        <Text>Loading...</Text>
-      </Box>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+        <span>Loading...</span>
+      </div>
     );
   }
 
@@ -84,54 +86,36 @@ const HeaderPage: NextPage = () => {
     <AppLayout channelSlug={channelSlug} channelName={config?.store.name} activeTab="header">
       <form onSubmit={handleSubmit(onSubmit)}>
         <SectionCard 
+          id="header-banner"
           title="Promotional Banner" 
           description="Configure the banner that appears above your header"
+          keywords={["header", "banner", "announcement"]}
+          icon="📢"
         >
+
           {/* Banner Preview */}
           {bannerEnabled && (
-            <Box 
-              marginBottom={4}
-              padding={3}
-              borderRadius={2}
-              __textAlign="center"
+            <div 
               style={{ 
+                marginBottom: "24px",
+                padding: "12px",
+                textAlign: "center",
                 backgroundColor: bannerBgColor || primaryColor,
                 color: bannerTextColor || "#FFFFFF",
               }}
             >
-              <Text variant="caption" style={{ color: "inherit" }}>
+              <span style={{ fontSize: "13px", color: "inherit" }}>
                 {bannerText || "Your banner text will appear here"}
-              </Text>
-            </Box>
+              </span>
+            </div>
           )}
 
-          <Box 
-            display="flex" 
-            alignItems="center" 
-            gap={3} 
-            marginBottom={4}
-            paddingBottom={4}
-            borderBottomWidth={1}
-            borderBottomStyle="solid"
-            borderColor="default2"
-          >
-            <Controller
-              name="banner.enabled"
-              control={control}
-              render={({ field }) => (
-                <Checkbox
-                  checked={field.value === true}
-                  onCheckedChange={(checked) => field.onChange(checked)}
-                />
-              )}
-            />
-            <Box>
-              <Text variant="bodyStrong">Enable Promotional Banner</Text>
-              <Text variant="caption" color="default2">
-                Show a promotional message above the header
-              </Text>
-            </Box>
-          </Box>
+          <SimpleCheckbox
+            name="banner.enabled"
+            control={control}
+            label="Enable Promotional Banner"
+            description="Show a promotional message above the header"
+          />
 
           <FormField
             label="Banner Text"
@@ -142,8 +126,8 @@ const HeaderPage: NextPage = () => {
             description="The message to display in the banner"
           />
 
-          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginTop={4}>
-            <Box>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "24px" }}>
+            <div>
               <FormField
                 label="Background Color"
                 name="banner.backgroundColor"
@@ -152,11 +136,11 @@ const HeaderPage: NextPage = () => {
                 type="color"
                 description="Leave empty to use primary brand color"
               />
-              <Text variant="caption" color="default2" marginTop={1}>
+              <p style={{ fontSize: "12px", color: "#666", marginTop: "8px", margin: "8px 0 0 0" }}>
                 Default: {primaryColor}
-              </Text>
-            </Box>
-            <Box>
+              </p>
+            </div>
+            <div>
               <FormField
                 label="Text Color"
                 name="banner.textColor"
@@ -165,40 +149,27 @@ const HeaderPage: NextPage = () => {
                 type="color"
                 description="Leave empty for white text"
               />
-              <Text variant="caption" color="default2" marginTop={1}>
+              <p style={{ fontSize: "12px", color: "#666", marginTop: "8px", margin: "8px 0 0 0" }}>
                 Default: #FFFFFF
-              </Text>
-            </Box>
-          </Box>
+              </p>
+            </div>
+          </div>
         </SectionCard>
 
-        <SectionCard 
-          title="Header Layout" 
+        <SectionCard
+          id="header-layout"
+          title="Header Layout"
           description="Configure how your header appears"
+          keywords={["logo", "header", "store name"]}
+          icon="📐"
         >
-          <Box 
-            display="flex" 
-            alignItems="center" 
-            gap={3} 
-            marginBottom={4}
-          >
-            <Controller
-              name="showStoreName"
-              control={control}
-              render={({ field }) => (
-                <Checkbox
-                  checked={field.value === true}
-                  onCheckedChange={(checked) => field.onChange(checked)}
-                />
-              )}
-            />
-            <Box>
-              <Text variant="bodyStrong">Show Store Name</Text>
-              <Text variant="caption" color="default2">
-                Display the store name next to the logo on mobile
-              </Text>
-            </Box>
-          </Box>
+
+          <SimpleCheckbox
+            name="showStoreName"
+            control={control}
+            label="Show Store Name"
+            description="Display the store name next to the logo on mobile"
+          />
 
           <SelectField
             label="Logo Position"
@@ -212,30 +183,14 @@ const HeaderPage: NextPage = () => {
           />
         </SectionCard>
 
-        <Box display="flex" justifyContent="flex-end" gap={2} marginTop={4}>
-          <Button 
-            type="button" 
-            variant="secondary" 
-            onClick={() => reset(config?.header)} 
-            disabled={!isDirty}
-          >
-            Reset
-          </Button>
-          <Button 
-            type="submit" 
-            variant="primary" 
-            disabled={!isDirty || updateMutation.isLoading}
-          >
-            {updateMutation.isLoading ? "Saving..." : "Save Changes"}
-          </Button>
-        </Box>
-
-        {saveStatus === "success" && (
-          <Text color="success1" marginTop={2}>✓ Changes saved successfully</Text>
-        )}
-        {saveStatus === "error" && (
-          <Text color="critical1" marginTop={2}>Error saving changes. Please try again.</Text>
-        )}
+        <StickySaveBar
+          isDirty={isDirty}
+          isLoading={updateMutation.isLoading}
+          isSuccess={saveStatus === "success"}
+          isError={saveStatus === "error"}
+          onReset={() => reset(config?.header)}
+          onSubmit={handleSubmit(onSubmit)}
+        />
       </form>
     </AppLayout>
   );

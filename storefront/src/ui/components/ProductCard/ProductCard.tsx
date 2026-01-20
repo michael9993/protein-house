@@ -197,9 +197,9 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
           {wishlistEnabled && cardConfig.showWishlistButton && (
             <button
               onClick={handleWishlistClick}
-              className={`absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-md transition-all duration-200 sm:right-3 sm:top-3 sm:h-9 sm:w-9 ${
-                isWishlisted ? "text-red-500" : "text-neutral-400 hover:text-red-500"
-              } ${isHovered || isWishlisted ? "opacity-100" : "opacity-0"}`}
+              className={`absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-md transition-all duration-200 sm:right-3 sm:top-3 sm:h-9 sm:w-9 ${
+                isWishlisted ? "text-red-500 opacity-100" : "text-neutral-400 opacity-70 hover:text-red-500 hover:opacity-100"
+              }`}
               aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
             >
               <svg 

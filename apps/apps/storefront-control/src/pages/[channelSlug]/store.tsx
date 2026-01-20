@@ -1,5 +1,4 @@
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
-import { Box, Text, Button } from "@saleor/macaw-ui";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
@@ -10,6 +9,7 @@ import { z } from "zod";
 import { AppLayout } from "@/modules/ui/app-layout";
 import { SectionCard } from "@/modules/ui/section-card";
 import { FormField, SelectField, CheckboxField } from "@/modules/ui/form-field";
+import { StickySaveBar } from "@/modules/ui/sticky-save-bar";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { StoreSchema, LocalizationSchema, DarkModeSchema } from "@/modules/config/schema";
 import type { StorefrontConfig } from "@/modules/config/schema";
@@ -94,17 +94,23 @@ const StoreInfoPage: NextPage = () => {
 
   if (!appBridgeState?.ready || isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-        <Text>Loading...</Text>
-      </Box>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+        <span>Loading...</span>
+      </div>
     );
   }
 
   return (
     <AppLayout channelSlug={channelSlug} channelName={config?.store.name} activeTab="store">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <SectionCard title="Basic Information" description="Your store's identity and contact details">
-          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+        <SectionCard
+          id="store-basic"
+          title="Basic Information"
+          description="Your store's identity and contact details"
+          keywords={["store", "name", "tagline", "type", "description"]}
+          icon="🏪"
+        >
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <FormField
               label="Store Name"
               name="store.name"
@@ -120,7 +126,7 @@ const StoreInfoPage: NextPage = () => {
               errors={errors}
               placeholder="Quality products, great prices"
             />
-          </Box>
+          </div>
           
           <SelectField
             label="Store Type"
@@ -146,8 +152,14 @@ const StoreInfoPage: NextPage = () => {
           />
         </SectionCard>
 
-        <SectionCard title="Contact Information">
-          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+        <SectionCard
+          id="store-contact"
+          title="Contact Information"
+          description="Customer-facing support details"
+          keywords={["contact", "email", "phone", "support"]}
+          icon="📞"
+        >
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <FormField
               label="Email"
               name="store.email"
@@ -164,10 +176,16 @@ const StoreInfoPage: NextPage = () => {
               errors={errors}
               placeholder="+1 (555) 123-4567"
             />
-          </Box>
+          </div>
         </SectionCard>
 
-        <SectionCard title="Address" description="Your physical store or business address">
+        <SectionCard
+          id="store-address"
+          title="Address"
+          description="Your physical store or business address"
+          keywords={["address", "street", "city", "zip", "country"]}
+          icon="📍"
+        >
           <FormField
             label="Street Address"
             name="store.address.street"
@@ -175,7 +193,7 @@ const StoreInfoPage: NextPage = () => {
             errors={errors}
             placeholder="123 Main Street"
           />
-          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <FormField
               label="City"
               name="store.address.city"
@@ -190,8 +208,8 @@ const StoreInfoPage: NextPage = () => {
               errors={errors}
               placeholder="NY"
             />
-          </Box>
-          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <FormField
               label="ZIP/Postal Code"
               name="store.address.zip"
@@ -206,11 +224,17 @@ const StoreInfoPage: NextPage = () => {
               errors={errors}
               placeholder="United States"
             />
-          </Box>
+          </div>
         </SectionCard>
 
-        <SectionCard title="Localization" description="Language, direction, and regional settings">
-          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+        <SectionCard
+          id="store-localization"
+          title="Localization"
+          description="Language, direction, and regional settings"
+          keywords={["locale", "direction", "rtl", "time", "date"]}
+          icon="🌍"
+        >
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <FormField
               label="Default Locale"
               name="localization.defaultLocale"
@@ -219,19 +243,16 @@ const StoreInfoPage: NextPage = () => {
               placeholder="en-US"
               description="e.g., en-US, he-IL, ar"
             />
-            <SelectField
-              label="Text Direction"
-              name="localization.direction"
+            <FormField
+              label="Supported Locales"
+              name="localization.supportedLocales"
               register={register}
-              options={[
-                { value: "auto", label: "Auto (detect from locale)" },
-                { value: "ltr", label: "Left-to-Right" },
-                { value: "rtl", label: "Right-to-Left" },
-              ]}
-              description="Auto detects Hebrew, Arabic, Persian, Urdu, Yiddish, Pashto"
+              errors={errors}
+              placeholder="en-US, fr-FR, es-ES"
+              description="Comma-separated list"
             />
-          </Box>
-          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <FormField
               label="Date Format"
               name="localization.dateFormat"
@@ -244,72 +265,92 @@ const StoreInfoPage: NextPage = () => {
               name="localization.timeFormat"
               register={register}
               options={[
-                { value: "12h", label: "12-hour (AM/PM)" },
+                { value: "12h", label: "12-hour" },
                 { value: "24h", label: "24-hour" },
               ]}
             />
-          </Box>
+          </div>
+          <SelectField
+            label="Direction"
+            name="localization.direction"
+            register={register}
+            options={[
+              { value: "auto", label: "Auto (based on locale)" },
+              { value: "ltr", label: "Left to Right" },
+              { value: "rtl", label: "Right to Left" },
+            ]}
+          />
+          <FormField
+            label="RTL Locales"
+            name="localization.rtlLocales"
+            register={register}
+            errors={errors}
+            placeholder="he, ar, fa"
+            description="Locales that should render right-to-left when direction is auto"
+          />
         </SectionCard>
 
-        <SectionCard title="Dark Mode" description="Configure dark mode appearance">
-          <Box display="flex" flexDirection="column" gap={4}>
-            <Box display="flex" gap={4}>
-              <CheckboxField
-                label="Enable Dark Mode"
-                name="darkMode.enabled"
+        <SectionCard
+          id="store-dark-mode"
+          title="Dark Mode"
+          description="Configure dark mode appearance"
+          keywords={["dark mode", "theme", "colors"]}
+          icon="🌙"
+        >
+          <CheckboxField
+            label="Enable Dark Mode"
+            name="darkMode.enabled"
+            register={register}
+            description="Allow users to switch to dark mode"
+          />
+          {darkModeEnabled && (
+            <div style={{ marginTop: "16px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+              <FormField
+                label="Dark Background"
+                name="darkMode.colors.background"
                 register={register}
-                description="Allow users to use dark mode"
+                errors={errors}
+                type="color"
               />
-              <CheckboxField
-                label="Auto (System Preference)"
-                name="darkMode.auto"
+              <FormField
+                label="Dark Surface"
+                name="darkMode.colors.surface"
                 register={register}
-                description="Follow user's system preference"
+                errors={errors}
+                type="color"
               />
-            </Box>
-            
-            {darkModeEnabled && (
-              <Box>
-                <Text variant="bodyStrong" marginBottom={2}>Dark Mode Colors</Text>
-                <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr 1fr" gap={4}>
-                  <FormField label="Background" name="darkMode.colors.background" register={register} errors={errors} type="color" />
-                  <FormField label="Surface" name="darkMode.colors.surface" register={register} errors={errors} type="color" />
-                  <FormField label="Text" name="darkMode.colors.text" register={register} errors={errors} type="color" />
-                  <FormField label="Text Muted" name="darkMode.colors.textMuted" register={register} errors={errors} type="color" />
-                </Box>
-              </Box>
-            )}
-          </Box>
+              <FormField
+                label="Dark Text"
+                name="darkMode.colors.text"
+                register={register}
+                errors={errors}
+                type="color"
+              />
+              <FormField
+                label="Dark Muted Text"
+                name="darkMode.colors.textMuted"
+                register={register}
+                errors={errors}
+                type="color"
+              />
+            </div>
+          )}
+          <CheckboxField
+            label="Auto Dark Mode"
+            name="darkMode.auto"
+            register={register}
+            description="Match the user's system preference"
+          />
         </SectionCard>
 
-        <Box display="flex" justifyContent="flex-end" gap={2} marginTop={4}>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => config && reset({ store: config.store, localization: config.localization, darkMode: config.darkMode })}
-            disabled={!isDirty}
-          >
-            Reset
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            disabled={!isDirty || isSubmitting}
-          >
-            {isSubmitting ? "Saving..." : "Save Changes"}
-          </Button>
-        </Box>
-
-        {isSuccess && (
-          <Text color="success1" marginTop={2}>
-            ✓ Changes saved successfully
-          </Text>
-        )}
-        {hasError && (
-          <Text color="critical1" marginTop={2}>
-            Error saving changes. Please try again.
-          </Text>
-        )}
+        <StickySaveBar
+          isDirty={isDirty}
+          isLoading={isSubmitting}
+          isSuccess={isSuccess}
+          isError={hasError}
+          onReset={() => config && reset({ store: config.store, localization: config.localization, darkMode: config.darkMode })}
+          onSubmit={handleSubmit(onSubmit)}
+        />
       </form>
     </AppLayout>
   );

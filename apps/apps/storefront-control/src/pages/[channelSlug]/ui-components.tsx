@@ -1,5 +1,5 @@
+import React from "react";
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
-import { Box, Text, Button } from "@saleor/macaw-ui";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { AppLayout } from "@/modules/ui/app-layout";
 import { SectionCard } from "@/modules/ui/section-card";
 import { FormField, SelectField } from "@/modules/ui/form-field";
+import { StickySaveBar } from "@/modules/ui/sticky-save-bar";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { UiSchema } from "@/modules/config/schema";
 import type { StorefrontConfig } from "@/modules/config/schema";
@@ -80,9 +81,9 @@ const UiComponentsPage: NextPage = () => {
 
   if (!appBridgeState?.ready || isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-        <Text>Loading...</Text>
-      </Box>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+        <span>Loading...</span>
+      </div>
     );
   }
 
@@ -90,8 +91,14 @@ const UiComponentsPage: NextPage = () => {
     <AppLayout channelSlug={channelSlug} channelName={config?.store.name} activeTab="ui-components">
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Buttons Section */}
-        <SectionCard title="Buttons" description="Customize button appearance across your store">
-          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+        <SectionCard
+          id="ui-buttons"
+          title="Buttons"
+          description="Customize button appearance across your store"
+          keywords={["buttons", "primary", "secondary", "outline"]}
+        >
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <SelectField
               label="Border Radius"
               name="buttons.borderRadius"
@@ -100,11 +107,11 @@ const UiComponentsPage: NextPage = () => {
               options={borderRadiusOptions}
               description="Roundness of button corners"
             />
-          </Box>
+          </div>
 
-          <Box marginTop={6}>
-            <Text variant="heading" as="h4" marginBottom={4}>Primary Button</Text>
-            <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+          <div style={{ marginTop: "48px" }}>
+            <h4 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", margin: "0 0 24px 0" }}>Primary Button</h4>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
               <FormField
                 label="Background Color"
                 name="buttons.primary.backgroundColor"
@@ -129,12 +136,12 @@ const UiComponentsPage: NextPage = () => {
                 type="color"
                 description="Background on hover"
               />
-            </Box>
-          </Box>
+            </div>
+          </div>
 
-          <Box marginTop={6}>
-            <Text variant="heading" as="h4" marginBottom={4}>Secondary Button</Text>
-            <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+          <div style={{ marginTop: "48px" }}>
+            <h4 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", margin: "0 0 24px 0" }}>Secondary Button</h4>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
               <FormField
                 label="Background Color"
                 name="buttons.secondary.backgroundColor"
@@ -157,12 +164,12 @@ const UiComponentsPage: NextPage = () => {
                 errors={errors}
                 type="color"
               />
-            </Box>
-          </Box>
+            </div>
+          </div>
 
-          <Box marginTop={6}>
-            <Text variant="heading" as="h4" marginBottom={4}>Outline Button</Text>
-            <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+          <div style={{ marginTop: "48px" }}>
+            <h4 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", margin: "0 0 24px 0" }}>Outline Button</h4>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
               <FormField
                 label="Text Color"
                 name="buttons.outline.textColor"
@@ -178,13 +185,20 @@ const UiComponentsPage: NextPage = () => {
                 errors={errors}
                 type="color"
               />
-            </Box>
-          </Box>
+            </div>
+          </div>
         </SectionCard>
 
         {/* Badges Section */}
-        <SectionCard title="Badges" description="Product badges and tags styling">
-          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+        <SectionCard
+          id="ui-badges"
+          title="Badges"
+          description="Product badges and tags styling"
+          keywords={["badges", "sale", "new", "discount"]}
+          icon="🏷️"
+        >
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <SelectField
               label="Border Radius"
               name="badges.borderRadius"
@@ -192,11 +206,11 @@ const UiComponentsPage: NextPage = () => {
               errors={errors}
               options={borderRadiusOptions}
             />
-          </Box>
+          </div>
 
-          <Box marginTop={6}>
-            <Text variant="heading" as="h4" marginBottom={4}>Sale Badge</Text>
-            <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+          <div style={{ marginTop: "48px" }}>
+            <h4 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", margin: "0 0 24px 0" }}>Sale Badge</h4>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
               <FormField
                 label="Background Color"
                 name="badges.sale.backgroundColor"
@@ -211,12 +225,12 @@ const UiComponentsPage: NextPage = () => {
                 errors={errors}
                 type="color"
               />
-            </Box>
-          </Box>
+            </div>
+          </div>
 
-          <Box marginTop={6}>
-            <Text variant="heading" as="h4" marginBottom={4}>New Badge</Text>
-            <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+          <div style={{ marginTop: "48px" }}>
+            <h4 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", margin: "0 0 24px 0" }}>New Badge</h4>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
               <FormField
                 label="Background Color"
                 name="badges.new.backgroundColor"
@@ -231,12 +245,12 @@ const UiComponentsPage: NextPage = () => {
                 errors={errors}
                 type="color"
               />
-            </Box>
-          </Box>
+            </div>
+          </div>
 
-          <Box marginTop={6}>
-            <Text variant="heading" as="h4" marginBottom={4}>Out of Stock Badge</Text>
-            <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+          <div style={{ marginTop: "48px" }}>
+            <h4 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", margin: "0 0 24px 0" }}>Out of Stock Badge</h4>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
               <FormField
                 label="Background Color"
                 name="badges.outOfStock.backgroundColor"
@@ -251,13 +265,19 @@ const UiComponentsPage: NextPage = () => {
                 errors={errors}
                 type="color"
               />
-            </Box>
-          </Box>
+            </div>
+          </div>
         </SectionCard>
 
         {/* Inputs Section */}
-        <SectionCard title="Form Inputs" description="Input field styling">
-          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+        <SectionCard
+          id="ui-inputs"
+          title="Form Inputs"
+          description="Input field styling"
+          keywords={["inputs", "fields", "focus"]}
+        >
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <SelectField
               label="Border Radius"
               name="inputs.borderRadius"
@@ -288,12 +308,19 @@ const UiComponentsPage: NextPage = () => {
               type="color"
               description="Ring/glow color when focused"
             />
-          </Box>
+          </div>
         </SectionCard>
 
         {/* Product Cards Section */}
-        <SectionCard title="Product Cards" description="Product card appearance">
-          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+        <SectionCard
+          id="ui-product-cards"
+          title="Product Cards"
+          description="Product card appearance"
+          keywords={["product cards", "quick view", "wishlist"]}
+          icon="🃏"
+        >
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <SelectField
               label="Border Radius"
               name="productCard.borderRadius"
@@ -325,12 +352,18 @@ const UiComponentsPage: NextPage = () => {
                 { value: "shadow", label: "Shadow increase" },
               ]}
             />
-          </Box>
+          </div>
         </SectionCard>
 
         {/* Toasts Section */}
-        <SectionCard title="Toast Notifications" description="Notification styling">
-          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+        <SectionCard
+          id="ui-toasts"
+          title="Toast Notifications"
+          description="Notification styling"
+          keywords={["toast", "notifications", "alerts"]}
+        >
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <SelectField
               label="Position"
               name="toasts.position"
@@ -353,11 +386,11 @@ const UiComponentsPage: NextPage = () => {
               errors={errors}
               options={borderRadiusOptions}
             />
-          </Box>
+          </div>
 
-          <Box marginTop={6}>
-            <Text variant="heading" as="h4" marginBottom={4}>Toast Colors</Text>
-            <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4}>
+          <div style={{ marginTop: "48px" }}>
+            <h4 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", margin: "0 0 24px 0" }}>Toast Colors</h4>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
               <FormField
                 label="Success Background"
                 name="toasts.successColor"
@@ -379,13 +412,20 @@ const UiComponentsPage: NextPage = () => {
                 errors={errors}
                 type="color"
               />
-            </Box>
-          </Box>
+            </div>
+          </div>
         </SectionCard>
 
         {/* Icons Section */}
-        <SectionCard title="Icons" description="Icon styling preferences">
-          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+        <SectionCard
+          id="ui-icons"
+          title="Icons"
+          description="Icon styling preferences"
+          keywords={["icons", "outline", "solid"]}
+          icon="🎨"
+        >
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <SelectField
               label="Icon Style"
               name="icons.style"
@@ -401,39 +441,17 @@ const UiComponentsPage: NextPage = () => {
               type="color"
               description="Default icon color"
             />
-          </Box>
+          </div>
         </SectionCard>
 
-        {/* Submit */}
-        <Box display="flex" justifyContent="flex-end" gap={4} marginTop={6}>
-          <Button
-            type="button"
-            variant="tertiary"
-            onClick={() => reset(config?.ui)}
-            disabled={!isDirty}
-          >
-            Reset
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            disabled={!isDirty || updateMutation.isPending}
-          >
-            {updateMutation.isPending ? "Saving..." : "Save Changes"}
-          </Button>
-        </Box>
-
-        {/* Status Messages */}
-        {updateMutation.isSuccess && (
-          <Text color="success1" marginTop={2}>
-            Changes saved successfully
-          </Text>
-        )}
-        {updateMutation.isError && (
-          <Text color="critical1" marginTop={2}>
-            Error saving changes. Please try again.
-          </Text>
-        )}
+        <StickySaveBar
+          isDirty={isDirty}
+          isLoading={updateMutation.isPending}
+          isSuccess={updateMutation.isSuccess}
+          isError={updateMutation.isError}
+          onReset={() => reset(config?.ui)}
+          onSubmit={handleSubmit(onSubmit)}
+        />
       </form>
     </AppLayout>
   );

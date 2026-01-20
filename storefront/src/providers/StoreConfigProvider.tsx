@@ -27,8 +27,46 @@ interface StoreConfigProviderProps {
 
 export function StoreConfigProvider({
   children,
-  config = storeConfig,
+  config: initialConfig = storeConfig,
 }: StoreConfigProviderProps) {
+  // Use state to allow dynamic updates
+  const [config, setConfig] = React.useState<StoreConfig>(initialConfig);
+
+  // Update config when initialConfig prop changes (e.g., from server-side fetch)
+  useEffect(() => {
+    setConfig(initialConfig);
+  }, [initialConfig]);
+
+  // Listen for real-time config updates from useConfigSync hook
+  useEffect(() => {
+    const handleConfigUpdate = (event: Event) => {
+      const customEvent = event as CustomEvent<{ channel: string; config: StoreConfig }>;
+      if (customEvent.detail?.config) {
+        const newConfig = customEvent.detail.config;
+        console.log("[StoreConfigProvider] 🔄 Real-time config update received");
+        console.log("[StoreConfigProvider]    Store name:", newConfig.store.name);
+        console.log("[StoreConfigProvider]    Primary color:", newConfig.branding.colors.primary);
+        
+        // Always update - don't check if it's the same, React will handle re-renders efficiently
+        setConfig(newConfig);
+      }
+    };
+
+    window.addEventListener('storefront-config-updated', handleConfigUpdate);
+
+    return () => {
+      window.removeEventListener('storefront-config-updated', handleConfigUpdate);
+    };
+  }, []);
+
+  // Debug logging to verify config is received
+  useEffect(() => {
+    console.log("[StoreConfigProvider] 🎨 Applying config:");
+    console.log("[StoreConfigProvider]    Store name:", config.store.name);
+    console.log("[StoreConfigProvider]    Primary color:", config.branding.colors.primary);
+    console.log("[StoreConfigProvider]    Direction:", config.localization?.direction || "auto");
+  }, [config]);
+
   // Generate CSS variables from config
   const cssVariables = useMemo(() => getThemeCSSVariables(config), [config]);
 
@@ -47,7 +85,8 @@ export function StoreConfigProvider({
     };
   }, [cssVariables]);
 
-  // Handle RTL/LTR direction
+  // Handle RTL/LTR direction (for dynamic updates)
+  // Note: Initial direction is set server-side via blocking script to prevent FOUC
   useEffect(() => {
     const root = document.documentElement;
     const localization = config.localization;
@@ -64,12 +103,13 @@ export function StoreConfigProvider({
       resolvedDir = direction;
     }
     
-    root.dir = resolvedDir;
-    root.lang = defaultLocale;
-    
-    return () => {
-      root.dir = 'ltr';
-    };
+    // Only update if different from current (prevents unnecessary updates)
+    if (root.dir !== resolvedDir) {
+      root.dir = resolvedDir;
+    }
+    if (root.lang !== defaultLocale) {
+      root.lang = defaultLocale;
+    }
   }, [config.localization]);
 
   // Handle dark mode
@@ -528,6 +568,15 @@ const DEFAULT_CONTENT_CONFIG = {
     brandsSubtitle: "Shop your favorite brands",
     testimonialsTitle: "What Our Customers Say",
     testimonialsSubtitle: "Real reviews from real customers",
+    averageRatingLabel: "Average Rating",
+    happyCustomersLabel: "Happy Customers",
+    satisfactionRateLabel: "Satisfaction Rate",
+    ordersDeliveredLabel: "Orders Delivered",
+    verifiedPurchaseLabel: "Verified Purchase",
+    loadingReviewsText: "Loading reviews...",
+    noReviewsAvailableText: "No reviews available yet. Be the first to review our products!",
+    noReviewsSubtext: "Reviews will appear here once customers start leaving feedback.",
+    noApprovedReviewsText: "No approved reviews with 4+ stars yet. {count} review(s) pending approval.",
     heroCtaText: "Shop Now",
     heroSecondaryCtaText: "Browse Categories",
     // Category cards
@@ -613,6 +662,7 @@ const DEFAULT_CONTENT_CONFIG = {
     itemsAvailable: "items available",
     productsPageTitle: "All Products",
     discoverProducts: "Discover Products",
+    searchForText: "for",  // Text between count and search query (e.g., "10 for 'shoes'")
     
     // Sort dropdown
     sortByLabel: "Sort by:",
@@ -796,6 +846,51 @@ const DEFAULT_CONTENT_CONFIG = {
     universalTrackers: "Universal Trackers (Recommended)",
     directCarrierLinks: "Direct Carrier Links",
     loading: "Loading...",
+    // Order Details Page
+    backToOrders: "Back to Orders",
+    placedOn: "Placed on",
+    orderItemsTitle: "Order Items",
+    viewProduct: "View Product",
+    orderSummaryTitle: "Order Summary",
+    subtotalLabel: "Subtotal",
+    shippingLabel: "Shipping",
+    shippingFree: "Free",
+    totalLabelDetails: "Total",
+    shippingAddressTitle: "Shipping Address",
+    billingAddressTitle: "Billing Address",
+    shipmentTrackingTitle: "Shipment Tracking",
+    statusLabelDetails: "Status",
+    trackingNumberLabelDetails: "Tracking #",
+    invoiceTitle: "Invoice",
+    invoiceNumberPrefix: "Invoice #",
+    downloadButton: "Download",
+    generatingText: "Generating...",
+    unavailableText: "Unavailable",
+    quickActionsTitle: "Quick Actions",
+    needHelpTitle: "Need Help?",
+    contactSupportButton: "Contact Support",
+    viewFaqsButton: "View FAQs",
+    // Order Status Labels
+    statusProcessing: "Processing",
+    statusPartiallyShipped: "Partially Shipped",
+    statusShipped: "Shipped",
+    statusDelivered: "Delivered",
+    statusCanceled: "Canceled",
+    statusReturned: "Returned",
+    // Payment Status Labels
+    paymentPending: "Pending",
+    paymentPartiallyPaid: "Partially Paid",
+    paymentPaid: "Paid",
+    paymentPartiallyRefunded: "Partially Refunded",
+    paymentRefunded: "Refunded",
+    paymentFailed: "Payment Failed",
+    paymentCancelled: "Cancelled",
+    // Reorder Button
+    reorderItems: "Reorder Items",
+    addingToCart: "Adding to Cart...",
+    itemsAddedToCart: "{count} item(s) added to cart!",
+    redirectingToCart: "Redirecting to cart...",
+    tryAgain: "Try Again",
   },
   addresses: {
     myAddresses: "My Addresses",

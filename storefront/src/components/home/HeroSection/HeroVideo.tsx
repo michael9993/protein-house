@@ -53,16 +53,28 @@ export function HeroVideo({
       >
         {/* Animated gradient orbs */}
         <div 
-          className="absolute -left-20 -top-20 h-[500px] w-[500px] animate-pulse rounded-full opacity-30 blur-3xl"
+          className="absolute -left-20 -top-20 h-[500px] w-[500px] rounded-full opacity-30 blur-3xl"
+          style={{
+            animation: 'pulse 4s ease-in-out infinite',
+            willChange: 'opacity',
+          }}
           style={{ backgroundColor: branding.colors.primary }}
         />
         <div 
-          className="absolute -bottom-20 -right-20 h-[400px] w-[400px] animate-pulse rounded-full opacity-20 blur-3xl"
-          style={{ backgroundColor: branding.colors.accent, animationDelay: '1s' }}
+          className="absolute -bottom-20 -right-20 h-[400px] w-[400px] rounded-full opacity-20 blur-3xl"
+          style={{ 
+            backgroundColor: branding.colors.accent, 
+            animation: 'pulse 4s ease-in-out infinite 1s',
+            willChange: 'opacity',
+          }}
         />
         <div 
-          className="absolute left-1/2 top-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full opacity-10 blur-3xl"
-          style={{ backgroundColor: '#00D4FF', animationDelay: '2s' }}
+          className="absolute left-1/2 top-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-10 blur-3xl"
+          style={{ 
+            backgroundColor: '#00D4FF', 
+            animation: 'pulse 4s ease-in-out infinite 2s',
+            willChange: 'opacity',
+          }}
         />
         
         {/* Grid pattern overlay */}
@@ -90,7 +102,7 @@ export function HeroVideo({
             poster={posterImage}
             onLoadedData={() => setIsLoaded(true)}
             onError={() => setHasVideo(false)}
-            className={`h-full w-full object-cover transition-opacity duration-1000 ${
+            className={`h-full w-full object-cover transition-opacity duration-300 ease-out ${
               isLoaded ? "opacity-100" : "opacity-0"
             }`}
           >
@@ -157,7 +169,8 @@ export function HeroVideo({
           <div className="mt-10 flex flex-wrap gap-4">
             <LinkWithChannel
               href={ctaLink}
-              className="group inline-flex items-center gap-3 rounded-full px-8 py-4 text-lg font-bold text-white transition-all hover:scale-105 hover:shadow-lg"
+              className="group inline-flex items-center gap-3 rounded-full px-8 py-4 text-lg font-bold text-white transition-transform duration-200 ease-out hover:scale-[1.02] hover:shadow-lg"
+              style={{ willChange: 'transform' }}
               style={{ 
                 backgroundColor: branding.colors.primary,
                 boxShadow: `0 4px 20px ${branding.colors.primary}60`,

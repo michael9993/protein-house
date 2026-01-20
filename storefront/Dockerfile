@@ -32,10 +32,48 @@ ENV NEXT_PUBLIC_STOREFRONT_URL=${NEXT_PUBLIC_STOREFRONT_URL}
 ARG NEXT_PUBLIC_DEFAULT_CHANNEL
 ENV NEXT_PUBLIC_DEFAULT_CHANNEL=${NEXT_PUBLIC_DEFAULT_CHANNEL}
 
+# Storefront Control config generation
+# These args are optional - if not provided, the script will use defaults or fail gracefully
+# Prioritize tunnel URLs for build-time fetching (needed when building outside Docker network)
+ARG STOREFRONT_CONTROL_APP_TUNNEL_URL
+ARG STOREFRONT_CONTROL_APP_URL
+ARG STOREFRONT_CONTROL_URL
+ARG STOREFRONT_CONTROL_APP_INTERNAL_URL
+ARG SALEOR_API_URL
+ARG STOREFRONT_CHANNELS
+ENV STOREFRONT_CONTROL_APP_TUNNEL_URL=${STOREFRONT_CONTROL_APP_TUNNEL_URL}
+ENV STOREFRONT_CONTROL_APP_URL=${STOREFRONT_CONTROL_APP_URL}
+ENV STOREFRONT_CONTROL_URL=${STOREFRONT_CONTROL_URL}
+ENV STOREFRONT_CONTROL_APP_INTERNAL_URL=${STOREFRONT_CONTROL_APP_INTERNAL_URL}
+ENV SALEOR_API_URL=${SALEOR_API_URL}
+ENV STOREFRONT_CHANNELS=${STOREFRONT_CHANNELS}
+
 # Get PNPM version from package.json
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
+
+# Generate fallback config file before building (if script exists and env vars are set)
+# This is optional - if it fails, the build continues and will use defaults
+# The script generates the file in the project root, so we copy it to the storefront directory
+# Tunnel URLs are prioritized for build-time fetching (needed when building outside Docker network)
+RUN if [ -f "../scripts/fetch-storefront-config.ts" ] && [ -n "${SALEOR_API_URL}" ]; then \
+      echo "🔍 Generating storefront config fallback file (using tunnel URL if available)..." && \
+      cd .. && \
+      (STOREFRONT_CONTROL_APP_TUNNEL_URL="${STOREFRONT_CONTROL_APP_TUNNEL_URL}" \
+       STOREFRONT_CONTROL_APP_URL="${STOREFRONT_CONTROL_APP_URL}" \
+       STOREFRONT_CONTROL_URL="${STOREFRONT_CONTROL_URL}" \
+       STOREFRONT_CONTROL_APP_INTERNAL_URL="${STOREFRONT_CONTROL_APP_INTERNAL_URL}" \
+       SALEOR_API_URL="${SALEOR_API_URL}" \
+       STOREFRONT_CHANNELS="${STOREFRONT_CHANNELS}" \
+       node scripts/fetch-storefront-config.ts && \
+       if [ -f "storefront-cms-config.json" ]; then \
+         cp storefront-cms-config.json storefront/storefront-cms-config.json && \
+         echo "✅ Config file generated and copied to storefront directory"; \
+       fi) || echo "⚠️  Config generation failed, continuing with defaults"; \
+    else \
+      echo "ℹ️  Skipping config generation (script not found or SALEOR_API_URL not set)"; \
+    fi
 
 RUN pnpm build
 
@@ -65,6 +103,17 @@ RUN chown nextjs:nodejs .next
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Copy fallback config file if it exists (generated during build in builder stage)
+# Use RUN with mount to conditionally copy the file
+RUN --mount=from=builder,source=/app,target=/tmp/builder \
+    if [ -f /tmp/builder/storefront-cms-config.json ]; then \
+      cp /tmp/builder/storefront-cms-config.json ./storefront-cms-config.json && \
+      chown nextjs:nodejs ./storefront-cms-config.json && \
+      echo "✅ Copied fallback config file"; \
+    else \
+      echo "ℹ️  No fallback config file found, will use defaults"; \
+    fi
 
 USER nextjs
 

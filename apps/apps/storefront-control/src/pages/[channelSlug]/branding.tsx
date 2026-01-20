@@ -1,5 +1,5 @@
+import React from "react";
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
-import { Box, Text, Button } from "@saleor/macaw-ui";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { AppLayout } from "@/modules/ui/app-layout";
 import { SectionCard } from "@/modules/ui/section-card";
 import { FormField, SelectField } from "@/modules/ui/form-field";
+import { StickySaveBar } from "@/modules/ui/sticky-save-bar";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { BrandingSchema } from "@/modules/config/schema";
 import type { StorefrontConfig } from "@/modules/config/schema";
@@ -59,17 +60,23 @@ const BrandingPage: NextPage = () => {
 
   if (!appBridgeState?.ready || isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-        <Text>Loading...</Text>
-      </Box>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+        <span>Loading...</span>
+      </div>
     );
   }
 
   return (
     <AppLayout channelSlug={channelSlug} channelName={config?.store.name} activeTab="branding">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <SectionCard title="Logo & Assets" description="Your brand identity assets">
-          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+        <SectionCard
+          id="branding-identity"
+          title="Logo & Assets"
+          description="Your brand identity assets"
+          keywords={["logo", "branding", "favicon", "alt"]}
+        >
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <FormField
               label="Logo URL"
               name="logo"
@@ -86,7 +93,7 @@ const BrandingPage: NextPage = () => {
               errors={errors}
               placeholder="My Store Logo"
             />
-          </Box>
+          </div>
           <FormField
             label="Favicon URL"
             name="favicon"
@@ -97,61 +104,86 @@ const BrandingPage: NextPage = () => {
           />
         </SectionCard>
 
-        <SectionCard title="Brand Colors" description="Your store's color palette">
+        <SectionCard
+          id="branding-colors"
+          title="Brand Colors"
+          description="Your store's color palette"
+          keywords={["colors", "primary", "secondary", "accent", "background", "text"]}
+          icon="🎨"
+        >
+
           {/* Color Preview */}
-          <Box 
-            display="flex" 
-            gap={2} 
-            marginBottom={4}
-            padding={4}
-            borderRadius={4}
-            style={{ backgroundColor: colors?.background || "#fff" }}
+          <div 
+            style={{ 
+              display: "flex", 
+              gap: "8px", 
+              marginBottom: "24px",
+              padding: "16px",
+              backgroundColor: colors?.background || "#fff",
+              border: "1px solid #ddd"
+            }}
           >
-            <Box 
-              padding={3} 
-              borderRadius={2}
-              style={{ backgroundColor: colors?.primary || "#2563EB", color: "#fff" }}
+            <div 
+              style={{ 
+                padding: "12px", 
+                backgroundColor: colors?.primary || "#2563EB", 
+                color: "#fff",
+                borderRadius: "4px"
+              }}
             >
               Primary
-            </Box>
-            <Box 
-              padding={3} 
-              borderRadius={2}
-              style={{ backgroundColor: colors?.secondary || "#1F2937", color: "#fff" }}
+            </div>
+            <div 
+              style={{ 
+                padding: "12px", 
+                backgroundColor: colors?.secondary || "#1F2937", 
+                color: "#fff",
+                borderRadius: "4px"
+              }}
             >
               Secondary
-            </Box>
-            <Box 
-              padding={3} 
-              borderRadius={2}
-              style={{ backgroundColor: colors?.accent || "#F59E0B", color: "#fff" }}
+            </div>
+            <div 
+              style={{ 
+                padding: "12px", 
+                backgroundColor: colors?.accent || "#F59E0B", 
+                color: "#fff",
+                borderRadius: "4px"
+              }}
             >
               Accent
-            </Box>
-          </Box>
+            </div>
+          </div>
 
-          <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
             <FormField label="Primary" name="colors.primary" register={register} errors={errors} type="color" />
             <FormField label="Secondary" name="colors.secondary" register={register} errors={errors} type="color" />
             <FormField label="Accent" name="colors.accent" register={register} errors={errors} type="color" />
-          </Box>
-          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <FormField label="Background" name="colors.background" register={register} errors={errors} type="color" />
             <FormField label="Surface" name="colors.surface" register={register} errors={errors} type="color" />
-          </Box>
-          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <FormField label="Text" name="colors.text" register={register} errors={errors} type="color" />
             <FormField label="Text Muted" name="colors.textMuted" register={register} errors={errors} type="color" />
-          </Box>
-          <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4}>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
             <FormField label="Success" name="colors.success" register={register} errors={errors} type="color" />
             <FormField label="Warning" name="colors.warning" register={register} errors={errors} type="color" />
             <FormField label="Error" name="colors.error" register={register} errors={errors} type="color" />
-          </Box>
+          </div>
         </SectionCard>
 
-        <SectionCard title="Typography" description="Font families for your store">
-          <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4}>
+        <SectionCard
+          id="branding-typography"
+          title="Typography"
+          description="Font families for your store"
+          keywords={["typography", "fonts", "heading", "body"]}
+          icon="✍️"
+        >
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
             <FormField
               label="Heading Font"
               name="typography.fontHeading"
@@ -173,11 +205,17 @@ const BrandingPage: NextPage = () => {
               errors={errors}
               placeholder="JetBrains Mono"
             />
-          </Box>
+          </div>
         </SectionCard>
 
-        <SectionCard title="Font Sizes" description="Font sizes for different text elements (RTL-aware)">
-          <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr 1fr" gap={4}>
+        <SectionCard
+          id="branding-font-sizes"
+          title="Font Sizes"
+          description="Font sizes for different text elements (RTL-aware)"
+          keywords={["font sizes", "typography", "text"]}
+        >
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "16px" }}>
             <FormField
               label="H1 Size"
               name="typography.fontSize.h1"
@@ -354,11 +392,18 @@ const BrandingPage: NextPage = () => {
                 { value: "9xl", label: "9xl" },
               ]}
             />
-          </Box>
+          </div>
         </SectionCard>
 
-        <SectionCard title="Style Options" description="Visual style preferences">
-          <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4}>
+        <SectionCard
+          id="branding-style"
+          title="Style Options"
+          description="Visual style preferences"
+          keywords={["style", "radius", "buttons", "shadows"]}
+          icon="✨"
+        >
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
             <SelectField
               label="Border Radius"
               name="style.borderRadius"
@@ -392,20 +437,17 @@ const BrandingPage: NextPage = () => {
                 { value: "lg", label: "Large" },
               ]}
             />
-          </Box>
+          </div>
         </SectionCard>
 
-        <Box display="flex" justifyContent="flex-end" gap={2} marginTop={4}>
-          <Button type="button" variant="secondary" onClick={() => reset(config?.branding)} disabled={!isDirty}>
-            Reset
-          </Button>
-          <Button type="submit" variant="primary" disabled={!isDirty || updateMutation.isLoading}>
-            {updateMutation.isLoading ? "Saving..." : "Save Changes"}
-          </Button>
-        </Box>
-
-        {updateMutation.isSuccess && <Text color="success1" marginTop={2}>✓ Changes saved successfully</Text>}
-        {updateMutation.isError && <Text color="critical1" marginTop={2}>Error saving changes. Please try again.</Text>}
+        <StickySaveBar
+          isDirty={isDirty}
+          isLoading={updateMutation.isLoading}
+          isSuccess={updateMutation.isSuccess}
+          isError={updateMutation.isError}
+          onReset={() => reset(config?.branding)}
+          onSubmit={handleSubmit(onSubmit)}
+        />
       </form>
     </AppLayout>
   );

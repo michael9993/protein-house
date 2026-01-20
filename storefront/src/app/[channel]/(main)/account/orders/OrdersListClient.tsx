@@ -249,6 +249,26 @@ export function OrdersListClient({ orders, channel, statusColors, primaryColor }
 	const [toast, setToast] = useState<{ message: string; type: "info" | "success" | "error" | "warning" } | null>(null);
 	const ordersText = useOrdersText();
 
+	// Status labels mapping
+	const statusLabels: Record<string, string> = {
+		UNFULFILLED: ordersText.statusProcessing,
+		PARTIALLY_FULFILLED: ordersText.statusPartiallyShipped,
+		FULFILLED: ordersText.statusShipped,
+		DELIVERED: ordersText.statusDelivered,
+		CANCELED: ordersText.statusCanceled,
+		RETURNED: ordersText.statusReturned,
+	};
+
+	// Fulfillment status labels mapping (for tracking modal)
+	const fulfillmentStatusLabels: Record<string, string> = {
+		FULFILLED: ordersText.statusShipped,
+		PARTIALLY_FULFILLED: ordersText.statusPartiallyShipped,
+		CANCELED: ordersText.statusCanceled,
+		REFUNDED: ordersText.statusReturned,
+		REPLACED: ordersText.statusReturned,
+		RETURNED: ordersText.statusReturned,
+	};
+
 	// Show first 10 orders, or all if showAllOrders is true
 	const displayedOrders = showAllOrders ? orders : orders.slice(0, 10);
 	const hasMoreOrders = orders.length > 10;
@@ -560,7 +580,7 @@ export function OrdersListClient({ orders, channel, statusColors, primaryColor }
 											{fulfillment.trackingNumber}
 										</p>
 										<p className="mt-1 text-xs text-neutral-500">
-											{ordersText.statusLabel} {fulfillment.status.toLowerCase().replace(/_/g, " ")}
+											{ordersText.statusLabel} {fulfillmentStatusLabels[fulfillment.status] || fulfillment.status.toLowerCase().replace(/_/g, " ")}
 										</p>
 									</div>
 								)

@@ -119,6 +119,7 @@ export default async function Page(
 			{/* This is needed because Server Actions can't modify cookies when called from Server Components */}
 			<CartRestoreTrigger channel={channel} />
 			<HomePage
+				channel={channel}
 				categories={categories}
 				featuredProducts={featuredProducts}
 				newArrivals={newArrivals}

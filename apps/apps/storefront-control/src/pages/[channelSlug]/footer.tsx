@@ -1,5 +1,4 @@
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
-import { Box, Text, Button, Checkbox } from "@saleor/macaw-ui";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useForm, Controller } from "react-hook-form";
@@ -9,6 +8,8 @@ import { useEffect, useState } from "react";
 import { AppLayout } from "@/modules/ui/app-layout";
 import { SectionCard } from "@/modules/ui/section-card";
 import { FormField } from "@/modules/ui/form-field";
+import { StickySaveBar } from "@/modules/ui/sticky-save-bar";
+import { SimpleCheckbox } from "@/modules/ui/simple-checkbox";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { FooterSchema } from "@/modules/config/schema";
 import type { StorefrontConfig } from "@/modules/config/schema";
@@ -65,9 +66,9 @@ const FooterPage: NextPage = () => {
 
   if (!appBridgeState?.ready || isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-        <Text>Loading...</Text>
-      </Box>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+        <span>Loading...</span>
+      </div>
     );
   }
 
@@ -75,94 +76,45 @@ const FooterPage: NextPage = () => {
     <AppLayout channelSlug={channelSlug} channelName={config?.store.name} activeTab="footer">
       <form onSubmit={handleSubmit(onSubmit)}>
         <SectionCard 
+          id="footer-content"
           title="Footer Sections" 
           description="Choose which sections to display in your footer"
+          keywords={["footer", "newsletter", "social", "contact"]}
+          icon="📋"
         >
-          <Box display="flex" flexDirection="column" gap={4}>
-            <Box 
-              display="flex" 
-              alignItems="center" 
-              gap={3}
-              padding={3}
-              backgroundColor="default1"
-              borderRadius={2}
-            >
-              <Controller
-                name="showNewsletter"
-                control={control}
-                render={({ field }) => (
-                  <Checkbox
-                    checked={field.value === true}
-                    onCheckedChange={(checked) => field.onChange(checked)}
-                  />
-                )}
-              />
-              <Box>
-                <Text variant="bodyStrong">Newsletter Signup</Text>
-                <Text variant="caption" color="default2">
-                  Show newsletter subscription form in the footer
-                </Text>
-              </Box>
-            </Box>
 
-            <Box 
-              display="flex" 
-              alignItems="center" 
-              gap={3}
-              padding={3}
-              backgroundColor="default1"
-              borderRadius={2}
-            >
-              <Controller
-                name="showSocialLinks"
-                control={control}
-                render={({ field }) => (
-                  <Checkbox
-                    checked={field.value === true}
-                    onCheckedChange={(checked) => field.onChange(checked)}
-                  />
-                )}
-              />
-              <Box>
-                <Text variant="bodyStrong">Social Media Links</Text>
-                <Text variant="caption" color="default2">
-                  Display social media icons (configured in Integrations)
-                </Text>
-              </Box>
-            </Box>
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <SimpleCheckbox
+              name="showNewsletter"
+              control={control}
+              label="Newsletter Signup"
+              description="Show newsletter subscription form in the footer"
+            />
 
-            <Box 
-              display="flex" 
-              alignItems="center" 
-              gap={3}
-              padding={3}
-              backgroundColor="default1"
-              borderRadius={2}
-            >
-              <Controller
-                name="showContactInfo"
-                control={control}
-                render={({ field }) => (
-                  <Checkbox
-                    checked={field.value === true}
-                    onCheckedChange={(checked) => field.onChange(checked)}
-                  />
-                )}
-              />
-              <Box>
-                <Text variant="bodyStrong">Contact Information</Text>
-                <Text variant="caption" color="default2">
-                  Show email, phone, and address in the footer
-                </Text>
-              </Box>
-            </Box>
-          </Box>
+            <SimpleCheckbox
+              name="showSocialLinks"
+              control={control}
+              label="Social Media Links"
+              description="Display social media icons (configured in Integrations)"
+            />
+
+            <SimpleCheckbox
+              name="showContactInfo"
+              control={control}
+              label="Contact Information"
+              description="Show email, phone, and address in the footer"
+            />
+          </div>
         </SectionCard>
 
-        <SectionCard 
-          title="Copyright" 
+        <SectionCard
+          id="footer-legal"
+          title="Copyright"
           description="Customize the copyright text in your footer"
+          keywords={["footer", "copyright", "legal"]}
+          icon="©️"
         >
+
           <FormField
             label="Custom Copyright Text"
             name="copyrightText"
@@ -171,35 +123,19 @@ const FooterPage: NextPage = () => {
             placeholder="© 2024 Your Store Name. All rights reserved."
             description="Leave empty to use default format with store name and current year"
           />
-          <Text variant="caption" color="default2" marginTop={2}>
+          <p style={{ fontSize: "12px", color: "#666", marginTop: "16px", margin: "16px 0 0 0" }}>
             Default: © {new Date().getFullYear()} {config?.store.name || "Store Name"}. All rights reserved.
-          </Text>
+          </p>
         </SectionCard>
 
-        <Box display="flex" justifyContent="flex-end" gap={2} marginTop={4}>
-          <Button 
-            type="button" 
-            variant="secondary" 
-            onClick={() => reset(config?.footer)} 
-            disabled={!isDirty}
-          >
-            Reset
-          </Button>
-          <Button 
-            type="submit" 
-            variant="primary" 
-            disabled={!isDirty || updateMutation.isLoading}
-          >
-            {updateMutation.isLoading ? "Saving..." : "Save Changes"}
-          </Button>
-        </Box>
-
-        {saveStatus === "success" && (
-          <Text color="success1" marginTop={2}>✓ Changes saved successfully</Text>
-        )}
-        {saveStatus === "error" && (
-          <Text color="critical1" marginTop={2}>Error saving changes. Please try again.</Text>
-        )}
+        <StickySaveBar
+          isDirty={isDirty}
+          isLoading={updateMutation.isLoading}
+          isSuccess={saveStatus === "success"}
+          isError={saveStatus === "error"}
+          onReset={() => reset(config?.footer)}
+          onSubmit={handleSubmit(onSubmit)}
+        />
       </form>
     </AppLayout>
   );

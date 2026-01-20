@@ -1,12 +1,35 @@
-import { Suspense } from "react";
+"use client";
+
+import { Suspense, useEffect, useState } from "react";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
-import { storeConfig } from "@/config";
+import { useBranding, useContentConfig } from "@/providers/StoreConfigProvider";
 import { CurrentUserDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import clsx from "clsx";
+import type { UserDetailsFragment } from "@/gql/graphql";
 
-async function AccountButtonContent({ isActive }: { isActive: boolean }) {
-  const { branding } = storeConfig;
+function AccountButtonContent({ isActive }: { isActive: boolean }) {
+  const branding = useBranding();
+  const content = useContentConfig();
+  const navbarText = content.navbar;
+  const [user, setUser] = useState<UserDetailsFragment | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const { me } = await executeGraphQL(CurrentUserDocument, {
+          cache: "no-cache",
+        });
+        setUser(me || null);
+      } catch (error) {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
+  }, []);
   const { me: user } = await executeGraphQL(CurrentUserDocument, {
     cache: "no-cache",
   });
@@ -43,7 +66,7 @@ async function AccountButtonContent({ isActive }: { isActive: boolean }) {
             </svg>
           </LinkWithChannel>
         </div>
-        <span className="text-[10px] font-medium">Account</span>
+        <span className="text-[10px] font-medium">{navbarText.accountLabel}</span>
       </div>
     );
   }
@@ -81,17 +104,7 @@ async function AccountButtonContent({ isActive }: { isActive: boolean }) {
 export function MobileAccountButton({ isActive }: { isActive: boolean }) {
   return (
     <div className="flex flex-col items-center justify-center">
-      <Suspense fallback={
-        <div className={clsx(
-          "flex flex-col items-center justify-center gap-1 rounded-lg px-3 py-2",
-          isActive ? "text-white" : "text-neutral-600"
-        )}>
-          <div className="h-6 w-6 animate-pulse rounded-full bg-neutral-200" />
-          <span className="text-[10px] font-medium">Account</span>
-        </div>
-      }>
-        <AccountButtonContent isActive={isActive} />
-      </Suspense>
+      <AccountButtonContent isActive={isActive} />
     </div>
   );
 }

@@ -174,18 +174,86 @@ export const HeroSectionSchema = z.object({
   textAlignment: z.enum(["left", "center", "right", "start", "end"]), // "start"/"end" are RTL-aware
 });
 
+// Section background style types
+export const SectionBackgroundStyleSchema = z.enum([
+  "none",           // No background (transparent)
+  "solid",          // Solid color
+  "gradient",       // Linear gradient
+  "radial-gradient", // Radial gradient
+  "color-mix",      // Color mix (like sale section)
+  "pattern",        // Pattern overlay (grid, dots, etc.)
+  "animated-gradient", // Animated gradient
+  "glass",          // Glass morphism effect
+]);
+
+// Section background configuration
+export const SectionBackgroundSchema = z.object({
+  style: SectionBackgroundStyleSchema,
+  // For solid, gradient, color-mix
+  color: z.string().nullable(), // null = use primary color
+  secondaryColor: z.string().nullable(), // For gradients/color-mix
+  // For color-mix
+  mixPercentage: z.number().min(0).max(100).optional(), // Percentage of primary color in mix (default: 8)
+  // For gradients
+  gradientDirection: z.enum(["to-right", "to-left", "to-bottom", "to-top", "to-bottom-right", "to-top-left", "diagonal"]).optional(),
+  // For patterns
+  patternType: z.enum(["grid", "dots", "lines", "waves"]).optional(),
+  patternOpacity: z.number().min(0).max(100).optional(), // 0-100 (default: 10)
+  // For animated-gradient
+  animationSpeed: z.enum(["slow", "normal", "fast"]).optional(), // Animation speed
+  // For glass
+  glassBlur: z.number().min(0).max(20).optional(), // Blur amount (default: 10)
+  glassOpacity: z.number().min(0).max(100).optional(), // Opacity (default: 80)
+}).optional();
+
 export const LimitedSectionSchema = z.object({
   enabled: z.boolean(),
   limit: z.number().min(1).max(20),
+  background: SectionBackgroundSchema,
 });
 
 export const SimpleSectionSchema = z.object({
   enabled: z.boolean(),
+  background: SectionBackgroundSchema,
+});
+
+// Testimonials section with star color and card styling
+export const TestimonialsSectionSchema = z.object({
+  enabled: z.boolean(),
+  background: SectionBackgroundSchema,
+  // Star rating styling
+  starColor: z.string().nullable().optional(), // null = use gold (#FFD700)
+  starEmptyColor: z.string().nullable().optional(), // null = use textMuted with 30% opacity
+  starSize: z.enum(["xs", "sm", "base", "lg", "xl"]).optional(), // Default: base (h-5 w-5)
+  // Text labels
+  loadingReviewsText: z.string().nullable().optional(), // null = "Loading reviews..."
+  verifiedPurchaseLabel: z.string().nullable().optional(), // null = "Verified Purchase"
+  customerLabel: z.string().nullable().optional(), // null = "Customer"
+  // Review card styling
+  card: z.object({
+    backgroundColor: z.string().nullable().optional(), // null = white
+    borderColor: z.string().nullable().optional(), // null = neutral-200/50
+    borderRadius: z.string().nullable().optional(), // null = use --store-radius
+    padding: z.string().nullable().optional(), // null = p-6
+    shadow: z.string().nullable().optional(), // null = use primary color with 15% opacity
+    hoverShadow: z.string().nullable().optional(), // null = default hover shadow
+    hoverTransform: z.string().nullable().optional(), // null = translateY(-4px)
+  }).optional(),
+  // Trust badges styling
+  trustBadges: z.object({
+    showAverageRating: z.boolean().optional(),
+    showCustomerCount: z.boolean().optional(),
+    showSatisfactionRate: z.boolean().optional(),
+    showOrdersDelivered: z.boolean().optional(),
+    borderColor: z.string().nullable().optional(), // null = neutral-200
+    textColor: z.string().nullable().optional(), // null = use text colors from branding
+  }).optional(),
 });
 
 export const InstagramSectionSchema = z.object({
   enabled: z.boolean(),
   username: z.string().nullable(),
+  background: SectionBackgroundSchema,
 });
 
 export const HomepageSectionsSchema = z.object({
@@ -195,7 +263,7 @@ export const HomepageSectionsSchema = z.object({
   bestSellers: LimitedSectionSchema,
   onSale: LimitedSectionSchema,
   featuredBrands: SimpleSectionSchema,
-  testimonials: SimpleSectionSchema,
+  testimonials: TestimonialsSectionSchema,
   newsletter: SimpleSectionSchema,
   instagramFeed: InstagramSectionSchema,
 });
@@ -432,6 +500,25 @@ export const QuickFiltersStyleSchema = z.object({
   shopAllButtonTextColor: z.string().nullable(),        // Text color for Shop All button
   shopAllButtonHoverBackgroundColor: z.string().nullable(), // Hover background color
   shopAllButtonBorderColor: z.string().nullable(),    // Border color
+  // Navbar mode (sticky) styling
+  navbarMode: z.object({
+    buttonPaddingX: z.number().optional(),        // px-3.5 (14px)
+    buttonPaddingY: z.number().optional(),        // py-1.5 (6px)
+    buttonFontSize: z.enum(["xs", "sm", "base"]).optional(), // text-xs
+    buttonFontWeight: z.enum(["normal", "medium", "semibold", "bold"]).optional(), // font-semibold
+    buttonBorderRadius: z.enum(["none", "sm", "md", "lg", "full"]).optional(), // rounded-full
+    buttonGap: z.number().optional(),             // gap-2 (8px)
+    groupLabelFontSize: z.enum(["xs", "sm"]).optional(), // text-[10px]
+    groupLabelPaddingX: z.number().optional(),    // px-2 (8px)
+    groupLabelPaddingY: z.number().optional(),    // py-1 (4px)
+    separatorWidth: z.number().optional(),        // w-px (1px)
+    separatorHeight: z.number().optional(),       // h-6 (24px)
+    containerPaddingY: z.number().optional(),     // py-2.5 (10px)
+    backgroundColor: z.string().nullable().optional(), // bg-white
+    borderTopColor: z.string().nullable().optional(),
+    borderBottomColor: z.string().nullable().optional(),
+    shadowColor: z.string().nullable().optional(),
+  }).optional(),
 });
 
 export const QuickFiltersSchema = z.object({
@@ -543,6 +630,43 @@ export const IconsSchema = z.object({
   activeColor: z.string().nullable(),  // null = use primary
 });
 
+// Active Filters Tags configuration
+export const ActiveFiltersTagsSchema = z.object({
+  // Container styling
+  containerBackgroundColor: z.string().nullable().optional(), // bg-white
+  containerBorderColor: z.string().nullable().optional(),     // border-neutral-200
+  containerBorderRadius: z.enum(["none", "sm", "md", "lg"]).optional(), // rounded-lg
+  containerPadding: z.number().optional(),                    // p-4 (16px)
+  containerShadow: z.enum(["none", "sm", "md", "lg"]).optional(), // shadow-sm
+  // Title styling
+  titleFontSize: z.enum(["xs", "sm", "base", "lg"]).optional(), // text-sm
+  titleFontWeight: z.enum(["normal", "medium", "semibold", "bold"]).optional(), // font-semibold
+  titleColor: z.string().nullable().optional(),               // text-neutral-900
+  // Clear all button styling
+  clearAllButtonFontSize: z.enum(["xs", "sm", "base"]).optional(), // text-xs
+  clearAllButtonFontWeight: z.enum(["normal", "medium", "semibold", "bold"]).optional(), // font-medium
+  clearAllButtonColor: z.string().nullable().optional(),      // text-neutral-500
+  clearAllButtonHoverColor: z.string().nullable().optional(), // hover:text-neutral-700
+  // Tag styling
+  tagBackgroundColor: z.string().nullable().optional(),       // bg-neutral-50
+  tagBorderColor: z.string().nullable().optional(),           // border-neutral-200
+  tagTextColor: z.string().nullable().optional(),             // text-neutral-700
+  tagHoverBackgroundColor: z.string().nullable().optional(),  // hover:bg-neutral-100
+  tagHoverBorderColor: z.string().nullable().optional(),      // hover:border-neutral-300
+  tagBorderRadius: z.enum(["none", "sm", "md", "lg", "full"]).optional(), // rounded-full
+  tagPaddingX: z.number().optional(),                         // px-3 (12px)
+  tagPaddingY: z.number().optional(),                         // py-1.5 (6px)
+  tagFontSize: z.enum(["xs", "sm", "base"]).optional(),      // text-xs
+  tagFontWeight: z.enum(["normal", "medium", "semibold", "bold"]).optional(), // font-medium
+  tagGap: z.number().optional(),                              // gap-2 (8px)
+  // Remove button (X) styling
+  removeButtonSize: z.number().optional(),                    // h-4 w-4 (16px)
+  removeButtonColor: z.string().nullable().optional(),        // text-neutral-400
+  removeButtonHoverBackgroundColor: z.string().nullable().optional(), // hover:bg-neutral-200
+  removeButtonHoverColor: z.string().nullable().optional(),   // hover:text-neutral-600
+  removeButtonBorderRadius: z.enum(["none", "sm", "md", "lg", "full"]).optional(), // rounded-full
+});
+
 // Full UI schema
 export const UiSchema = z.object({
   buttons: ButtonsSchema,
@@ -552,6 +676,7 @@ export const UiSchema = z.object({
   productCard: ProductCardSchema,
   toasts: ToastsSchema,
   icons: IconsSchema,
+  activeFiltersTags: ActiveFiltersTagsSchema.optional(),
 });
 
 // ============================================
@@ -724,6 +849,17 @@ export const HomepageTextSchema = z.object({
   brandsSubtitle: z.string(),
   testimonialsTitle: z.string(),
   testimonialsSubtitle: z.string(),
+  // Trust badges labels
+  averageRatingLabel: z.string(),         // "Average Rating"
+  happyCustomersLabel: z.string(),        // "Happy Customers"
+  satisfactionRateLabel: z.string(),      // "Satisfaction Rate"
+  ordersDeliveredLabel: z.string(),       // "Orders Delivered"
+  // Testimonials labels
+  verifiedPurchaseLabel: z.string(),      // "Verified Purchase"
+  loadingReviewsText: z.string(),         // "Loading reviews..."
+  noReviewsAvailableText: z.string(),     // "No reviews available yet. Be the first to review our products!"
+  noReviewsSubtext: z.string(),           // "Reviews will appear here once customers start leaving feedback."
+  noApprovedReviewsText: z.string(),      // "No approved reviews with 4+ stars yet. {count} review(s) pending approval."
   heroCtaText: z.string(),
   heroSecondaryCtaText: z.string(),
   // Category cards
@@ -758,7 +894,7 @@ export const FiltersTextSchema = z.object({
   clearAllButton: z.string(),         // "Clear All Filters"
   showResultsButton: z.string(),      // "Show Results"
   filtersButtonText: z.string(),       // "Filters" (for category pages)
-  
+
   // Filter headings
   categoryTitle: z.string(),          // "Category"
   collectionTitle: z.string(),        // "Collection"
@@ -768,14 +904,15 @@ export const FiltersTextSchema = z.object({
   priceTitle: z.string(),             // "Price"
   ratingTitle: z.string(),            // "Rating"
   availabilityTitle: z.string(),      // "Availability"
-  
+
   // Sort dropdown
   sortByLabel: z.string(),            // "Sort by:" or "Sort by" (RTL-aware)
-  
+  searchForText: z.string(),          // "for" (text between count and search query)
+
   // Availability options
   inStockOnly: z.string(),            // "In Stock Only"
   onSale: z.string(),                 // "On Sale"
-  
+
   // Active filters summary
   activeFiltersLabel: z.string(),     // "Active Filters:"
   categorySingular: z.string(),       // "category"
@@ -788,7 +925,7 @@ export const FiltersTextSchema = z.object({
   colorPlural: z.string(),            // "colors"
   sizeSingular: z.string(),           // "size"
   sizePlural: z.string(),             // "sizes"
-  
+
   // Sort options
   sortAtoZ: z.string(),               // "A to Z"
   sortZtoA: z.string(),               // "Z to A"
@@ -796,7 +933,7 @@ export const FiltersTextSchema = z.object({
   sortPriceHighLow: z.string(),       // "Price: High to Low"
   sortNewest: z.string(),             // "Newest"
   sortSale: z.string(),               // "Sale"
-  
+
   // Empty/loading states
   noProductsTitle: z.string(),        // "No products found"
   noProductsWithFilters: z.string(),  // "Try adjusting your filters"
@@ -805,33 +942,33 @@ export const FiltersTextSchema = z.object({
   loadingMore: z.string(),            // "Loading more products..."
   seenAllProducts: z.string(),        // "You've seen all {count} products"
   tryAdjustingFilters: z.string(),    // "Try adjusting your filters to see more"
-  
+
   // Search
   searchPlaceholder: z.string(),      // "Search Products"
   searchProductsTitle: z.string(),    // "Search Products"
   searchResultsTitle: z.string(),    // "Search Results"
   resultsCountText: z.string(),       // "Found {count} result(s)" (template, RTL-aware)
   noResultsMessage: z.string(),        // "No results found for \"{query}\""
-  
+
   // Results text
   resultsText: z.string(),            // "results"
   itemsAvailable: z.string(),         // "items available"
   productsPageTitle: z.string(),      // "All Products"
   discoverProducts: z.string(),       // "Discover Products" (for empty states)
-  
+
   // Quick filters
   shopAllButton: z.string(),          // "Shop All"
   quickAddButton: z.string(),         // "Quick Add"
   scrollLeftAriaLabel: z.string(),    // "Scroll left"
   scrollRightAriaLabel: z.string(),   // "Scroll right"
   checkOutOurProducts: z.string(),    // "Check Out Our Products" - title above quick filters
-  
+
   // Rating filter
   minimumRating: z.string(),          // "Minimum Rating"
   starsAndUp: z.string(),             // "{count} stars & up"
   starAndUp: z.string(),              // "1 star & up"
   clearRatingFilter: z.string(),      // "Clear"
-  
+
   // Price filter
   minPriceLabel: z.string(),          // "Min Price"
   maxPriceLabel: z.string(),          // "Max Price"
@@ -846,45 +983,45 @@ export const ProductDetailTextSchema = z.object({
   freeShipping: z.string(),           // "Free Shipping"
   securePayment: z.string(),          // "Secure Payment"
   easyReturns: z.string(),            // "Easy Returns"
-  
+
   // Tab labels
   descriptionTab: z.string(),         // "Description"
   shippingTab: z.string(),            // "Shipping"
   reviewsTab: z.string(),             // "Reviews"
   noDescriptionAvailable: z.string(), // "No description available for this product."
-  
+
   // Product info
   qtyLabel: z.string(),               // "Qty"
   qtyLabelWithColon: z.string(),      // "Qty:"
   shareButton: z.string(),            // "Share"
-  
+
   // Variant selection labels
   colorLabel: z.string(),             // "Color"
   sizeLabel: z.string(),              // "Size"
   selectOptionLabel: z.string(),      // "Select Option"
   pleaseSelectSize: z.string(),       // "Please select a size"
   pleaseSelectOption: z.string(),     // "Please select an option"
-  
+
   // Stock messages
   onlyXLeft: z.string(),              // "Only {count} left!"
   inStockWithCount: z.string(),       // "In Stock ({count} available)"
   sellingFast: z.string(),            // "Selling fast!"
   savePercent: z.string(),            // "Save {percent}%"
-  
+
   // Review pluralization
   reviewSingular: z.string(),         // "review"
   reviewPlural: z.string(),           // "reviews"
-  
+
   // Image gallery labels
   zoomInLabel: z.string(),            // "Zoom in"
   zoomOutLabel: z.string(),           // "Zoom out"
   previousImageLabel: z.string(),     // "Previous image"
   nextImageLabel: z.string(),         // "Next image"
-  
+
   // Reviews section
   noReviewsYet: z.string(),           // "No reviews yet. Be the first to review this product!"
   writeReviewTitle: z.string(),       // "Write a Review"
-  
+
   // Review form
   ratingRequired: z.string(),         // "Rating *"
   reviewTitleRequired: z.string(),    // "Review Title *"
@@ -896,7 +1033,7 @@ export const ProductDetailTextSchema = z.object({
   noFileChosen: z.string(),           // "No file chosen"
   uploadImagesHint: z.string(),       // "Upload up to 5 images (max 5MB each)"
   submitReviewButton: z.string(),     // "Submit Review"
-  
+
   // Review display
   helpfulCount: z.string(),           // "{count} people found this helpful"
   helpfulButton: z.string(),          // "Helpful"
@@ -904,29 +1041,29 @@ export const ProductDetailTextSchema = z.object({
   verifiedPurchase: z.string(),       // "Verified Purchase"
   editReview: z.string(),             // "Edit"
   deleteReview: z.string(),           // "Delete"
-  
+
   // Review filters
   allRatings: z.string(),             // "All Ratings"
   verifiedOnly: z.string(),           // "Verified Only"
-  
+
   // Review delete modal
   deleteReviewTitle: z.string(),      // "Delete Review"
   deleteReviewMessage: z.string(),    // "Are you sure you want to delete this review? This action cannot be undone."
   cancelButton: z.string(),           // "Cancel"
   deletingButton: z.string(),         // "Deleting..."
-  
+
   // Review time formatting
   justNow: z.string(),                // "just now"
   minutesAgo: z.string(),             // "{count} minutes ago"
   hoursAgo: z.string(),               // "{count} hours ago"
   daysAgo: z.string(),                // "{count} days ago"
-  
+
   // Shipping information
   freeStandardShippingTitle: z.string(),      // "Free Standard Shipping"
   freeStandardShippingDescription: z.string(), // "On orders over $75. Delivery in 5-7 business days."
   expressShippingTitle: z.string(),           // "Express Shipping"
   expressShippingDescription: z.string(),     // "{price}. Delivery in 2-3 business days."
-  
+
   // Review list and loading states
   loadingReviews: z.string(),                 // "Loading reviews..."
   reviewCountText: z.string(),                // "{count} review" or "{count} reviews" (handled by pluralization)
@@ -937,12 +1074,12 @@ export const ProductDetailTextSchema = z.object({
   failedToLoadReviews: z.string(),            // "Failed to load reviews. Please try again."
   loadMoreReviews: z.string(),                // "Load More Reviews"
   starsLabel: z.string(),                     // "{count} Stars" or "{count} Star" (for filter dropdown)
-  
+
   // Review form labels (for edit form)
   ratingLabel: z.string(),                    // "Rating"
   titleLabel: z.string(),                     // "Title"
   reviewLabel: z.string(),                    // "Review"
-  
+
   // Review form states and messages
   uploadingImages: z.string(),                // "Uploading and compressing images..."
   savingButton: z.string(),                   // "Saving..."
@@ -950,7 +1087,7 @@ export const ProductDetailTextSchema = z.object({
   submittingButton: z.string(),               // "Submitting..."
   thankYouMessage: z.string(),                // "Thank you for your review!"
   reviewSubmittedMessage: z.string(),         // "Your review has been submitted and will be visible after moderation."
-  
+
   // Review form validation messages
   pleaseSelectRating: z.string(),             // "Please select a rating"
   pleaseEnterReviewTitle: z.string(),         // "Please enter a review title"
@@ -1026,6 +1163,51 @@ export const OrdersTextSchema = z.object({
   universalTrackers: z.string(),       // "Universal Trackers (Recommended)"
   directCarrierLinks: z.string(),      // "Direct Carrier Links"
   loading: z.string(),                 // "Loading..."
+  // Order Details Page
+  backToOrders: z.string(),            // "Back to Orders"
+  placedOn: z.string(),                // "Placed on"
+  orderItemsTitle: z.string(),         // "Order Items ({count})"
+  viewProduct: z.string(),             // "View Product"
+  orderSummaryTitle: z.string(),       // "Order Summary"
+  subtotalLabel: z.string(),           // "Subtotal"
+  shippingLabel: z.string(),           // "Shipping"
+  shippingFree: z.string(),            // "Free"
+  totalLabelDetails: z.string(),       // "Total"
+  shippingAddressTitle: z.string(),    // "Shipping Address"
+  billingAddressTitle: z.string(),     // "Billing Address"
+  shipmentTrackingTitle: z.string(),   // "Shipment Tracking"
+  statusLabelDetails: z.string(),      // "Status"
+  trackingNumberLabelDetails: z.string(), // "Tracking #"
+  invoiceTitle: z.string(),            // "Invoice"
+  invoiceNumberPrefix: z.string(),     // "Invoice #"
+  downloadButton: z.string(),          // "Download"
+  generatingText: z.string(),          // "Generating..."
+  unavailableText: z.string(),         // "Unavailable"
+  quickActionsTitle: z.string(),       // "Quick Actions"
+  needHelpTitle: z.string(),           // "Need Help?"
+  contactSupportButton: z.string(),    // "Contact Support"
+  viewFaqsButton: z.string(),          // "View FAQs"
+  // Order Status Labels
+  statusProcessing: z.string(),        // "Processing"
+  statusPartiallyShipped: z.string(),  // "Partially Shipped"
+  statusShipped: z.string(),           // "Shipped"
+  statusDelivered: z.string(),         // "Delivered"
+  statusCanceled: z.string(),          // "Canceled"
+  statusReturned: z.string(),          // "Returned"
+  // Payment Status Labels
+  paymentPending: z.string(),          // "Pending"
+  paymentPartiallyPaid: z.string(),    // "Partially Paid"
+  paymentPaid: z.string(),             // "Paid"
+  paymentPartiallyRefunded: z.string(), // "Partially Refunded"
+  paymentRefunded: z.string(),         // "Refunded"
+  paymentFailed: z.string(),           // "Payment Failed"
+  paymentCancelled: z.string(),        // "Cancelled"
+  // Reorder Button
+  reorderItems: z.string(),            // "Reorder Items ({count})"
+  addingToCart: z.string(),            // "Adding to Cart..."
+  itemsAddedToCart: z.string(),        // "{count} item(s) added to cart!"
+  redirectingToCart: z.string(),       // "Redirecting to cart..."
+  tryAgain: z.string(),                // "Try Again"
 });
 
 // Addresses Page Text
@@ -1078,14 +1260,14 @@ export const SettingsTextSchema = z.object({
   // Page header
   accountSettings: z.string(),         // "Account Settings"
   settingsSubtitle: z.string(),        // "Manage your profile, security, and notification preferences"
-  
+
   // Profile section
   profileInformation: z.string(),      // "Profile Information"
   updatePersonalDetails: z.string(),   // "Update your personal details"
   saveChangesButton: z.string(),       // "Save Changes"
   savingChanges: z.string(),           // "Saving..."
   changesSaved: z.string(),            // "Changes saved successfully"
-  
+
   // Password section
   changePassword: z.string(),          // "Change Password"
   passwordSecurityNote: z.string(),    // "Update your password to keep your account secure"
@@ -1094,7 +1276,7 @@ export const SettingsTextSchema = z.object({
   confirmNewPassword: z.string(),      // "Confirm New Password"
   updatePasswordButton: z.string(),    // "Update Password"
   passwordUpdated: z.string(),         // "Password updated successfully"
-  
+
   // Notifications section
   notificationPreferences: z.string(), // "Notification Preferences"
   notificationSubtitle: z.string(),    // "Choose how you want to receive updates"
@@ -1106,7 +1288,7 @@ export const SettingsTextSchema = z.object({
   newsletterDesc: z.string(),          // "Weekly updates about new arrivals and trends"
   smsNotifications: z.string(),        // "SMS Notifications"
   smsDesc: z.string(),                 // "Receive text messages for important updates"
-  
+
   // Danger zone
   dangerZone: z.string(),              // "Danger Zone"
   deleteAccountWarning: z.string(),    // "Permanently delete your account and all associated data"
@@ -1122,16 +1304,16 @@ export const FooterTextSchema = z.object({
   termsOfServiceLink: z.string(),      // "Terms of Service"
   shippingLink: z.string(),            // "Shipping"
   returnPolicyLink: z.string(),        // "Return Policy"
-  
+
   // Other footer text
   allRightsReserved: z.string(),       // "All rights reserved"
   madeWith: z.string(),                // "Made with"
   inLocation: z.string(),              // "in {location}"
-  
+
   // Contact section
   contactUs: z.string(),               // "Contact Us"
   customerService: z.string(),         // "Customer Service"
-  
+
   // Navigation sections
   shopTitle: z.string(),               // "Shop"
   companyTitle: z.string(),            // "Company"
@@ -1196,6 +1378,7 @@ export const ContentSchema = z.object({
 // ============================================
 export const StorefrontConfigSchema = z.object({
   version: z.number(),
+  updatedAt: z.string().optional(), // ISO timestamp when config was last updated
   channelSlug: z.string(),
   store: StoreSchema,
   branding: BrandingSchema,

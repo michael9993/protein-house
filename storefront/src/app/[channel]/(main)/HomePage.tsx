@@ -8,6 +8,7 @@ import {
   FeaturedBrands,
   Testimonials,
   NewsletterSignup,
+  InstagramFeed,
   placeholderCategories,
 } from "@/components/home";
 import { type HeroBannerConfig, type Testimonial, type FeaturedBrand } from "@/lib/cms";
@@ -27,6 +28,8 @@ interface DashboardCategory {
 }
 
 interface HomePageProps {
+  /** Channel slug */
+  channel: string;
   /** Categories from Dashboard > Catalog > Categories */
   categories: DashboardCategory[];
   /** Products from "featured-products" collection */
@@ -65,6 +68,7 @@ interface HomePageProps {
  * 6. Add products to product collections
  */
 export function HomePage({
+  channel,
   categories,
   featuredProducts: _featuredProducts, // Reserved for future use
   newArrivals,
@@ -151,8 +155,9 @@ export function HomePage({
         return <FeaturedBrands key="featuredBrands" cmsBrands={brands} />;
 
       case 'testimonials':
-        if (!sections.testimonials.enabled) return null;
-        return <Testimonials key="testimonials" cmsTestimonials={testimonials} />;
+        // Always render component to maintain hook consistency
+        // Component will handle enabled check internally after all hooks
+        return <Testimonials key="testimonials" channel={channel} cmsTestimonials={testimonials} />;
 
       case 'newsletter':
         if (!sections.newsletter.enabled) return null;
@@ -166,8 +171,13 @@ export function HomePage({
         );
 
       case 'instagramFeed':
-        // Instagram feed not yet implemented
-        return null;
+        if (!sections.instagramFeed.enabled) return null;
+        return (
+          <InstagramFeed 
+            key="instagramFeed"
+            username={sections.instagramFeed.username || undefined}
+          />
+        );
 
       default:
         return null;
@@ -175,8 +185,12 @@ export function HomePage({
   };
 
   return (
-    <main>
-      {sectionOrder.map(sectionId => renderSection(sectionId))}
+    <main className="space-y-0 overflow-x-hidden">
+      {sectionOrder.map((sectionId) => (
+        <div key={sectionId}>
+          {renderSection(sectionId)}
+        </div>
+      ))}
     </main>
   );
 }

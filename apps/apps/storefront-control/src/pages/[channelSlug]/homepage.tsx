@@ -1,5 +1,5 @@
+import React from "react";
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
-import { Box, Text, Button, Checkbox, Input } from "@saleor/macaw-ui";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { AppLayout } from "@/modules/ui/app-layout";
 import { SectionCard } from "@/modules/ui/section-card";
 import { SelectField, FormField } from "@/modules/ui/form-field";
+import { StickySaveBar } from "@/modules/ui/sticky-save-bar";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { HomepageSchema, DEFAULT_SECTION_ORDER } from "@/modules/config/schema";
 import type { StorefrontConfig, HomepageSectionId } from "@/modules/config/schema";
@@ -74,7 +75,7 @@ const HomepagePage: NextPage = () => {
   };
 
   if (!appBridgeState?.ready || isLoading) {
-    return <Box display="flex" justifyContent="center" alignItems="center" height="100vh"><Text>Loading...</Text></Box>;
+    return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}><span>Loading...</span></div>;
   }
 
   return (
@@ -82,74 +83,82 @@ const HomepagePage: NextPage = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Hero Section - Enhanced */}
         <SectionCard 
-          title="🎬 Hero Section" 
+          id="homepage-hero"
+          title="Hero Section" 
           description="The main banner area at the top of your homepage - supports images, videos, or sliders"
+          keywords={["hero", "banner", "cta", "slides"]}
+          icon="🎬"
         >
-          <Box display="flex" alignItems="center" gap={3} marginBottom={4} paddingBottom={4} borderBottomWidth={1} borderBottomStyle="solid" borderColor="default2">
+
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px", paddingBottom: "24px", borderBottom: "1px solid #ddd" }}>
             <Controller
               name="sections.hero.enabled"
               control={control}
               render={({ field }) => (
-                <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked)} />
+                <input
+                  type="checkbox"
+                  checked={field.value === true}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                  style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                />
               )}
             />
-            <Box>
-              <Text variant="bodyStrong">Enable Hero Section</Text>
-              <Text variant="caption" color="default2">Show hero banner on homepage</Text>
-            </Box>
-          </Box>
+            <div>
+              <label style={{ display: "block", fontSize: "14px", fontWeight: "500", marginBottom: "4px" }}>Enable Hero Section</label>
+              <p style={{ fontSize: "12px", color: "#666", margin: 0 }}>Show hero banner on homepage</p>
+            </div>
+          </div>
 
           {heroEnabled && (
             <>
               {/* Hero Type Selection */}
-              <Box marginBottom={4}>
-                <Text variant="bodyStrong" marginBottom={2}>Hero Type</Text>
-                <Box display="flex" gap={3}>
+              <div style={{ marginBottom: "24px" }}>
+                <p style={{ fontSize: "14px", fontWeight: "500", marginBottom: "16px" }}>Hero Type</p>
+                <div style={{ display: "flex", gap: "12px" }}>
                   {(["image", "video", "slider"] as const).map((type) => (
                     <Controller
                       key={type}
                       name="sections.hero.type"
                       control={control}
                       render={({ field }) => (
-                        <Box
-                          padding={4}
-                          borderRadius={4}
-                          borderWidth={1}
-                          borderStyle="solid"
-                          borderColor={field.value === type ? "accent1" : "default2"}
-                          backgroundColor={field.value === type ? "accent1Pressed" : "default1"}
-                          cursor="pointer"
+                        <div
+                          style={{
+                            padding: "16px",
+                            border: `1px solid ${field.value === type ? "#2563EB" : "#ddd"}`,
+                            backgroundColor: field.value === type ? "#E3F2FD" : "#fff",
+                            cursor: "pointer",
+                            flex: 1,
+                            textAlign: "center"
+                          }}
                           onClick={() => field.onChange(type)}
-                          __flex="1"
-                          __textAlign="center"
                         >
-                          <Text variant="bodyStrong">
+                          <p style={{ fontSize: "14px", fontWeight: "500", margin: "0 0 4px 0" }}>
                             {type === "image" && "🖼️ Static Image"}
                             {type === "video" && "🎥 Video"}
                             {type === "slider" && "🎠 Image Slider"}
-                          </Text>
-                          <Text variant="caption" color="default2" display="block" marginTop={1}>
+                          </p>
+                          <p style={{ fontSize: "12px", color: "#666", margin: 0 }}>
                             {type === "image" && "Single hero image"}
                             {type === "video" && "Background video loop"}
                             {type === "slider" && "Multiple rotating slides"}
-                          </Text>
-                        </Box>
+                          </p>
+                        </div>
                       )}
                     />
                   ))}
-                </Box>
-              </Box>
+                </div>
+              </div>
 
               {/* Content Fields */}
-              <Box marginBottom={4} padding={4} backgroundColor="default1" borderRadius={4}>
-                <Text variant="bodyStrong" marginBottom={3}>Hero Content</Text>
-                <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+              <div style={{ marginBottom: "24px", padding: "16px", backgroundColor: "#fff", border: "1px solid #ddd" }}>
+                <p style={{ fontSize: "14px", fontWeight: "500", marginBottom: "16px" }}>Hero Content</p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                   <FormField label="Title" name="sections.hero.title" register={register} placeholder="Welcome to Our Store" />
                   <FormField label="Subtitle" name="sections.hero.subtitle" register={register} placeholder="Discover amazing products" />
                   <FormField label="CTA Button Text" name="sections.hero.ctaText" register={register} placeholder="Shop Now" />
                   <FormField label="CTA Button Link" name="sections.hero.ctaLink" register={register} placeholder="/products" />
-                </Box>
-                <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4} marginTop={4}>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginTop: "24px" }}>
                   <SelectField
                     label="Text Alignment"
                     name="sections.hero.textAlignment"
@@ -168,13 +177,13 @@ const HomepagePage: NextPage = () => {
                     placeholder="40"
                     description="0 = transparent, 100 = solid"
                   />
-                </Box>
-              </Box>
+                </div>
+              </div>
 
               {/* Media Configuration based on type */}
               {heroType === "image" && (
-                <Box padding={4} backgroundColor="default1" borderRadius={4}>
-                  <Text variant="bodyStrong" marginBottom={3}>🖼️ Image Settings</Text>
+                <div style={{ padding: "16px", backgroundColor: "#fff", border: "1px solid #ddd" }}>
+                  <p style={{ fontSize: "14px", fontWeight: "500", marginBottom: "16px" }}>🖼️ Image Settings</p>
                   <FormField 
                     label="Image URL" 
                     name="sections.hero.imageUrl" 
@@ -183,12 +192,12 @@ const HomepagePage: NextPage = () => {
                     placeholder="https://example.com/hero.jpg"
                     description="Enter the URL of your hero image (recommended: 1920x800px)"
                   />
-                </Box>
+                </div>
               )}
 
               {heroType === "video" && (
-                <Box padding={4} backgroundColor="default1" borderRadius={4}>
-                  <Text variant="bodyStrong" marginBottom={3}>🎥 Video Settings</Text>
+                <div style={{ padding: "16px", backgroundColor: "#fff", border: "1px solid #ddd" }}>
+                  <p style={{ fontSize: "14px", fontWeight: "500", marginBottom: "16px" }}>🎥 Video Settings</p>
                   <FormField 
                     label="Video URL" 
                     name="sections.hero.videoUrl" 
@@ -197,7 +206,7 @@ const HomepagePage: NextPage = () => {
                     placeholder="https://example.com/hero-video.mp4"
                     description="MP4 format recommended. Video will autoplay and loop silently."
                   />
-                  <Box marginTop={3}>
+                  <div style={{ marginTop: "16px" }}>
                     <FormField 
                       label="Fallback Image URL" 
                       name="sections.hero.imageUrl" 
@@ -206,18 +215,16 @@ const HomepagePage: NextPage = () => {
                       placeholder="https://example.com/hero-fallback.jpg"
                       description="Shown while video loads or on mobile"
                     />
-                  </Box>
-                </Box>
+                  </div>
+                </div>
               )}
 
               {heroType === "slider" && (
-                <Box padding={4} backgroundColor="default1" borderRadius={4}>
-                  <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom={3}>
-                    <Text variant="bodyStrong">🎠 Slider Slides</Text>
-                    <Button 
+                <div style={{ padding: "16px", backgroundColor: "#fff", border: "1px solid #ddd" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                    <p style={{ fontSize: "14px", fontWeight: "500", margin: 0 }}>🎠 Slider Slides</p>
+                    <button 
                       type="button" 
-                      variant="secondary" 
-                      size="small"
                       onClick={() => addSlide({
                         imageUrl: "",
                         title: "Slide Title",
@@ -225,125 +232,177 @@ const HomepagePage: NextPage = () => {
                         ctaText: "Learn More",
                         ctaLink: "/products",
                       })}
+                      style={{
+                        padding: "8px 16px",
+                        border: "1px solid #ddd",
+                        backgroundColor: "#fff",
+                        cursor: "pointer",
+                        fontSize: "14px"
+                      }}
                     >
                       + Add Slide
-                    </Button>
-                  </Box>
+                    </button>
+                  </div>
                   
                   {slides.length === 0 && (
-                    <Box padding={4} backgroundColor="default2" borderRadius={4} __textAlign="center">
-                      <Text color="default2">No slides added yet. Click "Add Slide" to create your first slide.</Text>
-                    </Box>
+                    <div style={{ padding: "16px", backgroundColor: "#f5f5f5", textAlign: "center" }}>
+                      <p style={{ color: "#666", margin: 0 }}>No slides added yet. Click "Add Slide" to create your first slide.</p>
+                    </div>
                   )}
 
                   {slides.map((slide, index) => (
-                    <Box 
+                    <div 
                       key={slide.id} 
-                      padding={4} 
-                      marginBottom={3} 
-                      borderWidth={1} 
-                      borderStyle="solid" 
-                      borderColor="default2" 
-                      borderRadius={4}
+                      style={{ 
+                        padding: "16px", 
+                        marginBottom: "16px", 
+                        border: "1px solid #ddd", 
+                        backgroundColor: "#fff"
+                      }}
                     >
-                      <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom={3}>
-                        <Text variant="bodyStrong">Slide {index + 1}</Text>
-                        <Button type="button" variant="tertiary" size="small" onClick={() => removeSlide(index)}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                        <p style={{ fontSize: "14px", fontWeight: "500", margin: 0 }}>Slide {index + 1}</p>
+                        <button 
+                          type="button" 
+                          onClick={() => removeSlide(index)}
+                          style={{
+                            padding: "6px 12px",
+                            border: "1px solid #ddd",
+                            backgroundColor: "#fff",
+                            cursor: "pointer",
+                            fontSize: "13px"
+                          }}
+                        >
                           Remove
-                        </Button>
-                      </Box>
-                      <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={3}>
+                        </button>
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                         <FormField label="Image URL" name={`sections.hero.slides.${index}.imageUrl`} register={register} type="url" placeholder="https://..." />
                         <FormField label="Title" name={`sections.hero.slides.${index}.title`} register={register} />
                         <FormField label="Subtitle" name={`sections.hero.slides.${index}.subtitle`} register={register} />
                         <FormField label="CTA Text" name={`sections.hero.slides.${index}.ctaText`} register={register} />
                         <FormField label="CTA Link" name={`sections.hero.slides.${index}.ctaLink`} register={register} />
-                      </Box>
-                    </Box>
+                      </div>
+                    </div>
                   ))}
-                </Box>
+                </div>
               )}
             </>
           )}
         </SectionCard>
 
         {/* Product Sections */}
-        <SectionCard title="📦 Product Sections" description="Configure which product sections appear and their display limits">
-          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+        <SectionCard
+          id="homepage-products"
+          title="Product Sections"
+          description="Configure which product sections appear and their display limits"
+          keywords={["new arrivals", "best sellers", "on sale", "featured"]}
+          icon="📦"
+        >
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             {[
               { key: "featuredCategories", label: "Featured Categories", icon: "📂" },
               { key: "newArrivals", label: "New Arrivals", icon: "✨" },
               { key: "bestSellers", label: "Best Sellers", icon: "🏆" },
               { key: "onSale", label: "On Sale", icon: "🏷️" },
             ].map(({ key, label, icon }) => (
-              <Box key={key} borderWidth={1} borderStyle="solid" borderColor="default2" borderRadius={4} padding={4}>
-                <Box display="flex" alignItems="center" gap={3} marginBottom={3}>
+              <div key={key} style={{ border: "1px solid #ddd", padding: "16px", backgroundColor: "#fff" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
                   <Controller
                     name={`sections.${key as "featuredCategories" | "newArrivals" | "bestSellers" | "onSale"}.enabled`}
                     control={control}
                     render={({ field }) => (
-                      <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked)} />
+                      <input
+                        type="checkbox"
+                        checked={field.value === true}
+                        onChange={(e) => field.onChange(e.target.checked)}
+                        style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                      />
                     )}
                   />
-                  <Text variant="bodyStrong">{icon} {label}</Text>
-                </Box>
+                  <p style={{ fontSize: "14px", fontWeight: "500", margin: 0 }}>{icon} {label}</p>
+                </div>
                 <FormField 
                   label="Display Limit" 
                   name={`sections.${key}.limit`} 
                   register={register} 
                   type="number" 
-                  placeholder="8" 
+                  placeholder="8"
                 />
-              </Box>
+              </div>
             ))}
-          </Box>
+          </div>
         </SectionCard>
 
         {/* Additional Sections */}
-        <SectionCard title="➕ Additional Sections" description="Other homepage content areas">
-          <Box display="flex" flexDirection="column" gap={3}>
+        <SectionCard
+          id="homepage-additional"
+          title="Additional Sections"
+          description="Other homepage content areas"
+          keywords={["testimonials", "newsletter", "instagram", "brands"]}
+        >
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
             {[
               { key: "featuredBrands", label: "Featured Brands", description: "Display brand logos carousel", icon: "🏢" },
               { key: "testimonials", label: "Testimonials", description: "Customer reviews and testimonials", icon: "💬" },
               { key: "newsletter", label: "Newsletter Signup", description: "Email subscription form", icon: "📧" },
             ].map(({ key, label, description, icon }) => (
-              <Box key={key} display="flex" alignItems="center" gap={3} paddingY={3} borderBottomWidth={1} borderBottomStyle="solid" borderColor="default2">
+              <div key={key} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 0", borderBottom: "1px solid #ddd" }}>
                 <Controller
                   name={`sections.${key as "featuredBrands" | "testimonials" | "newsletter"}.enabled`}
                   control={control}
                   render={({ field }) => (
-                    <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked)} />
+                    <input
+                      type="checkbox"
+                      checked={field.value === true}
+                      onChange={(e) => field.onChange(e.target.checked)}
+                      style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                    />
                   )}
                 />
-                <Box>
-                  <Text variant="bodyStrong">{icon} {label}</Text>
-                  <Text variant="caption" color="default2">{description}</Text>
-                </Box>
-              </Box>
+                <div>
+                  <p style={{ fontSize: "14px", fontWeight: "500", margin: "0 0 4px 0" }}>{icon} {label}</p>
+                  <p style={{ fontSize: "12px", color: "#666", margin: 0 }}>{description}</p>
+                </div>
+              </div>
             ))}
 
             {/* Instagram Feed - Special case with username */}
-            <Box paddingY={3}>
-              <Box display="flex" alignItems="center" gap={3} marginBottom={3}>
+            <div style={{ padding: "12px 0" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
                 <Controller
                   name="sections.instagramFeed.enabled"
                   control={control}
                   render={({ field }) => (
-                    <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked)} />
+                    <input
+                      type="checkbox"
+                      checked={field.value === true}
+                      onChange={(e) => field.onChange(e.target.checked)}
+                      style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                    />
                   )}
                 />
-                <Box>
-                  <Text variant="bodyStrong">📸 Instagram Feed</Text>
-                  <Text variant="caption" color="default2">Display Instagram photos from your account</Text>
-                </Box>
-              </Box>
+                <div>
+                  <p style={{ fontSize: "14px", fontWeight: "500", margin: "0 0 4px 0" }}>📸 Instagram Feed</p>
+                  <p style={{ fontSize: "12px", color: "#666", margin: 0 }}>Display Instagram photos from your account</p>
+                </div>
+              </div>
               <FormField label="Instagram Username" name="sections.instagramFeed.username" register={register} placeholder="@yourstore" />
-            </Box>
-          </Box>
+            </div>
+          </div>
         </SectionCard>
 
         {/* Section Ordering */}
-        <SectionCard title="🔢 Section Order" description="Drag sections to reorder, or use the up/down buttons">
+        <SectionCard
+          id="homepage-order"
+          title="Section Order"
+          description="Drag sections to reorder, or use the up/down buttons"
+          keywords={["order", "reorder", "layout"]}
+          icon="🔢"
+        >
+
           <Controller
             name="sectionOrder"
             control={control}
@@ -360,79 +419,91 @@ const HomepagePage: NextPage = () => {
               };
 
               return (
-                <Box display="flex" flexDirection="column" gap={2}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   {order.map((sectionId: HomepageSectionId, index: number) => {
                     const sectionInfo = SECTION_LABELS[sectionId];
                     return (
-                      <Box 
+                      <div 
                         key={sectionId}
-                        display="flex" 
-                        alignItems="center" 
-                        gap={3}
-                        padding={3}
-                        backgroundColor="default1"
-                        borderRadius={4}
-                        borderWidth={1}
-                        borderStyle="solid"
-                        borderColor="default2"
+                        style={{ 
+                          display: "flex", 
+                          alignItems: "center", 
+                          gap: "12px",
+                          padding: "12px",
+                          backgroundColor: "#fff",
+                          border: "1px solid #ddd"
+                        }}
                       >
-                        <Text variant="bodyStrong" color="default2" __width="30px">
+                        <span style={{ fontSize: "14px", fontWeight: "500", color: "#666", width: "30px" }}>
                           {index + 1}.
-                        </Text>
-                        <Text __flex="1">
+                        </span>
+                        <span style={{ flex: 1, fontSize: "14px" }}>
                           {sectionInfo?.icon} {sectionInfo?.label || sectionId}
-                        </Text>
-                        <Box display="flex" gap={1}>
-                          <Button
+                        </span>
+                        <div style={{ display: "flex", gap: "4px" }}>
+                          <button
                             type="button"
-                            variant="tertiary"
-                            size="small"
                             onClick={() => moveSection(index, 'up')}
                             disabled={index === 0}
+                            style={{
+                              padding: "6px 12px",
+                              border: "1px solid #ddd",
+                              backgroundColor: "#fff",
+                              cursor: index === 0 ? "not-allowed" : "pointer",
+                              opacity: index === 0 ? 0.5 : 1,
+                              fontSize: "14px"
+                            }}
                           >
                             ↑
-                          </Button>
-                          <Button
+                          </button>
+                          <button
                             type="button"
-                            variant="tertiary"
-                            size="small"
                             onClick={() => moveSection(index, 'down')}
                             disabled={index === order.length - 1}
+                            style={{
+                              padding: "6px 12px",
+                              border: "1px solid #ddd",
+                              backgroundColor: "#fff",
+                              cursor: index === order.length - 1 ? "not-allowed" : "pointer",
+                              opacity: index === order.length - 1 ? 0.5 : 1,
+                              fontSize: "14px"
+                            }}
                           >
                             ↓
-                          </Button>
-                        </Box>
-                      </Box>
+                          </button>
+                        </div>
+                      </div>
                     );
                   })}
-                  <Box marginTop={2}>
-                    <Button
+                  <div style={{ marginTop: "16px" }}>
+                    <button
                       type="button"
-                      variant="tertiary"
-                      size="small"
                       onClick={() => field.onChange(DEFAULT_SECTION_ORDER)}
+                      style={{
+                        padding: "8px 16px",
+                        border: "1px solid #ddd",
+                        backgroundColor: "#fff",
+                        cursor: "pointer",
+                        fontSize: "14px"
+                      }}
                     >
                       Reset to Default Order
-                    </Button>
-                  </Box>
-                </Box>
+                    </button>
+                  </div>
+                </div>
               );
             }}
           />
         </SectionCard>
 
-        {/* Save Button */}
-        <Box display="flex" justifyContent="flex-end" gap={2} marginTop={4}>
-          <Button type="button" variant="secondary" onClick={() => reset(config?.homepage)} disabled={!isDirty}>
-            Reset
-          </Button>
-          <Button type="submit" variant="primary" disabled={!isDirty || saveStatus === "saving"}>
-            {saveStatus === "saving" ? "Saving..." : "Save Changes"}
-          </Button>
-        </Box>
-
-        {saveStatus === "success" && <Text color="success1" marginTop={2}>✓ Changes saved successfully</Text>}
-        {saveStatus === "error" && <Text color="critical1" marginTop={2}>Error saving changes. Please try again.</Text>}
+        <StickySaveBar
+          isDirty={isDirty}
+          isLoading={saveStatus === "saving"}
+          isSuccess={saveStatus === "success"}
+          isError={saveStatus === "error"}
+          onReset={() => reset(config?.homepage)}
+          onSubmit={handleSubmit(onSubmit)}
+        />
       </form>
     </AppLayout>
   );

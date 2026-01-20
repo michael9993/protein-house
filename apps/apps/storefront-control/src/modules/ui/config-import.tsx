@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback } from "react";
-import { Box, Text, Button } from "@saleor/macaw-ui";
+import { useMemo, useState, useRef, useCallback } from "react";
+import { Box, Text, Button, Checkbox, Input } from "@saleor/macaw-ui";
 
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { 
@@ -8,6 +8,7 @@ import {
   groupDiffsBySection,
   formatDiffValue,
 } from "@/modules/config/import-schema";
+
 
 interface ConfigImportProps {
   channelSlug: string;
@@ -24,13 +25,16 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
   const [validationErrors, setValidationErrors] = useState<ImportValidationError[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [diff, setDiff] = useState<ConfigDiffEntry[]>([]);
+  const [selectedPaths, setSelectedPaths] = useState<Set<string>>(new Set());
   const [applyError, setApplyError] = useState<string | null>(null);
+  const [diffQuery, setDiffQuery] = useState("");
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const utils = trpcClient.useUtils();
 
   const validateMutation = trpcClient.config.validateImport.useMutation();
   const importMutation = trpcClient.config.importConfig.useMutation();
+
 
   const handleFileSelect = useCallback(async (selectedFile: File) => {
     setFile(selectedFile);
@@ -65,7 +69,9 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
 
       setWarnings(result.validation.warnings);
       setDiff(result.diff);
+      setSelectedPaths(new Set(result.diff.map((entry) => entry.path)));
       setStep("preview");
+
     } catch (error) {
       setValidationErrors([{ 
         path: "", 
@@ -101,7 +107,9 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
       const result = await importMutation.mutateAsync({
         channelSlug,
         importData,
+        acceptedPaths: Array.from(selectedPaths),
       });
+
 
       if (!result.success) {
         setApplyError(result.errors?.[0]?.message || "Failed to import configuration");
@@ -128,7 +136,10 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
     setValidationErrors([]);
     setWarnings([]);
     setDiff([]);
+    setSelectedPaths(new Set());
     setApplyError(null);
+    setDiffQuery("");
+
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -227,17 +238,59 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
   if (step === "preview") {
     const groupedDiffs = groupDiffsBySection(diff);
     const sections = Object.keys(groupedDiffs);
+    const selectedCount = selectedPaths.size;
+    const totalCount = diff.length;
+
+    const filteredSections = sections
+      .map((section) => ({
+        section,
+        entries: groupedDiffs[section].filter((entry) => {
+          if (!diffQuery.trim()) return true;
+          const haystack = `${entry.path} ${String(entry.currentValue)} ${String(entry.newValue)}`.toLowerCase();
+          return haystack.includes(diffQuery.trim().toLowerCase());
+        }),
+      }))
+      .filter((section) => section.entries.length > 0);
+
+    const toggleAll = (checked: boolean) => {
+      if (!checked) {
+        setSelectedPaths(new Set());
+        return;
+      }
+      setSelectedPaths(new Set(diff.map((entry) => entry.path)));
+    };
+
+    const toggleSection = (section: string, checked: boolean) => {
+      const entries = groupedDiffs[section] ?? [];
+      const next = new Set(selectedPaths);
+      if (!checked) {
+        entries.forEach((entry) => next.delete(entry.path));
+      } else {
+        entries.forEach((entry) => next.add(entry.path));
+      }
+      setSelectedPaths(next);
+    };
+
+    const toggleEntry = (path: string, checked: boolean) => {
+      const next = new Set(selectedPaths);
+      if (checked) {
+        next.add(path);
+      } else {
+        next.delete(path);
+      }
+      setSelectedPaths(next);
+    };
 
     return (
       <Box>
-        <Text as="h3" variant="heading" marginBottom={4}>
-          Preview Changes
+        <Text as="h3" variant="heading" marginBottom={2}>
+          Review Changes
         </Text>
         
         <Text as="p" color="default2" marginBottom={4}>
-          {diff.length === 0 
+          {totalCount === 0 
             ? "No changes detected. The imported config is identical to the current config."
-            : `${diff.length} field(s) will be changed:`
+            : `Select which changes to apply. ${selectedCount} of ${totalCount} changes selected.`
           }
         </Text>
 
@@ -252,44 +305,91 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
           </Box>
         )}
 
-        {/* Diff by section */}
-        {sections.map((section) => (
-          <Box key={section} marginBottom={4}>
-            <Text variant="bodyStrong" marginBottom={2} __textTransform="capitalize">
-              {section}
-            </Text>
-            <Box backgroundColor="default1" borderRadius={4} padding={3}>
-              {groupedDiffs[section].map((entry, i) => (
-                <Box 
-                  key={i} 
-                  display="flex" 
-                  justifyContent="space-between" 
-                  alignItems="flex-start"
-                  paddingY={2}
-                  __borderBottomStyle={i < groupedDiffs[section].length - 1 ? "solid" : "none"}
-                  borderWidth={1}
-                  borderColor="default1"
-                >
-                  <Box __flex="1">
-                    <Text variant="caption" color="default2">
-                      {entry.path}
-                    </Text>
-                  </Box>
-                  <Box __flex="1" __textAlign="right">
-                    <Text variant="caption" color="critical1" style={{ textDecoration: "line-through" }}>
-                      {formatDiffValue(entry.currentValue)}
-                    </Text>
-                    <Text variant="caption" color="success1" marginLeft={2}>
-                      → {formatDiffValue(entry.newValue)}
-                    </Text>
-                  </Box>
+        {totalCount > 0 && (
+          <Box marginBottom={4} backgroundColor="default1" borderRadius={4} padding={4} boxShadow="defaultFocused">
+            <Box display="flex" alignItems="center" justifyContent="space-between" gap={4}>
+              <Box display="flex" alignItems="center" gap={3}>
+                <Checkbox
+                  checked={selectedCount === totalCount && totalCount > 0}
+                  onCheckedChange={(checked) => toggleAll(Boolean(checked))}
+                />
+                <Box>
+                  <Text variant="bodyStrong">Apply all changes</Text>
+                  <Text variant="caption" color="default2">
+                    Use this to accept or reject every change in the file
+                  </Text>
                 </Box>
-              ))}
+              </Box>
+              <Box __maxWidth="240px" width="100%">
+                <Input
+                  value={diffQuery}
+                  onChange={(event) => setDiffQuery(event.target.value)}
+                  placeholder="Filter changes"
+                  size="small"
+                />
+              </Box>
             </Box>
           </Box>
-        ))}
+        )}
 
-        {diff.length === 0 && (
+        {/* Diff by section */}
+        {filteredSections.map((sectionBlock) => {
+          const sectionSelected = sectionBlock.entries.every((entry) => selectedPaths.has(entry.path));
+          return (
+            <Box key={sectionBlock.section} marginBottom={4}>
+              <Box display="flex" alignItems="center" justifyContent="space-between" marginBottom={2}>
+                <Box display="flex" alignItems="center" gap={2}>
+                  <Checkbox
+                    checked={sectionSelected}
+                    onCheckedChange={(checked) => toggleSection(sectionBlock.section, Boolean(checked))}
+                  />
+                  <Text variant="bodyStrong" __textTransform="capitalize">
+                    {sectionBlock.section}
+                  </Text>
+                </Box>
+                <Text variant="caption" color="default2">
+                  {sectionBlock.entries.filter((entry) => selectedPaths.has(entry.path)).length} selected
+                </Text>
+              </Box>
+              <Box backgroundColor="default1" borderRadius={4} padding={3}>
+                {sectionBlock.entries.map((entry, i) => (
+                  <Box 
+                    key={entry.path}
+                    display="flex" 
+                    justifyContent="space-between" 
+                    alignItems="flex-start"
+                    paddingY={2}
+                    __borderBottomStyle={i < sectionBlock.entries.length - 1 ? "solid" : "none"}
+                    borderWidth={1}
+                    borderColor="default1"
+                  >
+                    <Box display="flex" alignItems="flex-start" gap={2} __flex="1">
+                      <Checkbox
+                        checked={selectedPaths.has(entry.path)}
+                        onCheckedChange={(checked) => toggleEntry(entry.path, Boolean(checked))}
+                      />
+                      <Box>
+                        <Text variant="caption" color="default2">
+                          {entry.path}
+                        </Text>
+                      </Box>
+                    </Box>
+                    <Box __flex="1" __textAlign="right">
+                      <Text variant="caption" color="critical1" style={{ textDecoration: "line-through" }}>
+                        {formatDiffValue(entry.currentValue)}
+                      </Text>
+                      <Text variant="caption" color="success1" marginLeft={2}>
+                        → {formatDiffValue(entry.newValue)}
+                      </Text>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          );
+        })}
+
+        {totalCount === 0 && (
           <Box padding={4} backgroundColor="default1" borderRadius={4}>
             <Text variant="caption" color="default2">
               The configuration is already up to date.
@@ -304,13 +404,18 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
           <Button variant="tertiary" onClick={onCancel}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleApply} disabled={diff.length === 0}>
-            Apply Changes
+          <Button
+            variant="primary"
+            onClick={handleApply}
+            disabled={totalCount === 0 || selectedCount === 0}
+          >
+            Apply Selected Changes
           </Button>
         </Box>
       </Box>
     );
   }
+
 
   // Applying step
   if (step === "applying") {

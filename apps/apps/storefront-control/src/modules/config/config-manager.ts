@@ -89,14 +89,29 @@ export class StorefrontConfigManager {
 
   /**
    * Set configuration for a specific channel.
+   * Automatically increments version and sets updatedAt timestamp.
    */
   async setForChannel(channelSlug: string, config: StorefrontConfig): Promise<void> {
     const key = this.getKey(channelSlug);
     
     console.log(`[StorefrontConfigManager] Saving config for key: ${key}`);
     
+    // Get current config to increment version
+    const current = await this.getForChannel(channelSlug);
+    const currentVersion = current?.version ?? 0;
+    const newVersion = currentVersion + 1;
+    
+    // Ensure updatedAt is set to current timestamp and version is incremented
+    const configWithTimestamp: StorefrontConfig = {
+      ...config,
+      version: newVersion,
+      updatedAt: new Date().toISOString(),
+    };
+    
+    console.log(`[StorefrontConfigManager] Version: ${currentVersion} → ${newVersion}`);
+    
     // Validate before saving
-    const validated = StorefrontConfigSchema.parse(config);
+    const validated = StorefrontConfigSchema.parse(configWithTimestamp);
     const jsonValue = JSON.stringify(validated);
     
     console.log(`[StorefrontConfigManager] Config size: ${jsonValue.length} bytes`);
@@ -106,7 +121,7 @@ export class StorefrontConfigManager {
         key,
         value: jsonValue,
       });
-      console.log(`[StorefrontConfigManager] Successfully saved config for ${channelSlug}`);
+      console.log(`[StorefrontConfigManager] ✅ Successfully saved config for ${channelSlug} (version ${newVersion})`);
     } catch (error) {
       console.error(`[StorefrontConfigManager] Error saving config for ${channelSlug}:`, error);
       throw error; // Re-throw so caller knows it failed

@@ -1,13 +1,74 @@
-import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
-import { storeConfig } from "@/config";
-import * as Checkout from "@/lib/checkout";
-import clsx from "clsx";
+"use client";
 
-export async function MobileCartButtonContent({ isActive, channel }: { isActive: boolean; channel: string }) {
-  const { branding } = storeConfig;
-  const checkoutId = await Checkout.getIdFromCookies(channel);
-  const checkout = checkoutId ? await Checkout.find(checkoutId) : null;
-  const lineCount = checkout ? checkout.lines.reduce((result, line) => result + line.quantity, 0) : 0;
+import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
+import { useBranding, useContentConfig } from "@/providers/StoreConfigProvider";
+import clsx from "clsx";
+import { useEffect, useState } from "react";
+
+export function MobileCartButtonContent({ isActive, channel }: { isActive: boolean; channel: string }) {
+  const branding = useBranding();
+  const content = useContentConfig();
+  const navbarText = content.navbar;
+  const [lineCount, setLineCount] = useState(0);
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+    let isMounted = true;
+
+    const getCartCount = async () => {
+      // Don't poll if page is hidden
+      if (document.hidden) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/cart-count?channel=${encodeURIComponent(channel)}`, {
+          cache: 'no-store',
+        });
+        if (response.ok && isMounted) {
+          const data = await response.json();
+          setLineCount(data.count || 0);
+        }
+      } catch (error) {
+        // Silently fail - cart count is not critical
+        if (process.env.NODE_ENV === "development") {
+          console.debug('[MobileCartButtonContent] Could not fetch cart count:', error);
+        }
+      }
+    };
+
+    // Initial fetch
+    getCartCount();
+    
+    // Poll every 10 seconds (reduced from 2 seconds)
+    intervalId = setInterval(getCartCount, 10000);
+    
+    // Listen for cart updates via custom events (immediate update)
+    const handleCartUpdate = () => {
+      if (isMounted) {
+        getCartCount();
+      }
+    };
+    
+    // Listen for visibility changes to resume polling when page becomes visible
+    const handleVisibilityChange = () => {
+      if (!document.hidden && isMounted) {
+        getCartCount();
+      }
+    };
+    
+    window.addEventListener('cart-updated', handleCartUpdate);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      isMounted = false;
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+      window.removeEventListener('cart-updated', handleCartUpdate);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [channel]);
 
   return (
     <LinkWithChannel
@@ -43,7 +104,7 @@ export async function MobileCartButtonContent({ isActive, channel }: { isActive:
           {lineCount > 99 ? "99+" : lineCount}
         </div>
       )}
-      <span className="text-[10px] font-medium">Cart</span>
+      <span className="text-[10px] font-medium">{navbarText.cartLabel}</span>
     </LinkWithChannel>
   );
 }

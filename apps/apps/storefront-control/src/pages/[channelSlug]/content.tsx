@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { AppLayout } from "@/modules/ui/app-layout";
 import { SectionCard } from "@/modules/ui/section-card";
 import { FormField } from "@/modules/ui/form-field";
+import { StickySaveBar } from "@/modules/ui/sticky-save-bar";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { ContentSchema } from "@/modules/config/schema";
 import type { StorefrontConfig } from "@/modules/config/schema";
@@ -63,16 +64,22 @@ const ContentPage: NextPage = () => {
 
   if (!appBridgeState?.ready || isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-        <Text>Loading...</Text>
-      </Box>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+        <span>Loading...</span>
+      </div>
     );
   }
 
   return (
     <AppLayout channelSlug={channelSlug} channelName={config?.store.name} activeTab="content">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <SectionCard title="Cart Page" description="Text shown on the cart page">
+        <SectionCard
+          id="content-cart"
+          title="Cart Page"
+          description="Text shown on the cart page"
+          keywords={["cart", "checkout", "free shipping"]}
+          icon="🛒"
+        >
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
             <FormField
               label="Cart Title"
@@ -438,7 +445,12 @@ const ContentPage: NextPage = () => {
         </SectionCard>
 
         {/* Product Text - matches ProductTextSchema */}
-        <SectionCard title="Product Page" description="Text shown on product detail pages">
+        <SectionCard
+          id="content-product"
+          title="Product Page"
+          description="Text shown on product detail pages"
+          keywords={["product", "reviews", "badges"]}
+        >
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
             <FormField
               label="Add to Cart Button"
@@ -542,7 +554,13 @@ const ContentPage: NextPage = () => {
         </SectionCard>
 
         {/* Account Text - matches AccountTextSchema */}
-        <SectionCard title="Account Pages" description="Text for authentication and account pages">
+        <SectionCard
+          id="content-account"
+          title="Account Pages"
+          description="Text for authentication and account pages"
+          keywords={["account", "login", "signup", "profile"]}
+          icon="👤"
+        >
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
             <FormField
               label="Sign In Title"
@@ -653,7 +671,12 @@ const ContentPage: NextPage = () => {
         </SectionCard>
 
         {/* General Text - matches GeneralTextSchema */}
-        <SectionCard title="General" description="Common text used throughout the store">
+        <SectionCard
+          id="content-general"
+          title="General"
+          description="Common text used throughout the store"
+          keywords={["buttons", "labels", "newsletter", "search"]}
+        >
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
             <FormField
               label="Search Placeholder"
@@ -764,7 +787,13 @@ const ContentPage: NextPage = () => {
         </SectionCard>
 
         {/* Homepage Text - matches HomepageTextSchema */}
-        <SectionCard title="Homepage Sections" description="Text for homepage section headings">
+        <SectionCard
+          id="content-homepage"
+          title="Homepage Sections"
+          description="Text for homepage section headings"
+          keywords={["homepage", "sections", "titles"]}
+          icon="🏠"
+        >
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
             <FormField
               label="New Arrivals Title"
@@ -865,6 +894,69 @@ const ContentPage: NextPage = () => {
               placeholder="Real reviews from real customers"
             />
             <FormField
+              label="Average Rating Label"
+              name="homepage.averageRatingLabel"
+              register={register}
+              errors={errors}
+              placeholder="Average Rating"
+            />
+            <FormField
+              label="Happy Customers Label"
+              name="homepage.happyCustomersLabel"
+              register={register}
+              errors={errors}
+              placeholder="Happy Customers"
+            />
+            <FormField
+              label="Satisfaction Rate Label"
+              name="homepage.satisfactionRateLabel"
+              register={register}
+              errors={errors}
+              placeholder="Satisfaction Rate"
+            />
+            <FormField
+              label="Orders Delivered Label"
+              name="homepage.ordersDeliveredLabel"
+              register={register}
+              errors={errors}
+              placeholder="Orders Delivered"
+            />
+            <FormField
+              label="Verified Purchase Label"
+              name="homepage.verifiedPurchaseLabel"
+              register={register}
+              errors={errors}
+              placeholder="Verified Purchase"
+            />
+            <FormField
+              label="Loading Reviews Text"
+              name="homepage.loadingReviewsText"
+              register={register}
+              errors={errors}
+              placeholder="Loading reviews..."
+            />
+            <FormField
+              label="No Reviews Available Text"
+              name="homepage.noReviewsAvailableText"
+              register={register}
+              errors={errors}
+              placeholder="No reviews available yet. Be the first to review our products!"
+            />
+            <FormField
+              label="No Reviews Subtext"
+              name="homepage.noReviewsSubtext"
+              register={register}
+              errors={errors}
+              placeholder="Reviews will appear here once customers start leaving feedback."
+            />
+            <FormField
+              label="No Approved Reviews Text"
+              name="homepage.noApprovedReviewsText"
+              register={register}
+              errors={errors}
+              placeholder="No approved reviews with 4+ stars yet. {count} review(s) pending approval."
+            />
+            <FormField
               label="Hero CTA Text"
               name="homepage.heroCtaText"
               register={register}
@@ -903,7 +995,12 @@ const ContentPage: NextPage = () => {
         </SectionCard>
 
         {/* Checkout Text - matches CheckoutTextSchema */}
-        <SectionCard title="Checkout" description="Text for checkout process">
+        <SectionCard
+          id="content-checkout"
+          title="Checkout"
+          description="Text for checkout process"
+          keywords={["checkout", "order", "payment"]}
+        >
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
             <FormField
               label="Secure Checkout"
@@ -1000,7 +1097,13 @@ const ContentPage: NextPage = () => {
         </SectionCard>
 
         {/* Filters Text - matches FiltersTextSchema */}
-        <SectionCard title="Filters & Product List" description="Text for filters, sorting, and product list pages">
+        <SectionCard
+          id="content-filters"
+          title="Filters & Product List"
+          description="Text for filters, sorting, and product list pages"
+          keywords={["filters", "sorting", "search"]}
+          icon="🔍"
+        >
           <Text variant="bodyStrong" marginBottom={3}>Section Titles</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4} marginBottom={6}>
             <FormField
@@ -1336,6 +1439,14 @@ const ContentPage: NextPage = () => {
               placeholder="Filters"
             />
             <FormField
+              label="Search For Text"
+              name="filters.searchForText"
+              register={register}
+              errors={errors}
+              placeholder="for"
+              description="Text between count and search query (e.g., '10 for shoes')"
+            />
+            <FormField
               label="Results Text"
               name="filters.resultsText"
               register={register}
@@ -1477,7 +1588,12 @@ const ContentPage: NextPage = () => {
         </SectionCard>
 
         {/* Product Detail Page */}
-        <SectionCard title="Product Detail Page" description="Trust badges, tabs, and review form text">
+        <SectionCard
+          id="content-product-detail"
+          title="Product Detail Page"
+          description="Trust badges, tabs, and review form text"
+          keywords={["product detail", "reviews", "tabs"]}
+        >
           <Text variant="bodyStrong" marginBottom={3}>Trust Badges</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4} marginBottom={6}>
             <FormField
@@ -2100,7 +2216,13 @@ const ContentPage: NextPage = () => {
         </SectionCard>
 
         {/* Dashboard */}
-        <SectionCard title="Dashboard" description="Account dashboard text">
+        <SectionCard
+          id="content-dashboard"
+          title="Dashboard"
+          description="Account dashboard text"
+          keywords={["dashboard", "account", "orders"]}
+          icon="📊"
+        >
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
             <FormField
               label="Welcome Back"
@@ -2218,7 +2340,12 @@ const ContentPage: NextPage = () => {
         </SectionCard>
 
         {/* Orders */}
-        <SectionCard title="Orders Page" description="Orders list and detail text">
+        <SectionCard
+          id="content-orders"
+          title="Orders Page"
+          description="Orders list and detail text"
+          keywords={["orders", "invoice", "tracking"]}
+        >
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
             <FormField
               label="Order Number"
@@ -2480,10 +2607,319 @@ const ContentPage: NextPage = () => {
               placeholder="Loading..."
             />
           </Box>
+
+          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>Order Details Page</Text>
+          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
+            <FormField
+              label="Back to Orders"
+              name="orders.backToOrders"
+              register={register}
+              errors={errors}
+              placeholder="Back to Orders"
+            />
+            <FormField
+              label="Placed On"
+              name="orders.placedOn"
+              register={register}
+              errors={errors}
+              placeholder="Placed on"
+            />
+            <FormField
+              label="Order Items Title"
+              name="orders.orderItemsTitle"
+              register={register}
+              errors={errors}
+              placeholder="Order Items"
+            />
+            <FormField
+              label="View Product"
+              name="orders.viewProduct"
+              register={register}
+              errors={errors}
+              placeholder="View Product"
+            />
+            <FormField
+              label="Order Summary Title"
+              name="orders.orderSummaryTitle"
+              register={register}
+              errors={errors}
+              placeholder="Order Summary"
+            />
+            <FormField
+              label="Subtotal Label"
+              name="orders.subtotalLabel"
+              register={register}
+              errors={errors}
+              placeholder="Subtotal"
+            />
+            <FormField
+              label="Shipping Label"
+              name="orders.shippingLabel"
+              register={register}
+              errors={errors}
+              placeholder="Shipping"
+            />
+            <FormField
+              label="Shipping Free"
+              name="orders.shippingFree"
+              register={register}
+              errors={errors}
+              placeholder="Free"
+            />
+            <FormField
+              label="Total Label (Details)"
+              name="orders.totalLabelDetails"
+              register={register}
+              errors={errors}
+              placeholder="Total"
+            />
+            <FormField
+              label="Shipping Address Title"
+              name="orders.shippingAddressTitle"
+              register={register}
+              errors={errors}
+              placeholder="Shipping Address"
+            />
+            <FormField
+              label="Billing Address Title"
+              name="orders.billingAddressTitle"
+              register={register}
+              errors={errors}
+              placeholder="Billing Address"
+            />
+            <FormField
+              label="Shipment Tracking Title"
+              name="orders.shipmentTrackingTitle"
+              register={register}
+              errors={errors}
+              placeholder="Shipment Tracking"
+            />
+            <FormField
+              label="Status Label (Details)"
+              name="orders.statusLabelDetails"
+              register={register}
+              errors={errors}
+              placeholder="Status"
+            />
+            <FormField
+              label="Tracking Number Label (Details)"
+              name="orders.trackingNumberLabelDetails"
+              register={register}
+              errors={errors}
+              placeholder="Tracking #"
+            />
+            <FormField
+              label="Invoice Title"
+              name="orders.invoiceTitle"
+              register={register}
+              errors={errors}
+              placeholder="Invoice"
+            />
+            <FormField
+              label="Invoice Number Prefix"
+              name="orders.invoiceNumberPrefix"
+              register={register}
+              errors={errors}
+              placeholder="Invoice #"
+            />
+            <FormField
+              label="Download Button"
+              name="orders.downloadButton"
+              register={register}
+              errors={errors}
+              placeholder="Download"
+            />
+            <FormField
+              label="Generating Text"
+              name="orders.generatingText"
+              register={register}
+              errors={errors}
+              placeholder="Generating..."
+            />
+            <FormField
+              label="Unavailable Text"
+              name="orders.unavailableText"
+              register={register}
+              errors={errors}
+              placeholder="Unavailable"
+            />
+            <FormField
+              label="Quick Actions Title"
+              name="orders.quickActionsTitle"
+              register={register}
+              errors={errors}
+              placeholder="Quick Actions"
+            />
+            <FormField
+              label="Need Help Title"
+              name="orders.needHelpTitle"
+              register={register}
+              errors={errors}
+              placeholder="Need Help?"
+            />
+            <FormField
+              label="Contact Support Button"
+              name="orders.contactSupportButton"
+              register={register}
+              errors={errors}
+              placeholder="Contact Support"
+            />
+            <FormField
+              label="View FAQs Button"
+              name="orders.viewFaqsButton"
+              register={register}
+              errors={errors}
+              placeholder="View FAQs"
+            />
+          </Box>
+
+          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>Order Status Labels</Text>
+          <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4} marginBottom={6}>
+            <FormField
+              label="Processing"
+              name="orders.statusProcessing"
+              register={register}
+              errors={errors}
+              placeholder="Processing"
+            />
+            <FormField
+              label="Partially Shipped"
+              name="orders.statusPartiallyShipped"
+              register={register}
+              errors={errors}
+              placeholder="Partially Shipped"
+            />
+            <FormField
+              label="Shipped"
+              name="orders.statusShipped"
+              register={register}
+              errors={errors}
+              placeholder="Shipped"
+            />
+            <FormField
+              label="Delivered"
+              name="orders.statusDelivered"
+              register={register}
+              errors={errors}
+              placeholder="Delivered"
+            />
+            <FormField
+              label="Canceled"
+              name="orders.statusCanceled"
+              register={register}
+              errors={errors}
+              placeholder="Canceled"
+            />
+            <FormField
+              label="Returned"
+              name="orders.statusReturned"
+              register={register}
+              errors={errors}
+              placeholder="Returned"
+            />
+          </Box>
+
+          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>Payment Status Labels</Text>
+          <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4} marginBottom={6}>
+            <FormField
+              label="Pending"
+              name="orders.paymentPending"
+              register={register}
+              errors={errors}
+              placeholder="Pending"
+            />
+            <FormField
+              label="Partially Paid"
+              name="orders.paymentPartiallyPaid"
+              register={register}
+              errors={errors}
+              placeholder="Partially Paid"
+            />
+            <FormField
+              label="Paid"
+              name="orders.paymentPaid"
+              register={register}
+              errors={errors}
+              placeholder="Paid"
+            />
+            <FormField
+              label="Partially Refunded"
+              name="orders.paymentPartiallyRefunded"
+              register={register}
+              errors={errors}
+              placeholder="Partially Refunded"
+            />
+            <FormField
+              label="Refunded"
+              name="orders.paymentRefunded"
+              register={register}
+              errors={errors}
+              placeholder="Refunded"
+            />
+            <FormField
+              label="Payment Failed"
+              name="orders.paymentFailed"
+              register={register}
+              errors={errors}
+              placeholder="Payment Failed"
+            />
+            <FormField
+              label="Payment Cancelled"
+              name="orders.paymentCancelled"
+              register={register}
+              errors={errors}
+              placeholder="Cancelled"
+            />
+          </Box>
+
+          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>Reorder Button</Text>
+          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
+            <FormField
+              label="Reorder Items"
+              name="orders.reorderItems"
+              register={register}
+              errors={errors}
+              placeholder="Reorder Items"
+            />
+            <FormField
+              label="Adding to Cart"
+              name="orders.addingToCart"
+              register={register}
+              errors={errors}
+              placeholder="Adding to Cart..."
+            />
+            <FormField
+              label="Items Added to Cart"
+              name="orders.itemsAddedToCart"
+              register={register}
+              errors={errors}
+              placeholder="{count} item(s) added to cart!"
+            />
+            <FormField
+              label="Redirecting to Cart"
+              name="orders.redirectingToCart"
+              register={register}
+              errors={errors}
+              placeholder="Redirecting to cart..."
+            />
+            <FormField
+              label="Try Again"
+              name="orders.tryAgain"
+              register={register}
+              errors={errors}
+              placeholder="Try Again"
+            />
+          </Box>
         </SectionCard>
 
         {/* Addresses */}
-        <SectionCard title="Addresses Page" description="Address management text">
+        <SectionCard
+          id="content-addresses"
+          title="Addresses Page"
+          description="Address management text"
+          keywords={["addresses", "shipping", "billing"]}
+          icon="📍"
+        >
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
             <FormField
               label="My Addresses"
@@ -2615,7 +3051,12 @@ const ContentPage: NextPage = () => {
         </SectionCard>
 
         {/* Wishlist */}
-        <SectionCard title="Wishlist Page" description="Wishlist page text">
+        <SectionCard
+          id="content-wishlist"
+          title="Wishlist Page"
+          description="Wishlist page text"
+          keywords={["wishlist", "saved"]}
+        >
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
             <FormField
               label="My Wishlist Title"
@@ -2719,7 +3160,13 @@ const ContentPage: NextPage = () => {
         </SectionCard>
 
         {/* Settings */}
-        <SectionCard title="Settings Page" description="Account settings page text">
+        <SectionCard
+          id="content-settings"
+          title="Settings Page"
+          description="Account settings page text"
+          keywords={["settings", "account", "preferences"]}
+          icon="⚙️"
+        >
           <Text variant="bodyStrong" marginBottom={3}>Page Header</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
@@ -2917,7 +3364,12 @@ const ContentPage: NextPage = () => {
         </SectionCard>
 
         {/* Footer */}
-        <SectionCard title="Footer" description="Footer text and legal links">
+        <SectionCard
+          id="content-footer"
+          title="Footer"
+          description="Footer text and legal links"
+          keywords={["footer", "links", "legal"]}
+        >
           <Text variant="bodyStrong" marginBottom={3}>Legal Links</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr 1fr" gap={4} marginBottom={6}>
             <FormField
@@ -3009,7 +3461,13 @@ const ContentPage: NextPage = () => {
         </SectionCard>
 
         {/* Navbar */}
-        <SectionCard title="Navbar" description="Navigation bar text">
+        <SectionCard
+          id="content-navbar"
+          title="Navbar"
+          description="Navigation bar text"
+          keywords={["navbar", "menu", "navigation"]}
+          icon="🧭"
+        >
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4}>
             <FormField
               label="Select Channel"
@@ -3064,7 +3522,12 @@ const ContentPage: NextPage = () => {
         </SectionCard>
 
         {/* Error Page */}
-        <SectionCard title="Error Page" description="Error page text shown when something goes wrong">
+        <SectionCard
+          id="content-error"
+          title="Error Page"
+          description="Error page text shown when something goes wrong"
+          keywords={["error", "empty state"]}
+        >
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
             <FormField
               label="Title"
@@ -3119,7 +3582,13 @@ const ContentPage: NextPage = () => {
         </SectionCard>
 
         {/* 404 Not Found Page */}
-        <SectionCard title="404 Not Found Page" description="404 page text shown when a page is not found">
+        <SectionCard
+          id="content-404"
+          title="404 Not Found Page"
+          description="404 page text shown when a page is not found"
+          keywords={["404", "not found"]}
+          icon="🔍"
+        >
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
             <FormField
               label="Title"
@@ -3159,36 +3628,14 @@ const ContentPage: NextPage = () => {
           </Box>
         </SectionCard>
 
-        {/* Submit */}
-        <Box display="flex" justifyContent="flex-end" gap={4} marginTop={6}>
-          <Button
-            type="button"
-            variant="tertiary"
-            onClick={() => reset(config?.content)}
-            disabled={!isDirty}
-          >
-            Reset
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            disabled={!isDirty || saveStatus === "saving"}
-          >
-            {saveStatus === "saving" ? "Saving..." : "Save Changes"}
-          </Button>
-        </Box>
-
-        {/* Status Messages */}
-        {saveStatus === "success" && (
-          <Text color="success1" marginTop={2}>
-            Changes saved successfully
-          </Text>
-        )}
-        {saveStatus === "error" && (
-          <Text color="critical1" marginTop={2}>
-            Error saving changes. Please try again.
-          </Text>
-        )}
+        <StickySaveBar
+          isDirty={isDirty}
+          isLoading={saveStatus === "saving"}
+          isSuccess={saveStatus === "success"}
+          isError={saveStatus === "error"}
+          onReset={() => reset(config?.content)}
+          onSubmit={handleSubmit(onSubmit)}
+        />
       </form>
     </AppLayout>
   );

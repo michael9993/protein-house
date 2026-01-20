@@ -1,10 +1,15 @@
 "use client";
 
+import React from "react";
 import Image from "next/image";
 import { useStoreConfig, useFeature, useContentConfig } from "@/providers/StoreConfigProvider";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { type ProductListItemFragment } from "@/gql/graphql";
 import { formatMoneyRange } from "@/lib/utils";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { SectionHeader } from "./SectionHeader";
+import { generateSectionBackground, generatePatternOverlay, type SectionBackgroundConfig } from "@/lib/section-backgrounds";
+import { useWishlist } from "@/lib/wishlist";
 
 type ProductGridType = "newArrivals" | "bestSellers" | "onSale" | "featured";
 
@@ -78,51 +83,68 @@ export function ProductGrid({
     4: "sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
   }[columns];
 
+  const { elementRef, isVisible } = useScrollAnimation({ threshold: 0.05, rootMargin: "0px 0px -100px 0px" });
+
+  // Get background config for this section
+  const backgroundConfig = sectionConfig.background as SectionBackgroundConfig | undefined;
+  
+  // Generate background styles
+  const backgroundStyles = generateSectionBackground(backgroundConfig, branding);
+  const patternOverlay = generatePatternOverlay(backgroundConfig, branding);
+
+  // Merge background styles with animation styles
+  const sectionStyles: React.CSSProperties = {
+    ...backgroundStyles,
+    transform: isVisible ? 'translateY(0)' : 'translateY(16px)',
+    transition: 'opacity 300ms ease-out, transform 300ms ease-out',
+    willChange: isVisible ? 'auto' : 'transform, opacity',
+  };
+
   return (
     <section 
-      className="py-16 sm:py-20"
-      style={{ backgroundColor: type === "onSale" ? branding.colors.surface : "transparent" }}
+      ref={elementRef}
+      className={`premium-band py-16 sm:py-20 transition-opacity duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      style={sectionStyles}
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="flex items-end justify-between">
-          <div>
-            <h2 
-              className="heading text-3xl font-bold tracking-tight sm:text-4xl"
-              style={{ color: branding.colors.text }}
-            >
-              {displayTitle}
-              {type === "onSale" && (
-                <span 
-                  className="ml-3 inline-flex items-center rounded-full px-3 py-1 text-sm font-medium"
-                  style={{ 
-                    backgroundColor: branding.colors.error,
-                    color: "white",
-                  }}
-                >
-                  Sale
-                </span>
-              )}
-            </h2>
-            <p 
-              className="mt-2 text-lg"
-              style={{ color: branding.colors.textMuted }}
-            >
-              {displaySubtitle}
-            </p>
-          </div>
-          
-          <LinkWithChannel
-            href={displayLink}
-            className="hidden items-center gap-2 font-medium transition-all hover:gap-3 sm:inline-flex"
-            style={{ color: branding.colors.primary }}
-          >
-            {content.general.viewAllButton}
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </LinkWithChannel>
+      {/* Pattern overlay for pattern backgrounds */}
+      {patternOverlay && (
+        <div className="absolute inset-0" style={{ opacity: (backgroundConfig?.patternOpacity ?? 10) / 100 }}>
+          <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id={patternOverlay.patternId} width="40" height="40" patternUnits="userSpaceOnUse">
+                {backgroundConfig?.patternType === "grid" && (
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke={branding.colors.text} strokeWidth="1"/>
+                )}
+                {backgroundConfig?.patternType === "dots" && (
+                  <circle cx="10" cy="10" r="1.5" fill={branding.colors.text}/>
+                )}
+                {backgroundConfig?.patternType === "lines" && (
+                  <path d="M 0 20 L 40 20" fill="none" stroke={branding.colors.text} strokeWidth="1"/>
+                )}
+                {backgroundConfig?.patternType === "waves" && (
+                  <>
+                    <path d="M 0 30 Q 15 20, 30 30 T 60 30" fill="none" stroke={branding.colors.text} strokeWidth="1"/>
+                    <path d="M 0 40 Q 15 50, 30 40 T 60 40" fill="none" stroke={branding.colors.text} strokeWidth="1"/>
+                  </>
+                )}
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill={`url(#${patternOverlay.patternId})`} />
+          </svg>
         </div>
+      )}
+      <div className="premium-band-content relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
+        <SectionHeader
+          title={displayTitle}
+          subtitle={displaySubtitle}
+          type={type === "onSale" ? "sale" : "products"}
+          viewAllLink={displayLink}
+          viewAllText={content.general.viewAllButton}
+          align="left"
+          showBadge={type === "onSale"}
+          badgeText={content.product.saleBadgeText}
+        />
 
         {/* Products Grid */}
         <div className={`mt-10 grid gap-6 ${gridColsClass}`}>
@@ -180,6 +202,9 @@ function ProductCard({
   ecommerce: _ecommerce,
   content,
 }: ProductCardProps) {
+  const { addItem, removeItem, isInWishlist } = useWishlist();
+  const isWishlisted = isInWishlist(product.id);
+  
   const priceRange = formatMoneyRange({
     start: product.pricing?.priceRange?.start?.gross,
     stop: product.pricing?.priceRange?.stop?.gross,
@@ -190,19 +215,57 @@ function ProductCard({
   const priceStop = product.pricing?.priceRange?.stop?.gross?.amount;
   const isOnSale = priceStart && priceStop && priceStart < priceStop;
   
+  // Check stock
+  const totalStock = product.variants?.reduce((sum, v) => sum + (v.quantityAvailable || 0), 0) ?? 0;
+  const isInStock = totalStock > 0;
+  
+  const handleWishlistClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (isWishlisted) {
+      await removeItem(product.id);
+    } else {
+      await addItem({
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        price: product.pricing?.priceRange?.start?.gross?.amount || 0,
+        originalPrice: product.pricing?.priceRangeUndiscounted?.start?.gross?.amount,
+        currency: product.pricing?.priceRange?.start?.gross?.currency || "USD",
+        image: product.thumbnail?.url || "",
+        imageAlt: product.thumbnail?.alt || product.name,
+        category: product.category?.name || undefined,
+        inStock: isInStock,
+      });
+    }
+  };
+  
+  // Use a simple fade-in with stagger for product cards
+  // Cards appear quickly after section is visible
   return (
     <div 
-      className="group animate-fade-in-up"
+      className="group"
       style={{ 
-        animationDelay: `${index * 50}ms`,
-        animationFillMode: "both",
+        opacity: 1,
+        animation: `fadeInUp 400ms ease-out ${index * 40}ms both`,
+        willChange: 'transform, opacity',
       }}
     >
       <LinkWithChannel href={`/products/${product.slug}`}>
-        <div 
-          className="relative overflow-hidden"
-          style={{ borderRadius: `var(--store-radius)` }}
+        <div
+          className="relative overflow-hidden border border-neutral-200/50 bg-white transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl"
+          style={{
+            borderRadius: `var(--store-radius)`,
+            boxShadow: `0 4px 16px -4px ${branding.colors.primary}15`,
+          }}
         >
+          <div
+            className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            style={{
+              background: `linear-gradient(135deg, ${branding.colors.primary}08, transparent 60%)`,
+            }}
+          />
           {/* Product Image */}
           {product.thumbnail?.url && (
             <div className="aspect-square overflow-hidden bg-neutral-100">
@@ -211,7 +274,7 @@ function ProductCard({
                 alt={product.thumbnail.alt || product.name}
                 width={400}
                 height={400}
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                 loading={index < 4 ? "eager" : "lazy"}
               />
             </div>
@@ -221,16 +284,22 @@ function ProductCard({
           <div className="absolute left-3 top-3 flex flex-col gap-2">
             {(showSaleBadge || isOnSale) && (
               <span 
-                className="rounded-full px-3 py-1 text-xs font-bold text-white"
-                style={{ backgroundColor: branding.colors.error }}
+                className="rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide text-white"
+                style={{ 
+                  backgroundColor: branding.colors.error,
+                  boxShadow: `0 8px 20px ${branding.colors.error}55`,
+                }}
               >
                 {content.product.saleBadgeText}
               </span>
             )}
             {index < 2 && (
               <span 
-                className="rounded-full px-3 py-1 text-xs font-bold text-white"
-                style={{ backgroundColor: branding.colors.primary }}
+                className="rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide text-white"
+                style={{ 
+                  backgroundColor: branding.colors.primary,
+                  boxShadow: `0 8px 20px ${branding.colors.primary}55`,
+                }}
               >
                 {content.product.newBadgeText}
               </span>
@@ -240,44 +309,36 @@ function ProductCard({
           {/* Wishlist Button */}
           {showWishlist && (
             <button 
-              className="absolute right-3 top-3 rounded-full bg-white/90 p-2 opacity-0 shadow-md transition-all hover:bg-white group-hover:opacity-100"
-              onClick={(e) => {
-                e.preventDefault();
-                // TODO: Add to wishlist
+              className="absolute right-3 top-3 z-10 rounded-full border border-neutral-200/60 bg-white/90 p-2 shadow-md backdrop-blur transition-all hover:bg-white hover:opacity-100"
+              onClick={handleWishlistClick}
+              aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+              style={{ 
+                color: isWishlisted ? branding.colors.error : branding.colors.text,
+                opacity: isWishlisted ? 1 : 0.7,
               }}
-              aria-label="Add to wishlist"
             >
               <svg 
                 className="h-5 w-5" 
-                fill="none" 
+                fill={isWishlisted ? "currentColor" : "none"}
                 viewBox="0 0 24 24" 
                 stroke="currentColor"
-                style={{ color: branding.colors.text }}
+                strokeWidth={isWishlisted ? 0 : 2}
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </button>
           )}
         </div>
 
         {/* Product Info */}
-        <div className="mt-4">
-          <h3 
-            className="font-medium transition-colors group-hover:underline"
-            style={{ color: branding.colors.text }}
-          >
+        <div className="mt-4 p-4">
+          <h3 className="font-semibold text-store-text transition-colors group-hover:text-store-primary">
             {product.name}
           </h3>
-          <p 
-            className="mt-1 text-sm"
-            style={{ color: branding.colors.textMuted }}
-          >
+          <p className="mt-1 text-sm text-store-text-muted">
             {product.category?.name}
           </p>
-          <p 
-            className="mt-2 font-semibold"
-            style={{ color: branding.colors.text }}
-          >
+          <p className="mt-2 font-semibold text-store-text">
             {priceRange}
           </p>
         </div>

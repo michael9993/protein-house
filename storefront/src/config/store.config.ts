@@ -198,31 +198,127 @@ export interface StoreConfig {
       featuredCategories: {
         enabled: boolean;
         limit: number;
+        background?: {
+          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass';
+          color?: string | null;
+          secondaryColor?: string | null;
+          mixPercentage?: number;
+          gradientDirection?: 'to-right' | 'to-left' | 'to-bottom' | 'to-top' | 'to-bottom-right' | 'to-top-left' | 'diagonal';
+          patternType?: 'grid' | 'dots' | 'lines' | 'waves';
+          patternOpacity?: number;
+          animationSpeed?: 'slow' | 'normal' | 'fast';
+          glassBlur?: number;
+          glassOpacity?: number;
+        };
       };
       newArrivals: {
         enabled: boolean;
         limit: number;
+        background?: {
+          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass';
+          color?: string | null;
+          secondaryColor?: string | null;
+          mixPercentage?: number;
+          gradientDirection?: 'to-right' | 'to-left' | 'to-bottom' | 'to-top' | 'to-bottom-right' | 'to-top-left' | 'diagonal';
+          patternType?: 'grid' | 'dots' | 'lines' | 'waves';
+          patternOpacity?: number;
+          animationSpeed?: 'slow' | 'normal' | 'fast';
+          glassBlur?: number;
+          glassOpacity?: number;
+        };
       };
       bestSellers: {
         enabled: boolean;
         limit: number;
+        background?: {
+          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass';
+          color?: string | null;
+          secondaryColor?: string | null;
+          mixPercentage?: number;
+          gradientDirection?: 'to-right' | 'to-left' | 'to-bottom' | 'to-top' | 'to-bottom-right' | 'to-top-left' | 'diagonal';
+          patternType?: 'grid' | 'dots' | 'lines' | 'waves';
+          patternOpacity?: number;
+          animationSpeed?: 'slow' | 'normal' | 'fast';
+          glassBlur?: number;
+          glassOpacity?: number;
+        };
       };
       onSale: {
         enabled: boolean;
         limit: number;
+        background?: {
+          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass';
+          color?: string | null;
+          secondaryColor?: string | null;
+          mixPercentage?: number;
+          gradientDirection?: 'to-right' | 'to-left' | 'to-bottom' | 'to-top' | 'to-bottom-right' | 'to-top-left' | 'diagonal';
+          patternType?: 'grid' | 'dots' | 'lines' | 'waves';
+          patternOpacity?: number;
+          animationSpeed?: 'slow' | 'normal' | 'fast';
+          glassBlur?: number;
+          glassOpacity?: number;
+        };
       };
       featuredBrands: {
         enabled: boolean;
+        background?: {
+          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass';
+          color?: string | null;
+          secondaryColor?: string | null;
+          mixPercentage?: number;
+          gradientDirection?: 'to-right' | 'to-left' | 'to-bottom' | 'to-top' | 'to-bottom-right' | 'to-top-left' | 'diagonal';
+          patternType?: 'grid' | 'dots' | 'lines' | 'waves';
+          patternOpacity?: number;
+          animationSpeed?: 'slow' | 'normal' | 'fast';
+          glassBlur?: number;
+          glassOpacity?: number;
+        };
       };
       testimonials: {
         enabled: boolean;
+        background?: {
+          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass';
+          color?: string | null;
+          secondaryColor?: string | null;
+          mixPercentage?: number;
+          gradientDirection?: 'to-right' | 'to-left' | 'to-bottom' | 'to-top' | 'to-bottom-right' | 'to-top-left' | 'diagonal';
+          patternType?: 'grid' | 'dots' | 'lines' | 'waves';
+          patternOpacity?: number;
+          animationSpeed?: 'slow' | 'normal' | 'fast';
+          glassBlur?: number;
+          glassOpacity?: number;
+        };
       };
       newsletter: {
         enabled: boolean;
+        background?: {
+          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass';
+          color?: string | null;
+          secondaryColor?: string | null;
+          mixPercentage?: number;
+          gradientDirection?: 'to-right' | 'to-left' | 'to-bottom' | 'to-top' | 'to-bottom-right' | 'to-top-left' | 'diagonal';
+          patternType?: 'grid' | 'dots' | 'lines' | 'waves';
+          patternOpacity?: number;
+          animationSpeed?: 'slow' | 'normal' | 'fast';
+          glassBlur?: number;
+          glassOpacity?: number;
+        };
       };
       instagramFeed: {
         enabled: boolean;
         username: string | null;
+        background?: {
+          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass';
+          color?: string | null;
+          secondaryColor?: string | null;
+          mixPercentage?: number;
+          gradientDirection?: 'to-right' | 'to-left' | 'to-bottom' | 'to-top' | 'to-bottom-right' | 'to-top-left' | 'diagonal';
+          patternType?: 'grid' | 'dots' | 'lines' | 'waves';
+          patternOpacity?: number;
+          animationSpeed?: 'slow' | 'normal' | 'fast';
+          glassBlur?: number;
+          glassOpacity?: number;
+        };
       };
     };
     sectionOrder?: HomepageSectionId[]; // Order of sections (defaults to standard order)
@@ -608,6 +704,15 @@ export interface StoreConfig {
       brandsSubtitle: string;
       testimonialsTitle: string;
       testimonialsSubtitle: string;
+      averageRatingLabel: string;
+      happyCustomersLabel: string;
+      satisfactionRateLabel: string;
+      ordersDeliveredLabel: string;
+      verifiedPurchaseLabel: string;
+      loadingReviewsText: string;
+      noReviewsAvailableText: string;
+      noReviewsSubtext: string;
+      noApprovedReviewsText: string;
       heroCtaText: string;
       heroSecondaryCtaText: string;
       // Category cards
@@ -743,6 +848,7 @@ export interface FiltersText {
   noResultsMessage: string;
   sortByLabel: string;
   filtersButtonText: string;
+  searchForText: string;  // Text between count and search query (e.g., "for")
   
   // Results text
   resultsText: string;
@@ -838,6 +944,7 @@ export const DEFAULT_FILTERS_TEXT: FiltersText = {
   // Sort dropdown
   sortByLabel: "Sort by:",
   filtersButtonText: "Filters",
+  searchForText: "for",  // Text between count and search query (e.g., "10 for 'shoes'")
   
   // Quick filters
   shopAllButton: "Shop All",
@@ -1185,6 +1292,51 @@ export const DEFAULT_ORDERS_TEXT: OrdersText = {
   universalTrackers: "Universal Trackers (Recommended)",
   directCarrierLinks: "Direct Carrier Links",
   loading: "Loading...",
+  // Order Details Page
+  backToOrders: "Back to Orders",
+  placedOn: "Placed on",
+  orderItemsTitle: "Order Items",
+  viewProduct: "View Product",
+  orderSummaryTitle: "Order Summary",
+  subtotalLabel: "Subtotal",
+  shippingLabel: "Shipping",
+  shippingFree: "Free",
+  totalLabelDetails: "Total",
+  shippingAddressTitle: "Shipping Address",
+  billingAddressTitle: "Billing Address",
+  shipmentTrackingTitle: "Shipment Tracking",
+  statusLabelDetails: "Status",
+  trackingNumberLabelDetails: "Tracking #",
+  invoiceTitle: "Invoice",
+  invoiceNumberPrefix: "Invoice #",
+  downloadButton: "Download",
+  generatingText: "Generating...",
+  unavailableText: "Unavailable",
+  quickActionsTitle: "Quick Actions",
+  needHelpTitle: "Need Help?",
+  contactSupportButton: "Contact Support",
+  viewFaqsButton: "View FAQs",
+  // Order Status Labels
+  statusProcessing: "Processing",
+  statusPartiallyShipped: "Partially Shipped",
+  statusShipped: "Shipped",
+  statusDelivered: "Delivered",
+  statusCanceled: "Canceled",
+  statusReturned: "Returned",
+  // Payment Status Labels
+  paymentPending: "Pending",
+  paymentPartiallyPaid: "Partially Paid",
+  paymentPaid: "Paid",
+  paymentPartiallyRefunded: "Partially Refunded",
+  paymentRefunded: "Refunded",
+  paymentFailed: "Payment Failed",
+  paymentCancelled: "Cancelled",
+  // Reorder Button
+  reorderItems: "Reorder Items",
+  addingToCart: "Adding to Cart...",
+  itemsAddedToCart: "{count} item(s) added to cart!",
+  redirectingToCart: "Redirecting to cart...",
+  tryAgain: "Try Again",
 };
 
 // Addresses Page Text defaults
@@ -1537,11 +1689,28 @@ export const defaultStoreConfig: StoreConfig = {
       featuredCategories: { enabled: true, limit: 6 },
       newArrivals: { enabled: true, limit: 8 },
       bestSellers: { enabled: true, limit: 8 },
-      onSale: { enabled: true, limit: 4 },
+      onSale: { 
+        enabled: true, 
+        limit: 4,
+        // Default sale section background (color-mix like before)
+        background: {
+          style: "color-mix",
+          mixPercentage: 8,
+        },
+      },
       featuredBrands: { enabled: false },
       testimonials: { enabled: true },
       newsletter: { enabled: true },
-      instagramFeed: { enabled: false, username: null },
+      instagramFeed: { 
+        enabled: false, 
+        username: null,
+        background: {
+          style: "color-mix" as const,
+          color: null,
+          secondaryColor: null,
+          mixPercentage: 8,
+        },
+      },
     },
     sectionOrder: DEFAULT_SECTION_ORDER,
   },
@@ -1789,6 +1958,15 @@ export const defaultStoreConfig: StoreConfig = {
       brandsSubtitle: "Shop by brand",
       testimonialsTitle: "What Our Customers Say",
       testimonialsSubtitle: "Real reviews from real customers",
+      averageRatingLabel: "Average Rating",
+      happyCustomersLabel: "Happy Customers",
+      satisfactionRateLabel: "Satisfaction Rate",
+      ordersDeliveredLabel: "Orders Delivered",
+      verifiedPurchaseLabel: "Verified Purchase",
+      loadingReviewsText: "Loading reviews...",
+      noReviewsAvailableText: "No reviews available yet. Be the first to review our products!",
+      noReviewsSubtext: "Reviews will appear here once customers start leaving feedback.",
+      noApprovedReviewsText: "No approved reviews with 4+ stars yet. {count} review(s) pending approval.",
       heroCtaText: "Shop Now",
       heroSecondaryCtaText: "Learn More",
       // Category cards

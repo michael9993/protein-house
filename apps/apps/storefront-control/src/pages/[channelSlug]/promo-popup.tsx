@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { AppLayout } from "@/modules/ui/app-layout";
 import { SectionCard } from "@/modules/ui/section-card";
 import { FormField } from "@/modules/ui/form-field";
+import { StickySaveBar } from "@/modules/ui/sticky-save-bar";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { PromoPopupSchema } from "@/modules/config/schema";
 import type { StorefrontConfig } from "@/modules/config/schema";
@@ -56,15 +57,38 @@ const PromoPopupPage: NextPage = () => {
   };
 
   if (!appBridgeState?.ready || isLoading) {
-    return <Box display="flex" justifyContent="center" alignItems="center" height="100vh"><Text>Loading...</Text></Box>;
+    return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}><span>Loading...</span></div>;
   }
 
   return (
     <AppLayout channelSlug={channelSlug} channelName={config?.store.name} activeTab="promoPopup">
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Main Toggle */}
-        <SectionCard title="🎯 Promotional Popup" description="Configure promotional popups to engage visitors with special offers">
-          <Box display="flex" alignItems="center" gap={3} marginBottom={4} paddingBottom={4} borderBottomWidth={1} borderBottomStyle="solid" borderColor="default2">
+        <SectionCard
+          id="promo-main"
+          title="Promotional Popup"
+          description="Configure promotional popups to engage visitors with special offers"
+          keywords={["popup", "promotion", "cta", "banner"]}
+          icon="🎁"
+        >
+
+          <Box 
+            display="flex" 
+            alignItems="flex-start" 
+            gap={3} 
+            marginBottom={4} 
+            padding={4}
+            borderRadius={4}
+            backgroundColor="default1"
+            borderWidth={1}
+            borderStyle="solid"
+            borderColor="default2"
+            __transition="all 0.2s ease"
+            __hover={{
+              borderColor: "accent1",
+              backgroundColor: "default2",
+            }}
+          >
             <Controller
               name="enabled"
               control={control}
@@ -72,9 +96,9 @@ const PromoPopupPage: NextPage = () => {
                 <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked)} />
               )}
             />
-            <Box>
-              <Text variant="bodyStrong">Enable Promotional Popup</Text>
-              <Text variant="caption" color="default2">Show promotional popups to visitors</Text>
+            <Box style={{ flex: 1 }}>
+              <Text variant="bodyStrong" fontWeight="bold" marginBottom={0.5} style={{ fontSize: "14px" }}>Enable Promotional Popup</Text>
+              <Text variant="caption" color="default2" style={{ fontSize: "12px", lineHeight: 1.5 }}>Show promotional popups to visitors</Text>
             </Box>
           </Box>
 
@@ -110,7 +134,13 @@ const PromoPopupPage: NextPage = () => {
 
         {/* Content Configuration */}
         {popupEnabled && !autoDetectSales && (
-          <SectionCard title="📝 Popup Content" description="Customize the text and messaging of your promotional popup">
+          <SectionCard
+            id="promo-content"
+            title="Popup Content"
+            description="Customize the text and messaging of your promotional popup"
+            keywords={["title", "body", "badge", "cta"]}
+          >
+
             <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
               <FormField 
                 label="Title" 
@@ -154,7 +184,13 @@ const PromoPopupPage: NextPage = () => {
 
         {/* Media Configuration */}
         {popupEnabled && !autoDetectSales && (
-          <SectionCard title="🖼️ Popup Media" description="Add images to make your popup more engaging">
+          <SectionCard
+            id="promo-media"
+            title="Popup Media"
+            description="Add images to make your popup more engaging"
+            keywords={["image", "background"]}
+          >
+
             <FormField 
               label="Background Image URL" 
               name="backgroundImageUrl" 
@@ -176,7 +212,14 @@ const PromoPopupPage: NextPage = () => {
 
         {/* Behavior Settings */}
         {popupEnabled && (
-          <SectionCard title="⚙️ Popup Behavior" description="Control when and how the popup appears">
+          <SectionCard
+            id="promo-behavior"
+            title="Popup Behavior"
+            description="Control when and how the popup appears"
+            keywords={["delay", "session", "exclude", "auto"]}
+            icon="⚙️"
+          >
+
             <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4}>
               <FormField 
                 label="Delay (seconds)" 
@@ -199,7 +242,17 @@ const PromoPopupPage: NextPage = () => {
             <Box marginTop={4}>
               <Text variant="bodyStrong" marginBottom={3}>Display Options</Text>
               <Box display="flex" flexDirection="column" gap={3}>
-                <Box display="flex" alignItems="center" gap={3}>
+                <Box 
+                  display="flex" 
+                  alignItems="flex-start" 
+                  gap={3}
+                  padding={3}
+                  borderRadius={4}
+                  backgroundColor="default1"
+                  borderWidth={1}
+                  borderStyle="solid"
+                  borderColor="default2"
+                >
                   <Controller
                     name="showOncePerSession"
                     control={control}
@@ -207,9 +260,9 @@ const PromoPopupPage: NextPage = () => {
                       <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked)} />
                     )}
                   />
-                  <Box>
-                    <Text variant="body">Show once per session</Text>
-                    <Text variant="caption" color="default2">Only show popup once per browser session</Text>
+                  <Box style={{ flex: 1 }}>
+                    <Text variant="body" fontWeight="medium" marginBottom={0.5} style={{ fontSize: "14px" }}>Show once per session</Text>
+                    <Text variant="caption" color="default2" style={{ fontSize: "12px" }}>Only show popup once per browser session</Text>
                   </Box>
                 </Box>
               </Box>
@@ -220,8 +273,19 @@ const PromoPopupPage: NextPage = () => {
               <Text variant="caption" color="default2" marginBottom={3}>
                 Don't show popup on these pages
               </Text>
-              <Box display="flex" gap={4}>
-                <Box display="flex" alignItems="center" gap={2}>
+              <Box display="flex" gap={3}>
+                <Box 
+                  display="flex" 
+                  alignItems="flex-start" 
+                  gap={2}
+                  padding={3}
+                  borderRadius={4}
+                  backgroundColor="default1"
+                  borderWidth={1}
+                  borderStyle="solid"
+                  borderColor="default2"
+                  style={{ flex: 1 }}
+                >
                   <Controller
                     name="excludeCheckout"
                     control={control}
@@ -229,9 +293,20 @@ const PromoPopupPage: NextPage = () => {
                       <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked)} />
                     )}
                   />
-                  <Text>Checkout pages</Text>
+                  <Text fontWeight="medium" style={{ fontSize: "13px" }}>Checkout pages</Text>
                 </Box>
-                <Box display="flex" alignItems="center" gap={2}>
+                <Box 
+                  display="flex" 
+                  alignItems="flex-start" 
+                  gap={2}
+                  padding={3}
+                  borderRadius={4}
+                  backgroundColor="default1"
+                  borderWidth={1}
+                  borderStyle="solid"
+                  borderColor="default2"
+                  style={{ flex: 1 }}
+                >
                   <Controller
                     name="excludeCart"
                     control={control}
@@ -239,7 +314,7 @@ const PromoPopupPage: NextPage = () => {
                       <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked)} />
                     )}
                   />
-                  <Text>Cart page</Text>
+                  <Text fontWeight="medium" style={{ fontSize: "13px" }}>Cart page</Text>
                 </Box>
               </Box>
             </Box>
@@ -248,7 +323,13 @@ const PromoPopupPage: NextPage = () => {
 
         {/* Preview Card */}
         {popupEnabled && !autoDetectSales && (
-          <SectionCard title="👁️ Preview" description="Visual preview of your popup configuration">
+          <SectionCard 
+            id="promo-preview"
+            title="Preview" 
+            description="Visual preview of your popup configuration"
+            icon="👁️"
+          >
+
             <Box 
               padding={6}
               borderRadius={4}
@@ -287,18 +368,14 @@ const PromoPopupPage: NextPage = () => {
           </SectionCard>
         )}
 
-        {/* Save Button */}
-        <Box display="flex" justifyContent="flex-end" gap={2} marginTop={4}>
-          <Button type="button" variant="secondary" onClick={() => reset(config?.promoPopup)} disabled={!isDirty}>
-            Reset
-          </Button>
-          <Button type="submit" variant="primary" disabled={!isDirty || saveStatus === "saving"}>
-            {saveStatus === "saving" ? "Saving..." : "Save Changes"}
-          </Button>
-        </Box>
-
-        {saveStatus === "success" && <Text color="success1" marginTop={2}>✓ Changes saved successfully</Text>}
-        {saveStatus === "error" && <Text color="critical1" marginTop={2}>Error saving changes. Please try again.</Text>}
+        <StickySaveBar
+          isDirty={isDirty}
+          isLoading={saveStatus === "saving"}
+          isSuccess={saveStatus === "success"}
+          isError={saveStatus === "error"}
+          onReset={() => reset(config?.promoPopup)}
+          onSubmit={handleSubmit(onSubmit)}
+        />
       </form>
     </AppLayout>
   );

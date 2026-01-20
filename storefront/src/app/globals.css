@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Prevent FOUC for RTL/LTR - hide content until direction is set */
+/* This ensures no flash of incorrect layout direction */
+html:not([dir]) body {
+  visibility: hidden;
+  opacity: 0;
+}
+html[dir] body {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.1s ease-in;
+}
+
 /* ============================================
    STORE THEME CSS VARIABLES
    ============================================
@@ -318,7 +330,7 @@ body {
 @keyframes fadeInUp {
   from { 
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(16px);
   }
   to { 
     opacity: 1;
@@ -350,7 +362,13 @@ body {
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .animate-fade-in {
@@ -358,7 +376,71 @@ body {
 }
 
 .animate-fade-in-up {
-  animation: fadeInUp 0.5s ease-out;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+/* Scroll-triggered animations - Smooth ecommerce-style */
+@keyframes fadeInUpOnScroll {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-on-scroll {
+  opacity: 0;
+  animation: fadeInUpOnScroll 0.8s ease-out forwards;
+}
+
+/* Smooth section transitions */
+.premium-band {
+  will-change: opacity, transform;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Stagger animation delays */
+.animate-stagger-1 { animation-delay: 0.1s; }
+.animate-stagger-2 { animation-delay: 0.2s; }
+.animate-stagger-3 { animation-delay: 0.3s; }
+.animate-stagger-4 { animation-delay: 0.4s; }
+.animate-stagger-5 { animation-delay: 0.5s; }
+.animate-stagger-6 { animation-delay: 0.6s; }
+.animate-stagger-7 { animation-delay: 0.7s; }
+.animate-stagger-8 { animation-delay: 0.8s; }
+
+/* Smooth section transitions */
+.premium-band {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.premium-band::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, currentColor 20%, currentColor 80%, transparent);
+  opacity: 0.1;
+}
+
+/* Premium band styling */
+.premium-band-content {
+  position: relative;
+  z-index: 1;
+}
+
+.heading {
+  background: linear-gradient(135deg, currentColor 0%, currentColor 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .animate-slide-in-right {
@@ -437,6 +519,46 @@ html {
 *:focus-visible {
   outline: 2px solid var(--store-primary);
   outline-offset: 2px;
+}
+
+/* Premium section banding */
+.premium-band {
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid color-mix(in srgb, var(--store-primary) 20%, transparent);
+}
+
+.premium-band::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01), transparent 60%);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.premium-band::after {
+  content: "";
+  position: absolute;
+  inset: -40% -10% -40% -10%;
+  background: radial-gradient(40% 40% at 20% 20%, color-mix(in srgb, var(--store-primary) 35%, transparent), transparent 60%),
+    radial-gradient(35% 35% at 80% 30%, color-mix(in srgb, var(--store-accent) 30%, transparent), transparent 60%),
+    linear-gradient(120deg, color-mix(in srgb, var(--store-primary) 12%, transparent), transparent 55%);
+  opacity: 0.6;
+  animation: gradientShift 18s ease-in-out infinite;
+  background-size: 200% 200%;
+  pointer-events: none;
+}
+
+.premium-band-content {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .premium-band::after {
+    animation: none;
+  }
 }
 
 /* Selection color */
@@ -607,7 +729,30 @@ html {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-25%);
+    transform: translateY(-8px);
+  }
+}
+
+/* Page loader spinner animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Animated gradient for section backgrounds */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 

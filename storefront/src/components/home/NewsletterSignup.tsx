@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useStoreConfig, useFeature, useContentConfig } from "@/providers/StoreConfigProvider";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { SectionHeader } from "./SectionHeader";
 
 interface NewsletterSignupProps {
   title?: string;
@@ -195,25 +197,14 @@ export function NewsletterSignup({
     }
   };
 
+  const { elementRef, isVisible } = useScrollAnimation({ threshold: 0.1, rootMargin: "0px 0px -80px 0px" });
+
   return (
     <section 
-      className="relative overflow-hidden py-20"
-      style={{ 
-        backgroundColor: branding.colors.secondary,
-      }}
+      ref={elementRef}
+      className={`relative overflow-hidden py-20 transition-opacity duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      style={{ backgroundColor: branding.colors.secondary }}
     >
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="1"/>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
-      </div>
-
       {/* Decorative Elements */}
       <div 
         className="absolute -right-20 -top-20 h-64 w-64 rounded-full opacity-20 blur-3xl"
@@ -224,7 +215,7 @@ export function NewsletterSignup({
         style={{ backgroundColor: branding.colors.accent }}
       />
 
-      <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+      <div className="relative z-10 mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
         {/* Icon */}
         <div 
           className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full"
@@ -242,12 +233,15 @@ export function NewsletterSignup({
         </div>
 
         {/* Title */}
-        <h2 className="heading text-3xl font-bold text-white sm:text-4xl">
-          {displayTitle}
-        </h2>
-        <p className="mt-4 text-lg text-white/80">
-          {displaySubtitle}
-        </p>
+        <div className="mx-auto max-w-3xl">
+          <SectionHeader
+            title={displayTitle}
+            subtitle={displaySubtitle}
+            type="newsletter"
+            align="center"
+            variant="dark"
+          />
+        </div>
 
         {/* Form */}
         {status === "success" ? (

@@ -1,4 +1,3 @@
-import { Box, Text, Input, Checkbox, Select } from "@saleor/macaw-ui";
 import { UseFormRegister, FieldErrors, Path, FieldValues, Control, Controller } from "react-hook-form";
 
 interface FormFieldProps<T extends FieldValues> {
@@ -26,13 +25,16 @@ export function FormField<T extends FieldValues>({
   const errorMessage = error?.message as string | undefined;
 
   return (
-    <Box marginBottom={4}>
-      <Box marginBottom={1}>
-        <Text as="label" variant="bodyStrong">
-          {label}
-          {required && <Text color="critical1"> *</Text>}
-        </Text>
-      </Box>
+    <div style={{ marginBottom: "24px" }}>
+      <label style={{ 
+        display: "block",
+        fontSize: "14px", 
+        fontWeight: "500",
+        marginBottom: "8px"
+      }}>
+        {label}
+        {required && <span style={{ color: "#d32f2f", marginLeft: "4px" }}> *</span>}
+      </label>
       
       {type === "textarea" ? (
         <textarea
@@ -41,16 +43,15 @@ export function FormField<T extends FieldValues>({
           style={{
             width: "100%",
             minHeight: "100px",
-            padding: "8px 12px",
-            borderRadius: "4px",
-            border: errorMessage ? "1px solid var(--color-critical1)" : "1px solid var(--color-default2)",
+            padding: "10px 12px",
+            border: errorMessage ? "1px solid #d32f2f" : "1px solid #ddd",
             fontFamily: "inherit",
             fontSize: "14px",
             resize: "vertical",
           }}
         />
       ) : type === "color" ? (
-        <Box display="flex" alignItems="center" gap={2}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <input
             type="color"
             {...register(name)}
@@ -58,39 +59,48 @@ export function FormField<T extends FieldValues>({
               width: "40px",
               height: "40px",
               padding: 0,
-              border: "none",
+              border: "1px solid #ddd",
               cursor: "pointer",
             }}
           />
-          <Input
+          <input
+            type="text"
             {...register(name)}
             placeholder="#000000"
-            size="small"
-            style={{ maxWidth: "120px" }}
+            style={{
+              maxWidth: "120px",
+              padding: "8px 12px",
+              border: "1px solid #ddd",
+              fontSize: "14px"
+            }}
           />
-        </Box>
+        </div>
       ) : (
-        <Input
+        <input
           {...register(name, { valueAsNumber: type === "number" })}
           type={type}
           placeholder={placeholder}
-          error={!!errorMessage}
-          width="100%"
+          style={{
+            width: "100%",
+            padding: "10px 12px",
+            border: errorMessage ? "1px solid #d32f2f" : "1px solid #ddd",
+            fontSize: "14px"
+          }}
         />
       )}
       
       {description && !errorMessage && (
-        <Text as="p" variant="caption" color="default2" marginTop={1}>
+        <p style={{ fontSize: "12px", color: "#666", marginTop: "8px", margin: "8px 0 0 0", lineHeight: 1.4 }}>
           {description}
-        </Text>
+        </p>
       )}
       
       {errorMessage && (
-        <Text as="p" variant="caption" color="critical1" marginTop={1}>
+        <p style={{ fontSize: "12px", color: "#d32f2f", marginTop: "8px", margin: "8px 0 0 0" }}>
           {errorMessage}
-        </Text>
+        </p>
       )}
-    </Box>
+    </div>
   );
 }
 
@@ -112,36 +122,41 @@ export function ToggleField<T extends FieldValues>({
   description,
 }: ToggleFieldProps<T>) {
   return (
-    <Box 
-      display="flex" 
-      alignItems="flex-start" 
-      gap={3}
-      paddingY={2}
-      borderBottomWidth={1}
-      borderBottomStyle="solid"
-      borderColor="default2"
-    >
+    <div style={{ 
+      display: "flex", 
+      alignItems: "flex-start", 
+      gap: "12px",
+      padding: "12px 0",
+      borderBottom: "1px solid #ddd"
+    }}>
       <Controller
         name={name}
         control={control}
         render={({ field }) => (
-          <Checkbox
+          <input
+            type="checkbox"
             checked={field.value === true}
-            onCheckedChange={(checked) => field.onChange(checked)}
+            onChange={(e) => field.onChange(e.target.checked)}
+            style={{
+              width: "18px",
+              height: "18px",
+              marginTop: "2px",
+              cursor: "pointer",
+            }}
           />
         )}
       />
-      <Box>
-        <Text as="label" variant="bodyStrong">
+      <div>
+        <label style={{ display: "block", fontSize: "14px", fontWeight: "500", cursor: "pointer" }}>
           {label}
-        </Text>
+        </label>
         {description && (
-          <Text as="p" variant="caption" color="default2">
+          <p style={{ fontSize: "12px", color: "#666", margin: "4px 0 0 0" }}>
             {description}
-          </Text>
+          </p>
         )}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 
@@ -162,12 +177,12 @@ export function CheckboxField<T extends FieldValues>({
   description,
 }: CheckboxFieldProps<T>) {
   return (
-    <Box 
-      display="flex" 
-      alignItems="flex-start" 
-      gap={2}
-      paddingY={2}
-    >
+    <div style={{ 
+      display: "flex", 
+      alignItems: "flex-start", 
+      gap: "8px",
+      padding: "12px 0"
+    }}>
       <input
         type="checkbox"
         {...register(name)}
@@ -178,17 +193,17 @@ export function CheckboxField<T extends FieldValues>({
           cursor: "pointer",
         }}
       />
-      <Box>
-        <Text as="label" variant="bodyStrong">
+      <div>
+        <label style={{ display: "block", fontSize: "14px", fontWeight: "500", cursor: "pointer" }}>
           {label}
-        </Text>
+        </label>
         {description && (
-          <Text as="p" variant="caption" color="default2">
+          <p style={{ fontSize: "12px", color: "#666", margin: "4px 0 0 0" }}>
             {description}
-          </Text>
+          </p>
         )}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 
@@ -208,22 +223,25 @@ export function SelectField<T extends FieldValues>({
   description,
 }: SelectFieldProps<T>) {
   return (
-    <Box marginBottom={4}>
-      <Box marginBottom={1}>
-        <Text as="label" variant="bodyStrong">
-          {label}
-        </Text>
-      </Box>
+    <div style={{ marginBottom: "24px" }}>
+      <label style={{ 
+        display: "block",
+        fontSize: "14px", 
+        fontWeight: "500",
+        marginBottom: "8px"
+      }}>
+        {label}
+      </label>
       <select
         {...register(name)}
         style={{
           width: "100%",
-          padding: "8px 12px",
-          borderRadius: "4px",
-          border: "1px solid var(--color-default2)",
+          padding: "10px 12px",
+          border: "1px solid #ddd",
           fontFamily: "inherit",
           fontSize: "14px",
           backgroundColor: "white",
+          cursor: "pointer",
         }}
       >
         {options.map((opt) => (
@@ -233,10 +251,10 @@ export function SelectField<T extends FieldValues>({
         ))}
       </select>
       {description && (
-        <Text as="p" variant="caption" color="default2" marginTop={1}>
+        <p style={{ fontSize: "12px", color: "#666", marginTop: "8px", margin: "8px 0 0 0", lineHeight: 1.4 }}>
           {description}
-        </Text>
+        </p>
       )}
-    </Box>
+    </div>
   );
 }

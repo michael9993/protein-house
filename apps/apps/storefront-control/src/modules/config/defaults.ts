@@ -135,7 +135,32 @@ export const getDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       bestSellers: { enabled: true, limit: 8 },
       onSale: { enabled: true, limit: 4 },
       featuredBrands: { enabled: false },
-      testimonials: { enabled: true },
+      testimonials: { 
+        enabled: true,
+        starColor: "#FFD700", // Gold color for stars
+        starEmptyColor: null, // Use textMuted with 30% opacity
+        starSize: "base",
+        loadingReviewsText: null, // "Loading reviews..."
+        verifiedPurchaseLabel: null, // "Verified Purchase"
+        customerLabel: null, // "Customer"
+        card: {
+          backgroundColor: null, // white
+          borderColor: null, // neutral-200/50
+          borderRadius: null, // use --store-radius
+          padding: null, // p-6
+          shadow: null, // use primary color with 15% opacity
+          hoverShadow: null, // default hover shadow
+          hoverTransform: null, // translateY(-4px)
+        },
+        trustBadges: {
+          showAverageRating: true,
+          showCustomerCount: true,
+          showSatisfactionRate: true,
+          showOrdersDelivered: true,
+          borderColor: null, // neutral-200
+          textColor: null, // use text colors from branding
+        },
+      },
       newsletter: { enabled: true },
       instagramFeed: { enabled: false, username: null },
     },
@@ -226,6 +251,40 @@ export const getDefaultConfig = (channelSlug: string): StorefrontConfig => ({
     categoryLimit: 8,
     collectionLimit: 6,
     brandLimit: 6,
+    style: {
+      cardWidth: 160,
+      cardHeight: 220,
+      cardGap: 0.5,
+      titleFontSize: "base",
+      titleFontWeight: "semibold",
+      arrowSize: 48,
+      arrowIconSize: 24,
+      titleColor: null,
+      valueColor: null,
+      activeValueColor: null,
+      shopAllButtonBackgroundColor: null,
+      shopAllButtonTextColor: null,
+      shopAllButtonHoverBackgroundColor: null,
+      shopAllButtonBorderColor: null,
+      navbarMode: {
+        buttonPaddingX: 14,        // px-3.5
+        buttonPaddingY: 6,           // py-1.5
+        buttonFontSize: "xs",
+        buttonFontWeight: "semibold",
+        buttonBorderRadius: "full",
+        buttonGap: 8,             // gap-2
+        groupLabelFontSize: "xs", // text-[10px] (10px)
+        groupLabelPaddingX: 8,    // px-2
+        groupLabelPaddingY: 4,    // py-1
+        separatorWidth: 1,        // w-px
+        separatorHeight: 24,      // h-6
+        containerPaddingY: 10,    // py-2.5
+        backgroundColor: null,    // bg-white
+        borderTopColor: null,
+        borderBottomColor: null,
+        shadowColor: null,
+      },
+    },
   },
 
   promoPopup: {
@@ -355,6 +414,36 @@ export const getDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       defaultColor: null,     // inherit
       activeColor: null,      // primary
     },
+    activeFiltersTags: {
+      containerBackgroundColor: null, // bg-white
+      containerBorderColor: null,     // border-neutral-200
+      containerBorderRadius: "lg",
+      containerPadding: 16,           // p-4
+      containerShadow: "sm",
+      titleFontSize: "sm",
+      titleFontWeight: "semibold",
+      titleColor: null,               // text-neutral-900
+      clearAllButtonFontSize: "xs",
+      clearAllButtonFontWeight: "medium",
+      clearAllButtonColor: null,      // text-neutral-500
+      clearAllButtonHoverColor: null, // hover:text-neutral-700
+      tagBackgroundColor: null,       // bg-neutral-50
+      tagBorderColor: null,           // border-neutral-200
+      tagTextColor: null,             // text-neutral-700
+      tagHoverBackgroundColor: null,  // hover:bg-neutral-100
+      tagHoverBorderColor: null,      // hover:border-neutral-300
+      tagBorderRadius: "full",
+      tagPaddingX: 12,                // px-3
+      tagPaddingY: 6,                 // py-1.5
+      tagFontSize: "xs",
+      tagFontWeight: "medium",
+      tagGap: 8,                      // gap-2
+      removeButtonSize: 16,           // h-4 w-4
+      removeButtonColor: null,        // text-neutral-400
+      removeButtonHoverBackgroundColor: null, // hover:bg-neutral-200
+      removeButtonHoverColor: null,   // hover:text-neutral-600
+      removeButtonBorderRadius: "full",
+    },
   },
 
   content: {
@@ -421,6 +510,15 @@ export const getDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       brandsSubtitle: "Shop your favorite brands",
       testimonialsTitle: "What Our Customers Say",
       testimonialsSubtitle: "Real reviews from real customers",
+      averageRatingLabel: "Average Rating",
+      happyCustomersLabel: "Happy Customers",
+      satisfactionRateLabel: "Satisfaction Rate",
+      ordersDeliveredLabel: "Orders Delivered",
+      verifiedPurchaseLabel: "Verified Purchase",
+      loadingReviewsText: "Loading reviews...",
+      noReviewsAvailableText: "No reviews available yet. Be the first to review our products!",
+      noReviewsSubtext: "Reviews will appear here once customers start leaving feedback.",
+      noApprovedReviewsText: "No approved reviews with 4+ stars yet. {count} review(s) pending approval.",
       heroCtaText: "Shop Now",
       heroSecondaryCtaText: "Browse Categories",
     },
@@ -435,6 +533,94 @@ export const getDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       orderConfirmation: "Order Confirmation",
       thankYouTitle: "Thank you for your order!",
       thankYouMessage: "We've received your order and will send you a confirmation email shortly.",
+    },
+    filters: {
+      // Section titles
+      sectionTitle: "Filters",
+      clearAllButton: "Clear All Filters",
+      showResultsButton: "Show Results",
+      filtersButtonText: "Filters",
+
+      // Filter headings
+      categoryTitle: "Category",
+      collectionTitle: "Collection",
+      brandTitle: "Brand",
+      sizeTitle: "Size",
+      colorTitle: "Color",
+      priceTitle: "Price",
+      ratingTitle: "Rating",
+      availabilityTitle: "Availability",
+
+      // Sort dropdown
+      sortByLabel: "Sort by:",
+      searchForText: "for",
+
+      // Availability options
+      inStockOnly: "In Stock Only",
+      onSale: "On Sale",
+
+      // Active filters summary
+      activeFiltersLabel: "Active Filters:",
+      categorySingular: "category",
+      categoryPlural: "categories",
+      collectionSingular: "collection",
+      collectionPlural: "collections",
+      brandSingular: "brand",
+      brandPlural: "brands",
+      colorSingular: "color",
+      colorPlural: "colors",
+      sizeSingular: "size",
+      sizePlural: "sizes",
+
+      // Sort options
+      sortAtoZ: "A to Z",
+      sortZtoA: "Z to A",
+      sortPriceLowHigh: "Price: Low to High",
+      sortPriceHighLow: "Price: High to Low",
+      sortNewest: "Newest",
+      sortSale: "Sale",
+
+      // Empty/loading states
+      noProductsTitle: "No products found",
+      noProductsWithFilters: "Try adjusting your filters",
+      noProductsEmpty: "Check back later for new products",
+      filteringProducts: "Filtering products...",
+      loadingMore: "Loading more products...",
+      seenAllProducts: "You've seen all {count} products",
+      tryAdjustingFilters: "Try adjusting your filters to see more",
+
+      // Search
+      searchPlaceholder: "Search Products",
+      searchProductsTitle: "Search Products",
+      searchResultsTitle: "Search Results",
+      resultsCountText: "Found {count} result(s)",
+      noResultsMessage: "No results found for \"{query}\"",
+
+      // Results text
+      resultsText: "results",
+      itemsAvailable: "items available",
+      productsPageTitle: "All Products",
+      discoverProducts: "Discover Products",
+
+      // Quick filters
+      shopAllButton: "Shop All",
+      quickAddButton: "Quick Add",
+      scrollLeftAriaLabel: "Scroll left",
+      scrollRightAriaLabel: "Scroll right",
+      checkOutOurProducts: "Check Out Our Products",
+
+      // Rating filter
+      minimumRating: "Minimum Rating",
+      starsAndUp: "{count} stars & up",
+      starAndUp: "1 star & up",
+      clearRatingFilter: "Clear",
+
+      // Price filter
+      minPriceLabel: "Min Price",
+      maxPriceLabel: "Max Price",
+      quickMinLabel: "Quick Min",
+      quickMaxLabel: "Quick Max",
+      clearPriceFilter: "Clear",
     },
   },
 

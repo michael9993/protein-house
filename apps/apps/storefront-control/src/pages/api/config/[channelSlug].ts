@@ -12,9 +12,18 @@ import { createGraphQLClient } from "@saleor/apps-shared/create-graphql-client";
  * GET /api/config/[channelSlug]
  * 
  * Caching: 60 seconds with stale-while-revalidate
+ * ETag: Supports If-None-Match for 304 Not Modified responses
  * CORS: Allows all origins (storefront may be on different domain)
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Handle OPTIONS for CORS preflight
+  if (req.method === "OPTIONS") {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-saleor-api-url, If-None-Match");
+    return res.status(200).end();
+  }
+
   // Only allow GET requests
   if (req.method !== "GET") {
     res.setHeader("Allow", ["GET"]);
@@ -30,16 +39,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // Get Saleor API URL from query param or header
   const saleorApiUrl = (req.query.saleorApiUrl as string) || (req.headers["x-saleor-api-url"] as string);
 
+  // Helper function to create response with wrapped config
+  const createResponse = (config: ReturnType<typeof getDefaultConfig>) => {
+    const etag = `"${config.version}-${config.updatedAt || '0'}"`;
+    res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
+    res.setHeader("ETag", etag);
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-saleor-api-url, If-None-Match");
+
+    // Check If-None-Match header for ETag validation (304 Not Modified)
+    const ifNoneMatch = req.headers["if-none-match"];
+    if (ifNoneMatch === etag) {
+      return res.status(304).end();
+    }
+
+    return res.status(200).json({
+      config,
+      version: config.version,
+      updatedAt: config.updatedAt || new Date().toISOString(),
+    });
+  };
+
   if (!saleorApiUrl) {
     // Return defaults if no Saleor URL provided
     const defaultConfig = getDefaultConfig(channelSlug);
-    
-    res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-saleor-api-url");
-    
-    return res.status(200).json(defaultConfig);
+    return createResponse(defaultConfig);
   }
 
   try {
@@ -49,13 +74,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!authData) {
       // App not installed - return defaults
       const defaultConfig = getDefaultConfig(channelSlug);
-      
-      res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
-      res.setHeader("Access-Control-Allow-Origin", "*");
-      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-      res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-saleor-api-url");
-      
-      return res.status(200).json(defaultConfig);
+      return createResponse(defaultConfig);
     }
 
     // Create GraphQL client with app token
@@ -71,24 +90,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Get config for channel (with defaults merged in)
     const config = await configManager.getForChannelWithDefaults(channelSlug);
 
-    // Set caching headers
-    res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
-    
-    // Set CORS headers
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-saleor-api-url");
-
-    return res.status(200).json(config);
+    return createResponse(config);
   } catch (error) {
     console.error("[config API] Error fetching config:", error);
     
     // Return defaults on error
     const defaultConfig = getDefaultConfig(channelSlug);
-    
-    res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    
-    return res.status(200).json(defaultConfig);
+    return createResponse(defaultConfig);
   }
 }

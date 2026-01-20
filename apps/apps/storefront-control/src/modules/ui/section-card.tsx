@@ -1,30 +1,101 @@
-import { Box, Text } from "@saleor/macaw-ui";
-import { ReactNode } from "react";
+import React, { createContext, ReactNode, useContext, useMemo, useState } from "react";
 
 interface SectionCardProps {
+  id?: string;
   title: string;
   description?: string;
+  keywords?: string[];
+  children: ReactNode;
+  searchQuery?: string;
+  icon?: string;
+  collapsible?: boolean;
+  defaultExpanded?: boolean;
+  badge?: string | number;
+}
+
+interface SettingsSearchContextValue {
+  query: string;
+}
+
+const SettingsSearchContext = createContext<SettingsSearchContextValue | null>(null);
+
+interface SettingsSearchProviderProps {
+  query: string;
   children: ReactNode;
 }
 
-export function SectionCard({ title, description, children }: SectionCardProps) {
+export function SettingsSearchProvider({ query, children }: SettingsSearchProviderProps) {
+  const value = useMemo(() => ({ query }), [query]);
+  return <SettingsSearchContext.Provider value={value}>{children}</SettingsSearchContext.Provider>;
+}
+
+function useSettingsSearch(): SettingsSearchContextValue {
+  return useContext(SettingsSearchContext) ?? { query: "" };
+}
+
+function normalizeSearchValue(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+function matchesSearch(query: string, values: string[]): boolean {
+  const normalizedQuery = normalizeSearchValue(query);
+  if (!normalizedQuery) return true;
+  return values.some((value) => normalizeSearchValue(value).includes(normalizedQuery));
+}
+
+export function SectionCard({ 
+  id, 
+  title, 
+  description, 
+  keywords = [], 
+  children, 
+  searchQuery,
+  icon,
+  collapsible = false,
+  defaultExpanded = true,
+  badge,
+}: SectionCardProps) {
+  const context = useSettingsSearch();
+  const query = searchQuery ?? context.query;
+  const matches = matchesSearch(query, [title, description ?? "", ...keywords]);
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+
+  if (!matches) {
+    return null;
+  }
+
   return (
-    <Box
-      backgroundColor="default1"
-      borderRadius={4}
-      padding={6}
-      marginBottom={4}
-      boxShadow="defaultFocused"
+    <div
+      id={id}
+      style={{
+        marginBottom: "24px",
+        border: "1px solid #ddd",
+        backgroundColor: "#fff",
+      }}
     >
-      <Text as="h3" variant="heading" marginBottom={2}>
-        {title}
-      </Text>
-      {description && (
-        <Text as="p" color="default2" marginBottom={4}>
-          {description}
-        </Text>
+      <div
+        style={{
+          padding: "16px",
+          borderBottom: collapsible && !isExpanded ? "none" : "1px solid #ddd",
+          cursor: collapsible ? "pointer" : "default",
+        }}
+        onClick={() => collapsible && setIsExpanded(!isExpanded)}
+      >
+        <h3 style={{ fontSize: "16px", fontWeight: "bold", margin: 0, marginBottom: description ? "4px" : 0 }}>
+          {title}
+        </h3>
+        {description && (
+          <p style={{ fontSize: "12px", color: "#666", margin: "4px 0 0 0" }}>
+            {description}
+          </p>
+        )}
+      </div>
+
+      {(!collapsible || isExpanded) && (
+        <div style={{ padding: "16px" }}>
+          {children}
+        </div>
       )}
-      {children}
-    </Box>
+    </div>
   );
 }

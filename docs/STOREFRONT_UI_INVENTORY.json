@@ -1,7 +1,14 @@
 {
-  "version": "1.0.0",
+  "version": "1.2.0",
   "lastUpdated": "2026-01-16",
-  "description": "Complete inventory of all UI text, buttons, labels, placeholders, and styling options across the storefront",
+  "description": "Complete inventory of all UI text, buttons, labels, placeholders, styling options, and animations across the storefront",
+  "notes": {
+    "animations": "Animations are hardcoded but documented for reference. They include fade-in-up, hover effects, and staggered delays for visual appeal.",
+    "homepageImprovements": "Homepage UI has been enhanced with premium styling, smooth animations, gradient effects, and improved visual hierarchy (2026-01-19)",
+    "sectionBackgrounds": "All homepage sections now support configurable background styles (solid, gradient, color-mix, pattern, animated-gradient, glass) via homepage.sections.{sectionType}.background (2026-01-16)",
+    "instagramFeed": "Added Instagram feed section with configurable username and background styling (2026-01-16)",
+    "sectionReordering": "Homepage section order is fully configurable via homepage.sectionOrder array, including new instagramFeed section (2026-01-16)"
+  },
   "structure": {
     "pages": "Main route pages",
     "components": "Reusable components",
@@ -74,6 +81,42 @@
                 "currentStatus": "configurable",
                 "configPath": "content.homepage.categoriesSubtitle",
                 "default": "Find what you're looking for"
+              },
+              {
+                "element": "Shop Now Button",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.shopNowButton",
+                "default": "Shop Now"
+              },
+              {
+                "element": "Product Count Text",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.productCountText",
+                "default": "Products"
+              },
+              {
+                "element": "Category Card Animations",
+                "currentStatus": "hardcoded",
+                "description": "Fade-in-up animation with staggered delays",
+                "animationDelay": "100ms per category index",
+                "animationDuration": "0.6s ease-out"
+              },
+              {
+                "element": "Category Card Hover Effects",
+                "currentStatus": "hardcoded",
+                "description": "Card lift, image zoom, gradient overlays on hover",
+                "effects": [
+                  "translate-y-1 on hover",
+                  "image scale-110",
+                  "radial gradient overlay on hover",
+                  "arrow gap animation"
+                ]
+              },
+              {
+                "element": "Explore Label",
+                "currentStatus": "hardcoded",
+                "default": "Explore",
+                "description": "Small uppercase label above category name"
               }
             ]
           },
@@ -114,6 +157,68 @@
                 "currentStatus": "configurable",
                 "configPath": "content.homepage.productCountText",
                 "default": "Products"
+              },
+              {
+                "element": "Sale Badge Text",
+                "currentStatus": "configurable",
+                "configPath": "content.product.saleBadgeText",
+                "default": "Sale"
+              },
+              {
+                "element": "New Badge Text",
+                "currentStatus": "configurable",
+                "configPath": "content.product.newBadgeText",
+                "default": "New"
+              },
+              {
+                "element": "Section Animations",
+                "currentStatus": "hardcoded",
+                "description": "Fade-in-up animation with staggered delays for product cards",
+                "animationDelay": "50ms per card index",
+                "animationDuration": "0.6s ease-out"
+              },
+              {
+                "element": "Product Card Hover Effects",
+                "currentStatus": "hardcoded",
+                "description": "Card lift, shadow enhancement, image zoom, gradient overlay on hover",
+                "effects": [
+                  "translate-y-1 on hover",
+                  "shadow-2xl enhancement",
+                  "image scale-110",
+                  "gradient overlay opacity transition"
+                ]
+              },
+              {
+                "element": "Section Background",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.{sectionType}.background",
+                "description": "Configurable background styles for all product grid sections (newArrivals, bestSellers, onSale)",
+                "backgroundStyles": [
+                  "none",
+                  "solid",
+                  "gradient",
+                  "radial-gradient",
+                  "color-mix",
+                  "pattern",
+                  "animated-gradient",
+                  "glass"
+                ],
+                "default": {
+                  "style": "color-mix",
+                  "mixPercentage": 8
+                },
+                "configurableProperties": [
+                  "style",
+                  "color",
+                  "secondaryColor",
+                  "mixPercentage",
+                  "gradientDirection",
+                  "patternType",
+                  "patternOpacity",
+                  "animationSpeed",
+                  "glassBlur",
+                  "glassOpacity"
+                ]
               }
             ]
           },
@@ -132,6 +237,26 @@
                 "currentStatus": "configurable",
                 "configPath": "content.homepage.productCountText",
                 "default": "Products"
+              },
+              {
+                "element": "Section Background",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.featuredCategories.background",
+                "description": "Configurable background styles for featured categories section",
+                "backgroundStyles": [
+                  "none",
+                  "solid",
+                  "gradient",
+                  "radial-gradient",
+                  "color-mix",
+                  "pattern",
+                  "animated-gradient",
+                  "glass"
+                ],
+                "default": {
+                  "style": "color-mix",
+                  "mixPercentage": 8
+                }
               }
             ]
           },
@@ -190,6 +315,381 @@
                 "element": "Section Subtitle",
                 "currentStatus": "configurable",
                 "configPath": "content.homepage.testimonialsSubtitle"
+              },
+              {
+                "element": "Average Rating Label",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.averageRatingLabel",
+                "description": "Label text for average rating trust badge",
+                "default": "Average Rating"
+              },
+              {
+                "element": "Happy Customers Label",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.happyCustomersLabel",
+                "description": "Label text for happy customers trust badge",
+                "default": "Happy Customers"
+              },
+              {
+                "element": "Satisfaction Rate Label",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.satisfactionRateLabel",
+                "description": "Label text for satisfaction rate trust badge",
+                "default": "Satisfaction Rate"
+              },
+              {
+                "element": "Orders Delivered Label",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.ordersDeliveredLabel",
+                "description": "Label text for orders delivered trust badge",
+                "default": "Orders Delivered"
+              },
+              {
+                "element": "Verified Purchase Label",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.verifiedPurchaseLabel",
+                "description": "Label text shown for verified purchase reviews",
+                "default": "Verified Purchase"
+              },
+              {
+                "element": "Loading Reviews Text",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.loadingReviewsText",
+                "description": "Text shown while reviews are being loaded",
+                "default": "Loading reviews..."
+              },
+              {
+                "element": "No Reviews Available Text",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.noReviewsAvailableText",
+                "description": "Main message when no reviews are available",
+                "default": "No reviews available yet. Be the first to review our products!"
+              },
+              {
+                "element": "No Reviews Subtext",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.noReviewsSubtext",
+                "description": "Subtext shown when no reviews are available",
+                "default": "Reviews will appear here once customers start leaving feedback."
+              },
+              {
+                "element": "No Approved Reviews Text",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.noApprovedReviewsText",
+                "description": "Message when reviews exist but none are approved with 4+ stars. Use {count} placeholder for review count.",
+                "default": "No approved reviews with 4+ stars yet. {count} review(s) pending approval."
+              },
+              {
+                "element": "Testimonial Card Animations",
+                "currentStatus": "hardcoded",
+                "description": "Fade-in-up animation for testimonial cards",
+                "animationDuration": "0.6s ease-out"
+              },
+              {
+                "element": "Star Rating Color",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.testimonials.starColor",
+                "description": "Color for filled stars (null = use gold #FFD700)",
+                "default": "#FFD700"
+              },
+              {
+                "element": "Star Rating Empty Color",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.testimonials.starEmptyColor",
+                "description": "Color for empty stars (null = use textMuted with 30% opacity)",
+                "default": null
+              },
+              {
+                "element": "Star Rating Size",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.testimonials.starSize",
+                "description": "Size of star icons",
+                "options": ["xs", "sm", "base", "lg", "xl"],
+                "default": "base"
+              },
+              {
+                "element": "Loading Reviews Text",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.testimonials.loadingReviewsText",
+                "description": "Text shown while loading reviews (null = 'Loading reviews...')",
+                "default": null
+              },
+              {
+                "element": "Verified Purchase Label",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.testimonials.verifiedPurchaseLabel",
+                "description": "Label text for verified purchase badge (null = 'Verified Purchase')",
+                "default": null
+              },
+              {
+                "element": "Customer Label",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.testimonials.customerLabel",
+                "description": "Label text for non-verified customers (null = 'Customer')",
+                "default": null
+              },
+              {
+                "element": "Review Card Background Color",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.testimonials.card.backgroundColor",
+                "description": "Background color for review cards (null = white)",
+                "default": null
+              },
+              {
+                "element": "Review Card Border Color",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.testimonials.card.borderColor",
+                "description": "Border color for review cards (null = neutral-200/50)",
+                "default": null
+              },
+              {
+                "element": "Review Card Border Radius",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.testimonials.card.borderRadius",
+                "description": "Border radius for review cards (null = use --store-radius)",
+                "default": null
+              },
+              {
+                "element": "Review Card Padding",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.testimonials.card.padding",
+                "description": "Padding for review cards (null = p-6)",
+                "default": null
+              },
+              {
+                "element": "Review Card Shadow",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.testimonials.card.shadow",
+                "description": "Box shadow for review cards (null = use primary color with 15% opacity)",
+                "default": null
+              },
+              {
+                "element": "Review Card Hover Shadow",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.testimonials.card.hoverShadow",
+                "description": "Box shadow on hover (null = default hover shadow)",
+                "default": null
+              },
+              {
+                "element": "Review Card Hover Transform",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.testimonials.card.hoverTransform",
+                "description": "Transform on hover (null = translateY(-4px))",
+                "default": null
+              },
+              {
+                "element": "Trust Badges - Show Average Rating",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.testimonials.trustBadges.showAverageRating",
+                "description": "Show/hide average rating badge",
+                "default": true
+              },
+              {
+                "element": "Trust Badges - Show Customer Count",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.testimonials.trustBadges.showCustomerCount",
+                "description": "Show/hide customer count badge",
+                "default": true
+              },
+              {
+                "element": "Trust Badges - Show Satisfaction Rate",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.testimonials.trustBadges.showSatisfactionRate",
+                "description": "Show/hide satisfaction rate badge",
+                "default": true
+              },
+              {
+                "element": "Trust Badges - Show Orders Delivered",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.testimonials.trustBadges.showOrdersDelivered",
+                "description": "Show/hide orders delivered badge",
+                "default": true
+              },
+              {
+                "element": "Trust Badges Border Color",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.testimonials.trustBadges.borderColor",
+                "description": "Border color for trust badges section (null = neutral-200)",
+                "default": null
+              },
+              {
+                "element": "Trust Badges Text Color",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.testimonials.trustBadges.textColor",
+                "description": "Text color for trust badges (null = use text colors from branding)",
+                "default": null
+              },
+              {
+                "element": "Section Background",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.testimonials.background",
+                "description": "Configurable background styles for testimonials section",
+                "backgroundStyles": [
+                  "none",
+                  "solid",
+                  "gradient",
+                  "radial-gradient",
+                  "color-mix",
+                  "pattern",
+                  "animated-gradient",
+                  "glass"
+                ],
+                "default": {
+                  "style": "color-mix",
+                  "mixPercentage": 8
+                }
+              }
+            ]
+          },
+          {
+            "name": "FeaturedBrands",
+            "type": "section",
+            "uiElements": [
+              {
+                "element": "Section Title",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.brandsTitle",
+                "default": "Featured Brands"
+              },
+              {
+                "element": "Section Subtitle",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.brandsSubtitle"
+              },
+              {
+                "element": "Brand Card Animations",
+                "currentStatus": "hardcoded",
+                "description": "Fade-in-up animation with staggered delays",
+                "animationDelay": "60ms per brand index",
+                "animationDuration": "0.6s ease-out"
+              },
+              {
+                "element": "Brand Card Hover Effects",
+                "currentStatus": "hardcoded",
+                "description": "Card lift, grayscale removal, partner badge on hover",
+                "effects": [
+                  "translate-y-1 on hover",
+                  "shadow-xl enhancement",
+                  "grayscale-0 on hover",
+                  "opacity transition",
+                  "partner badge tooltip"
+                ]
+              },
+              {
+                "element": "Partner Badge Text",
+                "currentStatus": "hardcoded",
+                "default": "Partner"
+              },
+              {
+                "element": "Section Background",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.featuredBrands.background",
+                "description": "Configurable background styles for featured brands section",
+                "backgroundStyles": [
+                  "none",
+                  "solid",
+                  "gradient",
+                  "radial-gradient",
+                  "color-mix",
+                  "pattern",
+                  "animated-gradient",
+                  "glass"
+                ],
+                "default": {
+                  "style": "color-mix",
+                  "mixPercentage": 8
+                }
+              }
+            ]
+          },
+          {
+            "name": "InstagramFeed",
+            "type": "section",
+            "uiElements": [
+              {
+                "element": "Section Title",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.instagramFeedTitle",
+                "default": "Follow us @{username}"
+              },
+              {
+                "element": "Section Subtitle",
+                "currentStatus": "configurable",
+                "configPath": "content.homepage.instagramFeedSubtitle",
+                "default": "See what we're up to on Instagram"
+              },
+              {
+                "element": "Instagram Username",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.instagramFeed.username",
+                "default": null,
+                "description": "Instagram username to display feed for"
+              },
+              {
+                "element": "Section Background",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sections.instagramFeed.background",
+                "description": "Configurable background styles for Instagram feed section",
+                "backgroundStyles": [
+                  "none",
+                  "solid",
+                  "gradient",
+                  "radial-gradient",
+                  "color-mix",
+                  "pattern",
+                  "animated-gradient",
+                  "glass"
+                ],
+                "default": {
+                  "style": "color-mix",
+                  "mixPercentage": 8
+                }
+              },
+              {
+                "element": "Follow Button Text",
+                "currentStatus": "hardcoded",
+                "default": "Follow @{username}"
+              },
+              {
+                "element": "Post Grid Layout",
+                "currentStatus": "hardcoded",
+                "description": "Responsive grid: 2 cols mobile, 3 cols tablet, 4 cols desktop"
+              }
+            ]
+          },
+          {
+            "name": "Homepage Layout",
+            "type": "layout",
+            "uiElements": [
+              {
+                "element": "Section Order",
+                "currentStatus": "configurable",
+                "configPath": "homepage.sectionOrder",
+                "default": ["hero", "featuredCategories", "newArrivals", "bestSellers", "onSale", "featuredBrands", "testimonials", "newsletter", "instagramFeed"],
+                "description": "Array of section IDs that determines the order sections appear on the homepage. All sections must be included in the array."
+              },
+              {
+                "element": "Section Spacing",
+                "currentStatus": "hardcoded",
+                "description": "py-16 sm:py-20 for all sections",
+                "spacing": "64px mobile, 80px desktop"
+              },
+              {
+                "element": "Section Transitions",
+                "currentStatus": "hardcoded",
+                "description": "Fade-in-up animation for each section with staggered delays",
+                "animationDelay": "100ms per section index",
+                "animationDuration": "0.6s ease-out"
+              },
+              {
+                "element": "Premium Band Styling",
+                "currentStatus": "hardcoded",
+                "description": "Gradient borders and premium visual effects",
+                "features": [
+                  "top border gradient",
+                  "premium-band-content wrapper",
+                  "smooth section transitions"
+                ]
               }
             ]
           }
@@ -259,8 +759,121 @@
                   "titleFontWeight",
                   "titleColor",
                   "valueColor",
-                  "activeValueColor"
+                  "activeValueColor",
+                  "arrowSize",
+                  "arrowIconSize"
                 ]
+              },
+              {
+                "element": "QuickFilters Navbar Mode (Sticky) Styling",
+                "currentStatus": "configurable",
+                "configPath": "quickFilters.style.navbarMode",
+                "description": "Styling for sticky quick filters shown in navbar when scrolling",
+                "options": [
+                  "buttonPaddingX",
+                  "buttonPaddingY",
+                  "buttonFontSize",
+                  "buttonFontWeight",
+                  "buttonBorderRadius",
+                  "buttonGap",
+                  "groupLabelFontSize",
+                  "groupLabelPaddingX",
+                  "groupLabelPaddingY",
+                  "separatorWidth",
+                  "separatorHeight",
+                  "containerPaddingY",
+                  "backgroundColor",
+                  "borderTopColor",
+                  "borderBottomColor",
+                  "shadowColor"
+                ]
+              }
+            ]
+          },
+          {
+            "name": "ActiveFiltersTags",
+            "type": "component",
+            "uiElements": [
+              {
+                "element": "Active Filters Label",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.activeFiltersLabel",
+                "default": "Active Filters:"
+              },
+              {
+                "element": "Clear All Button Text",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.clearAllButton",
+                "default": "Clear All Filters"
+              },
+              {
+                "element": "Container Styling",
+                "currentStatus": "configurable",
+                "configPath": "ui.activeFiltersTags",
+                "options": [
+                  "containerBackgroundColor",
+                  "containerBorderColor",
+                  "containerBorderRadius",
+                  "containerPadding",
+                  "containerShadow"
+                ]
+              },
+              {
+                "element": "Title Styling",
+                "currentStatus": "configurable",
+                "configPath": "ui.activeFiltersTags",
+                "options": [
+                  "titleFontSize",
+                  "titleFontWeight",
+                  "titleColor"
+                ]
+              },
+              {
+                "element": "Clear All Button Styling",
+                "currentStatus": "configurable",
+                "configPath": "ui.activeFiltersTags",
+                "options": [
+                  "clearAllButtonFontSize",
+                  "clearAllButtonFontWeight",
+                  "clearAllButtonColor",
+                  "clearAllButtonHoverColor"
+                ]
+              },
+              {
+                "element": "Filter Tag Styling",
+                "currentStatus": "configurable",
+                "configPath": "ui.activeFiltersTags",
+                "options": [
+                  "tagBackgroundColor",
+                  "tagBorderColor",
+                  "tagTextColor",
+                  "tagHoverBackgroundColor",
+                  "tagHoverBorderColor",
+                  "tagBorderRadius",
+                  "tagPaddingX",
+                  "tagPaddingY",
+                  "tagFontSize",
+                  "tagFontWeight",
+                  "tagGap"
+                ]
+              },
+              {
+                "element": "Remove Button (X) Styling",
+                "currentStatus": "configurable",
+                "configPath": "ui.activeFiltersTags",
+                "options": [
+                  "removeButtonSize",
+                  "removeButtonColor",
+                  "removeButtonHoverBackgroundColor",
+                  "removeButtonHoverColor",
+                  "removeButtonBorderRadius"
+                ]
+              },
+              {
+                "element": "Filter Tag Labels",
+                "currentStatus": "configurable",
+                "configPath": "content.filters",
+                "description": "Labels for filter types (categorySingular/Plural, collectionSingular/Plural, brandSingular/Plural, etc.)"
               }
             ]
           },
@@ -1523,6 +2136,205 @@
           }
         ]
       },
+      "accountOrderDetails": {
+        "route": "/account/orders/[orderId]",
+        "components": [
+          {
+            "name": "OrderDetailsClient",
+            "uiElements": [
+              {
+                "element": "Back to Orders Link",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.backToOrders",
+                "default": "Back to Orders"
+              },
+              {
+                "element": "Order Number Header",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.orderNumberPrefix",
+                "default": "Order #"
+              },
+              {
+                "element": "Placed On Text",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.placedOn",
+                "default": "Placed on"
+              },
+              {
+                "element": "Order Status Labels",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.status{Status}",
+                "statuses": [
+                  "statusProcessing",
+                  "statusPartiallyShipped",
+                  "statusShipped",
+                  "statusDelivered",
+                  "statusCanceled",
+                  "statusReturned"
+                ]
+              },
+              {
+                "element": "Payment Status Labels",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.payment{Status}",
+                "statuses": [
+                  "paymentPending",
+                  "paymentPartiallyPaid",
+                  "paymentPaid",
+                  "paymentPartiallyRefunded",
+                  "paymentRefunded",
+                  "paymentFailed",
+                  "paymentCancelled"
+                ]
+              },
+              {
+                "element": "Order Items Title",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.orderItemsTitle",
+                "default": "Order Items"
+              },
+              {
+                "element": "Qty Label",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.qtyLabel",
+                "default": "Qty:"
+              },
+              {
+                "element": "View Product Link",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.viewProduct",
+                "default": "View Product"
+              },
+              {
+                "element": "Order Summary Title",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.orderSummaryTitle",
+                "default": "Order Summary"
+              },
+              {
+                "element": "Subtotal Label",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.subtotalLabel",
+                "default": "Subtotal"
+              },
+              {
+                "element": "Shipping Label",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.shippingLabel",
+                "default": "Shipping"
+              },
+              {
+                "element": "Shipping Free Text",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.shippingFree",
+                "default": "Free"
+              },
+              {
+                "element": "Total Label",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.totalLabelDetails",
+                "default": "Total"
+              },
+              {
+                "element": "Shipping Address Title",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.shippingAddressTitle",
+                "default": "Shipping Address"
+              },
+              {
+                "element": "Billing Address Title",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.billingAddressTitle",
+                "default": "Billing Address"
+              },
+              {
+                "element": "Shipment Tracking Title",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.shipmentTrackingTitle",
+                "default": "Shipment Tracking"
+              },
+              {
+                "element": "Status Label (Details)",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.statusLabelDetails",
+                "default": "Status"
+              },
+              {
+                "element": "Tracking Number Label (Details)",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.trackingNumberLabelDetails",
+                "default": "Tracking #"
+              },
+              {
+                "element": "Invoice Title",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.invoiceTitle",
+                "default": "Invoice"
+              },
+              {
+                "element": "Invoice Number Prefix",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.invoiceNumberPrefix",
+                "default": "Invoice #"
+              },
+              {
+                "element": "Download Button",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.downloadButton",
+                "default": "Download"
+              },
+              {
+                "element": "Generating Text",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.generatingText",
+                "default": "Generating..."
+              },
+              {
+                "element": "Unavailable Text",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.unavailableText",
+                "default": "Unavailable"
+              },
+              {
+                "element": "Quick Actions Title",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.quickActionsTitle",
+                "default": "Quick Actions"
+              },
+              {
+                "element": "Need Help Title",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.needHelpTitle",
+                "default": "Need Help?"
+              },
+              {
+                "element": "Contact Support Button",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.contactSupportButton",
+                "default": "Contact Support"
+              },
+              {
+                "element": "View FAQs Button",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.viewFaqsButton",
+                "default": "View FAQs"
+              },
+              {
+                "element": "Reorder Button",
+                "currentStatus": "configurable",
+                "configPath": "content.orders.{reorderField}",
+                "fields": [
+                  "reorderItems",
+                  "addingToCart",
+                  "itemsAddedToCart",
+                  "redirectingToCart",
+                  "tryAgain"
+                ]
+              }
+            ]
+          }
+        ]
+      },
       "accountAddresses": {
         "route": "/account/addresses",
         "components": [
@@ -1882,6 +2694,13 @@
                 "currentStatus": "configurable",
                 "configPath": "content.filters.filtersButtonText",
                 "default": "Filters"
+              },
+              {
+                "element": "Search For Text",
+                "currentStatus": "configurable",
+                "configPath": "content.filters.searchForText",
+                "default": "for",
+                "description": "Text between count and search query (e.g., '10 for shoes')"
               }
             ]
           }
@@ -2410,10 +3229,58 @@
         "titleColor": "configurable (quickFilters.style.titleColor)",
         "valueColor": "configurable (quickFilters.style.valueColor)",
         "activeValueColor": "configurable (quickFilters.style.activeValueColor)",
-        "shopAllButtonBackgroundColor": "configurable (quickFilters.style.shopAllButtonBackgroundColor)",
-        "shopAllButtonTextColor": "configurable (quickFilters.style.shopAllButtonTextColor)",
-        "shopAllButtonHoverBackgroundColor": "configurable (quickFilters.style.shopAllButtonHoverBackgroundColor)",
-        "shopAllButtonBorderColor": "configurable (quickFilters.style.shopAllButtonBorderColor)"
+      "shopAllButtonBackgroundColor": "configurable (quickFilters.style.shopAllButtonBackgroundColor)",
+      "shopAllButtonTextColor": "configurable (quickFilters.style.shopAllButtonTextColor)",
+      "shopAllButtonHoverBackgroundColor": "configurable (quickFilters.style.shopAllButtonHoverBackgroundColor)",
+      "shopAllButtonBorderColor": "configurable (quickFilters.style.shopAllButtonBorderColor)",
+      "navbarMode": {
+        "buttonPaddingX": "configurable (quickFilters.style.navbarMode.buttonPaddingX)",
+        "buttonPaddingY": "configurable (quickFilters.style.navbarMode.buttonPaddingY)",
+        "buttonFontSize": "configurable (quickFilters.style.navbarMode.buttonFontSize)",
+        "buttonFontWeight": "configurable (quickFilters.style.navbarMode.buttonFontWeight)",
+        "buttonBorderRadius": "configurable (quickFilters.style.navbarMode.buttonBorderRadius)",
+        "buttonGap": "configurable (quickFilters.style.navbarMode.buttonGap)",
+        "groupLabelFontSize": "configurable (quickFilters.style.navbarMode.groupLabelFontSize)",
+        "groupLabelPaddingX": "configurable (quickFilters.style.navbarMode.groupLabelPaddingX)",
+        "groupLabelPaddingY": "configurable (quickFilters.style.navbarMode.groupLabelPaddingY)",
+        "separatorWidth": "configurable (quickFilters.style.navbarMode.separatorWidth)",
+        "separatorHeight": "configurable (quickFilters.style.navbarMode.separatorHeight)",
+        "containerPaddingY": "configurable (quickFilters.style.navbarMode.containerPaddingY)",
+        "backgroundColor": "configurable (quickFilters.style.navbarMode.backgroundColor)",
+        "borderTopColor": "configurable (quickFilters.style.navbarMode.borderTopColor)",
+        "borderBottomColor": "configurable (quickFilters.style.navbarMode.borderBottomColor)",
+        "shadowColor": "configurable (quickFilters.style.navbarMode.shadowColor)"
+      }
+    },
+    "activeFiltersTags": {
+      "containerBackgroundColor": "configurable (ui.activeFiltersTags.containerBackgroundColor)",
+      "containerBorderColor": "configurable (ui.activeFiltersTags.containerBorderColor)",
+      "containerBorderRadius": "configurable (ui.activeFiltersTags.containerBorderRadius)",
+      "containerPadding": "configurable (ui.activeFiltersTags.containerPadding)",
+      "containerShadow": "configurable (ui.activeFiltersTags.containerShadow)",
+      "titleFontSize": "configurable (ui.activeFiltersTags.titleFontSize)",
+      "titleFontWeight": "configurable (ui.activeFiltersTags.titleFontWeight)",
+      "titleColor": "configurable (ui.activeFiltersTags.titleColor)",
+      "clearAllButtonFontSize": "configurable (ui.activeFiltersTags.clearAllButtonFontSize)",
+      "clearAllButtonFontWeight": "configurable (ui.activeFiltersTags.clearAllButtonFontWeight)",
+      "clearAllButtonColor": "configurable (ui.activeFiltersTags.clearAllButtonColor)",
+      "clearAllButtonHoverColor": "configurable (ui.activeFiltersTags.clearAllButtonHoverColor)",
+      "tagBackgroundColor": "configurable (ui.activeFiltersTags.tagBackgroundColor)",
+      "tagBorderColor": "configurable (ui.activeFiltersTags.tagBorderColor)",
+      "tagTextColor": "configurable (ui.activeFiltersTags.tagTextColor)",
+      "tagHoverBackgroundColor": "configurable (ui.activeFiltersTags.tagHoverBackgroundColor)",
+      "tagHoverBorderColor": "configurable (ui.activeFiltersTags.tagHoverBorderColor)",
+      "tagBorderRadius": "configurable (ui.activeFiltersTags.tagBorderRadius)",
+      "tagPaddingX": "configurable (ui.activeFiltersTags.tagPaddingX)",
+      "tagPaddingY": "configurable (ui.activeFiltersTags.tagPaddingY)",
+      "tagFontSize": "configurable (ui.activeFiltersTags.tagFontSize)",
+      "tagFontWeight": "configurable (ui.activeFiltersTags.tagFontWeight)",
+      "tagGap": "configurable (ui.activeFiltersTags.tagGap)",
+      "removeButtonSize": "configurable (ui.activeFiltersTags.removeButtonSize)",
+      "removeButtonColor": "configurable (ui.activeFiltersTags.removeButtonColor)",
+      "removeButtonHoverBackgroundColor": "configurable (ui.activeFiltersTags.removeButtonHoverBackgroundColor)",
+      "removeButtonHoverColor": "configurable (ui.activeFiltersTags.removeButtonHoverColor)",
+      "removeButtonBorderRadius": "configurable (ui.activeFiltersTags.removeButtonBorderRadius)"
       }
     },
     "hardcodedElements": {

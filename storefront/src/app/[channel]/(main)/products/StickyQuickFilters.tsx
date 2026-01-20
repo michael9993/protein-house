@@ -1,13 +1,14 @@
 "use client";
 
 import { useProductFilters } from "@/hooks/useProductFilters";
-import { storeConfig } from "@/config";
-import { useFiltersText } from "@/providers/StoreConfigProvider";
+import { useStoreConfig, useQuickFiltersConfig, useFiltersText } from "@/providers/StoreConfigProvider";
 import { type MouseEvent, useEffect, useState } from "react";
 
 export function StickyQuickFilters() {
-  const { branding } = storeConfig;
+  const { branding } = useStoreConfig();
   const filtersText = useFiltersText();
+  const quickFiltersConfig = useQuickFiltersConfig();
+  const navbarMode = quickFiltersConfig.style?.navbarMode;
   const { filters, toggleCategory, toggleCollection, toggleBrand } = useProductFilters();
   const [show, setShow] = useState(false);
   const [allItems, setAllItems] = useState<Array<{ id: string; name: string; slug: string; type: "category" | "collection" | "brand" }>>([]);
@@ -134,35 +135,95 @@ export function StickyQuickFilters() {
 
   if (!show) return null;
 
+  // Get navbar mode styling with defaults
+  const buttonPaddingX = navbarMode?.buttonPaddingX ?? 14; // px-3.5
+  const buttonPaddingY = navbarMode?.buttonPaddingY ?? 6;  // py-1.5
+  const buttonFontSize = navbarMode?.buttonFontSize ?? "xs";
+  const buttonFontWeight = navbarMode?.buttonFontWeight ?? "semibold";
+  const buttonBorderRadius = navbarMode?.buttonBorderRadius ?? "full";
+  const buttonGap = navbarMode?.buttonGap ?? 8; // gap-2
+  const groupLabelFontSize = navbarMode?.groupLabelFontSize ?? "xs";
+  const groupLabelPaddingX = navbarMode?.groupLabelPaddingX ?? 8; // px-2
+  const groupLabelPaddingY = navbarMode?.groupLabelPaddingY ?? 4; // py-1
+  const separatorWidth = navbarMode?.separatorWidth ?? 1; // w-px
+  const separatorHeight = navbarMode?.separatorHeight ?? 24; // h-6
+  const containerPaddingY = navbarMode?.containerPaddingY ?? 10; // py-2.5
+  const containerBg = navbarMode?.backgroundColor ?? "#FFFFFF";
+  const borderTopColor = navbarMode?.borderTopColor ?? `${branding.colors.textMuted}15`;
+  const borderBottomColor = navbarMode?.borderBottomColor ?? `${branding.colors.primary}20`;
+  const shadowColor = navbarMode?.shadowColor ?? "rgba(0, 0, 0, 0.08)";
+
+  // Font size classes
+  const fontSizeClasses = {
+    xs: "text-xs",
+    sm: "text-sm",
+    base: "text-base",
+  };
+  const fontWeightClasses = {
+    normal: "font-normal",
+    medium: "font-medium",
+    semibold: "font-semibold",
+    bold: "font-bold",
+  };
+  const borderRadiusClasses = {
+    none: "rounded-none",
+    sm: "rounded-sm",
+    md: "rounded-md",
+    lg: "rounded-lg",
+    full: "rounded-full",
+  };
+
   return (
     <div 
-      className="w-full bg-white border-t border-b shadow-lg animate-fade-in-up"
+      className="w-full border-t border-b shadow-lg animate-fade-in-up"
       style={{
-        borderTopColor: `${branding.colors.textMuted}15`,
-        borderBottomColor: `${branding.colors.primary}20`,
-        boxShadow: `0 4px 12px rgba(0, 0, 0, 0.08)`,
+        backgroundColor: containerBg,
+        borderTopColor,
+        borderBottomColor,
+        boxShadow: `0 4px 12px ${shadowColor}`,
         marginTop: 0,
         marginBottom: 0,
+        paddingTop: `${containerPaddingY}px`,
+        paddingBottom: `${containerPaddingY}px`,
       }}
     >
       <div className="mx-auto max-w-[1920px] px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
-        <div className="flex items-center gap-3 py-2.5 overflow-x-auto scrollbar-hide md:justify-center" style={{ scrollBehavior: "smooth", WebkitOverflowScrolling: "touch" }}>
+        <div 
+          className="flex items-center overflow-x-auto scrollbar-hide md:justify-center" 
+          style={{ 
+            scrollBehavior: "smooth", 
+            WebkitOverflowScrolling: "touch",
+            gap: `${buttonGap}px`,
+          }}
+        >
           {groups.map((group, groupIndex) => (
-            <div key={group.label} className="flex items-center gap-2 shrink-0">
+            <div 
+              key={group.label} 
+              className="flex items-center shrink-0"
+              style={{ gap: `${buttonGap}px` }}
+            >
               {/* Separator before group (except first) */}
               {groupIndex > 0 && (
                 <div 
-                  className="h-6 w-px shrink-0"
-                  style={{ backgroundColor: `${branding.colors.primary}30` }}
+                  className="shrink-0"
+                  style={{ 
+                    width: `${separatorWidth}px`,
+                    height: `${separatorHeight}px`,
+                    backgroundColor: `${branding.colors.primary}30` 
+                  }}
                 />
               )}
               
               {/* Group label */}
               <span 
-                className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shrink-0 whitespace-nowrap"
+                className={`${fontSizeClasses[groupLabelFontSize]} ${fontWeightClasses.bold} uppercase tracking-wider rounded shrink-0 whitespace-nowrap`}
                 style={{
                   color: branding.colors.primary,
                   backgroundColor: `${branding.colors.primary}10`,
+                  paddingLeft: `${groupLabelPaddingX}px`,
+                  paddingRight: `${groupLabelPaddingX}px`,
+                  paddingTop: `${groupLabelPaddingY}px`,
+                  paddingBottom: `${groupLabelPaddingY}px`,
                 }}
               >
                 {group.label}
@@ -175,7 +236,7 @@ export function StickyQuickFilters() {
                   <button
                     key={`sticky-${item.type}-${item.id}`}
                     onClick={(e) => handleQuickFilterClick(e, item)}
-                    className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all duration-200 whitespace-nowrap flex-shrink-0 ${
+                    className={`shrink-0 ${fontSizeClasses[buttonFontSize]} ${fontWeightClasses[buttonFontWeight]} ${borderRadiusClasses[buttonBorderRadius]} transition-all duration-200 whitespace-nowrap flex-shrink-0 ${
                       active
                         ? "text-white shadow-md"
                         : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200 border border-neutral-200"
@@ -184,6 +245,10 @@ export function StickyQuickFilters() {
                       backgroundColor: active ? branding.colors.primary : undefined,
                       borderColor: active ? branding.colors.primary : undefined,
                       minWidth: "fit-content",
+                      paddingLeft: `${buttonPaddingX}px`,
+                      paddingRight: `${buttonPaddingX}px`,
+                      paddingTop: `${buttonPaddingY}px`,
+                      paddingBottom: `${buttonPaddingY}px`,
                     }}
                   >
                     {item.name}

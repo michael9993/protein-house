@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { AppLayout } from "@/modules/ui/app-layout";
 import { SectionCard } from "@/modules/ui/section-card";
 import { FormField } from "@/modules/ui/form-field";
+import { StickySaveBar } from "@/modules/ui/sticky-save-bar";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { SeoSchema } from "@/modules/config/schema";
 import type { StorefrontConfig } from "@/modules/config/schema";
@@ -47,13 +48,20 @@ const SeoPage: NextPage = () => {
   };
 
   if (!appBridgeState?.ready || isLoading) {
-    return <Box display="flex" justifyContent="center" alignItems="center" height="100vh"><Text>Loading...</Text></Box>;
+    return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}><span>Loading...</span></div>;
   }
 
   return (
     <AppLayout channelSlug={channelSlug} channelName={config?.store.name} activeTab="seo">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <SectionCard title="Page Titles" description="Configure how page titles appear in search results">
+        <SectionCard
+          id="seo-titles"
+          title="Page Titles"
+          description="Configure how page titles appear in search results"
+          keywords={["seo", "titles", "templates"]}
+          icon="📝"
+        >
+
           <FormField
             label="Title Template"
             name="titleTemplate"
@@ -84,7 +92,14 @@ const SeoPage: NextPage = () => {
           />
         </SectionCard>
 
-        <SectionCard title="Meta Description" description="Default description for search engines">
+        <SectionCard
+          id="seo-description"
+          title="Meta Description"
+          description="Default description for search engines"
+          keywords={["seo", "meta", "description"]}
+          icon="📄"
+        >
+
           <FormField
             label="Default Description"
             name="defaultDescription"
@@ -96,7 +111,14 @@ const SeoPage: NextPage = () => {
           />
         </SectionCard>
 
-        <SectionCard title="Social Sharing" description="Open Graph and Twitter card settings">
+        <SectionCard
+          id="seo-social"
+          title="Social Sharing"
+          description="Open Graph and Twitter card settings"
+          keywords={["open graph", "twitter", "social"]}
+          icon="🔗"
+        >
+
           <FormField
             label="Default OG Image URL"
             name="defaultImage"
@@ -147,15 +169,14 @@ const SeoPage: NextPage = () => {
           </Box>
         </SectionCard>
 
-        <Box display="flex" justifyContent="flex-end" gap={2} marginTop={4}>
-          <Button type="button" variant="secondary" onClick={() => reset(config?.seo)} disabled={!isDirty}>Reset</Button>
-          <Button type="submit" variant="primary" disabled={!isDirty || updateMutation.isLoading}>
-            {updateMutation.isLoading ? "Saving..." : "Save Changes"}
-          </Button>
-        </Box>
-
-        {updateMutation.isSuccess && <Text color="success1" marginTop={2}>✓ Changes saved successfully</Text>}
-        {updateMutation.isError && <Text color="critical1" marginTop={2}>Error saving changes. Please try again.</Text>}
+        <StickySaveBar
+          isDirty={isDirty}
+          isLoading={updateMutation.isLoading}
+          isSuccess={updateMutation.isSuccess}
+          isError={updateMutation.isError}
+          onReset={() => reset(config?.seo)}
+          onSubmit={handleSubmit(onSubmit)}
+        />
       </form>
     </AppLayout>
   );

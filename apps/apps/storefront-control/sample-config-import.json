@@ -116,14 +116,106 @@
           "overlayOpacity": 40,
           "textAlignment": "center"
         },
-        "featuredCategories": { "enabled": true, "limit": 6 },
-        "newArrivals": { "enabled": true, "limit": 8 },
-        "bestSellers": { "enabled": true, "limit": 8 },
-        "onSale": { "enabled": true, "limit": 4 },
-        "featuredBrands": { "enabled": false },
-        "testimonials": { "enabled": true },
-        "newsletter": { "enabled": true },
-        "instagramFeed": { "enabled": false, "username": null }
+        "featuredCategories": { 
+          "enabled": true, 
+          "limit": 6,
+          "background": {
+            "style": "color-mix",
+            "color": null,
+            "secondaryColor": null,
+            "mixPercentage": 8
+          }
+        },
+        "newArrivals": { 
+          "enabled": true, 
+          "limit": 8,
+          "background": {
+            "style": "color-mix",
+            "color": null,
+            "secondaryColor": null,
+            "mixPercentage": 8
+          }
+        },
+        "bestSellers": { 
+          "enabled": true, 
+          "limit": 8,
+          "background": {
+            "style": "color-mix",
+            "color": null,
+            "secondaryColor": null,
+            "mixPercentage": 8
+          }
+        },
+        "onSale": { 
+          "enabled": true, 
+          "limit": 4,
+          "background": {
+            "style": "color-mix",
+            "color": null,
+            "secondaryColor": null,
+            "mixPercentage": 8
+          }
+        },
+        "featuredBrands": { 
+          "enabled": false,
+          "background": {
+            "style": "color-mix",
+            "color": null,
+            "secondaryColor": null,
+            "mixPercentage": 8
+          }
+        },
+        "testimonials": { 
+          "enabled": true,
+          "background": {
+            "style": "color-mix",
+            "color": null,
+            "secondaryColor": null,
+            "mixPercentage": 8
+          },
+          "starColor": "#FFD700",
+          "starEmptyColor": null,
+          "starSize": "base",
+          "loadingReviewsText": null,
+          "verifiedPurchaseLabel": null,
+          "customerLabel": null,
+          "card": {
+            "backgroundColor": null,
+            "borderColor": null,
+            "borderRadius": null,
+            "padding": null,
+            "shadow": null,
+            "hoverShadow": null,
+            "hoverTransform": null
+          },
+          "trustBadges": {
+            "showAverageRating": true,
+            "showCustomerCount": true,
+            "showSatisfactionRate": true,
+            "showOrdersDelivered": true,
+            "borderColor": null,
+            "textColor": null
+          }
+        },
+        "newsletter": { 
+          "enabled": true,
+          "background": {
+            "style": "gradient",
+            "color": null,
+            "secondaryColor": null,
+            "gradientDirection": "to-bottom"
+          }
+        },
+        "instagramFeed": { 
+          "enabled": false, 
+          "username": null,
+          "background": {
+            "style": "color-mix",
+            "color": null,
+            "secondaryColor": null,
+            "mixPercentage": 8
+          }
+        }
       },
       "sectionOrder": [
         "hero",
@@ -234,7 +326,25 @@
         "shopAllButtonBackgroundColor": null,
         "shopAllButtonTextColor": null,
         "shopAllButtonHoverBackgroundColor": null,
-        "shopAllButtonBorderColor": null
+        "shopAllButtonBorderColor": null,
+        "navbarMode": {
+          "buttonPaddingX": 14,
+          "buttonPaddingY": 6,
+          "buttonFontSize": "xs",
+          "buttonFontWeight": "semibold",
+          "buttonBorderRadius": "full",
+          "buttonGap": 8,
+          "groupLabelFontSize": "xs",
+          "groupLabelPaddingX": 8,
+          "groupLabelPaddingY": 4,
+          "separatorWidth": 1,
+          "separatorHeight": 24,
+          "containerPaddingY": 10,
+          "backgroundColor": null,
+          "borderTopColor": null,
+          "borderBottomColor": null,
+          "shadowColor": null
+        }
       }
     },
     "header": {
@@ -338,6 +448,36 @@
         "style": "outline",
         "defaultColor": null,
         "activeColor": null
+      },
+      "activeFiltersTags": {
+        "containerBackgroundColor": null,
+        "containerBorderColor": null,
+        "containerBorderRadius": "lg",
+        "containerPadding": 16,
+        "containerShadow": "sm",
+        "titleFontSize": "sm",
+        "titleFontWeight": "semibold",
+        "titleColor": null,
+        "clearAllButtonFontSize": "xs",
+        "clearAllButtonFontWeight": "medium",
+        "clearAllButtonColor": null,
+        "clearAllButtonHoverColor": null,
+        "tagBackgroundColor": null,
+        "tagBorderColor": null,
+        "tagTextColor": null,
+        "tagHoverBackgroundColor": null,
+        "tagHoverBorderColor": null,
+        "tagBorderRadius": "full",
+        "tagPaddingX": 12,
+        "tagPaddingY": 6,
+        "tagFontSize": "xs",
+        "tagFontWeight": "medium",
+        "tagGap": 8,
+        "removeButtonSize": 16,
+        "removeButtonColor": null,
+        "removeButtonHoverBackgroundColor": null,
+        "removeButtonHoverColor": null,
+        "removeButtonBorderRadius": "full"
       }
     },
     "content": {
@@ -486,6 +626,15 @@
         "brandsSubtitle": "קנו מהמותגים האהובים עליכם",
         "testimonialsTitle": "מה הלקוחות שלנו אומרים",
         "testimonialsSubtitle": "חוות דעת אמיתיות מלקוחות אמיתיים",
+        "averageRatingLabel": "דירוג ממוצע",
+        "happyCustomersLabel": "לקוחות מרוצים",
+        "satisfactionRateLabel": "שיעור שביעות רצון",
+        "ordersDeliveredLabel": "הזמנות שנמסרו",
+        "verifiedPurchaseLabel": "רכישה מאומתת",
+        "loadingReviewsText": "טוען ביקורות...",
+        "noReviewsAvailableText": "אין ביקורות זמינות עדיין. היה הראשון לכתוב ביקורת על המוצרים שלנו!",
+        "noReviewsSubtext": "ביקורות יופיעו כאן ברגע שהלקוחות יתחילו להשאיר משוב.",
+        "noApprovedReviewsText": "אין ביקורות מאושרות עם 4+ כוכבים עדיין. {count} ביקורת(ות) ממתינות לאישור.",
         "heroCtaText": "לקניות",
         "heroSecondaryCtaText": "עיון בקטגוריות",
         "shopNowButton": "קנה עכשיו",
@@ -552,6 +701,7 @@
         "noResultsMessage": "לא נמצאו תוצאות עבור \"{query}\"",
         "sortByLabel": "מיין לפי:",
         "filtersButtonText": "סינונים",
+        "searchForText": "עבור",
         "resultsText": "תוצאות",
         "itemsAvailable": "פריטים זמינים",
         "productsPageTitle": "כל המוצרים",
@@ -716,7 +866,48 @@
         "trackPackageDescription": "עקוב אחרי החבילה שלך באמצעות כל אחד מהשירותים למטה:",
         "universalTrackers": "מעקבים אוניברסליים (מומלץ)",
         "directCarrierLinks": "קישורים ישירים למשלוחים",
-        "loading": "טוען..."
+        "loading": "טוען...",
+        "backToOrders": "חזרה להזמנות",
+        "placedOn": "בוצע ב-",
+        "orderItemsTitle": "פריטי הזמנה",
+        "viewProduct": "צפה במוצר",
+        "orderSummaryTitle": "סיכום הזמנה",
+        "subtotalLabel": "סיכום ביניים",
+        "shippingLabel": "משלוח",
+        "shippingFree": "חינם",
+        "totalLabelDetails": "סה״כ",
+        "shippingAddressTitle": "כתובת משלוח",
+        "billingAddressTitle": "כתובת חיוב",
+        "shipmentTrackingTitle": "מעקב משלוח",
+        "statusLabelDetails": "סטטוס",
+        "trackingNumberLabelDetails": "מספר מעקב #",
+        "invoiceTitle": "חשבונית",
+        "invoiceNumberPrefix": "חשבונית #",
+        "downloadButton": "הורד",
+        "generatingText": "מייצר...",
+        "unavailableText": "לא זמין",
+        "quickActionsTitle": "פעולות מהירות",
+        "needHelpTitle": "צריך עזרה?",
+        "contactSupportButton": "צור קשר עם התמיכה",
+        "viewFaqsButton": "צפה בשאלות נפוצות",
+        "statusProcessing": "מעבד",
+        "statusPartiallyShipped": "נשלח חלקית",
+        "statusShipped": "נשלח",
+        "statusDelivered": "נמסר",
+        "statusCanceled": "בוטל",
+        "statusReturned": "הוחזר",
+        "paymentPending": "ממתין",
+        "paymentPartiallyPaid": "שולם חלקית",
+        "paymentPaid": "שולם",
+        "paymentPartiallyRefunded": "הוחזר חלקית",
+        "paymentRefunded": "הוחזר",
+        "paymentFailed": "תשלום נכשל",
+        "paymentCancelled": "בוטל",
+        "reorderItems": "הזמן שוב פריטים",
+        "addingToCart": "מוסיף לעגלה...",
+        "itemsAddedToCart": "{count} פריט/ים נוספו לעגלה!",
+        "redirectingToCart": "מעביר לעגלה...",
+        "tryAgain": "נסה שוב"
       },
       "addresses": {
         "myAddresses": "הכתובות שלי",

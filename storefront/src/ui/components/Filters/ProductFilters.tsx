@@ -264,7 +264,7 @@ export function ProductFilters({
       !areAllChildrenSelected(category, filters.categories);
 
     return (
-      <div key={category.slug} className={depth > 0 ? "ml-4 mt-1" : ""}>
+      <div key={category.slug} className={depth > 0 ? "ms-4 mt-1" : ""}>
         <div className="flex items-center gap-2">
           {hasChildren ? (
             <button
@@ -313,7 +313,7 @@ export function ProductFilters({
   return (
     <aside className="flex h-full w-full flex-col animate-fade-in-up" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
       {/* Scrollable Content - No header needed, title is in sidebar */}
-      <div className="flex-1 overflow-y-auto pr-2 -mr-2 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto pe-2 -me-2 scrollbar-thin">
         {/* Clear All Button - At top if filters active */}
         {hasFilters && (
           <div className="mb-6 pb-6 border-b border-neutral-200/60">
@@ -607,7 +607,7 @@ function FilterSection({
     <div className={`${noBorder ? "py-5" : "border-b border-neutral-200/60 py-5"} transition-all duration-300`}>
       <button
         onClick={onToggle}
-        className="flex w-full items-center justify-between text-left group"
+        className="flex w-full items-center justify-between text-start group"
       >
         <span 
           className="text-sm font-bold uppercase tracking-wider transition-colors group-hover:opacity-80"

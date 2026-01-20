@@ -8,6 +8,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+    command: postgres -c max_connections=200 -c shared_buffers=256MB
     ports:
       - "${POSTGRES_PORT}:5432"
     volumes:
@@ -72,6 +73,8 @@ services:
 
       # Database - Constructed from .env values
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      # Enable connection pooling (60 seconds) to reuse connections and prevent exhaustion
+      DB_CONN_MAX_AGE: ${DB_CONN_MAX_AGE:-60}
 
       # Redis
       REDIS_URL: ${REDIS_URL}
@@ -139,6 +142,7 @@ services:
     environment:
       SECRET_KEY: ${SECRET_KEY}
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      DB_CONN_MAX_AGE: ${DB_CONN_MAX_AGE:-60}
       REDIS_URL: ${REDIS_URL}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
@@ -170,6 +174,7 @@ services:
     environment:
       SECRET_KEY: ${SECRET_KEY:-changeme-in-production}
       DATABASE_URL: postgres://${POSTGRES_USER:-saleor}:${POSTGRES_PASSWORD:-saleor}@postgres:5432/${POSTGRES_DB:-saleor}
+      DB_CONN_MAX_AGE: ${DB_CONN_MAX_AGE:-60}
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/2
@@ -244,7 +249,9 @@ services:
     # Generate GraphQL types before starting dev server or building
     # Codegen will use SALEOR_API_URL (Docker service name) for server-side operations
     # Only install if node_modules doesn't exist or package.json changed (pnpm handles this automatically)
-    command: sh -c "corepack enable && corepack prepare pnpm@9.6.0 --activate && unset NODE_ENV && pnpm install --prefer-offline && echo '🔍 Generating GraphQL types...' && pnpm run generate && if [ \"$${STOREFRONT_MODE:-dev}\" = \"production\" ]; then echo '🔍 Running type check before build...' && pnpm run type-check && echo '✅ Type check passed! Building production...' && export NODE_ENV=production && pnpm run build && echo 'Starting production server...' && pnpm run start; else echo 'Starting dev server...' && export NODE_ENV=development && pnpm run dev; fi"
+    # Optionally generate storefront config fallback file if env vars are set
+    # Uses tunnel URL if available (for tunneling setups), otherwise falls back to internal/public URLs
+    command: sh -c "corepack enable && corepack prepare pnpm@9.6.0 --activate && unset NODE_ENV && pnpm install --prefer-offline && echo '🔍 Generating GraphQL types...' && pnpm run generate && if [ -f ../scripts/fetch-storefront-config.ts ] && [ -n \"$${SALEOR_API_URL}\" ] && [ -n \"$${STOREFRONT_CHANNELS}\" ]; then echo '🔍 Generating storefront config fallback (using tunnel URL if available)...' && cd .. && export STOREFRONT_CONTROL_APP_TUNNEL_URL=\"$${STOREFRONT_CONTROL_APP_TUNNEL_URL}\" && export STOREFRONT_CONTROL_APP_URL=\"$${STOREFRONT_CONTROL_APP_URL}\" && node scripts/fetch-storefront-config.ts || echo '⚠️  Config generation failed, continuing...' && cd storefront; fi && if [ \"$${STOREFRONT_MODE:-dev}\" = \"production\" ]; then echo '🔍 Running type check before build...' && pnpm run type-check && echo '✅ Type check passed! Building production...' && export NODE_ENV=production && pnpm run build && echo 'Starting production server...' && pnpm run start; else echo 'Starting dev server...' && export NODE_ENV=development && pnpm run dev; fi"
     env_file:
       - .env
     ports:
@@ -252,6 +259,8 @@ services:
     volumes:
       # Mount entire storefront directory for hot-reload (dev) or source access (prod)
       - ../storefront:/app
+      # Mount project root to access storefront-cms-config.json and scripts
+      - ..:/workspace:ro
       # Preserve node_modules
       - storefront-node-modules:/app/node_modules
       # Preserve Next.js build cache
@@ -273,6 +282,13 @@ services:
       STOREFRONT_CONTROL_APP_INTERNAL_URL: http://saleor-storefront-control-app:3000
       # Public URL for storefront control app (for client-side fetches)
       STOREFRONT_CONTROL_APP_URL: ${STOREFRONT_CONTROL_APP_URL}
+      # Tunnel URL for storefront control app (prioritized for build-time fetching)
+      STOREFRONT_CONTROL_APP_TUNNEL_URL: ${STOREFRONT_CONTROL_APP_TUNNEL_URL:-${STOREFRONT_CONTROL_APP_URL}}
+      # Channels to fetch config for (comma-separated, e.g., "ils,usd,default")
+      # Used by build script to generate fallback config file
+      STOREFRONT_CHANNELS: ${STOREFRONT_CHANNELS:-ils,usd}
+      # Storefront tunnel URL (for webhooks from storefront-control)
+      STOREFRONT_TUNNEL_URL: ${STOREFRONT_TUNNEL_URL:-${NEXT_PUBLIC_STOREFRONT_URL}}
       # Build mode: 'dev' (default) or 'production'
       # Set STOREFRONT_MODE=production in .env to use production build
       # Set STOREFRONT_MODE=dev (or leave unset) to use dev server
@@ -483,6 +499,12 @@ services:
       # Use tunnel URL for app registration (Dashboard needs to reach this)
       STOREFRONT_CONTROL_APP_URL: ${STOREFRONT_CONTROL_APP_TUNNEL_URL:-${STOREFRONT_CONTROL_APP_URL}}
       APP_API_BASE_URL: ${STOREFRONT_CONTROL_APP_TUNNEL_URL:-${STOREFRONT_CONTROL_APP_URL}}
+      # Internal Docker network URL for storefront (for webhooks within Docker network)
+      STOREFRONT_INTERNAL_URL: http://saleor-storefront:3000
+      # Tunnel URL for storefront (prioritized for webhooks when using tunneling)
+      STOREFRONT_TUNNEL_URL: ${STOREFRONT_TUNNEL_URL:-${NEXT_PUBLIC_STOREFRONT_URL}}
+      # Public URL for storefront (fallback)
+      STOREFRONT_URL: ${NEXT_PUBLIC_STOREFRONT_URL}
       # APL type: 'file' for local dev
       APL: file
       # Secret key for encrypting app metadata

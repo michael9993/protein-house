@@ -200,7 +200,8 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
 
   const scroll = (direction: "left" | "right") => {
     if (!scrollContainerRef.current) return;
-    const cardWidth = 180; // Card width + gap
+    const style = quickFiltersConfig.style || {};
+    const cardWidth = (style.cardWidth || 160) + (style.cardGap || 0.5) * 8; // Card width + gap in pixels
     const scrollAmount = cardWidth * 2; // Scroll 2 cards at a time
     const currentScroll = scrollContainerRef.current.scrollLeft;
     const targetScroll = direction === "left" 
@@ -288,7 +289,12 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
           background: `linear-gradient(135deg, ${branding.colors.primary}05 0%, ${branding.colors.secondary}03 50%, transparent 100%)`,
         }}
       >
-      <div className="relative w-full h-[220px]">
+      <div 
+        className="relative w-full"
+        style={{ 
+          height: `${quickFiltersConfig.style?.cardHeight || 220}px` 
+        }}
+      >
       {/* Scroll arrows - positioned outside the scroll container with RTL support */}
       {showLeftArrow && (
         <button
@@ -297,8 +303,10 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
             e.stopPropagation();
             scroll(isRtl ? "right" : "left");
           }}
-          className="absolute start-2 top-1/2 z-50 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white border-2 shadow-xl backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:shadow-2xl pointer-events-auto"
+          className="absolute start-2 top-1/2 z-50 -translate-y-1/2 flex items-center justify-center rounded-full bg-white border-2 shadow-xl backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:shadow-2xl pointer-events-auto"
           style={{ 
+            height: `${quickFiltersConfig.style?.arrowSize || 48}px`,
+            width: `${quickFiltersConfig.style?.arrowSize || 48}px`,
             borderColor: branding.colors.primary + "40",
             boxShadow: `0 4px 12px ${branding.colors.primary}20`,
           }}
@@ -306,8 +314,12 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
           type="button"
         >
           <svg
-            className="h-6 w-6 pointer-events-none rtl:rotate-180"
-            style={{ color: branding.colors.primary }}
+            className="pointer-events-none rtl:rotate-180"
+            style={{ 
+              color: branding.colors.primary,
+              height: `${quickFiltersConfig.style?.arrowIconSize || 24}px`,
+              width: `${quickFiltersConfig.style?.arrowIconSize || 24}px`,
+            }}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -350,9 +362,9 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
                   : "ring-1 ring-neutral-200 hover:ring-neutral-300"
               }`}
               style={{
-                width: "160px",
+                width: `${quickFiltersConfig.style?.cardWidth || 160}px`,
                 height: "100%",
-                marginRight: "0.5px",
+                marginRight: `${(quickFiltersConfig.style?.cardGap || 0.5) * 8}px`,
                 borderRadius: "0",
                 "--tw-ring-color": active ? branding.colors.primary : undefined,
                 transform: isHovered && !active ? "translateY(-2px)" : undefined,
@@ -464,8 +476,10 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
             e.stopPropagation();
             scroll(isRtl ? "left" : "right");
           }}
-          className="absolute end-2 top-1/2 z-50 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white border-2 shadow-xl backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:shadow-2xl pointer-events-auto"
+          className="absolute end-2 top-1/2 z-50 -translate-y-1/2 flex items-center justify-center rounded-full bg-white border-2 shadow-xl backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:shadow-2xl pointer-events-auto"
           style={{ 
+            height: `${quickFiltersConfig.style?.arrowSize || 48}px`,
+            width: `${quickFiltersConfig.style?.arrowSize || 48}px`,
             borderColor: branding.colors.primary + "40",
             boxShadow: `0 4px 12px ${branding.colors.primary}20`,
           }}
@@ -473,8 +487,12 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
           type="button"
         >
           <svg
-            className="h-6 w-6 pointer-events-none rtl:rotate-180"
-            style={{ color: branding.colors.primary }}
+            className="pointer-events-none rtl:rotate-180"
+            style={{ 
+              color: branding.colors.primary,
+              height: `${quickFiltersConfig.style?.arrowIconSize || 24}px`,
+              width: `${quickFiltersConfig.style?.arrowIconSize || 24}px`,
+            }}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"

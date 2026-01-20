@@ -39,18 +39,24 @@ export function HeroImage({
           className="object-cover"
           sizes="100vw"
         />
-        {/* Gradient Overlay */}
+        {/* Gradient Overlay - More relaxed */}
         <div 
           className="absolute inset-0"
           style={{
-            background: `linear-gradient(135deg, ${branding.colors.secondary}ee 0%, ${branding.colors.secondary}88 50%, transparent 100%)`,
+            background: `linear-gradient(135deg, ${branding.colors.secondary}cc 0%, ${branding.colors.secondary}77 50%, transparent 100%)`,
           }}
         />
       </div>
 
       {/* Content */}
       <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-center px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl animate-slide-up">
+        <div 
+          className="max-w-2xl"
+          style={{
+            animation: 'fadeInUp 500ms ease-out',
+            willChange: 'transform, opacity',
+          }}
+        >
           <h1 
             className="heading text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl"
             style={{ fontFamily: `var(--font-${branding.typography.fontHeading.toLowerCase().replace(/\s+/g, '-')}, var(--store-font-heading))` }}
@@ -82,7 +88,13 @@ export function HeroImage({
       </div>
 
       {/* Scroll Indicator - uses logical properties for RTL support */}
-      <div className="absolute bottom-8 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 animate-bounce">
+      <div 
+        className="absolute bottom-8 start-1/2 -translate-x-1/2 rtl:translate-x-1/2"
+        style={{
+          animation: 'bounce 2s ease-in-out infinite',
+          willChange: 'transform',
+        }}
+      >
         <svg className="h-8 w-8 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
         </svg>
