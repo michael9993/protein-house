@@ -76,6 +76,7 @@ from .resolvers import (
     resolve_homepage_events,
     resolve_order,
     resolve_order_by_token,
+    resolve_order_by_number_and_email,
     resolve_orders,
     resolve_orders_total,
 )
@@ -201,6 +202,21 @@ class OrderQueries(graphene.ObjectType):
         token=graphene.Argument(UUID, description="The order's token.", required=True),
         doc_category=DOC_CATEGORY_ORDERS,
     )
+    order_by_number_and_email = BaseField(
+        Order,
+        description="Look up an order by order number and email address. Public query for order tracking.",
+        number=graphene.Argument(
+            graphene.String, 
+            description="The order number.", 
+            required=True
+        ),
+        email=graphene.Argument(
+            graphene.String,
+            description="The email address associated with the order.",
+            required=True
+        ),
+        doc_category=DOC_CATEGORY_ORDERS,
+    )
 
     @staticmethod
     def resolve_homepage_events(_root, info: ResolveInfo, **kwargs):
@@ -288,6 +304,10 @@ class OrderQueries(graphene.ObjectType):
     @staticmethod
     def resolve_order_by_token(_root, info: ResolveInfo, *, token):
         return resolve_order_by_token(info, token)
+
+    @staticmethod
+    def resolve_order_by_number_and_email(_root, info: ResolveInfo, *, number, email):
+        return resolve_order_by_number_and_email(info, number, email)
 
 
 class OrderMutations(graphene.ObjectType):

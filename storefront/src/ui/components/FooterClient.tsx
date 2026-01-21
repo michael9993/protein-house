@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
+import { useState } from "react";
 import { LinkWithChannel } from "../atoms/LinkWithChannel";
 import { 
 	useBranding, 
@@ -9,6 +11,7 @@ import {
 	usePageEnabled,
 	useFooterConfig,
 	useFooterText,
+	useOrderTrackingText,
 } from "@/providers/StoreConfigProvider";
 
 // Types for menu items from GraphQL
@@ -67,11 +70,13 @@ export function FooterClient({ menuItems }: FooterClientProps) {
 	const socialLinks = useSocialLinks();
 	const footerConfig = useFooterConfig();
 	const footerText = useFooterText();
+	const orderTracking = useOrderTrackingText();
 	const privacyPolicyEnabled = usePageEnabled("privacyPolicy");
 	const termsOfServiceEnabled = usePageEnabled("termsOfService");
 	const shippingPolicyEnabled = usePageEnabled("shippingPolicy");
 	const returnPolicyEnabled = usePageEnabled("returnPolicy");
 	
+	const [imageError, setImageError] = useState(false);
 	const currentYear = new Date().getFullYear();
 
 	// Filter social links that have URLs
@@ -79,6 +84,12 @@ export function FooterClient({ menuItems }: FooterClientProps) {
 
 	// Get copyright text
 	const copyrightText = footerConfig.copyrightText || `© ${currentYear} ${store.name}. All rights reserved.`;
+
+	// Check if we have a valid logo URL from config
+	const hasLogoUrl = branding.logo && 
+		branding.logo !== "/logo.svg" && 
+		branding.logo.trim() !== "" &&
+		!imageError;
 
 	return (
 		<footer 
@@ -97,9 +108,30 @@ export function FooterClient({ menuItems }: FooterClientProps) {
 							className="flex items-center gap-2 text-xl font-bold"
 							style={{ color: branding.colors.primary }}
 						>
-							<svg className="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
-								<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-							</svg>
+							{hasLogoUrl ? (
+								branding.logo.startsWith("http") ? (
+									<Image
+										src={branding.logo}
+										alt={branding.logoAlt || store.name}
+										width={32}
+										height={32}
+										className="h-8 w-auto object-contain"
+										onError={() => setImageError(true)}
+										unoptimized
+									/>
+								) : (
+									<img
+										src={branding.logo}
+										alt={branding.logoAlt || store.name}
+										className="h-8 w-auto object-contain"
+										onError={() => setImageError(true)}
+									/>
+								)
+							) : (
+								<svg className="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
+									<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+								</svg>
+							)}
 							{store.name}
 						</div>
 						<p className="mt-4 text-sm text-white/70">
@@ -213,6 +245,9 @@ export function FooterClient({ menuItems }: FooterClientProps) {
 						{copyrightText}
 					</p>
 					<div className="flex gap-6 text-sm text-white/60">
+						<LinkWithChannel href="/track-order" className="hover:text-white">
+							{footerText.trackOrderLink}
+						</LinkWithChannel>
 						{privacyPolicyEnabled && (
 							<LinkWithChannel href="/pages/privacy-policy" className="hover:text-white">
 								{footerText.privacyPolicyLink}

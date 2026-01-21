@@ -270,7 +270,9 @@ export function PromoPopup({
                 className="text-white/90"
                 style={{ animation: "fadeInUp 0.5s ease-out 0.4s both" }}
               >
-                {saleProductCount} {saleProductCount === 1 ? "item" : "items"} on sale
+                {popupConfig.itemsOnSaleText
+                  .replace(/\{count\}/g, saleProductCount.toString())
+                  .replace(/\{count, plural, =1 \{([^}]+)\} other \{([^}]+)\}\}/g, saleProductCount === 1 ? "$1" : "$2")}
               </p>
             )}
           </div>
@@ -303,7 +305,7 @@ export function PromoPopup({
               className="mt-3 text-sm text-neutral-600 hover:text-neutral-800 transition-colors font-medium"
               style={{ animation: "fadeInUp 0.5s ease-out 0.7s both" }}
             >
-              Maybe later
+              {popupConfig.maybeLaterText}
             </button>
           </div>
         </div>

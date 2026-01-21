@@ -135,3 +135,46 @@ def resolve_order_by_token(info, token):
     if not order:
         return None
     return SyncWebhookControlContext(node=order, allow_sync_webhooks=True)
+
+
+def resolve_order_by_number_and_email(info, number, email):
+    """
+    Public resolver for order lookup by number and email.
+    This allows non-authenticated users to track their orders.
+    No permissions required - email validation provides security.
+    """
+    database_connection_name = get_database_connection_name(info.context)
+    
+    # Normalize email for comparison
+    normalized_email = email.lower().strip() if email else None
+    
+    if not number or not normalized_email:
+        return None
+    
+    # Find order by number (exact match)
+    # Use number as string for comparison
+    order = (
+        models.Order.objects.using(database_connection_name)
+        .exclude(status=OrderStatus.DRAFT)
+        .filter(number=str(number))
+        .first()
+    )
+    
+    if not order:
+        return None
+    
+    # Validate email matches (case-insensitive)
+    # Use the Order model's get_customer_email method which handles both user_email and user.email
+    order_email = order.get_customer_email()
+    
+    if not order_email:
+        # No email associated with order - return None for security
+        return None
+    
+    # Normalize and compare emails
+    order_email_normalized = order_email.lower().strip()
+    if order_email_normalized != normalized_email:
+        # Email doesn't match - return None for security
+        return None
+    
+    return SyncWebhookControlContext(node=order, allow_sync_webhooks=True)

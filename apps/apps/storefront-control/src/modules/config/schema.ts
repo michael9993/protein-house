@@ -164,6 +164,7 @@ export const HeroSectionSchema = z.object({
   subtitle: z.string(),
   ctaText: z.string(),
   ctaLink: z.string(),
+  badgeText: z.string().nullable().optional(), // "New Season Collection" or null to hide badge
   // Media fields
   imageUrl: z.string().nullable(),
   videoUrl: z.string().nullable(),
@@ -314,6 +315,9 @@ export const PromoPopupSchema = z.object({
   // CTA
   ctaText: z.string(),
   ctaLink: z.string(),
+  // Text labels
+  itemsOnSaleText: z.string(),            // "{count} items on sale" (for auto-detect mode)
+  maybeLaterText: z.string(),             // "Maybe later" (dismiss button)
   // Behavior
   delaySeconds: z.number().min(0).max(60),
   showOncePerSession: z.boolean(),
@@ -862,8 +866,10 @@ export const HomepageTextSchema = z.object({
   noApprovedReviewsText: z.string(),      // "No approved reviews with 4+ stars yet. {count} review(s) pending approval."
   heroCtaText: z.string(),
   heroSecondaryCtaText: z.string(),
+  watchVideoButton: z.string(),           // "Watch Video" (for hero video section)
   // Category cards
   shopNowButton: z.string(),              // "Shop Now"
+  exploreText: z.string(),                // "Explore" (for category cards)
   productCountText: z.string(),           // "Products" or "{count} Products"
   // Newsletter
   newsletterEmailPlaceholder: z.string(), // "Enter your email"
@@ -1122,6 +1128,69 @@ export const AccountDashboardTextSchema = z.object({
   startShopping: z.string(),          // "Start Shopping"
 });
 
+// Order Tracking Text (for non-logged-in users)
+export const OrderTrackingTextSchema = z.object({
+  title: z.string(),                           // "Track Your Order"
+  description: z.string(),                     // "Enter your order number and email address..."
+  orderNumberLabel: z.string(),                // "Order Number"
+  orderNumberPlaceholder: z.string(),          // "e.g., 12345"
+  orderNumberHelp: z.string(),                 // "You can find your order number in your confirmation email."
+  emailLabel: z.string(),                      // "Email Address"
+  emailPlaceholder: z.string(),                // "your@email.com"
+  emailHelp: z.string(),                       // "The email address you used when placing the order."
+  trackButton: z.string(),                     // "Track Order"
+  trackingButton: z.string(),                  // "Tracking..."
+  errorNotFound: z.string(),                   // "Order not found. Please check your order number and email address."
+  errorGeneric: z.string(),                    // "An error occurred while tracking your order. Please try again."
+  backToTracking: z.string(),                  // "Track Another Order"
+  orderFoundTitle: z.string(),                 // "Order Details"
+  createAccountTitle: z.string(),              // "Create an Account"
+  createAccountDescription: z.string(),        // "Sign up to track all your orders, save your addresses, and enjoy faster checkout."
+  createAccountButton: z.string(),             // "Create Account"
+  needHelpText: z.string(),                    // "Need help?"
+  contactSupportLink: z.string(),              // "Contact Support"
+});
+
+// FAQ Item Schema
+export const FAQItemSchema = z.object({
+  question: z.string(),                       // "What are your shipping times?"
+  answer: z.string(),                          // "Most orders ship within 24 hours..."
+});
+
+// Contact Page Text
+export const ContactTextSchema = z.object({
+  heroTitle: z.string(),                       // "Get in Touch"
+  heroDescription: z.string(),                 // "Have a question or need help? We're here for you. Reach out through any of the channels below or fill out the contact form."
+  // Contact method labels
+  emailLabel: z.string(),                      // "Email"
+  phoneLabel: z.string(),                      // "Phone"
+  addressLabel: z.string(),                    // "Address"
+  // Contact form
+  formTitle: z.string(),                       // "Send Us a Message"
+  formDescription: z.string(),                 // "We'll get back to you within 24 hours."
+  nameLabel: z.string(),                       // "Your Name"
+  namePlaceholder: z.string(),                 // "John Doe"
+  emailLabelForm: z.string(),                  // "Email Address" (for form field)
+  emailPlaceholder: z.string(),                // "john@example.com"
+  subjectLabel: z.string(),                    // "Subject"
+  subjectPlaceholder: z.string(),              // "How can we help?"
+  messageLabel: z.string(),                    // "Message"
+  messagePlaceholder: z.string(),              // "Tell us more about your inquiry..."
+  sendButton: z.string(),                      // "Send Message"
+  sendingButton: z.string(),                   // "Sending..."
+  successTitle: z.string(),                    // "Message Sent!"
+  successDescription: z.string(),              // "Thank you for reaching out. We'll be in touch soon."
+  sendAnotherMessage: z.string(),              // "Send another message"
+  // FAQs
+  faqsTitle: z.string(),                       // "Frequently Asked Questions"
+  faqsDescription: z.string(),                 // "Find quick answers to common questions."
+  faqs: z.array(FAQItemSchema).optional(),     // Array of FAQ items
+  viewAllFaqs: z.string(),                     // "View All FAQs"
+  // Social section
+  followUsTitle: z.string(),                   // "Follow Us"
+  followUsDescription: z.string(),             // "Stay connected for updates, tips, and exclusive offers."
+});
+
 // Orders Page Text
 export const OrdersTextSchema = z.object({
   myOrdersTitle: z.string(),           // "My Orders"
@@ -1319,6 +1388,7 @@ export const FooterTextSchema = z.object({
   companyTitle: z.string(),            // "Company"
   supportTitle: z.string(),            // "Support"
   followUsTitle: z.string(),           // "Follow Us"
+  trackOrderLink: z.string().optional(), // "Track Order" (optional for backward compatibility)
 });
 
 // Navbar Text
@@ -1328,6 +1398,7 @@ export const NavbarTextSchema = z.object({
   cartLabel: z.string(),               // "Cart"
   accountLabel: z.string(),            // "Account"
   menuLabel: z.string(),               // "Menu"
+  signInText: z.string(),              // "Sign In" (for navbar login link)
   // Mobile navigation
   homeLabel: z.string(),                // "Home"
   shopLabel: z.string(),                // "Shop"
@@ -1364,6 +1435,8 @@ export const ContentSchema = z.object({
   productDetail: ProductDetailTextSchema,
   dashboard: AccountDashboardTextSchema,
   orders: OrdersTextSchema,
+  orderTracking: OrderTrackingTextSchema.optional(), // Optional for backward compatibility
+  contact: ContactTextSchema.optional(), // Optional for backward compatibility
   addresses: AddressesTextSchema,
   wishlist: WishlistTextSchema,
   settings: SettingsTextSchema,
@@ -1428,6 +1501,8 @@ export type QuickFiltersStyle = z.infer<typeof QuickFiltersStyleSchema>;
 export type ProductDetailText = z.infer<typeof ProductDetailTextSchema>;
 export type AccountDashboardText = z.infer<typeof AccountDashboardTextSchema>;
 export type OrdersText = z.infer<typeof OrdersTextSchema>;
+export type OrderTrackingText = z.infer<typeof OrderTrackingTextSchema>;
+export type ContactText = z.infer<typeof ContactTextSchema>;
 export type AddressesText = z.infer<typeof AddressesTextSchema>;
 export type WishlistText = z.infer<typeof WishlistTextSchema>;
 export type SettingsText = z.infer<typeof SettingsTextSchema>;

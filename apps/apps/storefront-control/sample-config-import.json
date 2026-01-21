@@ -1,9 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-01-16T12:00:00Z",
+  "exportedAt": "2026-01-21T10:31:36.887Z",
   "channelSlug": "ils",
   "config": {
-    "version": 1,
+    "version": 3,
+    "updatedAt": "2026-01-21T10:31:36.697Z",
     "channelSlug": "ils",
     "store": {
       "name": "Mansour Shoes",
@@ -79,7 +80,11 @@
     "ecommerce": {
       "currency": {
         "default": "ILS",
-        "supported": ["ILS", "USD", "EUR"]
+        "supported": [
+          "ILS",
+          "USD",
+          "EUR"
+        ]
       },
       "shipping": {
         "enabled": true,
@@ -102,22 +107,39 @@
         "termsRequired": true
       }
     },
+    "header": {
+      "banner": {
+        "enabled": true,
+        "text": "משלוח חינם בהזמנות מעל ₪200!",
+        "backgroundColor": null,
+        "textColor": null
+      },
+      "showStoreName": true,
+      "logoPosition": "left"
+    },
+    "footer": {
+      "showNewsletter": true,
+      "showSocialLinks": true,
+      "showContactInfo": true,
+      "copyrightText": null
+    },
     "homepage": {
       "sections": {
         "hero": {
           "enabled": true,
-          "type": "image",
+          "type": "video",
           "title": "ברוכים הבאים למנצור נעליים",
           "subtitle": "נעליים איכותיות לכל המשפחה במחירים משתלמים",
           "ctaText": "לקניות",
           "ctaLink": "/products",
+          "badgeText": "קולקציית העונה החדשה",
           "imageUrl": null,
           "videoUrl": null,
           "overlayOpacity": 40,
           "textAlignment": "center"
         },
-        "featuredCategories": { 
-          "enabled": true, 
+        "featuredCategories": {
+          "enabled": true,
           "limit": 6,
           "background": {
             "style": "color-mix",
@@ -126,8 +148,8 @@
             "mixPercentage": 8
           }
         },
-        "newArrivals": { 
-          "enabled": true, 
+        "newArrivals": {
+          "enabled": true,
           "limit": 8,
           "background": {
             "style": "color-mix",
@@ -136,8 +158,8 @@
             "mixPercentage": 8
           }
         },
-        "bestSellers": { 
-          "enabled": true, 
+        "bestSellers": {
+          "enabled": true,
           "limit": 8,
           "background": {
             "style": "color-mix",
@@ -146,8 +168,8 @@
             "mixPercentage": 8
           }
         },
-        "onSale": { 
-          "enabled": true, 
+        "onSale": {
+          "enabled": true,
           "limit": 4,
           "background": {
             "style": "color-mix",
@@ -156,7 +178,7 @@
             "mixPercentage": 8
           }
         },
-        "featuredBrands": { 
+        "featuredBrands": {
           "enabled": false,
           "background": {
             "style": "color-mix",
@@ -165,7 +187,7 @@
             "mixPercentage": 8
           }
         },
-        "testimonials": { 
+        "testimonials": {
           "enabled": true,
           "background": {
             "style": "color-mix",
@@ -197,7 +219,7 @@
             "textColor": null
           }
         },
-        "newsletter": { 
+        "newsletter": {
           "enabled": true,
           "background": {
             "style": "gradient",
@@ -206,8 +228,8 @@
             "gradientDirection": "to-bottom"
           }
         },
-        "instagramFeed": { 
-          "enabled": false, 
+        "instagramFeed": {
+          "enabled": false,
           "username": null,
           "background": {
             "style": "color-mix",
@@ -273,36 +295,50 @@
     },
     "localization": {
       "defaultLocale": "he-IL",
-      "supportedLocales": ["he-IL", "ar", "en-US"],
+      "supportedLocales": [
+        "he-IL",
+        "ar",
+        "en-US"
+      ],
       "dateFormat": "DD/MM/YYYY",
       "timeFormat": "24h",
       "direction": "auto",
-      "rtlLocales": ["he", "ar", "fa", "ur", "yi", "ps"]
-    },
-    "darkMode": {
-      "enabled": false,
-      "auto": true,
-      "colors": {
-        "background": "#0F172A",
-        "surface": "#1E293B",
-        "text": "#F8FAFC",
-        "textMuted": "#94A3B8",
-        "border": "#334155",
-        "primary": "#E78F21",
-        "secondary": "#F59E0B",
-        "accent": "#F59E0B"
-      }
+      "rtlLocales": [
+        "he",
+        "ar",
+        "fa",
+        "ur",
+        "yi",
+        "ps"
+      ]
     },
     "filters": {
       "enabled": true,
-      "priceFilter": { "enabled": true, "showQuickButtons": true },
-      "ratingFilter": { "enabled": true },
-      "brandFilter": { "enabled": true },
-      "sizeFilter": { "enabled": true },
-      "colorFilter": { "enabled": true },
-      "categoryFilter": { "enabled": true },
-      "collectionFilter": { "enabled": true },
-      "stockFilter": { "enabled": true }
+      "priceFilter": {
+        "enabled": true,
+        "showQuickButtons": true
+      },
+      "ratingFilter": {
+        "enabled": true
+      },
+      "brandFilter": {
+        "enabled": true
+      },
+      "sizeFilter": {
+        "enabled": true
+      },
+      "colorFilter": {
+        "enabled": true
+      },
+      "categoryFilter": {
+        "enabled": true
+      },
+      "collectionFilter": {
+        "enabled": true
+      },
+      "stockFilter": {
+        "enabled": true
+      }
     },
     "quickFilters": {
       "enabled": true,
@@ -347,22 +383,6 @@
         }
       }
     },
-    "header": {
-      "banner": {
-        "enabled": true,
-        "text": "משלוח חינם בהזמנות מעל ₪200!",
-        "backgroundColor": null,
-        "textColor": null
-      },
-      "showStoreName": true,
-      "logoPosition": "left"
-    },
-    "footer": {
-      "showNewsletter": true,
-      "showSocialLinks": true,
-      "showContactInfo": true,
-      "copyrightText": null
-    },
     "promoPopup": {
       "enabled": true,
       "title": "מבצע מיוחד!",
@@ -372,6 +392,8 @@
       "backgroundImageUrl": null,
       "ctaText": "לצפייה במבצעים",
       "ctaLink": "/products?onSale=true",
+      "itemsOnSaleText": "{count} {count, plural, =1 {פריט} other {פריטים}} במבצע",
+      "maybeLaterText": "אולי מאוחר יותר",
       "delaySeconds": 2,
       "showOncePerSession": false,
       "ttlHours": 24,
@@ -408,12 +430,36 @@
         }
       },
       "badges": {
-        "sale": { "backgroundColor": "#DC2626", "textColor": "#FFFFFF", "borderRadius": "sm" },
-        "new": { "backgroundColor": "#059669", "textColor": "#FFFFFF", "borderRadius": "sm" },
-        "outOfStock": { "backgroundColor": "#6B7280", "textColor": "#FFFFFF", "borderRadius": "sm" },
-        "lowStock": { "backgroundColor": "#D97706", "textColor": "#FFFFFF", "borderRadius": "sm" },
-        "discount": { "backgroundColor": "#DC2626", "textColor": "#FFFFFF", "borderRadius": "full" },
-        "featured": { "backgroundColor": "#E78F21", "textColor": "#FFFFFF", "borderRadius": "sm" }
+        "sale": {
+          "backgroundColor": "#DC2626",
+          "textColor": "#FFFFFF",
+          "borderRadius": "sm"
+        },
+        "new": {
+          "backgroundColor": "#059669",
+          "textColor": "#FFFFFF",
+          "borderRadius": "sm"
+        },
+        "outOfStock": {
+          "backgroundColor": "#6B7280",
+          "textColor": "#FFFFFF",
+          "borderRadius": "sm"
+        },
+        "lowStock": {
+          "backgroundColor": "#D97706",
+          "textColor": "#FFFFFF",
+          "borderRadius": "sm"
+        },
+        "discount": {
+          "backgroundColor": "#DC2626",
+          "textColor": "#FFFFFF",
+          "borderRadius": "full"
+        },
+        "featured": {
+          "backgroundColor": "#E78F21",
+          "textColor": "#FFFFFF",
+          "borderRadius": "sm"
+        }
       },
       "inputs": {
         "borderRadius": "md",
@@ -439,10 +485,26 @@
       "toasts": {
         "position": "bottom-right",
         "borderRadius": "md",
-        "success": { "backgroundColor": null, "textColor": null, "iconColor": null },
-        "error": { "backgroundColor": null, "textColor": null, "iconColor": null },
-        "warning": { "backgroundColor": null, "textColor": null, "iconColor": null },
-        "info": { "backgroundColor": null, "textColor": null, "iconColor": null }
+        "success": {
+          "backgroundColor": null,
+          "textColor": null,
+          "iconColor": null
+        },
+        "error": {
+          "backgroundColor": null,
+          "textColor": null,
+          "iconColor": null
+        },
+        "warning": {
+          "backgroundColor": null,
+          "textColor": null,
+          "iconColor": null
+        },
+        "info": {
+          "backgroundColor": null,
+          "textColor": null,
+          "iconColor": null
+        }
       },
       "icons": {
         "style": "outline",
@@ -637,7 +699,9 @@
         "noApprovedReviewsText": "אין ביקורות מאושרות עם 4+ כוכבים עדיין. {count} ביקורת(ות) ממתינות לאישור.",
         "heroCtaText": "לקניות",
         "heroSecondaryCtaText": "עיון בקטגוריות",
+        "watchVideoButton": "צפה בסרטון",
         "shopNowButton": "קנה עכשיו",
+        "exploreText": "גלה",
         "productCountText": "מוצרים",
         "newsletterEmailPlaceholder": "הזן את כתובת האימייל שלך"
       },
@@ -660,6 +724,7 @@
         "sectionTitle": "סינון",
         "clearAllButton": "נקה את כל הסינונים",
         "showResultsButton": "הצג תוצאות",
+        "filtersButtonText": "סינונים",
         "categoryTitle": "קטגוריה",
         "collectionTitle": "קולקציה",
         "brandTitle": "מותג",
@@ -668,6 +733,8 @@
         "priceTitle": "מחיר",
         "ratingTitle": "דירוג",
         "availabilityTitle": "זמינות",
+        "sortByLabel": "מיין לפי:",
+        "searchForText": "עבור",
         "inStockOnly": "במלאי בלבד",
         "onSale": "במבצע",
         "activeFiltersLabel": "סינונים פעילים:",
@@ -699,18 +766,15 @@
         "searchResultsTitle": "תוצאות חיפוש",
         "resultsCountText": "נמצאו {count} תוצאות",
         "noResultsMessage": "לא נמצאו תוצאות עבור \"{query}\"",
-        "sortByLabel": "מיין לפי:",
-        "filtersButtonText": "סינונים",
-        "searchForText": "עבור",
         "resultsText": "תוצאות",
         "itemsAvailable": "פריטים זמינים",
         "productsPageTitle": "כל המוצרים",
         "discoverProducts": "גלה מוצרים",
-        "checkOutOurProducts": "בדוק את המוצרים שלנו",
         "shopAllButton": "קנה הכל",
         "quickAddButton": "הוספה מהירה",
         "scrollLeftAriaLabel": "גלול שמאלה",
         "scrollRightAriaLabel": "גלול ימינה",
+        "checkOutOurProducts": "בדוק את המוצרים שלנו",
         "minimumRating": "דירוג מינימלי",
         "starsAndUp": "{count} כוכבים ומעלה",
         "starAndUp": "כוכב 1 ומעלה",
@@ -909,6 +973,72 @@
         "redirectingToCart": "מעביר לעגלה...",
         "tryAgain": "נסה שוב"
       },
+      "orderTracking": {
+        "title": "עקוב אחר ההזמנה שלך",
+        "description": "הזן את מספר ההזמנה וכתובת האימייל שלך כדי לצפות בסטטוס ההזמנה ומידע מעקב.",
+        "orderNumberLabel": "מספר הזמנה",
+        "orderNumberPlaceholder": "לדוגמה, 12345",
+        "orderNumberHelp": "תוכל למצוא את מספר ההזמנה שלך באימייל האישור.",
+        "emailLabel": "כתובת אימייל",
+        "emailPlaceholder": "your@email.com",
+        "emailHelp": "כתובת האימייל שבה השתמשת בעת ביצוע ההזמנה.",
+        "trackButton": "עקוב אחר הזמנה",
+        "trackingButton": "מעקב...",
+        "errorNotFound": "הזמנה לא נמצאה. אנא בדוק את מספר ההזמנה וכתובת האימייל שלך.",
+        "errorGeneric": "אירעה שגיאה בעת מעקב אחר ההזמנה שלך. אנא נסה שוב.",
+        "backToTracking": "עקוב אחר הזמנה אחרת",
+        "orderFoundTitle": "פרטי הזמנה",
+        "createAccountTitle": "צור חשבון",
+        "createAccountDescription": "הירשם כדי לעקוב אחר כל ההזמנות שלך, לשמור את הכתובות שלך וליהנות מתשלום מהיר יותר.",
+        "createAccountButton": "צור חשבון",
+        "needHelpText": "צריך עזרה?",
+        "contactSupportLink": "צור קשר עם התמיכה"
+      },
+      "contact": {
+        "heroTitle": "צור קשר",
+        "heroDescription": "יש לך שאלה או צריך עזרה? אנחנו כאן בשבילך. פנה אלינו דרך כל אחד מהערוצים למטה או מלא את טופס יצירת הקשר.",
+        "emailLabel": "אימייל",
+        "phoneLabel": "טלפון",
+        "addressLabel": "כתובת",
+        "formTitle": "שלח לנו הודעה",
+        "formDescription": "נחזור אליך תוך 24 שעות.",
+        "nameLabel": "השם שלך",
+        "namePlaceholder": "יוחנן כהן",
+        "emailLabelForm": "כתובת אימייל",
+        "emailPlaceholder": "you@example.com",
+        "subjectLabel": "נושא",
+        "subjectPlaceholder": "איך נוכל לעזור?",
+        "messageLabel": "הודעה",
+        "messagePlaceholder": "ספר לנו עוד על השאילתה שלך...",
+        "sendButton": "שלח הודעה",
+        "sendingButton": "שולח...",
+        "successTitle": "ההודעה נשלחה!",
+        "successDescription": "תודה שפנית אלינו. נהיה בקשר בקרוב.",
+        "sendAnotherMessage": "שלח הודעה נוספת",
+        "faqsTitle": "שאלות נפוצות",
+        "faqsDescription": "מצא תשובות מהירות לשאלות נפוצות.",
+        "faqs": [
+          {
+            "question": "מה זמני המשלוח שלכם?",
+            "answer": "רוב ההזמנות נשלחות תוך 24 שעות. משלוח סטנדרטי לוקח 3-5 ימי עסקים, ומשלוח מהיר לוקח 1-2 ימי עסקים."
+          },
+          {
+            "question": "האם אתם מציעים משלוח בינלאומי?",
+            "answer": "כן! אנו שולחים ברחבי העולם. משלוח בינלאומי בדרך כלל לוקח 7-14 ימי עסקים בהתאם ליעד."
+          },
+          {
+            "question": "מה מדיניות ההחזרה שלכם?",
+            "answer": "אנו מציעים מדיניות החזרה של 30 יום על כל הפריטים שלא נעשה בהם שימוש באריזה המקורית. החזרות חינם בתוך ארצות הברית היבשתית."
+          },
+          {
+            "question": "קורסור נכנס חזק הבוקר",
+            "answer": "כול הכבוד באמת"
+          }
+        ],
+        "viewAllFaqs": "צפה בכל השאלות הנפוצות",
+        "followUsTitle": "עקוב אחרינו",
+        "followUsDescription": "הישאר מחובר לעדכונים, טיפים והצעות בלעדיות."
+      },
       "addresses": {
         "myAddresses": "הכתובות שלי",
         "addressesCount": "{count} כתובות שמורות",
@@ -946,8 +1076,8 @@
         "outOfStock": "אזל מהמלאי",
         "addedOn": "נוסף ב-{date}",
         "removeFromWishlist": "הסר",
-        "removeFromWishlistTooltip": "הסר מרשימת המשאלות",
-        "moveToCart": "הוסף לסל"
+        "moveToCart": "הוסף לסל",
+        "removeFromWishlistTooltip": "הסר מרשימת המשאלות"
       },
       "settings": {
         "accountSettings": "הגדרות חשבון",
@@ -993,7 +1123,8 @@
         "shopTitle": "חנות",
         "companyTitle": "חברה",
         "supportTitle": "תמיכה",
-        "followUsTitle": "עקוב אחרינו"
+        "followUsTitle": "עקוב אחרינו",
+        "trackOrderLink": "עקוב אחר הזמנה"
       },
       "navbar": {
         "selectChannel": "בחר ערוץ/מטבע",
@@ -1001,6 +1132,7 @@
         "cartLabel": "עגלה",
         "accountLabel": "חשבון",
         "menuLabel": "תפריט",
+        "signInText": "התחבר",
         "homeLabel": "בית",
         "shopLabel": "חנות"
       },
@@ -1019,6 +1151,20 @@
         "backToHomeButton": "חזור לדף הבית",
         "browseProductsButton": "עיין במוצרים",
         "helpfulLinksText": "או בדוק את הדפים הבאים:"
+      }
+    },
+    "darkMode": {
+      "enabled": false,
+      "auto": true,
+      "colors": {
+        "background": "#0F172A",
+        "surface": "#1E293B",
+        "text": "#F8FAFC",
+        "textMuted": "#94A3B8",
+        "border": "#334155",
+        "primary": "#E78F21",
+        "secondary": "#F59E0B",
+        "accent": "#F59E0B"
       }
     }
   }

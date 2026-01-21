@@ -21,11 +21,27 @@ const ChannelIndexPage: NextPage = () => {
     { enabled: !!channelSlug && !!appBridgeState?.ready }
   );
 
+  const updateSampleMutation = trpcClient.config.updateSampleConfig.useMutation({
+    onSuccess: (data) => {
+      alert(`✅ ${data.message}`);
+      refetch(); // Refresh to clear cache
+    },
+    onError: (error) => {
+      alert(`❌ Failed to update sample config: ${error.message}`);
+    },
+  });
+
   const handleExport = useCallback(() => {
     if (config) {
       downloadConfigFile(config, channelSlug);
     }
   }, [config, channelSlug]);
+
+  const handleUpdateSample = useCallback(() => {
+    if (config && window.confirm(`Update the sample config file for "${channelSlug}"? This will overwrite the current sample file with your current configuration.`)) {
+      updateSampleMutation.mutate({ channelSlug });
+    }
+  }, [config, channelSlug, updateSampleMutation]);
 
   const handleImportSuccess = useCallback(() => {
     setShowImportModal(false);
@@ -102,6 +118,22 @@ const ChannelIndexPage: NextPage = () => {
                   }}
                 >
                   📤 Export JSON
+                </button>
+                <button 
+                  onClick={handleUpdateSample} 
+                  disabled={!config || updateSampleMutation.isLoading}
+                  style={{
+                    padding: "8px 16px",
+                    border: "1px solid #ddd",
+                    backgroundColor: "#fff",
+                    color: "#000",
+                    cursor: (!config || updateSampleMutation.isLoading) ? "not-allowed" : "pointer",
+                    opacity: (!config || updateSampleMutation.isLoading) ? 0.5 : 1,
+                    fontSize: "14px"
+                  }}
+                  title="Update the sample config file (sample-config-import.json or sample-config-import-en.json) with current configuration"
+                >
+                  {updateSampleMutation.isLoading ? "⏳ Updating..." : "💾 Update Sample Config"}
                 </button>
               </div>
             </div>

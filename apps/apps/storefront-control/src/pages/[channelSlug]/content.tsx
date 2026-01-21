@@ -2,7 +2,7 @@ import { useAppBridge } from "@saleor/app-sdk/app-bridge";
 import { Box, Text, Button } from "@saleor/macaw-ui";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 
@@ -42,9 +42,16 @@ const ContentPage: NextPage = () => {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors, isDirty },
   } = useForm<ContentFormData>({
     resolver: zodResolver(ContentSchema),
+  });
+
+  // Field array for FAQs
+  const { fields: faqFields, append: addFaq, remove: removeFaq } = useFieldArray({
+    control,
+    name: "contact.faqs",
   });
 
   useEffect(() => {
@@ -971,11 +978,27 @@ const ContentPage: NextPage = () => {
               placeholder="Learn More"
             />
             <FormField
+              label="Watch Video Button"
+              name="homepage.watchVideoButton"
+              register={register}
+              errors={errors}
+              placeholder="Watch Video"
+              description="Text for the watch video button in hero video section"
+            />
+            <FormField
               label="Shop Now Button"
               name="homepage.shopNowButton"
               register={register}
               errors={errors}
               placeholder="Shop Now"
+            />
+            <FormField
+              label="Explore Text"
+              name="homepage.exploreText"
+              register={register}
+              errors={errors}
+              placeholder="Explore"
+              description="Text shown on category cards"
             />
             <FormField
               label="Product Count Text"
@@ -2912,6 +2935,435 @@ const ContentPage: NextPage = () => {
           </Box>
         </SectionCard>
 
+        {/* Order Tracking */}
+        <SectionCard
+          id="content-order-tracking"
+          title="Order Tracking Page"
+          description="Text for the order tracking page (for non-logged-in users)"
+          keywords={["order", "tracking", "track", "order number", "email"]}
+          icon="📦"
+        >
+          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
+            <FormField
+              label="Title"
+              name="orderTracking.title"
+              register={register}
+              errors={errors}
+              placeholder="Track Your Order"
+            />
+            <FormField
+              label="Description"
+              name="orderTracking.description"
+              register={register}
+              errors={errors}
+              placeholder="Enter your order number and email address to view your order status and tracking information."
+            />
+          </Box>
+
+          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>Form Fields</Text>
+          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
+            <FormField
+              label="Order Number Label"
+              name="orderTracking.orderNumberLabel"
+              register={register}
+              errors={errors}
+              placeholder="Order Number"
+            />
+            <FormField
+              label="Order Number Placeholder"
+              name="orderTracking.orderNumberPlaceholder"
+              register={register}
+              errors={errors}
+              placeholder="e.g., 12345"
+            />
+            <FormField
+              label="Order Number Help Text"
+              name="orderTracking.orderNumberHelp"
+              register={register}
+              errors={errors}
+              placeholder="You can find your order number in your confirmation email."
+            />
+            <FormField
+              label="Email Label"
+              name="orderTracking.emailLabel"
+              register={register}
+              errors={errors}
+              placeholder="Email Address"
+            />
+            <FormField
+              label="Email Placeholder"
+              name="orderTracking.emailPlaceholder"
+              register={register}
+              errors={errors}
+              placeholder="your@email.com"
+            />
+            <FormField
+              label="Email Help Text"
+              name="orderTracking.emailHelp"
+              register={register}
+              errors={errors}
+              placeholder="The email address you used when placing the order."
+            />
+          </Box>
+
+          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>Buttons & Actions</Text>
+          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
+            <FormField
+              label="Track Button"
+              name="orderTracking.trackButton"
+              register={register}
+              errors={errors}
+              placeholder="Track Order"
+            />
+            <FormField
+              label="Tracking Button (Loading)"
+              name="orderTracking.trackingButton"
+              register={register}
+              errors={errors}
+              placeholder="Tracking..."
+            />
+            <FormField
+              label="Back to Tracking"
+              name="orderTracking.backToTracking"
+              register={register}
+              errors={errors}
+              placeholder="Track Another Order"
+            />
+          </Box>
+
+          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>Error Messages</Text>
+          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
+            <FormField
+              label="Error: Order Not Found"
+              name="orderTracking.errorNotFound"
+              register={register}
+              errors={errors}
+              placeholder="Order not found. Please check your order number and email address."
+            />
+            <FormField
+              label="Error: Generic"
+              name="orderTracking.errorGeneric"
+              register={register}
+              errors={errors}
+              placeholder="An error occurred while tracking your order. Please try again."
+            />
+          </Box>
+
+          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>Order Found & Account Creation</Text>
+          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
+            <FormField
+              label="Order Found Title"
+              name="orderTracking.orderFoundTitle"
+              register={register}
+              errors={errors}
+              placeholder="Order Details"
+            />
+            <FormField
+              label="Create Account Title"
+              name="orderTracking.createAccountTitle"
+              register={register}
+              errors={errors}
+              placeholder="Create an Account"
+            />
+            <FormField
+              label="Create Account Description"
+              name="orderTracking.createAccountDescription"
+              register={register}
+              errors={errors}
+              placeholder="Sign up to track all your orders, save your addresses, and enjoy faster checkout."
+            />
+            <FormField
+              label="Create Account Button"
+              name="orderTracking.createAccountButton"
+              register={register}
+              errors={errors}
+              placeholder="Create Account"
+              description="Button text (links to /login page for signup/login)"
+            />
+          </Box>
+
+          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>Help & Support</Text>
+          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
+            <FormField
+              label="Need Help Text"
+              name="orderTracking.needHelpText"
+              register={register}
+              errors={errors}
+              placeholder="Need help?"
+            />
+            <FormField
+              label="Contact Support Link"
+              name="orderTracking.contactSupportLink"
+              register={register}
+              errors={errors}
+              placeholder="Contact Support"
+            />
+          </Box>
+        </SectionCard>
+
+        {/* Contact Page */}
+        <SectionCard
+          id="content-contact"
+          title="Contact Page"
+          description="Text for the contact page including form labels, placeholders, and messages"
+          keywords={["contact", "form", "message", "faq", "follow us"]}
+          icon="📧"
+        >
+          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>Hero Section</Text>
+          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
+            <FormField
+              label="Hero Title"
+              name="contact.heroTitle"
+              register={register}
+              errors={errors}
+              placeholder="Get in Touch"
+            />
+            <FormField
+              label="Hero Description"
+              name="contact.heroDescription"
+              register={register}
+              errors={errors}
+              placeholder="Have a question or need help? We're here for you. Reach out through any of the channels below or fill out the contact form."
+            />
+          </Box>
+
+          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>Contact Method Labels</Text>
+          <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4} marginBottom={6}>
+            <FormField
+              label="Email Label"
+              name="contact.emailLabel"
+              register={register}
+              errors={errors}
+              placeholder="Email"
+              description="Label for email contact method"
+            />
+            <FormField
+              label="Phone Label"
+              name="contact.phoneLabel"
+              register={register}
+              errors={errors}
+              placeholder="Phone"
+              description="Label for phone contact method"
+            />
+            <FormField
+              label="Address Label"
+              name="contact.addressLabel"
+              register={register}
+              errors={errors}
+              placeholder="Address"
+              description="Label for address contact method"
+            />
+          </Box>
+
+          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>Contact Form</Text>
+          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
+            <FormField
+              label="Form Title"
+              name="contact.formTitle"
+              register={register}
+              errors={errors}
+              placeholder="Send Us a Message"
+            />
+            <FormField
+              label="Form Description"
+              name="contact.formDescription"
+              register={register}
+              errors={errors}
+              placeholder="We'll get back to you within 24 hours."
+            />
+            <FormField
+              label="Name Label"
+              name="contact.nameLabel"
+              register={register}
+              errors={errors}
+              placeholder="Your Name"
+            />
+            <FormField
+              label="Name Placeholder"
+              name="contact.namePlaceholder"
+              register={register}
+              errors={errors}
+              placeholder="John Doe"
+            />
+            <FormField
+              label="Email Label (Form)"
+              name="contact.emailLabelForm"
+              register={register}
+              errors={errors}
+              placeholder="Email Address"
+              description="Label for email field in contact form"
+            />
+            <FormField
+              label="Email Placeholder"
+              name="contact.emailPlaceholder"
+              register={register}
+              errors={errors}
+              placeholder="john@example.com"
+            />
+            <FormField
+              label="Subject Label"
+              name="contact.subjectLabel"
+              register={register}
+              errors={errors}
+              placeholder="Subject"
+            />
+            <FormField
+              label="Subject Placeholder"
+              name="contact.subjectPlaceholder"
+              register={register}
+              errors={errors}
+              placeholder="How can we help?"
+            />
+            <FormField
+              label="Message Label"
+              name="contact.messageLabel"
+              register={register}
+              errors={errors}
+              placeholder="Message"
+            />
+            <FormField
+              label="Message Placeholder"
+              name="contact.messagePlaceholder"
+              register={register}
+              errors={errors}
+              placeholder="Tell us more about your inquiry..."
+            />
+            <FormField
+              label="Send Button"
+              name="contact.sendButton"
+              register={register}
+              errors={errors}
+              placeholder="Send Message"
+            />
+            <FormField
+              label="Sending Button (Loading)"
+              name="contact.sendingButton"
+              register={register}
+              errors={errors}
+              placeholder="Sending..."
+            />
+          </Box>
+
+          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>Success Message</Text>
+          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
+            <FormField
+              label="Success Title"
+              name="contact.successTitle"
+              register={register}
+              errors={errors}
+              placeholder="Message Sent!"
+            />
+            <FormField
+              label="Success Description"
+              name="contact.successDescription"
+              register={register}
+              errors={errors}
+              placeholder="Thank you for reaching out. We'll be in touch soon."
+            />
+            <FormField
+              label="Send Another Message Link"
+              name="contact.sendAnotherMessage"
+              register={register}
+              errors={errors}
+              placeholder="Send another message"
+            />
+          </Box>
+
+          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>FAQs Section</Text>
+          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
+            <FormField
+              label="FAQs Title"
+              name="contact.faqsTitle"
+              register={register}
+              errors={errors}
+              placeholder="Frequently Asked Questions"
+            />
+            <FormField
+              label="FAQs Description"
+              name="contact.faqsDescription"
+              register={register}
+              errors={errors}
+              placeholder="Find quick answers to common questions."
+            />
+            <FormField
+              label="View All FAQs Link"
+              name="contact.viewAllFaqs"
+              register={register}
+              errors={errors}
+              placeholder="View All FAQs"
+            />
+          </Box>
+
+          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>FAQ Items</Text>
+          <Box marginBottom={6}>
+            {faqFields.map((field, index) => (
+              <Box
+                key={field.id}
+                marginBottom={4}
+                padding={4}
+                style={{
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "8px",
+                  backgroundColor: "#f9fafb",
+                }}
+              >
+                <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom={3}>
+                  <Text variant="bodyStrong">FAQ #{index + 1}</Text>
+                  <Button
+                    type="button"
+                    variant="tertiary"
+                    onClick={() => removeFaq(index)}
+                    style={{ color: "#dc2626" }}
+                  >
+                    Remove
+                  </Button>
+                </Box>
+                <Box display="grid" __gridTemplateColumns="1fr" gap={4}>
+                  <FormField
+                    label="Question"
+                    name={`contact.faqs.${index}.question`}
+                    register={register}
+                    errors={errors}
+                    placeholder="What are your shipping times?"
+                  />
+                  <FormField
+                    label="Answer"
+                    name={`contact.faqs.${index}.answer`}
+                    register={register}
+                    errors={errors}
+                    placeholder="Most orders ship within 24 hours. Standard delivery takes 3-5 business days..."
+                  />
+                </Box>
+              </Box>
+            ))}
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => addFaq({ question: "", answer: "" })}
+            >
+              Add FAQ
+            </Button>
+          </Box>
+
+          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>Social Section</Text>
+          <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
+            <FormField
+              label="Follow Us Title"
+              name="contact.followUsTitle"
+              register={register}
+              errors={errors}
+              placeholder="Follow Us"
+            />
+            <FormField
+              label="Follow Us Description"
+              name="contact.followUsDescription"
+              register={register}
+              errors={errors}
+              placeholder="Stay connected for updates, tips, and exclusive offers."
+            />
+          </Box>
+        </SectionCard>
+
         {/* Addresses */}
         <SectionCard
           id="content-addresses"
@@ -3457,6 +3909,13 @@ const ContentPage: NextPage = () => {
               errors={errors}
               placeholder="Follow Us"
             />
+            <FormField
+              label="Track Order Link"
+              name="footer.trackOrderLink"
+              register={register}
+              errors={errors}
+              placeholder="Track Order"
+            />
           </Box>
         </SectionCard>
 
@@ -3517,6 +3976,14 @@ const ContentPage: NextPage = () => {
               register={register}
               errors={errors}
               placeholder="Shop"
+            />
+            <FormField
+              label="Sign In Text"
+              name="navbar.signInText"
+              register={register}
+              errors={errors}
+              placeholder="Sign In"
+              description="Text for the sign in button in navbar"
             />
           </Box>
         </SectionCard>

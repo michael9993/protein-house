@@ -1,0 +1,5 @@
+query OrderByNumberAndEmail($number: String!, $email: String!) {
+	orderByNumberAndEmail(number: $number, email: $email) {
+		...OrderDetails
+	}
+}

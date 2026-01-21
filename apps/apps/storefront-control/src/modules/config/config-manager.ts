@@ -57,6 +57,14 @@ export class StorefrontConfigManager {
       
       if (!validated.success) {
         console.error(`[StorefrontConfigManager] Invalid config for ${channelSlug}:`, validated.error.errors);
+        // Try to merge with defaults to fix missing fields
+        const defaults = getDefaultConfig(channelSlug);
+        const merged = deepMerge(defaults, parsed as Partial<StorefrontConfig>) as StorefrontConfig;
+        const revalidated = StorefrontConfigSchema.safeParse(merged);
+        if (revalidated.success) {
+          console.log(`[StorefrontConfigManager] Fixed config by merging with defaults for ${channelSlug}`);
+          return revalidated.data;
+        }
         return null;
       }
 

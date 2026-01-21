@@ -1,9 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-01-20T01:14:50.841Z",
+  "exportedAt": "2026-01-21T10:31:37.953Z",
   "channels": {
     "ils": {
-      "version": 1,
+      "version": 3,
+      "updatedAt": "2026-01-21T10:31:36.697Z",
       "channelSlug": "ils",
       "store": {
         "name": "Mansour Shoes",
@@ -131,9 +132,9 @@
             "subtitle": "נעליים איכותיות לכל המשפחה במחירים משתלמים",
             "ctaText": "לקניות",
             "ctaLink": "/products",
+            "badgeText": "קולקציית העונה החדשה",
             "imageUrl": null,
             "videoUrl": null,
-            "slides": [],
             "overlayOpacity": 40,
             "textAlignment": "center"
           },
@@ -188,6 +189,12 @@
           },
           "testimonials": {
             "enabled": true,
+            "background": {
+              "style": "color-mix",
+              "color": null,
+              "secondaryColor": null,
+              "mixPercentage": 8
+            },
             "starColor": "#FFD700",
             "starEmptyColor": null,
             "starSize": "base",
@@ -210,12 +217,6 @@
               "showOrdersDelivered": true,
               "borderColor": null,
               "textColor": null
-            },
-            "background": {
-              "style": "color-mix",
-              "color": null,
-              "secondaryColor": null,
-              "mixPercentage": 8
             }
           },
           "newsletter": {
@@ -391,6 +392,8 @@
         "backgroundImageUrl": null,
         "ctaText": "לצפייה במבצעים",
         "ctaLink": "/products?onSale=true",
+        "itemsOnSaleText": "{count} {count, plural, =1 {פריט} other {פריטים}} במבצע",
+        "maybeLaterText": "אולי מאוחר יותר",
         "delaySeconds": 2,
         "showOncePerSession": false,
         "ttlHours": 24,
@@ -654,6 +657,11 @@
           "newsletterDescription": "קבל עדכונים על מוצרים חדשים ומבצעים",
           "newsletterButton": "הרשמה",
           "newsletterSuccess": "תודה על ההרשמה!",
+          "newsletterPlaceholder": "הזן את האימייל שלך",
+          "newsletterNoSpam": "ללא ספאם, לעולם",
+          "newsletterWeeklyUpdates": "עדכונים שבועיים",
+          "newsletterExclusiveOffers": "הצעות בלעדיות",
+          "newsletterAlreadySubscribed": "אתה רשום לניוזלטר שלנו!",
           "loadMoreButton": "טען עוד",
           "viewAllButton": "צפה בהכל",
           "backButton": "חזרה",
@@ -663,11 +671,6 @@
           "confirmButton": "אישור",
           "deleteButton": "מחק",
           "editButton": "עריכה",
-          "newsletterPlaceholder": "הזן את האימייל שלך",
-          "newsletterNoSpam": "ללא ספאם, לעולם",
-          "newsletterWeeklyUpdates": "עדכונים שבועיים",
-          "newsletterExclusiveOffers": "הצעות בלעדיות",
-          "newsletterAlreadySubscribed": "אתה רשום לניוזלטר שלנו!",
           "homeLabel": "בית"
         },
         "homepage": {
@@ -696,7 +699,9 @@
           "noApprovedReviewsText": "אין ביקורות מאושרות עם 4+ כוכבים עדיין. {count} ביקורת(ות) ממתינות לאישור.",
           "heroCtaText": "לקניות",
           "heroSecondaryCtaText": "עיון בקטגוריות",
+          "watchVideoButton": "צפה בסרטון",
           "shopNowButton": "קנה עכשיו",
+          "exploreText": "גלה",
           "productCountText": "מוצרים",
           "newsletterEmailPlaceholder": "הזן את כתובת האימייל שלך"
         },
@@ -765,7 +770,7 @@
           "itemsAvailable": "פריטים זמינים",
           "productsPageTitle": "כל המוצרים",
           "discoverProducts": "גלה מוצרים",
-          "shopAllButton": "חנות",
+          "shopAllButton": "קנה הכל",
           "quickAddButton": "הוספה מהירה",
           "scrollLeftAriaLabel": "גלול שמאלה",
           "scrollRightAriaLabel": "גלול ימינה",
@@ -968,6 +973,72 @@
           "redirectingToCart": "מעביר לעגלה...",
           "tryAgain": "נסה שוב"
         },
+        "orderTracking": {
+          "title": "עקוב אחר ההזמנה שלך",
+          "description": "הזן את מספר ההזמנה וכתובת האימייל שלך כדי לצפות בסטטוס ההזמנה ומידע מעקב.",
+          "orderNumberLabel": "מספר הזמנה",
+          "orderNumberPlaceholder": "לדוגמה, 12345",
+          "orderNumberHelp": "תוכל למצוא את מספר ההזמנה שלך באימייל האישור.",
+          "emailLabel": "כתובת אימייל",
+          "emailPlaceholder": "your@email.com",
+          "emailHelp": "כתובת האימייל שבה השתמשת בעת ביצוע ההזמנה.",
+          "trackButton": "עקוב אחר הזמנה",
+          "trackingButton": "מעקב...",
+          "errorNotFound": "הזמנה לא נמצאה. אנא בדוק את מספר ההזמנה וכתובת האימייל שלך.",
+          "errorGeneric": "אירעה שגיאה בעת מעקב אחר ההזמנה שלך. אנא נסה שוב.",
+          "backToTracking": "עקוב אחר הזמנה אחרת",
+          "orderFoundTitle": "פרטי הזמנה",
+          "createAccountTitle": "צור חשבון",
+          "createAccountDescription": "הירשם כדי לעקוב אחר כל ההזמנות שלך, לשמור את הכתובות שלך וליהנות מתשלום מהיר יותר.",
+          "createAccountButton": "צור חשבון",
+          "needHelpText": "צריך עזרה?",
+          "contactSupportLink": "צור קשר עם התמיכה"
+        },
+        "contact": {
+          "heroTitle": "צור קשר",
+          "heroDescription": "יש לך שאלה או צריך עזרה? אנחנו כאן בשבילך. פנה אלינו דרך כל אחד מהערוצים למטה או מלא את טופס יצירת הקשר.",
+          "emailLabel": "אימייל",
+          "phoneLabel": "טלפון",
+          "addressLabel": "כתובת",
+          "formTitle": "שלח לנו הודעה",
+          "formDescription": "נחזור אליך תוך 24 שעות.",
+          "nameLabel": "השם שלך",
+          "namePlaceholder": "יוחנן כהן",
+          "emailLabelForm": "כתובת אימייל",
+          "emailPlaceholder": "you@example.com",
+          "subjectLabel": "נושא",
+          "subjectPlaceholder": "איך נוכל לעזור?",
+          "messageLabel": "הודעה",
+          "messagePlaceholder": "ספר לנו עוד על השאילתה שלך...",
+          "sendButton": "שלח הודעה",
+          "sendingButton": "שולח...",
+          "successTitle": "ההודעה נשלחה!",
+          "successDescription": "תודה שפנית אלינו. נהיה בקשר בקרוב.",
+          "sendAnotherMessage": "שלח הודעה נוספת",
+          "faqsTitle": "שאלות נפוצות",
+          "faqsDescription": "מצא תשובות מהירות לשאלות נפוצות.",
+          "faqs": [
+            {
+              "question": "מה זמני המשלוח שלכם?",
+              "answer": "רוב ההזמנות נשלחות תוך 24 שעות. משלוח סטנדרטי לוקח 3-5 ימי עסקים, ומשלוח מהיר לוקח 1-2 ימי עסקים."
+            },
+            {
+              "question": "האם אתם מציעים משלוח בינלאומי?",
+              "answer": "כן! אנו שולחים ברחבי העולם. משלוח בינלאומי בדרך כלל לוקח 7-14 ימי עסקים בהתאם ליעד."
+            },
+            {
+              "question": "מה מדיניות ההחזרה שלכם?",
+              "answer": "אנו מציעים מדיניות החזרה של 30 יום על כל הפריטים שלא נעשה בהם שימוש באריזה המקורית. החזרות חינם בתוך ארצות הברית היבשתית."
+            },
+            {
+              "question": "קורסור נכנס חזק הבוקר",
+              "answer": "כול הכבוד באמת"
+            }
+          ],
+          "viewAllFaqs": "צפה בכל השאלות הנפוצות",
+          "followUsTitle": "עקוב אחרינו",
+          "followUsDescription": "הישאר מחובר לעדכונים, טיפים והצעות בלעדיות."
+        },
         "addresses": {
           "myAddresses": "הכתובות שלי",
           "addressesCount": "{count} כתובות שמורות",
@@ -1052,7 +1123,8 @@
           "shopTitle": "חנות",
           "companyTitle": "חברה",
           "supportTitle": "תמיכה",
-          "followUsTitle": "עקוב אחרינו"
+          "followUsTitle": "עקוב אחרינו",
+          "trackOrderLink": "עקוב אחר הזמנה"
         },
         "navbar": {
           "selectChannel": "בחר ערוץ/מטבע",
@@ -1060,6 +1132,7 @@
           "cartLabel": "עגלה",
           "accountLabel": "חשבון",
           "menuLabel": "תפריט",
+          "signInText": "התחבר",
           "homeLabel": "בית",
           "shopLabel": "חנות"
         },
@@ -1093,11 +1166,10 @@
           "secondary": "#F59E0B",
           "accent": "#F59E0B"
         }
-      },
-      "updatedAt": "2026-01-20T01:14:49.531Z"
+      }
     },
     "usd": {
-      "version": 1,
+      "version": 2,
       "channelSlug": "usd",
       "store": {
         "name": "Mansour Shoes",
@@ -1282,6 +1354,29 @@
           },
           "testimonials": {
             "enabled": true,
+            "starColor": "#FFD700",
+            "starEmptyColor": null,
+            "starSize": "base",
+            "loadingReviewsText": null,
+            "verifiedPurchaseLabel": null,
+            "customerLabel": null,
+            "card": {
+              "backgroundColor": null,
+              "borderColor": null,
+              "borderRadius": null,
+              "padding": null,
+              "shadow": null,
+              "hoverShadow": null,
+              "hoverTransform": null
+            },
+            "trustBadges": {
+              "showAverageRating": true,
+              "showCustomerCount": true,
+              "showSatisfactionRate": true,
+              "showOrdersDelivered": true,
+              "borderColor": null,
+              "textColor": null
+            },
             "background": {
               "style": "color-mix",
               "color": null,
@@ -1462,6 +1557,8 @@
         "backgroundImageUrl": null,
         "ctaText": "View Offers",
         "ctaLink": "/products?onSale=true",
+        "itemsOnSaleText": "{count} {count, plural, =1 {item} other {items}} on sale",
+        "maybeLaterText": "Maybe later",
         "delaySeconds": 2,
         "showOncePerSession": false,
         "ttlHours": 24,
@@ -1767,7 +1864,9 @@
           "noApprovedReviewsText": "No approved reviews with 4+ stars yet. {count} review(s) pending approval.",
           "heroCtaText": "Shop Now",
           "heroSecondaryCtaText": "Browse Categories",
+          "watchVideoButton": "Watch Video",
           "shopNowButton": "Shop Now",
+          "exploreText": "Explore",
           "productCountText": "products",
           "newsletterEmailPlaceholder": "Enter your email address"
         },
@@ -1850,6 +1949,16 @@
           "quickMinLabel": "Quick Min",
           "quickMaxLabel": "Quick Max",
           "clearPriceFilter": "Clear"
+        },
+        "navbar": {
+          "selectChannel": "Select Channel/Currency",
+          "searchPlaceholder": "Search...",
+          "cartLabel": "Cart",
+          "accountLabel": "Account",
+          "menuLabel": "Menu",
+          "signInText": "Sign In",
+          "homeLabel": "Home",
+          "shopLabel": "Shop"
         },
         "productDetail": {
           "freeShipping": "Free Shipping",
@@ -2125,15 +2234,6 @@
           "supportTitle": "Support",
           "followUsTitle": "Follow Us"
         },
-        "navbar": {
-          "selectChannel": "Select Channel/Currency",
-          "searchPlaceholder": "Search...",
-          "cartLabel": "Cart",
-          "accountLabel": "Account",
-          "menuLabel": "Menu",
-          "homeLabel": "Home",
-          "shopLabel": "Shop"
-        },
         "error": {
           "title": "Something Went Wrong",
           "description": "We're sorry, but something unexpected happened. Please try again or contact support if the problem persists.",
@@ -2165,7 +2265,7 @@
           "accent": "#F59E0B"
         }
       },
-      "updatedAt": "2026-01-19T17:00:11.049Z"
+      "updatedAt": "2026-01-20T01:44:13.287Z"
     }
   }
 }

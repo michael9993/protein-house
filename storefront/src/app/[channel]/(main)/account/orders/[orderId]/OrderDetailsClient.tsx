@@ -11,9 +11,10 @@ interface OrderDetailsClientProps {
 	channel: string;
 	orderLinesForReorder: Array<{ variantId: string; quantity: number; productName: string }>;
 	reorderAction: (formData: FormData) => Promise<{ success: boolean; error?: string; itemsAdded?: number }>;
+	hideBackToOrders?: boolean; // Hide "back to orders" button (e.g., for non-logged-in users)
 }
 
-export function OrderDetailsClient({ order, channel, orderLinesForReorder, reorderAction }: OrderDetailsClientProps) {
+export function OrderDetailsClient({ order, channel, orderLinesForReorder, reorderAction, hideBackToOrders = false }: OrderDetailsClientProps) {
 	const branding = useBranding();
 	const ordersText = useOrdersText();
 
@@ -78,15 +79,17 @@ export function OrderDetailsClient({ order, channel, orderLinesForReorder, reord
 			{/* Header */}
 			<div className="flex flex-wrap items-start justify-between gap-4">
 				<div>
-					<Link
-						href={`/${channel}/account/orders`}
-						className="mb-2 inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-700"
-					>
-						<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-						</svg>
-						{ordersText.backToOrders}
-					</Link>
+					{!hideBackToOrders && (
+						<Link
+							href={`/${channel}/account/orders`}
+							className="mb-2 inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-700"
+						>
+							<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+							</svg>
+							{ordersText.backToOrders}
+						</Link>
+					)}
 					<h1 className="text-2xl font-bold text-neutral-900">{ordersText.orderNumberPrefix}{order.number}</h1>
 					<p className="mt-1 text-neutral-500">
 						{ordersText.placedOn}{" "}
@@ -112,15 +115,15 @@ export function OrderDetailsClient({ order, channel, orderLinesForReorder, reord
 			<div className="grid gap-6 lg:grid-cols-3">
 				{/* Order Items */}
 				<div className="lg:col-span-2">
-					<div className="rounded-xl bg-white shadow-sm ring-1 ring-neutral-100">
-						<div className="border-b border-neutral-100 px-6 py-4">
+					<div className="rounded-xl bg-white shadow-lg ring-1 ring-neutral-200 transition-shadow hover:shadow-xl">
+						<div className="border-b border-neutral-200 px-6 py-4">
 							<h2 className="font-semibold text-neutral-900">
 								{ordersText.orderItemsTitle} ({order.lines?.length || 0})
 							</h2>
 						</div>
-						<div className="divide-y divide-neutral-100">
+						<div className="divide-y divide-neutral-200">
 							{order.lines?.map((line) => (
-								<div key={line.id} className="flex gap-4 p-6">
+								<div key={line.id} className="flex gap-4 p-6 transition-colors hover:bg-neutral-50">
 									<div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-neutral-100">
 										{line.thumbnail?.url ? (
 											<img
@@ -172,7 +175,7 @@ export function OrderDetailsClient({ order, channel, orderLinesForReorder, reord
 				{/* Order Summary & Details */}
 				<div className="space-y-6">
 					{/* Order Summary */}
-					<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100">
+					<div className="rounded-xl bg-white p-6 shadow-lg ring-1 ring-neutral-200 transition-shadow hover:shadow-xl">
 						<h2 className="mb-4 font-semibold text-neutral-900">{ordersText.orderSummaryTitle}</h2>
 						<div className="space-y-3 text-sm">
 							<div className="flex justify-between">
@@ -202,7 +205,7 @@ export function OrderDetailsClient({ order, channel, orderLinesForReorder, reord
 
 					{/* Shipping Address */}
 					{order.shippingAddress && (
-						<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100">
+						<div className="rounded-xl bg-white p-6 shadow-lg ring-1 ring-neutral-200 transition-shadow hover:shadow-xl">
 							<div className="mb-4 flex items-center gap-2">
 								<svg className="h-5 w-5 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
@@ -230,14 +233,14 @@ export function OrderDetailsClient({ order, channel, orderLinesForReorder, reord
 
 					{/* Billing Address */}
 					{order.billingAddress && (
-						<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100">
+						<div className="rounded-xl bg-white p-6 shadow-lg ring-1 ring-neutral-200 transition-shadow hover:shadow-xl">
 							<div className="mb-4 flex items-center gap-2">
 								<svg className="h-5 w-5 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
 								</svg>
 								<h2 className="font-semibold text-neutral-900">{ordersText.billingAddressTitle}</h2>
 							</div>
-							<div className="text-sm text-neutral-600">
+							<div className="space-y-1 text-sm text-neutral-600">
 								<p className="font-medium text-neutral-900">
 									{order.billingAddress.firstName} {order.billingAddress.lastName}
 								</p>
@@ -255,7 +258,7 @@ export function OrderDetailsClient({ order, channel, orderLinesForReorder, reord
 
 					{/* Tracking Information */}
 					{order.fulfillments && order.fulfillments.length > 0 && (
-						<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100">
+						<div className="rounded-xl bg-white p-6 shadow-lg ring-1 ring-neutral-200 transition-shadow hover:shadow-xl">
 							<div className="mb-4 flex items-center gap-2">
 								<svg className="h-5 w-5 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
@@ -355,7 +358,7 @@ export function OrderDetailsClient({ order, channel, orderLinesForReorder, reord
 
 					{/* Invoice */}
 					{order.invoices && order.invoices.length > 0 && (
-						<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100">
+						<div className="rounded-xl bg-white p-6 shadow-lg ring-1 ring-neutral-200 transition-shadow hover:shadow-xl">
 							<div className="mb-4 flex items-center gap-2">
 								<svg className="h-5 w-5 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
@@ -402,7 +405,7 @@ export function OrderDetailsClient({ order, channel, orderLinesForReorder, reord
 					)}
 
 					{/* Reorder Action */}
-					<div id="reorder" className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100">
+					<div id="reorder" className="rounded-xl bg-white p-6 shadow-lg ring-1 ring-neutral-200 transition-shadow hover:shadow-xl">
 						<h2 className="mb-4 font-semibold text-neutral-900">{ordersText.quickActionsTitle}</h2>
 						{orderLinesForReorder.length > 0 && (
 							<ReorderButton
@@ -414,7 +417,7 @@ export function OrderDetailsClient({ order, channel, orderLinesForReorder, reord
 					</div>
 
 					{/* Help */}
-					<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100">
+					<div className="rounded-xl bg-white p-6 shadow-lg ring-1 ring-neutral-200 transition-shadow hover:shadow-xl">
 						<h2 className="mb-4 font-semibold text-neutral-900">{ordersText.needHelpTitle}</h2>
 						<div className="space-y-3">
 							<Link

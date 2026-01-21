@@ -18,16 +18,21 @@ export function HeroVideo({
   posterImage = "/hero-poster.jpg",
   title,
   subtitle,
-  ctaText = "Shop Now",
+  ctaText,
   ctaLink = "/products",
 }: HeroVideoProps) {
-  const { store, branding } = useStoreConfig();
+  const { store, branding, content } = useStoreConfig();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasVideo, setHasVideo] = useState(true);
 
   const heroTitle = title || store.tagline || `Welcome to ${store.name}`;
   const heroSubtitle = subtitle || store.description;
+  const heroCta = ctaText || content.homepage.heroCtaText;
+  
+  // Get hero config for badge text
+  const { homepage } = useStoreConfig();
+  const heroBadgeText = homepage?.sections?.hero?.badgeText || null;
 
   useEffect(() => {
     if (videoRef.current) {
@@ -131,26 +136,28 @@ export function HeroVideo({
       <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-center px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
           {/* Badge */}
-          <div 
-            className="mb-6 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium"
-            style={{ 
-              backgroundColor: `${branding.colors.primary}20`,
-              color: branding.colors.primary,
-              border: `1px solid ${branding.colors.primary}40`,
-            }}
-          >
-            <span className="relative flex h-2 w-2">
-              <span 
-                className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
-                style={{ backgroundColor: branding.colors.primary }}
-              />
-              <span 
-                className="relative inline-flex h-2 w-2 rounded-full"
-                style={{ backgroundColor: branding.colors.primary }}
-              />
-            </span>
-            New Season Collection
-          </div>
+          {heroBadgeText && (
+            <div 
+              className="mb-6 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium"
+              style={{ 
+                backgroundColor: `${branding.colors.primary}20`,
+                color: branding.colors.primary,
+                border: `1px solid ${branding.colors.primary}40`,
+              }}
+            >
+              <span className="relative flex h-2 w-2">
+                <span 
+                  className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
+                  style={{ backgroundColor: branding.colors.primary }}
+                />
+                <span 
+                  className="relative inline-flex h-2 w-2 rounded-full"
+                  style={{ backgroundColor: branding.colors.primary }}
+                />
+              </span>
+              {heroBadgeText}
+            </div>
+          )}
 
           <h1 
             className="heading text-5xl font-bold tracking-tight text-white sm:text-6xl md:text-7xl"
@@ -176,7 +183,7 @@ export function HeroVideo({
                 boxShadow: `0 4px 20px ${branding.colors.primary}60`,
               }}
             >
-              {ctaText}
+              {heroCta}
               <svg 
                 className="h-5 w-5 transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1" 
                 fill="none" 
@@ -195,7 +202,7 @@ export function HeroVideo({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              Watch Video
+              {content.homepage.watchVideoButton}
             </LinkWithChannel>
           </div>
 

@@ -155,6 +155,13 @@ const HomepagePage: NextPage = () => {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                   <FormField label="Title" name="sections.hero.title" register={register} placeholder="Welcome to Our Store" />
                   <FormField label="Subtitle" name="sections.hero.subtitle" register={register} placeholder="Discover amazing products" />
+                  <FormField 
+                    label="Badge Text" 
+                    name="sections.hero.badgeText" 
+                    register={register} 
+                    placeholder="New Season Collection"
+                    description="Badge text shown above title (leave empty to hide badge)"
+                  />
                   <FormField label="CTA Button Text" name="sections.hero.ctaText" register={register} placeholder="Shop Now" />
                   <FormField label="CTA Button Link" name="sections.hero.ctaLink" register={register} placeholder="/products" />
                 </div>

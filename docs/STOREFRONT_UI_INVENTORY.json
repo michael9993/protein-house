@@ -2335,6 +2335,168 @@
           }
         ]
       },
+      "orderTracking": {
+        "route": "/track-order",
+        "description": "Order tracking page for non-logged-in users. Allows customers to track orders using order number and email address.",
+        "components": [
+          {
+            "name": "TrackOrderClient",
+            "type": "page",
+            "uiElements": [
+              {
+                "element": "Page Title",
+                "currentStatus": "configurable",
+                "configPath": "content.orderTracking.title",
+                "default": "Track Your Order"
+              },
+              {
+                "element": "Page Description",
+                "currentStatus": "configurable",
+                "configPath": "content.orderTracking.description",
+                "default": "Enter your order number and email address to view your order status and tracking information."
+              },
+              {
+                "element": "Order Number Label",
+                "currentStatus": "configurable",
+                "configPath": "content.orderTracking.orderNumberLabel",
+                "default": "Order Number"
+              },
+              {
+                "element": "Order Number Placeholder",
+                "currentStatus": "configurable",
+                "configPath": "content.orderTracking.orderNumberPlaceholder",
+                "default": "e.g., 12345"
+              },
+              {
+                "element": "Order Number Help Text",
+                "currentStatus": "configurable",
+                "configPath": "content.orderTracking.orderNumberHelp",
+                "default": "You can find your order number in your confirmation email."
+              },
+              {
+                "element": "Email Label",
+                "currentStatus": "configurable",
+                "configPath": "content.orderTracking.emailLabel",
+                "default": "Email Address"
+              },
+              {
+                "element": "Email Placeholder",
+                "currentStatus": "configurable",
+                "configPath": "content.orderTracking.emailPlaceholder",
+                "default": "your@email.com"
+              },
+              {
+                "element": "Email Help Text",
+                "currentStatus": "configurable",
+                "configPath": "content.orderTracking.emailHelp",
+                "default": "The email address you used when placing the order."
+              },
+              {
+                "element": "Track Button",
+                "currentStatus": "configurable",
+                "configPath": "content.orderTracking.trackButton",
+                "default": "Track Order",
+                "styling": {
+                  "backgroundColor": "uses branding.colors.primary",
+                  "textColor": "white",
+                  "borderRadius": "configurable (ui.buttons.borderRadius)"
+                }
+              },
+              {
+                "element": "Tracking Button (Loading)",
+                "currentStatus": "configurable",
+                "configPath": "content.orderTracking.trackingButton",
+                "default": "Tracking..."
+              },
+              {
+                "element": "Error: Order Not Found",
+                "currentStatus": "configurable",
+                "configPath": "content.orderTracking.errorNotFound",
+                "default": "Order not found. Please check your order number and email address."
+              },
+              {
+                "element": "Error: Generic",
+                "currentStatus": "configurable",
+                "configPath": "content.orderTracking.errorGeneric",
+                "default": "An error occurred while tracking your order. Please try again."
+              },
+              {
+                "element": "Back to Tracking Link",
+                "currentStatus": "configurable",
+                "configPath": "content.orderTracking.backToTracking",
+                "default": "Track Another Order"
+              },
+              {
+                "element": "Order Found Title",
+                "currentStatus": "configurable",
+                "configPath": "content.orderTracking.orderFoundTitle",
+                "default": "Order Details"
+              },
+              {
+                "element": "Create Account Title",
+                "currentStatus": "configurable",
+                "configPath": "content.orderTracking.createAccountTitle",
+                "default": "Create an Account"
+              },
+              {
+                "element": "Create Account Description",
+                "currentStatus": "configurable",
+                "configPath": "content.orderTracking.createAccountDescription",
+                "default": "Sign up to track all your orders, save your addresses, and enjoy faster checkout."
+              },
+              {
+                "element": "Create Account Button",
+                "currentStatus": "configurable",
+                "configPath": "content.orderTracking.createAccountButton",
+                "default": "Create Account",
+                "link": "/login (links to login/signup page, not /register)",
+                "styling": {
+                  "backgroundColor": "uses branding.colors.primary",
+                  "textColor": "white",
+                  "hoverEffect": "opacity-90 with shadow-md transition"
+                }
+              },
+              {
+                "element": "Need Help Text",
+                "currentStatus": "configurable",
+                "configPath": "content.orderTracking.needHelpText",
+                "default": "Need help?"
+              },
+              {
+                "element": "Contact Support Link",
+                "currentStatus": "configurable",
+                "configPath": "content.orderTracking.contactSupportLink",
+                "default": "Contact Support"
+              }
+            ],
+            "features": [
+              "Order lookup by number and email",
+              "Email validation",
+              "Full order details display (reuses OrderDetailsClient component)",
+              "Create account CTA after order found (links to /login page)",
+              "Professional error handling",
+              "Responsive design",
+              "Enhanced card styling with shadow-lg and hover effects",
+              "Back to orders button hidden for non-logged-in users"
+            ],
+            "styling": {
+              "cards": {
+                "shadow": "shadow-lg (enhanced from shadow-sm)",
+                "ring": "ring-1 ring-neutral-200 (enhanced from ring-neutral-100)",
+                "hover": "hover:shadow-xl transition-shadow",
+                "formCard": "shadow-lg with hover:shadow-xl",
+                "ctaCard": "shadow-lg with hover:shadow-xl and hover:opacity-90 on button"
+              },
+              "orderDetailsCards": {
+                "allCards": "shadow-lg ring-1 ring-neutral-200 with hover:shadow-xl",
+                "orderItemsCard": "hover:bg-neutral-50 on line items",
+                "dividers": "divide-neutral-200 (enhanced from divide-neutral-100)"
+              }
+            },
+            "notes": "This page allows non-logged-in users to track their orders. After finding an order, it displays the full order details using the same OrderDetailsClient component used in the account section, but with hideBackToOrders=true prop (hides back to orders button), a disabled reorder action, and a CTA to create an account that links to /login (not /register). All cards have enhanced styling with shadow-lg and hover effects."
+          }
+        ]
+      },
       "accountAddresses": {
         "route": "/account/addresses",
         "components": [
@@ -2650,6 +2812,215 @@
                 "configPath": "content.account.termsAgreement / termsOfService / privacyPolicy"
               }
             ]
+          }
+        ]
+      },
+      "contact": {
+        "route": "/contact",
+        "description": "Contact page with form, FAQs, and social links. Includes store logo in hero section.",
+        "components": [
+          {
+            "name": "ContactPage",
+            "type": "page",
+            "uiElements": [
+              {
+                "element": "Store Logo",
+                "currentStatus": "from config",
+                "configPath": "branding.logo",
+                "description": "Store logo displayed in hero section (same as header/footer)"
+              },
+              {
+                "element": "Hero Title",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.heroTitle",
+                "default": "Get in Touch"
+              },
+              {
+                "element": "Hero Description",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.heroDescription",
+                "default": "Have a question or need help? We're here for you. Reach out through any of the channels below or fill out the contact form."
+              },
+              {
+                "element": "Form Title",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.formTitle",
+                "default": "Send Us a Message"
+              },
+              {
+                "element": "Form Description",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.formDescription",
+                "default": "We'll get back to you within 24 hours."
+              },
+              {
+                "element": "Name Label",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.nameLabel",
+                "default": "Your Name"
+              },
+              {
+                "element": "Name Placeholder",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.namePlaceholder",
+                "default": "John Doe"
+              },
+              {
+                "element": "Email Label",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.emailLabel",
+                "default": "Email Address"
+              },
+              {
+                "element": "Email Placeholder",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.emailPlaceholder",
+                "default": "john@example.com"
+              },
+              {
+                "element": "Subject Label",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.subjectLabel",
+                "default": "Subject"
+              },
+              {
+                "element": "Subject Placeholder",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.subjectPlaceholder",
+                "default": "How can we help?"
+              },
+              {
+                "element": "Message Label",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.messageLabel",
+                "default": "Message"
+              },
+              {
+                "element": "Message Placeholder",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.messagePlaceholder",
+                "default": "Tell us more about your inquiry..."
+              },
+              {
+                "element": "Send Button",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.sendButton",
+                "default": "Send Message"
+              },
+              {
+                "element": "Sending Button (Loading)",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.sendingButton",
+                "default": "Sending..."
+              },
+              {
+                "element": "Success Title",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.successTitle",
+                "default": "Message Sent!"
+              },
+              {
+                "element": "Success Description",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.successDescription",
+                "default": "Thank you for reaching out. We'll be in touch soon."
+              },
+              {
+                "element": "Send Another Message Link",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.sendAnotherMessage",
+                "default": "Send another message"
+              },
+              {
+                "element": "FAQs Title",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.faqsTitle",
+                "default": "Frequently Asked Questions"
+              },
+              {
+                "element": "FAQs Description",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.faqsDescription",
+                "default": "Find quick answers to common questions."
+              },
+              {
+                "element": "View All FAQs Link",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.viewAllFaqs",
+                "default": "View All FAQs"
+              },
+              {
+                "element": "Follow Us Title",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.followUsTitle",
+                "default": "Follow Us"
+              },
+              {
+                "element": "Follow Us Description",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.followUsDescription",
+                "default": "Stay connected for updates, tips, and exclusive offers."
+              },
+              {
+                "element": "Contact Method Labels",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.{emailLabel|phoneLabel|addressLabel}",
+                "defaults": {
+                  "emailLabel": "Email",
+                  "phoneLabel": "Phone",
+                  "addressLabel": "Address"
+                },
+                "description": "Labels for contact method cards (Email, Phone, Address)"
+              },
+              {
+                "element": "FAQ Items",
+                "currentStatus": "configurable",
+                "configPath": "content.contact.faqs",
+                "default": [
+                  {
+                    "question": "What are your shipping times?",
+                    "answer": "Most orders ship within 24 hours. Standard delivery takes 3-5 business days, and express delivery takes 1-2 business days."
+                  },
+                  {
+                    "question": "Do you offer international shipping?",
+                    "answer": "Yes! We ship worldwide. International delivery typically takes 7-14 business days depending on the destination."
+                  },
+                  {
+                    "question": "What is your return policy?",
+                    "answer": "We offer a 30-day return policy on all unused items in original packaging. Returns are free within the continental US."
+                  }
+                ],
+                "description": "Array of FAQ items with question and answer. Can be added/removed/edited in storefront-control CMS."
+              }
+            ],
+            "features": [
+              "Store logo display in hero section",
+              "Contact form with validation",
+              "Success message after form submission",
+              "Configurable FAQ items (add/remove/edit via CMS)",
+              "Social media links with proper icons (Instagram, Facebook, Twitter, YouTube, TikTok, Pinterest)",
+              "Contact methods (email, phone, address) with configurable labels from store config",
+              "Responsive design",
+              "All text configurable via storefront-control"
+            ],
+            "styling": {
+              "heroSection": {
+                "backgroundColor": "uses branding.colors.secondary",
+                "textColor": "white",
+                "logoSize": "h-24 w-auto"
+              },
+              "form": {
+                "backgroundColor": "uses branding.colors.surface",
+                "inputBorder": "uses branding.colors.textMuted with 30% opacity",
+                "inputBackground": "uses branding.colors.background"
+              },
+              "socialIcons": {
+                "size": "h-12 w-12",
+                "backgroundColor": "uses branding.colors.primary with 15% opacity",
+                "hover": "scale-110 transition"
+              }
+            },
+            "notes": "Contact page displays store logo in hero section. Social media icons use proper SVG icons (not just letters). All text is configurable through storefront-control CMS. Contact methods (email, phone, address) come from store config."
           }
         ]
       },

@@ -22,7 +22,7 @@ export const Nav = ({ channel }: { channel: string }) => {
 				{/* User Account - Desktop only (mobile is in bottom nav) */}
 				<div className="hidden md:block">
 					<Suspense fallback={<div className="h-10 w-10 animate-pulse rounded-full bg-neutral-100" />}>
-						<UserMenuContainer />
+						<UserMenuContainer channel={channel} />
 					</Suspense>
 				</div>
 				

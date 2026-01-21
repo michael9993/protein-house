@@ -13,7 +13,7 @@ import {
   type ImportValidationResult,
   type ConfigDiffEntry,
 } from "../config/import-schema";
-import { createExportFile } from "../config/export";
+import { createExportFile, updateSampleConfigFile } from "../config/export";
 
 /**
  * Trigger webhook to storefront to invalidate cache when config changes.
@@ -138,6 +138,19 @@ export const configRouter = router({
         (err) => console.error("[saveConfig] Webhook failed:", err)
       );
 
+      // Optionally update sample config file (if enabled in settings)
+      const shouldUpdateSample = process.env.AUTO_UPDATE_SAMPLE_CONFIG === "true";
+      if (shouldUpdateSample && savedConfig) {
+        try {
+          const result = updateSampleConfigFile(savedConfig, input.channelSlug);
+          if (!result.success) {
+            console.error("[saveConfig] Failed to update sample config:", result.error);
+          }
+        } catch (err) {
+          console.error("[saveConfig] Error updating sample config:", err);
+        }
+      }
+
       return { success: true };
     }),
 
@@ -203,6 +216,20 @@ export const configRouter = router({
           (err) => console.error("[updateSection] Webhook failed:", err)
         );
 
+        // Optionally update sample config file (if enabled in settings)
+        // This can be controlled via an environment variable or config setting
+        const shouldUpdateSample = process.env.AUTO_UPDATE_SAMPLE_CONFIG === "true";
+        if (shouldUpdateSample) {
+          try {
+            const result = updateSampleConfigFile(savedConfig, input.channelSlug);
+            if (!result.success) {
+              console.error("[updateSection] Failed to update sample config:", result.error);
+            }
+          } catch (err) {
+            console.error("[updateSection] Error updating sample config:", err);
+          }
+        }
+
         return { success: true };
       } catch (error) {
         console.error(`[updateSection] ❌ Error saving ${input.section} for ${input.channelSlug}:`, error);
@@ -241,16 +268,22 @@ export const configRouter = router({
       try {
         const validated = StorefrontConfigSchema.parse(updatedConfig);
         await configManager.setForChannel(input.channelSlug, validated);
-        console.log(`[updateMultipleSections] Successfully saved ${Object.keys(input.updates).length} sections`);
+        
+        // Get the saved config to get the incremented version
+        const savedConfig = await configManager.getForChannel(input.channelSlug);
+        const finalVersion = savedConfig?.version ?? validated.version;
+        const finalUpdatedAt = savedConfig?.updatedAt ?? validated.updatedAt;
 
-        // Trigger webhook to storefront to invalidate cache
-        triggerConfigWebhook(input.channelSlug, validated.version, validated.updatedAt).catch(
+        console.log(`[updateMultipleSections] ✅ Successfully saved ${Object.keys(input.updates).length} sections for ${input.channelSlug} (version ${finalVersion})`);
+
+        // Trigger webhook to storefront to invalidate cache (use the final version after increment)
+        triggerConfigWebhook(input.channelSlug, finalVersion, finalUpdatedAt).catch(
           (err) => console.error("[updateMultipleSections] Webhook failed:", err)
         );
 
         return { success: true };
       } catch (error) {
-        console.error(`[updateMultipleSections] Error:`, error);
+        console.error(`[updateMultipleSections] ❌ Error:`, error);
         throw error;
       }
     }),
@@ -267,8 +300,15 @@ export const configRouter = router({
       const defaultConfig = getDefaultConfig(input.channelSlug);
       await configManager.setForChannel(input.channelSlug, defaultConfig);
 
-      // Trigger webhook to storefront to invalidate cache
-      triggerConfigWebhook(input.channelSlug, defaultConfig.version, defaultConfig.updatedAt).catch(
+      // Get the saved config to get the incremented version
+      const savedConfig = await configManager.getForChannel(input.channelSlug);
+      const finalVersion = savedConfig?.version ?? defaultConfig.version;
+      const finalUpdatedAt = savedConfig?.updatedAt ?? defaultConfig.updatedAt;
+
+      console.log(`[resetConfig] ✅ Successfully reset config for ${input.channelSlug} (version ${finalVersion})`);
+
+      // Trigger webhook to storefront to invalidate cache (use the final version after increment)
+      triggerConfigWebhook(input.channelSlug, finalVersion, finalUpdatedAt).catch(
         (err) => console.error("[resetConfig] Webhook failed:", err)
       );
 
@@ -390,6 +430,18 @@ export const configRouter = router({
       // Save the imported config
       await configManager.setForChannel(input.channelSlug, configToSave);
 
+      // Get the saved config to get the incremented version
+      const savedConfig = await configManager.getForChannel(input.channelSlug);
+      const finalVersion = savedConfig?.version ?? configToSave.version;
+      const finalUpdatedAt = savedConfig?.updatedAt ?? configToSave.updatedAt;
+
+      console.log(`[importConfig] ✅ Successfully imported config for ${input.channelSlug} (version ${finalVersion})`);
+
+      // Trigger webhook to storefront to invalidate cache (use the final version after increment)
+      triggerConfigWebhook(input.channelSlug, finalVersion, finalUpdatedAt).catch(
+        (err) => console.error("[importConfig] Webhook failed:", err)
+      );
+
       return {
         success: true,
         errors: [],
@@ -402,6 +454,38 @@ export const configRouter = router({
   getSchemaVersion: protectedClientProcedure
     .query(() => {
       return { version: CURRENT_SCHEMA_VERSION };
+    }),
+
+  /**
+   * Update the sample config file with the current configuration
+   * This does NOT modify the actual config, only the sample file
+   * Therefore, it does NOT trigger a webhook (no config change)
+   */
+  updateSampleConfig: protectedClientProcedure
+    .input(z.object({
+      channelSlug: z.string(),
+      updateOnSave: z.boolean().optional().default(false),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const settingsManager = createSettingsManager(ctx.apiClient, ctx.appId!);
+      const configManager = new StorefrontConfigManager(settingsManager);
+
+      // Get current config
+      const currentConfig = await configManager.getForChannelWithDefaults(input.channelSlug);
+
+      // Update sample config file
+      const result = updateSampleConfigFile(currentConfig, input.channelSlug);
+
+      if (result.success) {
+        console.log(`[updateSampleConfig] ✅ Successfully updated sample config file for ${input.channelSlug}`);
+        return { 
+          success: true, 
+          message: `Sample config file updated successfully${result.filePath ? `: ${result.filePath}` : ''}` 
+        };
+      } else {
+        console.error(`[updateSampleConfig] ❌ Failed to update sample config file for ${input.channelSlug}: ${result.error}`);
+        throw new Error(result.error || "Failed to update sample config file");
+      }
     }),
 });
 

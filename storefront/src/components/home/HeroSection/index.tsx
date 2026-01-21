@@ -39,6 +39,7 @@ export function HeroSection({ cmsConfig }: HeroSectionProps) {
   }
 
   // Build props from CMS config (overrides defaults)
+  // Badge text comes from storefront-control config, not CMS
   const heroProps = {
     title: cmsConfig?.title,
     subtitle: cmsConfig?.subtitle,
@@ -46,6 +47,7 @@ export function HeroSection({ cmsConfig }: HeroSectionProps) {
     ctaLink: cmsConfig?.ctaLink,
     image: cmsConfig?.backgroundImage,
     videoUrl: cmsConfig?.videoUrl,
+    // badgeText is handled inside HeroVideo component from homepage config
   };
 
   // Render appropriate hero type

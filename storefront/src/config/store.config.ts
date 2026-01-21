@@ -1339,6 +1339,51 @@ export const DEFAULT_ORDERS_TEXT: OrdersText = {
   tryAgain: "Try Again",
 };
 
+// Order Tracking Page Text defaults
+export interface OrderTrackingText {
+  title: string;
+  description: string;
+  orderNumberLabel: string;
+  orderNumberPlaceholder: string;
+  orderNumberHelp: string;
+  emailLabel: string;
+  emailPlaceholder: string;
+  emailHelp: string;
+  trackButton: string;
+  trackingButton: string;
+  errorNotFound: string;
+  errorGeneric: string;
+  backToTracking: string;
+  orderFoundTitle: string;
+  createAccountTitle: string;
+  createAccountDescription: string;
+  createAccountButton: string;
+  needHelpText: string;
+  contactSupportLink: string;
+}
+
+export const DEFAULT_ORDER_TRACKING_TEXT: OrderTrackingText = {
+  title: "Track Your Order",
+  description: "Enter your order number and email address to view your order status and tracking information.",
+  orderNumberLabel: "Order Number",
+  orderNumberPlaceholder: "e.g., 12345",
+  orderNumberHelp: "You can find your order number in your confirmation email.",
+  emailLabel: "Email Address",
+  emailPlaceholder: "your@email.com",
+  emailHelp: "The email address you used when placing the order.",
+  trackButton: "Track Order",
+  trackingButton: "Tracking...",
+  errorNotFound: "Order not found. Please check your order number and email address.",
+  errorGeneric: "An error occurred while tracking your order. Please try again.",
+  backToTracking: "Track Another Order",
+  orderFoundTitle: "Order Details",
+  createAccountTitle: "Create an Account",
+  createAccountDescription: "Sign up to track all your orders, save your addresses, and enjoy faster checkout.",
+  createAccountButton: "Create Account",
+  needHelpText: "Need help?",
+  contactSupportLink: "Contact Support",
+};
+
 // Addresses Page Text defaults
 export interface AddressesText {
   myAddresses: string;
@@ -1505,6 +1550,7 @@ export interface FooterText {
   companyTitle: string;
   supportTitle: string;
   followUsTitle: string;
+  trackOrderLink: string;
 }
 
 export const DEFAULT_FOOTER_TEXT: FooterText = {
@@ -1521,6 +1567,7 @@ export const DEFAULT_FOOTER_TEXT: FooterText = {
   companyTitle: "Company",
   supportTitle: "Support",
   followUsTitle: "Follow Us",
+  trackOrderLink: "Track Order",
 };
 
 // Navbar Text defaults
@@ -1541,6 +1588,7 @@ export const DEFAULT_NAVBAR_TEXT: NavbarText = {
   cartLabel: "Cart",
   accountLabel: "Account",
   menuLabel: "Menu",
+  signInText: "Sign In",
   // Mobile navigation
   homeLabel: "Home",
   shopLabel: "Shop",
@@ -1811,6 +1859,8 @@ export const defaultStoreConfig: StoreConfig = {
     backgroundImageUrl: null,
     ctaText: "Shop Sale Items",
     ctaLink: "/products?onSale=true",
+    itemsOnSaleText: "{count} {count, plural, =1 {item} other {items}} on sale",
+    maybeLaterText: "Maybe later",
     delaySeconds: 2,
     showOncePerSession: false,
     ttlHours: 24,
@@ -1969,8 +2019,10 @@ export const defaultStoreConfig: StoreConfig = {
       noApprovedReviewsText: "No approved reviews with 4+ stars yet. {count} review(s) pending approval.",
       heroCtaText: "Shop Now",
       heroSecondaryCtaText: "Learn More",
+      watchVideoButton: "Watch Video",
       // Category cards
       shopNowButton: "Shop Now",
+      exploreText: "Explore",
       productCountText: "Products",
       // Newsletter
       newsletterEmailPlaceholder: "Enter your email",
@@ -1995,6 +2047,7 @@ export const defaultStoreConfig: StoreConfig = {
     productDetail: DEFAULT_PRODUCT_DETAIL_TEXT,
     dashboard: DEFAULT_ACCOUNT_DASHBOARD_TEXT,
     orders: DEFAULT_ORDERS_TEXT,
+    orderTracking: DEFAULT_ORDER_TRACKING_TEXT,
     addresses: DEFAULT_ADDRESSES_TEXT,
     wishlist: DEFAULT_WISHLIST_TEXT,
     settings: DEFAULT_SETTINGS_TEXT,

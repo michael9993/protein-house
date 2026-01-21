@@ -182,6 +182,34 @@ const PromoPopupPage: NextPage = () => {
           </SectionCard>
         )}
 
+        {/* Text Labels - Always shown when popup is enabled */}
+        {popupEnabled && (
+          <SectionCard
+            id="promo-text-labels"
+            title="Text Labels"
+            description="Customize button and label text"
+            keywords={["text", "labels", "buttons"]}
+            icon="📝"
+          >
+            {autoDetectSales && (
+              <FormField 
+                label="Items on Sale Text" 
+                name="itemsOnSaleText" 
+                register={register} 
+                placeholder="{count} {count, plural, =1 {item} other {items}} on sale"
+                description="Text shown when auto-detect finds sale items. Use {count} for number and {count, plural, =1 {singular} other {plural}} for pluralization"
+              />
+            )}
+            <FormField 
+              label="Maybe Later Text" 
+              name="maybeLaterText" 
+              register={register} 
+              placeholder="Maybe later"
+              description="Text for the dismiss button"
+            />
+          </SectionCard>
+        )}
+
         {/* Media Configuration */}
         {popupEnabled && !autoDetectSales && (
           <SectionCard

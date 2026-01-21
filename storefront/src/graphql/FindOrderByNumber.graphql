@@ -1,0 +1,11 @@
+query FindOrderByNumber($number: String!) {
+	orders(first: 10, filter: { numbers: [$number] }) {
+		edges {
+			node {
+				id
+				number
+				userEmail
+			}
+		}
+	}
+}

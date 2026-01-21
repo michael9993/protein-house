@@ -165,7 +165,7 @@ export function FeaturedCategories({
                     className="text-[10px] font-semibold uppercase tracking-[0.2em]"
                     style={{ color: branding.colors.textMuted }}
                   >
-                    Explore
+                    {content.homepage.exploreText}
                   </span>
                   <h3 className="text-xl font-semibold" style={{ color: branding.colors.text }}>
                     {category.name}

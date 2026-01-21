@@ -977,6 +977,7 @@ const DEFAULT_CONTENT_CONFIG = {
     companyTitle: "Company",
     supportTitle: "Support",
     followUsTitle: "Follow Us",
+    trackOrderLink: "Track Order",
   },
   navbar: {
     selectChannel: "Select channel/currency",
@@ -984,6 +985,7 @@ const DEFAULT_CONTENT_CONFIG = {
     cartLabel: "Cart",
     accountLabel: "Account",
     menuLabel: "Menu",
+    signInText: "Sign In",
     homeLabel: "Home",
     shopLabel: "Shop",
   },
@@ -1002,6 +1004,68 @@ const DEFAULT_CONTENT_CONFIG = {
     backToHomeButton: "Back to Home",
     browseProductsButton: "Browse Products",
     helpfulLinksText: "Or check out these pages:",
+  },
+  orderTracking: {
+    title: "Track Your Order",
+    description: "Enter your order number and email address to view your order status and tracking information.",
+    orderNumberLabel: "Order Number",
+    orderNumberPlaceholder: "e.g., 12345",
+    orderNumberHelp: "You can find your order number in your confirmation email.",
+    emailLabel: "Email Address",
+    emailPlaceholder: "your@email.com",
+    emailHelp: "The email address you used when placing the order.",
+    trackButton: "Track Order",
+    trackingButton: "Tracking...",
+    errorNotFound: "Order not found. Please check your order number and email address.",
+    errorGeneric: "An error occurred while tracking your order. Please try again.",
+    backToTracking: "Track Another Order",
+    orderFoundTitle: "Order Details",
+    createAccountTitle: "Create an Account",
+    createAccountDescription: "Sign up to track all your orders, save your addresses, and enjoy faster checkout.",
+    createAccountButton: "Create Account",
+    needHelpText: "Need help?",
+    contactSupportLink: "Contact Support",
+  },
+  contact: {
+    heroTitle: "Get in Touch",
+    heroDescription: "Have a question or need help? We're here for you. Reach out through any of the channels below or fill out the contact form.",
+    emailLabel: "Email",
+    phoneLabel: "Phone",
+    addressLabel: "Address",
+    formTitle: "Send Us a Message",
+    formDescription: "We'll get back to you within 24 hours.",
+    nameLabel: "Your Name",
+    namePlaceholder: "John Doe",
+    emailLabelForm: "Email Address",
+    emailPlaceholder: "john@example.com",
+    subjectLabel: "Subject",
+    subjectPlaceholder: "How can we help?",
+    messageLabel: "Message",
+    messagePlaceholder: "Tell us more about your inquiry...",
+    sendButton: "Send Message",
+    sendingButton: "Sending...",
+    successTitle: "Message Sent!",
+    successDescription: "Thank you for reaching out. We'll be in touch soon.",
+    sendAnotherMessage: "Send another message",
+    faqsTitle: "Frequently Asked Questions",
+    faqsDescription: "Find quick answers to common questions.",
+    faqs: [
+      {
+        question: "What are your shipping times?",
+        answer: "Most orders ship within 24 hours. Standard delivery takes 3-5 business days, and express delivery takes 1-2 business days.",
+      },
+      {
+        question: "Do you offer international shipping?",
+        answer: "Yes! We ship worldwide. International delivery typically takes 7-14 business days depending on the destination.",
+      },
+      {
+        question: "What is your return policy?",
+        answer: "We offer a 30-day return policy on all unused items in original packaging. Returns are free within the continental US.",
+      },
+    ],
+    viewAllFaqs: "View All FAQs",
+    followUsTitle: "Follow Us",
+    followUsDescription: "Stay connected for updates, tips, and exclusive offers.",
   },
 } as const;
 
@@ -1050,6 +1114,8 @@ export function useContentConfig(): NonNullable<StoreConfig["content"]> {
     settings: { ...DEFAULT_CONTENT_CONFIG.settings, ...(config.content.settings || {}) } as NonNullable<StoreConfig["content"]>["settings"],
     footer: { ...DEFAULT_CONTENT_CONFIG.footer, ...(config.content.footer || {}) } as NonNullable<StoreConfig["content"]>["footer"],
     navbar: { ...DEFAULT_CONTENT_CONFIG.navbar, ...(config.content.navbar || {}) } as NonNullable<StoreConfig["content"]>["navbar"],
+    orderTracking: { ...DEFAULT_CONTENT_CONFIG.orderTracking, ...((config.content as any).orderTracking || {}) } as NonNullable<StoreConfig["content"]>["orderTracking"],
+    contact: { ...DEFAULT_CONTENT_CONFIG.contact, ...((config.content as any).contact || {}) } as NonNullable<StoreConfig["content"]>["contact"],
     // Ensure all required fields are present (with type assertion for optional fields)
     error: { ...DEFAULT_CONTENT_CONFIG.error, ...((config.content as any).error || {}) } as NonNullable<StoreConfig["content"]>["error"],
     notFound: { ...DEFAULT_CONTENT_CONFIG.notFound, ...((config.content as any).notFound || {}) } as NonNullable<StoreConfig["content"]>["notFound"],
@@ -1088,6 +1154,22 @@ export function useDashboardText(): NonNullable<StoreConfig["content"]>["dashboa
 export function useOrdersText(): NonNullable<StoreConfig["content"]>["orders"] {
   const content = useContentConfig();
   return content.orders as NonNullable<StoreConfig["content"]>["orders"];
+}
+
+/**
+ * Get order tracking page text configuration
+ */
+export function useOrderTrackingText(): NonNullable<StoreConfig["content"]>["orderTracking"] {
+  const content = useContentConfig();
+  return content.orderTracking as NonNullable<StoreConfig["content"]>["orderTracking"];
+}
+
+/**
+ * Get contact page text configuration
+ */
+export function useContactText(): NonNullable<StoreConfig["content"]>["contact"] {
+  const content = useContentConfig();
+  return content.contact as NonNullable<StoreConfig["content"]>["contact"];
 }
 
 /**
