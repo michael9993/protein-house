@@ -56,6 +56,12 @@ $apps = @(
         AppId = "saleor.app.storefront-control"
         EnvVar = "STOREFRONT_CONTROL_APP_TUNNEL_URL"
         ManifestPath = "/api/manifest"
+    },
+    @{
+        Name = "Newsletter App"
+        AppId = "saleor.app.newsletter"
+        EnvVar = "NEWSLETTER_APP_TUNNEL_URL"
+        ManifestPath = "/api/manifest"
     }
 )
 

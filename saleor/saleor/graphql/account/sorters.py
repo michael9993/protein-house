@@ -55,3 +55,51 @@ class PermissionGroupSortingInput(SortInputObjectType):
         doc_category = DOC_CATEGORY_USERS
         sort_enum = PermissionGroupSortField
         type_name = "permission group"
+
+
+class ContactSubmissionSortField(BaseEnum):
+    CREATED_AT = ["created_at", "pk"]
+    UPDATED_AT = ["updated_at", "pk"]
+    NAME = ["name", "pk"]
+    EMAIL = ["email", "pk"]
+    STATUS = ["status", "created_at"]
+
+    class Meta:
+        doc_category = DOC_CATEGORY_USERS
+
+    @property
+    def description(self):
+        if self.name in ContactSubmissionSortField.__enum__._member_names_:
+            sort_name = self.name.lower().replace("_", " ")
+            return f"Sort contact submissions by {sort_name}."
+        raise ValueError(f"Unsupported enum value: {self.value}")
+
+
+class ContactSubmissionSortingInput(SortInputObjectType):
+    class Meta:
+        doc_category = DOC_CATEGORY_USERS
+        sort_enum = ContactSubmissionSortField
+        type_name = "contact submissions"
+
+
+class NewsletterSubscriptionSortField(BaseEnum):
+    SUBSCRIBED_AT = ["subscribed_at", "pk"]
+    EMAIL = ["email", "pk"]
+    UNSUBSCRIBED_AT = ["unsubscribed_at", "pk"]
+
+    class Meta:
+        doc_category = DOC_CATEGORY_USERS
+
+    @property
+    def description(self):
+        if self.name in NewsletterSubscriptionSortField.__enum__._member_names_:
+            sort_name = self.name.lower().replace("_", " ")
+            return f"Sort newsletter subscriptions by {sort_name}."
+        raise ValueError(f"Unsupported enum value: {self.value}")
+
+
+class NewsletterSubscriptionSortingInput(SortInputObjectType):
+    class Meta:
+        doc_category = DOC_CATEGORY_USERS
+        sort_enum = NewsletterSubscriptionSortField
+        type_name = "newsletter subscriptions"

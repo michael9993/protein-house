@@ -237,6 +237,7 @@
       "CollectionChannelListing",
       "CollectionTranslatableContent",
       "CollectionTranslation",
+      "ContactSubmission",
       "CustomerEvent",
       "DigitalContent",
       "DigitalContentUrl",

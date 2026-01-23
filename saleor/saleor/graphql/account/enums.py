@@ -43,3 +43,14 @@ class StaffMemberStatus(BaseEnum):
         if self == StaffMemberStatus.DEACTIVATED:
             return "User account has not been activated yet."
         return None
+
+
+class ContactSubmissionStatusEnum(BaseEnum):
+    NEW = "NEW"
+    READ = "READ"
+    REPLIED = "REPLIED"
+    ARCHIVED = "ARCHIVED"
+
+    class Meta:
+        description = "Represents status of a contact form submission."
+        doc_category = DOC_CATEGORY_USERS

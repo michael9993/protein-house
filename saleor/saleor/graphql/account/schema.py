@@ -21,8 +21,12 @@ from .bulk_mutations import (
 )
 from .enums import CountryCodeEnum
 from .filters import (
+    ContactSubmissionFilter,
+    ContactSubmissionWhereInput,
     CustomerFilter,
     CustomerWhereInput,
+    NewsletterSubscriptionFilter,
+    NewsletterSubscriptionWhereInput,
     PermissionGroupFilter,
     StaffUserFilter,
 )
@@ -37,6 +41,11 @@ from .mutations.account import (
     AccountUpdate,
     ConfirmAccount,
     ConfirmEmailChange,
+    ContactSubmissionBulkDelete,
+    ContactSubmissionCreate,
+    ContactSubmissionDelete,
+    ContactSubmissionReply,
+    ContactSubmissionUpdateStatus,
     NewsletterSubscribe,
     NewsletterUnsubscribe,
     RequestEmailChange,
@@ -78,18 +87,30 @@ from .mutations.staff import (
 from .resolvers import (
     resolve_address,
     resolve_address_validation_rules,
+    resolve_contact_submission,
+    resolve_contact_submissions,
     resolve_customers,
+    resolve_newsletter_subscriptions,
     resolve_permission_group,
     resolve_permission_groups,
     resolve_staff_users,
     resolve_user,
 )
-from .sorters import PermissionGroupSortingInput, UserSortingInput
+from .sorters import (
+    ContactSubmissionSortingInput,
+    NewsletterSubscriptionSortingInput,
+    PermissionGroupSortingInput,
+    UserSortingInput,
+)
 from .types import (
     Address,
     AddressValidationData,
+    ContactSubmission,
+    ContactSubmissionCountableConnection,
     Group,
     GroupCountableConnection,
+    NewsletterSubscription,
+    NewsletterSubscriptionCountableConnection,
     User,
     UserCountableConnection,
 )
@@ -111,6 +132,18 @@ class StaffUserInput(FilterInputObjectType):
     class Meta:
         doc_category = DOC_CATEGORY_USERS
         filterset_class = StaffUserFilter
+
+
+class ContactSubmissionFilterInput(FilterInputObjectType):
+    class Meta:
+        doc_category = DOC_CATEGORY_USERS
+        filterset_class = ContactSubmissionFilter
+
+
+class NewsletterSubscriptionFilterInput(FilterInputObjectType):
+    class Meta:
+        doc_category = DOC_CATEGORY_USERS
+        filterset_class = NewsletterSubscriptionFilter
 
 
 class AccountQueries(graphene.ObjectType):
@@ -208,6 +241,47 @@ class AccountQueries(graphene.ObjectType):
         description="Look up a user by ID or email address.",
         doc_category=DOC_CATEGORY_USERS,
     )
+    contact_submission = PermissionsField(
+        ContactSubmission,
+        id=graphene.Argument(graphene.ID, description="ID of the contact submission.", required=True),
+        description="Look up a contact submission by ID.",
+        permissions=[AccountPermissions.MANAGE_CONTACT_SUBMISSIONS],
+        doc_category=DOC_CATEGORY_USERS,
+    )
+    contact_submissions = FilterConnectionField(
+        ContactSubmissionCountableConnection,
+        filter=ContactSubmissionFilterInput(
+            description=(
+                f"Filtering options for contact submissions. {DEPRECATED_IN_3X_INPUT} "
+                "Use `where` filter instead."
+            )
+        ),
+        where=ContactSubmissionWhereInput(
+            description="Where filtering options for contact submissions." + ADDED_IN_322
+        ),
+        sort_by=ContactSubmissionSortingInput(description="Sort contact submissions."),
+        search=graphene.String(description="Search contact submissions." + ADDED_IN_322),
+        description="List of contact form submissions.",
+        permissions=[AccountPermissions.MANAGE_CONTACT_SUBMISSIONS],
+        doc_category=DOC_CATEGORY_USERS,
+    )
+    newsletter_subscriptions = FilterConnectionField(
+        NewsletterSubscriptionCountableConnection,
+        filter=NewsletterSubscriptionFilterInput(
+            description=(
+                f"Filtering options for newsletter subscriptions. {DEPRECATED_IN_3X_INPUT} "
+                "Use `where` filter instead."
+            )
+        ),
+        where=NewsletterSubscriptionWhereInput(
+            description="Where filtering options for newsletter subscriptions." + ADDED_IN_322
+        ),
+        sort_by=NewsletterSubscriptionSortingInput(description="Sort newsletter subscriptions."),
+        search=graphene.String(description="Search newsletter subscriptions by email." + ADDED_IN_322),
+        description="List of newsletter subscriptions.",
+        permissions=[AccountPermissions.MANAGE_USERS],
+        doc_category=DOC_CATEGORY_USERS,
+    )
 
     @staticmethod
     def resolve_address_validation_rules(
@@ -278,6 +352,30 @@ class AccountQueries(graphene.ObjectType):
     def resolve_address(_root, info: ResolveInfo, app, *, id):
         return resolve_address(info, id, app)
 
+    @staticmethod
+    def resolve_contact_submissions(_root, info: ResolveInfo, **kwargs):
+        qs = resolve_contact_submissions(info)
+        qs = filter_connection_queryset(
+            qs, kwargs, allow_replica=info.context.allow_replica
+        )
+        return create_connection_slice(qs, info, kwargs, ContactSubmissionCountableConnection)
+
+    @staticmethod
+    def resolve_contact_submission(_root, info: ResolveInfo, *, id):
+        return resolve_contact_submission(info, id)
+
+    @staticmethod
+    def resolve_newsletter_subscriptions(_root, info: ResolveInfo, **kwargs):
+        search = kwargs.get("search")
+        qs = resolve_newsletter_subscriptions(info)
+        if search:
+            # Apply search filter if provided
+            qs = qs.filter(email__icontains=search)
+        qs = filter_connection_queryset(
+            qs, kwargs, allow_replica=info.context.allow_replica
+        )
+        return create_connection_slice(qs, info, kwargs, NewsletterSubscriptionCountableConnection)
+
 
 class AccountMutations(graphene.ObjectType):
     # Base mutations
@@ -341,3 +439,10 @@ class AccountMutations(graphene.ObjectType):
     permission_group_create = PermissionGroupCreate.Field()
     permission_group_update = PermissionGroupUpdate.Field()
     permission_group_delete = PermissionGroupDelete.Field()
+
+    # Contact submission mutations
+    contact_submission_create = ContactSubmissionCreate.Field()
+    contact_submission_update_status = ContactSubmissionUpdateStatus.Field()
+    contact_submission_reply = ContactSubmissionReply.Field()
+    contact_submission_delete = ContactSubmissionDelete.Field()
+    contact_submission_bulk_delete = ContactSubmissionBulkDelete.Field()

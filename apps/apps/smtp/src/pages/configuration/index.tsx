@@ -14,8 +14,12 @@ import { trpcClient } from "../../modules/trpc/trpc-client";
 const ConfigurationPage: NextPage = () => {
   const { appBridgeState } = useAppBridge();
 
+  const isAppBridgeReady = !!appBridgeState?.ready;
+
   const { data: dataSmtp, isLoading: isLoadingSmtp } =
-    trpcClient.smtpConfiguration.getConfigurations.useQuery();
+    trpcClient.smtpConfiguration.getConfigurations.useQuery(undefined, {
+      enabled: isAppBridgeReady,
+    });
 
   const data: ConfigurationListItem[] = [
     ...(dataSmtp?.map((configuration) => ({

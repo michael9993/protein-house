@@ -51,7 +51,18 @@ const FooterPage: NextPage = () => {
 
   useEffect(() => {
     if (config?.footer) {
-      reset(config.footer);
+      // Ensure legalLinks are initialized with defaults if missing (text comes from content.footer, not here)
+      const footerData = {
+        ...config.footer,
+        legalLinks: config.footer.legalLinks || {
+          trackOrder: { enabled: true, url: "/track-order" },
+          privacyPolicy: { enabled: true, url: "/pages/privacy-policy" },
+          termsOfService: { enabled: true, url: "/pages/terms-of-service" },
+          shippingPolicy: { enabled: true, url: "/pages/shipping-policy" },
+          returnPolicy: { enabled: true, url: "/pages/return-policy" },
+        },
+      };
+      reset(footerData);
     }
   }, [config, reset]);
 
@@ -85,6 +96,27 @@ const FooterPage: NextPage = () => {
 
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             <SimpleCheckbox
+              name="showBrand"
+              control={control}
+              label="Brand/Logo Section"
+              description="Show store logo and name in the footer"
+            />
+
+            <SimpleCheckbox
+              name="showMenu"
+              control={control}
+              label="Menu Links Section"
+              description="Show navigation menu links (managed in Dashboard → Navigation → Menus)"
+            />
+
+            <SimpleCheckbox
+              name="showContactInfo"
+              control={control}
+              label="Contact Information"
+              description="Show email, phone, and address in the footer"
+            />
+
+            <SimpleCheckbox
               name="showNewsletter"
               control={control}
               label="Newsletter Signup"
@@ -97,13 +129,59 @@ const FooterPage: NextPage = () => {
               label="Social Media Links"
               description="Display social media icons (configured in Integrations)"
             />
+          </div>
+        </SectionCard>
 
-            <SimpleCheckbox
-              name="showContactInfo"
-              control={control}
-              label="Contact Information"
-              description="Show email, phone, and address in the footer"
-            />
+        <SectionCard
+          id="footer-legal-links"
+          title="Legal Links (Bottom Bar)"
+          description="Configure the legal links displayed in the footer bottom bar"
+          keywords={["footer", "legal", "links", "privacy", "terms"]}
+          icon="⚖️"
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            {["trackOrder", "privacyPolicy", "termsOfService", "shippingPolicy", "returnPolicy"].map((linkKey) => {
+              const linkLabel = linkKey
+                .replace(/([A-Z])/g, " $1")
+                .replace(/^./, (str) => str.toUpperCase())
+                .trim();
+              
+              return (
+                <div key={linkKey} style={{ 
+                  padding: "16px", 
+                  border: "1px solid #e0e0e0", 
+                  borderRadius: "8px",
+                  backgroundColor: "#fafafa"
+                }}>
+                  <SimpleCheckbox
+                    name={`legalLinks.${linkKey}.enabled` as any}
+                    control={control}
+                    label={`Show ${linkLabel}`}
+                    description={`Display "${linkLabel}" link in footer bottom bar`}
+                  />
+                  <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                    <div style={{ 
+                      padding: "8px 12px", 
+                      backgroundColor: "#e3f2fd", 
+                      borderRadius: "4px",
+                      fontSize: "13px",
+                      color: "#1976d2"
+                    }}>
+                      ℹ️ Link text is configured in the <strong>Content → Footer Text</strong> section
+                    </div>
+                    <FormField
+                      label={`${linkLabel} URL`}
+                      name={`legalLinks.${linkKey}.url` as any}
+                      register={register}
+                      errors={errors}
+                      type="text"
+                      placeholder={linkKey === "trackOrder" ? "/track-order" : `/pages/${linkKey.toLowerCase().replace(/([A-Z])/g, "-$1").toLowerCase()}`}
+                      description="URL path (e.g., /track-order, /pages/privacy-policy)"
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </SectionCard>
 
@@ -114,7 +192,6 @@ const FooterPage: NextPage = () => {
           keywords={["footer", "copyright", "legal"]}
           icon="©️"
         >
-
           <FormField
             label="Custom Copyright Text"
             name="copyrightText"

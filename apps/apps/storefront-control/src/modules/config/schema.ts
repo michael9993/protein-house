@@ -350,11 +350,28 @@ export const HeaderSchema = z.object({
 // ============================================
 // FOOTER SCHEMA
 // ============================================
+// Legal link configuration
+// Note: Text comes from content.footer section, only enabled state and URL are stored here
+export const LegalLinkSchema = z.object({
+  enabled: z.boolean().default(true),
+  url: z.string(), // URL path (e.g., "/track-order", "/pages/privacy-policy")
+});
+
 export const FooterSchema = z.object({
-  showNewsletter: z.boolean(),
-  showSocialLinks: z.boolean(),
-  showContactInfo: z.boolean(),
+  showNewsletter: z.boolean().default(true),
+  showSocialLinks: z.boolean().default(true),
+  showContactInfo: z.boolean().default(true),
+  showMenu: z.boolean().default(true), // Control visibility of menu links section
+  showBrand: z.boolean().default(true), // Control visibility of brand/logo section
   copyrightText: z.string().nullable(), // null = use default
+  // Legal links in bottom bar
+  legalLinks: z.object({
+    trackOrder: LegalLinkSchema,
+    privacyPolicy: LegalLinkSchema,
+    termsOfService: LegalLinkSchema,
+    shippingPolicy: LegalLinkSchema,
+    returnPolicy: LegalLinkSchema,
+  }).optional(),
 });
 
 // ============================================
@@ -1381,6 +1398,7 @@ export const FooterTextSchema = z.object({
 
   // Contact section
   contactUs: z.string(),               // "Contact Us"
+  contactUsButton: z.string().default("Contact Us"),        // "Contact Us" (button text)
   customerService: z.string(),         // "Customer Service"
 
   // Navigation sections

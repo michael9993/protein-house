@@ -485,6 +485,16 @@ export const sectionNames = defineMessages({
     defaultMessage: "Customers",
     description: "customers section name",
   },
+  customerService: {
+    id: "kL9mN2",
+    defaultMessage: "Customer Service",
+    description: "customer service section name",
+  },
+  contactSubmissions: {
+    id: "pQ8rT4",
+    defaultMessage: "Contact Submissions",
+    description: "contact submissions",
+  },
   draftOrders: {
     id: "ytKTTO",
     defaultMessage: "Drafts",

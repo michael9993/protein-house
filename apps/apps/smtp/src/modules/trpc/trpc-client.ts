@@ -22,12 +22,20 @@ export const trpcClient = createTRPCNext<AppRouter>({
         httpBatchLink({
           url: `${getBaseUrl()}/api/trpc`,
           headers() {
-            const { token, saleorApiUrl } = appBridgeInstance?.getState() || {};
+            const state = appBridgeInstance?.getState();
+            const { token, saleorApiUrl } = state || {};
 
             if (!token || !saleorApiUrl) {
               logger.error(
                 "Can't initialize tRPC client before establishing the App Bridge connection",
+                {
+                  hasState: !!state,
+                  hasToken: !!token,
+                  hasSaleorApiUrl: !!saleorApiUrl,
+                  ready: state?.ready,
+                },
               );
+              // Throw error to prevent queries from running without auth
               throw new Error("Token and Saleor API URL unknown");
             }
 
@@ -35,8 +43,8 @@ export const trpcClient = createTRPCNext<AppRouter>({
               /**
                * Attach headers from app to client requests, so tRPC can add them to context
                */
-              [SALEOR_AUTHORIZATION_BEARER_HEADER]: appBridgeInstance?.getState().token,
-              [SALEOR_API_URL_HEADER]: appBridgeInstance?.getState().saleorApiUrl,
+              [SALEOR_AUTHORIZATION_BEARER_HEADER]: token,
+              [SALEOR_API_URL_HEADER]: saleorApiUrl,
             };
           },
         }),

@@ -1,3 +1,4 @@
+import { useAppBridge } from "@saleor/app-sdk/app-bridge";
 import { useDashboardNotification } from "@saleor/apps-shared/use-dashboard-notification";
 import { Box, Text } from "@saleor/macaw-ui";
 import { NextPage } from "next";
@@ -46,6 +47,7 @@ const NotFoundView = () => {
 };
 
 const EditSmtpConfigurationPage: NextPage = () => {
+  const { appBridgeState } = useAppBridge();
   const { notifyError } = useDashboardNotification();
   const router = useRouter();
   const configurationId = router.query.configurationId
@@ -69,7 +71,8 @@ const EditSmtpConfigurationPage: NextPage = () => {
     },
   );
 
-  if (isLoading) {
+  // Wait for App Bridge to be ready
+  if (!appBridgeState?.ready || isLoading) {
     return <LoadingView />;
   }
 

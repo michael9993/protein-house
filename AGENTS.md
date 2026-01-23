@@ -18,6 +18,67 @@ No Cursor or Copilot rules were found at the repo root at the time of writing.
 - Avoid committing .env files or secrets.
 - Prefer running commands inside the project directory they belong to.
 
+## Docker Development Workflow
+
+This project uses Docker Compose for local development. All services run in containers.
+
+### Main Containers
+
+- **saleor-api** - Django/GraphQL backend (Saleor API)
+- **saleor-worker** - Celery worker for background tasks
+- **saleor-scheduler** - Celery beat scheduler for periodic tasks
+- **saleor-dashboard** - React admin dashboard
+- **saleor-storefront** - Next.js storefront
+- **saleor-storefront-control-app** - Storefront control CMS app
+- **saleor-stripe-app** - Stripe payment app
+- **saleor-smtp-app** - SMTP email app
+- **saleor-invoice-app** - Invoice generation app
+- **saleor-postgres** - PostgreSQL database
+- **saleor-redis** - Redis cache/broker
+
+### Container Restart Guidelines
+
+**After making changes, always determine which container(s) need to be restarted:**
+
+1. **Backend changes (saleor/)**:
+   - Schema/model changes: Restart `saleor-api`, `saleor-worker`, `saleor-scheduler`
+   - Code changes only: Restart `saleor-api` (auto-reload may work, but restart ensures consistency)
+   - Migration changes: Restart `saleor-api` after running migrations
+
+2. **Dashboard changes (dashboard/)**:
+   - Restart `saleor-dashboard-dev`
+   - If GraphQL schema changed: Run `pnpm generate` in dashboard, then restart container
+
+3. **Storefront changes (storefront/)**:
+   - Restart `saleor-storefront-dev`
+   - If GraphQL schema changed: Run `pnpm generate` in storefront, then restart container
+
+4. **Storefront Control App changes (apps/apps/storefront-control/)**:
+   - Restart `saleor-storefront-control-app`
+   - If schema/config structure changed: Update sample config files (see below)
+
+5. **Other App changes (apps/apps/*/)**:
+   - Restart the corresponding app container (e.g., `saleor-stripe-app` for Stripe app)
+
+6. **Database/Redis changes**:
+   - Usually no restart needed (data persists in volumes)
+   - Only restart if configuration changed
+
+**Restart command:**
+```bash
+docker compose -f infra/docker-compose.dev.yml restart <container-name>
+```
+
+**View logs:**
+```bash
+docker compose -f infra/docker-compose.dev.yml logs -f <container-name>
+```
+
+**Check container status:**
+```bash
+docker compose -f infra/docker-compose.dev.yml ps
+```
+
 ## Build / Lint / Test Commands
 
 ### Saleor API (saleor/)
@@ -158,3 +219,16 @@ No Cursor or Copilot rules were found at the repo root at the time of writing.
 
 - Prefer the closest existing pattern in the directory you touch.
 - Ask for clarification if a change might affect multiple packages.
+
+## Post-Change Checklist
+
+After completing any changes, verify:
+
+1. **Docker Containers**: Determine which container(s) need restarting based on what changed
+2. **Configuration Files**: If `storefront-control` schema/config changed:
+   - [ ] Sample config files updated
+   - [ ] UI inventory updated (if UI components affected)
+   - [ ] Default values updated
+   - [ ] Types updated
+3. **Build/Lint**: Run appropriate lint/type-check commands for changed packages
+4. **Documentation**: Update relevant docs only if structure/behavior significantly changed

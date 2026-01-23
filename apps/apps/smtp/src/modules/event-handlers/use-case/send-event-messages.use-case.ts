@@ -3,6 +3,8 @@ import { err, errAsync, Result, ResultAsync } from "neverthrow";
 import { BaseError } from "../../../errors";
 import { bytesToKb } from "../../../lib/bytes-to-kb";
 import { createLogger } from "../../../logger";
+import { BrandingService } from "../../branding/branding-service";
+import { TemplateBrandingProcessor } from "../../branding/template-branding-processor";
 import { SmtpConfiguration } from "../../smtp/configuration/smtp-config-schema";
 import { IGetSmtpConfiguration } from "../../smtp/configuration/smtp-configuration.service";
 import { IEmailCompiler } from "../../smtp/services/email-compiler";
@@ -61,6 +63,7 @@ export class SendEventMessagesUseCase {
     recipientEmail,
     channelSlug,
     attachments,
+    branding,
   }: {
     config: SmtpConfiguration;
     event: MessageEventTypes;
@@ -72,6 +75,7 @@ export class SendEventMessagesUseCase {
       content: Buffer | string;
       contentType?: string;
     }>;
+    branding?: import("../../branding/branding-service").BrandingConfig;
   }) {
     const eventSettings = config.events.find((e) => e.eventType === event);
 
@@ -118,12 +122,45 @@ export class SendEventMessagesUseCase {
       );
     }
 
+    // Process templates with branding if available
+    let processedBodyTemplate = eventSettings.template;
+    let processedSubjectTemplate = eventSettings.subject;
+
+    if (branding) {
+      this.logger.debug("Processing templates with branding", {
+        event,
+        companyName: branding.companyName,
+        primaryColor: branding.primaryColor,
+      });
+      
+      processedBodyTemplate = TemplateBrandingProcessor.processTemplate(
+        eventSettings.template,
+        branding
+      );
+      processedSubjectTemplate = TemplateBrandingProcessor.processTemplate(
+        eventSettings.subject,
+        branding
+      );
+
+      // Log if template was actually changed
+      if (processedBodyTemplate !== eventSettings.template) {
+        this.logger.debug("Body template was modified with branding");
+      } else {
+        this.logger.debug("Body template unchanged (may already have branding or no variables found)");
+      }
+    }
+
+    // Inject branding into payload for Handlebars variables
+    const enrichedPayload = branding
+      ? TemplateBrandingProcessor.injectBrandingIntoPayload(payload, branding)
+      : payload;
+
     const preparedEmailResult = this.deps.emailCompiler.compile({
       event: event,
-      payload: payload,
+      payload: enrichedPayload,
       recipientEmail: recipientEmail,
-      bodyTemplate: eventSettings.template,
-      subjectTemplate: eventSettings.subject,
+      bodyTemplate: processedBodyTemplate,
+      subjectTemplate: processedSubjectTemplate,
       senderEmail: config.senderEmail,
       senderName: config.senderName,
     });
@@ -201,6 +238,7 @@ export class SendEventMessagesUseCase {
     recipientEmail,
     channelSlug,
     attachments,
+    saleorApiUrl,
   }: {
     channelSlug: string;
     payload: unknown;
@@ -211,8 +249,26 @@ export class SendEventMessagesUseCase {
       content: Buffer | string;
       contentType?: string;
     }>;
+    saleorApiUrl?: string;
   }): Promise<Result<unknown, Array<InstanceType<typeof SendEventMessagesUseCase.BaseError>>>> {
     this.logger.info("Calling sendEventMessages", { channelSlug, event });
+
+    // Fetch branding from storefront-control
+    let branding: import("../../branding/branding-service").BrandingConfig | undefined;
+    try {
+      branding = await BrandingService.fetchBranding(channelSlug, saleorApiUrl);
+      this.logger.debug("Fetched branding for email", {
+        channelSlug,
+        companyName: branding.companyName,
+        primaryColor: branding.primaryColor,
+      });
+    } catch (error) {
+      this.logger.warn("Failed to fetch branding, using defaults", {
+        error: error instanceof Error ? error.message : String(error),
+        channelSlug,
+      });
+      // Continue with undefined branding (will use defaults in templates)
+    }
 
     const availableSmtpConfigurations = await this.deps.smtpConfigurationService.getConfigurations({
       active: true,
@@ -266,6 +322,7 @@ export class SendEventMessagesUseCase {
           recipientEmail,
           channelSlug,
           attachments,
+          branding,
         }),
       ),
     );

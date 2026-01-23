@@ -1,0 +1,18 @@
+mutation ContactSubmissionCreate($input: ContactSubmissionInput!) {
+  contactSubmissionCreate(input: $input) {
+    contactSubmission {
+      id
+      name
+      email
+      subject
+      message
+      status
+      createdAt
+    }
+    accountErrors {
+      field
+      message
+      code
+    }
+  }
+}

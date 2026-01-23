@@ -39,16 +39,30 @@ export const useFilterPresets = <T extends { activeTab?: string; action?: string
   const presets = storageUtils.getFilterTabs();
   const selectedPreset =
     params.activeTab !== undefined && typeof params.activeTab === "string"
-      ? parseInt(params.activeTab, 10)
+      ? (() => {
+          const parsed = parseInt(params.activeTab, 10);
+          // Return undefined if parsing failed (NaN) or if value is 0 or negative
+          return isNaN(parsed) || parsed <= 0 ? undefined : parsed;
+        })()
       : undefined;
   const onPresetChange = (index: number) => {
     reset?.();
 
     const currentPresets = storageUtils.getFilterTabs();
-    const qs = new URLSearchParams(currentPresets[index - 1]?.data ?? "");
-
-    qs.append("activeTab", index.toString());
-    navigate(baseUrl.endsWith("?") ? baseUrl + qs.toString() : baseUrl + "?" + qs.toString());
+    const presetData = currentPresets[index - 1]?.data ?? "";
+    
+    // Parse the preset's query string and add activeTab
+    const { parsedQs } = prepareQs(presetData ? `?${presetData}` : "");
+    const updatedParams = {
+      ...parsedQs,
+      activeTab: index.toString(),
+    };
+    
+    // Remove action param when switching presets
+    delete updatedParams.action;
+    
+    const queryString = stringify(updatedParams);
+    navigate(queryString ? `${baseUrl}?${queryString}` : baseUrl);
   };
   const onPresetDelete = () => {
     if (!presetIdToDelete) {

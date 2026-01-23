@@ -53,3 +53,36 @@ export type CustomerAddressesUrlDialog = "add" | "edit" | "remove";
 export type CustomerAddressesUrlQueryParams = Dialog<CustomerAddressesUrlDialog> & SingleAction;
 export const customerAddressesUrl = (id: string, params?: CustomerAddressesUrlQueryParams) =>
   customerAddressesPath(encodeURIComponent(id)) + "?" + stringifyQs(params);
+
+export const customerServiceListPath = urlJoin(customerSection, "service");
+export enum CustomerServiceListUrlFiltersEnum {
+  status = "status",
+  channel = "channel",
+  createdFrom = "createdFrom",
+  createdTo = "createdTo",
+  query = "query",
+}
+export type CustomerServiceListUrlFilters = Filters<CustomerServiceListUrlFiltersEnum>;
+export type CustomerServiceListUrlDialog = "remove" | TabActionDialog;
+export enum CustomerServiceListUrlSortField {
+  createdAt = "createdAt",
+  updatedAt = "updatedAt",
+  name = "name",
+  email = "email",
+  status = "status",
+}
+type CustomerServiceListUrlSort = Sort<CustomerServiceListUrlSortField>;
+export type CustomerServiceListUrlQueryParams = ActiveTab &
+  BulkAction &
+  CustomerServiceListUrlFilters &
+  CustomerServiceListUrlSort &
+  Dialog<CustomerServiceListUrlDialog> &
+  Pagination;
+export const customerServiceListUrl = (params?: CustomerServiceListUrlQueryParams) =>
+  customerServiceListPath + "?" + stringifyQs(params);
+
+export const customerServicePath = (id: string) => urlJoin(customerServiceListPath, id);
+type CustomerServiceUrlDialog = "remove";
+export type CustomerServiceUrlQueryParams = Dialog<CustomerServiceUrlDialog>;
+export const customerServiceUrl = (id: string, params?: CustomerServiceUrlQueryParams) =>
+  customerServicePath(encodeURIComponent(id)) + "?" + stringifyQs(params);

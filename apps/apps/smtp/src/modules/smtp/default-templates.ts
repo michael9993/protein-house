@@ -22,6 +22,7 @@ const emailStyles = `
     .highlight { color: ${PRIMARY_COLOR}; font-weight: 600; }
     .order-detail { padding: 8px 0; border-bottom: 1px solid #E5E7EB; }
     .order-detail:last-child { border-bottom: none; }
+    .reply-box { background-color: #F0F9FF; border-left: 4px solid ${PRIMARY_COLOR}; border-radius: 8px; padding: 20px; margin: 20px 0; }
   </mj-style>
 `;
 
@@ -1123,14 +1124,185 @@ const defaultOrderFulfillmentUpdatedMjmlTemplate = `<mjml>
   </mj-body>
 </mjml>`;
 
+const defaultContactSubmissionReplyMjmlTemplate = `<mjml>
+  <mj-head>
+    <mj-attributes>
+      <mj-all font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" />
+      <mj-text font-size="14px" color="#374151" line-height="1.6" />
+      <mj-section padding="20px 0" />
+    </mj-attributes>
+    <mj-style inline="inline">
+      .info-box { background-color: #F9FAFB; border-radius: 8px; padding: 20px; margin: 20px 0; }
+      .highlight { color: ${PRIMARY_COLOR}; font-weight: 600; }
+      .order-detail { padding: 8px 0; border-bottom: 1px solid #E5E7EB; }
+      .order-detail:last-child { border-bottom: none; }
+      .reply-box { background-color: #F0F9FF; border-left: 4px solid ${PRIMARY_COLOR}; border-radius: 8px; padding: 20px; margin: 20px 0; }
+    </mj-style>
+  </mj-head>
+  <mj-body background-color="#F3F4F6">
+    <!-- Header -->
+    <mj-section background-color="${PRIMARY_COLOR}" padding="40px 0">
+      <mj-column>
+        <mj-text align="center" font-size="28px" font-weight="bold" color="#FFFFFF" padding-bottom="10px">
+          📧 Response to Your Inquiry
+        </mj-text>
+        <mj-text align="center" font-size="16px" color="#DBEAFE">
+          We're here to help!
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Main Content -->
+    <mj-section background-color="#FFFFFF" padding="30px 25px">
+      <mj-column>
+        <mj-text font-size="18px" color="#1F2937" padding-bottom="15px">
+          Dear {{submission.name}}, 👋
+        </mj-text>
+        <mj-text>
+          Thank you for reaching out to us. We've received your message and wanted to provide you with a response.
+        </mj-text>
+        
+        <!-- Original Inquiry Details -->
+        <mj-text css-class="info-box" padding-top="25px" padding-bottom="10px">
+          <div class="order-detail">
+            <strong>Your Inquiry:</strong> <span class="highlight">{{submission.subject}}</span>
+          </div>
+          <div class="order-detail">
+            <strong>Submitted:</strong> {{formatDate submission.created_at}}
+          </div>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Reply Message -->
+    <mj-section background-color="#FFFFFF" padding="25px" padding-top="15px">
+      <mj-column>
+        <mj-text font-size="16px" font-weight="600" color="#1F2937" padding-bottom="15px">
+          Our Response
+        </mj-text>
+        <mj-text css-class="reply-box" padding="20px">
+          <div style="white-space: pre-wrap; color: #1F2937; line-height: 1.7;">{{reply_message}}</div>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Original Message Reference -->
+    <mj-section background-color="#FFFFFF" padding="25px" padding-top="15px">
+      <mj-column>
+        <mj-divider border-color="#E5E7EB" border-width="1px" padding="0 0 20px 0" />
+        <mj-text font-size="14px" font-weight="600" color="#6B7280" padding-bottom="10px">
+          Your Original Message
+        </mj-text>
+        <mj-text css-class="info-box" padding="20px" background-color="#F9FAFB">
+          <div style="white-space: pre-wrap; color: #6B7280; line-height: 1.6; font-size: 13px;">{{submission.message}}</div>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Additional Help -->
+    <mj-section background-color="#FFFFFF" padding="25px" padding-top="15px">
+      <mj-column>
+        <mj-text font-size="14px" color="#6B7280" padding-top="15px">
+          If you have any further questions or need additional assistance, please don't hesitate to reply to this email or contact us directly.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer -->
+    <mj-section padding="30px 25px">
+      <mj-column>
+        <mj-divider border-color="#E5E7EB" border-width="1px" padding="0 0 20px 0" />
+        <mj-text align="center" font-size="14px" color="#6B7280" padding-bottom="10px">
+          Need more help? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
+        </mj-text>
+        <mj-text align="center" font-size="11px" color="#D1D5DB">
+          © 2024 ${COMPANY_NAME}. All rights reserved.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>`;
+
+const defaultNewsletterSubscribeMjmlTemplate = `<mjml>
+  <mj-head>
+    ${emailStyles}
+  </mj-head>
+  <mj-body background-color="#F3F4F6">
+    <!-- Header -->
+    <mj-section background-color="${PRIMARY_COLOR}" padding="40px 0">
+      <mj-column>
+        <mj-text align="center" font-size="28px" font-weight="bold" color="#FFFFFF" padding-bottom="10px">
+          🎉 Welcome to Our Newsletter!
+        </mj-text>
+        <mj-text align="center" font-size="16px" color="#DBEAFE">
+          Thank you for subscribing
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Main Content -->
+    <mj-section background-color="#FFFFFF" padding="30px 25px">
+      <mj-column>
+        <mj-text font-size="18px" color="#1F2937" padding-bottom="15px">
+          Hello{{#if user.first_name}} {{user.first_name}}{{/if}}! 👋
+        </mj-text>
+        <mj-text>
+          Thank you for subscribing to the ${COMPANY_NAME} newsletter! We're thrilled to have you join our community.
+        </mj-text>
+        <mj-text padding-top="15px">
+          You'll now receive:
+        </mj-text>
+        <mj-text css-class="info-box" padding-top="20px">
+          <div class="order-detail">
+            ✨ <strong>Exclusive offers</strong> and special discounts
+          </div>
+          <div class="order-detail">
+            📰 <strong>Latest updates</strong> on new products and collections
+          </div>
+          <div class="order-detail">
+            🎁 <strong>Early access</strong> to sales and promotions
+          </div>
+          <div class="order-detail">
+            💡 <strong>Tips and insights</strong> to enhance your shopping experience
+          </div>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- CTA Section -->
+    <mj-section background-color="#FFFFFF" padding="25px" padding-top="15px">
+      <mj-column>
+        <mj-button background-color="${PRIMARY_COLOR}" color="#FFFFFF" href="${COMPANY_WEBSITE}" border-radius="8px" padding="15px 30px">
+          Start Shopping
+        </mj-button>
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer -->
+    <mj-section padding="30px 25px">
+      <mj-column>
+        <mj-divider border-color="#E5E7EB" border-width="1px" padding="0 0 20px 0" />
+        <mj-text align="center" font-size="14px" color="#6B7280" padding-bottom="10px">
+          Questions? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
+        </mj-text>
+        <mj-text align="center" font-size="11px" color="#D1D5DB">
+          © 2024 ${COMPANY_NAME}. All rights reserved.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>`;
+
 export const defaultMjmlTemplates: Record<MessageEventTypes, string> = {
   ACCOUNT_CHANGE_EMAIL_CONFIRM: defaultAccountChangeEmailConfirmationMjmlTemplate,
   ACCOUNT_CHANGE_EMAIL_REQUEST: defaultAccountChangeEmailRequestMjmlTemplate,
   ACCOUNT_CONFIRMATION: defaultAccountConfirmationMjmlTemplate,
   ACCOUNT_DELETE: defaultAccountDeleteMjmlTemplate,
   ACCOUNT_PASSWORD_RESET: defaultAccountPasswordResetMjmlTemplate,
+  CONTACT_SUBMISSION_REPLY: defaultContactSubmissionReplyMjmlTemplate,
   GIFT_CARD_SENT: defaultGiftCardSentMjmlTemplate,
   INVOICE_SENT: defaultInvoiceSentMjmlTemplate,
+  NEWSLETTER_SUBSCRIBE: defaultNewsletterSubscribeMjmlTemplate,
   ORDER_CANCELLED: defaultOrderCancelledMjmlTemplate,
   ORDER_CONFIRMED: defaultOrderConfirmedMjmlTemplate,
   ORDER_CREATED: defaultOrderCreatedMjmlTemplate,
@@ -1146,8 +1318,10 @@ export const defaultMjmlSubjectTemplates: Record<MessageEventTypes, string> = {
   ACCOUNT_CONFIRMATION: `🎉 Welcome to ${COMPANY_NAME}! Activate Your Account`,
   ACCOUNT_DELETE: `⚠️ Account Deletion Request - ${COMPANY_NAME}`,
   ACCOUNT_PASSWORD_RESET: `🔐 Password Reset Request - ${COMPANY_NAME}`,
+  CONTACT_SUBMISSION_REPLY: `{{#if reply_subject}}{{reply_subject}}{{else}}Re: {{submission.subject}}{{/if}} - ${COMPANY_NAME}`,
   GIFT_CARD_SENT: `🎁 Your Gift Card Has Arrived! - ${COMPANY_NAME}`,
   INVOICE_SENT: `📄 Your Invoice #{{invoice.number}} for Order #{{order.number}} is Ready`,
+  NEWSLETTER_SUBSCRIBE: `🎉 Welcome to ${COMPANY_NAME} Newsletter!`,
   ORDER_CANCELLED: `Order #{{order.number}} Has Been Cancelled - ${COMPANY_NAME}`,
   ORDER_CONFIRMED: `✅ Order #{{order.number}} Confirmed! - ${COMPANY_NAME}`,
   ORDER_CREATED: `🛍️ Thank You for Your Order #{{order.number}} - ${COMPANY_NAME}`,

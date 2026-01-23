@@ -578,12 +578,25 @@ const giftCardSentPayload: GiftCardSentWebhookPayloadFragment = {
   },
 };
 
+const contactSubmissionReplyPayload = {
+  submission: {
+    name: "John Doe",
+    email: "john.doe@example.com",
+    subject: "Question about my order",
+    message: "I would like to know the status of my recent order. Can you please provide an update?",
+    created_at: "2024-01-15T10:30:00Z",
+  },
+  reply_message: "Thank you for contacting us. We have reviewed your inquiry and are happy to help. Your order is currently being processed and will be shipped within the next 2-3 business days. You will receive a tracking number via email once it ships.",
+  reply_subject: "Re: Question about my order",
+};
+
 export const examplePayloads: Record<MessageEventTypes, any> = {
   ACCOUNT_CHANGE_EMAIL_CONFIRM: accountChangeEmailConfirmPayload,
   ACCOUNT_CHANGE_EMAIL_REQUEST: accountChangeEmailRequestPayload,
   ACCOUNT_CONFIRMATION: accountConfirmationPayload,
   ACCOUNT_DELETE: accountDeletePayload,
   ACCOUNT_PASSWORD_RESET: accountPasswordResetPayload,
+  CONTACT_SUBMISSION_REPLY: contactSubmissionReplyPayload,
   GIFT_CARD_SENT: giftCardSentPayload,
   INVOICE_SENT: invoiceSentPayload,
   ORDER_CANCELLED: orderCancelledPayload,

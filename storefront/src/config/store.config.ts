@@ -180,10 +180,19 @@ export interface StoreConfig {
   // FOOTER CONFIGURATION
   // ============================================
   footer?: {
+    showBrand: boolean;
+    showMenu: boolean;
+    showContactInfo: boolean;
     showNewsletter: boolean;
     showSocialLinks: boolean;
-    showContactInfo: boolean;
     copyrightText: string | null;  // null = use default
+    legalLinks?: {
+      trackOrder: { enabled: boolean; url: string };
+      privacyPolicy: { enabled: boolean; url: string };
+      termsOfService: { enabled: boolean; url: string };
+      shippingPolicy: { enabled: boolean; url: string };
+      returnPolicy: { enabled: boolean; url: string };
+    };
   };
 
   // ============================================
@@ -1562,6 +1571,7 @@ export const DEFAULT_FOOTER_TEXT: FooterText = {
   madeWith: "Made with",
   inLocation: "in {location}",
   contactUs: "Contact Us",
+  contactUsButton: "Contact Us",
   customerService: "Customer Service",
   shopTitle: "Shop",
   companyTitle: "Company",
@@ -1725,10 +1735,19 @@ export const defaultStoreConfig: StoreConfig = {
   },
 
   footer: {
+    showBrand: true,
+    showMenu: true,
+    showContactInfo: true,
     showNewsletter: true,
     showSocialLinks: true,
-    showContactInfo: true,
     copyrightText: null,
+    legalLinks: {
+      trackOrder: { enabled: true, url: "/track-order" },
+      privacyPolicy: { enabled: true, url: "/pages/privacy-policy" },
+      termsOfService: { enabled: true, url: "/pages/terms-of-service" },
+      shippingPolicy: { enabled: true, url: "/pages/shipping-policy" },
+      returnPolicy: { enabled: true, url: "/pages/return-policy" },
+    },
   },
 
   homepage: {

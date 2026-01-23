@@ -496,3 +496,64 @@ class NewsletterSubscription(models.Model):
     def __repr__(self) -> str:
         class_ = type(self)
         return f"<{class_.__module__}.{class_.__name__}(pk={self.pk!r}, email={self.email!r}, is_active={self.is_active!r})>"
+
+
+class ContactSubmissionStatus(models.TextChoices):
+    NEW = "NEW", "New"
+    READ = "READ", "Read"
+    REPLIED = "REPLIED", "Replied"
+    ARCHIVED = "ARCHIVED", "Archived"
+
+
+class ContactSubmission(models.Model):
+    """Contact form submission from storefront."""
+
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    channel = models.ForeignKey(
+        "channel.Channel",
+        related_name="contact_submissions",
+        on_delete=models.CASCADE,
+        db_index=True,
+        help_text="Channel where the submission was made",
+    )
+    name = models.CharField(max_length=256, help_text="Customer name")
+    email = models.EmailField(db_index=True, help_text="Customer email address")
+    subject = models.CharField(max_length=512, help_text="Message subject")
+    message = models.TextField(help_text="Message content")
+    status = models.CharField(
+        max_length=20,
+        choices=ContactSubmissionStatus.choices,
+        default=ContactSubmissionStatus.NEW,
+        db_index=True,
+        help_text="Current status of the submission",
+    )
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    replied_at = models.DateTimeField(null=True, blank=True, help_text="When the submission was replied to")
+    replied_by = models.ForeignKey(
+        User,
+        related_name="contact_submission_replies",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text="Staff member who replied",
+    )
+
+    class Meta:
+        app_label = "account"
+        ordering = ("-created_at",)
+        indexes = [
+            models.Index(fields=["channel", "-created_at"]),
+            models.Index(fields=["status", "-created_at"]),
+            models.Index(fields=["email", "-created_at"]),
+            models.Index(fields=["-created_at"]),
+        ]
+        verbose_name = "Contact Submission"
+        verbose_name_plural = "Contact Submissions"
+
+    def __str__(self) -> str:
+        return f"{self.name} - {self.subject} ({self.get_status_display()})"
+
+    def __repr__(self) -> str:
+        class_ = type(self)
+        return f"<{class_.__module__}.{class_.__name__}(pk={self.pk!r}, email={self.email!r}, status={self.status!r})>"

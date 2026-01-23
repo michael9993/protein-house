@@ -40,11 +40,19 @@ const ComboboxRoot = ({
   const [selectedValue, setSelectedValue] = useState(value);
   const [inputValue, setInputValue] = useState("");
 
+  // Sync internal state with prop value
+  // Use a more robust comparison that handles null/undefined and object references
   useEffect(() => {
-    if (value?.value !== selectedValue?.value) {
+    const valueStr = value?.value ?? null;
+    const selectedStr = selectedValue?.value ?? null;
+    
+    // Only update if the actual values differ (not just object references)
+    // Check both the value property and null/undefined states
+    if (valueStr !== selectedStr || (value === null && selectedValue !== null) || (value !== null && selectedValue === null)) {
       setSelectedValue(value);
     }
-  }, [value]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]); // Only depend on value prop, not selectedValue (to avoid loops)
 
   const { handleFetchMore, handleFocus, handleInputChange } = useComboboxHandlers({
     fetchOptions,
@@ -59,9 +67,14 @@ const ComboboxRoot = ({
 
   const { emptyOption } = useComboboxEmptyOption();
 
-  const handleOnChange = (value: HandleOnChangeValue) => {
+  const handleOnChange = (newValue: HandleOnChangeValue) => {
+    // Optimistically update internal state immediately to prevent jitter
+    setSelectedValue(newValue);
+    // Clear input value when selection is made
+    setInputValue("");
+    // Call parent onChange
     onChange({
-      target: { value: value?.value ?? null, name: rest.name ?? "" },
+      target: { value: newValue?.value ?? null, name: rest.name ?? "" },
     });
   };
 

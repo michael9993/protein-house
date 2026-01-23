@@ -40,6 +40,18 @@ function markAsSubscribed(): void {
 }
 
 /**
+ * Clear newsletter subscription status (called on logout)
+ */
+function clearNewsletterSubscription(): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.removeItem(NEWSLETTER_STORAGE_KEY);
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+/**
  * Newsletter Signup Section
  * 
  * Email subscription form with sports/energetic styling.
@@ -74,12 +86,53 @@ export function NewsletterSignup({
   const [mounted, setMounted] = useState(false);
 
   // Check localStorage for previous subscription on mount
+  // Note: We clear this on logout, but also check on every mount to handle edge cases
   useEffect(() => {
     setMounted(true);
-    if (isAlreadySubscribed()) {
+    const subscribed = isAlreadySubscribed();
+    if (subscribed) {
       setStatus("already_subscribed");
+    } else {
+      setStatus("idle");
     }
   }, []);
+
+  // Listen for logout events to clear newsletter subscription status
+  useEffect(() => {
+    const handleLogout = () => {
+      console.log("[NewsletterSignup] Clearing newsletter subscription on logout");
+      clearNewsletterSubscription();
+      setStatus("idle");
+      setEmail("");
+      setMounted(false); // Reset mounted state to re-check subscription
+      // Force re-check after a brief delay to ensure state is cleared
+      setTimeout(() => {
+        setMounted(true);
+      }, 100);
+    };
+
+    // Listen for wishlist:logout event (fired during logout)
+    window.addEventListener("wishlist:logout", handleLogout);
+    
+    // Also listen for storage events in case localStorage is cleared elsewhere
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === NEWSLETTER_STORAGE_KEY && !e.newValue) {
+        console.log("[NewsletterSignup] Newsletter subscription cleared from storage");
+        setStatus("idle");
+        setEmail("");
+      }
+    };
+    
+    window.addEventListener("storage", handleStorageChange);
+    
+    return () => {
+      window.removeEventListener("wishlist:logout", handleLogout);
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
+
+  // Call all hooks before any conditional returns
+  const { elementRef, isVisible } = useScrollAnimation({ threshold: 0.1, rootMargin: "0px 0px -80px 0px" });
 
   // Don't render if disabled
   if (!isEnabled) {
@@ -120,29 +173,26 @@ export function NewsletterSignup({
     e.preventDefault();
     
     if (!email || !email.includes("@")) {
+      console.warn("[NewsletterSignup] Invalid email format:", email);
       setStatus("error");
       setErrorMessage("Please enter a valid email address");
       return;
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+    console.log("[NewsletterSignup] Starting subscription", {
+      email: normalizedEmail,
+      source: "homepage",
+    });
+
     setStatus("loading");
     setErrorMessage("");
 
       try {
-        // Dynamic import to handle missing GraphQL types gracefully
-        // @ts-ignore - GraphQL types will be generated after backend schema update
-        const gqlModule = await import("@/gql/graphql");
-        const NewsletterSubscribeDocument = gqlModule.NewsletterSubscribeDocument;
-        
-        if (!NewsletterSubscribeDocument) {
-          setStatus("error");
-          setErrorMessage("Newsletter subscription is not available yet. Please run 'pnpm run generate' to generate GraphQL types.");
-          return;
-        }
-        
         // Client-side GraphQL fetch (no auth needed for newsletter subscription)
         const apiUrl = process.env.NEXT_PUBLIC_SALEOR_API_URL;
         if (!apiUrl) {
+          console.error("[NewsletterSignup] API URL not configured");
           setStatus("error");
           setErrorMessage("API URL not configured.");
           return;
@@ -152,52 +202,87 @@ export function NewsletterSignup({
           ? apiUrl 
           : `${apiUrl.replace(/\/+$/, '')}/graphql/`;
         
+        console.log("[NewsletterSignup] Sending request", {
+          graphqlUrl,
+          email: normalizedEmail,
+          source: "homepage",
+        });
+        
+        const NEWSLETTER_SUBSCRIBE_MUTATION = `
+          mutation NewsletterSubscribe($email: String!, $source: String) {
+            newsletterSubscribe(email: $email, source: $source) {
+              subscribed
+              alreadySubscribed
+              errors {
+                field
+                message
+                code
+              }
+            }
+          }
+        `;
+        
         const response = await fetch(graphqlUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            query: NewsletterSubscribeDocument.toString(),
+            query: NEWSLETTER_SUBSCRIBE_MUTATION,
             variables: {
-              email: email.trim().toLowerCase(),
+              email: normalizedEmail,
               source: "homepage",
             },
           }),
         });
         
+        console.log("[NewsletterSignup] Response status:", response.status, response.statusText);
+        
         if (!response.ok) {
+          console.error("[NewsletterSignup] HTTP error:", response.status, response.statusText);
           setStatus("error");
           setErrorMessage("Failed to subscribe. Please try again.");
           return;
         }
         
         const result = await response.json() as any;
+        console.log("[NewsletterSignup] Response data:", {
+          subscribed: result?.data?.newsletterSubscribe?.subscribed,
+          alreadySubscribed: result?.data?.newsletterSubscribe?.alreadySubscribed,
+          errors: result?.data?.newsletterSubscribe?.errors,
+          hasErrors: !!(result?.data?.newsletterSubscribe?.errors && result.data.newsletterSubscribe.errors.length > 0),
+        });
 
-      if (result?.newsletterSubscribe?.errors && result.newsletterSubscribe.errors.length > 0) {
-        setStatus("error");
-        setErrorMessage(result.newsletterSubscribe.errors[0].message || "Failed to subscribe. Please try again.");
-      } else if (result?.newsletterSubscribe?.subscribed) {
-        setStatus("success");
-        setEmail("");
-        markAsSubscribed(); // Persist subscribed state
-        
-        // Show success for longer, then show subscribed state
-        setTimeout(() => {
-          setStatus("already_subscribed");
-        }, 5000);
-      } else {
-        setStatus("error");
-        setErrorMessage("Something went wrong. Please try again.");
-      }
+        if (result?.data?.newsletterSubscribe?.errors && result.data.newsletterSubscribe.errors.length > 0) {
+          const error = result.data.newsletterSubscribe.errors[0];
+          console.error("[NewsletterSignup] Subscription error:", error);
+          setStatus("error");
+          setErrorMessage(error.message || "Failed to subscribe. Please try again.");
+        } else if (result?.data?.newsletterSubscribe?.subscribed || result?.data?.newsletterSubscribe?.alreadySubscribed) {
+          console.log("[NewsletterSignup] Subscription successful", {
+            subscribed: result.data.newsletterSubscribe.subscribed,
+            alreadySubscribed: result.data.newsletterSubscribe.alreadySubscribed,
+            email: normalizedEmail,
+          });
+          setStatus("success");
+          setEmail("");
+          markAsSubscribed(); // Persist subscribed state
+          
+          // Show success for longer, then show subscribed state
+          setTimeout(() => {
+            setStatus("already_subscribed");
+          }, 5000);
+        } else {
+          console.error("[NewsletterSignup] Unexpected response format:", result);
+          setStatus("error");
+          setErrorMessage("Something went wrong. Please try again.");
+        }
     } catch (error) {
-      console.error("Error subscribing to newsletter:", error);
+      console.error("[NewsletterSignup] Exception during subscription:", error);
       setStatus("error");
       setErrorMessage("Failed to subscribe. Please try again.");
     }
   };
-
-  const { elementRef, isVisible } = useScrollAnimation({ threshold: 0.1, rootMargin: "0px 0px -80px 0px" });
 
   return (
     <section 

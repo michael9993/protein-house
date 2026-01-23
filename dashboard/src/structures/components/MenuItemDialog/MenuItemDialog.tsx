@@ -11,7 +11,7 @@ import { getFieldError, getFormErrors } from "@dashboard/utils/errors";
 import getMenuErrorMessage from "@dashboard/utils/errors/menu";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Input, Text } from "@saleor/macaw-ui-next";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -69,9 +69,11 @@ const MenuItemDialog = ({
   useEffect(() => {
     // Form should be reset only when dialog is opened
     // otherwise it will reset form on every render and when input is empty
-    reset(initial);
+    if (open && initial) {
+      reset(initial);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, initial]);
 
   const errors = useModalDialogErrors(apiErrors, open);
   const mutationErrors = errors.filter(err => err.field === null);
@@ -127,10 +129,17 @@ const MenuItemDialog = ({
                 <Controller
                   name="linkType"
                   control={control}
-                  render={({ field: { value, onChange, ...field }, fieldState: { error } }) => {
+                  render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => {
+                    // Find the matching option - handle both string and object values
+                    // Use useMemo to prevent unnecessary recalculations that could cause jitter
+                    const selectedOption = useMemo(() => {
+                      return linkTypeOptions.find(
+                        o => o.value === value || (typeof value === "object" && value?.value === o.value)
+                      ) || null;
+                    }, [value, linkTypeOptions]);
+                    
                     return (
                       <Combobox
-                        {...field}
                         disabled={disabled}
                         label={intl.formatMessage({
                           id: "aasX8r",
@@ -139,11 +148,15 @@ const MenuItemDialog = ({
                         })}
                         options={linkTypeOptions}
                         onChange={e => {
-                          onChange(e);
+                          // Combobox sends ChangeEvent with target.value
+                          // Extract the value from the ChangeEvent and pass to react-hook-form
+                          const newValue = e?.target?.value ?? null;
+                          onChange(newValue);
                           setValue("linkValue", "");
                           clearErrors("linkValue");
                         }}
-                        value={linkTypeOptions.find(o => o.value === value) || null}
+                        onBlur={onBlur}
+                        value={selectedOption}
                         name="linkType"
                         error={!!idError || !!error}
                         helperText={getMenuErrorMessage(idError, intl) || error?.message}

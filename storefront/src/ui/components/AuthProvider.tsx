@@ -43,6 +43,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			setUrqlClient(makeUrqlClient());
 			// Clear checkout localStorage data
 			clearCheckoutLocalStorage();
+			// Clear newsletter subscription status from localStorage
+			if (typeof window !== "undefined") {
+				try {
+					localStorage.removeItem("newsletter_subscribed");
+					console.log("[AuthProvider] Cleared newsletter subscription on logout");
+				} catch {
+					// Ignore storage errors
+				}
+			}
 		},
 		onSignedIn: () => {
 			// Reset URQL client to use new auth context

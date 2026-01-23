@@ -359,9 +359,11 @@
       "logoPosition": "left"
     },
     "footer": {
+      "showBrand": true,
+      "showMenu": true,
+      "showContactInfo": true,
       "showNewsletter": true,
       "showSocialLinks": true,
-      "showContactInfo": true,
       "copyrightText": null
     },
     "promoPopup": {
@@ -1056,6 +1058,7 @@
         "madeWith": "Made with",
         "inLocation": "in {location}",
         "contactUs": "Contact Us",
+        "contactUsButton": "Contact Us",
         "customerService": "Customer Service",
         "shopTitle": "Shop",
         "companyTitle": "Company",

@@ -68,7 +68,11 @@ from .dataloaders import (
     RestrictedChannelAccessByUserIdLoader,
     ThumbnailByUserIdSizeAndFormatLoader,
 )
-from .enums import CountryCodeEnum, CustomerEventsEnum
+from .enums import (
+    ContactSubmissionStatusEnum,
+    CountryCodeEnum,
+    CustomerEventsEnum,
+)
 from .utils import can_user_manage_group, get_groups_which_user_can_manage
 
 
@@ -1086,3 +1090,85 @@ class GroupCountableConnection(CountableConnection):
     class Meta:
         doc_category = DOC_CATEGORY_USERS
         node = Group
+
+
+class ContactSubmission(ModelObjectType[models.ContactSubmission]):
+    id = graphene.GlobalID(required=True, description="The ID of the contact submission.")
+    channel = graphene.Field(
+        Channel, required=True, description="Channel where the submission was made."
+    )
+    name = graphene.String(required=True, description="Customer name.")
+    email = graphene.String(required=True, description="Customer email address.")
+    subject = graphene.String(required=True, description="Message subject.")
+    message = graphene.String(required=True, description="Message content.")
+    status = graphene.Field(
+        "saleor.graphql.account.enums.ContactSubmissionStatusEnum",
+        required=True,
+        description="Current status of the submission.",
+    )
+    created_at = DateTime(required=True, description="When the submission was created.")
+    updated_at = DateTime(required=True, description="When the submission was last updated.")
+    replied_at = DateTime(description="When the submission was replied to.")
+    replied_by = graphene.Field(
+        User, description="Staff member who replied to the submission."
+    )
+
+    class Meta:
+        description = "Represents a contact form submission."
+        interfaces = [relay.Node]
+        model = models.ContactSubmission
+        doc_category = DOC_CATEGORY_USERS
+
+    @staticmethod
+    def resolve_channel(root: models.ContactSubmission, info: ResolveInfo):
+        return root.channel
+
+    @staticmethod
+    def resolve_status(root: models.ContactSubmission, _info: ResolveInfo):
+        return root.status
+
+    @staticmethod
+    def resolve_replied_by(root: models.ContactSubmission, _info: ResolveInfo):
+        return root.replied_by
+
+
+class ContactSubmissionCountableConnection(CountableConnection):
+    class Meta:
+        doc_category = DOC_CATEGORY_USERS
+        node = ContactSubmission
+
+
+class NewsletterSubscription(ModelObjectType[models.NewsletterSubscription]):
+    id = graphene.GlobalID(required=True, description="The ID of the newsletter subscription.")
+    email = graphene.String(required=True, description="Subscriber email address.")
+    user = graphene.Field(
+        User, description="User account if subscribed while logged in."
+    )
+    is_active = graphene.Boolean(
+        required=True, description="Whether the subscription is active."
+    )
+    subscribed_at = DateTime(
+        required=True, description="When the subscription was created."
+    )
+    unsubscribed_at = DateTime(
+        description="When the subscription was unsubscribed."
+    )
+    source = graphene.String(
+        description="Where the subscription came from (e.g., 'homepage', 'checkout')."
+    )
+
+    class Meta:
+        description = "Represents a newsletter subscription."
+        interfaces = [relay.Node]
+        model = models.NewsletterSubscription
+        doc_category = DOC_CATEGORY_USERS
+
+    @staticmethod
+    def resolve_user(root: models.NewsletterSubscription, _info: ResolveInfo):
+        return root.user
+
+
+class NewsletterSubscriptionCountableConnection(CountableConnection):
+    class Meta:
+        doc_category = DOC_CATEGORY_USERS
+        node = NewsletterSubscription

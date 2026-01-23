@@ -49,20 +49,40 @@ export const FilterPresetsSelect = ({
   const showUpdateButton = presetsChanged && savedPresets.length > 0 && activePreset;
   const showSaveButton = presetsChanged;
   const getLabel = () => {
-    if (!activePreset) {
+    // activePreset is 1-indexed (1 = first preset, 2 = second, etc.)
+    // undefined/null/0 means "All" (no preset selected)
+    // Normalize to number for comparison
+    const normalizedPreset = typeof activePreset === "string" ? parseInt(activePreset, 10) : activePreset;
+    
+    if (normalizedPreset === undefined || normalizedPreset === null || normalizedPreset === 0 || isNaN(normalizedPreset)) {
       return selectAllLabel;
     }
 
-    return savedPresets[activePreset - 1];
+    // Ensure we have a valid index
+    const presetIndex = normalizedPreset - 1;
+    if (presetIndex >= 0 && presetIndex < savedPresets.length) {
+      return savedPresets[presetIndex];
+    }
+
+    return selectAllLabel;
   };
   const handleSelectPreset = (e: MouseEvent<HTMLElement>, index: number) => {
     const target = e.target as HTMLElement;
+    const currentTarget = e.currentTarget as HTMLElement;
 
-    // Prevent run onSelect when click on remove button
-    if (!["LI", "SPAN"].includes(target.tagName)) {
+    // Prevent run onSelect when click on remove button or its children
+    // Check if click originated from the remove button area
+    const removeButton = currentTarget.querySelector('[data-test-id="preset-delete-button"]');
+    if (removeButton && (removeButton.contains(target) || target.closest('[data-test-id="preset-delete-button"]'))) {
       return;
     }
 
+    // Close dropdown after selection
+    if (onOpenChange) {
+      onOpenChange(false);
+    }
+
+    // Allow selection for clicks on the item itself or text elements
     onSelect(index);
   };
   const renderDropdown = () => {
@@ -124,8 +144,25 @@ export const FilterPresetsSelect = ({
             backgroundColor="default1"
           >
             <Dropdown.Item>
-              <List.Item paddingX={1.5} paddingY={1} gap={3} borderRadius={3} onClick={onSelectAll}>
-                <Text fontWeight={activePreset === 0 ? "bold" : "regular"}>{selectAllLabel}</Text>
+              <List.Item 
+                paddingX={1.5} 
+                paddingY={1} 
+                gap={3} 
+                borderRadius={3} 
+                onClick={() => {
+                  if (onOpenChange) {
+                    onOpenChange(false);
+                  }
+                  onSelectAll();
+                }}
+                style={{
+                  fontWeight: (() => {
+                    const normalized = typeof activePreset === "string" ? parseInt(activePreset, 10) : activePreset;
+                    return normalized === undefined || normalized === null || normalized === 0 || isNaN(normalized) ? "bold" : "regular";
+                  })()
+                }}
+              >
+                <Text>{selectAllLabel}</Text>
               </List.Item>
             </Dropdown.Item>
             {savedPresets.length > 0 && (
@@ -138,18 +175,24 @@ export const FilterPresetsSelect = ({
               />
             )}
             <Box display="flex" flexDirection="column" gap={0.5}>
-              {savedPresets.map((preset, index) => (
-                <FilterPresetItem
-                  isActive={activePreset === index + 1}
-                  onSelect={e => handleSelectPreset(e, index + 1)}
-                  onRemove={() => {
-                    onRemove(index + 1);
-                  }}
-                  key={`filter-preset-${index}`}
-                >
-                  {preset}
-                </FilterPresetItem>
-              ))}
+              {savedPresets.map((preset, index) => {
+                // Normalize activePreset for comparison (handle both string and number)
+                const normalizedPreset = typeof activePreset === "string" ? parseInt(activePreset, 10) : activePreset;
+                const isActive = normalizedPreset === index + 1;
+                
+                return (
+                  <FilterPresetItem
+                    isActive={isActive}
+                    onSelect={e => handleSelectPreset(e, index + 1)}
+                    onRemove={() => {
+                      onRemove(index + 1);
+                    }}
+                    key={`filter-preset-${index}`}
+                  >
+                    {preset}
+                  </FilterPresetItem>
+                );
+              })}
             </Box>
           </List>
         </Dropdown.Content>

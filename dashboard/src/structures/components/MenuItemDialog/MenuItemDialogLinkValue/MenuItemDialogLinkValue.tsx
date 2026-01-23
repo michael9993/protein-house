@@ -1,5 +1,6 @@
 import { Combobox } from "@dashboard/components/Combobox";
 import { Control, Controller } from "react-hook-form";
+import { useMemo } from "react";
 import { useIntl } from "react-intl";
 
 import { MenuItemDialogFormData, MenuItemTypeWithOptions } from "../types";
@@ -27,12 +28,25 @@ export const MenuItemDialogLinkValue = ({
     <Controller
       name="linkValue"
       control={control}
-      render={({ field: { value, onChange, ...field }, fieldState: { error } }) => {
-        const subOptionsListValue = options?.find(o => o.value === value);
+      render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => {
+        // Use useMemo to prevent unnecessary recalculations that could cause jitter
+        const subOptionsListValue = useMemo(() => {
+          return options?.find(o => o.value === value);
+        }, [options, value]);
+
+        const comboboxValue = useMemo(() => {
+          // Show initial value with label in case initial options list from API does not contain it
+          if (showInitialValue) {
+            return {
+              value,
+              label: initialDisplayValue!,
+            };
+          }
+          return subOptionsListValue || null;
+        }, [showInitialValue, value, initialDisplayValue, subOptionsListValue]);
 
         return (
           <Combobox
-            {...field}
             disabled={disabled}
             label={intl.formatMessage({
               id: "WDrC7e",
@@ -40,16 +54,14 @@ export const MenuItemDialogLinkValue = ({
               description: "label",
             })}
             options={options ?? []}
-            onChange={onChange}
-            value={
-              // Show initial value with label in case initial options list from API does not contain it
-              showInitialValue
-                ? {
-                    value,
-                    label: initialDisplayValue!,
-                  }
-                : subOptionsListValue || null
-            }
+            onChange={e => {
+              // Combobox sends ChangeEvent with target.value
+              // Extract the value from the ChangeEvent and pass to react-hook-form
+              const newValue = e?.target?.value ?? null;
+              onChange(newValue);
+            }}
+            onBlur={onBlur}
+            value={comboboxValue}
             name="linkValue"
             error={!!error}
             helperText={error?.message}

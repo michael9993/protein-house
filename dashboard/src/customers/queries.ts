@@ -1,5 +1,7 @@
 import { gql } from "@apollo/client";
 
+import { contactSubmissionFragment } from "../fragments/customers";
+
 export const customerList = gql`
   query ListCustomers(
     $after: String
@@ -94,6 +96,51 @@ export const customerCreateData = gql`
         code
         country
       }
+    }
+  }
+`;
+
+export const contactSubmissionList = gql`
+  ${contactSubmissionFragment}
+  query ContactSubmissionList(
+    $after: String
+    $before: String
+    $first: Int
+    $last: Int
+    $filter: ContactSubmissionFilterInput
+    $sort: ContactSubmissionSortingInput
+    $search: String
+  ) {
+    contactSubmissions(
+      after: $after
+      before: $before
+      first: $first
+      last: $last
+      filter: $filter
+      sortBy: $sort
+      search: $search
+    ) {
+      edges {
+        node {
+          ...ContactSubmission
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
+    }
+  }
+`;
+
+export const contactSubmissionDetails = gql`
+  ${contactSubmissionFragment}
+  query ContactSubmissionDetails($id: ID!) {
+    contactSubmission(id: $id) {
+      ...ContactSubmission
     }
   }
 `;

@@ -1,7 +1,8 @@
 import django_filters
-from django.db.models import Count, Exists, OuterRef
+from django.db.models import Count, Exists, OuterRef, Q
 
-from ...account.models import Address, User
+from ...account import models
+from ...account.models import Address, ContactSubmission, User
 from ...account.search import search_users
 from ...order.models import Order
 from ..core.doc_category import DOC_CATEGORY_USERS
@@ -37,7 +38,7 @@ from ..utils.filters import (
     filter_where_range_field_with_conditions,
 )
 from . import types as account_types
-from .enums import CountryCodeEnum, StaffMemberStatus
+from .enums import ContactSubmissionStatusEnum, CountryCodeEnum, StaffMemberStatus
 
 
 def filter_date_joined(qs, _, value):
@@ -268,3 +269,110 @@ class StaffUserFilter(django_filters.FilterSet):
     class Meta:
         model = User
         fields = ["status", "search"]
+
+
+def filter_contact_submission_status(qs, _, value):
+    return qs.filter(status=value)
+
+
+def filter_contact_submission_channel(qs, _, value):
+    return qs.filter(channel__slug=value)
+
+
+def filter_contact_submission_created_at(qs, _, value):
+    return filter_range_field(qs, "created_at", value)
+
+
+def filter_contact_submission_search(qs, _, value):
+    if value:
+        qs = qs.filter(
+            models.Q(name__icontains=value)
+            | models.Q(email__icontains=value)
+            | models.Q(subject__icontains=value)
+            | models.Q(message__icontains=value)
+        )
+    return qs
+
+
+class ContactSubmissionFilter(MetadataFilterBase):
+    ids = GlobalIDMultipleChoiceFilter(field_name="id", help_text="Filter by ids.")
+    status = EnumFilter(
+        input_class=ContactSubmissionStatusEnum,
+        method=filter_contact_submission_status,
+    )
+    channel = django_filters.CharFilter(method=filter_contact_submission_channel)
+    created_at = ObjectTypeFilter(
+        input_class=DateTimeRangeInput, method=filter_contact_submission_created_at
+    )
+    search = django_filters.CharFilter(method=filter_contact_submission_search)
+
+    class Meta:
+        model = ContactSubmission
+        fields = ["status", "channel", "created_at", "search"]
+
+
+class ContactSubmissionWhereFilterInput(MetadataWhereBase):
+    ids = GlobalIDMultipleChoiceWhereFilter(method=filter_by_ids("ContactSubmission"))
+
+
+class ContactSubmissionWhereInput(WhereInputObjectType):
+    class Meta:
+        doc_category = DOC_CATEGORY_USERS
+        filterset_class = ContactSubmissionWhereFilterInput
+
+
+def filter_newsletter_subscription_is_active(qs, _, value):
+    if value is None:
+        return qs
+    return qs.filter(is_active=value)
+
+
+def filter_newsletter_subscription_source(qs, _, value):
+    if not value:
+        return qs
+    return qs.filter(source=value)
+
+
+def filter_newsletter_subscription_subscribed_at(qs, _, value):
+    return filter_range_field(qs, "subscribed_at", value)
+
+
+def filter_newsletter_subscription_search(qs, _, value):
+    if value:
+        qs = qs.filter(email__icontains=value)
+    return qs
+
+
+class NewsletterSubscriptionFilter(MetadataFilterBase):
+    ids = GlobalIDMultipleChoiceFilter(field_name="id", help_text="Filter by ids.")
+    is_active = django_filters.BooleanFilter(
+        method=filter_newsletter_subscription_is_active,
+        help_text="Filter by active status.",
+    )
+    source = django_filters.CharFilter(
+        method=filter_newsletter_subscription_source,
+        help_text="Filter by subscription source.",
+    )
+    subscribed_at = ObjectTypeFilter(
+        input_class=DateTimeRangeInput,
+        method=filter_newsletter_subscription_subscribed_at,
+        help_text="Filter by subscription date range.",
+    )
+    search = django_filters.CharFilter(
+        method=filter_newsletter_subscription_search,
+        help_text="Search by email address.",
+    )
+
+    class Meta:
+        model = models.NewsletterSubscription
+        fields = ["is_active", "source", "subscribed_at", "search"]
+
+
+class NewsletterSubscriptionWhereFilterInput(MetadataWhereBase):
+    ids = GlobalIDMultipleChoiceWhereFilter(method=filter_by_ids("NewsletterSubscription"))
+
+
+class NewsletterSubscriptionWhereInput(WhereInputObjectType):
+    class Meta:
+        doc_category = DOC_CATEGORY_USERS
+        filterset_class = NewsletterSubscriptionWhereFilterInput

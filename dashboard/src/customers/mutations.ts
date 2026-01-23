@@ -1,5 +1,7 @@
 import { gql } from "@apollo/client";
 
+import { contactSubmissionFragment } from "../fragments/customers";
+
 export const updateCustomer = gql`
   mutation UpdateCustomer($id: ID!, $input: CustomerInput!) {
     customerUpdate(id: $id, input: $input) {
@@ -96,6 +98,54 @@ export const bulkRemoveCustomers = gql`
     customerBulkDelete(ids: $ids) {
       errors {
         ...AccountError
+      }
+    }
+  }
+`;
+
+export const contactSubmissionUpdateStatus = gql`
+  ${contactSubmissionFragment}
+  mutation ContactSubmissionUpdateStatus($id: ID!, $status: ContactSubmissionStatusEnum!) {
+    contactSubmissionUpdateStatus(id: $id, status: $status) {
+      errors {
+        ...AccountError
+      }
+      contactSubmission {
+        ...ContactSubmission
+      }
+    }
+  }
+`;
+
+export const contactSubmissionDelete = gql`
+  mutation ContactSubmissionDelete($id: ID!) {
+    contactSubmissionDelete(id: $id) {
+      errors {
+        ...AccountError
+      }
+    }
+  }
+`;
+
+export const contactSubmissionBulkDelete = gql`
+  mutation ContactSubmissionBulkDelete($ids: [ID!]!) {
+    contactSubmissionBulkDelete(ids: $ids) {
+      errors {
+        ...AccountError
+      }
+    }
+  }
+`;
+
+export const contactSubmissionReply = gql`
+  ${contactSubmissionFragment}
+  mutation ContactSubmissionReply($input: ContactSubmissionReplyInput!) {
+    contactSubmissionReply(input: $input) {
+      errors {
+        ...AccountError
+      }
+      contactSubmission {
+        ...ContactSubmission
       }
     }
   }

@@ -15,12 +15,19 @@ import {
   CustomerListUrlQueryParams,
   CustomerListUrlSortField,
   customerPath,
+  customerServiceListPath,
+  customerServicePath,
+  CustomerServiceListUrlQueryParams,
+  CustomerServiceListUrlSortField,
+  CustomerServiceUrlQueryParams,
   CustomerUrlQueryParams,
 } from "./urls";
 import CustomerAddressesViewComponent from "./views/CustomerAddresses";
 import CustomerCreateView from "./views/CustomerCreate";
 import CustomerDetailsViewComponent from "./views/CustomerDetails";
 import CustomerListViewComponent from "./views/CustomerList";
+import CustomerServiceDetailsViewComponent from "./views/CustomerServiceDetails";
+import CustomerServiceListViewComponent from "./views/CustomerServiceList";
 
 const CustomerListView = () => {
   const qs = parseQs(location.search.substr(1)) as any;
@@ -60,6 +67,29 @@ const CustomerAddressesView = ({ match }: RouteComponentProps<CustomerAddressesR
   );
 };
 
+const CustomerServiceListView = () => {
+  const qs = parseQs(location.search.substr(1)) as any;
+  const params: CustomerServiceListUrlQueryParams = asSortParams(qs, CustomerServiceListUrlSortField);
+
+  return <CustomerServiceListViewComponent params={params} />;
+};
+
+interface CustomerServiceDetailsRouteParams {
+  id: string;
+}
+
+const CustomerServiceDetailsView = ({
+  location,
+  match,
+}: RouteComponentProps<CustomerServiceDetailsRouteParams>) => {
+  const qs = parseQs(location.search.substr(1));
+  const params: CustomerServiceUrlQueryParams = qs;
+
+  return (
+    <CustomerServiceDetailsViewComponent id={decodeURIComponent(match.params.id)} params={params} />
+  );
+};
+
 export const CustomerSection = () => {
   const intl = useIntl();
 
@@ -69,6 +99,8 @@ export const CustomerSection = () => {
       <Switch>
         <Route exact path={customerListPath} component={CustomerListView} />
         <Route exact path={customerAddPath} component={CustomerCreateView} />
+        <Route exact path={customerServiceListPath} component={CustomerServiceListView} />
+        <Route path={customerServicePath(":id")} component={CustomerServiceDetailsView} />
         <Route path={customerAddressesPath(":id")} component={CustomerAddressesView} />
         <Route path={customerPath(":id")} component={CustomerDetailsView} />
       </Switch>

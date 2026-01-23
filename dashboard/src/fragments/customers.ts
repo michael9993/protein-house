@@ -39,3 +39,28 @@ export const customerAddressesFragment = gql`
     }
   }
 `;
+
+export const contactSubmissionFragment = gql`
+  fragment ContactSubmission on ContactSubmission {
+    id
+    name
+    email
+    subject
+    message
+    status
+    createdAt
+    updatedAt
+    repliedAt
+    channel {
+      id
+      name
+      slug
+    }
+    repliedBy {
+      id
+      email
+      firstName
+      lastName
+    }
+  }
+`;

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useParams } from "next/navigation";
 import { useStoreConfig, useBranding, useStoreInfo, useContactText } from "@/providers/StoreConfigProvider";
 
 // Social icons map (same as FooterClient)
@@ -39,6 +40,8 @@ const socialIcons: Record<string, React.ReactElement> = {
 };
 
 export function ContactPage() {
+  const params = useParams();
+  const channel = (params?.channel as string) || "usd"; // Fallback to default channel
   const { store, branding, pages, integrations } = useStoreConfig();
   const brandingConfig = useBranding();
   const storeInfo = useStoreInfo();
@@ -50,6 +53,7 @@ export function ContactPage() {
     message: "",
   });
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [imageError, setImageError] = useState(false);
 
   // Check if we have a valid logo URL from config
@@ -70,13 +74,36 @@ export function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("loading");
+    setErrorMessage(null);
     
-    // Simulate form submission - replace with actual API call
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          channel,
+          name: formState.name,
+          email: formState.email,
+          subject: formState.subject,
+          message: formState.message,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        setErrorMessage(data.error || "Failed to send message. Please try again.");
+        setStatus("error");
+        return;
+      }
+
       setStatus("success");
       setFormState({ name: "", email: "", subject: "", message: "" });
-    } catch {
+    } catch (error) {
+      console.error("Contact form submission error:", error);
+      setErrorMessage("An error occurred. Please try again later.");
       setStatus("error");
     }
   };
@@ -380,6 +407,19 @@ export function ContactPage() {
                       placeholder={contactText.messagePlaceholder}
                     />
                   </div>
+                  {status === "error" && errorMessage && (
+                    <div 
+                      className="rounded-lg p-4"
+                      style={{ backgroundColor: `${branding.colors.error}15` }}
+                    >
+                      <p 
+                        className="text-sm"
+                        style={{ color: branding.colors.error }}
+                      >
+                        {errorMessage}
+                      </p>
+                    </div>
+                  )}
                   <button
                     type="submit"
                     disabled={status === "loading"}

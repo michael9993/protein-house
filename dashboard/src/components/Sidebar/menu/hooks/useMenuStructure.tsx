@@ -4,7 +4,7 @@ import { collectionListUrl } from "@dashboard/collections/urls";
 import { iconSize } from "@dashboard/components/icons";
 import { configurationMenuUrl } from "@dashboard/configuration";
 import { getConfigMenuItemsPermissions } from "@dashboard/configuration/utils";
-import { customerListUrl } from "@dashboard/customers/urls";
+import { customerListUrl, customerServiceListUrl } from "@dashboard/customers/urls";
 import { saleListUrl, voucherListUrl } from "@dashboard/discounts/urls";
 import { SidebarAppAlert } from "@dashboard/extensions/components/AppAlerts/SidebarAppAlert";
 import { useAppsAlert } from "@dashboard/extensions/components/AppAlerts/useAppsAlert";
@@ -206,15 +206,37 @@ export function useMenuStructure() {
               url: customerListUrl(),
               type: "item",
             },
+            {
+              label: intl.formatMessage(sectionNames.customerService),
+              permissions: [PermissionEnum.MANAGE_USERS, PermissionEnum.MANAGE_CONTACT_SUBMISSIONS],
+              id: "customer-service",
+              url: customerServiceListUrl(),
+              type: "item",
+            },
             ...mapToExtensionsItems(extensions.NAVIGATION_CUSTOMERS, appExtensionsHeaderItem),
           ]
-        : undefined,
+        : [
+            {
+              label: intl.formatMessage(sectionNames.customers),
+              permissions: [PermissionEnum.MANAGE_USERS],
+              id: "customers",
+              url: customerListUrl(),
+              type: "item",
+            },
+            {
+              label: intl.formatMessage(sectionNames.customerService),
+              permissions: [PermissionEnum.MANAGE_USERS, PermissionEnum.MANAGE_CONTACT_SUBMISSIONS],
+              id: "customer-service",
+              url: customerServiceListUrl(),
+              type: "item",
+            },
+          ],
       icon: renderIcon(<CustomersIcon />),
       label: intl.formatMessage(sectionNames.customers),
       permissions: [PermissionEnum.MANAGE_USERS],
       id: "customers",
       url: customerListUrl(),
-      type: !isEmpty(extensions.NAVIGATION_CUSTOMERS) ? "itemGroup" : "item",
+      type: "itemGroup",
     },
     {
       children: [

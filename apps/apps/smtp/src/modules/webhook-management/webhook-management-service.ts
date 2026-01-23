@@ -35,8 +35,10 @@ export const eventToWebhookMapping: Record<MessageEventTypes, AppWebhook> = {
   ACCOUNT_CONFIRMATION: "notifyWebhook",
   ACCOUNT_DELETE: "notifyWebhook",
   ACCOUNT_PASSWORD_RESET: "notifyWebhook",
+  CONTACT_SUBMISSION_REPLY: "notifyWebhook", // Custom event, handled via direct API call
   GIFT_CARD_SENT: "giftCardSentWebhook",
   INVOICE_SENT: "invoiceSentWebhook",
+  NEWSLETTER_SUBSCRIBE: "notifyWebhook",
   ORDER_CANCELLED: "orderCancelledWebhook",
   ORDER_CONFIRMED: "orderConfirmedWebhook",
   ORDER_CREATED: "orderCreatedWebhook",

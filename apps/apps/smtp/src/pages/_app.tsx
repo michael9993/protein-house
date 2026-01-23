@@ -7,7 +7,7 @@ import { IframeProtectedFallback } from "@saleor/apps-shared/iframe-protected-fa
 import { IframeProtectedWrapper } from "@saleor/apps-shared/iframe-protected-wrapper";
 import { NoSSRWrapper } from "@saleor/apps-shared/no-ssr-wrapper";
 import { ThemeSynchronizer } from "@saleor/apps-shared/theme-synchronizer";
-import { ThemeProvider } from "@saleor/macaw-ui";
+import { Box, ThemeProvider } from "@saleor/macaw-ui";
 import { AppProps } from "next/app";
 
 import { trpcClient } from "../modules/trpc/trpc-client";
@@ -21,7 +21,7 @@ export const appBridgeInstance = typeof window !== "undefined" ? new AppBridge()
 function NextApp({ Component, pageProps }: AppProps) {
   return (
     <NoSSRWrapper>
-      <ThemeProvider defaultTheme="defaultLight">
+      <ThemeProvider>
         <IframeProtectedWrapper
           allowedPathNames={["/"]}
           fallback={<IframeProtectedFallback appName="Saleor SMTP App" />}
@@ -29,7 +29,9 @@ function NextApp({ Component, pageProps }: AppProps) {
           <AppBridgeProvider appBridgeInstance={appBridgeInstance}>
             <ThemeSynchronizer />
             <RoutePropagator />
-            <Component {...pageProps} />
+            <Box padding={10}>
+              <Component {...pageProps} />
+            </Box>
           </AppBridgeProvider>
         </IframeProtectedWrapper>
       </ThemeProvider>

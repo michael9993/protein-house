@@ -503,6 +503,30 @@ export const CustomerAddressesFragmentDoc = gql`
 }
     ${CustomerFragmentDoc}
 ${AddressFragmentDoc}`;
+export const ContactSubmissionFragmentDoc = gql`
+    fragment ContactSubmission on ContactSubmission {
+  id
+  name
+  email
+  subject
+  message
+  status
+  createdAt
+  updatedAt
+  repliedAt
+  channel {
+    id
+    name
+    slug
+  }
+  repliedBy {
+    id
+    email
+    firstName
+    lastName
+  }
+}
+    `;
 export const SaleFragmentDoc = gql`
     fragment Sale on Sale {
   ...Metadata
@@ -7277,6 +7301,155 @@ export function useBulkRemoveCustomersMutation(baseOptions?: ApolloReactHooks.Mu
 export type BulkRemoveCustomersMutationHookResult = ReturnType<typeof useBulkRemoveCustomersMutation>;
 export type BulkRemoveCustomersMutationResult = Apollo.MutationResult<Types.BulkRemoveCustomersMutation>;
 export type BulkRemoveCustomersMutationOptions = Apollo.BaseMutationOptions<Types.BulkRemoveCustomersMutation, Types.BulkRemoveCustomersMutationVariables>;
+export const ContactSubmissionUpdateStatusDocument = gql`
+    mutation ContactSubmissionUpdateStatus($id: ID!, $status: ContactSubmissionStatusEnum!) {
+  contactSubmissionUpdateStatus(id: $id, status: $status) {
+    errors {
+      ...AccountError
+    }
+    contactSubmission {
+      ...ContactSubmission
+    }
+  }
+}
+    ${AccountErrorFragmentDoc}
+${ContactSubmissionFragmentDoc}`;
+export type ContactSubmissionUpdateStatusMutationFn = Apollo.MutationFunction<Types.ContactSubmissionUpdateStatusMutation, Types.ContactSubmissionUpdateStatusMutationVariables>;
+
+/**
+ * __useContactSubmissionUpdateStatusMutation__
+ *
+ * To run a mutation, you first call `useContactSubmissionUpdateStatusMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useContactSubmissionUpdateStatusMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [contactSubmissionUpdateStatusMutation, { data, loading, error }] = useContactSubmissionUpdateStatusMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      status: // value for 'status'
+ *   },
+ * });
+ */
+export function useContactSubmissionUpdateStatusMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<Types.ContactSubmissionUpdateStatusMutation, Types.ContactSubmissionUpdateStatusMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<Types.ContactSubmissionUpdateStatusMutation, Types.ContactSubmissionUpdateStatusMutationVariables>(ContactSubmissionUpdateStatusDocument, options);
+      }
+export type ContactSubmissionUpdateStatusMutationHookResult = ReturnType<typeof useContactSubmissionUpdateStatusMutation>;
+export type ContactSubmissionUpdateStatusMutationResult = Apollo.MutationResult<Types.ContactSubmissionUpdateStatusMutation>;
+export type ContactSubmissionUpdateStatusMutationOptions = Apollo.BaseMutationOptions<Types.ContactSubmissionUpdateStatusMutation, Types.ContactSubmissionUpdateStatusMutationVariables>;
+export const ContactSubmissionDeleteDocument = gql`
+    mutation ContactSubmissionDelete($id: ID!) {
+  contactSubmissionDelete(id: $id) {
+    errors {
+      ...AccountError
+    }
+  }
+}
+    ${AccountErrorFragmentDoc}`;
+export type ContactSubmissionDeleteMutationFn = Apollo.MutationFunction<Types.ContactSubmissionDeleteMutation, Types.ContactSubmissionDeleteMutationVariables>;
+
+/**
+ * __useContactSubmissionDeleteMutation__
+ *
+ * To run a mutation, you first call `useContactSubmissionDeleteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useContactSubmissionDeleteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [contactSubmissionDeleteMutation, { data, loading, error }] = useContactSubmissionDeleteMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useContactSubmissionDeleteMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<Types.ContactSubmissionDeleteMutation, Types.ContactSubmissionDeleteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<Types.ContactSubmissionDeleteMutation, Types.ContactSubmissionDeleteMutationVariables>(ContactSubmissionDeleteDocument, options);
+      }
+export type ContactSubmissionDeleteMutationHookResult = ReturnType<typeof useContactSubmissionDeleteMutation>;
+export type ContactSubmissionDeleteMutationResult = Apollo.MutationResult<Types.ContactSubmissionDeleteMutation>;
+export type ContactSubmissionDeleteMutationOptions = Apollo.BaseMutationOptions<Types.ContactSubmissionDeleteMutation, Types.ContactSubmissionDeleteMutationVariables>;
+export const ContactSubmissionBulkDeleteDocument = gql`
+    mutation ContactSubmissionBulkDelete($ids: [ID!]!) {
+  contactSubmissionBulkDelete(ids: $ids) {
+    errors {
+      ...AccountError
+    }
+  }
+}
+    ${AccountErrorFragmentDoc}`;
+export type ContactSubmissionBulkDeleteMutationFn = Apollo.MutationFunction<Types.ContactSubmissionBulkDeleteMutation, Types.ContactSubmissionBulkDeleteMutationVariables>;
+
+/**
+ * __useContactSubmissionBulkDeleteMutation__
+ *
+ * To run a mutation, you first call `useContactSubmissionBulkDeleteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useContactSubmissionBulkDeleteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [contactSubmissionBulkDeleteMutation, { data, loading, error }] = useContactSubmissionBulkDeleteMutation({
+ *   variables: {
+ *      ids: // value for 'ids'
+ *   },
+ * });
+ */
+export function useContactSubmissionBulkDeleteMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<Types.ContactSubmissionBulkDeleteMutation, Types.ContactSubmissionBulkDeleteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<Types.ContactSubmissionBulkDeleteMutation, Types.ContactSubmissionBulkDeleteMutationVariables>(ContactSubmissionBulkDeleteDocument, options);
+      }
+export type ContactSubmissionBulkDeleteMutationHookResult = ReturnType<typeof useContactSubmissionBulkDeleteMutation>;
+export type ContactSubmissionBulkDeleteMutationResult = Apollo.MutationResult<Types.ContactSubmissionBulkDeleteMutation>;
+export type ContactSubmissionBulkDeleteMutationOptions = Apollo.BaseMutationOptions<Types.ContactSubmissionBulkDeleteMutation, Types.ContactSubmissionBulkDeleteMutationVariables>;
+export const ContactSubmissionReplyDocument = gql`
+    mutation ContactSubmissionReply($input: ContactSubmissionReplyInput!) {
+  contactSubmissionReply(input: $input) {
+    errors {
+      ...AccountError
+    }
+    contactSubmission {
+      ...ContactSubmission
+    }
+  }
+}
+    ${AccountErrorFragmentDoc}
+${ContactSubmissionFragmentDoc}`;
+export type ContactSubmissionReplyMutationFn = Apollo.MutationFunction<Types.ContactSubmissionReplyMutation, Types.ContactSubmissionReplyMutationVariables>;
+
+/**
+ * __useContactSubmissionReplyMutation__
+ *
+ * To run a mutation, you first call `useContactSubmissionReplyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useContactSubmissionReplyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [contactSubmissionReplyMutation, { data, loading, error }] = useContactSubmissionReplyMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useContactSubmissionReplyMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<Types.ContactSubmissionReplyMutation, Types.ContactSubmissionReplyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<Types.ContactSubmissionReplyMutation, Types.ContactSubmissionReplyMutationVariables>(ContactSubmissionReplyDocument, options);
+      }
+export type ContactSubmissionReplyMutationHookResult = ReturnType<typeof useContactSubmissionReplyMutation>;
+export type ContactSubmissionReplyMutationResult = Apollo.MutationResult<Types.ContactSubmissionReplyMutation>;
+export type ContactSubmissionReplyMutationOptions = Apollo.BaseMutationOptions<Types.ContactSubmissionReplyMutation, Types.ContactSubmissionReplyMutationVariables>;
 export const ListCustomersDocument = gql`
     query ListCustomers($after: String, $before: String, $first: Int, $last: Int, $filter: CustomerFilterInput, $sort: UserSortingInput, $PERMISSION_MANAGE_ORDERS: Boolean!) {
   customers(
@@ -7479,6 +7652,101 @@ export function useCustomerCreateDataLazyQuery(baseOptions?: ApolloReactHooks.La
 export type CustomerCreateDataQueryHookResult = ReturnType<typeof useCustomerCreateDataQuery>;
 export type CustomerCreateDataLazyQueryHookResult = ReturnType<typeof useCustomerCreateDataLazyQuery>;
 export type CustomerCreateDataQueryResult = Apollo.QueryResult<Types.CustomerCreateDataQuery, Types.CustomerCreateDataQueryVariables>;
+export const ContactSubmissionListDocument = gql`
+    query ContactSubmissionList($after: String, $before: String, $first: Int, $last: Int, $filter: ContactSubmissionFilterInput, $sort: ContactSubmissionSortingInput, $search: String) {
+  contactSubmissions(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    filter: $filter
+    sortBy: $sort
+    search: $search
+  ) {
+    edges {
+      node {
+        ...ContactSubmission
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+      hasPreviousPage
+      startCursor
+    }
+    totalCount
+  }
+}
+    ${ContactSubmissionFragmentDoc}`;
+
+/**
+ * __useContactSubmissionListQuery__
+ *
+ * To run a query within a React component, call `useContactSubmissionListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useContactSubmissionListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useContactSubmissionListQuery({
+ *   variables: {
+ *      after: // value for 'after'
+ *      before: // value for 'before'
+ *      first: // value for 'first'
+ *      last: // value for 'last'
+ *      filter: // value for 'filter'
+ *      sort: // value for 'sort'
+ *      search: // value for 'search'
+ *   },
+ * });
+ */
+export function useContactSubmissionListQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<Types.ContactSubmissionListQuery, Types.ContactSubmissionListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<Types.ContactSubmissionListQuery, Types.ContactSubmissionListQueryVariables>(ContactSubmissionListDocument, options);
+      }
+export function useContactSubmissionListLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<Types.ContactSubmissionListQuery, Types.ContactSubmissionListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<Types.ContactSubmissionListQuery, Types.ContactSubmissionListQueryVariables>(ContactSubmissionListDocument, options);
+        }
+export type ContactSubmissionListQueryHookResult = ReturnType<typeof useContactSubmissionListQuery>;
+export type ContactSubmissionListLazyQueryHookResult = ReturnType<typeof useContactSubmissionListLazyQuery>;
+export type ContactSubmissionListQueryResult = Apollo.QueryResult<Types.ContactSubmissionListQuery, Types.ContactSubmissionListQueryVariables>;
+export const ContactSubmissionDetailsDocument = gql`
+    query ContactSubmissionDetails($id: ID!) {
+  contactSubmission(id: $id) {
+    ...ContactSubmission
+  }
+}
+    ${ContactSubmissionFragmentDoc}`;
+
+/**
+ * __useContactSubmissionDetailsQuery__
+ *
+ * To run a query within a React component, call `useContactSubmissionDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useContactSubmissionDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useContactSubmissionDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useContactSubmissionDetailsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<Types.ContactSubmissionDetailsQuery, Types.ContactSubmissionDetailsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<Types.ContactSubmissionDetailsQuery, Types.ContactSubmissionDetailsQueryVariables>(ContactSubmissionDetailsDocument, options);
+      }
+export function useContactSubmissionDetailsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<Types.ContactSubmissionDetailsQuery, Types.ContactSubmissionDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<Types.ContactSubmissionDetailsQuery, Types.ContactSubmissionDetailsQueryVariables>(ContactSubmissionDetailsDocument, options);
+        }
+export type ContactSubmissionDetailsQueryHookResult = ReturnType<typeof useContactSubmissionDetailsQuery>;
+export type ContactSubmissionDetailsLazyQueryHookResult = ReturnType<typeof useContactSubmissionDetailsLazyQuery>;
+export type ContactSubmissionDetailsQueryResult = Apollo.QueryResult<Types.ContactSubmissionDetailsQuery, Types.ContactSubmissionDetailsQueryVariables>;
 export const VoucherChannelListingUpdateDocument = gql`
     mutation VoucherChannelListingUpdate($id: ID!, $input: VoucherChannelListingInput!) {
   voucherChannelListingUpdate(id: $id, input: $input) {

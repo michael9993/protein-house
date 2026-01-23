@@ -8,11 +8,25 @@ import {
 	useBranding, 
 	useStoreInfo,
 	useSocialLinks,
-	usePageEnabled,
 	useFooterConfig,
 	useFooterText,
 	useOrderTrackingText,
+	useContentConfig,
 } from "@/providers/StoreConfigProvider";
+// Newsletter subscription mutation
+const NEWSLETTER_SUBSCRIBE_MUTATION = `
+	mutation NewsletterSubscribe($email: String!, $source: String) {
+		newsletterSubscribe(email: $email, source: $source) {
+			subscribed
+			alreadySubscribed
+			errors {
+				field
+				message
+				code
+			}
+		}
+	}
+`;
 
 // Types for menu items from GraphQL
 interface MenuItem {
@@ -63,6 +77,167 @@ const socialIcons: Record<string, React.ReactElement> = {
 	),
 };
 
+// Newsletter Footer Section Component
+interface NewsletterFooterSectionProps {
+	title: string;
+	description: string;
+	placeholder: string;
+	buttonText: string;
+	primaryColor: string;
+}
+
+const NewsletterFooterSection = ({
+	title,
+	description,
+	placeholder,
+	buttonText,
+	primaryColor,
+}: NewsletterFooterSectionProps) => {
+	const [email, setEmail] = useState("");
+	const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+	const [errorMessage, setErrorMessage] = useState("");
+
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		
+		if (!email || !email.includes("@")) {
+			console.warn("[NewsletterFooter] Invalid email format:", email);
+			setStatus("error");
+			setErrorMessage("Please enter a valid email address");
+			return;
+		}
+
+		const normalizedEmail = email.trim().toLowerCase();
+		console.log("[NewsletterFooter] Starting subscription", {
+			email: normalizedEmail,
+			source: "footer",
+		});
+
+		setStatus("loading");
+		setErrorMessage("");
+
+		try {
+			const apiUrl = process.env.NEXT_PUBLIC_SALEOR_API_URL;
+			if (!apiUrl) {
+				console.error("[NewsletterFooter] API URL not configured");
+				setStatus("error");
+				setErrorMessage("API URL not configured.");
+				return;
+			}
+
+			const graphqlUrl = apiUrl.endsWith('/graphql/') || apiUrl.endsWith('/graphql') 
+				? apiUrl 
+				: `${apiUrl.replace(/\/+$/, '')}/graphql/`;
+			
+			console.log("[NewsletterFooter] Sending request", {
+				graphqlUrl,
+				email: normalizedEmail,
+				source: "footer",
+			});
+			
+			const response = await fetch(graphqlUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					query: NEWSLETTER_SUBSCRIBE_MUTATION,
+					variables: {
+						email: normalizedEmail,
+						source: "footer",
+					},
+				}),
+			});
+
+			console.log("[NewsletterFooter] Response status:", response.status, response.statusText);
+
+			if (!response.ok) {
+				console.error("[NewsletterFooter] HTTP error:", response.status, response.statusText);
+				setStatus("error");
+				setErrorMessage("Failed to subscribe. Please try again.");
+				return;
+			}
+
+			const result = await response.json() as any;
+			console.log("[NewsletterFooter] Response data:", {
+				subscribed: result?.data?.newsletterSubscribe?.subscribed,
+				alreadySubscribed: result?.data?.newsletterSubscribe?.alreadySubscribed,
+				errors: result?.data?.newsletterSubscribe?.errors,
+				hasErrors: !!(result?.data?.newsletterSubscribe?.errors && result.data.newsletterSubscribe.errors.length > 0),
+			});
+
+			if (result?.data?.newsletterSubscribe?.errors && result.data.newsletterSubscribe.errors.length > 0) {
+				const error = result.data.newsletterSubscribe.errors[0];
+				console.error("[NewsletterFooter] Subscription error:", error);
+				setStatus("error");
+				setErrorMessage(error.message || "Failed to subscribe. Please try again.");
+			} else if (result?.data?.newsletterSubscribe?.subscribed || result?.data?.newsletterSubscribe?.alreadySubscribed) {
+				console.log("[NewsletterFooter] Subscription successful", {
+					subscribed: result.data.newsletterSubscribe.subscribed,
+					alreadySubscribed: result.data.newsletterSubscribe.alreadySubscribed,
+					email: normalizedEmail,
+				});
+				setStatus("success");
+				setEmail("");
+				setTimeout(() => setStatus("idle"), 3000);
+			} else {
+				console.error("[NewsletterFooter] Unexpected response format:", result);
+				setStatus("error");
+				setErrorMessage("Something went wrong. Please try again.");
+			}
+		} catch (error) {
+			console.error("[NewsletterFooter] Exception during subscription:", error);
+			setStatus("error");
+			setErrorMessage("Failed to subscribe. Please try again.");
+		}
+	};
+
+	return (
+		<div>
+			<h3 className="text-sm font-semibold text-white">{title}</h3>
+			<p className="mt-4 text-sm text-white/60">{description}</p>
+			<div className="mt-4">
+				{status === "success" ? (
+					<div className="rounded-md px-4 py-2 text-sm text-white" style={{ backgroundColor: "rgba(34, 197, 94, 0.2)" }}>
+						✓ Subscribed successfully!
+					</div>
+				) : (
+					<form onSubmit={handleSubmit} className="flex flex-col gap-2">
+						<input
+							type="email"
+							value={email}
+							onChange={(e) => {
+								setEmail(e.target.value);
+								if (status === "error") setStatus("idle");
+							}}
+							placeholder={placeholder}
+							required
+							disabled={status === "loading"}
+							className="rounded-md border-0 bg-white/10 px-4 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 disabled:opacity-50"
+							style={{ 
+								backgroundColor: "rgba(255, 255, 255, 0.1)",
+							}}
+						/>
+						{status === "error" && errorMessage && (
+							<p className="text-xs text-red-300">{errorMessage}</p>
+						)}
+						<button
+							type="submit"
+							disabled={status === "loading"}
+							className="rounded-md px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90 disabled:opacity-50"
+							style={{ 
+								backgroundColor: primaryColor,
+							}}
+						>
+							{status === "loading" ? "Subscribing..." : buttonText}
+						</button>
+					</form>
+				)}
+			</div>
+		</div>
+	);
+};
+
 export function FooterClient({ menuItems }: FooterClientProps) {
 	// Use config from context (per-channel)
 	const branding = useBranding();
@@ -70,20 +245,64 @@ export function FooterClient({ menuItems }: FooterClientProps) {
 	const socialLinks = useSocialLinks();
 	const footerConfig = useFooterConfig();
 	const footerText = useFooterText();
-	const orderTracking = useOrderTrackingText();
-	const privacyPolicyEnabled = usePageEnabled("privacyPolicy");
-	const termsOfServiceEnabled = usePageEnabled("termsOfService");
-	const shippingPolicyEnabled = usePageEnabled("shippingPolicy");
-	const returnPolicyEnabled = usePageEnabled("returnPolicy");
-	
+	const contentConfig = useContentConfig();
 	const [imageError, setImageError] = useState(false);
 	const currentYear = new Date().getFullYear();
+
+	// Debug: Log footer config to verify boolean values are correct
+	if (process.env.NODE_ENV === "development") {
+		console.log("[FooterClient] Footer config:", {
+			showBrand: footerConfig.showBrand,
+			showMenu: footerConfig.showMenu,
+			showContactInfo: footerConfig.showContactInfo,
+			showNewsletter: footerConfig.showNewsletter,
+			showSocialLinks: footerConfig.showSocialLinks,
+		});
+	}
 
 	// Filter social links that have URLs
 	const activeSocialLinks = Object.entries(socialLinks).filter(([_, url]) => url);
 
-	// Get copyright text
+	// Get copyright text - format: "© 2026 Mansour Shoes. All rights reserved."
 	const copyrightText = footerConfig.copyrightText || `© ${currentYear} ${store.name}. All rights reserved.`;
+
+	// Get legal links from config - merge enabled/URL from footerConfig with text from footerText
+	// Text comes from storefront-control content.footer, URLs and enabled state from footer.legalLinks
+	const defaultLegalLinks = {
+		trackOrder: { enabled: true, url: "/track-order" },
+		privacyPolicy: { enabled: true, url: "/pages/privacy-policy" },
+		termsOfService: { enabled: true, url: "/pages/terms-of-service" },
+		shippingPolicy: { enabled: true, url: "/pages/shipping-policy" },
+		returnPolicy: { enabled: true, url: "/pages/return-policy" },
+	};
+
+	const legalLinks = {
+		trackOrder: {
+			enabled: footerConfig.legalLinks?.trackOrder?.enabled ?? defaultLegalLinks.trackOrder.enabled,
+			url: footerConfig.legalLinks?.trackOrder?.url ?? defaultLegalLinks.trackOrder.url,
+			text: footerText.trackOrderLink || "Track Order", // Text from storefront-control content
+		},
+		privacyPolicy: {
+			enabled: footerConfig.legalLinks?.privacyPolicy?.enabled ?? defaultLegalLinks.privacyPolicy.enabled,
+			url: footerConfig.legalLinks?.privacyPolicy?.url ?? defaultLegalLinks.privacyPolicy.url,
+			text: footerText.privacyPolicyLink || "Privacy Policy", // Text from storefront-control content
+		},
+		termsOfService: {
+			enabled: footerConfig.legalLinks?.termsOfService?.enabled ?? defaultLegalLinks.termsOfService.enabled,
+			url: footerConfig.legalLinks?.termsOfService?.url ?? defaultLegalLinks.termsOfService.url,
+			text: footerText.termsOfServiceLink || "Terms of Service", // Text from storefront-control content
+		},
+		shippingPolicy: {
+			enabled: footerConfig.legalLinks?.shippingPolicy?.enabled ?? defaultLegalLinks.shippingPolicy.enabled,
+			url: footerConfig.legalLinks?.shippingPolicy?.url ?? defaultLegalLinks.shippingPolicy.url,
+			text: footerText.shippingLink || "Shipping", // Text from storefront-control content
+		},
+		returnPolicy: {
+			enabled: footerConfig.legalLinks?.returnPolicy?.enabled ?? defaultLegalLinks.returnPolicy.enabled,
+			url: footerConfig.legalLinks?.returnPolicy?.url ?? defaultLegalLinks.returnPolicy.url,
+			text: footerText.returnPolicyLink || "Return Policy", // Text from storefront-control content
+		},
+	};
 
 	// Check if we have a valid logo URL from config
 	const hasLogoUrl = branding.logo && 
@@ -102,63 +321,65 @@ export function FooterClient({ menuItems }: FooterClientProps) {
 			<div className="mx-auto max-w-7xl px-4 lg:px-8">
 				{/* Main Footer Content */}
 				<div className="grid gap-8 py-16 md:grid-cols-2 lg:grid-cols-4">
-					{/* Brand Column */}
-					<div className="lg:col-span-1">
-						<div 
-							className="flex items-center gap-2 text-xl font-bold"
-							style={{ color: branding.colors.primary }}
-						>
-							{hasLogoUrl ? (
-								branding.logo.startsWith("http") ? (
-									<Image
-										src={branding.logo}
-										alt={branding.logoAlt || store.name}
-										width={32}
-										height={32}
-										className="h-8 w-auto object-contain"
-										onError={() => setImageError(true)}
-										unoptimized
-									/>
+					{/* Brand Column (config-driven visibility) */}
+					{footerConfig.showBrand && (
+						<div className="lg:col-span-1">
+							<div 
+								className="flex items-center gap-2 text-xl font-bold"
+								style={{ color: branding.colors.primary }}
+							>
+								{hasLogoUrl ? (
+									branding.logo.startsWith("http") ? (
+										<Image
+											src={branding.logo}
+											alt={branding.logoAlt || store.name}
+											width={32}
+											height={32}
+											className="h-8 w-auto object-contain"
+											onError={() => setImageError(true)}
+											unoptimized
+										/>
+									) : (
+										<img
+											src={branding.logo}
+											alt={branding.logoAlt || store.name}
+											className="h-8 w-auto object-contain"
+											onError={() => setImageError(true)}
+										/>
+									)
 								) : (
-									<img
-										src={branding.logo}
-										alt={branding.logoAlt || store.name}
-										className="h-8 w-auto object-contain"
-										onError={() => setImageError(true)}
-									/>
-								)
-							) : (
-								<svg className="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
-									<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-								</svg>
-							)}
-							{store.name}
-						</div>
-						<p className="mt-4 text-sm text-white/70">
-							{store.tagline}
-						</p>
-						
-						{/* Social Links (config-driven) */}
-						{footerConfig.showSocialLinks && activeSocialLinks.length > 0 && (
-							<div className="mt-6 flex gap-4">
-								{activeSocialLinks.map(([platform, url]) => (
-									<Link
-										key={platform}
-										href={url as string}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="text-white/60 transition-colors hover:text-white"
-										aria-label={`Follow us on ${platform}`}
-									>
-										{socialIcons[platform]}
-									</Link>
-								))}
+									<svg className="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
+										<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+									</svg>
+								)}
+								{store.name}
 							</div>
-						)}
-					</div>
+							<p className="mt-4 text-sm text-white/70">
+								{store.tagline}
+							</p>
+							
+							{/* Social Links (config-driven) */}
+							{footerConfig.showSocialLinks && activeSocialLinks.length > 0 && (
+								<div className="mt-6 flex gap-4">
+									{activeSocialLinks.map(([platform, url]) => (
+										<Link
+											key={platform}
+											href={url as string}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-white/60 transition-colors hover:text-white"
+											aria-label={`Follow us on ${platform}`}
+										>
+											{socialIcons[platform]}
+										</Link>
+									))}
+								</div>
+							)}
+						</div>
+					)}
 
-					{/* Dynamic Menu Links */}
-					{menuItems.map((item) => (
+					{/* Dynamic Menu Links - Managed by Dashboard (config-driven visibility) */}
+					{footerConfig.showMenu && menuItems.length > 0 && menuItems.map((item) => (
 						<div key={item.id}>
 							<h3 className="text-sm font-semibold text-white">{item.name}</h3>
 							<ul className="mt-4 space-y-3">
@@ -235,8 +456,32 @@ export function FooterClient({ menuItems }: FooterClientProps) {
 									</li>
 								)}
 							</ul>
+							{/* Go to Contact Button */}
+							<div className="mt-4">
+								<LinkWithChannel 
+									href="/contact"
+									className="inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
+									style={{ 
+										backgroundColor: branding.colors.primary,
+									}}
+								>
+									<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+									</svg>
+									{footerText.contactUsButton || "Contact Us"}
+								</LinkWithChannel>
+							</div>
 						</div>
 					)}
+
+					{/* Newsletter Section (config-driven visibility from storefront-control) - Moved to last position */}
+					{footerConfig.showNewsletter && <NewsletterFooterSection 
+						title={footerText.followUsTitle || "Newsletter"}
+						description={contentConfig.general.newsletterDescription}
+						placeholder={contentConfig.general.newsletterPlaceholder}
+						buttonText={contentConfig.general.newsletterButton}
+						primaryColor={branding.colors.primary}
+					/>}
 				</div>
 
 				{/* Bottom Bar */}
@@ -245,27 +490,29 @@ export function FooterClient({ menuItems }: FooterClientProps) {
 						{copyrightText}
 					</p>
 					<div className="flex gap-6 text-sm text-white/60">
-						<LinkWithChannel href="/track-order" className="hover:text-white">
-							{footerText.trackOrderLink}
-						</LinkWithChannel>
-						{privacyPolicyEnabled && (
-							<LinkWithChannel href="/pages/privacy-policy" className="hover:text-white">
-								{footerText.privacyPolicyLink}
+						{legalLinks.trackOrder.enabled && (
+							<LinkWithChannel href={legalLinks.trackOrder.url} className="hover:text-white">
+								{legalLinks.trackOrder.text}
 							</LinkWithChannel>
 						)}
-						{termsOfServiceEnabled && (
-							<LinkWithChannel href="/pages/terms-of-service" className="hover:text-white">
-								{footerText.termsOfServiceLink}
+						{legalLinks.privacyPolicy.enabled && (
+							<LinkWithChannel href={legalLinks.privacyPolicy.url} className="hover:text-white">
+								{legalLinks.privacyPolicy.text}
 							</LinkWithChannel>
 						)}
-						{shippingPolicyEnabled && (
-							<LinkWithChannel href="/pages/shipping-policy" className="hover:text-white">
-								{footerText.shippingLink}
+						{legalLinks.termsOfService.enabled && (
+							<LinkWithChannel href={legalLinks.termsOfService.url} className="hover:text-white">
+								{legalLinks.termsOfService.text}
 							</LinkWithChannel>
 						)}
-						{returnPolicyEnabled && (
-							<LinkWithChannel href="/pages/return-policy" className="hover:text-white">
-								{footerText.returnPolicyLink}
+						{legalLinks.shippingPolicy.enabled && (
+							<LinkWithChannel href={legalLinks.shippingPolicy.url} className="hover:text-white">
+								{legalLinks.shippingPolicy.text}
+							</LinkWithChannel>
+						)}
+						{legalLinks.returnPolicy.enabled && (
+							<LinkWithChannel href={legalLinks.returnPolicy.url} className="hover:text-white">
+								{legalLinks.returnPolicy.text}
 							</LinkWithChannel>
 						)}
 					</div>

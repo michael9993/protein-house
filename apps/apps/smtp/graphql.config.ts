@@ -16,6 +16,7 @@ const config: IGraphQLConfig = {
                 strictScalars: true,
                 skipTypename: true,
                 scalars: {
+                  PositiveInt: "number",
                   _Any: "unknown",
                   Date: "string",
                   DateTime: "string",

@@ -17,7 +17,7 @@ from ..core.tracing import traced_resolver
 from ..core.utils import from_global_id_or_error
 from ..meta.resolvers import resolve_metadata
 from ..utils import format_permissions_for_display, get_user_or_app_from_context
-from .types import Address, AddressValidationData, ChoiceValue, User
+from .types import Address, AddressValidationData, ChoiceValue, ContactSubmission, User
 from .utils import (
     get_allowed_fields_camel_case,
     get_required_fields_camel_case,
@@ -94,7 +94,7 @@ def resolve_user(info, id=None, email=None, external_reference=None):
                 .filter(**filter_kwargs)
                 .first()
             )
-    return PermissionDenied(
+    raise PermissionDenied(
         permissions=[
             AccountPermissions.MANAGE_STAFF,
             AccountPermissions.MANAGE_USERS,
@@ -261,3 +261,56 @@ def resolve_permissions(root: models.User, info: ResolveInfo):
     permissions = get_user_permissions(root).using(database_connection_name)
     permissions = permissions.order_by("codename")
     return format_permissions_for_display(permissions)
+
+
+@traced_resolver
+def resolve_contact_submission(info: ResolveInfo, id):
+    """Resolve a single contact submission by ID."""
+    requester = get_user_or_app_from_context(info.context)
+    if not requester:
+        return None
+    
+    if not requester.has_perm(AccountPermissions.MANAGE_CONTACT_SUBMISSIONS):
+        raise PermissionDenied(
+            permissions=[AccountPermissions.MANAGE_CONTACT_SUBMISSIONS]
+        )
+    
+    _, submission_id = from_global_id_or_error(id, ContactSubmission)
+    database_connection_name = get_database_connection_name(info.context)
+    return (
+        models.ContactSubmission.objects.using(database_connection_name)
+        .filter(id=submission_id)
+        .first()
+    )
+
+
+@traced_resolver
+def resolve_contact_submissions(info: ResolveInfo):
+    """Resolve contact submissions with permission check."""
+    requester = get_user_or_app_from_context(info.context)
+    if not requester:
+        return models.ContactSubmission.objects.none()
+    
+    if not requester.has_perm(AccountPermissions.MANAGE_CONTACT_SUBMISSIONS):
+        raise PermissionDenied(
+            permissions=[AccountPermissions.MANAGE_CONTACT_SUBMISSIONS]
+        )
+    
+    database_connection_name = get_database_connection_name(info.context)
+    return models.ContactSubmission.objects.using(database_connection_name).all()
+
+
+@traced_resolver
+def resolve_newsletter_subscriptions(info: ResolveInfo):
+    """Resolve newsletter subscriptions with permission check."""
+    requester = get_user_or_app_from_context(info.context)
+    if not requester:
+        return models.NewsletterSubscription.objects.none()
+    
+    if not requester.has_perm(AccountPermissions.MANAGE_USERS):
+        raise PermissionDenied(
+            permissions=[AccountPermissions.MANAGE_USERS]
+        )
+    
+    database_connection_name = get_database_connection_name(info.context)
+    return models.NewsletterSubscription.objects.using(database_connection_name).all()

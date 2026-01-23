@@ -50,8 +50,8 @@ services:
       - .env
     # Use uvicorn (ASGI) instead of runserver (WSGI) to enable CORS handler
     # Port is set via environment variable SALEOR_API_PORT from .env
-    command: sh -c "uvicorn saleor.asgi:application --host 0.0.0.0 --port $${SALEOR_API_PORT} --reload --lifespan off"
-    # command: sh /app/scripts/wait-for-db-and-migrate.sh
+    # command: sh -c "uvicorn saleor.asgi:application --host 0.0.0.0 --port $${SALEOR_API_PORT} --reload --lifespan off"
+    command: python /app/scripts/wait-for-db-and-migrate.py
     ports:
       - "${SALEOR_API_PORT}:${SALEOR_API_PORT}"
     volumes:
@@ -61,8 +61,9 @@ services:
       - saleor-media:/app/media
       # Mount custom plugins if they exist
       - ../backend/plugins:/app/plugins/custom:ro
-      # Mount migration script
-      # - ./scripts/wait-for-db-and-migrate.sh:/app/scripts/wait-for-db-and-migrate.sh:ro
+      # Mount migration scripts
+      - ./scripts/wait-for-db-and-migrate.sh:/app/scripts/wait-for-db-and-migrate.sh:ro
+      - ./scripts/wait-for-db-and-migrate.py:/app/scripts/wait-for-db-and-migrate.py:ro
     environment:
       # Core Settings - All values from .env file
       SECRET_KEY: ${SECRET_KEY}
@@ -533,6 +534,61 @@ services:
       retries: 5
       start_period: 60s
 
+  # Newsletter App - Manage newsletter subscribers, templates, and campaigns
+  saleor-newsletter-app:
+    image: node:22-alpine
+    container_name: saleor-newsletter-app-dev
+    working_dir: /app
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-newsletter... --prefer-offline && cd apps/newsletter && PORT=3000 pnpm dev"
+    env_file:
+      - .env
+    ports:
+      - "${NEWSLETTER_APP_PORT:-3005}:3000"
+    volumes:
+      - ../apps:/app
+      - newsletter-app-node-modules:/app/node_modules
+      - newsletter-app-pnpm-store:/root/.local/share/pnpm/store
+    environment:
+      SALEOR_API_URL: ${SALEOR_API_URL}
+      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+      # Use tunnel URL for app registration (Dashboard needs to reach this)
+      NEWSLETTER_APP_URL: ${NEWSLETTER_APP_TUNNEL_URL:-http://localhost:${NEWSLETTER_APP_PORT:-3005}}
+      APP_API_BASE_URL: ${NEWSLETTER_APP_TUNNEL_URL:-http://localhost:${NEWSLETTER_APP_PORT:-3005}}
+      APP_IFRAME_BASE_URL: ${NEWSLETTER_APP_TUNNEL_URL:-http://localhost:${NEWSLETTER_APP_PORT:-3005}}
+      # APL type: 'file' for local dev
+      APL: file
+      # Secret key for encrypting app metadata
+      SECRET_KEY: ${APP_SECRET_KEY}
+      NODE_ENV: development
+      # Image storage (local for dev, s3 for production)
+      NEWSLETTER_IMAGE_STORAGE: ${NEWSLETTER_IMAGE_STORAGE:-local}
+      # Redis for BullMQ (campaign queue)
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      # Disable OpenTelemetry/Sentry in development
+      OTEL_ENABLED: "false"
+      NEXT_PUBLIC_SENTRY_DSN: ""
+    depends_on:
+      saleor-api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - saleor-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
 volumes:
   postgres-data:
     driver: local
@@ -567,6 +623,10 @@ volumes:
   storefront-control-app-node-modules:
     driver: local
   storefront-control-app-pnpm-store:
+    driver: local
+  newsletter-app-node-modules:
+    driver: local
+  newsletter-app-pnpm-store:
     driver: local
 
 networks:

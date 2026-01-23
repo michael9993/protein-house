@@ -1,4 +1,4 @@
-import { ListCustomersQuery } from "@dashboard/graphql";
+import { ContactSubmissionListQuery, ListCustomersQuery } from "@dashboard/graphql";
 import { RelayToFlat } from "@dashboard/types";
 
 export interface AddressTypeInput {
@@ -35,3 +35,6 @@ export interface AddressType {
 
 export type Customers = RelayToFlat<NonNullable<ListCustomersQuery["customers"]>>;
 export type Customer = Customers[number];
+
+export type ContactSubmissions = RelayToFlat<NonNullable<ContactSubmissionListQuery["contactSubmissions"]>>;
+export type ContactSubmission = ContactSubmissions[number];

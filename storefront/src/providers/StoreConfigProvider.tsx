@@ -65,6 +65,11 @@ export function StoreConfigProvider({
     console.log("[StoreConfigProvider]    Store name:", config.store.name);
     console.log("[StoreConfigProvider]    Primary color:", config.branding.colors.primary);
     console.log("[StoreConfigProvider]    Direction:", config.localization?.direction || "auto");
+    console.log("[StoreConfigProvider]    Footer config:", config.footer);
+    if (config.footer) {
+      console.log("[StoreConfigProvider]    Footer showBrand:", config.footer.showBrand, typeof config.footer.showBrand);
+      console.log("[StoreConfigProvider]    Footer showMenu:", config.footer.showMenu, typeof config.footer.showMenu);
+    }
   }, [config]);
 
   // Generate CSS variables from config
@@ -301,10 +306,34 @@ const DEFAULT_HEADER_CONFIG = {
 
 // Default footer config
 const DEFAULT_FOOTER_CONFIG = {
+  showBrand: true,
+  showMenu: true,
+  showContactInfo: true,
   showNewsletter: true,
   showSocialLinks: true,
-  showContactInfo: true,
   copyrightText: null,
+  legalLinks: {
+    trackOrder: {
+      enabled: true,
+      url: "/track-order",
+    },
+    privacyPolicy: {
+      enabled: true,
+      url: "/pages/privacy-policy",
+    },
+    termsOfService: {
+      enabled: true,
+      url: "/pages/terms-of-service",
+    },
+    shippingPolicy: {
+      enabled: true,
+      url: "/pages/shipping-policy",
+    },
+    returnPolicy: {
+      enabled: true,
+      url: "/pages/return-policy",
+    },
+  },
 } as const;
 
 /**
@@ -326,10 +355,83 @@ export function useHeaderConfig(): NonNullable<StoreConfig["header"]> {
 /**
  * Get footer configuration (from Storefront Control app)
  * Always returns a complete config with defaults
+ * IMPORTANT: Explicitly preserves false values from config to override defaults
  */
 export function useFooterConfig(): NonNullable<StoreConfig["footer"]> {
   const config = useStoreConfig();
-  return { ...DEFAULT_FOOTER_CONFIG, ...config.footer };
+  
+  // Debug: Log raw config before merge
+  if (process.env.NODE_ENV === "development") {
+    console.log("[useFooterConfig] Raw config.footer:", config.footer);
+    console.log("[useFooterConfig] showBrand in config:", config.footer?.showBrand, typeof config.footer?.showBrand);
+    console.log("[useFooterConfig] showMenu in config:", config.footer?.showMenu, typeof config.footer?.showMenu);
+  }
+  
+  // Start with defaults
+  const merged: NonNullable<StoreConfig["footer"]> = { ...DEFAULT_FOOTER_CONFIG };
+  
+  // Explicitly merge footer config, preserving false values
+  if (config.footer) {
+    // Boolean values: explicitly check if they exist in config (even if false)
+    // Use Object.hasOwnProperty to check if property exists (handles false values correctly)
+    if (Object.prototype.hasOwnProperty.call(config.footer, 'showBrand')) {
+      merged.showBrand = !!config.footer.showBrand; // Convert to boolean, preserving false
+    }
+    if (Object.prototype.hasOwnProperty.call(config.footer, 'showMenu')) {
+      merged.showMenu = !!config.footer.showMenu; // Convert to boolean, preserving false
+    }
+    if (Object.prototype.hasOwnProperty.call(config.footer, 'showContactInfo')) {
+      merged.showContactInfo = !!config.footer.showContactInfo; // Convert to boolean, preserving false
+    }
+    if (Object.prototype.hasOwnProperty.call(config.footer, 'showNewsletter')) {
+      merged.showNewsletter = !!config.footer.showNewsletter; // Convert to boolean, preserving false
+    }
+    if (Object.prototype.hasOwnProperty.call(config.footer, 'showSocialLinks')) {
+      merged.showSocialLinks = !!config.footer.showSocialLinks; // Convert to boolean, preserving false
+    }
+    if (config.footer.copyrightText !== undefined) {
+      merged.copyrightText = config.footer.copyrightText;
+    }
+    
+    // Deep merge legalLinks to preserve defaults for missing fields
+    if (config.footer.legalLinks) {
+      merged.legalLinks = {
+        trackOrder: {
+          ...DEFAULT_FOOTER_CONFIG.legalLinks.trackOrder,
+          ...config.footer.legalLinks.trackOrder,
+        },
+        privacyPolicy: {
+          ...DEFAULT_FOOTER_CONFIG.legalLinks.privacyPolicy,
+          ...config.footer.legalLinks.privacyPolicy,
+        },
+        termsOfService: {
+          ...DEFAULT_FOOTER_CONFIG.legalLinks.termsOfService,
+          ...config.footer.legalLinks.termsOfService,
+        },
+        shippingPolicy: {
+          ...DEFAULT_FOOTER_CONFIG.legalLinks.shippingPolicy,
+          ...config.footer.legalLinks.shippingPolicy,
+        },
+        returnPolicy: {
+          ...DEFAULT_FOOTER_CONFIG.legalLinks.returnPolicy,
+          ...config.footer.legalLinks.returnPolicy,
+        },
+      };
+    }
+  }
+  
+  // Debug: Log final merged config
+  if (process.env.NODE_ENV === "development") {
+    console.log("[useFooterConfig] Final merged config:", {
+      showBrand: merged.showBrand,
+      showMenu: merged.showMenu,
+      showContactInfo: merged.showContactInfo,
+      showNewsletter: merged.showNewsletter,
+      showSocialLinks: merged.showSocialLinks,
+    });
+  }
+  
+  return merged;
 }
 
 // Default promo popup config

@@ -260,10 +260,34 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
   },
 
   footer: {
+    showBrand: true,
+    showMenu: true,
+    showContactInfo: true,
     showNewsletter: true,
     showSocialLinks: true,
-    showContactInfo: true,
     copyrightText: null, // use default
+    legalLinks: {
+      trackOrder: {
+        enabled: true,
+        url: "/track-order",
+      },
+      privacyPolicy: {
+        enabled: true,
+        url: "/pages/privacy-policy",
+      },
+      termsOfService: {
+        enabled: true,
+        url: "/pages/terms-of-service",
+      },
+      shippingPolicy: {
+        enabled: true,
+        url: "/pages/shipping-policy",
+      },
+      returnPolicy: {
+        enabled: true,
+        url: "/pages/return-policy",
+      },
+    },
   },
 
   homepage: {
@@ -800,6 +824,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       madeWith: "Made with",
       inLocation: "in {location}",
       contactUs: "Contact Us",
+      contactUsButton: "Contact Us",
       customerService: "Customer Service",
       shopTitle: "Shop",
       companyTitle: "Company",

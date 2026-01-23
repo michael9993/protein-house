@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-01-21T10:31:36.887Z",
+  "exportedAt": "2026-01-22T15:24:32.945Z",
   "channelSlug": "ils",
   "config": {
-    "version": 3,
-    "updatedAt": "2026-01-21T10:31:36.697Z",
+    "version": 21,
+    "updatedAt": "2026-01-22T15:24:32.369Z",
     "channelSlug": "ils",
     "store": {
       "name": "Mansour Shoes",
@@ -121,7 +121,31 @@
       "showNewsletter": true,
       "showSocialLinks": true,
       "showContactInfo": true,
-      "copyrightText": null
+      "showMenu": true,
+      "showBrand": true,
+      "copyrightText": "© 2026 Mansour Shoes. All rights reserved",
+      "legalLinks": {
+        "trackOrder": {
+          "enabled": true,
+          "url": "/track-order"
+        },
+        "privacyPolicy": {
+          "enabled": true,
+          "url": "/pages/privacy-policy"
+        },
+        "termsOfService": {
+          "enabled": true,
+          "url": "/pages/terms-of-service"
+        },
+        "shippingPolicy": {
+          "enabled": true,
+          "url": "/pages/shipping-policy"
+        },
+        "returnPolicy": {
+          "enabled": true,
+          "url": "/pages/return-policy"
+        }
+      }
     },
     "homepage": {
       "sections": {
@@ -281,7 +305,7 @@
         "facebook": null,
         "instagram": "https://www.instagram.com/mansour_shoes_shefaraam/",
         "twitter": null,
-        "youtube": null,
+        "youtube": "",
         "tiktok": null,
         "pinterest": null
       }
@@ -1119,6 +1143,7 @@
         "madeWith": "נעשה עם",
         "inLocation": "ב{location}",
         "contactUs": "צור קשר",
+        "contactUsButton": "צור קשר",
         "customerService": "שירות לקוחות",
         "shopTitle": "חנות",
         "companyTitle": "חברה",
