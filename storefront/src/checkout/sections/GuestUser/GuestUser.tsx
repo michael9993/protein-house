@@ -9,6 +9,7 @@ import { FormProvider } from "@/checkout/hooks/useForm/FormProvider";
 import { useUser } from "@/checkout/hooks/useUser";
 import { getQueryParams } from "@/checkout/lib/utils/url";
 import { DefaultChannelSlug } from "@/app/config";
+import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 
 type GuestUserProps = Pick<SignInFormContainerProps, "onSectionChange"> & {
 	onEmailChange: (email: string) => void;
@@ -27,6 +28,7 @@ export const GuestUser: React.FC<GuestUserProps> = ({
 	const [_oauthError, setOauthError] = useState<string | null>(null);
 	const [isOauthLoading, setIsOauthLoading] = useState(false);
 	const params = useParams();
+	const text = useCheckoutText();
 
 	// Get channel from Next.js params, fallback to pathname extraction, then config default
 	const getChannel = (): string => {
@@ -56,7 +58,8 @@ export const GuestUser: React.FC<GuestUserProps> = ({
 			const { checkoutId } = getQueryParams();
 			const channel = getChannel();
 			const callbackUrl = `${window.location.origin}/${channel}/auth/callback`;
-			const finalRedirectUrl = `/checkout?checkout=${checkoutId}`;
+			// Final redirect back to checkout (channel-aware)
+			const finalRedirectUrl = `/${channel}/checkout?checkout=${checkoutId}`;
 			
 			const result = await getOAuthUrl("google", callbackUrl, finalRedirectUrl);
 			
@@ -81,9 +84,9 @@ export const GuestUser: React.FC<GuestUserProps> = ({
 
 	return (
 		<SignInFormContainer
-			title="Contact details"
-			redirectSubtitle={showAuthOptions ? "Already have an account?" : undefined}
-			redirectButtonLabel={showAuthOptions ? "Sign in" : undefined}
+			title={text.contactDetailsTitle || "Contact details"}
+			redirectSubtitle={showAuthOptions ? (text.alreadyHaveAccount || "Already have an account?") : undefined}
+			redirectButtonLabel={showAuthOptions ? (text.signInButton || "Sign in") : undefined}
 			onSectionChange={showAuthOptions ? onSectionChange : () => {}}
 			customHeaderAction={showAuthOptions ? (
 				<button
@@ -92,7 +95,7 @@ export const GuestUser: React.FC<GuestUserProps> = ({
 					disabled={isOauthLoading}
 					className="flex items-center justify-center gap-1.5 rounded border bg-white px-3 py-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
 					style={{ borderColor: "var(--store-neutral-200)", color: "var(--store-neutral-700)" }}
-					title="Sign in with Google"
+					title={text.signInWithGoogle || "Sign in with Google"}
 				>
 					{isOauthLoading ? (
 						<svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -116,7 +119,7 @@ export const GuestUser: React.FC<GuestUserProps> = ({
 					<TextInput
 						required
 						name="email"
-						label="Email"
+						label={text.guestEmailLabel || "Email"}
 						onChange={(event) => {
 							handleChange(event);
 							onEmailChange(event.currentTarget.value);
@@ -125,13 +128,13 @@ export const GuestUser: React.FC<GuestUserProps> = ({
 					{showAuthOptions && (
 						<Checkbox
 							name="createAccount"
-							label="I want to create account"
+							label={text.createAccountLabel || "I want to create account"}
 							data-testid={"createAccountCheckbox"}
 						/>
 					)}
 					{createAccount && showAuthOptions && (
 						<div className="mt-2">
-							<PasswordInput name="password" label="Password (minimum 8 characters)" required />
+							<PasswordInput name="password" label={text.passwordMinChars || "Password (minimum 8 characters)"} required />
 						</div>
 					)}
 				</div>

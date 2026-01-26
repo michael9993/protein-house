@@ -15,6 +15,26 @@ interface StripeConfig {
 }
 
 /**
+ * Map channel slug to Stripe locale
+ * Stripe supports many locales including Hebrew ("he")
+ * See: https://stripe.com/docs/js/appendix/supported_locales
+ */
+const getStripeLocale = (channelSlug?: string): string => {
+	if (!channelSlug) return "en";
+	
+	// Map channel slugs to Stripe locales
+	const localeMap: Record<string, string> = {
+		"ils": "he",      // Hebrew for ILS channel
+		"usd": "en",      // English for USD channel
+		"eur": "en",      // English for EUR channel (or could be "de", "fr", etc.)
+		"gbp": "en",      // English for GBP channel
+		// Add more channel->locale mappings as needed
+	};
+	
+	return localeMap[channelSlug.toLowerCase()] || "en";
+};
+
+/**
  * Extract publishable key from config
  * The publishable key should be in config.data.stripePublishableKey
  * (either from paymentGatewayInitialize mutation or extracted from original gateway config)
@@ -30,6 +50,11 @@ const getPublishableKey = (config: StripeConfig): string | null => {
 export const StripeComponent = ({ config }: { config: StripeConfig }) => {
 	const { checkout } = useCheckout();
 	const [loadingError, setLoadingError] = useState<string | null>(null);
+	
+	// Determine locale based on channel slug
+	const stripeLocale = useMemo(() => {
+		return getStripeLocale(checkout?.channel?.slug);
+	}, [checkout?.channel?.slug]);
 
 	// Extract publishable key - only recreate if the actual key value changes
 	const publishableKey = useMemo(() => {
@@ -40,8 +65,8 @@ export const StripeComponent = ({ config }: { config: StripeConfig }) => {
 		return key;
 	}, [config?.data?.stripePublishableKey]);
 	
-	// Create Stripe promise only once per publishable key
-	// CRITICAL: Only depend on publishableKey, not config object
+	// Create Stripe promise only once per publishable key and locale
+	// CRITICAL: Only depend on publishableKey and locale, not config object
 	// This prevents recreating the promise when config object reference changes
 	const stripePromise = useMemo(() => {
 		if (!publishableKey) {
@@ -54,7 +79,10 @@ export const StripeComponent = ({ config }: { config: StripeConfig }) => {
 		}
 		
 		setLoadingError(null);
-		const promise = loadStripe(publishableKey);
+		// Pass locale to loadStripe for automatic UI translation
+		const promise = loadStripe(publishableKey, {
+			locale: stripeLocale as any, // Stripe locale type
+		});
 		
 		// Handle initialization errors
 		promise.catch((error) => {
@@ -64,7 +92,7 @@ export const StripeComponent = ({ config }: { config: StripeConfig }) => {
 		
 		return promise;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [publishableKey]); // Only depend on publishableKey, not config
+	}, [publishableKey, stripeLocale]); // Depend on publishableKey and locale
 
 	if (loadingError) {
 		return <div style={{ color: "var(--store-error)" }}>{loadingError}</div>;
@@ -85,7 +113,7 @@ export const StripeComponent = ({ config }: { config: StripeConfig }) => {
 	const previousCurrencyRef = useRef(currency);
 	const previousOptionsRef = useRef<StripeElementsOptions | null>(null);
 	
-	// Only update options if amount or currency actually changed
+	// Only update options if amount, currency, or locale actually changed
 	// This prevents unnecessary re-initialization of Elements when Link is selected
 	const stripeOptions: StripeElementsOptions = useMemo(() => {
 		const hasChanged = previousAmountRef.current !== amount || previousCurrencyRef.current !== currency;
@@ -106,13 +134,14 @@ export const StripeComponent = ({ config }: { config: StripeConfig }) => {
 			amount,
 			appearance: { theme: "stripe" },
 			currency,
+			locale: stripeLocale as any, // Add locale for Hebrew/English support
 		};
 		
 		// Store for next comparison
 		previousOptionsRef.current = newOptions;
 		
 		return newOptions;
-	}, [amount, currency]);
+	}, [amount, currency, stripeLocale]);
 
 	// Extract the app identifier from the gateway ID
 	// Gateway ID from list is "app:stripe:stripe" but transaction needs just "stripe"
@@ -129,12 +158,12 @@ export const StripeComponent = ({ config }: { config: StripeConfig }) => {
 
 	// Pass the promise directly - Elements accepts Promise<Stripe | null>
 	// and will handle the async initialization
-	// Use stable key based on publishableKey to prevent re-mounting
+	// Use stable key based on publishableKey and locale to prevent re-mounting
 	// Don't include amount/currency in key to prevent remounts when totals change
 	// This prevents jittery UI when Link is selected or payment method changes
 	return (
 		<Elements 
-			key={`stripe-${publishableKey}`} 
+			key={`stripe-${publishableKey}-${stripeLocale}`} 
 			options={stripeOptions} 
 			stripe={stripePromise}
 		>

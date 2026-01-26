@@ -25,5 +25,5 @@ export async function Footer({ channel }: { channel: string }) {
 	const menuItems = footerLinks.menu?.items || [];
 
 	// Render client component with server-fetched data
-	return <FooterClient menuItems={menuItems} />;
+	return <FooterClient menuItems={menuItems} channel={channel} />;
 }

@@ -11,6 +11,7 @@ import { FormProvider } from "@/checkout/hooks/useForm/FormProvider";
 import { useCheckoutUpdateState } from "@/checkout/state/updateStateStore";
 import { DeliveryMethodsSkeleton } from "@/checkout/sections/DeliveryMethods/DeliveryMethodsSkeleton";
 import { useUser } from "@/checkout/hooks/useUser";
+import { useCheckoutText, formatText } from "@/checkout/hooks/useCheckoutText";
 
 export const DeliveryMethods: React.FC<CommonSectionProps> = ({ collapsed }) => {
 	const { checkout } = useCheckout();
@@ -19,13 +20,15 @@ export const DeliveryMethods: React.FC<CommonSectionProps> = ({ collapsed }) => 
 	const shippingAddress = checkout?.shippingAddress;
 	const form = useDeliveryMethodsForm();
 	const { updateState } = useCheckoutUpdateState();
+	const text = useCheckoutText();
 
 	const getSubtitle = ({ min, max }: { min?: number | null; max?: number | null }) => {
 		if (!min || !max) {
 			return undefined;
 		}
 
-		return `${min}-${max} business days`;
+		const template = text.businessDaysText || "{min}-{max} business days";
+		return formatText(template, { min, max });
 	};
 
 	if (!checkout || !checkout.isShippingRequired || collapsed) {
@@ -36,14 +39,14 @@ export const DeliveryMethods: React.FC<CommonSectionProps> = ({ collapsed }) => 
 		<FormProvider form={form}>
 			<Divider />
 			<div className="py-4" data-testid="deliveryMethods">
-				<Title className="mb-2">Delivery methods</Title>
+				<Title className="mb-2">{text.deliveryMethodsTitle || "Delivery methods"}</Title>
 				{!authenticated && !shippingAddress && (
-					<p>Please fill in shipping address to see available shipping methods</p>
+					<p>{text.noDeliveryMethodsText || "Please fill in shipping address to see available shipping methods"}</p>
 				)}
 				{authenticated && !shippingAddress && updateState.checkoutShippingUpdate ? (
 					<DeliveryMethodsSkeleton />
 				) : (
-					<SelectBoxGroup label="delivery methods">
+					<SelectBoxGroup label={text.deliveryMethodsTitle || "delivery methods"}>
 						{(shippingMethods || [])?.map(
 							({ id, name, price, minimumDeliveryDays: min, maximumDeliveryDays: max }) => (
 								<SelectBox key={id} name="selectedMethodId" value={id}>

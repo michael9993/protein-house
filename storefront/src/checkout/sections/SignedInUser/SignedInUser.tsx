@@ -4,6 +4,7 @@ import { SignInFormContainer, type SignInFormContainerProps } from "../Contact/S
 import { Button } from "@/checkout/components/Button";
 import { useUser } from "@/checkout/hooks/useUser";
 import { dispatchCheckoutLogout } from "@/lib/checkout-client";
+import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 
 interface SignedInUserProps extends Pick<SignInFormContainerProps, "onSectionChange"> {
 	onSignOutSuccess: () => void;
@@ -11,8 +12,8 @@ interface SignedInUserProps extends Pick<SignInFormContainerProps, "onSectionCha
 
 export const SignedInUser: React.FC<SignedInUserProps> = ({ onSectionChange, onSignOutSuccess }) => {
 	const { signOut } = useSaleorAuthContext();
-
 	const { user } = useUser();
+	const text = useCheckoutText();
 
 	const handleLogout = async () => {
 		// Clear client-side checkout state for proper isolation
@@ -23,10 +24,10 @@ export const SignedInUser: React.FC<SignedInUserProps> = ({ onSectionChange, onS
 	};
 
 	return (
-		<SignInFormContainer title="Account" onSectionChange={onSectionChange}>
+		<SignInFormContainer title={text.accountLabel || "Account"} onSectionChange={onSectionChange}>
 			<div className="flex flex-row justify-between">
 				<p className="text-base font-bold">{user?.email}</p>
-				<Button ariaLabel="Sign out" variant="tertiary" onClick={handleLogout} label="Sign out" />
+				<Button ariaLabel={text.signOutButton || "Sign out"} variant="tertiary" onClick={handleLogout} label={text.signOutButton || "Sign out"} />
 			</div>
 		</SignInFormContainer>
 	);

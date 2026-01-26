@@ -1144,6 +1144,9 @@ class NewsletterSubscription(ModelObjectType[models.NewsletterSubscription]):
     user = graphene.Field(
         User, description="User account if subscribed while logged in."
     )
+    channel = graphene.Field(
+        Channel, description="Channel where the subscription was made."
+    )
     is_active = graphene.Boolean(
         required=True, description="Whether the subscription is active."
     )
@@ -1166,6 +1169,10 @@ class NewsletterSubscription(ModelObjectType[models.NewsletterSubscription]):
     @staticmethod
     def resolve_user(root: models.NewsletterSubscription, _info: ResolveInfo):
         return root.user
+
+    @staticmethod
+    def resolve_channel(root: models.NewsletterSubscription, _info: ResolveInfo):
+        return root.channel
 
 
 class NewsletterSubscriptionCountableConnection(CountableConnection):

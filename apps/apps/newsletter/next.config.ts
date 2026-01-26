@@ -3,6 +3,12 @@ import { NextConfig } from "next";
 const nextConfig = (): NextConfig => {
     return {
         reactStrictMode: true,
+        // Allow cross-origin requests from Saleor Dashboard and Cloudflare tunnels in development
+        allowedDevOrigins: [
+            "*.trycloudflare.com",
+            "localhost",
+            "127.0.0.1",
+        ],
         transpilePackages: [
             "@saleor/apps-shared",
             "@saleor/apps-ui",

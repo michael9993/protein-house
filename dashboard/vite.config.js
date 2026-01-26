@@ -173,8 +173,8 @@ export default defineConfig(({ command, mode }) => {
             "localhost",
             "127.0.0.1",
             DASHBOARD_TUNNEL_URL, // Current tunnel domain
-            "poker-absolutely-pierce-ridge.trycloudflare.com", // Cloudflare tunnel host
-            "poker-absolutely-pierce-ridge.trycloudflare.com",
+            "session-wine-airline-tell.trycloudflare.com", // Cloudflare tunnel host
+            "session-wine-airline-tell.trycloudflare.com",
 
             // Add more tunnel domains here as needed, or use a function pattern
           ]
@@ -218,8 +218,8 @@ export default defineConfig(({ command, mode }) => {
         "localhost",
         "127.0.0.1",
         DASHBOARD_TUNNEL_URL,
-        "poker-absolutely-pierce-ridge.trycloudflare.com", // Cloudflare tunnel host
-        "poker-absolutely-pierce-ridge.trycloudflare.com",
+        "session-wine-airline-tell.trycloudflare.com", // Cloudflare tunnel host
+        "session-wine-airline-tell.trycloudflare.com",
       ],
     },
     define: {
@@ -327,6 +327,7 @@ export default defineConfig(({ command, mode }) => {
     esbuild: { jsx: "automatic" },
   };
 });
+
 
 
 

@@ -58,8 +58,9 @@ const EditCampaignPage: NextPage = () => {
     { id: campaignId! },
     {
       enabled: !!campaignId && !!appBridgeState?.ready,
-      staleTime: 30000, // Cache for 30 seconds
-      refetchOnWindowFocus: false,
+      staleTime: 30000, // Consider data fresh for 30 seconds
+      refetchOnWindowFocus: true, // Refetch when window regains focus
+      placeholderData: (previousData) => previousData,
     },
   );
 
@@ -130,9 +131,11 @@ const EditCampaignPage: NextPage = () => {
 
   const updateMutation = trpcClient.campaign.update.useMutation({
     onSuccess: async (result) => {
+      // Invalidate all campaign queries
       await utils.campaign.list.invalidate();
-      await utils.campaign.list.refetch();
       await utils.campaign.get.invalidate({ id: campaignId! });
+      // Force refetch to ensure UI updates
+      await utils.campaign.list.refetch();
       await utils.campaign.get.refetch({ id: campaignId! });
       
       // Update form with latest data
@@ -182,7 +185,13 @@ const EditCampaignPage: NextPage = () => {
     },
   });
 
-  if (!appBridgeState?.ready) {
+  // Return null while App Bridge is initializing - this prevents race conditions
+  if (!appBridgeState) {
+    return null;
+  }
+
+  // Show loading while App Bridge is connecting
+  if (!appBridgeState.ready) {
     return (
       <BasicLayout breadcrumbs={[{ name: "Campaigns", href: "/campaigns" }, { name: "Edit" }]}>
         <Text>Loading...</Text>

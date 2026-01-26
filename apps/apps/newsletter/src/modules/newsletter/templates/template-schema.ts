@@ -5,6 +5,7 @@ export const templateSchema = z.object({
   name: z.string().min(1).max(255),
   subject: z.string().min(1).max(500), // Handlebars template
   body: z.string().min(1), // MJML template
+  previewData: z.string().optional(), // JSON string for preview data
   variables: z.array(z.string()).default([]), // Available variables
   images: z.array(z.string()).default([]), // Array of image IDs used in template
   version: z.number().int().positive().optional(),
@@ -21,6 +22,7 @@ export const createTemplateInputSchema = z.object({
   name: z.string().min(1).max(255),
   subject: z.string().min(1).max(500),
   body: z.string().min(1),
+  previewData: z.string().optional(), // JSON string for preview data
   variables: z.array(z.string()).optional(),
   images: z.array(z.string()).optional(),
 });

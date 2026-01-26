@@ -84,7 +84,7 @@ export class CampaignService {
   }
 
   async updateCampaign(input: UpdateCampaignInput, updatedBy: string): Promise<Campaign> {
-    logger.debug("Updating campaign", { id: input.id });
+    logger.debug("Updating campaign", { id: input.id, updatedBy });
 
     const campaigns = await this.getCampaigns();
     const index = campaigns.findIndex((c) => c.id === input.id);
@@ -95,9 +95,13 @@ export class CampaignService {
 
     const existing = campaigns[index];
 
-    // Allow editing all campaigns - reset progress if needed
-    if (existing.status === "sending" || existing.status === "sent") {
-      // Reset progress when editing a sent/sending campaign
+    // Only reset progress for USER edits (not system/worker updates)
+    // This allows users to re-run campaigns while preserving worker progress updates
+    const isSystemUpdate = updatedBy === "system";
+    
+    if (!isSystemUpdate && (existing.status === "sending" || existing.status === "sent")) {
+      // Reset progress when a user is editing a sent/sending campaign
+      logger.info("Resetting campaign progress for user edit", { id: input.id, status: existing.status });
       input.sentCount = 0;
       input.failedCount = 0;
       input.lastProcessedSubscriberId = undefined;
@@ -123,7 +127,13 @@ export class CampaignService {
     campaigns[index] = updated;
     await this.saveCampaigns(campaigns);
 
-    logger.info("Campaign updated", { id: updated.id, name: updated.name });
+    logger.info("Campaign updated", { 
+      id: updated.id, 
+      name: updated.name,
+      sentCount: updated.sentCount,
+      failedCount: updated.failedCount,
+      updatedBy,
+    });
     return updated;
   }
 

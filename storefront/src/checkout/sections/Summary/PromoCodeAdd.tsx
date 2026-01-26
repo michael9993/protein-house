@@ -7,6 +7,7 @@ import { type Classes } from "@/checkout/lib/globalTypes";
 import { useFormSubmit } from "@/checkout/hooks/useFormSubmit";
 import { FormProvider } from "@/checkout/hooks/useForm/FormProvider";
 import { useForm } from "@/checkout/hooks/useForm";
+import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 
 interface PromoCodeFormData {
 	promoCode: string;
@@ -15,6 +16,7 @@ interface PromoCodeFormData {
 export const PromoCodeAdd: FC<Classes> = ({ className }) => {
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [, checkoutAddPromoCode] = useCheckoutAddPromoCodeMutation();
+	const text = useCheckoutText();
 
 	const onSubmit = useFormSubmit<PromoCodeFormData, typeof checkoutAddPromoCode>({
 		scope: "checkoutAddPromoCode",
@@ -53,21 +55,21 @@ export const PromoCodeAdd: FC<Classes> = ({ className }) => {
 						<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
 						</svg>
-						Add promo code or gift card
+						{text.addPromoCodeText || "Add promo code or gift card"}
 					</button>
 				) : (
 					<div className="relative">
 						<TextInput 
 							required={false} 
 							name="promoCode" 
-							label="Promo code or gift card" 
+							label={text.promoCodeLabel || "Promo code or gift card"} 
 						/>
 						<div className="absolute bottom-2 right-2 flex gap-1">
 							{showApplyButton && (
 								<Button
 									variant="tertiary"
-									ariaLabel="apply"
-									label="Apply"
+									ariaLabel={text.applyPromoButton || "apply"}
+									label={text.applyPromoButton || "Apply"}
 									type="submit"
 								/>
 							)}

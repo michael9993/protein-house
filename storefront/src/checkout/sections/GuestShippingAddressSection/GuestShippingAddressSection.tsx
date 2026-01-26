@@ -3,9 +3,11 @@ import { AddressForm } from "@/checkout/components/AddressForm";
 import { FormProvider } from "@/checkout/hooks/useForm/FormProvider";
 import { useAvailableShippingCountries } from "@/checkout/hooks/useAvailableShippingCountries";
 import { useGuestShippingAddressForm } from "@/checkout/sections/GuestShippingAddressSection/useGuestShippingAddressForm";
+import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 
 export const GuestShippingAddressSection = () => {
 	const { availableShippingCountries } = useAvailableShippingCountries();
+	const text = useCheckoutText();
 
 	const form = useGuestShippingAddressForm();
 
@@ -14,7 +16,7 @@ export const GuestShippingAddressSection = () => {
 	return (
 		<FormProvider form={form}>
 			<AddressForm
-				title="Shipping address"
+				title={text.shippingAddressTitle || "Shipping address"}
 				availableCountries={availableShippingCountries}
 				fieldProps={{
 					onChange: handleChange,

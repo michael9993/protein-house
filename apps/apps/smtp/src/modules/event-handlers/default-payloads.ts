@@ -590,6 +590,32 @@ const contactSubmissionReplyPayload = {
   reply_subject: "Re: Question about my order",
 };
 
+const newsletterSubscribePayload = {
+  user: {
+    email: "subscriber@example.com",
+    first_name: "John",
+    last_name: "Doe",
+  },
+  recipient_email: "subscriber@example.com",
+  channel_slug: "default-channel",
+  domain: "demo.saleor.cloud",
+  site_name: "Saleor e-commerce",
+  logo_url: "",
+};
+
+const newsletterReactivatePayload = {
+  user: {
+    email: "subscriber@example.com",
+    first_name: "John",
+    last_name: "Doe",
+  },
+  recipient_email: "subscriber@example.com",
+  channel_slug: "default-channel",
+  domain: "demo.saleor.cloud",
+  site_name: "Saleor e-commerce",
+  logo_url: "",
+};
+
 export const examplePayloads: Record<MessageEventTypes, any> = {
   ACCOUNT_CHANGE_EMAIL_CONFIRM: accountChangeEmailConfirmPayload,
   ACCOUNT_CHANGE_EMAIL_REQUEST: accountChangeEmailRequestPayload,
@@ -599,6 +625,8 @@ export const examplePayloads: Record<MessageEventTypes, any> = {
   CONTACT_SUBMISSION_REPLY: contactSubmissionReplyPayload,
   GIFT_CARD_SENT: giftCardSentPayload,
   INVOICE_SENT: invoiceSentPayload,
+  NEWSLETTER_SUBSCRIBE: newsletterSubscribePayload,
+  NEWSLETTER_REACTIVATE: newsletterReactivatePayload,
   ORDER_CANCELLED: orderCancelledPayload,
   ORDER_CONFIRMED: orderConfirmedPayload,
   ORDER_CREATED: orderCreatedPayload,

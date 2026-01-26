@@ -23,6 +23,26 @@ export class TemplateService {
   async createTemplate(input: CreateTemplateInput, createdBy: string): Promise<Template> {
     logger.debug("Creating template", { name: input.name });
 
+    // Log preview data for debugging
+    let hasProducts = false;
+    let productsCount = 0;
+    if (input.previewData) {
+      try {
+        const parsed = JSON.parse(input.previewData);
+        hasProducts = Array.isArray(parsed.products) && parsed.products.length > 0;
+        productsCount = parsed.products?.length || 0;
+      } catch (e) {
+        logger.warn("Failed to parse previewData for logging", { error: e });
+      }
+    }
+    logger.info("Creating template with previewData", {
+      name: input.name,
+      hasPreviewData: !!input.previewData,
+      previewDataLength: input.previewData?.length || 0,
+      hasProducts,
+      productsCount,
+    });
+
     const templates = await this.getTemplates();
     const now = new Date().toISOString();
 
@@ -31,6 +51,7 @@ export class TemplateService {
       name: input.name,
       subject: input.subject,
       body: input.body,
+      previewData: input.previewData,
       variables: input.variables || [],
       images: input.images || [],
       version: 1,
@@ -44,13 +65,38 @@ export class TemplateService {
     templates.push(template);
     await this.saveTemplates(templates);
 
-    logger.info("Template created", { id: template.id, name: template.name });
+    logger.info("Template created", { id: template.id, name: template.name, hasPreviewData: !!template.previewData });
     return template;
   }
 
   async getTemplate(id: string): Promise<Template | null> {
     const templates = await this.getTemplates();
-    return templates.find((t) => t.id === id) || null;
+    const template = templates.find((t) => t.id === id) || null;
+    
+    if (template) {
+      // Log for debugging
+      let hasProducts = false;
+      let productsCount = 0;
+      if (template.previewData) {
+        try {
+          const parsed = JSON.parse(template.previewData);
+          hasProducts = Array.isArray(parsed.products) && parsed.products.length > 0;
+          productsCount = parsed.products?.length || 0;
+        } catch (e) {
+          // Ignore parse errors
+        }
+      }
+      logger.debug("Fetched template", {
+        id: template.id,
+        name: template.name,
+        hasPreviewData: !!template.previewData,
+        previewDataLength: template.previewData?.length || 0,
+        hasProducts,
+        productsCount,
+      });
+    }
+    
+    return template;
   }
 
   async getTemplates(): Promise<Template[]> {
@@ -68,6 +114,26 @@ export class TemplateService {
 
   async updateTemplate(input: UpdateTemplateInput, updatedBy: string): Promise<Template> {
     logger.debug("Updating template", { id: input.id });
+
+    // Log preview data for debugging
+    let hasProducts = false;
+    let productsCount = 0;
+    if (input.previewData) {
+      try {
+        const parsed = JSON.parse(input.previewData);
+        hasProducts = Array.isArray(parsed.products) && parsed.products.length > 0;
+        productsCount = parsed.products?.length || 0;
+      } catch (e) {
+        logger.warn("Failed to parse previewData for logging", { error: e });
+      }
+    }
+    logger.info("Updating template with previewData", {
+      id: input.id,
+      hasPreviewData: !!input.previewData,
+      previewDataLength: input.previewData?.length || 0,
+      hasProducts,
+      productsCount,
+    });
 
     const templates = await this.getTemplates();
     const index = templates.findIndex((t) => t.id === input.id);
@@ -92,7 +158,12 @@ export class TemplateService {
     templates[index] = updated;
     await this.saveTemplates(templates);
 
-    logger.info("Template updated", { id: updated.id, name: updated.name });
+    logger.info("Template updated", { 
+      id: updated.id, 
+      name: updated.name,
+      hasPreviewData: !!updated.previewData,
+      previewDataLength: updated.previewData?.length || 0,
+    });
     return updated;
   }
 

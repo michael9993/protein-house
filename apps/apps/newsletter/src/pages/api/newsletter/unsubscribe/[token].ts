@@ -21,22 +21,22 @@ const UNSUBSCRIBE_MUTATION = gql`
 `;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "GET") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+    if (req.method !== "GET") {
+        return res.status(405).json({ error: "Method not allowed" });
+    }
 
-  const { token } = req.query;
+    const { token } = req.query;
 
-  if (!token || typeof token !== "string") {
-    return res.status(400).json({ error: "Token is required" });
-  }
+    if (!token || typeof token !== "string") {
+        return res.status(400).json({ error: "Token is required" });
+    }
 
-  try {
-    // Validate token
-    const tokenData = validateUnsubscribeToken(token);
+    try {
+        // Validate token
+        const tokenData = validateUnsubscribeToken(token);
 
-    if (!tokenData) {
-      return res.status(400).send(`
+        if (!tokenData) {
+            return res.status(400).send(`
         <!DOCTYPE html>
         <html>
           <head><title>Invalid Link</title></head>
@@ -46,13 +46,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           </body>
         </html>
       `);
-    }
+        }
 
-    // Get Saleor API URL from query or header
-    const saleorApiUrl = (req.query.saleorApiUrl as string) || req.headers[SALEOR_API_URL_HEADER] as string;
+        // Get Saleor API URL from token data (primary), or fallback to query/header
+        const saleorApiUrl = tokenData.saleorApiUrl || (req.query.saleorApiUrl as string) || req.headers[SALEOR_API_URL_HEADER] as string;
 
-    if (!saleorApiUrl) {
-      return res.status(400).send(`
+        if (!saleorApiUrl) {
+            logger.error("Saleor API URL not found in token or request", { email: tokenData.email });
+            return res.status(400).send(`
         <!DOCTYPE html>
         <html>
           <head><title>Error</title></head>
@@ -62,12 +63,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           </body>
         </html>
       `);
-    }
+        }
 
-    // Get auth data
-    const authData = await saleorApp.apl.get(saleorApiUrl);
-    if (!authData) {
-      return res.status(401).send(`
+        // Get auth data
+        const authData = await saleorApp.apl.get(saleorApiUrl);
+        if (!authData) {
+            return res.status(401).send(`
         <!DOCTYPE html>
         <html>
           <head><title>Error</title></head>
@@ -77,24 +78,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           </body>
         </html>
       `);
-    }
+        }
 
-    // Create GraphQL client
-    const apiClient = createSimpleGraphQLClient({
-      saleorApiUrl: authData.saleorApiUrl,
-      token: authData.token,
-    });
+        // Create GraphQL client
+        const apiClient = createSimpleGraphQLClient({
+            saleorApiUrl: authData.saleorApiUrl,
+            token: authData.token,
+        });
 
-    // Call unsubscribe mutation
-    const result = await apiClient
-      .mutation(UNSUBSCRIBE_MUTATION, {
-        email: tokenData.email,
-      })
-      .toPromise();
+        // Call unsubscribe mutation
+        const result = await apiClient
+            .mutation(UNSUBSCRIBE_MUTATION, {
+                email: tokenData.email,
+            })
+            .toPromise();
 
-    if (result.error) {
-      logger.error("Error unsubscribing", { error: result.error, email: tokenData.email });
-      return res.status(500).send(`
+        if (result.error) {
+            logger.error("Error unsubscribing", { error: result.error, email: tokenData.email });
+            return res.status(500).send(`
         <!DOCTYPE html>
         <html>
           <head><title>Error</title></head>
@@ -104,12 +105,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           </body>
         </html>
       `);
-    }
+        }
 
-    if (result.data?.newsletterUnsubscribe?.errors?.length > 0) {
-      const errors = result.data.newsletterUnsubscribe.errors;
-      logger.error("Unsubscribe mutation errors", { errors, email: tokenData.email });
-      return res.status(400).send(`
+        if (result.data?.newsletterUnsubscribe?.errors?.length > 0) {
+            const errors = result.data.newsletterUnsubscribe.errors;
+            logger.error("Unsubscribe mutation errors", { errors, email: tokenData.email });
+            return res.status(400).send(`
         <!DOCTYPE html>
         <html>
           <head><title>Error</title></head>
@@ -119,12 +120,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           </body>
         </html>
       `);
-    }
+        }
 
-    logger.info("Successfully unsubscribed", { email: tokenData.email, campaignId: tokenData.campaignId });
+        logger.info("Successfully unsubscribed", { email: tokenData.email, campaignId: tokenData.campaignId, channel: tokenData.channelSlug });
 
-    // Return success page
-    return res.status(200).send(`
+        // Redirect to storefront unsubscribe page using the channel from the token
+        const storefrontUrl = process.env.STOREFRONT_URL || process.env.STOREFRONT_TUNNEL_URL || process.env.NEXT_PUBLIC_STOREFRONT_URL || "";
+        const channel = tokenData.channelSlug || process.env.DEFAULT_CHANNEL_SLUG || "default-channel";
+
+        if (storefrontUrl) {
+            return res.redirect(302, `${storefrontUrl}/${channel}/unsubscribe?success=true`);
+        }
+
+        // Fallback: Return success page if storefront URL not configured
+        return res.status(200).send(`
       <!DOCTYPE html>
       <html>
         <head>
@@ -149,9 +158,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         </body>
       </html>
     `);
-  } catch (error) {
-    logger.error("Error processing unsubscribe", { error, token });
-    return res.status(500).send(`
+    } catch (error) {
+        logger.error("Error processing unsubscribe", { error, token });
+        return res.status(500).send(`
       <!DOCTYPE html>
       <html>
         <head><title>Error</title></head>
@@ -161,5 +170,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         </body>
       </html>
     `);
-  }
+    }
 }

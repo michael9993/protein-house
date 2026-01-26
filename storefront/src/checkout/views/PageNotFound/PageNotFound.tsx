@@ -3,6 +3,7 @@ import { useParams } from "next/navigation";
 import { Button } from "@/checkout/components/Button";
 import { ErrorContentWrapper } from "@/checkout/components/ErrorContentWrapper";
 import { DefaultChannelSlug } from "@/app/config";
+import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 
 interface PageNotFoundProps extends Partial<FallbackProps> {
 	reason?: "missing" | "invalid" | "error";
@@ -14,6 +15,7 @@ export const PageNotFound = ({ error, reason = "error" }: PageNotFoundProps) => 
 	}
 
 	const params = useParams();
+	const text = useCheckoutText();
 	
 	const getChannel = (): string => {
 		// Try to get from Next.js params first
@@ -42,18 +44,18 @@ export const PageNotFound = ({ error, reason = "error" }: PageNotFoundProps) => 
 		switch (reason) {
 			case "missing":
 				return {
-					title: "No checkout found",
-					description: "It looks like you haven't started a checkout yet. Add some items to your cart first.",
+					title: text.noCheckoutFoundTitle || "No checkout found",
+					description: text.noCheckoutFoundMessage || "It looks like you haven't started a checkout yet. Add some items to your cart first.",
 				};
 			case "invalid":
 				return {
-					title: "Checkout expired or invalid",
-					description: "This checkout session has expired or is no longer valid. Please return to your cart and try again.",
+					title: text.checkoutExpiredTitle || "Checkout expired or invalid",
+					description: text.checkoutExpiredMessage || "This checkout session has expired or is no longer valid. Please return to your cart and try again.",
 				};
 			default:
 				return {
-					title: "Something went wrong",
-					description: "We couldn't load your checkout. Please return to your cart and try again.",
+					title: text.somethingWentWrongTitle || "Something went wrong",
+					description: text.somethingWentWrongMessage || "We couldn't load your checkout. Please return to your cart and try again.",
 				};
 		}
 	};
@@ -82,16 +84,16 @@ export const PageNotFound = ({ error, reason = "error" }: PageNotFoundProps) => 
 			<p className="mb-6 text-center" style={{ color: "var(--store-text-muted)" }}>{description}</p>
 			<div className="flex flex-col gap-3 sm:flex-row">
 				<Button 
-					ariaLabel="Return to cart" 
+					ariaLabel={text.returnToCartButton || "Return to cart"} 
 					onClick={goToCart} 
 					variant="primary" 
-					label="Return to Cart" 
+					label={text.returnToCartButton || "Return to Cart"} 
 				/>
 				<Button 
-					ariaLabel="Continue shopping" 
+					ariaLabel={text.continueShoppingButton || "Continue shopping"} 
 					onClick={goToStore} 
 					variant="secondary" 
-					label="Continue Shopping" 
+					label={text.continueShoppingButton || "Continue Shopping"} 
 				/>
 			</div>
 		</ErrorContentWrapper>

@@ -16,6 +16,7 @@ import {
 } from "@/checkout/graphql";
 import { SummaryItemMoneySection } from "@/checkout/sections/Summary/SummaryItemMoneySection";
 import { type GrossMoney, type GrossMoneyWithTax } from "@/checkout/lib/globalTypes";
+import { useCheckoutText, formatText } from "@/checkout/hooks/useCheckoutText";
 
 interface SummaryProps {
 	editable?: boolean;
@@ -38,7 +39,21 @@ export const Summary: FC<SummaryProps> = ({
 	shippingPrice,
 	discount,
 }) => {
+	const text = useCheckoutText();
 	const itemCount = lines.reduce((sum, line) => sum + (line.quantity || 1), 0);
+	
+	const getItemsCountText = () => {
+		if (itemCount === 1) {
+			return text.itemsCountSingular || "1 item";
+		}
+		const template = text.itemsCountPlural || "{count} items";
+		return formatText(template, { count: itemCount });
+	};
+	
+	const getIncludesTaxText = () => {
+		const template = text.includesTaxText || "Includes {amount} tax";
+		return formatText(template, { amount: getFormattedMoney(totalPrice?.tax) });
+	};
 
 	return (
 		<div className="sticky top-8 h-fit w-full print:static">
@@ -47,9 +62,9 @@ export const Summary: FC<SummaryProps> = ({
 				{/* Header */}
 				<div className="border-b px-6 py-4" style={{ borderColor: "var(--store-neutral-100)" }}>
 					<div className="flex items-center justify-between">
-						<h2 className="text-lg font-semibold" style={{ color: "var(--store-text)" }}>Order Summary</h2>
+						<h2 className="text-lg font-semibold" style={{ color: "var(--store-text)" }}>{text.orderSummaryTitle || "Order Summary"}</h2>
 						<span className="rounded-full px-2.5 py-0.5 text-sm font-medium" style={{ backgroundColor: "var(--store-neutral-100)", color: "var(--store-neutral-600)" }}>
-							{itemCount} {itemCount === 1 ? "item" : "items"}
+							{getItemsCountText()}
 						</span>
 					</div>
 				</div>
@@ -61,7 +76,7 @@ export const Summary: FC<SummaryProps> = ({
 							<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
 							</svg>
-							Products
+							{text.productsLabel || "Products"}
 						</span>
 						<ChevronDownIcon className="h-4 w-4 transition-transform group-open:rotate-180" />
 					</summary>
@@ -88,14 +103,14 @@ export const Summary: FC<SummaryProps> = ({
 				{/* Price Breakdown */}
 				<div className="border-t px-6 py-4" style={{ borderColor: "var(--store-neutral-100)" }}>
 					<div className="space-y-3">
-						<SummaryMoneyRow label="Subtotal" money={subtotalPrice?.gross} ariaLabel="subtotal price" />
+						<SummaryMoneyRow label={text.subtotalLabel || "Subtotal"} money={subtotalPrice?.gross} ariaLabel="subtotal price" />
 						
 						{voucherCode && (
 							<SummaryPromoCodeRow
 								editable={editable}
 								promoCode={voucherCode}
 								ariaLabel="voucher"
-								label={`Voucher: ${voucherCode}`}
+								label={`${text.voucherLabel || "Voucher:"} ${voucherCode}`}
 								money={discount}
 								negative
 							/>
@@ -107,14 +122,14 @@ export const Summary: FC<SummaryProps> = ({
 								editable={editable}
 								promoCodeId={id}
 								ariaLabel="gift card"
-								label={`Gift Card: •••• ${displayCode}`}
+								label={`${text.giftCardMaskedLabel || "Gift Card: ••••"} ${displayCode}`}
 								money={currentBalance}
 								negative
 							/>
 						))}
 						
 						<SummaryMoneyRow 
-							label="Shipping" 
+							label={text.shippingLabel || "Shipping"} 
 							ariaLabel="shipping cost" 
 							money={shippingPrice?.gross} 
 						/>
@@ -125,9 +140,9 @@ export const Summary: FC<SummaryProps> = ({
 				<div className="rounded-b-xl px-6 py-4" style={{ backgroundColor: "var(--store-surface)" }}>
 					<div className="flex items-center justify-between">
 						<div>
-							<p className="text-lg font-bold" style={{ color: "var(--store-text)" }}>Total</p>
+							<p className="text-lg font-bold" style={{ color: "var(--store-text)" }}>{text.totalLabel || "Total"}</p>
 							<p className="text-xs" style={{ color: "var(--store-text-muted)" }}>
-								Includes {getFormattedMoney(totalPrice?.tax)} tax
+								{getIncludesTaxText()}
 							</p>
 						</div>
 						<div className="text-xl font-bold" style={{ color: "var(--store-text)" }}>
@@ -146,7 +161,7 @@ export const Summary: FC<SummaryProps> = ({
 				<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
 				</svg>
-				<span>Secure 256-bit SSL encryption</span>
+				<span>{text.sslEncryptionText || "Secure 256-bit SSL encryption"}</span>
 			</div>
 		</div>
 	);

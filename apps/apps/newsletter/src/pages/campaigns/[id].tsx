@@ -2,7 +2,7 @@ import { useAppBridge } from "@saleor/app-sdk/app-bridge";
 import { Box, Button, Text } from "@saleor/macaw-ui";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import { BasicLayout } from "../../components/basic-layout";
 import { SectionWithDescription } from "../../components/section-with-description";
@@ -17,7 +17,9 @@ const DeleteCampaignButton = ({ campaignId, campaignName }: { campaignId: string
 
   const deleteMutation = trpcClient.campaign.delete.useMutation({
     onSuccess: async () => {
+      // Invalidate all campaign queries before redirecting
       await utils.campaign.list.invalidate();
+      await utils.campaign.get.invalidate();
       await utils.campaign.list.refetch();
       setMessage({ type: "success", text: "Campaign deleted successfully!" });
       setTimeout(() => {
@@ -96,21 +98,56 @@ const CampaignDetailPage: NextPage = () => {
   const campaignId = router.query.id as string | undefined;
   const utils = trpcClient.useUtils();
 
-  const { data: campaignData, isLoading } = trpcClient.campaign.get.useQuery(
+  const { data: campaignData, isLoading, refetch } = trpcClient.campaign.get.useQuery(
     { id: campaignId! },
     {
       enabled: !!campaignId && !!appBridgeState?.ready,
-      staleTime: 30000, // Cache for 30 seconds
-      refetchOnWindowFocus: false,
+      staleTime: 10000, // Consider data fresh for 10 seconds (shorter for detail page)
+      refetchOnWindowFocus: true, // Refetch when window regains focus
+      placeholderData: (previousData) => previousData,
     },
   );
 
+  // Poll every 2 seconds when campaign is sending
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  useEffect(() => {
+    const campaign = campaignData?.campaign;
+    
+    // Clear any existing interval
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
+    
+    // Start polling if campaign is sending
+    if (campaign?.status === "sending") {
+      pollingIntervalRef.current = setInterval(() => {
+        refetch();
+      }, 2000);
+    }
+    
+    // Cleanup on unmount or when campaign status changes
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+      }
+    };
+  }, [campaignData?.campaign?.status, refetch]);
+
   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [showStartConfirm, setShowStartConfirm] = useState(false);
 
   const updateStatusMutation = trpcClient.campaign.updateStatus.useMutation({
     onSuccess: async (result) => {
+      // Invalidate and refetch all campaign queries
       await utils.campaign.get.invalidate({ id: campaignId! });
+      await utils.campaign.get.refetch({ id: campaignId! });
       await utils.campaign.list.invalidate();
+      await utils.campaign.list.refetch();
+      
+      setShowStartConfirm(false);
       
       // Show success message
       if (result?.campaign) {
@@ -121,19 +158,23 @@ const CampaignDetailPage: NextPage = () => {
           setStatusMessage({ type: "error", text: "Campaign started, but no subscribers match the selected filters." });
         }
       }
+      setTimeout(() => setStatusMessage(null), 5000);
     },
     onError: (error) => {
       setStatusMessage({ type: "error", text: `Failed to start campaign: ${error.message}` });
+      setShowStartConfirm(false);
       console.error("Failed to start campaign:", error);
+      setTimeout(() => setStatusMessage(null), 5000);
     },
   });
 
-  const handleStart = async () => {
+  const handleStart = () => {
     if (!campaignId) return;
-    if (!confirm("Are you sure you want to start this campaign? It will begin sending emails immediately.")) {
-      return;
-    }
+    setShowStartConfirm(true);
+  };
 
+  const confirmStart = () => {
+    if (!campaignId) return;
     updateStatusMutation.mutate({
       id: campaignId,
       status: "sending",
@@ -142,13 +183,20 @@ const CampaignDetailPage: NextPage = () => {
 
   const cancelMutation = trpcClient.campaign.updateStatus.useMutation({
     onSuccess: async () => {
+      // Invalidate and refetch all campaign queries
       await utils.campaign.get.invalidate({ id: campaignId! });
+      await utils.campaign.get.refetch({ id: campaignId! });
       await utils.campaign.list.invalidate();
+      await utils.campaign.list.refetch();
+      setShowCancelConfirm(false);
       setStatusMessage({ type: "success", text: "Campaign cancelled successfully!" });
+      setTimeout(() => setStatusMessage(null), 5000);
     },
     onError: (error) => {
       setStatusMessage({ type: "error", text: `Failed to cancel campaign: ${error.message}` });
+      setShowCancelConfirm(false);
       console.error("Failed to cancel campaign:", error);
+      setTimeout(() => setStatusMessage(null), 5000);
     },
   });
 
@@ -164,7 +212,6 @@ const CampaignDetailPage: NextPage = () => {
       id: campaignId,
       status: "cancelled",
     });
-    setShowCancelConfirm(false);
   };
 
   const getStatusColor = (status: string) => {
@@ -184,7 +231,13 @@ const CampaignDetailPage: NextPage = () => {
     }
   };
 
-  if (!appBridgeState?.ready) {
+  // Return null while App Bridge is initializing - this prevents race conditions
+  if (!appBridgeState) {
+    return null;
+  }
+
+  // Show loading while App Bridge is connecting
+  if (!appBridgeState.ready) {
     return (
       <BasicLayout breadcrumbs={[{ name: "Campaigns", href: "/campaigns" }, { name: "Details" }]}>
         <Text>Loading...</Text>
@@ -217,13 +270,103 @@ const CampaignDetailPage: NextPage = () => {
   }
 
   const campaign = campaignData.campaign;
+  const totalProcessed = campaign.sentCount + campaign.failedCount;
   const progress =
     campaign.recipientCount > 0
-      ? Math.round((campaign.sentCount / campaign.recipientCount) * 100)
+      ? Math.round((totalProcessed / campaign.recipientCount) * 100)
       : 0;
+  const successRate = totalProcessed > 0
+    ? Math.round((campaign.sentCount / totalProcessed) * 100)
+    : 0;
 
   return (
     <BasicLayout breadcrumbs={[{ name: "Campaigns", href: "/campaigns" }, { name: campaign.name }]}>
+      {statusMessage && (
+        <Box
+          padding={3}
+          marginBottom={4}
+          backgroundColor={statusMessage.type === "success" ? "success1" : "critical1"}
+          borderRadius={2}
+        >
+          <Text color={statusMessage.type === "success" ? "default1" : "critical2"}>
+            {statusMessage.text}
+          </Text>
+        </Box>
+      )}
+      {showStartConfirm && (
+        <Box
+          position="fixed"
+          top="0"
+          left="0"
+          style={{ width: "100%", height: "100%", backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1000 }}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Box
+            backgroundColor="default1"
+            padding={4}
+            borderRadius={2}
+            borderWidth={1}
+            borderStyle="solid"
+            borderColor="default1"
+            style={{ maxWidth: "400px" }}
+            textAlign="center"
+          >
+            <Text marginBottom={2} fontWeight="bold" size={3}>
+              Start Campaign?
+            </Text>
+            <Text marginBottom={3} size={2}>
+              Are you sure you want to start this campaign? It will begin sending emails immediately.
+            </Text>
+            <Box display="flex" gap={2} justifyContent="center">
+              <Button variant="secondary" onClick={() => setShowStartConfirm(false)}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={confirmStart} disabled={updateStatusMutation.isPending}>
+                {updateStatusMutation.isPending ? "Starting..." : "Yes, Start"}
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+      )}
+      {showCancelConfirm && (
+        <Box
+          position="fixed"
+          top="0"
+          left="0"
+          style={{ width: "100%", height: "100%", backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1000 }}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Box
+            backgroundColor="default1"
+            padding={4}
+            borderRadius={2}
+            borderWidth={1}
+            borderStyle="solid"
+            borderColor="default1"
+            style={{ maxWidth: "400px" }}
+            textAlign="center"
+          >
+            <Text marginBottom={2} fontWeight="bold" size={3}>
+              Cancel Campaign?
+            </Text>
+            <Text marginBottom={3} size={2}>
+              Are you sure you want to cancel this campaign? This will stop sending emails.
+            </Text>
+            <Box display="flex" gap={2} justifyContent="center">
+              <Button variant="secondary" onClick={() => setShowCancelConfirm(false)}>
+                No, Keep Running
+              </Button>
+              <Button variant="critical" onClick={confirmCancel} disabled={cancelMutation.isPending}>
+                {cancelMutation.isPending ? "Cancelling..." : "Yes, Cancel"}
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+      )}
       <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom={4}>
         <Box>
           <Text as="h1" variant="hero">
@@ -304,10 +447,58 @@ const CampaignDetailPage: NextPage = () => {
         title="Progress"
         description={<Text>Campaign sending progress and statistics.</Text>}
       >
-        <Box display="grid" gridTemplateColumns={{ desktop: 3, mobile: 1 }} gap={4}>
+        {/* Progress bar - always show for sending, sent, or failed campaigns */}
+        {(campaign.status === "sending" || campaign.status === "sent" || campaign.status === "failed" || campaign.status === "cancelled") && (
+          <Box marginBottom={4}>
+            <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom={2}>
+              <Text size={3} fontWeight="bold">
+                {campaign.status === "sending" ? "Sending..." : 
+                 campaign.status === "sent" ? "Complete" : 
+                 campaign.status === "failed" ? "Failed" : "Cancelled"}
+              </Text>
+              <Text size={3} color={campaign.status === "sending" ? "info1" : "default2"}>
+                {progress}% ({totalProcessed} / {campaign.recipientCount})
+              </Text>
+            </Box>
+            <Box
+              style={{ width: "100%", height: "12px" }}
+              backgroundColor="default2"
+              borderRadius={2}
+              overflow="hidden"
+            >
+              {/* Success portion (green) */}
+              <Box
+                style={{ 
+                  width: campaign.recipientCount > 0 ? `${(campaign.sentCount / campaign.recipientCount) * 100}%` : "0%", 
+                  height: "100%", 
+                  transition: "width 0.3s ease-in-out",
+                  float: "left",
+                }}
+                backgroundColor="success1"
+              />
+              {/* Failed portion (red) */}
+              <Box
+                style={{ 
+                  width: campaign.recipientCount > 0 ? `${(campaign.failedCount / campaign.recipientCount) * 100}%` : "0%", 
+                  height: "100%", 
+                  transition: "width 0.3s ease-in-out",
+                  float: "left",
+                  backgroundColor: "#EF4444",
+                }}
+              />
+            </Box>
+            {campaign.status === "sending" && (
+              <Text size={2} color="info1" marginTop={1}>
+                ⏳ Live updating every 2 seconds...
+              </Text>
+            )}
+          </Box>
+        )}
+
+        <Box display="grid" gridTemplateColumns={{ desktop: 4, mobile: 2 }} gap={4}>
           <Box padding={4} borderWidth={1} borderStyle="solid" borderColor="default1" borderRadius={2}>
             <Text size={1} color="default2" marginBottom={1}>
-              Recipients
+              Total Recipients
             </Text>
             <Text size={8} fontWeight="bold">
               {campaign.recipientCount}
@@ -315,11 +506,16 @@ const CampaignDetailPage: NextPage = () => {
           </Box>
           <Box padding={4} borderWidth={1} borderStyle="solid" borderColor="default1" borderRadius={2}>
             <Text size={1} color="default2" marginBottom={1}>
-              Sent
+              Sent Successfully
             </Text>
             <Text size={8} fontWeight="bold" color="success1">
               {campaign.sentCount}
             </Text>
+            {totalProcessed > 0 && (
+              <Text size={2} color="success1">
+                {successRate}% success rate
+              </Text>
+            )}
           </Box>
           <Box padding={4} borderWidth={1} borderStyle="solid" borderColor="default1" borderRadius={2}>
             <Text size={1} color="default2" marginBottom={1}>
@@ -328,30 +524,21 @@ const CampaignDetailPage: NextPage = () => {
             <Text size={8} fontWeight="bold" color="critical1">
               {campaign.failedCount}
             </Text>
+            {campaign.failedCount > 0 && (
+              <Text size={2} color="critical1">
+                {100 - successRate}% failure rate
+              </Text>
+            )}
+          </Box>
+          <Box padding={4} borderWidth={1} borderStyle="solid" borderColor="default1" borderRadius={2}>
+            <Text size={1} color="default2" marginBottom={1}>
+              Remaining
+            </Text>
+            <Text size={8} fontWeight="bold" color={campaign.status === "sending" ? "info1" : "default2"}>
+              {Math.max(0, campaign.recipientCount - totalProcessed)}
+            </Text>
           </Box>
         </Box>
-
-        {campaign.status === "sending" && (
-          <Box marginTop={4}>
-            <Text size={2} color="default2" marginBottom={2}>
-              Progress: {progress}%
-            </Text>
-            <Box
-              width="100%"
-              height={8}
-              backgroundColor="default1"
-              borderRadius={4}
-              overflow="hidden"
-            >
-              <Box
-                width={`${progress}%`}
-                height="100%"
-                backgroundColor="info1"
-                style={{ transition: "width 0.3s" }}
-              />
-            </Box>
-          </Box>
-        )}
       </SectionWithDescription>
 
       {campaign.errorLog && campaign.errorLog.length > 0 && (
@@ -360,7 +547,7 @@ const CampaignDetailPage: NextPage = () => {
           description={<Text>Errors encountered during campaign sending.</Text>}
         >
           <Box
-            maxHeight={400}
+            style={{ maxHeight: "400px" }}
             overflow="auto"
             padding={3}
             backgroundColor="default1"

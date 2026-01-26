@@ -318,10 +318,10 @@ export function CartClient({
     // Set navigating state to show loader
     setIsNavigatingToCheckout(true);
 
-    // If all items selected, use existing checkout
+    // If all items selected, use existing checkout (channel-aware)
     if (allSelected) {
       // Use replace to avoid stacking checkout entries in history
-      router.replace(`/checkout?checkout=${cart.id}`);
+      router.replace(`/${channel}/checkout?checkout=${cart.id}`);
       // Keep loading state - it will be cleared when page unloads or navigation completes
       return;
     }
@@ -346,8 +346,8 @@ export function CartClient({
           };
           localStorage.setItem('pendingCartCleanup', JSON.stringify(pendingCleanup));
           
-          // Use replace to avoid stacking checkout entries in history
-          router.replace(`/checkout?checkout=${result.checkoutId}`);
+          // Use replace to avoid stacking checkout entries in history (channel-aware)
+          router.replace(`/${channel}/checkout?checkout=${result.checkoutId}`);
           // Keep loading state - it will be cleared when page unloads or navigation completes
         } else {
           setIsNavigatingToCheckout(false);
@@ -359,8 +359,8 @@ export function CartClient({
         setIsCreatingCheckout(false);
       }
     } else {
-      // Fallback: use existing checkout (will include all items)
-      router.replace(`/checkout?checkout=${cart.id}`);
+      // Fallback: use existing checkout (will include all items, channel-aware)
+      router.replace(`/${channel}/checkout?checkout=${cart.id}`);
       // Keep loading state - it will be cleared when page unloads or navigation completes
     }
   };
@@ -802,7 +802,7 @@ export function CartClient({
               {/* Promo Code */}
               <div className="mt-6">
                 <label htmlFor="promo" className="block text-sm font-medium text-neutral-700">
-                  Promo Code
+                  {content.cart.promoCodeLabel}
                 </label>
                 <div className="mt-2 flex gap-2">
                   <input
@@ -810,7 +810,7 @@ export function CartClient({
                     id="promo"
                     value={promoCode}
                     onChange={(e) => setPromoCode(e.target.value)}
-                    placeholder="Enter code"
+                    placeholder={content.cart.promoCodePlaceholder}
                     className="flex-1 rounded-lg border border-neutral-300 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2"
                     style={{ "--tw-ring-color": branding.colors.primary } as React.CSSProperties}
                   />
@@ -819,7 +819,7 @@ export function CartClient({
                     disabled={!promoCode.trim()}
                     className="rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    Apply
+                    {content.cart.promoCodeApplyButton}
                   </button>
                 </div>
               </div>

@@ -9,6 +9,7 @@ import { Title } from "@/checkout/components/Title";
 import { type UseFormReturn } from "@/checkout/hooks/useForm";
 import { type AddressListFormData } from "@/checkout/sections/AddressList/useAddressListForm";
 import { FormProvider } from "@/checkout/hooks/useForm/FormProvider";
+import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 
 export interface AddressListProps {
 	onEditChange: (id: string) => void;
@@ -30,17 +31,18 @@ export const AddressList: React.FC<AddressListProps> = ({
 	} = form;
 
 	const { isAvailable } = useAddressAvailability(!checkAddressAvailability);
+	const text = useCheckoutText();
 
 	return (
 		<FormProvider form={form}>
 			<div className="flex flex-col">
 				<Title>{title}</Title>
-				{addressList.length < 1 && <p className="mb-3">You currently have no saved addresses.</p>}
+				{addressList.length < 1 && <p className="mb-3">{text.noSavedAddressesText || "You currently have no saved addresses."}</p>}
 				<Button
 					variant="secondary"
-					ariaLabel="add address"
+					ariaLabel={text.addAddressButton || "add address"}
 					onClick={onAddAddressClick}
-					label="Add address"
+					label={text.addAddressButton || "Add address"}
 					className="w-full"
 				/>
 				<SelectBoxGroup label="user addresses" className="mt-2">

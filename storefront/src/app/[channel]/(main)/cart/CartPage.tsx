@@ -5,6 +5,7 @@ import { useState } from "react";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { formatMoney, getHrefForVariant } from "@/lib/utils";
 import { storeConfig } from "@/config";
+import { useBranding, useContentConfig } from "@/providers/StoreConfigProvider";
 
 interface CartLine {
   id: string;
@@ -49,6 +50,7 @@ interface CartPageProps {
     };
   };
   checkoutId: string;
+  channel: string;
   onDeleteLine: (lineId: string) => Promise<void>;
   onUpdateQuantity: (lineId: string, quantity: number) => Promise<void>;
 }
@@ -57,10 +59,13 @@ export function CartPage({
   lines, 
   totalPrice, 
   checkoutId,
+  channel,
   onDeleteLine,
   onUpdateQuantity 
 }: CartPageProps) {
-  const { branding, ecommerce } = storeConfig;
+  const { branding: staticBranding, ecommerce } = storeConfig;
+  const branding = useBranding();
+  const content = useContentConfig();
   const [promoCode, setPromoCode] = useState("");
   const [isApplyingPromo, setIsApplyingPromo] = useState(false);
   const [updatingLines, setUpdatingLines] = useState<Set<string>>(new Set());
@@ -312,7 +317,7 @@ export function CartPage({
             {/* Promo Code */}
             <div className="mt-6">
               <label htmlFor="promo" className="block text-sm font-medium text-neutral-700">
-                Promo Code
+                {content.cart.promoCodeLabel}
               </label>
               <div className="mt-2 flex gap-2">
                 <input
@@ -320,7 +325,7 @@ export function CartPage({
                   id="promo"
                   value={promoCode}
                   onChange={(e) => setPromoCode(e.target.value)}
-                  placeholder="Enter code"
+                  placeholder={content.cart.promoCodePlaceholder}
                   className="flex-1 rounded-lg border border-neutral-300 px-4 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2"
                   style={{ "--tw-ring-color": branding.colors.primary } as React.CSSProperties}
                 />
@@ -330,7 +335,7 @@ export function CartPage({
                   disabled={isApplyingPromo || !promoCode.trim()}
                   className="rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {isApplyingPromo ? "..." : "Apply"}
+                  {isApplyingPromo ? "..." : content.cart.promoCodeApplyButton}
                 </button>
               </div>
             </div>
@@ -363,7 +368,7 @@ export function CartPage({
 
             {/* Checkout Button */}
             <a
-              href={`/checkout?checkout=${checkoutId}`}
+              href={`/${channel}/checkout?checkout=${checkoutId}`}
               className="mt-6 flex w-full items-center justify-center gap-2 rounded-full py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
               style={{ backgroundColor: branding.colors.primary }}
             >

@@ -290,6 +290,10 @@ services:
       STOREFRONT_CHANNELS: ${STOREFRONT_CHANNELS:-ils,usd}
       # Storefront tunnel URL (for webhooks from storefront-control)
       STOREFRONT_TUNNEL_URL: ${STOREFRONT_TUNNEL_URL:-${NEXT_PUBLIC_STOREFRONT_URL}}
+      # Newsletter app URL for unsubscribe API calls (use tunnel URL for external access)
+      NEXT_PUBLIC_NEWSLETTER_APP_URL: ${NEWSLETTER_APP_TUNNEL_URL:-http://localhost:${NEWSLETTER_APP_PORT:-3005}}
+      # SMTP app URL for sending welcome emails (use tunnel URL for external access)
+      NEXT_PUBLIC_SMTP_APP_URL: ${SMTP_APP_TUNNEL_URL:-http://localhost:${SMTP_APP_PORT:-3001}}
       # Build mode: 'dev' (default) or 'production'
       # Set STOREFRONT_MODE=production in .env to use production build
       # Set STOREFRONT_MODE=dev (or leave unset) to use dev server
@@ -339,6 +343,8 @@ services:
       STRIPE_APP_URL: ${STRIPE_APP_URL}
       STRIPE_APP_API_BASE_URL: ${STRIPE_APP_API_BASE_URL}
       NODE_ENV: development
+      # Secret key for encrypting app metadata - MUST match Newsletter app
+      SECRET_KEY: ${APP_SECRET_KEY}
       # Disable OpenTelemetry/Sentry in development
       OTEL_ENABLED: "false"
       NEXT_PUBLIC_SENTRY_DSN: ""
@@ -562,15 +568,30 @@ services:
       NODE_ENV: development
       # Image storage (local for dev, s3 for production)
       NEWSLETTER_IMAGE_STORAGE: ${NEWSLETTER_IMAGE_STORAGE:-local}
-      # Redis for BullMQ (campaign queue)
+      # Redis for BullMQ (campaign queue) - use service name 'redis' for Docker network
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       # Disable OpenTelemetry/Sentry in development
       OTEL_ENABLED: "false"
       NEXT_PUBLIC_SENTRY_DSN: ""
+      # Storefront Control app URL for fetching branding (Docker internal network)
+      STOREFRONT_CONTROL_APP_INTERNAL_URL: http://saleor-storefront-control-app:3000
+      # Storefront URL for unsubscribe links (use tunnel URL for external access)
+      STOREFRONT_URL: ${NEXT_PUBLIC_STOREFRONT_URL}
+      STOREFRONT_TUNNEL_URL: ${STOREFRONT_TUNNEL_URL:-${NEXT_PUBLIC_STOREFRONT_URL}}
+      # SMTP configuration (fallback if SMTP app metadata not available)
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-}
+      SMTP_FROM_NAME: ${SMTP_FROM_NAME:-}
+      SMTP_ENCRYPTION: ${SMTP_ENCRYPTION:-}
     depends_on:
       saleor-api:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      saleor-storefront-control-app:
         condition: service_healthy
     networks:
       - saleor-network

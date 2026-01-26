@@ -2,16 +2,18 @@ import { DeliverySection } from "./DeliverySection";
 import { PaymentSection } from "./PaymentSection";
 import { Address } from "@/checkout/components/Address";
 import { useOrder } from "@/checkout/hooks/useOrder";
+import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 
 export const OrderInfo = () => {
 	const {
 		order: { deliveryMethod, shippingAddress, billingAddress, userEmail },
 	} = useOrder();
+	const text = useCheckoutText();
 
 	return (
 		<div className="rounded-xl border bg-white" style={{ borderColor: "var(--store-neutral-200)" }}>
 			<div className="border-b px-6 py-4" style={{ borderColor: "var(--store-neutral-100)" }}>
-				<h2 className="font-semibold" style={{ color: "var(--store-text)" }}>Order Details</h2>
+				<h2 className="font-semibold" style={{ color: "var(--store-text)" }}>{text.orderDetailsTitle || "Order Details"}</h2>
 			</div>
 
 			<div className="divide-y" style={{ "--tw-divide-color": "var(--store-neutral-100)" } as React.CSSProperties}>
@@ -30,7 +32,7 @@ export const OrderInfo = () => {
 							</svg>
 						</div>
 						<div className="flex-1">
-							<p className="text-sm font-medium" style={{ color: "var(--store-text-muted)" }}>Contact</p>
+							<p className="text-sm font-medium" style={{ color: "var(--store-text-muted)" }}>{text.contactLabel || "Contact"}</p>
 							<p className="mt-0.5" style={{ color: "var(--store-text)" }}>{userEmail}</p>
 						</div>
 					</div>
@@ -49,7 +51,7 @@ export const OrderInfo = () => {
 										</svg>
 									</div>
 									<div className="flex-1">
-										<p className="text-sm font-medium" style={{ color: "var(--store-text-muted)" }}>Shipping Address</p>
+										<p className="text-sm font-medium" style={{ color: "var(--store-text-muted)" }}>{text.shippingAddressTitle || "Shipping Address"}</p>
 										<div className="mt-1 text-sm" style={{ color: "var(--store-text)" }}>
 											<Address address={shippingAddress} />
 										</div>
@@ -64,7 +66,7 @@ export const OrderInfo = () => {
 										</svg>
 									</div>
 									<div className="flex-1">
-										<p className="text-sm font-medium" style={{ color: "var(--store-text-muted)" }}>Billing Address</p>
+										<p className="text-sm font-medium" style={{ color: "var(--store-text-muted)" }}>{text.billingAddressTitle || "Billing Address"}</p>
 										<div className="mt-1 text-sm" style={{ color: "var(--store-text)" }}>
 											<Address address={billingAddress} />
 										</div>

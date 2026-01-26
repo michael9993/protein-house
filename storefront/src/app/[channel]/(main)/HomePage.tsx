@@ -167,6 +167,7 @@ export function HomePage({
             title={contentConfig.general.newsletterTitle}
             subtitle={contentConfig.general.newsletterDescription}
             buttonText={contentConfig.general.newsletterButton}
+            channel={channel}
           />
         );
 

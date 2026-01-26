@@ -5,6 +5,7 @@ import { Address } from "@/checkout/components/Address";
 import { type AddressFragment } from "@/checkout/graphql";
 import { type AddressField } from "@/checkout/components/AddressForm/types";
 import { EditIcon } from "@/checkout/assets/icons";
+import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 
 interface AddressSelectBoxProps<TFieldName extends string>
 	extends Omit<SelectBoxProps<TFieldName>, "children"> {
@@ -20,11 +21,13 @@ export const AddressSelectBox = <TFieldName extends string>({
 	unavailable,
 	...rest
 }: AddressSelectBoxProps<TFieldName>) => {
+	const text = useCheckoutText();
+	
 	return (
 		<SelectBox {...rest} disabled={unavailable}>
 			<div className="flex w-full flex-col justify-between pe-8">
 				<Address address={address as AddressFragment}>
-					{unavailable && <p className="font-xs my-1">Can&apos;t ship to this address</p>}
+					{unavailable && <p className="font-xs my-1">{text.cantShipToAddressText || "Can't ship to this address"}</p>}
 				</Address>
 				<Button
 					variant="tertiary"
@@ -32,7 +35,7 @@ export const AddressSelectBox = <TFieldName extends string>({
 						event.stopPropagation();
 						onEdit();
 					}}
-					ariaLabel="edit"
+					ariaLabel={text.editAddressButton || "edit"}
 					className="s pointer-events-auto absolute right-2 top-2 h-6 w-6 p-0 transition-colors"
 					style={{ color: "var(--store-primary)" }}
 					label={<EditIcon />}

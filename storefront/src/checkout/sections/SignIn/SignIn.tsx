@@ -15,6 +15,7 @@ import { useErrorMessages } from "@/checkout/hooks/useErrorMessages";
 import { useCheckout } from "@/checkout/hooks/useCheckout";
 import { getQueryParams } from "@/checkout/lib/utils/url";
 import { DefaultChannelSlug } from "@/app/config";
+import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 
 interface SignInProps extends Pick<SignInFormContainerProps, "onSectionChange"> {
 	onSignInSuccess: () => void;
@@ -34,6 +35,7 @@ export const SignIn: React.FC<SignInProps> = ({
 	const [oauthError, setOauthError] = useState<string | null>(null);
 	const [isOauthLoading, setIsOauthLoading] = useState(false);
 	const params = useParams();
+	const text = useCheckoutText();
 
 	// Get channel from Next.js params, fallback to pathname extraction, then config default
 	const getChannel = (): string => {
@@ -95,8 +97,8 @@ export const SignIn: React.FC<SignInProps> = ({
 			// OAuth callback URL
 			const callbackUrl = `${window.location.origin}/${channel}/auth/callback`;
 			
-			// Final redirect back to checkout
-			const finalRedirectUrl = `/checkout?checkout=${checkoutId}`;
+			// Final redirect back to checkout (channel-aware)
+			const finalRedirectUrl = `/${channel}/checkout?checkout=${checkoutId}`;
 			
 			const result = await getOAuthUrl("google", callbackUrl, finalRedirectUrl);
 			
@@ -122,9 +124,9 @@ export const SignIn: React.FC<SignInProps> = ({
 
 	return (
 		<SignInFormContainer
-			title="Sign in"
-			redirectSubtitle="New customer?"
-			redirectButtonLabel="Guest checkout"
+			title={text.signInTitle || "Sign in"}
+			redirectSubtitle={text.newCustomerText || "New customer?"}
+			redirectButtonLabel={text.guestCheckoutButton || "Guest checkout"}
 			onSectionChange={onSectionChange}
 		>
 			<FormProvider form={form}>
@@ -132,34 +134,34 @@ export const SignIn: React.FC<SignInProps> = ({
 					<TextInput
 						required
 						name="email"
-						label="Email"
+						label={text.guestEmailLabel || "Email"}
 						onChange={(event) => {
 							handleChange(event);
 							onEmailChange(event.currentTarget.value);
 						}}
 					/>
-					<PasswordInput name="password" label="Password" required />
+					<PasswordInput name="password" label={text.passwordLabel || "Password"} required />
 					<div className="flex w-full flex-row items-center justify-end">
 						<Button
 							ariaDisabled={isSubmitting}
-							ariaLabel="send password reset link"
+							ariaLabel={text.forgotPasswordLink || "send password reset link"}
 							variant="tertiary"
-							label={passwordResetSent ? "Resend?" : "Forgot password?"}
+							label={passwordResetSent ? (text.resendLink || "Resend?") : (text.forgotPasswordLink || "Forgot password?")}
 							className="ml-1 mr-4"
 							onClick={(e) => (isSubmitting ? e.preventDefault() : onPasswordResetRequest)}
 						/>
 						<Button
 							type="submit"
 							disabled={isSubmitting}
-							ariaLabel={"Sign in"}
-							label={isSubmitting ? "Processing…" : "Sign in"}
+							ariaLabel={text.signInButton || "Sign in"}
+							label={isSubmitting ? (text.processingText || "Processing…") : (text.signInButton || "Sign in")}
 						/>
 					</div>
 					
 					{/* Divider */}
 					<div className="my-2 flex items-center gap-2">
 						<div className="h-px flex-1" style={{ backgroundColor: "var(--store-neutral-200)" }} />
-						<span className="text-xs" style={{ color: "var(--store-text-muted)" }}>or</span>
+						<span className="text-xs" style={{ color: "var(--store-text-muted)" }}>{text.orText || "or"}</span>
 						<div className="h-px flex-1" style={{ backgroundColor: "var(--store-neutral-200)" }} />
 					</div>
 					
@@ -187,7 +189,7 @@ export const SignIn: React.FC<SignInProps> = ({
 								<path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
 							</svg>
 						)}
-						Continue with Google
+						{text.continueWithGoogle || "Continue with Google"}
 					</button>
 				</div>
 			</FormProvider>

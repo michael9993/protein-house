@@ -18,13 +18,12 @@ export const trpcClient = createTRPCNext<AppRouter>({
                 httpBatchLink({
                     url: `${getBaseUrl()}/api/trpc`,
                     headers() {
-                        const { token, saleorApiUrl } = appBridgeInstance?.getState() || {};
+                        const state = appBridgeInstance?.getState();
+                        const { token, saleorApiUrl } = state || {};
 
                         if (!token || !saleorApiUrl) {
-                            // Return empty headers if App Bridge is not ready yet
-                            // The query will be retried once App Bridge is ready
-                            // Don't log warning - this is expected during initialization
-                            return {};
+                            // Throw error to prevent queries from running without auth
+                            throw new Error("Token and Saleor API URL unknown");
                         }
 
                         return {
@@ -38,14 +37,6 @@ export const trpcClient = createTRPCNext<AppRouter>({
                 defaultOptions: {
                     queries: {
                         refetchOnWindowFocus: false,
-                        retry: (failureCount, error: any) => {
-                            // Retry if it's a BAD_REQUEST about App Bridge not being ready
-                            if (error?.data?.code === "BAD_REQUEST" && error?.message?.includes("App Bridge not ready")) {
-                                return failureCount < 5; // Retry up to 5 times
-                            }
-                            return false; // Don't retry other errors
-                        },
-                        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
                     },
                 },
             },

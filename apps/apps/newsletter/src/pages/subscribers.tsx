@@ -2,37 +2,70 @@ import { useAppBridge } from "@saleor/app-sdk/app-bridge";
 import { Box, Text } from "@saleor/macaw-ui";
 import { NextPage } from "next";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { gql, useQuery } from "urql";
 
 import { BasicLayout } from "../components/basic-layout";
 import { SectionWithDescription } from "../components/section-with-description";
+import { GraphQLProvider } from "../modules/graphql/graphql-provider";
 import { SubscriberFilters } from "../modules/newsletter/ui/subscriber-filters";
 import { SubscriberStats } from "../modules/newsletter/ui/subscriber-stats";
 import { SubscribersList } from "../modules/newsletter/ui/subscribers-list";
 import { trpcClient } from "../modules/trpc/trpc-client";
 
-const SubscribersPage: NextPage = () => {
+const ChannelsQuery = gql`
+  query Channels {
+    channels {
+      id
+      slug
+      name
+      currencyCode
+      isActive
+    }
+  }
+`;
+
+const SubscribersPageContent: React.FC = () => {
   const { appBridgeState } = useAppBridge();
   const [filters, setFilters] = useState<{
     isActive?: boolean;
     source?: string;
+    channel?: string;
     search?: string;
-  }>({});
+  }>({
+    isActive: true, // Default to active subscribers
+  });
   const [pageCursor, setPageCursor] = useState<string | undefined>();
+
+  const [{ data: channelsData }] = useQuery<{ channels: Array<{ slug: string; name: string; isActive: boolean }> }>({
+    query: ChannelsQuery,
+    pause: !appBridgeState?.ready,
+    requestPolicy: "cache-first",
+  });
+
+  const queryInput = {
+    first: 50,
+    after: pageCursor,
+    filter: {
+      ...(filters.isActive !== undefined ? { isActive: filters.isActive } : {}),
+      ...(filters.source ? { source: filters.source } : {}),
+      ...(filters.channel ? { channel: filters.channel } : {}),
+    },
+    search: filters.search,
+  };
 
   const {
     data: subscriptionsData,
     isLoading: isLoadingSubscriptions,
     error: subscriptionsError,
+    refetch: refetchSubscriptions,
   } = trpcClient.newsletter.getSubscriptions.useQuery(
-    {
-      first: 50,
-      after: pageCursor,
-      filter: filters.isActive !== undefined ? { isActive: filters.isActive } : undefined,
-      search: filters.search,
-    },
+    queryInput,
     {
       enabled: !!appBridgeState?.ready,
       retry: false,
+      staleTime: 30000, // Consider data fresh for 30 seconds
+      refetchOnWindowFocus: true, // Refetch when window regains focus
+      placeholderData: (previousData) => previousData,
     }
   );
 
@@ -40,9 +73,13 @@ const SubscribersPage: NextPage = () => {
     data: statsData,
     isLoading: isLoadingStats,
     error: statsError,
+    refetch: refetchStats,
   } = trpcClient.newsletter.getStats.useQuery(undefined, {
     enabled: !!appBridgeState?.ready,
     retry: false,
+    staleTime: 30000, // Consider data fresh for 30 seconds
+    refetchOnWindowFocus: true, // Refetch when window regains focus
+    placeholderData: (previousData) => previousData,
   });
 
   // Extract available sources from stats
@@ -50,6 +87,14 @@ const SubscribersPage: NextPage = () => {
     if (!statsData?.bySource) return [];
     return Object.keys(statsData.bySource);
   }, [statsData]);
+
+  // Extract available channels
+  const availableChannels = useMemo(() => {
+    if (!channelsData?.channels) return [];
+    return channelsData.channels
+      .filter((ch) => ch.isActive)
+      .map((ch) => ({ slug: ch.slug, name: ch.name }));
+  }, [channelsData]);
 
   const utils = trpcClient.useUtils();
 
@@ -91,8 +136,13 @@ const SubscribersPage: NextPage = () => {
     setPageCursor(undefined);
   }, [filters]);
 
-  // Wait for App Bridge to be ready
-  if (!appBridgeState?.ready) {
+  // Return null while App Bridge is initializing - this prevents race conditions
+  if (!appBridgeState) {
+    return null;
+  }
+
+  // Show loading while App Bridge is connecting
+  if (!appBridgeState.ready) {
     return (
       <BasicLayout breadcrumbs={[{ name: "Subscribers" }]}>
         <Text size={10} fontWeight="bold">
@@ -161,6 +211,7 @@ const SubscribersPage: NextPage = () => {
             filters={filters}
             onFiltersChange={setFilters}
             availableSources={availableSources}
+            availableChannels={availableChannels}
           />
           <SubscribersList
             subscriptions={subscriptionsData?.subscriptions || []}
@@ -173,10 +224,21 @@ const SubscribersPage: NextPage = () => {
             }}
             onLoadMore={handleLoadMore}
             onExport={handleExport}
+            queryInput={queryInput}
+            onRefetch={refetchSubscriptions}
+            onRefetchStats={refetchStats}
           />
         </Box>
       </SectionWithDescription>
     </BasicLayout>
+  );
+};
+
+const SubscribersPage: NextPage = () => {
+  return (
+    <GraphQLProvider>
+      <SubscribersPageContent />
+    </GraphQLProvider>
   );
 };
 

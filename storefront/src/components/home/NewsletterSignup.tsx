@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useStoreConfig, useFeature, useContentConfig } from "@/providers/StoreConfigProvider";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useNewsletterState } from "@/hooks/useNewsletterState";
 import { SectionHeader } from "./SectionHeader";
 
 interface NewsletterSignupProps {
@@ -11,44 +12,7 @@ interface NewsletterSignupProps {
   placeholder?: string;
   buttonText?: string;
   successMessage?: string;
-}
-
-const NEWSLETTER_STORAGE_KEY = "newsletter_subscribed";
-
-/**
- * Check if user already subscribed (persisted in localStorage)
- */
-function isAlreadySubscribed(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return localStorage.getItem(NEWSLETTER_STORAGE_KEY) === "true";
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Mark user as subscribed in localStorage
- */
-function markAsSubscribed(): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(NEWSLETTER_STORAGE_KEY, "true");
-  } catch {
-    // Ignore storage errors
-  }
-}
-
-/**
- * Clear newsletter subscription status (called on logout)
- */
-function clearNewsletterSubscription(): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.removeItem(NEWSLETTER_STORAGE_KEY);
-  } catch {
-    // Ignore storage errors
-  }
+  channel?: string;
 }
 
 /**
@@ -62,6 +26,8 @@ function clearNewsletterSubscription(): void {
  * - Double-submit prevention
  * - Persistent subscribed state (localStorage)
  * - Loading/success/error states
+ * - Synced with footer newsletter input
+ * - Email autocomplete for easier input
  */
 export function NewsletterSignup({
   title,
@@ -69,10 +35,22 @@ export function NewsletterSignup({
   placeholder,
   buttonText,
   successMessage,
+  channel,
 }: NewsletterSignupProps) {
   const { branding, store: _store } = useStoreConfig();
   const content = useContentConfig();
   const isEnabled = useFeature("newsletter");
+  
+  // Use shared newsletter state hook
+  const {
+    email,
+    setEmail,
+    status,
+    errorMessage,
+    mounted,
+    handleSubmit,
+    clearError,
+  } = useNewsletterState();
   
   // Use props or fall back to config values
   const displayTitle = title ?? content.general.newsletterTitle;
@@ -80,56 +58,6 @@ export function NewsletterSignup({
   const displayPlaceholder = placeholder ?? content.homepage.newsletterEmailPlaceholder;
   const displayButtonText = buttonText ?? content.general.newsletterButton;
   const displaySuccessMessage = successMessage ?? content.general.newsletterSuccess;
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error" | "already_subscribed">("idle");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [mounted, setMounted] = useState(false);
-
-  // Check localStorage for previous subscription on mount
-  // Note: We clear this on logout, but also check on every mount to handle edge cases
-  useEffect(() => {
-    setMounted(true);
-    const subscribed = isAlreadySubscribed();
-    if (subscribed) {
-      setStatus("already_subscribed");
-    } else {
-      setStatus("idle");
-    }
-  }, []);
-
-  // Listen for logout events to clear newsletter subscription status
-  useEffect(() => {
-    const handleLogout = () => {
-      console.log("[NewsletterSignup] Clearing newsletter subscription on logout");
-      clearNewsletterSubscription();
-      setStatus("idle");
-      setEmail("");
-      setMounted(false); // Reset mounted state to re-check subscription
-      // Force re-check after a brief delay to ensure state is cleared
-      setTimeout(() => {
-        setMounted(true);
-      }, 100);
-    };
-
-    // Listen for wishlist:logout event (fired during logout)
-    window.addEventListener("wishlist:logout", handleLogout);
-    
-    // Also listen for storage events in case localStorage is cleared elsewhere
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === NEWSLETTER_STORAGE_KEY && !e.newValue) {
-        console.log("[NewsletterSignup] Newsletter subscription cleared from storage");
-        setStatus("idle");
-        setEmail("");
-      }
-    };
-    
-    window.addEventListener("storage", handleStorageChange);
-    
-    return () => {
-      window.removeEventListener("wishlist:logout", handleLogout);
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, []);
 
   // Call all hooks before any conditional returns
   const { elementRef, isVisible } = useScrollAnimation({ threshold: 0.1, rootMargin: "0px 0px -80px 0px" });
@@ -169,120 +97,7 @@ export function NewsletterSignup({
     );
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email || !email.includes("@")) {
-      console.warn("[NewsletterSignup] Invalid email format:", email);
-      setStatus("error");
-      setErrorMessage("Please enter a valid email address");
-      return;
-    }
-
-    const normalizedEmail = email.trim().toLowerCase();
-    console.log("[NewsletterSignup] Starting subscription", {
-      email: normalizedEmail,
-      source: "homepage",
-    });
-
-    setStatus("loading");
-    setErrorMessage("");
-
-      try {
-        // Client-side GraphQL fetch (no auth needed for newsletter subscription)
-        const apiUrl = process.env.NEXT_PUBLIC_SALEOR_API_URL;
-        if (!apiUrl) {
-          console.error("[NewsletterSignup] API URL not configured");
-          setStatus("error");
-          setErrorMessage("API URL not configured.");
-          return;
-        }
-        
-        const graphqlUrl = apiUrl.endsWith('/graphql/') || apiUrl.endsWith('/graphql') 
-          ? apiUrl 
-          : `${apiUrl.replace(/\/+$/, '')}/graphql/`;
-        
-        console.log("[NewsletterSignup] Sending request", {
-          graphqlUrl,
-          email: normalizedEmail,
-          source: "homepage",
-        });
-        
-        const NEWSLETTER_SUBSCRIBE_MUTATION = `
-          mutation NewsletterSubscribe($email: String!, $source: String) {
-            newsletterSubscribe(email: $email, source: $source) {
-              subscribed
-              alreadySubscribed
-              errors {
-                field
-                message
-                code
-              }
-            }
-          }
-        `;
-        
-        const response = await fetch(graphqlUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            query: NEWSLETTER_SUBSCRIBE_MUTATION,
-            variables: {
-              email: normalizedEmail,
-              source: "homepage",
-            },
-          }),
-        });
-        
-        console.log("[NewsletterSignup] Response status:", response.status, response.statusText);
-        
-        if (!response.ok) {
-          console.error("[NewsletterSignup] HTTP error:", response.status, response.statusText);
-          setStatus("error");
-          setErrorMessage("Failed to subscribe. Please try again.");
-          return;
-        }
-        
-        const result = await response.json() as any;
-        console.log("[NewsletterSignup] Response data:", {
-          subscribed: result?.data?.newsletterSubscribe?.subscribed,
-          alreadySubscribed: result?.data?.newsletterSubscribe?.alreadySubscribed,
-          errors: result?.data?.newsletterSubscribe?.errors,
-          hasErrors: !!(result?.data?.newsletterSubscribe?.errors && result.data.newsletterSubscribe.errors.length > 0),
-        });
-
-        if (result?.data?.newsletterSubscribe?.errors && result.data.newsletterSubscribe.errors.length > 0) {
-          const error = result.data.newsletterSubscribe.errors[0];
-          console.error("[NewsletterSignup] Subscription error:", error);
-          setStatus("error");
-          setErrorMessage(error.message || "Failed to subscribe. Please try again.");
-        } else if (result?.data?.newsletterSubscribe?.subscribed || result?.data?.newsletterSubscribe?.alreadySubscribed) {
-          console.log("[NewsletterSignup] Subscription successful", {
-            subscribed: result.data.newsletterSubscribe.subscribed,
-            alreadySubscribed: result.data.newsletterSubscribe.alreadySubscribed,
-            email: normalizedEmail,
-          });
-          setStatus("success");
-          setEmail("");
-          markAsSubscribed(); // Persist subscribed state
-          
-          // Show success for longer, then show subscribed state
-          setTimeout(() => {
-            setStatus("already_subscribed");
-          }, 5000);
-        } else {
-          console.error("[NewsletterSignup] Unexpected response format:", result);
-          setStatus("error");
-          setErrorMessage("Something went wrong. Please try again.");
-        }
-    } catch (error) {
-      console.error("[NewsletterSignup] Exception during subscription:", error);
-      setStatus("error");
-      setErrorMessage("Failed to subscribe. Please try again.");
-    }
-  };
+  const onSubmit = (e: React.FormEvent) => handleSubmit(e, "homepage", channel);
 
   return (
     <section 
@@ -347,16 +162,36 @@ export function NewsletterSignup({
               {displaySuccessMessage}
             </span>
           </div>
+        ) : status === "already_active" ? (
+          <div 
+            className="mt-8 inline-flex items-center gap-3 rounded-full px-6 py-4"
+            style={{ backgroundColor: `${branding.colors.primary}20` }}
+          >
+            <svg 
+              className="h-6 w-6"
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke={branding.colors.primary}
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span style={{ color: branding.colors.primary }} className="font-medium">
+              {content.general.newsletterAlreadyActive || "You're already subscribed to our newsletter!"}
+            </span>
+          </div>
         ) : (
-          <form onSubmit={handleSubmit} className="mt-8">
+          <form onSubmit={onSubmit} className="mt-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
               <div className="relative flex-1 sm:max-w-md">
                 <input
                   type="email"
+                  name="email"
+                  autoComplete="email"
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
-                    if (status === "error") setStatus("idle");
+                    clearError();
                   }}
                   placeholder={displayPlaceholder}
                   className="w-full rounded-full border-0 bg-white/10 px-6 py-4 text-white placeholder-white/50 backdrop-blur-sm focus:outline-none focus:ring-2"
@@ -431,4 +266,3 @@ export function NewsletterSignup({
     </section>
   );
 }
-

@@ -6,10 +6,12 @@ import { useCheckout } from "@/checkout/hooks/useCheckout";
 import { AddressSectionSkeleton } from "@/checkout/components/AddressSectionSkeleton";
 import { useBillingSameAsShippingForm } from "@/checkout/sections/GuestBillingAddressSection/useBillingSameAsShippingForm";
 import { Checkbox } from "@/checkout/components";
+import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 
 export const GuestBillingAddressSection = () => {
 	const { checkout } = useCheckout();
 	const isShippingRequired = checkout?.isShippingRequired;
+	const text = useCheckoutText();
 
 	const billingSameAsShippingForm = useBillingSameAsShippingForm({ autoSave: true });
 
@@ -29,7 +31,7 @@ export const GuestBillingAddressSection = () => {
 					<FormProvider form={billingSameAsShippingForm}>
 						<Checkbox
 							name="billingSameAsShipping"
-							label="Use shipping address as billing address"
+							label={text.useSameAsShipping || "Use shipping address as billing address"}
 							data-testid="useShippingAsBillingCheckbox"
 						/>
 					</FormProvider>
@@ -39,7 +41,7 @@ export const GuestBillingAddressSection = () => {
 				<div className="mb-4">
 					<FormProvider form={form}>
 						<AddressForm
-							title="Billing address"
+							title={text.billingAddressTitle || "Billing address"}
 							fieldProps={{
 								onChange: handleChange,
 								onBlur: handleBlur,

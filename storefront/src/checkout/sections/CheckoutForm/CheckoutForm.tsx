@@ -13,6 +13,7 @@ import { UserBillingAddressSection } from "@/checkout/sections/UserBillingAddres
 import { PaymentSection, PaymentSectionSkeleton } from "@/checkout/sections/PaymentSection";
 import { GuestBillingAddressSection } from "@/checkout/sections/GuestBillingAddressSection";
 import { useUser } from "@/checkout/hooks/useUser";
+import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 
 interface CheckoutStepProps {
 	number: number;
@@ -55,6 +56,7 @@ export const CheckoutForm = () => {
 	const { user } = useUser();
 	const { checkout } = useCheckout();
 	const { passwordResetToken } = getQueryParams();
+	const text = useCheckoutText();
 
 	const [showOnlyContact, setShowOnlyContact] = useState(!!passwordResetToken);
 
@@ -63,8 +65,8 @@ export const CheckoutForm = () => {
 			{/* Contact Section */}
 			<CheckoutStep 
 				number={1} 
-				title="Contact Information" 
-				description="We'll use this to send order updates"
+				title={text.contactInfoTitle || "Contact Information"} 
+				description={text.contactInfoSubtitle || "We'll use this to send order updates"}
 			>
 				<Suspense fallback={<ContactSkeleton />}>
 					<Contact setShowOnlyContact={setShowOnlyContact} />
@@ -77,8 +79,8 @@ export const CheckoutForm = () => {
 					<CollapseSection collapse={showOnlyContact}>
 						<CheckoutStep 
 							number={2} 
-							title="Shipping Address" 
-							description="Where should we deliver?"
+							title={text.shippingAddressTitle || "Shipping Address"} 
+							description={text.shippingAddressSubtitle || "Where should we deliver?"}
 						>
 							<div data-testid="shippingAddressSection">
 								{user ? <UserShippingAddressSection /> : <GuestShippingAddressSection />}
@@ -89,8 +91,8 @@ export const CheckoutForm = () => {
 						<div className="mt-6">
 							<CheckoutStep 
 								number={3} 
-								title="Billing Address" 
-								description="For your invoice"
+								title={text.billingAddressTitle || "Billing Address"} 
+								description={text.billingAddressSubtitle || "For your invoice"}
 							>
 								{user ? <UserBillingAddressSection /> : <GuestBillingAddressSection />}
 							</CheckoutStep>
@@ -109,8 +111,8 @@ export const CheckoutForm = () => {
 				<CollapseSection collapse={showOnlyContact}>
 					<CheckoutStep 
 						number={checkout?.isShippingRequired ? 5 : 2} 
-						title="Payment" 
-						description="Select your payment method"
+						title={text.paymentTitle || "Payment"} 
+						description={text.paymentSubtitle || "Select your payment method"}
 					>
 						<PaymentSection />
 					</CheckoutStep>

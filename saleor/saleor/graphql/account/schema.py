@@ -90,6 +90,7 @@ from .resolvers import (
     resolve_contact_submission,
     resolve_contact_submissions,
     resolve_customers,
+    resolve_newsletter_subscription,
     resolve_newsletter_subscriptions,
     resolve_permission_group,
     resolve_permission_groups,
@@ -248,6 +249,13 @@ class AccountQueries(graphene.ObjectType):
         permissions=[AccountPermissions.MANAGE_CONTACT_SUBMISSIONS],
         doc_category=DOC_CATEGORY_USERS,
     )
+    newsletter_subscription = PermissionsField(
+        NewsletterSubscription,
+        id=graphene.Argument(graphene.ID, description="ID of the newsletter subscription.", required=True),
+        description="Look up a newsletter subscription by ID.",
+        permissions=[AccountPermissions.MANAGE_USERS],
+        doc_category=DOC_CATEGORY_USERS,
+    )
     contact_submissions = FilterConnectionField(
         ContactSubmissionCountableConnection,
         filter=ContactSubmissionFilterInput(
@@ -365,15 +373,25 @@ class AccountQueries(graphene.ObjectType):
         return resolve_contact_submission(info, id)
 
     @staticmethod
+    def resolve_newsletter_subscription(_root, info: ResolveInfo, *, id):
+        return resolve_newsletter_subscription(info, id)
+
+    @staticmethod
     def resolve_newsletter_subscriptions(_root, info: ResolveInfo, **kwargs):
         search = kwargs.get("search")
         qs = resolve_newsletter_subscriptions(info)
         if search:
             # Apply search filter if provided
             qs = qs.filter(email__icontains=search)
-        qs = filter_connection_queryset(
-            qs, kwargs, allow_replica=info.context.allow_replica
-        )
+        # Newsletter subscriptions are global and don't require a channel
+        # We need to handle filtering manually to avoid channel requirement
+        filter_input = kwargs.get("filter")
+        if filter_input:
+            filterset = NewsletterSubscriptionFilter(filter_input, queryset=qs, request=info.context)
+            if filterset.is_valid():
+                qs = filterset.qs
+        # Create connection slice - it will handle sorting internally
+        # We bypass filter_connection_queryset to avoid channel requirement
         return create_connection_slice(qs, info, kwargs, NewsletterSubscriptionCountableConnection)
 
 

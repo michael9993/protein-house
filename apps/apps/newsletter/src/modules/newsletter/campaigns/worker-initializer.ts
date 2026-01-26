@@ -1,50 +1,59 @@
 import { createLogger } from "../../../logger";
 import { saleorApp } from "../../../saleor-app";
 import { createCampaignWorker } from "./campaign-worker";
+import { startCampaignScheduler } from "./campaign-scheduler";
 
 const logger = createLogger("WorkerInitializer");
 
 let workerInitialized = false;
+let schedulerInterval: NodeJS.Timeout | null = null;
 
 /**
  * Initialize the campaign worker
  * This should be called once when the app starts (server-side only)
  */
 export async function initializeCampaignWorker(): Promise<void> {
-  if (workerInitialized) {
-    logger.warn("Campaign worker already initialized");
-    return;
-  }
+    if (workerInitialized) {
+        logger.warn("Campaign worker already initialized");
+        return;
+    }
 
-  if (typeof window !== "undefined") {
-    // Don't initialize worker on client-side
-    return;
-  }
+    if (typeof window !== "undefined") {
+        // Don't initialize worker on client-side
+        return;
+    }
 
-  try {
-    // Get all registered apps to initialize workers for each
-    // For now, we'll initialize a single worker that can handle all campaigns
-    // In the future, we might want one worker per Saleor instance
+    try {
+        // Create the campaign worker
+        createCampaignWorker();
+        logger.info("Campaign worker initialized and started", { queueName: "newsletter-campaigns" });
 
-    // The worker needs auth data, but we can't get it until a campaign is processed
-    // So we'll create a placeholder worker that will get auth data from the job context
-    // For now, we'll create the worker structure but it will need to be enhanced
+        // Start the scheduler to check for scheduled campaigns
+        // Check every minute for campaigns that should start
+        schedulerInterval = startCampaignScheduler(60000); // 60 seconds
+        logger.info("Campaign scheduler started", { intervalMs: 60000 });
 
-    logger.info("Campaign worker initialization skipped - will be initialized per-job");
-    // TODO: Implement proper worker initialization
-    // The worker needs to be able to get auth data for different Saleor instances
-    // This is complex because we need to handle multiple Saleor instances
+        workerInitialized = true;
+    } catch (error) {
+        logger.error("Failed to initialize campaign worker", { error });
+        throw error;
+    }
+}
 
-    workerInitialized = true;
-  } catch (error) {
-    logger.error("Failed to initialize campaign worker", { error });
-    throw error;
-  }
+/**
+ * Cleanup function to stop the scheduler
+ */
+export function cleanupCampaignWorker(): void {
+    if (schedulerInterval) {
+        clearInterval(schedulerInterval);
+        schedulerInterval = null;
+        logger.info("Campaign scheduler stopped");
+    }
 }
 
 /**
  * Initialize the campaign worker (singleton)
  */
 export function getCampaignWorker(): ReturnType<typeof createCampaignWorker> {
-  return createCampaignWorker();
+    return createCampaignWorker();
 }

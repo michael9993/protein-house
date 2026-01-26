@@ -28,7 +28,7 @@ export const campaignSchema = z.object({
     subscribedBefore: z.string().datetime().optional(),
     selectionType: z.enum(["all", "random", "selected", "newest", "oldest"]).optional(),
     limit: z.number().int().positive().optional(), // Limit number of recipients
-    selectedSubscriberIds: z.array(z.string().uuid()).optional(), // For "selected" type
+    selectedSubscriberIds: z.array(z.string().min(1)).optional(), // For "selected" type - accepts Global IDs (base64)
   }),
   recipientCount: z.number().int().nonnegative(),
   sentCount: z.number().int().nonnegative(),
@@ -94,7 +94,7 @@ export const createCampaignInputSchema = z.object({
       },
       z.number().int().positive().optional()
     ), // Limit number of recipients
-    selectedSubscriberIds: z.array(z.string().uuid()).optional(), // For "selected" type
+    selectedSubscriberIds: z.array(z.string().min(1)).optional(), // For "selected" type - accepts Global IDs (base64)
   }),
   batchSize: z.preprocess(
     (val) => {

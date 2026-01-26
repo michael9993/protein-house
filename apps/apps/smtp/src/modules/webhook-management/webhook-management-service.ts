@@ -38,7 +38,8 @@ export const eventToWebhookMapping: Record<MessageEventTypes, AppWebhook> = {
   CONTACT_SUBMISSION_REPLY: "notifyWebhook", // Custom event, handled via direct API call
   GIFT_CARD_SENT: "giftCardSentWebhook",
   INVOICE_SENT: "invoiceSentWebhook",
-  NEWSLETTER_SUBSCRIBE: "notifyWebhook",
+  NEWSLETTER_SUBSCRIBE: "notifyWebhook", // Custom event, handled via direct API call
+  NEWSLETTER_REACTIVATE: "notifyWebhook", // Custom event, handled via direct API call
   ORDER_CANCELLED: "orderCancelledWebhook",
   ORDER_CONFIRMED: "orderConfirmedWebhook",
   ORDER_CREATED: "orderCreatedWebhook",

@@ -17,6 +17,7 @@ import { AddressFormActions } from "@/checkout/components/ManualSaveAddressForm"
 import { useAddressFormSchema } from "@/checkout/components/AddressForm/useAddressFormSchema";
 import { useSubmit } from "@/checkout/hooks/useSubmit/useSubmit";
 import { useUser } from "@/checkout/hooks/useUser";
+import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 
 export interface AddressEditFormProps extends Pick<AddressFormProps, "title" | "availableCountries"> {
 	address: AddressFragment;
@@ -37,6 +38,7 @@ export const AddressEditForm: React.FC<AddressEditFormProps> = ({
 	const { setCountryCode, validationSchema } = useAddressFormSchema();
 	const { reload: reloadUser } = useUser();
 	const [isSuccess, setIsSuccess] = useState(false);
+	const text = useCheckoutText();
 
 	const onSubmit = useFormSubmit<AddressFormData, typeof userAddressUpdate>({
 		scope: "userAddressUpdate",
@@ -48,7 +50,7 @@ export const AddressEditForm: React.FC<AddressEditFormProps> = ({
 				setIsSuccess(true);
 				
 				// Show success toast notification
-				toast.success("Address updated successfully!", {
+				toast.success(text.addressUpdatedSuccess || "Address updated successfully!", {
 					position: "top-right",
 					autoClose: 2000,
 					hideProgressBar: true,
@@ -100,7 +102,7 @@ export const AddressEditForm: React.FC<AddressEditFormProps> = ({
 
 	return (
 		<FormProvider form={{ ...form, handleChange: onChange }}>
-			<AddressForm title="Edit address" availableCountries={availableCountries}>
+			<AddressForm title={text.editAddressTitle || "Edit address"} availableCountries={availableCountries}>
 				{isSuccess && (
 					<div className="mb-4 flex items-center gap-2 rounded-md border px-4 py-3 text-sm" style={{ backgroundColor: "var(--store-success-bg)", borderColor: "var(--store-success-border)", color: "var(--store-success-text)" }}>
 						<svg
@@ -117,7 +119,7 @@ export const AddressEditForm: React.FC<AddressEditFormProps> = ({
 								d="M5 13l4 4L19 7"
 							/>
 						</svg>
-						<span>Address updated successfully!</span>
+						<span>{text.addressUpdatedSuccess || "Address updated successfully!"}</span>
 					</div>
 				)}
 				<AddressFormActions

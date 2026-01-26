@@ -314,3 +314,22 @@ def resolve_newsletter_subscriptions(info: ResolveInfo):
     
     database_connection_name = get_database_connection_name(info.context)
     return models.NewsletterSubscription.objects.using(database_connection_name).all()
+
+
+def resolve_newsletter_subscription(info: ResolveInfo, id: str):
+    """Resolve a single newsletter subscription by ID with permission check."""
+    requester = get_user_or_app_from_context(info.context)
+    if not requester:
+        return None
+    
+    if not requester.has_perm(AccountPermissions.MANAGE_USERS):
+        raise PermissionDenied(
+            permissions=[AccountPermissions.MANAGE_USERS]
+        )
+    
+    _, pk = from_global_id_or_error(id, only_type="NewsletterSubscription", raise_error=True)
+    database_connection_name = get_database_connection_name(info.context)
+    try:
+        return models.NewsletterSubscription.objects.using(database_connection_name).get(pk=pk)
+    except models.NewsletterSubscription.DoesNotExist:
+        return None

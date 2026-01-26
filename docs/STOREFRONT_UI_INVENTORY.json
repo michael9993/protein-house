@@ -1829,11 +1829,17 @@
         ]
       },
       "checkout": {
-        "route": "/checkout",
+        "route": "/{channel}/checkout",
         "components": [
           {
-            "name": "CheckoutPage",
+            "name": "CheckoutHeader",
             "uiElements": [
+              {
+                "element": "Page Title",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.checkoutTitle",
+                "default": "Checkout"
+              },
               {
                 "element": "Secure Checkout Badge",
                 "currentStatus": "configurable",
@@ -1841,25 +1847,387 @@
                 "default": "Secure Checkout"
               },
               {
-                "element": "Section Titles",
+                "element": "Breadcrumb Steps",
                 "currentStatus": "configurable",
-                "configPath": "content.checkout.{section}",
-                "sections": [
-                  "contactDetails",
-                  "shippingAddress",
-                  "shippingMethod",
-                  "paymentMethod",
-                  "orderSummary"
-                ]
+                "configPath": "content.checkout.{step}",
+                "steps": ["shippingStep", "paymentStep", "confirmationStep"],
+                "defaults": {
+                  "shippingStep": "Shipping",
+                  "paymentStep": "Payment",
+                  "confirmationStep": "Confirmation"
+                }
+              }
+            ]
+          },
+          {
+            "name": "ContactInformationSection",
+            "uiElements": [
+              {
+                "element": "Section Title",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.contactInfoTitle",
+                "default": "Contact Information"
               },
+              {
+                "element": "Section Subtitle",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.contactInfoSubtitle",
+                "default": "We'll use this to send order updates"
+              },
+              {
+                "element": "Account Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.accountLabel",
+                "default": "Account"
+              },
+              {
+                "element": "Sign Out Button",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.signOutButton",
+                "default": "Sign out"
+              },
+              {
+                "element": "Guest Email Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.guestEmailLabel",
+                "default": "Email"
+              },
+              {
+                "element": "Guest Email Placeholder",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.guestEmailPlaceholder",
+                "default": "Enter your email"
+              },
+              {
+                "element": "Create Account Checkbox",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.createAccountCheckbox",
+                "default": "Create account for faster checkout"
+              },
+              {
+                "element": "Password Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.passwordLabel",
+                "default": "Password"
+              }
+            ]
+          },
+          {
+            "name": "ShippingAddressSection",
+            "uiElements": [
+              {
+                "element": "Section Title",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.shippingAddressTitle",
+                "default": "Shipping Address"
+              },
+              {
+                "element": "Section Subtitle",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.shippingAddressSubtitle",
+                "default": "Where should we deliver?"
+              },
+              {
+                "element": "Add Address Button",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.addAddressButton",
+                "default": "Add address"
+              },
+              {
+                "element": "Edit Address Button",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.editAddressButton",
+                "default": "Edit"
+              },
+              {
+                "element": "Change Address Button",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.changeAddressButton",
+                "default": "Change"
+              }
+            ]
+          },
+          {
+            "name": "AddressForm",
+            "uiElements": [
+              {
+                "element": "First Name Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.firstNameLabel",
+                "default": "First name"
+              },
+              {
+                "element": "Last Name Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.lastNameLabel",
+                "default": "Last name"
+              },
+              {
+                "element": "Company Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.companyLabel",
+                "default": "Company (optional)"
+              },
+              {
+                "element": "Address Line 1 Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.addressLine1Label",
+                "default": "Address"
+              },
+              {
+                "element": "Address Line 2 Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.addressLine2Label",
+                "default": "Apartment, suite, etc. (optional)"
+              },
+              {
+                "element": "City Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.cityLabel",
+                "default": "City"
+              },
+              {
+                "element": "Country Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.countryLabel",
+                "default": "Country"
+              },
+              {
+                "element": "State/Province Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.stateLabel",
+                "default": "State/Province"
+              },
+              {
+                "element": "Postal Code Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.postalCodeLabel",
+                "default": "Postal code"
+              },
+              {
+                "element": "Phone Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.phoneLabel",
+                "default": "Phone"
+              },
+              {
+                "element": "Save Address Button",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.saveAddressButton",
+                "default": "Save address"
+              },
+              {
+                "element": "Cancel Button",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.cancelButton",
+                "default": "Cancel"
+              }
+            ]
+          },
+          {
+            "name": "BillingAddressSection",
+            "uiElements": [
+              {
+                "element": "Section Title",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.billingAddressTitle",
+                "default": "Billing Address"
+              },
+              {
+                "element": "Section Subtitle",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.billingAddressSubtitle",
+                "default": "For your invoice"
+              },
+              {
+                "element": "Use Same as Shipping",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.useSameAsShipping",
+                "default": "Use shipping address as billing address"
+              }
+            ]
+          },
+          {
+            "name": "DeliveryMethodsSection",
+            "uiElements": [
+              {
+                "element": "Section Title",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.deliveryMethodsTitle",
+                "default": "Delivery methods"
+              },
+              {
+                "element": "Business Days Text",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.businessDaysText",
+                "default": "{min}-{max} business days"
+              },
+              {
+                "element": "Free Shipping Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.freeShippingLabel",
+                "default": "Free"
+              },
+              {
+                "element": "No Methods Available",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.noDeliveryMethodsText",
+                "default": "No delivery methods available"
+              }
+            ]
+          },
+          {
+            "name": "PaymentSection",
+            "uiElements": [
+              {
+                "element": "Section Title",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.paymentTitle",
+                "default": "Payment"
+              },
+              {
+                "element": "Section Subtitle",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.paymentSubtitle",
+                "default": "Select your payment method"
+              },
+              {
+                "element": "Payment Method Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.paymentMethodLabel",
+                "default": "Payment method"
+              }
+            ]
+          },
+          {
+            "name": "OrderSummarySection",
+            "uiElements": [
+              {
+                "element": "Section Title",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.orderSummaryTitle",
+                "default": "Order Summary"
+              },
+              {
+                "element": "Items Count (Singular)",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.itemsCountSingular",
+                "default": "1 item"
+              },
+              {
+                "element": "Items Count (Plural)",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.itemsCountPlural",
+                "default": "{count} items"
+              },
+              {
+                "element": "Products Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.productsLabel",
+                "default": "Products"
+              },
+              {
+                "element": "Quantity Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.quantityLabel",
+                "default": "Quantity"
+              },
+              {
+                "element": "Add Promo Code Text",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.addPromoCodeText",
+                "default": "Add promo code or gift card"
+              },
+              {
+                "element": "Promo Code Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.promoCodeLabel",
+                "default": "Promo code"
+              },
+              {
+                "element": "Promo Code Placeholder",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.promoCodePlaceholder",
+                "default": "Enter code"
+              },
+              {
+                "element": "Apply Promo Button",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.applyPromoButton",
+                "default": "Apply"
+              },
+              {
+                "element": "Remove Promo Button",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.removePromoButton",
+                "default": "Remove"
+              },
+              {
+                "element": "Gift Card Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.giftCardLabel",
+                "default": "Gift card"
+              },
+              {
+                "element": "Subtotal Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.subtotalLabel",
+                "default": "Subtotal"
+              },
+              {
+                "element": "Shipping Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.shippingLabel",
+                "default": "Shipping"
+              },
+              {
+                "element": "Tax Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.taxLabel",
+                "default": "Tax"
+              },
+              {
+                "element": "Includes Tax Text",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.includesTaxText",
+                "default": "Includes {amount} tax"
+              },
+              {
+                "element": "Total Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.totalLabel",
+                "default": "Total"
+              }
+            ]
+          },
+          {
+            "name": "PlaceOrderSection",
+            "uiElements": [
               {
                 "element": "Place Order Button",
                 "currentStatus": "configurable",
-                "configPath": "content.checkout.placeOrder",
+                "configPath": "content.checkout.placeOrderButton",
                 "default": "Place Order"
               },
               {
-                "element": "Order Confirmation Title",
+                "element": "Processing Order Text",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.processingOrderText",
+                "default": "Processing your order..."
+              },
+              {
+                "element": "Agreement Text",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.agreementText",
+                "default": "By placing this order, you agree to our"
+              }
+            ]
+          },
+          {
+            "name": "OrderConfirmationSection",
+            "uiElements": [
+              {
+                "element": "Confirmation Title",
                 "currentStatus": "configurable",
                 "configPath": "content.checkout.orderConfirmation",
                 "default": "Order Confirmation"
@@ -1873,12 +2241,84 @@
               {
                 "element": "Thank You Message",
                 "currentStatus": "configurable",
-                "configPath": "content.checkout.thankYouMessage"
+                "configPath": "content.checkout.thankYouMessage",
+                "default": "We've received your order and will send you a confirmation email shortly."
               },
               {
-                "element": "Footer Text",
-                "currentStatus": "hardcoded",
-                "note": "Privacy Policy, Terms of Service links are hardcoded"
+                "element": "Order Number Label",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.orderNumberLabel",
+                "default": "Order number"
+              },
+              {
+                "element": "Continue Shopping Button",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.continueShoppingButton",
+                "default": "Continue Shopping"
+              },
+              {
+                "element": "View Order Button",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.viewOrderButton",
+                "default": "View Order"
+              }
+            ]
+          },
+          {
+            "name": "CheckoutErrorMessages",
+            "uiElements": [
+              {
+                "element": "Required Field Error",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.requiredFieldError",
+                "default": "This field is required"
+              },
+              {
+                "element": "Invalid Email Error",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.invalidEmailError",
+                "default": "Please enter a valid email"
+              },
+              {
+                "element": "Invalid Phone Error",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.invalidPhoneError",
+                "default": "Please enter a valid phone number"
+              },
+              {
+                "element": "Select Delivery Method Error",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.selectDeliveryMethodError",
+                "default": "Please select a delivery method"
+              },
+              {
+                "element": "Select Payment Method Error",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.selectPaymentMethodError",
+                "default": "Please select a payment method"
+              }
+            ]
+          },
+          {
+            "name": "CheckoutFooter",
+            "uiElements": [
+              {
+                "element": "Privacy Policy Link",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.privacyPolicy",
+                "default": "Privacy Policy"
+              },
+              {
+                "element": "Terms of Service Link",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.termsOfService",
+                "default": "Terms of Service"
+              },
+              {
+                "element": "Security Note",
+                "currentStatus": "configurable",
+                "configPath": "content.checkout.securityNote",
+                "default": "Protected by SSL encryption • Your payment info is safe"
               }
             ]
           }
@@ -3092,7 +3532,7 @@
           }
         ]
       }
-    ],
+    },
     "sharedComponents": {
       "header": {
         "components": [
@@ -3490,7 +3930,7 @@
           }
         ]
       }
-    ],
+    },
     "styling": {
       "global": {
         "branding": {

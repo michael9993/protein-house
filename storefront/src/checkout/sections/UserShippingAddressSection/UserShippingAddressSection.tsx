@@ -9,11 +9,13 @@ import { AddressList } from "@/checkout/sections/AddressList/AddressList";
 import { type AddressFragment } from "@/checkout/graphql";
 import { useCheckoutFormValidationTrigger } from "@/checkout/hooks/useCheckoutFormValidationTrigger";
 import { useAvailableShippingCountries } from "@/checkout/hooks/useAvailableShippingCountries";
+import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 
 interface UserShippingAddressSectionProps {}
 
 export const UserShippingAddressSection: React.FC<UserShippingAddressSectionProps> = ({}) => {
 	const { availableShippingCountries } = useAvailableShippingCountries();
+	const text = useCheckoutText();
 	const {
 		form,
 		userAddressActions: { onAddressCreateSuccess, onAddressDeleteSuccess, onAddressUpdateSuccess },
@@ -23,6 +25,8 @@ export const UserShippingAddressSection: React.FC<UserShippingAddressSectionProp
 		scope: "shippingAddress",
 		form: form,
 	});
+
+	const shippingAddressTitle = text.shippingAddressTitle || "Shipping address";
 
 	return (
 		<Suspense fallback={<AddressSectionSkeleton />}>
@@ -47,7 +51,7 @@ export const UserShippingAddressSection: React.FC<UserShippingAddressSectionProp
 						{displayAddressEdit && (
 							<AddressEditForm
 								availableCountries={availableShippingCountries}
-								title="Shipping address"
+								title={shippingAddressTitle}
 								onClose={() => setDisplayAddressEdit()}
 								address={form.values.addressList.find(getById(editedAddressId)) as AddressFragment}
 								onUpdate={onAddressUpdateSuccess}
@@ -59,7 +63,7 @@ export const UserShippingAddressSection: React.FC<UserShippingAddressSectionProp
 							<AddressList
 								onEditChange={setDisplayAddressEdit}
 								onAddAddressClick={() => setDisplayAddressCreate(true)}
-								title="Shipping address"
+								title={shippingAddressTitle}
 								checkAddressAvailability={true}
 								form={form}
 							/>

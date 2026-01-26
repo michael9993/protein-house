@@ -79,12 +79,23 @@ const CreateCampaignPage: NextPage = () => {
 
   const createMutation = trpcClient.campaign.create.useMutation({
     onSuccess: async () => {
+      // Invalidate all campaign queries
       await utils.campaign.list.invalidate();
+      await utils.campaign.get.invalidate();
+      // Force refetch to ensure UI updates
+      await utils.campaign.list.refetch();
+      // Redirect to campaigns list
       router.push("/campaigns");
     },
   });
 
-  if (!appBridgeState?.ready) {
+  // Return null while App Bridge is initializing - this prevents race conditions
+  if (!appBridgeState) {
+    return null;
+  }
+
+  // Show loading while App Bridge is connecting
+  if (!appBridgeState.ready) {
     return (
       <BasicLayout breadcrumbs={[{ name: "Campaigns", href: "/campaigns" }, { name: "New" }]}>
         <Text>Loading...</Text>

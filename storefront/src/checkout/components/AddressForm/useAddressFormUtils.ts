@@ -8,21 +8,9 @@ import {
 import { type OptionalAddress, type AddressField } from "@/checkout/components/AddressForm/types";
 import { defaultCountry } from "@/checkout/lib/consts/countries";
 import { getOrderedAddressFields, getRequiredAddressFields } from "@/checkout/components/AddressForm/utils";
+import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 
 export type AddressFieldLabel = Exclude<AddressField, "countryCode"> | "country";
-export const addressFieldMessages: Record<AddressFieldLabel, string> = {
-	city: "City",
-	firstName: "First name",
-	countryArea: "Country area",
-	lastName: "Last name",
-	country: "Country",
-	cityArea: "City area",
-	postalCode: "Postal code",
-	companyName: "Company",
-	streetAddress1: "Street address",
-	streetAddress2: "Street address (continue)",
-	phone: "Phone number",
-};
 
 export type LocalizedAddressFieldLabel =
 	| "province"
@@ -32,17 +20,9 @@ export type LocalizedAddressFieldLabel =
 	| "postal"
 	| "postTown"
 	| "prefecture";
-export const localizedAddressFieldMessages: Record<LocalizedAddressFieldLabel, string> = {
-	province: "Province",
-	district: "District",
-	state: "State",
-	zip: "Zip code",
-	postal: "Postal code",
-	postTown: "Post town",
-	prefecture: "Prefecture",
-};
 
 export const useAddressFormUtils = (countryCode: CountryCode = defaultCountry) => {
+	const text = useCheckoutText();
 	const [{ data }] = useAddressValidationRulesQuery({
 		variables: { countryCode },
 	});
@@ -50,6 +30,32 @@ export const useAddressFormUtils = (countryCode: CountryCode = defaultCountry) =
 	const validationRules = data?.addressValidationRules as ValidationRulesFragment;
 
 	const { countryAreaType, postalCodeType, cityType } = validationRules || {};
+
+	// Address field labels from storefront control config
+	const addressFieldMessages: Record<AddressFieldLabel, string> = useMemo(() => ({
+		city: text.cityLabel || "City",
+		firstName: text.firstNameLabel || "First name",
+		countryArea: text.countryAreaLabel || "Country area",
+		lastName: text.lastNameLabel || "Last name",
+		country: text.countryLabel || "Country",
+		cityArea: text.cityAreaLabel || "City area",
+		postalCode: text.postalCodeLabel || "Postal code",
+		companyName: text.companyLabel || "Company",
+		streetAddress1: text.addressLine1Label || "Street address",
+		streetAddress2: text.addressLine2Label || "Street address (continue)",
+		phone: text.phoneLabel || "Phone number",
+	}), [text]);
+
+	// Localized field labels from storefront control config
+	const localizedAddressFieldMessages: Record<LocalizedAddressFieldLabel, string> = useMemo(() => ({
+		province: text.provinceLabel || "Province",
+		district: text.districtLabel || "District",
+		state: text.stateLabel || "State",
+		zip: text.zipCodeLabel || "Zip code",
+		postal: text.postalCodeLabel || "Postal code",
+		postTown: text.postTownLabel || "Post town",
+		prefecture: text.prefectureLabel || "Prefecture",
+	}), [text]);
 
 	const localizedFields = useMemo(
 		() => ({
@@ -97,7 +103,7 @@ export const useAddressFormUtils = (countryCode: CountryCode = defaultCountry) =
 			console.warn(`Missing translation: ${localizedField}`);
 			return addressFieldMessages[camelCase(field) as AddressFieldLabel];
 		}
-	}, []);
+	}, [localizedAddressFieldMessages, addressFieldMessages]);
 
 	const getFieldLabel = useCallback(
 		(field: AddressField) => {
@@ -114,7 +120,7 @@ export const useAddressFormUtils = (countryCode: CountryCode = defaultCountry) =
 
 			return addressFieldMessages[field as AddressFieldLabel];
 		},
-		[getLocalizedFieldLabel, localizedFields],
+		[getLocalizedFieldLabel, localizedFields, addressFieldMessages],
 	);
 
 	const orderedAddressFields = getOrderedAddressFields(validationRules?.allowedFields as AddressField[]);

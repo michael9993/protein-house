@@ -343,6 +343,12 @@ def filter_newsletter_subscription_search(qs, _, value):
     return qs
 
 
+def filter_newsletter_subscription_channel(qs, _, value):
+    if value:
+        return qs.filter(channel__slug=value)
+    return qs
+
+
 class NewsletterSubscriptionFilter(MetadataFilterBase):
     ids = GlobalIDMultipleChoiceFilter(field_name="id", help_text="Filter by ids.")
     is_active = django_filters.BooleanFilter(
@@ -352,6 +358,10 @@ class NewsletterSubscriptionFilter(MetadataFilterBase):
     source = django_filters.CharFilter(
         method=filter_newsletter_subscription_source,
         help_text="Filter by subscription source.",
+    )
+    channel = django_filters.CharFilter(
+        method=filter_newsletter_subscription_channel,
+        help_text="Filter by channel slug.",
     )
     subscribed_at = ObjectTypeFilter(
         input_class=DateTimeRangeInput,
@@ -365,7 +375,7 @@ class NewsletterSubscriptionFilter(MetadataFilterBase):
 
     class Meta:
         model = models.NewsletterSubscription
-        fields = ["is_active", "source", "subscribed_at", "search"]
+        fields = ["is_active", "source", "channel", "subscribed_at", "search"]
 
 
 class NewsletterSubscriptionWhereFilterInput(MetadataWhereBase):

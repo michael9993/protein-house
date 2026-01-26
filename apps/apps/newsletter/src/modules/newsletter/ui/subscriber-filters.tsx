@@ -5,20 +5,24 @@ interface SubscriberFiltersProps {
   filters: {
     isActive?: boolean;
     source?: string;
+    channel?: string;
     search?: string;
   };
   onFiltersChange: (filters: {
     isActive?: boolean;
     source?: string;
+    channel?: string;
     search?: string;
   }) => void;
   availableSources: string[];
+  availableChannels?: Array<{ slug: string; name: string }>;
 }
 
 export const SubscriberFilters = ({
   filters,
   onFiltersChange,
   availableSources,
+  availableChannels,
 }: SubscriberFiltersProps) => {
   const [searchValue, setSearchValue] = useState(filters.search || "");
 
@@ -36,15 +40,31 @@ export const SubscriberFilters = ({
     })),
   ];
 
-  const handleStatusChange = (value: string | null) => {
+  const channelOptions = [
+    { value: "all", label: "All Channels" },
+    ...(availableChannels || []).map((channel) => ({
+      value: channel.slug,
+      label: channel.name,
+    })),
+  ];
+
+  const handleStatusChange = (value: { value: string; label: string } | null) => {
+    const valueStr = value?.value ?? null;
     const isActive =
-      value === "all" ? undefined : value === "active" ? true : value === "inactive" ? false : undefined;
+      valueStr === "all" ? undefined : valueStr === "active" ? true : valueStr === "inactive" ? false : undefined;
     onFiltersChange({ ...filters, isActive });
   };
 
-  const handleSourceChange = (value: string | null) => {
-    const source = value === "all" || !value ? undefined : value;
+  const handleSourceChange = (value: { value: string; label: string } | null) => {
+    const valueStr = value?.value ?? null;
+    const source = valueStr === "all" || !valueStr ? undefined : valueStr;
     onFiltersChange({ ...filters, source });
+  };
+
+  const handleChannelChange = (value: { value: string; label: string } | null) => {
+    const valueStr = value?.value ?? null;
+    const channel = valueStr === "all" || !valueStr ? undefined : valueStr;
+    onFiltersChange({ ...filters, channel });
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,10 +77,10 @@ export const SubscriberFilters = ({
 
   const clearFilters = () => {
     setSearchValue("");
-    onFiltersChange({});
+    onFiltersChange({ isActive: true }); // Reset to active (default)
   };
 
-  const hasActiveFilters = filters.isActive !== undefined || filters.source || filters.search;
+  const hasActiveFilters = filters.isActive !== undefined || filters.source || filters.channel || filters.search;
 
   return (
     <Box display="flex" flexDirection={{ desktop: "row", mobile: "column" }} gap={3} flexWrap="wrap">
@@ -76,7 +96,7 @@ export const SubscriberFilters = ({
                 (filters.isActive === undefined && o.value === "all")
             ) || null;
           }, [filters.isActive])}
-          onChange={(e) => handleStatusChange(e?.target?.value ?? null)}
+          onChange={(value) => handleStatusChange(value ?? null)}
           name="status"
         />
       </Box>
@@ -88,8 +108,20 @@ export const SubscriberFilters = ({
           value={useMemo(() => {
             return sourceOptions.find((o) => o.value === (filters.source || "all")) || null;
           }, [filters.source, availableSources])}
-          onChange={(e) => handleSourceChange(e?.target?.value ?? null)}
+          onChange={(value) => handleSourceChange(value ?? null)}
           name="source"
+        />
+      </Box>
+
+      <Box style={{ minWidth: "200px" }}>
+        <Combobox
+          label="Channel"
+          options={channelOptions}
+          value={useMemo(() => {
+            return channelOptions.find((o) => o.value === (filters.channel || "all")) || null;
+          }, [filters.channel, availableChannels])}
+          onChange={(value) => handleChannelChange(value ?? null)}
+          name="channel"
         />
       </Box>
 

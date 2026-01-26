@@ -1,5 +1,5 @@
 import { Box, Button, Text } from "@saleor/macaw-ui";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Controller, Control, useWatch } from "react-hook-form";
 
 import { defaultPadding } from "../../../components/ui-defaults";
@@ -35,6 +35,7 @@ export const SubscriberPicker = ({ control, filter }: SubscriberPickerProps) => 
       search: searchTerm || undefined,
     },
     {
+      enabled: !!control, // Only run query when control is available
       retry: false,
     }
   );
@@ -55,6 +56,23 @@ export const SubscriberPicker = ({ control, filter }: SubscriberPickerProps) => 
         sub.user?.lastName?.toLowerCase().includes(term)
     );
   }, [subscribers, searchTerm]);
+
+  // Helper function to validate Saleor Global IDs (base64-encoded strings)
+  const isValidGlobalId = (id: string): boolean => {
+    if (typeof id !== "string" || id.length === 0) return false;
+    try {
+      // Try to decode base64 - Global IDs are base64-encoded strings
+      const decoded = atob(id);
+      // Check if it follows the format "TypeName:ID"
+      return decoded.includes(":") && decoded.split(":").length === 2;
+    } catch {
+      // Not valid base64
+      return false;
+    }
+  };
+
+  // UUID validation regex - REMOVED, using Global ID validation instead
+  // const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
   return (
     <Box display="flex" flexDirection="column" gap={defaultPadding}>
@@ -81,14 +99,56 @@ export const SubscriberPicker = ({ control, filter }: SubscriberPickerProps) => 
         control={control}
         name="recipientFilter.selectedSubscriberIds"
         defaultValue={[]}
-        render={({ field: { onChange, value } }) => {
-          const selectedIds = value || [];
-          
+        render={({ field: { onChange, value, ...field } }) => {
+          // Ensure we only have valid Global ID strings (filter out any error objects or invalid values)
+          // This is critical - React Hook Form might store error objects in the array
+          const selectedIds = useMemo(() => {
+            if (!Array.isArray(value)) return [];
+            return value.filter((id): id is string => {
+              // Only accept valid string Global IDs
+              return isValidGlobalId(id);
+            });
+          }, [value]);
+
+          // Clean up invalid values immediately if they exist
+          const cleanupRef = useRef(false);
+          useEffect(() => {
+            if (Array.isArray(value)) {
+              const hasInvalidValues = value.some((id) => !isValidGlobalId(id));
+
+              if (hasInvalidValues && !cleanupRef.current) {
+                cleanupRef.current = true;
+                // Only update if there are actually invalid values
+                if (selectedIds.length !== value.length) {
+                  onChange(selectedIds);
+                }
+                // Reset flag after a short delay
+                setTimeout(() => {
+                  cleanupRef.current = false;
+                }, 100);
+              }
+            }
+          }, [value, selectedIds, onChange]);
+
+          // Normalize onChange to always set clean array of valid Global ID strings
+          const handleChange = (newValue: string[]) => {
+            const cleanValue = Array.isArray(newValue)
+              ? newValue.filter((id): id is string => isValidGlobalId(id))
+              : [];
+            onChange(cleanValue);
+          };
+
           const toggleSubscriber = (id: string) => {
+            // Validate the ID is a valid Global ID before adding
+            if (!isValidGlobalId(id)) {
+              console.warn("Invalid Global ID provided to toggleSubscriber:", id);
+              return;
+            }
+
             const newSelection = selectedIds.includes(id)
               ? selectedIds.filter((sid) => sid !== id)
               : [...selectedIds, id];
-            onChange(newSelection);
+            handleChange(newSelection);
           };
 
           return (
@@ -153,11 +213,20 @@ export const SubscriberPicker = ({ control, filter }: SubscriberPickerProps) => 
           control={control}
           name="recipientFilter.selectedSubscriberIds"
           defaultValue={[]}
-          render={({ field: { value } }) => (
-            <Text size={2} color="default2">
-              {(value || []).length} subscriber(s) selected
-            </Text>
-          )}
+          render={({ field: { value } }) => {
+            // Ensure we only count valid Global ID strings
+            const validIds = Array.isArray(value)
+              ? value.filter((id): id is string => {
+                  if (typeof id !== "string" || id.length === 0) return false;
+                  return isValidGlobalId(id);
+                })
+              : [];
+            return (
+              <Text size={2} color="default2">
+                {validIds.length} subscriber(s) selected
+              </Text>
+            );
+          }}
         />
         {subscriptionsData?.pageInfo.hasNextPage && (
           <Button

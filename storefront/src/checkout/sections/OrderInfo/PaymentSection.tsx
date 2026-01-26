@@ -1,9 +1,11 @@
 import { useOrder } from "@/checkout/hooks/useOrder";
 import { usePaymentStatus } from "@/checkout/sections/PaymentSection/utils";
+import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 
 export const PaymentSection = () => {
 	const { order } = useOrder();
 	const paymentStatus = usePaymentStatus(order);
+	const text = useCheckoutText();
 
 	const getStatusConfig = () => {
 		switch (paymentStatus) {
@@ -14,8 +16,8 @@ export const PaymentSection = () => {
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
 						</svg>
 					),
-					label: "Authorized",
-					message: "We've received your payment authorization",
+					label: text.authorizedStatus || "Authorized",
+					message: text.authorizedMessage || "We've received your payment authorization",
 					bgStyle: { backgroundColor: "var(--store-success-bg)" },
 					textStyle: { color: "var(--store-success-text)" },
 				};
@@ -26,8 +28,8 @@ export const PaymentSection = () => {
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
 						</svg>
 					),
-					label: "Paid",
-					message: "We've received your payment",
+					label: text.paidStatus || "Paid",
+					message: text.paidMessage || "We've received your payment",
 					bgStyle: { backgroundColor: "var(--store-success-bg)" },
 					textStyle: { color: "var(--store-success-text)" },
 				};
@@ -38,8 +40,8 @@ export const PaymentSection = () => {
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
 						</svg>
 					),
-					label: "Overpaid",
-					message: "Contact support for refund assistance",
+					label: text.overpaidStatus || "Overpaid",
+					message: text.overpaidMessage || "Contact support for refund assistance",
 					bgStyle: { backgroundColor: "var(--store-warning-bg)" },
 					textStyle: { color: "var(--store-warning-text)" },
 				};
@@ -50,8 +52,8 @@ export const PaymentSection = () => {
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
 						</svg>
 					),
-					label: "Processing",
-					message: "Payment is being processed",
+					label: text.processingStatus || "Processing",
+					message: text.processingMessage || "Payment is being processed",
 					bgStyle: { backgroundColor: "var(--store-neutral-100)" },
 					textStyle: { color: "var(--store-neutral-700)" },
 				};
@@ -68,7 +70,7 @@ export const PaymentSection = () => {
 				</div>
 				<div className="flex-1">
 					<div className="flex items-center gap-2">
-						<p className="text-sm font-medium" style={{ color: "var(--store-text-muted)" }}>Payment</p>
+						<p className="text-sm font-medium" style={{ color: "var(--store-text-muted)" }}>{text.paymentTitle || "Payment"}</p>
 						<span className="rounded-full px-2 py-0.5 text-xs font-medium" style={{ ...status.bgStyle, ...status.textStyle }}>
 							{status.label}
 						</span>

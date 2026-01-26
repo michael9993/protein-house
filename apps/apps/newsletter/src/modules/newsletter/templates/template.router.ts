@@ -7,6 +7,7 @@ import { router } from "../../trpc/trpc-server";
 import { TemplateService } from "./template.service";
 import { TemplateCompiler } from "./template-compiler";
 import { createTemplateInputSchema, updateTemplateInputSchema } from "./template-schema";
+import { fetchStoreBranding, DEFAULT_BRANDING } from "./branding-fetcher";
 
 const logger = createLogger("template-router");
 
@@ -68,6 +69,15 @@ export const templateRouter = router({
   create: protectedClientProcedure
     .input(createTemplateInputSchema)
     .mutation(async ({ ctx, input }) => {
+      // Log received input for debugging
+      logger.info("Template create received", {
+        name: input.name,
+        hasSubject: !!input.subject,
+        hasBody: !!input.body,
+        hasPreviewData: !!input.previewData,
+        previewDataLength: input.previewData?.length || 0,
+      });
+
       const service = new TemplateService(
         ctx.apiClient,
         ctx.saleorApiUrl!,
@@ -90,6 +100,16 @@ export const templateRouter = router({
   update: protectedClientProcedure
     .input(updateTemplateInputSchema)
     .mutation(async ({ ctx, input }) => {
+      // Log received input for debugging
+      logger.info("Template update received", {
+        id: input.id,
+        hasName: !!input.name,
+        hasSubject: !!input.subject,
+        hasBody: !!input.body,
+        hasPreviewData: !!input.previewData,
+        previewDataLength: input.previewData?.length || 0,
+      });
+
       const service = new TemplateService(
         ctx.apiClient,
         ctx.saleorApiUrl!,
@@ -172,17 +192,50 @@ export const templateRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        // Sample data for preview
-        const sampleData = {
+        // Generate preview unsubscribe URL using app's base URL
+        const appBaseUrl = process.env.APP_API_BASE_URL || 
+                          process.env.NEWSLETTER_APP_URL || 
+                          process.env.NEWSLETTER_APP_TUNNEL_URL ||
+                          "https://newsletter-app.example.com";
+        const previewUnsubscribeUrl = `${appBaseUrl}/api/newsletter/unsubscribe/PREVIEW_TOKEN`;
+
+        // Default sample data for preview
+        const defaultSampleData = {
           firstName: "John",
           lastName: "Doe",
           email: "john.doe@example.com",
-          unsubscribeUrl: "https://example.com/unsubscribe/token123",
+          // This is a preview URL - actual URLs are generated per-subscriber at send time
+          unsubscribeUrl: previewUnsubscribeUrl,
           companyName: "My Store",
           companyEmail: "support@mystore.com",
           companyWebsite: "https://mystore.com",
+          companyLogo: "https://placehold.co/180x44/1F2937/ffffff?text=LOGO",
+          companyAddress: "Your City, Country",
           primaryColor: "#2563EB",
           secondaryColor: "#1F2937",
+          productsTitle: "Top Picks",
+          productsSubtitle: "Hand-picked deals we think you'll love.",
+          products: [
+            {
+              name: "Product One",
+              price: "₪199",
+              originalPrice: "₪299",
+              image: "https://placehold.co/280x280/1F2937/ffffff?text=Product+1",
+              url: "https://example.com/product-1",
+            },
+            {
+              name: "Product Two",
+              price: "₪149",
+              originalPrice: "₪219",
+              image: "https://placehold.co/280x280/1F2937/ffffff?text=Product+2",
+              url: "https://example.com/product-2",
+            },
+          ],
+        };
+
+        // Merge payload with defaults - payload takes precedence
+        const sampleData = {
+          ...defaultSampleData,
           ...input.payload,
         };
 
@@ -203,6 +256,31 @@ export const templateRouter = router({
           code: "INTERNAL_SERVER_ERROR",
           message: error instanceof Error ? error.message : "Failed to render template",
         });
+      }
+    }),
+
+  /**
+   * Fetch branding from Storefront Control app
+   */
+  getBranding: protectedClientProcedure
+    .input(
+      z.object({
+        channelSlug: z.string().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      try {
+        const channelSlug = input.channelSlug || "default";
+        
+        logger.debug("Fetching branding for channel", { channelSlug });
+        
+        const branding = await fetchStoreBranding(ctx.saleorApiUrl!, channelSlug);
+        
+        return { branding };
+      } catch (error) {
+        logger.error("Error fetching branding", { error });
+        // Return default branding on error
+        return { branding: DEFAULT_BRANDING };
       }
     }),
 });

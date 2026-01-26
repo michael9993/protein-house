@@ -1,9 +1,11 @@
 import React from "react";
 import { useParams } from "next/navigation";
 import { DefaultChannelSlug } from "@/app/config";
+import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 
 export const EmptyCartPage = () => {
 	const params = useParams();
+	const text = useCheckoutText();
 	
 	const getChannel = (): string => {
 		// Try to get from Next.js params first
@@ -43,12 +45,11 @@ export const EmptyCartPage = () => {
 			</div>
 
 			{/* Title */}
-			<h2 className="mb-2 text-2xl font-bold" style={{ color: "var(--store-text)" }}>Your cart is empty</h2>
+			<h2 className="mb-2 text-2xl font-bold" style={{ color: "var(--store-text)" }}>{text.emptyCartTitle || "Your cart is empty"}</h2>
 			
 			{/* Description */}
 			<p className="mb-8" style={{ color: "var(--store-text-muted)" }}>
-				Looks like you haven&apos;t added anything to your cart yet. 
-				Explore our products and find something you&apos;ll love!
+				{text.emptyCartMessage || "Looks like you haven't added anything to your cart yet. Explore our products and find something you'll love!"}
 			</p>
 
 			{/* Actions */}
@@ -61,7 +62,7 @@ export const EmptyCartPage = () => {
 					<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
 					</svg>
-					Browse Products
+					{text.browseProductsButton || "Browse Products"}
 				</button>
 				<button
 					onClick={goToStore}
@@ -71,31 +72,31 @@ export const EmptyCartPage = () => {
 					<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
 					</svg>
-					Go to Homepage
+					{text.goToHomepageButton || "Go to Homepage"}
 				</button>
 			</div>
 
 			{/* Suggestions */}
 			<div className="mt-12 w-full rounded-lg border p-6" style={{ borderColor: "var(--store-neutral-200)", backgroundColor: "var(--store-surface)" }}>
-				<h3 className="mb-3 text-sm font-semibold" style={{ color: "var(--store-text)" }}>Need help?</h3>
+				<h3 className="mb-3 text-sm font-semibold" style={{ color: "var(--store-text)" }}>{text.needHelpText || "Need help?"}</h3>
 				<ul className="space-y-2 text-sm" style={{ color: "var(--store-text-muted)" }}>
 					<li className="flex items-center gap-2">
 						<svg className="h-4 w-4" style={{ color: "var(--store-success)" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
 						</svg>
-						Free shipping on orders over $50
+						{text.freeShippingBadge || "Free shipping on orders over $50"}
 					</li>
 					<li className="flex items-center gap-2">
 						<svg className="h-4 w-4" style={{ color: "var(--store-success)" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
 						</svg>
-						Easy 30-day returns
+						{text.easyReturnsBadge || "Easy 30-day returns"}
 					</li>
 					<li className="flex items-center gap-2">
 						<svg className="h-4 w-4" style={{ color: "var(--store-success)" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
 						</svg>
-						Secure payment processing
+						{text.securePaymentBadge || "Secure payment processing"}
 					</li>
 				</ul>
 			</div>

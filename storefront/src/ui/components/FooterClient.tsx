@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LinkWithChannel } from "../atoms/LinkWithChannel";
 import { 
 	useBranding, 
@@ -13,20 +13,9 @@ import {
 	useOrderTrackingText,
 	useContentConfig,
 } from "@/providers/StoreConfigProvider";
-// Newsletter subscription mutation
-const NEWSLETTER_SUBSCRIBE_MUTATION = `
-	mutation NewsletterSubscribe($email: String!, $source: String) {
-		newsletterSubscribe(email: $email, source: $source) {
-			subscribed
-			alreadySubscribed
-			errors {
-				field
-				message
-				code
-			}
-		}
-	}
-`;
+import { useNewsletterState } from "@/hooks/useNewsletterState";
+import { isAlreadySubscribed, NEWSLETTER_STORAGE_KEY } from "@/lib/newsletter";
+import { useToast } from "@/ui/components/Toast/ToastContext";
 
 // Types for menu items from GraphQL
 interface MenuItem {
@@ -83,7 +72,10 @@ interface NewsletterFooterSectionProps {
 	description: string;
 	placeholder: string;
 	buttonText: string;
+	successMessage: string;
+	alreadyActiveMessage: string;
 	primaryColor: string;
+	channel?: string;
 }
 
 const NewsletterFooterSection = ({
@@ -91,106 +83,42 @@ const NewsletterFooterSection = ({
 	description,
 	placeholder,
 	buttonText,
+	successMessage,
+	alreadyActiveMessage,
 	primaryColor,
+	channel,
 }: NewsletterFooterSectionProps) => {
-	const [email, setEmail] = useState("");
-	const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-	const [errorMessage, setErrorMessage] = useState("");
+	// Use shared newsletter state hook (synced with homepage)
+	const {
+		email,
+		setEmail,
+		status,
+		errorMessage,
+		mounted,
+		handleSubmit,
+		clearError,
+	} = useNewsletterState();
+	const { addToast } = useToast();
+	const [shownAlreadyActiveToast, setShownAlreadyActiveToast] = useState(false);
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		
-		if (!email || !email.includes("@")) {
-			console.warn("[NewsletterFooter] Invalid email format:", email);
-			setStatus("error");
-			setErrorMessage("Please enter a valid email address");
-			return;
+	const onSubmit = (e: React.FormEvent) => handleSubmit(e, "footer", channel);
+
+	// Show toast when status becomes "already_active"
+	useEffect(() => {
+		if (status === "already_active" && !shownAlreadyActiveToast) {
+			addToast(alreadyActiveMessage, "info", 4000);
+			setShownAlreadyActiveToast(true);
 		}
-
-		const normalizedEmail = email.trim().toLowerCase();
-		console.log("[NewsletterFooter] Starting subscription", {
-			email: normalizedEmail,
-			source: "footer",
-		});
-
-		setStatus("loading");
-		setErrorMessage("");
-
-		try {
-			const apiUrl = process.env.NEXT_PUBLIC_SALEOR_API_URL;
-			if (!apiUrl) {
-				console.error("[NewsletterFooter] API URL not configured");
-				setStatus("error");
-				setErrorMessage("API URL not configured.");
-				return;
-			}
-
-			const graphqlUrl = apiUrl.endsWith('/graphql/') || apiUrl.endsWith('/graphql') 
-				? apiUrl 
-				: `${apiUrl.replace(/\/+$/, '')}/graphql/`;
-			
-			console.log("[NewsletterFooter] Sending request", {
-				graphqlUrl,
-				email: normalizedEmail,
-				source: "footer",
-			});
-			
-			const response = await fetch(graphqlUrl, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					query: NEWSLETTER_SUBSCRIBE_MUTATION,
-					variables: {
-						email: normalizedEmail,
-						source: "footer",
-					},
-				}),
-			});
-
-			console.log("[NewsletterFooter] Response status:", response.status, response.statusText);
-
-			if (!response.ok) {
-				console.error("[NewsletterFooter] HTTP error:", response.status, response.statusText);
-				setStatus("error");
-				setErrorMessage("Failed to subscribe. Please try again.");
-				return;
-			}
-
-			const result = await response.json() as any;
-			console.log("[NewsletterFooter] Response data:", {
-				subscribed: result?.data?.newsletterSubscribe?.subscribed,
-				alreadySubscribed: result?.data?.newsletterSubscribe?.alreadySubscribed,
-				errors: result?.data?.newsletterSubscribe?.errors,
-				hasErrors: !!(result?.data?.newsletterSubscribe?.errors && result.data.newsletterSubscribe.errors.length > 0),
-			});
-
-			if (result?.data?.newsletterSubscribe?.errors && result.data.newsletterSubscribe.errors.length > 0) {
-				const error = result.data.newsletterSubscribe.errors[0];
-				console.error("[NewsletterFooter] Subscription error:", error);
-				setStatus("error");
-				setErrorMessage(error.message || "Failed to subscribe. Please try again.");
-			} else if (result?.data?.newsletterSubscribe?.subscribed || result?.data?.newsletterSubscribe?.alreadySubscribed) {
-				console.log("[NewsletterFooter] Subscription successful", {
-					subscribed: result.data.newsletterSubscribe.subscribed,
-					alreadySubscribed: result.data.newsletterSubscribe.alreadySubscribed,
-					email: normalizedEmail,
-				});
-				setStatus("success");
-				setEmail("");
-				setTimeout(() => setStatus("idle"), 3000);
-			} else {
-				console.error("[NewsletterFooter] Unexpected response format:", result);
-				setStatus("error");
-				setErrorMessage("Something went wrong. Please try again.");
-			}
-		} catch (error) {
-			console.error("[NewsletterFooter] Exception during subscription:", error);
-			setStatus("error");
-			setErrorMessage("Failed to subscribe. Please try again.");
+		// Reset the flag when status changes to something else
+		if (status !== "already_active") {
+			setShownAlreadyActiveToast(false);
 		}
-	};
+	}, [status, alreadyActiveMessage, addToast, shownAlreadyActiveToast]);
+
+	// Don't render if already subscribed or already active (toast handles the message)
+	if (mounted && (status === "already_subscribed" || status === "already_active")) {
+		return null;
+	}
 
 	return (
 		<div>
@@ -199,16 +127,18 @@ const NewsletterFooterSection = ({
 			<div className="mt-4">
 				{status === "success" ? (
 					<div className="rounded-md px-4 py-2 text-sm text-white" style={{ backgroundColor: "rgba(34, 197, 94, 0.2)" }}>
-						✓ Subscribed successfully!
+						✓ {successMessage}
 					</div>
 				) : (
-					<form onSubmit={handleSubmit} className="flex flex-col gap-2">
+					<form onSubmit={onSubmit} className="flex flex-col gap-2">
 						<input
 							type="email"
+							name="email"
+							autoComplete="email"
 							value={email}
 							onChange={(e) => {
 								setEmail(e.target.value);
-								if (status === "error") setStatus("idle");
+								clearError();
 							}}
 							placeholder={placeholder}
 							required
@@ -238,7 +168,11 @@ const NewsletterFooterSection = ({
 	);
 };
 
-export function FooterClient({ menuItems }: FooterClientProps) {
+interface FooterClientPropsWithChannel extends FooterClientProps {
+	channel?: string;
+}
+
+export function FooterClient({ menuItems, channel }: FooterClientPropsWithChannel) {
 	// Use config from context (per-channel)
 	const branding = useBranding();
 	const store = useStoreInfo();
@@ -247,7 +181,34 @@ export function FooterClient({ menuItems }: FooterClientProps) {
 	const footerText = useFooterText();
 	const contentConfig = useContentConfig();
 	const [imageError, setImageError] = useState(false);
+	const [hideNewsletter, setHideNewsletter] = useState(false);
 	const currentYear = new Date().getFullYear();
+
+	// Check subscription status on mount and listen for changes
+	useEffect(() => {
+		// Check initial state
+		setHideNewsletter(isAlreadySubscribed());
+
+		// Listen for storage changes (including from useNewsletterState events)
+		const handleStorageChange = (e: StorageEvent) => {
+			if (e.key === NEWSLETTER_STORAGE_KEY) {
+				setHideNewsletter(e.newValue === "true");
+			}
+		};
+
+		// Listen for custom newsletter state changes
+		const handleNewsletterChange = () => {
+			setHideNewsletter(isAlreadySubscribed());
+		};
+
+		window.addEventListener("storage", handleStorageChange);
+		window.addEventListener("newsletter:state-change", handleNewsletterChange);
+
+		return () => {
+			window.removeEventListener("storage", handleStorageChange);
+			window.removeEventListener("newsletter:state-change", handleNewsletterChange);
+		};
+	}, []);
 
 	// Debug: Log footer config to verify boolean values are correct
 	if (process.env.NODE_ENV === "development") {
@@ -474,14 +435,19 @@ export function FooterClient({ menuItems }: FooterClientProps) {
 						</div>
 					)}
 
-					{/* Newsletter Section (config-driven visibility from storefront-control) - Moved to last position */}
-					{footerConfig.showNewsletter && <NewsletterFooterSection 
-						title={footerText.followUsTitle || "Newsletter"}
-						description={contentConfig.general.newsletterDescription}
-						placeholder={contentConfig.general.newsletterPlaceholder}
-						buttonText={contentConfig.general.newsletterButton}
-						primaryColor={branding.colors.primary}
-					/>}
+					{/* Newsletter Section (config-driven visibility from storefront-control) - Hidden if already subscribed */}
+					{footerConfig.showNewsletter && !hideNewsletter && (
+						<NewsletterFooterSection 
+							title={footerText.followUsTitle || "Newsletter"}
+							description={contentConfig.general.newsletterDescription}
+							placeholder={contentConfig.general.newsletterPlaceholder}
+							buttonText={contentConfig.general.newsletterButton}
+							successMessage={contentConfig.general.newsletterSuccess}
+							alreadyActiveMessage={contentConfig.general.newsletterAlreadyActive || "You're already subscribed to our newsletter!"}
+							primaryColor={branding.colors.primary}
+							channel={channel}
+						/>
+					)}
 				</div>
 
 				{/* Bottom Bar */}

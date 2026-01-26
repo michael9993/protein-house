@@ -11,6 +11,7 @@ import { AddressForm, type AddressFormProps } from "@/checkout/components/Addres
 import { type AddressFragment, type CountryCode, useUserAddressCreateMutation } from "@/checkout/graphql";
 import { FormProvider } from "@/checkout/hooks/useForm/FormProvider";
 import { useUser } from "@/checkout/hooks/useUser";
+import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 
 export interface AddressCreateFormProps extends Pick<AddressFormProps, "availableCountries"> {
 	onSuccess: (address: AddressFragment) => void | Promise<void>;
@@ -26,6 +27,7 @@ export const AddressCreateForm: React.FC<AddressCreateFormProps> = ({
 	const { setCountryCode, validationSchema } = useAddressFormSchema();
 	const { user, authenticated, reload } = useUser();
 	const [isSuccess, setIsSuccess] = useState(false);
+	const text = useCheckoutText();
 
 	const onSubmit = useFormSubmit<AddressFormData, typeof userAddressCreate>({
 		scope: "userAddressCreate",
@@ -131,7 +133,7 @@ export const AddressCreateForm: React.FC<AddressCreateFormProps> = ({
 				setIsSuccess(true);
 				
 				// Show success toast notification
-				toast.success("Address saved successfully!", {
+				toast.success(text.addressSavedSuccess || "Address saved successfully!", {
 					position: "top-right",
 					autoClose: 2000,
 					hideProgressBar: true,
@@ -208,7 +210,7 @@ export const AddressCreateForm: React.FC<AddressCreateFormProps> = ({
 
 	return (
 		<FormProvider form={{ ...form, handleChange: onChange }}>
-			<AddressForm title="Create address" availableCountries={availableCountries}>
+			<AddressForm title={text.createAddressTitle || "Create address"} availableCountries={availableCountries}>
 				{isSuccess && (
 					<div className="mb-4 flex items-center gap-2 rounded-md border px-4 py-3 text-sm" style={{ backgroundColor: "var(--store-success-bg)", borderColor: "var(--store-success-border)", color: "var(--store-success-text)" }}>
 						<svg
@@ -225,7 +227,7 @@ export const AddressCreateForm: React.FC<AddressCreateFormProps> = ({
 								d="M5 13l4 4L19 7"
 							/>
 						</svg>
-						<span>Address saved successfully!</span>
+						<span>{text.addressSavedSuccess || "Address saved successfully!"}</span>
 					</div>
 				)}
 				<AddressFormActions 

@@ -894,20 +894,198 @@ export const HomepageTextSchema = z.object({
 
 // Checkout text
 export const CheckoutTextSchema = z.object({
+  // Page title
+  checkoutTitle: z.string().optional(),           // "Checkout"
+  // Secure checkout badge
   secureCheckout: z.string(),
+  // Breadcrumb steps
+  shippingStep: z.string().optional(),            // "Shipping"
+  paymentStep: z.string().optional(),             // "Payment"
+  confirmationStep: z.string().optional(),        // "Confirmation"
+  
+  // Contact Information Section
+  contactInfoTitle: z.string().optional(),        // "Contact Information"
+  contactInfoSubtitle: z.string().optional(),     // "We'll use this to send order updates"
+  accountLabel: z.string().optional(),            // "Account"
+  signOutButton: z.string().optional(),           // "Sign out"
+  guestEmailLabel: z.string().optional(),         // "Email"
+  guestEmailPlaceholder: z.string().optional(),   // "Enter your email"
+  createAccountCheckbox: z.string().optional(),   // "Create account for faster checkout"
+  passwordLabel: z.string().optional(),           // "Password"
+  
+  // Shipping Address Section
+  shippingAddressTitle: z.string().optional(),    // "Shipping Address"
+  shippingAddressSubtitle: z.string().optional(), // "Where should we deliver?"
+  addAddressButton: z.string().optional(),        // "Add address"
+  editAddressButton: z.string().optional(),       // "Edit"
+  changeAddressButton: z.string().optional(),     // "Change"
+  
+  // Address Form Fields
+  firstNameLabel: z.string().optional(),          // "First name"
+  lastNameLabel: z.string().optional(),           // "Last name"
+  companyLabel: z.string().optional(),            // "Company (optional)"
+  addressLine1Label: z.string().optional(),       // "Address"
+  addressLine2Label: z.string().optional(),       // "Apartment, suite, etc. (optional)"
+  cityLabel: z.string().optional(),               // "City"
+  countryLabel: z.string().optional(),            // "Country"
+  stateLabel: z.string().optional(),              // "State/Province"
+  postalCodeLabel: z.string().optional(),         // "Postal code"
+  phoneLabel: z.string().optional(),              // "Phone"
+  saveAddressButton: z.string().optional(),       // "Save address"
+  cancelButton: z.string().optional(),            // "Cancel"
+  
+  // Localized Address Fields (country-specific variants)
+  provinceLabel: z.string().optional(),           // "Province"
+  districtLabel: z.string().optional(),           // "District"
+  zipCodeLabel: z.string().optional(),            // "Zip code"
+  postTownLabel: z.string().optional(),           // "Post town"
+  prefectureLabel: z.string().optional(),         // "Prefecture"
+  cityAreaLabel: z.string().optional(),           // "City area"
+  countryAreaLabel: z.string().optional(),        // "Country area"
+  
+  // Billing Address Section
+  billingAddressTitle: z.string().optional(),     // "Billing Address"
+  billingAddressSubtitle: z.string().optional(),  // "For your invoice"
+  useSameAsShipping: z.string().optional(),       // "Use shipping address as billing address"
+  
+  // Delivery Methods Section
+  deliveryMethodsTitle: z.string().optional(),    // "Delivery methods"
+  businessDaysText: z.string().optional(),        // "{min}-{max} business days"
+  freeShippingLabel: z.string().optional(),       // "Free"
+  noDeliveryMethodsText: z.string().optional(),   // "No delivery methods available"
+  
+  // Payment Section
+  paymentTitle: z.string().optional(),            // "Payment"
+  paymentSubtitle: z.string().optional(),         // "Select your payment method"
+  paymentMethodLabel: z.string().optional(),      // "Payment method"
+  payNowButton: z.string().optional(),            // "Pay now"
+  initializingPaymentText: z.string().optional(), // "Initializing payment system..."
+  paymentSystemUnavailableError: z.string().optional(), // "Payment system is not available..."
+  checkoutInfoMissingError: z.string().optional(), // "Checkout information is missing..."
+  paymentFormNotReadyError: z.string().optional(), // "Payment form is not ready..."
+  paymentValidationFailedError: z.string().optional(), // "Payment validation failed"
+  transactionCreationFailedError: z.string().optional(), // "Transaction could not be created..."
+  invalidPaymentDataError: z.string().optional(), // "Invalid payment data received..."
+  paymentInitIncompleteError: z.string().optional(), // "Payment initialization incomplete..."
+  paymentConfirmationFailedError: z.string().optional(), // "Payment confirmation failed..."
+  paymentFailedError: z.string().optional(),      // "Payment failed"
+  unexpectedPaymentError: z.string().optional(),  // "An unexpected error occurred..."
+  paymentSuccessOrderFailedError: z.string().optional(), // "Payment was successful but order processing failed..."
+  
+  // Order Summary Section  
+  orderSummaryTitle: z.string().optional(),       // "Order Summary"
+  itemsCountSingular: z.string().optional(),      // "1 item"
+  itemsCountPlural: z.string().optional(),        // "{count} items"
+  productsLabel: z.string().optional(),           // "Products"
+  quantityLabel: z.string().optional(),           // "Quantity"
+  addPromoCodeText: z.string().optional(),        // "Add promo code or gift card"
+  promoCodeLabel: z.string().optional(),          // "Promo code"
+  promoCodePlaceholder: z.string().optional(),    // "Enter code"
+  applyPromoButton: z.string().optional(),        // "Apply"
+  removePromoButton: z.string().optional(),       // "Remove"
+  giftCardLabel: z.string().optional(),           // "Gift card"
+  subtotalLabel: z.string().optional(),           // "Subtotal"
+  shippingLabel: z.string().optional(),           // "Shipping"
+  taxLabel: z.string().optional(),                // "Tax"
+  includesTaxText: z.string().optional(),         // "Includes {amount} tax"
+  totalLabel: z.string().optional(),              // "Total"
+  
+  // Form sections (legacy - keeping for backwards compatibility)
   contactDetails: z.string(),
   shippingAddress: z.string(),
   shippingMethod: z.string(),
   paymentMethod: z.string(),
   orderSummary: z.string(),
   placeOrder: z.string(),
+  
+  // Place Order Section
+  placeOrderButton: z.string().optional(),        // "Place Order"
+  processingOrderText: z.string().optional(),     // "Processing your order..."
+  agreementText: z.string().optional(),           // "By placing this order, you agree to our"
+  
+  // Order confirmation
+  almostDoneText: z.string().optional(),          // "Almost done…"
   orderConfirmation: z.string(),
   thankYouTitle: z.string(),
   thankYouMessage: z.string(),
-  // Footer links (optional for backward compatibility)
-  privacyPolicyLinkText: z.string().optional(),   // "Privacy Policy"
-  termsOfServiceLinkText: z.string().optional(),   // "Terms of Service"
-  sslEncryptionMessage: z.string().optional(),     // "Protected by SSL encryption • Your payment info is safe"
+  orderNumberLabel: z.string().optional(),        // "Order number"
+  continueShoppingButton: z.string().optional(),  // "Continue Shopping"
+  viewOrderButton: z.string().optional(),         // "View Order"
+  orderReceiptTitle: z.string().optional(),       // "Order Receipt"
+  orderNumberPrefix: z.string().optional(),       // "Order #"
+  orderConfirmedTitle: z.string().optional(),     // "Order Confirmed"
+  orderConfirmedMessage: z.string().optional(),   // "Thank you for your order!..."
+  confirmationSentTo: z.string().optional(),      // "Confirmation sent to:"
+  customerLabel: z.string().optional(),           // "Customer:"
+  orderDateLabel: z.string().optional(),          // "Order Date:"
+  whatsNextTitle: z.string().optional(),          // "What's Next?"
+  orderProcessingStep: z.string().optional(),     // "Order Processing"
+  orderProcessingMessage: z.string().optional(),  // "We're preparing your order for shipment."
+  shippingNotificationStep: z.string().optional(), // "Shipping Notification"
+  shippingNotificationMessage: z.string().optional(), // "You'll receive tracking info when shipped."
+  deliveryStep: z.string().optional(),            // "Delivery"
+  deliveryMessage: z.string().optional(),         // "Your order will arrive at your doorstep!"
+  printReceiptButton: z.string().optional(),      // "Print Receipt"
+  thankYouPurchaseMessage: z.string().optional(), // "Thank you for your purchase!..."
+  
+  // Order Info Section (confirmation page)
+  orderDetailsTitle: z.string().optional(),       // "Order Details"
+  contactLabel: z.string().optional(),            // "Contact"
+  authorizedStatus: z.string().optional(),        // "Authorized"
+  authorizedMessage: z.string().optional(),       // "We've received your payment authorization"
+  paidStatus: z.string().optional(),              // "Paid"
+  paidMessage: z.string().optional(),             // "We've received your payment"
+  overpaidStatus: z.string().optional(),          // "Overpaid"
+  overpaidMessage: z.string().optional(),         // "Contact support for refund assistance"
+  processingStatus: z.string().optional(),        // "Processing"
+  processingMessage: z.string().optional(),       // "Payment is being processed"
+  
+  // Error messages
+  requiredFieldError: z.string().optional(),      // "This field is required"
+  invalidEmailError: z.string().optional(),       // "Please enter a valid email"
+  invalidPhoneError: z.string().optional(),       // "Please enter a valid phone number"
+  selectDeliveryMethodError: z.string().optional(), // "Please select a delivery method"
+  selectPaymentMethodError: z.string().optional(), // "Please select a payment method"
+  
+  // Address Form Actions
+  deleteAddressButton: z.string().optional(),     // "Delete address"
+  savingAddressText: z.string().optional(),       // "Saving…"
+  savedText: z.string().optional(),               // "Saved"
+  createAddressTitle: z.string().optional(),      // "Create address"
+  editAddressTitle: z.string().optional(),        // "Edit address"
+  addressSavedSuccess: z.string().optional(),     // "Address saved successfully!"
+  addressUpdatedSuccess: z.string().optional(),   // "Address updated successfully!"
+  cantShipToAddressText: z.string().optional(),   // "Can't ship to this address"
+  
+  // Sign In/Out
+  signInTitle: z.string().optional(),             // "Sign in"
+  signInButton: z.string().optional(),            // "Sign in"
+  newCustomerText: z.string().optional(),         // "New customer?"
+  guestCheckoutButton: z.string().optional(),     // "Guest checkout"
+  forgotPasswordLink: z.string().optional(),      // "Forgot password?"
+  resendLink: z.string().optional(),              // "Resend?"
+  processingText: z.string().optional(),          // "Processing…"
+  orText: z.string().optional(),                  // "or"
+  continueWithGoogle: z.string().optional(),      // "Continue with Google"
+  signInWithGoogle: z.string().optional(),        // "Sign in with Google"
+  alreadyHaveAccount: z.string().optional(),      // "Already have an account?"
+  
+  // Guest User
+  contactDetailsTitle: z.string().optional(),     // "Contact details"
+  createAccountLabel: z.string().optional(),      // "I want to create account"
+  passwordMinChars: z.string().optional(),        // "Password (minimum 8 characters)"
+  
+  // SSL/Security
+  sslEncryptionText: z.string().optional(),       // "Secure 256-bit SSL encryption"
+  
+  // Footer links
+  privacyPolicy: z.string().optional(),           // "Privacy Policy"
+  termsOfService: z.string().optional(),          // "Terms of Service"
+  securityNote: z.string().optional(),            // "Protected by SSL encryption • Your payment info is safe"
+  // Legacy fields (for backward compatibility)
+  privacyPolicyLinkText: z.string().optional(),   
+  termsOfServiceLinkText: z.string().optional(),   
+  sslEncryptionMessage: z.string().optional(),     
 });
 
 // Filters/Sort/Product List Text

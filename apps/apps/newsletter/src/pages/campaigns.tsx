@@ -14,10 +14,16 @@ const CampaignsPage: NextPage = () => {
   const router = useRouter();
   const utils = trpcClient.useUtils();
 
-  const { data: campaignsData, isLoading } = trpcClient.campaign.list.useQuery(undefined, {
+  const { data: campaignsData, isLoading, isFetching } = trpcClient.campaign.list.useQuery(undefined, {
     enabled: !!appBridgeState?.ready,
-    staleTime: 30000, // Cache for 30 seconds
-    refetchOnWindowFocus: false,
+    staleTime: 5000, // Short stale time for fresh data
+    refetchOnWindowFocus: true,
+    // Dynamic refetch interval - faster when campaigns are sending
+    refetchInterval: (data) => {
+      const hasSending = data?.campaigns?.some(c => c.status === "sending");
+      return hasSending ? 2000 : 10000; // 2s when sending, 10s otherwise
+    },
+    placeholderData: (previousData) => previousData,
   });
 
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -25,7 +31,10 @@ const CampaignsPage: NextPage = () => {
 
   const deleteMutation = trpcClient.campaign.delete.useMutation({
     onSuccess: async () => {
+      // Invalidate all campaign-related queries
       await utils.campaign.list.invalidate();
+      await utils.campaign.get.invalidate();
+      // Force refetch to ensure UI updates immediately
       await utils.campaign.list.refetch();
       setMessage({ type: "success", text: "Campaign deleted successfully!" });
       setDeleteConfirm(null);
@@ -35,6 +44,25 @@ const CampaignsPage: NextPage = () => {
       setMessage({ type: "error", text: `Failed to delete campaign: ${error.message}` });
       setDeleteConfirm(null);
       console.error("Failed to delete campaign:", error);
+      setTimeout(() => setMessage(null), 5000);
+    },
+  });
+
+  const duplicateMutation = trpcClient.campaign.duplicate.useMutation({
+    onSuccess: async (result) => {
+      // Invalidate and refetch to show the new campaign in the list
+      await utils.campaign.list.invalidate();
+      await utils.campaign.list.refetch();
+      // Navigate to the new duplicated campaign
+      if (result?.campaign) {
+        setMessage({ type: "success", text: "Campaign duplicated successfully!" });
+        setTimeout(() => {
+          router.push(`/campaigns/${result.campaign.id}`);
+        }, 1000);
+      }
+    },
+    onError: (error) => {
+      setMessage({ type: "error", text: error instanceof Error ? error.message : "Failed to duplicate campaign" });
       setTimeout(() => setMessage(null), 5000);
     },
   });
@@ -52,21 +80,8 @@ const CampaignsPage: NextPage = () => {
     }
   };
 
-  const handleDuplicate = async (id: string) => {
-    try {
-      const result = await trpcClient.campaign.duplicate.mutate({ id });
-      await utils.campaign.list.invalidate();
-      // Navigate to the new duplicated campaign
-      if (result?.campaign) {
-        setMessage({ type: "success", text: "Campaign duplicated successfully!" });
-        setTimeout(() => {
-          router.push(`/campaigns/${result.campaign.id}`);
-        }, 1000);
-      }
-    } catch (error) {
-      setMessage({ type: "error", text: error instanceof Error ? error.message : "Failed to duplicate campaign" });
-      setTimeout(() => setMessage(null), 5000);
-    }
+  const handleDuplicate = (id: string) => {
+    duplicateMutation.mutate({ id });
   };
 
   const getStatusColor = (status: string) => {
@@ -86,7 +101,13 @@ const CampaignsPage: NextPage = () => {
     }
   };
 
-  if (!appBridgeState?.ready) {
+  // Return null while App Bridge is initializing - this prevents race conditions
+  if (!appBridgeState) {
+    return null;
+  }
+
+  // Show loading while App Bridge is connecting
+  if (!appBridgeState.ready) {
     return (
       <BasicLayout breadcrumbs={[{ name: "Campaigns" }]}>
         <Text>Loading...</Text>
@@ -162,7 +183,7 @@ const CampaignsPage: NextPage = () => {
         title="Campaigns"
         description={<Text>Manage your email campaigns. Track progress and view statistics.</Text>}
       >
-        {isLoading ? (
+        {isLoading && !campaignsData ? (
           <Text>Loading campaigns...</Text>
         ) : campaignsData?.campaigns.length === 0 ? (
           <Box padding={6} textAlign="center">
@@ -182,10 +203,14 @@ const CampaignsPage: NextPage = () => {
             </Table.Header>
             <Table.Body>
               {campaignsData?.campaigns.map((campaign) => {
+                const totalProcessed = campaign.sentCount + campaign.failedCount;
                 const progress =
                   campaign.recipientCount > 0
-                    ? Math.round((campaign.sentCount / campaign.recipientCount) * 100)
+                    ? Math.round((totalProcessed / campaign.recipientCount) * 100)
                     : 0;
+                const successRate = totalProcessed > 0
+                  ? Math.round((campaign.sentCount / totalProcessed) * 100)
+                  : 0;
 
                 return (
                   <Table.Row key={campaign.id}>
@@ -193,9 +218,27 @@ const CampaignsPage: NextPage = () => {
                       <Text fontWeight="bold">{campaign.name}</Text>
                     </Table.Cell>
                     <Table.Cell>
-                      <Text color={getStatusColor(campaign.status)}>
-                        {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
-                      </Text>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Box
+                          width={2}
+                          height={2}
+                          borderRadius={3}
+                          backgroundColor={
+                            campaign.status === "sending" ? "info1" :
+                            campaign.status === "sent" ? "success1" :
+                            campaign.status === "failed" ? "critical1" :
+                            campaign.status === "cancelled" ? "default2" :
+                            campaign.status === "scheduled" ? "warning1" :
+                            "default1"
+                          }
+                          style={{
+                            animation: campaign.status === "sending" ? "pulse 2s infinite" : "none",
+                          }}
+                        />
+                        <Text color={getStatusColor(campaign.status)}>
+                          {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
+                        </Text>
+                      </Box>
                     </Table.Cell>
                     <Table.Cell>
                       <Text>{campaign.channelSlug}</Text>
@@ -208,9 +251,37 @@ const CampaignsPage: NextPage = () => {
                       </Text>
                     </Table.Cell>
                     <Table.Cell>
-                      <Text>
-                        {campaign.sentCount} / {campaign.recipientCount} ({progress}%)
-                      </Text>
+                      <Box display="flex" flexDirection="column" gap={1}>
+                        {/* Progress bar */}
+                        <Box
+                          width="100%"
+                          height={2}
+                          backgroundColor="default2"
+                          borderRadius={1}
+                          overflow="hidden"
+                        >
+                          <Box
+                            height="100%"
+                            borderRadius={1}
+                            style={{
+                              width: `${progress}%`,
+                              backgroundColor: campaign.status === "sending" ? "#3B82F6" :
+                                campaign.status === "sent" ? "#10B981" :
+                                campaign.status === "failed" ? "#EF4444" : "#6B7280",
+                              transition: "width 0.3s ease-in-out",
+                            }}
+                          />
+                        </Box>
+                        {/* Progress text */}
+                        <Box display="flex" justifyContent="space-between" alignItems="center">
+                          <Text size={2}>
+                            {campaign.sentCount} sent{campaign.failedCount > 0 ? `, ${campaign.failedCount} failed` : ""} / {campaign.recipientCount}
+                          </Text>
+                          <Text size={2} color={campaign.status === "sending" ? "info1" : "default2"}>
+                            {progress}%
+                          </Text>
+                        </Box>
+                      </Box>
                     </Table.Cell>
                     <Table.Cell>
                       <Box display="flex" gap={2}>
@@ -232,8 +303,9 @@ const CampaignsPage: NextPage = () => {
                           variant="tertiary"
                           size="small"
                           onClick={() => handleDuplicate(campaign.id)}
+                          disabled={duplicateMutation.isPending}
                         >
-                          Duplicate
+                          {duplicateMutation.isPending ? "Duplicating..." : "Duplicate"}
                         </Button>
                         <Button
                           variant="tertiary"

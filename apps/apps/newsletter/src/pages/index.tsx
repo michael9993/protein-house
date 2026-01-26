@@ -24,9 +24,15 @@ const IndexPage: NextPage = () => {
     );
   }
 
-  if (!appBridgeState?.ready) {
+  // Return null while App Bridge is initializing - this prevents race conditions
+  if (!appBridgeState) {
+    return null;
+  }
+
+  // Show loading while App Bridge is connecting
+  if (!appBridgeState.ready) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+      <Box display="flex" justifyContent="center" alignItems="center" style={{ height: "100vh" }}>
         <Text>Loading...</Text>
       </Box>
     );

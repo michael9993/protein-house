@@ -2,6 +2,7 @@ import { useAppBridge } from "@saleor/app-sdk/app-bridge";
 import { Box, Button, Text } from "@saleor/macaw-ui";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
+import { useState } from "react";
 
 import { BasicLayout } from "../components/basic-layout";
 import { SectionWithDescription } from "../components/section-with-description";
@@ -13,33 +14,68 @@ const TemplatesPage: NextPage = () => {
   const router = useRouter();
   const utils = trpcClient.useUtils();
 
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
+
   const { data: templatesData, isLoading } = trpcClient.template.list.useQuery(undefined, {
     enabled: !!appBridgeState?.ready,
+    staleTime: 30000,
+    refetchOnWindowFocus: true,
+    placeholderData: (previousData) => previousData,
   });
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this template?")) {
-      return;
-    }
-
-    try {
-      await trpcClient.template.delete.mutate({ id });
+  const deleteMutation = trpcClient.template.delete.useMutation({
+    onSuccess: async () => {
       await utils.template.list.invalidate();
-    } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to delete template");
+      await utils.template.list.refetch();
+      await utils.template.get.invalidate();
+      setMessage({ type: "success", text: "Template deleted successfully!" });
+      setDeleteConfirm(null);
+      setTimeout(() => setMessage(null), 3000);
+    },
+    onError: (error) => {
+      setMessage({ type: "error", text: error.message || "Failed to delete template" });
+      setDeleteConfirm(null);
+      setTimeout(() => setMessage(null), 5000);
+    },
+  });
+
+  const duplicateMutation = trpcClient.template.duplicate.useMutation({
+    onSuccess: async () => {
+      await utils.template.list.invalidate();
+      await utils.template.list.refetch();
+      setMessage({ type: "success", text: "Template duplicated successfully!" });
+      setTimeout(() => setMessage(null), 3000);
+    },
+    onError: (error) => {
+      setMessage({ type: "error", text: error.message || "Failed to duplicate template" });
+      setTimeout(() => setMessage(null), 5000);
+    },
+  });
+
+  const handleDelete = (id: string) => {
+    const template = templatesData?.templates.find((t) => t.id === id);
+    if (template) {
+      setDeleteConfirm({ id, name: template.name });
     }
   };
 
-  const handleDuplicate = async (id: string) => {
-    try {
-      await trpcClient.template.duplicate.mutate({ id });
-      await utils.template.list.invalidate();
-    } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to duplicate template");
-    }
+  const confirmDelete = () => {
+    if (!deleteConfirm) return;
+    deleteMutation.mutate({ id: deleteConfirm.id });
   };
 
-  if (!appBridgeState?.ready) {
+  const handleDuplicate = (id: string) => {
+    duplicateMutation.mutate({ id });
+  };
+
+  // Return null while App Bridge is initializing - this prevents race conditions
+  if (!appBridgeState) {
+    return null;
+  }
+
+  // Show loading while App Bridge is connecting
+  if (!appBridgeState.ready) {
     return (
       <BasicLayout breadcrumbs={[{ name: "Templates" }]}>
         <Text>Loading...</Text>
@@ -57,6 +93,46 @@ const TemplatesPage: NextPage = () => {
 
   return (
     <BasicLayout breadcrumbs={[{ name: "Templates" }]}>
+      {message && (
+        <Box
+          padding={3}
+          marginBottom={4}
+          backgroundColor={message.type === "success" ? "success1" : "critical1"}
+          borderRadius={2}
+        >
+          <Text color={message.type === "success" ? "default1" : "critical2"}>
+            {message.text}
+          </Text>
+        </Box>
+      )}
+
+      {deleteConfirm && (
+        <Box
+          padding={4}
+          marginBottom={4}
+          backgroundColor="warning1"
+          borderRadius={2}
+          borderWidth={1}
+          borderStyle="solid"
+          borderColor="default1"
+        >
+          <Text marginBottom={2} fontWeight="bold">
+            Delete Template?
+          </Text>
+          <Text marginBottom={3}>
+            Are you sure you want to delete "{deleteConfirm.name}"? This action cannot be undone.
+          </Text>
+          <Box display="flex" gap={2}>
+            <Button variant="primary" onClick={confirmDelete} disabled={deleteMutation.isPending}>
+              {deleteMutation.isPending ? "Deleting..." : "Yes, Delete"}
+            </Button>
+            <Button variant="secondary" onClick={() => setDeleteConfirm(null)}>
+              Cancel
+            </Button>
+          </Box>
+        </Box>
+      )}
+
       <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom={4}>
         <Box>
           <Text as="h1" variant="hero">
@@ -75,7 +151,7 @@ const TemplatesPage: NextPage = () => {
         title="Templates"
         description={<Text>Manage your email templates. Templates can be used in campaigns.</Text>}
       >
-        {isLoading ? (
+        {isLoading && !templatesData ? (
           <Text>Loading templates...</Text>
         ) : templatesData?.templates.length === 0 ? (
           <Box padding={6} textAlign="center">

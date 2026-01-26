@@ -466,6 +466,15 @@ class NewsletterSubscription(models.Model):
         db_index=True,
         help_text="User account if subscribed while logged in",
     )
+    channel = models.ForeignKey(
+        "channel.Channel",
+        related_name="newsletter_subscriptions",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text="Channel where the subscription was made",
+    )
     is_active = models.BooleanField(
         default=True,
         db_index=True,
@@ -486,6 +495,7 @@ class NewsletterSubscription(models.Model):
             models.Index(fields=["email", "is_active"]),
             models.Index(fields=["user", "is_active"]),
             models.Index(fields=["is_active", "-subscribed_at"]),
+            models.Index(fields=["channel", "is_active"]),
         ]
 
     def __str__(self) -> str:

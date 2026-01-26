@@ -8,6 +8,7 @@ import { useAlerts } from "@/checkout/hooks/useAlerts";
 import { useEvent } from "@/checkout/hooks/useEvent";
 import { useTransactionInitializeMutation, useTransactionProcessMutation } from "@/checkout/graphql";
 import { useCheckoutComplete } from "@/checkout/hooks/useCheckoutComplete";
+import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 
 // PaymentElement options - onReady is handled via PaymentElement's onReady prop, not in options
 const createPaymentElementOptions = (): StripePaymentElementOptions => ({
@@ -37,6 +38,7 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 	const { onCheckoutComplete } = useCheckoutComplete();
 	const [, transactionInitialize] = useTransactionInitializeMutation();
 	const [, transactionProcess] = useTransactionProcessMutation();
+	const text = useCheckoutText();
 
 	// When page is opened from previously redirected payment, we need to complete the checkout
 	useCheckoutCompleteRedirect();
@@ -74,13 +76,13 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 
 		if (!stripe || !elements) {
 			console.error("[StripeForm] Stripe or Elements not available", { stripe: !!stripe, elements: !!elements });
-			showCustomErrors([{ message: "Payment system is not available. Please try again later." }]);
+			showCustomErrors([{ message: text.paymentSystemUnavailableError || "Payment system is not available. Please try again later." }]);
 			return;
 		}
 
 		if (!checkout?.id || !checkout?.totalPrice) {
 			console.error("[StripeForm] Checkout is not available");
-			showCustomErrors([{ message: "Checkout information is missing. Please refresh the page." }]);
+			showCustomErrors([{ message: text.checkoutInfoMissingError || "Checkout information is missing. Please refresh the page." }]);
 			return;
 		}
 
@@ -107,7 +109,7 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 						submitResult = await elements.submit();
 					} catch (retryError) {
 						console.error("[StripeForm] Retry failed", retryError);
-						showCustomErrors([{ message: "Payment form is not ready. Please refresh the page and try again." }]);
+						showCustomErrors([{ message: text.paymentFormNotReadyError || "Payment form is not ready. Please refresh the page and try again." }]);
 						setIsLoading(false);
 						return;
 					}
@@ -119,7 +121,7 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 
 			if (submitResult.error) {
 				console.error("[StripeForm] Stripe validation error", submitResult.error);
-				showCustomErrors([{ message: submitResult.error.message || "Payment validation failed" }]);
+				showCustomErrors([{ message: submitResult.error.message || text.paymentValidationFailedError || "Payment validation failed" }]);
 				setIsLoading(false);
 				return;
 			}
@@ -183,7 +185,7 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 			// Check if we have a transaction ID
 			const transactionId = transactionData?.transaction?.id;
 			if (!transactionId) {
-				showCustomErrors([{ message: "Transaction could not be created. Please try again." }]);
+				showCustomErrors([{ message: text.transactionCreationFailedError || "Transaction could not be created. Please try again." }]);
 				setIsLoading(false);
 				return;
 			}
@@ -200,7 +202,7 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 				} catch (e) {
 					console.error("Failed to parse transaction data as JSON:", e);
 					showCustomErrors([{ 
-						message: "Invalid payment data received. Please try again." 
+						message: text.invalidPaymentDataError || "Invalid payment data received. Please try again." 
 					}]);
 					setIsLoading(false);
 					return;
@@ -226,7 +228,7 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 					paymentIntentType: typeof data?.paymentIntent,
 				});
 				showCustomErrors([{ 
-					message: "Payment initialization incomplete. The payment intent was created but the client secret is missing. Please try again." 
+					message: text.paymentInitIncompleteError || "Payment initialization incomplete. The payment intent was created but the client secret is missing. Please try again." 
 				}]);
 				setIsLoading(false);
 				return;
@@ -294,7 +296,7 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 							},
 						});
 					} catch (retryError) {
-						showCustomErrors([{ message: "Payment confirmation failed. Please try again." }]);
+						showCustomErrors([{ message: text.paymentConfirmationFailedError || "Payment confirmation failed. Please try again." }]);
 						setIsLoading(false);
 						return;
 					}
@@ -308,9 +310,9 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 			if (confirmError) {
 				setIsLoading(false);
 				if (confirmError.type === "card_error" || confirmError.type === "validation_error") {
-					showCustomErrors([{ message: confirmError.message ?? "Payment failed" }]);
+					showCustomErrors([{ message: confirmError.message ?? text.paymentFailedError ?? "Payment failed" }]);
 				} else {
-					showCustomErrors([{ message: "An unexpected error occurred with your payment" }]);
+					showCustomErrors([{ message: text.unexpectedPaymentError || "An unexpected error occurred with your payment" }]);
 				}
 			} else {
 				// Payment succeeded without redirect - sync Saleor with Stripe status
@@ -322,7 +324,7 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 						processResult.error || processResult.data?.transactionProcess?.errors,
 					);
 					showCustomErrors([
-						{ message: "Payment was successful but order processing failed. Please contact support." },
+						{ message: text.paymentSuccessOrderFailedError || "Payment was successful but order processing failed. Please contact support." },
 					]);
 					setIsLoading(false);
 					return;
@@ -350,7 +352,7 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 			<div className="my-8 flex items-center justify-center py-8">
 				<div className="text-center">
 					<Loader />
-					<p className="mt-4 text-sm text-gray-600">Initializing payment system...</p>
+					<p className="mt-4 text-sm text-gray-600">{text.initializingPaymentText || "Initializing payment system..."}</p>
 				</div>
 			</div>
 		);
@@ -373,7 +375,7 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 				id="submit"
 				type="submit"
 			>
-				<span className="button-text">{isLoading ? <Loader /> : "Pay now"}</span>
+				<span className="button-text">{isLoading ? <Loader /> : text.payNowButton || "Pay now"}</span>
 			</button>
 		</form>
 	);

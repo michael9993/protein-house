@@ -706,16 +706,194 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       newsletterEmailPlaceholder: "Enter your email",
     },
     checkout: {
+      // Page & Header
+      checkoutTitle: "Checkout",
       secureCheckout: "Secure Checkout",
+      
+      // Breadcrumb steps
+      shippingStep: "Shipping",
+      paymentStep: "Payment",
+      confirmationStep: "Confirmation",
+      
+      // Contact Information Section
+      contactInfoTitle: "Contact Information",
+      contactInfoSubtitle: "We'll use this to send order updates",
+      accountLabel: "Account",
+      signOutButton: "Sign out",
+      guestEmailLabel: "Email",
+      guestEmailPlaceholder: "Enter your email",
+      createAccountCheckbox: "Create account for faster checkout",
+      passwordLabel: "Password",
+      
+      // Shipping Address Section
+      shippingAddressTitle: "Shipping Address",
+      shippingAddressSubtitle: "Where should we deliver?",
+      addAddressButton: "Add address",
+      editAddressButton: "Edit",
+      changeAddressButton: "Change",
+      
+      // Address Form Fields
+      firstNameLabel: "First name",
+      lastNameLabel: "Last name",
+      companyLabel: "Company",
+      addressLine1Label: "Street address",
+      addressLine2Label: "Street address (continue)",
+      cityLabel: "City",
+      countryLabel: "Country",
+      stateLabel: "State",
+      postalCodeLabel: "Postal code",
+      phoneLabel: "Phone number",
+      saveAddressButton: "Save address",
+      cancelButton: "Cancel",
+      
+      // Localized Address Fields (country-specific variants)
+      provinceLabel: "Province",
+      districtLabel: "District",
+      zipCodeLabel: "Zip code",
+      postTownLabel: "Post town",
+      prefectureLabel: "Prefecture",
+      cityAreaLabel: "City area",
+      countryAreaLabel: "Country area",
+      
+      // Billing Address Section
+      billingAddressTitle: "Billing Address",
+      billingAddressSubtitle: "For your invoice",
+      useSameAsShipping: "Use shipping address as billing address",
+      
+      // Delivery Methods Section
+      deliveryMethodsTitle: "Delivery methods",
+      businessDaysText: "{min}-{max} business days",
+      freeShippingLabel: "Free",
+      noDeliveryMethodsText: "No delivery methods available",
+      
+      // Payment Section
+      paymentTitle: "Payment",
+      paymentSubtitle: "Select your payment method",
+      paymentMethodLabel: "Payment method",
+      payNowButton: "Pay now",
+      initializingPaymentText: "Initializing payment system...",
+      paymentSystemUnavailableError: "Payment system is not available. Please try again later.",
+      checkoutInfoMissingError: "Checkout information is missing. Please refresh the page.",
+      paymentFormNotReadyError: "Payment form is not ready. Please refresh the page and try again.",
+      paymentValidationFailedError: "Payment validation failed",
+      transactionCreationFailedError: "Transaction could not be created. Please try again.",
+      invalidPaymentDataError: "Invalid payment data received. Please try again.",
+      paymentInitIncompleteError: "Payment initialization incomplete. Please try again.",
+      paymentConfirmationFailedError: "Payment confirmation failed. Please try again.",
+      paymentFailedError: "Payment failed",
+      unexpectedPaymentError: "An unexpected error occurred with your payment",
+      paymentSuccessOrderFailedError: "Payment was successful but order processing failed. Please contact support.",
+      
+      // Order Summary Section
+      orderSummaryTitle: "Order Summary",
+      itemsCountSingular: "1 item",
+      itemsCountPlural: "{count} items",
+      productsLabel: "Products",
+      quantityLabel: "Quantity",
+      addPromoCodeText: "Add promo code or gift card",
+      promoCodeLabel: "Promo code",
+      promoCodePlaceholder: "Enter code",
+      applyPromoButton: "Apply",
+      removePromoButton: "Remove",
+      giftCardLabel: "Gift card",
+      subtotalLabel: "Subtotal",
+      shippingLabel: "Shipping",
+      taxLabel: "Tax",
+      includesTaxText: "Includes {amount} tax",
+      totalLabel: "Total",
+      
+      // Legacy section titles (for backwards compatibility)
       contactDetails: "Contact Details",
       shippingAddress: "Shipping Address",
       shippingMethod: "Shipping Method",
       paymentMethod: "Payment Method",
       orderSummary: "Order Summary",
       placeOrder: "Place Order",
+      
+      // Place Order Section
+      placeOrderButton: "Place Order",
+      processingOrderText: "Processing your order...",
+      agreementText: "By placing this order, you agree to our",
+      
+      // Order confirmation
+      almostDoneText: "Almost done…",
       orderConfirmation: "Order Confirmation",
       thankYouTitle: "Thank you for your order!",
       thankYouMessage: "We've received your order and will send you a confirmation email shortly.",
+      orderNumberLabel: "Order number",
+      continueShoppingButton: "Continue Shopping",
+      viewOrderButton: "View Order",
+      orderReceiptTitle: "Order Receipt",
+      orderNumberPrefix: "Order #",
+      orderConfirmedTitle: "Order Confirmed",
+      orderConfirmedMessage: "Thank you for your order! We've received it and will notify you when your package ships.",
+      confirmationSentTo: "Confirmation sent to:",
+      customerLabel: "Customer:",
+      orderDateLabel: "Order Date:",
+      whatsNextTitle: "What's Next?",
+      orderProcessingStep: "Order Processing",
+      orderProcessingMessage: "We're preparing your order for shipment.",
+      shippingNotificationStep: "Shipping Notification",
+      shippingNotificationMessage: "You'll receive tracking info when shipped.",
+      deliveryStep: "Delivery",
+      deliveryMessage: "Your order will arrive at your doorstep!",
+      printReceiptButton: "Print Receipt",
+      thankYouPurchaseMessage: "Thank you for your purchase! If you have any questions, please contact our support team.",
+      
+      // Order Info Section (confirmation page)
+      orderDetailsTitle: "Order Details",
+      contactLabel: "Contact",
+      authorizedStatus: "Authorized",
+      authorizedMessage: "We've received your payment authorization",
+      paidStatus: "Paid",
+      paidMessage: "We've received your payment",
+      overpaidStatus: "Overpaid",
+      overpaidMessage: "Contact support for refund assistance",
+      processingStatus: "Processing",
+      processingMessage: "Payment is being processed",
+      
+      // Error messages
+      requiredFieldError: "This field is required",
+      invalidEmailError: "Please enter a valid email",
+      invalidPhoneError: "Please enter a valid phone number",
+      selectDeliveryMethodError: "Please select a delivery method",
+      selectPaymentMethodError: "Please select a payment method",
+      
+      // Address Form Actions
+      deleteAddressButton: "Delete address",
+      savingAddressText: "Saving…",
+      savedText: "Saved",
+      createAddressTitle: "Create address",
+      editAddressTitle: "Edit address",
+      addressSavedSuccess: "Address saved successfully!",
+      addressUpdatedSuccess: "Address updated successfully!",
+      cantShipToAddressText: "Can't ship to this address",
+      
+      // Sign In/Out
+      signInTitle: "Sign in",
+      signInButton: "Sign in",
+      newCustomerText: "New customer?",
+      guestCheckoutButton: "Guest checkout",
+      forgotPasswordLink: "Forgot password?",
+      resendLink: "Resend?",
+      processingText: "Processing…",
+      orText: "or",
+      continueWithGoogle: "Continue with Google",
+      signInWithGoogle: "Sign in with Google",
+      alreadyHaveAccount: "Already have an account?",
+      
+      // Guest User
+      contactDetailsTitle: "Contact details",
+      createAccountLabel: "I want to create account",
+      passwordMinChars: "Password (minimum 8 characters)",
+      
+      // SSL/Security
+      sslEncryptionText: "Secure 256-bit SSL encryption",
+      
+      // Footer links
+      privacyPolicy: "Privacy Policy",
+      termsOfService: "Terms of Service",
+      securityNote: "Protected by SSL encryption • Your payment info is safe",
     },
     filters: {
       // Section titles

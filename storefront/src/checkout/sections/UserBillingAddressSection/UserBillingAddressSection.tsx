@@ -14,12 +14,14 @@ import { useBillingSameAsShippingForm } from "@/checkout/sections/GuestBillingAd
 import { type OptionalAddress } from "@/checkout/components/AddressForm/types";
 import { getByMatchingAddress } from "@/checkout/components/AddressForm/utils";
 import { type AddressFragment } from "@/checkout/graphql";
+import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 
 interface UserBillingAddressSectionProps {}
 
 export const UserBillingAddressSection: React.FC<UserBillingAddressSectionProps> = ({}) => {
 	const { checkout } = useCheckout();
 	const isShippingRequired = checkout?.isShippingRequired;
+	const text = useCheckoutText();
 
 	const {
 		form,
@@ -55,6 +57,8 @@ export const UserBillingAddressSection: React.FC<UserBillingAddressSectionProps>
 		values: { billingSameAsShipping },
 	} = billingSameAsShippingForm;
 
+	const billingAddressTitle = text.billingAddressTitle || "Billing address";
+
 	return (
 		<Suspense fallback={<AddressSectionSkeleton />}>
 			{isShippingRequired && (
@@ -62,7 +66,7 @@ export const UserBillingAddressSection: React.FC<UserBillingAddressSectionProps>
 					<FormProvider form={billingSameAsShippingForm}>
 						<Checkbox
 							name="billingSameAsShipping"
-							label="Use shipping address as billing address"
+							label={text.useSameAsShipping || "Use shipping address as billing address"}
 							data-testid={"useShippingAsBillingCheckbox"}
 						/>
 					</FormProvider>
@@ -89,7 +93,7 @@ export const UserBillingAddressSection: React.FC<UserBillingAddressSectionProps>
 
 								{displayAddressEdit && (
 									<AddressEditForm
-										title="Billing address"
+										title={billingAddressTitle}
 										onClose={() => setDisplayAddressEdit()}
 										address={form.values.addressList.find(getById(editedAddressId)) as AddressFragment}
 										onUpdate={onAddressUpdateSuccess}
@@ -101,7 +105,7 @@ export const UserBillingAddressSection: React.FC<UserBillingAddressSectionProps>
 									<AddressList
 										onEditChange={setDisplayAddressEdit}
 										onAddAddressClick={() => setDisplayAddressCreate(true)}
-										title="Billing address"
+										title={billingAddressTitle}
 										form={form}
 									/>
 								)}

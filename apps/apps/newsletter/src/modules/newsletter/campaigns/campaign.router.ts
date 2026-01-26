@@ -76,8 +76,62 @@ export const campaignRouter = router({
       );
 
       try {
+        // Calculate recipient count based on selection type
+        let recipientCount = 0;
+        
+        if (input.recipientFilter?.selectionType === "selected" && input.recipientFilter?.selectedSubscriberIds) {
+          // For "selected" type, count is the length of selected IDs
+          recipientCount = input.recipientFilter.selectedSubscriberIds.length;
+        } else {
+          // For other types, calculate from newsletter service
+          try {
+            const newsletterService = new NewsletterService(ctx.apiClient);
+            const subscriptionsResult = await newsletterService.getSubscriptions({
+              first: 1, // Just to get total count
+              filter: {
+                isActive: input.recipientFilter?.isActive,
+                source: input.recipientFilter?.sources?.[0], // Use first source if multiple
+                channel: input.channelSlug, // Filter by channel to get accurate count
+              },
+            });
+            
+            recipientCount = subscriptionsResult.totalCount || 0;
+            
+            // Apply limit if specified
+            if (input.recipientFilter?.limit && recipientCount > input.recipientFilter.limit) {
+              recipientCount = input.recipientFilter.limit;
+            }
+            
+            logger.info("Calculated recipient count for new campaign", {
+              campaignName: input.name,
+              channelSlug: input.channelSlug,
+              recipientCount,
+              limit: input.recipientFilter?.limit,
+            });
+          } catch (countError) {
+            logger.warn("Failed to calculate recipient count during creation", { 
+              error: countError,
+              campaignName: input.name,
+            });
+            // Continue with 0 - it will be recalculated when starting
+          }
+        }
+        
         // TODO: Get actual user ID from context
         const campaign = await service.createCampaign(input, "system");
+        
+        // Update recipient count if calculated
+        if (recipientCount > 0) {
+          await service.updateCampaign(
+            { id: campaign.id, recipientCount },
+            "system"
+          );
+          // Refetch to get updated campaign
+          const updatedCampaign = await service.getCampaign(campaign.id);
+          if (updatedCampaign) {
+            return { campaign: updatedCampaign };
+          }
+        }
 
         // For immediate campaigns (no scheduledAt), user can start them manually via the "Start Campaign" button
         // The campaign is created as "draft" and can be started from the detail page
@@ -102,8 +156,58 @@ export const campaignRouter = router({
       );
 
       try {
+        // Get existing campaign to get channelSlug
+        const existingCampaign = await service.getCampaign(input.id);
+        const channelSlug = input.channelSlug || existingCampaign?.channelSlug;
+        
+        // Calculate recipient count if recipient filter changed
+        let recipientCount: number | undefined = undefined;
+        
+        if (input.recipientFilter) {
+          if (input.recipientFilter.selectionType === "selected" && input.recipientFilter.selectedSubscriberIds) {
+            // For "selected" type, count is the length of selected IDs
+            recipientCount = input.recipientFilter.selectedSubscriberIds.length;
+          } else {
+            // For other types, calculate from newsletter service
+            try {
+              const newsletterService = new NewsletterService(ctx.apiClient);
+              const subscriptionsResult = await newsletterService.getSubscriptions({
+                first: 1, // Just to get total count
+                filter: {
+                  isActive: input.recipientFilter.isActive,
+                  source: input.recipientFilter.sources?.[0], // Use first source if multiple
+                  channel: channelSlug, // Filter by channel to get accurate count
+                },
+              });
+              
+              recipientCount = subscriptionsResult.totalCount || 0;
+              
+              // Apply limit if specified
+              if (input.recipientFilter.limit && recipientCount > input.recipientFilter.limit) {
+                recipientCount = input.recipientFilter.limit;
+              }
+              
+              logger.info("Calculated recipient count for campaign update", {
+                campaignId: input.id,
+                channelSlug,
+                recipientCount,
+                limit: input.recipientFilter.limit,
+              });
+            } catch (countError) {
+              logger.warn("Failed to calculate recipient count during update", { 
+                error: countError,
+                campaignId: input.id,
+              });
+              // Continue without updating count - it will be recalculated when starting
+            }
+          }
+        }
+        
         // TODO: Get actual user ID from context
-        const campaign = await service.updateCampaign(input, "system");
+        const updateInput = recipientCount !== undefined 
+          ? { ...input, recipientCount }
+          : input;
+        const campaign = await service.updateCampaign(updateInput, "system");
         return { campaign };
       } catch (error) {
         logger.error("Error updating campaign", { error });
@@ -210,21 +314,41 @@ export const campaignRouter = router({
         if (input.status === "sending") {
           // Calculate recipient count before starting
           try {
-            const newsletterService = new NewsletterService(ctx.apiClient);
-            const subscriptionsResult = await newsletterService.getSubscriptions({
-              first: 1, // Just to get total count
-              filter: currentCampaign.recipientFilter,
+            // For "selected" type, use the length of selected IDs
+            if (currentCampaign.recipientFilter.selectionType === "selected" && currentCampaign.recipientFilter.selectedSubscriberIds) {
+              recipientCount = currentCampaign.recipientFilter.selectedSubscriberIds.length;
+            } else {
+              // For other types, query the newsletter service with channel filter
+              const newsletterService = new NewsletterService(ctx.apiClient);
+              const subscriptionsResult = await newsletterService.getSubscriptions({
+                first: 1, // Just to get total count
+                filter: {
+                  isActive: currentCampaign.recipientFilter.isActive,
+                  source: currentCampaign.recipientFilter.sources?.[0],
+                  channel: currentCampaign.channelSlug, // Filter by channel to get accurate count
+                },
+              });
+              
+              recipientCount = subscriptionsResult.totalCount || 0;
+              
+              // Apply limit if specified
+              if (currentCampaign.recipientFilter.limit && recipientCount > currentCampaign.recipientFilter.limit) {
+                recipientCount = currentCampaign.recipientFilter.limit;
+              }
+            }
+            
+            logger.info("Calculated recipient count for sending", { 
+              campaignId: currentCampaign.id, 
+              channelSlug: currentCampaign.channelSlug,
+              recipientCount,
+              selectionType: currentCampaign.recipientFilter.selectionType,
             });
-            
-            recipientCount = subscriptionsResult.totalCount || 0;
-            
-            logger.info("Calculated recipient count", { campaignId: currentCampaign.id, recipientCount });
             
             if (recipientCount === 0) {
               // Don't update status if no recipients
               throw new TRPCError({
                 code: "BAD_REQUEST",
-                message: "No subscribers match the selected filters. Please adjust your recipient filter.",
+                message: "No subscribers match the selected filters for this channel. Please adjust your recipient filter.",
               });
             }
           } catch (countError) {

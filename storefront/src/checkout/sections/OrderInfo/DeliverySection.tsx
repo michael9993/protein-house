@@ -1,9 +1,12 @@
 import { type OrderFragment, type ShippingFragment } from "@/checkout/graphql";
+import { useCheckoutText, formatText } from "@/checkout/hooks/useCheckoutText";
 
 const isShipping = (deliveryMethod: OrderFragment["deliveryMethod"]): deliveryMethod is ShippingFragment =>
 	deliveryMethod?.__typename === "ShippingMethod";
 
 export const DeliverySection = ({ deliveryMethod }: { deliveryMethod: OrderFragment["deliveryMethod"] }) => {
+	const text = useCheckoutText();
+
 	const getDeliveryEstimateText = () => {
 		const { minimumDeliveryDays: min, maximumDeliveryDays: max } = deliveryMethod as ShippingFragment;
 
@@ -11,7 +14,7 @@ export const DeliverySection = ({ deliveryMethod }: { deliveryMethod: OrderFragm
 			return undefined;
 		}
 
-		return `${min}-${max} business days`;
+		return formatText(text.businessDaysText || "{min}-{max} business days", { min, max });
 	};
 
 	const estimateText = isShipping(deliveryMethod) ? getDeliveryEstimateText() : null;
@@ -26,9 +29,9 @@ export const DeliverySection = ({ deliveryMethod }: { deliveryMethod: OrderFragm
 					</svg>
 				</div>
 				<div className="flex-1">
-					<p className="text-sm font-medium" style={{ color: "var(--store-text-muted)" }}>Delivery Method</p>
+					<p className="text-sm font-medium" style={{ color: "var(--store-text-muted)" }}>{text.deliveryMethodsTitle || "Delivery Method"}</p>
 					{!isShipping(deliveryMethod) ? (
-						<p className="mt-0.5" style={{ color: "var(--store-text-muted)" }}>Not applicable</p>
+						<p className="mt-0.5" style={{ color: "var(--store-text-muted)" }}>{text.noDeliveryMethodsText || "Not applicable"}</p>
 					) : (
 						<div className="mt-0.5">
 							<p className="font-medium" style={{ color: "var(--store-text)" }}>{deliveryMethod.name}</p>
@@ -38,7 +41,7 @@ export const DeliverySection = ({ deliveryMethod }: { deliveryMethod: OrderFragm
 										<svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
 										</svg>
-										Est. {estimateText}
+										{estimateText}
 									</span>
 								</p>
 							)}

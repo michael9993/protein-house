@@ -1293,6 +1293,76 @@ const defaultNewsletterSubscribeMjmlTemplate = `<mjml>
   </mj-body>
 </mjml>`;
 
+const defaultNewsletterReactivateMjmlTemplate = `<mjml>
+  <mj-head>
+    ${emailStyles}
+  </mj-head>
+  <mj-body background-color="#F3F4F6">
+    <!-- Header -->
+    <mj-section background-color="${PRIMARY_COLOR}" padding="40px 0">
+      <mj-column>
+        <mj-text align="center" font-size="28px" font-weight="bold" color="#FFFFFF" padding-bottom="10px">
+          👋 Welcome Back!
+        </mj-text>
+        <mj-text align="center" font-size="16px" color="#DBEAFE">
+          We've missed you
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Main Content -->
+    <mj-section background-color="#FFFFFF" padding="30px 25px">
+      <mj-column>
+        <mj-text font-size="18px" color="#1F2937" padding-bottom="15px">
+          Hello{{#if user.first_name}} {{user.first_name}}{{/if}}! 🎉
+        </mj-text>
+        <mj-text>
+          Great to have you back in the ${COMPANY_NAME} newsletter community! We've been keeping the best deals and updates waiting for you.
+        </mj-text>
+        <mj-text padding-top="15px">
+          Here's what you've been missing:
+        </mj-text>
+        <mj-text css-class="info-box" padding-top="20px">
+          <div class="order-detail">
+            🆕 <strong>New arrivals</strong> and exciting product launches
+          </div>
+          <div class="order-detail">
+            💰 <strong>Exclusive discounts</strong> just for subscribers
+          </div>
+          <div class="order-detail">
+            🎯 <strong>Personalized recommendations</strong> based on your interests
+          </div>
+          <div class="order-detail">
+            🏷️ <strong>Flash sales</strong> and limited-time offers
+          </div>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- CTA Section -->
+    <mj-section background-color="#FFFFFF" padding="25px" padding-top="15px">
+      <mj-column>
+        <mj-button background-color="${PRIMARY_COLOR}" color="#FFFFFF" href="${COMPANY_WEBSITE}" border-radius="8px" padding="15px 30px">
+          See What's New
+        </mj-button>
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer -->
+    <mj-section padding="30px 25px">
+      <mj-column>
+        <mj-divider border-color="#E5E7EB" border-width="1px" padding="0 0 20px 0" />
+        <mj-text align="center" font-size="14px" color="#6B7280" padding-bottom="10px">
+          Questions? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
+        </mj-text>
+        <mj-text align="center" font-size="11px" color="#D1D5DB">
+          © 2024 ${COMPANY_NAME}. All rights reserved.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>`;
+
 export const defaultMjmlTemplates: Record<MessageEventTypes, string> = {
   ACCOUNT_CHANGE_EMAIL_CONFIRM: defaultAccountChangeEmailConfirmationMjmlTemplate,
   ACCOUNT_CHANGE_EMAIL_REQUEST: defaultAccountChangeEmailRequestMjmlTemplate,
@@ -1303,6 +1373,7 @@ export const defaultMjmlTemplates: Record<MessageEventTypes, string> = {
   GIFT_CARD_SENT: defaultGiftCardSentMjmlTemplate,
   INVOICE_SENT: defaultInvoiceSentMjmlTemplate,
   NEWSLETTER_SUBSCRIBE: defaultNewsletterSubscribeMjmlTemplate,
+  NEWSLETTER_REACTIVATE: defaultNewsletterReactivateMjmlTemplate,
   ORDER_CANCELLED: defaultOrderCancelledMjmlTemplate,
   ORDER_CONFIRMED: defaultOrderConfirmedMjmlTemplate,
   ORDER_CREATED: defaultOrderCreatedMjmlTemplate,
@@ -1322,6 +1393,7 @@ export const defaultMjmlSubjectTemplates: Record<MessageEventTypes, string> = {
   GIFT_CARD_SENT: `🎁 Your Gift Card Has Arrived! - ${COMPANY_NAME}`,
   INVOICE_SENT: `📄 Your Invoice #{{invoice.number}} for Order #{{order.number}} is Ready`,
   NEWSLETTER_SUBSCRIBE: `🎉 Welcome to ${COMPANY_NAME} Newsletter!`,
+  NEWSLETTER_REACTIVATE: `👋 Welcome Back to ${COMPANY_NAME}!`,
   ORDER_CANCELLED: `Order #{{order.number}} Has Been Cancelled - ${COMPANY_NAME}`,
   ORDER_CONFIRMED: `✅ Order #{{order.number}} Confirmed! - ${COMPANY_NAME}`,
   ORDER_CREATED: `🛍️ Thank You for Your Order #{{order.number}} - ${COMPANY_NAME}`,

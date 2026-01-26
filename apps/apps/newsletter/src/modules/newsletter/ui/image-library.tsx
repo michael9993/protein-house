@@ -65,7 +65,6 @@ export const ImageLibrary = ({
             onClick={() => onSelect(image)}
           >
             <Box
-              width="100%"
               backgroundColor="default1"
               borderRadius={2}
               marginBottom={2}
@@ -73,7 +72,7 @@ export const ImageLibrary = ({
               alignItems="center"
               justifyContent="center"
               overflow="hidden"
-              style={{ height: "150px" }}
+              style={{ width: "100%", height: "150px" }}
             >
               {image.thumbnailUrl ? (
                 <img
