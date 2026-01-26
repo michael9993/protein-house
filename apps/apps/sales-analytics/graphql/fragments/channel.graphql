@@ -1,0 +1,7 @@
+fragment ChannelDetails on Channel {
+  id
+  slug
+  name
+  currencyCode
+  isActive
+}

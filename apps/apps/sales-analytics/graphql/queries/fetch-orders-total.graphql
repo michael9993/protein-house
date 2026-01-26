@@ -1,0 +1,12 @@
+query FetchOrdersTotal(
+  $channel: String
+  $filter: OrderFilterInput
+) {
+  orders(
+    channel: $channel
+    first: 1
+    filter: $filter
+  ) {
+    totalCount
+  }
+}

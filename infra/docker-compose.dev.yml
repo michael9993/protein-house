@@ -610,6 +610,56 @@ services:
       retries: 5
       start_period: 60s
 
+  # Sales Analytics App - Dashboard extension for sales analytics and KPIs
+  # Provides: GMV, orders, AOV, top products, category breakdown, revenue charts
+  saleor-sales-analytics-app:
+    image: node:22-alpine
+    container_name: saleor-sales-analytics-app-dev
+    working_dir: /app
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-sales-analytics... --prefer-offline && cd apps/sales-analytics && PORT=3000 pnpm dev"
+    env_file:
+      - .env
+    ports:
+      - "${SALES_ANALYTICS_APP_PORT:-3006}:3000"
+    volumes:
+      - ../apps:/app
+      - sales-analytics-app-node-modules:/app/node_modules
+      - sales-analytics-app-pnpm-store:/root/.local/share/pnpm/store
+    environment:
+      SALEOR_API_URL: ${SALEOR_API_URL}
+      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+      # Use tunnel URL for app registration (Dashboard needs to reach this)
+      SALES_ANALYTICS_APP_URL: ${SALES_ANALYTICS_APP_TUNNEL_URL:-http://localhost:${SALES_ANALYTICS_APP_PORT:-3006}}
+      APP_API_BASE_URL: ${SALES_ANALYTICS_APP_TUNNEL_URL:-http://localhost:${SALES_ANALYTICS_APP_PORT:-3006}}
+      APP_IFRAME_BASE_URL: ${SALES_ANALYTICS_APP_TUNNEL_URL:-http://localhost:${SALES_ANALYTICS_APP_PORT:-3006}}
+      # APL type: 'file' for local dev
+      APL: file
+      # Secret key for encrypting app metadata
+      SECRET_KEY: ${APP_SECRET_KEY}
+      NODE_ENV: development
+      # Disable OpenTelemetry/Sentry in development
+      OTEL_ENABLED: "false"
+      NEXT_PUBLIC_SENTRY_DSN: ""
+    depends_on:
+      saleor-api:
+        condition: service_healthy
+    networks:
+      - saleor-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
 volumes:
   postgres-data:
     driver: local
@@ -648,6 +698,10 @@ volumes:
   newsletter-app-node-modules:
     driver: local
   newsletter-app-pnpm-store:
+    driver: local
+  sales-analytics-app-node-modules:
+    driver: local
+  sales-analytics-app-pnpm-store:
     driver: local
 
 networks:

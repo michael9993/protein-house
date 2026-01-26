@@ -1,0 +1,302 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* RTL support via logical properties */
+@layer utilities {
+  .ps-4 {
+    padding-inline-start: 1rem;
+  }
+  .pe-4 {
+    padding-inline-end: 1rem;
+  }
+  .ms-auto {
+    margin-inline-start: auto;
+  }
+  .me-auto {
+    margin-inline-end: auto;
+  }
+}
+
+/* Tremor chart RTL adjustments */
+[dir="rtl"] .recharts-cartesian-axis-tick {
+  text-anchor: start;
+}
+
+/* Force Tremor DonutChart colors to display correctly */
+/* Tremor uses Recharts which applies colors via CSS classes, we need to ensure they work */
+@layer components {
+  /* Target the category donut chart specifically */
+  .category-donut-chart .recharts-pie {
+    /* Ensure sectors are visible and colored */
+  }
+  
+  /* Target pie sectors by their order - Recharts renders them as path elements */
+  /* Use :nth-child on the parent group's children to target sectors correctly */
+  .category-donut-chart .recharts-pie g:nth-child(1) path {
+    fill: #3b82f6 !important; /* blue-500 */
+  }
+  
+  .category-donut-chart .recharts-pie g:nth-child(2) path {
+    fill: #10b981 !important; /* emerald-500 */
+  }
+  
+  .category-donut-chart .recharts-pie g:nth-child(3) path {
+    fill: #f59e0b !important; /* amber-500 */
+  }
+  
+  .category-donut-chart .recharts-pie g:nth-child(4) path {
+    fill: #f43f5e !important; /* rose-500 */
+  }
+  
+  .category-donut-chart .recharts-pie g:nth-child(5) path {
+    fill: #6366f1 !important; /* indigo-500 */
+  }
+  
+  .category-donut-chart .recharts-pie g:nth-child(6) path {
+    fill: #8b5cf6 !important; /* violet-500 */
+  }
+  
+  .category-donut-chart .recharts-pie g:nth-child(7) path {
+    fill: #14b8a6 !important; /* teal-500 */
+  }
+  
+  .category-donut-chart .recharts-pie g:nth-child(8) path {
+    fill: #d946ef !important; /* fuchsia-500 */
+  }
+  
+  .category-donut-chart .recharts-pie g:nth-child(9) path {
+    fill: #06b6d4 !important; /* cyan-500 */
+  }
+  
+  .category-donut-chart .recharts-pie g:nth-child(10) path {
+    fill: #ec4899 !important; /* pink-500 */
+  }
+  
+  .category-donut-chart .recharts-pie g:nth-child(11) path {
+    fill: #64748b !important; /* slate-500 */
+  }
+  
+  .category-donut-chart .recharts-pie g:nth-child(12) path {
+    fill: #71717a !important; /* zinc-500 */
+  }
+  
+  /* Style Recharts tooltip indicator squares to match category colors */
+  /* Target the indicator square in the tooltip - it's usually the first child div/span */
+  .category-donut-chart .recharts-tooltip-item > div:first-child,
+  .category-donut-chart .recharts-tooltip-item > span:first-child,
+  .category-donut-chart .recharts-default-tooltip .recharts-tooltip-item > div:first-child {
+    /* Colors will be applied via JavaScript, but ensure it's visible */
+    min-width: 12px;
+    min-height: 12px;
+  }
+  
+  
+  /* Style legend items to match donut chart colors */
+  /* Tremor Legend renders items in order, we target them by nth-child */
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(1),
+  .category-legend-wrapper [class*="legend"] > div:nth-child(1),
+  .category-legend-wrapper > div > div:nth-child(1) {
+    color: #3b82f6 !important; /* blue-500 */
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(1) > div[class*="indicator"],
+  .category-legend-wrapper [class*="legend"] > div:nth-child(1) > div[class*="indicator"],
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(1) > span[class*="indicator"],
+  .category-legend-wrapper [class*="legend"] > div:nth-child(1) > span[class*="indicator"],
+  .category-legend-wrapper > div > div:nth-child(1) > div,
+  .category-legend-wrapper > div > div:nth-child(1) > span {
+    background-color: #3b82f6 !important; /* blue-500 */
+  }
+  
+  /* Style legend items to match donut chart colors */
+  /* Tremor Legend renders items in order, we target them by nth-child */
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(2),
+  .category-legend-wrapper [class*="legend"] > div:nth-child(2),
+  .category-legend-wrapper > div > div:nth-child(2) {
+    color: #10b981 !important; /* emerald-500 */
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(2) > div[class*="indicator"],
+  .category-legend-wrapper [class*="legend"] > div:nth-child(2) > div[class*="indicator"],
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(2) > span[class*="indicator"],
+  .category-legend-wrapper [class*="legend"] > div:nth-child(2) > span[class*="indicator"],
+  .category-legend-wrapper > div > div:nth-child(2) > div,
+  .category-legend-wrapper > div > div:nth-child(2) > span {
+    background-color: #10b981 !important; /* emerald-500 */
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(3),
+  .category-legend-wrapper [class*="legend"] > div:nth-child(3),
+  .category-legend-wrapper > div > div:nth-child(3) {
+    color: #f59e0b !important; /* amber-500 */
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(3) > div[class*="indicator"],
+  .category-legend-wrapper [class*="legend"] > div:nth-child(3) > div[class*="indicator"],
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(3) > span[class*="indicator"],
+  .category-legend-wrapper [class*="legend"] > div:nth-child(3) > span[class*="indicator"],
+  .category-legend-wrapper > div > div:nth-child(3) > div,
+  .category-legend-wrapper > div > div:nth-child(3) > span {
+    background-color: #f59e0b !important; /* amber-500 */
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(4),
+  .category-legend-wrapper [class*="legend"] > div:nth-child(4),
+  .category-legend-wrapper > div > div:nth-child(4) {
+    color: #f43f5e !important; /* rose-500 */
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(4) > div[class*="indicator"],
+  .category-legend-wrapper [class*="legend"] > div:nth-child(4) > div[class*="indicator"],
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(4) > span[class*="indicator"],
+  .category-legend-wrapper [class*="legend"] > div:nth-child(4) > span[class*="indicator"],
+  .category-legend-wrapper > div > div:nth-child(4) > div,
+  .category-legend-wrapper > div > div:nth-child(4) > span {
+    background-color: #f43f5e !important; /* rose-500 */
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(5),
+  .category-legend-wrapper [class*="legend"] > div:nth-child(5),
+  .category-legend-wrapper > div > div:nth-child(5) {
+    color: #6366f1 !important; /* indigo-500 */
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(5) > div[class*="indicator"],
+  .category-legend-wrapper [class*="legend"] > div:nth-child(5) > div[class*="indicator"],
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(5) > span[class*="indicator"],
+  .category-legend-wrapper [class*="legend"] > div:nth-child(5) > span[class*="indicator"],
+  .category-legend-wrapper > div > div:nth-child(5) > div,
+  .category-legend-wrapper > div > div:nth-child(5) > span {
+    background-color: #6366f1 !important; /* indigo-500 */
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(6),
+  .category-legend-wrapper [class*="legend"] > div:nth-child(6),
+  .category-legend-wrapper > div > div:nth-child(6) {
+    color: #8b5cf6 !important; /* violet-500 */
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(6) > div[class*="indicator"],
+  .category-legend-wrapper [class*="legend"] > div:nth-child(6) > div[class*="indicator"],
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(6) > span[class*="indicator"],
+  .category-legend-wrapper [class*="legend"] > div:nth-child(6) > span[class*="indicator"],
+  .category-legend-wrapper > div > div:nth-child(6) > div,
+  .category-legend-wrapper > div > div:nth-child(6) > span {
+    background-color: #8b5cf6 !important; /* violet-500 */
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(7),
+  .category-legend-wrapper [class*="legend"] > div:nth-child(7),
+  .category-legend-wrapper > div > div:nth-child(7) {
+    color: #14b8a6 !important; /* teal-500 */
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(7) > div[class*="indicator"],
+  .category-legend-wrapper [class*="legend"] > div:nth-child(7) > div[class*="indicator"],
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(7) > span[class*="indicator"],
+  .category-legend-wrapper [class*="legend"] > div:nth-child(7) > span[class*="indicator"],
+  .category-legend-wrapper > div > div:nth-child(7) > div,
+  .category-legend-wrapper > div > div:nth-child(7) > span {
+    background-color: #14b8a6 !important; /* teal-500 */
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(8),
+  .category-legend-wrapper [class*="legend"] > div:nth-child(8),
+  .category-legend-wrapper > div > div:nth-child(8) {
+    color: #d946ef !important; /* fuchsia-500 */
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(8) > div[class*="indicator"],
+  .category-legend-wrapper [class*="legend"] > div:nth-child(8) > div[class*="indicator"],
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(8) > span[class*="indicator"],
+  .category-legend-wrapper [class*="legend"] > div:nth-child(8) > span[class*="indicator"],
+  .category-legend-wrapper > div > div:nth-child(8) > div,
+  .category-legend-wrapper > div > div:nth-child(8) > span {
+    background-color: #d946ef !important; /* fuchsia-500 */
+  }
+  
+  /* Hover states for legend items - darker shade (600) */
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(1):hover,
+  .category-legend-wrapper [class*="legend"] > div:nth-child(1):hover,
+  .category-legend-wrapper > div > div:nth-child(1):hover {
+    color: #2563eb !important; /* blue-600 */
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(2):hover,
+  .category-legend-wrapper [class*="legend"] > div:nth-child(2):hover,
+  .category-legend-wrapper > div > div:nth-child(2):hover {
+    color: #059669 !important; /* emerald-600 */
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(3):hover,
+  .category-legend-wrapper [class*="legend"] > div:nth-child(3):hover,
+  .category-legend-wrapper > div > div:nth-child(3):hover {
+    color: #d97706 !important; /* amber-600 */
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(4):hover,
+  .category-legend-wrapper [class*="legend"] > div:nth-child(4):hover,
+  .category-legend-wrapper > div > div:nth-child(4):hover {
+    color: #e11d48 !important; /* rose-600 */
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(5):hover,
+  .category-legend-wrapper [class*="legend"] > div:nth-child(5):hover,
+  .category-legend-wrapper > div > div:nth-child(5):hover {
+    color: #4f46e5 !important; /* indigo-600 */
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(6):hover,
+  .category-legend-wrapper [class*="legend"] > div:nth-child(6):hover,
+  .category-legend-wrapper > div > div:nth-child(6):hover {
+    color: #7c3aed !important; /* violet-600 */
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(7):hover,
+  .category-legend-wrapper [class*="legend"] > div:nth-child(7):hover,
+  .category-legend-wrapper > div > div:nth-child(7):hover {
+    color: #0d9488 !important; /* teal-600 */
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .category-legend-wrapper [class*="Legend"] > div:nth-child(8):hover,
+  .category-legend-wrapper [class*="legend"] > div:nth-child(8):hover,
+  .category-legend-wrapper > div > div:nth-child(8):hover {
+    color: #c026d3 !important; /* fuchsia-600 */
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+}
+
+/* Custom scrollbar for dashboard */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.7);
+}

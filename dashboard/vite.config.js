@@ -173,8 +173,8 @@ export default defineConfig(({ command, mode }) => {
             "localhost",
             "127.0.0.1",
             DASHBOARD_TUNNEL_URL, // Current tunnel domain
-            "session-wine-airline-tell.trycloudflare.com", // Cloudflare tunnel host
-            "session-wine-airline-tell.trycloudflare.com",
+            "ist-using-activated-nathan.trycloudflare.com", // Cloudflare tunnel host
+            "ist-using-activated-nathan.trycloudflare.com",
 
             // Add more tunnel domains here as needed, or use a function pattern
           ]
@@ -218,8 +218,8 @@ export default defineConfig(({ command, mode }) => {
         "localhost",
         "127.0.0.1",
         DASHBOARD_TUNNEL_URL,
-        "session-wine-airline-tell.trycloudflare.com", // Cloudflare tunnel host
-        "session-wine-airline-tell.trycloudflare.com",
+        "ist-using-activated-nathan.trycloudflare.com", // Cloudflare tunnel host
+        "ist-using-activated-nathan.trycloudflare.com",
       ],
     },
     define: {
@@ -327,6 +327,7 @@ export default defineConfig(({ command, mode }) => {
     esbuild: { jsx: "automatic" },
   };
 });
+
 
 
 

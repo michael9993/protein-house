@@ -1,0 +1,25 @@
+query FetchOrdersAnalytics(
+  $channel: String
+  $first: Int!
+  $after: String
+  $filter: OrderFilterInput
+) {
+  orders(
+    channel: $channel
+    first: $first
+    after: $after
+    filter: $filter
+    sortBy: { field: CREATED_AT, direction: DESC }
+  ) {
+    edges {
+      node {
+        ...OrderAnalytics
+      }
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    totalCount
+  }
+}

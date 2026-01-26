@@ -29,10 +29,12 @@ This project uses Docker Compose for local development. All services run in cont
 - **saleor-scheduler** - Celery beat scheduler for periodic tasks
 - **saleor-dashboard** - React admin dashboard
 - **saleor-storefront** - Next.js storefront
-- **saleor-storefront-control-app** - Storefront control CMS app
+- **saleor-storefront-control-app** - Storefront control CMS app (manages theme, features, homepage sections, filters, SEO per channel)
 - **saleor-stripe-app** - Stripe payment app
-- **saleor-smtp-app** - SMTP email app
-- **saleor-invoice-app** - Invoice generation app
+- **saleor-smtp-app** - SMTP email app (handles email notifications, fulfillment, invoices, welcome emails)
+- **saleor-invoice-app** - Invoice generation app (generates PDF invoices for orders)
+- **saleor-newsletter-app** - Newsletter management app (subscribers, templates, campaigns, MJML email templates)
+- **saleor-sales-analytics-app** - Sales analytics dashboard app (KPIs, revenue charts, top products, category breakdown, Excel export)
 - **saleor-postgres** - PostgreSQL database
 - **saleor-redis** - Redis cache/broker
 
@@ -57,8 +59,21 @@ This project uses Docker Compose for local development. All services run in cont
    - Restart `saleor-storefront-control-app`
    - If schema/config structure changed: Update sample config files (see below)
 
-5. **Other App changes (apps/apps/*/)**:
-   - Restart the corresponding app container (e.g., `saleor-stripe-app` for Stripe app)
+5. **Newsletter App changes (apps/apps/newsletter/)**:
+   - Restart `saleor-newsletter-app`
+   - If MJML templates or campaign logic changed: Restart required
+   - If subscriber management features changed: Restart required
+
+6. **Sales Analytics App changes (apps/apps/sales-analytics/)**:
+   - Restart `saleor-sales-analytics-app`
+   - If tRPC router or analytics calculations changed: Restart required
+   - If Excel export functionality changed: Restart required
+
+7. **Other App changes (apps/apps/*/)**:
+   - Restart the corresponding app container:
+     - `saleor-stripe-app` for Stripe app
+     - `saleor-smtp-app` for SMTP app
+     - `saleor-invoice-app` for Invoice app
 
 6. **Database/Redis changes**:
    - Usually no restart needed (data persists in volumes)
@@ -220,6 +235,99 @@ docker compose -f infra/docker-compose.dev.yml ps
 - Prefer the closest existing pattern in the directory you touch.
 - Ask for clarification if a change might affect multiple packages.
 
+## Apps Overview
+
+### Sales Analytics App (`apps/apps/sales-analytics/`)
+
+**Purpose**: Professional sales analytics dashboard for Saleor with KPIs, charts, and multi-channel insights.
+
+**Features**:
+- Key Performance Indicators (KPIs): GMV, Total Orders, AOV, Items Sold, Unique Customers with trend indicators
+- Visualizations: Revenue over time (Area Chart), Top products by revenue, Sales by category (Donut Chart), Recent orders table
+- Filters: Time range presets (Today, Last 7/30/90 days, 3/6/12 months, custom), Channel filter
+- Excel Export: Professional Excel export with multiple sheets (Summary, Revenue Over Time, Top Products, Sales by Category, All Orders) with styled headers, borders, and currency formatting
+- Dashboard Integration: Main dashboard via `NAVIGATION_ORDERS` extension (APP_PAGE target), Order details widget via `ORDER_DETAILS_WIDGETS` extension (WIDGET target)
+
+**Tech Stack**:
+- Next.js (Pages Router), React, TypeScript
+- Tremor UI for analytics visualizations
+- Macaw UI for app shell/forms
+- tRPC for type-safe APIs
+- xlsx (SheetJS) for Excel export
+- neverthrow for error handling
+- Zod for branded types
+
+**Recent Updates**:
+- Added Excel export functionality with professional formatting (styled headers, borders, column widths, currency formatting)
+- Export includes all orders in selected period (not just recent 10)
+- Multiple Excel sheets: Summary, Revenue Over Time, Top Products, Sales by Category, All Orders
+- Added `getAllOrders` tRPC endpoint for fetching complete order data for export
+
+**Container**: `saleor-sales-analytics-app` (port 3006)
+
+### Newsletter App (`apps/apps/newsletter/`)
+
+**Purpose**: Manage newsletter subscribers, email templates, and email campaigns.
+
+**Features**:
+- Subscriber management (active/inactive status, channel/language filtering)
+- MJML email template management
+- Campaign management (create, start, cancel, delete campaigns)
+- Integration with SMTP app for sending emails
+- Integration with Storefront Control app for branding
+- Welcome and welcome-back email automation
+
+**Container**: `saleor-newsletter-app` (port 3005)
+
+### Storefront Control App (`apps/apps/storefront-control/`)
+
+**Purpose**: Dashboard extension for managing storefront UI configuration.
+
+**Features**:
+- Theme management
+- Feature toggles
+- Homepage sections configuration
+- Filters and quickFilters configuration
+- SEO settings per channel
+- Multi-channel and multi-language support
+
+**Container**: `saleor-storefront-control-app` (port 3004)
+
+### SMTP App (`apps/apps/smtp/`)
+
+**Purpose**: Handles email notifications via SMTP.
+
+**Features**:
+- Email sending via SMTP configuration
+- Fulfillment notifications
+- Invoice emails
+- Welcome emails
+- Integration with Newsletter app
+
+**Container**: `saleor-smtp-app` (port 3001)
+
+### Invoice App (`apps/apps/invoices/`)
+
+**Purpose**: Generates PDF invoices for orders.
+
+**Features**:
+- PDF invoice generation
+- Order invoice management
+- Integration with storefront for invoice downloads
+
+**Container**: `saleor-invoice-app` (port 3003)
+
+### Stripe App (`apps/apps/stripe/`)
+
+**Purpose**: Saleor Payment App for Stripe integration.
+
+**Features**:
+- Stripe payment processing
+- Payment gateway configuration
+- Webhook handling for payment events
+
+**Container**: `saleor-stripe-app` (port configured via STRIPE_APP_PORT)
+
 ## Post-Change Checklist
 
 After completing any changes, verify:
@@ -232,3 +340,7 @@ After completing any changes, verify:
    - [ ] Types updated
 3. **Build/Lint**: Run appropriate lint/type-check commands for changed packages
 4. **Documentation**: Update relevant docs only if structure/behavior significantly changed
+5. **App-Specific Checks**:
+   - **Sales Analytics**: If Excel export changed, verify xlsx package is installed (`pnpm add xlsx`)
+   - **Newsletter**: If MJML templates changed, verify template validation
+   - **Storefront Control**: If config schema changed, update sample config files

@@ -62,6 +62,12 @@ $apps = @(
         AppId = "saleor.app.newsletter"
         EnvVar = "NEWSLETTER_APP_TUNNEL_URL"
         ManifestPath = "/api/manifest"
+    },
+    @{
+        Name = "Sales Analytics App"
+        AppId = "saleor.app.sales-analytics"
+        EnvVar = "SALES_ANALYTICS_APP_TUNNEL_URL"
+        ManifestPath = "/api/manifest"
     }
 )
 
@@ -366,7 +372,91 @@ function Get-ManifestFromApi {
     }
     catch {
         Write-Host "  ⚠ Failed to fetch manifest from API: $_" -ForegroundColor Yellow
+        if ($_.Exception.Response) {
+            try {
+                $reader = New-Object System.IO.StreamReader($_.Exception.Response.GetResponseStream())
+                $responseBody = $reader.ReadToEnd()
+                Write-Host "  Response: $responseBody" -ForegroundColor Yellow
+            }
+            catch {
+                # Ignore errors reading response stream
+            }
+        }
         return $null
+    }
+}
+
+# Function to verify manifest is accessible and has required fields
+function Test-ManifestAccessible {
+    param(
+        [string]$ManifestUrl,
+        [string]$ExpectedAppId
+    )
+    
+    Write-Host "  Verifying manifest accessibility..." -ForegroundColor Gray
+    
+    $manifest = Get-ManifestFromApi -ManifestUrl $ManifestUrl
+    
+    if (-not $manifest) {
+        Write-Host "  ✗ Manifest is not accessible at: $ManifestUrl" -ForegroundColor Red
+        return $false
+    }
+    
+    # Verify manifest has required fields
+    if (-not $manifest.id) {
+        Write-Host "  ✗ Manifest missing 'id' field" -ForegroundColor Red
+        return $false
+    }
+    
+    if ($manifest.id -ne $ExpectedAppId) {
+        Write-Host "  ⚠ Manifest ID mismatch: expected '$ExpectedAppId', got '$($manifest.id)'" -ForegroundColor Yellow
+    }
+    
+    # Verify permissions are present
+    if (-not $manifest.permissions -or $manifest.permissions.Count -eq 0) {
+        Write-Host "  ⚠ Manifest has no permissions defined" -ForegroundColor Yellow
+    }
+    else {
+        $permissionsList = $manifest.permissions -join ", "
+        Write-Host "  ✓ Manifest accessible with permissions: $permissionsList" -ForegroundColor Green
+    }
+    
+    return $true
+}
+
+# Function to verify app permissions after installation
+function Get-AppPermissions {
+    param(
+        [string]$GraphQLUrl,
+        [string]$Token,
+        [string]$AppId
+    )
+    
+    $query = @'
+query App($id: ID!) {
+  app(id: $id) {
+    id
+    name
+    permissions {
+      code
+      name
+    }
+  }
+}
+'@
+    
+    try {
+        $response = Invoke-GraphQL -GraphQLUrl $GraphQLUrl -Token $Token -Query $query -Variables @{ id = $AppId }
+        
+        if ($response.data.app) {
+            return $response.data.app.permissions
+        }
+        
+        return @()
+    }
+    catch {
+        Write-Host "  ⚠ Failed to fetch app permissions: $_" -ForegroundColor Yellow
+        return @()
     }
 }
 
@@ -484,7 +574,14 @@ try {
         $manifestUrl = "$tunnelUrl$($appDef.ManifestPath)"
         Write-Host "  Manifest URL: $manifestUrl" -ForegroundColor Gray
         
-        # Fetch manifest from API to get the actual app name
+        # Verify manifest is accessible BEFORE installation
+        # This ensures permissions will be read correctly during installation
+        if (-not (Test-ManifestAccessible -ManifestUrl $manifestUrl -ExpectedAppId $appDef.AppId)) {
+            Write-Host "  ⚠ Manifest verification failed. Installation may not have correct permissions." -ForegroundColor Yellow
+            Write-Host "  Continuing anyway, but please verify the app is accessible..." -ForegroundColor Yellow
+        }
+        
+        # Fetch manifest from API to get the actual app name and permissions
         Write-Host "  Fetching manifest from API..." -ForegroundColor Gray
         $manifest = Get-ManifestFromApi -ManifestUrl $manifestUrl
         $actualAppName = $appDef.Name
@@ -494,6 +591,12 @@ try {
         }
         else {
             Write-Host "  Using default app name: $actualAppName" -ForegroundColor Gray
+        }
+        
+        # Log expected permissions from manifest
+        if ($manifest -and $manifest.permissions) {
+            $expectedPermissions = $manifest.permissions -join ", "
+            Write-Host "  Expected permissions from manifest: $expectedPermissions" -ForegroundColor Gray
         }
         
         # Check if app already exists (by matching identifier, app ID, name, or manifest URL)
@@ -604,15 +707,36 @@ try {
         
         # Install new app
         Write-Host "  Installing $actualAppName..." -ForegroundColor Cyan
+        Write-Host "  Using manifest URL: $manifestUrl" -ForegroundColor Gray
+        Write-Host "  (Saleor will read permissions from the manifest automatically)" -ForegroundColor Gray
         
         try {
             $installation = Install-App -GraphQLUrl $graphQLUrl -Token $token -ManifestUrl $manifestUrl -AppName $actualAppName
             Write-Host "  ✓ Installation initiated: $($installation.appName)" -ForegroundColor Green
             Write-Host "    Status: $($installation.status)" -ForegroundColor Gray
             Write-Host "    ID: $($installation.id)" -ForegroundColor Gray
+            
+            # Wait a moment for installation to process
+            if ($installation.status -eq "PENDING") {
+                Write-Host "  Waiting for installation to process..." -ForegroundColor Gray
+                Start-Sleep -Seconds 3
+                
+                # Try to verify permissions were applied (only if installation completed)
+                # Note: This requires the app to be in ACTIVE status, which may take time
+                # We'll just log that permissions should be read from manifest
+                if ($manifest -and $manifest.permissions) {
+                    $expectedPerms = $manifest.permissions -join ", "
+                    Write-Host "  ℹ Permissions should be: $expectedPerms" -ForegroundColor Cyan
+                    Write-Host "  ℹ Verify in dashboard after installation completes (Extensions → Installed Apps)" -ForegroundColor Cyan
+                }
+            }
         }
         catch {
             Write-Host "  ✗ Failed to install app: $_" -ForegroundColor Red
+            Write-Host "  Troubleshooting:" -ForegroundColor Yellow
+            Write-Host "    - Ensure the app is running and accessible at: $tunnelUrl" -ForegroundColor Gray
+            Write-Host "    - Verify the manifest is accessible at: $manifestUrl" -ForegroundColor Gray
+            Write-Host "    - Check that the manifest has correct 'id' and 'permissions' fields" -ForegroundColor Gray
         }
     }
     

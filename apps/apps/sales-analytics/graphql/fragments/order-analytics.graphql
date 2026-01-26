@@ -1,0 +1,44 @@
+fragment OrderAnalytics on Order {
+  id
+  number
+  created
+  status
+  total {
+    gross {
+      ...Money
+    }
+    net {
+      ...Money
+    }
+  }
+  channel {
+    slug
+    name
+    currencyCode
+  }
+  lines {
+    id
+    productName
+    productSku
+    quantity
+    totalPrice {
+      gross {
+        ...Money
+      }
+    }
+    variant {
+      product {
+        id
+        name
+        category {
+          id
+          name
+        }
+      }
+    }
+  }
+  user {
+    id
+    email
+  }
+}
