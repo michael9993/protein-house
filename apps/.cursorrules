@@ -1,0 +1,90 @@
+# Saleor Apps Monorepo - Cursor Rules
+
+## References
+- **Root AGENTS.md**: General guidelines, container restart instructions, build commands
+- **apps/.github/copilot-instructions.md**: Detailed app patterns and architecture
+
+## Monorepo Structure
+- **Apps**: Located in `/apps/apps/`
+- **Shared packages**: Located in `/packages/`
+- **Build system**: PNPM workspaces and Turborepo
+- **Architecture**: Domain-driven design with `modules/` structure
+
+## Core Patterns
+
+### Error Handling
+- **Result-based**: Use `neverthrow` library extensively
+- **Pattern**: Functions return `Result<T, E>` instead of throwing exceptions
+- **Testing**: Use `._unsafeUnwrap()` for success cases and `._unsafeUnwrapErr()` for error cases
+
+### Type Safety
+- **Branded Types**: Use Zod branded types for validated primitives (see ADR 0002)
+- **Example**:
+  ```typescript
+  const saleorApiUrlSchema = z.string().url().endsWith("/graphql/").brand("SaleorApiUrl");
+  export const createSaleorApiUrl = (raw: string) => saleorApiUrlSchema.parse(raw);
+  ```
+
+### Error Classes
+- **Pattern**: Use `BaseError.subclass()` for custom errors with metadata
+- **Example**:
+  ```typescript
+  static ValidationError = BaseError.subclass("ValidationError", {
+    props: { _brand: "AppChannelConfig.ValidationError" as const },
+  });
+  ```
+
+### Architecture Patterns
+- **Use Cases**: Webhook handlers delegate to use case classes that contain business logic
+- **Repository Pattern**: Data access through repository interfaces, typically backed by DynamoDB
+- **Domain Boundaries**: Each app follows modules-based structure (`src/modules/`) with domain boundaries
+
+## App Structure
+- **Next.js App Router**: Webhooks in `/src/app/api/` or `/src/pages/api/`
+- **Business Logic**: Located in `/src/modules/`
+- **Test Fixtures**: Located in `/src/__tests__/mocks/` or `/src/__tests__/mocks/`
+
+## Commands
+- Install deps: `pnpm install`
+- Dev (all): `pnpm dev` (turbo)
+- Dev (single): `pnpm --filter <app-name> dev`
+- Build (all): `pnpm build`
+- Lint (all): `pnpm lint`
+- Lint fix: `pnpm lint:fix`
+- Type check: `pnpm check-types`
+- Tests (all): `pnpm test` or `pnpm test:ci`
+- App tests: `pnpm --filter <app-name> test`
+- App unit tests: `vitest --project units`
+- App e2e tests: `vitest --project e2e`
+- GraphQL codegen: `pnpm generate`
+
+## Container Restart
+After changes to apps/apps/*/:
+- **Newsletter App**: Restart `saleor-newsletter-app`
+- **Sales Analytics App**: Restart `saleor-sales-analytics-app`
+- **Storefront Control App**: Restart `saleor-storefront-control-app`
+- **SMTP App**: Restart `saleor-smtp-app`
+- **Invoice App**: Restart `saleor-invoice-app`
+- **Stripe App**: Restart `saleor-stripe-app`
+- See AGENTS.md for specific restart requirements
+
+## Testing Conventions
+- **Vitest**: Apps use workspace config with unit tests in `src/**/*.test.ts`
+- **Setup**: Tests setup in `src/__tests__/setup.ts` or `src/setup-tests.ts`
+- **Mocking**: Mock objects in `src/__tests__/mocks/`, use `vi.spyOn()` for method spying
+- **neverthrow Testing**: Use `._unsafeUnwrap()` / `._unsafeUnwrapErr()` for assertions
+
+## Integration Points
+- **Saleor Webhooks**: Apps receive webhooks at `/api/webhooks/saleor/`
+- **External APIs**: Payment providers, tax services wrapped in domain-specific client classes
+- **State Management**: tRPC for type-safe API layer, React Hook Form with Zod resolvers
+- **Storage**: Configuration stored in DynamoDB via `@saleor/dynamo-config-repository`
+- **Observability**: OpenTelemetry instrumentation, Sentry error tracking, structured logging
+
+## Key Principles
+- Focus on Result pattern for error handling
+- Domain modeling with branded types
+- Modular architecture with clear boundaries
+- Keep webhook handlers thin; delegate to use cases
+- Use repository pattern for data access
+- Follow existing patterns in the target app

@@ -1,0 +1,52 @@
+# Saleor Storefront - Next.js App Router Rules
+
+## Reference
+See root AGENTS.md for general guidelines and container restart instructions.
+
+## Technology Stack
+- **Framework**: Next.js App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS (prettier-plugin-tailwindcss)
+- **GraphQL**: Codegen for type generation
+
+## Code Style
+- **TypeScript**: Use TypeScript everywhere; avoid `any` unless absolutely necessary
+- **Components**: Prefer functional components and hooks; keep components focused
+- **Exports**: Keep file exports consistent; avoid default exports if the folder uses named
+- **Formatting**: Use Prettier formatting; do not hand-format
+- **Linting**: Use `next lint` rules
+- **Styling**: Tailwind CSS with prettier-plugin-tailwindcss for class sorting
+
+## Next.js Patterns
+- **App Router**: Keep server/client boundaries explicit
+- **Server Components**: Default to server components; use 'use client' only when needed
+- **Data Fetching**: Use server components for data fetching when possible
+- **GraphQL**: Keep GraphQL documents in the codegen flow; run `pnpm generate` if changed
+
+## Commands
+- Install deps: `pnpm install`
+- Dev server: `pnpm dev`
+- Build: `pnpm build`
+- Lint: `pnpm lint`
+- Type check: `pnpm type-check`
+- GraphQL types: `pnpm generate`
+
+## Container Restart
+After changes to storefront/:
+- Restart `saleor-storefront-dev`
+- If GraphQL schema changed: Run `pnpm generate` in storefront, then restart container
+
+## Integration Points
+- **Storefront Control App**: Fetches configuration from `STOREFRONT_CONTROL_APP_URL`
+- **Invoice App**: Uses `INVOICES_APP_URL` for invoice downloads
+- **Newsletter App**: Uses `NEXT_PUBLIC_NEWSLETTER_APP_URL` for unsubscribe
+- **SMTP App**: Uses `NEXT_PUBLIC_SMTP_APP_URL` for email sending
+
+## Error Handling
+- Use explicit error boundaries for error handling
+- Handle errors gracefully in server and client components
+- Use Next.js error.tsx and loading.tsx patterns
+
+## Testing
+- Tests: (none configured in scripts; rely on lint/type-check)
+- Focus on type safety and linting for quality assurance

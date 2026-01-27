@@ -1,0 +1,49 @@
+# Saleor Platform - Cursor IDE Rules
+
+## Primary Reference
+Always refer to AGENTS.md in the repository root for:
+- Container restart guidelines
+- Build/lint/test commands
+- Code style guidelines
+- App-specific patterns
+- Docker workflow
+- Apps overview and features
+
+## Workspace Structure
+This is a multi-project workspace:
+- `saleor/` - Django/GraphQL backend (Python)
+- `dashboard/` - Admin dashboard (React + Vite, TypeScript)
+- `storefront/` - Next.js storefront (TypeScript)
+- `apps/` - Saleor Apps monorepo (Next.js + TypeScript, Turborepo)
+- `infra/` - Docker compose and setup scripts
+
+## Environment-Specific Rules
+Check for `.cursorrules` files in:
+- `saleor/` for Python/Django rules
+- `dashboard/` for React/TypeScript rules
+- `storefront/` for Next.js rules
+- `apps/` for monorepo/Next.js app rules
+
+## Key Principles
+- Always determine which Docker container needs restarting after changes (see AGENTS.md Container Restart Guidelines)
+- Follow existing patterns in the target package (do not mix styles)
+- Keep edits minimal and localized; avoid wide refactors without request
+- Never add emojis to source code unless explicitly requested
+- Use appropriate build/lint/test commands for each project (see AGENTS.md Build/Lint/Test Commands)
+- Respect existing patterns in the directory you are working in
+
+## Docker Development Workflow
+- All services run in containers via Docker Compose
+- Use `docker compose -f infra/docker-compose.dev.yml restart <container-name>` to restart containers
+- Check AGENTS.md for specific container restart requirements based on what changed
+- View logs: `docker compose -f infra/docker-compose.dev.yml logs -f <container-name>`
+
+## Code Style
+- Python (saleor/): Black-style formatting, Ruff linting, type hints required
+- TypeScript (dashboard/, storefront/, apps/): Prettier formatting, ESLint rules, avoid `any`
+- Follow language-specific conventions in AGENTS.md Code Style Guidelines section
+
+## When in Doubt
+- Prefer the closest existing pattern in the directory you touch
+- Ask for clarification if a change might affect multiple packages
+- Refer to AGENTS.md for detailed guidance on specific technologies
