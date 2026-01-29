@@ -46,7 +46,8 @@ ALLOWED_CLIENT_HOSTS=localhost:3000,localhost:3002,localhost:9000,127.0.0.1:9000
 # CORS allowed origins (* for development, specific URLs for production)
 ALLOWED_GRAPHQL_ORIGINS=*
 
-# Public URL - Used for JWT token issuer URL
+# Public URL - Used for JWT token issuer URL (required for webhook signature verification).
+# When using tunnels, set SALEOR_API_TUNNEL_URL in the tunnel section below; Saleor will use it as PUBLIC_URL so SMTP/app webhooks succeed (otherwise 401 SIGNATURE_VERIFICATION_FAILED).
 PUBLIC_URL=http://localhost:8000
 
 # Email configuration
@@ -55,8 +56,18 @@ EMAIL_URL=consolemail://
 # Timezone
 TIME_ZONE=UTC
 
+# Password reset and account confirmation link expiry (seconds). Default 86400 = 24 hours.
+# Must match the email copy ("This link will expire in 24 hours"). Use 600 for 10 minutes if you prefer.
+PASSWORD_RESET_TIMEOUT=86400
+
 # Webhook secret key (optional)
 WEBHOOK_SECRET_KEY=
+
+# RSA private key for webhook JWS signing (REQUIRED for webhook signature verification).
+# Saleor API and Worker must use the SAME key; otherwise apps get 401 SIGNATURE_VERIFICATION_FAILED.
+# Generate with: openssl genrsa 2048 (then paste PEM into .env; use \n for newlines in one line, or use a single-line form).
+# Example .env line (replace with your key): RSA_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\nMIIE...\n-----END RSA PRIVATE KEY-----"
+RSA_PRIVATE_KEY=
 
 # Redis URLs (internal Docker service names)
 REDIS_URL=redis://redis:6379/0
@@ -66,7 +77,9 @@ CELERY_RESULT_BACKEND=redis://redis:6379/2
 # ============================================================================
 # TUNNEL URLs (Optional - only if using tunnels)
 # ============================================================================
-# Uncomment and set these if you're using Cloudflare/ngrok tunnels
+# Uncomment and set these if you're using Cloudflare/ngrok tunnels.
+# SALEOR_API_TUNNEL_URL is used as Saleor PUBLIC_URL so webhook JWT verification
+# succeeds (SMTP app and other apps return 401 SIGNATURE_VERIFICATION_FAILED if PUBLIC_URL is localhost).
 # SALEOR_API_TUNNEL_URL=https://your-api-tunnel.trycloudflare.com
 # STRIPE_APP_TUNNEL_URL=https://your-stripe-app-tunnel.trycloudflare.com
 # SMTP_APP_TUNNEL_URL=https://your-smtp-app-tunnel.trycloudflare.com

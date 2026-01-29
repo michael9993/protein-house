@@ -11,7 +11,8 @@ export function MobileBottomNavContent({
   isHome, 
   isProducts, 
   isCart, 
-  isAccount 
+  isAccount,
+  isLoggedIn = false,
 }: { 
   channel: string; 
   pathname: string;
@@ -19,6 +20,7 @@ export function MobileBottomNavContent({
   isProducts: boolean;
   isCart: boolean;
   isAccount: boolean;
+  isLoggedIn?: boolean;
 }) {
   const branding = useBranding();
   const content = useContentConfig();
@@ -117,8 +119,8 @@ export function MobileBottomNavContent({
         {/* Cart */}
         <MobileCartButtonClient isActive={isCart} channel={channel} />
 
-        {/* Account / Sign In */}
-        <MobileAccountButtonClient isActive={isAccount} />
+        {/* Account when logged in, Sign In when not */}
+        <MobileAccountButtonClient isActive={isAccount} isLoggedIn={isLoggedIn} />
       </div>
     </nav>
   );

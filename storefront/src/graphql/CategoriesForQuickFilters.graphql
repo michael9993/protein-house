@@ -1,0 +1,72 @@
+# Categories for quick filters: same level structure as nav (level 0 → L1 → L2)
+# with backgroundImage and product thumbnails for tile images.
+# Aligns with CategoriesForNav hierarchy so quick filters are correct when category levels change.
+
+query CategoriesForQuickFilters($channel: String!, $first: Int = 10) {
+  categories(first: $first, level: 0) {
+    edges {
+      node {
+        id
+        name
+        slug
+        backgroundImage {
+          url
+          alt
+        }
+        products(channel: $channel, first: 4) {
+          totalCount
+          edges {
+            node {
+              id
+              thumbnail {
+                url
+                alt
+              }
+              media {
+                url
+                alt
+              }
+            }
+          }
+        }
+        children(first: 20) {
+          edges {
+            node {
+              id
+              name
+              slug
+              backgroundImage {
+                url
+                alt
+              }
+              products(channel: $channel, first: 1) {
+                totalCount
+                edges {
+                  node {
+                    id
+                    thumbnail {
+                      url
+                      alt
+                    }
+                  }
+                }
+              }
+              children(first: 15) {
+                edges {
+                  node {
+                    id
+                    name
+                    slug
+                    products(channel: $channel, first: 1) {
+                      totalCount
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

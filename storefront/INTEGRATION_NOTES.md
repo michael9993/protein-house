@@ -67,6 +67,18 @@ The storefront uses:
 3. **Structure**: More comprehensive with checkout, account pages, etc.
 4. **Codegen**: Uses `.graphqlrc.ts` instead of `codegen.yml`
 
+## Storefront Control fallback (sample-import as defaults)
+
+When the Storefront Control API is unavailable, the storefront uses (in order): in-memory cache → localStorage → **storefront-cms-config.json** → hardcoded `defaultStoreConfig`. To use **Storefront Control sample-import** values (channel/brand-appropriate, e.g. ILS vs EN) as the fallback instead of the hardcoded defaults:
+
+From the **repo root**:
+
+```bash
+node storefront/scripts/build-fallback-from-samples.cjs
+```
+
+This reads `apps/apps/storefront-control/sample-config-import.json` (ILS/Hebrew) and `sample-config-import-en.json` (English) and writes `storefront/storefront-cms-config.json` with channels `ils` and `default`. Run after updating the sample configs so the storefront fallback stays in sync.
+
 ## Next Steps
 
 1. **Restart the storefront container** to apply changes:

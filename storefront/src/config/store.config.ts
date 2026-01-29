@@ -193,6 +193,28 @@ export interface StoreConfig {
       shippingPolicy: { enabled: boolean; url: string };
       returnPolicy: { enabled: boolean; url: string };
     };
+    /** Policy page content (Footer → Policy Page Content in Storefront Control). Nothing hardcoded—all from config. */
+    returnPolicyPageTitle?: string;
+    returnPolicyHeader?: string;
+    returnPolicyContent?: string;
+    returnPolicyDefaultContent?: string;
+    returnPolicyFooter?: string;
+    shippingPolicyPageTitle?: string;
+    shippingPolicyHeader?: string;
+    shippingPolicyContent?: string;
+    shippingPolicyDefaultContent?: string;
+    shippingPolicyFooter?: string;
+    privacyPolicyPageTitle?: string;
+    privacyPolicyHeader?: string;
+    privacyPolicyContent?: string;
+    privacyPolicyDefaultContent?: string;
+    privacyPolicyFooter?: string;
+    termsOfServicePageTitle?: string;
+    termsOfServiceHeader?: string;
+    termsOfServiceContent?: string;
+    termsOfServiceDefaultContent?: string;
+    termsOfServiceFooter?: string;
+    policyPageEmptyMessage?: string;
   };
 
   // ============================================
@@ -345,6 +367,10 @@ export interface StoreConfig {
     termsOfService: boolean;
     shippingPolicy: boolean;
     returnPolicy: boolean;
+    forgotPassword: boolean;
+    resetPassword: boolean;
+    verifyEmail: boolean;
+    confirmEmail: boolean;
   };
 
   // ============================================
@@ -469,6 +495,8 @@ export interface StoreConfig {
     excludeCheckout: boolean;
     excludeCart: boolean;
     autoDetectSales: boolean;
+    itemsOnSaleText?: string;
+    maybeLaterText?: string;
   };
 
   // ============================================
@@ -674,6 +702,66 @@ export interface StoreConfig {
       canNowSignIn: string;
       switchToSignIn: string;
       accountExistsMessage: string;
+      // Forgot / reset password
+      forgotPasswordTitle: string;
+      forgotPasswordSubtitle: string;
+      sendResetLinkButton: string;
+      forgotPasswordSuccessMessage: string;
+      resetPasswordTitle: string;
+      resetPasswordSubtitle: string;
+      newPasswordLabel: string;
+      newPasswordPlaceholder: string;
+      invalidResetLinkMessage: string;
+      resetLinkExpiredError: string;
+      // Verify email page
+      verifyEmailTitle: string;
+      verifyEmailSubtitle: string;
+      verifyEmailSentTo: string;
+      verifyEmailInstructions: string;
+      verifyEmailNotReceived: string;
+      verifyEmailNotReceivedTitle: string;
+      verifyEmailNotReceivedIntro: string;
+      verifyEmailCheckSpam: string;
+      verifyEmailWaitMinutes: string;
+      verifyEmailSignInToResend: string;
+      resendConfirmationButton: string;
+      resendSendingText: string;
+      resendSuccessMessage: string;
+      backToSignIn: string;
+      signInToResendEmail: string;
+      signInFirstToResend: string;
+      verifyEmailExpiryHelp: string;
+      verifyEmailRequiredError: string;
+      // Confirm email page (link landing)
+      confirmAccountTitle: string;
+      confirmAccountSubtitle: string;
+      confirmAccountLinkExpiredError: string;
+      confirmAccountRequestNewLink: string;
+      confirmAccountUnexpectedError: string;
+      confirmAccountAlreadyConfirmed: string;
+      confirmAccountEmailLabel: string;
+      confirmAccountEmailPlaceholder: string;
+      confirmAccountTokenLabel: string;
+      confirmAccountTokenPlaceholder: string;
+      confirmAccountTokenHint: string;
+      confirmAccountButton: string;
+      confirmAccountBackToSignIn: string;
+      confirmAccountConfirmingText: string;
+      confirmAccountSuccessMessage: string;
+      confirmAccountCheckingMessage: string;
+      confirmAccountAutoLoginHint: string;
+      // Error messages
+      loginInvalidCredentialsError: string;
+      loginEmailPasswordRequiredError: string;
+      loginGenericError: string;
+      registerEmailPasswordRequiredError: string;
+      registerFailedError: string;
+      registerAccountExistsError: string;
+      registerGenericError: string;
+      passwordMismatchError: string;
+      passwordTooShortError: string;
+      passwordResetRateLimitError: string;
+      passwordResetRateLimitInfo: string;
     };
     general: {
       searchPlaceholder: string;
@@ -724,8 +812,10 @@ export interface StoreConfig {
       noApprovedReviewsText: string;
       heroCtaText: string;
       heroSecondaryCtaText: string;
+      watchVideoButton?: string;
       // Category cards
       shopNowButton: string;
+      exploreText?: string;
       productCountText: string;
       // Newsletter
       newsletterEmailPlaceholder: string;
@@ -750,6 +840,7 @@ export interface StoreConfig {
     productDetail: ProductDetailText;
     dashboard: AccountDashboardText;
     orders: OrdersText;
+    orderTracking: OrderTrackingText;
     addresses: AddressesText;
     wishlist: WishlistText;
     settings: SettingsText;
@@ -849,8 +940,10 @@ export interface FiltersText {
   seenAllProducts: string;
   tryAdjustingFilters: string;
   
-  // Search
+  // Search (products page search bar + nav search)
   searchPlaceholder: string;
+  searchClearAriaLabel: string;
+  searchInputAriaLabel: string;
   searchProductsTitle: string;
   searchResultsTitle: string;
   resultsCountText: string;
@@ -937,8 +1030,10 @@ export const DEFAULT_FILTERS_TEXT: FiltersText = {
   seenAllProducts: "You've seen all {count} products",
   tryAdjustingFilters: "Try adjusting your filters to see more",
   
-  // Search
+  // Search (products page search bar + nav search)
   searchPlaceholder: "Search Products",
+  searchClearAriaLabel: "Clear search",
+  searchInputAriaLabel: "Search products",
   searchProductsTitle: "Search Products",
   searchResultsTitle: "Search Results",
   resultsCountText: "Found {count} result(s)",
@@ -1259,6 +1354,51 @@ export interface OrdersText {
   universalTrackers: string;
   directCarrierLinks: string;
   loading: string;
+  // Order Details Page
+  backToOrders: string;
+  placedOn: string;
+  orderItemsTitle: string;
+  viewProduct: string;
+  orderSummaryTitle: string;
+  subtotalLabel: string;
+  shippingLabel: string;
+  shippingFree: string;
+  totalLabelDetails: string;
+  shippingAddressTitle: string;
+  billingAddressTitle: string;
+  shipmentTrackingTitle: string;
+  statusLabelDetails: string;
+  trackingNumberLabelDetails: string;
+  invoiceTitle: string;
+  invoiceNumberPrefix: string;
+  downloadButton: string;
+  generatingText: string;
+  unavailableText: string;
+  quickActionsTitle: string;
+  needHelpTitle: string;
+  contactSupportButton: string;
+  viewFaqsButton: string;
+  // Order Status Labels
+  statusProcessing: string;
+  statusPartiallyShipped: string;
+  statusShipped: string;
+  statusDelivered: string;
+  statusCanceled: string;
+  statusReturned: string;
+  // Payment Status Labels
+  paymentPending: string;
+  paymentPartiallyPaid: string;
+  paymentPaid: string;
+  paymentPartiallyRefunded: string;
+  paymentRefunded: string;
+  paymentFailed: string;
+  paymentCancelled: string;
+  // Reorder Button
+  reorderItems: string;
+  addingToCart: string;
+  itemsAddedToCart: string;
+  redirectingToCart: string;
+  tryAgain: string;
 }
 
 export const DEFAULT_ORDERS_TEXT: OrdersText = {
@@ -1488,6 +1628,12 @@ export interface SettingsText {
   saveChangesButton: string;
   savingChanges: string;
   changesSaved: string;
+  profileUpdated: string;
+  profileUpdateFailed: string;
+  emailChangePasswordRequired: string;
+  emailChangeConfirmationSent: string;
+  emailChangePasswordInvalid: string;
+  profileInvalidEmailError: string;
   changePassword: string;
   passwordSecurityNote: string;
   currentPassword: string;
@@ -1495,6 +1641,7 @@ export interface SettingsText {
   confirmNewPassword: string;
   updatePasswordButton: string;
   passwordUpdated: string;
+  passwordUpdateFailed: string;
   notificationPreferences: string;
   notificationSubtitle: string;
   orderUpdates: string;
@@ -1520,6 +1667,12 @@ export const DEFAULT_SETTINGS_TEXT: SettingsText = {
   saveChangesButton: "Save Changes",
   savingChanges: "Saving...",
   changesSaved: "Changes saved successfully",
+  profileUpdated: "Profile updated successfully",
+  profileUpdateFailed: "Failed to update profile. Please try again.",
+  emailChangePasswordRequired: "Password is required to change your email. We will send a confirmation link to your new address.",
+  emailChangeConfirmationSent: "A confirmation link has been sent to your new email address. Please click it to complete the change.",
+  emailChangePasswordInvalid: "Password is not valid. Please enter your current account password.",
+  profileInvalidEmailError: "Please enter a valid email address. Check the domain and extension (e.g. .com not .comm).",
   changePassword: "Change Password",
   passwordSecurityNote: "Update your password to keep your account secure",
   currentPassword: "Current Password",
@@ -1527,6 +1680,7 @@ export const DEFAULT_SETTINGS_TEXT: SettingsText = {
   confirmNewPassword: "Confirm New Password",
   updatePasswordButton: "Update Password",
   passwordUpdated: "Password updated successfully",
+  passwordUpdateFailed: "Failed to update password. Please try again.",
   notificationPreferences: "Notification Preferences",
   notificationSubtitle: "Choose how you want to receive updates",
   orderUpdates: "Order Updates",
@@ -1554,6 +1708,7 @@ export interface FooterText {
   madeWith: string;
   inLocation: string;
   contactUs: string;
+  contactUsButton: string;
   customerService: string;
   shopTitle: string;
   companyTitle: string;
@@ -1584,9 +1739,21 @@ export const DEFAULT_FOOTER_TEXT: FooterText = {
 export interface NavbarText {
   selectChannel: string;
   searchPlaceholder: string;
+  searchClearAriaLabel?: string;
+  searchInputAriaLabel?: string;
+  viewAllResultsFor?: string;
+  recentlySearchedLabel?: string;
+  recentSearchesClearLabel?: string;
   cartLabel: string;
   accountLabel: string;
   menuLabel: string;
+  signInText: string;
+  /** Mobile menu drawer position: "left" or "right" (from Storefront Control) */
+  mobileNavPosition?: "left" | "right";
+  /** Dropdown arrow direction when collapsed: "up", "down", "left", "right", or "auto" (from Storefront Control) */
+  dropdownArrowDirection?: "up" | "down" | "left" | "right" | "auto";
+  /** Dropdown arrow direction when expanded (e.g. "down" for account menu) */
+  dropdownArrowDirectionExpanded?: "up" | "down" | "left" | "right" | "auto";
   // Mobile navigation
   homeLabel: string;
   shopLabel: string;
@@ -1595,10 +1762,18 @@ export interface NavbarText {
 export const DEFAULT_NAVBAR_TEXT: NavbarText = {
   selectChannel: "Select channel/currency",
   searchPlaceholder: "Search...",
+  searchClearAriaLabel: "Clear search",
+  searchInputAriaLabel: "Search products",
+  viewAllResultsFor: "View all results for",
+  recentlySearchedLabel: "Recent Searches",
+  recentSearchesClearLabel: "Clear",
   cartLabel: "Cart",
   accountLabel: "Account",
   menuLabel: "Menu",
   signInText: "Sign In",
+  mobileNavPosition: "right",
+  dropdownArrowDirection: "auto",
+  dropdownArrowDirectionExpanded: "down",
   // Mobile navigation
   homeLabel: "Home",
   shopLabel: "Shop",
@@ -1791,6 +1966,10 @@ export const defaultStoreConfig: StoreConfig = {
     termsOfService: true,
     shippingPolicy: true,
     returnPolicy: true,
+    forgotPassword: true,
+    resetPassword: true,
+    verifyEmail: true,
+    confirmEmail: true,
   },
 
   integrations: {
@@ -1928,6 +2107,29 @@ export const defaultStoreConfig: StoreConfig = {
       onlyXAvailable: "Only {count} available",
       // Success messages
       quantityUpdatedSuccess: "Quantity updated!",
+      // Promo code section
+      promoCodeLabel: "Promo Code",
+      promoCodePlaceholder: "Enter code",
+      promoCodeApplyButton: "Apply",
+      // Order summary
+      subtotalLabel: "Subtotal",
+      subtotalLabelWithCount: "Subtotal ({count} items)",
+      shippingLabel: "Shipping",
+      shippingFree: "Free",
+      shippingCalculatedAtCheckout: "Calculated at checkout",
+      totalLabel: "Total",
+      // Checkout button states
+      selectItemsButton: "Select items to checkout",
+      preparingCheckout: "Preparing checkout...",
+      loadingCheckout: "Loading...",
+      // Trust badges
+      secureCheckoutText: "Secure Checkout",
+      sslEncryptedText: "SSL encrypted",
+      // Payment methods
+      acceptedPaymentMethods: "We accept major credit cards",
+      providedByStripe: "Payments powered by Stripe",
+      // Saved for later
+      itemsSavedForLater: "Saved for later",
     },
     product: {
       addToCartButton: "Add to Cart",
@@ -1988,6 +2190,67 @@ export const defaultStoreConfig: StoreConfig = {
       canNowSignIn: "You can now sign in to your account.",
       switchToSignIn: "Switch to Sign In →",
       accountExistsMessage: "You already have an account with this email. Please sign in with your email and password below.",
+      // Forgot / reset password
+      forgotPasswordTitle: "Reset your password",
+      forgotPasswordSubtitle: "Enter your email and we'll send you a link to reset your password.",
+      sendResetLinkButton: "Send reset link",
+      forgotPasswordSuccessMessage: "If an account exists for that email, you will receive a link to reset your password.",
+      resetPasswordTitle: "Set new password",
+      resetPasswordSubtitle: "Enter your new password below.",
+      newPasswordLabel: "New password",
+      newPasswordPlaceholder: "Enter new password",
+      invalidResetLinkMessage: "Invalid or expired link. Please request a new password reset.",
+      resetLinkExpiredError: "Reset link is invalid or has expired. Please request a new one.",
+      // Verify email page
+      verifyEmailTitle: "Check Your Email",
+      verifyEmailSubtitle: "We've sent a confirmation link to your email address",
+      verifyEmailSentTo: "We sent a confirmation email to:",
+      verifyEmailInstructions: "Please click the confirmation link in the email to activate your account.",
+      verifyEmailNotReceived: "If you don't see the email, check your spam folder or click the button below to resend it.",
+      verifyEmailNotReceivedTitle: "Email not received?",
+      verifyEmailNotReceivedIntro: "The confirmation email is sent automatically after registration. If you don't see it:",
+      verifyEmailCheckSpam: "Check your spam/junk folder",
+      verifyEmailWaitMinutes: "Wait a few minutes (emails may be delayed)",
+      verifyEmailSignInToResend: "Sign in below to resend the email",
+      resendConfirmationButton: "Resend Confirmation Email",
+      resendSendingText: "Sending...",
+      resendSuccessMessage: "Confirmation email sent! Please check your inbox.",
+      backToSignIn: "Back to Sign In",
+      signInToResendEmail: "Sign In to Resend Email",
+      signInFirstToResend: "You need to sign in first to resend the confirmation email.",
+      verifyEmailExpiryHelp: "The confirmation link will expire in 24 hours. If you need help, please contact support.",
+      verifyEmailRequiredError: "Email address is required",
+      // Confirm email page (link landing)
+      confirmAccountTitle: "Confirm Your Email",
+      confirmAccountSubtitle: "Click the link in your email or enter your confirmation details below",
+      confirmAccountLinkExpiredError: "This confirmation link is invalid or has expired.",
+      confirmAccountRequestNewLink: "Request a new confirmation email",
+      confirmAccountUnexpectedError: "An unexpected error occurred. Please try again or request a new confirmation email.",
+      confirmAccountAlreadyConfirmed: "This account has already been confirmed. Redirecting to sign in...",
+      confirmAccountEmailLabel: "Email Address",
+      confirmAccountEmailPlaceholder: "you@example.com",
+      confirmAccountTokenLabel: "Confirmation Token",
+      confirmAccountTokenPlaceholder: "Enter token from email",
+      confirmAccountTokenHint: "The token was sent to your email address",
+      confirmAccountButton: "Confirm Account",
+      confirmAccountBackToSignIn: "Back to Sign In",
+      confirmAccountConfirmingText: "Confirming...",
+      confirmAccountSuccessMessage: "Account confirmed and logged in! Redirecting...",
+      confirmAccountCheckingMessage: "Confirming your email...",
+      confirmAccountAutoLoginHint: "You'll be logged in automatically when verification succeeds. If nothing happens, press the Confirm Account button below.",
+      // Error messages
+      loginInvalidCredentialsError: "Please, enter valid credentials",
+      loginEmailPasswordRequiredError: "Email and password are required",
+      loginGenericError: "An error occurred during login. Please try again.",
+      registerEmailPasswordRequiredError: "Email and password are required",
+      registerFailedError: "Registration failed",
+      registerAccountExistsError: "An account with this email already exists. Please sign in instead.",
+      registerGenericError: "An error occurred during registration. Please try again.",
+      passwordMismatchError: "Passwords do not match. Please try again.",
+      passwordTooShortError: "Password must be at least 8 characters.",
+      // Rate limiting messages
+      passwordResetRateLimitError: "You've already requested a password reset recently. Please wait 15 minutes before requesting another one.",
+      passwordResetRateLimitInfo: "If you don't receive an email, please check your spam folder. You can request another reset link in 15 minutes.",
     },
     general: {
       searchPlaceholder: "Search products...",

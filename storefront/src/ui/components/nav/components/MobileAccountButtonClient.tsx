@@ -3,16 +3,17 @@
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { useBranding, useContentConfig } from "@/providers/StoreConfigProvider";
 
-export function MobileAccountButtonClient({ isActive }: { isActive: boolean }) {
+export function MobileAccountButtonClient({ isActive, isLoggedIn = false }: { isActive: boolean; isLoggedIn?: boolean }) {
   const branding = useBranding();
   const content = useContentConfig();
   const navbarText = content.navbar;
 
-  // For now, just show sign in link - we can enhance this later to check auth status
-  // The account page will handle redirecting if not logged in
+  // Logged in → account; not logged in → login
+  const href = isLoggedIn ? "/account" : "/login";
+  const label = isLoggedIn ? navbarText.accountLabel : (navbarText.signInText ?? "Sign In");
   return (
     <LinkWithChannel
-      href="/account"
+      href={href}
       className={isActive ? "group flex flex-col items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 transition-all duration-300 hover:scale-105 active:scale-95" : "group flex flex-col items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 transition-all duration-300 hover:scale-105 active:scale-95 hover:bg-neutral-100/50"}
       style={{
         backgroundColor: isActive ? branding.colors.primary : "transparent",
@@ -46,7 +47,7 @@ export function MobileAccountButtonClient({ isActive }: { isActive: boolean }) {
           </svg>
         )}
       </div>
-      <span className={`text-[11px] font-semibold leading-tight transition-colors ${isActive ? "text-white" : ""}`}>{navbarText.accountLabel}</span>
+      <span className={`text-[11px] font-semibold leading-tight transition-colors ${isActive ? "text-white" : ""}`}>{label}</span>
     </LinkWithChannel>
   );
 }

@@ -1,47 +1,108 @@
-import { redirect } from "next/navigation";
-import { SearchIcon } from "lucide-react";
-import { fetchStorefrontConfig } from "@/lib/storefront-control";
-import { storeConfig } from "@/config";
+"use client";
 
-export const SearchBar = async ({ channel }: { channel: string }) => {
-	const dynamicConfig = await fetchStorefrontConfig(channel);
-	const searchPlaceholder = dynamicConfig.content?.navbar?.searchPlaceholder || 
-	                          dynamicConfig.content?.general?.searchPlaceholder || 
-	                          storeConfig.content?.general?.searchPlaceholder || "Search...";
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { SearchIcon, XIcon } from "lucide-react";
+import { SearchAutocomplete } from "./SearchAutocomplete";
+import { useContentConfig } from "@/providers/StoreConfigProvider";
 
-	async function onSubmit(formData: FormData) {
-		"use server";
-		const search = formData.get("search") as string;
-		if (search && search.trim().length > 0) {
-			redirect(`/${encodeURIComponent(channel)}/search?query=${encodeURIComponent(search)}`);
-		}
-	}
+interface SearchBarProps {
+  channel: string;
+  /** When provided (e.g. on products page), pre-fills the input with current search from URL. */
+  initialQuery?: string;
+}
 
-	return (
-		<form
-			action={onSubmit}
-			className="group relative my-2 flex w-full items-center justify-items-center text-sm lg:w-80"
-		>
-			<label className="w-full">
-				<span className="sr-only">search for products</span>
-				<input
-					type="text"
-					name="search"
-					placeholder={searchPlaceholder}
-					autoComplete="on"
-					required
-					className="h-10 w-full rounded-md border border-neutral-300 bg-transparent bg-white px-4 py-2 pr-10 text-sm text-black placeholder:text-neutral-500 focus:border-black focus:ring-black"
-				/>
-			</label>
-			<div className="absolute inset-y-0 right-0">
-				<button
-					type="submit"
-					className="inline-flex aspect-square w-10 items-center justify-center text-neutral-500 hover:text-neutral-700 focus:text-neutral-700 group-invalid:pointer-events-none group-invalid:opacity-80"
-				>
-					<span className="sr-only">search</span>
-					<SearchIcon aria-hidden className="h-5 w-5" />
-				</button>
-			</div>
-		</form>
-	);
-};
+export function SearchBar({ channel, initialQuery = "" }: SearchBarProps) {
+  const [query, setQuery] = useState(initialQuery);
+  const [isOpen, setIsOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const content = useContentConfig();
+
+  // Navbar search: all strings from content.navbar (translatable in Storefront Control > Content > Navbar)
+  const searchPlaceholder = content.navbar?.searchPlaceholder ?? content.general?.searchPlaceholder ?? "Search...";
+  const searchClearAriaLabel = content.navbar?.searchClearAriaLabel ?? content.filters?.searchClearAriaLabel ?? "Clear search";
+  const searchInputAriaLabel = content.navbar?.searchInputAriaLabel ?? content.filters?.searchInputAriaLabel ?? "Search products";
+
+  // Focus input when autocomplete opens
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isOpen]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (query.trim().length > 0) {
+      router.push(`/${encodeURIComponent(channel)}/products?search=${encodeURIComponent(query)}`);
+      setIsOpen(false);
+    }
+  };
+
+  const handleSelect = (href: string) => {
+    setQuery("");
+    setIsOpen(false);
+  };
+
+  const clearSearch = () => {
+    setQuery("");
+    setIsOpen(false);
+    inputRef.current?.focus();
+  };
+
+  return (
+    <div className="relative w-full max-w-[min(100%,20rem)] sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl">
+      <form
+        onSubmit={handleSubmit}
+        className="group relative flex w-full items-center"
+        onFocus={() => setIsOpen(true)}
+      >
+        <label className="sr-only" htmlFor="search-input">
+          {searchInputAriaLabel}
+        </label>
+        <div className="relative flex-1">
+          <input
+            ref={inputRef}
+            id="search-input"
+            type="text"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setIsOpen(true);
+            }}
+            placeholder={searchPlaceholder}
+            autoComplete="off"
+            className="h-9 w-full rounded-lg border border-neutral-300 bg-white px-3 py-1.5 pr-9 text-sm text-neutral-900 placeholder:text-neutral-500 focus:border-black focus:outline-none focus:ring-2 focus:ring-black/10 transition-all"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={clearSearch}
+              className="absolute inset-y-0 end-9 flex items-center justify-center text-neutral-400 hover:text-neutral-600 transition-colors"
+              aria-label={searchClearAriaLabel}
+            >
+              <XIcon className="h-3.5 w-3.5" />
+            </button>
+          )}
+          <button
+            type="submit"
+            className="absolute inset-y-0 end-0 flex items-center justify-center rounded-r-lg px-2.5 text-neutral-500 hover:text-neutral-700 focus:text-neutral-700 transition-colors"
+            aria-label={searchInputAriaLabel}
+          >
+            <SearchIcon className="h-4 w-4" />
+          </button>
+        </div>
+      </form>
+
+      {isOpen && (
+        <SearchAutocomplete
+          query={query}
+          channel={channel}
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+          onSelect={handleSelect}
+        />
+      )}
+    </div>
+  );
+}

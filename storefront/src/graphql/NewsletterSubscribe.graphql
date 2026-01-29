@@ -1,7 +1,8 @@
-mutation NewsletterSubscribe($email: String!, $source: String) {
-  newsletterSubscribe(email: $email, source: $source) {
+mutation NewsletterSubscribe($email: String!, $source: String, $channel: String, $isActive: Boolean) {
+  newsletterSubscribe(email: $email, source: $source, channel: $channel, isActive: $isActive) {
     subscribed
     alreadySubscribed
+    wasReactivated
     errors {
       field
       message

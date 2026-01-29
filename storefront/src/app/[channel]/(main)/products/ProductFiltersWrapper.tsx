@@ -202,14 +202,12 @@ async function fetchCategories(apiUrl: string, channel: string): Promise<Categor
       body: JSON.stringify({
         query: `
           query CategoriesForFilter($channel: String!) {
-            categories(first: 100) {
+            categories(first: 100, level: 0) {
               edges {
                 node {
                   id
                   name
                   slug
-                  level
-                  parent { id }
                   products(first: 1, channel: $channel) {
                     totalCount
                   }
@@ -221,6 +219,18 @@ async function fetchCategories(apiUrl: string, channel: string): Promise<Categor
                         slug
                         products(first: 1, channel: $channel) {
                           totalCount
+                        }
+                        children(first: 20) {
+                          edges {
+                            node {
+                              id
+                              name
+                              slug
+                              products(first: 1, channel: $channel) {
+                                totalCount
+                              }
+                            }
+                          }
                         }
                       }
                     }
@@ -237,42 +247,22 @@ async function fetchCategories(apiUrl: string, channel: string): Promise<Categor
     const { data } = await response.json() as { data?: { categories?: { edges?: any[] } } };
     if (!data?.categories?.edges) return [];
 
-    // Build category tree from API response
-    const rootCategories: Category[] = [];
-    const processedIds = new Set<string>();
-
-    data.categories.edges.forEach((edge: any) => {
-      const node = edge.node;
-      // Only process root categories (level 0 or no parent)
-      if (node.level === 0 || !node.parent) {
-        const category: Category = {
-          id: node.id,
-          name: node.name,
-          slug: node.slug,
-          productCount: node.products?.totalCount || 0,
-          children: [],
-        };
-
-        // Add children from the API response
-        if (node.children?.edges?.length > 0) {
-          category.children = node.children.edges.map((childEdge: any) => {
-            processedIds.add(childEdge.node.id);
-            return {
-              id: childEdge.node.id,
-              name: childEdge.node.name,
-              slug: childEdge.node.slug,
-              productCount: childEdge.node.products?.totalCount || 0,
-              children: [],
-            };
-          });
-        }
-
-        rootCategories.push(category);
-        processedIds.add(node.id);
+    // Build category tree from API response (3 levels: root → L1 → L2, aligned with nav)
+    function mapNode(node: any): Category {
+      const category: Category = {
+        id: node.id,
+        name: node.name,
+        slug: node.slug,
+        productCount: node.products?.totalCount || 0,
+        children: [],
+      };
+      if (node.children?.edges?.length > 0) {
+        category.children = node.children.edges.map((childEdge: any) => mapNode(childEdge.node));
       }
-    });
+      return category;
+    }
 
-    return rootCategories;
+    return data.categories.edges.map((edge: any) => mapNode(edge.node));
   } catch (error) {
     console.warn("Failed to fetch categories:", error);
     return [];

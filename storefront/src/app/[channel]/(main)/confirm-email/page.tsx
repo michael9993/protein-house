@@ -1,9 +1,19 @@
 import { ConfirmEmailClient } from "./ConfirmEmailClient";
+import { fetchStorefrontConfig } from "@/lib/storefront-control";
 
-export const metadata = {
-	title: "Confirm Your Email | SportZone",
-	description: "Confirm your email address to activate your account.",
-};
+export async function generateMetadata({
+	params,
+}: {
+	params: Promise<{ channel: string }>;
+}) {
+	const { channel } = await params;
+	const storeConfig = await fetchStorefrontConfig(channel);
+	const storeName = storeConfig?.store?.name ?? "Store";
+	return {
+		title: `Confirm Your Email | ${storeName}`,
+		description: "Confirm your email address to activate your account.",
+	};
+}
 
 export default async function ConfirmEmailPage({
 	params,

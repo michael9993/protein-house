@@ -79,23 +79,23 @@ export async function getWishlist(): Promise<WishlistItem[]> {
 			return [];
 		}
 	} catch (error: any) {
-		// Check if it's an auth error - if so, return empty array instead of throwing
-		// This allows retry logic to work while not breaking the flow
 		const errorMessage = error?.message || String(error);
-		const isAuthError = errorMessage.includes("401") || 
-		                   errorMessage.includes("403") || 
-		                   errorMessage.includes("authentication") ||
-		                   errorMessage.includes("not authenticated");
-		
+		const isAuthError =
+			errorMessage.includes("401") ||
+			errorMessage.includes("403") ||
+			errorMessage.includes("authentication") ||
+			errorMessage.includes("not authenticated") ||
+			errorMessage.includes("Invalid token") ||
+			errorMessage.includes("does not exist") ||
+			errorMessage.includes("is inactive") ||
+			errorMessage.includes("UNAUTHENTICATED");
+
 		if (isAuthError) {
-			console.log("[Wishlist] 🔐 Authentication error - cookies might not be ready yet:", errorMessage);
-			// Throw to trigger retry logic
-			throw error;
-		} else {
-			console.error("[Wishlist] ❌ Error getting wishlist:", errorMessage);
-			// Throw to trigger retry logic
-			throw error;
+			console.log("[Wishlist] User not authenticated or token invalid:", errorMessage);
+			return [];
 		}
+		console.error("[Wishlist] ❌ Error getting wishlist:", errorMessage);
+		throw error;
 	}
 }
 

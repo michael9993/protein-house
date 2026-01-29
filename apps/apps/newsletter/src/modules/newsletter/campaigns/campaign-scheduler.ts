@@ -13,11 +13,17 @@ export async function checkAndStartScheduledCampaigns(): Promise<void> {
   logger.debug("Checking for scheduled campaigns");
 
   try {
-    // Get all Saleor instances from APL
+    // Get all Saleor instances from APL (AuthData includes saleorApiUrl, token, appId)
     const instances = await saleorApp.apl.getAll();
 
     for (const instance of instances) {
-      const { saleorApiUrl, token } = instance;
+      const { saleorApiUrl, token, appId } = instance as { saleorApiUrl: string; token: string; appId?: string };
+
+      // Use appId from APL (avoids MANAGE_APPS-protected apps query); skip if missing
+      if (!appId) {
+        logger.debug("No appId in APL for instance, skipping scheduler", { saleorApiUrl });
+        continue;
+      }
 
       try {
         const apiClient = createSimpleGraphQLClient({
@@ -25,63 +31,6 @@ export async function checkAndStartScheduledCampaigns(): Promise<void> {
           token,
         });
 
-        // Get app ID by querying the Saleor API for the newsletter app
-        // We need to find the app by identifier or name
-        const { gql } = await import("urql");
-        const FIND_APP_QUERY = gql`
-          query FindNewsletterApp {
-            apps(first: 10, filter: { search: "newsletter" }) {
-              edges {
-                node {
-                  id
-                  name
-                  identifier
-                }
-              }
-            }
-          }
-        `;
-
-        const appResult = await apiClient.query<{
-          apps: {
-            edges: Array<{
-              node: {
-                id: string;
-                name: string;
-                identifier: string | null;
-              };
-            }>;
-          } | null;
-        }>(FIND_APP_QUERY, {}).toPromise();
-
-        // Check for errors in the query result
-        if (appResult.error) {
-          logger.warn("Error querying apps for instance", { 
-            saleorApiUrl, 
-            error: appResult.error.message 
-          });
-          continue;
-        }
-
-        // Check if apps data is available
-        const appsEdges = appResult.data?.apps?.edges;
-        if (!appsEdges || appsEdges.length === 0) {
-          logger.debug("No apps found for instance", { saleorApiUrl });
-          continue;
-        }
-
-        const newsletterApp = appsEdges.find(
-          (edge) =>
-            edge.node.identifier === "saleor.app.newsletter" ||
-            edge.node.name.toLowerCase().includes("newsletter"),
-        )?.node;
-
-        if (!newsletterApp) {
-          logger.debug("Newsletter app not found for instance", { saleorApiUrl });
-          continue;
-        }
-
-        const appId = newsletterApp.id;
         const campaignService = new CampaignService(apiClient, saleorApiUrl, appId);
 
         // Get all campaigns

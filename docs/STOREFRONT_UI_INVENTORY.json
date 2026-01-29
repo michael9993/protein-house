@@ -665,7 +665,17 @@
                 "element": "Section Order",
                 "currentStatus": "configurable",
                 "configPath": "homepage.sectionOrder",
-                "default": ["hero", "featuredCategories", "newArrivals", "bestSellers", "onSale", "featuredBrands", "testimonials", "newsletter", "instagramFeed"],
+                "default": [
+                  "hero",
+                  "featuredCategories",
+                  "newArrivals",
+                  "bestSellers",
+                  "onSale",
+                  "featuredBrands",
+                  "testimonials",
+                  "newsletter",
+                  "instagramFeed"
+                ],
                 "description": "Array of section IDs that determines the order sections appear on the homepage. All sections must be included in the array."
               },
               {
@@ -822,11 +832,7 @@
                 "element": "Title Styling",
                 "currentStatus": "configurable",
                 "configPath": "ui.activeFiltersTags",
-                "options": [
-                  "titleFontSize",
-                  "titleFontWeight",
-                  "titleColor"
-                ]
+                "options": ["titleFontSize", "titleFontWeight", "titleColor"]
               },
               {
                 "element": "Clear All Button Styling",
@@ -1033,31 +1039,19 @@
                 "element": "Stock Status Messages",
                 "currentStatus": "configurable",
                 "configPath": "content.product.{status}Text",
-                "statuses": [
-                  "outOfStockText",
-                  "lowStockText",
-                  "inStockText"
-                ]
+                "statuses": ["outOfStockText", "lowStockText", "inStockText"]
               },
               {
                 "element": "Trust Badges",
                 "currentStatus": "configurable",
                 "configPath": "content.productDetail.{badge}",
-                "badges": [
-                  "freeShipping",
-                  "securePayment",
-                  "easyReturns"
-                ]
+                "badges": ["freeShipping", "securePayment", "easyReturns"]
               },
               {
                 "element": "Tab Labels",
                 "currentStatus": "configurable",
                 "configPath": "content.productDetail.{tab}Tab",
-                "tabs": [
-                  "descriptionTab",
-                  "shippingTab",
-                  "reviewsTab"
-                ]
+                "tabs": ["descriptionTab", "shippingTab", "reviewsTab"]
               },
               {
                 "element": "No Description Available",
@@ -2566,11 +2560,7 @@
                 "element": "Order Item Labels",
                 "currentStatus": "configurable",
                 "configPath": "content.orders.{label}",
-                "labels": [
-                  "qtyLabel",
-                  "remainingItems",
-                  "loading"
-                ]
+                "labels": ["qtyLabel", "remainingItems", "loading"]
               }
             ]
           }
@@ -3250,6 +3240,58 @@
                 "element": "Terms Agreement",
                 "currentStatus": "configurable",
                 "configPath": "content.account.termsAgreement / termsOfService / privacyPolicy"
+              },
+              {
+                "element": "Error Messages",
+                "currentStatus": "configurable",
+                "configPath": "content.account.{errorType}Error",
+                "fields": [
+                  {
+                    "field": "loginInvalidCredentialsError",
+                    "default": "Please, enter valid credentials",
+                    "description": "Shown when login credentials are invalid"
+                  },
+                  {
+                    "field": "loginEmailPasswordRequiredError",
+                    "default": "Email and password are required",
+                    "description": "Shown when email or password is missing"
+                  },
+                  {
+                    "field": "loginGenericError",
+                    "default": "An error occurred during login. Please try again.",
+                    "description": "Shown when an unexpected error occurs during login"
+                  },
+                  {
+                    "field": "registerEmailPasswordRequiredError",
+                    "default": "Email and password are required",
+                    "description": "Shown when email or password is missing during registration"
+                  },
+                  {
+                    "field": "registerFailedError",
+                    "default": "Registration failed",
+                    "description": "Shown when registration fails"
+                  },
+                  {
+                    "field": "registerAccountExistsError",
+                    "default": "An account with this email already exists. Please sign in instead.",
+                    "description": "Shown when trying to register with an existing email"
+                  },
+                  {
+                    "field": "registerGenericError",
+                    "default": "An error occurred during registration. Please try again.",
+                    "description": "Shown when an unexpected error occurs during registration"
+                  },
+                  {
+                    "field": "passwordMismatchError",
+                    "default": "Passwords do not match. Please try again.",
+                    "description": "Shown when password and confirm password don't match"
+                  },
+                  {
+                    "field": "passwordTooShortError",
+                    "default": "Password must be at least 8 characters.",
+                    "description": "Shown when password is too short"
+                  }
+                ]
               }
             ]
           }
@@ -3741,20 +3783,13 @@
                 "element": "Badge Text",
                 "currentStatus": "configurable",
                 "configPath": "content.product.{badge}BadgeText",
-                "badges": [
-                  "saleBadgeText",
-                  "newBadgeText"
-                ]
+                "badges": ["saleBadgeText", "newBadgeText"]
               },
               {
                 "element": "Badge Styling",
                 "currentStatus": "configurable",
                 "configPath": "ui.badges.{type}",
-                "options": [
-                  "backgroundColor",
-                  "textColor",
-                  "borderRadius"
-                ]
+                "options": ["backgroundColor", "textColor", "borderRadius"]
               },
               {
                 "element": "Quick View Button",
@@ -3847,12 +3882,7 @@
                 "element": "Toast Styling",
                 "currentStatus": "configurable",
                 "configPath": "ui.toasts.{type}",
-                "types": [
-                  "success",
-                  "error",
-                  "warning",
-                  "info"
-                ],
+                "types": ["success", "error", "warning", "info"],
                 "options": [
                   "backgroundColor",
                   "textColor",
@@ -4040,58 +4070,58 @@
         "titleColor": "configurable (quickFilters.style.titleColor)",
         "valueColor": "configurable (quickFilters.style.valueColor)",
         "activeValueColor": "configurable (quickFilters.style.activeValueColor)",
-      "shopAllButtonBackgroundColor": "configurable (quickFilters.style.shopAllButtonBackgroundColor)",
-      "shopAllButtonTextColor": "configurable (quickFilters.style.shopAllButtonTextColor)",
-      "shopAllButtonHoverBackgroundColor": "configurable (quickFilters.style.shopAllButtonHoverBackgroundColor)",
-      "shopAllButtonBorderColor": "configurable (quickFilters.style.shopAllButtonBorderColor)",
-      "navbarMode": {
-        "buttonPaddingX": "configurable (quickFilters.style.navbarMode.buttonPaddingX)",
-        "buttonPaddingY": "configurable (quickFilters.style.navbarMode.buttonPaddingY)",
-        "buttonFontSize": "configurable (quickFilters.style.navbarMode.buttonFontSize)",
-        "buttonFontWeight": "configurable (quickFilters.style.navbarMode.buttonFontWeight)",
-        "buttonBorderRadius": "configurable (quickFilters.style.navbarMode.buttonBorderRadius)",
-        "buttonGap": "configurable (quickFilters.style.navbarMode.buttonGap)",
-        "groupLabelFontSize": "configurable (quickFilters.style.navbarMode.groupLabelFontSize)",
-        "groupLabelPaddingX": "configurable (quickFilters.style.navbarMode.groupLabelPaddingX)",
-        "groupLabelPaddingY": "configurable (quickFilters.style.navbarMode.groupLabelPaddingY)",
-        "separatorWidth": "configurable (quickFilters.style.navbarMode.separatorWidth)",
-        "separatorHeight": "configurable (quickFilters.style.navbarMode.separatorHeight)",
-        "containerPaddingY": "configurable (quickFilters.style.navbarMode.containerPaddingY)",
-        "backgroundColor": "configurable (quickFilters.style.navbarMode.backgroundColor)",
-        "borderTopColor": "configurable (quickFilters.style.navbarMode.borderTopColor)",
-        "borderBottomColor": "configurable (quickFilters.style.navbarMode.borderBottomColor)",
-        "shadowColor": "configurable (quickFilters.style.navbarMode.shadowColor)"
-      }
-    },
-    "activeFiltersTags": {
-      "containerBackgroundColor": "configurable (ui.activeFiltersTags.containerBackgroundColor)",
-      "containerBorderColor": "configurable (ui.activeFiltersTags.containerBorderColor)",
-      "containerBorderRadius": "configurable (ui.activeFiltersTags.containerBorderRadius)",
-      "containerPadding": "configurable (ui.activeFiltersTags.containerPadding)",
-      "containerShadow": "configurable (ui.activeFiltersTags.containerShadow)",
-      "titleFontSize": "configurable (ui.activeFiltersTags.titleFontSize)",
-      "titleFontWeight": "configurable (ui.activeFiltersTags.titleFontWeight)",
-      "titleColor": "configurable (ui.activeFiltersTags.titleColor)",
-      "clearAllButtonFontSize": "configurable (ui.activeFiltersTags.clearAllButtonFontSize)",
-      "clearAllButtonFontWeight": "configurable (ui.activeFiltersTags.clearAllButtonFontWeight)",
-      "clearAllButtonColor": "configurable (ui.activeFiltersTags.clearAllButtonColor)",
-      "clearAllButtonHoverColor": "configurable (ui.activeFiltersTags.clearAllButtonHoverColor)",
-      "tagBackgroundColor": "configurable (ui.activeFiltersTags.tagBackgroundColor)",
-      "tagBorderColor": "configurable (ui.activeFiltersTags.tagBorderColor)",
-      "tagTextColor": "configurable (ui.activeFiltersTags.tagTextColor)",
-      "tagHoverBackgroundColor": "configurable (ui.activeFiltersTags.tagHoverBackgroundColor)",
-      "tagHoverBorderColor": "configurable (ui.activeFiltersTags.tagHoverBorderColor)",
-      "tagBorderRadius": "configurable (ui.activeFiltersTags.tagBorderRadius)",
-      "tagPaddingX": "configurable (ui.activeFiltersTags.tagPaddingX)",
-      "tagPaddingY": "configurable (ui.activeFiltersTags.tagPaddingY)",
-      "tagFontSize": "configurable (ui.activeFiltersTags.tagFontSize)",
-      "tagFontWeight": "configurable (ui.activeFiltersTags.tagFontWeight)",
-      "tagGap": "configurable (ui.activeFiltersTags.tagGap)",
-      "removeButtonSize": "configurable (ui.activeFiltersTags.removeButtonSize)",
-      "removeButtonColor": "configurable (ui.activeFiltersTags.removeButtonColor)",
-      "removeButtonHoverBackgroundColor": "configurable (ui.activeFiltersTags.removeButtonHoverBackgroundColor)",
-      "removeButtonHoverColor": "configurable (ui.activeFiltersTags.removeButtonHoverColor)",
-      "removeButtonBorderRadius": "configurable (ui.activeFiltersTags.removeButtonBorderRadius)"
+        "shopAllButtonBackgroundColor": "configurable (quickFilters.style.shopAllButtonBackgroundColor)",
+        "shopAllButtonTextColor": "configurable (quickFilters.style.shopAllButtonTextColor)",
+        "shopAllButtonHoverBackgroundColor": "configurable (quickFilters.style.shopAllButtonHoverBackgroundColor)",
+        "shopAllButtonBorderColor": "configurable (quickFilters.style.shopAllButtonBorderColor)",
+        "navbarMode": {
+          "buttonPaddingX": "configurable (quickFilters.style.navbarMode.buttonPaddingX)",
+          "buttonPaddingY": "configurable (quickFilters.style.navbarMode.buttonPaddingY)",
+          "buttonFontSize": "configurable (quickFilters.style.navbarMode.buttonFontSize)",
+          "buttonFontWeight": "configurable (quickFilters.style.navbarMode.buttonFontWeight)",
+          "buttonBorderRadius": "configurable (quickFilters.style.navbarMode.buttonBorderRadius)",
+          "buttonGap": "configurable (quickFilters.style.navbarMode.buttonGap)",
+          "groupLabelFontSize": "configurable (quickFilters.style.navbarMode.groupLabelFontSize)",
+          "groupLabelPaddingX": "configurable (quickFilters.style.navbarMode.groupLabelPaddingX)",
+          "groupLabelPaddingY": "configurable (quickFilters.style.navbarMode.groupLabelPaddingY)",
+          "separatorWidth": "configurable (quickFilters.style.navbarMode.separatorWidth)",
+          "separatorHeight": "configurable (quickFilters.style.navbarMode.separatorHeight)",
+          "containerPaddingY": "configurable (quickFilters.style.navbarMode.containerPaddingY)",
+          "backgroundColor": "configurable (quickFilters.style.navbarMode.backgroundColor)",
+          "borderTopColor": "configurable (quickFilters.style.navbarMode.borderTopColor)",
+          "borderBottomColor": "configurable (quickFilters.style.navbarMode.borderBottomColor)",
+          "shadowColor": "configurable (quickFilters.style.navbarMode.shadowColor)"
+        }
+      },
+      "activeFiltersTags": {
+        "containerBackgroundColor": "configurable (ui.activeFiltersTags.containerBackgroundColor)",
+        "containerBorderColor": "configurable (ui.activeFiltersTags.containerBorderColor)",
+        "containerBorderRadius": "configurable (ui.activeFiltersTags.containerBorderRadius)",
+        "containerPadding": "configurable (ui.activeFiltersTags.containerPadding)",
+        "containerShadow": "configurable (ui.activeFiltersTags.containerShadow)",
+        "titleFontSize": "configurable (ui.activeFiltersTags.titleFontSize)",
+        "titleFontWeight": "configurable (ui.activeFiltersTags.titleFontWeight)",
+        "titleColor": "configurable (ui.activeFiltersTags.titleColor)",
+        "clearAllButtonFontSize": "configurable (ui.activeFiltersTags.clearAllButtonFontSize)",
+        "clearAllButtonFontWeight": "configurable (ui.activeFiltersTags.clearAllButtonFontWeight)",
+        "clearAllButtonColor": "configurable (ui.activeFiltersTags.clearAllButtonColor)",
+        "clearAllButtonHoverColor": "configurable (ui.activeFiltersTags.clearAllButtonHoverColor)",
+        "tagBackgroundColor": "configurable (ui.activeFiltersTags.tagBackgroundColor)",
+        "tagBorderColor": "configurable (ui.activeFiltersTags.tagBorderColor)",
+        "tagTextColor": "configurable (ui.activeFiltersTags.tagTextColor)",
+        "tagHoverBackgroundColor": "configurable (ui.activeFiltersTags.tagHoverBackgroundColor)",
+        "tagHoverBorderColor": "configurable (ui.activeFiltersTags.tagHoverBorderColor)",
+        "tagBorderRadius": "configurable (ui.activeFiltersTags.tagBorderRadius)",
+        "tagPaddingX": "configurable (ui.activeFiltersTags.tagPaddingX)",
+        "tagPaddingY": "configurable (ui.activeFiltersTags.tagPaddingY)",
+        "tagFontSize": "configurable (ui.activeFiltersTags.tagFontSize)",
+        "tagFontWeight": "configurable (ui.activeFiltersTags.tagFontWeight)",
+        "tagGap": "configurable (ui.activeFiltersTags.tagGap)",
+        "removeButtonSize": "configurable (ui.activeFiltersTags.removeButtonSize)",
+        "removeButtonColor": "configurable (ui.activeFiltersTags.removeButtonColor)",
+        "removeButtonHoverBackgroundColor": "configurable (ui.activeFiltersTags.removeButtonHoverBackgroundColor)",
+        "removeButtonHoverColor": "configurable (ui.activeFiltersTags.removeButtonHoverColor)",
+        "removeButtonBorderRadius": "configurable (ui.activeFiltersTags.removeButtonBorderRadius)"
       }
     },
     "hardcodedElements": {
@@ -4102,9 +4132,7 @@
       "wishlist": [
         "Header item count text format (calculated: {count} item{plural})"
       ],
-      "breadcrumbs": [
-        "Separator (icon/separator)"
-      ],
+      "breadcrumbs": ["Separator (icon/separator)"],
       "pagination": [
         "Previous/Next button labels (icon only)",
         "Page numbers (just numbers, no text)"
@@ -4136,110 +4164,407 @@
           "continueShoppingButton: cart, addresses",
           "clearAllButton: filters, wishlist",
           "startShopping: dashboard, addresses"
-      ]
-    },
-    "error": {
-      "route": "/error",
-      "description": "Error page shown when application errors occur",
-      "components": [
-        {
-          "name": "ErrorPage",
-          "type": "error-boundary",
-          "uiElements": [
-            {
-              "element": "Title",
-              "currentStatus": "configurable",
-              "configPath": "content.error.title",
-              "default": "Something went wrong"
-            },
-            {
-              "element": "Description",
-              "currentStatus": "configurable",
-              "configPath": "content.error.description",
-              "default": "We're sorry, but something unexpected happened. Please try again or contact support if the problem persists."
-            },
-            {
-              "element": "Error Details Label",
-              "currentStatus": "configurable",
-              "configPath": "content.error.errorDetails",
-              "default": "Error details",
-              "note": "Only shown in development mode"
-            },
-            {
-              "element": "Try Again Button",
-              "currentStatus": "configurable",
-              "configPath": "content.error.tryAgainButton",
-              "default": "Try Again"
-            },
-            {
-              "element": "Back to Home Button",
-              "currentStatus": "configurable",
-              "configPath": "content.error.backToHomeButton",
-              "default": "Back to Home"
-            },
-            {
-              "element": "Need Help Text",
-              "currentStatus": "configurable",
-              "configPath": "content.error.needHelpText",
-              "default": "Need help?"
-            },
-            {
-              "element": "Contact Support Link",
-              "currentStatus": "configurable",
-              "configPath": "content.error.contactSupportLink",
-              "default": "Contact our support team"
-            }
-          ]
-        }
-      ]
-    },
-    "notFound": {
-      "route": "/404",
-      "description": "404 page shown when a page is not found",
-      "components": [
-        {
-          "name": "NotFoundPage",
-          "type": "404-page",
-          "uiElements": [
-            {
-              "element": "Title",
-              "currentStatus": "configurable",
-              "configPath": "content.notFound.title",
-              "default": "Page Not Found"
-            },
-            {
-              "element": "Description",
-              "currentStatus": "configurable",
-              "configPath": "content.notFound.description",
-              "default": "Sorry, we couldn't find the page you're looking for. It might have been moved or doesn't exist."
-            },
-            {
-              "element": "Back to Home Button",
-              "currentStatus": "configurable",
-              "configPath": "content.notFound.backToHomeButton",
-              "default": "Back to Home"
-            },
-            {
-              "element": "Browse Products Button",
-              "currentStatus": "configurable",
-              "configPath": "content.notFound.browseProductsButton",
-              "default": "Browse Products"
-            },
-            {
-              "element": "Helpful Links Text",
-              "currentStatus": "configurable",
-              "configPath": "content.notFound.helpfulLinksText",
-              "default": "Or check out these pages:"
-            },
-            {
-              "element": "404 Error Code",
-              "currentStatus": "hardcoded",
-              "note": "Static '404' text, not configurable"
-            }
-          ]
-        }
-      ]
+        ]
+      },
+      "error": {
+        "route": "/error",
+        "description": "Error page shown when application errors occur",
+        "components": [
+          {
+            "name": "ErrorPage",
+            "type": "error-boundary",
+            "uiElements": [
+              {
+                "element": "Title",
+                "currentStatus": "configurable",
+                "configPath": "content.error.title",
+                "default": "Something went wrong"
+              },
+              {
+                "element": "Description",
+                "currentStatus": "configurable",
+                "configPath": "content.error.description",
+                "default": "We're sorry, but something unexpected happened. Please try again or contact support if the problem persists."
+              },
+              {
+                "element": "Error Details Label",
+                "currentStatus": "configurable",
+                "configPath": "content.error.errorDetails",
+                "default": "Error details",
+                "note": "Only shown in development mode"
+              },
+              {
+                "element": "Try Again Button",
+                "currentStatus": "configurable",
+                "configPath": "content.error.tryAgainButton",
+                "default": "Try Again"
+              },
+              {
+                "element": "Back to Home Button",
+                "currentStatus": "configurable",
+                "configPath": "content.error.backToHomeButton",
+                "default": "Back to Home"
+              },
+              {
+                "element": "Need Help Text",
+                "currentStatus": "configurable",
+                "configPath": "content.error.needHelpText",
+                "default": "Need help?"
+              },
+              {
+                "element": "Contact Support Link",
+                "currentStatus": "configurable",
+                "configPath": "content.error.contactSupportLink",
+                "default": "Contact our support team"
+              }
+            ]
+          }
+        ]
+      },
+      "notFound": {
+        "route": "/404",
+        "description": "404 page shown when a page is not found",
+        "components": [
+          {
+            "name": "NotFoundPage",
+            "type": "404-page",
+            "uiElements": [
+              {
+                "element": "Title",
+                "currentStatus": "configurable",
+                "configPath": "content.notFound.title",
+                "default": "Page Not Found"
+              },
+              {
+                "element": "Description",
+                "currentStatus": "configurable",
+                "configPath": "content.notFound.description",
+                "default": "Sorry, we couldn't find the page you're looking for. It might have been moved or doesn't exist."
+              },
+              {
+                "element": "Back to Home Button",
+                "currentStatus": "configurable",
+                "configPath": "content.notFound.backToHomeButton",
+                "default": "Back to Home"
+              },
+              {
+                "element": "Browse Products Button",
+                "currentStatus": "configurable",
+                "configPath": "content.notFound.browseProductsButton",
+                "default": "Browse Products"
+              },
+              {
+                "element": "Helpful Links Text",
+                "currentStatus": "configurable",
+                "configPath": "content.notFound.helpfulLinksText",
+                "default": "Or check out these pages:"
+              },
+              {
+                "element": "404 Error Code",
+                "currentStatus": "hardcoded",
+                "note": "Static '404' text, not configurable"
+              }
+            ]
+          }
+        ]
+      },
+      "resetPassword": {
+        "route": "/[channel]/reset-password",
+        "description": "Password reset page - allows users to set a new password using email and token from reset link",
+        "components": [
+          {
+            "name": "ResetPasswordClient",
+            "type": "auth-form",
+            "uiElements": [
+              {
+                "element": "Page Title",
+                "currentStatus": "configurable",
+                "configPath": "content.account.resetPasswordTitle",
+                "default": "Set new password"
+              },
+              {
+                "element": "Page Subtitle",
+                "currentStatus": "configurable",
+                "configPath": "content.account.resetPasswordSubtitle",
+                "default": "Enter your new password below."
+              },
+              {
+                "element": "New Password Label",
+                "currentStatus": "configurable",
+                "configPath": "content.account.newPasswordLabel",
+                "default": "New password"
+              },
+              {
+                "element": "New Password Placeholder",
+                "currentStatus": "configurable",
+                "configPath": "content.account.newPasswordPlaceholder",
+                "default": "Enter new password"
+              },
+              {
+                "element": "Confirm Password Label",
+                "currentStatus": "configurable",
+                "configPath": "content.account.confirmPasswordLabel",
+                "default": "Confirm Password"
+              },
+              {
+                "element": "Confirm Password Placeholder",
+                "currentStatus": "configurable",
+                "configPath": "content.account.confirmPasswordPlaceholder",
+                "default": "Confirm your password"
+              },
+              {
+                "element": "Password Mismatch Error",
+                "currentStatus": "hardcoded",
+                "default": "Passwords do not match. Please try again.",
+                "note": "Client-side validation message"
+              },
+              {
+                "element": "Submit Button",
+                "currentStatus": "configurable",
+                "configPath": "content.account.resetPasswordTitle",
+                "default": "Set new password"
+              },
+              {
+                "element": "Invalid Link Message",
+                "currentStatus": "configurable",
+                "configPath": "content.account.invalidResetLinkMessage",
+                "default": "Invalid or expired link. Please request a new password reset."
+              },
+              {
+                "element": "Reset Link Expired Error",
+                "currentStatus": "configurable",
+                "configPath": "content.account.resetLinkExpiredError",
+                "default": "Reset link is invalid or has expired. Please request a new one."
+              },
+              {
+                "element": "Back to Login Link",
+                "currentStatus": "configurable",
+                "configPath": "content.account.signInButton",
+                "default": "Sign In"
+              },
+              {
+                "element": "Send Reset Link Button",
+                "currentStatus": "configurable",
+                "configPath": "content.account.sendResetLinkButton",
+                "default": "Send reset link",
+                "note": "Shown when link is invalid"
+              },
+              {
+                "element": "Processing Text",
+                "currentStatus": "configurable",
+                "configPath": "content.account.processingText",
+                "default": "Processing..."
+              },
+              {
+                "element": "Logo and Branding",
+                "currentStatus": "configurable",
+                "configPath": "branding.logo, branding.colors.primary",
+                "note": "Uses store branding from Storefront Control"
+              }
+            ]
+          }
+        ]
+      },
+      "forgotPassword": {
+        "route": "/[channel]/forgot-password",
+        "description": "Forgot password page - allows users to request a password reset link via email",
+        "components": [
+          {
+            "name": "ForgotPasswordClient",
+            "type": "auth-form",
+            "uiElements": [
+              {
+                "element": "Page Title",
+                "currentStatus": "configurable",
+                "configPath": "content.account.forgotPasswordTitle",
+                "default": "Reset your password"
+              },
+              {
+                "element": "Page Subtitle",
+                "currentStatus": "configurable",
+                "configPath": "content.account.forgotPasswordSubtitle",
+                "default": "Enter your email and we'll send you a link to reset your password."
+              },
+              {
+                "element": "Email Label",
+                "currentStatus": "configurable",
+                "configPath": "content.account.emailLabel",
+                "default": "Email Address"
+              },
+              {
+                "element": "Email Placeholder",
+                "currentStatus": "configurable",
+                "configPath": "content.account.emailPlaceholder",
+                "default": "you@example.com"
+              },
+              {
+                "element": "Send Reset Link Button",
+                "currentStatus": "configurable",
+                "configPath": "content.account.sendResetLinkButton",
+                "default": "Send reset link"
+              },
+              {
+                "element": "Success Message",
+                "currentStatus": "configurable",
+                "configPath": "content.account.forgotPasswordSuccessMessage",
+                "default": "If an account exists for that email, you will receive a link to reset your password."
+              },
+              {
+                "element": "Back to Sign In Link",
+                "currentStatus": "configurable",
+                "configPath": "content.account.backToSignIn",
+                "default": "Back to Sign In"
+              },
+              {
+                "element": "Processing Text",
+                "currentStatus": "configurable",
+                "configPath": "content.account.processingText",
+                "default": "Processing..."
+              },
+              {
+                "element": "Logo and Branding",
+                "currentStatus": "configurable",
+                "configPath": "branding.logo, branding.colors.primary",
+                "note": "Uses store branding from Storefront Control"
+              }
+            ]
+          }
+        ]
+      },
+      "verifyEmail": {
+        "route": "/[channel]/verify-email",
+        "description": "Email verification page - allows users to verify their email address and resend confirmation emails",
+        "components": [
+          {
+            "name": "VerifyEmailClient",
+            "type": "auth-form",
+            "uiElements": [
+              {
+                "element": "Page Title",
+                "currentStatus": "configurable",
+                "configPath": "content.account.verifyEmailTitle",
+                "default": "Verify your email",
+                "note": "May need to be added to content.account schema"
+              },
+              {
+                "element": "Page Subtitle",
+                "currentStatus": "configurable",
+                "configPath": "content.account.verifyEmailSubtitle",
+                "default": "We've sent a confirmation link to your email address.",
+                "note": "May need to be added to content.account schema"
+              },
+              {
+                "element": "Email Sent To Text",
+                "currentStatus": "configurable",
+                "configPath": "content.account.verifyEmailSentTo",
+                "default": "We've sent a verification email to"
+              },
+              {
+                "element": "Verification Instructions",
+                "currentStatus": "configurable",
+                "configPath": "content.account.verifyEmailInstructions",
+                "default": "Click the link in the email to verify your account"
+              },
+              {
+                "element": "Didn't Receive Email Section Title",
+                "currentStatus": "configurable",
+                "configPath": "content.account.verifyEmailNotReceivedTitle",
+                "default": "Didn't receive the email?"
+              },
+              {
+                "element": "Didn't Receive Email Intro",
+                "currentStatus": "configurable",
+                "configPath": "content.account.verifyEmailNotReceivedIntro",
+                "default": "If you didn't receive the verification email, try the following:"
+              },
+              {
+                "element": "Check Spam Instruction",
+                "currentStatus": "configurable",
+                "configPath": "content.account.verifyEmailCheckSpam",
+                "default": "Check your spam or junk mail folder"
+              },
+              {
+                "element": "Wait Minutes Instruction",
+                "currentStatus": "configurable",
+                "configPath": "content.account.verifyEmailWaitMinutes",
+                "default": "Wait a few minutes - the email may be delayed"
+              },
+              {
+                "element": "Sign In to Resend Text",
+                "currentStatus": "configurable",
+                "configPath": "content.account.verifyEmailSignInToResend",
+                "default": "Sign in to resend"
+              },
+              {
+                "element": "Resend Confirmation Button",
+                "currentStatus": "configurable",
+                "configPath": "content.account.resendConfirmationButton",
+                "default": "Resend Confirmation Email"
+              },
+              {
+                "element": "Resend Sending Text",
+                "currentStatus": "configurable",
+                "configPath": "content.account.resendSendingText",
+                "default": "Sending..."
+              },
+              {
+                "element": "Resend Success Message",
+                "currentStatus": "configurable",
+                "configPath": "content.account.resendSuccessMessage",
+                "default": "Verification email sent successfully!"
+              },
+              {
+                "element": "Back to Sign In Link",
+                "currentStatus": "configurable",
+                "configPath": "content.account.backToSignIn",
+                "default": "Back to Sign In"
+              },
+              {
+                "element": "Sign In to Resend Email Text",
+                "currentStatus": "configurable",
+                "configPath": "content.account.signInToResendEmail",
+                "default": "Sign in to resend verification email"
+              },
+              {
+                "element": "Sign In First to Resend Text",
+                "currentStatus": "configurable",
+                "configPath": "content.account.signInFirstToResend",
+                "default": "You must sign in first to resend verification email"
+              },
+              {
+                "element": "Verification Expiry Help Text",
+                "currentStatus": "configurable",
+                "configPath": "content.account.verifyEmailExpiryHelp",
+                "default": "The verification link is valid for 10 minutes"
+              },
+              {
+                "element": "Verification Required Error",
+                "currentStatus": "configurable",
+                "configPath": "content.account.verifyEmailRequiredError",
+                "default": "Email verification is required. Please check your inbox"
+              },
+              {
+                "element": "Email Confirmed Message",
+                "currentStatus": "configurable",
+                "configPath": "content.account.emailConfirmedMessage",
+                "default": "Your email has been confirmed successfully!"
+              },
+              {
+                "element": "Can Now Sign In Text",
+                "currentStatus": "configurable",
+                "configPath": "content.account.canNowSignIn",
+                "default": "You can now sign in to your account."
+              },
+              {
+                "element": "Logo and Branding",
+                "currentStatus": "configurable",
+                "configPath": "branding.logo, branding.colors.primary",
+                "note": "Uses store branding from Storefront Control"
+              }
+            ]
+          }
+        ]
+      }
     }
   }
-}
 }

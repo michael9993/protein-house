@@ -1,0 +1,48 @@
+# Fetch categories with nested children for navigation mega menu.
+# Depth is limited by Saleor’s query depth/complexity. Use 3 levels (root → L1 → L2).
+# To add more levels: add another nested "children { edges { node { ... } } }" block
+# and run `pnpm generate`. If the API returns "depth" or "complexity" errors, remove a level.
+
+query CategoriesForNav($channel: String!, $first: Int = 10) {
+  categories(first: $first, level: 0) {
+    edges {
+      node {
+        id
+        name
+        slug
+        description
+        backgroundImage {
+          url
+          alt
+        }
+        products(channel: $channel, first: 1) {
+          totalCount
+        }
+        children(first: 20) {
+          edges {
+            node {
+              id
+              name
+              slug
+              products(channel: $channel, first: 1) {
+                totalCount
+              }
+              children(first: 15) {
+                edges {
+                  node {
+                    id
+                    name
+                    slug
+                    products(channel: $channel, first: 1) {
+                      totalCount
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

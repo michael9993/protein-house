@@ -1,10 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useBranding, useStoreInfo } from "@/providers/StoreConfigProvider";
+import { useBranding, useStoreInfo, useStoreConfig, usePageEnabled } from "@/providers/StoreConfigProvider";
+
+// Persist across remounts (e.g. React Strict Mode) so we only ever send one confirm request per link
+const CONFIRM_DEBOUNCE_MS = 8000;
+const lastConfirmAttempt = { key: "", time: 0 };
 
 interface ConfirmEmailClientProps {
 	channel: string;
@@ -17,6 +21,9 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 	const searchParams = useSearchParams();
 	const branding = useBranding();
 	const store = useStoreInfo();
+	const config = useStoreConfig();
+	const content = config?.content?.account ?? {};
+	const confirmEmailPageEnabled = usePageEnabled("confirmEmail");
 	
 	// Focus ring color with transparency
 	const focusRingColor = `${branding.colors.primary}33`;
@@ -25,27 +32,46 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 	const [token, setToken] = useState(initialToken || "");
 	const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 	const [message, setMessage] = useState<string | null>(null);
+	const autoConfirmAttemptedRef = useRef(false);
 
-	// If email and token are in URL, auto-confirm
+	// If email and token are in URL, auto-confirm once. Use module-level guard so we only send one request
+	// even when React Strict Mode remounts the component (which would reset the ref and fire the effect twice).
 	useEffect(() => {
 		const urlEmail = searchParams.get("email");
 		const urlToken = searchParams.get("token");
-		
-		// Use props if available, otherwise use URL params
 		const emailToUse = initialEmail || urlEmail;
 		const tokenToUse = initialToken || urlToken;
-		
-		if (emailToUse && tokenToUse && status === "idle") {
-			// Decode URL parameters (they might be encoded)
-			const decodedEmail = decodeURIComponent(emailToUse);
-			const decodedToken = decodeURIComponent(tokenToUse);
-			
-			setEmail(decodedEmail);
-			setToken(decodedToken);
-			handleConfirm(decodedEmail, decodedToken);
+
+		if (!emailToUse || !tokenToUse || status !== "idle") {
+			return;
 		}
+
+		let decodedEmail = emailToUse;
+		let decodedToken = tokenToUse;
+		try {
+			decodedEmail = decodeURIComponent(emailToUse);
+			decodedToken = decodeURIComponent(tokenToUse);
+		} catch {
+			// use as-is
+		}
+
+		const attemptKey = `${decodedEmail}:${decodedToken}`;
+		const now = Date.now();
+		if (
+			lastConfirmAttempt.key === attemptKey &&
+			now - lastConfirmAttempt.time < CONFIRM_DEBOUNCE_MS
+		) {
+			return;
+		}
+		lastConfirmAttempt.key = attemptKey;
+		lastConfirmAttempt.time = now;
+		autoConfirmAttemptedRef.current = true;
+
+		setEmail(decodedEmail);
+		setToken(decodedToken);
+		handleConfirm(decodedEmail, decodedToken);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [searchParams, initialEmail, initialToken]);
+	}, [searchParams, initialEmail, initialToken, status]);
 
 	const handleConfirm = async (confirmEmail: string, confirmToken: string) => {
 		if (!confirmEmail || !confirmToken) {
@@ -68,7 +94,7 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 		}
 
 		setStatus("loading");
-		setMessage("Confirming your account...");
+		setMessage(content.confirmAccountCheckingMessage ?? "Confirming your email...");
 
 		try {
 			// Use the new confirm-and-login action that automatically logs the user in
@@ -79,27 +105,29 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 
 			if (!result.success) {
 				setStatus("error");
-				let errorMessage = result.error || "Failed to confirm account";
-				
-				// Provide helpful error messages
-				if (errorMessage.includes("Invalid") || errorMessage.includes("expired")) {
-					errorMessage = "This confirmation link is invalid or has expired. Please request a new confirmation email.";
-				} else if (errorMessage.includes("already")) {
-					errorMessage = "This account has already been confirmed. Redirecting to login...";
-					// If already confirmed, try to login anyway (endpoint will return tokens)
+				const rawError = result.error || "Failed to confirm account";
+
+				// Check "already confirmed" first — backend may return success with this message; we only get here on 400
+				if (rawError.toLowerCase().includes("already")) {
+					setMessage(content.confirmAccountAlreadyConfirmed ?? "This account has already been confirmed. Redirecting to sign in...");
 					setTimeout(() => {
 						router.push(`/${channel}/login?confirmed=true`);
-					}, 2000);
+					}, 1500);
 					return;
 				}
-				
-				setMessage(errorMessage);
+
+				// Invalid or expired: show message + link to request new email
+				if (rawError.includes("Invalid") || rawError.includes("expired")) {
+					setMessage("LINK_EXPIRED");
+				} else {
+					setMessage(rawError);
+				}
 				return;
 			}
 
 			// Success - user is already logged in via tokens!
 			setStatus("success");
-			setMessage("Account confirmed and logged in! Redirecting...");
+			setMessage(content.confirmAccountSuccessMessage ?? "Account confirmed and logged in! Redirecting...");
 			
 			// Clear any stored passwords (no longer needed)
 			const emailVariants = [decodedEmail, email, decodedEmail.toLowerCase(), email.toLowerCase()];
@@ -131,6 +159,11 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 		e.preventDefault();
 		handleConfirm(email, token);
 	};
+
+	// Don't render form if page is disabled (redirect will happen)
+	if (confirmEmailPageEnabled === false) {
+		return null;
+	}
 
 	return (
 		<div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12">
@@ -168,21 +201,32 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 						)}
 					</Link>
 					<h1 className="mt-6 text-2xl font-bold text-neutral-900">
-						Confirm Your Email
+						{content.confirmAccountTitle ?? "Confirm Your Email"}
 					</h1>
 					<p className="mt-2 text-neutral-600">
-						Click the link in your email or enter your confirmation details below
+						{content.confirmAccountSubtitle ?? "Click the link in your email or enter your confirmation details below"}
 					</p>
 				</div>
 
 				{/* Status Messages */}
 				{status === "loading" && (
-					<div className="mb-4 flex items-center gap-2 rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-600">
-						<svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
-							<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-							<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-						</svg>
-						{message}
+					<div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-5 py-5 text-sm text-blue-800 shadow-sm">
+						<div className="flex items-start gap-4">
+							<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100">
+								<svg className="h-6 w-6 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24" aria-hidden>
+									<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+									<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+								</svg>
+							</div>
+							<div className="min-w-0 flex-1 space-y-1">
+								<p className="font-semibold text-blue-900">
+									{content.confirmAccountCheckingMessage ?? "Confirming your email..."}
+								</p>
+								<p className="text-blue-700">
+									{content.confirmAccountAutoLoginHint ?? "You'll be logged in automatically when verification succeeds. If nothing happens, press the Confirm Account button below."}
+								</p>
+							</div>
+						</div>
 					</div>
 				)}
 
@@ -196,11 +240,29 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 				)}
 
 				{status === "error" && (
-					<div className="mb-4 flex items-center gap-2 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
-						<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<div className="mb-4 flex flex-wrap items-start gap-2 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
+						<svg className="h-5 w-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
 						</svg>
-						{message}
+						<span className="flex-1">
+							{message === "LINK_EXPIRED" ? (
+								<>
+									{content.confirmAccountLinkExpiredError ?? "This confirmation link is invalid or has expired."}
+									{" "}
+									<Link
+										href={`/${channel}/verify-email`}
+										className="font-medium underline hover:no-underline"
+										style={{ color: branding.colors.primary }}
+									>
+										{content.confirmAccountRequestNewLink ?? "Request a new confirmation email"}
+									</Link>
+								</>
+							) : message === "UNEXPECTED_ERROR" ? (
+								content.confirmAccountUnexpectedError ?? "An unexpected error occurred. Please try again or request a new confirmation email."
+							) : (
+								message
+							)}
+						</span>
 					</div>
 				)}
 
@@ -210,7 +272,7 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 						<form onSubmit={handleSubmit} className="space-y-4">
 							<div>
 								<label htmlFor="email" className="mb-1.5 block text-sm font-medium text-neutral-700">
-									Email Address
+									{content.confirmAccountEmailLabel ?? content.emailLabel ?? "Email Address"}
 								</label>
 								<input
 									id="email"
@@ -220,13 +282,13 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 									required
 									disabled={!!initialEmail}
 									className="confirm-input w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder-neutral-400 transition-colors disabled:bg-neutral-50 disabled:text-neutral-500"
-									placeholder="you@example.com"
+									placeholder={content.confirmAccountEmailPlaceholder ?? content.emailPlaceholder ?? "you@example.com"}
 								/>
 							</div>
 
 							<div>
 								<label htmlFor="token" className="mb-1.5 block text-sm font-medium text-neutral-700">
-									Confirmation Token
+									{content.confirmAccountTokenLabel ?? "Confirmation Token"}
 								</label>
 								<input
 									id="token"
@@ -236,10 +298,10 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 									required
 									disabled={!!initialToken}
 									className="confirm-input w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder-neutral-400 transition-colors disabled:bg-neutral-50 disabled:text-neutral-500"
-									placeholder="Enter token from email"
+									placeholder={content.confirmAccountTokenPlaceholder ?? "Enter token from email"}
 								/>
 								<p className="mt-1 text-xs text-neutral-500">
-									The token was sent to your email address
+									{content.confirmAccountTokenHint ?? "The token was sent to your email address"}
 								</p>
 							</div>
 
@@ -249,7 +311,7 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 								className="w-full rounded-lg px-4 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
 								style={{ backgroundColor: branding.colors.primary }}
 							>
-								{status === "loading" ? "Confirming..." : "Confirm Account"}
+								{status === "loading" ? (content.confirmAccountConfirmingText ?? "Confirming...") : (content.confirmAccountButton ?? "Confirm Account")}
 							</button>
 						</form>
 
@@ -259,7 +321,7 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 								className="text-sm font-medium text-neutral-600 hover:text-neutral-900"
 								style={{ color: branding.colors.primary }}
 							>
-								Back to Sign In
+								{content.confirmAccountBackToSignIn ?? content.backToSignIn ?? "Back to Sign In"}
 							</Link>
 						</div>
 					</div>

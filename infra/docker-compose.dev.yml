@@ -91,6 +91,9 @@ services:
 
       # Webhooks
       WEBHOOK_SECRET_KEY: ${WEBHOOK_SECRET_KEY}
+      # RSA key for JWS webhook signing; must match worker so app verification succeeds
+      RSA_PRIVATE_KEY: ${RSA_PRIVATE_KEY:-}
+      RSA_PRIVATE_PASSWORD: ${RSA_PRIVATE_PASSWORD:-}
 
       # Timezone
       TIME_ZONE: ${TIME_ZONE}
@@ -98,9 +101,9 @@ services:
       # API Port (used by uvicorn command)
       SALEOR_API_PORT: ${SALEOR_API_PORT}
 
-      # Public URL - Used for JWT token issuer URL
-      # Set SALEOR_API_TUNNEL_URL in .env for tunnels, or PUBLIC_URL for local
-      PUBLIC_URL: ${PUBLIC_URL}
+      # Public URL - Used for JWT token issuer URL (webhook signature verification).
+      # When using tunnels, set SALEOR_API_TUNNEL_URL so PUBLIC_URL matches; otherwise apps return 401 SIGNATURE_VERIFICATION_FAILED.
+      PUBLIC_URL: ${SALEOR_API_TUNNEL_URL:-${PUBLIC_URL:-http://localhost:8000}}
 
       # Enable Playground in Development
       GRAPHQL_PLAYGROUND_ENABLED: "True"
@@ -149,6 +152,11 @@ services:
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
       EMAIL_URL: ${EMAIL_URL}
       TIME_ZONE: ${TIME_ZONE}
+      # Same RSA key as API so webhook JWS verification in apps succeeds
+      RSA_PRIVATE_KEY: ${RSA_PRIVATE_KEY:-}
+      RSA_PRIVATE_PASSWORD: ${RSA_PRIVATE_PASSWORD:-}
+      DEBUG: ${DEBUG}
+      PUBLIC_URL: ${SALEOR_API_TUNNEL_URL:-${PUBLIC_URL:-http://localhost:8000}}
     depends_on:
       postgres:
         condition: service_healthy
@@ -342,6 +350,9 @@ services:
       NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
       STRIPE_APP_URL: ${STRIPE_APP_URL}
       STRIPE_APP_API_BASE_URL: ${STRIPE_APP_API_BASE_URL}
+      # SMTP App base URL for webhook registration (use tunnel URL for external access)
+      APP_API_BASE_URL: ${SMTP_APP_TUNNEL_URL:-http://localhost:${SMTP_APP_PORT:-3001}}
+      APP_IFRAME_BASE_URL: ${SMTP_APP_TUNNEL_URL:-http://localhost:${SMTP_APP_PORT:-3001}}
       NODE_ENV: development
       # Secret key for encrypting app metadata - MUST match Newsletter app
       SECRET_KEY: ${APP_SECRET_KEY}

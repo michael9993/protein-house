@@ -333,3 +333,26 @@ def resolve_newsletter_subscription(info: ResolveInfo, id: str):
         return models.NewsletterSubscription.objects.using(database_connection_name).get(pk=pk)
     except models.NewsletterSubscription.DoesNotExist:
         return None
+
+
+def resolve_newsletter_subscription_status(info: ResolveInfo, email: str):
+    """
+    Resolve newsletter subscription status for the given email.
+    Only allowed for authenticated user querying their own email.
+    """
+    user = info.context.user
+    if not user or not getattr(user, "is_authenticated", False):
+        return None
+    normalized = (email or "").strip().lower()
+    if not normalized or "@" not in normalized:
+        return None
+    if user.email.strip().lower() != normalized:
+        return None
+    database_connection_name = get_database_connection_name(info.context)
+    try:
+        subscription = models.NewsletterSubscription.objects.using(
+            database_connection_name
+        ).get(email=normalized)
+        return {"email": subscription.email, "is_active": subscription.is_active}
+    except models.NewsletterSubscription.DoesNotExist:
+        return None

@@ -2,7 +2,7 @@ import { type ReactNode } from "react";
 import { Footer } from "@/ui/components/Footer";
 import { Header } from "@/ui/components/Header";
 import { PromoPopupLoader } from "@/ui/components/PromoPopup";
-import { ProductListByCollectionDocument } from "@/gql/graphql";
+import { ProductListByCollectionDocument, CurrentUserDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { homepageCollections } from "@/lib/cms";
 import { StoreConfigProvider } from "@/providers/StoreConfigProvider";
@@ -11,6 +11,7 @@ import { ConfigSync } from "@/components/ConfigSync";
 import { PageTransition } from "@/components/PageTransition";
 import { DirectionSetter } from "@/components/DirectionSetter";
 import { resolveDirection } from "@/lib/direction";
+import { getNavData } from "@/ui/components/nav/components/NavLinks";
 
 /**
  * Generate metadata with direction attribute to prevent FOUC
@@ -109,11 +110,14 @@ export default async function RootLayout(props: {
 }) {
 	const channel = (await props.params).channel;
 	
-	// Fetch promo data and storefront config in parallel
-	const [promoData, storeConfig] = await Promise.all([
+	// Fetch promo data, storefront config, nav data, and current user (for mobile account link) in parallel
+	const [promoData, storeConfig, navData, userResult] = await Promise.all([
 		getSalePromoData(channel),
 		fetchStorefrontConfig(channel),
+		getNavData(channel),
+		executeGraphQL(CurrentUserDocument, { cache: "no-cache" }).catch(() => ({ me: null })),
 	]);
+	const isLoggedIn = !!userResult?.me;
 
 	// Debug logging to verify config is loaded
 	console.log(`[RootLayout] 📦 Config loaded for channel "${channel}":`);
@@ -140,7 +144,7 @@ export default async function RootLayout(props: {
 				{/* Client-side direction setter - backup and for dynamic updates */}
 				<DirectionSetter config={storeConfig} />
 				<ConfigSync channel={channel} />
-				<Header channel={channel} />
+				<Header channel={channel} navData={navData} isLoggedIn={isLoggedIn} />
 			<div className="flex min-h-[calc(100dvh-64px)] flex-col pb-16 md:pb-0">
 				<main className="flex-1">
 					<PageTransition>

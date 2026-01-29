@@ -8,11 +8,14 @@ import { createLogger } from "../../../logger";
 import { loggerContext } from "../../../logger-context";
 import { SendEventMessagesUseCase } from "../../../modules/event-handlers/use-case/send-event-messages.use-case";
 import { SendEventMessagesUseCaseFactory } from "../../../modules/event-handlers/use-case/send-event-messages.use-case.factory";
+import { verifyWebhookSignature } from "../../../modules/webhook-verification/verify-webhook-signature";
 import { saleorApp } from "../../../saleor-app";
 
 /*
- * The Notify webhook is triggered on multiple Saleor events.
+ * The Notify webhook is triggered on multiple Saleor events (account confirmation,
+ * password reset, account delete, email change, newsletter, fulfillment update).
  * Type of the message is determined by `notify_event` field in the payload.
+ * Uses custom verification so JWKS matches the signer (tunnel or domain via env).
  */
 
 export const notifyWebhook = new SaleorAsyncWebhook<NotifySubscriptionPayload>({
@@ -21,6 +24,7 @@ export const notifyWebhook = new SaleorAsyncWebhook<NotifySubscriptionPayload>({
   event: "NOTIFY_USER",
   apl: saleorApp.apl,
   query: "{}", // We are using the default payload instead of subscription
+  verifySignatureFn: (jwks, signature, rawBody) => verifyWebhookSignature(jwks, signature, rawBody),
 });
 
 const logger = createLogger(notifyWebhook.webhookPath);

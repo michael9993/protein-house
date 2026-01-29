@@ -1,0 +1,6 @@
+query NewsletterSubscriptionStatus($email: String!) {
+  newsletterSubscriptionStatus(email: $email) {
+    email
+    isActive
+  }
+}

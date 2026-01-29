@@ -4,7 +4,7 @@ import { type HTMLAttributes } from "react";
 
 type Props = {
 	onClick: () => void;
-} & Pick<HTMLAttributes<HTMLButtonElement>, "aria-controls">;
+} & Pick<HTMLAttributes<HTMLButtonElement>, "aria-controls" | "aria-expanded">;
 
 export const OpenButton = (props: Props) => {
 	return (
@@ -13,7 +13,7 @@ export const OpenButton = (props: Props) => {
 				"flex h-8 w-8 flex-col items-center justify-center gap-1.5 self-end self-center md:hidden",
 			)}
 			aria-controls={props["aria-controls"]}
-			aria-expanded={false}
+			aria-expanded={props["aria-expanded"] ?? false}
 			aria-label="Open menu"
 			onClick={props.onClick}
 		>

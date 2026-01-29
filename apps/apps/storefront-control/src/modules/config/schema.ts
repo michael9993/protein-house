@@ -372,6 +372,33 @@ export const FooterSchema = z.object({
     shippingPolicy: LegalLinkSchema,
     returnPolicy: LegalLinkSchema,
   }).optional(),
+  // Policy page content: main body, optional header/footer, optional default when main is empty
+  returnPolicyPageTitle: z.string().optional(),
+  returnPolicyHeader: z.string().optional(),
+  returnPolicyContent: z.string().optional(),
+  returnPolicyDefaultContent: z.string().optional(),
+  returnPolicyFooter: z.string().optional(),
+
+  shippingPolicyPageTitle: z.string().optional(),
+  shippingPolicyHeader: z.string().optional(),
+  shippingPolicyContent: z.string().optional(),
+  shippingPolicyDefaultContent: z.string().optional(),
+  shippingPolicyFooter: z.string().optional(),
+
+  privacyPolicyPageTitle: z.string().optional(),
+  privacyPolicyHeader: z.string().optional(),
+  privacyPolicyContent: z.string().optional(),
+  privacyPolicyDefaultContent: z.string().optional(),
+  privacyPolicyFooter: z.string().optional(),
+
+  termsOfServicePageTitle: z.string().optional(),
+  termsOfServiceHeader: z.string().optional(),
+  termsOfServiceContent: z.string().optional(),
+  termsOfServiceDefaultContent: z.string().optional(),
+  termsOfServiceFooter: z.string().optional(),
+
+  // Shown when a policy page has no content and no default content set
+  policyPageEmptyMessage: z.string().optional(),
 });
 
 // ============================================
@@ -386,6 +413,10 @@ export const PagesSchema = z.object({
   termsOfService: z.boolean(),
   shippingPolicy: z.boolean(),
   returnPolicy: z.boolean(),
+  forgotPassword: z.boolean(),
+  resetPassword: z.boolean(),
+  verifyEmail: z.boolean(),
+  confirmEmail: z.boolean(),
 });
 
 // ============================================
@@ -828,6 +859,67 @@ export const AccountTextSchema = z.object({
   canNowSignIn: z.string(), // "You can now sign in to your account."
   switchToSignIn: z.string(), // "Switch to Sign In →"
   accountExistsMessage: z.string(), // "You already have an account with this email..."
+  // Forgot / reset password
+  forgotPasswordTitle: z.string(),
+  forgotPasswordSubtitle: z.string(),
+  sendResetLinkButton: z.string(),
+  forgotPasswordSuccessMessage: z.string(),
+  resetPasswordTitle: z.string(),
+  resetPasswordSubtitle: z.string(),
+  newPasswordLabel: z.string(),
+  newPasswordPlaceholder: z.string(),
+  invalidResetLinkMessage: z.string(),
+  resetLinkExpiredError: z.string(),
+  // Verify email page
+  verifyEmailTitle: z.string(),
+  verifyEmailSubtitle: z.string(),
+  verifyEmailSentTo: z.string(),
+  verifyEmailInstructions: z.string(),
+  verifyEmailNotReceived: z.string(),
+  verifyEmailNotReceivedTitle: z.string(),
+  verifyEmailNotReceivedIntro: z.string(),
+  verifyEmailCheckSpam: z.string(),
+  verifyEmailWaitMinutes: z.string(),
+  verifyEmailSignInToResend: z.string(),
+  resendConfirmationButton: z.string(),
+  resendSendingText: z.string(),
+  resendSuccessMessage: z.string(),
+  backToSignIn: z.string(),
+  signInToResendEmail: z.string(),
+  signInFirstToResend: z.string(),
+  verifyEmailExpiryHelp: z.string(),
+  verifyEmailRequiredError: z.string(),
+  // Confirm email page (link landing)
+  confirmAccountTitle: z.string(),
+  confirmAccountSubtitle: z.string(),
+  confirmAccountLinkExpiredError: z.string(),
+  confirmAccountRequestNewLink: z.string(),
+  confirmAccountUnexpectedError: z.string(),
+  confirmAccountAlreadyConfirmed: z.string(),
+  confirmAccountEmailLabel: z.string(),
+  confirmAccountEmailPlaceholder: z.string(),
+  confirmAccountTokenLabel: z.string(),
+  confirmAccountTokenPlaceholder: z.string(),
+  confirmAccountTokenHint: z.string(),
+  confirmAccountButton: z.string(),
+  confirmAccountBackToSignIn: z.string(),
+  confirmAccountConfirmingText: z.string(),
+  confirmAccountSuccessMessage: z.string(),
+  confirmAccountCheckingMessage: z.string(),
+  confirmAccountAutoLoginHint: z.string(),
+  // Error messages
+  loginInvalidCredentialsError: z.string(), // "Please, enter valid credentials"
+  loginEmailPasswordRequiredError: z.string(), // "Email and password are required"
+  loginGenericError: z.string(), // "An error occurred during login. Please try again."
+  registerEmailPasswordRequiredError: z.string(), // "Email and password are required"
+  registerFailedError: z.string(), // "Registration failed"
+  registerAccountExistsError: z.string(), // "An account with this email already exists. Please sign in instead."
+      registerGenericError: z.string(), // "An error occurred during registration. Please try again."
+      passwordMismatchError: z.string(), // "Passwords do not match. Please try again."
+      passwordTooShortError: z.string(), // "Password must be at least 8 characters."
+      // Rate limiting messages
+      passwordResetRateLimitError: z.string(), // "You've already requested a password reset recently..."
+      passwordResetRateLimitInfo: z.string(), // "If you don't receive an email..."
 });
 
 export const GeneralTextSchema = z.object({
@@ -1144,8 +1236,10 @@ export const FiltersTextSchema = z.object({
   seenAllProducts: z.string(),        // "You've seen all {count} products"
   tryAdjustingFilters: z.string(),    // "Try adjusting your filters to see more"
 
-  // Search
+  // Search (products page search bar + nav search)
   searchPlaceholder: z.string(),      // "Search Products"
+  searchClearAriaLabel: z.string().optional(),   // "Clear search" (aria-label for clear button)
+  searchInputAriaLabel: z.string().optional(),   // "Search products" (aria-label for search input)
   searchProductsTitle: z.string(),    // "Search Products"
   searchResultsTitle: z.string(),    // "Search Results"
   resultsCountText: z.string(),       // "Found {count} result(s)" (template, RTL-aware)
@@ -1531,6 +1625,12 @@ export const SettingsTextSchema = z.object({
   saveChangesButton: z.string(),       // "Save Changes"
   savingChanges: z.string(),           // "Saving..."
   changesSaved: z.string(),            // "Changes saved successfully"
+  profileUpdated: z.string(),          // "Profile updated successfully"
+  profileUpdateFailed: z.string(),     // "Failed to update profile. Please try again."
+  emailChangePasswordRequired: z.string(), // "Password is required to change your email..."
+  emailChangeConfirmationSent: z.string(), // "A confirmation link has been sent to your new email..."
+  emailChangePasswordInvalid: z.string(), // "Password is not valid. Please enter your current account password."
+  profileInvalidEmailError: z.string(),   // "Please enter a valid email address. Check the domain and extension..."
 
   // Password section
   changePassword: z.string(),          // "Change Password"
@@ -1540,6 +1640,7 @@ export const SettingsTextSchema = z.object({
   confirmNewPassword: z.string(),      // "Confirm New Password"
   updatePasswordButton: z.string(),    // "Update Password"
   passwordUpdated: z.string(),         // "Password updated successfully"
+  passwordUpdateFailed: z.string(),   // "Failed to update password. Please try again."
 
   // Notifications section
   notificationPreferences: z.string(), // "Notification Preferences"
@@ -1590,11 +1691,29 @@ export const FooterTextSchema = z.object({
 // Navbar Text
 export const NavbarTextSchema = z.object({
   selectChannel: z.string(),           // "Select channel/currency"
-  searchPlaceholder: z.string(),       // "Search..."
+  searchPlaceholder: z.string(),       // "Search..." (navbar search input placeholder)
+  searchClearAriaLabel: z.string().optional(),   // "Clear search" (aria-label for clear button)
+  searchInputAriaLabel: z.string().optional(),   // "Search products" (aria-label for search input)
+  viewAllResultsFor: z.string().optional(),     // "View all results for" (navbar search dropdown)
+  recentlySearchedLabel: z.string().optional(), // "Recent Searches" (navbar search dropdown)
+  recentSearchesClearLabel: z.string().optional(), // "Clear" (button next to Recent Searches)
   cartLabel: z.string(),               // "Cart"
   accountLabel: z.string(),            // "Account"
   menuLabel: z.string(),               // "Menu"
   signInText: z.string(),              // "Sign In" (for navbar login link)
+  shopAllButton: z.string().optional(),           // "Shop All" (for main navigation dropdown)
+  saleButton: z.string().optional(),              // "Sale" (for sale navigation button)
+  collectionsLabel: z.string().optional(),        // "Collections" (for dropdown section)
+  brandsLabel: z.string().optional(),             // "Brands" (for dropdown section)
+  categoriesLabel: z.string().optional(),         // "Categories" (for dropdown section)
+  viewAllProducts: z.string().optional(),         // "View All Products" (for dropdown footer)
+  subcategoriesSide: z.enum(["auto", "left", "right"]).default("auto"), // Subcategories dropdown side: "auto" (based on RTL), "left", or "right"
+  /** Mobile menu drawer position on screen: "left" or "right" */
+  mobileNavPosition: z.enum(["left", "right"]).default("right"),
+  /** Dropdown/accordion arrow direction when collapsed: "up", "down", "left", "right", or "auto" (follow locale) */
+  dropdownArrowDirection: z.enum(["up", "down", "left", "right", "auto"]).default("auto"),
+  /** Dropdown/accordion arrow direction when expanded (open): "up", "down", "left", "right", or "auto" (auto = down) */
+  dropdownArrowDirectionExpanded: z.enum(["up", "down", "left", "right", "auto"]).default("down"),
   // Mobile navigation
   homeLabel: z.string(),                // "Home"
   shopLabel: z.string(),                // "Shop"

@@ -108,7 +108,7 @@ export function FeaturedCategories({
           {displayCategories.map((category, index) => (
             <LinkWithChannel
               key={category.id}
-              href={`/categories/${category.slug}`}
+              href={`/products?category=${category.slug}`}
               className="group relative overflow-hidden border border-neutral-200/50 bg-white transition-shadow duration-200 ease-out"
               style={{ 
                 borderRadius: `var(--store-radius)`,
@@ -196,11 +196,11 @@ export function FeaturedCategories({
         {/* View All Link */}
         <div className="mt-10 text-center">
           <LinkWithChannel
-            href="/categories"
+            href="/products"
             className="inline-flex items-center gap-2 font-medium transition-colors"
             style={{ color: branding.colors.primary }}
           >
-            View All Categories
+            View All Products
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>

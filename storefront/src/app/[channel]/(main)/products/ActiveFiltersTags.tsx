@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
 interface ActiveFiltersTagsProps {
   filters: FilterState;
   channel?: string;
-  categories?: Array<{ slug: string; name: string; children?: Array<{ slug: string }> }>;
+  categories?: Array<{ slug: string; name: string; children?: Array<{ slug: string; name: string; children?: Array<unknown> }> }>;
   collections?: Array<{ slug: string; name: string }>;
   brands?: Array<{ slug: string; name: string }>;
   sizes?: Array<{ slug: string; name: string }>;
@@ -104,21 +104,16 @@ export function ActiveFiltersTags({
   }, [channel]);
 
   const getCategoryName = (slug: string): string => {
-    // Check direct categories
-    const category = categories.find(c => c.slug === slug);
-    if (category) return category.name;
-    
-    // Check children
-    for (const cat of categories) {
-      if (cat.children) {
-        const child = cat.children.find(c => c.slug === slug);
-        if (child) {
-          // Try to find the child in the full category structure
-          return slug.split("-").map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(" ");
-        }
+    function findInTree(items: typeof categories): string | null {
+      if (!items?.length) return null;
+      for (const c of items) {
+        if (c.slug === slug) return c.name;
+        const nested = findInTree((c as { children?: typeof categories }).children);
+        if (nested) return nested;
       }
+      return null;
     }
-    return slug.split("-").map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(" ");
+    return findInTree(categories) ?? slug.split("-").map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(" ");
   };
 
   const getCollectionName = (slug: string): string => {

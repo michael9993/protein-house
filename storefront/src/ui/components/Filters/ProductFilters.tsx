@@ -10,7 +10,7 @@
  */
 
 import React, { useState, useRef, useEffect, type ReactNode, type ChangeEvent } from "react";
-import { useStoreConfig, useFiltersConfig, useFiltersText } from "@/providers/StoreConfigProvider";
+import { useStoreConfig, useFiltersConfig, useFiltersText, useContentConfig } from "@/providers/StoreConfigProvider";
 import { useProductFilters } from "@/hooks/useProductFilters";
 import { PriceRangeFilter } from "./PriceRangeFilter";
 import { RatingFilter } from "./RatingFilter";
@@ -136,7 +136,12 @@ export function ProductFilters({
   const config = useStoreConfig();
   const filtersConfig = useFiltersConfig();
   const filtersText = useFiltersText();
+  const content = useContentConfig();
   const { branding } = config;
+  // Use same labels as nav Shop All dropdown when navbar labels are set (categories → collections → brands)
+  const categoriesLabel = content.navbar?.categoriesLabel ?? filtersText.categoryTitle;
+  const collectionsLabel = content.navbar?.collectionsLabel ?? filtersText.collectionTitle;
+  const brandsLabel = content.navbar?.brandsLabel ?? filtersText.brandTitle;
   
   // Debug: Log sizes when component receives them
   useEffect(() => {
@@ -278,7 +283,7 @@ export function ProductFilters({
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5l-7 7 7 7" />
               </svg>
             </button>
           ) : (
@@ -327,10 +332,10 @@ export function ProductFilters({
           </div>
         )}
 
-        {/* Categories - config-driven visibility */}
+        {/* Categories - config-driven visibility; label aligned with nav dropdown */}
         {filtersConfig.categoryFilter.enabled && categories.length > 0 && (
           <FilterSection
-            title={filtersText.categoryTitle}
+            title={categoriesLabel}
             isExpanded={expandedSections.includes("categories")}
             onToggle={() => toggleSection("categories")}
             branding={branding}
@@ -341,10 +346,10 @@ export function ProductFilters({
           </FilterSection>
         )}
 
-        {/* Collections - config-driven visibility */}
+        {/* Collections - config-driven visibility; label aligned with nav dropdown */}
         {filtersConfig.collectionFilter.enabled && collections.length > 0 && (
           <FilterSection
-            title={filtersText.collectionTitle}
+            title={collectionsLabel}
             isExpanded={expandedSections.includes("collections")}
             onToggle={() => toggleSection("collections")}
             branding={branding}
@@ -369,10 +374,10 @@ export function ProductFilters({
           </FilterSection>
         )}
 
-        {/* Brands - config-driven visibility */}
+        {/* Brands - config-driven visibility; label aligned with nav dropdown */}
         {filtersConfig.brandFilter.enabled && brands.length > 0 && (
           <FilterSection
-            title={filtersText.brandTitle}
+            title={brandsLabel}
             isExpanded={expandedSections.includes("brands")}
             onToggle={() => toggleSection("brands")}
             branding={branding}

@@ -24,11 +24,17 @@ class NewsletterSubscribe(BaseMutation):
         )
         source = graphene.String(
             required=False,
-            description="Source of the subscription (e.g., 'homepage', 'checkout').",
+            description="Source of the subscription (e.g., 'homepage', 'checkout', 'registration').",
         )
         channel = graphene.String(
             required=False,
             description="Channel slug where the subscription was made.",
+        )
+        is_active = graphene.Boolean(
+            required=False,
+            default_value=True,
+            description="If false, add to subscriber list as inactive (e.g. on registration). "
+            "User can activate later via settings or newsletter form.",
         )
 
     class Meta:
@@ -78,6 +84,11 @@ class NewsletterSubscribe(BaseMutation):
                 pass
         cleaned_input["channel"] = channel
 
+        is_active = cleaned_input.get("is_active", True)
+        if not isinstance(is_active, bool):
+            is_active = True
+        cleaned_input["is_active"] = is_active
+
         return cleaned_input
 
     @classmethod
@@ -90,6 +101,7 @@ class NewsletterSubscribe(BaseMutation):
         user = cleaned_input.get("user")
         source = cleaned_input.get("source", "")
         channel = cleaned_input.get("channel")
+        is_active = cleaned_input.get("is_active", True)
 
         # Check if subscription already exists
         try:
@@ -99,22 +111,23 @@ class NewsletterSubscribe(BaseMutation):
             if subscription.is_active:
                 return cls(subscribed=True, already_subscribed=True, was_reactivated=False)
             
-            # If exists but inactive, reactivate it (send welcome back email)
-            subscription.is_active = True
+            # If exists but inactive, reactivate when is_active=True (e.g. user toggled in settings)
+            subscription.is_active = is_active
             subscription.user = user  # Update user if authenticated
-            subscription.unsubscribed_at = None
+            if is_active:
+                subscription.unsubscribed_at = None
             subscription.source = source or subscription.source
             if channel:
                 subscription.channel = channel
             subscription.save(update_fields=["is_active", "user", "unsubscribed_at", "source", "channel"])
             
-            return cls(subscribed=True, already_subscribed=False, was_reactivated=True)
+            return cls(subscribed=True, already_subscribed=False, was_reactivated=is_active)
         except models.NewsletterSubscription.DoesNotExist:
-            # Create new subscription (send welcome email)
+            # Create new subscription (optionally inactive, e.g. on registration)
             subscription = models.NewsletterSubscription.objects.create(
                 email=email,
                 user=user,
-                is_active=True,
+                is_active=is_active,
                 source=source,
                 channel=channel,
             )

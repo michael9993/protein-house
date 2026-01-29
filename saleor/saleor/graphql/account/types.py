@@ -1179,3 +1179,18 @@ class NewsletterSubscriptionCountableConnection(CountableConnection):
     class Meta:
         doc_category = DOC_CATEGORY_USERS
         node = NewsletterSubscription
+
+
+class NewsletterSubscriptionStatus(graphene.ObjectType):
+    """Newsletter subscription status for the current user (by email)."""
+
+    is_active = graphene.Boolean(
+        required=True, description="Whether the subscription is active."
+    )
+    email = graphene.String(
+        required=True, description="Subscriber email address."
+    )
+
+    class Meta:
+        description = "Newsletter subscription status for the authenticated user's email."
+        doc_category = DOC_CATEGORY_USERS

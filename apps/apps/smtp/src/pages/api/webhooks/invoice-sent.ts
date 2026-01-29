@@ -13,6 +13,7 @@ import { createLogger } from "../../../logger";
 import { loggerContext } from "../../../logger-context";
 import { SendEventMessagesUseCase } from "../../../modules/event-handlers/use-case/send-event-messages.use-case";
 import { SendEventMessagesUseCaseFactory } from "../../../modules/event-handlers/use-case/send-event-messages.use-case.factory";
+import { verifyWebhookSignature } from "../../../modules/webhook-verification/verify-webhook-signature";
 import { saleorApp } from "../../../saleor-app";
 
 const InvoiceSentWebhookPayload = gql`
@@ -56,6 +57,7 @@ export const invoiceSentWebhook = new SaleorAsyncWebhook<InvoiceSentWebhookPaylo
   event: "INVOICE_SENT",
   apl: saleorApp.apl,
   query: InvoiceSentGraphqlSubscription,
+  verifySignatureFn: (jwks, signature, rawBody) => verifyWebhookSignature(jwks, signature, rawBody),
 });
 
 const logger = createLogger(invoiceSentWebhook.name);

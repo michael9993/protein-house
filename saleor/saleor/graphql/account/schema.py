@@ -91,6 +91,7 @@ from .resolvers import (
     resolve_contact_submissions,
     resolve_customers,
     resolve_newsletter_subscription,
+    resolve_newsletter_subscription_status,
     resolve_newsletter_subscriptions,
     resolve_permission_group,
     resolve_permission_groups,
@@ -112,6 +113,7 @@ from .types import (
     GroupCountableConnection,
     NewsletterSubscription,
     NewsletterSubscriptionCountableConnection,
+    NewsletterSubscriptionStatus,
     User,
     UserCountableConnection,
 )
@@ -290,6 +292,20 @@ class AccountQueries(graphene.ObjectType):
         permissions=[AccountPermissions.MANAGE_USERS],
         doc_category=DOC_CATEGORY_USERS,
     )
+    newsletter_subscription_status = BaseField(
+        NewsletterSubscriptionStatus,
+        email=graphene.Argument(
+            graphene.String,
+            required=True,
+            description="Email address (must match authenticated user's email).",
+        ),
+        description="Newsletter subscription status for the authenticated user's email.",
+        doc_category=DOC_CATEGORY_USERS,
+    )
+
+    @staticmethod
+    def resolve_newsletter_subscription_status(_root, info: ResolveInfo, *, email):
+        return resolve_newsletter_subscription_status(info, email)
 
     @staticmethod
     def resolve_address_validation_rules(

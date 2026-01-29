@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { CurrentUserDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
+import { isAuthOrRscContextError } from "@/lib/auth-errors";
 import { AccountSidebar } from "./AccountSidebar";
 import { AccountMobileMenu } from "./AccountMobileMenu";
 
@@ -12,9 +13,19 @@ export default async function AccountLayout({
 	params: Promise<{ channel: string }>;
 }) {
 	const { channel } = await params;
-	const { me: user } = await executeGraphQL(CurrentUserDocument, {
-		cache: "no-cache",
-	});
+	let user: Awaited<ReturnType<typeof executeGraphQL<typeof CurrentUserDocument>>>["me"] = null;
+	try {
+		const result = await executeGraphQL(CurrentUserDocument, {
+			cache: "no-cache",
+		});
+		user = result.me;
+	} catch (error) {
+		if (isAuthOrRscContextError(error)) {
+			user = null;
+		} else {
+			throw error;
+		}
+	}
 
 	if (!user) {
 		redirect(`/${channel}/login?redirect=/${channel}/account`);

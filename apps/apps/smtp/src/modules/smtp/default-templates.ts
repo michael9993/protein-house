@@ -263,11 +263,11 @@ const defaultOrderFulfilledMjmlTemplate = `<mjml>
     <mj-section padding="30px 25px">
       <mj-column>
         <mj-divider border-color="#E5E7EB" border-width="1px" padding="0 0 20px 0" />
-        <mj-text align="center" font-size="14px" color="#6B7280">
-          Questions? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
+        <mj-text align="center" font-size="14px" color="#6B7280" padding-bottom="10px">
+          Need help? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
         </mj-text>
         <mj-text align="center" font-size="11px" color="#D1D5DB">
-          © 2024 ${COMPANY_NAME}
+          © 2024 ${COMPANY_NAME}. All rights reserved.
         </mj-text>
       </mj-column>
     </mj-section>
@@ -318,11 +318,11 @@ const defaultOrderConfirmedMjmlTemplate = `<mjml>
     <mj-section padding="30px 25px">
       <mj-column>
         <mj-divider border-color="#E5E7EB" border-width="1px" padding="0 0 20px 0" />
-        <mj-text align="center" font-size="14px" color="#6B7280">
-          Questions? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
+        <mj-text align="center" font-size="14px" color="#6B7280" padding-bottom="10px">
+          Need help? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
         </mj-text>
         <mj-text align="center" font-size="11px" color="#D1D5DB">
-          © 2024 ${COMPANY_NAME}
+          © 2024 ${COMPANY_NAME}. All rights reserved.
         </mj-text>
       </mj-column>
     </mj-section>
@@ -373,11 +373,11 @@ const defaultOrderFullyPaidMjmlTemplate = `<mjml>
     <mj-section padding="30px 25px">
       <mj-column>
         <mj-divider border-color="#E5E7EB" border-width="1px" padding="0 0 20px 0" />
-        <mj-text align="center" font-size="14px" color="#6B7280">
-          Questions? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
+        <mj-text align="center" font-size="14px" color="#6B7280" padding-bottom="10px">
+          Need help? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
         </mj-text>
         <mj-text align="center" font-size="11px" color="#D1D5DB">
-          © 2024 ${COMPANY_NAME}
+          © 2024 ${COMPANY_NAME}. All rights reserved.
         </mj-text>
       </mj-column>
     </mj-section>
@@ -430,11 +430,11 @@ const defaultOrderRefundedMjmlTemplate = `<mjml>
     <mj-section padding="30px 25px">
       <mj-column>
         <mj-divider border-color="#E5E7EB" border-width="1px" padding="0 0 20px 0" />
-        <mj-text align="center" font-size="14px" color="#6B7280">
-          Questions? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
+        <mj-text align="center" font-size="14px" color="#6B7280" padding-bottom="10px">
+          Need help? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
         </mj-text>
         <mj-text align="center" font-size="11px" color="#D1D5DB">
-          © 2024 ${COMPANY_NAME}
+          © 2024 ${COMPANY_NAME}. All rights reserved.
         </mj-text>
       </mj-column>
     </mj-section>
@@ -487,11 +487,11 @@ const defaultOrderCancelledMjmlTemplate = `<mjml>
     <mj-section padding="30px 25px">
       <mj-column>
         <mj-divider border-color="#E5E7EB" border-width="1px" padding="0 0 20px 0" />
-        <mj-text align="center" font-size="14px" color="#6B7280">
-          Questions? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
+        <mj-text align="center" font-size="14px" color="#6B7280" padding-bottom="10px">
+          Need help? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
         </mj-text>
         <mj-text align="center" font-size="11px" color="#D1D5DB">
-          © 2024 ${COMPANY_NAME}
+          © 2024 ${COMPANY_NAME}. All rights reserved.
         </mj-text>
       </mj-column>
     </mj-section>
@@ -714,11 +714,11 @@ const defaultGiftCardSentMjmlTemplate = `<mjml>
     <mj-section padding="30px 25px">
       <mj-column>
         <mj-divider border-color="#E5E7EB" border-width="1px" padding="0 0 20px 0" />
-        <mj-text align="center" font-size="14px" color="#6B7280">
-          Questions? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
+        <mj-text align="center" font-size="14px" color="#6B7280" padding-bottom="10px">
+          Need help? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
         </mj-text>
         <mj-text align="center" font-size="11px" color="#D1D5DB">
-          © 2024 ${COMPANY_NAME}
+          © 2024 ${COMPANY_NAME}. All rights reserved.
         </mj-text>
       </mj-column>
     </mj-section>
@@ -780,11 +780,11 @@ const defaultAccountConfirmationMjmlTemplate = `<mjml>
     <mj-section padding="30px 25px">
       <mj-column>
         <mj-divider border-color="#E5E7EB" border-width="1px" padding="0 0 20px 0" />
-        <mj-text align="center" font-size="14px" color="#6B7280">
-          Questions? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
+        <mj-text align="center" font-size="14px" color="#6B7280" padding-bottom="10px">
+          Need help? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
         </mj-text>
         <mj-text align="center" font-size="11px" color="#D1D5DB">
-          © 2024 ${COMPANY_NAME}
+          © 2024 ${COMPANY_NAME}. All rights reserved.
         </mj-text>
       </mj-column>
     </mj-section>
@@ -846,11 +846,11 @@ const defaultAccountPasswordResetMjmlTemplate = `<mjml>
     <mj-section padding="30px 25px">
       <mj-column>
         <mj-divider border-color="#E5E7EB" border-width="1px" padding="0 0 20px 0" />
-        <mj-text align="center" font-size="14px" color="#6B7280">
-          Questions? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
+        <mj-text align="center" font-size="14px" color="#6B7280" padding-bottom="10px">
+          Need help? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
         </mj-text>
         <mj-text align="center" font-size="11px" color="#D1D5DB">
-          © 2024 ${COMPANY_NAME}
+          © 2024 ${COMPANY_NAME}. All rights reserved.
         </mj-text>
       </mj-column>
     </mj-section>
@@ -918,11 +918,11 @@ const defaultAccountChangeEmailRequestMjmlTemplate = `<mjml>
     <mj-section padding="30px 25px">
       <mj-column>
         <mj-divider border-color="#E5E7EB" border-width="1px" padding="0 0 20px 0" />
-        <mj-text align="center" font-size="14px" color="#6B7280">
-          Questions? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
+        <mj-text align="center" font-size="14px" color="#6B7280" padding-bottom="10px">
+          Need help? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
         </mj-text>
         <mj-text align="center" font-size="11px" color="#D1D5DB">
-          © 2024 ${COMPANY_NAME}
+          © 2024 ${COMPANY_NAME}. All rights reserved.
         </mj-text>
       </mj-column>
     </mj-section>
@@ -971,11 +971,11 @@ const defaultAccountChangeEmailConfirmationMjmlTemplate = `<mjml>
     <mj-section padding="30px 25px">
       <mj-column>
         <mj-divider border-color="#E5E7EB" border-width="1px" padding="0 0 20px 0" />
-        <mj-text align="center" font-size="14px" color="#6B7280">
-          Questions? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
+        <mj-text align="center" font-size="14px" color="#6B7280" padding-bottom="10px">
+          Need help? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
         </mj-text>
         <mj-text align="center" font-size="11px" color="#D1D5DB">
-          © 2024 ${COMPANY_NAME}
+          © 2024 ${COMPANY_NAME}. All rights reserved.
         </mj-text>
       </mj-column>
     </mj-section>
@@ -1050,11 +1050,11 @@ const defaultAccountDeleteMjmlTemplate = `<mjml>
     <mj-section padding="30px 25px">
       <mj-column>
         <mj-divider border-color="#E5E7EB" border-width="1px" padding="0 0 20px 0" />
-        <mj-text align="center" font-size="14px" color="#6B7280">
-          Questions? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
+        <mj-text align="center" font-size="14px" color="#6B7280" padding-bottom="10px">
+          Need help? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
         </mj-text>
         <mj-text align="center" font-size="11px" color="#D1D5DB">
-          © 2024 ${COMPANY_NAME}
+          © 2024 ${COMPANY_NAME}. All rights reserved.
         </mj-text>
       </mj-column>
     </mj-section>
@@ -1113,11 +1113,11 @@ const defaultOrderFulfillmentUpdatedMjmlTemplate = `<mjml>
     <mj-section padding="30px 25px">
       <mj-column>
         <mj-divider border-color="#E5E7EB" border-width="1px" padding="0 0 20px 0" />
-        <mj-text align="center" font-size="14px" color="#6B7280">
-          Questions? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
+        <mj-text align="center" font-size="14px" color="#6B7280" padding-bottom="10px">
+          Need help? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
         </mj-text>
         <mj-text align="center" font-size="11px" color="#D1D5DB">
-          © 2024 ${COMPANY_NAME}
+          © 2024 ${COMPANY_NAME}. All rights reserved.
         </mj-text>
       </mj-column>
     </mj-section>
@@ -1283,7 +1283,7 @@ const defaultNewsletterSubscribeMjmlTemplate = `<mjml>
       <mj-column>
         <mj-divider border-color="#E5E7EB" border-width="1px" padding="0 0 20px 0" />
         <mj-text align="center" font-size="14px" color="#6B7280" padding-bottom="10px">
-          Questions? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
+          Need help? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
         </mj-text>
         <mj-text align="center" font-size="11px" color="#D1D5DB">
           © 2024 ${COMPANY_NAME}. All rights reserved.
@@ -1353,7 +1353,7 @@ const defaultNewsletterReactivateMjmlTemplate = `<mjml>
       <mj-column>
         <mj-divider border-color="#E5E7EB" border-width="1px" padding="0 0 20px 0" />
         <mj-text align="center" font-size="14px" color="#6B7280" padding-bottom="10px">
-          Questions? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
+          Need help? Contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: ${PRIMARY_COLOR}; text-decoration: none;">${COMPANY_EMAIL}</a>
         </mj-text>
         <mj-text align="center" font-size="11px" color="#D1D5DB">
           © 2024 ${COMPANY_NAME}. All rights reserved.

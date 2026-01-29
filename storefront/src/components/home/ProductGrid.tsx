@@ -60,11 +60,11 @@ export function ProductGrid({
   const getTitleFromContent = () => {
     switch (type) {
       case "newArrivals":
-        return { title: content.homepage.newArrivalsTitle, subtitle: content.homepage.newArrivalsSubtitle, link: "/collections/new-arrivals" };
+        return { title: content.homepage.newArrivalsTitle, subtitle: content.homepage.newArrivalsSubtitle, link: "/products?collection=new-arrivals" };
       case "bestSellers":
-        return { title: content.homepage.bestSellersTitle, subtitle: content.homepage.bestSellersSubtitle, link: "/collections/best-sellers" };
+        return { title: content.homepage.bestSellersTitle, subtitle: content.homepage.bestSellersSubtitle, link: "/products?collection=best-sellers" };
       case "onSale":
-        return { title: content.homepage.onSaleTitle, subtitle: content.homepage.onSaleSubtitle, link: "/collections/sale" };
+        return { title: content.homepage.onSaleTitle, subtitle: content.homepage.onSaleSubtitle, link: "/products?collection=sale" };
       case "featured":
       default:
         return { title: content.homepage.featuredTitle, subtitle: content.homepage.featuredSubtitle, link: "/products" };

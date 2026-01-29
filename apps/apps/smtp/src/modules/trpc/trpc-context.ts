@@ -5,7 +5,7 @@ import * as trpcNext from "@trpc/server/adapters/next";
 import { getBaseUrl } from "../../lib/get-base-url";
 
 export const createTrpcContext = async ({ res, req }: trpcNext.CreateNextContextOptions) => {
-  const baseUrl = getBaseUrl(req.headers);
+  const baseUrl = process.env.APP_API_BASE_URL || getBaseUrl(req.headers);
 
   return {
     token: req.headers[SALEOR_AUTHORIZATION_BEARER_HEADER] as string | undefined,

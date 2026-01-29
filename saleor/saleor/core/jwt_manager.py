@@ -93,7 +93,9 @@ class JWTManager(JWTManagerBase):
             pem = pem.encode("utf-8")
 
         password: str | bytes | None = settings.RSA_PRIVATE_PASSWORD
-        if isinstance(password, str):
+        if password is None or (isinstance(password, str) and not password.strip()):
+            password = None
+        elif isinstance(password, str):
             password = password.encode("utf-8")
         return cast(
             rsa.RSAPrivateKey,

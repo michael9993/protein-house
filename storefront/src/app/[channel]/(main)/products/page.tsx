@@ -4,18 +4,20 @@ import { executeGraphQL } from "@/lib/graphql";
 import { storeConfig, DEFAULT_FILTERS_TEXT } from "@/config";
 import { fetchStorefrontConfig } from "@/lib/storefront-control";
 import { SortBy } from "@/ui/components/SortBy";
+import { SearchBar } from "@/ui/components/nav/components/SearchBar";
 import { ProductFiltersWrapper } from "./ProductFiltersWrapper";
 import { ProductsGrid } from "./ProductsGrid";
 import { QuickFilters } from "./QuickFilters";
 import { ActiveFiltersTags } from "./ActiveFiltersTags";
-import { ProductSearch } from "./ProductSearch";
 import {
   parseFiltersFromURL,
   parseSortFromURL,
   buildGraphQLFilter,
   buildGraphQLSort,
   hasActiveFilters,
+  serializeFiltersToURL,
 } from "@/lib/filters";
+import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { fetchSizesForQuickFilters } from "./fetchSizes";
 import { fetchColorsForQuickFilters } from "./fetchColors";
 import { computePriceRange } from "@/lib/price-utils";
@@ -34,31 +36,39 @@ export const metadata = {
 // Helper Functions
 // ============================================================================
 
-async function getCategoryIdsFromSlugs(slugs: string[], channel: string): Promise<string[]> {
-	if (slugs.length === 0) return [];
-	
+type CategoryEdge = { node: { id: string; name: string; slug: string; children?: { edges: CategoryEdge[] }; products?: { totalCount?: number } } };
+function collectCategoryIdsBySlug(edges: CategoryEdge[] | null | undefined, slugSet: Set<string>, out: string[]): void {
+	if (!edges) return;
+	for (const { node } of edges) {
+		if (node.slug && slugSet.has(node.slug.toLowerCase())) out.push(node.id);
+		if (node.children?.edges) collectCategoryIdsBySlug(node.children.edges, slugSet, out);
+	}
+}
+function buildCategoriesTreeFromFilterEdges(edges: CategoryEdge[] | null | undefined): Array<{ id: string; name: string; slug: string; productCount?: number; children?: Array<unknown> }> {
+	if (!edges?.length) return [];
+	return edges.map(({ node }) => ({
+		id: node.id,
+		name: node.name,
+		slug: node.slug,
+		productCount: (node as { products?: { totalCount?: number } }).products?.totalCount,
+		children: node.children?.edges?.length ? buildCategoriesTreeFromFilterEdges(node.children.edges) : undefined,
+	}));
+}
+async function fetchCategoriesForFilter(channel: string): Promise<{ categoryIds: (slugs: string[]) => string[]; categoriesTree: ReturnType<typeof buildCategoriesTreeFromFilterEdges> }> {
 	const { categories } = await executeGraphQL(CategoriesForFilterDocument, {
-		variables: { first: 100, channel },
-    revalidate: 30,
+		variables: { first: 30, channel },
+		revalidate: 30,
 	});
-	
-	const categoryIds: string[] = [];
-	const slugSet = new Set(slugs.map(s => s.toLowerCase()));
-	
-	categories?.edges?.forEach(edge => {
-		const cat = edge.node;
-		if (slugSet.has(cat.slug.toLowerCase())) {
-			categoryIds.push(cat.id);
-		}
-		cat.children?.edges?.forEach(childEdge => {
-			const child = childEdge.node;
-			if (slugSet.has(child.slug.toLowerCase())) {
-				categoryIds.push(child.id);
-			}
-		});
-	});
-	
-	return categoryIds;
+	const edges = (categories?.edges ?? []) as CategoryEdge[];
+	return {
+		categoryIds: (slugs: string[]) => {
+			if (slugs.length === 0) return [];
+			const out: string[] = [];
+			collectCategoryIdsBySlug(edges, new Set(slugs.map((s) => s.toLowerCase())), out);
+			return out;
+		},
+		categoriesTree: buildCategoriesTreeFromFilterEdges(edges),
+	};
 }
 
 async function getCollectionIdsFromSlugs(slugs: string[], channel: string): Promise<string[]> {
@@ -102,7 +112,27 @@ async function getCollectionIdsFromSlugs(slugs: string[], channel: string): Prom
 }
 
 /**
- * Fetch categories for quick filters
+ * Map nested category edges to { id, name?, slug, children } for quick filters.
+ * Aligns with CategoriesForNav hierarchy (level 0 → L1 → L2) so quick filter tiles work when category levels change.
+ */
+function mapQuickFilterChild(edge: { node: any }): { id: string; slug: string; name?: string; children?: Array<{ id: string; slug: string }> } {
+  const node = edge.node;
+  const children = node.children?.edges?.map((e: { node: any }) => ({
+    id: e.node.id,
+    slug: e.node.slug,
+    ...(e.node.name ? { name: e.node.name } : {}),
+  })) || [];
+  return {
+    id: node.id,
+    slug: node.slug,
+    ...(node.name ? { name: node.name } : {}),
+    ...(children.length > 0 ? { children } : {}),
+  };
+}
+
+/**
+ * Fetch categories for quick filters: same level structure as nav, with backgroundImage and productImages for tiles.
+ * Uses CategoriesForHomepage (has products for images); mapping supports multi-level children so images and hierarchy stay correct when levels change.
  */
 async function fetchCategoriesForQuickFilters(channel: string) {
   try {
@@ -132,17 +162,14 @@ async function fetchCategoriesForQuickFilters(channel: string) {
         name: node.name,
         slug: node.slug,
         productCount: node.products?.totalCount || 0,
-        children: node.children?.edges?.map(({ node: child }: { node: any }) => ({
-          id: child.id,
-          slug: child.slug,
-        })) || [],
+        children: node.children?.edges?.map(mapQuickFilterChild) || [],
         backgroundImage: node.backgroundImage ? {
           url: node.backgroundImage.url,
           alt: node.backgroundImage.alt,
         } : undefined,
         productImages: productImages.length > 0 ? productImages : undefined,
       };
-    }).filter((cat: any) => cat.productCount > 0) || [];
+    }).filter((cat: any) => (cat.productCount ?? 0) > 0) || [];
   } catch {
     return [];
   }
@@ -438,7 +465,18 @@ export default async function Page(props: {
 
   const filters = parseFiltersFromURL(searchParams);
   const sortValue = parseSortFromURL(searchParams);
-  
+
+  // Href to clear search and keep other filters (for "Clear search" control)
+  const curParams = new URLSearchParams();
+  for (const [k, v] of Object.entries(searchParams)) {
+    const s = Array.isArray(v) ? v[0] : v;
+    if (s != null && String(s) !== "") curParams.set(k, String(s));
+  }
+  const clearSearchParams = serializeFiltersToURL({ search: undefined }, curParams);
+  const clearSearchHref = filters.search
+    ? `/${channel}/products${clearSearchParams.toString() ? `?${clearSearchParams.toString()}` : ""}`
+    : null;
+
   // Handle special sort options that require filtering
   let adjustedFilters = { ...filters };
   
@@ -462,10 +500,13 @@ export default async function Page(props: {
   const sizeAttributeSlug = sizesResult.attributeSlug || "size"; // Default to "size" if not detected
   const colorAttributeSlug = colorsResult.attributeSlug || "color"; // Default to "color" if not detected
 
-  const [categoryIds, collectionIds] = await Promise.all([
-    getCategoryIdsFromSlugs(adjustedFilters.categories, channel),
+  const [categoriesForFilterResult, collectionIds, categoriesForQuickFilters] = await Promise.all([
+    fetchCategoriesForFilter(channel),
     getCollectionIdsFromSlugs(adjustedFilters.collections, channel),
+    fetchCategoriesForQuickFilters(channel),
   ]);
+  const categoryIds = categoriesForFilterResult.categoryIds(adjustedFilters.categories);
+  const categoriesForFilter = categoriesForFilterResult.categoriesTree;
 
   // Build filter with correct brand, size, and color attribute slugs
   const graphqlFilter = buildGraphQLFilter({
@@ -477,7 +518,7 @@ export default async function Page(props: {
     colorAttributeSlug: colorAttributeSlug ? colorAttributeSlug : undefined,
   });
 
-  const [{ products }, categoriesForQuickFilters, collectionsForQuickFilters] = await Promise.all([
+  const [{ products }, collectionsForQuickFilters] = await Promise.all([
     executeGraphQL(ProductListFilteredDocument, {
 		variables: {
 			first: 24,
@@ -488,7 +529,6 @@ export default async function Page(props: {
 		},
 		revalidate: 10,
     }),
-    fetchCategoriesForQuickFilters(channel),
     fetchCollectionsForQuickFilters(channel),
   ]);
 
@@ -554,6 +594,7 @@ export default async function Page(props: {
 							<Suspense fallback={<FiltersSkeleton />}>
 								<ProductFiltersWrapper 
 									channel={channel}
+									initialCategories={categoriesForFilter}
 									initialBrands={brandsForQuickFilters}
 									initialSizes={sizesResult.sizes}
 									initialColors={colorsResult.colors}
@@ -596,48 +637,51 @@ export default async function Page(props: {
 
 					{/* Products Content */}
 					<div className="px-4 py-6 sm:px-6 lg:px-8">
-						{/* Results Header with Search */}
-						<div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-							{/* Mobile Filter Button */}
-							<div className="lg:hidden">
-								<ProductFiltersWrapper 
-									channel={channel} 
-									mobileOnly
-									initialBrands={brandsForQuickFilters}
-									initialSizes={sizesResult.sizes}
-									initialColors={colorsResult.colors}
-								/>
-							</div>
-							
-							{/* Search, Results & Sort */}
-							<div className="flex flex-1 items-center justify-between gap-4 sm:ms-auto lg:ms-0">
-								{/* Search Bar - Compact */}
-								<div className="flex-1 max-w-md">
-									<Suspense fallback={
-										<div className="h-9 bg-neutral-100 rounded-md animate-pulse" />
-									}>
-										<ProductSearch channel={channel} initialSearch={filters.search} />
-									</Suspense>
+						{/* Results Header: mobile = Filters left / Search right (spread like results+A-to-Z), then results+sort; desktop = search left, results+sort right */}
+						<div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+							{/* Left (mobile: Filters left, Search+Clear right spread); desktop: Search + Clear */}
+							<div className="flex w-full flex-row items-center justify-between gap-2 sm:min-w-0 sm:flex-1 sm:justify-start sm:gap-4">
+								<div className="shrink-0 lg:hidden">
+									<ProductFiltersWrapper 
+										channel={channel} 
+										mobileOnly
+										initialCategories={categoriesForFilter}
+										initialBrands={brandsForQuickFilters}
+										initialSizes={sizesResult.sizes}
+										initialColors={colorsResult.colors}
+									/>
 								</div>
-								
-								{/* Results & Sort */}
-								<div className="flex items-center gap-4 flex-shrink-0">
-									<div className="text-sm text-neutral-600 whitespace-nowrap">
-										{filters.search ? (
-											<>
-												<span className="font-semibold text-neutral-900">{productCount.toLocaleString()}</span>
-												<span className="ms-1">{filtersText.searchForText || "for"}</span>
-												<span className="ms-1 font-semibold text-neutral-900">"{filters.search}"</span>
-											</>
-										) : (
-											<>
-												<span className="font-semibold text-neutral-900">{productCount.toLocaleString()}</span>
-												<span className="ms-1">{filtersText.resultsText}</span>
-											</>
-										)}
+								<div className="flex min-w-0 flex-1 justify-end gap-2 sm:flex-initial sm:min-w-0 sm:flex-1 sm:justify-start sm:gap-4">
+									<div className="w-full min-w-0 max-w-[50%] sm:max-w-xl">
+										<SearchBar key={filters.search ?? "_"} channel={channel} initialQuery={filters.search ?? ""} />
 									</div>
-									<SortBy />
+									{clearSearchHref && (
+										<LinkWithChannel
+											href={clearSearchHref}
+											className="shrink-0 rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-center text-xs font-medium text-neutral-700 transition-colors hover:bg-neutral-50 hover:border-neutral-400"
+										>
+											{filtersText.searchClearAriaLabel ?? "Clear search"}
+										</LinkWithChannel>
+									)}
 								</div>
+							</div>
+							{/* Right: Results count + Sort — desktop: opposite side from search */}
+							<div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:shrink-0 sm:gap-4">
+								<div className="text-sm text-neutral-600 min-w-0">
+									{filters.search ? (
+										<>
+											<span className="font-semibold text-neutral-900">{productCount.toLocaleString()}</span>
+											<span className="ms-1">{filtersText.searchForText || "for"}</span>
+											<span className="ms-1 truncate font-semibold text-neutral-900">"{filters.search}"</span>
+										</>
+									) : (
+										<>
+											<span className="font-semibold text-neutral-900">{productCount.toLocaleString()}</span>
+											<span className="ms-1">{filtersText.resultsText}</span>
+										</>
+									)}
+								</div>
+								<SortBy />
 							</div>
 						</div>
 
@@ -647,7 +691,7 @@ export default async function Page(props: {
 								<ActiveFiltersTags 
 									filters={filters}
 									channel={channel}
-									categories={categoriesForQuickFilters}
+									categories={categoriesForFilter}
 									collections={collectionsForQuickFilters}
 									brands={brandsForQuickFilters}
 									sizes={sizesResult.sizes}

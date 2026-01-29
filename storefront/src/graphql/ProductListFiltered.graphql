@@ -32,7 +32,8 @@ query ProductListFiltered(
 	}
 }
 
-# Query to fetch all categories for the filter sidebar
+# Query to fetch categories for the filter sidebar (depth: root → L1 → L2).
+# Limits kept low to stay under Saleor query cost (max 50000).
 query CategoriesForFilter($first: Int!, $channel: String!) {
 	categories(first: $first, level: 0) {
 		edges {
@@ -43,7 +44,7 @@ query CategoriesForFilter($first: Int!, $channel: String!) {
 				products(first: 1, channel: $channel) {
 					totalCount
 				}
-				children(first: 20) {
+				children(first: 10) {
 					edges {
 						node {
 							id
@@ -51,6 +52,15 @@ query CategoriesForFilter($first: Int!, $channel: String!) {
 							slug
 							products(first: 1, channel: $channel) {
 								totalCount
+							}
+							children(first: 6) {
+								edges {
+									node {
+										id
+										name
+										slug
+									}
+								}
 							}
 						}
 					}

@@ -396,8 +396,8 @@ export const settingsSearchIndex: SettingsSearchEntry[] = [
     page: "content",
     sectionId: "content-navbar",
     title: "Navbar",
-    description: "Navigation labels",
-    keywords: ["navbar", "menu", "navigation"],
+    description: "Navigation labels, search dropdown text, and mobile menu section labels (Categories, Collections, Brands, View All Products)",
+    keywords: ["navbar", "menu", "navigation", "search", "view all results", "recent searches", "clear", "mobile menu", "categories", "collections", "brands"],
     category: "Content",
   },
   {

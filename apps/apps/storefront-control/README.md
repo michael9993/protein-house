@@ -24,26 +24,30 @@ A Saleor Dashboard extension app that manages storefront UI configuration per ch
 ### Local Development
 
 1. Navigate to the app directory:
+
    ```bash
    cd apps/apps/storefront-control
    ```
 
 2. Install dependencies:
+
    ```bash
    pnpm install
    ```
 
 3. Create `.env.local`:
+
    ```env
    APL=file
    SECRET_KEY=your-secret-key-for-encryption
    ```
 
 4. Start the development server:
+
    ```bash
    pnpm dev
    ```
-   
+
    The app runs on http://localhost:3001
 
 5. Install in Saleor Dashboard:
@@ -72,6 +76,7 @@ The app supports importing and exporting configuration files for easy backup, mi
 3. A JSON file will be downloaded with the current configuration
 
 The exported file includes:
+
 - `schemaVersion`: For compatibility checking
 - `exportedAt`: Timestamp
 - `channelSlug`: Source channel
@@ -86,6 +91,7 @@ The exported file includes:
 5. Click **Apply** to save or **Cancel** to discard
 
 **Validation rules:**
+
 - The file must be valid JSON
 - `schemaVersion` must match the current version (1)
 - Unknown fields are not allowed (strict mode)
@@ -170,6 +176,21 @@ src/
 │       └── config-import.tsx # Import modal UI
 └── saleor-app.ts             # APL configuration
 ```
+
+## Sample config files (ILS / EN)
+
+Default configuration is loaded from language-specific sample files:
+
+- **ILS (Hebrew)**: `sample-config-import.json` — used when `channelSlug` is `ils` or `he`. All content strings (account, checkout, etc.) should be in **Hebrew**.
+- **EN (English)**: `sample-config-import-en.json` — used for other channels (e.g. `usd`, `default-channel`). Content strings should be in **English**.
+
+When you add or change schema fields in Storefront Control:
+
+1. **Update `src/modules/config/defaults.ts`** — add the new keys to the fallback config (used when sample files are missing).
+2. **Update both sample files** — add the new keys in the correct language:
+   - `sample-config-import.json`: Hebrew text for ILS channel.
+   - `sample-config-import-en.json`: English text for EN channels.
+3. **Optional**: In the Dashboard, open each channel (e.g. ILS, USD), then use **Update sample config** to write the current config back to the corresponding sample file. This keeps the JSON files in sync with the schema after manual edits.
 
 ## Configuration Schema
 

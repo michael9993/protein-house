@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-01-25T12:00:00.000Z",
+  "exportedAt": "2026-01-28T05:08:13.557Z",
   "channelSlug": "usd",
   "config": {
-    "version": 2,
-    "updatedAt": "2026-01-25T12:00:00.000Z",
+    "version": 3,
+    "updatedAt": "2026-01-28T05:08:13.137Z",
     "channelSlug": "usd",
     "store": {
       "name": "Mansour Shoes",
@@ -103,6 +103,54 @@
         "termsRequired": true
       }
     },
+    "header": {
+      "banner": {
+        "enabled": true,
+        "text": "Free shipping on orders over $75!",
+        "backgroundColor": null,
+        "textColor": null
+      },
+      "showStoreName": true,
+      "logoPosition": "left"
+    },
+    "footer": {
+      "showNewsletter": true,
+      "showSocialLinks": true,
+      "showContactInfo": true,
+      "showMenu": true,
+      "showBrand": true,
+      "copyrightText": "© 2026 Mansour Shoes. All rights reserved",
+      "legalLinks": {
+        "trackOrder": {
+          "enabled": true,
+          "url": "/track-order"
+        },
+        "privacyPolicy": {
+          "enabled": true,
+          "url": "/pages/privacy-policy"
+        },
+        "termsOfService": {
+          "enabled": true,
+          "url": "/pages/terms-of-service"
+        },
+        "shippingPolicy": {
+          "enabled": true,
+          "url": "/pages/shipping-policy"
+        },
+        "returnPolicy": {
+          "enabled": true,
+          "url": "/pages/return-policy"
+        }
+      },
+      "returnPolicyPageTitle": "Returns & Exchanges Policy",
+      "returnPolicyContent": "## Product exchange\n\n1. To exchange a product, contact customer service via WhatsApp to coordinate the return at 0505727854.\n2. To exchange a product, send it back to the business (new and in original packaging only) within 14 days of receipt.\n3. The customer will ship the product at their own expense using one of the methods listed below.\n4. After the store receives the product, a replacement product of the customer's choice will be sent free of charge to a pickup point.\n\nProducts returned without original packaging, used or damaged will not be exchanged or refunded!\n** Wrap the package in plastic or paper. Do not stick labels or write on the original box!\n\nThere are 2 ways to send the product and complete an exchange:\n\nRegistered mail to the address we provide via WhatsApp. (Postage is 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nHome exchange at 49 ILS: A courier comes to your home with the replacement product to complete the exchange on the spot. 49 ILS paid in advance.\n\nIf the customer chooses to exchange for a more expensive product they will pay the difference in advance via a link sent by email or WhatsApp. If the product is cheaper, the customer will receive a refund for the difference by the same payment method.\n\nRefund for a price difference will be made within 3 business days after the returned product reaches the warehouse and is found to be in good and unused condition!\n\nA second exchange shipment is at the customer's expense!\n\n## Product return and refund\n\nTo return a product, contact customer service via WhatsApp to coordinate the return at 0505727854.\n\nReturns are allowed within 14 days of receipt only if the product is new, in original packaging and unused.\n\nReturn shipping is at the customer's expense.\n\nThe refund is for products only and does not include the delivery cost paid at purchase!\n\nThe refund will be made by the same payment method within 5 business days of the product reaching the store.\n\nYou may return products in one of the following ways:\n\nRegistered mail to the address we provide via WhatsApp.\n\nCourier at 40 ILS: A courier comes to your home, collects the product and returns it to us. After the product reaches us with the courier we will process your refund. You may pay the delivery cost directly to the courier or pay us online in advance by credit card via a link we send you.",
+      "shippingPolicyPageTitle": "Shipping Policy",
+      "shippingPolicyContent": "## Shipping Policy\n\n1. The customer will choose the type of delivery they want in the shopping cart and the delivery cost will be added to the product price.\n2. Delivery will be carried out by an external shipping company \"Cheetah Shipping\".\n3. The package will be sent within 1 business day of placing the order.\n4. Delivery time is 3-5 business days from handover to the courier.\n5. For \"pickup point\" delivery, the package will be sent to the pickup point closest to the address provided by the customer. \"Cheetah\" has hundreds of pickup points across the country. When the package arrives at the destination, an SMS with all details will be sent to the customer.\n6. For home delivery, the package will be sent to the address provided by the customer.\n7. Home delivery cost charged by the shipping company to the online store ranges from 40 ILS to 60 ILS depending on the area. The higher price is for \"special areas\" as defined by \"Cheetah\" shipping company — for the list of special areas click here.\n8. Pickup point delivery cost is 20 ILS for all areas.\n9. All delivery costs that the customer is asked to pay are subsidised and discounted by SHOES BOX, with the customer paying part of the delivery cost as specified in sections 8 and 9.",
+      "privacyPolicyPageTitle": "Privacy Policy",
+      "privacyPolicyContent": "## Privacy Policy\n\n1. Principles\n\nThis policy explains how we collect, store, use and share personal information on this website (\"the Site\").\n\"Personal information\" and \"processing\" are as defined in the Privacy Protection Law, as amended.\n\n2. Types of information we collect\n\n2.1 Identifying and contact details: name, email, phone, shipping/billing address.\n2.2 Order and payment details (payment details are processed by licensed payment processors; the Site does not store full card details).\n2.3 Technical and usage data: IP address, device/cookie IDs, pages viewed, purchases, site activity.\n2.4 Marketing preferences and correspondence.\n\n3. How we collect information\n\n3.1 Directly from you when you register, place an order or contact us.\n3.2 Automatically via cookies and similar technologies.\n3.3 From third parties: Google Analytics; we may use Facebook (Meta) and TikTok for measurement, personalisation and targeted advertising.\n\n4. Cookies and measurement tools\n\n4.1 The Site uses cookies and pixels of Google Analytics, and may use pixels of Facebook and TikTok for analysis, measurement, improving user experience and targeted marketing.\n4.2 You can manage or delete cookies in your browser and change preferences in the site cookie manager (if available).\n4.3 Third parties may set their own cookies and receive usage data (e.g. IP/advertising ID/purchase events) per their policies. We recommend reviewing those policies.\n4.4 This policy distinguishes between data provided with prior knowledge and data collected via tracking, and clarifies purposes and use by third parties.\n\n5. Purposes of processing\n\n5.1 Account and order management; customer support.\n5.2 Legal and contractual obligations (invoicing, tax).\n5.3 Security, fraud prevention and risk management.\n5.4 Usage analysis and site and product improvement.\n5.5 Marketing and tailored offers (in line with your preferences and applicable law).\n\n6. Sharing with third parties\n\n6.1 Service providers acting as processors: payments, logistics/shipping, email systems, cloud and hosting infrastructure.\n6.2 The store platform \"istores\" — information is stored and processed on the istores platform used to operate the store (\"processor\").\n6.3 Measurement/advertising tools: Google Analytics; possibly Facebook and TikTok, as set out in section 4.\n6.4 Authorities or enforcement as required by law; transfer in the context of permitted business restructuring.\n\n7. Transfer and storage outside Israel\n\nSome information is stored on servers of providers outside Israel. Transfers will be made in accordance with applicable legal requirements.\n\n8. Information security\n\nWe take organisational, technical and physical measures to protect information, in accordance with the law and the Privacy Protection (Information Security) Regulations, 2017.\n\n9. Data retention\n\nWe retain information as long as necessary for the purposes for which it was collected, for contractual/legal obligations and to protect our rights, and thereafter delete or anonymise where possible.\n\n10. Your rights\n\n10.1 Right to access your personal data and receive a copy.\n10.2 Right to correct or delete inaccurate or incomplete data; notice of correction/deletion will be given to those who received the information from us as required by law.\n10.3 Withdrawal of consent for processing based on consent — where feasible and in a reasonable manner.\n\n11. Deleting your account or data – how to request\n\n11.1 You may delete your account or request deletion of data in one of the following ways:\n\nLog in to your account and select the deletion request option;\n\nContact the site owner using the contact details published on the site.\n\n11.2 Deletion will be carried out after we confirm receipt of the request and compliance with legal conditions (including data we are required to retain by law).\n\n12. Data Protection Officer (DPO)\n\nIf we are required to appoint a Data Protection Officer under amendment 13, the Officer's details and contact information will be published on the site.\n\n13. Minors\n\nThe Site is not intended for independent use by minors under 18. If we receive notice that a minor has provided information without parental/guardian consent, we will take steps to remove it.\n\n14. Policy updates\n\nWe may update this policy from time to time. The current version will be published on the site and take effect as of the date of publication.",
+      "termsOfServicePageTitle": "Terms of Service",
+      "termsOfServiceContent": "## Store Terms\n\n1. You are asked to read these terms in full and carefully, as a precondition to the agreement between the parties.\n2. The store is for purchasing products by users on the internet in Israel. Purchasers must be 18 or over, have an email address on the internet in Israel and an address in Israel, and hold a valid credit card in Israel.\n3. A precondition for the validity of a purchase is approval by the credit card company for the transaction.\n4. Browsing the store and/or purchasing the product and/or service offered for sale constitutes your agreement to accept and act in accordance with these terms. Therefore, if you do not agree to any term, you are asked not to use the store.\n6. The price includes VAT unless stated otherwise.\n7. There may be colour differences between the image displayed and the actual product. Such differences are due to camera type, display, screen colour settings and different screen types, etc.\n\n## Purchasing products\n\nThe site offers a limited quantity of products at a fixed price. The sale will be conducted on the following terms:\n\n1. The store will display a list of products including all details about the product or service offered for sale and the price as set in advance; sale is subject to stock.\n2. After adding the desired products to the \"shopping cart\", the buyer will proceed on the \"shopping cart\" page to \"confirm purchase\" and there complete their details, after which the online purchase process is complete.\n\n## Card verification\n\nThe business may require the customer to verify their credit card by sending a selfie of the cardholder showing ID and the credit card to the business WhatsApp number. In such a case, the name on the credit card must match the name on the ID.\nIf there is no match or the customer refuses to verify, the business may cancel the transaction.\n\n## Product exchange\n\n1. To exchange a product, send it back to the business (new and in original packaging only) within 14 days of receipt.\n2. The customer will ship the product at their own expense using one of the methods listed below.\n3. After the store receives the product, a replacement product of the customer's choice will be sent free of charge to a pickup point.\n\nProducts returned without original packaging, used or damaged will not be exchanged or refunded!\n** Wrap the package in plastic or paper. Do not stick labels or write on the original box!\n\nThere are 2 ways to send the product and complete an exchange:\n\nRegistered mail to the address we provide via WhatsApp. (Postage is 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nHome exchange at 49 ILS: A courier comes to your home with the replacement product to complete the exchange on the spot. 49 ILS paid in advance.\n\nIf the customer chooses to exchange for a more expensive product they will pay the difference in advance via a link sent by email or WhatsApp. If the product is cheaper, the customer will receive a refund for the difference by the same payment method.\n\nRefund for a price difference will be made within 3 business days after the returned product reaches the warehouse and is found to be in good and unused condition!\n\nA second exchange shipment is at the customer's expense!\n\n## Product return and refund\n\nTo return a product, contact customer service via WhatsApp to coordinate the return at 0505727854.\n\nReturns are allowed within 14 days of receipt only if the product is new, in original packaging and unused.\n\nReturn shipping is at the customer's expense.\n\nThe refund is for products only and does not include the delivery cost paid at purchase!\n\nThe refund will be made by the same payment method within 3 business days of the product reaching the store.\n\nYou may return products in one of the following ways:\n\nRegistered mail to the address we provide via WhatsApp. (Postage 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nCourier pickup at 39 ILS: A courier comes to your home, collects the product and returns it to us. After the product reaches us with the courier we will send you a replacement to a pickup point (not to your home): 39 ILS paid in advance.\n\n## Order cancellation\n\n1. In general the customer may cancel the transaction* subject to the Consumer Protection Law, 1981 (the Law: http://www.consumers.org.il/category/deal-annulment-regulations).\n2. A product purchase may be cancelled before it is sent. Cancellation must be made only by notice sent via WhatsApp to 0505727854.\n3. If the product has not been sent, the order will be cancelled and a refund will be made.\n4. If the customer requests cancellation after the product has been sent, they must receive it and then return the product according to the \"Product return and refund\" procedure above. It is agreed that the customer will return the product in its packaging, unused, intact and without damage or defect of any kind. After the product reaches the store, a refund will be made for the product and will not include delivery cost.\n5. The store may cancel a transaction or sale in whole or in part in the following cases:\n\nA clerical error, whether in the product price or description.\n\nForce majeure, act of war, hostility, terrorism, epidemic and/or anything else that prevents the proper continuation of the sale.\n\nThe product is defective.\n\nThe product is out of stock.\n\nSuspected fraud.\n\n6. Notice of cancellation of the sale will be given to buyers by phone and/or email to the address provided on the registration page.\n\n*Cases in which a transaction cannot be cancelled: http://www.consumers.org.il/category/cases-for-no-annulment-rights\n\n## Product supply\n\n1. The store will deliver the product ordered on the site for shipment within two business days at most after approval of the transaction by the credit card company.\n2. The store and/or suppliers are not responsible for delay in supplying the product in cases outside their control. Delivery delays are the responsibility of the shipping company.\n3. Product and/or service supply times as indicated on the product page refer only to business days (Sun–Thu, excluding Friday, Saturday, holiday eves and holidays).\n\n## Shipping\n\n1. The customer will choose the type of delivery they want in the shopping cart and the delivery cost will be added to the product price.\n2. Delivery will be carried out by an external shipping company \"Cheetah Shipping\".\n3. The package will be sent within 1 business day of placing the order.\n4. Delivery time is 3-5 business days from handover to the courier.\n5. For \"pickup point\" delivery, the package will be sent to the pickup point closest to the address provided by the customer. \"Cheetah\" has hundreds of pickup points across the country. When the package arrives at the destination, an SMS with all details will be sent to the customer.\n6. For home delivery, the package will be sent to the address provided by the customer.\n7. Home delivery cost charged by the shipping company to the online store ranges from 40 ILS to 60 ILS depending on the area. The higher price is for \"special areas\" as defined by \"Cheetah\" shipping company — for the list of special areas click here.\n8. Pickup point delivery cost is 20 ILS for all areas.\n9. All delivery costs that the customer is asked to pay are subsidised and discounted by SHOES BOX, with the customer paying part of the delivery cost as specified in sections 8 and 9.\n\n## Warranty\n\n1. Warranty on products is provided by the importer or manufacturer.\n2. Warranty is given for defects in the manufacturing process or materials.\n3. If the product/shoe is damaged after use (e.g. broken heel or detached sole), the shoe will be repaired by the company.\n4. Warranty does not apply in the following cases:\n\n4.1 The product was used for a purpose other than its intended use (e.g. playing football in running shoes).\n4.2 The product was damaged intentionally or by an external cause during use.\n4.3 Scratches, scuffs, peeling or tears resulting from wear.\n4.4 The shoe was cleaned by washing in water, soaking in soap, in a washing machine or by hand.\n4.5 The garment was washed not according to the manufacturer's instructions (if it is a clothing product).\n4.6 Wear, tear, odour and discomfort after use of the product are not considered manufacturing defects and are not covered by warranty.\n4.7 Damage caused by negligent or improper use.\n\n5. Warranty on the product is given only upon presentation of a purchase invoice and within a reasonable time.\n6. Warranty on the product is given at the physical store operating the online store.\n7. The store undertakes to send the product for warranty inspection to the importer or manufacturer and to have it repaired within 14 working days in case of a defect in materials or the manufacturing process, subject to reasonable use of the product.\n8. After completion of the repair, the customer may choose to collect the product from the store or request delivery to them at a cost of 30 ILS to their account.\n\n## Customer service\n\nFor any question or enquiry regarding the products displayed on the site, including information on correct use of the product and details and enquiries about the store and its operations, you may contact us:\n\nWhatsApp: 0505727854\n\nEmail: shoesbox@outlook.co.il\n\n## General\n\n1. The images displayed on the site are for illustration only and do not bind the store. There may be colour differences between the image and the actual product, due to display level, screen types, etc.\n2. The store and/or anyone on its behalf will not be liable for any direct, indirect, consequential or special damage caused to the user or a third party as a result of use of the site.\n3. The store is not responsible for the assembly and/or installation of products purchased on the site, and such responsibility lies with the customer.\n4. Icons (ICONS), any information and/or display on the site, including graphics, design, text, trademarks and logos including their editing and display on the site, are the exclusive property of the store.\n5. Content on the site may not be copied, reproduced, distributed, published or used in any other way unless prior written consent has been given by the store."
+    },
     "homepage": {
       "sections": {
         "hero": {
@@ -118,8 +166,8 @@
           "overlayOpacity": 40,
           "textAlignment": "center"
         },
-        "featuredCategories": { 
-          "enabled": true, 
+        "featuredCategories": {
+          "enabled": true,
           "limit": 6,
           "background": {
             "style": "color-mix",
@@ -128,8 +176,8 @@
             "mixPercentage": 8
           }
         },
-        "newArrivals": { 
-          "enabled": true, 
+        "newArrivals": {
+          "enabled": true,
           "limit": 8,
           "background": {
             "style": "color-mix",
@@ -138,8 +186,8 @@
             "mixPercentage": 8
           }
         },
-        "bestSellers": { 
-          "enabled": true, 
+        "bestSellers": {
+          "enabled": true,
           "limit": 8,
           "background": {
             "style": "color-mix",
@@ -148,8 +196,8 @@
             "mixPercentage": 8
           }
         },
-        "onSale": { 
-          "enabled": true, 
+        "onSale": {
+          "enabled": true,
           "limit": 4,
           "background": {
             "style": "color-mix",
@@ -158,7 +206,7 @@
             "mixPercentage": 8
           }
         },
-        "featuredBrands": { 
+        "featuredBrands": {
           "enabled": false,
           "background": {
             "style": "color-mix",
@@ -167,7 +215,7 @@
             "mixPercentage": 8
           }
         },
-        "testimonials": { 
+        "testimonials": {
           "enabled": true,
           "background": {
             "style": "color-mix",
@@ -199,7 +247,7 @@
             "textColor": null
           }
         },
-        "newsletter": { 
+        "newsletter": {
           "enabled": true,
           "background": {
             "style": "gradient",
@@ -208,8 +256,8 @@
             "gradientDirection": "to-bottom"
           }
         },
-        "instagramFeed": { 
-          "enabled": false, 
+        "instagramFeed": {
+          "enabled": false,
           "username": null,
           "background": {
             "style": "color-mix",
@@ -239,7 +287,11 @@
       "privacyPolicy": true,
       "termsOfService": true,
       "shippingPolicy": true,
-      "returnPolicy": true
+      "returnPolicy": true,
+      "forgotPassword": true,
+      "resetPassword": true,
+      "verifyEmail": true,
+      "confirmEmail": true
     },
     "integrations": {
       "analytics": {
@@ -281,30 +333,33 @@
       "direction": "ltr",
       "rtlLocales": ["he", "ar", "fa", "ur", "yi", "ps"]
     },
-    "darkMode": {
-      "enabled": false,
-      "auto": true,
-      "colors": {
-        "background": "#0F172A",
-        "surface": "#1E293B",
-        "text": "#F8FAFC",
-        "textMuted": "#94A3B8",
-        "border": "#334155",
-        "primary": "#E78F21",
-        "secondary": "#F59E0B",
-        "accent": "#F59E0B"
-      }
-    },
     "filters": {
       "enabled": true,
-      "priceFilter": { "enabled": true, "showQuickButtons": true },
-      "ratingFilter": { "enabled": true },
-      "brandFilter": { "enabled": true },
-      "sizeFilter": { "enabled": true },
-      "colorFilter": { "enabled": true },
-      "categoryFilter": { "enabled": true },
-      "collectionFilter": { "enabled": true },
-      "stockFilter": { "enabled": true }
+      "priceFilter": {
+        "enabled": true,
+        "showQuickButtons": true
+      },
+      "ratingFilter": {
+        "enabled": true
+      },
+      "brandFilter": {
+        "enabled": true
+      },
+      "sizeFilter": {
+        "enabled": true
+      },
+      "colorFilter": {
+        "enabled": true
+      },
+      "categoryFilter": {
+        "enabled": true
+      },
+      "collectionFilter": {
+        "enabled": true
+      },
+      "stockFilter": {
+        "enabled": true
+      }
     },
     "quickFilters": {
       "enabled": true,
@@ -348,24 +403,6 @@
           "shadowColor": null
         }
       }
-    },
-    "header": {
-      "banner": {
-        "enabled": true,
-        "text": "Free shipping on orders over $75!",
-        "backgroundColor": null,
-        "textColor": null
-      },
-      "showStoreName": true,
-      "logoPosition": "left"
-    },
-    "footer": {
-      "showBrand": true,
-      "showMenu": true,
-      "showContactInfo": true,
-      "showNewsletter": true,
-      "showSocialLinks": true,
-      "copyrightText": null
     },
     "promoPopup": {
       "enabled": true,
@@ -414,12 +451,36 @@
         }
       },
       "badges": {
-        "sale": { "backgroundColor": "#DC2626", "textColor": "#FFFFFF", "borderRadius": "sm" },
-        "new": { "backgroundColor": "#059669", "textColor": "#FFFFFF", "borderRadius": "sm" },
-        "outOfStock": { "backgroundColor": "#6B7280", "textColor": "#FFFFFF", "borderRadius": "sm" },
-        "lowStock": { "backgroundColor": "#D97706", "textColor": "#FFFFFF", "borderRadius": "sm" },
-        "discount": { "backgroundColor": "#DC2626", "textColor": "#FFFFFF", "borderRadius": "full" },
-        "featured": { "backgroundColor": "#E78F21", "textColor": "#FFFFFF", "borderRadius": "sm" }
+        "sale": {
+          "backgroundColor": "#DC2626",
+          "textColor": "#FFFFFF",
+          "borderRadius": "sm"
+        },
+        "new": {
+          "backgroundColor": "#059669",
+          "textColor": "#FFFFFF",
+          "borderRadius": "sm"
+        },
+        "outOfStock": {
+          "backgroundColor": "#6B7280",
+          "textColor": "#FFFFFF",
+          "borderRadius": "sm"
+        },
+        "lowStock": {
+          "backgroundColor": "#D97706",
+          "textColor": "#FFFFFF",
+          "borderRadius": "sm"
+        },
+        "discount": {
+          "backgroundColor": "#DC2626",
+          "textColor": "#FFFFFF",
+          "borderRadius": "full"
+        },
+        "featured": {
+          "backgroundColor": "#E78F21",
+          "textColor": "#FFFFFF",
+          "borderRadius": "sm"
+        }
       },
       "inputs": {
         "borderRadius": "md",
@@ -445,10 +506,26 @@
       "toasts": {
         "position": "bottom-right",
         "borderRadius": "md",
-        "success": { "backgroundColor": null, "textColor": null, "iconColor": null },
-        "error": { "backgroundColor": null, "textColor": null, "iconColor": null },
-        "warning": { "backgroundColor": null, "textColor": null, "iconColor": null },
-        "info": { "backgroundColor": null, "textColor": null, "iconColor": null }
+        "success": {
+          "backgroundColor": null,
+          "textColor": null,
+          "iconColor": null
+        },
+        "error": {
+          "backgroundColor": null,
+          "textColor": null,
+          "iconColor": null
+        },
+        "warning": {
+          "backgroundColor": null,
+          "textColor": null,
+          "iconColor": null
+        },
+        "info": {
+          "backgroundColor": null,
+          "textColor": null,
+          "iconColor": null
+        }
       },
       "icons": {
         "style": "outline",
@@ -593,7 +670,63 @@
         "emailConfirmedMessage": "Your email has been confirmed successfully!",
         "canNowSignIn": "You can now sign in to your account.",
         "switchToSignIn": "Switch to Sign In ←",
-        "accountExistsMessage": "You already have an account with this email. Please sign in with your email and password below."
+        "accountExistsMessage": "You already have an account with this email. Please sign in with your email and password below.",
+        "forgotPasswordTitle": "Forgot Password?",
+        "forgotPasswordSubtitle": "Enter your email address and we'll send you a password reset link",
+        "sendResetLinkButton": "Send Reset Link",
+        "forgotPasswordSuccessMessage": "If the email exists in our system, we'll send you a password reset link",
+        "resetPasswordTitle": "Reset Password",
+        "resetPasswordSubtitle": "Enter a new password for your account",
+        "newPasswordLabel": "New Password",
+        "newPasswordPlaceholder": "Enter new password (minimum 8 characters)",
+        "invalidResetLinkMessage": "The reset link is invalid or has expired",
+        "resetLinkExpiredError": "The reset link has expired. Please request a new one",
+        "verifyEmailTitle": "Verify Your Email",
+        "verifyEmailSubtitle": "We've sent you a verification email",
+        "verifyEmailSentTo": "We've sent a verification email to",
+        "verifyEmailInstructions": "Click the link in the email to verify your account",
+        "verifyEmailNotReceived": "Didn't receive the email?",
+        "verifyEmailNotReceivedTitle": "Didn't receive the email?",
+        "verifyEmailNotReceivedIntro": "If you didn't receive the verification email, try the following:",
+        "verifyEmailCheckSpam": "Check your spam or junk mail folder",
+        "verifyEmailWaitMinutes": "Wait a few minutes - the email may be delayed",
+        "verifyEmailSignInToResend": "Sign in to resend",
+        "resendConfirmationButton": "Resend Confirmation Email",
+        "resendSendingText": "Sending...",
+        "resendSuccessMessage": "Verification email sent successfully!",
+        "backToSignIn": "Back to Sign In",
+        "signInToResendEmail": "Sign in to resend verification email",
+        "signInFirstToResend": "You must sign in first to resend verification email",
+        "verifyEmailExpiryHelp": "The verification link is valid for 24 hours. If you need help, please contact support.",
+        "verifyEmailRequiredError": "Email verification is required. Please check your inbox",
+        "confirmAccountTitle": "Confirm Your Email",
+        "confirmAccountSubtitle": "Click the link in your email or enter your confirmation details below",
+        "confirmAccountLinkExpiredError": "This confirmation link is invalid or has expired.",
+        "confirmAccountRequestNewLink": "Request a new confirmation email",
+        "confirmAccountUnexpectedError": "An unexpected error occurred. Please try again or request a new confirmation email.",
+        "confirmAccountAlreadyConfirmed": "This account has already been confirmed. Redirecting to sign in...",
+        "confirmAccountEmailLabel": "Email Address",
+        "confirmAccountEmailPlaceholder": "you@example.com",
+        "confirmAccountTokenLabel": "Confirmation Token",
+        "confirmAccountTokenPlaceholder": "Enter token from email",
+        "confirmAccountTokenHint": "The token was sent to your email address",
+        "confirmAccountButton": "Confirm Account",
+        "confirmAccountBackToSignIn": "Back to Sign In",
+        "confirmAccountConfirmingText": "Confirming...",
+        "confirmAccountSuccessMessage": "Account confirmed and logged in! Redirecting...",
+        "confirmAccountCheckingMessage": "Confirming your email...",
+        "confirmAccountAutoLoginHint": "You'll be logged in automatically when verification succeeds. If nothing happens, press the Confirm Account button below.",
+        "loginInvalidCredentialsError": "Please, enter valid credentials",
+        "loginEmailPasswordRequiredError": "Email and password are required",
+        "loginGenericError": "An error occurred during login. Please try again.",
+        "registerEmailPasswordRequiredError": "Email and password are required",
+        "registerFailedError": "Registration failed",
+        "registerAccountExistsError": "An account with this email already exists. Please sign in instead.",
+        "registerGenericError": "An error occurred during registration. Please try again.",
+        "passwordMismatchError": "Passwords do not match. Please try again.",
+        "passwordTooShortError": "Password must be at least 8 characters.",
+        "passwordResetRateLimitError": "You've already requested a password reset recently. Please wait 15 minutes before requesting another one.",
+        "passwordResetRateLimitInfo": "If you don't receive an email, please check your spam folder. You can request another reset link in 15 minutes."
       },
       "general": {
         "searchPlaceholder": "Search products...",
@@ -655,7 +788,6 @@
         "shippingStep": "Shipping",
         "paymentStep": "Payment",
         "confirmationStep": "Confirmation",
-        
         "contactInfoTitle": "Contact Information",
         "contactInfoSubtitle": "We'll use this to send order updates",
         "accountLabel": "Account",
@@ -664,13 +796,11 @@
         "guestEmailPlaceholder": "Enter your email",
         "createAccountCheckbox": "Create account for faster checkout",
         "passwordLabel": "Password",
-        
         "shippingAddressTitle": "Shipping Address",
         "shippingAddressSubtitle": "Where should we deliver?",
         "addAddressButton": "Add address",
         "editAddressButton": "Edit",
         "changeAddressButton": "Change",
-        
         "firstNameLabel": "First name",
         "lastNameLabel": "Last name",
         "companyLabel": "Company",
@@ -683,7 +813,6 @@
         "phoneLabel": "Phone number",
         "saveAddressButton": "Save address",
         "cancelButton": "Cancel",
-        
         "provinceLabel": "Province",
         "districtLabel": "District",
         "zipCodeLabel": "Zip code",
@@ -691,16 +820,13 @@
         "prefectureLabel": "Prefecture",
         "cityAreaLabel": "City area",
         "countryAreaLabel": "Country area",
-        
         "billingAddressTitle": "Billing Address",
         "billingAddressSubtitle": "For your invoice",
         "useSameAsShipping": "Use shipping address as billing address",
-        
         "deliveryMethodsTitle": "Delivery methods",
         "businessDaysText": "{min}-{max} business days",
         "freeShippingLabel": "Free",
         "noDeliveryMethodsText": "No delivery methods available",
-        
         "paymentTitle": "Payment",
         "paymentSubtitle": "Select your payment method",
         "paymentMethodLabel": "Payment method",
@@ -717,7 +843,6 @@
         "paymentFailedError": "Payment failed",
         "unexpectedPaymentError": "An unexpected error occurred with your payment",
         "paymentSuccessOrderFailedError": "Payment was successful but order processing failed. Please contact support.",
-        
         "orderSummaryTitle": "Order Summary",
         "itemsCountSingular": "1 item",
         "itemsCountPlural": "{count} items",
@@ -734,18 +859,15 @@
         "taxLabel": "Tax",
         "includesTaxText": "Includes {amount} tax",
         "totalLabel": "Total",
-        
         "contactDetails": "Contact Details",
         "shippingAddress": "Shipping Address",
         "shippingMethod": "Shipping Method",
         "paymentMethod": "Payment Method",
         "orderSummary": "Order Summary",
         "placeOrder": "Place Order",
-        
         "placeOrderButton": "Place Order",
         "processingOrderText": "Processing your order...",
         "agreementText": "By placing this order, you agree to our",
-        
         "almostDoneText": "Almost done…",
         "orderConfirmation": "Order Confirmation",
         "thankYouTitle": "Thank You for Your Order!",
@@ -769,13 +891,21 @@
         "deliveryMessage": "Your order will arrive at your doorstep!",
         "printReceiptButton": "Print Receipt",
         "thankYouPurchaseMessage": "Thank you for your purchase! If you have any questions, please contact our support team.",
-        
+        "orderDetailsTitle": "Order Details",
+        "contactLabel": "Contact",
+        "authorizedStatus": "Authorized",
+        "authorizedMessage": "We've received your payment authorization",
+        "paidStatus": "Paid",
+        "paidMessage": "We've received your payment",
+        "overpaidStatus": "Overpaid",
+        "overpaidMessage": "Contact support for refund assistance",
+        "processingStatus": "Processing",
+        "processingMessage": "Payment is being processed",
         "requiredFieldError": "This field is required",
         "invalidEmailError": "Please enter a valid email",
         "invalidPhoneError": "Please enter a valid phone number",
         "selectDeliveryMethodError": "Please select a delivery method",
         "selectPaymentMethodError": "Please select a payment method",
-        
         "deleteAddressButton": "Delete address",
         "savingAddressText": "Saving…",
         "savedText": "Saved",
@@ -784,7 +914,6 @@
         "addressSavedSuccess": "Address saved successfully!",
         "addressUpdatedSuccess": "Address updated successfully!",
         "cantShipToAddressText": "Can't ship to this address",
-        
         "signInTitle": "Sign in",
         "signInButton": "Sign in",
         "newCustomerText": "New customer?",
@@ -796,59 +925,10 @@
         "continueWithGoogle": "Continue with Google",
         "signInWithGoogle": "Sign in with Google",
         "alreadyHaveAccount": "Already have an account?",
-        
         "contactDetailsTitle": "Contact details",
         "createAccountLabel": "I want to create account",
         "passwordMinChars": "Password (minimum 8 characters)",
-        
         "sslEncryptionText": "Secure 256-bit SSL encryption",
-        
-        "orderDetailsTitle": "Order Details",
-        "contactLabel": "Contact",
-        
-        "authorizedStatus": "Authorized",
-        "authorizedMessage": "We've received your payment authorization",
-        "paidStatus": "Paid",
-        "paidMessage": "We've received your payment",
-        "overpaidStatus": "Overpaid",
-        "overpaidMessage": "Contact support for refund assistance",
-        "processingStatus": "Processing",
-        "processingMessage": "Payment is being processed",
-        
-        "orderReceiptTitle": "Order Receipt",
-        "orderNumberPrefix": "Order #",
-        "orderConfirmedTitle": "Order Confirmed",
-        "orderConfirmedMessage": "Thank you for your order! We've received it and will notify you when your package ships.",
-        "confirmationSentTo": "Confirmation sent to:",
-        "customerLabel": "Customer:",
-        "orderDateLabel": "Order Date:",
-        "whatsNextTitle": "What's Next?",
-        "orderProcessingStep": "Order Processing",
-        "orderProcessingMessage": "We're preparing your order for shipment.",
-        "shippingNotificationStep": "Shipping Notification",
-        "shippingNotificationMessage": "You'll receive tracking info when shipped.",
-        "deliveryStep": "Delivery",
-        "deliveryMessage": "Your order will arrive at your doorstep!",
-        "printReceiptButton": "Print Receipt",
-        "thankYouPurchaseMessage": "Thank you for your purchase! If you have any questions, please contact our support team.",
-        
-        "emptyCartTitle": "Your cart is empty",
-        "emptyCartMessage": "Looks like you haven't added anything to your cart yet. Explore our products and find something you'll love!",
-        "browseProductsButton": "Browse Products",
-        "goToHomepageButton": "Go to Homepage",
-        "needHelpText": "Need help?",
-        "freeShippingBadge": "Free shipping on orders over $50",
-        "easyReturnsBadge": "Easy 30-day returns",
-        "securePaymentBadge": "Secure payment processing",
-        
-        "noCheckoutFoundTitle": "No checkout found",
-        "noCheckoutFoundMessage": "It looks like you haven't started a checkout yet. Add some items to your cart first.",
-        "checkoutExpiredTitle": "Checkout expired or invalid",
-        "checkoutExpiredMessage": "This checkout session has expired or is no longer valid. Please return to your cart and try again.",
-        "somethingWentWrongTitle": "Something went wrong",
-        "somethingWentWrongMessage": "We couldn't load your checkout. Please return to your cart and try again.",
-        "returnToCartButton": "Return to Cart",
-        
         "privacyPolicy": "Privacy Policy",
         "termsOfService": "Terms of Service",
         "securityNote": "Protected by SSL encryption • Your payment details are secure",
@@ -860,6 +940,7 @@
         "sectionTitle": "Filters",
         "clearAllButton": "Clear All Filters",
         "showResultsButton": "Show Results",
+        "filtersButtonText": "Filters",
         "categoryTitle": "Category",
         "collectionTitle": "Collection",
         "brandTitle": "Brand",
@@ -868,6 +949,8 @@
         "priceTitle": "Price",
         "ratingTitle": "Rating",
         "availabilityTitle": "Availability",
+        "sortByLabel": "Sort by:",
+        "searchForText": "for",
         "inStockOnly": "In Stock Only",
         "onSale": "On Sale",
         "activeFiltersLabel": "Active filters:",
@@ -895,22 +978,21 @@
         "seenAllProducts": "You've seen all {count} products",
         "tryAdjustingFilters": "Try adjusting your filters for more results",
         "searchPlaceholder": "Search products",
+        "searchClearAriaLabel": "",
+        "searchInputAriaLabel": "",
         "searchProductsTitle": "Search Products",
         "searchResultsTitle": "Search Results",
         "resultsCountText": "Found {count} results",
         "noResultsMessage": "No results found for \"{query}\"",
-        "sortByLabel": "Sort by:",
-        "filtersButtonText": "Filters",
-        "searchForText": "for",
         "resultsText": "results",
         "itemsAvailable": "items available",
         "productsPageTitle": "All Products",
         "discoverProducts": "Discover Products",
-        "checkOutOurProducts": "Check Out Our Products",
         "shopAllButton": "Shop All",
         "quickAddButton": "Quick Add",
         "scrollLeftAriaLabel": "Scroll left",
         "scrollRightAriaLabel": "Scroll right",
+        "checkOutOurProducts": "Check Out Our Products",
         "minimumRating": "Minimum Rating",
         "starsAndUp": "{count} stars and up",
         "starAndUp": "1 star and up",
@@ -1208,8 +1290,8 @@
         "outOfStock": "Out of Stock",
         "addedOn": "Added on {date}",
         "removeFromWishlist": "Remove",
-        "removeFromWishlistTooltip": "Remove from wishlist",
-        "moveToCart": "Add to Cart"
+        "moveToCart": "Add to Cart",
+        "removeFromWishlistTooltip": "Remove from wishlist"
       },
       "settings": {
         "accountSettings": "Account Settings",
@@ -1219,6 +1301,12 @@
         "saveChangesButton": "Save Changes",
         "savingChanges": "Saving...",
         "changesSaved": "Changes saved successfully",
+        "profileUpdated": "Profile updated successfully",
+        "profileUpdateFailed": "Failed to update profile. Please try again.",
+        "emailChangePasswordRequired": "Password is required to change your email. We will send a confirmation link to your new address.",
+        "emailChangeConfirmationSent": "A confirmation link has been sent to your new email address. Please click it to complete the change.",
+        "emailChangePasswordInvalid": "Password is not valid. Please enter your current account password.",
+        "profileInvalidEmailError": "Please enter a valid email address. Check the domain and extension (e.g. .com not .comm).",
         "changePassword": "Change Password",
         "passwordSecurityNote": "Update your password to keep your account secure",
         "currentPassword": "Current Password",
@@ -1226,6 +1314,7 @@
         "confirmNewPassword": "Confirm New Password",
         "updatePasswordButton": "Update Password",
         "passwordUpdated": "Password updated successfully",
+        "passwordUpdateFailed": "Failed to update password. Please try again.",
         "notificationPreferences": "Notification Preferences",
         "notificationSubtitle": "Choose how you want to receive updates",
         "orderUpdates": "Order Updates",
@@ -1262,10 +1351,25 @@
       "navbar": {
         "selectChannel": "Select Channel/Currency",
         "searchPlaceholder": "Search...",
+        "searchClearAriaLabel": "",
+        "searchInputAriaLabel": "",
+        "viewAllResultsFor": "View all results for",
+        "recentlySearchedLabel": "Recent Searches",
+        "recentSearchesClearLabel": "Clear",
         "cartLabel": "Cart",
         "accountLabel": "Account",
         "menuLabel": "Menu",
         "signInText": "Sign In",
+        "shopAllButton": "Shop All",
+        "saleButton": "Sale",
+        "collectionsLabel": "Collections",
+        "brandsLabel": "Brands",
+        "categoriesLabel": "Categories",
+        "viewAllProducts": "View All Products",
+        "subcategoriesSide": "right",
+        "mobileNavPosition": "left",
+        "dropdownArrowDirection": "right",
+        "dropdownArrowDirectionExpanded": "down",
         "homeLabel": "Home",
         "shopLabel": "Shop"
       },
@@ -1284,6 +1388,20 @@
         "backToHomeButton": "Back to Home",
         "browseProductsButton": "Browse Products",
         "helpfulLinksText": "Or check out these pages:"
+      }
+    },
+    "darkMode": {
+      "enabled": false,
+      "auto": true,
+      "colors": {
+        "background": "#0F172A",
+        "surface": "#1E293B",
+        "text": "#F8FAFC",
+        "textMuted": "#94A3B8",
+        "border": "#334155",
+        "primary": "#E78F21",
+        "secondary": "#F59E0B",
+        "accent": "#F59E0B"
       }
     }
   }

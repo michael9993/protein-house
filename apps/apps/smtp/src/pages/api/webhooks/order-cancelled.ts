@@ -13,6 +13,7 @@ import { createLogger } from "../../../logger";
 import { loggerContext } from "../../../logger-context";
 import { SendEventMessagesUseCase } from "../../../modules/event-handlers/use-case/send-event-messages.use-case";
 import { SendEventMessagesUseCaseFactory } from "../../../modules/event-handlers/use-case/send-event-messages.use-case.factory";
+import { verifyWebhookSignature } from "../../../modules/webhook-verification/verify-webhook-signature";
 import { saleorApp } from "../../../saleor-app";
 
 const OrderCancelledWebhookPayload = gql`
@@ -39,6 +40,7 @@ export const orderCancelledWebhook = new SaleorAsyncWebhook<OrderCancelledWebhoo
   event: "ORDER_CANCELLED",
   apl: saleorApp.apl,
   query: OrderCancelledGraphqlSubscription,
+  verifySignatureFn: (jwks, signature, rawBody) => verifyWebhookSignature(jwks, signature, rawBody),
 });
 
 const logger = createLogger(orderCancelledWebhook.webhookPath);

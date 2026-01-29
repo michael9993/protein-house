@@ -5,6 +5,22 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { DefaultChannelSlug } from "@/app/config";
 import { mergeGuestCartIntoUserCart } from "@/app/actions";
+import { fetchStorefrontConfig } from "@/lib/storefront-control";
+import { DEFAULT_CONTENT_CONFIG } from "@/providers/StoreConfigProvider";
+import { subscribeToNewsletterInactive } from "@/lib/newsletter-server";
+
+/** Hebrew account error messages when channel is ILS/he and config falls back to English defaults */
+const ILS_ACCOUNT_ERROR_MESSAGES: Partial<typeof DEFAULT_CONTENT_CONFIG.account> = {
+	loginInvalidCredentialsError: "אנא הזן פרטי התחברות תקינים",
+	loginEmailPasswordRequiredError: "נדרשים כתובת אימייל וסיסמה",
+	loginGenericError: "אירעה שגיאה בהתחברות. אנא נסה שוב.",
+	registerEmailPasswordRequiredError: "נדרשים כתובת אימייל וסיסמה",
+	registerFailedError: "ההרשמה נכשלה",
+	registerAccountExistsError: "כבר קיים חשבון עם אימייל זה. אנא התחבר.",
+	registerGenericError: "אירעה שגיאה בהרשמה. אנא נסה שוב.",
+	passwordMismatchError: "הסיסמאות אינן תואמות. אנא נסה שוב.",
+	passwordTooShortError: "הסיסמה חייבת להכיל לפחות 8 תווים.",
+};
 
 /**
  * Extract channel from request URL or formData
@@ -40,8 +56,17 @@ export async function loginAction(formData: FormData) {
 	const password = formData.get("password")?.toString();
 	const channel = await getChannelFromRequest(formData);
 
+	// Get configurable error messages (from API/fallback or defaults)
+	const config = await fetchStorefrontConfig(channel);
+	const baseMessages = config.content?.account || DEFAULT_CONTENT_CONFIG.account;
+	// When channel is ILS/he, use Hebrew messages if config fell back to English defaults
+	const errorMessages =
+		channel === "ils" || channel === "he"
+			? { ...baseMessages, ...ILS_ACCOUNT_ERROR_MESSAGES }
+			: baseMessages;
+
 	if (!email || !password) {
-		return { error: "Email and password are required" };
+		return { error: errorMessages.loginEmailPasswordRequiredError };
 	}
 
 	try {
@@ -49,7 +74,11 @@ export async function loginAction(formData: FormData) {
 		const { data } = await authClient.signIn({ email, password }, { cache: "no-store" });
 
 		if (data?.tokenCreate?.errors && data.tokenCreate.errors.length > 0) {
-			const errorMessage = data.tokenCreate.errors[0]?.message || "Invalid credentials";
+			// Use configurable error message, fallback to API message if available
+			const apiMessage = data.tokenCreate.errors[0]?.message;
+			const errorMessage = apiMessage && apiMessage !== "Invalid credentials"
+				? apiMessage
+				: errorMessages.loginInvalidCredentialsError;
 			return { error: errorMessage };
 		}
 
@@ -67,7 +96,11 @@ export async function loginAction(formData: FormData) {
 		return { success: true };
 	} catch (error) {
 		console.error("Login error:", error);
-		return { error: "An error occurred during login. Please try again." };
+		const genericMsg =
+			channel === "ils" || channel === "he"
+				? "אירעה שגיאה בהתחברות. אנא נסה שוב."
+				: "An error occurred during login. Please try again.";
+		return { error: genericMsg };
 	}
 }
 
@@ -78,8 +111,16 @@ export async function registerAction(formData: FormData) {
 	const lastName = formData.get("lastName")?.toString();
 	const channel = await getChannelFromRequest(formData);
 
+	// Get configurable error messages (from API/fallback or defaults)
+	const config = await fetchStorefrontConfig(channel);
+	const baseMessages = config.content?.account || DEFAULT_CONTENT_CONFIG.account;
+	const errorMessages =
+		channel === "ils" || channel === "he"
+			? { ...baseMessages, ...ILS_ACCOUNT_ERROR_MESSAGES }
+			: baseMessages;
+
 	if (!email || !password) {
-		return { error: "Email and password are required" };
+		return { error: errorMessages.registerEmailPasswordRequiredError };
 	}
 
 	try {
@@ -137,13 +178,15 @@ export async function registerAction(formData: FormData) {
 		
 		// Check for GraphQL errors
 		if (result.errors && result.errors.length > 0) {
-			const errorMessage = result.errors[0]?.message || "Registration failed";
+			const apiMessage = result.errors[0]?.message;
+			const errorMessage = apiMessage || errorMessages.registerFailedError;
 			return { error: errorMessage };
 		}
 		
 		// Check for mutation errors
 		if (result.data?.accountRegister?.errors && result.data.accountRegister.errors.length > 0) {
-			const errorMessage = result.data.accountRegister.errors[0]?.message || "Registration failed";
+			const apiMessage = result.data.accountRegister.errors[0]?.message;
+			const errorMessage = apiMessage || errorMessages.registerFailedError;
 			return { error: errorMessage };
 		}
 
@@ -177,7 +220,7 @@ export async function registerAction(formData: FormData) {
 						// User already exists and is confirmed - this was a duplicate registration attempt
 						console.warn("[Register] ❌ User already exists and is confirmed:", email);
 						return { 
-							error: "An account with this email already exists. Please sign in instead.",
+							error: errorMessages.registerAccountExistsError,
 						};
 					}
 					
@@ -203,6 +246,11 @@ export async function registerAction(formData: FormData) {
 				}
 			}
 			
+			// Auto-add user to newsletter subscriber list as inactive (can activate in settings or via homepage/footer)
+			subscribeToNewsletterInactive(email, channel).catch((err) =>
+				console.warn("[Register] Newsletter inactive subscribe failed (non-fatal):", err)
+			);
+
 			// Return success with email - password will be stored on client side
 			return { 
 				success: true, 
@@ -210,6 +258,11 @@ export async function registerAction(formData: FormData) {
 				email: email,
 			};
 		}
+
+		// Auto-add user to newsletter subscriber list as inactive (can activate in settings or via homepage/footer)
+		subscribeToNewsletterInactive(email, channel).catch((err) =>
+			console.warn("[Register] Newsletter inactive subscribe failed (non-fatal):", err)
+		);
 
 		// If no confirmation required, auto-login (backwards compatibility)
 		const authClient = await getServerAuthClient();
@@ -250,7 +303,9 @@ export async function registerAction(formData: FormData) {
 		return { success: true, requiresConfirmation: false };
 	} catch (error) {
 		console.error("Registration error:", error);
-		return { error: "An error occurred during registration. Please try again." };
+		const config = await fetchStorefrontConfig(channel);
+		const errorMessages = config.content?.account || DEFAULT_CONTENT_CONFIG.account;
+		return { error: errorMessages.registerGenericError };
 	}
 }
 

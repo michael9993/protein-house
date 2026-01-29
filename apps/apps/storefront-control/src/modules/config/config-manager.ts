@@ -53,18 +53,19 @@ export class StorefrontConfigManager {
       console.log(`[StorefrontConfigManager] Found raw config for ${channelSlug}, length: ${raw.length}`);
       
       const parsed = JSON.parse(raw);
-      const validated = StorefrontConfigSchema.safeParse(parsed);
+      // Merge with defaults before validation so older stored configs (missing e.g. pages.forgotPassword,
+      // content.account.forgotPasswordTitle, etc.) validate without logging errors every time.
+      const defaults = getDefaultConfig(channelSlug);
+      const merged = deepMerge(defaults, parsed as Partial<StorefrontConfig>) as StorefrontConfig;
+      const validated = StorefrontConfigSchema.safeParse(merged);
       
       if (!validated.success) {
-        console.error(`[StorefrontConfigManager] Invalid config for ${channelSlug}:`, validated.error.errors);
-        // Try to merge with defaults to fix missing fields
-        const defaults = getDefaultConfig(channelSlug);
-        const merged = deepMerge(defaults, parsed as Partial<StorefrontConfig>) as StorefrontConfig;
-        const revalidated = StorefrontConfigSchema.safeParse(merged);
-        if (revalidated.success) {
-          console.log(`[StorefrontConfigManager] Fixed config by merging with defaults for ${channelSlug}`);
-          return revalidated.data;
-        }
+        // Only log when validation still fails after merge (e.g. wrong types, not just missing keys).
+        const firstErrors = validated.error.errors.slice(0, 3).map((e) => `${e.path.join(".")}: ${e.message}`);
+        console.warn(
+          `[StorefrontConfigManager] Invalid config for ${channelSlug} after merging defaults (${validated.error.errors.length} error(s)):`,
+          firstErrors.join("; ")
+        );
         return null;
       }
 

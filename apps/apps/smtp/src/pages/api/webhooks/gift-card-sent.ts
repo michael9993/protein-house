@@ -10,6 +10,7 @@ import { createLogger } from "../../../logger";
 import { loggerContext } from "../../../logger-context";
 import { SendEventMessagesUseCase } from "../../../modules/event-handlers/use-case/send-event-messages.use-case";
 import { SendEventMessagesUseCaseFactory } from "../../../modules/event-handlers/use-case/send-event-messages.use-case.factory";
+import { verifyWebhookSignature } from "../../../modules/webhook-verification/verify-webhook-signature";
 import { saleorApp } from "../../../saleor-app";
 
 const GiftCardSentWebhookPayload = gql`
@@ -70,6 +71,7 @@ export const giftCardSentWebhook = new SaleorAsyncWebhook<GiftCardSentWebhookPay
   event: "GIFT_CARD_SENT",
   apl: saleorApp.apl,
   query: GiftCardSentGraphqlSubscription,
+  verifySignatureFn: (jwks, signature, rawBody) => verifyWebhookSignature(jwks, signature, rawBody),
 });
 
 const logger = createLogger(giftCardSentWebhook.webhookPath);

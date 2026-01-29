@@ -269,7 +269,8 @@ if not SECRET_KEY and DEBUG:
     )
     SECRET_KEY = get_random_secret_key()
 
-RSA_PRIVATE_KEY = os.environ.get("RSA_PRIVATE_KEY", None)
+_raw = os.environ.get("RSA_PRIVATE_KEY", None)
+RSA_PRIVATE_KEY = (_raw.replace("\\n", "\n") if _raw else None)
 RSA_PRIVATE_PASSWORD = os.environ.get("RSA_PRIVATE_PASSWORD", None)
 JWT_MANAGER_PATH = os.environ.get(
     "JWT_MANAGER_PATH", "saleor.core.jwt_manager.JWTManager"
@@ -1116,9 +1117,11 @@ AUTOMATIC_CHECKOUT_COMPLETION_QUEUE_NAME = os.environ.get(
 )
 
 # Lock time for request password reset mutation per user (seconds)
-RESET_PASSWORD_LOCK_TIME = parse(
+# parse() returns None for empty/invalid input; fallback to 15 minutes (900s)
+_RESET_PASSWORD_LOCK_TIME_RAW = parse(
     os.environ.get("RESET_PASSWORD_LOCK_TIME", "15 minutes")
 )
+RESET_PASSWORD_LOCK_TIME = _RESET_PASSWORD_LOCK_TIME_RAW if _RESET_PASSWORD_LOCK_TIME_RAW is not None else 900
 
 # Lock time for request confirmation email mutation per user
 CONFIRMATION_EMAIL_LOCK_TIME = parse(
@@ -1179,6 +1182,10 @@ TRANSACTION_ITEMS_LIMIT = 100
 
 
 TOKEN_GENERATOR_CLASS = "django.contrib.auth.tokens.PasswordResetTokenGenerator"
+
+# Password reset and account confirmation link expiry (seconds). Django's PasswordResetTokenGenerator uses this.
+# Default 86400 = 24 hours (matches typical email copy). Set PASSWORD_RESET_TIMEOUT in env to override.
+PASSWORD_RESET_TIMEOUT = int(os.environ.get("PASSWORD_RESET_TIMEOUT", "86400"))
 
 # Disable Django warnings regarding too long cache keys being incompatible with
 # memcached to avoid leaking key values.

@@ -24,14 +24,7 @@ interface PageToggleProps {
 }
 
 function PageToggle({ label, description, name, control }: PageToggleProps) {
-  return (
-    <SimpleCheckbox
-      name={name}
-      control={control}
-      label={label}
-      description={description}
-    />
-  );
+  return <SimpleCheckbox name={name} control={control} label={label} description={description} />;
 }
 
 const PagesPage: NextPage = () => {
@@ -39,16 +32,25 @@ const PagesPage: NextPage = () => {
   const { channelSlug } = router.query as { channelSlug: string };
   const { appBridgeState } = useAppBridge();
 
-  const { data: config, isLoading, refetch } = trpcClient.config.getConfig.useQuery(
+  const {
+    data: config,
+    isLoading,
+    refetch,
+  } = trpcClient.config.getConfig.useQuery(
     { channelSlug },
-    { enabled: !!channelSlug && !!appBridgeState?.ready }
+    { enabled: !!channelSlug && !!appBridgeState?.ready },
   );
 
   const updateMutation = trpcClient.config.updateSection.useMutation({
     onSuccess: () => refetch(),
   });
 
-  const { control, handleSubmit, reset, formState: { isDirty } } = useForm<PagesFormData>({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isDirty },
+  } = useForm<PagesFormData>({
     resolver: zodResolver(PagesSchema),
   });
 
@@ -63,7 +65,13 @@ const PagesPage: NextPage = () => {
   };
 
   if (!appBridgeState?.ready || isLoading) {
-    return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}><span>Loading...</span></div>;
+    return (
+      <div
+        style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}
+      >
+        <span>Loading...</span>
+      </div>
+    );
   }
 
   return (
@@ -76,12 +84,31 @@ const PagesPage: NextPage = () => {
           keywords={["about", "contact", "faq", "blog"]}
           icon="📄"
         >
-
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-            <PageToggle label="About Us" description="Company information and story" name="aboutUs" control={control} />
-            <PageToggle label="Contact" description="Contact form and information" name="contact" control={control} />
-            <PageToggle label="FAQ" description="Frequently asked questions" name="faq" control={control} />
-            <PageToggle label="Blog" description="News and articles section" name="blog" control={control} />
+            <PageToggle
+              label="About Us"
+              description="Company information and story"
+              name="aboutUs"
+              control={control}
+            />
+            <PageToggle
+              label="Contact"
+              description="Contact form and information"
+              name="contact"
+              control={control}
+            />
+            <PageToggle
+              label="FAQ"
+              description="Frequently asked questions"
+              name="faq"
+              control={control}
+            />
+            <PageToggle
+              label="Blog"
+              description="News and articles section"
+              name="blog"
+              control={control}
+            />
           </div>
         </SectionCard>
 
@@ -92,12 +119,66 @@ const PagesPage: NextPage = () => {
           keywords={["privacy", "terms", "returns", "shipping"]}
           icon="⚖️"
         >
-
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-            <PageToggle label="Privacy Policy" description="Data privacy information" name="privacyPolicy" control={control} />
-            <PageToggle label="Terms of Service" description="Terms and conditions" name="termsOfService" control={control} />
-            <PageToggle label="Shipping Policy" description="Shipping information" name="shippingPolicy" control={control} />
-            <PageToggle label="Return Policy" description="Returns and refunds" name="returnPolicy" control={control} />
+            <PageToggle
+              label="Privacy Policy"
+              description="Data privacy information"
+              name="privacyPolicy"
+              control={control}
+            />
+            <PageToggle
+              label="Terms of Service"
+              description="Terms and conditions"
+              name="termsOfService"
+              control={control}
+            />
+            <PageToggle
+              label="Shipping Policy"
+              description="Shipping information"
+              name="shippingPolicy"
+              control={control}
+            />
+            <PageToggle
+              label="Return Policy"
+              description="Returns and refunds"
+              name="returnPolicy"
+              control={control}
+            />
+          </div>
+        </SectionCard>
+
+        <SectionCard
+          id="pages-auth"
+          title="Authentication Pages"
+          description="User account and authentication pages"
+          keywords={["reset", "password", "verify", "email", "auth", "forgot"]}
+          icon="🔐"
+        >
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+            <PageToggle
+              label="Forgot Password"
+              description="Request password reset link via email"
+              name="forgotPassword"
+              control={control}
+            />
+            <PageToggle
+              label="Reset Password"
+              description="Password reset and recovery page"
+              name="resetPassword"
+              control={control}
+            />
+            <PageToggle
+              label="Verify Email"
+              description="Request a new confirmation email (resend)"
+              name="verifyEmail"
+              control={control}
+            />
+            <PageToggle
+              label="Confirm Email"
+              description="Page where users land when they click the confirmation link"
+              name="confirmEmail"
+              control={control}
+            />
           </div>
         </SectionCard>
 

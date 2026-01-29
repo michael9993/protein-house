@@ -205,6 +205,93 @@ const FooterPage: NextPage = () => {
           </p>
         </SectionCard>
 
+        <SectionCard
+          id="footer-policy-content"
+          title="Policy Page Content"
+          description="Configure title, header, main content, default content (when main is empty), and footer for each policy page. Nothing is hardcoded—all text comes from here."
+          keywords={["footer", "policy", "return", "shipping", "privacy", "terms", "header", "footer"]}
+          icon="📄"
+        >
+          <FormField
+            label="Empty state message"
+            name="policyPageEmptyMessage"
+            register={register}
+            errors={errors}
+            type="text"
+            placeholder="Content for this page can be configured in Storefront Control → Footer → Policy Page Content."
+            description="Shown when a policy page has no content and no default content set."
+          />
+          {[
+            {
+              prefix: "returnPolicy",
+              label: "Return / Exchange Policy",
+              contentPlaceholder: "Paste return & exchange policy text here (e.g. מדיניות החלפות/החזרות...)",
+            },
+            { prefix: "shippingPolicy", label: "Shipping Policy", contentPlaceholder: "Paste shipping policy text here" },
+            { prefix: "privacyPolicy", label: "Privacy Policy", contentPlaceholder: "Paste privacy policy text here" },
+            { prefix: "termsOfService", label: "Terms of Service", contentPlaceholder: "Paste terms of service text here" },
+          ].map(({ prefix, label, contentPlaceholder }) => (
+            <div
+              key={prefix}
+              style={{
+                padding: "20px",
+                border: "1px solid #e0e0e0",
+                borderRadius: "8px",
+                backgroundColor: "#fafafa",
+                marginBottom: "20px",
+              }}
+            >
+              <div style={{ fontSize: "16px", fontWeight: 600, marginBottom: "16px" }}>{label}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                <FormField
+                  label="Page title"
+                  name={`${prefix}PageTitle` as any}
+                  register={register}
+                  errors={errors}
+                  placeholder={`Override the page heading (e.g. "${label}")`}
+                  description="Leave empty to use the footer link label."
+                />
+                <FormField
+                  label="Header (above main content)"
+                  name={`${prefix}Header` as any}
+                  register={register}
+                  errors={errors}
+                  type="textarea"
+                  placeholder="Optional intro or summary"
+                  description="Shown at the top of the page, above the main content."
+                />
+                <FormField
+                  label="Main content"
+                  name={`${prefix}Content` as any}
+                  register={register}
+                  errors={errors}
+                  type="textarea"
+                  placeholder={contentPlaceholder}
+                  description="Primary content. Line breaks are preserved."
+                />
+                <FormField
+                  label="Default content (when main is empty)"
+                  name={`${prefix}DefaultContent` as any}
+                  register={register}
+                  errors={errors}
+                  type="textarea"
+                  placeholder="Optional default text when main content is not set"
+                  description="Shown when main content is empty. Leave empty to show the empty state message."
+                />
+                <FormField
+                  label="Footer (below main content)"
+                  name={`${prefix}Footer` as any}
+                  register={register}
+                  errors={errors}
+                  type="textarea"
+                  placeholder="Optional footer (e.g. last updated, contact)"
+                  description="Shown at the bottom of the page."
+                />
+              </div>
+            </div>
+          ))}
+        </SectionCard>
+
         <StickySaveBar
           isDirty={isDirty}
           isLoading={updateMutation.isLoading}

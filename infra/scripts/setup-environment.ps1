@@ -205,6 +205,21 @@ $config["SECRET_KEY"] = $saleorSecretKey
 $appSecretKey = -join ((0..31) | ForEach-Object { "{0:X2}" -f (Get-Random -Maximum 256) })
 $config["APP_SECRET_KEY"] = $appSecretKey.ToLower()
 
+# Generate RSA_PRIVATE_KEY (for webhook JWS signing; API and Worker must share this)
+Add-Type -AssemblyName System.Security
+$rsa = [System.Security.Cryptography.RSA]::Create(2048)
+$privateKeyBytes = $rsa.ExportRSAPrivateKey()
+$b64 = [Convert]::ToBase64String($privateKeyBytes)
+$pem = "-----BEGIN RSA PRIVATE KEY-----`n"
+$offset = 0
+while ($offset -lt $b64.Length) {
+    $lineEnd = [Math]::Min($offset + 64, $b64.Length)
+    $pem += $b64.Substring($offset, $lineEnd - $offset) + "`n"
+    $offset = $lineEnd
+}
+$pem += "-----END RSA PRIVATE KEY-----"
+$config["RSA_PRIVATE_KEY"] = $pem
+
 Write-Success "Security keys generated"
 
 # ============================================================================
@@ -326,6 +341,7 @@ PUBLIC_URL=$publicUrl
 EMAIL_URL=consolemail://
 TIME_ZONE=UTC
 WEBHOOK_SECRET_KEY=
+RSA_PRIVATE_KEY=$($config["RSA_PRIVATE_KEY"] -replace "`r?`n", "\n")
 
 # Redis URLs
 REDIS_URL=redis://redis:6379/0

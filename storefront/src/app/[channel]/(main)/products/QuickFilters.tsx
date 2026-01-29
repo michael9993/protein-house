@@ -40,7 +40,7 @@ interface QuickFiltersProps {
     name: string; 
     slug: string; 
     productCount?: number;
-    children?: Array<{ id: string; slug: string }>;
+    children?: Array<{ id: string; slug: string; name?: string; children?: Array<{ id: string; slug: string }> }>;
     backgroundImage?: { url: string; alt?: string };
     productImages?: Array<{ url: string; alt?: string }>;
   }>;
@@ -177,11 +177,27 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
   }, [allItems]);
 
   // Check scroll position for arrow visibility
+  // RTL: scrollLeft is in [-(scrollWidth-clientWidth), 0] when container has dir="rtl"
   const checkScrollPosition = () => {
     if (!scrollContainerRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
-    setShowLeftArrow(scrollLeft > 20);
-    setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 20);
+    const el = scrollContainerRef.current;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    const maxScroll = scrollWidth - clientWidth;
+    if (maxScroll <= 0) {
+      setShowLeftArrow(false);
+      setShowRightArrow(false);
+      return;
+    }
+    if (isRtl) {
+      // RTL: scrollLeft 0 = start (right edge), negative = end (left). At start we can only scroll left
+      // → show right-positioned arrow (it scrolls "left"). At end show left-positioned arrow (it scrolls "right").
+      const rtlMin = -maxScroll;
+      setShowLeftArrow(scrollLeft < -20);   // show left-positioned arrow when scrolled past start (can scroll right)
+      setShowRightArrow(scrollLeft > rtlMin + 20); // show right-positioned arrow when not at left edge (can scroll left)
+    } else {
+      setShowLeftArrow(scrollLeft > 20);
+      setShowRightArrow(scrollLeft < maxScroll - 20);
+    }
   };
 
   useEffect(() => {
@@ -196,19 +212,23 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
       container.removeEventListener("scroll", checkScrollPosition);
       window.removeEventListener("resize", checkScrollPosition);
     };
-  }, [allItems]);
+  }, [allItems, isRtl]);
 
   const scroll = (direction: "left" | "right") => {
-    if (!scrollContainerRef.current) return;
+    const el = scrollContainerRef.current;
+    if (!el) return;
     const style = quickFiltersConfig.style || {};
     const cardWidth = (style.cardWidth || 160) + (style.cardGap || 0.5) * 8; // Card width + gap in pixels
     const scrollAmount = cardWidth * 2; // Scroll 2 cards at a time
-    const currentScroll = scrollContainerRef.current.scrollLeft;
-    const targetScroll = direction === "left" 
-      ? Math.max(0, currentScroll - scrollAmount)
-      : currentScroll + scrollAmount;
-    
-    scrollContainerRef.current.scrollTo({
+    const currentScroll = el.scrollLeft;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    // Logical scroll: "left" = toward start, "right" = toward end. scrollLeft delta is same (left=minus, right=plus).
+    // RTL: scrollLeft is 0 at start (right) and negative toward end (left), so clamp to [-maxScroll, 0].
+    const minScroll = isRtl ? -maxScroll : 0;
+    const maxScrollVal = isRtl ? 0 : maxScroll;
+    const delta = direction === "left" ? -scrollAmount : scrollAmount;
+    const targetScroll = Math.max(minScroll, Math.min(maxScrollVal, currentScroll + delta));
+    el.scrollTo({
       left: targetScroll,
       behavior: "smooth",
     });
@@ -222,11 +242,17 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
     return null;
   }
 
+  const collectDescendantSlugs = (cat: { slug: string; children?: Array<{ slug: string; children?: Array<{ slug: string }> }> }): string[] => {
+    const out = [cat.slug];
+    if (cat.children) for (const c of cat.children) out.push(...collectDescendantSlugs(c));
+    return out;
+  };
+
   const handleQuickFilterClick = (e: MouseEvent<HTMLButtonElement>, item: QuickFilterItem) => {
     e.preventDefault();
     
     if (item.type === "category" && item.children && item.children.length > 0) {
-      const childSlugs = item.children.map(child => child.slug);
+      const childSlugs = collectDescendantSlugs(item);
       const currentCategories = filters.categories;
       const allChildrenSelected = childSlugs.every(slug => currentCategories.includes(slug));
       
@@ -262,7 +288,7 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
       default:
         if (filters.categories.includes(item.slug)) return true;
         if (item.children && item.children.length > 0) {
-          return item.children.some(child => filters.categories.includes(child.slug));
+          return collectDescendantSlugs(item).some(slug => filters.categories.includes(slug));
         }
         return false;
     }
@@ -330,9 +356,10 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
         </button>
       )}
 
-      {/* Main scrollable container */}
+      {/* Main scrollable container — dir needed in RTL so scrollLeft is in [-max,0] and arrow visibility is correct */}
       <div
         ref={scrollContainerRef}
+        dir={isRtl ? "rtl" : "ltr"}
         className="relative flex overflow-x-auto scrollbar-hide h-full"
         style={{
           scrollbarWidth: "none",
