@@ -54,6 +54,7 @@ export const digitalStoreConfig: StoreConfig = createStoreConfig('digital', {
     compareProducts: true,
     productReviews: true,
     recentlyViewed: true,
+    scrollToTop: true,
     guestCheckout: false,           // Require account for downloads
     expressCheckout: true,
     savePaymentMethods: true,
@@ -153,6 +154,10 @@ export const digitalStoreConfig: StoreConfig = createStoreConfig('digital', {
     termsOfService: true,
     shippingPolicy: false,          // No shipping
     returnPolicy: true,             // Refund policy
+    forgotPassword: true,
+    resetPassword: true,
+    verifyEmail: true,
+    confirmEmail: true,
   },
 
   localization: {

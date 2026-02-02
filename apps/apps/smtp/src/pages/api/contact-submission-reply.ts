@@ -1,5 +1,5 @@
-import { NextApiRequest, NextApiResponse } from "next";
 import { captureException } from "@sentry/nextjs";
+import { NextApiRequest, NextApiResponse } from "next";
 
 import { createLogger } from "../../logger";
 import { SendEventMessagesUseCase } from "../../modules/event-handlers/use-case/send-event-messages.use-case";
@@ -33,11 +33,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const payload: ContactSubmissionReplyPayload = req.body;
+    const payload = req.body as ContactSubmissionReplyPayload & { saleor_url?: string };
 
     // Validate required fields
     if (!payload.submission || !payload.reply_message) {
       logger.error("Missing required fields in payload");
+
       return res.status(400).json({ error: "Missing required fields: submission and reply_message" });
     }
 
@@ -45,6 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!submission.email || !submission.channel_slug) {
       logger.error("Missing email or channel_slug in submission");
+
       return res.status(400).json({ error: "Missing email or channel_slug in submission" });
     }
 
@@ -61,8 +63,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let authData = null;
     
     // Try to get auth data - saleor_url should be provided in payload
-    const saleorUrl = (payload as any).saleor_url;
-    
+    const saleorUrl = payload.saleor_url;
+
     if (saleorUrl) {
       authData = await saleorApp.apl.get(saleorUrl);
     } else {
@@ -71,16 +73,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Check if getAll method exists (not all APL implementations support it)
         if (typeof saleorApp.apl.getAll === "function") {
           const allAuthData = await saleorApp.apl.getAll();
-          // Try to find auth data that matches the channel or use the first one
-          authData = allAuthData.find((auth) => auth.domain === submission.channel_slug) || allAuthData[0];
+          // Try to find auth data that matches the channel (some APLs store domain/channel) or use the first one
+
+          type AuthWithDomain = typeof allAuthData[0] & { domain?: string };
+
+          authData = allAuthData.find((auth) => (auth as AuthWithDomain).domain === submission.channel_slug) || allAuthData[0];
         }
       } catch (e) {
         logger.warn("getAll not supported or failed", { error: e });
       }
     }
-    
+
     if (!authData) {
-      logger.error("No auth data found", { channel: submission.channel_slug, saleorUrl });
+      logger.error("No auth data found", { channel: submission.channel_slug });
+
       return res.status(401).json({ 
         error: "App not authenticated. Please provide saleor_url in payload or ensure the app is properly installed." 
       });
@@ -110,8 +116,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     return result.match(
-      (r) => {
+      (_r) => {
         logger.info("Successfully sent contact submission reply email");
+
         return res.status(200).json({ message: "Reply email sent successfully" });
       },
       (err) => {
@@ -119,23 +126,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         if (errorInstance instanceof SendEventMessagesUseCase.ServerError) {
           logger.error("Failed to send email [server error]", { error: err });
+
           return res.status(500).json({ error: "Failed to send email - server error" });
         } else if (errorInstance instanceof SendEventMessagesUseCase.ClientError) {
           logger.error("Failed to send email [client error]", { error: err });
+
           return res.status(400).json({ error: "Failed to send email - client error" });
         } else if (errorInstance instanceof SendEventMessagesUseCase.NoOpError) {
           logger.warn("Sending email aborted [no op]", { error: err });
+
           return res.status(200).json({ message: "Email sending skipped [no op]" });
         }
 
         logger.error("Failed to send email [unhandled error]", { error: err });
         captureException(new Error("Unhandled useCase error", { cause: err }));
+
         return res.status(500).json({ error: "Failed to send email - unhandled error" });
       },
     );
   } catch (e) {
     logger.error("Unhandled error in contact submission reply handler", {
-      error: e,
+      error: e instanceof Error ? e.message : String(e),
     });
 
     captureException(e);

@@ -2,7 +2,7 @@ import React from "react";
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 
@@ -13,7 +13,7 @@ import { StickySaveBar } from "@/modules/ui/sticky-save-bar";
 import { SimpleCheckbox } from "@/modules/ui/simple-checkbox";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { HeaderSchema } from "@/modules/config/schema";
-import type { StorefrontConfig } from "@/modules/config/schema";
+import type { StorefrontConfig, ManualBannerItem } from "@/modules/config/schema";
 
 type HeaderFormData = StorefrontConfig["header"];
 
@@ -55,6 +55,18 @@ const HeaderPage: NextPage = () => {
   const bannerBgColor = watch("banner.backgroundColor");
   const bannerTextColor = watch("banner.textColor");
   const bannerText = watch("banner.text");
+  const useSaleorPromotions = watch("banner.useSaleorPromotions");
+  const useSaleorVouchers = watch("banner.useSaleorVouchers");
+  const useSaleorDiscounts = useSaleorPromotions || useSaleorVouchers;
+  const useGradient = watch("banner.useGradient");
+  const gradientFrom = watch("banner.gradientFrom");
+  const gradientTo = watch("banner.gradientTo");
+  const dismissible = watch("banner.dismissible");
+
+  const { fields: manualItems, append: addManualItem, remove: removeManualItem } = useFieldArray({
+    control,
+    name: "banner.manualItems",
+  });
 
   useEffect(() => {
     if (config?.header) {
@@ -95,36 +107,97 @@ const HeaderPage: NextPage = () => {
 
           {/* Banner Preview */}
           {bannerEnabled && (
-            <div 
-              style={{ 
+            <div
+              style={{
                 marginBottom: "24px",
-                padding: "12px",
+                padding: "8px 12px",
                 textAlign: "center",
-                backgroundColor: bannerBgColor || primaryColor,
+                background: useGradient && (gradientFrom || gradientTo)
+                  ? `linear-gradient(90deg, ${gradientFrom || primaryColor}, ${gradientTo || primaryColor})`
+                  : (bannerBgColor || primaryColor),
                 color: bannerTextColor || "#FFFFFF",
+                fontSize: "12px",
               }}
             >
-              <span style={{ fontSize: "13px", color: "inherit" }}>
-                {bannerText || "Your banner text will appear here"}
-              </span>
+              {useSaleorDiscounts
+                ? `Active ${useSaleorPromotions && useSaleorVouchers ? "promotions and vouchers" : useSaleorPromotions ? "promotions" : "vouchers"} (and manual items) will appear here on the storefront.`
+                : manualItems.length > 0
+                  ? `Manual items (${manualItems.length}) will rotate in the banner.`
+                  : (bannerText || "Your banner text will appear here")}
             </div>
           )}
 
           <SimpleCheckbox
             name="banner.enabled"
             control={control}
-            label="Enable Promotional Banner"
-            description="Show a promotional message above the header"
+            label="Show promotional banner"
+            description="Display the promotional banner above the header (toggle off to hide)"
+          />
+
+          <SimpleCheckbox
+            name="banner.dismissible"
+            control={control}
+            label="Allow visitors to dismiss"
+            description="Show a close button; dismissed state is remembered per browser (localStorage)"
+          />
+
+          <SimpleCheckbox
+            name="banner.useSaleorPromotions"
+            control={control}
+            label="Include Saleor promotions"
+            description="Add active promotions from Dashboard → Discounts → Promotions to the banner (description used as main text)"
+          />
+          <SimpleCheckbox
+            name="banner.useSaleorVouchers"
+            control={control}
+            label="Include Saleor vouchers"
+            description="Add active vouchers from Dashboard → Discounts → Vouchers to the banner (code and discount shown)"
           />
 
           <FormField
-            label="Banner Text"
+            label="Fallback banner text"
             name="banner.text"
             register={register}
             errors={errors}
             placeholder="Free shipping on orders over $50 • Fast delivery worldwide"
-            description="The message to display in the banner"
+            description="Shown when there are no manual items and no Saleor promotions/vouchers. You can also add manual items below."
           />
+
+          <FormField
+            label="Auto-scroll interval (seconds)"
+            name="banner.autoScrollIntervalSeconds"
+            register={register}
+            errors={errors}
+            type="number"
+            description="Seconds between rotating banner slides (4–30)"
+          />
+
+          <SimpleCheckbox
+            name="banner.useGradient"
+            control={control}
+            label="Use gradient background"
+            description="Use two colors for a gradient instead of solid"
+          />
+          {useGradient && (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "12px" }}>
+              <FormField
+                label="Gradient from"
+                name="banner.gradientFrom"
+                register={register}
+                errors={errors}
+                type="color"
+                description="Start color"
+              />
+              <FormField
+                label="Gradient to"
+                name="banner.gradientTo"
+                register={register}
+                errors={errors}
+                type="color"
+                description="End color"
+              />
+            </div>
+          )}
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "24px" }}>
             <div>
@@ -153,6 +226,99 @@ const HeaderPage: NextPage = () => {
                 Default: #FFFFFF
               </p>
             </div>
+          </div>
+
+          <div style={{ marginTop: "24px" }}>
+            <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "8px" }}>Manual banner items</h3>
+            <p style={{ fontSize: "13px", color: "#555", marginBottom: "12px" }}>
+              Add custom lines (text, optional link, emoji/icon). These appear in addition to Saleor promotions when enabled, or alone when disabled.
+            </p>
+            {manualItems.map((item, index) => (
+              <div
+                key={item.id}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr auto",
+                  gap: "12px",
+                  alignItems: "end",
+                  marginBottom: "12px",
+                  padding: "12px",
+                  border: "1px solid #eee",
+                  borderRadius: "8px",
+                }}
+              >
+                <FormField
+                  label="Text"
+                  name={`banner.manualItems.${index}.text`}
+                  register={register}
+                  errors={errors}
+                  placeholder="e.g. Free shipping on orders over $50"
+                />
+                <FormField
+                  label="Link (optional)"
+                  name={`banner.manualItems.${index}.link`}
+                  register={register}
+                  errors={errors}
+                  placeholder="/sale or https://..."
+                />
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <Controller
+                    name={`banner.manualItems.${index}.icon`}
+                    control={control}
+                    render={({ field }) => (
+                      <input
+                        {...field}
+                        type="text"
+                        placeholder="🎉 or icon"
+                        style={{
+                          width: "80px",
+                          padding: "8px",
+                          border: "1px solid #ddd",
+                          borderRadius: "4px",
+                          fontSize: "14px",
+                        }}
+                      />
+                    )}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeManualItem(index)}
+                    style={{
+                      padding: "8px 12px",
+                      background: "#f5f5f5",
+                      border: "1px solid #ddd",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      fontSize: "13px",
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() =>
+                addManualItem({
+                  id: `manual-${Date.now()}`,
+                  text: "",
+                  link: null,
+                  icon: null,
+                } as ManualBannerItem)
+              }
+              style={{
+                padding: "8px 16px",
+                background: "#2563EB",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontSize: "14px",
+              }}
+            >
+              Add manual item
+            </button>
           </div>
         </SectionCard>
 
@@ -195,5 +361,9 @@ const HeaderPage: NextPage = () => {
     </AppLayout>
   );
 };
+
+export async function getServerSideProps() {
+  return { props: {} };
+}
 
 export default HeaderPage;

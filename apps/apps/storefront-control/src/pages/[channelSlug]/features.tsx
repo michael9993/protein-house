@@ -73,12 +73,13 @@ const FeaturesPage: NextPage = () => {
           id="features-customer"
           title="Customer Features"
           description="Features that enhance the shopping experience"
-          keywords={["wishlist", "reviews", "compare", "recently viewed"]}
+          keywords={["wishlist", "reviews", "compare", "recently viewed", "scroll to top"]}
         >
           <FeatureToggle label="Wishlist" description="Allow customers to save products to a wishlist" name="wishlist" control={control} />
           <FeatureToggle label="Compare Products" description="Enable side-by-side product comparison" name="compareProducts" control={control} />
           <FeatureToggle label="Product Reviews" description="Allow customers to leave product reviews" name="productReviews" control={control} />
           <FeatureToggle label="Recently Viewed" description="Show recently viewed products section" name="recentlyViewed" control={control} />
+          <FeatureToggle label="Scroll to Top" description="Show floating scroll-to-top button on product list and homepage (mobile)" name="scrollToTop" control={control} />
         </SectionCard>
 
         <SectionCard
@@ -143,5 +144,9 @@ const FeaturesPage: NextPage = () => {
     </AppLayout>
   );
 };
+
+export async function getServerSideProps() {
+  return { props: {} };
+}
 
 export default FeaturesPage;

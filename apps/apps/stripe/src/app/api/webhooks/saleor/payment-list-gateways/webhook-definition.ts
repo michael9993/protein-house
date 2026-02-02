@@ -7,10 +7,12 @@ import {
 } from "@/generated/graphql";
 import { saleorApp } from "@/lib/saleor-app";
 
+type SyncWebhookEventType = ConstructorParameters<typeof SaleorSyncWebhook>[0]["event"];
+
 export const paymentListGatewaysWebhookDefinition =
   new SaleorSyncWebhook<PaymentListGatewaysEventFragment>({
     apl: saleorApp.apl,
-    event: "PAYMENT_LIST_GATEWAYS",
+    event: "PAYMENT_LIST_GATEWAYS" as unknown as SyncWebhookEventType,
     name: "Stripe Payment List Gateways",
     isActive: true,
     query: PaymentListGatewaysDocument,

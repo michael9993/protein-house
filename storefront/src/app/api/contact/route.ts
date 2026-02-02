@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		const body = await request.json();
+		const body = (await request.json()) as { channel?: string; name?: string; email?: string; subject?: string; message?: string };
 		const { channel, name, email, subject, message } = body;
 
 		// Validate required fields

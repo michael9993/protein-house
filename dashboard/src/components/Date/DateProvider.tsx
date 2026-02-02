@@ -1,33 +1,20 @@
 // @ts-strict-ignore
-import { Component, ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 import { Provider } from "./DateContext";
 
-interface DateProviderState {
-  date: number;
+interface DateProviderProps {
+  children: ReactNode;
 }
 
-export class DateProvider extends Component<{ children: ReactNode }, DateProviderState> {
-  static contextTypes = {};
+export const DateProvider = ({ children }: DateProviderProps) => {
+  const [date, setDate] = useState(() => Date.now());
 
-  intervalId: number;
+  useEffect(() => {
+    const intervalId = window.setInterval(() => setDate(Date.now()), 10000);
 
-  state = {
-    date: Date.now(),
-  };
+    return () => window.clearInterval(intervalId);
+  }, []);
 
-  componentDidMount() {
-    this.intervalId = window.setInterval(() => this.setState({ date: Date.now() }), 10000);
-  }
-
-  componentWillUnmount() {
-    window.clearInterval(this.intervalId);
-  }
-
-  render() {
-    const { children } = this.props;
-    const { date } = this.state;
-
-    return <Provider value={date}>{children}</Provider>;
-  }
-}
+  return <Provider value={date}>{children}</Provider>;
+};

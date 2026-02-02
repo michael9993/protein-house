@@ -152,7 +152,7 @@ export class SendEventMessagesUseCase {
 
     // Inject branding into payload for Handlebars variables
     const enrichedPayload = branding
-      ? TemplateBrandingProcessor.injectBrandingIntoPayload(payload, branding)
+      ? TemplateBrandingProcessor.injectBrandingIntoPayload(payload as Record<string, unknown>, branding)
       : payload;
 
     const preparedEmailResult = this.deps.emailCompiler.compile({
@@ -255,6 +255,7 @@ export class SendEventMessagesUseCase {
 
     // Fetch branding from storefront-control
     let branding: import("../../branding/branding-service").BrandingConfig | undefined;
+
     try {
       branding = await BrandingService.fetchBranding(channelSlug, saleorApiUrl);
       this.logger.debug("Fetched branding for email", {

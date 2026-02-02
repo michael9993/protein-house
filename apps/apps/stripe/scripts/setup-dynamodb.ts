@@ -10,7 +10,7 @@ import {
 
 import { env } from "@/lib/env";
 
-const stripeMainTableName = env.DYNAMODB_MAIN_TABLE_NAME;
+const stripeMainTableName = (env as { DYNAMODB_MAIN_TABLE_NAME?: string }).DYNAMODB_MAIN_TABLE_NAME ?? process.env.DYNAMODB_MAIN_TABLE_NAME;
 
 try {
   const {
@@ -90,6 +90,10 @@ try {
     console.log(`Table ${tableName} created successfully`);
   };
 
+  if (!stripeMainTableName) {
+    console.error("DYNAMODB_MAIN_TABLE_NAME is required");
+    process.exit(1);
+  }
   await createTableIfNotExists(stripeMainTableName);
 
   console.log("DynamoDB setup completed successfully");

@@ -4,7 +4,9 @@ import { OrderByNumberAndEmailDocument } from "@/gql/graphql";
 
 export async function POST(request: NextRequest) {
 	try {
-		const { orderNumber, email } = await request.json();
+		const body = (await request.json()) as { orderNumber?: string; email?: string };
+		const orderNumber = body.orderNumber;
+		const email = body.email;
 
 		if (!orderNumber || !email) {
 			return NextResponse.json(

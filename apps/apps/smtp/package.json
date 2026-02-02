@@ -4,8 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "next build",
+    "build": "pnpm run type-check && next build",
+    "build:skip-type-check": "next build",
     "check-types": "tsc",
+    "type-check": "tsc --noEmit",
     "deploy": "tsx --require dotenv/config ./scripts/deploy.ts",
     "dev": "NODE_OPTIONS='--inspect' next dev",
     "fetch-schema": "curl https://raw.githubusercontent.com/saleor/saleor/${npm_package_config_saleor_schemaVersion}/saleor/graphql/schema.graphql > graphql/schema.graphql",

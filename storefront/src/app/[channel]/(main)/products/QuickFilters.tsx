@@ -217,8 +217,10 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
   const scroll = (direction: "left" | "right") => {
     const el = scrollContainerRef.current;
     if (!el) return;
-    const style = quickFiltersConfig.style || {};
-    const cardWidth = (style.cardWidth || 160) + (style.cardGap || 0.5) * 8; // Card width + gap in pixels
+    const style = (quickFiltersConfig.style || {}) as { cardWidth?: number; cardGap?: number };
+    const cardWidthNum = Number(style.cardWidth ?? 160);
+    const cardGapNum = Number(style.cardGap ?? 0.5);
+    const cardWidth = cardWidthNum + cardGapNum * 8; // Card width + gap in pixels
     const scrollAmount = cardWidth * 2; // Scroll 2 cards at a time
     const currentScroll = el.scrollLeft;
     const maxScroll = el.scrollWidth - el.clientWidth;
@@ -388,10 +390,10 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
                   ? "ring-2 ring-offset-1"
                   : "ring-1 ring-neutral-200 hover:ring-neutral-300"
               }`}
-              style={{
-                width: `${quickFiltersConfig.style?.cardWidth || 160}px`,
+                style={{
+                width: `${Number((quickFiltersConfig.style as { cardWidth?: number })?.cardWidth ?? 160)}px`,
                 height: "100%",
-                marginRight: `${(quickFiltersConfig.style?.cardGap || 0.5) * 8}px`,
+                marginRight: `${Number((quickFiltersConfig.style as { cardGap?: number })?.cardGap ?? 0.5) * 8}px`,
                 borderRadius: "0",
                 "--tw-ring-color": active ? branding.colors.primary : undefined,
                 transform: isHovered && !active ? "translateY(-2px)" : undefined,

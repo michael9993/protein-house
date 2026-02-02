@@ -226,7 +226,7 @@ export class SmtpConfigurationService implements IGetSmtpConfiguration {
 
       configurationRoot.configurations.push(newConfiguration);
 
-      return this.setConfigurationRoot(configurationRoot).andThen((result) => {
+      return this.setConfigurationRoot(configurationRoot).andThen((_result) => {
         return okAsync(newConfiguration);
       });
     });
@@ -263,7 +263,7 @@ export class SmtpConfigurationService implements IGetSmtpConfiguration {
   deleteConfiguration({ id }: { id: string }) {
     logger.debug("Delete configuration");
 
-    return this.getConfiguration({ id }).andThen((config) => {
+    return this.getConfiguration({ id }).andThen((_config) => {
       const updatedConfigRoot = structuredClone(this.configurationData!);
 
       updatedConfigRoot.configurations = updatedConfigRoot.configurations.filter(

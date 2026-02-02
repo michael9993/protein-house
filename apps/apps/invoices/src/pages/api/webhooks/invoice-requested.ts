@@ -71,8 +71,6 @@ const FetchOrderDetailsQuery = gql`
           amount
           currency
         }
-      }
-      total {
         tax {
           amount
           currency

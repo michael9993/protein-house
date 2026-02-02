@@ -13,6 +13,7 @@ type SectionType =
   | "brands" 
   | "testimonials" 
   | "newsletter"
+  | "instagram"
   | "default";
 
 interface SectionHeaderProps {

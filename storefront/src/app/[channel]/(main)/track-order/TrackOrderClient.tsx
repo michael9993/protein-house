@@ -37,17 +37,17 @@ export function TrackOrderClient({ channel }: TrackOrderClientProps) {
 				body: JSON.stringify({ orderNumber, email }),
 			});
 
-			const data = await response.json();
+			const data = (await response.json()) as { success?: boolean; error?: string; order?: unknown };
 
 			if (!response.ok || !data.success) {
-				setError(data.error || orderTracking.errorNotFound);
+				setError((data.error as string) || orderTracking.errorNotFound);
 				setIsLoading(false);
 				return;
 			}
 
 			// Order details are returned from the validation route
-			if (data.order) {
-				setOrder(data.order);
+			if (data.order && typeof data.order === "object" && "id" in data.order && "number" in data.order) {
+				setOrder(data.order as NonNullable<OrderByIdQuery["order"]>);
 				setIsLoading(false);
 			} else {
 				setError(orderTracking.errorNotFound);

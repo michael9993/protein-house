@@ -4,6 +4,7 @@ import { storeConfig } from "@/config";
 import { HomePage } from "./HomePage";
 import { homepageCollections, getHeroBannerConfig, getTestimonials, getFeaturedBrands } from "@/lib/cms";
 import { CartRestoreTrigger } from "./CartRestoreTrigger";
+import { ScrollToTopButton } from "./products/ScrollToTopButton";
 
 // Dynamic metadata from store config
 export const metadata = {
@@ -129,6 +130,8 @@ export default async function Page(
 				testimonials={testimonialsData}
 				brands={brandsData}
 			/>
+			{/* Floating scroll-to-top (controlled by storefront-control Features > Scroll to Top) */}
+			<ScrollToTopButton />
 		</>
 	);
 }

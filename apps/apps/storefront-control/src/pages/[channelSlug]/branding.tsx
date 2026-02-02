@@ -21,9 +21,13 @@ const BrandingPage: NextPage = () => {
   const { channelSlug } = router.query as { channelSlug: string };
   const { appBridgeState } = useAppBridge();
 
-  const { data: config, isLoading, refetch } = trpcClient.config.getConfig.useQuery(
+  const {
+    data: config,
+    isLoading,
+    refetch,
+  } = trpcClient.config.getConfig.useQuery(
     { channelSlug },
-    { enabled: !!channelSlug && !!appBridgeState?.ready }
+    { enabled: !!channelSlug && !!appBridgeState?.ready },
   );
 
   const updateMutation = trpcClient.config.updateSection.useMutation({
@@ -60,7 +64,9 @@ const BrandingPage: NextPage = () => {
 
   if (!appBridgeState?.ready || isLoading) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+      <div
+        style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}
+      >
         <span>Loading...</span>
       </div>
     );
@@ -75,7 +81,6 @@ const BrandingPage: NextPage = () => {
           description="Your brand identity assets"
           keywords={["logo", "branding", "favicon", "alt"]}
         >
-
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <FormField
               label="Logo URL"
@@ -111,44 +116,43 @@ const BrandingPage: NextPage = () => {
           keywords={["colors", "primary", "secondary", "accent", "background", "text"]}
           icon="🎨"
         >
-
           {/* Color Preview */}
-          <div 
-            style={{ 
-              display: "flex", 
-              gap: "8px", 
+          <div
+            style={{
+              display: "flex",
+              gap: "8px",
               marginBottom: "24px",
               padding: "16px",
               backgroundColor: colors?.background || "#fff",
-              border: "1px solid #ddd"
+              border: "1px solid #ddd",
             }}
           >
-            <div 
-              style={{ 
-                padding: "12px", 
-                backgroundColor: colors?.primary || "#2563EB", 
+            <div
+              style={{
+                padding: "12px",
+                backgroundColor: colors?.primary || "#2563EB",
                 color: "#fff",
-                borderRadius: "4px"
+                borderRadius: "4px",
               }}
             >
               Primary
             </div>
-            <div 
-              style={{ 
-                padding: "12px", 
-                backgroundColor: colors?.secondary || "#1F2937", 
+            <div
+              style={{
+                padding: "12px",
+                backgroundColor: colors?.secondary || "#1F2937",
                 color: "#fff",
-                borderRadius: "4px"
+                borderRadius: "4px",
               }}
             >
               Secondary
             </div>
-            <div 
-              style={{ 
-                padding: "12px", 
-                backgroundColor: colors?.accent || "#F59E0B", 
+            <div
+              style={{
+                padding: "12px",
+                backgroundColor: colors?.accent || "#F59E0B",
                 color: "#fff",
-                borderRadius: "4px"
+                borderRadius: "4px",
               }}
             >
               Accent
@@ -156,22 +160,82 @@ const BrandingPage: NextPage = () => {
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
-            <FormField label="Primary" name="colors.primary" register={register} errors={errors} type="color" />
-            <FormField label="Secondary" name="colors.secondary" register={register} errors={errors} type="color" />
-            <FormField label="Accent" name="colors.accent" register={register} errors={errors} type="color" />
+            <FormField
+              label="Primary"
+              name="colors.primary"
+              register={register}
+              errors={errors}
+              type="color"
+            />
+            <FormField
+              label="Secondary"
+              name="colors.secondary"
+              register={register}
+              errors={errors}
+              type="color"
+            />
+            <FormField
+              label="Accent"
+              name="colors.accent"
+              register={register}
+              errors={errors}
+              type="color"
+            />
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-            <FormField label="Background" name="colors.background" register={register} errors={errors} type="color" />
-            <FormField label="Surface" name="colors.surface" register={register} errors={errors} type="color" />
+            <FormField
+              label="Background"
+              name="colors.background"
+              register={register}
+              errors={errors}
+              type="color"
+            />
+            <FormField
+              label="Surface"
+              name="colors.surface"
+              register={register}
+              errors={errors}
+              type="color"
+            />
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-            <FormField label="Text" name="colors.text" register={register} errors={errors} type="color" />
-            <FormField label="Text Muted" name="colors.textMuted" register={register} errors={errors} type="color" />
+            <FormField
+              label="Text"
+              name="colors.text"
+              register={register}
+              errors={errors}
+              type="color"
+            />
+            <FormField
+              label="Text Muted"
+              name="colors.textMuted"
+              register={register}
+              errors={errors}
+              type="color"
+            />
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
-            <FormField label="Success" name="colors.success" register={register} errors={errors} type="color" />
-            <FormField label="Warning" name="colors.warning" register={register} errors={errors} type="color" />
-            <FormField label="Error" name="colors.error" register={register} errors={errors} type="color" />
+            <FormField
+              label="Success"
+              name="colors.success"
+              register={register}
+              errors={errors}
+              type="color"
+            />
+            <FormField
+              label="Warning"
+              name="colors.warning"
+              register={register}
+              errors={errors}
+              type="color"
+            />
+            <FormField
+              label="Error"
+              name="colors.error"
+              register={register}
+              errors={errors}
+              type="color"
+            />
           </div>
         </SectionCard>
 
@@ -182,7 +246,6 @@ const BrandingPage: NextPage = () => {
           keywords={["typography", "fonts", "heading", "body"]}
           icon="✍️"
         >
-
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
             <FormField
               label="Heading Font"
@@ -214,14 +277,11 @@ const BrandingPage: NextPage = () => {
           description="Font sizes for different text elements (RTL-aware)"
           keywords={["font sizes", "typography", "text"]}
         >
-
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "16px" }}>
-            <FormField
+            <SelectField
               label="H1 Size"
               name="typography.fontSize.h1"
               register={register}
-              errors={errors}
-              type="select"
               options={[
                 { value: "xs", label: "xs" },
                 { value: "sm", label: "sm" },
@@ -238,12 +298,10 @@ const BrandingPage: NextPage = () => {
                 { value: "9xl", label: "9xl" },
               ]}
             />
-            <FormField
+            <SelectField
               label="H2 Size"
               name="typography.fontSize.h2"
               register={register}
-              errors={errors}
-              type="select"
               options={[
                 { value: "xs", label: "xs" },
                 { value: "sm", label: "sm" },
@@ -260,12 +318,10 @@ const BrandingPage: NextPage = () => {
                 { value: "9xl", label: "9xl" },
               ]}
             />
-            <FormField
+            <SelectField
               label="H3 Size"
               name="typography.fontSize.h3"
               register={register}
-              errors={errors}
-              type="select"
               options={[
                 { value: "xs", label: "xs" },
                 { value: "sm", label: "sm" },
@@ -282,12 +338,10 @@ const BrandingPage: NextPage = () => {
                 { value: "9xl", label: "9xl" },
               ]}
             />
-            <FormField
+            <SelectField
               label="H4 Size"
               name="typography.fontSize.h4"
               register={register}
-              errors={errors}
-              type="select"
               options={[
                 { value: "xs", label: "xs" },
                 { value: "sm", label: "sm" },
@@ -304,12 +358,10 @@ const BrandingPage: NextPage = () => {
                 { value: "9xl", label: "9xl" },
               ]}
             />
-            <FormField
+            <SelectField
               label="Body Size"
               name="typography.fontSize.body"
               register={register}
-              errors={errors}
-              type="select"
               options={[
                 { value: "xs", label: "xs" },
                 { value: "sm", label: "sm" },
@@ -326,12 +378,10 @@ const BrandingPage: NextPage = () => {
                 { value: "9xl", label: "9xl" },
               ]}
             />
-            <FormField
+            <SelectField
               label="Small Size"
               name="typography.fontSize.small"
               register={register}
-              errors={errors}
-              type="select"
               options={[
                 { value: "xs", label: "xs" },
                 { value: "sm", label: "sm" },
@@ -348,12 +398,10 @@ const BrandingPage: NextPage = () => {
                 { value: "9xl", label: "9xl" },
               ]}
             />
-            <FormField
+            <SelectField
               label="Button Size"
               name="typography.fontSize.button"
               register={register}
-              errors={errors}
-              type="select"
               options={[
                 { value: "xs", label: "xs" },
                 { value: "sm", label: "sm" },
@@ -370,12 +418,10 @@ const BrandingPage: NextPage = () => {
                 { value: "9xl", label: "9xl" },
               ]}
             />
-            <FormField
+            <SelectField
               label="Caption Size"
               name="typography.fontSize.caption"
               register={register}
-              errors={errors}
-              type="select"
               options={[
                 { value: "xs", label: "xs" },
                 { value: "sm", label: "sm" },
@@ -402,7 +448,6 @@ const BrandingPage: NextPage = () => {
           keywords={["style", "radius", "buttons", "shadows"]}
           icon="✨"
         >
-
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
             <SelectField
               label="Border Radius"
@@ -452,5 +497,9 @@ const BrandingPage: NextPage = () => {
     </AppLayout>
   );
 };
+
+export async function getServerSideProps() {
+  return { props: {} };
+}
 
 export default BrandingPage;

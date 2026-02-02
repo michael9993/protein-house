@@ -88,12 +88,13 @@ const attachAppToken = middleware(async ({ ctx, next }) => {
         
         if (tunnelAuth) {
           // Use the found auth data but update the URL to normalized format
-          authData = {
+          const mergedAuth = {
             ...tunnelAuth,
             saleorApiUrl: normalizedUrl,
           };
-          // Store it with the normalized URL for future lookups
-          await saleorApp.apl.set(authData);
+          authData = mergedAuth as typeof authData;
+          // Store it with the normalized URL for future lookups (tunnelAuth is from APL so is valid AuthData)
+          await saleorApp.apl.set(mergedAuth as Parameters<typeof saleorApp.apl.set>[0]);
         }
       }
     } catch (e) {

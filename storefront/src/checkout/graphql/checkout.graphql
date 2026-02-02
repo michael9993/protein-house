@@ -110,6 +110,7 @@ fragment CheckoutFragment on Checkout {
 fragment CheckoutLineFragment on CheckoutLine {
 	id
 	quantity
+	isGift
 	totalPrice {
 		gross {
 			currency

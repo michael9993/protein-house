@@ -50,8 +50,8 @@ services:
       - .env
     # Use uvicorn (ASGI) instead of runserver (WSGI) to enable CORS handler
     # Port is set via environment variable SALEOR_API_PORT from .env
-    # command: sh -c "uvicorn saleor.asgi:application --host 0.0.0.0 --port $${SALEOR_API_PORT} --reload --lifespan off"
-    command: python /app/scripts/wait-for-db-and-migrate.py
+    command: sh -c "uvicorn saleor.asgi:application --host 0.0.0.0 --port $${SALEOR_API_PORT} --reload --lifespan off"
+    # command: python /app/scripts/wait-for-db-and-migrate.py
     ports:
       - "${SALEOR_API_PORT}:${SALEOR_API_PORT}"
     volumes:
@@ -62,8 +62,8 @@ services:
       # Mount custom plugins if they exist
       - ../backend/plugins:/app/plugins/custom:ro
       # Mount migration scripts
-      - ./scripts/wait-for-db-and-migrate.sh:/app/scripts/wait-for-db-and-migrate.sh:ro
-      - ./scripts/wait-for-db-and-migrate.py:/app/scripts/wait-for-db-and-migrate.py:ro
+      # - ./scripts/wait-for-db-and-migrate.sh:/app/scripts/wait-for-db-and-migrate.sh:ro
+      # - ./scripts/wait-for-db-and-migrate.py:/app/scripts/wait-for-db-and-migrate.py:ro
     environment:
       # Core Settings - All values from .env file
       SECRET_KEY: ${SECRET_KEY}
@@ -226,7 +226,9 @@ services:
       EXTENSIONS_API_URL: ${EXTENSIONS_API_URL}
       APP_MOUNT_URI: ${APP_MOUNT_URI}
       STATIC_URL: ${STATIC_URL}
-      NODE_ENV: ${NODE_ENV}
+      NODE_ENV: ${NODE_ENV:-development}
+      # Baked in at build time: set to "true" to disable React StrictMode (helps RichTextEditor/Combobox)
+      VITE_DISABLE_STRICT_MODE: ${VITE_DISABLE_STRICT_MODE:-}
     depends_on:
       saleor-api:
         condition: service_healthy
@@ -336,7 +338,8 @@ services:
     image: node:22-alpine
     container_name: saleor-smtp-app-dev
     working_dir: /app
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-smtp... --prefer-offline && cd apps/smtp && pnpm dev"
+    # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-smtp... --prefer-offline && cd apps/smtp && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run check-types && pnpm build && pnpm start; else pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -353,12 +356,14 @@ services:
       # SMTP App base URL for webhook registration (use tunnel URL for external access)
       APP_API_BASE_URL: ${SMTP_APP_TUNNEL_URL:-http://localhost:${SMTP_APP_PORT:-3001}}
       APP_IFRAME_BASE_URL: ${SMTP_APP_TUNNEL_URL:-http://localhost:${SMTP_APP_PORT:-3001}}
-      NODE_ENV: development
+      NODE_ENV: ${NODE_ENV:-development}
       # Secret key for encrypting app metadata - MUST match Newsletter app
       SECRET_KEY: ${APP_SECRET_KEY}
       # Disable OpenTelemetry/Sentry in development
       OTEL_ENABLED: "false"
       NEXT_PUBLIC_SENTRY_DSN: ""
+      # Set APPS_MODE=production in .env to run production build in container
+      APPS_MODE: ${APPS_MODE:-dev}
     depends_on:
       saleor-api:
         condition: service_healthy
@@ -384,7 +389,8 @@ services:
     image: node:22-alpine
     container_name: saleor-invoice-app-dev
     working_dir: /app
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-invoices... --prefer-offline && cd apps/invoices && pnpm dev"
+    # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-invoices... --prefer-offline && cd apps/invoices && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run generate && pnpm run check-types && pnpm build && pnpm start; else pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -399,10 +405,12 @@ services:
       INVOICE_APP_URL: ${INVOICE_APP_URL}
       INVOICE_APP_API_BASE_URL: ${INVOICE_APP_API_BASE_URL}
       APP_API_BASE_URL: ${INVOICE_APP_URL}
-      NODE_ENV: development
+      NODE_ENV: ${NODE_ENV:-development}
       # Disable OpenTelemetry/Sentry in development
       OTEL_ENABLED: "false"
       NEXT_PUBLIC_SENTRY_DSN: ""
+      # Set APPS_MODE=production in .env to run production build in container
+      APPS_MODE: ${APPS_MODE:-dev}
     depends_on:
       saleor-api:
         condition: service_healthy
@@ -431,11 +439,9 @@ services:
     image: node:22-alpine
     container_name: saleor-stripe-app-dev
     working_dir: /app
-    # Install pnpm and start dev server (NOT build - dev mode skips static generation)
-    # Note: Must install from monorepo root to get catalog entries and workspace dependencies
-    # Dev mode prevents Html import errors by skipping static page generation
-    # Only install if needed - pnpm handles caching automatically
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-payment-stripe... --prefer-offline && cd apps/stripe && pnpm dev"
+    # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
+    # Must install from monorepo root to get catalog entries and workspace dependencies
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-payment-stripe... --prefer-offline && cd apps/stripe && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run check-types && pnpm build && pnpm start; else pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -471,7 +477,7 @@ services:
       APP_ENV: development
       APP_URL: ${STRIPE_APP_URL}
       APP_API_BASE_URL: ${STRIPE_APP_API_BASE_URL}
-      NODE_ENV: development
+      NODE_ENV: ${NODE_ENV:-development}
 
       # App Encryption Key - From .env
       SECRET_KEY: ${APP_SECRET_KEY}
@@ -487,6 +493,8 @@ services:
       # Next.js
       PORT: 3000
       HOSTNAME: 0.0.0.0
+      # Set APPS_MODE=production in .env to run production build in container
+      APPS_MODE: ${APPS_MODE:-dev}
     depends_on:
       postgres:
         condition: service_healthy
@@ -502,7 +510,8 @@ services:
     image: node:22-alpine
     container_name: saleor-storefront-control-app-dev
     working_dir: /app
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-storefront-control... --prefer-offline && cd apps/storefront-control && PORT=3000 pnpm dev"
+    # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-storefront-control... --prefer-offline && cd apps/storefront-control && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run check-types && pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -527,10 +536,12 @@ services:
       APL: file
       # Secret key for encrypting app metadata
       SECRET_KEY: ${APP_SECRET_KEY}
-      NODE_ENV: development
+      NODE_ENV: ${NODE_ENV:-development}
       # Disable OpenTelemetry/Sentry in development
       OTEL_ENABLED: "false"
       NEXT_PUBLIC_SENTRY_DSN: ""
+      # Set APPS_MODE=production in .env to run production build in container
+      APPS_MODE: ${APPS_MODE:-dev}
     depends_on:
       saleor-api:
         condition: service_healthy
@@ -556,7 +567,8 @@ services:
     image: node:22-alpine
     container_name: saleor-newsletter-app-dev
     working_dir: /app
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-newsletter... --prefer-offline && cd apps/newsletter && PORT=3000 pnpm dev"
+    # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-newsletter... --prefer-offline && cd apps/newsletter && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run check-types && pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -576,7 +588,7 @@ services:
       APL: file
       # Secret key for encrypting app metadata
       SECRET_KEY: ${APP_SECRET_KEY}
-      NODE_ENV: development
+      NODE_ENV: ${NODE_ENV:-development}
       # Image storage (local for dev, s3 for production)
       NEWSLETTER_IMAGE_STORAGE: ${NEWSLETTER_IMAGE_STORAGE:-local}
       # Redis for BullMQ (campaign queue) - use service name 'redis' for Docker network
@@ -589,6 +601,7 @@ services:
       # Storefront URL for unsubscribe links (use tunnel URL for external access)
       STOREFRONT_URL: ${NEXT_PUBLIC_STOREFRONT_URL}
       STOREFRONT_TUNNEL_URL: ${STOREFRONT_TUNNEL_URL:-${NEXT_PUBLIC_STOREFRONT_URL}}
+      APPS_MODE: ${APPS_MODE:-dev}
       # SMTP configuration (fallback if SMTP app metadata not available)
       SMTP_HOST: ${SMTP_HOST:-}
       SMTP_PORT: ${SMTP_PORT:-}
@@ -627,7 +640,8 @@ services:
     image: node:22-alpine
     container_name: saleor-sales-analytics-app-dev
     working_dir: /app
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-sales-analytics... --prefer-offline && cd apps/sales-analytics && PORT=3000 pnpm dev"
+    # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-sales-analytics... --prefer-offline && cd apps/sales-analytics && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run check-types && pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -647,10 +661,11 @@ services:
       APL: file
       # Secret key for encrypting app metadata
       SECRET_KEY: ${APP_SECRET_KEY}
-      NODE_ENV: development
+      NODE_ENV: ${NODE_ENV:-development}
       # Disable OpenTelemetry/Sentry in development
       OTEL_ENABLED: "false"
       NEXT_PUBLIC_SENTRY_DSN: ""
+      APPS_MODE: ${APPS_MODE:-dev}
     depends_on:
       saleor-api:
         condition: service_healthy

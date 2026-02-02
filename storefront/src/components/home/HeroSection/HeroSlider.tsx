@@ -126,8 +126,7 @@ export function HeroSlider({
                 <LinkWithChannel
                   href={slide.ctaLink}
                   className="btn-primary inline-flex items-center gap-2 px-8 py-4 text-lg font-semibold transition-transform duration-200 ease-out hover:scale-[1.02]"
-                  style={{ willChange: 'transform' }}
-                  style={{ backgroundColor: branding.colors.primary }}
+                  style={{ willChange: 'transform', backgroundColor: branding.colors.primary }}
                 >
                   {slide.ctaText}
                   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

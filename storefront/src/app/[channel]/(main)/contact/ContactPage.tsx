@@ -91,10 +91,10 @@ export function ContactPage() {
         }),
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as { success?: boolean; error?: string };
 
       if (!response.ok || !data.success) {
-        setErrorMessage(data.error || "Failed to send message. Please try again.");
+        setErrorMessage(data.error ?? "Failed to send message. Please try again.");
         setStatus("error");
         return;
       }

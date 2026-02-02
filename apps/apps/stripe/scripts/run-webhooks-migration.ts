@@ -37,13 +37,15 @@ Sentry.init({
   integrations: [],
 });
 
+const aplLabel = (env as { APL?: string }).APL ?? process.env.APL ?? "APL";
+
 const runMigrations = async () => {
   logger.info(`Starting webhooks migration`);
 
   const saleorAPL = saleorApp.apl;
 
   const saleorCloudEnv = await saleorAPL.getAll().catch(() => {
-    logger.error(`Could not fetch instances from the ${env.APL} APL`);
+    logger.error(`Could not fetch instances from the ${aplLabel} APL`);
 
     process.exit(1);
   });
@@ -127,6 +129,6 @@ const runMigrations = async () => {
 runMigrations();
 
 process.on("beforeExit", () => {
-  logger.info(`Webhook migration complete for all environments from ${env.APL} APL`);
+  logger.info(`Webhook migration complete for all environments from ${aplLabel} APL`);
   process.exit(0);
 });

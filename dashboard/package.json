@@ -11,6 +11,7 @@
   "scripts": {
     "prebuild": "pnpm run generate",
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build",
+    "build:no-strict": "cross-env VITE_DISABLE_STRICT_MODE=true NODE_OPTIONS=--max-old-space-size=8192 vite build",
     "build-flags": "node scripts/build-flags.cjs",
     "build-storybook": "storybook build",
     "change:add": "changeset add",

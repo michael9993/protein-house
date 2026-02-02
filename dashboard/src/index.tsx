@@ -352,9 +352,11 @@ const Routes = () => {
 
 const root = createRoot(document.querySelector("#dashboard-app")!);
 
-// StrictMode is development-only (no effect in production)
-// Set VITE_DISABLE_STRICT_MODE=true to disable for testing
-const enableStrictMode = import.meta.env.DEV && import.meta.env.VITE_DISABLE_STRICT_MODE !== "true";
+// StrictMode double-mounts in dev and can break EditorJS/Combobox. Disable with VITE_DISABLE_STRICT_MODE=true.
+// Production builds already run without StrictMode (import.meta.env.DEV is false). Set the env at build time
+// (e.g. in .env or Docker build-args) so the flag is baked into the bundle.
+const disableStrictMode = import.meta.env.VITE_DISABLE_STRICT_MODE === "true";
+const enableStrictMode = import.meta.env.DEV && !disableStrictMode;
 
 root.render(
   enableStrictMode ? (

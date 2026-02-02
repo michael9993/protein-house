@@ -25,6 +25,7 @@ Handlebars.registerHelper("formatDate", function (date) {
   if (!date) return "";
   try {
     const d = new Date(date);
+
     return d.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
@@ -34,7 +35,10 @@ Handlebars.registerHelper("formatDate", function (date) {
       hour12: true,
     });
   } catch (e) {
-    logger.warn("Failed to format date, returning raw value", { date, error: e });
+    const errorMessage = e instanceof Error ? e.message : String(e);
+
+    logger.warn("Failed to format date, returning raw value", { errorMessage });
+
     return date; // Fallback to raw value
   }
 });
@@ -61,7 +65,7 @@ export class HandlebarsTemplateCompiler implements ITemplateCompiler {
 
   compile(
     template: string,
-    variables: any,
+    variables: unknown,
   ): Result<
     { template: string },
     InstanceType<typeof HandlebarsTemplateCompiler.FailedCompileError>

@@ -4,8 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "next build",
+    "build": "pnpm run type-check && next build",
+    "build:skip-type-check": "next build",
     "check-types": "tsc",
+    "type-check": "tsc --noEmit",
     "dev": "NODE_OPTIONS='--inspect' next dev --port 3000",
     "dev:debug": "APP_LOG_LEVEL=debug pnpm dev",
     "fetch-schema": "curl https://raw.githubusercontent.com/saleor/saleor/${npm_package_config_saleor_schemaVersion}/saleor/graphql/schema.graphql > graphql/schema.graphql",
@@ -22,6 +24,7 @@
   "dependencies": {
     "@hookform/resolvers": "catalog:",
     "@saleor/app-sdk": "link:../../node_modules/@saleor/app-sdk",
+    "@saleor/apps-logger": "workspace:*",
     "@saleor/apps-shared": "workspace:*",
     "@saleor/apps-ui": "workspace:*",
     "@saleor/macaw-ui": "catalog:",

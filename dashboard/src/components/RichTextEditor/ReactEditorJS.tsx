@@ -9,6 +9,23 @@ import { useCallback } from "react";
 
 import { convertEditorJSListBlocks } from "./utils";
 
+function suppressEditorJSMobileLayoutWarn() {
+  const warn = console.warn;
+  console.warn = (...args: unknown[]) => {
+    if (
+      typeof args[0] === "string" &&
+      args[0].includes("EventDispatcher") &&
+      args[0].includes("editor mobile layout toggled")
+    ) {
+      return;
+    }
+    warn.apply(console, args);
+  };
+  return () => {
+    console.warn = warn;
+  };
+}
+
 // Source of @react-editor-js
 class ClientEditorCore implements EditorCore {
   private readonly _editorJS: EditorJS;
@@ -23,10 +40,24 @@ class ClientEditorCore implements EditorCore {
       ...tools,
     };
 
-    this._editorJS = new EditorJS({
+    // EditorJS expects "data" for initial content; @react-editor-js may pass "defaultValue"
+    const editorConfig: EditorConfig = {
       tools: extendTools,
       ...config,
-    });
+    };
+    if (
+      (editorConfig as EditorConfig & { defaultValue?: OutputData }).defaultValue !== undefined &&
+      editorConfig.data === undefined
+    ) {
+      editorConfig.data = (editorConfig as EditorConfig & { defaultValue: OutputData }).defaultValue;
+    }
+
+    const restoreWarn = suppressEditorJSMobileLayoutWarn();
+    try {
+      this._editorJS = new EditorJS(editorConfig);
+    } finally {
+      restoreWarn();
+    }
   }
 
   public async clear() {
@@ -43,7 +74,12 @@ class ClientEditorCore implements EditorCore {
     try {
       if (this._editorJS) {
         await this._editorJS.isReady;
-        this._editorJS.destroy();
+        const restoreWarn = suppressEditorJSMobileLayoutWarn();
+        try {
+          this._editorJS.destroy();
+        } finally {
+          restoreWarn();
+        }
       }
     } catch (e) {
       /*

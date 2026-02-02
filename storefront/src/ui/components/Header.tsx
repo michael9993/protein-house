@@ -13,7 +13,7 @@ export function Header({ channel, navData, isLoggedIn }: { channel: string; navD
 	return (
 		<>
 			<header className="sticky top-0 z-50 w-full">
-				<HeaderBanner />
+				<HeaderBanner channel={channel} />
 				<div className="w-full backdrop-blur-md bg-white/95 border-b border-neutral-200/50" style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
 					<div className="mx-auto w-full max-w-[1920px] px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
 						<div className="flex h-16 items-center justify-between gap-4 sm:gap-6 lg:gap-8">

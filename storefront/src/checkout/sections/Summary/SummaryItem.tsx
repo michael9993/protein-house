@@ -12,7 +12,7 @@ interface SummaryItemProps {
 
 export const SummaryItem = ({ line, children }: SummaryItemProps) => {
 	const { productName, productImage } = getSummaryLineProps(line);
-
+	const isGift = (line as { isGift?: boolean }).isGift;
 	const attributesText = useSummaryLineLineAttributesText(line);
 
 	return (
@@ -30,15 +30,18 @@ export const SummaryItem = ({ line, children }: SummaryItemProps) => {
 						<PhotoIcon />
 					</div>
 				)}
-				{/* Quantity Badge */}
-				<span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full text-xs font-medium text-white" style={{ backgroundColor: "var(--store-neutral-700)" }}>
-					{line.quantity}
-				</span>
 			</div>
 			
 			{/* Product Info */}
 			<div className="flex min-w-0 flex-1 flex-col justify-center">
-				<p className="truncate text-sm font-medium" style={{ color: "var(--store-text)" }}>{productName}</p>
+				<p className="truncate text-sm font-medium" style={{ color: "var(--store-text)" }}>
+					{productName}
+					{isGift && (
+						<span className="ml-1.5 inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-800">
+							Gift
+						</span>
+					)}
+				</p>
 				{attributesText && (
 					<p className="mt-0.5 truncate text-xs" style={{ color: "var(--store-text-muted)" }}>{attributesText}</p>
 				)}

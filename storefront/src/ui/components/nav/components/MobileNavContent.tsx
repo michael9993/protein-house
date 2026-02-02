@@ -7,7 +7,8 @@
 import { useState, useEffect } from "react";
 import { ChevronRightIcon } from "lucide-react";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
-import { useContentConfig, useBranding } from "@/providers/StoreConfigProvider";
+import { useContentConfig, useBranding, useCartDisplayMode } from "@/providers/StoreConfigProvider";
+import { useCartDrawerSafe } from "@/providers/CartDrawerProvider";
 import type { CategoryWithChildren, MobileNavData } from "./NavLinksClient";
 
 export type { MobileNavData };
@@ -224,6 +225,8 @@ export function MobileNavContent({
 }) {
 	const content = useContentConfig();
 	const branding = useBranding();
+	const displayMode = useCartDisplayMode();
+	const drawerContext = useCartDrawerSafe();
 	const [openSection, setOpenSection] = useState<"categories" | "collections" | "brands" | null>(null);
 	const [expandedCategoryIds, setExpandedCategoryIds] = useState<Set<string>>(new Set());
 	const [isRtl, setIsRtl] = useState(false);
@@ -286,14 +289,28 @@ export function MobileNavContent({
 				>
 					{accountLabel}
 				</LinkWithChannel>
-				<LinkWithChannel
-					href="/cart"
-					onClick={onClose}
-					className="flex-1 min-h-[2.75rem] flex items-center justify-center rounded-lg px-4 text-sm font-medium transition-colors hover:bg-[var(--store-neutral-100)] active:bg-[var(--store-neutral-200)]"
-					style={{ color: "var(--store-text)" }}
-				>
-					{cartLabel}
-				</LinkWithChannel>
+				{displayMode === "drawer" ? (
+					<button
+						type="button"
+						onClick={() => {
+							drawerContext?.openDrawer();
+							onClose();
+						}}
+						className="flex-1 min-h-[2.75rem] flex items-center justify-center rounded-lg px-4 text-sm font-medium transition-colors hover:bg-[var(--store-neutral-100)] active:bg-[var(--store-neutral-200)]"
+						style={{ color: "var(--store-text)" }}
+					>
+						{cartLabel}
+					</button>
+				) : (
+					<LinkWithChannel
+						href="/cart"
+						onClick={onClose}
+						className="flex-1 min-h-[2.75rem] flex items-center justify-center rounded-lg px-4 text-sm font-medium transition-colors hover:bg-[var(--store-neutral-100)] active:bg-[var(--store-neutral-200)]"
+						style={{ color: "var(--store-text)" }}
+					>
+						{cartLabel}
+					</LinkWithChannel>
+				)}
 			</div>
 
 			{/* Categories – dropdown (Allin-style section divider) */}

@@ -55,9 +55,7 @@ const IndexPage: NextPage = () => {
   if (!isInIframe()) {
     return (
       <Box>
-        <Text as="h1" variant="hero">
-          Storefront Control
-        </Text>
+        <Text as="h1">Storefront Control</Text>
         <Text as="p" marginTop={4}>
           This is a Saleor App that manages storefront UI configuration.
         </Text>
@@ -79,24 +77,17 @@ const IndexPage: NextPage = () => {
   return (
     <Box>
       <Box marginBottom={8}>
-        <Text as="h1" variant="hero">
-          Storefront Control
-        </Text>
+        <Text as="h1">Storefront Control</Text>
         <Text as="p" color="default2" marginTop={2}>
           Manage your storefront appearance, features, and behavior per channel.
         </Text>
       </Box>
 
-      <Box 
-        backgroundColor="default1" 
-        borderRadius={4} 
-        padding={6}
-        boxShadow="defaultFocused"
-      >
-        <Text as="h2" variant="heading" marginBottom={4}>
+      <Box backgroundColor="default1" borderRadius={4} padding={6} boxShadow="defaultFocused">
+        <Text as="h2" size={5} fontWeight="bold" marginBottom={4}>
           Select a Channel
         </Text>
-        
+
         {fetching ? (
           <Text>Loading channels...</Text>
         ) : channels.length === 0 ? (
@@ -112,7 +103,7 @@ const IndexPage: NextPage = () => {
                 label: `${channel.name} (${channel.currencyCode})${!channel.isActive ? " - Inactive" : ""}`,
               }))}
             />
-            
+
             {selectedChannel && (
               <Box marginTop={4}>
                 <Text as="p" color="default2">
@@ -125,14 +116,10 @@ const IndexPage: NextPage = () => {
       </Box>
 
       <Box marginTop={8}>
-        <Text as="h3" variant="heading" marginBottom={4}>
+        <Text as="h3" size={5} fontWeight="bold" marginBottom={4}>
           What you can configure:
         </Text>
-        <Box 
-          display="grid" 
-          __gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))"
-          gap={4}
-        >
+        <Box display="grid" __gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))" gap={4}>
           {[
             { title: "Store Info", desc: "Name, contact, address" },
             { title: "Branding", desc: "Logo, colors, typography" },
@@ -143,14 +130,13 @@ const IndexPage: NextPage = () => {
             { title: "Integrations", desc: "Analytics, social links" },
             { title: "SEO", desc: "Meta tags, OG images" },
           ].map((item) => (
-            <Box 
-              key={item.title}
-              backgroundColor="default1"
-              padding={4}
-              borderRadius={4}
-            >
-              <Text as="h4" variant="bodyStrong">{item.title}</Text>
-              <Text as="p" color="default2" variant="caption">{item.desc}</Text>
+            <Box key={item.title} backgroundColor="default1" padding={4} borderRadius={4}>
+              <Text as="h4" size={4} fontWeight="bold">
+                {item.title}
+              </Text>
+              <Text as="p" color="default2">
+                {item.desc}
+              </Text>
             </Box>
           ))}
         </Box>
@@ -158,5 +144,9 @@ const IndexPage: NextPage = () => {
     </Box>
   );
 };
+
+export async function getServerSideProps() {
+  return { props: {} };
+}
 
 export default IndexPage;

@@ -41,7 +41,6 @@ from ..discount.utils.checkout import (
     create_checkout_discount_objects_for_order_promotions,
     create_checkout_line_discount_objects_for_catalogue_promotions,
 )
-from ..discount.utils.promotion import delete_gift_line
 from ..discount.utils.shared import discount_info_for_logs
 from ..discount.utils.voucher import (
     get_discounted_lines,
@@ -883,7 +882,8 @@ def add_voucher_to_checkout(
     checkout_info.voucher = voucher
     checkout_info.voucher_code = voucher_code
 
-    # delete discounts from order promotions as cannot be mixed with vouchers
+    # Clear order promotion discount (amount/CheckoutDiscount rows) but keep gift
+    # lines so voucher and gift promotions can coexist.
     with transaction.atomic():
         checkout.save(
             update_fields=[
@@ -898,8 +898,6 @@ def add_voucher_to_checkout(
             checkout=checkout_info.checkout,
             type=DiscountType.ORDER_PROMOTION,
         ).delete()
-        # delete gift line if exists
-        delete_gift_line(checkout_info.checkout, lines)
 
 
 def remove_promo_code_from_checkout_or_error(

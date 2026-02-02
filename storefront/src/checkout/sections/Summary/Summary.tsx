@@ -26,6 +26,7 @@ interface SummaryProps {
 	giftCards?: GiftCardFragment[];
 	voucherCode?: string | null;
 	discount?: MoneyType | null;
+	discountName?: string | null;
 	shippingPrice: GrossMoney;
 }
 
@@ -38,6 +39,7 @@ export const Summary: FC<SummaryProps> = ({
 	voucherCode,
 	shippingPrice,
 	discount,
+	discountName,
 }) => {
 	const text = useCheckoutText();
 	const itemCount = lines.reduce((sum, line) => sum + (line.quantity || 1), 0);

@@ -3,6 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { saleorApp } from "../../../saleor-app";
 import { StorefrontConfigManager, createSettingsManager } from "../../../modules/config/config-manager";
 import { getDefaultConfig } from "../../../modules/config/defaults";
+import { injectBannerItemsFromSaleor } from "../../../modules/config/inject-banner-items";
 import { createGraphQLClient } from "@saleor/apps-shared/create-graphql-client";
 
 /**
@@ -88,7 +89,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const configManager = new StorefrontConfigManager(settingsManager);
 
     // Get config for channel (with defaults merged in)
-    const config = await configManager.getForChannelWithDefaults(channelSlug);
+    let config = await configManager.getForChannelWithDefaults(channelSlug);
+
+    config = await injectBannerItemsFromSaleor({
+      config,
+      apiClient: client,
+      channelSlug,
+    });
 
     return createResponse(config);
   } catch (error) {

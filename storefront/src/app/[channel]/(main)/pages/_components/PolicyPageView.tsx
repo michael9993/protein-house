@@ -21,14 +21,15 @@ export function PolicyPageView({ policyKey }: { policyKey: PolicyKey }) {
   const footerConfig = useFooterConfig();
   const footerText = useFooterText();
 
+  const footerConfigRecord = footerConfig as unknown as Record<string, string | undefined>;
   const pageTitle =
-    (footerConfig as Record<string, string | undefined>)[`${policyKey}PageTitle`]?.trim() ||
+    footerConfigRecord[`${policyKey}PageTitle`]?.trim() ||
     (footerText?.[FALLBACK_TITLE_KEY[policyKey]] as string | undefined) ||
     "";
-  const header = (footerConfig as Record<string, string | undefined>)[`${policyKey}Header`]?.trim() || "";
-  const content = (footerConfig as Record<string, string | undefined>)[`${policyKey}Content`]?.trim() || "";
-  const defaultContent = (footerConfig as Record<string, string | undefined>)[`${policyKey}DefaultContent`]?.trim() || "";
-  const footer = (footerConfig as Record<string, string | undefined>)[`${policyKey}Footer`]?.trim() || "";
+  const header = footerConfigRecord[`${policyKey}Header`]?.trim() || "";
+  const content = footerConfigRecord[`${policyKey}Content`]?.trim() || "";
+  const defaultContent = footerConfigRecord[`${policyKey}DefaultContent`]?.trim() || "";
+  const footer = footerConfigRecord[`${policyKey}Footer`]?.trim() || "";
   const emptyMessage = footerConfig?.policyPageEmptyMessage?.trim() ?? "";
 
   const mainText = content || defaultContent || emptyMessage;

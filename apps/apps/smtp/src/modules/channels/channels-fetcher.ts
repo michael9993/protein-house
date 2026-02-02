@@ -2,7 +2,7 @@ import { Client, gql } from "urql";
 
 import { FetchChannelsDocument } from "../../../generated/graphql";
 
-gql`
+const _fetchChannelsDoc = gql`
   fragment Channel on Channel {
     name
     id
@@ -15,6 +15,8 @@ gql`
     }
   }
 `;
+
+void _fetchChannelsDoc;
 
 export class ChannelsFetcher {
   constructor(private client: Client) {}

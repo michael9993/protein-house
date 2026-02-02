@@ -65,8 +65,7 @@ const SubscribersPageContent: React.FC = () => {
       retry: false,
       staleTime: 30000, // Consider data fresh for 30 seconds
       refetchOnWindowFocus: true, // Refetch when window regains focus
-      placeholderData: (previousData) => previousData,
-    }
+    },
   );
 
   const {
@@ -79,8 +78,7 @@ const SubscribersPageContent: React.FC = () => {
     retry: false,
     staleTime: 30000, // Consider data fresh for 30 seconds
     refetchOnWindowFocus: true, // Refetch when window regains focus
-    placeholderData: (previousData) => previousData,
-  });
+    });
 
   // Extract available sources from stats
   const availableSources = useMemo(() => {

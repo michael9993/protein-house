@@ -1,11 +1,14 @@
 import { useEffect, useMemo } from "react";
 
 import { type Checkout, useCheckoutQuery } from "@/checkout/graphql";
+import { useCheckoutIdFromServer } from "@/checkout/contexts/CheckoutIdContext";
 import { extractCheckoutIdFromUrl } from "@/checkout/lib/utils/url";
 import { useCheckoutUpdateStateActions } from "@/checkout/state/updateStateStore";
 
 export const useCheckout = ({ pause = false } = {}) => {
-	const id = useMemo(() => extractCheckoutIdFromUrl(), []);
+	const idFromServer = useCheckoutIdFromServer();
+	const idFromUrl = useMemo(() => extractCheckoutIdFromUrl(), []);
+	const id = idFromServer ?? idFromUrl;
 	const { setLoadingCheckout } = useCheckoutUpdateStateActions();
 
 	// If no checkout ID, pause the query

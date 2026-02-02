@@ -60,6 +60,7 @@ export const foodStoreConfig: StoreConfig = createStoreConfig('food', {
     compareProducts: false,
     productReviews: true,           // Restaurant/dish reviews
     recentlyViewed: true,
+    scrollToTop: true,
     guestCheckout: true,
     expressCheckout: true,          // Quick reorder
     savePaymentMethods: true,
@@ -159,6 +160,10 @@ export const foodStoreConfig: StoreConfig = createStoreConfig('food', {
     termsOfService: true,
     shippingPolicy: true,           // Delivery policy
     returnPolicy: true,             // Freshness guarantee
+    forgotPassword: true,
+    resetPassword: true,
+    verifyEmail: true,
+    confirmEmail: true,
   },
 
   localization: {

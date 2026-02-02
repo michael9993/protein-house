@@ -1,3 +1,4 @@
+import type { AuthData } from "@saleor/app-sdk/APL";
 import { createAppRegisterHandler } from "@saleor/app-sdk/handlers/next-app-router";
 import { SALEOR_API_URL_HEADER } from "@saleor/app-sdk/headers";
 import { withSpanAttributesAppRouter } from "@saleor/apps-otel/src/with-span-attributes";
@@ -61,8 +62,6 @@ const overrideSaleorApiUrl = async (req: NextRequest): Promise<NextRequest> => {
       method: req.method,
       headers: headers,
       body: clonedReq.body,
-      // Preserve other request properties
-      next: req.next,
     });
   }
 
@@ -101,7 +100,7 @@ const handler = createAppRegisterHandler({
       error: context.error,
     });
   },
-  onAuthAplSaved: async (_req: unknown, context: { authData: { saleorApiUrl: string; jwks: string } }) => {
+  onAuthAplSaved: async (_req: unknown, context: { authData: AuthData }) => {
     logger.info("App configuration set up successfully", {
       saleorApiUrl: context.authData.saleorApiUrl,
     });
@@ -150,27 +149,28 @@ const handler = createAppRegisterHandler({
       const jwksJson = await response.json();
       
       // Validate JWKS structure
-      if (!jwksJson || typeof jwksJson !== "object" || !Array.isArray(jwksJson.keys)) {
+      const jwksKeys = (jwksJson as { keys?: unknown[] })?.keys;
+      if (!jwksJson || typeof jwksJson !== "object" || !Array.isArray(jwksKeys)) {
         logger.warn("Invalid JWKS structure received", { jwksUrl });
         return;
       }
-      
-      if (jwksJson.keys.length === 0) {
+
+      if (jwksKeys.length === 0) {
         logger.warn("JWKS keys array is empty", { jwksUrl });
         return;
       }
-      
-      // Update APL with the fetched JWKS JSON string
+
+      // Update APL with the fetched JWKS JSON string (context.authData has token, appId from SDK)
       const updatedAuthData = {
         ...context.authData,
         jwks: JSON.stringify(jwksJson),
       };
-      
-      await saleorApp.apl.set(updatedAuthData);
-      
+
+      await saleorApp.apl.set(updatedAuthData as AuthData);
+
       logger.info("Updated APL with JWKS from local Saleor instance", {
         saleorApiUrl,
-        keysCount: jwksJson.keys.length,
+        keysCount: jwksKeys.length,
       });
     } catch (error) {
       logger.error("Failed to fetch and update JWKS from local Saleor instance", {

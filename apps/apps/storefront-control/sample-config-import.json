@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-01-29T15:31:22.669Z",
+  "exportedAt": "2026-02-02T01:14:52.867Z",
   "channelSlug": "ils",
   "config": {
-    "version": 46,
-    "updatedAt": "2026-01-29T15:31:21.848Z",
+    "version": 10,
+    "updatedAt": "2026-02-02T01:14:52.079Z",
     "channelSlug": "ils",
     "store": {
       "name": "Mansour Shoes",
@@ -63,6 +63,7 @@
       "compareProducts": false,
       "productReviews": true,
       "recentlyViewed": true,
+      "scrollToTop": true,
       "guestCheckout": true,
       "expressCheckout": false,
       "savePaymentMethods": true,
@@ -80,7 +81,11 @@
     "ecommerce": {
       "currency": {
         "default": "ILS",
-        "supported": ["ILS", "USD", "EUR"]
+        "supported": [
+          "ILS",
+          "USD",
+          "EUR"
+        ]
       },
       "shipping": {
         "enabled": true,
@@ -108,7 +113,36 @@
         "enabled": true,
         "text": "משלוח חינם בהזמנות מעל ₪200!",
         "backgroundColor": null,
-        "textColor": null
+        "textColor": null,
+        "useSaleorPromotions": true,
+        "useSaleorVouchers": true,
+        "items": [
+          {
+            "id": "UHJvbW90aW9uOjhhNGY2ZTlhLWVmMmYtNGIxMC04ODYyLWQ0YjhjMjVmNTM1Mw==",
+            "name": "Winter sale Discount 25% on selected products",
+            "description": null,
+            "displayText": "Winter sale Discount 25% on selected products",
+            "link": null
+          },
+          {
+            "id": "voucher-Vm91Y2hlcjoy",
+            "name": "Big order discount",
+            "description": "100 off",
+            "displayText": "Big order discount",
+            "link": null
+          }
+        ],
+        "manualItems": [
+          {
+            "id": "manual-1769994856696",
+            "text": "משלוח חינם עם קנייה מעל ₪200",
+            "link": null,
+            "icon": null
+          }
+        ],
+        "autoScrollIntervalSeconds": 6,
+        "useGradient": false,
+        "dismissible": false
       },
       "showStoreName": true,
       "logoPosition": "left"
@@ -340,11 +374,23 @@
     },
     "localization": {
       "defaultLocale": "he-IL",
-      "supportedLocales": ["he-IL", "ar", "en-US"],
+      "supportedLocales": [
+        "he-IL",
+        "ar",
+        "en-US"
+      ],
       "dateFormat": "DD/MM/YYYY",
       "timeFormat": "24h",
       "direction": "auto",
-      "rtlLocales": ["he", "ar", "fa", "ur", "yi", "ps"]
+      "rtlLocales": [
+        "he",
+        "ar",
+        "fa",
+        "ur",
+        "yi",
+        "ps"
+      ],
+      "drawerSideOverride": "auto"
     },
     "filters": {
       "enabled": true,
@@ -517,7 +563,7 @@
         "imageAspectRatio": "square"
       },
       "toasts": {
-        "position": "bottom-right",
+        "position": "top-right",
         "borderRadius": "md",
         "success": {
           "backgroundColor": null,
@@ -574,6 +620,12 @@
         "removeButtonHoverBackgroundColor": null,
         "removeButtonHoverColor": null,
         "removeButtonBorderRadius": "full"
+      },
+      "cart": {
+        "displayMode": "drawer",
+        "drawerSide": "left",
+        "showDeleteText": false,
+        "showSaveForLater": false
       }
     },
     "content": {
@@ -621,11 +673,19 @@
         "selectItemsButton": "בחר פריטים",
         "preparingCheckout": "מכין...",
         "loadingCheckout": "טוען...",
+        "originalSubtotalLabel": "סיכום ביניים",
+        "discountedSubtotalLabel": "סיכום ביניים אחרי הנחה",
         "secureCheckoutText": "תשלום מאובטח",
         "sslEncryptedText": "מוצפן SSL",
         "acceptedPaymentMethods": "אמצעי תשלום מקובלים",
         "providedByStripe": "מסופק על ידי Stripe",
-        "itemsSavedForLater": "{count} פריט/ים שמורים למועד מאוחר יותר"
+        "itemsSavedForLater": "{count} פריט/ים שמורים למועד מאוחר יותר",
+        "viewCartButton": "צפה בעגלה המלאה ",
+        "shippingNote": "משלוח ומסים יחושבו בקופה",
+        "youSaveLabel": "חיסכון של",
+        "giftLabel": "מתנה",
+        "giftAddedMessage": "מתנה חינם נוספה לעגלה שלך.",
+        "giftRemoveHint": "(ניתן להסיר)"
       },
       "product": {
         "addToCartButton": "הוסף לסל",
@@ -840,6 +900,8 @@
         "businessDaysText": "{min}-{max} ימי עסקים",
         "freeShippingLabel": "חינם",
         "noDeliveryMethodsText": "אין שיטות משלוח זמינות",
+        "freeShippingVoucherNotApplicable": "קופון משלוח חינם לא תקף עם שיטת משלוח זו. בחר שיטת משלוח חינם כדי להשתמש בקופון.",
+        "freeShippingAppliedWithMethod": "משלוח חינם חל עם שיטת משלוח זו.",
         "paymentTitle": "תשלום",
         "paymentSubtitle": "בחר את אמצעי התשלום שלך",
         "paymentMethodLabel": "אמצעי תשלום",
@@ -866,6 +928,8 @@
         "promoCodePlaceholder": "הזן קוד",
         "applyPromoButton": "החל",
         "removePromoButton": "הסר",
+        "oneVoucherPerOrderHint": "קופון אחד להזמנה. כרטיסי מתנה ניתנים לשילוב.",
+        "replaceVoucherConfirm": "ניתן להשתמש בקופון אחד להזמנה. שימוש בקוד זה יחליף את {code}. להמשיך?",
         "giftCardLabel": "כרטיס מתנה",
         "subtotalLabel": "סיכום ביניים",
         "shippingLabel": "משלוח",
@@ -919,6 +983,13 @@
         "invalidPhoneError": "אנא הזן מספר טלפון תקין",
         "selectDeliveryMethodError": "אנא בחר שיטת משלוח",
         "selectPaymentMethodError": "אנא בחר אמצעי תשלום",
+        "noCheckoutFoundTitle": "לא נמצא תשלום",
+        "noCheckoutFoundMessage": "נראה שעדיין לא התחלת תשלום. הוסף פריטים לעגלה קודם.",
+        "returnToCartButton": "חזרה לעגלה",
+        "checkoutExpiredTitle": "תשלום פג תוקף או לא תקף",
+        "checkoutExpiredMessage": "פג תוקף ההזמנה. אנא חזור לעגלה ונסה שוב.",
+        "somethingWentWrongTitle": "משהו השתבש",
+        "somethingWentWrongMessage": "לא הצלחנו לטעון את התשלום. אנא חזור לעגלה ונסה שוב.",
         "deleteAddressButton": "מחק כתובת",
         "savingAddressText": "שומר...",
         "savedText": "נשמר",
@@ -1419,6 +1490,12 @@
         "primary": "#E78F21",
         "secondary": "#F59E0B",
         "accent": "#F59E0B"
+      }
+    },
+    "storefront": {
+      "cart": {
+        "displayMode": "drawer",
+        "drawerSide": "left"
       }
     }
   }

@@ -53,10 +53,11 @@ export function useConfigSync({
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const data = (await response.json()) as { stale?: boolean; staleSince?: string | number };
+        const staleSince = data.staleSince;
         return {
           stale: data.stale === true,
-          staleSince: data.staleSince ?? undefined,
+          staleSince: staleSince != null ? (typeof staleSince === "number" ? staleSince : Date.parse(String(staleSince)) || undefined) : undefined,
         };
       }
     } catch (err) {
@@ -98,11 +99,16 @@ export function useConfigSync({
         throw new Error(`Failed to fetch config: ${response.statusText}`);
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as {
+        ok?: boolean;
+        config?: StoreConfig;
+        version?: string;
+        updatedAt?: string;
+      };
 
       if (data.ok && data.config) {
-        const newConfig = data.config as StoreConfig;
-        const newVersion = `${data.version || newConfig.version || Date.now()}-${data.updatedAt || newConfig.updatedAt || ''}`;
+        const newConfig = data.config;
+        const newVersion = `${data.version ?? Date.now()}-${data.updatedAt ?? ""}`;
 
         // Always update when force=true, or when version changed, or on first load
         const shouldUpdate = force || !lastVersionRef.current || lastVersionRef.current !== newVersion;
@@ -254,7 +260,7 @@ export function useConfigSync({
       // Only update if it's for our channel
       if (customEvent.detail?.channel === channel && isMountedRef.current) {
         const newConfig = customEvent.detail.config;
-        const newVersion = `${newConfig.version || Date.now()}-${newConfig.updatedAt || ''}`;
+        const newVersion = `${(newConfig as StoreConfig & { version?: string }).version ?? Date.now()}-${(newConfig as StoreConfig & { updatedAt?: string }).updatedAt ?? ''}`;
 
         if (lastVersionRef.current !== newVersion) {
           lastVersionRef.current = newVersion;

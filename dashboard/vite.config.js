@@ -63,6 +63,7 @@ export default defineConfig(({ command, mode }) => {
     NODE_ENV,
     API_URL,
     VITE_API_URL, // Vite-prefixed env vars are automatically exposed to client
+    VITE_DISABLE_STRICT_MODE, // Set to "true" to disable React StrictMode (helps EditorJS/Combobox in dev and is baked in at build time)
     DASHBOARD_TUNNEL_URL,
     SW_INTERVAL,
     IS_CLOUD_INSTANCE,
@@ -173,8 +174,8 @@ export default defineConfig(({ command, mode }) => {
             "localhost",
             "127.0.0.1",
             DASHBOARD_TUNNEL_URL, // Current tunnel domain
-            "ist-using-activated-nathan.trycloudflare.com", // Cloudflare tunnel host
-            "ist-using-activated-nathan.trycloudflare.com",
+            "midi-bless-isaac-beauty.trycloudflare.com", // Cloudflare tunnel host
+            "midi-bless-isaac-beauty.trycloudflare.com",
 
             // Add more tunnel domains here as needed, or use a function pattern
           ]
@@ -218,8 +219,8 @@ export default defineConfig(({ command, mode }) => {
         "localhost",
         "127.0.0.1",
         DASHBOARD_TUNNEL_URL,
-        "ist-using-activated-nathan.trycloudflare.com", // Cloudflare tunnel host
-        "ist-using-activated-nathan.trycloudflare.com",
+        "midi-bless-isaac-beauty.trycloudflare.com", // Cloudflare tunnel host
+        "midi-bless-isaac-beauty.trycloudflare.com",
       ],
     },
     define: {
@@ -273,6 +274,16 @@ export default defineConfig(({ command, mode }) => {
         plugins: [nodePolyfills()],
         maxParallelFileOps: 2,
         cache: false,
+        onwarn(warning, warn) {
+          // Suppress "dynamic import will not move module into another chunk" when a module
+          // is both lazy-loaded (e.g. Auth, Configuration) and statically imported elsewhere
+          // (e.g. useUser from @dashboard/auth). The build is correct; the dynamic import
+          // just doesn't create a separate chunk because the module is already in the main bundle.
+          if (warning.message?.includes("dynamic import will not move module into another chunk")) {
+            return;
+          }
+          warn(warning);
+        },
         output: {
           sourcemap,
           manualChunks: id => {
@@ -327,6 +338,7 @@ export default defineConfig(({ command, mode }) => {
     esbuild: { jsx: "automatic" },
   };
 });
+
 
 
 

@@ -6,12 +6,15 @@ import { ProductListByCollectionDocument, CurrentUserDocument } from "@/gql/grap
 import { executeGraphQL } from "@/lib/graphql";
 import { homepageCollections } from "@/lib/cms";
 import { StoreConfigProvider } from "@/providers/StoreConfigProvider";
+import { DirectionProvider } from "@/providers/DirectionProvider";
 import { fetchStorefrontConfig } from "@/lib/storefront-control";
 import { ConfigSync } from "@/components/ConfigSync";
 import { PageTransition } from "@/components/PageTransition";
 import { DirectionSetter } from "@/components/DirectionSetter";
 import { resolveDirection } from "@/lib/direction";
 import { getNavData } from "@/ui/components/nav/components/NavLinks";
+import { CartDrawerShell } from "@/ui/components/CartDrawer";
+import { createCheckoutWithItemsAction } from "@/app/cart-actions";
 
 /**
  * Generate metadata with direction attribute to prevent FOUC
@@ -141,6 +144,8 @@ export default async function RootLayout(props: {
 				}}
 			/>
 			<StoreConfigProvider config={storeConfig}>
+			<DirectionProvider>
+			<CartDrawerShell createCheckoutWithItems={createCheckoutWithItemsAction}>
 				{/* Client-side direction setter - backup and for dynamic updates */}
 				<DirectionSetter config={storeConfig} />
 				<ConfigSync channel={channel} />
@@ -163,6 +168,8 @@ export default async function RootLayout(props: {
 				promotionName={promoData.promotionName}
 				backgroundImage={promoData.backgroundImage}
 			/>
+			</CartDrawerShell>
+			</DirectionProvider>
 			</StoreConfigProvider>
 		</>
 	);

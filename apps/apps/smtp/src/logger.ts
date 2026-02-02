@@ -10,6 +10,7 @@ if (process.env.NODE_ENV !== "production") {
 
 if (typeof window === "undefined") {
   // Don't remove require - it's necessary for proper logger initialization
+  /* eslint-disable @typescript-eslint/no-require-imports */
   const {
     attachLoggerSentryTransport,
     attachLoggerVercelRuntimeTransport,
@@ -24,6 +25,7 @@ if (typeof window === "undefined") {
       require("./logger-context").loggerContext,
     );
   }
+  /* eslint-enable @typescript-eslint/no-require-imports */
 }
 
 export const createLogger = (name: string, params?: Record<string, unknown>) =>

@@ -49,7 +49,7 @@ export function SearchAutocomplete({
     if (typeof window === "undefined") return [];
     try {
       const stored = localStorage.getItem(RECENT_SEARCHES_KEY);
-      return stored ? JSON.parse(stored) : [];
+      return (stored ? JSON.parse(stored) : []) as string[];
     } catch {
       return [];
     }
@@ -87,7 +87,7 @@ export function SearchAutocomplete({
           throw new Error("Failed to fetch suggestions");
         }
 
-        const data = await response.json();
+        const data = (await response.json()) as { products?: unknown[] };
 
         if (cancelled) return;
 
@@ -100,7 +100,7 @@ export function SearchAutocomplete({
               subtitle = formatMoneyRange({
                 start: product.pricing.priceRange.start.gross,
                 stop: product.pricing.priceRange.stop.gross,
-              });
+              }) ?? undefined;
             } catch (error) {
               // If currency is missing, skip subtitle
               console.warn("Failed to format price range:", error);

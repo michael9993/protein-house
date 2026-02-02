@@ -22,7 +22,7 @@ export const campaignSchema = z.object({
   timezone: z.string().optional(),
   sentAt: z.string().datetime().nullable(),
   recipientFilter: z.object({
-    isActive: z.boolean().optional(),
+    isActive: z.boolean().default(true),
     sources: z.array(z.string()).optional(),
     subscribedAfter: z.string().datetime().optional(),
     subscribedBefore: z.string().datetime().optional(),
@@ -81,49 +81,86 @@ export const createCampaignInputSchema = z.object({
   ),
   timezone: z.string().optional(),
   recipientFilter: z.object({
-    isActive: z.boolean().optional(),
+    isActive: z.boolean().default(true),
     sources: z.array(z.string()).optional(),
     subscribedAfter: z.string().datetime().optional(),
     subscribedBefore: z.string().datetime().optional(),
     selectionType: z.enum(["all", "random", "selected", "newest", "oldest"]).optional(),
     limit: z.preprocess(
-      (val) => {
+      (val: unknown): number | undefined => {
         if (val === "" || val === null || val === undefined) return undefined;
-        const num = typeof val === "string" ? parseInt(val, 10) : val;
-        return isNaN(num) ? undefined : num;
+        const num = typeof val === "string" ? parseInt(val, 10) : typeof val === "number" ? val : undefined;
+        return num !== undefined && !isNaN(num) ? num : undefined;
       },
       z.number().int().positive().optional()
     ), // Limit number of recipients
     selectedSubscriberIds: z.array(z.string().min(1)).optional(), // For "selected" type - accepts Global IDs (base64)
   }),
   batchSize: z.preprocess(
-    (val) => {
+    (val: unknown): number | undefined => {
       if (val === "" || val === null || val === undefined) return undefined;
-      const num = typeof val === "string" ? parseInt(val, 10) : val;
-      return isNaN(num) ? undefined : num;
+      const num = typeof val === "string" ? parseInt(val, 10) : typeof val === "number" ? val : undefined;
+      return num !== undefined && !isNaN(num) ? num : undefined;
     },
     z.number().int().positive().optional()
   ),
   rateLimitPerMinute: z.preprocess(
-    (val) => {
+    (val: unknown): number | undefined => {
       if (val === "" || val === null || val === undefined) return undefined;
-      const num = typeof val === "string" ? parseInt(val, 10) : val;
-      return isNaN(num) ? undefined : num;
+      const num = typeof val === "string" ? parseInt(val, 10) : typeof val === "number" ? val : undefined;
+      return num !== undefined && !isNaN(num) ? num : undefined;
     },
     z.number().int().positive().optional()
   ),
   maxRetries: z.preprocess(
-    (val) => {
+    (val: unknown): number | undefined => {
       if (val === "" || val === null || val === undefined) return undefined;
-      const num = typeof val === "string" ? parseInt(val, 10) : val;
-      return isNaN(num) ? undefined : num;
+      const num = typeof val === "string" ? parseInt(val, 10) : typeof val === "number" ? val : undefined;
+      return num !== undefined && !isNaN(num) ? num : undefined;
     },
     z.number().int().min(0).max(10).optional()
   ),
 });
 
-export const updateCampaignInputSchema = createCampaignInputSchema.partial().extend({
+export const updateCampaignInputSchema = z.object({
   id: z.string().uuid(),
+  name: z.string().min(1).max(255).optional(),
+  templateId: z.string().uuid().optional(),
+  channelSlug: z.string().optional(),
+  smtpConfigurationId: z.string().optional(),
+  scheduledAt: z.string().datetime().nullable().optional(),
+  timezone: z.string().optional(),
+  recipientFilter: z
+    .object({
+      isActive: z.boolean().default(true),
+      sources: z.array(z.string()).optional(),
+      subscribedAfter: z.string().datetime().optional(),
+      subscribedBefore: z.string().datetime().optional(),
+      selectionType: z.enum(["all", "random", "selected", "newest", "oldest"]).optional(),
+      limit: z.number().int().positive().optional(),
+      selectedSubscriberIds: z.array(z.string().min(1)).optional(),
+    })
+    .optional(),
+  batchSize: z.number().int().positive().optional(),
+  rateLimitPerMinute: z.number().int().positive().optional(),
+  maxRetries: z.number().int().min(0).max(10).optional(),
+  recipientCount: z.number().int().nonnegative().optional(),
+  sentCount: z.number().int().nonnegative().optional(),
+  failedCount: z.number().int().nonnegative().optional(),
+  sentAt: z.string().datetime().nullable().optional(),
+  lastProcessedSubscriberId: z.string().optional(),
+  lastProcessedIndex: z.number().int().nonnegative().optional(),
+  errorLog: z
+    .array(
+      z.object({
+        subscriberId: z.string(),
+        email: z.string(),
+        error: z.string(),
+        timestamp: z.string().datetime(),
+      }),
+    )
+    .optional(),
+  retryCount: z.number().int().nonnegative().optional(),
 });
 
 export type CreateCampaignInput = z.infer<typeof createCampaignInputSchema>;

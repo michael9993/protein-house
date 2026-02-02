@@ -8,12 +8,10 @@ function getNodeModules() {
     // Client-side - return null
     return { fs: null, path: null };
   }
-  
+
   // Server-side - try to load using eval to prevent webpack bundling
   try {
-    // @ts-expect-error - Using eval to prevent webpack from bundling fs/path
     const fs = typeof require !== "undefined" ? eval('require("fs")') : null;
-    // @ts-expect-error - Using eval to prevent webpack from bundling fs/path
     const path = typeof require !== "undefined" ? eval('require("path")') : null;
     return { fs, path };
   } catch {
@@ -48,25 +46,25 @@ function loadSampleConfig(filePath: string): StorefrontConfig | null {
       console.warn(`[getDefaultConfig] Node.js fs/path modules not available (client-side or not available)`);
       return null;
     }
-    
+
     if (!fs.existsSync(filePath)) {
       console.warn(`[getDefaultConfig] Sample config file not found: ${filePath}`);
       return null;
     }
-    
+
     const fileContent = fs.readFileSync(filePath, "utf-8");
     const parsed = JSON.parse(fileContent);
-    
+
     // Handle both formats: direct config or { config: {...} }
     const configData = parsed.config || parsed;
-    
+
     // Validate the config
     const validated = StorefrontConfigSchema.safeParse(configData);
     if (!validated.success) {
       console.error(`[getDefaultConfig] Invalid sample config in ${filePath}:`, validated.error.errors);
       return null;
     }
-    
+
     return validated.data;
   } catch (error) {
     console.error(`[getDefaultConfig] Error loading sample config from ${filePath}:`, error);
@@ -82,7 +80,7 @@ function loadSampleConfig(filePath: string): StorefrontConfig | null {
 function getSampleConfigForChannel(channelSlug: string): StorefrontConfig | null {
   // Determine which sample file to use (ILS/he = Hebrew, else = English)
   const isHebrew = channelSlug.toLowerCase() === "ils" || channelSlug.toLowerCase() === "he";
-  
+
   // Use cache if available
   if (isHebrew && sampleConfigCache.hebrew) {
     return sampleConfigCache.hebrew;
@@ -90,40 +88,35 @@ function getSampleConfigForChannel(channelSlug: string): StorefrontConfig | null
   if (!isHebrew && sampleConfigCache.english) {
     return sampleConfigCache.english;
   }
-  
+
   // Load from file
   const { fs, path } = getNodeModules();
   if (!fs || !path) {
     console.warn(`[getDefaultConfig] Node.js modules not available (client-side or not available), cannot load sample config`);
     return null;
   }
-  
+
   // Try multiple possible paths (development vs production)
   const possibleRoots: string[] = [];
-  
+
   // Add current working directory
-  // @ts-expect-error - process available at runtime in Node.js
-  if (typeof process !== "undefined" && (process as any).cwd) {
-    // @ts-expect-error
-    possibleRoots.push((process as any).cwd());
+  if (typeof process !== "undefined" && process.cwd) {
+    possibleRoots.push(process.cwd());
   }
-  
+
   // Try relative to this file (if __dirname is available)
   try {
-    // @ts-expect-error - __dirname might not be available in ESM
     if (typeof __dirname !== "undefined") {
-      // @ts-expect-error
       possibleRoots.push(path.resolve(__dirname, "../.."));
-      // @ts-expect-error
       possibleRoots.push(path.resolve(__dirname, "../../.."));
     }
   } catch {
     // Ignore if __dirname is not available
   }
-  
+
   let sampleFile: string | null = null;
   const fileName = isHebrew ? "sample-config-import.json" : "sample-config-import-en.json";
-  
+
   for (const root of possibleRoots) {
     const candidate = path.join(root, fileName);
     if (fs.existsSync(candidate)) {
@@ -131,14 +124,14 @@ function getSampleConfigForChannel(channelSlug: string): StorefrontConfig | null
       break;
     }
   }
-  
+
   if (!sampleFile) {
     console.warn(`[getDefaultConfig] Sample config file "${fileName}" not found in any of: ${possibleRoots.join(", ")}`);
     return null;
   }
-  
+
   const config = loadSampleConfig(sampleFile);
-  
+
   // Cache it
   if (config) {
     if (isHebrew) {
@@ -147,7 +140,7 @@ function getSampleConfigForChannel(channelSlug: string): StorefrontConfig | null
       sampleConfigCache.english = config;
     }
   }
-  
+
   return config;
 }
 
@@ -207,6 +200,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
     compareProducts: false,
     productReviews: true,
     recentlyViewed: true,
+    scrollToTop: true,
     guestCheckout: true,
     expressCheckout: false,
     savePaymentMethods: true,
@@ -255,6 +249,15 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       text: "Free shipping on orders over $50 • Fast delivery worldwide",
       backgroundColor: null, // use primary
       textColor: null,       // white
+      useSaleorPromotions: false,
+      useSaleorVouchers: false,
+      items: [],
+      manualItems: [],
+      autoScrollIntervalSeconds: 6,
+      useGradient: false,
+      gradientFrom: null,
+      gradientTo: null,
+      dismissible: false,
     },
     showStoreName: true,
     logoPosition: "left",
@@ -313,7 +316,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       bestSellers: { enabled: true, limit: 8 },
       onSale: { enabled: true, limit: 4 },
       featuredBrands: { enabled: false },
-      testimonials: { 
+      testimonials: {
         enabled: true,
         starColor: "#FFD700", // Gold color for stars
         starEmptyColor: null, // Use textMuted with 30% opacity
@@ -628,6 +631,12 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       removeButtonHoverColor: null,   // hover:text-neutral-600
       removeButtonBorderRadius: "full",
     },
+    cart: {
+      displayMode: "drawer",
+      drawerSide: "right",
+      showDeleteText: false,
+      showSaveForLater: false,
+    },
   },
 
   content: {
@@ -637,7 +646,10 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       cartTitle: "Shopping Cart",
       checkoutButton: "Checkout",
       continueShoppingButton: "Continue Shopping",
-    },
+      giftLabel: "Gift",
+      giftAddedMessage: "A free gift has been added to your cart.",
+      giftRemoveHint: "(You can remove it)",
+    } as unknown as StorefrontConfig["content"]["cart"],
     product: {
       addToCartButton: "Add to Cart",
       buyNowButton: "Buy Now",
@@ -649,7 +661,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       reviewsTitle: "Customer Reviews",
       writeReviewButton: "Write a Review",
       noReviewsText: "No reviews yet. Be the first to review this product!",
-    },
+    } as unknown as StorefrontConfig["content"]["product"],
     account: {
       signInTitle: "Welcome back",
       signUpTitle: "Create your account",
@@ -756,6 +768,11 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       newsletterDescription: "Get the latest updates on new products and sales.",
       newsletterButton: "Subscribe",
       newsletterSuccess: "Thanks for subscribing!",
+      newsletterPlaceholder: "Enter your email",
+      newsletterNoSpam: "No spam, ever",
+      newsletterWeeklyUpdates: "Weekly updates",
+      newsletterExclusiveOffers: "Exclusive offers",
+      newsletterAlreadySubscribed: "You're subscribed to our newsletter!",
       loadMoreButton: "Load More",
       viewAllButton: "View All",
       backButton: "Back",
@@ -765,7 +782,8 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       confirmButton: "Confirm",
       deleteButton: "Delete",
       editButton: "Edit",
-    },
+      homeLabel: "Home",
+    } as StorefrontConfig["content"]["general"],
     homepage: {
       newArrivalsTitle: "New Arrivals",
       newArrivalsSubtitle: "Just dropped - the latest additions to our collection",
@@ -802,12 +820,12 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       // Page & Header
       checkoutTitle: "Checkout",
       secureCheckout: "Secure Checkout",
-      
+
       // Breadcrumb steps
       shippingStep: "Shipping",
       paymentStep: "Payment",
       confirmationStep: "Confirmation",
-      
+
       // Contact Information Section
       contactInfoTitle: "Contact Information",
       contactInfoSubtitle: "We'll use this to send order updates",
@@ -817,14 +835,14 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       guestEmailPlaceholder: "Enter your email",
       createAccountCheckbox: "Create account for faster checkout",
       passwordLabel: "Password",
-      
+
       // Shipping Address Section
       shippingAddressTitle: "Shipping Address",
       shippingAddressSubtitle: "Where should we deliver?",
       addAddressButton: "Add address",
       editAddressButton: "Edit",
       changeAddressButton: "Change",
-      
+
       // Address Form Fields
       firstNameLabel: "First name",
       lastNameLabel: "Last name",
@@ -838,7 +856,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       phoneLabel: "Phone number",
       saveAddressButton: "Save address",
       cancelButton: "Cancel",
-      
+
       // Localized Address Fields (country-specific variants)
       provinceLabel: "Province",
       districtLabel: "District",
@@ -847,18 +865,21 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       prefectureLabel: "Prefecture",
       cityAreaLabel: "City area",
       countryAreaLabel: "Country area",
-      
+
       // Billing Address Section
       billingAddressTitle: "Billing Address",
       billingAddressSubtitle: "For your invoice",
       useSameAsShipping: "Use shipping address as billing address",
-      
+
       // Delivery Methods Section
       deliveryMethodsTitle: "Delivery methods",
       businessDaysText: "{min}-{max} business days",
       freeShippingLabel: "Free",
       noDeliveryMethodsText: "No delivery methods available",
-      
+      freeShippingVoucherNotApplicable:
+        "Free shipping voucher is not applicable with this delivery method. Choose a free shipping method to use your voucher.",
+      freeShippingAppliedWithMethod: "Free shipping applied with this method.",
+
       // Payment Section
       paymentTitle: "Payment",
       paymentSubtitle: "Select your payment method",
@@ -876,7 +897,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       paymentFailedError: "Payment failed",
       unexpectedPaymentError: "An unexpected error occurred with your payment",
       paymentSuccessOrderFailedError: "Payment was successful but order processing failed. Please contact support.",
-      
+
       // Order Summary Section
       orderSummaryTitle: "Order Summary",
       itemsCountSingular: "1 item",
@@ -888,13 +909,16 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       promoCodePlaceholder: "Enter code",
       applyPromoButton: "Apply",
       removePromoButton: "Remove",
+      oneVoucherPerOrderHint: "One voucher per order. Gift cards can be combined.",
+      replaceVoucherConfirm: "Only one voucher can be used per order. Applying this code will replace {code}. Continue?",
+      eligibleForFreeShipping: "Eligible for free shipping",
       giftCardLabel: "Gift card",
       subtotalLabel: "Subtotal",
       shippingLabel: "Shipping",
       taxLabel: "Tax",
       includesTaxText: "Includes {amount} tax",
       totalLabel: "Total",
-      
+
       // Legacy section titles (for backwards compatibility)
       contactDetails: "Contact Details",
       shippingAddress: "Shipping Address",
@@ -902,12 +926,12 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       paymentMethod: "Payment Method",
       orderSummary: "Order Summary",
       placeOrder: "Place Order",
-      
+
       // Place Order Section
       placeOrderButton: "Place Order",
       processingOrderText: "Processing your order...",
       agreementText: "By placing this order, you agree to our",
-      
+
       // Order confirmation
       almostDoneText: "Almost done…",
       orderConfirmation: "Order Confirmation",
@@ -932,7 +956,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       deliveryMessage: "Your order will arrive at your doorstep!",
       printReceiptButton: "Print Receipt",
       thankYouPurchaseMessage: "Thank you for your purchase! If you have any questions, please contact our support team.",
-      
+
       // Order Info Section (confirmation page)
       orderDetailsTitle: "Order Details",
       contactLabel: "Contact",
@@ -944,14 +968,14 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       overpaidMessage: "Contact support for refund assistance",
       processingStatus: "Processing",
       processingMessage: "Payment is being processed",
-      
+
       // Error messages
       requiredFieldError: "This field is required",
       invalidEmailError: "Please enter a valid email",
       invalidPhoneError: "Please enter a valid phone number",
       selectDeliveryMethodError: "Please select a delivery method",
       selectPaymentMethodError: "Please select a payment method",
-      
+
       // Address Form Actions
       deleteAddressButton: "Delete address",
       savingAddressText: "Saving…",
@@ -961,7 +985,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       addressSavedSuccess: "Address saved successfully!",
       addressUpdatedSuccess: "Address updated successfully!",
       cantShipToAddressText: "Can't ship to this address",
-      
+
       // Sign In/Out
       signInTitle: "Sign in",
       signInButton: "Sign in",
@@ -974,15 +998,24 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       continueWithGoogle: "Continue with Google",
       signInWithGoogle: "Sign in with Google",
       alreadyHaveAccount: "Already have an account?",
-      
+
       // Guest User
       contactDetailsTitle: "Contact details",
       createAccountLabel: "I want to create account",
       passwordMinChars: "Password (minimum 8 characters)",
-      
+
+      // No checkout found / Error pages
+      noCheckoutFoundTitle: "No checkout found",
+      noCheckoutFoundMessage: "It looks like you haven't started a checkout yet. Add some items to your cart first.",
+      returnToCartButton: "Return to Cart",
+      checkoutExpiredTitle: "Checkout expired or invalid",
+      checkoutExpiredMessage: "This checkout session has expired or is no longer valid. Please return to your cart and try again.",
+      somethingWentWrongTitle: "Something went wrong",
+      somethingWentWrongMessage: "We couldn't load your checkout. Please return to your cart and try again.",
+
       // SSL/Security
       sslEncryptionText: "Secure 256-bit SSL encryption",
-      
+
       // Footer links
       privacyPolicy: "Privacy Policy",
       termsOfService: "Terms of Service",
@@ -1078,6 +1111,112 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       quickMaxLabel: "Quick Max",
       clearPriceFilter: "Clear",
     },
+    productDetail: {
+      freeShipping: "Free Shipping",
+      securePayment: "Secure Payment",
+      easyReturns: "Easy Returns",
+      descriptionTab: "Description",
+      shippingTab: "Shipping",
+      reviewsTab: "Reviews",
+      noDescriptionAvailable: "No description available for this product.",
+      qtyLabel: "Qty",
+      qtyLabelWithColon: "Qty:",
+      shareButton: "Share",
+      colorLabel: "Color",
+      sizeLabel: "Size",
+      selectOptionLabel: "Select Option",
+      pleaseSelectSize: "Please select a size",
+      pleaseSelectOption: "Please select an option",
+      onlyXLeft: "Only {count} left!",
+      inStockWithCount: "In Stock ({count} available)",
+      sellingFast: "Selling fast!",
+      savePercent: "Save {percent}%",
+      reviewSingular: "review",
+      reviewPlural: "reviews",
+      zoomInLabel: "Zoom in",
+      zoomOutLabel: "Zoom out",
+      previousImageLabel: "Previous image",
+      nextImageLabel: "Next image",
+      noReviewsYet: "No reviews yet. Be the first to review this product!",
+      writeReviewTitle: "Write a Review",
+      ratingRequired: "Rating *",
+      reviewTitleRequired: "Review Title *",
+      reviewTitlePlaceholder: "Summarize your review",
+      reviewRequired: "Review *",
+      reviewPlaceholder: "Share your experience with this product...",
+      characterCount: "{count} / 2000 characters",
+      imagesOptional: "Images (Optional)",
+      noFileChosen: "No file chosen",
+      uploadImagesHint: "Upload up to 5 images (max 5MB each)",
+      submitReviewButton: "Submit Review",
+      helpfulCount: "{count} people found this helpful",
+      helpfulButton: "Helpful",
+      helpfulButtonWithCount: "Helpful ({count})",
+      verifiedPurchase: "Verified Purchase",
+      editReview: "Edit",
+      deleteReview: "Delete",
+      allRatings: "All Ratings",
+      verifiedOnly: "Verified Only",
+      deleteReviewTitle: "Delete Review",
+      deleteReviewMessage: "Are you sure you want to delete this review? This action cannot be undone.",
+      cancelButton: "Cancel",
+      deletingButton: "Deleting...",
+      justNow: "just now",
+      minutesAgo: "{count} minutes ago",
+      hoursAgo: "{count} hours ago",
+      daysAgo: "{count} days ago",
+      freeStandardShippingTitle: "Free Standard Shipping",
+      freeStandardShippingDescription: "On orders over $75. Delivery in 5-7 business days.",
+      expressShippingTitle: "Express Shipping",
+      expressShippingDescription: "{price}. Delivery in 2-3 business days.",
+      loadingReviews: "Loading reviews...",
+      reviewCountText: "{count} review",
+      noReviewsMatchFilters: "No reviews match your filters.",
+      clearFilters: "Clear Filters",
+      clearFiltersLowercase: "Clear filters",
+      tryAgain: "Try again",
+      failedToLoadReviews: "Failed to load reviews. Please try again.",
+      loadMoreReviews: "Load More Reviews",
+      starsLabel: "{count} Stars",
+      ratingLabel: "Rating",
+      titleLabel: "Title",
+      reviewLabel: "Review",
+      uploadingImages: "Uploading and compressing images...",
+      savingButton: "Saving...",
+      saveButton: "Save",
+      submittingButton: "Submitting...",
+      thankYouMessage: "Thank you for your review!",
+      reviewSubmittedMessage: "Your review has been submitted and will be visible after moderation.",
+      pleaseSelectRating: "Please select a rating",
+      pleaseEnterReviewTitle: "Please enter a review title",
+      pleaseEnterReviewBody: "Please enter a review body",
+      maxImagesError: "Maximum 5 images allowed per review",
+      onlyXMoreImagesError: "Only {count} more image(s) can be uploaded (max 5 total)",
+      failedToSubmitReview: "Failed to submit review",
+      failedToSubmitReviewRetry: "Failed to submit review. Please try again.",
+      mustBeLoggedInToReview: "You must be logged in to submit a review. Please log in and try again.",
+      failedToUpdateReview: "Failed to update review",
+      failedToDeleteReview: "Failed to delete review",
+      failedToUploadImages: "Failed to upload images",
+    } as StorefrontConfig["content"]["productDetail"],
+    dashboard: {
+      totalOrders: "Total Orders",
+      wishlistItems: "Wishlist Items",
+      savedAddresses: "Saved Addresses",
+      memberSince: "Member Since",
+      welcomeBack: "Welcome back, {name}",
+      welcomeBackMessage: "Here's what's happening with your account today.",
+      accountSummary: "Here's what's happening with your account today",
+      recentOrders: "Recent Orders",
+      viewAllButton: "View All →",
+      viewButton: "View",
+      orderLabel: "Order",
+      orderNumberPrefix: "Order #",
+      noOrdersYet: "No orders yet",
+      whenYouPlaceOrder: "When you place an order, it will appear here.",
+      noRecentOrders: "No recent orders",
+      startShopping: "Start Shopping",
+    } as StorefrontConfig["content"]["dashboard"],
     navbar: {
       selectChannel: "Select channel/currency",
       searchPlaceholder: "Search...",
@@ -1121,7 +1260,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       trackOrderLink: "Track Order",
     },
     orders: {
-      myOrders: "My Orders",
+      myOrdersTitle: "My Orders",
       orderHistory: "Order History",
       orderNumber: "Order Number",
       orderDate: "Order Date",
@@ -1132,18 +1271,30 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       noOrders: "You haven't placed any orders yet.",
       noOrdersDescription: "When you place an order, it will appear here.",
       startShopping: "Start Shopping",
-    },
+    } as unknown as StorefrontConfig["content"]["orders"],
     addresses: {
       myAddresses: "My Addresses",
-      addNewAddress: "Add New Address",
-      editAddress: "Edit Address",
-      deleteAddress: "Delete Address",
+      addAddressButton: "Add Address",
+      addNewAddressTitle: "Add New Address",
+      editButton: "Edit",
+      deleteButton: "Delete",
       defaultBilling: "Default Billing Address",
       defaultShipping: "Default Shipping Address",
       setAsDefault: "Set as Default",
       noAddresses: "You haven't added any addresses yet.",
-      noAddressesDescription: "Add an address to make checkout faster.",
-    },
+      noAddressesMessage: "Add an address to make checkout faster.",
+      addressesCount: "{count} address(es) saved",
+      noAddressesYet: "No addresses saved yet",
+      shippingAndBilling: "Shipping & Billing",
+      shippingAddress: "Shipping Address",
+      billingAddress: "Billing Address",
+      savedAddress: "Saved Address",
+      noAddressesCheckoutMessage: "Your addresses will be saved when you complete checkout.",
+      addAddressDescription: "Add addresses at checkout.",
+      continueShoppingButton: "Continue Shopping",
+      startShopping: "Start Shopping",
+      cancel: "Cancel",
+    } as unknown as StorefrontConfig["content"]["addresses"],
     orderTracking: {
       title: "Track Your Order",
       description: "Enter your order number and email address to view your order status and tracking information.",
@@ -1206,6 +1357,77 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       followUsTitle: "Follow Us",
       followUsDescription: "Stay connected for updates, tips, and exclusive offers.",
     },
+    wishlist: {
+      myWishlistTitle: "My Wishlist",
+      itemsCount: "{count} item(s) saved",
+      loadingWishlist: "Loading wishlist...",
+      emptyWishlistTitle: "Your wishlist is empty",
+      emptyWishlistMessage: "Save items you love by clicking the heart icon on any product.",
+      discoverProductsButton: "Discover Products",
+      clearAllButton: "Clear All",
+      itemsSaved: "{count} item(s) saved",
+      viewProduct: "View Product",
+      viewDetails: "View Details",
+      outOfStock: "Out of Stock",
+      addedOn: "Added {date}",
+      removeFromWishlist: "Remove",
+      moveToCart: "Add to Cart",
+      removeFromWishlistTooltip: "Remove from wishlist",
+    } as StorefrontConfig["content"]["wishlist"],
+    settings: {
+      accountSettings: "Account Settings",
+      settingsSubtitle: "Manage your profile, security, and notification preferences",
+      profileInformation: "Profile Information",
+      updatePersonalDetails: "Update your personal details",
+      saveChangesButton: "Save Changes",
+      savingChanges: "Saving...",
+      changesSaved: "Changes saved successfully",
+      profileUpdated: "Profile updated successfully",
+      profileUpdateFailed: "Failed to update profile. Please try again.",
+      emailChangePasswordRequired: "Password is required to change your email...",
+      emailChangeConfirmationSent: "A confirmation link has been sent to your new email...",
+      emailChangePasswordInvalid: "Password is not valid. Please enter your current account password.",
+      profileInvalidEmailError: "Please enter a valid email address. Check the domain and extension.",
+      changePassword: "Change Password",
+      passwordSecurityNote: "Update your password to keep your account secure",
+      currentPassword: "Current Password",
+      newPasswordLabel: "New Password",
+      confirmNewPassword: "Confirm New Password",
+      updatePasswordButton: "Update Password",
+      passwordUpdated: "Password updated successfully",
+      passwordUpdateFailed: "Failed to update password. Please try again.",
+      notificationPreferences: "Notification Preferences",
+      notificationSubtitle: "Choose how you want to receive updates",
+      orderUpdates: "Order Updates",
+      orderUpdatesDesc: "Receive notifications about your order status",
+      promotionsOffers: "Promotions & Offers",
+      promotionsDesc: "Get notified about sales and exclusive deals",
+      newsletterSetting: "Newsletter",
+      newsletterDesc: "Weekly updates about new arrivals and trends",
+      smsNotifications: "SMS Notifications",
+      smsDesc: "Receive text messages for important updates",
+      dangerZone: "Danger Zone",
+      deleteAccountWarning: "Permanently delete your account and all associated data",
+      deleteAccountButton: "Delete Account",
+      confirmDeleteTitle: "Delete Account?",
+      confirmDeleteMessage: "This action cannot be undone. All your data will be permanently removed.",
+    } as StorefrontConfig["content"]["settings"],
+    error: {
+      title: "Something went wrong",
+      description: "We're sorry, but something unexpected happened. Please try again or contact support if the problem persists.",
+      errorDetails: "Error details",
+      tryAgainButton: "Try Again",
+      backToHomeButton: "Back to Home",
+      needHelpText: "Need help?",
+      contactSupportLink: "Contact our support team",
+    } as StorefrontConfig["content"]["error"],
+    notFound: {
+      title: "Page Not Found",
+      description: "Sorry, we couldn't find the page you're looking for. It might have been moved or doesn't exist.",
+      backToHomeButton: "Back to Home",
+      browseProductsButton: "Browse Products",
+      helpfulLinksText: "Or check out these pages:",
+    } as StorefrontConfig["content"]["notFound"],
   },
 
   darkMode: {
@@ -1226,6 +1448,15 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       error: undefined,
     },
   },
+
+  storefront: {
+    cart: {
+      displayMode: "drawer" as const,
+      drawerSide: "right" as const,
+      showDeleteText: false,
+      showSaveForLater: false,
+    },
+  },
 });
 
 /**
@@ -1236,18 +1467,18 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
 export const getDefaultConfig = (channelSlug: string): StorefrontConfig => {
   // Try to load from sample config file first
   const sampleConfig = getSampleConfigForChannel(channelSlug);
-  
+
   if (sampleConfig) {
     // Ensure channelSlug matches (in case sample config has different channel)
     const configWithChannel = {
       ...sampleConfig,
       channelSlug,
     };
-    
+
     console.log(`[getDefaultConfig] ✅ Using sample config for channel "${channelSlug}"`);
     return configWithChannel;
   }
-  
+
   // Fallback to hardcoded defaults
   console.log(`[getDefaultConfig] ⚠️ Sample config not found for "${channelSlug}", using fallback defaults`);
   return getFallbackDefaultConfig(channelSlug);

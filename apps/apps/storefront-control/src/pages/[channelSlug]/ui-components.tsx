@@ -2,13 +2,13 @@ import React from "react";
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
-import { useForm } from "react-hook-form";
+import { useForm, type Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 
 import { AppLayout } from "@/modules/ui/app-layout";
 import { SectionCard } from "@/modules/ui/section-card";
-import { FormField, SelectField } from "@/modules/ui/form-field";
+import { FormField, SelectField, CheckboxField } from "@/modules/ui/form-field";
 import { StickySaveBar } from "@/modules/ui/sticky-save-bar";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { UiSchema } from "@/modules/config/schema";
@@ -44,9 +44,13 @@ const UiComponentsPage: NextPage = () => {
   const { channelSlug } = router.query as { channelSlug: string };
   const { appBridgeState } = useAppBridge();
 
-  const { data: config, isLoading, refetch } = trpcClient.config.getConfig.useQuery(
+  const {
+    data: config,
+    isLoading,
+    refetch,
+  } = trpcClient.config.getConfig.useQuery(
     { channelSlug },
-    { enabled: !!channelSlug && !!appBridgeState?.ready }
+    { enabled: !!channelSlug && !!appBridgeState?.ready },
   );
 
   const updateMutation = trpcClient.config.updateSection.useMutation({
@@ -81,7 +85,9 @@ const UiComponentsPage: NextPage = () => {
 
   if (!appBridgeState?.ready || isLoading) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+      <div
+        style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}
+      >
         <span>Loading...</span>
       </div>
     );
@@ -97,20 +103,27 @@ const UiComponentsPage: NextPage = () => {
           description="Customize button appearance across your store"
           keywords={["buttons", "primary", "secondary", "outline"]}
         >
-
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <SelectField
               label="Border Radius"
               name="buttons.borderRadius"
               register={register}
-              errors={errors}
               options={borderRadiusOptions}
               description="Roundness of button corners"
             />
           </div>
 
           <div style={{ marginTop: "48px" }}>
-            <h4 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", margin: "0 0 24px 0" }}>Primary Button</h4>
+            <h4
+              style={{
+                fontSize: "16px",
+                fontWeight: "bold",
+                marginBottom: "24px",
+                margin: "0 0 24px 0",
+              }}
+            >
+              Primary Button
+            </h4>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
               <FormField
                 label="Background Color"
@@ -140,7 +153,16 @@ const UiComponentsPage: NextPage = () => {
           </div>
 
           <div style={{ marginTop: "48px" }}>
-            <h4 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", margin: "0 0 24px 0" }}>Secondary Button</h4>
+            <h4
+              style={{
+                fontSize: "16px",
+                fontWeight: "bold",
+                marginBottom: "24px",
+                margin: "0 0 24px 0",
+              }}
+            >
+              Secondary Button
+            </h4>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
               <FormField
                 label="Background Color"
@@ -168,7 +190,16 @@ const UiComponentsPage: NextPage = () => {
           </div>
 
           <div style={{ marginTop: "48px" }}>
-            <h4 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", margin: "0 0 24px 0" }}>Outline Button</h4>
+            <h4
+              style={{
+                fontSize: "16px",
+                fontWeight: "bold",
+                marginBottom: "24px",
+                margin: "0 0 24px 0",
+              }}
+            >
+              Outline Button
+            </h4>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
               <FormField
                 label="Text Color"
@@ -197,19 +228,26 @@ const UiComponentsPage: NextPage = () => {
           keywords={["badges", "sale", "new", "discount"]}
           icon="🏷️"
         >
-
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <SelectField
               label="Border Radius"
-              name="badges.borderRadius"
+              name={"badges.new.borderRadius" as Path<UiFormData>}
               register={register}
-              errors={errors}
               options={borderRadiusOptions}
             />
           </div>
 
           <div style={{ marginTop: "48px" }}>
-            <h4 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", margin: "0 0 24px 0" }}>Sale Badge</h4>
+            <h4
+              style={{
+                fontSize: "16px",
+                fontWeight: "bold",
+                marginBottom: "24px",
+                margin: "0 0 24px 0",
+              }}
+            >
+              Sale Badge
+            </h4>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
               <FormField
                 label="Background Color"
@@ -229,7 +267,16 @@ const UiComponentsPage: NextPage = () => {
           </div>
 
           <div style={{ marginTop: "48px" }}>
-            <h4 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", margin: "0 0 24px 0" }}>New Badge</h4>
+            <h4
+              style={{
+                fontSize: "16px",
+                fontWeight: "bold",
+                marginBottom: "24px",
+                margin: "0 0 24px 0",
+              }}
+            >
+              New Badge
+            </h4>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
               <FormField
                 label="Background Color"
@@ -249,7 +296,16 @@ const UiComponentsPage: NextPage = () => {
           </div>
 
           <div style={{ marginTop: "48px" }}>
-            <h4 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", margin: "0 0 24px 0" }}>Out of Stock Badge</h4>
+            <h4
+              style={{
+                fontSize: "16px",
+                fontWeight: "bold",
+                marginBottom: "24px",
+                margin: "0 0 24px 0",
+              }}
+            >
+              Out of Stock Badge
+            </h4>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
               <FormField
                 label="Background Color"
@@ -276,13 +332,11 @@ const UiComponentsPage: NextPage = () => {
           description="Input field styling"
           keywords={["inputs", "fields", "focus"]}
         >
-
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <SelectField
               label="Border Radius"
               name="inputs.borderRadius"
               register={register}
-              errors={errors}
               options={borderRadiusOptions}
             />
             <FormField
@@ -319,20 +373,17 @@ const UiComponentsPage: NextPage = () => {
           keywords={["product cards", "quick view", "wishlist"]}
           icon="🃏"
         >
-
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <SelectField
               label="Border Radius"
               name="productCard.borderRadius"
               register={register}
-              errors={errors}
               options={borderRadiusOptions}
             />
             <SelectField
               label="Shadow"
               name="productCard.shadow"
               register={register}
-              errors={errors}
               options={[
                 { value: "none", label: "None" },
                 { value: "sm", label: "Small" },
@@ -342,15 +393,58 @@ const UiComponentsPage: NextPage = () => {
             />
             <SelectField
               label="Hover Effect"
-              name="productCard.hoverEffect"
+              name={"productCard.hoverEffect" as Path<UiFormData>}
               register={register}
-              errors={errors}
               options={[
                 { value: "none", label: "None" },
                 { value: "lift", label: "Lift up" },
                 { value: "scale", label: "Scale up" },
                 { value: "shadow", label: "Shadow increase" },
               ]}
+            />
+          </div>
+        </SectionCard>
+
+        {/* Cart Drawer Section */}
+        <SectionCard
+          id="ui-cart"
+          title="Cart Drawer"
+          description="Customize the cart drawer appearance and behavior"
+          keywords={["cart", "drawer", "position", "display"]}
+          icon="🛒"
+        >
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+            <SelectField
+              label="Display Mode"
+              name="cart.displayMode"
+              register={register}
+              options={[
+                { value: "drawer", label: "Drawer (Slide-in)" },
+                { value: "page", label: "Page (Full Cart Page)" },
+              ]}
+              description="How the cart is displayed when clicking cart icon"
+            />
+            <SelectField
+              label="Drawer Position"
+              name="cart.drawerSide"
+              register={register}
+              options={[
+                { value: "right", label: "Right" },
+                { value: "left", label: "Left" },
+              ]}
+              description="Side of the screen where the drawer appears"
+            />
+            <CheckboxField
+              label="Show delete text"
+              name={"cart.showDeleteText" as Path<UiFormData>}
+              register={register}
+              description="Show 'Delete' label next to trash icon (off = icon only)"
+            />
+            <CheckboxField
+              label="Show Save for later"
+              name={"cart.showSaveForLater" as Path<UiFormData>}
+              register={register}
+              description="Show 'Save for later' / 'Move to cart' per line item"
             />
           </div>
         </SectionCard>
@@ -362,18 +456,16 @@ const UiComponentsPage: NextPage = () => {
           description="Notification styling"
           keywords={["toast", "notifications", "alerts"]}
         >
-
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <SelectField
               label="Position"
               name="toasts.position"
               register={register}
-              errors={errors}
               options={toastPositionOptions}
             />
             <FormField
               label="Duration (ms)"
-              name="toasts.duration"
+              name={"toasts.duration" as Path<UiFormData>}
               register={register}
               errors={errors}
               type="number"
@@ -383,33 +475,39 @@ const UiComponentsPage: NextPage = () => {
               label="Border Radius"
               name="toasts.borderRadius"
               register={register}
-              errors={errors}
               options={borderRadiusOptions}
             />
           </div>
 
           <div style={{ marginTop: "48px" }}>
-            <h4 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", margin: "0 0 24px 0" }}>Toast Colors</h4>
+            <h4
+              style={{
+                fontSize: "16px",
+                fontWeight: "bold",
+                marginBottom: "24px",
+                margin: "0 0 24px 0",
+              }}
+            >
+              Toast Colors
+            </h4>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
               <FormField
                 label="Success Background"
-                name="toasts.successColor"
+                name="toasts.success"
                 register={register}
                 errors={errors}
                 type="color"
               />
               <FormField
                 label="Error Background"
-                name="toasts.errorColor"
+                name="toasts.error"
                 register={register}
-                errors={errors}
                 type="color"
               />
               <FormField
                 label="Info Background"
-                name="toasts.infoColor"
+                name="toasts.info"
                 register={register}
-                errors={errors}
                 type="color"
               />
             </div>
@@ -424,13 +522,11 @@ const UiComponentsPage: NextPage = () => {
           keywords={["icons", "outline", "solid"]}
           icon="🎨"
         >
-
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <SelectField
               label="Icon Style"
               name="icons.style"
               register={register}
-              errors={errors}
               options={iconStyleOptions}
             />
             <FormField
@@ -446,7 +542,7 @@ const UiComponentsPage: NextPage = () => {
 
         <StickySaveBar
           isDirty={isDirty}
-          isLoading={updateMutation.isPending}
+          isLoading={updateMutation.isLoading}
           isSuccess={updateMutation.isSuccess}
           isError={updateMutation.isError}
           onReset={() => reset(config?.ui)}
@@ -456,5 +552,9 @@ const UiComponentsPage: NextPage = () => {
     </AppLayout>
   );
 };
+
+export async function getServerSideProps() {
+  return { props: {} };
+}
 
 export default UiComponentsPage;

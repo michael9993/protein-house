@@ -24,14 +24,22 @@ export const useDeliveryMethodsForm = (): UseFormReturn<DeliveryMethodsFormData>
 		shippingAddress?.country?.code as CountryCode | undefined,
 	);
 
+	// Default to free shipping when available, otherwise lowest price
 	const getAutoSetMethod = useCallback(() => {
 		if (!shippingMethods.length) {
 			return;
 		}
 
+		const freeMethod = shippingMethods.find((m) => (m.price?.amount ?? 0) === 0);
+		if (freeMethod) {
+			return freeMethod;
+		}
+
 		const cheapestMethod = shippingMethods.reduce(
 			(resultMethod, currentMethod) =>
-				currentMethod.price.amount < resultMethod.price.amount ? currentMethod : resultMethod,
+				(currentMethod.price?.amount ?? 0) < (resultMethod.price?.amount ?? 0)
+					? currentMethod
+					: resultMethod,
 			shippingMethods[0],
 		);
 

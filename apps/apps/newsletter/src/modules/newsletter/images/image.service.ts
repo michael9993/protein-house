@@ -20,6 +20,7 @@ export interface ImageUploadResult {
   height?: number;
   uploadedAt: Date;
   uploadedBy: string;
+  usedInTemplates?: string[];
 }
 
 export class ImageService {

@@ -69,18 +69,24 @@ let _dynamoMainTable: DynamoMainTable | null = null;
  * Lazy initialization of DynamoDB table to avoid errors when using PostgreSQL
  * Only creates the table when actually needed (when STORAGE_BACKEND=dynamodb)
  */
+const getDynamoTableName = (): string => {
+  const name = (env as { DYNAMODB_MAIN_TABLE_NAME?: string }).DYNAMODB_MAIN_TABLE_NAME ?? process.env.DYNAMODB_MAIN_TABLE_NAME;
+  if (!name) {
+    throw new Error(
+      "DYNAMODB_MAIN_TABLE_NAME is required when using DynamoDB storage backend",
+    );
+  }
+  return name;
+};
+
 export function getDynamoMainTable(): DynamoMainTable {
   if (!_dynamoMainTable) {
-    if (!env.DYNAMODB_MAIN_TABLE_NAME) {
-      throw new Error(
-        "DYNAMODB_MAIN_TABLE_NAME is required when using DynamoDB storage backend",
-      );
-    }
+    const tableName = getDynamoTableName();
     const client = createDynamoDBClient();
     const documentClient = createDynamoDBDocumentClient(client);
     _dynamoMainTable = DynamoMainTable.create({
       documentClient: documentClient,
-      tableName: env.DYNAMODB_MAIN_TABLE_NAME,
+      tableName,
     });
   }
   return _dynamoMainTable;

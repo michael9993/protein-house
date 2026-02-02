@@ -76,6 +76,7 @@ export async function checkAndStartScheduledCampaigns(): Promise<void> {
               await campaignService.updateCampaignStatus(campaign.id, "sending");
 
               // Add to queue immediately (scheduled time has passed)
+              const recipientFilter = campaign.recipientFilter ?? {};
               await addCampaignJob(
                 campaign.id,
                 {
@@ -83,7 +84,10 @@ export async function checkAndStartScheduledCampaigns(): Promise<void> {
                   appId,
                   channelSlug: campaign.channelSlug,
                   templateId: campaign.templateId,
-                  recipientFilter: campaign.recipientFilter,
+                  recipientFilter: {
+                    ...recipientFilter,
+                    isActive: recipientFilter.isActive ?? true,
+                  },
                   batchSize: campaign.batchSize,
                   rateLimitPerMinute: campaign.rateLimitPerMinute,
                   maxRetries: campaign.maxRetries,

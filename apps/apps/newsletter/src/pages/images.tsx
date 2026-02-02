@@ -19,6 +19,11 @@ const ImagesPage: NextPage = () => {
   });
 
   const utils = trpcClient.useUtils();
+  const deleteMutation = trpcClient.image.delete.useMutation({
+    onSuccess: () => {
+      void utils.image.list.invalidate();
+    },
+  });
 
   const handleUpload = useCallback(
     async (file: File) => {
@@ -59,10 +64,10 @@ const ImagesPage: NextPage = () => {
 
   const handleDelete = useCallback(
     async (id: string) => {
-      await trpcClient.image.delete.mutate({ id });
+      await deleteMutation.mutateAsync({ id });
       await utils.image.list.invalidate();
     },
-    [utils]
+    [deleteMutation, utils]
   );
 
   const handleSelect = useCallback(async (image: { id: string; url?: string }) => {

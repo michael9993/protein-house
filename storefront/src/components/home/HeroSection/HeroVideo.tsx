@@ -28,11 +28,11 @@ export function HeroVideo({
 
   const heroTitle = title || store.tagline || `Welcome to ${store.name}`;
   const heroSubtitle = subtitle || store.description;
-  const heroCta = ctaText || content.homepage.heroCtaText;
+  const heroCta = (ctaText || content?.homepage?.heroCtaText) ?? "";
   
-  // Get hero config for badge text
+  // Get hero config for badge text (hero section may have badgeText in extended config)
   const { homepage } = useStoreConfig();
-  const heroBadgeText = homepage?.sections?.hero?.badgeText || null;
+  const heroBadgeText = (homepage?.sections?.hero as { badgeText?: string } | undefined)?.badgeText ?? null;
 
   useEffect(() => {
     if (videoRef.current) {
@@ -62,8 +62,8 @@ export function HeroVideo({
           style={{
             animation: 'pulse 4s ease-in-out infinite',
             willChange: 'opacity',
+            backgroundColor: branding.colors.primary,
           }}
-          style={{ backgroundColor: branding.colors.primary }}
         />
         <div 
           className="absolute -bottom-20 -right-20 h-[400px] w-[400px] rounded-full opacity-20 blur-3xl"
@@ -177,8 +177,8 @@ export function HeroVideo({
             <LinkWithChannel
               href={ctaLink}
               className="group inline-flex items-center gap-3 rounded-full px-8 py-4 text-lg font-bold text-white transition-transform duration-200 ease-out hover:scale-[1.02] hover:shadow-lg"
-              style={{ willChange: 'transform' }}
               style={{ 
+                willChange: 'transform',
                 backgroundColor: branding.colors.primary,
                 boxShadow: `0 4px 20px ${branding.colors.primary}60`,
               }}
@@ -202,7 +202,7 @@ export function HeroVideo({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              {content.homepage.watchVideoButton}
+              {content?.homepage?.watchVideoButton ?? ""}
             </LinkWithChannel>
           </div>
 

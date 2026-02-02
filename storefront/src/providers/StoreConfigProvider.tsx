@@ -299,6 +299,20 @@ const DEFAULT_HEADER_CONFIG = {
     text: "Free shipping on orders over $50 • Fast delivery worldwide",
     backgroundColor: null,
     textColor: null,
+    useSaleorPromotions: false,
+    useSaleorVouchers: false,
+    items: [] as Array<{
+      id: string;
+      name: string;
+      description?: string | null;
+      link?: string | null;
+      icon?: string | null;
+    }>,
+    autoScrollIntervalSeconds: 6,
+    useGradient: false,
+    gradientFrom: null as string | null,
+    gradientTo: null as string | null,
+    dismissible: false,
   },
   showStoreName: true,
   logoPosition: "left" as const,
@@ -481,6 +495,15 @@ export function useHeroContent(): StoreConfig["heroContent"] {
   return config.heroContent;
 }
 
+/**
+ * Get cart display mode from Storefront Control app
+ * Returns 'page' (default) or 'drawer'
+ */
+export function useCartDisplayMode(): 'page' | 'drawer' {
+  const config = useStoreConfig();
+  return config.storefront?.cart?.displayMode ?? 'page';
+}
+
 // Default UI config
 const DEFAULT_UI_CONFIG = {
   buttons: {
@@ -525,6 +548,10 @@ const DEFAULT_UI_CONFIG = {
     info: { backgroundColor: null, textColor: null, iconColor: null },
   },
   icons: { style: "outline" as const, defaultColor: null, activeColor: null },
+  cart: {
+    showDeleteText: false,
+    showSaveForLater: false,
+  },
 } as const;
 
 // Default content config
@@ -565,8 +592,13 @@ export const DEFAULT_CONTENT_CONFIG = {
     promoCodeLabel: "Promo Code",
     promoCodePlaceholder: "Enter code",
     promoCodeApplyButton: "Apply",
+    eligibleForFreeShipping: "Eligible for free shipping",
     // Order summary
     subtotalLabel: "Subtotal",
+    originalSubtotalLabel: "Subtotal",
+    youSaveLabel: "You save",
+    discountedSubtotalLabel: "Your price",
+    shippingNote: "Shipping and taxes calculated at checkout",
     subtotalLabelWithCount: "Subtotal ({count} items)",
     shippingLabel: "Shipping",
     shippingFree: "FREE",
@@ -584,6 +616,13 @@ export const DEFAULT_CONTENT_CONFIG = {
     providedByStripe: "Provided by Stripe",
     // Saved for later
     itemsSavedForLater: "{count} item(s) saved for later",
+    // Gift (optional promotion)
+    giftLabel: "Free gift (optional)",
+    giftRemoveHint: "You can remove it if you don't want it",
+    giftAddedMessage: "A free gift has been added to your cart. You can remove it if you don't want it.",
+    voucherLabel: "Voucher",
+    voucherRemoved: "Voucher removed",
+    promoCodeApplied: "Promo code applied",
   },
   product: {
     addToCartButton: "Add to Cart",
@@ -599,7 +638,7 @@ export const DEFAULT_CONTENT_CONFIG = {
     addingButton: "Adding...",
     addedToCartButton: "Added to Cart!",
     selectOptionsButton: "Select Options",
-    viewCartLink: "View Cart →",
+    viewCartLink: "View Cart",
   },
   account: {
     signInTitle: "Welcome back",
@@ -705,6 +744,7 @@ export const DEFAULT_CONTENT_CONFIG = {
     // Rate limiting messages
     passwordResetRateLimitError: "You've already requested a password reset recently. Please wait 15 minutes before requesting another one.",
     passwordResetRateLimitInfo: "If you don't receive an email, please check your spam folder. You can request another reset link in 15 minutes.",
+    invalidEmailError: "Please enter a valid email address. Check the domain and extension (e.g. .com not .comm).",
   },
   general: {
     searchPlaceholder: "Search products...",
@@ -1336,6 +1376,7 @@ export const DEFAULT_CONTENT_CONFIG = {
     madeWith: "Made with",
     inLocation: "in {location}",
     contactUs: "Contact Us",
+    contactUsButton: "Contact Us",
     customerService: "Customer Service",
     shopTitle: "Shop",
     companyTitle: "Company",
@@ -1444,7 +1485,7 @@ export const DEFAULT_CONTENT_CONFIG = {
  */
 export function useUiConfig(): NonNullable<StoreConfig["ui"]> {
   const config = useStoreConfig();
-  if (!config.ui) return DEFAULT_UI_CONFIG as any;
+  if (!config.ui) return { ...DEFAULT_UI_CONFIG, activeFiltersTags: {} } as NonNullable<StoreConfig["ui"]>;
   return {
     ...DEFAULT_UI_CONFIG,
     ...config.ui,
@@ -1455,6 +1496,8 @@ export function useUiConfig(): NonNullable<StoreConfig["ui"]> {
     productCard: { ...DEFAULT_UI_CONFIG.productCard, ...config.ui.productCard },
     toasts: { ...DEFAULT_UI_CONFIG.toasts, ...config.ui.toasts },
     icons: { ...DEFAULT_UI_CONFIG.icons, ...config.ui.icons },
+    cart: { ...DEFAULT_UI_CONFIG.cart, ...config.ui.cart },
+    activeFiltersTags: config.ui.activeFiltersTags ?? {},
   };
 }
 
@@ -1464,7 +1507,7 @@ export function useUiConfig(): NonNullable<StoreConfig["ui"]> {
  */
 export function useContentConfig(): NonNullable<StoreConfig["content"]> {
   const config = useStoreConfig();
-  if (!config.content) return DEFAULT_CONTENT_CONFIG as NonNullable<StoreConfig["content"]>;
+  if (!config.content) return DEFAULT_CONTENT_CONFIG as unknown as NonNullable<StoreConfig["content"]>;
   return {
     ...DEFAULT_CONTENT_CONFIG,
     ...config.content,

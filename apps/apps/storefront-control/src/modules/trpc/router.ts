@@ -5,6 +5,7 @@ import { protectedClientProcedure } from "./protected-client-procedure";
 import { StorefrontConfigManager, createSettingsManager } from "../config/config-manager";
 import { StorefrontConfigSchema, StorefrontConfig } from "../config/schema";
 import { getDefaultConfig } from "../config/defaults";
+import { injectBannerItemsFromSaleor } from "../config/inject-banner-items";
 import {
   validateImportFile,
   diffConfigs,
@@ -104,7 +105,13 @@ export const configRouter = router({
       const settingsManager = createSettingsManager(ctx.apiClient, ctx.appId!);
       const configManager = new StorefrontConfigManager(settingsManager);
 
-      const config = await configManager.getForChannelWithDefaults(input.channelSlug);
+      let config = await configManager.getForChannelWithDefaults(input.channelSlug);
+
+      config = await injectBannerItemsFromSaleor({
+        config,
+        apiClient: ctx.apiClient,
+        channelSlug: input.channelSlug,
+      });
 
       console.log(`[getConfig] Returned filters:`, JSON.stringify(config.filters, null, 2));
       console.log(`[getConfig] Returned quickFilters:`, JSON.stringify(config.quickFilters, null, 2));
@@ -178,6 +185,7 @@ export const configRouter = router({
         "ui",
         "content",
         "darkMode",
+        "storefront",
       ]),
       data: z.unknown(),
     }))
@@ -219,9 +227,9 @@ export const configRouter = router({
         // Optionally update sample config file (if enabled in settings)
         // This can be controlled via an environment variable or config setting
         const shouldUpdateSample = process.env.AUTO_UPDATE_SAMPLE_CONFIG === "true";
-        if (shouldUpdateSample) {
+        if (shouldUpdateSample && savedConfig != null) {
           try {
-            const result = updateSampleConfigFile(savedConfig, input.channelSlug);
+            const result = updateSampleConfigFile(savedConfig as NonNullable<typeof savedConfig>, input.channelSlug);
             if (!result.success) {
               console.error("[updateSection] Failed to update sample config:", result.error);
             }
@@ -268,7 +276,7 @@ export const configRouter = router({
       try {
         const validated = StorefrontConfigSchema.parse(updatedConfig);
         await configManager.setForChannel(input.channelSlug, validated);
-        
+
         // Get the saved config to get the incremented version
         const savedConfig = await configManager.getForChannel(input.channelSlug);
         const finalVersion = savedConfig?.version ?? validated.version;
@@ -478,9 +486,9 @@ export const configRouter = router({
 
       if (result.success) {
         console.log(`[updateSampleConfig] ✅ Successfully updated sample config file for ${input.channelSlug}`);
-        return { 
-          success: true, 
-          message: `Sample config file updated successfully${result.filePath ? `: ${result.filePath}` : ''}` 
+        return {
+          success: true,
+          message: `Sample config file updated successfully${result.filePath ? `: ${result.filePath}` : ''}`
         };
       } else {
         console.error(`[updateSampleConfig] ❌ Failed to update sample config file for ${input.channelSlug}: ${result.error}`);

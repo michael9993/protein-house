@@ -1,4 +1,4 @@
-import { MenuGetBySlugDocument } from "@/gql/graphql";
+import { MenuGetBySlugDocument, type MenuGetBySlugQuery } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { FooterClient } from "./FooterClient";
 
@@ -7,7 +7,8 @@ export async function Footer({ channel }: { channel: string }) {
 	// tokens don't cause 500 — footer menu is public.
 	const channelSpecificSlug = `footer-${channel}`;
 
-	let menuItems: Awaited<ReturnType<typeof executeGraphQL<typeof MenuGetBySlugDocument>>>["menu"]["items"] = [];
+	type MenuItems = NonNullable<NonNullable<MenuGetBySlugQuery["menu"]>["items"]>;
+	let menuItems: MenuItems = [];
 	try {
 		let footerLinks = await executeGraphQL(MenuGetBySlugDocument, {
 			variables: { slug: channelSpecificSlug, channel },

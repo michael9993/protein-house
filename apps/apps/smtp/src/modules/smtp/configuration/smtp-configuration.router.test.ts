@@ -158,7 +158,7 @@ describe("smtpConfigurationRouter", () => {
           expect((error as TRPCError).code).toBe("BAD_REQUEST");
           expect((error as TRPCError).cause).toBeDefined();
           // Verify errorContext is available through the cause
-          const cause = (error as TRPCError).cause as any;
+          const cause = (error as TRPCError).cause as unknown as { errorContext: string };
 
           expect(cause.errorContext).toBe("SUBJECT");
         }
@@ -188,7 +188,7 @@ describe("smtpConfigurationRouter", () => {
           expect(error).toBeInstanceOf(TRPCError);
           expect((error as TRPCError).code).toBe("BAD_REQUEST");
           expect((error as TRPCError).cause).toBeDefined();
-          const cause = (error as TRPCError).cause as any;
+          const cause = (error as TRPCError).cause as unknown as { errorContext: string };
 
           expect(cause.errorContext).toBe("BODY_TEMPLATE");
         }
@@ -214,7 +214,7 @@ describe("smtpConfigurationRouter", () => {
           expect(error).toBeInstanceOf(TRPCError);
           expect((error as TRPCError).code).toBe("BAD_REQUEST");
           expect((error as TRPCError).cause).toBeDefined();
-          const cause = (error as TRPCError).cause as any;
+          const cause = (error as TRPCError).cause as unknown as { errorContext: string };
 
           expect(cause.errorContext).toBe("BODY_MJML");
         }

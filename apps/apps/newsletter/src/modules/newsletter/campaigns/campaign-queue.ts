@@ -1,4 +1,5 @@
 import { Queue, QueueOptions } from "bullmq";
+import type { ConnectionOptions } from "bullmq";
 import IORedis from "ioredis";
 
 import { createLogger } from "../../../logger";
@@ -19,6 +20,9 @@ export interface CampaignJobData {
     sources?: string[];
     subscribedAfter?: string;
     subscribedBefore?: string;
+    selectionType?: "all" | "selected" | "random" | "newest" | "oldest";
+    limit?: number;
+    selectedSubscriberIds?: string[];
   };
   batchSize: number;
   rateLimitPerMinute: number;
@@ -54,7 +58,7 @@ export function getCampaignQueue(): Queue<CampaignJobData> {
     return campaignQueue;
   }
 
-  const connection = getRedisClient();
+  const connection = getRedisClient() as unknown as ConnectionOptions;
   const queueOptions: QueueOptions = {
     connection,
     defaultJobOptions: {

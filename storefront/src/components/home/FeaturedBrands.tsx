@@ -150,11 +150,11 @@ export function FeaturedBrands({
                   transition: 'box-shadow 200ms ease-out, transform 200ms ease-out',
                   willChange: 'transform',
                 }}
-                onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                onMouseEnter={(e: React.MouseEvent<HTMLElement>) => {
                   e.currentTarget.style.transform = 'translateY(-4px)';
                   e.currentTarget.style.boxShadow = '0 12px 24px -8px rgba(0,0,0,0.15)';
                 }}
-                onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+                onMouseLeave={(e: React.MouseEvent<HTMLElement>) => {
                   e.currentTarget.style.transform = 'translateY(0)';
                   e.currentTarget.style.boxShadow = `0 4px 16px -4px ${branding.colors.primary}15`;
                 }}

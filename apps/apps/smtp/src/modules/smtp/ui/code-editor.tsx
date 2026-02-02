@@ -11,10 +11,9 @@ type Props = {
 
 export const CodeEditor = ({ initialTemplate, onChange, value, language }: Props) => {
   const { theme } = useTheme();
-  const editorRef = useRef(null);
+  const editorRef = useRef<unknown>(null);
 
-  // @ts-ignore
-  function handleEditorDidMount(editor, monaco) {
+  function handleEditorDidMount(editor: unknown, _monaco: unknown) {
     editorRef.current = editor;
   }
 

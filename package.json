@@ -1,0 +1,16 @@
+{
+  "name": "saleor-platform",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Saleor Platform monorepo root",
+  "scripts": {
+    "build:production": "node scripts/build-all-production.mjs",
+    "build:apps": "cd apps && pnpm build",
+    "build:storefront": "cd storefront && pnpm build",
+    "dev:apps": "cd apps && pnpm dev",
+    "dev:storefront": "cd storefront && pnpm dev"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

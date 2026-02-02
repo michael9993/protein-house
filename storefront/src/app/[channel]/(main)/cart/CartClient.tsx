@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useTransition, useMemo, useEffect } from "react";
+import { useState, useTransition, useMemo, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
@@ -11,6 +11,7 @@ import { useBranding, useEcommerceSettings, useContentConfig, useButtonStyle, us
 interface CartLine {
   id: string;
   quantity: number;
+  isGift?: boolean;
   totalPrice: {
     gross: { amount: number; currency: string };
   };
@@ -65,14 +66,20 @@ interface CartData {
   subtotalPrice: {
     gross: { amount: number; currency: string };
   };
+  voucherCode?: string | null;
+  voucherId?: string | null;
+  discount?: { amount: number; currency: string } | null;
+  discountName?: string | null;
 }
 
 interface CartClientProps {
   cart: CartData | null;
   channel: string;
-  deleteLineAction: (lineId: string, productSlug?: string) => Promise<void>;
+  deleteLineAction: (lineId: string, productSlug?: string) => Promise<{ success: boolean; error?: string } | void>;
   updateLineQuantityAction: (lineId: string, quantity: number, productSlug?: string) => Promise<{ success: boolean; error?: string }>;
   createCheckoutWithItems?: (variantIds: { variantId: string; quantity: number }[], channel: string) => Promise<{ checkoutId: string } | null>;
+  applyPromoCodeAction?: (checkoutId: string, promoCode: string) => Promise<{ success: boolean; error?: string }>;
+  removePromoCodeAction?: (checkoutId: string, options: { promoCodeId?: string; promoCode?: string }) => Promise<{ success: boolean; error?: string }>;
 }
 
 export function CartClient({ 
@@ -81,6 +88,8 @@ export function CartClient({
   deleteLineAction,
   updateLineQuantityAction,
   createCheckoutWithItems,
+  applyPromoCodeAction,
+  removePromoCodeAction,
 }: CartClientProps) {
   // Use hooks for config
   const branding = useBranding();
@@ -91,11 +100,24 @@ export function CartClient({
   
   const router = useRouter();
   const pathname = usePathname();
-  const [promoCode, setPromoCode] = useState("");
+  const [promoCodeInput, setPromoCodeInput] = useState("");
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [promoPending, setPromoPending] = useState(false);
   const [deletingLines, setDeletingLines] = useState<Set<string>>(new Set());
   const [, startTransition] = useTransition();
   const [isCreatingCheckout, setIsCreatingCheckout] = useState(false);
   const [isNavigatingToCheckout, setIsNavigatingToCheckout] = useState(false);
+
+  // One-time toast when cart has a gift line (Option A: show once per session)
+  const giftToastShownRef = useRef(false);
+  useEffect(() => {
+    if (!cart?.lines?.length || giftToastShownRef.current) return;
+    const hasGift = cart.lines.some((l) => l.isGift);
+    if (hasGift) {
+      giftToastShownRef.current = true;
+      toast.info(content.cart.giftAddedMessage ?? "A free gift has been added to your cart.");
+    }
+  }, [cart?.lines, content.cart.giftAddedMessage]);
 
   // Reset navigation state when pathname changes (navigation completed)
   useEffect(() => {
@@ -110,22 +132,75 @@ export function CartClient({
     return new Set(cart.lines.map(line => line.id));
   });
 
-  // Calculate selected items summary
-  const { selectedLines, selectedSubtotal, selectedItemCount } = useMemo(() => {
-    if (!cart) return { selectedLines: [], selectedSubtotal: 0, selectedItemCount: 0 };
-    
+  // Auto-select newly added cart lines when cart updates (e.g. after add to cart)
+  const prevCartLineIdsRef = useRef<string>("");
+  const cartLineIds = cart?.lines?.map((l) => l.id).join(",") ?? "";
+  useEffect(() => {
+    if (!cart?.lines?.length) return;
+    const currentLineIds = new Set(cart.lines.map((l) => l.id));
+    const previousLineIds = new Set(prevCartLineIdsRef.current ? prevCartLineIdsRef.current.split(",") : []);
+    prevCartLineIdsRef.current = cartLineIds;
+
+    setSelectedItems((prev) => {
+      const newSet = new Set<string>();
+      for (const id of currentLineIds) {
+        const wasInPrevious = previousLineIds.has(id);
+        const isNewLine = !wasInPrevious;
+        const wasSelected = prev.has(id);
+        if (wasSelected && wasInPrevious) newSet.add(id);
+        if (isNewLine) newSet.add(id);
+      }
+      if (newSet.size === prev.size && [...newSet].every((id) => prev.has(id))) return prev;
+      return newSet;
+    });
+  }, [cartLineIds, cart?.lines?.length]);
+
+  // Calculate selected items summary, savings, and subtotal before discount (gift-aware)
+  const { selectedLines, selectedSubtotal, selectedItemCount, totalSavings, subtotalBeforeDiscount } = useMemo(() => {
+    if (!cart) return { selectedLines: [], selectedSubtotal: 0, selectedItemCount: 0, totalSavings: 0, subtotalBeforeDiscount: 0 };
+
     const lines = cart.lines.filter(line => selectedItems.has(line.id));
     const subtotal = lines.reduce((sum, line) => sum + line.totalPrice.gross.amount, 0);
     const itemCount = lines.reduce((sum, line) => sum + line.quantity, 0);
-    
-    return { selectedLines: lines, selectedSubtotal: subtotal, selectedItemCount: itemCount };
+
+    // Savings: for gift lines use full undiscounted value; for regular lines use (undiscounted - current) * qty.
+    // Fallback for gift: if priceUndiscounted missing, use variant price so we show at least sale value.
+    const savings = lines.reduce((sum, line) => {
+      const undiscounted = line.variant.pricing?.priceUndiscounted?.gross?.amount ?? line.variant.pricing?.price?.gross?.amount ?? line.unitPrice.gross.amount ?? 0;
+      const current = line.variant.pricing?.price?.gross?.amount ?? line.unitPrice.gross.amount ?? 0;
+      const isGift = line.isGift;
+      const lineSavings = isGift
+        ? undiscounted * line.quantity
+        : undiscounted > current
+          ? (undiscounted - current) * line.quantity
+          : 0;
+      return sum + lineSavings;
+    }, 0);
+
+    // Subtotal before discount = sum of (undiscounted unit price * qty)
+    const beforeDiscount = lines.reduce((sum, line) => {
+      const undiscounted = line.variant.pricing?.priceUndiscounted?.gross?.amount ?? line.variant.pricing?.price?.gross?.amount ?? line.unitPrice.gross.amount ?? line.totalPrice.gross.amount / line.quantity;
+      return sum + undiscounted * line.quantity;
+    }, 0);
+
+    return {
+      selectedLines: lines,
+      selectedSubtotal: subtotal,
+      selectedItemCount: itemCount,
+      totalSavings: savings,
+      subtotalBeforeDiscount: beforeDiscount,
+    };
   }, [cart, selectedItems]);
 
   const freeShippingThreshold = ecommerce.shipping.freeShippingThreshold;
+  // Use same "Your price" as order summary so free shipping message matches threshold (no voucher/subtotal mismatch)
+  const effectiveTotalForShipping = selectedItems.size > 0
+    ? Math.max(0, subtotalBeforeDiscount - totalSavings - (cart?.discount?.amount ?? 0))
+    : selectedSubtotal;
   const amountToFreeShipping = freeShippingThreshold
-    ? Math.max(0, freeShippingThreshold - selectedSubtotal)
+    ? Math.max(0, freeShippingThreshold - effectiveTotalForShipping)
     : null;
-  const hasReachedFreeShipping = amountToFreeShipping === 0;
+  const hasReachedFreeShipping = freeShippingThreshold != null && effectiveTotalForShipping >= freeShippingThreshold;
 
   const allSelected = cart ? selectedItems.size === cart.lines.length : false;
   const noneSelected = selectedItems.size === 0;
@@ -291,24 +366,28 @@ export function CartClient({
   };
 
   const handleDeleteLine = async (lineId: string) => {
-    // Find the product slug for this line before deleting
     const line = cart?.lines.find(l => l.id === lineId);
     const productSlug = line?.variant.product.slug;
-    
+
     setDeletingLines(prev => new Set(prev).add(lineId));
-    // Also remove from selected items
     setSelectedItems(prev => {
       const next = new Set(prev);
       next.delete(lineId);
       return next;
     });
     startTransition(async () => {
-      await deleteLineAction(lineId, productSlug);
+      const result = await deleteLineAction(lineId, productSlug);
       setDeletingLines(prev => {
         const next = new Set(prev);
         next.delete(lineId);
         return next;
       });
+      if (result && !result.success) {
+        toast.error(result.error ?? content.cart.failedToUpdateQuantity);
+      } else if (result?.success) {
+        toast.success(content.cart.quantityUpdatedSuccess ?? "Item removed");
+        router.refresh();
+      }
     });
   };
 
@@ -336,6 +415,16 @@ export function CartClient({
         }));
         const result = await createCheckoutWithItems(items, channel);
         if (result?.checkoutId) {
+          // Mark this checkout as "no gift" so checkout page removes any gift lines Saleor re-adds
+          try {
+            const raw = typeof window !== "undefined" ? sessionStorage.getItem("checkout-no-gift-ids") : null;
+            const ids: string[] = raw ? (JSON.parse(raw) as string[]) : [];
+            if (Array.isArray(ids) && !ids.includes(result.checkoutId)) {
+              sessionStorage.setItem("checkout-no-gift-ids", JSON.stringify([...ids, result.checkoutId]));
+            }
+          } catch {
+            /* ignore */
+          }
           // Store the line IDs that are being checked out for cleanup after purchase
           // This allows us to remove purchased items from the original cart
           const pendingCleanup = {
@@ -431,7 +520,7 @@ export function CartClient({
       )}
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Free Shipping Progress */}
-        {freeShippingThreshold && !hasReachedFreeShipping && amountToFreeShipping !== null && selectedSubtotal > 0 && (
+        {freeShippingThreshold && !hasReachedFreeShipping && amountToFreeShipping !== null && effectiveTotalForShipping > 0 && (
           <div className="mb-6 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 p-4 sm:mb-8 animate-fade-in-up" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100">
@@ -448,7 +537,7 @@ export function CartClient({
                   <div
                     className="h-full rounded-full bg-emerald-500 transition-all duration-500"
                     style={{
-                      width: `${Math.min(100, (selectedSubtotal / freeShippingThreshold) * 100)}%`,
+                      width: `${Math.min(100, (effectiveTotalForShipping / freeShippingThreshold) * 100)}%`,
                     }}
                   />
                 </div>
@@ -457,7 +546,7 @@ export function CartClient({
           </div>
         )}
 
-        {hasReachedFreeShipping && selectedSubtotal > 0 && (
+        {hasReachedFreeShipping && effectiveTotalForShipping > 0 && (
           <div className="mb-6 rounded-xl bg-emerald-50 p-4 sm:mb-8 animate-fade-in-up" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500">
@@ -622,6 +711,13 @@ export function CartClient({
                               >
                                 {item.variant.product.name}
                               </LinkWithChannel>
+                              {item.isGift && (
+                                <span className="ml-2 inline-flex items-center">
+                                  <span className="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-800">
+                                    {content.cart.giftLabel ?? "Gift"}
+                                  </span>
+                                </span>
+                              )}
                             </div>
                             {item.variant.product.category?.name && (
                               <p className="mt-0.5 text-sm text-neutral-500">
@@ -669,84 +765,90 @@ export function CartClient({
                           </div>
                         </div>
 
-                        {/* Quantity & Actions */}
+                        {/* Quantity & Actions — hide for gift; gift is always qty 1, deselect to exclude */}
                         <div className="mt-auto flex items-center justify-between pt-3">
-                          {/* Quantity Controls */}
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
-                              disabled={item.quantity <= 1 || updatingQuantities.has(item.id) || isDeleting}
-                              className="flex h-8 w-8 items-center justify-center rounded border border-neutral-300 bg-white text-neutral-600 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
-                              title={item.quantity <= 1 ? "Use Delete to remove item" : undefined}
-                            >
-                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                              </svg>
-                            </button>
-                            <div className="flex min-w-[3rem] items-center justify-center rounded border border-neutral-200 bg-neutral-50 px-3 py-1">
-                              {updatingQuantities.has(item.id) ? (
-                                <svg className="h-4 w-4 animate-spin text-neutral-500" fill="none" viewBox="0 0 24 24">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                                </svg>
-                              ) : (
-                                <span className="text-sm font-medium text-neutral-700">
-                                  {item.quantity}
-                                </span>
-                              )}
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
-                              disabled={
-                                item.variant.quantityAvailable === 0 ||
-                                updatingQuantities.has(item.id) ||
-                                isDeleting
-                              }
-                              className="flex h-8 w-8 items-center justify-center rounded border border-neutral-300 bg-white text-neutral-600 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
-                              title={
-                                item.variant.quantityAvailable === 0
-                                  ? "No additional stock available"
-                                  : undefined
-                              }
-                            >
-                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                              </svg>
-                            </button>
-                          </div>
+                          {item.isGift ? (
+                            <p className="text-xs text-neutral-500">
+                              {content.cart.giftRemoveHint ?? "Deselect above to exclude from checkout"}
+                            </p>
+                          ) : (
+                            <>
+                              {/* Quantity Controls */}
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                                  disabled={item.quantity <= 1 || updatingQuantities.has(item.id) || isDeleting}
+                                  className="flex h-8 w-8 items-center justify-center rounded border border-neutral-300 bg-white text-neutral-600 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                  title={item.quantity <= 1 ? "Use Delete to remove item" : undefined}
+                                >
+                                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                                  </svg>
+                                </button>
+                                <div className="flex min-w-[3rem] items-center justify-center rounded border border-neutral-200 bg-neutral-50 px-3 py-1">
+                                  {updatingQuantities.has(item.id) ? (
+                                    <svg className="h-4 w-4 animate-spin text-neutral-500" fill="none" viewBox="0 0 24 24">
+                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                    </svg>
+                                  ) : (
+                                    <span className="text-sm font-medium text-neutral-700">
+                                      {item.quantity}
+                                    </span>
+                                  )}
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                                  disabled={
+                                    item.variant.quantityAvailable === 0 ||
+                                    updatingQuantities.has(item.id) ||
+                                    isDeleting
+                                  }
+                                  className="flex h-8 w-8 items-center justify-center rounded border border-neutral-300 bg-white text-neutral-600 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                  title={
+                                    item.variant.quantityAvailable === 0
+                                      ? "No additional stock available"
+                                      : undefined
+                                  }
+                                >
+                                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                  </svg>
+                                </button>
+                              </div>
 
-                          {/* Actions */}
-                          <div className="flex items-center gap-4">
-                            {/* Save for Later (just deselect) */}
-                            {isSelected && (
-                              <button
-                                type="button"
-                                onClick={() => handleSelectItem(item.id)}
-                                className="text-sm font-medium text-neutral-600 transition-colors hover:text-neutral-800"
-                              >
-                                {content.cart.saveForLaterButton}
-                              </button>
-                            )}
-                            {!isSelected && (
-                              <button
-                                type="button"
-                                onClick={() => handleSelectItem(item.id)}
-                                className="text-sm font-medium transition-colors hover:opacity-80"
-                                style={{ color: branding.colors.primary }}
-                              >
-                                {content.cart.moveToCartButton}
-                              </button>
-                            )}
-                            
-                            {/* Remove Button */}
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteLine(item.id)}
-                              disabled={isDeleting}
-                              className="flex items-center gap-1.5 text-sm font-medium text-red-600 transition-colors hover:text-red-700 disabled:opacity-50"
-                            >
+                              {/* Actions */}
+                              <div className="flex items-center gap-4">
+                                {/* Save for Later (just deselect) */}
+                                {isSelected && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSelectItem(item.id)}
+                                    className="text-sm font-medium text-neutral-600 transition-colors hover:text-neutral-800"
+                                  >
+                                    {content.cart.saveForLaterButton}
+                                  </button>
+                                )}
+                                {!isSelected && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSelectItem(item.id)}
+                                    className="text-sm font-medium transition-colors hover:opacity-80"
+                                    style={{ color: branding.colors.primary }}
+                                  >
+                                    {content.cart.moveToCartButton}
+                                  </button>
+                                )}
+                                
+                                {/* Remove Button */}
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteLine(item.id)}
+                                  disabled={isDeleting}
+                                  className="flex items-center gap-1.5 text-sm font-medium text-red-600 transition-colors hover:text-red-700 disabled:opacity-50"
+                                >
                               {isDeleting ? (
                                 <>
                                   <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -764,6 +866,8 @@ export function CartClient({
                               )}
                             </button>
                           </div>
+                            </>
+                          )}
                         </div>
                       </div>
                     </li>
@@ -799,64 +903,181 @@ export function CartClient({
                 )}
               </h2>
 
-              {/* Promo Code */}
+              {/* Promo Code: applied voucher or input */}
               <div className="mt-6">
-                <label htmlFor="promo" className="block text-sm font-medium text-neutral-700">
-                  {content.cart.promoCodeLabel}
-                </label>
-                <div className="mt-2 flex gap-2">
-                  <input
-                    type="text"
-                    id="promo"
-                    value={promoCode}
-                    onChange={(e) => setPromoCode(e.target.value)}
-                    placeholder={content.cart.promoCodePlaceholder}
-                    className="flex-1 rounded-lg border border-neutral-300 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2"
-                    style={{ "--tw-ring-color": branding.colors.primary } as React.CSSProperties}
-                  />
-                  <button
-                    type="button"
-                    disabled={!promoCode.trim()}
-                    className="rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {content.cart.promoCodeApplyButton}
-                  </button>
-                </div>
+                {cart.voucherCode ? (
+                  <div className="flex items-center justify-between gap-2 rounded-lg border border-emerald-200 bg-emerald-50/50 px-3 py-2.5">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-emerald-800 truncate">
+                        {content.cart.voucherLabel ?? "Voucher"}: {cart.voucherCode}
+                      </p>
+                      {cart.discount && (
+                        <p className="text-xs text-emerald-600 mt-0.5">
+                          −{formatMoney(cart.discount.amount, cart.discount.currency)}
+                          {cart.discountName ? ` (${cart.discountName})` : ""}
+                        </p>
+                      )}
+                    </div>
+                    {removePromoCodeAction && (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          setPromoPending(true);
+                          setPromoError(null);
+                          const result = await removePromoCodeAction(cart.id, {
+                            promoCodeId: cart.voucherId ?? undefined,
+                            promoCode: cart.voucherCode ?? undefined,
+                          });
+                          setPromoPending(false);
+                          if (result.success) {
+                            toast.success(content.cart.voucherRemoved ?? "Voucher removed");
+                            router.refresh();
+                          } else {
+                            setPromoError(result.error ?? "Failed to remove");
+                          }
+                        }}
+                        disabled={promoPending}
+                        className="shrink-0 rounded p-1.5 text-neutral-500 hover:bg-emerald-100 hover:text-neutral-700 disabled:opacity-50"
+                        aria-label="Remove voucher"
+                      >
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    <label htmlFor="promo" className="block text-sm font-medium text-neutral-700">
+                      {content.cart.promoCodeLabel}
+                    </label>
+                    <div className="mt-2 flex gap-2">
+                      <input
+                        type="text"
+                        id="promo"
+                        value={promoCodeInput}
+                        onChange={(e) => {
+                          setPromoCodeInput(e.target.value);
+                          setPromoError(null);
+                        }}
+                        placeholder={content.cart.promoCodePlaceholder}
+                        className="flex-1 rounded-lg border border-neutral-300 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2"
+                        style={{ "--tw-ring-color": branding.colors.primary } as React.CSSProperties}
+                      />
+                      <button
+                        type="button"
+                        disabled={!promoCodeInput.trim() || promoPending || !applyPromoCodeAction}
+                        onClick={async () => {
+                          if (!applyPromoCodeAction || !promoCodeInput.trim()) return;
+                          setPromoPending(true);
+                          setPromoError(null);
+                          const result = await applyPromoCodeAction(cart.id, promoCodeInput.trim());
+                          setPromoPending(false);
+                          if (result.success) {
+                            toast.success(content.cart.promoCodeApplied ?? "Promo code applied");
+                            setPromoCodeInput("");
+                            router.refresh();
+                          } else {
+                            setPromoError(result.error ?? "Invalid code");
+                          }
+                        }}
+                        className="rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {promoPending ? (
+                          <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                        ) : (
+                          content.cart.promoCodeApplyButton
+                        )}
+                      </button>
+                    </div>
+                    {promoError && (
+                      <p className="mt-1.5 text-sm text-red-600">{promoError}</p>
+                    )}
+                  </>
+                )}
               </div>
 
-              {/* Summary Lines */}
-              <dl className="mt-6 space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <dt className="text-neutral-600">
-                    {content.cart.subtotalLabelWithCount.replace("{count}", selectedItemCount.toString())}
-                  </dt>
-                  <dd className="font-medium text-neutral-900">
-                    {formatMoney(selectedSubtotal, currency)}
-                  </dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-neutral-600">{content.cart.shippingLabel}</dt>
-                  <dd className="font-medium text-neutral-900">
-                    {selectedSubtotal > 0 && hasReachedFreeShipping ? (
-                      <span className="text-emerald-600">{content.cart.shippingFree}</span>
-                    ) : (
-                      content.cart.shippingCalculatedAtCheckout
-                    )}
-                  </dd>
-                </div>
-                <div className="flex justify-between border-t border-neutral-200 pt-3">
-                  <dt className="text-base font-semibold text-neutral-900">{content.cart.totalLabel}</dt>
-                  <dd className="text-base font-semibold text-neutral-900">
-                    {formatMoney(selectedSubtotal, currency)}
-                  </dd>
-                </div>
-              </dl>
+              {/* Order summary: single clear section for subtotal, savings, voucher, shipping, total */}
+              <div className="mt-6 rounded-xl border border-neutral-200 bg-neutral-50/50 p-4 sm:p-5">
+                <h3 className="text-sm font-semibold text-neutral-900 mb-4">
+                  {(content.cart as { orderSummaryTitle?: string }).orderSummaryTitle ?? "Order summary"}
+                  {!allSelected && selectedItemCount > 0 && (
+                    <span className="ml-1 font-normal text-neutral-500">
+                      ({selectedItemCount} {selectedItemCount === 1 ? content.cart.itemSingular : content.cart.itemPlural})
+                    </span>
+                  )}
+                </h3>
+                <dl className="space-y-3 text-sm">
+                  {(() => {
+                    const voucherAmount = cart?.discount?.amount ?? 0;
+                    const combinedSavings = totalSavings + voucherAmount;
+                    return combinedSavings > 0 ? (
+                      <>
+                        <div className="flex justify-between text-neutral-500">
+                          <dt>{(content.cart as { originalSubtotalLabel?: string })?.originalSubtotalLabel ?? content.cart.subtotalLabel ?? "Subtotal"}</dt>
+                          <dd className="line-through">{formatMoney(subtotalBeforeDiscount, currency)}</dd>
+                        </div>
+                        <div className="flex justify-between items-center rounded-lg bg-emerald-50 px-3 py-2 border border-emerald-200">
+                          <dt className="flex items-center gap-1.5 font-medium text-emerald-800">
+                            <svg className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+                              <path fillRule="evenodd" d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5z" clipRule="evenodd" />
+                            </svg>
+                            {(content.cart as { youSaveLabel?: string })?.youSaveLabel ?? "You save"}
+                          </dt>
+                          <dd className="font-semibold text-emerald-800">−{formatMoney(combinedSavings, currency)}</dd>
+                        </div>
+                      </>
+                    ) : null;
+                  })()}
+                  <div className="flex justify-between">
+                    <dt className="text-neutral-600">
+                      {(content.cart as { discountedSubtotalLabel?: string })?.discountedSubtotalLabel ?? "Your price"}
+                      {!allSelected && selectedItemCount > 0 && ` (${selectedItemCount})`}
+                    </dt>
+                    <dd className="font-medium text-neutral-900">
+                      {formatMoney(
+                        selectedItems.size > 0
+                          ? Math.max(0, subtotalBeforeDiscount - totalSavings - (cart?.discount?.amount ?? 0))
+                          : selectedSubtotal,
+                        currency
+                      )}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between text-neutral-600">
+                    <dt>{content.cart.shippingLabel}</dt>
+                    <dd>
+                      {selectedSubtotal > 0 && hasReachedFreeShipping ? (
+                        <span className="text-emerald-600 font-medium">{content.cart.shippingFree}</span>
+                      ) : (
+                        content.cart.shippingCalculatedAtCheckout
+                      )}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between border-t border-neutral-200 pt-3 mt-3">
+                    <dt className="text-base font-semibold text-neutral-900">{content.cart.totalLabel}</dt>
+                    <dd className="text-base font-semibold text-neutral-900">
+                      {formatMoney(
+                        selectedItems.size > 0
+                          ? Math.max(0, subtotalBeforeDiscount - totalSavings - (cart?.discount?.amount ?? 0))
+                          : selectedSubtotal,
+                        currency
+                      )}
+                    </dd>
+                  </div>
+                </dl>
+                {!allSelected && selectedItems.size > 0 && (cart?.voucherCode ?? cart?.discount) && (
+                  <p className="mt-3 text-xs text-neutral-500">{content.cart.shippingCalculatedAtCheckout}</p>
+                )}
+              </div>
 
               {/* Checkout Button */}
               <button
                 onClick={handleProceedToCheckout}
                 disabled={noneSelected || isCreatingCheckout || isNavigatingToCheckout}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg py-3.5 text-sm font-semibold transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-full py-3.5 text-sm font-semibold transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                 style={{ 
                   backgroundColor: primaryButtonStyle.backgroundColor,
                   color: primaryButtonStyle.color,
@@ -910,52 +1131,6 @@ export function CartClient({
                   </svg>
                   {content.cart.sslEncryptedText}
                 </div>
-              </div>
-
-              {/* Payment Methods */}
-              <div className="mt-6 border-t border-neutral-200 pt-6">
-                <p className="mb-3 text-center text-xs text-neutral-500">{content.cart.acceptedPaymentMethods}</p>
-                <div className="flex items-center justify-center gap-2 flex-wrap">
-                  {/* Visa */}
-                  <div className="flex h-8 w-14 items-center justify-center rounded border border-neutral-200 bg-white p-1.5">
-                    <svg className="h-full w-full" viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect width="48" height="32" rx="4" fill="#1434CB"/>
-                      <path d="M20 11h8l-4.5 10h-8l4.5-10z" fill="white"/>
-                      <path d="M28 11h4l2.5 10h-4l-2.5-10z" fill="#FF5F00"/>
-                    </svg>
-                  </div>
-                  {/* Mastercard */}
-                  <div className="flex h-8 w-14 items-center justify-center rounded border border-neutral-200 bg-white p-1.5">
-                    <svg className="h-full w-full" viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect width="48" height="32" rx="4" fill="#EB001B"/>
-                      <circle cx="18" cy="16" r="6" fill="#FF5F00"/>
-                      <circle cx="30" cy="16" r="6" fill="#EB001B"/>
-                    </svg>
-                  </div>
-                  {/* Google Pay */}
-                  <div className="flex h-8 w-14 items-center justify-center rounded border border-neutral-200 bg-white p-1">
-                    <svg className="h-full w-full" viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect width="48" height="32" rx="4" fill="#000000"/>
-                      <path d="M16 10h16v12h-16v-12z" fill="white"/>
-                      <path d="M18 12h12v8h-12v-8z" fill="#4285F4"/>
-                      <path d="M18 12h6v8h-6v-8z" fill="#EA4335"/>
-                      <path d="M24 12h6v4h-6v-4z" fill="#FBBC04"/>
-                      <path d="M24 16h6v4h-6v-4z" fill="#34A853"/>
-                    </svg>
-                  </div>
-                  {/* PayPal */}
-                  <div className="flex h-8 w-14 items-center justify-center rounded border border-neutral-200 bg-white p-1.5">
-                    <svg className="h-full w-full" viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect width="48" height="32" rx="4" fill="#0070BA"/>
-                      <path d="M18 12h8c2 0 3.5 1.5 3.5 3.5s-1.5 3.5-3.5 3.5h-6v3h-2v-10zm2 5h6c1 0 1.5-0.5 1.5-1.5s-0.5-1.5-1.5-1.5h-6v3z" fill="white"/>
-                    </svg>
-                  </div>
-                  {/* Link (Stripe) */}
-                  <div className="flex h-8 w-14 items-center justify-center rounded border border-neutral-200 bg-white p-1.5" style={{ backgroundColor: "#635BFF" }}>
-                    <span className="text-[9px] font-bold text-white">Link</span>
-                  </div>
-                </div>
-                <p className="mt-2 text-center text-[10px] text-neutral-400">{content.cart.providedByStripe}</p>
               </div>
             </div>
           </div>

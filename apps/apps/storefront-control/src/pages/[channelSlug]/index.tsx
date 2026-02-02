@@ -16,9 +16,13 @@ const ChannelIndexPage: NextPage = () => {
   const { appBridgeState } = useAppBridge();
   const [showImportModal, setShowImportModal] = useState(false);
 
-  const { data: config, isLoading, refetch } = trpcClient.config.getConfig.useQuery(
+  const {
+    data: config,
+    isLoading,
+    refetch,
+  } = trpcClient.config.getConfig.useQuery(
     { channelSlug },
-    { enabled: !!channelSlug && !!appBridgeState?.ready }
+    { enabled: !!channelSlug && !!appBridgeState?.ready },
   );
 
   const updateSampleMutation = trpcClient.config.updateSampleConfig.useMutation({
@@ -38,7 +42,12 @@ const ChannelIndexPage: NextPage = () => {
   }, [config, channelSlug]);
 
   const handleUpdateSample = useCallback(() => {
-    if (config && window.confirm(`Update the sample config file for "${channelSlug}"? This will overwrite the current sample file with your current configuration.`)) {
+    if (
+      config &&
+      window.confirm(
+        `Update the sample config file for "${channelSlug}"? This will overwrite the current sample file with your current configuration.`,
+      )
+    ) {
       updateSampleMutation.mutate({ channelSlug });
     }
   }, [config, channelSlug, updateSampleMutation]);
@@ -50,7 +59,9 @@ const ChannelIndexPage: NextPage = () => {
 
   if (!appBridgeState?.ready || isLoading) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+      <div
+        style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}
+      >
         <span>Loading...</span>
       </div>
     );
@@ -60,8 +71,8 @@ const ChannelIndexPage: NextPage = () => {
   if (showImportModal) {
     return (
       <AppLayout channelSlug={channelSlug} channelName={config?.store.name}>
-        <ConfigImport 
-          channelSlug={channelSlug} 
+        <ConfigImport
+          channelSlug={channelSlug}
           onSuccess={handleImportSuccess}
           onCancel={() => setShowImportModal(false)}
         />
@@ -70,28 +81,56 @@ const ChannelIndexPage: NextPage = () => {
   }
 
   return (
-    <AppLayout channelSlug={channelSlug} channelName={config?.store.name} activeTab="overview" enablePageSearch={false}>
+    <AppLayout
+      channelSlug={channelSlug}
+      channelName={config?.store.name}
+      activeTab="overview"
+      enablePageSearch={false}
+    >
       <div>
         {/* Hero Section */}
-        <div 
-          style={{ 
-            backgroundColor: "#fff", 
-            borderRadius: "6px", 
-            padding: "32px", 
+        <div
+          style={{
+            backgroundColor: "#fff",
+            borderRadius: "6px",
+            padding: "32px",
             border: "1px solid #ddd",
-            marginBottom: "32px"
+            marginBottom: "32px",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "32px" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              gap: "32px",
+            }}
+          >
             <div style={{ flex: 1 }}>
-              <h2 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "16px", margin: "0 0 16px 0" }}>
+              <h2
+                style={{
+                  fontSize: "24px",
+                  fontWeight: "bold",
+                  marginBottom: "16px",
+                  margin: "0 0 16px 0",
+                }}
+              >
                 Configuration Overview
               </h2>
-              <p style={{ fontSize: "15px", color: "#666", marginBottom: "24px", margin: "0 0 24px 0", lineHeight: 1.6 }}>
-                Review storefront sections, check status, and jump into edits. All changes sync in real-time to your storefront.
+              <p
+                style={{
+                  fontSize: "15px",
+                  color: "#666",
+                  marginBottom: "24px",
+                  margin: "0 0 24px 0",
+                  lineHeight: 1.6,
+                }}
+              >
+                Review storefront sections, check status, and jump into edits. All changes sync in
+                real-time to your storefront.
               </p>
               <div style={{ display: "flex", gap: "8px" }}>
-                <button 
+                <button
                   onClick={() => setShowImportModal(true)}
                   style={{
                     padding: "8px 16px",
@@ -99,13 +138,13 @@ const ChannelIndexPage: NextPage = () => {
                     backgroundColor: "#000",
                     color: "#fff",
                     cursor: "pointer",
-                    fontSize: "14px"
+                    fontSize: "14px",
                   }}
                 >
                   📥 Import Configuration
                 </button>
-                <button 
-                  onClick={handleExport} 
+                <button
+                  onClick={handleExport}
                   disabled={!config}
                   style={{
                     padding: "8px 16px",
@@ -114,22 +153,22 @@ const ChannelIndexPage: NextPage = () => {
                     color: "#000",
                     cursor: !config ? "not-allowed" : "pointer",
                     opacity: !config ? 0.5 : 1,
-                    fontSize: "14px"
+                    fontSize: "14px",
                   }}
                 >
                   📤 Export JSON
                 </button>
-                <button 
-                  onClick={handleUpdateSample} 
+                <button
+                  onClick={handleUpdateSample}
                   disabled={!config || updateSampleMutation.isLoading}
                   style={{
                     padding: "8px 16px",
                     border: "1px solid #ddd",
                     backgroundColor: "#fff",
                     color: "#000",
-                    cursor: (!config || updateSampleMutation.isLoading) ? "not-allowed" : "pointer",
-                    opacity: (!config || updateSampleMutation.isLoading) ? 0.5 : 1,
-                    fontSize: "14px"
+                    cursor: !config || updateSampleMutation.isLoading ? "not-allowed" : "pointer",
+                    opacity: !config || updateSampleMutation.isLoading ? 0.5 : 1,
+                    fontSize: "14px",
                   }}
                   title="Update the sample config file (sample-config-import.json or sample-config-import-en.json) with current configuration"
                 >
@@ -137,21 +176,38 @@ const ChannelIndexPage: NextPage = () => {
                 </button>
               </div>
             </div>
-            <div 
-              style={{ 
-                backgroundColor: "#fff", 
-                borderRadius: "6px", 
+            <div
+              style={{
+                backgroundColor: "#fff",
+                borderRadius: "6px",
                 padding: "20px",
                 minWidth: "280px",
-                border: "1px solid #ddd"
+                border: "1px solid #ddd",
               }}
             >
-              <p style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "16px", margin: "0 0 16px 0", color: "#000" }}>
+              <p
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  marginBottom: "16px",
+                  margin: "0 0 16px 0",
+                  color: "#000",
+                }}
+              >
                 Channel Snapshot
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 <div>
-                  <p style={{ fontSize: "11px", fontWeight: "bold", marginBottom: "4px", margin: "0 0 4px 0", color: "#666", opacity: 0.8 }}>
+                  <p
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: "bold",
+                      marginBottom: "4px",
+                      margin: "0 0 4px 0",
+                      color: "#666",
+                      opacity: 0.8,
+                    }}
+                  >
                     Store Name
                   </p>
                   <p style={{ fontSize: "14px", fontWeight: "500", margin: 0, color: "#000" }}>
@@ -159,17 +215,26 @@ const ChannelIndexPage: NextPage = () => {
                   </p>
                 </div>
                 <div>
-                  <p style={{ fontSize: "11px", fontWeight: "bold", marginBottom: "4px", margin: "0 0 4px 0", color: "#666", opacity: 0.8 }}>
+                  <p
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: "bold",
+                      marginBottom: "4px",
+                      margin: "0 0 4px 0",
+                      color: "#666",
+                      opacity: 0.8,
+                    }}
+                  >
                     Primary Color
                   </p>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <div 
-                      style={{ 
-                        width: "24px", 
-                        height: "24px", 
-                        borderRadius: "4px", 
+                    <div
+                      style={{
+                        width: "24px",
+                        height: "24px",
+                        borderRadius: "4px",
                         border: "2px solid #ddd",
-                        backgroundColor: config?.branding.colors.primary 
+                        backgroundColor: config?.branding.colors.primary,
                       }}
                     />
                     <p style={{ fontSize: "13px", fontWeight: "500", margin: 0, color: "#000" }}>
@@ -178,7 +243,16 @@ const ChannelIndexPage: NextPage = () => {
                   </div>
                 </div>
                 <div>
-                  <p style={{ fontSize: "11px", fontWeight: "bold", marginBottom: "4px", margin: "0 0 4px 0", color: "#666", opacity: 0.8 }}>
+                  <p
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: "bold",
+                      marginBottom: "4px",
+                      margin: "0 0 4px 0",
+                      color: "#666",
+                      opacity: 0.8,
+                    }}
+                  >
                     Homepage Hero
                   </p>
                   <p style={{ fontSize: "14px", fontWeight: "500", margin: 0, color: "#000" }}>
@@ -186,11 +260,21 @@ const ChannelIndexPage: NextPage = () => {
                   </p>
                 </div>
                 <div>
-                  <p style={{ fontSize: "11px", fontWeight: "bold", marginBottom: "4px", margin: "0 0 4px 0", color: "#666", opacity: 0.8 }}>
+                  <p
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: "bold",
+                      marginBottom: "4px",
+                      margin: "0 0 4px 0",
+                      color: "#666",
+                      opacity: 0.8,
+                    }}
+                  >
                     Features Enabled
                   </p>
                   <p style={{ fontSize: "14px", fontWeight: "500", margin: 0, color: "#000" }}>
-                    {Object.values(config?.features ?? {}).filter(Boolean).length} / {Object.keys(config?.features ?? {}).length}
+                    {Object.values(config?.features ?? {}).filter(Boolean).length} /{" "}
+                    {Object.keys(config?.features ?? {}).length}
                   </p>
                 </div>
               </div>
@@ -198,11 +282,11 @@ const ChannelIndexPage: NextPage = () => {
           </div>
         </div>
 
-        <div 
-          style={{ 
-            display: "grid", 
+        <div
+          style={{
+            display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-            gap: "16px"
+            gap: "16px",
           }}
         >
           <ConfigCard
@@ -225,9 +309,13 @@ const ChannelIndexPage: NextPage = () => {
             status={config?.branding?.logo ? "ready" : "attention"}
             icon="🎨"
             items={[
-              { label: "Primary Color", value: config?.branding.colors.primary, isColor: true },
-              { label: "Border Radius", value: config?.branding.style.borderRadius },
-              { label: "Button Style", value: config?.branding.style.buttonStyle },
+              {
+                label: "Primary Color",
+                value: config?.branding?.colors?.primary ?? "",
+                isColor: true,
+              },
+              { label: "Border Radius", value: config?.branding?.style?.borderRadius ?? "" },
+              { label: "Button Style", value: config?.branding?.style?.buttonStyle ?? "" },
             ]}
           />
 
@@ -238,9 +326,9 @@ const ChannelIndexPage: NextPage = () => {
             status={config?.localization?.defaultLocale ? "ready" : "attention"}
             icon="🌍"
             items={[
-              { label: "Locale", value: config?.localization.defaultLocale || "en-US" },
-              { label: "Direction", value: config?.localization.direction || "auto" },
-              { label: "Time Format", value: config?.localization.timeFormat || "12h" },
+              { label: "Locale", value: config?.localization?.defaultLocale ?? "en-US" },
+              { label: "Direction", value: config?.localization?.direction ?? "auto" },
+              { label: "Time Format", value: config?.localization?.timeFormat ?? "12h" },
             ]}
           />
 
@@ -253,7 +341,11 @@ const ChannelIndexPage: NextPage = () => {
             items={[
               { label: "Enabled", value: config?.darkMode?.enabled ? "Yes" : "No" },
               { label: "Auto (System)", value: config?.darkMode?.auto ? "Yes" : "No" },
-              { label: "Dark BG", value: config?.darkMode?.colors?.background || "#0f172a", isColor: true },
+              {
+                label: "Dark BG",
+                value: config?.darkMode?.colors?.background || "#0f172a",
+                isColor: true,
+              },
             ]}
           />
 
@@ -277,9 +369,18 @@ const ChannelIndexPage: NextPage = () => {
             status={config?.homepage ? "ready" : "attention"}
             icon="🏠"
             items={[
-              { label: "Hero", value: config?.homepage.sections.hero.enabled ? "Enabled" : "Disabled" },
-              { label: "New Arrivals", value: config?.homepage.sections.newArrivals.enabled ? "Enabled" : "Disabled" },
-              { label: "Best Sellers", value: config?.homepage.sections.bestSellers.enabled ? "Enabled" : "Disabled" },
+              {
+                label: "Hero",
+                value: config?.homepage.sections.hero.enabled ? "Enabled" : "Disabled",
+              },
+              {
+                label: "New Arrivals",
+                value: config?.homepage.sections.newArrivals.enabled ? "Enabled" : "Disabled",
+              },
+              {
+                label: "Best Sellers",
+                value: config?.homepage.sections.bestSellers.enabled ? "Enabled" : "Disabled",
+              },
             ]}
           />
 
@@ -290,8 +391,14 @@ const ChannelIndexPage: NextPage = () => {
             status={config?.filters ? "ready" : "attention"}
             icon="🔍"
             items={[
-              { label: "Price Filter", value: config?.filters.priceFilter.enabled ? "Enabled" : "Disabled" },
-              { label: "Quick Filters", value: config?.quickFilters.enabled ? "Enabled" : "Disabled" },
+              {
+                label: "Price Filter",
+                value: config?.filters.priceFilter.enabled ? "Enabled" : "Disabled",
+              },
+              {
+                label: "Quick Filters",
+                value: config?.quickFilters.enabled ? "Enabled" : "Disabled",
+              },
               { label: "Category Limit", value: String(config?.quickFilters.categoryLimit || 8) },
             ]}
           />
@@ -318,7 +425,10 @@ const ChannelIndexPage: NextPage = () => {
             items={[
               { label: "Cart Button", value: config?.content?.cart?.checkoutButton || "Checkout" },
               { label: "Sign In", value: config?.content?.account?.signInTitle || "Sign In" },
-              { label: "Add to Cart", value: config?.content?.product?.addToCartButton || "Add to Cart" },
+              {
+                label: "Add to Cart",
+                value: config?.content?.product?.addToCartButton || "Add to Cart",
+              },
             ]}
           />
 
@@ -342,9 +452,18 @@ const ChannelIndexPage: NextPage = () => {
             status={config?.integrations ? "ready" : "attention"}
             icon="🔗"
             items={[
-              { label: "Google Analytics", value: config?.integrations.analytics.googleAnalyticsId ? "Configured" : "Not set" },
-              { label: "Facebook", value: config?.integrations.social.facebook ? "Set" : "Not set" },
-              { label: "Instagram", value: config?.integrations.social.instagram ? "Set" : "Not set" },
+              {
+                label: "Google Analytics",
+                value: config?.integrations.analytics.googleAnalyticsId ? "Configured" : "Not set",
+              },
+              {
+                label: "Facebook",
+                value: config?.integrations.social.facebook ? "Set" : "Not set",
+              },
+              {
+                label: "Instagram",
+                value: config?.integrations.social.instagram ? "Set" : "Not set",
+              },
             ]}
           />
 
@@ -364,7 +483,6 @@ const ChannelIndexPage: NextPage = () => {
       </div>
     </AppLayout>
   );
-
 };
 
 interface ConfigCardProps {
@@ -380,7 +498,7 @@ function ConfigCard({ title, href, summary, status = "ready", items, icon }: Con
   return (
     <Link href={href} passHref legacyBehavior>
       <a
-        style={{ 
+        style={{
           backgroundColor: "#fff",
           borderRadius: "6px",
           padding: "20px",
@@ -401,7 +519,14 @@ function ConfigCard({ title, href, summary, status = "ready", items, icon }: Con
           e.currentTarget.style.boxShadow = "none";
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            marginBottom: "24px",
+          }}
+        >
           <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", flex: 1 }}>
             {icon && (
               <div
@@ -413,23 +538,25 @@ function ConfigCard({ title, href, summary, status = "ready", items, icon }: Con
                   alignItems: "center",
                   justifyContent: "center",
                   minWidth: "36px",
-                  height: "36px"
+                  height: "36px",
                 }}
               >
-                <span style={{ fontSize: "18px" }}>
-                  {icon}
-                </span>
+                <span style={{ fontSize: "18px" }}>{icon}</span>
               </div>
             )}
             <div style={{ flex: 1 }}>
-              <h3 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "8px", margin: "0 0 8px 0", color: "#000" }}>
+              <h3
+                style={{
+                  fontSize: "16px",
+                  fontWeight: "bold",
+                  marginBottom: "8px",
+                  margin: "0 0 8px 0",
+                  color: "#000",
+                }}
+              >
                 {title}
               </h3>
-              {summary && (
-                <p style={{ fontSize: "13px", color: "#666", margin: 0 }}>
-                  {summary}
-                </p>
-              )}
+              {summary && <p style={{ fontSize: "13px", color: "#666", margin: 0 }}>{summary}</p>}
             </div>
           </div>
           <div
@@ -437,39 +564,39 @@ function ConfigCard({ title, href, summary, status = "ready", items, icon }: Con
               padding: "4px 10px",
               borderRadius: "4px",
               backgroundColor: status === "attention" ? "#FFF3CD" : "#D1E7DD",
-              marginLeft: "8px"
+              marginLeft: "8px",
             }}
           >
-            <span 
-              style={{ 
-                fontSize: "11px", 
+            <span
+              style={{
+                fontSize: "11px",
                 fontWeight: "bold",
                 textTransform: "uppercase",
                 letterSpacing: "0.5px",
-                color: status === "attention" ? "#856404" : "#0F5132"
+                color: status === "attention" ? "#856404" : "#0F5132",
               }}
             >
               {status === "attention" ? "⚠ Review" : "✓ Ready"}
             </span>
           </div>
         </div>
-        <div 
-          style={{ 
-            display: "flex", 
-            flexDirection: "column", 
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
             gap: "10px",
             paddingTop: "16px",
-            borderTop: "1px solid #ddd"
+            borderTop: "1px solid #ddd",
           }}
         >
           {items.map((item) => (
-            <div 
-              key={item.label} 
-              style={{ 
-                display: "flex", 
-                justifyContent: "space-between", 
+            <div
+              key={item.label}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
                 alignItems: "center",
-                padding: "4px 0"
+                padding: "4px 0",
               }}
             >
               <span style={{ fontSize: "13px", color: "#666" }}>{item.label}</span>
@@ -481,13 +608,17 @@ function ConfigCard({ title, href, summary, status = "ready", items, icon }: Con
                       height: "20px",
                       borderRadius: "4px",
                       backgroundColor: item.value,
-                      border: "1px solid #ddd"
+                      border: "1px solid #ddd",
                     }}
                   />
-                  <span style={{ fontSize: "12px", fontWeight: "500", color: "#000" }}>{item.value}</span>
+                  <span style={{ fontSize: "12px", fontWeight: "500", color: "#000" }}>
+                    {item.value}
+                  </span>
                 </div>
               ) : (
-                <span style={{ fontSize: "13px", fontWeight: "500", color: "#000" }}>{item.value}</span>
+                <span style={{ fontSize: "13px", fontWeight: "500", color: "#000" }}>
+                  {item.value}
+                </span>
               )}
             </div>
           ))}
@@ -497,5 +628,8 @@ function ConfigCard({ title, href, summary, status = "ready", items, icon }: Con
   );
 }
 
+export async function getServerSideProps() {
+  return { props: {} };
+}
 
 export default ChannelIndexPage;

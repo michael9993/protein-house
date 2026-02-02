@@ -251,11 +251,20 @@ export class TransactionRefundRequestedUseCase {
       });
     }
 
+    const stripeConfigValue = stripeConfig.value;
+    if (!stripeConfigValue) {
+      return err(
+        new AppIsNotConfiguredResponse(
+          appContextContainer.getContextValue(),
+          new BaseError("Stripe config is null"),
+        ),
+      );
+    }
     appContextContainer.set({
-      stripeEnv: stripeConfig.value.getStripeEnvValue(),
+      stripeEnv: stripeConfigValue.getStripeEnvValue(),
     });
 
-    const restrictedKey = stripeConfig.value.restrictedKey;
+    const restrictedKey = stripeConfigValue.restrictedKey;
 
     const stripeRefundsApi = this.stripeRefundsApiFactory.create({
       key: restrictedKey,

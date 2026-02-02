@@ -22,6 +22,7 @@ export class BrandingService {
   private static getStorefrontControlUrl(saleorApiUrl?: string): string | null {
     // Check if storefront-control URL is explicitly set
     const explicitUrl = process.env.STOREFRONT_CONTROL_URL || process.env.STOREFRONT_CONTROL_APP_INTERNAL_URL;
+
     if (explicitUrl) {
       return explicitUrl;
     }
@@ -29,7 +30,9 @@ export class BrandingService {
     // In Docker, try internal service name
     if (process.env.NODE_ENV !== "production" || process.env.DOCKER_ENV) {
       const dockerInternalUrl = "http://saleor-storefront-control-app:3000";
+
       logger.debug("Using Docker internal URL for storefront-control", { url: dockerInternalUrl });
+
       return dockerInternalUrl;
     }
 
@@ -37,8 +40,10 @@ export class BrandingService {
     if (saleorApiUrl) {
       try {
         const url = new URL(saleorApiUrl);
-        // Replace 'saleor-api' with 'storefront-control' or use same domain
-        // This is a heuristic - adjust based on your deployment
+        /*
+         * Replace 'saleor-api' with 'storefront-control' or use same domain.
+         * This is a heuristic - adjust based on your deployment.
+         */
         const baseUrl = `${url.protocol}//${url.host}`;
         // Try common patterns
         const possibleUrls = [
@@ -47,6 +52,7 @@ export class BrandingService {
           `${baseUrl.replace(/:\d+/, ":3000")}/storefront-control`,
           `${baseUrl}/storefront-control`,
         ];
+
         return possibleUrls[0]; // Return first guess
       } catch (e) {
         logger.warn("Failed to construct storefront-control URL from Saleor URL", { error: e });
@@ -69,12 +75,13 @@ export class BrandingService {
       logger.info("Storefront-control URL not available, using default branding", {
         channelSlug,
       });
+
       return this.getDefaultBranding();
     }
 
     try {
       const configUrl = `${storefrontControlUrl}/api/config/${channelSlug}?saleorApiUrl=${encodeURIComponent(saleorApiUrl || "")}`;
-      
+
       logger.debug("Fetching branding from storefront-control", {
         url: configUrl,
         channelSlug,
@@ -95,16 +102,19 @@ export class BrandingService {
           statusText: response.statusText,
           channelSlug,
         });
+
         return this.getDefaultBranding();
       }
 
       const data = await response.json();
+
       const config = data.config;
 
       if (!config || !config.store || !config.branding) {
         logger.warn("Invalid branding config structure from storefront-control", {
           channelSlug,
         });
+
         return this.getDefaultBranding();
       }
 
@@ -130,6 +140,7 @@ export class BrandingService {
         error: error instanceof Error ? error.message : String(error),
         channelSlug,
       });
+
       return this.getDefaultBranding();
     }
   }

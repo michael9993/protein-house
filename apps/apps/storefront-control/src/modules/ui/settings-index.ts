@@ -488,4 +488,20 @@ export const settingsSearchIndex: SettingsSearchEntry[] = [
     keywords: ["open graph", "twitter", "social"],
     category: "SEO",
   },
+  {
+    page: "storefront",
+    sectionId: "storefront-cart",
+    title: "Cart Display",
+    description: "Choose cart page or drawer mode",
+    keywords: ["cart", "drawer", "page", "slide", "panel"],
+    category: "Experience",
+  },
+  {
+    page: "shipping",
+    sectionId: "shipping-free",
+    title: "Free shipping",
+    description: "Free shipping threshold for cart indication",
+    keywords: ["shipping", "free", "threshold", "cart", "progress"],
+    category: "Experience",
+  },
 ];

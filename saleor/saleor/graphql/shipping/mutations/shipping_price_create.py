@@ -94,6 +94,10 @@ class ShippingPriceCreate(
 
     @classmethod
     def post_save_action(cls, info: ResolveInfo, instance, _cleaned_input):
+        # Ensure default metadata isFree=false when creating a shipping method
+        if instance.metadata is None or "isFree" not in instance.metadata:
+            instance.store_value_in_metadata({"isFree": "false"})
+            instance.save(update_fields=["metadata"])
         manager = get_plugin_manager_promise(info.context).get()
         cls.call_event(manager.shipping_price_created, instance)
 

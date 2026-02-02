@@ -8,7 +8,7 @@ export function StickyQuickFilters() {
   const { branding } = useStoreConfig();
   const filtersText = useFiltersText();
   const quickFiltersConfig = useQuickFiltersConfig();
-  const navbarMode = quickFiltersConfig.style?.navbarMode;
+  const navbarMode = quickFiltersConfig.style?.navbarMode as Record<string, string | number | undefined> | undefined;
   const { filters, toggleCategory, toggleCollection, toggleBrand } = useProductFilters();
   const [show, setShow] = useState(false);
   const [allItems, setAllItems] = useState<Array<{ id: string; name: string; slug: string; type: "category" | "collection" | "brand" }>>([]);
@@ -148,10 +148,10 @@ export function StickyQuickFilters() {
   const separatorWidth = navbarMode?.separatorWidth ?? 1; // w-px
   const separatorHeight = navbarMode?.separatorHeight ?? 24; // h-6
   const containerPaddingY = navbarMode?.containerPaddingY ?? 10; // py-2.5
-  const containerBg = navbarMode?.backgroundColor ?? "#FFFFFF";
-  const borderTopColor = navbarMode?.borderTopColor ?? `${branding.colors.textMuted}15`;
-  const borderBottomColor = navbarMode?.borderBottomColor ?? `${branding.colors.primary}20`;
-  const shadowColor = navbarMode?.shadowColor ?? "rgba(0, 0, 0, 0.08)";
+  const containerBg: string = String(navbarMode?.backgroundColor ?? "#FFFFFF");
+  const borderTopColor: string = String(navbarMode?.borderTopColor ?? `${branding.colors.textMuted}15`);
+  const borderBottomColor: string = String(navbarMode?.borderBottomColor ?? `${branding.colors.primary}20`);
+  const shadowColor: string = String(navbarMode?.shadowColor ?? "rgba(0, 0, 0, 0.08)");
 
   // Font size classes
   const fontSizeClasses = {
@@ -216,7 +216,7 @@ export function StickyQuickFilters() {
               
               {/* Group label */}
               <span 
-                className={`${fontSizeClasses[groupLabelFontSize]} ${fontWeightClasses.bold} uppercase tracking-wider rounded shrink-0 whitespace-nowrap`}
+                className={`${fontSizeClasses[groupLabelFontSize as keyof typeof fontSizeClasses]} ${fontWeightClasses.bold} uppercase tracking-wider rounded shrink-0 whitespace-nowrap`}
                 style={{
                   color: branding.colors.primary,
                   backgroundColor: `${branding.colors.primary}10`,
@@ -236,7 +236,7 @@ export function StickyQuickFilters() {
                   <button
                     key={`sticky-${item.type}-${item.id}`}
                     onClick={(e) => handleQuickFilterClick(e, item)}
-                    className={`shrink-0 ${fontSizeClasses[buttonFontSize]} ${fontWeightClasses[buttonFontWeight]} ${borderRadiusClasses[buttonBorderRadius]} transition-all duration-200 whitespace-nowrap flex-shrink-0 ${
+                    className={`shrink-0 ${fontSizeClasses[buttonFontSize as keyof typeof fontSizeClasses]} ${fontWeightClasses[buttonFontWeight as keyof typeof fontWeightClasses]} ${borderRadiusClasses[buttonBorderRadius as keyof typeof borderRadiusClasses]} transition-all duration-200 whitespace-nowrap flex-shrink-0 ${
                       active
                         ? "text-white shadow-md"
                         : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200 border border-neutral-200"

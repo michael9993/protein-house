@@ -51,7 +51,7 @@ export class FileAppConfigRepo implements AppConfigRepo {
   private async readConfigFile(): Promise<Record<string, FileConfigData>> {
     try {
       const data = await fs.readFile(this.storagePath, "utf-8");
-      const parsed = JSON.parse(data);
+      const parsed: Record<string, FileConfigData> = JSON.parse(data) as Record<string, FileConfigData>;
       logger.warn("Successfully read config file", {
         storagePath: this.storagePath,
         storageKeys: Object.keys(parsed),

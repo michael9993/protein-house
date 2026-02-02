@@ -127,7 +127,7 @@ export const SubscriberFilters = ({
 
       <Box display="flex" gap={2} alignItems="flex-end" style={{ flex: 1 }}>
         <Box style={{ flex: 1 }}>
-          <Text as="label" size={2} color="default2" display="block" marginBottom={1}>
+          <Text as="span" size={2} color="default2" display="block" marginBottom={1}>
             Search by email
           </Text>
           <input

@@ -15,7 +15,7 @@
 export type StoreType = 'physical' | 'digital' | 'food' | 'services' | 'mixed';
 
 // Homepage section identifiers
-export type HomepageSectionId = 
+export type HomepageSectionId =
   | 'hero'
   | 'featuredCategories'
   | 'newArrivals'
@@ -69,7 +69,7 @@ export interface StoreConfig {
     logo: string;           // Path to logo image
     logoAlt: string;        // Alt text for logo
     favicon: string;        // Path to favicon
-    
+
     colors: {
       primary: string;      // Main brand color (buttons, links)
       secondary: string;    // Secondary color (headers, accents)
@@ -82,13 +82,13 @@ export interface StoreConfig {
       warning: string;      // Warning states
       error: string;        // Error states
     };
-    
+
     typography: {
       fontHeading: string;  // Font for headings
       fontBody: string;     // Font for body text
       fontMono: string;     // Font for code/prices
     };
-    
+
     style: {
       borderRadius: 'none' | 'sm' | 'md' | 'lg' | 'full';
       buttonStyle: 'solid' | 'outline' | 'ghost';
@@ -105,23 +105,24 @@ export interface StoreConfig {
     compareProducts: boolean;
     productReviews: boolean;
     recentlyViewed: boolean;
-    
+    scrollToTop: boolean;
+
     // Checkout Features
     guestCheckout: boolean;
     expressCheckout: boolean;
     savePaymentMethods: boolean;
-    
+
     // Product Features
     digitalDownloads: boolean;
     subscriptions: boolean;
     giftCards: boolean;
     productBundles: boolean;
-    
+
     // Marketing Features
     newsletter: boolean;
     promotionalBanners: boolean;
     abandonedCartEmails: boolean;
-    
+
     // Social Features
     socialLogin: boolean;
     shareButtons: boolean;
@@ -136,25 +137,25 @@ export interface StoreConfig {
       default: string;      // Default currency code (USD, EUR, etc.)
       supported: string[];  // List of supported currencies
     };
-    
+
     shipping: {
       enabled: boolean;
       freeShippingThreshold: number | null;  // null = no free shipping
       showEstimatedDelivery: boolean;
       deliverySlots: boolean;  // For food/grocery stores
     };
-    
+
     tax: {
       showPricesWithTax: boolean;
       taxIncludedInPrice: boolean;
     };
-    
+
     inventory: {
       showStockLevel: boolean;
       lowStockThreshold: number;
       allowBackorders: boolean;
     };
-    
+
     checkout: {
       minOrderAmount: number | null;
       maxOrderAmount: number | null;
@@ -171,6 +172,21 @@ export interface StoreConfig {
       text: string;
       backgroundColor: string | null;  // null = use primary
       textColor: string | null;        // null = white
+      useSaleorPromotions?: boolean;
+      useSaleorVouchers?: boolean;
+      items?: Array<{
+        id: string;
+        name: string;
+        description?: string | null;
+        displayText?: string | null;
+        link?: string | null;
+        icon?: string | null;
+      }>;
+      autoScrollIntervalSeconds?: number;
+      useGradient?: boolean;
+      gradientFrom?: string | null;
+      gradientTo?: string | null;
+      dismissible?: boolean;
     };
     showStoreName: boolean;
     logoPosition: 'left' | 'center';
@@ -383,18 +399,18 @@ export interface StoreConfig {
       facebookPixelId: string | null;
       hotjarId: string | null;
     };
-    
+
     marketing: {
       mailchimpListId: string | null;
       klaviyoApiKey: string | null;
     };
-    
+
     support: {
       intercomAppId: string | null;
       zendeskKey: string | null;
       crispWebsiteId: string | null;
     };
-    
+
     social: {
       facebook: string | null;
       instagram: string | null;
@@ -475,6 +491,7 @@ export interface StoreConfig {
     categoryLimit: number;
     collectionLimit: number;
     brandLimit: number;
+    style?: Record<string, unknown>;
   };
 
   // ============================================
@@ -573,6 +590,12 @@ export interface StoreConfig {
       defaultColor: string | null;
       activeColor: string | null;
     };
+    activeFiltersTags?: Record<string, unknown>;
+    cart?: {
+      drawerSide: 'left' | 'right';
+      showDeleteText?: boolean;
+      showSaveForLater?: boolean;
+    };
   };
 
   // ============================================
@@ -622,6 +645,8 @@ export interface StoreConfig {
       promoCodeLabel: string;
       promoCodePlaceholder: string;
       promoCodeApplyButton: string;
+      /** Shown when a shipping voucher is applied (eligibility only, not discount amount) */
+      eligibleForFreeShipping?: string;
       // Order summary
       subtotalLabel: string;
       subtotalLabelWithCount: string;
@@ -641,6 +666,12 @@ export interface StoreConfig {
       providedByStripe: string;
       // Saved for later
       itemsSavedForLater: string;
+      // Additional cart UI fields
+      viewCartButton?: string;           // "View Full Cart"
+      shippingNote?: string;             // "Shipping and taxes calculated at checkout"
+      youSaveLabel?: string;             // "You save"
+      originalSubtotalLabel?: string;    // "Subtotal" (before discount)
+      discountedSubtotalLabel?: string;  // "Your price" (after discount)
     };
     product: {
       addToCartButton: string;
@@ -762,6 +793,7 @@ export interface StoreConfig {
       passwordTooShortError: string;
       passwordResetRateLimitError: string;
       passwordResetRateLimitInfo: string;
+      invalidEmailError: string;
     };
     general: {
       searchPlaceholder: string;
@@ -774,6 +806,7 @@ export interface StoreConfig {
       newsletterWeeklyUpdates: string;
       newsletterExclusiveOffers: string;
       newsletterAlreadySubscribed: string;
+      newsletterAlreadyActive?: string;
       loadMoreButton: string;
       viewAllButton: string;
       backButton: string;
@@ -831,6 +864,13 @@ export interface StoreConfig {
       orderConfirmation: string;
       thankYouTitle: string;
       thankYouMessage: string;
+      shippingStep?: string;
+      paymentStep?: string;
+      confirmationStep?: string;
+      checkoutTitle?: string;
+      privacyPolicy?: string;
+      termsOfService?: string;
+      securityNote?: string;
       // Footer links (optional for backward compatibility)
       privacyPolicyLinkText?: string;
       termsOfServiceLinkText?: string;
@@ -846,9 +886,49 @@ export interface StoreConfig {
     settings: SettingsText;
     footer: FooterText;
     navbar: NavbarText;
+    contact: ContactText;
     error: ErrorText;
     notFound: NotFoundText;
   };
+
+  // ============================================
+  // STOREFRONT UX
+  // ============================================
+  storefront?: {
+    cart?: {
+      displayMode: 'page' | 'drawer';
+    };
+  };
+}
+
+// Contact Page Text defaults
+export interface ContactText {
+  heroTitle: string;
+  heroDescription: string;
+  emailLabel: string;
+  phoneLabel: string;
+  addressLabel: string;
+  formTitle: string;
+  formDescription: string;
+  nameLabel: string;
+  namePlaceholder: string;
+  emailLabelForm: string;
+  emailPlaceholder: string;
+  subjectLabel: string;
+  subjectPlaceholder: string;
+  messageLabel: string;
+  messagePlaceholder: string;
+  sendButton: string;
+  sendingButton: string;
+  successTitle: string;
+  successDescription: string;
+  sendAnotherMessage: string;
+  faqsTitle: string;
+  faqsDescription: string;
+  faqs: Array<{ question: string; answer: string }>;
+  viewAllFaqs: string;
+  followUsTitle: string;
+  followUsDescription: string;
 }
 
 // Error Page Text defaults
@@ -895,7 +975,7 @@ export interface FiltersText {
   sectionTitle: string;
   clearAllButton: string;
   showResultsButton: string;
-  
+
   // Filter headings
   categoryTitle: string;
   collectionTitle: string;
@@ -905,11 +985,11 @@ export interface FiltersText {
   priceTitle: string;
   ratingTitle: string;
   availabilityTitle: string;
-  
+
   // Availability options
   inStockOnly: string;
   onSale: string;
-  
+
   // Active filters summary
   activeFiltersLabel: string;
   categorySingular: string;
@@ -922,7 +1002,7 @@ export interface FiltersText {
   colorPlural: string;
   sizeSingular: string;
   sizePlural: string;
-  
+
   // Sort options
   sortAtoZ: string;
   sortZtoA: string;
@@ -930,7 +1010,7 @@ export interface FiltersText {
   sortPriceHighLow: string;
   sortNewest: string;
   sortSale: string;
-  
+
   // Empty/loading states
   noProductsTitle: string;
   noProductsWithFilters: string;
@@ -939,7 +1019,7 @@ export interface FiltersText {
   loadingMore: string;
   seenAllProducts: string;
   tryAdjustingFilters: string;
-  
+
   // Search (products page search bar + nav search)
   searchPlaceholder: string;
   searchClearAriaLabel: string;
@@ -951,26 +1031,26 @@ export interface FiltersText {
   sortByLabel: string;
   filtersButtonText: string;
   searchForText: string;  // Text between count and search query (e.g., "for")
-  
+
   // Results text
   resultsText: string;
   itemsAvailable: string;
   productsPageTitle: string;
   discoverProducts: string;
-  
+
   // Quick filters
   shopAllButton: string;
   quickAddButton: string;
   scrollLeftAriaLabel: string;
   scrollRightAriaLabel: string;
   checkOutOurProducts: string;
-  
+
   // Rating filter
   minimumRating: string;
   starsAndUp: string;
   starAndUp: string;
   clearRatingFilter: string;
-  
+
   // Price filter
   minPriceLabel: string;
   maxPriceLabel: string;
@@ -985,7 +1065,7 @@ export const DEFAULT_FILTERS_TEXT: FiltersText = {
   sectionTitle: "Filters",
   clearAllButton: "Clear All Filters",
   showResultsButton: "Show Results",
-  
+
   // Filter headings
   categoryTitle: "Category",
   collectionTitle: "Collection",
@@ -995,11 +1075,11 @@ export const DEFAULT_FILTERS_TEXT: FiltersText = {
   priceTitle: "Price",
   ratingTitle: "Rating",
   availabilityTitle: "Availability",
-  
+
   // Availability options
   inStockOnly: "In Stock Only",
   onSale: "On Sale",
-  
+
   // Active filters summary
   activeFiltersLabel: "Active Filters:",
   categorySingular: "category",
@@ -1012,7 +1092,7 @@ export const DEFAULT_FILTERS_TEXT: FiltersText = {
   colorPlural: "colors",
   sizeSingular: "size",
   sizePlural: "sizes",
-  
+
   // Sort options
   sortAtoZ: "A to Z",
   sortZtoA: "Z to A",
@@ -1020,7 +1100,7 @@ export const DEFAULT_FILTERS_TEXT: FiltersText = {
   sortPriceHighLow: "Price: High to Low",
   sortNewest: "Newest",
   sortSale: "Sale",
-  
+
   // Empty/loading states
   noProductsTitle: "No products found",
   noProductsWithFilters: "Try adjusting your filters",
@@ -1029,7 +1109,7 @@ export const DEFAULT_FILTERS_TEXT: FiltersText = {
   loadingMore: "Loading more products...",
   seenAllProducts: "You've seen all {count} products",
   tryAdjustingFilters: "Try adjusting your filters to see more",
-  
+
   // Search (products page search bar + nav search)
   searchPlaceholder: "Search Products",
   searchClearAriaLabel: "Clear search",
@@ -1038,31 +1118,31 @@ export const DEFAULT_FILTERS_TEXT: FiltersText = {
   searchResultsTitle: "Search Results",
   resultsCountText: "Found {count} result(s)",
   noResultsMessage: "No results found for \"{query}\"",
-  
+
   // Results text
   resultsText: "results",
   itemsAvailable: "items available",
   productsPageTitle: "All Products",
   discoverProducts: "Discover Products",
-  
+
   // Sort dropdown
   sortByLabel: "Sort by:",
   filtersButtonText: "Filters",
   searchForText: "for",  // Text between count and search query (e.g., "10 for 'shoes'")
-  
+
   // Quick filters
   shopAllButton: "Shop All",
   quickAddButton: "Quick Add",
   scrollLeftAriaLabel: "Scroll left",
   scrollRightAriaLabel: "Scroll right",
   checkOutOurProducts: "Check Out Our Products",
-  
+
   // Rating filter
   minimumRating: "Minimum Rating",
   starsAndUp: "{count} stars & up",
   starAndUp: "1 star & up",
   clearRatingFilter: "Clear",
-  
+
   // Price filter
   minPriceLabel: "Min Price",
   maxPriceLabel: "Max Price",
@@ -1757,6 +1837,13 @@ export interface NavbarText {
   // Mobile navigation
   homeLabel: string;
   shopLabel: string;
+  categoriesLabel?: string;
+  collectionsLabel?: string;
+  brandsLabel?: string;
+  viewAllProducts?: string;
+  shopAllButton?: string;
+  subcategoriesSide?: string;
+  saleButton?: string;
 }
 
 export const DEFAULT_NAVBAR_TEXT: NavbarText = {
@@ -1824,7 +1911,7 @@ export const defaultStoreConfig: StoreConfig = {
     logo: "/logo.svg",
     logoAlt: "Store Logo",
     favicon: "/favicon.ico",
-    
+
     colors: {
       primary: "#2563EB",      // Blue
       secondary: "#1F2937",    // Dark gray
@@ -1837,13 +1924,13 @@ export const defaultStoreConfig: StoreConfig = {
       warning: "#D97706",
       error: "#DC2626",
     },
-    
+
     typography: {
       fontHeading: "Inter",
       fontBody: "Inter",
       fontMono: "JetBrains Mono",
     },
-    
+
     style: {
       borderRadius: "md",
       buttonStyle: "solid",
@@ -1856,6 +1943,7 @@ export const defaultStoreConfig: StoreConfig = {
     compareProducts: false,
     productReviews: true,
     recentlyViewed: true,
+    scrollToTop: true,
     guestCheckout: true,
     expressCheckout: false,
     savePaymentMethods: true,
@@ -1904,6 +1992,14 @@ export const defaultStoreConfig: StoreConfig = {
       text: "Free shipping on orders over $50 • Fast delivery worldwide",
       backgroundColor: null,
       textColor: null,
+      useSaleorPromotions: false,
+      useSaleorVouchers: false,
+      items: [],
+      autoScrollIntervalSeconds: 6,
+      useGradient: false,
+      gradientFrom: null,
+      gradientTo: null,
+      dismissible: false,
     },
     showStoreName: true,
     logoPosition: "left",
@@ -1931,8 +2027,8 @@ export const defaultStoreConfig: StoreConfig = {
       featuredCategories: { enabled: true, limit: 6 },
       newArrivals: { enabled: true, limit: 8 },
       bestSellers: { enabled: true, limit: 8 },
-      onSale: { 
-        enabled: true, 
+      onSale: {
+        enabled: true,
         limit: 4,
         // Default sale section background (color-mix like before)
         background: {
@@ -1943,8 +2039,8 @@ export const defaultStoreConfig: StoreConfig = {
       featuredBrands: { enabled: false },
       testimonials: { enabled: true },
       newsletter: { enabled: true },
-      instagramFeed: { 
-        enabled: false, 
+      instagramFeed: {
+        enabled: false,
         username: null,
         background: {
           style: "color-mix" as const,
@@ -2111,6 +2207,7 @@ export const defaultStoreConfig: StoreConfig = {
       promoCodeLabel: "Promo Code",
       promoCodePlaceholder: "Enter code",
       promoCodeApplyButton: "Apply",
+      eligibleForFreeShipping: "Eligible for free shipping",
       // Order summary
       subtotalLabel: "Subtotal",
       subtotalLabelWithCount: "Subtotal ({count} items)",
@@ -2130,6 +2227,12 @@ export const defaultStoreConfig: StoreConfig = {
       providedByStripe: "Payments powered by Stripe",
       // Saved for later
       itemsSavedForLater: "Saved for later",
+      // Additional cart UI fields
+      viewCartButton: "View Full Cart",
+      shippingNote: "Shipping and taxes calculated at checkout",
+      youSaveLabel: "You save",
+      originalSubtotalLabel: "Subtotal",
+      discountedSubtotalLabel: "Your price",
     },
     product: {
       addToCartButton: "Add to Cart",
@@ -2251,6 +2354,7 @@ export const defaultStoreConfig: StoreConfig = {
       // Rate limiting messages
       passwordResetRateLimitError: "You've already requested a password reset recently. Please wait 15 minutes before requesting another one.",
       passwordResetRateLimitInfo: "If you don't receive an email, please check your spam folder. You can request another reset link in 15 minutes.",
+      invalidEmailError: "Please enter a valid email address. Check the domain and extension (e.g. .com not .comm).",
     },
     general: {
       searchPlaceholder: "Search products...",
@@ -2325,6 +2429,38 @@ export const defaultStoreConfig: StoreConfig = {
       termsOfServiceLinkText: "Terms of Service",
       sslEncryptionMessage: "Protected by SSL encryption • Your payment info is safe",
     },
+    contact: {
+      heroTitle: "Contact Us",
+      heroDescription: "We'd love to hear from you. Send us a message and we'll respond as soon as we can.",
+      emailLabel: "Email",
+      phoneLabel: "Phone",
+      addressLabel: "Address",
+      formTitle: "Send a Message",
+      formDescription: "Fill out the form below and we'll get back to you within 24 hours.",
+      nameLabel: "Name",
+      namePlaceholder: "Your name",
+      emailLabelForm: "Email",
+      emailPlaceholder: "you@example.com",
+      subjectLabel: "Subject",
+      subjectPlaceholder: "How can we help?",
+      messageLabel: "Message",
+      messagePlaceholder: "Your message...",
+      sendButton: "Send Message",
+      sendingButton: "Sending...",
+      successTitle: "Message Sent!",
+      successDescription: "Thank you for reaching out. We'll get back to you soon.",
+      sendAnotherMessage: "Send another message",
+      faqsTitle: "Frequently Asked Questions",
+      faqsDescription: "Quick answers to common questions.",
+      faqs: [
+        { question: "What are your shipping times?", answer: "Most orders ship within 24 hours. Standard delivery takes 3-5 business days." },
+        { question: "How can I track my order?", answer: "Use the Track Order page and enter your order number and email." },
+        { question: "What is your return policy?", answer: "Items can be returned within 30 days in original condition." },
+      ],
+      viewAllFaqs: "View all FAQs",
+      followUsTitle: "Follow Us",
+      followUsDescription: "Stay connected on social media.",
+    },
     filters: DEFAULT_FILTERS_TEXT,
     productDetail: DEFAULT_PRODUCT_DETAIL_TEXT,
     dashboard: DEFAULT_ACCOUNT_DASHBOARD_TEXT,
@@ -2349,13 +2485,14 @@ export const storeTypePresets: Record<StoreType, Partial<StoreConfig>> = {
   physical: {
     // Standard retail - default config works
   },
-  
+
   digital: {
     features: {
       wishlist: true,
       compareProducts: false,
       productReviews: true,
       recentlyViewed: true,
+      scrollToTop: true,
       guestCheckout: true,
       expressCheckout: true,
       savePaymentMethods: true,
@@ -2383,13 +2520,14 @@ export const storeTypePresets: Record<StoreType, Partial<StoreConfig>> = {
       checkout: { minOrderAmount: null, maxOrderAmount: null, termsRequired: true },
     },
   },
-  
+
   food: {
     features: {
       wishlist: false,
       compareProducts: false,
       productReviews: true,
       recentlyViewed: true,
+      scrollToTop: true,
       guestCheckout: true,
       expressCheckout: true,
       savePaymentMethods: true,
@@ -2417,13 +2555,14 @@ export const storeTypePresets: Record<StoreType, Partial<StoreConfig>> = {
       checkout: { minOrderAmount: 15, maxOrderAmount: 500, termsRequired: true },
     },
   },
-  
+
   services: {
     features: {
       wishlist: false,
       compareProducts: false,
       productReviews: true,
       recentlyViewed: false,
+      scrollToTop: true,
       guestCheckout: false,  // Require account for services
       expressCheckout: false,
       savePaymentMethods: true,
@@ -2451,7 +2590,7 @@ export const storeTypePresets: Record<StoreType, Partial<StoreConfig>> = {
       checkout: { minOrderAmount: null, maxOrderAmount: null, termsRequired: true },
     },
   },
-  
+
   mixed: {
     // Enable everything for mixed stores
     features: {
@@ -2459,6 +2598,7 @@ export const storeTypePresets: Record<StoreType, Partial<StoreConfig>> = {
       compareProducts: true,
       productReviews: true,
       recentlyViewed: true,
+      scrollToTop: true,
       guestCheckout: true,
       expressCheckout: true,
       savePaymentMethods: true,
@@ -2488,7 +2628,7 @@ export function createStoreConfig(
   customConfig: Partial<StoreConfig> = {}
 ): StoreConfig {
   const preset = storeTypePresets[storeType];
-  
+
   return {
     ...defaultStoreConfig,
     ...preset,
@@ -2545,12 +2685,12 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
 function darkenColor(hex: string, percent: number): string {
   const rgb = hexToRgb(hex);
   if (!rgb) return hex;
-  
+
   const factor = 1 - percent / 100;
   const r = Math.round(rgb.r * factor);
   const g = Math.round(rgb.g * factor);
   const b = Math.round(rgb.b * factor);
-  
+
   return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
 
@@ -2559,7 +2699,7 @@ function darkenColor(hex: string, percent: number): string {
  */
 export function getThemeCSSVariables(config: StoreConfig): Record<string, string> {
   const { colors, typography, style } = config.branding;
-  
+
   const radiusMap = {
     none: '0px',
     sm: '4px',
@@ -2571,13 +2711,13 @@ export function getThemeCSSVariables(config: StoreConfig): Record<string, string
   // Derive hover and focus colors from primary
   const primaryRgb = hexToRgb(colors.primary);
   const primaryHover = darkenColor(colors.primary, 10);
-  const primaryFocusRing = primaryRgb 
-    ? `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.2)` 
+  const primaryFocusRing = primaryRgb
+    ? `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.2)`
     : `${colors.primary}33`;
   const primaryLight = primaryRgb
     ? `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.1)`
     : `${colors.primary}1a`;
-  
+
   return {
     // Base colors
     '--store-primary': colors.primary,

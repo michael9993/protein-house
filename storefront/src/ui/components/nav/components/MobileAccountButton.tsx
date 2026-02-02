@@ -30,9 +30,6 @@ function AccountButtonContent({ isActive }: { isActive: boolean }) {
     };
     fetchUser();
   }, []);
-  const { me: user } = await executeGraphQL(CurrentUserDocument, {
-    cache: "no-cache",
-  });
 
   if (user) {
     // User is logged in - show account icon

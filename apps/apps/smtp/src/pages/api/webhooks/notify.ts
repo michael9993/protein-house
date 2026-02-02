@@ -31,7 +31,7 @@ const logger = createLogger(notifyWebhook.webhookPath);
 
 const useCaseFactory = new SendEventMessagesUseCaseFactory();
 
-const handler: NextJsWebhookHandler<NotifySubscriptionPayload> = async (req, res, context) => {
+const handler: NextJsWebhookHandler<NotifySubscriptionPayload> = async (_req, res, context) => {
   logger.info("Webhook received");
 
   const { payload, authData } = context;
@@ -75,7 +75,7 @@ const handler: NextJsWebhookHandler<NotifySubscriptionPayload> = async (req, res
       })
       .then((result) =>
         result.match(
-          (r) => {
+          (_r) => {
             logger.info("Successfully sent email(s)");
 
             return res.status(200).json({ message: "The event has been handled" });

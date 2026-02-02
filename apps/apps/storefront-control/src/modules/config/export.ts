@@ -12,9 +12,7 @@ function getNodeModules() {
   
   // Server-side - try to load using eval to prevent webpack bundling
   try {
-    // @ts-expect-error - Using eval to prevent webpack from bundling fs/path
     const fs = typeof require !== "undefined" ? eval('require("fs")') : null;
-    // @ts-expect-error - Using eval to prevent webpack from bundling fs/path
     const path = typeof require !== "undefined" ? eval('require("path")') : null;
     return { fs, path };
   } catch {
@@ -76,18 +74,13 @@ function getSampleConfigFilePath(channelSlug: string): string | null {
   // Try multiple possible paths (development vs production)
   const possibleRoots: string[] = [];
   
-  // @ts-expect-error - process available at runtime in Node.js
-  if (typeof process !== "undefined" && (process as any).cwd) {
-    // @ts-expect-error
-    possibleRoots.push((process as any).cwd());
+  if (typeof process !== "undefined" && process.cwd) {
+    possibleRoots.push(process.cwd());
   }
   
   try {
-    // @ts-expect-error - __dirname might not be available in ESM
     if (typeof __dirname !== "undefined") {
-      // @ts-expect-error
       possibleRoots.push(path.resolve(__dirname, "../.."));
-      // @ts-expect-error
       possibleRoots.push(path.resolve(__dirname, "../../.."));
     }
   } catch {
@@ -132,7 +125,6 @@ export function updateSampleConfigFile(config: StorefrontConfig, channelSlug: st
     // Clear cache so next load gets fresh data
     try {
       // Import and clear the cache from defaults.ts
-      // @ts-expect-error - Dynamic import for cache clearing
       const { clearSampleConfigCache } = require("./defaults");
       if (clearSampleConfigCache) {
         clearSampleConfigCache();

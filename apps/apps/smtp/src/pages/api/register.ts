@@ -42,7 +42,7 @@ export default wrapWithLoggerContext(
           return true;
         },
       ],
-      async onRequestVerified(req, { authData: { token, saleorApiUrl }, respondWithError }) {
+      async onRequestVerified(_req, { authData: { token, saleorApiUrl }, respondWithError }) {
         const logger = createLogger("onRequestVerified");
 
         let saleorVersion: string;
@@ -95,28 +95,35 @@ export default wrapWithLoggerContext(
       },
       onAuthAplSaved: async (_req, context) => {
         const logger = createLogger("onAuthAplSaved");
+
         logger.info("App configuration set up successfully", {
           saleorApiUrl: context.authData.saleorApiUrl,
         });
 
-        // Fetch JWKS from Saleor instance and update APL
-        // This ensures we store the actual JWKS JSON instead of a URL
-        // Critical for tunnel setups where PUBLIC_URL might differ from localhost
+        /*
+         * Fetch JWKS from Saleor instance and update APL.
+         * This ensures we store the actual JWKS JSON instead of a URL.
+         * Critical for tunnel setups where PUBLIC_URL might differ from localhost.
+         */
         try {
           let saleorApiUrl = context.authData.saleorApiUrl;
 
           // If saleorApiUrl is localhost and we have a tunnel URL in environment, use tunnel URL
           if (saleorApiUrl.includes("localhost:8000")) {
             const envSaleorApiUrl = process.env.NEXT_PUBLIC_SALEOR_API_URL;
+
             if (envSaleorApiUrl) {
               // Normalize the env URL to ensure /graphql/ suffix
-              saleorApiUrl = envSaleorApiUrl.endsWith("/graphql/")
+
+              saleorApiUrl =
+                envSaleorApiUrl.endsWith("/graphql/")
                 ? envSaleorApiUrl
                 : envSaleorApiUrl.endsWith("/graphql")
                   ? envSaleorApiUrl + "/"
                   : envSaleorApiUrl.endsWith("/")
                     ? envSaleorApiUrl + "graphql/"
                     : envSaleorApiUrl + "/graphql/";
+
               logger.info("Using tunnel URL from environment for JWKS fetch", {
                 originalUrl: context.authData.saleorApiUrl,
                 tunnelUrl: saleorApiUrl,
@@ -124,9 +131,11 @@ export default wrapWithLoggerContext(
             }
           }
 
-          // Extract base URL from GraphQL endpoint
-          // e.g., "http://localhost:8000/graphql/" -> "http://localhost:8000"
-          // or "https://tunnel.trycloudflare.com/graphql/" -> "https://tunnel.trycloudflare.com"
+          /*
+           * Extract base URL from GraphQL endpoint.
+           * e.g. "http://localhost:8000/graphql/" -> "http://localhost:8000"
+           * or "https://tunnel.trycloudflare.com/graphql/" -> "https://tunnel.trycloudflare.com"
+           */
           const baseUrl = saleorApiUrl.replace(/\/graphql\/?$/, "");
           const jwksUrl = `${baseUrl}/.well-known/jwks.json`;
 
@@ -145,6 +154,7 @@ export default wrapWithLoggerContext(
               status: response.status,
               statusText: response.statusText,
             });
+
             return;
           }
 
@@ -153,15 +163,18 @@ export default wrapWithLoggerContext(
           // Validate JWKS structure
           if (!jwksJson || typeof jwksJson !== "object" || !Array.isArray(jwksJson.keys)) {
             logger.warn("Invalid JWKS structure received", { jwksUrl });
+
             return;
           }
 
           if (jwksJson.keys.length === 0) {
             logger.warn("JWKS keys array is empty", { jwksUrl });
+
             return;
           }
 
           // Update APL with the fetched JWKS JSON string
+
           const updatedAuthData = {
             ...context.authData,
             jwks: JSON.stringify(jwksJson),

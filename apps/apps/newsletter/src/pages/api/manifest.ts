@@ -1,5 +1,5 @@
 import { createManifestHandler } from "@saleor/app-sdk/handlers/next";
-import { AppManifest } from "@saleor/app-sdk/types";
+import type { AppManifest } from "@saleor/app-sdk/types";
 
 import packageJson from "../../../package.json";
 
@@ -22,7 +22,7 @@ const handler = createManifestHandler({
       homepageUrl: "https://github.com/saleor/apps",
       id: "saleor.app.newsletter",
       name: "Newsletter Management",
-      permissions: ["MANAGE_APPS", "MANAGE_USERS"],
+      permissions: ["MANAGE_APPS", "MANAGE_USERS"] as unknown as AppManifest["permissions"],
       requiredSaleorVersion: ">=3.20 <4",
       supportUrl: "https://github.com/saleor/apps/discussions",
       tokenTargetUrl: `${apiBaseURL}/api/register`,

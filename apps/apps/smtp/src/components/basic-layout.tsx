@@ -7,7 +7,7 @@ interface BasicLayoutProps {
   breadcrumbs?: { name: string; href?: string }[];
 }
 
-export const BasicLayout = ({ children, breadcrumbs, isLoading = false }: BasicLayoutProps) => {
+export const BasicLayout = ({ children, breadcrumbs, isLoading: _isLoading = false }: BasicLayoutProps) => {
   return (
     <Box padding={7} display="grid" gap={10}>
       {breadcrumbs?.length && (

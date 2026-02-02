@@ -31,7 +31,7 @@ const NewSmtpConfigurationPage: NextPage = () => {
   });
 
   const { mutate } = trpcClient.smtpConfiguration.createConfiguration.useMutation({
-    onSuccess: async (data, variables) => {
+    onSuccess: async (data, _variables) => {
       notifySuccess("Configuration saved");
       router.push(smtpUrls.configuration(data.id));
     },
@@ -59,7 +59,7 @@ const NewSmtpConfigurationPage: NextPage = () => {
       >
         <BoxWithBorder>
           <form
-            onSubmit={handleSubmit((data, event) => {
+            onSubmit={handleSubmit((data, _event) => {
               mutate({
                 ...data,
               });

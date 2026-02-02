@@ -1,5 +1,5 @@
 import { Result, ok, err } from "neverthrow";
-import { Client } from "urql";
+import { Client, type OperationResult } from "urql";
 import { format, parseISO } from "date-fns";
 
 import {
@@ -71,7 +71,7 @@ export async function fetchOrdersForAnalytics(
       const dateFrom = format(parseISO(options.dateFrom), "yyyy-MM-dd");
       const dateTo = format(parseISO(options.dateTo), "yyyy-MM-dd");
 
-      const result = await client
+      const result: OperationResult<FetchOrdersAnalyticsQuery> = await client
         .query<FetchOrdersAnalyticsQuery>(FetchOrdersAnalyticsDocument, {
           channel: options.channelSlug,
           first: Math.min(pageSize, maxOrders - allOrders.length),
@@ -106,7 +106,7 @@ export async function fetchOrdersForAnalytics(
         return err(new DataFetchError(`Failed to fetch orders: ${errorMessage}`, result.error));
       }
 
-      const orders = result.data?.orders;
+      const orders: FetchOrdersAnalyticsQuery["orders"] = result.data?.orders ?? null;
       if (!orders) {
         break;
       }

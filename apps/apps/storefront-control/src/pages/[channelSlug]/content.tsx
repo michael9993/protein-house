@@ -134,6 +134,20 @@ const ContentPage: NextPage = () => {
               placeholder="Proceed to Checkout"
             />
             <FormField
+              label="View Cart Button"
+              name="cart.viewCartButton"
+              register={register}
+              errors={errors}
+              placeholder="View Full Cart"
+            />
+            <FormField
+              label="Shipping Note"
+              name="cart.shippingNote"
+              register={register}
+              errors={errors}
+              placeholder="Shipping and taxes calculated at checkout"
+            />
+            <FormField
               label="Select All Button"
               name="cart.selectAllButton"
               register={register}
@@ -317,9 +331,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Promo Code Section
-          </Text>
+          <Text marginBottom={3}>Promo Code Section</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Promo Code Label"
@@ -342,11 +354,38 @@ const ContentPage: NextPage = () => {
               errors={errors}
               placeholder="Apply"
             />
+            <FormField
+              label="Eligible For Free Shipping"
+              name="cart.eligibleForFreeShipping"
+              register={register}
+              errors={errors}
+              placeholder="Eligible for free shipping"
+            />
+            <FormField
+              label="Gift Label"
+              name="cart.giftLabel"
+              register={register}
+              errors={errors}
+              placeholder="Gift"
+            />
+            <FormField
+              label="Gift Added Message (toast)"
+              name="cart.giftAddedMessage"
+              register={register}
+              errors={errors}
+              placeholder="A free gift has been added to your cart."
+            />
+            <FormField
+              label="Gift Remove Hint"
+              name="cart.giftRemoveHint"
+              register={register}
+              errors={errors}
+              placeholder="(You can remove it)"
+              description="Shown next to gift badge; leave empty to hide"
+            />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Order Summary
-          </Text>
+          <Text marginBottom={3}>Order Summary</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Subtotal Label"
@@ -354,6 +393,27 @@ const ContentPage: NextPage = () => {
               register={register}
               errors={errors}
               placeholder="Subtotal"
+            />
+            <FormField
+              label="Original Subtotal Label"
+              name="cart.originalSubtotalLabel"
+              register={register}
+              errors={errors}
+              placeholder="Subtotal (before discount)"
+            />
+            <FormField
+              label="You Save Label"
+              name="cart.youSaveLabel"
+              register={register}
+              errors={errors}
+              placeholder="You save"
+            />
+            <FormField
+              label="Discounted Subtotal Label"
+              name="cart.discountedSubtotalLabel"
+              register={register}
+              errors={errors}
+              placeholder="Your price"
             />
             <FormField
               label="Subtotal Label With Count"
@@ -392,9 +452,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Checkout Button States
-          </Text>
+          <Text marginBottom={3}>Checkout Button States</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Select Items Button"
@@ -419,9 +477,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Trust Badges
-          </Text>
+          <Text marginBottom={3}>Trust Badges</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Secure Checkout Text"
@@ -439,9 +495,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Payment Methods
-          </Text>
+          <Text marginBottom={3}>Payment Methods</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Accepted Payment Methods"
@@ -459,9 +513,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Saved For Later
-          </Text>
+          <Text marginBottom={3}>Saved For Later</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Items Saved For Later"
@@ -1257,9 +1309,7 @@ const ContentPage: NextPage = () => {
         >
           {/* Page Header & Breadcrumbs */}
           <Box marginBottom={6}>
-            <Text variant="bodyStrong" marginBottom={2}>
-              Page Header & Progress
-            </Text>
+            <Text marginBottom={2}>Page Header & Progress</Text>
             <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
               <FormField
                 label="Checkout Title"
@@ -1301,11 +1351,72 @@ const ContentPage: NextPage = () => {
             </Box>
           </Box>
 
+          {/* No checkout found / Error pages */}
+          <Box marginBottom={6}>
+            <Text marginBottom={2}>No Checkout Found & Error Pages</Text>
+            <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+              <FormField
+                label="No Checkout Found Title"
+                name="checkout.noCheckoutFoundTitle"
+                register={register}
+                errors={errors}
+                placeholder="No checkout found"
+              />
+              <FormField
+                label="No Checkout Found Message"
+                name="checkout.noCheckoutFoundMessage"
+                register={register}
+                errors={errors}
+                placeholder="It looks like you haven't started a checkout yet. Add some items to your cart first."
+              />
+              <FormField
+                label="Return to Cart Button"
+                name="checkout.returnToCartButton"
+                register={register}
+                errors={errors}
+                placeholder="Return to Cart"
+              />
+              <FormField
+                label="Continue Shopping Button (error page)"
+                name="checkout.continueShoppingButton"
+                register={register}
+                errors={errors}
+                placeholder="Continue Shopping"
+              />
+              <FormField
+                label="Checkout Expired Title"
+                name="checkout.checkoutExpiredTitle"
+                register={register}
+                errors={errors}
+                placeholder="Checkout expired or invalid"
+              />
+              <FormField
+                label="Checkout Expired Message"
+                name="checkout.checkoutExpiredMessage"
+                register={register}
+                errors={errors}
+                placeholder="This checkout session has expired or is no longer valid. Please return to your cart and try again."
+              />
+              <FormField
+                label="Something Went Wrong Title"
+                name="checkout.somethingWentWrongTitle"
+                register={register}
+                errors={errors}
+                placeholder="Something went wrong"
+              />
+              <FormField
+                label="Something Went Wrong Message"
+                name="checkout.somethingWentWrongMessage"
+                register={register}
+                errors={errors}
+                placeholder="We couldn't load your checkout. Please return to your cart and try again."
+              />
+            </Box>
+          </Box>
+
           {/* Contact Information Section */}
           <Box marginBottom={6}>
-            <Text variant="bodyStrong" marginBottom={2}>
-              1. Contact Information
-            </Text>
+            <Text marginBottom={2}>1. Contact Information</Text>
             <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
               <FormField
                 label="Section Title"
@@ -1368,9 +1479,7 @@ const ContentPage: NextPage = () => {
 
           {/* Shipping Address Section */}
           <Box marginBottom={6}>
-            <Text variant="bodyStrong" marginBottom={2}>
-              2. Shipping Address
-            </Text>
+            <Text marginBottom={2}>2. Shipping Address</Text>
             <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
               <FormField
                 label="Section Title"
@@ -1426,9 +1535,7 @@ const ContentPage: NextPage = () => {
 
           {/* Address Form Fields */}
           <Box marginBottom={6}>
-            <Text variant="bodyStrong" marginBottom={2}>
-              Address Form Labels
-            </Text>
+            <Text marginBottom={2}>Address Form Labels</Text>
             <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
               <FormField
                 label="First Name"
@@ -1519,9 +1626,7 @@ const ContentPage: NextPage = () => {
 
           {/* Billing Address Section */}
           <Box marginBottom={6}>
-            <Text variant="bodyStrong" marginBottom={2}>
-              3. Billing Address
-            </Text>
+            <Text marginBottom={2}>3. Billing Address</Text>
             <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
               <FormField
                 label="Section Title"
@@ -1549,9 +1654,7 @@ const ContentPage: NextPage = () => {
 
           {/* Delivery Methods Section */}
           <Box marginBottom={6}>
-            <Text variant="bodyStrong" marginBottom={2}>
-              4. Delivery Methods
-            </Text>
+            <Text marginBottom={2}>4. Delivery Methods</Text>
             <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
               <FormField
                 label="Section Title"
@@ -1582,14 +1685,26 @@ const ContentPage: NextPage = () => {
                 errors={errors}
                 placeholder="No delivery methods available"
               />
+              <FormField
+                label="Free Shipping Voucher Not Applicable"
+                name="checkout.freeShippingVoucherNotApplicable"
+                register={register}
+                errors={errors}
+                placeholder="Free shipping voucher is not applicable with this delivery method. Choose a free shipping method to use your voucher."
+              />
+              <FormField
+                label="Free Shipping Applied With Method"
+                name="checkout.freeShippingAppliedWithMethod"
+                register={register}
+                errors={errors}
+                placeholder="Free shipping applied with this method."
+              />
             </Box>
           </Box>
 
           {/* Payment Section */}
           <Box marginBottom={6}>
-            <Text variant="bodyStrong" marginBottom={2}>
-              5. Payment
-            </Text>
+            <Text marginBottom={2}>5. Payment</Text>
             <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
               <FormField
                 label="Section Title"
@@ -1631,9 +1746,7 @@ const ContentPage: NextPage = () => {
 
           {/* Payment Error Messages */}
           <Box marginBottom={6}>
-            <Text variant="bodyStrong" marginBottom={2}>
-              Payment Error Messages
-            </Text>
+            <Text marginBottom={2}>Payment Error Messages</Text>
             <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
               <FormField
                 label="Payment System Unavailable"
@@ -1717,9 +1830,7 @@ const ContentPage: NextPage = () => {
 
           {/* Order Summary Section */}
           <Box marginBottom={6}>
-            <Text variant="bodyStrong" marginBottom={2}>
-              Order Summary
-            </Text>
+            <Text marginBottom={2}>Order Summary</Text>
             <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
               <FormField
                 label="Section Title"
@@ -1793,6 +1904,27 @@ const ContentPage: NextPage = () => {
                 placeholder="Remove"
               />
               <FormField
+                label="One Voucher Per Order Hint"
+                name="checkout.oneVoucherPerOrderHint"
+                register={register}
+                errors={errors}
+                placeholder="One voucher per order. Gift cards can be combined."
+              />
+              <FormField
+                label="Replace Voucher Confirm"
+                name="checkout.replaceVoucherConfirm"
+                register={register}
+                errors={errors}
+                placeholder="Only one voucher can be used per order. Applying this code will replace {code}. Continue?"
+              />
+              <FormField
+                label="Eligible For Free Shipping"
+                name="checkout.eligibleForFreeShipping"
+                register={register}
+                errors={errors}
+                placeholder="Eligible for free shipping"
+              />
+              <FormField
                 label="Gift Card Label"
                 name="checkout.giftCardLabel"
                 register={register}
@@ -1840,9 +1972,7 @@ const ContentPage: NextPage = () => {
 
           {/* Place Order Section */}
           <Box marginBottom={6}>
-            <Text variant="bodyStrong" marginBottom={2}>
-              Place Order
-            </Text>
+            <Text marginBottom={2}>Place Order</Text>
             <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
               <FormField
                 label="Place Order Button"
@@ -1870,9 +2000,7 @@ const ContentPage: NextPage = () => {
 
           {/* Processing & Order Confirmation */}
           <Box marginBottom={6}>
-            <Text variant="bodyStrong" marginBottom={2}>
-              Processing & Order Confirmation
-            </Text>
+            <Text marginBottom={2}>Processing & Order Confirmation</Text>
             <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
               <FormField
                 label="Almost Done Text"
@@ -2110,9 +2238,7 @@ const ContentPage: NextPage = () => {
 
           {/* Error Messages */}
           <Box marginBottom={6}>
-            <Text variant="bodyStrong" marginBottom={2}>
-              Error Messages
-            </Text>
+            <Text marginBottom={2}>Error Messages</Text>
             <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
               <FormField
                 label="Required Field Error"
@@ -2154,9 +2280,7 @@ const ContentPage: NextPage = () => {
 
           {/* Footer Links */}
           <Box>
-            <Text variant="bodyStrong" marginBottom={2}>
-              Footer
-            </Text>
+            <Text marginBottom={2}>Footer</Text>
             <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
               <FormField
                 label="Privacy Policy"
@@ -2191,9 +2315,7 @@ const ContentPage: NextPage = () => {
           keywords={["filters", "sorting", "search"]}
           icon="🔍"
         >
-          <Text variant="bodyStrong" marginBottom={3}>
-            Section Titles
-          </Text>
+          <Text marginBottom={3}>Section Titles</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Filters Title"
@@ -2218,9 +2340,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Filter Headings
-          </Text>
+          <Text marginBottom={3}>Filter Headings</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Category"
@@ -2280,9 +2400,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Availability Options
-          </Text>
+          <Text marginBottom={3}>Availability Options</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="In Stock Only"
@@ -2300,9 +2418,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Active Filters Labels
-          </Text>
+          <Text marginBottom={3}>Active Filters Labels</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Active Filters Label"
@@ -2383,9 +2499,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Sort Options
-          </Text>
+          <Text marginBottom={3}>Sort Options</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="A to Z"
@@ -2431,9 +2545,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Empty & Loading States
-          </Text>
+          <Text marginBottom={3}>Empty & Loading States</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="No Products Title"
@@ -2486,9 +2598,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Search & Results
-          </Text>
+          <Text marginBottom={3}>Search & Results</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Search Placeholder"
@@ -2587,9 +2697,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Quick Filters
-          </Text>
+          <Text marginBottom={3}>Quick Filters</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Shop All Button"
@@ -2621,9 +2729,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Rating Filter
-          </Text>
+          <Text marginBottom={3}>Rating Filter</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Minimum Rating"
@@ -2655,9 +2761,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Price Filter
-          </Text>
+          <Text marginBottom={3}>Price Filter</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Min Price Label"
@@ -2718,9 +2822,7 @@ const ContentPage: NextPage = () => {
           description="Trust badges, tabs, and review form text"
           keywords={["product detail", "reviews", "tabs"]}
         >
-          <Text variant="bodyStrong" marginBottom={3}>
-            Trust Badges
-          </Text>
+          <Text marginBottom={3}>Trust Badges</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Free Shipping"
@@ -2745,9 +2847,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Tab Labels
-          </Text>
+          <Text marginBottom={3}>Tab Labels</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Description Tab"
@@ -2800,9 +2900,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Variant Selection
-          </Text>
+          <Text marginBottom={3}>Variant Selection</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Color Label"
@@ -2841,9 +2939,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Stock Messages
-          </Text>
+          <Text marginBottom={3}>Stock Messages</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Only X Left"
@@ -2875,9 +2971,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Review Pluralization
-          </Text>
+          <Text marginBottom={3}>Review Pluralization</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Review Singular"
@@ -2895,9 +2989,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Image Gallery Labels
-          </Text>
+          <Text marginBottom={3}>Image Gallery Labels</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Zoom In Label"
@@ -2929,9 +3021,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Review Form
-          </Text>
+          <Text marginBottom={3}>Review Form</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="No Reviews Yet"
@@ -3033,9 +3123,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Review Filters
-          </Text>
+          <Text marginBottom={3}>Review Filters</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="All Ratings"
@@ -3053,9 +3141,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Review Delete Modal
-          </Text>
+          <Text marginBottom={3}>Review Delete Modal</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Delete Review Title"
@@ -3087,9 +3173,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Review Time Formatting
-          </Text>
+          <Text marginBottom={3}>Review Time Formatting</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Just Now"
@@ -3121,9 +3205,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Shipping Information
-          </Text>
+          <Text marginBottom={3}>Shipping Information</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Free Standard Shipping Title"
@@ -3155,9 +3237,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Review List and Loading States
-          </Text>
+          <Text marginBottom={3}>Review List and Loading States</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Loading Reviews"
@@ -3210,9 +3290,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Review Form Labels (Edit Form)
-          </Text>
+          <Text marginBottom={3}>Review Form Labels (Edit Form)</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Rating Label"
@@ -3237,9 +3315,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Review Form States and Messages
-          </Text>
+          <Text marginBottom={3}>Review Form States and Messages</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Uploading Images"
@@ -3285,9 +3361,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Review Form Validation Messages
-          </Text>
+          <Text marginBottom={3}>Review Form Validation Messages</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Please Select Rating"
@@ -3762,7 +3836,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>
+          <Text marginTop={6} marginBottom={3}>
             Order Details Page
           </Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
@@ -3929,7 +4003,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>
+          <Text marginTop={6} marginBottom={3}>
             Order Status Labels
           </Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4} marginBottom={6}>
@@ -3977,7 +4051,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>
+          <Text marginTop={6} marginBottom={3}>
             Payment Status Labels
           </Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4} marginBottom={6}>
@@ -4032,7 +4106,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>
+          <Text marginTop={6} marginBottom={3}>
             Reorder Button
           </Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
@@ -4099,7 +4173,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>
+          <Text marginTop={6} marginBottom={3}>
             Form Fields
           </Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
@@ -4147,7 +4221,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>
+          <Text marginTop={6} marginBottom={3}>
             Buttons & Actions
           </Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
@@ -4174,7 +4248,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>
+          <Text marginTop={6} marginBottom={3}>
             Error Messages
           </Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
@@ -4194,7 +4268,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>
+          <Text marginTop={6} marginBottom={3}>
             Order Found & Account Creation
           </Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
@@ -4229,7 +4303,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>
+          <Text marginTop={6} marginBottom={3}>
             Help & Support
           </Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
@@ -4258,7 +4332,7 @@ const ContentPage: NextPage = () => {
           keywords={["contact", "form", "message", "faq", "follow us"]}
           icon="📧"
         >
-          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>
+          <Text marginTop={6} marginBottom={3}>
             Hero Section
           </Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
@@ -4278,7 +4352,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>
+          <Text marginTop={6} marginBottom={3}>
             Contact Method Labels
           </Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4} marginBottom={6}>
@@ -4308,7 +4382,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>
+          <Text marginTop={6} marginBottom={3}>
             Contact Form
           </Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
@@ -4399,7 +4473,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>
+          <Text marginTop={6} marginBottom={3}>
             Success Message
           </Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
@@ -4426,7 +4500,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>
+          <Text marginTop={6} marginBottom={3}>
             FAQs Section
           </Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
@@ -4453,7 +4527,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>
+          <Text marginTop={6} marginBottom={3}>
             FAQ Items
           </Text>
           <Box marginBottom={6}>
@@ -4474,7 +4548,7 @@ const ContentPage: NextPage = () => {
                   alignItems="center"
                   marginBottom={3}
                 >
-                  <Text variant="bodyStrong">FAQ #{index + 1}</Text>
+                  <Text>FAQ #{index + 1}</Text>
                   <Button
                     type="button"
                     variant="tertiary"
@@ -4511,7 +4585,7 @@ const ContentPage: NextPage = () => {
             </Button>
           </Box>
 
-          <Text variant="bodyStrong" marginTop={6} marginBottom={3}>
+          <Text marginTop={6} marginBottom={3}>
             Social Section
           </Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
@@ -4787,9 +4861,7 @@ const ContentPage: NextPage = () => {
           keywords={["settings", "account", "preferences"]}
           icon="⚙️"
         >
-          <Text variant="bodyStrong" marginBottom={3}>
-            Page Header
-          </Text>
+          <Text marginBottom={3}>Page Header</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Account Settings"
@@ -4807,9 +4879,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Profile Section
-          </Text>
+          <Text marginBottom={3}>Profile Section</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Profile Information"
@@ -4883,9 +4953,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Password Section
-          </Text>
+          <Text marginBottom={3}>Password Section</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Change Password"
@@ -4945,9 +5013,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Notifications Section
-          </Text>
+          <Text marginBottom={3}>Notifications Section</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Notification Preferences"
@@ -5021,9 +5087,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Danger Zone
-          </Text>
+          <Text marginBottom={3}>Danger Zone</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
             <FormField
               label="Danger Zone"
@@ -5056,9 +5120,7 @@ const ContentPage: NextPage = () => {
           description="Footer text and legal links"
           keywords={["footer", "links", "legal"]}
         >
-          <Text variant="bodyStrong" marginBottom={3}>
-            Legal Links
-          </Text>
+          <Text marginBottom={3}>Legal Links</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="Privacy Policy Link"
@@ -5090,9 +5152,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Footer Text
-          </Text>
+          <Text marginBottom={3}>Footer Text</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4} marginBottom={6}>
             <FormField
               label="All Rights Reserved"
@@ -5117,9 +5177,7 @@ const ContentPage: NextPage = () => {
             />
           </Box>
 
-          <Text variant="bodyStrong" marginBottom={3}>
-            Section Titles
-          </Text>
+          <Text marginBottom={3}>Section Titles</Text>
           <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr 1fr" gap={4}>
             <FormField
               label="Shop Title"
@@ -5315,7 +5373,6 @@ const ContentPage: NextPage = () => {
               label="Subcategories Side"
               name="navbar.subcategoriesSide"
               register={register}
-              errors={errors}
               options={[
                 { value: "auto", label: "Auto (based on RTL/LTR)" },
                 { value: "left", label: "Left" },
@@ -5327,7 +5384,6 @@ const ContentPage: NextPage = () => {
               label="Mobile Nav Position"
               name="navbar.mobileNavPosition"
               register={register}
-              errors={errors}
               options={[
                 { value: "right", label: "Right" },
                 { value: "left", label: "Left" },
@@ -5338,7 +5394,6 @@ const ContentPage: NextPage = () => {
               label="Dropdown Arrow Direction (when collapsed)"
               name="navbar.dropdownArrowDirection"
               register={register}
-              errors={errors}
               options={[
                 { value: "auto", label: "Auto (based on RTL/LTR)" },
                 { value: "up", label: "Point up" },
@@ -5352,7 +5407,6 @@ const ContentPage: NextPage = () => {
               label="Dropdown Arrow Direction (when expanded)"
               name="navbar.dropdownArrowDirectionExpanded"
               register={register}
-              errors={errors}
               options={[
                 { value: "auto", label: "Auto (down when expanded)" },
                 { value: "up", label: "Point up" },
@@ -5484,5 +5538,9 @@ const ContentPage: NextPage = () => {
     </AppLayout>
   );
 };
+
+export async function getServerSideProps() {
+  return { props: {} };
+}
 
 export default ContentPage;

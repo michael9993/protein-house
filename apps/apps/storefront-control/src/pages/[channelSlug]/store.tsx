@@ -280,6 +280,17 @@ const StoreInfoPage: NextPage = () => {
               { value: "rtl", label: "Right to Left" },
             ]}
           />
+          <SelectField
+            label="Drawer Side Override"
+            name="localization.drawerSideOverride"
+            register={register}
+            options={[
+              { value: "auto", label: "Auto (RTL=Left, LTR=Right)" },
+              { value: "left", label: "Always Left" },
+              { value: "right", label: "Always Right" },
+            ]}
+            description="Force the cart drawer to open from a specific side"
+          />
           <FormField
             label="RTL Locales"
             name="localization.rtlLocales"
@@ -355,5 +366,9 @@ const StoreInfoPage: NextPage = () => {
     </AppLayout>
   );
 };
+
+export async function getServerSideProps() {
+  return { props: {} };
+}
 
 export default StoreInfoPage;

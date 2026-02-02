@@ -1,14 +1,18 @@
 import { MessageEventTypes } from "../event-handlers/message-event-types";
 
-// ============================================================================
-// 🎨 COMPANY BRANDING - CUSTOMIZE HERE
-// ============================================================================
+/*
+ * ============================================================================
+ * 🎨 COMPANY BRANDING - CUSTOMIZE HERE
+ * ============================================================================
+ */
 const COMPANY_NAME = "Shoe Vault";
 const COMPANY_EMAIL = "support@shoevault.com";
 const COMPANY_WEBSITE = "www.shoevault.com";
 const PRIMARY_COLOR = "#2563EB"; // Professional Blue
 const SECONDARY_COLOR = "#1F2937"; // Dark Gray
-// ============================================================================
+/*
+ * ============================================================================
+ */
 
 // Common styles for all emails
 const emailStyles = `
@@ -98,7 +102,7 @@ const addressSectionForNotify = `<mj-section>
 </mj-section>
 `;
 
-const orderLinesSection = `<mj-section>
+const _orderLinesSection = `<mj-section>
   <mj-column>
     <mj-table>
       <tbody>

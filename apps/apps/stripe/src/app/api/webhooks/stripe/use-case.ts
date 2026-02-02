@@ -465,9 +465,10 @@ export class StripeWebhookUseCase {
       return err(new StripeWebhookMalformedRequestResponse());
     }
 
+    const eventObjectId = (event.value.data?.object as { id?: string } | undefined)?.id;
     this.logger.debug(`Resolved event type: ${event.value.type}`, {
       eventType: event.value.type,
-      paymentIntentId: event.value.data?.object?.id,
+      paymentIntentId: eventObjectId,
     });
 
     const processingResult = await this.processEvent({
@@ -494,7 +495,7 @@ export class StripeWebhookUseCase {
       if (processingResult.error instanceof TransactionRecorderError.TransactionMissingError) {
         this.logger.error("Transaction not found for webhook event", {
           eventType: event.value.type,
-          paymentIntentId: event.value.data?.object?.id,
+          paymentIntentId: eventObjectId,
           appId: authData.appId,
           saleorApiUrl: webhookParams.saleorApiUrl.toString(),
         });

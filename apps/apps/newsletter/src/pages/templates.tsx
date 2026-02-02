@@ -21,8 +21,7 @@ const TemplatesPage: NextPage = () => {
     enabled: !!appBridgeState?.ready,
     staleTime: 30000,
     refetchOnWindowFocus: true,
-    placeholderData: (previousData) => previousData,
-  });
+    });
 
   const deleteMutation = trpcClient.template.delete.useMutation({
     onSuccess: async () => {
@@ -123,8 +122,8 @@ const TemplatesPage: NextPage = () => {
             Are you sure you want to delete "{deleteConfirm.name}"? This action cannot be undone.
           </Text>
           <Box display="flex" gap={2}>
-            <Button variant="primary" onClick={confirmDelete} disabled={deleteMutation.isPending}>
-              {deleteMutation.isPending ? "Deleting..." : "Yes, Delete"}
+            <Button variant="primary" onClick={confirmDelete} disabled={deleteMutation.isLoading}>
+              {deleteMutation.isLoading ? "Deleting..." : "Yes, Delete"}
             </Button>
             <Button variant="secondary" onClick={() => setDeleteConfirm(null)}>
               Cancel
@@ -135,7 +134,7 @@ const TemplatesPage: NextPage = () => {
 
       <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom={4}>
         <Box>
-          <Text as="h1" variant="hero">
+          <Text as="h1" size={5} fontWeight="bold">
             Email Templates
           </Text>
           <Text as="p" color="default2" marginTop={2}>

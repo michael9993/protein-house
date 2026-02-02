@@ -61,7 +61,7 @@ export const UniversalChannelsSection = ({
       }
     >
       <form
-        onSubmit={handleSubmit((data, event) => {
+        onSubmit={handleSubmit((data, _event) => {
           onSubmit(data);
         })}
       >

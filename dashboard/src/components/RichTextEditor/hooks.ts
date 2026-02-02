@@ -22,13 +22,26 @@ export const useUpdateOnRerender = ({
   hasRendered: boolean;
 }) => {
   const prevDefaultValue = useRef<EditorConfig["data"] | undefined>(undefined);
+  const isFirstRun = useRef(true);
 
   useEffect(() => {
     if (!hasRendered) {
       return;
     }
 
-    // Prevent call render when defaultValue doesn't change
+    // Don't call render when data is not ready (would overwrite editor with empty blocks)
+    if (defaultValue === undefined) {
+      return;
+    }
+
+    // First run: editor already received initial data from ReactEditorJS props; do not overwrite.
+    // Only call render() when defaultValue actually changes (e.g. user switched to another record).
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
+      prevDefaultValue.current = defaultValue;
+      return;
+    }
+
     if (JSON.stringify(defaultValue) === JSON.stringify(prevDefaultValue.current)) {
       return;
     }

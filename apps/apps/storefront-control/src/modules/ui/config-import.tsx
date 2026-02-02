@@ -2,13 +2,12 @@ import { useMemo, useState, useRef, useCallback } from "react";
 import { Box, Text, Button, Checkbox, Input } from "@saleor/macaw-ui";
 
 import { trpcClient } from "@/modules/trpc/trpc-client";
-import { 
-  type ConfigDiffEntry, 
+import {
+  type ConfigDiffEntry,
   type ImportValidationError,
   groupDiffsBySection,
   formatDiffValue,
 } from "@/modules/config/import-schema";
-
 
 interface ConfigImportProps {
   channelSlug: string;
@@ -28,74 +27,95 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
   const [selectedPaths, setSelectedPaths] = useState<Set<string>>(new Set());
   const [applyError, setApplyError] = useState<string | null>(null);
   const [diffQuery, setDiffQuery] = useState("");
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const utils = trpcClient.useUtils();
 
   const validateMutation = trpcClient.config.validateImport.useMutation();
   const importMutation = trpcClient.config.importConfig.useMutation();
 
+  const handleFileSelect = useCallback(
+    async (selectedFile: File) => {
+      setFile(selectedFile);
+      setValidationErrors([]);
+      setWarnings([]);
+      setApplyError(null);
 
-  const handleFileSelect = useCallback(async (selectedFile: File) => {
-    setFile(selectedFile);
-    setValidationErrors([]);
-    setWarnings([]);
-    setApplyError(null);
-
-    try {
-      const text = await selectedFile.text();
-      let parsed: unknown;
-      
       try {
-        parsed = JSON.parse(text);
-      } catch {
-        setValidationErrors([{ path: "", message: "Invalid JSON format. Please check the file syntax." }]);
-        return;
-      }
+        const text = await selectedFile.text();
+        let parsed: unknown;
 
-      setImportData(parsed);
+        try {
+          parsed = JSON.parse(text);
+        } catch {
+          setValidationErrors([
+            { path: "", message: "Invalid JSON format. Please check the file syntax." },
+          ]);
+          return;
+        }
 
-      // Validate on server
-      const result = await validateMutation.mutateAsync({
-        channelSlug,
-        importData: parsed,
-      });
+        setImportData(parsed);
 
-      if (!result.validation.valid) {
-        setValidationErrors(result.validation.errors);
+        // Validate on server
+        const result = await validateMutation.mutateAsync({
+          channelSlug,
+          importData: parsed,
+        });
+
+        if (!result.validation.valid) {
+          setValidationErrors(result.validation.errors);
+          setWarnings(result.validation.warnings);
+          return;
+        }
+
         setWarnings(result.validation.warnings);
-        return;
+        setDiff(
+          result.diff.map(
+            (entry): ConfigDiffEntry => ({
+              path: entry.path,
+              section: entry.section,
+              field: entry.field,
+              currentValue: entry.currentValue ?? null,
+              newValue: entry.newValue ?? null,
+            }),
+          ),
+        );
+        setSelectedPaths(new Set(result.diff.map((entry) => entry.path)));
+        setStep("preview");
+      } catch (error) {
+        setValidationErrors([
+          {
+            path: "",
+            message: error instanceof Error ? error.message : "Failed to validate file",
+          },
+        ]);
       }
+    },
+    [channelSlug, validateMutation],
+  );
 
-      setWarnings(result.validation.warnings);
-      setDiff(result.diff);
-      setSelectedPaths(new Set(result.diff.map((entry) => entry.path)));
-      setStep("preview");
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      const droppedFile = e.dataTransfer.files[0];
+      if (droppedFile && droppedFile.type === "application/json") {
+        handleFileSelect(droppedFile);
+      } else {
+        setValidationErrors([{ path: "", message: "Please drop a JSON file" }]);
+      }
+    },
+    [handleFileSelect],
+  );
 
-    } catch (error) {
-      setValidationErrors([{ 
-        path: "", 
-        message: error instanceof Error ? error.message : "Failed to validate file" 
-      }]);
-    }
-  }, [channelSlug, validateMutation]);
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    const droppedFile = e.dataTransfer.files[0];
-    if (droppedFile && droppedFile.type === "application/json") {
-      handleFileSelect(droppedFile);
-    } else {
-      setValidationErrors([{ path: "", message: "Please drop a JSON file" }]);
-    }
-  }, [handleFileSelect]);
-
-  const handleFileInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      handleFileSelect(selectedFile);
-    }
-  }, [handleFileSelect]);
+  const handleFileInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFile = e.target.files?.[0];
+      if (selectedFile) {
+        handleFileSelect(selectedFile);
+      }
+    },
+    [handleFileSelect],
+  );
 
   const handleApply = useCallback(async () => {
     if (!importData) return;
@@ -110,7 +130,6 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
         acceptedPaths: Array.from(selectedPaths),
       });
 
-
       if (!result.success) {
         setApplyError(result.errors?.[0]?.message || "Failed to import configuration");
         setStep("error");
@@ -120,7 +139,7 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
       // Invalidate cache to refresh config
       await utils.config.getConfig.invalidate({ channelSlug });
       setStep("success");
-      
+
       // Delay callback to show success message
       setTimeout(onSuccess, 1500);
     } catch (error) {
@@ -149,12 +168,13 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
   if (step === "upload") {
     return (
       <Box>
-        <Text as="h3" variant="heading" marginBottom={4}>
+        <Text as="h3" marginBottom={4}>
           Import Configuration
         </Text>
-        
+
         <Text as="p" color="default2" marginBottom={4}>
-          Upload a JSON configuration file to import settings for the <strong>{channelSlug}</strong> channel.
+          Upload a JSON configuration file to import settings for the <strong>{channelSlug}</strong>{" "}
+          channel.
         </Text>
 
         {/* Drop zone */}
@@ -175,10 +195,8 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
           cursor="pointer"
           onClick={() => fileInputRef.current?.click()}
         >
-          <Text variant="bodyStrong" marginBottom={2}>
-            Drop JSON file here
-          </Text>
-          <Text variant="caption" color="default2" marginBottom={4}>
+          <Text marginBottom={2}>Drop JSON file here</Text>
+          <Text color="default2" marginBottom={4}>
             or click to browse
           </Text>
           <input
@@ -188,23 +206,20 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
             onChange={handleFileInputChange}
             style={{ display: "none" }}
           />
-          {file && (
-            <Text variant="caption" color="default2">
-              Selected: {file.name}
-            </Text>
-          )}
+          {file && <Text color="default2">Selected: {file.name}</Text>}
         </Box>
 
         {/* Validation errors */}
         {validationErrors.length > 0 && (
           <Box marginTop={4} padding={4} backgroundColor="critical1" borderRadius={4}>
-            <Text variant="bodyStrong" color="critical1" marginBottom={2}>
+            <Text color="critical1" marginBottom={2}>
               Validation Errors
             </Text>
             {validationErrors.map((error, i) => (
               <Box key={i} marginTop={1}>
-                <Text variant="caption" color="critical1">
-                  {error.path ? `${error.path}: ` : ""}{error.message}
+                <Text color="critical1">
+                  {error.path ? `${error.path}: ` : ""}
+                  {error.message}
                 </Text>
               </Box>
             ))}
@@ -214,11 +229,9 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
         {/* Warnings */}
         {warnings.length > 0 && (
           <Box marginTop={4} padding={4} backgroundColor="warning1" borderRadius={4}>
-            <Text variant="bodyStrong" marginBottom={2}>
-              Warnings
-            </Text>
+            <Text marginBottom={2}>Warnings</Text>
             {warnings.map((warning, i) => (
-              <Text key={i} variant="caption" display="block">
+              <Text key={i} display="block">
                 {warning}
               </Text>
             ))}
@@ -246,7 +259,8 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
         section,
         entries: groupedDiffs[section].filter((entry) => {
           if (!diffQuery.trim()) return true;
-          const haystack = `${entry.path} ${String(entry.currentValue)} ${String(entry.newValue)}`.toLowerCase();
+          const haystack =
+            `${entry.path} ${String(entry.currentValue)} ${String(entry.newValue)}`.toLowerCase();
           return haystack.includes(diffQuery.trim().toLowerCase());
         }),
       }))
@@ -283,22 +297,21 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
 
     return (
       <Box>
-        <Text as="h3" variant="heading" marginBottom={2}>
+        <Text as="h3" marginBottom={2}>
           Review Changes
         </Text>
-        
+
         <Text as="p" color="default2" marginBottom={4}>
-          {totalCount === 0 
+          {totalCount === 0
             ? "No changes detected. The imported config is identical to the current config."
-            : `Select which changes to apply. ${selectedCount} of ${totalCount} changes selected.`
-          }
+            : `Select which changes to apply. ${selectedCount} of ${totalCount} changes selected.`}
         </Text>
 
         {/* Warnings */}
         {warnings.length > 0 && (
           <Box marginBottom={4} padding={4} backgroundColor="warning1" borderRadius={4}>
             {warnings.map((warning, i) => (
-              <Text key={i} variant="caption" display="block">
+              <Text key={i} display="block">
                 {warning}
               </Text>
             ))}
@@ -306,7 +319,13 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
         )}
 
         {totalCount > 0 && (
-          <Box marginBottom={4} backgroundColor="default1" borderRadius={4} padding={4} boxShadow="defaultFocused">
+          <Box
+            marginBottom={4}
+            backgroundColor="default1"
+            borderRadius={4}
+            padding={4}
+            boxShadow="defaultFocused"
+          >
             <Box display="flex" alignItems="center" justifyContent="space-between" gap={4}>
               <Box display="flex" alignItems="center" gap={3}>
                 <Checkbox
@@ -314,8 +333,8 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
                   onCheckedChange={(checked) => toggleAll(Boolean(checked))}
                 />
                 <Box>
-                  <Text variant="bodyStrong">Apply all changes</Text>
-                  <Text variant="caption" color="default2">
+                  <Text>Apply all changes</Text>
+                  <Text color="default2">
                     Use this to accept or reject every change in the file
                   </Text>
                 </Box>
@@ -334,29 +353,37 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
 
         {/* Diff by section */}
         {filteredSections.map((sectionBlock) => {
-          const sectionSelected = sectionBlock.entries.every((entry) => selectedPaths.has(entry.path));
+          const sectionSelected = sectionBlock.entries.every((entry) =>
+            selectedPaths.has(entry.path),
+          );
           return (
             <Box key={sectionBlock.section} marginBottom={4}>
-              <Box display="flex" alignItems="center" justifyContent="space-between" marginBottom={2}>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                marginBottom={2}
+              >
                 <Box display="flex" alignItems="center" gap={2}>
                   <Checkbox
                     checked={sectionSelected}
-                    onCheckedChange={(checked) => toggleSection(sectionBlock.section, Boolean(checked))}
+                    onCheckedChange={(checked) =>
+                      toggleSection(sectionBlock.section, Boolean(checked))
+                    }
                   />
-                  <Text variant="bodyStrong" __textTransform="capitalize">
-                    {sectionBlock.section}
-                  </Text>
+                  <Text __textTransform="capitalize">{sectionBlock.section}</Text>
                 </Box>
-                <Text variant="caption" color="default2">
-                  {sectionBlock.entries.filter((entry) => selectedPaths.has(entry.path)).length} selected
+                <Text color="default2">
+                  {sectionBlock.entries.filter((entry) => selectedPaths.has(entry.path)).length}{" "}
+                  selected
                 </Text>
               </Box>
               <Box backgroundColor="default1" borderRadius={4} padding={3}>
                 {sectionBlock.entries.map((entry, i) => (
-                  <Box 
+                  <Box
                     key={entry.path}
-                    display="flex" 
-                    justifyContent="space-between" 
+                    display="flex"
+                    justifyContent="space-between"
                     alignItems="flex-start"
                     paddingY={2}
                     __borderBottomStyle={i < sectionBlock.entries.length - 1 ? "solid" : "none"}
@@ -369,16 +396,14 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
                         onCheckedChange={(checked) => toggleEntry(entry.path, Boolean(checked))}
                       />
                       <Box>
-                        <Text variant="caption" color="default2">
-                          {entry.path}
-                        </Text>
+                        <Text color="default2">{entry.path}</Text>
                       </Box>
                     </Box>
                     <Box __flex="1" __textAlign="right">
-                      <Text variant="caption" color="critical1" style={{ textDecoration: "line-through" }}>
+                      <Text color="critical1" style={{ textDecoration: "line-through" }}>
                         {formatDiffValue(entry.currentValue)}
                       </Text>
-                      <Text variant="caption" color="success1" marginLeft={2}>
+                      <Text color="success1" marginLeft={2}>
                         → {formatDiffValue(entry.newValue)}
                       </Text>
                     </Box>
@@ -391,9 +416,7 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
 
         {totalCount === 0 && (
           <Box padding={4} backgroundColor="default1" borderRadius={4}>
-            <Text variant="caption" color="default2">
-              The configuration is already up to date.
-            </Text>
+            <Text color="default2">The configuration is already up to date.</Text>
           </Box>
         )}
 
@@ -416,17 +439,18 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
     );
   }
 
-
   // Applying step
   if (step === "applying") {
     return (
-      <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" __minHeight="200px">
-        <Text variant="bodyStrong" marginBottom={2}>
-          Applying configuration...
-        </Text>
-        <Text variant="caption" color="default2">
-          Please wait while the configuration is being saved.
-        </Text>
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        __minHeight="200px"
+      >
+        <Text marginBottom={2}>Applying configuration...</Text>
+        <Text color="default2">Please wait while the configuration is being saved.</Text>
       </Box>
     );
   }
@@ -434,13 +458,17 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
   // Success step
   if (step === "success") {
     return (
-      <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" __minHeight="200px">
-        <Text variant="bodyStrong" color="success1" marginBottom={2}>
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        __minHeight="200px"
+      >
+        <Text color="success1" marginBottom={2}>
           Configuration imported successfully!
         </Text>
-        <Text variant="caption" color="default2">
-          The storefront will reflect the changes shortly.
-        </Text>
+        <Text color="default2">The storefront will reflect the changes shortly.</Text>
       </Box>
     );
   }
@@ -449,13 +477,17 @@ export function ConfigImport({ channelSlug, onSuccess, onCancel }: ConfigImportP
   if (step === "error") {
     return (
       <Box>
-        <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" __minHeight="200px">
-          <Text variant="bodyStrong" color="critical1" marginBottom={2}>
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          __minHeight="200px"
+        >
+          <Text color="critical1" marginBottom={2}>
             Failed to import configuration
           </Text>
-          <Text variant="caption" color="default2">
-            {applyError || "An unknown error occurred"}
-          </Text>
+          <Text color="default2">{applyError || "An unknown error occurred"}</Text>
         </Box>
         <Box display="flex" justifyContent="flex-end" gap={2} marginTop={4}>
           <Button variant="tertiary" onClick={handleReset}>

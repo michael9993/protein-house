@@ -616,7 +616,7 @@ const newsletterReactivatePayload = {
   logo_url: "",
 };
 
-export const examplePayloads: Record<MessageEventTypes, any> = {
+export const examplePayloads: Record<MessageEventTypes, unknown> = {
   ACCOUNT_CHANGE_EMAIL_CONFIRM: accountChangeEmailConfirmPayload,
   ACCOUNT_CHANGE_EMAIL_REQUEST: accountChangeEmailRequestPayload,
   ACCOUNT_CONFIRMATION: accountConfirmationPayload,

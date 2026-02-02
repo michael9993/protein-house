@@ -5,7 +5,12 @@ import { type ResolvingMetadata, type Metadata } from "next";
 import xss from "xss";
 import { invariant } from "ts-invariant";
 import { type WithContext, type Product } from "schema-dts";
-import { ProductDetailsDocument, ProductListDocument } from "@/gql/graphql";
+import {
+	ProductDetailsDocument,
+	ProductListDocument,
+	CheckoutFindDocument,
+	CheckoutAddLinesDocument,
+} from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { formatMoney, formatMoneyRange } from "@/lib/utils";
 import * as Checkout from "@/lib/checkout";
@@ -138,304 +143,129 @@ export default async function Page(props: {
 
 		const variantId = formData.get("variantId") as string;
 		const quantity = parseInt(formData.get("quantity") as string) || 1;
+		// Use channel from form so action works even when page was cached with different params
+		const channel = (formData.get("channel") as string) || params.channel;
 
 		if (!variantId) {
 			return { success: false, error: "Variant ID is required" };
 		}
 
 		try {
-			const checkout = await Checkout.findOrCreate({
-				checkoutId: await Checkout.getIdFromCookies(params.channel),
-				channel: params.channel,
-			});
-			invariant(checkout, "This should never happen");
+			// Light-weight checkout resolution: prefer cookie, fallback to create
+			// This avoids the heavy findOrCreate logic in the critical path
+			let checkoutId = await Checkout.getIdFromCookies(channel);
+			let currentCheckout: any = null;
 
-			await Checkout.saveIdToCookie(params.channel, checkout.id);
+			if (checkoutId) {
+				const result = await executeGraphQL(CheckoutFindDocument, {
+					variables: { id: checkoutId },
+					cache: "no-cache",
+				});
+				currentCheckout = result.checkout;
+			}
 
-			// Check if item is already in cart - Saleor reserves stock when items are added
-			// If item is already in cart, we need to update quantity instead of adding new lines
-			const { CheckoutFindDocument } = await import("@/gql/graphql");
-			const { checkout: currentCheckout } = await executeGraphQL(CheckoutFindDocument, {
-				variables: { id: checkout.id },
-				cache: "no-cache",
-			});
-			
+			if (!currentCheckout) {
+				const result = await Checkout.create({ channel });
+				currentCheckout = result.checkoutCreate?.checkout;
+				if (currentCheckout) {
+					checkoutId = currentCheckout.id;
+					await Checkout.saveIdToCookie(channel, checkoutId);
+				}
+			}
+
+			if (!currentCheckout) {
+				return { success: false, error: "Could not create or find cart" };
+			}
+
+			const decodedVariantId = decodeURIComponent(variantId);
 			const existingLine = currentCheckout?.lines?.find(
-				(line: any) => line.variant?.id === decodeURIComponent(variantId)
+				(line: any) => line.variant?.id === decodedVariantId && !(line as { isGift?: boolean }).isGift
 			);
-			
-			// Log warehouse and channel info for debugging stock allocation
-			const checkoutAny = currentCheckout as any;
-			console.log(`[Add Item] Checkout Info (Warehouse Debug):`, {
-				checkoutId: checkout.id,
-				channel: currentCheckout?.channel?.slug || params.channel,
-				channelId: checkoutAny?.channel?.id,
-				country: checkoutAny?.country?.code || checkoutAny?.shippingAddress?.country?.code || "Not set",
-				shippingAddress: checkoutAny?.shippingAddress ? {
-					country: checkoutAny.shippingAddress.country?.code,
-				} : null,
-				collectionPoint: checkoutAny?.collectionPoint ? {
-					id: checkoutAny.collectionPoint.id,
-					name: checkoutAny.collectionPoint.name,
-				} : null,
-				note: "Warehouse allocation depends on channel, country, and shipping address. Make sure the warehouse with stock is assigned to this channel.",
-			});
-			
-			console.log(`[Add Item] Checking existing lines...`, {
-				checkoutId: checkout.id,
-				variantId: decodeURIComponent(variantId),
-				existingLine: existingLine ? {
-					id: existingLine.id,
-					quantity: existingLine.quantity,
-					variantId: existingLine.variant?.id,
-				} : null,
-				totalLines: currentCheckout?.lines?.length || 0,
-				requestedQuantity: quantity,
-			});
 
-			// If item is already in cart, add to existing quantity
+			// If item is already in cart as a non-gift line, add to existing quantity.
+			// If the only match is a gift line, we add a new line (same product as gift + normal).
 			if (existingLine) {
 				try {
-					// Add the requested quantity to the existing quantity
 					const newQuantity = existingLine.quantity + quantity;
-					console.log(`[Add Item] Item already in cart, adding ${quantity} to existing ${existingLine.quantity} = ${newQuantity}`);
-					
-					// Use inline GraphQL mutation for updating checkout lines
-					// The mutation is defined as a string since graphql-tag is not available in production
 					const checkoutLinesUpdateMutation = {
 						toString: () => `mutation checkoutLinesUpdate(
 							$checkoutId: ID!
 							$lines: [CheckoutLineUpdateInput!]!
 						) {
 							checkoutLinesUpdate(id: $checkoutId, lines: $lines) {
-								errors {
-									message
-									field
-									code
-								}
-								checkout {
-									id
-									lines {
-										id
-										quantity
-										variant {
-											id
-										}
-									}
-								}
+								errors { message field code }
+								checkout { id lines { id quantity variant { id } } }
 							}
 						}`,
 					} as any;
 					
-					await executeGraphQL(checkoutLinesUpdateMutation, {
+					const result = await executeGraphQL(checkoutLinesUpdateMutation, {
 						variables: {
-							checkoutId: checkout.id,
-							lines: [{
-								lineId: existingLine.id,
-								quantity: newQuantity,
-							}],
+							checkoutId: currentCheckout.id,
+							lines: [{ lineId: existingLine.id, quantity: newQuantity }],
 						},
 						cache: "no-cache",
 					});
-					
-					console.log(`[Add Item] ✅ Successfully updated quantity in cart`);
+
+					if (result.checkoutLinesUpdate?.errors?.length > 0) {
+						return { success: false, error: result.checkoutLinesUpdate.errors[0].message ?? "Failed to update cart" };
+					}
+					if (!result.checkoutLinesUpdate?.checkout) {
+						return { success: false, error: "Cart update did not return checkout" };
+					}
 				} catch (error: any) {
 					console.error(`[Add Item] ❌ Failed to update quantity:`, error);
-					// Handle GraphQL errors
-					if (error instanceof Error && (error.name === "GraphQLError" || error.constructor?.name === "GraphQLError")) {
-						// Log detailed error information
-						console.error("[Add Item] GraphQL Error Details (Update):", {
-							errorName: error.name,
-							errorMessage: error.message,
-							errorResponse: (error as any).errorResponse,
-							fullError: error,
-						});
-						
-						let errorMessage = error.message || "Failed to update item quantity in cart";
-						
-						// Check if errorResponse has more details
-						if ((error as any).errorResponse?.errors) {
-							const errors = (error as any).errorResponse.errors;
-							console.error("[Add Item] GraphQL Error Array (Update):", errors);
-							
-							const firstError = errors[0];
-							if (firstError) {
-								errorMessage = firstError.message || errorMessage;
-								
-								if (firstError.code === "INSUFFICIENT_STOCK" || firstError.extensions?.code === "INSUFFICIENT_STOCK") {
-									errorMessage = "Sorry, there isn't enough stock available. The item may already be in your cart or someone else may have purchased it.";
-								}
-							}
-						}
-						
-						if (errorMessage.includes("Insufficient stock") || errorMessage.includes("insufficient") || errorMessage.toLowerCase().includes("stock")) {
-							// Check if the error mentions a specific size
-							const sizeMatch = errorMessage.match(/for (\d+)/);
-							if (sizeMatch) {
-								const size = sizeMatch[1];
-								errorMessage = `Sorry, size ${size} is no longer available. The stock may have been purchased or reserved. Please try a different size or refresh the page to see updated availability.`;
-							} else {
-								errorMessage = "Sorry, there isn't enough stock available. The item may already be in your cart or someone else may have purchased it. Please refresh the page to see updated availability.";
-							}
-						}
-						
-						// Revalidate the product page to refresh stock data
-						revalidatePath(`/${params.channel}/products/${params.slug}`);
-						
-						return { success: false, error: errorMessage };
-					}
-					throw error;
+					revalidatePath(`/${channel}/products/${params.slug}`);
+					return { success: false, error: error.message || "Failed to update cart" };
 				}
 			} else {
-				// Add line with the requested quantity (all at once, not one by one)
 				try {
-					const { CheckoutAddLinesDocument } = await import("@/gql/graphql");
-					await executeGraphQL(CheckoutAddLinesDocument, {
+					const result = await executeGraphQL(CheckoutAddLinesDocument, {
 						variables: {
-							id: checkout.id,
-							lines: [{
-								variantId: decodeURIComponent(variantId),
-								quantity: quantity,
-							}],
+							id: currentCheckout.id,
+							lines: [{ variantId: decodedVariantId, quantity }],
 						},
 						cache: "no-cache",
 					});
-					
-					console.log(`[Add Item] ✅ Successfully added ${quantity} item(s) to cart`);
+
+					const addResult = result.checkoutLinesAdd;
+					if (addResult?.errors?.length > 0) {
+						const msg = addResult.errors[0].message ?? addResult.errors[0].code ?? "Failed to add item to cart";
+						return { success: false, error: msg };
+					}
+					if (!addResult?.checkout) {
+						return { success: false, error: "Could not add item to cart. Please try again." };
+					}
 				} catch (error: any) {
-					// Handle GraphQL errors (e.g., insufficient stock)
-					// GraphQLError has name "GraphQLError" and contains errorResponse.errors
-					if (error instanceof Error && (error.name === "GraphQLError" || error.constructor?.name === "GraphQLError")) {
-						// Log detailed error information
-						console.error("[Add Item] GraphQL Error Details:", {
-							errorName: error.name,
-							errorMessage: error.message,
-							errorResponse: (error as any).errorResponse,
-							fullError: error,
-						});
-						
-						// Extract error message from GraphQL error
-						let errorMessage = error.message || "Failed to add item to cart";
-						
-						// Check if errorResponse has more details
-						if ((error as any).errorResponse?.errors) {
-							const errors = (error as any).errorResponse.errors;
-							console.error("[Add Item] GraphQL Error Array:", errors);
-							
-							// Try to get more specific error message
-							const firstError = errors[0];
-							if (firstError) {
-								errorMessage = firstError.message || errorMessage;
-								
-								// Check for specific error codes
-								if (firstError.code === "INSUFFICIENT_STOCK" || firstError.extensions?.code === "INSUFFICIENT_STOCK") {
-									errorMessage = "Sorry, this item is no longer available in the requested quantity. Please reduce the quantity or choose a different size.";
-								}
-							}
-						}
-						
-						// Make error message more user-friendly
-						if (errorMessage.includes("Insufficient stock") || errorMessage.includes("insufficient") || errorMessage.toLowerCase().includes("stock")) {
-							// Check if the error mentions a specific size (e.g., "Insufficient stock for 45")
-							const sizeMatch = errorMessage.match(/for (\d+)/);
-							if (sizeMatch) {
-								const size = sizeMatch[1];
-								errorMessage = `Sorry, size ${size} is not available in the warehouse for this channel. The stock may be in a different warehouse or the warehouse may not be assigned to this channel. Please check your Saleor warehouse configuration or try a different size.`;
-							} else {
-								errorMessage = "Sorry, this item is not available in the warehouse for this channel. The stock may be in a different warehouse or the warehouse may not be assigned to this channel. Please check your Saleor warehouse configuration.";
-							}
-						}
-						
-						// Revalidate the product page to refresh stock data
-						// params is already resolved in the outer scope
-						revalidatePath(`/${params.channel}/products/${params.slug}`);
-						
-						return { success: false, error: errorMessage };
-					}
-					
-					// Log other errors
-					console.error("[Add Item] Non-GraphQL Error:", error);
-					// Re-throw other errors
-					throw error;
+					console.error(`[Add Item] ❌ Failed to add line:`, error);
+					revalidatePath(`/${channel}/products/${params.slug}`);
+					return { success: false, error: error.message || "Failed to add item to cart" };
 				}
 			}
 
-			// CRITICAL: Re-fetch checkout after adding items to get updated state
-			// Then ensure checkout is saved to user metadata if user is logged in
-			const { getCurrentUser, saveUserCheckoutId } = await import("@/lib/checkout");
-			// CheckoutFindDocument is already imported above, reuse it
-			const currentUser = await getCurrentUser();
-			
-			console.log(`[Add Item] 🔍 Checking if checkout should be saved to user metadata...`);
-			console.log(`[Add Item]    - Current user: ${currentUser?.id || "none"}`);
-			console.log(`[Add Item]    - Checkout ID: ${checkout.id}`);
-			
-			if (currentUser?.id) {
-				// Re-fetch checkout to get updated state (with items and user attachment)
-				try {
-					const { checkout: updatedCheckout } = await executeGraphQL(CheckoutFindDocument, {
-						variables: { id: checkout.id },
-						cache: "no-cache",
-					});
-					
-					if (updatedCheckout) {
-						const updatedCheckoutAny = updatedCheckout as any;
-						console.log(`[Add Item]    - Updated checkout user: ${updatedCheckoutAny.user?.id || "none"}`);
-						console.log(`[Add Item]    - Updated checkout lines: ${updatedCheckout.lines?.length || 0}`);
-						
-						if (updatedCheckoutAny.user?.id === currentUser.id) {
-							await saveUserCheckoutId(currentUser.id, params.channel, updatedCheckout.id);
-							console.log(`[Add Item] ✅ Saved checkout ${updatedCheckout.id} to user metadata (key: checkoutId-${params.channel})`);
-							console.log(`[Add Item]    This ensures cart will be restored on next login and syncs across devices`);
-						} else {
-							const updatedCheckoutAny = updatedCheckout as any;
-							console.log(`[Add Item] ⚠️  Warning: Checkout ${updatedCheckout.id} not attached to user ${currentUser.id}`);
-							console.log(`[Add Item]    - Expected user: ${currentUser.id}`);
-							console.log(`[Add Item]    - Checkout user: ${updatedCheckoutAny.user?.id || "none"}`);
-							console.log(`[Add Item]    - Attempting to attach checkout to user...`);
-							
-							// Try to attach checkout to user
-							const { CheckoutCustomerAttachDocument } = await import("@/gql/graphql");
-							try {
-								await executeGraphQL(CheckoutCustomerAttachDocument, {
-									variables: { checkoutId: updatedCheckout.id },
-									cache: "no-cache",
-								});
-								// Re-fetch again to verify attachment
-								const { checkout: attachedCheckout } = await executeGraphQL(CheckoutFindDocument, {
-									variables: { id: updatedCheckout.id },
-									cache: "no-cache",
-								});
-								const attachedCheckoutAny = attachedCheckout as any;
-								if (attachedCheckout && attachedCheckoutAny.user?.id === currentUser.id) {
-									await saveUserCheckoutId(currentUser.id, params.channel, attachedCheckout.id);
-									console.log(`[Add Item] ✅ Successfully attached and saved checkout ${attachedCheckout.id}`);
-								}
-							} catch (attachError) {
-								console.error(`[Add Item] ❌ Failed to attach checkout to user:`, attachError);
-							}
-						}
-					}
-				} catch (error) {
-					console.error(`[Add Item] ❌ Error re-fetching checkout:`, error);
-					// Fallback: save anyway if checkout was attached before
-					const checkoutAny = checkout as any;
-					if (checkoutAny.user?.id === currentUser.id) {
-						await saveUserCheckoutId(currentUser.id, params.channel, checkout.id);
-						console.log(`[Add Item] ✅ Saved checkout ${checkout.id} (fallback - using original checkout)`);
-					}
-				}
-			} else {
-				console.log(`[Add Item] ℹ️  User not logged in - checkout not saved to user cookie (guest cart)`);
-			}
-
-			// Revalidate both cart and product page to update stock in real-time
 			revalidatePath("/cart");
-			revalidatePath(`/${params.channel}/products/${params.slug}`);
-			console.log(`[Add Item] ✅ Revalidated product page: /${params.channel}/products/${params.slug}`);
+			revalidatePath(`/${channel}/products/${params.slug}`);
+
+			// Persist to user metadata in background
+			const { getCurrentUser, saveUserCheckoutId } = await import("@/lib/checkout");
+			void getCurrentUser().then((currentUser) => {
+				if (!currentUser?.id) return;
+				const checkoutUser = (currentCheckout as { user?: { id: string } | null })?.user?.id;
+				if (checkoutUser === currentUser.id) {
+					return saveUserCheckoutId(currentUser.id, channel, currentCheckout.id);
+				}
+				return import("@/gql/graphql").then(({ CheckoutCustomerAttachDocument }) =>
+					executeGraphQL(CheckoutCustomerAttachDocument, {
+						variables: { checkoutId: currentCheckout.id },
+						cache: "no-cache",
+					}).then(() =>
+						saveUserCheckoutId(currentUser.id, channel, currentCheckout.id)
+					)
+				).catch(() => {});
+			}).catch(() => {});
+
 			return { success: true };
 		} catch (error: any) {
-			// Handle any other errors
 			const errorMessage = error?.message || "Failed to add item to cart";
 			return { success: false, error: errorMessage };
 		}

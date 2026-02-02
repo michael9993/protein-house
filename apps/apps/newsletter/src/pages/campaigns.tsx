@@ -14,16 +14,20 @@ const CampaignsPage: NextPage = () => {
   const router = useRouter();
   const utils = trpcClient.useUtils();
 
-  const { data: campaignsData, isLoading, isFetching } = trpcClient.campaign.list.useQuery(undefined, {
+  const {
+    data: campaignsData,
+    isLoading,
+    isFetching,
+  } = trpcClient.campaign.list.useQuery(undefined, {
     enabled: !!appBridgeState?.ready,
-    staleTime: 5000, // Short stale time for fresh data
+    staleTime: 0, // Always consider stale so refetch keeps table current after create/delete
     refetchOnWindowFocus: true,
+    refetchOnMount: "always", // Refetch when navigating back from detail/create so table shows current state
     // Dynamic refetch interval - faster when campaigns are sending
     refetchInterval: (data) => {
-      const hasSending = data?.campaigns?.some(c => c.status === "sending");
+      const hasSending = data?.campaigns?.some((c) => c.status === "sending");
       return hasSending ? 2000 : 10000; // 2s when sending, 10s otherwise
     },
-    placeholderData: (previousData) => previousData,
   });
 
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -62,7 +66,10 @@ const CampaignsPage: NextPage = () => {
       }
     },
     onError: (error) => {
-      setMessage({ type: "error", text: error instanceof Error ? error.message : "Failed to duplicate campaign" });
+      setMessage({
+        type: "error",
+        text: error instanceof Error ? error.message : "Failed to duplicate campaign",
+      });
       setTimeout(() => setMessage(null), 5000);
     },
   });
@@ -132,9 +139,7 @@ const CampaignsPage: NextPage = () => {
           backgroundColor={message.type === "success" ? "success1" : "critical1"}
           borderRadius={2}
         >
-          <Text color={message.type === "success" ? "default1" : "critical2"}>
-            {message.text}
-          </Text>
+          <Text color={message.type === "success" ? "default1" : "critical2"}>{message.text}</Text>
         </Box>
       )}
 
@@ -155,8 +160,8 @@ const CampaignsPage: NextPage = () => {
             Are you sure you want to delete "{deleteConfirm.name}"? This action cannot be undone.
           </Text>
           <Box display="flex" gap={2}>
-            <Button variant="primary" onClick={confirmDelete} disabled={deleteMutation.isPending}>
-              {deleteMutation.isPending ? "Deleting..." : "Yes, Delete"}
+            <Button variant="primary" onClick={confirmDelete} disabled={deleteMutation.isLoading}>
+              {deleteMutation.isLoading ? "Deleting..." : "Yes, Delete"}
             </Button>
             <Button variant="secondary" onClick={() => setDeleteConfirm(null)}>
               Cancel
@@ -167,7 +172,7 @@ const CampaignsPage: NextPage = () => {
 
       <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom={4}>
         <Box>
-          <Text as="h1" variant="hero">
+          <Text as="h1" size={5} fontWeight="bold">
             Campaigns
           </Text>
           <Text as="p" color="default2" marginTop={2}>
@@ -187,7 +192,9 @@ const CampaignsPage: NextPage = () => {
           <Text>Loading campaigns...</Text>
         ) : campaignsData?.campaigns.length === 0 ? (
           <Box padding={6} textAlign="center">
-            <Text color="default2">No campaigns yet. Create your first campaign to get started.</Text>
+            <Text color="default2">
+              No campaigns yet. Create your first campaign to get started.
+            </Text>
           </Box>
         ) : (
           <Table.Container>
@@ -208,9 +215,8 @@ const CampaignsPage: NextPage = () => {
                   campaign.recipientCount > 0
                     ? Math.round((totalProcessed / campaign.recipientCount) * 100)
                     : 0;
-                const successRate = totalProcessed > 0
-                  ? Math.round((campaign.sentCount / totalProcessed) * 100)
-                  : 0;
+                const successRate =
+                  totalProcessed > 0 ? Math.round((campaign.sentCount / totalProcessed) * 100) : 0;
 
                 return (
                   <Table.Row key={campaign.id}>
@@ -224,12 +230,17 @@ const CampaignsPage: NextPage = () => {
                           height={2}
                           borderRadius={3}
                           backgroundColor={
-                            campaign.status === "sending" ? "info1" :
-                            campaign.status === "sent" ? "success1" :
-                            campaign.status === "failed" ? "critical1" :
-                            campaign.status === "cancelled" ? "default2" :
-                            campaign.status === "scheduled" ? "warning1" :
-                            "default1"
+                            campaign.status === "sending"
+                              ? "info1"
+                              : campaign.status === "sent"
+                                ? "success1"
+                                : campaign.status === "failed"
+                                  ? "critical1"
+                                  : campaign.status === "cancelled"
+                                    ? "default2"
+                                    : campaign.status === "scheduled"
+                                      ? "warning1"
+                                      : "default1"
                           }
                           style={{
                             animation: campaign.status === "sending" ? "pulse 2s infinite" : "none",
@@ -265,9 +276,14 @@ const CampaignsPage: NextPage = () => {
                             borderRadius={1}
                             style={{
                               width: `${progress}%`,
-                              backgroundColor: campaign.status === "sending" ? "#3B82F6" :
-                                campaign.status === "sent" ? "#10B981" :
-                                campaign.status === "failed" ? "#EF4444" : "#6B7280",
+                              backgroundColor:
+                                campaign.status === "sending"
+                                  ? "#3B82F6"
+                                  : campaign.status === "sent"
+                                    ? "#10B981"
+                                    : campaign.status === "failed"
+                                      ? "#EF4444"
+                                      : "#6B7280",
                               transition: "width 0.3s ease-in-out",
                             }}
                           />
@@ -275,9 +291,14 @@ const CampaignsPage: NextPage = () => {
                         {/* Progress text */}
                         <Box display="flex" justifyContent="space-between" alignItems="center">
                           <Text size={2}>
-                            {campaign.sentCount} sent{campaign.failedCount > 0 ? `, ${campaign.failedCount} failed` : ""} / {campaign.recipientCount}
+                            {campaign.sentCount} sent
+                            {campaign.failedCount > 0 ? `, ${campaign.failedCount} failed` : ""} /{" "}
+                            {campaign.recipientCount}
                           </Text>
-                          <Text size={2} color={campaign.status === "sending" ? "info1" : "default2"}>
+                          <Text
+                            size={2}
+                            color={campaign.status === "sending" ? "info1" : "default2"}
+                          >
                             {progress}%
                           </Text>
                         </Box>
@@ -303,9 +324,9 @@ const CampaignsPage: NextPage = () => {
                           variant="tertiary"
                           size="small"
                           onClick={() => handleDuplicate(campaign.id)}
-                          disabled={duplicateMutation.isPending}
+                          disabled={duplicateMutation.isLoading}
                         >
-                          {duplicateMutation.isPending ? "Duplicating..." : "Duplicate"}
+                          {duplicateMutation.isLoading ? "Duplicating..." : "Duplicate"}
                         </Button>
                         <Button
                           variant="tertiary"

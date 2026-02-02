@@ -53,15 +53,9 @@ class CheckoutLinesDelete(BaseMutation):
     def validate_lines(cls, checkout: Checkout, lines_to_delete_ids: list[str]):
         lines = checkout.lines.all()
         all_lines_ids = [str(line.id) for line in lines]
-        gift_line_ids = [str(line.id) for line in lines if line.is_gift]
         invalid_line_ids = set(lines_to_delete_ids).difference(all_lines_ids)
-        gift_line_to_delete_ids = set(gift_line_ids).intersection(lines_to_delete_ids)
         invalid_line_global_ids = [
             graphene.Node.to_global_id("CheckoutLine", pk) for pk in invalid_line_ids
-        ]
-        gift_line_to_delete_global_ids = [
-            graphene.Node.to_global_id("CheckoutLine", pk)
-            for pk in gift_line_to_delete_ids
         ]
         if invalid_line_ids:
             raise ValidationError(
@@ -72,17 +66,7 @@ class CheckoutLinesDelete(BaseMutation):
                     )
                 }
             )
-
-        if gift_line_to_delete_ids:
-            raise ValidationError(
-                {
-                    "line_ids": ValidationError(
-                        "Checkout lines marked as gift can't be deleted.",
-                        params={"lines": gift_line_to_delete_global_ids},
-                        code=CheckoutErrorCode.NON_REMOVABLE_GIFT_LINE.value,
-                    )
-                }
-            )
+        # Allow deleting gift lines so customers can remove a gift if they don't want it.
 
     @classmethod
     def perform_mutation(  # type: ignore[override]

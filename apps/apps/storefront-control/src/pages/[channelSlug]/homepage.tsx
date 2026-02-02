@@ -332,7 +332,7 @@ const HomepagePage: NextPage = () => {
                 </div>
                 <FormField 
                   label="Display Limit" 
-                  name={`sections.${key}.limit`} 
+                  name={(`sections.${key}.limit`) as never} 
                   register={register} 
                   type="number" 
                   placeholder="8"
@@ -515,5 +515,9 @@ const HomepagePage: NextPage = () => {
     </AppLayout>
   );
 };
+
+export async function getServerSideProps() {
+  return { props: {} };
+}
 
 export default HomepagePage;

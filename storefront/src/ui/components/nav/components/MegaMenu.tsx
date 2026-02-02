@@ -70,8 +70,8 @@ export function MegaMenu({ category, channel, isOpen, onClose }: MegaMenuProps) 
           <div className="relative hidden lg:block lg:col-span-1">
             <div className="relative h-full min-h-[300px] overflow-hidden rounded-l-xl">
               <Image
-                src={category.backgroundImage.url}
-                alt={category.backgroundImage.alt || category.name}
+                src={category.backgroundImage!.url}
+                alt={category.backgroundImage!.alt || category.name}
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 0px, 300px"
@@ -101,7 +101,7 @@ export function MegaMenu({ category, channel, isOpen, onClose }: MegaMenuProps) 
         <div className={`p-6 ${hasImage ? "lg:col-span-3" : "lg:col-span-1"}`}>
           {hasSubcategories ? (
             <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
-              {category.children.map((subcategory) => (
+              {(category.children ?? []).map((subcategory) => (
                 <div
                   key={subcategory.id}
                   className="group"

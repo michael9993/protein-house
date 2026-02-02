@@ -368,7 +368,10 @@ export const campaignRouter = router({
                 appId: ctx.appId!,
                 channelSlug: currentCampaign.channelSlug,
                 templateId: currentCampaign.templateId,
-                recipientFilter: currentCampaign.recipientFilter,
+                recipientFilter: {
+                  ...currentCampaign.recipientFilter,
+                  isActive: currentCampaign.recipientFilter?.isActive ?? true,
+                } as { isActive: boolean; sources?: string[]; subscribedAfter?: string; subscribedBefore?: string; selectionType?: "all" | "selected" | "random" | "newest" | "oldest"; limit?: number; selectedSubscriberIds?: string[] },
                 batchSize: currentCampaign.batchSize,
                 rateLimitPerMinute: currentCampaign.rateLimitPerMinute,
                 maxRetries: currentCampaign.maxRetries,
@@ -399,7 +402,10 @@ export const campaignRouter = router({
                 appId: ctx.appId!,
                 channelSlug: currentCampaign.channelSlug,
                 templateId: currentCampaign.templateId,
-                recipientFilter: currentCampaign.recipientFilter,
+                recipientFilter: {
+                  ...currentCampaign.recipientFilter,
+                  isActive: currentCampaign.recipientFilter?.isActive ?? true,
+                } as { isActive: boolean; sources?: string[]; subscribedAfter?: string; subscribedBefore?: string; selectionType?: "all" | "selected" | "random" | "newest" | "oldest"; limit?: number; selectedSubscriberIds?: string[] },
                 batchSize: currentCampaign.batchSize,
                 rateLimitPerMinute: currentCampaign.rateLimitPerMinute,
                 maxRetries: currentCampaign.maxRetries,

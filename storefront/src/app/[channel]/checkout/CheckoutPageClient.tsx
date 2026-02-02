@@ -78,9 +78,10 @@ interface CheckoutPageClientProps {
 	saleorApiUrl: string;
 	isOrderConfirmation: boolean;
 	channel: string;
+	checkoutId?: string;
 }
 
-export function CheckoutPageClient({ saleorApiUrl, isOrderConfirmation, channel }: CheckoutPageClientProps) {
+export function CheckoutPageClient({ saleorApiUrl, isOrderConfirmation, channel, checkoutId }: CheckoutPageClientProps) {
 	const branding = useBranding();
 	const store = useStoreInfo();
 	const content = useContentConfig();
@@ -137,7 +138,7 @@ export function CheckoutPageClient({ saleorApiUrl, isOrderConfirmation, channel 
 
 				{/* Main checkout content */}
 				<section className="mb-12 mt-6 flex-1 animate-fade-in-up" style={{ animationDelay: "150ms", animationFillMode: "both" }}>
-					<Root saleorApiUrl={saleorApiUrl} checkoutText={checkoutText} />
+					<Root saleorApiUrl={saleorApiUrl} checkoutText={checkoutText} checkoutId={checkoutId} />
 				</section>
 
 				{/* Footer */}

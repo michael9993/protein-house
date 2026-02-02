@@ -40,7 +40,7 @@ export class PaymentListGatewaysUseCase {
       AppIsNotConfiguredResponse | BrokenAppResponse
     >
   > {
-    const { channelId, appId, saleorApiUrl, token } = params;
+    const { channelId, appId, saleorApiUrl, token: _token } = params;
 
     this.logger.debug("Executing payment list gateways for channel", {
       channelId,
@@ -167,8 +167,8 @@ export class PaymentListGatewaysUseCase {
     if (rootConfigResult.isOk()) {
       const rootConfig = rootConfigResult.value;
       // Get all channel IDs that have configs assigned
-      const allConfigIds = new Set(Object.values(rootConfig.chanelConfigMapping));
-      
+      const _allConfigIds = new Set(Object.values(rootConfig.chanelConfigMapping));
+
       // Try each channel that has a config assigned
       for (const [channelId] of Object.entries(rootConfig.chanelConfigMapping)) {
         const channelConfig = await this.appConfigRepo.getStripeConfig({
@@ -205,24 +205,24 @@ export class PaymentListGatewaysUseCase {
               
               // Try each active channel
               for (const channel of channels) {
-                if (!channel.isActive) continue;
-                
+                if ((channel as { isActive?: boolean }).isActive === false) continue;
+
                 // Try with channel ID first
                 const channelConfigById = await this.appConfigRepo.getStripeConfig({
                   channelId: channel.id,
                   appId,
                   saleorApiUrl,
                 });
-                
+
                 if (channelConfigById.isOk() && channelConfigById.value?.publishableKey) {
                   publishableKey = channelConfigById.value.publishableKey;
-                  this.logger.debug("Found Stripe config for channel from API (by ID)", { 
-                    channelId: channel.id, 
-                    channelSlug: channel.slug 
+                  this.logger.debug("Found Stripe config for channel from API (by ID)", {
+                    channelId: channel.id,
+                    channelSlug: channel.slug,
                   });
                   break;
                 }
-                
+
                 // Try with channel slug as fallback
                 const channelConfigBySlug = await this.appConfigRepo.getStripeConfig({
                   channelId: channel.slug,
@@ -269,20 +269,20 @@ export class PaymentListGatewaysUseCase {
             
             // Try each active channel
             for (const channel of channels) {
-              if (!channel.isActive) continue;
-              
+              if ((channel as { isActive?: boolean }).isActive === false) continue;
+
               // Try with channel ID first
               const channelConfigById = await this.appConfigRepo.getStripeConfig({
                 channelId: channel.id,
                 appId,
                 saleorApiUrl,
               });
-              
+
               if (channelConfigById.isOk() && channelConfigById.value?.publishableKey) {
                 publishableKey = channelConfigById.value.publishableKey;
-                this.logger.debug("Found Stripe config for channel from API (by ID)", { 
-                  channelId: channel.id, 
-                  channelSlug: channel.slug 
+                this.logger.debug("Found Stripe config for channel from API (by ID)", {
+                  channelId: channel.id,
+                  channelSlug: channel.slug,
                 });
                 break;
               }

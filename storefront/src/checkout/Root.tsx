@@ -17,14 +17,16 @@ import { RootViews } from "./views/RootViews";
 import { PageNotFound } from "@/checkout/views/PageNotFound";
 import { UserProvider } from "./hooks/UserContext";
 import { CheckoutTextProvider, type CheckoutTextConfig } from "./hooks/useCheckoutText";
+import { CheckoutIdProvider } from "./contexts/CheckoutIdContext";
 import "./index.css";
 
 interface RootProps {
 	saleorApiUrl: string;
 	checkoutText?: CheckoutTextConfig;
+	checkoutId?: string;
 }
 
-export const Root = ({ saleorApiUrl, checkoutText }: RootProps) => {
+export const Root = ({ saleorApiUrl, checkoutText, checkoutId }: RootProps) => {
 	const saleorAuthClient = useSaleorAuthContext();
 	const [_serverToken, setServerToken] = useState<string | null>(null);
 	const serverTokenRef = useRef<string | null>(null);
@@ -297,14 +299,16 @@ export const Root = ({ saleorApiUrl, checkoutText }: RootProps) => {
 
 	return (
 		<UrqlProvider value={urqlClient}>
-			<UserProvider>
-				<CheckoutTextProvider config={checkoutText}>
-					<ToastContainer {...alertsContainerProps} />
-					<ErrorBoundary FallbackComponent={PageNotFound}>
-						<RootViews />
-					</ErrorBoundary>
-				</CheckoutTextProvider>
-			</UserProvider>
+			<CheckoutIdProvider checkoutId={checkoutId}>
+				<UserProvider>
+					<CheckoutTextProvider config={checkoutText}>
+						<ToastContainer {...alertsContainerProps} />
+						<ErrorBoundary FallbackComponent={PageNotFound}>
+							<RootViews />
+						</ErrorBoundary>
+					</CheckoutTextProvider>
+				</UserProvider>
+			</CheckoutIdProvider>
 		</UrqlProvider>
 	);
 }

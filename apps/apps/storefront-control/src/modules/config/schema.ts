@@ -86,6 +86,7 @@ export const FeaturesSchema = z.object({
   compareProducts: z.boolean(),
   productReviews: z.boolean(),
   recentlyViewed: z.boolean(),
+  scrollToTop: z.boolean(),
   guestCheckout: z.boolean(),
   expressCheckout: z.boolean(),
   savePaymentMethods: z.boolean(),
@@ -332,11 +333,43 @@ export const PromoPopupSchema = z.object({
 // ============================================
 // HEADER SCHEMA
 // ============================================
+export const HeaderBannerItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().nullable().optional(),
+  /** Primary text shown in banner: promotions use description, vouchers use name. When set, storefront uses this. */
+  displayText: z.string().nullable().optional(),
+  link: z.string().nullable().optional(),
+  icon: z.string().nullable().optional(), // emoji or icon name (e.g. "🎉", "gift")
+});
+
+/** Manual banner entry (text + optional link/icon) added in Storefront Control */
+export const ManualBannerItemSchema = z.object({
+  id: z.string(),
+  text: z.string(),
+  link: z.string().nullable().optional(),
+  icon: z.string().nullable().optional(),
+});
+
 export const HeaderBannerSchema = z.object({
   enabled: z.boolean(),
   text: z.string(),
   backgroundColor: z.string().nullable(), // null = use primary color
   textColor: z.string().nullable(),       // null = white
+  /** Include active Saleor promotions in the banner (Dashboard → Discounts → Promotions) */
+  useSaleorPromotions: z.boolean().optional().default(false),
+  /** Include active Saleor vouchers in the banner (Dashboard → Discounts → Vouchers) */
+  useSaleorVouchers: z.boolean().optional().default(false),
+  items: z.array(HeaderBannerItemSchema).optional().default([]),
+  /** Manual banner entries (shown in addition to or instead of Saleor promotions) */
+  manualItems: z.array(ManualBannerItemSchema).optional().default([]),
+  autoScrollIntervalSeconds: z.number().min(4).max(30).optional().default(6),
+  /** Use gradient background instead of solid */
+  useGradient: z.boolean().optional().default(false),
+  gradientFrom: z.string().nullable().optional(),
+  gradientTo: z.string().nullable().optional(),
+  /** Allow visitors to dismiss the banner (stored in localStorage) */
+  dismissible: z.boolean().optional().default(false),
 });
 
 export const LogoPositionSchema = z.enum(["left", "center"]);
@@ -483,6 +516,7 @@ export const LocalizationSchema = z.object({
   timeFormat: TimeFormatSchema,
   direction: DirectionSchema, // "auto" = detect from locale
   rtlLocales: z.array(z.string()).optional(), // Custom RTL locale list (defaults to DEFAULT_RTL_LOCALES)
+  drawerSideOverride: z.enum(["auto", "left", "right"]).optional(), // Override drawer side: "auto" = follows direction
 });
 
 // ============================================
@@ -719,6 +753,14 @@ export const ActiveFiltersTagsSchema = z.object({
   removeButtonBorderRadius: z.enum(["none", "sm", "md", "lg", "full"]).optional(), // rounded-full
 });
 
+// Cart UI schema
+export const CartUiSchema = z.object({
+  displayMode: z.enum(["drawer", "page"]).optional(), // drawer = slide-in, page = full cart page
+  drawerSide: z.enum(["left", "right"]).optional(),   // which side the drawer appears
+  showDeleteText: z.boolean().optional(),              // show "Delete" label next to trash icon (default false = icon only)
+  showSaveForLater: z.boolean().optional(),            // show "Save for later" / "Move to cart" per item (default false = hidden)
+});
+
 // Full UI schema
 export const UiSchema = z.object({
   buttons: ButtonsSchema,
@@ -729,6 +771,7 @@ export const UiSchema = z.object({
   toasts: ToastsSchema,
   icons: IconsSchema,
   activeFiltersTags: ActiveFiltersTagsSchema.optional(),
+  cart: CartUiSchema,
 });
 
 // ============================================
@@ -777,6 +820,7 @@ export const CartTextSchema = z.object({
   promoCodeLabel: z.string(),             // "Promo Code"
   promoCodePlaceholder: z.string(),       // "Enter code"
   promoCodeApplyButton: z.string(),       // "Apply"
+  eligibleForFreeShipping: z.string().optional(),  // "Eligible for free shipping" (when shipping voucher applied)
   // Order summary
   subtotalLabel: z.string(),              // "Subtotal"
   subtotalLabelWithCount: z.string(),     // "Subtotal ({count} items)"
@@ -788,6 +832,9 @@ export const CartTextSchema = z.object({
   selectItemsButton: z.string(),          // "Select Items"
   preparingCheckout: z.string(),          // "Preparing..."
   loadingCheckout: z.string(),            // "Loading..."
+  // Price breakdown labels
+  originalSubtotalLabel: z.string().optional(),    // "Subtotal" (before discount)
+  discountedSubtotalLabel: z.string().optional(),  // "Your price" (after discount)
   // Trust badges
   secureCheckoutText: z.string(),         // "Secure Checkout"
   sslEncryptedText: z.string(),           // "SSL Encrypted"
@@ -796,6 +843,14 @@ export const CartTextSchema = z.object({
   providedByStripe: z.string(),           // "Provided by Stripe"
   // Saved for later
   itemsSavedForLater: z.string(),         // "{count} item(s) saved for later"
+  // Additional cart UI fields
+  viewCartButton: z.string().optional(),           // "View Full Cart"
+  shippingNote: z.string().optional(),             // "Shipping and taxes calculated at checkout"
+  youSaveLabel: z.string().optional(),             // "You save"
+  // Gift lines (order promotion GIFT reward)
+  giftLabel: z.string().optional(),               // "Gift" badge next to gift line
+  giftAddedMessage: z.string().optional(),         // Toast: "A free gift has been added to your cart."
+  giftRemoveHint: z.string().optional(),           // "(You can remove it)" or empty to hide
 });
 
 export const ProductTextSchema = z.object({
@@ -914,12 +969,12 @@ export const AccountTextSchema = z.object({
   registerEmailPasswordRequiredError: z.string(), // "Email and password are required"
   registerFailedError: z.string(), // "Registration failed"
   registerAccountExistsError: z.string(), // "An account with this email already exists. Please sign in instead."
-      registerGenericError: z.string(), // "An error occurred during registration. Please try again."
-      passwordMismatchError: z.string(), // "Passwords do not match. Please try again."
-      passwordTooShortError: z.string(), // "Password must be at least 8 characters."
-      // Rate limiting messages
-      passwordResetRateLimitError: z.string(), // "You've already requested a password reset recently..."
-      passwordResetRateLimitInfo: z.string(), // "If you don't receive an email..."
+  registerGenericError: z.string(), // "An error occurred during registration. Please try again."
+  passwordMismatchError: z.string(), // "Passwords do not match. Please try again."
+  passwordTooShortError: z.string(), // "Password must be at least 8 characters."
+  // Rate limiting messages
+  passwordResetRateLimitError: z.string(), // "You've already requested a password reset recently..."
+  passwordResetRateLimitInfo: z.string(), // "If you don't receive an email..."
 });
 
 export const GeneralTextSchema = z.object({
@@ -994,7 +1049,7 @@ export const CheckoutTextSchema = z.object({
   shippingStep: z.string().optional(),            // "Shipping"
   paymentStep: z.string().optional(),             // "Payment"
   confirmationStep: z.string().optional(),        // "Confirmation"
-  
+
   // Contact Information Section
   contactInfoTitle: z.string().optional(),        // "Contact Information"
   contactInfoSubtitle: z.string().optional(),     // "We'll use this to send order updates"
@@ -1004,14 +1059,14 @@ export const CheckoutTextSchema = z.object({
   guestEmailPlaceholder: z.string().optional(),   // "Enter your email"
   createAccountCheckbox: z.string().optional(),   // "Create account for faster checkout"
   passwordLabel: z.string().optional(),           // "Password"
-  
+
   // Shipping Address Section
   shippingAddressTitle: z.string().optional(),    // "Shipping Address"
   shippingAddressSubtitle: z.string().optional(), // "Where should we deliver?"
   addAddressButton: z.string().optional(),        // "Add address"
   editAddressButton: z.string().optional(),       // "Edit"
   changeAddressButton: z.string().optional(),     // "Change"
-  
+
   // Address Form Fields
   firstNameLabel: z.string().optional(),          // "First name"
   lastNameLabel: z.string().optional(),           // "Last name"
@@ -1025,7 +1080,7 @@ export const CheckoutTextSchema = z.object({
   phoneLabel: z.string().optional(),              // "Phone"
   saveAddressButton: z.string().optional(),       // "Save address"
   cancelButton: z.string().optional(),            // "Cancel"
-  
+
   // Localized Address Fields (country-specific variants)
   provinceLabel: z.string().optional(),           // "Province"
   districtLabel: z.string().optional(),           // "District"
@@ -1034,18 +1089,20 @@ export const CheckoutTextSchema = z.object({
   prefectureLabel: z.string().optional(),         // "Prefecture"
   cityAreaLabel: z.string().optional(),           // "City area"
   countryAreaLabel: z.string().optional(),        // "Country area"
-  
+
   // Billing Address Section
   billingAddressTitle: z.string().optional(),     // "Billing Address"
   billingAddressSubtitle: z.string().optional(),  // "For your invoice"
   useSameAsShipping: z.string().optional(),       // "Use shipping address as billing address"
-  
+
   // Delivery Methods Section
   deliveryMethodsTitle: z.string().optional(),    // "Delivery methods"
   businessDaysText: z.string().optional(),        // "{min}-{max} business days"
   freeShippingLabel: z.string().optional(),       // "Free"
   noDeliveryMethodsText: z.string().optional(),   // "No delivery methods available"
-  
+  freeShippingVoucherNotApplicable: z.string().optional(),  // When voucher is shipping but selected method has no isFree
+  freeShippingAppliedWithMethod: z.string().optional(),      // When voucher is shipping and selected method has isFree true
+
   // Payment Section
   paymentTitle: z.string().optional(),            // "Payment"
   paymentSubtitle: z.string().optional(),         // "Select your payment method"
@@ -1063,7 +1120,7 @@ export const CheckoutTextSchema = z.object({
   paymentFailedError: z.string().optional(),      // "Payment failed"
   unexpectedPaymentError: z.string().optional(),  // "An unexpected error occurred..."
   paymentSuccessOrderFailedError: z.string().optional(), // "Payment was successful but order processing failed..."
-  
+
   // Order Summary Section  
   orderSummaryTitle: z.string().optional(),       // "Order Summary"
   itemsCountSingular: z.string().optional(),      // "1 item"
@@ -1075,13 +1132,16 @@ export const CheckoutTextSchema = z.object({
   promoCodePlaceholder: z.string().optional(),    // "Enter code"
   applyPromoButton: z.string().optional(),        // "Apply"
   removePromoButton: z.string().optional(),       // "Remove"
+  oneVoucherPerOrderHint: z.string().optional(),  // "One voucher per order. Gift cards can be combined."
+  replaceVoucherConfirm: z.string().optional(),    // "Only one voucher... Replace {code}. Continue?" (use {code})
+  eligibleForFreeShipping: z.string().optional(), // "Eligible for free shipping" (when shipping voucher applied)
   giftCardLabel: z.string().optional(),           // "Gift card"
   subtotalLabel: z.string().optional(),           // "Subtotal"
   shippingLabel: z.string().optional(),           // "Shipping"
   taxLabel: z.string().optional(),                // "Tax"
   includesTaxText: z.string().optional(),         // "Includes {amount} tax"
   totalLabel: z.string().optional(),              // "Total"
-  
+
   // Form sections (legacy - keeping for backwards compatibility)
   contactDetails: z.string(),
   shippingAddress: z.string(),
@@ -1089,12 +1149,12 @@ export const CheckoutTextSchema = z.object({
   paymentMethod: z.string(),
   orderSummary: z.string(),
   placeOrder: z.string(),
-  
+
   // Place Order Section
   placeOrderButton: z.string().optional(),        // "Place Order"
   processingOrderText: z.string().optional(),     // "Processing your order..."
   agreementText: z.string().optional(),           // "By placing this order, you agree to our"
-  
+
   // Order confirmation
   almostDoneText: z.string().optional(),          // "Almost done…"
   orderConfirmation: z.string(),
@@ -1119,7 +1179,7 @@ export const CheckoutTextSchema = z.object({
   deliveryMessage: z.string().optional(),         // "Your order will arrive at your doorstep!"
   printReceiptButton: z.string().optional(),      // "Print Receipt"
   thankYouPurchaseMessage: z.string().optional(), // "Thank you for your purchase!..."
-  
+
   // Order Info Section (confirmation page)
   orderDetailsTitle: z.string().optional(),       // "Order Details"
   contactLabel: z.string().optional(),            // "Contact"
@@ -1131,14 +1191,23 @@ export const CheckoutTextSchema = z.object({
   overpaidMessage: z.string().optional(),         // "Contact support for refund assistance"
   processingStatus: z.string().optional(),        // "Processing"
   processingMessage: z.string().optional(),       // "Payment is being processed"
-  
+
   // Error messages
   requiredFieldError: z.string().optional(),      // "This field is required"
   invalidEmailError: z.string().optional(),       // "Please enter a valid email"
   invalidPhoneError: z.string().optional(),       // "Please enter a valid phone number"
   selectDeliveryMethodError: z.string().optional(), // "Please select a delivery method"
   selectPaymentMethodError: z.string().optional(), // "Please select a payment method"
-  
+
+  // No checkout found / Error pages (checkout not found, expired, or generic error)
+  noCheckoutFoundTitle: z.string().optional(),    // "No checkout found"
+  noCheckoutFoundMessage: z.string().optional(),  // "It looks like you haven't started a checkout yet..."
+  returnToCartButton: z.string().optional(),       // "Return to Cart"
+  checkoutExpiredTitle: z.string().optional(),    // "Checkout expired or invalid"
+  checkoutExpiredMessage: z.string().optional(),  // "This checkout session has expired..."
+  somethingWentWrongTitle: z.string().optional(),  // "Something went wrong"
+  somethingWentWrongMessage: z.string().optional(), // "We couldn't load your checkout..."
+
   // Address Form Actions
   deleteAddressButton: z.string().optional(),     // "Delete address"
   savingAddressText: z.string().optional(),       // "Saving…"
@@ -1148,7 +1217,7 @@ export const CheckoutTextSchema = z.object({
   addressSavedSuccess: z.string().optional(),     // "Address saved successfully!"
   addressUpdatedSuccess: z.string().optional(),   // "Address updated successfully!"
   cantShipToAddressText: z.string().optional(),   // "Can't ship to this address"
-  
+
   // Sign In/Out
   signInTitle: z.string().optional(),             // "Sign in"
   signInButton: z.string().optional(),            // "Sign in"
@@ -1161,23 +1230,23 @@ export const CheckoutTextSchema = z.object({
   continueWithGoogle: z.string().optional(),      // "Continue with Google"
   signInWithGoogle: z.string().optional(),        // "Sign in with Google"
   alreadyHaveAccount: z.string().optional(),      // "Already have an account?"
-  
+
   // Guest User
   contactDetailsTitle: z.string().optional(),     // "Contact details"
   createAccountLabel: z.string().optional(),      // "I want to create account"
   passwordMinChars: z.string().optional(),        // "Password (minimum 8 characters)"
-  
+
   // SSL/Security
   sslEncryptionText: z.string().optional(),       // "Secure 256-bit SSL encryption"
-  
+
   // Footer links
   privacyPolicy: z.string().optional(),           // "Privacy Policy"
   termsOfService: z.string().optional(),          // "Terms of Service"
   securityNote: z.string().optional(),            // "Protected by SSL encryption • Your payment info is safe"
   // Legacy fields (for backward compatibility)
-  privacyPolicyLinkText: z.string().optional(),   
-  termsOfServiceLinkText: z.string().optional(),   
-  sslEncryptionMessage: z.string().optional(),     
+  privacyPolicyLinkText: z.string().optional(),
+  termsOfServiceLinkText: z.string().optional(),
+  sslEncryptionMessage: z.string().optional(),
 });
 
 // Filters/Sort/Product List Text
@@ -1762,6 +1831,16 @@ export const ContentSchema = z.object({
 });
 
 // ============================================
+// STOREFRONT UX SCHEMA (Cart/Checkout behavior settings)
+// ============================================
+export const StorefrontUXSchema = z.object({
+  cart: z.object({
+    displayMode: z.enum(["drawer", "page"]).optional(), // "drawer" = slide-in panel, "page" = full cart page
+    drawerSide: z.enum(["left", "right"]).optional(),   // which side the drawer appears
+  }).optional(),
+});
+
+// ============================================
 // FULL CONFIG SCHEMA
 // ============================================
 export const StorefrontConfigSchema = z.object({
@@ -1785,6 +1864,7 @@ export const StorefrontConfigSchema = z.object({
   ui: UiSchema,
   content: ContentSchema,
   darkMode: DarkModeSchema,
+  storefront: StorefrontUXSchema,
 });
 
 export type StorefrontConfig = z.infer<typeof StorefrontConfigSchema>;
@@ -1799,6 +1879,8 @@ export type FontSize = z.infer<typeof FontSizeSchema>;
 export type HeroSlide = z.infer<typeof HeroSlideSchema>;
 export type PromoPopup = z.infer<typeof PromoPopupSchema>;
 export type HeaderConfig = z.infer<typeof HeaderSchema>;
+export type HeaderBannerItem = z.infer<typeof HeaderBannerItemSchema>;
+export type ManualBannerItem = z.infer<typeof ManualBannerItemSchema>;
 export type HeaderBanner = z.infer<typeof HeaderBannerSchema>;
 export type LogoPosition = z.infer<typeof LogoPositionSchema>;
 export type FooterConfig = z.infer<typeof FooterSchema>;

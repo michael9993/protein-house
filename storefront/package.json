@@ -5,13 +5,14 @@
   "scripts": {
     "dev": "next dev",
     "build": "pnpm run type-check && next build",
+    "build:production": "pnpm run type-check && next build",
     "build:skip-type-check": "next build",
     "start": "next start",
     "lint": "next lint",
     "generate": "graphql-codegen --config .graphqlrc.ts",
     "type-check": "tsc --noEmit",
     "type-check:watch": "tsc --noEmit --watch",
-    "prepare": "husky install"
+    "prepare": "husky install 2>/dev/null || true"
   },
   "dependencies": {
     "@adyen/adyen-web": "5.53.3",

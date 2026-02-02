@@ -11,7 +11,7 @@ const IndexPage: NextPage = () => {
   if (!isInIframe()) {
     return (
       <Box>
-        <Text as="h1" variant="hero">
+        <Text as="h1" size={5} fontWeight="bold">
           Newsletter Management
         </Text>
         <Text as="p" marginTop={4}>
@@ -41,7 +41,7 @@ const IndexPage: NextPage = () => {
   return (
     <Box>
       <Box marginBottom={8}>
-        <Text as="h1" variant="hero">
+        <Text as="h1" size={5} fontWeight="bold">
           Newsletter Management
         </Text>
         <Text as="p" color="default2" marginTop={2}>
@@ -62,10 +62,10 @@ const IndexPage: NextPage = () => {
           style={{ cursor: "pointer" }}
           onClick={() => router.push("/subscribers")}
         >
-          <Text as="h2" variant="heading" marginBottom={2}>
+          <Text as="h2" size={4} fontWeight="bold" marginBottom={2}>
             Subscribers
           </Text>
-          <Text as="p" color="default2" variant="caption">
+          <Text as="p" color="default2" size={2}>
             View and manage newsletter subscribers
           </Text>
         </Box>
@@ -78,10 +78,10 @@ const IndexPage: NextPage = () => {
           style={{ cursor: "pointer" }}
           onClick={() => router.push("/templates")}
         >
-          <Text as="h2" variant="heading" marginBottom={2}>
+          <Text as="h2" size={4} fontWeight="bold" marginBottom={2}>
             Templates
           </Text>
-          <Text as="p" color="default2" variant="caption">
+          <Text as="p" color="default2" size={2}>
             Create and manage email templates
           </Text>
         </Box>
@@ -94,10 +94,10 @@ const IndexPage: NextPage = () => {
           style={{ cursor: "pointer" }}
           onClick={() => router.push("/campaigns")}
         >
-          <Text as="h2" variant="heading" marginBottom={2}>
+          <Text as="h2" size={4} fontWeight="bold" marginBottom={2}>
             Campaigns
           </Text>
-          <Text as="p" color="default2" variant="caption">
+          <Text as="p" color="default2" size={2}>
             Schedule and send promotional emails
           </Text>
         </Box>
@@ -110,10 +110,10 @@ const IndexPage: NextPage = () => {
           style={{ cursor: "pointer" }}
           onClick={() => router.push("/images")}
         >
-          <Text as="h2" variant="heading" marginBottom={2}>
+          <Text as="h2" size={4} fontWeight="bold" marginBottom={2}>
             Images
           </Text>
-          <Text as="p" color="default2" variant="caption">
+          <Text as="p" color="default2" size={2}>
             Upload and manage images for templates
           </Text>
         </Box>

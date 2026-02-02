@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { CurrentUserDocument } from "@/gql/graphql";
+import { CurrentUserDocument, type CurrentUserQuery } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { isAuthOrRscContextError } from "@/lib/auth-errors";
 import { AccountSidebar } from "./AccountSidebar";
@@ -13,7 +13,7 @@ export default async function AccountLayout({
 	params: Promise<{ channel: string }>;
 }) {
 	const { channel } = await params;
-	let user: Awaited<ReturnType<typeof executeGraphQL<typeof CurrentUserDocument>>>["me"] = null;
+	let user: CurrentUserQuery["me"] = null;
 	try {
 		const result = await executeGraphQL(CurrentUserDocument, {
 			cache: "no-cache",

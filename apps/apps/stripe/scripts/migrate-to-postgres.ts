@@ -22,7 +22,8 @@ import { join } from "path";
 const logger = createLogger("MigrateToPostgres");
 
 async function migrateConfigs() {
-  if (env.STORAGE_BACKEND !== "postgres") {
+  const storageBackend = (env as { STORAGE_BACKEND?: string }).STORAGE_BACKEND ?? process.env.STORAGE_BACKEND;
+  if (storageBackend !== "postgres") {
     logger.warn("STORAGE_BACKEND is not set to 'postgres'. Migration skipped.");
     return;
   }
@@ -42,10 +43,10 @@ async function migrateConfigs() {
     logger.info("Reading configs from file...");
     const filePath = join(process.cwd(), ".saleor-app-config.json");
     
-    let fileData: Record<string, any>;
+    let fileData: Record<string, unknown>;
     try {
       const data = readFileSync(filePath, "utf-8");
-      fileData = JSON.parse(data);
+      fileData = JSON.parse(data) as Record<string, unknown>;
       logger.info(`Found ${Object.keys(fileData).length} storage keys in file`);
     } catch (error: any) {
       if (error.code === "ENOENT") {
@@ -72,10 +73,15 @@ async function migrateConfigs() {
         continue;
       }
       
-      const saleorApiUrl = createSaleorApiUrl(saleorApiUrlStr);
-      
+      const saleorApiUrlResult = createSaleorApiUrl(saleorApiUrlStr);
+      if (saleorApiUrlResult.isErr()) {
+        logger.warn(`Invalid saleorApiUrl for key ${storageKey}`, { error: saleorApiUrlResult.error });
+        continue;
+      }
+      const saleorApiUrl = saleorApiUrlResult.value as import("@/modules/saleor/saleor-api-url").SaleorApiUrl;
+
       logger.info(`Migrating storage key: ${storageKey}`);
-      
+
       // Get root config to access all configs and mappings
       const rootConfigResult = await sourceRepo.getRootConfig({
         saleorApiUrl,
@@ -97,7 +103,8 @@ async function migrateConfigs() {
         const saveResult = await targetRepo.saveStripeConfig({
           saleorApiUrl,
           appId,
-        }, config);
+          config,
+        });
         
         if (saveResult.isErr()) {
           logger.error(`Failed to save config ${config.id}`, {
@@ -111,10 +118,13 @@ async function migrateConfigs() {
       // Migrate channel mappings
       for (const [channelId, configId] of Object.entries(rootConfig.chanelConfigMapping)) {
         logger.info(`Migrating channel mapping ${channelId} -> ${configId}...`);
-        const mappingResult = await targetRepo.updateMapping({
-          saleorApiUrl,
-          appId,
-        }, channelId, configId);
+        const mappingResult = await targetRepo.updateMapping(
+          {
+            saleorApiUrl,
+            appId,
+          },
+          { channelId, configId }
+        );
         
         if (mappingResult.isErr()) {
           logger.error(`Failed to update mapping ${channelId}`, {

@@ -6,11 +6,15 @@ import { useUser } from "../../hooks/useUser";
 import { Summary, SummarySkeleton } from "@/checkout/sections/Summary";
 import { CheckoutForm, CheckoutFormSkeleton } from "@/checkout/sections/CheckoutForm";
 import { useCheckout } from "@/checkout/hooks/useCheckout";
+import { useRemoveGiftLinesForPartialCheckout } from "@/checkout/hooks/useRemoveGiftLinesForPartialCheckout";
 import { CheckoutSkeleton } from "@/checkout/views/Checkout/CheckoutSkeleton";
 
 export const Checkout = () => {
 	const { checkout, fetching: fetchingCheckout, hasValidCheckoutId } = useCheckout();
 	const { loading: isAuthenticating } = useUser();
+
+	// When user came from cart with partial selection (gift deselected), remove any gift lines Saleor re-adds
+	useRemoveGiftLinesForPartialCheckout();
 
 	// If no valid checkout ID in URL, show not found
 	if (!hasValidCheckoutId) {
@@ -38,7 +42,13 @@ export const Checkout = () => {
 							<CheckoutForm />
 						</Suspense>
 						<Suspense fallback={<SummarySkeleton />}>
-							{checkout && <Summary {...checkout} lines={checkout.lines || []} />}
+							{checkout && (
+								<Summary
+									{...checkout}
+									shippingPrice={checkout.shippingPrice}
+									lines={checkout.lines || []}
+								/>
+							)}
 						</Suspense>
 					</div>
 				)}

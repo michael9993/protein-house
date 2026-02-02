@@ -1,4 +1,5 @@
 import { Worker, Job } from "bullmq";
+import type { ConnectionOptions } from "bullmq";
 import IORedis from "ioredis";
 import { Client } from "urql";
 import { gql } from "urql";
@@ -80,7 +81,7 @@ export function createCampaignWorker(): Worker<CampaignJobData> {
     const connection = new IORedis(redisUrl, {
         maxRetriesPerRequest: null,
         enableReadyCheck: false,
-    });
+    }) as unknown as ConnectionOptions;
 
     worker = new Worker<CampaignJobData>(
         "newsletter-campaigns",
@@ -222,6 +223,11 @@ async function processCampaignJob(job: Job<CampaignJobData>): Promise<void> {
     // Get base URL for unsubscribe links
     const baseUrl = process.env.NEWSLETTER_APP_URL || process.env.APP_IFRAME_BASE_URL || "http://localhost:3000";
 
+    // Declare in outer scope so catch block can use them for final counts
+    let selectedSubscribers: NewsletterSubscription[] = [];
+    let actualSentCount = 0;
+    let actualFailedCount = 0;
+
     try {
         // First, fetch all matching subscribers based on filter
         let allSubscribers: NewsletterSubscription[] = [];
@@ -235,7 +241,7 @@ async function processCampaignJob(job: Job<CampaignJobData>): Promise<void> {
         });
 
         // Fetch all subscribers matching the filter
-        while (hasMore && !job.discarded) {
+        while (hasMore && !(job as unknown as { discarded?: boolean }).discarded) {
             // Check if campaign was cancelled
             const currentCampaign = await campaignService.getCampaign(campaignId);
             if (currentCampaign?.status === "cancelled") {
@@ -276,14 +282,15 @@ async function processCampaignJob(job: Job<CampaignJobData>): Promise<void> {
             }
 
             // Fetch batch of subscribers
+            type SubscriptionsResponse = {
+                newsletterSubscriptions: {
+                    edges: Array<{ node: NewsletterSubscription }>;
+                    pageInfo: { hasNextPage: boolean; endCursor: string | null };
+                    totalCount: number | null;
+                };
+            };
             const result = await apiClient
-                .query<{
-                    newsletterSubscriptions: {
-                        edges: Array<{ node: NewsletterSubscription }>;
-                        pageInfo: { hasNextPage: boolean; endCursor: string | null };
-                        totalCount: number | null;
-                    };
-                }>(NEWSLETTER_SUBSCRIPTIONS_QUERY, {
+                .query<SubscriptionsResponse>(NEWSLETTER_SUBSCRIPTIONS_QUERY, {
                     first: 100, // Fetch in larger batches
                     after,
                     filter: Object.keys(graphqlFilter).length > 0 ? graphqlFilter : undefined,
@@ -294,8 +301,8 @@ async function processCampaignJob(job: Job<CampaignJobData>): Promise<void> {
                 throw new Error(`Failed to fetch subscribers: ${result.error.message}`);
             }
 
-            const batchSubscribers = result.data?.newsletterSubscriptions.edges.map((e) => e.node) || [];
-            const pageInfo = result.data?.newsletterSubscriptions.pageInfo;
+            const batchSubscribers = result.data?.newsletterSubscriptions.edges.map((e: { node: NewsletterSubscription }) => e.node) || [];
+            const pageInfo: { hasNextPage: boolean; endCursor: string | null } | undefined = result.data?.newsletterSubscriptions.pageInfo;
             const totalCount = result.data?.newsletterSubscriptions.totalCount || 0;
 
             allSubscribers = [...allSubscribers, ...batchSubscribers];
@@ -326,9 +333,7 @@ async function processCampaignJob(job: Job<CampaignJobData>): Promise<void> {
             })
             : allSubscribers;
 
-        // Apply selection logic
-        let selectedSubscribers: NewsletterSubscription[] = [];
-
+        // Apply selection logic (selectedSubscribers declared above for catch scope)
         if (recipientFilter.selectionType === "selected" && recipientFilter.selectedSubscriberIds) {
             // Filter to only selected subscriber IDs
             selectedSubscribers = channelFilteredSubscribers.filter((sub) =>
@@ -393,14 +398,14 @@ async function processCampaignJob(job: Job<CampaignJobData>): Promise<void> {
 
         // Track actual sent/failed counts for recipients that match the channel
         // This ensures counts reflect only subscribers that should have received emails
-        let actualSentCount = 0;
-        let actualFailedCount = 0;
+        actualSentCount = 0;
+        actualFailedCount = 0;
         const processedSubscriberIds: string[] = [];
 
         // Process selected subscribers in batches
         let processedCount = campaign.lastProcessedIndex || 0;
 
-        while (processedCount < selectedSubscribers.length && !job.discarded) {
+        while (processedCount < selectedSubscribers.length && !(job as unknown as { discarded?: boolean }).discarded) {
             // Check if campaign was cancelled
             const currentCampaign = await campaignService.getCampaign(campaignId);
             if (currentCampaign?.status === "cancelled") {
@@ -440,7 +445,7 @@ async function processCampaignJob(job: Job<CampaignJobData>): Promise<void> {
             const batchToProcess = selectedSubscribers.slice(processedCount, processedCount + batchSizeToProcess);
 
             for (const subscriber of batchToProcess) {
-                if (job.discarded) {
+                if ((job as unknown as { discarded?: boolean }).discarded) {
                     break;
                 }
 
@@ -479,7 +484,7 @@ async function processCampaignJob(job: Job<CampaignJobData>): Promise<void> {
                         companyAddress: "",
                         primaryColor: "#2563EB",
                         secondaryColor: "#1F2937",
-                        subject: campaign.subject || template.subject,
+                        subject: template.subject,
                         // Default products section
                         productsTitle: "Top Picks",
                         productsSubtitle: "Hand-picked deals we think you'll love.",

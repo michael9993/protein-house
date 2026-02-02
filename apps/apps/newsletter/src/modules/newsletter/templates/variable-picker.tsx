@@ -156,7 +156,7 @@ export const VariablePicker = ({ onInsert, copiedVariable }: VariablePickerProps
 
   return (
     <Box>
-      <Text as="h3" variant="heading" marginBottom={3}>
+      <Text as="h3" size={4} fontWeight="bold" marginBottom={3}>
         Available Variables
       </Text>
       

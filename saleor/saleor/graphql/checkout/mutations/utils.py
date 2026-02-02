@@ -442,11 +442,18 @@ def find_line_id_when_variant_parameter_used(
     """Return line id when variantId parameter was used.
 
     If variant exists in multiple lines error will be returned.
+    Only non-gift lines are matched so the same variant can be in the cart
+    both as a gift and as a regular line.
     """
     if not lines_info:
         return None
 
-    line_info = list(filter(lambda x: (x.variant.pk == int(variant_db_id)), lines_info))
+    line_info = list(
+        filter(
+            lambda x: (x.variant.pk == int(variant_db_id) and not x.line.is_gift),
+            lines_info,
+        )
+    )
 
     if not line_info:
         return None

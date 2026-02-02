@@ -330,8 +330,7 @@ const EditTemplatePage: NextPage = () => {
       enabled: !!templateId && !isNewTemplate,
       staleTime: 30000, // Consider data fresh for 30 seconds
       refetchOnWindowFocus: true, // Refetch when window regains focus
-      placeholderData: (previousData) => previousData,
-    },
+      },
   );
 
   const { handleSubmit, control, reset, watch, setValue, getValues } = useForm({
@@ -423,7 +422,7 @@ const EditTemplatePage: NextPage = () => {
       }
     },
     onError: (err) => {
-      setLastError(err);
+      setLastError(err instanceof Error ? err : new Error(err.message));
     },
   });
 
@@ -707,9 +706,9 @@ const EditTemplatePage: NextPage = () => {
               </Button>
               <Button 
                 type="submit" 
-                disabled={!!currentError || createMutation.isPending || updateMutation.isPending || !!saveMessage}
+                disabled={!!currentError || createMutation.isLoading || updateMutation.isLoading || !!saveMessage}
               >
-                {(createMutation.isPending || updateMutation.isPending) ? "Saving..." : 
+                {(createMutation.isLoading || updateMutation.isLoading) ? "Saving..." : 
                  saveMessage?.type === "success" ? "Saved!" : "Save"}
               </Button>
             </Box>
@@ -879,9 +878,9 @@ const EditTemplatePage: NextPage = () => {
             )}
             <Button 
               type="submit" 
-              disabled={!!currentError || createMutation.isPending || updateMutation.isPending || !!saveMessage}
+              disabled={!!currentError || createMutation.isLoading || updateMutation.isLoading || !!saveMessage}
             >
-              {(createMutation.isPending || updateMutation.isPending) ? "Saving..." : 
+              {(createMutation.isLoading || updateMutation.isLoading) ? "Saving..." : 
                saveMessage?.type === "success" ? "Saved!" : "Save"}
             </Button>
           </Box>

@@ -7,7 +7,7 @@ import {
   DeleteAppWebhookDocument,
 } from "../../../generated/graphql";
 
-gql`
+const _appWebhooksDoc = gql`
   fragment WebhookDetails on Webhook {
     id
     name
@@ -50,6 +50,8 @@ gql`
     }
   }
 `;
+
+void _appWebhooksDoc;
 
 export const fetchAppWebhooks = ({ client }: { client: Client }) =>
   client

@@ -33,9 +33,9 @@ export function ControlledCheckbox<T extends FieldValues>({
           />
           {(label || description) && (
             <Box>
-              {label && <Text as="label" variant="bodyStrong">{label}</Text>}
+              {label && <Text as="span">{label}</Text>}
               {description && (
-                <Text as="p" variant="caption" color="default2">{description}</Text>
+                <Text as="p" color="default2">{description}</Text>
               )}
             </Box>
           )}

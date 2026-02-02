@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-01-28T05:08:13.557Z",
+  "exportedAt": "2026-02-01T11:43:38.306Z",
   "channelSlug": "usd",
   "config": {
-    "version": 3,
-    "updatedAt": "2026-01-28T05:08:13.137Z",
+    "version": 2,
+    "updatedAt": "2026-02-01T11:43:37.296Z",
     "channelSlug": "usd",
     "store": {
       "name": "Mansour Shoes",
@@ -63,6 +63,7 @@
       "compareProducts": false,
       "productReviews": true,
       "recentlyViewed": true,
+      "scrollToTop": true,
       "guestCheckout": true,
       "expressCheckout": false,
       "savePaymentMethods": true,
@@ -80,7 +81,11 @@
     "ecommerce": {
       "currency": {
         "default": "USD",
-        "supported": ["USD", "EUR", "GBP"]
+        "supported": [
+          "USD",
+          "EUR",
+          "GBP"
+        ]
       },
       "shipping": {
         "enabled": true,
@@ -327,11 +332,23 @@
     },
     "localization": {
       "defaultLocale": "en-US",
-      "supportedLocales": ["en-US", "en-GB", "es"],
+      "supportedLocales": [
+        "en-US",
+        "en-GB",
+        "es"
+      ],
       "dateFormat": "MM/DD/YYYY",
       "timeFormat": "12h",
       "direction": "ltr",
-      "rtlLocales": ["he", "ar", "fa", "ur", "yi", "ps"]
+      "rtlLocales": [
+        "he",
+        "ar",
+        "fa",
+        "ur",
+        "yi",
+        "ps"
+      ],
+      "drawerSideOverride": "right"
     },
     "filters": {
       "enabled": true,
@@ -561,6 +578,9 @@
         "removeButtonHoverBackgroundColor": null,
         "removeButtonHoverColor": null,
         "removeButtonBorderRadius": "full"
+      },
+      "cart": {
+        "drawerSide": "right"
       }
     },
     "content": {
@@ -578,6 +598,9 @@
         "freeShippingThresholdReached": "You've unlocked free shipping!",
         "addXMoreForFreeShipping": "Add {amount} more for free shipping!",
         "unlockedFreeShipping": "You've unlocked free shipping!",
+        "giftLabel": "Gift",
+        "giftAddedMessage": "A free gift has been added to your cart.",
+        "giftRemoveHint": "(You can remove it)",
         "saveForLaterButton": "Save for Later",
         "moveToCartButton": "Move to Cart",
         "deleteButton": "Delete",
@@ -612,7 +635,9 @@
         "sslEncryptedText": "SSL Encrypted",
         "acceptedPaymentMethods": "Accepted Payment Methods",
         "providedByStripe": "Provided by Stripe",
-        "itemsSavedForLater": "{count} item(s) saved for later"
+        "itemsSavedForLater": "{count} item(s) saved for later",
+        "viewCartButton": "View Full Cart",
+        "shippingNote": "Shipping and taxes calculated at checkout"
       },
       "product": {
         "addToCartButton": "Add to Cart",
@@ -788,6 +813,13 @@
         "shippingStep": "Shipping",
         "paymentStep": "Payment",
         "confirmationStep": "Confirmation",
+        "noCheckoutFoundTitle": "No checkout found",
+        "noCheckoutFoundMessage": "It looks like you haven't started a checkout yet. Add some items to your cart first.",
+        "returnToCartButton": "Return to Cart",
+        "checkoutExpiredTitle": "Checkout expired or invalid",
+        "checkoutExpiredMessage": "This checkout session has expired or is no longer valid. Please return to your cart and try again.",
+        "somethingWentWrongTitle": "Something went wrong",
+        "somethingWentWrongMessage": "We couldn't load your checkout. Please return to your cart and try again.",
         "contactInfoTitle": "Contact Information",
         "contactInfoSubtitle": "We'll use this to send order updates",
         "accountLabel": "Account",
@@ -827,6 +859,8 @@
         "businessDaysText": "{min}-{max} business days",
         "freeShippingLabel": "Free",
         "noDeliveryMethodsText": "No delivery methods available",
+        "freeShippingVoucherNotApplicable": "Free shipping voucher is not applicable with this delivery method. Choose a free shipping method to use your voucher.",
+        "freeShippingAppliedWithMethod": "Free shipping applied with this method.",
         "paymentTitle": "Payment",
         "paymentSubtitle": "Select your payment method",
         "paymentMethodLabel": "Payment method",
@@ -853,6 +887,8 @@
         "promoCodePlaceholder": "Enter code",
         "applyPromoButton": "Apply",
         "removePromoButton": "Remove",
+        "oneVoucherPerOrderHint": "One voucher per order. Gift cards can be combined.",
+        "replaceVoucherConfirm": "Only one voucher can be used per order. Applying this code will replace {code}. Continue?",
         "giftCardLabel": "Gift card",
         "subtotalLabel": "Subtotal",
         "shippingLabel": "Shipping",
@@ -1402,6 +1438,12 @@
         "primary": "#E78F21",
         "secondary": "#F59E0B",
         "accent": "#F59E0B"
+      }
+    },
+    "storefront": {
+      "cart": {
+        "displayMode": "drawer",
+        "drawerSide": "right"
       }
     }
   }

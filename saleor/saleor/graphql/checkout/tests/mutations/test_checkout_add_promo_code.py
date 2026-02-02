@@ -638,18 +638,18 @@ def test_checkout_add_voucher_code_checkout_with_gift_reward(
     # when
     data = _mutate_checkout_add_promo_code(api_client, variables)
 
-    # then
+    # then - voucher and gift can coexist: gift line is kept
     assert not data["errors"]
     assert data["checkout"]["token"] == str(checkout.token)
     assert data["checkout"]["voucherCode"] == voucher.code
     checkout.refresh_from_db()
-    assert checkout.lines.count() == lines_count - 1 == len(data["checkout"]["lines"])
+    assert checkout.lines.count() == lines_count == len(data["checkout"]["lines"])
     assert checkout.discount_amount
     assert checkout.discount_name == voucher.name
-    with pytest.raises(line_discount._meta.model.DoesNotExist):
-        line_discount.refresh_from_db()
-    with pytest.raises(gift_line._meta.model.DoesNotExist):
-        gift_line.refresh_from_db()
+    gift_line.refresh_from_db()
+    assert gift_line.is_gift
+    line_discount.refresh_from_db()
+    assert line_discount.line_id == gift_line.id
 
 
 def test_checkout_add_variant_voucher_code_apply_once_per_order(

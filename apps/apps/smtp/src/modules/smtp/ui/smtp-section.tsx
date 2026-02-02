@@ -53,7 +53,7 @@ export const SmtpSection = ({ configuration }: SmtpSectionProps) => {
     >
       <BoxWithBorder>
         <form
-          onSubmit={handleSubmit((data, event) => {
+          onSubmit={handleSubmit((data, _event) => {
             mutate({
               ...data,
             });

@@ -1,10 +1,15 @@
 import * as Checkout from "@/lib/checkout";
-import { executeGraphQL } from "@/lib/graphql";
-import { CheckoutDeleteLinesDocument, CheckoutCreateWithLinesDocument } from "@/gql/graphql";
 import { storeConfig } from "@/config";
 import { CartClient } from "./CartClient";
 import { CartRestoreTrigger } from "./CartRestoreTrigger";
-import { revalidatePath } from "next/cache";
+import { CartPageDrawerGuard } from "./CartPageDrawerGuard";
+import {
+    deleteLineAction as sharedDeleteLineAction,
+    updateLineQuantityAction as sharedUpdateLineQuantityAction,
+    applyPromoCodeAction as sharedApplyPromoCodeAction,
+    removePromoCodeAction as sharedRemovePromoCodeAction,
+    createCheckoutWithItemsAction as sharedCreateCheckoutWithItemsAction,
+} from "@/app/cart-actions";
 
 export const metadata = {
 	title: `Shopping Cart | ${storeConfig.store.name}`,
@@ -20,168 +25,58 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 	// - Restoring user's saved checkout on login
 	// - Finding existing session checkout
 	// - Creating new checkout if needed
-	const { checkout } = await Checkout.resolveCheckout({ channel: params.channel });
-	
+	let { checkout } = await Checkout.resolveCheckout({ channel: params.channel });
+
+	// Auto-apply vouchers with metadata auto=true when checkout has no voucher yet (check cart value vs voucher rules)
+	const subtotalAmount = checkout?.subtotalPrice?.gross?.amount ?? 0;
+	let appliedVoucherInfo: Awaited<ReturnType<typeof Checkout.applyAutoVouchers>> = null;
+	if (checkout?.id && !(checkout as { voucherCode?: string }).voucherCode) {
+		appliedVoucherInfo = await Checkout.applyAutoVouchers(checkout.id, params.channel, subtotalAmount);
+		if (appliedVoucherInfo) {
+			checkout = await Checkout.find(checkout.id, { channel: params.channel, skipOwnershipCheck: true }) ?? checkout;
+		}
+	}
+
 	console.log(`[Cart Page] ✅ Checkout resolved: ${checkout?.id || "none"}, items: ${checkout?.lines?.length || 0}`);
 
-	// Server action for deleting lines
+	// Server action for deleting lines (including gift lines)
 	async function deleteLineAction(lineId: string, productSlug?: string) {
 		"use server";
-		
-		const currentCheckoutId = await Checkout.getIdFromCookies(params.channel);
-		if (!currentCheckoutId) return;
-		
-		await executeGraphQL(CheckoutDeleteLinesDocument, {
-			variables: {
-				checkoutId: currentCheckoutId,
-				lineIds: [lineId],
-			},
-			cache: "no-cache",
-		});
-		
-		// Revalidate cart page
-		revalidatePath("/cart");
-		
-		// Revalidate product page if product slug is provided
-		// This ensures stock information is updated after deletion
-		// Saleor automatically releases stock allocation when lines are deleted
-		if (productSlug) {
-			revalidatePath(`/${params.channel}/products/${productSlug}`);
-			console.log(`[Delete Line] ✅ Revalidated product page: /${params.channel}/products/${productSlug}`);
-		}
+		return sharedDeleteLineAction(params.channel, lineId, productSlug);
 	}
 
 	// Server action for updating line quantity
 	async function updateLineQuantityAction(lineId: string, quantity: number, productSlug?: string) {
 		"use server";
-		
-		const currentCheckoutId = await Checkout.getIdFromCookies(params.channel);
-		if (!currentCheckoutId) {
-			return { success: false, error: "Cart not found" };
-		}
-		
-		try {
-			// Use inline GraphQL mutation for updating checkout lines
-			const checkoutLinesUpdateMutation = {
-				toString: () => `mutation checkoutLinesUpdate($checkoutId: ID!, $lines: [CheckoutLineUpdateInput!]!) {
-					checkoutLinesUpdate(id: $checkoutId, lines: $lines) {
-						errors {
-							message
-							field
-							code
-						}
-						checkout {
-							id
-							lines {
-								id
-								quantity
-								variant {
-									id
-								}
-							}
-						}
-					}
-				}`,
-			} as any;
-			
-			await executeGraphQL(checkoutLinesUpdateMutation, {
-				variables: {
-					checkoutId: currentCheckoutId,
-					lines: [{
-						lineId: lineId,
-						quantity: quantity,
-					}],
-				},
-				cache: "no-cache",
-			});
-			
-			// Revalidate cart page
-			revalidatePath("/cart");
-			
-			// Revalidate product page if product slug is provided
-			if (productSlug) {
-				revalidatePath(`/${params.channel}/products/${productSlug}`);
-			}
-			
-			return { success: true };
-		} catch (error: any) {
-			console.error("[Update Quantity] Error:", error);
-			
-			// Handle GraphQL errors
-			if (error instanceof Error && (error.name === "GraphQLError" || error.constructor?.name === "GraphQLError")) {
-				let errorMessage = error.message || "Failed to update quantity";
-				
-				if ((error as any).errorResponse?.errors) {
-					const errors = (error as any).errorResponse.errors;
-					const firstError = errors[0];
-					if (firstError) {
-						errorMessage = firstError.message || errorMessage;
-						
-						if (firstError.code === "INSUFFICIENT_STOCK" || firstError.extensions?.code === "INSUFFICIENT_STOCK") {
-							errorMessage = "Sorry, there isn't enough stock available for this quantity.";
-						}
-					}
-				}
-				
-				return { success: false, error: errorMessage };
-			}
-			
-			return { success: false, error: "Failed to update quantity. Please try again." };
-		}
+		return await sharedUpdateLineQuantityAction(params.channel, lineId, quantity, productSlug);
 	}
 
-	// Server action for creating a temporary checkout with selected items only
-	// This creates a separate checkout for the checkout flow but keeps the original cart intact
+	async function applyPromoCodeAction(checkoutId: string, promoCode: string) {
+		"use server";
+		return sharedApplyPromoCodeAction(params.channel, checkoutId, promoCode);
+	}
+	async function removePromoCodeAction(checkoutId: string, options: { promoCodeId?: string; promoCode?: string }) {
+		"use server";
+		return sharedRemovePromoCodeAction(params.channel, checkoutId, options);
+	}
+
+	// Server action: create checkout with only selected items (keeps main cart intact); applies cart voucher if any
 	async function createCheckoutWithItems(
 		items: { variantId: string; quantity: number }[],
 		channelSlug: string
 	): Promise<{ checkoutId: string } | null> {
 		"use server";
-
-		try {
-			if (items.length === 0) return null;
-			if (!channelSlug) return null;
-
-			// Create a NEW checkout specifically for this checkout session with the selected items
-			const { checkoutCreate } = await executeGraphQL(CheckoutCreateWithLinesDocument, {
-				variables: {
-					channel: channelSlug,
-					lines: items.map(item => ({
-						variantId: item.variantId,
-						quantity: item.quantity,
-					})),
-				},
-				cache: "no-cache",
-			});
-
-			if (checkoutCreate?.errors && checkoutCreate.errors.length > 0) {
-				console.error("Error creating checkout:", checkoutCreate.errors);
-				return null;
-			}
-
-			const newCheckoutId = checkoutCreate?.checkout?.id;
-			if (!newCheckoutId) {
-				console.error("No checkout ID returned");
-				return null;
-			}
-
-			// IMPORTANT: Do NOT save the new checkout ID to cookies
-			// This keeps the original cart intact while creating a temporary checkout for purchase
-			// The original cart items will remain available when user returns
-			
-			return { checkoutId: newCheckoutId };
-		} catch (error) {
-			console.error("Error creating checkout with items:", error);
-			return null;
-		}
+		const voucherCode = (checkout as { voucherCode?: string })?.voucherCode ?? undefined;
+		return sharedCreateCheckoutWithItemsAction(channelSlug, items, voucherCode);
 	}
 
 	// Transform checkout data for client component
 	const cartData = checkout && checkout.lines ? {
 		id: checkout.id,
-		lines: checkout.lines.map(line => ({
+		lines: checkout.lines.map((line) => ({
 			id: line.id,
 			quantity: line.quantity,
+			isGift: (line as { isGift?: boolean }).isGift ?? false,
 			totalPrice: {
 				gross: {
 					amount: line.totalPrice.gross.amount,
@@ -240,12 +135,20 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 				currency: checkout.totalPrice.gross.currency,
 			},
 		},
+		// Voucher/promo applied (from CheckoutFind: voucherCode, voucher.id, discount, discountName)
+		voucherCode: (checkout as { voucherCode?: string }).voucherCode ?? null,
+		voucherId: (checkout as { voucher?: { id: string } }).voucher?.id ?? null,
+		discount: (checkout as { discount?: { amount: number; currency: string } }).discount
+			? {
+					amount: (checkout as { discount: { amount: number; currency: string } }).discount.amount,
+					currency: (checkout as { discount: { amount: number; currency: string } }).discount.currency,
+				}
+			: null,
+		discountName: (checkout as { discountName?: string }).discountName ?? null,
 	} : null;
 
 	return (
-		<>
-			{/* Client component to trigger cart restore when visiting cart page */}
-			{/* This ensures the user's saved cart is restored even if they didn't come from OAuth redirect */}
+		<CartPageDrawerGuard channel={params.channel}>
 			<CartRestoreTrigger channel={params.channel} />
 			<CartClient
 				cart={cartData as any}
@@ -253,7 +156,9 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 				deleteLineAction={deleteLineAction}
 				updateLineQuantityAction={updateLineQuantityAction}
 				createCheckoutWithItems={createCheckoutWithItems}
+				applyPromoCodeAction={applyPromoCodeAction}
+				removePromoCodeAction={removePromoCodeAction}
 			/>
-		</>
+		</CartPageDrawerGuard>
 	);
 }

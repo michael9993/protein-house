@@ -8,7 +8,13 @@ import { BasicLayout } from "../../components/basic-layout";
 import { SectionWithDescription } from "../../components/section-with-description";
 import { trpcClient } from "../../modules/trpc/trpc-client";
 
-const DeleteCampaignButton = ({ campaignId, campaignName }: { campaignId: string; campaignName: string }) => {
+const DeleteCampaignButton = ({
+  campaignId,
+  campaignName,
+}: {
+  campaignId: string;
+  campaignName: string;
+}) => {
   const router = useRouter();
   const utils = trpcClient.useUtils();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -98,35 +104,38 @@ const CampaignDetailPage: NextPage = () => {
   const campaignId = router.query.id as string | undefined;
   const utils = trpcClient.useUtils();
 
-  const { data: campaignData, isLoading, refetch } = trpcClient.campaign.get.useQuery(
+  const {
+    data: campaignData,
+    isLoading,
+    refetch,
+  } = trpcClient.campaign.get.useQuery(
     { id: campaignId! },
     {
       enabled: !!campaignId && !!appBridgeState?.ready,
       staleTime: 10000, // Consider data fresh for 10 seconds (shorter for detail page)
       refetchOnWindowFocus: true, // Refetch when window regains focus
-      placeholderData: (previousData) => previousData,
-    },
+      },
   );
 
   // Poll every 2 seconds when campaign is sending
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   useEffect(() => {
     const campaign = campaignData?.campaign;
-    
+
     // Clear any existing interval
     if (pollingIntervalRef.current) {
       clearInterval(pollingIntervalRef.current);
       pollingIntervalRef.current = null;
     }
-    
+
     // Start polling if campaign is sending
     if (campaign?.status === "sending") {
       pollingIntervalRef.current = setInterval(() => {
         refetch();
       }, 2000);
     }
-    
+
     // Cleanup on unmount or when campaign status changes
     return () => {
       if (pollingIntervalRef.current) {
@@ -136,7 +145,10 @@ const CampaignDetailPage: NextPage = () => {
     };
   }, [campaignData?.campaign?.status, refetch]);
 
-  const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [statusMessage, setStatusMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
   const [showStartConfirm, setShowStartConfirm] = useState(false);
 
   const updateStatusMutation = trpcClient.campaign.updateStatus.useMutation({
@@ -146,16 +158,22 @@ const CampaignDetailPage: NextPage = () => {
       await utils.campaign.get.refetch({ id: campaignId! });
       await utils.campaign.list.invalidate();
       await utils.campaign.list.refetch();
-      
+
       setShowStartConfirm(false);
-      
+
       // Show success message
       if (result?.campaign) {
         const recipientCount = result.campaign.recipientCount || 0;
         if (recipientCount > 0) {
-          setStatusMessage({ type: "success", text: `Campaign started! It will send to ${recipientCount} subscriber(s).` });
+          setStatusMessage({
+            type: "success",
+            text: `Campaign started! It will send to ${recipientCount} subscriber(s).`,
+          });
         } else {
-          setStatusMessage({ type: "error", text: "Campaign started, but no subscribers match the selected filters." });
+          setStatusMessage({
+            type: "error",
+            text: "Campaign started, but no subscribers match the selected filters.",
+          });
         }
       }
       setTimeout(() => setStatusMessage(null), 5000);
@@ -272,12 +290,9 @@ const CampaignDetailPage: NextPage = () => {
   const campaign = campaignData.campaign;
   const totalProcessed = campaign.sentCount + campaign.failedCount;
   const progress =
-    campaign.recipientCount > 0
-      ? Math.round((totalProcessed / campaign.recipientCount) * 100)
-      : 0;
-  const successRate = totalProcessed > 0
-    ? Math.round((campaign.sentCount / totalProcessed) * 100)
-    : 0;
+    campaign.recipientCount > 0 ? Math.round((totalProcessed / campaign.recipientCount) * 100) : 0;
+  const successRate =
+    totalProcessed > 0 ? Math.round((campaign.sentCount / totalProcessed) * 100) : 0;
 
   return (
     <BasicLayout breadcrumbs={[{ name: "Campaigns", href: "/campaigns" }, { name: campaign.name }]}>
@@ -296,9 +311,14 @@ const CampaignDetailPage: NextPage = () => {
       {showStartConfirm && (
         <Box
           position="fixed"
-          top="0"
-          left="0"
-          style={{ width: "100%", height: "100%", backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1000 }}
+          top={0}
+          left={0}
+          style={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0,0,0,0.5)",
+            zIndex: 1000,
+          }}
           display="flex"
           alignItems="center"
           justifyContent="center"
@@ -317,14 +337,19 @@ const CampaignDetailPage: NextPage = () => {
               Start Campaign?
             </Text>
             <Text marginBottom={3} size={2}>
-              Are you sure you want to start this campaign? It will begin sending emails immediately.
+              Are you sure you want to start this campaign? It will begin sending emails
+              immediately.
             </Text>
             <Box display="flex" gap={2} justifyContent="center">
               <Button variant="secondary" onClick={() => setShowStartConfirm(false)}>
                 Cancel
               </Button>
-              <Button variant="primary" onClick={confirmStart} disabled={updateStatusMutation.isPending}>
-                {updateStatusMutation.isPending ? "Starting..." : "Yes, Start"}
+              <Button
+                variant="primary"
+                onClick={confirmStart}
+                disabled={updateStatusMutation.isLoading}
+              >
+                {updateStatusMutation.isLoading ? "Starting..." : "Yes, Start"}
               </Button>
             </Box>
           </Box>
@@ -333,9 +358,14 @@ const CampaignDetailPage: NextPage = () => {
       {showCancelConfirm && (
         <Box
           position="fixed"
-          top="0"
-          left="0"
-          style={{ width: "100%", height: "100%", backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1000 }}
+          top={0}
+          left={0}
+          style={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0,0,0,0.5)",
+            zIndex: 1000,
+          }}
           display="flex"
           alignItems="center"
           justifyContent="center"
@@ -360,8 +390,8 @@ const CampaignDetailPage: NextPage = () => {
               <Button variant="secondary" onClick={() => setShowCancelConfirm(false)}>
                 No, Keep Running
               </Button>
-              <Button variant="critical" onClick={confirmCancel} disabled={cancelMutation.isPending}>
-                {cancelMutation.isPending ? "Cancelling..." : "Yes, Cancel"}
+              <Button variant="error" onClick={confirmCancel} disabled={cancelMutation.isLoading}>
+                {cancelMutation.isLoading ? "Cancelling..." : "Yes, Cancel"}
               </Button>
             </Box>
           </Box>
@@ -369,7 +399,7 @@ const CampaignDetailPage: NextPage = () => {
       )}
       <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom={4}>
         <Box>
-          <Text as="h1" variant="hero">
+          <Text as="h1" size={5} fontWeight="bold">
             {campaign.name}
           </Text>
           <Text as="p" color="default2" marginTop={2}>
@@ -377,22 +407,20 @@ const CampaignDetailPage: NextPage = () => {
           </Text>
         </Box>
         <Box display="flex" gap={2}>
-          {(campaign.status === "draft" || campaign.status === "failed" || campaign.status === "cancelled") && (
-            <Button 
-              variant="primary" 
+          {(campaign.status === "draft" ||
+            campaign.status === "failed" ||
+            campaign.status === "cancelled") && (
+            <Button
+              variant="primary"
               onClick={handleStart}
-              disabled={updateStatusMutation.isPending}
+              disabled={updateStatusMutation.isLoading}
             >
-              {updateStatusMutation.isPending ? "Starting..." : "Start Campaign"}
+              {updateStatusMutation.isLoading ? "Starting..." : "Start Campaign"}
             </Button>
           )}
           {(campaign.status === "scheduled" || campaign.status === "sending") && (
-            <Button 
-              variant="secondary" 
-              onClick={handleCancel}
-              disabled={cancelMutation.isPending}
-            >
-              {cancelMutation.isPending ? "Cancelling..." : "Cancel Campaign"}
+            <Button variant="secondary" onClick={handleCancel} disabled={cancelMutation.isLoading}>
+              {cancelMutation.isLoading ? "Cancelling..." : "Cancel Campaign"}
             </Button>
           )}
           <Button variant="secondary" onClick={() => router.push(`/campaigns/${campaign.id}/edit`)}>
@@ -448,13 +476,20 @@ const CampaignDetailPage: NextPage = () => {
         description={<Text>Campaign sending progress and statistics.</Text>}
       >
         {/* Progress bar - always show for sending, sent, or failed campaigns */}
-        {(campaign.status === "sending" || campaign.status === "sent" || campaign.status === "failed" || campaign.status === "cancelled") && (
+        {(campaign.status === "sending" ||
+          campaign.status === "sent" ||
+          campaign.status === "failed" ||
+          campaign.status === "cancelled") && (
           <Box marginBottom={4}>
             <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom={2}>
               <Text size={3} fontWeight="bold">
-                {campaign.status === "sending" ? "Sending..." : 
-                 campaign.status === "sent" ? "Complete" : 
-                 campaign.status === "failed" ? "Failed" : "Cancelled"}
+                {campaign.status === "sending"
+                  ? "Sending..."
+                  : campaign.status === "sent"
+                    ? "Complete"
+                    : campaign.status === "failed"
+                      ? "Failed"
+                      : "Cancelled"}
               </Text>
               <Text size={3} color={campaign.status === "sending" ? "info1" : "default2"}>
                 {progress}% ({totalProcessed} / {campaign.recipientCount})
@@ -468,9 +503,12 @@ const CampaignDetailPage: NextPage = () => {
             >
               {/* Success portion (green) */}
               <Box
-                style={{ 
-                  width: campaign.recipientCount > 0 ? `${(campaign.sentCount / campaign.recipientCount) * 100}%` : "0%", 
-                  height: "100%", 
+                style={{
+                  width:
+                    campaign.recipientCount > 0
+                      ? `${(campaign.sentCount / campaign.recipientCount) * 100}%`
+                      : "0%",
+                  height: "100%",
                   transition: "width 0.3s ease-in-out",
                   float: "left",
                 }}
@@ -478,9 +516,12 @@ const CampaignDetailPage: NextPage = () => {
               />
               {/* Failed portion (red) */}
               <Box
-                style={{ 
-                  width: campaign.recipientCount > 0 ? `${(campaign.failedCount / campaign.recipientCount) * 100}%` : "0%", 
-                  height: "100%", 
+                style={{
+                  width:
+                    campaign.recipientCount > 0
+                      ? `${(campaign.failedCount / campaign.recipientCount) * 100}%`
+                      : "0%",
+                  height: "100%",
                   transition: "width 0.3s ease-in-out",
                   float: "left",
                   backgroundColor: "#EF4444",
@@ -496,7 +537,13 @@ const CampaignDetailPage: NextPage = () => {
         )}
 
         <Box display="grid" gridTemplateColumns={{ desktop: 4, mobile: 2 }} gap={4}>
-          <Box padding={4} borderWidth={1} borderStyle="solid" borderColor="default1" borderRadius={2}>
+          <Box
+            padding={4}
+            borderWidth={1}
+            borderStyle="solid"
+            borderColor="default1"
+            borderRadius={2}
+          >
             <Text size={1} color="default2" marginBottom={1}>
               Total Recipients
             </Text>
@@ -504,7 +551,13 @@ const CampaignDetailPage: NextPage = () => {
               {campaign.recipientCount}
             </Text>
           </Box>
-          <Box padding={4} borderWidth={1} borderStyle="solid" borderColor="default1" borderRadius={2}>
+          <Box
+            padding={4}
+            borderWidth={1}
+            borderStyle="solid"
+            borderColor="default1"
+            borderRadius={2}
+          >
             <Text size={1} color="default2" marginBottom={1}>
               Sent Successfully
             </Text>
@@ -517,7 +570,13 @@ const CampaignDetailPage: NextPage = () => {
               </Text>
             )}
           </Box>
-          <Box padding={4} borderWidth={1} borderStyle="solid" borderColor="default1" borderRadius={2}>
+          <Box
+            padding={4}
+            borderWidth={1}
+            borderStyle="solid"
+            borderColor="default1"
+            borderRadius={2}
+          >
             <Text size={1} color="default2" marginBottom={1}>
               Failed
             </Text>
@@ -530,11 +589,21 @@ const CampaignDetailPage: NextPage = () => {
               </Text>
             )}
           </Box>
-          <Box padding={4} borderWidth={1} borderStyle="solid" borderColor="default1" borderRadius={2}>
+          <Box
+            padding={4}
+            borderWidth={1}
+            borderStyle="solid"
+            borderColor="default1"
+            borderRadius={2}
+          >
             <Text size={1} color="default2" marginBottom={1}>
               Remaining
             </Text>
-            <Text size={8} fontWeight="bold" color={campaign.status === "sending" ? "info1" : "default2"}>
+            <Text
+              size={8}
+              fontWeight="bold"
+              color={campaign.status === "sending" ? "info1" : "default2"}
+            >
               {Math.max(0, campaign.recipientCount - totalProcessed)}
             </Text>
           </Box>
@@ -554,7 +623,13 @@ const CampaignDetailPage: NextPage = () => {
             borderRadius={2}
           >
             {campaign.errorLog.slice(-50).map((error, index) => (
-              <Box key={index} marginBottom={2} padding={2} backgroundColor="critical1" borderRadius={1}>
+              <Box
+                key={index}
+                marginBottom={2}
+                padding={2}
+                backgroundColor="critical1"
+                borderRadius={1}
+              >
                 <Text size={1} color="critical2">
                   <strong>{error.email}</strong>: {error.error}
                 </Text>

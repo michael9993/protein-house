@@ -13,7 +13,10 @@ import { BaseError } from "@/lib/errors";
 import { createLogger } from "@/lib/logger";
 import { loggerContext } from "@/lib/logger-context";
 import { AppConfigRepo } from "@/modules/app-config/repositories/app-config-repo";
-import { ResolvedTransactionFlow } from "@/modules/resolved-transaction-flow";
+import {
+  createResolvedTransactionFlow,
+  ResolvedTransactionFlow,
+} from "@/modules/resolved-transaction-flow";
 import { resolveSaleorMoneyFromStripePaymentIntent } from "@/modules/saleor/resolve-saleor-money-from-stripe-payment-intent";
 import { SaleorApiUrl } from "@/modules/saleor/saleor-api-url";
 import { SaleorPaymentMethodDetails } from "@/modules/saleor/saleor-payment-method-details";
@@ -131,7 +134,7 @@ export class TransactionProcessSessionUseCase {
       );
 
     // If DynamoDB lookup fails, we'll infer the transaction flow from the payment intent
-    let resolvedTransactionFlow: ResolvedTransactionFlow = "CHARGE"; // Default to CHARGE
+    let resolvedTransactionFlow: ResolvedTransactionFlow = createResolvedTransactionFlow("CHARGE"); // Default to CHARGE
     if (recordedTransactionResult.isOk()) {
       resolvedTransactionFlow = recordedTransactionResult.value.resolvedTransactionFlow;
     } else {
@@ -165,9 +168,9 @@ export class TransactionProcessSessionUseCase {
       // Infer transaction flow from payment intent capture method
       // automatic = CHARGE, manual = AUTHORIZATION
       if (paymentIntent.capture_method === "manual") {
-        resolvedTransactionFlow = "AUTHORIZATION";
+        resolvedTransactionFlow = createResolvedTransactionFlow("AUTHORIZATION");
       } else {
-        resolvedTransactionFlow = "CHARGE";
+        resolvedTransactionFlow = createResolvedTransactionFlow("CHARGE");
       }
       this.logger.info("Inferred transaction flow from payment intent", {
         resolvedTransactionFlow,

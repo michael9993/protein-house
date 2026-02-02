@@ -8,6 +8,7 @@ import { SearchBar } from "@/ui/components/nav/components/SearchBar";
 import { ProductFiltersWrapper } from "./ProductFiltersWrapper";
 import { ProductsGrid } from "./ProductsGrid";
 import { QuickFilters } from "./QuickFilters";
+import { ScrollToTopButton } from "./ScrollToTopButton";
 import { ActiveFiltersTags } from "./ActiveFiltersTags";
 import {
   parseFiltersFromURL,
@@ -18,6 +19,7 @@ import {
   serializeFiltersToURL,
 } from "@/lib/filters";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
+import type { Category } from "@/ui/components/Filters/ProductFilters";
 import { fetchSizesForQuickFilters } from "./fetchSizes";
 import { fetchColorsForQuickFilters } from "./fetchColors";
 import { computePriceRange } from "@/lib/price-utils";
@@ -44,7 +46,7 @@ function collectCategoryIdsBySlug(edges: CategoryEdge[] | null | undefined, slug
 		if (node.children?.edges) collectCategoryIdsBySlug(node.children.edges, slugSet, out);
 	}
 }
-function buildCategoriesTreeFromFilterEdges(edges: CategoryEdge[] | null | undefined): Array<{ id: string; name: string; slug: string; productCount?: number; children?: Array<unknown> }> {
+function buildCategoriesTreeFromFilterEdges(edges: CategoryEdge[] | null | undefined): Category[] {
 	if (!edges?.length) return [];
 	return edges.map(({ node }) => ({
 		id: node.id,
@@ -53,6 +55,15 @@ function buildCategoriesTreeFromFilterEdges(edges: CategoryEdge[] | null | undef
 		productCount: (node as { products?: { totalCount?: number } }).products?.totalCount,
 		children: node.children?.edges?.length ? buildCategoriesTreeFromFilterEdges(node.children.edges) : undefined,
 	}));
+}
+
+/** Map Category to ActiveFiltersTags slug/name/children shape (recursive). */
+function categoryToFilterShape(c: Category): { slug: string; name: string; children?: Array<{ slug: string; name: string; children?: Array<{ slug: string; name: string; children?: unknown[] }> }> } {
+	return {
+		slug: c.slug,
+		name: c.name,
+		children: c.children?.length ? c.children.map((ch) => categoryToFilterShape(ch)) : undefined,
+	};
 }
 async function fetchCategoriesForFilter(channel: string): Promise<{ categoryIds: (slugs: string[]) => string[]; categoriesTree: ReturnType<typeof buildCategoriesTreeFromFilterEdges> }> {
 	const { categories } = await executeGraphQL(CategoriesForFilterDocument, {
@@ -691,7 +702,7 @@ export default async function Page(props: {
 								<ActiveFiltersTags 
 									filters={filters}
 									channel={channel}
-									categories={categoriesForFilter}
+									categories={categoriesForFilter.map(categoryToFilterShape)}
 									collections={collectionsForQuickFilters}
 									brands={brandsForQuickFilters}
 									sizes={sizesResult.sizes}
@@ -713,6 +724,8 @@ export default async function Page(props: {
 					</div>
 				</div>
 			</div>
+			{/* Mobile scroll-to-top: visible after scrolling down */}
+			<ScrollToTopButton />
 		</div>
 	);
 }

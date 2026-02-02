@@ -22,7 +22,7 @@ const handler = createManifestHandler({
       homepageUrl: "https://github.com/saleor/apps",
       id: "saleor.app.storefront-control",
       name: "Storefront Control",
-      permissions: ["MANAGE_APPS"],
+      permissions: ["MANAGE_APPS", "MANAGE_DISCOUNTS"] as unknown as AppManifest["permissions"],
       requiredSaleorVersion: ">=3.20 <4",
       supportUrl: "https://github.com/saleor/apps/discussions",
       tokenTargetUrl: `${apiBaseURL}/api/register`,

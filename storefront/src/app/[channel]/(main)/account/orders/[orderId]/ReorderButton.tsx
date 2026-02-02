@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useBranding, useOrdersText } from "@/providers/StoreConfigProvider";
+import { useBranding, useOrdersText, useCartDisplayMode } from "@/providers/StoreConfigProvider";
+import { useCartDrawerSafe } from "@/providers/CartDrawerProvider";
 
 interface OrderLine {
 	variantId: string;
@@ -19,6 +20,8 @@ interface ReorderButtonProps {
 export function ReorderButton({ channel, orderLines, reorderAction }: ReorderButtonProps) {
 	const branding = useBranding();
 	const ordersText = useOrdersText();
+	const displayMode = useCartDisplayMode();
+	const drawerContext = useCartDrawerSafe();
 	const router = useRouter();
 	const [isPending, startTransition] = useTransition();
 	const [result, setResult] = useState<{ success: boolean; error?: string; itemsAdded?: number } | null>(null);
@@ -33,9 +36,12 @@ export function ReorderButton({ channel, orderLines, reorderAction }: ReorderBut
 			setResult(res);
 
 			if (res.success) {
-				// Navigate to cart after a brief delay to show success message
 				setTimeout(() => {
-					router.push(`/${channel}/cart`);
+					if (displayMode === "drawer" && drawerContext) {
+						drawerContext.openDrawer();
+					} else {
+						router.push(`/${channel}/cart`);
+					}
 				}, 1500);
 			}
 		});

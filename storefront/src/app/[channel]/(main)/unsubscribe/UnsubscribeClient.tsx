@@ -20,7 +20,7 @@ export function UnsubscribeClient() {
   const searchParams = useSearchParams();
   const success = searchParams.get("success");
   const error = searchParams.get("error");
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const branding = useBranding();
 

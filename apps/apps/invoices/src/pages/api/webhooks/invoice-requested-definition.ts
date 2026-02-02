@@ -66,10 +66,10 @@ const InvoiceRequestedWebhookPayload = gql`
           amount
           currency
         }
-      }
-      tax {
-        amount
-        currency
+        tax {
+          amount
+          currency
+        }
       }
     }
   }

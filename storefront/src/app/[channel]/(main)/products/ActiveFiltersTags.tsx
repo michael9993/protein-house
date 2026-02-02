@@ -32,38 +32,7 @@ export function ActiveFiltersTags({
   const { toggleCategory, toggleCollection, toggleBrand, toggleSize, toggleColor, toggleInStock, toggleOnSale, updateFilters, clearAll } = useProductFilters();
   const [currencyCode, setCurrencyCode] = useState<string>("");
   
-  // Get active filters tags styling with defaults
-  const tagsStyle = ui.activeFiltersTags || {};
-  const containerBg = tagsStyle.containerBackgroundColor ?? "#FFFFFF";
-  const containerBorderColor = tagsStyle.containerBorderColor ?? "#E5E7EB";
-  const containerBorderRadius = tagsStyle.containerBorderRadius ?? "lg";
-  const containerPadding = tagsStyle.containerPadding ?? 16;
-  const containerShadow = tagsStyle.containerShadow ?? "sm";
-  const titleFontSize = tagsStyle.titleFontSize ?? "sm";
-  const titleFontWeight = tagsStyle.titleFontWeight ?? "semibold";
-  const titleColor = tagsStyle.titleColor ?? "#111827";
-  const clearAllFontSize = tagsStyle.clearAllButtonFontSize ?? "xs";
-  const clearAllFontWeight = tagsStyle.clearAllButtonFontWeight ?? "medium";
-  const clearAllColor = tagsStyle.clearAllButtonColor ?? "#6B7280";
-  const clearAllHoverColor = tagsStyle.clearAllButtonHoverColor ?? "#374151";
-  const tagBg = tagsStyle.tagBackgroundColor ?? "#F9FAFB";
-  const tagBorderColor = tagsStyle.tagBorderColor ?? "#E5E7EB";
-  const tagTextColor = tagsStyle.tagTextColor ?? "#374151";
-  const tagHoverBg = tagsStyle.tagHoverBackgroundColor ?? "#F3F4F6";
-  const tagHoverBorderColor = tagsStyle.tagHoverBorderColor ?? "#D1D5DB";
-  const tagBorderRadius = tagsStyle.tagBorderRadius ?? "full";
-  const tagPaddingX = tagsStyle.tagPaddingX ?? 12;
-  const tagPaddingY = tagsStyle.tagPaddingY ?? 6;
-  const tagFontSize = tagsStyle.tagFontSize ?? "xs";
-  const tagFontWeight = tagsStyle.tagFontWeight ?? "medium";
-  const tagGap = tagsStyle.tagGap ?? 8;
-  const removeButtonSize = tagsStyle.removeButtonSize ?? 16;
-  const removeButtonColor = tagsStyle.removeButtonColor ?? "#9CA3AF";
-  const removeButtonHoverBg = tagsStyle.removeButtonHoverBackgroundColor ?? "#E5E7EB";
-  const removeButtonHoverColor = tagsStyle.removeButtonHoverColor ?? "#4B5563";
-  const removeButtonBorderRadius = tagsStyle.removeButtonBorderRadius ?? "full";
-
-  // Font size classes
+  // Font size / weight / radius / shadow class maps (used by tagsStyle below)
   const fontSizeClasses = {
     xs: "text-xs",
     sm: "text-sm",
@@ -90,6 +59,37 @@ export function ActiveFiltersTags({
     lg: "shadow-lg",
   };
 
+  // Get active filters tags styling with defaults (type for optional ui.activeFiltersTags)
+  const tagsStyle = ((ui as { activeFiltersTags?: Record<string, string | number | undefined> }).activeFiltersTags || {}) as Record<string, string | number | undefined>;
+  const containerBg: string = String(tagsStyle.containerBackgroundColor ?? "#FFFFFF");
+  const containerBorderColor: string = String(tagsStyle.containerBorderColor ?? "#E5E7EB");
+  const containerBorderRadius: keyof typeof borderRadiusClasses = (String(tagsStyle.containerBorderRadius ?? "lg")) as keyof typeof borderRadiusClasses;
+  const containerPadding: number = Number(tagsStyle.containerPadding ?? 16);
+  const containerShadow: keyof typeof shadowClasses = (String(tagsStyle.containerShadow ?? "sm")) as keyof typeof shadowClasses;
+  const titleFontSize: keyof typeof fontSizeClasses = (String(tagsStyle.titleFontSize ?? "sm")) as keyof typeof fontSizeClasses;
+  const titleFontWeight: keyof typeof fontWeightClasses = (String(tagsStyle.titleFontWeight ?? "semibold")) as keyof typeof fontWeightClasses;
+  const titleColor: string = String(tagsStyle.titleColor ?? "#111827");
+  const clearAllFontSize: keyof typeof fontSizeClasses = (String(tagsStyle.clearAllButtonFontSize ?? "xs")) as keyof typeof fontSizeClasses;
+  const clearAllFontWeight: keyof typeof fontWeightClasses = (String(tagsStyle.clearAllButtonFontWeight ?? "medium")) as keyof typeof fontWeightClasses;
+  const clearAllColor: string = String(tagsStyle.clearAllButtonColor ?? "#6B7280");
+  const clearAllHoverColor: string = String(tagsStyle.clearAllButtonHoverColor ?? "#374151");
+  const tagBg: string = String(tagsStyle.tagBackgroundColor ?? "#F9FAFB");
+  const tagBorderColor: string = String(tagsStyle.tagBorderColor ?? "#E5E7EB");
+  const tagTextColor: string = String(tagsStyle.tagTextColor ?? "#374151");
+  const tagHoverBg: string = String(tagsStyle.tagHoverBackgroundColor ?? "#F3F4F6");
+  const tagHoverBorderColor: string = String(tagsStyle.tagHoverBorderColor ?? "#D1D5DB");
+  const tagBorderRadius: keyof typeof borderRadiusClasses = (String(tagsStyle.tagBorderRadius ?? "full")) as keyof typeof borderRadiusClasses;
+  const tagPaddingX: number = Number(tagsStyle.tagPaddingX ?? 12);
+  const tagPaddingY: number = Number(tagsStyle.tagPaddingY ?? 6);
+  const tagFontSize: keyof typeof fontSizeClasses = (String(tagsStyle.tagFontSize ?? "xs")) as keyof typeof fontSizeClasses;
+  const tagFontWeight: keyof typeof fontWeightClasses = (String(tagsStyle.tagFontWeight ?? "medium")) as keyof typeof fontWeightClasses;
+  const tagGap: number = Number(tagsStyle.tagGap ?? 8);
+  const removeButtonSize: number = Number(tagsStyle.removeButtonSize ?? 16);
+  const removeButtonColor: string = String(tagsStyle.removeButtonColor ?? "#9CA3AF");
+  const removeButtonHoverBg: string = String(tagsStyle.removeButtonHoverBackgroundColor ?? "#E5E7EB");
+  const removeButtonHoverColor: string = String(tagsStyle.removeButtonHoverColor ?? "#4B5563");
+  const removeButtonBorderRadius: keyof typeof borderRadiusClasses = (String(tagsStyle.removeButtonBorderRadius ?? "full")) as keyof typeof borderRadiusClasses;
+
   // Fetch channel currency if channel is provided
   useEffect(() => {
     if (channel) {
@@ -103,17 +103,23 @@ export function ActiveFiltersTags({
     }
   }, [channel]);
 
+  type CategoryItem = { slug: string; name: string; children?: CategoryItem[] };
   const getCategoryName = (slug: string): string => {
-    function findInTree(items: typeof categories): string | null {
+    function findInTree(items: CategoryItem[] | undefined): string | null {
       if (!items?.length) return null;
       for (const c of items) {
         if (c.slug === slug) return c.name;
-        const nested = findInTree((c as { children?: typeof categories }).children);
+        const nested = findInTree(c.children);
         if (nested) return nested;
       }
       return null;
     }
-    return findInTree(categories) ?? slug.split("-").map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(" ");
+    const list: CategoryItem[] = (categories ?? []).map((c) => ({
+      slug: c.slug,
+      name: c.name,
+      children: c.children as CategoryItem[] | undefined,
+    }));
+    return findInTree(list) ?? slug.split("-").map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(" ");
   };
 
   const getCollectionName = (slug: string): string => {
@@ -280,24 +286,8 @@ function FilterTag({
 }) {
   const { branding } = useStoreConfig();
   const ui = useUiConfig();
-  const tagsStyle = ui.activeFiltersTags || {};
+  const tagsStyle = ((ui as { activeFiltersTags?: Record<string, string | number | undefined> }).activeFiltersTags || {}) as Record<string, string | number | undefined>;
   
-  const tagBg = tagsStyle.tagBackgroundColor ?? "#F9FAFB";
-  const tagBorderColor = tagsStyle.tagBorderColor ?? "#E5E7EB";
-  const tagTextColor = tagsStyle.tagTextColor ?? "#374151";
-  const tagHoverBg = tagsStyle.tagHoverBackgroundColor ?? "#F3F4F6";
-  const tagHoverBorderColor = tagsStyle.tagHoverBorderColor ?? "#D1D5DB";
-  const tagBorderRadius = tagsStyle.tagBorderRadius ?? "full";
-  const tagPaddingX = tagsStyle.tagPaddingX ?? 12;
-  const tagPaddingY = tagsStyle.tagPaddingY ?? 6;
-  const tagFontSize = tagsStyle.tagFontSize ?? "xs";
-  const tagFontWeight = tagsStyle.tagFontWeight ?? "medium";
-  const removeButtonSize = tagsStyle.removeButtonSize ?? 16;
-  const removeButtonColor = tagsStyle.removeButtonColor ?? "#9CA3AF";
-  const removeButtonHoverBg = tagsStyle.removeButtonHoverBackgroundColor ?? "#E5E7EB";
-  const removeButtonHoverColor = tagsStyle.removeButtonHoverColor ?? "#4B5563";
-  const removeButtonBorderRadius = tagsStyle.removeButtonBorderRadius ?? "full";
-
   const fontSizeClasses = {
     xs: "text-xs",
     sm: "text-sm",
@@ -316,6 +306,22 @@ function FilterTag({
     lg: "rounded-lg",
     full: "rounded-full",
   };
+
+  const tagBg: string = String(tagsStyle.tagBackgroundColor ?? "#F9FAFB");
+  const tagBorderColor: string = String(tagsStyle.tagBorderColor ?? "#E5E7EB");
+  const tagTextColor: string = String(tagsStyle.tagTextColor ?? "#374151");
+  const tagHoverBg: string = String(tagsStyle.tagHoverBackgroundColor ?? "#F3F4F6");
+  const tagHoverBorderColor: string = String(tagsStyle.tagHoverBorderColor ?? "#D1D5DB");
+  const tagBorderRadius: keyof typeof borderRadiusClasses = (String(tagsStyle.tagBorderRadius ?? "full")) as keyof typeof borderRadiusClasses;
+  const tagPaddingX: number = Number(tagsStyle.tagPaddingX ?? 12);
+  const tagPaddingY: number = Number(tagsStyle.tagPaddingY ?? 6);
+  const tagFontSize: keyof typeof fontSizeClasses = (String(tagsStyle.tagFontSize ?? "xs")) as keyof typeof fontSizeClasses;
+  const tagFontWeight: keyof typeof fontWeightClasses = (String(tagsStyle.tagFontWeight ?? "medium")) as keyof typeof fontWeightClasses;
+  const removeButtonSize: number = Number(tagsStyle.removeButtonSize ?? 16);
+  const removeButtonColor: string = String(tagsStyle.removeButtonColor ?? "#9CA3AF");
+  const removeButtonHoverBg: string = String(tagsStyle.removeButtonHoverBackgroundColor ?? "#E5E7EB");
+  const removeButtonHoverColor: string = String(tagsStyle.removeButtonHoverColor ?? "#4B5563");
+  const removeButtonBorderRadius: keyof typeof borderRadiusClasses = (String(tagsStyle.removeButtonBorderRadius ?? "full")) as keyof typeof borderRadiusClasses;
   
   return (
     <span 

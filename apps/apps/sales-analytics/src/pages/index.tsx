@@ -1,5 +1,6 @@
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
 import { Box, Text, Spinner, Button } from "@saleor/macaw-ui";
+import { GetServerSideProps } from "next";
 import { useState, useMemo, useEffect } from "react";
 
 import { trpcClient } from "@/modules/trpc/trpc-client";
@@ -21,6 +22,14 @@ import { getTimeRangeFromPreset, type TimeRange } from "@/modules/analytics/doma
 import { exportAnalyticsToExcel } from "@/modules/ui/utils/export-analytics";
 
 /**
+ * Force dynamic rendering to avoid static prerender issues with _document/Html in Next.js 15
+ * when NODE_ENV is non-standard during build.
+ */
+export const getServerSideProps: GetServerSideProps = async () => ({
+  props: {},
+});
+
+/**
  * Main Analytics Dashboard page
  * This is the APP_PAGE target for the NAVIGATION_ORDERS extension
  */
@@ -29,9 +38,7 @@ export default function IndexPage() {
   const utils = trpcClient.useUtils();
 
   // State for filters
-  const [dateRange, setDateRange] = useState<TimeRange>(() =>
-    getTimeRangeFromPreset("last30days")
-  );
+  const [dateRange, setDateRange] = useState<TimeRange>(() => getTimeRangeFromPreset("last30days"));
   const [channelSlug, setChannelSlug] = useState<string | undefined>(undefined);
 
   // Fetch channels
@@ -66,12 +73,15 @@ export default function IndexPage() {
   }, [channelSlug, channelsQuery.data]);
 
   // Common query input with currency - require channelSlug
-  const queryInput = useMemo(() => ({
-    channelSlug: effectiveChannelSlug!,
-    dateFrom: dateRange.from,
-    dateTo: dateRange.to,
-    currency, // Pass currency to all queries
-  }), [effectiveChannelSlug, dateRange.from, dateRange.to, currency]);
+  const queryInput = useMemo(
+    () => ({
+      channelSlug: effectiveChannelSlug!,
+      dateFrom: dateRange.from,
+      dateTo: dateRange.to,
+      currency, // Pass currency to all queries
+    }),
+    [effectiveChannelSlug, dateRange.from, dateRange.to, currency],
+  );
 
   // Fetch analytics data
   const kpisQuery = trpcClient.analytics.getKPIs.useQuery(queryInput, {
@@ -84,17 +94,17 @@ export default function IndexPage() {
 
   const topProductsQuery = trpcClient.analytics.getTopProducts.useQuery(
     { ...queryInput, limit: 10 },
-    { enabled: !!appBridgeState?.ready && !!effectiveChannelSlug }
+    { enabled: !!appBridgeState?.ready && !!effectiveChannelSlug },
   );
 
   const categoriesQuery = trpcClient.analytics.getTopCategories.useQuery(
     { ...queryInput, limit: 8 },
-    { enabled: !!appBridgeState?.ready && !!effectiveChannelSlug }
+    { enabled: !!appBridgeState?.ready && !!effectiveChannelSlug },
   );
 
   const recentOrdersQuery = trpcClient.analytics.getRecentOrders.useQuery(
     { ...queryInput, limit: 10 },
-    { enabled: !!appBridgeState?.ready && !!effectiveChannelSlug }
+    { enabled: !!appBridgeState?.ready && !!effectiveChannelSlug },
   );
 
   // Extract currency info from KPIs query
@@ -103,13 +113,7 @@ export default function IndexPage() {
 
   if (!appBridgeState?.ready) {
     return (
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        height="100vh"
-        gap={4}
-      >
+      <Box display="flex" alignItems="center" justifyContent="center" height="100vh" gap={4}>
         <Spinner />
         <Text>Loading Sales Analytics...</Text>
       </Box>
@@ -135,15 +139,15 @@ export default function IndexPage() {
               variant="primary"
               onClick={async () => {
                 try {
-                  const channelName = channelsQuery.data?.find(c => c.slug === channelSlug)?.name;
-                  
+                  const channelName = channelsQuery.data?.find((c) => c.slug === channelSlug)?.name;
+
                   // Fetch all orders for export using tRPC utils
                   const allOrders = await utils.analytics.getAllOrders.fetch({
                     channelSlug: effectiveChannelSlug,
                     dateFrom: dateRange.from,
                     dateTo: dateRange.to,
                   });
-                  
+
                   await exportAnalyticsToExcel({
                     kpis: kpisQuery.data?.kpis,
                     revenueOverTime: revenueQuery.data,
@@ -174,10 +178,7 @@ export default function IndexPage() {
       />
 
       {/* Quick date presets */}
-      <QuickDateSelect
-        currentPreset={dateRange.preset}
-        onChange={setDateRange}
-      />
+      <QuickDateSelect currentPreset={dateRange.preset} onChange={setDateRange} />
 
       {/* Multi-currency warning */}
       {isMultiCurrency && currencyInfo && (
@@ -187,9 +188,9 @@ export default function IndexPage() {
               ⚠️ Multiple Currencies Detected
             </Text>
             <Text className="text-sm text-yellow-700">
-              Orders contain multiple currencies ({currencyInfo.currencies.join(", ")}). 
-              Analytics are shown for <strong>{currency}</strong> only. Select a specific channel 
-              to view analytics for other currencies.
+              Orders contain multiple currencies ({currencyInfo.currencies.join(", ")}). Analytics
+              are shown for <strong>{currency}</strong> only. Select a specific channel to view
+              analytics for other currencies.
             </Text>
           </div>
         </DashboardSection>

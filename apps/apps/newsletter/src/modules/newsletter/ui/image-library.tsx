@@ -3,12 +3,15 @@ import { useState } from "react";
 
 import type { ImageUploadResult } from "../images/image.service";
 
+/** Image list item from API (uploadedAt is string after JSON serialization) */
+export type ImageLibraryItem = Omit<ImageUploadResult, "uploadedAt"> & { uploadedAt: string | Date };
+
 interface ImageLibraryProps {
-  images: ImageUploadResult[];
+  images: ImageLibraryItem[];
   isLoading: boolean;
   onUpload: (file: File) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
-  onSelect: (image: ImageUploadResult) => void;
+  onSelect: (image: ImageLibraryItem) => void;
   selectedImageId?: string;
 }
 
@@ -142,7 +145,7 @@ export const ImageLibrary = ({
             </Box>
             {image.usedInTemplates && image.usedInTemplates.length > 0 && (
               <Box marginTop={2} padding={1} backgroundColor="warning1" borderRadius={1}>
-                <Text size={1} color="warningText1">
+                <Text size={1} color="warning1">
                   Used in {image.usedInTemplates.length} template(s)
                 </Text>
               </Box>

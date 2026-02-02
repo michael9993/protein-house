@@ -1,0 +1,24 @@
+mutation CheckoutAddPromoCode($checkoutId: ID!, $promoCode: String!) {
+	checkoutAddPromoCode(checkoutId: $checkoutId, promoCode: $promoCode) {
+		errors {
+			field
+			message
+			code
+		}
+		checkout {
+			id
+			voucherCode
+			discount {
+				amount
+				currency
+			}
+			discountName
+			totalPrice {
+				gross {
+					amount
+					currency
+				}
+			}
+		}
+	}
+}

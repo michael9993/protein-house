@@ -30,7 +30,10 @@ const handler = paymentListGatewaysWebhookDefinition.createHandler(
     try {
       // Only set observability source if checkout ID exists
       if (ctx.payload.checkout?.id) {
-        setObservabilitySourceObjectId(ctx.payload.checkout.id);
+        setObservabilitySourceObjectId({
+          __typename: "Checkout",
+          id: ctx.payload.checkout.id,
+        });
       }
 
       logger.info("Received webhook request");

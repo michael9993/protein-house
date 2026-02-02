@@ -29,7 +29,12 @@ export const EventForm = ({ configuration, eventType }: EventFormProps) => {
 
   const eventConfiguration = configuration?.events.find(
     (eventConfiguration) => eventConfiguration.eventType === eventType,
-  )!; // Event conf is not optional, so we can use ! here
+  );
+
+  if (!eventConfiguration) {
+
+    throw new Error("Event configuration not found");
+  }
 
   const { handleSubmit, control, getValues, setError } = useForm<SmtpUpdateEvent>({
     defaultValues: {

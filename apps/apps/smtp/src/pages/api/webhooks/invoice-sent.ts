@@ -65,7 +65,7 @@ const logger = createLogger(invoiceSentWebhook.name);
 const useCaseFactory = new SendEventMessagesUseCaseFactory();
 
 const handler: NextJsWebhookHandler<InvoiceSentWebhookPayloadFragment> = async (
-  req,
+  _req,
   res,
   context,
 ) => {
@@ -129,11 +129,9 @@ const handler: NextJsWebhookHandler<InvoiceSentWebhookPayloadFragment> = async (
         });
       }
     } catch (error) {
-      logger.error("Error downloading invoice PDF", { 
-        error,
-        invoiceUrl: invoice.url,
-        message: error instanceof Error ? error.message : "Unknown error"
-      });
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+
+      logger.error("Error downloading invoice PDF", { message: errorMessage });
       // Continue without attachment rather than failing the whole email
     }
   } else {
@@ -157,7 +155,7 @@ const handler: NextJsWebhookHandler<InvoiceSentWebhookPayloadFragment> = async (
       })
       .then((result) =>
         result.match(
-          (r) => {
+          (_r) => {
             logger.info("Successfully sent email(s)");
 
             return res.status(200).json({ message: "The event has been handled" });

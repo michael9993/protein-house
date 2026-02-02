@@ -90,7 +90,7 @@ const attachAppToken = middleware(async ({ ctx, next }) => {
           authData = {
             ...tunnelAuth,
             saleorApiUrl: normalizedUrl,
-          } as typeof authData;
+          } as unknown as NonNullable<typeof authData>;
           // Store it with the normalized URL for future lookups
           if (authData) {
             await saleorApp.apl.set(authData);

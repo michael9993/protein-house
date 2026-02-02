@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useBranding, useStoreInfo, useStoreConfig, usePageEnabled } from "@/providers/StoreConfigProvider";
+import { DEFAULT_CONTENT_CONFIG } from "@/providers/StoreConfigProvider";
 
 // Persist across remounts (e.g. React Strict Mode) so we only ever send one confirm request per link
 const CONFIRM_DEBOUNCE_MS = 8000;
@@ -22,7 +23,7 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 	const branding = useBranding();
 	const store = useStoreInfo();
 	const config = useStoreConfig();
-	const content = config?.content?.account ?? {};
+	const content = { ...DEFAULT_CONTENT_CONFIG.account, ...config?.content?.account };
 	const confirmEmailPageEnabled = usePageEnabled("confirmEmail");
 	
 	// Focus ring color with transparency

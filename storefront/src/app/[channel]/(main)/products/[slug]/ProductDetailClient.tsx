@@ -11,6 +11,7 @@ import { ReviewList, ReviewForm, RatingStars } from "@/ui/components/ProductRevi
 import { StockAlertButton } from "@/ui/components/StockAlert";
 import { ShareButton } from "@/ui/components/ProductSharing";
 import { useBranding, useFeature, useProductDetailText, useContentConfig } from "@/providers/StoreConfigProvider";
+import { useOpenCart } from "@/ui/components/CartDrawer/CartDrawerShell";
 
 interface ProductImage {
   url: string;
@@ -71,6 +72,7 @@ export function ProductDetailClient({
   addItemAction,
 }: ProductDetailClientProps) {
   const branding = useBranding();
+  const openCart = useOpenCart();
   const wishlistEnabled = useFeature("wishlist");
   const reviewsEnabled = useFeature("productReviews");
   const productDetailText = useProductDetailText();
@@ -544,35 +546,30 @@ export function ProductDetailClient({
     const formData = new FormData();
     formData.append("variantId", effectiveVariantId);
     formData.append("quantity", quantity.toString());
+    formData.append("channel", channel);
 
-    console.log("[Add to Cart] ✅ Sending request:", {
-      variantId: effectiveVariantId,
-      quantity,
-    });
+    // Optimistic UI: show "Added" and bump cart badge immediately
+    setAddedToCart(true);
+    window.dispatchEvent(
+      new CustomEvent("cart-updated", { detail: { addQuantity: quantity } })
+    );
 
     startTransition(async () => {
       const result = await addItemAction(formData);
-      console.log("[Add to Cart] Result:", result);
       if (result.success) {
-        setAddedToCart(true);
         setTimeout(() => setAddedToCart(false), 3000);
         toast.success("Item added to cart!");
-        
-        // Refresh the page to update stock quantity in real-time
-        // This ensures the quantity selector and stock display reflect the updated inventory
-        console.log("[Add to Cart] Refreshing page to update stock...");
+        // Reconcile cart badge with server (in case of race)
+        window.dispatchEvent(new CustomEvent("cart-updated"));
         router.refresh();
       } else {
-        // Show error message to user
+        setAddedToCart(false);
+        // Revert optimistic cart badge
+        window.dispatchEvent(new CustomEvent("cart-updated"));
         if (result.error) {
           toast.error(result.error);
-          
-          // If it's a stock error, refresh the page to get updated stock data
           if (result.error.includes("stock") || result.error.includes("available")) {
-            console.log("[Add to Cart] Stock error detected, refreshing page in 2 seconds...");
-            setTimeout(() => {
-              router.refresh();
-            }, 2000);
+            setTimeout(() => router.refresh(), 2000);
           }
         } else {
           toast.error("Failed to add item to cart. Please try again.");
@@ -1175,16 +1172,17 @@ export function ProductDetailClient({
                 />
               </div>
 
-              {/* View Cart Link */}
+              {/* View Cart – opens drawer or navigates to cart page per display mode */}
               {addedToCart && (
                 <div className="mt-4">
-                  <LinkWithChannel
-                    href="/cart"
+                  <button
+                    type="button"
+                    onClick={openCart}
                     className="inline-flex items-center gap-2 text-sm font-medium transition-colors hover:opacity-80"
                     style={{ color: branding.colors.primary }}
                   >
                     {content.product.viewCartLink}
-                  </LinkWithChannel>
+                  </button>
                 </div>
               )}
             </div>

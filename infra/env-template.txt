@@ -96,6 +96,9 @@ APPS_MARKETPLACE_API_URL=
 EXTENSIONS_API_URL=
 APP_MOUNT_URI=/dashboard/
 STATIC_URL=/dashboard/
+# Disable React StrictMode in dashboard build (helps RichTextEditor/Combobox in Docker).
+# Set to "true" in infra/.env so the dashboard build bakes it in; then restart saleor-dashboard.
+# VITE_DISABLE_STRICT_MODE=true
 
 # ============================================================================
 # STOREFRONT CONFIGURATION
@@ -112,6 +115,11 @@ SALEOR_APP_TOKEN=
 # Use production mode for speed testing and production-like behavior
 # Switch back to 'dev' for development with hot-reload
 STOREFRONT_MODE=dev
+
+# Apps build mode: 'dev' (default, hot-reload) or 'production' (build then start)
+# Applies to: SMTP, Invoice, Stripe, Storefront Control, Newsletter, Sales Analytics
+# Set APPS_MODE=production to run production builds inside containers
+APPS_MODE=dev
 
 # GraphQL request timeout and retry configuration
 # Timeout in milliseconds (default: 30000 = 30 seconds)

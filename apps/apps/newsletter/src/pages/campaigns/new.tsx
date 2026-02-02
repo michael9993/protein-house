@@ -147,8 +147,8 @@ const CreateCampaignPage: NextPage = () => {
               <Button variant="secondary" onClick={() => router.push("/campaigns")}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={createMutation.isPending}>
-                {createMutation.isPending ? "Creating..." : "Create Campaign"}
+              <Button type="submit" disabled={createMutation.isLoading}>
+                {createMutation.isLoading ? "Creating..." : "Create Campaign"}
               </Button>
             </Box>
           </Box>

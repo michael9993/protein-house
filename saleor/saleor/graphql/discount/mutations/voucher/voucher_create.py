@@ -1,4 +1,5 @@
 import graphene
+from types import SimpleNamespace
 from django.core.exceptions import ValidationError
 from django.db import transaction
 
@@ -280,7 +281,17 @@ class VoucherCreate(DeprecatedModelMutation):
         data = data.get("input")
         cleaned_input = cls.clean_input(info, voucher_instance, data)
 
-        metadata_list: list[MetadataInput] = cleaned_input.pop("metadata", None)
+        metadata_list: list[MetadataInput] = cleaned_input.pop("metadata", None) or []
+        # Ensure default metadata auto=false when creating a voucher
+        def get_key(m):
+            if hasattr(m, "key"):
+                return getattr(m, "key")
+            if isinstance(m, dict):
+                return m.get("key")
+            return None
+
+        if not any(get_key(m) == "auto" for m in metadata_list):
+            metadata_list = list(metadata_list) + [SimpleNamespace(key="auto", value="false")]
         private_metadata_list: list[MetadataInput] = cleaned_input.pop(
             "private_metadata", None
         )

@@ -24,13 +24,20 @@ const PromoPopupPage: NextPage = () => {
 
   const { data: config, isLoading } = trpcClient.config.getConfig.useQuery(
     { channelSlug },
-    { enabled: !!channelSlug && !!appBridgeState?.ready }
+    { enabled: !!channelSlug && !!appBridgeState?.ready },
   );
 
   const utils = trpcClient.useUtils();
   const updateMutation = trpcClient.config.updateSection.useMutation();
 
-  const { control, register, handleSubmit, reset, watch, formState: { isDirty } } = useForm<PromoPopupFormData>({
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { isDirty },
+  } = useForm<PromoPopupFormData>({
     resolver: zodResolver(PromoPopupSchema),
   });
 
@@ -57,7 +64,13 @@ const PromoPopupPage: NextPage = () => {
   };
 
   if (!appBridgeState?.ready || isLoading) {
-    return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}><span>Loading...</span></div>;
+    return (
+      <div
+        style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}
+      >
+        <span>Loading...</span>
+      </div>
+    );
   }
 
   return (
@@ -71,12 +84,11 @@ const PromoPopupPage: NextPage = () => {
           keywords={["popup", "promotion", "cta", "banner"]}
           icon="🎁"
         >
-
-          <Box 
-            display="flex" 
-            alignItems="flex-start" 
-            gap={3} 
-            marginBottom={4} 
+          <Box
+            display="flex"
+            alignItems="flex-start"
+            gap={3}
+            marginBottom={4}
             padding={4}
             borderRadius={4}
             backgroundColor="default1"
@@ -84,33 +96,36 @@ const PromoPopupPage: NextPage = () => {
             borderStyle="solid"
             borderColor="default2"
             __transition="all 0.2s ease"
-            __hover={{
-              borderColor: "accent1",
-              backgroundColor: "default2",
-            }}
           >
             <Controller
               name="enabled"
               control={control}
               render={({ field }) => (
-                <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked)} />
+                <Checkbox
+                  checked={field.value === true}
+                  onCheckedChange={(checked) => field.onChange(checked)}
+                />
               )}
             />
             <Box style={{ flex: 1 }}>
-              <Text variant="bodyStrong" fontWeight="bold" marginBottom={0.5} style={{ fontSize: "14px" }}>Enable Promotional Popup</Text>
-              <Text variant="caption" color="default2" style={{ fontSize: "12px", lineHeight: 1.5 }}>Show promotional popups to visitors</Text>
+              <Text fontWeight="bold" marginBottom={0.5} style={{ fontSize: "14px" }}>
+                Enable Promotional Popup
+              </Text>
+              <Text color="default2" style={{ fontSize: "12px", lineHeight: 1.5 }}>
+                Show promotional popups to visitors
+              </Text>
             </Box>
           </Box>
 
           {popupEnabled && (
             <>
               {/* Auto-detect toggle */}
-              <Box 
-                display="flex" 
-                alignItems="center" 
-                gap={3} 
-                padding={4} 
-                backgroundColor="accent1Pressed" 
+              <Box
+                display="flex"
+                alignItems="center"
+                gap={3}
+                padding={4}
+                backgroundColor="accent1Pressed"
                 borderRadius={4}
                 marginBottom={4}
               >
@@ -118,13 +133,17 @@ const PromoPopupPage: NextPage = () => {
                   name="autoDetectSales"
                   control={control}
                   render={({ field }) => (
-                    <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked)} />
+                    <Checkbox
+                      checked={field.value === true}
+                      onCheckedChange={(checked) => field.onChange(checked)}
+                    />
                   )}
                 />
                 <Box>
-                  <Text variant="bodyStrong">🔮 Auto-detect from Sale Collection</Text>
-                  <Text variant="caption" color="default2">
-                    Automatically show popup when products are in the "sale" collection. Uses collection data for content.
+                  <Text>🔮 Auto-detect from Sale Collection</Text>
+                  <Text color="default2">
+                    Automatically show popup when products are in the "sale" collection. Uses
+                    collection data for content.
                   </Text>
                 </Box>
               </Box>
@@ -140,42 +159,41 @@ const PromoPopupPage: NextPage = () => {
             description="Customize the text and messaging of your promotional popup"
             keywords={["title", "body", "badge", "cta"]}
           >
-
             <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
-              <FormField 
-                label="Title" 
-                name="title" 
-                register={register} 
+              <FormField
+                label="Title"
+                name="title"
+                register={register}
                 placeholder="Special Offer"
                 description="Main headline"
               />
-              <FormField 
-                label="Badge Text" 
-                name="badge" 
-                register={register} 
+              <FormField
+                label="Badge Text"
+                name="badge"
+                register={register}
                 placeholder="Up to 25% Off"
                 description="Small badge above title"
               />
             </Box>
-            <FormField 
-              label="Body Text" 
-              name="body" 
-              register={register} 
+            <FormField
+              label="Body Text"
+              name="body"
+              register={register}
               type="textarea"
               placeholder="Don't miss out on our biggest sale of the season!"
               description="Main description text"
             />
             <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
-              <FormField 
-                label="CTA Button Text" 
-                name="ctaText" 
-                register={register} 
+              <FormField
+                label="CTA Button Text"
+                name="ctaText"
+                register={register}
                 placeholder="Shop Sale Items"
               />
-              <FormField 
-                label="CTA Button Link" 
-                name="ctaLink" 
-                register={register} 
+              <FormField
+                label="CTA Button Link"
+                name="ctaLink"
+                register={register}
                 placeholder="/products?onSale=true"
               />
             </Box>
@@ -192,18 +210,18 @@ const PromoPopupPage: NextPage = () => {
             icon="📝"
           >
             {autoDetectSales && (
-              <FormField 
-                label="Items on Sale Text" 
-                name="itemsOnSaleText" 
-                register={register} 
+              <FormField
+                label="Items on Sale Text"
+                name="itemsOnSaleText"
+                register={register}
                 placeholder="{count} {count, plural, =1 {item} other {items}} on sale"
                 description="Text shown when auto-detect finds sale items. Use {count} for number and {count, plural, =1 {singular} other {plural}} for pluralization"
               />
             )}
-            <FormField 
-              label="Maybe Later Text" 
-              name="maybeLaterText" 
-              register={register} 
+            <FormField
+              label="Maybe Later Text"
+              name="maybeLaterText"
+              register={register}
               placeholder="Maybe later"
               description="Text for the dismiss button"
             />
@@ -218,19 +236,18 @@ const PromoPopupPage: NextPage = () => {
             description="Add images to make your popup more engaging"
             keywords={["image", "background"]}
           >
-
-            <FormField 
-              label="Background Image URL" 
-              name="backgroundImageUrl" 
-              register={register} 
+            <FormField
+              label="Background Image URL"
+              name="backgroundImageUrl"
+              register={register}
               type="url"
               placeholder="https://example.com/promo-bg.jpg"
               description="Background image for the popup header (recommended: 800x400px)"
             />
-            <FormField 
-              label="Featured Image URL" 
-              name="imageUrl" 
-              register={register} 
+            <FormField
+              label="Featured Image URL"
+              name="imageUrl"
+              register={register}
               type="url"
               placeholder="https://example.com/promo-image.jpg"
               description="Optional product or promotional image"
@@ -247,20 +264,19 @@ const PromoPopupPage: NextPage = () => {
             keywords={["delay", "session", "exclude", "auto"]}
             icon="⚙️"
           >
-
             <Box display="grid" __gridTemplateColumns="1fr 1fr 1fr" gap={4}>
-              <FormField 
-                label="Delay (seconds)" 
-                name="delaySeconds" 
-                register={register} 
+              <FormField
+                label="Delay (seconds)"
+                name="delaySeconds"
+                register={register}
                 type="number"
                 placeholder="2"
                 description="Wait before showing"
               />
-              <FormField 
-                label="Show Again After (hours)" 
-                name="ttlHours" 
-                register={register} 
+              <FormField
+                label="Show Again After (hours)"
+                name="ttlHours"
+                register={register}
                 type="number"
                 placeholder="24"
                 description="Time until popup shows again"
@@ -268,11 +284,11 @@ const PromoPopupPage: NextPage = () => {
             </Box>
 
             <Box marginTop={4}>
-              <Text variant="bodyStrong" marginBottom={3}>Display Options</Text>
+              <Text marginBottom={3}>Display Options</Text>
               <Box display="flex" flexDirection="column" gap={3}>
-                <Box 
-                  display="flex" 
-                  alignItems="flex-start" 
+                <Box
+                  display="flex"
+                  alignItems="flex-start"
                   gap={3}
                   padding={3}
                   borderRadius={4}
@@ -285,26 +301,33 @@ const PromoPopupPage: NextPage = () => {
                     name="showOncePerSession"
                     control={control}
                     render={({ field }) => (
-                      <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked)} />
+                      <Checkbox
+                        checked={field.value === true}
+                        onCheckedChange={(checked) => field.onChange(checked)}
+                      />
                     )}
                   />
                   <Box style={{ flex: 1 }}>
-                    <Text variant="body" fontWeight="medium" marginBottom={0.5} style={{ fontSize: "14px" }}>Show once per session</Text>
-                    <Text variant="caption" color="default2" style={{ fontSize: "12px" }}>Only show popup once per browser session</Text>
+                    <Text fontWeight="medium" marginBottom={0.5} style={{ fontSize: "14px" }}>
+                      Show once per session
+                    </Text>
+                    <Text color="default2" style={{ fontSize: "12px" }}>
+                      Only show popup once per browser session
+                    </Text>
                   </Box>
                 </Box>
               </Box>
             </Box>
 
             <Box marginTop={4}>
-              <Text variant="bodyStrong" marginBottom={3}>Page Exclusions</Text>
-              <Text variant="caption" color="default2" marginBottom={3}>
+              <Text marginBottom={3}>Page Exclusions</Text>
+              <Text color="default2" marginBottom={3}>
                 Don't show popup on these pages
               </Text>
               <Box display="flex" gap={3}>
-                <Box 
-                  display="flex" 
-                  alignItems="flex-start" 
+                <Box
+                  display="flex"
+                  alignItems="flex-start"
                   gap={2}
                   padding={3}
                   borderRadius={4}
@@ -318,14 +341,19 @@ const PromoPopupPage: NextPage = () => {
                     name="excludeCheckout"
                     control={control}
                     render={({ field }) => (
-                      <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked)} />
+                      <Checkbox
+                        checked={field.value === true}
+                        onCheckedChange={(checked) => field.onChange(checked)}
+                      />
                     )}
                   />
-                  <Text fontWeight="medium" style={{ fontSize: "13px" }}>Checkout pages</Text>
+                  <Text fontWeight="medium" style={{ fontSize: "13px" }}>
+                    Checkout pages
+                  </Text>
                 </Box>
-                <Box 
-                  display="flex" 
-                  alignItems="flex-start" 
+                <Box
+                  display="flex"
+                  alignItems="flex-start"
                   gap={2}
                   padding={3}
                   borderRadius={4}
@@ -339,10 +367,15 @@ const PromoPopupPage: NextPage = () => {
                     name="excludeCart"
                     control={control}
                     render={({ field }) => (
-                      <Checkbox checked={field.value === true} onCheckedChange={(checked) => field.onChange(checked)} />
+                      <Checkbox
+                        checked={field.value === true}
+                        onCheckedChange={(checked) => field.onChange(checked)}
+                      />
                     )}
                   />
-                  <Text fontWeight="medium" style={{ fontSize: "13px" }}>Cart page</Text>
+                  <Text fontWeight="medium" style={{ fontSize: "13px" }}>
+                    Cart page
+                  </Text>
                 </Box>
               </Box>
             </Box>
@@ -351,38 +384,32 @@ const PromoPopupPage: NextPage = () => {
 
         {/* Preview Card */}
         {popupEnabled && !autoDetectSales && (
-          <SectionCard 
+          <SectionCard
             id="promo-preview"
-            title="Preview" 
+            title="Preview"
             description="Visual preview of your popup configuration"
             icon="👁️"
           >
-
-            <Box 
-              padding={6}
-              borderRadius={4}
-              backgroundColor="default1"
-              __textAlign="center"
-            >
+            <Box padding={6} borderRadius={4} backgroundColor="default1" __textAlign="center">
               <Box
                 padding={4}
                 borderRadius={4}
-                backgroundColor="surfaceNeutralHighlight"
+                backgroundColor="default2"
                 boxShadow="defaultFocused"
                 __maxWidth="350px"
                 __margin="0 auto"
               >
-                <Text variant="caption" color="accent1" marginBottom={1} display="block">
+                <Text color="accent1" marginBottom={1} display="block">
                   {watch("badge") || "Up to 25% Off"}
                 </Text>
-                <Text as="h3" variant="heading" marginBottom={2}>
+                <Text as="h3" marginBottom={2}>
                   {watch("title") || "Special Offer"}
                 </Text>
-                <Text variant="body" color="default2" marginBottom={4}>
+                <Text color="default2" marginBottom={4}>
                   {(watch("body") || "Don't miss out on our biggest sale!").substring(0, 100)}...
                 </Text>
-                <Box 
-                  as="span" 
+                <Box
+                  as="span"
                   padding={2}
                   paddingX={4}
                   backgroundColor="accent1"
@@ -408,5 +435,9 @@ const PromoPopupPage: NextPage = () => {
     </AppLayout>
   );
 };
+
+export async function getServerSideProps() {
+  return { props: {} };
+}
 
 export default PromoPopupPage;

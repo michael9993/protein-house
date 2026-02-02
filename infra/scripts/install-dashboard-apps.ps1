@@ -460,13 +460,14 @@ query App($id: ID!) {
     }
 }
 
-# Function to install app
+# Function to install app (permissions from manifest must be passed so they carry over to the installed app)
 function Install-App {
     param(
         [string]$GraphQLUrl,
         [string]$Token,
         [string]$ManifestUrl,
-        [string]$AppName
+        [string]$AppName,
+        [string[]]$Permissions = @()
     )
     
     $mutation = @'
@@ -486,13 +487,17 @@ mutation AppInstall($input: AppInstallInput!) {
 }
 '@
     
-    $variables = @{
-        input = @{
-            appName = $AppName
-            manifestUrl = $ManifestUrl
-            activateAfterInstallation = $true
-        }
+    $input = @{
+        appName = $AppName
+        manifestUrl = $ManifestUrl
+        activateAfterInstallation = $true
     }
+    # Saleor uses AppInstallation.permissions when installing; if we omit permissions here,
+    # the backend overwrites manifest permissions with (empty) and the app gets no permissions.
+    if ($Permissions -and $Permissions.Count -gt 0) {
+        $input["permissions"] = @($Permissions)
+    }
+    $variables = @{ input = $input }
     
     $response = Invoke-GraphQL -GraphQLUrl $GraphQLUrl -Token $Token -Query $mutation -Variables $variables
     
@@ -705,13 +710,19 @@ try {
             continue
         }
         
-        # Install new app
-        Write-Host "  Installing $actualAppName..." -ForegroundColor Cyan
+        # Install new app (pass permissions from manifest so they carry over - Saleor uses input permissions, not manifest, when installing)
+        $permissionsToInstall = @()
+        if ($manifest -and $manifest.permissions -and $manifest.permissions.Count -gt 0) {
+            $permissionsToInstall = @($manifest.permissions)
+            Write-Host "  Installing $actualAppName with permissions: $($permissionsToInstall -join ', ')" -ForegroundColor Cyan
+        }
+        else {
+            Write-Host "  Installing $actualAppName (no permissions in manifest)" -ForegroundColor Cyan
+        }
         Write-Host "  Using manifest URL: $manifestUrl" -ForegroundColor Gray
-        Write-Host "  (Saleor will read permissions from the manifest automatically)" -ForegroundColor Gray
         
         try {
-            $installation = Install-App -GraphQLUrl $graphQLUrl -Token $token -ManifestUrl $manifestUrl -AppName $actualAppName
+            $installation = Install-App -GraphQLUrl $graphQLUrl -Token $token -ManifestUrl $manifestUrl -AppName $actualAppName -Permissions $permissionsToInstall
             Write-Host "  ✓ Installation initiated: $($installation.appName)" -ForegroundColor Green
             Write-Host "    Status: $($installation.status)" -ForegroundColor Gray
             Write-Host "    ID: $($installation.id)" -ForegroundColor Gray

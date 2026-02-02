@@ -49,7 +49,7 @@ const logger = createLogger(orderFulfilledWebhook.webhookPath);
 const useCaseFactory = new SendEventMessagesUseCaseFactory();
 
 const handler: NextJsWebhookHandler<OrderFulfilledWebhookPayloadFragment> = async (
-  req,
+  _req,
   res,
   context,
 ) => {
@@ -91,7 +91,7 @@ const handler: NextJsWebhookHandler<OrderFulfilledWebhookPayloadFragment> = asyn
       })
       .then((result) =>
         result.match(
-          (r) => {
+          (_r) => {
             logger.info("Successfully sent email(s)");
 
             return res.status(200).json({ message: "The event has been handled" });

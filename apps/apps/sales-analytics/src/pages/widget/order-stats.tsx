@@ -1,16 +1,24 @@
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
 import { Box, Text, Spinner } from "@saleor/macaw-ui";
-import { Card, Metric, Flex, Badge } from "@tremor/react";
+import { Card, Flex, Badge } from "@tremor/react";
+import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
-import { format, parseISO } from "date-fns";
 
 import { formatCurrency } from "@/modules/analytics/domain/money";
+
+/**
+ * Force dynamic rendering to avoid Next.js 15 prerender bug where _document/Html
+ * chunk is loaded in page context during static generation.
+ */
+export const getServerSideProps: GetServerSideProps = async () => ({
+  props: {},
+});
 
 /**
  * Order Stats Widget
  * This is the WIDGET target for the ORDER_DETAILS_WIDGETS extension
  * It receives orderId from the URL query parameters
- * 
+ *
  * Note: In a real implementation, this would fetch order-specific analytics
  * from the tRPC API. For now, it shows the order ID and a placeholder.
  */
@@ -21,12 +29,7 @@ export default function OrderStatsWidget() {
 
   if (!appBridgeState?.ready) {
     return (
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        padding={4}
-      >
+      <Box display="flex" alignItems="center" justifyContent="center" padding={4}>
         <Spinner />
       </Box>
     );
@@ -48,7 +51,7 @@ export default function OrderStatsWidget() {
   return (
     <div className="p-3 space-y-3">
       <Flex justifyContent="between" alignItems="center">
-        <Text variant="bodyStrong" as="h3">
+        <Text as="h3" className="font-semibold">
           Order Analytics
         </Text>
         <Badge color="blue" size="xs">

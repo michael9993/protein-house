@@ -73,11 +73,11 @@ const SeoPage: NextPage = () => {
           
           {/* Preview */}
           <Box backgroundColor="default1" padding={4} borderRadius={4} marginTop={2} marginBottom={4}>
-            <Text variant="caption" color="default2" marginBottom={2}>Preview:</Text>
-            <Text variant="body" style={{ color: "#1a0dab" }}>
+            <Text color="default2" marginBottom={2}>Preview:</Text>
+            <Text style={{ color: "#1a0dab" }}>
               {titleTemplate?.replace("%s", "Running Shoes") || "Running Shoes | Your Store Name"}
             </Text>
-            <Text variant="caption" color="success1" style={{ display: "block", marginTop: "4px" }}>
+            <Text color="success1" style={{ display: "block", marginTop: "4px" }}>
               www.yourstore.com/products/running-shoes
             </Text>
           </Box>
@@ -139,7 +139,7 @@ const SeoPage: NextPage = () => {
 
           {/* OG Preview */}
           <Box marginTop={4}>
-            <Text variant="caption" color="default2" marginBottom={2}>Social Share Preview:</Text>
+            <Text color="default2" marginBottom={2}>Social Share Preview:</Text>
             <Box 
               backgroundColor="default1" 
               borderRadius={4} 
@@ -156,12 +156,12 @@ const SeoPage: NextPage = () => {
                 alignItems="center" 
                 justifyContent="center"
               >
-                <Text color="default2" variant="caption">OG Image Preview</Text>
+                <Text color="default2">OG Image Preview</Text>
               </Box>
               <Box padding={3}>
-                <Text variant="caption" color="default2">yourstore.com</Text>
-                <Text variant="bodyStrong" marginTop={1}>{defaultTitle || "Your Store Name - Online Shopping"}</Text>
-                <Text variant="caption" color="default2" marginTop={1}>
+                <Text color="default2">yourstore.com</Text>
+                <Text marginTop={1}>{defaultTitle || "Your Store Name - Online Shopping"}</Text>
+                <Text color="default2" marginTop={1}>
                   {config?.seo?.defaultDescription?.slice(0, 100) || "Shop the best products..."}
                 </Text>
               </Box>
@@ -181,5 +181,9 @@ const SeoPage: NextPage = () => {
     </AppLayout>
   );
 };
+
+export async function getServerSideProps() {
+  return { props: {} };
+}
 
 export default SeoPage;

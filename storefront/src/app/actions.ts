@@ -266,7 +266,7 @@ export async function getAllProductReviews(
       const batch = products.slice(i, i + batchSize);
       
       // Fetch reviews for each product in the batch using public query (like getProductReviews does)
-      const reviewPromises = batch.map(async (product) => {
+      const reviewPromises = batch.map(async (product: { id: string; name: string; slug?: string }) => {
         try {
           // Use the same approach as getProductReviews - public query with executeGraphQL
           const reviewResult = await getProductReviews(product.id, {
@@ -314,7 +314,7 @@ export async function getAllProductReviews(
               product: {
                 id: product.id,
                 name: product.name,
-                slug: product.slug,
+                slug: product.slug ?? "",
               },
             } as ReviewWithProduct));
 

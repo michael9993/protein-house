@@ -99,6 +99,18 @@ const navGroups: NavGroup[] = [
         description: "Buttons, cards, and inputs",
         href: (channelSlug) => `/${channelSlug}/ui-components`,
       },
+      {
+        id: "storefront",
+        label: "Storefront",
+        description: "Cart display and UX settings",
+        href: (channelSlug) => `/${channelSlug}/storefront`,
+      },
+      {
+        id: "shipping",
+        label: "Shipping",
+        description: "Free shipping threshold for cart indication",
+        href: (channelSlug) => `/${channelSlug}/shipping`,
+      },
     ],
   },
   {
@@ -173,20 +185,29 @@ function AppLayoutContent({
   return (
     <div style={{ padding: "24px" }}>
       <div style={{ marginBottom: "24px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: "24px",
+          }}
+        >
           <div style={{ flex: 1 }}>
             <Link href="/" passHref legacyBehavior>
-              <a style={{ 
-                display: "inline-block",
-                padding: "8px 16px",
-                border: "1px solid #ddd",
-                backgroundColor: "#fff",
-                color: "#000",
-                textDecoration: "none",
-                fontSize: "14px",
-                cursor: "pointer",
-                marginBottom: "16px"
-              }}>
+              <a
+                style={{
+                  display: "inline-block",
+                  padding: "8px 16px",
+                  border: "1px solid #ddd",
+                  backgroundColor: "#fff",
+                  color: "#000",
+                  textDecoration: "none",
+                  fontSize: "14px",
+                  cursor: "pointer",
+                  marginBottom: "16px",
+                }}
+              >
                 ← Channels
               </a>
             </Link>
@@ -207,20 +228,29 @@ function AppLayoutContent({
                 width: "100%",
                 padding: "8px 12px",
                 border: "1px solid #ddd",
-                fontSize: "14px"
+                fontSize: "14px",
               }}
             />
           </div>
         </div>
 
         {globalResults.length > 0 && (
-          <div style={{ 
-            padding: "12px", 
-            marginBottom: "24px", 
-            border: "1px solid #ddd",
-            backgroundColor: "#fff"
-          }}>
-            <p style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "8px", margin: "0 0 8px 0" }}>
+          <div
+            style={{
+              padding: "12px",
+              marginBottom: "24px",
+              border: "1px solid #ddd",
+              backgroundColor: "#fff",
+            }}
+          >
+            <p
+              style={{
+                fontSize: "14px",
+                fontWeight: "bold",
+                marginBottom: "8px",
+                margin: "0 0 8px 0",
+              }}
+            >
               Search results
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
@@ -231,17 +261,19 @@ function AppLayoutContent({
                   passHref
                   legacyBehavior
                 >
-                  <a style={{
-                    display: "inline-block",
-                    padding: "6px 12px",
-                    border: "1px solid #ddd",
-                    backgroundColor: "#fff",
-                    color: "#000",
-                    textDecoration: "none",
-                    fontSize: "13px",
-                    cursor: "pointer",
-                    width: "fit-content"
-                  }}>
+                  <a
+                    style={{
+                      display: "inline-block",
+                      padding: "6px 12px",
+                      border: "1px solid #ddd",
+                      backgroundColor: "#fff",
+                      color: "#000",
+                      textDecoration: "none",
+                      fontSize: "13px",
+                      cursor: "pointer",
+                      width: "fit-content",
+                    }}
+                  >
                     {entry.title} · {entry.category}
                   </a>
                 </Link>
@@ -256,31 +288,40 @@ function AppLayoutContent({
         )}
       </div>
 
-      <div style={{ 
-        display: "grid", 
-        gridTemplateColumns: "200px 1fr", 
-        gap: "24px", 
-        alignItems: "start" 
-      }}>
-        <div style={{ 
-          padding: "12px",
-          border: "1px solid #ddd",
-          backgroundColor: "#fff",
-          position: "sticky",
-          top: "16px",
-          maxHeight: "calc(100vh - 32px)",
-          overflowY: "auto"
-        }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "200px 1fr",
+          gap: "24px",
+          alignItems: "start",
+        }}
+      >
+        <div
+          style={{
+            padding: "12px",
+            border: "1px solid #ddd",
+            backgroundColor: "#fff",
+            position: "sticky",
+            top: "16px",
+            maxHeight: "calc(100vh - 32px)",
+            overflowY: "auto",
+          }}
+        >
           {navGroups.map((group, groupIndex) => (
-            <div key={group.title} style={{ marginBottom: groupIndex < navGroups.length - 1 ? "20px" : 0 }}>
-              <p style={{ 
-                fontSize: "11px", 
-                fontWeight: "bold", 
-                color: "#666", 
-                marginBottom: "8px", 
-                textTransform: "uppercase",
-                margin: "0 0 8px 0"
-              }}>
+            <div
+              key={group.title}
+              style={{ marginBottom: groupIndex < navGroups.length - 1 ? "20px" : 0 }}
+            >
+              <p
+                style={{
+                  fontSize: "11px",
+                  fontWeight: "bold",
+                  color: "#666",
+                  marginBottom: "8px",
+                  textTransform: "uppercase",
+                  margin: "0 0 8px 0",
+                }}
+              >
                 {group.title}
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
@@ -288,18 +329,20 @@ function AppLayoutContent({
                   const isActive = activeTab === item.id;
                   return (
                     <Link key={item.id} href={item.href(channelSlug)} passHref legacyBehavior>
-                      <a style={{ 
-                        display: "block",
-                        padding: "8px",
-                        textDecoration: "none",
-                        cursor: "pointer",
-                        backgroundColor: isActive ? "#000" : "transparent",
-                        color: isActive ? "#fff" : "#000",
-                        border: "1px solid #ddd",
-                        marginBottom: "4px",
-                        fontSize: "13px",
-                        fontWeight: isActive ? "bold" : "normal"
-                      }}>
+                      <a
+                        style={{
+                          display: "block",
+                          padding: "8px",
+                          textDecoration: "none",
+                          cursor: "pointer",
+                          backgroundColor: isActive ? "#000" : "transparent",
+                          color: isActive ? "#fff" : "#000",
+                          border: "1px solid #ddd",
+                          marginBottom: "4px",
+                          fontSize: "13px",
+                          fontWeight: isActive ? "bold" : "normal",
+                        }}
+                      >
                         {item.label}
                       </a>
                     </Link>
@@ -322,7 +365,7 @@ function AppLayoutContent({
                   width: "100%",
                   padding: "8px 12px",
                   border: "1px solid #ddd",
-                  fontSize: "14px"
+                  fontSize: "14px",
                 }}
               />
             </div>
@@ -348,11 +391,11 @@ export function AppLayout({
   const globalResults = useMemo(() => {
     if (!globalQuery.trim()) return [];
     return settingsSearchIndex.filter((entry) =>
-      matchesQuery(globalQuery, [entry.title, entry.description ?? "", ...entry.keywords])
+      matchesQuery(globalQuery, [entry.title, entry.description ?? "", ...entry.keywords]),
     );
   }, [globalQuery]);
 
-  const pageSearchEnabled = enablePageSearch && activeTab && activeTab !== "overview";
+  const pageSearchEnabled = Boolean(enablePageSearch && activeTab && activeTab !== "overview");
 
   return (
     <SettingsSearchProvider query={pageQuery}>
@@ -365,11 +408,10 @@ export function AppLayout({
         globalResults={globalResults}
         pageQuery={pageQuery}
         setPageQuery={setPageQuery}
-        pageSearchEnabled={pageSearchEnabled}
+        pageSearchEnabled={Boolean(pageSearchEnabled)}
       >
         {children}
       </AppLayoutContent>
     </SettingsSearchProvider>
   );
 }
-

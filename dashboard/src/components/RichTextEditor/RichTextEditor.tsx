@@ -94,7 +94,7 @@ const RichTextEditor = ({
       </Box>
       {hasRendered && (
         <ReactEditorJS
-          // match with the id of holder div
+          key={id}
           holder={id}
           tools={tools}
           // Log level is undefined at runtime

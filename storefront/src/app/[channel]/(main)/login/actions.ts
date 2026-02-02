@@ -10,7 +10,7 @@ import { DEFAULT_CONTENT_CONFIG } from "@/providers/StoreConfigProvider";
 import { subscribeToNewsletterInactive } from "@/lib/newsletter-server";
 
 /** Hebrew account error messages when channel is ILS/he and config falls back to English defaults */
-const ILS_ACCOUNT_ERROR_MESSAGES: Partial<typeof DEFAULT_CONTENT_CONFIG.account> = {
+const ILS_ACCOUNT_ERROR_MESSAGES: Partial<Record<keyof typeof DEFAULT_CONTENT_CONFIG.account, string>> = {
 	loginInvalidCredentialsError: "אנא הזן פרטי התחברות תקינים",
 	loginEmailPasswordRequiredError: "נדרשים כתובת אימייל וסיסמה",
 	loginGenericError: "אירעה שגיאה בהתחברות. אנא נסה שוב.",

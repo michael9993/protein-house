@@ -63,7 +63,7 @@ export class PostgresAPL implements APL {
       
       await sql`
         INSERT INTO auth_data (saleor_api_url, app_id, token, jwks, updated_at)
-        VALUES (${authData.saleorApiUrl}, ${authData.appId}, ${authData.token}, ${authData.jwks}, NOW())
+        VALUES (${authData.saleorApiUrl}, ${authData.appId}, ${authData.token}, ${authData.jwks ?? null}, NOW())
         ON CONFLICT (saleor_api_url)
         DO UPDATE SET
           app_id = EXCLUDED.app_id,

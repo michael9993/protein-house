@@ -60,6 +60,7 @@ export const electronicsStoreConfig: StoreConfig = createStoreConfig('physical',
     compareProducts: true,          // Compare specs (essential!)
     productReviews: true,
     recentlyViewed: true,
+    scrollToTop: true,
     guestCheckout: true,
     expressCheckout: true,
     savePaymentMethods: true,
@@ -159,6 +160,10 @@ export const electronicsStoreConfig: StoreConfig = createStoreConfig('physical',
     termsOfService: true,
     shippingPolicy: true,
     returnPolicy: true,
+    forgotPassword: true,
+    resetPassword: true,
+    verifyEmail: true,
+    confirmEmail: true,
   },
 
   localization: {

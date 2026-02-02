@@ -14,7 +14,10 @@ import { defaultPadding } from "../../../components/ui-defaults";
 import { GraphQLProvider } from "../../../modules/graphql/graphql-provider";
 import { RecipientSelector } from "../../../modules/newsletter/ui/recipient-selector";
 import { trpcClient } from "../../../modules/trpc/trpc-client";
-import { updateCampaignInputSchema } from "../../../modules/newsletter/campaigns/campaign-schema";
+import {
+  type UpdateCampaignInput,
+  updateCampaignInputSchema,
+} from "../../../modules/newsletter/campaigns/campaign-schema";
 
 const ChannelsQuery = gql`
   query Channels {
@@ -60,11 +63,11 @@ const EditCampaignPage: NextPage = () => {
       enabled: !!campaignId && !!appBridgeState?.ready,
       staleTime: 30000, // Consider data fresh for 30 seconds
       refetchOnWindowFocus: true, // Refetch when window regains focus
-      placeholderData: (previousData) => previousData,
     },
   );
 
-  const { handleSubmit, control, reset } = useForm({
+  type CampaignFormValues = Omit<UpdateCampaignInput, "id">;
+  const { handleSubmit, control, reset } = useForm<CampaignFormValues>({
     defaultValues: {
       name: "",
       templateId: "",
@@ -72,11 +75,11 @@ const EditCampaignPage: NextPage = () => {
       scheduledAt: "",
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       recipientFilter: {
-        isActive: undefined,
-        sources: [] as string[],
-        selectionType: "all" as const,
+        isActive: true,
+        sources: [],
+        selectionType: "all",
         limit: undefined,
-        selectedSubscriberIds: [] as string[],
+        selectedSubscriberIds: [],
       },
       batchSize: 25,
       rateLimitPerMinute: 60,
@@ -268,8 +271,8 @@ const EditCampaignPage: NextPage = () => {
               <Button variant="secondary" onClick={() => router.push(`/campaigns/${campaignId}`)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={updateMutation.isPending}>
-                {updateMutation.isPending ? "Saving..." : "Save Changes"}
+              <Button type="submit" disabled={updateMutation.isLoading}>
+                {updateMutation.isLoading ? "Saving..." : "Save Changes"}
               </Button>
             </Box>
           </Box>

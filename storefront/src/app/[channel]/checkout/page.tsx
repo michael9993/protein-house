@@ -1,5 +1,6 @@
 import { invariant } from "ts-invariant";
 import { fetchStorefrontConfig } from "@/lib/storefront-control/fetch-config";
+import * as Checkout from "@/lib/checkout";
 import { CheckoutPageClient } from "./CheckoutPageClient";
 
 export async function generateMetadata(props: { params: Promise<{ channel: string }> }) {
@@ -16,7 +17,7 @@ export default async function CheckoutPage(props: {
 }) {
 	const { channel } = await props.params;
 	const searchParams = await props.searchParams;
-	
+
 	invariant(process.env.NEXT_PUBLIC_SALEOR_API_URL, "Missing NEXT_PUBLIC_SALEOR_API_URL env variable");
 
 	if (!searchParams.checkout && !searchParams.order) {
@@ -25,11 +26,33 @@ export default async function CheckoutPage(props: {
 
 	const isOrderConfirmation = !!searchParams.order;
 
+	// Auto-apply free shipping (and other auto) vouchers when checkout page loads and no voucher is applied
+	if (searchParams.checkout && !searchParams.order) {
+		try {
+			const checkout = await Checkout.find(searchParams.checkout, {
+				channel,
+				skipOwnershipCheck: true,
+			});
+			const subtotalAmount = checkout?.subtotalPrice?.gross?.amount ?? 0;
+			if (
+				checkout &&
+				!(checkout as { voucherCode?: string }).voucherCode &&
+				checkout.lines?.length
+			) {
+				await Checkout.applyAutoVouchers(searchParams.checkout, channel, subtotalAmount);
+			}
+		} catch (e) {
+			// Non-fatal: checkout may be invalid or permissions issue
+			console.debug("[Checkout Page] Auto-apply vouchers:", e);
+		}
+	}
+
 	return (
 		<CheckoutPageClient
 			saleorApiUrl={process.env.NEXT_PUBLIC_SALEOR_API_URL}
 			isOrderConfirmation={isOrderConfirmation}
 			channel={channel}
+			checkoutId={searchParams.checkout ?? undefined}
 		/>
 	);
 }

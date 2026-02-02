@@ -27,6 +27,7 @@ export class TemplateBrandingProcessor {
 
     // Log template snippet for debugging (first 200 chars)
     const templateSnippet = template.substring(0, 200).replace(/\n/g, " ");
+
     logger.debug("Processing template", {
       templateLength: template.length,
       templateSnippet,
@@ -38,84 +39,101 @@ export class TemplateBrandingProcessor {
 
     // First, replace template literal variables (${VARIABLE})
     const beforeVarReplace = processed;
+
     processed = processed.replace(/\$\{PRIMARY_COLOR\}/g, () => {
       replacements++;
+
       return branding.primaryColor;
     });
     processed = processed.replace(/\$\{SECONDARY_COLOR\}/g, () => {
       replacements++;
+
       return branding.secondaryColor || "#1F2937";
     });
     processed = processed.replace(/\$\{COMPANY_NAME\}/g, () => {
       replacements++;
+
       return branding.companyName;
     });
     processed = processed.replace(/\$\{COMPANY_EMAIL\}/g, () => {
       replacements++;
+
       return branding.companyEmail;
     });
     processed = processed.replace(/\$\{COMPANY_WEBSITE\}/g, () => {
       replacements++;
+
       return branding.companyWebsite || "www.yourstore.com";
     });
 
-    // If no template variables were found, try replacing hardcoded default values
-    // This handles cases where templates were saved with default values already baked in
+    /*
+     * If no template variables were found, try replacing hardcoded default values.
+     * This handles cases where templates were saved with default values already baked in.
+     */
     if (beforeVarReplace === processed) {
       logger.debug("No template variables found, checking for hardcoded default values");
-      
+
       // Only replace if the default value matches exactly (to avoid false positives)
-      if (processed.includes(this.DEFAULT_VALUES.PRIMARY_COLOR) && 
+      if (processed.includes(this.DEFAULT_VALUES.PRIMARY_COLOR) &&
           branding.primaryColor !== this.DEFAULT_VALUES.PRIMARY_COLOR) {
         processed = processed.replace(
           new RegExp(this.escapeRegex(this.DEFAULT_VALUES.PRIMARY_COLOR), "g"),
           branding.primaryColor
         );
         replacements++;
+
         logger.debug("Replaced hardcoded primary color", {
           from: this.DEFAULT_VALUES.PRIMARY_COLOR,
           to: branding.primaryColor,
         });
       }
 
-      if (processed.includes(this.DEFAULT_VALUES.COMPANY_NAME) && 
+      if (processed.includes(this.DEFAULT_VALUES.COMPANY_NAME) &&
           branding.companyName !== this.DEFAULT_VALUES.COMPANY_NAME) {
         processed = processed.replace(
           new RegExp(this.escapeRegex(this.DEFAULT_VALUES.COMPANY_NAME), "g"),
           branding.companyName
         );
         replacements++;
+
         logger.debug("Replaced hardcoded company name", {
           from: this.DEFAULT_VALUES.COMPANY_NAME,
           to: branding.companyName,
         });
       }
 
-      if (processed.includes(this.DEFAULT_VALUES.COMPANY_EMAIL) && 
+      if (processed.includes(this.DEFAULT_VALUES.COMPANY_EMAIL) &&
           branding.companyEmail !== this.DEFAULT_VALUES.COMPANY_EMAIL) {
         processed = processed.replace(
           new RegExp(this.escapeRegex(this.DEFAULT_VALUES.COMPANY_EMAIL), "g"),
           branding.companyEmail
         );
         replacements++;
+
         logger.debug("Replaced hardcoded company email", {
           from: this.DEFAULT_VALUES.COMPANY_EMAIL,
           to: branding.companyEmail,
         });
       }
 
-      // Also replace primary color in common MJML patterns
-      // Pattern: background-color="#2563EB" or background-color="${PRIMARY_COLOR}"
+      /*
+       * Also replace primary color in common MJML patterns.
+       * Pattern: background-color="#2563EB" or background-color="${PRIMARY_COLOR}"
+       */
       const colorPattern = new RegExp(
         `(background-color=["']?)${this.escapeRegex(this.DEFAULT_VALUES.PRIMARY_COLOR)}(["']?)`,
         "gi"
       );
+
       if (colorPattern.test(processed) && branding.primaryColor !== this.DEFAULT_VALUES.PRIMARY_COLOR) {
+
         processed = processed.replace(
           colorPattern,
           `$1${branding.primaryColor}$2`
         );
+
         replacements++;
+
         logger.debug("Replaced primary color in background-color attribute");
       }
 
@@ -124,12 +142,16 @@ export class TemplateBrandingProcessor {
         `(style=["'][^"']*color:\\s*)${this.escapeRegex(this.DEFAULT_VALUES.PRIMARY_COLOR)}([;"'])`,
         "gi"
       );
+
       if (textColorPattern.test(processed) && branding.primaryColor !== this.DEFAULT_VALUES.PRIMARY_COLOR) {
+
         processed = processed.replace(
           textColorPattern,
           `$1${branding.primaryColor}$2`
         );
+
         replacements++;
+
         logger.debug("Replaced primary color in style color attribute");
       }
     }
@@ -158,7 +180,10 @@ export class TemplateBrandingProcessor {
    * Inject branding into payload for Handlebars templates
    * This allows templates to use {{branding.primaryColor}} etc.
    */
-  static injectBrandingIntoPayload(payload: any, branding: BrandingConfig): any {
+  static injectBrandingIntoPayload(
+    payload: Record<string, unknown>,
+    branding: BrandingConfig,
+  ): Record<string, unknown> {
     return {
       ...payload,
       branding: {

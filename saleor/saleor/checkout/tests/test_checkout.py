@@ -1332,7 +1332,7 @@ def test_recalculate_checkout_discount_with_gift_reward_voucher_added(
     # when
     recalculate_checkout_discount(manager, checkout_info, lines)
 
-    # then
+    # then - voucher and gift can coexist: gift line is kept
     line_info = [line_info for line_info in lines if not line_info.line.is_gift][0]
     total_price = (
         line_info.variant.get_price(line_info.channel_listing) * line_info.line.quantity
@@ -1343,11 +1343,11 @@ def test_recalculate_checkout_discount_with_gift_reward_voucher_added(
     assert checkout.discount_name == voucher_percentage.name
     assert checkout.voucher_code
     assert not checkout.discounts.all()
-    assert len(lines) == lines_count - 1 == checkout.lines.count()
-    with pytest.raises(line_discount._meta.model.DoesNotExist):
-        line_discount.refresh_from_db()
-    with pytest.raises(gift_line._meta.model.DoesNotExist):
-        gift_line.refresh_from_db()
+    assert len(lines) == lines_count == checkout.lines.count()
+    gift_line.refresh_from_db()
+    assert gift_line.is_gift
+    line_discount.refresh_from_db()
+    assert line_discount.line_id == gift_line.id
 
 
 def test_recalculate_checkout_discount_voucher_not_applicable(
@@ -1753,7 +1753,7 @@ def test_add_voucher_to_checkout_clears_order_promotion_discount(
         checkout_discount.refresh_from_db()
 
 
-def test_add_voucher_to_checkout_clears_gift_reward(
+def test_add_voucher_to_checkout_keeps_gift_reward(
     checkout_with_item_and_gift_promotion, voucher
 ):
     # given
@@ -1770,12 +1770,12 @@ def test_add_voucher_to_checkout_clears_gift_reward(
         manager, checkout_info, lines, voucher, voucher.codes.first()
     )
 
-    # then
+    # then - voucher and gift can coexist: gift line is kept
     assert checkout.voucher_code == voucher.code
-    with pytest.raises(line_discount._meta.model.DoesNotExist):
-        line_discount.refresh_from_db()
-    with pytest.raises(gift_line._meta.model.DoesNotExist):
-        gift_line.refresh_from_db()
+    gift_line.refresh_from_db()
+    assert gift_line.is_gift
+    line_discount.refresh_from_db()
+    assert line_discount.line_id == gift_line.id
 
 
 def test_get_last_active_payment(checkout_with_payments):

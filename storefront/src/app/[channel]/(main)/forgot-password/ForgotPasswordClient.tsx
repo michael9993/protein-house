@@ -31,7 +31,7 @@ export function ForgotPasswordClient({ channel }: ForgotPasswordClientProps) {
 		const redirectUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/${channel}/reset-password`;
 		startTransition(async () => {
 			const result = await requestPasswordResetAction(email, channel, redirectUrl);
-			if (result.error) {
+			if ("error" in result && result.error) {
 				setError(result.error);
 			} else {
 				setShowSuccess(true);

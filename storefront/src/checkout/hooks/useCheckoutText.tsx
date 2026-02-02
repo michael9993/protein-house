@@ -66,6 +66,10 @@ export interface CheckoutTextConfig {
 	businessDaysText?: string;
 	freeShippingLabel?: string;
 	noDeliveryMethodsText?: string;
+	/** Shown when a free shipping voucher is applied but selected method has no isFree metadata */
+	freeShippingVoucherNotApplicable?: string;
+	/** Shown when a free shipping voucher is applied and selected method has isFree true */
+	freeShippingAppliedWithMethod?: string;
 	
 	// Payment Section
 	paymentTitle?: string;
@@ -96,7 +100,12 @@ export interface CheckoutTextConfig {
 	promoCodePlaceholder?: string;
 	applyPromoButton?: string;
 	removePromoButton?: string;
+	/** Hint: one voucher per order; gift cards can be combined */
+	oneVoucherPerOrderHint?: string;
+	/** Confirm when applying a new code and a voucher is already applied. Use {code} for current voucher code */
+	replaceVoucherConfirm?: string;
 	giftCardLabel?: string;
+	eligibleForFreeShipping?: string;
 	subtotalLabel?: string;
 	shippingLabel?: string;
 	taxLabel?: string;
@@ -292,6 +301,9 @@ const defaultCheckoutText: CheckoutTextConfig = {
 	businessDaysText: "{min}-{max} business days",
 	freeShippingLabel: "Free",
 	noDeliveryMethodsText: "No delivery methods available",
+	freeShippingVoucherNotApplicable:
+		"Free shipping voucher is not applicable with this delivery method. Choose a free shipping method to use your voucher.",
+	freeShippingAppliedWithMethod: "Free shipping applied with this method.",
 	
 	// Payment Section
 	paymentTitle: "Payment",
@@ -322,7 +334,10 @@ const defaultCheckoutText: CheckoutTextConfig = {
 	promoCodePlaceholder: "Enter code",
 	applyPromoButton: "Apply",
 	removePromoButton: "Remove",
+	oneVoucherPerOrderHint: "One voucher per order. Gift cards can be combined.",
+	replaceVoucherConfirm: "Only one voucher can be used per order. Applying this code will replace {code}. Continue?",
 	giftCardLabel: "Gift card",
+	eligibleForFreeShipping: "Eligible for free shipping",
 	subtotalLabel: "Subtotal",
 	shippingLabel: "Shipping",
 	taxLabel: "Tax",

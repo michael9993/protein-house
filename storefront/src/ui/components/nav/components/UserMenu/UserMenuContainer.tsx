@@ -1,5 +1,5 @@
 import { UserMenu } from "./UserMenu";
-import { CurrentUserDocument, CurrentUserOrderListDocument, CurrentUserAddressesDocument } from "@/gql/graphql";
+import { CurrentUserDocument, type CurrentUserQuery, CurrentUserOrderListDocument, CurrentUserAddressesDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { isAuthOrRscContextError } from "@/lib/auth-errors";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
@@ -7,7 +7,7 @@ import { fetchStorefrontConfig } from "@/lib/storefront-control";
 import { storeConfig } from "@/config";
 
 export async function UserMenuContainer({ channel }: { channel: string }) {
-	let user: Awaited<ReturnType<typeof executeGraphQL<typeof CurrentUserDocument>>>["me"] = null;
+	let user: CurrentUserQuery["me"] = null;
 	try {
 		const result = await executeGraphQL(CurrentUserDocument, {
 			cache: "no-cache",
