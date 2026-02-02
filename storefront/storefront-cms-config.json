@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-02-02T01:14:58.238Z",
+  "exportedAt": "2026-02-02T04:03:36.011Z",
   "channels": {
     "ils": {
-      "version": 10,
-      "updatedAt": "2026-02-02T01:14:52.079Z",
+      "version": 11,
+      "updatedAt": "2026-02-02T04:00:44.135Z",
       "channelSlug": "ils",
       "store": {
         "name": "Mansour Shoes",
@@ -76,7 +76,8 @@
         "abandonedCartEmails": false,
         "socialLogin": false,
         "shareButtons": true,
-        "instagramFeed": false
+        "instagramFeed": false,
+        "relatedProducts": true
       },
       "ecommerce": {
         "currency": {
@@ -564,7 +565,7 @@
           "borderRadius": "lg",
           "shadow": "sm",
           "hoverShadow": "lg",
-          "showQuickView": false,
+          "showQuickView": true,
           "showWishlistButton": true,
           "showAddToCart": true,
           "imageAspectRatio": "square"
@@ -708,7 +709,9 @@
           "addingButton": "מוסיף...",
           "addedToCartButton": "נוסף לעגלה!",
           "selectOptionsButton": "בחר אפשרויות",
-          "viewCartLink": "צפה בעגלה →"
+          "viewCartLink": "צפה בעגלה →",
+          "quickAddButton": "הוסף במהירות",
+          "viewFullPageLink": "צפה בדף המלא"
         },
         "account": {
           "signInTitle": "ברוך הבא",
@@ -1504,6 +1507,14 @@
           "displayMode": "drawer",
           "drawerSide": "left"
         }
+      },
+      "relatedProducts": {
+        "enabled": true,
+        "strategy": "category",
+        "maxItems": 8,
+        "showOnMobile": true,
+        "title": "אולי תאהבו גם",
+        "subtitle": "לקוחות צפו גם במוצרים הבאים"
       }
     },
     "default": {
@@ -1579,7 +1590,8 @@
         "abandonedCartEmails": false,
         "socialLogin": false,
         "shareButtons": true,
-        "instagramFeed": false
+        "instagramFeed": false,
+        "relatedProducts": true
       },
       "ecommerce": {
         "currency": {
@@ -2923,8 +2935,8 @@
       }
     },
     "usd": {
-      "version": 2,
-      "updatedAt": "2026-02-01T11:43:37.296Z",
+      "version": 1,
+      "updatedAt": "2026-02-02T04:03:31.873Z",
       "channelSlug": "usd",
       "store": {
         "name": "Mansour Shoes",
@@ -2996,7 +3008,8 @@
         "abandonedCartEmails": false,
         "socialLogin": false,
         "shareButtons": true,
-        "instagramFeed": false
+        "instagramFeed": false,
+        "relatedProducts": true
       },
       "ecommerce": {
         "currency": {
@@ -3033,7 +3046,14 @@
           "enabled": true,
           "text": "Free shipping on orders over $75!",
           "backgroundColor": null,
-          "textColor": null
+          "textColor": null,
+          "useSaleorPromotions": false,
+          "useSaleorVouchers": false,
+          "items": [],
+          "manualItems": [],
+          "autoScrollIntervalSeconds": 6,
+          "useGradient": false,
+          "dismissible": false
         },
         "showStoreName": true,
         "logoPosition": "left"
@@ -3435,7 +3455,7 @@
           "borderRadius": "lg",
           "shadow": "sm",
           "hoverShadow": "lg",
-          "showQuickView": false,
+          "showQuickView": true,
           "showWishlistButton": true,
           "showAddToCart": true,
           "imageAspectRatio": "square"
@@ -3500,7 +3520,10 @@
           "removeButtonBorderRadius": "full"
         },
         "cart": {
-          "drawerSide": "right"
+          "displayMode": "drawer",
+          "drawerSide": "right",
+          "showDeleteText": false,
+          "showSaveForLater": false
         }
       },
       "content": {
@@ -3554,7 +3577,10 @@
           "providedByStripe": "Provided by Stripe",
           "itemsSavedForLater": "{count} item(s) saved for later",
           "viewCartButton": "View Full Cart",
-          "shippingNote": "Shipping and taxes calculated at checkout"
+          "shippingNote": "Shipping and taxes calculated at checkout",
+          "giftLabel": "Gift",
+          "giftAddedMessage": "A free gift has been added to your cart.",
+          "giftRemoveHint": "(You can remove it)"
         },
         "product": {
           "addToCartButton": "Add to Cart",
@@ -3570,7 +3596,9 @@
           "addingButton": "Adding...",
           "addedToCartButton": "Added to Cart!",
           "selectOptionsButton": "Select Options",
-          "viewCartLink": "View Cart →"
+          "viewCartLink": "View Cart →",
+          "quickAddButton": "Quick add",
+          "viewFullPageLink": "View full page"
         },
         "account": {
           "signInTitle": "Welcome Back",
@@ -3769,6 +3797,8 @@
           "businessDaysText": "{min}-{max} business days",
           "freeShippingLabel": "Free",
           "noDeliveryMethodsText": "No delivery methods available",
+          "freeShippingVoucherNotApplicable": "Free shipping voucher is not applicable with this delivery method. Choose a free shipping method to use your voucher.",
+          "freeShippingAppliedWithMethod": "Free shipping applied with this method.",
           "paymentTitle": "Payment",
           "paymentSubtitle": "Select your payment method",
           "paymentMethodLabel": "Payment method",
@@ -3795,6 +3825,8 @@
           "promoCodePlaceholder": "Enter code",
           "applyPromoButton": "Apply",
           "removePromoButton": "Remove",
+          "oneVoucherPerOrderHint": "One voucher per order. Gift cards can be combined.",
+          "replaceVoucherConfirm": "Only one voucher can be used per order. Applying this code will replace {code}. Continue?",
           "giftCardLabel": "Gift card",
           "subtotalLabel": "Subtotal",
           "shippingLabel": "Shipping",
@@ -3848,6 +3880,13 @@
           "invalidPhoneError": "Please enter a valid phone number",
           "selectDeliveryMethodError": "Please select a delivery method",
           "selectPaymentMethodError": "Please select a payment method",
+          "noCheckoutFoundTitle": "No checkout found",
+          "noCheckoutFoundMessage": "It looks like you haven't started a checkout yet. Add some items to your cart first.",
+          "returnToCartButton": "Return to Cart",
+          "checkoutExpiredTitle": "Checkout expired or invalid",
+          "checkoutExpiredMessage": "This checkout session has expired or is no longer valid. Please return to your cart and try again.",
+          "somethingWentWrongTitle": "Something went wrong",
+          "somethingWentWrongMessage": "We couldn't load your checkout. Please return to your cart and try again.",
           "deleteAddressButton": "Delete address",
           "savingAddressText": "Saving…",
           "savedText": "Saved",
@@ -4351,6 +4390,14 @@
           "displayMode": "drawer",
           "drawerSide": "right"
         }
+      },
+      "relatedProducts": {
+        "enabled": true,
+        "strategy": "category",
+        "maxItems": 8,
+        "showOnMobile": true,
+        "title": "You May Also Like",
+        "subtitle": "Customers also viewed these products"
       }
     }
   }

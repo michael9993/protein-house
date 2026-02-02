@@ -15,6 +15,7 @@ import { resolveDirection } from "@/lib/direction";
 import { getNavData } from "@/ui/components/nav/components/NavLinks";
 import { CartDrawerShell } from "@/ui/components/CartDrawer";
 import { createCheckoutWithItemsAction } from "@/app/cart-actions";
+import { QuickViewWrapper } from "./QuickViewWrapper";
 
 /**
  * Generate metadata with direction attribute to prevent FOUC
@@ -146,6 +147,7 @@ export default async function RootLayout(props: {
 			<StoreConfigProvider config={storeConfig}>
 			<DirectionProvider>
 			<CartDrawerShell createCheckoutWithItems={createCheckoutWithItemsAction}>
+				<QuickViewWrapper channel={channel}>
 				{/* Client-side direction setter - backup and for dynamic updates */}
 				<DirectionSetter config={storeConfig} />
 				<ConfigSync channel={channel} />
@@ -168,6 +170,7 @@ export default async function RootLayout(props: {
 				promotionName={promoData.promotionName}
 				backgroundImage={promoData.backgroundImage}
 			/>
+				</QuickViewWrapper>
 			</CartDrawerShell>
 			</DirectionProvider>
 			</StoreConfigProvider>

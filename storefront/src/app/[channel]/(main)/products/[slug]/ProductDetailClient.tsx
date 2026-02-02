@@ -63,6 +63,10 @@ interface ProductDetailClientProps {
   selectedVariantId?: string;
   channel: string;
   addItemAction: (formData: FormData) => Promise<{ success: boolean; error?: string }>;
+  /** When set (e.g. on PDP), appended to formData for revalidatePath. Omit in Quick View. */
+  productSlug?: string;
+  /** When "modal", breadcrumbs are hidden and padding is reduced (e.g. Quick View). */
+  mode?: "page" | "modal";
 }
 
 export function ProductDetailClient({
@@ -70,6 +74,8 @@ export function ProductDetailClient({
   selectedVariantId,
   channel,
   addItemAction,
+  productSlug,
+  mode = "page",
 }: ProductDetailClientProps) {
   const branding = useBranding();
   const openCart = useOpenCart();
@@ -547,6 +553,9 @@ export function ProductDetailClient({
     formData.append("variantId", effectiveVariantId);
     formData.append("quantity", quantity.toString());
     formData.append("channel", channel);
+    if (productSlug) {
+      formData.append("productSlug", productSlug);
+    }
 
     // Optimistic UI: show "Added" and bump cart badge immediately
     setAddedToCart(true);
@@ -594,23 +603,26 @@ export function ProductDetailClient({
     ? product.images 
     : [{ url: "/placeholder-product.jpg", alt: product.name }];
 
-  return (
-    <div className="min-h-screen bg-white animate-fade-in">
-      <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        {/* Breadcrumbs */}
-        <div className="animate-fade-in">
-        <Breadcrumbs
-          items={[
-            { label: "Products", href: "/products" },
-            ...(product.category && product.categorySlug 
-              ? [{ label: product.category, href: `/products?categories=${product.categorySlug}` }] 
-              : []),
-            { label: product.name },
-          ]}
-        />
-        </div>
+  const isModal = mode === "modal";
 
-        <div className="mt-6 lg:grid lg:grid-cols-2 lg:gap-x-8 xl:gap-x-12">
+  return (
+    <div className={`bg-white animate-fade-in ${isModal ? "min-h-0" : "min-h-screen"}`}>
+      <div className={`mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 ${isModal ? "py-4" : "py-6"}`}>
+        {!isModal && (
+          <div className="animate-fade-in">
+            <Breadcrumbs
+              items={[
+                { label: "Products", href: "/products" },
+                ...(product.category && product.categorySlug
+                  ? [{ label: product.category, href: `/products?categories=${product.categorySlug}` }]
+                  : []),
+                { label: product.name },
+              ]}
+            />
+          </div>
+        )}
+
+        <div className={isModal ? "lg:grid lg:grid-cols-2 lg:gap-x-8" : "mt-6 lg:grid lg:grid-cols-2 lg:gap-x-8 xl:gap-x-12"}>
           {/* Image Gallery */}
           <div 
             className="lg:sticky lg:top-24 lg:self-start animate-fade-in-up"

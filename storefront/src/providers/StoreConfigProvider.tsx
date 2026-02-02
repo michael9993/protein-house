@@ -639,6 +639,9 @@ export const DEFAULT_CONTENT_CONFIG = {
     addedToCartButton: "Added to Cart!",
     selectOptionsButton: "Select Options",
     viewCartLink: "View Cart",
+    quickAddButton: "Quick add",
+    viewFullPageLink: "View full page",
+    loadingProductText: "Loading product...",
   },
   account: {
     signInTitle: "Welcome back",
@@ -1686,6 +1689,29 @@ export function useBadgeStyle(type: "sale" | "new" | "outOfStock" | "lowStock" |
     color: badgeConfig.textColor || "#FFFFFF",
     borderRadius: badgeConfig.borderRadius,
   };
+}
+
+// ============================================
+// RELATED PRODUCTS CONFIG
+// ============================================
+
+// Default related products config
+const DEFAULT_RELATED_PRODUCTS_CONFIG = {
+  enabled: true,
+  strategy: "category" as const,
+  maxItems: 8,
+  showOnMobile: true,
+  title: "You May Also Like",
+  subtitle: "Customers also viewed these products",
+} as const;
+
+/**
+ * Get related products configuration (from Storefront Control app)
+ * Always returns a complete config with defaults
+ */
+export function useRelatedProductsConfig(): NonNullable<StoreConfig["relatedProducts"]> {
+  const config = useStoreConfig();
+  return { ...DEFAULT_RELATED_PRODUCTS_CONFIG, ...config.relatedProducts };
 }
 
 // ============================================

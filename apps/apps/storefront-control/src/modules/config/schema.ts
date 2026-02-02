@@ -100,6 +100,7 @@ export const FeaturesSchema = z.object({
   socialLogin: z.boolean(),
   shareButtons: z.boolean(),
   instagramFeed: z.boolean(),
+  relatedProducts: z.boolean(),
 });
 
 // ============================================
@@ -869,6 +870,14 @@ export const ProductTextSchema = z.object({
   addedToCartButton: z.string(),          // "Added to Cart!"
   selectOptionsButton: z.string(),        // "Select Options"
   viewCartLink: z.string(),               // "View Cart →"
+  // Quick view modal
+  quickAddButton: z.string(),             // "Quick add" (product card button)
+  viewFullPageLink: z.string(),           // "View full page" (quick view modal link)
+  loadingProductText: z.string(),         // "Loading product..." (quick view modal loader)
+  productDetailsTitle: z.string().optional(),  // "Product Details" (modal title when loading)
+  closeButton: z.string().optional(),     // "Close" (modal/error close button)
+  productNotFoundText: z.string().optional(), // "Product not found" (modal error)
+  errorLoadingProductText: z.string().optional(), // "Failed to load product" (modal error)
 });
 
 export const AccountTextSchema = z.object({
@@ -1841,6 +1850,21 @@ export const StorefrontUXSchema = z.object({
 });
 
 // ============================================
+// RELATED PRODUCTS SCHEMA
+// ============================================
+export const RelatedProductsStrategySchema = z.enum(["category", "collection"]);
+
+export const RelatedProductsSchema = z.object({
+  enabled: z.boolean(),
+  strategy: RelatedProductsStrategySchema,
+  maxItems: z.number().min(4).max(16),
+  showOnMobile: z.boolean(),
+  // Content
+  title: z.string(),
+  subtitle: z.string().nullable(),
+});
+
+// ============================================
 // FULL CONFIG SCHEMA
 // ============================================
 export const StorefrontConfigSchema = z.object({
@@ -1865,6 +1889,7 @@ export const StorefrontConfigSchema = z.object({
   content: ContentSchema,
   darkMode: DarkModeSchema,
   storefront: StorefrontUXSchema,
+  relatedProducts: RelatedProductsSchema,
 });
 
 export type StorefrontConfig = z.infer<typeof StorefrontConfigSchema>;
@@ -1907,3 +1932,5 @@ export type FooterText = z.infer<typeof FooterTextSchema>;
 export type ErrorText = z.infer<typeof ErrorTextSchema>;
 export type NotFoundText = z.infer<typeof NotFoundTextSchema>;
 export type NavbarText = z.infer<typeof NavbarTextSchema>;
+export type RelatedProductsConfig = z.infer<typeof RelatedProductsSchema>;
+export type RelatedProductsStrategy = z.infer<typeof RelatedProductsStrategySchema>;

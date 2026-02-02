@@ -2,20 +2,18 @@ import edjsHTML from "editorjs-html";
 import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
 import { type ResolvingMetadata, type Metadata } from "next";
+import { Suspense } from "react";
 import xss from "xss";
 import { invariant } from "ts-invariant";
 import { type WithContext, type Product } from "schema-dts";
-import {
-	ProductDetailsDocument,
-	ProductListDocument,
-	CheckoutFindDocument,
-	CheckoutAddLinesDocument,
-} from "@/gql/graphql";
+import { ProductDetailsDocument, ProductListDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { formatMoney, formatMoneyRange } from "@/lib/utils";
-import * as Checkout from "@/lib/checkout";
 import { storeConfig } from "@/config";
 import { ProductDetailClient } from "./ProductDetailClient";
+import { addProductToCartAction } from "../actions";
+import { RelatedProductsSection } from "./RelatedProductsSection";
+import { RelatedProductsSkeleton } from "@/ui/components/RelatedProducts";
 
 export async function generateMetadata(
 	props: {
@@ -137,140 +135,6 @@ export default async function Page(props: {
 		)
 		: null;
 
-	// Server action for adding to cart
-	async function addItem(formData: FormData) {
-		"use server";
-
-		const variantId = formData.get("variantId") as string;
-		const quantity = parseInt(formData.get("quantity") as string) || 1;
-		// Use channel from form so action works even when page was cached with different params
-		const channel = (formData.get("channel") as string) || params.channel;
-
-		if (!variantId) {
-			return { success: false, error: "Variant ID is required" };
-		}
-
-		try {
-			// Light-weight checkout resolution: prefer cookie, fallback to create
-			// This avoids the heavy findOrCreate logic in the critical path
-			let checkoutId = await Checkout.getIdFromCookies(channel);
-			let currentCheckout: any = null;
-
-			if (checkoutId) {
-				const result = await executeGraphQL(CheckoutFindDocument, {
-					variables: { id: checkoutId },
-					cache: "no-cache",
-				});
-				currentCheckout = result.checkout;
-			}
-
-			if (!currentCheckout) {
-				const result = await Checkout.create({ channel });
-				currentCheckout = result.checkoutCreate?.checkout;
-				if (currentCheckout) {
-					checkoutId = currentCheckout.id;
-					await Checkout.saveIdToCookie(channel, checkoutId);
-				}
-			}
-
-			if (!currentCheckout) {
-				return { success: false, error: "Could not create or find cart" };
-			}
-
-			const decodedVariantId = decodeURIComponent(variantId);
-			const existingLine = currentCheckout?.lines?.find(
-				(line: any) => line.variant?.id === decodedVariantId && !(line as { isGift?: boolean }).isGift
-			);
-
-			// If item is already in cart as a non-gift line, add to existing quantity.
-			// If the only match is a gift line, we add a new line (same product as gift + normal).
-			if (existingLine) {
-				try {
-					const newQuantity = existingLine.quantity + quantity;
-					const checkoutLinesUpdateMutation = {
-						toString: () => `mutation checkoutLinesUpdate(
-							$checkoutId: ID!
-							$lines: [CheckoutLineUpdateInput!]!
-						) {
-							checkoutLinesUpdate(id: $checkoutId, lines: $lines) {
-								errors { message field code }
-								checkout { id lines { id quantity variant { id } } }
-							}
-						}`,
-					} as any;
-					
-					const result = await executeGraphQL(checkoutLinesUpdateMutation, {
-						variables: {
-							checkoutId: currentCheckout.id,
-							lines: [{ lineId: existingLine.id, quantity: newQuantity }],
-						},
-						cache: "no-cache",
-					});
-
-					if (result.checkoutLinesUpdate?.errors?.length > 0) {
-						return { success: false, error: result.checkoutLinesUpdate.errors[0].message ?? "Failed to update cart" };
-					}
-					if (!result.checkoutLinesUpdate?.checkout) {
-						return { success: false, error: "Cart update did not return checkout" };
-					}
-				} catch (error: any) {
-					console.error(`[Add Item] ❌ Failed to update quantity:`, error);
-					revalidatePath(`/${channel}/products/${params.slug}`);
-					return { success: false, error: error.message || "Failed to update cart" };
-				}
-			} else {
-				try {
-					const result = await executeGraphQL(CheckoutAddLinesDocument, {
-						variables: {
-							id: currentCheckout.id,
-							lines: [{ variantId: decodedVariantId, quantity }],
-						},
-						cache: "no-cache",
-					});
-
-					const addResult = result.checkoutLinesAdd;
-					if (addResult?.errors?.length > 0) {
-						const msg = addResult.errors[0].message ?? addResult.errors[0].code ?? "Failed to add item to cart";
-						return { success: false, error: msg };
-					}
-					if (!addResult?.checkout) {
-						return { success: false, error: "Could not add item to cart. Please try again." };
-					}
-				} catch (error: any) {
-					console.error(`[Add Item] ❌ Failed to add line:`, error);
-					revalidatePath(`/${channel}/products/${params.slug}`);
-					return { success: false, error: error.message || "Failed to add item to cart" };
-				}
-			}
-
-			revalidatePath("/cart");
-			revalidatePath(`/${channel}/products/${params.slug}`);
-
-			// Persist to user metadata in background
-			const { getCurrentUser, saveUserCheckoutId } = await import("@/lib/checkout");
-			void getCurrentUser().then((currentUser) => {
-				if (!currentUser?.id) return;
-				const checkoutUser = (currentCheckout as { user?: { id: string } | null })?.user?.id;
-				if (checkoutUser === currentUser.id) {
-					return saveUserCheckoutId(currentUser.id, channel, currentCheckout.id);
-				}
-				return import("@/gql/graphql").then(({ CheckoutCustomerAttachDocument }) =>
-					executeGraphQL(CheckoutCustomerAttachDocument, {
-						variables: { checkoutId: currentCheckout.id },
-						cache: "no-cache",
-					}).then(() =>
-						saveUserCheckoutId(currentUser.id, channel, currentCheckout.id)
-					)
-				).catch(() => {});
-			}).catch(() => {});
-
-			return { success: true };
-		} catch (error: any) {
-			const errorMessage = error?.message || "Failed to add item to cart";
-			return { success: false, error: errorMessage };
-		}
-	}
-
 	// JSON-LD for SEO
 	const productJsonLd: WithContext<Product> = {
 		"@context": "https://schema.org",
@@ -347,8 +211,23 @@ export default async function Page(props: {
 				}}
 				selectedVariantId={selectedVariantID}
 				channel={params.channel}
-				addItemAction={addItem}
+				addItemAction={addProductToCartAction}
+				productSlug={params.slug}
 			/>
+
+			{/* Related Products Section - rendered non-blocking with Suspense */}
+			{product.category?.slug && storeConfig.features.relatedProducts && (
+				<Suspense fallback={<RelatedProductsSkeleton />}>
+					<RelatedProductsSection
+						categorySlug={product.category.slug}
+						currentProductId={product.id}
+						channel={params.channel}
+						maxItems={storeConfig.relatedProducts?.maxItems ?? 8}
+						title={storeConfig.relatedProducts?.title ?? "You May Also Like"}
+						subtitle={storeConfig.relatedProducts?.subtitle ?? "Customers also viewed these products"}
+					/>
+				</Suspense>
+			)}
 		</>
 	);
 }

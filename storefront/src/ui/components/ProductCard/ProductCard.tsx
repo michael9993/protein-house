@@ -1,12 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { formatMoneyRange, formatMoney } from "@/lib/utils";
 import type { ProductListItemFragment } from "@/gql/graphql";
 import { useBranding, useFeature, useUiConfig, useContentConfig, useBadgeStyle } from "@/providers/StoreConfigProvider";
 import { useWishlist } from "@/lib/wishlist";
+import { useQuickView } from "@/providers/QuickViewProvider";
 
 interface ProductCardProps {
   product: ProductListItemFragment;
@@ -56,10 +57,29 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
   
   // Product card config
   const cardConfig = ui.productCard;
-  
+  const showQuickView = cardConfig.showQuickView ?? false;
+  const quickAddLabel = (content.product as { quickAddButton?: string })?.quickAddButton ?? "Quick add";
+
+  const { openQuickView, prefetchQuickView } = useQuickView();
   const { addItem, removeItem, isInWishlist } = useWishlist();
   const isWishlisted = isInWishlist(product.id);
-  
+  const prefetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Debounce prefetch on hover (desktop) so we don't fetch for every card when moving mouse quickly
+  const handleMouseEnter = useCallback(() => {
+    setIsHovered(true);
+    if (!showQuickView) return;
+    prefetchTimeoutRef.current = setTimeout(() => prefetchQuickView(product.slug), 120);
+  }, [showQuickView, product.slug, prefetchQuickView]);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsHovered(false);
+    if (prefetchTimeoutRef.current) {
+      clearTimeout(prefetchTimeoutRef.current);
+      prefetchTimeoutRef.current = null;
+    }
+  }, []);
+
   // Calculate discount if available
   const hasDiscount = product.pricing?.priceRange?.start?.gross && 
     product.pricing?.priceRangeUndiscounted?.start?.gross &&
@@ -112,8 +132,8 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
         backgroundColor: branding.colors.surface,
         boxShadow: isHovered ? `0 10px 40px ${branding.colors.primary}15` : undefined,
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <LinkWithChannel href={`/products/${product.slug}`} className="block">
         {/* Image Container */}
@@ -154,6 +174,34 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
               background: `linear-gradient(to top, ${branding.colors.primary}20 0%, transparent 100%)`,
             }}
           />
+
+          {/* Quick View button - always visible on mobile, hover on desktop */}
+          {showQuickView && (
+            <button
+              type="button"
+              onTouchStart={() => prefetchQuickView(product.slug)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openQuickView(product.slug);
+              }}
+              className={`absolute bottom-2 right-2 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/95 shadow-lg backdrop-blur-sm transition-all duration-200 sm:bottom-3 sm:right-3 sm:h-10 sm:w-10 ${
+                isHovered ? "scale-100 opacity-100" : "scale-95 opacity-100 sm:opacity-0 sm:group-hover:opacity-70"
+              } hover:scale-105 hover:opacity-100 active:scale-95`}
+              style={{ 
+                color: branding.colors.primary,
+                boxShadow: isHovered ? `0 4px 12px ${branding.colors.primary}30` : undefined,
+              }}
+              aria-label={quickAddLabel}
+              title={quickAddLabel}
+            >
+              {/* Eye icon for "Quick View" */}
+              <svg className="h-[18px] w-[18px] sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+          )}
 
           {/* Badges - Top Left */}
           <div className="absolute left-2 top-2 flex flex-col gap-1.5 sm:left-3 sm:top-3 sm:gap-2">

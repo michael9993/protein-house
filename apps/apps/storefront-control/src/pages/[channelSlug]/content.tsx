@@ -631,6 +631,55 @@ const ContentPage: NextPage = () => {
               errors={errors}
               placeholder="View Cart →"
             />
+            <FormField
+              label="Quick Add Button"
+              name="product.quickAddButton"
+              register={register}
+              errors={errors}
+              placeholder="Quick add"
+            />
+            <FormField
+              label="View Full Page Link"
+              name="product.viewFullPageLink"
+              register={register}
+              errors={errors}
+              placeholder="View full page"
+            />
+            <FormField
+              label="Loading Product (Quick View)"
+              name="product.loadingProductText"
+              register={register}
+              errors={errors}
+              placeholder="Loading product..."
+            />
+            <FormField
+              label="Product Details (Quick View title)"
+              name="product.productDetailsTitle"
+              register={register}
+              errors={errors}
+              placeholder="Product Details"
+            />
+            <FormField
+              label="Close Button (Quick View)"
+              name="product.closeButton"
+              register={register}
+              errors={errors}
+              placeholder="Close"
+            />
+            <FormField
+              label="Product Not Found (Quick View)"
+              name="product.productNotFoundText"
+              register={register}
+              errors={errors}
+              placeholder="Product not found"
+            />
+            <FormField
+              label="Error Loading Product (Quick View)"
+              name="product.errorLoadingProductText"
+              register={register}
+              errors={errors}
+              placeholder="Failed to load product"
+            />
           </Box>
         </SectionCard>
 

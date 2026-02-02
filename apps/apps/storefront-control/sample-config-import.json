@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-02-02T01:14:52.867Z",
+  "exportedAt": "2026-02-02T04:00:45.006Z",
   "channelSlug": "ils",
   "config": {
-    "version": 10,
-    "updatedAt": "2026-02-02T01:14:52.079Z",
+    "version": 11,
+    "updatedAt": "2026-02-02T04:00:44.135Z",
     "channelSlug": "ils",
     "store": {
       "name": "Mansour Shoes",
@@ -76,7 +76,8 @@
       "abandonedCartEmails": false,
       "socialLogin": false,
       "shareButtons": true,
-      "instagramFeed": false
+      "instagramFeed": false,
+      "relatedProducts": true
     },
     "ecommerce": {
       "currency": {
@@ -557,7 +558,7 @@
         "borderRadius": "lg",
         "shadow": "sm",
         "hoverShadow": "lg",
-        "showQuickView": false,
+        "showQuickView": true,
         "showWishlistButton": true,
         "showAddToCart": true,
         "imageAspectRatio": "square"
@@ -701,7 +702,10 @@
         "addingButton": "מוסיף...",
         "addedToCartButton": "נוסף לעגלה!",
         "selectOptionsButton": "בחר אפשרויות",
-        "viewCartLink": "צפה בעגלה →"
+        "viewCartLink": "צפה בעגלה →",
+        "quickAddButton": "הוסף במהירות",
+        "viewFullPageLink": "צפה בדף המלא",
+        "loadingProductText": "טוען מוצר..."
       },
       "account": {
         "signInTitle": "ברוך הבא",
@@ -1497,6 +1501,14 @@
         "displayMode": "drawer",
         "drawerSide": "left"
       }
+    },
+    "relatedProducts": {
+      "enabled": true,
+      "strategy": "category",
+      "maxItems": 8,
+      "showOnMobile": true,
+      "title": "אולי תאהבו גם",
+      "subtitle": "לקוחות צפו גם במוצרים הבאים"
     }
   }
 }

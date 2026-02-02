@@ -402,6 +402,12 @@ const UiComponentsPage: NextPage = () => {
                 { value: "shadow", label: "Shadow increase" },
               ]}
             />
+            <CheckboxField
+              label="Show Quick add button"
+              name="productCard.showQuickView"
+              register={register}
+              description="Show Quick add button on product cards (opens product in modal)"
+            />
           </div>
         </SectionCard>
 

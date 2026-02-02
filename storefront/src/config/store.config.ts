@@ -127,6 +127,9 @@ export interface StoreConfig {
     socialLogin: boolean;
     shareButtons: boolean;
     instagramFeed: boolean;
+
+    // Product Page Features
+    relatedProducts: boolean;
   };
 
   // ============================================
@@ -689,6 +692,14 @@ export interface StoreConfig {
       addedToCartButton: string;
       selectOptionsButton: string;
       viewCartLink: string;
+      // Quick view modal
+      quickAddButton?: string;
+      viewFullPageLink?: string;
+      loadingProductText?: string;
+      productDetailsTitle?: string;
+      closeButton?: string;
+      productNotFoundText?: string;
+      errorLoadingProductText?: string;
     };
     account: {
       signInTitle: string;
@@ -898,6 +909,18 @@ export interface StoreConfig {
     cart?: {
       displayMode: 'page' | 'drawer';
     };
+  };
+
+  // ============================================
+  // RELATED PRODUCTS
+  // ============================================
+  relatedProducts?: {
+    enabled: boolean;
+    strategy: 'category' | 'collection';
+    maxItems: number;
+    showOnMobile: boolean;
+    title: string;
+    subtitle: string | null;
   };
 }
 
@@ -1957,6 +1980,7 @@ export const defaultStoreConfig: StoreConfig = {
     socialLogin: false,
     shareButtons: true,
     instagramFeed: false,
+    relatedProducts: true,
   },
 
   ecommerce: {
@@ -2250,6 +2274,13 @@ export const defaultStoreConfig: StoreConfig = {
       addedToCartButton: "Added to Cart!",
       selectOptionsButton: "Select Options",
       viewCartLink: "View Cart →",
+      quickAddButton: "Quick add",
+      viewFullPageLink: "View full page",
+      loadingProductText: "Loading product...",
+      productDetailsTitle: "Product Details",
+      closeButton: "Close",
+      productNotFoundText: "Product not found",
+      errorLoadingProductText: "Failed to load product",
     },
     account: {
       signInTitle: "Sign In",

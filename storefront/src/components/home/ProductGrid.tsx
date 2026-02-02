@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { useStoreConfig, useFeature, useContentConfig } from "@/providers/StoreConfigProvider";
+import { useStoreConfig, useFeature, useUiConfig, useContentConfig } from "@/providers/StoreConfigProvider";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { type ProductListItemFragment } from "@/gql/graphql";
 import { formatMoneyRange } from "@/lib/utils";
@@ -10,6 +10,7 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { SectionHeader } from "./SectionHeader";
 import { generateSectionBackground, generatePatternOverlay, type SectionBackgroundConfig } from "@/lib/section-backgrounds";
 import { useWishlist } from "@/lib/wishlist";
+import { useQuickView } from "@/providers/QuickViewProvider";
 
 type ProductGridType = "newArrivals" | "bestSellers" | "onSale" | "featured";
 
@@ -202,6 +203,10 @@ function ProductCard({
   ecommerce: _ecommerce,
   content,
 }: ProductCardProps) {
+  const ui = useUiConfig();
+  const showQuickView = ui.productCard?.showQuickView ?? false;
+  const quickAddLabel = (content.product as { quickAddButton?: string })?.quickAddButton ?? "Quick add";
+  const { openQuickView, prefetchQuickView } = useQuickView();
   const { addItem, removeItem, isInWishlist } = useWishlist();
   const isWishlisted = isInWishlist(product.id);
   
@@ -278,6 +283,31 @@ function ProductCard({
                 loading={index < 4 ? "eager" : "lazy"}
               />
             </div>
+          )}
+
+          {/* Quick View button - elegant icon in bottom-right corner */}
+          {showQuickView && (
+            <button
+              type="button"
+              onTouchStart={() => prefetchQuickView(product.slug)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openQuickView(product.slug);
+              }}
+              className="absolute bottom-2 right-2 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/95 shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-105 active:scale-95 sm:bottom-3 sm:right-3 sm:h-10 sm:w-10 sm:opacity-0 sm:group-hover:opacity-70 sm:group-hover:scale-100"
+              style={{ 
+                color: branding.colors.primary,
+              }}
+              aria-label={quickAddLabel}
+              title={quickAddLabel}
+            >
+              {/* Eye icon for "Quick View" */}
+              <svg className="h-[18px] w-[18px] sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
           )}
 
           {/* Badges */}

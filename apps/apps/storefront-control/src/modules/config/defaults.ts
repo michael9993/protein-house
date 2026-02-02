@@ -214,6 +214,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
     socialLogin: false,
     shareButtons: true,
     instagramFeed: false,
+    relatedProducts: true,
   },
 
   ecommerce: {
@@ -661,6 +662,13 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       reviewsTitle: "Customer Reviews",
       writeReviewButton: "Write a Review",
       noReviewsText: "No reviews yet. Be the first to review this product!",
+      quickAddButton: "Quick add",
+      viewFullPageLink: "View full page",
+      loadingProductText: "Loading product...",
+      productDetailsTitle: "Product Details",
+      closeButton: "Close",
+      productNotFoundText: "Product not found",
+      errorLoadingProductText: "Failed to load product",
     } as unknown as StorefrontConfig["content"]["product"],
     account: {
       signInTitle: "Welcome back",
@@ -1456,6 +1464,15 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       showDeleteText: false,
       showSaveForLater: false,
     },
+  },
+
+  relatedProducts: {
+    enabled: true,
+    strategy: "category" as const,
+    maxItems: 8,
+    showOnMobile: true,
+    title: "You May Also Like",
+    subtitle: "Customers also viewed these products",
   },
 });
 

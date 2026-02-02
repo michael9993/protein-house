@@ -62,6 +62,7 @@ interface CartDrawerProps {
 export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApplyPromoCode, onRemovePromoCode, onCreateCheckoutWithSelection, channel, loading = false }: CartDrawerProps) {
   const { isOpen, closeDrawer } = useCartDrawer();
   const [isCreatingCheckout, setIsCreatingCheckout] = useState(false);
+  const [isNavigatingToCheckout, setIsNavigatingToCheckout] = useState(false);
   const branding = useBranding();
   const { direction, isRTL, drawerSide } = useDirection();
   const content = useContentConfig();
@@ -564,12 +565,13 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
             <div className="cart-drawer__buttons flex flex-col gap-3">
               <button
                 type="button"
-                disabled={noneSelected || isCreatingCheckout || loading}
+                disabled={noneSelected || isCreatingCheckout || isNavigatingToCheckout || loading}
                 className={`cart-drawer__checkout-btn flex items-center justify-center gap-2 rounded-full ${noneSelected ? 'opacity-50 pointer-events-none' : ''}`}
                 style={{ backgroundColor: branding.colors.primary, color: '#FFFFFF', borderRadius: '9999px' }}
                 onClick={async () => {
                   if (noneSelected || !checkoutData?.lines) return;
                   if (allSelected && checkoutData?.id) {
+                    setIsNavigatingToCheckout(true);
                     closeDrawer();
                     window.location.href = `/${channel}/checkout?checkout=${checkoutData.id}`;
                     return;
@@ -590,6 +592,7 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
                         } catch {
                           /* ignore */
                         }
+                        setIsNavigatingToCheckout(true);
                         closeDrawer();
                         window.location.href = `/${channel}/checkout?checkout=${result.checkoutId}`;
                       }
@@ -599,14 +602,14 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
                   }
                 }}
               >
-                {isCreatingCheckout ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                {(isCreatingCheckout || isNavigatingToCheckout) ? (
+                  <div className="w-5 h-5 shrink-0 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 )}
-                {isCreatingCheckout
+                {(isCreatingCheckout || isNavigatingToCheckout)
                   ? (cartText?.loadingCheckoutTitle ?? 'Loading...')
                   : noneSelected
                     ? (cartText?.selectItemsButton ?? 'Select items')
