@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-02-02T04:00:45.006Z",
+  "exportedAt": "2026-02-02T20:39:41.443Z",
   "channelSlug": "ils",
   "config": {
-    "version": 11,
-    "updatedAt": "2026-02-02T04:00:44.135Z",
+    "version": 27,
+    "updatedAt": "2026-02-02T20:39:40.913Z",
     "channelSlug": "ils",
     "store": {
       "name": "Mansour Shoes",
@@ -214,62 +214,101 @@
           "overlayOpacity": 40,
           "textAlignment": "center"
         },
+        "marquee": {
+          "enabled": true,
+          "text": "משלוח חינם בהזמנות מעל 200 ₪! • קולקציה חדשה בחנות",
+          "speedSeconds": 20,
+          "textColor": "#fff",
+          "background": {
+            "style": "solid",
+            "color": null,
+            "secondaryColor": null
+          }
+        },
         "featuredCategories": {
           "enabled": true,
           "limit": 6,
           "background": {
-            "style": "color-mix",
+            "style": "mesh",
             "color": null,
             "secondaryColor": null,
-            "mixPercentage": 8
+            "mixPercentage": 8,
+            "meshOpacity": 10,
+            "meshGrade": "deep"
           }
         },
         "newArrivals": {
           "enabled": true,
           "limit": 8,
           "background": {
-            "style": "color-mix",
+            "style": "mesh",
             "color": null,
             "secondaryColor": null,
-            "mixPercentage": 8
+            "mixPercentage": 8,
+            "meshOpacity": 10,
+            "meshGrade": "deep"
           }
         },
         "bestSellers": {
           "enabled": true,
           "limit": 8,
           "background": {
-            "style": "color-mix",
+            "style": "mesh",
             "color": null,
             "secondaryColor": null,
-            "mixPercentage": 8
+            "mixPercentage": 8,
+            "meshOpacity": 10,
+            "meshGrade": "deep"
+          }
+        },
+        "feature": {
+          "enabled": true,
+          "title": "קולקציה מובחרת",
+          "description": "גלה את המבחר הייחודי שלנו של מוצרים איכותיים.",
+          "imageUrl": null,
+          "imagePosition": "right",
+          "ctaText": "קנה עכשיו",
+          "ctaLink": "/collections/featured",
+          "background": {
+            "style": "mesh",
+            "color": null,
+            "secondaryColor": null,
+            "meshOpacity": 10,
+            "meshGrade": "deep"
           }
         },
         "onSale": {
           "enabled": true,
           "limit": 4,
           "background": {
-            "style": "color-mix",
+            "style": "mesh",
             "color": null,
             "secondaryColor": null,
-            "mixPercentage": 8
+            "mixPercentage": 8,
+            "meshOpacity": 10,
+            "meshGrade": "deep"
           }
         },
         "featuredBrands": {
           "enabled": false,
           "background": {
-            "style": "color-mix",
+            "style": "mesh",
             "color": null,
             "secondaryColor": null,
-            "mixPercentage": 8
+            "mixPercentage": 8,
+            "meshOpacity": 15,
+            "meshGrade": "deep"
           }
         },
         "testimonials": {
           "enabled": true,
           "background": {
-            "style": "color-mix",
+            "style": "mesh",
             "color": null,
             "secondaryColor": null,
-            "mixPercentage": 8
+            "mixPercentage": 8,
+            "meshOpacity": 10,
+            "meshGrade": "deep"
           },
           "starColor": "#FFD700",
           "starEmptyColor": null,
@@ -298,10 +337,12 @@
         "newsletter": {
           "enabled": true,
           "background": {
-            "style": "gradient",
+            "style": "mesh",
             "color": null,
             "secondaryColor": null,
-            "gradientDirection": "to-bottom"
+            "gradientDirection": "to-bottom",
+            "meshOpacity": 10,
+            "meshGrade": "deep"
           }
         },
         "instagramFeed": {

@@ -537,28 +537,9 @@ html {
   pointer-events: none;
 }
 
-.premium-band::after {
-  content: "";
-  position: absolute;
-  inset: -40% -10% -40% -10%;
-  background: radial-gradient(40% 40% at 20% 20%, color-mix(in srgb, var(--store-primary) 35%, transparent), transparent 60%),
-    radial-gradient(35% 35% at 80% 30%, color-mix(in srgb, var(--store-accent) 30%, transparent), transparent 60%),
-    linear-gradient(120deg, color-mix(in srgb, var(--store-primary) 12%, transparent), transparent 55%);
-  opacity: 0.6;
-  animation: gradientShift 18s ease-in-out infinite;
-  background-size: 200% 200%;
-  pointer-events: none;
-}
-
-.premium-band-content {
-  position: relative;
-  z-index: 1;
-}
-
+/* .premium-band::after removed to allow configurable backgrounds */
 @media (prefers-reduced-motion: reduce) {
-  .premium-band::after {
-    animation: none;
-  }
+  /* ... */
 }
 
 /* Selection color */

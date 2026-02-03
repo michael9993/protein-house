@@ -28,7 +28,7 @@ export const sportsStoreConfig: StoreConfig = createStoreConfig('physical', {
     logo: "/logos/sportzone-logo.svg",
     logoAlt: "SportZone Logo",
     favicon: "/favicons/sportzone-favicon.ico",
-    
+
     colors: {
       primary: "#FF4500",      // Energetic Orange-Red
       secondary: "#1A1A1A",    // Bold Black
@@ -41,13 +41,13 @@ export const sportsStoreConfig: StoreConfig = createStoreConfig('physical', {
       warning: "#FFD600",
       error: "#FF1744",
     },
-    
+
     typography: {
       fontHeading: "Bebas Neue",     // Bold, sporty
       fontBody: "Roboto",
       fontMono: "JetBrains Mono",
     },
-    
+
     style: {
       borderRadius: "sm",            // Sharp, athletic look
       buttonStyle: "solid",
@@ -106,9 +106,33 @@ export const sportsStoreConfig: StoreConfig = createStoreConfig('physical', {
   homepage: {
     sections: {
       hero: { enabled: true, type: "video" },      // Dynamic sports video
-      featuredCategories: { enabled: true, limit: 8 },
-      newArrivals: { enabled: true, limit: 8 },
-      bestSellers: { enabled: true, limit: 8 },
+      featuredCategories: {
+        enabled: true,
+        limit: 8,
+        background: {
+          style: 'mesh',
+          color: null,
+          secondaryColor: null,
+        }
+      },
+      newArrivals: {
+        enabled: true,
+        limit: 8,
+        background: {
+          style: 'mesh',
+          color: null,
+          secondaryColor: null,
+        }
+      },
+      bestSellers: {
+        enabled: true,
+        limit: 8,
+        background: {
+          style: 'mesh',
+          color: null,
+          secondaryColor: null,
+        }
+      },
       onSale: { enabled: true, limit: 4 },
       featuredBrands: { enabled: true },           // Nike, Adidas, etc.
       testimonials: { enabled: true },

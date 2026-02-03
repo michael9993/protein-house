@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useStoreConfig, useFeature, useContentConfig } from "@/providers/StoreConfigProvider";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+
 import { useNewsletterState } from "@/hooks/useNewsletterState";
 import { SectionHeader } from "./SectionHeader";
 
@@ -59,8 +59,7 @@ export function NewsletterSignup({
   const displayButtonText = buttonText ?? content.general.newsletterButton;
   const displaySuccessMessage = successMessage ?? content.general.newsletterSuccess;
 
-  // Call all hooks before any conditional returns
-  const { elementRef, isVisible } = useScrollAnimation({ threshold: 0.1, rootMargin: "0px 0px -80px 0px" });
+
 
   // Don't render if disabled
   if (!isEnabled) {
@@ -101,8 +100,7 @@ export function NewsletterSignup({
 
   return (
     <section 
-      ref={elementRef}
-      className={`relative overflow-hidden py-20 transition-opacity duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      className="relative overflow-hidden py-20"
       style={{ backgroundColor: branding.colors.secondary }}
     >
       {/* Decorative Elements */}

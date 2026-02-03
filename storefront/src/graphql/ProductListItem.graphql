@@ -1,7 +1,9 @@
+# Product creation date (for "New" badge logic)
 fragment ProductListItem on Product {
 	id
 	name
 	slug
+	created
 	pricing {
 		priceRange {
 			start {

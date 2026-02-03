@@ -187,6 +187,7 @@ export const SectionBackgroundStyleSchema = z.enum([
   "pattern",        // Pattern overlay (grid, dots, etc.)
   "animated-gradient", // Animated gradient
   "glass",          // Glass morphism effect
+  "mesh",           // Mesh gradient (Aurora)
 ]);
 
 // Section background configuration
@@ -207,17 +208,38 @@ export const SectionBackgroundSchema = z.object({
   // For glass
   glassBlur: z.number().min(0).max(20).optional(), // Blur amount (default: 10)
   glassOpacity: z.number().min(0).max(100).optional(), // Opacity (default: 80)
+  // For mesh
+  meshOpacity: z.number().min(0).max(100).optional(),
+  meshGrade: z.enum(["light", "medium", "deep", "cool", "warm"]).optional(),
 }).optional();
+
+// Reusable Card Style Schema
+export const CardConfigSchema = z.object({
+  // Dimensions & Layout
+  aspectRatio: z.enum(["square", "portrait", "landscape", "wide"]).optional(), // Default: portrait
+  imageFit: z.enum(["cover", "contain", "fill"]).optional(), // Default: cover
+  // Typography
+  textSize: z.enum(["sm", "base", "lg", "xl"]).optional(), // Default: base
+  textColor: z.string().nullable().optional(), // null = inherit
+  textPosition: z.enum(["center", "bottom-left", "bottom-center"]).optional(), // For category cards
+  // Appearance
+  backgroundColor: z.string().nullable().optional(), // null = white/transparent
+  opacity: z.number().min(0).max(100).optional(), // 0-100 (for backgrounds)
+  borderRadius: z.enum(["none", "sm", "md", "lg", "full"]).optional(),
+  shadow: z.enum(["none", "sm", "md", "lg"]).optional(),
+});
 
 export const LimitedSectionSchema = z.object({
   enabled: z.boolean(),
   limit: z.number().min(1).max(20),
   background: SectionBackgroundSchema,
+  card: CardConfigSchema.optional(), // New: Card style override
 });
 
 export const SimpleSectionSchema = z.object({
   enabled: z.boolean(),
   background: SectionBackgroundSchema,
+  card: CardConfigSchema.optional(), // New: Card style override
 });
 
 // Testimonials section with star color and card styling
@@ -259,11 +281,33 @@ export const InstagramSectionSchema = z.object({
   background: SectionBackgroundSchema,
 });
 
+export const MarqueeSectionSchema = z.object({
+  enabled: z.boolean(),
+  text: z.string(),
+  speedSeconds: z.number().min(2).max(120).default(20),
+  textColor: z.string().nullable().optional(),
+  background: SectionBackgroundSchema,
+});
+
+export const FeatureSectionSchema = z.object({
+  enabled: z.boolean(),
+  title: z.string(),
+  description: z.string(),
+  imageUrl: z.string().nullable(),
+  imagePosition: z.enum(["left", "right"]).default("left"),
+  ctaText: z.string().optional(),
+  ctaLink: z.string().optional(),
+  background: SectionBackgroundSchema,
+  card: CardConfigSchema.optional(), // New: Card style override
+});
+
 export const HomepageSectionsSchema = z.object({
   hero: HeroSectionSchema,
+  marquee: MarqueeSectionSchema,
   featuredCategories: LimitedSectionSchema,
   newArrivals: LimitedSectionSchema,
   bestSellers: LimitedSectionSchema,
+  feature: FeatureSectionSchema,
   onSale: LimitedSectionSchema,
   featuredBrands: SimpleSectionSchema,
   testimonials: TestimonialsSectionSchema,
@@ -272,11 +316,14 @@ export const HomepageSectionsSchema = z.object({
 });
 
 // Section IDs for ordering
+// Section IDs for ordering
 export const HomepageSectionIdSchema = z.enum([
   "hero",
+  "marquee",
   "featuredCategories",
   "newArrivals",
   "bestSellers",
+  "feature",
   "onSale",
   "featuredBrands",
   "testimonials",
@@ -287,9 +334,11 @@ export const HomepageSectionIdSchema = z.enum([
 // Default section order
 export const DEFAULT_SECTION_ORDER: z.infer<typeof HomepageSectionIdSchema>[] = [
   "hero",
+  "marquee",
   "featuredCategories",
   "newArrivals",
   "bestSellers",
+  "feature",
   "onSale",
   "featuredBrands",
   "testimonials",

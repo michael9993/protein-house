@@ -43,53 +43,63 @@ This project uses Docker Compose for local development. All services run in cont
 **After making changes, always determine which container(s) need to be restarted:**
 
 1. **Backend changes (saleor/)**:
+
    - Schema/model changes: Restart `saleor-api`, `saleor-worker`, `saleor-scheduler`
    - Code changes only: Restart `saleor-api` (auto-reload may work, but restart ensures consistency)
    - Migration changes: Restart `saleor-api` after running migrations
 
 2. **Dashboard changes (dashboard/)**:
+
    - Restart `saleor-dashboard-dev`
    - If GraphQL schema changed: Run `pnpm generate` in dashboard, then restart container
 
 3. **Storefront changes (storefront/)**:
+
    - Restart `saleor-storefront-dev`
    - If GraphQL schema changed: Run `pnpm generate` in storefront, then restart container
 
 4. **Storefront Control App changes (apps/apps/storefront-control/)**:
+
    - Restart `saleor-storefront-control-app`
    - If schema/config structure changed: Update sample config files (see below)
 
 5. **Newsletter App changes (apps/apps/newsletter/)**:
+
    - Restart `saleor-newsletter-app`
    - If MJML templates or campaign logic changed: Restart required
    - If subscriber management features changed: Restart required
 
 6. **Sales Analytics App changes (apps/apps/sales-analytics/)**:
+
    - Restart `saleor-sales-analytics-app`
    - If tRPC router or analytics calculations changed: Restart required
    - If Excel export functionality changed: Restart required
 
-7. **Other App changes (apps/apps/*/)**:
+7. **Other App changes (apps/apps/\*/)**:
+
    - Restart the corresponding app container:
      - `saleor-stripe-app` for Stripe app
      - `saleor-smtp-app` for SMTP app
      - `saleor-invoice-app` for Invoice app
 
-6. **Database/Redis changes**:
+8. **Database/Redis changes**:
    - Usually no restart needed (data persists in volumes)
    - Only restart if configuration changed
 
 **Restart command:**
+
 ```bash
 docker compose -f infra/docker-compose.dev.yml restart <container-name>
 ```
 
 **View logs:**
+
 ```bash
 docker compose -f infra/docker-compose.dev.yml logs -f <container-name>
 ```
 
 **Check container status:**
+
 ```bash
 docker compose -f infra/docker-compose.dev.yml ps
 ```
@@ -195,6 +205,7 @@ docker compose -f infra/docker-compose.dev.yml ps
 - Next.js App Router; keep server/client boundaries explicit.
 - Use `next lint` rules; Tailwind is used for styling (prettier-plugin-tailwindcss).
 - Keep GraphQL documents in the codegen flow; run `pnpm generate` if changed.
+- **Homepage product sections**: New Arrivals and Best Sellers are data-driven (newest by CREATED_AT, top-rated by RATING when collections are empty). "New" badge uses product `created` (last 30 days). See PRD §10.2 and `storefront/src/lib/cms.ts` / `HomepageProducts.graphql`.
 
 ## Naming Conventions
 
@@ -242,6 +253,7 @@ docker compose -f infra/docker-compose.dev.yml ps
 **Purpose**: Professional sales analytics dashboard for Saleor with KPIs, charts, and multi-channel insights.
 
 **Features**:
+
 - Key Performance Indicators (KPIs): GMV, Total Orders, AOV, Items Sold, Unique Customers with trend indicators
 - Visualizations: Revenue over time (Area Chart), Top products by revenue, Sales by category (Donut Chart), Recent orders table
 - Filters: Time range presets (Today, Last 7/30/90 days, 3/6/12 months, custom), Channel filter
@@ -249,6 +261,7 @@ docker compose -f infra/docker-compose.dev.yml ps
 - Dashboard Integration: Main dashboard via `NAVIGATION_ORDERS` extension (APP_PAGE target), Order details widget via `ORDER_DETAILS_WIDGETS` extension (WIDGET target)
 
 **Tech Stack**:
+
 - Next.js (Pages Router), React, TypeScript
 - Tremor UI for analytics visualizations
 - Macaw UI for app shell/forms
@@ -258,6 +271,7 @@ docker compose -f infra/docker-compose.dev.yml ps
 - Zod for branded types
 
 **Recent Updates**:
+
 - Added Excel export functionality with professional formatting (styled headers, borders, column widths, currency formatting)
 - Export includes all orders in selected period (not just recent 10)
 - Multiple Excel sheets: Summary, Revenue Over Time, Top Products, Sales by Category, All Orders
@@ -270,6 +284,7 @@ docker compose -f infra/docker-compose.dev.yml ps
 **Purpose**: Manage newsletter subscribers, email templates, and email campaigns.
 
 **Features**:
+
 - Subscriber management (active/inactive status, channel/language filtering)
 - MJML email template management
 - Campaign management (create, start, cancel, delete campaigns)
@@ -284,6 +299,7 @@ docker compose -f infra/docker-compose.dev.yml ps
 **Purpose**: Dashboard extension for managing storefront UI configuration.
 
 **Features**:
+
 - Theme management
 - Feature toggles
 - Homepage sections configuration
@@ -298,6 +314,7 @@ docker compose -f infra/docker-compose.dev.yml ps
 **Purpose**: Handles email notifications via SMTP.
 
 **Features**:
+
 - Email sending via SMTP configuration
 - Fulfillment notifications
 - Invoice emails
@@ -311,6 +328,7 @@ docker compose -f infra/docker-compose.dev.yml ps
 **Purpose**: Generates PDF invoices for orders.
 
 **Features**:
+
 - PDF invoice generation
 - Order invoice management
 - Integration with storefront for invoice downloads
@@ -322,6 +340,7 @@ docker compose -f infra/docker-compose.dev.yml ps
 **Purpose**: Saleor Payment App for Stripe integration.
 
 **Features**:
+
 - Stripe payment processing
 - Payment gateway configuration
 - Webhook handling for payment events

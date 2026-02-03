@@ -10,6 +10,8 @@ import { AppLayout } from "@/modules/ui/app-layout";
 import { SectionCard } from "@/modules/ui/section-card";
 import { SelectField, FormField } from "@/modules/ui/form-field";
 import { StickySaveBar } from "@/modules/ui/sticky-save-bar";
+import { BackgroundFields } from "@/modules/ui/background-fields";
+import { CardStyleFields } from "@/modules/ui/card-style-fields";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { HomepageSchema, DEFAULT_SECTION_ORDER } from "@/modules/config/schema";
 import type { StorefrontConfig, HomepageSectionId } from "@/modules/config/schema";
@@ -19,9 +21,11 @@ type HomepageFormData = StorefrontConfig["homepage"];
 // Section display names for the ordering UI
 const SECTION_LABELS: Record<HomepageSectionId, { label: string; icon: string }> = {
   hero: { label: "Hero Banner", icon: "🎬" },
+  marquee: { label: "Marquee Banner", icon: "📢" },
   featuredCategories: { label: "Featured Categories", icon: "📂" },
   newArrivals: { label: "New Arrivals", icon: "✨" },
   bestSellers: { label: "Best Sellers", icon: "🏆" },
+  feature: { label: "Feature Collection", icon: "⭐" },
   onSale: { label: "On Sale", icon: "🏷️" },
   featuredBrands: { label: "Featured Brands", icon: "🏢" },
   testimonials: { label: "Testimonials", icon: "💬" },
@@ -298,7 +302,67 @@ const HomepagePage: NextPage = () => {
           )}
         </SectionCard>
 
-        {/* Product Sections */}
+        {/* Marquee Section */}
+        <SectionCard
+          id="homepage-marquee"
+          title="Marquee Banner"
+          description="Scrolling text banner for announcements"
+          keywords={["marquee", "banner", "announcement", "scroll"]}
+          icon="📢"
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px", paddingBottom: "24px", borderBottom: "1px solid #ddd" }}>
+            <Controller
+              name="sections.marquee.enabled"
+              control={control}
+              render={({ field }) => (
+                <input
+                  type="checkbox"
+                  checked={field.value === true}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                  style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                />
+              )}
+            />
+            <div>
+              <label style={{ display: "block", fontSize: "14px", fontWeight: "500", marginBottom: "4px" }}>Enable Marquee</label>
+              <p style={{ fontSize: "12px", color: "#666", margin: 0 }}>Show scrolling text banner</p>
+            </div>
+          </div>
+
+          <div style={{ padding: "16px", backgroundColor: "#fff", border: "1px solid #ddd" }}>
+            <FormField 
+              label="Text" 
+              name="sections.marquee.text" 
+              register={register} 
+              placeholder="Free shipping • Sale now on"
+              description="Use • to separate items"
+            />
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "16px" }}>
+              <FormField 
+                label="Speed (seconds)" 
+                name="sections.marquee.speedSeconds" 
+                register={register} 
+                type="number" 
+                placeholder="20"
+              />
+              <FormField 
+                label="Text Color" 
+                name="sections.marquee.textColor" 
+                register={register} 
+                placeholder="#000000" 
+              />
+            </div>
+            
+            <BackgroundFields 
+              basePath="sections.marquee.background" 
+              register={register} 
+              control={control} 
+              watch={watch}
+            />
+          </div>
+        </SectionCard>
+
+        {/* Product Sections */ }
         <SectionCard
           id="homepage-products"
           title="Product Sections"
@@ -337,8 +401,87 @@ const HomepagePage: NextPage = () => {
                   type="number" 
                   placeholder="8"
                 />
+                
+                <BackgroundFields 
+                  basePath={`sections.${key}.background`} 
+                  register={register} 
+                  control={control} 
+                  watch={watch}
+                />
+                
+                <CardStyleFields 
+                  basePath={`sections.${key}.card`} 
+                  register={register} 
+                  control={control} 
+                  watch={watch}
+                />
               </div>
             ))}
+          </div>
+        </SectionCard>
+
+        {/* Feature Section */}
+        <SectionCard
+          id="homepage-feature"
+          title="Feature Section"
+          description="Highlight a specific collection or product with image and text"
+          keywords={["feature", "highlight", "collection", "image"]}
+          icon="⭐"
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px", paddingBottom: "24px", borderBottom: "1px solid #ddd" }}>
+            <Controller
+              name="sections.feature.enabled"
+              control={control}
+              render={({ field }) => (
+                <input
+                  type="checkbox"
+                  checked={field.value === true}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                  style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                />
+              )}
+            />
+            <div>
+              <label style={{ display: "block", fontSize: "14px", fontWeight: "500", marginBottom: "4px" }}>Enable Feature Section</label>
+              <p style={{ fontSize: "12px", color: "#666", margin: 0 }}>Show featured content block</p>
+            </div>
+          </div>
+
+          <div style={{ padding: "16px", backgroundColor: "#fff", border: "1px solid #ddd" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+              <FormField label="Title" name="sections.feature.title" register={register} placeholder="Featured Collection" />
+              <FormField label="Description" name="sections.feature.description" register={register} placeholder="Discover our best items" />
+              <FormField label="CTA Text" name="sections.feature.ctaText" register={register} placeholder="Shop Now" />
+              <FormField label="CTA Link" name="sections.feature.ctaLink" register={register} placeholder="/collections/featured" />
+            </div>
+            <div style={{ marginTop: "16px" }}>
+              <FormField label="Image URL" name="sections.feature.imageUrl" register={register} type="url" placeholder="https://..." />
+            </div>
+            <div style={{ marginTop: "16px" }}>
+              <SelectField
+                label="Image Position"
+                name="sections.feature.imagePosition"
+                register={register}
+                options={[
+                  { value: "left", label: "Left" },
+                  { value: "right", label: "Right" },
+                ]}
+              />
+            </div>
+            
+            <BackgroundFields 
+              basePath="sections.feature.background" 
+              register={register} 
+              control={control} 
+              watch={watch}
+            />
+            
+            <CardStyleFields 
+              basePath="sections.feature.card" 
+              register={register} 
+              control={control} 
+              watch={watch}
+            />
           </div>
         </SectionCard>
 
@@ -356,22 +499,41 @@ const HomepagePage: NextPage = () => {
               { key: "testimonials", label: "Testimonials", description: "Customer reviews and testimonials", icon: "💬" },
               { key: "newsletter", label: "Newsletter Signup", description: "Email subscription form", icon: "📧" },
             ].map(({ key, label, description, icon }) => (
-              <div key={key} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 0", borderBottom: "1px solid #ddd" }}>
-                <Controller
-                  name={`sections.${key as "featuredBrands" | "testimonials" | "newsletter"}.enabled`}
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      type="checkbox"
-                      checked={field.value === true}
-                      onChange={(e) => field.onChange(e.target.checked)}
-                      style={{ width: "18px", height: "18px", cursor: "pointer" }}
+              <div key={key} style={{ borderBottom: "1px solid #eee" }}> 
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 0" }}>
+                  <Controller
+                    name={`sections.${key as "featuredBrands" | "testimonials" | "newsletter"}.enabled`}
+                    control={control}
+                    render={({ field }) => (
+                      <input
+                        type="checkbox"
+                        checked={field.value === true}
+                        onChange={(e) => field.onChange(e.target.checked)}
+                        style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                      />
+                    )}
+                  />
+                  <div>
+                    <p style={{ fontSize: "14px", fontWeight: "500", margin: "0 0 4px 0" }}>{icon} {label}</p>
+                    <p style={{ fontSize: "12px", color: "#666", margin: 0 }}>{description}</p>
+                  </div>
+                </div>
+                
+                <div style={{ marginLeft: "30px", marginBottom: "16px" }}>
+                  <BackgroundFields 
+                    basePath={`sections.${key}.background`} 
+                    register={register} 
+                    control={control} 
+                    watch={watch}
+                  />
+                  {(key === "featuredBrands") && (
+                    <CardStyleFields 
+                      basePath={`sections.${key}.card`} 
+                      register={register} 
+                      control={control} 
+                      watch={watch}
                     />
                   )}
-                />
-                <div>
-                  <p style={{ fontSize: "14px", fontWeight: "500", margin: "0 0 4px 0" }}>{icon} {label}</p>
-                  <p style={{ fontSize: "12px", color: "#666", margin: 0 }}>{description}</p>
                 </div>
               </div>
             ))}
@@ -397,6 +559,14 @@ const HomepagePage: NextPage = () => {
                 </div>
               </div>
               <FormField label="Instagram Username" name="sections.instagramFeed.username" register={register} placeholder="@yourstore" />
+              <div style={{ marginTop: "16px" }}>
+                <BackgroundFields 
+                  basePath="sections.instagramFeed.background" 
+                  register={register} 
+                  control={control} 
+                  watch={watch}
+                />
+              </div>
             </div>
           </div>
         </SectionCard>

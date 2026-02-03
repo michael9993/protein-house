@@ -1,7 +1,7 @@
 "use client";
 
+import React, { useState, useRef, useCallback } from "react";
 import Image from "next/image";
-import { useState, useRef, useCallback } from "react";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { formatMoneyRange, formatMoney } from "@/lib/utils";
 import type { ProductListItemFragment } from "@/gql/graphql";
@@ -126,12 +126,7 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
 
   return (
     <article 
-      className={`group relative flex flex-col ${cardRadius} overflow-hidden transition-all duration-300 ${cardShadow} hover:${hoverShadow}`}
-      style={{
-        border: `1px solid ${branding.colors.primary}20`,
-        backgroundColor: branding.colors.surface,
-        boxShadow: isHovered ? `0 10px 40px ${branding.colors.primary}15` : undefined,
-      }}
+      className={`group relative flex flex-col ${cardRadius} overflow-hidden bg-white transition-all duration-300 ${cardShadow} hover:${hoverShadow}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -139,9 +134,6 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
         {/* Image Container */}
         <div 
           className={`relative ${imageAspect} overflow-hidden bg-neutral-100 transition-all duration-300`}
-          style={{
-            borderBottom: `3px solid ${branding.colors.primary}30`,
-          }}
         >
           {/* Product Image */}
           {product.thumbnail?.url && !imageError ? (
@@ -167,12 +159,9 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
           
           {/* Overlay gradient on hover with brand color */}
           <div 
-            className={`absolute inset-0 transition-opacity duration-300 ${
+            className={`absolute inset-0 bg-black/5 transition-opacity duration-300 ${
               isHovered ? "opacity-100" : "opacity-0"
             }`}
-            style={{
-              background: `linear-gradient(to top, ${branding.colors.primary}20 0%, transparent 100%)`,
-            }}
           />
 
           {/* Quick View button - always visible on mobile, hover on desktop */}
@@ -264,12 +253,7 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
         </div>
 
         {/* Product Info */}
-        <div 
-          className="mt-3 flex flex-col p-4 sm:mt-4 sm:p-5"
-          style={{
-            background: `linear-gradient(to bottom, ${branding.colors.primary}05 0%, transparent 100%)`,
-          }}
-        >
+        <div className="mt-3 flex flex-col p-4 sm:mt-4 sm:p-5">
           {/* Product Name */}
           <h3 
             className="mt-1 line-clamp-2 text-sm font-semibold transition-colors group-hover:opacity-80"

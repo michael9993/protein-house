@@ -1,0 +1,30 @@
+# Homepage product queries: data-driven New Arrivals and Best Sellers
+# Uses Saleor ProductOrderField: CREATED_AT for newest, RATING for top-rated (best-sellers fallback)
+
+query ProductsNewest($channel: String!, $first: Int = 12) {
+  products(
+    first: $first
+    channel: $channel
+    sortBy: { field: CREATED_AT, direction: DESC }
+  ) {
+    edges {
+      node {
+        ...ProductListItem
+      }
+    }
+  }
+}
+
+query ProductsTopRated($channel: String!, $first: Int = 12) {
+  products(
+    first: $first
+    channel: $channel
+    sortBy: { field: RATING, direction: DESC }
+  ) {
+    edges {
+      node {
+        ...ProductListItem
+      }
+    }
+  }
+}

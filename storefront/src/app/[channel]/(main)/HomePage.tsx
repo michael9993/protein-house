@@ -9,11 +9,15 @@ import {
   Testimonials,
   NewsletterSignup,
   InstagramFeed,
+  MarqueeSection,
+  FeatureSection,
   placeholderCategories,
 } from "@/components/home";
+import { RevealOnScroll } from "@/components/ui/RevealOnScroll";
 import { type HeroBannerConfig, type Testimonial, type FeaturedBrand } from "@/lib/cms";
 import { useHomepageConfig, useContentConfig } from "@/providers/StoreConfigProvider";
 import { DEFAULT_SECTION_ORDER, type HomepageSectionId } from "@/config";
+import React from "react";
 
 /**
  * Category data from Dashboard
@@ -58,14 +62,6 @@ interface HomePageProps {
  * - Hero Banner: Dashboard > Catalog > Collections > "hero-banner" (metadata)
  * - Testimonials: Dashboard > Catalog > Collections > "testimonials" (metadata)
  * - Brands: Dashboard > Catalog > Collections > "brands" (metadata)
- * 
- * DASHBOARD SETUP:
- * 1. Create categories with background images
- * 2. Create collections: "new-arrivals", "best-sellers", "sale", "featured-products"
- * 3. Create "hero-banner" collection with metadata for banner config
- * 4. Create "testimonials" collection with testimonials_json metadata
- * 5. Create "brands" collection with brands_json metadata
- * 6. Add products to product collections
  */
 export function HomePage({
   channel,
@@ -103,81 +99,101 @@ export function HomePage({
         if (!sections.hero.enabled) return null;
         return <HeroSection key="hero" cmsConfig={heroBanner} />;
 
+      case 'marquee':
+        if (!sections.marquee?.enabled) return null;
+        return <MarqueeSection key="marquee" />;
+
       case 'featuredCategories':
         if (!sections.featuredCategories.enabled) return null;
         return (
-          <FeaturedCategories 
-            key="featuredCategories"
-            categories={displayCategories}
-            title={homepageContent.categoriesTitle}
-            subtitle={homepageContent.categoriesSubtitle}
-          />
+          <RevealOnScroll key="featuredCategories">
+            <FeaturedCategories 
+              categories={displayCategories}
+              title={homepageContent.categoriesTitle}
+              subtitle={homepageContent.categoriesSubtitle}
+            />
+          </RevealOnScroll>
         );
 
       case 'newArrivals':
         if (!sections.newArrivals.enabled || newArrivals.length === 0) return null;
         return (
-          <ProductGrid 
-            key="newArrivals"
-            products={newArrivals}
-            type="newArrivals"
-            title={homepageContent.newArrivalsTitle}
-            subtitle={homepageContent.newArrivalsSubtitle}
-          />
+          <RevealOnScroll key="newArrivals">
+            <ProductGrid 
+              products={newArrivals}
+              type="newArrivals"
+              title={homepageContent.newArrivalsTitle}
+              subtitle={homepageContent.newArrivalsSubtitle}
+            />
+          </RevealOnScroll>
         );
 
       case 'bestSellers':
         if (!sections.bestSellers.enabled || bestSellers.length === 0) return null;
         return (
-          <ProductGrid 
-            key="bestSellers"
-            products={bestSellers}
-            type="bestSellers"
-            title={homepageContent.bestSellersTitle}
-            subtitle={homepageContent.bestSellersSubtitle}
-          />
+          <RevealOnScroll key="bestSellers">
+            <ProductGrid 
+              products={bestSellers}
+              type="bestSellers"
+              title={homepageContent.bestSellersTitle}
+              subtitle={homepageContent.bestSellersSubtitle}
+            />
+          </RevealOnScroll>
         );
+
+      case 'feature':
+        if (!sections.feature?.enabled) return null;
+        return <FeatureSection key="feature" />;
 
       case 'onSale':
         if (!sections.onSale.enabled || saleProducts.length === 0) return null;
         return (
-          <ProductGrid 
-            key="onSale"
-            products={saleProducts}
-            type="onSale"
-            title={homepageContent.onSaleTitle}
-            subtitle={homepageContent.onSaleSubtitle}
-          />
+          <RevealOnScroll key="onSale">
+            <ProductGrid 
+              products={saleProducts}
+              type="onSale"
+              title={homepageContent.onSaleTitle}
+              subtitle={homepageContent.onSaleSubtitle}
+            />
+          </RevealOnScroll>
         );
 
       case 'featuredBrands':
         if (!sections.featuredBrands.enabled) return null;
-        return <FeaturedBrands key="featuredBrands" cmsBrands={brands} />;
+        return (
+          <RevealOnScroll key="featuredBrands">
+            <FeaturedBrands cmsBrands={brands} />
+          </RevealOnScroll>
+        );
 
       case 'testimonials':
-        // Always render component to maintain hook consistency
-        // Component will handle enabled check internally after all hooks
-        return <Testimonials key="testimonials" channel={channel} cmsTestimonials={testimonials} />;
+        return (
+          <RevealOnScroll key="testimonials">
+            <Testimonials channel={channel} cmsTestimonials={testimonials} />
+          </RevealOnScroll>
+        );
 
       case 'newsletter':
         if (!sections.newsletter.enabled) return null;
         return (
-          <NewsletterSignup 
-            key="newsletter"
-            title={contentConfig.general.newsletterTitle}
-            subtitle={contentConfig.general.newsletterDescription}
-            buttonText={contentConfig.general.newsletterButton}
-            channel={channel}
-          />
+          <RevealOnScroll key="newsletter">
+            <NewsletterSignup 
+              title={contentConfig.general.newsletterTitle}
+              subtitle={contentConfig.general.newsletterDescription}
+              buttonText={contentConfig.general.newsletterButton}
+              channel={channel}
+            />
+          </RevealOnScroll>
         );
 
       case 'instagramFeed':
         if (!sections.instagramFeed.enabled) return null;
         return (
-          <InstagramFeed 
-            key="instagramFeed"
-            username={sections.instagramFeed.username || undefined}
-          />
+          <RevealOnScroll key="instagramFeed">
+            <InstagramFeed 
+              username={sections.instagramFeed.username || undefined}
+            />
+          </RevealOnScroll>
         );
 
       default:
@@ -195,4 +211,3 @@ export function HomePage({
     </main>
   );
 }
-

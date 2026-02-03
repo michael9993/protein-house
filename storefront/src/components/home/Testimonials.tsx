@@ -4,7 +4,7 @@ import React from "react";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { useStoreConfig, useContentConfig } from "@/providers/StoreConfigProvider";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+
 import { SectionHeader } from "./SectionHeader";
 import { generateSectionBackground, generatePatternOverlay, type SectionBackgroundConfig } from "@/lib/section-backgrounds";
 import { getAllProductReviews, getStoreStatistics, type ReviewWithProduct } from "@/app/actions";
@@ -101,9 +101,6 @@ export function Testimonials({
   const carouselRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   
-  // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
-  const { elementRef, isVisible } = useScrollAnimation({ threshold: 0.1, rootMargin: "0px 0px -80px 0px" });
-
   const displayTitle = title || content.homepage.testimonialsTitle;
   const displaySubtitle = subtitle || content.homepage.testimonialsSubtitle;
 
@@ -215,15 +212,11 @@ export function Testimonials({
 
   const sectionStyles: React.CSSProperties = {
     ...backgroundStyles,
-    transform: isVisible ? 'translateY(0)' : 'translateY(16px)',
-    transition: 'opacity 300ms ease-out, transform 300ms ease-out',
-    willChange: isVisible ? 'auto' : 'transform, opacity',
   };
 
   return (
     <section 
-      ref={elementRef}
-      className={`premium-band py-16 sm:py-20 transition-opacity duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      className="premium-band py-16 sm:py-20"
       style={sectionStyles}
     >
       {/* Pattern overlay for pattern backgrounds */}

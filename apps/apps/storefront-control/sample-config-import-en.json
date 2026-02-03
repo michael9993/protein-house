@@ -179,6 +179,17 @@
           "overlayOpacity": 40,
           "textAlignment": "center"
         },
+        "marquee": {
+          "enabled": true,
+          "text": "Free shipping on all orders over $100! • Shop the new collection now • Limited time offer",
+          "speedSeconds": 20,
+          "textColor": null,
+          "background": {
+            "style": "solid",
+            "color": null,
+            "secondaryColor": null
+          }
+        },
         "featuredCategories": {
           "enabled": true,
           "limit": 6,
@@ -207,6 +218,21 @@
             "color": null,
             "secondaryColor": null,
             "mixPercentage": 8
+          }
+        },
+
+        "feature": {
+          "enabled": true,
+          "title": "Featured Collection",
+          "description": "Discover our hand-picked selection of premium products designed for your lifestyle.",
+          "imageUrl": null,
+          "imagePosition": "left",
+          "ctaText": "Shop Now",
+          "ctaLink": "/collections/featured",
+          "background": {
+            "style": "none",
+            "color": null,
+            "secondaryColor": null
           }
         },
         "onSale": {
@@ -282,9 +308,11 @@
       },
       "sectionOrder": [
         "hero",
+        "marquee",
         "featuredCategories",
         "newArrivals",
         "bestSellers",
+        "feature",
         "onSale",
         "featuredBrands",
         "testimonials",

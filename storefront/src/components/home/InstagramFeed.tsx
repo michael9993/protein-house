@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useStoreConfig, useFeature, useContentConfig } from "@/providers/StoreConfigProvider";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+
 import { SectionHeader } from "./SectionHeader";
 import { generateSectionBackground, generatePatternOverlay, type SectionBackgroundConfig } from "@/lib/section-backgrounds";
 import Image from "next/image";
@@ -58,8 +58,6 @@ export function InstagramFeed({
   // Placeholder posts if no real posts provided
   const displayPosts: InstagramPost[] = posts || (displayUsername ? generatePlaceholderPosts(displayUsername, 8) : []);
 
-  const { elementRef, isVisible } = useScrollAnimation({ threshold: 0.1, rootMargin: "0px 0px -80px 0px" });
-
   // Get background config
   const backgroundConfig = (config.background || { style: 'none' }) as SectionBackgroundConfig | undefined;
   const backgroundStyles = generateSectionBackground(backgroundConfig, branding);
@@ -67,9 +65,6 @@ export function InstagramFeed({
 
   const sectionStyles: React.CSSProperties = {
     ...backgroundStyles,
-    transform: isVisible ? 'translateY(0)' : 'translateY(16px)',
-    transition: 'opacity 300ms ease-out, transform 300ms ease-out',
-    willChange: isVisible ? 'auto' : 'transform, opacity',
   };
 
   if (displayPosts.length === 0) {
@@ -78,8 +73,7 @@ export function InstagramFeed({
 
   return (
     <section 
-      ref={elementRef}
-      className={`premium-band py-16 sm:py-20 transition-opacity duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      className="premium-band py-16 sm:py-20"
       style={sectionStyles}
     >
       {/* Pattern overlay for pattern backgrounds */}

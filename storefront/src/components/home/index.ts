@@ -12,6 +12,8 @@ export { HeroSection, HeroImage, HeroVideo, HeroSlider } from './HeroSection';
 export { FeaturedCategories, placeholderCategories } from './FeaturedCategories';
 export { ProductGrid } from './ProductGrid';
 export { FeaturedBrands } from './FeaturedBrands';
+export { MarqueeSection } from './MarqueeSection';
+export { FeatureSection } from './FeatureSection';
 export { Testimonials } from './Testimonials';
 export { NewsletterSignup } from './NewsletterSignup';
 export { InstagramFeed } from './InstagramFeed';

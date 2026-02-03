@@ -17,9 +17,11 @@ export type StoreType = 'physical' | 'digital' | 'food' | 'services' | 'mixed';
 // Homepage section identifiers
 export type HomepageSectionId =
   | 'hero'
+  | 'marquee'
   | 'featuredCategories'
   | 'newArrivals'
   | 'bestSellers'
+  | 'feature'
   | 'onSale'
   | 'featuredBrands'
   | 'testimonials'
@@ -29,9 +31,11 @@ export type HomepageSectionId =
 // Default section order
 export const DEFAULT_SECTION_ORDER: HomepageSectionId[] = [
   'hero',
+  'marquee',
   'featuredCategories',
   'newArrivals',
   'bestSellers',
+  'feature',
   'onSale',
   'featuredBrands',
   'testimonials',
@@ -41,6 +45,18 @@ export const DEFAULT_SECTION_ORDER: HomepageSectionId[] = [
 
 // Default RTL locales
 export const DEFAULT_RTL_LOCALES = ['he', 'ar', 'fa', 'ur', 'yi', 'ps'];
+
+export interface CardConfig {
+  aspectRatio?: 'square' | 'portrait' | 'landscape' | 'wide';
+  imageFit?: 'cover' | 'contain' | 'fill';
+  textSize?: 'sm' | 'base' | 'lg' | 'xl';
+  textColor?: string | null;
+  textPosition?: 'center' | 'bottom-left' | 'bottom-center';
+  backgroundColor?: string | null;
+  opacity?: number;
+  borderRadius?: 'none' | 'sm' | 'md' | 'lg' | 'full';
+  shadow?: 'none' | 'sm' | 'md' | 'lg';
+}
 
 export interface StoreConfig {
   // ============================================
@@ -129,7 +145,8 @@ export interface StoreConfig {
     instagramFeed: boolean;
 
     // Product Page Features
-    relatedProducts: boolean;
+    relatedProducts?: boolean;
+    relatedProductsLimit?: number;
   };
 
   // ============================================
@@ -245,11 +262,13 @@ export interface StoreConfig {
         enabled: boolean;
         type: 'image' | 'video' | 'slider';
       };
-      featuredCategories: {
+      marquee?: {
         enabled: boolean;
-        limit: number;
+        text: string;
+        speedSeconds: number;
+        textColor?: string | null;
         background?: {
-          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass';
+          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass' | 'mesh';
           color?: string | null;
           secondaryColor?: string | null;
           mixPercentage?: number;
@@ -259,13 +278,56 @@ export interface StoreConfig {
           animationSpeed?: 'slow' | 'normal' | 'fast';
           glassBlur?: number;
           glassOpacity?: number;
+          meshOpacity?: number;
+          meshGrade?: 'light' | 'medium' | 'deep' | 'cool' | 'warm';
         };
+      };
+      feature?: {
+        enabled: boolean;
+        title: string;
+        description: string;
+        imageUrl: string | null;
+        imagePosition: 'left' | 'right';
+        ctaText?: string;
+        ctaLink?: string;
+        background?: {
+          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass' | 'mesh';
+          color?: string | null;
+          secondaryColor?: string | null;
+          mixPercentage?: number;
+          gradientDirection?: 'to-right' | 'to-left' | 'to-bottom' | 'to-top' | 'to-bottom-right' | 'to-top-left' | 'diagonal';
+          patternType?: 'grid' | 'dots' | 'lines' | 'waves';
+          patternOpacity?: number;
+          animationSpeed?: 'slow' | 'normal' | 'fast';
+          glassOpacity?: number;
+          meshOpacity?: number;
+          meshGrade?: 'light' | 'medium' | 'deep' | 'cool' | 'warm';
+        };
+        card?: CardConfig;
+      };
+      featuredCategories: {
+        enabled: boolean;
+        limit: number;
+        background?: {
+          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass' | 'mesh';
+          color?: string | null;
+          secondaryColor?: string | null;
+          mixPercentage?: number;
+          gradientDirection?: 'to-right' | 'to-left' | 'to-bottom' | 'to-top' | 'to-bottom-right' | 'to-top-left' | 'diagonal';
+          patternType?: 'grid' | 'dots' | 'lines' | 'waves';
+          patternOpacity?: number;
+          animationSpeed?: 'slow' | 'normal' | 'fast';
+          glassOpacity?: number;
+          meshOpacity?: number;
+          meshGrade?: 'light' | 'medium' | 'deep' | 'cool' | 'warm';
+        };
+        card?: CardConfig;
       };
       newArrivals: {
         enabled: boolean;
         limit: number;
         background?: {
-          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass';
+          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass' | 'mesh';
           color?: string | null;
           secondaryColor?: string | null;
           mixPercentage?: number;
@@ -273,15 +335,17 @@ export interface StoreConfig {
           patternType?: 'grid' | 'dots' | 'lines' | 'waves';
           patternOpacity?: number;
           animationSpeed?: 'slow' | 'normal' | 'fast';
-          glassBlur?: number;
           glassOpacity?: number;
+          meshOpacity?: number;
+          meshGrade?: 'light' | 'medium' | 'deep' | 'cool' | 'warm';
         };
+        card?: CardConfig;
       };
       bestSellers: {
         enabled: boolean;
         limit: number;
         background?: {
-          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass';
+          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass' | 'mesh';
           color?: string | null;
           secondaryColor?: string | null;
           mixPercentage?: number;
@@ -289,9 +353,11 @@ export interface StoreConfig {
           patternType?: 'grid' | 'dots' | 'lines' | 'waves';
           patternOpacity?: number;
           animationSpeed?: 'slow' | 'normal' | 'fast';
-          glassBlur?: number;
           glassOpacity?: number;
+          meshOpacity?: number;
+          meshGrade?: 'light' | 'medium' | 'deep' | 'cool' | 'warm';
         };
+        card?: CardConfig;
       };
       onSale: {
         enabled: boolean;
@@ -2048,6 +2114,31 @@ export const defaultStoreConfig: StoreConfig = {
   homepage: {
     sections: {
       hero: { enabled: true, type: "image" },
+      marquee: {
+        enabled: true,
+        text: "Free Shipping on All Orders | Easy Returns | Premium Quality",
+        speedSeconds: 20,
+        textColor: "#ffffff",
+        background: {
+          style: "animated-gradient",
+          color: "#000000",
+          secondaryColor: "#333333",
+        }
+      },
+      feature: {
+        enabled: true,
+        title: "New Season Collection",
+        description: "Discover our latest arrivals for the upcoming season. Hand-picked styles just for you.",
+        imageUrl: null,
+        imagePosition: "left",
+        ctaText: "Shop Now",
+        ctaLink: "/products",
+        background: {
+          style: "radial-gradient",
+          color: "#f5f5f5",
+          secondaryColor: "#e5e5e5",
+        }
+      },
       featuredCategories: { enabled: true, limit: 6 },
       newArrivals: { enabled: true, limit: 8 },
       bestSellers: { enabled: true, limit: 8 },

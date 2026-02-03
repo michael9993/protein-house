@@ -4,7 +4,7 @@ import React from "react";
 import Image from "next/image";
 import { useStoreConfig, useContentConfig } from "@/providers/StoreConfigProvider";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+
 import { SectionHeader } from "./SectionHeader";
 import { generateSectionBackground, generatePatternOverlay, type SectionBackgroundConfig } from "@/lib/section-backgrounds";
 
@@ -25,8 +25,7 @@ interface FeaturedCategoriesProps {
 /**
  * Featured Categories Section
  * 
- * Displays a grid of category cards with images.
- * Configurable via store config (homepage.sections.featuredCategories)
+ * Displays a grid of category cards with configurable styling.
  */
 export function FeaturedCategories({
   categories,
@@ -36,6 +35,7 @@ export function FeaturedCategories({
   const { homepage, branding } = useStoreConfig();
   const content = useContentConfig();
   const config = homepage.sections.featuredCategories;
+  const cardConfig = config.card || {};
   
   const displayTitle = title || content.homepage.categoriesTitle;
   const displaySubtitle = subtitle || content.homepage.categoriesSubtitle;
@@ -47,45 +47,89 @@ export function FeaturedCategories({
 
   // Limit categories to config limit
   const displayCategories = categories.slice(0, config.limit);
-  const { elementRef, isVisible } = useScrollAnimation({ threshold: 0.1, rootMargin: "0px 0px -80px 0px" });
-
-  // Get background config
+  
+  // Background setup
   const backgroundConfig = config.background as SectionBackgroundConfig | undefined;
   const backgroundStyles = generateSectionBackground(backgroundConfig, branding);
   const patternOverlay = generatePatternOverlay(backgroundConfig, branding);
 
-  const sectionStyles: React.CSSProperties = {
-    ...backgroundStyles,
-    transform: isVisible ? 'translateY(0)' : 'translateY(16px)',
-    transition: 'opacity 300ms ease-out, transform 300ms ease-out',
-    willChange: isVisible ? 'auto' : 'transform, opacity',
+  // Card Aspect Ratio
+  const getAspectRatioClass = () => {
+    switch (cardConfig.aspectRatio) {
+      case 'square': return 'aspect-square';
+      case 'landscape': return 'aspect-[4/3]';
+      case 'wide': return 'aspect-video';
+      case 'portrait': 
+      default: return 'aspect-[3/4]';
+    }
+  };
+
+  // Border Radius
+  const getRadiusStyle = () => {
+    if (cardConfig.borderRadius === 'none') return '0px';
+    if (cardConfig.borderRadius === 'sm') return '4px';
+    if (cardConfig.borderRadius === 'md') return '8px';
+    if (cardConfig.borderRadius === 'lg') return '16px';
+    if (cardConfig.borderRadius === 'full') return '9999px';
+    return `var(--store-radius)`;
+  };
+
+  // Shadow
+  const getShadowStyle = (isHovered: boolean) => {
+    if (cardConfig.shadow === 'none') return 'none';
+    const baseColor = branding.colors.primary;
+    
+    // Custom shadows based on config
+    const shadowMap = {
+      sm: isHovered ? `0 4px 12px ${baseColor}20` : `0 1px 3px ${baseColor}10`,
+      md: isHovered ? `0 12px 24px -4px ${baseColor}25` : `0 4px 6px -1px ${baseColor}10`,
+      lg: isHovered ? `0 20px 40px -8px ${baseColor}30` : `0 10px 15px -3px ${baseColor}15`,
+    };
+
+    if (cardConfig.shadow && shadowMap[cardConfig.shadow]) {
+        return shadowMap[cardConfig.shadow];
+    }
+    
+    // Default
+    return isHovered 
+      ? `0 12px 24px -8px ${baseColor}15`
+      : `0 4px 16px -4px ${baseColor}10`;
+  };
+
+  // Text Alignment/Position
+  const isTextCentered = cardConfig.textPosition === 'center';
+  
+  // Text Size
+  const getTextSizeClass = () => {
+    switch(cardConfig.textSize) {
+      case 'sm': return 'text-lg';
+      case 'lg': return 'text-2xl';
+      case 'xl': return 'text-3xl';
+      default: return 'text-xl';
+    }
   };
 
   return (
     <section 
-      ref={elementRef}
-      className={`premium-band py-16 sm:py-20 transition-opacity duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-      style={sectionStyles}
+      className="premium-band py-16 sm:py-20"
+      style={{
+        ...backgroundStyles,
+        color: branding.colors.text, 
+      }}
     >
-      {/* Pattern overlay for pattern backgrounds */}
+      {/* Pattern overlay */}
       {patternOverlay && (
-        <div className="absolute inset-0" style={{ opacity: (backgroundConfig?.patternOpacity ?? 10) / 100 }}>
+        <div className="absolute inset-0 pointer-events-none" style={{ opacity: (backgroundConfig?.patternOpacity ?? 10) / 100 }}>
           <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <pattern id={patternOverlay.patternId} width="40" height="40" patternUnits="userSpaceOnUse">
-                {backgroundConfig?.patternType === "grid" && (
-                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke={branding.colors.text} strokeWidth="1"/>
-                )}
-                {backgroundConfig?.patternType === "dots" && (
-                  <circle cx="10" cy="10" r="1.5" fill={branding.colors.text}/>
-                )}
-                {backgroundConfig?.patternType === "lines" && (
-                  <path d="M 0 20 L 40 20" fill="none" stroke={branding.colors.text} strokeWidth="1"/>
-                )}
+                {backgroundConfig?.patternType === "grid" && <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="1"/>}
+                {backgroundConfig?.patternType === "dots" && <circle cx="10" cy="10" r="1.5" fill="currentColor"/>}
+                {backgroundConfig?.patternType === "lines" && <path d="M 0 20 L 40 20" fill="none" stroke="currentColor" strokeWidth="1"/>}
                 {backgroundConfig?.patternType === "waves" && (
                   <>
-                    <path d="M 0 30 Q 15 20, 30 30 T 60 30" fill="none" stroke={branding.colors.text} strokeWidth="1"/>
-                    <path d="M 0 40 Q 15 50, 30 40 T 60 40" fill="none" stroke={branding.colors.text} strokeWidth="1"/>
+                    <path d="M 0 30 Q 15 20, 30 30 T 60 30" fill="none" stroke="currentColor" strokeWidth="1"/>
+                    <path d="M 0 40 Q 15 50, 30 40 T 60 40" fill="none" stroke="currentColor" strokeWidth="1"/>
                   </>
                 )}
               </pattern>
@@ -94,8 +138,8 @@ export function FeaturedCategories({
           </svg>
         </div>
       )}
+
       <div className="premium-band-content relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
         <SectionHeader
           title={displayTitle}
           subtitle={displaySubtitle}
@@ -103,107 +147,83 @@ export function FeaturedCategories({
           align="center"
         />
 
-        {/* Categories Grid */}
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4">
+        <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4">
           {displayCategories.map((category, index) => (
             <LinkWithChannel
               key={category.id}
               href={`/products?category=${category.slug}`}
-              className="group relative overflow-hidden border border-neutral-200/50 bg-white transition-shadow duration-200 ease-out"
+              className="group relative block overflow-hidden bg-white transition-all duration-300 transform hover:-translate-y-1"
               style={{ 
-                borderRadius: `var(--store-radius)`,
-                boxShadow: `0 4px 16px -4px ${branding.colors.primary}15`,
-                transform: 'translateY(0)',
-                transition: 'box-shadow 200ms ease-out, transform 200ms ease-out',
-                willChange: 'transform',
-                animation: `fadeInUp 400ms ease-out ${index * 40}ms both`,
+                borderRadius: getRadiusStyle(),
+                boxShadow: getShadowStyle(false),
+                backgroundColor: cardConfig.backgroundColor || branding.colors.surface,
+                opacity: (cardConfig.opacity ?? 100) / 100,
               }}
-              onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = '0 12px 24px -8px rgba(0,0,0,0.15)';
+              onMouseEnter={(e) => {
+                 e.currentTarget.style.boxShadow = getShadowStyle(true);
               }}
-              onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = `0 4px 16px -4px ${branding.colors.primary}15`;
+              onMouseLeave={(e) => {
+                 e.currentTarget.style.boxShadow = getShadowStyle(false);
               }}
             >
-              {/* Category Image */}
-              <div className="aspect-[5/4] overflow-hidden bg-neutral-100">
+              <div className={`relative ${getAspectRatioClass()} overflow-hidden`}>
                 <Image
                   src={category.image || `/categories/${category.slug}.jpg`}
                   alt={category.name}
-                  width={520}
-                  height={420}
-                  className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
-                  style={{ willChange: 'transform' }}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className={`object-${cardConfig.imageFit || 'cover'} transition-transform duration-700 ease-out group-hover:scale-110`}
                 />
-                {/* Gradient Overlay - More relaxed */}
-                <div 
-                  className="absolute inset-0 transition-opacity duration-300"
-                  style={{
-                    background: `linear-gradient(150deg, ${branding.colors.secondary}40 0%, ${branding.colors.secondary}20 40%, transparent 100%)`,
-                  }}
-                />
-                <div
-                  className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                  style={{
-                    background: `radial-gradient(60% 60% at 20% 20%, ${branding.colors.primary}20, transparent 70%)`,
-                  }}
-                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
               </div>
 
-              {/* Category Info */}
-              <div className="absolute inset-x-0 bottom-0 p-6">
-                <div
-                  className="inline-flex flex-col gap-2 rounded-lg px-4 py-3 bg-white/95 backdrop-blur-sm"
-                  style={{
-                    border: `1px solid ${branding.colors.primary}20`,
-                    boxShadow: `0 4px 12px -2px ${branding.colors.primary}20`,
-                  }}
-                >
-                  <span
-                    className="text-[10px] font-semibold uppercase tracking-[0.2em]"
-                    style={{ color: branding.colors.textMuted }}
-                  >
-                    {content.homepage.exploreText}
-                  </span>
-                  <h3 className="text-xl font-semibold" style={{ color: branding.colors.text }}>
-                    {category.name}
-                  </h3>
-                  {category.productCount !== undefined && (
-                    <p className="text-sm" style={{ color: branding.colors.textMuted }}>
-                      {category.productCount} {content.homepage.productCountText}
-                    </p>
-                  )}
-                  
-                  {/* Arrow indicator */}
+              {/* Text Layout */}
+              <div 
+                className={`absolute inset-0 p-6 flex flex-col ${isTextCentered ? 'justify-center items-center text-center' : 'justify-end items-start'}`}
+              >
+                  {/* Glass Card content wrapper if NOT centered */}
                   <div 
-                    className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide transition-all group-hover:gap-3"
-                    style={{ color: branding.colors.primary }}
+                    className={`
+                      relative overflow-hidden w-full backdrop-blur-md transition-all duration-300
+                      ${isTextCentered ? 'bg-transparent p-0' : 'bg-white/80 p-5 rounded-xl border border-white/20'}
+                    `}
+                    style={{
+                      // Only apply custom borders/bg if NOT centered
+                      backgroundColor: isTextCentered ? 'transparent' : (cardConfig.backgroundColor || 'rgba(255,255,255,0.85)'),
+                      color: cardConfig.textColor || branding.colors.text,
+                    }}
                   >
-                    {content.homepage.shopNowButton}
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
+                     <h3 className={`${getTextSizeClass()} font-bold tracking-tight`}>
+                       {category.name}
+                     </h3>
+                     
+                     {category.productCount !== undefined && (
+                        <p className="mt-1 text-sm opacity-80 font-medium">
+                           {category.productCount} {content.homepage.productCountText}
+                        </p>
+                     )}
+                     
+                     {!isTextCentered && (
+                       <div className="mt-3 flex items-center text-xs font-bold uppercase tracking-wider text-primary opacity-0 transform translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0"
+                            style={{ color: branding.colors.primary }}
+                       >
+                          Shop Collection 
+                          <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                       </div>
+                     )}
                   </div>
-                </div>
               </div>
             </LinkWithChannel>
-
           ))}
         </div>
 
-        {/* View All Link */}
-        <div className="mt-10 text-center">
+        <div className="mt-12 text-center">
           <LinkWithChannel
             href="/products"
-            className="inline-flex items-center gap-2 font-medium transition-colors"
-            style={{ color: branding.colors.primary }}
+            className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full text-white bg-neutral-900 hover:bg-neutral-800 transition-colors shadow-lg hover:shadow-xl"
+            style={{ backgroundColor: branding.colors.primary }}
           >
-            View All Products
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
+            View All Categories
           </LinkWithChannel>
         </div>
       </div>
@@ -213,7 +233,6 @@ export function FeaturedCategories({
 
 /**
  * Placeholder Categories for Demo
- * Use these when actual data isn't available
  */
 export const placeholderCategories: Category[] = [
   { id: "1", name: "Running Shoes", slug: "running-shoes", productCount: 45 },
@@ -225,4 +244,3 @@ export const placeholderCategories: Category[] = [
   { id: "7", name: "Tennis", slug: "tennis", productCount: 23 },
   { id: "8", name: "Swimming", slug: "swimming", productCount: 18 },
 ];
-
