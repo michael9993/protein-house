@@ -39,6 +39,11 @@ export function FeaturedCategories({
   
   const displayTitle = title || content.homepage.categoriesTitle;
   const displaySubtitle = subtitle || content.homepage.categoriesSubtitle;
+  const shopCollectionText = content.homepage.shopNowButton || "Shop Collection";
+  const viewAllCategoriesText =
+    content.homepage.viewAllCategoriesButton ||
+    content.general.viewAllButton ||
+    "View All Categories";
 
   // Don't render if disabled
   if (!config.enabled) {
@@ -207,7 +212,7 @@ export function FeaturedCategories({
                        <div className="mt-3 flex items-center text-xs font-bold uppercase tracking-wider text-primary opacity-0 transform translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0"
                             style={{ color: branding.colors.primary }}
                        >
-                          Shop Collection 
+                          {shopCollectionText}
                           <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                        </div>
                      )}
@@ -223,7 +228,7 @@ export function FeaturedCategories({
             className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full text-white bg-neutral-900 hover:bg-neutral-800 transition-colors shadow-lg hover:shadow-xl"
             style={{ backgroundColor: branding.colors.primary }}
           >
-            View All Categories
+            {viewAllCategoriesText}
           </LinkWithChannel>
         </div>
       </div>

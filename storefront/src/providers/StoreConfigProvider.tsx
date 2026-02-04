@@ -783,6 +783,7 @@ export const DEFAULT_CONTENT_CONFIG = {
     featuredSubtitle: "Hand-picked for you",
     categoriesTitle: "Shop by Category",
     categoriesSubtitle: "Find what you're looking for",
+    viewAllCategoriesButton: "View All Categories",
     brandsTitle: "Top Brands",
     brandsSubtitle: "Shop your favorite brands",
     testimonialsTitle: "What Our Customers Say",
@@ -799,7 +800,7 @@ export const DEFAULT_CONTENT_CONFIG = {
     heroCtaText: "Shop Now",
     heroSecondaryCtaText: "Browse Categories",
     // Category cards
-    shopNowButton: "Shop Now",
+    shopNowButton: "Shop Collection",
     productCountText: "Products",
     // Newsletter
     newsletterEmailPlaceholder: "Enter your email",
@@ -1752,4 +1753,3 @@ export function PageGate({ page, children, fallback = null }: PageGateProps) {
 
 // Export context for advanced use cases
 export { StoreConfigContext };
-

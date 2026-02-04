@@ -828,6 +828,7 @@
         "featuredSubtitle": "Specially selected for you",
         "categoriesTitle": "Shop by Category",
         "categoriesSubtitle": "Find what you're looking for",
+        "viewAllCategoriesButton": "View All Categories",
         "brandsTitle": "Leading Brands",
         "brandsSubtitle": "Shop from your favorite brands",
         "testimonialsTitle": "What Our Customers Say",
@@ -844,7 +845,7 @@
         "heroCtaText": "Shop Now",
         "heroSecondaryCtaText": "Browse Categories",
         "watchVideoButton": "Watch Video",
-        "shopNowButton": "Shop Now",
+        "shopNowButton": "Shop Collection",
         "exploreText": "Explore",
         "productCountText": "products",
         "newsletterEmailPlaceholder": "Enter your email address"

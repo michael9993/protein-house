@@ -1071,6 +1071,7 @@ export const HomepageTextSchema = z.object({
   featuredSubtitle: z.string(),
   categoriesTitle: z.string(),
   categoriesSubtitle: z.string(),
+  viewAllCategoriesButton: z.string(), // "View All Categories"
   brandsTitle: z.string(),
   brandsSubtitle: z.string(),
   testimonialsTitle: z.string(),

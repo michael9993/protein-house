@@ -12,6 +12,7 @@ import { StockAlertButton } from "@/ui/components/StockAlert";
 import { ShareButton } from "@/ui/components/ProductSharing";
 import { useBranding, useFeature, useProductDetailText, useContentConfig } from "@/providers/StoreConfigProvider";
 import { useOpenCart } from "@/ui/components/CartDrawer/CartDrawerShell";
+import { ProductGallery } from "@/ui/components/ProductDetails";
 
 interface ProductImage {
   url: string;
@@ -631,156 +632,12 @@ export function ProductDetailClient({
               animationFillMode: "both",
             }}
           >
-            {/* Main Image with Discount Ribbon */}
-            <div className="relative">
-              {/* Discount Ribbon */}
-              {hasDiscount && discountPercent > 0 && (
-                <div className="absolute -left-2 top-4 z-20 sm:-left-3 sm:top-6">
-                  <div 
-                    className="relative flex items-center px-3 py-1.5 text-xs font-bold text-white shadow-lg sm:px-4 sm:py-2 sm:text-sm"
-                    style={{ backgroundColor: "#ef4444" }}
-                  >
-                    <span>{discountPercent}% OFF</span>
-                    {/* Ribbon tail */}
-                    <div 
-                      className="absolute -right-2 top-0 h-full w-2"
-                      style={{
-                        background: "linear-gradient(135deg, #ef4444 50%, transparent 50%)",
-                      }}
-                    />
-                    <div 
-                      className="absolute -left-1 -bottom-1 h-2 w-2"
-                      style={{
-                        background: "#b91c1c",
-                        clipPath: "polygon(100% 0, 0 0, 100% 100%)",
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div
-                className="relative aspect-square overflow-hidden rounded-2xl bg-neutral-100 group"
-                onClick={() => setIsZoomed(!isZoomed)}
-                onMouseMove={handleMouseMove}
-              >
-                {displayImages[selectedImageIndex]?.url ? (
-                  <Image
-                    src={displayImages[selectedImageIndex].url}
-                    alt={displayImages[selectedImageIndex].alt || product.name}
-                    fill
-                    priority
-                    className={`object-cover transition-all duration-300 ${
-                      isZoomed ? "cursor-zoom-out" : "cursor-zoom-in"
-                    }`}
-                    style={isZoomed ? { 
-                      transform: `scale(2.5)`,
-                      transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
-                      transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                    } : {
-                      transform: "scale(1)",
-                      transformOrigin: "center center",
-                      transition: "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                    }}
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center">
-                    <svg className="h-24 w-24 text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                )}
-
-                {/* Zoom Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsZoomed(!isZoomed);
-                  }}
-                  className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm transition-all hover:bg-white hover:scale-110"
-                  aria-label={isZoomed ? productDetailText.zoomOutLabel : productDetailText.zoomInLabel}
-                >
-                  {isZoomed ? (
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
-                    </svg>
-                  ) : (
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
-                    </svg>
-                  )}
-                </button>
-
-                {/* Navigation Arrows - Only show if multiple images */}
-                {displayImages.length > 1 && (
-                  <>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedImageIndex((prev) => (prev === 0 ? displayImages.length - 1 : prev - 1));
-                        setIsZoomed(false); // Reset zoom when changing images
-                      }}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm transition-colors hover:bg-white"
-                      aria-label={productDetailText.previousImageLabel}
-                    >
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedImageIndex((prev) => (prev === displayImages.length - 1 ? 0 : prev + 1));
-                        setIsZoomed(false); // Reset zoom when changing images
-                      }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm transition-colors hover:bg-white"
-                      aria-label={productDetailText.nextImageLabel}
-                    >
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </>
-                )}
-
-                {/* Image Counter */}
-                {displayImages.length > 1 && (
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white">
-                    {selectedImageIndex + 1} / {displayImages.length}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Thumbnails - Only show if multiple images */}
-            {displayImages.length > 1 && (
-              <div className="mt-4 flex gap-2 overflow-x-auto pb-2 sm:gap-3">
-                {displayImages.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setSelectedImageIndex(index);
-                      setIsZoomed(false); // Reset zoom when changing images
-                    }}
-                    className={`relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg transition-all duration-300 sm:h-20 sm:w-20 ${
-                      selectedImageIndex === index
-                        ? "ring-2 ring-offset-2 scale-105"
-                        : "opacity-60 hover:opacity-100 hover:scale-105"
-                    }`}
-                    style={selectedImageIndex === index ? { "--tw-ring-color": branding.colors.primary } as React.CSSProperties : undefined}
-                  >
-                    <Image
-                      src={image.url}
-                      alt={image.alt || `${product.name} - Image ${index + 1}`}
-                      fill
-                      className="object-cover"
-                      sizes="80px"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
+             <ProductGallery 
+                images={displayImages} 
+                productName={product.name} 
+                discountPercent={discountPercent}
+                allowLightbox={!isModal}
+              />
           </div>
 
           {/* Product Info */}

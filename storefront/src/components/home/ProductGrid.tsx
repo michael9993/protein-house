@@ -301,10 +301,9 @@ function ProductCard({
   
   return (
     <div 
-      className="group h-full"
+      className="group h-full animate-fade-in-up"
       style={{ 
-        animation: `fadeInUp 400ms ease-out ${index * 40}ms both`,
-        willChange: 'transform, opacity',
+        animationDelay: `${index * 40}ms`,
       }}
     >
       <LinkWithChannel href={`/products/${product.slug}`} className="flex h-full flex-col">

@@ -51,11 +51,7 @@ export function HeroImage({
       {/* Content */}
       <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-center px-4 sm:px-6 lg:px-8">
         <div 
-          className="max-w-2xl"
-          style={{
-            animation: 'fadeInUp 500ms ease-out',
-            willChange: 'transform, opacity',
-          }}
+          className="max-w-2xl animate-fade-in-up"
         >
           <h1 
             className="heading text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl"
@@ -89,11 +85,7 @@ export function HeroImage({
 
       {/* Scroll Indicator - uses logical properties for RTL support */}
       <div 
-        className="absolute bottom-8 start-1/2 -translate-x-1/2 rtl:translate-x-1/2"
-        style={{
-          animation: 'bounce 2s ease-in-out infinite',
-          willChange: 'transform',
-        }}
+        className="absolute bottom-8 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 animate-bounce"
       >
         <svg className="h-8 w-8 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />

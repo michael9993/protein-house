@@ -1,9 +1,12 @@
 "use client";
+"use client";
 
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { useBranding, useContentConfig } from "@/providers/StoreConfigProvider";
 import { MobileCartButtonClient } from "./MobileCartButtonClient";
 import { MobileAccountButtonClient } from "./MobileAccountButtonClient";
+
+import { useState, useEffect } from "react";
 
 export function MobileBottomNavContent({ 
   channel, 
@@ -25,10 +28,41 @@ export function MobileBottomNavContent({
   const branding = useBranding();
   const content = useContentConfig();
   const navbarText = content.navbar;
+  
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      
+      // Determine if at bottom (within 50px)
+      const isAtBottom = windowHeight + currentScrollY >= documentHeight - 50;
+
+      if (isAtBottom) {
+        setIsVisible(true);
+      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling DOWN and not at top -> Hide
+        setIsVisible(false);
+      } else if (currentScrollY < lastScrollY) {
+        // Scrolling UP -> Show
+        setIsVisible(true);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
 
   return (
     <nav 
-      className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
+      className={`fixed bottom-0 left-0 right-0 z-50 md:hidden transition-transform duration-300 ease-in-out ${
+        isVisible ? "translate-y-0" : "translate-y-full"
+      }`}
       style={{
         backgroundColor: "var(--store-mobile-nav-bg)",
         backdropFilter: "blur(16px)",
@@ -125,4 +159,3 @@ export function MobileBottomNavContent({
     </nav>
   );
 }
-

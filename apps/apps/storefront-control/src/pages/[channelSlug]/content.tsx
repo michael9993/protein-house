@@ -1204,6 +1204,14 @@ const ContentPage: NextPage = () => {
               placeholder="Browse our collections"
             />
             <FormField
+              label="View All Categories Button"
+              name="homepage.viewAllCategoriesButton"
+              register={register}
+              errors={errors}
+              placeholder="View All Categories"
+              description="Text for the button beneath the category grid"
+            />
+            <FormField
               label="Brands Title"
               name="homepage.brandsTitle"
               register={register}
@@ -1317,11 +1325,12 @@ const ContentPage: NextPage = () => {
               description="Text for the watch video button in hero video section"
             />
             <FormField
-              label="Shop Now Button"
+              label="Shop Collection Button"
               name="homepage.shopNowButton"
               register={register}
               errors={errors}
-              placeholder="Shop Now"
+              placeholder="Shop Collection"
+              description="Text shown on category cards"
             />
             <FormField
               label="Explore Text"

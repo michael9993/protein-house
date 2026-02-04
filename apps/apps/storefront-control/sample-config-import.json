@@ -879,6 +879,7 @@
         "featuredSubtitle": "נבחרו במיוחד עבורכם",
         "categoriesTitle": "קניות לפי קטגוריה",
         "categoriesSubtitle": "מצאו את מה שאתם מחפשים",
+        "viewAllCategoriesButton": "צפה בכל הקטגוריות",
         "brandsTitle": "מותגים מובילים",
         "brandsSubtitle": "קנו מהמותגים האהובים עליכם",
         "testimonialsTitle": "מה הלקוחות שלנו אומרים",
@@ -895,7 +896,7 @@
         "heroCtaText": "לקניות",
         "heroSecondaryCtaText": "עיון בקטגוריות",
         "watchVideoButton": "צפה בסרטון",
-        "shopNowButton": "קנה עכשיו",
+        "shopNowButton": "קנו מהקולקציה",
         "exploreText": "גלה",
         "productCountText": "מוצרים",
         "newsletterEmailPlaceholder": "הזן את כתובת האימייל שלך"

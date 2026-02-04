@@ -11,7 +11,11 @@ export function StickyQuickFilters() {
   const navbarMode = quickFiltersConfig.style?.navbarMode as Record<string, string | number | undefined> | undefined;
   const { filters, toggleCategory, toggleCollection, toggleBrand } = useProductFilters();
   const [show, setShow] = useState(false);
+  const [topOffset, setTopOffset] = useState(0);
   const [allItems, setAllItems] = useState<Array<{ id: string; name: string; slug: string; type: "category" | "collection" | "brand" }>>([]);
+
+  const SHOW_OFFSET_PX = 20;
+  const HEADER_SELECTOR = '[data-scroll-hide="header"]';
 
   // Extract data from QuickFilters cards in the DOM
   useEffect(() => {
@@ -62,36 +66,50 @@ export function StickyQuickFilters() {
   }, []);
 
   useEffect(() => {
-    const calculateHeaderHeight = () => {
-      const header = document.querySelector('header');
-      return header ? header.getBoundingClientRect().height : 64;
-    };
+    let ticking = false;
 
-    const handleScroll = () => {
-      const quickFiltersSection = document.getElementById('quick-filters-section');
-      if (!quickFiltersSection) {
-        setShow(false);
+    const update = () => {
+      ticking = false;
+      const section = document.getElementById("quick-filters-section");
+      if (!section) {
+        setShow((prev) => (prev ? false : prev));
         return;
       }
-      const rect = quickFiltersSection.getBoundingClientRect();
-      const currentHeaderHeight = calculateHeaderHeight();
-      // Show sticky filters when the quick filters section is almost completely scrolled past
-      // Trigger when the bottom of the section is near the header (about 90% scrolled)
-      const sectionHeight = rect.height;
-      // Show when the section bottom is close to the header (within 50px or 90% scrolled)
-      const threshold = Math.min(50, sectionHeight * 0.1); // 50px or 10% of section height
-      const isOutOfView = rect.bottom <= (currentHeaderHeight + threshold);
-      setShow(isOutOfView);
+      const header = document.querySelector<HTMLElement>(HEADER_SELECTOR);
+      const headerHidden = header?.classList.contains("scroll-hide--hidden") ?? false;
+      const headerHeight = headerHidden ? 0 : Math.round(header?.getBoundingClientRect().height ?? 0);
+      setTopOffset((prev) => (prev === headerHeight ? prev : headerHeight));
+      const rect = section.getBoundingClientRect();
+      const scrolledPast = rect.bottom <= headerHeight + SHOW_OFFSET_PX;
+      setShow((prev) => (prev === scrolledPast ? prev : scrolledPast));
     };
 
-    calculateHeaderHeight();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleScroll, { passive: true });
-    handleScroll();
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    };
+
+    const onResize = () => {
+      update();
+    };
+
+    requestAnimationFrame(update);
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
+
+    // Re-measure when quick-filters section might change (images load, etc.)
+    const resizeObserver = new ResizeObserver(() => {
+      update();
+    });
+    const section = document.getElementById("quick-filters-section");
+    if (section) resizeObserver.observe(section);
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+      resizeObserver.disconnect();
     };
   }, []);
 
@@ -175,7 +193,7 @@ export function StickyQuickFilters() {
 
   return (
     <div 
-      className="w-full border-t border-b shadow-lg animate-fade-in-up"
+      className="fixed inset-x-0 z-[60] w-full border-t border-b shadow-lg animate-fade-in-up"
       style={{
         backgroundColor: containerBg,
         borderTopColor,
@@ -183,6 +201,7 @@ export function StickyQuickFilters() {
         boxShadow: `0 4px 12px ${shadowColor}`,
         marginTop: 0,
         marginBottom: 0,
+        top: `${topOffset}px`,
         paddingTop: `${containerPaddingY}px`,
         paddingBottom: `${containerPaddingY}px`,
       }}

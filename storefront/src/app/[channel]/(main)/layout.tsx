@@ -11,6 +11,7 @@ import { fetchStorefrontConfig } from "@/lib/storefront-control";
 import { ConfigSync } from "@/components/ConfigSync";
 import { PageTransition } from "@/components/PageTransition";
 import { DirectionSetter } from "@/components/DirectionSetter";
+import { ScrollHideController } from "@/components/ScrollHideController";
 import { resolveDirection } from "@/lib/direction";
 import { getNavData } from "@/ui/components/nav/components/NavLinks";
 import { CartDrawerShell } from "@/ui/components/CartDrawer";
@@ -150,6 +151,7 @@ export default async function RootLayout(props: {
 				<QuickViewWrapper channel={channel}>
 				{/* Client-side direction setter - backup and for dynamic updates */}
 				<DirectionSetter config={storeConfig} />
+				<ScrollHideController />
 				<ConfigSync channel={channel} />
 				<Header channel={channel} navData={navData} isLoggedIn={isLoggedIn} />
 			<div className="flex min-h-[calc(100dvh-64px)] flex-col pb-16 md:pb-0">

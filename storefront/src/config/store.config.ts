@@ -907,6 +907,7 @@ export interface StoreConfig {
       featuredSubtitle: string;
       categoriesTitle: string;
       categoriesSubtitle: string;
+      viewAllCategoriesButton: string;
       brandsTitle: string;
       brandsSubtitle: string;
       testimonialsTitle: string;
@@ -2512,6 +2513,7 @@ export const defaultStoreConfig: StoreConfig = {
       featuredSubtitle: "Hand-picked for you",
       categoriesTitle: "Shop by Category",
       categoriesSubtitle: "Browse our collections",
+      viewAllCategoriesButton: "View All Categories",
       brandsTitle: "Top Brands",
       brandsSubtitle: "Shop by brand",
       testimonialsTitle: "What Our Customers Say",
@@ -2529,7 +2531,7 @@ export const defaultStoreConfig: StoreConfig = {
       heroSecondaryCtaText: "Learn More",
       watchVideoButton: "Watch Video",
       // Category cards
-      shopNowButton: "Shop Now",
+      shopNowButton: "Shop Collection",
       exploreText: "Explore",
       productCountText: "Products",
       // Newsletter
@@ -2867,4 +2869,3 @@ export function getThemeCSSVariables(config: StoreConfig): Record<string, string
     '--store-btn-text': '#FFFFFF',
   };
 }
-
