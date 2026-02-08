@@ -14,6 +14,7 @@ import { useState, useEffect } from "react";
 import { ProductFilters, MobileFilterDrawer, type Category, type Collection, type Brand, type Size, type Color } from "@/ui/components/Filters/ProductFilters";
 import { useProductFilters } from "@/hooks/useProductFilters";
 import { useFiltersText, useBranding } from "@/providers/StoreConfigProvider";
+import { deriveBrandSlug } from "@/components/home/utils";
 
 // Re-export types for convenience
 export type { Category, Collection, Brand };
@@ -507,16 +508,17 @@ async function fetchBrandsFromAttributes(apiUrl: string, channel: string): Promi
         brandValues.forEach((value: any) => {
           const brandName = value?.name || value?.value;
           if (brandName && typeof brandName === 'string' && brandName.trim()) {
-            // Use actual slug if available, otherwise generate one from name
-            const brandSlug = value.slug || 
-              brandName.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-            
-            if (brandSlug) {
-              if (!brandsMap.has(brandSlug)) {
-                brandsMap.set(brandSlug, { name: brandName.trim(), slug: brandSlug, count: 0 });
+            // Dedup by normalized name (not slug) to handle Saleor auto-incremented slugs
+            const dedupKey = brandName.toLowerCase().trim();
+            // Always derive slug from name for human-readable URLs
+            const brandSlug = deriveBrandSlug(brandName);
+
+            if (dedupKey) {
+              if (!brandsMap.has(dedupKey)) {
+                brandsMap.set(dedupKey, { name: brandName.trim(), slug: brandSlug, count: 0 });
                 console.log(`[Brands Filter] Added new brand: ${brandName} (slug: ${brandSlug})`);
               }
-              brandsMap.get(brandSlug)!.count++;
+              brandsMap.get(dedupKey)!.count++;
             } else {
               console.warn(`[Brands Filter] Skipping brand with no slug:`, value);
             }

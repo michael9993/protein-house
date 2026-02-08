@@ -150,11 +150,12 @@ export class BrandingService {
    */
   static getDefaultBranding(): BrandingConfig {
     return {
-      companyName: "Shoe Vault",
-      companyEmail: "support@shoevault.com",
-      companyWebsite: "www.shoevault.com",
-      primaryColor: "#2563EB",
-      secondaryColor: "#1F2937",
+      companyName: "Mansour Shoes",
+      companyEmail: "support@mansourshoes.com",
+      companyWebsite: "https://www.mansourshoes.com",
+      primaryColor: "#3b3d3f",
+      secondaryColor: "#0A0707",
+      logo: "https://media.easy.co.il/images/UserThumbs/10035528_1752326685636_0.jpg",
     };
   }
 }

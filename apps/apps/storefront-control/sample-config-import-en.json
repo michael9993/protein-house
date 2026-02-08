@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-02-02T04:03:32.528Z",
+  "exportedAt": "2026-02-04T23:01:54.602Z",
   "channelSlug": "usd",
   "config": {
-    "version": 1,
-    "updatedAt": "2026-02-02T04:03:31.873Z",
+    "version": 2,
+    "updatedAt": "2026-02-04T23:01:53.808Z",
     "channelSlug": "usd",
     "store": {
       "name": "Mansour Shoes",
@@ -113,14 +113,16 @@
       "banner": {
         "enabled": true,
         "text": "Free shipping on orders over $75!",
-        "backgroundColor": null,
+        "backgroundColor": "",
         "textColor": null,
         "useSaleorPromotions": false,
         "useSaleorVouchers": false,
         "items": [],
         "manualItems": [],
         "autoScrollIntervalSeconds": 6,
-        "useGradient": false,
+        "useGradient": true,
+        "gradientFrom": "#000000",
+        "gradientTo": "#000000",
         "dismissible": false
       },
       "showStoreName": true,
@@ -177,7 +179,10 @@
           "imageUrl": null,
           "videoUrl": null,
           "overlayOpacity": 40,
-          "textAlignment": "center"
+          "textAlignment": "center",
+          "autoRotateSeconds": 4,
+          "showProgressBar": true,
+          "showNavDots": true
         },
         "marquee": {
           "enabled": true,
@@ -212,7 +217,12 @@
         },
         "bestSellers": {
           "enabled": true,
-          "limit": 8,
+          "title": null,
+          "subtitle": null,
+          "collectionSlug": "best-sellers",
+          "fallbackToTopRated": true,
+          "maxProducts": 8,
+          "layout": "horizontal-scroll",
           "background": {
             "style": "color-mix",
             "color": null,
@@ -220,7 +230,6 @@
             "mixPercentage": 8
           }
         },
-
         "feature": {
           "enabled": true,
           "title": "Featured Collection",
@@ -286,15 +295,6 @@
             "textColor": null
           }
         },
-        "newsletter": {
-          "enabled": true,
-          "background": {
-            "style": "gradient",
-            "color": null,
-            "secondaryColor": null,
-            "gradientDirection": "to-bottom"
-          }
-        },
         "instagramFeed": {
           "enabled": false,
           "username": null,
@@ -304,20 +304,147 @@
             "secondaryColor": null,
             "mixPercentage": 8
           }
+        },
+        "trustStrip": {
+          "enabled": true,
+          "freeShippingText": "Free shipping on orders over $75",
+          "easyReturnsText": "Easy returns",
+          "secureCheckoutText": "Secure checkout",
+          "supportText": "24/7 support",
+          "background": {
+            "style": "solid",
+            "color": "#f9fafb",
+            "secondaryColor": null
+          }
+        },
+        "brandGrid": {
+          "enabled": true,
+          "title": "Top Brands",
+          "subtitle": "Curated from the best performance labels",
+          "maxBrands": 8,
+          "showLogos": true,
+          "layout": "grid",
+          "background": {
+            "style": "color-mix",
+            "color": null,
+            "secondaryColor": null,
+            "mixPercentage": 4
+          }
+        },
+        "categories": {
+          "enabled": true,
+          "title": "Shop by Category",
+          "subtitle": "Find what you're looking for",
+          "maxCategories": 6,
+          "showProductCount": true,
+          "layoutStyle": "mosaic",
+          "background": {
+            "style": "none",
+            "color": null,
+            "secondaryColor": null
+          }
+        },
+        "trending": {
+          "enabled": true,
+          "title": "New Arrivals",
+          "subtitle": "Just landed in store",
+          "collectionSlug": "new-arrivals",
+          "fallbackToNewest": true,
+          "maxProducts": 8,
+          "layout": "grid",
+          "background": {
+            "style": "none",
+            "color": null,
+            "secondaryColor": null
+          }
+        },
+        "promotionBanner": {
+          "enabled": true,
+          "badgeText": "Special Offer",
+          "title": "Don't miss out",
+          "highlight": "Up to 25% off",
+          "description": "Premium performance gear for run, court, and studio. Limited time collection.",
+          "primaryCta": { "text": "Shop Sale Items", "link": "/products?collection=sale" },
+          "secondaryCta": { "text": "All Products", "link": "/products" },
+          "autoDetectDiscount": true,
+          "background": {
+            "style": "gradient",
+            "color": null,
+            "secondaryColor": null,
+            "gradientDirection": "to-bottom-right"
+          }
+        },
+        "flashDeals": {
+          "enabled": true,
+          "title": "Flash Deals",
+          "subtitle": "Limited time offers",
+          "badgeTemplate": "Up to {discount}% OFF",
+          "collectionSlug": "sale",
+          "maxProducts": 8,
+          "background": {
+            "style": "none",
+            "color": null,
+            "secondaryColor": null
+          }
+        },
+        "collectionMosaic": {
+          "enabled": true,
+          "title": "Shop by Collection",
+          "subtitle": "Curated for you",
+          "maxCollections": 5,
+          "excludeSlugs": ["hero-banner", "testimonials", "brands"],
+          "layoutStyle": "mosaic",
+          "background": {
+            "style": "mesh",
+            "color": null,
+            "secondaryColor": null,
+            "meshOpacity": 10,
+            "meshGrade": "light"
+          }
+        },
+        "customerFeedback": {
+          "enabled": true,
+          "title": "Customer Feedback",
+          "subtitle": "Verified community reviews across our multi-brand lineup",
+          "maxReviews": 3,
+          "minRating": 4,
+          "showProductName": true,
+          "background": {
+            "style": "none",
+            "color": null,
+            "secondaryColor": null
+          },
+          "starColor": "#FFD700",
+          "starEmptyColor": null
+        },
+        "newsletter": {
+          "enabled": true,
+          "title": null,
+          "subtitle": null,
+          "buttonText": null,
+          "placeholder": null,
+          "layout": "stacked",
+          "background": {
+            "style": "gradient",
+            "color": null,
+            "secondaryColor": null,
+            "gradientDirection": "to-bottom"
+          }
         }
       },
       "sectionOrder": [
         "hero",
+        "trustStrip",
         "marquee",
-        "featuredCategories",
-        "newArrivals",
+        "brandGrid",
+        "categories",
+        "trending",
+        "promotionBanner",
+        "flashDeals",
+        "collectionMosaic",
         "bestSellers",
-        "feature",
-        "onSale",
-        "featuredBrands",
-        "testimonials",
-        "newsletter",
-        "instagramFeed"
+        "customerFeedback",
+        "newsletter"
       ]
     },
     "pages": {
@@ -554,7 +681,12 @@
         "showQuickView": true,
         "showWishlistButton": true,
         "showAddToCart": true,
-        "imageAspectRatio": "square"
+        "imageAspectRatio": "square",
+        "hoverEffect": "lift",
+        "badgePosition": "top-start",
+        "showBrandLabel": true,
+        "showRating": true,
+        "imageFit": "cover"
       },
       "toasts": {
         "position": "bottom-right",
@@ -614,6 +746,31 @@
         "removeButtonHoverBackgroundColor": null,
         "removeButtonHoverColor": null,
         "removeButtonBorderRadius": "full"
+      },
+      "filterSidebar": {
+        "checkboxAccentColor": null,
+        "sectionTitleFontSize": "xs",
+        "sectionTitleFontWeight": "semibold",
+        "sectionTitleColor": null,
+        "sectionTitleHoverColor": null,
+        "chevronColor": null,
+        "chevronHoverColor": null,
+        "itemTextFontSize": "xs",
+        "itemTextColor": null,
+        "itemCountColor": null,
+        "sizeChipSelectedBg": null,
+        "sizeChipSelectedText": null,
+        "sizeChipSelectedBorder": null,
+        "clearAllButtonBg": null,
+        "clearAllButtonText": null,
+        "clearAllButtonBorder": null,
+        "clearAllButtonHoverBg": null,
+        "clearAllButtonHoverText": null,
+        "priceInputFocusRingColor": null,
+        "priceQuickButtonActiveBg": null,
+        "priceQuickButtonActiveText": null,
+        "mobileShowResultsBg": null,
+        "mobileShowResultsText": null
       },
       "cart": {
         "displayMode": "drawer",
@@ -844,11 +1001,45 @@
         "noApprovedReviewsText": "No approved reviews with 4+ stars yet. {count} review(s) pending approval.",
         "heroCtaText": "Shop Now",
         "heroSecondaryCtaText": "Browse Categories",
+        "exploreBrandsButton": "Explore brands",
+        "brandsStatLabel": "Brands",
+        "stylesStatLabel": "Styles",
+        "ratingStatLabel": "Rating",
+        "heroDefaultTitle": "Multi-brand performance",
+        "heroDefaultSubtitle": "Performance footwear and sportswear curated from the world's most trusted labels.",
         "watchVideoButton": "Watch Video",
-        "shopNowButton": "Shop Collection",
+        "shopNowButton": "Shop Now",
         "exploreText": "Explore",
         "productCountText": "products",
-        "newsletterEmailPlaceholder": "Enter your email address"
+        "newsletterEmailPlaceholder": "Enter your email address",
+        "curatedLabel": "Curated",
+        "viewDetailsButton": "View details",
+        "viewAllBrandsButton": "View all brands",
+        "viewAllOffersButton": "View all offers",
+        "allCollectionsButton": "All Collections",
+        "itemsText": "items",
+        "stylesText": "styles",
+        "performanceLineupText": "Performance lineup",
+        "brandLabel": "Brand",
+        "performanceFallback": "Performance",
+        "saleBadgeLabel": "Sale",
+        "newBadgeLabel": "New",
+        "featuredBadgeLabel": "Featured",
+        "outOfStockBadgeLabel": "Out of stock",
+        "lowStockBadgeLabel": "Low stock",
+        "itemsOnSaleText": "{count} items on sale",
+        "savePercentText": "Save {discount}%",
+        "upToPercentOffText": "Up to {discount}% Off",
+        "reviewedProductLabel": "Reviewed Product",
+        "verifiedBuyerLabel": "Verified Buyer",
+        "anonymousLabel": "Anonymous",
+        "shopCollectionButton": "Shop collection",
+        "featuredCollectionLabel": "Featured Collection",
+        "specialOfferText": "Special Offer",
+        "dontMissOutTitle": "Don't miss out",
+        "shopSaleItemsButton": "Shop Sale Items",
+        "allProductsButton": "All Products",
+        "promoDescriptionFallback": "Premium performance gear for run, court, and studio. Limited time collection."
       },
       "checkout": {
         "checkoutTitle": "Checkout",
@@ -1080,7 +1271,10 @@
         "maxPriceLabel": "Maximum Price",
         "quickMinLabel": "Quick Min",
         "quickMaxLabel": "Quick Max",
-        "clearPriceFilter": "Clear"
+        "clearPriceFilter": "Clear",
+        "applyPriceFilter": "Apply",
+        "priceUnderLabel": "Under",
+        "priceAboveLabel": "+"
       },
       "productDetail": {
         "freeShipping": "Free Shipping",
@@ -1445,6 +1639,11 @@
         "brandsLabel": "Brands",
         "categoriesLabel": "Categories",
         "viewAllProducts": "View All Products",
+        "exploreCategoryLabel": "Explore",
+        "browseSubcategoriesLabel": "Browse subcategories",
+        "megaMenuProductLabel": "product",
+        "megaMenuProductsLabel": "products",
+        "megaMenuHoverPrompt": "Hover a category to explore",
         "subcategoriesSide": "right",
         "mobileNavPosition": "left",
         "dropdownArrowDirection": "right",
@@ -1496,6 +1695,14 @@
       "showOnMobile": true,
       "title": "You May Also Like",
       "subtitle": "Customers also viewed these products"
+    },
+    "design": {
+      "animations": {
+        "preset": "moderate"
+      },
+      "spacing": {
+        "sectionPaddingY": "normal"
+      }
     }
   }
 }

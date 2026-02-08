@@ -1,0 +1,2 @@
+channel,userEmail,variantSku,quantity,shippingFirstName,shippingLastName,shippingStreet,shippingCity,shippingPostalCode,shippingCountry
+"default-channel","customer@example.com","SKU-001","2","John","Doe","123 Main St","New York","10001","US"

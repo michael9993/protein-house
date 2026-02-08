@@ -174,8 +174,11 @@ function QuickViewContent({
 				</Drawer.Close>
 			</div>
 
-			{/* Body: scrollable */}
-			<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+			{/* Body: scrollable — transform forces GPU compositing to prevent white-flash on scroll */}
+			<div
+				className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
+				style={{ transform: "translateZ(0)", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
+			>
 				{loading && (
 					<div className="flex flex-col items-center justify-center py-20 sm:py-28">
 						<div
@@ -333,7 +336,7 @@ function QuickViewModal({ openSlug, onClose, channel }: QuickViewModalProps) {
 			direction="bottom"
 		>
 			<Drawer.Portal>
-				<Drawer.Overlay className="fixed inset-0 z-[9998] bg-black/60 backdrop-blur-sm" />
+				<Drawer.Overlay className="fixed inset-0 z-[9998] bg-black/50" />
 
 				<Drawer.Content
 					className="fixed inset-x-0 bottom-0 z-[9999] mx-auto flex max-h-[96dvh] flex-col rounded-t-2xl bg-white outline-none sm:inset-x-4 sm:bottom-4 sm:max-h-[90vh] sm:max-w-5xl sm:rounded-2xl lg:max-w-6xl"
@@ -384,6 +387,8 @@ export function QuickViewProvider({ children, channel }: QuickViewProviderProps)
 	const prefetchQuickView = useCallback(
 		(slug: string) => {
 			if (getCachedProduct(slug)) return;
+			// Preload the JS chunk in parallel with the data fetch
+			import("@/app/[channel]/(main)/products/[slug]/ProductDetailClient").catch(() => {});
 			getProductDetailsForQuickView(slug, channel).then((data) => {
 				if (data) setCachedProduct(slug, data);
 			});

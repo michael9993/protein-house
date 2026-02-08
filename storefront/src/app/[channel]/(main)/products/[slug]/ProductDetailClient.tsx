@@ -607,7 +607,7 @@ export function ProductDetailClient({
   const isModal = mode === "modal";
 
   return (
-    <div className={`bg-white animate-fade-in ${isModal ? "min-h-0" : "min-h-screen"}`}>
+    <div className={`bg-white ${isModal ? "min-h-0" : "min-h-screen animate-fade-in"}`}>
       <div className={`mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 ${isModal ? "py-4" : "py-6"}`}>
         {!isModal && (
           <div className="animate-fade-in">
@@ -624,26 +624,26 @@ export function ProductDetailClient({
         )}
 
         <div className={isModal ? "lg:grid lg:grid-cols-2 lg:gap-x-8" : "mt-6 lg:grid lg:grid-cols-2 lg:gap-x-8 xl:gap-x-12"}>
-          {/* Image Gallery */}
-          <div 
-            className="lg:sticky lg:top-24 lg:self-start animate-fade-in-up"
-            style={{
+          {/* Image Gallery — NO sticky in modal mode (causes white/truncated scroll areas) */}
+          <div
+            className={isModal ? "" : "lg:sticky lg:top-24 lg:self-start animate-fade-in-up"}
+            style={isModal ? undefined : {
               animationDelay: "100ms",
               animationFillMode: "both",
             }}
           >
-             <ProductGallery 
-                images={displayImages} 
-                productName={product.name} 
+             <ProductGallery
+                images={displayImages}
+                productName={product.name}
                 discountPercent={discountPercent}
                 allowLightbox={!isModal}
               />
           </div>
 
           {/* Product Info */}
-          <div 
-            className="mt-8 lg:mt-0 animate-fade-in-up"
-            style={{
+          <div
+            className={isModal ? "mt-6 lg:mt-0" : "mt-8 lg:mt-0 animate-fade-in-up"}
+            style={isModal ? undefined : {
               animationDelay: "200ms",
               animationFillMode: "both",
             }}
@@ -984,61 +984,63 @@ export function ProductDetailClient({
                   )}
                 </button>
 
-                {/* Wishlist */}
-                {wishlistEnabled && (
-                  <button
-                    onClick={async (e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      if (isWishlisted) {
-                        await removeItem(product.id);
-                      } else {
-                        // Get price from selected variant or first variant
-                        const selectedVariant = product.variants.find(v => v.id === effectiveVariantId);
-                        const price = selectedVariant?.pricing?.price?.gross?.amount || 
-                                     product.variants[0]?.pricing?.price?.gross?.amount || 0;
-                        const currency = selectedVariant?.pricing?.price?.gross?.currency || 
-                                       product.variants[0]?.pricing?.price?.gross?.currency || "USD";
-                        
-                        await addItem({
-                          id: product.id,
-                          name: product.name,
-                          slug: product.slug,
-                          price,
-                          originalPrice: product.originalPrice ? parseFloat(product.originalPrice.replace(/[^0-9.]/g, '')) : undefined,
-                          currency,
-                          image: product.images[0]?.url || "",
-                          imageAlt: product.images[0]?.alt || product.name,
-                          category: product.category || undefined,
-                          inStock: isInStock,
-                        });
-                      }
-                    }}
-                    className={`flex h-12 w-12 items-center justify-center rounded-lg border transition-colors ${
-                      isWishlisted
-                        ? "border-red-200 bg-red-50 text-red-500"
-                        : "border-neutral-300 text-neutral-600 hover:border-neutral-400"
-                    }`}
-                    aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-                  >
-                    <svg 
-                      className="h-5 w-5" 
-                      fill={isWishlisted ? "currentColor" : "none"} 
-                      viewBox="0 0 24 24" 
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                  </button>
-                )}
+                {/* Wishlist + Share — always side by side */}
+                <div className="flex gap-2">
+                  {wishlistEnabled && (
+                    <button
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (isWishlisted) {
+                          await removeItem(product.id);
+                        } else {
+                          const selectedVariant = product.variants.find(v => v.id === effectiveVariantId);
+                          const price = selectedVariant?.pricing?.price?.gross?.amount ||
+                                       product.variants[0]?.pricing?.price?.gross?.amount || 0;
+                          const currency = selectedVariant?.pricing?.price?.gross?.currency ||
+                                         product.variants[0]?.pricing?.price?.gross?.currency || "USD";
 
-                {/* Share Button */}
-                <ShareButton
-                  productName={product.name}
-                  productUrl={typeof window !== "undefined" ? window.location.href : ""}
-                  productImage={product.images[0]?.url || null}
-                />
+                          await addItem({
+                            id: product.id,
+                            name: product.name,
+                            slug: product.slug,
+                            price,
+                            originalPrice: product.originalPrice ? parseFloat(product.originalPrice.replace(/[^0-9.]/g, '')) : undefined,
+                            currency,
+                            image: product.images[0]?.url || "",
+                            imageAlt: product.images[0]?.alt || product.name,
+                            category: product.category || undefined,
+                            inStock: isInStock,
+                          });
+                        }
+                      }}
+                      className={`flex h-12 w-12 items-center justify-center rounded-lg border transition-colors ${
+                        isWishlisted
+                          ? "border-red-200 bg-red-50 text-red-500"
+                          : "border-neutral-300 text-neutral-600 hover:border-neutral-400"
+                      }`}
+                      aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                    >
+                      <svg
+                        className="h-5 w-5"
+                        fill={isWishlisted ? "currentColor" : "none"}
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                    </button>
+                  )}
+                  <ShareButton
+                    variant="icon"
+                    productName={product.name}
+                    productUrl={typeof window !== "undefined" ? window.location.href : ""}
+                    productImage={product.images[0]?.url || null}
+                    className="flex h-12 w-12 items-center justify-center rounded-lg border border-neutral-300 text-neutral-600 transition-colors hover:border-neutral-400 hover:bg-neutral-50"
+                    iconClassName="h-5 w-5"
+                  />
+                </div>
               </div>
 
               {/* View Cart – opens drawer or navigates to cart page per display mode */}
@@ -1057,9 +1059,9 @@ export function ProductDetailClient({
             </div>
 
             {/* Trust Badges */}
-            <div 
-              className="mt-8 grid grid-cols-3 gap-4 border-t border-neutral-200 pt-8 animate-fade-in-up"
-              style={{
+            <div
+              className={`mt-8 grid grid-cols-3 gap-4 border-t border-neutral-200 pt-8 ${isModal ? "" : "animate-fade-in-up"}`}
+              style={isModal ? undefined : {
                 animationDelay: "250ms",
                 animationFillMode: "both",
               }}
@@ -1086,9 +1088,9 @@ export function ProductDetailClient({
             </div>
 
             {/* Tabs */}
-            <div 
-              className="mt-8 border-t border-neutral-200 pt-8 animate-fade-in-up"
-              style={{
+            <div
+              className={`mt-8 border-t border-neutral-200 pt-8 ${isModal ? "" : "animate-fade-in-up"}`}
+              style={isModal ? undefined : {
                 animationDelay: "300ms",
                 animationFillMode: "both",
               }}

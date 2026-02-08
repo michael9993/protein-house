@@ -1,6 +1,6 @@
 "use client";
 
-import { useDashboardText } from "@/providers/StoreConfigProvider";
+import { useBranding, useDashboardText } from "@/providers/StoreConfigProvider";
 
 interface AccountWelcomeHeaderProps {
 	userFirstName: string | null;
@@ -8,13 +8,19 @@ interface AccountWelcomeHeaderProps {
 
 export function AccountWelcomeHeader({ userFirstName }: AccountWelcomeHeaderProps) {
 	const dashboardText = useDashboardText();
+	const branding = useBranding();
 
 	return (
-		<div className="rounded-xl bg-gradient-to-r from-neutral-900 to-neutral-800 px-6 py-8 text-white animate-fade-in-up" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
-			<h1 className="text-2xl font-bold">
-				{dashboardText.welcomeBack.replace("{name}", userFirstName || "there")} 👋
+		<div
+			className="rounded-lg px-6 py-6"
+			style={{
+				background: `linear-gradient(135deg, ${branding.colors.primary}, ${branding.colors.primary}cc)`,
+			}}
+		>
+			<h1 className="text-xl font-bold text-white">
+				{dashboardText.welcomeBack.replace("{name}", userFirstName || "there")}
 			</h1>
-			<p className="mt-2 text-neutral-300">
+			<p className="mt-1 text-sm text-white/75">
 				{dashboardText.welcomeBackMessage}
 			</p>
 		</div>

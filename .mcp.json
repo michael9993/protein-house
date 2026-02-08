@@ -1,0 +1,131 @@
+{
+  "mcpServers": {
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ]
+    },
+    "executeautomation-playwright-server": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@executeautomation/playwright-mcp-server"
+      ]
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "<YOUR_TOKEN>"
+      }
+    },
+    "postgresql": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres"
+      ],
+      "env": {
+        "POSTGRES_CONNECTION_STRING": "postgresql://user:password@localhost:5432/dbname"
+      }
+    },
+    "fetch": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch"
+      ]
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest"
+      ]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/path/to/allowed/files"
+      ]
+    },
+    "playwright-server": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    },
+    "markitdown": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "markitdown-mcp:latest"
+      ]
+    },
+    "DeepGraph Next.js MCP": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-code-graph@latest",
+        "vercel/next.js"
+      ]
+    },
+    "Figma Dev Mode MCP": {
+      "url": "http://127.0.0.1:3845/mcp"
+    },
+    "postman-api-http-server": {
+      "type": "http",
+      "url": "https://mcp.postman.com/{minimal | mcp}",
+      "headers": {
+        "Authorization": "Bearer ${input:postman-api-key}"
+      }
+    },
+    "fb-ads-mcp-server": {
+      "command": "python",
+      "args": [
+        "/path/to/your/fb-ads-mcp-server/server.py",
+        "--fb-token",
+        "YOUR_META_ACCESS_TOKEN"
+      ]
+    },
+    "google-ads": {
+      "command": "/full/path/to/your/project/.venv/bin/python",
+      "args": [
+        "/full/path/to/your/project/server.py"
+      ]
+    },
+    "stripe": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@stripe/mcp",
+        "--tools=all"
+      ],
+      "env": {
+        "STRIPE_SECRET_KEY": "your_stripe_secret_key_here"
+      }
+    },
+    "sentry": {
+      "url": "https://mcp.sentry.dev/mcp"
+    },
+    "postgres-documentation": {
+      "url": "https://mcp.tigerdata.com/docs"
+    }
+  }
+}

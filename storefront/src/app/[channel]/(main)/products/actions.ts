@@ -53,7 +53,7 @@ export async function getProductDetailsForQuickView(
 	const decodedSlug = decodeURIComponent(slug);
 	const { product } = await executeGraphQL(ProductDetailsDocument, {
 		variables: { slug: decodedSlug, channel },
-		cache: "no-cache",
+		revalidate: 30,
 	});
 
 	if (!product) {

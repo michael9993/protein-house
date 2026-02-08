@@ -12,6 +12,7 @@ import { SectionHeader } from "./SectionHeader";
 import { generateSectionBackground, generatePatternOverlay, type SectionBackgroundConfig } from "@/lib/section-backgrounds";
 import { useWishlist } from "@/lib/wishlist";
 import { useQuickView } from "@/providers/QuickViewProvider";
+import { ShareButton } from "@/ui/components/ProductSharing";
 
 /** Days since creation to show "New" badge. Data-driven instead of position-based. */
 const NEW_PRODUCT_DAYS = 30;
@@ -72,11 +73,11 @@ export function ProductGrid({
   const getTitleFromContent = () => {
     switch (type) {
       case "newArrivals":
-        return { title: content.homepage.newArrivalsTitle, subtitle: content.homepage.newArrivalsSubtitle, link: "/products?collection=new-arrivals" };
+        return { title: content.homepage.newArrivalsTitle, subtitle: content.homepage.newArrivalsSubtitle, link: "/products?collections=new-arrivals" };
       case "bestSellers":
-        return { title: content.homepage.bestSellersTitle, subtitle: content.homepage.bestSellersSubtitle, link: "/products?collection=best-sellers" };
+        return { title: content.homepage.bestSellersTitle, subtitle: content.homepage.bestSellersSubtitle, link: "/products?collections=best-sellers" };
       case "onSale":
-        return { title: content.homepage.onSaleTitle, subtitle: content.homepage.onSaleSubtitle, link: "/products?collection=sale" };
+        return { title: content.homepage.onSaleTitle, subtitle: content.homepage.onSaleSubtitle, link: "/products?collections=sale" };
       case "featured":
       default:
         return { title: content.homepage.featuredTitle, subtitle: content.homepage.featuredSubtitle, link: "/products" };
@@ -367,15 +368,25 @@ function ProductCard({
                </button>
              )}
              
-             {showWishlist && (
-                <button 
-                  className="absolute right-3 top-3 pointer-events-auto rounded-full bg-white/90 p-2 shadow-sm transition-all hover:bg-white hover:scale-105"
-                  onClick={handleWishlistClick}
-                  style={{ color: isWishlisted ? branding.colors.error : '#666' }}
-                >
-                   <svg className="h-5 w-5" fill={isWishlisted ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={isWishlisted ? 0 : 2}><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
-                </button>
-             )}
+             <div className="absolute right-3 top-3 pointer-events-auto flex flex-col gap-2">
+               {showWishlist && (
+                  <button
+                    className="rounded-full bg-white/90 p-2 shadow-sm transition-all hover:bg-white hover:scale-105"
+                    onClick={handleWishlistClick}
+                    style={{ color: isWishlisted ? branding.colors.error : '#666' }}
+                  >
+                     <svg className="h-5 w-5" fill={isWishlisted ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={isWishlisted ? 0 : 2}><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                  </button>
+               )}
+               <ShareButton
+                 variant="icon"
+                 productName={product.name}
+                 productSlug={product.slug}
+                 productImage={product.thumbnail?.url || null}
+                 className="rounded-full bg-white/90 p-2 shadow-sm text-neutral-500 transition-all hover:bg-white hover:scale-105 hover:text-neutral-700"
+                 iconClassName="h-5 w-5"
+               />
+             </div>
           </div>
         </div>
 

@@ -10,7 +10,7 @@
  */
 
 import React, { useState, useRef, useEffect, type ReactNode, type ChangeEvent } from "react";
-import { useStoreConfig, useFiltersConfig, useFiltersText, useContentConfig } from "@/providers/StoreConfigProvider";
+import { useFiltersConfig, useFiltersText, useContentConfig, useFilterSidebarConfig } from "@/providers/StoreConfigProvider";
 import { useProductFilters } from "@/hooks/useProductFilters";
 import { PriceRangeFilter } from "./PriceRangeFilter";
 import { RatingFilter } from "./RatingFilter";
@@ -133,11 +133,10 @@ export function ProductFilters({
   currencyCode,
 }: ProductFiltersProps) {
   // Use config from context (per-channel)
-  const config = useStoreConfig();
   const filtersConfig = useFiltersConfig();
   const filtersText = useFiltersText();
   const content = useContentConfig();
-  const { branding } = config;
+  const fsConfig = useFilterSidebarConfig();
   // Use same labels as nav Shop All dropdown when navbar labels are set (categories → collections → brands)
   const categoriesLabel = content.navbar?.categoriesLabel ?? filtersText.categoryTitle;
   const collectionsLabel = content.navbar?.collectionsLabel ?? filtersText.collectionTitle;
@@ -269,13 +268,14 @@ export function ProductFilters({
       !areAllChildrenSelected(category, filters.categories);
 
     return (
-      <div key={category.slug} className={depth > 0 ? "ms-4 mt-1" : ""}>
-        <div className="flex items-center gap-2">
+      <div key={category.slug} className={depth > 0 ? "ms-4 mt-0.5" : ""}>
+        <div className="flex items-center gap-1.5">
           {hasChildren ? (
             <button
               type="button"
               onClick={() => toggleCategoryExpand(category.slug)}
-              className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded text-neutral-500 hover:bg-neutral-100 transition-colors"
+              className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded hover:bg-neutral-100 transition-colors"
+              style={{ color: fsConfig.chevronColor }}
             >
               <svg
                 className={`h-3 w-3 transition-transform ${isExpanded ? "rotate-90" : ""}`}
@@ -287,27 +287,25 @@ export function ProductFilters({
               </svg>
             </button>
           ) : (
-            <div className="w-5" />
+            <div className="w-5 flex-shrink-0" />
           )}
-          
-          <label className="flex flex-1 cursor-pointer items-center gap-3 py-2 hover:bg-neutral-50/50 rounded-lg px-2 -mx-2 transition-all duration-200 min-w-0">
-            <div className="relative flex-shrink-0">
-              <CategoryCheckbox
-                checked={isChecked}
-                indeterminate={isPartiallyChecked || false}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => handleCategoryChange(category, e.target.checked)}
-                accentColor={branding.colors.primary}
-              />
-            </div>
-            <span className="flex-1 text-sm font-medium text-neutral-700 break-words min-w-0 overflow-hidden">{category.name}</span>
+
+          <label className="flex flex-1 cursor-pointer items-center gap-2.5 py-1.5 hover:bg-neutral-50 rounded px-1.5 -mx-1.5 transition-colors min-w-0">
+            <CategoryCheckbox
+              checked={isChecked}
+              indeterminate={isPartiallyChecked || false}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => handleCategoryChange(category, e.target.checked)}
+              accentColor={fsConfig.checkboxAccentColor}
+            />
+            <span className="flex-1 text-[13px] truncate" style={{ color: fsConfig.itemTextColor }}>{category.name}</span>
             {category.productCount !== undefined && category.productCount > 0 && (
-              <span className="text-xs font-medium text-neutral-400">({category.productCount})</span>
+              <span className="text-[11px] flex-shrink-0" style={{ color: fsConfig.itemCountColor }}>({category.productCount})</span>
             )}
           </label>
         </div>
-        
+
         {hasChildren && isExpanded && (
-          <div className="mt-1">
+          <div className="mt-0.5">
             {category.children!.map(child => renderCategory(child, depth + 1))}
           </div>
         )}
@@ -316,29 +314,44 @@ export function ProductFilters({
   };
 
   return (
-    <aside className="flex h-full w-full flex-col animate-fade-in-up" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
-      {/* Scrollable Content - No header needed, title is in sidebar */}
-      <div className="flex-1 overflow-y-auto pe-2 -me-2 scrollbar-thin">
-        {/* Clear All Button - At top if filters active */}
+    <aside className="flex h-full w-full flex-col">
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        {/* Clear All Button - Configurable via Storefront Control */}
         {hasFilters && (
-          <div className="mb-6 pb-6 border-b border-neutral-200/60">
+          <div className="mb-4 pb-4 border-b border-neutral-200">
             <button
               onClick={clearAll}
-              className="w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:opacity-90 hover:shadow-md"
-              style={{ backgroundColor: branding.colors.primary }}
+              className="w-full rounded-md px-4 py-2 text-xs font-semibold uppercase tracking-wide border transition-all duration-200"
+              style={{
+                backgroundColor: fsConfig.clearAllButtonBg,
+                color: fsConfig.clearAllButtonText,
+                borderColor: fsConfig.clearAllButtonBorder,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = fsConfig.clearAllButtonHoverBg;
+                e.currentTarget.style.color = fsConfig.clearAllButtonHoverText;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = fsConfig.clearAllButtonBg;
+                e.currentTarget.style.color = fsConfig.clearAllButtonText;
+              }}
             >
               {filtersText.clearAllButton}
             </button>
           </div>
         )}
 
-        {/* Categories - config-driven visibility; label aligned with nav dropdown */}
+        {/* Categories */}
         {filtersConfig.categoryFilter.enabled && categories.length > 0 && (
           <FilterSection
             title={categoriesLabel}
             isExpanded={expandedSections.includes("categories")}
             onToggle={() => toggleSection("categories")}
-            branding={branding}
+            sectionTitleColor={fsConfig.sectionTitleColor}
+            sectionTitleHoverColor={fsConfig.sectionTitleHoverColor}
+            chevronColor={fsConfig.chevronColor}
+            chevronHoverColor={fsConfig.chevronHoverColor}
           >
             <div className="space-y-1">
               {categories.map(category => renderCategory(category))}
@@ -346,27 +359,30 @@ export function ProductFilters({
           </FilterSection>
         )}
 
-        {/* Collections - config-driven visibility; label aligned with nav dropdown */}
+        {/* Collections */}
         {filtersConfig.collectionFilter.enabled && collections.length > 0 && (
           <FilterSection
             title={collectionsLabel}
             isExpanded={expandedSections.includes("collections")}
             onToggle={() => toggleSection("collections")}
-            branding={branding}
+            sectionTitleColor={fsConfig.sectionTitleColor}
+            sectionTitleHoverColor={fsConfig.sectionTitleHoverColor}
+            chevronColor={fsConfig.chevronColor}
+            chevronHoverColor={fsConfig.chevronHoverColor}
           >
-            <div className="space-y-1 max-h-64 overflow-y-auto">
+            <div className="space-y-0.5 max-h-56 overflow-y-auto overflow-x-hidden">
               {collections.map(collection => (
-                <label key={collection.id} className="flex cursor-pointer items-center gap-3 py-2 hover:bg-neutral-50/50 rounded-lg px-2 -mx-2 transition-all duration-200">
+                <label key={collection.id} className="flex cursor-pointer items-center gap-2.5 py-1.5 hover:bg-neutral-50 rounded px-1.5 -mx-1.5 transition-colors min-w-0">
                   <input
                     type="checkbox"
                     checked={isCollectionSelected(collection.slug)}
                     onChange={() => toggleCollection(collection.slug)}
                     className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
-                    style={{ accentColor: branding.colors.primary }}
+                    style={{ accentColor: fsConfig.checkboxAccentColor }}
                   />
-                  <span className="flex-1 text-sm font-medium text-neutral-700 break-words min-w-0">{collection.name}</span>
+                  <span className="flex-1 text-[13px] truncate" style={{ color: fsConfig.itemTextColor }}>{collection.name}</span>
                   {collection.productCount !== undefined && collection.productCount > 0 && (
-                    <span className="text-xs font-medium text-neutral-400">({collection.productCount})</span>
+                    <span className="text-[11px] flex-shrink-0" style={{ color: fsConfig.itemCountColor }}>({collection.productCount})</span>
                   )}
                 </label>
               ))}
@@ -374,27 +390,30 @@ export function ProductFilters({
           </FilterSection>
         )}
 
-        {/* Brands - config-driven visibility; label aligned with nav dropdown */}
+        {/* Brands */}
         {filtersConfig.brandFilter.enabled && brands.length > 0 && (
           <FilterSection
             title={brandsLabel}
             isExpanded={expandedSections.includes("brands")}
             onToggle={() => toggleSection("brands")}
-            branding={branding}
+            sectionTitleColor={fsConfig.sectionTitleColor}
+            sectionTitleHoverColor={fsConfig.sectionTitleHoverColor}
+            chevronColor={fsConfig.chevronColor}
+            chevronHoverColor={fsConfig.chevronHoverColor}
           >
-            <div className="space-y-1 max-h-64 overflow-y-auto">
+            <div className="space-y-0.5 max-h-56 overflow-y-auto overflow-x-hidden">
               {brands.map(brand => (
-                <label key={brand.id} className="flex cursor-pointer items-center gap-3 py-2 hover:bg-neutral-50/50 rounded-lg px-2 -mx-2 transition-all duration-200 min-w-0">
+                <label key={brand.id} className="flex cursor-pointer items-center gap-2.5 py-1.5 hover:bg-neutral-50 rounded px-1.5 -mx-1.5 transition-colors min-w-0">
                   <input
                     type="checkbox"
                     checked={isBrandSelected(brand.slug)}
                     onChange={() => toggleBrand(brand.slug)}
                     className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
-                    style={{ accentColor: branding.colors.primary }}
+                    style={{ accentColor: fsConfig.checkboxAccentColor }}
                   />
-                  <span className="flex-1 text-sm font-medium text-neutral-700 break-words min-w-0 overflow-hidden">{brand.name}</span>
+                  <span className="flex-1 text-[13px] truncate" style={{ color: fsConfig.itemTextColor }}>{brand.name}</span>
                   {brand.productCount !== undefined && brand.productCount > 0 && (
-                    <span className="text-xs font-medium text-neutral-400">({brand.productCount})</span>
+                    <span className="text-[11px] flex-shrink-0" style={{ color: fsConfig.itemCountColor }}>({brand.productCount})</span>
                   )}
                 </label>
               ))}
@@ -402,55 +421,73 @@ export function ProductFilters({
           </FilterSection>
         )}
 
-        {/* Sizes - config-driven visibility */}
+        {/* Sizes */}
         {filtersConfig.sizeFilter.enabled && sizes.length > 0 && (
           <FilterSection
             title={filtersText.sizeTitle}
             isExpanded={expandedSections.includes("sizes")}
             onToggle={() => toggleSection("sizes")}
-            branding={branding}
+            sectionTitleColor={fsConfig.sectionTitleColor}
+            sectionTitleHoverColor={fsConfig.sectionTitleHoverColor}
+            chevronColor={fsConfig.chevronColor}
+            chevronHoverColor={fsConfig.chevronHoverColor}
           >
-            <div className="space-y-1 max-h-64 overflow-y-auto">
-              {sizes.map(size => (
-                <label key={size.id} className="flex cursor-pointer items-center gap-3 py-2 hover:bg-neutral-50/50 rounded-lg px-2 -mx-2 transition-all duration-200 min-w-0">
-                  <input
-                    type="checkbox"
-                    checked={isSizeSelected(size.slug)}
-                    onChange={() => toggleSize(size.slug)}
-                    className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
-                    style={{ accentColor: branding.colors.primary }}
-                  />
-                  <span className="flex-1 text-sm font-medium text-neutral-700 break-words min-w-0 overflow-hidden">{size.name}</span>
-                  {size.productCount !== undefined && size.productCount > 0 && (
-                    <span className="text-xs font-medium text-neutral-400">({size.productCount})</span>
-                  )}
-                </label>
-              ))}
+            <div className="flex flex-wrap gap-1.5">
+              {sizes.map(size => {
+                const selected = isSizeSelected(size.slug);
+                return (
+                  <button
+                    key={size.id}
+                    type="button"
+                    onClick={() => toggleSize(size.slug)}
+                    className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-[13px] transition-colors ${
+                      selected
+                        ? ""
+                        : "border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50"
+                    }`}
+                    style={selected ? {
+                      backgroundColor: fsConfig.sizeChipSelectedBg,
+                      color: fsConfig.sizeChipSelectedText,
+                      borderColor: fsConfig.sizeChipSelectedBorder,
+                    } : undefined}
+                  >
+                    {size.name}
+                    {size.productCount !== undefined && size.productCount > 0 && (
+                      <span className="text-[10px]" style={{ color: selected ? `${fsConfig.sizeChipSelectedText}80` : fsConfig.itemCountColor }}>
+                        ({size.productCount})
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </FilterSection>
         )}
 
-        {/* Colors - config-driven visibility */}
+        {/* Colors */}
         {filtersConfig.colorFilter.enabled && colors.length > 0 && (
           <FilterSection
             title={filtersText.colorTitle}
             isExpanded={expandedSections.includes("colors")}
             onToggle={() => toggleSection("colors")}
-            branding={branding}
+            sectionTitleColor={fsConfig.sectionTitleColor}
+            sectionTitleHoverColor={fsConfig.sectionTitleHoverColor}
+            chevronColor={fsConfig.chevronColor}
+            chevronHoverColor={fsConfig.chevronHoverColor}
           >
-            <div className="space-y-1 max-h-64 overflow-y-auto">
+            <div className="space-y-0.5 max-h-56 overflow-y-auto overflow-x-hidden">
               {colors.map(color => (
-                <label key={color.id} className="flex cursor-pointer items-center gap-3 py-2 hover:bg-neutral-50/50 rounded-lg px-2 -mx-2 transition-all duration-200 min-w-0">
+                <label key={color.id} className="flex cursor-pointer items-center gap-2.5 py-1.5 hover:bg-neutral-50 rounded px-1.5 -mx-1.5 transition-colors min-w-0">
                   <input
                     type="checkbox"
                     checked={isColorSelected(color.slug)}
                     onChange={() => toggleColor(color.slug)}
                     className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
-                    style={{ accentColor: branding.colors.primary }}
+                    style={{ accentColor: fsConfig.checkboxAccentColor }}
                   />
-                  <span className="flex-1 text-sm font-medium text-neutral-700 break-words min-w-0 overflow-hidden">{color.name}</span>
+                  <span className="flex-1 text-[13px] truncate" style={{ color: fsConfig.itemTextColor }}>{color.name}</span>
                   {color.productCount !== undefined && color.productCount > 0 && (
-                    <span className="text-xs font-medium text-neutral-400">({color.productCount})</span>
+                    <span className="text-[11px] flex-shrink-0" style={{ color: fsConfig.itemCountColor }}>({color.productCount})</span>
                   )}
                 </label>
               ))}
@@ -458,16 +495,19 @@ export function ProductFilters({
           </FilterSection>
         )}
 
-        {/* Price Range - config-driven visibility */}
+        {/* Price Range */}
         {filtersConfig.priceFilter.enabled && (
           <FilterSection
             title={filtersText.priceTitle}
             isExpanded={expandedSections.includes("price")}
             onToggle={() => toggleSection("price")}
-            branding={branding}
+            sectionTitleColor={fsConfig.sectionTitleColor}
+            sectionTitleHoverColor={fsConfig.sectionTitleHoverColor}
+            chevronColor={fsConfig.chevronColor}
+            chevronHoverColor={fsConfig.chevronHoverColor}
           >
-            <PriceRangeFilter 
-              channel={channel} 
+            <PriceRangeFilter
+              channel={channel}
               minPrice={minPrice}
               maxPrice={maxPrice}
               currencyCode={currencyCode}
@@ -476,47 +516,53 @@ export function ProductFilters({
           </FilterSection>
         )}
 
-        {/* Rating - config-driven visibility */}
+        {/* Rating */}
         {filtersConfig.ratingFilter.enabled && (
           <FilterSection
             title={filtersText.ratingTitle}
             isExpanded={expandedSections.includes("rating")}
             onToggle={() => toggleSection("rating")}
-            branding={branding}
+            sectionTitleColor={fsConfig.sectionTitleColor}
+            sectionTitleHoverColor={fsConfig.sectionTitleHoverColor}
+            chevronColor={fsConfig.chevronColor}
+            chevronHoverColor={fsConfig.chevronHoverColor}
           >
             <RatingFilter />
           </FilterSection>
         )}
 
-        {/* Availability (Stock Filter) - config-driven visibility */}
+        {/* Availability */}
         {filtersConfig.stockFilter.enabled && (
           <FilterSection
             title={filtersText.availabilityTitle}
             isExpanded={expandedSections.includes("availability")}
             onToggle={() => toggleSection("availability")}
-            branding={branding}
             noBorder
+            sectionTitleColor={fsConfig.sectionTitleColor}
+            sectionTitleHoverColor={fsConfig.sectionTitleHoverColor}
+            chevronColor={fsConfig.chevronColor}
+            chevronHoverColor={fsConfig.chevronHoverColor}
           >
-            <div className="space-y-2">
-              <label className="flex cursor-pointer items-center gap-3 py-2 hover:bg-neutral-50/50 rounded-lg px-2 -mx-2 transition-all duration-200">
+            <div className="space-y-0.5">
+              <label className="flex cursor-pointer items-center gap-2.5 py-1.5 hover:bg-neutral-50 rounded px-1.5 -mx-1.5 transition-colors">
                 <input
                   type="checkbox"
                   checked={filters.inStock}
                   onChange={toggleInStock}
                   className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
-                  style={{ accentColor: branding.colors.primary }}
+                  style={{ accentColor: fsConfig.checkboxAccentColor }}
                 />
-                <span className="text-sm font-medium text-neutral-700">{filtersText.inStockOnly}</span>
+                <span className="text-[13px]" style={{ color: fsConfig.itemTextColor }}>{filtersText.inStockOnly}</span>
               </label>
-              <label className="flex cursor-pointer items-center gap-3 py-2 hover:bg-neutral-50/50 rounded-lg px-2 -mx-2 transition-all duration-200">
+              <label className="flex cursor-pointer items-center gap-2.5 py-1.5 hover:bg-neutral-50 rounded px-1.5 -mx-1.5 transition-colors">
                 <input
                   type="checkbox"
                   checked={filters.onSale}
                   onChange={toggleOnSale}
                   className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
-                  style={{ accentColor: branding.colors.primary }}
+                  style={{ accentColor: fsConfig.checkboxAccentColor }}
                 />
-                <span className="text-sm font-medium text-neutral-700">{filtersText.onSale}</span>
+                <span className="text-[13px]" style={{ color: fsConfig.itemTextColor }}>{filtersText.onSale}</span>
               </label>
             </div>
           </FilterSection>
@@ -592,53 +638,56 @@ function CategoryCheckbox({
   );
 }
 
-function FilterSection({ 
-  title, 
-  isExpanded, 
-  onToggle, 
+function FilterSection({
+  title,
+  isExpanded,
+  onToggle,
   children,
   noBorder = false,
-  branding,
-}: { 
+  sectionTitleColor,
+  sectionTitleHoverColor,
+  chevronColor,
+  chevronHoverColor,
+}: {
   title: string;
   isExpanded: boolean;
   onToggle: () => void;
   children: ReactNode;
   noBorder?: boolean;
-  branding: { colors: { primary: string; text: string } };
+  sectionTitleColor?: string;
+  sectionTitleHoverColor?: string;
+  chevronColor?: string;
+  chevronHoverColor?: string;
 }) {
-  
   return (
-    <div className={`${noBorder ? "py-5" : "border-b border-neutral-200/60 py-5"} transition-all duration-300`}>
+    <div className={`${noBorder ? "py-4" : "border-b border-neutral-200 py-4"}`}>
       <button
         onClick={onToggle}
         className="flex w-full items-center justify-between text-start group"
       >
-        <span 
-          className="text-sm font-bold uppercase tracking-wider transition-colors group-hover:opacity-80"
-          style={{ color: branding.colors.text }}
+        <span
+          className="text-[13px] font-semibold uppercase tracking-wide transition-colors"
+          style={{ color: sectionTitleColor }}
+          onMouseEnter={(e) => { if (sectionTitleHoverColor) e.currentTarget.style.color = sectionTitleHoverColor; }}
+          onMouseLeave={(e) => { if (sectionTitleColor) e.currentTarget.style.color = sectionTitleColor; }}
         >
           {title}
         </span>
         <svg
-          className={`h-4 w-4 transition-all duration-200 ${isExpanded ? "rotate-180" : ""}`}
-          style={{ color: branding.colors.primary }}
+          className={`h-3.5 w-3.5 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+          style={{ color: chevronColor }}
+          onMouseEnter={(e) => { if (chevronHoverColor) e.currentTarget.style.color = chevronHoverColor; }}
+          onMouseLeave={(e) => { if (chevronColor) e.currentTarget.style.color = chevronColor; }}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
-          strokeWidth={2.5}
+          strokeWidth={2}
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
       {isExpanded && (
-        <div 
-          className="mt-4 animate-fade-in-up"
-          style={{
-            animationDuration: "0.3s",
-            animationFillMode: "both",
-          }}
-        >
+        <div className="mt-3">
           {children}
         </div>
       )}
@@ -658,29 +707,28 @@ function FilterTag({ children }: { children: ReactNode }) {
 // Mobile Filter Drawer
 // ============================================================================
 
-export function MobileFilterDrawer({ 
-  isOpen, 
-  onClose, 
-  children 
-}: { 
-  isOpen: boolean; 
-  onClose: () => void; 
+export function MobileFilterDrawer({
+  isOpen,
+  onClose,
+  children
+}: {
+  isOpen: boolean;
+  onClose: () => void;
   children: ReactNode;
 }) {
-  const config = useStoreConfig();
   const filtersText = useFiltersText();
-  const { branding } = config;
-  
+  const fsConfig = useFilterSidebarConfig();
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 lg:hidden">
       {/* Backdrop */}
-      <div 
+      <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      
+
       {/* Drawer */}
       <div className="fixed inset-y-0 start-0 flex w-full max-w-xs flex-col bg-white shadow-xl">
         {/* Header */}
@@ -695,18 +743,21 @@ export function MobileFilterDrawer({
             </svg>
           </button>
         </div>
-        
+
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-4 py-4">
           {children}
         </div>
-        
+
         {/* Footer */}
         <div className="border-t border-neutral-200 px-4 py-4">
           <button
             onClick={onClose}
-            className="w-full rounded-lg py-3 text-sm font-semibold text-white"
-            style={{ backgroundColor: branding.colors.primary }}
+            className="w-full rounded-lg py-3 text-sm font-semibold"
+            style={{
+              backgroundColor: fsConfig.mobileShowResultsBg,
+              color: fsConfig.mobileShowResultsText,
+            }}
           >
             {filtersText.showResultsButton}
           </button>

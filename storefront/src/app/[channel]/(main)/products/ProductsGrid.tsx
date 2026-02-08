@@ -1,18 +1,34 @@
 "use client";
 
 /**
- * ProductsGrid Component
- * 
- * Displays products in a responsive grid with infinite scroll pagination.
- * Optimized for mobile-first design with efficient spacing.
- * Includes animations for filtering and product appearance.
+ * ProductsGrid - Premium Athletic Products Grid
+ *
+ * Features:
+ * - Bold staggered entrance animations
+ * - Dramatic loading states
+ * - Improved empty state design
+ * - Infinite scroll with smooth loading
+ * - Dynamic display modes (1, 2, 4 columns)
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { ProductCard, ProductCardSkeleton } from "@/ui/components/ProductCard";
+import { Package, Loader2 } from "lucide-react";
+import { ProductCard } from "./components/ProductCard";
+import { ProductCardSkeleton } from "./components/ProductCardSkeleton";
+import { DesignStyles } from "./DesignStyles";
+import {
+  DisplayModeToggle,
+  useDisplayMode,
+  getGridClasses,
+  getGapClasses,
+  type DisplayMode,
+} from "./components/DisplayModeToggle";
 import type { ProductListItemFragment, ProductOrder } from "@/gql/graphql";
-import { type FilterState, hasActiveFilters as checkActiveFilters } from "@/lib/filters";
-import { useFiltersText } from "@/providers/StoreConfigProvider";
+import {
+  type FilterState,
+  hasActiveFilters as checkActiveFilters,
+} from "@/lib/filters";
+import { useFiltersText, useBranding } from "@/providers/StoreConfigProvider";
 
 interface ProductsGridProps {
   initialProducts: ProductListItemFragment[];
@@ -22,6 +38,8 @@ interface ProductsGridProps {
   endCursor: string | null;
   sortBy: ProductOrder;
   filters: FilterState;
+  showDisplayToggle?: boolean;
+  displayMode?: DisplayMode;
 }
 
 export function ProductsGrid({
@@ -32,94 +50,105 @@ export function ProductsGrid({
   endCursor: initialEndCursor,
   sortBy,
   filters,
+  showDisplayToggle = true,
+  displayMode: externalDisplayMode,
 }: ProductsGridProps) {
-  const [products, setProducts] = useState<ProductListItemFragment[]>(initialProducts);
+  const [products, setProducts] =
+    useState<ProductListItemFragment[]>(initialProducts);
   const [hasNextPage, setHasNextPage] = useState(initialHasNextPage);
   const [endCursor, setEndCursor] = useState(initialEndCursor);
   const [isLoading, setIsLoading] = useState(false);
   const [isFiltering, setIsFiltering] = useState(false);
-  const [displayProducts, setDisplayProducts] = useState<ProductListItemFragment[]>(initialProducts);
+  const [displayProducts, setDisplayProducts] =
+    useState<ProductListItemFragment[]>(initialProducts);
   const loaderRef = useRef<HTMLDivElement>(null);
   const prevFiltersRef = useRef<string>(JSON.stringify(filters));
   const prevSortRef = useRef<string>(JSON.stringify(sortBy));
-  const filtersText = useFiltersText();
 
-  // Detect filter/sort changes and show loading state
+  // Display mode state - use external prop if provided, otherwise use internal hook
+  const [internalDisplayMode, setInternalDisplayMode] = useDisplayMode(4);
+  const displayMode = externalDisplayMode ?? internalDisplayMode;
+  const setDisplayMode = setInternalDisplayMode;
+
+  const filtersText = useFiltersText();
+  const branding = useBranding();
+
+  // Detect filter/sort changes
   useEffect(() => {
     const currentFiltersStr = JSON.stringify(filters);
     const currentSortStr = JSON.stringify(sortBy);
-    
+
     const filtersChanged = prevFiltersRef.current !== currentFiltersStr;
     const sortChanged = prevSortRef.current !== currentSortStr;
-    
+
     if (filtersChanged || sortChanged) {
       setIsFiltering(true);
       prevFiltersRef.current = currentFiltersStr;
       prevSortRef.current = currentSortStr;
-      
-      // Reset products when filters/sort change
+
       setProducts(initialProducts);
       setHasNextPage(initialHasNextPage);
       setEndCursor(initialEndCursor);
-      
-      // Hide loading after a short delay to allow for smooth transition
+
       const timer = setTimeout(() => {
         setIsFiltering(false);
-      }, 300);
-      
+      }, 350);
+
       return () => clearTimeout(timer);
     }
   }, [filters, sortBy, initialProducts, initialHasNextPage, initialEndCursor]);
 
-  // Update display products with animation delay
+  // Client-side filtering
   useEffect(() => {
     if (!isFiltering) {
-      // Apply client-side filters for additional filtering after server-side
-      // NOTE: Rating filtering is done client-side because Saleor GraphQL schema
-      // does not support rating filtering directly in ProductFilterInput.
-      // This is a limitation - if products have ratings, we filter them here.
       let filtered = products.filter((product) => {
         if (filters.inStock) {
-          const hasStock = product.variants?.some(v => v.quantityAvailable && v.quantityAvailable > 0) ?? true;
+          const hasStock =
+            product.variants?.some(
+              (v) => v.quantityAvailable && v.quantityAvailable > 0
+            ) ?? true;
           if (!hasStock) return false;
         }
 
         if (filters.onSale) {
-          const currentPrice = product.pricing?.priceRange?.start?.gross?.amount;
-          const originalPrice = product.pricing?.priceRangeUndiscounted?.start?.gross?.amount;
-          if (!currentPrice || !originalPrice || currentPrice >= originalPrice) return false;
+          const currentPrice =
+            product.pricing?.priceRange?.start?.gross?.amount;
+          const originalPrice =
+            product.pricing?.priceRangeUndiscounted?.start?.gross?.amount;
+          if (!currentPrice || !originalPrice || currentPrice >= originalPrice)
+            return false;
         }
 
-        // Rating filter (client-side only - Saleor doesn't support it in GraphQL)
         if (filters.rating !== undefined && filters.rating !== null) {
           const productRating = (product as any).rating;
           if (productRating === null || productRating === undefined) {
-            // If product has no rating, exclude it when filtering by rating
             return false;
           }
-          // Round rating to nearest integer for comparison
-          const roundedRating = Math.round(productRating);
-          if (roundedRating < filters.rating) {
+          if (Math.round(productRating) < filters.rating) {
             return false;
           }
         }
 
         return true;
       });
-      
-      // Apply "sale" sort filter - show only products on sale (check URL parameter)
-      if (typeof window !== 'undefined') {
+
+      // Apply "sale" sort filter
+      if (typeof window !== "undefined") {
         const urlParams = new URLSearchParams(window.location.search);
         const sortValue = urlParams.get("sort");
         if (sortValue === "sale") {
           filtered = filtered.filter((product) => {
-            const currentPrice = product.pricing?.priceRange?.start?.gross?.amount;
-            const originalPrice = product.pricing?.priceRangeUndiscounted?.start?.gross?.amount;
-            return currentPrice && originalPrice && currentPrice < originalPrice;
+            const currentPrice =
+              product.pricing?.priceRange?.start?.gross?.amount;
+            const originalPrice =
+              product.pricing?.priceRangeUndiscounted?.start?.gross?.amount;
+            return (
+              currentPrice && originalPrice && currentPrice < originalPrice
+            );
           });
         }
       }
-      
+
       setDisplayProducts(filtered);
     }
   }, [products, filters, isFiltering, sortBy]);
@@ -130,9 +159,7 @@ export function ProductsGrid({
     setIsLoading(true);
     try {
       const apiUrl = process.env.NEXT_PUBLIC_SALEOR_API_URL;
-      if (!apiUrl) {
-        throw new Error("API URL not configured");
-      }
+      if (!apiUrl) throw new Error("API URL not configured");
 
       const response = await fetch(apiUrl, {
         method: "POST",
@@ -149,25 +176,22 @@ export function ProductsGrid({
                     slug
                     pricing {
                       priceRange {
-                        start {
-                          gross { amount, currency }
-                        }
-                        stop {
-                          gross { amount, currency }
-                        }
+                        start { gross { amount, currency } }
+                        stop { gross { amount, currency } }
                       }
                       priceRangeUndiscounted {
-                        start {
-                          gross { amount, currency }
-                        }
-                        stop {
-                          gross { amount, currency }
-                        }
+                        start { gross { amount, currency } }
+                        stop { gross { amount, currency } }
                       }
                     }
                     category { id, name, slug }
                     thumbnail(size: 1024, format: WEBP) { url, alt }
                     variants { id, quantityAvailable }
+                    attributes {
+                      attribute { id, name, slug }
+                      values { id, name, slug }
+                    }
+                    collections { id, name, slug }
                   }
                   cursor
                 }
@@ -175,20 +199,15 @@ export function ProductsGrid({
               }
             }
           `,
-          variables: {
-            first: 12,
-            after: endCursor,
-            channel,
-            sortBy,
-          },
+          variables: { first: 12, after: endCursor, channel, sortBy },
         }),
       });
 
-      const { data } = await response.json() as { data?: any };
-      
+      const { data } = (await response.json()) as { data?: any };
+
       if (data?.products) {
         const newProducts = data.products.edges.map((edge: any) => edge.node);
-        setProducts(prev => [...prev, ...newProducts]);
+        setProducts((prev) => [...prev, ...newProducts]);
         setHasNextPage(data.products.pageInfo.hasNextPage);
         setEndCursor(data.products.pageInfo.endCursor);
       }
@@ -199,138 +218,161 @@ export function ProductsGrid({
     }
   }, [isLoading, hasNextPage, endCursor, channel, sortBy]);
 
-  // Intersection Observer for infinite scroll
+  // Intersection Observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        const first = entries[0];
-        if (first.isIntersecting && hasNextPage && !isLoading) {
+        if (entries[0].isIntersecting && hasNextPage && !isLoading) {
           loadMore();
         }
       },
-      { threshold: 0.1, rootMargin: "300px" }
+      { threshold: 0.1, rootMargin: "400px" }
     );
 
     const currentLoader = loaderRef.current;
-    if (currentLoader) {
-      observer.observe(currentLoader);
-    }
+    if (currentLoader) observer.observe(currentLoader);
 
     return () => {
-      if (currentLoader) {
-        observer.unobserve(currentLoader);
-      }
+      if (currentLoader) observer.unobserve(currentLoader);
     };
   }, [hasNextPage, isLoading, loadMore]);
 
   const hasFilters = checkActiveFilters(filters);
 
+  // Empty State
   if (displayProducts.length === 0 && !isLoading && !isFiltering) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-neutral-200 bg-white/80 py-16 px-4 text-center shadow-sm sm:py-20 animate-fade-in">
-        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100 sm:h-20 sm:w-20">
-          <svg className="h-8 w-8 text-neutral-400 sm:h-10 sm:w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-          </svg>
+      <>
+        <DesignStyles />
+        <div className="flex flex-col items-center justify-center rounded-3xl bg-gradient-to-br from-neutral-50 via-white to-neutral-100 px-8 py-24 text-center shadow-inner">
+          <div
+            className="mb-8 flex h-24 w-24 items-center justify-center rounded-full"
+            style={{
+              background: `linear-gradient(135deg, ${branding.colors.primary}15, ${branding.colors.primary}05)`,
+            }}
+          >
+            <Package
+              className="h-12 w-12"
+              style={{ color: branding.colors.primary }}
+              strokeWidth={1.5}
+            />
+          </div>
+          <h3 className="text-xl font-bold text-neutral-800">
+            {filtersText.noProductsTitle}
+          </h3>
+          <p className="mt-3 max-w-md text-base text-neutral-500">
+            {hasFilters
+              ? filtersText.noProductsWithFilters
+              : filtersText.noProductsEmpty}
+          </p>
         </div>
-        <p className="text-base font-semibold text-neutral-700 sm:text-lg">{filtersText.noProductsTitle}</p>
-        <p className="mt-2 text-sm text-neutral-500 sm:text-base">
-          {hasFilters ? filtersText.noProductsWithFilters : filtersText.noProductsEmpty}
-        </p>
-      </div>
+      </>
     );
   }
 
   return (
     <>
+      <DesignStyles />
+
+      {/* Display Mode Toggle */}
+      {showDisplayToggle && (
+        <div className="mb-4 flex items-center justify-end">
+          <DisplayModeToggle
+            value={displayMode}
+            onChange={setDisplayMode}
+          />
+        </div>
+      )}
+
       {/* Loading Overlay for Filtering */}
       {isFiltering && (
-        <div className="relative mb-6 rounded-xl border border-neutral-200 bg-white/95 backdrop-blur-sm p-12 shadow-sm">
-          <div className="flex flex-col items-center justify-center gap-4">
+        <div
+          className="relative mb-8 overflow-hidden rounded-3xl p-16"
+          style={{
+            background: `linear-gradient(135deg, ${branding.colors.primary}08, ${branding.colors.secondary}05)`,
+          }}
+        >
+          <div className="flex flex-col items-center justify-center gap-5">
             <div className="relative">
-              <div className="h-12 w-12 animate-spin rounded-full border-4 border-neutral-200 border-t-transparent"></div>
-              <div 
-                className="absolute inset-0 h-12 w-12 animate-spin rounded-full border-4 border-transparent opacity-50"
-                style={{ 
-                  borderTopColor: "var(--store-primary, #3b82f6)",
-                  animationDirection: "reverse",
-                  animationDuration: "0.8s"
-                }}
-              ></div>
+              <div
+                className="h-14 w-14 animate-spin rounded-full border-4 border-t-transparent"
+                style={{ borderColor: `${branding.colors.primary}20`, borderTopColor: branding.colors.primary }}
+              />
             </div>
-            <p className="text-sm font-medium text-neutral-600">{filtersText.filteringProducts}</p>
+            <p className="text-sm font-bold uppercase tracking-widest text-neutral-500">
+              {filtersText.filteringProducts}
+            </p>
           </div>
         </div>
       )}
 
-      {/* Product Grid - 4 columns like SportZone */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 md:gap-6 lg:grid-cols-4 lg:gap-6 xl:grid-cols-4 xl:gap-6">
-        {!isFiltering && displayProducts.map((product, index) => (
-          <div
-            key={product.id}
-            className="animate-fade-in-up"
-            style={{
-              animationDelay: `${Math.min(index * 50, 500)}ms`,
-              animationFillMode: "both",
-            }}
-          >
+      {/* Product Grid - Dynamic Layout */}
+      <div
+        className={`grid ${getGridClasses(displayMode)} ${getGapClasses(displayMode)} ${
+          !isFiltering ? "v7-grid-enter" : ""
+        }`}
+      >
+        {!isFiltering &&
+          displayProducts.map((product, index) => (
             <ProductCard
+              key={product.id}
               product={product}
               priority={index < 8}
               loading={index < 8 ? "eager" : "lazy"}
+              displayMode={displayMode}
             />
-          </div>
-        ))}
-        
+          ))}
+
         {/* Loading skeletons during filtering */}
-        {isFiltering && (
-          <>
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div
-                key={`skeleton-${i}`}
-                className="animate-fade-in"
-                style={{
-                  animationDelay: `${i * 50}ms`,
-                  animationFillMode: "both",
-                }}
-              >
-                <ProductCardSkeleton />
-              </div>
-            ))}
-          </>
-        )}
-        
+        {isFiltering &&
+          Array.from({ length: 8 }).map((_, i) => (
+            <ProductCardSkeleton key={`skeleton-${i}`} displayMode={displayMode} />
+          ))}
+
         {/* Loading skeletons for pagination */}
-        {isLoading && !isFiltering && (
-          <>
-            {Array.from({ length: 4 }).map((_, i) => (
-              <ProductCardSkeleton key={`pagination-skeleton-${i}`} />
-            ))}
-          </>
-        )}
+        {isLoading &&
+          !isFiltering &&
+          Array.from({ length: 4 }).map((_, i) => (
+            <ProductCardSkeleton key={`pagination-skeleton-${i}`} displayMode={displayMode} />
+          ))}
       </div>
 
       {/* Infinite scroll trigger */}
-      <div ref={loaderRef} className="mt-6 flex items-center justify-center py-6 sm:mt-8 sm:py-8">
+      <div
+        ref={loaderRef}
+        className="mt-10 flex items-center justify-center py-8"
+      >
         {isLoading && !isFiltering && (
-          <div className="flex items-center gap-2.5 text-neutral-500 animate-fade-in">
-            <svg className="h-5 w-5 animate-spin sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-            <span className="text-sm font-medium sm:text-base">{filtersText.loadingMore}</span>
+          <div className="flex items-center gap-3">
+            <Loader2
+              className="h-6 w-6 animate-spin"
+              style={{ color: branding.colors.primary }}
+            />
+            <span className="text-sm font-bold uppercase tracking-widest text-neutral-500">
+              {filtersText.loadingMore}
+            </span>
           </div>
         )}
-        {!hasNextPage && displayProducts.length > 0 && !isLoading && !isFiltering && (
-          <div className="text-center animate-fade-in">
-            <p className="text-sm font-medium text-neutral-600 sm:text-base">
-              {filtersText.seenAllProducts.replace("{count}", displayProducts.length.toLocaleString())}
-            </p>
-            <p className="mt-1 text-xs text-neutral-500 sm:text-sm">
-              {filtersText.tryAdjustingFilters}
-            </p>
-          </div>
-        )}
+        {!hasNextPage &&
+          displayProducts.length > 0 &&
+          !isLoading &&
+          !isFiltering && (
+            <div className="text-center">
+              <div
+                className="mx-auto mb-4 h-1 w-16 rounded-full"
+                style={{ backgroundColor: branding.colors.primary }}
+              />
+              <p className="text-base font-bold text-neutral-700">
+                {filtersText.seenAllProducts.replace(
+                  "{count}",
+                  displayProducts.length.toLocaleString()
+                )}
+              </p>
+              <p className="mt-2 text-sm text-neutral-400">
+                {filtersText.tryAdjustingFilters}
+              </p>
+            </div>
+          )}
       </div>
     </>
   );

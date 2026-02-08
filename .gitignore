@@ -176,4 +176,7 @@ backups/
 *-tunnel-url.txt
 tunnel-urls.txt
 
+# Windows reserved device names (accidentally created)
+nul
+
 # Note: apps/, saleor/, and storefront/ are now part of this repo (not submodules)

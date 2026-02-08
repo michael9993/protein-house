@@ -6,6 +6,9 @@ import { messageEventTypes } from "../../event-handlers/message-event-types";
 export const smtpEncryptionTypes = ["NONE", "TLS", "SSL"] as const;
 export type SmtpEncryptionType = (typeof smtpEncryptionTypes)[number];
 
+export const templateLanguages = ["en", "he"] as const;
+export type TemplateLanguage = (typeof templateLanguages)[number];
+
 export const smtpConfigurationEventSchema = z.object({
   active: z.boolean().default(false),
   eventType: z.enum(messageEventTypes),
@@ -26,6 +29,7 @@ export const smtpConfigurationSchema = z.object({
   smtpUser: z.string().optional(),
   smtpPassword: z.string().optional(),
   encryption: z.enum(smtpEncryptionTypes).default("NONE"),
+  templateLanguage: z.enum(templateLanguages).default("en"),
   channels: channelConfigurationSchema,
   events: z.array(smtpConfigurationEventSchema),
 });

@@ -30,9 +30,9 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 	}
 
 	return (
-		<div className="space-y-6 animate-fade-in">
+		<div className="space-y-6">
 			{/* Header */}
-			<div className="flex items-center justify-between animate-fade-in-up" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
+			<div className="flex items-center justify-between">
 				<div>
 					<h1 className="text-2xl font-bold text-neutral-900">{wishlistText.myWishlistTitle}</h1>
 					<p className="mt-1 text-neutral-500">
@@ -51,30 +51,17 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 
 			{/* Wishlist Grid */}
 			{items.length === 0 ? (
-				<div className="flex flex-col items-center justify-center rounded-xl bg-white px-6 py-16 text-center shadow-sm ring-1 ring-neutral-100 animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
-					<div className="flex h-20 w-20 items-center justify-center rounded-full bg-red-50">
-						<svg className="h-10 w-10 text-red-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth={1.5}
-								d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-							/>
-						</svg>
-					</div>
-					<h2 className="mt-6 text-xl font-semibold text-neutral-900">{wishlistText.emptyWishlistTitle}</h2>
-					<p className="mt-2 max-w-sm text-neutral-500">
+				<div className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50/50 px-6 py-16 text-center">
+					<p className="text-lg font-semibold text-neutral-900">{wishlistText.emptyWishlistTitle}</p>
+					<p className="mt-2 mx-auto max-w-sm text-sm text-neutral-500">
 						{wishlistText.emptyWishlistMessage}
 					</p>
 					<Link
 						href={`/${channel}/products`}
-						className="mt-6 inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+						className="mt-6 inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
 						style={{ backgroundColor: brandingConfig.colors.primary }}
 					>
 						{wishlistText.discoverProductsButton}
-						<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-						</svg>
 					</Link>
 				</div>
 			) : (
@@ -88,8 +75,7 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 						return (
 							<div
 								key={item.id}
-								className="group overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-neutral-100 animate-fade-in-up"
-								style={{ animationDelay: `${100 + index * 50}ms`, animationFillMode: "both" }}
+								className="group overflow-hidden rounded-lg border border-neutral-200 bg-white transition-shadow hover:shadow-sm"
 							>
 								<Link href={`/${channel}/products/${item.slug}`} className="block">
 									<div className="relative aspect-square overflow-hidden bg-neutral-100">

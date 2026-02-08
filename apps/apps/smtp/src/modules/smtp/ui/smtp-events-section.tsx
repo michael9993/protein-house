@@ -3,6 +3,7 @@ import { useDashboardNotification } from "@saleor/apps-shared/use-dashboard-noti
 import { TextLink } from "@saleor/apps-ui";
 import { Box, Button, Text, Tooltip } from "@saleor/macaw-ui";
 import { useRouter } from "next/router";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { BoxFooter } from "../../../components/box-footer";
@@ -29,6 +30,10 @@ interface SmtpEventsSectionProps {
 export const SmtpEventsSection = ({ configuration }: SmtpEventsSectionProps) => {
   const { notifySuccess, notifyError } = useDashboardNotification();
   const router = useRouter();
+  const [resetLanguage, setResetLanguage] = useState<"en" | "he">(
+    configuration.templateLanguage || "en",
+  );
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   const { data: featureFlags } = trpcClient.app.featureFlags.useQuery();
   const { data: appPermissions } = trpcClient.app.appPermissions.useQuery();
@@ -57,12 +62,25 @@ export const SmtpEventsSection = ({ configuration }: SmtpEventsSectionProps) => 
     },
   });
 
+  const { mutate: resetTemplates, isLoading: isResetting } =
+    trpcClient.smtpConfiguration.resetEventTemplates.useMutation({
+      onSuccess: async () => {
+        notifySuccess(`Templates reset to ${resetLanguage === "he" ? "Hebrew" : "English"} defaults`);
+        setShowResetConfirm(false);
+        trpcContext.smtpConfiguration.invalidate();
+        router.reload();
+      },
+      onError() {
+        notifyError("Failed to reset templates");
+      },
+    });
+
   return (
     <SectionWithDescription
       title="Events"
       description={
         <Box display="flex" flexDirection="column" gap={2}>
-          <Text as="p">Chose which Saleor events should send emails via SMTP.</Text>
+          <Text as="p">Choose which Saleor events should send emails via SMTP.</Text>
           <Text as="p">
             You can modify the email templates using{" "}
             <TextLink href="https://mjml.io/" newTab={true}>
@@ -73,6 +91,77 @@ export const SmtpEventsSection = ({ configuration }: SmtpEventsSectionProps) => 
         </Box>
       }
     >
+      <BoxWithBorder>
+        <Box padding={defaultPadding} display="flex" flexDirection="column" gap={4}>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Box>
+              <Text size={5} fontWeight="bold">
+                Template Language
+              </Text>
+              <Text size={3} color="default2">
+                Current: {configuration.templateLanguage === "he" ? "עברית (Hebrew)" : "English"}
+              </Text>
+            </Box>
+            <Box display="flex" gap={3} alignItems="center">
+              <label>
+                <input
+                  type="radio"
+                  name="resetLang"
+                  value="en"
+                  checked={resetLanguage === "en"}
+                  onChange={() => setResetLanguage("en")}
+                />
+                <Text paddingLeft={2}>English</Text>
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="resetLang"
+                  value="he"
+                  checked={resetLanguage === "he"}
+                  onChange={() => setResetLanguage("he")}
+                />
+                <Text paddingLeft={2}>עברית</Text>
+              </label>
+              {!showResetConfirm ? (
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onClick={() => setShowResetConfirm(true)}
+                >
+                  Reset All Templates
+                </Button>
+              ) : (
+                <Box display="flex" gap={2} alignItems="center">
+                  <Text size={3} color="critical1">
+                    Reset all 17 templates to {resetLanguage === "he" ? "Hebrew" : "English"}?
+                  </Text>
+                  <Button
+                    variant="error"
+                    size="small"
+                    disabled={isResetting}
+                    onClick={() =>
+                      resetTemplates({
+                        configurationId: configuration.id,
+                        language: resetLanguage,
+                      })
+                    }
+                  >
+                    {isResetting ? "Resetting..." : "Confirm"}
+                  </Button>
+                  <Button
+                    variant="tertiary"
+                    size="small"
+                    onClick={() => setShowResetConfirm(false)}
+                  >
+                    Cancel
+                  </Button>
+                </Box>
+              )}
+            </Box>
+          </Box>
+        </Box>
+      </BoxWithBorder>
       <form
         onSubmit={handleSubmit((data) => {
           mutate(data);

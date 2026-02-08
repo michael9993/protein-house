@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-02-02T20:39:41.443Z",
+  "exportedAt": "2026-02-08T00:46:56.206Z",
   "channelSlug": "ils",
   "config": {
-    "version": 27,
-    "updatedAt": "2026-02-02T20:39:40.913Z",
+    "version": 13,
+    "updatedAt": "2026-02-08T00:46:55.452Z",
     "channelSlug": "ils",
     "store": {
       "name": "Mansour Shoes",
@@ -26,7 +26,7 @@
       "logoAlt": "Mansour Shoes Shefa'amr Logo",
       "favicon": "/favicon.ico",
       "colors": {
-        "primary": "#E78F21",
+        "primary": "#3b3d3f",
         "secondary": "#0A0707",
         "accent": "#E0A55A",
         "background": "#FFFFFF",
@@ -113,11 +113,18 @@
       "banner": {
         "enabled": true,
         "text": "משלוח חינם בהזמנות מעל ₪200!",
-        "backgroundColor": null,
-        "textColor": null,
+        "backgroundColor": "#000000",
+        "textColor": "#fff",
         "useSaleorPromotions": true,
         "useSaleorVouchers": true,
         "items": [
+          {
+            "id": "manual-1769994856696",
+            "name": "משלוח חינם עם קנייה מעל ₪200",
+            "description": null,
+            "link": null,
+            "icon": null
+          },
           {
             "id": "UHJvbW90aW9uOjhhNGY2ZTlhLWVmMmYtNGIxMC04ODYyLWQ0YjhjMjVmNTM1Mw==",
             "name": "Winter sale Discount 25% on selected products",
@@ -143,6 +150,8 @@
         ],
         "autoScrollIntervalSeconds": 6,
         "useGradient": false,
+        "gradientFrom": "#c67f15",
+        "gradientTo": "#c67700",
         "dismissible": false
       },
       "showStoreName": true,
@@ -212,7 +221,22 @@
           "imageUrl": null,
           "videoUrl": "https://www.canva.com/design/DAG_kAcgiq8/avrQcftAOLBm9gptRikDaQ/watch?utm_content=DAG_kAcgiq8&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=ha3a6efdfee",
           "overlayOpacity": 40,
-          "textAlignment": "center"
+          "textAlignment": "center",
+          "autoRotateSeconds": 4,
+          "showProgressBar": true,
+          "showNavDots": true
+        },
+        "trustStrip": {
+          "enabled": true,
+          "freeShippingText": "משלוח חינם בהזמנות מעל 200 ₪",
+          "easyReturnsText": "החזרות קלות",
+          "secureCheckoutText": "תשלום מאובטח",
+          "supportText": "תמיכה 24/7",
+          "background": {
+            "style": "solid",
+            "color": "#f9fafb",
+            "secondaryColor": null
+          }
         },
         "marquee": {
           "enabled": true,
@@ -223,6 +247,149 @@
             "style": "solid",
             "color": null,
             "secondaryColor": null
+          }
+        },
+        "brandGrid": {
+          "enabled": true,
+          "title": "מותגים מובילים",
+          "subtitle": "נבחרו במיוחד מהמותגים הטובים ביותר",
+          "maxBrands": 8,
+          "showLogos": true,
+          "layout": "grid",
+          "background": {
+            "style": "color-mix",
+            "color": null,
+            "secondaryColor": null,
+            "mixPercentage": 4
+          }
+        },
+        "categories": {
+          "enabled": true,
+          "title": "קניות לפי קטגוריה",
+          "subtitle": "מצאו את מה שאתם מחפשים",
+          "maxCategories": 6,
+          "showProductCount": true,
+          "layoutStyle": "mosaic",
+          "background": {
+            "style": "none",
+            "color": null,
+            "secondaryColor": null
+          }
+        },
+        "trending": {
+          "enabled": true,
+          "title": "מוצרים חדשים",
+          "subtitle": "הגיעו זה עתה לחנות",
+          "collectionSlug": "new-arrivals",
+          "fallbackToNewest": true,
+          "maxProducts": 8,
+          "layout": "grid",
+          "background": {
+            "style": "none",
+            "color": null,
+            "secondaryColor": null
+          }
+        },
+        "promotionBanner": {
+          "enabled": true,
+          "badgeText": "הצעה מיוחדת",
+          "title": "אל תפספסו",
+          "highlight": "עד 25% הנחה",
+          "description": "ציוד ספורט איכותי לריצה, מגרש ואולם. קולקציה מוגבלת.",
+          "primaryCta": {
+            "text": "לפריטים במבצע",
+            "link": "/products?collection=sale"
+          },
+          "secondaryCta": {
+            "text": "כל המוצרים",
+            "link": "/products"
+          },
+          "autoDetectDiscount": true,
+          "background": {
+            "style": "gradient",
+            "color": null,
+            "secondaryColor": null,
+            "gradientDirection": "to-bottom-right"
+          }
+        },
+        "flashDeals": {
+          "enabled": true,
+          "title": "מבצעי ברק",
+          "subtitle": "הצעות לזמן מוגבל",
+          "badgeTemplate": "עד {discount}% הנחה",
+          "collectionSlug": "sale",
+          "maxProducts": 8,
+          "background": {
+            "style": "none",
+            "color": null,
+            "secondaryColor": null
+          }
+        },
+        "collectionMosaic": {
+          "enabled": true,
+          "title": "קניות לפי קולקציה",
+          "subtitle": "נבחר במיוחד עבורכם",
+          "maxCollections": 5,
+          "excludeSlugs": [
+            "hero-banner",
+            "testimonials",
+            "brands"
+          ],
+          "layoutStyle": "mosaic",
+          "background": {
+            "style": "mesh",
+            "color": null,
+            "secondaryColor": null,
+            "meshOpacity": 10,
+            "meshGrade": "light"
+          }
+        },
+        "bestSellers": {
+          "enabled": true,
+          "title": null,
+          "subtitle": null,
+          "collectionSlug": "best-sellers",
+          "fallbackToTopRated": true,
+          "maxProducts": 8,
+          "layout": "horizontal-scroll",
+          "background": {
+            "style": "mesh",
+            "color": null,
+            "secondaryColor": null,
+            "mixPercentage": 8,
+            "meshOpacity": 10,
+            "meshGrade": "deep"
+          }
+        },
+        "customerFeedback": {
+          "enabled": true,
+          "title": "משוב לקוחות",
+          "subtitle": "ביקורות מאומתות מהקהילה שלנו",
+          "maxReviews": 3,
+          "minRating": 4,
+          "showProductName": true,
+          "background": {
+            "style": "none",
+            "color": null,
+            "secondaryColor": null
+          },
+          "starColor": "#FFD700",
+          "starEmptyColor": null
+        },
+        "newsletter": {
+          "enabled": true,
+          "title": null,
+          "subtitle": null,
+          "buttonText": null,
+          "placeholder": null,
+          "layout": "stacked",
+          "background": {
+            "style": "mesh",
+            "color": null,
+            "secondaryColor": null,
+            "gradientDirection": "to-bottom",
+            "meshOpacity": 10,
+            "meshGrade": "deep"
           }
         },
         "featuredCategories": {
@@ -238,18 +405,6 @@
           }
         },
         "newArrivals": {
-          "enabled": true,
-          "limit": 8,
-          "background": {
-            "style": "mesh",
-            "color": null,
-            "secondaryColor": null,
-            "mixPercentage": 8,
-            "meshOpacity": 10,
-            "meshGrade": "deep"
-          }
-        },
-        "bestSellers": {
           "enabled": true,
           "limit": 8,
           "background": {
@@ -334,17 +489,6 @@
             "textColor": null
           }
         },
-        "newsletter": {
-          "enabled": true,
-          "background": {
-            "style": "mesh",
-            "color": null,
-            "secondaryColor": null,
-            "gradientDirection": "to-bottom",
-            "meshOpacity": 10,
-            "meshGrade": "deep"
-          }
-        },
         "instagramFeed": {
           "enabled": false,
           "username": null,
@@ -358,14 +502,17 @@
       },
       "sectionOrder": [
         "hero",
-        "featuredCategories",
-        "newArrivals",
+        "trustStrip",
+        "marquee",
+        "brandGrid",
+        "categories",
+        "trending",
+        "promotionBanner",
+        "flashDeals",
+        "collectionMosaic",
         "bestSellers",
-        "onSale",
-        "featuredBrands",
-        "testimonials",
-        "newsletter",
-        "instagramFeed"
+        "customerFeedback",
+        "newsletter"
       ]
     },
     "pages": {
@@ -467,9 +614,9 @@
       "showCategories": true,
       "showCollections": true,
       "showBrands": true,
-      "categoryLimit": 8,
-      "collectionLimit": 6,
-      "brandLimit": 6,
+      "categoryLimit": 10,
+      "collectionLimit": 10,
+      "brandLimit": 10,
       "style": {
         "cardWidth": 160,
         "cardHeight": 220,
@@ -597,12 +744,17 @@
       },
       "productCard": {
         "borderRadius": "lg",
-        "shadow": "sm",
+        "shadow": "lg",
         "hoverShadow": "lg",
         "showQuickView": true,
         "showWishlistButton": true,
         "showAddToCart": true,
-        "imageAspectRatio": "square"
+        "imageAspectRatio": "square",
+        "hoverEffect": "lift",
+        "badgePosition": "top-start",
+        "showBrandLabel": true,
+        "showRating": true,
+        "imageFit": "cover"
       },
       "toasts": {
         "position": "top-right",
@@ -663,6 +815,31 @@
         "removeButtonHoverColor": null,
         "removeButtonBorderRadius": "full"
       },
+      "filterSidebar": {
+        "checkboxAccentColor": null,
+        "sectionTitleFontSize": "xs",
+        "sectionTitleFontWeight": "semibold",
+        "sectionTitleColor": null,
+        "sectionTitleHoverColor": null,
+        "chevronColor": null,
+        "chevronHoverColor": null,
+        "itemTextFontSize": "xs",
+        "itemTextColor": null,
+        "itemCountColor": null,
+        "sizeChipSelectedBg": null,
+        "sizeChipSelectedText": null,
+        "sizeChipSelectedBorder": null,
+        "clearAllButtonBg": null,
+        "clearAllButtonText": null,
+        "clearAllButtonBorder": null,
+        "clearAllButtonHoverBg": null,
+        "clearAllButtonHoverText": null,
+        "priceInputFocusRingColor": null,
+        "priceQuickButtonActiveBg": null,
+        "priceQuickButtonActiveText": null,
+        "mobileShowResultsBg": null,
+        "mobileShowResultsText": null
+      },
       "cart": {
         "displayMode": "drawer",
         "drawerSide": "left",
@@ -706,6 +883,7 @@
         "promoCodeLabel": "קוד קופון",
         "promoCodePlaceholder": "הזן קוד",
         "promoCodeApplyButton": "החל",
+        "eligibleForFreeShipping": "",
         "subtotalLabel": "סיכום ביניים",
         "subtotalLabelWithCount": "סיכום ביניים ({count} פריטים)",
         "shippingLabel": "משלוח",
@@ -746,7 +924,11 @@
         "viewCartLink": "צפה בעגלה →",
         "quickAddButton": "הוסף במהירות",
         "viewFullPageLink": "צפה בדף המלא",
-        "loadingProductText": "טוען מוצר..."
+        "loadingProductText": "טוען מוצר...",
+        "productDetailsTitle": "",
+        "closeButton": "",
+        "productNotFoundText": "",
+        "errorLoadingProductText": ""
       },
       "account": {
         "signInTitle": "ברוך הבא",
@@ -895,11 +1077,45 @@
         "noApprovedReviewsText": "אין ביקורות מאושרות עם 4+ כוכבים עדיין. {count} ביקורת(ות) ממתינות לאישור.",
         "heroCtaText": "לקניות",
         "heroSecondaryCtaText": "עיון בקטגוריות",
+        "exploreBrandsButton": "גלה מותגים",
+        "brandsStatLabel": "מותגים",
+        "stylesStatLabel": "סגנונות",
+        "ratingStatLabel": "דירוג",
+        "heroDefaultTitle": "ביצועים מרובי מותגים",
+        "heroDefaultSubtitle": "הנעלה ואופנת ספורט מובחרת מהמותגים המובילים בעולם.",
         "watchVideoButton": "צפה בסרטון",
-        "shopNowButton": "קנו מהקולקציה",
+        "shopNowButton": "קנה עכשיו",
         "exploreText": "גלה",
         "productCountText": "מוצרים",
-        "newsletterEmailPlaceholder": "הזן את כתובת האימייל שלך"
+        "newsletterEmailPlaceholder": "הזן את כתובת האימייל שלך",
+        "curatedLabel": "מבחר",
+        "viewDetailsButton": "צפה בפרטים",
+        "viewAllBrandsButton": "צפה בכל המותגים",
+        "viewAllOffersButton": "צפה בכל ההצעות",
+        "allCollectionsButton": "כל הקולקציות",
+        "itemsText": "פריטים",
+        "stylesText": "סגנונות",
+        "performanceLineupText": "קו ביצועים",
+        "brandLabel": "מותג",
+        "performanceFallback": "ביצועים",
+        "saleBadgeLabel": "מבצע",
+        "newBadgeLabel": "חדש",
+        "featuredBadgeLabel": "מומלץ",
+        "outOfStockBadgeLabel": "אזל מהמלאי",
+        "lowStockBadgeLabel": "מלאי נמוך",
+        "itemsOnSaleText": "{count} פריטים במבצע",
+        "savePercentText": "חסכון של {discount}%",
+        "upToPercentOffText": "עד {discount}% הנחה",
+        "reviewedProductLabel": "מוצר שנבדק",
+        "verifiedBuyerLabel": "קונה מאומת",
+        "anonymousLabel": "אנונימי",
+        "shopCollectionButton": "קנה מהקולקציה",
+        "featuredCollectionLabel": "קולקציה מומלצת",
+        "specialOfferText": "הצעה מיוחדת",
+        "dontMissOutTitle": "אל תפספסו",
+        "shopSaleItemsButton": "קנה פריטים במבצע",
+        "allProductsButton": "כל המוצרים",
+        "promoDescriptionFallback": "ציוד ביצועים פרימיום לריצה, מגרש וסטודיו. קולקציה לזמן מוגבל."
       },
       "checkout": {
         "checkoutTitle": "תשלום",
@@ -976,6 +1192,7 @@
         "removePromoButton": "הסר",
         "oneVoucherPerOrderHint": "קופון אחד להזמנה. כרטיסי מתנה ניתנים לשילוב.",
         "replaceVoucherConfirm": "ניתן להשתמש בקופון אחד להזמנה. שימוש בקוד זה יחליף את {code}. להמשיך?",
+        "eligibleForFreeShipping": "",
         "giftCardLabel": "כרטיס מתנה",
         "subtotalLabel": "סיכום ביניים",
         "shippingLabel": "משלוח",
@@ -1131,7 +1348,10 @@
         "maxPriceLabel": "מחיר מקסימום",
         "quickMinLabel": "מינימום מהיר",
         "quickMaxLabel": "מקסימום מהיר",
-        "clearPriceFilter": "נקה"
+        "clearPriceFilter": "נקה",
+        "applyPriceFilter": "החל",
+        "priceUnderLabel": "מתחת ל",
+        "priceAboveLabel": "+"
       },
       "productDetail": {
         "freeShipping": "משלוח חינם",
@@ -1377,10 +1597,6 @@
           {
             "question": "מה מדיניות ההחזרה שלכם?",
             "answer": "אנו מציעים מדיניות החזרה של 30 יום על כל הפריטים שלא נעשה בהם שימוש באריזה המקורית. החזרות חינם בתוך ארצות הברית היבשתית."
-          },
-          {
-            "question": "קורסור נכנס חזק הבוקר",
-            "answer": "כול הכבוד באמת"
           }
         ],
         "viewAllFaqs": "צפה בכל השאלות הנפוצות",
@@ -1500,6 +1716,11 @@
         "brandsLabel": "מותגים",
         "categoriesLabel": "קטגוריות",
         "viewAllProducts": "צפה בכל המוצרים",
+        "exploreCategoryLabel": "גלה",
+        "browseSubcategoriesLabel": "עיין בתת-קטגוריות",
+        "megaMenuProductLabel": "מוצר",
+        "megaMenuProductsLabel": "מוצרים",
+        "megaMenuHoverPrompt": "רחף על קטגוריה לגלות",
         "subcategoriesSide": "right",
         "mobileNavPosition": "left",
         "dropdownArrowDirection": "left",
@@ -1551,6 +1772,14 @@
       "showOnMobile": true,
       "title": "אולי תאהבו גם",
       "subtitle": "לקוחות צפו גם במוצרים הבאים"
+    },
+    "design": {
+      "animations": {
+        "preset": "moderate"
+      },
+      "spacing": {
+        "sectionPaddingY": "normal"
+      }
     }
   }
 }

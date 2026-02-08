@@ -13,6 +13,7 @@ import { MessageEventTypes } from "../../event-handlers/message-event-types";
 import { trpcClient } from "../../trpc/trpc-client";
 import { SmtpUpdateEvent, smtpUpdateEventSchema } from "../configuration/smtp-config-input-schema";
 import { SmtpConfiguration } from "../configuration/smtp-config-schema";
+import { getDefaultTemplates } from "../default-templates";
 import { CodeEditor } from "./code-editor";
 import { TemplateErrorDisplay } from "./template-error-display";
 import { TemplatePreview } from "./template-preview";
@@ -36,7 +37,9 @@ export const EventForm = ({ configuration, eventType }: EventFormProps) => {
     throw new Error("Event configuration not found");
   }
 
-  const { handleSubmit, control, getValues, setError } = useForm<SmtpUpdateEvent>({
+  const currentLanguage = configuration.templateLanguage || "en";
+
+  const { handleSubmit, control, getValues, setError, reset } = useForm<SmtpUpdateEvent>({
     defaultValues: {
       id: configuration.id,
       ...eventConfiguration,
@@ -115,10 +118,27 @@ export const EventForm = ({ configuration, eventType }: EventFormProps) => {
       })}
     >
       <Box display="flex" flexDirection="column" gap={defaultPadding}>
-        <Box display="flex" justifyContent="space-between">
+        <Box display="flex" justifyContent="space-between" alignItems="center">
           <Text size={10} fontWeight="bold">
             Edit template
           </Text>
+          <Button
+            variant="tertiary"
+            size="small"
+            onClick={() => {
+              const defaults = getDefaultTemplates(currentLanguage);
+
+              reset({
+                id: configuration.id,
+                eventType,
+                active: eventConfiguration.active,
+                template: defaults.templates[eventType],
+                subject: defaults.subjects[eventType],
+              });
+            }}
+          >
+            Reset to {currentLanguage === "he" ? "Hebrew" : "English"} default
+          </Button>
         </Box>
         <Box display="grid" gridTemplateColumns={{ desktop: 3, mobile: 1 }}>
           <Input control={control} name="subject" label="Subject" />

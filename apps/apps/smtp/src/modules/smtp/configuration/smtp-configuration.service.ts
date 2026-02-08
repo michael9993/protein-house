@@ -218,10 +218,14 @@ export class SmtpConfigurationService implements IGetSmtpConfiguration {
     logger.debug("Create configuration");
 
     return this.getConfigurationRoot().andThen((configurationRoot) => {
-      const newConfiguration = {
+      const language = config.templateLanguage || "en";
+      const defaults = smtpDefaultEmptyConfigurations.configuration(language);
+
+      const newConfiguration: SmtpConfiguration = {
+        ...defaults,
         ...config,
         id: generateRandomId(),
-        events: smtpDefaultEmptyConfigurations.eventsConfiguration(),
+        events: smtpDefaultEmptyConfigurations.eventsConfiguration(language),
       };
 
       configurationRoot.configurations.push(newConfiguration);

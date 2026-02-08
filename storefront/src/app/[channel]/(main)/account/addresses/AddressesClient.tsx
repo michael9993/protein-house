@@ -41,9 +41,9 @@ export function AddressesClient({
 	const [showAddForm, setShowAddForm] = useState(false);
 
 	return (
-		<div className="space-y-6 animate-fade-in">
+		<div className="space-y-6">
 			{/* Header */}
-			<div className="flex items-center justify-between animate-fade-in-up" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
+			<div className="flex items-center justify-between">
 				<div>
 					<h1 className="text-2xl font-bold text-neutral-900">{addressesText.myAddresses}</h1>
 					<p className="mt-1 text-neutral-500">
@@ -66,7 +66,7 @@ export function AddressesClient({
 
 			{/* Add Address Form */}
 			{showAddForm && (
-				<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100 animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
+				<div className="rounded-lg border border-neutral-200 bg-white p-6">
 					<h2 className="mb-4 text-lg font-semibold text-neutral-900">{addressesText.addNewAddressTitle}</h2>
 					<p className="mb-4 text-sm text-neutral-500">
 						{addressesText.addAddressDescription}
@@ -91,30 +91,21 @@ export function AddressesClient({
 
 			{/* Addresses Grid */}
 			{addresses.length === 0 ? (
-				<div className="flex flex-col items-center justify-center rounded-xl bg-white px-6 py-16 text-center shadow-sm ring-1 ring-neutral-100 animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
-					<div className="flex h-20 w-20 items-center justify-center rounded-full bg-neutral-100">
-						<svg className="h-10 w-10 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-						</svg>
-					</div>
-					<h2 className="mt-6 text-xl font-semibold text-neutral-900">{addressesText.noAddresses}</h2>
-					<p className="mt-2 max-w-sm text-neutral-500">
+				<div className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50/50 px-6 py-16 text-center">
+					<p className="text-lg font-semibold text-neutral-900">{addressesText.noAddresses}</p>
+					<p className="mt-2 mx-auto max-w-sm text-sm text-neutral-500">
 						{addressesText.noAddressesCheckoutMessage}
 					</p>
 					<Link
 						href={`/${channel}/products`}
-						className="mt-6 inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+						className="mt-6 inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
 						style={{ backgroundColor: brandingConfig.colors.primary }}
 					>
-						<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-						</svg>
 						{addressesText.startShopping}
 					</Link>
 				</div>
 			) : (
-				<div className="grid gap-4 sm:grid-cols-2 animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
+				<div className="grid gap-4 sm:grid-cols-2">
 					{addresses.map((address, index) => {
 						const isDefaultShipping = address.id === defaultShippingId || address.isDefaultShippingAddress;
 						const isDefaultBilling = address.id === defaultBillingId || address.isDefaultBillingAddress;
@@ -122,8 +113,7 @@ export function AddressesClient({
 						return (
 							<div
 								key={address.id}
-								className="relative rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100 animate-fade-in-up"
-								style={{ animationDelay: `${150 + index * 50}ms`, animationFillMode: "both" }}
+								className="relative rounded-lg border border-neutral-200 bg-white p-6 transition-shadow hover:shadow-sm"
 							>
 								{/* Badges - RTL-aware positioning */}
 								<div className="absolute end-4 top-4 flex gap-2 flex-wrap">
@@ -142,28 +132,19 @@ export function AddressesClient({
 									)}
 								</div>
 
-								{/* Address Type Icon - RTL-aware layout with padding for badges */}
-								<div className="mb-4 flex items-center gap-3" style={{ paddingInlineEnd: isDefaultShipping || isDefaultBilling ? '5.5rem' : '0' }}>
-									<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600 flex-shrink-0">
-										<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-										</svg>
-									</div>
-									<div className="min-w-0 flex-1">
-										<p className="font-semibold text-neutral-900 truncate">
-											{address.firstName} {address.lastName}
-										</p>
-										<p className="text-xs text-neutral-500 truncate">
-											{isDefaultShipping && isDefaultBilling
-												? addressesText.shippingAndBilling
-												: isDefaultShipping
-												? addressesText.shippingAddress
-												: isDefaultBilling
-												? addressesText.billingAddress
-												: addressesText.savedAddress}
-										</p>
-									</div>
+								<div className="mb-3" style={{ paddingInlineEnd: isDefaultShipping || isDefaultBilling ? '5.5rem' : '0' }}>
+									<p className="font-medium text-neutral-900 truncate">
+										{address.firstName} {address.lastName}
+									</p>
+									<p className="text-xs text-neutral-500 truncate">
+										{isDefaultShipping && isDefaultBilling
+											? addressesText.shippingAndBilling
+											: isDefaultShipping
+											? addressesText.shippingAddress
+											: isDefaultBilling
+											? addressesText.billingAddress
+											: addressesText.savedAddress}
+									</p>
 								</div>
 
 								{/* Address Details */}

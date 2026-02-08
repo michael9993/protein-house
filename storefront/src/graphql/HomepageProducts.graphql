@@ -20,6 +20,7 @@ query ProductsTopRated($channel: String!, $first: Int = 12) {
     first: $first
     channel: $channel
     sortBy: { field: RATING, direction: DESC }
+    filter: { isAvailable: true }
   ) {
     edges {
       node {

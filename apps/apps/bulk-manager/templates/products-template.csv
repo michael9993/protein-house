@@ -1,0 +1,2 @@
+name,slug,description,category,sku,price,costPrice,stock,weight
+"Example Product","example-product","A great product description","Shoes","SKU-001","99.99","49.99","100","0.5"

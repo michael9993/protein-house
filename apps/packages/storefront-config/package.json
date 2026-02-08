@@ -1,0 +1,31 @@
+{
+  "name": "@saleor/apps-storefront-config",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts",
+    "./schema/*": "./src/schema/*.ts",
+    "./types": "./src/types.ts",
+    "./defaults": "./src/defaults.ts",
+    "./migrations": "./src/migrations.ts"
+  },
+  "main": "./src/index.ts",
+  "scripts": {
+    "check-types": "tsc",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix ."
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@saleor/eslint-config-apps": "workspace:*",
+    "@saleor/typescript-config-apps": "workspace:*",
+    "eslint": "catalog:",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "zod": "catalog:"
+  }
+}

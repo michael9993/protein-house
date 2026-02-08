@@ -156,7 +156,7 @@ export function FeaturedCategories({
           {displayCategories.map((category, index) => (
             <LinkWithChannel
               key={category.id}
-              href={`/products?category=${category.slug}`}
+              href={`/products?categories=${category.slug}`}
               className="group relative block overflow-hidden bg-white transition-all duration-300 transform hover:-translate-y-1"
               style={{ 
                 borderRadius: getRadiusStyle(),

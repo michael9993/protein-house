@@ -93,69 +93,64 @@ export function AccountSidebar({ user, channel }: AccountSidebarProps) {
 	return (
 		<div className="sticky top-24 space-y-6">
 			{/* User Card */}
-			<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100">
-				<div className="flex items-center gap-4">
+			<div className="rounded-lg border border-neutral-200 bg-white p-5">
+				<div className="flex items-center gap-3">
 					{user.avatar?.url ? (
 						<img
 							src={user.avatar.url}
 							alt={user.avatar.alt || userName}
-							className="h-14 w-14 rounded-full object-cover ring-2 ring-neutral-100"
+							className="h-12 w-12 rounded-full object-cover"
 						/>
 					) : (
-						<div 
-							className="flex h-14 w-14 items-center justify-center rounded-full text-lg font-bold text-white"
+						<div
+							className="flex h-12 w-12 items-center justify-center rounded-full text-sm font-semibold text-white"
 							style={{ backgroundColor: branding.colors.primary }}
 						>
 							{initials}
 						</div>
 					)}
 					<div className="min-w-0">
-						<h2 className="truncate font-semibold text-neutral-900">{userName}</h2>
-						<p className="truncate text-sm text-neutral-500">{user.email}</p>
+						<p className="truncate text-sm font-semibold text-neutral-900">{userName}</p>
+						<p className="truncate text-xs text-neutral-500">{user.email}</p>
 					</div>
 				</div>
 			</div>
 
 			{/* Navigation */}
-			<nav className="rounded-xl bg-white shadow-sm ring-1 ring-neutral-100">
-				<ul className="divide-y divide-neutral-100">
+			<nav className="rounded-lg border border-neutral-200 bg-white">
+				<ul>
 					{menuItems.map((item) => {
 						const href = `/${channel}${item.href}`;
 						const isActive = pathname === href || (item.href !== "/account" && pathname.startsWith(href));
-						
+
 						return (
 							<li key={item.href}>
 								<Link
 									href={href}
 									className={clsx(
-										"flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors",
+										"flex items-center gap-3 px-4 py-2.5 text-sm transition-colors",
 										isActive
-											? "bg-neutral-50 text-neutral-900"
+											? "font-medium text-neutral-900 bg-neutral-50"
 											: "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
 									)}
+									style={isActive ? { borderInlineStart: `2px solid ${branding.colors.primary}` } : { borderInlineStart: '2px solid transparent' }}
 								>
-									<span 
+									<span
 										className="transition-colors"
 										style={{ color: isActive ? branding.colors.primary : undefined }}
 									>
 										{item.icon}
 									</span>
 									{item.label}
-									{isActive && (
-										<span 
-											className="ml-auto h-2 w-2 rounded-full"
-											style={{ backgroundColor: branding.colors.primary }}
-										/>
-									)}
 								</Link>
 							</li>
 						);
 					})}
 				</ul>
-				
+
 				{/* Sign Out */}
-				<div className="border-t border-neutral-100">
-					<form 
+				<div className="border-t border-neutral-200">
+					<form
 						action={logout}
 						onSubmit={() => {
 							// Dispatch logout events for client-side cleanup
@@ -165,9 +160,10 @@ export function AccountSidebar({ user, channel }: AccountSidebarProps) {
 					>
 						<button
 							type="submit"
-							className="flex w-full items-center gap-3 px-4 py-3 text-sm font-medium text-neutral-600 transition-colors hover:bg-red-50 hover:text-red-600"
+							className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-neutral-500 transition-colors hover:text-red-600"
+							style={{ borderInlineStart: '2px solid transparent' }}
 						>
-							<svg className="h-5 w-5 text-neutral-400 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+							<svg className="h-5 w-5 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
 								<path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
 							</svg>
 							{content.account.signOutButton}
@@ -177,17 +173,18 @@ export function AccountSidebar({ user, channel }: AccountSidebarProps) {
 			</nav>
 
 			{/* Help Card */}
-			<div className="rounded-xl bg-gradient-to-br from-neutral-900 to-neutral-800 p-6 text-white">
-				<h3 className="font-semibold">{content.account.needHelpTitle}</h3>
-				<p className="mt-1 text-sm text-neutral-300">
+			<div className="rounded-lg border border-neutral-200 bg-white p-5">
+				<p className="text-sm font-medium text-neutral-900">{content.account.needHelpTitle}</p>
+				<p className="mt-1 text-xs text-neutral-500">
 					{content.account.needHelpDescription}
 				</p>
 				<Link
 					href={`/${channel}/contact`}
-					className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-white/20"
+					className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium hover:underline"
+					style={{ color: branding.colors.primary }}
 				>
 					{content.account.contactSupportButton}
-					<svg className="h-4 w-4 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<svg className="h-3.5 w-3.5 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
 					</svg>
 				</Link>
@@ -195,4 +192,3 @@ export function AccountSidebar({ user, channel }: AccountSidebarProps) {
 		</div>
 	);
 }
-

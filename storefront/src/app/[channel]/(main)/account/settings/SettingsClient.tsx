@@ -180,7 +180,7 @@ export function SettingsClient({
 	};
 
 	return (
-		<div className="space-y-8 animate-fade-in">
+		<div className="space-y-6">
 			{/* Inject dynamic focus styles */}
 			<style>{`
 				.settings-input:focus {
@@ -190,7 +190,7 @@ export function SettingsClient({
 				}
 			`}</style>
 			{/* Header */}
-			<div className="animate-fade-in-up" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
+			<div>
 				<h1 className="text-2xl font-bold text-neutral-900">{settingsText.accountSettings}</h1>
 				<p className="mt-1 text-neutral-500">
 					{settingsText.settingsSubtitle}
@@ -199,10 +199,9 @@ export function SettingsClient({
 
 			{/* Status Message */}
 			{message && (
-				<div className={`flex items-center gap-3 rounded-lg px-4 py-3 animate-fade-in-up ${
+				<div className={`flex items-center gap-3 rounded-lg px-4 py-3 ${
 					message.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
-				}`}
-				style={{ animationDelay: "100ms", animationFillMode: "both" }}>
+				}`}>
 					{message.type === "success" ? (
 						<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -217,7 +216,7 @@ export function SettingsClient({
 			)}
 
 			{/* Profile Information */}
-			<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100 animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
+			<div className="rounded-lg border border-neutral-200 bg-white p-6">
 				<h2 className="text-lg font-semibold text-neutral-900">{settingsText.profileInformation}</h2>
 				<p className="mt-1 text-sm text-neutral-500">
 					{settingsText.updatePersonalDetails}
@@ -296,7 +295,7 @@ export function SettingsClient({
 			</div>
 
 			{/* Password */}
-			<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100 animate-fade-in-up" style={{ animationDelay: "150ms", animationFillMode: "both" }}>
+			<div className="rounded-lg border border-neutral-200 bg-white p-6">
 				<h2 className="text-lg font-semibold text-neutral-900">{settingsText.changePassword}</h2>
 				<p className="mt-1 text-sm text-neutral-500">
 					{settingsText.passwordSecurityNote}
@@ -383,7 +382,7 @@ export function SettingsClient({
 			</div>
 
 			{/* Notification Preferences */}
-			<div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-neutral-100 animate-fade-in-up" style={{ animationDelay: "200ms", animationFillMode: "both" }}>
+			<div className="rounded-lg border border-neutral-200 bg-white p-6">
 				<h2 className="text-lg font-semibold text-neutral-900">{settingsText.notificationPreferences}</h2>
 				<p className="mt-1 text-sm text-neutral-500">
 					{settingsText.notificationSubtitle}
@@ -453,7 +452,7 @@ export function SettingsClient({
 			</div>
 
 			{/* Danger Zone */}
-			<div className="rounded-xl border border-red-200 bg-red-50 p-6 animate-fade-in-up" style={{ animationDelay: "250ms", animationFillMode: "both" }}>
+			<div className="rounded-lg border border-red-200 bg-red-50 p-6">
 				<h2 className="text-lg font-semibold text-red-900">{settingsText.dangerZone}</h2>
 				<p className="mt-1 text-sm text-red-700">
 					{settingsText.deleteAccountWarning}

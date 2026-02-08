@@ -25,10 +25,7 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 	const config = useStoreConfig();
 	const content = { ...DEFAULT_CONTENT_CONFIG.account, ...config?.content?.account };
 	const confirmEmailPageEnabled = usePageEnabled("confirmEmail");
-	
-	// Focus ring color with transparency
-	const focusRingColor = `${branding.colors.primary}33`;
-	
+
 	const [email, setEmail] = useState(initialEmail || "");
 	const [token, setToken] = useState(initialToken || "");
 	const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -82,10 +79,9 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 		}
 
 		// Ensure email and token are properly decoded
-		// Use try-catch in case they're already decoded
 		let decodedEmail = confirmEmail;
 		let decodedToken = confirmToken;
-		
+
 		try {
 			decodedEmail = decodeURIComponent(confirmEmail);
 			decodedToken = decodeURIComponent(confirmToken);
@@ -101,14 +97,14 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 			// Use the new confirm-and-login action that automatically logs the user in
 			const { confirmAndLoginAction } = await import("./actions");
 			const result = await confirmAndLoginAction(decodedEmail, decodedToken, channel);
-			
+
 			console.log("[Confirm Email] Result:", { success: result.success, error: result.error });
 
 			if (!result.success) {
 				setStatus("error");
 				const rawError = result.error || "Failed to confirm account";
 
-				// Check "already confirmed" first — backend may return success with this message; we only get here on 400
+				// Check "already confirmed" first
 				if (rawError.toLowerCase().includes("already")) {
 					setMessage(content.confirmAccountAlreadyConfirmed ?? "This account has already been confirmed. Redirecting to sign in...");
 					setTimeout(() => {
@@ -129,7 +125,7 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 			// Success - user is already logged in via tokens!
 			setStatus("success");
 			setMessage(content.confirmAccountSuccessMessage ?? "Account confirmed and logged in! Redirecting...");
-			
+
 			// Clear any stored passwords (no longer needed)
 			const emailVariants = [decodedEmail, email, decodedEmail.toLowerCase(), email.toLowerCase()];
 			for (const emailVariant of emailVariants) {
@@ -139,13 +135,13 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 					// Ignore
 				}
 			}
-			
+
 			// Dispatch login event for wishlist to reload
 			window.dispatchEvent(new CustomEvent("wishlist:login"));
-			
+
 			// Small delay to ensure cookies are set before navigation
 			await new Promise(resolve => setTimeout(resolve, 100));
-			
+
 			// Redirect to home page
 			router.push(`/${channel}`);
 			router.refresh();
@@ -167,22 +163,13 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 	}
 
 	return (
-		<div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12">
-			{/* Inject dynamic focus styles */}
-			<style>{`
-				.confirm-input:focus {
-					border-color: ${branding.colors.primary} !important;
-					box-shadow: 0 0 0 3px ${focusRingColor} !important;
-					outline: none !important;
-				}
-			`}</style>
+		<div className="auth-page flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12">
 			<div className="w-full max-w-md">
 				{/* Logo */}
 				<div className="mb-8 text-center">
-					<Link 
-						href={`/${channel}`} 
-						className="inline-flex items-center gap-2 text-2xl font-bold"
-						style={{ color: branding.colors.primary }}
+					<Link
+						href={`/${channel}`}
+						className="inline-flex items-center gap-2.5"
 					>
 						{branding.logo && branding.logo !== "/logo.svg" ? (
 							<Image
@@ -194,36 +181,36 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 							/>
 						) : (
 							<>
-								<svg className="h-10 w-10" viewBox="0 0 24 24" fill="currentColor">
-									<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+								<svg className="h-8 w-8" style={{ color: branding.colors.primary }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+									<path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.15c0 .415.336.75.75.75z" />
 								</svg>
-								{store.name}
+								<span className="text-xl font-bold" style={{ color: branding.colors.primary }}>{store.name}</span>
 							</>
 						)}
 					</Link>
-					<h1 className="mt-6 text-2xl font-bold text-neutral-900">
+					<h1 className="mt-6 text-2xl font-bold" style={{ color: "var(--store-text)" }}>
 						{content.confirmAccountTitle ?? "Confirm Your Email"}
 					</h1>
-					<p className="mt-2 text-neutral-600">
+					<p className="mt-2 text-sm" style={{ color: "var(--store-text-muted)" }}>
 						{content.confirmAccountSubtitle ?? "Click the link in your email or enter your confirmation details below"}
 					</p>
 				</div>
 
 				{/* Status Messages */}
 				{status === "loading" && (
-					<div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-5 py-5 text-sm text-blue-800 shadow-sm">
+					<div className="auth-status-info mb-4 rounded-xl border px-5 py-5 text-sm shadow-sm">
 						<div className="flex items-start gap-4">
-							<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100">
-								<svg className="h-6 w-6 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24" aria-hidden>
+							<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: `${branding.colors.primary}15` }}>
+								<svg className="h-6 w-6 animate-spin" style={{ color: branding.colors.primary }} fill="none" viewBox="0 0 24 24" aria-hidden>
 									<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
 									<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
 								</svg>
 							</div>
 							<div className="min-w-0 flex-1 space-y-1">
-								<p className="font-semibold text-blue-900">
+								<p className="font-semibold" style={{ color: "var(--store-text)" }}>
 									{content.confirmAccountCheckingMessage ?? "Confirming your email..."}
 								</p>
-								<p className="text-blue-700">
+								<p style={{ color: "var(--store-text-muted)" }}>
 									{content.confirmAccountAutoLoginHint ?? "You'll be logged in automatically when verification succeeds. If nothing happens, press the Confirm Account button below."}
 								</p>
 							</div>
@@ -232,47 +219,51 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 				)}
 
 				{status === "success" && (
-					<div className="mb-4 flex items-center gap-2 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-600">
-						<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-						</svg>
-						{message}
+					<div className="state-success mb-4 rounded-lg px-4 py-3 text-sm">
+						<div className="flex items-center gap-2">
+							<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+							</svg>
+							{message}
+						</div>
 					</div>
 				)}
 
 				{status === "error" && (
-					<div className="mb-4 flex flex-wrap items-start gap-2 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
-						<svg className="h-5 w-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-						</svg>
-						<span className="flex-1">
-							{message === "LINK_EXPIRED" ? (
-								<>
-									{content.confirmAccountLinkExpiredError ?? "This confirmation link is invalid or has expired."}
-									{" "}
-									<Link
-										href={`/${channel}/verify-email`}
-										className="font-medium underline hover:no-underline"
-										style={{ color: branding.colors.primary }}
-									>
-										{content.confirmAccountRequestNewLink ?? "Request a new confirmation email"}
-									</Link>
-								</>
-							) : message === "UNEXPECTED_ERROR" ? (
-								content.confirmAccountUnexpectedError ?? "An unexpected error occurred. Please try again or request a new confirmation email."
-							) : (
-								message
-							)}
-						</span>
+					<div className="state-error mb-4 rounded-lg px-4 py-3 text-sm">
+						<div className="flex flex-wrap items-start gap-2">
+							<svg className="h-5 w-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+							</svg>
+							<span className="flex-1">
+								{message === "LINK_EXPIRED" ? (
+									<>
+										{content.confirmAccountLinkExpiredError ?? "This confirmation link is invalid or has expired."}
+										{" "}
+										<Link
+											href={`/${channel}/verify-email`}
+											className="font-medium underline hover:no-underline"
+											style={{ color: branding.colors.primary }}
+										>
+											{content.confirmAccountRequestNewLink ?? "Request a new confirmation email"}
+										</Link>
+									</>
+								) : message === "UNEXPECTED_ERROR" ? (
+									content.confirmAccountUnexpectedError ?? "An unexpected error occurred. Please try again or request a new confirmation email."
+								) : (
+									message
+								)}
+							</span>
+						</div>
 					</div>
 				)}
 
 				{/* Confirmation Form */}
 				{status !== "success" && (
-					<div className="rounded-2xl bg-white p-8 shadow-lg ring-1 ring-neutral-100">
+					<div className="auth-card p-8">
 						<form onSubmit={handleSubmit} className="space-y-4">
 							<div>
-								<label htmlFor="email" className="mb-1.5 block text-sm font-medium text-neutral-700">
+								<label htmlFor="email" className="auth-label mb-1.5 block text-sm font-medium">
 									{content.confirmAccountEmailLabel ?? content.emailLabel ?? "Email Address"}
 								</label>
 								<input
@@ -282,13 +273,13 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 									onChange={(e) => setEmail(e.target.value)}
 									required
 									disabled={!!initialEmail}
-									className="confirm-input w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder-neutral-400 transition-colors disabled:bg-neutral-50 disabled:text-neutral-500"
+									className="auth-input w-full rounded-xl border px-4 py-3 transition-colors disabled:opacity-60"
 									placeholder={content.confirmAccountEmailPlaceholder ?? content.emailPlaceholder ?? "you@example.com"}
 								/>
 							</div>
 
 							<div>
-								<label htmlFor="token" className="mb-1.5 block text-sm font-medium text-neutral-700">
+								<label htmlFor="token" className="auth-label mb-1.5 block text-sm font-medium">
 									{content.confirmAccountTokenLabel ?? "Confirmation Token"}
 								</label>
 								<input
@@ -298,10 +289,10 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 									onChange={(e) => setToken(e.target.value)}
 									required
 									disabled={!!initialToken}
-									className="confirm-input w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder-neutral-400 transition-colors disabled:bg-neutral-50 disabled:text-neutral-500"
+									className="auth-input w-full rounded-xl border px-4 py-3 transition-colors disabled:opacity-60"
 									placeholder={content.confirmAccountTokenPlaceholder ?? "Enter token from email"}
 								/>
-								<p className="mt-1 text-xs text-neutral-500">
+								<p className="mt-1 text-xs" style={{ color: "var(--store-text-muted)" }}>
 									{content.confirmAccountTokenHint ?? "The token was sent to your email address"}
 								</p>
 							</div>
@@ -309,7 +300,7 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 							<button
 								type="submit"
 								disabled={status === "loading" || !email || !token}
-								className="w-full rounded-lg px-4 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+								className="auth-submit w-full rounded-xl px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
 								style={{ backgroundColor: branding.colors.primary }}
 							>
 								{status === "loading" ? (content.confirmAccountConfirmingText ?? "Confirming...") : (content.confirmAccountButton ?? "Confirm Account")}
@@ -319,9 +310,12 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 						<div className="mt-6 text-center">
 							<Link
 								href={`/${channel}/login`}
-								className="text-sm font-medium text-neutral-600 hover:text-neutral-900"
+								className="inline-flex items-center gap-1 text-sm font-medium hover:underline"
 								style={{ color: branding.colors.primary }}
 							>
+								<svg className="h-4 w-4 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+									<path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+								</svg>
 								{content.confirmAccountBackToSignIn ?? content.backToSignIn ?? "Back to Sign In"}
 							</Link>
 						</div>
@@ -331,4 +325,3 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 		</div>
 	);
 }
-

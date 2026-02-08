@@ -7,15 +7,17 @@ import { useBranding, useStoreInfo } from "@/providers/StoreConfigProvider";
 import { DefaultChannelSlug } from "@/app/config";
 import { useState } from "react";
 
-// Default SVG logo when no image URL is provided
+// Default storefront icon when no logo image is configured
 function DefaultLogoIcon() {
 	return (
-		<svg 
-			className="h-8 w-8" 
-			viewBox="0 0 24 24" 
-			fill="currentColor"
+		<svg
+			className="h-7 w-7"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth={1.5}
 		>
-			<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+			<path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.15c0 .415.336.75.75.75z" />
 		</svg>
 	);
 }
@@ -73,12 +75,12 @@ export const Logo = () => {
 	};
 
 	const logoContent = (
-		<span 
-			className="flex items-center gap-2.5 text-xl font-bold tracking-tight transition-opacity hover:opacity-80"
+		<span
+			className="group/logo flex items-center gap-2 transition-all duration-200 hover:opacity-85"
 			style={{ color: branding.colors.primary }}
 		>
 			{renderLogoImage()}
-			<span className="hidden sm:inline">{store.name}</span>
+			<span className="hidden sm:inline text-lg font-bold tracking-tight">{store.name}</span>
 		</span>
 	);
 

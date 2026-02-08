@@ -1,12 +1,15 @@
 import "@saleor/macaw-ui/style";
+import "@/styles/globals.css";
 
 import { AppBridge, AppBridgeProvider } from "@saleor/app-sdk/app-bridge";
 import { RoutePropagator } from "@saleor/app-sdk/app-bridge/next";
 import { NoSSRWrapper } from "@saleor/apps-shared/no-ssr-wrapper";
 import { ThemeSynchronizer } from "@saleor/apps-shared/theme-synchronizer";
-import { Box, ThemeProvider } from "@saleor/macaw-ui";
+import { ThemeProvider } from "@saleor/macaw-ui";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "sonner";
 import { AppProps } from "next/app";
+import { useRouter } from "next/router";
 
 import { GraphQLProvider } from "@/modules/graphql/graphql-provider";
 import { trpcClient } from "@/modules/trpc/trpc-client";
@@ -25,6 +28,8 @@ const queryClient = new QueryClient({
 });
 
 function NextApp({ Component, pageProps }: AppProps) {
+  const router = useRouter();
+
   return (
     <NoSSRWrapper>
       <ThemeProvider>
@@ -33,9 +38,9 @@ function NextApp({ Component, pageProps }: AppProps) {
             <ThemeSynchronizer />
             <RoutePropagator />
             <QueryClientProvider client={queryClient}>
-              <Box padding={10}>
-                <Component {...pageProps} />
-              </Box>
+              {/* key forces React to unmount/remount the page on every route change */}
+              <Component {...pageProps} key={router.asPath} />
+              <Toaster position="bottom-right" />
             </QueryClientProvider>
           </GraphQLProvider>
         </AppBridgeProvider>

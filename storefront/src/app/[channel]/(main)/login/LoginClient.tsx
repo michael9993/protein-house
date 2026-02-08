@@ -98,26 +98,14 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 		});
 	};
 
-	// Create focus ring color with transparency
-	const focusRingColor = `${branding.colors.primary}33`; // 20% opacity
-
 	return (
-		<div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12 animate-fade-in">
-			{/* Inject dynamic focus styles */}
-			<style>{`
-				.auth-input:focus {
-					border-color: ${branding.colors.primary} !important;
-					box-shadow: 0 0 0 3px ${focusRingColor} !important;
-					outline: none !important;
-				}
-			`}</style>
-			<div className="w-full max-w-md animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
+		<div className="auth-page flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12">
+			<div className="w-full max-w-md">
 				{/* Logo */}
-				<div className="mb-8 text-center animate-fade-in-up" style={{ animationDelay: "150ms", animationFillMode: "both" }}>
-					<Link 
-						href={`/${channel}`} 
-						className="inline-flex items-center gap-2 text-2xl font-bold"
-						style={{ color: branding.colors.primary }}
+				<div className="mb-8 text-center">
+					<Link
+						href={`/${channel}`}
+						className="inline-flex items-center gap-2.5"
 					>
 						{branding.logo && branding.logo !== "/logo.svg" ? (
 							<Image
@@ -129,10 +117,10 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 							/>
 						) : (
 							<>
-								<svg className="h-10 w-10" viewBox="0 0 24 24" fill="currentColor">
-									<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+								<svg className="h-8 w-8" style={{ color: branding.colors.primary }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+									<path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.15c0 .415.336.75.75.75z" />
 								</svg>
-								{store.name}
+								<span className="text-xl font-bold" style={{ color: branding.colors.primary }}>{store.name}</span>
 							</>
 						)}
 					</Link>
@@ -147,16 +135,9 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 				</div>
 
 				{/* Form Card */}
-				<div 
-					className="rounded-2xl p-8 shadow-lg ring-1 animate-fade-in-up" 
-					style={{ 
-						animationDelay: "200ms", 
-						animationFillMode: "both",
-						backgroundColor: "var(--store-bg)",
-					} as React.CSSProperties}
-				>
+				<div className="auth-card p-8">
 					{/* Tab Switcher */}
-					<div className="mb-6 flex rounded-lg p-1" style={{ backgroundColor: "var(--store-neutral-100)" }}>
+					<div className="mb-6 flex rounded-xl p-1" style={{ backgroundColor: "var(--store-neutral-100)" }}>
 						<button
 							type="button"
 							onClick={() => { setIsLogin(true); setError(null); }}
@@ -253,7 +234,7 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 									name="firstName"
 									type="text"
 									required={!isLogin}
-									className="auth-input w-full rounded-lg border px-4 py-3 transition-colors"
+									className="auth-input w-full rounded-xl border px-4 py-3 transition-colors"
 									placeholder="John"
 								/>
 								</div>
@@ -266,7 +247,7 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 									name="lastName"
 									type="text"
 									required={!isLogin}
-									className="auth-input w-full rounded-lg border px-4 py-3 transition-colors"
+									className="auth-input w-full rounded-xl border px-4 py-3 transition-colors"
 									placeholder="Doe"
 								/>
 								</div>
@@ -285,7 +266,7 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 								required
 								autoComplete="email"
 								defaultValue={initialEmail || ""}
-								className="auth-input w-full rounded-lg border px-4 py-3 transition-colors"
+								className="auth-input w-full rounded-xl border px-4 py-3 transition-colors"
 								placeholder={content.account.emailPlaceholder}
 							/>
 						</div>
@@ -314,13 +295,13 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 									required
 									minLength={8}
 									autoComplete={isLogin ? "current-password" : "new-password"}
-									className="auth-input w-full rounded-lg border px-4 py-3 pe-12 transition-colors"
+									className="auth-input w-full rounded-xl border px-4 py-3 pe-12 transition-colors"
 									placeholder={content.account.passwordPlaceholder}
 								/>
 								<button
 									type="button"
 									onClick={() => setShowPassword(!showPassword)}
-									className="absolute right-3 top-1/2 -translate-y-1/2"
+									className="absolute end-3 top-1/2 -translate-y-1/2"
 									style={{ color: "var(--store-neutral-400)" }}
 								>
 									{showPassword ? (
@@ -350,7 +331,7 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 									required={!isLogin}
 									minLength={8}
 									autoComplete="new-password"
-									className="auth-input w-full rounded-lg border px-4 py-3 transition-colors"
+									className="auth-input w-full rounded-xl border px-4 py-3 transition-colors"
 									placeholder={content.account.confirmPasswordPlaceholder}
 								/>
 							</div>
@@ -360,7 +341,7 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 						<button
 							type="submit"
 							disabled={isPending}
-							className="flex w-full items-center justify-center gap-2 rounded-lg py-3.5 text-base font-semibold text-white transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+							className="auth-submit flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-base font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
 							style={{ backgroundColor: branding.colors.primary }}
 						>
 							{isPending ? (
@@ -401,24 +382,17 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 				</div>
 
 				{/* Benefits */}
-				<div 
-					className="mt-8 rounded-xl p-6 animate-fade-in-up" 
-					style={{ 
-						animationDelay: "250ms", 
-						animationFillMode: "both",
-						backgroundColor: "var(--store-surface)"
-					}}
-				>
+				<div className="mt-8 rounded-xl border p-6" style={{ borderColor: "var(--store-neutral-200)", backgroundColor: "var(--store-surface)" }}>
 					<h3 className="mb-4 text-sm font-semibold" style={{ color: "var(--store-text)" }}>{content.account.whyCreateAccount}</h3>
 					<ul className="space-y-3">
 						{[
-							{ icon: "🚀", text: content.account.benefitFasterCheckout },
-							{ icon: "📦", text: content.account.benefitTrackOrders },
-							{ icon: "❤️", text: content.account.benefitWishlist },
-							{ icon: "🎁", text: content.account.benefitDiscounts },
+							{ icon: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>, text: content.account.benefitFasterCheckout },
+							{ icon: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 7.5l-2.25-1.313M21 7.5v2.25m0-2.25l-2.25 1.313M3 7.5l2.25-1.313M3 7.5l2.25 1.313M3 7.5v2.25m9 3l2.25-1.313M12 12.75l-2.25-1.313M12 12.75V15m0 6.75l2.25-1.313M12 21.75V15m0 0l-2.25 1.313" /></svg>, text: content.account.benefitTrackOrders },
+							{ icon: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>, text: content.account.benefitWishlist },
+							{ icon: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" /><path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6z" /></svg>, text: content.account.benefitDiscounts },
 						].map((benefit, index) => (
 							<li key={index} className="flex items-center gap-3 text-sm" style={{ color: "var(--store-text-muted)" }}>
-								<span className="text-lg">{benefit.icon}</span>
+								<span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: `${branding.colors.primary}0A`, color: branding.colors.primary }}>{benefit.icon}</span>
 								{benefit.text}
 							</li>
 						))}
@@ -529,10 +503,10 @@ function SocialLoginButton({
 			type="button"
 			onClick={handleSocialLogin}
 			disabled={isLoading}
-			className="flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-			style={provider === "facebook" 
+			className="auth-social-btn flex items-center justify-center gap-3 rounded-xl border px-6 py-3 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
+			style={provider === "facebook"
 				? { borderColor: "#1877F2", color: "#1877F2" }
-				: { borderColor: "var(--store-neutral-200)", color: "var(--store-neutral-700)" }
+				: {}
 			}
 		>
 			{isLoading ? (

@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { ChevronRightIcon } from "lucide-react";
+import Image from "next/image";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { useBranding, useContentConfig } from "@/providers/StoreConfigProvider";
 import { useInMobileMenu } from "./MobileMenuContext";
 import { type CategoryWithChildren } from "./NavLinksClient";
+import { parseDescription } from "@/components/home/utils";
 
 interface ShopAllDropdownProps {
   categories: CategoryWithChildren[];
@@ -23,13 +26,7 @@ interface ShopAllDropdownProps {
 }
 
 const HOVER_LEAVE_DELAY_MS = 400;
-
-/** True if hoveredId is this item or any descendant (so parent flyouts stay open when hovering a child). */
-function isItemOrDescendantHovered(item: CategoryWithChildren, hoveredId: string | null): boolean {
-  if (!hoveredId) return false;
-  if (item.id === hoveredId) return true;
-  return !!(item.children?.some((c) => isItemOrDescendantHovered(c, hoveredId)));
-}
+const CATEGORY_HOVER_DEBOUNCE_MS = 80;
 
 /** Returns CSS transform string for ChevronRightIcon when expanded. */
 function getArrowExpandedTransform(dir: "up" | "down" | "left" | "right" | "auto"): string {
@@ -40,7 +37,7 @@ function getArrowExpandedTransform(dir: "up" | "down" | "left" | "right" | "auto
   return "rotate(90deg)"; // auto = down
 }
 
-/** Returns CSS transform string for ChevronRightIcon when collapsed. Inline style overrides classes, so we need this. */
+/** Returns CSS transform string for ChevronRightIcon when collapsed. */
 function getArrowCollapsedTransform(
   dir: "up" | "down" | "left" | "right" | "auto",
   isRtl?: boolean,
@@ -49,134 +46,456 @@ function getArrowCollapsedTransform(
   if (dir === "left") return "rotate(180deg)";
   if (dir === "up") return "rotate(-90deg)";
   if (dir === "down") return "rotate(90deg)";
-  // auto: LTR → left (180deg), RTL → right (0deg)
   return isRtl ? "rotate(0deg)" : "rotate(180deg)";
 }
 
-/** Renders a category tree at any depth; each level with children gets a flyout. */
-function CategoryTreeLevel({
-  items,
+// ============================================
+// MEGA MENU SUB-COMPONENTS (Desktop only)
+// ============================================
+
+/** Single category row in the left nav with active accent bar.
+ *  Touch behaviour: first tap selects (shows subcategories), second tap navigates. */
+function CategoryNavItem({
+  category,
+  isActive,
+  primaryColor,
   channel,
-  hoveredId,
-  setHoveredId,
+  onHover,
   onClose,
-  dropdownSide,
-  branding,
-  leaveTimeoutRef,
-  hoverDelayMs = HOVER_LEAVE_DELAY_MS,
-  arrowBaseClass = "ltr:rotate-180",
-  arrowExpandedTransform = "rotate(90deg)",
-  arrowCollapsedTransform = "rotate(0deg)",
+  isTouchDevice,
 }: {
-  items: CategoryWithChildren[];
+  category: CategoryWithChildren;
+  isActive: boolean;
+  primaryColor: string;
   channel: string;
-  hoveredId: string | null;
-  setHoveredId: (id: string | null) => void;
+  onHover: (id: string) => void;
   onClose: () => void;
-  dropdownSide: "left" | "right";
-  branding: { colors: { primary: string } };
-  leaveTimeoutRef?: React.MutableRefObject<NodeJS.Timeout | null>;
-  hoverDelayMs?: number;
-  arrowBaseClass?: string;
-  arrowExpandedTransform?: string;
-  arrowCollapsedTransform?: string;
+  isTouchDevice: boolean;
 }) {
-  if (items.length === 0) return null;
+  const childCount = category.children?.length ?? 0;
 
-  // Overlap flyout onto row by 12px so there is no gap – cursor stays in hover zone when moving row → flyout
-  const flyoutClass = dropdownSide === "right" ? "start-full -ms-3" : "end-full -me-3";
-  const flyoutStyles = {
-    boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.15), 0 10px 20px -5px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05)",
-    border: `1px solid ${branding.colors.primary}08`,
-  };
-
-  const scheduleClear = () => {
-    if (!leaveTimeoutRef) {
-      setHoveredId(null);
+  const handleClick = (e: React.MouseEvent) => {
+    // Touch devices: first tap selects the category (shows subcategories);
+    // second tap on the already-active category navigates.
+    if (isTouchDevice && !isActive) {
+      e.preventDefault();
+      onHover(category.id);
       return;
     }
-    if (leaveTimeoutRef.current) clearTimeout(leaveTimeoutRef.current);
-    leaveTimeoutRef.current = setTimeout(() => setHoveredId(null), hoverDelayMs);
+    // Desktop or already-active: navigate (default link behavior) and close menu
+    onClose();
   };
-
-  const cancelClearAndSet = (itemId: string) => {
-    if (leaveTimeoutRef?.current) {
-      clearTimeout(leaveTimeoutRef.current);
-      leaveTimeoutRef.current = null;
-    }
-    setHoveredId(itemId);
-  };
-
-  if (items.length === 0) return null;
 
   return (
-    <ul className="space-y-1">
-      {items.map((item) => {
-        const hasChildren = item.children && item.children.length > 0;
-        const isHovered = hoveredId === item.id;
-        const flyoutOpen = hasChildren && isItemOrDescendantHovered(item, hoveredId);
-
-        return (
-          <li key={item.id} className="relative">
-            <div className="group/item relative">
-              <LinkWithChannel
-                href={`/products?categories=${item.slug}`}
-                onClick={onClose}
-                className={`flex items-center rounded-lg px-3 py-2.5 text-sm transition-all duration-200 ${hasChildren ? "justify-between gap-2" : ""} hover:bg-neutral-50 active:bg-neutral-100`}
-                style={{
-                  backgroundColor: isHovered ? `${branding.colors.primary}12` : undefined,
-                  color: isHovered ? branding.colors.primary : "#000000",
-                  transform: isHovered ? "translateX(2px)" : "translateX(0)",
-                }}
-                onMouseEnter={() => cancelClearAndSet(item.id)}
-                onMouseLeave={() => scheduleClear()}
-              >
-                <span className="font-medium">{item.name}</span>
-                {hasChildren && (
-                  <ChevronRightIcon
-                    className={`h-3.5 w-3.5 shrink-0 transition-transform duration-200 ${arrowBaseClass}`}
-                    style={{
-                      color: isHovered ? branding.colors.primary : undefined,
-                      transform: flyoutOpen ? arrowExpandedTransform : arrowCollapsedTransform,
-                    }}
-                  />
-                )}
-              </LinkWithChannel>
-
-              {flyoutOpen && item.children && (
-                <div
-                  className={`absolute top-0 z-[60] w-64 rounded-2xl bg-gradient-to-br from-white via-white to-neutral-50/50 shadow-2xl backdrop-blur-sm ${flyoutClass}`}
-                  style={flyoutStyles}
-                  onMouseEnter={() => cancelClearAndSet(item.id)}
-                  onMouseLeave={() => scheduleClear()}
-                >
-                  <div className="p-5">
-                    <CategoryTreeLevel
-                      items={item.children}
-                      channel={channel}
-                      hoveredId={hoveredId}
-                      setHoveredId={setHoveredId}
-                      onClose={onClose}
-                      dropdownSide={dropdownSide}
-                      branding={branding}
-                      leaveTimeoutRef={leaveTimeoutRef}
-                      hoverDelayMs={hoverDelayMs}
-                      arrowBaseClass={arrowBaseClass}
-                      arrowExpandedTransform={arrowExpandedTransform}
-                      arrowCollapsedTransform={arrowCollapsedTransform}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          </li>
-        );
-      })}
-    </ul>
+    <LinkWithChannel
+      href={`/products?categories=${category.slug}`}
+      onClick={handleClick}
+      className="group/cat flex w-full items-center gap-2 rounded-e-lg py-3 pe-4 ps-5 text-[15px] transition-all duration-150 cursor-pointer"
+      style={{
+        borderInlineStart: isActive ? `3px solid ${primaryColor}` : "3px solid transparent",
+        paddingInlineStart: isActive ? "calc(1.25rem - 3px)" : "calc(1.25rem)",
+        backgroundColor: isActive ? `${primaryColor}06` : "transparent",
+        color: isActive ? "#111827" : "#404040",
+        fontWeight: isActive ? 600 : 500,
+      }}
+      onMouseEnter={() => onHover(category.id)}
+    >
+      <span className="flex-1 truncate">{category.name}</span>
+      {childCount > 0 && (
+        <span
+          className="text-sm tabular-nums transition-colors duration-150"
+          style={{ color: isActive ? primaryColor : "#a3a3a3" }}
+        >
+          {childCount}
+        </span>
+      )}
+    </LinkWithChannel>
   );
 }
 
-/** Mobile: render category tree with accordion expand/collapse at every level (same as top-level dropdown). */
+/** Single subcategory tile in the center panel. */
+function SubcategoryCard({
+  subcategory,
+  channel,
+  primaryColor,
+  animationDelay,
+  labels,
+  onClose,
+}: {
+  subcategory: CategoryWithChildren;
+  channel: string;
+  primaryColor: string;
+  animationDelay: number;
+  labels: { productLabel: string; productsLabel: string };
+  onClose: () => void;
+}) {
+  return (
+    <LinkWithChannel
+      href={`/products?categories=${subcategory.slug}`}
+      onClick={onClose}
+      className="group/sub mega-menu-crossfade flex flex-col rounded-lg border border-neutral-100 bg-neutral-50/50 px-4 py-4 transition-all duration-150 hover:border-neutral-200 hover:-translate-y-0.5 cursor-pointer"
+      style={{
+        animationDelay: `${animationDelay}ms`,
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = `${primaryColor}30`;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = "";
+      }}
+    >
+      <span
+        className="text-[15px] font-medium text-neutral-800 transition-colors duration-150 group-hover/sub:text-neutral-900"
+        style={{}}
+      >
+        {subcategory.name}
+      </span>
+      {subcategory.productCount !== undefined && subcategory.productCount > 0 && (
+        <span className="mt-1 text-sm text-neutral-400">
+          {subcategory.productCount} {subcategory.productCount === 1 ? labels.productLabel : labels.productsLabel}
+        </span>
+      )}
+    </LinkWithChannel>
+  );
+}
+
+/** Brand pill/tag button. */
+function BrandPill({
+  brand,
+  channel,
+  primaryColor,
+  onClose,
+}: {
+  brand: { id: string; name: string; slug: string };
+  channel: string;
+  primaryColor: string;
+  onClose: () => void;
+}) {
+  return (
+    <LinkWithChannel
+      href={`/products?brands=${brand.slug}`}
+      onClick={onClose}
+      className="inline-flex rounded-full border border-neutral-200 bg-white px-3.5 py-2 text-sm font-medium text-neutral-600 transition-all duration-150 hover:text-neutral-900 cursor-pointer"
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = `${primaryColor}40`;
+        e.currentTarget.style.color = primaryColor;
+        e.currentTarget.style.backgroundColor = `${primaryColor}06`;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = "";
+        e.currentTarget.style.color = "";
+        e.currentTarget.style.backgroundColor = "";
+      }}
+    >
+      {brand.name}
+    </LinkWithChannel>
+  );
+}
+
+/** Left navigation panel: categories + collections + brands. */
+function MegaMenuLeftPanel({
+  categories,
+  collections,
+  brands,
+  activeCategoryId,
+  primaryColor,
+  channel,
+  labels,
+  onCategoryHover,
+  onClose,
+  isTouchDevice,
+}: {
+  categories: CategoryWithChildren[];
+  collections?: Array<{ id: string; name: string; slug: string }>;
+  brands?: Array<{ id: string; name: string; slug: string }>;
+  activeCategoryId: string | null;
+  primaryColor: string;
+  channel: string;
+  labels: {
+    categories: string;
+    collections: string;
+    brands: string;
+  };
+  onCategoryHover: (id: string) => void;
+  onClose: () => void;
+  isTouchDevice: boolean;
+}) {
+  return (
+    <div className="flex flex-col overflow-y-auto border-e border-neutral-200/60 bg-neutral-50/80" style={{ scrollbarWidth: "thin" }}>
+      {/* Categories section */}
+      {categories.length > 0 && (
+        <div className="py-5">
+          <h3
+            className="mb-3 px-5 text-sm font-semibold uppercase tracking-wider text-neutral-600"
+          >
+            {labels.categories}
+          </h3>
+          <nav>
+            <ul className="space-y-0.5">
+              {categories.map((cat, i) => (
+                <li key={cat.id} className="animate-fade-in-up" style={{ animationDelay: `${i * 30}ms` }}>
+                  <CategoryNavItem
+                    category={cat}
+                    isActive={activeCategoryId === cat.id}
+                    primaryColor={primaryColor}
+                    channel={channel}
+                    onHover={onCategoryHover}
+                    onClose={onClose}
+                    isTouchDevice={isTouchDevice}
+                  />
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      )}
+
+      {/* Collections section */}
+      {collections && collections.length > 0 && (
+        <div className="border-t border-neutral-200/60 py-4">
+          <h3
+            className="mb-2 px-5 text-sm font-semibold uppercase tracking-wider text-neutral-600"
+          >
+            {labels.collections}
+          </h3>
+          <ul className="space-y-0.5">
+            {collections.map((col) => (
+              <li key={col.id}>
+                <LinkWithChannel
+                  href={`/products?collections=${col.slug}`}
+                  onClick={onClose}
+                  className="block truncate px-5 py-2.5 text-sm font-normal text-neutral-600 transition-all duration-150 hover:text-neutral-900 hover:ps-6 cursor-pointer"
+                >
+                  {col.name}
+                </LinkWithChannel>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Brands section */}
+      {brands && brands.length > 0 && (
+        <div className="border-t border-neutral-200/60 py-4">
+          <h3
+            className="mb-3 px-5 text-sm font-semibold uppercase tracking-wider text-neutral-600"
+          >
+            {labels.brands}
+          </h3>
+          <div className="flex flex-wrap gap-2 px-5">
+            {brands.map((brand) => (
+              <BrandPill
+                key={brand.id}
+                brand={brand}
+                channel={channel}
+                primaryColor={primaryColor}
+                onClose={onClose}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Center content area: dynamic subcategory grid or empty state.
+ *  On screens below lg, shows the category image as a subtle background
+ *  since the dedicated right image column is hidden. */
+function MegaMenuCenterPanel({
+  activeCategory,
+  primaryColor,
+  channel,
+  labels,
+  onClose,
+}: {
+  activeCategory: CategoryWithChildren | undefined;
+  primaryColor: string;
+  channel: string;
+  labels: {
+    explore: string;
+    browseSubcategories: string;
+    viewAllProducts: string;
+    productLabel: string;
+    productsLabel: string;
+    hoverPrompt: string;
+  };
+  onClose: () => void;
+}) {
+  const subcategories = activeCategory?.children ?? [];
+  const hasSubcategories = subcategories.length > 0;
+  const bgImageUrl = activeCategory?.backgroundImage?.url;
+
+  if (!activeCategory) {
+    return (
+      <div className="flex flex-1 items-center justify-center p-8 text-neutral-400 text-sm">
+        {labels.hoverPrompt}
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative flex flex-1 flex-col overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
+      {/* Background image — visible only below lg where the right panel is hidden */}
+      {bgImageUrl && (
+        <div className="absolute inset-0 lg:hidden" aria-hidden>
+          <Image
+            src={bgImageUrl}
+            alt=""
+            fill
+            className="object-cover opacity-[0.07] transition-opacity duration-300"
+            sizes="(max-width: 1024px) 100vw, 0px"
+          />
+        </div>
+      )}
+
+      <div className="relative z-10 flex flex-1 flex-col p-6 sm:p-8">
+        {/* Category header */}
+        <div className="mb-6" key={activeCategory.id}>
+          <h2 className="mega-menu-crossfade text-xl font-semibold text-neutral-900">
+            {activeCategory.name}
+          </h2>
+          {hasSubcategories && (
+            <p className="mega-menu-crossfade mt-1 text-sm text-neutral-500" style={{ animationDelay: "40ms" }}>
+              {labels.browseSubcategories}
+            </p>
+          )}
+        </div>
+
+        {hasSubcategories ? (
+          /* Subcategory grid */
+          <div
+            className={`grid gap-3 ${subcategories.length > 6 ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-2"}`}
+            key={`grid-${activeCategory.id}`}
+          >
+            {subcategories.map((sub, i) => (
+              <SubcategoryCard
+                key={sub.id}
+                subcategory={sub}
+                channel={channel}
+                primaryColor={primaryColor}
+                animationDelay={i * 40}
+                labels={{ productLabel: labels.productLabel, productsLabel: labels.productsLabel }}
+                onClose={onClose}
+              />
+            ))}
+          </div>
+        ) : (
+          /* No subcategories: show description + CTA */
+          <div className="mega-menu-crossfade flex flex-1 flex-col items-center justify-center text-center" key={`empty-${activeCategory.id}`}>
+            {activeCategory.description && parseDescription(activeCategory.description) && (
+              <p className="mb-4 max-w-sm text-sm text-neutral-500 line-clamp-3">
+                {parseDescription(activeCategory.description)}
+              </p>
+            )}
+            {activeCategory.productCount !== undefined && activeCategory.productCount > 0 && (
+              <p className="mb-4 text-xs text-neutral-400">
+                {activeCategory.productCount} {activeCategory.productCount === 1 ? labels.productLabel : labels.productsLabel}
+              </p>
+            )}
+            <LinkWithChannel
+              href={`/products?categories=${activeCategory.slug}`}
+              onClick={onClose}
+              className="inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:opacity-90 cursor-pointer"
+              style={{ backgroundColor: primaryColor }}
+            >
+              {labels.explore} {activeCategory.name}
+              <ChevronRightIcon className="h-4 w-4 rtl:rotate-180" />
+            </LinkWithChannel>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Right visual area: category hero image with gradient overlay. */
+function MegaMenuRightPanel({
+  activeCategory,
+  previousImageUrl,
+  primaryColor,
+  channel,
+  labels,
+  onClose,
+}: {
+  activeCategory: CategoryWithChildren | undefined;
+  previousImageUrl: string | null;
+  primaryColor: string;
+  channel: string;
+  labels: { explore: string };
+  onClose: () => void;
+}) {
+  const imageUrl = activeCategory?.backgroundImage?.url;
+  const imageAlt = activeCategory?.backgroundImage?.alt || activeCategory?.name || "";
+  const hasImage = !!imageUrl;
+
+  return (
+    <div className="relative h-full overflow-hidden bg-neutral-900">
+      {/* Previous image (fading out) */}
+      {previousImageUrl && (
+        <Image
+          src={previousImageUrl}
+          alt=""
+          fill
+          className="object-cover transition-opacity duration-300 opacity-0"
+          sizes="320px"
+          aria-hidden
+        />
+      )}
+
+      {/* Current image (fading in) */}
+      {hasImage ? (
+        <Image
+          src={imageUrl}
+          alt={imageAlt}
+          fill
+          className="object-cover transition-opacity duration-300 opacity-100"
+          sizes="320px"
+        />
+      ) : (
+        /* No-image fallback: dark gradient */
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `linear-gradient(135deg, ${primaryColor}20 0%, #171717 40%, #262626 100%)`,
+          }}
+        />
+      )}
+
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+
+      {/* Content overlay */}
+      {activeCategory && (
+        <div className="absolute inset-x-0 bottom-0 p-6" key={activeCategory.id}>
+          <h3 className="mega-menu-crossfade text-2xl font-bold text-white line-clamp-2">
+            {activeCategory.name}
+          </h3>
+          {activeCategory.description && parseDescription(activeCategory.description) && (
+            <p className="mega-menu-crossfade mt-2 text-sm text-white/80 line-clamp-3" style={{ animationDelay: "60ms" }}>
+              {parseDescription(activeCategory.description)}
+            </p>
+          )}
+          <LinkWithChannel
+            href={`/products?categories=${activeCategory.slug}`}
+            onClick={onClose}
+            className="mega-menu-crossfade mt-4 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-200 hover:bg-white/25 cursor-pointer"
+            style={{ animationDelay: "100ms" }}
+          >
+            {labels.explore} {activeCategory.name}
+            <ChevronRightIcon className="h-4 w-4 rtl:rotate-180" />
+          </LinkWithChannel>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================
+// MOBILE CATEGORY TREE (kept untouched)
+// ============================================
+
+/** Mobile: render category tree with accordion expand/collapse at every level. */
 function MobileCategoryTree({
   items,
   channel,
@@ -272,18 +591,24 @@ function MobileCategoryTree({
   );
 }
 
+// ============================================
+// MAIN EXPORT
+// ============================================
+
 export function ShopAllDropdown({ categories, collections, brands, channel }: ShopAllDropdownProps) {
   const inMobileMenu = useInMobileMenu();
   const [isOpen, setIsOpen] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState(false);
   const [mobileExpandedCategoryIds, setMobileExpandedCategoryIds] = useState<Set<string>>(new Set());
-  const [hoveredCategoryId, setHoveredCategoryId] = useState<string | null>(null);
-  const [hoveredCollection, setHoveredCollection] = useState<string | null>(null);
-  const [hoveredBrand, setHoveredBrand] = useState<string | null>(null);
-  const [hoveredSection, setHoveredSection] = useState<"categories" | "collections" | "brands" | null>(null);
-  const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
+  const [previousImageUrl, setPreviousImageUrl] = useState<string | null>(null);
+  const [menuMaxHeight, setMenuMaxHeight] = useState("480px");
+  const [menuTopOffset, setMenuTopOffset] = useState(64);
+  const [portalEl, setPortalEl] = useState<HTMLElement | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const categoryLeaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const menuPanelRef = useRef<HTMLDivElement>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const categoryDebounceRef = useRef<NodeJS.Timeout | null>(null);
   const branding = useBranding();
   const content = useContentConfig();
   const shopAllText = content.navbar?.shopAllButton || content.filters?.shopAllButton || "Shop All";
@@ -297,23 +622,18 @@ export function ShopAllDropdown({ categories, collections, brands, channel }: Sh
           ? "rotate-90"
           : dropdownArrowDir === "auto"
             ? "ltr:rotate-180"
-            : ""; // right = ChevronRightIcon default
+            : "";
   const arrowExpandedTransform = getArrowExpandedTransform(
     content.navbar?.dropdownArrowDirectionExpanded ?? "down",
   );
 
-  // Detect RTL direction dynamically (used for "auto" collapsed arrow)
+  // Detect RTL
   const [isRtl, setIsRtl] = useState(false);
   useEffect(() => {
-    const checkRtl = () => {
-      setIsRtl(document.documentElement.dir === 'rtl');
-    };
+    const checkRtl = () => setIsRtl(document.documentElement.dir === "rtl");
     checkRtl();
     const observer = new MutationObserver(checkRtl);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['dir'],
-    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["dir"] });
     return () => observer.disconnect();
   }, []);
 
@@ -322,63 +642,165 @@ export function ShopAllDropdown({ categories, collections, brands, channel }: Sh
     isRtl,
   );
 
-  // Close on click outside
+  // Find the portal target in the DOM (client-side only)
+  useEffect(() => {
+    const el = document.getElementById("mega-menu-root");
+    if (el) setPortalEl(el);
+  }, []);
+
+  // Derived: find the active category object
+  const activeCategory = categories.find((c) => c.id === activeCategoryId);
+
+  // Config labels
+  const labels = {
+    categories: content.navbar?.categoriesLabel || "Categories",
+    collections: content.navbar?.collectionsLabel || "Collections",
+    brands: content.navbar?.brandsLabel || "Brands",
+    viewAllProducts: content.navbar?.viewAllProducts || "View All Products",
+    explore: content.navbar?.exploreCategoryLabel || "Explore",
+    browseSubcategories: content.navbar?.browseSubcategoriesLabel || "Browse subcategories",
+    productLabel: content.navbar?.megaMenuProductLabel || "product",
+    productsLabel: content.navbar?.megaMenuProductsLabel || "products",
+    hoverPrompt: content.navbar?.megaMenuHoverPrompt || "Hover a category to explore",
+  };
+
+  // Compute fixed position + max height for the mega menu.
+  // Recalculates on scroll so the panel stays attached when the navbar hides / sticky filters appear.
   useEffect(() => {
     if (!isOpen) return;
 
-    const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
+    const recalcPosition = () => {
+      const stickyFilters = document.querySelector<HTMLElement>("[data-sticky-quick-filters]");
+      let top: number;
+
+      if (stickyFilters) {
+        top = stickyFilters.getBoundingClientRect().bottom;
+      } else {
+        const scrollHideEl = document.querySelector<HTMLElement>('[data-scroll-hide="header"]');
+        if (scrollHideEl && scrollHideEl.getBoundingClientRect().height > 0) {
+          top = scrollHideEl.getBoundingClientRect().bottom;
+        } else {
+          top = 0;
+        }
       }
+
+      setMenuTopOffset(top);
+      const available = window.innerHeight - top - 32;
+      setMenuMaxHeight(`${Math.max(300, Math.min(520, available))}px`);
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    // Calculate immediately + on every scroll frame
+    recalcPosition();
+    window.addEventListener("scroll", recalcPosition, { passive: true });
+    return () => window.removeEventListener("scroll", recalcPosition);
   }, [isOpen]);
 
-  // Close on escape key
+  // Auto-select first category on open
+  useEffect(() => {
+    if (isOpen && categories.length > 0) {
+      setActiveCategoryId(categories[0].id);
+      setPreviousImageUrl(null);
+    }
+    if (!isOpen) {
+      setActiveCategoryId(null);
+      setPreviousImageUrl(null);
+      if (categoryDebounceRef.current) {
+        clearTimeout(categoryDebounceRef.current);
+        categoryDebounceRef.current = null;
+      }
+    }
+  }, [isOpen, categories]);
+
+  // Close on click/touch outside (checks both trigger and portal menu panel)
   useEffect(() => {
     if (!isOpen) return;
-
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      const target = (e as TouchEvent).touches?.[0]?.target ?? e.target;
+      const inTrigger = containerRef.current?.contains(target as Node);
+      const inMenu = menuPanelRef.current?.contains(target as Node);
+      if (!inTrigger && !inMenu) {
         setIsOpen(false);
       }
     };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside, { passive: true });
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [isOpen]);
 
+  // Close on escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
     window.addEventListener("keydown", handleEscape);
     return () => window.removeEventListener("keydown", handleEscape);
   }, [isOpen]);
 
-  // Clear category hover state, section hover, and any pending leave timeout when dropdown closes
-  useEffect(() => {
-    if (!isOpen) {
-      setHoveredCategoryId(null);
-      setHoveredSection(null);
-      if (categoryLeaveTimeoutRef.current) {
-        clearTimeout(categoryLeaveTimeoutRef.current);
-        categoryLeaveTimeoutRef.current = null;
-      }
-    }
-  }, [isOpen]);
-
-  const handleMouseEnter = () => {
-    if (hoverTimeout) {
-      clearTimeout(hoverTimeout);
-      setHoverTimeout(null);
+  const handleMouseEnter = useCallback(() => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
     }
     setIsOpen(true);
-  };
+  }, []);
 
-  const handleMouseLeave = () => {
-    // Delay to allow moving from button to dropdown or into category flyouts
-    const timeout = setTimeout(() => {
-      setIsOpen(false);
-    }, 280);
-    setHoverTimeout(timeout);
-  };
+  const handleMouseLeave = useCallback(() => {
+    hoverTimeoutRef.current = setTimeout(() => setIsOpen(false), HOVER_LEAVE_DELAY_MS);
+  }, []);
 
-  // Mobile menu: accordion-style expand/collapse (tap only), including deeper category levels
+  const handleCategoryHover = useCallback(
+    (id: string) => {
+      if (categoryDebounceRef.current) {
+        clearTimeout(categoryDebounceRef.current);
+      }
+      categoryDebounceRef.current = setTimeout(() => {
+        setActiveCategoryId((prev) => {
+          if (prev !== id) {
+            // Track previous image for crossfade
+            const prevCat = categories.find((c) => c.id === prev);
+            setPreviousImageUrl(prevCat?.backgroundImage?.url ?? null);
+            // Clear previous image after crossfade completes
+            setTimeout(() => setPreviousImageUrl(null), 350);
+          }
+          return id;
+        });
+      }, CATEGORY_HOVER_DEBOUNCE_MS);
+    },
+    [categories],
+  );
+
+  const closeMenu = useCallback(() => setIsOpen(false), []);
+
+  // Touch device detection: on touch, first tap opens menu; second tap navigates.
+  // On pointer (desktop), hover opens and click always navigates.
+  const isTouchDeviceRef = useRef(false);
+  useEffect(() => {
+    const onTouch = () => { isTouchDeviceRef.current = true; };
+    window.addEventListener("touchstart", onTouch, { once: true, passive: true });
+    return () => window.removeEventListener("touchstart", onTouch);
+  }, []);
+
+  const handleTriggerClick = useCallback(
+    (e: React.MouseEvent) => {
+      // On touch devices, first tap opens the menu instead of navigating
+      if (isTouchDeviceRef.current && !isOpen) {
+        e.preventDefault();
+        setIsOpen(true);
+        return;
+      }
+      // On desktop or if menu is already open, navigate (default link behavior)
+      closeMenu();
+    },
+    [isOpen, closeMenu],
+  );
+
+  // ============================================
+  // MOBILE MENU (accordion — kept untouched)
+  // ============================================
   if (inMobileMenu) {
     const toggleCategoryExpanded = (id: string) => {
       setMobileExpandedCategoryIds((prev: Set<string>) => {
@@ -415,7 +837,7 @@ export function ShopAllDropdown({ categories, collections, brands, channel }: Sh
             {categories.length > 0 && (
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-widest text-neutral-500 mb-2">
-                  {content.navbar?.categoriesLabel || "Categories"}
+                  {labels.categories}
                 </h4>
                 <MobileCategoryTree
                   items={categories}
@@ -431,7 +853,7 @@ export function ShopAllDropdown({ categories, collections, brands, channel }: Sh
             {collections && collections.length > 0 && (
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-widest text-neutral-500 mb-2">
-                  {content.navbar?.collectionsLabel || "Collections"}
+                  {labels.collections}
                 </h4>
                 <ul className="space-y-0.5">
                   {collections.map((c) => (
@@ -451,7 +873,7 @@ export function ShopAllDropdown({ categories, collections, brands, channel }: Sh
             {brands && brands.length > 0 && (
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-widest text-neutral-500 mb-2">
-                  {content.navbar?.brandsLabel || "Brands"}
+                  {labels.brands}
                 </h4>
                 <ul className="space-y-0.5">
                   {brands.map((b) => (
@@ -475,7 +897,7 @@ export function ShopAllDropdown({ categories, collections, brands, channel }: Sh
                 className="inline-flex items-center gap-2 py-2 text-sm font-semibold"
                 style={{ color: branding.colors.primary }}
               >
-                <span>{content.navbar?.viewAllProducts || "View All Products"}</span>
+                <span>{labels.viewAllProducts}</span>
                 <ChevronRightIcon className="h-4 w-4 ltr:rotate-180" />
               </LinkWithChannel>
             </div>
@@ -485,6 +907,9 @@ export function ShopAllDropdown({ categories, collections, brands, channel }: Sh
     );
   }
 
+  // ============================================
+  // DESKTOP MEGA MENU (portal-based, attached to header)
+  // ============================================
   return (
     <div
       ref={containerRef}
@@ -492,10 +917,12 @@ export function ShopAllDropdown({ categories, collections, brands, channel }: Sh
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Shop All trigger — no wrapper, transparent until hover, fits edges */}
+      {/* Trigger: click navigates to /products, hover opens mega menu.
+           On touch devices, first tap opens menu; second tap (or link inside) navigates. */}
       <LinkWithChannel
         href="/products"
-        className="group relative flex flex-1 items-center justify-center gap-1.5 py-2 px-3 text-sm font-semibold transition-all duration-200"
+        onClick={handleTriggerClick}
+        className="nav-link-btn group relative flex flex-1 items-center justify-center gap-1.5 rounded-full py-1.5 px-3.5 text-sm font-semibold transition-all duration-200"
         style={{
           backgroundColor: "transparent",
           color: isOpen ? branding.colors.primary : "inherit",
@@ -515,201 +942,84 @@ export function ShopAllDropdown({ categories, collections, brands, channel }: Sh
         />
       </LinkWithChannel>
 
-      {/* Dropdown Menu */}
-      {isOpen && (
+      {/* Mega Menu Panel — rendered via portal into #mega-menu-root in Header,
+           uses position:fixed so it stays visible when navbar hides or filters appear */}
+      {isOpen && portalEl && createPortal(
         <div
-          className="absolute start-0 top-full z-50 mt-2 w-[600px] rounded-2xl bg-gradient-to-br from-white via-white to-neutral-50/50 shadow-2xl backdrop-blur-sm"
-          style={{
-            opacity: isOpen ? 1 : 0,
-            transform: isOpen ? 'translateY(0)' : 'translateY(-8px)',
-            pointerEvents: isOpen ? 'auto' : 'none',
-            transition: 'opacity 200ms ease-out, transform 200ms ease-out',
-            boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15), 0 10px 20px -5px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05)',
-            border: `1px solid ${branding.colors.primary}08`,
-          }}
-          onMouseEnter={() => setIsOpen(true)}
-          onMouseLeave={() => setIsOpen(false)}
+          ref={menuPanelRef}
+          className="fixed inset-x-0 z-[70] mx-auto max-w-[1200px] mega-menu-enter"
+          style={{ top: `${menuTopOffset}px` }}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          role="menu"
+          aria-label={shopAllText}
         >
-          <div className="p-6">
-            {/* Grid Layout: Categories | Collections | Brands */}
-            <div className={`grid gap-4 ${
-              categories.length > 0 && collections && collections.length > 0 && brands && brands.length > 0
-                ? "grid-cols-3"
-                : (categories.length > 0 && collections && collections.length > 0) ||
-                  (categories.length > 0 && brands && brands.length > 0) ||
-                  (collections && collections.length > 0 && brands && brands.length > 0)
-                ? "grid-cols-2"
-                : "grid-cols-1"
-            }`}>
-              {/* Categories Section — recursive tree; only categories have hierarchy (collections/brands are flat) */}
-              {categories.length > 0 && (() => {
-                const subcategoriesSide = content.navbar?.subcategoriesSide || "auto";
-                const dropdownSide: "left" | "right" = subcategoriesSide === "auto" ? (isRtl ? "right" : "left") : (subcategoriesSide === "left" ? "left" : "right");
-                const isHovered = hoveredSection === "categories";
-                return (
-                  <div
-                    className="rounded-lg py-4 px-3 transition-all duration-200"
-                    style={{
-                      backgroundColor: isHovered ? `${branding.colors.primary}06` : "transparent",
-                      boxShadow: isHovered ? `inset 0 1px 4px ${branding.colors.primary}12` : undefined,
-                    }}
-                    onMouseEnter={() => setHoveredSection("categories")}
-                    onMouseLeave={() => setHoveredSection(null)}
-                  >
-                    <div className="mb-4 flex items-center gap-2">
-                      <div
-                        className="h-1 w-8 rounded-full"
-                        style={{ backgroundColor: branding.colors.primary }}
-                      />
-                      <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-700">
-                        {content.navbar?.categoriesLabel || "Categories"}
-                      </h3>
-                    </div>
-                    <CategoryTreeLevel
-                      items={categories}
-                      channel={channel}
-                      hoveredId={hoveredCategoryId}
-                      setHoveredId={setHoveredCategoryId}
-                      onClose={() => setIsOpen(false)}
-                      dropdownSide={dropdownSide}
-                      branding={branding}
-                      leaveTimeoutRef={categoryLeaveTimeoutRef}
-                      hoverDelayMs={HOVER_LEAVE_DELAY_MS}
-                      arrowBaseClass={arrowBaseClass}
-                      arrowExpandedTransform={arrowExpandedTransform}
-                      arrowCollapsedTransform={arrowCollapsedTransform}
-                    />
-                  </div>
-                );
-              })()}
+          <div
+            className="overflow-hidden rounded-xl bg-white border border-neutral-200/60"
+            style={{
+              maxHeight: menuMaxHeight,
+              boxShadow: "0 16px 48px -8px rgba(0, 0, 0, 0.15), 0 4px 12px -2px rgba(0, 0, 0, 0.08)",
+            }}
+          >
+            {/* Responsive 3-zone grid:
+                md: 2-column (left nav + center, no right image)
+                lg: 3-column with smaller dimensions
+                xl: full 3-column layout */}
+            <div
+              className="grid grid-cols-[220px_1fr] lg:grid-cols-[240px_1fr_260px] xl:grid-cols-[280px_1fr_320px] h-80 lg:h-96 xl:h-[440px]"
+              style={{ maxHeight: `calc(${menuMaxHeight} - 3.5rem)` }}
+            >
+              {/* Zone 1: Left Navigation */}
+              <MegaMenuLeftPanel
+                categories={categories}
+                collections={collections}
+                brands={brands}
+                activeCategoryId={activeCategoryId}
+                primaryColor={branding.colors.primary}
+                channel={channel}
+                labels={labels}
+                onCategoryHover={handleCategoryHover}
+                onClose={closeMenu}
+                isTouchDevice={isTouchDeviceRef.current}
+              />
 
-              {/* Collections Section */}
-              {collections && collections.length > 0 && (
-                <div
-                  className="rounded-lg py-4 px-3 transition-all duration-200"
-                  style={{
-                    backgroundColor: hoveredSection === "collections" ? `${branding.colors.primary}06` : "transparent",
-                    boxShadow: hoveredSection === "collections" ? `inset 0 1px 4px ${branding.colors.primary}12` : undefined,
-                  }}
-                  onMouseEnter={() => setHoveredSection("collections")}
-                  onMouseLeave={() => setHoveredSection(null)}
-                >
-                  <div className="mb-4 flex items-center gap-2">
-                    <div 
-                      className="h-1 w-8 rounded-full"
-                      style={{ backgroundColor: branding.colors.primary }}
-                    />
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-700">
-                      {content.navbar?.collectionsLabel || "Collections"}
-                    </h3>
-                  </div>
-                  <ul className="space-y-1">
-                    {collections.map((collection) => (
-                      <li key={collection.id}>
-                        <LinkWithChannel
-                          href={`/products?collections=${collection.slug}`}
-                          onClick={() => setIsOpen(false)}
-                          className="group/item flex items-center rounded-lg px-3 py-2.5 text-sm transition-all duration-200"
-                          style={{
-                            backgroundColor: hoveredCollection === collection.id ? `${branding.colors.primary}08` : 'transparent',
-                            color: hoveredCollection === collection.id ? branding.colors.primary : '#000000',
-                            transform: hoveredCollection === collection.id ? 'translateX(2px)' : 'translateX(0)',
-                          }}
-                          onMouseEnter={() => {
-                            setHoveredCollection(collection.id);
-                          }}
-                          onMouseLeave={() => {
-                            setHoveredCollection(null);
-                          }}
-                        >
-                          <span className="font-medium transition-all duration-200">
-                            {collection.name}
-                          </span>
-                        </LinkWithChannel>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              {/* Zone 2: Center Content */}
+              <MegaMenuCenterPanel
+                activeCategory={activeCategory}
+                primaryColor={branding.colors.primary}
+                channel={channel}
+                labels={labels}
+                onClose={closeMenu}
+              />
 
-              {/* Brands Section */}
-              {brands && brands.length > 0 && (
-                <div
-                  className="rounded-lg py-4 px-3 transition-all duration-200"
-                  style={{
-                    backgroundColor: hoveredSection === "brands" ? `${branding.colors.primary}06` : "transparent",
-                    boxShadow: hoveredSection === "brands" ? `inset 0 1px 4px ${branding.colors.primary}12` : undefined,
-                  }}
-                  onMouseEnter={() => setHoveredSection("brands")}
-                  onMouseLeave={() => setHoveredSection(null)}
-                >
-                  <div className="mb-4 flex items-center gap-2">
-                    <div 
-                      className="h-1 w-8 rounded-full"
-                      style={{ backgroundColor: branding.colors.primary }}
-                    />
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-700">
-                      {content.navbar?.brandsLabel || "Brands"}
-                    </h3>
-                  </div>
-                  <ul className="space-y-1">
-                    {brands.map((brand) => (
-                      <li key={brand.id}>
-                        <LinkWithChannel
-                          href={`/products?brands=${brand.slug}`}
-                          onClick={() => setIsOpen(false)}
-                          className="group/item flex items-center rounded-lg px-3 py-2.5 text-sm transition-all duration-200"
-                          style={{
-                            backgroundColor: hoveredBrand === brand.id ? `${branding.colors.primary}08` : 'transparent',
-                            color: hoveredBrand === brand.id ? branding.colors.primary : '#000000',
-                            transform: hoveredBrand === brand.id ? 'translateX(2px)' : 'translateX(0)',
-                          }}
-                          onMouseEnter={() => {
-                            setHoveredBrand(brand.id);
-                          }}
-                          onMouseLeave={() => {
-                            setHoveredBrand(null);
-                          }}
-                        >
-                          <span className="font-medium transition-all duration-200">
-                            {brand.name}
-                          </span>
-                        </LinkWithChannel>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              {/* Zone 3: Right Image (hidden below lg) */}
+              <div className="hidden lg:block">
+                <MegaMenuRightPanel
+                  activeCategory={activeCategory}
+                  previousImageUrl={previousImageUrl}
+                  primaryColor={branding.colors.primary}
+                  channel={channel}
+                  labels={labels}
+                  onClose={closeMenu}
+                />
+              </div>
             </div>
 
-            {/* View All Products Link */}
-            <div className="mt-6 pt-5 border-t border-neutral-200">
+            {/* Footer: View All Products */}
+            <div className="border-t border-neutral-100 bg-neutral-50/50 px-6 py-3">
               <LinkWithChannel
                 href="/products"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-sm font-semibold transition-all duration-200"
-                style={{
-                  color: branding.colors.primary,
-                  backgroundColor: `${branding.colors.primary}08`,
-                  border: `1px solid ${branding.colors.primary}15`,
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = `${branding.colors.primary}15`;
-                  e.currentTarget.style.transform = 'scale(1.02)';
-                  e.currentTarget.style.boxShadow = `0 4px 12px ${branding.colors.primary}20`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = `${branding.colors.primary}08`;
-                  e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
+                onClick={closeMenu}
+                className="flex items-center justify-center gap-2 text-sm font-semibold transition-all duration-200 hover:opacity-80 cursor-pointer"
+                style={{ color: branding.colors.primary }}
               >
-                <span>{content.navbar?.viewAllProducts || "View All Products"}</span>
-                <ChevronRightIcon className={`h-4 w-4 ${arrowBaseClass} transition-transform duration-200 group-hover:translate-x-1 ltr:group-hover:-translate-x-1`} />
+                <span>{labels.viewAllProducts}</span>
+                <ChevronRightIcon className="h-4 w-4 rtl:rotate-180" />
               </LinkWithChannel>
             </div>
           </div>
-        </div>
+        </div>,
+        portalEl,
       )}
     </div>
   );

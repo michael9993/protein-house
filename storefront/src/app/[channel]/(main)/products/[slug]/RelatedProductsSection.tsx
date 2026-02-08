@@ -11,15 +11,11 @@ interface RelatedProductsSectionProps {
   channel: string;
   /** Maximum items to display (from config) */
   maxItems?: number;
-  /** Section title */
-  title?: string;
-  /** Section subtitle */
-  subtitle?: string | null;
 }
 
 /**
- * Server component for fetching and displaying related products.
- * Uses category-based strategy by default.
+ * Server component for fetching related products.
+ * Title/subtitle/styling come from storefront control config in the carousel client component.
  * Wrapped in Suspense boundary in parent for non-blocking render.
  */
 export async function RelatedProductsSection({
@@ -27,8 +23,6 @@ export async function RelatedProductsSection({
   currentProductId,
   channel,
   maxItems = 8,
-  title = "You May Also Like",
-  subtitle = "Customers also viewed these products",
 }: RelatedProductsSectionProps) {
   // Fetch products from the same category
   const { category } = await executeGraphQL(ProductListByCategoryDocument, {
@@ -36,7 +30,7 @@ export async function RelatedProductsSection({
       slug: categorySlug,
       channel,
     },
-    revalidate: 60, // Match product cache duration
+    revalidate: 60,
   });
 
   if (!category?.products?.edges) {
@@ -46,7 +40,7 @@ export async function RelatedProductsSection({
   // Filter out current product and limit to maxItems
   const relatedProducts = category.products.edges
     .map((edge) => edge.node)
-    .filter((product): product is ProductListItemFragment => 
+    .filter((product): product is ProductListItemFragment =>
       product !== null && product.id !== currentProductId
     )
     .slice(0, maxItems);
@@ -57,26 +51,9 @@ export async function RelatedProductsSection({
   }
 
   return (
-    <section className="mt-4 border-t border-neutral-200 pt-8">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="mb-6 text-center">
-          <h2 className="text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
-            {title}
-          </h2>
-          {subtitle && (
-            <p className="mt-2 text-base text-neutral-600">
-              {subtitle}
-            </p>
-          )}
-        </div>
-
-        {/* Carousel */}
-        <RelatedProductsCarousel 
-          products={relatedProducts} 
-          channel={channel}
-        />
-      </div>
-    </section>
+    <RelatedProductsCarousel
+      products={relatedProducts}
+      channel={channel}
+    />
   );
 }

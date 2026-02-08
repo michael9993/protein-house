@@ -3,11 +3,12 @@ import {
 	ProductsNewestDocument,
 	ProductsTopRatedDocument,
 	CategoriesForHomepageDocument,
+	CollectionsListDocument,
 } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { storeConfig } from "@/config";
 import { HomePage } from "./HomePage";
-import { homepageCollections, getHeroBannerConfig, getTestimonials, getFeaturedBrands } from "@/lib/cms";
+import { homepageCollections, getHeroBannerConfig, getTestimonials, getFeaturedBrands, getBrandLogos } from "@/lib/cms";
 import { CartRestoreTrigger } from "./CartRestoreTrigger";
 import { ScrollToTopButton } from "./products/ScrollToTopButton";
 
@@ -55,9 +56,11 @@ export default async function Page(
 		productsNewestData,
 		productsTopRatedData,
 		categoriesData,
+		collectionsData,
 		heroBannerConfig,
 		testimonialsData,
 		brandsData,
+		brandLogosMap,
 	] = await Promise.all([
 		executeGraphQL(ProductListByCollectionDocument, {
 			variables: { slug: homepageCollections.featured, channel },
@@ -96,9 +99,16 @@ export default async function Page(
 			revalidate: 30,
 		}).catch(() => ({ categories: null })),
 
+		// Collections for CollectionMosaic section
+		executeGraphQL(CollectionsListDocument, {
+			variables: { channel, first: 6 },
+			revalidate: 30,
+		}).catch(() => ({ collections: null })),
+
 		getHeroBannerConfig(channel),
 		getTestimonials(channel),
 		getFeaturedBrands(channel),
+		getBrandLogos(),
 	]);
 
 	const newArrivalsFromCollection = newArrivalsCollectionData.collection?.products?.edges?.map(({ node }) => node) ?? [];
@@ -109,12 +119,12 @@ export default async function Page(
 	const featuredProducts = featuredData.collection?.products?.edges?.map(({ node }) => node) ?? [];
 	const newArrivals =
 		newArrivalsFromCollection.length > 0
-			? newArrivalsFromCollection.slice(0, newArrivalsLimit)
-			: newestProducts.slice(0, newArrivalsLimit);
+			? newArrivalsFromCollection
+			: newestProducts;
 	const bestSellers =
 		bestSellersFromCollection.length > 0
-			? bestSellersFromCollection.slice(0, bestSellersLimit)
-			: topRatedProducts.slice(0, bestSellersLimit);
+			? bestSellersFromCollection
+			: topRatedProducts;
 	const saleProducts = saleData.collection?.products?.edges?.map(({ node }) => node) ?? [];
 
 	// Transform categories from Dashboard > Catalog > Categories
@@ -124,6 +134,16 @@ export default async function Page(
 		slug: node.slug,
 		image: node.backgroundImage?.url || undefined,
 		productCount: node.products?.totalCount || 0,
+	})) || [];
+
+	// Transform collections for CollectionMosaic
+	const collections = collectionsData.collections?.edges?.map(({ node }) => ({
+		id: node.id,
+		name: node.name,
+		slug: node.slug,
+		description: node.description,
+		backgroundImage: node.backgroundImage,
+		products: node.products,
 	})) || [];
 
 	return (
@@ -141,6 +161,8 @@ export default async function Page(
 				heroBanner={heroBannerConfig}
 				testimonials={testimonialsData}
 				brands={brandsData}
+				brandLogos={Object.fromEntries(brandLogosMap)}
+				collections={collections}
 			/>
 			{/* Floating scroll-to-top (controlled by storefront-control Features > Scroll to Top) */}
 			<ScrollToTopButton />

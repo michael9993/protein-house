@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { channelConfigurationSchema } from "../../channels/channel-configuration-schema";
 import { messageEventTypes } from "../../event-handlers/message-event-types";
-import { smtpConfigurationEventSchema, smtpConfigurationSchema } from "./smtp-config-schema";
+import { smtpConfigurationEventSchema, smtpConfigurationSchema, templateLanguages } from "./smtp-config-schema";
 
 export const smtpCreateConfigurationInputSchema = smtpConfigurationSchema.pick({
   name: true,
@@ -11,6 +11,7 @@ export const smtpCreateConfigurationInputSchema = smtpConfigurationSchema.pick({
   smtpUser: true,
   smtpPassword: true,
   encryption: true,
+  templateLanguage: true,
 });
 
 export type SmtpCreateConfigurationInput = z.infer<typeof smtpCreateConfigurationInputSchema>;
@@ -95,3 +96,10 @@ export const smtpUpdateEventArraySchema = z.object({
 });
 
 export type SmtpUpdateEventArray = z.infer<typeof smtpUpdateEventArraySchema>;
+
+export const smtpResetTemplatesInputSchema = z.object({
+  configurationId: z.string().min(1),
+  language: z.enum(templateLanguages),
+});
+
+export type SmtpResetTemplatesInput = z.infer<typeof smtpResetTemplatesInputSchema>;

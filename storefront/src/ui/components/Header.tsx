@@ -16,25 +16,30 @@ export function Header({ channel, navData, isLoggedIn }: { channel: string; navD
 				{/* Only the banner + nav hide on scroll */}
 				<div data-scroll-hide="header">
 					<HeaderBanner channel={channel} />
-					<div className="w-full backdrop-blur-md bg-white/95 border-b border-neutral-200/50" style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+					<div className="header-bar w-full border-b border-neutral-200/60">
 						<div className="mx-auto w-full max-w-[1920px] px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
-							<div className="flex h-16 items-center justify-between gap-4 sm:gap-6 lg:gap-8">
-								<div className="flex-shrink-0">
+							<div className="flex h-14 items-center justify-between gap-3 sm:gap-5 lg:gap-6">
+								{/* Logo + Store Name */}
+								<div className="flex items-center gap-3 flex-shrink-0">
 									<Logo />
 								</div>
 								<HeaderStoreName />
-								<div className="hidden md:flex items-center gap-1 lg:gap-2 flex-1">
-									<ul className="flex items-center gap-1 lg:gap-2">
+								{/* Desktop Nav Links */}
+								<nav className="hidden md:flex items-center flex-1" aria-label="Main categories">
+									<ul className="flex items-center gap-0.5 lg:gap-1">
 										<NavLinks channel={channel} navData={navData} />
 									</ul>
-								</div>
-								<div className="hidden md:flex flex-1 items-center justify-center max-w-xl mx-4">
+								</nav>
+								{/* Desktop Search */}
+								<div className="hidden md:flex flex-1 items-center justify-center max-w-lg mx-3 lg:mx-6">
 									<SearchBar channel={channel} />
 								</div>
-								<div className="hidden md:flex items-center gap-2 lg:gap-3 flex-shrink-0">
+								{/* Desktop Actions */}
+								<div className="hidden md:flex items-center flex-shrink-0">
 									<Nav channel={channel} navData={navData} />
 								</div>
-								<div className="flex md:hidden items-center gap-2">
+								{/* Mobile Actions */}
+								<div className="flex md:hidden items-center gap-1.5">
 									<ChannelPickerWrapper />
 									<Nav channel={channel} navData={navData} isLoggedIn={isLoggedIn} />
 								</div>
@@ -43,6 +48,8 @@ export function Header({ channel, navData, isLoggedIn }: { channel: string; navD
 					</div>
 				</div>
 				<StickyQuickFilters />
+				{/* Portal target for mega menu — sits at bottom of header flow */}
+				<div id="mega-menu-root" className="relative" />
 			</header>
 			<MobileBottomNavClient channel={channel} isLoggedIn={isLoggedIn} />
 		</>

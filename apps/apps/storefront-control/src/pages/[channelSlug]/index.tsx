@@ -1,14 +1,126 @@
-import React from "react";
-import { useAppBridge } from "@saleor/app-sdk/app-bridge";
-import { NextPage } from "next";
-import { useRouter } from "next/router";
-import Link from "next/link";
 import { useState, useCallback } from "react";
+import { useAppBridge } from "@saleor/app-sdk/app-bridge";
+import { type NextPage } from "next";
+import { useRouter } from "next/router";
+import {
+  Check,
+  Download,
+  FileText,
+  Layout,
+  Loader2,
+  Palette,
+  Plug,
+  Save,
+  Search,
+  ShoppingCart,
+  Store,
+  Upload,
+  type LucideIcon,
+} from "lucide-react";
 
-import { AppLayout } from "@/modules/ui/app-layout";
+import { AppShell } from "@/components/layout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { ConfigImport } from "@/modules/ui/config-import";
 import { downloadConfigFile } from "@/modules/config/export";
+
+// ---------------------------------------------------------------------------
+// ConfigCard
+// ---------------------------------------------------------------------------
+
+interface ConfigCardItem {
+  label: string;
+  value: string;
+  isColor?: boolean;
+}
+
+interface ConfigCardProps {
+  title: string;
+  href: string;
+  summary?: string;
+  status?: "ready" | "attention";
+  items: ConfigCardItem[];
+  icon: LucideIcon;
+  onNavigate: (href: string) => void;
+}
+
+function ConfigCard({ title, href, summary, status = "ready", items, icon: Icon, onNavigate }: ConfigCardProps) {
+  return (
+    <button type="button" onClick={() => onNavigate(href)} className="block text-left w-full">
+      <Card className="cursor-pointer hover:shadow-md hover:border-primary/50 transition-all h-full">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
+                <Icon className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-base">{title}</CardTitle>
+                {summary && (
+                  <p className="text-xs text-muted-foreground mt-0.5">{summary}</p>
+                )}
+              </div>
+            </div>
+            <Badge
+              variant={status === "attention" ? "outline" : "default"}
+              className={
+                status === "attention"
+                  ? "border-yellow-400 bg-yellow-50 text-yellow-700"
+                  : undefined
+              }
+            >
+              {status === "attention" ? "Review" : "Ready"}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-3 border-t">
+          <div className="flex flex-col gap-2.5">
+            {items.map((item) => (
+              <div key={item.label} className="flex items-center justify-between py-0.5">
+                <span className="text-[13px] text-muted-foreground">{item.label}</span>
+                {item.isColor ? (
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-5 h-5 rounded border border-border"
+                      style={{ backgroundColor: item.value }}
+                    />
+                    <span className="text-xs font-medium">{item.value}</span>
+                  </div>
+                ) : (
+                  <span className="text-[13px] font-medium">{item.value}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </button>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// SnapshotRow
+// ---------------------------------------------------------------------------
+
+interface SnapshotRowProps {
+  label: string;
+  children: React.ReactNode;
+}
+
+function SnapshotRow({ label, children }: SnapshotRowProps) {
+  return (
+    <div>
+      <p className="text-[11px] font-bold text-muted-foreground/80 mb-1">{label}</p>
+      <div className="text-sm font-medium">{children}</div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------
 
 const ChannelIndexPage: NextPage = () => {
   const router = useRouter();
@@ -27,11 +139,11 @@ const ChannelIndexPage: NextPage = () => {
 
   const updateSampleMutation = trpcClient.config.updateSampleConfig.useMutation({
     onSuccess: (data) => {
-      alert(`✅ ${data.message}`);
-      refetch(); // Refresh to clear cache
+      alert(data.message);
+      refetch();
     },
     onError: (error) => {
-      alert(`❌ Failed to update sample config: ${error.message}`);
+      alert(`Failed to update sample config: ${error.message}`);
     },
   });
 
@@ -59,242 +171,138 @@ const ChannelIndexPage: NextPage = () => {
 
   if (!appBridgeState?.ready || isLoading) {
     return (
-      <div
-        style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}
-      >
-        <span>Loading...</span>
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <span className="ml-2 text-muted-foreground">Loading...</span>
       </div>
     );
   }
 
-  // Show import modal
   if (showImportModal) {
     return (
-      <AppLayout channelSlug={channelSlug} channelName={config?.store.name}>
-        <ConfigImport
-          channelSlug={channelSlug}
-          onSuccess={handleImportSuccess}
-          onCancel={() => setShowImportModal(false)}
-        />
-      </AppLayout>
+      <AppShell
+        channelSlug={channelSlug}
+        channelName={config?.store.name}
+        activePage="dashboard"
+        title="Dashboard"
+        description="Configuration overview and quick actions"
+      >
+        <div className="p-6">
+          <ConfigImport
+            channelSlug={channelSlug}
+            onSuccess={handleImportSuccess}
+            onCancel={() => setShowImportModal(false)}
+          />
+        </div>
+      </AppShell>
     );
   }
 
+  const enabledFeaturesCount = Object.values(config?.features ?? {}).filter(Boolean).length;
+  const totalFeaturesCount = Object.keys(config?.features ?? {}).length;
+
   return (
-    <AppLayout
+    <AppShell
       channelSlug={channelSlug}
       channelName={config?.store.name}
-      activeTab="overview"
-      enablePageSearch={false}
+      activePage="dashboard"
+      title="Dashboard"
+      description="Configuration overview and quick actions"
     >
-      <div>
+      <div className="p-6 space-y-8">
         {/* Hero Section */}
-        <div
-          style={{
-            backgroundColor: "#fff",
-            borderRadius: "6px",
-            padding: "32px",
-            border: "1px solid #ddd",
-            marginBottom: "32px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              gap: "32px",
-            }}
-          >
-            <div style={{ flex: 1 }}>
-              <h2
-                style={{
-                  fontSize: "24px",
-                  fontWeight: "bold",
-                  marginBottom: "16px",
-                  margin: "0 0 16px 0",
-                }}
-              >
-                Configuration Overview
-              </h2>
-              <p
-                style={{
-                  fontSize: "15px",
-                  color: "#666",
-                  marginBottom: "24px",
-                  margin: "0 0 24px 0",
-                  lineHeight: 1.6,
-                }}
-              >
-                Review storefront sections, check status, and jump into edits. All changes sync in
-                real-time to your storefront.
-              </p>
-              <div style={{ display: "flex", gap: "8px" }}>
-                <button
-                  onClick={() => setShowImportModal(true)}
-                  style={{
-                    padding: "8px 16px",
-                    border: "none",
-                    backgroundColor: "#000",
-                    color: "#fff",
-                    cursor: "pointer",
-                    fontSize: "14px",
-                  }}
-                >
-                  📥 Import Configuration
-                </button>
-                <button
-                  onClick={handleExport}
-                  disabled={!config}
-                  style={{
-                    padding: "8px 16px",
-                    border: "1px solid #ddd",
-                    backgroundColor: "#fff",
-                    color: "#000",
-                    cursor: !config ? "not-allowed" : "pointer",
-                    opacity: !config ? 0.5 : 1,
-                    fontSize: "14px",
-                  }}
-                >
-                  📤 Export JSON
-                </button>
-                <button
-                  onClick={handleUpdateSample}
-                  disabled={!config || updateSampleMutation.isLoading}
-                  style={{
-                    padding: "8px 16px",
-                    border: "1px solid #ddd",
-                    backgroundColor: "#fff",
-                    color: "#000",
-                    cursor: !config || updateSampleMutation.isLoading ? "not-allowed" : "pointer",
-                    opacity: !config || updateSampleMutation.isLoading ? 0.5 : 1,
-                    fontSize: "14px",
-                  }}
-                  title="Update the sample config file (sample-config-import.json or sample-config-import-en.json) with current configuration"
-                >
-                  {updateSampleMutation.isLoading ? "⏳ Updating..." : "💾 Update Sample Config"}
-                </button>
-              </div>
-            </div>
-            <div
-              style={{
-                backgroundColor: "#fff",
-                borderRadius: "6px",
-                padding: "20px",
-                minWidth: "280px",
-                border: "1px solid #ddd",
-              }}
-            >
-              <p
-                style={{
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  marginBottom: "16px",
-                  margin: "0 0 16px 0",
-                  color: "#000",
-                }}
-              >
-                Channel Snapshot
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                <div>
-                  <p
-                    style={{
-                      fontSize: "11px",
-                      fontWeight: "bold",
-                      marginBottom: "4px",
-                      margin: "0 0 4px 0",
-                      color: "#666",
-                      opacity: 0.8,
-                    }}
+        <Card>
+          <CardContent className="p-8">
+            <div className="flex justify-between items-start gap-8">
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold mb-4">Configuration Overview</h2>
+                <p className="text-[15px] text-muted-foreground mb-6 leading-relaxed">
+                  Review storefront sections, check status, and jump into edits. All changes
+                  sync in real-time to your storefront.
+                </p>
+                <div className="flex gap-2">
+                  <Button onClick={() => setShowImportModal(true)}>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Import Configuration
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleExport}
+                    disabled={!config}
                   >
-                    Store Name
-                  </p>
-                  <p style={{ fontSize: "14px", fontWeight: "500", margin: 0, color: "#000" }}>
-                    {config?.store.name || "Not set"}
-                  </p>
-                </div>
-                <div>
-                  <p
-                    style={{
-                      fontSize: "11px",
-                      fontWeight: "bold",
-                      marginBottom: "4px",
-                      margin: "0 0 4px 0",
-                      color: "#666",
-                      opacity: 0.8,
-                    }}
+                    <Download className="h-4 w-4 mr-2" />
+                    Export JSON
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleUpdateSample}
+                    disabled={!config || updateSampleMutation.isLoading}
+                    title="Update the sample config file (sample-config-import.json or sample-config-import-en.json) with current configuration"
                   >
-                    Primary Color
-                  </p>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <div
-                      style={{
-                        width: "24px",
-                        height: "24px",
-                        borderRadius: "4px",
-                        border: "2px solid #ddd",
-                        backgroundColor: config?.branding.colors.primary,
-                      }}
-                    />
-                    <p style={{ fontSize: "13px", fontWeight: "500", margin: 0, color: "#000" }}>
-                      {config?.branding.colors.primary}
-                    </p>
-                  </div>
-                </div>
-                <div>
-                  <p
-                    style={{
-                      fontSize: "11px",
-                      fontWeight: "bold",
-                      marginBottom: "4px",
-                      margin: "0 0 4px 0",
-                      color: "#666",
-                      opacity: 0.8,
-                    }}
-                  >
-                    Homepage Hero
-                  </p>
-                  <p style={{ fontSize: "14px", fontWeight: "500", margin: 0, color: "#000" }}>
-                    {config?.homepage.sections.hero.enabled ? "✓ Enabled" : "✗ Disabled"}
-                  </p>
-                </div>
-                <div>
-                  <p
-                    style={{
-                      fontSize: "11px",
-                      fontWeight: "bold",
-                      marginBottom: "4px",
-                      margin: "0 0 4px 0",
-                      color: "#666",
-                      opacity: 0.8,
-                    }}
-                  >
-                    Features Enabled
-                  </p>
-                  <p style={{ fontSize: "14px", fontWeight: "500", margin: 0, color: "#000" }}>
-                    {Object.values(config?.features ?? {}).filter(Boolean).length} /{" "}
-                    {Object.keys(config?.features ?? {}).length}
-                  </p>
+                    {updateSampleMutation.isLoading ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Save className="h-4 w-4 mr-2" />
+                    )}
+                    {updateSampleMutation.isLoading
+                      ? "Updating..."
+                      : "Update Sample Config"}
+                  </Button>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-            gap: "16px",
-          }}
-        >
+              {/* Channel Snapshot */}
+              <Card className="min-w-[280px]">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm">Channel Snapshot</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-3 border-t">
+                  <div className="flex flex-col gap-3">
+                    <SnapshotRow label="Store Name">
+                      {config?.store.name || "Not set"}
+                    </SnapshotRow>
+                    <SnapshotRow label="Primary Color">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-6 h-6 rounded border-2 border-border"
+                          style={{ backgroundColor: config?.branding.colors.primary }}
+                        />
+                        <span className="text-[13px]">
+                          {config?.branding.colors.primary}
+                        </span>
+                      </div>
+                    </SnapshotRow>
+                    <SnapshotRow label="Homepage Hero">
+                      <span className="flex items-center gap-1.5">
+                        {config?.homepage.sections.hero.enabled ? (
+                          <>
+                            <Check className="h-3.5 w-3.5 text-green-600" />
+                            Enabled
+                          </>
+                        ) : (
+                          "Disabled"
+                        )}
+                      </span>
+                    </SnapshotRow>
+                    <SnapshotRow label="Features Enabled">
+                      {enabledFeaturesCount} / {totalFeaturesCount}
+                    </SnapshotRow>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Config Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <ConfigCard
             title="Store Info"
             href={`/${channelSlug}/store`}
             summary="Core store identity"
             status={config?.store?.name ? "ready" : "attention"}
-            icon="🏪"
+            icon={Store}
+            onNavigate={(h) => router.push(h)}
             items={[
               { label: "Name", value: config?.store.name || "Not set" },
               { label: "Email", value: config?.store.email || "Not set" },
@@ -304,10 +312,11 @@ const ChannelIndexPage: NextPage = () => {
 
           <ConfigCard
             title="Branding"
-            href={`/${channelSlug}/branding`}
+            href={`/${channelSlug}/design?tab=branding`}
             summary="Logo, colors, and typography"
             status={config?.branding?.logo ? "ready" : "attention"}
-            icon="🎨"
+            icon={Palette}
+            onNavigate={(h) => router.push(h)}
             items={[
               {
                 label: "Primary Color",
@@ -321,10 +330,11 @@ const ChannelIndexPage: NextPage = () => {
 
           <ConfigCard
             title="Localization"
-            href={`/${channelSlug}/store`}
+            href={`/${channelSlug}/store?tab=localization`}
             summary="Locale and regional settings"
             status={config?.localization?.defaultLocale ? "ready" : "attention"}
-            icon="🌍"
+            icon={Store}
+            onNavigate={(h) => router.push(h)}
             items={[
               { label: "Locale", value: config?.localization?.defaultLocale ?? "en-US" },
               { label: "Direction", value: config?.localization?.direction ?? "auto" },
@@ -334,10 +344,11 @@ const ChannelIndexPage: NextPage = () => {
 
           <ConfigCard
             title="Dark Mode"
-            href={`/${channelSlug}/store`}
+            href={`/${channelSlug}/design?tab=dark-mode`}
             summary="Theme behavior"
             status={config?.darkMode?.enabled ? "ready" : "attention"}
-            icon="🌙"
+            icon={Palette}
+            onNavigate={(h) => router.push(h)}
             items={[
               { label: "Enabled", value: config?.darkMode?.enabled ? "Yes" : "No" },
               { label: "Auto (System)", value: config?.darkMode?.auto ? "Yes" : "No" },
@@ -351,45 +362,54 @@ const ChannelIndexPage: NextPage = () => {
 
           <ConfigCard
             title="Features"
-            href={`/${channelSlug}/features`}
+            href={`/${channelSlug}/commerce?tab=features`}
             summary="Customer experience switches"
             status={config?.features ? "ready" : "attention"}
-            icon="⚡"
+            icon={ShoppingCart}
+            onNavigate={(h) => router.push(h)}
             items={[
               { label: "Wishlist", value: config?.features.wishlist ? "Enabled" : "Disabled" },
-              { label: "Reviews", value: config?.features.productReviews ? "Enabled" : "Disabled" },
-              { label: "Newsletter", value: config?.features.newsletter ? "Enabled" : "Disabled" },
+              {
+                label: "Reviews",
+                value: config?.features.productReviews ? "Enabled" : "Disabled",
+              },
+              {
+                label: "Newsletter",
+                value: config?.features.newsletter ? "Enabled" : "Disabled",
+              },
             ]}
           />
 
           <ConfigCard
             title="Homepage"
-            href={`/${channelSlug}/homepage`}
+            href={`/${channelSlug}/pages-config?tab=homepage`}
             summary="Sections and layout"
             status={config?.homepage ? "ready" : "attention"}
-            icon="🏠"
+            icon={Layout}
+            onNavigate={(h) => router.push(h)}
             items={[
               {
                 label: "Hero",
                 value: config?.homepage.sections.hero.enabled ? "Enabled" : "Disabled",
               },
               {
-                label: "New Arrivals",
-                value: config?.homepage.sections.newArrivals.enabled ? "Enabled" : "Disabled",
+                label: "Trending/New",
+                value: config?.homepage.sections.trending?.enabled ? "Enabled" : "Disabled",
               },
               {
                 label: "Best Sellers",
-                value: config?.homepage.sections.bestSellers.enabled ? "Enabled" : "Disabled",
+                value: config?.homepage.sections.bestSellers?.enabled ? "Enabled" : "Disabled",
               },
             ]}
           />
 
           <ConfigCard
             title="Filters"
-            href={`/${channelSlug}/filters`}
+            href={`/${channelSlug}/commerce?tab=catalog`}
             summary="Product discovery"
             status={config?.filters ? "ready" : "attention"}
-            icon="🔍"
+            icon={Search}
+            onNavigate={(h) => router.push(h)}
             items={[
               {
                 label: "Price Filter",
@@ -405,13 +425,17 @@ const ChannelIndexPage: NextPage = () => {
 
           <ConfigCard
             title="UI Components"
-            href={`/${channelSlug}/ui-components`}
+            href={`/${channelSlug}/design?tab=components`}
             summary="Buttons, cards, and inputs"
             status={config?.ui ? "ready" : "attention"}
-            icon="🎨"
+            icon={Palette}
+            onNavigate={(h) => router.push(h)}
             items={[
               { label: "Button Radius", value: config?.ui?.buttons?.borderRadius || "md" },
-              { label: "Sale Badge Radius", value: config?.ui?.badges?.sale?.borderRadius || "sm" },
+              {
+                label: "Sale Badge Radius",
+                value: config?.ui?.badges?.sale?.borderRadius || "sm",
+              },
               { label: "Toast Position", value: config?.ui?.toasts?.position || "bottom-right" },
             ]}
           />
@@ -421,9 +445,13 @@ const ChannelIndexPage: NextPage = () => {
             href={`/${channelSlug}/content`}
             summary="Storefront copy"
             status={config?.content ? "ready" : "attention"}
-            icon="📝"
+            icon={FileText}
+            onNavigate={(h) => router.push(h)}
             items={[
-              { label: "Cart Button", value: config?.content?.cart?.checkoutButton || "Checkout" },
+              {
+                label: "Cart Button",
+                value: config?.content?.cart?.checkoutButton || "Checkout",
+              },
               { label: "Sign In", value: config?.content?.account?.signInTitle || "Sign In" },
               {
                 label: "Add to Cart",
@@ -434,10 +462,11 @@ const ChannelIndexPage: NextPage = () => {
 
           <ConfigCard
             title="Pages"
-            href={`/${channelSlug}/pages`}
+            href={`/${channelSlug}/pages-config?tab=page-toggles`}
             summary="Static pages"
             status={config?.pages ? "ready" : "attention"}
-            icon="📄"
+            icon={Layout}
+            onNavigate={(h) => router.push(h)}
             items={[
               { label: "About Us", value: config?.pages.aboutUs ? "Enabled" : "Disabled" },
               { label: "FAQ", value: config?.pages.faq ? "Enabled" : "Disabled" },
@@ -450,11 +479,14 @@ const ChannelIndexPage: NextPage = () => {
             href={`/${channelSlug}/integrations`}
             summary="Analytics and marketing"
             status={config?.integrations ? "ready" : "attention"}
-            icon="🔗"
+            icon={Plug}
+            onNavigate={(h) => router.push(h)}
             items={[
               {
                 label: "Google Analytics",
-                value: config?.integrations.analytics.googleAnalyticsId ? "Configured" : "Not set",
+                value: config?.integrations.analytics.googleAnalyticsId
+                  ? "Configured"
+                  : "Not set",
               },
               {
                 label: "Facebook",
@@ -469,167 +501,24 @@ const ChannelIndexPage: NextPage = () => {
 
           <ConfigCard
             title="SEO"
-            href={`/${channelSlug}/seo`}
+            href={`/${channelSlug}/store?tab=seo`}
             summary="Search and sharing"
             status={config?.seo ? "ready" : "attention"}
-            icon="🔎"
+            icon={Search}
+            onNavigate={(h) => router.push(h)}
             items={[
-              { label: "Title Template", value: config?.seo.titleTemplate ? "Set" : "Not set" },
+              {
+                label: "Title Template",
+                value: config?.seo.titleTemplate ? "Set" : "Not set",
+              },
               { label: "Default Title", value: config?.seo.defaultTitle ? "Set" : "Not set" },
               { label: "OG Image", value: config?.seo.defaultImage ? "Set" : "Not set" },
             ]}
           />
         </div>
       </div>
-    </AppLayout>
+    </AppShell>
   );
 };
-
-interface ConfigCardProps {
-  title: string;
-  href: string;
-  summary?: string;
-  status?: "ready" | "attention";
-  items: { label: string; value: string; isColor?: boolean }[];
-  icon?: string;
-}
-
-function ConfigCard({ title, href, summary, status = "ready", items, icon }: ConfigCardProps) {
-  return (
-    <Link href={href} passHref legacyBehavior>
-      <a
-        style={{
-          backgroundColor: "#fff",
-          borderRadius: "6px",
-          padding: "20px",
-          border: "1px solid #ddd",
-          cursor: "pointer",
-          textDecoration: "none",
-          display: "block",
-          transition: "all 0.2s ease",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = "#2563EB";
-          e.currentTarget.style.transform = "translateY(-2px)";
-          e.currentTarget.style.boxShadow = "0 4px 8px rgba(0,0,0,0.1)";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = "#ddd";
-          e.currentTarget.style.transform = "translateY(0)";
-          e.currentTarget.style.boxShadow = "none";
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            marginBottom: "24px",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", flex: 1 }}>
-            {icon && (
-              <div
-                style={{
-                  padding: "8px",
-                  borderRadius: "4px",
-                  backgroundColor: "#E3F2FD",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  minWidth: "36px",
-                  height: "36px",
-                }}
-              >
-                <span style={{ fontSize: "18px" }}>{icon}</span>
-              </div>
-            )}
-            <div style={{ flex: 1 }}>
-              <h3
-                style={{
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  marginBottom: "8px",
-                  margin: "0 0 8px 0",
-                  color: "#000",
-                }}
-              >
-                {title}
-              </h3>
-              {summary && <p style={{ fontSize: "13px", color: "#666", margin: 0 }}>{summary}</p>}
-            </div>
-          </div>
-          <div
-            style={{
-              padding: "4px 10px",
-              borderRadius: "4px",
-              backgroundColor: status === "attention" ? "#FFF3CD" : "#D1E7DD",
-              marginLeft: "8px",
-            }}
-          >
-            <span
-              style={{
-                fontSize: "11px",
-                fontWeight: "bold",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-                color: status === "attention" ? "#856404" : "#0F5132",
-              }}
-            >
-              {status === "attention" ? "⚠ Review" : "✓ Ready"}
-            </span>
-          </div>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "10px",
-            paddingTop: "16px",
-            borderTop: "1px solid #ddd",
-          }}
-        >
-          {items.map((item) => (
-            <div
-              key={item.label}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "4px 0",
-              }}
-            >
-              <span style={{ fontSize: "13px", color: "#666" }}>{item.label}</span>
-              {item.isColor ? (
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <div
-                    style={{
-                      width: "20px",
-                      height: "20px",
-                      borderRadius: "4px",
-                      backgroundColor: item.value,
-                      border: "1px solid #ddd",
-                    }}
-                  />
-                  <span style={{ fontSize: "12px", fontWeight: "500", color: "#000" }}>
-                    {item.value}
-                  </span>
-                </div>
-              ) : (
-                <span style={{ fontSize: "13px", fontWeight: "500", color: "#000" }}>
-                  {item.value}
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
-      </a>
-    </Link>
-  );
-}
-
-export async function getServerSideProps() {
-  return { props: {} };
-}
 
 export default ChannelIndexPage;

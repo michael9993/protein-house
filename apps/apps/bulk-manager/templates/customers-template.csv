@@ -1,0 +1,3 @@
+email,firstName,lastName,note,isActive
+"john@example.com","John","Doe","VIP customer","true"
+"jane@example.com","Jane","Smith","","true"

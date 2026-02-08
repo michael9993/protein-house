@@ -29,7 +29,8 @@ This project uses Docker Compose for local development. All services run in cont
 - **saleor-scheduler** - Celery beat scheduler for periodic tasks
 - **saleor-dashboard** - React admin dashboard
 - **saleor-storefront** - Next.js storefront
-- **saleor-storefront-control-app** - Storefront control CMS app (manages theme, features, homepage sections, filters, SEO per channel)
+- **saleor-storefront-control-app** - Storefront control CMS app (6-section admin: Store/Design/Pages/Commerce/Content/Integrations; shadcn/ui + Tailwind; Cmd+K command palette; live preview)
+- **saleor-bulk-manager-app** - Bulk import/export manager (products, categories, collections, customers, orders, vouchers, gift cards via CSV/Excel)
 - **saleor-stripe-app** - Stripe payment app
 - **saleor-smtp-app** - SMTP email app (handles email notifications, fulfillment, invoices, welcome emails)
 - **saleor-invoice-app** - Invoice generation app (generates PDF invoices for orders)
@@ -75,7 +76,13 @@ This project uses Docker Compose for local development. All services run in cont
    - If tRPC router or analytics calculations changed: Restart required
    - If Excel export functionality changed: Restart required
 
-7. **Other App changes (apps/apps/\*/)**:
+7. **Bulk Manager App changes (apps/apps/bulk-manager/)**:
+
+   - Restart `saleor-bulk-manager-app` (use service name, not container name with `-dev`)
+   - If router/import logic changed: Restart required
+   - If new entity type added: Update permissions in manifest
+
+8. **Other App changes (apps/apps/\*/)**:
 
    - Restart the corresponding app container:
      - `saleor-stripe-app` for Stripe app
@@ -205,7 +212,10 @@ docker compose -f infra/docker-compose.dev.yml ps
 - Next.js App Router; keep server/client boundaries explicit.
 - Use `next lint` rules; Tailwind is used for styling (prettier-plugin-tailwindcss).
 - Keep GraphQL documents in the codegen flow; run `pnpm generate` if changed.
-- **Homepage product sections**: New Arrivals and Best Sellers are data-driven (newest by CREATED_AT, top-rated by RATING when collections are empty). "New" badge uses product `created` (last 30 days). See PRD §10.2 and `storefront/src/lib/cms.ts` / `HomepageProducts.graphql`.
+- **Config types from shared package**: `StoreConfig = StorefrontConfig` (Zod-inferred from `@saleor/apps-storefront-config`). 64 hooks in `StoreConfigProvider.tsx`.
+- **Homepage product sections**: Data-driven (newest by CREATED_AT, top-rated by RATING when collections empty). "New" badge uses product `created` (last 30 days). See PRD §10.2.
+- **12+ configurable homepage sections**: Hero, TrustStrip, Marquee, BrandGrid, Categories, TrendingProducts, PromotionBanner, FlashDeals, CollectionMosaic, BestSellers, CustomerFeedback, Newsletter. All in `storefront/src/components/home/`.
+- **Account pages**: Refurbished UI with brand-color gradient header, plain stats grid, mobile bottom tab bar, RTL-aware layout. All in `storefront/src/app/[channel]/(main)/account/`.
 
 ## Naming Conventions
 
@@ -296,16 +306,24 @@ docker compose -f infra/docker-compose.dev.yml ps
 
 ### Storefront Control App (`apps/apps/storefront-control/`)
 
-**Purpose**: Dashboard extension for managing storefront UI configuration.
+**Purpose**: Dashboard extension for managing storefront UI configuration — fully redesigned admin interface.
 
-**Features**:
+**Architecture (Redesigned):**
 
-- Theme management
-- Feature toggles
-- Homepage sections configuration
-- Filters and quickFilters configuration
-- SEO settings per channel
-- Multi-channel and multi-language support
+- **6-section navigation**: Store, Design, Pages, Commerce, Content, Integrations
+- **Tech stack**: shadcn/ui (19 primitives) + Radix UI + Tailwind CSS + React Hook Form + Zod
+- **Cmd+K command palette** with settings search across all sections
+- **Live preview** system via PostMessage iframe bridge
+- **`useConfigPage` hook** eliminates 30+ lines boilerplate per config page
+- **Content tab** split into 6 sub-tabs: Global, Shop, Catalog, Pages, Checkout, Account
+- **Homepage section reordering** via drag-and-drop (@dnd-kit)
+
+**Shared Config Package**: `@saleor/apps-storefront-config` — 20 domain schema files, Zod types, migrations
+
+**Key Directories:**
+- Pages: `src/pages/[channelSlug]/` (store, design, pages-config, commerce, content/, integrations)
+- Components: `src/components/` (ui/ 19 primitives, layout/ 5, forms/ 12, shared/ 10, preview/ 3)
+- Hooks: `src/hooks/` (useConfigPage, usePreview)
 
 **Container**: `saleor-storefront-control-app` (port 3004)
 
@@ -347,16 +365,43 @@ docker compose -f infra/docker-compose.dev.yml ps
 
 **Container**: `saleor-stripe-app` (port configured via STRIPE_APP_PORT)
 
+### Bulk Manager App (`apps/apps/bulk-manager/`)
+
+**Purpose**: Bulk import/export and batch operations for store data migration via CSV/Excel.
+
+**Features**:
+
+- 7 entity types: Products, Categories, Collections, Customers, Orders, Vouchers, Gift Cards
+- CSV/Excel import with upsert mode (create or update by natural key)
+- Product features: Multi-image (5), generic attributes (`attr:*`/`variantAttr:*`), multi-warehouse (`stock:*`), SEO, metadata
+- Category features: Topological parent sorting (parents imported before children)
+- Collection features: Product assignment by slug/SKU, channel publishing
+- Customer features: Multiple addresses with default flags, upsert by email
+- Order features: Export with status/date filters, Bulk Fulfill, Bulk Cancel
+- Voucher/Gift Card features: Full import/export with channel listings, metadata
+- Dynamic template generation from field-mapper metadata
+- Router architecture: 10 sub-routers in `src/modules/trpc/routers/`
+
+**Tech Stack**: Next.js (Pages Router), tRPC, papaparse (CSV), xlsx (Excel), Macaw UI, Zod
+
+**Permissions**: MANAGE_PRODUCTS, MANAGE_ORDERS, MANAGE_USERS, MANAGE_APPS, MANAGE_DISCOUNTS, MANAGE_GIFT_CARD
+
+**Container**: `saleor-bulk-manager-app-dev` (port 3007)
+
+**Restart**: Use service name `saleor-bulk-manager-app` (not container name with `-dev` suffix)
+
 ## Post-Change Checklist
 
 After completing any changes, verify:
 
 1. **Docker Containers**: Determine which container(s) need restarting based on what changed
-2. **Configuration Files**: If `storefront-control` schema/config changed:
-   - [ ] Sample config files updated
-   - [ ] UI inventory updated (if UI components affected)
-   - [ ] Default values updated
-   - [ ] Types updated
+2. **Configuration Files**: If storefront config changed:
+   - [ ] Shared schema updated (`apps/packages/storefront-config/src/schema/`)
+   - [ ] Admin form schema updated (`storefront-control/src/modules/config/schema.ts`)
+   - [ ] Defaults updated (`storefront-control/src/modules/config/defaults.ts`)
+   - [ ] Sample config files updated (both JSON files)
+   - [ ] Storefront types updated (`storefront/src/config/store.config.ts`)
+   - [ ] Hook added/updated in `StoreConfigProvider.tsx`
 3. **Build/Lint**: Run appropriate lint/type-check commands for changed packages
 4. **Documentation**: Update relevant docs only if structure/behavior significantly changed
 5. **App-Specific Checks**:

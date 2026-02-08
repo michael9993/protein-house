@@ -26,7 +26,8 @@ $services = @(
     @{Port = 3003; Name = "Invoice App"; EnvVar = "INVOICE_APP_TUNNEL_URL"; Script = "tunnel-invoice.ps1" },
     @{Port = 3004; Name = "Storefront Control App"; EnvVar = "STOREFRONT_CONTROL_APP_TUNNEL_URL"; Script = "tunnel-storefront-control.ps1" },
     @{Port = 3005; Name = "Newsletter App"; EnvVar = "NEWSLETTER_APP_TUNNEL_URL"; Script = "tunnel-newsletter.ps1" },
-    @{Port = 3006; Name = "Sales Analytics App"; EnvVar = "SALES_ANALYTICS_APP_TUNNEL_URL"; Script = "tunnel-sales-analytics.ps1" }
+    @{Port = 3006; Name = "Sales Analytics App"; EnvVar = "SALES_ANALYTICS_APP_TUNNEL_URL"; Script = "tunnel-sales-analytics.ps1" },
+    @{Port = 3007; Name = "Bulk Manager App"; EnvVar = "BULK_MANAGER_APP_TUNNEL_URL"; Script = "tunnel-bulk-manager.ps1" }
 )
 
 # Get script directory

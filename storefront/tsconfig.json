@@ -34,6 +34,15 @@
       ],
       "@ui/*": [
         "./src/components/*"
+      ],
+      "@saleor/apps-storefront-config": [
+        "../apps/packages/storefront-config/src/index.ts"
+      ],
+      "@saleor/apps-storefront-config/*": [
+        "../apps/packages/storefront-config/src/*"
+      ],
+      "zod": [
+        "./node_modules/zod"
       ]
     },
   },

@@ -1,4 +1,8 @@
 import { StorefrontConfig, StorefrontConfigSchema } from "./schema";
+import { CONFIG_VERSION } from "@saleor/apps-storefront-config";
+
+// Re-export so existing consumers keep working
+export { CONFIG_VERSION };
 
 // Lazy-load Node.js modules only when needed (server-side only)
 // This prevents client-side bundling errors
@@ -18,8 +22,6 @@ function getNodeModules() {
     return { fs: null, path: null };
   }
 }
-
-export const CONFIG_VERSION = 1;
 
 // Cache for loaded sample configs
 let sampleConfigCache: {
@@ -298,6 +300,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
 
   homepage: {
     sections: {
+      // Core hero section
       hero: {
         enabled: true,
         type: "image",
@@ -311,70 +314,163 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
         slides: [],
         overlayOpacity: 40,
         textAlignment: "center",
+        autoRotateSeconds: 4,
+        showProgressBar: true,
+        showNavDots: true,
       },
+      // Trust indicators strip
+      trustStrip: {
+        enabled: true,
+        freeShippingText: null, // Auto-generate from ecommerce config
+        easyReturnsText: null,
+        secureCheckoutText: null,
+        supportText: null,
+        background: { style: "gradient", color: null, secondaryColor: null },
+      },
+      // Scrolling marquee
       marquee: {
         enabled: true,
         text: "Free shipping on all orders over $100! • Shop the new collection now • Limited time offer",
         speedSeconds: 20,
         textColor: null,
+        background: { style: "none", color: null, secondaryColor: null },
+      },
+      // Brand partners grid
+      brandGrid: {
+        enabled: true,
+        title: null, // Use content.homepage.brandsTitle
+        subtitle: null,
+        maxBrands: 12,
+        showLogos: true,
+        layout: "grid",
+        background: { style: "solid", color: "#ffffff", secondaryColor: null },
+      },
+      // Shop by category
+      categories: {
+        enabled: true,
+        title: null, // Use content.homepage.categoriesTitle
+        subtitle: null, // Use content.homepage.categoriesSubtitle
+        maxCategories: 6,
+        showProductCount: true,
+        layoutStyle: "mosaic",
+        background: { style: "gradient", color: null, secondaryColor: null },
+      },
+      // Trending/new arrivals
+      trending: {
+        enabled: true,
+        title: null, // Use content.homepage.newArrivalsTitle
+        subtitle: null, // Use content.homepage.newArrivalsSubtitle
+        collectionSlug: "new-arrivals",
+        fallbackToNewest: true,
+        maxProducts: 4,
+        layout: "grid",
+        background: { style: "solid", color: "#ffffff", secondaryColor: null },
+      },
+      // Promotion banner
+      promotionBanner: {
+        enabled: true,
+        badgeText: "Special Offer",
+        title: "Don't miss out",
+        highlight: "Up to 25% off",
+        description: "Premium performance gear for run, court, and studio. Limited time collection.",
+        primaryCta: { text: "Shop Sale Items", link: "/products?collection=sale" },
+        secondaryCta: { text: "All Products", link: "/products" },
+        autoDetectDiscount: true,
+        background: { style: "gradient", color: "#ffffff", secondaryColor: "#f5f5f5" },
+      },
+      // Flash deals / sale products
+      flashDeals: {
+        enabled: true,
+        title: null, // Use content.homepage.onSaleTitle
+        subtitle: null, // Use content.homepage.onSaleSubtitle
+        badgeTemplate: "Up to {discount}% OFF",
+        collectionSlug: "sale",
+        maxProducts: 8,
+        background: { style: "solid", color: "#ffffff", secondaryColor: null },
+      },
+      // Collection mosaic
+      collectionMosaic: {
+        enabled: true,
+        title: "Shop by Collection",
+        subtitle: "Curated for you",
+        maxCollections: 5,
+        excludeSlugs: ["hero-banner", "testimonials", "brands", "new-arrivals", "best-sellers", "sale"],
+        layoutStyle: "mosaic",
+        background: { style: "gradient", color: "#ffffff", secondaryColor: "#f9fafb" },
+      },
+      // Best sellers
+      bestSellers: {
+        enabled: true,
+        title: null, // Use content.homepage.bestSellersTitle
+        subtitle: null, // Use content.homepage.bestSellersSubtitle
+        collectionSlug: "best-sellers",
+        fallbackToTopRated: true,
+        maxProducts: 6,
+        layout: "horizontal-scroll",
+        background: { style: "solid", color: "#ffffff", secondaryColor: null },
+      },
+      // Customer feedback / testimonials
+      customerFeedback: {
+        enabled: true,
+        title: null, // Use content.homepage.testimonialsTitle
+        subtitle: null, // Use content.homepage.testimonialsSubtitle
+        maxReviews: 3,
+        minRating: 4,
+        showProductName: true,
+        background: { style: "solid", color: "#ffffff", secondaryColor: null },
+        starColor: "#FFD700",
+        starEmptyColor: null,
+      },
+      // Newsletter signup
+      newsletter: {
+        enabled: true,
+        title: null, // Use content.general.newsletterTitle
+        subtitle: null, // Use content.general.newsletterDescription
+        buttonText: null, // Use content.general.newsletterButton
+        placeholder: null,
+        layout: "stacked",
         background: { style: "solid", color: null, secondaryColor: null },
       },
-      featuredCategories: { enabled: true, limit: 6 },
-      newArrivals: { enabled: true, limit: 8 },
-      bestSellers: { enabled: true, limit: 8 },
+      // Legacy sections (for backward compatibility)
+      featuredCategories: { enabled: false, limit: 6, background: { style: "none", color: null, secondaryColor: null } },
+      newArrivals: { enabled: false, limit: 8, background: { style: "none", color: null, secondaryColor: null } },
       feature: {
-        enabled: true,
+        enabled: false,
         title: "Featured Collection",
-        description: "Discover our hand-picked selection of premium products designed for your lifestyle.",
+        description: "Discover our hand-picked selection of premium products.",
         imageUrl: null,
         imagePosition: "left",
         ctaText: "Shop Now",
         ctaLink: "/collections/featured",
         background: { style: "none", color: null, secondaryColor: null },
       },
-      onSale: { enabled: true, limit: 4 },
-      featuredBrands: { enabled: false },
+      onSale: { enabled: false, limit: 4, background: { style: "none", color: null, secondaryColor: null } },
+      featuredBrands: { enabled: false, background: { style: "none", color: null, secondaryColor: null } },
       testimonials: {
-        enabled: true,
-        starColor: "#FFD700", // Gold color for stars
-        starEmptyColor: null, // Use textMuted with 30% opacity
+        enabled: false,
+        background: { style: "none", color: null, secondaryColor: null },
+        starColor: "#FFD700",
+        starEmptyColor: null,
         starSize: "base",
-        loadingReviewsText: null, // "Loading reviews..."
-        verifiedPurchaseLabel: null, // "Verified Purchase"
-        customerLabel: null, // "Customer"
-        card: {
-          backgroundColor: null, // white
-          borderColor: null, // neutral-200/50
-          borderRadius: null, // use --store-radius
-          padding: null, // p-6
-          shadow: null, // use primary color with 15% opacity
-          hoverShadow: null, // default hover shadow
-          hoverTransform: null, // translateY(-4px)
-        },
-        trustBadges: {
-          showAverageRating: true,
-          showCustomerCount: true,
-          showSatisfactionRate: true,
-          showOrdersDelivered: true,
-          borderColor: null, // neutral-200
-          textColor: null, // use text colors from branding
-        },
+        loadingReviewsText: null,
+        verifiedPurchaseLabel: null,
+        customerLabel: null,
       },
-      newsletter: { enabled: true },
-      instagramFeed: { enabled: false, username: null },
+      instagramFeed: { enabled: false, username: null, background: { style: "none", color: null, secondaryColor: null } },
     },
     sectionOrder: [
       "hero",
+      "trustStrip",
       "marquee",
-      "featuredCategories",
-      "newArrivals",
+      "brandGrid",
+      "categories",
+      "trending",
+      "promotionBanner",
+      "flashDeals",
+      "collectionMosaic",
       "bestSellers",
-      "feature",
-      "onSale",
-      "featuredBrands",
-      "testimonials",
+      "customerFeedback",
       "newsletter",
-      "instagramFeed",
     ],
   },
 
@@ -591,6 +687,11 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       showWishlistButton: true,
       showAddToCart: true,
       imageAspectRatio: "square",
+      hoverEffect: "lift",
+      badgePosition: "top-start",
+      showBrandLabel: true,
+      showRating: true,
+      imageFit: "cover",
     },
     toasts: {
       position: "bottom-right",
@@ -650,6 +751,31 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       removeButtonHoverBackgroundColor: null, // hover:bg-neutral-200
       removeButtonHoverColor: null,   // hover:text-neutral-600
       removeButtonBorderRadius: "full",
+    },
+    filterSidebar: {
+      checkboxAccentColor: null,         // inherit neutral-900
+      sectionTitleFontSize: "xs",
+      sectionTitleFontWeight: "semibold",
+      sectionTitleColor: null,           // neutral-900
+      sectionTitleHoverColor: null,      // neutral-600
+      chevronColor: null,                // neutral-400
+      chevronHoverColor: null,           // neutral-600
+      itemTextFontSize: "xs",
+      itemTextColor: null,               // neutral-800
+      itemCountColor: null,              // neutral-400
+      sizeChipSelectedBg: null,          // neutral-900
+      sizeChipSelectedText: null,        // white
+      sizeChipSelectedBorder: null,      // neutral-900
+      clearAllButtonBg: null,            // neutral-100
+      clearAllButtonText: null,          // neutral-600
+      clearAllButtonBorder: null,        // neutral-200
+      clearAllButtonHoverBg: null,       // neutral-200
+      clearAllButtonHoverText: null,     // neutral-900
+      priceInputFocusRingColor: null,    // primary
+      priceQuickButtonActiveBg: null,    // primary
+      priceQuickButtonActiveText: null,  // white
+      mobileShowResultsBg: null,         // primary
+      mobileShowResultsText: null,       // white
     },
     cart: {
       displayMode: "drawer",
@@ -1138,6 +1264,9 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       quickMinLabel: "Quick Min",
       quickMaxLabel: "Quick Max",
       clearPriceFilter: "Clear",
+      applyPriceFilter: "Apply",
+      priceUnderLabel: "Under",
+      priceAboveLabel: "+",
     },
     productDetail: {
       freeShipping: "Free Shipping",
@@ -1263,6 +1392,11 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       brandsLabel: "Brands",
       categoriesLabel: "Categories",
       viewAllProducts: "View All Products",
+      exploreCategoryLabel: "Explore",
+      browseSubcategoriesLabel: "Browse subcategories",
+      megaMenuProductLabel: "product",
+      megaMenuProductsLabel: "products",
+      megaMenuHoverPrompt: "Hover a category to explore",
       subcategoriesSide: "auto",
       mobileNavPosition: "right",
       dropdownArrowDirection: "auto",
@@ -1493,6 +1627,15 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
     showOnMobile: true,
     title: "You May Also Like",
     subtitle: "Customers also viewed these products",
+  },
+
+  design: {
+    animations: {
+      preset: "moderate" as const,
+    },
+    spacing: {
+      sectionPaddingY: "normal" as const,
+    },
   },
 });
 

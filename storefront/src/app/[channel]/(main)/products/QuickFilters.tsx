@@ -1,17 +1,18 @@
 "use client";
 
 /**
- * QuickFilters Component - Full Photo Design
- * 
- * Quick filter component with full-size photos and overlaid text
- * Config-driven: Uses StoreConfig from context for settings/limits.
+ * QuickFilters Component — Clean Card Design
+ *
+ * Clear, undimmed product images with a frosted-glass text bar.
+ * No heavy gradient overlays — images are fully visible.
+ * Includes id="quick-filters-section" for StickyQuickFilters integration.
  */
 
 import { useProductFilters } from "@/hooks/useProductFilters";
-import { useStoreConfig, useQuickFiltersConfig, useFiltersText } from "@/providers/StoreConfigProvider";
+import { useStoreConfig, useQuickFiltersConfig, useFiltersText, useBranding } from "@/providers/StoreConfigProvider";
 import Image from "next/image";
 import { useState, useRef, useEffect, type MouseEvent } from "react";
-import { CheckCircle2 } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface QuickFilterItem {
   id: string;
@@ -34,54 +35,69 @@ interface QuickFilterItem {
   }>;
 }
 
-interface QuickFiltersProps {
-  categories?: Array<{ 
-    id: string; 
-    name: string; 
-    slug: string; 
-    productCount?: number;
-    children?: Array<{ id: string; slug: string; name?: string; children?: Array<{ id: string; slug: string }> }>;
-    backgroundImage?: { url: string; alt?: string };
-    productImages?: Array<{ url: string; alt?: string }>;
-  }>;
-  collections?: Array<{ 
-    id: string; 
-    name: string; 
-    slug: string; 
-    productCount?: number;
-    backgroundImage?: { url: string; alt?: string };
-    productImages?: Array<{ url: string; alt?: string }>;
-  }>;
-  brands?: Array<{ 
-    id: string; 
-    name: string; 
-    slug: string; 
-    productCount?: number;
-    backgroundImage?: { url: string; alt?: string };
-    productImages?: Array<{ url: string; alt?: string }>;
-  }>;
+interface SubcategoryData {
+  id: string;
+  slug: string;
+  name?: string;
+  productCount?: number;
+  backgroundImage?: { url: string; alt?: string };
+  productImages?: Array<{ url: string; alt?: string }>;
+  children?: Array<{ id: string; slug: string; name?: string }>;
 }
 
-export function QuickFilters({ categories = [], collections = [], brands = [] }: QuickFiltersProps) {
-  // Use config from context (per-channel)
+interface QuickFiltersProps {
+  categories?: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    productCount?: number;
+    children?: Array<SubcategoryData>;
+    backgroundImage?: { url: string; alt?: string };
+    productImages?: Array<{ url: string; alt?: string }>;
+  }>;
+  collections?: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    productCount?: number;
+    backgroundImage?: { url: string; alt?: string };
+    productImages?: Array<{ url: string; alt?: string }>;
+  }>;
+  brands?: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    productCount?: number;
+    backgroundImage?: { url: string; alt?: string };
+    productImages?: Array<{ url: string; alt?: string }>;
+  }>;
+  title?: string;
+}
+
+export function QuickFilters({
+  categories = [],
+  collections = [],
+  brands = [],
+  title,
+}: QuickFiltersProps) {
   const config = useStoreConfig();
-  const quickFiltersConfig = useQuickFiltersConfig(); // Always returns complete config with defaults
+  const quickFiltersConfig = useQuickFiltersConfig();
   const filtersText = useFiltersText();
-  const { branding, localization } = config;
+  const branding = useBranding();
+  const { localization } = config;
   const { filters, toggleCategory, toggleCollection, toggleBrand, updateFilters } = useProductFilters();
-  
+
   // RTL detection
-  const isRtl = localization?.direction === 'rtl' || 
-    (localization?.direction === 'auto' && 
+  const isRtl = localization?.direction === 'rtl' ||
+    (localization?.direction === 'auto' &&
      (localization?.rtlLocales || ['he', 'ar', 'fa', 'ur', 'yi', 'ps']).some(
        rtl => localization?.defaultLocale?.toLowerCase().startsWith(rtl.toLowerCase())
      ));
+
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const quickFiltersRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
   const [currentImageIndices, setCurrentImageIndices] = useState<Record<string, number>>({});
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
   // Don't render if quick filters are disabled
   if (!quickFiltersConfig.enabled) {
@@ -93,74 +109,58 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
   const brandLimit = quickFiltersConfig.brandLimit;
 
   // Combine all items with their types and images
+  // For categories: insert subcategories as individual cards after their parent
+  const categoryItems: QuickFilterItem[] = [];
+  if (quickFiltersConfig.showCategories) {
+    for (const cat of categories.slice(0, categoryLimit)) {
+      // Add parent category card
+      categoryItems.push({
+        ...cat,
+        type: "category" as const,
+        children: cat.children || [],
+        backgroundImage: cat.backgroundImage,
+        productImages: cat.productImages,
+      });
+      // Add subcategories as individual cards (leaf categories with no children)
+      if (cat.children && cat.children.length > 0) {
+        for (const sub of cat.children) {
+          if (sub.name && (sub.productCount === undefined || sub.productCount > 0)) {
+            categoryItems.push({
+              id: sub.id,
+              name: sub.name,
+              slug: sub.slug,
+              type: "category" as const,
+              productCount: sub.productCount,
+              children: sub.children ? sub.children.map(c => ({ id: c.id, slug: c.slug })) : undefined,
+              backgroundImage: sub.backgroundImage,
+              productImages: sub.productImages,
+            });
+          }
+        }
+      }
+    }
+  }
+
   const allItems: QuickFilterItem[] = [
-    ...(quickFiltersConfig.showCategories ? categories.slice(0, categoryLimit).map(cat => ({ 
-      ...cat, 
-      type: "category" as const,
-      children: cat.children || [],
-      backgroundImage: cat.backgroundImage,
-      productImages: cat.productImages,
-    })) : []),
-    ...(quickFiltersConfig.showCollections ? collections.slice(0, collectionLimit).map(col => ({ 
-      ...col, 
+    ...categoryItems,
+    ...(quickFiltersConfig.showCollections ? collections.slice(0, collectionLimit).map(col => ({
+      ...col,
       type: "collection" as const,
       backgroundImage: col.backgroundImage,
       productImages: col.productImages,
     })) : []),
-    ...(quickFiltersConfig.showBrands ? brands.slice(0, brandLimit).map(brand => ({ 
-      ...brand, 
+    ...(quickFiltersConfig.showBrands ? brands.slice(0, brandLimit).map(brand => ({
+      ...brand,
       type: "brand" as const,
       backgroundImage: brand.backgroundImage,
       productImages: brand.productImages,
     })) : []),
   ];
 
-  // Group consecutive items of the same type
-  interface GroupedItem extends QuickFilterItem {
-    groupStart?: boolean;
-    groupEnd?: boolean;
-    groupIndex?: number;
-    groupSize?: number;
-  }
-
-  const groupedItems: GroupedItem[] = [];
-  type GroupType = { type: string; items: GroupedItem[]; startIndex: number };
-  let currentGroup: GroupType | null = null;
-
-  allItems.forEach((item, index) => {
-    if (!currentGroup || currentGroup.type !== item.type) {
-      // End previous group
-      if (currentGroup) {
-        currentGroup.items.forEach((groupItem, groupIdx) => {
-          groupItem.groupStart = groupIdx === 0;
-          groupItem.groupEnd = groupIdx === currentGroup!.items.length - 1;
-          groupItem.groupIndex = groupIdx;
-          groupItem.groupSize = currentGroup!.items.length;
-        });
-      }
-      // Start new group
-      currentGroup = { type: item.type, items: [], startIndex: index };
-    }
-    
-    const groupedItem: GroupedItem = { ...item };
-    currentGroup.items.push(groupedItem);
-    groupedItems.push(groupedItem);
-  });
-
-  // End last group
-  if (currentGroup) {
-    (currentGroup as GroupType).items.forEach((groupItem, groupIdx) => {
-      groupItem.groupStart = groupIdx === 0;
-      groupItem.groupEnd = groupIdx === (currentGroup as GroupType).items.length - 1;
-      groupItem.groupIndex = groupIdx;
-      groupItem.groupSize = (currentGroup as GroupType).items.length;
-    });
-  }
-
   // Rotate product images for items with multiple images
   useEffect(() => {
     const intervals: ReturnType<typeof setInterval>[] = [];
-    
+
     allItems.forEach((item) => {
       if (item.productImages && item.productImages.length > 1) {
         const interval = setInterval(() => {
@@ -177,7 +177,6 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
   }, [allItems]);
 
   // Check scroll position for arrow visibility
-  // RTL: scrollLeft is in [-(scrollWidth-clientWidth), 0] when container has dir="rtl"
   const checkScrollPosition = () => {
     if (!scrollContainerRef.current) return;
     const el = scrollContainerRef.current;
@@ -189,11 +188,9 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
       return;
     }
     if (isRtl) {
-      // RTL: scrollLeft 0 = start (right edge), negative = end (left). At start we can only scroll left
-      // → show right-positioned arrow (it scrolls "left"). At end show left-positioned arrow (it scrolls "right").
       const rtlMin = -maxScroll;
-      setShowLeftArrow(scrollLeft < -20);   // show left-positioned arrow when scrolled past start (can scroll right)
-      setShowRightArrow(scrollLeft > rtlMin + 20); // show right-positioned arrow when not at left edge (can scroll left)
+      setShowLeftArrow(scrollLeft < -20);
+      setShowRightArrow(scrollLeft > rtlMin + 20);
     } else {
       setShowLeftArrow(scrollLeft > 20);
       setShowRightArrow(scrollLeft < maxScroll - 20);
@@ -203,11 +200,11 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
-    
+
     checkScrollPosition();
     container.addEventListener("scroll", checkScrollPosition);
     window.addEventListener("resize", checkScrollPosition);
-    
+
     return () => {
       container.removeEventListener("scroll", checkScrollPosition);
       window.removeEventListener("resize", checkScrollPosition);
@@ -220,12 +217,10 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
     const style = (quickFiltersConfig.style || {}) as { cardWidth?: number; cardGap?: number };
     const cardWidthNum = Number(style.cardWidth ?? 160);
     const cardGapNum = Number(style.cardGap ?? 0.5);
-    const cardWidth = cardWidthNum + cardGapNum * 8; // Card width + gap in pixels
-    const scrollAmount = cardWidth * 2; // Scroll 2 cards at a time
+    const cardWidth = cardWidthNum + cardGapNum * 8;
+    const scrollAmount = cardWidth * 2;
     const currentScroll = el.scrollLeft;
     const maxScroll = el.scrollWidth - el.clientWidth;
-    // Logical scroll: "left" = toward start, "right" = toward end. scrollLeft delta is same (left=minus, right=plus).
-    // RTL: scrollLeft is 0 at start (right) and negative toward end (left), so clamp to [-maxScroll, 0].
     const minScroll = isRtl ? -maxScroll : 0;
     const maxScrollVal = isRtl ? 0 : maxScroll;
     const delta = direction === "left" ? -scrollAmount : scrollAmount;
@@ -236,28 +231,31 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
     });
   };
 
-  // Scroll detection is now handled by StickyFiltersContext
-
-  // No scroll function needed - all cards visible
-
   if (allItems.length === 0) {
     return null;
   }
 
-  const collectDescendantSlugs = (cat: { slug: string; children?: Array<{ slug: string; children?: Array<{ slug: string }> }> }): string[] => {
-    const out = [cat.slug];
-    if (cat.children) for (const c of cat.children) out.push(...collectDescendantSlugs(c));
+  // Collect only sub-category slugs (excludes the parent itself)
+  const collectChildSlugs = (cat: { slug: string; children?: Array<{ slug: string; children?: Array<{ slug: string }> }> }): string[] => {
+    const out: string[] = [];
+    if (cat.children) {
+      for (const c of cat.children) {
+        out.push(c.slug);
+        out.push(...collectChildSlugs(c));
+      }
+    }
     return out;
   };
 
   const handleQuickFilterClick = (e: MouseEvent<HTMLButtonElement>, item: QuickFilterItem) => {
     e.preventDefault();
-    
+
     if (item.type === "category" && item.children && item.children.length > 0) {
-      const childSlugs = collectDescendantSlugs(item);
+      // Parent category: only toggle sub-categories, not the parent itself
+      const childSlugs = collectChildSlugs(item);
       const currentCategories = filters.categories;
       const allChildrenSelected = childSlugs.every(slug => currentCategories.includes(slug));
-      
+
       if (allChildrenSelected) {
         const updatedCategories = currentCategories.filter(slug => !childSlugs.includes(slug));
         updateFilters({ categories: updatedCategories });
@@ -289,8 +287,9 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
         return filters.brands.includes(item.slug);
       default:
         if (filters.categories.includes(item.slug)) return true;
+        // Parent is active if any of its sub-categories are selected
         if (item.children && item.children.length > 0) {
-          return collectDescendantSlugs(item).some(slug => filters.categories.includes(slug));
+          return collectChildSlugs(item).some(slug => filters.categories.includes(slug));
         }
         return false;
     }
@@ -307,232 +306,178 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
     return null;
   };
 
+  const sectionTitle = title || filtersText.checkOutOurProducts || "Shop by Category";
+
   return (
-    <>
-      <div 
-        ref={quickFiltersRef}
-        id="quick-filters-section"
-        className="relative w-full"
-        style={{
-          background: `linear-gradient(135deg, ${branding.colors.primary}05 0%, ${branding.colors.secondary}03 50%, transparent 100%)`,
-        }}
-      >
-      <div 
-        className="relative w-full"
-        style={{ 
-          height: `${quickFiltersConfig.style?.cardHeight || 220}px` 
-        }}
-      >
-      {/* Scroll arrows - positioned outside the scroll container with RTL support */}
-      {showLeftArrow && (
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            scroll(isRtl ? "right" : "left");
-          }}
-          className="absolute start-2 top-1/2 z-50 -translate-y-1/2 flex items-center justify-center rounded-full bg-white border-2 shadow-xl backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:shadow-2xl pointer-events-auto"
-          style={{ 
-            height: `${quickFiltersConfig.style?.arrowSize || 48}px`,
-            width: `${quickFiltersConfig.style?.arrowSize || 48}px`,
-            borderColor: branding.colors.primary + "40",
-            boxShadow: `0 4px 12px ${branding.colors.primary}20`,
-          }}
-          aria-label={filtersText.scrollLeftAriaLabel}
-          type="button"
-        >
-          <svg
-            className="pointer-events-none rtl:rotate-180"
-            style={{ 
-              color: branding.colors.primary,
-              height: `${quickFiltersConfig.style?.arrowIconSize || 24}px`,
-              width: `${quickFiltersConfig.style?.arrowIconSize || 24}px`,
-            }}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2.5}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-      )}
+    <section
+      id="quick-filters-section"
+      className="relative w-full py-6"
+    >
+      {/* Section Header - Elegant Typography */}
+      <div className="mb-5 px-1">
+        <h2 className="text-lg font-medium tracking-tight text-neutral-800">
+          {sectionTitle}
+        </h2>
+        <div className="mt-1.5 h-px w-12 bg-neutral-300" />
+      </div>
 
-      {/* Main scrollable container — dir needed in RTL so scrollLeft is in [-max,0] and arrow visibility is correct */}
+      {/* Cards Container */}
       <div
-        ref={scrollContainerRef}
-        dir={isRtl ? "rtl" : "ltr"}
-        className="relative flex overflow-x-auto scrollbar-hide h-full"
+        className="relative w-full"
         style={{
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-          scrollBehavior: "smooth",
-          paddingLeft: showLeftArrow ? "60px" : "0",
+          height: `${quickFiltersConfig.style?.cardHeight || 200}px`
         }}
       >
-        {groupedItems.map((item) => {
-          const active = isActive(item);
-          const image = getItemImage(item);
-          const hasMultipleImages = item.productImages && item.productImages.length > 1;
-          const isHovered = hoveredItem === item.id;
+        {/* Left Scroll Arrow - Minimal Design */}
+        {showLeftArrow && (
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              scroll(isRtl ? "right" : "left");
+            }}
+            className="absolute start-0 top-1/2 z-50 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border border-neutral-200 transition-all duration-200 hover:bg-white hover:scale-105"
+            aria-label={filtersText.scrollLeftAriaLabel}
+            type="button"
+          >
+            <ChevronLeft className="h-5 w-5 text-neutral-600 rtl:rotate-180" strokeWidth={1.5} />
+          </button>
+        )}
 
-          return (
-            <button
-              key={`${item.type}-${item.id}`}
-              data-filter-type={item.type}
-              data-filter-slug={item.slug}
-              data-filter-id={item.id}
-              onClick={(e: MouseEvent<HTMLButtonElement>) => handleQuickFilterClick(e, item)}
-              onMouseEnter={() => setHoveredItem(item.id)}
-              onMouseLeave={() => setHoveredItem(null)}
-              className={`group relative shrink-0 overflow-hidden transition-all duration-300 h-full ${
-                active
-                  ? "ring-2 ring-offset-1"
-                  : "ring-1 ring-neutral-200 hover:ring-neutral-300"
-              }`}
-                style={{
-                width: `${Number((quickFiltersConfig.style as { cardWidth?: number })?.cardWidth ?? 160)}px`,
-                height: "100%",
-                marginRight: `${Number((quickFiltersConfig.style as { cardGap?: number })?.cardGap ?? 0.5) * 8}px`,
-                borderRadius: "0",
-                "--tw-ring-color": active ? branding.colors.primary : undefined,
-                transform: isHovered && !active ? "translateY(-2px)" : undefined,
-              } as React.CSSProperties}
-            >
-              {/* White background */}
-              <div className="absolute inset-0 bg-white z-0" />
+        {/* Scrollable Container */}
+        <div
+          ref={scrollContainerRef}
+          dir={isRtl ? "rtl" : "ltr"}
+          className="relative flex gap-2.5 overflow-x-auto scrollbar-hide h-full px-1"
+          style={{
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            scrollBehavior: "smooth",
+          }}
+        >
+          {allItems.map((item) => {
+            const active = isActive(item);
+            const image = getItemImage(item);
+            const hasMultipleImages = item.productImages && item.productImages.length > 1;
+            // Serialize sub-category slugs for sticky bar sync (excludes parent)
+            const childrenSlugs = item.type === "category" && item.children && item.children.length > 0
+              ? collectChildSlugs(item).join(",")
+              : undefined;
+            const cardWidth = Number((quickFiltersConfig.style as { cardWidth?: number })?.cardWidth ?? 150);
 
-              {/* Full-size background image */}
-              {image ? (
-                <>
-                  {/* Multiple images with smooth fade */}
-                  {hasMultipleImages && item.productImages ? (
+            return (
+              <button
+                key={`${item.type}-${item.id}`}
+                data-filter-type={item.type}
+                data-filter-slug={item.slug}
+                data-filter-id={item.id}
+                data-filter-children={childrenSlugs}
+                onClick={(e: MouseEvent<HTMLButtonElement>) => handleQuickFilterClick(e, item)}
+                className={`group relative shrink-0 overflow-hidden rounded-xl transition-all duration-300 h-full border ${
+                  active
+                    ? "border-neutral-900 shadow-md"
+                    : "border-neutral-200 hover:border-neutral-300 hover:shadow-lg hover:-translate-y-0.5"
+                }`}
+                style={{ width: `${cardWidth}px`, height: "100%" }}
+              >
+                {/* Image area — takes full card, NO gradient dimming */}
+                <div className="absolute inset-0">
+                  {image ? (
                     <>
-                      {item.productImages.map((img, idx) => {
-                        const currentIndex = currentImageIndices[item.id] || 0;
-                        const isVisible = idx === currentIndex;
-                        return (
-                          <div
-                            key={`${img.url}-${idx}`}
-                            className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
-                              isVisible ? "opacity-100 z-10" : "opacity-0 z-0"
-                            }`}
-                          >
-                            <Image
-                              src={img.url}
-                              alt={img.alt || `${item.name} product`}
-                              fill
-                              className="object-cover transition-transform duration-700 group-hover:scale-105"
-                              sizes="160px"
-                              priority={idx === 0}
-                            />
-                          </div>
-                        );
-                      })}
+                      {hasMultipleImages && item.productImages ? (
+                        item.productImages.map((img, idx) => {
+                          const currentIndex = currentImageIndices[item.id] || 0;
+                          const isVisible = idx === currentIndex;
+                          return (
+                            <div
+                              key={`${img.url}-${idx}`}
+                              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                                isVisible ? "opacity-100" : "opacity-0"
+                              }`}
+                            >
+                              <Image
+                                src={img.url}
+                                alt={img.alt || `${item.name} product`}
+                                fill
+                                className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                                sizes={`${cardWidth}px`}
+                                priority={idx === 0}
+                              />
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <Image
+                          src={image.url}
+                          alt={image.alt || item.name}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                          sizes={`${cardWidth}px`}
+                        />
+                      )}
                     </>
                   ) : (
-                    <Image
-                      src={image.url}
-                      alt={image.alt || item.name}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      sizes="160px"
-                    />
+                    <div className={`h-full w-full ${active ? "bg-neutral-900" : "bg-neutral-100"}`} />
                   )}
+                </div>
 
-                  {/* Light gradient overlay for text readability - only at bottom */}
-                  <div 
-                    className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-20"
-                  />
-
-                  {/* Active state overlay - subtle */}
-                  {active && (
-                    <div 
-                      className="absolute inset-0 z-20"
-                      style={{
-                        background: `linear-gradient(to top, ${branding.colors.primary}30 0%, transparent 40%)`,
-                      }}
-                    />
-                  )}
-                </>
-              ) : (
-                /* Fallback gradient background when no image */
-                <div
-                  className="absolute inset-0 z-10"
-                  style={{
-                    background: active
-                      ? `linear-gradient(135deg, ${branding.colors.primary} 0%, ${branding.colors.primary}80 100%)`
-                      : "linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)",
-                  }}
-                />
-              )}
-
-              {/* Content overlay - Text positioned at bottom */}
-              <div className="absolute inset-0 z-30 flex flex-col justify-end">
-                {/* Active checkmark badge - Top right */}
+                {/* Active check badge */}
                 {active && (
                   <div
-                    className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white backdrop-blur-sm shadow-lg"
-                    style={{ 
-                      backgroundColor: branding.colors.primary,
-                      boxShadow: `0 4px 12px ${branding.colors.primary}50`,
-                    }}
+                    className="absolute top-2 end-2 z-30 flex h-5 w-5 items-center justify-center rounded-full shadow-sm"
+                    style={{ backgroundColor: branding.colors.primary }}
                   >
-                    <CheckCircle2 className="h-4 w-4 text-white" />
+                    <Check className="h-3 w-3 text-white" strokeWidth={3} />
                   </div>
                 )}
 
-                {/* Name only */}
-                <h3
-                  className="text-base font-bold text-white transition-colors duration-200"
-                  style={{
-                    textShadow: "0 2px 8px rgba(0,0,0,0.6)",
-                  }}
-                >
-                  {item.name}
-                </h3>
-              </div>
-            </button>
-          );
-        })}
-      </div>
+                {/* Bottom text strip — frosted glass for readability without dimming the image */}
+                <div className="absolute inset-x-0 bottom-0 z-20">
+                  <div
+                    className={`px-3 py-2.5 backdrop-blur-md ${
+                      active
+                        ? "bg-neutral-900/80 text-white"
+                        : image
+                          ? "bg-white/80 text-neutral-900"
+                          : "bg-white/90 text-neutral-700"
+                    }`}
+                  >
+                    <h3 className="text-[13px] font-semibold leading-snug line-clamp-1">
+                      {item.name}
+                    </h3>
+                    {item.productCount !== undefined && item.productCount > 0 && (
+                      <span
+                        className={`mt-0.5 block text-[11px] ${
+                          active ? "text-white/70" : "text-neutral-500"
+                        }`}
+                      >
+                        {item.productCount} {item.productCount === 1 ? "item" : "items"}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
 
-      {/* Right scroll arrow - positioned outside the scroll container with RTL support */}
-      {showRightArrow && (
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            scroll(isRtl ? "left" : "right");
-          }}
-          className="absolute end-2 top-1/2 z-50 -translate-y-1/2 flex items-center justify-center rounded-full bg-white border-2 shadow-xl backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:shadow-2xl pointer-events-auto"
-          style={{ 
-            height: `${quickFiltersConfig.style?.arrowSize || 48}px`,
-            width: `${quickFiltersConfig.style?.arrowSize || 48}px`,
-            borderColor: branding.colors.primary + "40",
-            boxShadow: `0 4px 12px ${branding.colors.primary}20`,
-          }}
-          aria-label={filtersText.scrollRightAriaLabel}
-          type="button"
-        >
-          <svg
-            className="pointer-events-none rtl:rotate-180"
-            style={{ 
-              color: branding.colors.primary,
-              height: `${quickFiltersConfig.style?.arrowIconSize || 24}px`,
-              width: `${quickFiltersConfig.style?.arrowIconSize || 24}px`,
+        {/* Right Scroll Arrow - Minimal Design */}
+        {showRightArrow && (
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              scroll(isRtl ? "left" : "right");
             }}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2.5}
+            className="absolute end-0 top-1/2 z-50 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border border-neutral-200 transition-all duration-200 hover:bg-white hover:scale-105"
+            aria-label={filtersText.scrollRightAriaLabel}
+            type="button"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-      )}
-
+            <ChevronRight className="h-5 w-5 text-neutral-600 rtl:rotate-180" strokeWidth={1.5} />
+          </button>
+        )}
       </div>
+
       <style jsx>{`
         .scrollbar-hide {
           -ms-overflow-style: none;
@@ -542,7 +487,6 @@ export function QuickFilters({ categories = [], collections = [], brands = [] }:
           display: none;
         }
       `}</style>
-    </div>
-    </>
+    </section>
   );
 }

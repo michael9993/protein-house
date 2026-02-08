@@ -1,7 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
-
+import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 
 interface CartDrawerContextValue {
   isOpen: boolean;
@@ -18,14 +17,10 @@ interface CartDrawerProviderProps {
 
 export function CartDrawerProvider({ children }: CartDrawerProviderProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const openDrawer = useCallback(() => {
     setIsOpen(true);
+    // Prevent body scroll when drawer is open
     if (typeof document !== 'undefined') {
       document.body.style.overflow = 'hidden';
     }
@@ -33,6 +28,7 @@ export function CartDrawerProvider({ children }: CartDrawerProviderProps) {
 
   const closeDrawer = useCallback(() => {
     setIsOpen(false);
+    // Restore body scroll when drawer is closed
     if (typeof document !== 'undefined') {
       document.body.style.overflow = '';
     }
@@ -47,12 +43,11 @@ export function CartDrawerProvider({ children }: CartDrawerProviderProps) {
   }, [isOpen, openDrawer, closeDrawer]);
 
   return (
-    <CartDrawerContext.Provider value={{ isOpen: isMounted ? isOpen : false, openDrawer, closeDrawer, toggleDrawer }}>
+    <CartDrawerContext.Provider value={{ isOpen, openDrawer, closeDrawer, toggleDrawer }}>
       {children}
     </CartDrawerContext.Provider>
   );
 }
-
 
 export function useCartDrawer(): CartDrawerContextValue {
   const context = useContext(CartDrawerContext);

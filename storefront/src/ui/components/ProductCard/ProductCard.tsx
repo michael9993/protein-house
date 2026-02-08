@@ -8,6 +8,7 @@ import type { ProductListItemFragment } from "@/gql/graphql";
 import { useBranding, useFeature, useUiConfig, useContentConfig, useBadgeStyle } from "@/providers/StoreConfigProvider";
 import { useWishlist } from "@/lib/wishlist";
 import { useQuickView } from "@/providers/QuickViewProvider";
+import { ShareButton } from "@/ui/components/ProductSharing";
 
 interface ProductCardProps {
   product: ProductListItemFragment;
@@ -227,26 +228,36 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
           </div>
 
 
-          {/* Wishlist Button - Top Right */}
-          {wishlistEnabled && cardConfig.showWishlistButton && (
-            <button
-              onClick={handleWishlistClick}
-              className={`absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-md transition-all duration-200 sm:right-3 sm:top-3 sm:h-9 sm:w-9 ${
-                isWishlisted ? "text-red-500 opacity-100" : "text-neutral-400 opacity-70 hover:text-red-500 hover:opacity-100"
-              }`}
-              aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-            >
-              <svg 
-                className="h-4 w-4 sm:h-5 sm:w-5" 
-                fill={isWishlisted ? "currentColor" : "none"} 
-                viewBox="0 0 24 24" 
-                stroke="currentColor"
-                strokeWidth={2}
+          {/* Action Buttons - Top Right (Wishlist + Share) */}
+          <div className="absolute right-2 top-2 z-10 flex flex-col gap-1.5 sm:right-3 sm:top-3">
+            {wishlistEnabled && cardConfig.showWishlistButton && (
+              <button
+                onClick={handleWishlistClick}
+                className={`flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-md transition-all duration-200 sm:h-9 sm:w-9 ${
+                  isWishlisted ? "text-red-500 opacity-100" : "text-neutral-400 opacity-70 hover:text-red-500 hover:opacity-100"
+                }`}
+                aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-            </button>
-          )}
+                <svg
+                  className="h-4 w-4 sm:h-5 sm:w-5"
+                  fill={isWishlisted ? "currentColor" : "none"}
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </button>
+            )}
+            <ShareButton
+              variant="icon"
+              productName={product.name}
+              productSlug={product.slug}
+              productImage={product.thumbnail?.url || null}
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-md text-neutral-400 opacity-70 transition-all duration-200 hover:text-neutral-600 hover:opacity-100 sm:h-9 sm:w-9"
+              iconClassName="h-3.5 w-3.5 sm:h-4 sm:w-4"
+            />
+          </div>
         </div>
 
         {/* Product Info */}

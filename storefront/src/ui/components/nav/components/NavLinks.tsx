@@ -152,12 +152,17 @@ async function fetchBrandsForNav(channel: string): Promise<Array<{ id: string; n
 
 			if (brandAttr?.values) {
 				brandAttr.values.forEach((value: any) => {
-					if (value.id && value.name && !brandsMap.has(value.id)) {
-						brandsMap.set(value.id, {
-							id: value.id,
-							name: value.name,
-							slug: value.slug || value.id,
-						});
+					const brandName = value?.name?.trim();
+					if (brandName) {
+						const dedupKey = brandName.toLowerCase();
+						if (!brandsMap.has(dedupKey)) {
+							const brandSlug = value.slug || dedupKey.replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+							brandsMap.set(dedupKey, {
+								id: value.id || `brand-${brandSlug}`,
+								name: brandName,
+								slug: brandSlug,
+							});
+						}
 					}
 				});
 			}

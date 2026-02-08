@@ -21,8 +21,6 @@ export function VerifyEmailClient({ channel, email: initialEmail, autoResend: _a
 	const store = useStoreInfo();
 	const content = useContentConfig();
 
-	const focusRingColor = `${branding.colors.primary}33`;
-
 	const handleResend = async () => {
 		if (!email) {
 			setResendStatus("error");
@@ -58,21 +56,13 @@ export function VerifyEmailClient({ channel, email: initialEmail, autoResend: _a
 	};
 
 	return (
-		<div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12 animate-fade-in">
-			<style>{`
-				.auth-input:focus {
-					border-color: ${branding.colors.primary} !important;
-					box-shadow: 0 0 0 3px ${focusRingColor} !important;
-					outline: none !important;
-				}
-			`}</style>
-			<div className="w-full max-w-md animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
+		<div className="auth-page flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12">
+			<div className="w-full max-w-md">
 				{/* Logo */}
-				<div className="mb-8 text-center animate-fade-in-up" style={{ animationDelay: "150ms", animationFillMode: "both" }}>
+				<div className="mb-8 text-center">
 					<Link
 						href={`/${channel}`}
-						className="inline-flex items-center gap-2 text-2xl font-bold"
-						style={{ color: branding.colors.primary }}
+						className="inline-flex items-center gap-2.5"
 					>
 						{branding.logo && branding.logo !== "/logo.svg" ? (
 							<Image
@@ -84,33 +74,26 @@ export function VerifyEmailClient({ channel, email: initialEmail, autoResend: _a
 							/>
 						) : (
 							<>
-								<svg className="h-10 w-10" viewBox="0 0 24 24" fill="currentColor">
-									<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+								<svg className="h-8 w-8" style={{ color: branding.colors.primary }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+									<path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.15c0 .415.336.75.75.75z" />
 								</svg>
-								{store.name}
+								<span className="text-xl font-bold" style={{ color: branding.colors.primary }}>{store.name}</span>
 							</>
 						)}
 					</Link>
 					<h1 className="mt-6 text-2xl font-bold" style={{ color: "var(--store-text)" }}>
 						{content.account.verifyEmailTitle ?? "Check Your Email"}
 					</h1>
-					<p className="mt-2" style={{ color: "var(--store-text-muted)" }}>
+					<p className="mt-2 text-sm" style={{ color: "var(--store-text-muted)" }}>
 						{content.account.verifyEmailSubtitle ?? "We've sent a confirmation link to your email address"}
 					</p>
 				</div>
 
 				{/* Main Content */}
-				<div
-					className="rounded-2xl p-8 shadow-lg ring-1 animate-fade-in-up"
-					style={{
-						animationDelay: "200ms",
-						animationFillMode: "both",
-						backgroundColor: "var(--store-bg)",
-					} as React.CSSProperties}
-				>
+				<div className="auth-card p-8">
 					{/* Email Icon */}
 					<div className="mb-6 flex justify-center">
-						<div className="rounded-full p-4" style={{ backgroundColor: "var(--store-neutral-100)" }}>
+						<div className="rounded-full p-4" style={{ backgroundColor: `${branding.colors.primary}0A` }}>
 							<svg
 								className="h-12 w-12"
 								style={{ color: branding.colors.primary }}
@@ -121,8 +104,8 @@ export function VerifyEmailClient({ channel, email: initialEmail, autoResend: _a
 								<path
 									strokeLinecap="round"
 									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+									strokeWidth={1.5}
+									d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
 								/>
 							</svg>
 						</div>
@@ -148,7 +131,7 @@ export function VerifyEmailClient({ channel, email: initialEmail, autoResend: _a
 								{content.account.verifyEmailNotReceivedTitle ?? "Email not received?"}
 							</p>
 							<p>{content.account.verifyEmailNotReceivedIntro ?? "The confirmation email is sent automatically after registration. If you don't see it:"}</p>
-							<ul className="mt-1 ml-4 list-disc space-y-1">
+							<ul className="mt-1 ms-4 list-disc space-y-1">
 								<li>{content.account.verifyEmailCheckSpam ?? "Check your spam/junk folder"}</li>
 								<li>{content.account.verifyEmailWaitMinutes ?? "Wait a few minutes (emails may be delayed)"}</li>
 								<li>{content.account.verifyEmailSignInToResend ?? "Sign in below to resend the email"}</li>
@@ -184,7 +167,7 @@ export function VerifyEmailClient({ channel, email: initialEmail, autoResend: _a
 								type="button"
 								onClick={handleResend}
 								disabled={isResending}
-								className="flex w-full items-center justify-center gap-2 rounded-lg py-3.5 text-base font-semibold text-white transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+								className="auth-submit flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-base font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
 								style={{ backgroundColor: branding.colors.primary }}
 							>
 								{isResending ? (
@@ -206,7 +189,7 @@ export function VerifyEmailClient({ channel, email: initialEmail, autoResend: _a
 									</p>
 									<Link
 										href={`/${channel}/login?email=${encodeURIComponent(email)}&resend=true`}
-										className="block w-full rounded-lg border-2 py-2.5 text-center text-sm font-medium transition-colors hover:opacity-90"
+										className="block w-full rounded-xl border-2 py-2.5 text-center text-sm font-medium transition-colors hover:opacity-90"
 										style={{ borderColor: branding.colors.primary, color: branding.colors.primary }}
 									>
 										{content.account.signInToResendEmail ?? "Sign In to Resend Email"}
@@ -219,9 +202,12 @@ export function VerifyEmailClient({ channel, email: initialEmail, autoResend: _a
 					<div className="mt-6 text-center">
 						<Link
 							href={`/${channel}/login`}
-							className="text-sm font-medium hover:underline"
+							className="inline-flex items-center gap-1 text-sm font-medium hover:underline"
 							style={{ color: branding.colors.primary }}
 						>
+							<svg className="h-4 w-4 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+								<path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+							</svg>
 							{content.account.backToSignIn ?? "Back to Sign In"}
 						</Link>
 					</div>

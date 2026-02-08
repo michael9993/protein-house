@@ -61,6 +61,10 @@ export function SearchBar({ channel, initialQuery = "" }: SearchBarProps) {
           {searchInputAriaLabel}
         </label>
         <div className="relative flex-1">
+          {/* Search icon on start side */}
+          <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3">
+            <SearchIcon className="h-4 w-4 text-neutral-400 transition-colors group-focus-within:text-neutral-600" />
+          </div>
           <input
             ref={inputRef}
             id="search-input"
@@ -72,13 +76,13 @@ export function SearchBar({ channel, initialQuery = "" }: SearchBarProps) {
             }}
             placeholder={searchPlaceholder}
             autoComplete="off"
-            className="h-9 w-full rounded-lg border border-neutral-300 bg-white px-3 py-1.5 pr-9 text-sm text-neutral-900 placeholder:text-neutral-500 focus:border-black focus:outline-none focus:ring-2 focus:ring-black/10 transition-all"
+            className="search-input h-10 w-full rounded-full border border-neutral-200 bg-neutral-50 ps-9 pe-9 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 transition-all duration-200 focus:border-neutral-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900/5 hover:bg-neutral-100/80 hover:border-neutral-300"
           />
           {query && (
             <button
               type="button"
               onClick={clearSearch}
-              className="absolute inset-y-0 end-9 flex items-center justify-center text-neutral-400 hover:text-neutral-600 transition-colors"
+              className="absolute inset-y-0 end-8 flex items-center justify-center text-neutral-400 hover:text-neutral-600 transition-colors"
               aria-label={searchClearAriaLabel}
             >
               <XIcon className="h-3.5 w-3.5" />
@@ -86,10 +90,12 @@ export function SearchBar({ channel, initialQuery = "" }: SearchBarProps) {
           )}
           <button
             type="submit"
-            className="absolute inset-y-0 end-0 flex items-center justify-center rounded-r-lg px-2.5 text-neutral-500 hover:text-neutral-700 focus:text-neutral-700 transition-colors"
+            className="absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-neutral-400 hover:text-neutral-700 transition-colors"
             aria-label={searchInputAriaLabel}
           >
-            <SearchIcon className="h-4 w-4" />
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
           </button>
         </div>
       </form>

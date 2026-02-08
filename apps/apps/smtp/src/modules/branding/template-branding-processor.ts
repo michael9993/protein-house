@@ -11,11 +11,12 @@ const logger = createLogger("TemplateBrandingProcessor");
 export class TemplateBrandingProcessor {
   // Default values that might be hardcoded in templates
   private static readonly DEFAULT_VALUES = {
-    PRIMARY_COLOR: "#2563EB",
-    SECONDARY_COLOR: "#1F2937",
-    COMPANY_NAME: "Shoe Vault",
-    COMPANY_EMAIL: "support@shoevault.com",
-    COMPANY_WEBSITE: "www.shoevault.com",
+    PRIMARY_COLOR: "#3b3d3f",
+    SECONDARY_COLOR: "#0A0707",
+    COMPANY_NAME: "Mansour Shoes",
+    COMPANY_EMAIL: "support@mansourshoes.com",
+    COMPANY_WEBSITE: "https://www.mansourshoes.com",
+    LOGO_URL: "https://media.easy.co.il/images/UserThumbs/10035528_1752326685636_0.jpg",
   };
 
   /**
@@ -48,7 +49,7 @@ export class TemplateBrandingProcessor {
     processed = processed.replace(/\$\{SECONDARY_COLOR\}/g, () => {
       replacements++;
 
-      return branding.secondaryColor || "#1F2937";
+      return branding.secondaryColor || this.DEFAULT_VALUES.SECONDARY_COLOR;
     });
     processed = processed.replace(/\$\{COMPANY_NAME\}/g, () => {
       replacements++;
@@ -63,7 +64,12 @@ export class TemplateBrandingProcessor {
     processed = processed.replace(/\$\{COMPANY_WEBSITE\}/g, () => {
       replacements++;
 
-      return branding.companyWebsite || "www.yourstore.com";
+      return branding.companyWebsite || this.DEFAULT_VALUES.COMPANY_WEBSITE;
+    });
+    processed = processed.replace(/\$\{LOGO_URL\}/g, () => {
+      replacements++;
+
+      return branding.logo || this.DEFAULT_VALUES.LOGO_URL;
     });
 
     /*
@@ -120,39 +126,41 @@ export class TemplateBrandingProcessor {
        * Also replace primary color in common MJML patterns.
        * Pattern: background-color="#2563EB" or background-color="${PRIMARY_COLOR}"
        */
-      const colorPattern = new RegExp(
-        `(background-color=["']?)${this.escapeRegex(this.DEFAULT_VALUES.PRIMARY_COLOR)}(["']?)`,
-        "gi"
-      );
+      if (branding.primaryColor !== this.DEFAULT_VALUES.PRIMARY_COLOR) {
+        const colorPattern = new RegExp(
+          `(background-color=["']?)${this.escapeRegex(this.DEFAULT_VALUES.PRIMARY_COLOR)}(["']?)`,
+          "gi"
+        );
 
-      if (colorPattern.test(processed) && branding.primaryColor !== this.DEFAULT_VALUES.PRIMARY_COLOR) {
+        const beforeColorReplace = processed;
 
         processed = processed.replace(
           colorPattern,
           `$1${branding.primaryColor}$2`
         );
 
-        replacements++;
+        if (processed !== beforeColorReplace) {
+          replacements++;
+          logger.debug("Replaced primary color in background-color attribute");
+        }
 
-        logger.debug("Replaced primary color in background-color attribute");
-      }
+        // Pattern: color="#2563EB" in style attributes or links
+        const textColorPattern = new RegExp(
+          `(style=["'][^"']*color:\\s*)${this.escapeRegex(this.DEFAULT_VALUES.PRIMARY_COLOR)}([;"'])`,
+          "gi"
+        );
 
-      // Pattern: color="#2563EB" in style attributes or links
-      const textColorPattern = new RegExp(
-        `(style=["'][^"']*color:\\s*)${this.escapeRegex(this.DEFAULT_VALUES.PRIMARY_COLOR)}([;"'])`,
-        "gi"
-      );
-
-      if (textColorPattern.test(processed) && branding.primaryColor !== this.DEFAULT_VALUES.PRIMARY_COLOR) {
+        const beforeTextColorReplace = processed;
 
         processed = processed.replace(
           textColorPattern,
           `$1${branding.primaryColor}$2`
         );
 
-        replacements++;
-
-        logger.debug("Replaced primary color in style color attribute");
+        if (processed !== beforeTextColorReplace) {
+          replacements++;
+          logger.debug("Replaced primary color in style color attribute");
+        }
       }
     }
 

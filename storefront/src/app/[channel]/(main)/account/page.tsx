@@ -40,27 +40,21 @@ export default async function AccountDashboardPage({
 		: new Date().getFullYear().toString();
 
 	return (
-		<div className="space-y-8 animate-fade-in">
-			{/* Welcome Header - Must be first for proper RTL layout */}
+		<div className="space-y-6">
 			<AccountWelcomeHeader userFirstName={user.firstName} />
 
-			{/* Stats Grid */}
-			<div className="animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
-				<AccountStatsGrid
-					totalOrders={totalOrderCount}
-					savedAddresses={addressCount}
-					memberSince={memberSince}
-				/>
-			</div>
+			<AccountStatsGrid
+				totalOrders={totalOrderCount}
+				savedAddresses={addressCount}
+				memberSince={memberSince}
+			/>
 
-			{/* Account Sections: Orders, Wishlist, Addresses */}
-			<AccountSections 
+			<AccountSections
 				channel={channel}
 				ordersCount={totalOrderCount}
 				addressesCount={addressCount}
 			/>
 
-			{/* Recent Orders */}
 			<AccountDashboardContent
 				channel={channel}
 				recentOrders={recentOrders}

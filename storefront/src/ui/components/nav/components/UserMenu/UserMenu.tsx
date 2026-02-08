@@ -89,18 +89,18 @@ export function UserMenu({ user, ordersCount = 0, addressesCount = 0 }: Props) {
 	], [content.account, ordersCount, addressesCount, wishlistCount]);
 	return (
 		<Menu as="div" className="relative">
-			<Menu.Button className="group relative flex items-center gap-2 rounded-full p-2 transition-all duration-200 hover:bg-neutral-100">
+			<Menu.Button className="nav-action-btn group relative flex items-center gap-1.5 rounded-full p-2 transition-all duration-200 hover:bg-neutral-100">
 				<span className="sr-only">Open user menu</span>
 				<UserAvatar user={user} />
-				<span className="hidden text-sm font-medium text-neutral-700 lg:inline">
+				<span className="hidden text-xs font-semibold text-neutral-700 lg:inline">
 					{user.firstName || "Account"}
 				</span>
-				<svg 
-					className="hidden h-4 w-4 text-neutral-500 transition-transform group-hover:text-neutral-700 lg:block" 
-					fill="none" 
-					viewBox="0 0 24 24" 
-					stroke="currentColor" 
-					strokeWidth={2}
+				<svg
+					className="hidden h-3 w-3 text-neutral-400 transition-transform group-hover:text-neutral-600 lg:block"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+					strokeWidth={2.5}
 				>
 					<path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
 				</svg>

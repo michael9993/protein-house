@@ -134,7 +134,7 @@ function InvoiceModal({
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-			<div className="w-full max-w-md rounded-xl bg-white shadow-xl">
+			<div className="w-full max-w-md rounded-lg border border-neutral-200 bg-white shadow-lg">
 				<div className="flex items-center justify-between border-b border-neutral-100 px-6 py-4">
 					<h3 className="text-lg font-semibold text-neutral-900">{ordersText.invoiceModalTitle}</h3>
 					<button
@@ -385,10 +385,10 @@ export function OrdersListClient({ orders, channel, statusColors, primaryColor }
 					return (
 						<div
 							key={order.id}
-							className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-neutral-100"
+							className="overflow-hidden rounded-lg border border-neutral-200 bg-white transition-shadow hover:shadow-sm"
 						>
 							{/* Order Header */}
-							<div className="flex flex-wrap items-center justify-between gap-4 border-b border-neutral-100 bg-neutral-50 px-6 py-4">
+							<div className="flex flex-wrap items-center justify-between gap-4 border-b border-neutral-100 bg-neutral-50/70 px-6 py-4">
 								<div className="flex flex-wrap items-center gap-6">
 									<div>
 										<p className="text-xs font-medium uppercase text-neutral-500">{ordersText.orderNumber}</p>
@@ -413,14 +413,14 @@ export function OrdersListClient({ orders, channel, statusColors, primaryColor }
 								</div>
 								<div className="flex items-center gap-3">
 									<span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>
-										{orderStatus.toLowerCase().replace(/_/g, " ")}
+										{statusLabels[orderStatus] || orderStatus.toLowerCase().replace(/_/g, " ")}
 									</span>
 									<Link
 										href={`/${channel}/account/orders/${order.id}`}
-										className="text-sm font-medium hover:underline"
-										style={{ color: primaryColor }}
+										className="rounded-md px-3 py-1 text-sm font-medium text-white transition-opacity hover:opacity-90"
+										style={{ backgroundColor: primaryColor }}
 									>
-										{ordersText.viewDetails} →
+										{ordersText.viewDetails}
 									</Link>
 								</div>
 							</div>
@@ -430,7 +430,7 @@ export function OrdersListClient({ orders, channel, statusColors, primaryColor }
 								<div className="flex flex-wrap items-center gap-4">
 									{lines.map((line) => (
 										<div key={line.id} className="flex items-center gap-3">
-											<div className="h-16 w-16 overflow-hidden rounded-lg bg-neutral-100">
+											<div className="h-16 w-16 overflow-hidden rounded-lg border border-neutral-100 bg-neutral-50">
 												{line.thumbnail?.url ? (
 													<img
 														src={line.thumbnail.url}
@@ -464,7 +464,7 @@ export function OrdersListClient({ orders, channel, statusColors, primaryColor }
 							</div>
 
 							{/* Order Actions */}
-							<div className="flex flex-wrap items-center justify-between gap-4 border-t border-neutral-100 bg-neutral-50 px-6 py-3">
+							<div className="flex flex-wrap items-center justify-between gap-4 border-t border-neutral-100 bg-neutral-50/70 px-6 py-3">
 								<div className="flex items-center gap-4 text-sm">
 									{hasFulfillment && (
 										<>
@@ -557,7 +557,7 @@ export function OrdersListClient({ orders, channel, statusColors, primaryColor }
 			{/* Tracking Modal */}
 			{trackingModalOrder && (
 				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-					<div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+					<div className="w-full max-w-md rounded-lg border border-neutral-200 bg-white p-6 shadow-lg">
 						<div className="mb-4 flex items-center justify-between">
 							<h3 className="text-lg font-semibold text-neutral-900">{ordersText.trackingModalTitle}</h3>
 							<button

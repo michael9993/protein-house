@@ -1,0 +1,28 @@
+# Fetch brand pages with their logo attributes
+# Brand pages are Saleor Pages of type "Brand" with a "brand-logo" file attribute
+query BrandPages($first: Int = 50) {
+	pages(first: $first, sortBy: { field: TITLE, direction: ASC }) {
+		edges {
+			node {
+				id
+				title
+				slug
+				pageType {
+					name
+					slug
+				}
+				attributes {
+					attribute {
+						slug
+					}
+					values {
+						name
+						file {
+							url
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,6 +1,7 @@
 import { SettingsManager } from "@saleor/app-sdk/settings-manager";
 import { EncryptedMetadataManagerFactory } from "@saleor/apps-shared/metadata-manager";
 import { Client } from "urql";
+import { applyMigrations } from "@saleor/apps-storefront-config";
 
 import { StorefrontConfig, StorefrontConfigSchema } from "./schema";
 import { getDefaultConfig } from "./defaults";
@@ -53,10 +54,12 @@ export class StorefrontConfigManager {
       console.log(`[StorefrontConfigManager] Found raw config for ${channelSlug}, length: ${raw.length}`);
       
       const parsed = JSON.parse(raw);
+      // Apply config migrations (e.g. legacy homepage sections → new equivalents)
+      const migrated = applyMigrations(parsed);
       // Merge with defaults before validation so older stored configs (missing e.g. pages.forgotPassword,
       // content.account.forgotPasswordTitle, etc.) validate without logging errors every time.
       const defaults = getDefaultConfig(channelSlug);
-      const merged = deepMerge(defaults, parsed as Partial<StorefrontConfig>) as StorefrontConfig;
+      const merged = deepMerge(defaults, migrated as Partial<StorefrontConfig>) as StorefrontConfig;
       const validated = StorefrontConfigSchema.safeParse(merged);
       
       if (!validated.success) {

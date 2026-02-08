@@ -1,51 +1,89 @@
 /**
  * STORE CONFIGURATION
  * ====================
- * This is the central configuration file for your store.
- * Customize these values to adapt the template for any client/store type.
- * 
- * Store Types Supported:
- * - physical: Traditional retail (clothing, electronics, sports gear)
- * - digital: Downloadable products (software, ebooks, music)
- * - food: Food & grocery (restaurants, grocery stores)
- * - services: Service-based (consulting, appointments)
- * - mixed: Combination of above
+ * Types imported from @saleor/apps-storefront-config (shared package).
+ * This file contains runtime defaults, presets, and helper functions.
  */
 
-export type StoreType = 'physical' | 'digital' | 'food' | 'services' | 'mixed';
+// Import types from shared package (single source of truth)
+import type {
+  StorefrontConfig,
+  StoreType as StoreTypeImport,
+  HomepageSectionId as HomepageSectionIdImport,
+  FiltersText,
+  ProductDetailText,
+  AccountDashboardText,
+  OrdersText,
+  OrderTrackingText,
+  ContactText,
+  AddressesText,
+  WishlistText,
+  SettingsText,
+  FooterText,
+  NavbarText,
+  ErrorText,
+  NotFoundText,
+} from "@saleor/apps-storefront-config";
 
-// Homepage section identifiers
-export type HomepageSectionId =
-  | 'hero'
-  | 'marquee'
-  | 'featuredCategories'
-  | 'newArrivals'
-  | 'bestSellers'
-  | 'feature'
-  | 'onSale'
-  | 'featuredBrands'
-  | 'testimonials'
-  | 'newsletter'
-  | 'instagramFeed';
+// Import and re-export runtime constants
+import {
+  DEFAULT_SECTION_ORDER,
+  DEFAULT_RTL_LOCALES,
+} from "@saleor/apps-storefront-config";
+export { DEFAULT_SECTION_ORDER, DEFAULT_RTL_LOCALES };
 
-// Default section order
-export const DEFAULT_SECTION_ORDER: HomepageSectionId[] = [
-  'hero',
-  'marquee',
-  'featuredCategories',
-  'newArrivals',
-  'bestSellers',
-  'feature',
-  'onSale',
-  'featuredBrands',
-  'testimonials',
-  'newsletter',
-  'instagramFeed',
-];
+// Backward-compatible alias: storefront code uses 'StoreConfig' everywhere
+export type StoreConfig = StorefrontConfig;
+export type StoreType = StoreTypeImport;
+export type HomepageSectionId = HomepageSectionIdImport;
 
-// Default RTL locales
-export const DEFAULT_RTL_LOCALES = ['he', 'ar', 'fa', 'ur', 'yi', 'ps'];
+// Re-export text types so existing imports keep working
+export type {
+  FiltersText,
+  ProductDetailText,
+  AccountDashboardText,
+  OrdersText,
+  OrderTrackingText,
+  ContactText,
+  AddressesText,
+  WishlistText,
+  SettingsText,
+  FooterText,
+  NavbarText,
+  ErrorText,
+  NotFoundText,
+};
 
+// ============================================
+// DESIGN TOKEN PRESETS
+// ============================================
+
+export const ANIMATION_PRESETS = {
+  none:     { cardHoverDuration: 0,   cardHoverLift: 0, imageZoomScale: 1.0,  imageZoomDuration: 0,    buttonHoverScale: 1.0,  sectionRevealDuration: 0,    marqueeSpeed: 32, heroAutoRotate: 0 },
+  subtle:   { cardHoverDuration: 200, cardHoverLift: 1, imageZoomScale: 1.03, imageZoomDuration: 500,  buttonHoverScale: 1.02, sectionRevealDuration: 500,  marqueeSpeed: 40, heroAutoRotate: 6 },
+  moderate: { cardHoverDuration: 300, cardHoverLift: 2, imageZoomScale: 1.05, imageZoomDuration: 700,  buttonHoverScale: 1.05, sectionRevealDuration: 700,  marqueeSpeed: 32, heroAutoRotate: 4 },
+  dramatic: { cardHoverDuration: 500, cardHoverLift: 4, imageZoomScale: 1.10, imageZoomDuration: 1000, buttonHoverScale: 1.08, sectionRevealDuration: 1000, marqueeSpeed: 24, heroAutoRotate: 3 },
+} as const;
+
+export const SPACING_PRESETS = {
+  compact:  { sectionPaddingY: '3rem' },   // py-12
+  normal:   { sectionPaddingY: '5rem' },   // py-20
+  spacious: { sectionPaddingY: '7rem' },   // py-28
+} as const;
+
+export const CONTAINER_PX_MAP = {
+  tight:  '1rem',    // px-4
+  normal: '1.5rem',  // px-6
+  wide:   '3rem',    // px-12
+} as const;
+
+export const CARD_GAP_MAP = {
+  tight:    '0.75rem',  // gap-3
+  normal:   '1.5rem',   // gap-6
+  spacious: '2rem',     // gap-8
+} as const;
+
+// Storefront-only types (not in shared schema)
 export interface CardConfig {
   aspectRatio?: 'square' | 'portrait' | 'landscape' | 'wide';
   imageFit?: 'cover' | 'contain' | 'fill';
@@ -58,988 +96,9 @@ export interface CardConfig {
   shadow?: 'none' | 'sm' | 'md' | 'lg';
 }
 
-export interface StoreConfig {
-  // ============================================
-  // BASIC STORE INFORMATION
-  // ============================================
-  store: {
-    name: string;
-    tagline: string;
-    type: StoreType;
-    description: string;
-    email: string;
-    phone: string;
-    address?: {
-      street: string;
-      city: string;
-      state: string;
-      zip: string;
-      country: string;
-    };
-  };
-
-  // ============================================
-  // BRANDING & THEME
-  // ============================================
-  branding: {
-    logo: string;           // Path to logo image
-    logoAlt: string;        // Alt text for logo
-    favicon: string;        // Path to favicon
-
-    colors: {
-      primary: string;      // Main brand color (buttons, links)
-      secondary: string;    // Secondary color (headers, accents)
-      accent: string;       // Accent color (highlights, badges)
-      background: string;   // Page background
-      surface: string;      // Card/component background
-      text: string;         // Primary text color
-      textMuted: string;    // Secondary text color
-      success: string;      // Success states
-      warning: string;      // Warning states
-      error: string;        // Error states
-    };
-
-    typography: {
-      fontHeading: string;  // Font for headings
-      fontBody: string;     // Font for body text
-      fontMono: string;     // Font for code/prices
-    };
-
-    style: {
-      borderRadius: 'none' | 'sm' | 'md' | 'lg' | 'full';
-      buttonStyle: 'solid' | 'outline' | 'ghost';
-      cardShadow: 'none' | 'sm' | 'md' | 'lg';
-    };
-  };
-
-  // ============================================
-  // FEATURE TOGGLES
-  // ============================================
-  features: {
-    // Customer Features
-    wishlist: boolean;
-    compareProducts: boolean;
-    productReviews: boolean;
-    recentlyViewed: boolean;
-    scrollToTop: boolean;
-
-    // Checkout Features
-    guestCheckout: boolean;
-    expressCheckout: boolean;
-    savePaymentMethods: boolean;
-
-    // Product Features
-    digitalDownloads: boolean;
-    subscriptions: boolean;
-    giftCards: boolean;
-    productBundles: boolean;
-
-    // Marketing Features
-    newsletter: boolean;
-    promotionalBanners: boolean;
-    abandonedCartEmails: boolean;
-
-    // Social Features
-    socialLogin: boolean;
-    shareButtons: boolean;
-    instagramFeed: boolean;
-
-    // Product Page Features
-    relatedProducts?: boolean;
-    relatedProductsLimit?: number;
-  };
-
-  // ============================================
-  // E-COMMERCE SETTINGS
-  // ============================================
-  ecommerce: {
-    currency: {
-      default: string;      // Default currency code (USD, EUR, etc.)
-      supported: string[];  // List of supported currencies
-    };
-
-    shipping: {
-      enabled: boolean;
-      freeShippingThreshold: number | null;  // null = no free shipping
-      showEstimatedDelivery: boolean;
-      deliverySlots: boolean;  // For food/grocery stores
-    };
-
-    tax: {
-      showPricesWithTax: boolean;
-      taxIncludedInPrice: boolean;
-    };
-
-    inventory: {
-      showStockLevel: boolean;
-      lowStockThreshold: number;
-      allowBackorders: boolean;
-    };
-
-    checkout: {
-      minOrderAmount: number | null;
-      maxOrderAmount: number | null;
-      termsRequired: boolean;
-    };
-  };
-
-  // ============================================
-  // HEADER CONFIGURATION
-  // ============================================
-  header?: {
-    banner: {
-      enabled: boolean;
-      text: string;
-      backgroundColor: string | null;  // null = use primary
-      textColor: string | null;        // null = white
-      useSaleorPromotions?: boolean;
-      useSaleorVouchers?: boolean;
-      items?: Array<{
-        id: string;
-        name: string;
-        description?: string | null;
-        displayText?: string | null;
-        link?: string | null;
-        icon?: string | null;
-      }>;
-      autoScrollIntervalSeconds?: number;
-      useGradient?: boolean;
-      gradientFrom?: string | null;
-      gradientTo?: string | null;
-      dismissible?: boolean;
-    };
-    showStoreName: boolean;
-    logoPosition: 'left' | 'center';
-  };
-
-  // ============================================
-  // FOOTER CONFIGURATION
-  // ============================================
-  footer?: {
-    showBrand: boolean;
-    showMenu: boolean;
-    showContactInfo: boolean;
-    showNewsletter: boolean;
-    showSocialLinks: boolean;
-    copyrightText: string | null;  // null = use default
-    legalLinks?: {
-      trackOrder: { enabled: boolean; url: string };
-      privacyPolicy: { enabled: boolean; url: string };
-      termsOfService: { enabled: boolean; url: string };
-      shippingPolicy: { enabled: boolean; url: string };
-      returnPolicy: { enabled: boolean; url: string };
-    };
-    /** Policy page content (Footer → Policy Page Content in Storefront Control). Nothing hardcoded—all from config. */
-    returnPolicyPageTitle?: string;
-    returnPolicyHeader?: string;
-    returnPolicyContent?: string;
-    returnPolicyDefaultContent?: string;
-    returnPolicyFooter?: string;
-    shippingPolicyPageTitle?: string;
-    shippingPolicyHeader?: string;
-    shippingPolicyContent?: string;
-    shippingPolicyDefaultContent?: string;
-    shippingPolicyFooter?: string;
-    privacyPolicyPageTitle?: string;
-    privacyPolicyHeader?: string;
-    privacyPolicyContent?: string;
-    privacyPolicyDefaultContent?: string;
-    privacyPolicyFooter?: string;
-    termsOfServicePageTitle?: string;
-    termsOfServiceHeader?: string;
-    termsOfServiceContent?: string;
-    termsOfServiceDefaultContent?: string;
-    termsOfServiceFooter?: string;
-    policyPageEmptyMessage?: string;
-  };
-
-  // ============================================
-  // HOMEPAGE SECTIONS
-  // ============================================
-  homepage: {
-    sections: {
-      hero: {
-        enabled: boolean;
-        type: 'image' | 'video' | 'slider';
-      };
-      marquee?: {
-        enabled: boolean;
-        text: string;
-        speedSeconds: number;
-        textColor?: string | null;
-        background?: {
-          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass' | 'mesh';
-          color?: string | null;
-          secondaryColor?: string | null;
-          mixPercentage?: number;
-          gradientDirection?: 'to-right' | 'to-left' | 'to-bottom' | 'to-top' | 'to-bottom-right' | 'to-top-left' | 'diagonal';
-          patternType?: 'grid' | 'dots' | 'lines' | 'waves';
-          patternOpacity?: number;
-          animationSpeed?: 'slow' | 'normal' | 'fast';
-          glassBlur?: number;
-          glassOpacity?: number;
-          meshOpacity?: number;
-          meshGrade?: 'light' | 'medium' | 'deep' | 'cool' | 'warm';
-        };
-      };
-      feature?: {
-        enabled: boolean;
-        title: string;
-        description: string;
-        imageUrl: string | null;
-        imagePosition: 'left' | 'right';
-        ctaText?: string;
-        ctaLink?: string;
-        background?: {
-          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass' | 'mesh';
-          color?: string | null;
-          secondaryColor?: string | null;
-          mixPercentage?: number;
-          gradientDirection?: 'to-right' | 'to-left' | 'to-bottom' | 'to-top' | 'to-bottom-right' | 'to-top-left' | 'diagonal';
-          patternType?: 'grid' | 'dots' | 'lines' | 'waves';
-          patternOpacity?: number;
-          animationSpeed?: 'slow' | 'normal' | 'fast';
-          glassOpacity?: number;
-          meshOpacity?: number;
-          meshGrade?: 'light' | 'medium' | 'deep' | 'cool' | 'warm';
-        };
-        card?: CardConfig;
-      };
-      featuredCategories: {
-        enabled: boolean;
-        limit: number;
-        background?: {
-          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass' | 'mesh';
-          color?: string | null;
-          secondaryColor?: string | null;
-          mixPercentage?: number;
-          gradientDirection?: 'to-right' | 'to-left' | 'to-bottom' | 'to-top' | 'to-bottom-right' | 'to-top-left' | 'diagonal';
-          patternType?: 'grid' | 'dots' | 'lines' | 'waves';
-          patternOpacity?: number;
-          animationSpeed?: 'slow' | 'normal' | 'fast';
-          glassOpacity?: number;
-          meshOpacity?: number;
-          meshGrade?: 'light' | 'medium' | 'deep' | 'cool' | 'warm';
-        };
-        card?: CardConfig;
-      };
-      newArrivals: {
-        enabled: boolean;
-        limit: number;
-        background?: {
-          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass' | 'mesh';
-          color?: string | null;
-          secondaryColor?: string | null;
-          mixPercentage?: number;
-          gradientDirection?: 'to-right' | 'to-left' | 'to-bottom' | 'to-top' | 'to-bottom-right' | 'to-top-left' | 'diagonal';
-          patternType?: 'grid' | 'dots' | 'lines' | 'waves';
-          patternOpacity?: number;
-          animationSpeed?: 'slow' | 'normal' | 'fast';
-          glassOpacity?: number;
-          meshOpacity?: number;
-          meshGrade?: 'light' | 'medium' | 'deep' | 'cool' | 'warm';
-        };
-        card?: CardConfig;
-      };
-      bestSellers: {
-        enabled: boolean;
-        limit: number;
-        background?: {
-          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass' | 'mesh';
-          color?: string | null;
-          secondaryColor?: string | null;
-          mixPercentage?: number;
-          gradientDirection?: 'to-right' | 'to-left' | 'to-bottom' | 'to-top' | 'to-bottom-right' | 'to-top-left' | 'diagonal';
-          patternType?: 'grid' | 'dots' | 'lines' | 'waves';
-          patternOpacity?: number;
-          animationSpeed?: 'slow' | 'normal' | 'fast';
-          glassOpacity?: number;
-          meshOpacity?: number;
-          meshGrade?: 'light' | 'medium' | 'deep' | 'cool' | 'warm';
-        };
-        card?: CardConfig;
-      };
-      onSale: {
-        enabled: boolean;
-        limit: number;
-        background?: {
-          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass';
-          color?: string | null;
-          secondaryColor?: string | null;
-          mixPercentage?: number;
-          gradientDirection?: 'to-right' | 'to-left' | 'to-bottom' | 'to-top' | 'to-bottom-right' | 'to-top-left' | 'diagonal';
-          patternType?: 'grid' | 'dots' | 'lines' | 'waves';
-          patternOpacity?: number;
-          animationSpeed?: 'slow' | 'normal' | 'fast';
-          glassBlur?: number;
-          glassOpacity?: number;
-        };
-      };
-      featuredBrands: {
-        enabled: boolean;
-        background?: {
-          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass';
-          color?: string | null;
-          secondaryColor?: string | null;
-          mixPercentage?: number;
-          gradientDirection?: 'to-right' | 'to-left' | 'to-bottom' | 'to-top' | 'to-bottom-right' | 'to-top-left' | 'diagonal';
-          patternType?: 'grid' | 'dots' | 'lines' | 'waves';
-          patternOpacity?: number;
-          animationSpeed?: 'slow' | 'normal' | 'fast';
-          glassBlur?: number;
-          glassOpacity?: number;
-        };
-      };
-      testimonials: {
-        enabled: boolean;
-        background?: {
-          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass';
-          color?: string | null;
-          secondaryColor?: string | null;
-          mixPercentage?: number;
-          gradientDirection?: 'to-right' | 'to-left' | 'to-bottom' | 'to-top' | 'to-bottom-right' | 'to-top-left' | 'diagonal';
-          patternType?: 'grid' | 'dots' | 'lines' | 'waves';
-          patternOpacity?: number;
-          animationSpeed?: 'slow' | 'normal' | 'fast';
-          glassBlur?: number;
-          glassOpacity?: number;
-        };
-      };
-      newsletter: {
-        enabled: boolean;
-        background?: {
-          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass';
-          color?: string | null;
-          secondaryColor?: string | null;
-          mixPercentage?: number;
-          gradientDirection?: 'to-right' | 'to-left' | 'to-bottom' | 'to-top' | 'to-bottom-right' | 'to-top-left' | 'diagonal';
-          patternType?: 'grid' | 'dots' | 'lines' | 'waves';
-          patternOpacity?: number;
-          animationSpeed?: 'slow' | 'normal' | 'fast';
-          glassBlur?: number;
-          glassOpacity?: number;
-        };
-      };
-      instagramFeed: {
-        enabled: boolean;
-        username: string | null;
-        background?: {
-          style: 'none' | 'solid' | 'gradient' | 'radial-gradient' | 'color-mix' | 'pattern' | 'animated-gradient' | 'glass';
-          color?: string | null;
-          secondaryColor?: string | null;
-          mixPercentage?: number;
-          gradientDirection?: 'to-right' | 'to-left' | 'to-bottom' | 'to-top' | 'to-bottom-right' | 'to-top-left' | 'diagonal';
-          patternType?: 'grid' | 'dots' | 'lines' | 'waves';
-          patternOpacity?: number;
-          animationSpeed?: 'slow' | 'normal' | 'fast';
-          glassBlur?: number;
-          glassOpacity?: number;
-        };
-      };
-    };
-    sectionOrder?: HomepageSectionId[]; // Order of sections (defaults to standard order)
-  };
-
-  // ============================================
-  // PAGES
-  // ============================================
-  pages: {
-    aboutUs: boolean;
-    contact: boolean;
-    faq: boolean;
-    blog: boolean;
-    privacyPolicy: boolean;
-    termsOfService: boolean;
-    shippingPolicy: boolean;
-    returnPolicy: boolean;
-    forgotPassword: boolean;
-    resetPassword: boolean;
-    verifyEmail: boolean;
-    confirmEmail: boolean;
-  };
-
-  // ============================================
-  // INTEGRATIONS
-  // ============================================
-  integrations: {
-    analytics: {
-      googleAnalyticsId: string | null;
-      googleTagManagerId: string | null;
-      facebookPixelId: string | null;
-      hotjarId: string | null;
-    };
-
-    marketing: {
-      mailchimpListId: string | null;
-      klaviyoApiKey: string | null;
-    };
-
-    support: {
-      intercomAppId: string | null;
-      zendeskKey: string | null;
-      crispWebsiteId: string | null;
-    };
-
-    social: {
-      facebook: string | null;
-      instagram: string | null;
-      twitter: string | null;
-      youtube: string | null;
-      tiktok: string | null;
-      pinterest: string | null;
-    };
-  };
-
-  // ============================================
-  // SEO DEFAULTS
-  // ============================================
-  seo: {
-    titleTemplate: string;  // e.g., "%s | Store Name"
-    defaultTitle: string;
-    defaultDescription: string;
-    defaultImage: string;   // OG image
-    twitterHandle: string | null;
-  };
-
-  // ============================================
-  // LOCALIZATION
-  // ============================================
-  localization: {
-    defaultLocale: string;
-    supportedLocales: string[];
-    dateFormat: string;
-    timeFormat: '12h' | '24h';
-    direction?: 'ltr' | 'rtl' | 'auto'; // Text direction (auto = detect from locale)
-    rtlLocales?: string[]; // Custom list of RTL locales (defaults to he, ar, fa, ur, yi, ps)
-  };
-
-  // ============================================
-  // DARK MODE
-  // ============================================
-  darkMode?: {
-    enabled: boolean;
-    auto: boolean; // Follow system preference
-    colors?: {
-      background: string;
-      surface: string;
-      text: string;
-      textMuted: string;
-      border?: string; // Border color for dark mode
-      primary?: string;
-      secondary?: string;
-      accent?: string;
-      success?: string;
-      warning?: string;
-      error?: string;
-    };
-  };
-
-  // ============================================
-  // PRODUCT FILTERS (NEW - from Storefront Control)
-  // ============================================
-  filters?: {
-    enabled: boolean;
-    priceFilter: { enabled: boolean; showQuickButtons: boolean };
-    ratingFilter: { enabled: boolean };
-    brandFilter: { enabled: boolean };
-    sizeFilter: { enabled: boolean };
-    colorFilter: { enabled: boolean };
-    categoryFilter: { enabled: boolean };
-    collectionFilter: { enabled: boolean };
-    stockFilter: { enabled: boolean };
-  };
-
-  // ============================================
-  // QUICK FILTERS (NEW - from Storefront Control)
-  // ============================================
-  quickFilters?: {
-    enabled: boolean;
-    showCategories: boolean;
-    showCollections: boolean;
-    showBrands: boolean;
-    categoryLimit: number;
-    collectionLimit: number;
-    brandLimit: number;
-    style?: Record<string, unknown>;
-  };
-
-  // ============================================
-  // PROMO POPUP (NEW - from Storefront Control)
-  // ============================================
-  promoPopup?: {
-    enabled: boolean;
-    title: string;
-    body: string;
-    badge: string | null;
-    imageUrl: string | null;
-    backgroundImageUrl: string | null;
-    ctaText: string;
-    ctaLink: string;
-    delaySeconds: number;
-    showOncePerSession: boolean;
-    ttlHours: number;
-    excludeCheckout: boolean;
-    excludeCart: boolean;
-    autoDetectSales: boolean;
-    itemsOnSaleText?: string;
-    maybeLaterText?: string;
-  };
-
-  // ============================================
-  // HERO SECTION (Extended - from Storefront Control)
-  // ============================================
-  heroContent?: {
-    title: string;
-    subtitle: string;
-    ctaText: string;
-    ctaLink: string;
-    imageUrl: string | null;
-    videoUrl: string | null;
-    overlayOpacity: number;
-    textAlignment: 'left' | 'center' | 'right';
-    slides?: Array<{
-      imageUrl: string;
-      title: string;
-      subtitle: string;
-      ctaText: string;
-      ctaLink: string;
-    }>;
-  };
-
-  // ============================================
-  // UI COMPONENTS (NEW - from Storefront Control)
-  // ============================================
-  ui?: {
-    buttons: {
-      borderRadius: 'none' | 'sm' | 'md' | 'lg' | 'full';
-      primary: ButtonVariant;
-      secondary: ButtonVariant;
-      outline: ButtonVariant;
-      danger: ButtonVariant;
-    };
-    badges: {
-      sale: BadgeStyle;
-      new: BadgeStyle;
-      outOfStock: BadgeStyle;
-      lowStock: BadgeStyle;
-      discount: BadgeStyle;
-      featured: BadgeStyle;
-    };
-    inputs: {
-      borderRadius: 'none' | 'sm' | 'md' | 'lg';
-      borderColor: string | null;
-      focusBorderColor: string | null;
-      focusRingColor: string | null;
-      backgroundColor: string | null;
-      placeholderColor: string | null;
-    };
-    checkbox: {
-      checkedBackgroundColor: string | null;
-      borderRadius: 'none' | 'sm' | 'md' | 'full';
-    };
-    productCard: {
-      borderRadius: 'none' | 'sm' | 'md' | 'lg' | 'xl';
-      shadow: 'none' | 'sm' | 'md' | 'lg';
-      hoverShadow: 'none' | 'sm' | 'md' | 'lg' | 'xl';
-      showQuickView: boolean;
-      showWishlistButton: boolean;
-      showAddToCart: boolean;
-      imageAspectRatio: 'square' | 'portrait' | 'landscape';
-    };
-    toasts: {
-      position: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center';
-      borderRadius: 'none' | 'sm' | 'md' | 'lg';
-      success: ToastStyle;
-      error: ToastStyle;
-      warning: ToastStyle;
-      info: ToastStyle;
-    };
-    icons: {
-      style: 'outline' | 'solid' | 'duotone';
-      defaultColor: string | null;
-      activeColor: string | null;
-    };
-    activeFiltersTags?: Record<string, unknown>;
-    cart?: {
-      drawerSide: 'left' | 'right';
-      showDeleteText?: boolean;
-      showSaveForLater?: boolean;
-    };
-  };
-
-  // ============================================
-  // CONTENT/TEXT (NEW - from Storefront Control)
-  // ============================================
-  content?: {
-    cart: {
-      emptyCartTitle: string;
-      emptyCartMessage: string;
-      cartTitle: string;
-      checkoutButton: string;
-      continueShoppingButton: string;
-      // Selection controls
-      selectAllButton: string;
-      deselectAllButton: string;
-      selectAllItemsButton: string;
-      selectItemsToCheckout: string;
-      // Free shipping message
-      freeShippingMessage: string;
-      freeShippingThresholdReached: string;
-      addXMoreForFreeShipping: string;
-      unlockedFreeShipping: string;
-      // Item actions
-      saveForLaterButton: string;
-      moveToCartButton: string;
-      deleteButton: string;
-      // Labels and text
-      itemSingular: string;
-      itemPlural: string;
-      orderSummaryTitle: string;
-      itemsSelectedText: string;
-      eachLabel: string;
-      availableLabel: string;
-      outOfStockLabel: string;
-      // Loading states
-      loadingCheckoutTitle: string;
-      loadingCheckoutMessage: string;
-      // Error messages
-      quantityMinError: string;
-      onlyXItemsAvailable: string;
-      useDeleteButtonMessage: string;
-      failedToUpdateQuantity: string;
-      onlyXAvailable: string;
-      // Success messages
-      quantityUpdatedSuccess: string;
-      // Promo code section
-      promoCodeLabel: string;
-      promoCodePlaceholder: string;
-      promoCodeApplyButton: string;
-      /** Shown when a shipping voucher is applied (eligibility only, not discount amount) */
-      eligibleForFreeShipping?: string;
-      // Order summary
-      subtotalLabel: string;
-      subtotalLabelWithCount: string;
-      shippingLabel: string;
-      shippingFree: string;
-      shippingCalculatedAtCheckout: string;
-      totalLabel: string;
-      // Checkout button states
-      selectItemsButton: string;
-      preparingCheckout: string;
-      loadingCheckout: string;
-      // Trust badges
-      secureCheckoutText: string;
-      sslEncryptedText: string;
-      // Payment methods
-      acceptedPaymentMethods: string;
-      providedByStripe: string;
-      // Saved for later
-      itemsSavedForLater: string;
-      // Additional cart UI fields
-      viewCartButton?: string;           // "View Full Cart"
-      shippingNote?: string;             // "Shipping and taxes calculated at checkout"
-      youSaveLabel?: string;             // "You save"
-      originalSubtotalLabel?: string;    // "Subtotal" (before discount)
-      discountedSubtotalLabel?: string;  // "Your price" (after discount)
-    };
-    product: {
-      addToCartButton: string;
-      buyNowButton: string;
-      outOfStockText: string;
-      lowStockText: string;
-      inStockText: string;
-      saleBadgeText: string;
-      newBadgeText: string;
-      reviewsTitle: string;
-      writeReviewButton: string;
-      noReviewsText: string;
-      // Button states
-      addingButton: string;
-      addedToCartButton: string;
-      selectOptionsButton: string;
-      viewCartLink: string;
-      // Quick view modal
-      quickAddButton?: string;
-      viewFullPageLink?: string;
-      loadingProductText?: string;
-      productDetailsTitle?: string;
-      closeButton?: string;
-      productNotFoundText?: string;
-      errorLoadingProductText?: string;
-    };
-    account: {
-      signInTitle: string;
-      signUpTitle: string;
-      signInButton: string;
-      signUpButton: string;
-      signOutButton: string;
-      forgotPasswordLink: string;
-      myAccountTitle: string;
-      ordersTitle: string;
-      addressesTitle: string;
-      wishlistTitle: string;
-      settingsTitle: string;
-      // Extended fields for account sidebar
-      dashboardTitle: string;
-      needHelpTitle: string;
-      needHelpDescription: string;
-      contactSupportButton: string;
-      // Login page text
-      signInSubtitle: string;
-      signUpSubtitle: string;
-      orContinueWith: string;
-      whyCreateAccount: string;
-      benefitFasterCheckout: string;
-      benefitTrackOrders: string;
-      benefitWishlist: string;
-      benefitDiscounts: string;
-      termsAgreement: string;
-      termsOfService: string;
-      privacyPolicy: string;
-      emailLabel: string;
-      emailPlaceholder: string;
-      passwordLabel: string;
-      passwordPlaceholder: string;
-      confirmPasswordLabel: string;
-      confirmPasswordPlaceholder: string;
-      firstNameLabel: string;
-      lastNameLabel: string;
-      createAccountButton: string;
-      processingText: string;
-      emailConfirmedMessage: string;
-      canNowSignIn: string;
-      switchToSignIn: string;
-      accountExistsMessage: string;
-      // Forgot / reset password
-      forgotPasswordTitle: string;
-      forgotPasswordSubtitle: string;
-      sendResetLinkButton: string;
-      forgotPasswordSuccessMessage: string;
-      resetPasswordTitle: string;
-      resetPasswordSubtitle: string;
-      newPasswordLabel: string;
-      newPasswordPlaceholder: string;
-      invalidResetLinkMessage: string;
-      resetLinkExpiredError: string;
-      // Verify email page
-      verifyEmailTitle: string;
-      verifyEmailSubtitle: string;
-      verifyEmailSentTo: string;
-      verifyEmailInstructions: string;
-      verifyEmailNotReceived: string;
-      verifyEmailNotReceivedTitle: string;
-      verifyEmailNotReceivedIntro: string;
-      verifyEmailCheckSpam: string;
-      verifyEmailWaitMinutes: string;
-      verifyEmailSignInToResend: string;
-      resendConfirmationButton: string;
-      resendSendingText: string;
-      resendSuccessMessage: string;
-      backToSignIn: string;
-      signInToResendEmail: string;
-      signInFirstToResend: string;
-      verifyEmailExpiryHelp: string;
-      verifyEmailRequiredError: string;
-      // Confirm email page (link landing)
-      confirmAccountTitle: string;
-      confirmAccountSubtitle: string;
-      confirmAccountLinkExpiredError: string;
-      confirmAccountRequestNewLink: string;
-      confirmAccountUnexpectedError: string;
-      confirmAccountAlreadyConfirmed: string;
-      confirmAccountEmailLabel: string;
-      confirmAccountEmailPlaceholder: string;
-      confirmAccountTokenLabel: string;
-      confirmAccountTokenPlaceholder: string;
-      confirmAccountTokenHint: string;
-      confirmAccountButton: string;
-      confirmAccountBackToSignIn: string;
-      confirmAccountConfirmingText: string;
-      confirmAccountSuccessMessage: string;
-      confirmAccountCheckingMessage: string;
-      confirmAccountAutoLoginHint: string;
-      // Error messages
-      loginInvalidCredentialsError: string;
-      loginEmailPasswordRequiredError: string;
-      loginGenericError: string;
-      registerEmailPasswordRequiredError: string;
-      registerFailedError: string;
-      registerAccountExistsError: string;
-      registerGenericError: string;
-      passwordMismatchError: string;
-      passwordTooShortError: string;
-      passwordResetRateLimitError: string;
-      passwordResetRateLimitInfo: string;
-      invalidEmailError: string;
-    };
-    general: {
-      searchPlaceholder: string;
-      newsletterTitle: string;
-      newsletterDescription: string;
-      newsletterButton: string;
-      newsletterSuccess: string;
-      newsletterPlaceholder: string;
-      newsletterNoSpam: string;
-      newsletterWeeklyUpdates: string;
-      newsletterExclusiveOffers: string;
-      newsletterAlreadySubscribed: string;
-      newsletterAlreadyActive?: string;
-      loadMoreButton: string;
-      viewAllButton: string;
-      backButton: string;
-      closeButton: string;
-      saveButton: string;
-      cancelButton: string;
-      confirmButton: string;
-      deleteButton: string;
-      editButton: string;
-      // Breadcrumbs
-      homeLabel: string;
-    };
-    homepage: {
-      newArrivalsTitle: string;
-      newArrivalsSubtitle: string;
-      bestSellersTitle: string;
-      bestSellersSubtitle: string;
-      onSaleTitle: string;
-      onSaleSubtitle: string;
-      featuredTitle: string;
-      featuredSubtitle: string;
-      categoriesTitle: string;
-      categoriesSubtitle: string;
-      viewAllCategoriesButton: string;
-      brandsTitle: string;
-      brandsSubtitle: string;
-      testimonialsTitle: string;
-      testimonialsSubtitle: string;
-      averageRatingLabel: string;
-      happyCustomersLabel: string;
-      satisfactionRateLabel: string;
-      ordersDeliveredLabel: string;
-      verifiedPurchaseLabel: string;
-      loadingReviewsText: string;
-      noReviewsAvailableText: string;
-      noReviewsSubtext: string;
-      noApprovedReviewsText: string;
-      heroCtaText: string;
-      heroSecondaryCtaText: string;
-      watchVideoButton?: string;
-      // Category cards
-      shopNowButton: string;
-      exploreText?: string;
-      productCountText: string;
-      // Newsletter
-      newsletterEmailPlaceholder: string;
-    };
-    checkout: {
-      secureCheckout: string;
-      contactDetails: string;
-      shippingAddress: string;
-      shippingMethod: string;
-      paymentMethod: string;
-      orderSummary: string;
-      placeOrder: string;
-      orderConfirmation: string;
-      thankYouTitle: string;
-      thankYouMessage: string;
-      shippingStep?: string;
-      paymentStep?: string;
-      confirmationStep?: string;
-      checkoutTitle?: string;
-      privacyPolicy?: string;
-      termsOfService?: string;
-      securityNote?: string;
-      // Footer links (optional for backward compatibility)
-      privacyPolicyLinkText?: string;
-      termsOfServiceLinkText?: string;
-      sslEncryptionMessage?: string;
-    };
-    filters: FiltersText;
-    productDetail: ProductDetailText;
-    dashboard: AccountDashboardText;
-    orders: OrdersText;
-    orderTracking: OrderTrackingText;
-    addresses: AddressesText;
-    wishlist: WishlistText;
-    settings: SettingsText;
-    footer: FooterText;
-    navbar: NavbarText;
-    contact: ContactText;
-    error: ErrorText;
-    notFound: NotFoundText;
-  };
-
-  // ============================================
-  // STOREFRONT UX
-  // ============================================
-  storefront?: {
-    cart?: {
-      displayMode: 'page' | 'drawer';
-    };
-  };
-
-  // ============================================
-  // RELATED PRODUCTS
-  // ============================================
-  relatedProducts?: {
-    enabled: boolean;
-    strategy: 'category' | 'collection';
-    maxItems: number;
-    showOnMobile: boolean;
-    title: string;
-    subtitle: string | null;
-  };
-}
-
-// Contact Page Text defaults
-export interface ContactText {
-  heroTitle: string;
-  heroDescription: string;
-  emailLabel: string;
-  phoneLabel: string;
-  addressLabel: string;
-  formTitle: string;
-  formDescription: string;
-  nameLabel: string;
-  namePlaceholder: string;
-  emailLabelForm: string;
-  emailPlaceholder: string;
-  subjectLabel: string;
-  subjectPlaceholder: string;
-  messageLabel: string;
-  messagePlaceholder: string;
-  sendButton: string;
-  sendingButton: string;
-  successTitle: string;
-  successDescription: string;
-  sendAnotherMessage: string;
-  faqsTitle: string;
-  faqsDescription: string;
-  faqs: Array<{ question: string; answer: string }>;
-  viewAllFaqs: string;
-  followUsTitle: string;
-  followUsDescription: string;
-}
-
-// Error Page Text defaults
-export interface ErrorText {
-  title: string;
-  description: string;
-  errorDetails: string;
-  tryAgainButton: string;
-  backToHomeButton: string;
-  needHelpText: string;
-  contactSupportLink: string;
-}
-
-// 404 Not Found Page Text defaults
-export interface NotFoundText {
-  title: string;
-  description: string;
-  backToHomeButton: string;
-  browseProductsButton: string;
-  helpfulLinksText: string;
-}
+// ============================================
+// DEFAULT TEXT CONSTANTS
+// ============================================
 
 export const DEFAULT_ERROR_TEXT: ErrorText = {
   title: "Something went wrong",
@@ -1058,96 +117,6 @@ export const DEFAULT_NOT_FOUND_TEXT: NotFoundText = {
   browseProductsButton: "Browse Products",
   helpfulLinksText: "Or check out these pages:",
 };
-
-// Filters/Sort/Product List Text type
-export interface FiltersText {
-  // Section titles
-  sectionTitle: string;
-  clearAllButton: string;
-  showResultsButton: string;
-
-  // Filter headings
-  categoryTitle: string;
-  collectionTitle: string;
-  brandTitle: string;
-  sizeTitle: string;
-  colorTitle: string;
-  priceTitle: string;
-  ratingTitle: string;
-  availabilityTitle: string;
-
-  // Availability options
-  inStockOnly: string;
-  onSale: string;
-
-  // Active filters summary
-  activeFiltersLabel: string;
-  categorySingular: string;
-  categoryPlural: string;
-  collectionSingular: string;
-  collectionPlural: string;
-  brandSingular: string;
-  brandPlural: string;
-  colorSingular: string;
-  colorPlural: string;
-  sizeSingular: string;
-  sizePlural: string;
-
-  // Sort options
-  sortAtoZ: string;
-  sortZtoA: string;
-  sortPriceLowHigh: string;
-  sortPriceHighLow: string;
-  sortNewest: string;
-  sortSale: string;
-
-  // Empty/loading states
-  noProductsTitle: string;
-  noProductsWithFilters: string;
-  noProductsEmpty: string;
-  filteringProducts: string;
-  loadingMore: string;
-  seenAllProducts: string;
-  tryAdjustingFilters: string;
-
-  // Search (products page search bar + nav search)
-  searchPlaceholder: string;
-  searchClearAriaLabel: string;
-  searchInputAriaLabel: string;
-  searchProductsTitle: string;
-  searchResultsTitle: string;
-  resultsCountText: string;
-  noResultsMessage: string;
-  sortByLabel: string;
-  filtersButtonText: string;
-  searchForText: string;  // Text between count and search query (e.g., "for")
-
-  // Results text
-  resultsText: string;
-  itemsAvailable: string;
-  productsPageTitle: string;
-  discoverProducts: string;
-
-  // Quick filters
-  shopAllButton: string;
-  quickAddButton: string;
-  scrollLeftAriaLabel: string;
-  scrollRightAriaLabel: string;
-  checkOutOurProducts: string;
-
-  // Rating filter
-  minimumRating: string;
-  starsAndUp: string;
-  starAndUp: string;
-  clearRatingFilter: string;
-
-  // Price filter
-  minPriceLabel: string;
-  maxPriceLabel: string;
-  quickMinLabel: string;
-  quickMaxLabel: string;
-  clearPriceFilter: string;
-}
 
 // Default filters text configuration
 export const DEFAULT_FILTERS_TEXT: FiltersText = {
@@ -1239,109 +208,10 @@ export const DEFAULT_FILTERS_TEXT: FiltersText = {
   quickMinLabel: "Quick Min",
   quickMaxLabel: "Quick Max",
   clearPriceFilter: "Clear",
+  applyPriceFilter: "Apply",
+  priceUnderLabel: "Under",
+  priceAboveLabel: "+",
 };
-
-// Product Detail Text defaults
-export interface ProductDetailText {
-  freeShipping: string;
-  securePayment: string;
-  easyReturns: string;
-  descriptionTab: string;
-  shippingTab: string;
-  reviewsTab: string;
-  noDescriptionAvailable: string;
-  qtyLabel: string;
-  qtyLabelWithColon: string;
-  shareButton: string;
-  // Variant selection labels
-  colorLabel: string;
-  sizeLabel: string;
-  selectOptionLabel: string;
-  pleaseSelectSize: string;
-  pleaseSelectOption: string;
-  // Stock messages
-  onlyXLeft: string;
-  inStockWithCount: string;
-  sellingFast: string;
-  savePercent: string;
-  // Review pluralization
-  reviewSingular: string;
-  reviewPlural: string;
-  // Image gallery labels
-  zoomInLabel: string;
-  zoomOutLabel: string;
-  previousImageLabel: string;
-  nextImageLabel: string;
-  noReviewsYet: string;
-  writeReviewTitle: string;
-  ratingRequired: string;
-  reviewTitleRequired: string;
-  reviewTitlePlaceholder: string;
-  reviewRequired: string;
-  reviewPlaceholder: string;
-  characterCount: string;
-  imagesOptional: string;
-  noFileChosen: string;
-  uploadImagesHint: string;
-  submitReviewButton: string;
-  helpfulCount: string;
-  helpfulButton: string;
-  helpfulButtonWithCount: string;
-  verifiedPurchase: string;
-  editReview: string;
-  deleteReview: string;
-  // Review filters
-  allRatings: string;
-  verifiedOnly: string;
-  // Review delete modal
-  deleteReviewTitle: string;
-  deleteReviewMessage: string;
-  cancelButton: string;
-  deletingButton: string;
-  // Review time formatting
-  justNow: string;
-  minutesAgo: string;
-  hoursAgo: string;
-  daysAgo: string;
-  // Shipping information
-  freeStandardShippingTitle: string;
-  freeStandardShippingDescription: string;
-  expressShippingTitle: string;
-  expressShippingDescription: string;
-  // Review list and loading states
-  loadingReviews: string;
-  reviewCountText: string;
-  noReviewsMatchFilters: string;
-  clearFilters: string;
-  clearFiltersLowercase: string;
-  tryAgain: string;
-  failedToLoadReviews: string;
-  loadMoreReviews: string;
-  starsLabel: string;
-  // Review form labels (for edit form)
-  ratingLabel: string;
-  titleLabel: string;
-  reviewLabel: string;
-  // Review form states and messages
-  uploadingImages: string;
-  savingButton: string;
-  saveButton: string;
-  submittingButton: string;
-  thankYouMessage: string;
-  reviewSubmittedMessage: string;
-  // Review form validation messages
-  pleaseSelectRating: string;
-  pleaseEnterReviewTitle: string;
-  pleaseEnterReviewBody: string;
-  maxImagesError: string;
-  onlyXMoreImagesError: string;
-  failedToSubmitReview: string;
-  failedToSubmitReviewRetry: string;
-  mustBeLoggedInToReview: string;
-  failedToUpdateReview: string;
-  failedToDeleteReview: string;
-  failedToUploadImages: string;
-}
 
 export const DEFAULT_PRODUCT_DETAIL_TEXT: ProductDetailText = {
   freeShipping: "Free Shipping",
@@ -1444,26 +314,6 @@ export const DEFAULT_PRODUCT_DETAIL_TEXT: ProductDetailText = {
   failedToUploadImages: "Failed to upload images",
 };
 
-// Account Dashboard Text defaults
-export interface AccountDashboardText {
-  totalOrders: string;
-  wishlistItems: string;
-  savedAddresses: string;
-  memberSince: string;
-  welcomeBack: string;
-  welcomeBackMessage: string;
-  accountSummary: string;
-  recentOrders: string;
-  viewAllButton: string;
-  viewButton: string;
-  orderLabel: string;
-  orderNumberPrefix: string;
-  noOrdersYet: string;
-  whenYouPlaceOrder: string;
-  noRecentOrders: string;
-  startShopping: string;
-}
-
 export const DEFAULT_ACCOUNT_DASHBOARD_TEXT: AccountDashboardText = {
   totalOrders: "Total Orders",
   wishlistItems: "Wishlist Items",
@@ -1473,7 +323,7 @@ export const DEFAULT_ACCOUNT_DASHBOARD_TEXT: AccountDashboardText = {
   welcomeBackMessage: "Here's what's happening with your account today.",
   accountSummary: "here's what's happening with your account today",
   recentOrders: "Recent Orders",
-  viewAllButton: "View All →",
+  viewAllButton: "View All â†’",
   viewButton: "View",
   orderLabel: "Order",
   orderNumberPrefix: "Order #",
@@ -1482,94 +332,6 @@ export const DEFAULT_ACCOUNT_DASHBOARD_TEXT: AccountDashboardText = {
   noRecentOrders: "No recent orders",
   startShopping: "Start Shopping",
 };
-
-// Orders Page Text defaults
-export interface OrdersText {
-  myOrdersTitle: string;
-  ordersPlacedCount: string;
-  orderNumber: string;
-  orderLabel: string;
-  orderNumberPrefix: string;
-  datePlaced: string;
-  totalLabel: string;
-  getInvoice: string;
-  downloadInvoice: string;
-  viewDetails: string;
-  trackPackage: string;
-  buyAgain: string;
-  showAllOrders: string;
-  showLess: string;
-  ordersPlaced: string;
-  noOrders: string;
-  noOrdersMessage: string;
-  noOrdersYetMessage: string;
-  orderStatus: string;
-  trackOrder: string;
-  qtyLabel: string;
-  remainingItems: string;
-  generatingInvoice: string;
-  generateDownloadInvoice: string;
-  invoiceAvailable: string;
-  invoiceAvailableMessage: string;
-  invoicePending: string;
-  invoicePendingMessage: string;
-  invoiceWillBeGenerated: string;
-  needInvoiceSooner: string;
-  close: string;
-  invoiceModalTitle: string;
-  trackingModalTitle: string;
-  trackingNumberLabel: string;
-  statusLabel: string;
-  trackPackageDescription: string;
-  universalTrackers: string;
-  directCarrierLinks: string;
-  loading: string;
-  // Order Details Page
-  backToOrders: string;
-  placedOn: string;
-  orderItemsTitle: string;
-  viewProduct: string;
-  orderSummaryTitle: string;
-  subtotalLabel: string;
-  shippingLabel: string;
-  shippingFree: string;
-  totalLabelDetails: string;
-  shippingAddressTitle: string;
-  billingAddressTitle: string;
-  shipmentTrackingTitle: string;
-  statusLabelDetails: string;
-  trackingNumberLabelDetails: string;
-  invoiceTitle: string;
-  invoiceNumberPrefix: string;
-  downloadButton: string;
-  generatingText: string;
-  unavailableText: string;
-  quickActionsTitle: string;
-  needHelpTitle: string;
-  contactSupportButton: string;
-  viewFaqsButton: string;
-  // Order Status Labels
-  statusProcessing: string;
-  statusPartiallyShipped: string;
-  statusShipped: string;
-  statusDelivered: string;
-  statusCanceled: string;
-  statusReturned: string;
-  // Payment Status Labels
-  paymentPending: string;
-  paymentPartiallyPaid: string;
-  paymentPaid: string;
-  paymentPartiallyRefunded: string;
-  paymentRefunded: string;
-  paymentFailed: string;
-  paymentCancelled: string;
-  // Reorder Button
-  reorderItems: string;
-  addingToCart: string;
-  itemsAddedToCart: string;
-  redirectingToCart: string;
-  tryAgain: string;
-}
 
 export const DEFAULT_ORDERS_TEXT: OrdersText = {
   myOrdersTitle: "My Orders",
@@ -1658,29 +420,6 @@ export const DEFAULT_ORDERS_TEXT: OrdersText = {
   tryAgain: "Try Again",
 };
 
-// Order Tracking Page Text defaults
-export interface OrderTrackingText {
-  title: string;
-  description: string;
-  orderNumberLabel: string;
-  orderNumberPlaceholder: string;
-  orderNumberHelp: string;
-  emailLabel: string;
-  emailPlaceholder: string;
-  emailHelp: string;
-  trackButton: string;
-  trackingButton: string;
-  errorNotFound: string;
-  errorGeneric: string;
-  backToTracking: string;
-  orderFoundTitle: string;
-  createAccountTitle: string;
-  createAccountDescription: string;
-  createAccountButton: string;
-  needHelpText: string;
-  contactSupportLink: string;
-}
-
 export const DEFAULT_ORDER_TRACKING_TEXT: OrderTrackingText = {
   title: "Track Your Order",
   description: "Enter your order number and email address to view your order status and tracking information.",
@@ -1702,31 +441,6 @@ export const DEFAULT_ORDER_TRACKING_TEXT: OrderTrackingText = {
   needHelpText: "Need help?",
   contactSupportLink: "Contact Support",
 };
-
-// Addresses Page Text defaults
-export interface AddressesText {
-  myAddresses: string;
-  addressesCount: string;
-  noAddressesYet: string;
-  addAddressButton: string;
-  defaultShipping: string;
-  defaultBilling: string;
-  shippingAndBilling: string;
-  shippingAddress: string;
-  billingAddress: string;
-  savedAddress: string;
-  setAsDefault: string;
-  noAddresses: string;
-  noAddressesMessage: string;
-  noAddressesCheckoutMessage: string;
-  addNewAddressTitle: string;
-  addAddressDescription: string;
-  editButton: string;
-  deleteButton: string;
-  continueShoppingButton: string;
-  startShopping: string;
-  cancel: string;
-}
 
 export const DEFAULT_ADDRESSES_TEXT: AddressesText = {
   myAddresses: "My Addresses",
@@ -1752,25 +466,6 @@ export const DEFAULT_ADDRESSES_TEXT: AddressesText = {
   cancel: "Cancel",
 };
 
-// Wishlist Page Text defaults
-export interface WishlistText {
-  myWishlistTitle: string;
-  itemsCount: string;
-  loadingWishlist: string;
-  emptyWishlistTitle: string;
-  emptyWishlistMessage: string;
-  discoverProductsButton: string;
-  clearAllButton: string;
-  itemsSaved: string;
-  viewProduct: string;
-  viewDetails: string;
-  outOfStock: string;
-  addedOn: string;
-  removeFromWishlist: string;
-  moveToCart: string;
-  removeFromWishlistTooltip: string;
-}
-
 export const DEFAULT_WISHLIST_TEXT: WishlistText = {
   myWishlistTitle: "My Wishlist",
   itemsCount: "{count} item(s) saved",
@@ -1788,46 +483,6 @@ export const DEFAULT_WISHLIST_TEXT: WishlistText = {
   moveToCart: "Add to Cart",
   removeFromWishlistTooltip: "Remove from wishlist",
 };
-
-// Settings Page Text defaults
-export interface SettingsText {
-  accountSettings: string;
-  settingsSubtitle: string;
-  profileInformation: string;
-  updatePersonalDetails: string;
-  saveChangesButton: string;
-  savingChanges: string;
-  changesSaved: string;
-  profileUpdated: string;
-  profileUpdateFailed: string;
-  emailChangePasswordRequired: string;
-  emailChangeConfirmationSent: string;
-  emailChangePasswordInvalid: string;
-  profileInvalidEmailError: string;
-  changePassword: string;
-  passwordSecurityNote: string;
-  currentPassword: string;
-  newPasswordLabel: string;
-  confirmNewPassword: string;
-  updatePasswordButton: string;
-  passwordUpdated: string;
-  passwordUpdateFailed: string;
-  notificationPreferences: string;
-  notificationSubtitle: string;
-  orderUpdates: string;
-  orderUpdatesDesc: string;
-  promotionsOffers: string;
-  promotionsDesc: string;
-  newsletterSetting: string;
-  newsletterDesc: string;
-  smsNotifications: string;
-  smsDesc: string;
-  dangerZone: string;
-  deleteAccountWarning: string;
-  deleteAccountButton: string;
-  confirmDeleteTitle: string;
-  confirmDeleteMessage: string;
-}
 
 export const DEFAULT_SETTINGS_TEXT: SettingsText = {
   accountSettings: "Account Settings",
@@ -1868,25 +523,6 @@ export const DEFAULT_SETTINGS_TEXT: SettingsText = {
   confirmDeleteMessage: "This action cannot be undone. All your data will be permanently removed.",
 };
 
-// Footer Text defaults
-export interface FooterText {
-  privacyPolicyLink: string;
-  termsOfServiceLink: string;
-  shippingLink: string;
-  returnPolicyLink: string;
-  allRightsReserved: string;
-  madeWith: string;
-  inLocation: string;
-  contactUs: string;
-  contactUsButton: string;
-  customerService: string;
-  shopTitle: string;
-  companyTitle: string;
-  supportTitle: string;
-  followUsTitle: string;
-  trackOrderLink: string;
-}
-
 export const DEFAULT_FOOTER_TEXT: FooterText = {
   privacyPolicyLink: "Privacy Policy",
   termsOfServiceLink: "Terms of Service",
@@ -1904,37 +540,6 @@ export const DEFAULT_FOOTER_TEXT: FooterText = {
   followUsTitle: "Follow Us",
   trackOrderLink: "Track Order",
 };
-
-// Navbar Text defaults
-export interface NavbarText {
-  selectChannel: string;
-  searchPlaceholder: string;
-  searchClearAriaLabel?: string;
-  searchInputAriaLabel?: string;
-  viewAllResultsFor?: string;
-  recentlySearchedLabel?: string;
-  recentSearchesClearLabel?: string;
-  cartLabel: string;
-  accountLabel: string;
-  menuLabel: string;
-  signInText: string;
-  /** Mobile menu drawer position: "left" or "right" (from Storefront Control) */
-  mobileNavPosition?: "left" | "right";
-  /** Dropdown arrow direction when collapsed: "up", "down", "left", "right", or "auto" (from Storefront Control) */
-  dropdownArrowDirection?: "up" | "down" | "left" | "right" | "auto";
-  /** Dropdown arrow direction when expanded (e.g. "down" for account menu) */
-  dropdownArrowDirectionExpanded?: "up" | "down" | "left" | "right" | "auto";
-  // Mobile navigation
-  homeLabel: string;
-  shopLabel: string;
-  categoriesLabel?: string;
-  collectionsLabel?: string;
-  brandsLabel?: string;
-  viewAllProducts?: string;
-  shopAllButton?: string;
-  subcategoriesSide?: string;
-  saleButton?: string;
-}
 
 export const DEFAULT_NAVBAR_TEXT: NavbarText = {
   selectChannel: "Select channel/currency",
@@ -1956,31 +561,13 @@ export const DEFAULT_NAVBAR_TEXT: NavbarText = {
   shopLabel: "Shop",
 };
 
-// Helper types for UI config
-interface ButtonVariant {
-  backgroundColor: string | null;
-  textColor: string | null;
-  hoverBackgroundColor: string | null;
-  borderColor: string | null;
-}
-
-interface BadgeStyle {
-  backgroundColor: string | null;
-  textColor: string | null;
-  borderRadius: 'none' | 'sm' | 'md' | 'lg' | 'full';
-}
-
-interface ToastStyle {
-  backgroundColor: string | null;
-  textColor: string | null;
-  iconColor: string | null;
-}
-
 // ============================================
 // DEFAULT CONFIGURATION
 // ============================================
-// This is the template default - customize for each client
-export const defaultStoreConfig: StoreConfig = {
+// This is the template default - customize for each client.
+// Loosely typed: missing some Zod-only metadata fields (version, channelSlug).
+// Always accessed through hooks that merge with DEFAULT_* objects.
+export const defaultStoreConfig = {
   store: {
     name: "Your Store Name",
     tagline: "Your Store Tagline",
@@ -2080,7 +667,7 @@ export const defaultStoreConfig: StoreConfig = {
   header: {
     banner: {
       enabled: true,
-      text: "Free shipping on orders over $50 • Fast delivery worldwide",
+      text: "Free shipping on orders over $50 â€¢ Fast delivery worldwide",
       backgroundColor: null,
       textColor: null,
       useSaleorPromotions: false,
@@ -2365,7 +952,7 @@ export const defaultStoreConfig: StoreConfig = {
       addingButton: "Adding...",
       addedToCartButton: "Added to Cart!",
       selectOptionsButton: "Select Options",
-      viewCartLink: "View Cart →",
+      viewCartLink: "View Cart â†’",
       quickAddButton: "Quick add",
       viewFullPageLink: "View full page",
       loadingProductText: "Loading product...",
@@ -2414,7 +1001,7 @@ export const defaultStoreConfig: StoreConfig = {
       processingText: "Processing...",
       emailConfirmedMessage: "Your email has been confirmed successfully!",
       canNowSignIn: "You can now sign in to your account.",
-      switchToSignIn: "Switch to Sign In →",
+      switchToSignIn: "Switch to Sign In â†’",
       accountExistsMessage: "You already have an account with this email. Please sign in with your email and password below.",
       // Forgot / reset password
       forgotPasswordTitle: "Reset your password",
@@ -2529,6 +1116,13 @@ export const defaultStoreConfig: StoreConfig = {
       noApprovedReviewsText: "No approved reviews with 4+ stars yet. {count} review(s) pending approval.",
       heroCtaText: "Shop Now",
       heroSecondaryCtaText: "Learn More",
+      // Hero section stats and labels
+      exploreBrandsButton: "Explore brands",
+      brandsStatLabel: "Brands",
+      stylesStatLabel: "Styles",
+      ratingStatLabel: "Rating",
+      heroDefaultTitle: "Multi-brand performance",
+      heroDefaultSubtitle: "Performance footwear and sportswear curated from the world's most trusted labels.",
       watchVideoButton: "Watch Video",
       // Category cards
       shopNowButton: "Shop Collection",
@@ -2536,6 +1130,46 @@ export const defaultStoreConfig: StoreConfig = {
       productCountText: "Products",
       // Newsletter
       newsletterEmailPlaceholder: "Enter your email",
+
+      // V6 Homepage Section Labels
+      curatedLabel: "Curated",
+      viewDetailsButton: "View details",
+      viewAllBrandsButton: "View all brands",
+      viewAllOffersButton: "View all offers",
+      allCollectionsButton: "All Collections",
+      itemsText: "items",
+      stylesText: "styles",
+      performanceLineupText: "Performance lineup",
+      brandLabel: "Brand",
+      performanceFallback: "Performance",
+
+      // Product Badge Labels
+      saleBadgeLabel: "Sale",
+      newBadgeLabel: "New",
+      featuredBadgeLabel: "Featured",
+      outOfStockBadgeLabel: "Out of stock",
+      lowStockBadgeLabel: "Low stock",
+
+      // Flash Deals / Sale Section
+      itemsOnSaleText: "{count} items on sale",
+      savePercentText: "Save {discount}%",
+      upToPercentOffText: "Up to {discount}% Off",
+
+      // Customer Feedback / Testimonials
+      reviewedProductLabel: "Reviewed Product",
+      verifiedBuyerLabel: "Verified Buyer",
+      anonymousLabel: "Anonymous",
+
+      // Collection Mosaic
+      shopCollectionButton: "Shop collection",
+      featuredCollectionLabel: "Featured Collection",
+
+      // Promotion Banner
+      specialOfferText: "Special Offer",
+      dontMissOutTitle: "Don't miss out",
+      shopSaleItemsButton: "Shop Sale Items",
+      allProductsButton: "All Products",
+      promoDescriptionFallback: "Premium performance gear for run, court, and studio. Limited time collection.",
     },
     checkout: {
       secureCheckout: "Secure Checkout",
@@ -2551,7 +1185,7 @@ export const defaultStoreConfig: StoreConfig = {
       // Footer links
       privacyPolicyLinkText: "Privacy Policy",
       termsOfServiceLinkText: "Terms of Service",
-      sslEncryptionMessage: "Protected by SSL encryption • Your payment info is safe",
+      sslEncryptionMessage: "Protected by SSL encryption â€¢ Your payment info is safe",
     },
     contact: {
       heroTitle: "Contact Us",
@@ -2597,6 +1231,12 @@ export const defaultStoreConfig: StoreConfig = {
     navbar: DEFAULT_NAVBAR_TEXT,
     error: DEFAULT_ERROR_TEXT,
     notFound: DEFAULT_NOT_FOUND_TEXT,
+  },
+
+  design: {
+    animations: { preset: "moderate" as const },
+    spacing: { sectionPaddingY: "normal" as const },
+    grid: { productColumns: { sm: 2, md: 2, lg: 4 } },
   },
 };
 
@@ -2867,5 +1507,45 @@ export function getThemeCSSVariables(config: StoreConfig): Record<string, string
     '--store-btn-bg': colors.primary,
     '--store-btn-hover-bg': primaryHover,
     '--store-btn-text': '#FFFFFF',
+
+    // Design tokens (animations, spacing, grid)
+    ...getDesignTokenCSSVariables(config),
+  };
+}
+
+/**
+ * Resolve design token CSS variables from config
+ */
+function getDesignTokenCSSVariables(config: StoreConfig): Record<string, string> {
+  const design = config.design;
+  if (!design) return {};
+
+  const preset = ANIMATION_PRESETS[design.animations.preset] ?? ANIMATION_PRESETS.moderate;
+  const anim = design.animations;
+  const spacing = design.spacing;
+  const grid = design.grid;
+
+  return {
+    // Animation tokens
+    '--design-card-hover-duration': `${anim.cardHoverDuration ?? preset.cardHoverDuration}ms`,
+    '--design-card-hover-lift': `-${anim.cardHoverLift ?? preset.cardHoverLift}px`,
+    '--design-image-zoom': `${anim.imageZoomScale ?? preset.imageZoomScale}`,
+    '--design-image-zoom-duration': `${anim.imageZoomDuration ?? preset.imageZoomDuration}ms`,
+    '--design-btn-hover-scale': `${anim.buttonHoverScale ?? preset.buttonHoverScale}`,
+    '--design-easing': anim.transitionEasing ?? 'ease-out',
+    '--design-reveal-duration': `${anim.sectionRevealDuration ?? preset.sectionRevealDuration}ms`,
+    '--design-marquee-speed': `${anim.marqueeSpeed ?? preset.marqueeSpeed}s`,
+    '--design-hero-rotate': `${anim.heroAutoRotate ?? preset.heroAutoRotate}s`,
+
+    // Spacing tokens
+    '--design-section-py': SPACING_PRESETS[spacing.sectionPaddingY]?.sectionPaddingY ?? '5rem',
+    '--design-container-max': `${spacing.containerMaxWidth ?? 1440}px`,
+    '--design-container-px': CONTAINER_PX_MAP[spacing.containerPaddingX ?? 'normal'],
+    '--design-card-gap': CARD_GAP_MAP[spacing.cardGap ?? 'normal'],
+
+    // Grid tokens
+    '--design-grid-sm': `${grid?.productColumns?.sm ?? 2}`,
+    '--design-grid-md': `${grid?.productColumns?.md ?? 2}`,
+    '--design-grid-lg': `${grid?.productColumns?.lg ?? 4}`,
   };
 }

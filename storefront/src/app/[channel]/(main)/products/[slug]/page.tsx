@@ -223,8 +223,6 @@ export default async function Page(props: {
 						currentProductId={product.id}
 						channel={params.channel}
 						maxItems={storeConfig.relatedProducts?.maxItems ?? 8}
-						title={storeConfig.relatedProducts?.title ?? "You May Also Like"}
-						subtitle={storeConfig.relatedProducts?.subtitle ?? "Customers also viewed these products"}
 					/>
 				</Suspense>
 			)}

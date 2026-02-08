@@ -26,7 +26,7 @@ const NewSmtpConfigurationPage: NextPage = () => {
   const { notifySuccess, notifyError } = useDashboardNotification();
 
   const { handleSubmit, control, setError, register } = useForm<SmtpCreateConfigurationInput>({
-    defaultValues: { encryption: "NONE" },
+    defaultValues: { encryption: "NONE", templateLanguage: "en" },
     resolver: zodResolver(smtpCreateConfigurationInputSchema),
   });
 
@@ -72,6 +72,24 @@ const NewSmtpConfigurationPage: NextPage = () => {
                 label="Configuration name"
                 helperText="Name of the configuration, for example 'Production' or 'Test'"
               />
+              <Divider />
+              <Text size={5} fontWeight="bold">
+                Template language
+              </Text>
+              <Text size={3} color="default2">
+                Choose the default language for email templates. This determines whether templates
+                are populated in English or Hebrew (RTL).
+              </Text>
+              <Box display="flex" gap={defaultPadding}>
+                <label>
+                  <input {...register("templateLanguage")} type="radio" value="en" />
+                  <Text paddingLeft={defaultPadding}>English</Text>
+                </label>
+                <label>
+                  <input {...register("templateLanguage")} type="radio" value="he" />
+                  <Text paddingLeft={defaultPadding}>עברית (Hebrew)</Text>
+                </label>
+              </Box>
               <Divider />
               <Text size={5} fontWeight="bold">
                 SMTP server connection

@@ -62,6 +62,9 @@ fragment ProductListItem on Product {
 			id
 			name
 			slug
+			file {
+				url
+			}
 		}
 	}
 	variants {

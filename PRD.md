@@ -2,9 +2,9 @@
 
 ## Mansour Shoes E-Commerce Platform
 
-**Version:** 1.2.0  
-**Last Updated:** February 2, 2026  
-**Status:** Active Development  
+**Version:** 1.3.0
+**Last Updated:** February 8, 2026
+**Status:** Active Development
 **Document Owner:** Development Team
 
 ---
@@ -78,21 +78,24 @@ Mansour Shoes E-Commerce Platform is a fully-featured, enterprise-grade e-commer
 
 ```
 saleor-platform/
-├── saleor/                    # Django/GraphQL Backend (Python)
-├── dashboard/                 # Admin Dashboard (React + Vite)
-├── storefront/               # Customer-Facing Storefront (Next.js)
+├── saleor/                    # Django/GraphQL Backend (Python 3.12)
+├── dashboard/                 # Admin Dashboard (React 18 + Vite)
+├── storefront/               # Customer-Facing Storefront (Next.js 15, React 19)
 ├── apps/                     # Saleor Apps Monorepo (Turborepo)
-│   └── apps/
-│       ├── storefront-control/   # CMS Configuration App
-│       ├── stripe/               # Stripe Payment Gateway
-│       ├── smtp/                 # Email Notifications
-│       ├── invoices/             # PDF Invoice Generation
-│       ├── newsletter/           # Newsletter & Campaigns
-│       └── sales-analytics/      # Sales Analytics Dashboard
+│   ├── apps/
+│   │   ├── storefront-control/   # CMS Configuration App (shadcn/ui + Tailwind)
+│   │   ├── bulk-manager/         # Bulk Import/Export Manager
+│   │   ├── stripe/               # Stripe Payment Gateway
+│   │   ├── smtp/                 # Email Notifications
+│   │   ├── invoices/             # PDF Invoice Generation
+│   │   ├── newsletter/           # Newsletter & Campaigns
+│   │   └── sales-analytics/      # Sales Analytics Dashboard
+│   └── packages/
+│       └── storefront-config/    # Shared config schema & types (@saleor/apps-storefront-config)
 ├── infra/                    # Docker Compose & Infrastructure
 │   └── docker-compose.dev.yml    # Main development orchestration
-├── backend/                  # Custom Plugins (if any)
 ├── PRD.md                    # This document (keep updated!)
+├── CLAUDE.md                 # Claude Code guidelines (keep updated!)
 └── AGENTS.md                 # Agent guidelines (keep updated!)
 ```
 
@@ -265,6 +268,14 @@ const price = formatPrice(product.pricing);
 │  │ (Payments) │ │ (Email)    │ │ App       │ │ App        │ │ Analytics  │  │
 │  └────────────┘ └────────────┘ └───────────┘ └────────────┘ └────────────┘  │
 │                                                                              │
+│  ┌────────────────────────────────────┐  ┌────────────────────────────────┐  │
+│  │       Bulk Manager App             │  │  Shared Config Package         │  │
+│  │  Import/Export: Products,          │  │  @saleor/apps-storefront-config│  │
+│  │  Categories, Collections,          │  │  Schema, Types, Migrations     │  │
+│  │  Customers, Orders, Vouchers,      │  │  (20 domain schema files)      │  │
+│  │  Gift Cards                        │  │                                │  │
+│  └────────────────────────────────────┘  └────────────────────────────────┘  │
+│                                                                              │
 │  ┌─────────────────────────────────────────────────────────────────────────┐ │
 │  │                     Storefront Control App (CMS)                        │ │
 │  │         Theme | Features | Content | Filters | SEO | Sections           │ │
@@ -330,11 +341,17 @@ Customer Request → CDN → Next.js SSR → GraphQL Query → Saleor API → Po
 | -------------- | ---------- | ------- | --------------------------- |
 | **Build**      | Turborepo  | Latest  | Monorepo build system       |
 | **Framework**  | Next.js    | 15.x    | Pages Router for apps       |
-| **UI**         | Macaw UI   | Latest  | Saleor design system        |
+| **UI (legacy)**| Macaw UI   | Latest  | Saleor design system (most apps) |
+| **UI (new)**   | shadcn/ui + Radix | Latest  | Storefront Control admin UI |
+| **Styling**    | Tailwind CSS | Latest | Storefront Control styling  |
+| **Forms**      | React Hook Form + Zod | Latest | Storefront Control forms |
 | **API**        | tRPC       | Latest  | Type-safe APIs              |
 | **Validation** | Zod        | Latest  | Schema validation           |
 | **Errors**     | neverthrow | Latest  | Result-based error handling |
 | **Charts**     | Tremor     | Latest  | Analytics visualizations    |
+| **Drag/Drop**  | @dnd-kit   | Latest  | Homepage section reordering |
+| **Search**     | cmdk       | Latest  | Command palette (Cmd+K)     |
+| **Shared**     | @saleor/apps-storefront-config | 1.0.0 | Shared config schema & types |
 
 ### 4.4 Infrastructure
 
@@ -367,6 +384,7 @@ All development happens inside Docker containers. **Never run npm/pnpm/npx direc
 | `saleor-invoice-app-dev`            | 3003 | PDF invoices             |
 | `saleor-newsletter-app-dev`         | 3005 | Newsletter management    |
 | `saleor-sales-analytics-app-dev`    | 3006 | Sales analytics          |
+| `saleor-bulk-manager-app-dev`       | 3007 | Bulk import/export       |
 
 ### 5.2 Container Dependencies
 
@@ -515,12 +533,13 @@ The Storefront Control App is a Saleor App that acts as a CMS for the storefront
 │  ┌─────────────────────────────────────────┐                                │
 │  │ Storefront Control App (Port 3004)       │                                │
 │  │ ─────────────────────────────────────── │                                │
-│  │ • Theme Editor (colors, fonts, radius)   │                                │
-│  │ • Feature Toggles (19+ features)         │                                │
-│  │ • Content Editor (all UI text)           │                                │
-│  │ • Homepage Section Manager               │                                │
-│  │ • SEO Settings                           │                                │
-│  │ • Localization (RTL/LTR, locales)        │                                │
+│  │ • 6-Section Admin: Store, Design, Pages,  │                                │
+│  │   Commerce, Content, Integrations         │                                │
+│  │ • shadcn/ui + Tailwind CSS + Radix UI    │                                │
+│  │ • Cmd+K Command Palette + Search         │                                │
+│  │ • Live Preview (PostMessage bridge)       │                                │
+│  │ • Homepage Section Drag & Drop           │                                │
+│  │ • Content Editor (6 sub-tabs)            │                                │
 │  └──────────────┬──────────────────────────┘                                │
 │                 │                                                            │
 │                 │ Saves config via App Metadata API                          │
@@ -580,7 +599,8 @@ The Storefront Control App is a Saleor App that acts as a CMS for the storefront
 **File:** `apps/apps/storefront-control/src/modules/config/schema.ts`
 
 ```typescript
-// Main config schema (~1900 lines)
+// Admin form schema (~227 lines, validates admin inputs)
+// Full config schema lives in shared package: @saleor/apps-storefront-config (2,332 lines across 20 files)
 export const StorefrontConfigSchema = z.object({
   version: z.number(),
   channelSlug: z.string(),
@@ -654,13 +674,15 @@ export default async function RootLayout({ children, params }) {
 **File:** `storefront/src/providers/StoreConfigProvider.tsx`
 
 ```typescript
-// Available hooks
+// 64 exported hooks — core access patterns:
 export function useStoreConfig(): StoreConfig;
+export function useConfigSection<K>(key: K): StoreConfig[K];
+export function useHomepageSection<K>(id: K): HomepageSectionConfig;
 export function useFeature(feature: string): boolean;
 export function useBranding(): BrandingConfig;
 export function useContentConfig(): ContentConfig;
 export function useRelatedProductsConfig(): RelatedProductsConfig;
-// ... 20+ specialized hooks
+// ... plus 57 more specialized hooks (see StoreConfigProvider.tsx)
 ```
 
 **Usage Example:**
@@ -730,8 +752,24 @@ Saleor Apps can extend the dashboard via:
 
 **Purpose:** CMS for storefront configuration without code deployments.
 
-**Container:** `saleor-storefront-control-app-dev`  
+**Container:** `saleor-storefront-control-app-dev`
 **Port:** 3004
+
+**Admin UI (Redesigned):**
+
+| Section | Page | Purpose |
+|---------|------|---------|
+| Store | `store.tsx` | Store info, name, description, legal links |
+| Design | `design.tsx` | Colors (10 tokens), typography, logos, card styles, homepage section ordering (drag & drop) |
+| Pages | `pages-config.tsx` | Landing page SEO, layout configuration |
+| Commerce | `commerce.tsx` | Currency, shipping, tax, filters, quick filters, promo popup |
+| Content | `content/` (6 tabs) | Global text, Shop text, Catalog text, Page text, Checkout text, Account text |
+| Integrations | `integrations.tsx` | Newsletter, SMTP, Stripe, social links |
+
+**Tech Stack:** shadcn/ui (19 primitives) + Radix UI + Tailwind CSS + React Hook Form + @dnd-kit
+**Features:** Cmd+K command palette, live preview (PostMessage iframe bridge), `useConfigPage` hook for form boilerplate elimination
+
+**Shared Config Package:** `@saleor/apps-storefront-config` — 20 domain schema files (2,332 lines), Zod-inferred types, config migrations. Used by both the admin app and the storefront.
 
 See [Section 7](#7-storefront-control-integration) for detailed integration documentation.
 
@@ -807,6 +845,47 @@ See [Section 7](#7-storefront-control-integration) for detailed integration docu
 - Filters: Time range presets, channel filter
 - Excel Export: Multi-sheet professional reports
 - Dashboard integration via app extensions
+
+### 9.7 Bulk Manager App
+
+**Purpose:** Full store data migration and batch operations tool. Import entire store data from Shopify, WooCommerce, or Magento via CSV/Excel.
+
+**Container:** `saleor-bulk-manager-app-dev`
+**Port:** 3007
+
+**Supported Entity Types:**
+
+| Entity | Import | Export | Upsert | Bulk Delete | Template | Match Key |
+|--------|--------|--------|--------|-------------|----------|-----------|
+| Products | Yes | Yes | Yes | Yes | Yes | slug / externalReference |
+| Categories | Yes | Yes | Yes | Yes | Yes | slug / externalReference |
+| Collections | Yes | Yes | Yes | Yes | Yes | slug / externalReference |
+| Customers | Yes | Yes | Yes | Yes | Yes | email |
+| Orders | No | Yes | No | No | No | N/A |
+| Vouchers | Yes | Yes | Yes | Yes | Yes | code |
+| Gift Cards | Yes | Yes | Yes | Yes | Yes | code |
+
+**Orders** also support: Bulk Fulfill (with warehouse + tracking), Bulk Cancel, Status Filters, Date Range Filters.
+
+**Product Import Features:**
+
+- Multi-image support (up to 5 images via `imageUrl` through `imageUrl5`)
+- Generic attributes via `attr:AttributeName` column prefixes
+- Variant attributes via `variantAttr:AttributeName` column prefixes
+- Multi-warehouse stock via `stock:WarehouseName` column prefixes
+- SEO fields, metadata, externalReference
+- Tax class assignment, collection assignment
+- Variant grouping (rows sharing same product name are grouped as variants)
+- Batch processing (5 products per batch)
+
+**CSV Conventions:**
+
+- Semicolons (`;`) for multi-value fields (e.g., `collections: "summer-sale;new-arrivals"`)
+- `key:value;key:value` format for metadata
+- Column prefixes: `attr:`, `variantAttr:`, `stock:` for dynamic fields
+- Boolean fields accept: `Yes/No`, `true/false`, `1/0`
+
+**Permissions:** MANAGE_PRODUCTS, MANAGE_ORDERS, MANAGE_USERS, MANAGE_APPS, MANAGE_DISCOUNTS, MANAGE_GIFT_CARD
 
 ---
 
@@ -1140,6 +1219,7 @@ docker exec -i saleor-postgres-dev psql -U saleor saleor < backup.sql
 | `apps/apps/invoices/`           | `saleor-invoice-app-dev`                                      |
 | `apps/apps/newsletter/`         | `saleor-newsletter-app-dev`                                   |
 | `apps/apps/sales-analytics/`    | `saleor-sales-analytics-app-dev`                              |
+| `apps/apps/bulk-manager/`       | `saleor-bulk-manager-app-dev`                                 |
 
 **Restart command:**
 
@@ -1272,7 +1352,7 @@ mutation CheckoutCreate($channel: String!) {
 | Metric   | Target  | Description              |
 | -------- | ------- | ------------------------ |
 | **LCP**  | < 2.5s  | Largest Contentful Paint |
-| **FID**  | < 100ms | First Input Delay        |
+| **INP**  | < 200ms | Interaction to Next Paint (replaced FID in 2024) |
 | **CLS**  | < 0.1   | Cumulative Layout Shift  |
 | **TTFB** | < 800ms | Time to First Byte       |
 
@@ -1353,6 +1433,7 @@ SMTP_HOST=smtp.example.com
 | 1.0.0   | 2026-02-02 | Initial PRD release                                                                     |
 | 1.1.0   | 2026-02-02 | Added Storefront Control integration details, Docker commands, maintenance requirements |
 | 1.2.0   | 2026-02-02 | Added Core Design Principles (Scalability, Configurability, Multi-Tenancy, Reusability) |
+| 1.3.0   | 2026-02-08 | Platform state review: Added shared config package, Storefront Control admin redesign (6-section nav, shadcn/ui, Cmd+K, live preview), Bulk Manager in architecture diagram, updated INP metric, 64 config hooks, account UI refurbish |
 
 ---
 

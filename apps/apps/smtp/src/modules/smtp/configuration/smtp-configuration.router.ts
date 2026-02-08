@@ -4,6 +4,8 @@ import { z } from "zod";
 
 import { BaseError } from "../../../errors";
 import { createLogger } from "../../../logger";
+import { BrandingService } from "../../branding/branding-service";
+import { TemplateBrandingProcessor } from "../../branding/template-branding-processor";
 import { updateChannelsInputSchema } from "../../channels/channel-configuration-schema";
 import { protectedWithConfigurationServices } from "../../trpc/protected-client-procedure-with-services";
 import { router } from "../../trpc/trpc-server";
@@ -17,6 +19,7 @@ import {
   smtpCreateConfigurationInputSchema,
   smtpGetConfigurationsInputSchema,
   smtpGetEventConfigurationInputSchema,
+  smtpResetTemplatesInputSchema,
   smtpUpdateBasicInformationSchema,
   smtpUpdateEventArraySchema,
   smtpUpdateEventSchema,
@@ -119,12 +122,8 @@ export const smtpConfigurationRouter = router({
       const logger = createLogger("smtpConfigurationRouter", { saleorApiUrl: ctx.saleorApiUrl });
 
       logger.debug(input, "smtpConfigurationRouter.create called");
-      const newConfiguration = {
-        ...smtpDefaultEmptyConfigurations.configuration(),
-        ...input,
-      };
 
-      return await ctx.smtpConfigurationService.createConfiguration(newConfiguration).match(
+      return await ctx.smtpConfigurationService.createConfiguration(input).match(
         (v) => v,
         (e) => throwTrpcErrorFromConfigurationServiceError(e),
       );
@@ -192,9 +191,19 @@ export const smtpConfigurationRouter = router({
 
       const payload = payloadResult.value;
 
+      // Replace branding variables with defaults before validation/compilation
+      // so MJML sees real color values instead of ${PRIMARY_COLOR} placeholders
+      const defaultBranding = BrandingService.getDefaultBranding();
+      const processedTemplate = input.template
+        ? TemplateBrandingProcessor.processTemplate(input.template, defaultBranding)
+        : "";
+      const processedSubject = input.subject
+        ? TemplateBrandingProcessor.processTemplate(input.subject, defaultBranding)
+        : "";
+
       const validationResult = emailCompiler.validate(
-        input.subject || "",
-        input.template || "",
+        processedSubject,
+        processedTemplate,
         payload,
       );
 
@@ -212,18 +221,18 @@ export const smtpConfigurationRouter = router({
       let renderedSubject = "";
       let renderedEmail = "";
 
-      if (input.subject) {
+      if (processedSubject) {
         const handlebarsCompiler = new HandlebarsTemplateCompiler();
-        const subjectResult = handlebarsCompiler.compile(input.subject, payload);
+        const subjectResult = handlebarsCompiler.compile(processedSubject, payload);
 
         if (subjectResult.isOk()) {
           renderedSubject = subjectResult.value.template;
         }
       }
 
-      if (input.template) {
+      if (processedTemplate) {
         const handlebarsCompiler = new HandlebarsTemplateCompiler();
-        const templateResult = handlebarsCompiler.compile(input.template, payload);
+        const templateResult = handlebarsCompiler.compile(processedTemplate, payload);
 
         if (templateResult.isOk()) {
           const mjmlCompiler = new MjmlCompiler();
@@ -320,6 +329,30 @@ export const smtpConfigurationRouter = router({
           eventType,
           eventConfiguration,
         })
+        .match(
+          (v) => v,
+          (e) => throwTrpcErrorFromConfigurationServiceError(e),
+        );
+    }),
+  resetEventTemplates: protectedWithConfigurationServices
+    .meta({ updateWebhooks: true })
+    .input(smtpResetTemplatesInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const logger = createLogger("smtpConfigurationRouter", { saleorApiUrl: ctx.saleorApiUrl });
+
+      logger.debug(input, "smtpConfigurationRouter.resetEventTemplates called");
+
+      const newEvents = smtpDefaultEmptyConfigurations.eventsConfiguration(input.language);
+
+      return ctx.smtpConfigurationService
+        .getConfiguration({ id: input.configurationId })
+        .andThen((configuration) =>
+          ctx.smtpConfigurationService.updateConfiguration({
+            ...configuration,
+            templateLanguage: input.language,
+            events: newEvents,
+          }),
+        )
         .match(
           (v) => v,
           (e) => throwTrpcErrorFromConfigurationServiceError(e),

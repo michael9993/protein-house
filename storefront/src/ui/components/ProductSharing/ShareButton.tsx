@@ -1,44 +1,80 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
+
+/** Share icon SVG — "box with arrow" style, universally recognized */
+function ShareIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+    </svg>
+  );
+}
 
 interface ShareButtonProps {
   productName: string;
-  productUrl: string;
+  /** Full product URL (used on PDP where window.location.href is available) */
+  productUrl?: string;
+  /** Product slug — ShareButton constructs the URL from current window location + slug */
+  productSlug?: string;
   productImage?: string | null;
   className?: string;
+  /** "default" = text button with icon, "icon" = icon-only button (for PDP action row & product cards) */
+  variant?: "default" | "icon";
+  /** Icon size class for the SVG (e.g. "h-4 w-4", "h-5 w-5") */
+  iconClassName?: string;
+}
+
+/** Build product URL from slug using current window location */
+function buildProductUrl(slug: string): string {
+  if (typeof window === "undefined") return "";
+  const parts = window.location.pathname.split("/").filter(Boolean);
+  const channel = parts[0] || "";
+  return `${window.location.origin}/${channel}/products/${slug}`;
 }
 
 export function ShareButton({
   productName,
   productUrl,
+  productSlug,
   productImage,
   className = "",
+  variant = "default",
+  iconClassName,
 }: ShareButtonProps) {
   const [showModal, setShowModal] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const shareData = {
-    title: productName,
-    text: `Check out ${productName}`,
-    url: productUrl,
-  };
+  const resolvedUrl = productUrl || (productSlug ? buildProductUrl(productSlug) : "");
 
-  const handleNativeShare = async () => {
+  const handleShare = useCallback(async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const url = productUrl || (productSlug ? buildProductUrl(productSlug) : "");
+    const shareData = {
+      title: productName,
+      text: `Check out ${productName}`,
+      url,
+    };
+
     if (navigator.share) {
       try {
         await navigator.share(shareData);
-        setShowModal(false);
-      } catch (err) {
-        // User cancelled or error occurred
-        console.log("Share cancelled or failed:", err);
+      } catch {
+        // User cancelled
       }
     } else {
       setShowModal(true);
     }
-  };
+  }, [productName, productUrl, productSlug]);
 
-  const handleSocialShare = (platform: string) => {
-    const encodedUrl = encodeURIComponent(productUrl);
+  const handleSocialShare = useCallback((platform: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const url = resolvedUrl;
+    const encodedUrl = encodeURIComponent(url);
     const encodedTitle = encodeURIComponent(productName);
     const encodedText = encodeURIComponent(`Check out ${productName}`);
 
@@ -66,28 +102,61 @@ export function ShareButton({
 
     window.open(shareUrl, "_blank", "width=600,height=400");
     setShowModal(false);
-  };
+  }, [resolvedUrl, productName, productImage]);
+
+  const handleCopy = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigator.clipboard.writeText(resolvedUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [resolvedUrl]);
+
+  const handleCloseModal = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowModal(false);
+  }, []);
+
+  // Icon-only variant — renders a compact icon button
+  const triggerButton = variant === "icon" ? (
+    <button
+      type="button"
+      onClick={handleShare}
+      className={className}
+      aria-label="Share product"
+    >
+      <ShareIcon className={iconClassName || "h-4 w-4"} />
+    </button>
+  ) : (
+    <button
+      type="button"
+      onClick={handleShare}
+      className={`inline-flex items-center gap-2 rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 ${className}`}
+      aria-label="Share product"
+    >
+      <ShareIcon className="h-4 w-4" />
+      Share
+    </button>
+  );
 
   return (
     <>
-      <button
-        onClick={handleNativeShare}
-        className={`inline-flex items-center gap-2 rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 ${className}`}
-        aria-label="Share product"
-      >
-        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-        </svg>
-        Share
-      </button>
+      {triggerButton}
 
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={handleCloseModal}
+        >
+          <div
+            className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-neutral-900">Share Product</h3>
               <button
-                onClick={() => setShowModal(false)}
+                onClick={handleCloseModal}
                 className="text-neutral-400 hover:text-neutral-600"
               >
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -98,7 +167,7 @@ export function ShareButton({
 
             <div className="space-y-2">
               <button
-                onClick={() => handleSocialShare("facebook")}
+                onClick={(e) => handleSocialShare("facebook", e)}
                 className="flex w-full items-center gap-3 rounded-lg border border-neutral-200 px-4 py-3 text-left hover:bg-neutral-50"
               >
                 <svg className="h-6 w-6 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
@@ -108,7 +177,7 @@ export function ShareButton({
               </button>
 
               <button
-                onClick={() => handleSocialShare("twitter")}
+                onClick={(e) => handleSocialShare("twitter", e)}
                 className="flex w-full items-center gap-3 rounded-lg border border-neutral-200 px-4 py-3 text-left hover:bg-neutral-50"
               >
                 <svg className="h-6 w-6 text-sky-500" fill="currentColor" viewBox="0 0 24 24">
@@ -118,7 +187,7 @@ export function ShareButton({
               </button>
 
               <button
-                onClick={() => handleSocialShare("pinterest")}
+                onClick={(e) => handleSocialShare("pinterest", e)}
                 className="flex w-full items-center gap-3 rounded-lg border border-neutral-200 px-4 py-3 text-left hover:bg-neutral-50"
               >
                 <svg className="h-6 w-6 text-red-600" fill="currentColor" viewBox="0 0 24 24">
@@ -128,7 +197,7 @@ export function ShareButton({
               </button>
 
               <button
-                onClick={() => handleSocialShare("whatsapp")}
+                onClick={(e) => handleSocialShare("whatsapp", e)}
                 className="flex w-full items-center gap-3 rounded-lg border border-neutral-200 px-4 py-3 text-left hover:bg-neutral-50"
               >
                 <svg className="h-6 w-6 text-green-600" fill="currentColor" viewBox="0 0 24 24">
@@ -138,7 +207,7 @@ export function ShareButton({
               </button>
 
               <button
-                onClick={() => handleSocialShare("email")}
+                onClick={(e) => handleSocialShare("email", e)}
                 className="flex w-full items-center gap-3 rounded-lg border border-neutral-200 px-4 py-3 text-left hover:bg-neutral-50"
               >
                 <svg className="h-6 w-6 text-neutral-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -152,18 +221,16 @@ export function ShareButton({
             <div className="mt-4 flex gap-2">
               <input
                 type="text"
-                value={productUrl}
+                value={resolvedUrl}
                 readOnly
                 className="flex-1 rounded-md border border-neutral-300 px-3 py-2 text-sm"
+                onClick={(e) => e.stopPropagation()}
               />
               <button
-                onClick={() => {
-                  navigator.clipboard.writeText(productUrl);
-                  // You could add a toast notification here
-                }}
+                onClick={handleCopy}
                 className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
               >
-                Copy
+                {copied ? "Copied!" : "Copy"}
               </button>
             </div>
           </div>
@@ -172,4 +239,3 @@ export function ShareButton({
     </>
   );
 }
-

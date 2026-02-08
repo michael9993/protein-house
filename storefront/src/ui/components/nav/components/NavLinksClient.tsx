@@ -45,8 +45,8 @@ interface NavLinksClientProps {
 export function NavLinksClient({ categories, collections, brands, channel }: NavLinksClientProps) {
   return (
     <>
-      {/* Shop All Dropdown - Always show first */}
-      <li className="inline-flex">
+      {/* Shop All Dropdown - static so fixed mega-menu can escape flex stacking */}
+      <li className="inline-flex" style={{ position: "static" }}>
         <ShopAllDropdown
           categories={categories}
           collections={collections}

@@ -71,7 +71,7 @@ export function ProductGallery({ images, productName, discountPercent, allowLigh
         )}
 
         {/* Main Swiper */}
-        <div className="relative w-full aspect-[4/3] md:aspect-square overflow-hidden rounded-2xl bg-neutral-100">
+        <div className="relative w-full aspect-square overflow-hidden rounded-2xl bg-neutral-100">
           <Swiper
             spaceBetween={10}
             navigation={true}
@@ -149,9 +149,9 @@ export function ProductGallery({ images, productName, discountPercent, allowLigh
               {images.map((image, index) => (
                 <SwiperSlide key={index}>
                   <button
-                     className={`relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg transition-all duration-300 w-full opacity-60 hover:opacity-100 hover:scale-95 ui-selected:opacity-100 ui-selected:ring-2 ring-offset-1`}
+                     className={`relative flex-shrink-0 overflow-hidden rounded-lg transition-all duration-300 w-full opacity-60 hover:opacity-100 hover:scale-95 ui-selected:opacity-100 ui-selected:ring-2 ring-offset-1`}
                   >
-                     <div className="relative h-20 w-full rounded-lg overflow-hidden bg-neutral-100">
+                     <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-neutral-100">
                         <Image
                           src={image.url}
                           alt={image.alt || `Thumbnail ${index + 1}`}

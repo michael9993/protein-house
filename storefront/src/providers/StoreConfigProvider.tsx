@@ -1,7 +1,20 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useMemo } from "react";
-import { StoreConfig, getThemeCSSVariables, storeConfig, DEFAULT_RTL_LOCALES } from "@/config";
+import { StoreConfig, getThemeCSSVariables, storeConfig, DEFAULT_RTL_LOCALES, ANIMATION_PRESETS } from "@/config";
+import { initPreviewMode } from "@/lib/preview-mode";
+import type {
+  TrustStripConfig,
+  BrandGridConfig,
+  CategoriesConfig,
+  TrendingConfig,
+  PromotionBannerConfig,
+  FlashDealsConfig,
+  CollectionMosaicConfig,
+  BestSellersConfig,
+  CustomerFeedbackConfig,
+  NewsletterConfig as NewsletterSectionConfig,
+} from "@saleor/apps-storefront-config";
 
 // ============================================
 // CONTEXT
@@ -57,6 +70,11 @@ export function StoreConfigProvider({
     return () => {
       window.removeEventListener('storefront-config-updated', handleConfigUpdate);
     };
+  }, []);
+
+  // Initialize preview mode bridge (iframe PostMessage -> CustomEvent)
+  useEffect(() => {
+    initPreviewMode();
   }, []);
 
   // Debug logging to verify config is received
@@ -181,6 +199,30 @@ export function useStoreConfig(): StoreConfig {
 }
 
 // ============================================
+// GENERIC CONFIG ACCESSOR HOOKS
+// ============================================
+
+/**
+ * Access any top-level config section by key
+ */
+export function useConfigSection<K extends keyof StoreConfig>(key: K): StoreConfig[K] {
+  const config = useStoreConfig();
+  return config[key];
+}
+
+/**
+ * Access a homepage section by id, returns null if not present
+ */
+export function useHomepageSection<K extends keyof NonNullable<StoreConfig["homepage"]>["sections"]>(
+  id: K
+): NonNullable<StoreConfig["homepage"]>["sections"][K] | null {
+  const config = useStoreConfig();
+  const sections = config.homepage?.sections;
+  if (!sections) return null;
+  return (sections as Record<string, unknown>)[id as string] as NonNullable<StoreConfig["homepage"]>["sections"][K] ?? null;
+}
+
+// ============================================
 // FEATURE FLAG HOOKS
 // ============================================
 
@@ -191,7 +233,9 @@ export function useFeature(
   featureName: keyof StoreConfig["features"]
 ): boolean {
   const config = useStoreConfig();
-  return config.features[featureName];
+  const value = config.features[featureName];
+  // Features can be boolean or number (like newProductDays), so coerce to boolean
+  return typeof value === 'boolean' ? value : !!value;
 }
 
 /**
@@ -488,14 +532,6 @@ export function usePromoPopupConfig(): NonNullable<StoreConfig["promoPopup"]> {
 }
 
 /**
- * Get hero content configuration (from Storefront Control app)
- */
-export function useHeroContent(): StoreConfig["heroContent"] {
-  const config = useStoreConfig();
-  return config.heroContent;
-}
-
-/**
  * Get cart display mode from Storefront Control app
  * Returns 'page' (default) or 'drawer'
  */
@@ -538,6 +574,11 @@ const DEFAULT_UI_CONFIG = {
     showWishlistButton: true,
     showAddToCart: true,
     imageAspectRatio: "square" as const,
+    hoverEffect: "lift" as const,
+    badgePosition: "top-start" as const,
+    showBrandLabel: true,
+    showRating: true,
+    imageFit: "cover" as const,
   },
   toasts: {
     position: "bottom-right" as const,
@@ -548,7 +589,33 @@ const DEFAULT_UI_CONFIG = {
     info: { backgroundColor: null, textColor: null, iconColor: null },
   },
   icons: { style: "outline" as const, defaultColor: null, activeColor: null },
+  filterSidebar: {
+    checkboxAccentColor: null as string | null,
+    sectionTitleFontSize: "xs" as const,
+    sectionTitleFontWeight: "semibold" as const,
+    sectionTitleColor: null as string | null,
+    sectionTitleHoverColor: null as string | null,
+    chevronColor: null as string | null,
+    chevronHoverColor: null as string | null,
+    itemTextFontSize: "xs" as const,
+    itemTextColor: null as string | null,
+    itemCountColor: null as string | null,
+    sizeChipSelectedBg: null as string | null,
+    sizeChipSelectedText: null as string | null,
+    sizeChipSelectedBorder: null as string | null,
+    clearAllButtonBg: null as string | null,
+    clearAllButtonText: null as string | null,
+    clearAllButtonBorder: null as string | null,
+    clearAllButtonHoverBg: null as string | null,
+    clearAllButtonHoverText: null as string | null,
+    priceInputFocusRingColor: null as string | null,
+    priceQuickButtonActiveBg: null as string | null,
+    priceQuickButtonActiveText: null as string | null,
+    mobileShowResultsBg: null as string | null,
+    mobileShowResultsText: null as string | null,
+  },
   cart: {
+    drawerSide: "right" as const,
     showDeleteText: false,
     showSaveForLater: false,
   },
@@ -1088,6 +1155,9 @@ export const DEFAULT_CONTENT_CONFIG = {
     quickMinLabel: "Quick Min",
     quickMaxLabel: "Quick Max",
     clearPriceFilter: "Clear",
+    applyPriceFilter: "Apply",
+    priceUnderLabel: "Under",
+    priceAboveLabel: "+",
   },
   productDetail: {
     freeShipping: "Free Shipping",
@@ -1489,7 +1559,7 @@ export const DEFAULT_CONTENT_CONFIG = {
  */
 export function useUiConfig(): NonNullable<StoreConfig["ui"]> {
   const config = useStoreConfig();
-  if (!config.ui) return { ...DEFAULT_UI_CONFIG, activeFiltersTags: {} } as NonNullable<StoreConfig["ui"]>;
+  if (!config.ui) return { ...DEFAULT_UI_CONFIG, activeFiltersTags: {}, filterSidebar: { ...DEFAULT_UI_CONFIG.filterSidebar } } as NonNullable<StoreConfig["ui"]>;
   return {
     ...DEFAULT_UI_CONFIG,
     ...config.ui,
@@ -1500,8 +1570,65 @@ export function useUiConfig(): NonNullable<StoreConfig["ui"]> {
     productCard: { ...DEFAULT_UI_CONFIG.productCard, ...config.ui.productCard },
     toasts: { ...DEFAULT_UI_CONFIG.toasts, ...config.ui.toasts },
     icons: { ...DEFAULT_UI_CONFIG.icons, ...config.ui.icons },
+    filterSidebar: { ...DEFAULT_UI_CONFIG.filterSidebar, ...config.ui.filterSidebar },
     cart: { ...DEFAULT_UI_CONFIG.cart, ...config.ui.cart },
     activeFiltersTags: config.ui.activeFiltersTags ?? {},
+  };
+}
+
+// Default filter sidebar config (with resolved fallback colors)
+const DEFAULT_FILTER_SIDEBAR_CONFIG = {
+  checkboxAccentColor: "#171717",
+  sectionTitleColor: "#171717",
+  sectionTitleHoverColor: "#525252",
+  chevronColor: "#a3a3a3",
+  chevronHoverColor: "#525252",
+  itemTextColor: "#262626",
+  itemCountColor: "#a3a3a3",
+  sizeChipSelectedBg: "#171717",
+  sizeChipSelectedText: "#ffffff",
+  sizeChipSelectedBorder: "#171717",
+  clearAllButtonBg: "#f5f5f5",
+  clearAllButtonText: "#525252",
+  clearAllButtonBorder: "#e5e5e5",
+  clearAllButtonHoverBg: "#e5e5e5",
+  clearAllButtonHoverText: "#171717",
+  priceQuickButtonActiveText: "#ffffff",
+  mobileShowResultsText: "#ffffff",
+};
+
+/**
+ * Get filter sidebar configuration with fallback colors resolved
+ * Colors fall back to sensible neutral defaults when null
+ * Price/mobile colors fall back to branding.colors.primary when null
+ */
+export function useFilterSidebarConfig() {
+  const ui = useUiConfig();
+  const branding = useBranding();
+  const fs = ui.filterSidebar ?? {};
+  return {
+    checkboxAccentColor: fs.checkboxAccentColor ?? DEFAULT_FILTER_SIDEBAR_CONFIG.checkboxAccentColor,
+    sectionTitleFontSize: fs.sectionTitleFontSize ?? "xs",
+    sectionTitleFontWeight: fs.sectionTitleFontWeight ?? "semibold",
+    sectionTitleColor: fs.sectionTitleColor ?? DEFAULT_FILTER_SIDEBAR_CONFIG.sectionTitleColor,
+    sectionTitleHoverColor: fs.sectionTitleHoverColor ?? DEFAULT_FILTER_SIDEBAR_CONFIG.sectionTitleHoverColor,
+    chevronColor: fs.chevronColor ?? DEFAULT_FILTER_SIDEBAR_CONFIG.chevronColor,
+    chevronHoverColor: fs.chevronHoverColor ?? DEFAULT_FILTER_SIDEBAR_CONFIG.chevronHoverColor,
+    itemTextColor: fs.itemTextColor ?? DEFAULT_FILTER_SIDEBAR_CONFIG.itemTextColor,
+    itemCountColor: fs.itemCountColor ?? DEFAULT_FILTER_SIDEBAR_CONFIG.itemCountColor,
+    sizeChipSelectedBg: fs.sizeChipSelectedBg ?? DEFAULT_FILTER_SIDEBAR_CONFIG.sizeChipSelectedBg,
+    sizeChipSelectedText: fs.sizeChipSelectedText ?? DEFAULT_FILTER_SIDEBAR_CONFIG.sizeChipSelectedText,
+    sizeChipSelectedBorder: fs.sizeChipSelectedBorder ?? DEFAULT_FILTER_SIDEBAR_CONFIG.sizeChipSelectedBorder,
+    clearAllButtonBg: fs.clearAllButtonBg ?? DEFAULT_FILTER_SIDEBAR_CONFIG.clearAllButtonBg,
+    clearAllButtonText: fs.clearAllButtonText ?? DEFAULT_FILTER_SIDEBAR_CONFIG.clearAllButtonText,
+    clearAllButtonBorder: fs.clearAllButtonBorder ?? DEFAULT_FILTER_SIDEBAR_CONFIG.clearAllButtonBorder,
+    clearAllButtonHoverBg: fs.clearAllButtonHoverBg ?? DEFAULT_FILTER_SIDEBAR_CONFIG.clearAllButtonHoverBg,
+    clearAllButtonHoverText: fs.clearAllButtonHoverText ?? DEFAULT_FILTER_SIDEBAR_CONFIG.clearAllButtonHoverText,
+    priceInputFocusRingColor: fs.priceInputFocusRingColor ?? branding.colors.primary,
+    priceQuickButtonActiveBg: fs.priceQuickButtonActiveBg ?? branding.colors.primary,
+    priceQuickButtonActiveText: fs.priceQuickButtonActiveText ?? DEFAULT_FILTER_SIDEBAR_CONFIG.priceQuickButtonActiveText,
+    mobileShowResultsBg: fs.mobileShowResultsBg ?? branding.colors.primary,
+    mobileShowResultsText: fs.mobileShowResultsText ?? DEFAULT_FILTER_SIDEBAR_CONFIG.mobileShowResultsText,
   };
 }
 
@@ -1714,6 +1841,99 @@ export function useRelatedProductsConfig(): NonNullable<StoreConfig["relatedProd
   const config = useStoreConfig();
   return { ...DEFAULT_RELATED_PRODUCTS_CONFIG, ...config.relatedProducts };
 }
+
+// ============================================
+// DESIGN TOKENS HOOK
+// ============================================
+
+const DEFAULT_DESIGN_TOKENS = {
+  animations: {
+    ...ANIMATION_PRESETS.moderate,
+    transitionEasing: 'ease-out' as const,
+  },
+  spacing: {
+    sectionPaddingY: 'normal' as const,
+    containerMaxWidth: 1440,
+    containerPaddingX: 'normal' as const,
+    cardGap: 'normal' as const,
+  },
+  grid: {
+    productColumns: { sm: 2, md: 2, lg: 4 },
+  },
+};
+
+export function useDesignTokens() {
+  const config = useStoreConfig();
+  const design = config.design;
+  if (!design) return DEFAULT_DESIGN_TOKENS;
+
+  const preset = ANIMATION_PRESETS[design.animations.preset] ?? ANIMATION_PRESETS.moderate;
+  return {
+    animations: {
+      cardHoverDuration: design.animations.cardHoverDuration ?? preset.cardHoverDuration,
+      cardHoverLift: design.animations.cardHoverLift ?? preset.cardHoverLift,
+      imageZoomScale: design.animations.imageZoomScale ?? preset.imageZoomScale,
+      imageZoomDuration: design.animations.imageZoomDuration ?? preset.imageZoomDuration,
+      buttonHoverScale: design.animations.buttonHoverScale ?? preset.buttonHoverScale,
+      transitionEasing: design.animations.transitionEasing ?? 'ease-out' as const,
+      sectionRevealDuration: design.animations.sectionRevealDuration ?? preset.sectionRevealDuration,
+      marqueeSpeed: design.animations.marqueeSpeed ?? preset.marqueeSpeed,
+      heroAutoRotate: design.animations.heroAutoRotate ?? preset.heroAutoRotate,
+    },
+    spacing: design.spacing,
+    grid: design.grid ?? { productColumns: { sm: 2, md: 2, lg: 4 } },
+  };
+}
+
+// Re-export homepage section types from shared package
+export type {
+  TrustStripConfig,
+  BrandGridConfig,
+  CategoriesConfig,
+  TrendingConfig,
+  PromotionBannerConfig,
+  FlashDealsConfig,
+  CollectionMosaicConfig,
+  BestSellersConfig,
+  CustomerFeedbackConfig,
+  NewsletterSectionConfig,
+};
+
+// ============================================
+// HOMEPAGE SECTION HOOKS
+// ============================================
+
+/**
+ * Get section order for homepage
+ * Returns the configured order or default order
+ */
+export function useSectionOrder() {
+  const config = useHomepageConfig();
+  return config?.sectionOrder ?? [];
+}
+
+// Homepage section hooks — thin wrappers over useHomepageSection for discoverability
+export const useHeroConfig = () => useHomepageSection("hero");
+export const useTrustStripConfig = () => useHomepageSection("trustStrip") as TrustStripConfig | null;
+export const useMarqueeConfig = () => useHomepageSection("marquee");
+export const useBrandGridConfig = () => useHomepageSection("brandGrid") as BrandGridConfig | null;
+export const useCategoriesConfig = () => useHomepageSection("categories") as CategoriesConfig | null;
+export const useTrendingConfig = () => useHomepageSection("trending") as TrendingConfig | null;
+export const usePromotionBannerConfig = () => useHomepageSection("promotionBanner") as PromotionBannerConfig | null;
+export const useFlashDealsConfig = () => useHomepageSection("flashDeals") as FlashDealsConfig | null;
+export const useCollectionMosaicConfig = () => useHomepageSection("collectionMosaic") as CollectionMosaicConfig | null;
+export const useBestSellersConfig = () => useHomepageSection("bestSellers") as BestSellersConfig | null;
+export const useCustomerFeedbackConfig = () => useHomepageSection("customerFeedback") as CustomerFeedbackConfig | null;
+export const useNewsletterSectionConfig = () => useHomepageSection("newsletter") as NewsletterSectionConfig | null;
+
+// Backward compatibility aliases for V6 hooks
+export const useV6HomepageConfig = () => useHomepageConfig();
+export const useV6PromotionBanner = usePromotionBannerConfig;
+export const useV6FlashDeals = useFlashDealsConfig;
+export const useV6CollectionMosaic = useCollectionMosaicConfig;
+export const useV6Trending = useTrendingConfig;
+export const useV6BestSellers = useBestSellersConfig;
+export const useV6CustomerFeedback = useCustomerFeedbackConfig;
 
 // ============================================
 // UTILITY COMPONENTS

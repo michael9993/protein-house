@@ -96,6 +96,28 @@ html[dir] body {
   --store-radius-sm: 4px;
   --store-radius-lg: 16px;
   --store-radius-full: 9999px;
+
+  /* Design Tokens — Animation */
+  --design-card-hover-duration: 300ms;
+  --design-card-hover-lift: -2px;
+  --design-image-zoom: 1.05;
+  --design-image-zoom-duration: 700ms;
+  --design-btn-hover-scale: 1.05;
+  --design-easing: ease-out;
+  --design-reveal-duration: 700ms;
+  --design-marquee-speed: 32s;
+  --design-hero-rotate: 4s;
+
+  /* Design Tokens — Spacing */
+  --design-section-py: 5rem;
+  --design-container-max: 1440px;
+  --design-container-px: 1.5rem;
+  --design-card-gap: 1.5rem;
+
+  /* Design Tokens — Grid */
+  --design-grid-sm: 2;
+  --design-grid-md: 2;
+  --design-grid-lg: 4;
 }
 
 /* Dark mode class-based (controlled by DarkModeProvider) */
@@ -193,6 +215,214 @@ body {
   background-color: var(--store-bg);
   color: var(--store-text);
   font-family: var(--store-font-body);
+}
+
+/* ============================================
+   HEADER / NAVBAR STYLES
+   ============================================ */
+
+.header-bar {
+  background-color: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+}
+
+/* Nav action buttons — unified hover feel */
+.nav-action-btn {
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.nav-action-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.nav-action-btn:hover::after {
+  opacity: 0.04;
+}
+
+.nav-action-btn:active::after {
+  opacity: 0.08;
+}
+
+/* Nav link buttons — underline-style hover */
+.nav-link-btn {
+  position: relative;
+}
+
+.nav-link-btn::before {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  inset-inline-start: 50%;
+  width: 0;
+  height: 2px;
+  background: currentColor;
+  border-radius: 1px;
+  transform: translateX(-50%);
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[dir="rtl"] .nav-link-btn::before {
+  transform: translateX(50%);
+}
+
+.nav-link-btn:hover::before {
+  width: 60%;
+}
+
+/* Search input focus glow */
+.search-input:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--store-primary) 8%, transparent);
+}
+
+/* Dark mode header */
+:root.dark .header-bar {
+  background-color: rgba(15, 23, 42, 0.97);
+}
+
+:root.dark .nav-action-btn:hover::after {
+  opacity: 0.08;
+}
+
+:root.dark .search-input {
+  background-color: var(--store-neutral-50);
+  border-color: var(--store-neutral-200);
+  color: var(--store-text);
+}
+
+:root.dark .search-input::placeholder {
+  color: var(--store-neutral-400);
+}
+
+:root.dark .search-input:hover {
+  background-color: var(--store-neutral-100);
+  border-color: var(--store-neutral-300);
+}
+
+:root.dark .search-input:focus {
+  background-color: var(--store-bg);
+  border-color: var(--store-neutral-400);
+}
+
+/* ============================================
+   AUTH PAGES STYLES
+   ============================================ */
+
+.auth-page {
+  position: relative;
+}
+
+.auth-page::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50vh;
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, color-mix(in srgb, var(--store-primary) 3%, transparent), transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.auth-card {
+  background-color: var(--store-bg);
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 4px 16px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--store-neutral-200);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
+  height: 3px;
+  background: linear-gradient(to right, var(--store-primary), color-mix(in srgb, var(--store-primary) 40%, transparent));
+}
+
+[dir="rtl"] .auth-card::before {
+  background: linear-gradient(to left, var(--store-primary), color-mix(in srgb, var(--store-primary) 40%, transparent));
+}
+
+.auth-input {
+  background-color: var(--store-neutral-50);
+  border-color: var(--store-neutral-200);
+  color: var(--store-text);
+}
+
+.auth-input::placeholder {
+  color: var(--store-neutral-400);
+}
+
+.auth-input:hover {
+  background-color: var(--store-bg);
+  border-color: var(--store-neutral-300);
+}
+
+.auth-input:focus {
+  border-color: var(--store-primary) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--store-primary) 10%, transparent) !important;
+  background-color: var(--store-bg) !important;
+  outline: none !important;
+}
+
+.auth-submit {
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--store-primary) 25%, transparent);
+}
+
+.auth-submit:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.auth-social-btn {
+  transition: all 0.2s ease;
+  background-color: var(--store-bg);
+  border-color: var(--store-neutral-200);
+  color: var(--store-text);
+}
+
+.auth-social-btn:hover:not(:disabled) {
+  background-color: var(--store-neutral-50);
+  border-color: var(--store-neutral-300);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.auth-label {
+  color: var(--store-text);
+}
+
+.auth-status-info {
+  border-color: color-mix(in srgb, var(--store-primary) 20%, transparent);
+  background-color: color-mix(in srgb, var(--store-primary) 4%, transparent);
+  color: color-mix(in srgb, var(--store-primary) 80%, black);
+}
+
+:root.dark .auth-card {
+  background-color: var(--store-bg);
+  border-color: var(--store-neutral-200);
+}
+
+:root.dark .auth-page::before {
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, color-mix(in srgb, var(--store-primary) 5%, transparent), transparent);
 }
 
 /* ============================================
@@ -446,12 +676,48 @@ body {
   animation: fadeInUp 0.4s ease-out both;
 }
 
+/* ============================================
+   MEGA MENU ANIMATIONS
+   ============================================ */
+
+@keyframes megaMenuSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes megaMenuCrossfade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mega-menu-enter {
+  animation: megaMenuSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.mega-menu-crossfade {
+  animation: megaMenuCrossfade 0.2s ease-out both;
+}
+
 /* Reduce motion preference */
 @media (prefers-reduced-motion: reduce) {
 
   .animate-fade-in,
   .animate-fade-in-up,
-  .animate-on-scroll {
+  .animate-on-scroll,
+  .mega-menu-enter,
+  .mega-menu-crossfade {
     animation: none;
     opacity: 1;
     transform: none;
@@ -856,6 +1122,107 @@ html {
   animation: bounce 0.5s ease;
 }
 
+/* ============================================
+   MARQUEE — Ryan Mulligan pattern
+   https://ryanmulligan.dev/blog/css-marquee/
+   ============================================ */
+
+.marquee {
+  --marquee-gap: 2rem;
+  display: flex;
+  overflow: hidden;
+  user-select: none;
+  gap: var(--marquee-gap);
+  direction: ltr; /* Force LTR so copies flow left→right (fixes RTL pages) */
+}
+
+.marquee__content {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-around;
+  min-width: 100%;
+  gap: var(--marquee-gap);
+  animation: marquee-scroll var(--marquee-speed, 30s) linear infinite;
+}
+
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-100% - var(--marquee-gap))); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee__content {
+    animation-play-state: paused;
+  }
+}
+
+/* ============================================
+   HERO SECTION STYLES (for card deck animation)
+   ============================================ */
+
+.hero-aurora {
+  background:
+    radial-gradient(circle at 15% 20%, rgba(20, 20, 20, 0.06), transparent 45%),
+    radial-gradient(circle at 85% 10%, rgba(0, 0, 0, 0.08), transparent 45%),
+    radial-gradient(circle at 60% 80%, rgba(0, 0, 0, 0.06), transparent 55%);
+}
+
+.hero-card-ease {
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Hero card floating animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Hero card gradient border rotation */
+@keyframes gradient-rotate {
+  0% {
+    --gradient-angle: 0deg;
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    --gradient-angle: 360deg;
+    background-position: 0% 50%;
+  }
+}
+
+/* Hero card glow pulse */
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Hero card shimmer sweep */
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Register CSS custom property for gradient angle animation */
+@property --gradient-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
 /* Scrollbar utilities */
 .scrollbar-hide {
   -ms-overflow-style: none;
@@ -887,6 +1254,52 @@ html {
 
 .scrollbar-thin:hover::-webkit-scrollbar-thumb {
   background-color: rgb(163 163 163);
+}
+
+/* ============================================
+   DUAL-HANDLE PRICE RANGE SLIDER
+   ============================================ */
+.price-range-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  pointer-events: none;
+}
+
+.price-range-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 18px;
+  width: 18px;
+  border-radius: 9999px;
+  background: var(--thumb-color, #171717);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.price-range-thumb::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.price-range-thumb::-moz-range-thumb {
+  height: 18px;
+  width: 18px;
+  border-radius: 9999px;
+  background: var(--thumb-color, #171717);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.price-range-thumb::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 /* ============================================

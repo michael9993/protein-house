@@ -135,7 +135,7 @@ export function FeaturedBrands({
             {displayBrands.map((brand, index) => (
               <LinkWithChannel
                 key={brand.id}
-                href={`/collections/${brand.slug}`}
+                href={`/products?brands=${encodeURIComponent(brand.slug)}`}
                 className="group relative flex items-center justify-center overflow-hidden border border-neutral-200/50 bg-white p-6 transition-shadow duration-200 ease-out"
                 style={{ 
                   borderRadius: `var(--store-radius)`,
@@ -185,7 +185,7 @@ export function FeaturedBrands({
         {/* View All Brands */}
         <div className="mt-10 text-center">
           <LinkWithChannel
-            href="/brands"
+            href="/products"
             className="inline-flex items-center gap-2 font-medium transition-colors"
             style={{ color: branding.colors.primary }}
           >

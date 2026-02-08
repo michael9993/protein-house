@@ -68,6 +68,12 @@ $apps = @(
         AppId = "saleor.app.sales-analytics"
         EnvVar = "SALES_ANALYTICS_APP_TUNNEL_URL"
         ManifestPath = "/api/manifest"
+    },
+    @{
+        Name = "Bulk Manager App"
+        AppId = "saleor.app.bulk-manager"
+        EnvVar = "BULK_MANAGER_APP_TUNNEL_URL"
+        ManifestPath = "/api/manifest"
     }
 )
 
