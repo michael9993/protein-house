@@ -161,3 +161,9 @@ class PermissionsMixin(models.Model):  # noqa: D205, D212, D400, D415
         If an object is passed, check if the user has all required perms for it.
         """
         return all(self.has_perm(perm, obj) for perm in perm_list)
+
+    def has_module_perms(self, app_label):
+        """Return True if the user has any permissions in the given app label."""
+        if self.is_active and self.is_superuser:  # type: ignore[attr-defined] # mixin
+            return True
+        return False

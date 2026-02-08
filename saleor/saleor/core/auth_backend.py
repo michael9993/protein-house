@@ -158,3 +158,24 @@ def load_user_from_request(request):
     if payload.get("is_staff"):
         user.is_staff = True
     return user
+
+
+class AdminModelBackend(BaseBackend):
+    """Simple password-based backend for Django Admin login (DEBUG only)."""
+
+    def authenticate(self, request=None, username=None, password=None, **kwargs):
+        if username is None or password is None:
+            return None
+        try:
+            user = User.objects.get(email=username)
+        except User.DoesNotExist:
+            return None
+        if user.check_password(password) and user.is_active and user.is_staff:
+            return user
+        return None
+
+    def get_user(self, user_id):
+        try:
+            return User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return None

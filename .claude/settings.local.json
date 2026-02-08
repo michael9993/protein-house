@@ -93,7 +93,8 @@
       "WebFetch(domain:endoflife.date)",
       "Bash(for app in /c/Users/micha/saleor-platform/saleor/saleor/*/models.py)",
       "Bash(for dir in account product order core payment)",
-      "Bash(do [ -f /c/Users/micha/saleor-platform/saleor/saleor/$dir/admin.py ])"
+      "Bash(do [ -f /c/Users/micha/saleor-platform/saleor/saleor/$dir/admin.py ])",
+      "mcp__plugin_playwright_playwright__browser_fill_form"
     ],
     "deny": [
       "Read(./.env*)",

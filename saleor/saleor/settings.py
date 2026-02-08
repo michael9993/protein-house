@@ -217,6 +217,9 @@ MEDIA_URL: str = os.environ.get("MEDIA_URL", "/media/")
 
 STATIC_ROOT: str = os.path.join(PROJECT_ROOT, "static")
 STATIC_URL: str = os.environ.get("STATIC_URL", "/static/")
+# Django Admin needs STATIC_URL != "/" to avoid conflicting with MEDIA_URL
+if DEBUG and STATIC_URL == "/":
+    STATIC_URL = "/static/"
 STATICFILES_DIRS = [
     ("images", os.path.join(PROJECT_ROOT, "saleor", "static", "images"))
 ]
@@ -231,6 +234,13 @@ context_processors = [
     "django.template.context_processors.static",
     "saleor.site.context_processors.site",
 ]
+
+if DEBUG:
+    context_processors += [
+        "django.template.context_processors.request",
+        "django.contrib.auth.context_processors.auth",
+        "django.contrib.messages.context_processors.messages",
+    ]
 
 loaders = [
     "django.template.loaders.filesystem.Loader",
@@ -281,6 +291,11 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "saleor.core.middleware.jwt_refresh_token_middleware",
 ]
+
+if DEBUG:
+    MIDDLEWARE.insert(1, "django.contrib.sessions.middleware.SessionMiddleware")
+    MIDDLEWARE.insert(2, "django.contrib.auth.middleware.AuthenticationMiddleware")
+    MIDDLEWARE.append("django.contrib.messages.middleware.MessageMiddleware")
 
 ENABLE_RESTRICT_WRITER_MIDDLEWARE = get_bool_from_env(
     "ENABLE_RESTRICT_WRITER_MIDDLEWARE", False
@@ -335,6 +350,19 @@ INSTALLED_APPS = [
     "django_filters",
     "phonenumber_field",
 ]
+
+# Django Admin (dev only)
+if DEBUG:
+    INSTALLED_APPS = [
+        "django.contrib.admin",
+        "django.contrib.sessions",
+        "django.contrib.messages",
+        "django.forms",
+    ] + INSTALLED_APPS
+    FORM_RENDERER = "django.forms.renderers.DjangoTemplates"
+    # saleor.auth occupies the 'auth' app label, so we silence admin's
+    # check for django.contrib.auth — our compat shim provides equivalents.
+    SILENCED_SYSTEM_CHECKS = ["admin.E405"]
 
 ENABLE_DJANGO_EXTENSIONS = get_bool_from_env("ENABLE_DJANGO_EXTENSIONS", False)
 if ENABLE_DJANGO_EXTENSIONS:
@@ -686,6 +714,9 @@ AUTHENTICATION_BACKENDS = [
     "saleor.core.auth_backend.JSONWebTokenBackend",
     "saleor.core.auth_backend.PluginBackend",
 ]
+
+if DEBUG:
+    AUTHENTICATION_BACKENDS.append("saleor.core.auth_backend.AdminModelBackend")
 
 # Expired checkouts settings - defines after what time checkouts will be deleted
 ANONYMOUS_CHECKOUTS_TIMEDELTA = datetime.timedelta(

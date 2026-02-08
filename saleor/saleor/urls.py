@@ -65,6 +65,14 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
+    from django.contrib import admin
+    from django.views.generic.base import RedirectView
+
+    urlpatterns = [
+        re_path(r"^admin$", RedirectView.as_view(url="/admin/", permanent=True)),
+        re_path(r"^admin/", admin.site.urls),
+    ] + urlpatterns
+
     from .core import views
     import warnings
 

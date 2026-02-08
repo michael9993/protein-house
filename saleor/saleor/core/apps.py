@@ -18,6 +18,10 @@ class CoreAppConfig(AppConfig):
             settings.SENTRY_INIT(settings.SENTRY_DSN, settings.SENTRY_OPTS)
         self.validate_jwt_manager()
 
+        if settings.DEBUG:
+            from . import admin_compat  # noqa: F401
+            import saleor.admin  # noqa: F401
+
     def validate_jwt_manager(self) -> None:
         jwt_manager_path = getattr(settings, "JWT_MANAGER_PATH", None)
         if not jwt_manager_path:
