@@ -112,7 +112,8 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(test:*)",
       "Bash(npx patch-package:*)",
-      "Bash(npx @saleor/configurator deploy:*)"
+      "Bash(npx @saleor/configurator deploy:*)",
+      "Bash(head:*)"
     ],
     "deny": [
       "Read(./.env*)",
