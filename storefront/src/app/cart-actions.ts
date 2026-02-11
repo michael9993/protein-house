@@ -43,11 +43,7 @@ export async function deleteLineAction(
             return { success: false, error: message };
         }
 
-        revalidatePath("/cart");
         revalidatePath(`/${channel}/cart`);
-        if (productSlug) {
-            revalidatePath(`/${channel}/products/${productSlug}`);
-        }
         return { success: true };
     } catch (err) {
         console.error("[Delete Line] Error:", err);
@@ -100,15 +96,7 @@ export async function updateLineQuantityAction(channel: string, lineId: string, 
             cache: "no-cache",
         });
 
-        // Revalidate cart page
-        revalidatePath("/cart");
         revalidatePath(`/${channel}/cart`);
-
-        // Revalidate product page if product slug is provided
-        if (productSlug) {
-            revalidatePath(`/${channel}/products/${productSlug}`);
-        }
-
         return { success: true };
     } catch (error: any) {
         console.error("[Update Quantity] Error:", error);
@@ -140,7 +128,6 @@ export async function updateLineQuantityAction(channel: string, lineId: string, 
 export async function applyPromoCodeAction(channel: string, checkoutId: string, promoCode: string): Promise<{ success: boolean; error?: string }> {
     const result = await Checkout.applyPromoCode(checkoutId, promoCode.trim());
     if (result.success) {
-        revalidatePath("/cart");
         revalidatePath(`/${channel}/cart`);
         return { success: true };
     }
@@ -155,7 +142,6 @@ export async function removePromoCodeAction(
 ): Promise<{ success: boolean; error?: string }> {
     const result = await Checkout.removePromoCode(checkoutId, options);
     if (result.success) {
-        revalidatePath("/cart");
         revalidatePath(`/${channel}/cart`);
         return { success: true };
     }

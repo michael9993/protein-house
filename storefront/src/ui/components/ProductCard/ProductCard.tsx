@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useCallback } from "react";
 import Image from "next/image";
+import { useParams } from "next/navigation";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { formatMoneyRange, formatMoney } from "@/lib/utils";
 import type { ProductListItemFragment } from "@/gql/graphql";
@@ -45,7 +46,8 @@ const aspectRatioMap = {
 export function ProductCard({ product, loading = "lazy", priority = false }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
-  
+  const { channel } = useParams<{ channel?: string }>();
+
   // Use hooks instead of direct config import
   const branding = useBranding();
   const wishlistEnabled = useFeature("wishlist");
@@ -115,6 +117,7 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
         imageAlt: product.thumbnail?.alt || product.name,
         category: product.category?.name || undefined,
         inStock: isInStock,
+        channel: channel || undefined,
       });
     }
   };
@@ -200,7 +203,7 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
                   color: saleBadgeStyle.color,
                 }}
               >
-                {content.product.saleBadgeText} -{discountPercent}%
+                -{discountPercent}%
               </span>
             )}
             {!isInStock && (

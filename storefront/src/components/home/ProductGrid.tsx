@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import { useParams } from "next/navigation";
 import { useStoreConfig, useFeature, useUiConfig, useContentConfig } from "@/providers/StoreConfigProvider";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { type ProductListItemFragment } from "@/gql/graphql";
@@ -210,6 +211,7 @@ function ProductCard({
   const quickAddLabel = (content.product as { quickAddButton?: string })?.quickAddButton ?? "Quick add";
   const { openQuickView, prefetchQuickView } = useQuickView();
   const { addItem, removeItem, isInWishlist } = useWishlist();
+  const { channel } = useParams<{ channel?: string }>();
   const isWishlisted = isInWishlist(product.id);
   
   const priceRange = formatMoneyRange({
@@ -242,6 +244,7 @@ function ProductCard({
         imageAlt: product.thumbnail?.alt || product.name,
         category: product.category?.name || undefined,
         inStock: isInStock,
+        channel: channel || undefined,
       });
     }
   };

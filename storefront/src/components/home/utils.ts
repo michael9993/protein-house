@@ -31,6 +31,15 @@ export type BadgeTone = "primary" | "accent" | "muted" | "warning" | "dark";
 
 export type ProductBadge = { label: string; tone: BadgeTone };
 
+export interface DashboardCategoryChild {
+  id: string;
+  name: string;
+  slug: string;
+  productCount: number;
+  image?: string;
+  imageAlt?: string;
+}
+
 export interface DashboardCategory {
   id: string;
   name: string;
@@ -39,24 +48,40 @@ export interface DashboardCategory {
   imageAlt?: string;
   productCount: number;
   featuredImage?: string;
+  children?: DashboardCategoryChild[];
 }
 
 /** Placeholder categories for demo/fallback */
 export const PLACEHOLDER_CATEGORIES: DashboardCategory[] = [
-  { id: "1", name: "Running Shoes", slug: "running-shoes", productCount: 45 },
-  { id: "2", name: "Training Gear", slug: "training-gear", productCount: 38 },
-  { id: "3", name: "Sportswear", slug: "sportswear", productCount: 62 },
-  { id: "4", name: "Accessories", slug: "accessories", productCount: 54 },
+  { id: "1", name: "Running Shoes", slug: "running-shoes", productCount: 45, children: [
+    { id: "1a", name: "Road Running", slug: "road-running", productCount: 20 },
+    { id: "1b", name: "Trail Running", slug: "trail-running", productCount: 15 },
+    { id: "1c", name: "Track & Field", slug: "track-field", productCount: 10 },
+  ]},
+  { id: "2", name: "Training Gear", slug: "training-gear", productCount: 38, children: [
+    { id: "2a", name: "Gym Shoes", slug: "gym-shoes", productCount: 22 },
+    { id: "2b", name: "Cross Training", slug: "cross-training", productCount: 16 },
+  ]},
+  { id: "3", name: "Sportswear", slug: "sportswear", productCount: 62, children: [
+    { id: "3a", name: "T-Shirts", slug: "t-shirts", productCount: 30 },
+    { id: "3b", name: "Pants & Shorts", slug: "pants-shorts", productCount: 20 },
+    { id: "3c", name: "Jackets", slug: "jackets", productCount: 12 },
+  ]},
+  { id: "4", name: "Accessories", slug: "accessories", productCount: 54, children: [
+    { id: "4a", name: "Bags", slug: "bags", productCount: 18 },
+    { id: "4b", name: "Socks", slug: "socks", productCount: 24 },
+    { id: "4c", name: "Hats & Caps", slug: "hats-caps", productCount: 12 },
+  ]},
   { id: "5", name: "Basketball", slug: "basketball", productCount: 29 },
   { id: "6", name: "Soccer", slug: "soccer", productCount: 41 },
 ];
 
 export const badgeToneClasses: Record<BadgeTone, string> = {
-  primary: "bg-[var(--brand-primary)] text-white",
-  accent: "bg-[var(--brand-accent)] text-white",
-  muted: "bg-neutral-900 text-white",
-  warning: "bg-amber-400 text-neutral-900",
-  dark: "bg-neutral-950 text-white",
+  primary: "bg-[var(--badge-new-bg)] text-[var(--badge-new-text)]",
+  accent: "bg-[var(--badge-sale-bg)] text-[var(--badge-sale-text)]",
+  muted: "bg-[var(--badge-featured-bg)] text-[var(--badge-featured-text)]",
+  warning: "bg-[var(--badge-lowstock-bg)] text-[var(--badge-lowstock-text)]",
+  dark: "bg-[var(--badge-outofstock-bg)] text-[var(--badge-outofstock-text)]",
 };
 
 export const getProductImage = (p: ProductListItemFragment | null | undefined) =>
@@ -100,6 +125,8 @@ export const getProductBrandInfo = (p: ProductListItemFragment, fallback: string
 export interface BadgeLabels {
   outOfStock: string;
   sale: string;
+  /** "OFF" text used in discount badges like "-20% OFF" */
+  off: string;
   lowStock: string;
   new: string;
   featured: string;
@@ -109,6 +136,7 @@ export interface BadgeLabels {
 export const DEFAULT_BADGE_LABELS: BadgeLabels = {
   outOfStock: "Out of stock",
   sale: "Sale",
+  off: "OFF",
   lowStock: "Low stock",
   new: "New",
   featured: "Featured",
@@ -128,7 +156,11 @@ export const getProductBadgeWithLabels = (
   const orig = p.pricing?.priceRangeUndiscounted?.start?.gross;
   const sale = Boolean(cur && orig && orig.amount > cur.amount);
   if (stock <= 0) return { label: labels.outOfStock, tone: "dark" };
-  if (sale) return { label: labels.sale, tone: "accent" };
+  if (sale) {
+    const discount = getDiscountPercent(p);
+    if (discount > 0) return { label: `-${discount}% ${labels.off}`, tone: "accent" };
+    return { label: labels.sale, tone: "accent" };
+  }
   if (stock <= 5) return { label: labels.lowStock, tone: "warning" };
   if (isNewProduct(p.created)) return { label: labels.new, tone: "primary" };
   return { label: labels.featured, tone: "muted" };
@@ -183,8 +215,8 @@ export const getBadgePositionClasses = (position: BadgePosition = "top-start"): 
 export const getCardHoverClasses = (effect: HoverEffect = "lift"): string => {
   switch (effect) {
     case "lift": return "hover:-translate-y-1 hover:shadow-2xl";
-    case "glow": return "hover:shadow-[0_0_20px_var(--brand-primary-20)]";
-    case "border": return "hover:border-[var(--brand-primary)]";
+    case "glow": return "hover:shadow-[0_0_20px_var(--store-primary-focus-ring)]";
+    case "border": return "hover:border-[var(--store-primary)]";
     case "scale": return "hover:scale-[1.02]";
     case "none": return "";
     default: return "hover:-translate-y-1 hover:shadow-2xl";

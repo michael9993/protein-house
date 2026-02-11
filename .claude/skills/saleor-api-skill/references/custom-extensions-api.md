@@ -1,6 +1,6 @@
 # Custom API Extensions Reference
 
-This file documents all custom API additions built on top of standard Saleor for the Mansour Shoes E-Commerce Platform. **Keep this file updated** when adding or modifying custom API features.
+This file documents all custom API additions built on top of standard Saleor for the Aura E-Commerce Platform. **Keep this file updated** when adding or modifying custom API features.
 
 Last updated: 2026-02-06
 

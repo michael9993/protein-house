@@ -5,7 +5,7 @@ import { type ResolvingMetadata, type Metadata } from "next";
 import { Suspense } from "react";
 import xss from "xss";
 import { invariant } from "ts-invariant";
-import { type WithContext, type Product } from "schema-dts";
+import { type WithContext, type Product, type BreadcrumbList } from "schema-dts";
 import { ProductDetailsDocument, ProductListDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { formatMoney, formatMoneyRange } from "@/lib/utils";
@@ -14,6 +14,7 @@ import { ProductDetailClient } from "./ProductDetailClient";
 import { addProductToCartAction } from "../actions";
 import { RelatedProductsSection } from "./RelatedProductsSection";
 import { RelatedProductsSkeleton } from "@/ui/components/RelatedProducts";
+import { RecentlyViewedProducts } from "@/components/RecentlyViewedProducts";
 
 export async function generateMetadata(
 	props: {
@@ -40,12 +41,19 @@ export async function generateMetadata(
 	const variantName = product.variants?.find(({ id }) => id === searchParams.variant)?.name;
 	const productNameAndVariant = variantName ? `${productName} - ${variantName}` : productName;
 
+	const baseUrl = process.env.NEXT_PUBLIC_STOREFRONT_URL || "";
+	const productPath = `/products/${encodeURIComponent(params.slug)}`;
+
 	return {
 		title: `${product.name} | ${storeConfig.store.name}`,
 		description: product.seoDescription || productNameAndVariant,
 		alternates: {
-			canonical: process.env.NEXT_PUBLIC_STOREFRONT_URL
-				? process.env.NEXT_PUBLIC_STOREFRONT_URL + `/products/${encodeURIComponent(params.slug)}`
+			canonical: baseUrl ? baseUrl + productPath : undefined,
+			languages: baseUrl
+				? {
+						"he-IL": `${baseUrl}/ils${productPath}`,
+						"en-US": `${baseUrl}/usd${productPath}`,
+					}
 				: undefined,
 		},
 		openGraph: product.thumbnail
@@ -135,11 +143,35 @@ export default async function Page(props: {
 		)
 		: null;
 
-	// JSON-LD for SEO
+	// Extract brand from product attributes
+	const brandAttr = product.attributes?.find(
+		(a: any) => a.attribute.slug === "brand" || a.attribute.slug === "manufacturer",
+	);
+	const brandName = brandAttr?.values?.[0]?.name || storeConfig.store.name;
+
+	// Rating data
+	const rating = (product as any).rating as number | null;
+	const reviewCount = ((product as any).reviews?.totalCount as number) || 0;
+
+	// JSON-LD for SEO — Product schema
 	const productJsonLd: WithContext<Product> = {
 		"@context": "https://schema.org",
 		"@type": "Product",
 		image: product.thumbnail?.url,
+		brand: { "@type": "Brand", name: brandName },
+		...(product.category ? { category: product.category.name } : {}),
+		...(selectedVariant?.id ? { sku: selectedVariant.id } : {}),
+		...(rating && reviewCount > 0
+			? {
+					aggregateRating: {
+						"@type": "AggregateRating",
+						ratingValue: rating,
+						reviewCount,
+						bestRating: 5,
+						worstRating: 1,
+					},
+				}
+			: {}),
 		...(selectedVariant
 			? {
 					name: `${product.name} - ${selectedVariant.name}`,
@@ -151,6 +183,7 @@ export default async function Page(props: {
 							: "https://schema.org/OutOfStock",
 						priceCurrency: selectedVariant.pricing?.price?.gross.currency,
 						price: selectedVariant.pricing?.price?.gross.amount,
+						url: `${process.env.NEXT_PUBLIC_STOREFRONT_URL || ""}/${params.channel}/products/${params.slug}`,
 					},
 				}
 			: {
@@ -168,12 +201,48 @@ export default async function Page(props: {
 				}),
 	};
 
+	// BreadcrumbList JSON-LD
+	const baseUrl = process.env.NEXT_PUBLIC_STOREFRONT_URL || "";
+	const breadcrumbJsonLd: WithContext<BreadcrumbList> = {
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		itemListElement: [
+			{
+				"@type": "ListItem",
+				position: 1,
+				name: storeConfig.store.name,
+				item: `${baseUrl}/${params.channel}`,
+			},
+			...(product.category
+				? [
+						{
+							"@type": "ListItem" as const,
+							position: 2,
+							name: product.category.name,
+							item: `${baseUrl}/${params.channel}/products?categories=${product.category.slug}`,
+						},
+					]
+				: []),
+			{
+				"@type": "ListItem",
+				position: product.category ? 3 : 2,
+				name: product.name,
+			},
+		],
+	};
+
 	return (
 		<>
 			<script
 				type="application/ld+json"
 				dangerouslySetInnerHTML={{
 					__html: JSON.stringify(productJsonLd),
+				}}
+			/>
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{
+					__html: JSON.stringify(breadcrumbJsonLd),
 				}}
 			/>
 			<ProductDetailClient
@@ -187,27 +256,58 @@ export default async function Page(props: {
 					price,
 					originalPrice,
 					isAvailable,
+					priceAmount: currentPrice?.amount,
+					priceCurrency: currentPrice?.currency,
+					originalPriceAmount: hasDiscount
+						? (variantUndiscounted?.amount || productUndiscounted?.amount)
+						: undefined,
 					images,
 					variants: variants.map(v => ({
 						id: v.id,
 						name: v.name,
 						quantityAvailable: v.quantityAvailable || 0,
+						trackInventory: (v as any).trackInventory ?? true,
+						quantityLimitPerCustomer: (v as any).quantityLimitPerCustomer ?? null,
 						attributes: v.attributes ? v.attributes.map(attr => ({
 							attribute: {
 								id: attr.attribute.id,
 								name: attr.attribute.name || "",
 								slug: attr.attribute.slug || "",
+								inputType: (attr.attribute as any).inputType || null,
 							},
 							values: attr.values.map(val => ({
 								id: val.id,
 								name: val.name || "",
 								slug: val.slug || "",
+								value: (val as any).value || null,
 							})),
-						})) : (null as any),
+						})) : null,
 						pricing: v.pricing,
-					})) as any,
+					})),
+					productAttributes: ((product as any).attributes || []).map((a: any) => ({
+						attribute: {
+							id: a.attribute.id,
+							name: a.attribute.name || "",
+							slug: a.attribute.slug || "",
+							inputType: a.attribute.inputType || null,
+							visibleInStorefront: true, // Saleor filters to visible-only for anonymous users
+						},
+						values: a.values.map((val: any) => ({
+							id: val.id,
+							name: val.name || "",
+							slug: val.slug || "",
+							value: val.value || null,
+							richText: val.richText || null,
+							plainText: val.plainText || null,
+							boolean: val.boolean ?? null,
+							date: val.date || null,
+							dateTime: val.dateTime || null,
+							file: val.file ? { url: val.file.url, contentType: val.file.contentType || null } : null,
+						})),
+					})),
 					rating: (product as any).rating || null,
 					reviewCount: (product as any).reviews?.totalCount || null,
+					created: (product as any).created || undefined,
 				}}
 				selectedVariantId={selectedVariantID}
 				channel={params.channel}
@@ -226,6 +326,12 @@ export default async function Page(props: {
 					/>
 				</Suspense>
 			)}
+
+			{/* Recently Viewed Products — client-side, localStorage-driven */}
+			<RecentlyViewedProducts
+				channel={params.channel}
+				excludeProductId={product.id}
+			/>
 		</>
 	);
 }

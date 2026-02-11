@@ -89,6 +89,7 @@ export const CategoriesSectionSchema = z.object({
   subtitle: z.string().nullable(),
   maxCategories: z.number().min(4).max(12),
   showProductCount: z.boolean(),
+  showSubcategories: z.boolean(),
   layoutStyle: z.enum(["mosaic", "grid", "carousel"]),
   background: SectionBackgroundSchema,
   card: CardConfigSchema.optional(),
@@ -283,6 +284,7 @@ export const HomepageSectionsSchema = z.object({
   bestSellers: BestSellersSectionSchema,
   customerFeedback: CustomerFeedbackSectionSchema,
   newsletter: NewsletterSectionSchema,
+  recentlyViewed: SimpleSectionSchema.optional(),
   // Legacy sections (kept for backward-compatible parsing, will be migrated)
   featuredCategories: LimitedSectionSchema.optional(),
   newArrivals: LimitedSectionSchema.optional(),
@@ -306,6 +308,7 @@ export const HomepageSectionIdSchema = z.enum([
   "bestSellers",
   "customerFeedback",
   "newsletter",
+  "recentlyViewed",
   // Legacy IDs (for backward-compatible parsing)
   "featuredCategories",
   "newArrivals",
@@ -329,6 +332,7 @@ export const DEFAULT_SECTION_ORDER: z.infer<typeof HomepageSectionIdSchema>[] = 
   "bestSellers",
   "customerFeedback",
   "newsletter",
+  "recentlyViewed",
 ];
 
 export const HomepageSchema = z.object({

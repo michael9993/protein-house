@@ -29,6 +29,7 @@ export async function RelatedProductsSection({
     variables: {
       slug: categorySlug,
       channel,
+      first: maxItems + 2,
     },
     revalidate: 60,
   });

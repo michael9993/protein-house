@@ -1,28 +1,22 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { useRef, useCallback } from "react";
-import { ArrowRight, Heart } from "lucide-react";
+import { useCallback } from "react";
+import { ArrowRight } from "lucide-react";
 import { type ProductListItemFragment } from "@/gql/graphql";
-import { formatMoneyRange } from "@/lib/utils";
 import { useWishlist } from "@/lib/wishlist";
 import { useBranding, useStoreInfo, useFlashDealsConfig, useContentConfig, useUiConfig, useFeature } from "@/providers/StoreConfigProvider";
 import { useQuickView } from "@/providers/QuickViewProvider";
-import { ShareButton } from "@/ui/components/ProductSharing";
-import {
-  getProductImage,
-  getProductAlt,
-  getProductBrand,
-  getDiscountPercent,
-  getCardHoverClasses,
-  type ProductCardConfig,
-} from "./utils";
+import { CountdownTimer } from "@/ui/components/CountdownTimer";
+import { HomepageProductCard } from "./HomepageProductCard";
+import { type BadgeLabels, type ProductCardConfig } from "./utils";
 
 interface FlashDealsProps {
   products: readonly ProductListItemFragment[];
   channel: string;
   maxDiscount: number;
+  /** Optional ISO end date for a countdown timer */
+  saleEndDate?: string | null;
 }
 
 // Default values when config is not available
@@ -35,185 +29,12 @@ const DEFAULTS = {
   maxProducts: 8,
 };
 
-interface FlashDealCardProps {
-  product: ProductListItemFragment;
-  channel: string;
-  storeName: string;
-  accent: string;
-  saleBadgeLabel: string;
-  viewDetailsText: string;
-  onQuickView: (slug: string) => void;
-  onPrefetch: (slug: string) => void;
-  wishlistEnabled: boolean;
-  isWishlisted: boolean;
-  onWishlistToggle: (product: ProductListItemFragment) => void;
-  cardConfig: ProductCardConfig;
-}
-
-/**
- * ProductCard — Flash deals card with prominent discount badge.
- */
-function ProductCard({
-  product,
-  channel,
-  storeName,
-  accent,
-  saleBadgeLabel,
-  viewDetailsText,
-  onQuickView,
-  onPrefetch,
-  wishlistEnabled,
-  isWishlisted,
-  onWishlistToggle,
-  cardConfig,
-}: FlashDealCardProps) {
-  const image = getProductImage(product);
-  const brand = getProductBrand(product, storeName);
-  const discountPercent = getDiscountPercent(product);
-  const priceRange = formatMoneyRange({
-    start: product.pricing?.priceRange?.start?.gross,
-    stop: product.pricing?.priceRange?.stop?.gross,
-  });
-  const originalRange = formatMoneyRange({
-    start: product.pricing?.priceRangeUndiscounted?.start?.gross,
-    stop: product.pricing?.priceRangeUndiscounted?.stop?.gross,
-  });
-  const hasDiscount = priceRange && originalRange && priceRange !== originalRange;
-  const prefetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const handleMouseEnter = useCallback(() => {
-    prefetchTimeoutRef.current = setTimeout(() => onPrefetch(product.slug), 120);
-  }, [product.slug, onPrefetch]);
-
-  const handleMouseLeave = useCallback(() => {
-    if (prefetchTimeoutRef.current) {
-      clearTimeout(prefetchTimeoutRef.current);
-      prefetchTimeoutRef.current = null;
-    }
-  }, []);
-
-  const handleQuickViewClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onQuickView(product.slug);
-  };
-
-  const handleWishlistClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onWishlistToggle(product);
-  };
-
-  return (
-    <Link
-      href={`/${encodeURIComponent(channel)}/products/${product.slug}`}
-      className={`group relative flex h-full flex-col overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm transition-all duration-300 ${getCardHoverClasses(cardConfig.hoverEffect)}`}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      <div className="relative aspect-square bg-gradient-to-br from-neutral-50 via-white to-neutral-100">
-        {/* Sale discount badge — prominent red with percentage */}
-        {discountPercent > 0 && (
-          <span className="absolute start-4 top-4 z-10 rounded-full bg-red-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm">
-            -{discountPercent}%
-          </span>
-        )}
-        {/* Brand */}
-        {cardConfig.showBrandLabel !== false && (
-          <span className="absolute end-4 top-4 z-10 rounded-full border border-white/60 bg-white/80 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-600">
-            {brand}
-          </span>
-        )}
-        {/* Wishlist + Share buttons */}
-        <div className="absolute end-4 top-14 z-10 flex flex-col gap-2">
-          {wishlistEnabled && (
-            <button
-              type="button"
-              onClick={handleWishlistClick}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/60 bg-white/90 shadow-sm transition-all duration-200 hover:scale-110 hover:shadow-md"
-              aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-            >
-              <Heart
-                size={16}
-                className={isWishlisted ? "fill-red-500 text-red-500" : "text-neutral-500"}
-              />
-            </button>
-          )}
-          <ShareButton
-            variant="icon"
-            productName={product.name}
-            productSlug={product.slug}
-            productImage={getProductImage(product) || null}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/60 bg-white/90 shadow-sm text-neutral-500 transition-all duration-200 hover:scale-110 hover:shadow-md hover:text-neutral-700"
-            iconClassName="h-4 w-4"
-          />
-        </div>
-        {image ? (
-          <Image
-            src={image}
-            alt={getProductAlt(product)}
-            fill
-            className={`${cardConfig.imageFit === "contain" ? "object-contain" : "object-cover"} transition duration-700 group-hover:scale-105`}
-            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          />
-        ) : (
-          <div className="absolute inset-6 rounded-2xl border border-dashed border-neutral-200" />
-        )}
-        {/* Hover overlay */}
-        <div
-          className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition duration-300 group-hover:opacity-100"
-          aria-hidden="true"
-        />
-        {/* Quick View button */}
-        <button
-          type="button"
-          onClick={handleQuickViewClick}
-          onTouchStart={() => onPrefetch(product.slug)}
-          className="absolute bottom-6 start-0 end-0 flex translate-y-3 justify-center opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100"
-        >
-          <span
-            className="rounded-full px-6 py-2 text-[11px] font-bold uppercase tracking-[0.3em] text-white shadow-lg transition-transform hover:scale-105"
-            style={{ backgroundColor: accent }}
-          >
-            {viewDetailsText}
-          </span>
-        </button>
-      </div>
-      {/* Product info */}
-      <div className="border-t border-neutral-100 px-5 pb-5 pt-4">
-        <h3 className="line-clamp-2 text-sm font-black uppercase tracking-tight text-neutral-900">
-          {product.name}
-        </h3>
-        <div className="mt-2 flex items-center justify-between">
-          <div>
-            <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">
-              {product.category?.name ?? saleBadgeLabel}
-            </div>
-            <div className="mt-2 flex items-center gap-2">
-              <span className="text-lg font-black" style={{ color: accent }}>
-                {priceRange || "N/A"}
-              </span>
-              {hasDiscount && (
-                <span className="text-xs text-neutral-400 line-through">{originalRange}</span>
-              )}
-            </div>
-          </div>
-          {cardConfig.showRating !== false && product.rating != null && product.rating > 0 && (
-            <div className="text-end text-xs font-semibold text-neutral-500">
-              {product.rating.toFixed(1)} / 5
-            </div>
-          )}
-        </div>
-      </div>
-    </Link>
-  );
-}
-
 /**
  * FlashDeals - Sale products showcase with discount badges
+ * Now uses the unified HomepageProductCard with standard badge system.
  * Configurable via Storefront Control.
  */
-export function FlashDeals({ products, channel, maxDiscount }: FlashDealsProps) {
+export function FlashDeals({ products, channel, maxDiscount, saleEndDate }: FlashDealsProps) {
   const { colors } = useBranding();
   const storeInfo = useStoreInfo();
   const config = useFlashDealsConfig();
@@ -244,9 +65,10 @@ export function FlashDeals({ products, channel, maxDiscount }: FlashDealsProps) 
         imageAlt: product.thumbnail?.alt || product.name,
         category: product.category?.name || undefined,
         inStock: (product.variants?.some(v => (v.quantityAvailable ?? 0) > 0)) ?? true,
+        channel,
       });
     }
-  }, [addItem, removeItem, isInWishlist]);
+  }, [addItem, removeItem, isInWishlist, channel]);
 
   // Use config values with defaults fallback
   const enabled = config?.enabled ?? DEFAULTS.enabled;
@@ -260,8 +82,18 @@ export function FlashDeals({ products, channel, maxDiscount }: FlashDealsProps) 
   const homepageContent = contentConfig.homepage;
   const viewAllOffersText = homepageContent.viewAllOffersButton || "View all offers";
   const viewDetailsText = homepageContent.viewDetailsButton || "View details";
-  const saleBadgeLabel = homepageContent.saleBadgeLabel || "Sale";
   const itemsText = homepageContent.itemsText || "items";
+  const performanceFallback = homepageContent.performanceFallback || "Performance";
+
+  // Badge labels for translation — standard badge system
+  const badgeLabels: BadgeLabels = {
+    outOfStock: homepageContent.outOfStockBadgeLabel || "Out of stock",
+    sale: homepageContent.saleBadgeLabel || "Sale",
+    off: homepageContent.saleBadgeOffText || "OFF",
+    lowStock: homepageContent.lowStockBadgeLabel || "Low stock",
+    new: homepageContent.newBadgeLabel || "New",
+    featured: homepageContent.featuredBadgeLabel || "Featured",
+  };
 
   // Hide if explicitly disabled or no products
   if (!enabled || products.length === 0) return null;
@@ -290,6 +122,11 @@ export function FlashDeals({ products, channel, maxDiscount }: FlashDealsProps) 
             {subtitle && (
               <p className="text-sm font-medium text-neutral-500">{subtitle}</p>
             )}
+            {saleEndDate && (
+              <div className="mt-3">
+                <CountdownTimer endDate={saleEndDate} accentColor={colors.primary} />
+              </div>
+            )}
           </div>
           <Link
             href={`/${encodeURIComponent(channel)}/products?collections=${collectionSlug}`}
@@ -308,13 +145,14 @@ export function FlashDeals({ products, channel, maxDiscount }: FlashDealsProps) 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {saleItems.map((product) => (
             <div key={product.id}>
-              <ProductCard
+              <HomepageProductCard
                 product={product}
                 channel={channel}
                 storeName={storeName}
                 accent={colors.primary}
-                saleBadgeLabel={saleBadgeLabel}
+                badgeLabels={badgeLabels}
                 viewDetailsText={viewDetailsText}
+                performanceFallback={performanceFallback}
                 onQuickView={openQuickView}
                 onPrefetch={prefetchQuickView}
                 wishlistEnabled={wishlistEnabled}

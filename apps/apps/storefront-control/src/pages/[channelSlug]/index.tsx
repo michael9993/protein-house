@@ -6,15 +6,16 @@ import {
   Check,
   Download,
   FileText,
-  Layout,
+  Globe,
+  Home,
   Loader2,
-  Palette,
-  Plug,
+  Package,
+  PanelTop,
   Save,
   Search,
   ShoppingCart,
-  Store,
   Upload,
+  User,
   type LucideIcon,
 } from "lucide-react";
 
@@ -297,95 +298,29 @@ const ChannelIndexPage: NextPage = () => {
         {/* Config Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <ConfigCard
-            title="Store Info"
-            href={`/${channelSlug}/store`}
-            summary="Core store identity"
+            title="Global"
+            href={`/${channelSlug}/global`}
+            summary="Store identity, branding, integrations"
             status={config?.store?.name ? "ready" : "attention"}
-            icon={Store}
+            icon={Globe}
             onNavigate={(h) => router.push(h)}
             items={[
               { label: "Name", value: config?.store.name || "Not set" },
-              { label: "Email", value: config?.store.email || "Not set" },
-              { label: "Type", value: config?.store.type || "physical" },
-            ]}
-          />
-
-          <ConfigCard
-            title="Branding"
-            href={`/${channelSlug}/design?tab=branding`}
-            summary="Logo, colors, and typography"
-            status={config?.branding?.logo ? "ready" : "attention"}
-            icon={Palette}
-            onNavigate={(h) => router.push(h)}
-            items={[
               {
                 label: "Primary Color",
                 value: config?.branding?.colors?.primary ?? "",
                 isColor: true,
               },
-              { label: "Border Radius", value: config?.branding?.style?.borderRadius ?? "" },
-              { label: "Button Style", value: config?.branding?.style?.buttonStyle ?? "" },
-            ]}
-          />
-
-          <ConfigCard
-            title="Localization"
-            href={`/${channelSlug}/store?tab=localization`}
-            summary="Locale and regional settings"
-            status={config?.localization?.defaultLocale ? "ready" : "attention"}
-            icon={Store}
-            onNavigate={(h) => router.push(h)}
-            items={[
               { label: "Locale", value: config?.localization?.defaultLocale ?? "en-US" },
-              { label: "Direction", value: config?.localization?.direction ?? "auto" },
-              { label: "Time Format", value: config?.localization?.timeFormat ?? "12h" },
-            ]}
-          />
-
-          <ConfigCard
-            title="Dark Mode"
-            href={`/${channelSlug}/design?tab=dark-mode`}
-            summary="Theme behavior"
-            status={config?.darkMode?.enabled ? "ready" : "attention"}
-            icon={Palette}
-            onNavigate={(h) => router.push(h)}
-            items={[
-              { label: "Enabled", value: config?.darkMode?.enabled ? "Yes" : "No" },
-              { label: "Auto (System)", value: config?.darkMode?.auto ? "Yes" : "No" },
-              {
-                label: "Dark BG",
-                value: config?.darkMode?.colors?.background || "#0f172a",
-                isColor: true,
-              },
-            ]}
-          />
-
-          <ConfigCard
-            title="Features"
-            href={`/${channelSlug}/commerce?tab=features`}
-            summary="Customer experience switches"
-            status={config?.features ? "ready" : "attention"}
-            icon={ShoppingCart}
-            onNavigate={(h) => router.push(h)}
-            items={[
-              { label: "Wishlist", value: config?.features.wishlist ? "Enabled" : "Disabled" },
-              {
-                label: "Reviews",
-                value: config?.features.productReviews ? "Enabled" : "Disabled",
-              },
-              {
-                label: "Newsletter",
-                value: config?.features.newsletter ? "Enabled" : "Disabled",
-              },
             ]}
           />
 
           <ConfigCard
             title="Homepage"
-            href={`/${channelSlug}/pages-config?tab=homepage`}
+            href={`/${channelSlug}/homepage`}
             summary="Sections and layout"
             status={config?.homepage ? "ready" : "attention"}
-            icon={Layout}
+            icon={Home}
             onNavigate={(h) => router.push(h)}
             items={[
               {
@@ -404,104 +339,110 @@ const ChannelIndexPage: NextPage = () => {
           />
 
           <ConfigCard
-            title="Filters"
-            href={`/${channelSlug}/commerce?tab=catalog`}
-            summary="Product discovery"
-            status={config?.filters ? "ready" : "attention"}
-            icon={Search}
+            title="Layout"
+            href={`/${channelSlug}/layout-config`}
+            summary="Header, footer, navigation"
+            status={config?.header ? "ready" : "attention"}
+            icon={PanelTop}
             onNavigate={(h) => router.push(h)}
             items={[
               {
-                label: "Price Filter",
-                value: config?.filters.priceFilter.enabled ? "Enabled" : "Disabled",
+                label: "Banner",
+                value: config?.header?.banner?.enabled ? "Enabled" : "Disabled",
+              },
+              {
+                label: "Logo Position",
+                value: config?.header?.logoPosition ?? "center",
+              },
+              {
+                label: "Footer Newsletter",
+                value: config?.footer?.showNewsletter ? "Enabled" : "Disabled",
+              },
+            ]}
+          />
+
+          <ConfigCard
+            title="Catalog"
+            href={`/${channelSlug}/catalog`}
+            summary="Filters, product detail, reviews"
+            status={config?.filters ? "ready" : "attention"}
+            icon={Package}
+            onNavigate={(h) => router.push(h)}
+            items={[
+              {
+                label: "Filters",
+                value: config?.filters.enabled ? "Enabled" : "Disabled",
               },
               {
                 label: "Quick Filters",
                 value: config?.quickFilters.enabled ? "Enabled" : "Disabled",
               },
-              { label: "Category Limit", value: String(config?.quickFilters.categoryLimit || 8) },
-            ]}
-          />
-
-          <ConfigCard
-            title="UI Components"
-            href={`/${channelSlug}/design?tab=components`}
-            summary="Buttons, cards, and inputs"
-            status={config?.ui ? "ready" : "attention"}
-            icon={Palette}
-            onNavigate={(h) => router.push(h)}
-            items={[
-              { label: "Button Radius", value: config?.ui?.buttons?.borderRadius || "md" },
               {
-                label: "Sale Badge Radius",
-                value: config?.ui?.badges?.sale?.borderRadius || "sm",
-              },
-              { label: "Toast Position", value: config?.ui?.toasts?.position || "bottom-right" },
-            ]}
-          />
-
-          <ConfigCard
-            title="Content"
-            href={`/${channelSlug}/content`}
-            summary="Storefront copy"
-            status={config?.content ? "ready" : "attention"}
-            icon={FileText}
-            onNavigate={(h) => router.push(h)}
-            items={[
-              {
-                label: "Cart Button",
-                value: config?.content?.cart?.checkoutButton || "Checkout",
-              },
-              { label: "Sign In", value: config?.content?.account?.signInTitle || "Sign In" },
-              {
-                label: "Add to Cart",
-                value: config?.content?.product?.addToCartButton || "Add to Cart",
+                label: "Wishlist",
+                value: config?.features.wishlist ? "Enabled" : "Disabled",
               },
             ]}
           />
 
           <ConfigCard
-            title="Pages"
-            href={`/${channelSlug}/pages-config?tab=page-toggles`}
-            summary="Static pages"
-            status={config?.pages ? "ready" : "attention"}
-            icon={Layout}
-            onNavigate={(h) => router.push(h)}
-            items={[
-              { label: "About Us", value: config?.pages.aboutUs ? "Enabled" : "Disabled" },
-              { label: "FAQ", value: config?.pages.faq ? "Enabled" : "Disabled" },
-              { label: "Blog", value: config?.pages.blog ? "Enabled" : "Disabled" },
-            ]}
-          />
-
-          <ConfigCard
-            title="Integrations"
-            href={`/${channelSlug}/integrations`}
-            summary="Analytics and marketing"
-            status={config?.integrations ? "ready" : "attention"}
-            icon={Plug}
+            title="Cart & Checkout"
+            href={`/${channelSlug}/cart-checkout`}
+            summary="Shipping, tax, promo popup"
+            status={config?.ecommerce ? "ready" : "attention"}
+            icon={ShoppingCart}
             onNavigate={(h) => router.push(h)}
             items={[
               {
-                label: "Google Analytics",
-                value: config?.integrations.analytics.googleAnalyticsId
-                  ? "Configured"
+                label: "Free Shipping",
+                value: config?.ecommerce?.shipping?.freeShippingThreshold
+                  ? `$${config.ecommerce.shipping.freeShippingThreshold}`
                   : "Not set",
               },
               {
-                label: "Facebook",
-                value: config?.integrations.social.facebook ? "Set" : "Not set",
+                label: "Guest Checkout",
+                value: config?.features.guestCheckout ? "Enabled" : "Disabled",
               },
               {
-                label: "Instagram",
-                value: config?.integrations.social.instagram ? "Set" : "Not set",
+                label: "Promo Popup",
+                value: config?.promoPopup?.enabled ? "Enabled" : "Disabled",
               },
+            ]}
+          />
+
+          <ConfigCard
+            title="Account"
+            href={`/${channelSlug}/account-config`}
+            summary="Auth, account text"
+            status={config?.content?.account ? "ready" : "attention"}
+            icon={User}
+            onNavigate={(h) => router.push(h)}
+            items={[
+              {
+                label: "Social Login",
+                value: config?.features.socialLogin ? "Enabled" : "Disabled",
+              },
+              { label: "Sign In", value: config?.content?.account?.signInTitle || "Sign In" },
+              { label: "Sign Up", value: config?.content?.account?.signUpTitle || "Sign Up" },
+            ]}
+          />
+
+          <ConfigCard
+            title="Other Pages"
+            href={`/${channelSlug}/other-pages`}
+            summary="Contact, FAQ, error pages"
+            status={config?.pages ? "ready" : "attention"}
+            icon={FileText}
+            onNavigate={(h) => router.push(h)}
+            items={[
+              { label: "About Us", value: config?.pages.aboutUs ? "Enabled" : "Disabled" },
+              { label: "Contact", value: config?.pages.contact ? "Enabled" : "Disabled" },
+              { label: "FAQ", value: config?.pages.faq ? "Enabled" : "Disabled" },
             ]}
           />
 
           <ConfigCard
             title="SEO"
-            href={`/${channelSlug}/store?tab=seo`}
+            href={`/${channelSlug}/global?tab=localization`}
             summary="Search and sharing"
             status={config?.seo ? "ready" : "attention"}
             icon={Search}
@@ -513,6 +454,29 @@ const ChannelIndexPage: NextPage = () => {
               },
               { label: "Default Title", value: config?.seo.defaultTitle ? "Set" : "Not set" },
               { label: "OG Image", value: config?.seo.defaultImage ? "Set" : "Not set" },
+            ]}
+          />
+
+          <ConfigCard
+            title="Features"
+            href={`/${channelSlug}/global?tab=features`}
+            summary="Customer experience switches"
+            status={config?.features ? "ready" : "attention"}
+            icon={Globe}
+            onNavigate={(h) => router.push(h)}
+            items={[
+              {
+                label: "Features Enabled",
+                value: `${enabledFeaturesCount} / ${totalFeaturesCount}`,
+              },
+              {
+                label: "Reviews",
+                value: config?.features.productReviews ? "Enabled" : "Disabled",
+              },
+              {
+                label: "Newsletter",
+                value: config?.features.newsletter ? "Enabled" : "Disabled",
+              },
             ]}
           />
         </div>

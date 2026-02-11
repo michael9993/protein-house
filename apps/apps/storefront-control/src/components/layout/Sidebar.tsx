@@ -1,12 +1,13 @@
 import { useCallback } from "react";
 import {
   FileText,
+  Globe,
+  Home,
   LayoutDashboard,
-  Palette,
-  Plug,
+  Package,
+  PanelTop,
   ShoppingCart,
-  Store,
-  Type,
+  User,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useRouter } from "next/router";
@@ -37,31 +38,32 @@ function getNavItems(channelSlug: string): NavItem[] {
       href: base,
       page: "dashboard",
     },
-    { label: "Store", icon: Store, href: `${base}/store`, page: "store" },
-    { label: "Design", icon: Palette, href: `${base}/design`, page: "design" },
+    { label: "Global", icon: Globe, href: `${base}/global`, page: "global" },
+    { label: "Homepage", icon: Home, href: `${base}/homepage`, page: "homepage" },
     {
-      label: "Pages",
-      icon: FileText,
-      href: `${base}/pages-config`,
-      page: "pages-config",
+      label: "Layout",
+      icon: PanelTop,
+      href: `${base}/layout-config`,
+      page: "layout-config",
     },
+    { label: "Catalog", icon: Package, href: `${base}/catalog`, page: "catalog" },
     {
-      label: "Commerce",
+      label: "Cart & Checkout",
       icon: ShoppingCart,
-      href: `${base}/commerce`,
-      page: "commerce",
+      href: `${base}/cart-checkout`,
+      page: "cart-checkout",
     },
     {
-      label: "Content",
-      icon: Type,
-      href: `${base}/content`,
-      page: "content",
+      label: "Account",
+      icon: User,
+      href: `${base}/account-config`,
+      page: "account-config",
     },
     {
-      label: "Integrations",
-      icon: Plug,
-      href: `${base}/integrations`,
-      page: "integrations",
+      label: "Other Pages",
+      icon: FileText,
+      href: `${base}/other-pages`,
+      page: "other-pages",
     },
   ];
 }

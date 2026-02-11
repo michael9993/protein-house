@@ -1,6 +1,27 @@
-version: "3.8"
+# =============================================================================
+# Aura Platform — Production Docker Compose
+# =============================================================================
+# Usage:
+#   cd /opt/aura-platform/infra
+#   cp .env.production.example .env
+#   # Edit .env with your production values
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# Architecture:
+#   Nginx (host-level) → reverse proxy → Docker containers (internal network)
+#   All containers communicate via saleor-network (bridge)
+#   No ports exposed to host except via Nginx reverse proxy.
+#
+# Resource totals (minimums):
+#   PostgreSQL: 2GB | Redis: 1GB | API: 4GB | Worker: 2GB | Scheduler: 512MB
+#   Storefront: 2GB | Dashboard: 256MB | Apps (7): ~4GB
+#   Total: ~16GB RAM recommended (8GB minimum with reduced limits)
+# =============================================================================
 
 services:
+  # ---------------------------------------------------------------------------
+  # Data Stores
+  # ---------------------------------------------------------------------------
   postgres:
     image: postgres:15-alpine
     container_name: saleor-postgres-prod
@@ -10,7 +31,6 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-saleor}
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      # Script to create additional database for Stripe app
       - ./scripts/init-stripe-database.sh:/docker-entrypoint-initdb.d/01-init-stripe-database.sh:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-saleor}"]
@@ -20,9 +40,6 @@ services:
     networks:
       - saleor-network
     restart: always
-    # Security: Run as non-root user
-    user: "999:999"
-    # Resource limits
     deploy:
       resources:
         limits:
@@ -39,14 +56,13 @@ services:
     volumes:
       - redis-data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 30s
       timeout: 10s
       retries: 5
     networks:
       - saleor-network
     restart: always
-    # Resource limits
     deploy:
       resources:
         limits:
@@ -56,48 +72,44 @@ services:
           cpus: "0.25"
           memory: 256M
 
+  # ---------------------------------------------------------------------------
+  # Saleor Backend (API + Workers)
+  # ---------------------------------------------------------------------------
   saleor-api:
-    image: saleor/saleor:latest
+    build:
+      context: ../saleor
+      dockerfile: Dockerfile
     container_name: saleor-api-prod
-    command: gunicorn saleor.wsgi:application --bind 0.0.0.0:8000 --workers 4 --threads 2 --timeout 60 --access-logfile - --error-logfile - --log-level info
+    ports:
+      - "127.0.0.1:8000:8000"
+    command: >
+      gunicorn saleor.wsgi:application
+      --bind 0.0.0.0:8000
+      --workers ${GUNICORN_WORKERS:-4}
+      --threads 2
+      --timeout 60
+      --access-logfile -
+      --error-logfile -
+      --log-level info
     environment:
-      # Core Settings
       SECRET_KEY: ${SECRET_KEY}
       DEBUG: "False"
       ALLOWED_HOSTS: ${ALLOWED_HOSTS}
       ALLOWED_CLIENT_HOSTS: ${ALLOWED_CLIENT_HOSTS}
-
-      # Database
       DATABASE_URL: postgres://${POSTGRES_USER:-saleor}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-saleor}
-
-      # Redis
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
-
-      # Media Files
-      MEDIA_ROOT: /app/media
-      MEDIA_URL: ${MEDIA_URL:-/media/}
-
-      # Email
-      EMAIL_URL: ${EMAIL_URL}
-
-      # Celery
+      CACHE_URL: redis://:${REDIS_PASSWORD}@redis:6379/3
       CELERY_BROKER_URL: redis://:${REDIS_PASSWORD}@redis:6379/1
       CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD}@redis:6379/2
-
-      # Webhooks
+      MEDIA_ROOT: /app/media
+      MEDIA_URL: ${MEDIA_URL:-/media/}
+      EMAIL_URL: ${EMAIL_URL}
       WEBHOOK_SECRET_KEY: ${WEBHOOK_SECRET_KEY}
-
-      # Timezone
       TIME_ZONE: ${TIME_ZONE:-UTC}
-
-      # Security
       GRAPHQL_PLAYGROUND_ENABLED: "False"
       SESSION_COOKIE_SECURE: "True"
       CSRF_COOKIE_SECURE: "True"
-      SECURE_SSL_REDIRECT: "False" # Let Nginx handle this
-
-      # Performance
-      CACHE_URL: redis://:${REDIS_PASSWORD}@redis:6379/3
+      SECURE_SSL_REDIRECT: "False"
     volumes:
       - saleor-media:/app/media
     depends_on:
@@ -114,7 +126,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
-    # Resource limits
     deploy:
       resources:
         limits:
@@ -125,9 +136,16 @@ services:
           memory: 1G
 
   saleor-worker:
-    image: saleor/saleor:latest
+    build:
+      context: ../saleor
+      dockerfile: Dockerfile
     container_name: saleor-worker-prod
-    command: celery -A saleor worker --app=saleor.celeryconf:app --loglevel=info --concurrency=4 --max-tasks-per-child=1000
+    command: >
+      celery -A saleor worker
+      --app=saleor.celeryconf:app
+      --loglevel=info
+      --concurrency=${CELERY_CONCURRENCY:-4}
+      --max-tasks-per-child=1000
     environment:
       SECRET_KEY: ${SECRET_KEY}
       DATABASE_URL: postgres://${POSTGRES_USER:-saleor}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-saleor}
@@ -139,16 +157,11 @@ services:
     volumes:
       - saleor-media:/app/media
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
       saleor-api:
         condition: service_healthy
     networks:
       - saleor-network
     restart: always
-    # Resource limits
     deploy:
       resources:
         limits:
@@ -159,7 +172,9 @@ services:
           memory: 512M
 
   saleor-scheduler:
-    image: saleor/saleor:latest
+    build:
+      context: ../saleor
+      dockerfile: Dockerfile
     container_name: saleor-scheduler-prod
     command: celery -A saleor beat --app=saleor.celeryconf:app --loglevel=info
     environment:
@@ -170,16 +185,11 @@ services:
       CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD}@redis:6379/2
       TIME_ZONE: ${TIME_ZONE:-UTC}
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
       saleor-api:
         condition: service_healthy
     networks:
       - saleor-network
     restart: always
-    # Resource limits
     deploy:
       resources:
         limits:
@@ -189,60 +199,268 @@ services:
           cpus: "0.1"
           memory: 128M
 
-  saleor-stripe-app:
+  # ---------------------------------------------------------------------------
+  # Storefront (Next.js 15 — standalone build)
+  # ---------------------------------------------------------------------------
+  storefront:
     build:
-      context: ../apps
-      dockerfile: apps/stripe/Dockerfile
-    container_name: saleor-stripe-app-prod
-    command: sh -c "cd apps/stripe && pnpm install && pnpm setup-postgres && pnpm start"
-    volumes:
-      - ../apps:/app
+      context: ../storefront
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+        NEXT_PUBLIC_STOREFRONT_URL: ${NEXT_PUBLIC_STOREFRONT_URL}
+        NEXT_PUBLIC_DEFAULT_CHANNEL: ${NEXT_PUBLIC_DEFAULT_CHANNEL:-default-channel}
+        SALEOR_API_URL: http://saleor-api:8000/graphql/
+    container_name: saleor-storefront-prod
+    ports:
+      - "127.0.0.1:3000:3000"
     environment:
-      # Saleor API connection
-      SALEOR_API_URL: http://saleor-api:8000/graphql/
-      NEXT_PUBLIC_SALEOR_API_URL: ${STRIPE_APP_PUBLIC_URL:-https://your-domain.com/graphql/}
-
-      # Stripe API keys (set via environment variables)
-      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
-      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
-
-      # App configuration
-      APP_ID: stripe
-      APP_NAME: Stripe
-      APP_ENV: production
-      APP_URL: ${STRIPE_APP_URL}
       NODE_ENV: production
-
-      # Required by Stripe app
-      SECRET_KEY: ${STRIPE_APP_SECRET_KEY}
-      MANIFEST_APP_ID: stripe
-
-      # PostgreSQL connection - uses the same postgres service as Saleor but different database
-      # All data (configs, transactions, auth tokens) is stored in PostgreSQL
-      DATABASE_URL: postgres://${POSTGRES_USER:-saleor}:${POSTGRES_PASSWORD}@postgres:5432/stripe_app
-
-      # Instrumentation
-      OTEL_ENABLED: ${OTEL_ENABLED:-false}
-      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+      NEXT_PUBLIC_STOREFRONT_URL: ${NEXT_PUBLIC_STOREFRONT_URL}
+      NEXT_PUBLIC_DEFAULT_CHANNEL: ${NEXT_PUBLIC_DEFAULT_CHANNEL:-default-channel}
+      SALEOR_API_URL: http://saleor-api:8000/graphql/
+      SALEOR_WEBHOOK_SECRET: ${WEBHOOK_SECRET_KEY}
     depends_on:
-      postgres:
-        condition: service_healthy
       saleor-api:
         condition: service_healthy
     networks:
       - saleor-network
     restart: always
-    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+
+  # ---------------------------------------------------------------------------
+  # Dashboard (static Nginx build — serves SPA)
+  # ---------------------------------------------------------------------------
+  dashboard:
+    build:
+      context: ../dashboard
+      dockerfile: Dockerfile
+      args:
+        API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+        APP_MOUNT_URI: /dashboard/
+        APPS_TUNNEL_URL_KEYWORDS: ${APPS_TUNNEL_URL_KEYWORDS:-}
+    container_name: saleor-dashboard-prod
+    ports:
+      - "127.0.0.1:9002:80"
+    networks:
+      - saleor-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+
+  # ---------------------------------------------------------------------------
+  # Saleor Apps (each built from monorepo via Dockerfile.prod)
+  # All apps run `next start` on port 3000 internally.
+  # Nginx routes to each via Docker DNS (container name).
+  # ---------------------------------------------------------------------------
+  stripe-app:
+    build:
+      context: ../apps
+      dockerfile: Dockerfile.prod
+      args:
+        APP_NAME: stripe
+    container_name: saleor-stripe-app-prod
+    ports:
+      - "127.0.0.1:3002:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      SALEOR_API_URL: http://saleor-api:8000/graphql/
+      APP_URL: ${STRIPE_APP_URL}
+      SECRET_KEY: ${STRIPE_APP_SECRET_KEY}
+      MANIFEST_APP_ID: stripe
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      DATABASE_URL: postgres://${POSTGRES_USER:-saleor}:${POSTGRES_PASSWORD}@postgres:5432/stripe_app
+    depends_on:
+      saleor-api:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - saleor-network
+    restart: always
     deploy:
       resources:
         limits:
           cpus: "1"
           memory: 1G
-        reservations:
-          cpus: "0.25"
-          memory: 256M
 
+  smtp-app:
+    build:
+      context: ../apps
+      dockerfile: Dockerfile.prod
+      args:
+        APP_NAME: smtp
+    container_name: saleor-smtp-app-prod
+    ports:
+      - "127.0.0.1:3001:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      SALEOR_API_URL: http://saleor-api:8000/graphql/
+      APP_URL: ${SMTP_APP_URL}
+      SECRET_KEY: ${SMTP_APP_SECRET_KEY}
+    depends_on:
+      saleor-api:
+        condition: service_healthy
+    networks:
+      - saleor-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+  invoices-app:
+    build:
+      context: ../apps
+      dockerfile: Dockerfile.prod
+      args:
+        APP_NAME: invoices
+    container_name: saleor-invoices-app-prod
+    ports:
+      - "127.0.0.1:3003:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      SALEOR_API_URL: http://saleor-api:8000/graphql/
+      APP_URL: ${INVOICES_APP_URL}
+      SECRET_KEY: ${INVOICES_APP_SECRET_KEY}
+    depends_on:
+      saleor-api:
+        condition: service_healthy
+    networks:
+      - saleor-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+  storefront-control-app:
+    build:
+      context: ../apps
+      dockerfile: Dockerfile.prod
+      args:
+        APP_NAME: storefront-control
+    container_name: saleor-storefront-control-app-prod
+    ports:
+      - "127.0.0.1:3004:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      SALEOR_API_URL: http://saleor-api:8000/graphql/
+      APP_URL: ${STOREFRONT_CONTROL_APP_URL}
+      SECRET_KEY: ${STOREFRONT_CONTROL_APP_SECRET_KEY}
+    depends_on:
+      saleor-api:
+        condition: service_healthy
+    networks:
+      - saleor-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+
+  newsletter-app:
+    build:
+      context: ../apps
+      dockerfile: Dockerfile.prod
+      args:
+        APP_NAME: newsletter
+    container_name: saleor-newsletter-app-prod
+    ports:
+      - "127.0.0.1:3005:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      SALEOR_API_URL: http://saleor-api:8000/graphql/
+      APP_URL: ${NEWSLETTER_APP_URL}
+      SECRET_KEY: ${NEWSLETTER_APP_SECRET_KEY}
+    depends_on:
+      saleor-api:
+        condition: service_healthy
+    networks:
+      - saleor-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+  sales-analytics-app:
+    build:
+      context: ../apps
+      dockerfile: Dockerfile.prod
+      args:
+        APP_NAME: sales-analytics
+    container_name: saleor-sales-analytics-app-prod
+    ports:
+      - "127.0.0.1:3006:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      SALEOR_API_URL: http://saleor-api:8000/graphql/
+      APP_URL: ${ANALYTICS_APP_URL}
+      SECRET_KEY: ${ANALYTICS_APP_SECRET_KEY}
+    depends_on:
+      saleor-api:
+        condition: service_healthy
+    networks:
+      - saleor-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+  bulk-manager-app:
+    build:
+      context: ../apps
+      dockerfile: Dockerfile.prod
+      args:
+        APP_NAME: bulk-manager
+    container_name: saleor-bulk-manager-app-prod
+    ports:
+      - "127.0.0.1:3007:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      SALEOR_API_URL: http://saleor-api:8000/graphql/
+      APP_URL: ${BULK_MANAGER_APP_URL}
+      SECRET_KEY: ${BULK_MANAGER_APP_SECRET_KEY}
+    depends_on:
+      saleor-api:
+        condition: service_healthy
+    networks:
+      - saleor-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+
+# =============================================================================
 volumes:
   postgres-data:
     driver: local

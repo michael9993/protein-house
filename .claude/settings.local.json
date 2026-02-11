@@ -94,7 +94,20 @@
       "Bash(for app in /c/Users/micha/saleor-platform/saleor/saleor/*/models.py)",
       "Bash(for dir in account product order core payment)",
       "Bash(do [ -f /c/Users/micha/saleor-platform/saleor/saleor/$dir/admin.py ])",
-      "mcp__plugin_playwright_playwright__browser_fill_form"
+      "mcp__plugin_playwright_playwright__browser_fill_form",
+      "mcp__plugin_playwright_playwright__browser_console_messages",
+      "mcp__plugin_playwright_playwright__browser_wait_for",
+      "Bash(xargs:*)",
+      "mcp__plugin_playwright_playwright__browser_install",
+      "Bash(del \"c:\\\\Users\\\\micha\\\\saleor-platform\\\\storefront\\\\src\\\\ui\\\\components\\\\CartDrawer\\\\CartDrawerWrapper.tsx\")",
+      "Bash(copy \"pages\\\\[channelSlug]\\\\global\\\\types.ts\" \"components\\\\pages\\\\global\\\\types.ts\")",
+      "Bash(copy \"pages\\\\[channelSlug]\\\\global\\\\options.ts\" \"components\\\\pages\\\\global\\\\options.ts\")",
+      "Bash(copy \"pages\\\\[channelSlug]\\\\global\\\\StoreIdentityTab.tsx\" \"components\\\\pages\\\\global\\\\StoreIdentityTab.tsx\")",
+      "Bash(copy:*)",
+      "Bash(copy \"pages\\\\[channelSlug]\\\\global\\\\LocalizationSeoTab.tsx\" \"components\\\\pages\\\\global\\\\LocalizationSeoTab.tsx\")",
+      "Bash(copy \"pages\\\\[channelSlug]\\\\global\\\\IntegrationsToolsTab.tsx\" \"components\\\\pages\\\\global\\\\IntegrationsToolsTab.tsx\")",
+      "Bash(copy \"pages\\\\[channelSlug]\\\\global\\\\GlobalFeaturesTab.tsx\" \"components\\\\pages\\\\global\\\\GlobalFeaturesTab.tsx\")",
+      "Bash(copy \"pages\\\\[channelSlug]\\\\global\\\\GlobalContentTab.tsx\" \"components\\\\pages\\\\global\\\\GlobalContentTab.tsx\")"
     ],
     "deny": [
       "Read(./.env*)",

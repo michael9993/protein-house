@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useCallback } from "react";
 import Image from "next/image";
+import { useParams } from "next/navigation";
 import { Eye, Heart, ShoppingBag, Star } from "lucide-react";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { formatMoneyRange, formatMoney } from "@/lib/utils";
@@ -67,6 +68,7 @@ export function ProductCard({
   displayMode = 4,
 }: ProductCardProps) {
   const [imageError, setImageError] = useState(false);
+  const { channel } = useParams<{ channel?: string }>();
 
   // Layout configuration based on display mode
   const isCompactMode = displayMode === 4;
@@ -155,6 +157,7 @@ export function ProductCard({
         imageAlt: product.thumbnail?.alt || product.name,
         category: product.category?.name || undefined,
         inStock: isInStock,
+        channel: channel || undefined,
       });
     }
   };

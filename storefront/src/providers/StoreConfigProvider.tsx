@@ -55,13 +55,7 @@ export function StoreConfigProvider({
     const handleConfigUpdate = (event: Event) => {
       const customEvent = event as CustomEvent<{ channel: string; config: StoreConfig }>;
       if (customEvent.detail?.config) {
-        const newConfig = customEvent.detail.config;
-        console.log("[StoreConfigProvider] 🔄 Real-time config update received");
-        console.log("[StoreConfigProvider]    Store name:", newConfig.store.name);
-        console.log("[StoreConfigProvider]    Primary color:", newConfig.branding.colors.primary);
-        
-        // Always update - don't check if it's the same, React will handle re-renders efficiently
-        setConfig(newConfig);
+        setConfig(customEvent.detail.config);
       }
     };
 
@@ -77,108 +71,63 @@ export function StoreConfigProvider({
     initPreviewMode();
   }, []);
 
-  // Debug logging to verify config is received
-  useEffect(() => {
-    console.log("[StoreConfigProvider] 🎨 Applying config:");
-    console.log("[StoreConfigProvider]    Store name:", config.store.name);
-    console.log("[StoreConfigProvider]    Primary color:", config.branding.colors.primary);
-    console.log("[StoreConfigProvider]    Direction:", config.localization?.direction || "auto");
-    console.log("[StoreConfigProvider]    Footer config:", config.footer);
-    if (config.footer) {
-      console.log("[StoreConfigProvider]    Footer showBrand:", config.footer.showBrand, typeof config.footer.showBrand);
-      console.log("[StoreConfigProvider]    Footer showMenu:", config.footer.showMenu, typeof config.footer.showMenu);
-    }
-  }, [config]);
-
   // Generate CSS variables from config
   const cssVariables = useMemo(() => getThemeCSSVariables(config), [config]);
 
-  // Apply CSS variables to document root
+  // Apply all DOM mutations in a single effect to batch into one paint cycle
+  // CSS variables, RTL/LTR direction, and dark mode are all applied together.
+  // Note: Initial direction is set server-side via blocking script to prevent FOUC
   useEffect(() => {
     const root = document.documentElement;
+
+    // --- CSS Variables ---
     Object.entries(cssVariables).forEach(([key, value]) => {
       root.style.setProperty(key, value);
     });
 
-    // Cleanup on unmount
-    return () => {
-      Object.keys(cssVariables).forEach((key) => {
-        root.style.removeProperty(key);
-      });
-    };
-  }, [cssVariables]);
-
-  // Handle RTL/LTR direction (for dynamic updates)
-  // Note: Initial direction is set server-side via blocking script to prevent FOUC
-  useEffect(() => {
-    const root = document.documentElement;
+    // --- Direction ---
     const localization = config.localization;
-    const direction = localization?.direction || 'auto';
-    const defaultLocale = localization?.defaultLocale || 'en-US';
-    
-    let resolvedDir: 'ltr' | 'rtl' = 'ltr';
-    
-    if (direction === 'auto') {
-      // Auto-detect from locale
+    const direction = localization?.direction || "auto";
+    const defaultLocale = localization?.defaultLocale || "en-US";
+    let resolvedDir: "ltr" | "rtl" = "ltr";
+    if (direction === "auto") {
       const rtlLocales = localization?.rtlLocales || DEFAULT_RTL_LOCALES;
-      resolvedDir = isRtlLocale(defaultLocale, rtlLocales) ? 'rtl' : 'ltr';
+      resolvedDir = isRtlLocale(defaultLocale, rtlLocales) ? "rtl" : "ltr";
     } else {
       resolvedDir = direction;
     }
-    
-    // Only update if different from current (prevents unnecessary updates)
-    if (root.dir !== resolvedDir) {
-      root.dir = resolvedDir;
-    }
-    if (root.lang !== defaultLocale) {
-      root.lang = defaultLocale;
-    }
-  }, [config.localization]);
+    if (root.dir !== resolvedDir) root.dir = resolvedDir;
+    if (root.lang !== defaultLocale) root.lang = defaultLocale;
 
-  // Handle dark mode
-  useEffect(() => {
-    const root = document.documentElement;
+    // --- Dark Mode ---
     const darkMode = config.darkMode;
-    
+    let mediaCleanup: (() => void) | undefined;
     if (!darkMode?.enabled) {
-      root.classList.remove('dark', 'dark-auto');
-      return;
-    }
-    
-    if (darkMode.auto) {
-      // Follow system preference
-      root.classList.add('dark-auto');
-      root.classList.remove('dark');
-      
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      root.classList.remove("dark", "dark-auto");
+    } else if (darkMode.auto) {
+      root.classList.add("dark-auto");
+      root.classList.remove("dark");
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
       const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
-        if (e.matches) {
-          root.classList.add('dark');
-        } else {
-          root.classList.remove('dark');
-        }
+        e.matches ? root.classList.add("dark") : root.classList.remove("dark");
       };
-      
-      // Initial check
       handleChange(mediaQuery);
-      
-      // Listen for changes
-      mediaQuery.addEventListener('change', handleChange);
-      
-      return () => {
-        mediaQuery.removeEventListener('change', handleChange);
-        root.classList.remove('dark', 'dark-auto');
+      mediaQuery.addEventListener("change", handleChange);
+      mediaCleanup = () => {
+        mediaQuery.removeEventListener("change", handleChange);
+        root.classList.remove("dark", "dark-auto");
       };
     } else {
-      // Always dark
-      root.classList.add('dark');
-      root.classList.remove('dark-auto');
-      
-      return () => {
-        root.classList.remove('dark');
-      };
+      root.classList.add("dark");
+      root.classList.remove("dark-auto");
     }
-  }, [config.darkMode]);
+
+    return () => {
+      Object.keys(cssVariables).forEach((key) => root.style.removeProperty(key));
+      mediaCleanup?.();
+      if (!darkMode?.auto) root.classList.remove("dark");
+    };
+  }, [cssVariables, config.localization, config.darkMode]);
 
   return (
     <StoreConfigContext.Provider value={config}>
@@ -284,6 +233,19 @@ export function useSeoConfig(): StoreConfig["seo"] {
 export function useSocialLinks(): StoreConfig["integrations"]["social"] {
   const config = useStoreConfig();
   return config.integrations.social;
+}
+
+/**
+ * Get WhatsApp Business Chat configuration
+ */
+export function useWhatsAppConfig() {
+  const config = useStoreConfig();
+  const number = config.integrations.support.whatsappBusinessNumber;
+  return {
+    enabled: !!number,
+    phoneNumber: number,
+    defaultMessage: config.integrations.support.whatsappDefaultMessage,
+  };
 }
 
 /**
@@ -1801,7 +1763,7 @@ export function useBadgeStyle(type: "sale" | "new" | "outOfStock" | "lowStock" |
   const ui = useUiConfig();
   const branding = useBranding();
   const badgeConfig = ui.badges[type];
-  
+
   // Resolve colors with fallbacks
   const defaultColors = {
     sale: branding.colors.error,
@@ -1811,13 +1773,15 @@ export function useBadgeStyle(type: "sale" | "new" | "outOfStock" | "lowStock" |
     discount: branding.colors.error,
     featured: branding.colors.accent,
   };
-  
+
   return {
     backgroundColor: badgeConfig.backgroundColor || defaultColors[type],
     color: badgeConfig.textColor || "#FFFFFF",
     borderRadius: badgeConfig.borderRadius,
   };
 }
+
+
 
 // ============================================
 // RELATED PRODUCTS CONFIG
@@ -1926,14 +1890,6 @@ export const useBestSellersConfig = () => useHomepageSection("bestSellers") as B
 export const useCustomerFeedbackConfig = () => useHomepageSection("customerFeedback") as CustomerFeedbackConfig | null;
 export const useNewsletterSectionConfig = () => useHomepageSection("newsletter") as NewsletterSectionConfig | null;
 
-// Backward compatibility aliases for V6 hooks
-export const useV6HomepageConfig = () => useHomepageConfig();
-export const useV6PromotionBanner = usePromotionBannerConfig;
-export const useV6FlashDeals = useFlashDealsConfig;
-export const useV6CollectionMosaic = useCollectionMosaicConfig;
-export const useV6Trending = useTrendingConfig;
-export const useV6BestSellers = useBestSellersConfig;
-export const useV6CustomerFeedback = useCustomerFeedbackConfig;
 
 // ============================================
 // UTILITY COMPONENTS

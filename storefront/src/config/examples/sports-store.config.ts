@@ -74,6 +74,8 @@ export const sportsStoreConfig: StoreConfig = createStoreConfig('physical', {
     socialLogin: true,
     shareButtons: true,
     instagramFeed: true,             // Show athletic lifestyle
+    relatedProducts: true,
+    stockAlerts: true,
   },
 
   ecommerce: {

@@ -12,10 +12,49 @@ import { homepageCollections, getHeroBannerConfig, getTestimonials, getFeaturedB
 import { CartRestoreTrigger } from "./CartRestoreTrigger";
 import { ScrollToTopButton } from "./products/ScrollToTopButton";
 
-// Dynamic metadata from store config
-export const metadata = {
+import type { Metadata } from "next";
+
+const baseUrl = process.env.NEXT_PUBLIC_STOREFRONT_URL || "";
+
+export const metadata: Metadata = {
 	title: storeConfig.seo.defaultTitle,
 	description: storeConfig.seo.defaultDescription,
+	alternates: baseUrl
+		? {
+				languages: {
+					"he-IL": `${baseUrl}/ils`,
+					"en-US": `${baseUrl}/usd`,
+				},
+			}
+		: undefined,
+};
+
+// Organization + WebSite JSON-LD for homepage SEO
+const organizationJsonLd = {
+	"@context": "https://schema.org",
+	"@type": "Organization",
+	name: storeConfig.store.name,
+	url: baseUrl,
+	logo: storeConfig.branding?.logos?.primary || undefined,
+	description: storeConfig.seo.defaultDescription,
+	contactPoint: {
+		"@type": "ContactPoint",
+		email: storeConfig.store.email,
+		telephone: storeConfig.store.phone,
+		contactType: "customer service",
+	},
+};
+
+const webSiteJsonLd = {
+	"@context": "https://schema.org",
+	"@type": "WebSite",
+	name: storeConfig.store.name,
+	url: baseUrl,
+	potentialAction: {
+		"@type": "SearchAction",
+		target: `${baseUrl}/{channel}/search?q={search_term_string}`,
+		"query-input": "required name=search_term_string",
+	},
 };
 
 /**
@@ -84,13 +123,13 @@ export default async function Page(
 
 		// Data-driven: newest products by creation date (New Arrivals fallback)
 		executeGraphQL(ProductsNewestDocument, {
-			variables: { channel, first: Math.max(newArrivalsLimit, 12) },
+			variables: { channel, first: newArrivalsLimit },
 			revalidate: 30,
 		}).catch(() => ({ products: null })),
 
 		// Data-driven: top-rated products (Best Sellers fallback; Saleor has no "sold count" in API)
 		executeGraphQL(ProductsTopRatedDocument, {
-			variables: { channel, first: Math.max(bestSellersLimit, 12) },
+			variables: { channel, first: bestSellersLimit },
 			revalidate: 30,
 		}).catch(() => ({ products: null })),
 
@@ -134,6 +173,14 @@ export default async function Page(
 		slug: node.slug,
 		image: node.backgroundImage?.url || undefined,
 		productCount: node.products?.totalCount || 0,
+		children: node.children?.edges?.map(({ node: child }) => ({
+			id: child.id,
+			name: child.name,
+			slug: child.slug,
+			productCount: child.products?.totalCount || 0,
+			image: child.backgroundImage?.url || undefined,
+			imageAlt: child.backgroundImage?.alt || undefined,
+		})).filter(child => child.productCount > 0) || [],
 	})) || [];
 
 	// Transform collections for CollectionMosaic
@@ -148,6 +195,14 @@ export default async function Page(
 
 	return (
 		<>
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+			/>
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
+			/>
 			{/* Client component to trigger cart restore after OAuth login */}
 			{/* This is needed because Server Actions can't modify cookies when called from Server Components */}
 			<CartRestoreTrigger channel={channel} />

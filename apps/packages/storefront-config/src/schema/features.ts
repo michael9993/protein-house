@@ -20,4 +20,5 @@ export const FeaturesSchema = z.object({
   shareButtons: z.boolean(),
   instagramFeed: z.boolean(),
   relatedProducts: z.boolean(),
+  stockAlerts: z.boolean(),
 });

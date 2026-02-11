@@ -74,6 +74,8 @@ export const electronicsStoreConfig: StoreConfig = createStoreConfig('physical',
     socialLogin: true,
     shareButtons: true,
     instagramFeed: false,
+    relatedProducts: true,
+    stockAlerts: true,
   },
 
   ecommerce: {

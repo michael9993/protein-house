@@ -4,6 +4,7 @@ import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 import { PageHeader } from "./PageHeader";
 import { CommandPalette } from "@/components/shared/CommandPalette";
+import { useFieldHighlight } from "@/hooks/useFieldHighlight";
 
 interface AppShellProps {
   channelSlug: string;
@@ -31,6 +32,7 @@ export function AppShell({
   onPreviewToggle,
 }: AppShellProps) {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  useFieldHighlight();
 
   const handleSearchOpen = useCallback(() => {
     setCommandPaletteOpen(true);

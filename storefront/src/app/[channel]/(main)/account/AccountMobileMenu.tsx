@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
+import { logout } from "@/app/actions";
 import { useBranding, useContentConfig } from "@/providers/StoreConfigProvider";
+import { dispatchCheckoutLogout } from "@/lib/checkout-client";
 
 interface AccountMobileMenuProps {
 	channel: string;
@@ -95,6 +97,26 @@ export function AccountMobileMenu({ channel }: AccountMobileMenuProps) {
 						</Link>
 					);
 				})}
+				{/* Sign Out */}
+				<form
+					action={logout}
+					onSubmit={() => {
+						window.dispatchEvent(new CustomEvent("wishlist:logout"));
+						dispatchCheckoutLogout();
+					}}
+					className="flex flex-1"
+				>
+					<button
+						type="submit"
+						className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium text-neutral-400 transition-colors hover:text-red-500"
+						style={{ borderTop: "2px solid transparent" }}
+					>
+						<svg className="h-5 w-5 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+							<path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+						</svg>
+						<span className="truncate max-w-[64px]">{content.account.signOutButton}</span>
+					</button>
+				</form>
 			</div>
 		</nav>
 	);

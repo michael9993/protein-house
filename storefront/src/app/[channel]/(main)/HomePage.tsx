@@ -25,6 +25,7 @@ import {
 } from "@/components/home";
 import type { SectionBackgroundConfig } from "@/lib/section-backgrounds";
 import { RevealOnScroll } from "@/components/ui/RevealOnScroll";
+import { RecentlyViewedProducts } from "@/components/RecentlyViewedProducts";
 import { type HeroBannerConfig, type Testimonial, type FeaturedBrand } from "@/lib/cms";
 import {
   useHomepageConfig,
@@ -46,6 +47,14 @@ interface DashboardCategory {
   imageAlt?: string;
   productCount: number;
   featuredImage?: string;
+  children?: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    productCount: number;
+    image?: string;
+    imageAlt?: string;
+  }>;
 }
 
 /** Collection item for CollectionMosaic */
@@ -130,17 +139,21 @@ export function HomePage({
   const storeName = storeInfo.name || "Mansour Shoes";
 
   // Use Dashboard categories if available, otherwise use placeholders
-  const displayCategories = categories.length > 0
-    ? categories.map((cat) => ({
-        id: cat.id,
-        name: cat.name,
-        slug: cat.slug,
-        image: cat.image,
-        imageAlt: cat.imageAlt,
-        productCount: cat.productCount,
-        featuredImage: cat.featuredImage,
-      }))
-    : PLACEHOLDER_CATEGORIES;
+  const displayCategories = useMemo(() =>
+    categories.length > 0
+      ? categories.map((cat) => ({
+          id: cat.id,
+          name: cat.name,
+          slug: cat.slug,
+          image: cat.image,
+          imageAlt: cat.imageAlt,
+          productCount: cat.productCount,
+          featuredImage: cat.featuredImage,
+          children: cat.children,
+        }))
+      : PLACEHOLDER_CATEGORIES,
+    [categories],
+  );
 
   // Build brand name → { slug, image } mapping from products
   const brandDataMap = useMemo(() => {
@@ -426,6 +439,11 @@ export function HomePage({
             </RevealOnScroll>
           </BackgroundSection>
         );
+      }
+
+      case "recentlyViewed": {
+        if (getSectionConfig("recentlyViewed")?.enabled === false) return null;
+        return <RecentlyViewedProducts channel={channel} />;
       }
 
       default:

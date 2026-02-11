@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { parseDescription } from "./utils";
+import { CountdownTimer } from "@/ui/components/CountdownTimer";
 import { useBranding, usePromoPopupConfig, usePromotionBannerConfig, useContentConfig } from "@/providers/StoreConfigProvider";
 
 interface PromotionBannerProps {
@@ -12,6 +13,7 @@ interface PromotionBannerProps {
     description: string;
     maxDiscountPercent: number;
     productCount: number;
+    saleEndDate?: string | null;
   };
 }
 
@@ -129,6 +131,13 @@ export function PromotionBanner({ channel, promoData }: PromotionBannerProps) {
               <p className="mt-3 text-xs font-medium text-neutral-500">
                 {itemsOnSaleTemplate.replace("{count}", String(promoData.productCount))}
               </p>
+            )}
+
+            {/* Countdown timer */}
+            {promoData.saleEndDate && (
+              <div className="mt-4">
+                <CountdownTimer endDate={promoData.saleEndDate} accentColor={colors.primary} />
+              </div>
             )}
           </div>
 

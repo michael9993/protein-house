@@ -31,7 +31,7 @@ export function TopBar({
             onClick={onSearchOpen}
           >
             <Search className="h-4 w-4" />
-            <span className="hidden sm:inline">Search</span>
+            <span className="hidden sm:inline">Search settings...</span>
             <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground sm:inline-flex">
               <span className="text-xs">&#8984;</span>K
             </kbd>

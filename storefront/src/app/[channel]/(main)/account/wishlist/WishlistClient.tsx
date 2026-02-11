@@ -77,7 +77,7 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 								key={item.id}
 								className="group overflow-hidden rounded-lg border border-neutral-200 bg-white transition-shadow hover:shadow-sm"
 							>
-								<Link href={`/${channel}/products/${item.slug}`} className="block">
+								<Link href={`/${item.channel || channel}/products/${item.slug}`} className="block">
 									<div className="relative aspect-square overflow-hidden bg-neutral-100">
 										{item.image && !imageErrors.has(item.id) ? (
 											<Image
@@ -137,7 +137,7 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 											{item.category}
 										</p>
 									)}
-									<Link href={`/${channel}/products/${item.slug}`}>
+									<Link href={`/${item.channel || channel}/products/${item.slug}`}>
 										<h3 className="mt-1 font-medium text-neutral-900 transition-colors hover:text-neutral-600">
 											{item.name}
 										</h3>
@@ -154,7 +154,7 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 									</div>
 									<div className="mt-4 flex gap-2">
 										<Link
-											href={`/${channel}/products/${item.slug}`}
+											href={`/${item.channel || channel}/products/${item.slug}`}
 											className="flex-1 rounded-lg py-2.5 text-center text-sm font-semibold text-white transition-opacity hover:opacity-90"
 											style={{ backgroundColor: item.inStock ? brandingConfig.colors.primary : "#9ca3af" }}
 										>

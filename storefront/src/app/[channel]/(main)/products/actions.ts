@@ -5,8 +5,9 @@ import { revalidatePath } from "next/cache";
 import xss from "xss";
 import {
 	ProductDetailsDocument,
-	CheckoutFindDocument,
 	CheckoutAddLinesDocument,
+	StockAlertSubscribeDocument,
+	StockAlertUnsubscribeDocument,
 } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { formatMoney, formatMoneyRange } from "@/lib/utils";
@@ -32,11 +33,25 @@ export interface ProductDetailPayload {
 		id: string;
 		name: string;
 		quantityAvailable: number;
+		trackInventory: boolean;
+		quantityLimitPerCustomer: number | null;
 		attributes?: Array<{
-			attribute: { id: string; name: string; slug: string };
-			values: Array<{ id: string; name: string; slug: string }>;
+			attribute: { id: string; name: string; slug: string; inputType: string | null };
+			values: Array<{ id: string; name: string; slug: string; value: string | null }>;
 		}> | null;
-		pricing?: unknown;
+		pricing?: {
+			price?: { gross: { amount: number; currency: string } } | null;
+			priceUndiscounted?: { gross: { amount: number; currency: string } } | null;
+		} | null;
+	}>;
+	productAttributes?: Array<{
+		attribute: { id: string; name: string; slug: string; inputType: string | null; visibleInStorefront?: boolean };
+		values: Array<{
+			id: string; name: string; slug: string; value: string | null;
+			richText: string | null; plainText: string | null; boolean: boolean | null;
+			date: string | null; dateTime: string | null;
+			file: { url: string; contentType: string | null } | null;
+		}>;
 	}>;
 	rating?: number | null;
 	reviewCount?: number | null;
@@ -96,6 +111,29 @@ export async function getProductDetailsForQuickView(
 			)
 		: null;
 
+	// Extract product-level attributes
+	const productAttributes = (product as any).attributes?.map((a: any) => ({
+		attribute: {
+			id: a.attribute.id,
+			name: a.attribute.name || "",
+			slug: a.attribute.slug || "",
+			inputType: a.attribute.inputType || null,
+			visibleInStorefront: true, // Saleor filters to visible-only for anonymous users
+		},
+		values: a.values.map((v: any) => ({
+			id: v.id,
+			name: v.name || "",
+			slug: v.slug || "",
+			value: v.value || null,
+			richText: v.richText || null,
+			plainText: v.plainText || null,
+			boolean: v.boolean ?? null,
+			date: v.date || null,
+			dateTime: v.dateTime || null,
+			file: v.file ? { url: v.file.url, contentType: v.file.contentType || null } : null,
+		})),
+	})) || [];
+
 	return {
 		id: product.id,
 		name: product.name,
@@ -111,35 +149,31 @@ export async function getProductDetailsForQuickView(
 			id: v.id,
 			name: v.name,
 			quantityAvailable: v.quantityAvailable || 0,
+			trackInventory: (v as any).trackInventory ?? true,
+			quantityLimitPerCustomer: (v as any).quantityLimitPerCustomer ?? null,
 			attributes: v.attributes
 				? v.attributes.map((attr) => ({
 						attribute: {
 							id: attr.attribute.id,
 							name: attr.attribute.name || "",
 							slug: attr.attribute.slug || "",
+							inputType: (attr.attribute as any).inputType || null,
 						},
 						values: attr.values.map((val) => ({
 							id: val.id,
 							name: val.name || "",
 							slug: val.slug || "",
+							value: (val as any).value || null,
 						})),
 					}))
 				: (null as unknown as ProductDetailPayload["variants"][0]["attributes"]),
 			pricing: v.pricing,
 		})),
+		productAttributes,
 		rating: (product as { rating?: number }).rating ?? null,
 		reviewCount: (product as { reviews?: { totalCount?: number } }).reviews?.totalCount ?? null,
 	};
 }
-
-const CHECKOUT_LINES_UPDATE_MUTATION = {
-	toString: () => `mutation checkoutLinesUpdate($checkoutId: ID!, $lines: [CheckoutLineUpdateInput!]!) {
-		checkoutLinesUpdate(id: $checkoutId, lines: $lines) {
-			errors { message field code }
-			checkout { id lines { id quantity variant { id } } }
-		}
-	}`,
-} as const;
 
 /**
  * Shared add-to-cart server action for PDP and Quick View.
@@ -163,113 +197,154 @@ export async function addProductToCartAction(
 
 	try {
 		let checkoutId = await Checkout.getIdFromCookies(channel);
-		let currentCheckout: Awaited<
-			ReturnType<typeof executeGraphQL<typeof CheckoutFindDocument>>
-		>["checkout"] = null;
-
-		if (checkoutId) {
-			const result = await executeGraphQL(CheckoutFindDocument, {
-				variables: { id: checkoutId },
-				cache: "no-cache",
-			});
-			currentCheckout = result.checkout;
-		}
-
-		if (!currentCheckout) {
-			const result = await Checkout.create({ channel });
-			currentCheckout = result.checkoutCreate?.checkout ?? null;
-			if (currentCheckout) {
-				checkoutId = currentCheckout.id;
-				await Checkout.saveIdToCookie(channel, checkoutId);
-			}
-		}
-
-		if (!currentCheckout) {
-			return { success: false, error: "Could not create or find cart" };
-		}
-
 		const decodedVariantId = decodeURIComponent(variantId);
-		const existingLine = currentCheckout.lines?.find(
-			(line: { variant?: { id: string }; isGift?: boolean }) =>
-				line.variant?.id === decodedVariantId && !(line as { isGift?: boolean }).isGift
-		);
 
-		if (existingLine) {
-			const newQuantity = existingLine.quantity + quantity;
-			const result = await executeGraphQL(CHECKOUT_LINES_UPDATE_MUTATION as any, {
-				variables: {
-					checkoutId: currentCheckout.id,
-					lines: [{ lineId: existingLine.id, quantity: newQuantity }],
-				},
-				cache: "no-cache",
-			});
+		// If no checkout exists, create one first
+		if (!checkoutId) {
+			const result = await Checkout.create({ channel });
+			const newCheckout = result.checkoutCreate?.checkout;
+			if (!newCheckout) {
+				return { success: false, error: "Could not create cart" };
+			}
+			checkoutId = newCheckout.id;
+			await Checkout.saveIdToCookie(channel, checkoutId);
+		}
 
-			const update = (result as { checkoutLinesUpdate?: { errors?: Array<{ message?: string }>; checkout?: unknown } })
-				?.checkoutLinesUpdate;
-			if (update?.errors?.length) {
-				return {
-					success: false,
-					error: update.errors[0].message ?? "Failed to update cart",
-				};
+		// Single mutation — checkoutLinesAdd merges quantities for existing variants
+		const result = await executeGraphQL(CheckoutAddLinesDocument, {
+			variables: {
+				id: checkoutId,
+				lines: [{ variantId: decodedVariantId, quantity }],
+			},
+			cache: "no-cache",
+		});
+
+		const addResult = result.checkoutLinesAdd;
+
+		// If checkout was expired/invalid, create a new one and retry once
+		if (addResult?.errors?.some((e) => e.code === "NOT_FOUND" || e.field === "id")) {
+			const retryResult = await Checkout.create({ channel });
+			const newCheckout = retryResult.checkoutCreate?.checkout;
+			if (!newCheckout) {
+				return { success: false, error: "Could not create cart" };
 			}
-			if (!update?.checkout) {
-				return { success: false, error: "Cart update did not return checkout" };
-			}
-		} else {
-			const result = await executeGraphQL(CheckoutAddLinesDocument, {
+			checkoutId = newCheckout.id;
+			await Checkout.saveIdToCookie(channel, checkoutId);
+
+			const retry = await executeGraphQL(CheckoutAddLinesDocument, {
 				variables: {
-					id: currentCheckout.id,
+					id: checkoutId,
 					lines: [{ variantId: decodedVariantId, quantity }],
 				},
 				cache: "no-cache",
 			});
-
-			const addResult = result.checkoutLinesAdd;
-			if (addResult?.errors?.length) {
-				const msg =
-					addResult.errors[0].message ??
-					addResult.errors[0].code ??
-					"Failed to add item to cart";
-				return { success: false, error: msg };
+			const retryAdd = retry.checkoutLinesAdd;
+			if (retryAdd?.errors?.length) {
+				return { success: false, error: retryAdd.errors[0].message ?? "Failed to add item to cart" };
 			}
-			if (!addResult?.checkout) {
-				return {
-					success: false,
-					error: "Could not add item to cart. Please try again.",
-				};
+			if (!retryAdd?.checkout) {
+				return { success: false, error: "Could not add item to cart." };
 			}
+		} else if (addResult?.errors?.length) {
+			const msg =
+				addResult.errors[0].message ??
+				addResult.errors[0].code ??
+				"Failed to add item to cart";
+			return { success: false, error: msg };
+		} else if (!addResult?.checkout) {
+			return { success: false, error: "Could not add item to cart. Please try again." };
 		}
 
-		revalidatePath("/cart");
 		revalidatePath(`/${channel}/cart`);
-		if (productSlug) {
-			revalidatePath(`/${channel}/products/${productSlug}`);
-		}
 
-		const { getCurrentUser, saveUserCheckoutId } = await import("@/lib/checkout");
-		void getCurrentUser()
-			.then((currentUser) => {
-				if (!currentUser?.id) return;
-				const checkoutUser = (currentCheckout as { user?: { id: string } | null })?.user
-					?.id;
-				if (checkoutUser === currentUser.id) {
-					return saveUserCheckoutId(currentUser.id, channel, currentCheckout.id);
-				}
-				return import("@/gql/graphql").then(({ CheckoutCustomerAttachDocument }) =>
-					executeGraphQL(CheckoutCustomerAttachDocument, {
-						variables: { checkoutId: currentCheckout.id },
-						cache: "no-cache",
-					}).then(() =>
-						saveUserCheckoutId(currentUser.id, channel, currentCheckout.id)
-					)
-				);
-			})
-			.catch(() => {});
+		// Fire-and-forget: attach user to checkout if logged in
+		void import("@/lib/checkout").then(({ getCurrentUser, saveUserCheckoutId }) =>
+			getCurrentUser()
+				.then((currentUser) => {
+					if (!currentUser?.id) return;
+					return import("@/gql/graphql").then(({ CheckoutCustomerAttachDocument }) =>
+						executeGraphQL(CheckoutCustomerAttachDocument, {
+							variables: { checkoutId },
+							cache: "no-cache",
+						}).then(() =>
+							saveUserCheckoutId(currentUser.id, channel, checkoutId!)
+						)
+					);
+				})
+				.catch(() => {})
+		);
 
 		return { success: true };
 	} catch (error: unknown) {
 		const errorMessage =
 			error instanceof Error ? error.message : "Failed to add item to cart";
 		return { success: false, error: errorMessage };
+	}
+}
+
+/**
+ * Subscribe to stock alert notifications for a variant.
+ */
+export async function subscribeToStockAlert(
+	variantId: string,
+	email: string
+): Promise<{ success: boolean; alreadySubscribed?: boolean; error?: string }> {
+	try {
+		const result = await executeGraphQL(StockAlertSubscribeDocument, {
+			variables: {
+				input: {
+					variantId,
+					email: email.trim().toLowerCase(),
+				},
+			},
+			cache: "no-store",
+		});
+
+		const data = result.stockAlertSubscribe;
+		if (data?.errors && data.errors.length > 0) {
+			return { success: false, error: data.errors[0].message ?? "Failed to subscribe" };
+		}
+		if (data?.alreadySubscribed) {
+			return { success: true, alreadySubscribed: true };
+		}
+		if (data?.subscribed) {
+			return { success: true };
+		}
+		return { success: false, error: "Something went wrong. Please try again." };
+	} catch (err) {
+		const msg = err instanceof Error ? err.message : "Failed to subscribe. Please try again.";
+		return { success: false, error: msg };
+	}
+}
+
+/**
+ * Unsubscribe from stock alert notifications for a variant.
+ */
+export async function unsubscribeFromStockAlert(
+	variantId: string,
+	email: string
+): Promise<{ success: boolean; error?: string }> {
+	try {
+		const result = await executeGraphQL(StockAlertUnsubscribeDocument, {
+			variables: {
+				input: {
+					variantId,
+					email: email.trim().toLowerCase(),
+				},
+			},
+			cache: "no-store",
+		});
+
+		const data = result.stockAlertUnsubscribe;
+		if (data?.errors && data.errors.length > 0) {
+			return { success: false, error: data.errors[0].message ?? "Failed to unsubscribe" };
+		}
+		if (data?.unsubscribed) {
+			return { success: true };
+		}
+		return { success: false, error: "Something went wrong. Please try again." };
+	} catch (err) {
+		const msg = err instanceof Error ? err.message : "Failed to unsubscribe. Please try again.";
+		return { success: false, error: msg };
 	}
 }

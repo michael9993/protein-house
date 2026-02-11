@@ -20,7 +20,7 @@ export const generateMetadata = async (
 ): Promise<Metadata> => {
   const params = await props.params;
   const { category } = await executeGraphQL(ProductListByCategoryDocument, {
-    variables: { slug: params.slug, channel: params.channel },
+    variables: { slug: params.slug, channel: params.channel, first: 1 },
     revalidate: 60,
   });
 

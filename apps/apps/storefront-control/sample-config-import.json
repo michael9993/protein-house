@@ -77,7 +77,8 @@
       "socialLogin": false,
       "shareButtons": true,
       "instagramFeed": false,
-      "relatedProducts": true
+      "relatedProducts": true,
+      "stockAlerts": true
     },
     "ecommerce": {
       "currency": {
@@ -269,6 +270,7 @@
           "subtitle": "מצאו את מה שאתם מחפשים",
           "maxCategories": 6,
           "showProductCount": true,
+          "showSubcategories": true,
           "layoutStyle": "mosaic",
           "background": {
             "style": "none",
@@ -392,6 +394,14 @@
             "meshGrade": "deep"
           }
         },
+        "recentlyViewed": {
+          "enabled": true,
+          "background": {
+            "style": "none",
+            "color": null,
+            "secondaryColor": null
+          }
+        },
         "featuredCategories": {
           "enabled": true,
           "limit": 6,
@@ -512,7 +522,8 @@
         "collectionMosaic",
         "bestSellers",
         "customerFeedback",
-        "newsletter"
+        "newsletter",
+        "recentlyViewed"
       ]
     },
     "pages": {
@@ -543,7 +554,9 @@
       "support": {
         "intercomAppId": null,
         "zendeskKey": null,
-        "crispWebsiteId": null
+        "crispWebsiteId": null,
+        "whatsappBusinessNumber": "+972501234567",
+        "whatsappDefaultMessage": "שלום! אני מעוניין לקבל מידע נוסף"
       },
       "social": {
         "facebook": null,
@@ -883,7 +896,7 @@
         "promoCodeLabel": "קוד קופון",
         "promoCodePlaceholder": "הזן קוד",
         "promoCodeApplyButton": "החל",
-        "eligibleForFreeShipping": "",
+        "eligibleForFreeShipping": "זכאי למשלוח חינם",
         "subtotalLabel": "סיכום ביניים",
         "subtotalLabelWithCount": "סיכום ביניים ({count} פריטים)",
         "shippingLabel": "משלוח",
@@ -925,10 +938,10 @@
         "quickAddButton": "הוסף במהירות",
         "viewFullPageLink": "צפה בדף המלא",
         "loadingProductText": "טוען מוצר...",
-        "productDetailsTitle": "",
-        "closeButton": "",
-        "productNotFoundText": "",
-        "errorLoadingProductText": ""
+        "productDetailsTitle": "פרטי מוצר",
+        "closeButton": "סגור",
+        "productNotFoundText": "מוצר לא נמצא",
+        "errorLoadingProductText": "נכשל בטעינת מוצר"
       },
       "account": {
         "signInTitle": "ברוך הבא",
@@ -1062,6 +1075,9 @@
         "categoriesTitle": "קניות לפי קטגוריה",
         "categoriesSubtitle": "מצאו את מה שאתם מחפשים",
         "viewAllCategoriesButton": "צפה בכל הקטגוריות",
+        "subcategoriesLabel": "תתי קטגוריות",
+        "viewCategoryButton": "צפה בהכל",
+        "productsLabel": "מוצרים",
         "brandsTitle": "מותגים מובילים",
         "brandsSubtitle": "קנו מהמותגים האהובים עליכם",
         "testimonialsTitle": "מה הלקוחות שלנו אומרים",
@@ -1099,6 +1115,7 @@
         "brandLabel": "מותג",
         "performanceFallback": "ביצועים",
         "saleBadgeLabel": "מבצע",
+        "saleBadgeOffText": "הנחה",
         "newBadgeLabel": "חדש",
         "featuredBadgeLabel": "מומלץ",
         "outOfStockBadgeLabel": "אזל מהמלאי",
@@ -1115,7 +1132,10 @@
         "dontMissOutTitle": "אל תפספסו",
         "shopSaleItemsButton": "קנה פריטים במבצע",
         "allProductsButton": "כל המוצרים",
-        "promoDescriptionFallback": "ציוד ביצועים פרימיום לריצה, מגרש וסטודיו. קולקציה לזמן מוגבל."
+        "promoDescriptionFallback": "ציוד ביצועים פרימיום לריצה, מגרש וסטודיו. קולקציה לזמן מוגבל.",
+        "recentlyViewedSubLabel": "ההיסטוריה שלך",
+        "recentlyViewedTitle": "צפית לאחרונה",
+        "recentlyViewedSubtitle": "מוצרים שצפית בהם לאחרונה"
       },
       "checkout": {
         "checkoutTitle": "תשלום",
@@ -1192,7 +1212,7 @@
         "removePromoButton": "הסר",
         "oneVoucherPerOrderHint": "קופון אחד להזמנה. כרטיסי מתנה ניתנים לשילוב.",
         "replaceVoucherConfirm": "ניתן להשתמש בקופון אחד להזמנה. שימוש בקוד זה יחליף את {code}. להמשיך?",
-        "eligibleForFreeShipping": "",
+        "eligibleForFreeShipping": "זכאי למשלוח חינם",
         "giftCardLabel": "כרטיס מתנה",
         "subtotalLabel": "סיכום ביניים",
         "shippingLabel": "משלוח",
@@ -1439,7 +1459,46 @@
         "mustBeLoggedInToReview": "עליך להתחבר כדי לשלוח חוות דעת. אנא התחבר ונסה שוב.",
         "failedToUpdateReview": "נכשל בעדכון חוות דעת",
         "failedToDeleteReview": "נכשל במחיקת חוות דעת",
-        "failedToUploadImages": "נכשל בהעלאת תמונות"
+        "failedToUploadImages": "נכשל בהעלאת תמונות",
+        "sizeGuideButton": "מדריך מידות",
+        "sizeGuideTitle": "מדריך מידות",
+        "sizeGuideSubtitle": "מצאו את המידה המושלמת",
+        "sizeGuideMensTab": "גברים",
+        "sizeGuideWomensTab": "נשים",
+        "sizeGuideKidsTab": "ילדים",
+        "sizeGuideHowToMeasure": "איך למדוד",
+        "sizeGuideMeasureTip": "עמדו על דף נייר כשהעקב נוגע בקיר. סמנו את קצה האצבע הארוכה ביותר ומדדו את המרחק בסנטימטרים. השוו עם עמודת ה-CM בטבלה.",
+        "sizeGuideProTip": "טיפ: מדדו את הרגליים בערב כשהן בגודלן המקסימלי. אם אתם בין שתי מידות, עלו חצי מידה למידה הנוחה ביותר.",
+        "sizeGuideShoesCategory": "נעליים",
+        "sizeGuideClothingCategory": "ביגוד",
+        "sizeGuideClothingMeasureTip": "השתמשו בסרט מדידה גמיש. לחזה: מדדו סביב החלק הרחב ביותר. למותניים: מדדו סביב הנקודה הצרה ביותר של המותניים.",
+        "sizeGuideClothingProTip": "טיפ: אם אתם בין שתי מידות, עלו מידה לגזרה רחבה יותר או ירדו מידה לגזרה צמודה. בדקו את טבלת המידות של המותג הספציפי אם זמינה.",
+        "specificationsTab": "מפרט טכני",
+        "noSpecifications": "אין מפרט זמין.",
+        "selectAttributeLabel": "בחר {attribute}",
+        "pleaseSelectAttribute": "אנא בחר {attribute}",
+        "unlimitedStock": "במלאי",
+        "selectOptionsForStock": "בחר אפשרויות לבדיקת זמינות",
+        "maxPerCustomer": "מוגבל ל-{count} ליחידה",
+        "unavailableForSelection": "לא זמין עבור הבחירה הנוכחית",
+        "relatedProductsTitle": "אולי תאהבו גם",
+        "relatedProductsSubtitle": "לקוחות צפו גם במוצרים הבאים",
+        "relatedViewDetailsButton": "צפה בפרטים",
+        "relatedPreviousLabel": "מוצרים קודמים",
+        "relatedNextLabel": "מוצרים הבאים",
+        "notifyMeButton": "הודיעו לי כשהמוצר יחזור למלאי",
+        "notifyMeTitle": "הודיעו לי כשהמוצר יחזור למלאי",
+        "notifyMeDescription": "קבלו התראה כש-{variant} יהיה זמין",
+        "notifyMeDescriptionGeneric": "קבלו התראה כשהמוצר יהיה זמין",
+        "notifyMeEmailPlaceholder": "הזינו את האימייל שלכם",
+        "notifyMeSubmitButton": "הודיעו לי",
+        "notifyMeSubmitting": "נרשם...",
+        "notifyMeSuccess": "נודיע לכם כשהמוצר יחזור למלאי",
+        "notifyMeAlreadySubscribed": "כבר נרשמתם לעדכון עבור מוצר זה",
+        "notifyMeUnsubscribe": "ביטול הרשמה",
+        "notifyMeInvalidEmail": "נא להזין כתובת אימייל תקינה",
+        "notifyMeError": "ההרשמה נכשלה. אנא נסו שוב.",
+        "notifyMeCancel": "ביטול"
       },
       "dashboard": {
         "totalOrders": "סה״כ הזמנות",
@@ -1735,14 +1794,23 @@
         "tryAgainButton": "נסה שוב",
         "backToHomeButton": "חזור לדף הבית",
         "needHelpText": "צריך עזרה?",
-        "contactSupportLink": "צור קשר עם צוות התמיכה שלנו"
+        "contactSupportLink": "צור קשר עם צוות התמיכה שלנו",
+        "contactSupportUrl": "/contact",
+        "errorCode": "שגיאה"
       },
       "notFound": {
         "title": "דף לא נמצא",
         "description": "מצטערים, לא הצלחנו למצוא את הדף שאתה מחפש. ייתכן שהוא הועבר או שאינו קיים.",
         "backToHomeButton": "חזור לדף הבית",
         "browseProductsButton": "עיין במוצרים",
-        "helpfulLinksText": "או בדוק את הדפים הבאים:"
+        "helpfulLinksText": "או בדוק את הדפים הבאים:",
+        "categoriesLinkText": "קטגוריות",
+        "collectionsLinkText": "קולקציות",
+        "aboutUsLinkText": "אודותינו",
+        "contactLinkText": "צור קשר",
+        "productNotFoundTitle": "מוצר לא נמצא",
+        "productNotFoundDescription": "המוצר שאתה מחפש אינו קיים או שהוסר.",
+        "productNotFoundBackButton": "חזור למוצרים"
       }
     },
     "darkMode": {

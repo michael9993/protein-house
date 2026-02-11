@@ -2,16 +2,20 @@ fragment VariantDetails on ProductVariant {
 	id
 	name
 	quantityAvailable
+	trackInventory
+	quantityLimitPerCustomer
 	attributes {
 		attribute {
 			id
 			name
 			slug
+			inputType
 		}
 		values {
 			id
 			name
 			slug
+			value
 		}
 	}
 	pricing {

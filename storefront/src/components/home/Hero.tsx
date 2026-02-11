@@ -7,17 +7,26 @@ import { ArrowRight } from "lucide-react";
 import { type ProductListItemFragment } from "@/gql/graphql";
 import { type HeroBannerConfig } from "@/lib/cms";
 import { formatMoney } from "@/lib/utils";
-import { useBranding, useStoreInfo, useHeroConfig, useContentConfig } from "@/providers/StoreConfigProvider";
+import { useBranding, useStoreInfo, useHeroConfig, useContentConfig, useBadgeStyle } from "@/providers/StoreConfigProvider";
 import {
   getProductImage,
   getProductAlt,
   getProductBrand,
-  getProductBadgeWithLabels,
-  badgeToneClasses,
+  getDiscountPercent,
+  getTotalStock,
   normalizeHref,
   uniqueBy,
   type BadgeLabels,
 } from "./utils";
+
+const radiusMap: Record<string, string> = {
+  none: "rounded-none",
+  sm: "rounded-sm",
+  md: "rounded-md",
+  lg: "rounded-lg",
+  xl: "rounded-xl",
+  full: "rounded-full",
+};
 
 interface HeroProps {
   channel: string;
@@ -65,6 +74,9 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
   const storeInfo = useStoreInfo();
   const config = useHeroConfig();
   const contentConfig = useContentConfig();
+  const saleBadgeStyle = useBadgeStyle("sale");
+  const outOfStockBadgeStyle = useBadgeStyle("outOfStock");
+  const lowStockBadgeStyle = useBadgeStyle("lowStock");
 
   // Config values with fallbacks
   // Note: Current config only has enabled and type. Extended properties use defaults.
@@ -195,6 +207,7 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
   const badgeLabels: BadgeLabels = {
     outOfStock: homepageContent.outOfStockBadgeLabel || "Out of stock",
     sale: homepageContent.saleBadgeLabel || "Sale",
+    off: homepageContent.saleBadgeOffText || "OFF",
     lowStock: homepageContent.lowStockBadgeLabel || "Low stock",
     new: homepageContent.newBadgeLabel || "New",
     featured: homepageContent.featuredBadgeLabel || "Featured",
@@ -204,8 +217,6 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
   const activePrice = activeProduct?.pricing?.priceRange?.start?.gross;
   const activeImage = activeProduct ? getProductImage(activeProduct) : null;
   const activeBrand = activeProduct ? getProductBrand(activeProduct, storeName) : "Multi-brand";
-  const activeBadge = activeProduct ? getProductBadgeWithLabels(activeProduct, badgeLabels) : { label: badgeLabels.featured, tone: "muted" as const };
-
   // Split title for gradient accent on last word
   const titleWords = title.split(" ");
   const lastWord = titleWords.pop() || "";
@@ -320,7 +331,11 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
                   const isVisible = pos < 5;
                   const price = product.pricing?.priceRange?.start?.gross;
                   const image = getProductImage(product);
-                  const badge = getProductBadgeWithLabels(product, badgeLabels);
+                  const discountPct = getDiscountPercent(product);
+                  const hasDiscountBadge = discountPct > 0;
+                  const prodStock = getTotalStock(product);
+                  const prodInStock = prodStock > 0;
+                  const prodLowStock = prodStock > 0 && prodStock <= 5;
 
                   // Card dimensions for mobile
                   const cardWidth = isCenter ? 220 : isFirstLayer ? 200 : 180;
@@ -395,11 +410,32 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
                               priority={index === 0}
                             />
                           )}
-                          <span
-                            className={`absolute rounded-full px-2 py-1 text-[8px] font-bold uppercase tracking-[0.12em] shadow-sm ${isCenter ? "start-3 top-3" : "start-2 top-2"} ${badgeToneClasses[badge.tone]}`}
-                          >
-                            {badge.label}
-                          </span>
+                          <div className={`absolute ${isCenter ? "start-3 top-3" : "start-2 top-2"} z-10 flex flex-col gap-1`}>
+                            {hasDiscountBadge && (
+                              <span
+                                className={`${radiusMap[saleBadgeStyle.borderRadius] || "rounded"} px-2 py-1 text-[8px] font-bold shadow-sm`}
+                                style={{ backgroundColor: saleBadgeStyle.backgroundColor, color: saleBadgeStyle.color }}
+                              >
+                                -{discountPct}%
+                              </span>
+                            )}
+                            {!prodInStock && (
+                              <span
+                                className={`${radiusMap[outOfStockBadgeStyle.borderRadius] || "rounded-full"} px-1.5 py-0.5 text-[7px] font-medium shadow-sm`}
+                                style={{ backgroundColor: outOfStockBadgeStyle.backgroundColor, color: outOfStockBadgeStyle.color }}
+                              >
+                                {contentConfig.product.outOfStockText || badgeLabels.outOfStock}
+                              </span>
+                            )}
+                            {prodLowStock && (
+                              <span
+                                className={`${radiusMap[lowStockBadgeStyle.borderRadius] || "rounded-full"} px-1.5 py-0.5 text-[7px] font-medium shadow-sm`}
+                                style={{ backgroundColor: lowStockBadgeStyle.backgroundColor, color: lowStockBadgeStyle.color }}
+                              >
+                                {(contentConfig.product.lowStockText || badgeLabels.lowStock).replace("{count}", String(prodStock))}
+                              </span>
+                            )}
+                          </div>
                         </div>
                         <div className={`border-t ${isCenter ? "border-neutral-100 bg-white px-4 py-3" : isFirstLayer ? "border-neutral-100/80 bg-white/90 px-3 py-2" : "border-neutral-100/60 bg-white/80 px-2 py-1.5"}`}>
                           <div className={`font-bold uppercase tracking-[0.15em] text-neutral-500 ${isCenter ? "text-[8px]" : "text-[7px]"}`}>
@@ -468,7 +504,11 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
                   const isVisible = pos < 9;
                   const price = product.pricing?.priceRange?.start?.gross;
                   const image = getProductImage(product);
-                  const badge = getProductBadgeWithLabels(product, badgeLabels);
+                  const discountPct = getDiscountPercent(product);
+                  const hasDiscountBadge = discountPct > 0;
+                  const prodStock = getTotalStock(product);
+                  const prodInStock = prodStock > 0;
+                  const prodLowStock = prodStock > 0 && prodStock <= 5;
 
                   // Card dimensions - larger cards, center is biggest
                   const cardWidth = isCenter ? 340 : isFirstLayer ? 310 : isSecondLayer ? 280 : isThirdLayer ? 255 : 230;
@@ -571,12 +611,33 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
                               priority={index === 0}
                             />
                           )}
-                          {/* Badge - uses translated labels and proper tone colors */}
-                          <span
-                            className={`absolute rounded-full px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.15em] shadow-sm ${isCenter ? "start-5 top-5" : isFirstLayer ? "start-4 top-4" : isSecondLayer ? "start-3 top-3" : "start-2 top-2"} ${badgeToneClasses[badge.tone]}`}
-                          >
-                            {badge.label}
-                          </span>
+                          {/* Badges - inline styled */}
+                          <div className={`absolute ${isCenter ? "start-5 top-5" : isFirstLayer ? "start-4 top-4" : isSecondLayer ? "start-3 top-3" : "start-2 top-2"} z-10 flex flex-col gap-1`}>
+                            {hasDiscountBadge && (
+                              <span
+                                className={`${radiusMap[saleBadgeStyle.borderRadius] || "rounded"} ${isCenter ? "px-3 py-1.5 text-[9px]" : isFirstLayer ? "px-2.5 py-1 text-[8px]" : "px-2 py-1 text-[7px]"} font-bold shadow-sm`}
+                                style={{ backgroundColor: saleBadgeStyle.backgroundColor, color: saleBadgeStyle.color }}
+                              >
+                                -{discountPct}%
+                              </span>
+                            )}
+                            {!prodInStock && (
+                              <span
+                                className={`${radiusMap[outOfStockBadgeStyle.borderRadius] || "rounded-full"} ${isCenter ? "px-2.5 py-1 text-[8px]" : "px-2 py-0.5 text-[7px]"} font-medium shadow-sm`}
+                                style={{ backgroundColor: outOfStockBadgeStyle.backgroundColor, color: outOfStockBadgeStyle.color }}
+                              >
+                                {contentConfig.product.outOfStockText || badgeLabels.outOfStock}
+                              </span>
+                            )}
+                            {prodLowStock && (
+                              <span
+                                className={`${radiusMap[lowStockBadgeStyle.borderRadius] || "rounded-full"} ${isCenter ? "px-2.5 py-1 text-[8px]" : "px-2 py-0.5 text-[7px]"} font-medium shadow-sm`}
+                                style={{ backgroundColor: lowStockBadgeStyle.backgroundColor, color: lowStockBadgeStyle.color }}
+                              >
+                                {(contentConfig.product.lowStockText || badgeLabels.lowStock).replace("{count}", String(prodStock))}
+                              </span>
+                            )}
+                          </div>
                         </div>
                         {/* Product info */}
                         <div className={`border-t ${isCenter ? "border-neutral-100 bg-white px-6 py-5" : isFirstLayer ? "border-neutral-100/80 bg-white/90 px-5 py-4" : isSecondLayer ? "border-neutral-100/60 bg-white/80 px-4 py-3" : isThirdLayer ? "border-neutral-100/40 bg-white/70 px-3 py-2" : "border-neutral-100/30 bg-white/60 px-2 py-1.5"}`}>

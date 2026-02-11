@@ -68,6 +68,8 @@ export const digitalStoreConfig: StoreConfig = createStoreConfig('digital', {
     socialLogin: true,
     shareButtons: true,
     instagramFeed: false,
+    relatedProducts: true,
+    stockAlerts: true,
   },
 
   ecommerce: {

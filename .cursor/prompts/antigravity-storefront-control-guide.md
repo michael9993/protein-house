@@ -8,7 +8,7 @@
 
 ---
 
-You are working on the **Mansour Shoes E-Commerce Platform**, a Saleor-based Next.js storefront. Your task is to understand how the **Storefront** (customer-facing Next.js app) and **Storefront Control** (CMS configuration app) work together, and how to add or change **UI styling**, **animations**, and **configurability** without hardcoding.
+You are working on the **Aura E-Commerce Platform**, a Saleor-based Next.js storefront. The first client is **Mansour Shoes**. Your task is to understand how the **Storefront** (customer-facing Next.js app) and **Storefront Control** (CMS configuration app) work together, and how to add or change **UI styling**, **animations**, and **configurability** without hardcoding.
 
 **Read the project PRD first:** `PRD.md` (root). Pay special attention to:
 

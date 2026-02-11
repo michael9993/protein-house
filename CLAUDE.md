@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Mansour Shoes E-Commerce Platform — a fully-featured, enterprise-grade e-commerce solution built on Saleor. Supports multi-channel commerce (Israel ILS/Hebrew/RTL + International USD/English/LTR), CMS-driven configuration, and modular app ecosystem.
+Aura E-Commerce Platform — a fully-featured, enterprise-grade, multi-tenant e-commerce platform built on Saleor. Supports multi-channel commerce (Israel ILS/Hebrew/RTL + International USD/English/LTR), CMS-driven configuration, and modular app ecosystem. First client: Mansour Shoes.
 
 ## Core Design Principles
 
@@ -127,9 +127,13 @@ docker exec -it saleor-postgres-dev psql -U saleor -d saleor      # Connect to D
 docker exec saleor-postgres-dev pg_dump -U saleor saleor > backup.sql  # Backup
 ```
 
-## Container Restart Guidelines
+## Container Restart & Verification Guidelines
 
-**After making changes, restart the appropriate container(s).**
+> **MANDATORY: After making code changes, ALWAYS restart the affected container(s) AND verify the build succeeds.**
+>
+> **DO NOT rely on hot-reload / HMR.** Hot-reload does NOT work reliably in this Docker setup — file watchers inside containers frequently miss host-side file changes, especially on Windows. Always perform a full container restart (`docker compose restart`) after changes. Never assume your changes are live just because you saved the file.
+
+### Container Restart Map
 
 | Change Location | Container(s) to Restart |
 |-----------------|------------------------|
@@ -158,6 +162,47 @@ docker exec -it saleor-api-dev python manage.py build_schema
 docker exec -it saleor-dashboard-dev pnpm generate
 docker exec -it saleor-storefront-dev pnpm generate
 ```
+
+### Post-Change Verification (Always Do This)
+
+**After every set of code changes, run the appropriate verification commands.** Do not skip this step — catching type errors early prevents cascading breakage.
+
+| What Changed | Verification Command | Container |
+|--------------|---------------------|-----------|
+| Storefront code (`storefront/`) | `docker exec saleor-storefront-dev pnpm type-check` | `saleor-storefront-dev` |
+| Storefront code (`storefront/`) | `docker exec saleor-storefront-dev pnpm lint` | `saleor-storefront-dev` |
+| Storefront Control app | `docker exec saleor-storefront-control-app-dev pnpm build` | `saleor-storefront-control-app-dev` |
+| Any app in `apps/` | `docker exec <app-container> pnpm build` | Per-app container |
+| Dashboard code | `docker exec saleor-dashboard-dev pnpm check-types` | `saleor-dashboard-dev` |
+| Python backend | `docker exec saleor-api-dev ruff check .` | `saleor-api-dev` |
+| Python backend | `docker exec saleor-api-dev mypy saleor` | `saleor-api-dev` |
+
+**Verification workflow after storefront changes:**
+```bash
+# 1. Restart the container
+docker compose -f infra/docker-compose.dev.yml restart saleor-storefront-dev
+# 2. Wait for dev server to be ready, then type-check
+docker exec saleor-storefront-dev pnpm type-check
+# 3. Check logs for runtime errors
+docker compose -f infra/docker-compose.dev.yml logs --tail=50 saleor-storefront-dev
+```
+
+**Verification workflow after Storefront Control app changes:**
+```bash
+# 1. Restart the container
+docker compose -f infra/docker-compose.dev.yml restart saleor-storefront-control-app-dev
+# 2. Build to verify no type/compile errors
+docker exec saleor-storefront-control-app-dev pnpm build
+# 3. Check logs
+docker compose -f infra/docker-compose.dev.yml logs --tail=50 saleor-storefront-control-app-dev
+```
+
+**When to check logs:** Always check container logs after restart if:
+- You modified imports or exports
+- You changed TypeScript types or interfaces
+- You added/removed dependencies
+- You changed config schema or structure
+- The container might fail to start
 
 ## Architecture Overview
 
@@ -206,9 +251,44 @@ When adding any new feature, follow this checklist:
 4. Add admin form validation in `apps/apps/storefront-control/src/modules/config/schema.ts`
 5. Add/update types in `storefront/src/config/store.config.ts`
 6. Create/update React hook in `storefront/src/providers/StoreConfigProvider.tsx`
-7. Update sample config JSONs (`sample-config-import.json` + `sample-config-import-en.json`)
+7. **CRITICAL: Update BOTH sample config JSONs** — `sample-config-import.json` (Hebrew/ILS) AND `sample-config-import-en.json` (English/USD). These are the development fallback configs and must always have values for every field the storefront reads.
 8. Add UI controls in Storefront Control admin page (if user-facing)
-9. Document in PRD.md feature specifications
+9. **Update settings search index** — `apps/apps/storefront-control/src/lib/settings-index.ts`. Add entries for new fields so they appear in Cmd+K command palette search. Each entry needs: `page`, `sectionId`, `title`, `description`, `keywords[]`, `category`, and `tab`.
+10. **Update Storefront Control admin page** — If adding a new section or tab, ensure navigation in the appropriate page component (`apps/apps/storefront-control/src/pages/[channelSlug]/`) reflects it.
+11. Update PRD.md, CLAUDE.md, and AGENTS.md if the change is significant.
+12. Restart affected containers (storefront + storefront-control-app at minimum).
+
+**Sample Config Rules:**
+- Every content field read by the storefront MUST exist in both sample configs with proper translations
+- Hebrew config: all user-facing text must be in Hebrew, not empty strings
+- English config: all user-facing text must be in English
+- When adding content to `content.productDetail`, `content.homepage`, etc., add to BOTH files
+- Periodically audit for empty strings (`": ""`) in the Hebrew config — these indicate missing translations
+
+### Keeping Everything in Sync (Critical)
+
+**All config-related files MUST stay in sync.** A mismatch between any of these causes runtime errors, missing fields, or broken admin UI. When modifying any one file in this list, check whether the others also need updates:
+
+| # | File / Location | What It Contains | When to Update |
+|---|-----------------|------------------|----------------|
+| 1 | `apps/packages/storefront-config/src/schema/` | Zod schema (source of truth for shape) | Any new field, renamed field, or type change |
+| 2 | `apps/packages/storefront-config/src/types.ts` | Exported TypeScript types (Zod-inferred) | New top-level section or re-export change |
+| 3 | `apps/apps/storefront-control/src/modules/config/defaults.ts` | Default values for every field | Any new field (must have a default) |
+| 4 | `apps/apps/storefront-control/src/modules/config/schema.ts` | Admin form validation schema | Any new field the admin form needs to validate |
+| 5 | `storefront/src/config/store.config.ts` | Storefront-side type definitions and defaults | Any new field the storefront reads |
+| 6 | `storefront/src/providers/StoreConfigProvider.tsx` | React hooks that expose config to components | Any new field or section that needs a hook |
+| 7 | `apps/apps/storefront-control/sample-config-import.json` | Hebrew/ILS development fallback | **Every** new content/config field |
+| 8 | `apps/apps/storefront-control/sample-config-import-en.json` | English/USD development fallback | **Every** new content/config field |
+| 9 | `apps/apps/storefront-control/src/lib/settings-index.ts` | Cmd+K search index for admin settings | Any new admin-visible field or section |
+| 10 | `apps/apps/storefront-control/src/pages/[channelSlug]/` | Admin UI pages (forms, tabs, sections) | Any new user-facing config field |
+| 11 | `PRD.md` / `CLAUDE.md` / `AGENTS.md` | Project documentation | Significant feature or architecture changes |
+
+**Sync Enforcement Rules:**
+- Never add a schema field without also adding its default, sample config values, and search index entry.
+- Never add a storefront hook without the corresponding schema field in the shared package.
+- Never add an admin form field without updating the settings search index (so Cmd+K finds it).
+- When renaming a field, update ALL 11 locations — partial renames cause silent breakage.
+- When removing a field, remove from ALL locations and check for dangling references in storefront components.
 
 ```typescript
 // BAD: Hardcoded behavior

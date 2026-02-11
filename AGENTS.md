@@ -395,16 +395,27 @@ docker compose -f infra/docker-compose.dev.yml ps
 After completing any changes, verify:
 
 1. **Docker Containers**: Determine which container(s) need restarting based on what changed
-2. **Configuration Files**: If storefront config changed:
+2. **Configuration Sync (11-file pipeline)**: If ANY storefront config field was added, renamed, or removed:
    - [ ] Shared schema updated (`apps/packages/storefront-config/src/schema/`)
+   - [ ] Shared types updated (`apps/packages/storefront-config/src/types.ts`) — if new top-level section
    - [ ] Admin form schema updated (`storefront-control/src/modules/config/schema.ts`)
    - [ ] Defaults updated (`storefront-control/src/modules/config/defaults.ts`)
-   - [ ] Sample config files updated (both JSON files)
+   - [ ] Sample config files updated — **BOTH** `sample-config-import.json` (Hebrew) AND `sample-config-import-en.json` (English)
    - [ ] Storefront types updated (`storefront/src/config/store.config.ts`)
    - [ ] Hook added/updated in `StoreConfigProvider.tsx`
+   - [ ] **Settings search index updated** (`storefront-control/src/lib/settings-index.ts`) — so Cmd+K finds the new setting
+   - [ ] **Admin UI page updated** (`storefront-control/src/pages/[channelSlug]/`) — form fields, tabs, or sections
+   - [ ] Documentation updated (`PRD.md`, `CLAUDE.md`, `AGENTS.md`) — if significant change
 3. **Build/Lint**: Run appropriate lint/type-check commands for changed packages
-4. **Documentation**: Update relevant docs only if structure/behavior significantly changed
+4. **Documentation**: Update PRD.md, CLAUDE.md, and AGENTS.md if structure/behavior significantly changed. All three docs MUST stay in sync with each other and with the codebase.
 5. **App-Specific Checks**:
    - **Sales Analytics**: If Excel export changed, verify xlsx package is installed (`pnpm add xlsx`)
    - **Newsletter**: If MJML templates changed, verify template validation
-   - **Storefront Control**: If config schema changed, update sample config files
+   - **Storefront Control**: If config schema changed, update sample config files, settings search index, and admin UI pages
+   - **Bulk Manager**: If new entity type added, update permissions in manifest
+6. **Sync Enforcement** (hard rules — never skip):
+   - Never add a schema field without its default, sample config values (both languages), and search index entry
+   - Never add an admin form field without a corresponding search index entry (Cmd+K must find everything)
+   - Never add a storefront hook without the matching schema field in the shared package
+   - When renaming a field, update ALL 11 sync locations — partial renames cause silent breakage
+   - When removing a field, remove from ALL locations and grep the storefront for dangling references

@@ -3,6 +3,7 @@ query ProductDetails($slug: String!, $channel: String!) {
 		id
 		name
 		slug
+		created
 		description
 		seoTitle
 		seoDescription
@@ -20,6 +21,29 @@ query ProductDetails($slug: String!, $channel: String!) {
 			id
 			name
 			slug
+		}
+		attributes {
+			attribute {
+				id
+				name
+				slug
+				inputType
+			}
+			values {
+				id
+				name
+				slug
+				value
+				richText
+				plainText
+				boolean
+				date
+				dateTime
+				file {
+					url
+					contentType
+				}
+			}
 		}
 		variants {
 			...VariantDetails

@@ -1,10 +1,10 @@
-query ProductListByCategory($slug: String!, $channel: String!) {
+query ProductListByCategory($slug: String!, $channel: String!, $first: Int!) {
 	category(slug: $slug) {
 		name
 		description
 		seoDescription
 		seoTitle
-		products(first: 100, channel: $channel) {
+		products(first: $first, channel: $channel) {
 			edges {
 				node {
 					...ProductListItem

@@ -64,8 +64,9 @@ function CartDrawerContent({
 }) {
   const [checkoutData, setCheckoutData] = useState<{ voucherCode?: string | null; [key: string]: unknown } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
   const { isOpen } = useCartDrawer();
+  // Per-line lock to allow concurrent operations on different items
+  const updatingLinesRef = React.useRef(new Set<string>());
 
   // Helper to refresh cart data from API
   const refreshCartData = async () => {
@@ -84,51 +85,78 @@ function CartDrawerContent({
 
   // ... (lines 75-121 omitted)
 
-  // Handle quantity updates using server action
+  // Handle quantity updates with optimistic UI
   const handleUpdateQuantity = async (lineId: string, quantity: number) => {
-    if (isUpdating) return;
-    setIsUpdating(true);
+    if (updatingLinesRef.current.has(lineId)) return;
+    updatingLinesRef.current.add(lineId);
+
+    // Optimistic: update quantity in local state immediately
+    setCheckoutData(prev => {
+      if (!prev) return prev;
+      const lines = (prev as any).lines;
+      if (!Array.isArray(lines)) return prev;
+      return {
+        ...prev,
+        lines: lines.map((line: any) => {
+          if (line.id !== lineId) return line;
+          const unitAmount = line.quantity > 0
+            ? line.totalPrice.gross.amount / line.quantity
+            : 0;
+          return {
+            ...line,
+            quantity,
+            totalPrice: { ...line.totalPrice, gross: { ...line.totalPrice.gross, amount: unitAmount * quantity } },
+          };
+        }),
+      };
+    });
+
     try {
-      // Optimistic update could be done here, but for now we'll wait for server
-      // Using the shared server action for consistency
       await updateLineQuantityAction(channel, lineId, quantity);
-      
-      // Refresh cart data to get latest totals
-      await refreshCartData();
+      // Background refresh for accurate totals + notify header badge
+      window.dispatchEvent(new Event("cart-updated"));
     } catch (error) {
       console.error("Failed to update quantity:", error);
+      refreshCartData();
     } finally {
-      setIsUpdating(false);
+      updatingLinesRef.current.delete(lineId);
     }
   };
 
-  // Handle line deletion using server action (including gift lines)
+  // Handle line deletion with optimistic UI
   const handleDeleteLine = async (lineId: string) => {
-    if (isUpdating) return;
-    setIsUpdating(true);
+    if (updatingLinesRef.current.has(lineId)) return;
+    updatingLinesRef.current.add(lineId);
+
+    // Capture pre-update state for rollback
+    const previousData = checkoutData;
+
+    // Optimistic: remove line immediately
+    setCheckoutData(prev => {
+      if (!prev) return prev;
+      const lines = (prev as any).lines;
+      if (!Array.isArray(lines)) return prev;
+      return { ...prev, lines: lines.filter((line: any) => line.id !== lineId) };
+    });
+
     try {
       const result = await deleteLineAction(channel, lineId);
-      await refreshCartData();
       if (result && !result.success) {
         toast.error(result.error ?? "Could not remove item");
-      } else if (result?.success && typeof window !== "undefined") {
+        setCheckoutData(previousData);
+      } else {
         window.dispatchEvent(new Event("cart-updated"));
       }
     } catch (error) {
       console.error("Failed to delete line:", error);
       toast.error("Could not remove item");
+      setCheckoutData(previousData);
     } finally {
-      setIsUpdating(false);
+      updatingLinesRef.current.delete(lineId);
     }
   };
 
-  // Also fetch on mount
-  useEffect(() => {
-    setIsLoading(true);
-    refreshCartData().finally(() => setIsLoading(false));
-  }, [channel]);
-
-  // Refetch when drawer opens
+  // Fetch when drawer opens (skip if already have data and drawer was just toggled)
   useEffect(() => {
     if (isOpen) {
       setIsLoading(true);
@@ -136,25 +164,24 @@ function CartDrawerContent({
     }
   }, [isOpen, channel]);
 
-  // Also listen for cart-updated events to refresh
+  // Listen for cart-updated events to refresh (debounced)
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
     const handleCartUpdate = () => {
-      if (channel) {
-          fetch(`/api/cart-data?channel=${channel}`, {
-          cache: 'no-store',
-        })
-          .then(res => res.json())
-          .then(data => {
-            setCheckoutData(data.checkout);
-          })
-          .catch(err => {
-            console.error('[CartDrawerContent] Error refreshing cart:', err);
-          });
-      }
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        if (channel) {
+          fetch(`/api/cart-data?channel=${channel}`, { cache: 'no-store' })
+            .then(res => res.json())
+            .then(data => setCheckoutData(data.checkout))
+            .catch(() => {});
+        }
+      }, 300);
     };
 
     window.addEventListener('cart-updated', handleCartUpdate);
     return () => {
+      clearTimeout(timeoutId);
       window.removeEventListener('cart-updated', handleCartUpdate);
     };
   }, [channel]);

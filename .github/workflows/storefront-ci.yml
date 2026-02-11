@@ -1,0 +1,91 @@
+name: Storefront CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "storefront/**"
+      - "apps/packages/storefront-config/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "storefront/**"
+      - "apps/packages/storefront-config/**"
+
+concurrency:
+  group: storefront-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: storefront
+
+jobs:
+  typecheck-and-lint:
+    name: Type Check & Lint
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SALEOR_API_URL: https://api.example.com/graphql/
+      NEXT_PUBLIC_DEFAULT_CHANNEL: usd
+      NEXT_PUBLIC_STOREFRONT_URL: https://shop.example.com
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: storefront/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Shared config package must be available for TypeScript resolution
+      - name: Install shared config dependencies
+        working-directory: apps/packages/storefront-config
+        run: pnpm install --frozen-lockfile
+        continue-on-error: true
+
+      - name: TypeScript type check
+        run: pnpm type-check
+
+      - name: ESLint
+        run: pnpm lint
+
+  build:
+    name: Production Build
+    runs-on: ubuntu-latest
+    needs: typecheck-and-lint
+    env:
+      NEXT_PUBLIC_SALEOR_API_URL: https://api.example.com/graphql/
+      NEXT_PUBLIC_DEFAULT_CHANNEL: usd
+      NEXT_PUBLIC_STOREFRONT_URL: https://shop.example.com
+      NEXT_OUTPUT: standalone
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: storefront/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build

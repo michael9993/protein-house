@@ -358,7 +358,7 @@ export function CartClient({
       
       if (result.success) {
         toast.success(content.cart.quantityUpdatedSuccess);
-        router.refresh();
+        window.dispatchEvent(new CustomEvent("cart-updated"));
       } else {
         toast.error(result.error || content.cart.failedToUpdateQuantity);
       }
@@ -386,7 +386,7 @@ export function CartClient({
         toast.error(result.error ?? content.cart.failedToUpdateQuantity);
       } else if (result?.success) {
         toast.success(content.cart.quantityUpdatedSuccess ?? "Item removed");
-        router.refresh();
+        window.dispatchEvent(new CustomEvent("cart-updated"));
       }
     });
   };
@@ -931,7 +931,7 @@ export function CartClient({
                           setPromoPending(false);
                           if (result.success) {
                             toast.success(content.cart.voucherRemoved ?? "Voucher removed");
-                            router.refresh();
+                            window.dispatchEvent(new CustomEvent("cart-updated"));
                           } else {
                             setPromoError(result.error ?? "Failed to remove");
                           }
@@ -976,7 +976,7 @@ export function CartClient({
                           if (result.success) {
                             toast.success(content.cart.promoCodeApplied ?? "Promo code applied");
                             setPromoCodeInput("");
-                            router.refresh();
+                            window.dispatchEvent(new CustomEvent("cart-updated"));
                           } else {
                             setPromoError(result.error ?? "Invalid code");
                           }
@@ -1089,7 +1089,7 @@ export function CartClient({
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    {isCreatingCheckout ? "Preparing..." : "Loading..."}
+                    {isCreatingCheckout ? content.cart.preparingCheckout : content.cart.loadingCheckout}
                   </>
                 ) : (
                   <>
@@ -1097,7 +1097,7 @@ export function CartClient({
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                     {noneSelected
-                      ? "Select Items"
+                      ? content.cart.selectItemsButton
                       : allSelected
                       ? content.cart.checkoutButton
                       : `${content.cart.checkoutButton} (${selectedItemCount})`}

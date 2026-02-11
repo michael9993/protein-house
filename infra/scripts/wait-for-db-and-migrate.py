@@ -36,15 +36,6 @@ while attempt < max_attempts:
             print(f'❌ PostgreSQL failed to become ready: {e}')
             sys.exit(1)
 
-print("🔧 Creating migration files...")
-result = subprocess.run(
-    [sys.executable, 'manage.py', 'makemigrations', '--noinput'],
-    capture_output=True,
-    text=True
-)
-if result.returncode != 0 and 'No changes detected' not in result.stdout:
-    print(f"⚠️  Migration creation: {result.stdout}")
-
 print("🔧 Running database migrations...")
 result = subprocess.run(
     [sys.executable, 'manage.py', 'migrate', '--noinput'],
@@ -52,8 +43,15 @@ result = subprocess.run(
     text=True
 )
 if result.returncode != 0:
-    print(f"❌ Migration failed: {result.stderr}")
-    sys.exit(1)
+    print(f"⚠️  Standard migrate failed, trying --fake-initial...")
+    result = subprocess.run(
+        [sys.executable, 'manage.py', 'migrate', '--noinput', '--fake-initial'],
+        capture_output=True,
+        text=True
+    )
+    if result.returncode != 0:
+        print(f"❌ Migration failed: {result.stderr}")
+        sys.exit(1)
 
 print("✅ Migrations completed")
 print("🚀 Starting Saleor API server...")

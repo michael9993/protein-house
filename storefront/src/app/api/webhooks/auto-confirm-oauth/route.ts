@@ -17,14 +17,38 @@ import { NextRequest, NextResponse } from "next/server";
  */
 export async function POST(request: NextRequest) {
 	try {
-		const payload = (await request.json()) as any;
-		
+		const rawBody = await request.text();
+
 		// Verify webhook signature if secret is configured
 		const webhookSecret = process.env.SALEOR_WEBHOOK_SECRET;
 		if (webhookSecret) {
-			// TODO: Implement webhook signature verification
-			// For now, we'll trust the request (not recommended for production)
+			const signature = request.headers.get("saleor-signature") || request.headers.get("x-saleor-signature") || "";
+			if (!signature) {
+				console.warn("[Auto-Confirm Webhook] Missing signature header");
+				return NextResponse.json({ error: "Missing signature" }, { status: 401 });
+			}
+
+			// Saleor signs webhooks with HMAC-SHA256
+			const encoder = new TextEncoder();
+			const key = await crypto.subtle.importKey(
+				"raw",
+				encoder.encode(webhookSecret),
+				{ name: "HMAC", hash: "SHA-256" },
+				false,
+				["sign"],
+			);
+			const signatureBuffer = await crypto.subtle.sign("HMAC", key, encoder.encode(rawBody));
+			const expectedSignature = Array.from(new Uint8Array(signatureBuffer))
+				.map((b) => b.toString(16).padStart(2, "0"))
+				.join("");
+
+			if (signature !== expectedSignature) {
+				console.warn("[Auto-Confirm Webhook] Invalid signature");
+				return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+			}
 		}
+
+		const payload = JSON.parse(rawBody) as any;
 
 		// Check if this is an ACCOUNT_CONFIRMATION_REQUESTED event
 		// This event is sent when a user registers and needs confirmation

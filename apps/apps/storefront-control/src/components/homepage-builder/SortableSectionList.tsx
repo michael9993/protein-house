@@ -30,6 +30,7 @@ import {
   MessageSquare,
   Mail,
   Layout,
+  Clock,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { Control, UseFormSetValue, UseFormWatch } from "react-hook-form";
@@ -63,6 +64,7 @@ const SECTION_META: Record<string, SectionMeta> = {
   bestSellers: { label: "Best Sellers", icon: BarChart3, description: "Top-selling products" },
   customerFeedback: { label: "Customer Feedback", icon: MessageSquare, description: "Reviews & ratings" },
   newsletter: { label: "Newsletter", icon: Mail, description: "Email subscription" },
+  recentlyViewed: { label: "Recently Viewed", icon: Clock, description: "Recently viewed products" },
 };
 
 // ---------------------------------------------------------------------------

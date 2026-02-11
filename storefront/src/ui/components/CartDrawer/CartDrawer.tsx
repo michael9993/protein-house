@@ -96,7 +96,7 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
   const prevLineIdsRef = useRef<string>("");
 
   // Stable line IDs for dependency tracking
-  const lineIds = lines.map(l => l.id).join(",");
+  const lineIds = useMemo(() => lines.map(l => l.id).join(","), [lines]);
 
   // Sync selection when lines change: keep existing selection, auto-select new lines, drop removed
   useEffect(() => {
@@ -201,13 +201,31 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
 
   return (
     <>
+      {/* Full-page checkout loading overlay (above everything, persists during navigation) */}
+      {(isNavigatingToCheckout || isCreatingCheckout) && (
+        <div className="cart-drawer-checkout-overlay">
+          <div className="cart-drawer-checkout-overlay__content">
+            <svg className="cart-drawer-checkout-overlay__spinner" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            <p className="cart-drawer-checkout-overlay__title">
+              {(cartText as any)?.loadingCheckoutTitle ?? 'Loading Checkout...'}
+            </p>
+            <p className="cart-drawer-checkout-overlay__message">
+              {(cartText as any)?.loadingCheckoutMessage ?? 'Please wait while we prepare your checkout'}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Overlay */}
       <div
         className={`cart-drawer-overlay ${isOpen ? 'cart-drawer-overlay--open' : ''}`}
         onClick={closeDrawer}
         aria-hidden="true"
       />
-      
+
       {/* Drawer */}
       <div
         ref={drawerRef}
@@ -610,10 +628,12 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
                   </svg>
                 )}
                 {(isCreatingCheckout || isNavigatingToCheckout)
-                  ? (cartText?.loadingCheckoutTitle ?? 'Loading...')
+                  ? (isCreatingCheckout
+                      ? ((cartText as any)?.preparingCheckout ?? 'Preparing...')
+                      : ((cartText as any)?.loadingCheckout ?? 'Loading...'))
                   : noneSelected
-                    ? (cartText?.selectItemsButton ?? 'Select items')
-                    : (cartText?.checkoutButton ?? 'Proceed to Checkout')}
+                    ? ((cartText as any)?.selectItemsButton ?? 'Select items')
+                    : ((cartText as any)?.checkoutButton ?? 'Proceed to Checkout')}
               </button>
             </div>
           </div>
@@ -622,17 +642,56 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
 
       {/* Styles */}
       <style jsx>{`
+        /* Checkout loading overlay — above everything including drawer */
+        .cart-drawer-checkout-overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 10001;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(255, 255, 255, 0.85);
+          backdrop-filter: blur(4px);
+        }
+        .cart-drawer-checkout-overlay__content {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 16px;
+        }
+        .cart-drawer-checkout-overlay__spinner {
+          width: 48px;
+          height: 48px;
+          color: #525252;
+          animation: spin 1s linear infinite;
+        }
+        .cart-drawer-checkout-overlay__title {
+          font-size: 18px;
+          font-weight: 500;
+          color: #374151;
+        }
+        .cart-drawer-checkout-overlay__message {
+          font-size: 14px;
+          color: #6b7280;
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+
         .cart-drawer-overlay {
           position: fixed;
           inset: 0;
           background-color: rgba(0, 0, 0, 0);
-          transition: background-color 0.3s ease;
+          transition: background-color 0.3s ease, visibility 0s linear 0.3s;
           pointer-events: none;
+          visibility: hidden;
           z-index: 9998;
         }
         .cart-drawer-overlay--open {
           background-color: rgba(0, 0, 0, 0.5);
           pointer-events: auto;
+          visibility: visible;
+          transition: background-color 0.3s ease, visibility 0s linear 0s;
         }
         .cart-drawer {
           position: fixed;
@@ -642,13 +701,27 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
           max-width: 420px;
           background: white;
           box-shadow: ${isLeft ? '4px 0 20px rgba(0, 0, 0, 0.1)' : '-4px 0 20px rgba(0, 0, 0, 0.1)'};
-          transform: ${isOpen ? 'translateX(0)' : (isLeft ? 'translateX(-100%)' : 'translateX(100%)')};
-          transition: transform 0.3s ease;
+          transform: ${isLeft ? 'translateX(-100%)' : 'translateX(100%)'};
+          transition: transform 0.3s ease, visibility 0s linear 0.3s;
+          visibility: hidden;
           z-index: 9999;
           display: flex;
           flex-direction: column;
           outline: none;
           ${isLeft ? 'left: 0;' : 'right: 0;'}
+        }
+        .cart-drawer--open {
+          transform: translateX(0);
+          visibility: visible;
+          transition: transform 0.3s ease, visibility 0s linear 0s;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .cart-drawer,
+          .cart-drawer--open,
+          .cart-drawer-overlay,
+          .cart-drawer-overlay--open {
+            transition: none !important;
+          }
         }
         .cart-drawer__header {
           display: flex;
@@ -671,7 +744,7 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
           background: none;
           border: none;
           cursor: pointer;
-          padding: 8px;
+          padding: 12px;
           color: #333;
         }
         .cart-drawer__select-bar {
@@ -690,8 +763,8 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
           font-weight: 500;
         }
         .cart-drawer__checkbox {
-          width: 20px;
-          height: 20px;
+          width: 28px;
+          height: 28px;
           border: 2px solid #d1d5db;
           border-radius: 4px;
           display: flex;
@@ -790,8 +863,8 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
           gap: 8px;
         }
         .cart-drawer__qty-btn {
-          width: 28px;
-          height: 28px;
+          width: 36px;
+          height: 36px;
           display: flex;
           align-items: center;
           justify-content: center;

@@ -77,7 +77,8 @@
       "socialLogin": false,
       "shareButtons": true,
       "instagramFeed": false,
-      "relatedProducts": true
+      "relatedProducts": true,
+      "stockAlerts": true
     },
     "ecommerce": {
       "currency": {
@@ -337,6 +338,7 @@
           "subtitle": "Find what you're looking for",
           "maxCategories": 6,
           "showProductCount": true,
+          "showSubcategories": true,
           "layoutStyle": "mosaic",
           "background": {
             "style": "none",
@@ -430,6 +432,14 @@
             "secondaryColor": null,
             "gradientDirection": "to-bottom"
           }
+        },
+        "recentlyViewed": {
+          "enabled": true,
+          "background": {
+            "style": "none",
+            "color": null,
+            "secondaryColor": null
+          }
         }
       },
       "sectionOrder": [
@@ -444,7 +454,8 @@
         "collectionMosaic",
         "bestSellers",
         "customerFeedback",
-        "newsletter"
+        "newsletter",
+        "recentlyViewed"
       ]
     },
     "pages": {
@@ -475,7 +486,9 @@
       "support": {
         "intercomAppId": null,
         "zendeskKey": null,
-        "crispWebsiteId": null
+        "crispWebsiteId": null,
+        "whatsappBusinessNumber": "+972501234567",
+        "whatsappDefaultMessage": "Hi! I'd like more information"
       },
       "social": {
         "facebook": null,
@@ -986,6 +999,9 @@
         "categoriesTitle": "Shop by Category",
         "categoriesSubtitle": "Find what you're looking for",
         "viewAllCategoriesButton": "View All Categories",
+        "subcategoriesLabel": "Subcategories",
+        "viewCategoryButton": "View All",
+        "productsLabel": "products",
         "brandsTitle": "Leading Brands",
         "brandsSubtitle": "Shop from your favorite brands",
         "testimonialsTitle": "What Our Customers Say",
@@ -1023,6 +1039,7 @@
         "brandLabel": "Brand",
         "performanceFallback": "Performance",
         "saleBadgeLabel": "Sale",
+        "saleBadgeOffText": "OFF",
         "newBadgeLabel": "New",
         "featuredBadgeLabel": "Featured",
         "outOfStockBadgeLabel": "Out of stock",
@@ -1039,7 +1056,10 @@
         "dontMissOutTitle": "Don't miss out",
         "shopSaleItemsButton": "Shop Sale Items",
         "allProductsButton": "All Products",
-        "promoDescriptionFallback": "Premium performance gear for run, court, and studio. Limited time collection."
+        "promoDescriptionFallback": "Premium performance gear for run, court, and studio. Limited time collection.",
+        "recentlyViewedSubLabel": "Your History",
+        "recentlyViewedTitle": "Recently Viewed",
+        "recentlyViewedSubtitle": "Products you've looked at recently"
       },
       "checkout": {
         "checkoutTitle": "Checkout",
@@ -1362,7 +1382,46 @@
         "mustBeLoggedInToReview": "You must be logged in to submit a review. Please sign in and try again.",
         "failedToUpdateReview": "Failed to update review",
         "failedToDeleteReview": "Failed to delete review",
-        "failedToUploadImages": "Failed to upload images"
+        "failedToUploadImages": "Failed to upload images",
+        "sizeGuideButton": "Size Guide",
+        "sizeGuideTitle": "Size Guide",
+        "sizeGuideSubtitle": "Find your perfect fit",
+        "sizeGuideMensTab": "Men's",
+        "sizeGuideWomensTab": "Women's",
+        "sizeGuideKidsTab": "Kids'",
+        "sizeGuideHowToMeasure": "How to Measure",
+        "sizeGuideMeasureTip": "Stand on a piece of paper with your heel against a wall. Mark the longest toe and measure the distance in centimeters. Compare with the CM column above.",
+        "sizeGuideProTip": "Pro Tip: Measure your feet in the evening when they're at their largest. If you're between sizes, go up half a size for the most comfortable fit.",
+        "sizeGuideShoesCategory": "Shoes",
+        "sizeGuideClothingCategory": "Clothing",
+        "sizeGuideClothingMeasureTip": "Use a soft measuring tape. For chest, measure around the fullest part. For waist, measure at the natural waistline (above belly button). Keep the tape snug but not tight.",
+        "sizeGuideClothingProTip": "Pro Tip: If you're between sizes, size up for a relaxed fit or size down for a snug fit. Check the fabric composition — stretchy materials are more forgiving.",
+        "specificationsTab": "Specifications",
+        "noSpecifications": "No specifications available.",
+        "selectAttributeLabel": "Select {attribute}",
+        "pleaseSelectAttribute": "Please select {attribute}",
+        "unlimitedStock": "In Stock",
+        "selectOptionsForStock": "Select options to see availability",
+        "maxPerCustomer": "Limit {count} per customer",
+        "unavailableForSelection": "Unavailable for current selection",
+        "relatedProductsTitle": "You May Also Like",
+        "relatedProductsSubtitle": "Customers also viewed these products",
+        "relatedViewDetailsButton": "View details",
+        "relatedPreviousLabel": "Previous products",
+        "relatedNextLabel": "Next products",
+        "notifyMeButton": "Notify me when back in stock",
+        "notifyMeTitle": "Notify me when back in stock",
+        "notifyMeDescription": "Get notified when {variant} is available",
+        "notifyMeDescriptionGeneric": "Get notified when this item is available",
+        "notifyMeEmailPlaceholder": "Enter your email",
+        "notifyMeSubmitButton": "Notify Me",
+        "notifyMeSubmitting": "Subscribing...",
+        "notifyMeSuccess": "You'll be notified when this item is back in stock",
+        "notifyMeAlreadySubscribed": "You're already subscribed for this item",
+        "notifyMeUnsubscribe": "Unsubscribe",
+        "notifyMeInvalidEmail": "Please enter a valid email address",
+        "notifyMeError": "Failed to subscribe. Please try again.",
+        "notifyMeCancel": "Cancel"
       },
       "dashboard": {
         "totalOrders": "Total Orders",
@@ -1658,14 +1717,23 @@
         "tryAgainButton": "Try Again",
         "backToHomeButton": "Back to Home",
         "needHelpText": "Need Help?",
-        "contactSupportLink": "Contact our support team"
+        "contactSupportLink": "Contact our support team",
+        "contactSupportUrl": "/contact",
+        "errorCode": "Error"
       },
       "notFound": {
         "title": "Page Not Found",
         "description": "Sorry, we couldn't find the page you're looking for. It may have been moved or doesn't exist.",
         "backToHomeButton": "Back to Home",
         "browseProductsButton": "Browse Products",
-        "helpfulLinksText": "Or check out these pages:"
+        "helpfulLinksText": "Or check out these pages:",
+        "categoriesLinkText": "Categories",
+        "collectionsLinkText": "Collections",
+        "aboutUsLinkText": "About Us",
+        "contactLinkText": "Contact",
+        "productNotFoundTitle": "Product Not Found",
+        "productNotFoundDescription": "The product you're looking for doesn't exist or has been removed.",
+        "productNotFoundBackButton": "Back to Products"
       }
     },
     "darkMode": {

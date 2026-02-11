@@ -16,6 +16,10 @@ import { resolveDirection } from "@/lib/direction";
 import { getNavData } from "@/ui/components/nav/components/NavLinks";
 import { CartDrawerShell } from "@/ui/components/CartDrawer";
 import { createCheckoutWithItemsAction } from "@/app/cart-actions";
+import { WhatsAppChatButton } from "@/components/WhatsAppChatButton";
+import { RecentlyViewedProvider } from "@/lib/recently-viewed";
+import { RecentlyViewedFloatingButton } from "@/components/RecentlyViewedDrawer";
+import { WishlistFloatingButton } from "@/components/WishlistDrawer";
 import { QuickViewWrapper } from "./QuickViewWrapper";
 
 /**
@@ -47,7 +51,7 @@ async function getSalePromoData(channel: string) {
 	try {
 		const result = await executeGraphQL(ProductListByCollectionDocument, {
 			variables: { slug: homepageCollections.sale, channel },
-			revalidate: 30,
+			revalidate: 300,
 		});
 		
 		const collection = result.collection;
@@ -147,6 +151,7 @@ export default async function RootLayout(props: {
 			/>
 			<StoreConfigProvider config={storeConfig}>
 			<DirectionProvider>
+			<RecentlyViewedProvider channel={channel}>
 			<CartDrawerShell createCheckoutWithItems={createCheckoutWithItemsAction}>
 				<QuickViewWrapper channel={channel}>
 				{/* Client-side direction setter - backup and for dynamic updates */}
@@ -162,6 +167,9 @@ export default async function RootLayout(props: {
 				</main>
 				<Footer channel={channel} />
 			</div>
+			<WhatsAppChatButton />
+			<WishlistFloatingButton channel={channel} />
+			<RecentlyViewedFloatingButton />
 			{/* Promotion Popup - only renders client-side if there are active sales */}
 			<PromoPopupLoader
 				channel={channel}
@@ -174,6 +182,7 @@ export default async function RootLayout(props: {
 			/>
 				</QuickViewWrapper>
 			</CartDrawerShell>
+			</RecentlyViewedProvider>
 			</DirectionProvider>
 			</StoreConfigProvider>
 		</>

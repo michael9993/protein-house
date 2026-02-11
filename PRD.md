@@ -1,6 +1,6 @@
 # Product Requirements Document (PRD)
 
-## Mansour Shoes E-Commerce Platform
+## Aura E-Commerce Platform
 
 **Version:** 1.3.0
 **Last Updated:** February 8, 2026
@@ -53,7 +53,7 @@
 
 ### 1.1 Product Vision
 
-Mansour Shoes E-Commerce Platform is a fully-featured, enterprise-grade e-commerce solution built on the Saleor commerce platform. The system provides a modern, performant, and highly customizable online shopping experience with full support for multi-channel commerce, multi-currency transactions, and bidirectional language support (Hebrew/English with RTL/LTR).
+Aura is a fully-featured, enterprise-grade, multi-tenant e-commerce platform built on the Saleor commerce platform. The system provides a modern, performant, and highly customizable online shopping experience with full support for multi-channel commerce, multi-currency transactions, and bidirectional language support (Hebrew/English with RTL/LTR). The first client storefront is **Mansour Shoes**.
 
 ### 1.2 Key Differentiators
 
@@ -706,10 +706,41 @@ function ProductCard({ product }) {
 
 | Change Type          | Files to Update                                             |
 | -------------------- | ----------------------------------------------------------- |
-| Add new feature flag | `schema.ts`, `defaults.ts`, `store.config.ts`, sample JSONs |
-| Add new content/text | `schema.ts` (ContentSchema), `defaults.ts`, sample JSONs    |
-| Add new UI setting   | `schema.ts` (UiSchema), `defaults.ts`, sample JSONs         |
-| Change default value | `defaults.ts`, sample JSONs                                 |
+| Add new feature flag | `schema.ts`, `defaults.ts`, `store.config.ts`, sample JSONs, `settings-index.ts`, admin page |
+| Add new content/text | `schema.ts` (ContentSchema), `defaults.ts`, sample JSONs, `settings-index.ts` |
+| Add new UI setting   | `schema.ts` (UiSchema), `defaults.ts`, sample JSONs, `settings-index.ts`, admin page |
+| Change default value | `defaults.ts`, sample JSONs |
+| Rename a field       | ALL 11 sync locations (see table below) |
+| Remove a field       | ALL 11 sync locations + check storefront component references |
+
+### 7.7 Configuration Sync Requirements
+
+> **CRITICAL: All configuration files MUST stay in sync.** A mismatch between any file causes runtime errors, missing fields, or broken admin UI.
+
+The following 11 locations form the configuration pipeline. When modifying any one, check whether the others also need updates:
+
+| # | File / Location | Purpose | Sync Rule |
+|---|-----------------|---------|-----------|
+| 1 | `apps/packages/storefront-config/src/schema/` | Zod schema (source of truth) | Update for any new, renamed, or type-changed field |
+| 2 | `apps/packages/storefront-config/src/types.ts` | Shared TypeScript types | Update for new top-level sections |
+| 3 | `apps/apps/storefront-control/src/modules/config/defaults.ts` | Default config values | Every new field MUST have a default |
+| 4 | `apps/apps/storefront-control/src/modules/config/schema.ts` | Admin form validation | Update when admin form needs new validation |
+| 5 | `storefront/src/config/store.config.ts` | Storefront types & defaults | Update for any field the storefront reads |
+| 6 | `storefront/src/providers/StoreConfigProvider.tsx` | React config hooks | Add/update hooks for new config sections |
+| 7 | `sample-config-import.json` (Hebrew) | Dev fallback (ILS) | Every new field, with Hebrew translations |
+| 8 | `sample-config-import-en.json` (English) | Dev fallback (USD) | Every new field, with English text |
+| 9 | `apps/apps/storefront-control/src/lib/settings-index.ts` | Cmd+K search index | Every new admin-visible setting |
+| 10 | `apps/apps/storefront-control/src/pages/[channelSlug]/` | Admin UI pages | New sections, tabs, or form fields |
+| 11 | `PRD.md` / `CLAUDE.md` / `AGENTS.md` | Documentation | Significant changes |
+
+**Sync Enforcement Rules:**
+
+1. **Never add a schema field** without also adding: default value, sample config entries (both languages), and search index entry.
+2. **Never add a storefront hook** without the corresponding schema field in the shared package.
+3. **Never add an admin form field** without a search index entry — Cmd+K must find every setting.
+4. **When renaming a field**, update ALL 11 locations — partial renames cause silent runtime breakage.
+5. **When removing a field**, remove from ALL locations and search the storefront codebase for dangling references.
+6. **After any config change**, restart both `saleor-storefront-dev` and `saleor-storefront-control-app-dev` containers.
 
 ---
 

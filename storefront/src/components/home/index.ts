@@ -34,6 +34,10 @@ export { CustomerFeedback } from './CustomerFeedback';
 export { SectionWrapper } from './SectionWrapper';
 export { BackgroundSection } from './BackgroundSection';
 
+// Shared Product Card
+export { HomepageProductCard } from './HomepageProductCard';
+export type { HomepageProductCardProps } from './HomepageProductCard';
+
 // Utilities
 export * from './utils';
 

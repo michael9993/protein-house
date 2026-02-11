@@ -108,6 +108,8 @@ export const DEFAULT_ERROR_TEXT: ErrorText = {
   backToHomeButton: "Back to Home",
   needHelpText: "Need help?",
   contactSupportLink: "Contact our support team",
+  contactSupportUrl: "/contact",
+  errorCode: "Error",
 };
 
 export const DEFAULT_NOT_FOUND_TEXT: NotFoundText = {
@@ -116,6 +118,13 @@ export const DEFAULT_NOT_FOUND_TEXT: NotFoundText = {
   backToHomeButton: "Back to Home",
   browseProductsButton: "Browse Products",
   helpfulLinksText: "Or check out these pages:",
+  categoriesLinkText: "Categories",
+  collectionsLinkText: "Collections",
+  aboutUsLinkText: "About Us",
+  contactLinkText: "Contact",
+  productNotFoundTitle: "Product Not Found",
+  productNotFoundDescription: "The product you're looking for doesn't exist or has been removed.",
+  productNotFoundBackButton: "Back to Products",
 };
 
 // Default filters text configuration
@@ -312,6 +321,30 @@ export const DEFAULT_PRODUCT_DETAIL_TEXT: ProductDetailText = {
   failedToUpdateReview: "Failed to update review",
   failedToDeleteReview: "Failed to delete review",
   failedToUploadImages: "Failed to upload images",
+  // Specifications & Attributes
+  specificationsTab: "Specifications",
+  noSpecifications: "No specifications available.",
+  selectAttributeLabel: "Select {attribute}",
+  pleaseSelectAttribute: "Please select {attribute}",
+  // Enhanced stock messages
+  unlimitedStock: "In Stock",
+  selectOptionsForStock: "Select options to see availability",
+  maxPerCustomer: "Limit {count} per customer",
+  unavailableForSelection: "Unavailable for current selection",
+  // Stock Alert / Notify Me
+  notifyMeButton: "Notify me when back in stock",
+  notifyMeTitle: "Notify me when back in stock",
+  notifyMeDescription: "Get notified when {variant} is available",
+  notifyMeDescriptionGeneric: "Get notified when this item is available",
+  notifyMeEmailPlaceholder: "Enter your email",
+  notifyMeSubmitButton: "Notify Me",
+  notifyMeSubmitting: "Subscribing...",
+  notifyMeSuccess: "You'll be notified when this item is back in stock",
+  notifyMeAlreadySubscribed: "You're already subscribed for this item",
+  notifyMeUnsubscribe: "Unsubscribe",
+  notifyMeInvalidEmail: "Please enter a valid email address",
+  notifyMeError: "Failed to subscribe. Please try again.",
+  notifyMeCancel: "Cancel",
 };
 
 export const DEFAULT_ACCOUNT_DASHBOARD_TEXT: AccountDashboardText = {
@@ -635,6 +668,7 @@ export const defaultStoreConfig = {
     shareButtons: true,
     instagramFeed: false,
     relatedProducts: true,
+    stockAlerts: true,
   },
 
   ecommerce: {
@@ -786,6 +820,8 @@ export const defaultStoreConfig = {
       intercomAppId: null,
       zendeskKey: null,
       crispWebsiteId: null,
+      whatsappBusinessNumber: null,
+      whatsappDefaultMessage: null,
     },
     social: {
       facebook: null,
@@ -1145,6 +1181,7 @@ export const defaultStoreConfig = {
 
       // Product Badge Labels
       saleBadgeLabel: "Sale",
+      saleBadgeOffText: "OFF",
       newBadgeLabel: "New",
       featuredBadgeLabel: "Featured",
       outOfStockBadgeLabel: "Out of stock",
@@ -1170,6 +1207,9 @@ export const defaultStoreConfig = {
       shopSaleItemsButton: "Shop Sale Items",
       allProductsButton: "All Products",
       promoDescriptionFallback: "Premium performance gear for run, court, and studio. Limited time collection.",
+      recentlyViewedSubLabel: "Your History",
+      recentlyViewedTitle: "Recently Viewed",
+      recentlyViewedSubtitle: "Products you've looked at recently",
     },
     checkout: {
       secureCheckout: "Secure Checkout",
@@ -1270,6 +1310,8 @@ export const storeTypePresets: Record<StoreType, Partial<StoreConfig>> = {
       socialLogin: true,
       shareButtons: true,
       instagramFeed: false,
+      relatedProducts: true,
+      stockAlerts: true,
     },
     ecommerce: {
       currency: { default: "USD", supported: ["USD", "EUR", "GBP"] },
@@ -1305,6 +1347,8 @@ export const storeTypePresets: Record<StoreType, Partial<StoreConfig>> = {
       socialLogin: true,
       shareButtons: false,
       instagramFeed: true,
+      relatedProducts: true,
+      stockAlerts: true,
     },
     ecommerce: {
       currency: { default: "USD", supported: ["USD"] },
@@ -1340,6 +1384,8 @@ export const storeTypePresets: Record<StoreType, Partial<StoreConfig>> = {
       socialLogin: true,
       shareButtons: true,
       instagramFeed: false,
+      relatedProducts: true,
+      stockAlerts: false,
     },
     ecommerce: {
       currency: { default: "USD", supported: ["USD", "EUR"] },
@@ -1376,6 +1422,8 @@ export const storeTypePresets: Record<StoreType, Partial<StoreConfig>> = {
       socialLogin: true,
       shareButtons: true,
       instagramFeed: true,
+      relatedProducts: true,
+      stockAlerts: true,
     },
   },
 };
@@ -1507,6 +1555,18 @@ export function getThemeCSSVariables(config: StoreConfig): Record<string, string
     '--store-btn-bg': colors.primary,
     '--store-btn-hover-bg': primaryHover,
     '--store-btn-text': '#FFFFFF',
+
+    // Badge colors (from Storefront Control badge config)
+    '--badge-sale-bg': config.ui?.badges?.sale?.backgroundColor || colors.error,
+    '--badge-sale-text': config.ui?.badges?.sale?.textColor || '#FFFFFF',
+    '--badge-new-bg': config.ui?.badges?.new?.backgroundColor || '#171717',
+    '--badge-new-text': config.ui?.badges?.new?.textColor || '#FFFFFF',
+    '--badge-outofstock-bg': config.ui?.badges?.outOfStock?.backgroundColor || colors.textMuted,
+    '--badge-outofstock-text': config.ui?.badges?.outOfStock?.textColor || '#FFFFFF',
+    '--badge-lowstock-bg': config.ui?.badges?.lowStock?.backgroundColor || colors.warning,
+    '--badge-lowstock-text': config.ui?.badges?.lowStock?.textColor || '#FFFFFF',
+    '--badge-featured-bg': config.ui?.badges?.featured?.backgroundColor || colors.accent,
+    '--badge-featured-text': config.ui?.badges?.featured?.textColor || '#FFFFFF',
 
     // Design tokens (animations, spacing, grid)
     ...getDesignTokenCSSVariables(config),

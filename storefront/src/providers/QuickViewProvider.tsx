@@ -121,6 +121,15 @@ function QuickViewContent({
 	errorLoadingProductText,
 	branding,
 }: QuickViewContentProps) {
+	const scrollRef = useRef<HTMLDivElement>(null);
+
+	// Reset scroll position when product changes
+	useEffect(() => {
+		if (product && scrollRef.current) {
+			scrollRef.current.scrollTop = 0;
+		}
+	}, [product?.id]);
+
 	return (
 		<div className="flex h-full min-h-0 flex-col">
 			{/* Header */}
@@ -176,6 +185,7 @@ function QuickViewContent({
 
 			{/* Body: scrollable — transform forces GPU compositing to prevent white-flash on scroll */}
 			<div
+				ref={scrollRef}
 				className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
 				style={{ transform: "translateZ(0)", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
 			>
@@ -218,6 +228,7 @@ function QuickViewContent({
 							selectedVariantId={product.variants?.[0]?.id}
 							channel={channel}
 							addItemAction={addProductToCartAction}
+							productSlug={openSlug}
 							mode="modal"
 						/>
 					</Suspense>
@@ -334,6 +345,7 @@ function QuickViewModal({ openSlug, onClose, channel }: QuickViewModalProps) {
 				if (!open) onClose();
 			}}
 			direction="bottom"
+			handleOnly
 		>
 			<Drawer.Portal>
 				<Drawer.Overlay className="fixed inset-0 z-[9998] bg-black/50" />

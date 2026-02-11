@@ -248,6 +248,9 @@ export const HomepageTextSchema = z.object({
   categoriesTitle: z.string(),
   categoriesSubtitle: z.string(),
   viewAllCategoriesButton: z.string(), // "View All Categories"
+  subcategoriesLabel: z.string(),      // "Subcategories"
+  viewCategoryButton: z.string(),      // "View All"
+  productsLabel: z.string(),           // "products"
   brandsTitle: z.string(),
   brandsSubtitle: z.string(),
   testimonialsTitle: z.string(),
@@ -293,7 +296,8 @@ export const HomepageTextSchema = z.object({
   performanceFallback: z.string(),        // "Performance" (fallback for category)
 
   // Product Badge Labels
-  saleBadgeLabel: z.string(),             // "Sale"
+  saleBadgeLabel: z.string(),             // "Sale" (fallback when no discount %)
+  saleBadgeOffText: z.string(),           // "OFF" (used in "-20% OFF" badge)
   newBadgeLabel: z.string(),              // "New"
   featuredBadgeLabel: z.string(),         // "Featured"
   outOfStockBadgeLabel: z.string(),       // "Out of stock"
@@ -319,6 +323,11 @@ export const HomepageTextSchema = z.object({
   shopSaleItemsButton: z.string(),        // "Shop Sale Items"
   allProductsButton: z.string(),          // "All Products"
   promoDescriptionFallback: z.string(),   // "Premium performance gear for run, court, and studio. Limited time collection."
+
+  // Recently Viewed Products
+  recentlyViewedSubLabel: z.string(),     // "Your History" (small label above title)
+  recentlyViewedTitle: z.string(),        // "Recently Viewed"
+  recentlyViewedSubtitle: z.string(),     // "Products you've looked at recently"
 });
 
 // Checkout text
@@ -749,6 +758,55 @@ export const ProductDetailTextSchema = z.object({
   failedToUpdateReview: z.string(),           // "Failed to update review"
   failedToDeleteReview: z.string(),           // "Failed to delete review"
   failedToUploadImages: z.string(),           // "Failed to upload images"
+
+  // Size guide
+  sizeGuideButton: z.string().optional(),            // "Size Guide"
+  sizeGuideTitle: z.string().optional(),             // "Size Guide"
+  sizeGuideSubtitle: z.string().optional(),          // "Find your perfect fit"
+  sizeGuideMensTab: z.string().optional(),           // "Men's"
+  sizeGuideWomensTab: z.string().optional(),         // "Women's"
+  sizeGuideKidsTab: z.string().optional(),           // "Kids'"
+  sizeGuideHowToMeasure: z.string().optional(),      // "How to Measure"
+  sizeGuideMeasureTip: z.string().optional(),        // "Stand on a piece of paper..."
+  sizeGuideProTip: z.string().optional(),            // "Pro Tip: Measure your feet in the evening..."
+  sizeGuideShoesCategory: z.string().optional(),    // "Shoes"
+  sizeGuideClothingCategory: z.string().optional(), // "Clothing"
+  sizeGuideClothingMeasureTip: z.string().optional(), // "Use a soft tape measure..."
+  sizeGuideClothingProTip: z.string().optional(),     // "Pro Tip: If you're between sizes..."
+
+  // Specifications & Attributes
+  specificationsTab: z.string().optional(),           // "Specifications"
+  noSpecifications: z.string().optional(),            // "No specifications available."
+  selectAttributeLabel: z.string().optional(),        // "Select {attribute}"
+  pleaseSelectAttribute: z.string().optional(),       // "Please select {attribute}"
+
+  // Enhanced stock messages
+  unlimitedStock: z.string().optional(),              // "In Stock"
+  selectOptionsForStock: z.string().optional(),       // "Select options to see availability"
+  maxPerCustomer: z.string().optional(),              // "Limit {count} per customer"
+  unavailableForSelection: z.string().optional(),     // "Unavailable for current selection"
+
+  // Related products section (on product detail page)
+  relatedProductsTitle: z.string().optional(),       // "You May Also Like"
+  relatedProductsSubtitle: z.string().optional(),    // "Customers also viewed these products"
+  relatedViewDetailsButton: z.string().optional(),   // "View details"
+  relatedPreviousLabel: z.string().optional(),       // "Previous products"
+  relatedNextLabel: z.string().optional(),           // "Next products"
+
+  // Stock Alert / Notify Me
+  notifyMeButton: z.string().optional(),             // "Notify me when back in stock"
+  notifyMeTitle: z.string().optional(),              // "Notify me when back in stock"
+  notifyMeDescription: z.string().optional(),        // "Get notified when {variant} is available"
+  notifyMeDescriptionGeneric: z.string().optional(), // "Get notified when this item is available"
+  notifyMeEmailPlaceholder: z.string().optional(),   // "Enter your email"
+  notifyMeSubmitButton: z.string().optional(),       // "Notify Me"
+  notifyMeSubmitting: z.string().optional(),         // "Subscribing..."
+  notifyMeSuccess: z.string().optional(),            // "You'll be notified when this item is back in stock"
+  notifyMeAlreadySubscribed: z.string().optional(),  // "You're already subscribed for this item"
+  notifyMeUnsubscribe: z.string().optional(),        // "Unsubscribe"
+  notifyMeInvalidEmail: z.string().optional(),       // "Please enter a valid email address"
+  notifyMeError: z.string().optional(),              // "Failed to subscribe. Please try again."
+  notifyMeCancel: z.string().optional(),             // "Cancel"
 });
 
 // Account Dashboard Text
@@ -1087,6 +1145,8 @@ export const ErrorTextSchema = z.object({
   backToHomeButton: z.string(),                   // "Back to Home"
   needHelpText: z.string(),                       // "Need help?"
   contactSupportLink: z.string(),                 // "Contact our support team"
+  contactSupportUrl: z.string().optional(),       // "/contact" — URL the "contact support" link navigates to
+  errorCode: z.string().optional(),               // "Error" — label shown above the title
 });
 
 // 404 Not Found Page Text
@@ -1096,6 +1156,15 @@ export const NotFoundTextSchema = z.object({
   backToHomeButton: z.string(),                   // "Back to Home"
   browseProductsButton: z.string(),               // "Browse Products"
   helpfulLinksText: z.string(),                   // "Or check out these pages:"
+  // Configurable helpful link labels (optional for backward compat)
+  categoriesLinkText: z.string().optional(),      // "Categories"
+  collectionsLinkText: z.string().optional(),     // "Collections"
+  aboutUsLinkText: z.string().optional(),         // "About Us"
+  contactLinkText: z.string().optional(),         // "Contact"
+  // Product-specific 404 text
+  productNotFoundTitle: z.string().optional(),    // "Product Not Found"
+  productNotFoundDescription: z.string().optional(), // "The product you're looking for doesn't exist or has been removed."
+  productNotFoundBackButton: z.string().optional(), // "Back to Products"
 });
 
 export const ContentSchema = z.object({

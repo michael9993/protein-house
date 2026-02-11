@@ -16,6 +16,8 @@ export const SupportIntegrationsSchema = z.object({
   intercomAppId: z.string().nullable(),
   zendeskKey: z.string().nullable(),
   crispWebsiteId: z.string().nullable(),
+  whatsappBusinessNumber: z.string().nullable(),
+  whatsappDefaultMessage: z.string().nullable(),
 });
 
 export const SocialIntegrationsSchema = z.object({

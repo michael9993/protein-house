@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-02-08T13:48:33.736Z",
+  "exportedAt": "2026-02-11T13:32:09.252Z",
   "channels": {
     "ils": {
-      "version": 27,
-      "updatedAt": "2026-02-08T13:48:29.970Z",
+      "version": 4,
+      "updatedAt": "2026-02-11T13:32:03.540Z",
       "channelSlug": "ils",
       "store": {
         "name": "Mansour Shoes",
@@ -77,7 +77,8 @@
         "socialLogin": false,
         "shareButtons": true,
         "instagramFeed": false,
-        "relatedProducts": true
+        "relatedProducts": true,
+        "stockAlerts": true
       },
       "ecommerce": {
         "currency": {
@@ -124,20 +125,6 @@
               "description": null,
               "link": null,
               "icon": null
-            },
-            {
-              "id": "UHJvbW90aW9uOjhhNGY2ZTlhLWVmMmYtNGIxMC04ODYyLWQ0YjhjMjVmNTM1Mw==",
-              "name": "Winter sale Discount 25% on selected products",
-              "description": null,
-              "displayText": "Winter sale Discount 25% on selected products",
-              "link": null
-            },
-            {
-              "id": "voucher-Vm91Y2hlcjoy",
-              "name": "Big order discount",
-              "description": "100 off",
-              "displayText": "Big order discount",
-              "link": null
             }
           ],
           "manualItems": [
@@ -241,7 +228,7 @@
           "marquee": {
             "enabled": true,
             "text": "משלוח חינם בהזמנות מעל 200 ₪! • קולקציה חדשה בחנות",
-            "speedSeconds": 60,
+            "speedSeconds": 40,
             "textColor": "#fff",
             "background": {
               "style": "solid",
@@ -269,6 +256,7 @@
             "subtitle": "מצאו את מה שאתם מחפשים",
             "maxCategories": 6,
             "showProductCount": true,
+            "showSubcategories": true,
             "layoutStyle": "mosaic",
             "background": {
               "style": "none",
@@ -392,6 +380,14 @@
               "meshGrade": "deep"
             }
           },
+          "recentlyViewed": {
+            "enabled": true,
+            "background": {
+              "style": "none",
+              "color": null,
+              "secondaryColor": null
+            }
+          },
           "featuredCategories": {
             "enabled": true,
             "limit": 6,
@@ -511,6 +507,7 @@
           "flashDeals",
           "collectionMosaic",
           "bestSellers",
+          "recentlyViewed",
           "customerFeedback",
           "newsletter"
         ]
@@ -543,7 +540,9 @@
         "support": {
           "intercomAppId": null,
           "zendeskKey": null,
-          "crispWebsiteId": null
+          "crispWebsiteId": null,
+          "whatsappBusinessNumber": "+972501234567",
+          "whatsappDefaultMessage": "שלום! אני מעוניין לקבל מידע נוסף"
         },
         "social": {
           "facebook": null,
@@ -883,7 +882,7 @@
           "promoCodeLabel": "קוד קופון",
           "promoCodePlaceholder": "הזן קוד",
           "promoCodeApplyButton": "החל",
-          "eligibleForFreeShipping": "",
+          "eligibleForFreeShipping": "זכאי למשלוח חינם",
           "subtotalLabel": "סיכום ביניים",
           "subtotalLabelWithCount": "סיכום ביניים ({count} פריטים)",
           "shippingLabel": "משלוח",
@@ -925,10 +924,10 @@
           "quickAddButton": "הוסף במהירות",
           "viewFullPageLink": "צפה בדף המלא",
           "loadingProductText": "טוען מוצר...",
-          "productDetailsTitle": "",
-          "closeButton": "",
-          "productNotFoundText": "",
-          "errorLoadingProductText": ""
+          "productDetailsTitle": "פרטי מוצר",
+          "closeButton": "סגור",
+          "productNotFoundText": "מוצר לא נמצא",
+          "errorLoadingProductText": "נכשל בטעינת מוצר"
         },
         "account": {
           "signInTitle": "ברוך הבא",
@@ -1062,6 +1061,9 @@
           "categoriesTitle": "קניות לפי קטגוריה",
           "categoriesSubtitle": "מצאו את מה שאתם מחפשים",
           "viewAllCategoriesButton": "צפה בכל הקטגוריות",
+          "subcategoriesLabel": "תתי קטגוריות",
+          "viewCategoryButton": "צפה בהכל",
+          "productsLabel": "מוצרים",
           "brandsTitle": "מותגים מובילים",
           "brandsSubtitle": "קנו מהמותגים האהובים עליכם",
           "testimonialsTitle": "מה הלקוחות שלנו אומרים",
@@ -1099,6 +1101,7 @@
           "brandLabel": "מותג",
           "performanceFallback": "ביצועים",
           "saleBadgeLabel": "מבצע",
+          "saleBadgeOffText": "הנחה",
           "newBadgeLabel": "חדש",
           "featuredBadgeLabel": "מומלץ",
           "outOfStockBadgeLabel": "אזל מהמלאי",
@@ -1115,7 +1118,10 @@
           "dontMissOutTitle": "אל תפספסו",
           "shopSaleItemsButton": "קנה פריטים במבצע",
           "allProductsButton": "כל המוצרים",
-          "promoDescriptionFallback": "ציוד ביצועים פרימיום לריצה, מגרש וסטודיו. קולקציה לזמן מוגבל."
+          "promoDescriptionFallback": "ציוד ביצועים פרימיום לריצה, מגרש וסטודיו. קולקציה לזמן מוגבל.",
+          "recentlyViewedSubLabel": "ההיסטוריה שלך",
+          "recentlyViewedTitle": "צפית לאחרונה",
+          "recentlyViewedSubtitle": "מוצרים שצפית בהם לאחרונה"
         },
         "checkout": {
           "checkoutTitle": "תשלום",
@@ -1192,7 +1198,7 @@
           "removePromoButton": "הסר",
           "oneVoucherPerOrderHint": "קופון אחד להזמנה. כרטיסי מתנה ניתנים לשילוב.",
           "replaceVoucherConfirm": "ניתן להשתמש בקופון אחד להזמנה. שימוש בקוד זה יחליף את {code}. להמשיך?",
-          "eligibleForFreeShipping": "",
+          "eligibleForFreeShipping": "זכאי למשלוח חינם",
           "giftCardLabel": "כרטיס מתנה",
           "subtotalLabel": "סיכום ביניים",
           "shippingLabel": "משלוח",
@@ -1439,7 +1445,46 @@
           "mustBeLoggedInToReview": "עליך להתחבר כדי לשלוח חוות דעת. אנא התחבר ונסה שוב.",
           "failedToUpdateReview": "נכשל בעדכון חוות דעת",
           "failedToDeleteReview": "נכשל במחיקת חוות דעת",
-          "failedToUploadImages": "נכשל בהעלאת תמונות"
+          "failedToUploadImages": "נכשל בהעלאת תמונות",
+          "sizeGuideButton": "מדריך מידות",
+          "sizeGuideTitle": "מדריך מידות",
+          "sizeGuideSubtitle": "מצאו את המידה המושלמת",
+          "sizeGuideMensTab": "גברים",
+          "sizeGuideWomensTab": "נשים",
+          "sizeGuideKidsTab": "ילדים",
+          "sizeGuideHowToMeasure": "איך למדוד",
+          "sizeGuideMeasureTip": "עמדו על דף נייר כשהעקב נוגע בקיר. סמנו את קצה האצבע הארוכה ביותר ומדדו את המרחק בסנטימטרים. השוו עם עמודת ה-CM בטבלה.",
+          "sizeGuideProTip": "טיפ: מדדו את הרגליים בערב כשהן בגודלן המקסימלי. אם אתם בין שתי מידות, עלו חצי מידה למידה הנוחה ביותר.",
+          "sizeGuideShoesCategory": "נעליים",
+          "sizeGuideClothingCategory": "ביגוד",
+          "sizeGuideClothingMeasureTip": "השתמשו בסרט מדידה גמיש. לחזה: מדדו סביב החלק הרחב ביותר. למותניים: מדדו סביב הנקודה הצרה ביותר של המותניים.",
+          "sizeGuideClothingProTip": "טיפ: אם אתם בין שתי מידות, עלו מידה לגזרה רחבה יותר או ירדו מידה לגזרה צמודה. בדקו את טבלת המידות של המותג הספציפי אם זמינה.",
+          "specificationsTab": "מפרט טכני",
+          "noSpecifications": "אין מפרט זמין.",
+          "selectAttributeLabel": "בחר {attribute}",
+          "pleaseSelectAttribute": "אנא בחר {attribute}",
+          "unlimitedStock": "במלאי",
+          "selectOptionsForStock": "בחר אפשרויות לבדיקת זמינות",
+          "maxPerCustomer": "מוגבל ל-{count} ליחידה",
+          "unavailableForSelection": "לא זמין עבור הבחירה הנוכחית",
+          "relatedProductsTitle": "אולי תאהבו גם",
+          "relatedProductsSubtitle": "לקוחות צפו גם במוצרים הבאים",
+          "relatedViewDetailsButton": "צפה בפרטים",
+          "relatedPreviousLabel": "מוצרים קודמים",
+          "relatedNextLabel": "מוצרים הבאים",
+          "notifyMeButton": "הודיעו לי כשהמוצר יחזור למלאי",
+          "notifyMeTitle": "הודיעו לי כשהמוצר יחזור למלאי",
+          "notifyMeDescription": "קבלו התראה כש-{variant} יהיה זמין",
+          "notifyMeDescriptionGeneric": "קבלו התראה כשהמוצר יהיה זמין",
+          "notifyMeEmailPlaceholder": "הזינו את האימייל שלכם",
+          "notifyMeSubmitButton": "הודיעו לי",
+          "notifyMeSubmitting": "נרשם...",
+          "notifyMeSuccess": "נודיע לכם כשהמוצר יחזור למלאי",
+          "notifyMeAlreadySubscribed": "כבר נרשמתם לעדכון עבור מוצר זה",
+          "notifyMeUnsubscribe": "ביטול הרשמה",
+          "notifyMeInvalidEmail": "נא להזין כתובת אימייל תקינה",
+          "notifyMeError": "ההרשמה נכשלה. אנא נסו שוב.",
+          "notifyMeCancel": "ביטול"
         },
         "dashboard": {
           "totalOrders": "סה״כ הזמנות",
@@ -1735,14 +1780,23 @@
           "tryAgainButton": "נסה שוב",
           "backToHomeButton": "חזור לדף הבית",
           "needHelpText": "צריך עזרה?",
-          "contactSupportLink": "צור קשר עם צוות התמיכה שלנו"
+          "contactSupportLink": "צור קשר עם צוות התמיכה שלנו",
+          "contactSupportUrl": "/contact",
+          "errorCode": "שגיאה"
         },
         "notFound": {
           "title": "דף לא נמצא",
           "description": "מצטערים, לא הצלחנו למצוא את הדף שאתה מחפש. ייתכן שהוא הועבר או שאינו קיים.",
           "backToHomeButton": "חזור לדף הבית",
           "browseProductsButton": "עיין במוצרים",
-          "helpfulLinksText": "או בדוק את הדפים הבאים:"
+          "helpfulLinksText": "או בדוק את הדפים הבאים:",
+          "categoriesLinkText": "קטגוריות",
+          "collectionsLinkText": "קולקציות",
+          "aboutUsLinkText": "אודותינו",
+          "contactLinkText": "צור קשר",
+          "productNotFoundTitle": "מוצר לא נמצא",
+          "productNotFoundDescription": "המוצר שאתה מחפש אינו קיים או שהוסר.",
+          "productNotFoundBackButton": "חזור למוצרים"
         }
       },
       "darkMode": {
@@ -1779,11 +1833,6 @@
         },
         "spacing": {
           "sectionPaddingY": "normal"
-        },
-        "grid": {
-          "productColumns": {
-            "md": 2
-          }
         }
       }
     },
@@ -3213,8 +3262,8 @@
       }
     },
     "usd": {
-      "version": 3,
-      "updatedAt": "2026-02-05T15:59:18.827Z",
+      "version": 5,
+      "updatedAt": "2026-02-09T15:15:31.444Z",
       "channelSlug": "usd",
       "store": {
         "name": "Mansour Shoes",
@@ -3287,7 +3336,8 @@
         "socialLogin": false,
         "shareButtons": true,
         "instagramFeed": false,
-        "relatedProducts": true
+        "relatedProducts": true,
+        "stockAlerts": true
       },
       "ecommerce": {
         "currency": {
@@ -3389,14 +3439,22 @@
             "imageUrl": null,
             "videoUrl": null,
             "overlayOpacity": 40,
-            "textAlignment": "center"
+            "textAlignment": "center",
+            "autoRotateSeconds": 4,
+            "showProgressBar": true,
+            "showNavDots": true
           },
           "trustStrip": {
             "enabled": true,
             "freeShippingText": "Free shipping on orders over $75",
             "easyReturnsText": "Easy returns",
             "secureCheckoutText": "Secure checkout",
-            "supportText": "24/7 support"
+            "supportText": "24/7 support",
+            "background": {
+              "style": "solid",
+              "color": "#f9fafb",
+              "secondaryColor": null
+            }
           },
           "marquee": {
             "enabled": true,
@@ -3415,15 +3473,27 @@
             "subtitle": "Curated from the best performance labels",
             "maxBrands": 8,
             "showLogos": true,
-            "layout": "grid"
+            "layout": "grid",
+            "background": {
+              "style": "color-mix",
+              "color": null,
+              "secondaryColor": null,
+              "mixPercentage": 4
+            }
           },
           "categories": {
             "enabled": true,
             "title": "Shop by Category",
             "subtitle": "Find what you're looking for",
-            "maxCategories": 6,
+            "maxCategories": 12,
             "showProductCount": true,
-            "layoutStyle": "mosaic"
+            "showSubcategories": true,
+            "layoutStyle": "mosaic",
+            "background": {
+              "style": "none",
+              "color": null,
+              "secondaryColor": null
+            }
           },
           "trending": {
             "enabled": true,
@@ -3432,7 +3502,12 @@
             "collectionSlug": "new-arrivals",
             "fallbackToNewest": true,
             "maxProducts": 8,
-            "layout": "grid"
+            "layout": "grid",
+            "background": {
+              "style": "none",
+              "color": null,
+              "secondaryColor": null
+            }
           },
           "promotionBanner": {
             "enabled": true,
@@ -3448,7 +3523,13 @@
               "text": "All Products",
               "link": "/products"
             },
-            "autoDetectDiscount": true
+            "autoDetectDiscount": true,
+            "background": {
+              "style": "gradient",
+              "color": null,
+              "secondaryColor": null,
+              "gradientDirection": "to-bottom-right"
+            }
           },
           "flashDeals": {
             "enabled": true,
@@ -3456,7 +3537,12 @@
             "subtitle": "Limited time offers",
             "badgeTemplate": "Up to {discount}% OFF",
             "collectionSlug": "sale",
-            "maxProducts": 8
+            "maxProducts": 8,
+            "background": {
+              "style": "none",
+              "color": null,
+              "secondaryColor": null
+            }
           },
           "collectionMosaic": {
             "enabled": true,
@@ -3468,7 +3554,14 @@
               "testimonials",
               "brands"
             ],
-            "layoutStyle": "mosaic"
+            "layoutStyle": "mosaic",
+            "background": {
+              "style": "mesh",
+              "color": null,
+              "secondaryColor": null,
+              "meshOpacity": 10,
+              "meshGrade": "light"
+            }
           },
           "bestSellers": {
             "enabled": true,
@@ -3512,6 +3605,14 @@
               "color": null,
               "secondaryColor": null,
               "gradientDirection": "to-bottom"
+            }
+          },
+          "recentlyViewed": {
+            "enabled": true,
+            "background": {
+              "style": "none",
+              "color": null,
+              "secondaryColor": null
             }
           },
           "featuredCategories": {
@@ -3622,7 +3723,8 @@
           "collectionMosaic",
           "bestSellers",
           "customerFeedback",
-          "newsletter"
+          "newsletter",
+          "recentlyViewed"
         ]
       },
       "pages": {
@@ -3653,7 +3755,9 @@
         "support": {
           "intercomAppId": null,
           "zendeskKey": null,
-          "crispWebsiteId": null
+          "crispWebsiteId": null,
+          "whatsappBusinessNumber": "+972545373118",
+          "whatsappDefaultMessage": "bebosh i love you!!"
         },
         "social": {
           "facebook": null,
@@ -3859,7 +3963,12 @@
           "showQuickView": true,
           "showWishlistButton": true,
           "showAddToCart": true,
-          "imageAspectRatio": "square"
+          "imageAspectRatio": "square",
+          "hoverEffect": "lift",
+          "badgePosition": "top-start",
+          "showBrandLabel": true,
+          "showRating": true,
+          "imageFit": "cover"
         },
         "toasts": {
           "position": "bottom-right",
@@ -3919,6 +4028,31 @@
           "removeButtonHoverBackgroundColor": null,
           "removeButtonHoverColor": null,
           "removeButtonBorderRadius": "full"
+        },
+        "filterSidebar": {
+          "checkboxAccentColor": null,
+          "sectionTitleFontSize": "xs",
+          "sectionTitleFontWeight": "semibold",
+          "sectionTitleColor": null,
+          "sectionTitleHoverColor": null,
+          "chevronColor": null,
+          "chevronHoverColor": null,
+          "itemTextFontSize": "xs",
+          "itemTextColor": null,
+          "itemCountColor": null,
+          "sizeChipSelectedBg": null,
+          "sizeChipSelectedText": null,
+          "sizeChipSelectedBorder": null,
+          "clearAllButtonBg": null,
+          "clearAllButtonText": null,
+          "clearAllButtonBorder": null,
+          "clearAllButtonHoverBg": null,
+          "clearAllButtonHoverText": null,
+          "priceInputFocusRingColor": null,
+          "priceQuickButtonActiveBg": null,
+          "priceQuickButtonActiveText": null,
+          "mobileShowResultsBg": null,
+          "mobileShowResultsText": null
         },
         "cart": {
           "displayMode": "drawer",
@@ -4134,6 +4268,9 @@
           "categoriesTitle": "Shop by Category",
           "categoriesSubtitle": "Find what you're looking for",
           "viewAllCategoriesButton": "View All Categories",
+          "subcategoriesLabel": "Subcategories",
+          "viewCategoryButton": "View All",
+          "productsLabel": "products",
           "brandsTitle": "Leading Brands",
           "brandsSubtitle": "Shop from your favorite brands",
           "testimonialsTitle": "What Our Customers Say",
@@ -4149,11 +4286,49 @@
           "noApprovedReviewsText": "No approved reviews with 4+ stars yet. {count} review(s) pending approval.",
           "heroCtaText": "Shop Now",
           "heroSecondaryCtaText": "Browse Categories",
+          "exploreBrandsButton": "Explore brands",
+          "brandsStatLabel": "Brands",
+          "stylesStatLabel": "Styles",
+          "ratingStatLabel": "Rating",
+          "heroDefaultTitle": "Multi-brand performance",
+          "heroDefaultSubtitle": "Performance footwear and sportswear curated from the world's most trusted labels.",
           "watchVideoButton": "Watch Video",
           "shopNowButton": "Shop Now",
           "exploreText": "Explore",
           "productCountText": "products",
-          "newsletterEmailPlaceholder": "Enter your email address"
+          "newsletterEmailPlaceholder": "Enter your email address",
+          "curatedLabel": "Curated",
+          "viewDetailsButton": "View details",
+          "viewAllBrandsButton": "View all brands",
+          "viewAllOffersButton": "View all offers",
+          "allCollectionsButton": "All Collections",
+          "itemsText": "items",
+          "stylesText": "styles",
+          "performanceLineupText": "Performance lineup",
+          "brandLabel": "Brand",
+          "performanceFallback": "Performance",
+          "saleBadgeLabel": "Sale",
+          "saleBadgeOffText": "OFF",
+          "newBadgeLabel": "New",
+          "featuredBadgeLabel": "Featured",
+          "outOfStockBadgeLabel": "Out of stock",
+          "lowStockBadgeLabel": "Low stock",
+          "itemsOnSaleText": "{count} items on sale",
+          "savePercentText": "Save {discount}%",
+          "upToPercentOffText": "Up to {discount}% Off",
+          "reviewedProductLabel": "Reviewed Product",
+          "verifiedBuyerLabel": "Verified Buyer",
+          "anonymousLabel": "Anonymous",
+          "shopCollectionButton": "Shop collection",
+          "featuredCollectionLabel": "Featured Collection",
+          "specialOfferText": "Special Offer",
+          "dontMissOutTitle": "Don't miss out",
+          "shopSaleItemsButton": "Shop Sale Items",
+          "allProductsButton": "All Products",
+          "promoDescriptionFallback": "Premium performance gear for run, court, and studio. Limited time collection.",
+          "recentlyViewedSubLabel": "Your History",
+          "recentlyViewedTitle": "Recently Viewed",
+          "recentlyViewedSubtitle": "Products you've looked at recently"
         },
         "checkout": {
           "checkoutTitle": "Checkout",
@@ -4476,7 +4651,46 @@
           "mustBeLoggedInToReview": "You must be logged in to submit a review. Please sign in and try again.",
           "failedToUpdateReview": "Failed to update review",
           "failedToDeleteReview": "Failed to delete review",
-          "failedToUploadImages": "Failed to upload images"
+          "failedToUploadImages": "Failed to upload images",
+          "sizeGuideButton": "Size Guide",
+          "sizeGuideTitle": "Size Guide",
+          "sizeGuideSubtitle": "Find your perfect fit",
+          "sizeGuideMensTab": "Men's",
+          "sizeGuideWomensTab": "Women's",
+          "sizeGuideKidsTab": "Kids'",
+          "sizeGuideHowToMeasure": "How to Measure",
+          "sizeGuideMeasureTip": "Stand on a piece of paper with your heel against a wall. Mark the longest toe and measure the distance in centimeters. Compare with the CM column above.",
+          "sizeGuideProTip": "Pro Tip: Measure your feet in the evening when they're at their largest. If you're between sizes, go up half a size for the most comfortable fit.",
+          "sizeGuideShoesCategory": "Shoes",
+          "sizeGuideClothingCategory": "Clothing",
+          "sizeGuideClothingMeasureTip": "Use a soft measuring tape. For chest, measure around the fullest part. For waist, measure at the natural waistline (above belly button). Keep the tape snug but not tight.",
+          "sizeGuideClothingProTip": "Pro Tip: If you're between sizes, size up for a relaxed fit or size down for a snug fit. Check the fabric composition — stretchy materials are more forgiving.",
+          "specificationsTab": "Specifications",
+          "noSpecifications": "No specifications available.",
+          "selectAttributeLabel": "Select {attribute}",
+          "pleaseSelectAttribute": "Please select {attribute}",
+          "unlimitedStock": "In Stock",
+          "selectOptionsForStock": "Select options to see availability",
+          "maxPerCustomer": "Limit {count} per customer",
+          "unavailableForSelection": "Unavailable for current selection",
+          "relatedProductsTitle": "You May Also Like",
+          "relatedProductsSubtitle": "Customers also viewed these products",
+          "relatedViewDetailsButton": "View details",
+          "relatedPreviousLabel": "Previous products",
+          "relatedNextLabel": "Next products",
+          "notifyMeButton": "Notify me when back in stock",
+          "notifyMeTitle": "Notify me when back in stock",
+          "notifyMeDescription": "Get notified when {variant} is available",
+          "notifyMeDescriptionGeneric": "Get notified when this item is available",
+          "notifyMeEmailPlaceholder": "Enter your email",
+          "notifyMeSubmitButton": "Notify Me",
+          "notifyMeSubmitting": "Subscribing...",
+          "notifyMeSuccess": "You'll be notified when this item is back in stock",
+          "notifyMeAlreadySubscribed": "You're already subscribed for this item",
+          "notifyMeUnsubscribe": "Unsubscribe",
+          "notifyMeInvalidEmail": "Please enter a valid email address",
+          "notifyMeError": "Failed to subscribe. Please try again.",
+          "notifyMeCancel": "Cancel"
         },
         "dashboard": {
           "totalOrders": "Total Orders",
@@ -4772,14 +4986,23 @@
           "tryAgainButton": "Try Again",
           "backToHomeButton": "Back to Home",
           "needHelpText": "Need Help?",
-          "contactSupportLink": "Contact our support team"
+          "contactSupportLink": "Contact our support team",
+          "contactSupportUrl": "/contact",
+          "errorCode": "Error"
         },
         "notFound": {
           "title": "Page Not Found",
           "description": "Sorry, we couldn't find the page you're looking for. It may have been moved or doesn't exist.",
           "backToHomeButton": "Back to Home",
           "browseProductsButton": "Browse Products",
-          "helpfulLinksText": "Or check out these pages:"
+          "helpfulLinksText": "Or check out these pages:",
+          "categoriesLinkText": "Categories",
+          "collectionsLinkText": "Collections",
+          "aboutUsLinkText": "About Us",
+          "contactLinkText": "Contact",
+          "productNotFoundTitle": "Product Not Found",
+          "productNotFoundDescription": "The product you're looking for doesn't exist or has been removed.",
+          "productNotFoundBackButton": "Back to Products"
         }
       },
       "darkMode": {
@@ -4809,6 +5032,14 @@
         "showOnMobile": true,
         "title": "You May Also Like",
         "subtitle": "Customers also viewed these products"
+      },
+      "design": {
+        "animations": {
+          "preset": "moderate"
+        },
+        "spacing": {
+          "sectionPaddingY": "normal"
+        }
       }
     }
   }

@@ -74,6 +74,8 @@ export const foodStoreConfig: StoreConfig = createStoreConfig('food', {
     socialLogin: true,
     shareButtons: false,
     instagramFeed: true,            // Food photography
+    relatedProducts: true,
+    stockAlerts: true,
   },
 
   ecommerce: {
