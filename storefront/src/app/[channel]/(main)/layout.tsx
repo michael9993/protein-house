@@ -70,11 +70,16 @@ async function getSalePromoData(channel: string) {
 				}
 			: null;
 		
-		// Extract promotion name from metadata (key: "Promotion")
+		// Extract promotion name and end date from metadata
 		const promotionMeta = metadata.find(
 			(m: { key: string; value: string }) => m.key.toLowerCase() === "promotion"
 		);
 		const promotionName = promotionMeta?.value || "";
+
+		const endDateMeta = metadata.find(
+			(m: { key: string; value: string }) => m.key.toLowerCase() === "enddate"
+		);
+		const saleEndDate = endDateMeta?.value || null;
 		
 		// Calculate max discount percentage from products
 		let maxDiscountPercent = 0;
@@ -93,22 +98,24 @@ async function getSalePromoData(channel: string) {
 			}
 		}
 		
-		return { 
-			productCount, 
-			maxDiscountPercent, 
+		return {
+			productCount,
+			maxDiscountPercent,
 			currencyCode,
 			description,
 			promotionName,
 			backgroundImage,
+			saleEndDate,
 		};
 	} catch {
-		return { 
-			productCount: 0, 
-			maxDiscountPercent: 0, 
+		return {
+			productCount: 0,
+			maxDiscountPercent: 0,
 			currencyCode: "USD",
 			description: "",
 			promotionName: "",
 			backgroundImage: null,
+			saleEndDate: null,
 		};
 	}
 }
@@ -179,6 +186,7 @@ export default async function RootLayout(props: {
 				description={promoData.description}
 				promotionName={promoData.promotionName}
 				backgroundImage={promoData.backgroundImage}
+				saleEndDate={promoData.saleEndDate}
 			/>
 				</QuickViewWrapper>
 			</CartDrawerShell>

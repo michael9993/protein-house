@@ -38,6 +38,9 @@ export const categoriesRouter = router({
             }`,
             { first: 100, after }
           );
+          if (catResult.error) {
+            console.error("[Categories Import] Pre-fetch query error:", catResult.error.message || catResult.error);
+          }
           const edges = catResult.data?.categories?.edges || [];
           for (const e of edges) {
             categorySlugMap.set(e.node.slug.toLowerCase(), e.node.id);
@@ -48,7 +51,13 @@ export const categoriesRouter = router({
           hasNext = catResult.data?.categories?.pageInfo?.hasNextPage || false;
           after = catResult.data?.categories?.pageInfo?.endCursor;
         }
-      } catch { /* ignore */ }
+      } catch (err) {
+        console.error("[Categories Import] Failed to pre-fetch categories:", err);
+      }
+      console.log(`[Categories Import] Pre-fetched ${categorySlugMap.size} categories for upsert matching`);
+      if (input.upsertMode) {
+        console.log(`[Categories Import] Upsert mode ON — matching by slug/externalReference`);
+      }
 
       // Map all rows first
       const mappedRows = input.rows.map((row) => applyFieldMappings(row, input.fieldMappings));
@@ -97,6 +106,7 @@ export const categoriesRouter = router({
             const slug = mapped.slug || mapped.name?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
             const existingBySlug = slug ? categorySlugMap.get(slug.toLowerCase()) : undefined;
             const existingId = existingByRef || existingBySlug;
+            console.log(`[Categories Import] Upsert lookup for "${mapped.name}": slug="${slug}", mappedSlug="${mapped.slug}", existingByRef=${existingByRef}, existingBySlug=${existingBySlug}, existingId=${existingId}`);
 
             if (existingId) {
               hasExistingBg = categoryBgMap.get(existingId) || false;

@@ -309,6 +309,178 @@ export function HomepageContentTab({ register, errors }: HomepageTabProps) {
           />
         </FieldGroup>
       </FormSection>
+
+      {/* Navigation & CTA Labels */}
+      <FormSection
+        title="Navigation & Buttons"
+        description="Button and CTA text across homepage sections"
+      >
+        <FieldGroup columns={2}>
+          <FormField<HomepageFormData>
+            label="Curated Label"
+            name="content.homepage.curatedLabel"
+            register={register}
+            errors={errors}
+            placeholder="Curated"
+            description="Section super-heading (e.g. 'Curated', 'New Arrivals')"
+          />
+          <FormField<HomepageFormData>
+            label="View Details Button"
+            name="content.homepage.viewDetailsButton"
+            register={register}
+            errors={errors}
+            placeholder="View details"
+            description="Product card quick-view CTA"
+          />
+          <FormField<HomepageFormData>
+            label="Performance Fallback"
+            name="content.homepage.performanceFallback"
+            register={register}
+            errors={errors}
+            placeholder="Performance"
+            description="Category fallback text on product cards"
+          />
+          <FormField<HomepageFormData>
+            label="View All Brands Button"
+            name="content.homepage.viewAllBrandsButton"
+            register={register}
+            errors={errors}
+            placeholder="View all brands"
+          />
+          <FormField<HomepageFormData>
+            label="All Collections Button"
+            name="content.homepage.allCollectionsButton"
+            register={register}
+            errors={errors}
+            placeholder="All Collections"
+          />
+          <FormField<HomepageFormData>
+            label="View All Offers Button"
+            name="content.homepage.viewAllOffersButton"
+            register={register}
+            errors={errors}
+            placeholder="View all offers"
+          />
+          <FormField<HomepageFormData>
+            label="View Category Button"
+            name="content.homepage.viewCategoryButton"
+            register={register}
+            errors={errors}
+            placeholder="View All"
+            description="Category card drill-down CTA"
+          />
+          <FormField<HomepageFormData>
+            label="Explore Brands Button"
+            name="content.homepage.exploreBrandsButton"
+            register={register}
+            errors={errors}
+            placeholder="Explore brands"
+            description="Hero secondary CTA text"
+          />
+          <FormField<HomepageFormData>
+            label="Shop Collection Button"
+            name="content.homepage.shopCollectionButton"
+            register={register}
+            errors={errors}
+            placeholder="Shop collection"
+            description="Collection mosaic card CTA"
+          />
+        </FieldGroup>
+      </FormSection>
+
+      {/* Labels & Units */}
+      <FormSection
+        title="Labels & Units"
+        description="Counting labels and unit text used across sections"
+      >
+        <FieldGroup columns={2}>
+          <FormField<HomepageFormData>
+            label="Styles Text"
+            name="content.homepage.stylesText"
+            register={register}
+            errors={errors}
+            placeholder="styles"
+            description="Product count label (e.g. '45 styles')"
+          />
+          <FormField<HomepageFormData>
+            label="Subcategories Label"
+            name="content.homepage.subcategoriesLabel"
+            register={register}
+            errors={errors}
+            placeholder="Subcategories"
+          />
+          <FormField<HomepageFormData>
+            label="Items Text"
+            name="content.homepage.itemsText"
+            register={register}
+            errors={errors}
+            placeholder="items"
+            description="Product count unit (e.g. '12 items')"
+          />
+          <FormField<HomepageFormData>
+            label="Featured Collection Label"
+            name="content.homepage.featuredCollectionLabel"
+            register={register}
+            errors={errors}
+            placeholder="Featured Collection"
+            description="Label on collection mosaic hero card"
+          />
+        </FieldGroup>
+      </FormSection>
+
+      {/* Hero Stats */}
+      <FormSection
+        title="Hero Stats"
+        description="Stat labels shown in the hero section"
+      >
+        <FieldGroup columns={2}>
+          <FormField<HomepageFormData>
+            label="Brands Stat Label"
+            name="content.homepage.brandsStatLabel"
+            register={register}
+            errors={errors}
+            placeholder="Brands"
+          />
+          <FormField<HomepageFormData>
+            label="Styles Stat Label"
+            name="content.homepage.stylesStatLabel"
+            register={register}
+            errors={errors}
+            placeholder="Styles"
+          />
+        </FieldGroup>
+      </FormSection>
+
+      {/* Customer Feedback Labels */}
+      <FormSection
+        title="Customer Feedback Labels"
+        description="Text labels used in the customer reviews section"
+      >
+        <FieldGroup columns={2}>
+          <FormField<HomepageFormData>
+            label="Reviewed Product Label"
+            name="content.homepage.reviewedProductLabel"
+            register={register}
+            errors={errors}
+            placeholder="Reviewed Product"
+          />
+          <FormField<HomepageFormData>
+            label="Verified Buyer Label"
+            name="content.homepage.verifiedBuyerLabel"
+            register={register}
+            errors={errors}
+            placeholder="Verified Buyer"
+          />
+          <FormField<HomepageFormData>
+            label="Anonymous Label"
+            name="content.homepage.anonymousLabel"
+            register={register}
+            errors={errors}
+            placeholder="Anonymous"
+            description="Fallback name when reviewer is anonymous"
+          />
+        </FieldGroup>
+      </FormSection>
     </>
   );
 }

@@ -166,6 +166,20 @@ export default async function Page(
 			: topRatedProducts;
 	const saleProducts = saleData.collection?.products?.edges?.map(({ node }) => node) ?? [];
 
+	// Extract sale collection metadata for PromotionBanner
+	const saleCollection = saleData.collection;
+	const saleCollectionInfo = saleCollection ? {
+		name: saleCollection.name,
+		description: saleCollection.description || "",
+		backgroundImage: saleCollection.backgroundImage?.url || null,
+		promotionName: saleCollection.metadata?.find(
+			(m: { key: string }) => m.key.toLowerCase() === "promotion"
+		)?.value || "",
+		saleEndDate: saleCollection.metadata?.find(
+			(m: { key: string }) => m.key.toLowerCase() === "enddate"
+		)?.value || null,
+	} : null;
+
 	// Transform categories from Dashboard > Catalog > Categories
 	const categories = categoriesData.categories?.edges?.map(({ node }) => ({
 		id: node.id,
@@ -213,6 +227,7 @@ export default async function Page(
 				newArrivals={newArrivals}
 				bestSellers={bestSellers}
 				saleProducts={saleProducts}
+				saleCollectionInfo={saleCollectionInfo}
 				heroBanner={heroBannerConfig}
 				testimonials={testimonialsData}
 				brands={brandsData}

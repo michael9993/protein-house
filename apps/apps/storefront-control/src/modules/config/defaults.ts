@@ -318,6 +318,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
         autoRotateSeconds: 4,
         showProgressBar: true,
         showNavDots: true,
+        background: { style: "solid", color: "#0a0a0a", secondaryColor: null },
       },
       // Trust indicators strip
       trustStrip: {
@@ -334,7 +335,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
         text: "Free shipping on all orders over $100! • Shop the new collection now • Limited time offer",
         speedSeconds: 20,
         textColor: null,
-        background: { style: "none", color: null, secondaryColor: null },
+        background: { style: "solid", color: "#0a0a0a", secondaryColor: null },
       },
       // Brand partners grid
       brandGrid: {
@@ -355,7 +356,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
         showProductCount: true,
         showSubcategories: true,
         layoutStyle: "mosaic",
-        background: { style: "gradient", color: null, secondaryColor: null },
+        background: { style: "color-mix", color: null, secondaryColor: null, mixPercentage: 3 },
       },
       // Trending/new arrivals
       trending: {

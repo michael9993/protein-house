@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-02-11T13:32:09.252Z",
+  "exportedAt": "2026-02-11T17:58:41.462Z",
   "channels": {
     "ils": {
-      "version": 4,
-      "updatedAt": "2026-02-11T13:32:03.540Z",
+      "version": 12,
+      "updatedAt": "2026-02-11T17:58:37.851Z",
       "channelSlug": "ils",
       "store": {
         "name": "Mansour Shoes",
@@ -211,7 +211,12 @@
             "textAlignment": "center",
             "autoRotateSeconds": 4,
             "showProgressBar": true,
-            "showNavDots": true
+            "showNavDots": true,
+            "background": {
+              "style": "solid",
+              "color": "#0a0a0a",
+              "secondaryColor": null
+            }
           },
           "trustStrip": {
             "enabled": true,
@@ -228,11 +233,11 @@
           "marquee": {
             "enabled": true,
             "text": "משלוח חינם בהזמנות מעל 200 ₪! • קולקציה חדשה בחנות",
-            "speedSeconds": 40,
+            "speedSeconds": 50,
             "textColor": "#fff",
             "background": {
               "style": "solid",
-              "color": null,
+              "color": "#000000",
               "secondaryColor": null
             }
           },
@@ -282,7 +287,7 @@
             "enabled": true,
             "badgeText": "הצעה מיוחדת",
             "title": "אל תפספסו",
-            "highlight": "עד 25% הנחה",
+            "highlight": "מגוון הנחות",
             "description": "ציוד ספורט איכותי לריצה, מגרש ואולם. קולקציה מוגבלת.",
             "primaryCta": {
               "text": "לפריטים במבצע",
@@ -294,10 +299,11 @@
             },
             "autoDetectDiscount": true,
             "background": {
-              "style": "gradient",
-              "color": null,
+              "style": "color-mix",
+              "color": "#000000",
               "secondaryColor": null,
-              "gradientDirection": "to-bottom-right"
+              "gradientDirection": "to-bottom-right",
+              "mixPercentage": 13
             }
           },
           "flashDeals": {
@@ -317,7 +323,7 @@
             "enabled": true,
             "title": "קניות לפי קולקציה",
             "subtitle": "נבחר במיוחד עבורכם",
-            "maxCollections": 5,
+            "maxCollections": 8,
             "excludeSlugs": [
               "hero-banner",
               "testimonials",
@@ -3442,7 +3448,12 @@
             "textAlignment": "center",
             "autoRotateSeconds": 4,
             "showProgressBar": true,
-            "showNavDots": true
+            "showNavDots": true,
+            "background": {
+              "style": "solid",
+              "color": "#0a0a0a",
+              "secondaryColor": null
+            }
           },
           "trustStrip": {
             "enabled": true,
@@ -3463,7 +3474,7 @@
             "textColor": null,
             "background": {
               "style": "solid",
-              "color": null,
+              "color": "#0a0a0a",
               "secondaryColor": null
             }
           },

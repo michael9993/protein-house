@@ -286,7 +286,7 @@ export function Categories({ categories, channel, title, subtitle }: CategoriesP
     : true;
 
   const displayTitle =
-    title || config?.title || contentConfig.homepage.categoriesTitle || "Shop by Category";
+    title || config?.title || contentConfig.homepage.categoriesTitle || "";
   const displaySubtitle =
     subtitle || config?.subtitle || contentConfig.homepage.categoriesSubtitle || "";
 
@@ -310,9 +310,6 @@ export function Categories({ categories, channel, title, subtitle }: CategoriesP
   return (
     <section
       className="relative border-t border-neutral-100"
-      style={{
-        background: `linear-gradient(180deg, white 0%, ${colors.primary}06 50%, white 100%)`,
-      }}
       aria-label={displayTitle}
     >
       <div className="relative mx-auto max-w-[var(--design-container-max)] px-6 py-16 lg:px-12 lg:py-24">

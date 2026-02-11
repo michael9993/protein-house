@@ -225,7 +225,12 @@
           "textAlignment": "center",
           "autoRotateSeconds": 4,
           "showProgressBar": true,
-          "showNavDots": true
+          "showNavDots": true,
+          "background": {
+            "style": "solid",
+            "color": "#0a0a0a",
+            "secondaryColor": null
+          }
         },
         "trustStrip": {
           "enabled": true,
@@ -246,7 +251,7 @@
           "textColor": "#fff",
           "background": {
             "style": "solid",
-            "color": null,
+            "color": "#0a0a0a",
             "secondaryColor": null
           }
         },

@@ -13,41 +13,6 @@ interface CustomerFeedbackProps {
   cmsTestimonials?: Testimonial[];
 }
 
-// Default testimonials fallback
-const FALLBACK_TESTIMONIALS = [
-  {
-    id: "1",
-    name: "Rina L.",
-    role: "Trail runner",
-    quote: "The fit advice was spot on. My new trail pair feels locked in without hot spots.",
-    rating: 5,
-  },
-  {
-    id: "2",
-    name: "Omar K.",
-    role: "Performance coach",
-    quote: "Love the brand range. I can gear an entire team in one checkout.",
-    rating: 5,
-  },
-  {
-    id: "3",
-    name: "Sarah P.",
-    role: "Studio athlete",
-    quote: "Fast dispatch and clean product quality. The cushioning is unreal.",
-    rating: 5,
-  },
-];
-
-// Default config values
-const DEFAULTS = {
-  enabled: true,
-  title: "Customer Feedback",
-  subtitle: "Verified community reviews across our multi-brand lineup.",
-  maxReviews: 3,
-  minRating: 4,
-  showProductName: true,
-};
-
 /**
  * CustomerFeedback - Customer reviews/testimonials section
  * Displays real product reviews with fallback to CMS testimonials.
@@ -71,13 +36,13 @@ export function CustomerFeedback({ channel, cmsTestimonials = [] }: CustomerFeed
   const [reviews, setReviews] = useState<ReviewWithProduct[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Config values with defaults
-  const enabled = config?.enabled ?? DEFAULTS.enabled;
-  const title = config?.title ?? contentConfig.homepage.testimonialsTitle ?? DEFAULTS.title;
-  const subtitle = config?.subtitle ?? contentConfig.homepage.testimonialsSubtitle ?? DEFAULTS.subtitle;
-  const maxReviews = config?.maxReviews ?? DEFAULTS.maxReviews;
-  const minRating = config?.minRating ?? DEFAULTS.minRating;
-  const showProductName = config?.showProductName ?? DEFAULTS.showProductName;
+  // Config values with fallback chain
+  const enabled = config?.enabled ?? true;
+  const title = config?.title ?? contentConfig.homepage.testimonialsTitle ?? "";
+  const subtitle = config?.subtitle ?? contentConfig.homepage.testimonialsSubtitle ?? "";
+  const maxReviews = config?.maxReviews ?? 3;
+  const minRating = config?.minRating ?? 4;
+  const showProductName = config?.showProductName ?? true;
 
   // Fetch real product reviews
   useEffect(() => {
@@ -111,7 +76,7 @@ export function CustomerFeedback({ channel, cmsTestimonials = [] }: CustomerFeed
     return anonymousLabel;
   };
 
-  // Determine which testimonials to show (priority: real reviews > CMS > fallback)
+  // Determine which testimonials to show (priority: real reviews > CMS > hide)
   const displayItems = reviews.length > 0
     ? reviews.map((review) => ({
         id: review.id,
@@ -128,10 +93,13 @@ export function CustomerFeedback({ channel, cmsTestimonials = [] }: CustomerFeed
         quote: t.quote,
         rating: t.rating ?? 5,
       }))
-    : FALLBACK_TESTIMONIALS;
+    : [];
+
+  // Hide section when no real reviews and no CMS testimonials
+  if (!loading && displayItems.length === 0) return null;
 
   return (
-    <section className="bg-white py-24" aria-label="Customer testimonials">
+    <section className="py-24" aria-label="Customer testimonials">
       <div className="mx-auto max-w-[var(--design-container-max)] px-6 lg:px-12">
         {/* Header */}
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">

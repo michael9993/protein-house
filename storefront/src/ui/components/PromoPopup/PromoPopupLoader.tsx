@@ -20,6 +20,8 @@ interface PromoPopupLoaderProps {
   promotionName?: string;
   /** Background image from the "sale" collection */
   backgroundImage?: { url: string; alt: string } | null;
+  /** Sale end date from collection metadata (key: "EndDate") */
+  saleEndDate?: string | null;
 }
 
 export function PromoPopupLoader({
@@ -30,6 +32,7 @@ export function PromoPopupLoader({
   description,
   promotionName,
   backgroundImage,
+  saleEndDate,
 }: PromoPopupLoaderProps) {
   return (
     <PromoPopup
@@ -40,6 +43,7 @@ export function PromoPopupLoader({
       description={description}
       promotionName={promotionName}
       backgroundImage={backgroundImage}
+      saleEndDate={saleEndDate}
     />
   );
 }

@@ -57,7 +57,7 @@ export function Marquee({ items }: MarqueeProps) {
 
   return (
     <section
-      className="bg-neutral-950 py-4 border-y border-neutral-800"
+      className="py-4 border-y border-neutral-800"
       aria-label="Brand marquee"
     >
       {/* .marquee class in globals.css: flex, overflow:hidden, gap, dir:ltr */}

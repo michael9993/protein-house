@@ -918,6 +918,56 @@ See [Section 7](#7-storefront-control-integration) for detailed integration docu
 
 **Permissions:** MANAGE_PRODUCTS, MANAGE_ORDERS, MANAGE_USERS, MANAGE_APPS, MANAGE_DISCOUNTS, MANAGE_GIFT_CARD
 
+### 9.8 Catalog Generator & Store Infrastructure (`scripts/catalog-generator/`)
+
+**Purpose:** Infrastructure-as-code tool for managing store setup (product types, attributes, warehouses, shipping zones) via YAML, plus product catalog generation for Bulk Manager import. Enables reproducible store setup after DB resets and across environments.
+
+**Tech Stack:** `@saleor/configurator` v1.1.0 (patched), TypeScript, tsx, graphql-request, exceljs, patch-package
+
+**Pipeline (`npm run setup`):**
+
+1. **Deploy** (`config.yml` → Saleor) — Creates/updates product types, attributes with values, channels, warehouses, shipping zones, shop settings
+2. **Translate** — Applies Hebrew translations to categories/collections using existing bilingual data from TypeScript config files
+3. **Generate** — Produces product Excel (100 products) + category/collection CSVs for Bulk Manager import
+
+**Infrastructure Managed by `config.yml`:**
+
+| Entity | Details |
+|--------|---------|
+| Channels | `ils` (ILS/Israel), `usd` (USD/International) |
+| Product Types | Shoes, Tops, Bottoms, Accessories |
+| Product Attributes | Brand (SINGLE_REFERENCE to page models), Gender, Material, Style, Apparel Type |
+| Variant Attributes | Shoe size (36-45), Apparel Size (XS-XXXL), Color (10 colors) |
+| Warehouses | Main Warehouse (Sakhnin, IL), International Warehouse (New York, US) |
+| Shipping Zones | Israel Domestic (3 methods), International (3 methods) |
+| Shipping Methods | Standard, Express, Free (with minimum order thresholds) |
+
+**Patches Applied (`patch-package`):**
+- SINGLE_REFERENCE / MULTI_REFERENCE attribute type support (not in upstream v1.1.0)
+- Shipping zone `minimumOrderPrice` format fix (sends decimal string instead of object)
+
+**Generated Output Files:**
+
+| File | Purpose |
+|------|---------|
+| `output/mansour-catalog-100products.xlsx` | Product data for Bulk Manager import |
+| `output/categories.csv` | Category hierarchy for Bulk Manager import |
+| `output/collections.csv` | Collections for Bulk Manager import |
+
+**Commands:**
+
+```bash
+cd scripts/catalog-generator
+npm run setup         # Full pipeline: deploy + translate + generate
+npm run deploy:ci     # Apply config.yml (non-interactive)
+npm run diff          # Preview changes
+npm run introspect    # Capture current Saleor state
+npm run translate     # Hebrew translations
+npm run generate      # Product Excel + CSVs
+```
+
+**Runs on host machine** (not Docker). Connects to Saleor via `SALEOR_URL` + `SALEOR_TOKEN` in `.env`.
+
 ---
 
 ## 10. Feature Specifications
@@ -1465,6 +1515,7 @@ SMTP_HOST=smtp.example.com
 | 1.1.0   | 2026-02-02 | Added Storefront Control integration details, Docker commands, maintenance requirements |
 | 1.2.0   | 2026-02-02 | Added Core Design Principles (Scalability, Configurability, Multi-Tenancy, Reusability) |
 | 1.3.0   | 2026-02-08 | Platform state review: Added shared config package, Storefront Control admin redesign (6-section nav, shadcn/ui, Cmd+K, live preview), Bulk Manager in architecture diagram, updated INP metric, 64 config hooks, account UI refurbish |
+| 1.4.0   | 2026-02-11 | Added Catalog Generator & Store Infrastructure tool (section 9.8): @saleor/configurator integration with SINGLE_REFERENCE patch, config.yml for infrastructure-as-code, product catalog generation pipeline, Hebrew translation script |
 
 ---
 

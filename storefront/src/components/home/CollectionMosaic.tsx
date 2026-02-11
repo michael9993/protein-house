@@ -41,14 +41,6 @@ interface CollectionMosaicProps {
   channel: string;
 }
 
-// Default values when config is not available
-const DEFAULTS = {
-  enabled: true,
-  title: "Shop by Collection",
-  subtitle: "Curated for you",
-  maxCollections: 5,
-  excludeSlugs: ["hero-banner", "testimonials", "brands"],
-};
 
 function CollectionGridCard({
   collection,
@@ -241,10 +233,10 @@ export function CollectionMosaic({ collections, channel }: CollectionMosaicProps
   const featuredCollectionLabel = homepageContent.featuredCollectionLabel || "Featured Collection";
   const shopNowText = homepageContent.shopNowButton || "Shop Now";
 
-  // Use config values with defaults fallback
-  const enabled = config?.enabled ?? DEFAULTS.enabled;
-  const title = config?.title ?? DEFAULTS.title;
-  const subtitle = config?.subtitle ?? DEFAULTS.subtitle;
+  // Use config values with fallback chain
+  const enabled = config?.enabled ?? true;
+  const title = config?.title ?? "";
+  const subtitle = config?.subtitle ?? "";
 
   // Hide if explicitly disabled or no collections
   if (!enabled || collections.length === 0) return null;
@@ -257,18 +249,9 @@ export function CollectionMosaic({ collections, channel }: CollectionMosaicProps
 
   return (
     <section
-      className="relative overflow-hidden border-t border-neutral-100 bg-gradient-to-b from-white to-neutral-50"
+      className="relative overflow-hidden border-t border-neutral-100"
       aria-label="Collection showcase"
     >
-      {/* Background gradient */}
-      <div
-        className="absolute inset-0 opacity-[0.12]"
-        style={{
-          backgroundImage: `radial-gradient(circle at 30% 50%, ${colors.primary} 0%, transparent 60%)`,
-        }}
-        aria-hidden="true"
-      />
-
       <div className="relative mx-auto max-w-[var(--design-container-max)] px-6 py-20 lg:px-12 lg:py-24">
         {/* Header */}
         <div className="mb-12 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">

@@ -37,6 +37,7 @@ export const HeroSectionSchema = z.object({
   autoRotateSeconds: z.number().min(0).max(15).optional(),
   showProgressBar: z.boolean().optional(),
   showNavDots: z.boolean().optional(),
+  background: SectionBackgroundSchema.optional(),
 });
 
 // ============================================

@@ -26,6 +26,8 @@ saleor-platform/
 ├── apps/                # Saleor Apps monorepo (Turborepo, TypeScript)
 │   ├── apps/            # Individual apps (storefront-control, bulk-manager, stripe, newsletter, etc.)
 │   └── packages/        # Shared packages (@saleor/apps-storefront-config, apps-logger, apps-ui, etc.)
+├── scripts/
+│   └── catalog-generator/ # Store infrastructure as code + product catalog generation
 ├── infra/               # Docker Compose orchestration & setup scripts
 ├── PRD.md               # Product requirements (authoritative spec — keep updated)
 └── AGENTS.md            # Agent guidelines (commands, patterns — keep updated)
@@ -429,6 +431,38 @@ export async function addToCart(cartId: string, productId: string) {
 | bulk-manager | `saleor-bulk-manager-app-dev` | 3007 | CSV/Excel bulk import/export/delete for products, categories, collections, customers, orders, vouchers, gift cards |
 
 Also in apps monorepo but not Dockerized locally: avatax, search (Algolia), klaviyo, cms, segment.
+
+## Catalog Generator & Store Infrastructure (`scripts/catalog-generator/`)
+
+Manages store infrastructure as code and generates product catalog files. See [SETUP.md](scripts/catalog-generator/SETUP.md) for full documentation.
+
+**What it manages:** Product types, attributes (with values), channels, warehouses, shipping zones, shop settings — defined in `config.yml` and applied via `@saleor/configurator` (patched for SINGLE_REFERENCE support).
+
+**Pipeline:** `npm run setup` = deploy infrastructure → translate to Hebrew → generate product Excel/CSVs → upload via Bulk Manager.
+
+**Commands (run from `scripts/catalog-generator/`):**
+
+```bash
+npm run setup         # Full pipeline: deploy + translate + generate
+npm run deploy:ci     # Apply config.yml to Saleor (non-interactive)
+npm run diff          # Preview changes (dry run)
+npm run introspect    # Pull current Saleor state into config.yml
+npm run translate     # Add Hebrew translations to categories/collections
+npm run generate      # Generate product Excel + CSVs
+```
+
+**Key files:**
+
+| File | Purpose |
+|------|---------|
+| `scripts/catalog-generator/config.yml` | Store infrastructure YAML (product types, attributes, warehouses, shipping) |
+| `scripts/catalog-generator/src/config/products.ts` | 100 product definitions across 7 brands |
+| `scripts/catalog-generator/src/config/categories.ts` | 35+ bilingual categories with hierarchy |
+| `scripts/catalog-generator/src/config/collections.ts` | 18 bilingual collections |
+| `scripts/catalog-generator/src/add-translations.ts` | Hebrew translation script (reuses categories.ts/collections.ts) |
+| `scripts/catalog-generator/patches/` | patch-package patches for @saleor/configurator SINGLE_REFERENCE + shipping fix |
+
+**Important:** This runs on the **host machine** (not Docker). It connects to Saleor via the GraphQL API URL in `.env`.
 
 ## Key Configuration Files
 

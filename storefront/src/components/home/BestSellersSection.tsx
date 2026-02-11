@@ -16,14 +16,6 @@ interface BestSellersSectionProps {
   subtitle?: string;
 }
 
-// Default values when config is not available
-const DEFAULTS = {
-  enabled: true,
-  title: "Best sellers",
-  subtitle: "Top-rated shoes and sport gear loved by the Mansour community.",
-  maxProducts: 6,
-};
-
 /**
  * BestSellersSection - V6-style best sellers with horizontal scroll
  * Features curated header and horizontal scrolling product cards.
@@ -114,15 +106,15 @@ export function BestSellersSection({ products, channel, title, subtitle }: BestS
     container.scrollTo({ left: newScrollLeft, behavior: "smooth" });
   }, [isRTL]);
 
-  // Use config values with defaults fallback
-  const enabled = config?.enabled ?? DEFAULTS.enabled;
-  const maxProducts = config?.maxProducts ?? DEFAULTS.maxProducts;
+  // Use config values with fallback chain
+  const enabled = config?.enabled ?? true;
+  const maxProducts = config?.maxProducts ?? 6;
 
-  // Priority: props > config > content config > defaults
-  const displayTitle = title || config?.title || contentConfig.homepage.bestSellersTitle || DEFAULTS.title;
-  const displaySubtitle = subtitle || config?.subtitle || contentConfig.homepage.bestSellersSubtitle || DEFAULTS.subtitle;
+  // Priority: props > config > content config
+  const displayTitle = title || config?.title || contentConfig.homepage.bestSellersTitle || "";
+  const displaySubtitle = subtitle || config?.subtitle || contentConfig.homepage.bestSellersSubtitle || "";
 
-  const storeName = storeInfo.name || "Mansour Shoes";
+  const storeName = storeInfo.name || "";
   const accent = colors.primary;
 
   // Get translated content from config
@@ -147,7 +139,7 @@ export function BestSellersSection({ products, channel, title, subtitle }: BestS
   const displayProducts = products.slice(0, maxProducts);
 
   return (
-    <section className="bg-white py-20" aria-label="Best selling products">
+    <section className="py-20" aria-label="Best selling products">
       <div className="mx-auto max-w-[var(--design-container-max)] px-6 lg:px-12">
         {/* V6-style section header */}
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">

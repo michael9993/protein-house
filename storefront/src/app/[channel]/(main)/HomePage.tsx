@@ -16,9 +16,7 @@ import {
   CustomerFeedback,
   NewsletterSignup,
   BackgroundSection,
-  PLACEHOLDER_CATEGORIES,
   getDiscountPercent,
-  FALLBACK_BRANDS,
   uniqueBy,
   getProductBrand,
   getProductBrandInfo,
@@ -94,6 +92,14 @@ interface HomePageProps {
   bestSellers: readonly ProductListItemFragment[];
   /** Products from "sale" collection */
   saleProducts: readonly ProductListItemFragment[];
+  /** Sale collection metadata for PromotionBanner */
+  saleCollectionInfo?: {
+    name: string;
+    description: string;
+    backgroundImage: string | null;
+    promotionName: string;
+    saleEndDate: string | null;
+  } | null;
   /** Hero banner config from "hero-banner" collection metadata */
   heroBanner?: HeroBannerConfig | null;
   /** Testimonials from "testimonials" collection metadata */
@@ -120,6 +126,7 @@ export function HomePage({
   newArrivals,
   bestSellers,
   saleProducts,
+  saleCollectionInfo,
   heroBanner,
   testimonials = [],
   brands = [],
@@ -136,22 +143,20 @@ export function HomePage({
   const { sections } = homepageConfig;
   const sectionOrder = homepageConfig.sectionOrder || DEFAULT_SECTION_ORDER;
   const homepageContent = contentConfig.homepage;
-  const storeName = storeInfo.name || "Mansour Shoes";
+  const storeName = storeInfo.name || "";
 
-  // Use Dashboard categories if available, otherwise use placeholders
+  // Use Dashboard categories (empty array when none exist)
   const displayCategories = useMemo(() =>
-    categories.length > 0
-      ? categories.map((cat) => ({
-          id: cat.id,
-          name: cat.name,
-          slug: cat.slug,
-          image: cat.image,
-          imageAlt: cat.imageAlt,
-          productCount: cat.productCount,
-          featuredImage: cat.featuredImage,
-          children: cat.children,
-        }))
-      : PLACEHOLDER_CATEGORIES,
+    categories.map((cat) => ({
+      id: cat.id,
+      name: cat.name,
+      slug: cat.slug,
+      image: cat.image,
+      imageAlt: cat.imageAlt,
+      productCount: cat.productCount,
+      featuredImage: cat.featuredImage,
+      children: cat.children,
+    })),
     [categories],
   );
 
@@ -209,37 +214,39 @@ export function HomePage({
       }
     }
 
-    const tiles = brandInfos.length > 0
-      ? brandInfos.map((info, index) => ({
-          id: `${info.slug}-${index}`,
-          name: info.name,
-          logo: resolveLogo(info.name, "", info.image),
-          url: `/products?brands=${encodeURIComponent(info.slug)}`,
-        }))
-      : FALLBACK_BRANDS.map((name, index) => ({
-          id: `${name}-${index}`,
-          name,
-          logo: resolveLogo(name),
-        }));
-    return tiles;
+    // Return API-derived brands only (no hardcoded fallback)
+    return brandInfos.map((info, index) => ({
+      id: `${info.slug}-${index}`,
+      name: info.name,
+      logo: resolveLogo(info.name, "", info.image),
+      url: `/products?brands=${encodeURIComponent(info.slug)}`,
+    }));
   }, [brands, newArrivals, bestSellers, storeName, brandDataMap, resolveLogo]);
 
-  // Calculate promo data from sale products for PromotionBanner
-  const promoData = useMemo(() => {
-    const discounts = saleProducts.map((p) => getDiscountPercent(p));
-    const maxDiscount = Math.max(0, ...discounts);
-    return {
-      promotionName: "",
-      description: "",
-      maxDiscountPercent: maxDiscount,
-      productCount: saleProducts.length,
-    };
-  }, [saleProducts]);
+  // Collect ALL discounted products across every section (not just the "sale" collection).
+  // Products with active Saleor Promotions will have price < undiscountedPrice automatically.
+  const allDiscountedProducts = useMemo(() => {
+    const all = [..._featuredProducts, ...newArrivals, ...bestSellers, ...saleProducts];
+    const discounted = all.filter((p) => getDiscountPercent(p) > 0);
+    return uniqueBy(discounted, (p) => p.id);
+  }, [_featuredProducts, newArrivals, bestSellers, saleProducts]);
 
-  // Calculate max discount for FlashDeals
-  const maxSaleDiscount = useMemo(() => {
-    return Math.max(0, ...saleProducts.map((p) => getDiscountPercent(p)));
-  }, [saleProducts]);
+  // Max discount across all discounted products
+  const maxDiscount = useMemo(() => {
+    return Math.max(0, ...allDiscountedProducts.map((p) => getDiscountPercent(p)));
+  }, [allDiscountedProducts]);
+
+  // Promo data: counts/discounts from ALL discounted products, metadata from sale collection
+  const promoData = useMemo(() => {
+    return {
+      promotionName: saleCollectionInfo?.promotionName || saleCollectionInfo?.name || "",
+      description: saleCollectionInfo?.description || "",
+      maxDiscountPercent: maxDiscount,
+      productCount: allDiscountedProducts.length,
+      saleEndDate: saleCollectionInfo?.saleEndDate || null,
+      backgroundImage: saleCollectionInfo?.backgroundImage || null,
+    };
+  }, [allDiscountedProducts, maxDiscount, saleCollectionInfo]);
 
   // Filter collections for CollectionMosaic (exclude CMS collections)
   const displayCollections = useMemo(() => {
@@ -247,12 +254,12 @@ export function HomePage({
     return collections.filter((c) => !excludeSlugs.includes(c.slug));
   }, [collections]);
 
-  // Generate marquee items from brands and categories
+  // Generate marquee items from brands and categories (API data only)
   const marqueeItems = useMemo(() => {
     const brandNames = brandTiles.map((b) => b.name);
     const categoryNames = categories.map((c) => c.name);
     return uniqueBy(
-      [...brandNames, ...categoryNames, "Limited Edition", "New Season"],
+      [...brandNames, ...categoryNames],
       (item) => item.toLowerCase(),
     );
   }, [brandTiles, categories]);
@@ -271,18 +278,21 @@ export function HomePage({
   // Section rendering map - V6 style only with background support
   const renderSection = (sectionId: HomepageSectionId): React.ReactNode => {
     switch (sectionId) {
-      case "hero":
+      case "hero": {
         if (getSectionConfig("hero")?.enabled === false) return null;
+        const heroBg = getSectionBackground("hero");
         return (
-          <Hero
-            key="hero"
-            channel={channel}
-            newArrivals={newArrivals}
-            bestSellers={bestSellers}
-            heroBanner={heroBanner}
-            brandCount={brandTiles.length}
-          />
+          <BackgroundSection key="hero" background={heroBg} ariaLabel="Hero banner">
+            <Hero
+              channel={channel}
+              newArrivals={newArrivals}
+              bestSellers={bestSellers}
+              heroBanner={heroBanner}
+              brandCount={brandTiles.length}
+            />
+          </BackgroundSection>
         );
+      }
 
       case "trustStrip": {
         if (getSectionConfig("trustStrip")?.enabled === false) return null;
@@ -358,6 +368,7 @@ export function HomePage({
 
       case "promotionBanner": {
         if (getSectionConfig("promotionBanner")?.enabled === false) return null;
+        if (allDiscountedProducts.length === 0) return null;
         const bg = getSectionBackground("promotionBanner");
         return (
           <BackgroundSection key="promotionBanner" background={bg} ariaLabel="Promotional banner">
@@ -369,12 +380,12 @@ export function HomePage({
       case "flashDeals":
       case "onSale": {
         if (getSectionConfig("flashDeals")?.enabled === false && getSectionConfig("onSale")?.enabled === false) return null;
-        if (saleProducts.length === 0) return null;
+        if (allDiscountedProducts.length === 0) return null;
         const bg = getSectionBackground("flashDeals");
         return (
           <BackgroundSection key="flashDeals" background={bg} ariaLabel="Flash deals">
             <RevealOnScroll>
-              <FlashDeals products={saleProducts} channel={channel} maxDiscount={maxSaleDiscount} />
+              <FlashDeals products={allDiscountedProducts} channel={channel} maxDiscount={maxDiscount} saleEndDate={promoData.saleEndDate} />
             </RevealOnScroll>
           </BackgroundSection>
         );

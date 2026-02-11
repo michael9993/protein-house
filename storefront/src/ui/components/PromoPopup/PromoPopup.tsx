@@ -34,6 +34,8 @@ interface PromoPopupProps {
   promotionName?: string;
   /** Background image from the "sale" collection (for auto-detect mode) */
   backgroundImage?: { url: string; alt: string } | null;
+  /** Sale end date from collection metadata (key: "EndDate") */
+  saleEndDate?: string | null;
 }
 
 // Simple analytics helper - can be expanded to integrate with real analytics

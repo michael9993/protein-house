@@ -14,13 +14,15 @@ interface PromotionBannerProps {
     maxDiscountPercent: number;
     productCount: number;
     saleEndDate?: string | null;
+    backgroundImage?: string | null;
   };
 }
 
 /**
- * PromotionBanner - Dynamic promotional banner section
- * Displays sale/promotion information with CTAs.
- * Configurable via Storefront Control.
+ * PromotionBanner - Data-driven promotional banner section.
+ * Shows real discount data from ALL products with active promotions
+ * (not just the "sale" collection). Falls back to Storefront Control
+ * config for CTAs and overrides. Hidden when no discounted products exist.
  */
 export function PromotionBanner({ channel, promoData }: PromotionBannerProps) {
   const { colors } = useBranding();
@@ -28,71 +30,47 @@ export function PromotionBanner({ channel, promoData }: PromotionBannerProps) {
   const promoPopupConfig = usePromoPopupConfig();
   const contentConfig = useContentConfig();
 
-  // Get translated content from config
+  // Get translated content templates from config
   const homepageContent = contentConfig.homepage;
-  const defaultSpecialOffer = homepageContent.specialOfferText || "Special Offer";
-  const defaultDontMissOut = homepageContent.dontMissOutTitle || "Don't miss out";
-  const defaultPromoDescription = homepageContent.promoDescriptionFallback || "Premium performance gear for run, court, and studio. Limited time collection.";
-  const defaultShopSaleItems = homepageContent.shopSaleItemsButton || "Shop Sale Items";
-  const defaultAllProducts = homepageContent.allProductsButton || "All Products";
   const upToPercentOffTemplate = homepageContent.upToPercentOffText || "Up to {discount}% Off";
   const itemsOnSaleTemplate = homepageContent.itemsOnSaleText || "{count} items on sale";
+  const specialOfferText = homepageContent.specialOfferText || "Special Offer";
+  const shopSaleItemsText = homepageContent.shopSaleItemsButton || "Shop Sale Items";
+  const allProductsText = homepageContent.allProductsButton || "All Products";
 
-  // Default values using translated content
-  const DEFAULTS = {
-    enabled: true,
-    badgeText: defaultSpecialOffer,
-    title: defaultDontMissOut,
-    highlight: upToPercentOffTemplate.replace("{discount}", "25"),
-    description: defaultPromoDescription,
-    primaryCta: { text: defaultShopSaleItems, link: "/products?collections=sale" },
-    secondaryCta: { text: defaultAllProducts, link: "/products" },
-  };
-
-  // Use config enabled flag, default to true
-  const enabled = config?.enabled ?? DEFAULTS.enabled;
-
-  // Hide section if explicitly disabled
+  // Hide if explicitly disabled via config
+  const enabled = config?.enabled ?? true;
   if (!enabled) return null;
 
-  // Priority: promoData (from sale collection) > promoPopupConfig > config > defaults
-  // Badge: Use promo popup badge or construct from discount
+  // Badge: discount-based > config > translated fallback
   const badgeText = promoData.maxDiscountPercent > 0
     ? upToPercentOffTemplate.replace("{discount}", String(promoData.maxDiscountPercent))
-    : (promoPopupConfig.badge || config?.badgeText || DEFAULTS.badgeText);
+    : (config?.badgeText || specialOfferText);
 
-  // Title: Use promotion name from sale collection or promo popup title
-  const title = promoData.promotionName || promoPopupConfig.title || config?.title || DEFAULTS.title;
+  // Title: real promotion name > promo popup > config > empty
+  const title = promoData.promotionName || promoPopupConfig.title || config?.title || "";
 
-  // Highlight: Show discount percentage
+  // Highlight: discount % > config > empty
   const highlight = promoData.maxDiscountPercent > 0
     ? upToPercentOffTemplate.replace("{discount}", String(promoData.maxDiscountPercent))
-    : (config?.highlight || DEFAULTS.highlight);
+    : (config?.highlight || "");
 
-  // Description: Parse EditorJS from sale collection or use promo popup body
+  // Description: parsed EditorJS from collection > promo popup > config > empty
   const rawDescription = promoData.description || "";
   const parsedDescription = parseDescription(rawDescription);
-  const description = parsedDescription || promoPopupConfig.body || config?.description || DEFAULTS.description;
+  const description = parsedDescription || promoPopupConfig.body || config?.description || "";
 
-  // CTA: Use promo popup CTA settings
-  const primaryCtaText = promoPopupConfig.ctaText || config?.primaryCta?.text || DEFAULTS.primaryCta.text;
-  const primaryCtaLink = promoPopupConfig.ctaLink || config?.primaryCta?.link || DEFAULTS.primaryCta.link;
-  const secondaryCta = config?.secondaryCta || DEFAULTS.secondaryCta;
+  // CTAs: promo popup > config > translated defaults
+  const primaryCtaText = promoPopupConfig.ctaText || config?.primaryCta?.text || shopSaleItemsText;
+  const primaryCtaLink = promoPopupConfig.ctaLink || config?.primaryCta?.link || "/products?onSale=true";
+  const secondaryCtaText = config?.secondaryCta?.text || allProductsText;
+  const secondaryCtaLink = config?.secondaryCta?.link || "/products";
 
   return (
     <section
-      className="relative overflow-hidden border-y border-neutral-200 bg-gradient-to-br from-white via-neutral-50 to-white transform-gpu will-change-transform"
+      className="relative overflow-hidden border-y border-neutral-200 transform-gpu will-change-transform"
       aria-label="Promotional sale banner"
     >
-      {/* Background glow */}
-      <div
-        className="absolute inset-0 opacity-[0.08]"
-        style={{
-          backgroundImage: `radial-gradient(circle at 70% 50%, ${colors.primary} 0%, transparent 70%)`,
-        }}
-        aria-hidden="true"
-      />
-
       <div className="relative mx-auto max-w-[var(--design-container-max)] px-6 py-16 lg:px-12 lg:py-20">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
           {/* Text Content */}
@@ -109,22 +87,26 @@ export function PromotionBanner({ channel, promoData }: PromotionBannerProps) {
               </span>
             </div>
 
-            {/* Title */}
+            {/* Title + Highlight */}
             <h2 className="mt-5 font-heading text-4xl font-black uppercase tracking-tighter text-neutral-900 lg:text-5xl">
               {title}
-              <span
-                className="mt-1 block bg-clip-text text-transparent"
-                style={{
-                  backgroundImage: `linear-gradient(135deg, ${colors.primary}, ${colors.accent})`,
-                }}
-              >
-                {highlight}
-              </span>
+              {highlight && (
+                <span
+                  className="mt-1 block bg-clip-text text-transparent"
+                  style={{
+                    backgroundImage: `linear-gradient(135deg, ${colors.primary}, ${colors.accent})`,
+                  }}
+                >
+                  {highlight}
+                </span>
+              )}
             </h2>
 
-            <p className="mt-4 max-w-lg text-sm font-medium text-neutral-600">
-              {description}
-            </p>
+            {description && (
+              <p className="mt-4 max-w-lg text-sm font-medium text-neutral-600">
+                {description}
+              </p>
+            )}
 
             {/* Product count badge */}
             {promoData.productCount > 0 && (
@@ -155,14 +137,12 @@ export function PromotionBanner({ channel, promoData }: PromotionBannerProps) {
                 aria-hidden="true"
               />
             </Link>
-            {secondaryCta && (
-              <Link
-                href={`/${encodeURIComponent(channel)}${secondaryCta.link.startsWith('/') ? '' : '/'}${secondaryCta.link}`}
-                className="inline-flex items-center justify-center rounded-full border-2 border-neutral-900 bg-white px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] text-neutral-900 transition hover:bg-neutral-900 hover:text-white"
-              >
-                {secondaryCta.text}
-              </Link>
-            )}
+            <Link
+              href={`/${encodeURIComponent(channel)}${secondaryCtaLink.startsWith('/') ? '' : '/'}${secondaryCtaLink}`}
+              className="inline-flex items-center justify-center rounded-full border-2 border-neutral-900 bg-white px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] text-neutral-900 transition hover:bg-neutral-900 hover:text-white"
+            >
+              {secondaryCtaText}
+            </Link>
           </div>
         </div>
       </div>

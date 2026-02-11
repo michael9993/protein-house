@@ -88,7 +88,7 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
   // Hide if disabled
   if (!enabled) return null;
 
-  const storeName = storeInfo.name || "Mansour Shoes";
+  const storeName = storeInfo.name || "";
 
   // Get translated content from config
   const homepageContent = contentConfig.homepage;
@@ -223,7 +223,7 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
   const titleRest = titleWords.join(" ");
 
   return (
-    <section className="relative overflow-hidden bg-neutral-950">
+    <section className="relative overflow-hidden">
       {/* Background layers */}
       <div className="absolute inset-0 hero-aurora opacity-20" aria-hidden="true" />
       <div
@@ -286,12 +286,11 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
               </Link>
             </div>
 
-            {/* Stats row - desktop only */}
+            {/* Stats row - desktop only (API-derived data) */}
             <div className="mt-10 hidden items-center gap-8 lg:flex">
               {[
                 { value: `${brandCount}+`, label: brandsLabel },
                 { value: `${deckCards.length * 50}+`, label: stylesLabel },
-                { value: "4.8", label: ratingLabel },
               ].map((stat) => (
                 <div key={stat.label}>
                   <div className="text-2xl font-black text-white">{stat.value}</div>

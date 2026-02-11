@@ -4,15 +4,6 @@ import { Truck, RotateCcw, ShieldCheck, Headphones } from "lucide-react";
 import { useBranding, useEcommerceSettings, useTrustStripConfig } from "@/providers/StoreConfigProvider";
 import { formatMoney } from "@/lib/utils";
 
-// Default values when config is not available
-const DEFAULTS = {
-  enabled: true,
-  freeShippingText: null as string | null,
-  easyReturnsText: "Easy returns",
-  secureCheckoutText: "Secure checkout",
-  supportText: "24/7 support",
-};
-
 /**
  * TrustStrip - Display trust indicators (shipping, returns, security, support)
  * Configurable via Storefront Control.
@@ -22,8 +13,8 @@ export function TrustStrip() {
   const ecommerce = useEcommerceSettings();
   const config = useTrustStripConfig();
 
-  // Use config values with defaults fallback
-  const enabled = config?.enabled ?? DEFAULTS.enabled;
+  // Use config values with fallback chain
+  const enabled = config?.enabled ?? true;
 
   // Hide if explicitly disabled
   if (!enabled) return null;
@@ -37,9 +28,9 @@ export function TrustStrip() {
     : "Free shipping available";
 
   const freeShippingText = config?.freeShippingText ?? defaultShippingText;
-  const easyReturnsText = config?.easyReturnsText ?? DEFAULTS.easyReturnsText;
-  const secureCheckoutText = config?.secureCheckoutText ?? DEFAULTS.secureCheckoutText;
-  const supportText = config?.supportText ?? DEFAULTS.supportText;
+  const easyReturnsText = config?.easyReturnsText ?? "Easy returns";
+  const secureCheckoutText = config?.secureCheckoutText ?? "Secure checkout";
+  const supportText = config?.supportText ?? "24/7 support";
 
   const items = [
     { icon: Truck, text: freeShippingText },
@@ -51,7 +42,6 @@ export function TrustStrip() {
   return (
     <section
       className="border-b border-neutral-100"
-      style={{ background: `linear-gradient(135deg, ${colors.primary}08 0%, transparent 50%, ${colors.accent}06 100%)` }}
       aria-label="Trust indicators"
     >
       <div className="mx-auto max-w-[var(--design-container-max)] px-6 py-5 lg:px-12">

@@ -107,7 +107,12 @@
       "Bash(copy \"pages\\\\[channelSlug]\\\\global\\\\LocalizationSeoTab.tsx\" \"components\\\\pages\\\\global\\\\LocalizationSeoTab.tsx\")",
       "Bash(copy \"pages\\\\[channelSlug]\\\\global\\\\IntegrationsToolsTab.tsx\" \"components\\\\pages\\\\global\\\\IntegrationsToolsTab.tsx\")",
       "Bash(copy \"pages\\\\[channelSlug]\\\\global\\\\GlobalFeaturesTab.tsx\" \"components\\\\pages\\\\global\\\\GlobalFeaturesTab.tsx\")",
-      "Bash(copy \"pages\\\\[channelSlug]\\\\global\\\\GlobalContentTab.tsx\" \"components\\\\pages\\\\global\\\\GlobalContentTab.tsx\")"
+      "Bash(copy \"pages\\\\[channelSlug]\\\\global\\\\GlobalContentTab.tsx\" \"components\\\\pages\\\\global\\\\GlobalContentTab.tsx\")",
+      "Bash(npx tsx:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(test:*)",
+      "Bash(npx patch-package:*)",
+      "Bash(npx @saleor/configurator deploy:*)"
     ],
     "deny": [
       "Read(./.env*)",

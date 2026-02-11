@@ -19,16 +19,6 @@ interface FlashDealsProps {
   saleEndDate?: string | null;
 }
 
-// Default values when config is not available
-const DEFAULTS = {
-  enabled: true,
-  title: "Flash Deals",
-  subtitle: "Limited time offers",
-  badgeTemplate: "Up to {discount}% OFF",
-  collectionSlug: "sale",
-  maxProducts: 8,
-};
-
 /**
  * FlashDeals - Sale products showcase with discount badges
  * Now uses the unified HomepageProductCard with standard badge system.
@@ -70,13 +60,12 @@ export function FlashDeals({ products, channel, maxDiscount, saleEndDate }: Flas
     }
   }, [addItem, removeItem, isInWishlist, channel]);
 
-  // Use config values with defaults fallback
-  const enabled = config?.enabled ?? DEFAULTS.enabled;
-  const title = config?.title ?? contentConfig.homepage.onSaleTitle ?? DEFAULTS.title;
-  const subtitle = config?.subtitle ?? contentConfig.homepage.onSaleSubtitle ?? DEFAULTS.subtitle;
-  const badgeTemplate = config?.badgeTemplate ?? contentConfig.homepage.upToPercentOffText ?? DEFAULTS.badgeTemplate;
-  const collectionSlug = config?.collectionSlug ?? DEFAULTS.collectionSlug;
-  const maxProducts = config?.maxProducts ?? DEFAULTS.maxProducts;
+  // Use config values with fallback chain
+  const enabled = config?.enabled ?? true;
+  const title = config?.title ?? contentConfig.homepage.onSaleTitle ?? "";
+  const subtitle = config?.subtitle ?? contentConfig.homepage.onSaleSubtitle ?? "";
+  const badgeTemplate = config?.badgeTemplate ?? contentConfig.homepage.upToPercentOffText ?? "Up to {discount}% OFF";
+  const maxProducts = config?.maxProducts ?? 8;
 
   // Get translated content from config
   const homepageContent = contentConfig.homepage;
@@ -98,14 +87,14 @@ export function FlashDeals({ products, channel, maxDiscount, saleEndDate }: Flas
   // Hide if explicitly disabled or no products
   if (!enabled || products.length === 0) return null;
 
-  const storeName = storeInfo.name || "Store";
+  const storeName = storeInfo.name || "";
   const saleItems = products.slice(0, maxProducts);
 
   // Format badge with actual discount
   const badgeText = badgeTemplate.replace("{discount}", String(maxDiscount));
 
   return (
-    <section className="border-b border-neutral-100 bg-white py-20" aria-label="Flash deals section">
+    <section className="border-b border-neutral-100 py-20" aria-label="Flash deals section">
       <div className="mx-auto max-w-[var(--design-container-max)] px-6 lg:px-12">
         {/* Header */}
         <div className="mb-12 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
@@ -129,7 +118,7 @@ export function FlashDeals({ products, channel, maxDiscount, saleEndDate }: Flas
             )}
           </div>
           <Link
-            href={`/${encodeURIComponent(channel)}/products?collections=${collectionSlug}`}
+            href={`/${encodeURIComponent(channel)}/products?onSale=true`}
             className="group inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-neutral-900"
           >
             {viewAllOffersText}

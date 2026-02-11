@@ -390,6 +390,41 @@ docker compose -f infra/docker-compose.dev.yml ps
 
 **Restart**: Use service name `saleor-bulk-manager-app` (not container name with `-dev` suffix)
 
+### Catalog Generator (`scripts/catalog-generator/`)
+
+**Purpose**: Infrastructure-as-code for store setup + product catalog generation. Uses `@saleor/configurator` (patched) to manage product types, attributes, warehouses, and shipping zones via YAML, then generates product Excel/CSVs for Bulk Manager import.
+
+**Runs on host machine** (not Docker). Connects via `SALEOR_URL` + `SALEOR_TOKEN` in `.env`.
+
+**Commands**:
+
+```bash
+cd scripts/catalog-generator
+npm run setup         # Full pipeline: deploy + translate + generate
+npm run deploy:ci     # Apply config.yml to Saleor (non-interactive)
+npm run diff          # Preview changes (dry run)
+npm run introspect    # Pull current state into config.yml
+npm run translate     # Hebrew translations for categories/collections
+npm run generate      # Product Excel + CSVs for Bulk Manager
+```
+
+**Key files**:
+
+- `config.yml` — Store infrastructure definition (product types, attributes, warehouses, shipping)
+- `src/config/products.ts` — 100 product definitions (7 brands)
+- `src/config/categories.ts` — 35+ bilingual categories
+- `src/config/collections.ts` — 18 bilingual collections
+- `src/add-translations.ts` — Hebrew translation script
+- `patches/@saleor+configurator+1.1.0.patch` — SINGLE_REFERENCE support + shipping fix
+
+**Patches**: `@saleor/configurator` v1.1.0 is patched via `patch-package` (auto-applied on `npm install`) for:
+1. SINGLE_REFERENCE / MULTI_REFERENCE attribute type support
+2. Shipping zone `minimumOrderPrice` format fix
+
+**After `config.yml` changes**: Run `npm run diff` to preview, then `npm run deploy:ci` to apply.
+
+**After product/category/collection data changes**: Run `npm run generate` (and `npm run translate` if bilingual data changed).
+
 ## Post-Change Checklist
 
 After completing any changes, verify:

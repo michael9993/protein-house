@@ -1,0 +1,39 @@
+{
+  "name": "mansour-catalog-generator",
+  "version": "1.0.0",
+  "description": "Generate product catalog and manage store infrastructure for Mansour Shoes",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "tsx src/index.ts",
+    "generate": "tsx src/excel-generator.ts",
+    "introspect": "tsx src/run-configurator.ts introspect",
+    "diff": "tsx src/run-configurator.ts diff",
+    "deploy": "tsx src/run-configurator.ts deploy",
+    "deploy:ci": "tsx src/run-configurator.ts deploy --ci",
+    "translate": "tsx src/add-translations.ts",
+    "setup": "npm run deploy && npm run translate && npm run generate",
+    "postinstall": "patch-package"
+  },
+  "keywords": [
+    "saleor",
+    "catalog",
+    "excel",
+    "configurator"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@saleor/configurator": "^1.1.0",
+    "@types/node": "^22.0.0",
+    "dotenv": "^16.4.0",
+    "exceljs": "^4.4.0",
+    "graphql": "^16.9.0",
+    "graphql-request": "^7.1.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "patch-package": "^8.0.1"
+  }
+}

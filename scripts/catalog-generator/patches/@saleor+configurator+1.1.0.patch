@@ -1,0 +1,154 @@
+diff --git a/node_modules/@saleor/configurator/dist/chunk-AO6IXTMK.js b/node_modules/@saleor/configurator/dist/chunk-AO6IXTMK.js
+index 47f472f..33c74c9 100644
+--- a/node_modules/@saleor/configurator/dist/chunk-AO6IXTMK.js
++++ b/node_modules/@saleor/configurator/dist/chunk-AO6IXTMK.js
+@@ -1781,9 +1781,10 @@ var AttributesComparator = class extends BaseEntityComparator {
+     if (local.inputType !== remote.inputType) {
+       changes.push(this.createFieldChange("inputType", remote.inputType, local.inputType));
+     }
+-    if (local.inputType === "REFERENCE" || remote.inputType === "REFERENCE") {
+-      const l = local.inputType === "REFERENCE" ? local.entityType : void 0;
+-      const r = remote.inputType === "REFERENCE" ? remote.entityType : void 0;
++    const isRef = (t) => ["REFERENCE", "SINGLE_REFERENCE", "MULTI_REFERENCE"].includes(t);
++    if (isRef(local.inputType) || isRef(remote.inputType)) {
++      const l = isRef(local.inputType) ? local.entityType : void 0;
++      const r = isRef(remote.inputType) ? remote.entityType : void 0;
+       if (l !== r) {
+         changes.push(this.createFieldChange("entityType", r, l));
+       }
+@@ -4021,7 +4022,7 @@ var createAttributeInput = (input) => {
+     slug: input.name.toLowerCase().replace(/ /g, "-"),
+     inputType: input.inputType
+   };
+-  if (input.inputType === "REFERENCE") {
++  if (input.inputType === "REFERENCE" || input.inputType === "SINGLE_REFERENCE" || input.inputType === "MULTI_REFERENCE") {
+     if (!input.entityType) {
+       throw new AttributeValidationError(
+         `Entity type is required for reference attribute ${input.name}`
+@@ -6304,7 +6305,7 @@ var ConfigurationService = class {
+     return inputType === "PLAIN_TEXT" || inputType === "NUMERIC" || inputType === "DATE" || inputType === "BOOLEAN" || inputType === "RICH_TEXT" || inputType === "DATE_TIME" || inputType === "FILE";
+   }
+   isReferenceAttribute(inputType) {
+-    return inputType === "REFERENCE";
++    return inputType === "REFERENCE" || inputType === "SINGLE_REFERENCE" || inputType === "MULTI_REFERENCE";
+   }
+   mapAttribute(attribute, attributeType) {
+     invariant(attribute.name, "Unable to retrieve attribute name");
+@@ -6325,7 +6326,7 @@ var ConfigurationService = class {
+     if (this.isReferenceAttribute(attribute.inputType)) {
+       return {
+         name: attribute.name,
+-        inputType: "REFERENCE",
++        inputType: attribute.inputType,
+         entityType: attribute.entityType || "PRODUCT",
+         type: attributeType
+       };
+@@ -6368,10 +6369,10 @@ var ConfigurationService = class {
+         const values = (node.choices?.edges || []).map((e) => e?.node?.name).filter((n) => !!n).map((name) => ({ name }));
+         return { name: node.name, inputType, type, values };
+       }
+-      if (inputType === "REFERENCE") {
++      if (inputType === "REFERENCE" || inputType === "SINGLE_REFERENCE" || inputType === "MULTI_REFERENCE") {
+         return {
+           name: node.name,
+-          inputType: "REFERENCE",
++          inputType,
+           type,
+           entityType: node.entityType ?? "PRODUCT"
+         };
+@@ -7560,7 +7561,7 @@ var multipleValuesAttributeSchema = baseAttributeSchema.extend({
+   values: z2.array(attributeValueSchema)
+ });
+ var referenceAttributeSchema = baseAttributeSchema.extend({
+-  inputType: z2.literal("REFERENCE"),
++  inputType: z2.enum(["REFERENCE", "SINGLE_REFERENCE", "MULTI_REFERENCE"]),
+   entityType: z2.enum(["PAGE", "PRODUCT", "PRODUCT_VARIANT"])
+ });
+ var singleAttributeSchema = baseAttributeSchema.extend({
+@@ -9652,7 +9653,7 @@ var PageTypeService = class {
+         attributesCount: updateInput.attributes.length
+       });
+       for (const attr of updateInput.attributes) {
+-        if (!isReferencedAttribute(attr) && "inputType" in attr && attr.inputType === "REFERENCE") {
++        if (!isReferencedAttribute(attr) && "inputType" in attr && (attr.inputType === "REFERENCE" || attr.inputType === "SINGLE_REFERENCE" || attr.inputType === "MULTI_REFERENCE")) {
+           if (!("entityType" in attr) || !attr.entityType) {
+             throw new PageTypeAttributeValidationError(
+               `Attribute "${attr.name}" is a REFERENCE type but missing required 'entityType'. Please specify entityType as "PAGE", "PRODUCT", or "PRODUCT_VARIANT" in your config.`,
+@@ -9856,6 +9857,8 @@ var ATTRIBUTE_INPUT_TYPES = {
+   MULTISELECT: "MULTISELECT",
+   SWATCH: "SWATCH",
+   REFERENCE: "REFERENCE",
++  SINGLE_REFERENCE: "SINGLE_REFERENCE",
++  MULTI_REFERENCE: "MULTI_REFERENCE",
+   NUMERIC: "NUMERIC",
+   DATE: "DATE",
+   DATE_TIME: "DATE_TIME",
+@@ -9992,7 +9995,7 @@ var DropdownAttributeHandler = class extends AttributeHandler {
+ };
+ var ReferenceAttributeHandler = class extends AttributeHandler {
+   canHandle(inputType) {
+-    return inputType === ATTRIBUTE_INPUT_TYPES.REFERENCE;
++    return inputType === ATTRIBUTE_INPUT_TYPES.REFERENCE || inputType === ATTRIBUTE_INPUT_TYPES.SINGLE_REFERENCE || inputType === ATTRIBUTE_INPUT_TYPES.MULTI_REFERENCE;
+   }
+   async handle(value, context) {
+     const valueNames = this.normalizeToArray(value);
+@@ -12503,7 +12506,7 @@ var ProductTypeService = class {
+     });
+     const allAttributes = [...input.productAttributes || [], ...input.variantAttributes || []];
+     for (const attr of allAttributes) {
+-      if (!isReferencedAttribute(attr) && "inputType" in attr && attr.inputType === "REFERENCE") {
++      if (!isReferencedAttribute(attr) && "inputType" in attr && (attr.inputType === "REFERENCE" || attr.inputType === "SINGLE_REFERENCE" || attr.inputType === "MULTI_REFERENCE")) {
+         if (!("entityType" in attr) || !attr.entityType) {
+           throw new ProductTypeAttributeValidationError(
+             `Attribute "${attr.name}" is a REFERENCE type but missing required 'entityType'. Please specify entityType as "PAGE", "PRODUCT", or "PRODUCT_VARIANT" in your config.`,
+@@ -13513,14 +13516,8 @@ var ShippingZoneService = class {
+           addChannels: method.channelListings.map((listing, index) => ({
+             channelId: channelIds[index],
+             price: listing.price?.toString(),
+-            minimumOrderPrice: listing.minimumOrderPrice ? {
+-              amount: listing.minimumOrderPrice,
+-              currency: listing.currency || "USD"
+-            } : void 0,
+-            maximumOrderPrice: listing.maximumOrderPrice ? {
+-              amount: listing.maximumOrderPrice,
+-              currency: listing.currency || "USD"
+-            } : void 0
++            minimumOrderPrice: listing.minimumOrderPrice != null ? listing.minimumOrderPrice.toString() : void 0,
++            maximumOrderPrice: listing.maximumOrderPrice != null ? listing.maximumOrderPrice.toString() : void 0
+           }))
+         };
+         await this.repository.updateShippingMethodChannelListing(
+@@ -13562,14 +13559,8 @@ var ShippingZoneService = class {
+             addChannels: desiredMethod.channelListings.map((listing, index) => ({
+               channelId: channelIds[index],
+               price: listing.price?.toString(),
+-              minimumOrderPrice: listing.minimumOrderPrice ? {
+-                amount: listing.minimumOrderPrice,
+-                currency: listing.currency || "USD"
+-              } : void 0,
+-              maximumOrderPrice: listing.maximumOrderPrice ? {
+-                amount: listing.maximumOrderPrice,
+-                currency: listing.currency || "USD"
+-              } : void 0
++              minimumOrderPrice: listing.minimumOrderPrice != null ? listing.minimumOrderPrice.toString() : void 0,
++              maximumOrderPrice: listing.maximumOrderPrice != null ? listing.maximumOrderPrice.toString() : void 0
+             }))
+           };
+           await this.repository.updateShippingMethodChannelListing(
+@@ -13589,14 +13580,8 @@ var ShippingZoneService = class {
+             addChannels: desiredMethod.channelListings.map((listing, index) => ({
+               channelId: channelIds[index],
+               price: listing.price?.toString(),
+-              minimumOrderPrice: listing.minimumOrderPrice ? {
+-                amount: listing.minimumOrderPrice,
+-                currency: listing.currency || "USD"
+-              } : void 0,
+-              maximumOrderPrice: listing.maximumOrderPrice ? {
+-                amount: listing.maximumOrderPrice,
+-                currency: listing.currency || "USD"
+-              } : void 0
++              minimumOrderPrice: listing.minimumOrderPrice != null ? listing.minimumOrderPrice.toString() : void 0,
++              maximumOrderPrice: listing.maximumOrderPrice != null ? listing.maximumOrderPrice.toString() : void 0
+             }))
+           };
+           await this.repository.updateShippingMethodChannelListing(

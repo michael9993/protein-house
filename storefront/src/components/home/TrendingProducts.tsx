@@ -15,14 +15,6 @@ interface TrendingProductsProps {
   subtitle?: string;
 }
 
-// Default values when config is not available
-const DEFAULTS = {
-  enabled: true,
-  title: "Trending now",
-  subtitle: "Community favorites and fresh drops",
-  maxProducts: 4,
-};
-
 /**
  * TrendingProducts - V6-style trending/new arrivals section
  * Left-aligned header matching BestSellers / FlashDeals pattern.
@@ -64,15 +56,15 @@ export function TrendingProducts({ products, channel, title, subtitle }: Trendin
     }
   }, [addItem, removeItem, isInWishlist, channel]);
 
-  // Use config values with defaults fallback
-  const enabled = config?.enabled ?? DEFAULTS.enabled;
-  const maxProducts = config?.maxProducts ?? DEFAULTS.maxProducts;
+  // Use config values with fallback chain
+  const enabled = config?.enabled ?? true;
+  const maxProducts = config?.maxProducts ?? 4;
 
-  // Priority: props > config > content config > defaults
-  const displayTitle = title || config?.title || contentConfig.homepage.newArrivalsTitle || DEFAULTS.title;
-  const displaySubtitle = subtitle || config?.subtitle || contentConfig.homepage.newArrivalsSubtitle || DEFAULTS.subtitle;
+  // Priority: props > config > content config
+  const displayTitle = title || config?.title || contentConfig.homepage.newArrivalsTitle || "";
+  const displaySubtitle = subtitle || config?.subtitle || contentConfig.homepage.newArrivalsSubtitle || "";
 
-  const storeName = storeInfo.name || "Mansour Shoes";
+  const storeName = storeInfo.name || "";
 
   // Get translated content from config
   const homepageContent = contentConfig.homepage;
@@ -96,7 +88,7 @@ export function TrendingProducts({ products, channel, title, subtitle }: Trendin
   const displayProducts = products.slice(0, maxProducts);
 
   return (
-    <section className="bg-white py-20" aria-label="Trending products">
+    <section className="py-20" aria-label="Trending products">
       <div className="mx-auto max-w-[var(--design-container-max)] px-6 lg:px-12">
         {/* V6-style section header — matching BestSellers / FlashDeals */}
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">

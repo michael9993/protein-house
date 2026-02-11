@@ -13,19 +13,6 @@ export const BRAND_IMAGE_ATTRIBUTE_SLUGS = ["brand-image", "brand-logo", "brand_
 export const deriveBrandSlug = (name: string): string =>
   name.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 
-export const FALLBACK_BRANDS = [
-  "Adidas", "Nike", "Reebok", "New Balance", "Converse",
-  "Vans", "Asics", "Crocs", "Dr. Martens", "On", "Under Armour",
-];
-
-export const FALLBACK_CATEGORIES = [
-  { name: "Running", desc: "Lightweight pace and distance." },
-  { name: "Training", desc: "Stability, grip, and power." },
-  { name: "Court", desc: "Fast cuts and control." },
-  { name: "Outdoor", desc: "Weather-ready traction." },
-  { name: "Recovery", desc: "Post-session comfort." },
-  { name: "Studio", desc: "Precision fits for movement." },
-];
 
 export type BadgeTone = "primary" | "accent" | "muted" | "warning" | "dark";
 
@@ -51,30 +38,6 @@ export interface DashboardCategory {
   children?: DashboardCategoryChild[];
 }
 
-/** Placeholder categories for demo/fallback */
-export const PLACEHOLDER_CATEGORIES: DashboardCategory[] = [
-  { id: "1", name: "Running Shoes", slug: "running-shoes", productCount: 45, children: [
-    { id: "1a", name: "Road Running", slug: "road-running", productCount: 20 },
-    { id: "1b", name: "Trail Running", slug: "trail-running", productCount: 15 },
-    { id: "1c", name: "Track & Field", slug: "track-field", productCount: 10 },
-  ]},
-  { id: "2", name: "Training Gear", slug: "training-gear", productCount: 38, children: [
-    { id: "2a", name: "Gym Shoes", slug: "gym-shoes", productCount: 22 },
-    { id: "2b", name: "Cross Training", slug: "cross-training", productCount: 16 },
-  ]},
-  { id: "3", name: "Sportswear", slug: "sportswear", productCount: 62, children: [
-    { id: "3a", name: "T-Shirts", slug: "t-shirts", productCount: 30 },
-    { id: "3b", name: "Pants & Shorts", slug: "pants-shorts", productCount: 20 },
-    { id: "3c", name: "Jackets", slug: "jackets", productCount: 12 },
-  ]},
-  { id: "4", name: "Accessories", slug: "accessories", productCount: 54, children: [
-    { id: "4a", name: "Bags", slug: "bags", productCount: 18 },
-    { id: "4b", name: "Socks", slug: "socks", productCount: 24 },
-    { id: "4c", name: "Hats & Caps", slug: "hats-caps", productCount: 12 },
-  ]},
-  { id: "5", name: "Basketball", slug: "basketball", productCount: 29 },
-  { id: "6", name: "Soccer", slug: "soccer", productCount: 41 },
-];
 
 export const badgeToneClasses: Record<BadgeTone, string> = {
   primary: "bg-[var(--badge-new-bg)] text-[var(--badge-new-text)]",

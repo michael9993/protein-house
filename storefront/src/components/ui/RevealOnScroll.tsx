@@ -13,6 +13,12 @@ export const RevealOnScroll: React.FC<RevealOnScrollProps> = ({ children, classN
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // On mobile (< 768px), use a generous rootMargin so sections
+    // trigger earlier while scrolling — the element starts observing
+    // 80px before it enters the viewport. On desktop, use a small
+    // threshold so sections reveal once slightly visible.
+    const isMobile = window.innerWidth < 768;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -22,7 +28,9 @@ export const RevealOnScroll: React.FC<RevealOnScrollProps> = ({ children, classN
           observer.disconnect();
         }
       },
-      { threshold: 0.15 } // Slightly higher threshold to ensure it doesn't trigger too early
+      isMobile
+        ? { rootMargin: "80px 0px", threshold: 0.01 }
+        : { threshold: 0.15 },
     );
 
     if (ref.current) {

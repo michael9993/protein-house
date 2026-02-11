@@ -12,16 +12,6 @@ interface BrandGridProps {
   channel: string;
 }
 
-// Default values when config is not available
-const DEFAULTS = {
-  enabled: true,
-  title: "Multi-brand shelf",
-  subtitle: "Handpicked assortments across running, training, court, and recovery.",
-  maxBrands: 8,
-  showLogos: true,
-  layout: "grid" as const,
-};
-
 /**
  * BrandGrid - Display featured brand partners in a clean e-commerce grid.
  * Brand logos come from Saleor Pages (brand-logo file attribute).
@@ -32,11 +22,11 @@ export function BrandGrid({ brands, channel }: BrandGridProps) {
   const config = useBrandGridConfig();
   const contentConfig = useContentConfig();
 
-  // Use config values with defaults fallback
-  const enabled = config?.enabled ?? DEFAULTS.enabled;
-  const title = config?.title ?? contentConfig.homepage.brandsTitle ?? DEFAULTS.title;
-  const subtitle = config?.subtitle ?? contentConfig.homepage.brandsSubtitle ?? DEFAULTS.subtitle;
-  const maxBrands = config?.maxBrands ?? DEFAULTS.maxBrands;
+  // Use config values with fallback chain
+  const enabled = config?.enabled ?? true;
+  const title = config?.title ?? contentConfig.homepage.brandsTitle ?? "";
+  const subtitle = config?.subtitle ?? contentConfig.homepage.brandsSubtitle ?? "";
+  const maxBrands = config?.maxBrands ?? 8;
 
   // Get translated content from config
   const homepageContent = contentConfig.homepage;
@@ -49,7 +39,7 @@ export function BrandGrid({ brands, channel }: BrandGridProps) {
 
   return (
     <section
-      className="border-b border-neutral-100 bg-white"
+      className="border-b border-neutral-100"
       aria-label="Featured brands"
     >
       <div className="mx-auto max-w-[var(--design-container-max)] px-6 py-16 lg:px-12">

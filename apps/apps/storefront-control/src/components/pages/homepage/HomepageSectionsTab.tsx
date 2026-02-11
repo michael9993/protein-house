@@ -27,6 +27,75 @@ import { SortableSectionList } from "@/components/homepage-builder/SortableSecti
 import { DEFAULT_SECTION_ORDER } from "@/modules/config/schema";
 import type { HomepageFormData, HomepageSectionsTabProps } from "./types";
 
+/**
+ * Reusable background editor for homepage sections.
+ * Renders style selector + color pickers based on selected style.
+ */
+function SectionBackgroundFields({
+  sectionKey,
+  register,
+  control,
+  watch,
+  errors,
+}: {
+  sectionKey: string;
+  register: HomepageSectionsTabProps["register"];
+  control: HomepageSectionsTabProps["control"];
+  watch: HomepageSectionsTabProps["watch"];
+  errors: HomepageSectionsTabProps["errors"];
+}) {
+  const basePath = `homepage.sections.${sectionKey}.background` as const;
+  const style = watch(`${basePath}.style` as keyof HomepageFormData) as unknown as string | undefined;
+
+  return (
+    <FormSection
+      title="Background"
+      description="Section background style and colors"
+      collapsible
+      defaultExpanded={false}
+    >
+      <FormSelect<HomepageFormData>
+        label="Style"
+        name={`${basePath}.style` as keyof HomepageFormData}
+        control={control}
+        options={[
+          { value: "none", label: "None (transparent)" },
+          { value: "solid", label: "Solid Color" },
+          { value: "gradient", label: "Gradient" },
+          { value: "color-mix", label: "Color Mix (brand tint)" },
+        ]}
+      />
+      {style && style !== "none" && (
+        <FieldGroup columns={2}>
+          <FormColorPicker<HomepageFormData>
+            label="Color"
+            name={`${basePath}.color` as keyof HomepageFormData}
+            control={control}
+          />
+          {style === "gradient" && (
+            <FormColorPicker<HomepageFormData>
+              label="Secondary Color"
+              name={`${basePath}.secondaryColor` as keyof HomepageFormData}
+              control={control}
+            />
+          )}
+          {style === "color-mix" && (
+            <FormSlider<HomepageFormData>
+              label="Mix %"
+              name={`${basePath}.mixPercentage` as keyof HomepageFormData}
+              control={control}
+              min={1}
+              max={20}
+              unit="%"
+              description="How much brand color to mix in"
+            />
+          )}
+        </FieldGroup>
+      )}
+    </FormSection>
+  );
+}
+
 export function HomepageSectionsTab({
   register,
   control,
@@ -117,6 +186,8 @@ export function HomepageSectionsTab({
                 placeholder="/products"
               />
             </FieldGroup>
+
+            <SectionBackgroundFields sectionKey="hero" register={register} control={control} watch={watch} errors={errors} />
 
             {/* Background Media — Coming Soon */}
             <FormSection
@@ -246,6 +317,7 @@ export function HomepageSectionsTab({
                 placeholder="24/7 Support"
               />
             </FieldGroup>
+            <SectionBackgroundFields sectionKey="trustStrip" register={register} control={control} watch={watch} errors={errors} />
           </div>
         )}
       </FormSection>
@@ -290,6 +362,7 @@ export function HomepageSectionsTab({
                 control={control}
               />
             </FieldGroup>
+            <SectionBackgroundFields sectionKey="marquee" register={register} control={control} watch={watch} errors={errors} />
           </div>
         )}
       </FormSection>
@@ -351,6 +424,7 @@ export function HomepageSectionsTab({
               control={control}
               description="Display brand logo images"
             />
+            <SectionBackgroundFields sectionKey="brandGrid" register={register} control={control} watch={watch} errors={errors} />
           </div>
         )}
       </FormSection>
@@ -418,6 +492,7 @@ export function HomepageSectionsTab({
               control={control}
               description="Display subcategory chips on category card hover/tap"
             />
+            <SectionBackgroundFields sectionKey="categories" register={register} control={control} watch={watch} errors={errors} />
           </div>
         )}
       </FormSection>
@@ -486,6 +561,7 @@ export function HomepageSectionsTab({
               control={control}
               description="If collection is empty, show newest products instead"
             />
+            <SectionBackgroundFields sectionKey="trending" register={register} control={control} watch={watch} errors={errors} />
           </div>
         )}
       </FormSection>
@@ -560,6 +636,7 @@ export function HomepageSectionsTab({
               control={control}
               description="Automatically show active Saleor discounts"
             />
+            <SectionBackgroundFields sectionKey="promotionBanner" register={register} control={control} watch={watch} errors={errors} />
           </div>
         )}
       </FormSection>
@@ -619,6 +696,7 @@ export function HomepageSectionsTab({
               min={4}
               max={12}
             />
+            <SectionBackgroundFields sectionKey="flashDeals" register={register} control={control} watch={watch} errors={errors} />
           </div>
         )}
       </FormSection>
@@ -673,6 +751,7 @@ export function HomepageSectionsTab({
                 max={8}
               />
             </FieldGroup>
+            <SectionBackgroundFields sectionKey="collectionMosaic" register={register} control={control} watch={watch} errors={errors} />
           </div>
         )}
       </FormSection>
@@ -742,6 +821,7 @@ export function HomepageSectionsTab({
               control={control}
               description="If collection is empty, show highest-rated products"
             />
+            <SectionBackgroundFields sectionKey="bestSellers" register={register} control={control} watch={watch} errors={errors} />
           </div>
         )}
       </FormSection>
@@ -801,6 +881,7 @@ export function HomepageSectionsTab({
               control={control}
               description="Display which product the review is for"
             />
+            <SectionBackgroundFields sectionKey="customerFeedback" register={register} control={control} watch={watch} errors={errors} />
           </div>
         )}
       </FormSection>
@@ -863,6 +944,7 @@ export function HomepageSectionsTab({
                 { value: "split", label: "Split (two-column)" },
               ]}
             />
+            <SectionBackgroundFields sectionKey="newsletter" register={register} control={control} watch={watch} errors={errors} />
           </div>
         )}
       </FormSection>
