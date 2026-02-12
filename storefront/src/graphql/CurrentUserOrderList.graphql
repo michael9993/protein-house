@@ -1,4 +1,4 @@
-query CurrentUserOrderList($first: Int = 10, $after: String) {
+query CurrentUserOrderList($first: Int = 10, $after: String, $languageCode: LanguageCodeEnum!) {
 	me {
 		...UserDetails
 		orders(first: $first, after: $after) {

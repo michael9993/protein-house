@@ -233,6 +233,7 @@ export const GeneralTextSchema = z.object({
   editButton: z.string(),
   // Breadcrumbs
   homeLabel: z.string(),                // "Home" (for breadcrumbs)
+  allProductsLabel: z.string(),         // "Products" (for breadcrumbs)
 });
 
 // Homepage section titles
@@ -289,6 +290,7 @@ export const HomepageTextSchema = z.object({
   viewAllBrandsButton: z.string(),        // "View all brands"
   viewAllOffersButton: z.string(),        // "View all offers" (flash deals)
   allCollectionsButton: z.string(),       // "All Collections" (collection mosaic)
+  viewAllButton: z.string(),              // "View All" (generic, used by trending/best sellers)
   itemsText: z.string(),                  // "items" (e.g., "{count} items")
   stylesText: z.string(),                 // "styles" (e.g., "{count} styles")
   performanceLineupText: z.string(),      // "Performance lineup" (brand card)

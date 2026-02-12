@@ -10,6 +10,7 @@ import {
 	StockAlertUnsubscribeDocument,
 } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
+import { getLanguageCodeForChannel } from "@/lib/language";
 import { formatMoney, formatMoneyRange } from "@/lib/utils";
 import * as Checkout from "@/lib/checkout";
 
@@ -66,8 +67,9 @@ export async function getProductDetailsForQuickView(
 	channel: string
 ): Promise<ProductDetailPayload | null> {
 	const decodedSlug = decodeURIComponent(slug);
+	const languageCode = getLanguageCodeForChannel(channel);
 	const { product } = await executeGraphQL(ProductDetailsDocument, {
-		variables: { slug: decodedSlug, channel },
+		variables: { slug: decodedSlug, channel, languageCode },
 		revalidate: 30,
 	});
 
@@ -75,8 +77,9 @@ export async function getProductDetailsForQuickView(
 		return null;
 	}
 
-	const description = product.description
-		? parser.parse(JSON.parse(product.description))
+	const rawDescription = product.translation?.description || product.description;
+	const description = rawDescription
+		? parser.parse(JSON.parse(rawDescription))
 		: null;
 	const descriptionHtml = description
 		? description.map((content: string) => xss(content)).join("")
@@ -115,14 +118,14 @@ export async function getProductDetailsForQuickView(
 	const productAttributes = (product as any).attributes?.map((a: any) => ({
 		attribute: {
 			id: a.attribute.id,
-			name: a.attribute.name || "",
+			name: a.attribute.translation?.name || a.attribute.name || "",
 			slug: a.attribute.slug || "",
 			inputType: a.attribute.inputType || null,
 			visibleInStorefront: true, // Saleor filters to visible-only for anonymous users
 		},
 		values: a.values.map((v: any) => ({
 			id: v.id,
-			name: v.name || "",
+			name: v.translation?.name || v.name || "",
 			slug: v.slug || "",
 			value: v.value || null,
 			richText: v.richText || null,
@@ -136,10 +139,10 @@ export async function getProductDetailsForQuickView(
 
 	return {
 		id: product.id,
-		name: product.name,
+		name: product.translation?.name || product.name,
 		slug: product.slug,
 		description: descriptionHtml,
-		category: product.category?.name || null,
+		category: product.category ? (product.category.translation?.name || product.category.name) : null,
 		categorySlug: product.category?.slug || null,
 		price,
 		originalPrice,
@@ -147,7 +150,7 @@ export async function getProductDetailsForQuickView(
 		images,
 		variants: variants.map((v) => ({
 			id: v.id,
-			name: v.name,
+			name: v.translation?.name || v.name,
 			quantityAvailable: v.quantityAvailable || 0,
 			trackInventory: (v as any).trackInventory ?? true,
 			quantityLimitPerCustomer: (v as any).quantityLimitPerCustomer ?? null,
@@ -155,13 +158,13 @@ export async function getProductDetailsForQuickView(
 				? v.attributes.map((attr) => ({
 						attribute: {
 							id: attr.attribute.id,
-							name: attr.attribute.name || "",
+							name: attr.attribute.translation?.name || attr.attribute.name || "",
 							slug: attr.attribute.slug || "",
 							inputType: (attr.attribute as any).inputType || null,
 						},
 						values: attr.values.map((val) => ({
 							id: val.id,
-							name: val.name || "",
+							name: val.translation?.name || val.name || "",
 							slug: val.slug || "",
 							value: (val as any).value || null,
 						})),
@@ -211,10 +214,13 @@ export async function addProductToCartAction(
 		}
 
 		// Single mutation — checkoutLinesAdd merges quantities for existing variants
+		const languageCode = getLanguageCodeForChannel(channel);
+
 		const result = await executeGraphQL(CheckoutAddLinesDocument, {
 			variables: {
 				id: checkoutId,
 				lines: [{ variantId: decodedVariantId, quantity }],
+				languageCode,
 			},
 			cache: "no-cache",
 		});
@@ -235,6 +241,7 @@ export async function addProductToCartAction(
 				variables: {
 					id: checkoutId,
 					lines: [{ variantId: decodedVariantId, quantity }],
+					languageCode,
 				},
 				cache: "no-cache",
 			});

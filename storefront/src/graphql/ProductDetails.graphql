@@ -1,7 +1,13 @@
-query ProductDetails($slug: String!, $channel: String!) {
+query ProductDetails($slug: String!, $channel: String!, $languageCode: LanguageCodeEnum!) {
 	product(slug: $slug, channel: $channel) {
 		id
 		name
+		translation(languageCode: $languageCode) {
+			name
+			description
+			seoTitle
+			seoDescription
+		}
 		slug
 		created
 		description
@@ -20,18 +26,21 @@ query ProductDetails($slug: String!, $channel: String!) {
 		category {
 			id
 			name
+			translation(languageCode: $languageCode) { name }
 			slug
 		}
 		attributes {
 			attribute {
 				id
 				name
+				translation(languageCode: $languageCode) { name }
 				slug
 				inputType
 			}
 			values {
 				id
 				name
+				translation(languageCode: $languageCode) { name }
 				slug
 				value
 				richText

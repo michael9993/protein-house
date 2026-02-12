@@ -315,7 +315,7 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
                       {line.variant.product.thumbnail?.url ? (
                         <Image
                           src={line.variant.product.thumbnail.url}
-                          alt={line.variant.product.thumbnail.alt ?? line.variant.product.name}
+                          alt={line.variant.product.thumbnail.alt ?? ((line.variant.product as any).translation?.name || line.variant.product.name)}
                           width={80}
                           height={80}
                           className="cart-drawer__item-img"
@@ -334,7 +334,7 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
                       <div className="cart-drawer__item-row flex justify-between items-start gap-2">
                         <div className="cart-drawer__info-col flex-1 min-w-0">
                           <Link href={`/${channel}/products/${line.variant.product.slug}`} className="cart-drawer__item-name" onClick={closeDrawer}>
-                            {line.variant.product.name}
+                            {(line.variant.product as any).translation?.name || line.variant.product.name}
                           </Link>
                           {(line as { isGift?: boolean }).isGift && (
                             <span className="ml-1.5 inline-flex items-center">
@@ -344,10 +344,10 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
                             </span>
                           )}
                           {line.variant.product.category && (
-                            <p className="text-xs text-gray-500">{line.variant.product.category.name}</p>
+                            <p className="text-xs text-gray-500">{(line.variant.product.category as any).translation?.name || line.variant.product.category.name}</p>
                           )}
-                          {line.variant.name !== line.variant.product.name && (
-                            <p className="text-xs text-gray-500">{line.variant.name}</p>
+                          {((line.variant as any).translation?.name || line.variant.name) !== ((line.variant.product as any).translation?.name || line.variant.product.name) && (
+                            <p className="text-xs text-gray-500">{(line.variant as any).translation?.name || line.variant.name}</p>
                           )}
                           {onSale && (
                             <span className="inline-block mt-1 px-2 py-0.5 text-xs font-semibold rounded"

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { SearchIcon, XIcon } from "lucide-react";
 import { SearchAutocomplete } from "./SearchAutocomplete";
 import { useContentConfig } from "@/providers/StoreConfigProvider";
+import { buildProductsUrl, withChannel } from "@/lib/urls";
 
 interface SearchBarProps {
   channel: string;
@@ -34,7 +35,7 @@ export function SearchBar({ channel, initialQuery = "" }: SearchBarProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim().length > 0) {
-      router.push(`/${encodeURIComponent(channel)}/products?search=${encodeURIComponent(query)}`);
+      router.push(withChannel(channel, buildProductsUrl({ search: query })));
       setIsOpen(false);
     }
   };

@@ -6,8 +6,10 @@ import { useRef, useCallback } from "react";
 import { Heart } from "lucide-react";
 import { type ProductListItemFragment } from "@/gql/graphql";
 import { formatMoneyRange } from "@/lib/utils";
+import { t } from "@/lib/language";
 import { ShareButton } from "@/ui/components/ProductSharing";
 import { useBadgeStyle, useContentConfig } from "@/providers/StoreConfigProvider";
+import { buildProductUrl, withChannel } from "@/lib/urls";
 import {
 	getProductImage,
 	getProductAlt,
@@ -122,7 +124,7 @@ export function HomepageProductCard({
 
 	return (
 		<Link
-			href={`/${encodeURIComponent(channel)}/products/${product.slug}`}
+			href={withChannel(channel, buildProductUrl(product.slug))}
 			className={`group relative flex h-full flex-col overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm transition-all duration-300 ${getCardHoverClasses(cardConfig.hoverEffect)}`}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
@@ -179,7 +181,7 @@ export function HomepageProductCard({
 					)}
 					<ShareButton
 						variant="icon"
-						productName={product.name}
+						productName={t(product)}
 						productSlug={product.slug}
 						productImage={getProductImage(product) || null}
 						className="flex h-9 w-9 items-center justify-center rounded-full border border-white/60 bg-white/90 shadow-sm text-neutral-500 transition-all duration-200 hover:scale-110 hover:shadow-md hover:text-neutral-700"
@@ -222,12 +224,12 @@ export function HomepageProductCard({
 			{/* Product info */}
 			<div className="border-t border-neutral-100 px-5 pb-5 pt-4">
 				<h3 className="line-clamp-2 text-sm font-black uppercase tracking-tight text-neutral-900">
-					{product.name}
+					{t(product)}
 				</h3>
 				<div className="mt-2 flex items-center justify-between">
 					<div>
 						<div className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">
-							{product.category?.name ?? performanceFallback}
+							{(product.category ? t(product.category) : null) ?? performanceFallback}
 						</div>
 						<div className="mt-2 text-lg font-black" style={{ color: accent }}>
 							{priceRange || "N/A"}

@@ -1,6 +1,7 @@
 import { UserMenu } from "./UserMenu";
 import { CurrentUserDocument, type CurrentUserQuery, CurrentUserOrderListDocument, CurrentUserAddressesDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
+import { getLanguageCodeForChannel } from "@/lib/language";
 import { isAuthOrRscContextError } from "@/lib/auth-errors";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { fetchStorefrontConfig } from "@/lib/storefront-control";
@@ -27,9 +28,10 @@ export async function UserMenuContainer({ channel }: { channel: string }) {
 
 	if (user) {
 		// Fetch counts for orders and addresses
+		const languageCode = getLanguageCodeForChannel(channel);
 		const [ordersResult, addressesResult] = await Promise.all([
 			executeGraphQL(CurrentUserOrderListDocument, {
-				variables: { first: 1 }, // Just need the count
+				variables: { first: 1, languageCode }, // Just need the count
 				cache: "no-cache",
 			}).catch(() => ({ me: { orders: { totalCount: 0 } } })),
 			executeGraphQL(CurrentUserAddressesDocument, {

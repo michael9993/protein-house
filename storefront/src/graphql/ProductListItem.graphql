@@ -1,7 +1,11 @@
 # Product creation date (for "New" badge logic)
+# Requires $languageCode: LanguageCodeEnum! in parent query
 fragment ProductListItem on Product {
 	id
 	name
+	translation(languageCode: $languageCode) {
+		name
+	}
 	slug
 	created
 	pricing {
@@ -37,11 +41,17 @@ fragment ProductListItem on Product {
 	category {
 		id
 		name
+		translation(languageCode: $languageCode) {
+			name
+		}
 		slug
 	}
 	collections {
 		id
 		name
+		translation(languageCode: $languageCode) {
+			name
+		}
 		slug
 	}
 	thumbnail(size: 1024, format: WEBP) {
@@ -56,11 +66,17 @@ fragment ProductListItem on Product {
 		attribute {
 			id
 			name
+			translation(languageCode: $languageCode) {
+				name
+			}
 			slug
 		}
 		values {
 			id
 			name
+			translation(languageCode: $languageCode) {
+				name
+			}
 			slug
 			file {
 				url

@@ -6,6 +6,7 @@ import { ChevronRightIcon } from "lucide-react";
 import Image from "next/image";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { useBranding, useContentConfig } from "@/providers/StoreConfigProvider";
+import { buildCategoryUrl, buildCollectionUrl, buildBrandUrl } from "@/lib/urls";
 import { useInMobileMenu } from "./MobileMenuContext";
 import { type CategoryWithChildren } from "./NavLinksClient";
 import { parseDescription } from "@/components/home/utils";
@@ -88,7 +89,7 @@ function CategoryNavItem({
 
   return (
     <LinkWithChannel
-      href={`/products?categories=${category.slug}`}
+      href={buildCategoryUrl(category.slug)}
       onClick={handleClick}
       className="group/cat flex w-full items-center gap-2 rounded-e-lg py-3 pe-4 ps-5 text-[15px] transition-all duration-150 cursor-pointer"
       style={{
@@ -131,7 +132,7 @@ function SubcategoryCard({
 }) {
   return (
     <LinkWithChannel
-      href={`/products?categories=${subcategory.slug}`}
+      href={buildCategoryUrl(subcategory.slug)}
       onClick={onClose}
       className="group/sub mega-menu-crossfade flex flex-col rounded-lg border border-neutral-100 bg-neutral-50/50 px-4 py-4 transition-all duration-150 hover:border-neutral-200 hover:-translate-y-0.5 cursor-pointer"
       style={{
@@ -173,7 +174,7 @@ function BrandPill({
 }) {
   return (
     <LinkWithChannel
-      href={`/products?brands=${brand.slug}`}
+      href={buildBrandUrl(brand.slug)}
       onClick={onClose}
       className="inline-flex rounded-full border border-neutral-200 bg-white px-3.5 py-2 text-sm font-medium text-neutral-600 transition-all duration-150 hover:text-neutral-900 cursor-pointer"
       onMouseEnter={(e) => {
@@ -262,7 +263,7 @@ function MegaMenuLeftPanel({
             {collections.map((col) => (
               <li key={col.id}>
                 <LinkWithChannel
-                  href={`/products?collections=${col.slug}`}
+                  href={buildCollectionUrl(col.slug)}
                   onClick={onClose}
                   className="block truncate px-5 py-2.5 text-sm font-normal text-neutral-600 transition-all duration-150 hover:text-neutral-900 hover:ps-6 cursor-pointer"
                 >
@@ -394,7 +395,7 @@ function MegaMenuCenterPanel({
               </p>
             )}
             <LinkWithChannel
-              href={`/products?categories=${activeCategory.slug}`}
+              href={buildCategoryUrl(activeCategory.slug)}
               onClick={onClose}
               className="inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:opacity-90 cursor-pointer"
               style={{ backgroundColor: primaryColor }}
@@ -477,7 +478,7 @@ function MegaMenuRightPanel({
             </p>
           )}
           <LinkWithChannel
-            href={`/products?categories=${activeCategory.slug}`}
+            href={buildCategoryUrl(activeCategory.slug)}
             onClick={onClose}
             className="mega-menu-crossfade mt-4 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-200 hover:bg-white/25 cursor-pointer"
             style={{ animationDelay: "100ms" }}
@@ -532,7 +533,7 @@ function MobileCategoryTree({
           return (
             <li key={item.id}>
               <LinkWithChannel
-                href={`/products?categories=${item.slug}`}
+                href={buildCategoryUrl(item.slug)}
                 onClick={onClose}
                 className="block rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-700 transition-colors duration-200 hover:bg-neutral-100 hover:text-neutral-900 active:bg-neutral-200"
               >
@@ -859,7 +860,7 @@ export function ShopAllDropdown({ categories, collections, brands, channel }: Sh
                   {collections.map((c) => (
                     <li key={c.id}>
                       <LinkWithChannel
-                        href={`/products?collections=${c.slug}`}
+                        href={buildCollectionUrl(c.slug)}
                         onClick={closeMobile}
                         className="block py-2 text-sm font-medium text-neutral-700 hover:text-neutral-900"
                       >
@@ -879,7 +880,7 @@ export function ShopAllDropdown({ categories, collections, brands, channel }: Sh
                   {brands.map((b) => (
                     <li key={b.id}>
                       <LinkWithChannel
-                        href={`/products?brands=${b.slug}`}
+                        href={buildBrandUrl(b.slug)}
                         onClick={closeMobile}
                         className="block py-2 text-sm font-medium text-neutral-700 hover:text-neutral-900"
                       >

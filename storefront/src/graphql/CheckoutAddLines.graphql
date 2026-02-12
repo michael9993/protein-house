@@ -1,5 +1,5 @@
 # Mutation to add multiple lines to checkout at once
-mutation CheckoutAddLines($id: ID!, $lines: [CheckoutLineInput!]!) {
+mutation CheckoutAddLines($id: ID!, $lines: [CheckoutLineInput!]!, $languageCode: LanguageCodeEnum!) {
 	checkoutLinesAdd(id: $id, lines: $lines) {
 		checkout {
 			id
@@ -9,8 +9,10 @@ mutation CheckoutAddLines($id: ID!, $lines: [CheckoutLineInput!]!) {
 				variant {
 					id
 					name
+					translation(languageCode: $languageCode) { name }
 					product {
 						name
+						translation(languageCode: $languageCode) { name }
 						slug
 					}
 				}

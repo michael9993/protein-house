@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { executeGraphQL } from "@/lib/graphql";
 import { MenuGetBySlugDocument, CategoriesForNavDocument } from "@/gql/graphql";
+import { getLanguageCodeForChannel } from "@/lib/language";
 import { fetchStorefrontConfig } from "@/lib/storefront-control";
 import { storeConfig } from "@/config";
 import { NavLinksClient, type CategoryWithChildren } from "./NavLinksClient";
@@ -27,12 +28,13 @@ async function fetchCollectionsForNav(channel: string): Promise<Array<{ id: stri
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
 				query: `
-					query CollectionsForNav($channel: String!) {
+					query CollectionsForNav($channel: String!, $languageCode: LanguageCodeEnum!) {
 						collections(channel: $channel, first: 20) {
 							edges {
 								node {
 									id
 									name
+									translation(languageCode: $languageCode) { name }
 									slug
 									products(first: 1) {
 										totalCount
@@ -42,7 +44,7 @@ async function fetchCollectionsForNav(channel: string): Promise<Array<{ id: stri
 						}
 					}
 				`,
-				variables: { channel },
+				variables: { channel, languageCode: getLanguageCodeForChannel(channel) },
 			}),
 			cache: "force-cache",
 			next: { revalidate: 60 * 60 }, // Revalidate every hour
@@ -65,7 +67,7 @@ async function fetchCollectionsForNav(channel: string): Promise<Array<{ id: stri
 		return result.data.collections.edges
 			.map((edge: any) => ({
 				id: edge.node.id,
-				name: edge.node.name,
+				name: edge.node.translation?.name || edge.node.name,
 				slug: edge.node.slug,
 				productCount: edge.node.products?.totalCount || 0,
 			}))
@@ -93,24 +95,27 @@ async function fetchBrandsForNav(channel: string): Promise<Array<{ id: string; n
 			apiUrl = `${apiUrl}/`;
 		}
 
+		// Query the brand attribute directly to get ALL brand values
+		// This is much more reliable than extracting from a limited product query
 		const response = await fetch(apiUrl, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
 				query: `
-					query ProductsForBrands($channel: String!) {
-						products(first: 50, channel: $channel) {
+					query BrandAttributeChoices($languageCode: LanguageCodeEnum!) {
+						attributes(filter: { slugs: ["brand"] }, first: 1) {
 							edges {
 								node {
-									attributes {
-										attribute {
-											name
-											slug
-										}
-										values {
-											id
-											name
-											slug
+									id
+									slug
+									choices(first: 100) {
+										edges {
+											node {
+												id
+												name
+												slug
+												translation(languageCode: $languageCode) { name }
+											}
 										}
 									}
 								}
@@ -118,7 +123,7 @@ async function fetchBrandsForNav(channel: string): Promise<Array<{ id: string; n
 						}
 					}
 				`,
-				variables: { channel },
+				variables: { languageCode: getLanguageCodeForChannel(channel) },
 			}),
 			cache: "force-cache",
 			next: { revalidate: 60 * 60 }, // Revalidate every hour
@@ -130,56 +135,46 @@ async function fetchBrandsForNav(channel: string): Promise<Array<{ id: string; n
 		}
 
 		const result = await response.json() as { data?: any; errors?: any[] };
-		
+
 		if (result.errors) {
 			console.warn("GraphQL errors fetching brands:", result.errors);
 			return [];
 		}
 
-		if (!result.data?.products?.edges) return [];
+		const attrNode = result.data?.attributes?.edges?.[0]?.node;
+		if (!attrNode?.choices?.edges) return [];
 
-		const brandsMap = new Map<string, { id: string; name: string; slug: string }>();
+		const brands: Array<{ id: string; name: string; slug: string }> = [];
+		const seen = new Set<string>();
 
-		result.data.products.edges.forEach((edge: any) => {
-			const product = edge.node;
-			if (!product.attributes) return;
+		for (const edge of attrNode.choices.edges) {
+			const value = edge.node;
+			const brandName = (value?.translation?.name || value?.name)?.trim();
+			if (!brandName) continue;
 
-			const brandAttr = product.attributes.find((attr: any) => {
-				const attrName = attr?.attribute?.name?.toLowerCase()?.trim();
-				const attrSlug = attr?.attribute?.slug?.toLowerCase()?.trim();
-				return attrName === "brand" || attrSlug === "brand" || attrSlug === "manufacturer";
+			const dedupKey = brandName.toLowerCase();
+			if (seen.has(dedupKey)) continue;
+			seen.add(dedupKey);
+
+			brands.push({
+				id: value.id || `brand-${value.slug}`,
+				name: brandName,
+				slug: value.slug || dedupKey.replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
 			});
+		}
 
-			if (brandAttr?.values) {
-				brandAttr.values.forEach((value: any) => {
-					const brandName = value?.name?.trim();
-					if (brandName) {
-						const dedupKey = brandName.toLowerCase();
-						if (!brandsMap.has(dedupKey)) {
-							const brandSlug = value.slug || dedupKey.replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-							brandsMap.set(dedupKey, {
-								id: value.id || `brand-${brandSlug}`,
-								name: brandName,
-								slug: brandSlug,
-							});
-						}
-					}
-				});
-			}
-		});
-
-		return Array.from(brandsMap.values()).slice(0, 10); // Limit to 10 brands
+		return brands.sort((a, b) => a.name.localeCompare(b.name));
 	} catch (error) {
 		console.warn("Failed to fetch brands for navigation:", error);
 		return [];
 	}
 }
 
-function mapCategoryChild(node: { id: string; name: string; slug: string; products?: { totalCount?: number | null } | null; children?: { edges?: Array<{ node: any }> } | null }): CategoryWithChildren {
+function mapCategoryChild(node: { id: string; name: string; slug: string; translation?: { name?: string | null } | null; products?: { totalCount?: number | null } | null; children?: { edges?: Array<{ node: any }> } | null }): CategoryWithChildren {
 	const children = node.children?.edges?.map((childEdge: { node: any }) => mapCategoryChild(childEdge.node)).filter(Boolean) ?? [];
 	return {
 		id: node.id,
-		name: node.name,
+		name: node.translation?.name || node.name,
 		slug: node.slug,
 		productCount: node.products?.totalCount ?? undefined,
 		children: children.length > 0 ? children : undefined,
@@ -191,9 +186,9 @@ function mapCategory(edge: { node: any }): CategoryWithChildren {
 	const children = node.children?.edges?.map((childEdge: { node: any }) => mapCategoryChild(childEdge.node)).filter(Boolean) ?? [];
 	return {
 		id: node.id,
-		name: node.name,
+		name: node.translation?.name || node.name,
 		slug: node.slug,
-		description: node.description,
+		description: node.translation?.description || node.description,
 		backgroundImage: node.backgroundImage ? { url: node.backgroundImage.url, alt: node.backgroundImage.alt } : null,
 		productCount: node.products?.totalCount ?? undefined,
 		children: children.length > 0 ? children : undefined,
@@ -202,9 +197,10 @@ function mapCategory(edge: { node: any }): CategoryWithChildren {
 
 /** Shared nav data for desktop NavLinks and mobile menu. Used by layout to pass once. */
 export async function getNavData(channel: string): Promise<MobileNavData> {
+	const languageCode = getLanguageCodeForChannel(channel);
 	const [categoriesData, collectionsData, brandsData] = await Promise.all([
 		executeGraphQL(CategoriesForNavDocument, {
-			variables: { channel, first: 10 },
+			variables: { channel, first: 10, languageCode },
 			revalidate: 60 * 60,
 		}).catch(() => ({ categories: null })),
 		fetchCollectionsForNav(channel),
@@ -224,9 +220,10 @@ export const NavLinks = async ({ channel, navData: providedNavData }: { channel:
 		collections = providedNavData.collections;
 		brands = providedNavData.brands;
 	} else {
+		const languageCode = getLanguageCodeForChannel(channel);
 		const [navLinks, categoriesData, collectionsData, brandsData, dynamicConfig] = await Promise.all([
-			executeGraphQL(MenuGetBySlugDocument, { variables: { slug: "navbar", channel }, revalidate: 60 * 60 * 24 }),
-			executeGraphQL(CategoriesForNavDocument, { variables: { channel, first: 10 }, revalidate: 60 * 60 }).catch(() => ({ categories: null })),
+			executeGraphQL(MenuGetBySlugDocument, { variables: { slug: "navbar", channel, languageCode }, revalidate: 60 * 60 * 24 }),
+			executeGraphQL(CategoriesForNavDocument, { variables: { channel, first: 10, languageCode }, revalidate: 60 * 60 }).catch(() => ({ categories: null })),
 			fetchCollectionsForNav(channel),
 			fetchBrandsForNav(channel),
 			fetchStorefrontConfig(channel).catch(() => null),

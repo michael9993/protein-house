@@ -1,4 +1,4 @@
-query OrderByToken($token: UUID!) {
+query OrderByToken($token: UUID!, $languageCode: LanguageCodeEnum!) {
 	orderByToken(token: $token) {
 		...OrderDetails
 	}

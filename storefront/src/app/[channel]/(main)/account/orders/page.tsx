@@ -1,5 +1,6 @@
 import { CurrentUserOrderListDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
+import { getLanguageCodeForChannel } from "@/lib/language";
 import { OrdersPageContent } from "./OrdersPageContent";
 
 export const metadata = {
@@ -22,10 +23,11 @@ export default async function OrdersPage({
 	params: Promise<{ channel: string }>;
 }) {
 	const { channel } = await params;
-	
+	const languageCode = getLanguageCodeForChannel(channel);
+
 	// For now, we fetch more orders to show all - in production you'd use cursor-based pagination
 	const { me: user } = await executeGraphQL(CurrentUserOrderListDocument, {
-		variables: { first: 100 }, // Fetch more orders
+		variables: { first: 100, languageCode }, // Fetch more orders
 		cache: "no-cache",
 	});
 

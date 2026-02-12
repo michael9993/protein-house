@@ -1,10 +1,11 @@
 "use client";
 
 /**
- * QuickFilters Component — Clean Card Design
+ * QuickFilters Component — Grouped Filter Enclosures
  *
- * Clear, undimmed product images with a frosted-glass text bar.
- * No heavy gradient overlays — images are fully visible.
+ * Categories, collections, and brands are grouped in labeled enclosures.
+ * Parent categories become group labels with subcategory cards inside.
+ * Collections and brands are each wrapped in their own labeled group.
  * Includes id="quick-filters-section" for StickyQuickFilters integration.
  */
 
@@ -14,25 +15,18 @@ import Image from "next/image";
 import { useState, useRef, useEffect, type MouseEvent } from "react";
 import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 
+/* ------------------------------------------------------------------ */
+/*  Types                                                              */
+/* ------------------------------------------------------------------ */
+
 interface QuickFilterItem {
   id: string;
   name: string;
   slug: string;
   type: "category" | "collection" | "brand";
   productCount?: number;
-  children?: Array<{ id: string; slug: string }>;
-  image?: {
-    url: string;
-    alt?: string;
-  };
-  backgroundImage?: {
-    url: string;
-    alt?: string;
-  };
-  productImages?: Array<{
-    url: string;
-    alt?: string;
-  }>;
+  backgroundImage?: { url: string; alt?: string };
+  productImages?: Array<{ url: string; alt?: string }>;
 }
 
 interface SubcategoryData {
@@ -74,6 +68,24 @@ interface QuickFiltersProps {
   title?: string;
 }
 
+/* Grouped rendering model */
+interface FilterGroup {
+  kind: "group";
+  label: string;
+  items: QuickFilterItem[];
+}
+
+interface StandaloneItem {
+  kind: "standalone";
+  item: QuickFilterItem;
+}
+
+type RenderableUnit = FilterGroup | StandaloneItem;
+
+/* ------------------------------------------------------------------ */
+/*  Component                                                          */
+/* ------------------------------------------------------------------ */
+
 export function QuickFilters({
   categories = [],
   collections = [],
@@ -99,7 +111,6 @@ export function QuickFilters({
   const [showRightArrow, setShowRightArrow] = useState(true);
   const [currentImageIndices, setCurrentImageIndices] = useState<Record<string, number>>({});
 
-  // Don't render if quick filters are disabled
   if (!quickFiltersConfig.enabled) {
     return null;
   }
@@ -107,60 +118,101 @@ export function QuickFilters({
   const categoryLimit = quickFiltersConfig.categoryLimit;
   const collectionLimit = quickFiltersConfig.collectionLimit;
   const brandLimit = quickFiltersConfig.brandLimit;
+  const primaryColor = branding.colors.primary;
 
-  // Combine all items with their types and images
-  // For categories: insert subcategories as individual cards after their parent
-  const categoryItems: QuickFilterItem[] = [];
+  /* ---------------------------------------------------------------- */
+  /*  Build grouped render units                                       */
+  /* ---------------------------------------------------------------- */
+
+  const renderUnits: RenderableUnit[] = [];
+
+  // Categories: parent with children → group, leaf → standalone
   if (quickFiltersConfig.showCategories) {
     for (const cat of categories.slice(0, categoryLimit)) {
-      // Add parent category card
-      categoryItems.push({
-        ...cat,
-        type: "category" as const,
-        children: cat.children || [],
-        backgroundImage: cat.backgroundImage,
-        productImages: cat.productImages,
-      });
-      // Add subcategories as individual cards (leaf categories with no children)
       if (cat.children && cat.children.length > 0) {
-        for (const sub of cat.children) {
-          if (sub.name && (sub.productCount === undefined || sub.productCount > 0)) {
-            categoryItems.push({
-              id: sub.id,
-              name: sub.name,
-              slug: sub.slug,
-              type: "category" as const,
-              productCount: sub.productCount,
-              children: sub.children ? sub.children.map(c => ({ id: c.id, slug: c.slug })) : undefined,
-              backgroundImage: sub.backgroundImage,
-              productImages: sub.productImages,
-            });
-          }
+        const subcards: QuickFilterItem[] = cat.children
+          .filter(sub => sub.name && (sub.productCount === undefined || sub.productCount > 0))
+          .map(sub => ({
+            id: sub.id,
+            name: sub.name!,
+            slug: sub.slug,
+            type: "category" as const,
+            productCount: sub.productCount,
+            backgroundImage: sub.backgroundImage,
+            productImages: sub.productImages,
+          }));
+
+        if (subcards.length > 0) {
+          renderUnits.push({ kind: "group", label: cat.name, items: subcards });
         }
+      } else {
+        renderUnits.push({
+          kind: "standalone",
+          item: {
+            id: cat.id,
+            name: cat.name,
+            slug: cat.slug,
+            type: "category" as const,
+            productCount: cat.productCount,
+            backgroundImage: cat.backgroundImage,
+            productImages: cat.productImages,
+          },
+        });
       }
     }
   }
 
-  const allItems: QuickFilterItem[] = [
-    ...categoryItems,
-    ...(quickFiltersConfig.showCollections ? collections.slice(0, collectionLimit).map(col => ({
-      ...col,
-      type: "collection" as const,
-      backgroundImage: col.backgroundImage,
-      productImages: col.productImages,
-    })) : []),
-    ...(quickFiltersConfig.showBrands ? brands.slice(0, brandLimit).map(brand => ({
-      ...brand,
-      type: "brand" as const,
-      backgroundImage: brand.backgroundImage,
-      productImages: brand.productImages,
-    })) : []),
-  ];
+  // Collections → single group
+  if (quickFiltersConfig.showCollections) {
+    const collectionItems: QuickFilterItem[] = collections
+      .slice(0, collectionLimit)
+      .map(col => ({
+        ...col,
+        type: "collection" as const,
+        backgroundImage: col.backgroundImage,
+        productImages: col.productImages,
+      }));
 
-  // Rotate product images for items with multiple images
+    if (collectionItems.length > 0) {
+      renderUnits.push({
+        kind: "group",
+        label: filtersText.collectionPlural || "Collections",
+        items: collectionItems,
+      });
+    }
+  }
+
+  // Brands → single group
+  if (quickFiltersConfig.showBrands) {
+    const brandItems: QuickFilterItem[] = brands
+      .slice(0, brandLimit)
+      .map(brand => ({
+        ...brand,
+        type: "brand" as const,
+        backgroundImage: brand.backgroundImage,
+        productImages: brand.productImages,
+      }));
+
+    if (brandItems.length > 0) {
+      renderUnits.push({
+        kind: "group",
+        label: filtersText.brandPlural || "Brands",
+        items: brandItems,
+      });
+    }
+  }
+
+  // Flat list for image rotation + empty check
+  const allItems: QuickFilterItem[] = renderUnits.flatMap(u =>
+    u.kind === "group" ? u.items : [u.item]
+  );
+
+  /* ---------------------------------------------------------------- */
+  /*  Image rotation                                                   */
+  /* ---------------------------------------------------------------- */
+
   useEffect(() => {
     const intervals: ReturnType<typeof setInterval>[] = [];
-
     allItems.forEach((item) => {
       if (item.productImages && item.productImages.length > 1) {
         const interval = setInterval(() => {
@@ -172,11 +224,13 @@ export function QuickFilters({
         intervals.push(interval);
       }
     });
-
     return () => intervals.forEach(clearInterval);
   }, [allItems]);
 
-  // Check scroll position for arrow visibility
+  /* ---------------------------------------------------------------- */
+  /*  Scroll logic                                                     */
+  /* ---------------------------------------------------------------- */
+
   const checkScrollPosition = () => {
     if (!scrollContainerRef.current) return;
     const el = scrollContainerRef.current;
@@ -200,11 +254,9 @@ export function QuickFilters({
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
-
     checkScrollPosition();
     container.addEventListener("scroll", checkScrollPosition);
     window.addEventListener("resize", checkScrollPosition);
-
     return () => {
       container.removeEventListener("scroll", checkScrollPosition);
       window.removeEventListener("resize", checkScrollPosition);
@@ -218,64 +270,36 @@ export function QuickFilters({
     const cardWidthNum = Number(style.cardWidth ?? 160);
     const cardGapNum = Number(style.cardGap ?? 0.5);
     const cardWidth = cardWidthNum + cardGapNum * 8;
-    const scrollAmount = cardWidth * 2;
+    const scrollAmount = cardWidth * 2.5 + 32;
     const currentScroll = el.scrollLeft;
     const maxScroll = el.scrollWidth - el.clientWidth;
     const minScroll = isRtl ? -maxScroll : 0;
     const maxScrollVal = isRtl ? 0 : maxScroll;
     const delta = direction === "left" ? -scrollAmount : scrollAmount;
     const targetScroll = Math.max(minScroll, Math.min(maxScrollVal, currentScroll + delta));
-    el.scrollTo({
-      left: targetScroll,
-      behavior: "smooth",
-    });
+    el.scrollTo({ left: targetScroll, behavior: "smooth" });
   };
 
   if (allItems.length === 0) {
     return null;
   }
 
-  // Collect only sub-category slugs (excludes the parent itself)
-  const collectChildSlugs = (cat: { slug: string; children?: Array<{ slug: string; children?: Array<{ slug: string }> }> }): string[] => {
-    const out: string[] = [];
-    if (cat.children) {
-      for (const c of cat.children) {
-        out.push(c.slug);
-        out.push(...collectChildSlugs(c));
-      }
-    }
-    return out;
-  };
+  /* ---------------------------------------------------------------- */
+  /*  Click & active logic                                             */
+  /* ---------------------------------------------------------------- */
 
   const handleQuickFilterClick = (e: MouseEvent<HTMLButtonElement>, item: QuickFilterItem) => {
     e.preventDefault();
-
-    if (item.type === "category" && item.children && item.children.length > 0) {
-      // Parent category: only toggle sub-categories, not the parent itself
-      const childSlugs = collectChildSlugs(item);
-      const currentCategories = filters.categories;
-      const allChildrenSelected = childSlugs.every(slug => currentCategories.includes(slug));
-
-      if (allChildrenSelected) {
-        const updatedCategories = currentCategories.filter(slug => !childSlugs.includes(slug));
-        updateFilters({ categories: updatedCategories });
-      } else {
-        const slugsToAdd = childSlugs.filter(slug => !currentCategories.includes(slug));
-        const updatedCategories = [...currentCategories, ...slugsToAdd];
-        updateFilters({ categories: updatedCategories });
-      }
-    } else {
-      switch (item.type) {
-        case "collection":
-          toggleCollection(item.slug);
-          break;
-        case "brand":
-          toggleBrand(item.slug);
-          break;
-        default:
-          toggleCategory(item.slug);
-          break;
-      }
+    switch (item.type) {
+      case "collection":
+        toggleCollection(item.slug);
+        break;
+      case "brand":
+        toggleBrand(item.slug);
+        break;
+      default:
+        toggleCategory(item.slug);
+        break;
     }
   };
 
@@ -286,12 +310,46 @@ export function QuickFilters({
       case "brand":
         return filters.brands.includes(item.slug);
       default:
-        if (filters.categories.includes(item.slug)) return true;
-        // Parent is active if any of its sub-categories are selected
-        if (item.children && item.children.length > 0) {
-          return collectChildSlugs(item).some(slug => filters.categories.includes(slug));
-        }
-        return false;
+        return filters.categories.includes(item.slug);
+    }
+  };
+
+  /** Check if ALL items in a group are currently selected */
+  const isGroupAllActive = (items: QuickFilterItem[]) =>
+    items.length > 0 && items.every((item) => isActive(item));
+
+  /** Toggle all items in a group: if all selected → deselect all, else select all */
+  const handleGroupLabelClick = (items: QuickFilterItem[]) => {
+    if (items.length === 0) return;
+    const allActive = isGroupAllActive(items);
+    const type = items[0].type;
+    const slugs = items.map((i) => i.slug);
+
+    switch (type) {
+      case "collection": {
+        const current = filters.collections;
+        const next = allActive
+          ? current.filter((s) => !slugs.includes(s))
+          : [...new Set([...current, ...slugs])];
+        updateFilters({ collections: next });
+        break;
+      }
+      case "brand": {
+        const current = filters.brands;
+        const next = allActive
+          ? current.filter((s) => !slugs.includes(s))
+          : [...new Set([...current, ...slugs])];
+        updateFilters({ brands: next });
+        break;
+      }
+      default: {
+        const current = filters.categories;
+        const next = allActive
+          ? current.filter((s) => !slugs.includes(s))
+          : [...new Set([...current, ...slugs])];
+        updateFilters({ categories: next });
+        break;
+      }
     }
   };
 
@@ -306,14 +364,131 @@ export function QuickFilters({
     return null;
   };
 
+  /* ---------------------------------------------------------------- */
+  /*  CardButton                                                       */
+  /* ---------------------------------------------------------------- */
+
+  const cardWidthPx = Number((quickFiltersConfig.style as { cardWidth?: number })?.cardWidth ?? 150);
+
+  const CardButton = ({ item }: { item: QuickFilterItem }) => {
+    const active = isActive(item);
+    const image = getItemImage(item);
+    const hasMultipleImages = item.productImages && item.productImages.length > 1;
+
+    return (
+      <button
+        data-filter-type={item.type}
+        data-filter-slug={item.slug}
+        data-filter-id={item.id}
+        onClick={(e: MouseEvent<HTMLButtonElement>) => handleQuickFilterClick(e, item)}
+        className={`group relative shrink-0 overflow-hidden rounded-xl transition-all duration-300 h-full border ${
+          active
+            ? "shadow-md"
+            : "border-neutral-200 hover:border-neutral-400 hover:shadow-md"
+        }`}
+        style={{
+          width: `${cardWidthPx}px`,
+          height: "100%",
+          ...(active ? { borderColor: primaryColor } : {}),
+        }}
+      >
+        {/* Image area */}
+        <div className="absolute inset-0">
+          {image ? (
+            <>
+              {hasMultipleImages && item.productImages ? (
+                item.productImages.map((img, idx) => {
+                  const currentIndex = currentImageIndices[item.id] || 0;
+                  const isVisible = idx === currentIndex;
+                  return (
+                    <div
+                      key={`${img.url}-${idx}`}
+                      className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                        isVisible ? "opacity-100" : "opacity-0"
+                      }`}
+                    >
+                      <Image
+                        src={img.url}
+                        alt={img.alt || `${item.name} product`}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                        sizes={`${cardWidthPx}px`}
+                        priority={idx === 0}
+                      />
+                    </div>
+                  );
+                })
+              ) : (
+                <Image
+                  src={image.url}
+                  alt={image.alt || item.name}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                  sizes={`${cardWidthPx}px`}
+                />
+              )}
+            </>
+          ) : (
+            <div
+              className={`h-full w-full ${active ? "" : "bg-neutral-100"}`}
+              style={active ? { backgroundColor: primaryColor } : undefined}
+            />
+          )}
+        </div>
+
+        {/* Active check badge */}
+        {active && (
+          <div
+            className="absolute top-2 end-2 z-30 flex h-5 w-5 items-center justify-center rounded-full shadow-sm"
+            style={{ backgroundColor: primaryColor }}
+          >
+            <Check className="h-3 w-3 text-white" strokeWidth={3} />
+          </div>
+        )}
+
+        {/* Bottom text strip */}
+        <div className="absolute inset-x-0 bottom-0 z-20">
+          <div
+            className={`px-3 py-2 backdrop-blur-md ${
+              active
+                ? "text-white"
+                : image
+                  ? "bg-white/80 text-neutral-900"
+                  : "bg-white/90 text-neutral-700"
+            }`}
+            style={active ? { backgroundColor: `${primaryColor}cc` } : undefined}
+          >
+            <h3 className="text-[13px] font-semibold leading-snug line-clamp-1">
+              {item.name}
+            </h3>
+            {item.productCount !== undefined && item.productCount > 0 && (
+              <span
+                className={`mt-0.5 block text-[11px] ${
+                  active ? "text-white/70" : "text-neutral-500"
+                }`}
+              >
+                {item.productCount} {item.productCount === 1 ? "item" : "items"}
+              </span>
+            )}
+          </div>
+        </div>
+      </button>
+    );
+  };
+
+  /* ---------------------------------------------------------------- */
+  /*  Render                                                           */
+  /* ---------------------------------------------------------------- */
+
   const sectionTitle = title || filtersText.checkOutOurProducts || "Shop by Category";
+  const labelOverhead = 20;
 
   return (
     <section
       id="quick-filters-section"
       className="relative w-full py-6"
     >
-      {/* Section Header - Elegant Typography */}
+      {/* Section Header */}
       <div className="mb-5 px-1">
         <h2 className="text-lg font-medium tracking-tight text-neutral-800">
           {sectionTitle}
@@ -323,12 +498,12 @@ export function QuickFilters({
 
       {/* Cards Container */}
       <div
-        className="relative w-full"
+        className="relative w-full overflow-hidden"
         style={{
-          height: `${quickFiltersConfig.style?.cardHeight || 200}px`
+          height: `${(quickFiltersConfig.style?.cardHeight || 200) + labelOverhead}px`
         }}
       >
-        {/* Left Scroll Arrow - Minimal Design */}
+        {/* Left Scroll Arrow */}
         {showLeftArrow && (
           <button
             onClick={(e) => {
@@ -336,11 +511,12 @@ export function QuickFilters({
               e.stopPropagation();
               scroll(isRtl ? "right" : "left");
             }}
-            className="absolute start-0 top-1/2 z-50 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border border-neutral-200 transition-all duration-200 hover:bg-white hover:scale-105"
+            className="absolute start-0 top-1/2 z-50 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 hover:scale-105 hover:opacity-90"
+            style={{ backgroundColor: primaryColor }}
             aria-label={filtersText.scrollLeftAriaLabel}
             type="button"
           >
-            <ChevronLeft className="h-5 w-5 text-neutral-600 rtl:rotate-180" strokeWidth={1.5} />
+            <ChevronLeft className="h-5 w-5 text-white rtl:rotate-180" strokeWidth={1.5} />
           </button>
         )}
 
@@ -348,120 +524,90 @@ export function QuickFilters({
         <div
           ref={scrollContainerRef}
           dir={isRtl ? "rtl" : "ltr"}
-          className="relative flex gap-2.5 overflow-x-auto scrollbar-hide h-full px-1"
+          className="relative flex gap-1 overflow-x-auto overflow-y-hidden scrollbar-hide h-full px-1"
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
             scrollBehavior: "smooth",
           }}
         >
-          {allItems.map((item) => {
-            const active = isActive(item);
-            const image = getItemImage(item);
-            const hasMultipleImages = item.productImages && item.productImages.length > 1;
-            // Serialize sub-category slugs for sticky bar sync (excludes parent)
-            const childrenSlugs = item.type === "category" && item.children && item.children.length > 0
-              ? collectChildSlugs(item).join(",")
-              : undefined;
-            const cardWidth = Number((quickFiltersConfig.style as { cardWidth?: number })?.cardWidth ?? 150);
-
-            return (
-              <button
-                key={`${item.type}-${item.id}`}
-                data-filter-type={item.type}
-                data-filter-slug={item.slug}
-                data-filter-id={item.id}
-                data-filter-children={childrenSlugs}
-                onClick={(e: MouseEvent<HTMLButtonElement>) => handleQuickFilterClick(e, item)}
-                className={`group relative shrink-0 overflow-hidden rounded-xl transition-all duration-300 h-full border ${
-                  active
-                    ? "border-neutral-900 shadow-md"
-                    : "border-neutral-200 hover:border-neutral-300 hover:shadow-lg hover:-translate-y-0.5"
-                }`}
-                style={{ width: `${cardWidth}px`, height: "100%" }}
+          {renderUnits.map((unit, unitIndex) => {
+            const separator = unitIndex > 0 ? (
+              <div
+                key={`sep-${unitIndex}`}
+                className="shrink-0 self-stretch flex items-center px-0.5"
+                aria-hidden="true"
               >
-                {/* Image area — takes full card, NO gradient dimming */}
-                <div className="absolute inset-0">
-                  {image ? (
-                    <>
-                      {hasMultipleImages && item.productImages ? (
-                        item.productImages.map((img, idx) => {
-                          const currentIndex = currentImageIndices[item.id] || 0;
-                          const isVisible = idx === currentIndex;
-                          return (
-                            <div
-                              key={`${img.url}-${idx}`}
-                              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                                isVisible ? "opacity-100" : "opacity-0"
-                              }`}
-                            >
-                              <Image
-                                src={img.url}
-                                alt={img.alt || `${item.name} product`}
-                                fill
-                                className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                                sizes={`${cardWidth}px`}
-                                priority={idx === 0}
-                              />
-                            </div>
-                          );
-                        })
-                      ) : (
-                        <Image
-                          src={image.url}
-                          alt={image.alt || item.name}
-                          fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                          sizes={`${cardWidth}px`}
-                        />
-                      )}
-                    </>
-                  ) : (
-                    <div className={`h-full w-full ${active ? "bg-neutral-900" : "bg-neutral-100"}`} />
-                  )}
-                </div>
+                <div className="h-3/5 w-px bg-neutral-200" />
+              </div>
+            ) : null;
 
-                {/* Active check badge */}
-                {active && (
+            if (unit.kind === "group") {
+              const groupActive = isGroupAllActive(unit.items);
+              return (
+                <div key={`group-${unit.label}`} className="contents">
+                  {separator}
                   <div
-                    className="absolute top-2 end-2 z-30 flex h-5 w-5 items-center justify-center rounded-full shadow-sm"
-                    style={{ backgroundColor: branding.colors.primary }}
+                    className="shrink-0 flex flex-col"
+                    style={{ height: "100%" }}
+                    data-filter-group={unit.label}
+                    data-filter-group-type={unit.items[0]?.type}
                   >
-                    <Check className="h-3 w-3 text-white" strokeWidth={3} />
-                  </div>
-                )}
-
-                {/* Bottom text strip — frosted glass for readability without dimming the image */}
-                <div className="absolute inset-x-0 bottom-0 z-20">
-                  <div
-                    className={`px-3 py-2.5 backdrop-blur-md ${
-                      active
-                        ? "bg-neutral-900/80 text-white"
-                        : image
-                          ? "bg-white/80 text-neutral-900"
-                          : "bg-white/90 text-neutral-700"
-                    }`}
-                  >
-                    <h3 className="text-[13px] font-semibold leading-snug line-clamp-1">
-                      {item.name}
-                    </h3>
-                    {item.productCount !== undefined && item.productCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => handleGroupLabelClick(unit.items)}
+                      className="group/label flex items-center gap-1 mb-1 ps-0.5 text-start"
+                      title={groupActive ? (filtersText as Record<string, string>).deselectAll || "Deselect all" : (filtersText as Record<string, string>).selectAll || "Select all"}
+                    >
                       <span
-                        className={`mt-0.5 block text-[11px] ${
-                          active ? "text-white/70" : "text-neutral-500"
+                        className={`text-[10px] font-semibold uppercase tracking-[0.1em] whitespace-nowrap transition-all duration-200 group-hover/label:underline underline-offset-2 ${
+                          groupActive ? "text-neutral-900 underline" : "text-neutral-900"
                         }`}
                       >
-                        {item.productCount} {item.productCount === 1 ? "item" : "items"}
+                        {unit.label}
                       </span>
-                    )}
+                      <Check
+                        className={`h-2.5 w-2.5 transition-all duration-200 ${
+                          groupActive
+                            ? "text-neutral-900 opacity-100"
+                            : "text-neutral-400 opacity-0 group-hover/label:opacity-100"
+                        }`}
+                        strokeWidth={2.5}
+                      />
+                    </button>
+                    <div className="flex-1 flex gap-1">
+                      {unit.items.map((item) => (
+                        <CardButton key={`${item.type}-${item.id}`} item={item} />
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </button>
+              );
+            }
+
+            return (
+              <div key={`standalone-${unit.item.type}-${unit.item.id}`} className="contents">
+                {separator}
+                <div
+                  className="shrink-0 flex flex-col"
+                  style={{ height: "100%" }}
+                  data-filter-group={unit.item.name}
+                  data-filter-group-type={unit.item.type}
+                  data-filter-standalone="true"
+                >
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-neutral-900 whitespace-nowrap mb-1 ps-0.5">
+                    {unit.item.name}
+                  </span>
+                  <div className="flex-1">
+                    <CardButton item={unit.item} />
+                  </div>
+                </div>
+              </div>
             );
           })}
         </div>
 
-        {/* Right Scroll Arrow - Minimal Design */}
+        {/* Right Scroll Arrow */}
         {showRightArrow && (
           <button
             onClick={(e) => {
@@ -469,11 +615,12 @@ export function QuickFilters({
               e.stopPropagation();
               scroll(isRtl ? "left" : "right");
             }}
-            className="absolute end-0 top-1/2 z-50 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border border-neutral-200 transition-all duration-200 hover:bg-white hover:scale-105"
+            className="absolute end-0 top-1/2 z-50 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 hover:scale-105 hover:opacity-90"
+            style={{ backgroundColor: primaryColor }}
             aria-label={filtersText.scrollRightAriaLabel}
             type="button"
           >
-            <ChevronRight className="h-5 w-5 text-neutral-600 rtl:rotate-180" strokeWidth={1.5} />
+            <ChevronRight className="h-5 w-5 text-white rtl:rotate-180" strokeWidth={1.5} />
           </button>
         )}
       </div>

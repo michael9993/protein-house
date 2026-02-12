@@ -307,7 +307,7 @@ export function ProductDetailClient({
             <div className="animate-fade-in">
               <Breadcrumbs
                 items={[
-                  { label: "Products", href: "/products" },
+                  { label: content.general?.allProductsLabel || "Products", href: "/products" },
                   ...(product.category && product.categorySlug
                     ? [
                         {

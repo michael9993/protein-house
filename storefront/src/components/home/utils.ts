@@ -51,7 +51,7 @@ export const getProductImage = (p: ProductListItemFragment | null | undefined) =
   p?.thumbnail?.url || p?.media?.[0]?.url || null;
 
 export const getProductAlt = (p: ProductListItemFragment | null | undefined) =>
-  p?.thumbnail?.alt || p?.media?.[0]?.alt || p?.name || "Product image";
+  p?.thumbnail?.alt || p?.media?.[0]?.alt || (p?.translation?.name || p?.name) || "Product image";
 
 export const getTotalStock = (p: ProductListItemFragment) =>
   p.variants?.reduce((t, v) => t + (v?.quantityAvailable ?? 0), 0) ?? 0;
@@ -63,7 +63,11 @@ export const getProductBrand = (p: ProductListItemFragment, fallback: string) =>
   const attr = p.attributes?.find((e) =>
     e.attribute?.slug ? BRAND_ATTRIBUTE_SLUGS.includes(e.attribute.slug) : false,
   );
-  return attr?.values?.[0]?.name || p.collections?.[0]?.name || p.category?.name || fallback;
+  const val = attr?.values?.[0];
+  const brandName = val ? (val.translation?.name || val.name) : null;
+  const collectionName = p.collections?.[0] ? (p.collections[0].translation?.name || p.collections[0].name) : null;
+  const categoryName = p.category ? (p.category.translation?.name || p.category.name) : null;
+  return brandName || collectionName || categoryName || fallback;
 };
 
 /** Returns brand { name, slug, image } from product attributes using a human-readable name-derived slug */
@@ -72,7 +76,7 @@ export const getProductBrandInfo = (p: ProductListItemFragment, fallback: string
     e.attribute?.slug ? BRAND_ATTRIBUTE_SLUGS.includes(e.attribute.slug) : false,
   );
   const value = attr?.values?.[0];
-  const name = value?.name || p.collections?.[0]?.name || p.category?.name || fallback;
+  const name = (value ? (value.translation?.name || value.name) : null) || (p.collections?.[0] ? (p.collections[0].translation?.name || p.collections[0].name) : null) || (p.category ? (p.category.translation?.name || p.category.name) : null) || fallback;
   const slug = deriveBrandSlug(name);
 
   // Look for a brand image attribute (FILE type attribute with brand logo)
@@ -136,6 +140,9 @@ export const getDiscountPercent = (p: ProductListItemFragment) => {
   return Math.round(((orig.amount - price.amount) / orig.amount) * 100);
 };
 
+/**
+ * @deprecated Use `withChannel` from `@/lib/urls` instead.
+ */
 export const normalizeHref = (channel: string, href: string) => {
   if (href.startsWith("http")) return href;
   const prefix = `/${encodeURIComponent(channel)}`;

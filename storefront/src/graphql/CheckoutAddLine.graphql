@@ -1,4 +1,4 @@
-mutation CheckoutAddLine($id: ID!, $productVariantId: ID!) {
+mutation CheckoutAddLine($id: ID!, $productVariantId: ID!, $languageCode: LanguageCodeEnum!) {
 	checkoutLinesAdd(id: $id, lines: [{ quantity: 1, variantId: $productVariantId }]) {
 		checkout {
 			id
@@ -7,8 +7,10 @@ mutation CheckoutAddLine($id: ID!, $productVariantId: ID!) {
 				quantity
 				variant {
 					name
+					translation(languageCode: $languageCode) { name }
 					product {
 						name
+						translation(languageCode: $languageCode) { name }
 					}
 				}
 			}

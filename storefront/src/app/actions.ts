@@ -225,20 +225,23 @@ export async function getAllProductReviews(
   try {
     const { executeGraphQL } = await import("@/lib/graphql");
     const { ProductListDocument } = await import("@/gql/graphql");
+    const { getLanguageCodeForChannel } = await import("@/lib/language");
     const minRating = options?.minRating ?? 4;
     const limit = options?.limit ?? 50;
-    
+    const languageCode = getLanguageCodeForChannel(channel);
+
     console.log(`[All Product Reviews] 🔍 Starting fetch for channel "${channel}", minRating: ${minRating}, limit: ${limit}`);
 
     // Use public queries (like getProductReviews does) - no auth needed for reviews
     // Fetch products first, then reviews for each product
     console.log(`[All Product Reviews] 🔄 Fetching products and reviews using public queries...`);
-    
+
     // First, fetch products using public query (like getProductReviews does)
     const productsResult = await executeGraphQL(ProductListDocument, {
       variables: {
         channel,
         first: 50, // Fetch up to 50 products
+        languageCode,
       },
       revalidate: 60,
       withAuth: false, // Products are public
@@ -1191,7 +1194,7 @@ export async function restoreUserCart(channel: string) {
 	
 	// Fetch checkout from Saleor
 	const { checkout } = await executeGraphQL(CheckoutFindDocument, {
-		variables: { id: savedCheckoutId },
+		variables: { id: savedCheckoutId, languageCode: (await import("@/lib/language")).getLanguageCodeForChannel(channel) },
 		cache: "no-cache",
 	});
 	
@@ -1271,7 +1274,7 @@ export async function mergeGuestCartIntoUserCart(channel: string) {
 		
 		// Get guest checkout
 		const { checkout: guestCheckout } = await executeGraphQL(CheckoutFindDocument, {
-			variables: { id: guestCheckoutId },
+			variables: { id: guestCheckoutId, languageCode: (await import("@/lib/language")).getLanguageCodeForChannel(channel) },
 			cache: "no-cache",
 		});
 		
@@ -1286,7 +1289,7 @@ export async function mergeGuestCartIntoUserCart(channel: string) {
 		
 		if (userCheckoutId) {
 			const { checkout } = await executeGraphQL(CheckoutFindDocument, {
-				variables: { id: userCheckoutId },
+				variables: { id: userCheckoutId, languageCode: (await import("@/lib/language")).getLanguageCodeForChannel(channel) },
 				cache: "no-cache",
 			});
 			userCheckout = checkout;
@@ -1318,6 +1321,7 @@ export async function mergeGuestCartIntoUserCart(channel: string) {
 				variables: {
 					id: userCheckout.id,
 					lines: linesToAdd,
+					languageCode: (await import("@/lib/language")).getLanguageCodeForChannel(channel),
 				},
 				cache: "no-cache",
 			});

@@ -94,7 +94,7 @@ export const productsRouter = router({
     .input(
       z.object({
         rows: z.array(z.record(z.string())),
-        channelSlug: z.string(),
+        channelSlugs: z.array(z.string()).min(1),
         fieldMappings: z.record(z.string()),
         productTypeId: z.string().optional().default(""),
         categoryId: z.string().optional(),
@@ -124,14 +124,17 @@ export const productsRouter = router({
         productGroups.get(key)!.indices.push(i);
       }
 
-      // Resolve channel ID from slug
-      let channelId: string | undefined;
+      // Resolve channel IDs from slugs
+      const channelIds: { id: string; slug: string }[] = [];
       try {
         const chResult = await ctx.apiClient.query(
           `query { channels { id slug } }`, {}
         );
-        const ch = (chResult.data?.channels || []).find((c: any) => c.slug === input.channelSlug);
-        channelId = ch?.id;
+        for (const ch of (chResult.data?.channels || [])) {
+          if (input.channelSlugs.includes(ch.slug)) {
+            channelIds.push({ id: ch.id, slug: ch.slug });
+          }
+        }
       } catch { /* ignore */ }
 
       // Use selected warehouse, or fall back to first warehouse
@@ -293,13 +296,13 @@ export const productsRouter = router({
           let after: string | undefined;
           while (hasNext) {
             const pResult = await ctx.apiClient.query(
-              `query ExistingProducts($channel: String!, $after: String) {
-                products(channel: $channel, first: 100, after: $after) {
+              `query ExistingProducts($after: String) {
+                products(first: 100, after: $after) {
                   edges { node { id slug externalReference media { id } variants { id sku } } }
                   pageInfo { hasNextPage endCursor }
                 }
               }`,
-              { channel: input.channelSlug, after }
+              { after }
             );
             for (const e of (pResult.data?.products?.edges || [])) {
               const node = e.node;
@@ -520,8 +523,8 @@ export const productsRouter = router({
             productId = createData.product.id;
           }
 
-          // ── Publish to channel ──
-          if (channelId) {
+          // ── Publish to all selected channels ──
+          if (channelIds.length > 0) {
             try {
               await ctx.apiClient.mutation(
                 `mutation ProductChannelListingUpdate($id: ID!, $input: ProductChannelListingUpdateInput!) {
@@ -533,8 +536,8 @@ export const productsRouter = router({
                 {
                   id: productId,
                   input: {
-                    updateChannels: [{
-                      channelId,
+                    updateChannels: channelIds.map((ch) => ({
+                      channelId: ch.id,
                       isPublished: parseBool(first.isPublished, true),
                       visibleInListings: parseBool(first.visibleInListings, true),
                       isAvailableForPurchase: first.availableForPurchase && first.availableForPurchase.includes("-")
@@ -543,7 +546,7 @@ export const productsRouter = router({
                       ...(first.availableForPurchase && first.availableForPurchase.includes("-")
                         ? { availableForPurchaseAt: first.availableForPurchase }
                         : {}),
-                    }],
+                    })),
                   },
                 }
               );
@@ -709,7 +712,7 @@ export const productsRouter = router({
               const price = vRow.price ? parseFloat(vRow.price) : undefined;
               const costPrice = vRow.costPrice ? parseFloat(vRow.costPrice) : undefined;
 
-              if (channelId && price !== undefined) {
+              if (channelIds.length > 0 && price !== undefined) {
                 try {
                   await ctx.apiClient.mutation(
                     `mutation ProductVariantChannelListingUpdate($id: ID!, $input: [ProductVariantChannelListingAddInput!]!) {
@@ -720,7 +723,7 @@ export const productsRouter = router({
                     }`,
                     {
                       id: variantId,
-                      input: [{ channelId, price, costPrice }],
+                      input: channelIds.map((ch) => ({ channelId: ch.id, price, costPrice })),
                     }
                   );
                 } catch { /* non-critical */ }

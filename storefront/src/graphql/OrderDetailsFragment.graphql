@@ -74,7 +74,9 @@ fragment OrderDetails on Order {
 	lines {
 		id
 		productName
+		translatedProductName
 		variantName
+		translatedVariantName
 		quantity
 		unitPrice {
 			gross {
@@ -95,9 +97,11 @@ fragment OrderDetails on Order {
 		variant {
 			id
 			name
+			translation(languageCode: $languageCode) { name }
 			product {
 				id
 				name
+				translation(languageCode: $languageCode) { name description }
 				description
 				slug
 				thumbnail {
@@ -107,6 +111,7 @@ fragment OrderDetails on Order {
 				category {
 					id
 					name
+					translation(languageCode: $languageCode) { name }
 				}
 			}
 			pricing {

@@ -19,7 +19,7 @@ export const SortBy = () => {
 		{ name: filtersText.sortZtoA, value: "name-desc" },
 		{ name: filtersText.sortPriceLowHigh, value: "price-asc" },
 		{ name: filtersText.sortPriceHighLow, value: "price-desc" },
-		{ name: filtersText.sortNewest, value: "date-desc" },
+		{ name: filtersText.sortNewest, value: "newest" },
 		{ name: filtersText.sortSale, value: "sale" },
 	], [filtersText]);
 

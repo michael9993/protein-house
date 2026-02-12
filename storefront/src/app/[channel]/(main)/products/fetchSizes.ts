@@ -1,3 +1,5 @@
+import { getLanguageCodeForChannel } from "@/lib/language";
+
 export interface Size {
   id: string;
   name: string;
@@ -16,7 +18,7 @@ export async function fetchSizesForQuickFilters(channel: string): Promise<{ size
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: `
-          query VariantsForSizes($channel: String!) {
+          query VariantsForSizes($channel: String!, $languageCode: LanguageCodeEnum!) {
             productVariants(first: 100, channel: $channel) {
               edges {
                 node {
@@ -25,11 +27,13 @@ export async function fetchSizesForQuickFilters(channel: string): Promise<{ size
                     attribute {
                       id
                       name
+                      translation(languageCode: $languageCode) { name }
                       slug
                     }
                     values {
                       id
                       name
+                      translation(languageCode: $languageCode) { name }
                       slug
                     }
                   }
@@ -38,7 +42,7 @@ export async function fetchSizesForQuickFilters(channel: string): Promise<{ size
             }
           }
         `,
-        variables: { channel },
+        variables: { channel, languageCode: getLanguageCodeForChannel(channel) },
       }),
       next: { revalidate: 30 },
     });
@@ -78,7 +82,7 @@ export async function fetchSizesForQuickFilters(channel: string): Promise<{ size
             if (attr.values && attr.values.length > 0) {
               attr.values.forEach((value: any) => {
                 const sizeId = value.id || value.slug || value.name;
-                const sizeName = value.name;
+                const sizeName = value.translation?.name || value.name;
                 const sizeSlug = value.slug || value.name.toLowerCase().replace(/\s+/g, "-");
                 
                 if (!sizesMap.has(sizeId)) {

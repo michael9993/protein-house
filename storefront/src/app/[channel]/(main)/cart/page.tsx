@@ -92,7 +92,7 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 			},
 			variant: {
 				id: line.variant.id,
-				name: line.variant.name,
+				name: (line.variant as any).translation?.name || line.variant.name,
 				quantityAvailable: line.variant.quantityAvailable || 0,
 				attributes: line.variant.attributes && line.variant.attributes.length > 0 ? line.variant.attributes : null,
 				pricing: line.variant.pricing ? {
@@ -111,13 +111,13 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 				} : null,
 				product: {
 					slug: line.variant.product.slug,
-					name: line.variant.product.name,
+					name: (line.variant.product as any).translation?.name || line.variant.product.name,
 					thumbnail: line.variant.product.thumbnail ? {
 						url: line.variant.product.thumbnail.url,
 						alt: line.variant.product.thumbnail.alt || null,
 					} : null,
 					category: line.variant.product.category ? {
-						name: line.variant.product.category.name,
+						name: (line.variant.product.category as any).translation?.name || line.variant.product.category.name,
 					} : null,
 				},
 			},

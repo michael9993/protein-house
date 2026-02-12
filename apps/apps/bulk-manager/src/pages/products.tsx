@@ -9,7 +9,7 @@ import { ExcludeFieldsDropdown } from "@/modules/ui/exclude-fields-dropdown";
 import { readFileContent } from "@/modules/ui/utils/read-file";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { trpcVanillaClient } from "@/modules/trpc/trpc-vanilla-client";
-import { ChannelSelect } from "@/modules/ui/channel-select";
+import { ChannelSelect, MultiChannelSelect } from "@/modules/ui/channel-select";
 import { CategorySelect } from "@/modules/ui/category-select";
 import { ProductTypeSelect } from "@/modules/ui/product-type-select";
 import { WarehouseSelect } from "@/modules/ui/warehouse-select";
@@ -26,7 +26,8 @@ const ALL_TARGET_FIELDS = getTargetFields("products");
 
 export default function ProductsPage() {
   const [tab, setTab] = useState<Tab>("import");
-  const [channelSlug, setChannelSlug] = useState("");
+  const [channelSlugs, setChannelSlugs] = useState<string[]>([]);
+  const [exportChannelSlug, setExportChannelSlug] = useState("");
   const [productTypeId, setProductTypeId] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [warehouseId, setWarehouseId] = useState("");
@@ -141,7 +142,7 @@ export default function ProductsPage() {
 
         const result = await importProducts.mutateAsync({
           rows: batch.rows,
-          channelSlug,
+          channelSlugs,
           fieldMappings: mappings,
           productTypeId: productTypeId || undefined,
           categoryId: categoryId || undefined,
@@ -159,13 +160,13 @@ export default function ProductsPage() {
 
       return { total: totalSuccessful + totalFailed, successful: totalSuccessful, failed: totalFailed, results: allResults };
     },
-    [importProducts, channelSlug, productTypeId, categoryId, warehouseId, taxClassId, upsertMode]
+    [importProducts, channelSlugs, productTypeId, categoryId, warehouseId, taxClassId, upsertMode]
   );
 
   const handleExport = useCallback(
     async (format: "csv" | "xlsx") => {
       const result = await trpcVanillaClient.products.export.query({
-        channelSlug,
+        channelSlug: exportChannelSlug,
         format,
         first: 100,
         search: searchFilter || undefined,
@@ -175,7 +176,7 @@ export default function ProductsPage() {
       if (format === "csv") downloadCSV(result.data, `products-export-${Date.now()}.csv`);
       else downloadExcel(result.data, `products-export-${Date.now()}.xlsx`);
     },
-    [channelSlug, searchFilter, categoryFilter, productTypeFilter]
+    [exportChannelSlug, searchFilter, categoryFilter, productTypeFilter]
   );
 
   return (
@@ -212,7 +213,7 @@ export default function ProductsPage() {
               Default values (fallback when not specified in CSV columns)
             </Text>
             <Box display="flex" gap={4} alignItems="flex-start" __flexWrap="wrap">
-              <Box __minWidth="180px"><ChannelSelect value={channelSlug} onChange={setChannelSlug} /></Box>
+              <MultiChannelSelect value={channelSlugs} onChange={setChannelSlugs} label="Publish to Channels" />
               <Box __minWidth="180px">
                 <ProductTypeSelect value={productTypeId} onChange={setProductTypeId} />
                 <Text size={1} __color="#94a3b8" __display="block" __marginTop="4px" __lineHeight="1.2">or use &quot;productType&quot; column</Text>
@@ -265,7 +266,7 @@ export default function ProductsPage() {
               __border="1px solid #e2e8f0"
               __flexWrap="wrap"
             >
-              <ChannelSelect value={channelSlug} onChange={setChannelSlug} />
+              <ChannelSelect value={exportChannelSlug} onChange={setExportChannelSlug} />
               <Box __flex="1" __minWidth="200px">
                 <Text size={2} __fontWeight="500" __display="block" marginBottom={1}>
                   Search

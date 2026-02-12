@@ -1,24 +1,26 @@
 import { MenuGetBySlugDocument, type MenuGetBySlugQuery } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
+import { getLanguageCodeForChannel } from "@/lib/language";
 import { FooterClient } from "./FooterClient";
 
 export async function Footer({ channel }: { channel: string }) {
 	// Fetch footer menu from GraphQL (server-side). Use withAuth: false so invalid/expired
 	// tokens don't cause 500 — footer menu is public.
 	const channelSpecificSlug = `footer-${channel}`;
+	const languageCode = getLanguageCodeForChannel(channel);
 
 	type MenuItems = NonNullable<NonNullable<MenuGetBySlugQuery["menu"]>["items"]>;
 	let menuItems: MenuItems = [];
 	try {
 		let footerLinks = await executeGraphQL(MenuGetBySlugDocument, {
-			variables: { slug: channelSpecificSlug, channel },
+			variables: { slug: channelSpecificSlug, channel, languageCode },
 			revalidate: 60 * 60 * 24,
 			withAuth: false,
 		});
 
 		if (!footerLinks.menu?.items?.length) {
 			footerLinks = await executeGraphQL(MenuGetBySlugDocument, {
-				variables: { slug: "footer", channel },
+				variables: { slug: "footer", channel, languageCode },
 				revalidate: 60 * 60 * 24,
 				withAuth: false,
 			});

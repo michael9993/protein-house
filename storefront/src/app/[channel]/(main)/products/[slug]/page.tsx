@@ -8,6 +8,7 @@ import { invariant } from "ts-invariant";
 import { type WithContext, type Product, type BreadcrumbList } from "schema-dts";
 import { ProductDetailsDocument, ProductListDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
+import { getLanguageCodeForChannel } from "@/lib/language";
 import { formatMoney, formatMoneyRange } from "@/lib/utils";
 import { storeConfig } from "@/config";
 import { ProductDetailClient } from "./ProductDetailClient";
@@ -25,10 +26,12 @@ export async function generateMetadata(
 ): Promise<Metadata> {
 	const [searchParams, params] = await Promise.all([props.searchParams, props.params]);
 
+	const languageCode = getLanguageCodeForChannel(params.channel);
 	const { product } = await executeGraphQL(ProductDetailsDocument, {
 		variables: {
 			slug: decodeURIComponent(params.slug),
 			channel: params.channel,
+			languageCode,
 		},
 		revalidate: 60,
 	});
@@ -37,7 +40,8 @@ export async function generateMetadata(
 		notFound();
 	}
 
-	const productName = product.seoTitle || product.name;
+	const translatedName = product.translation?.name || product.name;
+	const productName = product.translation?.seoTitle || product.seoTitle || translatedName;
 	const variantName = product.variants?.find(({ id }) => id === searchParams.variant)?.name;
 	const productNameAndVariant = variantName ? `${productName} - ${variantName}` : productName;
 
@@ -45,8 +49,8 @@ export async function generateMetadata(
 	const productPath = `/products/${encodeURIComponent(params.slug)}`;
 
 	return {
-		title: `${product.name} | ${storeConfig.store.name}`,
-		description: product.seoDescription || productNameAndVariant,
+		title: `${translatedName} | ${storeConfig.store.name}`,
+		description: product.translation?.seoDescription || product.seoDescription || productNameAndVariant,
 		alternates: {
 			canonical: baseUrl ? baseUrl + productPath : undefined,
 			languages: baseUrl
@@ -61,7 +65,7 @@ export async function generateMetadata(
 					images: [
 						{
 							url: product.thumbnail.url,
-							alt: product.name,
+							alt: translatedName,
 						},
 					],
 				}
@@ -72,7 +76,7 @@ export async function generateMetadata(
 export async function generateStaticParams({ params }: { params: { channel: string } }) {
 	const { products } = await executeGraphQL(ProductListDocument, {
 		revalidate: 60,
-		variables: { first: 20, channel: params.channel },
+		variables: { first: 20, channel: params.channel, languageCode: getLanguageCodeForChannel(params.channel) },
 		withAuth: false,
 	});
 
@@ -87,10 +91,12 @@ export default async function Page(props: {
 	searchParams: Promise<{ variant?: string }>;
 }) {
 	const [searchParams, params] = await Promise.all([props.searchParams, props.params]);
+	const languageCode = getLanguageCodeForChannel(params.channel);
 	const { product } = await executeGraphQL(ProductDetailsDocument, {
 		variables: {
 			slug: decodeURIComponent(params.slug),
 			channel: params.channel,
+			languageCode,
 		},
 		revalidate: 60,
 	});
@@ -99,8 +105,9 @@ export default async function Page(props: {
 		notFound();
 	}
 
-	// Parse description
-	const description = product?.description ? parser.parse(JSON.parse(product?.description)) : null;
+	// Parse description (prefer translated)
+	const rawDescription = product.translation?.description || product?.description;
+	const description = rawDescription ? parser.parse(JSON.parse(rawDescription)) : null;
 	const descriptionHtml = description ? description.map((content: string) => xss(content)).join("") : null;
 
 	// Build images array
@@ -147,7 +154,8 @@ export default async function Page(props: {
 	const brandAttr = product.attributes?.find(
 		(a: any) => a.attribute.slug === "brand" || a.attribute.slug === "manufacturer",
 	);
-	const brandName = brandAttr?.values?.[0]?.name || storeConfig.store.name;
+	const brandVal = brandAttr?.values?.[0];
+	const brandName = (brandVal ? ((brandVal as any).translation?.name || brandVal.name) : null) || storeConfig.store.name;
 
 	// Rating data
 	const rating = (product as any).rating as number | null;
@@ -159,7 +167,7 @@ export default async function Page(props: {
 		"@type": "Product",
 		image: product.thumbnail?.url,
 		brand: { "@type": "Brand", name: brandName },
-		...(product.category ? { category: product.category.name } : {}),
+		...(product.category ? { category: product.category.translation?.name || product.category.name } : {}),
 		...(selectedVariant?.id ? { sku: selectedVariant.id } : {}),
 		...(rating && reviewCount > 0
 			? {
@@ -174,8 +182,8 @@ export default async function Page(props: {
 			: {}),
 		...(selectedVariant
 			? {
-					name: `${product.name} - ${selectedVariant.name}`,
-					description: product.seoDescription || `${product.name} - ${selectedVariant.name}`,
+					name: `${product.translation?.name || product.name} - ${selectedVariant.translation?.name || selectedVariant.name}`,
+					description: product.translation?.seoDescription || product.seoDescription || `${product.translation?.name || product.name} - ${selectedVariant.translation?.name || selectedVariant.name}`,
 					offers: {
 						"@type": "Offer",
 						availability: selectedVariant.quantityAvailable
@@ -187,8 +195,8 @@ export default async function Page(props: {
 					},
 				}
 			: {
-					name: product.name,
-					description: product.seoDescription || product.name,
+					name: product.translation?.name || product.name,
+					description: product.translation?.seoDescription || product.seoDescription || (product.translation?.name || product.name),
 					offers: {
 						"@type": "AggregateOffer",
 						availability: product.variants?.some((variant) => variant.quantityAvailable)
@@ -218,7 +226,7 @@ export default async function Page(props: {
 						{
 							"@type": "ListItem" as const,
 							position: 2,
-							name: product.category.name,
+							name: product.category.translation?.name || product.category.name,
 							item: `${baseUrl}/${params.channel}/products?categories=${product.category.slug}`,
 						},
 					]
@@ -226,7 +234,7 @@ export default async function Page(props: {
 			{
 				"@type": "ListItem",
 				position: product.category ? 3 : 2,
-				name: product.name,
+				name: product.translation?.name || product.name,
 			},
 		],
 	};
@@ -248,10 +256,10 @@ export default async function Page(props: {
 			<ProductDetailClient
 				product={{
 					id: product.id,
-					name: product.name,
+					name: product.translation?.name || product.name,
 					slug: product.slug,
 					description: descriptionHtml,
-					category: product.category?.name || null,
+					category: product.category ? (product.category.translation?.name || product.category.name) : null,
 					categorySlug: product.category?.slug || null,
 					price,
 					originalPrice,
@@ -264,20 +272,20 @@ export default async function Page(props: {
 					images,
 					variants: variants.map(v => ({
 						id: v.id,
-						name: v.name,
+						name: v.translation?.name || v.name,
 						quantityAvailable: v.quantityAvailable || 0,
 						trackInventory: (v as any).trackInventory ?? true,
 						quantityLimitPerCustomer: (v as any).quantityLimitPerCustomer ?? null,
 						attributes: v.attributes ? v.attributes.map(attr => ({
 							attribute: {
 								id: attr.attribute.id,
-								name: attr.attribute.name || "",
+								name: attr.attribute.translation?.name || attr.attribute.name || "",
 								slug: attr.attribute.slug || "",
 								inputType: (attr.attribute as any).inputType || null,
 							},
 							values: attr.values.map(val => ({
 								id: val.id,
-								name: val.name || "",
+								name: val.translation?.name || val.name || "",
 								slug: val.slug || "",
 								value: (val as any).value || null,
 							})),
@@ -287,14 +295,14 @@ export default async function Page(props: {
 					productAttributes: ((product as any).attributes || []).map((a: any) => ({
 						attribute: {
 							id: a.attribute.id,
-							name: a.attribute.name || "",
+							name: a.attribute.translation?.name || a.attribute.name || "",
 							slug: a.attribute.slug || "",
 							inputType: a.attribute.inputType || null,
 							visibleInStorefront: true, // Saleor filters to visible-only for anonymous users
 						},
 						values: a.values.map((val: any) => ({
 							id: val.id,
-							name: val.name || "",
+							name: val.translation?.name || val.name || "",
 							slug: val.slug || "",
 							value: val.value || null,
 							richText: val.richText || null,

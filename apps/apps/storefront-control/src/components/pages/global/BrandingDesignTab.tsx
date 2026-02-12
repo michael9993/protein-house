@@ -310,6 +310,34 @@ export function BrandingDesignTab({ register, control, errors, watch }: GlobalTa
         </div>
       </FormSection>
 
+      {/* Section "View All" Buttons */}
+      <FormSection title="Section View All Buttons" description="Style of 'View All' links in homepage sections (Categories, Trending, Best Sellers, etc.)" collapsible defaultExpanded={false}>
+        <FieldGroup columns={2}>
+          <FormSelect<GlobalFormData>
+            label="Button Style"
+            name="ui.sectionViewAllButton.style"
+            control={control}
+            options={[
+              { value: "pill", label: "Pill (bordered)" },
+              { value: "text", label: "Text link" },
+              { value: "minimal", label: "Minimal" },
+            ]}
+            description="Pill: bordered pill with hover fill. Text: plain link with icon. Minimal: text only."
+          />
+          <FormSelect<GlobalFormData>
+            label="Icon"
+            name="ui.sectionViewAllButton.icon"
+            control={control}
+            options={[
+              { value: "chevron", label: "Chevron ›" },
+              { value: "arrow", label: "Arrow →" },
+              { value: "none", label: "No icon" },
+            ]}
+            description="Icon shown next to button text (ignored in Minimal style)"
+          />
+        </FieldGroup>
+      </FormSection>
+
       {/* Badges */}
       <FormSection title="Badges" description="Product badge styling" collapsible defaultExpanded={false}>
         <FormSelect<GlobalFormData>

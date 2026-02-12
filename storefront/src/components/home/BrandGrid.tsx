@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { normalizeHref, deriveBrandSlug } from "./utils";
+import { deriveBrandSlug } from "./utils";
+import { buildProductsUrl, buildBrandUrl, withChannel } from "@/lib/urls";
+import { SectionViewAllButton } from "./SectionViewAllButton";
 import { SectionWrapper } from "./SectionWrapper";
 import { type FeaturedBrand } from "@/lib/cms";
 import { useBranding, useBrandGridConfig, useContentConfig } from "@/providers/StoreConfigProvider";
@@ -54,12 +56,10 @@ export function BrandGrid({ brands, channel }: BrandGridProps) {
                 <p className="mt-3 max-w-2xl text-sm font-medium text-neutral-500">{subtitle}</p>
               )}
             </div>
-            <Link
-              href={`/${encodeURIComponent(channel)}/products`}
-              className="text-xs font-bold uppercase tracking-[0.25em] text-neutral-900 transition hover:opacity-70"
-            >
-              {viewAllBrandsText}
-            </Link>
+            <SectionViewAllButton
+              href={withChannel(channel, buildProductsUrl())}
+              text={viewAllBrandsText}
+            />
           </div>
         </SectionWrapper>
 
@@ -67,8 +67,8 @@ export function BrandGrid({ brands, channel }: BrandGridProps) {
           {brands.slice(0, maxBrands).map((brand) => {
             const brandSlug = deriveBrandSlug(brand.name);
             const href = brand.url
-              ? normalizeHref(channel, brand.url)
-              : `/${encodeURIComponent(channel)}/products?brands=${encodeURIComponent(brandSlug)}`;
+              ? withChannel(channel, brand.url)
+              : withChannel(channel, buildBrandUrl(brandSlug));
 
             return (
               <SectionWrapper key={brand.id} as="div">

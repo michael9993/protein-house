@@ -4,6 +4,7 @@ import { Header } from "@/ui/components/Header";
 import { PromoPopupLoader } from "@/ui/components/PromoPopup";
 import { ProductListByCollectionDocument, CurrentUserDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
+import { getLanguageCodeForChannel } from "@/lib/language";
 import { homepageCollections } from "@/lib/cms";
 import { StoreConfigProvider } from "@/providers/StoreConfigProvider";
 import { DirectionProvider } from "@/providers/DirectionProvider";
@@ -18,6 +19,7 @@ import { CartDrawerShell } from "@/ui/components/CartDrawer";
 import { createCheckoutWithItemsAction } from "@/app/cart-actions";
 import { WhatsAppChatButton } from "@/components/WhatsAppChatButton";
 import { RecentlyViewedProvider } from "@/lib/recently-viewed";
+import { WishlistProvider } from "@/lib/wishlist";
 import { RecentlyViewedFloatingButton } from "@/components/RecentlyViewedDrawer";
 import { WishlistFloatingButton } from "@/components/WishlistDrawer";
 import { QuickViewWrapper } from "./QuickViewWrapper";
@@ -49,8 +51,9 @@ export async function generateMetadata(props: { params: Promise<{ channel: strin
  */
 async function getSalePromoData(channel: string) {
 	try {
+		const languageCode = getLanguageCodeForChannel(channel);
 		const result = await executeGraphQL(ProductListByCollectionDocument, {
-			variables: { slug: homepageCollections.sale, channel },
+			variables: { slug: homepageCollections.sale, channel, languageCode },
 			revalidate: 300,
 		});
 		
@@ -158,6 +161,7 @@ export default async function RootLayout(props: {
 			/>
 			<StoreConfigProvider config={storeConfig}>
 			<DirectionProvider>
+			<WishlistProvider channel={channel}>
 			<RecentlyViewedProvider channel={channel}>
 			<CartDrawerShell createCheckoutWithItems={createCheckoutWithItemsAction}>
 				<QuickViewWrapper channel={channel}>
@@ -191,6 +195,7 @@ export default async function RootLayout(props: {
 				</QuickViewWrapper>
 			</CartDrawerShell>
 			</RecentlyViewedProvider>
+			</WishlistProvider>
 			</DirectionProvider>
 			</StoreConfigProvider>
 		</>

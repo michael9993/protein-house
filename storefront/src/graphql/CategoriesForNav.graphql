@@ -3,12 +3,13 @@
 # To add more levels: add another nested "children { edges { node { ... } } }" block
 # and run `pnpm generate`. If the API returns "depth" or "complexity" errors, remove a level.
 
-query CategoriesForNav($channel: String!, $first: Int = 10) {
+query CategoriesForNav($channel: String!, $first: Int = 10, $languageCode: LanguageCodeEnum!) {
   categories(first: $first, level: 0) {
     edges {
       node {
         id
         name
+        translation(languageCode: $languageCode) { name description }
         slug
         description
         backgroundImage {
@@ -23,6 +24,7 @@ query CategoriesForNav($channel: String!, $first: Int = 10) {
             node {
               id
               name
+              translation(languageCode: $languageCode) { name }
               slug
               products(channel: $channel, first: 1) {
                 totalCount
@@ -32,6 +34,7 @@ query CategoriesForNav($channel: String!, $first: Int = 10) {
                   node {
                     id
                     name
+                    translation(languageCode: $languageCode) { name }
                     slug
                     products(channel: $channel, first: 1) {
                       totalCount

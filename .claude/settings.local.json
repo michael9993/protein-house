@@ -113,7 +113,8 @@
       "Bash(test:*)",
       "Bash(npx patch-package:*)",
       "Bash(npx @saleor/configurator deploy:*)",
-      "Bash(head:*)"
+      "Bash(head:*)",
+      "Bash(Select-String \"CollectionMosaic\")"
     ],
     "deny": [
       "Read(./.env*)",

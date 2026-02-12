@@ -3,6 +3,7 @@
 import { useRef, useCallback, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { ProductListItemFragment } from "@/gql/graphql";
+import { t } from "@/lib/language";
 import { useWishlist } from "@/lib/wishlist";
 import {
   useRelatedProductsConfig,
@@ -51,14 +52,14 @@ export function RelatedProductsCarousel({ products, channel }: RelatedProductsCa
       const image = product.thumbnail?.url || product.media?.[0]?.url;
       addItem({
         id: productId,
-        name: product.name,
+        name: t(product),
         slug: product.slug,
         price: price?.amount || 0,
         originalPrice: originalPrice?.amount,
         currency: price?.currency || "USD",
         image: image || "",
-        imageAlt: product.thumbnail?.alt || product.name,
-        category: product.category?.name || undefined,
+        imageAlt: product.thumbnail?.alt || t(product),
+        category: product.category ? t(product.category) : undefined,
         inStock: (product.variants?.some(v => (v.quantityAvailable ?? 0) > 0)) ?? true,
         channel,
       });

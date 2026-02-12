@@ -315,8 +315,8 @@ export function ProductFilters({
 
   return (
     <aside className="flex h-full w-full flex-col">
-      {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+      {/* Content */}
+      <div className="flex-1 overflow-x-hidden">
         {/* Clear All Button - Configurable via Storefront Control */}
         {hasFilters && (
           <div className="mb-4 pb-4 border-b border-neutral-200">
@@ -370,7 +370,7 @@ export function ProductFilters({
             chevronColor={fsConfig.chevronColor}
             chevronHoverColor={fsConfig.chevronHoverColor}
           >
-            <div className="space-y-0.5 max-h-56 overflow-y-auto overflow-x-hidden">
+            <div className="space-y-0.5">
               {collections.map(collection => (
                 <label key={collection.id} className="flex cursor-pointer items-center gap-2.5 py-1.5 hover:bg-neutral-50 rounded px-1.5 -mx-1.5 transition-colors min-w-0">
                   <input
@@ -401,7 +401,7 @@ export function ProductFilters({
             chevronColor={fsConfig.chevronColor}
             chevronHoverColor={fsConfig.chevronHoverColor}
           >
-            <div className="space-y-0.5 max-h-56 overflow-y-auto overflow-x-hidden">
+            <div className="space-y-0.5">
               {brands.map(brand => (
                 <label key={brand.id} className="flex cursor-pointer items-center gap-2.5 py-1.5 hover:bg-neutral-50 rounded px-1.5 -mx-1.5 transition-colors min-w-0">
                   <input
@@ -475,7 +475,7 @@ export function ProductFilters({
             chevronColor={fsConfig.chevronColor}
             chevronHoverColor={fsConfig.chevronHoverColor}
           >
-            <div className="space-y-0.5 max-h-56 overflow-y-auto overflow-x-hidden">
+            <div className="space-y-0.5">
               {colors.map(color => (
                 <label key={color.id} className="flex cursor-pointer items-center gap-2.5 py-1.5 hover:bg-neutral-50 rounded px-1.5 -mx-1.5 transition-colors min-w-0">
                   <input

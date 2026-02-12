@@ -10,6 +10,7 @@ import { useRecentlyViewed, type RecentlyViewedItem } from "@/lib/recently-viewe
 import { useFeature, useBranding, useContentConfig, useUiConfig, useBadgeStyle } from "@/providers/StoreConfigProvider";
 import { useWishlist } from "@/lib/wishlist";
 import { useQuickView } from "@/providers/QuickViewProvider";
+import { buildProductUrl, withChannel } from "@/lib/urls";
 import { ShareButton } from "@/ui/components/ProductSharing";
 import {
 	getCardHoverClasses,
@@ -104,7 +105,7 @@ function DrawerProductCard({
 			</button>
 
 			<Link
-				href={`/${encodeURIComponent(channel)}/products/${item.slug}`}
+				href={withChannel(channel, buildProductUrl(item.slug))}
 				onClick={onClose}
 				className={`relative flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm transition-all duration-300 ${getCardHoverClasses(cardConfig.hoverEffect)}`}
 			>

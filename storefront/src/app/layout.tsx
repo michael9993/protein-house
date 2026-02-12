@@ -4,7 +4,6 @@ import { Suspense, type ReactNode } from "react";
 import { type Metadata } from "next";
 import { DraftModeNotification } from "@/ui/components/DraftModeNotification";
 import { ToastProvider, ToastContainer } from "@/ui/components/Toast";
-import { WishlistProvider } from "@/lib/wishlist";
 import { storeConfig } from "@/config";
 
 // Load multiple fonts for different store themes
@@ -81,16 +80,14 @@ export default function RootLayout(props: { children: ReactNode }) {
 	return (
 		<html lang="en" className="min-h-dvh">
 			<body className={`${fontVariables} ${inter.className} min-h-dvh`}>
-				{/* Note: StoreConfigProvider is only in channel layout to ensure RTL comes from CMS config only */}
-				<WishlistProvider>
-					<ToastProvider>
-						{children}
-						<ToastContainer />
-						<Suspense>
-							<DraftModeNotification />
-						</Suspense>
-					</ToastProvider>
-				</WishlistProvider>
+				{/* Note: StoreConfigProvider and WishlistProvider are in channel layout for per-channel data */}
+				<ToastProvider>
+					{children}
+					<ToastContainer />
+					<Suspense>
+						<DraftModeNotification />
+					</Suspense>
+				</ToastProvider>
 			</body>
 		</html>
 	);

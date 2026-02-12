@@ -7,6 +7,7 @@ query ProductListFiltered(
 	$sortBy: ProductOrder
 	$filter: ProductFilterInput
 	$search: String
+	$languageCode: LanguageCodeEnum!
 ) {
 	products(
 		first: $first
@@ -34,12 +35,13 @@ query ProductListFiltered(
 
 # Query to fetch categories for the filter sidebar (depth: root → L1 → L2).
 # Limits kept low to stay under Saleor query cost (max 50000).
-query CategoriesForFilter($first: Int!, $channel: String!) {
+query CategoriesForFilter($first: Int!, $channel: String!, $languageCode: LanguageCodeEnum!) {
 	categories(first: $first, level: 0) {
 		edges {
 			node {
 				id
 				name
+				translation(languageCode: $languageCode) { name }
 				slug
 				products(first: 1, channel: $channel) {
 					totalCount
@@ -49,6 +51,7 @@ query CategoriesForFilter($first: Int!, $channel: String!) {
 						node {
 							id
 							name
+							translation(languageCode: $languageCode) { name }
 							slug
 							products(first: 1, channel: $channel) {
 								totalCount
@@ -58,6 +61,7 @@ query CategoriesForFilter($first: Int!, $channel: String!) {
 									node {
 										id
 										name
+										translation(languageCode: $languageCode) { name }
 										slug
 									}
 								}

@@ -793,6 +793,10 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       showDeleteText: false,
       showSaveForLater: false,
     },
+    sectionViewAllButton: {
+      style: "pill",
+      icon: "chevron",
+    },
   },
 
   content: {
@@ -951,6 +955,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       deleteButton: "Delete",
       editButton: "Edit",
       homeLabel: "Home",
+      allProductsLabel: "Products",
     } as StorefrontConfig["content"]["general"],
     homepage: {
       newArrivalsTitle: "New Arrivals",
@@ -998,6 +1003,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       viewAllBrandsButton: "View all brands",
       viewAllOffersButton: "View all offers",
       allCollectionsButton: "All Collections",
+      viewAllButton: "View All",
       itemsText: "items",
       stylesText: "styles",
       performanceLineupText: "Performance lineup",

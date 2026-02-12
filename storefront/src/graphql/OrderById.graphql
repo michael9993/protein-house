@@ -1,4 +1,4 @@
-query OrderById($id: ID!) {
+query OrderById($id: ID!, $languageCode: LanguageCodeEnum!) {
 	order(id: $id) {
 		...OrderDetails
 	}

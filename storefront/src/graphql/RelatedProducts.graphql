@@ -2,7 +2,7 @@
 # Used in the Related Products section on PDP
 # Fetches 12 products to allow for filtering out the current product while still having enough
 
-query RelatedProductsByCategory($categorySlug: String!, $channel: String!, $first: Int = 12) {
+query RelatedProductsByCategory($categorySlug: String!, $channel: String!, $first: Int = 12, $languageCode: LanguageCodeEnum!) {
 	category(slug: $categorySlug) {
 		name
 		products(first: $first, channel: $channel) {
@@ -16,7 +16,7 @@ query RelatedProductsByCategory($categorySlug: String!, $channel: String!, $firs
 }
 
 # Fallback query for popular products when category has insufficient items
-query PopularProducts($channel: String!, $first: Int = 12) {
+query PopularProducts($channel: String!, $first: Int = 12, $languageCode: LanguageCodeEnum!) {
 	products(
 		first: $first
 		channel: $channel

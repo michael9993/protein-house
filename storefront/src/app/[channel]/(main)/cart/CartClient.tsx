@@ -669,7 +669,7 @@ export function CartClient({
                         {item.variant.product.thumbnail?.url ? (
                           <Image
                             src={item.variant.product.thumbnail.url}
-                            alt={item.variant.product.thumbnail.alt || item.variant.product.name}
+                            alt={item.variant.product.thumbnail.alt || ((item.variant.product as any).translation?.name || item.variant.product.name)}
                             fill
                             className="object-cover"
                             sizes="112px"
@@ -709,7 +709,7 @@ export function CartClient({
                                 })}
                                 className="font-medium text-neutral-900 hover:text-neutral-700"
                               >
-                                {item.variant.product.name}
+                                {(item.variant.product as any).translation?.name || item.variant.product.name}
                               </LinkWithChannel>
                               {item.isGift && (
                                 <span className="ml-2 inline-flex items-center">
@@ -721,7 +721,7 @@ export function CartClient({
                             </div>
                             {item.variant.product.category?.name && (
                               <p className="mt-0.5 text-sm text-neutral-500">
-                                {item.variant.product.category.name}
+                                {(item.variant.product.category as any).translation?.name || item.variant.product.category.name}
                               </p>
                             )}
                             {item.variant.name !== item.variant.id && (

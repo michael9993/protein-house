@@ -1,3 +1,5 @@
+import { getLanguageCodeForChannel } from "@/lib/language";
+
 export interface Color {
   id: string;
   name: string;
@@ -19,7 +21,7 @@ export async function fetchColorsForQuickFilters(channel: string): Promise<{
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: `
-          query VariantsForColors($channel: String!) {
+          query VariantsForColors($channel: String!, $languageCode: LanguageCodeEnum!) {
             productVariants(first: 100, channel: $channel) {
               edges {
                 node {
@@ -28,11 +30,13 @@ export async function fetchColorsForQuickFilters(channel: string): Promise<{
                     attribute {
                       id
                       name
+                      translation(languageCode: $languageCode) { name }
                       slug
                     }
                     values {
                       id
                       name
+                      translation(languageCode: $languageCode) { name }
                       slug
                     }
                   }
@@ -41,7 +45,7 @@ export async function fetchColorsForQuickFilters(channel: string): Promise<{
             }
           }
         `,
-        variables: { channel },
+        variables: { channel, languageCode: getLanguageCodeForChannel(channel) },
       }),
       next: { revalidate: 30 },
     });
@@ -82,7 +86,7 @@ export async function fetchColorsForQuickFilters(channel: string): Promise<{
             if (attr.values && attr.values.length > 0) {
               attr.values.forEach((value: any) => {
                 const colorId = value.id || value.slug || value.name;
-                const colorName = value.name;
+                const colorName = value.translation?.name || value.name;
                 const colorSlug = value.slug || value.name.toLowerCase().replace(/\s+/g, "-");
                 
                 if (!colorsMap.has(colorId)) {

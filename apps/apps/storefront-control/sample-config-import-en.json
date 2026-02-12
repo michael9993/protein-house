@@ -795,6 +795,10 @@
         "drawerSide": "right",
         "showDeleteText": false,
         "showSaveForLater": false
+      },
+      "sectionViewAllButton": {
+        "style": "pill",
+        "icon": "chevron"
       }
     },
     "content": {
@@ -990,7 +994,8 @@
         "confirmButton": "Confirm",
         "deleteButton": "Delete",
         "editButton": "Edit",
-        "homeLabel": "Home"
+        "homeLabel": "Home",
+        "allProductsLabel": "Products"
       },
       "homepage": {
         "newArrivalsTitle": "New Arrivals",
@@ -1038,6 +1043,7 @@
         "viewAllBrandsButton": "View all brands",
         "viewAllOffersButton": "View all offers",
         "allCollectionsButton": "All Collections",
+        "viewAllButton": "View All",
         "itemsText": "items",
         "stylesText": "styles",
         "performanceLineupText": "Performance lineup",

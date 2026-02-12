@@ -1,4 +1,4 @@
-query CheckoutFind($id: ID!) {
+query CheckoutFind($id: ID!, $languageCode: LanguageCodeEnum!) {
 	checkout(id: $id) {
 		id
 		email
@@ -26,12 +26,18 @@ query CheckoutFind($id: ID!) {
 					id
 					name
 					slug
+					translation(languageCode: $languageCode) {
+						name
+					}
 					thumbnail {
 						url
 						alt
 					}
 					category {
 						name
+						translation(languageCode: $languageCode) {
+							name
+						}
 					}
 				}
 				pricing {
@@ -50,17 +56,26 @@ query CheckoutFind($id: ID!) {
 				}
 				name
 				id
+				translation(languageCode: $languageCode) {
+					name
+				}
 				quantityAvailable
 				attributes {
 					attribute {
 						id
 						name
 						slug
+						translation(languageCode: $languageCode) {
+							name
+						}
 					}
 					values {
 						id
 						name
 						slug
+						translation(languageCode: $languageCode) {
+							name
+						}
 					}
 				}
 			}

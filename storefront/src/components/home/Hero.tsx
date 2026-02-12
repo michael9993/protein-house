@@ -7,14 +7,15 @@ import { ArrowRight } from "lucide-react";
 import { type ProductListItemFragment } from "@/gql/graphql";
 import { type HeroBannerConfig } from "@/lib/cms";
 import { formatMoney } from "@/lib/utils";
+import { t } from "@/lib/language";
 import { useBranding, useStoreInfo, useHeroConfig, useContentConfig, useBadgeStyle } from "@/providers/StoreConfigProvider";
+import { buildProductUrl, buildProductsUrl, withChannel } from "@/lib/urls";
 import {
   getProductImage,
   getProductAlt,
   getProductBrand,
   getDiscountPercent,
   getTotalStock,
-  normalizeHref,
   uniqueBy,
   type BadgeLabels,
 } from "./utils";
@@ -267,7 +268,7 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
             {/* CTAs */}
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
-                href={normalizeHref(channel, ctaLink)}
+                href={withChannel(channel, ctaLink)}
                 className="group inline-flex items-center gap-2.5 rounded-full px-7 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-2xl"
                 style={{ backgroundColor: colors.primary }}
               >
@@ -279,7 +280,7 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
                 />
               </Link>
               <Link
-                href={`/${encodeURIComponent(channel)}/products`}
+                href={withChannel(channel, buildProductsUrl())}
                 className="rounded-full border border-white/20 bg-white/5 px-6 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-white/90 backdrop-blur-sm transition hover:border-white/40 hover:bg-white/10"
               >
                 {exploreBrandsText}
@@ -343,7 +344,7 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
                   return (
                     <Link
                       key={product.id}
-                      href={`/${encodeURIComponent(channel)}/products/${product.slug}`}
+                      href={withChannel(channel, buildProductUrl(product.slug))}
                       aria-hidden={!isCenter}
                       tabIndex={isCenter ? 0 : -1}
                       onClick={(e) => {
@@ -441,7 +442,7 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
                             {getProductBrand(product, storeName)}
                           </div>
                           <div className={`font-bold text-neutral-900 line-clamp-1 ${isCenter ? "mt-1 text-sm" : "mt-0.5 text-xs"}`}>
-                            {product.name}
+                            {t(product)}
                           </div>
                           <div className={`font-black ${isCenter ? "mt-1 text-base" : "mt-0.5 text-sm"}`} style={{ color: colors.primary }}>
                             {price ? formatMoney(price.amount, price.currency) : "N/A"}
@@ -516,7 +517,7 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
                   return (
                     <Link
                       key={product.id}
-                      href={`/${encodeURIComponent(channel)}/products/${product.slug}`}
+                      href={withChannel(channel, buildProductUrl(product.slug))}
                       aria-hidden={!isCenter}
                       tabIndex={isCenter ? 0 : -1}
                       onClick={(e) => {
@@ -644,7 +645,7 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
                             {getProductBrand(product, storeName)}
                           </div>
                           <div className={`font-bold text-neutral-900 line-clamp-1 ${isCenter ? "mt-2 text-base" : isFirstLayer ? "mt-1 text-sm" : isSecondLayer ? "mt-0.5 text-xs" : "mt-0.5 text-[11px]"}`}>
-                            {product.name}
+                            {t(product)}
                           </div>
                           <div className={`font-black ${isCenter ? "mt-2 text-xl" : isFirstLayer ? "mt-1 text-base" : isSecondLayer ? "mt-0.5 text-sm" : "mt-0.5 text-xs"}`} style={{ color: colors.primary }}>
                             {price ? formatMoney(price.amount, price.currency) : "N/A"}

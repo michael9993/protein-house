@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { executeGraphQL } from "@/lib/graphql";
 import { OrderByNumberAndEmailDocument } from "@/gql/graphql";
+import { getLanguageCodeForChannel } from "@/lib/language";
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ channel: string }> }) {
 	try {
+		const { channel } = await params;
 		const body = (await request.json()) as { orderNumber?: string; email?: string };
 		const orderNumber = body.orderNumber;
 		const email = body.email;
@@ -21,6 +23,7 @@ export async function POST(request: NextRequest) {
 			variables: {
 				number: orderNumber.toString(),
 				email: email.trim(),
+				languageCode: getLanguageCodeForChannel(channel),
 			},
 			cache: "no-cache",
 			withAuth: false, // Public query - no authentication required

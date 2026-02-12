@@ -15,6 +15,7 @@ import {
 } from "@/providers/StoreConfigProvider";
 import { useQuickView } from "@/providers/QuickViewProvider";
 import { useWishlist } from "@/lib/wishlist";
+import { buildProductUrl, withChannel } from "@/lib/urls";
 import { ShareButton } from "@/ui/components/ProductSharing";
 import {
 	getCardHoverClasses,
@@ -123,7 +124,7 @@ function ProductCard({
 
 	return (
 		<Link
-			href={`/${encodeURIComponent(channel)}/products/${item.slug}`}
+			href={withChannel(channel, buildProductUrl(item.slug))}
 			className={`group relative flex h-full flex-col overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm transition-all duration-300 ${getCardHoverClasses(cardConfig.hoverEffect)}`}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}

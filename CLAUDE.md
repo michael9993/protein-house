@@ -418,6 +418,18 @@ export async function addToCart(cartId: string, productId: string) {
 
 **Apps-specific:** Result-based error handling with neverthrow. Branded types with Zod. BaseError subclasses. Repository pattern. Keep webhook handlers thin.
 
+## Mandatory Skill Invocations
+
+These skills MUST be invoked (via the Skill tool) at the start of the corresponding workflow. Do not skip them.
+
+| Workflow | Skill to Invoke | When |
+|----------|----------------|------|
+| Planning | `superpowers:writing-plans` | Before writing any implementation plan |
+| Executing Plans | `superpowers:executing-plans` | Before executing an approved plan |
+| Frontend Development | `senior-frontend` | Before any storefront/dashboard UI work |
+| Frontend Design | `frontend-design` | Before creating or redesigning UI components |
+| UI/UX Decisions | `ui-ux-pro-max` | Before making UI/UX design decisions, layout changes, or interaction patterns |
+
 ## Saleor Apps Reference
 
 | App | Container | Port | Purpose |

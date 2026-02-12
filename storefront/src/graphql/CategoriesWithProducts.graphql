@@ -1,12 +1,13 @@
 # Fetch categories with their products for rotating image carousel
 # Used on products page to show category sections with rotating product images
 
-query CategoriesWithProducts($channel: String!, $first: Int = 6) {
+query CategoriesWithProducts($channel: String!, $first: Int = 6, $languageCode: LanguageCodeEnum!) {
   categories(first: $first, level: 0) {
     edges {
       node {
         id
         name
+        translation(languageCode: $languageCode) { name description }
         slug
         description
         backgroundImage {
@@ -19,6 +20,7 @@ query CategoriesWithProducts($channel: String!, $first: Int = 6) {
             node {
               id
               name
+              translation(languageCode: $languageCode) { name }
               slug
               thumbnail {
                 url
@@ -30,6 +32,7 @@ query CategoriesWithProducts($channel: String!, $first: Int = 6) {
               }
               category {
                 name
+                translation(languageCode: $languageCode) { name }
                 slug
               }
             }

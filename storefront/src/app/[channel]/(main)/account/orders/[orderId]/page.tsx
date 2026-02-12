@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { invariant } from "ts-invariant";
 import { OrderByIdDocument, CheckoutAddLinesDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
+import { getLanguageCodeForChannel } from "@/lib/language";
 import * as Checkout from "@/lib/checkout";
 import { OrderDetailsClient } from "./OrderDetailsClient";
 
@@ -18,8 +19,10 @@ export default async function OrderDetailPage({
 }) {
 	const { channel, orderId } = await params;
 
+	const languageCode = getLanguageCodeForChannel(channel);
+
 	const { order } = await executeGraphQL(OrderByIdDocument, {
-		variables: { id: orderId },
+		variables: { id: orderId, languageCode },
 		cache: "no-cache",
 	});
 
@@ -73,6 +76,7 @@ export default async function OrderDetailPage({
 				variables: {
 					id: checkout.id,
 					lines: checkoutLines,
+					languageCode: getLanguageCodeForChannel(channelSlug),
 				},
 				cache: "no-cache",
 			});

@@ -1,5 +1,6 @@
 import { ProductListByCategoryDocument, ProductListItemFragment } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
+import { getLanguageCodeForChannel } from "@/lib/language";
 import { RelatedProductsCarousel } from "@/ui/components/RelatedProducts/RelatedProductsCarousel";
 
 interface RelatedProductsSectionProps {
@@ -25,11 +26,13 @@ export async function RelatedProductsSection({
   maxItems = 8,
 }: RelatedProductsSectionProps) {
   // Fetch products from the same category
+  const languageCode = getLanguageCodeForChannel(channel);
   const { category } = await executeGraphQL(ProductListByCategoryDocument, {
     variables: {
       slug: categorySlug,
       channel,
       first: maxItems + 2,
+      languageCode,
     },
     revalidate: 60,
   });

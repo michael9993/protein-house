@@ -7,6 +7,7 @@ import {
   OrderDirection,
 } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
+import { getLanguageCodeForChannel } from "@/lib/language";
 import { storeConfig, DEFAULT_FILTERS_TEXT } from "@/config";
 import { fetchStorefrontConfig } from "@/lib/storefront-control";
 import { ProductFiltersWrapper } from "./ProductFiltersWrapper";
@@ -71,7 +72,7 @@ function buildCategoriesTreeFromFilterEdges(
   if (!edges?.length) return [];
   return edges.map(({ node }) => ({
     id: node.id,
-    name: node.name,
+    name: (node as any).translation?.name || node.name,
     slug: node.slug,
     productCount: (node as { products?: { totalCount?: number } }).products
       ?.totalCount,
@@ -107,8 +108,9 @@ async function fetchCategoriesForFilter(
   categoryIds: (slugs: string[]) => string[];
   categoriesTree: ReturnType<typeof buildCategoriesTreeFromFilterEdges>;
 }> {
+  const languageCode = getLanguageCodeForChannel(channel);
   const { categories } = await executeGraphQL(CategoriesForFilterDocument, {
-    variables: { first: 30, channel },
+    variables: { first: 30, channel, languageCode },
     revalidate: 30,
   });
   const edges = (categories?.edges ?? []) as CategoryEdge[];
@@ -191,7 +193,7 @@ function mapQuickFilterChild(edge: { node: any }): {
     node.children?.edges?.map((e: { node: any }) => ({
       id: e.node.id,
       slug: e.node.slug,
-      ...(e.node.name ? { name: e.node.name } : {}),
+      ...(e.node.name ? { name: (e.node as any).translation?.name || e.node.name } : {}),
     })) || [];
 
   // Extract product images from subcategory products (thumbnails + media)
@@ -200,12 +202,12 @@ function mapQuickFilterChild(edge: { node: any }): {
       ?.flatMap(({ node: product }: { node: any }) => {
         const imgs: Array<{ url: string; alt?: string }> = [];
         if (product.thumbnail?.url) {
-          imgs.push({ url: product.thumbnail.url, alt: product.thumbnail.alt || product.name });
+          imgs.push({ url: product.thumbnail.url, alt: product.thumbnail.alt || product.translation?.name || product.name });
         }
         if (product.media?.length > 0) {
           product.media.slice(0, 2).forEach((media: any) => {
             if (media.url && media.url !== product.thumbnail?.url) {
-              imgs.push({ url: media.url, alt: media.alt || product.name });
+              imgs.push({ url: media.url, alt: media.alt || product.translation?.name || product.name });
             }
           });
         }
@@ -217,7 +219,7 @@ function mapQuickFilterChild(edge: { node: any }): {
   return {
     id: node.id,
     slug: node.slug,
-    ...(node.name ? { name: node.name } : {}),
+    ...(node.name ? { name: (node as any).translation?.name || node.name } : {}),
     productCount: node.products?.totalCount ?? undefined,
     ...(node.backgroundImage
       ? { backgroundImage: { url: node.backgroundImage.url, alt: node.backgroundImage.alt } }
@@ -229,8 +231,9 @@ function mapQuickFilterChild(edge: { node: any }): {
 
 async function fetchCategoriesForQuickFilters(channel: string) {
   try {
+    const languageCode = getLanguageCodeForChannel(channel);
     const { categories } = await executeGraphQL(CategoriesForHomepageDocument, {
-      variables: { channel, first: 10 },
+      variables: { channel, first: 10, languageCode },
       revalidate: 30,
     });
     return (
@@ -243,7 +246,7 @@ async function fetchCategoriesForQuickFilters(channel: string) {
                 if (product.thumbnail?.url) {
                   images.push({
                     url: product.thumbnail.url,
-                    alt: product.thumbnail.alt || product.name,
+                    alt: product.thumbnail.alt || product.translation?.name || product.name,
                   });
                 }
                 if (product.media?.length > 0) {
@@ -251,7 +254,7 @@ async function fetchCategoriesForQuickFilters(channel: string) {
                     if (media.url)
                       images.push({
                         url: media.url,
-                        alt: media.alt || product.name,
+                        alt: media.alt || product.translation?.name || product.name,
                       });
                   });
                 }
@@ -262,7 +265,7 @@ async function fetchCategoriesForQuickFilters(channel: string) {
 
           return {
             id: node.id,
-            name: node.name,
+            name: node.translation?.name || node.name,
             slug: node.slug,
             productCount: node.products?.totalCount || 0,
             children: node.children?.edges?.map(mapQuickFilterChild) || [],
@@ -295,12 +298,13 @@ async function fetchCollectionsForQuickFilters(channel: string) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: `
-          query CollectionsForQuickFilters($channel: String!) {
+          query CollectionsForQuickFilters($channel: String!, $languageCode: LanguageCodeEnum!) {
             collections(channel: $channel, first: 10) {
               edges {
                 node {
                   id
                   name
+                  translation(languageCode: $languageCode) { name }
                   slug
                   backgroundImage {
                     url
@@ -328,7 +332,7 @@ async function fetchCollectionsForQuickFilters(channel: string) {
             }
           }
         `,
-        variables: { channel },
+        variables: { channel, languageCode: getLanguageCodeForChannel(channel) },
       }),
       next: { revalidate: 30 },
     });
@@ -346,7 +350,7 @@ async function fetchCollectionsForQuickFilters(channel: string) {
                 if (product.thumbnail?.url) {
                   images.push({
                     url: product.thumbnail.url,
-                    alt: product.thumbnail.alt || product.name,
+                    alt: product.thumbnail.alt || product.translation?.name || product.name,
                   });
                 }
                 if (product.media?.length > 0) {
@@ -354,7 +358,7 @@ async function fetchCollectionsForQuickFilters(channel: string) {
                     if (media.url)
                       images.push({
                         url: media.url,
-                        alt: media.alt || product.name,
+                        alt: media.alt || product.translation?.name || product.name,
                       });
                   });
                 }
@@ -365,7 +369,7 @@ async function fetchCollectionsForQuickFilters(channel: string) {
 
           return {
             id: node.id,
-            name: node.name,
+            name: node.translation?.name || node.name,
             slug: node.slug,
             productCount: node.products?.totalCount || 0,
             backgroundImage: node.backgroundImage
@@ -426,149 +430,173 @@ async function fetchBrandsFromAttributes(
   reverseBrandSlugMap: Record<string, string>;
 }> {
   try {
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        query: `
-          query ProductsForBrands($channel: String!) {
-            products(first: 100, channel: $channel) {
-              edges {
-                cursor
-                node {
-                  id
-                  name
-                  thumbnail {
-                    url
-                    alt
-                  }
-                  media {
-                    url
-                    alt
-                  }
-                  attributes {
-                    attribute {
-                      id
-                      name
-                      slug
-                    }
-                    values {
-                      id
-                      name
-                      slug
+    const languageCode = getLanguageCodeForChannel(channel);
+
+    // Two-step approach:
+    // 1. Query the brand attribute directly to get ALL brand values (not limited by product count)
+    // 2. Query products to get images and counts per brand
+    const [attrResponse, productsResponse] = await Promise.all([
+      fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: `
+            query BrandAttributeChoices($languageCode: LanguageCodeEnum!) {
+              attributes(filter: { slugs: ["brand"] }, first: 1) {
+                edges {
+                  node {
+                    id
+                    slug
+                    choices(first: 100) {
+                      edges {
+                        node {
+                          id
+                          name
+                          slug
+                          translation(languageCode: $languageCode) { name }
+                        }
+                      }
                     }
                   }
                 }
               }
             }
-          }
-        `,
-        variables: { channel },
+          `,
+          variables: { languageCode },
+        }),
+        next: { revalidate: 30 },
       }),
-      next: { revalidate: 30 },
-    });
+      fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: `
+            query ProductsForBrandImages($channel: String!, $languageCode: LanguageCodeEnum!) {
+              products(first: 250, channel: $channel) {
+                edges {
+                  node {
+                    id
+                    name
+                    translation(languageCode: $languageCode) { name }
+                    thumbnail { url alt }
+                    media { url alt }
+                    attributes {
+                      attribute { slug }
+                      values { slug }
+                    }
+                  }
+                }
+              }
+            }
+          `,
+          variables: { channel, languageCode },
+        }),
+        next: { revalidate: 30 },
+      }),
+    ]);
 
-    if (!response.ok) {
+    if (!attrResponse.ok) {
       return { brands: [], attributeSlug: null, brandSlugMap: {}, reverseBrandSlugMap: {} };
     }
 
-    const responseData = (await response.json()) as { data?: any };
-    const { data } = responseData;
+    const attrData = (await attrResponse.json()) as { data?: any };
+    const attrNode = attrData.data?.attributes?.edges?.[0]?.node;
+    const detectedAttributeSlug: string | null = attrNode?.slug || null;
+    const choices = attrNode?.choices?.edges || [];
 
-    if (!data?.products?.edges || data.products.edges.length === 0) {
-      return { brands: [], attributeSlug: null, brandSlugMap: {}, reverseBrandSlugMap: {} };
+    if (choices.length === 0) {
+      return { brands: [], attributeSlug: detectedAttributeSlug, brandSlugMap: {}, reverseBrandSlugMap: {} };
     }
 
+    // Build brand map from attribute choices (source of truth for ALL brands)
     const brandsMap = new Map<
       string,
       {
+        id: string;
         name: string;
         slug: string;
-        allSlugs: Set<string>;
+        canonicalSlug: string;
+        saleorSlugs: Set<string>;
         count: number;
         productImages: Map<string, { url: string; alt?: string }>;
       }
     >();
-    let detectedAttributeSlug: string | null = null;
 
-    data.products.edges.forEach((edge: any) => {
-      const product = edge.node;
-      if (!product.attributes || !Array.isArray(product.attributes)) return;
+    for (const edge of choices) {
+      const value = edge.node;
+      const brandName = (value?.translation?.name || value?.name)?.trim();
+      if (!brandName) continue;
 
-      const brandAttr = product.attributes.find((attr: any) => {
-        const attrName = attr?.attribute?.name?.toLowerCase()?.trim();
-        const attrSlug = attr?.attribute?.slug?.toLowerCase()?.trim();
-        return (
-          attrName === "brand" ||
-          attrSlug === "brand" ||
-          attrSlug === "manufacturer"
-        );
-      });
+      const dedupKey = brandName.toLowerCase();
+      const canonicalSlug = deriveBrandSlug(brandName);
+      const saleorSlug = value.slug;
 
-      if (brandAttr) {
-        if (!detectedAttributeSlug && brandAttr.attribute?.slug) {
-          detectedAttributeSlug = brandAttr.attribute.slug;
+      if (!brandsMap.has(dedupKey)) {
+        brandsMap.set(dedupKey, {
+          id: value.id || `brand-${canonicalSlug}`,
+          name: brandName,
+          slug: canonicalSlug,
+          canonicalSlug,
+          saleorSlugs: new Set<string>(),
+          count: 0,
+          productImages: new Map(),
+        });
+      }
+      const brandData = brandsMap.get(dedupKey)!;
+      if (saleorSlug) brandData.saleorSlugs.add(saleorSlug);
+    }
+
+    // Enrich with product images and counts from products query
+    if (productsResponse.ok) {
+      const productsData = (await productsResponse.json()) as { data?: any };
+      const products = productsData.data?.products?.edges || [];
+
+      // Build saleor slug → dedupKey reverse lookup
+      const saleorSlugToDedupKey = new Map<string, string>();
+      for (const [dedupKey, brandData] of brandsMap) {
+        for (const ss of brandData.saleorSlugs) {
+          saleorSlugToDedupKey.set(ss, dedupKey);
         }
+      }
 
-        const brandValues = brandAttr.values || [];
-        if (brandValues.length > 0) {
-          const productImages: Array<{ url: string; alt?: string }> = [];
-          if (product.thumbnail?.url) {
-            productImages.push({
+      for (const prodEdge of products) {
+        const product = prodEdge.node;
+        if (!product.attributes) continue;
+
+        const brandAttr = product.attributes.find((attr: any) =>
+          attr?.attribute?.slug === detectedAttributeSlug ||
+          attr?.attribute?.slug === "brand"
+        );
+        if (!brandAttr?.values?.length) continue;
+
+        for (const val of brandAttr.values) {
+          const dedupKey = saleorSlugToDedupKey.get(val.slug);
+          if (!dedupKey) continue;
+
+          const brandData = brandsMap.get(dedupKey);
+          if (!brandData) continue;
+
+          brandData.count++;
+          // Collect product images
+          if (product.thumbnail?.url && !brandData.productImages.has(product.thumbnail.url)) {
+            brandData.productImages.set(product.thumbnail.url, {
               url: product.thumbnail.url,
-              alt: product.thumbnail.alt || product.name,
+              alt: product.thumbnail.alt || product.translation?.name || product.name,
             });
           }
           if (product.media?.length > 0) {
-            product.media.slice(0, 2).forEach((media: any) => {
-              if (
-                media.url &&
-                !productImages.some((img) => img.url === media.url)
-              ) {
-                productImages.push({
+            for (const media of product.media.slice(0, 2)) {
+              if (media.url && !brandData.productImages.has(media.url)) {
+                brandData.productImages.set(media.url, {
                   url: media.url,
-                  alt: media.alt || product.name,
-                });
-              }
-            });
-          }
-
-          brandValues.forEach((value: any) => {
-            const brandName = value?.name || value?.value;
-            if (brandName && typeof brandName === "string" && brandName.trim()) {
-              // Dedup by normalized name (not slug) to handle Saleor auto-incremented slugs
-              const dedupKey = brandName.toLowerCase().trim();
-              // Canonical slug is always name-derived (human-readable URL slug)
-              const canonicalSlug = deriveBrandSlug(brandName);
-              // Saleor's actual attribute value slug (for GraphQL filter queries)
-              const saleorSlug = value.slug;
-
-              if (dedupKey) {
-                if (!brandsMap.has(dedupKey)) {
-                  brandsMap.set(dedupKey, {
-                    name: brandName.trim(),
-                    slug: canonicalSlug,
-                    allSlugs: new Set<string>(),
-                    count: 0,
-                    productImages: new Map(),
-                  });
-                }
-                const brandData = brandsMap.get(dedupKey)!;
-                brandData.count++;
-                // Add Saleor's attribute value slug for GraphQL expansion
-                if (saleorSlug) brandData.allSlugs.add(saleorSlug);
-
-                productImages.forEach((img) => {
-                  if (img.url && !brandData.productImages.has(img.url)) {
-                    brandData.productImages.set(img.url, img);
-                  }
+                  alt: media.alt || product.translation?.name || product.name,
                 });
               }
             }
-          });
+          }
         }
       }
-    });
+    }
 
     const brands = Array.from(brandsMap.values())
       .map((brand) => {
@@ -578,29 +606,24 @@ async function fetchBrandsFromAttributes(
 
         const backgroundImage =
           productImagesArray.length > 0
-            ? {
-                url: productImagesArray[0].url,
-                alt: productImagesArray[0].alt || brand.name,
-              }
+            ? { url: productImagesArray[0].url, alt: productImagesArray[0].alt || brand.name }
             : undefined;
 
         return {
-          id: `brand-${brand.slug}`,
+          id: brand.id,
           name: brand.name,
           slug: brand.slug,
-          allSlugs: Array.from(brand.allSlugs),
+          allSlugs: Array.from(brand.saleorSlugs),
           productCount: brand.count,
           backgroundImage,
-          productImages:
-            productImagesArray.length > 0 ? productImagesArray : undefined,
+          productImages: productImagesArray.length > 0 ? productImagesArray : undefined,
         };
       })
-      .sort((a, b) => (b.productCount || 0) - (a.productCount || 0))
-      .slice(0, 10);
+      .filter((b) => b.productCount > 0)
+      .sort((a, b) => (b.productCount || 0) - (a.productCount || 0));
 
     // Build slug expansion map: canonical slug → all Saleor attribute value slugs
     const brandSlugMap: Record<string, string[]> = {};
-    // Build reverse map: any Saleor slug → canonical slug (for old URL backward compat)
     const reverseBrandSlugMap: Record<string, string> = {};
     brands.forEach((b) => {
       brandSlugMap[b.slug] = b.allSlugs;
@@ -634,6 +657,7 @@ export default async function Page(props: {
     props.searchParams,
   ]);
   const { channel } = params;
+  const languageCode = getLanguageCodeForChannel(channel);
 
   const filters = parseFiltersFromURL(searchParams);
   const sortValue = parseSortFromURL(searchParams);
@@ -727,6 +751,7 @@ export default async function Page(props: {
       variables: {
         first: 24,
         channel,
+        languageCode,
         sortBy: sortVariables,
         filter: graphqlFilter,
         search: adjustedFilters.search || undefined,
@@ -740,6 +765,7 @@ export default async function Page(props: {
       variables: {
         first: 1,
         channel,
+        languageCode,
         sortBy: { field: ProductOrderField.MinimalPrice, direction: OrderDirection.Asc },
       },
       revalidate: 120,
@@ -749,6 +775,7 @@ export default async function Page(props: {
       variables: {
         first: 1,
         channel,
+        languageCode,
         sortBy: { field: ProductOrderField.MinimalPrice, direction: OrderDirection.Desc },
       },
       revalidate: 120,

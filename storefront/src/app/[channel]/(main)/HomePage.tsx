@@ -248,12 +248,6 @@ export function HomePage({
     };
   }, [allDiscountedProducts, maxDiscount, saleCollectionInfo]);
 
-  // Filter collections for CollectionMosaic (exclude CMS collections)
-  const displayCollections = useMemo(() => {
-    const excludeSlugs = ["hero-banner", "testimonials", "brands", "featured-products", "new-arrivals", "best-sellers", "sale"];
-    return collections.filter((c) => !excludeSlugs.includes(c.slug));
-  }, [collections]);
-
   // Generate marquee items from brands and categories (API data only)
   const marqueeItems = useMemo(() => {
     const brandNames = brandTiles.map((b) => b.name);
@@ -392,12 +386,12 @@ export function HomePage({
       }
 
       case "collectionMosaic": {
-        if (getSectionConfig("collectionMosaic")?.enabled === false || displayCollections.length === 0) return null;
+        if (getSectionConfig("collectionMosaic")?.enabled === false || collections.length === 0) return null;
         const bg = getSectionBackground("collectionMosaic");
         return (
           <BackgroundSection key="collectionMosaic" background={bg} ariaLabel="Collections">
             <RevealOnScroll>
-              <CollectionMosaic collections={displayCollections} channel={channel} />
+              <CollectionMosaic collections={collections} channel={channel} />
             </RevealOnScroll>
           </BackgroundSection>
         );

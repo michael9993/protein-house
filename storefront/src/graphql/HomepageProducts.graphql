@@ -1,7 +1,7 @@
 # Homepage product queries: data-driven New Arrivals and Best Sellers
 # Uses Saleor ProductOrderField: CREATED_AT for newest, RATING for top-rated (best-sellers fallback)
 
-query ProductsNewest($channel: String!, $first: Int = 12) {
+query ProductsNewest($channel: String!, $first: Int = 12, $languageCode: LanguageCodeEnum!) {
   products(
     first: $first
     channel: $channel
@@ -15,7 +15,7 @@ query ProductsNewest($channel: String!, $first: Int = 12) {
   }
 }
 
-query ProductsTopRated($channel: String!, $first: Int = 12) {
+query ProductsTopRated($channel: String!, $first: Int = 12, $languageCode: LanguageCodeEnum!) {
   products(
     first: $first
     channel: $channel

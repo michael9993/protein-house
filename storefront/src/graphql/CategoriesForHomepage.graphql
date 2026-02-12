@@ -2,12 +2,13 @@
 # Create categories in: Dashboard > Catalog > Categories
 # Add background images for visual appeal
 
-query CategoriesForHomepage($channel: String!, $first: Int = 8) {
+query CategoriesForHomepage($channel: String!, $first: Int = 8, $languageCode: LanguageCodeEnum!) {
   categories(first: $first, level: 0) {
     edges {
       node {
         id
         name
+        translation(languageCode: $languageCode) { name description }
         slug
         description
         backgroundImage {
@@ -20,6 +21,7 @@ query CategoriesForHomepage($channel: String!, $first: Int = 8) {
             node {
               id
               name
+              translation(languageCode: $languageCode) { name }
               slug
               thumbnail {
                 url
@@ -37,6 +39,7 @@ query CategoriesForHomepage($channel: String!, $first: Int = 8) {
             node {
               id
               name
+              translation(languageCode: $languageCode) { name }
               slug
               backgroundImage {
                 url
@@ -48,6 +51,7 @@ query CategoriesForHomepage($channel: String!, $first: Int = 8) {
                   node {
                     id
                     name
+                    translation(languageCode: $languageCode) { name }
                     thumbnail {
                       url
                       alt
@@ -65,6 +69,7 @@ query CategoriesForHomepage($channel: String!, $first: Int = 8) {
                     id
                     slug
                     name
+                    translation(languageCode: $languageCode) { name }
                   }
                 }
               }

@@ -581,6 +581,10 @@ const DEFAULT_UI_CONFIG = {
     showDeleteText: false,
     showSaveForLater: false,
   },
+  sectionViewAllButton: {
+    style: "pill" as const,
+    icon: "chevron" as const,
+  },
 } as const;
 
 // Default content config
@@ -800,6 +804,7 @@ export const DEFAULT_CONTENT_CONFIG = {
     deleteButton: "Delete",
     editButton: "Edit",
     homeLabel: "Home",
+    allProductsLabel: "Products",
   },
   homepage: {
     newArrivalsTitle: "New Arrivals",
@@ -1534,8 +1539,14 @@ export function useUiConfig(): NonNullable<StoreConfig["ui"]> {
     icons: { ...DEFAULT_UI_CONFIG.icons, ...config.ui.icons },
     filterSidebar: { ...DEFAULT_UI_CONFIG.filterSidebar, ...config.ui.filterSidebar },
     cart: { ...DEFAULT_UI_CONFIG.cart, ...config.ui.cart },
+    sectionViewAllButton: { ...DEFAULT_UI_CONFIG.sectionViewAllButton, ...config.ui.sectionViewAllButton },
     activeFiltersTags: config.ui.activeFiltersTags ?? {},
   };
+}
+
+export function useSectionViewAllButtonConfig() {
+  const ui = useUiConfig();
+  return ui.sectionViewAllButton ?? { style: "pill" as const, icon: "chevron" as const };
 }
 
 // Default filter sidebar config (with resolved fallback colors)

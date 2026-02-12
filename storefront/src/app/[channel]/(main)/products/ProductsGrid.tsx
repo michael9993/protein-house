@@ -29,6 +29,7 @@ import {
   hasActiveFilters as checkActiveFilters,
 } from "@/lib/filters";
 import { useFiltersText, useBranding } from "@/providers/StoreConfigProvider";
+import { getLanguageCodeForChannel } from "@/lib/language";
 
 interface ProductsGridProps {
   initialProducts: ProductListItemFragment[];
@@ -166,14 +167,16 @@ export function ProductsGrid({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query: `
-            query ProductListMore($first: Int!, $after: String!, $channel: String!, $sortBy: ProductOrder) {
+            query ProductListMore($first: Int!, $after: String!, $channel: String!, $sortBy: ProductOrder, $languageCode: LanguageCodeEnum!) {
               products(first: $first, after: $after, channel: $channel, sortBy: $sortBy) {
                 totalCount
                 edges {
                   node {
                     id
                     name
+                    translation(languageCode: $languageCode) { name }
                     slug
+                    created
                     pricing {
                       priceRange {
                         start { gross { amount, currency } }
@@ -184,14 +187,16 @@ export function ProductsGrid({
                         stop { gross { amount, currency } }
                       }
                     }
-                    category { id, name, slug }
+                    category { id, name, translation(languageCode: $languageCode) { name }, slug }
                     thumbnail(size: 1024, format: WEBP) { url, alt }
+                    media { url, alt }
                     variants { id, quantityAvailable }
                     attributes {
-                      attribute { id, name, slug }
-                      values { id, name, slug }
+                      attribute { id, name, translation(languageCode: $languageCode) { name }, slug }
+                      values { id, name, translation(languageCode: $languageCode) { name }, slug, file { url } }
                     }
-                    collections { id, name, slug }
+                    collections { id, name, translation(languageCode: $languageCode) { name }, slug }
+                    rating
                   }
                   cursor
                 }
@@ -199,7 +204,7 @@ export function ProductsGrid({
               }
             }
           `,
-          variables: { first: 12, after: endCursor, channel, sortBy },
+          variables: { first: 12, after: endCursor, channel, sortBy, languageCode: getLanguageCodeForChannel(channel) },
         }),
       });
 

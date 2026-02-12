@@ -1,6 +1,8 @@
+# Requires $languageCode: LanguageCodeEnum! in parent query
 fragment VariantDetails on ProductVariant {
 	id
 	name
+	translation(languageCode: $languageCode) { name }
 	quantityAvailable
 	trackInventory
 	quantityLimitPerCustomer
@@ -8,12 +10,14 @@ fragment VariantDetails on ProductVariant {
 		attribute {
 			id
 			name
+			translation(languageCode: $languageCode) { name }
 			slug
 			inputType
 		}
 		values {
 			id
 			name
+			translation(languageCode: $languageCode) { name }
 			slug
 			value
 		}

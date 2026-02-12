@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { ChevronRightIcon } from "lucide-react";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { useContentConfig, useBranding, useCartDisplayMode } from "@/providers/StoreConfigProvider";
+import { buildCategoryUrl, buildCollectionUrl, buildBrandUrl } from "@/lib/urls";
 import { useCartDrawerSafe } from "@/providers/CartDrawerProvider";
 import type { CategoryWithChildren, MobileNavData } from "./NavLinksClient";
 
@@ -90,7 +91,7 @@ function MobileCategoryTree({
 					return (
 						<li key={item.id}>
 							<LinkWithChannel
-								href={`/products?categories=${item.slug}`}
+								href={buildCategoryUrl(item.slug)}
 								onClick={onClose}
 								className="flex min-h-[2.75rem] w-full items-center rounded-lg px-4 py-3 text-left text-sm font-medium transition-colors active:scale-[0.98] hover:bg-[var(--store-neutral-100)] active:bg-[var(--store-neutral-200)]"
 								style={{ color: "var(--store-text)" }}
@@ -356,7 +357,7 @@ export function MobileNavContent({
 							{navData.collections.map((c) => (
 								<li key={c.id}>
 									<LinkWithChannel
-										href={`/products?collections=${c.slug}`}
+										href={buildCollectionUrl(c.slug)}
 										onClick={onClose}
 										className="flex min-h-[2.75rem] w-full items-center rounded-lg px-4 py-3 text-left text-sm font-medium transition-colors active:scale-[0.98] hover:bg-[var(--store-neutral-100)] active:bg-[var(--store-neutral-200)]"
 										style={{ color: "var(--store-text)" }}
@@ -386,7 +387,7 @@ export function MobileNavContent({
 							{navData.brands.map((b) => (
 								<li key={b.id}>
 									<LinkWithChannel
-										href={`/products?brands=${b.slug}`}
+										href={buildBrandUrl(b.slug)}
 										onClick={onClose}
 										className="flex min-h-[2.75rem] w-full items-center rounded-lg px-4 py-3 text-left text-sm font-medium transition-colors active:scale-[0.98] hover:bg-[var(--store-neutral-100)] active:bg-[var(--store-neutral-200)]"
 										style={{ color: "var(--store-text)" }}

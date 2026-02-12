@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { OrderDirection, ProductOrderField, SearchProductsDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
+import { getLanguageCodeForChannel } from "@/lib/language";
 import { Breadcrumbs } from "@/ui/components/Breadcrumbs";
 import { SortBy } from "@/ui/components/SortBy";
 import { storeConfig } from "@/config";
@@ -14,6 +15,7 @@ export const metadata = {
 export default async function Page(props: {
 	searchParams: Promise<{
 		query?: string | string[];
+		q?: string | string[];
 		sort?: string | string[];
 		minPrice?: string | string[];
 		maxPrice?: string | string[];
@@ -24,7 +26,7 @@ export default async function Page(props: {
 }) {
 	const [searchParams, params] = await Promise.all([props.searchParams, props.params]);
 
-	const searchValue = searchParams.query;
+	const searchValue = searchParams.query || searchParams.q;
 
 	if (!searchValue) {
 		notFound();
@@ -38,10 +40,12 @@ export default async function Page(props: {
 		redirect(`/search?${new URLSearchParams({ query: firstValidSearchValue }).toString()}`);
 	}
 
+	const languageCode = getLanguageCodeForChannel(params.channel);
 	const { products } = await executeGraphQL(SearchProductsDocument, {
 		variables: {
 			search: searchValue,
 			channel: params.channel,
+			languageCode,
 			sortBy: ProductOrderField.Rating,
 			sortDirection: OrderDirection.Asc,
 			first: 50, // Load more for search

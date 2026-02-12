@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
 import { useStoreConfig, useFiltersText } from "@/providers/StoreConfigProvider";
+import { buildProductUrl, buildSearchUrl, withChannel } from "@/lib/urls";
 
 interface SearchResult {
   id: string;
@@ -100,13 +101,13 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
   }, [results, selectedIndex, query]);
 
   const handleResultClick = (result: SearchResult) => {
-    router.push(`/${channel}/products/${result.slug}`);
+    router.push(withChannel(channel, buildProductUrl(result.slug)));
     onClose();
   };
 
   const handleSearch = () => {
     if (query) {
-      router.push(`/${channel}/search?q=${encodeURIComponent(query)}`);
+      router.push(withChannel(channel, buildSearchUrl(query)));
       onClose();
     }
   };

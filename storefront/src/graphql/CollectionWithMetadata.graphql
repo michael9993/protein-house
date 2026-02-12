@@ -2,10 +2,11 @@
 # Use metadata to store banner text, CTAs, etc.
 # Dashboard > Catalog > Collections > Edit > Metadata
 
-query CollectionWithMetadata($slug: String!, $channel: String!) {
+query CollectionWithMetadata($slug: String!, $channel: String!, $languageCode: LanguageCodeEnum!) {
   collection(slug: $slug, channel: $channel) {
     id
     name
+    translation(languageCode: $languageCode) { name description }
     slug
     description
     backgroundImage {

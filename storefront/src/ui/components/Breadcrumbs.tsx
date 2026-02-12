@@ -1,7 +1,7 @@
 "use client";
 
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
-import { storeConfig } from "@/config";
+import { useBranding, useContentConfig } from "@/providers/StoreConfigProvider";
 
 interface BreadcrumbItem {
   label: string;
@@ -13,17 +13,19 @@ interface BreadcrumbsProps {
 }
 
 export function Breadcrumbs({ items }: BreadcrumbsProps) {
-  const { branding } = storeConfig;
+  const branding = useBranding();
+  const content = useContentConfig();
+  const homeLabel = content.general?.homeLabel || "Home";
 
   return (
     <nav aria-label="Breadcrumb" className="mb-6">
       <ol className="flex flex-wrap items-center gap-2 text-sm">
         <li>
-          <LinkWithChannel 
-            href="/" 
+          <LinkWithChannel
+            href="/"
             className="text-neutral-500 transition-colors hover:text-neutral-700"
           >
-            Home
+            {homeLabel}
           </LinkWithChannel>
         </li>
         {items.map((item, index) => (

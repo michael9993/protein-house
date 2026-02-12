@@ -3,8 +3,11 @@
 import { useRef, useCallback, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { type ProductListItemFragment } from "@/gql/graphql";
+import { t } from "@/lib/language";
 import { useWishlist } from "@/lib/wishlist";
 import { useBranding, useStoreInfo, useContentConfig, useBestSellersConfig, useFeature, useUiConfig } from "@/providers/StoreConfigProvider";
+import { buildProductsUrl, withChannel } from "@/lib/urls";
+import { SectionViewAllButton } from "./SectionViewAllButton";
 import { useQuickView } from "@/providers/QuickViewProvider";
 import { HomepageProductCard } from "./HomepageProductCard";
 import { type BadgeLabels, type ProductCardConfig } from "./utils";
@@ -46,14 +49,14 @@ export function BestSellersSection({ products, channel, title, subtitle }: BestS
       const image = product.thumbnail?.url || product.media?.[0]?.url;
       addItem({
         id: productId,
-        name: product.name,
+        name: t(product),
         slug: product.slug,
         price: price?.amount || 0,
         originalPrice: originalPrice?.amount,
         currency: price?.currency || "USD",
         image: image || "",
-        imageAlt: product.thumbnail?.alt || product.name,
-        category: product.category?.name || undefined,
+        imageAlt: product.thumbnail?.alt || t(product),
+        category: product.category ? t(product.category) : undefined,
         inStock: (product.variants?.some(v => (v.quantityAvailable ?? 0) > 0)) ?? true,
         channel,
       });
@@ -120,6 +123,7 @@ export function BestSellersSection({ products, channel, title, subtitle }: BestS
   // Get translated content from config
   const homepageContent = contentConfig.homepage;
   const curatedLabel = homepageContent.curatedLabel || "Curated";
+  const viewAllText = homepageContent.viewAllButton || "View All";
   const viewDetailsText = homepageContent.viewDetailsButton || "View details";
   const performanceFallback = homepageContent.performanceFallback || "Performance";
 
@@ -156,6 +160,10 @@ export function BestSellersSection({ products, channel, title, subtitle }: BestS
               </p>
             )}
           </div>
+          <SectionViewAllButton
+            href={withChannel(channel, buildProductsUrl({ collections: ["best-sellers"] }))}
+            text={viewAllText}
+          />
         </div>
 
         {/* Scroll Container with overlay arrows */}

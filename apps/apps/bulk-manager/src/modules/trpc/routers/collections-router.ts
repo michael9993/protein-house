@@ -13,7 +13,7 @@ export const collectionsRouter = router({
     .input(
       z.object({
         rows: z.array(z.record(z.string())),
-        channelSlug: z.string(),
+        channelSlugs: z.array(z.string()).min(1),
         fieldMappings: z.record(z.string()),
         upsertMode: z.boolean().optional().default(false),
       })
@@ -29,13 +29,13 @@ export const collectionsRouter = router({
         let after: string | undefined;
         while (hasNext) {
           const pResult = await ctx.apiClient.query(
-            `query ProductsList($first: Int!, $after: String, $channel: String!) {
-              products(first: 100, after: $after, channel: $channel) {
+            `query ProductsList($first: Int!, $after: String) {
+              products(first: 100, after: $after) {
                 edges { node { id slug variants { sku } } }
                 pageInfo { hasNextPage endCursor }
               }
             }`,
-            { first: 100, after, channel: input.channelSlug }
+            { first: 100, after }
           );
           const edges = pResult.data?.products?.edges || [];
           for (const e of edges) {
@@ -49,12 +49,15 @@ export const collectionsRouter = router({
         }
       } catch { /* ignore */ }
 
-      // Resolve channel ID
-      let channelId: string | undefined;
+      // Resolve channel IDs from slugs
+      const channelIds: { id: string; slug: string }[] = [];
       try {
         const chResult = await ctx.apiClient.query(`query { channels { id slug } }`, {});
-        const ch = (chResult.data?.channels || []).find((c: any) => c.slug === input.channelSlug);
-        channelId = ch?.id;
+        for (const ch of (chResult.data?.channels || [])) {
+          if (input.channelSlugs.includes(ch.slug)) {
+            channelIds.push({ id: ch.id, slug: ch.slug });
+          }
+        }
       } catch { /* ignore */ }
 
       // Pre-fetch existing collections for upsert
@@ -66,13 +69,13 @@ export const collectionsRouter = router({
           let after: string | undefined;
           while (hasNext) {
             const colResult = await ctx.apiClient.query(
-              `query CollectionsLookup($channel: String!, $after: String) {
-                collections(channel: $channel, first: 100, after: $after) {
+              `query CollectionsLookup($after: String) {
+                collections(first: 100, after: $after) {
                   edges { node { id slug externalReference backgroundImage { url } } }
                   pageInfo { hasNextPage endCursor }
                 }
               }`,
-              { channel: input.channelSlug, after }
+              { after }
             );
             for (const e of (colResult.data?.collections?.edges || [])) {
               const info = { id: e.node.id, hasBg: !!e.node.backgroundImage?.url };
@@ -210,8 +213,8 @@ export const collectionsRouter = router({
             collectionId = data.collection?.id;
           }
 
-          // Publish to channel
-          if (collectionId && channelId) {
+          // Publish to all selected channels
+          if (collectionId && channelIds.length > 0) {
             try {
               await ctx.apiClient.mutation(
                 `mutation CollectionChannelListingUpdate($id: ID!, $input: CollectionChannelListingUpdateInput!) {
@@ -223,10 +226,10 @@ export const collectionsRouter = router({
                 {
                   id: collectionId,
                   input: {
-                    addChannels: [{
-                      channelId,
+                    addChannels: channelIds.map((ch) => ({
+                      channelId: ch.id,
                       isPublished: parseBool(mapped.isPublished, true),
-                    }],
+                    })),
                   },
                 }
               );

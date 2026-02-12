@@ -16,6 +16,7 @@ import {
 } from "@/providers/StoreConfigProvider";
 import { useWishlist } from "@/lib/wishlist";
 import { useQuickView } from "@/providers/QuickViewProvider";
+import { t } from "@/lib/language";
 import { ShareButton } from "@/ui/components/ProductSharing";
 import type { DisplayMode } from "./DisplayModeToggle";
 
@@ -54,10 +55,11 @@ function getProductBrand(
       ? BRAND_ATTRIBUTE_SLUGS.includes(entry.attribute.slug.toLowerCase())
       : false
   );
-  const value = attribute?.values?.[0]?.name;
-  return (
-    value || product.collections?.[0]?.name || product.category?.name || fallback
-  );
+  const val = attribute?.values?.[0];
+  const value = val ? ((val as any).translation?.name || val.name) : null;
+  const collectionName = product.collections?.[0] ? ((product.collections[0] as any).translation?.name || product.collections[0].name) : null;
+  const categoryName = product.category ? ((product.category as any).translation?.name || product.category.name) : null;
+  return value || collectionName || categoryName || fallback;
 }
 
 export function ProductCard({
@@ -147,15 +149,15 @@ export function ProductCard({
     } else {
       await addItem({
         id: product.id,
-        name: product.name,
+        name: t(product),
         slug: product.slug,
         price: product.pricing?.priceRange?.start?.gross?.amount || 0,
         originalPrice:
           product.pricing?.priceRangeUndiscounted?.start?.gross?.amount,
         currency: product.pricing?.priceRange?.start?.gross?.currency || "USD",
         image: product.thumbnail?.url || "",
-        imageAlt: product.thumbnail?.alt || product.name,
-        category: product.category?.name || undefined,
+        imageAlt: product.thumbnail?.alt || t(product),
+        category: product.category ? t(product.category) : undefined,
         inStock: isInStock,
         channel: channel || undefined,
       });
@@ -210,7 +212,7 @@ export function ProductCard({
           {product.thumbnail?.url && !imageError ? (
             <Image
               src={product.thumbnail.url}
-              alt={product.thumbnail.alt || product.name}
+              alt={product.thumbnail.alt || t(product)}
               fill
               loading={loading}
               priority={priority}
@@ -326,7 +328,7 @@ export function ProductCard({
             {/* Share Button */}
             <ShareButton
               variant="icon"
-              productName={product.name}
+              productName={t(product)}
               productSlug={product.slug}
               productImage={product.thumbnail?.url || null}
               className={`v7-action-btn flex items-center justify-center rounded-full shadow-lg v7-glass border border-white/50 text-neutral-600 hover:text-neutral-800 ${
@@ -392,7 +394,7 @@ export function ProductCard({
             <div className={`v7-category text-neutral-400 ${
               isCompactMode ? "mb-0.5 text-[10px]" : "mb-1 sm:mb-2"
             }`}>
-              {product.category.name}
+              {t(product.category)}
             </div>
           )}
 
@@ -404,7 +406,7 @@ export function ProductCard({
                 ? "line-clamp-2 text-base sm:text-lg"
                 : "line-clamp-2 min-h-[2.5rem] text-sm sm:min-h-[2.75rem] sm:text-base"
           }`}>
-            <span className="v7-name-underline">{product.name}</span>
+            <span className="v7-name-underline">{t(product)}</span>
           </h3>
 
           {/* Rating */}

@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { formatMoneyRange, formatMoney } from "@/lib/utils";
 import type { ProductListItemFragment } from "@/gql/graphql";
+import { t } from "@/lib/language";
 import { useBranding, useFeature, useUiConfig, useContentConfig, useBadgeStyle } from "@/providers/StoreConfigProvider";
 import { useWishlist } from "@/lib/wishlist";
 import { useQuickView } from "@/providers/QuickViewProvider";
@@ -108,14 +109,14 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
     } else {
       await addItem({
         id: product.id,
-        name: product.name,
+        name: t(product),
         slug: product.slug,
         price: product.pricing?.priceRange?.start?.gross?.amount || 0,
         originalPrice: product.pricing?.priceRangeUndiscounted?.start?.gross?.amount,
         currency: product.pricing?.priceRange?.start?.gross?.currency || "USD",
         image: product.thumbnail?.url || "",
-        imageAlt: product.thumbnail?.alt || product.name,
-        category: product.category?.name || undefined,
+        imageAlt: product.thumbnail?.alt || t(product),
+        category: product.category ? t(product.category) : undefined,
         inStock: isInStock,
         channel: channel || undefined,
       });
@@ -143,7 +144,7 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
           {product.thumbnail?.url && !imageError ? (
             <Image
               src={product.thumbnail.url}
-              alt={product.thumbnail.alt || product.name}
+              alt={product.thumbnail.alt || t(product)}
               fill
               loading={loading}
               priority={priority}
@@ -254,7 +255,7 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
             )}
             <ShareButton
               variant="icon"
-              productName={product.name}
+              productName={t(product)}
               productSlug={product.slug}
               productImage={product.thumbnail?.url || null}
               className="flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-md text-neutral-400 opacity-70 transition-all duration-200 hover:text-neutral-600 hover:opacity-100 sm:h-9 sm:w-9"
@@ -270,7 +271,7 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
             className="mt-1 line-clamp-2 text-sm font-semibold transition-colors group-hover:opacity-80"
             style={{ color: branding.colors.text }}
           >
-            {product.name}
+            {t(product)}
           </h3>
           
           {/* Price */}

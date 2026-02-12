@@ -174,8 +174,8 @@ export default defineConfig(({ command, mode }) => {
             "localhost",
             "127.0.0.1",
             DASHBOARD_TUNNEL_URL, // Current tunnel domain
-            "michigan-oriented-epa-ever.trycloudflare.com", // Cloudflare tunnel host
-            "michigan-oriented-epa-ever.trycloudflare.com",
+            "wives-cartridge-medicaid-parties.trycloudflare.com", // Cloudflare tunnel host
+            "wives-cartridge-medicaid-parties.trycloudflare.com",
 
             // Add more tunnel domains here as needed, or use a function pattern
           ]
@@ -219,8 +219,8 @@ export default defineConfig(({ command, mode }) => {
         "localhost",
         "127.0.0.1",
         DASHBOARD_TUNNEL_URL,
-        "michigan-oriented-epa-ever.trycloudflare.com", // Cloudflare tunnel host
-        "michigan-oriented-epa-ever.trycloudflare.com",
+        "wives-cartridge-medicaid-parties.trycloudflare.com", // Cloudflare tunnel host
+        "wives-cartridge-medicaid-parties.trycloudflare.com",
       ],
     },
     define: {
@@ -338,6 +338,7 @@ export default defineConfig(({ command, mode }) => {
     esbuild: { jsx: "automatic" },
   };
 });
+
 
 
 

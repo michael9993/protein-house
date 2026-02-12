@@ -6,6 +6,7 @@ import Image from "next/image";
 import { SearchIcon, XIcon, ClockIcon } from "lucide-react";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { useContentConfig, useBranding } from "@/providers/StoreConfigProvider";
+import { buildProductUrl, buildProductsUrl, withChannel } from "@/lib/urls";
 import { formatMoneyRange } from "@/lib/utils";
 import { type ProductListItemFragment } from "@/gql/graphql";
 
@@ -113,7 +114,7 @@ export function SearchAutocomplete({
             title: product.name,
             subtitle,
             image: product.thumbnail?.url,
-            href: `/products/${product.slug}`, // LinkWithChannel will add channel automatically
+            href: buildProductUrl(product.slug),
           };
         });
 
@@ -145,7 +146,7 @@ export function SearchAutocomplete({
         type: "recent" as const,
         id: `recent-${search}`,
         title: search,
-        href: `/products?search=${encodeURIComponent(search)}`, // products page with search filter
+        href: buildProductsUrl({ search }), // products page with search filter
       }));
       setSuggestions(recentSuggestions);
     }
@@ -203,9 +204,9 @@ export function SearchAutocomplete({
       saveRecentSearch(query);
     }
     // Include channel in the URL for router.push
-    const hrefWithChannel = `/${encodeURIComponent(channel)}${suggestion.href}`;
-    onSelect(hrefWithChannel);
-    router.push(hrefWithChannel);
+    const fullHref = withChannel(channel, suggestion.href);
+    onSelect(fullHref);
+    router.push(fullHref);
     onClose();
   };
 
@@ -306,7 +307,7 @@ export function SearchAutocomplete({
           {query.trim().length >= 2 && (
             <div className="border-t border-neutral-100 px-4 py-3">
               <LinkWithChannel
-                href={`/products?search=${encodeURIComponent(query)}`}
+                href={buildProductsUrl({ search: query })}
                 onClick={() => {
                   saveRecentSearch(query);
                   onClose();

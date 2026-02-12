@@ -1,6 +1,7 @@
-query ProductListByCategory($slug: String!, $channel: String!, $first: Int!) {
+query ProductListByCategory($slug: String!, $channel: String!, $first: Int!, $languageCode: LanguageCodeEnum!) {
 	category(slug: $slug) {
 		name
+		translation(languageCode: $languageCode) { name description seoTitle seoDescription }
 		description
 		seoDescription
 		seoTitle

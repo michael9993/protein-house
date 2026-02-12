@@ -1,5 +1,6 @@
 import { CurrentUserOrderListDocument, CurrentUserAddressesDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
+import { getLanguageCodeForChannel } from "@/lib/language";
 import { AccountStatsGrid } from "./AccountStatsGrid";
 import { AccountSections } from "./AccountSections";
 import { AccountDashboardContent } from "./AccountDashboardContent";
@@ -16,9 +17,10 @@ export default async function AccountDashboardPage({
 	params: Promise<{ channel: string }> 
 }) {
 	const { channel } = await params;
+	const languageCode = getLanguageCodeForChannel(channel);
 	const [ordersResult, addressesResult] = await Promise.all([
 		executeGraphQL(CurrentUserOrderListDocument, {
-			variables: { first: 100 }, // Get more orders for accurate count
+			variables: { first: 100, languageCode }, // Get more orders for accurate count
 			cache: "no-cache",
 		}),
 		executeGraphQL(CurrentUserAddressesDocument, {

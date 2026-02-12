@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { type ResolvingMetadata, type Metadata } from "next";
 import { ProductListByCollectionDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
+import { getLanguageCodeForChannel } from "@/lib/language";
 import { storeConfig } from "@/config";
 
 /**
@@ -19,14 +20,16 @@ export const generateMetadata = async (
   _parent: ResolvingMetadata,
 ): Promise<Metadata> => {
   const params = await props.params;
+  const languageCode = getLanguageCodeForChannel(params.channel);
   const { collection } = await executeGraphQL(ProductListByCollectionDocument, {
-    variables: { slug: params.slug, channel: params.channel },
+    variables: { slug: params.slug, channel: params.channel, languageCode },
     revalidate: 60,
   });
 
+  const translatedName = collection?.translation?.name || collection?.name;
   return {
-    title: `${collection?.name || "Collection"} | ${storeConfig.store.name}`,
-    description: collection?.seoDescription || collection?.description || `Shop ${collection?.name} collection at ${storeConfig.store.name}`,
+    title: `${translatedName || "Collection"} | ${storeConfig.store.name}`,
+    description: collection?.translation?.seoDescription || collection?.seoDescription || collection?.translation?.description || collection?.description || `Shop ${translatedName} collection at ${storeConfig.store.name}`,
     // Add canonical URL pointing to the unified products page
     alternates: {
       canonical: `/${params.channel}/products?collections=${params.slug}`,

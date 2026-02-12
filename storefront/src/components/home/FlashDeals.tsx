@@ -1,15 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback } from "react";
-import { ArrowRight } from "lucide-react";
 import { type ProductListItemFragment } from "@/gql/graphql";
+import { t } from "@/lib/language";
 import { useWishlist } from "@/lib/wishlist";
 import { useBranding, useStoreInfo, useFlashDealsConfig, useContentConfig, useUiConfig, useFeature } from "@/providers/StoreConfigProvider";
 import { useQuickView } from "@/providers/QuickViewProvider";
 import { CountdownTimer } from "@/ui/components/CountdownTimer";
 import { HomepageProductCard } from "./HomepageProductCard";
 import { type BadgeLabels, type ProductCardConfig } from "./utils";
+import { buildProductsUrl, withChannel } from "@/lib/urls";
+import { SectionViewAllButton } from "./SectionViewAllButton";
 
 interface FlashDealsProps {
   products: readonly ProductListItemFragment[];
@@ -46,14 +47,14 @@ export function FlashDeals({ products, channel, maxDiscount, saleEndDate }: Flas
       const image = product.thumbnail?.url || product.media?.[0]?.url;
       addItem({
         id: productId,
-        name: product.name,
+        name: t(product),
         slug: product.slug,
         price: price?.amount || 0,
         originalPrice: originalPrice?.amount,
         currency: price?.currency || "USD",
         image: image || "",
-        imageAlt: product.thumbnail?.alt || product.name,
-        category: product.category?.name || undefined,
+        imageAlt: product.thumbnail?.alt || t(product),
+        category: product.category ? t(product.category) : undefined,
         inStock: (product.variants?.some(v => (v.quantityAvailable ?? 0) > 0)) ?? true,
         channel,
       });
@@ -117,17 +118,10 @@ export function FlashDeals({ products, channel, maxDiscount, saleEndDate }: Flas
               </div>
             )}
           </div>
-          <Link
-            href={`/${encodeURIComponent(channel)}/products?onSale=true`}
-            className="group inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-neutral-900"
-          >
-            {viewAllOffersText}
-            <ArrowRight
-              size={14}
-              className="transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1"
-              aria-hidden="true"
-            />
-          </Link>
+          <SectionViewAllButton
+            href={withChannel(channel, buildProductsUrl({ onSale: true }))}
+            text={viewAllOffersText}
+          />
         </div>
 
         {/* Product Grid */}

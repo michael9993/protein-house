@@ -1,10 +1,11 @@
 # Fetch collections for the products page carousel
-query CollectionsList($channel: String!, $first: Int = 6) {
+query CollectionsList($channel: String!, $first: Int = 20, $languageCode: LanguageCodeEnum!) {
   collections(channel: $channel, first: $first) {
     edges {
       node {
         id
         name
+        translation(languageCode: $languageCode) { name description }
         slug
         description
         backgroundImage {
@@ -17,6 +18,7 @@ query CollectionsList($channel: String!, $first: Int = 6) {
             node {
               id
               name
+              translation(languageCode: $languageCode) { name }
               slug
               thumbnail {
                 url

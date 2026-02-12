@@ -179,6 +179,15 @@ export const FilterSidebarSchema = z.object({
 });
 
 // ============================================
+// SECTION "VIEW ALL" BUTTON
+// ============================================
+
+export const SectionViewAllButtonSchema = z.object({
+  style: z.enum(["pill", "text", "minimal"]),
+  icon: z.enum(["chevron", "arrow", "none"]),
+});
+
+// ============================================
 // FULL UI SCHEMA
 // ============================================
 
@@ -193,4 +202,5 @@ export const UiSchema = z.object({
   activeFiltersTags: ActiveFiltersTagsSchema.optional(),
   filterSidebar: FilterSidebarSchema.optional(),
   cart: CartUiSchema,
+  sectionViewAllButton: SectionViewAllButtonSchema,
 });

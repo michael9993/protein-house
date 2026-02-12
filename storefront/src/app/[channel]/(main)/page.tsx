@@ -6,11 +6,14 @@ import {
 	CollectionsListDocument,
 } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
+import { getLanguageCodeForChannel } from "@/lib/language";
 import { storeConfig } from "@/config";
 import { HomePage } from "./HomePage";
 import { homepageCollections, getHeroBannerConfig, getTestimonials, getFeaturedBrands, getBrandLogos } from "@/lib/cms";
 import { CartRestoreTrigger } from "./CartRestoreTrigger";
 import { ScrollToTopButton } from "./products/ScrollToTopButton";
+import { deriveBrandSlug } from "@/components/home/utils";
+import type { FeaturedBrand } from "@/lib/cms";
 
 import type { Metadata } from "next";
 
@@ -74,6 +77,76 @@ const webSiteJsonLd = {
  *
  * CATEGORIES: Top-level categories for "Shop by Category" (CategoriesForHomepageDocument).
  */
+/**
+ * Fetch ALL brand values directly from the Saleor attribute API.
+ * This is more reliable than extracting from limited product queries.
+ */
+async function fetchBrandAttributeValues(channel: string): Promise<FeaturedBrand[]> {
+	try {
+		const apiUrl = process.env.SALEOR_API_URL || process.env.NEXT_PUBLIC_SALEOR_API_URL;
+		if (!apiUrl) return [];
+
+		const response = await fetch(apiUrl, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				query: `
+					query BrandAttributeChoices($languageCode: LanguageCodeEnum!) {
+						attributes(filter: { slugs: ["brand"] }, first: 1) {
+							edges {
+								node {
+									choices(first: 100) {
+										edges {
+											node {
+												id
+												name
+												slug
+												translation(languageCode: $languageCode) { name }
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				`,
+				variables: { languageCode: getLanguageCodeForChannel(channel) },
+			}),
+			next: { revalidate: 60 * 60 },
+		});
+
+		if (!response.ok) return [];
+
+		const result = await response.json() as { data?: any };
+		const choices = result.data?.attributes?.edges?.[0]?.node?.choices?.edges || [];
+
+		const brands: FeaturedBrand[] = [];
+		const seen = new Set<string>();
+
+		for (const edge of choices) {
+			const value = edge.node;
+			const brandName = (value?.translation?.name || value?.name)?.trim();
+			if (!brandName) continue;
+
+			const dedupKey = brandName.toLowerCase();
+			if (seen.has(dedupKey)) continue;
+			seen.add(dedupKey);
+
+			const slug = deriveBrandSlug(brandName);
+			brands.push({
+				id: value.id || `brand-${slug}`,
+				name: brandName,
+				logo: "",
+				url: `/products?brands=${encodeURIComponent(slug)}`,
+			});
+		}
+
+		return brands;
+	} catch {
+		return [];
+	}
+}
+
 export default async function Page(
 	props: { 
 		params: Promise<{ channel: string }>;
@@ -85,6 +158,7 @@ export default async function Page(
 	
 	const newArrivalsLimit = storeConfig.homepage.sections.newArrivals.limit ?? 8;
 	const bestSellersLimit = storeConfig.homepage.sections.bestSellers.limit ?? 8;
+	const languageCode = getLanguageCodeForChannel(channel);
 
 	// Fetch all data in parallel for better performance
 	const [
@@ -100,47 +174,48 @@ export default async function Page(
 		testimonialsData,
 		brandsData,
 		brandLogosMap,
+		brandAttributeValues,
 	] = await Promise.all([
 		executeGraphQL(ProductListByCollectionDocument, {
-			variables: { slug: homepageCollections.featured, channel },
+			variables: { slug: homepageCollections.featured, channel, languageCode },
 			revalidate: 30,
 		}).catch(() => ({ collection: null })),
 
 		executeGraphQL(ProductListByCollectionDocument, {
-			variables: { slug: homepageCollections.newArrivals, channel },
+			variables: { slug: homepageCollections.newArrivals, channel, languageCode },
 			revalidate: 30,
 		}).catch(() => ({ collection: null })),
 
 		executeGraphQL(ProductListByCollectionDocument, {
-			variables: { slug: homepageCollections.bestSellers, channel },
+			variables: { slug: homepageCollections.bestSellers, channel, languageCode },
 			revalidate: 30,
 		}).catch(() => ({ collection: null })),
 
 		executeGraphQL(ProductListByCollectionDocument, {
-			variables: { slug: homepageCollections.sale, channel },
+			variables: { slug: homepageCollections.sale, channel, languageCode },
 			revalidate: 30,
 		}).catch(() => ({ collection: null })),
 
 		// Data-driven: newest products by creation date (New Arrivals fallback)
 		executeGraphQL(ProductsNewestDocument, {
-			variables: { channel, first: newArrivalsLimit },
+			variables: { channel, first: newArrivalsLimit, languageCode },
 			revalidate: 30,
 		}).catch(() => ({ products: null })),
 
 		// Data-driven: top-rated products (Best Sellers fallback; Saleor has no "sold count" in API)
 		executeGraphQL(ProductsTopRatedDocument, {
-			variables: { channel, first: bestSellersLimit },
+			variables: { channel, first: bestSellersLimit, languageCode },
 			revalidate: 30,
 		}).catch(() => ({ products: null })),
 
 		executeGraphQL(CategoriesForHomepageDocument, {
-			variables: { channel, first: 8 },
+			variables: { channel, first: 8, languageCode },
 			revalidate: 30,
 		}).catch(() => ({ categories: null })),
 
 		// Collections for CollectionMosaic section
 		executeGraphQL(CollectionsListDocument, {
-			variables: { channel, first: 6 },
+			variables: { channel, first: 20, languageCode },
 			revalidate: 30,
 		}).catch(() => ({ collections: null })),
 
@@ -148,6 +223,7 @@ export default async function Page(
 		getTestimonials(channel),
 		getFeaturedBrands(channel),
 		getBrandLogos(),
+		fetchBrandAttributeValues(channel),
 	]);
 
 	const newArrivalsFromCollection = newArrivalsCollectionData.collection?.products?.edges?.map(({ node }) => node) ?? [];
@@ -180,16 +256,16 @@ export default async function Page(
 		)?.value || null,
 	} : null;
 
-	// Transform categories from Dashboard > Catalog > Categories
+	// Transform categories from Dashboard > Catalog > Categories (apply translations)
 	const categories = categoriesData.categories?.edges?.map(({ node }) => ({
 		id: node.id,
-		name: node.name,
+		name: node.translation?.name || node.name,
 		slug: node.slug,
 		image: node.backgroundImage?.url || undefined,
 		productCount: node.products?.totalCount || 0,
 		children: node.children?.edges?.map(({ node: child }) => ({
 			id: child.id,
-			name: child.name,
+			name: child.translation?.name || child.name,
 			slug: child.slug,
 			productCount: child.products?.totalCount || 0,
 			image: child.backgroundImage?.url || undefined,
@@ -197,12 +273,12 @@ export default async function Page(
 		})).filter(child => child.productCount > 0) || [],
 	})) || [];
 
-	// Transform collections for CollectionMosaic
+	// Transform collections for CollectionMosaic (apply translations)
 	const collections = collectionsData.collections?.edges?.map(({ node }) => ({
 		id: node.id,
-		name: node.name,
+		name: node.translation?.name || node.name,
 		slug: node.slug,
-		description: node.description,
+		description: node.translation?.description || node.description,
 		backgroundImage: node.backgroundImage,
 		products: node.products,
 	})) || [];
@@ -230,7 +306,7 @@ export default async function Page(
 				saleCollectionInfo={saleCollectionInfo}
 				heroBanner={heroBannerConfig}
 				testimonials={testimonialsData}
-				brands={brandsData}
+				brands={brandsData.length > 0 ? brandsData : brandAttributeValues}
 				brandLogos={Object.fromEntries(brandLogosMap)}
 				collections={collections}
 			/>

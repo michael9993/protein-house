@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-02-11T17:58:41.462Z",
+  "exportedAt": "2026-02-12T12:19:33.515Z",
   "channels": {
     "ils": {
-      "version": 12,
-      "updatedAt": "2026-02-11T17:58:37.851Z",
+      "version": 4,
+      "updatedAt": "2026-02-12T12:19:30.614Z",
       "channelSlug": "ils",
       "store": {
         "name": "Mansour Shoes",
@@ -125,6 +125,13 @@
               "description": null,
               "link": null,
               "icon": null
+            },
+            {
+              "id": "UHJvbW90aW9uOjc2YmIxMTA5LWM5MjItNGQ0Ni05ODU5LWY5ODMzMzk0NzBkOA==",
+              "name": "Mid seasion promo",
+              "description": null,
+              "displayText": "Mid seasion promo",
+              "link": null
             }
           ],
           "manualItems": [
@@ -233,11 +240,11 @@
           "marquee": {
             "enabled": true,
             "text": "משלוח חינם בהזמנות מעל 200 ₪! • קולקציה חדשה בחנות",
-            "speedSeconds": 50,
+            "speedSeconds": 20,
             "textColor": "#fff",
             "background": {
               "style": "solid",
-              "color": "#000000",
+              "color": "#0a0a0a",
               "secondaryColor": null
             }
           },
@@ -287,7 +294,7 @@
             "enabled": true,
             "badgeText": "הצעה מיוחדת",
             "title": "אל תפספסו",
-            "highlight": "מגוון הנחות",
+            "highlight": "עד 25% הנחה",
             "description": "ציוד ספורט איכותי לריצה, מגרש ואולם. קולקציה מוגבלת.",
             "primaryCta": {
               "text": "לפריטים במבצע",
@@ -303,7 +310,7 @@
               "color": "#000000",
               "secondaryColor": null,
               "gradientDirection": "to-bottom-right",
-              "mixPercentage": 13
+              "mixPercentage": 10
             }
           },
           "flashDeals": {
@@ -323,7 +330,7 @@
             "enabled": true,
             "title": "קניות לפי קולקציה",
             "subtitle": "נבחר במיוחד עבורכם",
-            "maxCollections": 8,
+            "maxCollections": 5,
             "excludeSlugs": [
               "hero-banner",
               "testimonials",
@@ -850,6 +857,10 @@
           "drawerSide": "left",
           "showDeleteText": false,
           "showSaveForLater": false
+        },
+        "sectionViewAllButton": {
+          "style": "pill",
+          "icon": "chevron"
         }
       },
       "content": {
@@ -1053,7 +1064,8 @@
           "confirmButton": "אישור",
           "deleteButton": "מחק",
           "editButton": "עריכה",
-          "homeLabel": "בית"
+          "homeLabel": "בית",
+          "allProductsLabel": "מוצרים"
         },
         "homepage": {
           "newArrivalsTitle": "מוצרים חדשים",
@@ -1101,6 +1113,7 @@
           "viewAllBrandsButton": "צפה בכל המותגים",
           "viewAllOffersButton": "צפה בכל ההצעות",
           "allCollectionsButton": "כל הקולקציות",
+          "viewAllButton": "צפה בהכל",
           "itemsText": "פריטים",
           "stylesText": "סגנונות",
           "performanceLineupText": "קו ביצועים",

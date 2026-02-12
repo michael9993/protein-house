@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { parseDescription } from "./utils";
 import { CountdownTimer } from "@/ui/components/CountdownTimer";
 import { useBranding, usePromoPopupConfig, usePromotionBannerConfig, useContentConfig } from "@/providers/StoreConfigProvider";
+import { withChannel } from "@/lib/urls";
 
 interface PromotionBannerProps {
   channel: string;
@@ -126,7 +127,7 @@ export function PromotionBanner({ channel, promoData }: PromotionBannerProps) {
           {/* CTAs */}
           <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
             <Link
-              href={`/${encodeURIComponent(channel)}${primaryCtaLink.startsWith('/') ? '' : '/'}${primaryCtaLink}`}
+              href={withChannel(channel, primaryCtaLink)}
               className="group inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-2xl"
               style={{ backgroundColor: colors.primary }}
             >
@@ -138,7 +139,7 @@ export function PromotionBanner({ channel, promoData }: PromotionBannerProps) {
               />
             </Link>
             <Link
-              href={`/${encodeURIComponent(channel)}${secondaryCtaLink.startsWith('/') ? '' : '/'}${secondaryCtaLink}`}
+              href={withChannel(channel, secondaryCtaLink)}
               className="inline-flex items-center justify-center rounded-full border-2 border-neutral-900 bg-white px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] text-neutral-900 transition hover:bg-neutral-900 hover:text-white"
             >
               {secondaryCtaText}

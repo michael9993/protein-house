@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import * as Checkout from "@/lib/checkout";
 import { executeGraphQL } from "@/lib/graphql";
 import { CheckoutDeleteLinesDocument, CheckoutCreateWithLinesDocument } from "@/gql/graphql";
+import { getLanguageCodeForChannel } from "@/lib/language";
 import { revalidatePath } from "next/cache";
 
 /** Cookie name for "no gift" checkout ID so checkout page can add it to sessionStorage (e.g. when opened in new tab). */
@@ -167,6 +168,7 @@ export async function createCheckoutWithItemsAction(
             variables: {
                 channel,
                 lines: items.map((item) => ({ variantId: item.variantId, quantity: item.quantity })),
+                languageCode: getLanguageCodeForChannel(channel),
             },
             cache: "no-cache",
         });

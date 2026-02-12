@@ -5,6 +5,7 @@ query ProductListPaginated(
 	$before: String
 	$channel: String!
 	$sortBy: ProductOrder
+	$languageCode: LanguageCodeEnum!
 ) {
 	products(first: $first, after: $after, last: $last, before: $before, channel: $channel, sortBy: $sortBy) {
 		totalCount

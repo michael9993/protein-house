@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { executeGraphQL } from "@/lib/graphql";
 import { SearchProductsDocument } from "@/gql/graphql";
 import { ProductOrderField, OrderDirection } from "@/gql/graphql";
+import { getLanguageCodeForChannel } from "@/lib/language";
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,10 +15,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ products: [] });
     }
 
+    const languageCode = getLanguageCodeForChannel(channel);
     const { products } = await executeGraphQL(SearchProductsDocument, {
       variables: {
         search: query,
         channel,
+        languageCode,
         sortBy: ProductOrderField.Rating,
         sortDirection: OrderDirection.Asc,
         first: limit,
@@ -27,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     const productList = (products?.edges || []).map((edge) => ({
       id: edge.node.id,
-      name: edge.node.name,
+      name: edge.node.translation?.name || edge.node.name,
       slug: edge.node.slug,
       thumbnail: edge.node.thumbnail,
       pricing: edge.node.pricing,

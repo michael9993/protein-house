@@ -49,7 +49,7 @@ export function CustomerFeedback({ channel, cmsTestimonials = [] }: CustomerFeed
     async function fetchReviews() {
       try {
         const data = await getAllProductReviews(currentChannel, { limit: maxReviews, minRating });
-        setReviews(data);
+        setReviews(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Failed to fetch reviews:", error);
       } finally {
@@ -77,16 +77,18 @@ export function CustomerFeedback({ channel, cmsTestimonials = [] }: CustomerFeed
   };
 
   // Determine which testimonials to show (priority: real reviews > CMS > hide)
-  const displayItems = reviews.length > 0
-    ? reviews.map((review) => ({
+  const safeReviews = reviews ?? [];
+  const safeTestimonials = cmsTestimonials ?? [];
+  const displayItems = safeReviews.length > 0
+    ? safeReviews.map((review) => ({
         id: review.id,
         name: getUserName(review),
         role: review.product?.name || "",
         quote: review.body || review.title,
         rating: review.rating,
       }))
-    : cmsTestimonials.length > 0
-    ? cmsTestimonials.slice(0, maxReviews).map((t) => ({
+    : safeTestimonials.length > 0
+    ? safeTestimonials.slice(0, maxReviews).map((t) => ({
         id: t.id,
         name: t.name,
         role: t.role || "",

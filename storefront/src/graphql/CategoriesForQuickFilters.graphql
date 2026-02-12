@@ -2,12 +2,13 @@
 # with backgroundImage and product thumbnails for tile images.
 # Aligns with CategoriesForNav hierarchy so quick filters are correct when category levels change.
 
-query CategoriesForQuickFilters($channel: String!, $first: Int = 10) {
+query CategoriesForQuickFilters($channel: String!, $first: Int = 10, $languageCode: LanguageCodeEnum!) {
   categories(first: $first, level: 0) {
     edges {
       node {
         id
         name
+        translation(languageCode: $languageCode) { name }
         slug
         backgroundImage {
           url
@@ -34,6 +35,7 @@ query CategoriesForQuickFilters($channel: String!, $first: Int = 10) {
             node {
               id
               name
+              translation(languageCode: $languageCode) { name }
               slug
               backgroundImage {
                 url
@@ -56,6 +58,7 @@ query CategoriesForQuickFilters($channel: String!, $first: Int = 10) {
                   node {
                     id
                     name
+                    translation(languageCode: $languageCode) { name }
                     slug
                     products(channel: $channel, first: 1) {
                       totalCount

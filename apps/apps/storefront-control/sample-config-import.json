@@ -863,6 +863,10 @@
         "drawerSide": "left",
         "showDeleteText": false,
         "showSaveForLater": false
+      },
+      "sectionViewAllButton": {
+        "style": "pill",
+        "icon": "chevron"
       }
     },
     "content": {
@@ -1066,7 +1070,8 @@
         "confirmButton": "אישור",
         "deleteButton": "מחק",
         "editButton": "עריכה",
-        "homeLabel": "בית"
+        "homeLabel": "בית",
+        "allProductsLabel": "מוצרים"
       },
       "homepage": {
         "newArrivalsTitle": "מוצרים חדשים",
@@ -1114,6 +1119,7 @@
         "viewAllBrandsButton": "צפה בכל המותגים",
         "viewAllOffersButton": "צפה בכל ההצעות",
         "allCollectionsButton": "כל הקולקציות",
+        "viewAllButton": "צפה בהכל",
         "itemsText": "פריטים",
         "stylesText": "סגנונות",
         "performanceLineupText": "קו ביצועים",

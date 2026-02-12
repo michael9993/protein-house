@@ -1,7 +1,8 @@
-query ProductListByCollection($slug: String!, $channel: String!) {
+query ProductListByCollection($slug: String!, $channel: String!, $languageCode: LanguageCodeEnum!) {
 	collection(slug: $slug, channel: $channel) {
 		id
 		name
+		translation(languageCode: $languageCode) { name description seoTitle seoDescription }
 		slug
 		description
 		seoDescription

@@ -11,6 +11,7 @@
  */
 
 import { useState, useEffect } from "react";
+import { getLanguageCodeForChannel } from "@/lib/language";
 import { ProductFilters, MobileFilterDrawer, type Category, type Collection, type Brand, type Size, type Color } from "@/ui/components/Filters/ProductFilters";
 import { useProductFilters } from "@/hooks/useProductFilters";
 import { useFiltersText, useBranding } from "@/providers/StoreConfigProvider";
@@ -202,12 +203,13 @@ async function fetchCategories(apiUrl: string, channel: string): Promise<Categor
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: `
-          query CategoriesForFilter($channel: String!) {
+          query CategoriesForFilter($channel: String!, $languageCode: LanguageCodeEnum!) {
             categories(first: 100, level: 0) {
               edges {
                 node {
                   id
                   name
+                  translation(languageCode: $languageCode) { name }
                   slug
                   products(first: 1, channel: $channel) {
                     totalCount
@@ -217,6 +219,7 @@ async function fetchCategories(apiUrl: string, channel: string): Promise<Categor
                       node {
                         id
                         name
+                        translation(languageCode: $languageCode) { name }
                         slug
                         products(first: 1, channel: $channel) {
                           totalCount
@@ -226,6 +229,7 @@ async function fetchCategories(apiUrl: string, channel: string): Promise<Categor
                             node {
                               id
                               name
+                              translation(languageCode: $languageCode) { name }
                               slug
                               products(first: 1, channel: $channel) {
                                 totalCount
@@ -241,7 +245,7 @@ async function fetchCategories(apiUrl: string, channel: string): Promise<Categor
             }
           }
         `,
-        variables: { channel },
+        variables: { channel, languageCode: getLanguageCodeForChannel(channel) },
       }),
     });
 
@@ -252,7 +256,7 @@ async function fetchCategories(apiUrl: string, channel: string): Promise<Categor
     function mapNode(node: any): Category {
       const category: Category = {
         id: node.id,
-        name: node.name,
+        name: node.translation?.name || node.name,
         slug: node.slug,
         productCount: node.products?.totalCount || 0,
         children: [],
@@ -277,12 +281,13 @@ async function fetchCollections(apiUrl: string, channel: string): Promise<Collec
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: `
-          query CollectionsForFilter($channel: String!) {
+          query CollectionsForFilter($channel: String!, $languageCode: LanguageCodeEnum!) {
             collections(channel: $channel, first: 50) {
               edges {
                 node {
                   id
                   name
+                  translation(languageCode: $languageCode) { name }
                   slug
                   products(first: 1) {
                     totalCount
@@ -292,7 +297,7 @@ async function fetchCollections(apiUrl: string, channel: string): Promise<Collec
             }
           }
         `,
-        variables: { channel },
+        variables: { channel, languageCode: getLanguageCodeForChannel(channel) },
       }),
     });
 
@@ -302,7 +307,7 @@ async function fetchCollections(apiUrl: string, channel: string): Promise<Collec
     return data.collections.edges
       .map((edge: any) => ({
         id: edge.node.id,
-        name: edge.node.name,
+        name: edge.node.translation?.name || edge.node.name,
         slug: edge.node.slug,
         productCount: edge.node.products?.totalCount || 0,
       }))
@@ -321,7 +326,7 @@ async function fetchBrands(apiUrl: string, channel: string): Promise<Brand[]> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: `
-          query ProductsForBrands($channel: String!) {
+          query ProductsForBrands($channel: String!, $languageCode: LanguageCodeEnum!) {
             products(first: 100, channel: $channel) {
               edges {
                 cursor
@@ -331,6 +336,7 @@ async function fetchBrands(apiUrl: string, channel: string): Promise<Brand[]> {
                   attributes {
                     values {
                       name
+                      translation(languageCode: $languageCode) { name }
                       value
                     }
                     attribute {
@@ -342,7 +348,7 @@ async function fetchBrands(apiUrl: string, channel: string): Promise<Brand[]> {
             }
           }
         `,
-        variables: { channel },
+        variables: { channel, languageCode: getLanguageCodeForChannel(channel) },
       }),
     });
 
@@ -412,7 +418,7 @@ async function fetchBrandsFromAttributes(apiUrl: string, channel: string): Promi
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: `
-          query ProductsForBrands($channel: String!) {
+          query ProductsForBrands($channel: String!, $languageCode: LanguageCodeEnum!) {
             products(first: 100, channel: $channel) {
               edges {
                 cursor
@@ -429,6 +435,7 @@ async function fetchBrandsFromAttributes(apiUrl: string, channel: string): Promi
                       id
                       name
                       slug
+                      translation(languageCode: $languageCode) { name }
                     }
                   }
                 }
@@ -436,7 +443,7 @@ async function fetchBrandsFromAttributes(apiUrl: string, channel: string): Promi
             }
           }
         `,
-        variables: { channel },
+        variables: { channel, languageCode: getLanguageCodeForChannel(channel) },
       }),
     });
 
@@ -506,7 +513,7 @@ async function fetchBrandsFromAttributes(apiUrl: string, channel: string): Promi
       const brandValues = brandAttr?.values || [];
       if (brandValues.length > 0) {
         brandValues.forEach((value: any) => {
-          const brandName = value?.name || value?.value;
+          const brandName = value?.translation?.name || value?.name || value?.value;
           if (brandName && typeof brandName === 'string' && brandName.trim()) {
             // Dedup by normalized name (not slug) to handle Saleor auto-incremented slugs
             const dedupKey = brandName.toLowerCase().trim();
@@ -569,7 +576,7 @@ async function fetchColors(apiUrl: string, channel: string): Promise<Color[]> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: `
-          query VariantsForColors($channel: String!) {
+          query VariantsForColors($channel: String!, $languageCode: LanguageCodeEnum!) {
             productVariants(first: 100, channel: $channel) {
               edges {
                 node {
@@ -584,6 +591,7 @@ async function fetchColors(apiUrl: string, channel: string): Promise<Color[]> {
                       id
                       name
                       slug
+                      translation(languageCode: $languageCode) { name }
                     }
                   }
                 }
@@ -591,7 +599,7 @@ async function fetchColors(apiUrl: string, channel: string): Promise<Color[]> {
             }
           }
         `,
-        variables: { channel },
+        variables: { channel, languageCode: getLanguageCodeForChannel(channel) },
       }),
     });
 
@@ -626,7 +634,7 @@ async function fetchColors(apiUrl: string, channel: string): Promise<Color[]> {
             if (attr.values && attr.values.length > 0) {
               attr.values.forEach((value: any) => {
                 const colorId = value.id || value.slug || value.name;
-                const colorName = value.name;
+                const colorName = value.translation?.name || value.name;
                 const colorSlug = value.slug || value.name.toLowerCase().replace(/\s+/g, "-");
                 
                 if (!colorsMap.has(colorId)) {
@@ -669,7 +677,7 @@ async function fetchSizes(apiUrl: string, channel: string): Promise<Size[]> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: `
-          query VariantsForSizes($channel: String!) {
+          query VariantsForSizes($channel: String!, $languageCode: LanguageCodeEnum!) {
             productVariants(first: 100, channel: $channel) {
               edges {
                 node {
@@ -684,6 +692,7 @@ async function fetchSizes(apiUrl: string, channel: string): Promise<Size[]> {
                       id
                       name
                       slug
+                      translation(languageCode: $languageCode) { name }
                     }
                   }
                 }
@@ -691,7 +700,7 @@ async function fetchSizes(apiUrl: string, channel: string): Promise<Size[]> {
             }
           }
         `,
-        variables: { channel },
+        variables: { channel, languageCode: getLanguageCodeForChannel(channel) },
       }),
     });
 
@@ -725,7 +734,7 @@ async function fetchSizes(apiUrl: string, channel: string): Promise<Size[]> {
             if (attr.values && attr.values.length > 0) {
               attr.values.forEach((value: any) => {
                 const sizeId = value.id || value.slug || value.name;
-                const sizeName = value.name;
+                const sizeName = value.translation?.name || value.name;
                 const sizeSlug = value.slug || value.name.toLowerCase().replace(/\s+/g, "-");
                 
                 if (!sizesMap.has(sizeId)) {

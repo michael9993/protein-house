@@ -1,4 +1,4 @@
-query ProductsForSizes($channel: String!, $first: Int!) {
+query ProductsForSizes($channel: String!, $first: Int!, $languageCode: LanguageCodeEnum!) {
   products(first: $first, channel: $channel) {
     edges {
       cursor
@@ -9,11 +9,13 @@ query ProductsForSizes($channel: String!, $first: Int!) {
           attribute {
             id
             name
+            translation(languageCode: $languageCode) { name }
             slug
           }
           values {
             id
             name
+            translation(languageCode: $languageCode) { name }
             slug
           }
         }

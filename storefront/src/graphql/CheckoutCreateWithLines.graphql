@@ -1,5 +1,5 @@
 # Create a checkout with initial lines
-mutation CheckoutCreateWithLines($channel: String!, $lines: [CheckoutLineInput!]!) {
+mutation CheckoutCreateWithLines($channel: String!, $lines: [CheckoutLineInput!]!, $languageCode: LanguageCodeEnum!) {
 	checkoutCreate(input: { channel: $channel, lines: $lines }) {
 		checkout {
 			id
@@ -17,6 +17,7 @@ mutation CheckoutCreateWithLines($channel: String!, $lines: [CheckoutLineInput!]
 					product {
 						id
 						name
+						translation(languageCode: $languageCode) { name }
 						slug
 						thumbnail {
 							url
@@ -24,6 +25,7 @@ mutation CheckoutCreateWithLines($channel: String!, $lines: [CheckoutLineInput!]
 						}
 						category {
 							name
+							translation(languageCode: $languageCode) { name }
 						}
 					}
 					pricing {
@@ -35,6 +37,7 @@ mutation CheckoutCreateWithLines($channel: String!, $lines: [CheckoutLineInput!]
 						}
 					}
 					name
+					translation(languageCode: $languageCode) { name }
 					id
 				}
 			}

@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { useBranding, useContentConfig, useCategoriesConfig } from "@/providers/StoreConfigProvider";
-import { getCategoryLayoutClass, type DashboardCategory, type DashboardCategoryChild } from "./utils";
+import { buildCategoryUrl, buildCategoryUrlFromChildren, buildProductsUrl, withChannel } from "@/lib/urls";
+import { type DashboardCategory, type DashboardCategoryChild } from "./utils";
+import { SectionViewAllButton } from "./SectionViewAllButton";
 
 interface CategoriesProps {
   categories: DashboardCategory[];
@@ -23,8 +25,124 @@ function collectChildSlugs(category: DashboardCategory): string[] {
 /** Build URL: child slugs comma-separated if available, else parent slug */
 function getCategoryHref(channel: string, category: DashboardCategory): string {
   const childSlugs = collectChildSlugs(category);
-  const slugParam = childSlugs.length > 0 ? childSlugs.join(",") : category.slug;
-  return `/${encodeURIComponent(channel)}/products?categories=${slugParam}`;
+  return withChannel(channel, buildCategoryUrlFromChildren(category.slug, childSlugs));
+}
+
+// ---------------------------------------------------------------------------
+// Mosaic Animation Constants & Helpers
+// ---------------------------------------------------------------------------
+
+const CYCLE_MS = 6000;
+const TRANSITION_CSS = "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
+const GAP = 12;
+
+// Desktop: left 44% (2x2 grid) | gap | right 56% (hero)
+const DESKTOP_HERO: React.CSSProperties = {
+  insetInlineStart: `calc(44% + ${GAP}px)`,
+  top: 0,
+  width: `calc(56% - ${GAP}px)`,
+  height: "100%",
+  borderRadius: "1.5rem",
+};
+
+const DESKTOP_GRID: React.CSSProperties[] = [
+  { insetInlineStart: 0, top: 0, width: `calc(22% - ${GAP / 2}px)`, height: `calc(50% - ${GAP / 2}px)`, borderRadius: "1rem" },
+  { insetInlineStart: `calc(22% + ${GAP / 2}px)`, top: 0, width: `calc(22% - ${GAP / 2}px)`, height: `calc(50% - ${GAP / 2}px)`, borderRadius: "1rem" },
+  { insetInlineStart: 0, top: `calc(50% + ${GAP / 2}px)`, width: `calc(22% - ${GAP / 2}px)`, height: `calc(50% - ${GAP / 2}px)`, borderRadius: "1rem" },
+  { insetInlineStart: `calc(22% + ${GAP / 2}px)`, top: `calc(50% + ${GAP / 2}px)`, width: `calc(22% - ${GAP / 2}px)`, height: `calc(50% - ${GAP / 2}px)`, borderRadius: "1rem" },
+];
+
+// Mobile: hero on top (57%) | gap | 2x2 grid below (43%)
+const MOBILE_HERO: React.CSSProperties = {
+  insetInlineStart: 0,
+  top: 0,
+  width: "100%",
+  height: `calc(57% - ${GAP / 2}px)`,
+  borderRadius: "1.5rem",
+};
+
+const MOBILE_GRID: React.CSSProperties[] = [
+  { insetInlineStart: 0, top: `calc(57% + ${GAP / 2}px)`, width: `calc(50% - ${GAP / 2}px)`, height: `calc(21.5% - ${GAP / 4}px)`, borderRadius: "1rem" },
+  { insetInlineStart: `calc(50% + ${GAP / 2}px)`, top: `calc(57% + ${GAP / 2}px)`, width: `calc(50% - ${GAP / 2}px)`, height: `calc(21.5% - ${GAP / 4}px)`, borderRadius: "1rem" },
+  { insetInlineStart: 0, top: `calc(78.5% + ${GAP}px)`, width: `calc(50% - ${GAP / 2}px)`, height: `calc(21.5% - ${GAP / 4}px)`, borderRadius: "1rem" },
+  { insetInlineStart: `calc(50% + ${GAP / 2}px)`, top: `calc(78.5% + ${GAP}px)`, width: `calc(50% - ${GAP / 2}px)`, height: `calc(21.5% - ${GAP / 4}px)`, borderRadius: "1rem" },
+];
+
+function getSlotStyle(
+  cardIndex: number,
+  activeIndex: number,
+  mobile: boolean,
+): React.CSSProperties | null {
+  const heroSlot = mobile ? MOBILE_HERO : DESKTOP_HERO;
+  const gridSlots = mobile ? MOBILE_GRID : DESKTOP_GRID;
+
+  if (cardIndex === activeIndex) return heroSlot;
+
+  let gridPos = 0;
+  for (let i = 0; i < cardIndex; i++) {
+    if (i !== activeIndex) gridPos++;
+  }
+  return gridPos < 4 ? gridSlots[gridPos] : null;
+}
+
+/** Dot indicators with CSS-animated progress bar */
+function DotIndicators({
+  count,
+  activeIndex,
+  cycleDuration,
+  isPaused,
+  accentColor,
+  onDotClick,
+}: {
+  count: number;
+  activeIndex: number;
+  cycleDuration: number;
+  isPaused: boolean;
+  accentColor: string;
+  onDotClick: (index: number) => void;
+}) {
+  if (count <= 1) return null;
+
+  return (
+    <div
+      className="mt-6 flex items-center justify-center gap-2"
+      role="tablist"
+      aria-label="Category navigation"
+    >
+      {Array.from({ length: count }, (_, i) => {
+        const isActive = i === activeIndex;
+        return (
+          <button
+            key={i}
+            onClick={() => onDotClick(i)}
+            role="tab"
+            aria-selected={isActive}
+            aria-label={`Category ${i + 1}`}
+            className={`relative overflow-hidden rounded-full transition-all duration-300 ${
+              isActive
+                ? "h-2 w-8"
+                : "h-2 w-2 bg-neutral-300 hover:bg-neutral-400"
+            }`}
+            style={
+              isActive ? { backgroundColor: `${accentColor}33` } : undefined
+            }
+          >
+            {isActive && (
+              <div
+                key={`progress-${activeIndex}`}
+                className="absolute inset-y-0 start-0 rounded-full"
+                style={{
+                  backgroundColor: accentColor,
+                  animation: `mosaicProgressFill ${cycleDuration}ms linear forwards`,
+                  animationPlayState: isPaused ? "paused" : "running",
+                }}
+              />
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -52,11 +170,20 @@ function ImageLayer({
 
   return (
     <>
-      {/* Background fallback */}
+      {/* Background — accent gradient when no image */}
       <div
-        className="absolute inset-0 bg-gradient-to-br from-neutral-50 via-white to-neutral-100"
+        className="absolute inset-0"
+        style={
+          image
+            ? undefined
+            : { background: `linear-gradient(135deg, ${accent}20 0%, ${accent}60 60%, ${accent} 100%)` }
+        }
         aria-hidden="true"
-      />
+      >
+        {!image && (
+          <div className="absolute inset-0 bg-gradient-to-br from-neutral-900/30 to-neutral-900/70" />
+        )}
+      </div>
 
       {/* Category image */}
       {image && (
@@ -74,11 +201,13 @@ function ImageLayer({
         className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/5"
         aria-hidden="true"
       />
-      <div
-        className="absolute inset-0 opacity-30"
-        style={{ background: `linear-gradient(160deg, ${accent}40 0%, transparent 50%)` }}
-        aria-hidden="true"
-      />
+      {image && (
+        <div
+          className="absolute inset-0 opacity-30"
+          style={{ background: `linear-gradient(160deg, ${accent}40 0%, transparent 50%)` }}
+          aria-hidden="true"
+        />
+      )}
 
       {/* Category info — pinned to bottom */}
       <div className="absolute inset-x-0 bottom-0 z-10 p-5 text-white sm:p-6">
@@ -151,7 +280,7 @@ function RevealContent({
             <Link
               key={child.id}
               data-pill={i}
-              href={`/${encodeURIComponent(channel)}/products?categories=${child.slug}`}
+              href={withChannel(channel, buildCategoryUrl(child.slug))}
               className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-sm transition-all duration-200 hover:border-white/40 hover:bg-white/20"
               onClick={(e) => e.stopPropagation()}
               style={{ opacity: 0 }}
@@ -188,7 +317,6 @@ function SplitCard({
   category,
   channel,
   accent,
-  layoutClass,
   stylesText,
   showSubcategories,
   showProductCount,
@@ -198,7 +326,6 @@ function SplitCard({
   category: DashboardCategory;
   channel: string;
   accent: string;
-  layoutClass: string;
   stylesText: string;
   showSubcategories: boolean;
   showProductCount: boolean;
@@ -224,7 +351,7 @@ function SplitCard({
     return (
       <Link
         href={getCategoryHref(channel, category)}
-        className={`group relative overflow-hidden rounded-3xl border border-neutral-200 bg-neutral-800 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${layoutClass}`}
+        className="group relative block h-full w-full overflow-hidden rounded-3xl border border-neutral-200 bg-neutral-800 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
       >
         <ImageLayer {...imageLayerProps} />
       </Link>
@@ -234,7 +361,7 @@ function SplitCard({
   // Has children → split-reveal card
   return (
     <div
-      className={`relative cursor-pointer overflow-hidden rounded-3xl border border-neutral-200 bg-neutral-800 shadow-sm transition-shadow duration-300 hover:shadow-2xl ${isOpen ? "split-card-open" : ""} ${layoutClass}`}
+      className={`relative h-full w-full cursor-pointer overflow-hidden rounded-3xl border border-neutral-200 bg-neutral-800 shadow-sm transition-shadow duration-300 hover:shadow-2xl ${isOpen ? "split-card-open" : ""}`}
       onClick={() => setIsOpen((prev) => !prev)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -299,19 +426,98 @@ export function Categories({ categories, channel, title, subtitle }: CategoriesP
   const subcategoriesLabel = hp.subcategoriesLabel || "Subcategories";
   const viewCategoryText = hp.viewCategoryButton || "View All";
 
-  if (!enabled || categories.length === 0) return null;
-
-  const nonEmptyCategories = categories.filter((cat) => cat.productCount > 0);
-  const displayCategories = nonEmptyCategories.slice(0, maxCategories);
+  const nonEmptyCategories = useMemo(
+    () => categories.filter((cat) => cat.productCount > 0),
+    [categories],
+  );
+  const displayCategories = useMemo(
+    () => nonEmptyCategories.slice(0, maxCategories),
+    [nonEmptyCategories, maxCategories],
+  );
   const accent = colors.secondary || colors.primary;
 
-  if (displayCategories.length === 0) return null;
+  // ---------------------------------------------------------------------------
+  // Cycling state (mirrors CollectionMosaic)
+  // ---------------------------------------------------------------------------
+
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const isPausedRef = useRef(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    setIsDesktop(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+    const handler = () => setReducedMotion(mq.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  // Auto-rotate (interval-based, progress bar handled by CSS)
+  useEffect(() => {
+    if (reducedMotion || displayCategories.length < 2) return;
+
+    let elapsed = 0;
+    const TICK = 100;
+    const timer = setInterval(() => {
+      if (!isPausedRef.current) {
+        elapsed += TICK;
+        if (elapsed >= CYCLE_MS) {
+          setActiveIndex((prev) => (prev + 1) % displayCategories.length);
+          elapsed = 0;
+        }
+      }
+    }, TICK);
+
+    return () => clearInterval(timer);
+  }, [reducedMotion, displayCategories.length, activeIndex]);
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [displayCategories.length]);
+
+  const pause = useCallback(() => {
+    isPausedRef.current = true;
+    setIsPaused(true);
+  }, []);
+
+  const resume = useCallback(() => {
+    isPausedRef.current = false;
+    setIsPaused(false);
+  }, []);
+
+  const goTo = useCallback((index: number) => {
+    setActiveIndex(index);
+  }, []);
+
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
+
+  if (!enabled || displayCategories.length === 0) return null;
 
   return (
     <section
       className="relative border-t border-neutral-100"
       aria-label={displayTitle}
     >
+      {/* CSS keyframes for progress bar */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes mosaicProgressFill {
+          from { width: 0%; }
+          to   { width: 100%; }
+        }
+      ` }} />
+
       <div className="relative mx-auto max-w-[var(--design-container-max)] px-6 py-16 lg:px-12 lg:py-24">
         {/* Section Header */}
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -328,36 +534,60 @@ export function Categories({ categories, channel, title, subtitle }: CategoriesP
               </p>
             )}
           </div>
-          <Link
-            href={`/${encodeURIComponent(channel)}/products`}
-            className="group/link inline-flex items-center gap-2 rounded-full border border-neutral-200 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-neutral-900 transition-all duration-300 hover:border-neutral-900 hover:bg-neutral-900 hover:text-white"
-          >
-            {viewAllText}
-            <ChevronRight
-              size={14}
-              className="transition-transform duration-300 group-hover/link:translate-x-0.5 rtl:rotate-180 rtl:group-hover/link:-translate-x-0.5"
-              aria-hidden="true"
-            />
-          </Link>
+          <SectionViewAllButton
+            href={withChannel(channel, buildProductsUrl())}
+            text={viewAllText}
+          />
         </div>
 
-        {/* Category Grid — Mosaic Layout */}
-        <div className="mt-10 grid auto-rows-[220px] grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-flow-dense lg:grid-cols-12 lg:gap-6">
-          {displayCategories.map((category, index) => (
-            <SplitCard
-              key={category.id}
-              category={category}
-              channel={channel}
-              accent={accent}
-              layoutClass={getCategoryLayoutClass(index, displayCategories.length)}
-              stylesText={stylesText}
-              showSubcategories={showSubcategories}
-              showProductCount={showProductCount}
-              subcategoriesLabel={subcategoriesLabel}
-              viewCategoryText={viewCategoryText}
-            />
-          ))}
+        {/* Mosaic — cards animate between hero & grid slots */}
+        <div
+          className="relative mt-10"
+          style={{ minHeight: isDesktop ? "540px" : "680px" }}
+          onMouseEnter={isDesktop ? pause : undefined}
+          onMouseLeave={isDesktop ? resume : undefined}
+          onTouchStart={!isDesktop ? pause : undefined}
+          onTouchEnd={!isDesktop ? () => setTimeout(resume, 2000) : undefined}
+        >
+          {displayCategories.map((category, i) => {
+            const isHero = i === activeIndex;
+            const slot = getSlotStyle(i, activeIndex, !isDesktop);
+            if (!slot) return null;
+
+            return (
+              <div
+                key={category.id}
+                className="absolute overflow-hidden shadow-md"
+                style={{
+                  ...slot,
+                  transition: TRANSITION_CSS,
+                  zIndex: isHero ? 2 : 1,
+                }}
+              >
+                <SplitCard
+                  category={category}
+                  channel={channel}
+                  accent={accent}
+                  stylesText={stylesText}
+                  showSubcategories={showSubcategories}
+                  showProductCount={showProductCount}
+                  subcategoriesLabel={subcategoriesLabel}
+                  viewCategoryText={viewCategoryText}
+                />
+              </div>
+            );
+          })}
         </div>
+
+        {/* Dot Indicators */}
+        <DotIndicators
+          count={displayCategories.length}
+          activeIndex={activeIndex}
+          cycleDuration={CYCLE_MS}
+          isPaused={isPaused}
+          accentColor={accent}
+          onDotClick={goTo}
+        />
       </div>
     </section>
   );

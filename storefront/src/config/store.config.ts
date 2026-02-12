@@ -1124,6 +1124,7 @@ export const defaultStoreConfig = {
       editButton: "Edit",
       // Breadcrumbs
       homeLabel: "Home",
+      allProductsLabel: "Products",
     },
     homepage: {
       newArrivalsTitle: "New Arrivals",

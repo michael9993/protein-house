@@ -9,7 +9,7 @@ import { ExcludeFieldsDropdown } from "@/modules/ui/exclude-fields-dropdown";
 import { readFileContent } from "@/modules/ui/utils/read-file";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { trpcVanillaClient } from "@/modules/trpc/trpc-vanilla-client";
-import { ChannelSelect } from "@/modules/ui/channel-select";
+import { ChannelSelect, MultiChannelSelect } from "@/modules/ui/channel-select";
 import { downloadCSV } from "@/modules/export/csv-exporter";
 import { downloadExcel } from "@/modules/export/excel-exporter";
 import { getTargetFields } from "@/modules/import/field-mapper";
@@ -22,7 +22,8 @@ const ALL_TARGET_FIELDS = getTargetFields("collections");
 
 export default function CollectionsPage() {
   const [tab, setTab] = useState<Tab>("import");
-  const [channelSlug, setChannelSlug] = useState("");
+  const [channelSlugs, setChannelSlugs] = useState<string[]>([]);
+  const [exportChannelSlug, setExportChannelSlug] = useState("");
   const [upsertMode, setUpsertMode] = useState(false);
   const [excludedFields, setExcludedFields] = useState<Set<string>>(new Set());
 
@@ -99,7 +100,7 @@ export default function CollectionsPage() {
 
         const result = await importCollections.mutateAsync({
           rows: batch,
-          channelSlug,
+          channelSlugs,
           fieldMappings: mappings,
           upsertMode,
         });
@@ -111,16 +112,16 @@ export default function CollectionsPage() {
 
       return { total: totalSuccessful + totalFailed, successful: totalSuccessful, failed: totalFailed, results: allResults };
     },
-    [importCollections, channelSlug, upsertMode]
+    [importCollections, channelSlugs, upsertMode]
   );
 
   const handleExport = useCallback(
     async (format: "csv" | "xlsx") => {
-      const result = await trpcVanillaClient.collections.export.query({ channelSlug, format, first: 100 });
+      const result = await trpcVanillaClient.collections.export.query({ channelSlug: exportChannelSlug, format, first: 100 });
       if (format === "csv") downloadCSV(result.data, `collections-export-${Date.now()}.csv`);
       else downloadExcel(result.data, `collections-export-${Date.now()}.xlsx`);
     },
-    [channelSlug]
+    [exportChannelSlug]
   );
 
   return (
@@ -158,7 +159,7 @@ export default function CollectionsPage() {
         {tab === "import" && (
           <Box marginBottom={4}>
             <Box marginBottom={4}>
-              <ChannelSelect value={channelSlug} onChange={setChannelSlug} maxWidth="300px" />
+              <MultiChannelSelect value={channelSlugs} onChange={setChannelSlugs} label="Publish to Channels" />
             </Box>
             <Box display="flex" gap={4} marginBottom={4} alignItems="flex-start" __flexWrap="wrap">
               <UpsertToggle checked={upsertMode} onChange={setUpsertMode} entityLabel="collections" matchDescription="match by slug or externalReference" />
@@ -183,7 +184,7 @@ export default function CollectionsPage() {
         {tab === "export" && (
           <Box>
             <Box marginBottom={4}>
-              <ChannelSelect value={channelSlug} onChange={setChannelSlug} maxWidth="300px" />
+              <ChannelSelect value={exportChannelSlug} onChange={setExportChannelSlug} maxWidth="300px" />
             </Box>
             <ExportDialog entityLabel="Collections" onExport={handleExport} />
           </Box>
