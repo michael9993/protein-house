@@ -1716,6 +1716,7 @@
         "megaMenuHoverPrompt": "Hover a category to explore",
         "subcategoriesSide": "right",
         "mobileNavPosition": "left",
+        "mobileMenuStyle": "visual",
         "dropdownArrowDirection": "right",
         "dropdownArrowDirectionExpanded": "down",
         "homeLabel": "Home",

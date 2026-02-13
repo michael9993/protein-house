@@ -1669,3 +1669,110 @@ html {
 [dir="rtl"] .rtl-flip-arrow {
   transform: scaleX(-1);
 }
+
+/* ============================================
+   MOBILE NAV — Multi-level push/pop animations
+   ============================================ */
+
+/* Push in: new level slides in from end side (LTR: right → left) */
+@keyframes mobileNavPushIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Pop in: previous level slides back from start side (LTR: left → right) */
+@keyframes mobileNavPopIn {
+  from {
+    opacity: 0;
+    transform: translateX(-40%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* RTL push in: new level slides in from start side (left) */
+@keyframes mobileNavPushInRtl {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* RTL pop in: previous level slides back from end side (right) */
+@keyframes mobileNavPopInRtl {
+  from {
+    opacity: 0;
+    transform: translateX(40%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Staggered item entrance — fade up */
+@keyframes mobileNavItemIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Simple fade for chip sections */
+@keyframes mobileNavFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mobile-nav-push-in {
+  animation: mobileNavPushIn 350ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.mobile-nav-pop-in {
+  animation: mobileNavPopIn 350ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.mobile-nav-push-in-rtl {
+  animation: mobileNavPushInRtl 350ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.mobile-nav-pop-in-rtl {
+  animation: mobileNavPopInRtl 350ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.mobile-nav-item-in {
+  animation: mobileNavItemIn 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.mobile-nav-fade-in {
+  animation: mobileNavFadeIn 400ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav-push-in,
+  .mobile-nav-pop-in,
+  .mobile-nav-push-in-rtl,
+  .mobile-nav-pop-in-rtl,
+  .mobile-nav-item-in,
+  .mobile-nav-fade-in {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+}

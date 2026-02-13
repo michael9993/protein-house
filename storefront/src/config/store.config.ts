@@ -587,6 +587,7 @@ export const DEFAULT_NAVBAR_TEXT: NavbarText = {
   menuLabel: "Menu",
   signInText: "Sign In",
   mobileNavPosition: "right",
+  mobileMenuStyle: "visual",
   dropdownArrowDirection: "auto",
   dropdownArrowDirectionExpanded: "down",
   // Mobile navigation

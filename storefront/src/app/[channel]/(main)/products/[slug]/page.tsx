@@ -110,11 +110,19 @@ export default async function Page(props: {
 	const description = rawDescription ? parser.parse(JSON.parse(rawDescription)) : null;
 	const descriptionHtml = description ? description.map((content: string) => xss(content)).join("") : null;
 
-	// Build images array
-	const images = [
-		product.thumbnail && { url: product.thumbnail.url, alt: product.thumbnail.alt },
-		...(product.media?.map(m => ({ url: m.url, alt: m.alt })) || []),
-	].filter(Boolean) as Array<{ url: string; alt: string | null }>;
+	// Build images array — deduplicate since thumbnail is also in media
+	const seen = new Set<string>();
+	const images: Array<{ url: string; alt: string | null }> = [];
+	if (product.thumbnail) {
+		seen.add(product.thumbnail.url);
+		images.push({ url: product.thumbnail.url, alt: product.thumbnail.alt });
+	}
+	for (const m of product.media || []) {
+		if (!seen.has(m.url)) {
+			seen.add(m.url);
+			images.push({ url: m.url, alt: m.alt });
+		}
+	}
 
 	// Get variants info
 	const variants = product.variants || [];

@@ -1129,6 +1129,8 @@ export const NavbarTextSchema = z.object({
   subcategoriesSide: z.enum(["auto", "left", "right"]).default("auto"), // Subcategories dropdown side: "auto" (based on RTL), "left", or "right"
   /** Mobile menu drawer position on screen: "left" or "right" */
   mobileNavPosition: z.enum(["left", "right"]).default("right"),
+  /** Mobile menu category display style: "visual" (image cards) or "compact" (text list) */
+  mobileMenuStyle: z.enum(["visual", "compact"]).default("visual"),
   /** Dropdown/accordion arrow direction when collapsed: "up", "down", "left", "right", or "auto" (follow locale) */
   dropdownArrowDirection: z.enum(["up", "down", "left", "right", "auto"]).default("auto"),
   /** Dropdown/accordion arrow direction when expanded (open): "up", "down", "left", "right", or "auto" (auto = down) */

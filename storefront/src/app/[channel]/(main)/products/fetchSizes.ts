@@ -73,8 +73,10 @@ export async function fetchSizesForQuickFilters(channel: string): Promise<{ size
       if (variant.attributes) {
         variant.attributes.forEach((attr: any) => {
           const attrName = attr?.attribute?.name?.trim().toLowerCase();
-          // Look for size-related attributes
-          if (attrName === "size" || attrName === "shoe size" || attrName === "clothing size") {
+          const attrSlug = attr?.attribute?.slug?.trim().toLowerCase();
+          // Look for size-related attributes (by name or slug)
+          if (attrName === "size" || attrName === "shoe size" || attrName === "clothing size" || attrName === "apparel size"
+            || attrSlug === "size" || attrSlug === "shoe-size" || attrSlug === "clothing-size" || attrSlug === "apparel-size") {
             // Detect the attribute slug
             if (!detectedAttributeSlug && attr.attribute?.slug) {
               detectedAttributeSlug = attr.attribute.slug;

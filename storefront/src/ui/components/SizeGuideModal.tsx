@@ -19,6 +19,8 @@ import { useDirection } from "@/providers/DirectionProvider";
 interface SizeGuideModalProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
+	/** Which category to show first. Defaults to "shoes". */
+	defaultCategory?: "shoes" | "clothing";
 }
 
 type SizeTab = "mens" | "womens" | "kids";
@@ -118,9 +120,9 @@ function ClothingSizeTable({ rows, accent }: { rows: ClothingSizeRow[]; accent: 
 	);
 }
 
-export function SizeGuideModal({ open, onOpenChange }: SizeGuideModalProps) {
+export function SizeGuideModal({ open, onOpenChange, defaultCategory = "shoes" }: SizeGuideModalProps) {
 	const [activeTab, setActiveTab] = useState<SizeTab>("mens");
-	const [sizeCategory, setSizeCategory] = useState<SizeCategory>("shoes");
+	const [sizeCategory, setSizeCategory] = useState<SizeCategory>(defaultCategory);
 	const { colors } = useBranding();
 	const { isRTL } = useDirection();
 	const text = useProductDetailText();

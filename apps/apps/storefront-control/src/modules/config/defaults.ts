@@ -1488,6 +1488,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       megaMenuHoverPrompt: "Hover a category to explore",
       subcategoriesSide: "auto",
       mobileNavPosition: "right",
+      mobileMenuStyle: "visual",
       dropdownArrowDirection: "auto",
       dropdownArrowDirectionExpanded: "down",
       homeLabel: "Home",

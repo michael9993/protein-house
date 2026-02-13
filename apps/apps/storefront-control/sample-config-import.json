@@ -1793,6 +1793,7 @@
         "megaMenuHoverPrompt": "רחף על קטגוריה לגלות",
         "subcategoriesSide": "right",
         "mobileNavPosition": "left",
+        "mobileMenuStyle": "visual",
         "dropdownArrowDirection": "left",
         "dropdownArrowDirectionExpanded": "down",
         "homeLabel": "בית",

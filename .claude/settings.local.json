@@ -114,7 +114,9 @@
       "Bash(npx patch-package:*)",
       "Bash(npx @saleor/configurator deploy:*)",
       "Bash(head:*)",
-      "Bash(Select-String \"CollectionMosaic\")"
+      "Bash(Select-String \"CollectionMosaic\")",
+      "mcp__plugin_playwright_playwright__browser_resize",
+      "mcp__plugin_playwright_playwright__browser_close"
     ],
     "deny": [
       "Read(./.env*)",

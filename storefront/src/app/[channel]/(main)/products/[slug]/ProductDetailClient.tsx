@@ -108,6 +108,15 @@ export function ProductDetailClient({
     initialVariantId: selectedVariantId,
   });
 
+  // Detect size attribute type for size guide modal default category
+  // Uses selectionAttributes (computed from variant data) to detect shoe vs clothing sizes
+  const sizeGuideCategory = (() => {
+    const slugs = selectionAttributes.map((a) => a.attributeSlug);
+    if (slugs.some((s) => s === "shoe-size" || s === "shoe_size")) return "shoes" as const;
+    if (slugs.some((s) => ["apparel-size", "apparel_size", "clothing-size", "clothing_size", "size"].includes(s))) return "clothing" as const;
+    return "shoes" as const;
+  })();
+
   // Track product view
   useEffect(() => {
     if (mode === "page") {
@@ -591,7 +600,7 @@ export function ProductDetailClient({
           </div>
         </div>
       </div>
-      <SizeGuideModal open={showSizeGuide} onOpenChange={setShowSizeGuide} />
+      <SizeGuideModal open={showSizeGuide} onOpenChange={setShowSizeGuide} defaultCategory={sizeGuideCategory} />
     </>
   );
 }

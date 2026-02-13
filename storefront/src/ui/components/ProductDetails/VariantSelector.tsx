@@ -4,7 +4,12 @@ import type { SelectionAttribute, SelectionState } from "./types";
 import { AttributeSwatchSelector } from "./AttributeSwatchSelector";
 import { AttributePillSelector } from "./AttributePillSelector";
 
-const SIZE_SLUGS = new Set(["size", "shoe-size", "clothing-size", "shoe_size", "clothing_size"]);
+const SIZE_SLUGS = new Set([
+  "size", "shoe-size", "clothing-size", "apparel-size",
+  "shoe_size", "clothing_size", "apparel_size",
+]);
+
+const SHOE_SIZE_SLUGS = new Set(["shoe-size", "shoe_size"]);
 
 interface Props {
   selectionAttributes: SelectionAttribute[];

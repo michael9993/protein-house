@@ -560,7 +560,7 @@ function LayoutTextTab({ register, control, errors }: FooterTabProps) {
           />
         </FieldGroup>
 
-        <FieldGroup columns={3}>
+        <FieldGroup columns={4}>
           <FormSelect<LayoutFormData>
             label="Subcategories Side"
             name="content.navbar.subcategoriesSide"
@@ -578,6 +578,15 @@ function LayoutTextTab({ register, control, errors }: FooterTabProps) {
             options={[
               { value: "right", label: "Right" },
               { value: "left", label: "Left" },
+            ]}
+          />
+          <FormSelect<LayoutFormData>
+            label="Mobile Menu Style"
+            name="content.navbar.mobileMenuStyle"
+            control={control}
+            options={[
+              { value: "visual", label: "Visual (Image Cards)" },
+              { value: "compact", label: "Compact (Text List)" },
             ]}
           />
           <FormSelect<LayoutFormData>

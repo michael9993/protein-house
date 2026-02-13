@@ -44,8 +44,8 @@ export const MobileMenu = ({ children, channel, navData, isLoggedIn }: Props) =>
 
 	const drawerBody = navData ? (
 		<MobileMenuProvider inMobileMenu={true}>
-			<nav className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 py-3" aria-label="Mobile navigation" id="mobile-menu">
-				<MobileNavContent navData={navData} channel={channel} onClose={closeMenu} isLoggedIn={isLoggedIn} />
+			<nav className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain px-4 py-3" aria-label="Mobile navigation" id="mobile-menu">
+				<MobileNavContent key={isOpen ? "open" : "closed"} navData={navData} channel={channel} onClose={closeMenu} isLoggedIn={isLoggedIn} />
 			</nav>
 		</MobileMenuProvider>
 	) : (
