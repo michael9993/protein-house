@@ -1,6 +1,4 @@
 @import "react-toastify/dist/ReactToastify.css";
-@import "@adyen/adyen-web/dist/adyen.css";
-@import "./sections/PaymentSection/AdyenDropIn/adyenDropin.css";
 
 /* Print styles for order receipt */
 @media print {

@@ -1,5 +1,4 @@
 import { compact } from "lodash-es";
-import { adyenGatewayId } from "./AdyenDropIn/types";
 import { stripeV2GatewayId } from "./StripeV2DropIn/types";
 import {
 	type CheckoutAuthorizeStatusEnum,
@@ -12,7 +11,7 @@ import { type MightNotExist } from "@/checkout/lib/globalTypes";
 import { getUrl, type ParamBasicValue } from "@/checkout/lib/utils/url";
 import { type PaymentStatus } from "@/checkout/sections/PaymentSection/types";
 
-export const supportedPaymentGateways = [adyenGatewayId, stripeV2GatewayId] as const;
+export const supportedPaymentGateways = [stripeV2GatewayId] as const;
 
 /**
  * Check if a gateway ID matches Stripe (supports multiple ID formats)

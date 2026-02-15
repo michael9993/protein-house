@@ -250,7 +250,7 @@ export const Root = ({ saleorApiUrl, checkoutText, checkoutId }: RootProps) => {
 				
 				// Use the SDK's fetchWithAuth which handles cookie reading and Authorization header automatically
 				// This is the primary method - our manual token reading is just a fallback
-				const response = await saleorAuthClient.fetchWithAuth(input as NodeJS.fetch.RequestInfo, fetchOptions);
+				const response = await saleorAuthClient.fetchWithAuth(input as RequestInfo, fetchOptions);
 				
 				// Log response details
 				console.log("[Checkout URQL] 📥 Response status:", response.status);

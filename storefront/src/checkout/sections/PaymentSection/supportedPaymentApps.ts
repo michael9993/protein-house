@@ -1,5 +1,3 @@
-import { AdyenDropIn } from "./AdyenDropIn/AdyenDropIn";
-import { adyenGatewayId } from "./AdyenDropIn/types";
 import { DummyComponent } from "./DummyDropIn/dummyComponent";
 import { dummyGatewayId } from "./DummyDropIn/types";
 import { StripeComponent } from "./StripeV2DropIn/stripeComponent";
@@ -20,7 +18,6 @@ const isStripeGatewayId = (id: string): boolean => {
 };
 
 export const paymentMethodToComponent = {
-	[adyenGatewayId]: AdyenDropIn,
 	[stripeV2GatewayId]: StripeComponent,
 	[dummyGatewayId]: DummyComponent,
 } as const;
@@ -34,11 +31,11 @@ export const getPaymentComponent = (gatewayId: string) => {
 	if (gatewayId in paymentMethodToComponent) {
 		return paymentMethodToComponent[gatewayId as keyof typeof paymentMethodToComponent];
 	}
-	
+
 	// Flexible Stripe matching
 	if (isStripeGatewayId(gatewayId)) {
 		return StripeComponent;
 	}
-	
+
 	return undefined;
 };
