@@ -179,4 +179,27 @@ tunnel-urls.txt
 # Windows reserved device names (accidentally created)
 nul
 
+# Playwright MCP artifacts
+.playwright-mcp/
+
+# Celery runtime files
+saleor/celerybeat-schedule
+celerybeat-schedule
+
+# Catalog generator output
+scripts/catalog-generator/output/
+scripts/catalog-generator/deployment-report-*.json
+
+# Root-level scratch files (prevent re-accumulation)
+_*.js
+_*.py
+_*.cjs
+_*.txt
+_*.json
+!_*.config.js
+!_*.config.json
+
+# Planning artifacts (keep .planning/ but ignore temp files)
+.planning/**/*.tmp
+
 # Note: apps/, saleor/, and storefront/ are now part of this repo (not submodules)
