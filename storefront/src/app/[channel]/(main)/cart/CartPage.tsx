@@ -107,7 +107,7 @@ export function CartPage({
   const handleApplyPromo = async () => {
     if (!promoCode.trim()) return;
     setIsApplyingPromo(true);
-    // TODO: Implement promo code application
+    // Promo codes are handled in CartClient.tsx (the active cart component)
     setTimeout(() => setIsApplyingPromo(false), 1000);
   };
 

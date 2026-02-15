@@ -192,7 +192,6 @@ export async function getReviewById(reviewId: string): Promise<ProductReview | n
       };
       
       if (result.data?.review) {
-        console.log(`[Get Review By ID] ✅ Found review:`, {
           id: result.data.review.id,
           rating: result.data.review.rating,
           status: result.data.review.status,
@@ -230,11 +229,9 @@ export async function getAllProductReviews(
     const limit = options?.limit ?? 50;
     const languageCode = getLanguageCodeForChannel(channel);
 
-    console.log(`[All Product Reviews] 🔍 Starting fetch for channel "${channel}", minRating: ${minRating}, limit: ${limit}`);
 
     // Use public queries (like getProductReviews does) - no auth needed for reviews
     // Fetch products first, then reviews for each product
-    console.log(`[All Product Reviews] 🔄 Fetching products and reviews using public queries...`);
 
     // First, fetch products using public query (like getProductReviews does)
     const productsResult = await executeGraphQL(ProductListDocument, {
@@ -253,10 +250,8 @@ export async function getAllProductReviews(
       slug: node.slug,
     })) || [];
     
-    console.log(`[All Product Reviews] 📦 Found ${products.length} products`);
     
     if (products.length === 0) {
-      console.warn("[All Product Reviews] ⚠️ No products found in channel");
       return [];
     }
 
@@ -293,11 +288,7 @@ export async function getAllProductReviews(
               acc[r.rating] = (acc[r.rating] || 0) + 1;
               return acc;
             }, {} as Record<number, number>);
-            console.log(`[All Product Reviews] 📊 Product "${product.name}": ${allProductReviews.length} approved reviews`);
-            console.log(`[All Product Reviews] 📊 Status breakdown:`, statusCounts);
-            console.log(`[All Product Reviews] 📊 Rating breakdown:`, ratingCounts);
           } else {
-            console.log(`[All Product Reviews] ⚠️ Product "${product.name}": No approved reviews found`);
           }
 
           // NOTE: productReviews query only returns APPROVED reviews, so we don't need to filter by status
@@ -307,7 +298,6 @@ export async function getAllProductReviews(
               const hasMinRating = review.rating >= minRating;
               
               if (!hasMinRating && allProductReviews.length > 0) {
-                console.log(`[All Product Reviews] ⚠️ Review ${review.id} excluded: rating ${review.rating} < ${minRating} (minRating: ${minRating})`);
               }
               
               return hasMinRating;
@@ -322,10 +312,7 @@ export async function getAllProductReviews(
             } as ReviewWithProduct));
 
           if (reviews.length > 0) {
-            console.log(`[All Product Reviews] ✅ Product "${product.name}": ${reviews.length} reviews match criteria (rating >= ${minRating}, approved)`);
           } else if (allProductReviews.length > 0) {
-            console.log(`[All Product Reviews] ⚠️ Product "${product.name}": ${allProductReviews.length} approved reviews found, but none have rating >= ${minRating}`);
-            console.log(`[All Product Reviews] 💡 Tip: Reviews need to be approved AND have rating >= ${minRating} to appear in testimonials`);
           }
 
           return reviews;
@@ -339,7 +326,6 @@ export async function getAllProductReviews(
       const batchReviews = batchResults.flat();
       allReviews.push(...batchReviews);
       
-      console.log(`[All Product Reviews] Batch ${Math.floor(i / batchSize) + 1}: Found ${batchReviews.length} reviews (total so far: ${allReviews.length})`);
 
       // If we have enough reviews, stop fetching
       if (allReviews.length >= limit) {
@@ -347,14 +333,8 @@ export async function getAllProductReviews(
       }
     }
 
-    console.log(`[All Product Reviews] 📊 Total reviews collected: ${allReviews.length}`);
 
     if (allReviews.length === 0) {
-      console.warn(`[All Product Reviews] ⚠️ No reviews found matching criteria (rating >= ${minRating}, approved status)`);
-      console.warn(`[All Product Reviews] 💡 Tip: Reviews must be:`);
-      console.warn(`[All Product Reviews]    1. APPROVED (pending reviews won't show up)`);
-      console.warn(`[All Product Reviews]    2. Have rating >= ${minRating} stars`);
-      console.warn(`[All Product Reviews]    3. Belong to a product in the channel "${channel}"`);
       return [];
     }
 
@@ -367,8 +347,6 @@ export async function getAllProductReviews(
       return acc;
     }, {} as Record<string, number>);
     
-    console.log(`[All Product Reviews] ✅ Returning ${result.length} reviews (from ${allReviews.length} total, minRating: ${minRating})`);
-    console.log(`[All Product Reviews] 📊 Status breakdown:`, statusBreakdown);
     
     return result;
   } catch (error) {
@@ -404,7 +382,6 @@ export async function getStoreStatistics(channel: string): Promise<{
 
     const authClient = await getServerAuthClient();
     
-    console.log(`[Store Statistics] 🔍 Calculating statistics for channel "${channel}"...`);
 
     // Fetch all reviews to calculate average rating and satisfaction rate
     const allReviews = await getAllProductReviews(channel, {
@@ -412,14 +389,12 @@ export async function getStoreStatistics(channel: string): Promise<{
       minRating: 1, // Get all ratings, not just 4+
     });
 
-    console.log(`[Store Statistics] 📊 Total reviews fetched: ${allReviews.length}`);
 
     // Filter to only approved reviews for statistics
     const approvedReviews = allReviews.filter(r => 
       r.status === "approved" || r.status === "APPROVED"
     );
 
-    console.log(`[Store Statistics] ✅ Approved reviews: ${approvedReviews.length}`);
 
     // Calculate average rating from approved reviews only
     const averageRating = approvedReviews.length > 0
@@ -432,8 +407,6 @@ export async function getStoreStatistics(channel: string): Promise<{
       ? Math.round((fourPlusStarReviews / approvedReviews.length) * 100)
       : 0;
 
-    console.log(`[Store Statistics] ⭐ Average rating: ${averageRating.toFixed(2)} (from ${approvedReviews.length} approved reviews)`);
-    console.log(`[Store Statistics] 🏆 Satisfaction rate: ${satisfactionRate}% (${fourPlusStarReviews}/${approvedReviews.length} are 4+ stars)`);
 
     // For customer count and orders, we need to query the API
     // Note: These queries might require permissions, so we'll try to get them
@@ -472,17 +445,14 @@ export async function getStoreStatistics(channel: string): Promise<{
         }
       }
     } catch (error) {
-      console.warn("[Store Statistics] Could not fetch customer count (requires MANAGE_USERS permission):", error);
       // Use unique user count from reviews as fallback
       const uniqueUsers = new Set(approvedReviews.map(r => r.user?.id).filter(Boolean));
       customerCount = uniqueUsers.size > 0 ? uniqueUsers.size : (approvedReviews.length > 0 ? approvedReviews.length : 0);
-      console.log(`[Store Statistics] Using fallback customer count from reviews: ${customerCount} (${uniqueUsers.size} unique users, ${approvedReviews.length} total reviews)`);
     }
     
     // If customer count is still 0 but we have reviews, use review count as estimate
     if (customerCount === 0 && approvedReviews.length > 0) {
       customerCount = approvedReviews.length;
-      console.log(`[Store Statistics] Using review count as customer count estimate: ${customerCount}`);
     }
 
     try {
@@ -516,17 +486,14 @@ export async function getStoreStatistics(channel: string): Promise<{
         }
       }
     } catch (error) {
-      console.warn("[Store Statistics] Could not fetch orders count (requires MANAGE_ORDERS permission):", error);
       // Use verified purchase count as fallback estimate
       const verifiedPurchases = approvedReviews.filter(r => r.isVerifiedPurchase).length;
       ordersDelivered = verifiedPurchases > 0 ? verifiedPurchases : (approvedReviews.length > 0 ? approvedReviews.length : 0);
-      console.log(`[Store Statistics] Using fallback orders count: ${ordersDelivered} (${verifiedPurchases} verified purchases, ${approvedReviews.length} total reviews)`);
     }
     
     // If orders delivered is still 0 but we have reviews, use review count as estimate
     if (ordersDelivered === 0 && approvedReviews.length > 0) {
       ordersDelivered = approvedReviews.length;
-      console.log(`[Store Statistics] Using review count as orders delivered estimate: ${ordersDelivered}`);
     }
 
     const finalStats = {
@@ -536,7 +503,6 @@ export async function getStoreStatistics(channel: string): Promise<{
       satisfactionRate,
     };
 
-    console.log(`[Store Statistics] ✅ Final stats:`, {
       ...finalStats,
       totalApprovedReviews: approvedReviews.length,
       totalReviews: allReviews.length,
@@ -938,15 +904,11 @@ export async function getAccessToken(): Promise<string | null> {
 		
 		// Also get all cookies to search through them
 		const allCookies = cookieStore.getAll();
-		console.log("[Get Access Token] 🔍 All cookie names:", allCookies.map(c => c.name).join(", "));
-		console.log("[Get Access Token] 🔍 Searching for:", possibleCookieNames);
-		console.log("[Get Access Token] 🔍 Saleor API URL:", saleorApiUrl);
 		
 		// Try exact matches first
 		for (const cookieName of possibleCookieNames) {
 			const token = cookieStore.get(cookieName)?.value;
 			if (token) {
-				console.log("[Get Access Token] ✅ Found access token with name:", cookieName);
 				return token;
 			}
 		}
@@ -955,13 +917,10 @@ export async function getAccessToken(): Promise<string | null> {
 		// This handles cases where the cookie name might be URL-encoded or formatted differently
 		for (const cookie of allCookies) {
 			if (cookie.name.includes("saleor_auth_access_token") || cookie.name.includes("saleor_auth_access_token".replace(/_/g, "%5F"))) {
-				console.log("[Get Access Token] ✅ Found access token with partial match:", cookie.name);
 				return cookie.value;
 			}
 		}
 		
-		console.log("[Get Access Token] ⚠️ No access token found in cookies");
-		console.log("[Get Access Token] 🔍 Available cookie names for debugging:", allCookies.map(c => c.name));
 		return null;
 	} catch (error) {
 		console.error("[Get Access Token] ❌ Error:", error);
@@ -1010,7 +969,6 @@ export async function saveUserCheckoutId(_userId: string, channel: string, check
 			cache: "no-cache",
 		});
 		
-		console.log(`[Save User Checkout] ✅ Saved checkout ${checkoutId} to user metadata (key: ${metadataKey}) - syncs across devices`);
 	} catch (error) {
 		console.error(`[Save User Checkout] ❌ Failed to save to metadata:`, error);
 	}
@@ -1035,12 +993,10 @@ export async function getUserCheckoutId(_userId: string, channel: string): Promi
 			const checkoutMetadata = currentUser.me.metadata.find((m: any) => m.key === metadataKey);
 			if (checkoutMetadata?.value && checkoutMetadata.value.trim() !== "") {
 				const checkoutId = checkoutMetadata.value;
-				console.log(`[Get User Checkout] ✅ Found checkout ${checkoutId} in user metadata (key: ${metadataKey}) - syncs across devices`);
 				return checkoutId;
 			}
 		}
 		
-		console.log(`[Get User Checkout] ❌ Checkout not found in metadata for channel ${channel}`);
 		return null;
 	} catch (error) {
 		console.error(`[Get User Checkout] ❌ Failed to read from metadata:`, error);
@@ -1064,14 +1020,11 @@ export async function getUserCheckoutId(_userId: string, channel: string): Promi
 export async function logout() {
 	"use server";
 	
-	console.log("[Logout] 🔍 Starting logout process...");
 	
 	try {
 		const userId = await getUserIdFromCurrentUser();
-		console.log("[Logout] - User ID:", userId || "none");
 		
 		if (userId) {
-			console.log("[Logout] 🔍 Step 1: Saving user's checkout to persistent storage...");
 			
 			// Step 1: Save current checkout to user metadata before signing out
 			const cookieStore = await cookies();
@@ -1093,15 +1046,12 @@ export async function logout() {
 				const checkoutId = cookieStore.get(`checkoutId-${channel}`)?.value;
 				if (checkoutId) {
 					await saveUserCheckoutId(userId, channel, checkoutId);
-					console.log(`[Logout] ✅ Saved checkout ${checkoutId} to user metadata for channel ${channel}`);
 				}
 			}
 			
-			console.log("[Logout] ✅ Step 1: Saved checkout(s) to user storage");
 		}
 		
 		// Step 2: Clear session checkout cookies
-		console.log("[Logout] 🔍 Step 2: Clearing session checkout cookies...");
 		const cookieStore = await cookies();
 		// Dynamically find all channels from checkout cookies
 		const allCookies = cookieStore.getAll();
@@ -1127,14 +1077,10 @@ export async function logout() {
 			}
 		}
 		
-		console.log(`[Logout] ✅ Step 2: Deleted ${deletedCount} session checkout cookie(s)`);
 		
 		// Step 3: Sign out from Saleor
-		console.log("[Logout] 🔍 Step 3: Signing out from Saleor...");
 		(await getServerAuthClient()).signOut();
-		console.log("[Logout] ✅ Step 3: Signed out from Saleor");
 		
-		console.log("[Logout] 🎉 Logout complete - user's cart is saved for next login");
 	} catch (error) {
 		console.error("[Logout] ❌ Error during logout:", error);
 		throw error;
@@ -1160,18 +1106,14 @@ export async function clearCheckout(channel: string) {
 export async function restoreUserCart(channel: string) {
 	"use server";
 	
-	console.log(`[Restore Cart] 🔍 Step 1: Getting user ID for channel ${channel}...`);
 	
 	// Get user ID using CurrentUser query
 	const userId = await getUserIdFromCurrentUser();
 	
 	if (!userId) {
-		console.log(`[Restore Cart] ❌ User not authenticated, skipping restore`);
 		return { success: false, error: "User not authenticated" };
 	}
 	
-	console.log(`[Restore Cart] ✅ Step 2: User authenticated: ${userId}`);
-	console.log(`[Restore Cart] 🔍 Step 3: Looking for saved checkout in metadata...`);
 	
 	const { executeGraphQL } = await import("@/lib/graphql");
 	const { CheckoutFindDocument } = await import("@/gql/graphql");
@@ -1180,17 +1122,9 @@ export async function restoreUserCart(channel: string) {
 	const savedCheckoutId = await getUserCheckoutId(userId, channel);
 	
 	if (!savedCheckoutId) {
-		console.log(`[Restore Cart] ⚠️  Step 4: No saved checkout found in metadata for user ${userId}`);
-		console.log(`[Restore Cart] 📝 This means either:`);
-		console.log(`[Restore Cart]    - User never added items to cart before`);
-		console.log(`[Restore Cart]    - Metadata was cleared`);
-		console.log(`[Restore Cart]    - User is logging in for the first time`);
-		console.log(`[Restore Cart] ✅ User will start with empty cart (this is OK)`);
 		return { success: true, checkoutId: null };
 	}
 	
-	console.log(`[Restore Cart] ✅ Step 4: Found saved checkout ID: ${savedCheckoutId}`);
-	console.log(`[Restore Cart] 🔍 Step 5: Fetching checkout from Saleor...`);
 	
 	// Fetch checkout from Saleor
 	const { checkout } = await executeGraphQL(CheckoutFindDocument, {
@@ -1199,25 +1133,16 @@ export async function restoreUserCart(channel: string) {
 	});
 	
 	if (!checkout) {
-		console.log(`[Restore Cart] ⚠️  Checkout not found in Saleor (may have been deleted)`);
 		return { success: true, checkoutId: null };
 	}
 	
-	console.log(`[Restore Cart] ✅ Step 6: Checkout found in Saleor`);
-	console.log(`[Restore Cart]    - Checkout ID: ${checkout.id}`);
-	console.log(`[Restore Cart]    - Checkout user: ${checkout.user?.id || "none"}`);
-	console.log(`[Restore Cart]    - Checkout lines: ${checkout.lines?.length || 0}`);
 	
 	// Verify ownership
 	if (checkout.user?.id !== userId) {
-		console.log(`[Restore Cart] ⚠️  Checkout belongs to different user, skipping restore`);
 		return { success: true, checkoutId: null };
 	}
 	
-	console.log(`[Restore Cart] ✅ Step 7: Checkout ownership verified`);
-	console.log(`[Restore Cart] 📝 Returning checkout ID - caller (Server Action) will save to session cookie`);
 	
-	console.log(`[Restore Cart] 🎉 SUCCESS: Found checkout ${checkout.id} with ${checkout.lines?.length || 0} items`);
 	
 	return { success: true, checkoutId: checkout.id };
 }
@@ -1239,7 +1164,6 @@ export async function restoreAndSaveUserCart(channel: string) {
 			sameSite: "lax",
 			secure: process.env.NODE_ENV === "production",
 		});
-		console.log(`[Restore And Save Cart] ✅ Saved checkout ${result.checkoutId} to session cookie`);
 	}
 	
 	return result;
@@ -1252,11 +1176,9 @@ export async function restoreAndSaveUserCart(channel: string) {
 export async function mergeGuestCartIntoUserCart(channel: string) {
 	"use server";
 	
-	console.log(`[Cart Merge] 🔍 Starting cart merge for channel ${channel}...`);
 	
 	const userId = await getUserIdFromCurrentUser();
 	if (!userId) {
-		console.log(`[Cart Merge] ❌ User not authenticated, skipping merge`);
 		return { success: false, error: "User not authenticated" };
 	}
 	
@@ -1264,7 +1186,6 @@ export async function mergeGuestCartIntoUserCart(channel: string) {
 	const guestCheckoutId = cookieStore.get(`checkoutId-${channel}`)?.value;
 	
 	if (!guestCheckoutId) {
-		console.log(`[Cart Merge] ℹ️  No guest cart to merge`);
 		return { success: true };
 	}
 	
@@ -1279,7 +1200,6 @@ export async function mergeGuestCartIntoUserCart(channel: string) {
 		});
 		
 		if (!guestCheckout || guestCheckout.lines?.length === 0) {
-			console.log(`[Cart Merge] ℹ️  Guest cart is empty, nothing to merge`);
 			return { success: true };
 		}
 		
@@ -1306,7 +1226,6 @@ export async function mergeGuestCartIntoUserCart(channel: string) {
 			});
 			
 			await saveUserCheckoutId(userId, channel, guestCheckoutId);
-			console.log(`[Cart Merge] ✅ Attached guest checkout to user`);
 			return { success: true };
 		}
 		
@@ -1326,7 +1245,6 @@ export async function mergeGuestCartIntoUserCart(channel: string) {
 				cache: "no-cache",
 			});
 			
-			console.log(`[Cart Merge] ✅ Merged ${linesToAdd.length} items from guest cart to user cart`);
 		}
 		
 		// Update session cookie to use user checkout
