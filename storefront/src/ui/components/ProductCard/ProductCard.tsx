@@ -7,7 +7,7 @@ import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { formatMoneyRange, formatMoney } from "@/lib/utils";
 import type { ProductListItemFragment } from "@/gql/graphql";
 import { t } from "@/lib/language";
-import { useBranding, useFeature, useUiConfig, useContentConfig, useBadgeStyle } from "@/providers/StoreConfigProvider";
+import { useBranding, useFeature, useUiConfig, useContentConfig, useBadgeStyle, useEcommerceSettings } from "@/providers/StoreConfigProvider";
 import { useWishlist } from "@/lib/wishlist";
 import { useQuickView } from "@/providers/QuickViewProvider";
 import { ShareButton } from "@/ui/components/ProductSharing";
@@ -55,10 +55,11 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
   const reviewsEnabled = useFeature("productReviews");
   const ui = useUiConfig();
   const content = useContentConfig();
+  const ecommerce = useEcommerceSettings();
   const saleBadgeStyle = useBadgeStyle("sale");
   const outOfStockBadgeStyle = useBadgeStyle("outOfStock");
   const lowStockBadgeStyle = useBadgeStyle("lowStock");
-  
+
   // Product card config
   const cardConfig = ui.productCard;
   const showQuickView = cardConfig.showQuickView ?? false;
@@ -85,20 +86,21 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
   }, []);
 
   // Calculate discount if available
-  const hasDiscount = product.pricing?.priceRange?.start?.gross && 
+  const hasDiscount = product.pricing?.priceRange?.start?.gross &&
     product.pricing?.priceRangeUndiscounted?.start?.gross &&
-    product.pricing.priceRange.start.gross.amount < 
+    product.pricing.priceRange.start.gross.amount <
     product.pricing.priceRangeUndiscounted.start.gross.amount;
-  
-  const discountPercent = hasDiscount 
-    ? Math.round((1 - (product.pricing!.priceRange!.start!.gross.amount / 
+
+  const discountPercent = hasDiscount
+    ? Math.round((1 - (product.pricing!.priceRange!.start!.gross.amount /
         product.pricing!.priceRangeUndiscounted!.start!.gross.amount)) * 100)
     : 0;
 
-  // Check stock
+  // Check stock — use configurable threshold
+  const lowStockThreshold = ecommerce.inventory?.lowStockThreshold ?? 5;
   const totalStock = product.variants?.reduce((sum, v) => sum + (v.quantityAvailable || 0), 0) ?? 0;
   const isInStock = totalStock > 0;
-  const isLowStock = totalStock > 0 && totalStock <= 5;
+  const isLowStock = totalStock > 0 && totalStock <= lowStockThreshold;
   
   const handleWishlistClick = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -219,13 +221,14 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
               </span>
             )}
             {isLowStock && (
-              <span 
-                className={`${radiusMap[lowStockBadgeStyle.borderRadius] || "rounded-full"} px-2 py-0.5 text-[10px] font-medium shadow-sm sm:px-2.5 sm:py-1 sm:text-xs`}
-                style={{ 
+              <span
+                className={`${radiusMap[lowStockBadgeStyle.borderRadius] || "rounded"} inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold leading-none`}
+                style={{
                   backgroundColor: lowStockBadgeStyle.backgroundColor,
                   color: lowStockBadgeStyle.color,
                 }}
               >
+                <svg className="h-2.5 w-2.5 shrink-0" viewBox="0 0 16 16" fill="currentColor"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
                 {content.product.lowStockText.replace("{count}", String(totalStock))}
               </span>
             )}

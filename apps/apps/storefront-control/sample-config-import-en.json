@@ -861,7 +861,7 @@
         "addToCartButton": "Add to Cart",
         "buyNowButton": "Buy Now",
         "outOfStockText": "Out of Stock",
-        "lowStockText": "Only {count} units left",
+        "lowStockText": "Only {count} left",
         "inStockText": "In Stock",
         "saleBadgeText": "Sale",
         "newBadgeText": "New",

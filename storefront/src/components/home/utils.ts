@@ -116,7 +116,8 @@ export const getProductBadge = (p: ProductListItemFragment): ProductBadge => {
 /** Get product badge with custom labels (for translation support) */
 export const getProductBadgeWithLabels = (
   p: ProductListItemFragment,
-  labels: BadgeLabels
+  labels: BadgeLabels,
+  lowStockThreshold = 5,
 ): ProductBadge => {
   const stock = getTotalStock(p);
   const cur = p.pricing?.priceRange?.start?.gross;
@@ -128,7 +129,7 @@ export const getProductBadgeWithLabels = (
     if (discount > 0) return { label: `-${discount}% ${labels.off}`, tone: "accent" };
     return { label: labels.sale, tone: "accent" };
   }
-  if (stock <= 5) return { label: labels.lowStock, tone: "warning" };
+  if (stock > 0 && stock <= lowStockThreshold) return { label: labels.lowStock, tone: "warning" };
   if (isNewProduct(p.created)) return { label: labels.new, tone: "primary" };
   return { label: labels.featured, tone: "muted" };
 };

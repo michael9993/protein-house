@@ -74,6 +74,12 @@ $apps = @(
         AppId = "saleor.app.bulk-manager"
         EnvVar = "BULK_MANAGER_APP_TUNNEL_URL"
         ManifestPath = "/api/manifest"
+    },
+    @{
+        Name = "Image Studio App"
+        AppId = "saleor.app.image-studio"
+        EnvVar = "IMAGE_STUDIO_APP_TUNNEL_URL"
+        ManifestPath = "/api/manifest"
     }
 )
 

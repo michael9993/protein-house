@@ -740,6 +740,99 @@ services:
       retries: 5
       start_period: 60s
 
+  # Image Studio App - AI-powered product image editor
+  # Features: Canvas editor (Fabric.js), background removal (rembg), AI generation (Flux), upscaling (Real-ESRGAN)
+  saleor-image-studio-app:
+    image: node:22-alpine
+    container_name: saleor-image-studio-app-dev
+    working_dir: /app
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-image-studio... --prefer-offline && cd apps/image-studio && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run check-types && pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    env_file:
+      - .env
+    ports:
+      - "${IMAGE_STUDIO_APP_PORT:-3008}:3000"
+    volumes:
+      - ..\apps:/app
+      - image-studio-app-node-modules:/app/node_modules
+      - image-studio-app-pnpm-store:/root/.local/share/pnpm/store
+    environment:
+      SALEOR_API_URL: ${SALEOR_API_URL}
+      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+      IMAGE_STUDIO_APP_URL: ${IMAGE_STUDIO_APP_TUNNEL_URL:-http://localhost:${IMAGE_STUDIO_APP_PORT:-3008}}
+      APP_API_BASE_URL: ${IMAGE_STUDIO_APP_TUNNEL_URL:-http://localhost:${IMAGE_STUDIO_APP_PORT:-3008}}
+      APL: file
+      SECRET_KEY: ${APP_SECRET_KEY}
+      NODE_ENV: ${NODE_ENV:-development}
+      OTEL_ENABLED: "false"
+      NEXT_PUBLIC_SENTRY_DSN: ""
+      APPS_MODE: ${APPS_MODE:-dev}
+      # AI Service URLs (internal Docker network)
+      REMBG_URL: http://saleor-rembg:7000
+      ESRGAN_URL: http://saleor-esrgan:7001
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    depends_on:
+      saleor-api:
+        condition: service_healthy
+    networks:
+      - saleor-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # rembg - AI Background Removal Service (self-hosted, CPU mode)
+  # Used by Image Studio for automatic background removal (~2GB memory, first run downloads model ~170MB)
+  saleor-rembg:
+    image: danielgatis/rembg:latest
+    container_name: saleor-rembg-dev
+    command: s --host 0.0.0.0 --port 7000
+    ports:
+      - "7000:7000"
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    networks:
+      - saleor-network
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:7000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Real-ESRGAN - AI Image Upscaling Service (self-hosted, CPU mode)
+  # Used by Image Studio for 2x/3x/4x image upscaling (~3GB memory, 30-120s per image on CPU)
+  saleor-esrgan:
+    build:
+      context: ./esrgan
+      dockerfile: Dockerfile
+    container_name: saleor-esrgan-dev
+    ports:
+      - "7001:7001"
+    deploy:
+      resources:
+        limits:
+          memory: 3G
+    networks:
+      - saleor-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:7001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
 volumes:
   postgres-data:
     driver: local
@@ -786,6 +879,10 @@ volumes:
   bulk-manager-app-node-modules:
     driver: local
   bulk-manager-app-pnpm-store:
+    driver: local
+  image-studio-app-node-modules:
+    driver: local
+  image-studio-app-pnpm-store:
     driver: local
 
 networks:

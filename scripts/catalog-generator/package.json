@@ -14,6 +14,13 @@
     "deploy": "tsx src/run-configurator.ts deploy",
     "deploy:ci": "tsx src/run-configurator.ts deploy --ci",
     "translate": "tsx src/add-translations.ts",
+    "translate:mansour": "tsx src/translate-mansour.ts",
+    "translate:mansour:dry": "tsx src/translate-mansour.ts --dry-run",
+    "import": "tsx src/import-converter.ts",
+    "cleanup": "tsx src/cleanup-catalog.ts",
+    "cleanup:dry": "tsx src/cleanup-catalog.ts --dry-run",
+    "deactivate": "tsx src/deactivate-products.ts",
+    "deactivate:dry": "tsx src/deactivate-products.ts --dry-run",
     "setup": "npm run deploy && npm run translate && npm run generate",
     "postinstall": "patch-package"
   },

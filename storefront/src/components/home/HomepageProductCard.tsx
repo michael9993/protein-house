@@ -8,7 +8,7 @@ import { type ProductListItemFragment } from "@/gql/graphql";
 import { formatMoneyRange } from "@/lib/utils";
 import { t } from "@/lib/language";
 import { ShareButton } from "@/ui/components/ProductSharing";
-import { useBadgeStyle, useContentConfig } from "@/providers/StoreConfigProvider";
+import { useBadgeStyle, useContentConfig, useEcommerceSettings } from "@/providers/StoreConfigProvider";
 import { buildProductUrl, withChannel } from "@/lib/urls";
 import {
 	getProductImage,
@@ -78,14 +78,16 @@ export function HomepageProductCard({
 	const image = getProductImage(product);
 	const brand = getProductBrand(product, storeName);
 	const content = useContentConfig();
+	const ecommerce = useEcommerceSettings();
 	const saleBadgeStyle = useBadgeStyle("sale");
 	const outOfStockBadgeStyle = useBadgeStyle("outOfStock");
 	const lowStockBadgeStyle = useBadgeStyle("lowStock");
 
 	// Compute badge data matching PLP ProductCard
+	const lowStockThreshold = ecommerce.inventory?.lowStockThreshold ?? 5;
 	const totalStock = getTotalStock(product);
 	const isInStock = totalStock > 0;
-	const isLowStock = totalStock > 0 && totalStock <= 5;
+	const isLowStock = totalStock > 0 && totalStock <= lowStockThreshold;
 	const discountPercent = getDiscountPercent(product);
 	const hasDiscountBadge = discountPercent > 0;
 	const priceRange = formatMoneyRange({
@@ -151,9 +153,10 @@ export function HomepageProductCard({
 					)}
 					{isLowStock && (
 						<span
-							className={`${radiusMap[lowStockBadgeStyle.borderRadius] || "rounded-full"} px-2 py-0.5 text-[10px] font-medium shadow-sm`}
+							className={`${radiusMap[lowStockBadgeStyle.borderRadius] || "rounded"} inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold leading-none`}
 							style={{ backgroundColor: lowStockBadgeStyle.backgroundColor, color: lowStockBadgeStyle.color }}
 						>
+							<svg className="h-2.5 w-2.5 shrink-0" viewBox="0 0 16 16" fill="currentColor"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
 							{(content.product.lowStockText || badgeLabels.lowStock).replace("{count}", String(totalStock))}
 						</span>
 					)}

@@ -395,6 +395,38 @@ export function BrandingDesignTab({ register, control, errors, watch }: GlobalTa
               />
             </FieldGroup>
           </div>
+
+          <div className="space-y-3">
+            <h4 className="text-sm font-semibold">Low Stock Badge</h4>
+            <FieldGroup columns={2}>
+              <FormColorPicker<GlobalFormData>
+                label="Background"
+                name="ui.badges.lowStock.backgroundColor"
+                control={control}
+              />
+              <FormColorPicker<GlobalFormData>
+                label="Text Color"
+                name="ui.badges.lowStock.textColor"
+                control={control}
+              />
+            </FieldGroup>
+          </div>
+
+          <div className="space-y-3">
+            <h4 className="text-sm font-semibold">Featured Badge</h4>
+            <FieldGroup columns={2}>
+              <FormColorPicker<GlobalFormData>
+                label="Background"
+                name="ui.badges.featured.backgroundColor"
+                control={control}
+              />
+              <FormColorPicker<GlobalFormData>
+                label="Text Color"
+                name="ui.badges.featured.textColor"
+                control={control}
+              />
+            </FieldGroup>
+          </div>
         </div>
       </FormSection>
 

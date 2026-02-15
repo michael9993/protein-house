@@ -978,7 +978,7 @@ export const defaultStoreConfig = {
       addToCartButton: "Add to Cart",
       buyNowButton: "Buy Now",
       outOfStockText: "Out of Stock",
-      lowStockText: "Only {count} left in stock",
+      lowStockText: "Only {count} left",
       inStockText: "In Stock",
       saleBadgeText: "Sale",
       newBadgeText: "New",

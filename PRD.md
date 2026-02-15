@@ -968,6 +968,38 @@ npm run generate      # Product Excel + CSVs
 
 **Runs on host machine** (not Docker). Connects to Saleor via `SALEOR_URL` + `SALEOR_TOKEN` in `.env`.
 
+### 9.9 Image Studio App
+
+**Purpose**: AI-powered product image editor embedded in Saleor Dashboard for creating professional e-commerce product images without external design tools.
+
+**Container**: `saleor-image-studio-app-dev` | **Port**: 3008
+
+**Key Features**:
+- **Canvas Editor** (Fabric.js v6): Full image manipulation — add images/text/shapes, select/move/resize/rotate, undo/redo (50-state history), zoom, export PNG/JPEG
+- **Saleor Product Integration**: Browse product catalog, edit existing product images, save finished work back to products via GraphQL multipart upload
+- **AI Background Removal**: Self-hosted rembg service removes backgrounds to transparent PNG (~3-8s/image on CPU)
+- **AI Background Generation**: Nano Banana / Google Gemini (cloud API) generates photorealistic backgrounds from text prompts
+- **AI Upscaling**: Self-hosted Real-ESRGAN upscales images 2x/3x/4x (~30-120s on CPU)
+- **Image Enhancement**: Server-side Sharp for brightness/saturation adjustment, resize, format conversion
+- **Template System**: 12 built-in templates across 4 categories (Product, Social Media, Banner, Lifestyle) with typed layers (image/text/rect/circle)
+- **Layers Panel**: Visual layer list with drag-to-reorder, visibility toggle, lock toggle
+- **Auto-Save**: IndexedDB draft persistence with session recovery dialog
+- **Context Menu**: Right-click for copy/paste/duplicate/delete/layer ordering
+- **Keyboard Shortcuts**: Ctrl+Z/Y, Ctrl+C/V/D, Ctrl+S, Ctrl+E, Ctrl+[/], Del, Escape, zoom controls
+
+**AI Services** (separate Docker containers):
+- `saleor-rembg-dev` (port 7000): danielgatis/rembg, ~2GB memory, CPU-based
+- `saleor-esrgan-dev` (port 7001): Real-ESRGAN wrapper, ~3GB memory, CPU-based
+- Nano Banana / Gemini (external): Google Gemini 2.5 Flash Image, requires `GEMINI_API_KEY` env var (free 50 req/day)
+
+**Tech Stack**: Next.js (Pages Router), tRPC (4 sub-routers: ai, products, media, enhance), Fabric.js v6, Sharp, idb-keyval, shadcn/ui + Tailwind CSS
+
+**tRPC Routers**:
+- `ai-router`: removeBackground, generateBackground, upscale, checkHealth
+- `products-router`: list (paginated with search), getDetail, channels
+- `media-router`: uploadToProduct, updateAlt, delete, downloadOriginal
+- `enhance-router`: resize, adjustColors, convertFormat
+
 ---
 
 ## 10. Feature Specifications

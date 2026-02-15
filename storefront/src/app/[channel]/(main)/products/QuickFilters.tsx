@@ -545,7 +545,7 @@ export function QuickFilters({
             if (unit.kind === "group") {
               const groupActive = isGroupAllActive(unit.items);
               return (
-                <div key={`group-${unit.label}`} className="contents">
+                <div key={`group-${unitIndex}-${unit.label}`} className="contents">
                   {separator}
                   <div
                     className="shrink-0 flex flex-col"

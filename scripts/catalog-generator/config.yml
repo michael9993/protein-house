@@ -67,10 +67,14 @@ productTypes:
           - name: Casual
           - name: Outdoor
           - name: Basketball
+          - name: Boots
+          - name: Sandals
+          - name: Walking
     variantAttributes:
       - name: "Shoe size"
         inputType: DROPDOWN
         values:
+          - name: "35"
           - name: "36"
           - name: "37"
           - name: "38"
@@ -81,6 +85,9 @@ productTypes:
           - name: "43"
           - name: "44"
           - name: "45"
+          - name: "46"
+          - name: "47"
+          - name: "48"
       - name: "Color"
         inputType: DROPDOWN
         values:
@@ -128,6 +135,8 @@ productTypes:
           - name: Hoodie
           - name: Jacket
           - name: Tank Top
+          - name: Sports Bra
+          - name: Vest
     variantAttributes:
       - name: "Apparel Size"
         inputType: DROPDOWN
@@ -185,6 +194,7 @@ productTypes:
           - name: Jogger Pants
           - name: Shorts
           - name: Leggings
+          - name: Skirt
     variantAttributes:
       - name: "Apparel Size"
         inputType: DROPDOWN
@@ -243,6 +253,10 @@ productTypes:
           - name: Hat
           - name: Socks
           - name: Water Bottle
+          - name: Gloves
+          - name: Scarf
+          - name: Belt
+          - name: Sunglasses
     variantAttributes:
       - name: "Apparel Size"
         inputType: DROPDOWN

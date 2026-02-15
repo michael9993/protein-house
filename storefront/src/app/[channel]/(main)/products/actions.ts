@@ -85,10 +85,17 @@ export async function getProductDetailsForQuickView(
 		? description.map((content: string) => xss(content)).join("")
 		: null;
 
+	// Deduplicate: thumbnail is often the first media item, avoid showing it twice
+	const seenUrls = new Set<string>();
 	const images = [
 		product.thumbnail && { url: product.thumbnail.url, alt: product.thumbnail.alt },
 		...(product.media?.map((m) => ({ url: m.url, alt: m.alt })) || []),
-	].filter(Boolean) as Array<{ url: string; alt: string | null }>;
+	].filter((img): img is { url: string; alt: string | null } => {
+		if (!img) return false;
+		if (seenUrls.has(img.url)) return false;
+		seenUrls.add(img.url);
+		return true;
+	});
 
 	const variants = product.variants || [];
 	const isAvailable = variants.some((v) => v.quantityAvailable) ?? false;

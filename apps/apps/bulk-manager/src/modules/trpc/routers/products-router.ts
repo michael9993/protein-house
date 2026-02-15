@@ -8,18 +8,31 @@ import { exportToExcel } from "../../export/excel-exporter";
 import { assertQuerySuccess, applyFieldMappings, tryParseDescription, parseBool, parseMetadata, parseSemicolonList, isValidUrl, type ImportResult, buildImportResponse } from "../utils/helpers";
 import { uploadProductImage } from "../utils/image-upload";
 
+interface AttributeValueInfo {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 interface AttributeInfo {
   id: string;
   slug: string;
   name: string;
   inputType: string; // DROPDOWN, MULTISELECT, PLAIN_TEXT, RICH_TEXT, NUMERIC, BOOLEAN, DATE, DATE_TIME, FILE, REFERENCE, SWATCH
   entityType?: string; // PAGE, PRODUCT (only for REFERENCE type)
+  values: AttributeValueInfo[];
 }
 
 interface ProductTypeInfo {
   id: string;
   productAttributes: AttributeInfo[];
   variantAttributes: AttributeInfo[];
+}
+
+interface GlobalAttrInfo {
+  id: string; slug: string; name: string; inputType: string; entityType?: string;
+  type: string; // "PRODUCT_TYPE" or "PAGE_TYPE"
+  values: AttributeValueInfo[];
 }
 
 /**
@@ -89,6 +102,37 @@ function buildAttributeInput(
   }
 }
 
+/**
+ * Detect the best Saleor attribute inputType from a set of values.
+ */
+function detectInputType(values: Set<string>): string {
+  const arr = Array.from(values).filter(Boolean);
+  if (arr.length === 0) return "DROPDOWN";
+
+  const boolPattern = /^(true|false|yes|no|1|0)$/i;
+  if (arr.every(v => boolPattern.test(v))) return "BOOLEAN";
+
+  const numPattern = /^-?\d+(\.\d+)?$/;
+  if (arr.every(v => numPattern.test(v))) return "NUMERIC";
+
+  if (arr.some(v => v.includes(";"))) return "MULTISELECT";
+
+  return "DROPDOWN";
+}
+
+/**
+ * Slugify a string for Saleor (attribute slugs, page slugs, etc.)
+ */
+function slugifyForSaleor(text: string): string {
+  return text
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 export const productsRouter = router({
   import: protectedClientProcedure
     .input(
@@ -101,6 +145,9 @@ export const productsRouter = router({
         warehouseId: z.string().optional(),
         taxClassId: z.string().optional(),
         upsertMode: z.boolean().optional().default(false),
+        autoCreateAttributes: z.boolean().optional().default(true),
+        autoCreatePages: z.boolean().optional().default(true),
+        attributeDefaults: z.record(z.string(), z.string()).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -160,8 +207,14 @@ export const productsRouter = router({
                 edges {
                   node {
                     id name slug
-                    productAttributes { id slug name inputType entityType }
-                    variantAttributes { id slug name inputType entityType }
+                    productAttributes {
+                      id slug name inputType entityType
+                      choices(first: 100) { edges { node { id name slug } } }
+                    }
+                    variantAttributes {
+                      id slug name inputType entityType
+                      choices(first: 100) { edges { node { id name slug } } }
+                    }
                   }
                 }
                 pageInfo { hasNextPage endCursor }
@@ -175,6 +228,9 @@ export const productsRouter = router({
               id: a.id, slug: a.slug, name: a.name,
               inputType: a.inputType || "DROPDOWN",
               entityType: a.entityType || undefined,
+              values: (a.choices?.edges || []).map((ce: any) => ({
+                id: ce.node.id, name: ce.node.name, slug: ce.node.slug,
+              })),
             });
             const info: ProductTypeInfo = {
               id: node.id,
@@ -187,6 +243,45 @@ export const productsRouter = router({
           }
           hasNext = ptResult.data?.productTypes?.pageInfo?.hasNextPage || false;
           after = ptResult.data?.productTypes?.pageInfo?.endCursor;
+        }
+      } catch { /* ignore */ }
+
+      // ─── Pre-fetch ALL attributes globally (for creating/assigning unassigned attrs) ───
+      const globalAttributeMap = new Map<string, GlobalAttrInfo>();
+      try {
+        let hasNext = true;
+        let after: string | undefined;
+        while (hasNext) {
+          const attrResult = await ctx.apiClient.query(
+            `query AllAttributes($after: String) {
+              attributes(first: 100, after: $after, filter: { type: PRODUCT_TYPE }) {
+                edges {
+                  node {
+                    id slug name inputType entityType type
+                    choices(first: 100) { edges { node { id name slug } } }
+                  }
+                }
+                pageInfo { hasNextPage endCursor }
+              }
+            }`,
+            { after }
+          );
+          for (const e of (attrResult.data?.attributes?.edges || [])) {
+            const node = e.node;
+            const info: GlobalAttrInfo = {
+              id: node.id, slug: node.slug, name: node.name,
+              inputType: node.inputType || "DROPDOWN",
+              entityType: node.entityType || undefined,
+              type: node.type || "PRODUCT_TYPE",
+              values: (node.choices?.edges || []).map((v: any) => ({
+                id: v.node.id, name: v.node.name, slug: v.node.slug,
+              })),
+            };
+            globalAttributeMap.set(node.slug.toLowerCase(), info);
+            globalAttributeMap.set(node.name.toLowerCase(), info);
+          }
+          hasNext = attrResult.data?.attributes?.pageInfo?.hasNextPage || false;
+          after = attrResult.data?.attributes?.pageInfo?.endCursor;
         }
       } catch { /* ignore */ }
 
@@ -286,38 +381,383 @@ export const productsRouter = router({
         }
       } catch { /* ignore */ }
 
-      // ─── Pre-fetch existing products for upsert mode ───
+      // ─── Pre-fetch page types (for auto-creating reference pages) ───
+      const pageTypeMap = new Map<string, string>(); // name/slug → ID
+      try {
+        const ptResult = await ctx.apiClient.query(
+          `query PageTypesLookup { pageTypes(first: 100) { edges { node { id name slug } } } }`, {}
+        );
+        for (const e of (ptResult.data?.pageTypes?.edges || [])) {
+          pageTypeMap.set(e.node.name.toLowerCase(), e.node.id);
+          if (e.node.slug) pageTypeMap.set(e.node.slug.toLowerCase(), e.node.id);
+        }
+      } catch { /* ignore */ }
+
+      // ─── Pre-fetch existing products (for upsert matching OR skip-existing) ───
       type ExistingProductInfo = { id: string; variants: { id: string; sku: string }[]; mediaCount: number };
       const existingProductsBySlug = new Map<string, ExistingProductInfo>();
       const existingProductsByRef = new Map<string, ExistingProductInfo>();
-      if (input.upsertMode) {
+      try {
+        let hasNext = true;
+        let after: string | undefined;
+        while (hasNext) {
+          const pResult = await ctx.apiClient.query(
+            `query ExistingProducts($after: String) {
+              products(first: 100, after: $after) {
+                edges { node { id slug externalReference media { id } variants { id sku } } }
+                pageInfo { hasNextPage endCursor }
+              }
+            }`,
+            { after }
+          );
+          for (const e of (pResult.data?.products?.edges || [])) {
+            const node = e.node;
+            const info: ExistingProductInfo = {
+              id: node.id,
+              variants: (node.variants || []).map((v: any) => ({ id: v.id, sku: v.sku || "" })),
+              mediaCount: (node.media || []).length,
+            };
+            if (node.slug) existingProductsBySlug.set(node.slug.toLowerCase(), info);
+            if (node.externalReference) existingProductsByRef.set(node.externalReference, info);
+          }
+          hasNext = pResult.data?.products?.pageInfo?.hasNextPage || false;
+          after = pResult.data?.products?.pageInfo?.endCursor;
+        }
+      } catch { /* ignore */ }
+
+      // ═══════════════════════════════════════════════════════════════════
+      // DYNAMIC ATTRIBUTE ENGINE — auto-create missing attributes/values/pages
+      // ═══════════════════════════════════════════════════════════════════
+      if (input.autoCreateAttributes) {
+        // ── Step 1: Discover all attr:/variantAttr: columns and their values ──
+        interface DiscoveredAttr {
+          columnKey: string;
+          attrName: string;
+          isVariant: boolean;
+          values: Set<string>;
+          productTypes: Set<string>;
+        }
+
+        const discoveredAttrs = new Map<string, DiscoveredAttr>();
+
+        for (const row of mappedRows) {
+          const ptName = row.productType || input.productTypeId || "";
+          for (const [key, val] of Object.entries(row)) {
+            const isProductAttr = key.startsWith("attr:");
+            const isVariantAttr = key.startsWith("variantAttr:");
+            if (!isProductAttr && !isVariantAttr) continue;
+
+            const attrName = isProductAttr ? key.substring(5) : key.substring(12);
+            if (!discoveredAttrs.has(key)) {
+              discoveredAttrs.set(key, {
+                columnKey: key,
+                attrName,
+                isVariant: isVariantAttr,
+                values: new Set(),
+                productTypes: new Set(),
+              });
+            }
+            const disc = discoveredAttrs.get(key)!;
+            if (val) disc.values.add(val.trim());
+            if (ptName) disc.productTypes.add(ptName.toLowerCase());
+          }
+        }
+
+        // Apply attribute defaults to values set (so defaults get created too)
+        if (input.attributeDefaults) {
+          for (const [key, defaultVal] of Object.entries(input.attributeDefaults)) {
+            if (defaultVal && discoveredAttrs.has(key)) {
+              discoveredAttrs.get(key)!.values.add(defaultVal.trim());
+            }
+          }
+        }
+
+        // ── Step 2: Classify each discovered attribute ──
+        const attrsToCreateValues: { attrId: string; missingValues: string[] }[] = [];
+        const attrsToAssign: { attrId: string; productTypeId: string; isVariant: boolean }[] = [];
+        const attrsToCreate: DiscoveredAttr[] = [];
+        const pagesToCreate: { value: string; pageTypeName: string }[] = [];
+
+        for (const [, disc] of discoveredAttrs) {
+          const attrNameLower = disc.attrName.toLowerCase();
+          const globalAttr = globalAttributeMap.get(attrNameLower);
+
+          if (globalAttr) {
+            // Attribute exists — check if values are missing (DROPDOWN/MULTISELECT/SWATCH only)
+            if (["DROPDOWN", "MULTISELECT", "SWATCH"].includes(globalAttr.inputType)) {
+              const existingNames = new Set(globalAttr.values.map(v => v.name.toLowerCase()));
+              const existingSlugs = new Set(globalAttr.values.map(v => v.slug.toLowerCase()));
+              const missing = Array.from(disc.values).filter(v =>
+                !existingNames.has(v.toLowerCase()) && !existingSlugs.has(v.toLowerCase())
+              );
+              if (missing.length > 0) {
+                attrsToCreateValues.push({ attrId: globalAttr.id, missingValues: missing });
+              }
+            }
+
+            // Check if attribute is assigned to each product type
+            for (const ptRef of disc.productTypes) {
+              const ptInfo = productTypeMap.get(ptRef);
+              if (!ptInfo) continue;
+              const attrList = disc.isVariant ? ptInfo.variantAttributes : ptInfo.productAttributes;
+              const isAssigned = attrList.some(a =>
+                a.slug.toLowerCase() === globalAttr.slug.toLowerCase() ||
+                a.name.toLowerCase() === globalAttr.name.toLowerCase()
+              );
+              if (!isAssigned) {
+                attrsToAssign.push({ attrId: globalAttr.id, productTypeId: ptInfo.id, isVariant: disc.isVariant });
+              }
+            }
+
+            // For SINGLE_REFERENCE to PAGE — check for missing pages
+            if ((globalAttr.inputType === "SINGLE_REFERENCE" || globalAttr.inputType === "REFERENCE") &&
+                globalAttr.entityType === "PAGE" && input.autoCreatePages) {
+              for (const val of disc.values) {
+                if (!pageNameMap.has(val.toLowerCase())) {
+                  pagesToCreate.push({ value: val, pageTypeName: disc.attrName });
+                }
+              }
+            }
+          } else {
+            // Attribute doesn't exist at all — needs full creation
+            attrsToCreate.push(disc);
+          }
+        }
+
+        // ── Step 3: Create new attributes ──
+        for (const disc of attrsToCreate) {
+          const detectedType = detectInputType(disc.values);
+          const slug = slugifyForSaleor(disc.attrName);
+
+          try {
+            const createInput: Record<string, any> = {
+              name: disc.attrName,
+              slug,
+              inputType: detectedType,
+              type: "PRODUCT_TYPE",
+              visibleInStorefront: true,
+              filterableInDashboard: true,
+              filterableInStorefront: true,
+            };
+
+            if (detectedType === "DROPDOWN" || detectedType === "MULTISELECT") {
+              createInput.values = Array.from(disc.values).filter(Boolean).map(v => ({ name: v }));
+            }
+
+            const result = await ctx.apiClient.mutation(
+              `mutation AttributeCreate($input: AttributeCreateInput!) {
+                attributeCreate(input: $input) {
+                  attribute { id slug name inputType entityType }
+                  errors { field code message }
+                }
+              }`,
+              { input: createInput }
+            );
+
+            const created = result.data?.attributeCreate?.attribute;
+            if (created) {
+              console.log(`[DynamicImport] Created attribute "${disc.attrName}" (${detectedType}, slug: ${created.slug})`);
+              const newInfo: GlobalAttrInfo = {
+                id: created.id, slug: created.slug, name: created.name || disc.attrName,
+                inputType: created.inputType || detectedType,
+                entityType: created.entityType || undefined,
+                type: "PRODUCT_TYPE",
+                values: Array.from(disc.values).filter(Boolean).map((v, i) => ({
+                  id: `temp-${i}`, name: v, slug: slugifyForSaleor(v),
+                })),
+              };
+              globalAttributeMap.set(created.slug.toLowerCase(), newInfo);
+              globalAttributeMap.set(disc.attrName.toLowerCase(), newInfo);
+
+              for (const ptRef of disc.productTypes) {
+                const ptInfo = productTypeMap.get(ptRef);
+                if (ptInfo) {
+                  attrsToAssign.push({ attrId: created.id, productTypeId: ptInfo.id, isVariant: disc.isVariant });
+                }
+              }
+            } else {
+              console.warn(`[DynamicImport] Failed to create attribute "${disc.attrName}":`, result.data?.attributeCreate?.errors);
+            }
+          } catch (err: any) {
+            console.warn(`[DynamicImport] Error creating attribute "${disc.attrName}":`, err.message?.substring(0, 100));
+          }
+        }
+
+        // ── Step 4: Create missing attribute values ──
+        for (const { attrId, missingValues } of attrsToCreateValues) {
+          for (const val of missingValues) {
+            try {
+              const result = await ctx.apiClient.mutation(
+                `mutation AttributeValueCreate($id: ID!, $input: AttributeValueCreateInput!) {
+                  attributeValueCreate(id: $id, input: $input) {
+                    attributeValue { id name slug }
+                    errors { field code message }
+                  }
+                }`,
+                { id: attrId, input: { name: val } }
+              );
+              if (result.data?.attributeValueCreate?.attributeValue) {
+                console.log(`[DynamicImport] Created value "${val}" for attribute ${attrId}`);
+              } else {
+                console.warn(`[DynamicImport] Failed to create value "${val}":`, result.data?.attributeValueCreate?.errors);
+              }
+            } catch (err: any) {
+              console.warn(`[DynamicImport] Error creating value "${val}":`, err.message?.substring(0, 100));
+            }
+          }
+        }
+
+        // ── Step 5: Assign attributes to product types ──
+        const seenAssignments = new Set<string>();
+        for (const assignment of attrsToAssign) {
+          const key = `${assignment.attrId}::${assignment.productTypeId}::${assignment.isVariant}`;
+          if (seenAssignments.has(key)) continue;
+          seenAssignments.add(key);
+
+          try {
+            const field = assignment.isVariant ? "addVariantAttributes" : "addProductAttributes";
+            const result = await ctx.apiClient.mutation(
+              `mutation ProductTypeUpdate($id: ID!, $input: ProductTypeInput!) {
+                productTypeUpdate(id: $id, input: $input) {
+                  productType { id }
+                  errors { field code message }
+                }
+              }`,
+              { id: assignment.productTypeId, input: { [field]: [assignment.attrId] } }
+            );
+            if (result.data?.productTypeUpdate?.productType) {
+              console.log(`[DynamicImport] Assigned attribute ${assignment.attrId} to product type ${assignment.productTypeId} (${field})`);
+            } else {
+              console.warn(`[DynamicImport] Failed to assign attribute:`, result.data?.productTypeUpdate?.errors);
+            }
+          } catch (err: any) {
+            console.warn(`[DynamicImport] Error assigning attribute:`, err.message?.substring(0, 100));
+          }
+        }
+
+        // ── Step 6: Auto-create missing pages (for SINGLE_REFERENCE attrs like Brand) ──
+        if (input.autoCreatePages && pagesToCreate.length > 0) {
+          const uniquePageTypes = [...new Set(pagesToCreate.map(p => p.pageTypeName.toLowerCase()))];
+          const resolvedPageTypes = new Map<string, string>();
+
+          for (const ptName of uniquePageTypes) {
+            let ptId = pageTypeMap.get(ptName);
+            if (!ptId) {
+              try {
+                const result = await ctx.apiClient.mutation(
+                  `mutation PageTypeCreate($input: PageTypeCreateInput!) {
+                    pageTypeCreate(input: $input) {
+                      pageType { id name slug }
+                      errors { field code message }
+                    }
+                  }`,
+                  { input: { name: ptName.charAt(0).toUpperCase() + ptName.slice(1), slug: slugifyForSaleor(ptName) } }
+                );
+                ptId = result.data?.pageTypeCreate?.pageType?.id;
+                if (ptId) {
+                  console.log(`[DynamicImport] Created page type "${ptName}" (${ptId})`);
+                  pageTypeMap.set(ptName, ptId);
+                }
+              } catch (err: any) {
+                console.warn(`[DynamicImport] Error creating page type "${ptName}":`, err.message?.substring(0, 100));
+              }
+            }
+            if (ptId) resolvedPageTypes.set(ptName, ptId);
+          }
+
+          const seenPages = new Set<string>();
+          for (const { value, pageTypeName } of pagesToCreate) {
+            const key = value.toLowerCase();
+            if (seenPages.has(key)) continue;
+            seenPages.add(key);
+
+            const pageTypeId = resolvedPageTypes.get(pageTypeName.toLowerCase());
+            if (!pageTypeId) continue;
+
+            try {
+              const result = await ctx.apiClient.mutation(
+                `mutation PageCreate($input: PageCreateInput!) {
+                  pageCreate(input: $input) {
+                    page { id title slug }
+                    errors { field code message }
+                  }
+                }`,
+                {
+                  input: {
+                    pageType: pageTypeId,
+                    title: value,
+                    slug: slugifyForSaleor(value),
+                    isPublished: true,
+                    content: JSON.stringify({ blocks: [{ type: "paragraph", data: { text: value } }] }),
+                  },
+                }
+              );
+              const created = result.data?.pageCreate?.page;
+              if (created) {
+                console.log(`[DynamicImport] Created page "${value}" (${created.id})`);
+                pageNameMap.set(value.toLowerCase(), created.id);
+                if (created.slug) pageNameMap.set(created.slug.toLowerCase(), created.id);
+              } else {
+                console.warn(`[DynamicImport] Failed to create page "${value}":`, result.data?.pageCreate?.errors);
+              }
+            } catch (err: any) {
+              console.warn(`[DynamicImport] Error creating page "${value}":`, err.message?.substring(0, 100));
+            }
+          }
+        }
+
+        // ── Step 7: Refresh product type map (attributes may have changed) ──
+        productTypeMap.clear();
         try {
           let hasNext = true;
           let after: string | undefined;
           while (hasNext) {
-            const pResult = await ctx.apiClient.query(
-              `query ExistingProducts($after: String) {
-                products(first: 100, after: $after) {
-                  edges { node { id slug externalReference media { id } variants { id sku } } }
+            const ptResult = await ctx.apiClient.query(
+              `query ProductTypesWithAttrs($after: String) {
+                productTypes(first: 100, after: $after) {
+                  edges {
+                    node {
+                      id name slug
+                      productAttributes {
+                        id slug name inputType entityType
+                        choices(first: 100) { edges { node { id name slug } } }
+                      }
+                      variantAttributes {
+                        id slug name inputType entityType
+                        choices(first: 100) { edges { node { id name slug } } }
+                      }
+                    }
+                  }
                   pageInfo { hasNextPage endCursor }
                 }
               }`,
               { after }
             );
-            for (const e of (pResult.data?.products?.edges || [])) {
+            for (const e of (ptResult.data?.productTypes?.edges || [])) {
               const node = e.node;
-              const info: ExistingProductInfo = {
+              const mapAttr = (a: any): AttributeInfo => ({
+                id: a.id, slug: a.slug, name: a.name,
+                inputType: a.inputType || "DROPDOWN",
+                entityType: a.entityType || undefined,
+                values: (a.choices?.edges || []).map((ce: any) => ({
+                  id: ce.node.id, name: ce.node.name, slug: ce.node.slug,
+                })),
+              });
+              const info: ProductTypeInfo = {
                 id: node.id,
-                variants: (node.variants || []).map((v: any) => ({ id: v.id, sku: v.sku || "" })),
-                mediaCount: (node.media || []).length,
+                productAttributes: (node.productAttributes || []).map(mapAttr),
+                variantAttributes: (node.variantAttributes || []).map(mapAttr),
               };
-              if (node.slug) existingProductsBySlug.set(node.slug.toLowerCase(), info);
-              if (node.externalReference) existingProductsByRef.set(node.externalReference, info);
+              productTypeMap.set(node.name.toLowerCase(), info);
+              productTypeMap.set(node.slug.toLowerCase(), info);
+              productTypeMap.set(node.id, info);
             }
-            hasNext = pResult.data?.products?.pageInfo?.hasNextPage || false;
-            after = pResult.data?.products?.pageInfo?.endCursor;
+            hasNext = ptResult.data?.productTypes?.pageInfo?.hasNextPage || false;
+            after = ptResult.data?.productTypes?.pageInfo?.endCursor;
           }
         } catch { /* ignore */ }
+
+        console.log(`[DynamicImport] Pre-processing complete. Created: ${attrsToCreate.length} attrs, ${attrsToCreateValues.reduce((sum, a) => sum + a.missingValues.length, 0)} values, ${pagesToCreate.length} pages. Assigned: ${seenAssignments.size} attr→type mappings.`);
       }
 
       // ─── Process each product group ───
@@ -328,8 +768,8 @@ export const productsRouter = router({
         try {
           // ── Resolve product type (CSV column → name/slug lookup → fallback to dropdown) ──
           let resolvedProductTypeId = input.productTypeId || "";
-          let productAttributes: { id: string; slug: string; name: string }[] = [];
-          let variantAttributes: { id: string; slug: string; name: string }[] = [];
+          let productAttributes: AttributeInfo[] = [];
+          let variantAttributes: AttributeInfo[] = [];
 
           if (first.productType) {
             const ptInfo = productTypeMap.get(first.productType.toLowerCase());
@@ -352,6 +792,17 @@ export const productsRouter = router({
           if (!resolvedProductTypeId) {
             for (const idx of indices) results.push({ row: idx + 1, success: false, error: "No product type specified. Set it in CSV 'productType' column or select from dropdown." });
             continue;
+          }
+
+          // ── Skip existing products when NOT in upsert mode ──
+          if (!input.upsertMode) {
+            const slug = first.slug || first.name?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+            const existsBySlug = slug ? existingProductsBySlug.has(slug.toLowerCase()) : false;
+            const existsByRef = first.externalReference ? existingProductsByRef.has(first.externalReference) : false;
+            if (existsBySlug || existsByRef) {
+              for (const idx of indices) results.push({ row: idx + 1, success: true, error: "Skipped (already exists)" });
+              continue;
+            }
           }
 
           // ── Resolve category (CSV column → name/slug lookup → fallback to dropdown) ──
@@ -414,8 +865,14 @@ export const productsRouter = router({
               }
             }
 
+            // Apply attribute default if no value found
+            if (!value && input.attributeDefaults) {
+              const defaultKey = `attr:${attr.name}`;
+              const defaultKeySlug = `attr:${attr.slug}`;
+              value = input.attributeDefaults[defaultKey] || input.attributeDefaults[defaultKeySlug] || undefined;
+            }
+
             if (value) {
-              // Build attribute value input based on inputType
               const attrInput = buildAttributeInput(attr, value, pageNameMap);
               if (attrInput) productAttrs.push(attrInput);
             }
@@ -628,6 +1085,12 @@ export const productsRouter = router({
                 }
                 if (!value && (slug.includes("color") || slug.includes("colour") || name.includes("color"))) {
                   value = vRow.color;
+                }
+                // Apply variant attribute default if no value found
+                if (!value && input.attributeDefaults) {
+                  const defaultKey = `variantAttr:${attr.name}`;
+                  const defaultKeySlug = `variantAttr:${attr.slug}`;
+                  value = input.attributeDefaults[defaultKey] || input.attributeDefaults[defaultKeySlug] || undefined;
                 }
                 if (value) {
                   const attrInput = buildAttributeInput(attr, value, pageNameMap);

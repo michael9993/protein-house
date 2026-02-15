@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-02-12T12:19:33.515Z",
+  "exportedAt": "2026-02-15T16:11:53.532Z",
   "channels": {
     "ils": {
-      "version": 4,
-      "updatedAt": "2026-02-12T12:19:30.614Z",
+      "version": 5,
+      "updatedAt": "2026-02-15T16:11:43.882Z",
       "channelSlug": "ils",
       "store": {
         "name": "Mansour Shoes",
@@ -46,7 +46,7 @@
             "h2": "3xl",
             "h3": "2xl",
             "h4": "xl",
-            "body": "base",
+            "body": "sm",
             "small": "sm",
             "button": "base",
             "caption": "sm"
@@ -1787,6 +1787,7 @@
           "megaMenuHoverPrompt": "רחף על קטגוריה לגלות",
           "subcategoriesSide": "right",
           "mobileNavPosition": "left",
+          "mobileMenuStyle": "visual",
           "dropdownArrowDirection": "left",
           "dropdownArrowDirectionExpanded": "down",
           "homeLabel": "בית",

@@ -192,11 +192,6 @@ export async function getReviewById(reviewId: string): Promise<ProductReview | n
       };
       
       if (result.data?.review) {
-          id: result.data.review.id,
-          rating: result.data.review.rating,
-          status: result.data.review.status,
-          product: result.data.review.product?.name,
-        });
         return result.data.review;
       }
     }
@@ -502,11 +497,6 @@ export async function getStoreStatistics(channel: string): Promise<{
       ordersDelivered,
       satisfactionRate,
     };
-
-      ...finalStats,
-      totalApprovedReviews: approvedReviews.length,
-      totalReviews: allReviews.length,
-    });
 
     return finalStats;
   } catch (error) {

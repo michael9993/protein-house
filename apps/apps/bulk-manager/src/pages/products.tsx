@@ -34,6 +34,10 @@ export default function ProductsPage() {
   const [taxClassId, setTaxClassId] = useState("");
   const [upsertMode, setUpsertMode] = useState(false);
   const [excludedFields, setExcludedFields] = useState<Set<string>>(new Set());
+  const [autoCreateAttributes, setAutoCreateAttributes] = useState(true);
+  const [autoCreatePages, setAutoCreatePages] = useState(true);
+  const [attributeDefaults, setAttributeDefaults] = useState<Record<string, string>>({});
+  const [discoveredAttrColumns, setDiscoveredAttrColumns] = useState<string[]>([]);
 
   // Export filter state
   const [searchFilter, setSearchFilter] = useState("");
@@ -68,6 +72,13 @@ export default function ProductsPage() {
         fileName: file.name,
         fileType: fileType as "csv" | "xlsx",
       });
+
+      // Discover attr: and variantAttr: columns for the defaults UI
+      const attrCols = result.headers.filter(
+        (h: string) => h.startsWith("attr:") || h.startsWith("variantAttr:")
+      );
+      setDiscoveredAttrColumns(attrCols);
+
       return { rows: result.rows, headers: result.headers };
     },
     [parseFile]
@@ -149,6 +160,9 @@ export default function ProductsPage() {
           warehouseId: warehouseId || undefined,
           taxClassId: taxClassId || undefined,
           upsertMode,
+          autoCreateAttributes,
+          autoCreatePages,
+          attributeDefaults: Object.keys(attributeDefaults).length > 0 ? attributeDefaults : undefined,
         });
 
         for (const r of result.results) allResults.push({ ...r, row: r.row + rowOffset });
@@ -160,7 +174,7 @@ export default function ProductsPage() {
 
       return { total: totalSuccessful + totalFailed, successful: totalSuccessful, failed: totalFailed, results: allResults };
     },
-    [importProducts, channelSlugs, productTypeId, categoryId, warehouseId, taxClassId, upsertMode]
+    [importProducts, channelSlugs, productTypeId, categoryId, warehouseId, taxClassId, upsertMode, autoCreateAttributes, autoCreatePages, attributeDefaults]
   );
 
   const handleExport = useCallback(
@@ -238,6 +252,66 @@ export default function ProductsPage() {
           <Box display="flex" gap={4} marginBottom={4} alignItems="flex-start" __flexWrap="wrap">
             <UpsertToggle checked={upsertMode} onChange={setUpsertMode} entityLabel="products" matchDescription="match by externalReference or slug" />
             <ExcludeFieldsDropdown fields={ALL_TARGET_FIELDS} excludedFields={excludedFields} onToggle={toggleExcludeField} />
+          </Box>
+        )}
+
+        {tab === "import" && (
+          <Box marginBottom={4} padding={4} borderRadius={4} __backgroundColor="#f0f9ff" __border="1px solid #bae6fd">
+            <Text size={3} __fontWeight="600" __display="block" marginBottom={3} __color="#0369a1">
+              Dynamic Import Options
+            </Text>
+            <Box display="flex" gap={4} alignItems="center" __flexWrap="wrap" marginBottom={3}>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                <input
+                  type="checkbox"
+                  checked={autoCreateAttributes}
+                  onChange={(e) => setAutoCreateAttributes(e.target.checked)}
+                />
+                <Text size={2}>Auto-create missing attributes &amp; values</Text>
+              </label>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                <input
+                  type="checkbox"
+                  checked={autoCreatePages}
+                  onChange={(e) => setAutoCreatePages(e.target.checked)}
+                />
+                <Text size={2}>Auto-create brand/reference pages</Text>
+              </label>
+            </Box>
+            {discoveredAttrColumns.length > 0 && (
+              <Box>
+                <Text size={2} __fontWeight="500" __display="block" marginBottom={2} __color="#64748b">
+                  Attribute Defaults (used when CSV cell is empty)
+                </Text>
+                <Box display="flex" gap={3} __flexWrap="wrap">
+                  {discoveredAttrColumns.map((col) => (
+                    <Box key={col} __minWidth="180px">
+                      <Text size={1} __fontWeight="500" __display="block" marginBottom={1} __color="#475569">
+                        {col}
+                      </Text>
+                      <input
+                        type="text"
+                        value={attributeDefaults[col] || ""}
+                        onChange={(e) =>
+                          setAttributeDefaults((prev) => ({
+                            ...prev,
+                            [col]: e.target.value,
+                          }))
+                        }
+                        placeholder="Leave empty to skip"
+                        style={{
+                          width: "100%",
+                          padding: "6px 10px",
+                          border: "1px solid #d1d5db",
+                          borderRadius: "6px",
+                          fontSize: "13px",
+                        }}
+                      />
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            )}
           </Box>
         )}
 

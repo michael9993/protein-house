@@ -933,7 +933,7 @@
         "addToCartButton": "הוסף לסל",
         "buyNowButton": "קנה עכשיו",
         "outOfStockText": "אזל מהמלאי",
-        "lowStockText": "נותרו רק {count} יחידות",
+        "lowStockText": "רק {count} נותרו",
         "inStockText": "במלאי",
         "saleBadgeText": "מבצע",
         "newBadgeText": "חדש",

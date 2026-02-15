@@ -31,6 +31,7 @@ This project uses Docker Compose for local development. All services run in cont
 - **saleor-storefront** - Next.js storefront
 - **saleor-storefront-control-app** - Storefront control CMS app (6-section admin: Store/Design/Pages/Commerce/Content/Integrations; shadcn/ui + Tailwind; Cmd+K command palette; live preview)
 - **saleor-bulk-manager-app** - Bulk import/export manager (products, categories, collections, customers, orders, vouchers, gift cards via CSV/Excel)
+- **saleor-image-studio-app** - AI-powered image editor (Fabric.js canvas, 12 templates, bg removal via rembg, AI generation via Nano Banana/Gemini, upscaling via Real-ESRGAN, Sharp enhancement, save to product)
 - **saleor-stripe-app** - Stripe payment app
 - **saleor-smtp-app** - SMTP email app (handles email notifications, fulfillment, invoices, welcome emails)
 - **saleor-invoice-app** - Invoice generation app (generates PDF invoices for orders)
@@ -82,7 +83,13 @@ This project uses Docker Compose for local development. All services run in cont
    - If router/import logic changed: Restart required
    - If new entity type added: Update permissions in manifest
 
-8. **Other App changes (apps/apps/\*/)**:
+8. **Image Studio App changes (apps/apps/image-studio/)**:
+
+   - Restart `saleor-image-studio-app`
+   - If tRPC router or AI client changed: Restart required
+   - AI services (rembg, esrgan) are separate containers
+
+9. **Other App changes (apps/apps/\*/)**:
 
    - Restart the corresponding app container:
      - `saleor-stripe-app` for Stripe app
@@ -389,6 +396,37 @@ docker compose -f infra/docker-compose.dev.yml ps
 **Container**: `saleor-bulk-manager-app-dev` (port 3007)
 
 **Restart**: Use service name `saleor-bulk-manager-app` (not container name with `-dev` suffix)
+
+### Image Studio App (`apps/apps/image-studio/`)
+
+**Purpose**: AI-powered product image editor embedded in Saleor Dashboard. Full canvas editor with AI image processing for creating professional e-commerce product images.
+
+**Features**:
+
+- Canvas editor (Fabric.js v6): Add images/text/shapes, select/move/resize/rotate, undo/redo, zoom, export
+- Saleor product integration: Browse products, edit images, save back to products via GraphQL multipart upload
+- AI Background Removal: rembg Docker service (CPU), removes backgrounds to transparent PNG
+- AI Background Generation: Nano Banana / Gemini (cloud), generates scene backgrounds from text prompts
+- AI Upscaling: Real-ESRGAN Docker service (CPU), 2x/3x/4x image upscaling
+- Image Enhancement: Sharp (server-side), brightness/saturation adjustment, format conversion, resize
+- Template System: 12 built-in templates (product/social/banner/lifestyle), applies to canvas with typed layers
+- Layers panel: Drag-to-reorder, visibility toggle, lock toggle
+- Auto-save: IndexedDB (idb-keyval) with draft recovery on session start
+- Right-click context menu: Copy/paste/duplicate/delete/layer ordering
+- Keyboard shortcuts: Ctrl+Z/Y (undo/redo), Ctrl+C/V/D (copy/paste/duplicate), Ctrl+S (save), Ctrl+E (export), Del, Escape
+
+**Tech Stack**: Next.js (Pages Router), tRPC, Fabric.js v6, Sharp, idb-keyval, shadcn/ui + Tailwind
+
+**Permissions**: MANAGE_PRODUCTS
+
+**Container**: `saleor-image-studio-app-dev` (port 3008)
+
+**AI Services** (separate containers):
+- rembg: `saleor-rembg-dev` (port 7000) — Background removal, ~2GB memory
+- Real-ESRGAN: `saleor-esrgan-dev` (port 7001) — Image upscaling, ~3GB memory
+- Nano Banana / Gemini: External API (Gemini 2.5 Flash Image), requires `GEMINI_API_KEY` (free 50 req/day)
+
+**Restart**: Use service name `saleor-image-studio-app`
 
 ### Catalog Generator (`scripts/catalog-generator/`)
 
