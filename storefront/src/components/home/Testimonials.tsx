@@ -33,7 +33,6 @@ function Avatar({ src, name, backgroundColor }: { src?: string; name: string; ba
       height={40}
       className="h-full w-full object-cover"
       onError={() => setImageError(true)}
-      unoptimized={src.startsWith('http')} // Don't optimize external URLs
     />
   );
 }

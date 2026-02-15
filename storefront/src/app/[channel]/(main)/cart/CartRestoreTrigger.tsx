@@ -16,20 +16,15 @@ export function CartRestoreTrigger({ channel }: { channel: string }) {
 		// Only restore once per mount
 		if (hasRestored.current) return;
 		
-		console.log("[Cart Restore Trigger] 🔍 Checking if cart needs to be restored...");
 		restoreAndSaveUserCart(channel)
 			.then((result) => {
 				if (result.success && result.checkoutId) {
-					console.log(`[Cart Restore Trigger] ✅ Cart restored: ${result.checkoutId}`);
 					hasRestored.current = true;
-					// Revalidate the page to show the restored cart (no full reload)
 					router.refresh();
-				} else {
-					console.log(`[Cart Restore Trigger] ℹ️  No cart to restore (user has no saved cart)`);
 				}
 			})
-			.catch((error) => {
-				console.error("[Cart Restore Trigger] Cart restore failed (non-fatal):", error);
+			.catch(() => {
+				// Cart restore is best-effort
 			});
 	}, [channel, router]);
 

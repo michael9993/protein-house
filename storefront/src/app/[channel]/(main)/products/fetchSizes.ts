@@ -103,8 +103,6 @@ export async function fetchSizesForQuickFilters(channel: string): Promise<{ size
       }
     });
 
-    console.log(`[Sizes Filter] Extraction complete. Sizes map size: ${sizesMap.size}, Attribute slug: ${detectedAttributeSlug}`);
-    
     return {
       sizes: Array.from(sizesMap.values())
       .map((size) => ({

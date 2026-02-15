@@ -36,28 +36,18 @@ export async function POST(request: NextRequest) {
     // Mark channel as stale - this will trigger background refresh
     markChannelStale(channelSlug);
 
-    console.log(`[config/refresh] 🔔 Webhook received for channel "${channelSlug}"`);
-    console.log(`[config/refresh]    Version: ${body.version ?? 'N/A'}, Updated: ${body.updatedAt ?? 'N/A'}`);
-
     // Trigger immediate background refresh (non-blocking)
     refreshConfig(channelSlug)
       .then((config) => {
         if (config) {
-          console.log(`[config/refresh] ✅ Refreshed config for channel "${channelSlug}"`);
-          console.log(`[config/refresh]    Store name: ${config.store.name}`);
-          console.log(`[config/refresh]    Primary color: ${config.branding.colors.primary}`);
-          console.log(`[config/refresh]    Client-side polling will detect stale status and fetch immediately`);
-          
           // Update fallback config file in background (non-blocking)
           updateFallbackConfigFile(channelSlug, config).catch((err) => {
-            console.error(`[config/refresh] ⚠️  Failed to update fallback config file:`, err);
+            console.error(`[config/refresh] Failed to update fallback config file:`, err);
           });
-        } else {
-          console.warn(`[config/refresh] ⚠️  Config refresh returned null for channel "${channelSlug}"`);
         }
       })
       .catch((err) => {
-        console.error(`[config/refresh] ❌ Background refresh failed for channel "${channelSlug}":`, err);
+        console.error(`[config/refresh] Background refresh failed for channel "${channelSlug}":`, err);
       });
 
     return NextResponse.json({

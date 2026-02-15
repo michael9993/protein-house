@@ -20,13 +20,10 @@ export async function confirmAndLoginAction(email: string, token: string, channe
 		try {
 			decodedEmail = decodeURIComponent(email);
 			decodedToken = decodeURIComponent(token);
-		} catch (e) {
+		} catch {
 			// If decoding fails, they might already be decoded - use as-is
-			console.log("[Confirm And Login] URL decode not needed, using original values");
 		}
-		
-		console.log("[Confirm And Login] Calling Django endpoint for:", decodedEmail);
-		
+
 		// Get base URL and remove /graphql/ if present
 		let saleorApiUrl = process.env.SALEOR_API_URL || process.env.NEXT_PUBLIC_SALEOR_API_URL!;
 		saleorApiUrl = saleorApiUrl.replace(/\/+$/, "");
@@ -85,8 +82,6 @@ export async function confirmAndLoginAction(email: string, token: string, channe
 		
 		// Use the tokens to log the user in
 		if (result.token && result.refresh_token && result.csrf_token) {
-			console.log("[Confirm And Login] ✅ Account confirmed, setting tokens in cookies");
-			
 			// Set cookies manually (same pattern as OAuth callback)
 			const cookieStore = await cookies();
 			
@@ -118,8 +113,6 @@ export async function confirmAndLoginAction(email: string, token: string, channe
 				path: "/",
 				maxAge: 60 * 60 * 24 * 365, // 1 year
 			});
-			
-			console.log("[Confirm And Login] ✅ Tokens set in cookies, user logged in successfully");
 			
 			// Restore user's cart and revalidate paths (same as login action)
 			try {
@@ -166,27 +159,13 @@ export async function confirmAccountAction(email: string, token: string) {
 		try {
 			decodedEmail = decodeURIComponent(email);
 			decodedToken = decodeURIComponent(token);
-		} catch (e) {
+		} catch {
 			// If decoding fails, they might already be decoded - use as-is
-			console.log("[Confirm Account Action] URL decode not needed, using original values");
 		}
-		
-		console.log("[Confirm Account Action] Attempting confirmation:", {
-			email: decodedEmail,
-			tokenLength: decodedToken.length,
-			tokenPreview: decodedToken.substring(0, 10) + "...",
-		});
 
 		const result = await executeGraphQL(ConfirmAccountDocument, {
 			variables: { email: decodedEmail, token: decodedToken },
 			cache: "no-store",
-		});
-
-		console.log("[Confirm Account Action] GraphQL result:", {
-			hasErrors: !!result.confirmAccount?.errors,
-			errorsCount: result.confirmAccount?.errors?.length || 0,
-			hasUser: !!result.confirmAccount?.user,
-			isConfirmed: result.confirmAccount?.user?.isConfirmed,
 		});
 
 		if (result.confirmAccount?.errors && result.confirmAccount.errors.length > 0) {
@@ -216,7 +195,6 @@ export async function confirmAccountAction(email: string, token: string) {
 			};
 		}
 
-		console.log("[Confirm Account Action] ✅ Account confirmed successfully:", decodedEmail);
 		return { 
 			success: true, 
 			isConfirmed: result.confirmAccount.user.isConfirmed || false,

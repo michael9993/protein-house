@@ -22,7 +22,6 @@ export async function POST(request: NextRequest) {
     }
 
     clearChannelStale(channel);
-    console.log(`[api/config/clear-stale] ✅ Cleared stale flag for channel "${channel}"`);
 
     return NextResponse.json({
       ok: true,

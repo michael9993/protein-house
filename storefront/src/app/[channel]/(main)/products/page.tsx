@@ -408,7 +408,6 @@ async function fetchBrandsForQuickFilters(channel: string): Promise<{
     if (!apiUrl) return { brands: [], attributeSlug: null, brandSlugMap: {}, reverseBrandSlugMap: {} };
     return await fetchBrandsFromAttributes(apiUrl, channel);
   } catch (error) {
-    console.warn("Failed to fetch brands:", error);
     return { brands: [], attributeSlug: null, brandSlugMap: {}, reverseBrandSlugMap: {} };
   }
 }
@@ -639,7 +638,6 @@ async function fetchBrandsFromAttributes(
       reverseBrandSlugMap,
     };
   } catch (error) {
-    console.warn("Failed to fetch brands from attributes:", error);
     return { brands: [], attributeSlug: "brand", brandSlugMap: {}, reverseBrandSlugMap: {} };
   }
 }
@@ -803,8 +801,8 @@ export default async function Page(props: {
     try {
       const channelCurrency = await getChannelCurrency(channel);
       currencyCode = channelCurrency || "";
-    } catch (error) {
-      console.warn("Failed to fetch channel currency:", error);
+    } catch {
+      // Currency fetch is best-effort
     }
   }
 

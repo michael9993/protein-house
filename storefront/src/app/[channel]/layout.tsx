@@ -29,15 +29,6 @@ export const generateStaticParams = async () => {
 			}
 		} catch (error) {
 			console.error("[generateStaticParams] Failed to fetch channels from API:", error);
-			// If it's a timeout/network error, log a helpful message
-			if (error instanceof Error && (
-				error.message?.includes('fetch failed') ||
-				error.message?.includes('timeout') ||
-				(error.cause && (error.cause as any).code === 'ETIMEDOUT')
-			)) {
-				console.warn("[generateStaticParams] Network/timeout error detected. This may be due to unstable tunnel connection.");
-				console.warn("  Consider setting NEXT_PUBLIC_CHANNELS env variable as a fallback.");
-			}
 			// Fall through to env variable or default
 		}
 	}
@@ -72,26 +63,11 @@ async function getValidChannelSlugs(): Promise<string[]> {
 				.map((channel) => channel.slug) ?? [];
 			
 			if (validSlugs.length > 0) {
-				console.log("[Channel Validation] Valid channel slugs from API:", validSlugs);
 				return validSlugs;
 			}
 		}
 	} catch (error) {
 		console.error("[Channel Validation] Failed to fetch channels from API:", error);
-		if (error instanceof Error) {
-			// If it's a permission error, suggest using env variable
-			if (error.message.includes("AUTHENTICATED_APP") || error.message.includes("AUTHENTICATED_STAFF_USER")) {
-				console.warn("[Channel Validation] Permission error detected. Falling back to env variable or default.");
-				console.warn("  To fix: Grant AUTHENTICATED_APP permission to your app token in Saleor");
-			}
-			// If it's a timeout/network error, log a helpful message
-			if (error.message?.includes('fetch failed') || 
-				error.message?.includes('timeout') ||
-				(error.cause && (error.cause as any).code === 'ETIMEDOUT')) {
-				console.warn("[Channel Validation] Network/timeout error detected. This may be due to unstable tunnel connection.");
-				console.warn("  Consider setting NEXT_PUBLIC_CHANNELS env variable as a fallback.");
-			}
-		}
 		// Fall through to env variable or default
 	}
 	
@@ -101,12 +77,10 @@ async function getValidChannelSlugs(): Promise<string[]> {
 	// Check if env variable is explicitly set (not just the default)
 	const envChannelsEnv = process.env.NEXT_PUBLIC_CHANNELS;
 	if (envChannelsEnv && envChannelsEnv.trim().length > 0) {
-		console.log("[Channel Validation] Using channels from NEXT_PUBLIC_CHANNELS env:", envChannels);
 		return envChannels;
 	}
-	
+
 	// Final fallback: use default channel
-	console.warn("[Channel Validation] No channels found, using DefaultChannelSlug");
 	return [DefaultChannelSlug];
 }
 
@@ -130,5 +104,21 @@ export default async function ChannelLayout({
 		redirect(`/${defaultChannel}`);
 	}
 	
-	return children;
+	// Map channel to locale/direction for SEO and screen readers
+	// This runs as an inline script before React hydrates to avoid flash
+	const RTL_CHANNELS = ["default-channel", "ils"];
+	const isRtl = RTL_CHANNELS.includes(channel);
+	const lang = isRtl ? "he" : "en";
+	const dir = isRtl ? "rtl" : "ltr";
+
+	return (
+		<>
+			<script
+				dangerouslySetInnerHTML={{
+					__html: `document.documentElement.lang="${lang}";document.documentElement.dir="${dir}";`,
+				}}
+			/>
+			{children}
+		</>
+	);
 }

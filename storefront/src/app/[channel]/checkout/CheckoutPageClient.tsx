@@ -109,7 +109,6 @@ export function CheckoutPageClient({ saleorApiUrl, isOrderConfirmation, channel,
 								width={120}
 								height={32}
 								className="h-8 w-auto"
-								unoptimized
 							/>
 						) : (
 							<>

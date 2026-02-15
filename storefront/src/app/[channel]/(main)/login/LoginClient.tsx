@@ -57,9 +57,8 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 					sessionStorage.setItem(`pending_confirmation_${normalizedEmail}`, password);
 					// Also store with original email (in case it's used as-is)
 					sessionStorage.setItem(`pending_confirmation_${email}`, password);
-					console.log("[Register] ✅ Stored password temporarily for auto-login after confirmation");
-				} catch (e) {
-					console.warn("[Register] Could not store password in sessionStorage:", e);
+				} catch {
+					// sessionStorage not available
 				}
 			}
 		}

@@ -105,8 +105,6 @@ export async function fetchColorsForQuickFilters(channel: string): Promise<{
       }
     });
 
-    console.log(`[Colors Filter] Extraction complete. Colors map size: ${colorsMap.size}, Attribute slug: ${detectedAttributeSlug}`);
-    
     return {
       colors: Array.from(colorsMap.values())
         .map((color) => ({

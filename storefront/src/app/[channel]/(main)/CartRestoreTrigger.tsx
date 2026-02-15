@@ -15,20 +15,9 @@ export function CartRestoreTrigger({ channel }: { channel: string }) {
 
 	useEffect(() => {
 		if (restoreCart) {
-			console.log("[Cart Restore Trigger] 🔍 Restore cart parameter detected, restoring user cart...");
-			restoreAndSaveUserCart(channel)
-				.then((result) => {
-					if (result.success && result.checkoutId) {
-						console.log(`[Cart Restore Trigger] ✅ Cart restored: ${result.checkoutId}`);
-						// Optionally redirect to remove the query param
-						// window.history.replaceState({}, "", window.location.pathname);
-					} else {
-						console.log(`[Cart Restore Trigger] ℹ️  No cart to restore (user has no saved cart)`);
-					}
-				})
-				.catch((error) => {
-					console.error("[Cart Restore Trigger] Cart restore failed (non-fatal):", error);
-				});
+			restoreAndSaveUserCart(channel).catch(() => {
+				// Cart restore is best-effort
+			});
 		}
 	}, [restoreCart, channel]);
 

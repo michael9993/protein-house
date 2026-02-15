@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 		if (webhookSecret) {
 			const signature = request.headers.get("saleor-signature") || request.headers.get("x-saleor-signature") || "";
 			if (!signature) {
-				console.warn("[Auto-Confirm Webhook] Missing signature header");
+				console.error("[Auto-Confirm Webhook] Missing signature header");
 				return NextResponse.json({ error: "Missing signature" }, { status: 401 });
 			}
 
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
 				.join("");
 
 			if (signature !== expectedSignature) {
-				console.warn("[Auto-Confirm Webhook] Invalid signature");
+				console.error("[Auto-Confirm Webhook] Invalid signature");
 				return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
 			}
 		}
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
 		const token = payload.data?.token;
 		
 		if (!user || !token) {
-			console.warn("[Auto-Confirm Webhook] Missing user or token data");
+			console.error("[Auto-Confirm Webhook] Missing user or token data");
 			return NextResponse.json({ error: "Missing required data" }, { status: 400 });
 		}
 
@@ -68,11 +68,6 @@ export async function POST(request: NextRequest) {
 		if (!email) {
 			return NextResponse.json({ error: "Missing email" }, { status: 400 });
 		}
-
-		// Check if this is an OAuth user (you can add metadata check here)
-		// For now, we'll auto-confirm all users
-		// In production, you might want to check user metadata to only confirm OAuth users
-		console.log(`[Auto-Confirm Webhook] Auto-confirming user: ${email}`);
 
 		// Use the token from the webhook to confirm the account
 		const apiUrl = process.env.SALEOR_API_URL || process.env.NEXT_PUBLIC_SALEOR_API_URL!;
@@ -113,7 +108,6 @@ export async function POST(request: NextRequest) {
 		}
 
 		const isConfirmed = confirmResult.data?.confirmAccount?.user?.isConfirmed;
-		console.log(`[Auto-Confirm Webhook] Account confirmed successfully: ${email} (Confirmed: ${isConfirmed})`);
 
 		return NextResponse.json({ 
 			message: "Account auto-confirmed successfully",

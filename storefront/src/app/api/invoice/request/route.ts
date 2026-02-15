@@ -26,10 +26,6 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		console.log("Requesting invoice generation for order:", orderId);
-		console.log("Invoices app internal URL:", INVOICES_APP_INTERNAL_URL);
-		console.log("Invoices app public URL:", INVOICES_APP_PUBLIC_URL);
-
 		// Call the invoices app directly to generate the invoice (using internal URL)
 		const response = await fetch(`${INVOICES_APP_INTERNAL_URL}/api/invoices/generate`, {
 			method: "POST",
@@ -40,7 +36,6 @@ export async function POST(request: NextRequest) {
 		});
 
 		const data = (await response.json()) as { success?: boolean; message?: string; invoice?: { id?: string; number?: string } };
-		console.log("Invoice generation response:", data);
 
 		if (!response.ok) {
 			return NextResponse.json(

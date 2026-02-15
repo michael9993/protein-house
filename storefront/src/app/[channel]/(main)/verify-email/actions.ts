@@ -7,8 +7,6 @@
  */
 export async function resendConfirmationEmail(email: string, channel: string) {
 	try {
-		console.log("[Resend Confirmation Email] Starting resend process for:", email);
-		
 		// Get base URL and remove /graphql/ if present (since this is a custom endpoint, not GraphQL)
 		let saleorApiUrl = process.env.SALEOR_API_URL || process.env.NEXT_PUBLIC_SALEOR_API_URL!;
 		// Remove trailing slashes
@@ -20,8 +18,6 @@ export async function resendConfirmationEmail(email: string, channel: string) {
 		
 		const endpointUrl = `${saleorApiUrl}/resend-confirmation-email/`;
 		const redirectUrl = `${process.env.NEXT_PUBLIC_STOREFRONT_URL || "http://localhost:3001"}/${channel}/confirm-email`;
-		
-		console.log("[Resend Confirmation Email] Calling Django endpoint:", endpointUrl);
 		
 		const response = await fetch(endpointUrl, {
 			method: "POST",
@@ -74,7 +70,6 @@ export async function resendConfirmationEmail(email: string, channel: string) {
 			};
 		}
 		
-		console.log("[Resend Confirmation Email] ✅ Success:", result.message);
 		return {
 			success: true,
 			message: result.message || "Confirmation email has been sent.",

@@ -208,32 +208,19 @@ export async function registerAction(formData: FormData) {
 					const { getCurrentUser } = await import("@/app/actions");
 					const currentUser = await getCurrentUser();
 					
-					console.log("[Register] Login result and user check:", {
-						hasToken: !!loginResult.data.tokenCreate.token,
-						hasCurrentUser: !!currentUser,
-						currentUserId: currentUser?.id,
-						currentUserEmail: currentUser?.email,
-						isConfirmed: currentUser?.isConfirmed,
-					});
-					
 					if (currentUser?.isConfirmed) {
 						// User already exists and is confirmed - this was a duplicate registration attempt
-						console.warn("[Register] ❌ User already exists and is confirmed:", email);
 						return { 
 							error: errorMessages.registerAccountExistsError,
 						};
 					}
 					
-					// User exists but not confirmed - this is fine, they can resend email
-					console.log("[Register] ✅ Auto-login successful - user can now resend confirmation email (user not confirmed yet)");
 				}
 			} catch (loginError) {
 				// If login fails, it could mean:
 				// 1. allow_login_without_confirmation is false (expected)
 				// 2. User already exists but password is wrong (user enumeration protection - don't reveal)
 				// 3. User doesn't exist (new registration - this is fine)
-				console.log("[Register] Auto-login failed (expected if allow_login_without_confirmation is false or user doesn't exist):", loginError);
-				
 				// Check if login failed due to wrong password for existing user
 				// This helps detect the case where someone tries to register with existing email but wrong password
 				// We still don't reveal if the email exists, but we can provide a helpful message
@@ -242,14 +229,13 @@ export async function registerAction(formData: FormData) {
 					// Login failed - could be wrong password for existing user
 					// For security, we don't reveal if email exists, but we should still allow the flow
 					// The user will get an error when they try to confirm (if account already exists and is confirmed)
-					console.log("[Register] Login failed - may be wrong password for existing user, but continuing registration flow for security");
 				}
 			}
 			
 			// Auto-add user to newsletter subscriber list as inactive (can activate in settings or via homepage/footer)
-			subscribeToNewsletterInactive(email, channel).catch((err) =>
-				console.warn("[Register] Newsletter inactive subscribe failed (non-fatal):", err)
-			);
+			subscribeToNewsletterInactive(email, channel).catch(() => {
+				// Newsletter subscribe is best-effort
+			});
 
 			// Return success with email - password will be stored on client side
 			return { 
@@ -260,9 +246,9 @@ export async function registerAction(formData: FormData) {
 		}
 
 		// Auto-add user to newsletter subscriber list as inactive (can activate in settings or via homepage/footer)
-		subscribeToNewsletterInactive(email, channel).catch((err) =>
-			console.warn("[Register] Newsletter inactive subscribe failed (non-fatal):", err)
-		);
+		subscribeToNewsletterInactive(email, channel).catch(() => {
+			// Newsletter subscribe is best-effort
+		});
 
 		// If no confirmation required, auto-login (backwards compatibility)
 		const authClient = await getServerAuthClient();
@@ -276,7 +262,6 @@ export async function registerAction(formData: FormData) {
 			
 			if (currentUser?.isConfirmed) {
 				// User already exists and is confirmed - this was a duplicate registration attempt
-				console.warn("[Register] User already exists and is confirmed:", email);
 				return { 
 					error: "An account with this email already exists. Please sign in instead.",
 				};
@@ -286,7 +271,6 @@ export async function registerAction(formData: FormData) {
 			// For security, we don't reveal which case it is
 			// But if registration "succeeded" but login fails, it's suspicious
 			// This might indicate the user already exists with a different password
-			console.warn("[Register] Registration succeeded but login failed - user may already exist");
 			// Still return success - Saleor doesn't reveal if user exists, so we shouldn't either
 		}
 

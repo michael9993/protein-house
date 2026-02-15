@@ -298,7 +298,6 @@ export function FooterClient({ menuItems, channel }: FooterClientPropsWithChanne
 											height={32}
 											className="h-8 w-auto object-contain"
 											onError={() => setImageError(true)}
-											unoptimized
 										/>
 									) : (
 										<img

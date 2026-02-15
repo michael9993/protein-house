@@ -131,7 +131,6 @@ export function TrackOrderClient({ channel }: TrackOrderClientProps) {
 								width={80}
 								height={80}
 								className="h-20 w-auto object-contain"
-								unoptimized
 							/>
 						) : (
 							<img

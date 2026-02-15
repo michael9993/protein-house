@@ -19,8 +19,6 @@ export const metadata = {
 export default async function Page(props: { params: Promise<{ channel: string }> }) {
 	const params = await props.params;
 	
-	console.log(`[Cart Page] 🔍 Loading cart page for channel: ${params.channel}`);
-	
 	// Use resolveCheckout which handles:
 	// - Restoring user's saved checkout on login
 	// - Finding existing session checkout
@@ -36,8 +34,6 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 			checkout = await Checkout.find(checkout.id, { channel: params.channel, skipOwnershipCheck: true }) ?? checkout;
 		}
 	}
-
-	console.log(`[Cart Page] ✅ Checkout resolved: ${checkout?.id || "none"}, items: ${checkout?.lines?.length || 0}`);
 
 	// Server action for deleting lines (including gift lines)
 	async function deleteLineAction(lineId: string, productSlug?: string) {

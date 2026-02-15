@@ -24,9 +24,6 @@ export async function getOAuthUrl(
 		// Remove any existing query parameters - Google requires exact redirect_uri match
 		storefrontCallbackUrl.search = "";
 		
-		console.log("[OAuth] Storefront callback URL (for OAuth redirect_uri):", storefrontCallbackUrl.toString());
-		console.log("[OAuth] Final redirect URL (will be stored in state):", finalRedirectUrl);
-		
 		// Pass storefront callback URL WITHOUT query params as redirectUri
 		// The finalRedirectUrl will be handled by the callback page after OAuth completes
 		const input = JSON.stringify({
@@ -42,9 +39,6 @@ export async function getOAuthUrl(
 			cache: "no-store",
 		});
 
-		// Debug: Log the full result
-		console.log("[OAuth] Full GraphQL result:", JSON.stringify(result, null, 2));
-
 		if (result.externalAuthenticationUrl?.errors && result.externalAuthenticationUrl.errors.length > 0) {
 			const errorMessage = result.externalAuthenticationUrl.errors[0]?.message || "Failed to get OAuth URL";
 			console.error("[OAuth] GraphQL errors:", result.externalAuthenticationUrl.errors);
@@ -54,11 +48,6 @@ export async function getOAuthUrl(
 		// Extract the authentication URL from the response
 		// The authenticationData is a JSONString (string | null) that needs to be parsed
 		const authDataRaw = result.externalAuthenticationUrl?.authenticationData;
-		
-		// Debug logging
-		console.log("[OAuth] Raw authenticationData:", authDataRaw);
-		console.log("[OAuth] Type of authenticationData:", typeof authDataRaw);
-		console.log("[OAuth] Full result.externalAuthenticationUrl:", result.externalAuthenticationUrl);
 		
 		if (!authDataRaw) {
 			console.error("[OAuth] No authenticationData in response. Full result:", JSON.stringify(result, null, 2));
@@ -71,7 +60,6 @@ export async function getOAuthUrl(
 			if (typeof authDataRaw === "string") {
 				// Parse as JSON string
 				authData = JSON.parse(authDataRaw) as { authorizationUrl?: string };
-				console.log("[OAuth] Parsed JSON string to object:", authData);
 			} else {
 				// Should not happen, but handle gracefully
 				console.error("[OAuth] Unexpected authenticationData type (expected string):", typeof authDataRaw, authDataRaw);
@@ -91,7 +79,6 @@ export async function getOAuthUrl(
 			return { error: "No authentication URL received from server. Check plugin configuration." };
 		}
 
-		console.log("[OAuth] Successfully extracted authorizationUrl:", authUrl);
 		return { url: authUrl };
 	} catch (error) {
 		console.error("[OAuth] Error getting OAuth URL:", error);
@@ -130,8 +117,6 @@ export async function handleOAuthCallback(
 			withAuth: false, // Initial token exchange doesn't require auth
 			cache: "no-store",
 		});
-
-		console.log("[OAuth] externalObtainAccessTokens result:", JSON.stringify(result, null, 2));
 
 		if (result.externalObtainAccessTokens?.errors && result.externalObtainAccessTokens.errors.length > 0) {
 			const errorMessage = result.externalObtainAccessTokens.errors[0]?.message || "OAuth authentication failed";

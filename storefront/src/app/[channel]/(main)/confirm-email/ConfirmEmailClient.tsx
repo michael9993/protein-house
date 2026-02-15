@@ -85,9 +85,8 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 		try {
 			decodedEmail = decodeURIComponent(confirmEmail);
 			decodedToken = decodeURIComponent(confirmToken);
-		} catch (e) {
+		} catch {
 			// If decoding fails, they might already be decoded - use as-is
-			console.log("[Confirm Email Client] URL decode not needed, using original values");
 		}
 
 		setStatus("loading");
@@ -97,8 +96,6 @@ export function ConfirmEmailClient({ channel, email: initialEmail, token: initia
 			// Use the new confirm-and-login action that automatically logs the user in
 			const { confirmAndLoginAction } = await import("./actions");
 			const result = await confirmAndLoginAction(decodedEmail, decodedToken, channel);
-
-			console.log("[Confirm Email] Result:", { success: result.success, error: result.error });
 
 			if (!result.success) {
 				setStatus("error");

@@ -190,7 +190,6 @@ export function ContactPage() {
                       height={120}
                       className="h-20 w-auto object-contain"
                       onError={() => setImageError(true)}
-                      unoptimized
                     />
                   ) : (
                     <img

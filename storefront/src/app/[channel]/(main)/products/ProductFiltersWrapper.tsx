@@ -60,19 +60,10 @@ export function ProductFiltersWrapper({
     !initialCategories || !initialCollections || !initialBrands || !initialSizes || !initialColors
   );
 
-  console.log("[Brands Filter] Component initialized with:", {
-    initialBrands: initialBrands?.length || 0,
-    brands: brands.length,
-    initialSizes: initialSizes?.length || 0,
-    sizes: sizes.length,
-    loading
-  });
-
   // Fetch ALL filter data (not filtered by current selection)
   useEffect(() => {
     // If we have initial data, use it and only fetch what's missing
     if (initialCategories && initialCollections && initialBrands && initialSizes && initialColors) {
-      console.log("[Brands Filter] Using initial data, skipping fetch");
       setLoading(false);
       return;
     }
@@ -81,7 +72,6 @@ export function ProductFiltersWrapper({
       try {
         const apiUrl = process.env.NEXT_PUBLIC_SALEOR_API_URL;
         if (!apiUrl) {
-          console.warn("NEXT_PUBLIC_SALEOR_API_URL not set");
           setLoading(false);
           return;
         }
@@ -100,9 +90,6 @@ export function ProductFiltersWrapper({
         setBrands(brandsData);
         setSizes(sizesData);
         setColors(colorsData);
-        console.log("[Brands Filter] Final brands state:", brandsData.length, brandsData.map(b => b.name));
-        console.log("[Sizes Filter] Final sizes state:", sizesData.length, sizesData.map(s => s.name));
-        console.log("[Colors Filter] Final colors state:", colorsData.length, colorsData.map(c => c.name));
       } catch (error) {
         console.error("Failed to fetch filter data:", error);
       } finally {
@@ -268,8 +255,7 @@ async function fetchCategories(apiUrl: string, channel: string): Promise<Categor
     }
 
     return data.categories.edges.map((edge: any) => mapNode(edge.node));
-  } catch (error) {
-    console.warn("Failed to fetch categories:", error);
+  } catch {
     return [];
   }
 }
@@ -312,8 +298,7 @@ async function fetchCollections(apiUrl: string, channel: string): Promise<Collec
         productCount: edge.node.products?.totalCount || 0,
       }))
       .filter((c: Collection) => (c.productCount ?? 0) > 0);
-  } catch (error) {
-    console.warn("Failed to fetch collections:", error);
+  } catch {
     return [];
   }
 }
@@ -401,8 +386,7 @@ async function fetchBrands(apiUrl: string, channel: string): Promise<Brand[]> {
 
     // Fallback: extract from product attributes (legacy approach)
     return await fetchBrandsFromAttributes(apiUrl, channel);
-  } catch (error) {
-    console.warn("Failed to fetch brands from product.brand field, trying attributes:", error);
+  } catch {
     // Fallback to attribute-based approach
     return await fetchBrandsFromAttributes(apiUrl, channel);
   }
@@ -454,49 +438,25 @@ async function fetchBrandsFromAttributes(apiUrl: string, channel: string): Promi
     }
 
     const responseData = await response.json() as any;
-    console.log("[Brands Filter] Full response:", JSON.stringify(responseData, null, 2));
-    
+
     if (responseData.errors) {
       console.error("[Brands Filter] GraphQL errors:", responseData.errors);
       return [];
     }
     
     const { data } = responseData;
-    console.log("[Brands Filter] Attributes query data:", JSON.stringify(data, null, 2));
-    
-    if (!data) {
-      console.warn("[Brands Filter] No data in response");
-      return [];
-    }
-    
-    if (!data.products) {
-      console.warn("[Brands Filter] No products field in data");
-      return [];
-    }
-    
-    if (!data.products.edges || data.products.edges.length === 0) {
-      console.warn("[Brands Filter] No products found in response (empty edges array)");
-      return [];
-    }
 
-    console.log(`[Brands Filter] Processing ${data.products.edges.length} products for brand extraction`);
+    if (!data?.products?.edges?.length) {
+      return [];
+    }
 
     // Extract unique brands from products
     const brandsMap = new Map<string, { name: string; slug: string; count: number }>();
 
-    data.products.edges.forEach((edge: any, index: number) => {
+    data.products.edges.forEach((edge: any) => {
       const product = edge.node;
       if (!product.attributes || !Array.isArray(product.attributes)) {
-        if (index < 3) console.log(`[Brands Filter] Product ${index}: No attributes`, product.name);
         return;
-      }
-
-      if (index < 3) {
-        console.log(`[Brands Filter] Product ${index} (${product.name}) attributes:`, product.attributes.map((a: any) => ({
-          attrName: a.attribute?.name,
-          attrSlug: a.attribute?.slug,
-          values: a.values?.map((v: any) => ({ name: v.name, slug: v.slug }))
-        })));
       }
 
       const brandAttr = product.attributes.find((attr: any) => {
@@ -504,10 +464,6 @@ async function fetchBrandsFromAttributes(apiUrl: string, channel: string): Promi
         const attrSlug = attr?.attribute?.slug?.toLowerCase()?.trim();
         return attrName === "brand" || attrSlug === "brand" || attrSlug === "manufacturer";
       });
-
-      if (brandAttr && index < 3) {
-        console.log(`[Brands Filter] Product ${index}: Found brand attribute:`, brandAttr);
-      }
 
       // Handle all brand values (some products might have multiple brand values)
       const brandValues = brandAttr?.values || [];
@@ -523,18 +479,11 @@ async function fetchBrandsFromAttributes(apiUrl: string, channel: string): Promi
             if (dedupKey) {
               if (!brandsMap.has(dedupKey)) {
                 brandsMap.set(dedupKey, { name: brandName.trim(), slug: brandSlug, count: 0 });
-                console.log(`[Brands Filter] Added new brand: ${brandName} (slug: ${brandSlug})`);
               }
               brandsMap.get(dedupKey)!.count++;
-            } else {
-              console.warn(`[Brands Filter] Skipping brand with no slug:`, value);
             }
-          } else {
-            console.warn(`[Brands Filter] Skipping invalid brand value:`, value);
           }
         });
-      } else if (brandAttr && index < 3) {
-        console.log(`[Brands Filter] Product ${index}: Brand attribute found but no values`);
       }
     });
 
@@ -547,17 +496,6 @@ async function fetchBrandsFromAttributes(apiUrl: string, channel: string): Promi
         productCount: brand.count,
       }))
       .sort((a, b) => (b.productCount || 0) - (a.productCount || 0));
-
-    // Debug logging
-    console.log(`[Brands Filter] Extraction complete. Brands map size: ${brandsMap.size}`);
-    if (brands.length > 0) {
-      console.log(`[Brands Filter] ✅ Found ${brands.length} brands:`, brands.map(b => `${b.name} (${b.slug}) - ${b.productCount} products`));
-    } else {
-      console.warn("[Brands Filter] ❌ No brands found. Products checked:", data.products.edges.length);
-      if (data.products.edges.length > 0) {
-        console.warn("[Brands Filter] Sample product attributes:", JSON.stringify(data.products.edges[0]?.node?.attributes, null, 2));
-      }
-    }
 
     return brands;
   } catch (error) {
@@ -753,8 +691,6 @@ async function fetchSizes(apiUrl: string, channel: string): Promise<Size[]> {
       }
     });
 
-    console.log(`[Sizes Filter] Extraction complete. Sizes map size: ${sizesMap.size}`);
-    
     return Array.from(sizesMap.values())
       .map((size) => ({
         id: size.id,

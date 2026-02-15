@@ -57,7 +57,6 @@ export const Logo = () => {
 						height={32}
 						className="h-8 w-auto object-contain"
 						onError={() => setImageError(true)}
-						unoptimized // Allow external images
 					/>
 				);
 			}

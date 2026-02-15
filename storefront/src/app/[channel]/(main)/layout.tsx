@@ -138,15 +138,7 @@ export default async function RootLayout(props: {
 	]);
 	const isLoggedIn = !!userResult?.me;
 
-	// Debug logging to verify config is loaded
-	console.log(`[RootLayout] 📦 Config loaded for channel "${channel}":`);
-	console.log(`[RootLayout]    Store name: ${storeConfig.store.name}`);
-	console.log(`[RootLayout]    Store tagline: ${storeConfig.store.tagline}`);
-	console.log(`[RootLayout]    Primary color: ${storeConfig.branding.colors.primary}`);
-	console.log(`[RootLayout]    Direction: ${storeConfig.localization?.direction || "auto"}`);
-	console.log(`[RootLayout]    Default locale: ${storeConfig.localization?.defaultLocale || "en-US"}`);
-
-	// Resolve direction server-side (for blocking script and logging)
+	// Resolve direction server-side
 	const resolvedDirection = resolveDirection(storeConfig);
 	const resolvedLocale = storeConfig.localization?.defaultLocale || 'en-US';
 
@@ -171,7 +163,7 @@ export default async function RootLayout(props: {
 				<ConfigSync channel={channel} />
 				<Header channel={channel} navData={navData} isLoggedIn={isLoggedIn} />
 			<div className="flex min-h-[calc(100dvh-64px)] flex-col pb-16 md:pb-0">
-				<main className="flex-1">
+				<main id="main-content" className="flex-1">
 					<PageTransition>
 						{props.children}
 					</PageTransition>

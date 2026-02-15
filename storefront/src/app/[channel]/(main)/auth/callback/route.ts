@@ -51,10 +51,6 @@ export async function GET(
 		const finalRedirectPath = redirectPath.startsWith("/") ? redirectPath : `/${redirectPath}`;
 		const redirectUrl = `${baseUrl}${finalRedirectPath}`;
 		
-		console.log("[OAuth Callback] Redirect URL:", redirectUrl);
-		console.log("[OAuth Callback] Host header:", host);
-		console.log("[OAuth Callback] Request URL:", request.url);
-		
 		// Use Saleor auth SDK to store tokens properly
 		// The SDK handles cookie naming with API URL prefix
 		if (result.token) {
@@ -115,18 +111,6 @@ export async function GET(
 					maxAge: 60 * 60 * 24 * 365, // 1 year
 				});
 			}
-			
-			console.log("[OAuth Callback] ✅ Cookies set using Next.js cookies.set() (same as normal login)");
-			console.log("[OAuth Callback] Cookie prefix:", cookiePrefix);
-			console.log("[OAuth Callback] Cookie names:", {
-				accessToken: `${cookiePrefix}/+saleor_auth_access_token`,
-				authState: `${cookiePrefix}/+saleor_auth_module_auth_state`,
-				refreshToken: result.refreshToken ? `${cookiePrefix}/+saleor_auth_module_refresh_token` : "none",
-			});
-			console.log("[OAuth Callback] Token received:", result.token ? "YES" : "NO");
-			console.log("[OAuth Callback] Token length:", result.token?.length || 0);
-			console.log("[OAuth Callback] Cart restore will happen on next page load (after cookies are set)");
-			console.log("[OAuth Callback] Redirect URL:", finalRedirectUrl);
 			
 			return response;
 		}

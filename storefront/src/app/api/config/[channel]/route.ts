@@ -32,7 +32,6 @@ export async function GET(
     
     if (force) {
       // Force refresh from storefront-control app
-      console.log(`[api/config] 🔄 Force refreshing config for channel "${channel}"`);
       const refreshed = await refreshConfig(channel);
       if (refreshed) {
         config = refreshed;

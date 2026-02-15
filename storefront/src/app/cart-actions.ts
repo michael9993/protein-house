@@ -184,7 +184,7 @@ export async function createCheckoutWithItemsAction(
         if (voucherCode?.trim()) {
             const applied = await Checkout.applyPromoCode(newCheckoutId, voucherCode.trim());
             if (!applied.success) {
-                console.warn("[Create Checkout With Items] Could not apply voucher:", applied.errors);
+                console.error("[Create Checkout With Items] Could not apply voucher:", applied.errors);
             }
         } else {
             await Checkout.applyAutoVouchers(newCheckoutId, channel);

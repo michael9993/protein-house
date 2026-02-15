@@ -85,7 +85,6 @@ export function BrandGrid({ brands, channel }: BrandGridProps) {
                         width={120}
                         height={60}
                         className="max-h-14 w-auto object-contain opacity-70 transition-all duration-300 group-hover:opacity-100 group-hover:scale-105 sm:max-h-16"
-                        unoptimized
                       />
                     ) : (
                       <span className="text-xl font-black uppercase tracking-tight text-neutral-800 transition-colors group-hover:text-neutral-950 sm:text-2xl">

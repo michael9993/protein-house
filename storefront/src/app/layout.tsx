@@ -78,9 +78,14 @@ export default function RootLayout(props: { children: ReactNode }) {
 	// We don't set dir here to avoid conflicts with dynamic CMS config
 
 	return (
-		<html lang="en" className="min-h-dvh">
+		<html lang="en" dir="ltr" className="min-h-dvh" suppressHydrationWarning>
 			<body className={`${fontVariables} ${inter.className} min-h-dvh`}>
-				{/* Note: StoreConfigProvider and WishlistProvider are in channel layout for per-channel data */}
+				<a
+					href="#main-content"
+					className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-neutral-900 focus:shadow-lg focus:ring-2 focus:ring-neutral-900"
+				>
+					Skip to main content
+				</a>
 				<ToastProvider>
 					{children}
 					<ToastContainer />
