@@ -1,7 +1,6 @@
 packages:
   - apps/*
   - packages/*
-  - templates/*
 onlyBuiltDependencies:
   - "@sentry/cli"
   - core-js

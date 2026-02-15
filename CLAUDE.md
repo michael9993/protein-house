@@ -62,6 +62,7 @@ docker compose -f infra/docker-compose.dev.yml ps    # Verify health
 | `saleor-newsletter-app-dev` | 3005 | Newsletter management |
 | `saleor-sales-analytics-app-dev` | 3006 | Sales analytics |
 | `saleor-bulk-manager-app-dev` | 3007 | Bulk import/export manager |
+| `saleor-image-studio-app-dev` | 3008 | AI-powered image editor |
 | `saleor-postgres-dev` | 5432 | PostgreSQL database |
 | `saleor-redis-dev` | 6379 | Redis cache/broker |
 
@@ -151,6 +152,7 @@ docker exec saleor-postgres-dev pg_dump -U saleor saleor > backup.sql  # Backup
 | `apps/apps/newsletter/` | `saleor-newsletter-app-dev` |
 | `apps/apps/sales-analytics/` | `saleor-sales-analytics-app-dev` |
 | `apps/apps/bulk-manager/` | `saleor-bulk-manager-app-dev` |
+| `apps/apps/image-studio/` | `saleor-image-studio-app-dev` |
 
 ```bash
 docker compose -f infra/docker-compose.dev.yml restart <container-name>
@@ -441,8 +443,7 @@ These skills MUST be invoked (via the Skill tool) at the start of the correspond
 | smtp | `saleor-smtp-app-dev` | 3001 | Email delivery (fulfillment, invoices, welcome) |
 | invoices | `saleor-invoice-app-dev` | 3003 | PDF invoice generation |
 | bulk-manager | `saleor-bulk-manager-app-dev` | 3007 | CSV/Excel bulk import/export/delete for products, categories, collections, customers, orders, vouchers, gift cards |
-
-Also in apps monorepo but not Dockerized locally: avatax, search (Algolia), klaviyo, cms, segment.
+| image-studio | `saleor-image-studio-app-dev` | 3008 | AI-powered image editor with canvas, templates, bg removal, generation, upscaling |
 
 ## Catalog Generator & Store Infrastructure (`scripts/catalog-generator/`)
 
