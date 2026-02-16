@@ -118,7 +118,9 @@
       "mcp__plugin_playwright_playwright__browser_resize",
       "mcp__plugin_playwright_playwright__browser_close",
       "WebFetch(domain:zustand.docs.pmnd.rs)",
-      "WebFetch(domain:newreleases.io)"
+      "WebFetch(domain:newreleases.io)",
+      "WebFetch(domain:www.apollographql.com)",
+      "WebFetch(domain:the-guild.dev)"
     ],
     "deny": [
       "Read(./.env*)",

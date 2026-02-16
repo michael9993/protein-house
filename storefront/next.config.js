@@ -6,6 +6,7 @@
  */
 import path from "path";
 import { fileURLToPath } from "url";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -59,4 +60,22 @@ const config = {
 			  : undefined,
 };
 
-export default config;
+export default withSentryConfig(config, {
+	// Suppress source map upload logs except in CI
+	silent: !process.env.CI,
+
+	// Route browser Sentry requests through Next.js server to avoid ad-blockers
+	tunnelRoute: "/monitoring",
+
+	// Tree-shake Sentry debug logs in production
+	webpack: {
+		treeshake: {
+			removeDebugLogging: true,
+		},
+	},
+
+	// Disable source map upload (no SENTRY_AUTH_TOKEN configured yet)
+	sourcemaps: {
+		disable: !process.env.SENTRY_AUTH_TOKEN,
+	},
+});

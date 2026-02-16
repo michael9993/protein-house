@@ -162,3 +162,14 @@ INVOICE_APP_URL=http://localhost:3003
 # Manages: theme, features, homepage sections, filters, quickFilters, SEO
 STOREFRONT_CONTROL_APP_PORT=3004
 STOREFRONT_CONTROL_APP_URL=http://localhost:3004
+
+# ============================================================================
+# SENTRY ERROR MONITORING (Optional)
+# ============================================================================
+# Get your DSN from https://sentry.io → Project Settings → Client Keys
+# Free tier: 5,000 errors/month, 10,000 transactions/month
+SENTRY_DSN=
+NEXT_PUBLIC_SENTRY_DSN=
+# Auth token for source map uploads (optional, improves stack traces)
+# Generate at: https://sentry.io/settings/auth-tokens/
+SENTRY_AUTH_TOKEN=

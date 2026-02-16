@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useContext } from "react";
+import * as Sentry from "@sentry/nextjs";
 import { StoreConfigContext } from "@/providers/StoreConfigProvider";
 import { storeConfig } from "@/config";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
@@ -39,6 +40,7 @@ export default function ChannelError({
     (errorText as Record<string, string>).errorCode || "Error";
 
   useEffect(() => {
+    Sentry.captureException(error);
     console.error("Application error:", error);
   }, [error]);
 

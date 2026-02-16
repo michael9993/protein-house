@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useContext } from "react";
+import * as Sentry from "@sentry/nextjs";
 import Link from "next/link";
 import { StoreConfigContext } from "@/providers/StoreConfigProvider";
 import { storeConfig } from "@/config";
@@ -33,6 +34,7 @@ export default function Error({
     (errorText as Record<string, string>).errorCode || "Error";
 
   useEffect(() => {
+    Sentry.captureException(error);
     console.error("Application error:", error);
   }, [error]);
 
