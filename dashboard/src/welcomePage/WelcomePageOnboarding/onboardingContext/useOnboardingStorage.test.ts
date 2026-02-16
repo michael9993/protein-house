@@ -1,7 +1,7 @@
 import { useUser } from "@dashboard/auth";
 import { useSaveOnBoardingStateMutation } from "@dashboard/graphql";
 import { act } from "@testing-library/react";
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook } from "@testing-library/react";
 
 import { OnboardingStepsIDs } from "./types";
 import { useOnboardingStorage } from "./useOnboardingStorage";

@@ -1,7 +1,7 @@
 import { useActiveAppExtension } from "@dashboard/extensions/components/AppExtensionContext/AppExtensionContextProvider";
 import { ProductTranslationFragment } from "@dashboard/graphql";
 import { TranslationInputFieldName } from "@dashboard/translations/types";
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook } from "@testing-library/react";
 
 import { useTranslationProductFormAppResponse } from "./use-translation-product-form-app-response";
 

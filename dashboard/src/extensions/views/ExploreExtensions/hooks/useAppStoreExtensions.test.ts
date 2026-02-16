@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, waitFor } from "@testing-library/react";
 
 import { useAppStoreExtensions } from "./useAppStoreExtensions";
 
@@ -53,16 +53,17 @@ describe("Extensions / hooks / useAppStoreExtensions", () => {
     });
 
     // Act
-    const { result, waitForNextUpdate } = renderHook(() =>
+    const { result } = renderHook(() =>
       useAppStoreExtensions("https://mockapi.com"),
     );
 
     // Assert
     expect(result.current.loading).toBe(true);
 
-    await waitForNextUpdate();
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
 
-    expect(result.current.loading).toBe(false);
     expect(result.current.error).toBe(null);
     expect(result.current.data).toEqual({
       payments: { title: "Payments", items: [{ id: "1", name: "Stripe" }] },
@@ -77,16 +78,17 @@ describe("Extensions / hooks / useAppStoreExtensions", () => {
     vi.mocked(fetch).mockRejectedValueOnce(new Error("Network Error"));
 
     // Act
-    const { result, waitForNextUpdate } = renderHook(() =>
+    const { result } = renderHook(() =>
       useAppStoreExtensions("https://mockapi.com"),
     );
 
     // Assert
     expect(result.current.loading).toBe(true);
 
-    await waitForNextUpdate();
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
 
-    expect(result.current.loading).toBe(false);
     expect(result.current.error).toBe("Network Error");
     expect(result.current.data).toEqual({
       payments: { title: "", items: [] },

@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react";
 import React from "react";
 import { useHistory } from "react-router";
 import { MemoryRouter } from "react-router-dom";

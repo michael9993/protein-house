@@ -1,5 +1,5 @@
 import { ConfirmButtonTransitionState } from "@dashboard/components/ConfirmButton";
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react";
 import { ChangeEvent } from "react";
 
 import { useManualRefund } from "./hooks";

@@ -2,7 +2,7 @@ import { ApolloError } from "@apollo/client";
 import { AccountErrorCode } from "@dashboard/graphql";
 import { useAuth, useAuthState } from "@saleor/sdk";
 import { waitFor } from "@testing-library/react";
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react";
 
 import { useAuthProvider } from "./useAuthProvider";
 

@@ -1,6 +1,6 @@
 import * as dashboardConfig from "@dashboard/config";
 import { UseNotifierResult } from "@dashboard/hooks/useNotifier";
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook } from "@testing-library/react";
 import * as ReactIntl from "react-intl";
 import { IntlShape } from "react-intl";
 

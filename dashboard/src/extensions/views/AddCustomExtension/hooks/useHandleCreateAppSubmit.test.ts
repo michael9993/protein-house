@@ -1,6 +1,5 @@
 import { AppErrorCode, PermissionEnum, useAppCreateMutation } from "@dashboard/graphql";
-import { renderHook } from "@testing-library/react-hooks";
-import { act } from "react-dom/test-utils";
+import { act, renderHook } from "@testing-library/react";
 import { UseFormSetError } from "react-hook-form";
 
 import { useHandleCreateAppSubmit } from "./useHandleCreateAppSubmit";
