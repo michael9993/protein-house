@@ -1,18 +1,36 @@
 import { getAppMountUri } from "@dashboard/config";
 import * as Sentry from "@sentry/react";
-import { createBrowserHistory } from "history";
-import * as React from "react";
-import { RouterProps as BaseRouterProps } from "react-router";
-import { Route as BaseRoute, Router as BaseRouter } from "react-router-dom";
+import { useEffect } from "react";
+import {
+  createBrowserRouter,
+  createRoutesFromChildren,
+  matchRoutes,
+  useLocation,
+  useNavigationType,
+} from "react-router";
 
-type RouterProps = Omit<BaseRouterProps, "history"> & { children: React.ReactNode };
+// Sentry React Router v7 browser tracing integration.
+// Must be called before createBrowserRouter.
+export const initSentryRouterIntegration = () =>
+  Sentry.reactRouterV7BrowserTracingIntegration({
+    useEffect,
+    useLocation,
+    useNavigationType,
+    createRoutesFromChildren,
+    matchRoutes,
+  });
 
-export const history = createBrowserHistory({
-  basename: getAppMountUri(),
-});
+// Wrap createBrowserRouter with Sentry for route-level transaction tracking.
+const sentryCreateBrowserRouter =
+  Sentry.wrapCreateBrowserRouterV7(createBrowserRouter);
 
-export const Route = Sentry.withSentryRouting(BaseRoute);
-
-export const Router = (props: RouterProps) => {
-  return <BaseRouter history={history}>{props.children}</BaseRouter>;
-};
+/**
+ * Create the application router.
+ * Uses createBrowserRouter (data router) so that useBlocker works
+ * for form exit protection.
+ */
+export const createAppRouter = (element: React.ReactElement) =>
+  sentryCreateBrowserRouter(
+    [{ path: "*", element }],
+    { basename: getAppMountUri() },
+  );

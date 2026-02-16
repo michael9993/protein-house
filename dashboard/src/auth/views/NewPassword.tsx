@@ -3,12 +3,13 @@ import useNavigator from "@dashboard/hooks/useNavigator";
 import { parseQs } from "@dashboard/url-utils";
 import { useAuth } from "@saleor/sdk";
 import { useState } from "react";
-import { RouteComponentProps } from "react-router";
+import { useLocation } from "react-router";
 
 import NewPasswordPage, { NewPasswordPageFormData } from "../components/NewPasswordPage";
 import { NewPasswordUrlQueryParams } from "../urls";
 
-const NewPassword = ({ location }: RouteComponentProps) => {
+const NewPassword = () => {
+  const location = useLocation();
   const navigate = useNavigator();
   const { setPassword } = useAuth();
   const [loading, setLoading] = useState(false);

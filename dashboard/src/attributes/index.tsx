@@ -1,10 +1,9 @@
 import { ConditionalAttributesFilterProvider } from "@dashboard/components/ConditionalFilter";
-import { Route } from "@dashboard/components/Router";
 import { sectionNames } from "@dashboard/intl";
 import { parseQs } from "@dashboard/url-utils";
 import { asSortParams } from "@dashboard/utils/sort";
 import { useIntl } from "react-intl";
-import { RouteComponentProps, Switch } from "react-router-dom";
+import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
@@ -20,7 +19,8 @@ import AttributeCreateComponent from "./views/AttributeCreate";
 import AttributeDetailsComponent from "./views/AttributeDetails";
 import AttributeListComponent from "./views/AttributeList";
 
-const AttributeList = ({ location }: RouteComponentProps<{}>) => {
+const AttributeList = () => {
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1)) as any;
   const params: AttributeListUrlQueryParams = asSortParams(qs, AttributeListUrlSortField);
 
@@ -31,18 +31,21 @@ const AttributeList = ({ location }: RouteComponentProps<{}>) => {
   );
 };
 
-const AttributeCreate = ({ location }: RouteComponentProps<{}>) => {
+const AttributeCreate = () => {
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1));
   const params: AttributeAddUrlQueryParams = qs;
 
   return <AttributeCreateComponent params={params} />;
 };
 
-const AttributeDetails = ({ location, match }: RouteComponentProps<{ id: string }>) => {
+const AttributeDetails = () => {
+  const location = useLocation();
+  const { id } = useParams();
   const qs = parseQs(location.search.substr(1));
   const params: AttributeUrlQueryParams = qs;
 
-  return <AttributeDetailsComponent id={decodeURIComponent(match.params.id)} params={params} />;
+  return <AttributeDetailsComponent id={decodeURIComponent(id ?? "")} params={params} />;
 };
 
 const AttributeSection = () => {
@@ -51,11 +54,11 @@ const AttributeSection = () => {
   return (
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.attributes)} />
-      <Switch>
-        <Route exact path={attributeListPath} component={AttributeList} />
-        <Route exact path={attributeAddPath} component={AttributeCreate} />
-        <Route path={attributePath(":id")} component={AttributeDetails} />
-      </Switch>
+      <Routes>
+        <Route path={attributeListPath} element={<AttributeList />} />
+        <Route path={attributeAddPath} element={<AttributeCreate />} />
+        <Route path={attributePath(":id")} element={<AttributeDetails />} />
+      </Routes>
     </>
   );
 };

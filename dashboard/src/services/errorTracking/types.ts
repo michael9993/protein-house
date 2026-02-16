@@ -1,5 +1,3 @@
-import { History } from "history";
-
 export type UserData = {
   id: string;
   email: string;
@@ -7,7 +5,7 @@ export type UserData = {
 } | null;
 
 export interface TrackerMethods {
-  init: (history: History) => boolean;
+  init: () => boolean;
   setUserData: (userData: UserData) => void;
   captureException: (e: Error) => string | null | undefined;
 }

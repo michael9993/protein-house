@@ -11,6 +11,10 @@ describe("useBackLinkWithState", () => {
   // Arrange
   it("should return path if there is no previous location in state", () => {
     vi.mocked(useLocation).mockReturnValue({
+      pathname: "/orders/123",
+      search: "",
+      hash: "",
+      key: "default",
       state: {},
     });
 
@@ -29,6 +33,10 @@ describe("useBackLinkWithState", () => {
     // Arrange
 
     vi.mocked(useLocation).mockReturnValue({
+      pathname: "/orders/123",
+      search: "",
+      hash: "",
+      key: "default",
       state: {
         prevLocation: {
           pathname: "/orders",
@@ -51,6 +59,10 @@ describe("useBackLinkWithState", () => {
   it("should return the previous URL if it is a draft order list path", () => {
     // Arrange
     vi.mocked(useLocation).mockReturnValue({
+      pathname: "/orders/drafts/456",
+      search: "",
+      hash: "",
+      key: "default",
       state: {
         prevLocation: {
           pathname: "/orders/drafts",
@@ -73,6 +85,10 @@ describe("useBackLinkWithState", () => {
   it("should omit /dashboard from pathname when returning the previous URL", () => {
     // Arrange
     vi.mocked(useLocation).mockReturnValue({
+      pathname: "/collections/abc",
+      search: "",
+      hash: "",
+      key: "default",
       state: {
         prevLocation: {
           pathname: "/dashboard/collections/Q29sbGVjdGlvbjoxNjY",

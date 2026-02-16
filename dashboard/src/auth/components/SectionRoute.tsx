@@ -1,6 +1,5 @@
-import { Route } from "@dashboard/components/Router";
 import { PermissionEnum } from "@dashboard/graphql";
-import { RouteProps } from "react-router-dom";
+import { ReactNode } from "react";
 
 import NotFound from "../../NotFound";
 import { useUser } from "..";
@@ -8,14 +7,30 @@ import { hasAllPermissions, hasAnyPermissions } from "../misc";
 
 type MatchPermissionType = "all" | "any";
 
-interface SectionRouteProps extends RouteProps {
+interface SectionGuardProps {
   permissions?: PermissionEnum[];
   matchPermission?: MatchPermissionType;
+  children: ReactNode;
 }
 
 const matchAll = (match: MatchPermissionType) => match === "all";
 
-const SectionRoute = ({ permissions, matchPermission = "all", ...props }: SectionRouteProps) => {
+/**
+ * Permission-based route guard. Wraps a route element and renders
+ * <NotFound /> if the current user lacks the required permissions.
+ *
+ * Usage in v6 Routes:
+ *   <Route path="/products/*" element={
+ *     <SectionGuard permissions={[PermissionEnum.MANAGE_PRODUCTS]}>
+ *       <ProductSection />
+ *     </SectionGuard>
+ *   } />
+ */
+export const SectionGuard = ({
+  permissions,
+  matchPermission = "all",
+  children,
+}: SectionGuardProps) => {
   const { user } = useUser();
 
   // Prevents race condition
@@ -35,8 +50,10 @@ const SectionRoute = ({ permissions, matchPermission = "all", ...props }: Sectio
     return hasAnyPermissions(permissions, user!);
   };
 
-  return hasSectionPermissions() ? <Route {...props} /> : <NotFound />;
+  return hasSectionPermissions() ? <>{children}</> : <NotFound />;
 };
 
-SectionRoute.displayName = "Route";
-export default SectionRoute;
+SectionGuard.displayName = "SectionGuard";
+
+// Keep backward-compatible default export name for existing imports
+export default SectionGuard;

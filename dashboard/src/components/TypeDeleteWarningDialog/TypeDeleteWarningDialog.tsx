@@ -5,7 +5,7 @@ import { getById } from "@dashboard/misc";
 import { Box, Spinner } from "@saleor/macaw-ui-next";
 import { useState } from "react";
 import { useIntl } from "react-intl";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import DeleteButton from "../DeleteButton";
 import { DashboardModal } from "../Modal";

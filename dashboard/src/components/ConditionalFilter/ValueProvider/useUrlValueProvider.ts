@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { stringify } from "qs";
 import { useEffect, useMemo, useState } from "react";
-import useRouter from "use-react-router";
+import { useLocation, useNavigate } from "react-router";
 
 import { InitialAttributesAPIState } from "../API/initialState/attributes/useInitialAttributesState";
 import { InitialCollectionAPIState } from "../API/initialState/collections/useInitialCollectionsState";
@@ -35,7 +35,8 @@ export const useUrlValueProvider = (
   type: FilterProviderType,
   initialState?: InitialAPIState,
 ): FilterValueProvider => {
-  const router = useRouter();
+  const location = useLocation();
+  const navigate = useNavigate();
   const params = new URLSearchParams(locationSearch);
   const [value, setValue] = useState<FilterContainer>([]);
   const activeTab = params.get("activeTab");
@@ -122,23 +123,24 @@ export const useUrlValueProvider = (
   }, [locationSearch, tokenizedUrl, initialState]);
 
   const persist = (filterValue: FilterContainer) => {
-    router.history.replace({
-      pathname: router.location.pathname,
-      search: stringify({
-        ...prepareStructure(filterValue),
-        ...{ activeTab: activeTab || undefined },
-        ...{ query: query || undefined },
-        ...{ before: before || undefined },
-        ...{ after: after || undefined },
-      }),
-    });
+    navigate(
+      {
+        pathname: location.pathname,
+        search: stringify({
+          ...prepareStructure(filterValue),
+          ...{ activeTab: activeTab || undefined },
+          ...{ query: query || undefined },
+          ...{ before: before || undefined },
+          ...{ after: after || undefined },
+        }),
+      },
+      { replace: true },
+    );
     setValue(filterValue);
   };
 
   const clear = () => {
-    router.history.replace({
-      pathname: router.location.pathname,
-    });
+    navigate({ pathname: location.pathname }, { replace: true });
     setValue([]);
   };
 

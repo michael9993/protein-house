@@ -1,5 +1,4 @@
-import SectionRoute from "@dashboard/auth/components/SectionRoute";
-import { Route } from "@dashboard/components/Router";
+import { SectionGuard } from "@dashboard/auth/components/SectionRoute";
 import { WindowTitle } from "@dashboard/components/WindowTitle";
 import {
   AppDetailsUrlQueryParams,
@@ -16,7 +15,7 @@ import { sectionNames } from "@dashboard/intl";
 import NotFound from "@dashboard/NotFound";
 import { parseQs } from "@dashboard/url-utils";
 import { useIntl } from "react-intl";
-import { RouteComponentProps, Switch } from "react-router-dom";
+import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { useCustomAppToken } from "./hooks/useCustomAppToken";
 import { AddCustomExtension } from "./views/AddCustomExtension/AddCustomExtension";
@@ -33,12 +32,14 @@ const ExploreExtensionsView = () => {
 };
 
 const InstalledExtensionsView = () => {
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1));
   const params = qs;
 
   return <InstalledExtensions params={params} />;
 };
 const InstallCustomExtensionView = () => {
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1));
   const params: ExtensionInstallQueryParams = qs;
 
@@ -46,13 +47,13 @@ const InstallCustomExtensionView = () => {
 };
 
 const EditCustomExtensionView = ({
-  match,
   token,
   onTokenClose,
-}: RouteComponentProps<{ id?: string }> & { token: string; onTokenClose: () => void }) => {
+}: { token: string; onTokenClose: () => void }) => {
+  const location = useLocation();
+  const { id } = useParams();
   const qs = parseQs(location.search.substr(1));
   const params: CustomAppDetailsUrlQueryParams = qs;
-  const id = match.params.id;
 
   if (!id) {
     throw new Error("No ID provided");
@@ -68,35 +69,43 @@ const EditCustomExtensionView = ({
   );
 };
 
-const EditManifestExtensionView = ({ match }: RouteComponentProps<{ id: string }>) => {
+const EditManifestExtensionView = () => {
+  const location = useLocation();
+  const { id } = useParams();
   const qs = parseQs(location.search.substr(1));
   const params: AppDetailsUrlQueryParams = qs;
 
-  return <EditManifestExtension id={decodeURIComponent(match.params.id)} params={params} />;
+  return <EditManifestExtension id={decodeURIComponent(id ?? "")} params={params} />;
 };
 
-const ViewManifestExtensionIframeView = ({ match }: RouteComponentProps<{ id: string }>) => {
-  return <ViewManifestExtensionIframe id={decodeURIComponent(match.params.id)} />;
+const ViewManifestExtensionIframeView = () => {
+  const { id } = useParams();
+
+  return <ViewManifestExtensionIframe id={decodeURIComponent(id ?? "")} />;
 };
 
-const EditManifestExtensionPermissionsView = ({ match }: RouteComponentProps<{ id: string }>) => {
-  return <EditManifestExtensionPermissions id={decodeURIComponent(match.params.id)} />;
+const EditManifestExtensionPermissionsView = () => {
+  const { id } = useParams();
+
+  return <EditManifestExtensionPermissions id={decodeURIComponent(id ?? "")} />;
 };
 
-const EditPluginExtensionView = ({ match }: RouteComponentProps<{ id: string }>) => {
+const EditPluginExtensionView = () => {
+  const location = useLocation();
+  const { id } = useParams();
   const qs = parseQs(location.search.substr(1));
   const params: PluginUrlQueryParams = qs;
-  const id = decodeURIComponent(match.params.id);
+  const decodedId = decodeURIComponent(id ?? "");
 
-  if (!id) {
+  if (!decodedId) {
     throw new Error("No ID provided");
   }
 
-  return <EditPluginExtension id={id} params={params} />;
+  return <EditPluginExtension id={decodedId} params={params} />;
 };
 
-const AddCustomExtensionWebhookView = ({ match }: RouteComponentProps<{ appId?: string }>) => {
-  const appId = match.params.appId;
+const AddCustomExtensionWebhookView = () => {
+  const { appId } = useParams();
 
   if (!appId) {
     throw new Error("No App ID provided");
@@ -105,8 +114,8 @@ const AddCustomExtensionWebhookView = ({ match }: RouteComponentProps<{ appId?: 
   return <AddCustomExtensionWebhook appId={decodeURIComponent(appId)} />;
 };
 
-const EditCustomExtensionWebhookView = ({ match }: RouteComponentProps<{ id?: string }>) => {
-  const id = match.params.id;
+const EditCustomExtensionWebhookView = () => {
+  const { id } = useParams();
 
   if (!id) {
     throw new Error("No ID provided");
@@ -123,76 +132,74 @@ export const ExtensionsSection = () => {
   return (
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.extensions)} />
-      <Switch>
-        <Route exact path={ExtensionsPaths.exploreExtensions} component={ExploreExtensionsView} />
+      <Routes>
+        <Route path={ExtensionsPaths.exploreExtensions} element={<ExploreExtensionsView />} />
         <Route
-          exact
           path={ExtensionsPaths.installedExtensions}
-          component={InstalledExtensionsView}
+          element={<InstalledExtensionsView />}
         />
-        <SectionRoute
-          exact
-          permissions={[PermissionEnum.MANAGE_APPS]}
+        <Route
           path={ExtensionsPaths.installCustomExtension}
-          component={InstallCustomExtensionView}
+          element={
+            <SectionGuard permissions={[PermissionEnum.MANAGE_APPS]}>
+              <InstallCustomExtensionView />
+            </SectionGuard>
+          }
         />
 
         {/* -- Manifest app routes -- */}
         <Route
-          exact
           path={ExtensionsPaths.resolveEditManifestExtension(":id")}
-          component={EditManifestExtensionView}
+          element={<EditManifestExtensionView />}
         />
         <Route
-          exact
           path={ExtensionsPaths.resolveAppRequestPermissionsPath(":id")}
-          component={EditManifestExtensionPermissionsView}
+          element={<EditManifestExtensionPermissionsView />}
         />
         <Route
           path={ExtensionsPaths.resolveViewManifestExtension(":id")}
-          component={ViewManifestExtensionIframeView}
+          element={<ViewManifestExtensionIframeView />}
         />
 
         {/* -- Plugin routes -- */}
-
         <Route
-          exact
           path={ExtensionsPaths.resolveEditPluginExtension(":id")}
-          component={EditPluginExtensionView}
+          element={<EditPluginExtensionView />}
         />
 
         {/* -- Custom apps routes -- */}
         <Route
-          exact
           path={ExtensionsPaths.addCustomExtension}
-          render={() => <AddCustomExtension setToken={setCustomAppToken} />}
+          element={<AddCustomExtension setToken={setCustomAppToken} />}
         />
         <Route
-          exact
           path={ExtensionsPaths.resolveEditCustomExtension(":id")}
-          render={props => (
+          element={
             <EditCustomExtensionView
-              {...props}
               token={customAppToken || ""}
               onTokenClose={() => setCustomAppToken(null)}
             />
-          )}
+          }
         />
 
-        <SectionRoute
-          exact
+        <Route
           path={ExtensionsPaths.resolveAddCustomExtensionWebhook(":appId")}
-          component={AddCustomExtensionWebhookView}
-          permissions={[PermissionEnum.MANAGE_APPS]}
+          element={
+            <SectionGuard permissions={[PermissionEnum.MANAGE_APPS]}>
+              <AddCustomExtensionWebhookView />
+            </SectionGuard>
+          }
         />
-        <SectionRoute
-          exact
+        <Route
           path={ExtensionsPaths.resolveEditCustomExtensionWebhook(":appId", ":id")}
-          component={EditCustomExtensionWebhookView}
-          permissions={[PermissionEnum.MANAGE_APPS]}
+          element={
+            <SectionGuard permissions={[PermissionEnum.MANAGE_APPS]}>
+              <EditCustomExtensionWebhookView />
+            </SectionGuard>
+          }
         />
-        <Route component={NotFound} />
-      </Switch>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </>
   );
 };

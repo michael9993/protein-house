@@ -1,9 +1,8 @@
-import { Route } from "@dashboard/components/Router";
 import { sectionNames } from "@dashboard/intl";
 import { parseQs } from "@dashboard/url-utils";
 import { asSortParams } from "@dashboard/utils/sort";
 import { useIntl } from "react-intl";
-import { RouteComponentProps, Switch } from "react-router-dom";
+import { Route, Routes, useParams, useLocation } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
@@ -19,7 +18,8 @@ import { PermissionGroupCreate } from "./views/PermissionGroupCreate";
 import { PermissionGroupDetails as PermissionGroupDetailsComponent } from "./views/PermissionGroupDetails";
 import PermissionGroupListComponent from "./views/PermissionGroupList";
 
-const permissionGroupList = () => {
+const PermissionGroupList = () => {
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1)) as any;
   const params: PermissionGroupListUrlQueryParams = asSortParams(
     qs,
@@ -29,31 +29,28 @@ const permissionGroupList = () => {
   return <PermissionGroupListComponent params={params} />;
 };
 
-interface PermissionGroupDetailsRouteProps {
-  id: string;
-}
-
-const PermissionGroupDetails = ({
-  match,
-}: RouteComponentProps<PermissionGroupDetailsRouteProps>) => {
+const PermissionGroupDetails = () => {
+  const { id } = useParams();
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1)) as any;
   const params: PermissionGroupDetailsUrlQueryParams = asSortParams(qs, MembersListUrlSortField);
 
   return (
-    <PermissionGroupDetailsComponent id={decodeURIComponent(match.params.id)} params={params} />
+    <PermissionGroupDetailsComponent id={decodeURIComponent(id ?? "")} params={params} />
   );
 };
+
 const Component = () => {
   const intl = useIntl();
 
   return (
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.permissionGroups)} />
-      <Switch>
-        <Route exact path={permissionGroupListPath} component={permissionGroupList} />
-        <Route path={permissionGroupAddPath} component={PermissionGroupCreate} />
-        <Route path={permissionGroupDetailsPath(":id")} component={PermissionGroupDetails} />
-      </Switch>
+      <Routes>
+        <Route path={permissionGroupListPath} element={<PermissionGroupList />} />
+        <Route path={permissionGroupAddPath} element={<PermissionGroupCreate />} />
+        <Route path={permissionGroupDetailsPath(":id")} element={<PermissionGroupDetails />} />
+      </Routes>
     </>
   );
 };

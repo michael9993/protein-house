@@ -1,7 +1,7 @@
 import { parseQs } from "@dashboard/url-utils";
 import { stringify } from "qs";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import useRouter from "use-react-router";
+import { useLocation, useNavigate } from "react-router";
 
 import { InitialProductAPIState } from "../ConditionalFilter/API/initialState/product/useProductInitialAPIState";
 import { FilterContainer, FilterElement } from "../ConditionalFilter/FilterElement";
@@ -42,10 +42,11 @@ const splitSearchIntoFilterAndPreserved = (
 export const useModalUrlValueProvider = (
   initialState?: InitialProductAPIState,
 ): FilterValueProvider => {
-  const router = useRouter();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [value, setValue] = useState<FilterContainer>([]);
 
-  const locationSearch = router.location.search;
+  const locationSearch = location.search;
   const { filterParams } = useMemo(
     () => splitSearchIntoFilterAndPreserved(locationSearch),
     [locationSearch],
@@ -110,32 +111,38 @@ export const useModalUrlValueProvider = (
 
   const persist = useCallback(
     (filterValue: FilterContainer): void => {
-      const currentSearch = router.location.search;
+      const currentSearch = location.search;
       const { preservedParams } = splitSearchIntoFilterAndPreserved(currentSearch);
       const filterStructureParams = { ...prepareStructure(filterValue) } as Record<string, unknown>;
 
-      router.history.replace({
-        pathname: router.location.pathname,
-        search: stringify({
-          ...preservedParams,
-          ...filterStructureParams,
-        }),
-      });
+      navigate(
+        {
+          pathname: location.pathname,
+          search: stringify({
+            ...preservedParams,
+            ...filterStructureParams,
+          }),
+        },
+        { replace: true },
+      );
       setValue(filterValue);
     },
-    [router],
+    [location, navigate],
   );
 
   const clear = useCallback((): void => {
-    const currentSearch = router.location.search;
+    const currentSearch = location.search;
     const { preservedParams } = splitSearchIntoFilterAndPreserved(currentSearch);
 
-    router.history.replace({
-      pathname: router.location.pathname,
-      search: stringify(preservedParams),
-    });
+    navigate(
+      {
+        pathname: location.pathname,
+        search: stringify(preservedParams),
+      },
+      { replace: true },
+    );
     setValue([]);
-  }, [router]);
+  }, [location, navigate]);
 
   const isPersisted = useCallback(
     (element: FilterElement): boolean => {

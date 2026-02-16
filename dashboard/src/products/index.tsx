@@ -1,11 +1,10 @@
 import { ConditionalProductFilterProvider } from "@dashboard/components/ConditionalFilter/context";
-import { Route } from "@dashboard/components/Router";
 import { sectionNames } from "@dashboard/intl";
 import { parseQs } from "@dashboard/url-utils";
 import { asSortParams } from "@dashboard/utils/sort";
 import { getArrayQueryParam } from "@dashboard/utils/urls";
 import { useIntl } from "react-intl";
-import { Redirect, RouteComponentProps, Switch } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
@@ -31,16 +30,8 @@ import ProductUpdateComponent from "./views/ProductUpdate";
 import ProductVariantComponent from "./views/ProductVariant";
 import ProductVariantCreateComponent from "./views/ProductVariantCreate";
 
-interface MatchParams {
-  id?: string;
-}
-
-interface matchParamsProductVariant {
-  variantId?: string;
-  productId?: string;
-}
-
-const ProductList = ({ location }: RouteComponentProps<any>) => {
+const ProductList = () => {
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1)) as any;
   const params: ProductListUrlQueryParams = asSortParams(
     {
@@ -62,13 +53,15 @@ const ProductList = ({ location }: RouteComponentProps<any>) => {
     </ConditionalProductFilterProvider>
   );
 };
-const ProductUpdate = ({ match }: RouteComponentProps<MatchParams>) => {
+const ProductUpdate = () => {
+  const location = useLocation();
+  const { id } = useParams();
   const qs = parseQs(location.search.substr(1)) as any;
   const params: ProductUrlQueryParams = qs;
 
   return (
     <ProductUpdateComponent
-      id={decodeURIComponent(match.params.id!)}
+      id={decodeURIComponent(id ?? "")}
       params={{
         ...params,
         ids: getArrayQueryParam(qs.ids),
@@ -77,83 +70,89 @@ const ProductUpdate = ({ match }: RouteComponentProps<MatchParams>) => {
   );
 };
 const ProductCreate = () => {
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1));
   const params: ProductCreateUrlQueryParams = qs;
 
   return <ProductCreateComponent params={params} />;
 };
-const ProductVariant = ({ match }: RouteComponentProps<matchParamsProductVariant>) => {
+const ProductVariant = () => {
+  const location = useLocation();
+  const { variantId } = useParams();
   const qs = parseQs(location.search.substr(1));
   const params: ProductVariantEditUrlQueryParams = qs;
 
   return (
     <ProductVariantComponent
-      variantId={decodeURIComponent(match.params.variantId ?? "")}
+      variantId={decodeURIComponent(variantId ?? "")}
       params={params}
     />
   );
 };
 
-const ProductImage = ({
-  location,
-  match,
-}: RouteComponentProps<{ imageId: string; productId: string }>) => {
+const ProductImage = () => {
+  const location = useLocation();
+  const { imageId, productId } = useParams();
   const qs = parseQs(location.search.substr(1));
   const params: ProductImageUrlQueryParams = qs;
 
   return (
     <ProductImageComponent
-      mediaId={decodeURIComponent(match.params.imageId)}
-      productId={decodeURIComponent(match.params.productId)}
+      mediaId={decodeURIComponent(imageId ?? "")}
+      productId={decodeURIComponent(productId ?? "")}
       params={params}
     />
   );
 };
-const ProductVariantCreate = ({ match }: RouteComponentProps<MatchParams>) => {
+const ProductVariantCreate = () => {
+  const location = useLocation();
+  const { id } = useParams();
   const qs = parseQs(location.search.substr(1));
   const params: ProductVariantAddUrlQueryParams = qs;
 
   return (
     <ProductVariantCreateComponent
-      productId={decodeURIComponent(match.params.id ?? "")}
+      productId={decodeURIComponent(id ?? "")}
       params={params}
     />
   );
 };
+
+/** Redirect old product variant path to new format */
+const LegacyVariantRedirect = () => {
+  const location = useLocation();
+  const { variantId } = useParams();
+
+  if (!variantId) {
+    return <Navigate to={productListPath} replace />;
+  }
+
+  return (
+    <Navigate
+      to={{ pathname: productVariantEditPath(variantId), search: location.search }}
+      replace
+    />
+  );
+};
+
 const Component = () => {
   const intl = useIntl();
 
   return (
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.products)} />
-      <Switch>
-        <Route exact path={productListPath} component={ProductList} />
-        <Route exact path={productAddPath} component={ProductCreate} />
-        <Route exact path={productVariantAddPath(":id")} component={ProductVariantCreate} />
-        {/* Redirect old product variant path to new format
-         * TODO: Remove in Saleor Dashboard 3.23 */}
+      <Routes>
+        <Route path={productListPath} element={<ProductList />} />
+        <Route path={productAddPath} element={<ProductCreate />} />
+        <Route path={productVariantAddPath(":id")} element={<ProductVariantCreate />} />
         <Route
           path={productVariantLegacyEditPath(":productId", ":variantId")}
-          exact
-          render={({ match, location }) => {
-            if (!match.params.variantId) {
-              return <Redirect to={productListPath} />;
-            }
-
-            return (
-              <Redirect
-                to={{
-                  pathname: productVariantEditPath(match.params.variantId),
-                  search: location.search,
-                }}
-              />
-            );
-          }}
+          element={<LegacyVariantRedirect />}
         />
-        <Route path={productVariantEditPath(":variantId")} component={ProductVariant} />
-        <Route path={productImagePath(":productId", ":imageId")} component={ProductImage} />
-        <Route path={productPath(":id")} component={ProductUpdate} />
-      </Switch>
+        <Route path={productVariantEditPath(":variantId")} element={<ProductVariant />} />
+        <Route path={productImagePath(":productId", ":imageId")} element={<ProductImage />} />
+        <Route path={productPath(":id")} element={<ProductUpdate />} />
+      </Routes>
     </>
   );
 };

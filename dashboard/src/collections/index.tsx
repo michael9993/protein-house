@@ -1,10 +1,9 @@
 import { ConditionalCollectionFilterProvider } from "@dashboard/components/ConditionalFilter";
-import { Route } from "@dashboard/components/Router";
 import { sectionNames } from "@dashboard/intl";
 import { parseQs } from "@dashboard/url-utils";
 import { asSortParams } from "@dashboard/utils/sort";
 import { useIntl } from "react-intl";
-import { RouteComponentProps, Switch } from "react-router-dom";
+import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
@@ -20,7 +19,8 @@ import CollectionCreateView from "./views/CollectionCreate";
 import CollectionDetailsView from "./views/CollectionDetails";
 import CollectionListView from "./views/CollectionList";
 
-const CollectionList = ({ location }: RouteComponentProps<{}>) => {
+const CollectionList = () => {
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1)) as any;
   const params: CollectionListUrlQueryParams = asSortParams(qs, CollectionListUrlSortField);
 
@@ -31,21 +31,17 @@ const CollectionList = ({ location }: RouteComponentProps<{}>) => {
   );
 };
 
-interface CollectionDetailsRouteProps {
-  id: string;
-}
-
-const CollectionDetails = ({
-  location,
-  match,
-}: RouteComponentProps<CollectionDetailsRouteProps>) => {
+const CollectionDetails = () => {
+  const location = useLocation();
+  const { id } = useParams();
   const qs = parseQs(location.search.substr(1));
   const params: CollectionUrlQueryParams = qs;
 
-  return <CollectionDetailsView id={decodeURIComponent(match.params.id)} params={params} />;
+  return <CollectionDetailsView id={decodeURIComponent(id ?? "")} params={params} />;
 };
 
-const CollectionCreate = ({ location }: RouteComponentProps) => {
+const CollectionCreate = () => {
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1));
   const params: CollectionCreateUrlQueryParams = qs;
 
@@ -58,11 +54,11 @@ const Component = () => {
   return (
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.collections)} />
-      <Switch>
-        <Route exact path={collectionListPath} component={CollectionList} />
-        <Route exact path={collectionAddPath} component={CollectionCreate} />
-        <Route path={collectionPath(":id")} component={CollectionDetails} />
-      </Switch>
+      <Routes>
+        <Route path={collectionListPath} element={<CollectionList />} />
+        <Route path={collectionAddPath} element={<CollectionCreate />} />
+        <Route path={collectionPath(":id")} element={<CollectionDetails />} />
+      </Routes>
     </>
   );
 };

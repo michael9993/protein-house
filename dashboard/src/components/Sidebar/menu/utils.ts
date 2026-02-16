@@ -46,10 +46,13 @@ export function isMenuActive(location: string, menuItem: SidebarMenuItem) {
   }
 
   return menuUrlsToCheck.some(menuItemUrl => {
-    return !!matchPath(activeUrl, {
-      exact: menuItemUrl === "/",
-      path: menuItemUrl,
-    });
+    return !!matchPath(
+      {
+        path: menuItemUrl,
+        end: menuItemUrl === "/",
+      },
+      activeUrl,
+    );
   });
 }
 

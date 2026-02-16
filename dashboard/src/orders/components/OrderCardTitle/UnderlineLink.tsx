@@ -1,5 +1,5 @@
 import { Text, TextProps } from "@saleor/macaw-ui-next";
-import { Link, LinkProps } from "react-router-dom";
+import { Link, LinkProps } from "react-router";
 
 interface UnderlineLinkProps extends LinkProps {
   textProps?: Omit<TextProps, "children">;

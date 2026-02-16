@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { Box, List, sprinkles, Text } from "@saleor/macaw-ui-next";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import { MenuItem } from "./Item";
 import { SidebarMenuItem } from "./types";

@@ -4,7 +4,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Box, Skeleton, Text } from "@saleor/macaw-ui-next";
 import { useIntl } from "react-intl";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import { messages } from "../messages";
 import { ProductVariantItem, ProductVariantItemThumbnail } from "../types";

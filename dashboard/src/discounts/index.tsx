@@ -2,12 +2,11 @@ import {
   ConditionalDiscountFilterProvider,
   ConditionalVoucherFilterProvider,
 } from "@dashboard/components/ConditionalFilter";
-import { Route } from "@dashboard/components/Router";
 import { sectionNames } from "@dashboard/intl";
 import { parseQs } from "@dashboard/url-utils";
 import { asSortParams } from "@dashboard/utils/sort";
 import { useIntl } from "react-intl";
-import { RouteComponentProps, Switch } from "react-router-dom";
+import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import { DiscountListUrlQueryParams, DiscountListUrlSortField } from "./discountsUrls";
@@ -31,6 +30,7 @@ import VoucherDetailsViewComponent from "./views/VoucherDetails";
 import VoucherListViewComponent from "./views/VoucherList";
 
 const SaleListView = () => {
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1)) as any;
 
   const params: DiscountListUrlQueryParams = asSortParams(qs, DiscountListUrlSortField);
@@ -41,16 +41,19 @@ const SaleListView = () => {
     </ConditionalDiscountFilterProvider>
   );
 };
-const SaleDetailsView = ({ match }: RouteComponentProps<{ id: string }>) => {
+const SaleDetailsView = () => {
+  const { id } = useParams();
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1));
   const params = qs;
 
-  return <DiscountDetails id={decodeURIComponent(match.params.id)} params={params} />;
+  return <DiscountDetails id={decodeURIComponent(id ?? "")} params={params} />;
 };
 const SaleCreateView = () => {
   return <DiscountCreate />;
 };
 const VoucherListView = () => {
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1)) as any;
   const params: VoucherListUrlQueryParams = asSortParams(
     qs,
@@ -64,13 +67,16 @@ const VoucherListView = () => {
     </ConditionalVoucherFilterProvider>
   );
 };
-const VoucherDetailsView = ({ match }: RouteComponentProps<{ id: string }>) => {
+const VoucherDetailsView = () => {
+  const { id } = useParams();
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1));
   const params: VoucherUrlQueryParams = qs;
 
-  return <VoucherDetailsViewComponent id={decodeURIComponent(match.params.id)} params={params} />;
+  return <VoucherDetailsViewComponent id={decodeURIComponent(id ?? "")} params={params} />;
 };
-const VoucherCreateView = ({ location }: RouteComponentProps) => {
+const VoucherCreateView = () => {
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1));
   const params: VoucherCreateUrlQueryParams = qs;
 
@@ -83,14 +89,14 @@ const DiscountSection = () => {
   return (
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.vouchers)} />
-      <Switch>
-        <Route exact path={saleListPath} component={SaleListView} />
-        <Route exact path={saleAddPath} component={SaleCreateView} />
-        <Route exact path={voucherAddPath} component={VoucherCreateView} />
-        <Route path={salePath(":id")} component={SaleDetailsView} />
-        <Route exact path={voucherListPath} component={VoucherListView} />
-        <Route path={voucherPath(":id")} component={VoucherDetailsView} />
-      </Switch>
+      <Routes>
+        <Route path={saleListPath} element={<SaleListView />} />
+        <Route path={saleAddPath} element={<SaleCreateView />} />
+        <Route path={voucherAddPath} element={<VoucherCreateView />} />
+        <Route path={salePath(":id")} element={<SaleDetailsView />} />
+        <Route path={voucherListPath} element={<VoucherListView />} />
+        <Route path={voucherPath(":id")} element={<VoucherDetailsView />} />
+      </Routes>
     </>
   );
 };

@@ -1,10 +1,9 @@
 import { ConditionalCustomerFilterProvider } from "@dashboard/components/ConditionalFilter";
-import { Route } from "@dashboard/components/Router";
 import { sectionNames } from "@dashboard/intl";
 import { parseQs } from "@dashboard/url-utils";
 import { asSortParams } from "@dashboard/utils/sort";
 import { useIntl } from "react-intl";
-import { RouteComponentProps, Switch } from "react-router-dom";
+import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
@@ -30,6 +29,7 @@ import CustomerServiceDetailsViewComponent from "./views/CustomerServiceDetails"
 import CustomerServiceListViewComponent from "./views/CustomerServiceList";
 
 const CustomerListView = () => {
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1)) as any;
   const params: CustomerListUrlQueryParams = asSortParams(qs, CustomerListUrlSortField);
 
@@ -40,53 +40,42 @@ const CustomerListView = () => {
   );
 };
 
-interface CustomerDetailsRouteParams {
-  id: string;
-}
-
-const CustomerDetailsView = ({
-  location,
-  match,
-}: RouteComponentProps<CustomerDetailsRouteParams>) => {
+const CustomerDetailsView = () => {
+  const location = useLocation();
+  const { id } = useParams();
   const qs = parseQs(location.search.substr(1));
   const params: CustomerUrlQueryParams = qs;
 
-  return <CustomerDetailsViewComponent id={decodeURIComponent(match.params.id)} params={params} />;
+  return <CustomerDetailsViewComponent id={decodeURIComponent(id ?? "")} params={params} />;
 };
 
-interface CustomerAddressesRouteParams {
-  id: string;
-}
-
-const CustomerAddressesView = ({ match }: RouteComponentProps<CustomerAddressesRouteParams>) => {
+const CustomerAddressesView = () => {
+  const location = useLocation();
+  const { id } = useParams();
   const qs = parseQs(location.search.substr(1));
   const params: CustomerAddressesUrlQueryParams = qs;
 
   return (
-    <CustomerAddressesViewComponent id={decodeURIComponent(match.params.id)} params={params} />
+    <CustomerAddressesViewComponent id={decodeURIComponent(id ?? "")} params={params} />
   );
 };
 
 const CustomerServiceListView = () => {
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1)) as any;
   const params: CustomerServiceListUrlQueryParams = asSortParams(qs, CustomerServiceListUrlSortField);
 
   return <CustomerServiceListViewComponent params={params} />;
 };
 
-interface CustomerServiceDetailsRouteParams {
-  id: string;
-}
-
-const CustomerServiceDetailsView = ({
-  location,
-  match,
-}: RouteComponentProps<CustomerServiceDetailsRouteParams>) => {
+const CustomerServiceDetailsView = () => {
+  const location = useLocation();
+  const { id } = useParams();
   const qs = parseQs(location.search.substr(1));
   const params: CustomerServiceUrlQueryParams = qs;
 
   return (
-    <CustomerServiceDetailsViewComponent id={decodeURIComponent(match.params.id)} params={params} />
+    <CustomerServiceDetailsViewComponent id={decodeURIComponent(id ?? "")} params={params} />
   );
 };
 
@@ -96,14 +85,14 @@ export const CustomerSection = () => {
   return (
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.customers)} />
-      <Switch>
-        <Route exact path={customerListPath} component={CustomerListView} />
-        <Route exact path={customerAddPath} component={CustomerCreateView} />
-        <Route exact path={customerServiceListPath} component={CustomerServiceListView} />
-        <Route path={customerServicePath(":id")} component={CustomerServiceDetailsView} />
-        <Route path={customerAddressesPath(":id")} component={CustomerAddressesView} />
-        <Route path={customerPath(":id")} component={CustomerDetailsView} />
-      </Switch>
+      <Routes>
+        <Route path={customerListPath} element={<CustomerListView />} />
+        <Route path={customerAddPath} element={<CustomerCreateView />} />
+        <Route path={customerServiceListPath} element={<CustomerServiceListView />} />
+        <Route path={customerServicePath(":id")} element={<CustomerServiceDetailsView />} />
+        <Route path={customerAddressesPath(":id")} element={<CustomerAddressesView />} />
+        <Route path={customerPath(":id")} element={<CustomerDetailsView />} />
+      </Routes>
     </>
   );
 };

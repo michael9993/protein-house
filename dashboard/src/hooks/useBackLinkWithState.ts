@@ -2,13 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import urljoin from "url-join";
 
-type LocationData = Pick<Location, "pathname" | "search">;
-
-type LocationWithState = Location & {
-  state?: {
-    prevLocation?: LocationData;
-  };
-};
+type LocationData = { pathname: string; search: string };
 
 export const getPrevLocationState = (location: LocationData) => ({
   prevLocation: {
@@ -17,12 +11,12 @@ export const getPrevLocationState = (location: LocationData) => ({
   },
 });
 
-const getPreviousUrl = (location: LocationWithState) => {
-  if (!location.state?.prevLocation) {
+const getPreviousUrl = (state: { prevLocation?: LocationData } | null) => {
+  if (!state?.prevLocation) {
     return null;
   }
 
-  const { pathname, search } = location.state.prevLocation;
+  const { pathname, search } = state.prevLocation;
 
   const withRemovedDashboard = pathname.replace(/^\/dashboard/, "");
 
@@ -41,7 +35,7 @@ export const useBackLinkWithState = ({ path }: UseBackLinkWithState) => {
 
   useEffect(() => {
     if (location.state) {
-      const previousUrl = getPreviousUrl(location as LocationWithState);
+      const previousUrl = getPreviousUrl(location.state);
 
       // Prevent other links from being set as back link
       const isCorrectPath = previousUrl?.includes(getPath(path));

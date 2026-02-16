@@ -1,28 +1,35 @@
-import { Location, UnregisterCallback } from "history";
-import { useRef } from "react";
-import useRouter from "use-react-router";
+import { useEffect, useRef } from "react";
+import { useLocation } from "react-router";
 
-const compareLocations = (a: Location, b: Location) => {
+interface LocationLike {
+  pathname: string;
+  search: string;
+}
+
+const compareLocations = (a: LocationLike, b: LocationLike) => {
   return a.pathname === b.pathname && a.search === b.search;
 };
 
-export const useRouteChange = (onChange: (location: Location) => void) => {
-  const router = useRouter();
-  const location = useRef<Location>(router.history.location);
-  const listener = useRef<UnregisterCallback | null>(null);
+export const useRouteChange = (onChange: (location: LocationLike) => void) => {
+  const location = useLocation();
+  const prevLocation = useRef<LocationLike>(location);
+  const registered = useRef(false);
 
   const register = () => {
-    if (listener.current) return;
-
-    onChange(router.history.location);
-
-    listener.current = router.history.listen(incomingLocation => {
-      if (location.current && compareLocations(location.current, incomingLocation)) return;
-
-      onChange(incomingLocation);
-      location.current = incomingLocation;
-    });
+    if (registered.current) return;
+    registered.current = true;
+    // Fire immediately with current location
+    onChange(location);
   };
+
+  useEffect(() => {
+    if (!registered.current) return;
+
+    if (!compareLocations(prevLocation.current, location)) {
+      onChange(location);
+      prevLocation.current = location;
+    }
+  }, [location, onChange]);
 
   return { register };
 };

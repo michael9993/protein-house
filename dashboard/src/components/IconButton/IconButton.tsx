@@ -1,7 +1,7 @@
 import { isExternalURL } from "@dashboard/utils/urls";
 import { IconButton as MacawIconButton, IconButtonProps } from "@saleor/macaw-ui";
 import * as React from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 const _IconButton = React.forwardRef<unknown, { href: string }>(({ href, ...props }, ref) => {
   if (href && !isExternalURL(href)) {

@@ -7,7 +7,7 @@ import { ThemeProvider } from "@saleor/macaw-ui-next";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ReactNode } from "react";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router";
 
 import { VoucherCode } from "../VoucherCodesDatagrid/types";
 import { VoucherCodes, VoucherCodesProps } from "./VoucherCodes";

@@ -18,7 +18,7 @@ import { Box, sprinkles } from "@saleor/macaw-ui-next";
 import { ExternalLink, Trash2 } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { useIntl } from "react-intl";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import { FormData } from "../OrderDraftDetailsProducts/OrderDraftDetailsProducts";
 import { orderDraftDetailsStaticColumnsAdapter, useGetCellContent } from "./datagrid";

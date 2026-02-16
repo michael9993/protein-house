@@ -1,7 +1,7 @@
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { render, screen, waitFor } from "@testing-library/react";
 import { useIntl } from "react-intl";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import { useUser } from "../auth";
 import { PermissionEnum, UserFragment } from "../graphql";
@@ -13,7 +13,7 @@ vi.mock("@dashboard/featureFlags", () => ({
   useFlag: vi.fn(() => ({ enabled: true })),
 }));
 vi.mock("@dashboard/hooks/useNavigator", () => ({ default: () => vi.fn() }));
-vi.mock("react-router-dom", () => ({
+vi.mock("react-router", () => ({
   Link: vi.fn(({ children }) => children),
 }));
 vi.mock("@dashboard/auth", () => ({

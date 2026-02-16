@@ -11,7 +11,7 @@ import { EyeIcon } from "@saleor/macaw-ui";
 import { Box, Button, Input, Text } from "@saleor/macaw-ui-next";
 import { Fragment, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import useStyles from "../styles";
 import LoginForm, { LoginFormData } from "./form";

@@ -2,7 +2,7 @@ import "@saleor/macaw-ui-next/style";
 import "./index.css";
 
 import { ApolloProvider } from "@apollo/client";
-import { history, Route, Router } from "@dashboard/components/Router";
+import { createAppRouter } from "@dashboard/components/Router";
 import { AppExtensionPopupProvider } from "@dashboard/extensions/components/AppExtensionContext/AppExtensionContextProvider";
 import { ExtensionsPaths, extensionsSection } from "@dashboard/extensions/urls";
 import { PermissionEnum } from "@dashboard/graphql";
@@ -20,12 +20,12 @@ import { createRoot } from "react-dom/client";
 import { ErrorBoundary } from "react-error-boundary";
 import TagManager from "react-gtm-module";
 import { useIntl } from "react-intl";
-import { Redirect, Switch } from "react-router-dom";
+import { Navigate, Route, RouterProvider, Routes as RouterRoutes } from "react-router";
 
 import { attributeSection } from "./attributes/urls";
 import AuthProvider from "./auth/AuthProvider";
 import LoginLoading from "./auth/components/LoginLoading/LoginLoading";
-import SectionRoute from "./auth/components/SectionRoute";
+import { SectionGuard } from "./auth/components/SectionRoute";
 import { useAuthRedirection } from "./auth/hooks/useAuthRedirection";
 import { channelsSection } from "./channels/urls";
 import AppLayout from "./components/AppLayout";
@@ -96,7 +96,7 @@ if (GTM_ID) {
   TagManager.initialize({ gtmId: GTM_ID });
 }
 
-errorTracker.init(history);
+errorTracker.init();
 
 /*
   Handle legacy theming toggle. Since we use new and old macaw,
@@ -116,52 +116,56 @@ const handleLegacyTheming = () => {
 
 handleLegacyTheming();
 
-const App = () => (
+/**
+ * AppContent contains all providers and is rendered as the element
+ * of the catch-all route in createBrowserRouter. This gives us
+ * DataRouter context so useBlocker works for form exit protection.
+ */
+const AppContent = () => (
   // @ts-expect-error legacy types
   <SaleorProvider client={saleorClient}>
     <ApolloProvider client={apolloClient}>
-      <Router>
-        {/* @ts-expect-error legacy types */}
-        <LegacyThemeProvider overrides={themeOverrides} palettes={paletteOverrides}>
-          <ThemeProvider>
-            <DateProvider>
-              <LocaleProvider>
-                <MessageManagerProvider>
-                  <BackgroundTasksProvider>
-                    <AppStateProvider>
-                      <AuthProvider>
-                        <ProductAnalytics>
-                          <ShopProvider>
-                            <AppChannelProvider>
-                              <ExitFormDialogProvider>
-                                <DevModeProvider>
-                                  <NavigatorSearchProvider>
-                                    <SavebarRefProvider>
-                                      <FeatureFlagsProviderWithUser>
-                                        <OnboardingProvider>
-                                          <Routes />
-                                        </OnboardingProvider>
-                                      </FeatureFlagsProviderWithUser>
-                                    </SavebarRefProvider>
-                                  </NavigatorSearchProvider>
-                                </DevModeProvider>
-                              </ExitFormDialogProvider>
-                            </AppChannelProvider>
-                          </ShopProvider>
-                        </ProductAnalytics>
-                      </AuthProvider>
-                    </AppStateProvider>
-                  </BackgroundTasksProvider>
-                </MessageManagerProvider>
-              </LocaleProvider>
-            </DateProvider>
-          </ThemeProvider>
-        </LegacyThemeProvider>
-      </Router>
+      {/* @ts-expect-error legacy types */}
+      <LegacyThemeProvider overrides={themeOverrides} palettes={paletteOverrides}>
+        <ThemeProvider>
+          <DateProvider>
+            <LocaleProvider>
+              <MessageManagerProvider>
+                <BackgroundTasksProvider>
+                  <AppStateProvider>
+                    <AuthProvider>
+                      <ProductAnalytics>
+                        <ShopProvider>
+                          <AppChannelProvider>
+                            <ExitFormDialogProvider>
+                              <DevModeProvider>
+                                <NavigatorSearchProvider>
+                                  <SavebarRefProvider>
+                                    <FeatureFlagsProviderWithUser>
+                                      <OnboardingProvider>
+                                        <AppRoutes />
+                                      </OnboardingProvider>
+                                    </FeatureFlagsProviderWithUser>
+                                  </SavebarRefProvider>
+                                </NavigatorSearchProvider>
+                              </DevModeProvider>
+                            </ExitFormDialogProvider>
+                          </AppChannelProvider>
+                        </ShopProvider>
+                      </ProductAnalytics>
+                    </AuthProvider>
+                  </AppStateProvider>
+                </BackgroundTasksProvider>
+              </MessageManagerProvider>
+            </LocaleProvider>
+          </DateProvider>
+        </ThemeProvider>
+      </LegacyThemeProvider>
     </ApolloProvider>
   </SaleorProvider>
 );
-const Routes = () => {
+
+const AppRoutes = () => {
   const intl = useIntl();
   const [, dispatchAppState] = useAppState();
   const { authenticated, authenticating } = useAuthRedirection();
@@ -194,147 +198,229 @@ const Routes = () => {
               )}
             >
               <Suspense fallback={<LoginLoading />}>
-                <Switch>
+                <RouterRoutes>
                   {legacyRedirects}
-                  <SectionRoute exact path="/" component={WelcomePage} />
-                  <SectionRoute
-                    permissions={[
-                      PermissionEnum.MANAGE_PRODUCTS,
-                      PermissionEnum.MANAGE_ORDERS,
-                      PermissionEnum.MANAGE_PAGES,
-                      PermissionEnum.MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES,
-                    ]}
-                    matchPermission="any"
+                  <Route path="/" element={<SectionGuard><WelcomePage /></SectionGuard>} />
+                  <Route
                     path="/search"
-                    component={SearchSection}
+                    element={
+                      <SectionGuard
+                        permissions={[
+                          PermissionEnum.MANAGE_PRODUCTS,
+                          PermissionEnum.MANAGE_ORDERS,
+                          PermissionEnum.MANAGE_PAGES,
+                          PermissionEnum.MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES,
+                        ]}
+                        matchPermission="any"
+                      >
+                        <SearchSection />
+                      </SectionGuard>
+                    }
                   />
-                  <SectionRoute
-                    permissions={[PermissionEnum.MANAGE_PRODUCTS]}
-                    path="/categories"
-                    component={CategorySection}
+                  <Route
+                    path="/categories/*"
+                    element={
+                      <SectionGuard permissions={[PermissionEnum.MANAGE_PRODUCTS]}>
+                        <CategorySection />
+                      </SectionGuard>
+                    }
                   />
-                  <SectionRoute
-                    permissions={[PermissionEnum.MANAGE_PRODUCTS]}
-                    path="/collections"
-                    component={CollectionSection}
+                  <Route
+                    path="/collections/*"
+                    element={
+                      <SectionGuard permissions={[PermissionEnum.MANAGE_PRODUCTS]}>
+                        <CollectionSection />
+                      </SectionGuard>
+                    }
                   />
-                  <SectionRoute
-                    permissions={[PermissionEnum.MANAGE_USERS]}
-                    path="/customers"
-                    component={CustomerSection}
+                  <Route
+                    path="/customers/*"
+                    element={
+                      <SectionGuard permissions={[PermissionEnum.MANAGE_USERS]}>
+                        <CustomerSection />
+                      </SectionGuard>
+                    }
                   />
-                  <SectionRoute
-                    permissions={[PermissionEnum.MANAGE_GIFT_CARD]}
-                    path={giftCardsSectionUrlName}
-                    component={GiftCardSection}
+                  <Route
+                    path={`${giftCardsSectionUrlName}/*`}
+                    element={
+                      <SectionGuard permissions={[PermissionEnum.MANAGE_GIFT_CARD]}>
+                        <GiftCardSection />
+                      </SectionGuard>
+                    }
                   />
-                  <SectionRoute
-                    permissions={[PermissionEnum.MANAGE_PRODUCTS]}
-                    path={reviewsSectionUrlName}
-                    component={ReviewsSection}
+                  <Route
+                    path={`${reviewsSectionUrlName}/*`}
+                    element={
+                      <SectionGuard permissions={[PermissionEnum.MANAGE_PRODUCTS]}>
+                        <ReviewsSection />
+                      </SectionGuard>
+                    }
                   />
-                  <SectionRoute
-                    permissions={[PermissionEnum.MANAGE_DISCOUNTS]}
-                    path="/discounts"
-                    component={DiscountSection}
+                  <Route
+                    path="/discounts/*"
+                    element={
+                      <SectionGuard permissions={[PermissionEnum.MANAGE_DISCOUNTS]}>
+                        <DiscountSection />
+                      </SectionGuard>
+                    }
                   />
-                  <SectionRoute
-                    permissions={[PermissionEnum.MANAGE_PAGES]}
-                    path={pageListPath}
-                    component={PageSection}
+                  <Route
+                    path={`${pageListPath}/*`}
+                    element={
+                      <SectionGuard permissions={[PermissionEnum.MANAGE_PAGES]}>
+                        <PageSection />
+                      </SectionGuard>
+                    }
                   />
-                  <SectionRoute
-                    permissions={[
-                      PermissionEnum.MANAGE_PAGES,
-                      PermissionEnum.MANAGE_PAGE_TYPES_AND_ATTRIBUTES,
-                    ]}
-                    path={modelTypesPath}
-                    component={PageTypesSection}
-                    matchPermission="any"
+                  <Route
+                    path={`${modelTypesPath}/*`}
+                    element={
+                      <SectionGuard
+                        permissions={[
+                          PermissionEnum.MANAGE_PAGES,
+                          PermissionEnum.MANAGE_PAGE_TYPES_AND_ATTRIBUTES,
+                        ]}
+                        matchPermission="any"
+                      >
+                        <PageTypesSection />
+                      </SectionGuard>
+                    }
                   />
-                  <SectionRoute
-                    permissions={[PermissionEnum.MANAGE_ORDERS]}
-                    path="/orders"
-                    component={OrdersSection}
+                  <Route
+                    path="/orders/*"
+                    element={
+                      <SectionGuard permissions={[PermissionEnum.MANAGE_ORDERS]}>
+                        <OrdersSection />
+                      </SectionGuard>
+                    }
                   />
-                  <SectionRoute
-                    permissions={[PermissionEnum.MANAGE_PRODUCTS]}
-                    path="/products"
-                    component={ProductSection}
+                  <Route
+                    path="/products/*"
+                    element={
+                      <SectionGuard permissions={[PermissionEnum.MANAGE_PRODUCTS]}>
+                        <ProductSection />
+                      </SectionGuard>
+                    }
                   />
-                  <SectionRoute
-                    permissions={[PermissionEnum.MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES]}
-                    path="/product-types"
-                    component={ProductTypesSection}
+                  <Route
+                    path="/product-types/*"
+                    element={
+                      <SectionGuard permissions={[PermissionEnum.MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES]}>
+                        <ProductTypesSection />
+                      </SectionGuard>
+                    }
                   />
-                  <SectionRoute path="/staff" component={StaffSection} />
-                  <SectionRoute
-                    permissions={[PermissionEnum.MANAGE_STAFF]}
-                    path="/permission-groups"
-                    component={PermissionGroupSection}
+                  <Route
+                    path="/staff/*"
+                    element={<SectionGuard><StaffSection /></SectionGuard>}
                   />
-                  <SectionRoute
-                    permissions={[PermissionEnum.MANAGE_SETTINGS]}
-                    path="/site-settings"
-                    component={SiteSettingsSection}
+                  <Route
+                    path="/permission-groups/*"
+                    element={
+                      <SectionGuard permissions={[PermissionEnum.MANAGE_STAFF]}>
+                        <PermissionGroupSection />
+                      </SectionGuard>
+                    }
                   />
-                  <SectionRoute
-                    permissions={[PermissionEnum.MANAGE_SETTINGS]}
-                    path={refundsSettingsPath}
-                    component={RefundsSettingsRoute}
+                  <Route
+                    path="/site-settings/*"
+                    element={
+                      <SectionGuard permissions={[PermissionEnum.MANAGE_SETTINGS]}>
+                        <SiteSettingsSection />
+                      </SectionGuard>
+                    }
                   />
-                  <SectionRoute path="/taxes" component={TaxesSection} />
-                  <SectionRoute
-                    permissions={[PermissionEnum.MANAGE_SHIPPING]}
-                    path="/shipping"
-                    component={ShippingSection}
+                  <Route
+                    path={`${refundsSettingsPath}/*`}
+                    element={
+                      <SectionGuard permissions={[PermissionEnum.MANAGE_SETTINGS]}>
+                        <RefundsSettingsRoute />
+                      </SectionGuard>
+                    }
                   />
-                  <SectionRoute
-                    permissions={[PermissionEnum.MANAGE_TRANSLATIONS]}
-                    path="/translations"
-                    component={TranslationsSection}
+                  <Route
+                    path="/taxes/*"
+                    element={<SectionGuard><TaxesSection /></SectionGuard>}
                   />
-                  <SectionRoute
-                    permissions={[PermissionEnum.MANAGE_MENUS]}
-                    path={structuresListPath}
-                    component={NavigationSection}
+                  <Route
+                    path="/shipping/*"
+                    element={
+                      <SectionGuard permissions={[PermissionEnum.MANAGE_SHIPPING]}>
+                        <ShippingSection />
+                      </SectionGuard>
+                    }
                   />
-                  <SectionRoute
-                    permissions={[
-                      PermissionEnum.MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES,
-                      PermissionEnum.MANAGE_PAGE_TYPES_AND_ATTRIBUTES,
-                    ]}
-                    path={attributeSection}
-                    component={AttributeSection}
-                    matchPermission="any"
+                  <Route
+                    path="/translations/*"
+                    element={
+                      <SectionGuard permissions={[PermissionEnum.MANAGE_TRANSLATIONS]}>
+                        <TranslationsSection />
+                      </SectionGuard>
+                    }
                   />
-                  <SectionRoute
-                    permissions={[]}
-                    path={extensionsSection}
-                    component={ExtensionsSection}
+                  <Route
+                    path={`${structuresListPath}/*`}
+                    element={
+                      <SectionGuard permissions={[PermissionEnum.MANAGE_MENUS]}>
+                        <NavigationSection />
+                      </SectionGuard>
+                    }
                   />
-                  <SectionRoute
-                    permissions={[PermissionEnum.MANAGE_PRODUCTS]}
-                    path={warehouseSection}
-                    component={WarehouseSection}
+                  <Route
+                    path={`${attributeSection}/*`}
+                    element={
+                      <SectionGuard
+                        permissions={[
+                          PermissionEnum.MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES,
+                          PermissionEnum.MANAGE_PAGE_TYPES_AND_ATTRIBUTES,
+                        ]}
+                        matchPermission="any"
+                      >
+                        <AttributeSection />
+                      </SectionGuard>
+                    }
                   />
-                  <SectionRoute
-                    permissions={[PermissionEnum.MANAGE_CHANNELS]}
-                    path={channelsSection}
-                    component={ChannelsSection}
+                  <Route
+                    path={`${extensionsSection}/*`}
+                    element={
+                      <SectionGuard permissions={[]}>
+                        <ExtensionsSection />
+                      </SectionGuard>
+                    }
                   />
-                  <SectionRoute
-                    matchPermission="any"
-                    permissions={getConfigMenuItemsPermissions(intl)}
-                    exact
+                  <Route
+                    path={`${warehouseSection}/*`}
+                    element={
+                      <SectionGuard permissions={[PermissionEnum.MANAGE_PRODUCTS]}>
+                        <WarehouseSection />
+                      </SectionGuard>
+                    }
+                  />
+                  <Route
+                    path={`${channelsSection}/*`}
+                    element={
+                      <SectionGuard permissions={[PermissionEnum.MANAGE_CHANNELS]}>
+                        <ChannelsSection />
+                      </SectionGuard>
+                    }
+                  />
+                  <Route
                     path="/configuration"
-                    component={ConfigurationSection}
+                    element={
+                      <SectionGuard
+                        matchPermission="any"
+                        permissions={getConfigMenuItemsPermissions(intl)}
+                      >
+                        <ConfigurationSection />
+                      </SectionGuard>
+                    }
                   />
-                  <Redirect to={ExtensionsPaths.installedExtensions} path={"/apps"} />
-                  <Redirect to={ExtensionsPaths.installedExtensions} path="/custom-apps/" />
-                  <Redirect to={ExtensionsPaths.installedExtensions} path="/plugins" />
-                  <Route component={NotFound} />
-                </Switch>
+                  <Route path="/apps" element={<Navigate to={ExtensionsPaths.installedExtensions} replace />} />
+                  <Route path="/custom-apps/*" element={<Navigate to={ExtensionsPaths.installedExtensions} replace />} />
+                  <Route path="/plugins" element={<Navigate to={ExtensionsPaths.installedExtensions} replace />} />
+                  <Route path="*" element={<NotFound />} />
+                </RouterRoutes>
               </Suspense>
             </ErrorBoundary>
           </AppLayout>
@@ -350,6 +436,10 @@ const Routes = () => {
   );
 };
 
+// Create the router using createBrowserRouter (data router).
+// This provides DataRouter context so useBlocker works for form exit protection.
+const router = createAppRouter(<AppContent />);
+
 const root = createRoot(document.querySelector("#dashboard-app")!);
 
 // StrictMode double-mounts in dev and can break EditorJS/Combobox. Disable with VITE_DISABLE_STRICT_MODE=true.
@@ -361,9 +451,9 @@ const enableStrictMode = import.meta.env.DEV && !disableStrictMode;
 root.render(
   enableStrictMode ? (
     <StrictMode>
-      <App />
+      <RouterProvider router={router} />
     </StrictMode>
   ) : (
-    <App />
+    <RouterProvider router={router} />
   ),
 );

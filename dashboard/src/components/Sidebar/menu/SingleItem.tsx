@@ -1,7 +1,7 @@
 import { extensionMountPoints } from "@dashboard/extensions/extensionMountPoints";
 import { useExtensions } from "@dashboard/extensions/hooks/useExtensions";
 import { Box, List, sprinkles, Text } from "@saleor/macaw-ui-next";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import { SidebarMenuItem } from "./types";
 import { getMenuItemExtension, isMenuActive } from "./utils";

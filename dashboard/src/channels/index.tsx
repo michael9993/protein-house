@@ -1,9 +1,8 @@
-import { Route } from "@dashboard/components/Router";
 import { sectionNames } from "@dashboard/intl";
 import { parseQs } from "@dashboard/url-utils";
 import { asSortParams } from "@dashboard/utils/sort";
 import { useIntl } from "react-intl";
-import { RouteComponentProps, Switch } from "react-router-dom";
+import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
@@ -17,12 +16,16 @@ import ChannelCreateComponent from "./views/ChannelCreate";
 import ChannelDetailsComponent from "./views/ChannelDetails";
 import ChannelsListComponent from "./views/ChannelsList";
 
-const ChannelDetails = ({ match }: RouteComponentProps<any>) => {
+const ChannelDetails = () => {
+  const { id } = useParams();
+  const location = useLocation();
   const params = parseQs(location.search.substr(1));
 
-  return <ChannelDetailsComponent id={decodeURIComponent(match.params.id)} params={params} />;
+  return <ChannelDetailsComponent id={decodeURIComponent(id ?? "")} params={params} />;
 };
-const ChannelsList = ({ location }: RouteComponentProps) => {
+
+const ChannelsList = () => {
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1)) as any;
   const params: ChannelsListUrlQueryParams = asSortParams(qs, ChannelsListUrlSortField);
 
@@ -35,11 +38,11 @@ const ChannelsSection = () => {
   return (
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.channels)} />
-      <Switch>
-        <Route exact path={channelsListPath} component={ChannelsList} />
-        <Route exact path={channelAddPath} component={ChannelCreateComponent} />
-        <Route exact path={channelPath(":id")} component={ChannelDetails} />
-      </Switch>
+      <Routes>
+        <Route path={channelsListPath} element={<ChannelsList />} />
+        <Route path={channelAddPath} element={<ChannelCreateComponent />} />
+        <Route path={channelPath(":id")} element={<ChannelDetails />} />
+      </Routes>
     </>
   );
 };

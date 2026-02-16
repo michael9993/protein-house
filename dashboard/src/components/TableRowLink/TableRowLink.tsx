@@ -4,11 +4,12 @@ import { makeStyles } from "@saleor/macaw-ui";
 import clsx from "clsx";
 import { forwardRef } from "react";
 import * as React from "react";
-import { Link, LinkProps } from "react-router-dom";
+import { Link, LinkProps } from "react-router";
 
 type MaterialTableRowPropsType = TableRowTypeMap["props"];
 
-type LocationDescriptor = LinkProps["to"];
+/** Extends react-router's `To` to also accept an inline `state` property. */
+type LocationDescriptor = LinkProps["to"] | { pathname: string; state?: unknown; search?: string; hash?: string };
 
 export interface TableRowLinkProps extends MaterialTableRowPropsType {
   children: React.ReactNode;
@@ -40,9 +41,21 @@ const TableRowLink = forwardRef<HTMLTableRowElement, TableRowLinkProps>((props, 
     );
   }
 
+  // Extract `state` from href object (react-router v7 requires state as separate prop)
+  let to: LinkProps["to"];
+  let state: unknown;
+
+  if (typeof href === "object" && "state" in href) {
+    const { state: hrefState, ...rest } = href;
+    to = rest;
+    state = hrefState;
+  } else {
+    to = href;
+  }
+
   return (
     <TableRow ref={ref} hover={true} onClick={onClick} {...restProps}>
-      <Link className={clsx(classes.link, linkClassName)} to={href}>
+      <Link className={clsx(classes.link, linkClassName)} to={to} state={state}>
         {children}
       </Link>
     </TableRow>

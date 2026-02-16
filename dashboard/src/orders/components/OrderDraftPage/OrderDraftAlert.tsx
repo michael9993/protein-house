@@ -4,7 +4,7 @@ import { Alert, AlertProps } from "@saleor/macaw-ui";
 import { sprinkles } from "@saleor/macaw-ui-next";
 import clsx from "clsx";
 import { FormattedMessage, MessageDescriptor, useIntl } from "react-intl";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import OrderAlerts from "../OrderAlerts";
 import { alertMessages } from "./messages";

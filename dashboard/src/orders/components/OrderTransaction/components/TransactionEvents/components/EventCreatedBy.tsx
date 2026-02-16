@@ -4,7 +4,7 @@ import { AppAvatarFragment, StaffMemberAvatarFragment } from "@dashboard/graphql
 import { getUserInitials, getUserName } from "@dashboard/misc";
 import { staffMemberDetailsUrl } from "@dashboard/staff/urls";
 import { Box } from "@saleor/macaw-ui-next";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 interface EventCreatedByProps {
   createdBy: StaffMemberAvatarFragment | AppAvatarFragment | null;

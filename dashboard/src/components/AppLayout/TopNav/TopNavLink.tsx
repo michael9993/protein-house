@@ -1,7 +1,7 @@
 import { iconSize, iconStrokeWidth } from "@dashboard/components/icons";
 import { Button, sprinkles } from "@saleor/macaw-ui-next";
 import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 type Variant = "secondary" | "tertiary";
 

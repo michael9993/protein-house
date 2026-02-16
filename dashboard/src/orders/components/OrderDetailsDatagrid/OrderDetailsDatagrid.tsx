@@ -17,7 +17,7 @@ import { Theme } from "@glideapps/glide-data-grid";
 import { ExternalLink } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { useIntl } from "react-intl";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import { messages as orderMessages } from "../OrderListDatagrid/messages";
 import { createGetCellContent, orderDetailsStaticColumnsAdapter } from "./datagrid";

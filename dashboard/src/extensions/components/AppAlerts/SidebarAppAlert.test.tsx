@@ -12,8 +12,8 @@ import { useAppsAlert } from "./useAppsAlert";
 vi.mock("@dashboard/hooks/useHasManagedAppsPermission");
 vi.mock("@dashboard/graphql");
 
-vi.mock("react-router-dom", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("react-router-dom")>()),
+vi.mock("react-router", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("react-router")>()),
   Link: vi.fn(({ to, ...props }) => <a href={to} {...props} />),
 }));
 

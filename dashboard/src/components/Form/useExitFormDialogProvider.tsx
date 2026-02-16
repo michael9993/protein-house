@@ -1,8 +1,7 @@
 // @ts-strict-ignore
 import { SubmitPromise } from "@dashboard/hooks/useForm";
-import { useEffect, useRef, useState } from "react";
-import { useHistory } from "react-router";
-import useRouter from "use-react-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useBlocker, useLocation, useNavigate } from "react-router";
 
 import { ExitFormDialogData, FormData, FormsData } from "./types";
 
@@ -10,7 +9,7 @@ const defaultValues = {
   isDirty: false,
   showDialog: false,
   blockNav: true,
-  navAction: null,
+  navAction: null as { pathname: string; search: string } | null,
   enableExitDialog: false,
   isSubmitting: false,
   formsData: {},
@@ -18,8 +17,8 @@ const defaultValues = {
 
 /** @deprecated Use react-hook-form instead */
 export function useExitFormDialogProvider() {
-  const history = useHistory();
-  const { history: routerHistory } = useRouter();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [showDialog, setShowDialog] = useState(defaultValues.showDialog);
   const isSubmitDisabled = useRef(false);
   const setIsSubmitDisabled = (status: boolean) => {
@@ -28,9 +27,9 @@ export function useExitFormDialogProvider() {
   const isSubmitting = useRef(defaultValues.isSubmitting);
   const formsData = useRef<FormsData>({});
   const blockNav = useRef(defaultValues.blockNav);
-  const navAction = useRef<typeof history.location>(defaultValues.navAction);
+  const navAction = useRef<{ pathname: string; search: string } | null>(defaultValues.navAction);
   const enableExitDialog = useRef(defaultValues.enableExitDialog);
-  const currentLocation = useRef(history.location);
+  const currentLocation = useRef(location);
   const setIsSubmitting = (value: boolean) => {
     setEnableExitDialog(!value);
     isSubmitting.current = value;
@@ -46,7 +45,7 @@ export function useExitFormDialogProvider() {
   const setDefaultFormsData = () => {
     formsData.current = defaultValues.formsData;
   };
-  const setCurrentLocation = (newLocation: typeof history.location) => {
+  const setCurrentLocation = (newLocation: { pathname: string; search: string }) => {
     currentLocation.current = newLocation;
   };
   const setFormData = (id: symbol, newData: Partial<FormData>) => {
@@ -87,57 +86,52 @@ export function useExitFormDialogProvider() {
   const getFormsDataValuesArray = () =>
     Object.getOwnPropertySymbols(formsData.current).map(key => formsData.current[key]);
   const hasAnyFormsDirty = () => getFormsDataValuesArray().some(({ isDirty }) => isDirty);
-  const shouldBlockNav = () => {
+  const shouldBlockNav = useCallback(() => {
     if (!enableExitDialog.current || !hasAnyFormsDirty()) {
       return false;
     }
 
     return blockNav.current;
-  };
-  const isOnlyQuerying = (transition: typeof history.location) =>
-    // We need to compare to current path and not window location
-    // so it works with browser back button as well
-    transition.pathname === currentLocation.current.pathname;
-  const handleNavigationBlock = () => {
-    // This callback blocks only navigation between internal dashboard pages
-    // https://github.com/remix-run/history/blob/main/docs/blocking-transitions.md#caveats
-    const unblock = history.block(transition => {
-      // needs to be done before the shouldBlockNav condition
-      // so it doesn't trigger setting default values
-      if (isOnlyQuerying(transition)) {
-        // transition type requires this function to return either
-        // false | void | string where string opens up the browser prompt
-        // hence we return null
-        return null;
-      }
+  }, []);
 
-      if (shouldBlockNav()) {
-        navAction.current = transition;
-        setShowDialog(true);
+  // Store blocker ref for proceed/reset
+  const blockerRef = useRef<ReturnType<typeof useBlocker> | null>(null);
 
-        return false;
-      }
+  // useBlocker replaces history.block() — requires createBrowserRouter (data router).
+  const blocker = useBlocker(({ currentLocation: curr, nextLocation: next }) => {
+    // Allow query-string-only changes (same pathname)
+    if (curr.pathname === next.pathname) {
+      return false;
+    }
 
-      setStateDefaultValues();
-      setCurrentLocation(transition);
+    return shouldBlockNav();
+  });
 
-      return null;
-    });
+  blockerRef.current = blocker;
 
-    return unblock;
-  };
+  useEffect(() => {
+    if (blocker.state === "blocked") {
+      navAction.current = blocker.location;
+      setShowDialog(true);
+    }
+  }, [blocker.state, blocker.location]);
 
-  useEffect(handleNavigationBlock, []);
+  // Keep currentLocation in sync
+  useEffect(() => {
+    currentLocation.current = location;
+  }, [location]);
 
   const continueNavigation = () => {
     setBlockNav(false);
     setDefaultFormsData();
-    setCurrentLocation(navAction.current);
 
-    // because our useNavigator navigate action may be blocked
-    // by exit dialog we want to avoid using it doing this transition
-    if (navAction.current !== null) {
-      routerHistory.push(navAction.current.pathname + navAction.current.search);
+    if (navAction.current) {
+      setCurrentLocation(navAction.current);
+    }
+
+    // Use blocker.proceed() to continue the blocked navigation
+    if (blockerRef.current?.state === "blocked") {
+      blockerRef.current.proceed();
     }
 
     setStateDefaultValues();
@@ -146,6 +140,11 @@ export function useExitFormDialogProvider() {
     continueNavigation();
   };
   const handleClose = () => {
+    // Reset the blocker so navigation stays on current page
+    if (blockerRef.current?.state === "blocked") {
+      blockerRef.current.reset();
+    }
+
     setDefaultNavAction();
     setShowDialog(false);
   };

@@ -12,11 +12,11 @@ import { ThemeProvider } from "@saleor/macaw-ui-next";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ReactNode } from "react";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router";
 
 import { OrderManualTransactionRefundPage } from "./OrderManualTransactionRefundPage";
 
-vi.mock("@dashboard/hooks/useNavigator", () => ({ default: () => vi.fn }));
+vi.mock("@dashboard/hooks/useNavigator", () => ({ default: () => vi.fn() }));
 vi.mock("@dashboard/components/Savebar");
 
 vi.mock("@dashboard/hooks/useNotifier", () => ({

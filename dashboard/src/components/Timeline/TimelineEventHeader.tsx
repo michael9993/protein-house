@@ -1,7 +1,7 @@
 import { Box, Text } from "@saleor/macaw-ui-next";
 import { ReactNode } from "react";
 import * as React from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import { DateTime } from "../Date";
 

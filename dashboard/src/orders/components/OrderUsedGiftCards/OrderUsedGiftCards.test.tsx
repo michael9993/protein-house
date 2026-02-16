@@ -3,7 +3,7 @@ import { ThemeWrapper } from "@test/themeWrapper";
 import { render, screen } from "@testing-library/react";
 import { ReactNode } from "react";
 import { IntlProvider } from "react-intl";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router";
 
 import { messages } from "./messages";
 import { OrderUsedGiftCards } from "./OrderUsedGiftCards";

@@ -5,7 +5,7 @@ import { makeStyles } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import clsx from "clsx";
 import * as React from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink } from "react-router";
 
 const useStyles = makeStyles(
   theme => ({
@@ -38,7 +38,7 @@ interface LinkState {
 }
 
 // Note: we need to skip the `dangerouslySetInnerHTML` prop from the `React.AnchorHTMLAttributes`
-// in order to match react-router-dom Link props
+// in order to match react-router Link props
 interface LinkProps
   extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "dangerouslySetInnerHTML"> {
   href?: string;
@@ -96,17 +96,17 @@ const Link = (props: LinkProps) => {
   return (
     <>
       {!!href && !isExternalURL(href) ? (
-        <RouterLink<LinkState>
+        <RouterLink
           to={
             disabled
-              ? undefined
+              ? "#"
               : {
                   pathname: urlObject.pathname,
                   search: urlObject.search,
                   hash: urlObject.hash,
-                  state,
                 }
           }
+          state={disabled ? undefined : state}
           {...commonLinkProps}
         >
           {children}

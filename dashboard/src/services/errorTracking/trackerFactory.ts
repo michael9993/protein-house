@@ -1,5 +1,3 @@
-import { History } from "history";
-
 import { TrackerMethods, TrackerPermission, UserData } from "./types";
 
 type ErrorTrackerFactory = (
@@ -25,9 +23,9 @@ export const ErrorTrackerFactory: ErrorTrackerFactory = (extension, permissions 
     }
   };
 
-  const init: TrackerMethods["init"] = (history: History) => {
+  const init: TrackerMethods["init"] = () => {
     if (!ENABLED) {
-      ENABLED = extension.init(history);
+      ENABLED = extension.init();
     }
 
     return ENABLED;

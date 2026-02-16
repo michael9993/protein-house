@@ -12,7 +12,7 @@ import {
 import { Box, Button, Text, Tooltip } from "@saleor/macaw-ui-next";
 import { Pencil } from "lucide-react";
 import { FormattedMessage, useIntl } from "react-intl";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import { EventTime } from "../OrderTransaction/components/TransactionEvents/components";
 import { OrderTransactionRefundStatusPill } from "../OrderTransactionRefundPage/components/OrderTransactionRefundStatusPill/OrderTransactionRefundStatusPill";

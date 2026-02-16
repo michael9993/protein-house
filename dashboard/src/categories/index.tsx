@@ -1,9 +1,8 @@
-import { Route } from "@dashboard/components/Router";
 import { sectionNames } from "@dashboard/intl";
 import { parseQs } from "@dashboard/url-utils";
 import { asSortParams } from "@dashboard/utils/sort";
 import { useIntl } from "react-intl";
-import { RouteComponentProps, Switch } from "react-router-dom";
+import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
@@ -18,28 +17,27 @@ import { CategoryCreateView } from "./views/CategoryCreate";
 import CategoryDetailsView from "./views/CategoryDetails";
 import CategoryListComponent from "./views/CategoryList";
 
-interface CategoryDetailsRouteParams {
-  id: string;
-}
-
-const CategoryDetails = ({ location, match }: RouteComponentProps<CategoryDetailsRouteParams>) => {
+const CategoryDetails = () => {
+  const location = useLocation();
+  const { id } = useParams();
   const qs = parseQs(location.search.substr(1));
   const params: CategoryUrlQueryParams = qs;
 
-  return <CategoryDetailsView id={decodeURIComponent(match.params.id)} params={params} />;
+  return <CategoryDetailsView id={decodeURIComponent(id ?? "")} params={params} />;
 };
 
-interface CategoryCreateRouteParams {
-  id: string;
-}
+const CategoryCreate = () => {
+  const { id } = useParams();
 
-const CategoryCreate = ({ match }: RouteComponentProps<CategoryCreateRouteParams>) => (
-  <CategoryCreateView
-    parentId={match.params.id ? decodeURIComponent(match.params.id) : undefined}
-  />
-);
+  return (
+    <CategoryCreateView
+      parentId={id ? decodeURIComponent(id) : undefined}
+    />
+  );
+};
 
-const CategoryList = ({ location }: RouteComponentProps<{}>) => {
+const CategoryList = () => {
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1)) as any;
   const params: CategoryListUrlQueryParams = {
     ...asSortParams(qs, CategoryListUrlSortField),
@@ -54,12 +52,12 @@ const Component = () => {
   return (
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.categories)} />
-      <Switch>
-        <Route exact path={categoryListPath} component={CategoryList} />
-        <Route exact path={categoryAddPath()} component={CategoryCreate} />
-        <Route exact path={categoryAddPath(":id")} component={CategoryCreate} />
-        <Route path={categoryPath(":id")} component={CategoryDetails} />
-      </Switch>
+      <Routes>
+        <Route path={categoryListPath} element={<CategoryList />} />
+        <Route path={categoryAddPath()} element={<CategoryCreate />} />
+        <Route path={categoryAddPath(":id")} element={<CategoryCreate />} />
+        <Route path={categoryPath(":id")} element={<CategoryDetails />} />
+      </Routes>
     </>
   );
 };

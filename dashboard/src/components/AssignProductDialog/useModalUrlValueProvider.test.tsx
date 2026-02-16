@@ -1,7 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import React from "react";
-import { useHistory } from "react-router";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, useLocation } from "react-router";
 
 import { InitialProductStateResponse } from "../ConditionalFilter/API/initialState/product/InitialProductStateResponse";
 import { InitialProductAPIState } from "../ConditionalFilter/API/initialState/product/useProductInitialAPIState";
@@ -254,9 +253,9 @@ describe("useModalUrlValueProvider", () => {
       const { result } = renderHook(
         () => {
           const valueProvider = useModalUrlValueProvider();
-          const history = useHistory();
+          const location = useLocation();
 
-          return { valueProvider, history };
+          return { valueProvider, location };
         },
         { wrapper },
       );
@@ -267,7 +266,7 @@ describe("useModalUrlValueProvider", () => {
       });
 
       // Assert
-      expect(result.current.history.location.search).toMatchInlineSnapshot(
+      expect(result.current.location.search).toMatchInlineSnapshot(
         `"?0%5Bs-1.category%5D=is&action=assign&id=attr-1"`,
       );
     });
@@ -281,9 +280,9 @@ describe("useModalUrlValueProvider", () => {
       const { result } = renderHook(
         () => {
           const valueProvider = useModalUrlValueProvider();
-          const history = useHistory();
+          const location = useLocation();
 
-          return { valueProvider, history };
+          return { valueProvider, location };
         },
         { wrapper },
       );
@@ -294,7 +293,7 @@ describe("useModalUrlValueProvider", () => {
       });
 
       // Assert
-      expect(result.current.history.location.search).toMatchInlineSnapshot(
+      expect(result.current.location.search).toMatchInlineSnapshot(
         `"?0%5Bs-1.category%5D=is&1=AND&2%5Bs-1.channel%5D=is&action=assign&id=attr-1"`,
       );
     });
@@ -307,9 +306,9 @@ describe("useModalUrlValueProvider", () => {
       const { result } = renderHook(
         () => {
           const valueProvider = useModalUrlValueProvider();
-          const history = useHistory();
+          const location = useLocation();
 
-          return { valueProvider, history };
+          return { valueProvider, location };
         },
         { wrapper },
       );
@@ -320,7 +319,7 @@ describe("useModalUrlValueProvider", () => {
       });
 
       // Assert
-      expect(result.current.history.location.search).toMatchInlineSnapshot(
+      expect(result.current.location.search).toMatchInlineSnapshot(
         `"?0%5Bs-1.channel%5D=is&action=assign&id=attr-1"`,
       );
     });
@@ -333,9 +332,9 @@ describe("useModalUrlValueProvider", () => {
       const { result } = renderHook(
         () => {
           const valueProvider = useModalUrlValueProvider();
-          const history = useHistory();
+          const location = useLocation();
 
-          return { valueProvider, history };
+          return { valueProvider, location };
         },
         { wrapper },
       );
@@ -346,7 +345,7 @@ describe("useModalUrlValueProvider", () => {
       });
 
       // Assert
-      expect(result.current.history.location.search).toMatchInlineSnapshot(
+      expect(result.current.location.search).toMatchInlineSnapshot(
         `"?0%5Bs-1.category%5D=is&action=assign&id=attr-1&customParam=keep"`,
       );
     });
@@ -358,9 +357,9 @@ describe("useModalUrlValueProvider", () => {
       const { result } = renderHook(
         () => {
           const valueProvider = useModalUrlValueProvider();
-          const history = useHistory();
+          const location = useLocation();
 
-          return { valueProvider, history };
+          return { valueProvider, location };
         },
         { wrapper },
       );
@@ -371,7 +370,7 @@ describe("useModalUrlValueProvider", () => {
       });
 
       // Assert
-      expect(result.current.history.location.search).toMatchInlineSnapshot(
+      expect(result.current.location.search).toMatchInlineSnapshot(
         `"?action=assign&id=attr-1"`,
       );
     });

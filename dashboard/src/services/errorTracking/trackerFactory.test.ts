@@ -1,5 +1,3 @@
-import { History } from "history";
-
 import { ErrorTrackerFactory } from "./trackerFactory";
 import { TrackerMethods, TrackerPermission } from "./types";
 
@@ -24,12 +22,10 @@ const TestAdapter = (): TrackerMethods => {
   };
 };
 
-const history = vi.fn() as unknown as History;
-
 describe("Error Tracking", () => {
   it("Initiates the tracker", () => {
     const errorTracking = ErrorTrackerFactory(TestAdapter());
-    const enabled = errorTracking.init(history);
+    const enabled = errorTracking.init();
 
     expect(enabled).toBe(true);
     expect(initMockFn).toHaveBeenCalled();
@@ -45,7 +41,7 @@ describe("Error Tracking", () => {
   it("Sends a captured exception", () => {
     const errorTracking = ErrorTrackerFactory(TestAdapter());
 
-    errorTracking.init(history);
+    errorTracking.init();
 
     const sampleError = new Error("test");
     const id = errorTracking.captureException(sampleError);
@@ -56,7 +52,7 @@ describe("Error Tracking", () => {
   it("Does not save user data without permission", () => {
     const errorTracking = ErrorTrackerFactory(TestAdapter());
 
-    errorTracking.init(history);
+    errorTracking.init();
 
     const userData = {
       email: "john@example.com",
@@ -70,7 +66,7 @@ describe("Error Tracking", () => {
   it("Does save user data with proper permission", () => {
     const errorTracking = ErrorTrackerFactory(TestAdapter(), [TrackerPermission.USER_DATA]);
 
-    errorTracking.init(history);
+    errorTracking.init();
 
     const userData = {
       email: "john@example.com",

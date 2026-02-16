@@ -4,7 +4,7 @@ import { PermissionEnum } from "@dashboard/graphql";
 import { staffListUrl } from "@dashboard/staff/urls";
 import { Button, Tooltip } from "@saleor/macaw-ui-next";
 import { FormattedMessage } from "react-intl";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import { PrimaryActionProps } from "./type";
 import { WelcomePageFakeDisabledButton } from "./WelcomePageFakeDisabledButton";

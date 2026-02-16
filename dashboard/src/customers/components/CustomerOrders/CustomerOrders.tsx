@@ -10,7 +10,7 @@ import { RelayToFlat } from "@dashboard/types";
 import { TableBody, TableCell, TableHead } from "@material-ui/core";
 import { Button, Skeleton, sprinkles } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import { renderCollection } from "../../../misc";
 

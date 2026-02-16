@@ -1,10 +1,9 @@
 import { ConditionalPageFilterProvider } from "@dashboard/components/ConditionalFilter";
-import { Route } from "@dashboard/components/Router";
 import { sectionNames } from "@dashboard/intl";
 import { parseQs } from "@dashboard/url-utils";
 import { asSortParams } from "@dashboard/utils/sort";
 import { useIntl } from "react-intl";
-import { RouteComponentProps, Switch } from "react-router-dom";
+import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
@@ -21,6 +20,7 @@ import PageDetailsComponent from "./views/PageDetails";
 import PageListComponent from "./views/PageList";
 
 const PageList = () => {
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1)) as any;
   const params: PageListUrlQueryParams = asSortParams(
     qs,
@@ -34,29 +34,36 @@ const PageList = () => {
     </ConditionalPageFilterProvider>
   );
 };
-const PageCreate = ({ match }: RouteComponentProps<{ id: string }>) => {
+
+const PageCreate = () => {
+  const location = useLocation();
+  const { id } = useParams();
   const qs = parseQs(location.search.substr(1));
   const params: PageCreateUrlQueryParams = qs;
 
-  return <PageCreateComponent id={decodeURIComponent(match.params.id)} params={params} />;
+  return <PageCreateComponent id={decodeURIComponent(id ?? "")} params={params} />;
 };
-const PageDetails = ({ match }: RouteComponentProps<{ id: string }>) => {
+
+const PageDetails = () => {
+  const location = useLocation();
+  const { id } = useParams();
   const qs = parseQs(location.search.substr(1));
   const params: PageUrlQueryParams = qs;
 
-  return <PageDetailsComponent id={decodeURIComponent(match.params.id)} params={params} />;
+  return <PageDetailsComponent id={decodeURIComponent(id ?? "")} params={params} />;
 };
+
 const Component = () => {
   const intl = useIntl();
 
   return (
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.models)} />
-      <Switch>
-        <Route exact path={pageListPath} component={PageList} />
-        <Route exact path={pageCreatePath} component={PageCreate} />
-        <Route path={pagePath(":id")} component={PageDetails} />
-      </Switch>
+      <Routes>
+        <Route path={pageListPath} element={<PageList />} />
+        <Route path={pageCreatePath} element={<PageCreate />} />
+        <Route path={pagePath(":id")} element={<PageDetails />} />
+      </Routes>
     </>
   );
 };

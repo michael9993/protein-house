@@ -1,10 +1,9 @@
 import { ConditionalStaffMembersFilterProvider } from "@dashboard/components/ConditionalFilter";
-import { Route } from "@dashboard/components/Router";
 import { sectionNames } from "@dashboard/intl";
 import { parseQs } from "@dashboard/url-utils";
 import { asSortParams } from "@dashboard/utils/sort";
 import { useIntl } from "react-intl";
-import { RouteComponentProps, Switch } from "react-router-dom";
+import { Route, Routes, useParams, useLocation } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
@@ -18,6 +17,7 @@ import { StaffDetailsView } from "./views/StaffDetails";
 import StaffListComponent from "./views/StaffList";
 
 const StaffList = () => {
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1)) as any;
   const params: StaffListUrlQueryParams = asSortParams(qs, StaffListUrlSortField);
 
@@ -28,28 +28,25 @@ const StaffList = () => {
   );
 };
 
-interface StaffDetailsRouteProps {
-  id: string;
-}
-
-const StaffDetailsComponent: React.FC<RouteComponentProps<StaffDetailsRouteProps>> = ({
-  match,
-}) => {
+const StaffDetailsComponent = () => {
+  const { id } = useParams();
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1));
   const params: StaffMemberDetailsUrlQueryParams = qs;
 
-  return <StaffDetailsView id={decodeURIComponent(match.params.id)} params={params} />;
+  return <StaffDetailsView id={decodeURIComponent(id ?? "")} params={params} />;
 };
+
 const Component = () => {
   const intl = useIntl();
 
   return (
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.staff)} />
-      <Switch>
-        <Route exact path={staffListPath} component={StaffList} />
-        <Route path={staffMemberDetailsPath(":id")} component={StaffDetailsComponent} />
-      </Switch>
+      <Routes>
+        <Route path={staffListPath} element={<StaffList />} />
+        <Route path={staffMemberDetailsPath(":id")} element={<StaffDetailsComponent />} />
+      </Routes>
     </>
   );
 };

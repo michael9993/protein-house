@@ -1,9 +1,8 @@
-import { Route } from "@dashboard/components/Router";
 import { sectionNames } from "@dashboard/intl";
 import { parseQs } from "@dashboard/url-utils";
 import { asSortParams } from "@dashboard/utils/sort";
 import { useIntl } from "react-intl";
-import { RouteComponentProps, Switch } from "react-router-dom";
+import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
@@ -18,17 +17,21 @@ import WarehouseCreate from "./views/WarehouseCreate";
 import WarehouseDetailsComponent from "./views/WarehouseDetails";
 import WarehouseListComponent from "./views/WarehouseList";
 
-const WarehouseList = ({ location }: RouteComponentProps) => {
+const WarehouseList = () => {
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1)) as any;
   const params: WarehouseListUrlQueryParams = asSortParams(qs, WarehouseListUrlSortField);
 
   return <WarehouseListComponent params={params} />;
 };
-const WarehouseDetails = ({ match, location }: RouteComponentProps<{ id: string }>) => {
+
+const WarehouseDetails = () => {
+  const { id } = useParams();
+  const location = useLocation();
   const qs = parseQs(location.search.substr(1));
   const params: WarehouseUrlQueryParams = qs;
 
-  return <WarehouseDetailsComponent id={decodeURIComponent(match.params.id)} params={params} />;
+  return <WarehouseDetailsComponent id={decodeURIComponent(id ?? "")} params={params} />;
 };
 
 const WarehouseSection = () => {
@@ -37,11 +40,11 @@ const WarehouseSection = () => {
   return (
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.warehouses)} />
-      <Switch>
-        <Route exact path={warehouseListPath} component={WarehouseList} />
-        <Route exact path={warehouseAddPath} component={WarehouseCreate} />
-        <Route path={warehousePath(":id")} component={WarehouseDetails} />
-      </Switch>
+      <Routes>
+        <Route path={warehouseListPath} element={<WarehouseList />} />
+        <Route path={warehouseAddPath} element={<WarehouseCreate />} />
+        <Route path={warehousePath(":id")} element={<WarehouseDetails />} />
+      </Routes>
     </>
   );
 };
