@@ -1,11 +1,12 @@
-import "@testing-library/jest-dom";
+import "@testing-library/jest-dom/vitest";
 
 import { configure } from "@testing-library/react";
+import { vi } from "vitest";
 
-jest.mock("@sentry/react");
-jest.mock("react-hotkeys-hook", () => ({
-  useHotkeys: jest.fn(),
-  useHotkeysContext: jest.fn(),
+vi.mock("@sentry/react");
+vi.mock("react-hotkeys-hook", () => ({
+  useHotkeys: vi.fn(),
+  useHotkeysContext: vi.fn(),
   HotkeysProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
@@ -16,12 +17,12 @@ document.getElementById = () => document.createElement("div");
 document.createRange = () => {
   const range = new Range();
 
-  range.getBoundingClientRect = jest.fn();
+  range.getBoundingClientRect = vi.fn();
 
   range.getClientRects = () => ({
     item: () => null,
     length: 0,
-    [Symbol.iterator]: jest.fn(),
+    [Symbol.iterator]: vi.fn(),
   });
 
   return range;

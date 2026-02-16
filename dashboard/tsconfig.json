@@ -13,6 +13,7 @@
     "downlevelIteration": true,
     "strict": false,
     "resolveJsonModule": true,
+    "types": ["vitest/globals"],
     "plugins": [
       {
         "name": "typescript-strict-plugin"
