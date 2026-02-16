@@ -15,6 +15,8 @@ export interface DraftData {
 export function useAutoSave(
   canvas: fabric.Canvas | null,
   activeProjectId?: string | null,
+  docWidth?: number,
+  docHeight?: number,
 ) {
   const [hasDraft, setHasDraft] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -33,7 +35,7 @@ export function useAutoSave(
   const saveDraft = useCallback(() => {
     if (!canvas) return;
 
-    const objects = canvas.getObjects();
+    const objects = canvas.getObjects().filter((o) => !(o as any).__pageBg);
     if (objects.length === 0) return;
 
     const json = canvas.toJSON();
@@ -49,8 +51,8 @@ export function useAutoSave(
           saveProject({
             ...existing,
             canvasJson: json,
-            canvasWidth: canvas.getWidth(),
-            canvasHeight: canvas.getHeight(),
+            canvasWidth: docWidth ?? existing.canvasWidth,
+            canvasHeight: docHeight ?? existing.canvasHeight,
             thumbnail,
             updatedAt: Date.now(),
           }).then(() => {
@@ -71,7 +73,7 @@ export function useAutoSave(
       setLastSaved(new Date());
       setHasDraft(true);
     });
-  }, [canvas, activeProjectId]);
+  }, [canvas, activeProjectId, docWidth, docHeight]);
 
   // Restore draft from IndexedDB
   const restoreDraft = useCallback(async (): Promise<boolean> => {

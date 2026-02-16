@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, DialogPanel, Transition, TransitionChild } from "@headlessui/react";
 import { Logo } from "../../Logo";
 import { useMobileMenu } from "./useMobileMenu";
 import { OpenButton } from "./OpenButton";
@@ -71,7 +71,7 @@ export const MobileMenu = ({ children, channel, navData, isLoggedIn }: Props) =>
 			<Dialog onClose={closeMenu} className="relative z-[100]">
 				<div className="fixed inset-0 z-[100]" aria-hidden={!isOpen}>
 					{/* Backdrop – dimmed overlay, tap/click to close (Shopify-style) */}
-					<Transition.Child
+					<TransitionChild
 						as="div"
 						className="fixed inset-0 bg-black/50"
 						aria-hidden="true"
@@ -85,8 +85,8 @@ export const MobileMenu = ({ children, channel, navData, isLoggedIn }: Props) =>
 					/>
 
 					{/* Drawer panel – position from Storefront Control (navbar.mobileNavPosition: left | right) */}
-					<Transition.Child
-						as={Dialog.Panel}
+					<TransitionChild
+						as={DialogPanel}
 						className={`fixed inset-y-0 z-10 flex h-full flex-col overflow-hidden shadow-2xl focus:outline-none w-[min(360px,90vw)] max-w-[min(360px,90vw)] ${mobileNavPosition === "left" ? "start-0" : "end-0"}`}
 						style={{ backgroundColor: "var(--store-bg)" }}
 						enter="ease-out duration-200"
@@ -123,7 +123,7 @@ export const MobileMenu = ({ children, channel, navData, isLoggedIn }: Props) =>
 						</div>
 
 						{drawerBody}
-					</Transition.Child>
+					</TransitionChild>
 				</div>
 			</Dialog>
 		</Transition>

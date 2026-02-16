@@ -83,8 +83,8 @@
     "graphql-config": "5.0.3",
     "tsx": "catalog:",
     "typescript": "5.8.2",
-    "autoprefixer": "^10.4.20",
+    "@tailwindcss/postcss": "^4.1.18",
     "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.17"
+    "tailwindcss": "^4.1.18"
   }
 }

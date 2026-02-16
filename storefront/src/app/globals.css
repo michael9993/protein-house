@@ -1,6 +1,34 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+
+/* ============================================
+   TAILWIND v4 THEME — Custom design tokens
+   Maps store CSS variables to Tailwind utilities
+   (e.g. bg-store-primary, font-heading, rounded-store)
+   ============================================ */
+@theme {
+  /* Colors from store config CSS variables */
+  --color-store-primary: var(--store-primary);
+  --color-store-secondary: var(--store-secondary);
+  --color-store-accent: var(--store-accent);
+  --color-store-bg: var(--store-bg);
+  --color-store-surface: var(--store-surface);
+  --color-store-text: var(--store-text);
+  --color-store-text-muted: var(--store-text-muted);
+  --color-store-success: var(--store-success);
+  --color-store-warning: var(--store-warning);
+  --color-store-error: var(--store-error);
+
+  /* Typography from store config CSS variables */
+  --font-heading: var(--store-font-heading);
+  --font-body: var(--store-font-body);
+  --font-mono: var(--store-font-mono);
+
+  /* Border radius from store config CSS variables */
+  --radius-store: var(--store-radius);
+}
 
 /* Prevent FOUC for RTL/LTR - hide content until direction is set */
 /* This ensures no flash of incorrect layout direction */

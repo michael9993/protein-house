@@ -1,8 +1,8 @@
 "use client";
 
-import { Fragment, useMemo } from "react";
+import { useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Listbox, Transition } from "@headlessui/react";
+import { Listbox, ListboxButton, ListboxOptions, ListboxOption, Transition } from "@headlessui/react";
 import { ChevronDown } from "lucide-react";
 import clsx from "clsx";
 import { useFiltersText } from "@/providers/StoreConfigProvider";
@@ -37,26 +37,25 @@ export const SortBy = () => {
 		<div className="w-auto max-w-[200px]">
 			<Listbox value={currentSortValue} onChange={handleChange}>
 				<div className="relative mt-1">
-					<Listbox.Button className="relative w-full cursor-pointer bg-transparent py-2 ps-3 pe-10 text-start text-sm font-medium text-neutral-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-300 sm:text-sm">
+					<ListboxButton className="relative w-full cursor-pointer bg-transparent py-2 ps-3 pe-10 text-start text-sm font-medium text-neutral-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-300 sm:text-sm">
 						<span className="block truncate">{selectedOption.name}</span>
 						<span className="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-2">
 							<ChevronDown className="h-4 w-4 text-neutral-500" aria-hidden="true" />
 						</span>
-					</Listbox.Button>
+					</ListboxButton>
 					<Transition
-						as={Fragment}
 						leave="transition ease-in duration-100"
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
 					>
-						<Listbox.Options className="absolute end-0 z-10 mt-1 max-h-60 w-max min-w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+						<ListboxOptions modal={false} className="absolute end-0 z-10 mt-1 max-h-60 w-max min-w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
 							{sortOptions.map((option) => (
-								<Listbox.Option
+								<ListboxOption
 									key={option.value}
-									className={({ active }) =>
+									className={({ focus }) =>
 										clsx(
 											"relative cursor-default select-none py-2 px-4",
-											active ? "bg-neutral-100 text-neutral-900" : "text-neutral-700",
+											focus ? "bg-neutral-100 text-neutral-900" : "text-neutral-700",
 										)
 									}
 									value={option.value}
@@ -66,9 +65,9 @@ export const SortBy = () => {
 											{option.name}
 										</span>
 									)}
-								</Listbox.Option>
+								</ListboxOption>
 							))}
-						</Listbox.Options>
+						</ListboxOptions>
 					</Transition>
 				</div>
 			</Listbox>

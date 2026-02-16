@@ -37,7 +37,7 @@ function getCanvasSpaceBounds(
   };
 }
 
-export function useSmartGuides(canvas: Canvas | null, enabled: boolean) {
+export function useSmartGuides(canvas: Canvas | null, enabled: boolean, docWidth?: number, docHeight?: number) {
   const guidesRef = useRef<GuideLine[]>([]);
   const [gridVisible, setGridVisible] = useState(false);
   const [gridSize, setGridSize] = useState(20);
@@ -62,24 +62,24 @@ export function useSmartGuides(canvas: Canvas | null, enabled: boolean) {
       target.setCoords();
       const targetPts = getCanvasSpaceBounds(target, zoom, panX, panY);
 
-      // Canvas edge + center snap targets (canvas space)
-      const canvasW = canvas.getWidth();
-      const canvasH = canvas.getHeight();
-      const verticalSnaps = [0, canvasW / 2, canvasW];
-      const horizontalSnaps = [0, canvasH / 2, canvasH];
+      // Document edge + center snap targets (canvas space, using document dims)
+      const dW = docWidth ?? canvas.getWidth();
+      const dH = docHeight ?? canvas.getHeight();
+      const verticalSnaps = [0, dW / 2, dW];
+      const horizontalSnaps = [0, dH / 2, dH];
 
-      // Other objects' snap points (canvas space)
+      // Other objects' snap points (canvas space), skip page background
       canvas.getObjects().forEach((obj) => {
-        if (obj === target || !obj.visible) return;
+        if (obj === target || !obj.visible || (obj as any).__pageBg) return;
         const pts = getCanvasSpaceBounds(obj, zoom, panX, panY);
         verticalSnaps.push(pts.left, pts.centerX, pts.right);
         horizontalSnaps.push(pts.top, pts.centerY, pts.bottom);
       });
 
-      // Grid snap targets
+      // Grid snap targets (relative to document area)
       if (gridVisible) {
-        for (let x = 0; x <= canvasW; x += gridSize) verticalSnaps.push(x);
-        for (let y = 0; y <= canvasH; y += gridSize) horizontalSnaps.push(y);
+        for (let x = 0; x <= dW; x += gridSize) verticalSnaps.push(x);
+        for (let y = 0; y <= dH; y += gridSize) horizontalSnaps.push(y);
       }
 
       // Find closest vertical snap (X axis)
@@ -141,32 +141,33 @@ export function useSmartGuides(canvas: Canvas | null, enabled: boolean) {
       const toScreenX = (cx: number) => cx * zoom + panX;
       const toScreenY = (cy: number) => cy * zoom + panY;
 
-      const canvasW = canvas.getWidth();
-      const canvasH = canvas.getHeight();
+      // Use document dimensions for grid/guide extent
+      const dW = docWidth ?? canvas.getWidth();
+      const dH = docHeight ?? canvas.getHeight();
 
-      // Draw grid
+      // Draw grid (within document area)
       if (gridVisible) {
         ctx.save();
         ctx.strokeStyle = GRID_COLOR;
         ctx.lineWidth = 0.5;
-        for (let x = 0; x <= canvasW; x += gridSize) {
+        for (let x = 0; x <= dW; x += gridSize) {
           const sx = toScreenX(x);
           ctx.beginPath();
           ctx.moveTo(sx, toScreenY(0));
-          ctx.lineTo(sx, toScreenY(canvasH));
+          ctx.lineTo(sx, toScreenY(dH));
           ctx.stroke();
         }
-        for (let y = 0; y <= canvasH; y += gridSize) {
+        for (let y = 0; y <= dH; y += gridSize) {
           const sy = toScreenY(y);
           ctx.beginPath();
           ctx.moveTo(toScreenX(0), sy);
-          ctx.lineTo(toScreenX(canvasW), sy);
+          ctx.lineTo(toScreenX(dW), sy);
           ctx.stroke();
         }
         ctx.restore();
       }
 
-      // Draw snap guide lines
+      // Draw snap guide lines (within document area)
       if (guidesRef.current.length === 0) return;
       ctx.save();
       ctx.strokeStyle = GUIDE_COLOR;
@@ -178,11 +179,11 @@ export function useSmartGuides(canvas: Canvas | null, enabled: boolean) {
         if (guide.orientation === "vertical") {
           const sx = toScreenX(guide.position);
           ctx.moveTo(sx, toScreenY(0));
-          ctx.lineTo(sx, toScreenY(canvasH));
+          ctx.lineTo(sx, toScreenY(dH));
         } else {
           const sy = toScreenY(guide.position);
           ctx.moveTo(toScreenX(0), sy);
-          ctx.lineTo(toScreenX(canvasW), sy);
+          ctx.lineTo(toScreenX(dW), sy);
         }
         ctx.stroke();
       }
@@ -199,7 +200,7 @@ export function useSmartGuides(canvas: Canvas | null, enabled: boolean) {
       canvas.off("after:render", renderGuides);
       guidesRef.current = [];
     };
-  }, [canvas, enabled, snapEnabled, gridVisible, gridSize]);
+  }, [canvas, enabled, snapEnabled, gridVisible, gridSize, docWidth, docHeight]);
 
   const toggleGrid = useCallback(() => {
     setGridVisible((v) => !v);

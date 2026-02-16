@@ -1,15 +1,12 @@
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { FlatCompat } from "@eslint/eslintrc";
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import importPlugin from "eslint-plugin-import";
 import prettierConfig from "eslint-config-prettier";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-
-const compat = new FlatCompat({
-	baseDirectory: __dirname,
-});
 
 export default tseslint.config(
 	// Global ignores (replaces ignorePatterns)
@@ -20,6 +17,8 @@ export default tseslint.config(
 			"*.cjs",
 			"*.mjs",
 			"src/checkout/src/graphql/**",
+			".graphqlrc.ts",
+			"scripts/**",
 			".next/**",
 			"out/**",
 			"build/**",
@@ -30,9 +29,8 @@ export default tseslint.config(
 	// Base JS recommended rules
 	js.configs.recommended,
 
-	// Next.js core-web-vitals via FlatCompat
-	// Brings: React, React Hooks, a11y, import, Next.js plugin, @typescript-eslint/recommended
-	...compat.extends("next/core-web-vitals"),
+	// Next.js core-web-vitals (React, React Hooks, a11y, import, Next.js plugin, TS recommended)
+	...nextVitals,
 
 	// Type-checked TS rules (adds type checking on top of recommended from next/core-web-vitals)
 	...tseslint.configs.recommendedTypeCheckedOnly,
@@ -49,6 +47,7 @@ export default tseslint.config(
 
 	// Custom TypeScript and import rules
 	{
+		plugins: { import: importPlugin },
 		rules: {
 			// Import ordering and hygiene
 			"import/order": "error",

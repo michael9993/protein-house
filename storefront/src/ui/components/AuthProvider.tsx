@@ -9,7 +9,6 @@ import {
 	Provider as UrqlProvider,
 	cacheExchange,
 	createClient,
-	dedupExchange,
 	fetchExchange,
 } from "urql";
 import { setupCheckoutLogoutListener, clearCheckoutLocalStorage } from "@/lib/checkout-client";
@@ -27,7 +26,7 @@ const makeUrqlClient = () => {
 		suspense: true,
 		// requestPolicy: "cache-first",
 		fetch: (input, init) => saleorAuthClient.fetchWithAuth(input as RequestInfo, init),
-		exchanges: [dedupExchange, cacheExchange, fetchExchange],
+		exchanges: [cacheExchange, fetchExchange],
 	});
 };
 

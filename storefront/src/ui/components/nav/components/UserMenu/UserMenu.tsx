@@ -1,8 +1,8 @@
 "use client";
 
-import { Fragment, useMemo } from "react";
+import { useMemo } from "react";
 import clsx from "clsx";
-import { Menu, Transition } from "@headlessui/react";
+import { Menu, MenuButton, MenuItems, MenuItem, Transition } from "@headlessui/react";
 import { UserInfo } from "./components/UserInfo";
 import { UserAvatar } from "./components/UserAvatar";
 import { type UserDetailsFragment } from "@/gql/graphql";
@@ -89,7 +89,7 @@ export function UserMenu({ user, ordersCount = 0, addressesCount = 0 }: Props) {
 	], [content.account, ordersCount, addressesCount, wishlistCount]);
 	return (
 		<Menu as="div" className="relative">
-			<Menu.Button className="nav-action-btn group relative flex items-center gap-1.5 rounded-full p-2 transition-all duration-200 hover:bg-neutral-100">
+			<MenuButton className="nav-action-btn group relative flex items-center gap-1.5 rounded-full p-2 transition-all duration-200 hover:bg-neutral-100">
 				<span className="sr-only">Open user menu</span>
 				<UserAvatar user={user} />
 				<span className="hidden text-xs font-semibold text-neutral-700 lg:inline">
@@ -104,9 +104,8 @@ export function UserMenu({ user, ordersCount = 0, addressesCount = 0 }: Props) {
 				>
 					<path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
 				</svg>
-			</Menu.Button>
+			</MenuButton>
 			<Transition
-				as={Fragment}
 				enter="transition ease-out duration-200"
 				enterFrom="transform opacity-0 scale-95 translate-y-1"
 				enterTo="transform opacity-100 scale-100 translate-y-0"
@@ -114,7 +113,7 @@ export function UserMenu({ user, ordersCount = 0, addressesCount = 0 }: Props) {
 				leaveFrom="transform opacity-100 scale-100 translate-y-0"
 				leaveTo="transform opacity-0 scale-95 translate-y-1"
 			>
-				<Menu.Items className="absolute end-0 z-50 mt-2 w-64 origin-top-end rounded-xl bg-white py-2 shadow-lg ring-1 ring-black/5 focus:outline-none">
+				<MenuItems modal={false} className="absolute end-0 z-50 mt-2 w-64 origin-top-end rounded-xl bg-white py-2 shadow-lg ring-1 ring-black/5 focus:outline-none">
 					{/* User Info Header */}
 					<div className="border-b border-neutral-100 px-4 py-3">
 						<UserInfo user={user} />
@@ -127,20 +126,20 @@ export function UserMenu({ user, ordersCount = 0, addressesCount = 0 }: Props) {
 							sectionIndex !== menuItems.length - 1 && "border-b border-neutral-100"
 						)}>
 							{section.items.map((item) => (
-								<Menu.Item key={item.href}>
-									{({ active }) => (
+								<MenuItem key={item.href}>
+									{({ focus }) => (
 										<LinkWithChannel
 											href={item.href}
 											className={clsx(
 												"flex items-center gap-3 px-4 py-2.5 text-sm transition-colors",
-												active 
+												focus
 													? "bg-neutral-50 text-neutral-900" 
 													: "text-neutral-600 hover:text-neutral-900"
 											)}
 										>
 											<span 
 												className="flex-shrink-0 transition-colors"
-												style={{ color: active ? branding.colors.primary : undefined }}
+												style={{ color: focus ? branding.colors.primary : undefined }}
 											>
 												{item.icon}
 											</span>
@@ -149,9 +148,9 @@ export function UserMenu({ user, ordersCount = 0, addressesCount = 0 }: Props) {
 												<span 
 													className={clsx(
 														"ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-semibold",
-														!active && "bg-neutral-200 text-neutral-700"
+														!focus && "bg-neutral-200 text-neutral-700"
 													)}
-													style={active ? { 
+													style={focus ? { 
 														backgroundColor: branding.colors.primary, 
 														color: "white" 
 													} : undefined}
@@ -161,15 +160,15 @@ export function UserMenu({ user, ordersCount = 0, addressesCount = 0 }: Props) {
 											)}
 										</LinkWithChannel>
 									)}
-								</Menu.Item>
+								</MenuItem>
 							))}
 						</div>
 					))}
 					
 					{/* Logout */}
 					<div className="pt-2">
-						<Menu.Item>
-							{({ active }) => (
+						<MenuItem>
+							{({ focus }) => (
 								<form 
 									action={logout}
 									onSubmit={() => {
@@ -182,7 +181,7 @@ export function UserMenu({ user, ordersCount = 0, addressesCount = 0 }: Props) {
 										type="submit"
 										className={clsx(
 											"flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors",
-											active 
+											focus
 												? "bg-red-50 text-red-600" 
 												: "text-neutral-600 hover:text-red-600"
 										)}
@@ -194,9 +193,9 @@ export function UserMenu({ user, ordersCount = 0, addressesCount = 0 }: Props) {
 									</button>
 								</form>
 							)}
-						</Menu.Item>
+						</MenuItem>
 					</div>
-				</Menu.Items>
+				</MenuItems>
 			</Transition>
 		</Menu>
 	);

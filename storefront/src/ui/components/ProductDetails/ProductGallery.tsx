@@ -14,8 +14,7 @@ import "swiper/css/thumbs";
 import "swiper/css/zoom";
 import "swiper/css/effect-fade";
 
-import { Dialog, Transition } from "@headlessui/react";
-import { Fragment } from "react";
+import { Dialog, Transition, TransitionChild } from "@headlessui/react";
 
 interface ProductGalleryProps {
   images: Array<{
@@ -149,7 +148,7 @@ export function ProductGallery({ images, productName, discountPercent, allowLigh
               {images.map((image, index) => (
                 <SwiperSlide key={index}>
                   <button
-                     className={`relative flex-shrink-0 overflow-hidden rounded-lg transition-all duration-300 w-full opacity-60 hover:opacity-100 hover:scale-95 ui-selected:opacity-100 ui-selected:ring-2 ring-offset-1`}
+                     className={`relative flex-shrink-0 overflow-hidden rounded-lg transition-all duration-300 w-full opacity-60 hover:opacity-100 hover:scale-95 data-[selected]:opacity-100 data-[selected]:ring-2 ring-offset-1`}
                   >
                      <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-neutral-100">
                         <Image
@@ -181,17 +180,16 @@ export function ProductGallery({ images, productName, discountPercent, allowLigh
       </div>
 
       {/* Fullscreen Lightbox - High Z-Index to beat QuickView (9999) */}
-      <Transition show={isLightboxOpen} as={Fragment}>
-        <Dialog 
-          as="div" 
-          className="relative z-[10000]" 
+      <Transition show={isLightboxOpen}>
+        <Dialog
+          as="div"
+          className="relative z-[10000]"
           onClose={(e) => {
              // Optional: check if we should close or if it's interfering
              setIsLightboxOpen(false)
           }}
         >
-          <Transition.Child
-            as={Fragment}
+          <TransitionChild
             enter="ease-out duration-300"
             enterFrom="opacity-0"
             enterTo="opacity-100"
@@ -200,7 +198,7 @@ export function ProductGallery({ images, productName, discountPercent, allowLigh
             leaveTo="opacity-0"
           >
             <div className="fixed inset-0 bg-black/95 backdrop-blur-sm" />
-          </Transition.Child>
+          </TransitionChild>
 
           <div 
             className="fixed inset-0 overflow-hidden" 

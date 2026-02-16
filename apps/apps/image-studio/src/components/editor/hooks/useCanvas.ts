@@ -14,6 +14,34 @@ interface UseCanvasOptions {
   height?: number;
 }
 
+/** Marker property on the page background rect */
+const PAGE_BG_KEY = "__pageBg";
+
+function isPageBackground(obj: fabric.FabricObject): boolean {
+  return (obj as any)[PAGE_BG_KEY] === true;
+}
+
+function createPageRect(w: number, h: number): fabric.Rect {
+  const rect = new fabric.Rect({
+    left: 0,
+    top: 0,
+    width: w,
+    height: h,
+    fill: "#ffffff",
+    selectable: false,
+    evented: false,
+    strokeWidth: 0,
+    shadow: new fabric.Shadow({
+      color: "rgba(0,0,0,0.12)",
+      blur: 12,
+      offsetX: 0,
+      offsetY: 2,
+    }),
+  });
+  (rect as any)[PAGE_BG_KEY] = true;
+  return rect;
+}
+
 export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
   const { width = 800, height = 600 } = options;
   const canvasRef = useRef<fabric.Canvas | null>(null);
@@ -29,9 +57,13 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     const canvas = new fabric.Canvas(canvasEl, {
       width,
       height,
-      backgroundColor: "#ffffff",
+      backgroundColor: "#f0f0f0", // workspace gray
       preserveObjectStacking: true,
     });
+
+    // Add page background rect (white document area)
+    const pageRect = createPageRect(width, height);
+    canvas.add(pageRect);
 
     canvas.on("selection:created", (e) => {
       setSelectedObject(e.selected?.[0] ?? null);
@@ -53,6 +85,23 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     };
   }, [canvasElId, width, height]);
 
+  // Helper: find the page background rect on the canvas
+  const getPageRect = useCallback((): fabric.Rect | null => {
+    const canvas = canvasRef.current;
+    if (!canvas) return null;
+    return (canvas.getObjects().find((o) => isPageBackground(o)) as fabric.Rect) ?? null;
+  }, []);
+
+  // Helper: ensure page rect is at the bottom of the stack
+  const ensurePageRectAtBottom = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const pg = canvas.getObjects().find((o) => isPageBackground(o));
+    if (pg) {
+      canvas.sendObjectToBack(pg);
+    }
+  }, []);
+
   const addImage = useCallback(async (imageUrl: string) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -70,14 +119,15 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     try {
       const img = await fabric.FabricImage.fromURL(url, { crossOrigin: "anonymous" });
 
-      const canvasW = canvas.getWidth();
-      const canvasH = canvas.getHeight();
-      const scale = Math.min(canvasW / (img.width ?? 1), canvasH / (img.height ?? 1), 1);
+      // Position relative to document dimensions, not canvas element
+      const docW = canvasDimensions.width;
+      const docH = canvasDimensions.height;
+      const scale = Math.min(docW / (img.width ?? 1), docH / (img.height ?? 1), 1);
 
       img.scale(scale);
       img.set({
-        left: (canvasW - (img.width ?? 0) * scale) / 2,
-        top: (canvasH - (img.height ?? 0) * scale) / 2,
+        left: (docW - (img.width ?? 0) * scale) / 2,
+        top: (docH - (img.height ?? 0) * scale) / 2,
       });
 
       canvas.add(img);
@@ -86,7 +136,7 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     } catch (err) {
       console.error("Failed to load image:", err);
     }
-  }, []);
+  }, [canvasDimensions]);
 
   const addText = useCallback((text: string = "Double-click to edit") => {
     const canvas = canvasRef.current;
@@ -94,8 +144,8 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
 
     const safeText = typeof text === "string" ? text : String(text ?? "Text");
     const textObj = new fabric.IText(safeText, {
-      left: canvas.getWidth() / 2 - 100,
-      top: canvas.getHeight() / 2 - 20,
+      left: canvasDimensions.width / 2 - 100,
+      top: canvasDimensions.height / 2 - 20,
       fontSize: 24,
       fontFamily: "Arial",
       fill: "#000000",
@@ -104,15 +154,15 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     canvas.add(textObj);
     canvas.setActiveObject(textObj);
     canvas.renderAll();
-  }, []);
+  }, [canvasDimensions]);
 
   const addRect = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const rect = new fabric.Rect({
-      left: canvas.getWidth() / 2 - 50,
-      top: canvas.getHeight() / 2 - 50,
+      left: canvasDimensions.width / 2 - 50,
+      top: canvasDimensions.height / 2 - 50,
       width: 100,
       height: 100,
       fill: "rgba(59, 130, 246, 0.5)",
@@ -123,15 +173,15 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     canvas.add(rect);
     canvas.setActiveObject(rect);
     canvas.renderAll();
-  }, []);
+  }, [canvasDimensions]);
 
   const addCircle = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const circle = new fabric.Circle({
-      left: canvas.getWidth() / 2 - 50,
-      top: canvas.getHeight() / 2 - 50,
+      left: canvasDimensions.width / 2 - 50,
+      top: canvasDimensions.height / 2 - 50,
       radius: 50,
       fill: "rgba(34, 197, 94, 0.5)",
       stroke: "#22c55e",
@@ -141,13 +191,13 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     canvas.add(circle);
     canvas.setActiveObject(circle);
     canvas.renderAll();
-  }, []);
+  }, [canvasDimensions]);
 
   const deleteSelected = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const activeObjects = canvas.getActiveObjects();
+    const activeObjects = canvas.getActiveObjects().filter((o) => !isPageBackground(o));
     if (activeObjects.length === 0) return;
 
     activeObjects.forEach((obj) => canvas.remove(obj));
@@ -160,7 +210,7 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const objects = canvas.getObjects().filter((obj) => obj.selectable !== false);
+    const objects = canvas.getObjects().filter((obj) => obj.selectable !== false && !isPageBackground(obj));
     if (objects.length === 0) return;
 
     const selection = new fabric.ActiveSelection(objects, { canvas });
@@ -221,36 +271,66 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     if (!canvas) return;
 
     const clamped = Math.max(0.1, Math.min(5, newZoom));
-    canvas.setZoom(clamped);
+    // Canvas element is container-sized; center the document within it
+    const elW = canvas.getWidth();
+    const elH = canvas.getHeight();
+    const docW = canvasDimensions.width * clamped;
+    const docH = canvasDimensions.height * clamped;
+    const panX = (elW - docW) / 2;
+    const panY = (elH - docH) / 2;
+    canvas.setViewportTransform([clamped, 0, 0, clamped, panX, panY]);
     canvas.renderAll();
     setZoom(clamped);
-  }, []);
+  }, [canvasDimensions]);
 
   const exportCanvas = useCallback(
     (format: "png" | "jpeg" = "png", quality = 1, transparentBg = false): string | null => {
       const canvas = canvasRef.current;
       if (!canvas) return null;
 
-      const origBg = canvas.backgroundColor;
+      // Save current state (canvas element is container-sized)
+      const savedW = canvas.getWidth();
+      const savedH = canvas.getHeight();
+      const savedVT = canvas.viewportTransform
+        ? [...canvas.viewportTransform]
+        : [1, 0, 0, 1, 0, 0];
+      const savedBg = canvas.backgroundColor;
+
+      // Temporarily set canvas to document dimensions at 1:1
+      canvas.setDimensions({
+        width: canvasDimensions.width,
+        height: canvasDimensions.height,
+      });
+      canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+
+      // Set page rect to white fill (covers workspace gray) or hide it for transparent
+      const pageRect = getPageRect();
+      const savedPageFill = pageRect?.fill;
       if (transparentBg) {
         canvas.backgroundColor = "";
-        canvas.renderAll();
+        if (pageRect) pageRect.set("visible", false);
+      } else {
+        canvas.backgroundColor = "#ffffff";
+        if (pageRect) pageRect.set("visible", false); // bg color handles it
       }
 
-      const dataUrl = canvas.toDataURL({
-        format,
-        quality,
-        multiplier: 1 / (canvas.getZoom() || 1),
-      });
+      canvas.renderAll();
 
-      if (transparentBg) {
-        canvas.backgroundColor = origBg;
-        canvas.renderAll();
+      const dataUrl = canvas.toDataURL({ format, quality, multiplier: 1 });
+
+      // Restore everything
+      canvas.backgroundColor = savedBg;
+      if (pageRect) {
+        pageRect.set("visible", true);
+        if (savedPageFill !== undefined) pageRect.set("fill", savedPageFill);
       }
+      canvas.setDimensions({ width: savedW, height: savedH });
+      canvas.setViewportTransform(savedVT as any);
+      canvas.renderAll();
 
       return dataUrl;
     },
-    []
+    [canvasDimensions, getPageRect]
   );
 
   const toJSON = useCallback((): object | null => {
@@ -263,16 +343,31 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     const canvas = canvasRef.current;
     if (!canvas) return;
     await canvas.loadFromJSON(json);
+
+    // Ensure page background rect exists and is at bottom
+    let pg = canvas.getObjects().find((o) => isPageBackground(o));
+    if (!pg) {
+      pg = createPageRect(canvasDimensions.width, canvasDimensions.height);
+      canvas.add(pg);
+    }
+    pg.set({ selectable: false, evented: false });
+    canvas.sendObjectToBack(pg);
+
+    canvas.backgroundColor = "#f0f0f0";
     canvas.renderAll();
-  }, []);
+  }, [canvasDimensions]);
 
   const clearCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     canvas.clear();
-    canvas.backgroundColor = "#ffffff";
+    canvas.backgroundColor = "#f0f0f0";
+
+    // Re-add page background
+    const pageRect = createPageRect(canvasDimensions.width, canvasDimensions.height);
+    canvas.add(pageRect);
     canvas.renderAll();
-  }, []);
+  }, [canvasDimensions]);
 
   const bringForward = useCallback(() => {
     const canvas = canvasRef.current;
@@ -285,8 +380,10 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     const canvas = canvasRef.current;
     if (!canvas || !selectedObject) return;
     canvas.sendObjectBackwards(selectedObject);
+    // Ensure page rect stays at bottom
+    ensurePageRectAtBottom();
     canvas.renderAll();
-  }, [selectedObject]);
+  }, [selectedObject, ensurePageRectAtBottom]);
 
   const bringToFront = useCallback(() => {
     const canvas = canvasRef.current;
@@ -299,8 +396,10 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     const canvas = canvasRef.current;
     if (!canvas || !selectedObject) return;
     canvas.sendObjectToBack(selectedObject);
+    // Ensure page rect stays at very bottom
+    ensurePageRectAtBottom();
     canvas.renderAll();
-  }, [selectedObject]);
+  }, [selectedObject, ensurePageRectAtBottom]);
 
   const getSelectedImageBase64 = useCallback((): string | null => {
     const canvas = canvasRef.current;
@@ -364,10 +463,18 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
   const resizeCanvas = useCallback((newWidth: number, newHeight: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    canvas.setWidth(newWidth);
-    canvas.setHeight(newHeight);
-    canvas.renderAll();
+
+    // Update document dimensions (not canvas element size — that's container-driven)
     setCanvasDimensions({ width: newWidth, height: newHeight });
+
+    // Update page background rect to new document dimensions
+    const pg = canvas.getObjects().find((o) => isPageBackground(o));
+    if (pg) {
+      pg.set({ width: newWidth, height: newHeight });
+      pg.setCoords();
+    }
+
+    canvas.renderAll();
   }, []);
 
   const groupSelected = useCallback(() => {
@@ -391,6 +498,8 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
   }, []);
 
   // === Alignment Methods ===
+  // Single object: align relative to document dimensions (canvas space)
+  // Multiple objects: align relative to each other
   const alignObjects = useCallback((alignment: "left" | "centerH" | "right" | "top" | "centerV" | "bottom") => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -402,21 +511,35 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
       ? (active as fabric.ActiveSelection).getObjects()
       : [active];
 
+    // For single object alignment, use document dimensions (not canvas element which is container)
+    const docW = canvasDimensions.width;
+    const docH = canvasDimensions.height;
+
     if (objects.length === 1) {
-      // Align single object relative to canvas
+      // Align single object relative to document area
       const obj = objects[0];
       const bound = obj.getBoundingRect();
+      // Convert bound from viewport space to canvas space
+      const vt = canvas.viewportTransform;
+      const z = vt ? vt[0] : 1;
+      const px = vt ? vt[4] : 0;
+      const py = vt ? vt[5] : 0;
+      const bLeft = (bound.left - px) / z;
+      const bTop = (bound.top - py) / z;
+      const bW = bound.width / z;
+      const bH = bound.height / z;
+
       switch (alignment) {
-        case "left": obj.set("left", (obj.left ?? 0) - bound.left); break;
-        case "centerH": obj.set("left", (canvas.getWidth() - bound.width) / 2 + ((obj.left ?? 0) - bound.left)); break;
-        case "right": obj.set("left", canvas.getWidth() - bound.width + ((obj.left ?? 0) - bound.left)); break;
-        case "top": obj.set("top", (obj.top ?? 0) - bound.top); break;
-        case "centerV": obj.set("top", (canvas.getHeight() - bound.height) / 2 + ((obj.top ?? 0) - bound.top)); break;
-        case "bottom": obj.set("top", canvas.getHeight() - bound.height + ((obj.top ?? 0) - bound.top)); break;
+        case "left": obj.set("left", (obj.left ?? 0) - bLeft); break;
+        case "centerH": obj.set("left", (docW - bW) / 2 + ((obj.left ?? 0) - bLeft)); break;
+        case "right": obj.set("left", docW - bW + ((obj.left ?? 0) - bLeft)); break;
+        case "top": obj.set("top", (obj.top ?? 0) - bTop); break;
+        case "centerV": obj.set("top", (docH - bH) / 2 + ((obj.top ?? 0) - bTop)); break;
+        case "bottom": obj.set("top", docH - bH + ((obj.top ?? 0) - bTop)); break;
       }
       obj.setCoords();
     } else {
-      // Align multiple objects relative to selection bounds
+      // Align multiple objects relative to selection bounds (viewport space)
       const bounds = objects.map((o) => o.getBoundingRect());
       const groupLeft = Math.min(...bounds.map((b) => b.left));
       const groupTop = Math.min(...bounds.map((b) => b.top));
@@ -439,7 +562,7 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
 
     canvas.renderAll();
     canvas.fire("object:modified", { target: active });
-  }, []);
+  }, [canvasDimensions]);
 
   const distributeObjects = useCallback((direction: "horizontal" | "vertical") => {
     const canvas = canvasRef.current;
@@ -489,13 +612,21 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // Resize canvas element to fill the container
+    canvas.setDimensions({ width: containerWidth, height: containerHeight });
+
     const padding = 40;
     const availW = containerWidth - padding;
     const availH = containerHeight - padding;
     const fitZoom = Math.min(availW / canvasDimensions.width, availH / canvasDimensions.height, 2);
     const clamped = Math.max(0.1, Math.min(5, fitZoom));
 
-    canvas.setZoom(clamped);
+    // Center the zoomed document within the container
+    const docW = canvasDimensions.width * clamped;
+    const docH = canvasDimensions.height * clamped;
+    const panX = (containerWidth - docW) / 2;
+    const panY = (containerHeight - docH) / 2;
+    canvas.setViewportTransform([clamped, 0, 0, clamped, panX, panY]);
     canvas.renderAll();
     setZoom(clamped);
   }, [canvasDimensions]);

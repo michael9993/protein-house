@@ -22,7 +22,7 @@ export function LayersPanel({ canvas, selectedObject, onSelectObject }: LayersPa
 
   const refreshLayers = useCallback(() => {
     if (!canvas) return;
-    const objects = canvas.getObjects();
+    const objects = canvas.getObjects().filter((obj) => !(obj as any).__pageBg);
     const items: LayerItem[] = objects.map((obj, i) => ({
       id: i,
       name: getObjectName(obj, i),
@@ -94,26 +94,29 @@ export function LayersPanel({ canvas, selectedObject, onSelectObject }: LayersPa
         return;
       }
 
-      const objects = canvas.getObjects();
-      const totalObjects = objects.length;
-
-      // Layers are reversed for display — convert back to canvas indices
-      const fromCanvasIdx = totalObjects - 1 - dragIndex;
-      const toCanvasIdx = totalObjects - 1 - targetIdx;
-
-      const obj = objects[fromCanvasIdx];
-      if (!obj) {
+      // Use layer items (which are already filtered and reversed)
+      const fromLayer = layers[dragIndex];
+      const toLayer = layers[targetIdx];
+      if (!fromLayer || !toLayer) {
         setDragIndex(null);
         return;
       }
 
+      const obj = fromLayer.object;
+      const allObjects = canvas.getObjects();
+      const toCanvasIdx = allObjects.indexOf(toLayer.object);
+
       canvas.remove(obj);
-      canvas.insertAt(toCanvasIdx, obj);
+      canvas.insertAt(Math.max(1, toCanvasIdx), obj); // min index 1 to stay above page bg
+      // Ensure page bg stays at bottom
+      const pageBg = allObjects.find((o) => (o as any).__pageBg);
+      if (pageBg) canvas.sendObjectToBack(pageBg);
+
       canvas.renderAll();
       setDragIndex(null);
       refreshLayers();
     },
-    [canvas, dragIndex, refreshLayers]
+    [canvas, dragIndex, layers, refreshLayers]
   );
 
   if (layers.length === 0) {

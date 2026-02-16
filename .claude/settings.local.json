@@ -116,7 +116,9 @@
       "Bash(head:*)",
       "Bash(Select-String \"CollectionMosaic\")",
       "mcp__plugin_playwright_playwright__browser_resize",
-      "mcp__plugin_playwright_playwright__browser_close"
+      "mcp__plugin_playwright_playwright__browser_close",
+      "WebFetch(domain:zustand.docs.pmnd.rs)",
+      "WebFetch(domain:newreleases.io)"
     ],
     "deny": [
       "Read(./.env*)",

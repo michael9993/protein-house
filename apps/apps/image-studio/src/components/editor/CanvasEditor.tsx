@@ -113,7 +113,7 @@ export function CanvasEditor() {
     snapEnabled,
     toggleSnap,
     toggleGrid,
-  } = useSmartGuides(canvas, true);
+  } = useSmartGuides(canvas, true, canvasWidth, canvasHeight);
 
   const {
     projects,
@@ -123,7 +123,7 @@ export function CanvasEditor() {
     updateProject,
   } = useProjects();
 
-  const { hasDraft, lastSaved, saveDraft, restoreDraft, clearDraft } = useAutoSave(canvas, activeProjectId);
+  const { hasDraft, lastSaved, saveDraft, restoreDraft, clearDraft } = useAutoSave(canvas, activeProjectId, canvasWidth, canvasHeight);
 
   const activeProject = projects.find((p) => p.id === activeProjectId);
 
@@ -224,13 +224,37 @@ export function CanvasEditor() {
     }
   }, [canvas]);
 
+  // Generate a document-only thumbnail (not the workspace)
+  const generateThumbnail = useCallback((): string => {
+    const full = exportCanvas("png", 0.8);
+    if (!full) return "";
+    // Downscale by creating a small canvas
+    try {
+      const img = new Image();
+      img.src = full;
+      const thumbCanvas = document.createElement("canvas");
+      const maxDim = 200;
+      const ratio = Math.min(maxDim / canvasWidth, maxDim / canvasHeight, 1);
+      thumbCanvas.width = Math.round(canvasWidth * ratio);
+      thumbCanvas.height = Math.round(canvasHeight * ratio);
+      const tCtx = thumbCanvas.getContext("2d");
+      if (tCtx) {
+        tCtx.drawImage(img, 0, 0, thumbCanvas.width, thumbCanvas.height);
+        return thumbCanvas.toDataURL("image/png", 0.6);
+      }
+    } catch {
+      // Fallback to full size
+    }
+    return full;
+  }, [exportCanvas, canvasWidth, canvasHeight]);
+
   // Save project handler
   const handleSaveProject = useCallback(() => {
     if (!canvas) return;
 
     if (activeProjectId) {
       const json = canvas.toJSON();
-      const thumbnail = canvas.toDataURL({ format: "png", multiplier: 0.2 });
+      const thumbnail = generateThumbnail();
       updateProject(activeProjectId, json, canvasWidth, canvasHeight, thumbnail);
       showNotification("success", "Project saved");
     } else {
@@ -238,18 +262,18 @@ export function CanvasEditor() {
       setProjectNameInput("");
       setShowProjectNameDialog(true);
     }
-  }, [canvas, activeProjectId, canvasWidth, canvasHeight, updateProject]);
+  }, [canvas, activeProjectId, canvasWidth, canvasHeight, updateProject, generateThumbnail]);
 
   // Create project after name is entered
   const handleConfirmProjectName = useCallback(() => {
     if (!canvas || !projectNameInput.trim()) return;
     const json = canvas.toJSON();
-    const thumbnail = canvas.toDataURL({ format: "png", multiplier: 0.2 });
+    const thumbnail = generateThumbnail();
     createProject(projectNameInput.trim(), json, canvasWidth, canvasHeight, thumbnail);
     showNotification("success", `Project "${projectNameInput.trim()}" created`);
     setShowProjectNameDialog(false);
     setProjectNameInput("");
-  }, [canvas, projectNameInput, canvasWidth, canvasHeight, createProject]);
+  }, [canvas, projectNameInput, canvasWidth, canvasHeight, createProject, generateThumbnail]);
 
   // Initialize history when canvas is ready
   useEffect(() => {
@@ -586,11 +610,9 @@ export function CanvasEditor() {
           </>
         )}
 
-        {/* Canvas Area */}
-        <div ref={canvasContainerRef} className="flex-1 overflow-hidden bg-neutral-100 flex items-center justify-center">
-          <div className="shadow-lg">
-            <canvas id={CANVAS_ID} />
-          </div>
+        {/* Canvas Area — canvas element fills this container via zoomToFit */}
+        <div ref={canvasContainerRef} className="flex-1 overflow-hidden">
+          <canvas id={CANVAS_ID} />
         </div>
 
         {/* Right Panel: collapsed strip or full Properties/Layers */}

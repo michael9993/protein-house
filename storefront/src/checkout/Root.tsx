@@ -5,7 +5,6 @@ import {
 	Provider as UrqlProvider,
 	cacheExchange,
 	createClient,
-	dedupExchange,
 	fetchExchange,
 } from "urql";
 
@@ -281,7 +280,7 @@ export const Root = ({ saleorApiUrl, checkoutText, checkoutId }: RootProps) => {
 				
 				return response;
 			},
-			exchanges: [dedupExchange, cacheExchange, fetchExchange],
+			exchanges: [cacheExchange, fetchExchange],
 		});
 	};
 

@@ -12,10 +12,16 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const config = {
 	// Transpile the shared config package (imported as source via volume mount)
 	transpilePackages: ["@saleor/apps-storefront-config"],
+	// Turbopack config (Next.js 16 default bundler)
+	turbopack: {
+		resolveAlias: {
+			// Resolve zod from storefront's node_modules so the shared package can use it
+			zod: path.resolve(__dirname, "node_modules/zod"),
+		},
+	},
+	// Webpack config (fallback bundler, used with --no-turbopack)
 	webpack: (config) => {
-		// Resolve zod from storefront's node_modules so the shared package can use it
 		config.resolve.alias.zod = path.resolve(__dirname, "node_modules/zod");
-		// Ensure storefront's node_modules is searched first for volume-mounted packages
 		config.resolve.modules = [
 			path.resolve(__dirname, "node_modules"),
 			...(config.resolve.modules || ["node_modules"]),
@@ -43,9 +49,7 @@ const config = {
 		// Disable image optimization in development to avoid Docker localhost issues
 		unoptimized: process.env.NODE_ENV === "development",
 	},
-	experimental: {
-		typedRoutes: false,
-	},
+	typedRoutes: false,
 	// Standalone output for Docker production builds
 	output:
 		process.env.NEXT_OUTPUT === "standalone"
