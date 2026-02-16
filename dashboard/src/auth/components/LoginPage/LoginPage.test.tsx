@@ -22,7 +22,8 @@ const defaultProps = {
   onSubmit: vi.fn(),
 };
 
-vi.mock("react-router-dom", () => ({
+vi.mock("react-router-dom", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("react-router-dom")>()),
   MemoryRouter: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   Link: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));

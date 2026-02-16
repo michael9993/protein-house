@@ -61,7 +61,7 @@ describe("useRowAnchor", () => {
     // Assert
     expect(result.current.rowAnchorRef.current!).not.toBeNull();
     expect(result.current.rowAnchorRef.current!.style.left).toBe("0px");
-    expect(result.current.rowAnchorRef.current!.href).toBe("http://localhost/test");
+    expect(result.current.rowAnchorRef.current!.href).toBe(`${window.location.origin}/test`);
   });
   it("should not set anchor position when cell has action", () => {
     // Arrange

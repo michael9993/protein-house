@@ -10,10 +10,10 @@ import { SidebarAppAlert } from "./SidebarAppAlert";
 import { useAppsAlert } from "./useAppsAlert";
 
 vi.mock("@dashboard/hooks/useHasManagedAppsPermission");
-vi.mock("react-router-dom");
 vi.mock("@dashboard/graphql");
 
-vi.mock("react-router-dom", () => ({
+vi.mock("react-router-dom", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("react-router-dom")>()),
   Link: vi.fn(({ to, ...props }) => <a href={to} {...props} />),
 }));
 
@@ -84,13 +84,13 @@ describe("SidebarAppAlert", () => {
 
     fireEvent.focus(trigger);
 
-    await screen.findByRole(/tooltip/);
-
     // Assert
     // Radix tooltip content mounts twice - https://github.com/radix-ui/primitives/issues/3034
-    expect(
-      screen.queryAllByText("Issues found.{break}Review extension alerts.")[0],
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.queryAllByText("Issues found.{break}Review extension alerts.")[0],
+      ).toBeInTheDocument();
+    });
   });
 
   it("doesn't display sidebar alert dot when there are no webhook failures", async () => {

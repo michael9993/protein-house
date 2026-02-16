@@ -53,7 +53,7 @@ describe("createHandler", () => {
 
   it("should call channel update when voucherCreate successes", async () => {
     // Arrange
-    const voucherCreate = jest
+    const voucherCreate = vi
       .fn()
       .mockResolvedValue({ data: { voucherCreate: { voucher: { id: "id" } } } });
     const updateChannels = vi.fn();

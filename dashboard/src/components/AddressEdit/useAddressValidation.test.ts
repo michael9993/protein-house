@@ -3,10 +3,14 @@ import { renderHook } from "@testing-library/react";
 
 import { selectRules, useAddressValidation } from "./useAddressValidation";
 
-vi.mock("@dashboard/graphql", async () => ({
-  CountryCode: await vi.importActual("@dashboard/graphql").CountryCode,
-  useAddressValidationRulesQuery: vi.fn(),
-}));
+vi.mock("@dashboard/graphql", async () => {
+  const actual = await vi.importActual("@dashboard/graphql");
+
+  return {
+    CountryCode: actual.CountryCode,
+    useAddressValidationRulesQuery: vi.fn(),
+  };
+});
 
 describe("useAddressValidation", () => {
   it("skips loading validation rules when country is not provided", () => {

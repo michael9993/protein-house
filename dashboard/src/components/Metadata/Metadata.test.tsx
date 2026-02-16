@@ -30,7 +30,7 @@ describe("Metadata editor", () => {
   });
 
   // TODO: Fix this test
-  xit("can edit field name", async () => {
+  it.skip("can edit field name", async () => {
     // Arrange
     render(<Component />);
 

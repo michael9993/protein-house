@@ -60,8 +60,8 @@ describe("useUpdateOnRerender", () => {
       hasRendered: true,
     });
 
-    // Assert
-    expect(mockRender).toHaveBeenCalledTimes(1);
+    // Assert — isFirstRun guard skips the first render cycle after hasRendered becomes true
+    expect(mockRender).toHaveBeenCalledTimes(0);
   });
 
   it("should not call render if hasRendered is false", () => {

@@ -18,7 +18,8 @@ vi.mock("./utils", async () => {
   };
 });
 
-vi.mock("react-router-dom", async () => ({
+vi.mock("react-router-dom", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("react-router-dom")>()),
   Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
     <a href={to}>{children}</a>
   ),

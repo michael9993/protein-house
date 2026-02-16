@@ -1,5 +1,5 @@
 import { OutputData } from "@editorjs/editorjs";
-import { renderHook } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 
 import useRichText from "./useRichText";
 
@@ -66,7 +66,9 @@ describe("useRichText", () => {
 
     const { result } = renderHook(() => useRichText({ initial: "", triggerChange }));
 
-    result.current.handleChange();
+    act(() => {
+      result.current.handleChange();
+    });
     expect(triggerChange).toHaveBeenCalled();
     expect(result.current.isDirty).toBe(true);
   });

@@ -39,6 +39,7 @@ export function useAuthProvider({ intl, notify, apolloClient }: UseAuthProviderO
   const navigate = useNavigator();
   const { authenticated, authenticating, user } = useAuthState();
   const [requestedExternalPluginId] = useLocalStorage("requestedExternalPluginId", null);
+  const isCredentialsLoginRef = useRef(false);
   const [isCredentialsLogin, setIsCredentialsLogin] = useState(false);
   const [errors, setErrors] = useState<UserContextError[]>([]);
   const permitCredentialsAPI = useRef(true);
@@ -116,11 +117,12 @@ export function useAuthProvider({ intl, notify, apolloClient }: UseAuthProviderO
   };
 
   const handleLogin = async (email: string, password: string) => {
-    if (isCredentialsLogin) {
+    if (isCredentialsLoginRef.current) {
       return;
     }
 
     try {
+      isCredentialsLoginRef.current = true;
       setIsCredentialsLogin(true);
 
       const result = await login({
@@ -176,6 +178,7 @@ export function useAuthProvider({ intl, notify, apolloClient }: UseAuthProviderO
         setErrors(["unknownLoginError"]);
       }
     } finally {
+      isCredentialsLoginRef.current = false;
       setIsCredentialsLogin(false);
     }
   };

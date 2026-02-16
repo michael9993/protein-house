@@ -1,4 +1,4 @@
-import "@testing-library/jest-dom";
+// jest-dom matchers loaded globally in testUtils/setup.ts
 
 import { Fetcher } from "@graphiql/toolkit";
 import { ApolloMockedProvider } from "@test/ApolloMockedProvider";

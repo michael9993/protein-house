@@ -24,6 +24,7 @@ describe("ConditionalFilter / FilterElement / Constraint", () => {
       dependsOn: ["price", "isVisibleInListing", "isAvailable", "isPublished", "published"],
       disabled: ["left", "condition"],
       removable: false,
+      isGlobal: false,
     });
   });
   it("should return null for an invalid slug", () => {

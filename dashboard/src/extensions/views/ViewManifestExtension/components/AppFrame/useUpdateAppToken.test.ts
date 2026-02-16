@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react";
+import { renderHook, waitFor } from "@testing-library/react";
 
 import { useUpdateAppToken } from "./useUpdateAppToken";
 
@@ -8,8 +8,8 @@ describe("useUpdateAppToken", function () {
   beforeEach(() => {
     vi.resetAllMocks();
   });
-  it("Doesnt do anything if disabled", () => {
-    const { waitFor } = renderHook(props => useUpdateAppToken(props), {
+  it("Doesnt do anything if disabled", async () => {
+    renderHook(props => useUpdateAppToken(props), {
       initialProps: {
         enabled: true,
         appToken: "initialToken",
@@ -17,13 +17,13 @@ describe("useUpdateAppToken", function () {
       },
     });
 
-    return waitFor(() => {
+    await waitFor(() => {
       expect(postMessage).not.toHaveBeenCalled();
     });
   });
-  it("Doesnt do anything if re-rendered, but token stays the same between renders", () => {
+  it("Doesnt do anything if re-rendered, but token stays the same between renders", async () => {
     const localPostMessage = vi.fn();
-    const { rerender, waitFor } = renderHook(props => useUpdateAppToken(props), {
+    const { rerender } = renderHook(props => useUpdateAppToken(props), {
       initialProps: {
         enabled: true,
         appToken: "initialToken",
@@ -38,13 +38,13 @@ describe("useUpdateAppToken", function () {
       postToExtension: localPostMessage,
     });
 
-    return waitFor(() => {
+    await waitFor(() => {
       expect(postMessage).not.toHaveBeenCalled();
       expect(localPostMessage).not.toHaveBeenCalled();
     });
   });
   it("Calls postMessage if token changes in props and enabled", async () => {
-    const { rerender, waitFor } = renderHook(props => useUpdateAppToken(props), {
+    const { rerender } = renderHook(props => useUpdateAppToken(props), {
       initialProps: {
         enabled: true,
         appToken: "initialToken",
@@ -59,7 +59,7 @@ describe("useUpdateAppToken", function () {
       postToExtension: postMessage,
     });
 
-    return waitFor(() => {
+    await waitFor(() => {
       expect(postMessage).toHaveBeenCalledWith({
         type: "tokenRefresh",
         payload: {

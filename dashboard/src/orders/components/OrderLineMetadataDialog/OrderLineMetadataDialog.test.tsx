@@ -120,8 +120,8 @@ describe("OrderLineMetadataDialog", () => {
       />,
     );
 
-    // Assert
-    const thumbnailImage = screen.getByRole("img");
+    // Assert — alt="" gives role="presentation" in @testing-library/dom v10+
+    const thumbnailImage = screen.getByRole("presentation");
 
     expect(thumbnailImage).toBeInTheDocument();
     expect(thumbnailImage).toHaveAttribute("src", mockData.thumbnail.url);

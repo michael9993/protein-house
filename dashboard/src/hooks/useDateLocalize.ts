@@ -37,7 +37,13 @@ export function formatRelativeTime(
   now: number,
   locale: string,
 ): string {
-  const diffMs = new Date(date).getTime() - now;
+  const dateMs = new Date(date).getTime();
+  const diffMs = dateMs - now;
+
+  if (!isFinite(diffMs)) {
+    return String(date);
+  }
+
   const absDiff = Math.abs(diffMs);
   const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
 

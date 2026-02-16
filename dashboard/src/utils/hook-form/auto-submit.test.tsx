@@ -33,28 +33,27 @@ const TestFormComponent = ({ onSubmit }: { onSubmit: () => void }) => {
 };
 
 describe("useAutoSubmit", () => {
-  beforeAll(() => {
-    vi.useFakeTimers();
+  beforeEach(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
   });
 
-  afterAll(() => {
+  afterEach(() => {
     vi.useRealTimers();
   });
 
   it("should not call onSubmit immediately after input change", async () => {
     // Arrange
     const mockSubmit = vi.fn();
-    const user = userEvent.setup({ delay: null });
+    const user = userEvent.setup({
+      advanceTimers: vi.advanceTimersByTime.bind(vi),
+    });
 
     render(<TestFormComponent onSubmit={mockSubmit} />);
 
     const input = screen.getByRole("textbox");
 
     // Act
-    await act(async () => {
-      await user.type(input, "hello");
-      vi.advanceTimersByTime(0);
-    });
+    await user.type(input, "hello");
 
     // Assert
     expect(mockSubmit).not.toHaveBeenCalled();
@@ -63,15 +62,18 @@ describe("useAutoSubmit", () => {
   it("should call onSubmit after debounce time has passed", async () => {
     // Arrange
     const mockSubmit = vi.fn();
-    const user = userEvent.setup({ delay: null });
+    const user = userEvent.setup({
+      advanceTimers: vi.advanceTimersByTime.bind(vi),
+    });
 
     render(<TestFormComponent onSubmit={mockSubmit} />);
 
     const input = screen.getByRole("textbox");
 
     // Act
+    await user.type(input, "hello");
+
     await act(async () => {
-      await user.type(input, "hello");
       vi.advanceTimersByTime(DEBOUNCE_TIME);
     });
 
@@ -82,17 +84,24 @@ describe("useAutoSubmit", () => {
   it("should reset debounce timer on subsequent input changes", async () => {
     // Arrange
     const mockSubmit = vi.fn();
-    const user = userEvent.setup({ delay: null });
+    const user = userEvent.setup({
+      advanceTimers: vi.advanceTimersByTime.bind(vi),
+    });
 
     render(<TestFormComponent onSubmit={mockSubmit} />);
 
     const input = screen.getByRole("textbox");
 
     // Act
+    await user.type(input, "a");
+
     await act(async () => {
-      await user.type(input, "a");
       vi.advanceTimersByTime(DEBOUNCE_TIME - 100);
-      await user.type(input, "b");
+    });
+
+    await user.type(input, "b");
+
+    await act(async () => {
       vi.advanceTimersByTime(DEBOUNCE_TIME);
     });
 
@@ -103,14 +112,14 @@ describe("useAutoSubmit", () => {
   it("should not submit if component unmounts before debounce timeout", async () => {
     // Arrange
     const mockSubmit = vi.fn();
-    const user = userEvent.setup({ delay: null });
+    const user = userEvent.setup({
+      advanceTimers: vi.advanceTimersByTime.bind(vi),
+    });
     const { unmount } = render(<TestFormComponent onSubmit={mockSubmit} />);
     const input = screen.getByRole("textbox");
 
     // Act
-    await act(async () => {
-      await user.type(input, "hello");
-    });
+    await user.type(input, "hello");
 
     unmount();
 
@@ -125,7 +134,9 @@ describe("useAutoSubmit", () => {
   it("should cancel debounced submit when form is manually submitted", async () => {
     // Arrange
     const mockSubmit = vi.fn();
-    const user = userEvent.setup({ delay: null });
+    const user = userEvent.setup({
+      advanceTimers: vi.advanceTimersByTime.bind(vi),
+    });
 
     render(<TestFormComponent onSubmit={mockSubmit} />);
 
@@ -133,10 +144,11 @@ describe("useAutoSubmit", () => {
     const form = screen.getByRole("form", { name: "test form" });
 
     // Act
+    await user.type(input, "hello");
+    // Submit form manually before debounce time passes
+    fireEvent.submit(form);
+
     await act(async () => {
-      await user.type(input, "hello");
-      // Submit form manually before debounce time passes
-      fireEvent.submit(form);
       // Advance timers to when debounced submit would have happened
       vi.advanceTimersByTime(DEBOUNCE_TIME);
     });

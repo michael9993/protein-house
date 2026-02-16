@@ -35,7 +35,7 @@ describe("TimelineNote", () => {
     expect(screen.getByText("Test User")).toBeInTheDocument();
     expect(screen.getByText("Note")).toBeInTheDocument();
     expect(screen.getByText("TU")).toBeInTheDocument();
-    expect(screen.getByText("a few seconds ago")).toBeInTheDocument();
+    expect(screen.getByText("4 seconds ago")).toBeInTheDocument();
   });
 
   it("renders user avatar", () => {
@@ -70,7 +70,7 @@ describe("TimelineNote", () => {
 
     expect(screen.getByText("Test User")).toBeInTheDocument();
     expect(screen.getByText("Note")).toBeInTheDocument();
-    expect(screen.getByText("a few seconds ago")).toBeInTheDocument();
+    expect(screen.getByText("4 seconds ago")).toBeInTheDocument();
     expect(initials).toBeNull();
     expect(avatar).toBeInTheDocument();
   });
@@ -101,7 +101,7 @@ describe("TimelineNote", () => {
     expect(screen.getByText("Test App")).toBeInTheDocument();
     expect(screen.getByText("Note")).toBeInTheDocument();
     expect(screen.getByText("Te")).toBeInTheDocument();
-    expect(screen.getByText("a few seconds ago")).toBeInTheDocument();
+    expect(screen.getByText("4 seconds ago")).toBeInTheDocument();
   });
 
   it("renders app avatar", () => {
@@ -138,7 +138,7 @@ describe("TimelineNote", () => {
 
     expect(screen.getByText("Test App")).toBeInTheDocument();
     expect(screen.getByText("Note")).toBeInTheDocument();
-    expect(screen.getByText("a few seconds ago")).toBeInTheDocument();
+    expect(screen.getByText("4 seconds ago")).toBeInTheDocument();
     expect(initials).toBeNull();
     expect(avatar).toBeInTheDocument();
   });
@@ -174,7 +174,7 @@ describe("TimelineNote", () => {
     expect(screen.getByText("Test User")).toBeInTheDocument();
     expect(screen.getByText("Note")).toBeInTheDocument();
     expect(screen.getByText("TU")).toBeInTheDocument();
-    expect(screen.getByText("a few seconds ago")).toBeInTheDocument();
+    expect(screen.getByText("4 seconds ago")).toBeInTheDocument();
     expect(screen.getByText(`Note id: ${noteId}`)).toBeInTheDocument();
     expect(screen.getByText(new RegExp(noteRelatedId))).toBeInTheDocument();
   });

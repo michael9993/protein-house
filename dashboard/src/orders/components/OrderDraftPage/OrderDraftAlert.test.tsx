@@ -5,7 +5,8 @@ import { render, screen } from "@testing-library/react";
 
 import OrderDraftAlert, { OrderDraftAlertProps } from "./OrderDraftAlert";
 
-vi.mock("react-router-dom", () => ({
+vi.mock("react-router-dom", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("react-router-dom")>()),
   Link: vi.fn(({ to, ...props }) => <a href={to} {...props} />),
 }));
 

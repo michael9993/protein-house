@@ -454,7 +454,7 @@ export const permissions: ShopInfoQuery["shop"]["permissions"] = [
 
 export const date = {
   from: "2019-12-09",
-  to: "2019-12-38",
+  to: "2019-12-28",
 };
 
 export const adminUserPermissions: NonNullable<

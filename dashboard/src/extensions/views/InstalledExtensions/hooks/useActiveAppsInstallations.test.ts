@@ -6,7 +6,9 @@ import { useActiveAppsInstallations } from "./useActiveAppsInstallations";
 
 vi.mock("@apollo/client", () => ({
   gql: vi.fn(),
-  useApolloClient: vi.fn(),
+  useApolloClient: vi.fn(() => ({
+    refetchQueries: vi.fn(),
+  })),
 }));
 
 vi.mock("@dashboard/hooks/useLocalStorage");

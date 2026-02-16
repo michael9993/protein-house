@@ -6,7 +6,8 @@ import { useFetchManifest } from "./hooks/useFetchManifest";
 import { useInstallApp } from "./hooks/useInstallApp";
 import { InstallCustomExtension } from "./InstallCustomExtension";
 
-vi.mock("react-router-dom", () => ({
+vi.mock("react-router-dom", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("react-router-dom")>()),
   Link: vi.fn(({ children }) => <div>{children}</div>),
 }));
 vi.mock("@dashboard/theme/hook", () => ({
@@ -17,7 +18,7 @@ vi.mock("./hooks/useFetchManifest");
 vi.mock("./hooks/useInstallApp");
 vi.mock("@dashboard/components/Savebar");
 
-vi.useFakeTimers();
+vi.useFakeTimers({ shouldAdvanceTime: true });
 
 describe("InstallCustomExtension", () => {
   const manifestUrl = "https://example.com/manifest.json";

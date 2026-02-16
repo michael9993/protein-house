@@ -16,4 +16,9 @@ export const transactionActionMessages = defineMessages({
     id: "iIfq2+",
     description: "Transaction cancel button - return preauthorized amount to client",
   },
+  markAsPaid: {
+    defaultMessage: "Mark as Paid",
+    id: "RsLoDB",
+    description: "Transaction mark as paid button",
+  },
 });

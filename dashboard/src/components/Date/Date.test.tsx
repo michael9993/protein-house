@@ -37,7 +37,7 @@ describe("Date", () => {
   });
   it("Render humanized date with timezone GMT-11", () => {
     // Arrange & Act
-    render(
+    const { container } = render(
       // @ts-expect-error - legacy types
       <ThemeProvider>
         <TimezoneProvider value="Pacific/Midway">
@@ -45,12 +45,15 @@ describe("Date", () => {
         </TimezoneProvider>
       </ThemeProvider>,
     );
-    // Assert
-    expect(screen.queryByTestId<HTMLTimeElement>("dateTime").dateTime).toEqual(testDate);
+    // Assert — use container query as Radix Tooltip may not render in jsdom
+    const timeEl = container.querySelector("time[data-test-id='dateTime']");
+
+    expect(timeEl).toBeTruthy();
+    expect(timeEl?.getAttribute("dateTime") ?? timeEl?.getAttribute("datetime")).toEqual(testDate);
   });
   it("Render humanized date with timezone GMT+13", () => {
     // Arrange & Act
-    render(
+    const { container } = render(
       // @ts-expect-error - legacy types
       <ThemeProvider>
         <TimezoneProvider value="Pacific/Tongatapu">
@@ -58,7 +61,10 @@ describe("Date", () => {
         </TimezoneProvider>
       </ThemeProvider>,
     );
-    // Assert
-    expect(screen.queryByTestId<HTMLTimeElement>("dateTime").dateTime).toEqual(testDate);
+    // Assert — use container query as Radix Tooltip may not render in jsdom
+    const timeEl = container.querySelector("time[data-test-id='dateTime']");
+
+    expect(timeEl).toBeTruthy();
+    expect(timeEl?.getAttribute("dateTime") ?? timeEl?.getAttribute("datetime")).toEqual(testDate);
   });
 });

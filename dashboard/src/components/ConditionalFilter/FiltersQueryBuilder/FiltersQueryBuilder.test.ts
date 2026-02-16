@@ -51,7 +51,7 @@ describe("FiltersQueryBuilder", () => {
       // Assert
       expect(result.filters).toEqual({ foo: "where" });
       expect(result.topLevel).toEqual({});
-      expectvi.mocked(mockDef.updateWhereQueryVariables).toHaveBeenCalled();
+      expect(vi.mocked(mockDef.updateWhereQueryVariables)).toHaveBeenCalled();
     });
 
     it("should build query with multiple filter elements", () => {
@@ -160,7 +160,7 @@ describe("FiltersQueryBuilder", () => {
       // Assert
       expect(result.filters).toEqual({ foo: "filter" });
       expect(result.topLevel).toEqual({});
-      expectvi.mocked(mockDef.updateFilterQueryVariables).toHaveBeenCalled();
+      expect(vi.mocked(mockDef.updateFilterQueryVariables)).toHaveBeenCalled();
     });
 
     it("should build query with multiple filter elements", () => {

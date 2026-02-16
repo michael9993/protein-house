@@ -1,7 +1,7 @@
 import { useUser } from "@dashboard/auth";
 import { useFlag } from "@dashboard/featureFlags";
 import { ApolloMockedProvider } from "@test/ApolloMockedProvider";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import * as React from "react";
 
@@ -23,11 +23,12 @@ vi.mock("@dashboard/featureFlags", () => ({
 }));
 
 vi.mock("./onboardingContext/useOnboardingStorage");
-vi.useFakeTimers();
+vi.useFakeTimers({ shouldAdvanceTime: true });
 vi.mock("@dashboard/components/DevModePanel/hooks", () => ({
   useDevModeContext: vi.fn(),
 }));
-vi.mock("react-router-dom", () => ({
+vi.mock("react-router-dom", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("react-router-dom")>()),
   Link: vi.fn(({ to, ...props }) => <a href={to} {...props} />),
 }));
 
@@ -86,8 +87,10 @@ describe("WelcomePageOnboarding", () => {
       </Wrapper>,
     );
 
-    screen.getByTestId("onboarding-accordion-trigger").click();
-    vi.runAllTimers();
+    act(() => {
+      screen.getByTestId("onboarding-accordion-trigger").click();
+      vi.runAllTimers();
+    });
 
     // Assert
     expect(saveOnboardingState).toHaveBeenNthCalledWith(3, {
@@ -113,7 +116,9 @@ describe("WelcomePageOnboarding", () => {
       </Wrapper>,
     );
 
-    screen.getByTestId("mark-as-done").click();
+    act(() => {
+      screen.getByTestId("mark-as-done").click();
+    });
 
     // Assert
     expect(screen.getByText(onboardingCompleteMessage)).toBeInTheDocument();
@@ -129,7 +134,7 @@ describe("WelcomePageOnboarding", () => {
       saveOnboardingState: vi.fn(),
     });
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
 
     // Act
     render(
@@ -141,7 +146,7 @@ describe("WelcomePageOnboarding", () => {
     // 'get-started' has only 'Next step' button
     const getStartedNextStepBtn = screen.getByTestId("get-started-next-step-btn");
 
-    user.click(getStartedNextStepBtn);
+    await user.click(getStartedNextStepBtn);
 
     for (const stepId of allMarkAsDoneStepsIds) {
       await waitFor(() => {
@@ -150,7 +155,9 @@ describe("WelcomePageOnboarding", () => {
 
       const markAsDone = screen.getByTestId(stepId + "-mark-as-done");
 
-      markAsDone.click();
+      act(() => {
+        markAsDone.click();
+      });
     }
 
     // Assert
@@ -193,8 +200,10 @@ describe("WelcomePageOnboarding", () => {
       </Wrapper>,
     );
 
-    screen.getByTestId("get-started-next-step-btn").click();
-    vi.runAllTimers();
+    act(() => {
+      screen.getByTestId("get-started-next-step-btn").click();
+      vi.runAllTimers();
+    });
 
     // Assert
     expect(saveOnboardingState).toBeCalledWith({
@@ -225,13 +234,16 @@ describe("WelcomePageOnboarding", () => {
     const graphqlPlaygroundId = "graphql-playground";
     const exploreGraphql = screen.getByTestId("accordion-step-trigger-" + graphqlPlaygroundId);
 
-    exploreGraphql.click();
+    act(() => {
+      exploreGraphql.click();
+    });
 
     const markAsDone = screen.getByTestId(graphqlPlaygroundId + "-mark-as-done");
 
-    markAsDone.click();
-
-    vi.runAllTimers();
+    act(() => {
+      markAsDone.click();
+      vi.runAllTimers();
+    });
 
     // Assert
     await waitFor(() => {
@@ -263,10 +275,14 @@ describe("WelcomePageOnboarding", () => {
     );
 
     // Click through the first step to reveal others
-    screen.getByTestId("get-started-next-step-btn").click();
+    act(() => {
+      screen.getByTestId("get-started-next-step-btn").click();
+    });
 
     // Open the relevant step accordion
-    screen.getByTestId("accordion-step-trigger-view-extensions").click();
+    act(() => {
+      screen.getByTestId("accordion-step-trigger-view-extensions").click();
+    });
 
     // Assert
     // Check for 'view-extensions' step

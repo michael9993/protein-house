@@ -28,7 +28,7 @@ describe("EventCreatedBy", () => {
     expect(link).toHaveTextContent(appAvatarFixture.name as string);
     expect(link).toHaveProperty(
       "href",
-      "http://localhost" +
+      window.location.origin +
         ExtensionsUrls.resolveViewManifestExtensionUrl(appAvatarFixture.id).replace("?", ""),
     );
   });
@@ -45,7 +45,7 @@ describe("EventCreatedBy", () => {
     expect(link).toHaveTextContent(staffMemberAvatar.lastName);
     expect(link).toHaveProperty(
       "href",
-      "http://localhost" + staffMemberDetailsPath(encodeURIComponent(staffMemberAvatar.id)),
+      window.location.origin + staffMemberDetailsPath(encodeURIComponent(staffMemberAvatar.id)),
     );
   });
 });

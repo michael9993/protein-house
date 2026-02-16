@@ -73,7 +73,7 @@ describe("Sidebar", () => {
     // Act
     render(<Sidebar />, { wrapper: Wrapper });
     // Assert
-    expect(screen.getByText("Saleor Cloud")).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-environment-link")).toBeInTheDocument();
   });
   it('should not render "Saleor Cloud" link when is not cloud instance', () => {
     // Arrange
@@ -83,7 +83,7 @@ describe("Sidebar", () => {
     // Act
     render(<Sidebar />, { wrapper: Wrapper });
     // Assert
-    expect(screen.queryByText("Saleor Cloud")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("cloud-environment-link")).not.toBeInTheDocument();
   });
   it("should render keyboard shortcuts", () => {
     // Arrange & Act

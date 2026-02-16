@@ -23,10 +23,10 @@ describe("SaleorLogo", () => {
     });
 
     // Act
-    render(<SaleorLogo />);
+    const { container } = render(<SaleorLogo />);
 
-    // Assert
-    const img = screen.getByRole("img");
+    // Assert — alt="" gives role="presentation" in @testing-library/dom v10+
+    const img = container.querySelector("img");
 
     expect(img).toHaveAttribute("src", expect.stringContaining("sidebar-default-logo.png"));
   });
@@ -40,10 +40,10 @@ describe("SaleorLogo", () => {
     });
 
     // Act
-    render(<SaleorLogo />);
+    const { container } = render(<SaleorLogo />);
 
-    // Assert
-    const img = screen.getByRole("img");
+    // Assert — alt="" gives role="presentation" in @testing-library/dom v10+
+    const img = container.querySelector("img");
 
     expect(img).toHaveAttribute(
       "src",
