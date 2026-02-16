@@ -3,7 +3,7 @@ import { ThemeProvider as LegacyThemeProvider } from "@saleor/macaw-ui";
 import "@saleor/macaw-ui-next/style";
 import type { Preview } from "@storybook/react-vite";
 import { IntlProvider } from "react-intl";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter } from "react-router";
 import { apolloClient } from "../src/graphql/client";
 import "../src/index.css";
 import { ThemeProvider } from "../src/theme";
