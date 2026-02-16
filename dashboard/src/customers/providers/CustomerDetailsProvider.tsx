@@ -18,12 +18,14 @@ export const CustomerDetailsProvider = ({
   children,
   id,
 }: CustomerDetailsProviderProps & { children: React.ReactNode }) => {
+  // Type assertion: codegen v4 enforces required variables intersection,
+  // but our custom useQuery wrapper injects permission variables automatically
   const { data, loading } = useCustomerDetailsQuery({
     displayLoader: true,
     variables: {
       id,
     },
-  });
+  } as Parameters<typeof useCustomerDetailsQuery>[0]);
   const providerValues: CustomerDetailsConsumerProps = {
     customer: data,
     loading,

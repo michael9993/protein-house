@@ -80,10 +80,12 @@ const CustomerList = ({ params }: CustomerListProps) => {
     [params, settings.rowNumber, valueProvider.value],
   );
 
+  // Type assertion: codegen v4 enforces required variables intersection,
+  // but our custom useQuery wrapper injects permission variables automatically
   const { data, refetch } = useListCustomersQuery({
     displayLoader: true,
     variables: newQueryVariables,
-  });
+  } as Parameters<typeof useListCustomersQuery>[0]);
   const customers = mapEdgesToItems(data?.customers);
   const [changeFilters, resetFilters, handleSearchChange] = createFilterHandlers({
     cleanupFn: clearRowSelection,

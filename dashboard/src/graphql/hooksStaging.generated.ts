@@ -210,8 +210,16 @@ export function useBaseChannelsLazyQuery(baseOptions?: ApolloReactHooks.LazyQuer
           const options = {...defaultOptions, ...baseOptions}
           return ApolloReactHooks.useLazyQuery<Types.BaseChannelsQuery, Types.BaseChannelsQueryVariables>(BaseChannelsStaging, options);
         }
+// @ts-ignore
+export function useBaseChannelsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<Types.BaseChannelsQuery, Types.BaseChannelsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<Types.BaseChannelsQuery, Types.BaseChannelsQueryVariables>;
+export function useBaseChannelsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<Types.BaseChannelsQuery, Types.BaseChannelsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<Types.BaseChannelsQuery | undefined, Types.BaseChannelsQueryVariables>;
+export function useBaseChannelsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<Types.BaseChannelsQuery, Types.BaseChannelsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useSuspenseQuery<Types.BaseChannelsQuery, Types.BaseChannelsQueryVariables>(BaseChannelsStaging, options);
+        }
 export type BaseChannelsQueryHookResult = ReturnType<typeof useBaseChannelsQuery>;
 export type BaseChannelsLazyQueryHookResult = ReturnType<typeof useBaseChannelsLazyQuery>;
+export type BaseChannelsSuspenseQueryHookResult = ReturnType<typeof useBaseChannelsSuspenseQuery>;
 export type BaseChannelsQueryResult = Apollo.QueryResult<Types.BaseChannelsQuery, Types.BaseChannelsQueryVariables>;
 export const ChannelsStaging = gql`
     query Channels {
@@ -244,8 +252,16 @@ export function useChannelsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHoo
           const options = {...defaultOptions, ...baseOptions}
           return ApolloReactHooks.useLazyQuery<Types.ChannelsQuery, Types.ChannelsQueryVariables>(ChannelsStaging, options);
         }
+// @ts-ignore
+export function useChannelsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<Types.ChannelsQuery, Types.ChannelsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<Types.ChannelsQuery, Types.ChannelsQueryVariables>;
+export function useChannelsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<Types.ChannelsQuery, Types.ChannelsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<Types.ChannelsQuery | undefined, Types.ChannelsQueryVariables>;
+export function useChannelsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<Types.ChannelsQuery, Types.ChannelsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useSuspenseQuery<Types.ChannelsQuery, Types.ChannelsQueryVariables>(ChannelsStaging, options);
+        }
 export type ChannelsQueryHookResult = ReturnType<typeof useChannelsQuery>;
 export type ChannelsLazyQueryHookResult = ReturnType<typeof useChannelsLazyQuery>;
+export type ChannelsSuspenseQueryHookResult = ReturnType<typeof useChannelsSuspenseQuery>;
 export type ChannelsQueryResult = Apollo.QueryResult<Types.ChannelsQuery, Types.ChannelsQueryVariables>;
 export const ChannelStaging = gql`
     query Channel($id: ID!) {
@@ -271,7 +287,7 @@ export const ChannelStaging = gql`
  *   },
  * });
  */
-export function useChannelQuery(baseOptions: ApolloReactHooks.QueryHookOptions<Types.ChannelQuery, Types.ChannelQueryVariables>) {
+export function useChannelQuery(baseOptions: ApolloReactHooks.QueryHookOptions<Types.ChannelQuery, Types.ChannelQueryVariables> & ({ variables: Types.ChannelQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return ApolloReactHooks.useQuery<Types.ChannelQuery, Types.ChannelQueryVariables>(ChannelStaging, options);
       }
@@ -279,6 +295,14 @@ export function useChannelLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return ApolloReactHooks.useLazyQuery<Types.ChannelQuery, Types.ChannelQueryVariables>(ChannelStaging, options);
         }
+// @ts-ignore
+export function useChannelSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<Types.ChannelQuery, Types.ChannelQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<Types.ChannelQuery, Types.ChannelQueryVariables>;
+export function useChannelSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<Types.ChannelQuery, Types.ChannelQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<Types.ChannelQuery | undefined, Types.ChannelQueryVariables>;
+export function useChannelSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<Types.ChannelQuery, Types.ChannelQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useSuspenseQuery<Types.ChannelQuery, Types.ChannelQueryVariables>(ChannelStaging, options);
+        }
 export type ChannelQueryHookResult = ReturnType<typeof useChannelQuery>;
 export type ChannelLazyQueryHookResult = ReturnType<typeof useChannelLazyQuery>;
+export type ChannelSuspenseQueryHookResult = ReturnType<typeof useChannelSuspenseQuery>;
 export type ChannelQueryResult = Apollo.QueryResult<Types.ChannelQuery, Types.ChannelQueryVariables>;

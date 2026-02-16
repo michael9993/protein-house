@@ -69,10 +69,12 @@ export const limitInfo = gql`
 export const useShopLimitsQuery = (
   opts: QueryHookOptions<RefreshLimitsQuery, Partial<RefreshLimitsQueryVariables>>,
 ) =>
+  // Type assertion needed: codegen v4 enforces required variables intersection,
+  // but our custom QueryHookOptions strips permission variables (added by useQuery wrapper)
   useRefreshLimitsQuery({
     ...opts,
     variables: {
       ...limitVariables,
       ...opts.variables,
     },
-  } as QueryHookOptions<RefreshLimitsQuery, RefreshLimitsQueryVariables>);
+  } as Parameters<typeof useRefreshLimitsQuery>[0]);
