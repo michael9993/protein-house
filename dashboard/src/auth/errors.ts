@@ -1,6 +1,6 @@
 import { ApolloError } from "@apollo/client";
 import { findValueInEnum } from "@dashboard/misc";
-import { GraphQLError } from "graphql";
+import { GraphQLFormattedError } from "graphql";
 
 import { UserContextError } from "./types";
 
@@ -24,7 +24,7 @@ type ExceptionWithCode = {
   code: string;
 };
 
-export function isJwtError(error: GraphQLError): boolean {
+export function isJwtError(error: GraphQLFormattedError): boolean {
   let jwtError: boolean;
 
   try {
@@ -36,7 +36,7 @@ export function isJwtError(error: GraphQLError): boolean {
   return jwtError;
 }
 
-export function isTokenExpired(error: GraphQLError): boolean {
+export function isTokenExpired(error: GraphQLFormattedError): boolean {
   try {
     return (error.extensions?.exception as ExceptionWithCode).code === JWTError.expired;
   } catch (e) {
@@ -44,7 +44,7 @@ export function isTokenExpired(error: GraphQLError): boolean {
   }
 }
 
-function getAuthErrorType(graphQLError: GraphQLError): UserContextError {
+function getAuthErrorType(graphQLError: GraphQLFormattedError): UserContextError {
   switch ((graphQLError.extensions?.exception as ExceptionWithCode)?.code as AuthError) {
     case AuthError.PermissionDenied:
       return UserContextError.noPermissionsError;

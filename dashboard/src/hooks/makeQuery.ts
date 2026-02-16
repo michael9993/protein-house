@@ -137,7 +137,7 @@ export function useQuery<TData, TVariables>(
   return {
     ...queryData,
     loadMore,
-  };
+  } as UseQueryResult<TData, TVariables>;
 }
 
 function makeQuery<TData, TVariables>(query: DocumentNode): UseQueryHook<TData, TVariables> {
