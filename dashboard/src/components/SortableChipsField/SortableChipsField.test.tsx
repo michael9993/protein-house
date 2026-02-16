@@ -4,25 +4,25 @@ import SortableChipsField from "./SortableChipsField";
 import * as useActiveDragId from "./useActiveDragId";
 import * as useSortableDragOver from "./useSortableDragOver";
 
-jest.mock("./useActiveDragId");
-jest.mock("./useSortableDragOver");
+vi.mock("./useActiveDragId");
+vi.mock("./useSortableDragOver");
 
 describe("SortableChipsField", () => {
   const mockValues = [
     { value: "1", label: "Value 1" },
     { value: "2", label: "Value 2" },
   ];
-  const onValueDelete = jest.fn();
-  const onValueReorder = jest.fn();
+  const onValueDelete = vi.fn();
+  const onValueReorder = vi.fn();
 
   beforeEach(() => {
-    (useActiveDragId.useActiveDragId as jest.Mock).mockReturnValue({
+    vi.mocked(useActiveDragId.useActiveDragId).mockReturnValue({
       activeId: null,
-      handleDragStart: jest.fn(),
-      handleDragEnd: jest.fn(),
+      handleDragStart: vi.fn(),
+      handleDragEnd: vi.fn(),
     });
-    (useSortableDragOver.useSortableDragOver as jest.Mock).mockReturnValue({
-      handleDragOver: jest.fn(),
+    vi.mocked(useSortableDragOver.useSortableDragOver).mockReturnValue({
+      handleDragOver: vi.fn(),
     });
     onValueDelete.mockClear();
     onValueReorder.mockClear();

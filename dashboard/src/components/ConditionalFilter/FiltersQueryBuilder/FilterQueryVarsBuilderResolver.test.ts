@@ -9,10 +9,10 @@ import { StaticQueryVarsBuilder } from "./queryVarsBuilders/StaticQueryVarsBuild
 // Helper to create a mock FilterDefinition with required methods
 function createMockDefinition(canHandleImpl: (element: FilterElement) => boolean) {
   return {
-    canHandle: jest.fn(canHandleImpl),
-    createOptionFetcher: jest.fn(),
-    updateWhereQueryVariables: jest.fn(),
-    updateFilterQueryVariables: jest.fn(),
+    canHandle: vi.fn(canHandleImpl),
+    createOptionFetcher: vi.fn(),
+    updateWhereQueryVariables: vi.fn(),
+    updateFilterQueryVariables: vi.fn(),
   };
 }
 

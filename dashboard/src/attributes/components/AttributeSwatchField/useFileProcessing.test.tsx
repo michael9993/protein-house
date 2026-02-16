@@ -3,26 +3,26 @@ import { act, renderHook } from "@testing-library/react-hooks";
 
 import { useFileProcessing } from "./useFileProcessing";
 
-jest.mock("@dashboard/graphql", () => ({
-  useFileUploadMutation: jest.fn(),
+vi.mock("@dashboard/graphql", () => ({
+  useFileUploadMutation: vi.fn(),
 }));
 
-jest.mock("@dashboard/intl", () => ({
+vi.mock("@dashboard/intl", () => ({
   errorMessages: {
     imgageUploadErrorTitle: "Image upload error title",
     imageUploadErrorText: "Image upload error text",
   },
 }));
 
-jest.mock("@dashboard/hooks/useNotifier", () => () => jest.fn());
+vi.mock("@dashboard/hooks/useNotifier", () => () => vi.fn());
 
 describe("useFileProcessing", () => {
-  const mockUploadFile = jest.fn();
-  const setMock = jest.fn();
+  const mockUploadFile = vi.fn();
+  const setMock = vi.fn();
 
   beforeEach(() => {
-    (useFileUploadMutation as jest.Mock).mockReturnValue([mockUploadFile]);
-    jest.clearAllMocks();
+    vi.mocked(useFileUploadMutation).mockReturnValue([mockUploadFile]);
+    vi.clearAllMocks();
   });
 
   it("should handle file upload successfully", async () => {

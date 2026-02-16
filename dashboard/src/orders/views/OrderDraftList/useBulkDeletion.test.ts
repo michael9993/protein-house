@@ -3,16 +3,16 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { useBulkDeletion } from "./useBulkDeletion";
 
-jest.mock("@dashboard/graphql", () => ({
-  useOrderDraftBulkCancelMutation: jest.fn(() => [jest.fn(), {}]),
+vi.mock("@dashboard/graphql", () => ({
+  useOrderDraftBulkCancelMutation: vi.fn(() => [vi.fn(), {}]),
 }));
 describe("Order draft list useBulkDeletion", () => {
   it("deletes order drafts for by given ids", async () => {
     // Arrange
-    const onComplete = jest.fn();
+    const onComplete = vi.fn();
     const selectedRowIds = ["id1", "id2"];
-    const orderDraftBulkDelete = jest.fn();
-    const useOrderDraftBulkCancelMutationMock = useOrderDraftBulkCancelMutation as jest.Mock;
+    const orderDraftBulkDelete = vi.fn();
+    const useOrderDraftBulkCancelMutationMock = useOrderDraftBulkCancelMutation as Mock;
 
     useOrderDraftBulkCancelMutationMock.mockReturnValue([orderDraftBulkDelete, {}]);
 

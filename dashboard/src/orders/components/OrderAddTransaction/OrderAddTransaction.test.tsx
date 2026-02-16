@@ -12,7 +12,7 @@ describe("OrderAddTransaction", () => {
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
   it("calls onAddTransaction when clicked", async () => {
-    const callback = jest.fn();
+    const callback = vi.fn();
 
     render(
       <Wrapper>

@@ -16,7 +16,7 @@ describe("DateTimeTimezoneField", () => {
     // Arrange & Act
     const { getByTestId } = render(
       <Wrapper>
-        <DateTimeTimezoneField name="test" onChange={jest.fn()} value="" />
+        <DateTimeTimezoneField name="test" onChange={vi.fn()} value="" />
       </Wrapper>,
     );
 
@@ -26,7 +26,7 @@ describe("DateTimeTimezoneField", () => {
 
   it("calls onChange when the input value changes", () => {
     // Arrange & Act
-    const handleChange = jest.fn();
+    const handleChange = vi.fn();
     const { getByTestId } = render(
       <Wrapper>
         <DateTimeTimezoneField name="test" onChange={handleChange} value="" />
@@ -43,7 +43,7 @@ describe("DateTimeTimezoneField", () => {
     // Arrange & Act
     const { getByText } = render(
       <Wrapper>
-        <DateTimeTimezoneField name="test" onChange={jest.fn()} error="Test error" value="" />
+        <DateTimeTimezoneField name="test" onChange={vi.fn()} error="Test error" value="" />
       </Wrapper>,
     );
 
@@ -53,7 +53,7 @@ describe("DateTimeTimezoneField", () => {
 
   it("keeps the time when a valid time is input and the input is blurred", () => {
     // Arrange & Act
-    const handleChange = jest.fn();
+    const handleChange = vi.fn();
     const { getByTestId } = render(
       <Wrapper>
         <DateTimeTimezoneField name="test" onChange={handleChange} value="" />
@@ -71,7 +71,7 @@ describe("DateTimeTimezoneField", () => {
 
   it("doesn't save invalid time when the input is blurred (below min)", () => {
     // Arrange & Act
-    const handleChange = jest.fn();
+    const handleChange = vi.fn();
     const { getByTestId } = render(
       <Wrapper>
         <DateTimeTimezoneField name="test" onChange={handleChange} value="" />
@@ -89,7 +89,7 @@ describe("DateTimeTimezoneField", () => {
 
   it("doesn't save invalid time when the input is blurred (above max)", () => {
     // Arrange & Act
-    const handleChange = jest.fn();
+    const handleChange = vi.fn();
     const { getByTestId } = render(
       <Wrapper>
         <DateTimeTimezoneField name="test" onChange={handleChange} value="" />

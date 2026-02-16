@@ -1,7 +1,7 @@
 import { getAbsoluteApiUrl } from "@dashboard/config";
 import { newTabActions, prepareFormValues } from "@dashboard/extensions/new-tab-actions";
 
-jest.mock("@dashboard/config");
+vi.mock("@dashboard/config");
 
 describe("prepareFormValues", () => {
   it("Renders flat array of tuples with key and value", () => {
@@ -155,10 +155,10 @@ describe("prepareFormValues", () => {
 
 describe("newTabActions", () => {
   describe("openGETinNewTab", () => {
-    let windowOpenSpy: jest.SpyInstance;
+    let windowOpenSpy: MockInstance;
 
     beforeEach(() => {
-      windowOpenSpy = jest.spyOn(window, "open").mockImplementation();
+      windowOpenSpy = vi.spyOn(window, "open").mockImplementation();
     });
 
     afterEach(() => {
@@ -201,18 +201,18 @@ describe("newTabActions", () => {
   });
 
   describe("openPOSTinNewTab", () => {
-    let submitSpy: jest.SpyInstance;
+    let submitSpy: MockInstance;
 
     beforeEach(() => {
       // Spy on form.submit() to prevent actual form submission
-      submitSpy = jest.spyOn(HTMLFormElement.prototype, "submit").mockImplementation();
+      submitSpy = vi.spyOn(HTMLFormElement.prototype, "submit").mockImplementation();
 
-      (getAbsoluteApiUrl as jest.Mock).mockReturnValue("https://api.example.com/graphql/");
+      vi.mocked(getAbsoluteApiUrl).mockReturnValue("https://api.example.com/graphql/");
     });
 
     afterEach(() => {
       submitSpy.mockRestore();
-      jest.clearAllMocks();
+      vi.clearAllMocks();
     });
 
     it("Creates form with correct method, action and target", () => {

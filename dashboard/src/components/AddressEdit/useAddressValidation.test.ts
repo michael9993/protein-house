@@ -3,15 +3,15 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { selectRules, useAddressValidation } from "./useAddressValidation";
 
-jest.mock("@dashboard/graphql", () => ({
-  CountryCode: jest.requireActual("@dashboard/graphql").CountryCode,
-  useAddressValidationRulesQuery: jest.fn(),
+vi.mock("@dashboard/graphql", async () => ({
+  CountryCode: await vi.importActual("@dashboard/graphql").CountryCode,
+  useAddressValidationRulesQuery: vi.fn(),
 }));
 
 describe("useAddressValidation", () => {
   it("skips loading validation rules when country is not provided", () => {
     // Arrange
-    (useAddressValidationRulesQuery as jest.Mock).mockReturnValue({
+    vi.mocked(useAddressValidationRulesQuery).mockReturnValue({
       data: null,
       loading: false,
     });
@@ -33,7 +33,7 @@ describe("useAddressValidation", () => {
 
   it("loads validation rules when country is provided", () => {
     // Arrange
-    (useAddressValidationRulesQuery as jest.Mock).mockReturnValue({
+    vi.mocked(useAddressValidationRulesQuery).mockReturnValue({
       data: {
         addressValidationRules: {
           countryAreaChoices: [
@@ -67,7 +67,7 @@ describe("useAddressValidation", () => {
 
   it("getDisplayValue should return display value for area code when valid", () => {
     // Arrange
-    (useAddressValidationRulesQuery as jest.Mock).mockReturnValue({
+    vi.mocked(useAddressValidationRulesQuery).mockReturnValue({
       data: {
         addressValidationRules: {
           countryAreaChoices: [
@@ -92,7 +92,7 @@ describe("useAddressValidation", () => {
 
   it("getDisplayValue should return value when area code invalid", () => {
     // Arrange
-    (useAddressValidationRulesQuery as jest.Mock).mockReturnValue({
+    vi.mocked(useAddressValidationRulesQuery).mockReturnValue({
       data: {
         addressValidationRules: {
           countryAreaChoices: [
@@ -117,7 +117,7 @@ describe("useAddressValidation", () => {
 
   it("getDisplayValue should return empty string when value is null", () => {
     // Arrange
-    (useAddressValidationRulesQuery as jest.Mock).mockReturnValue({
+    vi.mocked(useAddressValidationRulesQuery).mockReturnValue({
       data: {
         addressValidationRules: {
           countryAreaChoices: [

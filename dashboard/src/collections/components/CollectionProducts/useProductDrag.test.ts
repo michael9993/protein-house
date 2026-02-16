@@ -5,8 +5,8 @@ import { Product } from "./types";
 import { useProductDrag } from "./useProductDrag";
 import { useProductReorder } from "./useProductReorder";
 
-jest.mock("@dnd-kit/core");
-jest.mock("./useProductReorder");
+vi.mock("@dnd-kit/core");
+vi.mock("./useProductReorder");
 
 describe("CollectionProducts/useProductDrag", () => {
   const initialProducts = [
@@ -17,9 +17,9 @@ describe("CollectionProducts/useProductDrag", () => {
 
   it("should reorder items on drag end", () => {
     // Arrange
-    const move = jest.fn();
+    const move = vi.fn();
 
-    (useProductReorder as jest.Mock).mockReturnValue({
+    vi.mocked(useProductReorder).mockReturnValue({
       move,
       data: { loading: false },
     });

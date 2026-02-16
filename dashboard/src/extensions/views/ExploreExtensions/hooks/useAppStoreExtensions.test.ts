@@ -23,11 +23,11 @@ const mockExtensionsResponse = {
   ],
 };
 
-global.fetch = jest.fn();
+global.fetch = vi.fn();
 
 describe("Extensions / hooks / useAppStoreExtensions", () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should return an error message when appStoreUrl is not provided", () => {
@@ -47,9 +47,9 @@ describe("Extensions / hooks / useAppStoreExtensions", () => {
 
   it("should fetch and set data when appStoreUrl is provided", async () => {
     // Arrange
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
-      json: jest.fn().mockResolvedValueOnce(mockExtensionsResponse),
+      json: vi.fn().mockResolvedValueOnce(mockExtensionsResponse),
     });
 
     // Act
@@ -74,7 +74,7 @@ describe("Extensions / hooks / useAppStoreExtensions", () => {
 
   it("should handle API errors", async () => {
     // Arrange
-    (fetch as jest.Mock).mockRejectedValueOnce(new Error("Network Error"));
+    vi.mocked(fetch).mockRejectedValueOnce(new Error("Network Error"));
 
     // Act
     const { result, waitForNextUpdate } = renderHook(() =>

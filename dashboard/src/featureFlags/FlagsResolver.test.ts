@@ -1,7 +1,7 @@
 import { FlagsResolver } from "./FlagsResolver";
 import { Strategy } from "./Strategy";
 
-jest.mock("./availableFlags", () => ({
+vi.mock("./availableFlags", () => ({
   isSupported: () => true,
 }));
 describe("featureFlags/FlagsResolver", () => {

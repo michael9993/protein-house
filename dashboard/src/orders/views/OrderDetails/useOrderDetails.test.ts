@@ -4,13 +4,13 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { useOrderDetails } from "./useOrderDetails";
 
-jest.mock("@dashboard/auth");
-jest.mock("@dashboard/graphql");
+vi.mock("@dashboard/auth");
+vi.mock("@dashboard/graphql");
 
 describe("useOrderDetails", () => {
   it("should be called with MANAGE_PRODUCTS permission", () => {
     // Arrange
-    (useUser as jest.Mock).mockReturnValue({
+    vi.mocked(useUser).mockReturnValue({
       user: {
         userPermissions: [{ code: PermissionEnum.MANAGE_PRODUCTS }],
       },
@@ -18,7 +18,7 @@ describe("useOrderDetails", () => {
 
     const mockData = { order: { id: "1", name: "Test Order" } };
 
-    (useOrderDetailsWithMetadataQuery as jest.Mock).mockReturnValue({
+    vi.mocked(useOrderDetailsWithMetadataQuery).mockReturnValue({
       data: mockData,
       loading: false,
     });
@@ -37,7 +37,7 @@ describe("useOrderDetails", () => {
 
   it("should not be called with MANAGE_PRODUCTS permission", () => {
     // Arrange
-    (useUser as jest.Mock).mockReturnValue({
+    vi.mocked(useUser).mockReturnValue({
       user: {
         userPermissions: [{ code: PermissionEnum.MANAGE_ORDERS }],
       },
@@ -45,7 +45,7 @@ describe("useOrderDetails", () => {
 
     const mockData = { order: { id: "1", name: "Test Order" } };
 
-    (useOrderDetailsWithMetadataQuery as jest.Mock).mockReturnValue({
+    vi.mocked(useOrderDetailsWithMetadataQuery).mockReturnValue({
       data: mockData,
       loading: false,
     });

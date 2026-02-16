@@ -21,7 +21,7 @@ describe("ButtonWithLoader", () => {
 
   it("should call onClick when clicked", () => {
     // Arrange
-    const onClick = jest.fn();
+    const onClick = vi.fn();
 
     // Act
     render(<ButtonWithLoader transitionState="default" onClick={onClick} />);

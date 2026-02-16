@@ -7,8 +7,8 @@ import { MemoryRouter } from "react-router";
 
 import { EventCreatedBy } from "./EventCreatedBy";
 
-jest.mock("@dashboard/featureFlags", () => ({
-  useFlag: jest.fn(() => ({ enabled: true })),
+vi.mock("@dashboard/featureFlags", () => ({
+  useFlag: vi.fn(() => ({ enabled: true })),
 }));
 
 describe("EventCreatedBy", () => {

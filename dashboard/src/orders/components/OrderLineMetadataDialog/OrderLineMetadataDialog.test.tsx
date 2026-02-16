@@ -4,18 +4,18 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { OrderLineMetadataDialog, OrderLineMetadataDialogData } from "./OrderLineMetadataDialog";
 import { TEST_ID_ORDER_LINE_METADATA, TEST_ID_PRODUCT_VARIANT_METADATA } from "./test-ids";
 
-const mockOnSubmit = jest.fn();
+const mockOnSubmit = vi.fn();
 
-jest.mock("./useHandleSubmit", () => ({
-  useHandleOrderLineMetadataSubmit: jest.fn(() => ({
+vi.mock("./useHandleSubmit", () => ({
+  useHandleOrderLineMetadataSubmit: vi.fn(() => ({
     onSubmit: mockOnSubmit,
     lastSubmittedData: undefined,
     submitInProgress: false,
   })),
 }));
 
-jest.mock("@dashboard/orders/hooks/useHasManageProductsPermission", () => ({
-  useHasManageProductsPermission: jest.fn(() => false),
+vi.mock("@dashboard/orders/hooks/useHasManageProductsPermission", () => ({
+  useHasManageProductsPermission: vi.fn(() => false),
 }));
 
 const mockData = {
@@ -47,14 +47,14 @@ const mockData = {
   __typename: "OrderLine",
 } satisfies OrderLineMetadataDialogData;
 
-jest.mock("./useMetadataValues", () => ({
+vi.mock("./useMetadataValues", () => ({
   useMetadataValues: () => ({
     data: mockData,
     loading: false,
   }),
 }));
 describe("OrderLineMetadataDialog", () => {
-  const onCloseMock = jest.fn();
+  const onCloseMock = vi.fn();
 
   it("closes when user hits close icon button", () => {
     // Arrange
@@ -130,7 +130,7 @@ describe("OrderLineMetadataDialog", () => {
   describe("ProductVariant metadata form", () => {
     it("displays product variant metadata in editable form", async () => {
       // Arrange
-      (useHasManageProductsPermission as jest.Mock).mockReturnValue(true);
+      vi.mocked(useHasManageProductsPermission).mockReturnValue(true);
       render(
         <OrderLineMetadataDialog
           open={true}
@@ -155,7 +155,7 @@ describe("OrderLineMetadataDialog", () => {
 
     it("displays product variant private metadata when user has MANAGE_PRODUCTS permission", () => {
       // Arrange
-      (useHasManageProductsPermission as jest.Mock).mockReturnValue(true);
+      vi.mocked(useHasManageProductsPermission).mockReturnValue(true);
       render(
         <OrderLineMetadataDialog
           open={true}
@@ -183,7 +183,7 @@ describe("OrderLineMetadataDialog", () => {
 
     it("hides and disables variant metadata editing when user doesn't have MANAGE_PRODUCTS permission", () => {
       // Arrange
-      (useHasManageProductsPermission as jest.Mock).mockReturnValue(false);
+      vi.mocked(useHasManageProductsPermission).mockReturnValue(false);
       render(
         <OrderLineMetadataDialog
           open={true}

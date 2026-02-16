@@ -6,25 +6,25 @@ import { useFetchManifest } from "./hooks/useFetchManifest";
 import { useInstallApp } from "./hooks/useInstallApp";
 import { InstallCustomExtension } from "./InstallCustomExtension";
 
-jest.mock("react-router-dom", () => ({
-  Link: jest.fn(({ children }) => <div>{children}</div>),
+vi.mock("react-router-dom", () => ({
+  Link: vi.fn(({ children }) => <div>{children}</div>),
 }));
-jest.mock("@dashboard/theme/hook", () => ({
-  useTheme: () => ({ theme: "defaultLight", setTheme: jest.fn() }),
+vi.mock("@dashboard/theme/hook", () => ({
+  useTheme: () => ({ theme: "defaultLight", setTheme: vi.fn() }),
 }));
 
-jest.mock("./hooks/useFetchManifest");
-jest.mock("./hooks/useInstallApp");
-jest.mock("@dashboard/components/Savebar");
+vi.mock("./hooks/useFetchManifest");
+vi.mock("./hooks/useInstallApp");
+vi.mock("@dashboard/components/Savebar");
 
-jest.useFakeTimers();
+vi.useFakeTimers();
 
 describe("InstallCustomExtension", () => {
   const manifestUrl = "https://example.com/manifest.json";
 
-  const mockUseFetchManifest = useFetchManifest as jest.Mock;
-  const mockUseInstallApp = useInstallApp as jest.Mock;
-  const mockFetchManifestFn = jest.fn();
+  const mockUseFetchManifest = useFetchManifest as Mock;
+  const mockUseInstallApp = useInstallApp as Mock;
+  const mockFetchManifestFn = vi.fn();
 
   beforeEach(() => {
     mockFetchManifestFn.mockClear();
@@ -36,17 +36,17 @@ describe("InstallCustomExtension", () => {
     });
 
     mockUseInstallApp.mockReturnValue({
-      submitInstallApp: jest.fn(),
+      submitInstallApp: vi.fn(),
       isSubmittingInstallation: false,
     });
   });
 
   afterEach(() => {
-    jest.clearAllTimers();
+    vi.clearAllTimers();
   });
 
   afterAll(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it("initializes useForm and useFetchManifest correctly", async () => {
@@ -96,7 +96,7 @@ describe("InstallCustomExtension", () => {
 
     it("triggers immediate submission on URL paste", async () => {
       // Arrange
-      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
 
       render(<InstallCustomExtension params={params} />);
 
@@ -107,7 +107,7 @@ describe("InstallCustomExtension", () => {
       await user.paste(manifestUrl);
 
       act(() => {
-        jest.advanceTimersByTime(10);
+        vi.advanceTimersByTime(10);
       });
 
       // Assert
@@ -120,7 +120,7 @@ describe("InstallCustomExtension", () => {
     it("shows form errors from manifest fetch", async () => {
       // Arrange
       const errorMessage = "Invalid manifest";
-      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
 
       mockUseFetchManifest.mockImplementation(({ setError }) => {
         return {
@@ -140,7 +140,7 @@ describe("InstallCustomExtension", () => {
       await user.type(input, manifestUrl);
 
       act(() => {
-        jest.advanceTimersByTime(1000); // Wait until debounce submits form
+        vi.advanceTimersByTime(1000); // Wait until debounce submits form
       });
 
       // Assert
@@ -157,7 +157,7 @@ describe("InstallCustomExtension", () => {
         version: "1.0.0",
         permissions: [],
       };
-      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       const manifestState: { manifest: typeof mockManifest | null } = { manifest: null };
 
       mockUseFetchManifest.mockImplementation(() => ({
@@ -178,7 +178,7 @@ describe("InstallCustomExtension", () => {
 
       await user.type(input, manifestUrl);
       act(() => {
-        jest.advanceTimersByTime(1000); // Wait for debounce
+        vi.advanceTimersByTime(1000); // Wait for debounce
       });
 
       // Assert

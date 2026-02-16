@@ -3,10 +3,10 @@ import { renderHook } from "@testing-library/react-hooks";
 import { useUpdateAppToken } from "./useUpdateAppToken";
 
 describe("useUpdateAppToken", function () {
-  const postMessage = jest.fn();
+  const postMessage = vi.fn();
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
   it("Doesnt do anything if disabled", () => {
     const { waitFor } = renderHook(props => useUpdateAppToken(props), {
@@ -22,7 +22,7 @@ describe("useUpdateAppToken", function () {
     });
   });
   it("Doesnt do anything if re-rendered, but token stays the same between renders", () => {
-    const localPostMessage = jest.fn();
+    const localPostMessage = vi.fn();
     const { rerender, waitFor } = renderHook(props => useUpdateAppToken(props), {
       initialProps: {
         enabled: true,

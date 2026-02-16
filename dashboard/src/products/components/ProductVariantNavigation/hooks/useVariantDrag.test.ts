@@ -4,11 +4,11 @@ import { act, renderHook } from "@testing-library/react-hooks";
 import { ProductVariantItem } from "../types";
 import { useVariantDrag } from "./useVariantDrag";
 
-jest.mock("@dnd-kit/core", () => ({
-  ...(jest.requireActual("@dnd-kit/core") as object),
-  useSensors: jest.fn(() => "mockedSensors"),
-  useSensor: jest.fn(),
-  PointerSensor: jest.fn(),
+vi.mock("@dnd-kit/core", async () => ({
+  ...(await vi.importActual("@dnd-kit/core") as object),
+  useSensors: vi.fn(() => "mockedSensors"),
+  useSensor: vi.fn(),
+  PointerSensor: vi.fn(),
 }));
 
 const mockVariants = [
@@ -16,11 +16,11 @@ const mockVariants = [
   { id: "2", name: "Variant 2" },
   { id: "3", name: "Variant 3" },
 ];
-const mockOnReorder = jest.fn();
+const mockOnReorder = vi.fn();
 
 describe("useVariantDrag", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should not call onReorder when over is null", () => {

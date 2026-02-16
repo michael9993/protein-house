@@ -5,12 +5,12 @@ import { ExtensionInstallFormData, InstallDetailsManifestData } from "../../type
 import { InstallExtensionManifestData } from "./InstallExtensionManifestData/InstallExtensionManifestData";
 import { InstallSectionData } from "./InstallSectionData";
 
-jest.mock("./InstallExtensionManifestData/InstallExtensionManifestData", () => ({
-  InstallExtensionManifestData: jest.fn(() => <div>Mock Manifest Data</div>),
+vi.mock("./InstallExtensionManifestData/InstallExtensionManifestData", () => ({
+  InstallExtensionManifestData: vi.fn(() => <div>Mock Manifest Data</div>),
 }));
 
-jest.mock("react-hook-form", () => ({
-  useWatch: jest.fn(),
+vi.mock("react-hook-form", () => ({
+  useWatch: vi.fn(),
 }));
 
 describe("InstallSectionData", () => {
@@ -30,7 +30,7 @@ describe("InstallSectionData", () => {
 
   it("displays skeleton loading state when isFetchingManifest is true", () => {
     // Arrange
-    (useWatch as jest.Mock).mockReturnValue("https://example.com/manifest.json");
+    vi.mocked(useWatch).mockReturnValue("https://example.com/manifest.json");
 
     const { container } = render(
       <InstallSectionData
@@ -51,7 +51,7 @@ describe("InstallSectionData", () => {
     // Arrange
     const manifestUrl = "https://example.com/manifest.json";
 
-    (useWatch as jest.Mock).mockReturnValue(manifestUrl);
+    vi.mocked(useWatch).mockReturnValue(manifestUrl);
 
     render(
       <InstallSectionData
@@ -72,7 +72,7 @@ describe("InstallSectionData", () => {
 
   it("returns null when manifest exists but lastFetchedManifestUrl does not match form value", () => {
     // Arrange
-    (useWatch as jest.Mock).mockReturnValue("https://example.com/manifest.json");
+    vi.mocked(useWatch).mockReturnValue("https://example.com/manifest.json");
 
     const { container } = render(
       <InstallSectionData
@@ -89,7 +89,7 @@ describe("InstallSectionData", () => {
 
   it("returns null when manifest doesn't exist and it's not being fetched", () => {
     // Arrange
-    (useWatch as jest.Mock).mockReturnValue("https://example.com/manifest.json");
+    vi.mocked(useWatch).mockReturnValue("https://example.com/manifest.json");
 
     const { container } = render(
       <InstallSectionData

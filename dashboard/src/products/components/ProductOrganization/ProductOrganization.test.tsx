@@ -11,7 +11,7 @@ const intersectionObserverMock = () => ({
   unobserve: () => null,
 });
 
-window.IntersectionObserver = jest.fn().mockImplementation(intersectionObserverMock);
+window.IntersectionObserver = vi.fn().mockImplementation(intersectionObserverMock);
 
 const categories = getChoicesWithAncestors([
   {
@@ -111,18 +111,18 @@ describe("Products ProductOrganization", () => {
           data={{ category: "category", collections: [] }}
           disabled={false}
           errors={[]}
-          fetchCategories={jest.fn()}
-          fetchCollections={jest.fn()}
+          fetchCategories={vi.fn()}
+          fetchCollections={vi.fn()}
           // @ts-expect-error - fn not used in this test
-          fetchMoreCategories={jest.fn()}
+          fetchMoreCategories={vi.fn()}
           // @ts-expect-error - fn not used in this test
-          fetchMoreCollections={jest.fn()}
+          fetchMoreCollections={vi.fn()}
           productType={{ hasVariants: true, id: "id", name: "name" }}
           productTypeInputDisplayValue="productTypeInputDisplayValue"
           productTypes={undefined}
-          onCategoryChange={jest.fn()}
-          onCollectionChange={jest.fn()}
-          onProductTypeChange={jest.fn()}
+          onCategoryChange={vi.fn()}
+          onCollectionChange={vi.fn()}
+          onProductTypeChange={vi.fn()}
         />
       </Wrapper>,
     );
@@ -155,18 +155,18 @@ describe("Products ProductOrganization", () => {
           data={{ category: "category", collections: [] }}
           disabled={false}
           errors={[]}
-          fetchCategories={jest.fn()}
-          fetchCollections={jest.fn()}
+          fetchCategories={vi.fn()}
+          fetchCollections={vi.fn()}
           // @ts-expect-error - fn not used in this test
-          fetchMoreCategories={jest.fn()}
+          fetchMoreCategories={vi.fn()}
           // @ts-expect-error - fn not used in this test
-          fetchMoreCollections={jest.fn()}
+          fetchMoreCollections={vi.fn()}
           productType={{ hasVariants: true, id: "id", name: "name" }}
           productTypeInputDisplayValue="productTypeInputDisplayValue"
           productTypes={undefined}
-          onCategoryChange={jest.fn()}
-          onCollectionChange={jest.fn()}
-          onProductTypeChange={jest.fn()}
+          onCategoryChange={vi.fn()}
+          onCollectionChange={vi.fn()}
+          onProductTypeChange={vi.fn()}
         />
       </Wrapper>,
     );

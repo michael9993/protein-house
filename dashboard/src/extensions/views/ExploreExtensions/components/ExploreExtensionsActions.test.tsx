@@ -8,17 +8,17 @@ import userEvent from "@testing-library/user-event";
 
 import { ExploreExtensionsActions } from "./ExploreExtensionsActions";
 
-jest.mock("@dashboard/featureFlags", () => ({
-  useFlag: jest.fn(),
+vi.mock("@dashboard/featureFlags", () => ({
+  useFlag: vi.fn(),
 }));
 
-jest.mock("@dashboard/hooks/useHasManagedAppsPermission", () => ({
-  useHasManagedAppsPermission: jest.fn(),
+vi.mock("@dashboard/hooks/useHasManagedAppsPermission", () => ({
+  useHasManagedAppsPermission: vi.fn(),
 }));
 
-jest.mock("@dashboard/hooks/useNavigator", () => jest.fn());
+vi.mock("@dashboard/hooks/useNavigator", () => vi.fn());
 
-jest.mock("@dashboard/extensions/components/RequestExtensionsButton", () => ({
+vi.mock("@dashboard/extensions/components/RequestExtensionsButton", () => ({
   RequestExtensionsButton: () => (
     <a href={CONST_TYPEFORM_URL} target="_blank" rel="noopener noreferrer">
       Request integration
@@ -26,7 +26,7 @@ jest.mock("@dashboard/extensions/components/RequestExtensionsButton", () => ({
   ),
   CONST_TYPEFORM_URL: "https://example.com/typeform",
 }));
-jest.mock("@dashboard/extensions/messages", () => ({
+vi.mock("@dashboard/extensions/messages", () => ({
   buttonLabels: {
     addExtension: {
       defaultMessage: "Add Extension",
@@ -44,17 +44,17 @@ jest.mock("@dashboard/extensions/messages", () => ({
 }));
 
 describe("ExploreExtensionsActions", () => {
-  const mockNavigate = jest.fn();
+  const mockNavigate = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (useNavigator as jest.Mock).mockReturnValue(mockNavigate);
-    (useFlag as jest.Mock).mockReturnValue({ enabled: true });
+    vi.clearAllMocks();
+    vi.mocked(useNavigator).mockReturnValue(mockNavigate);
+    vi.mocked(useFlag).mockReturnValue({ enabled: true });
   });
 
   it("always renders request extensions button", () => {
     // Arrange
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValue({ hasManagedAppsPermission: false });
+    vi.mocked(useHasManagedAppsPermission).mockReturnValue({ hasManagedAppsPermission: false });
 
     // Act
     render(<ExploreExtensionsActions />);
@@ -69,7 +69,7 @@ describe("ExploreExtensionsActions", () => {
 
   it("renders add extension dropdown when user has permission and extensions dev is enabled", () => {
     // Arrange
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValue({ hasManagedAppsPermission: true });
+    vi.mocked(useHasManagedAppsPermission).mockReturnValue({ hasManagedAppsPermission: true });
 
     // Act
     render(<ExploreExtensionsActions />);
@@ -80,7 +80,7 @@ describe("ExploreExtensionsActions", () => {
 
   it("doesn't render add extension dropdown user doesn't have permission", () => {
     // Arrange
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValue({ hasManagedAppsPermission: false });
+    vi.mocked(useHasManagedAppsPermission).mockReturnValue({ hasManagedAppsPermission: false });
 
     // Act
     render(<ExploreExtensionsActions />);
@@ -91,7 +91,7 @@ describe("ExploreExtensionsActions", () => {
 
   it("navigates to install custom extension when selecting from dropdown", async () => {
     // Arrange
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValue({ hasManagedAppsPermission: true });
+    vi.mocked(useHasManagedAppsPermission).mockReturnValue({ hasManagedAppsPermission: true });
 
     // Act
     render(<ExploreExtensionsActions />);
@@ -104,7 +104,7 @@ describe("ExploreExtensionsActions", () => {
 
   it("navigates to add custom extension when selecting from dropdown", async () => {
     // Arrange
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValue({ hasManagedAppsPermission: true });
+    vi.mocked(useHasManagedAppsPermission).mockReturnValue({ hasManagedAppsPermission: true });
 
     // Act
     render(<ExploreExtensionsActions />);

@@ -3,9 +3,9 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { ListSettings } from "../../types";
 import { TablePagination } from "./TablePagination";
 
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
-jest.mock("@dashboard/hooks/useNavigator", () => () => mockNavigate);
+vi.mock("@dashboard/hooks/useNavigator", () => () => mockNavigate);
 
 describe("TablePagination", () => {
   const defaultProps = {

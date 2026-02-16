@@ -7,7 +7,7 @@ import { useActiveTab } from "./useActiveTab";
 describe("VoucherCreatePage / hooks / useActiveTab", () => {
   it("should set active tab and fire reset", async () => {
     // Arrange
-    const reset = jest.fn();
+    const reset = vi.fn();
     const { result } = renderHook(() => useActiveTab());
 
     // Assert

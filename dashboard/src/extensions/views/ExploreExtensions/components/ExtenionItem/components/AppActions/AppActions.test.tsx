@@ -3,14 +3,14 @@ import * as React from "react";
 
 import { AppActions } from "./AppActions";
 
-jest.mock("@dashboard/components/Link", () => {
+vi.mock("@dashboard/components/Link", () => {
   // eslint-disable-next-line react/display-name
   return ({ children, href }: { children: React.ReactNode; href: string }) => (
     <a href={href}>{children}</a>
   );
 });
 
-jest.mock("../AppInstallButton/AppInstallButton", () => ({
+vi.mock("../AppInstallButton/AppInstallButton", () => ({
   AppInstallButton: () => <div>Install</div>,
 }));
 

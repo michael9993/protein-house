@@ -5,14 +5,14 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { useLinkValue } from "./useLinkValue";
 
-jest.mock("@dashboard/searches/useCategorySearch");
-jest.mock("@dashboard/searches/useCollectionSearch");
-jest.mock("@dashboard/searches/usePageSearch");
+vi.mock("@dashboard/searches/useCategorySearch");
+vi.mock("@dashboard/searches/useCollectionSearch");
+vi.mock("@dashboard/searches/usePageSearch");
 
 describe("useLinkValue", () => {
   it("should return categories link value props", () => {
     // Arrange
-    (useCategorySearch as jest.Mock).mockReturnValue({
+    vi.mocked(useCategorySearch).mockReturnValue({
       result: {
         loading: false,
         data: {
@@ -28,8 +28,8 @@ describe("useLinkValue", () => {
           },
         },
       },
-      search: jest.fn(),
-      loadMore: jest.fn(),
+      search: vi.fn(),
+      loadMore: vi.fn(),
     });
 
     // Act
@@ -55,7 +55,7 @@ describe("useLinkValue", () => {
 
   it("should return collection link value props", () => {
     // Arrange
-    (useCollectionSearch as jest.Mock).mockReturnValue({
+    vi.mocked(useCollectionSearch).mockReturnValue({
       result: {
         loading: false,
         data: {
@@ -71,8 +71,8 @@ describe("useLinkValue", () => {
           },
         },
       },
-      search: jest.fn(),
-      loadMore: jest.fn(),
+      search: vi.fn(),
+      loadMore: vi.fn(),
     });
 
     // Act
@@ -98,7 +98,7 @@ describe("useLinkValue", () => {
 
   it("should return page link value props", () => {
     // Arrange
-    (usePageSearch as jest.Mock).mockReturnValue({
+    vi.mocked(usePageSearch).mockReturnValue({
       result: {
         loading: false,
         data: {
@@ -114,8 +114,8 @@ describe("useLinkValue", () => {
           },
         },
       },
-      search: jest.fn(),
-      loadMore: jest.fn(),
+      search: vi.fn(),
+      loadMore: vi.fn(),
     });
 
     // Act
@@ -141,10 +141,10 @@ describe("useLinkValue", () => {
 
   it("should call search function on query change", () => {
     // Arrange
-    const searchFn = jest.fn();
+    const searchFn = vi.fn();
     const queryString = "test";
 
-    (usePageSearch as jest.Mock).mockReturnValue({
+    vi.mocked(usePageSearch).mockReturnValue({
       result: {
         loading: false,
         data: {
@@ -154,7 +154,7 @@ describe("useLinkValue", () => {
         },
       },
       search: searchFn,
-      loadMore: jest.fn(),
+      loadMore: vi.fn(),
     });
 
     const { result } = renderHook(() => useLinkValue("page"));
@@ -168,9 +168,9 @@ describe("useLinkValue", () => {
 
   it("should call on fetch more", () => {
     // Arrange
-    const fetchMoreFn = jest.fn();
+    const fetchMoreFn = vi.fn();
 
-    (usePageSearch as jest.Mock).mockReturnValue({
+    vi.mocked(usePageSearch).mockReturnValue({
       result: {
         loading: false,
         data: {
@@ -179,7 +179,7 @@ describe("useLinkValue", () => {
           },
         },
       },
-      search: jest.fn(),
+      search: vi.fn(),
       loadMore: fetchMoreFn,
     });
 

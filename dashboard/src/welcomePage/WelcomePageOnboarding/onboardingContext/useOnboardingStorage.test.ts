@@ -6,25 +6,25 @@ import { renderHook } from "@testing-library/react-hooks";
 import { OnboardingStepsIDs } from "./types";
 import { useOnboardingStorage } from "./useOnboardingStorage";
 
-jest.mock("@dashboard/auth", () => ({
+vi.mock("@dashboard/auth", () => ({
   __esModule: true,
-  useUser: jest.fn(),
+  useUser: vi.fn(),
 }));
 
-jest.mock("@dashboard/graphql");
+vi.mock("@dashboard/graphql");
 
-jest.useFakeTimers();
+vi.useFakeTimers();
 
-jest.mock("lodash/debounce", () => jest.fn(fn => fn));
+vi.mock("lodash/debounce", () => vi.fn(fn => fn));
 
 describe("useOnboardingStorage", () => {
   describe("getOnboardingState", () => {
     it("should return undefined when there is no onboarding in user metadata", () => {
       // Arrange
-      (useUser as jest.Mock).mockImplementation(() => ({
+      vi.mocked(useUser).mockImplementation(() => ({
         user: { metadata: [{ key1: "value1" }, { key2: "value2" }] },
       }));
-      (useSaveOnBoardingStateMutation as jest.Mock).mockReturnValue([jest.fn(), {}]);
+      vi.mocked(useSaveOnBoardingStateMutation).mockReturnValue([vi.fn(), {}]);
 
       const { getOnboardingState } = renderHook(() => useOnboardingStorage()).result.current;
 
@@ -37,7 +37,7 @@ describe("useOnboardingStorage", () => {
 
     it("should return onboarding state from user metadata", () => {
       // Arrange
-      (useUser as jest.Mock).mockImplementation(() => ({
+      vi.mocked(useUser).mockImplementation(() => ({
         user: {
           metadata: [
             {
@@ -47,7 +47,7 @@ describe("useOnboardingStorage", () => {
           ],
         },
       }));
-      (useSaveOnBoardingStateMutation as jest.Mock).mockReturnValue([jest.fn(), {}]);
+      vi.mocked(useSaveOnBoardingStateMutation).mockReturnValue([vi.fn(), {}]);
 
       const { getOnboardingState } = renderHook(() => useOnboardingStorage()).result.current;
 
@@ -62,11 +62,11 @@ describe("useOnboardingStorage", () => {
   describe("saveOnboardingState", () => {
     it("should not save onboarding state when there is no user", async () => {
       // Arrange
-      (useUser as jest.Mock).mockImplementation(() => ({ user: null }));
+      vi.mocked(useUser).mockImplementation(() => ({ user: null }));
 
-      const updateMetadataMock = jest.fn();
+      const updateMetadataMock = vi.fn();
 
-      (useSaveOnBoardingStateMutation as jest.Mock).mockReturnValue([updateMetadataMock, {}]);
+      vi.mocked(useSaveOnBoardingStateMutation).mockReturnValue([updateMetadataMock, {}]);
 
       const { result } = renderHook(() => useOnboardingStorage());
 
@@ -86,11 +86,11 @@ describe("useOnboardingStorage", () => {
 
     it("should save onboarding state to user metadata and be called only once", async () => {
       // Arrange
-      (useUser as jest.Mock).mockImplementation(() => ({ user: { id: "1", metadata: [] } }));
+      vi.mocked(useUser).mockImplementation(() => ({ user: { id: "1", metadata: [] } }));
 
-      const updateMetadataMock = jest.fn();
+      const updateMetadataMock = vi.fn();
 
-      (useSaveOnBoardingStateMutation as jest.Mock).mockReturnValue([updateMetadataMock, {}]);
+      vi.mocked(useSaveOnBoardingStateMutation).mockReturnValue([updateMetadataMock, {}]);
 
       const { result } = renderHook(() => useOnboardingStorage());
 
@@ -103,7 +103,7 @@ describe("useOnboardingStorage", () => {
         });
       });
 
-      jest.runAllTimers();
+      vi.runAllTimers();
 
       // Assert
       expect(updateMetadataMock).toHaveBeenCalledTimes(1);

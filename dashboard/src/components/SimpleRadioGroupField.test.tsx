@@ -17,7 +17,7 @@ describe("SimpleRadioGroupField", () => {
       <SimpleRadioGroupField
         name="testRadioGroup"
         value="choice1"
-        onChange={jest.fn()}
+        onChange={vi.fn()}
         choices={choices}
       />,
     );
@@ -30,7 +30,7 @@ describe("SimpleRadioGroupField", () => {
 
   it("calls onChange when a radio button is clicked", () => {
     // Arrange
-    const handleChange = jest.fn();
+    const handleChange = vi.fn();
 
     render(
       <SimpleRadioGroupField
@@ -54,7 +54,7 @@ describe("SimpleRadioGroupField", () => {
 
   it("doesn't call onChange when `disabled` item is clicked", () => {
     // Arrange
-    const handleChange = jest.fn();
+    const handleChange = vi.fn();
 
     render(
       <SimpleRadioGroupField
@@ -84,7 +84,7 @@ describe("SimpleRadioGroupField", () => {
       <SimpleRadioGroupField
         name="testRadioGroup"
         value="choice1"
-        onChange={jest.fn()}
+        onChange={vi.fn()}
         choices={choices}
         errorMessage={errorMessage}
         error

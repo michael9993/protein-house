@@ -87,12 +87,12 @@ const createMockReferenceData = (data: {
 describe("attributes/utils/data", () => {
   describe("handleContainerReferenceAssignment", () => {
     const mockHandlers = {
-      selectAttributeReference: jest.fn(),
-      selectAttributeReferenceAdditionalData: jest.fn(),
+      selectAttributeReference: vi.fn(),
+      selectAttributeReferenceAdditionalData: vi.fn(),
     };
 
     beforeEach(() => {
-      jest.clearAllMocks();
+      vi.clearAllMocks();
     });
 
     it("should replace value for SINGLE_REFERENCE attribute after selecting item in modal", () => {
@@ -206,12 +206,12 @@ describe("attributes/utils/data", () => {
 
   describe("handleMetadataReferenceAssignment", () => {
     const mockHandlers = {
-      selectAttributeReference: jest.fn(),
-      selectAttributeReferenceAdditionalData: jest.fn(),
+      selectAttributeReference: vi.fn(),
+      selectAttributeReferenceAdditionalData: vi.fn(),
     };
 
     beforeEach(() => {
-      jest.clearAllMocks();
+      vi.clearAllMocks();
     });
 
     it("should replace value for SINGLE_REFERENCE attribute after selecting item in modal", () => {
@@ -326,7 +326,7 @@ describe("attributes/utils/data", () => {
 
   describe("getReferenceAttributeDisplayData", () => {
     beforeEach(() => {
-      jest.clearAllMocks();
+      vi.clearAllMocks();
     });
 
     it("should use display data from useFormset metadata when available", () => {

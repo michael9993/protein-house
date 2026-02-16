@@ -6,7 +6,7 @@ import { props } from "./fixtures";
 import { Metadata } from "./Metadata";
 
 const Component = () => {
-  const { change, data } = useForm(props.data, jest.fn());
+  const { change, data } = useForm(props.data, vi.fn());
 
   return <Metadata data={data} onChange={change} />;
 };

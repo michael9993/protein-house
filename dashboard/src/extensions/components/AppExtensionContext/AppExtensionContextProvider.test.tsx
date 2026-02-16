@@ -17,7 +17,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => (
 );
 
 // Mock the dependencies
-jest.mock(
+vi.mock(
   "@dashboard/extensions/views/ViewManifestExtension/components/AppDialog/AppDialog",
   () => ({
     AppDialog: ({ children, open, title }: any) =>
@@ -29,7 +29,7 @@ jest.mock(
   }),
 );
 
-jest.mock("@dashboard/extensions/views/ViewManifestExtension/components/AppFrame/AppFrame", () => ({
+vi.mock("@dashboard/extensions/views/ViewManifestExtension/components/AppFrame/AppFrame", () => ({
   AppFrame: ({ src, appToken, appId, params, dashboardVersion, coreVersion }: any) => (
     <div
       data-test-id="app-frame"
@@ -43,26 +43,26 @@ jest.mock("@dashboard/extensions/views/ViewManifestExtension/components/AppFrame
   ),
 }));
 
-jest.mock("@dashboard/hooks/useNavigator", () => ({
+vi.mock("@dashboard/hooks/useNavigator", () => ({
   __esModule: true,
-  default: jest.fn(() => jest.fn()),
+  default: vi.fn(() => vi.fn()),
 }));
 
-jest.mock("@dashboard/hooks/useShop", () => ({
+vi.mock("@dashboard/hooks/useShop", () => ({
   __esModule: true,
-  default: jest.fn(() => ({ version: "3.0.0" })),
+  default: vi.fn(() => ({ version: "3.0.0" })),
 }));
 
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
-jest.mock("@dashboard/hooks/useNavigator", () => ({
+vi.mock("@dashboard/hooks/useNavigator", () => ({
   __esModule: true,
   default: () => mockNavigate,
 }));
 
 describe("ExternalAppContext", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("ExternalAppProvider", () => {

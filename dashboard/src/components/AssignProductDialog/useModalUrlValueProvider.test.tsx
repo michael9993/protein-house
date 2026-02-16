@@ -54,8 +54,8 @@ describe("useModalUrlValueProvider", () => {
   describe("infinite re-render prevention", () => {
     it("should not refetch when initialState.fetchQueries identity changes", () => {
       // Arrange
-      const fetchQueriesFirst = jest.fn().mockResolvedValue(undefined);
-      const fetchQueriesSecond = jest.fn().mockResolvedValue(undefined);
+      const fetchQueriesFirst = vi.fn().mockResolvedValue(undefined);
+      const fetchQueriesSecond = vi.fn().mockResolvedValue(undefined);
 
       const wrapper = createWrapper("/?action=assign&id=1");
 
@@ -98,7 +98,7 @@ describe("useModalUrlValueProvider", () => {
       const initialState: InitialProductAPIState = {
         data: InitialProductStateResponse.empty(),
         loading: true,
-        fetchQueries: jest.fn(),
+        fetchQueries: vi.fn(),
       };
 
       // Act
@@ -126,7 +126,7 @@ describe("useModalUrlValueProvider", () => {
       const initialState: InitialProductAPIState = {
         data: InitialProductStateResponse.empty(),
         loading: false,
-        fetchQueries: jest.fn(),
+        fetchQueries: vi.fn(),
       };
 
       // Act
@@ -204,7 +204,7 @@ describe("useModalUrlValueProvider", () => {
       const { result } = renderHook(() => useModalUrlValueProvider(), { wrapper });
 
       const mockElement = {
-        equals: jest.fn().mockReturnValue(false),
+        equals: vi.fn().mockReturnValue(false),
       };
 
       // Act

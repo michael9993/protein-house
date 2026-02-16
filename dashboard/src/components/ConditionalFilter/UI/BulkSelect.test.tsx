@@ -7,7 +7,7 @@ const intersectionObserverMock = () => ({
   unobserve: () => null,
 });
 
-window.IntersectionObserver = jest.fn().mockImplementation(intersectionObserverMock);
+window.IntersectionObserver = vi.fn().mockImplementation(intersectionObserverMock);
 
 describe("ConditionalFilter / UI / BulkSelect", () => {
   const defaultProps: BulkSelectProps = {
@@ -21,9 +21,9 @@ describe("ConditionalFilter / UI / BulkSelect", () => {
       },
       value: [],
     },
-    onBlur: jest.fn(),
-    onFocus: jest.fn(),
-    onOptionsChange: jest.fn(),
+    onBlur: vi.fn(),
+    onFocus: vi.fn(),
+    onOptionsChange: vi.fn(),
     dataTestId: "right-0",
     error: false,
     helperText: "Helper text",

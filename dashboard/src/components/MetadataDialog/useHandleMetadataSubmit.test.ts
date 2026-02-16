@@ -11,19 +11,19 @@ import { act } from "react-dom/test-utils";
 import { useHandleMetadataSubmit } from "./useHandleMetadataSubmit";
 
 // Mocks
-const mockNotify = jest.fn();
+const mockNotify = vi.fn();
 
-jest.mock("@dashboard/hooks/useNotifier", () => () => mockNotify);
+vi.mock("@dashboard/hooks/useNotifier", () => () => mockNotify);
 
-jest.mock("@apollo/client", () => ({
-  ...(jest.requireActual("@apollo/client") as {}),
-  useApolloClient: jest.fn(),
+vi.mock("@apollo/client", async () => ({
+  ...(await vi.importActual("@apollo/client") as {}),
+  useApolloClient: vi.fn(),
 }));
 
-jest.mock("@dashboard/graphql", () => ({
-  ...(jest.requireActual("@dashboard/graphql") as {}),
-  useUpdateMetadataMutation: jest.fn(),
-  useUpdatePrivateMetadataMutation: jest.fn(),
+vi.mock("@dashboard/graphql", async () => ({
+  ...(await vi.importActual("@dashboard/graphql") as {}),
+  useUpdateMetadataMutation: vi.fn(),
+  useUpdatePrivateMetadataMutation: vi.fn(),
 }));
 
 // Test fixtures
@@ -41,47 +41,47 @@ const mockMetadataFormData: MetadataFormData = {
 const mockDocument: DocumentNode = OrderDetailsDocument;
 
 describe("useHandleMetadataSubmit", () => {
-  let mockUpdateMetadata: jest.Mock;
-  let mockUpdatePrivateMetadata: jest.Mock;
+  let mockUpdateMetadata: Mock;
+  let mockUpdatePrivateMetadata: Mock;
   let mockClient: {
-    refetchQueries: jest.Mock;
+    refetchQueries: Mock;
   };
-  let mockOnClose: jest.Mock;
-  let mockRefetch: jest.Mock;
+  let mockOnClose: Mock;
+  let mockRefetch: Mock;
 
   beforeEach(() => {
     // Arrange
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
-    mockUpdateMetadata = jest.fn().mockResolvedValue({
+    mockUpdateMetadata = vi.fn().mockResolvedValue({
       data: { updateMetadata: { errors: [] } },
     });
 
-    mockUpdatePrivateMetadata = jest.fn().mockResolvedValue({
+    mockUpdatePrivateMetadata = vi.fn().mockResolvedValue({
       data: { updatePrivateMetadata: { errors: [] } },
     });
 
-    mockRefetch = jest.fn().mockResolvedValue({});
+    mockRefetch = vi.fn().mockResolvedValue({});
 
     mockClient = {
-      refetchQueries: jest.fn(() => ({
+      refetchQueries: vi.fn(() => ({
         queries: [{ refetch: mockRefetch }],
       })),
     };
 
-    mockOnClose = jest.fn();
+    mockOnClose = vi.fn();
 
-    (useUpdateMetadataMutation as jest.Mock).mockReturnValue([
+    vi.mocked(useUpdateMetadataMutation).mockReturnValue([
       mockUpdateMetadata,
       { loading: false },
     ]);
 
-    (useUpdatePrivateMetadataMutation as jest.Mock).mockReturnValue([
+    vi.mocked(useUpdatePrivateMetadataMutation).mockReturnValue([
       mockUpdatePrivateMetadata,
       { loading: false },
     ]);
 
-    (useApolloClient as jest.Mock).mockReturnValue(mockClient);
+    vi.mocked(useApolloClient).mockReturnValue(mockClient);
   });
 
   it("should return onSubmit, lastSubmittedData, and submitInProgress", () => {
@@ -213,7 +213,7 @@ describe("useHandleMetadataSubmit", () => {
 
   it("should reflect loading state during mutation", () => {
     // Arrange
-    (useUpdateMetadataMutation as jest.Mock).mockReturnValue([
+    vi.mocked(useUpdateMetadataMutation).mockReturnValue([
       mockUpdateMetadata,
       { loading: true },
     ]);
@@ -233,7 +233,7 @@ describe("useHandleMetadataSubmit", () => {
 
   it("should reflect loading state from privateMetadata mutation", () => {
     // Arrange
-    (useUpdatePrivateMetadataMutation as jest.Mock).mockReturnValue([
+    vi.mocked(useUpdatePrivateMetadataMutation).mockReturnValue([
       mockUpdatePrivateMetadata,
       { loading: true },
     ]);

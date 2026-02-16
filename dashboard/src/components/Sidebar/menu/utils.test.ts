@@ -1,4 +1,5 @@
 import { AllAppExtensionMounts } from "@dashboard/extensions/domain/app-extension-manifest-available-mounts";
+import { ExtensionsUrls } from "@dashboard/extensions/urls";
 import { Extension } from "@dashboard/extensions/types";
 import { PermissionEnum } from "@dashboard/graphql";
 import { orderDraftListUrl, orderListUrl } from "@dashboard/orders/urls";
@@ -6,16 +7,13 @@ import { orderDraftListUrl, orderListUrl } from "@dashboard/orders/urls";
 import { SidebarMenuItem } from "./types";
 import { getMenuItemExtension, isMenuActive, mapToExtensionsItems } from "./utils";
 
-jest.mock("@dashboard/extensions/urls", () => ({
+vi.mock("@dashboard/extensions/urls", () => ({
   ExtensionsUrls: {
-    resolveDashboardUrlFromAppCompleteUrl: jest.fn(
-      (url, appUrl, appId) => `mockExtensionUrl:${url}:${appUrl}:${appId}`,
+    resolveDashboardUrlFromAppCompleteUrl: vi.fn(
+      (url: string, appUrl: string, appId: string) => `mockExtensionUrl:${url}:${appUrl}:${appId}`,
     ),
   },
 }));
-
-// To grab the mocked functions for assertions
-const { ExtensionsUrls } = jest.requireMock("@dashboard/extensions/urls");
 
 describe("mapToExtensionsItems", () => {
   beforeEach(() => {
@@ -36,7 +34,7 @@ describe("mapToExtensionsItems", () => {
     app: mockApp,
     url: "/test",
     permissions: [] as PermissionEnum[],
-    open: jest.fn(),
+    open: vi.fn(),
     accessToken: "mock-token",
     mountName: "NAVIGATION_CATALOG",
     targetName: "APP_PAGE",
@@ -209,7 +207,7 @@ describe("getMenuItemExtension", () => {
     app: mockAppDefinition,
     url: "/base-url",
     permissions: [] as PermissionEnum[],
-    open: jest.fn(),
+    open: vi.fn(),
     accessToken: "mock-token",
     mountName: "NAVIGATION_CATALOG",
     settings: {},

@@ -5,7 +5,7 @@ import { useUpdateOnRerender } from "./hooks";
 describe("useUpdateOnRerender", () => {
   it("should call render when defaultValue changes after initial render", () => {
     // Arrange
-    const mockRender = jest.fn();
+    const mockRender = vi.fn();
 
     const { rerender } = renderHook(
       ({ render, defaultValue, hasRendered }) =>
@@ -34,7 +34,7 @@ describe("useUpdateOnRerender", () => {
 
   it("should call render once when defaultValue change", () => {
     // Arrange
-    const mockRender = jest.fn();
+    const mockRender = vi.fn();
 
     const { rerender } = renderHook(
       ({ render, defaultValue, hasRendered }) =>
@@ -66,7 +66,7 @@ describe("useUpdateOnRerender", () => {
 
   it("should not call render if hasRendered is false", () => {
     // Arrange
-    const mockRender = jest.fn();
+    const mockRender = vi.fn();
 
     const { rerender } = renderHook(
       ({ render, defaultValue, hasRendered }) =>

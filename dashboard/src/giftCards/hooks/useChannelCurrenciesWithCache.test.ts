@@ -1,22 +1,21 @@
 import { useApolloClient } from "@apollo/client";
+import { useChannelCurrenciesQuery } from "@dashboard/graphql";
 import { renderHook } from "@testing-library/react-hooks";
 
 import { useChannelCurrenciesWithCache } from "./useChannelCurrenciesWithCache";
 
-jest.mock("@apollo/client", () => ({
-  useApolloClient: jest.fn(),
+vi.mock("@apollo/client", () => ({
+  useApolloClient: vi.fn(),
 }));
 
-jest.mock("@dashboard/graphql", () => ({
-  useChannelCurrenciesQuery: jest.fn(),
+vi.mock("@dashboard/graphql", () => ({
+  useChannelCurrenciesQuery: vi.fn(),
   ChannelCurrenciesDocument: {},
 }));
 
-const { useChannelCurrenciesQuery } = jest.requireMock("@dashboard/graphql");
-
 describe("useChannelCurrenciesWithCache", () => {
   const mockClient = {
-    readQuery: jest.fn(),
+    readQuery: vi.fn(),
   };
 
   const mockQueryResult = {
@@ -26,8 +25,8 @@ describe("useChannelCurrenciesWithCache", () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (useApolloClient as jest.Mock).mockReturnValue(mockClient);
+    vi.clearAllMocks();
+    vi.mocked(useApolloClient).mockReturnValue(mockClient);
     useChannelCurrenciesQuery.mockReturnValue(mockQueryResult);
   });
 

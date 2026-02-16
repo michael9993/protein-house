@@ -4,10 +4,10 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { useAppsFailedDeliveries } from "./useAppsFailedDeliveries";
 
-jest.mock("@dashboard/hooks/useHasManagedAppsPermission");
-jest.mock("@dashboard/graphql");
+vi.mock("@dashboard/hooks/useHasManagedAppsPermission");
+vi.mock("@dashboard/graphql");
 
-const fetchingFunction = jest.fn();
+const fetchingFunction = vi.fn();
 
 const hasPermissions = {
   hasManagedAppsPermission: true,
@@ -19,13 +19,13 @@ const doesntHavePermissions = {
 
 describe("useAppsFailedDeliveries", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should handle null webhook data", () => {
     // Arrange
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValue(hasPermissions);
-    (useAppFailedPendingWebhooksLazyQuery as jest.Mock).mockReturnValue([
+    vi.mocked(useHasManagedAppsPermission).mockReturnValue(hasPermissions);
+    vi.mocked(useAppFailedPendingWebhooksLazyQuery).mockReturnValue([
       fetchingFunction,
       {
         data: {
@@ -53,8 +53,8 @@ describe("useAppsFailedDeliveries", () => {
 
   it("should return hasFailed: false when user has no permissions", () => {
     // Arrange
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValue(doesntHavePermissions);
-    (useAppFailedPendingWebhooksLazyQuery as jest.Mock).mockReturnValue([
+    vi.mocked(useHasManagedAppsPermission).mockReturnValue(doesntHavePermissions);
+    vi.mocked(useAppFailedPendingWebhooksLazyQuery).mockReturnValue([
       fetchingFunction,
       { data: null },
     ]);
@@ -70,8 +70,8 @@ describe("useAppsFailedDeliveries", () => {
 
   it("should not flag as fails if there are no failed webhooks", () => {
     // Arrange
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValue(hasPermissions);
-    (useAppFailedPendingWebhooksLazyQuery as jest.Mock).mockReturnValue([
+    vi.mocked(useHasManagedAppsPermission).mockReturnValue(hasPermissions);
+    vi.mocked(useAppFailedPendingWebhooksLazyQuery).mockReturnValue([
       fetchingFunction,
       {
         data: {
@@ -111,8 +111,8 @@ describe("useAppsFailedDeliveries", () => {
 
   it("should check webhooks correctly for pending deliveries when user has permissions", () => {
     // Arrange
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValue(hasPermissions);
-    (useAppFailedPendingWebhooksLazyQuery as jest.Mock).mockReturnValue([
+    vi.mocked(useHasManagedAppsPermission).mockReturnValue(hasPermissions);
+    vi.mocked(useAppFailedPendingWebhooksLazyQuery).mockReturnValue([
       fetchingFunction,
       {
         data: {
@@ -167,8 +167,8 @@ describe("useAppsFailedDeliveries", () => {
 
   it("should check webhooks correctly when user has permissions", () => {
     // Arrange
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValue(hasPermissions);
-    (useAppFailedPendingWebhooksLazyQuery as jest.Mock).mockReturnValue([
+    vi.mocked(useHasManagedAppsPermission).mockReturnValue(hasPermissions);
+    vi.mocked(useAppFailedPendingWebhooksLazyQuery).mockReturnValue([
       fetchingFunction,
       {
         data: {
@@ -223,8 +223,8 @@ describe("useAppsFailedDeliveries", () => {
 
   it("should check webhooks correctly for both delivery fail types", () => {
     // Arrange
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValue(hasPermissions);
-    (useAppFailedPendingWebhooksLazyQuery as jest.Mock).mockReturnValue([
+    vi.mocked(useHasManagedAppsPermission).mockReturnValue(hasPermissions);
+    vi.mocked(useAppFailedPendingWebhooksLazyQuery).mockReturnValue([
       fetchingFunction,
       {
         data: {
@@ -275,8 +275,8 @@ describe("useAppsFailedDeliveries", () => {
 
   it("should return null for lastFailedWebhookDate when there are no webhooks", () => {
     // Arrange
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValue(hasPermissions);
-    (useAppFailedPendingWebhooksLazyQuery as jest.Mock).mockReturnValue([
+    vi.mocked(useHasManagedAppsPermission).mockReturnValue(hasPermissions);
+    vi.mocked(useAppFailedPendingWebhooksLazyQuery).mockReturnValue([
       fetchingFunction,
       {
         data: {
@@ -304,8 +304,8 @@ describe("useAppsFailedDeliveries", () => {
 
   it("should return the latest failed webhook date", () => {
     // Arrange
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValue(hasPermissions);
-    (useAppFailedPendingWebhooksLazyQuery as jest.Mock).mockReturnValue([
+    vi.mocked(useHasManagedAppsPermission).mockReturnValue(hasPermissions);
+    vi.mocked(useAppFailedPendingWebhooksLazyQuery).mockReturnValue([
       fetchingFunction,
       {
         data: {
@@ -376,8 +376,8 @@ describe("useAppsFailedDeliveries", () => {
 
   it("should return the latest failed webhook date when some webhooks have no failed deliveries", () => {
     // Arrange
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValue(hasPermissions);
-    (useAppFailedPendingWebhooksLazyQuery as jest.Mock).mockReturnValue([
+    vi.mocked(useHasManagedAppsPermission).mockReturnValue(hasPermissions);
+    vi.mocked(useAppFailedPendingWebhooksLazyQuery).mockReturnValue([
       fetchingFunction,
       {
         data: {
@@ -448,8 +448,8 @@ describe("useAppsFailedDeliveries", () => {
 
   it("should should handle multiple apps with failed events", () => {
     // Arrange
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValue(hasPermissions);
-    (useAppFailedPendingWebhooksLazyQuery as jest.Mock).mockReturnValue([
+    vi.mocked(useHasManagedAppsPermission).mockReturnValue(hasPermissions);
+    vi.mocked(useAppFailedPendingWebhooksLazyQuery).mockReturnValue([
       fetchingFunction,
       {
         data: {

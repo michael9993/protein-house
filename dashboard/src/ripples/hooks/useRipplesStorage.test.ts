@@ -44,19 +44,19 @@ const mockRipple3: Ripple = {
 const mockAllRipples = [mockRipple1, mockRipple2, mockRipple3];
 
 describe("RipplesStorage", () => {
-  let mockUpdateState: jest.Mock;
+  let mockUpdateState: Mock;
   let storage: RipplesStorage;
   const currentTime = 1640995200000;
 
   beforeEach(() => {
-    mockUpdateState = jest.fn();
+    mockUpdateState = vi.fn();
     storage = new RipplesStorage({}, mockUpdateState, mockAllRipples);
 
-    jest.spyOn(Date.prototype, "getTime").mockReturnValue(currentTime);
+    vi.spyOn(Date.prototype, "getTime").mockReturnValue(currentTime);
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe("getShouldShow", () => {

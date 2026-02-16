@@ -196,8 +196,8 @@ const createDropdownAttribute = (value: string | null, isRequired?: boolean) =>
 
 describe("Multiple select change handler", () => {
   it("is able to select value", () => {
-    const change = jest.fn();
-    const trigger = jest.fn();
+    const change = vi.fn();
+    const trigger = vi.fn();
     const handler = createAttributeMultiChangeHandler(change, multipleValueAttributes, trigger);
 
     handler("attr-2", "attr-2-v-1");
@@ -209,8 +209,8 @@ describe("Multiple select change handler", () => {
     expect(trigger).toHaveBeenCalledTimes(1);
   });
   it("is able to deselect value", () => {
-    const change = jest.fn();
-    const trigger = jest.fn();
+    const change = vi.fn();
+    const trigger = vi.fn();
     const handler = createAttributeMultiChangeHandler(change, multipleValueAttributes, trigger);
 
     handler("attr-2", "attr-2-v-3");
@@ -220,8 +220,8 @@ describe("Multiple select change handler", () => {
     expect(trigger).toHaveBeenCalledTimes(1);
   });
   it("is able to add custom value", () => {
-    const change = jest.fn();
-    const trigger = jest.fn();
+    const change = vi.fn();
+    const trigger = vi.fn();
     const handler = createAttributeMultiChangeHandler(change, multipleValueAttributes, trigger);
 
     handler("attr-2", "A Value");
@@ -763,7 +763,7 @@ describe("createAttributeChangeHandler", () => {
   it("should return false when value is false and it is a boolean attribute", () => {
     // Arrange
     const formset = {
-      change: jest.fn(),
+      change: vi.fn(),
       data: [],
       get: () => ({
         data: {
@@ -771,7 +771,7 @@ describe("createAttributeChangeHandler", () => {
         },
       }),
     } as unknown as UseFormsetOutput<AttributeInputData>;
-    const trigger = jest.fn();
+    const trigger = vi.fn();
     const handler = createAttributeChangeHandler(formset, trigger);
 
     // Act
@@ -786,7 +786,7 @@ describe("createAttributeChangeHandler", () => {
   it("should return undefined when value is undefined and it is a boolean attribute", () => {
     // Arrange
     const formset = {
-      change: jest.fn(),
+      change: vi.fn(),
       data: [],
       get: () => ({
         data: {
@@ -794,7 +794,7 @@ describe("createAttributeChangeHandler", () => {
         },
       }),
     } as unknown as UseFormsetOutput<AttributeInputData>;
-    const trigger = jest.fn();
+    const trigger = vi.fn();
     const handler = createAttributeChangeHandler(formset, trigger);
 
     // Act
@@ -809,11 +809,11 @@ describe("createAttributeChangeHandler", () => {
   it("should return empty array when value is empty string", () => {
     // Arrange
     const formset = {
-      change: jest.fn(),
+      change: vi.fn(),
       data: [],
-      get: jest.fn(),
+      get: vi.fn(),
     } as unknown as UseFormsetOutput<AttributeInputData>;
-    const trigger = jest.fn();
+    const trigger = vi.fn();
     const handler = createAttributeChangeHandler(formset, trigger);
 
     // Act
@@ -828,11 +828,11 @@ describe("createAttributeChangeHandler", () => {
   it("should return empty array when value is null", () => {
     // Arrange
     const formset = {
-      change: jest.fn(),
+      change: vi.fn(),
       data: [],
-      get: jest.fn(),
+      get: vi.fn(),
     } as unknown as UseFormsetOutput<AttributeInputData>;
-    const trigger = jest.fn();
+    const trigger = vi.fn();
     const handler = createAttributeChangeHandler(formset, trigger);
 
     // Act
@@ -847,11 +847,11 @@ describe("createAttributeChangeHandler", () => {
   it("should return array with value when value not null or undefined or empty string", () => {
     // Arrange
     const formset = {
-      change: jest.fn(),
+      change: vi.fn(),
       data: [],
-      get: jest.fn(),
+      get: vi.fn(),
     } as unknown as UseFormsetOutput<AttributeInputData>;
-    const trigger = jest.fn();
+    const trigger = vi.fn();
     const handler = createAttributeChangeHandler(formset, trigger);
 
     // Act
@@ -867,7 +867,7 @@ describe("createAttributeChangeHandler", () => {
 describe("handleDeleteMultipleAttributeValues", () => {
   it("should return empty array when no attributes", async () => {
     // Arrange
-    const trigger = jest.fn();
+    const trigger = vi.fn();
 
     // Act
     const result = await handleDeleteMultipleAttributeValues([], undefined, trigger);
@@ -879,7 +879,7 @@ describe("handleDeleteMultipleAttributeValues", () => {
 
   it("should call deleteAttributeValue when new attribute with file match existing one", async () => {
     // Arrange
-    const deleteAttributeValue = jest.fn(() => Promise.resolve("val-1")) as any;
+    const deleteAttributeValue = vi.fn(() => Promise.resolve("val-1")) as any;
     const attributesWithNewFileValue = [
       {
         id: "attr-1",
@@ -960,11 +960,11 @@ describe("createAttributeReferenceChangeHandler", () => {
           ],
         },
       ],
-      change: jest.fn(),
-      setAdditionalData: jest.fn(),
+      change: vi.fn(),
+      setAdditionalData: vi.fn(),
     } as unknown as UseFormsetOutput<AttributeInputData>;
 
-    const triggerChange = jest.fn();
+    const triggerChange = vi.fn();
     const handler = createAttributeReferenceChangeHandler(mockAttributes, triggerChange);
 
     // Act
@@ -991,11 +991,11 @@ describe("createAttributeReferenceChangeHandler", () => {
           additionalData: [{ value: "ref-1", label: "Reference 1" }],
         },
       ],
-      change: jest.fn(),
-      setAdditionalData: jest.fn(),
+      change: vi.fn(),
+      setAdditionalData: vi.fn(),
     } as unknown as UseFormsetOutput<AttributeInputData>;
 
-    const triggerChange = jest.fn();
+    const triggerChange = vi.fn();
     const handler = createAttributeReferenceChangeHandler(mockAttributes, triggerChange);
 
     // Act
@@ -1011,7 +1011,7 @@ describe("createAttributeReferenceChangeHandler", () => {
 describe("createAttributeReferenceMetadataHandler", () => {
   it("should filter out metadata for removed references", () => {
     // Arrange
-    const setAdditionalDataMock = jest.fn();
+    const setAdditionalDataMock = vi.fn();
     const mockAttributes = {
       data: [
         {
@@ -1037,7 +1037,7 @@ describe("createAttributeReferenceMetadataHandler", () => {
       expect(merged).toEqual([{ value: "ref-1", label: "Reference 1" }]);
     });
 
-    const triggerChange = jest.fn();
+    const triggerChange = vi.fn();
     const handler = createAttributeReferenceAdditionalDataHandler(mockAttributes, triggerChange);
 
     // Act

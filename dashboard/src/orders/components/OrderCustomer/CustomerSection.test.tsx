@@ -6,13 +6,13 @@ import { MemoryRouter } from "react-router";
 import { CustomerSection, CustomerSectionProps } from "./CustomerSection";
 
 // Mock IntersectionObserver
-global.IntersectionObserver = jest.fn().mockImplementation(() => ({
-  observe: jest.fn(),
-  unobserve: jest.fn(),
-  disconnect: jest.fn(),
+global.IntersectionObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
 }));
 
-jest.mock("@dashboard/components/Link", () => ({
+vi.mock("@dashboard/components/Link", () => ({
   __esModule: true,
   default: ({
     children,
@@ -29,7 +29,7 @@ jest.mock("@dashboard/components/Link", () => ({
   ),
 }));
 
-jest.mock("@dashboard/components/RequirePermissions", () => ({
+vi.mock("@dashboard/components/RequirePermissions", () => ({
   __esModule: true,
   default: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
@@ -37,7 +37,7 @@ jest.mock("@dashboard/components/RequirePermissions", () => ({
 const defaultProps: CustomerSectionProps = {
   user: null,
   userEmail: null,
-  onProfileView: jest.fn(),
+  onProfileView: vi.fn(),
   userEmailClassName: "test-class",
 };
 
@@ -146,7 +146,7 @@ describe("CustomerSection", () => {
 
   it("calls onProfileView when View Profile link is clicked", () => {
     // Arrange
-    const onProfileViewMock = jest.fn();
+    const onProfileViewMock = vi.fn();
     const props: CustomerSectionProps = {
       ...defaultProps,
       onProfileView: onProfileViewMock,

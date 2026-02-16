@@ -4,12 +4,12 @@ import { render, screen } from "@testing-library/react";
 
 import { SaleorLogo } from "./SaleorLogo";
 
-jest.mock("@dashboard/theme", () => {
-  const actualTheme = jest.requireActual("@dashboard/theme");
+vi.mock("@dashboard/theme", async () => {
+  const actualTheme = await vi.importActual("@dashboard/theme");
 
   return {
     ...actualTheme,
-    useTheme: jest.fn(),
+    useTheme: vi.fn(),
   };
 });
 
@@ -18,7 +18,7 @@ describe("SaleorLogo", () => {
     // Arrange
     const mockTheme: DefaultTheme = "defaultLight";
 
-    (useTheme as jest.Mock).mockReturnValue({
+    vi.mocked(useTheme).mockReturnValue({
       theme: mockTheme,
     });
 
@@ -35,7 +35,7 @@ describe("SaleorLogo", () => {
     // Arrange
     const mockTheme: DefaultTheme = "defaultDark";
 
-    (useTheme as jest.Mock).mockReturnValue({
+    vi.mocked(useTheme).mockReturnValue({
       theme: mockTheme,
     });
 
@@ -55,7 +55,7 @@ describe("SaleorLogo", () => {
     // Arrange
     const mockTheme = "invalidTheme" as DefaultTheme;
 
-    (useTheme as jest.Mock).mockReturnValue({
+    vi.mocked(useTheme).mockReturnValue({
       theme: mockTheme,
     });
 

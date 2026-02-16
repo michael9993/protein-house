@@ -15,8 +15,8 @@ describe("Apps AppActivateDialog", () => {
           confirmButtonState="default"
           open={true}
           name={name}
-          onClose={jest.fn()}
-          onConfirm={jest.fn()}
+          onClose={vi.fn()}
+          onConfirm={vi.fn()}
         />
       </Wrapper>,
     );
@@ -35,8 +35,8 @@ describe("Apps AppActivateDialog", () => {
           confirmButtonState="default"
           open={true}
           name={""}
-          onClose={jest.fn()}
-          onConfirm={jest.fn()}
+          onClose={vi.fn()}
+          onConfirm={vi.fn()}
         />
       </Wrapper>,
     );
@@ -55,8 +55,8 @@ describe("Apps AppActivateDialog", () => {
           confirmButtonState="default"
           open={true}
           name={null}
-          onClose={jest.fn()}
-          onConfirm={jest.fn()}
+          onClose={vi.fn()}
+          onConfirm={vi.fn()}
         />
       </Wrapper>,
     );

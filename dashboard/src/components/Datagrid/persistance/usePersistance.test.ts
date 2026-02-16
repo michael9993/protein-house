@@ -5,14 +5,14 @@ import { PersistedColumn, RawColumn } from "./persistedColumn";
 import { useMetadata } from "./useMetadata";
 import { usePersistance } from "./usePersistance";
 
-jest.mock("./useMetadata", () => ({
-  useMetadata: jest.fn(() => ({
+vi.mock("./useMetadata", () => ({
+  useMetadata: vi.fn(() => ({
     metadata: {},
-    persist: jest.fn(),
+    persist: vi.fn(),
   })),
 }));
 
-jest.mock("@dashboard/hooks/useDebounce", () => (fn: UseDebounceFn<unknown>) => fn);
+vi.mock("@dashboard/hooks/useDebounce", () => (fn: UseDebounceFn<unknown>) => fn);
 
 describe("Datagrid / persistance / usePersistance", () => {
   it("gets all persisted columns", () => {
@@ -26,9 +26,9 @@ describe("Datagrid / persistance / usePersistance", () => {
         w: 200,
       },
     ];
-    const persist = jest.fn();
+    const persist = vi.fn();
 
-    (useMetadata as jest.Mock).mockReturnValue({
+    vi.mocked(useMetadata).mockReturnValue({
       metadata: {
         value: JSON.stringify(rawColumns),
       },
@@ -52,9 +52,9 @@ describe("Datagrid / persistance / usePersistance", () => {
 
   it("updates and gets all persisted columns", () => {
     const rawColumns: RawColumn[] = [];
-    const persist = jest.fn();
+    const persist = vi.fn();
 
-    (useMetadata as jest.Mock).mockReturnValue({
+    vi.mocked(useMetadata).mockReturnValue({
       metadata: {
         value: JSON.stringify(rawColumns),
       },

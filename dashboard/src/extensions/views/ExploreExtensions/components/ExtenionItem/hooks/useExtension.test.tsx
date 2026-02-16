@@ -4,15 +4,15 @@ import * as React from "react";
 
 import { useExtension } from "./useExtension";
 
-jest.mock("@dashboard/components/Link", () => {
+vi.mock("@dashboard/components/Link", async () => {
   // eslint-disable-next-line react/display-name
   return ({ children, href }: { children: React.ReactNode; href: string }) => (
     <a href={href}>{children}</a>
   );
 });
 
-jest.mock("@saleor/macaw-ui-next", () => ({
-  ...(jest.requireActual("@saleor/macaw-ui-next") as object),
+vi.mock("@saleor/macaw-ui-next", async () => ({
+  ...(await vi.importActual("@saleor/macaw-ui-next") as object),
   useTheme: () => ({ theme: "default" }),
 }));
 

@@ -5,13 +5,13 @@ import { AppExtensionActiveParams, useAppExtensionPopup } from "./app-extension-
 import { useAppFrameReferences } from "./popup-frame-reference";
 import { postToExtension } from "./views/ViewManifestExtension/components/AppFrame/usePostToExtension";
 
-jest.mock("./popup-frame-reference");
-jest.mock("./views/ViewManifestExtension/components/AppFrame/usePostToExtension");
+vi.mock("./popup-frame-reference");
+vi.mock("./views/ViewManifestExtension/components/AppFrame/usePostToExtension");
 
-const mockUsePopupFrameReference = useAppFrameReferences as jest.MockedFunction<
+const mockUsePopupFrameReference = useAppFrameReferences as MockedFunction<
   typeof useAppFrameReferences
 >;
-const mockPostToExtension = postToExtension as jest.MockedFunction<typeof postToExtension>;
+const mockPostToExtension = postToExtension as MockedFunction<typeof postToExtension>;
 
 describe("useAppExtensionPopup", () => {
   const mockIframe = document.createElement("iframe");
@@ -25,11 +25,11 @@ describe("useAppExtensionPopup", () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockUsePopupFrameReference.mockReturnValue({
       iframes: new Map(),
-      setIframe: jest.fn(),
-      clearIframe: jest.fn(),
+      setIframe: vi.fn(),
+      clearIframe: vi.fn(),
     });
   });
 
@@ -161,8 +161,8 @@ describe("useAppExtensionPopup", () => {
 
     mockUsePopupFrameReference.mockReturnValue({
       iframes: mockIframesMap,
-      setIframe: jest.fn(),
-      clearIframe: jest.fn(),
+      setIframe: vi.fn(),
+      clearIframe: vi.fn(),
     });
 
     const { result, unmount } = renderHook(() => useAppExtensionPopup());
@@ -204,8 +204,8 @@ describe("useAppExtensionPopup", () => {
 
     mockUsePopupFrameReference.mockReturnValue({
       iframes: mockIframesMap,
-      setIframe: jest.fn(),
-      clearIframe: jest.fn(),
+      setIframe: vi.fn(),
+      clearIframe: vi.fn(),
     });
 
     const { result, unmount } = renderHook(() => useAppExtensionPopup());
@@ -236,8 +236,8 @@ describe("useAppExtensionPopup", () => {
 
     mockUsePopupFrameReference.mockReturnValue({
       iframes: mockIframesMap,
-      setIframe: jest.fn(),
-      clearIframe: jest.fn(),
+      setIframe: vi.fn(),
+      clearIframe: vi.fn(),
     });
 
     // Act

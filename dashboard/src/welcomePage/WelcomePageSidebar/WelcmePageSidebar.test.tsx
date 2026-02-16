@@ -7,12 +7,12 @@ import userEvent from "@testing-library/user-event";
 import { activities } from "../fixtures";
 import { WelcomePageSidebar } from "./WelcomePageSidebar";
 
-jest.mock("@dashboard/auth/hooks/useUserPermissions");
-jest.mock("./components/WelcomePageActivities/useWelcomePageActivities", () => ({
-  useWelcomePageActivities: jest.fn(() => ({ activities, loading: false })),
+vi.mock("@dashboard/auth/hooks/useUserPermissions");
+vi.mock("./components/WelcomePageActivities/useWelcomePageActivities", () => ({
+  useWelcomePageActivities: vi.fn(() => ({ activities, loading: false })),
 }));
-jest.mock("./components/WelcomePageSalesAnalytics/useWelcomePageSalesAnalytics", () => ({
-  useWelcomePageSalesAnalytics: jest.fn(() => ({
+vi.mock("./components/WelcomePageSalesAnalytics/useWelcomePageSalesAnalytics", () => ({
+  useWelcomePageSalesAnalytics: vi.fn(() => ({
     analytics: {
       sales: {
         amount: 1000,
@@ -22,8 +22,8 @@ jest.mock("./components/WelcomePageSalesAnalytics/useWelcomePageSalesAnalytics",
     loading: false,
   })),
 }));
-jest.mock("./components/WelcomePageStocksAnalytics/useWelcomePageStocksAnalytics", () => ({
-  useWelcomePageStocksAnalytics: jest.fn(() => ({
+vi.mock("./components/WelcomePageStocksAnalytics/useWelcomePageStocksAnalytics", () => ({
+  useWelcomePageStocksAnalytics: vi.fn(() => ({
     analytics: {
       productsOutOfStock: 10,
     },
@@ -31,22 +31,22 @@ jest.mock("./components/WelcomePageStocksAnalytics/useWelcomePageStocksAnalytics
   })),
 }));
 
-jest.mock("@dashboard/hooks/useNotifier", () => ({
+vi.mock("@dashboard/hooks/useNotifier", () => ({
   __esModule: true,
-  default: jest.fn(() => () => undefined),
+  default: vi.fn(() => () => undefined),
 }));
 
 afterEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
 });
 
 describe("WelcomePageSidebar", () => {
   it("should render chanel select, analytics and activities when user has permission to manage orders ", async () => {
     // Arrange
-    (useUserPermissions as jest.Mock).mockReturnValue([{ code: PermissionEnum.MANAGE_ORDERS }]);
+    vi.mocked(useUserPermissions).mockReturnValue([{ code: PermissionEnum.MANAGE_ORDERS }]);
 
     const channel = channelsList[0] as ChannelFragment;
-    const setChannel = jest.fn();
+    const setChannel = vi.fn();
 
     render(
       <WelcomePageSidebar
@@ -77,10 +77,10 @@ describe("WelcomePageSidebar", () => {
 
   it("should render only channel select when user has no permission to manage orders ", async () => {
     // Arrange
-    (useUserPermissions as jest.Mock).mockReturnValue([]);
+    vi.mocked(useUserPermissions).mockReturnValue([]);
 
     const channel = channelsList[0] as ChannelFragment;
-    const setChannel = jest.fn();
+    const setChannel = vi.fn();
 
     render(
       <WelcomePageSidebar
@@ -101,7 +101,7 @@ describe("WelcomePageSidebar", () => {
   it("should allow to change channel", async () => {
     // Arrange
     const channel = channelsList[0] as ChannelFragment;
-    const setChannel = jest.fn();
+    const setChannel = vi.fn();
 
     render(
       <WelcomePageSidebar

@@ -11,7 +11,7 @@ import { renderHook } from "@testing-library/react-hooks";
 import { SpecificItemsData, useSpecificItemsAssign } from "./useSpecificItemsAssign";
 
 describe("VoucherCreatePage / hooks / useSpecificItemsAssign", () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
   const data = {
     categories: [
       { id: "1", name: "category 1" },
@@ -41,7 +41,7 @@ describe("VoucherCreatePage / hooks / useSpecificItemsAssign", () => {
   ] as unknown as CountryWithCodeFragment[];
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should handle item assign", async () => {

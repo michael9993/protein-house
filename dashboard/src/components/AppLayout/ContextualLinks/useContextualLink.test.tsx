@@ -4,8 +4,8 @@ import { IntlProvider } from "react-intl";
 
 import { useContextualLink } from "./useContextualLink";
 
-jest.mock("@dashboard/components/ProductAnalytics/useAnalytics", () => ({
-  useAnalytics: jest.fn().mockReturnValue({ trackEvent: jest.fn() }),
+vi.mock("@dashboard/components/ProductAnalytics/useAnalytics", () => ({
+  useAnalytics: vi.fn().mockReturnValue({ trackEvent: vi.fn() }),
 }));
 
 const wrapper = ({ children }: { children: ReactNode }) => (

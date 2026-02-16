@@ -6,28 +6,28 @@ import * as React from "react";
 
 import { getExtensionInfo, useInstalledExtensions } from "./useInstalledExtensions";
 
-jest.mock("@dashboard/components/Link", () => {
+vi.mock("@dashboard/components/Link", async () => {
   // eslint-disable-next-line react/display-name
   return ({ children, href }: { children: React.ReactNode; href: string }) => (
     <a href={href}>{children}</a>
   );
 });
 
-jest.mock("@dashboard/hooks/useHasManagedAppsPermission", () => ({
-  useHasManagedAppsPermission: jest.fn(() => ({
+vi.mock("@dashboard/hooks/useHasManagedAppsPermission", async () => ({
+  useHasManagedAppsPermission: vi.fn(() => ({
     hasManagedAppsPermission: true,
   })),
 }));
 
-const useUserPermissionsMock = jest.fn(() => [{ code: "MANAGE_PLUGINS" }, { code: "MANAGE_APPS" }]);
+const useUserPermissionsMock = vi.fn(() => [{ code: "MANAGE_PLUGINS" }, { code: "MANAGE_APPS" }]);
 
-jest.mock("@dashboard/auth/hooks/useUserPermissions", () => ({
+vi.mock("@dashboard/auth/hooks/useUserPermissions", async () => ({
   useUserPermissions: () => useUserPermissionsMock(),
 }));
 
-jest.mock("@dashboard/graphql", () => ({
-  ...(jest.requireActual("@dashboard/graphql") as object),
-  useInstalledAppsListQuery: jest.fn(() => ({
+vi.mock("@dashboard/graphql", async () => ({
+  ...(await vi.importActual("@dashboard/graphql") as object),
+  useInstalledAppsListQuery: vi.fn(() => ({
     data: {
       apps: {
         edges: [
@@ -50,9 +50,9 @@ jest.mock("@dashboard/graphql", () => ({
         ],
       },
     },
-    refetch: jest.fn(),
+    refetch: vi.fn(),
   })),
-  useEventDeliveryQuery: jest.fn(() => ({
+  useEventDeliveryQuery: vi.fn(() => ({
     data: {
       apps: {
         edges: [
@@ -66,7 +66,7 @@ jest.mock("@dashboard/graphql", () => ({
       },
     },
   })),
-  usePluginsQuery: jest.fn(() => ({
+  usePluginsQuery: vi.fn(() => ({
     data: {
       plugins: {
         edges: [
@@ -97,8 +97,8 @@ jest.mock("@dashboard/graphql", () => ({
 }));
 
 // TODO: Remove this mock when the feature flag is removed
-jest.mock("@dashboard/featureFlags", () => ({
-  useFlag: jest.fn(() => ({
+vi.mock("@dashboard/featureFlags", async () => ({
+  useFlag: vi.fn(() => ({
     enabled: true,
   })),
 }));

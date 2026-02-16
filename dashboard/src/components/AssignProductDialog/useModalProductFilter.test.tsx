@@ -330,10 +330,10 @@ const createMockValueProvider = (
 ): FilterValueProvider => ({
   value,
   loading: false,
-  persist: jest.fn(),
-  clear: jest.fn(),
-  isPersisted: jest.fn().mockReturnValue(false),
-  getTokenByName: jest.fn().mockReturnValue(undefined),
+  persist: vi.fn(),
+  clear: vi.fn(),
+  isPersisted: vi.fn().mockReturnValue(false),
+  getTokenByName: vi.fn().mockReturnValue(undefined),
   count: value.filter(v => typeof v !== "string").length,
   ...overrides,
 });
@@ -415,7 +415,7 @@ describe("useModalProductFilter / createWrappedValueProvider", () => {
 
     it("should strip GLOBAL constraints when persisting", () => {
       // Arrange
-      const mockPersist = jest.fn();
+      const mockPersist = vi.fn();
       const priceElement = createStaticPriceElement();
       const mockProvider = createMockValueProvider([priceElement], { persist: mockPersist });
       const constraintElement = createProductTypeConstraintElement([
@@ -433,7 +433,7 @@ describe("useModalProductFilter / createWrappedValueProvider", () => {
 
     it("should return undefined for productType GLOBAL constraint in getTokenByName", () => {
       // Arrange
-      const mockGetTokenByName = jest.fn().mockReturnValue({ name: "productType" } as UrlToken);
+      const mockGetTokenByName = vi.fn().mockReturnValue({ name: "productType" } as UrlToken);
       const mockProvider = createMockValueProvider([], { getTokenByName: mockGetTokenByName });
       const constraintElement = createProductTypeConstraintElement([
         { id: "pt-1", name: "Simple" },
@@ -451,7 +451,7 @@ describe("useModalProductFilter / createWrappedValueProvider", () => {
     it("should not change getTokenByName for non-productType fields", () => {
       // Arrange
       const mockToken = { name: "price" } as UrlToken;
-      const mockGetTokenByName = jest.fn().mockReturnValue(mockToken);
+      const mockGetTokenByName = vi.fn().mockReturnValue(mockToken);
       const mockProvider = createMockValueProvider([], { getTokenByName: mockGetTokenByName });
       const constraintElement = createProductTypeConstraintElement([
         { id: "pt-1", name: "Simple" },
@@ -468,7 +468,7 @@ describe("useModalProductFilter / createWrappedValueProvider", () => {
 
     it("should return true for isPersisted when element has GLOBAL constraint", () => {
       // Arrange
-      const mockIsPersisted = jest.fn().mockReturnValue(false);
+      const mockIsPersisted = vi.fn().mockReturnValue(false);
       const mockProvider = createMockValueProvider([], { isPersisted: mockIsPersisted });
       const constraintElement = createProductTypeConstraintElement([
         { id: "pt-1", name: "Simple" },

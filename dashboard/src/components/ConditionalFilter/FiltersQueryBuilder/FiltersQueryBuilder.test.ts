@@ -30,9 +30,9 @@ describe("FiltersQueryBuilder", () => {
         false,
       );
       const mockDef: QueryVarsBuilder<Record<string, unknown>> = {
-        canHandle: jest.fn(() => true),
-        createOptionFetcher: jest.fn(),
-        updateWhereQueryVariables: jest.fn((query, el) => ({
+        canHandle: vi.fn(() => true),
+        createOptionFetcher: vi.fn(),
+        updateWhereQueryVariables: vi.fn((query, el) => ({
           ...query,
           [el.value.value]: "where",
         })),
@@ -51,7 +51,7 @@ describe("FiltersQueryBuilder", () => {
       // Assert
       expect(result.filters).toEqual({ foo: "where" });
       expect(result.topLevel).toEqual({});
-      expect(mockDef.updateWhereQueryVariables as jest.Mock).toHaveBeenCalled();
+      expectvi.mocked(mockDef.updateWhereQueryVariables).toHaveBeenCalled();
     });
 
     it("should build query with multiple filter elements", () => {
@@ -67,9 +67,9 @@ describe("FiltersQueryBuilder", () => {
         false,
       );
       const mockDef: QueryVarsBuilder<Record<string, unknown>> = {
-        canHandle: jest.fn(() => true),
-        createOptionFetcher: jest.fn(),
-        updateWhereQueryVariables: jest.fn((query, el) => ({
+        canHandle: vi.fn(() => true),
+        createOptionFetcher: vi.fn(),
+        updateWhereQueryVariables: vi.fn((query, el) => ({
           ...query,
           [el.value.value]: "where",
         })),
@@ -98,8 +98,8 @@ describe("FiltersQueryBuilder", () => {
       );
       // The method is not present at all, so the type guard fails
       const mockDef = {
-        canHandle: jest.fn(() => true),
-        createOptionFetcher: jest.fn(),
+        canHandle: vi.fn(() => true),
+        createOptionFetcher: vi.fn(),
         // no updateWhereQueryVariables property
       } as unknown as QueryVarsBuilder<Record<string, unknown>>;
       const resolver = new FilterQueryVarsBuilderResolver([mockDef]);
@@ -139,9 +139,9 @@ describe("FiltersQueryBuilder", () => {
         false,
       );
       const mockDef: QueryVarsBuilder<Record<string, unknown>> = {
-        canHandle: jest.fn(() => true),
-        createOptionFetcher: jest.fn(),
-        updateFilterQueryVariables: jest.fn((query, el) => ({
+        canHandle: vi.fn(() => true),
+        createOptionFetcher: vi.fn(),
+        updateFilterQueryVariables: vi.fn((query, el) => ({
           ...query,
           [el.value.value]: "filter",
         })),
@@ -160,7 +160,7 @@ describe("FiltersQueryBuilder", () => {
       // Assert
       expect(result.filters).toEqual({ foo: "filter" });
       expect(result.topLevel).toEqual({});
-      expect(mockDef.updateFilterQueryVariables as jest.Mock).toHaveBeenCalled();
+      expectvi.mocked(mockDef.updateFilterQueryVariables).toHaveBeenCalled();
     });
 
     it("should build query with multiple filter elements", () => {
@@ -176,9 +176,9 @@ describe("FiltersQueryBuilder", () => {
         false,
       );
       const mockDef: QueryVarsBuilder<Record<string, unknown>> = {
-        canHandle: jest.fn(() => true),
-        createOptionFetcher: jest.fn(),
-        updateFilterQueryVariables: jest.fn((query, el) => ({
+        canHandle: vi.fn(() => true),
+        createOptionFetcher: vi.fn(),
+        updateFilterQueryVariables: vi.fn((query, el) => ({
           ...query,
           [el.value.value]: "filter",
         })),
@@ -205,8 +205,8 @@ describe("FiltersQueryBuilder", () => {
         false,
       );
       const mockDef = {
-        canHandle: jest.fn(() => true),
-        createOptionFetcher: jest.fn(),
+        canHandle: vi.fn(() => true),
+        createOptionFetcher: vi.fn(),
         // no updateFilterQueryVariables property
       } as unknown as QueryVarsBuilder<Record<string, unknown>>;
       const resolver = new FilterQueryVarsBuilderResolver([mockDef]);
@@ -231,9 +231,9 @@ describe("FiltersQueryBuilder", () => {
         false,
       );
       const mockDef: QueryVarsBuilder<Record<string, unknown>> = {
-        canHandle: jest.fn(() => true),
-        createOptionFetcher: jest.fn(),
-        updateWhereQueryVariables: jest.fn((query, el) => ({
+        canHandle: vi.fn(() => true),
+        createOptionFetcher: vi.fn(),
+        updateWhereQueryVariables: vi.fn((query, el) => ({
           ...query,
           [el.value.value]: "where",
         })),
@@ -262,9 +262,9 @@ describe("FiltersQueryBuilder", () => {
         false,
       );
       const mockDef: QueryVarsBuilder<Record<string, unknown>> = {
-        canHandle: jest.fn(() => true),
-        createOptionFetcher: jest.fn(),
-        updateWhereQueryVariables: jest.fn((query, el) => ({
+        canHandle: vi.fn(() => true),
+        createOptionFetcher: vi.fn(),
+        updateWhereQueryVariables: vi.fn((query, el) => ({
           ...query,
           [el.value.value]: "where",
         })),
@@ -294,9 +294,9 @@ describe("FiltersQueryBuilder", () => {
         false,
       );
       const mockDef: QueryVarsBuilder<Record<string, unknown>> = {
-        canHandle: jest.fn(() => true),
-        createOptionFetcher: jest.fn(),
-        updateWhereQueryVariables: jest.fn((query, el) => ({
+        canHandle: vi.fn(() => true),
+        createOptionFetcher: vi.fn(),
+        updateWhereQueryVariables: vi.fn((query, el) => ({
           ...query,
           [el.value.value]: "where",
         })),
@@ -330,9 +330,9 @@ describe("FiltersQueryBuilder", () => {
         false,
       );
       const mockDef: QueryVarsBuilder<Record<string, unknown>> = {
-        canHandle: jest.fn(() => true),
-        createOptionFetcher: jest.fn(),
-        updateWhereQueryVariables: jest.fn((query, el) => ({
+        canHandle: vi.fn(() => true),
+        createOptionFetcher: vi.fn(),
+        updateWhereQueryVariables: vi.fn((query, el) => ({
           ...query,
           [el.value.value]: "where",
         })),
@@ -362,9 +362,9 @@ describe("FiltersQueryBuilder", () => {
         false,
       );
       const mockDef: QueryVarsBuilder<Record<string, unknown>> = {
-        canHandle: jest.fn(() => true),
-        createOptionFetcher: jest.fn(),
-        updateWhereQueryVariables: jest.fn((query, el) => ({
+        canHandle: vi.fn(() => true),
+        createOptionFetcher: vi.fn(),
+        updateWhereQueryVariables: vi.fn((query, el) => ({
           ...query,
           [el.value.value]: "where",
         })),
@@ -393,9 +393,9 @@ describe("FiltersQueryBuilder", () => {
         false,
       );
       const mockDef: QueryVarsBuilder<Record<string, unknown>> = {
-        canHandle: jest.fn(() => true),
-        createOptionFetcher: jest.fn(),
-        updateWhereQueryVariables: jest.fn((query, el) => ({
+        canHandle: vi.fn(() => true),
+        createOptionFetcher: vi.fn(),
+        updateWhereQueryVariables: vi.fn((query, el) => ({
           ...query,
           [el.value.value]: "where",
         })),
@@ -431,9 +431,9 @@ describe("FiltersQueryBuilder", () => {
         false,
       );
       const mockQueryVarsBuilder: QueryVarsBuilder<Record<string, unknown>> = {
-        canHandle: jest.fn(() => true),
-        createOptionFetcher: jest.fn(),
-        updateWhereQueryVariables: jest.fn((query, el) => ({
+        canHandle: vi.fn(() => true),
+        createOptionFetcher: vi.fn(),
+        updateWhereQueryVariables: vi.fn((query, el) => ({
           ...query,
           [el.value.value]: { eq: "test" },
         })),
@@ -468,17 +468,17 @@ describe("FiltersQueryBuilder", () => {
       type QueryWithAnd = { AND?: Array<Record<string, unknown>> };
 
       const mockDefWithAnd: QueryVarsBuilder<QueryWithAnd> = {
-        canHandle: jest.fn(el => el.value.value === "metadata"),
-        createOptionFetcher: jest.fn(),
-        updateWhereQueryVariables: jest.fn((query: QueryWithAnd) => ({
+        canHandle: vi.fn(el => el.value.value === "metadata"),
+        createOptionFetcher: vi.fn(),
+        updateWhereQueryVariables: vi.fn((query: QueryWithAnd) => ({
           ...query,
           AND: [...(query.AND || []), { metadata: { key: "color", value: { eq: "red" } } }],
         })),
       };
       const mockDefTopLevelKey: QueryVarsBuilder<QueryWithAnd> = {
-        canHandle: jest.fn(el => el.value.value === "status"),
-        createOptionFetcher: jest.fn(),
-        updateWhereQueryVariables: jest.fn(query => ({
+        canHandle: vi.fn(el => el.value.value === "status"),
+        createOptionFetcher: vi.fn(),
+        updateWhereQueryVariables: vi.fn(query => ({
           ...query,
           status: { eq: "PAID" },
         })),
@@ -531,9 +531,9 @@ describe("FiltersQueryBuilder", () => {
         false,
       );
       const mockDef: QueryVarsBuilder<Record<string, unknown>> = {
-        canHandle: jest.fn(() => true),
-        createOptionFetcher: jest.fn(),
-        updateWhereQueryVariables: jest.fn(() => ({
+        canHandle: vi.fn(() => true),
+        createOptionFetcher: vi.fn(),
+        updateWhereQueryVariables: vi.fn(() => ({
           status: { eq: "PAID" },
           OR: [{ channelId: { eq: "123" } }, { channelId: { eq: "456" } }],
         })),

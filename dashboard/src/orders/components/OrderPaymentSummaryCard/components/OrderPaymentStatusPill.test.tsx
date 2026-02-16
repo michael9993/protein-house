@@ -4,9 +4,9 @@ import { render, screen } from "@testing-library/react";
 import { OrderPaymentStatusPill, OrderPaymentStatusPillProps } from "./OrderPaymentStatusPill";
 
 // Mock the transformPaymentStatus function
-jest.mock("@dashboard/misc", () => ({
-  ...(jest.requireActual("@dashboard/misc") as object),
-  transformPaymentStatus: jest.fn().mockReturnValue({
+vi.mock("@dashboard/misc", async () => ({
+  ...(await vi.importActual("@dashboard/misc") as object),
+  transformPaymentStatus: vi.fn().mockReturnValue({
     status: "success",
     localized: "Paid",
   }),
@@ -14,7 +14,7 @@ jest.mock("@dashboard/misc", () => ({
 
 // It's tricky to render Pill component
 // The mock contains the most important part - label and color
-jest.mock("@dashboard/components/Pill", () => ({
+vi.mock("@dashboard/components/Pill", async () => ({
   Pill: ({ label, color }: { label: string; color: string }) => <div color={color}>{label}</div>,
 }));
 

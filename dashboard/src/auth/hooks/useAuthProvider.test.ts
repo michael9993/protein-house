@@ -7,7 +7,7 @@ import { act, renderHook } from "@testing-library/react-hooks";
 import { useAuthProvider } from "./useAuthProvider";
 
 // Mock dependencies
-jest.mock("@saleor/sdk");
+vi.mock("@saleor/sdk");
 
 const useAuthStateMock = {
   authenticated: false,
@@ -15,40 +15,40 @@ const useAuthStateMock = {
   user: null,
 };
 
-const mockLogin = jest.fn();
+const mockLogin = vi.fn();
 
-jest.mock("@dashboard/utils/credentialsManagement", () => ({
-  login: jest.fn(),
-  saveCredentials: jest.fn(),
+vi.mock("@dashboard/utils/credentialsManagement", async () => ({
+  login: vi.fn(),
+  saveCredentials: vi.fn(),
   isSupported: true,
 }));
 
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
-jest.mock("@dashboard/hooks/useNavigator", () => () => mockNavigate);
+vi.mock("@dashboard/hooks/useNavigator", () => () => mockNavigate);
 
-const mockNotify = jest.fn();
+const mockNotify = vi.fn();
 const mockIntl = {
-  formatMessage: jest.fn(message => message.defaultMessage),
+  formatMessage: vi.fn(message => message.defaultMessage),
 };
 const mockApolloClient = {
-  clearStore: jest.fn(),
+  clearStore: vi.fn(),
 };
 
-jest.mock("@dashboard/graphql", () => {
-  const actualModule = jest.requireActual("@dashboard/graphql");
+vi.mock("@dashboard/graphql", async () => {
+  const actualModule = await vi.importActual("@dashboard/graphql");
 
   return {
     __esModule: true,
     ...actualModule,
-    useUserDetailsQuery: jest.fn(() => ({
+    useUserDetailsQuery: vi.fn(() => ({
       data: undefined,
     })),
   };
 });
 
-(useAuthState as jest.Mock).mockReturnValue(useAuthStateMock);
-(useAuth as jest.Mock).mockReturnValue({
+vi.mocked(useAuthState).mockReturnValue(useAuthStateMock);
+vi.mocked(useAuth).mockReturnValue({
   login: mockLogin,
 });
 describe("useAuthProvider", () => {

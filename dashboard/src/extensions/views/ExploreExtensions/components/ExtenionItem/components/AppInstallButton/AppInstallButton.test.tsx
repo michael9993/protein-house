@@ -1,40 +1,39 @@
+import * as ConfigMock from "@dashboard/config";
 import { useHasManagedAppsPermission } from "@dashboard/hooks/useHasManagedAppsPermission";
 import { render, screen } from "@testing-library/react";
 import * as React from "react";
 
 import { AppInstallButton } from "./AppInstallButton";
 
-jest.mock("@dashboard/hooks/useHasManagedAppsPermission");
+vi.mock("@dashboard/hooks/useHasManagedAppsPermission");
 
-jest.mock("@dashboard/featureFlags", () => ({
-  useFlag: jest.fn(() => ({ enabled: true })),
+vi.mock("@dashboard/featureFlags", async () => ({
+  useFlag: vi.fn(() => ({ enabled: true })),
 }));
 
-jest.mock("@dashboard/components/Link", () => {
+vi.mock("@dashboard/components/Link", async () => {
   // eslint-disable-next-line react/display-name
   return ({ children, href }: { children: React.ReactNode; href: string }) => (
     <a href={href}>{children}</a>
   );
 });
 
-const ConfigMock = jest.requireMock("@dashboard/config");
-
-jest.mock("@dashboard/config", () => ({
+vi.mock("@dashboard/config", async () => ({
   __esModule: true,
-  ...(jest.requireActual("@dashboard/config") as object),
+  ...(await vi.importActual("@dashboard/config") as object),
   IS_CLOUD_INSTANCE: true,
 }));
 
 describe("Extensions / ExtensionItem / AppInstallButton", () => {
   afterEach(() => {
-    jest.clearAllMocks();
-    jest.resetModules();
+    vi.clearAllMocks();
+    vi.resetModules();
   });
 
   it("should render disabled install button when has no permissions", () => {
     // Arrange
     ConfigMock.IS_CLOUD_INSTANCE = true;
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValue({
+    vi.mocked(useHasManagedAppsPermission).mockReturnValue({
       hasManagedAppsPermission: false,
     });
 
@@ -49,7 +48,7 @@ describe("Extensions / ExtensionItem / AppInstallButton", () => {
   it("should render disabled install button when no cloud instance", () => {
     // Arrange
     ConfigMock.IS_CLOUD_INSTANCE = false;
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValue({ hasManagedAppsPermission: true });
+    vi.mocked(useHasManagedAppsPermission).mockReturnValue({ hasManagedAppsPermission: true });
 
     // Act
     render(<AppInstallButton manifestUrl="test-manifest" />);
@@ -62,7 +61,7 @@ describe("Extensions / ExtensionItem / AppInstallButton", () => {
   it("should render install button when has permissions and cloud instance", () => {
     // Arrange
     ConfigMock.IS_CLOUD_INSTANCE = true;
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValue({ hasManagedAppsPermission: true });
+    vi.mocked(useHasManagedAppsPermission).mockReturnValue({ hasManagedAppsPermission: true });
 
     // Act
     render(<AppInstallButton manifestUrl="test-manifest" />);

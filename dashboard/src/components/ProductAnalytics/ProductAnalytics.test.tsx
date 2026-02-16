@@ -3,14 +3,14 @@ import * as React from "react";
 
 import { ProductAnalytics } from ".";
 
-jest.mock("posthog-js/react", () => ({
+vi.mock("posthog-js/react", () => ({
   PostHogProvider: ({ children }: { children: React.ReactNode }) => <>{children} with posthog</>,
 }));
 describe("ProductAnalytics", () => {
   const ENV_COPY = process.env;
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     process.env = { ...ENV_COPY }; // Make a copy
   });
   afterAll(() => {

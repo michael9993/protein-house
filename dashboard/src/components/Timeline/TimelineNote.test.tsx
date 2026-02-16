@@ -183,7 +183,7 @@ describe("TimelineNote", () => {
     // Arrange
     const noteId = "T3JkZXJFdmVudDozNDM3";
     const noteRelatedId = "T3JkZXJFdmVudDozNDQx";
-    const onNoteUpdate = jest.fn();
+    const onNoteUpdate = vi.fn();
     const onNoteUpdateLoading = false;
     const mockedUser = {
       avatar: null,

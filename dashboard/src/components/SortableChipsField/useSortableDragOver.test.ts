@@ -12,7 +12,7 @@ describe("useSortableDragOver", () => {
 
   it("should call onReorder with correct indices when dragging over another item", () => {
     // Arrange
-    const onReorder = jest.fn();
+    const onReorder = vi.fn();
     const { result } = renderHook(() => useSortableDragOver({ items, onReorder }));
     const event = {
       active: { id: "1" },
@@ -28,7 +28,7 @@ describe("useSortableDragOver", () => {
 
   it("should not call onReorder when dragging over the same item", () => {
     // Arrange
-    const onReorder = jest.fn();
+    const onReorder = vi.fn();
     const { result } = renderHook(() => useSortableDragOver({ items, onReorder }));
     const event = {
       active: { id: "1" },
@@ -44,7 +44,7 @@ describe("useSortableDragOver", () => {
 
   it("should not call onReorder when dnd-kit cannot determine over which element user is hovering", () => {
     // Arrange
-    const onReorder = jest.fn();
+    const onReorder = vi.fn();
     const { result } = renderHook(() => useSortableDragOver({ items, onReorder }));
     const event = {
       active: { id: "1" },
@@ -60,7 +60,7 @@ describe("useSortableDragOver", () => {
 
   it("should not call onReorder when active item is not in the list", () => {
     // Arrange
-    const onReorder = jest.fn();
+    const onReorder = vi.fn();
     const { result } = renderHook(() => useSortableDragOver({ items, onReorder }));
     const event = {
       active: { id: "4" }, // not in items
@@ -76,7 +76,7 @@ describe("useSortableDragOver", () => {
 
   it("should not call onReorder when over item is not in the list", () => {
     // Arrange
-    const onReorder = jest.fn();
+    const onReorder = vi.fn();
     const { result } = renderHook(() => useSortableDragOver({ items, onReorder }));
     const event = {
       active: { id: "1" },

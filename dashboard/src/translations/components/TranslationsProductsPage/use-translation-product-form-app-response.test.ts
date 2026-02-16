@@ -1,3 +1,4 @@
+import { useActiveAppExtension } from "@dashboard/extensions/components/AppExtensionContext/AppExtensionContextProvider";
 import { ProductTranslationFragment } from "@dashboard/graphql";
 import { TranslationInputFieldName } from "@dashboard/translations/types";
 import { renderHook } from "@testing-library/react-hooks";
@@ -5,15 +6,11 @@ import { renderHook } from "@testing-library/react-hooks";
 import { useTranslationProductFormAppResponse } from "./use-translation-product-form-app-response";
 
 // Mock the app extension hook
-jest.mock(
+vi.mock(
   "@dashboard/extensions/components/AppExtensionContext/AppExtensionContextProvider",
   () => ({
-    useActiveAppExtension: jest.fn(),
+    useActiveAppExtension: vi.fn(),
   }),
-);
-
-const { useActiveAppExtension } = jest.requireMock(
-  "@dashboard/extensions/components/AppExtensionContext/AppExtensionContextProvider",
 );
 
 describe("useTranslationProductFormAppResponse", () => {
@@ -26,10 +23,10 @@ describe("useTranslationProductFormAppResponse", () => {
     seoTitle: "Original SEO Title",
   };
 
-  const mockOnEdit = jest.fn();
+  const mockOnEdit = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     useActiveAppExtension.mockReturnValue({
       framesByFormType: {},
     });

@@ -5,9 +5,9 @@ import { act } from "react-dom/test-utils";
 
 import { useIntervalActionWithState } from "./useIntervalActionWithState";
 
-jest.mock("@dashboard/hooks/useLocalStorage", () => ({
+vi.mock("@dashboard/hooks/useLocalStorage", () => ({
   __esModule: true,
-  default: jest.fn(() => {
+  default: vi.fn(() => {
     const [value, setValue] = useState(0);
 
     return [value, setValue];
@@ -18,17 +18,17 @@ const TEST_KEY = "test-key";
 
 describe("useIntervalActionWithState", () => {
   beforeEach(() => {
-    jest.useFakeTimers();
-    jest.clearAllMocks();
+    vi.useFakeTimers();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it("should execute action immediately if interval has passed", () => {
     // Arrange
-    const action = jest.fn();
+    const action = vi.fn();
 
     // Act
     renderHook(() =>
@@ -45,7 +45,7 @@ describe("useIntervalActionWithState", () => {
 
   it("should execute action after interval", () => {
     // Arrange
-    const action = jest.fn();
+    const action = vi.fn();
 
     // Act
     renderHook(() =>
@@ -57,7 +57,7 @@ describe("useIntervalActionWithState", () => {
     );
 
     act(() => {
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
     });
 
     // Assert
@@ -66,7 +66,7 @@ describe("useIntervalActionWithState", () => {
 
   it("should clear timeout on unmount", () => {
     // Arrange
-    const action = jest.fn();
+    const action = vi.fn();
 
     // Act
     const { unmount } = renderHook(() =>
@@ -80,7 +80,7 @@ describe("useIntervalActionWithState", () => {
     unmount();
 
     act(() => {
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
     });
 
     // Assert
@@ -89,7 +89,7 @@ describe("useIntervalActionWithState", () => {
 
   it("should handle multiple intervals", () => {
     // Arrange
-    const action = jest.fn();
+    const action = vi.fn();
 
     // Act
     renderHook(() =>
@@ -101,7 +101,7 @@ describe("useIntervalActionWithState", () => {
     );
 
     act(() => {
-      jest.advanceTimersByTime(2500);
+      vi.advanceTimersByTime(2500);
     });
 
     // Assert
@@ -110,7 +110,7 @@ describe("useIntervalActionWithState", () => {
 
   it("should handle component rerenders", () => {
     // Arrange
-    const action = jest.fn();
+    const action = vi.fn();
 
     // Act
     const { rerender } = renderHook(() =>
@@ -124,7 +124,7 @@ describe("useIntervalActionWithState", () => {
     rerender();
 
     act(() => {
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
     });
 
     // Assert
@@ -133,10 +133,10 @@ describe("useIntervalActionWithState", () => {
 
   it("should calculate correct delay based on last invocation", () => {
     // Arrange
-    const action = jest.fn();
+    const action = vi.fn();
     const mockTime = new Date().getTime();
 
-    (useLocalStorage as jest.Mock).mockReturnValue([mockTime - 500, jest.fn()]);
+    vi.mocked(useLocalStorage).mockReturnValue([mockTime - 500, vi.fn()]);
 
     // Act
     renderHook(() =>
@@ -150,7 +150,7 @@ describe("useIntervalActionWithState", () => {
     expect(action).not.toHaveBeenCalled();
 
     act(() => {
-      jest.advanceTimersByTime(500);
+      vi.advanceTimersByTime(500);
     });
 
     // Assert
@@ -159,7 +159,7 @@ describe("useIntervalActionWithState", () => {
 
   it("should skip execution if skip is true", () => {
     // Arrange
-    const action = jest.fn();
+    const action = vi.fn();
 
     // Act
     renderHook(() =>
@@ -172,7 +172,7 @@ describe("useIntervalActionWithState", () => {
     );
 
     act(() => {
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
     });
 
     // Assert

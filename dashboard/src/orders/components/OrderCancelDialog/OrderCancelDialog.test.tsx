@@ -8,8 +8,8 @@ const defaultProps = {
   confirmButtonState: "default" as const,
   errors: [],
   open: true,
-  onClose: jest.fn(),
-  onSubmit: jest.fn(),
+  onClose: vi.fn(),
+  onSubmit: vi.fn(),
   number: "123",
 };
 

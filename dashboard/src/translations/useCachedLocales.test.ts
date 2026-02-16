@@ -4,9 +4,9 @@ import { useState } from "react";
 
 import { CachedLocalesStack, useCachedLocales } from "./useCachedLocales";
 
-jest.mock("@dashboard/hooks/useLocalStorage", () => ({
+vi.mock("@dashboard/hooks/useLocalStorage", () => ({
   __esModule: true,
-  default: jest.fn(() => {
+  default: vi.fn(() => {
     const [value, setValue] = useState([]);
 
     return [value, setValue];
@@ -112,7 +112,7 @@ describe("useCachedLocales", () => {
   beforeEach(() => {
     // Arrange
     localStorage.clear();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should return empty array as initial cached values", () => {

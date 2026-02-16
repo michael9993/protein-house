@@ -5,11 +5,11 @@ import { useLoadQueryParamsToForm } from "./useLoadQueryParamsToForm";
 
 describe("useLoadQueryParamsToForm", () => {
   // Arrange
-  const mockTrigger = jest.fn().mockResolvedValue(undefined);
-  const mockOnSubmit = jest.fn().mockResolvedValue(undefined);
+  const mockTrigger = vi.fn().mockResolvedValue(undefined);
+  const mockOnSubmit = vi.fn().mockResolvedValue(undefined);
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should not trigger form submission when manifest param is not present", () => {

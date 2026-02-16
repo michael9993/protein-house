@@ -74,7 +74,7 @@ describe("OrderSummary", () => {
     it("should render order summary title", () => {
       // Arrange
       const mockOrder = orderFixture("test-id");
-      const onMarkAsPaid = jest.fn();
+      const onMarkAsPaid = vi.fn();
 
       // Act
       render(
@@ -92,7 +92,7 @@ describe("OrderSummary", () => {
     it("should show TransactionsApiButtons when useLegacyPaymentsApi is false", () => {
       // Arrange
       const mockOrder = createOrderWithNoPayment();
-      const onMarkAsPaid = jest.fn();
+      const onMarkAsPaid = vi.fn();
 
       // Act
       render(
@@ -112,7 +112,7 @@ describe("OrderSummary", () => {
     it("should show TransactionsApiButtons when useLegacyPaymentsApi is undefined", () => {
       // Arrange
       const mockOrder = createOrderWithNoPayment();
-      const onMarkAsPaid = jest.fn();
+      const onMarkAsPaid = vi.fn();
 
       // Act
       render(
@@ -128,7 +128,7 @@ describe("OrderSummary", () => {
     it("should show Mark as Paid button when hasNoPayment is true and canMarkAsPaid is true", () => {
       // Arrange
       const mockOrder = createOrderWithNoPayment();
-      const onMarkAsPaid = jest.fn();
+      const onMarkAsPaid = vi.fn();
 
       // Act
       render(
@@ -150,7 +150,7 @@ describe("OrderSummary", () => {
         payments: [],
         grantedRefunds: [],
       };
-      const onMarkAsPaid = jest.fn();
+      const onMarkAsPaid = vi.fn();
 
       // Act
       render(
@@ -172,7 +172,7 @@ describe("OrderSummary", () => {
         payments: [{ id: "payment-1" }] as any,
         grantedRefunds: [],
       };
-      const onMarkAsPaid = jest.fn();
+      const onMarkAsPaid = vi.fn();
 
       // Act
       render(
@@ -194,7 +194,7 @@ describe("OrderSummary", () => {
         payments: [],
         grantedRefunds: [],
       };
-      const onMarkAsPaid = jest.fn();
+      const onMarkAsPaid = vi.fn();
 
       // Act
       render(
@@ -210,7 +210,7 @@ describe("OrderSummary", () => {
     it("should call onMarkAsPaid when Mark as Paid button is clicked", async () => {
       // Arrange
       const mockOrder = createOrderWithNoPayment();
-      const onMarkAsPaid = jest.fn();
+      const onMarkAsPaid = vi.fn();
 
       // Act
       render(
@@ -235,10 +235,10 @@ describe("OrderSummary", () => {
         ...orderFixture("test-id"),
         actions: [OrderAction.CAPTURE],
       };
-      const onMarkAsPaid = jest.fn();
-      const onCapture = jest.fn();
-      const onRefund = jest.fn();
-      const onVoid = jest.fn();
+      const onMarkAsPaid = vi.fn();
+      const onCapture = vi.fn();
+      const onRefund = vi.fn();
+      const onVoid = vi.fn();
 
       // Act
       render(
@@ -264,10 +264,10 @@ describe("OrderSummary", () => {
         ...orderFixture("test-id"),
         actions: [OrderAction.CAPTURE],
       };
-      const onMarkAsPaid = jest.fn();
-      const onCapture = jest.fn();
-      const onRefund = jest.fn();
-      const onVoid = jest.fn();
+      const onMarkAsPaid = vi.fn();
+      const onCapture = vi.fn();
+      const onRefund = vi.fn();
+      const onVoid = vi.fn();
 
       // Act
       render(
@@ -293,10 +293,10 @@ describe("OrderSummary", () => {
         ...orderFixture("test-id"),
         actions: [OrderAction.REFUND],
       };
-      const onMarkAsPaid = jest.fn();
-      const onCapture = jest.fn();
-      const onRefund = jest.fn();
-      const onVoid = jest.fn();
+      const onMarkAsPaid = vi.fn();
+      const onCapture = vi.fn();
+      const onRefund = vi.fn();
+      const onVoid = vi.fn();
 
       // Act
       render(
@@ -322,10 +322,10 @@ describe("OrderSummary", () => {
         ...orderFixture("test-id"),
         actions: [OrderAction.VOID],
       };
-      const onMarkAsPaid = jest.fn();
-      const onCapture = jest.fn();
-      const onRefund = jest.fn();
-      const onVoid = jest.fn();
+      const onMarkAsPaid = vi.fn();
+      const onCapture = vi.fn();
+      const onRefund = vi.fn();
+      const onVoid = vi.fn();
 
       // Act
       render(
@@ -351,10 +351,10 @@ describe("OrderSummary", () => {
         ...orderFixture("test-id"),
         actions: [OrderAction.MARK_AS_PAID],
       };
-      const onMarkAsPaid = jest.fn();
-      const onCapture = jest.fn();
-      const onRefund = jest.fn();
-      const onVoid = jest.fn();
+      const onMarkAsPaid = vi.fn();
+      const onCapture = vi.fn();
+      const onRefund = vi.fn();
+      const onVoid = vi.fn();
 
       // Act
       render(
@@ -380,10 +380,10 @@ describe("OrderSummary", () => {
         ...orderFixture("test-id"),
         actions: [OrderAction.CAPTURE],
       };
-      const onMarkAsPaid = jest.fn();
-      const onCapture = jest.fn();
-      const onRefund = jest.fn();
-      const onVoid = jest.fn();
+      const onMarkAsPaid = vi.fn();
+      const onCapture = vi.fn();
+      const onRefund = vi.fn();
+      const onVoid = vi.fn();
 
       // Act
       render(
@@ -413,10 +413,10 @@ describe("OrderSummary", () => {
         ...orderFixture("test-id"),
         actions: [OrderAction.REFUND],
       };
-      const onMarkAsPaid = jest.fn();
-      const onCapture = jest.fn();
-      const onRefund = jest.fn();
-      const onVoid = jest.fn();
+      const onMarkAsPaid = vi.fn();
+      const onCapture = vi.fn();
+      const onRefund = vi.fn();
+      const onVoid = vi.fn();
 
       // Act
       render(
@@ -446,10 +446,10 @@ describe("OrderSummary", () => {
         ...orderFixture("test-id"),
         actions: [OrderAction.VOID],
       };
-      const onMarkAsPaid = jest.fn();
-      const onCapture = jest.fn();
-      const onRefund = jest.fn();
-      const onVoid = jest.fn();
+      const onMarkAsPaid = vi.fn();
+      const onCapture = vi.fn();
+      const onRefund = vi.fn();
+      const onVoid = vi.fn();
 
       // Act
       render(
@@ -479,10 +479,10 @@ describe("OrderSummary", () => {
         ...orderFixture("test-id"),
         actions: [OrderAction.MARK_AS_PAID],
       };
-      const onMarkAsPaid = jest.fn();
-      const onCapture = jest.fn();
-      const onRefund = jest.fn();
-      const onVoid = jest.fn();
+      const onMarkAsPaid = vi.fn();
+      const onCapture = vi.fn();
+      const onRefund = vi.fn();
+      const onVoid = vi.fn();
 
       // Act
       render(
@@ -517,10 +517,10 @@ describe("OrderSummary", () => {
           OrderAction.MARK_AS_PAID,
         ],
       };
-      const onMarkAsPaid = jest.fn();
-      const onCapture = jest.fn();
-      const onRefund = jest.fn();
-      const onVoid = jest.fn();
+      const onMarkAsPaid = vi.fn();
+      const onCapture = vi.fn();
+      const onRefund = vi.fn();
+      const onVoid = vi.fn();
 
       // Act
       render(
@@ -573,7 +573,7 @@ describe("OrderSummary", () => {
         },
       ] as any,
     };
-    const onMarkAsPaid = jest.fn();
+    const onMarkAsPaid = vi.fn();
 
     // Act
     render(
@@ -595,7 +595,7 @@ describe("OrderSummary", () => {
       payments: [],
       grantedRefunds: [{ id: "refund-1" }] as any,
     };
-    const onMarkAsPaid = jest.fn();
+    const onMarkAsPaid = vi.fn();
 
     // Act
     render(
@@ -611,7 +611,7 @@ describe("OrderSummary", () => {
   it("should correctly identify hasNoPayment when all payment sources are empty", () => {
     // Arrange
     const mockOrder = createOrderWithNoPayment();
-    const onMarkAsPaid = jest.fn();
+    const onMarkAsPaid = vi.fn();
 
     // Act
     render(

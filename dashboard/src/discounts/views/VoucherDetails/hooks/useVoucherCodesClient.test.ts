@@ -3,15 +3,15 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { useVoucherCodesClient } from "./useVoucherCodesClient";
 
-jest.mock("uuid", () => ({ v4: () => "68276b31-3b41-4004-acd6-bad8c36d524f" }));
+vi.mock("uuid", () => ({ v4: () => "68276b31-3b41-4004-acd6-bad8c36d524f" }));
 describe("useVoucherCodesClient", () => {
   it("should add voucher code manually", () => {
     // Arrange
     const settings = {
       rowNumber: 10,
-      updateListSettings: jest.fn(),
+      updateListSettings: vi.fn(),
     };
-    const switchToClientPagination = jest.fn();
+    const switchToClientPagination = vi.fn();
     const { result } = renderHook(() => useVoucherCodesClient(settings, switchToClientPagination));
 
     // Act
@@ -30,9 +30,9 @@ describe("useVoucherCodesClient", () => {
     // Arrange
     const settings = {
       rowNumber: 10,
-      updateListSettings: jest.fn(),
+      updateListSettings: vi.fn(),
     };
-    const switchToClientPagination = jest.fn();
+    const switchToClientPagination = vi.fn();
     const { result } = renderHook(() => useVoucherCodesClient(settings, switchToClientPagination));
 
     // Act

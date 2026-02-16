@@ -13,8 +13,8 @@ describe("ChannelPermission", () => {
         allChannels={allChannels}
         disabled={false}
         disabledSelectAllChannels={false}
-        onChannelChange={jest.fn}
-        onHasAllChannelsChange={jest.fn}
+        onChannelChange={vi.fn}
+        onHasAllChannelsChange={vi.fn}
         hasAllChannels={true}
       />,
     );
@@ -32,8 +32,8 @@ describe("ChannelPermission", () => {
         allChannels={allChannels}
         disabled={false}
         disabledSelectAllChannels={false}
-        onChannelChange={jest.fn}
-        onHasAllChannelsChange={jest.fn}
+        onChannelChange={vi.fn}
+        onHasAllChannelsChange={vi.fn}
         hasAllChannels={false}
       />,
     );
@@ -43,7 +43,7 @@ describe("ChannelPermission", () => {
   });
   it("should render restricted checkbox disabled", () => {
     // Arrange & Act
-    const mockonHasAllChannelsChange = jest.fn();
+    const mockonHasAllChannelsChange = vi.fn();
 
     render(
       <ChannelPermission
@@ -51,7 +51,7 @@ describe("ChannelPermission", () => {
         allChannels={allChannels}
         disabled={true}
         disabledSelectAllChannels={false}
-        onChannelChange={jest.fn}
+        onChannelChange={vi.fn}
         onHasAllChannelsChange={mockonHasAllChannelsChange}
         hasAllChannels={true}
       />,
@@ -72,8 +72,8 @@ describe("ChannelPermission", () => {
         selectedChannels={selectedChannels.map(chan => chan.id)}
         disabled={false}
         disabledSelectAllChannels={false}
-        onChannelChange={jest.fn}
-        onHasAllChannelsChange={jest.fn}
+        onChannelChange={vi.fn}
+        onHasAllChannelsChange={vi.fn}
         hasAllChannels={false}
       />,
     );
@@ -90,8 +90,8 @@ describe("ChannelPermission", () => {
         selectedChannels={selectedChannels.map(x => x.id)}
         disabled={false}
         disabledSelectAllChannels={false}
-        onChannelChange={jest.fn}
-        onHasAllChannelsChange={jest.fn}
+        onChannelChange={vi.fn}
+        onHasAllChannelsChange={vi.fn}
         hasAllChannels={false}
       />,
     );

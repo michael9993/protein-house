@@ -5,7 +5,7 @@ import { MessageContext } from ".";
 import MessageManagerProvider from "./MessageManagerProvider";
 
 // Mock MessageDisplay component since we're not testing its functionality
-jest.mock("./MessageDisplay", () => ({
+vi.mock("./MessageDisplay", () => ({
   MessageDisplay: () => <div data-test-id="message-display">Message Display</div>,
 }));
 

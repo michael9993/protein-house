@@ -8,7 +8,7 @@ describe("WarehouseInformationMessage", () => {
     hasVariants: false,
     hasWarehouses: false,
     hasStocks: false,
-    onWarehouseConfigure: jest.fn(),
+    onWarehouseConfigure: vi.fn(),
   };
 
   it("should render message for creating product", () => {

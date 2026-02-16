@@ -4,28 +4,28 @@ import * as React from "react";
 
 import { ExtensionItem } from "./ExtenionItem";
 
-jest.mock("@dashboard/hooks/useNavigator", () => ({
+vi.mock("@dashboard/hooks/useNavigator", async () => ({
   __esModule: true,
-  default: jest.fn(() => jest.fn()),
+  default: vi.fn(() => vi.fn()),
 }));
 
-jest.mock("@dashboard/utils/permissions", () => ({
-  useUserHasPermissions: jest.fn(() => true),
+vi.mock("@dashboard/utils/permissions", async () => ({
+  useUserHasPermissions: vi.fn(() => true),
 }));
 
-jest.mock("@dashboard/components/Link", () => {
+vi.mock("@dashboard/components/Link", async () => {
   // eslint-disable-next-line react/display-name
   return ({ children, href }: { children: React.ReactNode; href: string }) => (
     <a href={href}>{children}</a>
   );
 });
 
-jest.mock("@dashboard/featureFlags", () => ({
-  useFlag: jest.fn(() => ({ enabled: true })),
+vi.mock("@dashboard/featureFlags", async () => ({
+  useFlag: vi.fn(() => ({ enabled: true })),
 }));
 
-jest.mock("@saleor/macaw-ui-next", () => ({
-  ...(jest.requireActual("@saleor/macaw-ui-next") as object),
+vi.mock("@saleor/macaw-ui-next", async () => ({
+  ...(await vi.importActual("@saleor/macaw-ui-next") as object),
   useTheme: () => ({ theme: "default" }),
 }));
 

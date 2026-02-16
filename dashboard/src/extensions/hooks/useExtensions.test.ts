@@ -5,39 +5,39 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { useExtensions } from "./useExtensions";
 
-const mockOpenApp = jest.fn();
+const mockOpenApp = vi.fn();
 
-jest.mock("../new-tab-actions", () => ({
+vi.mock("../new-tab-actions", async () => ({
   newTabActions: {
-    openGETinNewTab: jest.fn(),
-    openPOSTinNewTab: jest.fn(),
+    openGETinNewTab: vi.fn(),
+    openPOSTinNewTab: vi.fn(),
   },
 }));
 
-jest.mock("@dashboard/auth/hooks/useUserPermissions", () => ({
-  useUserPermissions: jest.fn(),
+vi.mock("@dashboard/auth/hooks/useUserPermissions", async () => ({
+  useUserPermissions: vi.fn(),
 }));
 
-jest.mock("@dashboard/graphql", () => ({
-  ...(jest.requireActual("@dashboard/graphql") as jest.Mocked<typeof import("@dashboard/graphql")>),
-  useExtensionListQuery: jest.fn(),
+vi.mock("@dashboard/graphql", async () => ({
+  ...(await vi.importActual("@dashboard/graphql") as Mocked<typeof import("@dashboard/graphql")>),
+  useExtensionListQuery: vi.fn(),
 }));
 
-jest.mock("../components/AppExtensionContext/AppExtensionContextProvider", () => ({
-  useActiveAppExtension: jest.fn(),
+vi.mock("../components/AppExtensionContext/AppExtensionContextProvider", async () => ({
+  useActiveAppExtension: vi.fn(),
 }));
 
 import { useActiveAppExtension } from "../components/AppExtensionContext/AppExtensionContextProvider";
 import { newTabActions } from "../new-tab-actions";
 
-const useUserPermissionsMock = jest.fn();
-const useExtensionListQueryMock = jest.fn();
-const useActiveAppExtensionMock = jest.fn();
+const useUserPermissionsMock = vi.fn();
+const useExtensionListQueryMock = vi.fn();
+const useActiveAppExtensionMock = vi.fn();
 
 // Set up the mocks
-(useUserPermissions as jest.Mock).mockImplementation(useUserPermissionsMock);
-(useExtensionListQuery as jest.Mock).mockImplementation(useExtensionListQueryMock);
-(useActiveAppExtension as jest.Mock).mockImplementation(useActiveAppExtensionMock);
+vi.mocked(useUserPermissions).mockImplementation(useUserPermissionsMock);
+vi.mocked(useExtensionListQuery).mockImplementation(useExtensionListQueryMock);
+vi.mocked(useActiveAppExtension).mockImplementation(useActiveAppExtensionMock);
 
 describe("Extensions / hooks / useExtensions", () => {
   const mockExtensionsData = {
@@ -203,7 +203,7 @@ describe("Extensions / hooks / useExtensions", () => {
   } satisfies ExtensionListQuery;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     useActiveAppExtensionMock.mockReturnValue({ activate: mockOpenApp });
   });
 

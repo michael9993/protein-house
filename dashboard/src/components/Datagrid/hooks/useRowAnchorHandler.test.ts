@@ -3,24 +3,24 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { useRowAnchorHandler } from "./useRowAnchorHandler";
 
-jest.mock("@dashboard/hooks/useNavigator", () => jest.fn());
+vi.mock("@dashboard/hooks/useNavigator", () => vi.fn());
 
-jest.mock("@dashboard/hooks/useNavigator", () => ({
+vi.mock("@dashboard/hooks/useNavigator", () => ({
   __esModule: true,
-  default: jest.fn(() => jest.fn()),
+  default: vi.fn(() => vi.fn()),
 }));
 
 describe("useRowAnchorHandler", () => {
   it("should navigate to the given path", () => {
     // Arrange
-    const navigate = jest.fn();
+    const navigate = vi.fn();
 
-    (useNavigator as jest.Mock).mockReturnValue(navigate);
+    vi.mocked(useNavigator).mockReturnValue(navigate);
 
     const navigatorOpts = { replace: true };
     const handler = renderHook(() => useRowAnchorHandler(navigatorOpts)).result.current;
     const event = {
-      preventDefault: jest.fn(),
+      preventDefault: vi.fn(),
       currentTarget: {
         dataset: {
           reactRouterPath: "/some-path",
@@ -38,13 +38,13 @@ describe("useRowAnchorHandler", () => {
 
   it("should not prevent default when CMD key is pressed", () => {
     // Arrange
-    const navigate = jest.fn();
+    const navigate = vi.fn();
 
-    (useNavigator as jest.Mock).mockReturnValue(navigate);
+    vi.mocked(useNavigator).mockReturnValue(navigate);
 
     const handler = renderHook(() => useRowAnchorHandler()).result.current;
     const event = {
-      preventDefault: jest.fn(),
+      preventDefault: vi.fn(),
       metaKey: true,
       ctrlKey: false,
     };
@@ -59,13 +59,13 @@ describe("useRowAnchorHandler", () => {
 
   it("should not prevent default when CTRL key is pressed", () => {
     // Arrange
-    const navigate = jest.fn();
+    const navigate = vi.fn();
 
-    (useNavigator as jest.Mock).mockReturnValue(navigate);
+    vi.mocked(useNavigator).mockReturnValue(navigate);
 
     const handler = renderHook(() => useRowAnchorHandler()).result.current;
     const event = {
-      preventDefault: jest.fn(),
+      preventDefault: vi.fn(),
       metaKey: false,
       ctrlKey: true,
     };

@@ -7,7 +7,7 @@ import {
 
 describe("ColumnPicker / withPersistance", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it.each([

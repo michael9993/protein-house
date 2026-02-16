@@ -5,17 +5,17 @@ import { renderHook } from "@testing-library/react-hooks";
 import { useAppStoreExtensions } from "./useAppStoreExtensions";
 import { useExploreExtensions } from "./useExploreExtensions";
 
-jest.mock("./useAppStoreExtensions");
-jest.mock("@dashboard/graphql", () => ({
-  ...(jest.requireActual("@dashboard/graphql") as object),
-  useInstalledAppsQuery: jest.fn(() => ({
+vi.mock("./useAppStoreExtensions");
+vi.mock("@dashboard/graphql", async () => ({
+  ...(await vi.importActual("@dashboard/graphql") as object),
+  useInstalledAppsQuery: vi.fn(() => ({
     data: {
       apps: {
         edges: [],
       },
     },
   })),
-  usePluginsQuery: jest.fn(() => ({
+  usePluginsQuery: vi.fn(() => ({
     data: {
       plugins: {
         edges: [],
@@ -24,10 +24,10 @@ jest.mock("@dashboard/graphql", () => ({
   })),
 }));
 
-jest.mock("@dashboard/auth/hooks/useUserPermissions");
-jest.mock("@dashboard/featureFlags", () => ({
-  ...(jest.requireActual("@dashboard/featureFlags") as object),
-  useFlag: jest.fn(() => ({ enabled: true })),
+vi.mock("@dashboard/auth/hooks/useUserPermissions");
+vi.mock("@dashboard/featureFlags", async () => ({
+  ...(await vi.importActual("@dashboard/featureFlags") as object),
+  useFlag: vi.fn(() => ({ enabled: true })),
 }));
 
 const mockedAppStoreExtensionsAppsOnly = {
@@ -137,7 +137,7 @@ const mockedAppStoreExtensionsWithPlugins = {
 };
 
 describe("Extension / hooks / useExploreExtensions", () => {
-  const pluginsQueryMock = usePluginsQuery as jest.Mock;
+  const pluginsQueryMock = usePluginsQuery as Mock;
 
   afterEach(() => {
     pluginsQueryMock.mockClear();
@@ -145,12 +145,12 @@ describe("Extension / hooks / useExploreExtensions", () => {
 
   it("should return loading state when fetching data", () => {
     // Arrange
-    (useAppStoreExtensions as jest.Mock).mockReturnValue({
+    vi.mocked(useAppStoreExtensions).mockReturnValue({
       data: {},
       loading: true,
       error: null,
     });
-    (useInstalledAppsQuery as jest.Mock).mockReturnValue({
+    vi.mocked(useInstalledAppsQuery).mockReturnValue({
       data: {
         apps: {
           edges: [],
@@ -169,12 +169,12 @@ describe("Extension / hooks / useExploreExtensions", () => {
 
   it("should return extensions data for installed apps ", () => {
     // Arrange
-    (useAppStoreExtensions as jest.Mock).mockReturnValue({
+    vi.mocked(useAppStoreExtensions).mockReturnValue({
       data: mockedAppStoreExtensionsAppsOnly,
       loading: false,
       error: null,
     });
-    (useInstalledAppsQuery as jest.Mock).mockReturnValue({
+    vi.mocked(useInstalledAppsQuery).mockReturnValue({
       data: {
         apps: {
           edges: [
@@ -271,19 +271,19 @@ describe("Extension / hooks / useExploreExtensions", () => {
 
   it("should correctly set 'installed' for PLUGIN extensions based on plugin active state (global and channel)", () => {
     // Arrange
-    (useAppStoreExtensions as jest.Mock).mockReturnValue({
+    vi.mocked(useAppStoreExtensions).mockReturnValue({
       data: mockedAppStoreExtensionsWithPlugins,
       loading: false,
       error: null,
     });
-    (useInstalledAppsQuery as jest.Mock).mockReturnValue({
+    vi.mocked(useInstalledAppsQuery).mockReturnValue({
       data: {
         apps: {
           edges: [],
         },
       },
     });
-    (usePluginsQuery as jest.Mock).mockReturnValue({
+    vi.mocked(usePluginsQuery).mockReturnValue({
       data: {
         plugins: {
           edges: [
@@ -344,15 +344,15 @@ describe("Extension / hooks / useExploreExtensions", () => {
 
   it("should not fetch plugins if user does not have MANAGE_PLUGINS permission", () => {
     // Arrange
-    (useUserPermissions as jest.Mock).mockReturnValue([
+    vi.mocked(useUserPermissions).mockReturnValue([
       { __typename: "UserPermission", code: PermissionEnum.MANAGE_USERS, name: "Manage users" },
     ]);
-    (useAppStoreExtensions as jest.Mock).mockReturnValue({
+    vi.mocked(useAppStoreExtensions).mockReturnValue({
       data: mockedAppStoreExtensionsWithPlugins,
       loading: false,
       error: null,
     });
-    (useInstalledAppsQuery as jest.Mock).mockReturnValue({
+    vi.mocked(useInstalledAppsQuery).mockReturnValue({
       data: {
         apps: {
           edges: [],

@@ -26,7 +26,7 @@ describe("SortableChip", () => {
 
   it("should call onClose when close button is clicked", () => {
     // Arrange
-    const onClose = jest.fn();
+    const onClose = vi.fn();
 
     renderWithRouter(<SortableChip label="Test Chip" onClose={onClose} />);
 

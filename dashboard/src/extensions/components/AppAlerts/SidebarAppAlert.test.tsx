@@ -9,27 +9,27 @@ import { renderHook } from "@testing-library/react-hooks";
 import { SidebarAppAlert } from "./SidebarAppAlert";
 import { useAppsAlert } from "./useAppsAlert";
 
-jest.mock("@dashboard/hooks/useHasManagedAppsPermission");
-jest.mock("react-router-dom");
-jest.mock("@dashboard/graphql");
+vi.mock("@dashboard/hooks/useHasManagedAppsPermission");
+vi.mock("react-router-dom");
+vi.mock("@dashboard/graphql");
 
-jest.mock("react-router-dom", () => ({
-  Link: jest.fn(({ to, ...props }) => <a href={to} {...props} />),
+vi.mock("react-router-dom", () => ({
+  Link: vi.fn(({ to, ...props }) => <a href={to} {...props} />),
 }));
 
 describe("SidebarAppAlert", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    (useUserAccountUpdateMutation as jest.Mock).mockReturnValue([jest.fn()]);
+    vi.clearAllMocks();
+    vi.mocked(useUserAccountUpdateMutation).mockReturnValue([vi.fn()]);
   });
 
   it("displays sidebar alert dot when there are webhook failures, TC_ID: D_INT_01", async () => {
     // Arrange
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValue({
+    vi.mocked(useHasManagedAppsPermission).mockReturnValue({
       hasManagedAppsPermission: true,
     });
-    (useAppFailedPendingWebhooksLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(),
+    vi.mocked(useAppFailedPendingWebhooksLazyQuery).mockReturnValue([
+      vi.fn(),
       {
         data: {
           apps: {
@@ -95,11 +95,11 @@ describe("SidebarAppAlert", () => {
 
   it("doesn't display sidebar alert dot when there are no webhook failures", async () => {
     // Arrange
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValue({
+    vi.mocked(useHasManagedAppsPermission).mockReturnValue({
       hasManagedAppsPermission: true,
     });
-    (useAppFailedPendingWebhooksLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(),
+    vi.mocked(useAppFailedPendingWebhooksLazyQuery).mockReturnValue([
+      vi.fn(),
       {
         data: {
           apps: {

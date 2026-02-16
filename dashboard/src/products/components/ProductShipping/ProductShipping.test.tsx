@@ -13,7 +13,7 @@ describe("ProductShipping", () => {
     disabled: false,
     errors: [] as ProductErrorFragment[],
     weightUnit: "kg",
-    onChange: jest.fn(),
+    onChange: vi.fn(),
   };
 
   const getWeightInput = () => screen.getByRole("input", { name: /weight/i });
@@ -63,7 +63,7 @@ describe("ProductShipping", () => {
 
   it("should call onChange when value changes", () => {
     // Arrange
-    const onChange = jest.fn();
+    const onChange = vi.fn();
 
     render(<ProductShipping {...defaultProps} onChange={onChange} />, { wrapper });
 

@@ -19,7 +19,7 @@ describe("ProductTile", () => {
     // Act
     render(
       <ThemeProvider>
-        <ProductTile product={product} onClick={jest.fn()} />
+        <ProductTile product={product} onClick={vi.fn()} />
       </ThemeProvider>,
     );
 
@@ -38,7 +38,7 @@ describe("ProductTile", () => {
     // Act
     render(
       <ThemeProvider>
-        <ProductTile product={product} onClick={jest.fn()} />
+        <ProductTile product={product} onClick={vi.fn()} />
       </ThemeProvider>,
     );
     // Assert
@@ -49,7 +49,7 @@ describe("ProductTile", () => {
   it("fires onClick when clicked", async () => {
     // Arrange
     const product = mockProduct(null);
-    const onClick = jest.fn();
+    const onClick = vi.fn();
     const user = userEvent.setup();
 
     // Act

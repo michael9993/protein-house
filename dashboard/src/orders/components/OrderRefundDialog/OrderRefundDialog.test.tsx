@@ -6,8 +6,8 @@ import { OrderRefundDialog } from "./OrderRefundDialog";
 
 const order = orderMock("");
 
-jest.mock("@dashboard/auth/hooks/useUserPermissions", () => ({
-  useUserPermissions: jest.fn(() => [{ code: PermissionEnum.HANDLE_PAYMENTS }]),
+vi.mock("@dashboard/auth/hooks/useUserPermissions", () => ({
+  useUserPermissions: vi.fn(() => [{ code: PermissionEnum.HANDLE_PAYMENTS }]),
 }));
 
 describe("OrderRefundDialog", () => {
@@ -15,9 +15,9 @@ describe("OrderRefundDialog", () => {
     // Arrange
     const props = {
       open: true,
-      onClose: jest.fn(),
-      onStandardRefund: jest.fn(),
-      onManualRefund: jest.fn(),
+      onClose: vi.fn(),
+      onStandardRefund: vi.fn(),
+      onManualRefund: vi.fn(),
       order,
     };
 
@@ -33,9 +33,9 @@ describe("OrderRefundDialog", () => {
     // Arrange
     const props = {
       open: false,
-      onClose: jest.fn(),
-      onStandardRefund: jest.fn(),
-      onManualRefund: jest.fn(),
+      onClose: vi.fn(),
+      onStandardRefund: vi.fn(),
+      onManualRefund: vi.fn(),
       order,
     };
 
@@ -52,9 +52,9 @@ describe("OrderRefundDialog", () => {
     // Arrange
     const props = {
       open: true,
-      onClose: jest.fn(),
-      onStandardRefund: jest.fn(),
-      onManualRefund: jest.fn(),
+      onClose: vi.fn(),
+      onStandardRefund: vi.fn(),
+      onManualRefund: vi.fn(),
       order,
     };
 
@@ -72,9 +72,9 @@ describe("OrderRefundDialog", () => {
     // Arrange
     const props = {
       open: true,
-      onClose: jest.fn(),
-      onStandardRefund: jest.fn(),
-      onManualRefund: jest.fn(),
+      onClose: vi.fn(),
+      onStandardRefund: vi.fn(),
+      onManualRefund: vi.fn(),
       order,
     };
 
@@ -91,9 +91,9 @@ describe("OrderRefundDialog", () => {
     // Arrange
     const props = {
       open: true,
-      onClose: jest.fn(),
-      onStandardRefund: jest.fn(),
-      onManualRefund: jest.fn(),
+      onClose: vi.fn(),
+      onStandardRefund: vi.fn(),
+      onManualRefund: vi.fn(),
       order,
     };
 

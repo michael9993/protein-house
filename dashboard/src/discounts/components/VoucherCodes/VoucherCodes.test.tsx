@@ -12,10 +12,10 @@ import { BrowserRouter } from "react-router-dom";
 import { VoucherCode } from "../VoucherCodesDatagrid/types";
 import { VoucherCodes, VoucherCodesProps } from "./VoucherCodes";
 
-jest.mock("@dashboard/components/Datagrid/persistance/usePersistance", () => ({
+vi.mock("@dashboard/components/Datagrid/persistance/usePersistance", () => ({
   usePersistance: () => ({
     columns: [],
-    update: jest.fn(),
+    update: vi.fn(),
   }),
 }));
 
@@ -35,14 +35,14 @@ const renderVoucherCodes = (props: Partial<VoucherCodesProps>) => {
     <VoucherCodes
       codes={[]}
       loading={false}
-      onCustomCodeGenerate={jest.fn()}
-      onDeleteCodes={jest.fn()}
-      onMultiCodesGenerate={jest.fn()}
-      onSelectVoucherCodesIds={jest.fn()}
-      onSettingsChange={jest.fn()}
+      onCustomCodeGenerate={vi.fn()}
+      onDeleteCodes={vi.fn()}
+      onMultiCodesGenerate={vi.fn()}
+      onSelectVoucherCodesIds={vi.fn()}
+      onSettingsChange={vi.fn()}
       voucherCodesPagination={{
-        loadNextPage: jest.fn(),
-        loadPreviousPage: jest.fn(),
+        loadNextPage: vi.fn(),
+        loadPreviousPage: vi.fn(),
         paginatorType: "click",
         pageInfo: {
           endCursor: "",
@@ -101,7 +101,7 @@ describe("VoucherCodes", () => {
   });
   it("should not allow to delete selected codes when contains saved codes", async () => {
     // Arrange & Act
-    const onDeleteCodes = jest.fn();
+    const onDeleteCodes = vi.fn();
 
     renderVoucherCodes({
       onDeleteCodes,
@@ -116,7 +116,7 @@ describe("VoucherCodes", () => {
   });
   it("should  allow to delete selected codes when selected only draft codes", async () => {
     // Arrange
-    const onDeleteCodes = jest.fn();
+    const onDeleteCodes = vi.fn();
 
     renderVoucherCodes({
       onDeleteCodes,
@@ -149,7 +149,7 @@ describe("VoucherCodes", () => {
   });
   it("should allow to generate custom code", async () => {
     // Arrange & Act
-    const onCustomCodeGenerate = jest.fn();
+    const onCustomCodeGenerate = vi.fn();
 
     renderVoucherCodes({
       onCustomCodeGenerate,
@@ -178,7 +178,7 @@ describe("VoucherCodes", () => {
   });
   it("should allow to generate multiple code", async () => {
     // Arrange & Act
-    const onMultiCodesGenerate = jest.fn();
+    const onMultiCodesGenerate = vi.fn();
 
     renderVoucherCodes({
       onMultiCodesGenerate,
@@ -210,12 +210,12 @@ describe("VoucherCodes", () => {
   });
   it("should allow to  load next page", async () => {
     // Arrange & Act
-    const loadNextPage = jest.fn();
+    const loadNextPage = vi.fn();
 
     renderVoucherCodes({
       voucherCodesPagination: {
         loadNextPage,
-        loadPreviousPage: jest.fn(),
+        loadPreviousPage: vi.fn(),
         paginatorType: "click",
         pageInfo: {
           endCursor: "",
@@ -237,11 +237,11 @@ describe("VoucherCodes", () => {
   });
   it("should allow to load previous page", async () => {
     // Arrange & Act
-    const loadPreviousPage = jest.fn();
+    const loadPreviousPage = vi.fn();
 
     renderVoucherCodes({
       voucherCodesPagination: {
-        loadNextPage: jest.fn(),
+        loadNextPage: vi.fn(),
         loadPreviousPage,
         paginatorType: "click",
         pageInfo: {

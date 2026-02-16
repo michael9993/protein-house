@@ -4,9 +4,9 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { usePermissions } from "./usePermissions";
 
-jest.mock("@dashboard/hooks/useShop");
+vi.mock("@dashboard/hooks/useShop");
 
-const mockUseShop = useShop as jest.Mock;
+const mockUseShop = useShop as Mock;
 
 describe("usePermissions", () => {
   it("should sort permissions from shop context by name", () => {

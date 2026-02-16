@@ -5,7 +5,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 
 import WarehouseInfo from "./WarehouseInfo";
 
-const mockOnChange = jest.fn();
+const mockOnChange = vi.fn();
 
 const invalidNameError = [
   {

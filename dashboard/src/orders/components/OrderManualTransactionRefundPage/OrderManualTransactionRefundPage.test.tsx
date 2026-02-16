@@ -16,12 +16,12 @@ import { BrowserRouter } from "react-router-dom";
 
 import { OrderManualTransactionRefundPage } from "./OrderManualTransactionRefundPage";
 
-jest.mock("@dashboard/hooks/useNavigator", () => () => jest.fn);
-jest.mock("@dashboard/components/Savebar");
+vi.mock("@dashboard/hooks/useNavigator", () => () => vi.fn);
+vi.mock("@dashboard/components/Savebar");
 
-jest.mock("@dashboard/hooks/useNotifier", () => ({
+vi.mock("@dashboard/hooks/useNotifier", () => ({
   __esModule: true,
-  default: jest.fn(() => () => undefined),
+  default: vi.fn(() => () => undefined),
 }));
 mockResizeObserver();
 
@@ -46,9 +46,9 @@ const getWrapper = (mocks: MockedResponse[] = []) => {
 describe("OrderManualTransactionRefundPage", () => {
   it("should select transaction, set amount and submit form", async () => {
     // Arrange
-    const mockNofitication = jest.fn();
+    const mockNofitication = vi.fn();
 
-    (useNotifier as jest.Mock).mockImplementation(() => mockNofitication);
+    vi.mocked(useNotifier).mockImplementation(() => mockNofitication);
 
     const mocks = [
       {

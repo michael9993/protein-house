@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { FormData } from "./types";
 
-jest.mock("uuid");
+vi.mock("uuid");
 
 describe("generateDraftVoucherCode", () => {
   it("should return draft voucher code", () => {
@@ -27,7 +27,7 @@ describe("generateDraftVoucherCode", () => {
 describe("generateMultipleVoucherCodes", () => {
   it("should return multiple voucher codes", () => {
     // Arrange
-    (uuidv4 as jest.Mock).mockImplementation(() => "uuid");
+    vi.mocked(uuidv4).mockImplementation(() => "uuid");
 
     // Act
     const draftVoucherCodes = generateMultipleVoucherCodes("2", "test");

@@ -2,20 +2,20 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { useActionItems } from "./useActionItems";
 
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
-jest.mock("@dashboard/hooks/useNavigator", () => ({
+vi.mock("@dashboard/hooks/useNavigator", () => ({
   __esModule: true,
   default: () => mockNavigate,
 }));
 
-const mockScrollIntoView = jest.fn();
+const mockScrollIntoView = vi.fn();
 
 Element.prototype.scrollIntoView = mockScrollIntoView;
 
 describe("useActionItems", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockScrollIntoView.mockClear();
 
     document.body.innerHTML = "";
@@ -29,7 +29,7 @@ describe("useActionItems", () => {
 
       element.className = className;
       element.dataset.href = `/test-route-${i}`;
-      element.setAttribute = jest.fn();
+      element.setAttribute = vi.fn();
       document.body.appendChild(element);
       elements.push(element);
     }
@@ -85,7 +85,7 @@ describe("useActionItems", () => {
       for (let i = 0; i < 2; i++) {
         const row = document.createElement("tr");
 
-        row.setAttribute = jest.fn();
+        row.setAttribute = vi.fn();
         table.appendChild(row);
         rows.push(row);
       }

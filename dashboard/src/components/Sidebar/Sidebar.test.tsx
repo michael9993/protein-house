@@ -11,43 +11,43 @@ import { MemoryRouter } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { SidebarProvider } from "./SidebarContext";
 
-jest.mock("./menu/hooks/useMenuStructure", () => ({
-  useMenuStructure: jest.fn(() => []),
+vi.mock("./menu/hooks/useMenuStructure", () => ({
+  useMenuStructure: vi.fn(() => []),
 }));
-jest.mock("@dashboard/featureFlags/useFlagsInfo", () => ({
-  useFlagsInfo: jest.fn(() => []),
+vi.mock("@dashboard/featureFlags/useFlagsInfo", () => ({
+  useFlagsInfo: vi.fn(() => []),
 }));
-jest.mock("@dashboard/auth/hooks/useCloud", () => ({
-  useCloud: jest.fn(() => ({
+vi.mock("@dashboard/auth/hooks/useCloud", () => ({
+  useCloud: vi.fn(() => ({
     isAuthenticatedViaCloud: false,
   })),
 }));
-jest.mock("@dashboard/components/DevModePanel/hooks", () => ({
-  useDevModeContext: jest.fn(() => ({
+vi.mock("@dashboard/components/DevModePanel/hooks", () => ({
+  useDevModeContext: vi.fn(() => ({
     variables: "",
-    setVariables: jest.fn(),
+    setVariables: vi.fn(),
     isDevModeVisible: false,
-    setDevModeVisibility: jest.fn(),
+    setDevModeVisibility: vi.fn(),
     devModeContent: "",
-    setDevModeContent: jest.fn(),
+    setDevModeContent: vi.fn(),
   })),
 }));
-jest.mock("@dashboard/components/NavigatorSearch/useNavigatorSearchContext", () => ({
-  useNavigatorSearchContext: jest.fn(() => ({
+vi.mock("@dashboard/components/NavigatorSearch/useNavigatorSearchContext", () => ({
+  useNavigatorSearchContext: vi.fn(() => ({
     isNavigatorVisible: false,
-    setNavigatorVisibility: jest.fn(),
+    setNavigatorVisibility: vi.fn(),
   })),
 }));
-jest.mock("@dashboard/components/ProductAnalytics/useAnalytics", () => ({
-  useAnalytics: jest.fn(() => ({
-    initialize: jest.fn(),
-    trackEvent: jest.fn(),
+vi.mock("@dashboard/components/ProductAnalytics/useAnalytics", () => ({
+  useAnalytics: vi.fn(() => ({
+    initialize: vi.fn(),
+    trackEvent: vi.fn(),
   })),
 }));
-jest.mock("@dashboard/ripples/state", () => ({
-  useAllRipplesModalState: jest.fn(() => ({
+vi.mock("@dashboard/ripples/state", () => ({
+  useAllRipplesModalState: vi.fn(() => ({
     isModalOpen: false,
-    setModalState: jest.fn(),
+    setModalState: vi.fn(),
   })),
 }));
 
@@ -67,7 +67,7 @@ const Wrapper = ({ children }: { children: ReactNode }) => {
 describe("Sidebar", () => {
   it('should render "Saleor Cloud" link when is cloud instance', () => {
     // Arrange
-    (useCloud as jest.Mock).mockImplementation(() => ({
+    vi.mocked(useCloud).mockImplementation(() => ({
       isAuthenticatedViaCloud: true,
     }));
     // Act
@@ -77,7 +77,7 @@ describe("Sidebar", () => {
   });
   it('should not render "Saleor Cloud" link when is not cloud instance', () => {
     // Arrange
-    (useCloud as jest.Mock).mockImplementation(() => ({
+    vi.mocked(useCloud).mockImplementation(() => ({
       isAuthenticatedViaCloud: false,
     }));
     // Act
@@ -94,15 +94,15 @@ describe("Sidebar", () => {
   });
   it("should call callback when click on playground shortcut", async () => {
     // Arrange
-    const actionCallback = jest.fn();
+    const actionCallback = vi.fn();
 
-    (useDevModeContext as jest.Mock).mockImplementationOnce(() => ({
+    vi.mocked(useDevModeContext).mockImplementationOnce(() => ({
       variables: "",
-      setVariables: jest.fn(),
+      setVariables: vi.fn(),
       isDevModeVisible: false,
       setDevModeVisibility: actionCallback,
       devModeContent: "",
-      setDevModeContent: jest.fn(),
+      setDevModeContent: vi.fn(),
     }));
     render(<Sidebar />, { wrapper: Wrapper });
     // Act
@@ -112,9 +112,9 @@ describe("Sidebar", () => {
   });
   it("should call callback when click on search shortcut", async () => {
     // Arrange
-    const actionCallback = jest.fn();
+    const actionCallback = vi.fn();
 
-    (useNavigatorSearchContext as jest.Mock).mockImplementationOnce(() => ({
+    vi.mocked(useNavigatorSearchContext).mockImplementationOnce(() => ({
       isNavigatorVisible: false,
       setNavigatorVisibility: actionCallback,
     }));

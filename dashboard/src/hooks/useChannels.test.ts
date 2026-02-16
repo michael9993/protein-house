@@ -24,8 +24,8 @@ describe("useChannels", () => {
         channels,
         "",
         {
-          closeModal: jest.fn,
-          openModal: jest.fn,
+          closeModal: vi.fn,
+          openModal: vi.fn,
         },
         { formId: Symbol("channel-test-form-id") },
       ),
@@ -49,8 +49,8 @@ describe("useChannels", () => {
         channels,
         "",
         {
-          closeModal: jest.fn,
-          openModal: jest.fn,
+          closeModal: vi.fn,
+          openModal: vi.fn,
         },
         { formId: Symbol("channel-test-form-id") },
       ),
@@ -76,8 +76,8 @@ describe("useChannels", () => {
         channels,
         "",
         {
-          closeModal: jest.fn,
-          openModal: jest.fn,
+          closeModal: vi.fn,
+          openModal: vi.fn,
         },
         { formId: Symbol("channel-test-form-id") },
       ),

@@ -2,12 +2,12 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { usePermissionsRequestRedirects } from "./usePermissionsRequestRedirects";
 
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
-jest.mock("@dashboard/hooks/useNavigator", () => () => mockNavigate);
+vi.mock("@dashboard/hooks/useNavigator", () => () => mockNavigate);
 describe("usePermissionsRequestRedirects", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
   it("Navigates to redirect url provided by app - if approved", () => {
     const { result } = renderHook(() =>

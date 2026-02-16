@@ -6,17 +6,17 @@ import { render, screen } from "@testing-library/react";
 
 import { PermissionAlert } from "./PermissionAlert";
 
-jest.mock("@graphiql/toolkit", () => ({
-  clear: jest.fn(),
-  createGraphiQLFetcher: jest.fn(_x => jest.fn() as Fetcher),
+vi.mock("@graphiql/toolkit", () => ({
+  clear: vi.fn(),
+  createGraphiQLFetcher: vi.fn(_x => vi.fn() as Fetcher),
 }));
 
-jest.mock("@saleor/macaw-ui", () => ({
-  useTheme: jest.fn(() => () => ({})),
-  useStyles: jest.fn(() => () => ({})),
-  makeStyles: jest.fn(() => () => ({})),
+vi.mock("@saleor/macaw-ui", () => ({
+  useTheme: vi.fn(() => () => ({})),
+  useStyles: vi.fn(() => () => ({})),
+  makeStyles: vi.fn(() => () => ({})),
   // eslint-disable-next-line react/display-name
-  DialogHeader: jest.fn(() => () => <></>),
+  DialogHeader: vi.fn(() => () => <></>),
 }));
 beforeEach(() => {
   window.localStorage.clear();

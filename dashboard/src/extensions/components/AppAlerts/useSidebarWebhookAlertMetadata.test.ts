@@ -7,24 +7,24 @@ import {
   useSidebarWebhookAlertMetadata,
 } from "./useSidebarWebhookAlertMetadata";
 
-jest.mock("@dashboard/auth", () => ({
-  useUser: jest.fn().mockReturnValue({ user: null }),
+vi.mock("@dashboard/auth", () => ({
+  useUser: vi.fn().mockReturnValue({ user: null }),
 }));
 
-jest.mock("@dashboard/graphql", () => ({
-  useUserAccountUpdateMutation: jest.fn(),
+vi.mock("@dashboard/graphql", () => ({
+  useUserAccountUpdateMutation: vi.fn(),
 }));
 
 describe("useSidebarWebhookAlertMetadata", () => {
-  const mockSaveMetadata = jest.fn();
+  const mockSaveMetadata = vi.fn();
   const mockMetadataInput = {
     lastClickDate: "2023-01-01",
     lastFailedAttemptDate: "2023-01-02",
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (useUserAccountUpdateMutation as jest.Mock).mockReturnValue([mockSaveMetadata]);
+    vi.clearAllMocks();
+    vi.mocked(useUserAccountUpdateMutation).mockReturnValue([mockSaveMetadata]);
   });
 
   it("should persist metadata correctly", async () => {
@@ -50,7 +50,7 @@ describe("useSidebarWebhookAlertMetadata", () => {
 
   it("should return parsed metadata when it exists", () => {
     // Arrange
-    (useUser as jest.Mock).mockReturnValue({
+    vi.mocked(useUser).mockReturnValue({
       user: {
         metadata: [
           {
@@ -70,7 +70,7 @@ describe("useSidebarWebhookAlertMetadata", () => {
 
   it("should return null when metadata doesn't exist", () => {
     // Arrange
-    (useUser as jest.Mock).mockReturnValue({
+    vi.mocked(useUser).mockReturnValue({
       user: {
         metadata: [],
       },
@@ -85,7 +85,7 @@ describe("useSidebarWebhookAlertMetadata", () => {
 
   it("should return null when metadata is invalid JSON", () => {
     // Arrange
-    (useUser as jest.Mock).mockReturnValue({
+    vi.mocked(useUser).mockReturnValue({
       user: {
         metadata: [
           {

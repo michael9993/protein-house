@@ -1,9 +1,9 @@
 export const mockResizeObserver = () => {
   // Datagrid use ResizeObserver to detect changes in canvas size
-  global.ResizeObserver = jest.fn().mockImplementation(callback => ({
-    observe: jest.fn(() => callback([{ contentRect: { height: 1000, width: 1000 } }])),
-    unobserve: jest.fn(),
-    disconnect: jest.fn(),
+  global.ResizeObserver = vi.fn().mockImplementation(callback => ({
+    observe: vi.fn(() => callback([{ contentRect: { height: 1000, width: 1000 } }])),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
   }));
 };
 
@@ -13,7 +13,7 @@ export const prepareDatagridScroller = () => {
   const scroller = document.getElementsByClassName("dvn-scroller").item(0);
 
   if (scroller !== null) {
-    jest.spyOn(scroller, "clientWidth", "get").mockImplementation(() => 1000);
-    jest.spyOn(scroller, "clientHeight", "get").mockImplementation(() => 1000);
+    vi.spyOn(scroller, "clientWidth", "get").mockImplementation(() => 1000);
+    vi.spyOn(scroller, "clientHeight", "get").mockImplementation(() => 1000);
   }
 };

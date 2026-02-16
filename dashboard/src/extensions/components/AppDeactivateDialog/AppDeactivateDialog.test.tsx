@@ -15,8 +15,8 @@ describe("Apps AppDeactivateDialog", () => {
           confirmButtonState="default"
           open={true}
           name={name}
-          onClose={jest.fn()}
-          onConfirm={jest.fn()}
+          onClose={vi.fn()}
+          onConfirm={vi.fn()}
         />
       </Wrapper>,
     );
@@ -37,8 +37,8 @@ describe("Apps AppDeactivateDialog", () => {
           confirmButtonState="default"
           open={true}
           name={""}
-          onClose={jest.fn()}
-          onConfirm={jest.fn()}
+          onClose={vi.fn()}
+          onConfirm={vi.fn()}
         />
       </Wrapper>,
     );
@@ -59,8 +59,8 @@ describe("Apps AppDeactivateDialog", () => {
           confirmButtonState="default"
           open={true}
           name={null}
-          onClose={jest.fn()}
-          onConfirm={jest.fn()}
+          onClose={vi.fn()}
+          onConfirm={vi.fn()}
         />
       </Wrapper>,
     );
@@ -84,8 +84,8 @@ describe("Apps AppDeactivateDialog", () => {
           open={true}
           name={name}
           thirdParty={true}
-          onClose={jest.fn()}
-          onConfirm={jest.fn()}
+          onClose={vi.fn()}
+          onConfirm={vi.fn()}
         />
       </Wrapper>,
     );
@@ -107,8 +107,8 @@ describe("Apps AppDeactivateDialog", () => {
           open={true}
           name={name}
           thirdParty={false}
-          onClose={jest.fn()}
-          onConfirm={jest.fn()}
+          onClose={vi.fn()}
+          onConfirm={vi.fn()}
         />
       </Wrapper>,
     );

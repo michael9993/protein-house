@@ -43,7 +43,7 @@ describe("ProductVariantPrice", () => {
 
   it("should allow to set price value", () => {
     // Arrange
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const listing = [
       {
         id: "1",

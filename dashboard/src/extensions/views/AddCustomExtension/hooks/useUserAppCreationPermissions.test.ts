@@ -6,11 +6,11 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { useUserAppCreationPermissions } from "./useUserAppCreationPermissions";
 
-jest.mock("@dashboard/auth");
-jest.mock("@dashboard/hooks/useShop");
+vi.mock("@dashboard/auth");
+vi.mock("@dashboard/hooks/useShop");
 
-const mockUseUser = useUser as jest.MockedFunction<typeof useUser>;
-const mockUseShop = useShop as jest.MockedFunction<typeof useShop>;
+const mockUseUser = useUser as MockedFunction<typeof useUser>;
+const mockUseShop = useShop as MockedFunction<typeof useShop>;
 
 describe("useUserAppCreationPermissions", () => {
   const allPermissions: PermissionFragment[] = [
@@ -21,10 +21,10 @@ describe("useUserAppCreationPermissions", () => {
 
   const defaultUserMock = {
     isAuthenticating: false,
-    logout: jest.fn(),
-    userCanRunJob: jest.fn(),
+    logout: vi.fn(),
+    userCanRunJob: vi.fn(),
     isAuthenticated: true,
-    refetchUser: jest.fn(),
+    refetchUser: vi.fn(),
   } as const;
 
   it("should return false when user has all shop permissions", () => {

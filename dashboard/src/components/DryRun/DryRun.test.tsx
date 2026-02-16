@@ -14,8 +14,8 @@ describe("DryRun", () => {
     const props = {
       query: "",
       showDialog: true,
-      setShowDialog: jest.fn(),
-      setResult: jest.fn(),
+      setShowDialog: vi.fn(),
+      setResult: vi.fn(),
       syncEvents: [] as WebhookEventTypeSyncEnum[],
     };
 

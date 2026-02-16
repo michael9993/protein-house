@@ -4,28 +4,28 @@ import { act, renderHook } from "@testing-library/react-hooks";
 
 import { useFetchManifest } from "./useFetchManifest";
 
-jest.mock("@dashboard/graphql", () => {
-  const originalModule = jest.requireActual("@dashboard/graphql");
+vi.mock("@dashboard/graphql", async () => {
+  const originalModule = await vi.importActual("@dashboard/graphql");
 
   return {
     ...originalModule,
-    useAppFetchMutation: jest.fn(),
+    useAppFetchMutation: vi.fn(),
   };
 });
 
-jest.mock("@dashboard/extensions/utils", () => ({
-  getAppInstallErrorMessage: jest.fn(),
+vi.mock("@dashboard/extensions/utils", async () => ({
+  getAppInstallErrorMessage: vi.fn(),
 }));
 
 describe("useFetchManifest", () => {
-  const mockGetValues = jest.fn();
-  const mockSetError = jest.fn();
-  const mockFetchManifest = jest.fn();
-  const mockOnCompleted = jest.fn();
+  const mockGetValues = vi.fn();
+  const mockSetError = vi.fn();
+  const mockFetchManifest = vi.fn();
+  const mockOnCompleted = vi.fn();
 
   it("should initialize with default values", () => {
     // Arrange
-    (useAppFetchMutation as jest.Mock).mockReturnValue([
+    vi.mocked(useAppFetchMutation).mockReturnValue([
       mockFetchManifest,
       {
         loading: false,
@@ -48,7 +48,7 @@ describe("useFetchManifest", () => {
 
   it("should call fetchManifest with form data when submitFetchManifest is called", () => {
     // Arrange
-    (useAppFetchMutation as jest.Mock).mockReturnValue([
+    vi.mocked(useAppFetchMutation).mockReturnValue([
       mockFetchManifest,
       {
         loading: false,
@@ -79,7 +79,7 @@ describe("useFetchManifest", () => {
       name: "test",
     };
 
-    (useAppFetchMutation as jest.Mock).mockReturnValueOnce([
+    vi.mocked(useAppFetchMutation).mockReturnValueOnce([
       mockFetchManifest,
       {
         loading: false,
@@ -96,7 +96,7 @@ describe("useFetchManifest", () => {
 
     // Act
     await act(async () => {
-      (useAppFetchMutation as jest.Mock).mockReturnValue([
+      vi.mocked(useAppFetchMutation).mockReturnValue([
         mockFetchManifest,
         {
           loading: false,
@@ -121,7 +121,7 @@ describe("useFetchManifest", () => {
 
     mockGetValues.mockReturnValue(manifestUrl);
 
-    (useAppFetchMutation as jest.Mock).mockImplementation(({ onCompleted }) => {
+    vi.mocked(useAppFetchMutation).mockImplementation(({ onCompleted }) => {
       mockOnCompleted.mockImplementation(onCompleted); // set implementation from our source
 
       return [
@@ -162,9 +162,9 @@ describe("useFetchManifest", () => {
     const errorMessage = "Actual backend error";
 
     mockGetValues.mockReturnValue(manifestUrl);
-    (getAppInstallErrorMessage as jest.Mock).mockReturnValue(errorMessage);
+    vi.mocked(getAppInstallErrorMessage).mockReturnValue(errorMessage);
 
-    (useAppFetchMutation as jest.Mock).mockImplementation(({ onCompleted }) => {
+    vi.mocked(useAppFetchMutation).mockImplementation(({ onCompleted }) => {
       mockOnCompleted.mockImplementation(onCompleted); // set implementation from our source
 
       return [
@@ -211,11 +211,11 @@ describe("useFetchManifest", () => {
     ];
 
     mockGetValues.mockReturnValue(manifestUrl);
-    (getAppInstallErrorMessage as jest.Mock)
+    vi.mocked(getAppInstallErrorMessage)
       .mockReturnValueOnce(errorMessages[0].message)
       .mockReturnValueOnce(errorMessages[1].message);
 
-    (useAppFetchMutation as jest.Mock).mockImplementation(({ onCompleted }) => {
+    vi.mocked(useAppFetchMutation).mockImplementation(({ onCompleted }) => {
       mockOnCompleted.mockImplementation(onCompleted);
 
       return [

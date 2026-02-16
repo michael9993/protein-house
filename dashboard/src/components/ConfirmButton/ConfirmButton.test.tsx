@@ -37,7 +37,7 @@ describe("ConfirmButton", () => {
     expect(screen.getByTestId("button-success")).toBeInTheDocument();
   });
   it("should call onClick when clicked", () => {
-    const onClick = jest.fn();
+    const onClick = vi.fn();
 
     render(<ConfirmButton transitionState="default" onClick={onClick} />);
     fireEvent.click(screen.getByRole("button"));

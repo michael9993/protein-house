@@ -3,18 +3,18 @@ import userEvent from "@testing-library/user-event";
 
 import ExitFormDialog from "./ExitFormDialog";
 
-jest.mock("@saleor/macaw-ui", () => ({
-  useStyles: jest.fn(() => () => ({})),
-  makeStyles: jest.fn(() => () => ({})),
+vi.mock("@saleor/macaw-ui", () => ({
+  useStyles: vi.fn(() => () => ({})),
+  makeStyles: vi.fn(() => () => ({})),
   // eslint-disable-next-line react/display-name
-  DialogHeader: jest.fn(() => () => <></>),
+  DialogHeader: vi.fn(() => () => <></>),
 }));
 describe("ExitFormDialog", () => {
   it("closes when ignore changes is clicked", async () => {
     // Arrange
     const props = {
-      onClose: jest.fn(),
-      onLeave: jest.fn(),
+      onClose: vi.fn(),
+      onLeave: vi.fn(),
       isOpen: true,
     };
     const user = userEvent.setup();
@@ -28,8 +28,8 @@ describe("ExitFormDialog", () => {
   it("closes when keep editing is clicked", async () => {
     // Arrange
     const props = {
-      onClose: jest.fn(),
-      onLeave: jest.fn(),
+      onClose: vi.fn(),
+      onLeave: vi.fn(),
       isOpen: true,
     };
     const user = userEvent.setup();

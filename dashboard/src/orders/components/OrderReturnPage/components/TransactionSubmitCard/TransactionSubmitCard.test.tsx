@@ -16,8 +16,8 @@ const Wrapper = ({ children }: { children: ReactNode }) => {
   );
 };
 
-jest.mock("@dashboard/auth/hooks/useUserPermissions", () => ({
-  useUserPermissions: jest.fn(() => [
+vi.mock("@dashboard/auth/hooks/useUserPermissions", () => ({
+  useUserPermissions: vi.fn(() => [
     {
       __typename: "UserPermission",
       code: "HANDLE_PAYMENTS",
@@ -58,8 +58,8 @@ const transactionSubmitCardProps = {
 describe("TransactionSubmitCard", () => {
   it("submits grant refund", async () => {
     // Arrange
-    const submitFn = jest.fn();
-    const onChangeFn = jest.fn();
+    const submitFn = vi.fn();
+    const onChangeFn = vi.fn();
 
     render(
       <TransactionSubmitCard
@@ -88,8 +88,8 @@ describe("TransactionSubmitCard", () => {
   });
   it("submits grant refund & send refund", async () => {
     // Arrange
-    const submitFn = jest.fn();
-    const onChangeFn = jest.fn();
+    const submitFn = vi.fn();
+    const onChangeFn = vi.fn();
 
     render(
       <TransactionSubmitCard
@@ -119,8 +119,8 @@ describe("TransactionSubmitCard", () => {
   });
   it("submits grant refund with shipment", async () => {
     // Arrange
-    const submitFn = jest.fn();
-    const onChangeFn = jest.fn();
+    const submitFn = vi.fn();
+    const onChangeFn = vi.fn();
 
     render(
       <TransactionSubmitCard
@@ -150,9 +150,9 @@ describe("TransactionSubmitCard", () => {
   });
   it("submits grant & send refund with custom price", async () => {
     // Arrange
-    const submitFn = jest.fn();
-    const onChangeFn = jest.fn();
-    const onAmountChangeFn = jest.fn();
+    const submitFn = vi.fn();
+    const onChangeFn = vi.fn();
+    const onAmountChangeFn = vi.fn();
     const CUSTOM_PRICE = "5";
 
     render(

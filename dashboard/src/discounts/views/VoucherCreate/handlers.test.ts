@@ -37,9 +37,9 @@ const formData: FormData = {
 describe("createHandler", () => {
   it("should not call channel update when voucherCreate return error", async () => {
     // Arrange
-    const voucherCreate = jest.fn().mockResolvedValue({ errors: ["error"] });
-    const updateChannels = jest.fn();
-    const validateFn = jest.fn().mockReturnValue(true);
+    const voucherCreate = vi.fn().mockResolvedValue({ errors: ["error"] });
+    const updateChannels = vi.fn();
+    const validateFn = vi.fn().mockReturnValue(true);
     const handler = createHandler(voucherCreate, updateChannels, validateFn);
 
     // Act
@@ -56,8 +56,8 @@ describe("createHandler", () => {
     const voucherCreate = jest
       .fn()
       .mockResolvedValue({ data: { voucherCreate: { voucher: { id: "id" } } } });
-    const updateChannels = jest.fn();
-    const validateFn = jest.fn().mockReturnValue(true);
+    const updateChannels = vi.fn();
+    const validateFn = vi.fn().mockReturnValue(true);
     const handler = createHandler(voucherCreate, updateChannels, validateFn);
 
     // Act

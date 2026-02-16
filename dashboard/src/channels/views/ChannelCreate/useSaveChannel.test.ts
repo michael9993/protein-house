@@ -4,16 +4,16 @@ import { ChannelCreateInput } from "@dashboard/graphql";
 
 import { useSaveChannel } from "./useSaveChannel";
 
-jest.mock(
+vi.mock(
   "@dashboard/auth",
-  jest.fn(() => ({
-    useUser: jest.fn(),
+  vi.fn(() => ({
+    useUser: vi.fn(),
   })),
 );
 describe("ChannelCreate", () => {
   test("Create channel with user reloading", async () => {
     const config = {
-      createChannel: jest.fn(() => ({
+      createChannel: vi.fn(() => ({
         data: {
           channelCreate: {
             channel: {
@@ -22,10 +22,10 @@ describe("ChannelCreate", () => {
           },
         },
       })),
-      reorderChannelWarehouses: jest.fn(),
+      reorderChannelWarehouses: vi.fn(),
     } as unknown as Parameters<typeof useSaveChannel>[number];
 
-    (useUser as jest.Mock).mockReturnValue({ refetchUser: jest.fn() });
+    vi.mocked(useUser).mockReturnValue({ refetchUser: vi.fn() });
 
     const input = {} as ChannelCreateInput;
     const warehousesToDisplay = [] as ChannelWarehouses;

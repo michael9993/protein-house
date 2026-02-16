@@ -5,8 +5,8 @@ import { IntlShape } from "react-intl";
 
 import { getErrorMessage } from "./getErrorMessage";
 
-jest.mock("@dashboard/utils/errors/account", () => jest.fn());
-jest.mock("@dashboard/utils/errors/order", () => jest.fn());
+vi.mock("@dashboard/utils/errors/account", () => vi.fn());
+vi.mock("@dashboard/utils/errors/order", () => vi.fn());
 describe("getErrorMessage", () => {
   it("returns original message when it exist", () => {
     // Arrange
@@ -31,7 +31,7 @@ describe("getErrorMessage", () => {
     } as AccountErrorFragment;
     const intlShape = {} as IntlShape;
 
-    (getAccountErrorMessage as jest.Mock).mockReturnValue("account error message");
+    vi.mocked(getAccountErrorMessage).mockReturnValue("account error message");
 
     // Act
     const message = getErrorMessage(error, intlShape);
@@ -48,7 +48,7 @@ describe("getErrorMessage", () => {
     } as unknown as OrderErrorFragment;
     const intlShape = {} as IntlShape;
 
-    (getOrderErrorMessage as jest.Mock).mockReturnValue("order error message");
+    vi.mocked(getOrderErrorMessage).mockReturnValue("order error message");
 
     // Act
     const message = getErrorMessage(error, intlShape);

@@ -6,8 +6,8 @@ import { useCollectionId } from "./useCollectionId";
 import { useProductEdges } from "./useProductEdges";
 import { useProductReorderOptimistic } from "./useProductReorderOptimistic";
 
-jest.mock("./useCollectionId");
-jest.mock("./useProductEdges");
+vi.mock("./useCollectionId");
+vi.mock("./useProductEdges");
 
 const mockCollectionId = "collection-123";
 const mockEdges = [
@@ -31,8 +31,8 @@ const mockEdges = [
   },
 ];
 
-(useCollectionId as jest.Mock).mockReturnValue(mockCollectionId);
-(useProductEdges as jest.Mock).mockReturnValue({ edges: mockEdges });
+vi.mocked(useCollectionId).mockReturnValue(mockCollectionId);
+vi.mocked(useProductEdges).mockReturnValue({ edges: mockEdges });
 
 describe("CollectionProducts/useProductReorderOptimistic", () => {
   // Arrange
@@ -44,9 +44,9 @@ describe("CollectionProducts/useProductReorderOptimistic", () => {
   } as unknown as PaginationState;
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (useCollectionId as jest.Mock).mockReturnValue(mockCollectionId);
-    (useProductEdges as jest.Mock).mockReturnValue({ edges: mockEdges });
+    vi.clearAllMocks();
+    vi.mocked(useCollectionId).mockReturnValue(mockCollectionId);
+    vi.mocked(useProductEdges).mockReturnValue({ edges: mockEdges });
   });
 
   it("should create proper optimistic response for reordered products", () => {
@@ -151,7 +151,7 @@ describe("CollectionProducts/useProductReorderOptimistic", () => {
     // Arrange
     const customCollectionId = "custom-collection-123";
 
-    (useCollectionId as jest.Mock).mockReturnValue(customCollectionId);
+    vi.mocked(useCollectionId).mockReturnValue(customCollectionId);
 
     const { result } = renderHook(() =>
       useProductReorderOptimistic({ paginationState: defaultPaginationState }),
@@ -179,7 +179,7 @@ describe("CollectionProducts/useProductReorderOptimistic", () => {
     ];
 
     // Act
-    (useProductEdges as jest.Mock).mockReturnValue({ edges: edgesWithExtraProps });
+    vi.mocked(useProductEdges).mockReturnValue({ edges: edgesWithExtraProps });
 
     const { result } = renderHook(() =>
       useProductReorderOptimistic({ paginationState: defaultPaginationState }),

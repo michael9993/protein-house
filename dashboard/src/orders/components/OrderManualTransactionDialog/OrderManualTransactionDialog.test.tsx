@@ -6,7 +6,7 @@ import { OrderManualTransactionDialog } from "./OrderManualTransactionDialog";
 describe("OrderManualTransactionDialog", () => {
   it("should call onClose when click in close button", async () => {
     // Arrange
-    const onClose = jest.fn();
+    const onClose = vi.fn();
 
     render(
       <OrderManualTransactionDialog
@@ -17,7 +17,7 @@ describe("OrderManualTransactionDialog", () => {
         }}
         submitState="default"
         currency="USD"
-        onAddTransaction={jest.fn()}
+        onAddTransaction={vi.fn()}
       />,
     );
 

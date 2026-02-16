@@ -8,27 +8,27 @@ import { useIntl } from "react-intl";
 
 import { useInstallApp } from "./useInstallApp";
 
-jest.mock("@dashboard/graphql", () => {
-  const actual = jest.requireActual("@dashboard/graphql");
+vi.mock("@dashboard/graphql", async () => {
+  const actual = await vi.importActual("@dashboard/graphql");
 
   return {
     ...actual,
-    useAppInstallMutation: jest.fn(),
+    useAppInstallMutation: vi.fn(),
   };
 });
 
-jest.mock("@dashboard/hooks/useLocalStorage", () => jest.fn());
-jest.mock("@dashboard/hooks/useNavigator", () => jest.fn());
-jest.mock("@dashboard/hooks/useNotifier", () => jest.fn());
-jest.mock("@dashboard/misc", () => ({
-  extractMutationErrors: jest.fn(),
+vi.mock("@dashboard/hooks/useLocalStorage", () => vi.fn());
+vi.mock("@dashboard/hooks/useNavigator", () => vi.fn());
+vi.mock("@dashboard/hooks/useNotifier", () => vi.fn());
+vi.mock("@dashboard/misc", async () => ({
+  extractMutationErrors: vi.fn(),
 }));
-jest.mock("@dashboard/extensions/utils", () => ({
-  getAppInstallErrorMessage: jest.fn().mockReturnValue("Test error message"),
+vi.mock("@dashboard/extensions/utils", async () => ({
+  getAppInstallErrorMessage: vi.fn().mockReturnValue("Test error message"),
 }));
 
 describe("useInstallApp", () => {
-  const mockGetValues = jest.fn().mockReturnValue("https://example.com/manifest");
+  const mockGetValues = vi.fn().mockReturnValue("https://example.com/manifest");
   const mockManifest = {
     __typename: "Manifest" as const,
     name: "Test App",
@@ -57,17 +57,17 @@ describe("useInstallApp", () => {
     brand: null,
     extensions: [],
   } satisfies AppManifestFragment;
-  const mockNavigate = jest.fn();
-  const mockNotify = jest.fn();
-  const mockSetActiveInstallations = jest.fn();
-  const mockInstallApp = jest.fn();
-  const mockOnCompleted = jest.fn();
+  const mockNavigate = vi.fn();
+  const mockNotify = vi.fn();
+  const mockSetActiveInstallations = vi.fn();
+  const mockInstallApp = vi.fn();
+  const mockOnCompleted = vi.fn();
   const activeInstallations: Array<Record<"id" | "name", string>> = [];
 
   // Setup mocks used in each test
-  (useNavigator as jest.Mock).mockReturnValue(mockNavigate);
-  (useNotifier as jest.Mock).mockReturnValue(mockNotify);
-  (useLocalStorage as jest.Mock).mockImplementation(() => [
+  vi.mocked(useNavigator).mockReturnValue(mockNavigate);
+  vi.mocked(useNotifier).mockReturnValue(mockNotify);
+  vi.mocked(useLocalStorage).mockImplementation(() => [
     activeInstallations,
     (value: any) => {
       if (typeof value === "function") {
@@ -77,13 +77,13 @@ describe("useInstallApp", () => {
       }
     },
   ]);
-  (useIntl as jest.Mock).mockReturnValue({ formatMessage: jest.fn() });
-  (useAppInstallMutation as jest.Mock).mockImplementation(({ onCompleted }) => {
+  vi.mocked(useIntl).mockReturnValue({ formatMessage: vi.fn() });
+  vi.mocked(useAppInstallMutation).mockImplementation(({ onCompleted }) => {
     mockOnCompleted.mockImplementation(onCompleted);
 
     return [mockInstallApp, { loading: false }];
   });
-  (extractMutationErrors as jest.Mock).mockResolvedValue(null);
+  vi.mocked(extractMutationErrors).mockResolvedValue(null);
 
   it("should return method to submit installation and it's current state", () => {
     // Arrange & Act

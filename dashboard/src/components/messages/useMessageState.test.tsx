@@ -5,11 +5,11 @@ import { useMessageState } from "./useMessageState";
 
 describe("useMessageState", () => {
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   test("should initialize with empty notifications", () => {
@@ -65,7 +65,7 @@ describe("useMessageState", () => {
 
     // Act
     act(() => {
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
     });
 
     // Assert
@@ -83,7 +83,7 @@ describe("useMessageState", () => {
 
     act(() => {
       // Advance time partially
-      jest.advanceTimersByTime(10);
+      vi.advanceTimersByTime(10);
     });
 
     // Assert: Notification should still be there
@@ -97,7 +97,7 @@ describe("useMessageState", () => {
 
     act(() => {
       // Advance time beyond original timeout
-      jest.advanceTimersByTime(DEFAULT_NOTIFICATION_SHOW_TIME);
+      vi.advanceTimersByTime(DEFAULT_NOTIFICATION_SHOW_TIME);
     });
 
     // Assert: Notification should still be there because timer was paused
@@ -112,7 +112,7 @@ describe("useMessageState", () => {
     // Act
     act(() => {
       // Advance time to complete the remaining time
-      jest.advanceTimersByTime(DEFAULT_NOTIFICATION_SHOW_TIME);
+      vi.advanceTimersByTime(DEFAULT_NOTIFICATION_SHOW_TIME);
     });
 
     // Assert: Notification should be removed now

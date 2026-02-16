@@ -4,14 +4,14 @@ import { act, renderHook } from "@testing-library/react-hooks";
 import { useProductUpdateForm } from "./form";
 import { UseProductUpdateFormOpts } from "./types";
 
-jest.mock("@dashboard/utils/richText/useRichText", () => {
+vi.mock("@dashboard/utils/richText/useRichText", () => {
   return {
     __esModule: true,
-    default: jest.fn(() => ({
-      getValue: jest.fn(),
+    default: vi.fn(() => ({
+      getValue: vi.fn(),
     })),
-    useRichText: jest.fn(() => ({
-      getValue: jest.fn(),
+    useRichText: vi.fn(() => ({
+      getValue: vi.fn(),
     })),
   };
 });
@@ -31,13 +31,13 @@ const baseData = {
 describe("useProductUpdateForm", () => {
   it("should clear datagrid change set after submitting the form", async () => {
     // Arrange
-    const mockOnSubmit = jest.fn();
+    const mockOnSubmit = vi.fn();
     const { result } = renderHook(() =>
       useProductUpdateForm(
         { variants: [], channelListings: [] } as unknown as ProductFragment,
         mockOnSubmit,
         false,
-        jest.fn(),
+        vi.fn(),
         {} as UseProductUpdateFormOpts,
       ),
     );
@@ -79,13 +79,13 @@ describe("useProductUpdateForm", () => {
 
   it("submits form with the only data that was modified", async () => {
     // Arrange
-    const mockOnSubmit = jest.fn();
+    const mockOnSubmit = vi.fn();
     const { result } = renderHook(() =>
       useProductUpdateForm(
         { variants: [], channelListings: [] } as unknown as ProductFragment,
         mockOnSubmit,
         false,
-        jest.fn(),
+        vi.fn(),
         {} as UseProductUpdateFormOpts,
       ),
     );

@@ -10,25 +10,25 @@ import { OnboardingProvider } from "./onboardingContext";
 import { useOnboardingStorage } from "./onboardingContext/useOnboardingStorage";
 import { WelcomePageOnboarding } from "./WelcomePageOnboarding";
 
-jest.mock("@dashboard/components/Router/useRouteChange", () => ({
+vi.mock("@dashboard/components/Router/useRouteChange", () => ({
   useRouteChange: () => ({
-    register: jest.fn(),
+    register: vi.fn(),
   }),
 }));
-jest.mock("@dashboard/auth");
-jest.mock("@dashboard/featureFlags", () => ({
-  useFlag: jest.fn().mockReturnValue({
+vi.mock("@dashboard/auth");
+vi.mock("@dashboard/featureFlags", () => ({
+  useFlag: vi.fn().mockReturnValue({
     enabled: false,
   }),
 }));
 
-jest.mock("./onboardingContext/useOnboardingStorage");
-jest.useFakeTimers();
-jest.mock("@dashboard/components/DevModePanel/hooks", () => ({
-  useDevModeContext: jest.fn(),
+vi.mock("./onboardingContext/useOnboardingStorage");
+vi.useFakeTimers();
+vi.mock("@dashboard/components/DevModePanel/hooks", () => ({
+  useDevModeContext: vi.fn(),
 }));
-jest.mock("react-router-dom", () => ({
-  Link: jest.fn(({ to, ...props }) => <a href={to} {...props} />),
+vi.mock("react-router-dom", () => ({
+  Link: vi.fn(({ to, ...props }) => <a href={to} {...props} />),
 }));
 
 const Wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -51,10 +51,10 @@ const allMarkAsDoneStepsIds = [
 describe("WelcomePageOnboarding", () => {
   it("should show collapsed accordion with 'Onboarding completed' when user's account is older than set date", () => {
     // Arrange
-    (useUser as jest.Mock).mockReturnValue({ user: { dateJoined: OLD_ACCOUNT_DATE } });
-    (useOnboardingStorage as jest.Mock).mockReturnValue({
-      getOnboardingState: jest.fn(() => onboardingInitState),
-      saveOnboardingState: jest.fn(),
+    vi.mocked(useUser).mockReturnValue({ user: { dateJoined: OLD_ACCOUNT_DATE } });
+    vi.mocked(useOnboardingStorage).mockReturnValue({
+      getOnboardingState: vi.fn(() => onboardingInitState),
+      saveOnboardingState: vi.fn(),
     });
 
     // Act
@@ -71,11 +71,11 @@ describe("WelcomePageOnboarding", () => {
 
   it("should save onboarding expanded state to storage service", async () => {
     // Arrange
-    const saveOnboardingState = jest.fn();
+    const saveOnboardingState = vi.fn();
 
-    (useUser as jest.Mock).mockReturnValue({ user: { dateJoined: NEW_ACCOUNT_DATE } });
-    (useOnboardingStorage as jest.Mock).mockReturnValue({
-      getOnboardingState: jest.fn(() => onboardingInitState),
+    vi.mocked(useUser).mockReturnValue({ user: { dateJoined: NEW_ACCOUNT_DATE } });
+    vi.mocked(useOnboardingStorage).mockReturnValue({
+      getOnboardingState: vi.fn(() => onboardingInitState),
       saveOnboardingState,
     });
 
@@ -87,7 +87,7 @@ describe("WelcomePageOnboarding", () => {
     );
 
     screen.getByTestId("onboarding-accordion-trigger").click();
-    jest.runAllTimers();
+    vi.runAllTimers();
 
     // Assert
     expect(saveOnboardingState).toHaveBeenNthCalledWith(3, {
@@ -100,10 +100,10 @@ describe("WelcomePageOnboarding", () => {
 
   it("should show 'Onboarding completed' when 'Mark all as done' is clicked", () => {
     // Arrange
-    (useUser as jest.Mock).mockReturnValue({ user: { dateJoined: NEW_ACCOUNT_DATE } });
-    (useOnboardingStorage as jest.Mock).mockReturnValue({
-      getOnboardingState: jest.fn(() => onboardingInitState),
-      saveOnboardingState: jest.fn(),
+    vi.mocked(useUser).mockReturnValue({ user: { dateJoined: NEW_ACCOUNT_DATE } });
+    vi.mocked(useOnboardingStorage).mockReturnValue({
+      getOnboardingState: vi.fn(() => onboardingInitState),
+      saveOnboardingState: vi.fn(),
     });
 
     // Act
@@ -123,10 +123,10 @@ describe("WelcomePageOnboarding", () => {
 
   it("should show 'Onboarding completed' after marking each steps as done", async () => {
     // Arrange
-    (useUser as jest.Mock).mockReturnValue({ user: { dateJoined: NEW_ACCOUNT_DATE } });
-    (useOnboardingStorage as jest.Mock).mockReturnValue({
-      getOnboardingState: jest.fn(() => onboardingInitState),
-      saveOnboardingState: jest.fn(),
+    vi.mocked(useUser).mockReturnValue({ user: { dateJoined: NEW_ACCOUNT_DATE } });
+    vi.mocked(useOnboardingStorage).mockReturnValue({
+      getOnboardingState: vi.fn(() => onboardingInitState),
+      saveOnboardingState: vi.fn(),
     });
 
     const user = userEvent.setup();
@@ -159,10 +159,10 @@ describe("WelcomePageOnboarding", () => {
 
   it("should show 'Onboarding completed' when all steps were completed", () => {
     // Arrange
-    (useUser as jest.Mock).mockReturnValue({ user: { dateJoined: NEW_ACCOUNT_DATE } });
-    (useOnboardingStorage as jest.Mock).mockReturnValue({
-      getOnboardingState: jest.fn(() => onboardingCompletedMock),
-      saveOnboardingState: jest.fn(),
+    vi.mocked(useUser).mockReturnValue({ user: { dateJoined: NEW_ACCOUNT_DATE } });
+    vi.mocked(useOnboardingStorage).mockReturnValue({
+      getOnboardingState: vi.fn(() => onboardingCompletedMock),
+      saveOnboardingState: vi.fn(),
     });
 
     // Act
@@ -178,11 +178,11 @@ describe("WelcomePageOnboarding", () => {
 
   it("clicking 'Next step' should save the status to storage service", async () => {
     // Arrange
-    const saveOnboardingState = jest.fn();
+    const saveOnboardingState = vi.fn();
 
-    (useUser as jest.Mock).mockReturnValue({ user: { dateJoined: NEW_ACCOUNT_DATE } });
-    (useOnboardingStorage as jest.Mock).mockReturnValue({
-      getOnboardingState: jest.fn(() => onboardingInitState),
+    vi.mocked(useUser).mockReturnValue({ user: { dateJoined: NEW_ACCOUNT_DATE } });
+    vi.mocked(useOnboardingStorage).mockReturnValue({
+      getOnboardingState: vi.fn(() => onboardingInitState),
       saveOnboardingState,
     });
 
@@ -194,7 +194,7 @@ describe("WelcomePageOnboarding", () => {
     );
 
     screen.getByTestId("get-started-next-step-btn").click();
-    jest.runAllTimers();
+    vi.runAllTimers();
 
     // Assert
     expect(saveOnboardingState).toBeCalledWith({
@@ -206,11 +206,11 @@ describe("WelcomePageOnboarding", () => {
 
   it("clicking any 'Mark as done' should save the status to storage service with 'get-started' step", async () => {
     // Arrange
-    const saveOnboardingState = jest.fn();
+    const saveOnboardingState = vi.fn();
 
-    (useUser as jest.Mock).mockReturnValue({ user: { dateJoined: NEW_ACCOUNT_DATE } });
-    (useOnboardingStorage as jest.Mock).mockReturnValue({
-      getOnboardingState: jest.fn(() => onboardingInitState),
+    vi.mocked(useUser).mockReturnValue({ user: { dateJoined: NEW_ACCOUNT_DATE } });
+    vi.mocked(useOnboardingStorage).mockReturnValue({
+      getOnboardingState: vi.fn(() => onboardingInitState),
       saveOnboardingState,
     });
 
@@ -231,7 +231,7 @@ describe("WelcomePageOnboarding", () => {
 
     markAsDone.click();
 
-    jest.runAllTimers();
+    vi.runAllTimers();
 
     // Assert
     await waitFor(() => {
@@ -245,13 +245,13 @@ describe("WelcomePageOnboarding", () => {
 
   it("should show 'Discover extension capabilities' step when extensions flag is enabled", () => {
     // Arrange
-    (useUser as jest.Mock).mockReturnValue({ user: { dateJoined: NEW_ACCOUNT_DATE } });
-    (useOnboardingStorage as jest.Mock).mockReturnValue({
-      getOnboardingState: jest.fn(() => onboardingInitState),
-      saveOnboardingState: jest.fn(),
+    vi.mocked(useUser).mockReturnValue({ user: { dateJoined: NEW_ACCOUNT_DATE } });
+    vi.mocked(useOnboardingStorage).mockReturnValue({
+      getOnboardingState: vi.fn(() => onboardingInitState),
+      saveOnboardingState: vi.fn(),
     });
     // Override useFlag mock for this specific test
-    (useFlag as jest.Mock).mockImplementation((flag: string) => ({
+    vi.mocked(useFlag).mockImplementation((flag: string) => ({
       enabled: flag === "extensions",
     }));
 

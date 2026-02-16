@@ -9,20 +9,20 @@ import userEvent from "@testing-library/user-event";
 import { SingleReferenceField } from "./SingleReferenceField";
 import { getErrorMessage } from "./utils";
 
-jest.mock("./utils", () => {
-  const actualUtils = jest.requireActual("./utils");
+vi.mock("./utils", async () => {
+  const actualUtils = await vi.importActual("./utils");
 
   return {
     ...actualUtils,
-    getErrorMessage: jest.fn(error => error?.message || "Error occurred"),
+    getErrorMessage: vi.fn(error => error?.message || "Error occurred"),
   };
 });
 
-jest.mock("react-router-dom", () => ({
+vi.mock("react-router-dom", async () => ({
   Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
     <a href={to}>{children}</a>
   ),
-  useNavigate: () => jest.fn(),
+  useNavigate: () => vi.fn(),
   useLocation: () => ({ pathname: "/", search: "", hash: "", state: null }),
   useParams: () => ({}),
 }));
@@ -44,12 +44,12 @@ describe("SingleReferenceField", () => {
     disabled: false,
     loading: false,
     error: undefined,
-    onReferencesAddClick: jest.fn(),
-    onReferencesRemove: jest.fn(),
+    onReferencesAddClick: vi.fn(),
+    onReferencesRemove: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should render Add button when no value is selected", () => {

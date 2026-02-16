@@ -5,8 +5,8 @@ import { ExtensionInstallFormData } from "../../types";
 import { ManifestUrlForm } from "./ManifestUrlForm";
 
 describe("ManifestUrlForm", () => {
-  const mockOnSubmit = jest.fn();
-  const mockOnPaste = jest.fn();
+  const mockOnSubmit = vi.fn();
+  const mockOnPaste = vi.fn();
 
   // Helper component to use the useForm hook required by components in form
   const TestWrapper = ({ onSubmit, onPaste }: { onSubmit: () => void; onPaste: () => void }) => {

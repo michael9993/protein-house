@@ -6,9 +6,9 @@ import { render, screen } from "@testing-library/react";
 
 import { WebhookSubscriptionQuery } from "./WebhookSubscriptionQuery";
 
-jest.mock("@graphiql/toolkit", () => ({
-  clear: jest.fn(),
-  createGraphiQLFetcher: jest.fn(_x => jest.fn() as Fetcher),
+vi.mock("@graphiql/toolkit", () => ({
+  clear: vi.fn(),
+  createGraphiQLFetcher: vi.fn(_x => vi.fn() as Fetcher),
 }));
 
 beforeEach(() => {
@@ -19,7 +19,7 @@ describe("WebhookSubscriptionQuery", () => {
     // Arrange
     const props = {
       query: "",
-      setQuery: jest.fn(),
+      setQuery: vi.fn(),
       data: {
         syncEvents: [] as WebhookEventTypeSyncEnum[],
         asyncEvents: [] as WebhookEventTypeAsyncEnum[],

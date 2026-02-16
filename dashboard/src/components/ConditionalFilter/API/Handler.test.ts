@@ -8,12 +8,12 @@ import {
 import { WarehouseHandler } from "./Handler";
 
 describe("WarehouseHandler", () => {
-  let mockClient: jest.Mocked<ApolloClient<unknown>>;
+  let mockClient: Mocked<ApolloClient<unknown>>;
 
   beforeEach(() => {
     mockClient = {
-      query: jest.fn(),
-    } as unknown as jest.Mocked<ApolloClient<unknown>>;
+      query: vi.fn(),
+    } as unknown as Mocked<ApolloClient<unknown>>;
   });
 
   it("fetches warehouses with correct query and variables", async () => {

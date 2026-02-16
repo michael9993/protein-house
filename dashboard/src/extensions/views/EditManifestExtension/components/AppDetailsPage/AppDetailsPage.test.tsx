@@ -3,9 +3,9 @@ import { render } from "@testing-library/react";
 
 import { AppDetailsPage } from "./AppDetailsPage";
 
-const mockHeader = jest.fn();
+const mockHeader = vi.fn();
 
-jest.mock("./Header", () => ({
+vi.mock("./Header", () => ({
   Header: (props: unknown) => {
     mockHeader(props);
 
@@ -13,9 +13,9 @@ jest.mock("./Header", () => ({
   },
 }));
 
-const mockAboutCard = jest.fn();
+const mockAboutCard = vi.fn();
 
-jest.mock("./AboutCard", () => ({
+vi.mock("./AboutCard", () => ({
   AboutCard: (props: unknown) => {
     mockAboutCard(props);
 
@@ -23,9 +23,9 @@ jest.mock("./AboutCard", () => ({
   },
 }));
 
-const mockPermissionsCard = jest.fn();
+const mockPermissionsCard = vi.fn();
 
-jest.mock("./PermissionsCard", () => ({
+vi.mock("./PermissionsCard", () => ({
   PermissionsCard: (props: unknown) => {
     mockPermissionsCard(props);
 
@@ -33,9 +33,9 @@ jest.mock("./PermissionsCard", () => ({
   },
 }));
 
-const mockDataPrivacyCard = jest.fn();
+const mockDataPrivacyCard = vi.fn();
 
-jest.mock("./DataPrivacyCard", () => ({
+vi.mock("./DataPrivacyCard", () => ({
   DataPrivacyCard: (props: unknown) => {
     mockDataPrivacyCard(props);
 
@@ -54,9 +54,9 @@ beforeEach(() => {
 describe("Apps AppDetailsPage", () => {
   it("displays app details when app data passed", () => {
     // Arrange
-    const onAppActivateOpen = jest.fn();
-    const onAppDeactivateOpen = jest.fn();
-    const onAppDeleteOpen = jest.fn();
+    const onAppActivateOpen = vi.fn();
+    const onAppDeactivateOpen = vi.fn();
+    const onAppDeleteOpen = vi.fn();
 
     // Act
     render(

@@ -14,17 +14,17 @@ interface TestFilters {
 }
 
 describe("useModalSearchWithFilters", () => {
-  let mockOnFetch: jest.Mock;
+  let mockOnFetch: Mock;
 
   beforeEach(() => {
-    jest.useFakeTimers();
-    mockOnFetch = jest.fn();
+    vi.useFakeTimers();
+    mockOnFetch = vi.fn();
   });
 
   afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
-    jest.clearAllMocks();
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
+    vi.clearAllMocks();
   });
 
   const createChangeEvent = (value: string): ChangeEvent<HTMLInputElement> =>
@@ -97,7 +97,7 @@ describe("useModalSearchWithFilters", () => {
 
       // Act - advance timer by debounce time
       act(() => {
-        jest.advanceTimersByTime(DEBOUNCE_MS);
+        vi.advanceTimersByTime(DEBOUNCE_MS);
       });
 
       // Assert - should be called after debounce
@@ -124,7 +124,7 @@ describe("useModalSearchWithFilters", () => {
       });
 
       act(() => {
-        jest.advanceTimersByTime(100);
+        vi.advanceTimersByTime(100);
       });
 
       act(() => {
@@ -132,7 +132,7 @@ describe("useModalSearchWithFilters", () => {
       });
 
       act(() => {
-        jest.advanceTimersByTime(100);
+        vi.advanceTimersByTime(100);
       });
 
       act(() => {
@@ -144,7 +144,7 @@ describe("useModalSearchWithFilters", () => {
 
       // Act - advance past debounce time
       act(() => {
-        jest.advanceTimersByTime(DEBOUNCE_MS);
+        vi.advanceTimersByTime(DEBOUNCE_MS);
       });
 
       // Assert - should only be called once with final query
@@ -175,7 +175,7 @@ describe("useModalSearchWithFilters", () => {
       rerender(options);
 
       act(() => {
-        jest.advanceTimersByTime(DEBOUNCE_MS);
+        vi.advanceTimersByTime(DEBOUNCE_MS);
       });
 
       // Assert - should include both filters and query
@@ -263,7 +263,7 @@ describe("useModalSearchWithFilters", () => {
 
       // Let debounce complete
       act(() => {
-        jest.advanceTimersByTime(DEBOUNCE_MS);
+        vi.advanceTimersByTime(DEBOUNCE_MS);
       });
 
       // Assert - debounced call should use latest filter variables from ref
@@ -290,7 +290,7 @@ describe("useModalSearchWithFilters", () => {
         });
 
         act(() => {
-          jest.advanceTimersByTime(DEBOUNCE_MS);
+          vi.advanceTimersByTime(DEBOUNCE_MS);
         });
       }).not.toThrow();
     });
@@ -337,7 +337,7 @@ describe("useModalSearchWithFilters", () => {
       unmount();
 
       act(() => {
-        jest.advanceTimersByTime(DEBOUNCE_MS);
+        vi.advanceTimersByTime(DEBOUNCE_MS);
       });
 
       // Assert - callback should not be called after unmount
@@ -368,14 +368,14 @@ describe("useModalSearchWithFilters", () => {
 
       // Assert - should not be called after default debounce time
       act(() => {
-        jest.advanceTimersByTime(DEBOUNCE_MS);
+        vi.advanceTimersByTime(DEBOUNCE_MS);
       });
 
       expect(mockOnFetch).not.toHaveBeenCalled();
 
       // Assert - should be called after custom debounce time
       act(() => {
-        jest.advanceTimersByTime(customDebounceMs - DEBOUNCE_MS);
+        vi.advanceTimersByTime(customDebounceMs - DEBOUNCE_MS);
       });
 
       expect(mockOnFetch).toHaveBeenCalledTimes(1);

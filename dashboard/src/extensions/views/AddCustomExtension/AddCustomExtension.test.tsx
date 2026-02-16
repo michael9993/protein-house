@@ -25,7 +25,7 @@ class ResizeObserverMock {
 
 global.ResizeObserver = ResizeObserverMock;
 
-jest.mock("react-router-dom", () => ({
+vi.mock("react-router-dom", () => ({
   Link: ({ children, to, ...props }: { children: React.ReactNode; to: string }) => (
     <a href={to} {...props}>
       {children}
@@ -33,12 +33,12 @@ jest.mock("react-router-dom", () => ({
   ),
 }));
 
-jest.mock("@dashboard/components/Savebar");
+vi.mock("@dashboard/components/Savebar");
 
-jest.mock("./hooks/usePermissions");
-jest.mock("./hooks/useHandleCreateAppSubmit");
-jest.mock("./hooks/useUserAppCreationPermissions");
-jest.mock("./hooks/useUserPermissionMap");
+vi.mock("./hooks/usePermissions");
+vi.mock("./hooks/useHandleCreateAppSubmit");
+vi.mock("./hooks/useUserAppCreationPermissions");
+vi.mock("./hooks/useUserPermissionMap");
 
 describe("AddCustomExtension", () => {
   const appName = "Test app";
@@ -47,16 +47,16 @@ describe("AddCustomExtension", () => {
     { code: "MANAGE_PRODUCTS", name: "Manage Products" },
   ];
 
-  const mockSubmit = jest.fn();
-  const mockSetToken = jest.fn();
+  const mockSubmit = vi.fn();
+  const mockSetToken = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
-    (usePermissions as jest.Mock).mockReturnValue(mockPermissions);
-    (useHandleCreateAppSubmit as jest.Mock).mockReturnValue(mockSubmit);
-    (useUserAppCreationPermissions as jest.Mock).mockReturnValue(false);
-    (useUserPermissionSet as jest.Mock).mockReturnValue(new Set(mockPermissions.map(p => p.code)));
+    vi.mocked(usePermissions).mockReturnValue(mockPermissions);
+    vi.mocked(useHandleCreateAppSubmit).mockReturnValue(mockSubmit);
+    vi.mocked(useUserAppCreationPermissions).mockReturnValue(false);
+    vi.mocked(useUserPermissionSet).mockReturnValue(new Set(mockPermissions.map(p => p.code)));
   });
 
   it("renders the component with all required elements", () => {
@@ -208,7 +208,7 @@ describe("AddCustomExtension", () => {
 
   it("displays warning when permissions are exceeded", () => {
     // Arrange
-    (useUserAppCreationPermissions as jest.Mock).mockReturnValue(true);
+    vi.mocked(useUserAppCreationPermissions).mockReturnValue(true);
 
     // Act
     render(<AddCustomExtension setToken={mockSetToken} />);
@@ -224,7 +224,7 @@ describe("AddCustomExtension", () => {
     // Arrange
     const availablePermissions = new Set(["MANAGE_ORDERS"]);
 
-    (useUserPermissionSet as jest.Mock).mockReturnValue(availablePermissions);
+    vi.mocked(useUserPermissionSet).mockReturnValue(availablePermissions);
     render(<AddCustomExtension setToken={mockSetToken} />);
 
     const appNameInput = screen.getByPlaceholderText("Extension Name");

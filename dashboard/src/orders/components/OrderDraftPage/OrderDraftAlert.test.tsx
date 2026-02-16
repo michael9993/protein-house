@@ -5,8 +5,8 @@ import { render, screen } from "@testing-library/react";
 
 import OrderDraftAlert, { OrderDraftAlertProps } from "./OrderDraftAlert";
 
-jest.mock("react-router-dom", () => ({
-  Link: jest.fn(({ to, ...props }) => <a href={to} {...props} />),
+vi.mock("react-router-dom", () => ({
+  Link: vi.fn(({ to, ...props }) => <a href={to} {...props} />),
 }));
 
 describe("OrderDraftAlert", () => {

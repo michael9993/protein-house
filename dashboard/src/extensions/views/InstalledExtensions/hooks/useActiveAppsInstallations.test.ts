@@ -4,26 +4,26 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { useActiveAppsInstallations } from "./useActiveAppsInstallations";
 
-jest.mock("@apollo/client", () => ({
-  gql: jest.fn(),
-  useApolloClient: jest.fn(),
+vi.mock("@apollo/client", () => ({
+  gql: vi.fn(),
+  useApolloClient: vi.fn(),
 }));
 
-jest.mock("@dashboard/hooks/useLocalStorage");
-jest.mock("@dashboard/graphql", () => ({
-  useAppRetryInstallMutation: jest.fn(() => [jest.fn(), {}]),
-  useAppDeleteFailedInstallationMutation: jest.fn(() => [jest.fn(), {}]),
+vi.mock("@dashboard/hooks/useLocalStorage");
+vi.mock("@dashboard/graphql", () => ({
+  useAppRetryInstallMutation: vi.fn(() => [vi.fn(), {}]),
+  useAppDeleteFailedInstallationMutation: vi.fn(() => [vi.fn(), {}]),
 }));
 
-jest.useFakeTimers();
+vi.useFakeTimers();
 
 describe("useActiveAppsInstallations", () => {
   afterEach(() => {
-    jest.clearAllTimers();
+    vi.clearAllTimers();
   });
 
   afterAll(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it("install app notify should not be called when apps in progress data loading", () => {
@@ -38,21 +38,21 @@ describe("useActiveAppsInstallations", () => {
     const appsInProgressData = {
       appInstallations: [],
     } as unknown as AppsInstallationsQuery;
-    const mockNotify = jest.fn();
+    const mockNotify = vi.fn();
 
-    (useLocalStorage as jest.Mock).mockReturnValue([mockedActiveInstallations, jest.fn()]);
+    vi.mocked(useLocalStorage).mockReturnValue([mockedActiveInstallations, vi.fn()]);
 
     renderHook(() =>
       useActiveAppsInstallations({
         appsInProgressData,
-        appsInProgressRefetch: jest.fn(),
+        appsInProgressRefetch: vi.fn(),
         appInProgressLoading,
-        appsRefetch: jest.fn(),
+        appsRefetch: vi.fn(),
         installedAppNotify: mockNotify,
-        removeInProgressAppNotify: jest.fn(),
-        onInstallSuccess: jest.fn(),
-        onInstallError: jest.fn(),
-        onRemoveInProgressAppSuccess: jest.fn(),
+        removeInProgressAppNotify: vi.fn(),
+        onInstallSuccess: vi.fn(),
+        onInstallError: vi.fn(),
+        onRemoveInProgressAppSuccess: vi.fn(),
       }),
     );
 
@@ -70,22 +70,22 @@ describe("useActiveAppsInstallations", () => {
     const appsInProgressData = {
       appsInstallations: [],
     } as unknown as AppsInstallationsQuery;
-    const mockNotify = jest.fn();
+    const mockNotify = vi.fn();
 
-    (useLocalStorage as jest.Mock).mockReturnValue([mockedActiveInstallations, jest.fn()]);
+    vi.mocked(useLocalStorage).mockReturnValue([mockedActiveInstallations, vi.fn()]);
 
     const { rerender } = renderHook(
       ({ appsInProgressData, appInProgressLoading }) =>
         useActiveAppsInstallations({
           appsInProgressData,
-          appsInProgressRefetch: jest.fn(),
+          appsInProgressRefetch: vi.fn(),
           appInProgressLoading,
-          appsRefetch: jest.fn(),
+          appsRefetch: vi.fn(),
           installedAppNotify: mockNotify,
-          removeInProgressAppNotify: jest.fn(),
-          onInstallSuccess: jest.fn(),
-          onInstallError: jest.fn(),
-          onRemoveInProgressAppSuccess: jest.fn(),
+          removeInProgressAppNotify: vi.fn(),
+          onInstallSuccess: vi.fn(),
+          onInstallError: vi.fn(),
+          onRemoveInProgressAppSuccess: vi.fn(),
         }),
       {
         initialProps: {

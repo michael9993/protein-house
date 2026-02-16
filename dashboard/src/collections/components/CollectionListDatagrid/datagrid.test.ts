@@ -7,7 +7,7 @@ import { getAvailabilityLabel, getAvailabilityLabelWhenSelectedChannel } from ".
 
 const currentTheme = "defaultLight";
 const intl = {
-  formatMessage: jest.fn(x => x.defaultMessage),
+  formatMessage: vi.fn(x => x.defaultMessage),
 } as unknown as IntlShape;
 
 describe("CollectionListDatagrid datagrid utils", () => {

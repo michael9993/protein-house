@@ -4,15 +4,15 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { useChannelWarehousesReorder } from "./useChannelWarehouseReorder";
 
-jest.mock("@dashboard/graphql", () => ({
-  useChannelReorderWarehousesMutation: jest.fn(() => [jest.fn(), {}]),
+vi.mock("@dashboard/graphql", () => ({
+  useChannelReorderWarehousesMutation: vi.fn(() => [vi.fn(), {}]),
 }));
 describe("channels / ChannelDetails / useChannelWarehousesReorder", () => {
   it("should handle channel warehouses reorder", async () => {
     // Arrange
-    const mockedReorderWarehousesMutation = jest.fn();
+    const mockedReorderWarehousesMutation = vi.fn();
 
-    (useChannelReorderWarehousesMutation as jest.Mock).mockImplementation(() => [
+    vi.mocked(useChannelReorderWarehousesMutation).mockImplementation(() => [
       mockedReorderWarehousesMutation,
       {},
     ]);
@@ -46,9 +46,9 @@ describe("channels / ChannelDetails / useChannelWarehousesReorder", () => {
 
   it("should not handle warehouses reorder when zero moves", async () => {
     // Arrange
-    const mockedReorderWarehousesMutation = jest.fn();
+    const mockedReorderWarehousesMutation = vi.fn();
 
-    (useChannelReorderWarehousesMutation as jest.Mock).mockImplementation(() => [
+    vi.mocked(useChannelReorderWarehousesMutation).mockImplementation(() => [
       mockedReorderWarehousesMutation,
       {},
     ]);

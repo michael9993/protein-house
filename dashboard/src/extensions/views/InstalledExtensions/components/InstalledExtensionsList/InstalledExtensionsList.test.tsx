@@ -7,7 +7,7 @@ describe("InstalledExtensionsList", () => {
   it("should render loading state when loading is true", () => {
     // Arrange
     render(
-      <InstalledExtensionsList installedExtensions={[]} loading={true} clearSearch={jest.fn()} />,
+      <InstalledExtensionsList installedExtensions={[]} loading={true} clearSearch={vi.fn()} />,
     );
 
     // Assert
@@ -17,7 +17,7 @@ describe("InstalledExtensionsList", () => {
 
   it("should render empty state when installed extensions length is 0", () => {
     // Arrange
-    const clearSearch = jest.fn();
+    const clearSearch = vi.fn();
 
     render(
       <InstalledExtensionsList
@@ -47,7 +47,7 @@ describe("InstalledExtensionsList", () => {
       <InstalledExtensionsList
         installedExtensions={installedExtensions}
         loading={false}
-        clearSearch={jest.fn()}
+        clearSearch={vi.fn()}
       />,
     );
 

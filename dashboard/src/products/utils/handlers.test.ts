@@ -27,8 +27,8 @@ describe("Product handlers", () => {
         },
       ],
     };
-    const assignMedia = jest.fn(() => Promise.resolve({}));
-    const unassignMedia = jest.fn(() => Promise.resolve({}));
+    const assignMedia = vi.fn(() => Promise.resolve({}));
+    const unassignMedia = vi.fn(() => Promise.resolve({}));
 
     // Act
     await handleAssignMedia(media, variant, assignMedia, unassignMedia);
@@ -51,8 +51,8 @@ describe("Product handlers", () => {
         },
       ],
     };
-    const assignMedia = jest.fn(() => Promise.resolve({}));
-    const unassignMedia = jest.fn(() => Promise.resolve({}));
+    const assignMedia = vi.fn(() => Promise.resolve({}));
+    const unassignMedia = vi.fn(() => Promise.resolve({}));
 
     // Act
     await handleAssignMedia(media, variant, assignMedia, unassignMedia);
@@ -97,8 +97,8 @@ describe("Product handlers", () => {
         },
       ],
     };
-    const assignMedia = jest.fn(() => Promise.resolve({}));
-    const unassignMedia = jest.fn(() => Promise.resolve({}));
+    const assignMedia = vi.fn(() => Promise.resolve({}));
+    const unassignMedia = vi.fn(() => Promise.resolve({}));
 
     // Act
     await handleAssignMedia(media, variant, assignMedia, unassignMedia);
@@ -136,8 +136,8 @@ describe("Product handlers", () => {
         },
       ],
     };
-    const assignMedia = jest.fn(() => Promise.resolve({}));
-    const unassignMedia = jest.fn(() => Promise.resolve({}));
+    const assignMedia = vi.fn(() => Promise.resolve({}));
+    const unassignMedia = vi.fn(() => Promise.resolve({}));
 
     // Act
     await handleAssignMedia(media, variant, assignMedia, unassignMedia);

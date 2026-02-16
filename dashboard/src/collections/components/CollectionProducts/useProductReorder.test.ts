@@ -7,41 +7,41 @@ import { Product } from "./types";
 import { useProductReorder } from "./useProductReorder";
 import { useProductReorderOptimistic } from "./useProductReorderOptimistic";
 
-jest.mock("@dashboard/graphql", () => ({
-  useReorderProductsInCollectionMutation: jest.fn(),
+vi.mock("@dashboard/graphql", () => ({
+  useReorderProductsInCollectionMutation: vi.fn(),
 }));
 
-jest.mock("@dashboard/hooks/useLocalPaginator", () => ({
-  useLocalPaginationState: jest.fn(),
+vi.mock("@dashboard/hooks/useLocalPaginator", () => ({
+  useLocalPaginationState: vi.fn(),
 }));
 
-jest.mock("./useProductReorderOptimistic", () => ({
-  useProductReorderOptimistic: jest.fn(),
+vi.mock("./useProductReorderOptimistic", () => ({
+  useProductReorderOptimistic: vi.fn(),
 }));
 
-jest.mock("./useCollectionId", () => ({
-  useCollectionId: jest.fn(() => "collection-id-1"),
+vi.mock("./useCollectionId", () => ({
+  useCollectionId: vi.fn(() => "collection-id-1"),
 }));
 
-jest.mock("@dashboard/hooks/useNotifier", () => jest.fn());
+vi.mock("@dashboard/hooks/useNotifier", () => vi.fn());
 
 describe("CollectionProducts/useProductReorder", () => {
-  const mockReorder = jest.fn();
-  const mockNotifier = jest.fn();
-  const createForDroppedItem = jest.fn(() => "optimistic-response");
+  const mockReorder = vi.fn();
+  const mockNotifier = vi.fn();
+  const createForDroppedItem = vi.fn(() => "optimistic-response");
   const mockPaginationState = { page: 1, pageSize: 10 };
 
   beforeEach(() => {
-    (useReorderProductsInCollectionMutation as jest.Mock).mockReturnValue([mockReorder, {}]);
-    (useLocalPaginationState as jest.Mock).mockReturnValue([mockPaginationState]);
-    (useProductReorderOptimistic as jest.Mock).mockReturnValue({
+    vi.mocked(useReorderProductsInCollectionMutation).mockReturnValue([mockReorder, {}]);
+    vi.mocked(useLocalPaginationState).mockReturnValue([mockPaginationState]);
+    vi.mocked(useProductReorderOptimistic).mockReturnValue({
       createForDroppedItem: createForDroppedItem,
     });
-    (useNotifier as jest.Mock).mockReturnValue(mockNotifier);
+    vi.mocked(useNotifier).mockReturnValue(mockNotifier);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should call reorder with correct variables when move is called", () => {

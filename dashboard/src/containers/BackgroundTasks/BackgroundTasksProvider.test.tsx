@@ -7,7 +7,7 @@ import { backgroundTasksRefreshTime, useBackgroundTasks } from "./BackgroundTask
 import { checkExportFileStatus } from "./queries";
 import { Task, TaskData, TaskStatus } from "./types";
 
-jest.useFakeTimers();
+vi.useFakeTimers();
 
 function renderBackgroundTasks() {
   const mockClient = createMockClient(
@@ -33,26 +33,26 @@ function renderBackgroundTasks() {
     formatMessage: ({ defaultMessage }) => defaultMessage,
   };
 
-  return renderHook(() => useBackgroundTasks(mockClient, jest.fn(), intl as any));
+  return renderHook(() => useBackgroundTasks(mockClient, vi.fn(), intl as any));
 }
 
 // FIXME: #3021 Fix background task provider tests
 describe.skip("Background task provider", () => {
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.clearAllTimers();
-    jest.useRealTimers();
+    vi.clearAllTimers();
+    vi.useRealTimers();
   });
 
   it("can queue a task", done => {
-    const handle = jest.fn<Promise<TaskStatus>, []>(
+    const handle = vi.fn<Promise<TaskStatus>, []>(
       () => new Promise(resolve => resolve(TaskStatus.SUCCESS)),
     );
-    const onCompleted = jest.fn();
-    const onError = jest.fn();
+    const onCompleted = vi.fn();
+    const onError = vi.fn();
     const { result } = renderBackgroundTasks();
     const taskId = result.current.queue(Task.CUSTOM, {
       handle,
@@ -64,10 +64,10 @@ describe.skip("Background task provider", () => {
     expect(handle).toHaveBeenCalledTimes(0);
     expect(onCompleted).toHaveBeenCalledTimes(0);
     expect(onError).toHaveBeenCalledTimes(0);
-    jest.runOnlyPendingTimers();
+    vi.runOnlyPendingTimers();
 
     // Run any immediate callbacks
-    jest.runAllImmediates();
+    vi.advanceTimersByTime(0);
 
     expect(handle).toHaveBeenCalledTimes(1);
     expect(onCompleted).toHaveBeenCalledTimes(1);
@@ -75,14 +75,14 @@ describe.skip("Background task provider", () => {
     done();
   });
   it("can handle task error", done => {
-    const handle = jest.fn<Promise<TaskStatus>, []>(
+    const handle = vi.fn<Promise<TaskStatus>, []>(
       () =>
         new Promise(() => {
           throw new Error("dummy error");
         }),
     );
-    const onCompleted = jest.fn();
-    const onError = jest.fn();
+    const onCompleted = vi.fn();
+    const onError = vi.fn();
     const { result } = renderBackgroundTasks();
 
     result.current.queue(Task.CUSTOM, {
@@ -90,10 +90,10 @@ describe.skip("Background task provider", () => {
       onCompleted,
       onError,
     });
-    jest.runOnlyPendingTimers();
+    vi.runOnlyPendingTimers();
 
     // Run any immediate callbacks
-    jest.runAllImmediates();
+    vi.advanceTimersByTime(0);
 
     expect(handle).toHaveBeenCalledTimes(1);
     expect(onCompleted).toHaveBeenCalledTimes(0);
@@ -101,7 +101,7 @@ describe.skip("Background task provider", () => {
     done();
   });
   it("can cancel task", done => {
-    const onCompleted = jest.fn();
+    const onCompleted = vi.fn();
     const { result } = renderBackgroundTasks();
     const taskId = result.current.queue(Task.CUSTOM, {
       handle: () => new Promise(resolve => resolve(TaskStatus.SUCCESS)),
@@ -109,12 +109,12 @@ describe.skip("Background task provider", () => {
     });
 
     // Cancel task before executing it
-    jest.advanceTimersByTime(backgroundTasksRefreshTime * 0.9);
+    vi.advanceTimersByTime(backgroundTasksRefreshTime * 0.9);
     result.current.cancel(taskId);
-    jest.runOnlyPendingTimers();
+    vi.runOnlyPendingTimers();
 
     // Run any immediate callbacks
-    jest.runAllImmediates();
+    vi.advanceTimersByTime(0);
 
     expect(onCompleted).toHaveBeenCalledTimes(0);
     done();
@@ -124,13 +124,13 @@ describe.skip("Background task provider", () => {
 
     // Completed in two cycles
     const shortTask = {
-      handle: jest.fn(() => Promise.resolve(cycle > 1 ? TaskStatus.SUCCESS : TaskStatus.PENDING)),
-      onCompleted: jest.fn(),
+      handle: vi.fn(() => Promise.resolve(cycle > 1 ? TaskStatus.SUCCESS : TaskStatus.PENDING)),
+      onCompleted: vi.fn(),
     };
     // Completed in three cycles
     const longTask = {
-      handle: jest.fn(() => Promise.resolve(cycle > 2 ? TaskStatus.SUCCESS : TaskStatus.PENDING)),
-      onCompleted: jest.fn(),
+      handle: vi.fn(() => Promise.resolve(cycle > 2 ? TaskStatus.SUCCESS : TaskStatus.PENDING)),
+      onCompleted: vi.fn(),
     };
     const tasks: TaskData[] = [shortTask, longTask];
     const { result } = renderBackgroundTasks();
@@ -138,10 +138,10 @@ describe.skip("Background task provider", () => {
     tasks.forEach(task => result.current.queue(Task.CUSTOM, task));
     // Set time to backgroundTasksRefreshTime
     cycle += 1;
-    jest.advanceTimersByTime(backgroundTasksRefreshTime + 100);
+    vi.advanceTimersByTime(backgroundTasksRefreshTime + 100);
 
     // Run any immediate callbacks
-    jest.runAllImmediates();
+    vi.advanceTimersByTime(0);
 
     expect(shortTask.handle).toHaveBeenCalledTimes(1);
     expect(longTask.handle).toHaveBeenCalledTimes(1);
@@ -150,10 +150,10 @@ describe.skip("Background task provider", () => {
 
     // Set time to backgroundTasksRefreshTime * 2
     cycle += 1;
-    jest.advanceTimersByTime(backgroundTasksRefreshTime);
+    vi.advanceTimersByTime(backgroundTasksRefreshTime);
 
     // Run any immediate callbacks
-    jest.runAllImmediates();
+    vi.advanceTimersByTime(0);
 
     expect(shortTask.handle).toHaveBeenCalledTimes(2);
     expect(longTask.handle).toHaveBeenCalledTimes(2);
@@ -162,10 +162,10 @@ describe.skip("Background task provider", () => {
 
     // Set time to backgroundTasksRefreshTime * 3
     cycle += 1;
-    jest.advanceTimersByTime(backgroundTasksRefreshTime);
+    vi.advanceTimersByTime(backgroundTasksRefreshTime);
 
     // Run any immediate callbacks
-    jest.runAllImmediates();
+    vi.advanceTimersByTime(0);
 
     expect(shortTask.handle).toHaveBeenCalledTimes(2);
     expect(longTask.handle).toHaveBeenCalledTimes(3);

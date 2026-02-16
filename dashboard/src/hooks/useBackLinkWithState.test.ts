@@ -3,14 +3,14 @@ import { useLocation } from "react-router";
 
 import { useBackLinkWithState } from "./useBackLinkWithState";
 
-jest.mock("react-router", () => ({
-  useLocation: jest.fn(),
+vi.mock("react-router", () => ({
+  useLocation: vi.fn(),
 }));
 
 describe("useBackLinkWithState", () => {
   // Arrange
   it("should return path if there is no previous location in state", () => {
-    (useLocation as jest.Mock).mockReturnValue({
+    vi.mocked(useLocation).mockReturnValue({
       state: {},
     });
 
@@ -28,7 +28,7 @@ describe("useBackLinkWithState", () => {
   it("should return the previous URL if it is an order list path", () => {
     // Arrange
 
-    (useLocation as jest.Mock).mockReturnValue({
+    vi.mocked(useLocation).mockReturnValue({
       state: {
         prevLocation: {
           pathname: "/orders",
@@ -50,7 +50,7 @@ describe("useBackLinkWithState", () => {
 
   it("should return the previous URL if it is a draft order list path", () => {
     // Arrange
-    (useLocation as jest.Mock).mockReturnValue({
+    vi.mocked(useLocation).mockReturnValue({
       state: {
         prevLocation: {
           pathname: "/orders/drafts",
@@ -72,7 +72,7 @@ describe("useBackLinkWithState", () => {
 
   it("should omit /dashboard from pathname when returning the previous URL", () => {
     // Arrange
-    (useLocation as jest.Mock).mockReturnValue({
+    vi.mocked(useLocation).mockReturnValue({
       state: {
         prevLocation: {
           pathname: "/dashboard/collections/Q29sbGVjdGlvbjoxNjY",

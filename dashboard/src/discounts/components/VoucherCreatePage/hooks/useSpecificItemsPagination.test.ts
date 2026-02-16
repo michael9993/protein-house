@@ -4,7 +4,7 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { useSpecificItemsPagination } from "./useSpecificItemsPagination";
 
-jest.mock("@dashboard/config", () => ({
+vi.mock("@dashboard/config", () => ({
   PAGINATE_BY: 2,
 }));
 

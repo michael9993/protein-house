@@ -5,10 +5,10 @@ import { useInstalledExtensionsFilter } from "./hooks/useInstalledExtensionsFilt
 import { usePendingInstallation } from "./hooks/usePendingInstallation";
 import { InstalledExtensions, InstalledExtensionsProps } from "./InstalledExtensions";
 
-const mockMarkOnboardingStepAsCompleted = jest.fn();
-const mockHandleRemoveInProgress = jest.fn();
-const mockCloseModal = jest.fn();
-const mockOpenModal = jest.fn();
+const mockMarkOnboardingStepAsCompleted = vi.fn();
+const mockHandleRemoveInProgress = vi.fn();
+const mockCloseModal = vi.fn();
+const mockOpenModal = vi.fn();
 
 const mockInstalledExtensions = [
   { id: "app1", name: "Test App 1", version: "1.0.0", manifestUrl: "url1" },
@@ -20,43 +20,43 @@ const mockPendingInstallations = [
   { id: "pending1", name: "Pending App 1", manifestUrl: "pendingUrl1" },
 ];
 
-jest.mock("@dashboard/welcomePage/WelcomePageOnboarding/onboardingContext", () => ({
+vi.mock("@dashboard/welcomePage/WelcomePageOnboarding/onboardingContext", () => ({
   useOnboarding: () => ({
     markOnboardingStepAsCompleted: mockMarkOnboardingStepAsCompleted,
     onboardingState: { stepsCompleted: [] },
   }),
 }));
 
-jest.mock("@dashboard/utils/handlers/dialogActionHandlers", () => ({
+vi.mock("@dashboard/utils/handlers/dialogActionHandlers", () => ({
   __esModule: true,
   default: () => [mockOpenModal, mockCloseModal],
 }));
 
-jest.mock("./hooks/useInstalledExtensions", () => ({
+vi.mock("./hooks/useInstalledExtensions", () => ({
   useInstalledExtensions: () => ({
     installedExtensions: mockInstalledExtensions,
     installedAppsLoading: false,
-    refetchInstalledApps: jest.fn(),
+    refetchInstalledApps: vi.fn(),
   }),
 }));
 
-jest.mock("./hooks/usePendingInstallation");
-jest.mock("./hooks/useInstalledExtensionsFilter");
-jest.mock("@dashboard/hooks/useHasManagedAppsPermission");
-jest.mock("@dashboard/hooks/useNavigator", () => jest.fn(() => jest.fn()));
-jest.mock("@dashboard/components/AppLayout/ContextualLinks/useContextualLink", () => ({
+vi.mock("./hooks/usePendingInstallation");
+vi.mock("./hooks/useInstalledExtensionsFilter");
+vi.mock("@dashboard/hooks/useHasManagedAppsPermission");
+vi.mock("@dashboard/hooks/useNavigator", () => vi.fn(() => vi.fn()));
+vi.mock("@dashboard/components/AppLayout/ContextualLinks/useContextualLink", () => ({
   useContextualLink: () => "Extensions",
 }));
 
-jest.mock("@dashboard/featureFlags", () => ({
+vi.mock("@dashboard/featureFlags", () => ({
   useFlag: () => true,
   useFlags: () => ({}),
 }));
 
-const mockUsePendingInstallation = usePendingInstallation as jest.Mock;
-const mockUseInstalledExtensionsFilter = useInstalledExtensionsFilter as jest.Mock;
+const mockUsePendingInstallation = usePendingInstallation as Mock;
+const mockUseInstalledExtensionsFilter = useInstalledExtensionsFilter as Mock;
 
-const mockUseHasManagedAppsPermission = useHasManagedAppsPermission as jest.Mock;
+const mockUseHasManagedAppsPermission = useHasManagedAppsPermission as Mock;
 
 const defaultProps: InstalledExtensionsProps = {
   params: {},
@@ -64,7 +64,7 @@ const defaultProps: InstalledExtensionsProps = {
 
 describe("InstalledExtensions", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockUseHasManagedAppsPermission.mockImplementation(() => ({ hasManagedAppsPermission: true }));
     mockUsePendingInstallation.mockImplementation(() => ({
       pendingInstallations: mockPendingInstallations,
@@ -74,7 +74,7 @@ describe("InstalledExtensions", () => {
     }));
     mockUseInstalledExtensionsFilter.mockImplementation(installedExtensions => ({
       query: "",
-      handleQueryChange: jest.fn(),
+      handleQueryChange: vi.fn(),
       filteredInstalledExtensions: installedExtensions,
     }));
   });
@@ -100,7 +100,7 @@ describe("InstalledExtensions", () => {
 
   it("filters extensions based on search query", () => {
     // Arrange
-    const mockHandleQueryChange = jest.fn();
+    const mockHandleQueryChange = vi.fn();
     // Initial render with all extensions
     const { rerender } = render(<InstalledExtensions {...defaultProps} />);
     const searchInput = screen.getByPlaceholderText("Search Extensions...");

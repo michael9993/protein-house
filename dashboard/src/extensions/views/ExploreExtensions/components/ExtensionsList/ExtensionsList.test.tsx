@@ -3,8 +3,8 @@ import { render, screen } from "@testing-library/react";
 
 import { ExtensionsList } from "./ExtensionsList";
 
-jest.mock("@saleor/macaw-ui-next", () => ({
-  ...(jest.requireActual("@saleor/macaw-ui-next") as object),
+vi.mock("@saleor/macaw-ui-next", async () => ({
+  ...(await vi.importActual("@saleor/macaw-ui-next") as object),
   useTheme: () => ({ theme: "default" }),
 }));
 
@@ -23,7 +23,7 @@ describe("Extensions / Components / ExtensionsList", () => {
     } as unknown as ExtensionsGroups;
 
     // Act
-    render(<ExtensionsList clearSearch={jest.fn()} extensions={extensions} loading />);
+    render(<ExtensionsList clearSearch={vi.fn()} extensions={extensions} loading />);
 
     // Assert
     expect(screen.getByTestId("extensions-loading-skeleton")).toBeInTheDocument();
@@ -43,7 +43,7 @@ describe("Extensions / Components / ExtensionsList", () => {
     } as unknown as ExtensionsGroups;
 
     // Act
-    render(<ExtensionsList clearSearch={jest.fn()} extensions={extensions} />);
+    render(<ExtensionsList clearSearch={vi.fn()} extensions={extensions} />);
 
     // Assert
     expect(screen.getByTestId("empty-search-list")).toBeInTheDocument();
@@ -61,7 +61,7 @@ describe("Extensions / Components / ExtensionsList", () => {
         items: [],
       },
     } as unknown as ExtensionsGroups;
-    const clearSearch = jest.fn();
+    const clearSearch = vi.fn();
 
     render(<ExtensionsList clearSearch={clearSearch} extensions={extensions} />);
 
@@ -100,7 +100,7 @@ describe("Extensions / Components / ExtensionsList", () => {
     } as unknown as ExtensionsGroups;
 
     // Act
-    render(<ExtensionsList clearSearch={jest.fn()} extensions={extensions} />);
+    render(<ExtensionsList clearSearch={vi.fn()} extensions={extensions} />);
 
     // Assert
     expect(screen.getByText("Group 1")).toBeInTheDocument();

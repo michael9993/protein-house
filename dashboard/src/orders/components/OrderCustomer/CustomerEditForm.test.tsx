@@ -5,13 +5,13 @@ import { IntlProvider } from "react-intl";
 import { CustomerEditForm } from "./CustomerEditForm";
 
 // Mock IntersectionObserver
-global.IntersectionObserver = jest.fn().mockImplementation(() => ({
-  observe: jest.fn(),
-  unobserve: jest.fn(),
-  disconnect: jest.fn(),
+global.IntersectionObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
 }));
 
-jest.mock("@dashboard/components/Combobox", () => ({
+vi.mock("@dashboard/components/Combobox", () => ({
   Combobox: ({ label, onChange, value, name, "data-test-id": testId }: any) => (
     <div>
       <label>{label}</label>
@@ -26,7 +26,7 @@ jest.mock("@dashboard/components/Combobox", () => ({
   ),
 }));
 
-jest.mock("@dashboard/components/Form", () => ({
+vi.mock("@dashboard/components/Form", () => ({
   __esModule: true,
   default: ({ children, initial }: any) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -42,12 +42,12 @@ jest.mock("@dashboard/components/Form", () => ({
 const defaultProps = {
   currentUser: { __typename: "User" as const, id: "user-1", email: "user@example.com" },
   currentUserEmail: "user@example.com",
-  toggleEditMode: jest.fn(),
-  setUserDisplayName: jest.fn(),
+  toggleEditMode: vi.fn(),
+  setUserDisplayName: vi.fn(),
   userDisplayName: "user@example.com",
   loading: false,
   hasMore: false,
-  onFetchMore: jest.fn(),
+  onFetchMore: vi.fn(),
 };
 
 const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -56,7 +56,7 @@ const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 
 describe("CustomerEditForm", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders search customers combobox", () => {
@@ -74,8 +74,8 @@ describe("CustomerEditForm", () => {
 
   it("calls onCustomerEdit with email when email is entered", async () => {
     // Arrange
-    const onCustomerEditMock = jest.fn();
-    const toggleEditModeMock = jest.fn();
+    const onCustomerEditMock = vi.fn();
+    const toggleEditModeMock = vi.fn();
 
     // Act
     render(
@@ -105,8 +105,8 @@ describe("CustomerEditForm", () => {
 
   it("calls onCustomerEdit with user ID when non-email is entered", async () => {
     // Arrange
-    const onCustomerEditMock = jest.fn();
-    const toggleEditModeMock = jest.fn();
+    const onCustomerEditMock = vi.fn();
+    const toggleEditModeMock = vi.fn();
 
     // Act
     render(
@@ -136,8 +136,8 @@ describe("CustomerEditForm", () => {
 
   it("does not call callbacks when value is empty", async () => {
     // Arrange
-    const onCustomerEditMock = jest.fn();
-    const toggleEditModeMock = jest.fn();
+    const onCustomerEditMock = vi.fn();
+    const toggleEditModeMock = vi.fn();
 
     // Act
     render(
@@ -181,8 +181,8 @@ describe("CustomerEditForm", () => {
 
   it("passes fetch props correctly", () => {
     // Arrange
-    const fetchUsersMock = jest.fn();
-    const onFetchMoreMock = jest.fn();
+    const fetchUsersMock = vi.fn();
+    const onFetchMoreMock = vi.fn();
 
     // Act
     render(
@@ -203,8 +203,8 @@ describe("CustomerEditForm", () => {
 
   it("handles null currentUserEmail correctly", async () => {
     // Arrange
-    const onCustomerEditMock = jest.fn();
-    const toggleEditModeMock = jest.fn();
+    const onCustomerEditMock = vi.fn();
+    const toggleEditModeMock = vi.fn();
 
     // Act
     render(
@@ -234,8 +234,8 @@ describe("CustomerEditForm", () => {
 
   it("handles null currentUser correctly", async () => {
     // Arrange
-    const onCustomerEditMock = jest.fn();
-    const toggleEditModeMock = jest.fn();
+    const onCustomerEditMock = vi.fn();
+    const toggleEditModeMock = vi.fn();
 
     // Act
     render(

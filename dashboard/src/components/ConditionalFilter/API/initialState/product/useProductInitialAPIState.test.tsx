@@ -3,12 +3,12 @@ import { act, renderHook } from "@testing-library/react-hooks";
 
 import { useProductInitialAPIState } from "./useProductInitialAPIState";
 
-const mockQuery = jest.fn();
+const mockQuery = vi.fn();
 const mockClient = { query: mockQuery };
 
-jest.mock("@apollo/client", () => ({
-  ...(jest.requireActual("@apollo/client") as jest.Mocked<typeof import("@apollo/client")>),
-  useApolloClient: jest.fn(() => mockClient),
+vi.mock("@apollo/client", async () => ({
+  ...(await vi.importActual("@apollo/client") as Mocked<typeof import("@apollo/client")>),
+  useApolloClient: vi.fn(() => mockClient),
 }));
 
 describe("useProductInitialAPIState - Reference Attributes Logic", () => {

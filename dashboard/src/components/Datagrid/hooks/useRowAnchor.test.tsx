@@ -4,7 +4,7 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { useRowAnchor } from "./useRowAnchor";
 
-jest.mock("@dashboard/hooks/useDebounce", () => jest.fn(fn => fn));
+vi.mock("@dashboard/hooks/useDebounce", () => vi.fn(fn => fn));
 
 describe("useRowAnchor", () => {
   const props = {
@@ -75,7 +75,7 @@ describe("useRowAnchor", () => {
             title: "Price",
             width: 100,
             icon: "arrowUp",
-            action: jest.fn(),
+            action: vi.fn(),
           },
         ],
       }),

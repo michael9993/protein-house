@@ -5,11 +5,11 @@ import { renderHook } from "@testing-library/react-hooks";
 import { useCollectionId } from "./useCollectionId";
 import { useProductEdges } from "./useProductEdges";
 
-jest.mock("@apollo/client");
-jest.mock("@dashboard/graphql", () => ({
+vi.mock("@apollo/client");
+vi.mock("@dashboard/graphql", () => ({
   CollectionProductsDocument: "CollectionProductsDocument",
 }));
-jest.mock("./useCollectionId");
+vi.mock("./useCollectionId");
 
 describe("CollectionProducts/useProductEdges", () => {
   const mockCollectionId = "collection-123";
@@ -31,15 +31,15 @@ describe("CollectionProducts/useProductEdges", () => {
     },
   };
 
-  const mockReadQuery = jest.fn();
+  const mockReadQuery = vi.fn();
   const mockApolloClient = {
     readQuery: mockReadQuery,
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (useApolloClient as jest.Mock).mockReturnValue(mockApolloClient);
-    (useCollectionId as jest.Mock).mockReturnValue(mockCollectionId);
+    vi.clearAllMocks();
+    vi.mocked(useApolloClient).mockReturnValue(mockApolloClient);
+    vi.mocked(useCollectionId).mockReturnValue(mockCollectionId);
     mockReadQuery.mockReturnValue(mockQueryResponse);
   });
 

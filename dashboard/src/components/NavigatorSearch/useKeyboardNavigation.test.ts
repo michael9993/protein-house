@@ -8,54 +8,54 @@ import { useCommandMenuInput } from "./useCommandMenuInput";
 import { useKeyboardNavigation } from "./useKeyboardNavigation";
 import { useNavigatorSearchContext } from "./useNavigatorSearchContext";
 
-jest.mock("@dashboard/hooks/useNavigator");
-jest.mock("@dashboard/search/urls");
-jest.mock("react-hotkeys-hook");
-jest.mock("./useActionItems");
-jest.mock("./useCommandMenuInput");
-jest.mock("./useNavigatorSearchContext");
+vi.mock("@dashboard/hooks/useNavigator");
+vi.mock("@dashboard/search/urls");
+vi.mock("react-hotkeys-hook");
+vi.mock("./useActionItems");
+vi.mock("./useCommandMenuInput");
+vi.mock("./useNavigatorSearchContext");
 
 describe("useKeyboardNavigation", () => {
-  const mockNavigate = jest.fn();
-  const mockSetNavigatorVisibility = jest.fn();
-  const mockUpdateAriaActiveDescendant = jest.fn();
-  const mockClearActiveDescendant = jest.fn();
-  const mockResetInput = jest.fn();
-  const mockResetFocus = jest.fn();
-  const mockCollectLinks = jest.fn();
-  const mockCollectTableRows = jest.fn();
-  const mockFocusFirst = jest.fn();
-  const mockFocusNext = jest.fn();
-  const mockFocusPrevious = jest.fn();
-  const mockGetActiveFocusedElement = jest.fn();
-  const mockTakeAction = jest.fn();
-  const mockUseHotkeys = jest.fn();
+  const mockNavigate = vi.fn();
+  const mockSetNavigatorVisibility = vi.fn();
+  const mockUpdateAriaActiveDescendant = vi.fn();
+  const mockClearActiveDescendant = vi.fn();
+  const mockResetInput = vi.fn();
+  const mockResetFocus = vi.fn();
+  const mockCollectLinks = vi.fn();
+  const mockCollectTableRows = vi.fn();
+  const mockFocusFirst = vi.fn();
+  const mockFocusNext = vi.fn();
+  const mockFocusPrevious = vi.fn();
+  const mockGetActiveFocusedElement = vi.fn();
+  const mockTakeAction = vi.fn();
+  const mockUseHotkeys = vi.fn();
 
   const defaultMockElement = {
     id: "test-element-id",
-    getAttribute: jest.fn(),
-    setAttribute: jest.fn(),
+    getAttribute: vi.fn(),
+    setAttribute: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
-    (useNavigator as jest.Mock).mockReturnValue(mockNavigate);
-    (globalSearchUrl as jest.Mock).mockReturnValue("/search?q=test");
-    (useHotkeys as jest.Mock).mockImplementation(mockUseHotkeys);
+    vi.mocked(useNavigator).mockReturnValue(mockNavigate);
+    vi.mocked(globalSearchUrl).mockReturnValue("/search?q=test");
+    vi.mocked(useHotkeys).mockImplementation(mockUseHotkeys);
 
-    (useNavigatorSearchContext as jest.Mock).mockReturnValue({
+    vi.mocked(useNavigatorSearchContext).mockReturnValue({
       isNavigatorVisible: true,
       setNavigatorVisibility: mockSetNavigatorVisibility,
     });
 
-    (useCommandMenuInput as jest.Mock).mockReturnValue({
+    vi.mocked(useCommandMenuInput).mockReturnValue({
       updateAriaActiveDescendant: mockUpdateAriaActiveDescendant,
       clearActiveDescendant: mockClearActiveDescendant,
       resetInput: mockResetInput,
     });
 
-    (useActionItems as jest.Mock).mockReturnValue({
+    vi.mocked(useActionItems).mockReturnValue({
       resetFocus: mockResetFocus,
       collectLinks: mockCollectLinks,
       collectTableRows: mockCollectTableRows,
@@ -142,7 +142,7 @@ describe("useKeyboardNavigation", () => {
     it("should reset focus when navigator becomes invisible", () => {
       const { rerender } = renderHook(() => useKeyboardNavigation({ query: "test" }));
 
-      (useNavigatorSearchContext as jest.Mock).mockReturnValue({
+      vi.mocked(useNavigatorSearchContext).mockReturnValue({
         isNavigatorVisible: false,
         setNavigatorVisibility: mockSetNavigatorVisibility,
       });
@@ -164,7 +164,7 @@ describe("useKeyboardNavigation", () => {
 
     beforeEach(() => {
       hotkeyHandlers = {};
-      (useHotkeys as jest.Mock).mockImplementation((keys, handler) => {
+      vi.mocked(useHotkeys).mockImplementation((keys, handler) => {
         hotkeyHandlers[keys] = handler;
       });
 
@@ -173,7 +173,7 @@ describe("useKeyboardNavigation", () => {
 
     describe("tab key", () => {
       it("should prevent default and focus next element", () => {
-        const mockEvent = { preventDefault: jest.fn() } as any;
+        const mockEvent = { preventDefault: vi.fn() } as any;
 
         const result = hotkeyHandlers["tab"](mockEvent);
 
@@ -185,7 +185,7 @@ describe("useKeyboardNavigation", () => {
 
     describe("up key", () => {
       it("should prevent default and focus previous element", () => {
-        const mockEvent = { preventDefault: jest.fn() } as any;
+        const mockEvent = { preventDefault: vi.fn() } as any;
 
         const result = hotkeyHandlers["up"](mockEvent);
 
@@ -197,7 +197,7 @@ describe("useKeyboardNavigation", () => {
 
     describe("down key", () => {
       it("should prevent default and focus next element", () => {
-        const mockEvent = { preventDefault: jest.fn() } as any;
+        const mockEvent = { preventDefault: vi.fn() } as any;
 
         const result = hotkeyHandlers["down"](mockEvent);
 
@@ -209,7 +209,7 @@ describe("useKeyboardNavigation", () => {
 
     describe("ctrl+enter and meta+enter keys", () => {
       it("should prevent default, hide navigator, reset focus and navigate to global search", () => {
-        const mockEvent = { preventDefault: jest.fn() } as any;
+        const mockEvent = { preventDefault: vi.fn() } as any;
         const query = "test query";
 
         renderHook(() => useKeyboardNavigation({ query }));
@@ -227,7 +227,7 @@ describe("useKeyboardNavigation", () => {
 
     describe("enter key", () => {
       it("should prevent default, take action, reset input and hide navigator", () => {
-        const mockEvent = { preventDefault: jest.fn() } as any;
+        const mockEvent = { preventDefault: vi.fn() } as any;
 
         const result = hotkeyHandlers["enter"](mockEvent);
 

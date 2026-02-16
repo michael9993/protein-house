@@ -6,13 +6,13 @@ import { MemoryRouter } from "react-router";
 
 import { EventItem } from "./EventItem";
 
-jest.mock("@dashboard/featureFlags", () => ({
-  useFlag: jest.fn(() => ({ enabled: true })),
+vi.mock("@dashboard/featureFlags", () => ({
+  useFlag: vi.fn(() => ({ enabled: true })),
 }));
 
 describe("EventItem", () => {
   it("displays correct event data", () => {
-    const onHover = jest.fn();
+    const onHover = vi.fn();
 
     render(
       <MemoryRouter>
@@ -55,7 +55,7 @@ describe("EventItem", () => {
     expect(row).not.toHaveTextContent(transactionEvent.createdBy.name as string);
   });
   it("calls onHover function when hovered", async () => {
-    const onHover = jest.fn();
+    const onHover = vi.fn();
 
     render(
       <Wrapper>

@@ -34,16 +34,16 @@ const TestFormComponent = ({ onSubmit }: { onSubmit: () => void }) => {
 
 describe("useAutoSubmit", () => {
   beforeAll(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterAll(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it("should not call onSubmit immediately after input change", async () => {
     // Arrange
-    const mockSubmit = jest.fn();
+    const mockSubmit = vi.fn();
     const user = userEvent.setup({ delay: null });
 
     render(<TestFormComponent onSubmit={mockSubmit} />);
@@ -53,7 +53,7 @@ describe("useAutoSubmit", () => {
     // Act
     await act(async () => {
       await user.type(input, "hello");
-      jest.advanceTimersByTime(0);
+      vi.advanceTimersByTime(0);
     });
 
     // Assert
@@ -62,7 +62,7 @@ describe("useAutoSubmit", () => {
 
   it("should call onSubmit after debounce time has passed", async () => {
     // Arrange
-    const mockSubmit = jest.fn();
+    const mockSubmit = vi.fn();
     const user = userEvent.setup({ delay: null });
 
     render(<TestFormComponent onSubmit={mockSubmit} />);
@@ -72,7 +72,7 @@ describe("useAutoSubmit", () => {
     // Act
     await act(async () => {
       await user.type(input, "hello");
-      jest.advanceTimersByTime(DEBOUNCE_TIME);
+      vi.advanceTimersByTime(DEBOUNCE_TIME);
     });
 
     // Assert
@@ -81,7 +81,7 @@ describe("useAutoSubmit", () => {
 
   it("should reset debounce timer on subsequent input changes", async () => {
     // Arrange
-    const mockSubmit = jest.fn();
+    const mockSubmit = vi.fn();
     const user = userEvent.setup({ delay: null });
 
     render(<TestFormComponent onSubmit={mockSubmit} />);
@@ -91,9 +91,9 @@ describe("useAutoSubmit", () => {
     // Act
     await act(async () => {
       await user.type(input, "a");
-      jest.advanceTimersByTime(DEBOUNCE_TIME - 100);
+      vi.advanceTimersByTime(DEBOUNCE_TIME - 100);
       await user.type(input, "b");
-      jest.advanceTimersByTime(DEBOUNCE_TIME);
+      vi.advanceTimersByTime(DEBOUNCE_TIME);
     });
 
     // Assert
@@ -102,7 +102,7 @@ describe("useAutoSubmit", () => {
 
   it("should not submit if component unmounts before debounce timeout", async () => {
     // Arrange
-    const mockSubmit = jest.fn();
+    const mockSubmit = vi.fn();
     const user = userEvent.setup({ delay: null });
     const { unmount } = render(<TestFormComponent onSubmit={mockSubmit} />);
     const input = screen.getByRole("textbox");
@@ -115,7 +115,7 @@ describe("useAutoSubmit", () => {
     unmount();
 
     act(() => {
-      jest.advanceTimersByTime(DEBOUNCE_TIME);
+      vi.advanceTimersByTime(DEBOUNCE_TIME);
     });
 
     // Assert
@@ -124,7 +124,7 @@ describe("useAutoSubmit", () => {
 
   it("should cancel debounced submit when form is manually submitted", async () => {
     // Arrange
-    const mockSubmit = jest.fn();
+    const mockSubmit = vi.fn();
     const user = userEvent.setup({ delay: null });
 
     render(<TestFormComponent onSubmit={mockSubmit} />);
@@ -138,7 +138,7 @@ describe("useAutoSubmit", () => {
       // Submit form manually before debounce time passes
       fireEvent.submit(form);
       // Advance timers to when debounced submit would have happened
-      jest.advanceTimersByTime(DEBOUNCE_TIME);
+      vi.advanceTimersByTime(DEBOUNCE_TIME);
     });
 
     // Assert

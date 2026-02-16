@@ -2,9 +2,9 @@ import { act, renderHook } from "@testing-library/react-hooks";
 
 import { useFilterPresets } from "./useFilterPresets";
 
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
-jest.mock("@dashboard/hooks/useNavigator", () => () => mockNavigate);
+vi.mock("@dashboard/hooks/useNavigator", () => () => mockNavigate);
 
 const baseUrl = "http://localhost";
 
@@ -26,7 +26,7 @@ describe("useFilterPresets", () => {
     });
   });
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
   it("should return saved filter presets from storage", () => {
     // Arrange && Act
@@ -36,14 +36,14 @@ describe("useFilterPresets", () => {
     ];
     const { result } = renderHook(() =>
       useFilterPresets({
-        getUrl: jest.fn(),
+        getUrl: vi.fn(),
         params: {},
-        reset: jest.fn(),
+        reset: vi.fn(),
         storageUtils: {
-          deleteFilterTab: jest.fn(),
-          getFilterTabs: jest.fn(() => presets),
-          saveFilterTab: jest.fn(),
-          updateFilterTab: jest.fn(),
+          deleteFilterTab: vi.fn(),
+          getFilterTabs: vi.fn(() => presets),
+          saveFilterTab: vi.fn(),
+          updateFilterTab: vi.fn(),
         },
       }),
     );
@@ -55,16 +55,16 @@ describe("useFilterPresets", () => {
     // Arrange & Act
     const { result } = renderHook(() =>
       useFilterPresets({
-        getUrl: jest.fn(),
+        getUrl: vi.fn(),
         params: {
           activeTab: "1",
         },
-        reset: jest.fn(),
+        reset: vi.fn(),
         storageUtils: {
-          deleteFilterTab: jest.fn(),
-          getFilterTabs: jest.fn(() => []),
-          saveFilterTab: jest.fn(),
-          updateFilterTab: jest.fn(),
+          deleteFilterTab: vi.fn(),
+          getFilterTabs: vi.fn(() => []),
+          saveFilterTab: vi.fn(),
+          updateFilterTab: vi.fn(),
         },
       }),
     );
@@ -77,14 +77,14 @@ describe("useFilterPresets", () => {
     const savedPreset = { name: "preset1", data: "query=John" };
     const { result } = renderHook(() =>
       useFilterPresets({
-        getUrl: jest.fn(() => baseUrl),
+        getUrl: vi.fn(() => baseUrl),
         params: {},
-        reset: jest.fn(),
+        reset: vi.fn(),
         storageUtils: {
-          deleteFilterTab: jest.fn(),
-          getFilterTabs: jest.fn(() => [savedPreset]),
-          saveFilterTab: jest.fn(),
-          updateFilterTab: jest.fn(),
+          deleteFilterTab: vi.fn(),
+          getFilterTabs: vi.fn(() => [savedPreset]),
+          saveFilterTab: vi.fn(),
+          updateFilterTab: vi.fn(),
         },
       }),
     );
@@ -98,11 +98,11 @@ describe("useFilterPresets", () => {
   });
   it("should handle preset delete and navigate to base url when active preset is equal deleting preset", () => {
     // Arrange
-    const mockDeleteStorage = jest.fn();
-    const mockReset = jest.fn();
+    const mockDeleteStorage = vi.fn();
+    const mockReset = vi.fn();
     const { result } = renderHook(() =>
       useFilterPresets({
-        getUrl: jest.fn(() => baseUrl),
+        getUrl: vi.fn(() => baseUrl),
         params: {
           action: "delete",
           activeTab: "1",
@@ -110,9 +110,9 @@ describe("useFilterPresets", () => {
         reset: mockReset,
         storageUtils: {
           deleteFilterTab: mockDeleteStorage,
-          getFilterTabs: jest.fn(),
-          saveFilterTab: jest.fn(),
-          updateFilterTab: jest.fn(),
+          getFilterTabs: vi.fn(),
+          saveFilterTab: vi.fn(),
+          updateFilterTab: vi.fn(),
         },
       }),
     );
@@ -131,11 +131,11 @@ describe("useFilterPresets", () => {
   });
   it("should handle preset delete and navigate to active preset when preset to delete is different that preset to delete", () => {
     // Arrange
-    const mockDeleteStorage = jest.fn();
-    const mockReset = jest.fn();
+    const mockDeleteStorage = vi.fn();
+    const mockReset = vi.fn();
     const { result } = renderHook(() =>
       useFilterPresets({
-        getUrl: jest.fn(() => baseUrl),
+        getUrl: vi.fn(() => baseUrl),
         params: {
           action: "delete",
           activeTab: "2",
@@ -143,9 +143,9 @@ describe("useFilterPresets", () => {
         reset: mockReset,
         storageUtils: {
           deleteFilterTab: mockDeleteStorage,
-          getFilterTabs: jest.fn(),
-          saveFilterTab: jest.fn(),
-          updateFilterTab: jest.fn(),
+          getFilterTabs: vi.fn(),
+          saveFilterTab: vi.fn(),
+          updateFilterTab: vi.fn(),
         },
       }),
     );
@@ -164,20 +164,20 @@ describe("useFilterPresets", () => {
   });
   it("should handle save new filter preset", () => {
     // Arrange
-    const mockSaveStorage = jest.fn();
+    const mockSaveStorage = vi.fn();
 
     window.location.search = "?query=John";
 
     const { result } = renderHook(() =>
       useFilterPresets({
-        getUrl: jest.fn(() => baseUrl),
+        getUrl: vi.fn(() => baseUrl),
         params: {},
-        reset: jest.fn(),
+        reset: vi.fn(),
         storageUtils: {
-          deleteFilterTab: jest.fn(),
-          getFilterTabs: jest.fn(() => []),
+          deleteFilterTab: vi.fn(),
+          getFilterTabs: vi.fn(() => []),
           saveFilterTab: mockSaveStorage,
-          updateFilterTab: jest.fn(),
+          updateFilterTab: vi.fn(),
         },
       }),
     );
@@ -192,24 +192,24 @@ describe("useFilterPresets", () => {
   });
   it("should handle update existing filter preset", () => {
     // Arrange
-    const mockUpdateStorage = jest.fn();
+    const mockUpdateStorage = vi.fn();
 
     window.location.search = "?query=JoeDoe";
 
     const { result } = renderHook(() =>
       useFilterPresets({
-        getUrl: jest.fn(() => baseUrl),
+        getUrl: vi.fn(() => baseUrl),
         params: {},
-        reset: jest.fn(),
+        reset: vi.fn(),
         storageUtils: {
-          deleteFilterTab: jest.fn(),
-          getFilterTabs: jest.fn(() => [
+          deleteFilterTab: vi.fn(),
+          getFilterTabs: vi.fn(() => [
             {
               name: "current-preset",
               data: "query=John",
             },
           ]),
-          saveFilterTab: jest.fn(),
+          saveFilterTab: vi.fn(),
           updateFilterTab: mockUpdateStorage,
         },
       }),
@@ -231,16 +231,16 @@ describe("useFilterPresets", () => {
     ];
     const { result } = renderHook(() =>
       useFilterPresets({
-        getUrl: jest.fn(),
+        getUrl: vi.fn(),
         params: {
           action: "delete",
         },
-        reset: jest.fn(),
+        reset: vi.fn(),
         storageUtils: {
-          deleteFilterTab: jest.fn(),
-          getFilterTabs: jest.fn(() => presets),
-          saveFilterTab: jest.fn(),
-          updateFilterTab: jest.fn(),
+          deleteFilterTab: vi.fn(),
+          getFilterTabs: vi.fn(() => presets),
+          saveFilterTab: vi.fn(),
+          updateFilterTab: vi.fn(),
         },
       }),
     );
@@ -260,16 +260,16 @@ describe("useFilterPresets", () => {
     ];
     const { result } = renderHook(() =>
       useFilterPresets({
-        getUrl: jest.fn(),
+        getUrl: vi.fn(),
         params: {
           action: "delete",
         },
-        reset: jest.fn(),
+        reset: vi.fn(),
         storageUtils: {
-          deleteFilterTab: jest.fn(),
-          getFilterTabs: jest.fn(() => presets),
-          saveFilterTab: jest.fn(),
-          updateFilterTab: jest.fn(),
+          deleteFilterTab: vi.fn(),
+          getFilterTabs: vi.fn(() => presets),
+          saveFilterTab: vi.fn(),
+          updateFilterTab: vi.fn(),
         },
       }),
     );

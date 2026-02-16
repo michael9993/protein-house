@@ -19,22 +19,22 @@ const TestWrapper = ({ children }: React.PropsWithChildren<{}>) => (
 
 const defaultProps = {
   open: true,
-  onClose: jest.fn(),
+  onClose: vi.fn(),
 };
 
-const mockResetPassword = jest.fn();
+const mockResetPassword = vi.fn();
 
-jest.mock("@dashboard/graphql", () => ({
-  useRequestPasswordResetMutation: jest.fn(() => [mockResetPassword, { status: "default" }]),
+vi.mock("@dashboard/graphql", () => ({
+  useRequestPasswordResetMutation: vi.fn(() => [mockResetPassword, { status: "default" }]),
 }));
 
-jest.mock("@dashboard/hooks/useNotifier", () => ({
+vi.mock("@dashboard/hooks/useNotifier", () => ({
   __esModule: true,
-  default: jest.fn(() => jest.fn()),
+  default: vi.fn(() => vi.fn()),
 }));
 
-jest.mock("@dashboard/auth/utils", () => ({
-  getNewPasswordResetRedirectUrl: jest.fn(() => "http://localhost/reset"),
+vi.mock("@dashboard/auth/utils", () => ({
+  getNewPasswordResetRedirectUrl: vi.fn(() => "http://localhost/reset"),
 }));
 
 describe("StaffPasswordResetDialog", () => {

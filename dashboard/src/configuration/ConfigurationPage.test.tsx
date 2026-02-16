@@ -8,22 +8,22 @@ import { PermissionEnum, UserFragment } from "../graphql";
 import { ConfigurationPage } from "./ConfigurationPage";
 import { MenuSection } from "./types";
 
-jest.mock("@material-ui/core/useMediaQuery", () => jest.fn());
-jest.mock("@dashboard/featureFlags", () => ({
-  useFlag: jest.fn(() => ({ enabled: true })),
+vi.mock("@material-ui/core/useMediaQuery", () => vi.fn());
+vi.mock("@dashboard/featureFlags", () => ({
+  useFlag: vi.fn(() => ({ enabled: true })),
 }));
-jest.mock("@dashboard/hooks/useNavigator", () => () => jest.fn());
-jest.mock("react-router-dom", () => ({
-  Link: jest.fn(({ children }) => children),
+vi.mock("@dashboard/hooks/useNavigator", () => () => vi.fn());
+vi.mock("react-router-dom", () => ({
+  Link: vi.fn(({ children }) => children),
 }));
-jest.mock("@dashboard/auth", () => ({
-  useUser: jest.fn(),
+vi.mock("@dashboard/auth", () => ({
+  useUser: vi.fn(),
 }));
-jest.mock("./styles", () => ({
-  useStyles: jest.fn(() => ({})),
+vi.mock("./styles", () => ({
+  useStyles: vi.fn(() => ({})),
 }));
-jest.mock("../components/VersionInfo/styles", () => ({
-  useStyles: jest.fn(() => ({})),
+vi.mock("../components/VersionInfo/styles", () => ({
+  useStyles: vi.fn(() => ({})),
 }));
 
 const mockUser: UserFragment = {
@@ -76,12 +76,12 @@ const renderComponent = (props = {}) => {
 
 describe("ConfigurationPage", () => {
   beforeEach(() => {
-    (useMediaQuery as jest.Mock).mockReturnValue(true);
-    (useIntl as jest.Mock).mockReturnValue({
+    vi.mocked(useMediaQuery).mockReturnValue(true);
+    vi.mocked(useIntl).mockReturnValue({
       formatMessage: ({ defaultMessage }: { defaultMessage: string }) => defaultMessage,
     });
-    (Link as jest.Mock).mockImplementation(({ children }) => <div>{children}</div>);
-    (useUser as jest.Mock).mockReturnValue({ user: mockUser });
+    vi.mocked(Link).mockImplementation(({ children }) => <div>{children}</div>);
+    vi.mocked(useUser).mockReturnValue({ user: mockUser });
   });
 
   it("should display all menu items and their details when rendered", async () => {
@@ -109,7 +109,7 @@ describe("ConfigurationPage", () => {
 
   it("should not display version information when screen size is small", async () => {
     // Arrange
-    (useMediaQuery as jest.Mock).mockReturnValue(false);
+    vi.mocked(useMediaQuery).mockReturnValue(false);
     renderComponent();
 
     // Assert

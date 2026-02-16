@@ -13,7 +13,7 @@ describe("DryRunItemsList", () => {
     // Arrange
     const props = {
       objectId: null,
-      setObjectId: jest.fn(),
+      setObjectId: vi.fn(),
       object: "PRODUCT",
     };
 

@@ -17,13 +17,13 @@ import { variantsWithProductDataMock } from "./componenets/RuleForm/components/R
 import { DiscountRules } from "./DiscountRules";
 import { catalogComplexRules, catalogRules, channels, orderRules } from "./mocksData";
 
-jest.mock("@dashboard/hooks/useNotifier", () => ({
+vi.mock("@dashboard/hooks/useNotifier", () => ({
   __esModule: true,
-  default: jest.fn(() => () => undefined),
+  default: vi.fn(() => () => undefined),
 }));
-jest.mock("@dashboard/discounts/views/DiscountDetails/context/context", () => ({
+vi.mock("@dashboard/discounts/views/DiscountDetails/context/context", () => ({
   __esModule: true,
-  useLabelMapsContext: jest.fn(() => ({
+  useLabelMapsContext: vi.fn(() => ({
     ruleConditionsValues: {
       labels: {},
       loading: false,
@@ -34,12 +34,12 @@ jest.mock("@dashboard/discounts/views/DiscountDetails/context/context", () => ({
     },
   })),
 }));
-jest.mock("./hooks/useGraphQLPlayground", () => ({
-  useGraphQLPlayground: jest.fn(() => ({
-    opepnGrapQLPlayground: jest.fn(),
+vi.mock("./hooks/useGraphQLPlayground", () => ({
+  useGraphQLPlayground: vi.fn(() => ({
+    opepnGrapQLPlayground: vi.fn(),
   })),
 }));
-jest.setTimeout(30000); // Timeout was increased because of error throw in update test when run all tests
+vi.setConfig({ testTimeout: 30000 }); // Timeout was increased because of error throw in update test when run all tests
 
 const Wrapper = ({ children }: { children: ReactNode }) => {
   return (
@@ -64,19 +64,19 @@ describe("DiscountRules", () => {
   beforeAll(() => {
     Object.defineProperty(window, "matchMedia", {
       writable: true,
-      value: jest.fn().mockImplementation(query => ({
+      value: vi.fn().mockImplementation(query => ({
         matches: false,
         media: query,
         onchange: null,
-        addListener: jest.fn(), // Deprecated
-        removeListener: jest.fn(), // Deprecated
-        addEventListener: jest.fn(),
-        removeEventListener: jest.fn(),
-        dispatchEvent: jest.fn(),
+        addListener: vi.fn(), // Deprecated
+        removeListener: vi.fn(), // Deprecated
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
       })),
     });
 
-    const mockIntersectionObserver = jest.fn();
+    const mockIntersectionObserver = vi.fn();
 
     mockIntersectionObserver.mockReturnValue({
       observe: () => null,
@@ -95,11 +95,11 @@ describe("DiscountRules", () => {
         channels={[]}
         rules={[]}
         errors={[]}
-        onRuleSubmit={jest.fn()}
-        onRuleDelete={jest.fn()}
+        onRuleSubmit={vi.fn()}
+        onRuleDelete={vi.fn()}
         disabled={false}
         deleteButtonState="default"
-        getRuleConfirmButtonState={jest.fn(() => "default")}
+        getRuleConfirmButtonState={vi.fn(() => "default")}
       />,
       { wrapper: Wrapper },
     );
@@ -115,11 +115,11 @@ describe("DiscountRules", () => {
         channels={[]}
         rules={catalogRules}
         errors={[]}
-        onRuleSubmit={jest.fn()}
-        onRuleDelete={jest.fn()}
+        onRuleSubmit={vi.fn()}
+        onRuleDelete={vi.fn()}
         disabled={false}
         deleteButtonState="default"
-        getRuleConfirmButtonState={jest.fn(() => "default")}
+        getRuleConfirmButtonState={vi.fn(() => "default")}
       />,
       { wrapper: Wrapper },
     );
@@ -144,11 +144,11 @@ describe("DiscountRules", () => {
         channels={[]}
         rules={orderRules}
         errors={[]}
-        onRuleSubmit={jest.fn()}
-        onRuleDelete={jest.fn()}
+        onRuleSubmit={vi.fn()}
+        onRuleDelete={vi.fn()}
         disabled={false}
         deleteButtonState="default"
-        getRuleConfirmButtonState={jest.fn(() => "default")}
+        getRuleConfirmButtonState={vi.fn(() => "default")}
       />,
       { wrapper: Wrapper },
     );
@@ -166,7 +166,7 @@ describe("DiscountRules", () => {
   });
   it("should allow to add new catalog rule", async () => {
     // Arrange
-    const onRuleAdd = jest.fn();
+    const onRuleAdd = vi.fn();
 
     render(
       <DiscountRules
@@ -176,10 +176,10 @@ describe("DiscountRules", () => {
         rules={[]}
         errors={[]}
         onRuleSubmit={onRuleAdd}
-        onRuleDelete={jest.fn()}
+        onRuleDelete={vi.fn()}
         disabled={false}
         deleteButtonState="default"
-        getRuleConfirmButtonState={jest.fn(() => "default")}
+        getRuleConfirmButtonState={vi.fn(() => "default")}
       />,
       { wrapper: Wrapper },
     );
@@ -238,7 +238,7 @@ describe("DiscountRules", () => {
   });
   it("should allow to add new order rule", async () => {
     // Arrange
-    const onRuleAdd = jest.fn();
+    const onRuleAdd = vi.fn();
 
     render(
       <DiscountRules
@@ -248,10 +248,10 @@ describe("DiscountRules", () => {
         rules={[]}
         errors={[]}
         onRuleSubmit={onRuleAdd}
-        onRuleDelete={jest.fn()}
+        onRuleDelete={vi.fn()}
         disabled={false}
         deleteButtonState="default"
-        getRuleConfirmButtonState={jest.fn(() => "default")}
+        getRuleConfirmButtonState={vi.fn(() => "default")}
       />,
       { wrapper: Wrapper },
     );
@@ -307,7 +307,7 @@ describe("DiscountRules", () => {
   });
   it("should allow to to handle update catalog rule", async () => {
     // Arrange
-    const onRuleEdit = jest.fn();
+    const onRuleEdit = vi.fn();
 
     render(
       <DiscountRules
@@ -317,10 +317,10 @@ describe("DiscountRules", () => {
         rules={catalogRules}
         errors={[]}
         onRuleSubmit={onRuleEdit}
-        onRuleDelete={jest.fn()}
+        onRuleDelete={vi.fn()}
         disabled={false}
         deleteButtonState="default"
-        getRuleConfirmButtonState={jest.fn(() => "default")}
+        getRuleConfirmButtonState={vi.fn(() => "default")}
       />,
       { wrapper: Wrapper },
     );
@@ -407,7 +407,7 @@ describe("DiscountRules", () => {
   });
   it("should allow to to handle update order rule", async () => {
     // Arrange
-    const onRuleEdit = jest.fn();
+    const onRuleEdit = vi.fn();
 
     render(
       <DiscountRules
@@ -417,10 +417,10 @@ describe("DiscountRules", () => {
         rules={orderRules}
         errors={[]}
         onRuleSubmit={onRuleEdit}
-        onRuleDelete={jest.fn()}
+        onRuleDelete={vi.fn()}
         disabled={false}
         deleteButtonState="default"
-        getRuleConfirmButtonState={jest.fn(() => "default")}
+        getRuleConfirmButtonState={vi.fn(() => "default")}
       />,
       { wrapper: Wrapper },
     );
@@ -512,7 +512,7 @@ describe("DiscountRules", () => {
   });
   it("should allow to to handle delete rule", async () => {
     // Arrange
-    const onRuleDelete = jest.fn();
+    const onRuleDelete = vi.fn();
 
     render(
       <DiscountRules
@@ -521,11 +521,11 @@ describe("DiscountRules", () => {
         channels={[]}
         rules={catalogRules}
         errors={[]}
-        onRuleSubmit={jest.fn()}
+        onRuleSubmit={vi.fn()}
         onRuleDelete={onRuleDelete}
         disabled={false}
         deleteButtonState="default"
-        getRuleConfirmButtonState={jest.fn(() => "default")}
+        getRuleConfirmButtonState={vi.fn(() => "default")}
       />,
       { wrapper: Wrapper },
     );
@@ -550,11 +550,11 @@ describe("DiscountRules", () => {
         channels={[]}
         rules={catalogComplexRules}
         errors={[]}
-        onRuleSubmit={jest.fn()}
-        onRuleDelete={jest.fn()}
+        onRuleSubmit={vi.fn()}
+        onRuleDelete={vi.fn()}
         disabled={false}
         deleteButtonState="default"
-        getRuleConfirmButtonState={jest.fn(() => "default")}
+        getRuleConfirmButtonState={vi.fn(() => "default")}
       />,
       { wrapper: Wrapper },
     );
@@ -588,11 +588,11 @@ describe("DiscountRules", () => {
             index: 0,
           } as any,
         ]}
-        onRuleSubmit={jest.fn()}
-        onRuleDelete={jest.fn()}
+        onRuleSubmit={vi.fn()}
+        onRuleDelete={vi.fn()}
         disabled={false}
         deleteButtonState="default"
-        getRuleConfirmButtonState={jest.fn(() => "default")}
+        getRuleConfirmButtonState={vi.fn(() => "default")}
       />,
       { wrapper: Wrapper },
     );

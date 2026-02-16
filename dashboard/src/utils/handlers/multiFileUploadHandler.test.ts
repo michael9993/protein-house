@@ -7,11 +7,11 @@ const testFiles = Array(5)
 describe("Multiple file upload handler", () => {
   it("properly handles success", done => {
     const cbs = {
-      onAfterUpload: jest.fn(),
-      onBeforeUpload: jest.fn(),
-      onCompleted: jest.fn(files => expect(files.length).toBe(testFiles.length)),
-      onError: jest.fn(),
-      onStart: jest.fn(),
+      onAfterUpload: vi.fn(),
+      onBeforeUpload: vi.fn(),
+      onCompleted: vi.fn(files => expect(files.length).toBe(testFiles.length)),
+      onError: vi.fn(),
+      onStart: vi.fn(),
     };
     const handle = createMultiFileUploadHandler(() => {
       const promise = new Promise<void>(resolve => {
@@ -33,11 +33,11 @@ describe("Multiple file upload handler", () => {
   });
   it("properly handles error", done => {
     const cbs = {
-      onAfterUpload: jest.fn(),
-      onBeforeUpload: jest.fn(),
-      onCompleted: jest.fn(files => expect(files.length).toBe(testFiles.length)),
-      onError: jest.fn(),
-      onStart: jest.fn(),
+      onAfterUpload: vi.fn(),
+      onBeforeUpload: vi.fn(),
+      onCompleted: vi.fn(files => expect(files.length).toBe(testFiles.length)),
+      onError: vi.fn(),
+      onStart: vi.fn(),
     };
     const handle = createMultiFileUploadHandler((_, fileIndex) => {
       const promise = new Promise<void>((resolve, reject) => {

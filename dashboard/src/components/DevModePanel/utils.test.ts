@@ -4,22 +4,22 @@ import { createFetch } from "@saleor/sdk";
 
 import { getFetcher } from "./utils";
 
-jest.mock("@graphiql/toolkit", () => ({
-  createGraphiQLFetcher: jest.fn(),
+vi.mock("@graphiql/toolkit", () => ({
+  createGraphiQLFetcher: vi.fn(),
 }));
 
-jest.mock("@saleor/sdk", () => ({
-  createFetch: jest.fn().mockReturnValue(jest.fn()),
+vi.mock("@saleor/sdk", () => ({
+  createFetch: vi.fn().mockReturnValue(vi.fn()),
 }));
 
-jest.mock("@dashboard/config", () => ({
+vi.mock("@dashboard/config", () => ({
   ENABLED_SERVICE_NAME_HEADER: true,
-  getApiUrl: jest.fn(() => "http://test-api.com"),
+  getApiUrl: vi.fn(() => "http://test-api.com"),
 }));
 
-const mockCreateGraphiQLFetcher = createGraphiQLFetcher as jest.Mock;
-const authorizedFetch = createFetch as jest.Mock;
-const mockGetApiUrl = getApiUrl as jest.Mock;
+const mockCreateGraphiQLFetcher = createGraphiQLFetcher as Mock;
+const authorizedFetch = createFetch as Mock;
+const mockGetApiUrl = getApiUrl as Mock;
 
 describe("getFetcher", () => {
   const mockApiUrl = "http://test-api.com";
@@ -33,7 +33,7 @@ describe("getFetcher", () => {
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     global.fetch = originalFetch;
   });
 

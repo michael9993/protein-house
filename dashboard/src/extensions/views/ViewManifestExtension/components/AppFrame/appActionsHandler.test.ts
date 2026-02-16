@@ -7,45 +7,45 @@ import { IntlShape } from "react-intl";
 import * as ExternalAppContext from "../ExternalAppContext/ExternalAppContext";
 import { AppActionsHandler } from "./appActionsHandler";
 
-jest.mock("@dashboard/config", () => {
-  const actualModule = jest.requireActual("@dashboard/config");
+vi.mock("@dashboard/config", async () => {
+  const actualModule = await vi.importActual("@dashboard/config");
 
   return {
     __esModule: true,
     ...actualModule,
   };
 });
-jest.mock("../ExternalAppContext/ExternalAppContext");
+vi.mock("../ExternalAppContext/ExternalAppContext");
 
-const mockNotify = jest.fn();
-const mockCloseExternalApp = jest.fn();
+const mockNotify = vi.fn();
+const mockCloseExternalApp = vi.fn();
 
-jest.mock("@dashboard/hooks/useNotifier", (): UseNotifierResult => () => mockNotify);
-jest.spyOn(ExternalAppContext, "useExternalApp").mockImplementation(() => ({
+vi.mock("@dashboard/hooks/useNotifier", (): UseNotifierResult => () => mockNotify);
+vi.spyOn(ExternalAppContext, "useExternalApp").mockImplementation(() => ({
   close: mockCloseExternalApp,
-  openApp: jest.fn(),
+  openApp: vi.fn(),
   open: true,
-  closeApp: jest.fn(),
+  closeApp: vi.fn(),
 }));
 jest
   .spyOn(dashboardConfig, "getAppMountUri")
   // getAppMountUri is not an URI, it's a pathname
   .mockImplementation(() => "/dashboard/");
-jest.spyOn(ReactIntl, "useIntl").mockImplementation(
+vi.spyOn(ReactIntl, "useIntl").mockImplementation(
   // @ts-expect-error - only mock required method
   (): Pick<IntlShape, "formatMessage"> => ({
-    formatMessage: jest.fn(),
+    formatMessage: vi.fn(),
   }),
 );
 
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
-jest.mock("@dashboard/hooks/useNavigator", () => () => mockNavigate);
+vi.mock("@dashboard/hooks/useNavigator", () => () => mockNavigate);
 describe("AppActionsHandler", function () {
   const { location } = window;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
   /**
    * jsdom doesn't allow src code to write to window.location.href,
@@ -105,9 +105,9 @@ describe("AppActionsHandler", function () {
   describe("useUpdateRoutingAction", () => {
     it("Updates dashboard url properly", () => {
       // Arrange
-      const mockHistoryPushState = jest.fn();
+      const mockHistoryPushState = vi.fn();
 
-      jest.spyOn(window.history, "pushState").mockImplementation(mockHistoryPushState);
+      vi.spyOn(window.history, "pushState").mockImplementation(mockHistoryPushState);
 
       const {
         result: {
@@ -135,10 +135,10 @@ describe("AppActionsHandler", function () {
 
     it("Does not update url if it's already updated", () => {
       // Arrange
-      const mockHistoryPushState = jest.fn();
+      const mockHistoryPushState = vi.fn();
 
       window.location.pathname = "/dashboard/extensions/app/XYZ/foo/bar";
-      jest.spyOn(window.history, "pushState").mockImplementation(mockHistoryPushState);
+      vi.spyOn(window.history, "pushState").mockImplementation(mockHistoryPushState);
 
       const {
         result: {
@@ -163,12 +163,12 @@ describe("AppActionsHandler", function () {
     describe("Open in the new browser context", () => {
       let hookRenderResult = renderHook(() => AppActionsHandler.useHandleRedirectAction("XYZ"));
 
-      let mockWindowOpen = jest.fn();
+      let mockWindowOpen = vi.fn();
 
       beforeEach(() => {
         hookRenderResult = renderHook(() => AppActionsHandler.useHandleRedirectAction("XYZ"));
-        mockWindowOpen = jest.fn();
-        jest.spyOn(window, "open").mockImplementation(mockWindowOpen);
+        mockWindowOpen = vi.fn();
+        vi.spyOn(window, "open").mockImplementation(mockWindowOpen);
       });
       it("Opens external URL in new browser context", () => {
         // Arrange & Act
@@ -222,7 +222,7 @@ describe("AppActionsHandler", function () {
       });
     });
     describe("Open in new the same browser context", () => {
-      jest.spyOn(window, "confirm").mockReturnValue(true);
+      vi.spyOn(window, "confirm").mockReturnValue(true);
 
       const hookRenderResult = renderHook(() => AppActionsHandler.useHandleRedirectAction("XYZ"));
 
@@ -257,9 +257,9 @@ describe("AppActionsHandler", function () {
       });
       it("Update route within the same app", () => {
         // Arrange
-        const mockHistoryPushState = jest.fn();
+        const mockHistoryPushState = vi.fn();
 
-        jest.spyOn(window.history, "pushState").mockImplementation(mockHistoryPushState);
+        vi.spyOn(window.history, "pushState").mockImplementation(mockHistoryPushState);
         window.location.pathname = "/extensions/app/XYZ/foo";
 
         // Act
@@ -288,9 +288,9 @@ describe("AppActionsHandler", function () {
          **/
 
         // Arrange
-        const mockHistoryPushState = jest.fn();
+        const mockHistoryPushState = vi.fn();
 
-        jest.spyOn(window.history, "pushState").mockImplementation(mockHistoryPushState);
+        vi.spyOn(window.history, "pushState").mockImplementation(mockHistoryPushState);
         window.location.pathname = "/extensions/app/XYZ/foo";
 
         // Act

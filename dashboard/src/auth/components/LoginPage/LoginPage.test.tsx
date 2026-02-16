@@ -18,11 +18,11 @@ const defaultProps = {
   disabled: false,
   loading: false,
   externalAuthentications: [mockExternalAuth],
-  onExternalAuthentication: jest.fn(),
-  onSubmit: jest.fn(),
+  onExternalAuthentication: vi.fn(),
+  onSubmit: vi.fn(),
 };
 
-jest.mock("react-router-dom", () => ({
+vi.mock("react-router-dom", () => ({
   MemoryRouter: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   Link: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));

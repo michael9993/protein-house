@@ -3,21 +3,21 @@ import { act, renderHook } from "@testing-library/react-hooks";
 import { useSidebarDotState } from "./useSidebarDotState";
 import { useSidebarWebhookAlertMetadata } from "./useSidebarWebhookAlertMetadata";
 
-jest.mock("./useSidebarWebhookAlertMetadata");
+vi.mock("./useSidebarWebhookAlertMetadata");
 
 const defaultMock = {
-  persist: jest.fn().mockResolvedValue(undefined),
+  persist: vi.fn().mockResolvedValue(undefined),
   webhookAlertState: { value: null },
 };
 
 describe("useSidebarDotState", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should initialize with dot not visible when no value", () => {
     // Arrange & Act
-    (useSidebarWebhookAlertMetadata as jest.Mock).mockReturnValue(defaultMock);
+    vi.mocked(useSidebarWebhookAlertMetadata).mockReturnValue(defaultMock);
 
     const { result } = renderHook(() => useSidebarDotState());
 
@@ -27,7 +27,7 @@ describe("useSidebarDotState", () => {
 
   it("should show dot when failed attempt is newer than last click", async () => {
     // Arrange
-    (useSidebarWebhookAlertMetadata as jest.Mock).mockReturnValue(defaultMock);
+    vi.mocked(useSidebarWebhookAlertMetadata).mockReturnValue(defaultMock);
 
     const { result } = renderHook(() => useSidebarDotState());
 
@@ -48,7 +48,7 @@ describe("useSidebarDotState", () => {
 
   it("should hide dot after clicking when no failed attempts", async () => {
     // Arrange
-    (useSidebarWebhookAlertMetadata as jest.Mock).mockReturnValue(defaultMock);
+    vi.mocked(useSidebarWebhookAlertMetadata).mockReturnValue(defaultMock);
 
     const { result } = renderHook(() => useSidebarDotState());
     const date = new Date("2024-01-01").toISOString();
@@ -64,7 +64,7 @@ describe("useSidebarDotState", () => {
 
   it("should handle empty metadata state", async () => {
     // Arrange
-    (useSidebarWebhookAlertMetadata as jest.Mock).mockReturnValue(defaultMock);
+    vi.mocked(useSidebarWebhookAlertMetadata).mockReturnValue(defaultMock);
 
     const { result } = renderHook(() => useSidebarDotState());
 
@@ -79,8 +79,8 @@ describe("useSidebarDotState", () => {
 
   it("should handle initial metadata state and show the dot", () => {
     // Arrange
-    (useSidebarWebhookAlertMetadata as jest.Mock).mockReturnValue({
-      persist: jest.fn().mockResolvedValue(undefined),
+    vi.mocked(useSidebarWebhookAlertMetadata).mockReturnValue({
+      persist: vi.fn().mockResolvedValue(undefined),
       sidebarDotRemoteState: {
         lastClickDate: new Date("2024-01-01").toISOString(),
         lastFailedAttemptDate: new Date("2024-01-02").toISOString(),
@@ -95,11 +95,11 @@ describe("useSidebarDotState", () => {
   });
 
   it("should persist app list item click", async () => {
-    const persist = jest.fn().mockResolvedValue(undefined);
+    const persist = vi.fn().mockResolvedValue(undefined);
     const date = new Date().toISOString();
 
     // Arrange
-    (useSidebarWebhookAlertMetadata as jest.Mock).mockReturnValue({
+    vi.mocked(useSidebarWebhookAlertMetadata).mockReturnValue({
       persist,
       sidebarDotRemoteState: {
         lastClickDate: null,
@@ -123,11 +123,11 @@ describe("useSidebarDotState", () => {
   });
 
   it("should persist failed attempt", async () => {
-    const persist = jest.fn().mockResolvedValue(undefined);
+    const persist = vi.fn().mockResolvedValue(undefined);
     const date = new Date().toISOString();
 
     // Arrange
-    (useSidebarWebhookAlertMetadata as jest.Mock).mockReturnValue({
+    vi.mocked(useSidebarWebhookAlertMetadata).mockReturnValue({
       persist,
       sidebarDotRemoteState: {
         lastClickDate: null,
@@ -151,12 +151,12 @@ describe("useSidebarDotState", () => {
   });
 
   it("should persist click date after multiple attempts", async () => {
-    const persist = jest.fn().mockResolvedValue(undefined);
+    const persist = vi.fn().mockResolvedValue(undefined);
     const eventDate = new Date("2025-01-01").toISOString();
     const clickDate = new Date("2025-01-02").toISOString();
 
     // Arrange
-    (useSidebarWebhookAlertMetadata as jest.Mock).mockReturnValue({
+    vi.mocked(useSidebarWebhookAlertMetadata).mockReturnValue({
       persist,
       sidebarDotRemoteState: {
         lastClickDate: null,

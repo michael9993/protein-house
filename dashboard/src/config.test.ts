@@ -4,7 +4,7 @@ describe("global config", () => {
   const { location } = window;
 
   beforeEach((): void => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     delete (window as { location?: unknown }).location;
 

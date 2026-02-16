@@ -4,9 +4,9 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { usePendingInstallation } from "./usePendingInstallation";
 
-jest.mock("@dashboard/graphql", () => ({
-  ...(jest.requireActual("@dashboard/graphql") as object),
-  useAppsInstallationsQuery: jest.fn(() => ({
+vi.mock("@dashboard/graphql", async () => ({
+  ...(await vi.importActual("@dashboard/graphql") as object),
+  useAppsInstallationsQuery: vi.fn(() => ({
     data: {
       appsInstallations: [
         {
@@ -30,33 +30,33 @@ jest.mock("@dashboard/graphql", () => ({
       ],
     },
     loading: false,
-    refetch: jest.fn(),
+    refetch: vi.fn(),
   })),
 }));
 
-jest.mock("./useActiveAppsInstallations", () => ({
-  useActiveAppsInstallations: jest.fn(() => ({
-    handleRemoveInProgress: jest.fn(),
+vi.mock("./useActiveAppsInstallations", async () => ({
+  useActiveAppsInstallations: vi.fn(() => ({
+    handleRemoveInProgress: vi.fn(),
     deleteInProgressAppOpts: {
       deleteInProgressAppStatus: "PENDING",
     },
-    handleAppInstallRetry: jest.fn(),
+    handleAppInstallRetry: vi.fn(),
   })),
 }));
 
-jest.mock("@dashboard/hooks/useHasManagedAppsPermission", () => ({
-  useHasManagedAppsPermission: jest.fn(() => ({
+vi.mock("@dashboard/hooks/useHasManagedAppsPermission", async () => ({
+  useHasManagedAppsPermission: vi.fn(() => ({
     useHasManagedAppsPermission: true,
   })),
 }));
 
 describe("InstalledExtensions / hooks / usePendingInstallation", () => {
   it("should skip fetching app installations when user doesn't have MANAGE_APP permissions", () => {
-    (useHasManagedAppsPermission as jest.Mock).mockReturnValueOnce(false);
+    vi.mocked(useHasManagedAppsPermission).mockReturnValueOnce(false);
 
-    const refetchExtensions = jest.fn();
-    const onCloseModal = jest.fn();
-    const onFailedInstallationRemove = jest.fn();
+    const refetchExtensions = vi.fn();
+    const onCloseModal = vi.fn();
+    const onFailedInstallationRemove = vi.fn();
     const searchQuery = "";
 
     renderHook(() =>
@@ -77,9 +77,9 @@ describe("InstalledExtensions / hooks / usePendingInstallation", () => {
 
   it("should return list of pending installations", () => {
     // Arrange
-    const refetchExtensions = jest.fn();
-    const onCloseModal = jest.fn();
-    const onFailedInstallationRemove = jest.fn();
+    const refetchExtensions = vi.fn();
+    const onCloseModal = vi.fn();
+    const onFailedInstallationRemove = vi.fn();
     const searchQuery = "";
 
     const { result } = renderHook(() =>

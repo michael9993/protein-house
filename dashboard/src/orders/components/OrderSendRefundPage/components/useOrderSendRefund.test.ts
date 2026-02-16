@@ -8,15 +8,15 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { useOrderSendRefund } from "./useOrderSendRefund";
 
-const mockSendRefund = jest.fn();
+const mockSendRefund = vi.fn();
 
-jest.mock("@dashboard/auth");
-jest.mock("@dashboard/graphql");
+vi.mock("@dashboard/auth");
+vi.mock("@dashboard/graphql");
 
 describe("useOrderSendRefund", () => {
   it("should pass correct variables to mutation hook with required permissions", async () => {
     // Arrange
-    (useUser as jest.Mock).mockReturnValue({
+    vi.mocked(useUser).mockReturnValue({
       user: {
         userPermissions: [{ code: PermissionEnum.MANAGE_PRODUCTS }],
       },
@@ -24,7 +24,7 @@ describe("useOrderSendRefund", () => {
 
     const mockData = { data: { orderSendRefund: { success: true } } };
 
-    (useOrderSendRefundMutation as jest.Mock).mockReturnValue([
+    vi.mocked(useOrderSendRefundMutation).mockReturnValue([
       mockSendRefund,
       { status: "success", loading: false, error: null, data: mockData },
     ]);
@@ -49,7 +49,7 @@ describe("useOrderSendRefund", () => {
 
   it("should pass correct variables to mutation hook without required permissions", async () => {
     // Arrange
-    (useUser as jest.Mock).mockReturnValue({
+    vi.mocked(useUser).mockReturnValue({
       user: {
         userPermissions: [{ code: PermissionEnum.MANAGE_ORDERS }],
       },
@@ -57,7 +57,7 @@ describe("useOrderSendRefund", () => {
 
     const mockData = { data: { orderSendRefund: { success: true } } };
 
-    (useOrderSendRefundMutation as jest.Mock).mockReturnValue([
+    vi.mocked(useOrderSendRefundMutation).mockReturnValue([
       mockSendRefund,
       { status: "success", loading: false, error: null, data: mockData },
     ]);

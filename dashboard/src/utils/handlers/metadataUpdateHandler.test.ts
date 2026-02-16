@@ -14,9 +14,9 @@ describe("createMetadataUpdateHandler", () => {
       metadata: [],
       privateMetadata: [],
     };
-    const updateFun = jest.fn(() => Promise.resolve(["error1", "error2"]));
-    const metadataUpdateFun = jest.fn();
-    const privateMetadataUpdateFun = jest.fn();
+    const updateFun = vi.fn(() => Promise.resolve(["error1", "error2"]));
+    const metadataUpdateFun = vi.fn();
+    const privateMetadataUpdateFun = vi.fn();
     // Act
     const handleUpdate = await createMetadataUpdateHandler(
       intialData,
@@ -45,13 +45,13 @@ describe("createMetadataUpdateHandler", () => {
       ],
       privateMetadata: [],
     };
-    const updateFun = jest.fn(() => Promise.resolve([])) as any;
-    const metadataUpdateFun = jest.fn(() =>
+    const updateFun = vi.fn(() => Promise.resolve([])) as any;
+    const metadataUpdateFun = vi.fn(() =>
       Promise.resolve({
         data: {},
       }),
     ) as any;
-    const privateMetadataUpdateFun = jest.fn();
+    const privateMetadataUpdateFun = vi.fn();
     // Act
     const handleUpdate = await createMetadataUpdateHandler(
       intialData,
@@ -91,9 +91,9 @@ describe("createMetadataUpdateHandler", () => {
         },
       ],
     };
-    const updateFun = jest.fn(() => Promise.resolve([])) as any;
-    const metadataUpdateFun = jest.fn();
-    const privateMetadataUpdateFun = jest.fn(() =>
+    const updateFun = vi.fn(() => Promise.resolve([])) as any;
+    const metadataUpdateFun = vi.fn();
+    const privateMetadataUpdateFun = vi.fn(() =>
       Promise.resolve({
         data: {},
       }),
@@ -142,8 +142,8 @@ describe("createMetadataUpdateHandler", () => {
         },
       ],
     };
-    const updateFun = jest.fn(() => Promise.resolve([])) as any;
-    const metadataUpdateFun = jest.fn(() =>
+    const updateFun = vi.fn(() => Promise.resolve([])) as any;
+    const metadataUpdateFun = vi.fn(() =>
       Promise.resolve({
         data: {
           deleteMetadata: {
@@ -152,7 +152,7 @@ describe("createMetadataUpdateHandler", () => {
         },
       }),
     ) as any;
-    const privateMetadataUpdateFun = jest.fn();
+    const privateMetadataUpdateFun = vi.fn();
     // Act
     const handleUpdate = await createMetadataUpdateHandler(
       intialData,
@@ -187,13 +187,13 @@ describe("createMetadataUpdateHandler", () => {
         },
       ],
     };
-    const updateFun = jest.fn(() => Promise.resolve([])) as any;
-    const metadataUpdateFun = jest.fn(() =>
+    const updateFun = vi.fn(() => Promise.resolve([])) as any;
+    const metadataUpdateFun = vi.fn(() =>
       Promise.resolve({
         data: {},
       }),
     ) as any;
-    const privateMetadataUpdateFun = jest.fn(() =>
+    const privateMetadataUpdateFun = vi.fn(() =>
       Promise.resolve({
         data: {
           deletePrivateMetadata: {

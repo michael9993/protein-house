@@ -6,38 +6,38 @@ import { UseFormSetError } from "react-hook-form";
 import { useHandleCreateAppSubmit } from "./useHandleCreateAppSubmit";
 
 // Mock dependencies
-jest.mock("@dashboard/graphql", () => ({
-  ...(jest.requireActual("@dashboard/graphql") as {}),
-  useAppCreateMutation: jest.fn(),
+vi.mock("@dashboard/graphql", async () => ({
+  ...(await vi.importActual("@dashboard/graphql") as {}),
+  useAppCreateMutation: vi.fn(),
   PermissionEnum: {
     MANAGE_APPS: "MANAGE_APPS",
     MANAGE_ORDERS: "MANAGE_ORDERS",
   },
 }));
 
-jest.mock("@dashboard/hooks/useNavigator", () => () => jest.fn());
+vi.mock("@dashboard/hooks/useNavigator", () => () => vi.fn());
 
-const mockNotify = jest.fn();
+const mockNotify = vi.fn();
 
-jest.mock("@dashboard/hooks/useNotifier", () => () => mockNotify);
+vi.mock("@dashboard/hooks/useNotifier", () => () => mockNotify);
 
-const mockUseAppCreateMutation = useAppCreateMutation as jest.MockedFunction<
+const mockUseAppCreateMutation = useAppCreateMutation as MockedFunction<
   typeof useAppCreateMutation
 >;
 
 describe("useHandleCreateAppSubmit", () => {
-  const mockSetToken = jest.fn();
-  const mockSetError = jest.fn() as jest.MockedFunction<
+  const mockSetToken = vi.fn();
+  const mockSetError = vi.fn() as MockedFunction<
     UseFormSetError<{
       permissions: Record<string, boolean>;
       appName: string;
     }>
   >;
-  const mockCreateApp = jest.fn();
-  const onCompletedCallback = jest.fn();
+  const mockCreateApp = vi.fn();
+  const onCompletedCallback = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Setup the mock implementation
     mockUseAppCreateMutation.mockImplementation(options => {
