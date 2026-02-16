@@ -2,6 +2,9 @@ import ExcelJS from "exceljs";
 import fs from "fs";
 import path from "path";
 import { MANSOUR_BRANDS } from "./config/mansour";
+import { CATEGORIES } from "./config/categories";
+import { COLLECTIONS } from "./config/collections";
+import { mapToCategory, detectGender } from "./config/category-mapping";
 
 // ============================================================================
 // Column index map (0-based, verified against real Excel headers)
@@ -57,13 +60,6 @@ interface RawProduct {
   discountStart: string;
   discountEnd: string;
   variantData: string;
-}
-
-interface CategoryNode {
-  name: string;
-  slug: string;
-  parent: string;
-  description: string;
 }
 
 interface CollectionRow {
@@ -275,200 +271,96 @@ function detectProductType(
 }
 
 // ============================================================================
-// Category Extraction
+// Collection Helper
 // ============================================================================
 
-function cleanCategoryName(raw: string): string {
-  // Category names often have duplicated or tag info after comma:
-  // "גברים, גברים" or "מכנסיים קצרים, Outlet"
-  // Take only the first meaningful part
-  const parts = raw.split(",").map((p) => p.trim()).filter(Boolean);
-  return parts[0] || raw.trim();
-}
-
-interface CategoryResult {
-  categories: CategoryNode[];
-  /** Maps raw category path → slug of the deepest category */
-  rawPathToSlug: Map<string, string>;
-}
-
-function extractCategories(products: RawProduct[]): CategoryResult {
-  // Key: full path (joined cleaned names) for uniqueness
-  // Value: CategoryNode
-  const categoryMap = new Map<string, CategoryNode>();
-  const slugCounter = new Map<string, number>();
-
-  function makeUniqueSlug(base: string): string {
-    const count = slugCounter.get(base) || 0;
-    slugCounter.set(base, count + 1);
-    return count === 0 ? base : `${base}-${count + 1}`;
-  }
-
-  // Track cleanPath→slug mapping for parent references
-  const pathToSlug = new Map<string, string>();
-  // Track rawCategoryPath→deepest slug for product assignment
-  const rawPathToSlug = new Map<string, string>();
-
-  for (const product of products) {
-    if (!product.categoryPath) continue;
-
-    const rawParts = product.categoryPath
-      .split(">")
-      .map((p) => p.trim())
-      .filter(Boolean);
-    const cleanParts = rawParts.map(cleanCategoryName);
-
-    for (let i = 0; i < cleanParts.length; i++) {
-      const name = cleanParts[i];
-      const pathKey = cleanParts.slice(0, i + 1).join(" > ");
-
-      if (categoryMap.has(pathKey)) continue;
-
-      const parentPathKey = i > 0 ? cleanParts.slice(0, i).join(" > ") : "";
-      const parentSlug = parentPathKey ? (pathToSlug.get(parentPathKey) || "") : "";
-
-      const baseSlug = slugify(name);
-      const slug = makeUniqueSlug(baseSlug);
-
-      pathToSlug.set(pathKey, slug);
-      categoryMap.set(pathKey, {
-        name,
-        slug,
-        parent: parentSlug,
-        description: "",
-      });
-    }
-
-    // Map raw path to deepest category slug
-    const deepestPathKey = cleanParts.join(" > ");
-    rawPathToSlug.set(product.categoryPath, pathToSlug.get(deepestPathKey) || "");
-  }
-
-  // Topological sort: parents before children
-  const result: CategoryNode[] = [];
-  const added = new Set<string>();
-
-  function addWithParents(pathKey: string) {
-    if (added.has(pathKey)) return;
-    const cat = categoryMap.get(pathKey);
-    if (!cat) return;
-    // Find parent pathKey
-    const parts = pathKey.split(" > ");
-    if (parts.length > 1) {
-      const parentPathKey = parts.slice(0, -1).join(" > ");
-      addWithParents(parentPathKey);
-    }
-    added.add(pathKey);
-    result.push(cat);
-  }
-
-  for (const pathKey of categoryMap.keys()) {
-    addWithParents(pathKey);
-  }
-
-  return { categories: result, rawPathToSlug };
+function addToCollection(map: Map<string, string[]>, collectionSlug: string, productSlug: string) {
+  if (!map.has(collectionSlug)) map.set(collectionSlug, []);
+  map.get(collectionSlug)!.push(productSlug);
 }
 
 // ============================================================================
-// Collection Derivation
+// Collection Derivation (multi-signal: brand, gender, activity, price, sale)
 // ============================================================================
 
-function deriveCollections(products: RawProduct[]): CollectionRow[] {
-  const brandMap = new Map<string, string[]>();
-  const genderMap = new Map<string, string[]>();
-  const saleProducts: string[] = [];
+function deriveCollections(
+  products: RawProduct[],
+  productCategoryMap: Map<string, string>,
+): CollectionRow[] {
+  const collectionProducts = new Map<string, string[]>();
 
   for (const product of products) {
     const slug = product.slug || slugify(product.name);
     const brand = product.brand || extractBrand(product.name) || extractBrand(product.categoryPath);
+    const catSlug = productCategoryMap.get(slug) || "";
 
-    // Brand collections
+    // Brand collection
     if (brand) {
       const brandInfo = MANSOUR_BRANDS.find((b) => b.name === brand);
       const brandSlug = brandInfo?.slug || slugify(brand);
-      if (!brandMap.has(brandSlug)) brandMap.set(brandSlug, []);
-      brandMap.get(brandSlug)!.push(slug);
+      addToCollection(collectionProducts, brandSlug, slug);
     }
 
-    // Gender collections
-    const cat = product.categoryPath;
-    if (cat.startsWith("גברים")) {
-      if (!genderMap.has("mens-collection")) genderMap.set("mens-collection", []);
-      genderMap.get("mens-collection")!.push(slug);
-    } else if (cat.startsWith("נשים")) {
-      if (!genderMap.has("womens-collection")) genderMap.set("womens-collection", []);
-      genderMap.get("womens-collection")!.push(slug);
-    } else if (cat.includes("ילדים") || cat.includes("ילדות")) {
-      if (!genderMap.has("kids-collection")) genderMap.set("kids-collection", []);
-      genderMap.get("kids-collection")!.push(slug);
-    }
+    // Gender collection
+    const gender = detectGender(product.categoryPath);
+    const genderCollSlug = gender === "men" ? "mens-collection"
+      : gender === "women" ? "womens-collection"
+      : "kids-collection";
+    addToCollection(collectionProducts, genderCollSlug, slug);
+
+    // Activity collections (derived from assigned category slug)
+    if (catSlug.includes("running")) addToCollection(collectionProducts, "running-essentials", slug);
+    if (catSlug.includes("training")) addToCollection(collectionProducts, "training-gear", slug);
+    if (catSlug.includes("soccer")) addToCollection(collectionProducts, "soccer-gear", slug);
+    if (catSlug.includes("casual")) addToCollection(collectionProducts, "casual-style", slug);
+    if (catSlug.includes("walking")) addToCollection(collectionProducts, "walking-comfort-collection", slug);
+    if (catSlug.includes("boots") || catSlug.includes("winter")) addToCollection(collectionProducts, "winter-collection", slug);
+
+    // Price-based collections
+    if (product.price <= 200) addToCollection(collectionProducts, "under-200", slug);
+    else if (product.price <= 350) addToCollection(collectionProducts, "mid-range", slug);
+    else addToCollection(collectionProducts, "premium-selection", slug);
 
     // Sale collection
     if (product.discountPrice && product.discountPrice > 0 && product.discountPrice < product.price) {
-      saleProducts.push(slug);
+      addToCollection(collectionProducts, "sale", slug);
+    }
+
+    // Special collections (keyword detection)
+    const lowerCat = product.categoryPath.toLowerCase();
+    const lowerName = product.name.toLowerCase();
+    if (lowerCat.includes("בית ספר") || lowerName.includes("school")) {
+      addToCollection(collectionProducts, "school-shoes", slug);
+    }
+    if (lowerCat.includes("עבודה") || lowerName.includes("work")) {
+      addToCollection(collectionProducts, "work-shoes", slug);
     }
   }
 
-  const collections: CollectionRow[] = [];
-
-  // Brand collections
-  for (const [brandSlug, slugs] of brandMap) {
-    const brandInfo = MANSOUR_BRANDS.find((b) => b.slug === brandSlug);
-    const brandName = brandInfo?.name || brandSlug;
-    collections.push({
-      name: brandName,
-      slug: brandSlug,
-      description: `קולקציית ${brandName}`,
-      productSlugs: slugs,
+  // Build CollectionRow[] from COLLECTIONS config definitions
+  const result: CollectionRow[] = [];
+  for (const col of COLLECTIONS) {
+    result.push({
+      name: col.name_he,
+      slug: col.slug,
+      description: col.description_he || "",
+      productSlugs: collectionProducts.get(col.slug) || [],
     });
   }
-
-  // Gender collections
-  const genderNames: Record<string, string> = {
-    "mens-collection": "קולקציית גברים",
-    "womens-collection": "קולקציית נשים",
-    "kids-collection": "קולקציית ילדים",
-  };
-  for (const [key, slugs] of genderMap) {
-    collections.push({
-      name: genderNames[key] || key,
-      slug: key,
-      description: genderNames[key] || key,
-      productSlugs: slugs,
-    });
-  }
-
-  // Sale collection
-  if (saleProducts.length > 0) {
-    collections.push({
-      name: "מבצעים",
-      slug: "sale",
-      description: "מוצרים במבצע",
-      productSlugs: saleProducts,
-    });
-  }
-
-  // Curated collections (empty for manual population)
-  collections.push(
-    { name: "מומלצים", slug: "featured-products", description: "מוצרים מומלצים", productSlugs: [] },
-    { name: "רבי מכר", slug: "best-sellers", description: "המוצרים הנמכרים ביותר", productSlugs: [] },
-    { name: "חדש", slug: "new-arrivals", description: "מוצרים חדשים", productSlugs: [] },
-  );
-
-  return collections;
+  return result;
 }
 
 // ============================================================================
 // CSV Writer
 // ============================================================================
 
-function writeCategoriesCSV(categories: CategoryNode[], outputDir: string) {
+function writeCategoriesCSV(outputDir: string) {
   const headers = ["name", "slug", "description", "parent", "externalReference", "isPublished"];
-  const rows = categories.map((cat) => [
-    escapeCSV(cat.name),
+  const rows = CATEGORIES.map((cat) => [
+    escapeCSV(cat.name_he),
     escapeCSV(cat.slug),
-    escapeCSV(cat.description),
-    escapeCSV(cat.parent),
+    escapeCSV(cat.description_he || ""),
+    escapeCSV(cat.parent || ""),
     escapeCSV(cat.slug),
     "Yes",
   ]);
@@ -476,7 +368,7 @@ function writeCategoriesCSV(categories: CategoryNode[], outputDir: string) {
   const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
   const outPath = path.join(outputDir, "categories.csv");
   fs.writeFileSync(outPath, "\ufeff" + csv, "utf8");
-  console.log(`  ✅ Written: ${outPath} (${categories.length} categories)`);
+  console.log(`  ✅ Written: ${outPath} (${CATEGORIES.length} categories)`);
 }
 
 function writeCollectionsCSV(collections: CollectionRow[], outputDir: string) {
@@ -501,9 +393,8 @@ function writeCollectionsCSV(collections: CollectionRow[], outputDir: string) {
 
 async function writeProductsExcel(
   products: RawProduct[],
-  categories: CategoryNode[],
   collections: CollectionRow[],
-  rawPathToSlug: Map<string, string>,
+  productCategoryMap: Map<string, string>,
   outputDir: string,
   dynamicFilterAttrs: string[] = [],
 ) {
@@ -551,8 +442,8 @@ async function writeProductsExcel(
     const productSlug = product.slug || slugify(product.name);
     const isPublished = product.status === "1" ? "Yes" : "No";
 
-    // Deepest category slug (from category extraction mapping)
-    const categorySlug = rawPathToSlug.get(product.categoryPath) || "";
+    // Category slug (from intelligent mapping)
+    const categorySlug = productCategoryMap.get(productSlug) || "";
 
     // Gender from category
     const gender = product.categoryPath.startsWith("גברים")
@@ -797,22 +688,47 @@ async function main() {
   console.log(`    Brands: ${[...brandsFound.entries()].sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k}(${v})`).join(", ")}`);
   console.log();
 
-  // ── Extract Categories ──────────────────────────────────────────────────
-  console.log("Extracting categories...");
-  const { categories, rawPathToSlug } = extractCategories(rawProducts);
-  console.log(`  Found ${categories.length} unique categories\n`);
+  // ── Map Products to Clean Categories ────────────────────────────────────
+  console.log("Mapping products to categories...");
+  const productCategoryMap = new Map<string, string>();
+  const categoryDistribution = new Map<string, number>();
+
+  for (const product of rawProducts) {
+    const productSlug = product.slug || slugify(product.name);
+    const brand = product.brand || extractBrand(product.name) || extractBrand(product.categoryPath);
+    const variants = parseVariants(product.variantData);
+    const productType = detectProductType(variants, product.categoryPath, product.filters);
+    const catSlug = mapToCategory(
+      { name: product.name, categoryPath: product.categoryPath, filters: product.filters, brand },
+      productType,
+    );
+    productCategoryMap.set(productSlug, catSlug);
+    categoryDistribution.set(catSlug, (categoryDistribution.get(catSlug) || 0) + 1);
+  }
+
+  // Print category distribution
+  const sortedDist = [...categoryDistribution.entries()].sort((a, b) => b[1] - a[1]);
+  console.log(`  Mapped to ${categoryDistribution.size} categories:`);
+  for (const [slug, count] of sortedDist) {
+    console.log(`    ${slug}: ${count}`);
+  }
+  console.log();
 
   // ── Derive Collections ──────────────────────────────────────────────────
   console.log("Deriving collections...");
-  const collections = deriveCollections(rawProducts);
+  const collections = deriveCollections(rawProducts, productCategoryMap);
   const populated = collections.filter((c) => c.productSlugs.length > 0);
-  console.log(`  Created ${collections.length} collections (${populated.length} with products)\n`);
+  console.log(`  Created ${collections.length} collections (${populated.length} with products)`);
+  for (const col of populated) {
+    console.log(`    ${col.slug}: ${col.productSlugs.length} products`);
+  }
+  console.log();
 
   // ── Write outputs ───────────────────────────────────────────────────────
   console.log("Writing output files...\n");
-  writeCategoriesCSV(categories, outputDir);
+  writeCategoriesCSV(outputDir);
   writeCollectionsCSV(collections, outputDir);
-  await writeProductsExcel(rawProducts, categories, collections, rawPathToSlug, outputDir, dynamicFilterAttrs);
+  await writeProductsExcel(rawProducts, collections, productCategoryMap, outputDir, dynamicFilterAttrs);
 
   console.log("\n🎉 Import files ready! Upload via Bulk Manager in order:");
   console.log("   1. Categories  →  output/mansour/categories.csv");

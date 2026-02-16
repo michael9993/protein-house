@@ -120,7 +120,12 @@
       "WebFetch(domain:zustand.docs.pmnd.rs)",
       "WebFetch(domain:newreleases.io)",
       "WebFetch(domain:www.apollographql.com)",
-      "WebFetch(domain:the-guild.dev)"
+      "WebFetch(domain:the-guild.dev)",
+      "WebFetch(domain:vitest.dev)",
+      "WebFetch(domain:app.codemod.com)",
+      "Bash(/c/Users/micha/AppData/Local/Microsoft/WindowsApps/python3:*)",
+      "Bash(c:/Python312/python.exe:*)",
+      "Bash(PYTHONIOENCODING=utf-8 python:*)"
     ],
     "deny": [
       "Read(./.env*)",

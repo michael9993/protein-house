@@ -5,63 +5,186 @@ export interface Category {
   parent?: string;
   description_he?: string;
   description_en?: string;
-  backgroundImageUrl?: string;
+  seoTitle_he?: string;
+  seoTitle_en?: string;
 }
 
 export const CATEGORIES: Category[] = [
-  // Root categories
-  { name_he: "גברים", name_en: "Men", slug: "men", backgroundImageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800" },
-  { name_he: "נשים", name_en: "Women", slug: "women", backgroundImageUrl: "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=800" },
-  { name_he: "ילדים", name_en: "Kids", slug: "kids", backgroundImageUrl: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800" },
-  { name_he: "מותגים", name_en: "Brands", slug: "brands", backgroundImageUrl: "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=800" },
-  { name_he: "מבצעים", name_en: "Sale", slug: "sale", backgroundImageUrl: "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=800" },
+  // ── L1: Gender Roots (3) ──────────────────────────────────────────────────
+  {
+    name_he: "גברים", name_en: "Men", slug: "men",
+    description_he: "נעליים וביגוד ספורט לגברים מהמותגים המובילים",
+    description_en: "Men's shoes and sportswear from leading brands",
+    seoTitle_he: "גברים - מנסור שוז", seoTitle_en: "Men - Mansour Shoes",
+  },
+  {
+    name_he: "נשים", name_en: "Women", slug: "women",
+    description_he: "נעליים וביגוד ספורט לנשים מהמותגים המובילים",
+    description_en: "Women's shoes and sportswear from leading brands",
+    seoTitle_he: "נשים - מנסור שוז", seoTitle_en: "Women - Mansour Shoes",
+  },
+  {
+    name_he: "ילדים", name_en: "Kids", slug: "kids",
+    description_he: "נעליים וביגוד ספורט לילדים מהמותגים המובילים",
+    description_en: "Kids' shoes and sportswear from leading brands",
+    seoTitle_he: "ילדים - מנסור שוז", seoTitle_en: "Kids - Mansour Shoes",
+  },
 
-  // Men > Shoes
-  { name_he: "נעליים", name_en: "Shoes", slug: "men-shoes", parent: "men", backgroundImageUrl: "https://images.unsplash.com/photo-1539185441755-769473a23570?w=800" },
-  { name_he: "ריצה", name_en: "Running", slug: "men-running", parent: "men-shoes", backgroundImageUrl: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800" },
-  { name_he: "אימון", name_en: "Training", slug: "men-training", parent: "men-shoes", backgroundImageUrl: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=800" },
-  { name_he: "כדורגל", name_en: "Soccer", slug: "men-soccer", parent: "men-shoes", backgroundImageUrl: "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=800" },
-  { name_he: "יומיומי", name_en: "Casual", slug: "men-casual", parent: "men-shoes", backgroundImageUrl: "https://images.unsplash.com/photo-1584735175315-9d5df23860e6?w=800" },
+  // ── L2: Product Type (8) ──────────────────────────────────────────────────
 
-  // Men > Clothing
-  { name_he: "ביגוד", name_en: "Clothing", slug: "men-clothing", parent: "men", backgroundImageUrl: "https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?w=800" },
-  { name_he: "חולצות", name_en: "Tops", slug: "men-tops", parent: "men-clothing", backgroundImageUrl: "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?w=800" },
-  { name_he: "מכנסיים", name_en: "Bottoms", slug: "men-bottoms", parent: "men-clothing", backgroundImageUrl: "https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=800" },
+  // Men
+  {
+    name_he: "נעליים", name_en: "Shoes", slug: "men-shoes", parent: "men",
+    description_he: "נעליים לגברים - ריצה, אימון, כדורגל, יומיומי ועוד",
+    description_en: "Men's shoes - running, training, soccer, casual and more",
+    seoTitle_he: "נעליים לגברים - מנסור שוז", seoTitle_en: "Men's Shoes - Mansour Shoes",
+  },
+  {
+    name_he: "ביגוד עליון", name_en: "Tops", slug: "men-tops", parent: "men",
+    description_he: "חולצות, קפוצ'ונים וג'קטים לגברים",
+    description_en: "Men's t-shirts, hoodies and jackets",
+    seoTitle_he: "ביגוד עליון לגברים - מנסור שוז", seoTitle_en: "Men's Tops - Mansour Shoes",
+  },
+  {
+    name_he: "מכנסיים", name_en: "Bottoms", slug: "men-bottoms", parent: "men",
+    description_he: "מכנסי ספורט, שורטים וטרנינגים לגברים",
+    description_en: "Men's sport pants, shorts and joggers",
+    seoTitle_he: "מכנסיים לגברים - מנסור שוז", seoTitle_en: "Men's Bottoms - Mansour Shoes",
+  },
 
-  // Men > Accessories
-  { name_he: "אביזרים", name_en: "Accessories", slug: "men-accessories", parent: "men", backgroundImageUrl: "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=800" },
+  // Women
+  {
+    name_he: "נעליים", name_en: "Shoes", slug: "women-shoes", parent: "women",
+    description_he: "נעליים לנשים - ריצה, אימון, יומיומי, נוחות ועוד",
+    description_en: "Women's shoes - running, training, casual, comfort and more",
+    seoTitle_he: "נעליים לנשים - מנסור שוז", seoTitle_en: "Women's Shoes - Mansour Shoes",
+  },
+  {
+    name_he: "ביגוד עליון", name_en: "Tops", slug: "women-tops", parent: "women",
+    description_he: "חולצות, קפוצ'ונים וג'קטים לנשים",
+    description_en: "Women's t-shirts, hoodies and jackets",
+    seoTitle_he: "ביגוד עליון לנשים - מנסור שוז", seoTitle_en: "Women's Tops - Mansour Shoes",
+  },
+  {
+    name_he: "מכנסיים ולגינסים", name_en: "Bottoms & Leggings", slug: "women-bottoms", parent: "women",
+    description_he: "מכנסי ספורט, לגינסים ושורטים לנשים",
+    description_en: "Women's sport pants, leggings and shorts",
+    seoTitle_he: "מכנסיים ולגינסים לנשים - מנסור שוז", seoTitle_en: "Women's Bottoms - Mansour Shoes",
+  },
 
-  // Women > Shoes
-  { name_he: "נעליים", name_en: "Shoes", slug: "women-shoes", parent: "women", backgroundImageUrl: "https://images.unsplash.com/photo-1543508282-6319a3e2621f?w=800" },
-  { name_he: "ריצה", name_en: "Running", slug: "women-running", parent: "women-shoes", backgroundImageUrl: "https://images.unsplash.com/photo-1465453869711-7e174808ace9?w=800" },
-  { name_he: "אימון", name_en: "Training", slug: "women-training", parent: "women-shoes", backgroundImageUrl: "https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=800" },
-  { name_he: "יומיומי", name_en: "Casual", slug: "women-casual", parent: "women-shoes", backgroundImageUrl: "https://images.unsplash.com/photo-1587563871167-1ee9c731aefb?w=800" },
+  // Kids
+  {
+    name_he: "נעליים", name_en: "Shoes", slug: "kids-shoes", parent: "kids",
+    description_he: "נעליים לילדים - ספורט, יומיומי, סנדלים ועוד",
+    description_en: "Kids' shoes - sport, casual, sandals and more",
+    seoTitle_he: "נעליים לילדים - מנסור שוז", seoTitle_en: "Kids' Shoes - Mansour Shoes",
+  },
+  {
+    name_he: "ביגוד", name_en: "Clothing", slug: "kids-clothing", parent: "kids",
+    description_he: "ביגוד ספורט לילדים - חולצות, מכנסיים ועוד",
+    description_en: "Kids' sportswear - tops, bottoms and more",
+    seoTitle_he: "ביגוד לילדים - מנסור שוז", seoTitle_en: "Kids' Clothing - Mansour Shoes",
+  },
 
-  // Women > Clothing
-  { name_he: "ביגוד", name_en: "Clothing", slug: "women-clothing", parent: "women", backgroundImageUrl: "https://images.unsplash.com/photo-1556906781-9a412961c28c?w=800" },
-  { name_he: "חולצות", name_en: "Tops", slug: "women-tops", parent: "women-clothing", backgroundImageUrl: "https://images.unsplash.com/photo-1552346154-21d32810aba3?w=800" },
-  { name_he: "מכנסיים וטייצים", name_en: "Bottoms & Leggings", slug: "women-bottoms", parent: "women-clothing", backgroundImageUrl: "https://images.unsplash.com/photo-1607522370275-f14206abe5d3?w=800" },
+  // ── L3: Men's Shoes (7) ───────────────────────────────────────────────────
+  {
+    name_he: "נעלי ריצה", name_en: "Running Shoes", slug: "men-running-shoes", parent: "men-shoes",
+    description_he: "נעלי ריצה לגברים מ-Nike, Adidas, ASICS ועוד",
+    description_en: "Men's running shoes from Nike, Adidas, ASICS and more",
+    seoTitle_he: "נעלי ריצה לגברים - מנסור שוז", seoTitle_en: "Men's Running Shoes - Mansour Shoes",
+  },
+  {
+    name_he: "נעלי אימון", name_en: "Training Shoes", slug: "men-training-shoes", parent: "men-shoes",
+    description_he: "נעלי אימון וחדר כושר לגברים",
+    description_en: "Men's training and gym shoes",
+    seoTitle_he: "נעלי אימון לגברים - מנסור שוז", seoTitle_en: "Men's Training Shoes - Mansour Shoes",
+  },
+  {
+    name_he: "נעלי כדורגל", name_en: "Soccer Shoes", slug: "men-soccer-shoes", parent: "men-shoes",
+    description_he: "נעלי כדורגל וקטרגל לגברים מ-Nike ו-Adidas",
+    description_en: "Men's soccer and futsal shoes from Nike and Adidas",
+    seoTitle_he: "נעלי כדורגל לגברים - מנסור שוז", seoTitle_en: "Men's Soccer Shoes - Mansour Shoes",
+  },
+  {
+    name_he: "נעלי יומיום ואופנה", name_en: "Casual & Fashion", slug: "men-casual-shoes", parent: "men-shoes",
+    description_he: "נעלי אופנה ויומיום לגברים - סניקרס וקז'ואל",
+    description_en: "Men's casual and fashion sneakers",
+    seoTitle_he: "נעלי אופנה לגברים - מנסור שוז", seoTitle_en: "Men's Casual Shoes - Mansour Shoes",
+  },
+  {
+    name_he: "נעלי הליכה ונוחות", name_en: "Walking & Comfort", slug: "men-walking-comfort", parent: "men-shoes",
+    description_he: "נעלי הליכה ונוחות לגברים - Skechers, Lady Comfort ועוד",
+    description_en: "Men's walking and comfort shoes",
+    seoTitle_he: "נעלי הליכה לגברים - מנסור שוז", seoTitle_en: "Men's Walking Shoes - Mansour Shoes",
+  },
+  {
+    name_he: "סנדלים וכפכפים", name_en: "Sandals & Slides", slug: "men-sandals-slides", parent: "men-shoes",
+    description_he: "סנדלים וכפכפים לגברים",
+    description_en: "Men's sandals and slides",
+    seoTitle_he: "סנדלים לגברים - מנסור שוז", seoTitle_en: "Men's Sandals - Mansour Shoes",
+  },
+  {
+    name_he: "מגפיים ונעלי חורף", name_en: "Boots & Winter", slug: "men-boots-winter", parent: "men-shoes",
+    description_he: "מגפיים ונעלי חורף לגברים",
+    description_en: "Men's boots and winter shoes",
+    seoTitle_he: "מגפיים לגברים - מנסור שוז", seoTitle_en: "Men's Boots - Mansour Shoes",
+  },
 
-  // Women > Accessories
-  { name_he: "אביזרים", name_en: "Accessories", slug: "women-accessories", parent: "women", backgroundImageUrl: "https://images.unsplash.com/photo-1603487742131-4160ec999306?w=800" },
+  // ── L3: Women's Shoes (6) ─────────────────────────────────────────────────
+  {
+    name_he: "נעלי ריצה", name_en: "Running Shoes", slug: "women-running-shoes", parent: "women-shoes",
+    description_he: "נעלי ריצה לנשים מ-Nike, Adidas, ASICS ועוד",
+    description_en: "Women's running shoes from Nike, Adidas, ASICS and more",
+    seoTitle_he: "נעלי ריצה לנשים - מנסור שוז", seoTitle_en: "Women's Running Shoes - Mansour Shoes",
+  },
+  {
+    name_he: "נעלי אימון", name_en: "Training Shoes", slug: "women-training-shoes", parent: "women-shoes",
+    description_he: "נעלי אימון וחדר כושר לנשים",
+    description_en: "Women's training and gym shoes",
+    seoTitle_he: "נעלי אימון לנשים - מנסור שוז", seoTitle_en: "Women's Training Shoes - Mansour Shoes",
+  },
+  {
+    name_he: "נעלי יומיום ואופנה", name_en: "Casual & Fashion", slug: "women-casual-shoes", parent: "women-shoes",
+    description_he: "נעלי אופנה ויומיום לנשים - סניקרס וקז'ואל",
+    description_en: "Women's casual and fashion sneakers",
+    seoTitle_he: "נעלי אופנה לנשים - מנסור שוז", seoTitle_en: "Women's Casual Shoes - Mansour Shoes",
+  },
+  {
+    name_he: "נעלי הליכה ונוחות", name_en: "Walking & Comfort", slug: "women-walking-comfort", parent: "women-shoes",
+    description_he: "נעלי הליכה ונוחות לנשים - Skechers, Lady Comfort ועוד",
+    description_en: "Women's walking and comfort shoes",
+    seoTitle_he: "נעלי הליכה לנשים - מנסור שוז", seoTitle_en: "Women's Walking Shoes - Mansour Shoes",
+  },
+  {
+    name_he: "סנדלים וכפכפים", name_en: "Sandals & Slides", slug: "women-sandals-slides", parent: "women-shoes",
+    description_he: "סנדלים וכפכפים לנשים",
+    description_en: "Women's sandals and slides",
+    seoTitle_he: "סנדלים לנשים - מנסור שוז", seoTitle_en: "Women's Sandals - Mansour Shoes",
+  },
+  {
+    name_he: "מגפיים ונעלי חורף", name_en: "Boots & Winter", slug: "women-boots-winter", parent: "women-shoes",
+    description_he: "מגפיים ונעלי חורף לנשים",
+    description_en: "Women's boots and winter shoes",
+    seoTitle_he: "מגפיים לנשים - מנסור שוז", seoTitle_en: "Women's Boots - Mansour Shoes",
+  },
 
-  // Kids > Shoes
-  { name_he: "נעליים", name_en: "Shoes", slug: "kids-shoes", parent: "kids", backgroundImageUrl: "https://images.unsplash.com/photo-1600269452121-4f2416e55c28?w=800" },
-  { name_he: "בנים", name_en: "Boys", slug: "kids-boys-shoes", parent: "kids-shoes", backgroundImageUrl: "https://images.unsplash.com/photo-1595341888016-a392ef81b7de?w=800" },
-  { name_he: "בנות", name_en: "Girls", slug: "kids-girls-shoes", parent: "kids-shoes", backgroundImageUrl: "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=800" },
-
-  // Kids > Clothing
-  { name_he: "ביגוד", name_en: "Clothing", slug: "kids-clothing", parent: "kids", backgroundImageUrl: "https://images.unsplash.com/photo-1562183241-b937e95585b6?w=800" },
-  { name_he: "בנים", name_en: "Boys", slug: "kids-boys-clothing", parent: "kids-clothing", backgroundImageUrl: "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?w=800" },
-  { name_he: "בנות", name_en: "Girls", slug: "kids-girls-clothing", parent: "kids-clothing", backgroundImageUrl: "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=800" },
-
-  // Brands
-  { name_he: "Nike", name_en: "Nike", slug: "brand-nike", parent: "brands", backgroundImageUrl: "https://images.unsplash.com/photo-1618898909019-010e4e234c55?w=800" },
-  { name_he: "Adidas", name_en: "Adidas", slug: "brand-adidas", parent: "brands", backgroundImageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800" },
-  { name_he: "Under Armour", name_en: "Under Armour", slug: "brand-under-armour", parent: "brands", backgroundImageUrl: "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=800" },
-  { name_he: "Skechers", name_en: "Skechers", slug: "brand-skechers", parent: "brands", backgroundImageUrl: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800" },
-
-  // Sale
-  { name_he: "אאוטלט", name_en: "Clearance", slug: "clearance", parent: "sale", backgroundImageUrl: "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=800" },
-  { name_he: "מבזקים", name_en: "Flash Deals", slug: "flash-deals", parent: "sale", backgroundImageUrl: "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=800" },
+  // ── L3: Kids' Shoes (3) ───────────────────────────────────────────────────
+  {
+    name_he: "נעלי ספורט", name_en: "Sport Shoes", slug: "kids-sport-shoes", parent: "kids-shoes",
+    description_he: "נעלי ספורט לילדים - ריצה, אימון ופעילות",
+    description_en: "Kids' sport shoes - running, training and active",
+    seoTitle_he: "נעלי ספורט לילדים - מנסור שוז", seoTitle_en: "Kids' Sport Shoes - Mansour Shoes",
+  },
+  {
+    name_he: "נעלי יומיום", name_en: "Casual Shoes", slug: "kids-casual-shoes", parent: "kids-shoes",
+    description_he: "נעלי יומיום ובית ספר לילדים",
+    description_en: "Kids' casual and school shoes",
+    seoTitle_he: "נעלי יומיום לילדים - מנסור שוז", seoTitle_en: "Kids' Casual Shoes - Mansour Shoes",
+  },
+  {
+    name_he: "סנדלים וכפכפים", name_en: "Sandals & Slides", slug: "kids-sandals-slides", parent: "kids-shoes",
+    description_he: "סנדלים וכפכפים לילדים",
+    description_en: "Kids' sandals and slides",
+    seoTitle_he: "סנדלים לילדים - מנסור שוז", seoTitle_en: "Kids' Sandals - Mansour Shoes",
+  },
 ];
