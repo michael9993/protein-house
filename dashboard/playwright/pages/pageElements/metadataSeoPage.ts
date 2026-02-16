@@ -1,12 +1,12 @@
 import type { Page } from "@playwright/test";
-import * as faker from "faker";
+import { faker } from "@faker-js/faker";
 
-const metaDataName = `e2e-metaDataName-${faker.datatype.number()}`;
-const metaDataValue = `e2e-metaDataValue-${faker.datatype.number()}`;
-const privateMetaDataName = `e2e-privateMetaDataName-${faker.datatype.number()}`;
-const privateMetaDataValue = `e2e-privateMetaDataValue-${faker.datatype.number()}`;
-const seoEngineTitle = `e2e-seoSlugTitle-${faker.datatype.number()}`;
-const seoDescriptionText = `e2e-seoSlugDescription-${faker.datatype.number()}`;
+const metaDataName = `e2e-metaDataName-${faker.number.int()}`;
+const metaDataValue = `e2e-metaDataValue-${faker.number.int()}`;
+const privateMetaDataName = `e2e-privateMetaDataName-${faker.number.int()}`;
+const privateMetaDataValue = `e2e-privateMetaDataValue-${faker.number.int()}`;
+const seoEngineTitle = `e2e-seoSlugTitle-${faker.number.int()}`;
+const seoDescriptionText = `e2e-seoSlugDescription-${faker.number.int()}`;
 
 export class MetadataSeoPage {
   readonly page: Page;

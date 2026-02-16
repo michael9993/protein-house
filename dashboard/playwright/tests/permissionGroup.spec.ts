@@ -5,7 +5,7 @@ import { UnassignPermissionGroupMembersDialog } from "@pages/dialogs/unassignPer
 import { PermissionGroupDetailsPage } from "@pages/permissionGroupDetailsPage";
 import { PermissionGroupsPage } from "@pages/permissionGroupsPage";
 import { expect } from "@playwright/test";
-import faker from "faker";
+import { faker } from "@faker-js/faker";
 import { test } from "utils/testWithPermission";
 
 test.use({ permissionName: "admin" });
@@ -33,7 +33,7 @@ test("TC: SALEOR_133 Should be able to create new permission group #permissions 
   await permissions.gotoPermissionGroupsView();
   await permissions.clickCreatePermissionGroupButton();
 
-  const name = faker.random.words(2);
+  const name = faker.lorem.words(2);
 
   await permissionDetails.fillPermissionGroupNameInput(name);
 
@@ -91,7 +91,7 @@ test("TC: SALEOR_134 Should be able to edit existing permission group #permissio
   await expect(permissionDetails.permissionGroupNameInput).toHaveValue(oldName);
   await permissionDetails.permissionGroupNameInput.clear();
 
-  const newName = faker.random.words(2);
+  const newName = faker.lorem.words(2);
 
   await permissionDetails.fillPermissionGroupNameInput(newName);
   await permissionDetails.clickChannelPermissionsCheckbox();

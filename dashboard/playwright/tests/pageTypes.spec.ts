@@ -1,12 +1,12 @@
 import { ATTRIBUTES, PAGE_TYPES } from "@data/e2eTestData";
 import { PageTypesPage } from "@pages/pageTypesPage";
 import { expect } from "@playwright/test";
-import * as faker from "faker";
+import { faker } from "@faker-js/faker";
 import { test } from "utils/testWithPermission";
 
 test.use({ permissionName: "admin" });
 
-const pageTypeName = `e2e-page-type-${faker.datatype.number()}`;
+const pageTypeName = `e2e-page-type-${faker.number.int()}`;
 
 test("TC: SALEOR_187 As an admin user I can create page type #e2e #page-type", async ({ page }) => {
   const pageTypePage = new PageTypesPage(page);
@@ -22,7 +22,7 @@ test("TC: SALEOR_187 As an admin user I can create page type #e2e #page-type", a
 });
 test("TC: SALEOR_188 As an admin user I can update page type#e2e #page-type", async ({ page }) => {
   const pageTypePage = new PageTypesPage(page);
-  const updatedPageTypeName = `updated-e2e-page-type-${faker.datatype.number()}`;
+  const updatedPageTypeName = `updated-e2e-page-type-${faker.number.int()}`;
   const attributeName = ATTRIBUTES.attributeToBeAssignedToPageType.name;
 
   await pageTypePage.gotoExistingPageTypePage(PAGE_TYPES.pageTypeToBeEdited.id);

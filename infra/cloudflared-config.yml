@@ -1,0 +1,93 @@
+# ========================================
+# Cloudflare Named Tunnel Configuration
+# ========================================
+# Domain: halacosmetics.org
+#
+# Prerequisites:
+#   1. Install cloudflared: winget install Cloudflare.cloudflared
+#   2. Authenticate: cloudflared tunnel login
+#   3. Create tunnel: cloudflared tunnel create aura-platform
+#   4. Copy the tunnel ID from the output and update this file
+#   5. Create CNAME DNS records in Cloudflare Dashboard:
+#      - shop.halacosmetics.org   → <tunnel-id>.cfargotunnel.com (proxied)
+#      - api.halacosmetics.org    → <tunnel-id>.cfargotunnel.com (proxied)
+#      - dash.halacosmetics.org   → <tunnel-id>.cfargotunnel.com (proxied)
+#      - stripe.halacosmetics.org → <tunnel-id>.cfargotunnel.com (proxied)
+#      - smtp.halacosmetics.org   → <tunnel-id>.cfargotunnel.com (proxied)
+#      - invoices.halacosmetics.org → <tunnel-id>.cfargotunnel.com (proxied)
+#      - control.halacosmetics.org  → <tunnel-id>.cfargotunnel.com (proxied)
+#      - newsletter.halacosmetics.org → <tunnel-id>.cfargotunnel.com (proxied)
+#      - analytics.halacosmetics.org  → <tunnel-id>.cfargotunnel.com (proxied)
+#      - bulk.halacosmetics.org     → <tunnel-id>.cfargotunnel.com (proxied)
+#      - studio.halacosmetics.org   → <tunnel-id>.cfargotunnel.com (proxied)
+#   6. Run: cloudflared tunnel --config infra/cloudflared-config.yml run
+#
+# Usage:
+#   cloudflared tunnel --config infra/cloudflared-config.yml run
+#
+# Or via the launch script:
+#   .\infra\scripts\launch-self-hosted.ps1
+
+# Replace with your tunnel name (from step 3)
+tunnel: aura-platform
+
+# Replace <TUNNEL_ID> with the UUID from `cloudflared tunnel create` output
+# The credentials file is auto-created at this path during `cloudflared tunnel create`
+credentials-file: C:\Users\micha\.cloudflared\<TUNNEL_ID>.json
+
+ingress:
+  # Storefront (Next.js) — primary customer-facing site
+  - hostname: shop.halacosmetics.org
+    service: http://localhost:3000
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+
+  # Saleor GraphQL API
+  - hostname: api.halacosmetics.org
+    service: http://localhost:8000
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+
+  # Admin Dashboard (Vite preview server)
+  - hostname: dash.halacosmetics.org
+    service: http://localhost:9000
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+
+  # Stripe Payment App
+  - hostname: stripe.halacosmetics.org
+    service: http://localhost:3002
+
+  # SMTP Email App
+  - hostname: smtp.halacosmetics.org
+    service: http://localhost:3001
+
+  # Invoice PDF App
+  - hostname: invoices.halacosmetics.org
+    service: http://localhost:3003
+
+  # Storefront Control (CMS) App
+  - hostname: control.halacosmetics.org
+    service: http://localhost:3004
+
+  # Newsletter App
+  - hostname: newsletter.halacosmetics.org
+    service: http://localhost:3005
+
+  # Sales Analytics App
+  - hostname: analytics.halacosmetics.org
+    service: http://localhost:3006
+
+  # Bulk Manager App
+  - hostname: bulk.halacosmetics.org
+    service: http://localhost:3007
+
+  # Image Studio App
+  - hostname: studio.halacosmetics.org
+    service: http://localhost:3008
+
+  # Catch-all — return 404 for unmatched hostnames
+  - service: http_status:404

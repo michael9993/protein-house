@@ -1,4 +1,4 @@
-import jwt_decode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { useEffect, useRef } from "react";
 
 interface AppToken {
@@ -19,7 +19,7 @@ export const useTokenRefresh = (token?: string, refetch?: () => void) => {
   // Wrapping it in try..catch and if fixes the issue
   try {
     if (token) {
-      decoded = jwt_decode(token) as AppToken;
+      decoded = jwtDecode(token) as AppToken;
     }
   } catch (e) {
     console.warn(e);

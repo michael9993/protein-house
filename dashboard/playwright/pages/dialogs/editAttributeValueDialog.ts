@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import faker from "faker";
+import { faker } from "@faker-js/faker";
 
 export class EditAttributeValueDialog {
   readonly page: Page;
@@ -13,7 +13,7 @@ export class EditAttributeValueDialog {
     this.page = page;
   }
 
-  async provideNewAttributeValue(newValue: string = faker.lorem.word(5)) {
+  async provideNewAttributeValue(newValue: string = faker.lorem.word({ length: 5 })) {
     await this.valueInput.clear();
     await this.valueInput.fill(newValue);
   }

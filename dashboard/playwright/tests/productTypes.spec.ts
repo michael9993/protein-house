@@ -1,12 +1,12 @@
 import { PRODUCT_TYPES } from "@data/e2eTestData";
 import { ProductTypePage } from "@pages/productTypePage";
 import { expect } from "@playwright/test";
-import * as faker from "faker";
+import { faker } from "@faker-js/faker";
 import { test } from "utils/testWithPermission";
 
 test.use({ permissionName: "admin" });
 
-const productTypeName = `e2e-product-type-${faker.datatype.number()}`;
+const productTypeName = `e2e-product-type-${faker.number.int()}`;
 
 test("TC: SALEOR_1 Create basic product type #e2e #product-type", async ({ page }) => {
   const productTypePage = new ProductTypePage(page);
@@ -31,7 +31,7 @@ test("TC: SALEOR_2 Create gift card product type #e2e #product-type", async ({ p
 });
 test("TC: SALEOR_184 As a admin I can edit product type #e2e #product-type", async ({ page }) => {
   const productTypePage = new ProductTypePage(page);
-  const updatedProductTypeName = `updated-e2e-product-type-${faker.datatype.number()}`;
+  const updatedProductTypeName = `updated-e2e-product-type-${faker.number.int()}`;
 
   await productTypePage.gotoExistingProductTypePage(PRODUCT_TYPES.productTypeToBeEdited.id);
   await productTypePage.updateProductTypeName(updatedProductTypeName);
