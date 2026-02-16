@@ -1,6 +1,5 @@
 import { AppAvatar } from "@dashboard/extensions/components/AppAvatar/AppAvatar";
 import { Box, Text } from "@saleor/macaw-ui-next";
-import moment from "moment";
 import { FormattedMessage } from "react-intl";
 
 interface TaxAppLabelProps {
@@ -33,7 +32,7 @@ export const TaxAppLabel = ({ name, logoUrl, created }: TaxAppLabelProps) => {
       )}
       {created && (
         <Text size={2} color="default2">
-          ({moment(created).format("YYYY-MM-DD")})
+          ({new Date(created).toISOString().split("T")[0]})
         </Text>
       )}
     </Box>

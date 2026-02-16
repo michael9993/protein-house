@@ -11,7 +11,6 @@ import { VoucherFragment } from "@dashboard/graphql";
 import { Sort } from "@dashboard/types";
 import { getColumnSortDirectionIcon } from "@dashboard/utils/columns/getColumnSortDirectionIcon";
 import { GridCell, Item } from "@glideapps/glide-data-grid";
-import moment from "moment";
 import { IntlShape } from "react-intl";
 
 import { columnsMessages } from "./messages";
@@ -93,11 +92,19 @@ export const createGetCellContent =
           : readonlyTextCell(PLACEHOLDER);
       case "start-date":
         return readonlyTextCell(
-          rowData.startDate ? moment(rowData.startDate).locale(locale).format("lll") : PLACEHOLDER,
+          rowData.startDate
+            ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(
+                new Date(rowData.startDate),
+              )
+            : PLACEHOLDER,
         );
       case "end-date":
         return readonlyTextCell(
-          rowData.endDate ? moment(rowData.endDate).locale(locale).format("lll") : PLACEHOLDER,
+          rowData.endDate
+            ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(
+                new Date(rowData.endDate),
+              )
+            : PLACEHOLDER,
         );
 
       case "value":

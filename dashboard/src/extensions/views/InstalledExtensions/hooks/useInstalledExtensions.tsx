@@ -2,7 +2,7 @@ import { useUserPermissions } from "@dashboard/auth/hooks/useUserPermissions";
 import { iconSize, iconStrokeWidth } from "@dashboard/components/icons";
 import {
   getLatestFailedAttemptFromWebhooks,
-  LatestWebhookDeliveryWithMoment,
+  LatestWebhookDeliveryWithDate,
 } from "@dashboard/extensions/components/AppAlerts/utils";
 import { InstalledExtension } from "@dashboard/extensions/types";
 import { ExtensionsUrls } from "@dashboard/extensions/urls";
@@ -34,7 +34,7 @@ export const getExtensionInfo = ({
   id: string;
   isActive: boolean | null;
   loading: boolean;
-  lastFailedAttempt?: LatestWebhookDeliveryWithMoment | null;
+  lastFailedAttempt?: LatestWebhookDeliveryWithDate | null;
 }) => {
   if (!isActive) {
     return <AppDisabledInfo />;
@@ -48,7 +48,7 @@ export const getExtensionInfo = ({
     return (
       <FailedWebhookInfo
         link={ExtensionsUrls.resolveEditManifestExtensionUrl(id)}
-        date={lastFailedAttempt.createdAt}
+        date={lastFailedAttempt.createdAt.toISOString()}
       />
     );
   }

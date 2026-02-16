@@ -1,7 +1,6 @@
 // @ts-strict-ignore
 import { commonMessages } from "@dashboard/intl";
 import { Box, Input, Text } from "@saleor/macaw-ui-next";
-import moment from "moment";
 import { useEffect, useState } from "react";
 import * as React from "react";
 import { useIntl } from "react-intl";
@@ -20,18 +19,28 @@ interface DateTimeFieldProps {
 }
 
 const convertToDateTimeLocal = (date: string) => {
-  return moment(date).format("YYYY-MM-DDThh:mm");
+  const d = new Date(date);
+
+  if (isNaN(d.getTime())) {
+    return "";
+  }
+
+  const pad = (n: number) => n.toString().padStart(2, "0");
+
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
 const min = "1970-01-01T00:00";
 const max = "2100-01-01T23:59";
 
 const isInputValid = (value: string) => {
-  const isValid = moment(value).isValid();
-  const isAfterMin = moment(value).isAfter(min);
-  const isBeforeMax = moment(value).isBefore(max);
+  const d = new Date(value);
 
-  return isValid && isAfterMin && isBeforeMax;
+  if (isNaN(d.getTime())) {
+    return false;
+  }
+
+  return d > new Date(min) && d < new Date(max);
 };
 
 export const DateTimeTimezoneField = ({

@@ -1,6 +1,5 @@
-import useDateLocalize from "@dashboard/hooks/useDateLocalize";
+import useDateLocalize, { formatRelativeTime } from "@dashboard/hooks/useDateLocalize";
 import { Tooltip } from "@saleor/macaw-ui-next";
-import moment from "moment-timezone";
 
 import { LocaleConsumer } from "../Locale";
 import { Consumer } from "./DateContext";
@@ -13,8 +12,6 @@ interface DateProps {
 
 const Date = ({ date, plain, format }: DateProps) => {
   const localizeDate = useDateLocalize();
-  const getHumanized = (value: string, locale: string, currentDate: number) =>
-    moment(value).locale(locale).from(currentDate);
 
   return (
     <LocaleConsumer>
@@ -27,7 +24,7 @@ const Date = ({ date, plain, format }: DateProps) => {
               <Tooltip>
                 <Tooltip.Trigger>
                   <time dateTime={date} data-test-id="dateTime">
-                    {getHumanized(date, locale, currentDate)}
+                    {formatRelativeTime(date, currentDate, locale)}
                   </time>
                 </Tooltip.Trigger>
                 <Tooltip.Content side="bottom">

@@ -1,13 +1,12 @@
 import { useAppFailedPendingWebhooksLazyQuery } from "@dashboard/graphql";
-import moment from "moment-timezone";
 import { useMemo } from "react";
 
-import { getLatestFailedAttemptFromWebhooks, LatestWebhookDeliveryWithMoment } from "./utils";
+import { getLatestFailedAttemptFromWebhooks, LatestWebhookDeliveryWithDate } from "./utils";
 
 interface AppsFailedDeliveries {
   hasFailed: boolean;
   fetchAppsWebhooks: () => void;
-  lastFailedWebhookDate: moment.Moment | null;
+  lastFailedWebhookDate: Date | null;
 }
 
 export const useAppsFailedDeliveries = (): AppsFailedDeliveries => {
@@ -15,9 +14,9 @@ export const useAppsFailedDeliveries = (): AppsFailedDeliveries => {
     fetchPolicy: "no-cache",
   });
 
-  const lastFailedWebhookDate: moment.Moment | null = useMemo(
+  const lastFailedWebhookDate: Date | null = useMemo(
     () =>
-      data?.apps?.edges.reduce<LatestWebhookDeliveryWithMoment | null>((acc, app) => {
+      data?.apps?.edges.reduce<LatestWebhookDeliveryWithDate | null>((acc, app) => {
         const latestFailedAttempt = getLatestFailedAttemptFromWebhooks(app.node.webhooks ?? []);
 
         if (!latestFailedAttempt) {
@@ -28,7 +27,7 @@ export const useAppsFailedDeliveries = (): AppsFailedDeliveries => {
           return latestFailedAttempt;
         }
 
-        return latestFailedAttempt.createdAt.isAfter(acc.createdAt) ? latestFailedAttempt : acc;
+        return latestFailedAttempt.createdAt > acc.createdAt ? latestFailedAttempt : acc;
       }, null)?.createdAt ?? null,
     [data?.apps?.edges],
   );

@@ -1,7 +1,5 @@
-// @ts-strict-ignore
+import { formatRelativeTime } from "@dashboard/hooks/useDateLocalize";
 import { Tooltip } from "@saleor/macaw-ui-next";
-import moment from "moment-timezone";
-import ReactMoment from "react-moment";
 
 import { LocaleConsumer } from "../Locale";
 import { TimezoneConsumer } from "../Timezone";
@@ -14,13 +12,19 @@ interface DateTimeProps {
 
 export const DateTime = ({ date, plain }: DateTimeProps) => {
   const getTitle = (value: string, locale?: string, tz?: string) => {
-    let date = moment(value).locale(locale);
+    const d = new globalThis.Date(value);
 
-    if (tz !== undefined) {
-      date = date.tz(tz);
+    if (isNaN(d.getTime())) {
+      return value;
     }
 
-    return date.format("lll");
+    const options: Intl.DateTimeFormatOptions = {
+      dateStyle: "medium",
+      timeStyle: "short",
+      ...(tz ? { timeZone: tz } : {}),
+    };
+
+    return new Intl.DateTimeFormat(locale, options).format(d);
   };
 
   return (
@@ -35,11 +39,7 @@ export const DateTime = ({ date, plain }: DateTimeProps) => {
                 ) : (
                   <Tooltip>
                     <Tooltip.Trigger>
-                      <div>
-                        <ReactMoment from={currentDate} locale={locale} tz={tz}>
-                          {date}
-                        </ReactMoment>
-                      </div>
+                      <div>{formatRelativeTime(date, currentDate, locale)}</div>
                     </Tooltip.Trigger>
                     <Tooltip.Content side="bottom">
                       <Tooltip.Arrow />

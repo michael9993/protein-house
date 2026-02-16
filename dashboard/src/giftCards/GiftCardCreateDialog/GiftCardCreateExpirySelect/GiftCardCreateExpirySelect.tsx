@@ -107,11 +107,17 @@ const GiftCardCreateExpirySelect = ({
                   <FormattedMessage {...messages.expiryOnLabel} />
                 </Text>
 
-                {getExpiryPeriodTerminationDate(
-                  currentDate,
-                  expiryPeriodType,
-                  expiryPeriodAmount,
-                )?.format("ll")}
+                {(() => {
+                  const d = getExpiryPeriodTerminationDate(
+                    currentDate,
+                    expiryPeriodType,
+                    expiryPeriodAmount,
+                  );
+
+                  return d
+                    ? new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(d)
+                    : null;
+                })()}
               </Text>
             </Box>
           )}

@@ -1,8 +1,7 @@
-import { LatestWebhookDeliveryWithMoment } from "@dashboard/extensions/components/AppAlerts/utils";
+import { LatestWebhookDeliveryWithDate } from "@dashboard/extensions/components/AppAlerts/utils";
 import { EventDeliveryStatusEnum } from "@dashboard/graphql";
 import { render, screen } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
-import moment from "moment-timezone";
 import * as React from "react";
 
 import { getExtensionInfo, useInstalledExtensions } from "./useInstalledExtensions";
@@ -212,8 +211,8 @@ describe("InstalledExtensions / hooks / useInstalledExtensions / getExtensionInf
       lastFailedAttempt: {
         id: "1",
         status: EventDeliveryStatusEnum.FAILED,
-        createdAt: moment("2023-10-03T00:00:00Z"),
-      } as LatestWebhookDeliveryWithMoment,
+        createdAt: new Date("2023-10-03T00:00:00Z"),
+      } as LatestWebhookDeliveryWithDate,
     };
 
     render(getExtensionInfo(extension)!);

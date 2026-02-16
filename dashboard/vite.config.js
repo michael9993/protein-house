@@ -326,12 +326,6 @@ export default defineConfig(({ command, mode }) => {
         "@locale": path.resolve(__dirname, "./locale"),
         "@dashboard": path.resolve(__dirname, "./src"),
         src: path.resolve(__dirname, "./src"),
-        /*
-          Moment.js/react-moment does not fully suport ES modules.
-          Vite resolves it by using jsnext:main https://github.com/moment/moment/blob/develop/package.json#L26.
-          We enforce to use a different path, ignoring jsnext:main field.
-        */
-        moment: path.resolve(__dirname, "./node_modules/moment/min/moment-with-locales.js"),
       },
     },
     plugins,

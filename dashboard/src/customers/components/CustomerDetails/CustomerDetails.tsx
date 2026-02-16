@@ -7,7 +7,6 @@ import getAccountErrorMessage from "@dashboard/utils/errors/account";
 import { TextField } from "@material-ui/core";
 import { makeStyles } from "@saleor/macaw-ui";
 import { Checkbox, Skeleton, Text } from "@saleor/macaw-ui-next";
-import moment from "moment-timezone";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -66,7 +65,10 @@ const CustomerDetails = (props: CustomerDetailsProps) => {
                   defaultMessage="Active member since {date}"
                   description="section subheader"
                   values={{
-                    date: moment(customer.dateJoined).format("MMM YYYY"),
+                    date: new Intl.DateTimeFormat(undefined, {
+                      month: "short",
+                      year: "numeric",
+                    }).format(new Date(customer.dateJoined)),
                   }}
                 />
               </Text>

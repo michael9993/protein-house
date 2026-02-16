@@ -17,7 +17,6 @@ import {
 } from "@dashboard/types";
 import { DefaultTheme, ThemeTokensValues } from "@saleor/macaw-ui-next";
 import Fuse from "fuse.js";
-import moment from "moment-timezone";
 import { IntlShape } from "react-intl";
 
 import { ConfirmButtonTransitionState } from "./components/ConfirmButton";
@@ -386,9 +385,9 @@ export function joinDateTime(date: string, time?: string) {
   }
 
   const setTime = time || "00:00";
-  const dateTime = moment(date + " " + setTime).format();
+  const d = new Date(`${date}T${setTime}`);
 
-  return dateTime;
+  return d.toISOString();
 }
 
 export function splitDateTime(dateTime: string) {
@@ -399,12 +398,12 @@ export function splitDateTime(dateTime: string) {
     };
   }
 
-  // Default html input format YYYY-MM-DD HH:mm
-  const splitDateTime = moment(dateTime).format("YYYY-MM-DD HH:mm").split(" ");
+  const d = new Date(dateTime);
+  const pad = (n: number) => n.toString().padStart(2, "0");
 
   return {
-    date: splitDateTime[0],
-    time: splitDateTime[1],
+    date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+    time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
   };
 }
 

@@ -2,7 +2,6 @@
 import { IMessage } from "@dashboard/components/messages";
 import { GiftCardCreateMutation, TimePeriodTypeEnum } from "@dashboard/graphql";
 import commonErrorMessages from "@dashboard/utils/errors/common";
-import moment from "moment-timezone";
 import { IntlShape } from "react-intl";
 
 import { GiftCardCreateCommonFormData } from "../GiftCardBulkCreateDialog/types";
@@ -12,23 +11,48 @@ import { giftCardCreateMessages as messages } from "./messages";
 const addToCurrentDate = (
   currentDate: number,
   expiryPeriodAmount: number,
-  unit: moment.unitOfTime.DurationConstructor,
-) => moment(currentDate).add(expiryPeriodAmount, unit);
+  unit: "day" | "week" | "month" | "year",
+): Date => {
+  const d = new Date(currentDate);
+
+  switch (unit) {
+    case "day":
+      d.setDate(d.getDate() + expiryPeriodAmount);
+      break;
+    case "week":
+      d.setDate(d.getDate() + expiryPeriodAmount * 7);
+      break;
+    case "month":
+      d.setMonth(d.getMonth() + expiryPeriodAmount);
+      break;
+    case "year":
+      d.setFullYear(d.getFullYear() + expiryPeriodAmount);
+      break;
+  }
+
+  return d;
+};
+
+const formatDateYMD = (d: Date): string => {
+  const pad = (n: number) => n.toString().padStart(2, "0");
+
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
 
 export const getExpiryPeriodTerminationDate = (
   currentDate: number,
   expiryPeriodType: TimePeriodTypeEnum,
   expiryPeriodAmount = 0,
-): moment.Moment | null => {
+): Date | null => {
   switch (expiryPeriodType) {
     case TimePeriodTypeEnum.DAY:
-      return addToCurrentDate(currentDate, expiryPeriodAmount, "d");
+      return addToCurrentDate(currentDate, expiryPeriodAmount, "day");
     case TimePeriodTypeEnum.WEEK:
-      return addToCurrentDate(currentDate, expiryPeriodAmount, "w");
+      return addToCurrentDate(currentDate, expiryPeriodAmount, "week");
     case TimePeriodTypeEnum.MONTH:
-      return addToCurrentDate(currentDate, expiryPeriodAmount, "M");
+      return addToCurrentDate(currentDate, expiryPeriodAmount, "month");
     case TimePeriodTypeEnum.YEAR:
-      return addToCurrentDate(currentDate, expiryPeriodAmount, "y");
+      return addToCurrentDate(currentDate, expiryPeriodAmount, "year");
     default:
       return null;
   }
@@ -78,11 +102,13 @@ export const getGiftCardExpiryInputData = (
   }
 
   if (expiryType === "EXPIRY_PERIOD") {
-    return getExpiryPeriodTerminationDate(
+    const terminationDate = getExpiryPeriodTerminationDate(
       currentDate,
       expiryPeriodType,
       expiryPeriodAmount,
-    )?.format("YYYY-MM-DD");
+    );
+
+    return terminationDate ? formatDateYMD(terminationDate) : undefined;
   }
 
   return expiryDate;

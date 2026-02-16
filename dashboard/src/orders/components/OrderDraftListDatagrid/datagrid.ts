@@ -5,7 +5,6 @@ import { OrderDraft } from "@dashboard/orders/types";
 import { Sort } from "@dashboard/types";
 import { getColumnSortDirectionIcon } from "@dashboard/utils/columns/getColumnSortDirectionIcon";
 import { GridCell, Item } from "@glideapps/glide-data-grid";
-import moment from "moment";
 import { IntlShape } from "react-intl";
 
 import { columnsMessages } from "./messages";
@@ -67,7 +66,11 @@ export const createGetCellContent =
       case "number":
         return readonlyTextCell(`#${rowData.number}`);
       case "date":
-        return readonlyTextCell(moment(rowData.created).locale(locale).format("lll"));
+        return readonlyTextCell(
+          new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(
+            new Date(rowData.created),
+          ),
+        );
       case "customer":
         return readonlyTextCell(getCustomerName(rowData));
       case "total":

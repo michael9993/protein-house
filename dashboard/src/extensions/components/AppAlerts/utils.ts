@@ -1,5 +1,4 @@
 import { AppEventDeliveriesFragment, EventDeliveryStatusEnum } from "@dashboard/graphql";
-import moment from "moment-timezone";
 
 export type Webhook = NonNullable<AppEventDeliveriesFragment["webhooks"]>[0];
 
@@ -9,24 +8,24 @@ type LatestWebhookDelivery =
       NonNullable<Webhook["pendingDelivers"]>["edges"][0]["node"]["attempts"]
     >["edges"][0]["node"];
 
-export type LatestWebhookDeliveryWithMoment = LatestWebhookDelivery & { createdAt: moment.Moment };
+export type LatestWebhookDeliveryWithDate = LatestWebhookDelivery & { createdAt: Date };
 
-const toWebhookDeliveryWithMoment = (
+const toWebhookDeliveryWithDate = (
   delivery: LatestWebhookDelivery | null | undefined,
-): LatestWebhookDeliveryWithMoment | null =>
+): LatestWebhookDeliveryWithDate | null =>
   delivery
     ? {
         ...delivery,
-        createdAt: moment(delivery.createdAt),
+        createdAt: new Date(delivery.createdAt),
       }
     : null;
 
 const getLatest = (
-  a: LatestWebhookDeliveryWithMoment | null,
-  b: LatestWebhookDeliveryWithMoment | null,
+  a: LatestWebhookDeliveryWithDate | null,
+  b: LatestWebhookDeliveryWithDate | null,
 ) => {
   if (a && b) {
-    return a.createdAt.isAfter(b.createdAt) ? a : b;
+    return a.createdAt > b.createdAt ? a : b;
   }
 
   return a ?? b;
@@ -34,17 +33,17 @@ const getLatest = (
 
 const getLatestFailedAttemptFromWebhook = (
   webhook: Webhook,
-): LatestWebhookDeliveryWithMoment | null => {
+): LatestWebhookDeliveryWithDate | null => {
   // Edge case: Saleor failed to make a single delivery attempt
-  const failedEventDelivery = toWebhookDeliveryWithMoment(webhook.failedDelivers?.edges?.[0]?.node);
-  const fromFailedDeliveryAttempts = toWebhookDeliveryWithMoment(
+  const failedEventDelivery = toWebhookDeliveryWithDate(webhook.failedDelivers?.edges?.[0]?.node);
+  const fromFailedDeliveryAttempts = toWebhookDeliveryWithDate(
     webhook.failedDelivers?.edges?.[0]?.node?.attempts?.edges?.[0]?.node,
   );
 
   // handling the edge case and checking which one is newer
   const fromFailedDelivers = getLatest(failedEventDelivery, fromFailedDeliveryAttempts);
 
-  const fromPendingDelivers = toWebhookDeliveryWithMoment(
+  const fromPendingDelivers = toWebhookDeliveryWithDate(
     webhook.pendingDelivers?.edges?.[0]?.node.attempts?.edges.find(
       ({ node: { status } }) => status === EventDeliveryStatusEnum.FAILED,
     )?.node,
@@ -57,4 +56,4 @@ export const getLatestFailedAttemptFromWebhooks = (webhooks: Webhook[]) =>
   webhooks
     .map(getLatestFailedAttemptFromWebhook)
     .filter(Boolean)
-    .sort((a, b) => b?.createdAt.diff(a?.createdAt))[0] ?? null;
+    .sort((a, b) => b!.createdAt.getTime() - a!.createdAt.getTime())[0] ?? null;
