@@ -6,12 +6,12 @@ import * as React from "react";
 
 import { getExtensionInfo, useInstalledExtensions } from "./useInstalledExtensions";
 
-vi.mock("@dashboard/components/Link", async () => {
+vi.mock("@dashboard/components/Link", async () => ({
   // eslint-disable-next-line react/display-name
-  return ({ children, href }: { children: React.ReactNode; href: string }) => (
+  default: ({ children, href }: { children: React.ReactNode; href: string }) => (
     <a href={href}>{children}</a>
-  );
-});
+  ),
+}));
 
 vi.mock("@dashboard/hooks/useHasManagedAppsPermission", async () => ({
   useHasManagedAppsPermission: vi.fn(() => ({

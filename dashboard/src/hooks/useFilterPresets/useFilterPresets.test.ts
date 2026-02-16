@@ -4,7 +4,7 @@ import { useFilterPresets } from "./useFilterPresets";
 
 const mockNavigate = vi.fn();
 
-vi.mock("@dashboard/hooks/useNavigator", () => () => mockNavigate);
+vi.mock("@dashboard/hooks/useNavigator", () => ({ default: () => mockNavigate }));
 
 const baseUrl = "http://localhost";
 

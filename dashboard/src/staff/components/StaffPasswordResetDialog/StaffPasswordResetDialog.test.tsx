@@ -1,4 +1,4 @@
-import "@testing-library/jest-dom/extend-expect";
+
 
 import { ThemeProvider as LegacyThemeProvider } from "@saleor/macaw-ui";
 import { ThemeProvider } from "@saleor/macaw-ui-next";

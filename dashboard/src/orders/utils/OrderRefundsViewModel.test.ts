@@ -391,33 +391,33 @@ describe("OrderRefundsViewModel", () => {
       }));
 
       expect(onlyReasons).toMatchInlineSnapshot(`
-Array [
-  Object {
-    "reasonNote": "Reason without type [grant]",
-    "reasonType": null,
-  },
-  Object {
-    "reasonNote": "Reason with type [grant]",
-    "reasonType": "Broken in shipping",
-  },
-  Object {
-    "reasonNote": null,
-    "reasonType": "Broken in shipping (no note) [grant]",
-  },
-  Object {
-    "reasonNote": "Reason manual note without type",
-    "reasonType": null,
-  },
-  Object {
-    "reasonNote": "Reason manual note with type",
-    "reasonType": "Broken in shipping",
-  },
-  Object {
-    "reasonNote": "",
-    "reasonType": "Broken in shipping (no message)",
-  },
-]
-`);
+        [
+          {
+            "reasonNote": "Reason without type [grant]",
+            "reasonType": null,
+          },
+          {
+            "reasonNote": "Reason with type [grant]",
+            "reasonType": "Broken in shipping",
+          },
+          {
+            "reasonNote": null,
+            "reasonType": "Broken in shipping (no note) [grant]",
+          },
+          {
+            "reasonNote": "Reason manual note without type",
+            "reasonType": null,
+          },
+          {
+            "reasonNote": "Reason manual note with type",
+            "reasonType": "Broken in shipping",
+          },
+          {
+            "reasonNote": "",
+            "reasonType": "Broken in shipping (no message)",
+          },
+        ]
+      `);
     });
   });
 

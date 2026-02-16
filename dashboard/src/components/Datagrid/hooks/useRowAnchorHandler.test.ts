@@ -3,7 +3,7 @@ import { renderHook } from "@testing-library/react";
 
 import { useRowAnchorHandler } from "./useRowAnchorHandler";
 
-vi.mock("@dashboard/hooks/useNavigator", () => vi.fn());
+vi.mock("@dashboard/hooks/useNavigator", () => ({ default: vi.fn() }));
 
 vi.mock("@dashboard/hooks/useNavigator", () => ({
   __esModule: true,

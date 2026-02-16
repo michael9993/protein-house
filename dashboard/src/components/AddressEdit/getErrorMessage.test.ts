@@ -5,8 +5,8 @@ import { IntlShape } from "react-intl";
 
 import { getErrorMessage } from "./getErrorMessage";
 
-vi.mock("@dashboard/utils/errors/account", () => vi.fn());
-vi.mock("@dashboard/utils/errors/order", () => vi.fn());
+vi.mock("@dashboard/utils/errors/account", () => ({ default: vi.fn() }));
+vi.mock("@dashboard/utils/errors/order", () => ({ default: vi.fn() }));
 describe("getErrorMessage", () => {
   it("returns original message when it exist", () => {
     // Arrange

@@ -3,7 +3,7 @@ import { renderHook } from "@testing-library/react";
 
 import { useRichTextSubmit } from "./useRichTextSubmit";
 
-vi.mock("@dashboard/utils/richText/useRichText", () => vi.fn());
+vi.mock("@dashboard/utils/richText/useRichText", () => ({ default: vi.fn() }));
 describe("useRichTextSubmit", () => {
   it("submits value from editor succesfully", async () => {
     // Given

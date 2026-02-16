@@ -9,7 +9,7 @@ vi.mock("@dashboard/hooks/useHasManagedAppsPermission", () => ({
   useHasManagedAppsPermission: vi.fn(),
 }));
 
-vi.mock("@dashboard/hooks/useNavigator", () => vi.fn());
+vi.mock("@dashboard/hooks/useNavigator", () => ({ default: vi.fn() }));
 
 vi.mock("@dashboard/extensions/urls", () => ({
   ExtensionsUrls: {

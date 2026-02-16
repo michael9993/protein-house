@@ -14,7 +14,7 @@ vi.mock("@dashboard/intl", () => ({
   },
 }));
 
-vi.mock("@dashboard/hooks/useNotifier", () => () => vi.fn());
+vi.mock("@dashboard/hooks/useNotifier", () => ({ default: () => vi.fn() }));
 
 describe("useFileProcessing", () => {
   const mockUploadFile = vi.fn();

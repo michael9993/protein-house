@@ -22,7 +22,7 @@ interface ApolloMockedProviderProps {
 }
 
 export const ApolloMockedProvider = ({ children }: ApolloMockedProviderProps) => (
-  <MockedProvider mocks={mocks} addTypename={false}>
+  <MockedProvider mocks={mocks}>
     {children}
   </MockedProvider>
 );

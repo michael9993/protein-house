@@ -4,7 +4,7 @@ import { renderHook } from "@testing-library/react";
 
 import { useRowAnchor } from "./useRowAnchor";
 
-vi.mock("@dashboard/hooks/useDebounce", () => vi.fn(fn => fn));
+vi.mock("@dashboard/hooks/useDebounce", () => ({ default: vi.fn(fn => fn) }));
 
 describe("useRowAnchor", () => {
   const props = {

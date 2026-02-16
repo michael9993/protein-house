@@ -8,11 +8,11 @@ import { PermissionEnum, UserFragment } from "../graphql";
 import { ConfigurationPage } from "./ConfigurationPage";
 import { MenuSection } from "./types";
 
-vi.mock("@material-ui/core/useMediaQuery", () => vi.fn());
+vi.mock("@material-ui/core/useMediaQuery", () => ({ default: vi.fn() }));
 vi.mock("@dashboard/featureFlags", () => ({
   useFlag: vi.fn(() => ({ enabled: true })),
 }));
-vi.mock("@dashboard/hooks/useNavigator", () => () => vi.fn());
+vi.mock("@dashboard/hooks/useNavigator", () => ({ default: () => vi.fn() }));
 vi.mock("react-router-dom", () => ({
   Link: vi.fn(({ children }) => children),
 }));

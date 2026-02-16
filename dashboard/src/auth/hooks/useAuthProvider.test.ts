@@ -25,7 +25,7 @@ vi.mock("@dashboard/utils/credentialsManagement", async () => ({
 
 const mockNavigate = vi.fn();
 
-vi.mock("@dashboard/hooks/useNavigator", () => () => mockNavigate);
+vi.mock("@dashboard/hooks/useNavigator", () => ({ default: () => mockNavigate }));
 
 const mockNotify = vi.fn();
 const mockIntl = {

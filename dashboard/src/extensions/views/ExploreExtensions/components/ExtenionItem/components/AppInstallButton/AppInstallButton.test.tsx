@@ -11,12 +11,12 @@ vi.mock("@dashboard/featureFlags", async () => ({
   useFlag: vi.fn(() => ({ enabled: true })),
 }));
 
-vi.mock("@dashboard/components/Link", async () => {
+vi.mock("@dashboard/components/Link", async () => ({
   // eslint-disable-next-line react/display-name
-  return ({ children, href }: { children: React.ReactNode; href: string }) => (
+  default: ({ children, href }: { children: React.ReactNode; href: string }) => (
     <a href={href}>{children}</a>
-  );
-});
+  ),
+}));
 
 vi.mock("@dashboard/config", async () => ({
   __esModule: true,

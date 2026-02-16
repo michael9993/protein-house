@@ -1,14 +1,14 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`MenuItems tree - getDiff should return array with operations 1`] = `
-Array [
-  Object {
+exports[`MenuItems tree - getDiff > should return array with operations 1`] = `
+[
+  {
     "id": "4apparel",
     "parentId": "2accessories",
     "sortOrder": 1,
     "type": "move",
   },
-  Object {
+  {
     "id": "0jewelry",
     "parentId": "3groceries",
     "sortOrder": 0,
@@ -17,4 +17,4 @@ Array [
 ]
 `;
 
-exports[`MenuItems tree - getDiff should return orinal tree when no changes 1`] = `Array []`;
+exports[`MenuItems tree - getDiff > should return orinal tree when no changes 1`] = `[]`;

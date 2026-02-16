@@ -17,9 +17,9 @@ vi.mock("@dashboard/graphql", async () => {
   };
 });
 
-vi.mock("@dashboard/hooks/useLocalStorage", () => vi.fn());
-vi.mock("@dashboard/hooks/useNavigator", () => vi.fn());
-vi.mock("@dashboard/hooks/useNotifier", () => vi.fn());
+vi.mock("@dashboard/hooks/useLocalStorage", () => ({ default: vi.fn() }));
+vi.mock("@dashboard/hooks/useNavigator", () => ({ default: vi.fn() }));
+vi.mock("@dashboard/hooks/useNotifier", () => ({ default: vi.fn() }));
 vi.mock("@dashboard/misc", async () => ({
   extractMutationErrors: vi.fn(),
 }));

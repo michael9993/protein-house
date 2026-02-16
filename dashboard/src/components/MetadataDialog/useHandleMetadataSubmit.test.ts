@@ -12,7 +12,7 @@ import { useHandleMetadataSubmit } from "./useHandleMetadataSubmit";
 // Mocks
 const mockNotify = vi.fn();
 
-vi.mock("@dashboard/hooks/useNotifier", () => () => mockNotify);
+vi.mock("@dashboard/hooks/useNotifier", () => ({ default: () => mockNotify }));
 
 vi.mock("@apollo/client", async () => ({
   ...(await vi.importActual("@apollo/client") as {}),

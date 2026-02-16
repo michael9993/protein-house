@@ -3,7 +3,7 @@ import { renderHook } from "@testing-library/react";
 
 import { useFilterHandlers } from "./useFilterHandlers";
 
-vi.mock("./useNavigator", () => () => vi.fn());
+vi.mock("./useNavigator", () => ({ default: () => vi.fn() }));
 describe("useFilterHandlers", () => {
   describe("resetFilters", () => {
     test("should run cleanup function and call createUrl function", () => {

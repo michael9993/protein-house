@@ -11,7 +11,7 @@ describe("getNewPasswordResetRedirectUrl", () => {
   it("should return the correct redirect URL if dashboard is mounted under /", () => {
     const redirectUrl = getNewPasswordResetRedirectUrl();
 
-    expect(redirectUrl).toBe("http://localhost/new-password/");
+    expect(redirectUrl).toBe(`${window.location.origin}/new-password/`);
   });
 
   it("should return the correct redirect URL if dashboard is mounted under /dashboard", () => {
@@ -22,7 +22,7 @@ describe("getNewPasswordResetRedirectUrl", () => {
 
     const redirectUrl = getNewPasswordResetRedirectUrl();
 
-    expect(redirectUrl).toBe("http://localhost/dashboard/new-password/");
+    expect(redirectUrl).toBe(`${window.location.origin}/dashboard/new-password/`);
   });
 });
 

@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Properly computes trees # 1`] = `
+exports[`Properly computes trees > # 1`] = `
 "
 Accessories
 ··Jewelry
@@ -9,7 +9,7 @@ Groceries
 Apparel"
 `;
 
-exports[`Properly computes trees # 2`] = `
+exports[`Properly computes trees > # 2`] = `
 "
 Groceries
 ··Accessories
@@ -18,7 +18,7 @@ Groceries
 Apparel"
 `;
 
-exports[`Properly computes trees # 3`] = `
+exports[`Properly computes trees > # 3`] = `
 "
 Apparel
 ··Groceries
@@ -27,7 +27,7 @@ Apparel
 ········Glasses"
 `;
 
-exports[`Properly computes trees # 4`] = `
+exports[`Properly computes trees > # 4`] = `
 "
 Accessories
 Glasses
@@ -36,7 +36,7 @@ Jewelry
 ····Apparel"
 `;
 
-exports[`Properly computes trees # 5`] = `
+exports[`Properly computes trees > # 5`] = `
 "
 Jewelry
 ··Groceries
@@ -45,13 +45,13 @@ Glasses
 ····Accessories"
 `;
 
-exports[`Properly computes trees # 6`] = `
+exports[`Properly computes trees > # 6`] = `
 "
 Groceries
 Apparel"
 `;
 
-exports[`Properly computes trees # 7`] = `
+exports[`Properly computes trees > # 7`] = `
 "
 Apparel"
 `;

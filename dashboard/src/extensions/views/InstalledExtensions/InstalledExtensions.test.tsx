@@ -43,7 +43,7 @@ vi.mock("./hooks/useInstalledExtensions", () => ({
 vi.mock("./hooks/usePendingInstallation");
 vi.mock("./hooks/useInstalledExtensionsFilter");
 vi.mock("@dashboard/hooks/useHasManagedAppsPermission");
-vi.mock("@dashboard/hooks/useNavigator", () => vi.fn(() => vi.fn()));
+vi.mock("@dashboard/hooks/useNavigator", () => ({ default: vi.fn(() => vi.fn()) }));
 vi.mock("@dashboard/components/AppLayout/ContextualLinks/useContextualLink", () => ({
   useContextualLink: () => "Extensions",
 }));

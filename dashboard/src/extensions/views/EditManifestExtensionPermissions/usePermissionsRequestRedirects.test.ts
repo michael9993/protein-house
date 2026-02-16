@@ -4,7 +4,7 @@ import { usePermissionsRequestRedirects } from "./usePermissionsRequestRedirects
 
 const mockNavigate = vi.fn();
 
-vi.mock("@dashboard/hooks/useNavigator", () => () => mockNavigate);
+vi.mock("@dashboard/hooks/useNavigator", () => ({ default: () => mockNavigate }));
 describe("usePermissionsRequestRedirects", () => {
   beforeEach(() => {
     vi.resetAllMocks();

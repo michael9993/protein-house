@@ -8,7 +8,7 @@ import { ExitFormDialogContext } from "./ExitFormDialogProvider";
 import { useExitFormDialog } from "./useExitFormDialog";
 import { useExitFormDialogProvider } from "./useExitFormDialogProvider";
 
-vi.mock("../../hooks/useNotifier", () => undefined);
+vi.mock("../../hooks/useNotifier", () => ({ default: () => vi.fn() }));
 
 const MockExitFormDialogProvider = ({ children }) => {
   const { providerData } = useExitFormDialogProvider();

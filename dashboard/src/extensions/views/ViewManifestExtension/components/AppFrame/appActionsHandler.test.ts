@@ -20,15 +20,14 @@ vi.mock("../ExternalAppContext/ExternalAppContext");
 const mockNotify = vi.fn();
 const mockCloseExternalApp = vi.fn();
 
-vi.mock("@dashboard/hooks/useNotifier", (): UseNotifierResult => () => mockNotify);
+vi.mock("@dashboard/hooks/useNotifier", () => ({ default: () => mockNotify }));
 vi.spyOn(ExternalAppContext, "useExternalApp").mockImplementation(() => ({
   close: mockCloseExternalApp,
   openApp: vi.fn(),
   open: true,
   closeApp: vi.fn(),
 }));
-jest
-  .spyOn(dashboardConfig, "getAppMountUri")
+vi.spyOn(dashboardConfig, "getAppMountUri")
   // getAppMountUri is not an URI, it's a pathname
   .mockImplementation(() => "/dashboard/");
 vi.spyOn(ReactIntl, "useIntl").mockImplementation(
@@ -40,7 +39,7 @@ vi.spyOn(ReactIntl, "useIntl").mockImplementation(
 
 const mockNavigate = vi.fn();
 
-vi.mock("@dashboard/hooks/useNavigator", () => () => mockNavigate);
+vi.mock("@dashboard/hooks/useNavigator", () => ({ default: () => mockNavigate }));
 describe("AppActionsHandler", function () {
   const { location } = window;
 

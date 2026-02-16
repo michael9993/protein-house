@@ -12,7 +12,7 @@ vi.mock("./useMetadata", () => ({
   })),
 }));
 
-vi.mock("@dashboard/hooks/useDebounce", () => (fn: UseDebounceFn<unknown>) => fn);
+vi.mock("@dashboard/hooks/useDebounce", () => ({ default: (fn: UseDebounceFn<unknown>) => fn }));
 
 describe("Datagrid / persistance / usePersistance", () => {
   it("gets all persisted columns", () => {

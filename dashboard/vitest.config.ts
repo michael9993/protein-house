@@ -29,7 +29,7 @@ export default defineConfig({
     // CSS imports handled as empty modules
     css: false,
     // Snapshot formatting
-    snapshotSerializerOptions: {
+    snapshotFormat: {
       printBasicPrototype: false,
     },
     // Transform ESM packages that need it

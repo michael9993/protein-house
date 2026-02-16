@@ -16,7 +16,7 @@ import { BrowserRouter } from "react-router-dom";
 
 import { OrderManualTransactionRefundPage } from "./OrderManualTransactionRefundPage";
 
-vi.mock("@dashboard/hooks/useNavigator", () => () => vi.fn);
+vi.mock("@dashboard/hooks/useNavigator", () => ({ default: () => vi.fn }));
 vi.mock("@dashboard/components/Savebar");
 
 vi.mock("@dashboard/hooks/useNotifier", () => ({

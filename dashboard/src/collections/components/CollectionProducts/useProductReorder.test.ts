@@ -23,7 +23,7 @@ vi.mock("./useCollectionId", () => ({
   useCollectionId: vi.fn(() => "collection-id-1"),
 }));
 
-vi.mock("@dashboard/hooks/useNotifier", () => vi.fn());
+vi.mock("@dashboard/hooks/useNotifier", () => ({ default: vi.fn() }));
 
 describe("CollectionProducts/useProductReorder", () => {
   const mockReorder = vi.fn();

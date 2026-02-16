@@ -5,7 +5,7 @@ import { TablePagination } from "./TablePagination";
 
 const mockNavigate = vi.fn();
 
-vi.mock("@dashboard/hooks/useNavigator", () => () => mockNavigate);
+vi.mock("@dashboard/hooks/useNavigator", () => ({ default: () => mockNavigate }));
 
 describe("TablePagination", () => {
   const defaultProps = {

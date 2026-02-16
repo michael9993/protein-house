@@ -14,11 +14,11 @@ vi.mock("@dashboard/graphql", async () => ({
   },
 }));
 
-vi.mock("@dashboard/hooks/useNavigator", () => () => vi.fn());
+vi.mock("@dashboard/hooks/useNavigator", () => ({ default: () => vi.fn() }));
 
 const mockNotify = vi.fn();
 
-vi.mock("@dashboard/hooks/useNotifier", () => () => mockNotify);
+vi.mock("@dashboard/hooks/useNotifier", () => ({ default: () => mockNotify }));
 
 const mockUseAppCreateMutation = useAppCreateMutation as MockedFunction<
   typeof useAppCreateMutation

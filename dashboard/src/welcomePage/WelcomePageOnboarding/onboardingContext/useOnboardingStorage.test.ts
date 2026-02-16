@@ -15,7 +15,7 @@ vi.mock("@dashboard/graphql");
 
 vi.useFakeTimers();
 
-vi.mock("lodash/debounce", () => vi.fn(fn => fn));
+vi.mock("lodash/debounce", () => ({ default: vi.fn(fn => fn) }));
 
 describe("useOnboardingStorage", () => {
   describe("getOnboardingState", () => {

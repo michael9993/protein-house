@@ -42,30 +42,10 @@ process.env.TZ = "UTC";
 
 configure({ testIdAttribute: "data-test-id" });
 
-/**
- * https://github.com/inrupt/solid-client-authn-js/issues/1676
- *
- * Fixes (hacks) "TextEncoder is not defined" error which is likely bug in jsdom
- */
-import { TextDecoder, TextEncoder } from "util";
-
-global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder as typeof global.TextDecoder;
+// TextEncoder/TextDecoder are natively available in Node 22+ / jsdom 25+
 
 global.CSS = {
   supports: () => false,
 } as any;
 
-/**
- *
- * Fixes (hacks) "crypto is not defined" error which is likely missing implementation in jsdom
- */
-import nodeCrypto from "crypto";
-
-global.crypto = {
-  getRandomValues: function (buffer: any) {
-    return nodeCrypto.randomFillSync(buffer);
-  },
-  subtle: {} as SubtleCrypto,
-  randomUUID: () => nodeCrypto.randomUUID(),
-};
+// crypto is natively available in jsdom 25+ / Vitest's jsdom environment
