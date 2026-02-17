@@ -7,7 +7,7 @@ import TableRowLink from "@dashboard/components/TableRowLink";
 import { SaleorThrobber } from "@dashboard/components/Throbber";
 import { WarehouseFragment } from "@dashboard/graphql";
 import useSearchQuery from "@dashboard/hooks/useSearchQuery";
-import { TableBody, TableCell, TableRow, TextField } from "@material-ui/core";
+import { TableBody, TableCell, TableRow, TextField } from "@mui/material";
 import { ConfirmButton } from "@saleor/macaw-ui";
 import { Button, Option, sprinkles, Text } from "@saleor/macaw-ui-next";
 import { useState } from "react";

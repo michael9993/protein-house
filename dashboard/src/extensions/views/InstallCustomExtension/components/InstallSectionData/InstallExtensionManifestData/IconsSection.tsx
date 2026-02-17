@@ -18,13 +18,12 @@ export const IconsSection = ({ appLogo }: { appLogo: string | undefined }) => {
         height={12}
         display="flex"
         placeItems="center"
-        borderRadius={5}
+        borderRadius="5px"
         overflow="hidden"
       >
         <SaleorLogo />
       </Box>
       <img src={plusIcon} alt="" />
-
       <AppAvatar
         size={12}
         borderRadius={5}
@@ -36,7 +35,6 @@ export const IconsSection = ({ appLogo }: { appLogo: string | undefined }) => {
             : undefined
         }
       />
-
       {/* This is a line between Saleor - Plus icon - App logo */}
       <Box
         as="span"

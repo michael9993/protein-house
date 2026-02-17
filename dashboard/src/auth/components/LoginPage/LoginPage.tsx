@@ -54,7 +54,7 @@ const LoginPage = (props: LoginCardProps) => {
           </Text>
           {errors.map(error => (
             <Box
-              borderRadius={4}
+              borderRadius="4px"
               padding={4}
               backgroundColor="critical1"
               width="100%"

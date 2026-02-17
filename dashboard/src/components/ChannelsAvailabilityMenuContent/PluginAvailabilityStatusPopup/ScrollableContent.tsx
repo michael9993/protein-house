@@ -1,4 +1,4 @@
-import { List } from "@material-ui/core";
+import { List } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import * as React from "react";
 

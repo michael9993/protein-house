@@ -13,7 +13,7 @@ import useSearchQuery from "@dashboard/hooks/useSearchQuery";
 import { sectionNames } from "@dashboard/intl";
 import { FetchMoreProps } from "@dashboard/types";
 import { toggle } from "@dashboard/utils/lists";
-import { Button, FormControlLabel, TextField } from "@material-ui/core";
+import { Button, FormControlLabel, TextField } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import { Option as MacawOptionType, Text } from "@saleor/macaw-ui-next";
 import { PropsWithChildren } from "react";

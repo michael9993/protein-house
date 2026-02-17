@@ -11,6 +11,7 @@ import { MemoryRouter } from "react-router";
 import { Sidebar } from "./Sidebar";
 import { SidebarProvider } from "./SidebarContext";
 
+
 vi.mock("./menu/hooks/useMenuStructure", () => ({
   useMenuStructure: vi.fn(() => []),
 }));

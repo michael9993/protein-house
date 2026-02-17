@@ -21,7 +21,7 @@ const useStyles = makeStyles(
       fontSize: "12px",
       borderRadius: "4px",
       background:
-        theme.palette.type === "light" ? theme.palette.grey[100] : theme.palette.background.paper,
+        theme.palette.mode === "light" ? theme.palette.grey[100] : theme.palette.background.paper,
       padding: "4px",
       cursor: "default",
       whiteSpace: "nowrap",
@@ -74,7 +74,7 @@ export const PspReference = ({ reference, url }: PspReferenceProps) => {
             event.preventDefault();
             copy(reference);
           }}
-        >
+          size="medium">
           {copied ? (
             <CheckIcon onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
           ) : (

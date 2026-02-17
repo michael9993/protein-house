@@ -25,7 +25,7 @@ export const FeatureFlagsModal = ({ open, onChange }: FeatureFlagsModalProps) =>
       <Modal.Content>
         <Box
           backgroundColor="default1"
-          borderRadius={3}
+          borderRadius="3px"
           position="fixed"
           boxShadow="defaultModal"
           overflow="hidden"

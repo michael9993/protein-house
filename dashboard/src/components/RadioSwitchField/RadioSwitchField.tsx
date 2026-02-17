@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { FormControl, FormControlLabel, Radio, RadioGroup } from "@material-ui/core";
+import { FormControl, FormControlLabel, Radio, RadioGroup } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import clsx from "clsx";
 import * as React from "react";

@@ -1,7 +1,8 @@
 // @ts-strict-ignore
 import CollectionWithDividers from "@dashboard/components/CollectionWithDividers";
 import useStateFromProps from "@dashboard/hooks/useStateFromProps";
-import { makeStyles, Paper } from "@material-ui/core";
+import { Paper } from "@mui/material";
+import { makeStyles } from "@saleor/macaw-ui";
 import { Accordion, AccordionSummary } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import { useState } from "react";

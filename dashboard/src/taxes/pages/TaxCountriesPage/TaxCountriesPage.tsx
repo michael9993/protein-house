@@ -18,7 +18,7 @@ import { parseQuery } from "@dashboard/orders/components/OrderCustomerAddressesE
 import TaxPageTitle from "@dashboard/taxes/components/TaxPageTitle";
 import { taxesMessages } from "@dashboard/taxes/messages";
 import { isLastElement } from "@dashboard/taxes/utils/utils";
-import { Card, CardContent, Divider, InputAdornment, TextField } from "@material-ui/core";
+import { Card, CardContent, Divider, InputAdornment, TextField } from "@mui/material";
 import {
   List,
   ListHeader,

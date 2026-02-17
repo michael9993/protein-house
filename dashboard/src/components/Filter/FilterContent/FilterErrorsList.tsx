@@ -1,7 +1,8 @@
 // @ts-strict-ignore
 import InlineAlert from "@dashboard/components/Alert/InlineAlert";
 import { errorTracker } from "@dashboard/services/errorTracking";
-import { alpha, makeStyles } from "@material-ui/core/styles";
+import { alpha } from "@mui/material/styles";
+import { makeStyles } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import { useIntl } from "react-intl";
 

@@ -6,7 +6,7 @@ import { commonMessages } from "@dashboard/intl";
 import { getUserInitials } from "@dashboard/misc";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getStaffErrorMessage from "@dashboard/utils/errors/staff";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { Box, Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import SVG from "react-inlinesvg";

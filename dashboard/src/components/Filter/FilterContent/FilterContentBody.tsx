@@ -3,7 +3,7 @@ import { FilterDateTimeField } from "@dashboard/components/Filter/FilterContent/
 import { FilterNumericField } from "@dashboard/components/Filter/FilterContent/FilterNumericField";
 import { FilterSingleSelectField } from "@dashboard/components/Filter/FilterContent/FilterSingleSelectField";
 import { useCommonStyles } from "@dashboard/components/Filter/FilterContent/utils";
-import { FormControlLabel, Radio, TextField } from "@material-ui/core";
+import { FormControlLabel, Radio, TextField } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import { Option, Skeleton } from "@saleor/macaw-ui-next";
 import clsx from "clsx";

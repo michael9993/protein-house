@@ -6,6 +6,7 @@ import userEvent from "@testing-library/user-event";
 
 import { ProductTile } from "./ProductTile";
 
+
 describe("ProductTile", () => {
   const PLACEHOLDER_URL =
     "https://master.staging.saleor.cloud/media/thumbnails/products/saleordemoproduct_fd_juice_02_thumbnail_256.png";
@@ -19,7 +20,7 @@ describe("ProductTile", () => {
     // Act
     render(
       <ThemeProvider>
-        <ProductTile product={product} onClick={vi.fn()} />
+          <ProductTile product={product} onClick={vi.fn()} />
       </ThemeProvider>,
     );
 
@@ -38,7 +39,7 @@ describe("ProductTile", () => {
     // Act
     render(
       <ThemeProvider>
-        <ProductTile product={product} onClick={vi.fn()} />
+          <ProductTile product={product} onClick={vi.fn()} />
       </ThemeProvider>,
     );
     // Assert
@@ -55,7 +56,7 @@ describe("ProductTile", () => {
     // Act
     render(
       <ThemeProvider>
-        <ProductTile product={product} onClick={onClick} />
+          <ProductTile product={product} onClick={onClick} />
       </ThemeProvider>,
     );
     await user.click(screen.getByTestId(`product-tile-${product.id}`));

@@ -23,7 +23,7 @@ export const useStyles = makeStyles(
     hr: {
       left: theme.spacing(-1),
       position: "relative",
-      width: `calc(100% + ${theme.spacing(2)}px)`,
+      width: `calc(100% + ${theme.spacing(2)})`,
     },
     menuItem: {
       display: "block",

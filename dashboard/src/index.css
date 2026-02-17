@@ -1,3 +1,14 @@
+@import "tailwindcss/theme" layer(theme);
+@import "tailwindcss/utilities" layer(utilities);
+
+/* Custom breakpoints matching existing themeOverrides.ts */
+@theme {
+  --breakpoint-sm: 600px;
+  --breakpoint-md: 1280px;
+  --breakpoint-lg: 1680px;
+  --breakpoint-xl: 1920px;
+}
+
 #portal {
   position: fixed;
   top: 0;

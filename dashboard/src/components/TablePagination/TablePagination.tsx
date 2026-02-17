@@ -1,7 +1,7 @@
 import { iconSize, iconStrokeWidth } from "@dashboard/components/icons";
 import useNavigator from "@dashboard/hooks/useNavigator";
 import { commonMessages } from "@dashboard/intl";
-import { TableCell } from "@material-ui/core";
+import { TableCell } from "@mui/material";
 import {
   PaginationProps as MacawPaginationProps,
   PaginationRowNumberSelect,

@@ -43,7 +43,7 @@ const KeyboardShortcut = ({ children }: ChildrenProps) => {
       borderStyle="solid"
       borderWidth={1}
       paddingX={0.5}
-      borderRadius={2}
+      borderRadius="2px"
       boxShadow="defaultFocused"
     >
       {children}

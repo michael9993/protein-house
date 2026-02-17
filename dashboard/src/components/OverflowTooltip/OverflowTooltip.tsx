@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core";
+import { makeStyles } from "@saleor/macaw-ui";
 import { Tooltip } from "@saleor/macaw-ui-next";
 import clsx from "clsx";
 import * as React from "react";

@@ -12,7 +12,7 @@ import { ProductChannelListingErrorFragment, ProductErrorFragment } from "@dashb
 import { renderCollection } from "@dashboard/misc";
 import { getFormChannelError, getFormChannelErrors, getFormErrors } from "@dashboard/utils/errors";
 import getProductErrorMessage from "@dashboard/utils/errors/product";
-import { TableBody, TableCell, TableHead } from "@material-ui/core";
+import { TableBody, TableCell, TableHead } from "@mui/material";
 import { Skeleton, sprinkles, Text, vars } from "@saleor/macaw-ui-next";
 import { FormattedMessage, MessageDescriptor, useIntl } from "react-intl";
 

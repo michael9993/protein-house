@@ -11,7 +11,7 @@ import TableRowLink from "@dashboard/components/TableRowLink";
 import { ShippingZoneQuery } from "@dashboard/graphql";
 import { renderCollection } from "@dashboard/misc";
 import { ListActions, ListProps, RelayToFlat } from "@dashboard/types";
-import { TableBody, TableCell, TableFooter } from "@material-ui/core";
+import { TableBody, TableCell, TableFooter } from "@mui/material";
 import { IconButton, makeStyles } from "@saleor/macaw-ui";
 import { Skeleton, Text } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
@@ -140,7 +140,10 @@ const ShippingMethodProducts = (props: ShippingMethodProductsProps) => {
                     )}
                   </TableCellAvatar>
                   <TableCell className={classes.colAction}>
-                    <IconButton variant="secondary" onClick={() => onProductUnassign([product.id])}>
+                    <IconButton
+                      variant="secondary"
+                      onClick={() => onProductUnassign([product.id])}
+                      size="medium">
                       <Trash2 size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />
                     </IconButton>
                   </TableCell>

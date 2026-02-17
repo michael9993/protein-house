@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { alpha } from "@material-ui/core/styles";
+import { alpha } from "@mui/material/styles";
 import { ImageIcon, makeStyles } from "@saleor/macaw-ui";
 import { Text, vars } from "@saleor/macaw-ui-next";
 import clsx from "clsx";

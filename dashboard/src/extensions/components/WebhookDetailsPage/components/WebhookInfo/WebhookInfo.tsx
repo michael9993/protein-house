@@ -34,7 +34,6 @@ export const WebhookInfo = ({ data, disabled, errors, onChange, setValue }: Webh
       <DashboardCard.Header paddingLeft={0}>
         <DashboardCard.Title>{intl.formatMessage(messages.webhookInformation)}</DashboardCard.Title>
       </DashboardCard.Header>
-
       <DashboardCard.Content className={classes.card}>
         <Text fontWeight="medium" fontSize={3} display="block">
           {intl.formatMessage(commonMessages.generalInformations)}
@@ -98,7 +97,7 @@ export const WebhookInfo = ({ data, disabled, errors, onChange, setValue }: Webh
                 <Box
                   backgroundColor="critical1"
                   padding={4}
-                  borderRadius={2}
+                  borderRadius="2px"
                   style={{ minWidth: 200 }}
                 >
                   <Text fontWeight="bold" color="default1" marginBottom={2}>

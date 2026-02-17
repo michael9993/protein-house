@@ -11,7 +11,7 @@ import TableRowLink from "@dashboard/components/TableRowLink";
 import { ProductAttributeType, ProductTypeDetailsQuery } from "@dashboard/graphql";
 import { maybe, renderCollection } from "@dashboard/misc";
 import { ListActions, ReorderAction } from "@dashboard/types";
-import { TableCell } from "@material-ui/core";
+import { TableCell } from "@mui/material";
 import { IconButton, makeStyles } from "@saleor/macaw-ui";
 import { Button, Skeleton, Tooltip } from "@saleor/macaw-ui-next";
 import capitalize from "lodash/capitalize";
@@ -269,7 +269,7 @@ const ProductTypeVariantAttributes = (props: ProductTypeVariantAttributesProps) 
                           data-test-id="delete-icon"
                           onClick={() => onAttributeUnassign(attribute.id)}
                           variant="secondary"
-                        >
+                          size="medium">
                           <Trash2 size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />
                         </IconButton>
                       </TableButtonWrapper>

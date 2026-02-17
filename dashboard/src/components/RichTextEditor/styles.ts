@@ -95,7 +95,7 @@ const useStyles = makeStyles(
           left: 16,
         },
         "& .codex-editor__redactor": {
-          marginRight: `${theme.spacing(4)}px !important`,
+          marginRight: `${theme.spacing(4)} !important`,
           paddingBottom: "0 !important",
         },
         "& a": {

@@ -9,7 +9,7 @@ export const ImagePlaceholder = () => {
       display="flex"
       justifyContent="center"
       alignItems="center"
-      borderRadius={2}
+      borderRadius="2px"
       borderColor="default1"
       borderStyle="solid"
       borderWidth={1}

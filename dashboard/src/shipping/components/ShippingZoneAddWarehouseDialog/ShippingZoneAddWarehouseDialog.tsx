@@ -15,7 +15,7 @@ import { buttonMessages } from "@dashboard/intl";
 import { DialogProps } from "@dashboard/types";
 import createSingleAutocompleteSelectHandler from "@dashboard/utils/handlers/singleAutocompleteSelectChangeHandler";
 import { mapCountriesToChoices } from "@dashboard/utils/maps";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { FormattedMessage, useIntl } from "react-intl";
 
 interface ShippingZoneAddWarehouseDialogSubmitData extends AddressTypeInput {

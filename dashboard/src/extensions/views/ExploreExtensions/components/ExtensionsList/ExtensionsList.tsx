@@ -34,7 +34,7 @@ export const ExtensionsList = ({ extensions, loading, clearSearch }: ExtensionsL
           <ExtensionsGroup title={groupExtensions.title} key={group}>
             {groupExtensions.items.map(extension => (
               // Key use combination of id and name because all cms extensions have the same id
-              <ExtensionItem key={extension.id + extension.name.en} extension={extension} />
+              (<ExtensionItem key={extension.id + extension.name.en} extension={extension} />)
             ))}
           </ExtensionsGroup>
         ) : null,

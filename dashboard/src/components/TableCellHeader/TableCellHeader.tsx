@@ -1,5 +1,5 @@
-import { TableCell } from "@material-ui/core";
-import { TableCellProps } from "@material-ui/core/TableCell";
+import { TableCell } from "@mui/material";
+import { TableCellProps } from "@mui/material/TableCell";
 import { makeStyles } from "@saleor/macaw-ui";
 import { vars } from "@saleor/macaw-ui-next";
 import clsx from "clsx";

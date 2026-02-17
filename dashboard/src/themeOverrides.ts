@@ -1,13 +1,14 @@
-import { Theme } from "@material-ui/core/styles";
 import { dark, light, Themes } from "@saleor/macaw-ui";
 import { themes, vars } from "@saleor/macaw-ui-next";
 
+// MUI v4 theme overrides for LegacyThemeProvider (will be removed in D6f)
+// Using Record type since MUI v7's Theme type doesn't have 'overrides' key
 const breakpoints = {
   keys: ["xs", "sm", "md", "lg", "xl"],
   values: { lg: 1680, md: 1280, sm: 600, xl: 1920, xs: 0 },
-} as unknown as Theme["breakpoints"];
+};
 
-export const themeOverrides: Partial<Theme> = {
+export const themeOverrides: Record<string, unknown> = {
   breakpoints,
   overrides: {
     MuiCard: {

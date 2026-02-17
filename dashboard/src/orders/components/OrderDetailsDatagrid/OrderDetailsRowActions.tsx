@@ -39,7 +39,7 @@ export const OrderDetailsRowActions = ({
         className={classes.ghostIcon}
         variant="ghost"
         title={intl.formatMessage(messages.showMetadata)}
-      >
+        size="medium">
         <Code size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />
       </IconButton>
       {firstMenuItem?.Icon && (
@@ -52,7 +52,7 @@ export const OrderDetailsRowActions = ({
             className={classes.ghostIcon}
             variant="ghost"
             title={intl.formatMessage(messages.openProductDetail)}
-          >
+            size="medium">
             {firstMenuItem.Icon}
           </IconButton>
         </>

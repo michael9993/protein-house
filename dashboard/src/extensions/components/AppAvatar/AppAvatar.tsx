@@ -13,7 +13,7 @@ export const AppAvatar = ({ logo, size = 8, ...props }: { logo?: Logo; size?: Si
       height={size}
       display="flex"
       placeItems="center"
-      borderRadius={2}
+      borderRadius="2px"
       overflow="hidden"
       {...props}
     >
@@ -26,7 +26,7 @@ export const AppAvatar = ({ logo, size = 8, ...props }: { logo?: Logo; size?: Si
       height={size}
       display="flex"
       placeItems="center"
-      borderRadius={2}
+      borderRadius="2px"
       borderWidth={1}
       borderColor="default1"
       borderStyle="solid"

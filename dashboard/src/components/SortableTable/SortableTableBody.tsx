@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { ReorderAction } from "@dashboard/types";
-import { TableBody } from "@material-ui/core";
-import { TableBodyProps } from "@material-ui/core/TableBody";
+import { TableBody } from "@mui/material";
+import { TableBodyProps } from "@mui/material/TableBody";
 import { makeStyles } from "@saleor/macaw-ui";
 import { SortableContainer } from "react-sortable-hoc";
 

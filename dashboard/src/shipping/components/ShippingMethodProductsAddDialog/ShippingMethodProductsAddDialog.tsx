@@ -14,7 +14,7 @@ import useSearchQuery from "@dashboard/hooks/useSearchQuery";
 import { renderCollection } from "@dashboard/misc";
 import { isProductSelected } from "@dashboard/shipping/components/ShippingMethodProductsAddDialog/utils";
 import { FetchMoreProps } from "@dashboard/types";
-import { TableBody, TableCell, TextField } from "@material-ui/core";
+import { TableBody, TableCell, TextField } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import { Box, Skeleton, Text } from "@saleor/macaw-ui-next";
 import { Fragment, useState } from "react";

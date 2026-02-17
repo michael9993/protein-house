@@ -5,7 +5,7 @@ import { useLocalSearch } from "@dashboard/hooks/useLocalSearch";
 import useModalDialogOpen from "@dashboard/hooks/useModalDialogOpen";
 import { buttonMessages } from "@dashboard/intl";
 import { taxesMessages } from "@dashboard/taxes/messages";
-import { Divider, FormControlLabel, InputAdornment, Radio, TextField } from "@material-ui/core";
+import { Divider, FormControlLabel, InputAdornment, Radio, TextField } from "@mui/material";
 import { SearchIcon } from "@saleor/macaw-ui";
 import { Box, Button } from "@saleor/macaw-ui-next";
 import { Fragment, useState } from "react";

@@ -84,15 +84,15 @@ function useCategoryUpdateForm(
   } as CategoryUpdateData;
   // Need to make it function to always have description.current up to date
   const getData = async (): Promise<CategoryUpdateData> =>
-    ({
+    (({
       ...formData,
-      description: await richText.getValue(),
-    }) as CategoryUpdateData;
+      description: await richText.getValue()
+    }) as CategoryUpdateData);
   const getSubmitData = async (): Promise<CategoryUpdateData> =>
-    ({
+    (({
       ...(await getData()),
-      ...getMetadata(data, isMetadataModified, isPrivateMetadataModified),
-    }) as CategoryUpdateData;
+      ...getMetadata(data, isMetadataModified, isPrivateMetadataModified)
+    }) as CategoryUpdateData);
   const submit = async () => handleFormSubmit(await getSubmitData());
 
   useEffect(() => setExitDialogSubmitRef(submit), [submit]);

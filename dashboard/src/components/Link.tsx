@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { isExternalURL } from "@dashboard/utils/urls";
-import { TypographyProps } from "@material-ui/core/Typography";
+import { TypographyProps } from "@mui/material/Typography";
 import { makeStyles } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import clsx from "clsx";
@@ -113,9 +113,9 @@ const Link = (props: LinkProps) => {
         </RouterLink>
       ) : (
         // @ts-expect-error - wrong types
-        <Text as="a" href={disabled ? undefined : href} display="block" {...commonLinkProps}>
+        (<Text as="a" href={disabled ? undefined : href} display="block" {...commonLinkProps}>
           {children}
-        </Text>
+        </Text>)
       )}
     </>
   );

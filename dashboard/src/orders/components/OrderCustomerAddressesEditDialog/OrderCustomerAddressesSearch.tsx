@@ -6,7 +6,7 @@ import { AddressFragment, AddressTypeEnum } from "@dashboard/graphql";
 import { FormChange } from "@dashboard/hooks/useForm";
 import { buttonMessages } from "@dashboard/intl";
 import { getById } from "@dashboard/misc";
-import { Checkbox, FormControlLabel, InputAdornment, TextField } from "@material-ui/core";
+import { Checkbox, FormControlLabel, InputAdornment, TextField } from "@mui/material";
 import { Button, SearchIcon } from "@saleor/macaw-ui";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";

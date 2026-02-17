@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Checkbox, FormControlLabel } from "@material-ui/core";
+import { Checkbox, FormControlLabel } from "@mui/material";
 import * as React from "react";
 
 interface ControlledCheckboxProps {

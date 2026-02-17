@@ -1,4 +1,4 @@
-import { FormControl, FormHelperText, InputLabel } from "@material-ui/core";
+import { FormControl, FormHelperText, InputLabel } from "@mui/material";
 
 import { RichTextEditorProps } from "../RichTextEditor";
 

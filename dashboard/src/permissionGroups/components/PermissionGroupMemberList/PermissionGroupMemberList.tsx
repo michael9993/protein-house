@@ -14,7 +14,7 @@ import { sortMembers } from "@dashboard/permissionGroups/sort";
 import { MembersListUrlSortField } from "@dashboard/permissionGroups/urls";
 import { ListActions, SortPage } from "@dashboard/types";
 import { getArrowDirection } from "@dashboard/utils/sort";
-import { TableBody, TableCell } from "@material-ui/core";
+import { TableBody, TableCell } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import { Box, Button, Skeleton, Text, vars } from "@saleor/macaw-ui-next";
 import clsx from "clsx";

@@ -2,7 +2,7 @@
 import { TransactionEventFragment } from "@dashboard/graphql";
 import { renderCollection } from "@dashboard/misc";
 import { TransactionFakeEvent } from "@dashboard/orders/types";
-import { TableCell, TableRow } from "@material-ui/core";
+import { TableCell, TableRow } from "@mui/material";
 import { makeStyles, ResponsiveTable } from "@saleor/macaw-ui";
 import { vars } from "@saleor/macaw-ui-next";
 import { useMemo, useState } from "react";

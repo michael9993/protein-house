@@ -11,7 +11,7 @@ import { ListProps, SortPage } from "@dashboard/types";
 import { mapEdgesToItems } from "@dashboard/utils/maps";
 import { getArrowDirection } from "@dashboard/utils/sort";
 import { WarehouseListUrlSortField, warehouseUrl } from "@dashboard/warehouses/urls";
-import { TableBody, TableCell, TableFooter, TableHead } from "@material-ui/core";
+import { TableBody, TableCell, TableFooter, TableHead } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import { Button, Skeleton } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";

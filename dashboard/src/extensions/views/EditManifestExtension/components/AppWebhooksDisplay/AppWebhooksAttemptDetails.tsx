@@ -14,7 +14,7 @@ export const AppWebhooksAttemptDetails = ({ attempt }: AppWebhooksAttemptDetails
       display="flex"
       flexDirection="column"
       paddingX={2}
-      borderRadius={4}
+      borderRadius="4px"
       backgroundColor={{
         hover: "default1Hovered",
       }}
@@ -37,7 +37,6 @@ export const AppWebhooksAttemptDetails = ({ attempt }: AppWebhooksAttemptDetails
           </Text>
         </Box>
       </Box>
-
       <Box paddingTop={4} paddingBottom={2}>
         <Text
           // @ts-expect-error - "pre" is missing in Text props

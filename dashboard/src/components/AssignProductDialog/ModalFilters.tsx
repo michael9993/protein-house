@@ -36,7 +36,7 @@ export const ModalFilters: FC = () => {
             display="grid"
             __gridTemplateRows="auto 1fr"
             boxShadow="defaultModal"
-            borderRadius={2}
+            borderRadius="2px"
             onClick={e => e.stopPropagation()}
           >
             <Popover.Arrow fill="default1" />

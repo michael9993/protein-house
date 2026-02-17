@@ -10,9 +10,9 @@ type GridTableBodyProps = GridTableProps<HTMLAttributes<HTMLTableSectionElement>
 export const GridTableBody = React.forwardRef<GridTableBodyElement, GridTableBodyProps>(
   ({ children, ...props }, forwardedRef) => (
     // @ts-expect-error - incorrect types
-    <Box as="tbody" ref={forwardedRef} {...props}>
+    (<Box as="tbody" ref={forwardedRef} {...props}>
       {children}
-    </Box>
+    </Box>)
   ),
 );
 GridTableBody.displayName = "GridTable.Body";

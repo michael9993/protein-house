@@ -51,13 +51,12 @@ export const SearchShortcut = () => {
       borderStyle="solid"
       borderWidth={1}
       paddingX={1.5}
-      borderRadius={2}
+      borderRadius="2px"
       fontWeight="medium"
       fontSize={2}
       textAlign="center"
       boxShadow="defaultFocused"
-    >
-      /
-    </Box>
+    >/
+          </Box>
   );
 };

@@ -6,6 +6,7 @@ import { render, screen } from "@testing-library/react";
 
 import { WebhookSubscriptionQuery } from "./WebhookSubscriptionQuery";
 
+
 vi.mock("@graphiql/toolkit", () => ({
   clear: vi.fn(),
   createGraphiQLFetcher: vi.fn(_x => vi.fn() as Fetcher),

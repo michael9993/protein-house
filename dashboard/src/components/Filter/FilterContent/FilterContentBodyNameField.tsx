@@ -1,4 +1,4 @@
-import { Checkbox, FormControlLabel } from "@material-ui/core";
+import { Checkbox, FormControlLabel } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 
 import { FilterElement } from "../types";

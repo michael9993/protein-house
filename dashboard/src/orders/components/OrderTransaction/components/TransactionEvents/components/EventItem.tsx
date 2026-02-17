@@ -1,7 +1,7 @@
 import Money from "@dashboard/components/Money";
 import { TransactionEventFragment, TransactionEventTypeEnum } from "@dashboard/graphql";
 import { TransactionFakeEvent } from "@dashboard/orders/types";
-import { TableCell, TableRow } from "@material-ui/core";
+import { TableCell, TableRow } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import clsx from "clsx";
 
@@ -34,7 +34,7 @@ const useStyles = makeStyles(
       backgroundColor: theme.palette.saleor.active[5],
     },
     colSmall: {
-      [theme.breakpoints.down("md")]: {
+      [theme.breakpoints.down('lg')]: {
         // Take as little space as possible on mobile
         width: "1%",
         whiteSpace: "nowrap",
@@ -75,7 +75,7 @@ const useStyles = makeStyles(
           textAlign: "right",
         },
       },
-      [theme.breakpoints.down("md")]: {
+      [theme.breakpoints.down('lg')]: {
         whiteSpace: "nowrap",
       },
       "&$colDate": {

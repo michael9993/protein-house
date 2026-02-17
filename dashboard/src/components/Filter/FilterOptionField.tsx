@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { toggle } from "@dashboard/utils/lists";
-import { FormControlLabel, Radio } from "@material-ui/core";
+import { FormControlLabel, Radio } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import clsx from "clsx";
 

@@ -119,7 +119,7 @@ export const AppPermissionsDialog = ({
         <Box display={"grid"} gridAutoFlow={"row"}>
           <Text as={"p"}>{intl.formatMessage(messages.info)}</Text>
           <Box
-            borderRadius={2}
+            borderRadius="2px"
             marginBottom={6}
             marginTop={4}
             padding={4}

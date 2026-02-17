@@ -45,9 +45,9 @@ const createChannelFilterElement = (): FilterElement => {
 };
 
 const createWrapper = (initialPath: string): React.ComponentType<any> =>
-  function Wrapper({ children }: { children: React.ReactNode }) {
+  (function Wrapper({ children }: { children: React.ReactNode }) {
     return <MemoryRouter initialEntries={[initialPath]}>{children}</MemoryRouter>;
-  };
+  });
 
 describe("useModalUrlValueProvider", () => {
   describe("infinite re-render prevention", () => {

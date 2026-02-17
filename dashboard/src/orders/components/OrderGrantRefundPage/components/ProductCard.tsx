@@ -3,7 +3,7 @@ import TableCellAvatar from "@dashboard/components/TableCellAvatar";
 import TableRowLink from "@dashboard/components/TableRowLink";
 import { OrderLineGrantRefundFragment } from "@dashboard/graphql";
 import { renderCollection } from "@dashboard/misc";
-import { Table, TableBody, TableCell, TableHead } from "@material-ui/core";
+import { Table, TableBody, TableCell, TableHead } from "@mui/material";
 import { Box, Button, Input, Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage } from "react-intl";

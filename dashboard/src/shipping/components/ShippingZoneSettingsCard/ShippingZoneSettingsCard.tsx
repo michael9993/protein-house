@@ -1,7 +1,7 @@
 import { DashboardCard } from "@dashboard/components/Card";
 import { ChannelFragment } from "@dashboard/graphql";
 import { FormChange } from "@dashboard/hooks/useForm";
-import { Divider } from "@material-ui/core";
+import { Divider } from "@mui/material";
 import { Option } from "@saleor/macaw-ui-next";
 import { defineMessages, useIntl } from "react-intl";
 

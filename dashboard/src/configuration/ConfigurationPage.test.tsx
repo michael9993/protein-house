@@ -1,4 +1,4 @@
-import useMediaQuery from "@material-ui/core/useMediaQuery";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { render, screen, waitFor } from "@testing-library/react";
 import { useIntl } from "react-intl";
 import { Link } from "react-router";
@@ -8,7 +8,7 @@ import { PermissionEnum, UserFragment } from "../graphql";
 import { ConfigurationPage } from "./ConfigurationPage";
 import { MenuSection } from "./types";
 
-vi.mock("@material-ui/core/useMediaQuery", () => ({ default: vi.fn() }));
+vi.mock("@mui/material/useMediaQuery", () => ({ default: vi.fn() }));
 vi.mock("@dashboard/featureFlags", () => ({
   useFlag: vi.fn(() => ({ enabled: true })),
 }));

@@ -20,7 +20,7 @@ import TaxCountryDialog from "@dashboard/taxes/components/TaxCountryDialog";
 import TaxPageTitle from "@dashboard/taxes/components/TaxPageTitle";
 import { taxesMessages } from "@dashboard/taxes/messages";
 import { isLastElement } from "@dashboard/taxes/utils/utils";
-import { Card, CardContent, Divider } from "@material-ui/core";
+import { Card, CardContent, Divider } from "@mui/material";
 import { List, ListHeader, ListItem, ListItemCell, PageTab, PageTabs } from "@saleor/macaw-ui";
 import { Box, Button, Skeleton } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";

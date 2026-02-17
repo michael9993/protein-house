@@ -1,6 +1,6 @@
 import { DashboardModal } from "@dashboard/components/Modal";
 import { Box, Button, Text } from "@saleor/macaw-ui-next";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { useMutation } from "@apollo/client";
 import { useIntl } from "react-intl";
 import { buttonMessages } from "@dashboard/intl";

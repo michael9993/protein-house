@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core";
+import { makeStyles } from "@saleor/macaw-ui";
 
 export const useListWrapperStyles = makeStyles(
   theme => ({

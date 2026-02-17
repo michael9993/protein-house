@@ -7,7 +7,7 @@ import { CustomerDetailsQuery } from "@dashboard/graphql";
 import { OrderPaymentStatusPill } from "@dashboard/orders/components/OrderPaymentSummaryCard/components/OrderPaymentStatusPill";
 import { orderUrl } from "@dashboard/orders/urls";
 import { RelayToFlat } from "@dashboard/types";
-import { TableBody, TableCell, TableHead } from "@material-ui/core";
+import { TableBody, TableCell, TableHead } from "@mui/material";
 import { Button, Skeleton, sprinkles } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 import { Link } from "react-router";

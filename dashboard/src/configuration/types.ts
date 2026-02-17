@@ -1,5 +1,5 @@
 import { PermissionEnum } from "@dashboard/graphql";
-import { IconProps } from "@material-ui/core";
+import { IconProps } from "@mui/material";
 
 export interface MenuItem {
   description: string;

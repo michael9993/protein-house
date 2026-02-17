@@ -11,7 +11,7 @@ import WeightRange from "@dashboard/components/WeightRange";
 import { ShippingZoneDetailsFragment } from "@dashboard/graphql";
 import useNavigator from "@dashboard/hooks/useNavigator";
 import { ChannelProps } from "@dashboard/types";
-import { TableBody, TableCell, TableHead } from "@material-ui/core";
+import { TableBody, TableCell, TableHead } from "@mui/material";
 import { ICONBUTTON_SIZE, makeStyles } from "@saleor/macaw-ui";
 import { Button, Skeleton } from "@saleor/macaw-ui-next";
 import { Pencil, Trash2 } from "lucide-react";

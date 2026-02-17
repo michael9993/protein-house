@@ -72,11 +72,11 @@ export const PermissionGroupCreate = () => {
   const permissions: PermissionData[] =
     shop?.permissions.map(
       p =>
-        ({
+        (({
           ...p,
           disabled: !userPermissions.includes(p.code),
-          lastSource: false,
-        }) as PermissionData,
+          lastSource: false
+        }) as PermissionData),
     ) || [];
 
   return (

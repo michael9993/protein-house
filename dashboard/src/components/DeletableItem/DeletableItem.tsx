@@ -11,7 +11,7 @@ const DeletableItem = ({ onDelete, id }: DeletableItemProps) => {
   const handleDelete = () => onDelete(id);
 
   return (
-    <IconButton variant="secondary" onClick={handleDelete}>
+    <IconButton variant="secondary" onClick={handleDelete} size="medium">
       <Trash2 size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />
     </IconButton>
   );

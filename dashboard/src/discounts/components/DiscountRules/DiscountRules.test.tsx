@@ -17,6 +17,7 @@ import { variantsWithProductDataMock } from "./componenets/RuleForm/components/R
 import { DiscountRules } from "./DiscountRules";
 import { catalogComplexRules, catalogRules, channels, orderRules } from "./mocksData";
 
+
 vi.mock("@dashboard/hooks/useNotifier", () => ({
   __esModule: true,
   default: vi.fn(() => () => undefined),

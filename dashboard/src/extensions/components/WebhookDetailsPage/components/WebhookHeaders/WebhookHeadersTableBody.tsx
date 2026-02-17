@@ -3,7 +3,7 @@ import { iconSize, iconStrokeWidthBySize } from "@dashboard/components/icons";
 import TableRowLink from "@dashboard/components/TableRowLink";
 import { FormChange } from "@dashboard/hooks/useForm";
 import { removeAtIndex, updateAtIndex } from "@dashboard/utils/lists";
-import { TableBody, TableCell, TextField } from "@material-ui/core";
+import { TableBody, TableCell, TextField } from "@mui/material";
 import { IconButton } from "@saleor/macaw-ui";
 import clsx from "clsx";
 import { Trash2 } from "lucide-react";
@@ -105,7 +105,7 @@ export const WebhookHeadersTableBody = ({ onChange, headers }: WebhookHeadersTab
                   },
                 })
               }
-            >
+              size="medium">
               <Trash2 size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />
             </IconButton>
           </TableCell>

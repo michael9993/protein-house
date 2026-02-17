@@ -1,5 +1,5 @@
 import useAppState from "@dashboard/hooks/useAppState";
-import { LinearProgress } from "@material-ui/core";
+import { LinearProgress } from "@mui/material";
 import { Box } from "@saleor/macaw-ui-next";
 import * as React from "react";
 

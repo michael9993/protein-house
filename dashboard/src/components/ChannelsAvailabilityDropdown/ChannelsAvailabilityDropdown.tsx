@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Popper } from "@material-ui/core";
+import { Popper } from "@mui/material";
 import { useMemo, useRef, useState } from "react";
 import { useIntl } from "react-intl";
 

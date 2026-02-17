@@ -1,4 +1,4 @@
-import { Table } from "@material-ui/core";
+import { Table } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import clsx from "clsx";
 import * as React from "react";

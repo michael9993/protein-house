@@ -4,7 +4,7 @@ import { PageErrorFragment } from "@dashboard/graphql";
 import { commonMessages } from "@dashboard/intl";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getPageErrorMessage from "@dashboard/utils/errors/page";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import * as React from "react";
 import { useIntl } from "react-intl";
 

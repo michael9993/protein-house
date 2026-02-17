@@ -9,7 +9,7 @@ import {
   useGiftCardSettingsQuery,
 } from "@dashboard/graphql";
 import useForm from "@dashboard/hooks/useForm";
-import { Divider, TextField } from "@material-ui/core";
+import { Divider, TextField } from "@mui/material";
 import { Text } from "@saleor/macaw-ui-next";
 import { useIntl } from "react-intl";
 

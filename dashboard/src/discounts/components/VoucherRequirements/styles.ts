@@ -20,7 +20,7 @@ export const useStyles = makeStyles(
     },
     tableContainer: {
       margin: theme.spacing(0, -3),
-      width: `calc(100% + ${theme.spacing(6)}px)`,
+      width: `calc(100% + ${theme.spacing(6)})`,
     },
   }),
   {

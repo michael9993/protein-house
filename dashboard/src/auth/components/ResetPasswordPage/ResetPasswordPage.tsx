@@ -6,7 +6,7 @@ import { getAppMountUri } from "@dashboard/config";
 import { AccountErrorCode } from "@dashboard/graphql";
 import { SubmitPromise } from "@dashboard/hooks/useForm";
 import { commonMessages } from "@dashboard/intl";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { Box, Button, Paragraph, Text } from "@saleor/macaw-ui-next";
 import { ArrowLeft } from "lucide-react";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -44,7 +44,7 @@ const ResetPasswordPage = (props: ResetPasswordPageProps) => {
           </Text>
           {!!error && (
             <Box
-              borderRadius={4}
+              borderRadius="4px"
               padding={4}
               backgroundColor="critical1"
               width="100%"

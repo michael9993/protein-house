@@ -8,7 +8,7 @@ import TableRowLink from "@dashboard/components/TableRowLink";
 import { PostalCodeRuleInclusionTypeEnum, ShippingMethodTypeFragment } from "@dashboard/graphql";
 import ArrowDropdown from "@dashboard/icons/ArrowDropdown";
 import { renderCollection } from "@dashboard/misc";
-import { TableBody, TableCell, TableHead } from "@material-ui/core";
+import { TableBody, TableCell, TableHead } from "@mui/material";
 import { IconButton, makeStyles } from "@saleor/macaw-ui";
 import { Skeleton, Text } from "@saleor/macaw-ui-next";
 import clsx from "clsx";
@@ -189,7 +189,7 @@ const ShippingZonePostalCodes = ({
               )}
             </TableCell>
             <TableCell>
-              <IconButton variant="secondary" onClick={() => setExpanded(!expanded)}>
+              <IconButton variant="secondary" onClick={() => setExpanded(!expanded)} size="medium">
                 <ArrowDropdown
                   className={clsx(classes.arrow, {
                     [classes.arrowRotate]: expanded,
@@ -213,7 +213,7 @@ const ShippingZonePostalCodes = ({
                       variant="secondary"
                       onClick={() => onPostalCodeDelete(postalCodeRange)}
                       data-test-id={"delete-postal-code-" + postalCodeRange?.id}
-                    >
+                      size="medium">
                       <Trash2 size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />
                     </IconButton>
                   </TableCell>

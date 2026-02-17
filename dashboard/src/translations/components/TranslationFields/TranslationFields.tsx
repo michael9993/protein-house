@@ -125,7 +125,10 @@ const TranslationFields = (props: TranslationFieldsProps) => {
       <DashboardCard.Header>
         <DashboardCard.Title>{title}</DashboardCard.Title>
         <DashboardCard.Toolbar>
-          <IconButton variant="secondary" onClick={() => setExpandedState(!expanded)}>
+          <IconButton
+            variant="secondary"
+            onClick={() => setExpandedState(!expanded)}
+            size="medium">
             <ChevronDown
               className={clsx({
                 [classes.rotate]: expanded,

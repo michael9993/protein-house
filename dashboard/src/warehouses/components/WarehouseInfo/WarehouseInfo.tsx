@@ -5,7 +5,7 @@ import { FormChange } from "@dashboard/hooks/useForm";
 import { commonMessages } from "@dashboard/intl";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getWarehouseErrorMessage from "@dashboard/utils/errors/warehouse";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { useIntl } from "react-intl";
 
 interface WarehouseInfoProps {

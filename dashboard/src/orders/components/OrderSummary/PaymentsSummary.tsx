@@ -25,7 +25,7 @@ export const PaymentsSummary = ({ orderAmounts, order, hasNoPayment, ...props }:
       <Box
         backgroundColor="default2"
         padding={5}
-        borderRadius={4}
+        borderRadius="4px"
         borderStyle="solid"
         borderColor="default1"
         borderWidth={1}
@@ -46,7 +46,7 @@ export const PaymentsSummary = ({ orderAmounts, order, hasNoPayment, ...props }:
     <Box
       backgroundColor="default2"
       padding={5}
-      borderRadius={4}
+      borderRadius="4px"
       borderStyle="solid"
       borderColor="default1"
       borderWidth={1}
@@ -59,12 +59,10 @@ export const PaymentsSummary = ({ orderAmounts, order, hasNoPayment, ...props }:
           id: "9TENcY",
         })}
       />
-
       <Box marginTop={2} display="flex" gap={3}>
         <OrderChargeStatusBadge status={order.chargeStatus} />
         <OrderAuthorizeStatusBadge status={order.authorizeStatus} />
       </Box>
-
       <Box as="ul" display="grid" gap={1} marginTop={4}>
         <OrderSummaryListItem amount={orderAmounts.totalCaptured.amount}>
           {intl.formatMessage({

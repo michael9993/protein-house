@@ -16,7 +16,7 @@ const useStyles = makeStyles(
       marginBottom: theme.spacing(4),
     },
     mainPanel: {
-      [theme.breakpoints.down("sm")]: {
+      [theme.breakpoints.down('md')]: {
         padding: theme.spacing(2),
       },
       background: theme.palette.background.paper,

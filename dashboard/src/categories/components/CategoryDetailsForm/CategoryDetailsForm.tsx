@@ -7,7 +7,7 @@ import { commonMessages } from "@dashboard/intl";
 import { getFormErrors, getProductErrorMessage } from "@dashboard/utils/errors";
 import { useRichTextContext } from "@dashboard/utils/richText/context";
 import { OutputData } from "@editorjs/editorjs";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import * as React from "react";
 import { useIntl } from "react-intl";
 

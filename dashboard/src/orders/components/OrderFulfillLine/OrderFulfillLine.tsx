@@ -9,7 +9,7 @@ import {
   getWarehouseStock,
   OrderFulfillLineFormData,
 } from "@dashboard/orders/utils/data";
-import { TableCell, TextField } from "@material-ui/core";
+import { TableCell, TextField } from "@mui/material";
 import { ChevronIcon, IconButton, WarningIcon } from "@saleor/macaw-ui";
 import { Box, Skeleton, Text, Tooltip } from "@saleor/macaw-ui-next";
 import clsx from "clsx";
@@ -148,7 +148,7 @@ const OrderFulfillLine = (props: OrderFulfillLineProps) => {
               "MuiInputBase-root MuiOutlinedInput-root MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiOutlinedInput-adornedEnd",
             )}
             data-test-id="select-warehouse-button"
-          >
+            size="medium">
             <div className={classes.warehouseButtonContent}>
               <Text className={classes.warehouseButtonContentText}>
                 {lineFormWarehouse?.name ?? intl.formatMessage(messages.selectWarehouse)}

@@ -89,7 +89,6 @@ export const EventDeliveryItem = ({
           </tr>
         </Box>
       )}
-
       <Box
         borderStyle="solid"
         borderWidth={1}
@@ -99,7 +98,7 @@ export const EventDeliveryItem = ({
         }}
         margin={4}
         padding={2}
-        borderRadius={4}
+        borderRadius="4px"
       >
         {attempts.map(attempt => (
           <AppWebhooksAttemptDetails attempt={attempt} key={`attempt-details-${attempt.id}`} />

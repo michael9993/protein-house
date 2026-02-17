@@ -3,7 +3,7 @@ import FormSpacer from "@dashboard/components/FormSpacer";
 import { AccountErrorFragment } from "@dashboard/graphql";
 import { SubmitPromise } from "@dashboard/hooks/useForm";
 import getAccountErrorMessage from "@dashboard/utils/errors/account";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { Box, Button, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -41,7 +41,7 @@ const NewPasswordPage = (props: NewPasswordPageProps) => {
             </Text>
             {errors.map(error => (
               <Box
-                borderRadius={4}
+                borderRadius="4px"
                 padding={4}
                 backgroundColor="critical1"
                 width="100%"

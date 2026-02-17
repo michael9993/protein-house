@@ -11,7 +11,7 @@ import { TablePaginationWithContext } from "@dashboard/components/TablePaginatio
 import TableRowLink from "@dashboard/components/TableRowLink";
 import { SearchProductFragment } from "@dashboard/graphql";
 import { productUrl } from "@dashboard/products/urls";
-import { TableBody, TableCell, TableFooter } from "@material-ui/core";
+import { TableBody, TableCell, TableFooter } from "@mui/material";
 import { IconButton } from "@saleor/macaw-ui";
 import { Button, Skeleton } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
@@ -56,7 +56,6 @@ const DiscountProducts = (props: SaleProductsProps) => {
           </Button>
         </DashboardCard.Toolbar>
       </DashboardCard.Header>
-
       <ResponsiveTable>
         <colgroup>
           <col />
@@ -141,7 +140,7 @@ const DiscountProducts = (props: SaleProductsProps) => {
                           event.stopPropagation();
                           onProductUnassign(product.id);
                         }}
-                      >
+                        size="medium">
                         <Trash2 size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />
                       </IconButton>
                     </TableButtonWrapper>

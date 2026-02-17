@@ -12,6 +12,7 @@ import { BrowserRouter } from "react-router";
 import { VoucherCode } from "../VoucherCodesDatagrid/types";
 import { VoucherCodes, VoucherCodesProps } from "./VoucherCodes";
 
+
 vi.mock("@dashboard/components/Datagrid/persistance/usePersistance", () => ({
   usePersistance: () => ({
     columns: [],

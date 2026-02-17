@@ -1,4 +1,4 @@
-import { CardHeader } from "@material-ui/core";
+import { CardHeader } from "@mui/material";
 import { vars } from "@saleor/macaw-ui-next";
 import * as React from "react";
 

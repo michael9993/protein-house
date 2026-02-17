@@ -5,7 +5,7 @@ import * as React from "react";
 const useStyles = makeStyles(
   theme => ({
     spacer: {
-      [theme.breakpoints.down("sm")]: {
+      [theme.breakpoints.down('md')]: {
         marginTop: theme.spacing(2),
       },
       marginTop: theme.spacing(4),

@@ -5,7 +5,7 @@ import { TaxClassFragment } from "@dashboard/graphql";
 import { taxesMessages } from "@dashboard/taxes/messages";
 import { taxClassesListUrl } from "@dashboard/taxes/urls";
 import { isLastElement } from "@dashboard/taxes/utils/utils";
-import { Card, CardContent, Divider } from "@material-ui/core";
+import { Card, CardContent, Divider } from "@mui/material";
 import { List, ListHeader, ListItem, ListItemCell } from "@saleor/macaw-ui";
 import { Button, Skeleton } from "@saleor/macaw-ui-next";
 import clsx from "clsx";

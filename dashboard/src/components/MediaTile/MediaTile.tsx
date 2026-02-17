@@ -127,7 +127,7 @@ const MediaTile = (props: MediaTileProps) => {
                 variant="secondary"
                 className={classes.controlButton}
                 onClick={onEdit}
-              >
+                size="medium">
                 <Pencil size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />
               </IconButton>
             )}
@@ -137,7 +137,7 @@ const MediaTile = (props: MediaTileProps) => {
                 hoverOutline={false}
                 className={classes.controlButton}
                 onClick={onDelete}
-              >
+                size="medium">
                 <Trash2 size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />
               </IconButton>
             )}

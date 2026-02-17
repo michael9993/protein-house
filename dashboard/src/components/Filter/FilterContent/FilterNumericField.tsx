@@ -1,6 +1,6 @@
 import Arrow from "@dashboard/components/Filter/Arrow";
 import { FieldType, FilterFieldBaseProps } from "@dashboard/components/Filter/types";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 
 import { filterTestingContext, useCommonStyles } from "./utils";

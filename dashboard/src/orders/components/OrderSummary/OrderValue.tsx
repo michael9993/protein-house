@@ -34,7 +34,7 @@ export const OrderValue = ({
     <Box
       backgroundColor="default2"
       padding={5}
-      borderRadius={4}
+      borderRadius="4px"
       borderStyle="solid"
       borderColor="transparent"
       borderWidth={1}
@@ -46,7 +46,6 @@ export const OrderValue = ({
           id: "73SSOz",
         })}
       />
-
       <Box as="ul" display="grid" gap={1} marginTop={4}>
         <OrderSummaryListItem amount={orderSubtotal.gross.amount}>
           {intl.formatMessage({

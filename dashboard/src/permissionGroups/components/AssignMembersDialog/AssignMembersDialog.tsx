@@ -12,7 +12,7 @@ import useSearchQuery from "@dashboard/hooks/useSearchQuery";
 import { buttonMessages } from "@dashboard/intl";
 import { getUserInitials, getUserName, renderCollection } from "@dashboard/misc";
 import { DialogProps, FetchMoreProps, RelayToFlat, SearchPageProps } from "@dashboard/types";
-import { Checkbox, TableBody, TableCell, TextField } from "@material-ui/core";
+import { Checkbox, TableBody, TableCell, TextField } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import { Box, Skeleton, Text } from "@saleor/macaw-ui-next";
 import { useState } from "react";

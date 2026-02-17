@@ -6,6 +6,7 @@ import { MemoryRouter as Router } from "react-router";
 
 import { ProductOrganization } from "./ProductOrganization";
 
+
 const intersectionObserverMock = () => ({
   observe: () => null,
   unobserve: () => null,

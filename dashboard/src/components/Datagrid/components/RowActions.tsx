@@ -31,7 +31,7 @@ export const RowActions = ({ menuItems, disabled }: RowActionsProps) => {
           onClick={handleIconClick}
           className={classes.ghostIcon}
           variant="ghost"
-        >
+          size="medium">
           {firstMenuItem.Icon}
         </IconButton>
       ) : (

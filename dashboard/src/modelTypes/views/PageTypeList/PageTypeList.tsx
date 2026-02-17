@@ -171,7 +171,7 @@ const PageTypeList = ({ params }: PageTypeListProps) => {
                 ids: selectedPageTypes,
               })
             }
-          >
+            size="medium">
             <Trash2 size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />
           </IconButton>
         }

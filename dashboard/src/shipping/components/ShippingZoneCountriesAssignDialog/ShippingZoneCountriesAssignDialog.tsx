@@ -9,7 +9,7 @@ import TableRowLink from "@dashboard/components/TableRowLink";
 import { CountryWithCodeFragment } from "@dashboard/graphql";
 import { fuzzySearch } from "@dashboard/misc";
 import { getCountrySelectionMap, isRestWorldCountriesSelected } from "@dashboard/shipping/handlers";
-import { TableBody, TableCell, TextField } from "@material-ui/core";
+import { TableBody, TableCell, TextField } from "@mui/material";
 import { Box, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 

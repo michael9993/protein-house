@@ -5,7 +5,7 @@ import Grid from "@dashboard/components/Grid";
 import { DashboardModal } from "@dashboard/components/Modal";
 import { commonMessages } from "@dashboard/intl";
 import { DialogProps, MinMax } from "@dashboard/types";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 

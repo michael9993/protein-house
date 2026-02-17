@@ -3,7 +3,7 @@ import { makeStyles } from "@saleor/macaw-ui";
 export const useStyles = makeStyles(
   theme => ({
     tooltipIcon: {
-      fill: theme.palette.type === "dark" ? "#FAFAFA" : "#28234A",
+      fill: theme.palette.mode === "dark" ? "#FAFAFA" : "#28234A",
       fillOpacity: 0.6,
       "&:hover": {
         fillOpacity: 1,

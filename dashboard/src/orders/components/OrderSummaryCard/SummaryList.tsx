@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core";
+import { makeStyles } from "@saleor/macaw-ui";
 import clsx from "clsx";
 import { PropsWithChildren } from "react";
 

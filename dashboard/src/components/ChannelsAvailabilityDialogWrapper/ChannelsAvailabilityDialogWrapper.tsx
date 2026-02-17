@@ -1,7 +1,7 @@
 import { ControlledCheckbox } from "@dashboard/components/ControlledCheckbox";
 import Hr from "@dashboard/components/Hr";
 import Label from "@dashboard/orders/components/OrderHistory/Label";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import clsx from "clsx";

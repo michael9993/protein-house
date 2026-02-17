@@ -52,10 +52,10 @@ const getPostalCodeRulesToAdd = (rules: ShippingMethodTypeFragment["postalCodeRu
     .filter(code => !code.id || code.id === "0")
     .map(
       code =>
-        ({
+        (({
           end: code.end,
-          start: code.start,
-        }) as ShippingPostalCodeRulesCreateInputRange,
+          start: code.start
+        }) as ShippingPostalCodeRulesCreateInputRange),
     );
 
 function getCreateShippingPriceRateVariables(

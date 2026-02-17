@@ -9,12 +9,12 @@ import { StaffPasswordResetDialog } from "./StaffPasswordResetDialog";
 
 const TestWrapper = ({ children }: React.PropsWithChildren<{}>) => (
   // todo do we need intlProvider if we mock react-intl?
-  <IntlProvider defaultLocale="en" locale="en">
+  (<IntlProvider defaultLocale="en" locale="en">
     {/* @ts-expect-error legacy types */}
     <LegacyThemeProvider>
       <ThemeProvider>{children}</ThemeProvider>
     </LegacyThemeProvider>
-  </IntlProvider>
+  </IntlProvider>)
 );
 
 const defaultProps = {

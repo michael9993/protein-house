@@ -33,7 +33,7 @@ import {
   getToFulfillOrderLines,
   OrderFulfillLineFormData,
 } from "@dashboard/orders/utils/data";
-import { TableBody, TableCell, TableHead } from "@material-ui/core";
+import { TableBody, TableCell, TableHead } from "@mui/material";
 import { Box, Checkbox, Input, Skeleton, Text, Tooltip } from "@saleor/macaw-ui-next";
 import clsx from "clsx";
 import { useEffect, useState } from "react";

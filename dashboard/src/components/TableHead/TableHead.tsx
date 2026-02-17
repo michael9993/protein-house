@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import TableRowLink from "@dashboard/components/TableRowLink";
-import { TableCell, TableHead as MuiTableHead } from "@material-ui/core";
-import { TableHeadProps as MuiTableHeadProps } from "@material-ui/core/TableHead";
+import { TableCell, TableHead as MuiTableHead } from "@mui/material";
+import { TableHeadProps as MuiTableHeadProps } from "@mui/material/TableHead";
 import { makeStyles } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import clsx from "clsx";

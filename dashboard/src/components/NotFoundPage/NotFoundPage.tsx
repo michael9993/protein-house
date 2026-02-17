@@ -12,7 +12,7 @@ const useStyles = makeStyles(
       padding: 20,
     },
     container: {
-      [theme.breakpoints.down("sm")]: {
+      [theme.breakpoints.down('md')]: {
         gridTemplateColumns: "1fr",
         padding: theme.spacing(3),
         width: "100%",
@@ -26,7 +26,7 @@ const useStyles = makeStyles(
       fontWeight: 600 as const,
     },
     innerContainer: {
-      [theme.breakpoints.down("sm")]: {
+      [theme.breakpoints.down('md')]: {
         order: 1,
         textAlign: "center",
       },

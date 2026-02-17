@@ -10,7 +10,7 @@ import { sectionNames } from "@dashboard/intl";
 import { renderCollection } from "@dashboard/misc";
 import { shippingZoneUrl } from "@dashboard/shipping/urls";
 import { RelayToFlat } from "@dashboard/types";
-import { Divider } from "@material-ui/core";
+import { Divider } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import { Skeleton, Text } from "@saleor/macaw-ui-next";
 import { ReactNode, useEffect } from "react";

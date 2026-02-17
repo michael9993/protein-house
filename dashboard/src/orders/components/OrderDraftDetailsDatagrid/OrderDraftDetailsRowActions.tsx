@@ -38,7 +38,7 @@ export const OrderDraftDetailsRowActions = ({
         className={classes.ghostIcon}
         variant="ghost"
         title={intl.formatMessage(messages.showMetadata)}
-      >
+        size="medium">
         <Code size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />
       </IconButton>
       <Box height="100%" __width={1} backgroundColor={"default3"} />

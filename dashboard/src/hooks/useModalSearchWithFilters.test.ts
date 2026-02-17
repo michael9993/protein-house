@@ -28,9 +28,9 @@ describe("useModalSearchWithFilters", () => {
   });
 
   const createChangeEvent = (value: string): ChangeEvent<HTMLInputElement> =>
-    ({
-      target: { value },
-    }) as ChangeEvent<HTMLInputElement>;
+    (({
+      target: { value }
+    }) as ChangeEvent<HTMLInputElement>);
 
   const defaultOptions: UseModalSearchWithFiltersOptions<TestFilters> = {
     filterVariables: {},

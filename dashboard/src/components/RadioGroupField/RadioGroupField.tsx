@@ -6,7 +6,7 @@ import {
   MenuItem,
   Radio,
   RadioGroup,
-} from "@material-ui/core";
+} from "@mui/material";
 import clsx from "clsx";
 import * as React from "react";
 import { FormattedMessage } from "react-intl";

@@ -14,7 +14,7 @@ import {
   Radio,
   RadioGroup,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import { Option } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 

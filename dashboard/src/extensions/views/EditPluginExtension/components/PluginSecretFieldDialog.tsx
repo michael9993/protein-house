@@ -6,7 +6,7 @@ import { ConfigurationItemFragment, ConfigurationTypeFieldEnum } from "@dashboar
 import { buttonMessages } from "@dashboard/intl";
 import { maybe } from "@dashboard/misc";
 import { DialogProps } from "@dashboard/types";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { Skeleton } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 

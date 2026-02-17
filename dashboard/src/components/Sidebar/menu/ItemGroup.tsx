@@ -43,7 +43,7 @@ export const ItemGroup = ({ menuItem }: Props) => {
             display: "block",
           })}
         >
-          <Box display="flex" alignItems="center" gap={3} paddingY={1.5} borderRadius={3}>
+          <Box display="flex" alignItems="center" gap={3} paddingY={1.5} borderRadius="3px">
             {menuItem.icon}
             <Text size={3} fontWeight="medium">
               {menuItem.label}

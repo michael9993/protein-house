@@ -4,7 +4,7 @@ import { vars } from "@saleor/macaw-ui-next";
 export const useStyles = makeStyles(
   theme => ({
     configurationCategory: {
-      [theme.breakpoints.down("md")]: {
+      [theme.breakpoints.down('lg')]: {
         gridTemplateColumns: "1fr",
       },
       display: "grid",

@@ -10,7 +10,7 @@ import { WebhookFragment } from "@dashboard/graphql";
 import useNavigator from "@dashboard/hooks/useNavigator";
 import { commonMessages, commonStatusMessages, sectionNames } from "@dashboard/intl";
 import { renderCollection, stopPropagation } from "@dashboard/misc";
-import { TableBody, TableCell, TableHead } from "@material-ui/core";
+import { TableBody, TableCell, TableHead } from "@mui/material";
 import { Box, Button, Chip, Skeleton, Text } from "@saleor/macaw-ui-next";
 import clsx from "clsx";
 import { Trash2 } from "lucide-react";

@@ -5,7 +5,7 @@ import { appLoaderHeight } from "./consts";
 export const useStyles = makeStyles(
   theme => ({
     appAction: {
-      [theme.breakpoints.down("sm")]: {
+      [theme.breakpoints.down('md')]: {
         left: 0,
         width: "100%",
       },
@@ -28,7 +28,7 @@ export const useStyles = makeStyles(
       },
     },
     darkThemeSwitch: {
-      [theme.breakpoints.down("sm")]: {
+      [theme.breakpoints.down('md')]: {
         marginRight: theme.spacing(1),
       },
       marginRight: theme.spacing(2),
@@ -36,7 +36,7 @@ export const useStyles = makeStyles(
     header: {
       display: "grid",
       gridTemplateAreas: `"headerAnchor headerToolbar"`,
-      [theme.breakpoints.down("sm")]: {
+      [theme.breakpoints.down('md')]: {
         gridTemplateAreas: `"headerToolbar" 
         "headerAnchor"`,
       },
@@ -49,7 +49,7 @@ export const useStyles = makeStyles(
       display: "flex",
       gridArea: "headerToolbar",
       height: 40,
-      [theme.breakpoints.down("sm")]: {
+      [theme.breakpoints.down('md')]: {
         height: "auto",
       },
     },

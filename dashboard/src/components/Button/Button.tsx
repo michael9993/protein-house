@@ -1,5 +1,5 @@
 import { isExternalURL } from "@dashboard/utils/urls";
-import { OverridableComponent } from "@material-ui/core/OverridableComponent";
+import { OverridableComponent } from "@mui/material/OverridableComponent";
 import { Button as MacawButton, ButtonTypeMap } from "@saleor/macaw-ui";
 import { forwardRef } from "react";
 import { Link } from "react-router";

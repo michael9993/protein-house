@@ -6,7 +6,7 @@ type LimitReachedAlertProps = Omit<AlertProps, "variant" | "close">;
 
 const LimitReachedAlert = (props: LimitReachedAlertProps) => (
   // TODO: migrate to new macaw-ui alert
-  <Alert
+  (<Alert
     variant="warning"
     close
     className={clsx(
@@ -17,7 +17,7 @@ const LimitReachedAlert = (props: LimitReachedAlertProps) => (
       "remove-icon-background",
     )}
     {...props}
-  />
+  />)
 );
 
 LimitReachedAlert.displayName = "LimitReachedAlert";

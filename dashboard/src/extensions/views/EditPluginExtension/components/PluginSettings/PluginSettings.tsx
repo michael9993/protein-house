@@ -4,7 +4,7 @@ import { ConfigurationTypeFieldEnum } from "@dashboard/graphql";
 import { ChangeEvent } from "@dashboard/hooks/useForm";
 import { UserError } from "@dashboard/types";
 import { getFieldError } from "@dashboard/utils/errors";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { Box, Checkbox, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 

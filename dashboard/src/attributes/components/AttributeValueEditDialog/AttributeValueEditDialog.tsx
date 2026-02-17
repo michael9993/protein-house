@@ -7,7 +7,7 @@ import { AttributeErrorFragment, AttributeInputTypeEnum } from "@dashboard/graph
 import useModalDialogErrors from "@dashboard/hooks/useModalDialogErrors";
 import { buttonMessages } from "@dashboard/intl";
 import { getFormErrors } from "@dashboard/utils/errors";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { AttributeValueEditDialogFormData } from "../../utils/data";

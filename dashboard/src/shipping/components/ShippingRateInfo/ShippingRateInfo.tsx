@@ -9,7 +9,7 @@ import { getFormErrors } from "@dashboard/utils/errors";
 import getShippingErrorMessage from "@dashboard/utils/errors/shipping";
 import { useRichTextContext } from "@dashboard/utils/richText/context";
 import { OutputData } from "@editorjs/editorjs";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import * as React from "react";
 import { defineMessages, useIntl } from "react-intl";
@@ -43,10 +43,10 @@ const useStyles = makeStyles(
       gridColumnGap: theme.spacing(1),
       gridRowGap: theme.spacing(1),
       gridTemplateColumns: "1fr 1fr 1fr",
-      [theme.breakpoints.down("md")]: {
+      [theme.breakpoints.down('lg')]: {
         gridTemplateColumns: "1fr 1fr",
       },
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down('sm')]: {
         gridTemplateColumns: "1fr",
       },
     },

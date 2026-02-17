@@ -1,4 +1,4 @@
-import { FormHelperTextProps } from "@material-ui/core/FormHelperText";
+import { FormHelperTextProps } from "@mui/material/FormHelperText";
 
 export type ExtendedFormHelperTextProps = FormHelperTextProps & {
   "data-test-id": string;

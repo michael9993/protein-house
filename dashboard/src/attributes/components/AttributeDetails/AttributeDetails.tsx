@@ -11,7 +11,7 @@ import { FormChange, UseFormResult } from "@dashboard/hooks/useForm";
 import { commonMessages } from "@dashboard/intl";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getAttributeErrorMessage from "@dashboard/utils/errors/attribute";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { Box, Checkbox, Text } from "@saleor/macaw-ui-next";
 import { defineMessages, useIntl } from "react-intl";
 import slugify from "slugify";

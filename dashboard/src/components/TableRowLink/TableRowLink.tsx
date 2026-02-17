@@ -1,5 +1,5 @@
 import { isExternalURL } from "@dashboard/utils/urls";
-import { TableRow, TableRowTypeMap } from "@material-ui/core";
+import { TableRow, TableRowTypeMap } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import clsx from "clsx";
 import { forwardRef } from "react";

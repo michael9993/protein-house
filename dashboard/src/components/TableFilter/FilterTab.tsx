@@ -1,4 +1,4 @@
-import { Tab } from "@material-ui/core";
+import { Tab } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import clsx from "clsx";
 

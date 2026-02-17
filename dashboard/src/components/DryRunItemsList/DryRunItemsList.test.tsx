@@ -6,6 +6,7 @@ import { render, screen } from "@testing-library/react";
 
 import DryRunItemsList from "./DryRunItemsList";
 
+
 const mocks: MockedResponse[] = [...productsMocks];
 
 describe("DryRunItemsList", () => {

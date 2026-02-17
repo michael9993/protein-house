@@ -5,11 +5,11 @@ import { ChangeEvent } from "react";
 import { useManualRefund } from "./hooks";
 
 const fakeChangeEvent = (value: string): ChangeEvent<HTMLInputElement> =>
-  ({
+  (({
     target: {
       value,
-    },
-  }) as ChangeEvent<HTMLInputElement>;
+    }
+  }) as ChangeEvent<HTMLInputElement>);
 
 describe("useManualRefund hook", () => {
   it("clears data after successful submit", () => {

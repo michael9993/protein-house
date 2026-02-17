@@ -43,7 +43,12 @@ const CardAddItemsFooter = ({
       <Link data-test-id={testIds.link} onClick={onAdd}>
         {title}
       </Link>
-      <IconButton variant="secondary" data-test-id={testIds.button} color="primary" onClick={onAdd}>
+      <IconButton
+        variant="secondary"
+        data-test-id={testIds.button}
+        color="primary"
+        onClick={onAdd}
+        size="medium">
         <Plus />
       </IconButton>
       {children}

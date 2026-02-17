@@ -2,7 +2,7 @@ import { makeStyles } from "@saleor/macaw-ui";
 
 export const useStyles = makeStyles(
   theme => ({
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down('lg')]: {
       colNote: {
         width: 200,
       },

@@ -20,7 +20,7 @@ import { useAutofocus } from "@dashboard/taxes/utils/useAutofocus";
 import { isLastElement } from "@dashboard/taxes/utils/utils";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getTaxesErrorMessage from "@dashboard/utils/errors/taxes";
-import { Card, CardContent, Divider, InputAdornment, TextField } from "@material-ui/core";
+import { Card, CardContent, Divider, InputAdornment, TextField } from "@mui/material";
 import {
   List,
   ListHeader,

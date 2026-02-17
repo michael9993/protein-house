@@ -1,17 +1,11 @@
-import { createSvgIcon } from "@material-ui/core/utils";
+import { type SVGProps } from "react";
 
-/**
- * @deprecated This icon uses Material-UI which is deprecated. Please use Lucide React icons instead.
- * @see https://lucide.dev/ for available icons
- * @example
- * import { ChevronDown } from "lucide-react";
- * // Use <ChevronDown /> instead
- */
-const ArrowDropdown = createSvgIcon(
-  <g style={{ fillRule: "evenodd" }}>
-    <path d="M7 10l5 5 5-5z" />
-  </g>,
-  "ArrowDropdown",
-);
-
-export default ArrowDropdown;
+export default function ArrowDropdown(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" {...props}>
+      <g style={{ fillRule: "evenodd" }}>
+        <path d="M7 10l5 5 5-5z" />
+      </g>
+    </svg>
+  );
+}

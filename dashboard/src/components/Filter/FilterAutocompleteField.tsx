@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { toggle } from "@dashboard/utils/lists";
-import { FormControlLabel, TextField } from "@material-ui/core";
+import { FormControlLabel, TextField } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import { Option, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage } from "react-intl";

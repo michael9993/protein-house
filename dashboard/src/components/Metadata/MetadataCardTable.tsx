@@ -2,7 +2,7 @@ import { iconSize, iconStrokeWidthBySize } from "@dashboard/components/icons";
 import TableRowLink from "@dashboard/components/TableRowLink";
 import { MetadataInput } from "@dashboard/graphql";
 import { FormChange } from "@dashboard/hooks/useForm";
-import { Table, TableBody, TableCell, TableHead } from "@material-ui/core";
+import { Table, TableBody, TableCell, TableHead } from "@mui/material";
 import { Box, Button, Input, Text, Textarea, vars } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { FormattedMessage } from "react-intl";

@@ -9,7 +9,7 @@ import useModalDialogErrors from "@dashboard/hooks/useModalDialogErrors";
 import { commonMessages } from "@dashboard/intl";
 import { FetchMoreProps, RelayToFlat, SearchPageProps } from "@dashboard/types";
 import { getFormErrors } from "@dashboard/utils/errors";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { Box } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 

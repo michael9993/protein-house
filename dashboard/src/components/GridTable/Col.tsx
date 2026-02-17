@@ -10,9 +10,9 @@ type GridTableColProps = GridTableProps<ColHTMLAttributes<HTMLTableColElement>>;
 export const GridTableCol = React.forwardRef<GridTableColElement, GridTableColProps>(
   ({ children, ...props }, forwardedRef) => (
     // @ts-expect-error - wrong types with refs
-    <Box as="col" ref={forwardedRef} {...props}>
+    (<Box as="col" ref={forwardedRef} {...props}>
       {children}
-    </Box>
+    </Box>)
   ),
 );
 GridTableCol.displayName = "GridTable.Col";

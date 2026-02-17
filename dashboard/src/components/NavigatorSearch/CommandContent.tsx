@@ -79,7 +79,7 @@ export const CommandContent = () => {
                 borderStyle="solid"
                 borderWidth={1}
                 paddingX={0.5}
-                borderRadius={2}
+                borderRadius="2px"
                 fontSize={1}
                 boxShadow="defaultFocused"
               >

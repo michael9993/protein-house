@@ -1,4 +1,4 @@
-import { Avatar as MuiAvatar } from "@material-ui/core";
+import { Avatar as MuiAvatar } from "@mui/material";
 import { ImageIcon } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import clsx from "clsx";

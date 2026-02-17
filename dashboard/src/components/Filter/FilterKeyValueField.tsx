@@ -1,6 +1,6 @@
 import { iconSize, iconStrokeWidthBySize } from "@dashboard/components/icons";
 import { KeyValue } from "@dashboard/types";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { Button, IconButton, makeStyles } from "@saleor/macaw-ui";
 import { Trash2 } from "lucide-react";
 import { useIntl } from "react-intl";
@@ -113,7 +113,7 @@ export const FilterKeyValueField = <K extends string = string>({
                   type: "set-property",
                 });
               }}
-            >
+              size="medium">
               <Trash2 size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />
             </IconButton>
           </div>

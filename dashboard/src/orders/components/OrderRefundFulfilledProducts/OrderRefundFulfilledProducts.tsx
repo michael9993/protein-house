@@ -7,7 +7,7 @@ import TableRowLink from "@dashboard/components/TableRowLink";
 import { OrderRefundDataQuery } from "@dashboard/graphql";
 import { FormsetChange } from "@dashboard/hooks/useFormset";
 import { renderCollection } from "@dashboard/misc";
-import { Table, TableBody, TableCell, TableHead } from "@material-ui/core";
+import { Table, TableBody, TableCell, TableHead } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import { Button, Skeleton, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";

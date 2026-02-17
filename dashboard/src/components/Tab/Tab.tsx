@@ -1,4 +1,4 @@
-import { alpha } from "@material-ui/core/styles";
+import { alpha } from "@mui/material/styles";
 import { makeStyles } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import clsx from "clsx";

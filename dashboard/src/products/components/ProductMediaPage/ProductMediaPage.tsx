@@ -9,7 +9,7 @@ import { ProductMediaType } from "@dashboard/graphql";
 import useNavigator from "@dashboard/hooks/useNavigator";
 import { commonMessages } from "@dashboard/intl";
 import { productUrl } from "@dashboard/products/urls";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import { Skeleton, vars } from "@saleor/macaw-ui-next";
 import { defineMessages, useIntl } from "react-intl";
@@ -52,7 +52,7 @@ const useStyles = makeStyles(
       },
       border: `1px solid ${vars.colors.border.default1}`,
       borderRadius: theme.spacing(),
-      margin: `0 auto ${theme.spacing(2)}px`,
+      margin: `0 auto ${theme.spacing(2)}`,
       width: "100%",
       padding: theme.spacing(2),
     },

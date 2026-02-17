@@ -9,7 +9,7 @@ import TableHead from "@dashboard/components/TableHead";
 import { TablePaginationWithContext } from "@dashboard/components/TablePagination";
 import TableRowLink from "@dashboard/components/TableRowLink";
 import { CategoryWithTotalProductsFragment } from "@dashboard/graphql";
-import { TableBody, TableCell, TableFooter } from "@material-ui/core";
+import { TableBody, TableCell, TableFooter } from "@mui/material";
 import { IconButton } from "@saleor/macaw-ui";
 import { Button, Skeleton } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
@@ -122,7 +122,7 @@ const DiscountCategories = (props: DiscountCategoriesProps) => {
                           event.stopPropagation();
                           onCategoryUnassign(category.id);
                         }}
-                      >
+                        size="medium">
                         <Trash2 size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />
                       </IconButton>
                     </TableButtonWrapper>

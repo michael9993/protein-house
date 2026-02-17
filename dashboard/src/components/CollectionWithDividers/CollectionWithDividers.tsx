@@ -1,4 +1,4 @@
-import { Divider } from "@material-ui/core";
+import { Divider } from "@mui/material";
 import { PropsWithChildren } from "react";
 import * as React from "react";
 

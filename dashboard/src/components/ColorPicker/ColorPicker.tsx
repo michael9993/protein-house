@@ -3,7 +3,7 @@ import HorizontalSpacer from "@dashboard/components/HorizontalSpacer";
 import { UseFormResult } from "@dashboard/hooks/useForm";
 import { RequireOnlyOne } from "@dashboard/misc";
 import commonErrorMessages from "@dashboard/utils/errors/common";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import Hue from "@uiw/react-color-hue";
 import Saturation from "@uiw/react-color-saturation";

@@ -1,15 +1,8 @@
-import { createSvgIcon } from "@material-ui/core/utils";
+import { type SVGProps } from "react";
 
-/**
- * @deprecated This icon uses Material-UI which is deprecated. Please use Lucide React icons instead.
- * @see https://lucide.dev/ for available icons
- * @example
- * import { AlertCircle } from "lucide-react";
- * // Use <AlertCircle /> instead
- */
-const ErrorExclamationCircle = createSvgIcon(
-  <>
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+export default function ErrorExclamationCircle(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
       <circle cx="12" cy="12" r="12" fill="#FE6D76" />
       <path
         fillRule="evenodd"
@@ -18,8 +11,5 @@ const ErrorExclamationCircle = createSvgIcon(
         fill="white"
       />
     </svg>
-  </>,
-  "ErrorExclamationCircle",
-);
-
-export default ErrorExclamationCircle;
+  );
+}

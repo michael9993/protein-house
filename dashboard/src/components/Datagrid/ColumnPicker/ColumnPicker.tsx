@@ -64,7 +64,7 @@ export const ColumnPicker = ({
             variant="ghost"
             className={classes.ghostIcon}
             title="Pick columns"
-          >
+            size="medium">
             <Columns3 size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />
           </IconButton>
         </Box>

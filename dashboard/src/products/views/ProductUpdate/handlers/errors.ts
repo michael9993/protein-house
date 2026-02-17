@@ -90,12 +90,12 @@ function getStockErrors(errors: ProductVariantBulkErrorFragment[], varaintsIds: 
       acc.push(
         ...error.warehouses.map(
           warehouse =>
-            ({
+            (({
               __typename: "DatagridError",
               variantId,
               warehouseId: warehouse,
-              type: "stock",
-            }) as const,
+              type: "stock"
+            }) as const),
         ),
       );
     }

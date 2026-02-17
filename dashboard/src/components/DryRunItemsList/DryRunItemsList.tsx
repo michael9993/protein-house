@@ -3,7 +3,7 @@
 import { useStyles } from "@dashboard/extensions/components/WebhookDetailsPage/components/WebhookEvents/styles";
 import { useQuery } from "@dashboard/hooks/graphql";
 import { mapEdgesToItems } from "@dashboard/utils/maps";
-import { Radio } from "@material-ui/core";
+import { Radio } from "@mui/material";
 import {
   List,
   ListBody,

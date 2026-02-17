@@ -7,7 +7,7 @@ import { AddressTypeInput } from "@dashboard/customers/types";
 import { AccountErrorFragment, AddressFragment, OrderErrorFragment } from "@dashboard/graphql";
 import { FormChange } from "@dashboard/hooks/useForm";
 import { getById } from "@dashboard/misc";
-import { FormControlLabel, Radio, RadioGroup } from "@material-ui/core";
+import { FormControlLabel, Radio, RadioGroup } from "@mui/material";
 import { Box, Option, Skeleton } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { useIntl } from "react-intl";

@@ -16,7 +16,7 @@ import {
   Table,
   TableCell,
   TextField,
-} from "@material-ui/core";
+} from "@mui/material";
 import { Button, isScrolledToBottom, SearchIcon, useElementScroll } from "@saleor/macaw-ui";
 import { Box, Skeleton, Text } from "@saleor/macaw-ui-next";
 import * as React from "react";

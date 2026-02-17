@@ -7,7 +7,7 @@ export const useStyles = makeStyles(
       justifyContent: "flex-end",
     },
     versionItem: {
-      [theme.breakpoints.down("md")]: {
+      [theme.breakpoints.down('lg')]: {
         fontSize: theme.spacing(1.75),
       },
       [theme.breakpoints.up("md")]: {

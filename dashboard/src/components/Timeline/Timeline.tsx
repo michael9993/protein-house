@@ -2,7 +2,7 @@
 import { useUser } from "@dashboard/auth";
 import { Button } from "@dashboard/components/Button";
 import { getUserInitials } from "@dashboard/misc";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { makeStyles } from "@saleor/macaw-ui";
 import { sprinkles, vars } from "@saleor/macaw-ui-next";
 import * as React from "react";

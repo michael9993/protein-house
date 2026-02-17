@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { iconSize, iconStrokeWidthBySize } from "@dashboard/components/icons";
 import { SaleorThrobber } from "@dashboard/components/Throbber";
-import { ClickAwayListener, Grow, MenuItem, MenuList, Paper, Popper } from "@material-ui/core";
+import { ClickAwayListener, Grow, MenuItem, MenuList, Paper, Popper } from "@mui/material";
 import { IconButtonProps, makeStyles } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import clsx from "clsx";
@@ -144,7 +144,7 @@ const CardMenu = (props: CardMenuProps) => {
         variant={outlined ? "primary" : "secondary"}
         state={open ? "active" : "default"}
         {...IconButtonProps}
-      >
+        size="medium">
         <Icon onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
       </IconButton>
       <Popper

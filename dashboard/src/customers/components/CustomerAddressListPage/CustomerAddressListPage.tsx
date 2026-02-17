@@ -60,7 +60,7 @@ const useStyles = makeStyles(
       marginTop: theme.spacing(1),
     },
     empty: {
-      margin: `${theme.spacing(13)}px auto 0`,
+      margin: `${theme.spacing(13)} auto 0`,
       textAlign: "center",
       width: 600,
     },
@@ -68,10 +68,10 @@ const useStyles = makeStyles(
       display: "grid",
       gap: theme.spacing(3),
       gridTemplateColumns: "repeat(3, 1fr)",
-      [theme.breakpoints.down("md")]: {
+      [theme.breakpoints.down('lg')]: {
         gridTemplateColumns: "repeat(2, 1fr)",
       },
-      [theme.breakpoints.down("sm")]: {
+      [theme.breakpoints.down('md')]: {
         gridTemplateColumns: "repeat(1, 1fr)",
       },
     },
