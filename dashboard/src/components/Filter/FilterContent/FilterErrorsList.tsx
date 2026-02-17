@@ -1,39 +1,11 @@
 // @ts-strict-ignore
 import InlineAlert from "@dashboard/components/Alert/InlineAlert";
 import { errorTracker } from "@dashboard/services/errorTracking";
-import { alpha } from "@mui/material/styles";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import { useIntl } from "react-intl";
 
 import { validationMessages } from "../messages";
 import { FilterElement, FilterErrorMessages, FilterErrors } from "../types";
-
-const useStyles = makeStyles(
-  theme => ({
-    container: {
-      backgroundColor: alpha(theme.palette.primary.main, 0.1),
-      padding: theme.spacing(3, 3, 0, 3),
-    },
-    listItemTitle: {
-      color: theme.palette.primary.contrastText,
-    },
-    dot: {
-      backgroundColor: theme.palette.primary.contrastText,
-      marginRight: theme.spacing(1),
-      borderRadius: "100%",
-      height: 8,
-      minHeight: 8,
-      width: 8,
-      minWidth: 8,
-    },
-    itemContainer: {
-      display: "flex",
-      alignItems: "center",
-    },
-  }),
-  { name: "FilterErrorsList" },
-);
 
 interface FilterErrorsListProps<T extends string = string> {
   filter: FilterElement<T>;
@@ -46,7 +18,6 @@ export const FilterErrorsList = ({
   errors = [],
   errorMessages,
 }: FilterErrorsListProps) => {
-  const classes = useStyles({});
   const intl = useIntl();
   const getErrorMessage = (code: string) => {
     try {
@@ -66,13 +37,13 @@ export const FilterErrorsList = ({
   }
 
   return (
-    <div className={classes.container}>
+    <div className="bg-primary/10 pt-6 px-6">
       {!!errors.length && (
         <InlineAlert>
           {errors.map(code => (
-            <div className={classes.itemContainer} key={code}>
-              <div className={classes.dot} />
-              <Text className={classes.listItemTitle}>{getErrorMessage(code)}</Text>
+            <div className="flex items-center" key={code}>
+              <div className="bg-primary-contrastText mr-2 rounded-full size-2 min-h-2 min-w-2" />
+              <Text className="text-primary-contrastText">{getErrorMessage(code)}</Text>
             </div>
           ))}
         </InlineAlert>

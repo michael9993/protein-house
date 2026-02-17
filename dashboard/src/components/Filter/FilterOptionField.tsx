@@ -1,31 +1,16 @@
 // @ts-strict-ignore
+import { cn } from "@dashboard/utils/cn";
 import { toggle } from "@dashboard/utils/lists";
 import { FormControlLabel, Radio } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
-import clsx from "clsx";
 
 import Checkbox from "../Checkbox";
 import { FieldType, FilterFieldBaseProps } from "./types";
 
-const useStyles = makeStyles(
-  theme => ({
-    option: {
-      left: theme.spacing(-0.5),
-      position: "relative",
-    },
-    optionRadio: {
-      left: theme.spacing(-0.25),
-    },
-    root: {},
-  }),
-  { name: "FilterOptionField" },
-);
 const FilterOptionField = ({
   filter,
   onFilterPropertyChange,
   ...rest
 }: FilterFieldBaseProps<string, FieldType.options>) => {
-  const classes = useStyles({});
   const handleSelect = (value: string) =>
     onFilterPropertyChange({
       payload: {
@@ -39,12 +24,10 @@ const FilterOptionField = ({
     });
 
   return (
-    <div className={classes.root} {...rest}>
+    <div {...rest}>
       {filter.options.map(option => (
         <div
-          className={clsx(classes.option, {
-            [classes.optionRadio]: !filter.multiple,
-          })}
+          className={cn("relative -left-1", !filter.multiple && "-left-[2px]")}
           key={option.value}
         >
           <FormControlLabel

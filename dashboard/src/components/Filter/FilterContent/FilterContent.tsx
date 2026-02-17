@@ -2,7 +2,6 @@
 import CollectionWithDividers from "@dashboard/components/CollectionWithDividers";
 import useStateFromProps from "@dashboard/hooks/useStateFromProps";
 import { Paper } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Accordion, AccordionSummary } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import { useState } from "react";
@@ -15,48 +14,23 @@ import { FilterContentBodyNameField } from "./FilterContentBodyNameField";
 import { FilterContentHeader } from "./FilterContentHeader";
 import { FilterErrorsList } from "./FilterErrorsList";
 
-const useExpanderStyles = makeStyles(
-  theme => ({
-    btn: {
-      marginRight: theme.spacing(1),
-    },
+const expanderSx = {
+  boxShadow: "none",
+  margin: 0,
+  padding: 0,
+  "&:before": { content: "none" },
+  "&.Mui-expanded": { margin: 0, border: "none" },
+} as const;
 
-    expanded: {},
-    root: {
-      boxShadow: "none",
-      margin: 0,
-      padding: 0,
-
-      "&:before": {
-        content: "none",
-      },
-
-      "&$expanded": {
-        margin: 0,
-        border: "none",
-      },
-    },
-  }),
-  { name: "FilterContentExpander" },
-);
-const useSummaryStyles = makeStyles(
-  theme => ({
-    expanded: {},
-    root: {
-      width: "100%",
-      border: "none",
-      margin: 0,
-      padding: 0,
-      minHeight: 0,
-      paddingRight: theme.spacing(2),
-
-      "&$expanded": {
-        minHeight: 0,
-      },
-    },
-  }),
-  { name: "FilterContentExpanderSummary" },
-);
+const summarySx = {
+  width: "100%",
+  border: "none",
+  margin: 0,
+  padding: 0,
+  minHeight: 0,
+  paddingRight: 2,
+  "&.Mui-expanded": { minHeight: 0 },
+} as const;
 
 interface FilterContentProps<K extends string = string> {
   filters: IFilter<K>;
@@ -81,8 +55,6 @@ export const FilterContent = ({
   onSubmit,
   dataStructure,
 }: FilterContentProps) => {
-  const expanderClasses = useExpanderStyles({});
-  const summaryClasses = useSummaryStyles({});
   const [openedFilter, setOpenedFilter] = useState<FilterElement<string>>();
   const getAutocompleteValuesWithNewValues = (
     autocompleteDisplayValues: FilterAutocompleteDisplayValues,
@@ -179,18 +151,16 @@ export const FilterContent = ({
             return (
               <Accordion
                 key={filter.name}
-                classes={expanderClasses}
+                sx={expanderSx}
                 data-test-id={"channel-availability-item-" + filter.name}
                 expanded={filter.name === openedFilter?.name}
               >
                 <AccordionSummary
                   IconButtonProps={{
-                    classes: {
-                      root: expanderClasses.btn,
-                    },
+                    className: "mr-2",
                     disableRipple: true,
                   }}
-                  className={summaryClasses.root}
+                  sx={summarySx}
                   onClick={() => handleFilterOpen(filter)}
                 >
                   {currentFilter && (

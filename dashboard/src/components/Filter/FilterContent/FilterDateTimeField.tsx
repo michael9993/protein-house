@@ -7,10 +7,10 @@ import { TextField } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 
 import {
+  commonFilterStyles,
   filterTestingContext,
   getDateFilterValue,
   getDateTimeFilterValue,
-  useCommonStyles,
 } from "./utils";
 
 type FilterDateTimeFieldProps = FilterFieldBaseProps<string, FieldType.dateTime | FieldType.date>;
@@ -19,7 +19,7 @@ export const FilterDateTimeField = ({
   filter,
   onFilterPropertyChange,
 }: FilterDateTimeFieldProps) => {
-  const classes = useCommonStyles({});
+  const classes = commonFilterStyles;
   const isDateTime = filter.type === FieldType.dateTime;
   const isMultiple = filter.multiple;
   const handleChange = (value: string[]) =>

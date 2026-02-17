@@ -1,40 +1,12 @@
 import { iconSize, iconStrokeWidthBySize } from "@dashboard/components/icons";
 import { KeyValue } from "@dashboard/types";
 import { TextField } from "@mui/material";
-import { Button, IconButton, makeStyles } from "@saleor/macaw-ui";
+import { Button, IconButton } from "@saleor/macaw-ui";
 import { Trash2 } from "lucide-react";
 import { useIntl } from "react-intl";
 
 import { keyValueMessages } from "./messages";
 import { FieldType, FilterFieldBaseProps } from "./types";
-
-const useStyles = makeStyles(
-  theme => ({
-    metadataField: {
-      display: "flex",
-      alignItems: "center",
-      gap: theme.spacing(0.5),
-    },
-    fieldsWrapper: {
-      display: "flex",
-      flexDirection: "column",
-      gap: theme.spacing(0.5),
-      marginBottom: theme.spacing(1),
-    },
-    formWrapper: {
-      display: "flex",
-      flexDirection: "column",
-    },
-    addButton: {
-      alignSelf: "flex-end",
-    },
-    deleteButton: {
-      marginLeft: "0.25rem",
-      marginRight: "-0.75rem",
-    },
-  }),
-  { name: "FilterKeyValueField" },
-);
 // @eslint-ignore-next-line
 const getUpdateArrayFn =
   <T,>(key: "key" | "value") =>
@@ -57,14 +29,13 @@ export const FilterKeyValueField = <K extends string = string>({
   onFilterPropertyChange,
 }: FilterKeyValueFieldProps<K>) => {
   const intl = useIntl();
-  const classes = useStyles();
   const values = filter.value?.length ? filter.value : ([{ key: "" }] as KeyValue[]);
 
   return (
-    <div className={classes.formWrapper}>
-      <div className={classes.fieldsWrapper}>
+    <div className="flex flex-col">
+      <div className="flex flex-col gap-1 mb-2">
         {values.map((innerField, index) => (
-          <div className={classes.metadataField} key={`${innerField.key}-${index}`}>
+          <div className="flex items-center gap-1" key={`${innerField.key}-${index}`}>
             <TextField
               fullWidth
               name={filter.name}
@@ -101,7 +72,7 @@ export const FilterKeyValueField = <K extends string = string>({
             />
             <IconButton
               variant="secondary"
-              className={classes.deleteButton}
+              className="ml-1 -mr-3"
               onClick={() => {
                 onFilterPropertyChange({
                   payload: {
@@ -120,7 +91,7 @@ export const FilterKeyValueField = <K extends string = string>({
         ))}
       </div>
       <Button
-        className={classes.addButton}
+        className="self-end"
         color="primary"
         onClick={() => {
           onFilterPropertyChange({

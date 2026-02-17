@@ -1,7 +1,6 @@
 // @ts-strict-ignore
 import { toggle } from "@dashboard/utils/lists";
 import { FormControlLabel, TextField } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Option, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage } from "react-intl";
 
@@ -19,33 +18,6 @@ interface FilterAutocompleteFieldProps
 
 export type FilterAutocompleteDisplayValues = Record<string, Option[]>;
 
-const useStyles = makeStyles(
-  theme => ({
-    hr: {
-      backgroundColor: theme.palette.primary.light,
-      margin: theme.spacing(1, 0),
-    },
-    input: {
-      padding: "12px 0 9px 12px",
-    },
-    inputContainer: {
-      marginBottom: theme.spacing(1),
-      paddingTop: theme.spacing(1),
-    },
-    noResults: {
-      marginTop: theme.spacing(1),
-    },
-    option: {
-      left: theme.spacing(-0.5),
-      position: "relative",
-    },
-    showMore: {
-      display: "inline-block",
-      marginTop: theme.spacing(1),
-    },
-  }),
-  { name: "FilterAutocompleteField" },
-);
 const FilterAutocompleteField = ({
   displayValues,
   filter,
@@ -54,7 +26,6 @@ const FilterAutocompleteField = ({
   initialDisplayValues,
   ...rest
 }: FilterAutocompleteFieldProps) => {
-  const classes = useStyles({});
   const fieldDisplayValues = displayValues[filter.name] ?? [];
   const initialFieldDisplayValues = initialDisplayValues[filter.name];
   const availableOptions = filter.options.filter(option =>
@@ -99,19 +70,19 @@ const FilterAutocompleteField = ({
       {filter?.onSearchChange && (
         <TextField
           data-test-id="filter-field-autocomplete-input"
-          className={classes.inputContainer}
+          className="mb-2 pt-2"
           fullWidth
           name={filter.name + "_autocomplete"}
           InputProps={{
             classes: {
-              input: classes.input,
+              input: "!py-[9px] !pb-[9px] !ps-3 !pe-0",
             },
           }}
           onChange={event => filter.onSearchChange(event.target.value)}
         />
       )}
       {filteredValuesChecked.map(displayValue => (
-        <div className={classes.option} key={displayValue.value}>
+        <div className="relative -left-1" key={displayValue.value}>
           <FormControlLabel
             control={
               <Checkbox
@@ -125,18 +96,18 @@ const FilterAutocompleteField = ({
           />
         </div>
       ))}
-      {displayHr && <Hr className={classes.hr} />}
+      {displayHr && <Hr className="bg-primary-light my-2" />}
       {displayNoResults && (
         <Text
           data-test-id="filter-field-autocomplete-no-results"
-          className={classes.noResults}
+          className="mt-2"
           color="default2"
         >
           <FormattedMessage id="HnVtSS" defaultMessage="No results" description="search" />
         </Text>
       )}
       {filteredValuesUnchecked.map(option => (
-        <div className={classes.option} key={option.value} data-test-id="filter-option">
+        <div className="relative -left-1" key={option.value} data-test-id="filter-option">
           <FormControlLabel
             control={
               <Checkbox
@@ -153,7 +124,7 @@ const FilterAutocompleteField = ({
       {filter.hasMore && (
         <Link
           data-test-id="filter-field-autocomplete-has-more"
-          className={classes.showMore}
+          className="inline-block mt-2"
           underline
           onClick={filter.onFetchMore}
         >

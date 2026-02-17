@@ -2,11 +2,9 @@
 import { FilterDateTimeField } from "@dashboard/components/Filter/FilterContent/FilterDateTimeField";
 import { FilterNumericField } from "@dashboard/components/Filter/FilterContent/FilterNumericField";
 import { FilterSingleSelectField } from "@dashboard/components/Filter/FilterContent/FilterSingleSelectField";
-import { useCommonStyles } from "@dashboard/components/Filter/FilterContent/utils";
+import { commonFilterStyles } from "@dashboard/components/Filter/FilterContent/utils";
 import { FormControlLabel, Radio, TextField } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Option, Skeleton } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import * as React from "react";
 
 import FilterAutocompleteField, {
@@ -23,22 +21,6 @@ import {
   isFilterType,
 } from "../types";
 
-const useStyles = makeStyles(
-  theme => ({
-    filterSettings: {
-      padding: theme.spacing(2, 3),
-    },
-
-    option: {
-      left: -theme.spacing(0.5),
-      position: "relative",
-    },
-    optionRadio: {
-      left: -theme.spacing(0.25),
-    },
-  }),
-  { name: "FilterContentBody" },
-);
 const filterTestingContext = "filter-field-";
 
 export interface FilterContentBodyProps<K extends string> {
@@ -60,22 +42,19 @@ export const FilterContentBody = <K extends string = string>({
   setAutocompleteDisplayValues,
   initialAutocompleteDisplayValues,
 }: FilterContentBodyProps<K>) => {
-  const classes = useStyles({});
-  const commonClasses = useCommonStyles({});
-
   if (!filter) {
     return <Skeleton />;
   }
 
   return (
-    <div className={classes.filterSettings}>
+    <div className="py-4 px-6">
       {children}
       {isFilterType(filter, FieldType.text) && (
         <TextField
           data-test-id={filterTestingContext + filter.name}
           fullWidth
           name={filter.name}
-          InputProps={{ classes: { input: commonClasses.input } }}
+          InputProps={{ classes: { input: commonFilterStyles.input } }}
           value={filter.value[0]}
           onChange={event =>
             onFilterPropertyChange<FieldType.text>({
@@ -122,7 +101,7 @@ export const FilterContentBody = <K extends string = string>({
       )}
       {isFilterType(filter, FieldType.boolean) &&
         filter.options.map(option => (
-          <div className={clsx(classes.option, classes.optionRadio)} key={option.value}>
+          <div className="relative -left-[3px]" key={option.value}>
             <FormControlLabel
               control={
                 <Radio

@@ -1,20 +1,7 @@
 import { Checkbox, FormControlLabel } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 
 import { FilterElement } from "../types";
 import { FilterDispatchFunction } from "../useFilter";
-
-const useStyles = makeStyles(
-  theme => ({
-    container: {
-      "&:not(:last-of-type)": {
-        borderBottom: `1px solid ${theme.palette.divider}`,
-      },
-      padding: theme.spacing(1, 2.5),
-    },
-  }),
-  { name: "FilterContentBodyNameField" },
-);
 
 interface FilterContentBodyNameFieldProps<K extends string = string> {
   filter: FilterElement<K>;
@@ -25,10 +12,8 @@ export const FilterContentBodyNameField = ({
   filter,
   onFilterPropertyChange,
 }: FilterContentBodyNameFieldProps) => {
-  const classes = useStyles({});
-
   return (
-    <div className={classes.container}>
+    <div className="py-2 px-5 [&:not(:last-of-type)]:border-b [&:not(:last-of-type)]:border-divider">
       <FormControlLabel
         control={
           <Checkbox data-test-id={"filter-group-active-" + filter.name} checked={filter.active} />

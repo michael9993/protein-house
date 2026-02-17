@@ -1,49 +1,23 @@
 import { Button } from "@dashboard/components/Button";
 import { buttonMessages } from "@dashboard/intl";
-import { makeStyles } from "@saleor/macaw-ui";
-import { Text, vars } from "@saleor/macaw-ui-next";
+import { Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage } from "react-intl";
-
-const useStyles = makeStyles(
-  theme => ({
-    container: {
-      alignItems: "center",
-      display: "flex",
-      justifyContent: "space-between",
-      position: "sticky",
-      top: 0,
-      padding: theme.spacing(1, 3),
-      backgroundColor: vars.colors.background.default1,
-      borderBottom: `1px solid ${vars.colors.border.default1}`,
-      zIndex: 1,
-    },
-    clear: {
-      marginRight: theme.spacing(1),
-    },
-    label: {
-      fontWeight: 600,
-    },
-  }),
-  { name: "FilterContentHeader" },
-);
 
 interface FilterContentHeaderProps {
   onClear: () => void;
 }
 
 export const FilterContentHeader = ({ onClear }: FilterContentHeaderProps) => {
-  const classes = useStyles({});
-
   return (
-    <div className={classes.container}>
-      <Text className={classes.label}>
+    <div className="flex items-center justify-between sticky top-0 py-2 px-6 bg-default-1 border-b border-default-1 z-[1]">
+      <Text className="font-semibold">
         <FormattedMessage id="zSOvI0" defaultMessage="Filters" />
       </Text>
       <div>
         <Button
           data-test-id="clear"
           variant="secondary"
-          className={classes.clear}
+          className="mr-2"
           onClick={onClear}
         >
           <FormattedMessage {...buttonMessages.clear} />

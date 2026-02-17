@@ -3,7 +3,7 @@ import { FieldType, FilterFieldBaseProps } from "@dashboard/components/Filter/ty
 import { TextField } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 
-import { filterTestingContext, useCommonStyles } from "./utils";
+import { commonFilterStyles, filterTestingContext } from "./utils";
 
 type FilterNumericFieldProps = FilterFieldBaseProps<string, FieldType.number | FieldType.price> & {
   currencySymbol: string | undefined;
@@ -14,7 +14,7 @@ export const FilterNumericField = ({
   onFilterPropertyChange,
   currencySymbol,
 }: FilterNumericFieldProps) => {
-  const classes = useCommonStyles({});
+  const classes = commonFilterStyles;
   const isMultiple = filter.multiple;
   const handleChange = (value: string[]) =>
     onFilterPropertyChange({
