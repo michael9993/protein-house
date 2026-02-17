@@ -96,16 +96,19 @@ export function useQuery<TData, TVariables>(
     },
     errorPolicy: "all",
     fetchPolicy: fetchPolicy ?? "cache-and-network",
-    onError: error => {
-      if (handleError) {
-        handleError(error);
-      } else {
-        handleQueryAuthError(error, notify, user.logout, intl);
-      }
-    },
     skip,
     variables: variablesWithPermissions,
   });
+
+  useEffect(() => {
+    if (queryData.error) {
+      if (handleError) {
+        handleError(queryData.error);
+      } else {
+        handleQueryAuthError(queryData.error, notify, user.logout, intl);
+      }
+    }
+  }, [queryData.error]);
 
   useEffect(() => {
     if (displayLoader) {
