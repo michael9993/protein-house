@@ -9,7 +9,7 @@ import { getFormErrors } from "@dashboard/utils/errors";
 import getShippingErrorMessage from "@dashboard/utils/errors/shipping";
 import { useRichTextContext } from "@dashboard/utils/richText/context";
 import { OutputData } from "@editorjs/editorjs";
-import { TextField } from "@mui/material";
+import { Input } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { defineMessages, useIntl } from "react-intl";
 
@@ -61,10 +61,10 @@ const ShippingRateInfo = (props: ShippingRateInfoProps) => {
         </DashboardCard.Title>
       </DashboardCard.Header>
       <DashboardCard.Content>
-        <TextField
+        <Input
+          size="small"
           disabled={disabled}
           error={!!formErrors.name}
-          fullWidth
           helperText={getShippingErrorMessage(formErrors.name, intl)}
           label={intl.formatMessage(messages.name)}
           name="name"
@@ -92,36 +92,28 @@ const ShippingRateInfo = (props: ShippingRateInfoProps) => {
         )}
         <CardSpacer />
         <div className="grid gap-2 grid-cols-3 max-lg:grid-cols-2 max-sm:grid-cols-1">
-          <TextField
+          <Input
+            size="small"
             data-test-id="min-delivery-time-input"
             disabled={disabled}
             error={!!formErrors.minDays}
-            fullWidth
             helperText={getShippingErrorMessage(formErrors.minDays, intl)}
             label={intl.formatMessage(messages.minDays)}
             type="number"
-            inputProps={{
-              min: 0,
-              type: "number",
-            }}
-            InputProps={{ inputProps: { min: 0 } }}
+            min={0}
             name="minDays"
             value={data.minDays}
             onChange={onChange}
           />
-          <TextField
+          <Input
+            size="small"
             data-test-id="max-delivery-time-input"
             disabled={disabled}
             error={!!formErrors.maxDays}
-            fullWidth
             helperText={getShippingErrorMessage(formErrors.maxDays, intl)}
             label={intl.formatMessage(messages.maxDays)}
             type="number"
-            inputProps={{
-              min: 0,
-              type: "number",
-            }}
-            InputProps={{ inputProps: { min: 0 } }}
+            min={0}
             name="maxDays"
             value={data.maxDays}
             onChange={onChange}

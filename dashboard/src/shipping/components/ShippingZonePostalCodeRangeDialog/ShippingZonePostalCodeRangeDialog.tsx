@@ -5,8 +5,7 @@ import Grid from "@dashboard/components/Grid";
 import { DashboardModal } from "@dashboard/components/Modal";
 import { commonMessages } from "@dashboard/intl";
 import { DialogProps, MinMax } from "@dashboard/types";
-import { TextField } from "@mui/material";
-import { Text } from "@saleor/macaw-ui-next";
+import { Input, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 interface ShippingZonePostalCodeRangeDialogProps extends DialogProps {
@@ -48,7 +47,8 @@ const ShippingZonePostalCodeRangeDialog = ({
               </Text>
 
               <Grid variant="uniform">
-                <TextField
+                <Input
+                  size="small"
                   data-test-id="zip-code-starts-with-input"
                   label={intl.formatMessage({
                     id: "1T1fP8",
@@ -59,7 +59,8 @@ const ShippingZonePostalCodeRangeDialog = ({
                   value={data.min}
                   onChange={change}
                 />
-                <TextField
+                <Input
+                  size="small"
                   data-test-id="zip-code-ends-with-input"
                   label={intl.formatMessage({
                     id: "axFFaD",

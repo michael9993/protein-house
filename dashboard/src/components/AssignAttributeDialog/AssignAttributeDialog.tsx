@@ -13,8 +13,7 @@ import useSearchQuery from "@dashboard/hooks/useSearchQuery";
 import { maybe, renderCollection } from "@dashboard/misc";
 import { FetchMoreProps } from "@dashboard/types";
 import { TableBody, TableCell } from "@dashboard/components/Table";
-import { TextField } from "@mui/material";
-import { Box, Text } from "@saleor/macaw-ui-next";
+import { Box, Input, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import BackButton from "../BackButton";
@@ -65,18 +64,16 @@ const AssignAttributeDialog = ({
           <FormattedMessage {...messages.title} />
         </DashboardModal.Header>
 
-        <TextField
+        <Input
+          size="small"
           data-test-id="attribute-search-input"
           name="query"
           value={query}
           onChange={onQueryChange}
           label={intl.formatMessage(messages.searchInputLabel)}
           placeholder={intl.formatMessage(messages.searchInputPlaceholder)}
-          fullWidth
-          InputProps={{
-            autoComplete: "off",
-            endAdornment: loading && <SaleorThrobber size={16} />,
-          }}
+          autoComplete="off"
+          endAdornment={loading && <SaleorThrobber size={16} />}
         />
 
         <InfiniteScroll

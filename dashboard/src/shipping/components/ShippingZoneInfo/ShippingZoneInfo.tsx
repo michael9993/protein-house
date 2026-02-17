@@ -4,7 +4,7 @@ import { ShippingErrorFragment } from "@dashboard/graphql";
 import { commonMessages } from "@dashboard/intl";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getShippingErrorMessage from "@dashboard/utils/errors/shipping";
-import { TextField } from "@mui/material";
+import { Input, Textarea } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { defineMessages, FormattedMessage, useIntl } from "react-intl";
 
@@ -46,21 +46,20 @@ const ShippingZoneInfo = ({ data, disabled, errors, onChange }: ShippingZoneInfo
         </DashboardCard.Title>
       </DashboardCard.Header>
       <DashboardCard.Content>
-        <TextField
+        <Input
+          size="small"
           disabled={disabled}
           error={!!formErrors.name}
-          fullWidth
           helperText={getShippingErrorMessage(formErrors.name, intl)}
           label={intl.formatMessage(messages.name)}
-          inputProps={{
-            "data-test-id": "shipping-zone-name",
-          }}
+          data-test-id="shipping-zone-name"
           name="name"
           value={data.name}
           onChange={onChange}
         />
         <CardSpacer />
-        <TextField
+        <Textarea
+          size="small"
           error={data.description.length > MAX_DESCRIPTION_LENGTH}
           name={"description"}
           data-test-id="shipping-zone-description"
@@ -82,16 +81,10 @@ const ShippingZoneInfo = ({ data, disabled, errors, onChange }: ShippingZoneInfo
               )}
             </div>
           }
-          InputProps={{
-            inputProps: {
-              maxLength: MAX_DESCRIPTION_LENGTH,
-            },
-          }}
+          maxLength={MAX_DESCRIPTION_LENGTH}
           value={data.description}
           onChange={onChange}
           disabled={disabled}
-          fullWidth
-          multiline
           placeholder={intl.formatMessage(messages.descriptionPlaceholder)}
           rows={10}
         />

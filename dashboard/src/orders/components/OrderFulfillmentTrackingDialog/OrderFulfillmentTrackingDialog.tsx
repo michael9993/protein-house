@@ -8,8 +8,7 @@ import useModalDialogErrors from "@dashboard/hooks/useModalDialogErrors";
 import { buttonMessages } from "@dashboard/intl";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getOrderErrorMessage from "@dashboard/utils/errors/order";
-import { TextField } from "@mui/material";
-import { Text } from "@saleor/macaw-ui-next";
+import { Input, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 interface FormData {
@@ -55,7 +54,8 @@ const OrderFulfillmentTrackingDialog = ({
                 />
               </DashboardModal.Header>
 
-              <TextField
+              <Input
+                size="small"
                 error={!!formErrors.trackingNumber}
                 helperText={getOrderErrorMessage(formErrors.trackingNumber, intl)}
                 label={intl.formatMessage({
@@ -65,7 +65,6 @@ const OrderFulfillmentTrackingDialog = ({
                 name="trackingNumber"
                 onChange={change}
                 value={data.trackingNumber}
-                fullWidth
                 data-test-id="tracking-number-input"
               />
 

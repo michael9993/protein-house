@@ -1,6 +1,6 @@
 import Arrow from "@dashboard/components/Filter/Arrow";
 import { FieldType, FilterFieldBaseProps } from "@dashboard/components/Filter/types";
-import { TextField } from "@mui/material";
+import { Input } from "@saleor/macaw-ui-next";
 import { FormattedMessage } from "react-intl";
 
 import { commonFilterStyles, filterTestingContext } from "./utils";
@@ -33,18 +33,14 @@ export const FilterNumericField = ({
         <div>
           <Arrow className={classes.arrow} />
         </div>
-        <TextField
+        <Input
+          size="small"
           {...(isMultiple && { "data-test-range-type": "min" })}
           data-test-id={filterTestingContext + filter.name}
-          fullWidth
           name={filter.name + (isMultiple ? "_min" : "")}
-          InputProps={{
-            classes: {
-              input: classes.input,
-            },
-            type: "number",
-            endAdornment: filter.type === FieldType.price && currencySymbol,
-          }}
+          className={classes.input}
+          type="number"
+          endAdornment={filter.type === FieldType.price && currencySymbol}
           value={filter.value[0]}
           onChange={({ target: { value } }) =>
             handleChange(isMultiple ? [value, filter.value[1]] : [value])
@@ -65,18 +61,14 @@ export const FilterNumericField = ({
           </div>
           <div className={classes.inputRange}>
             <div className={classes.spacer} />
-            <TextField
+            <Input
+              size="small"
               data-test-id={filterTestingContext + filter.name}
               data-test-range-type="max"
-              fullWidth
               name={filter.name + "_max"}
-              InputProps={{
-                classes: {
-                  input: classes.input,
-                },
-                type: "number",
-                endAdornment: filter.type === FieldType.price && currencySymbol,
-              }}
+              className={classes.input}
+              type="number"
+              endAdornment={filter.type === FieldType.price && currencySymbol}
               value={filter.value[1]}
               onChange={event => handleChange([filter.value[0], event.target.value])}
             />

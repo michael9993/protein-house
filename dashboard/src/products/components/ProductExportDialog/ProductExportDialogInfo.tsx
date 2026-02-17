@@ -13,8 +13,8 @@ import useSearchQuery from "@dashboard/hooks/useSearchQuery";
 import { sectionNames } from "@dashboard/intl";
 import { FetchMoreProps } from "@dashboard/types";
 import { toggle } from "@dashboard/utils/lists";
-import { Button, FormControlLabel, TextField } from "@mui/material";
-import { Option as MacawOptionType, Text } from "@saleor/macaw-ui-next";
+import { Button, FormControlLabel } from "@mui/material";
+import { Input, Option as MacawOptionType, Text } from "@saleor/macaw-ui-next";
 import { PropsWithChildren } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -315,7 +315,8 @@ const ProductExportDialogInfo = ({
           }
           data-test-id="attributes"
         >
-          <TextField
+          <Input
+            size="small"
             data-test-id="attribute-search-input"
             name="query"
             value={query}
@@ -329,11 +330,8 @@ const ProductExportDialogInfo = ({
               defaultMessage: "Search by attribute name",
               description: "input helper text, search attributes",
             })}
-            fullWidth
-            InputProps={{
-              autoComplete: "off",
-              endAdornment: loading && <SaleorThrobber size={16} />,
-            }}
+            autoComplete="off"
+            endAdornment={loading && <SaleorThrobber size={16} />}
           />
           <Hr className="my-6" />
           {attributes.map(attribute => (

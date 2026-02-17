@@ -4,8 +4,8 @@ import TableRowLink from "@dashboard/components/TableRowLink";
 import { FormChange } from "@dashboard/hooks/useForm";
 import { removeAtIndex, updateAtIndex } from "@dashboard/utils/lists";
 import { TableBody, TableCell } from "@dashboard/components/Table";
-import { TextField } from "@mui/material";
 import { IconButton } from "@saleor/macaw-ui";
+import { Input } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { ChangeEvent } from "react";
 import { useIntl } from "react-intl";
@@ -56,36 +56,24 @@ export const WebhookHeadersTableBody = ({ onChange, headers }: WebhookHeadersTab
     <TableBody>
       {headers.map((field, fieldIndex) => (
         <TableRowLink data-test-id="field" key={fieldIndex}>
-          <TableCell className="w-[250px] text-right pt-6 !pl-[3.2rem] pr-2 [&_.MuiFormHelperText-root]:m-0">
-            <TextField
-              InputProps={{
-                classes: {
-                  input: "py-3 px-4",
-                },
-              }}
-              inputProps={{
-                "aria-label": `${nameInputPrefix}${nameSeparator}${fieldIndex}`,
-              }}
+          <TableCell className="w-[250px] text-right pt-6 !pl-[3.2rem] pr-2">
+            <Input
+              size="small"
+              className="py-3 px-4"
+              aria-label={`${nameInputPrefix}${nameSeparator}${fieldIndex}`}
               name={`${nameInputPrefix}${nameSeparator}${fieldIndex}`}
-              fullWidth
               onChange={change}
               value={field.name}
               error={field.error}
               helperText={(field.error && intl.formatMessage(messages.headerNameError)) || " "}
             />
           </TableCell>
-          <TableCell className="pt-6 !pl-[3.2rem] pr-2 [&_.MuiFormHelperText-root]:m-0">
-            <TextField
-              InputProps={{
-                classes: {
-                  input: "py-3 px-4",
-                },
-              }}
-              inputProps={{
-                "aria-label": `${valueInputPrefix}${nameSeparator}${fieldIndex}`,
-              }}
+          <TableCell className="pt-6 !pl-[3.2rem] pr-2">
+            <Input
+              size="small"
+              className="py-3 px-4"
+              aria-label={`${valueInputPrefix}${nameSeparator}${fieldIndex}`}
               name={`${valueInputPrefix}${nameSeparator}${fieldIndex}`}
-              fullWidth
               onChange={change}
               value={field.value}
               helperText={" "}

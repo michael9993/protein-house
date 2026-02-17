@@ -11,8 +11,7 @@ import { FormChange, UseFormResult } from "@dashboard/hooks/useForm";
 import { commonMessages } from "@dashboard/intl";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getAttributeErrorMessage from "@dashboard/utils/errors/attribute";
-import { TextField } from "@mui/material";
-import { Box, Checkbox, Text } from "@saleor/macaw-ui-next";
+import { Box, Checkbox, Input, Text } from "@saleor/macaw-ui-next";
 import { defineMessages, useIntl } from "react-intl";
 import slugify from "slugify";
 
@@ -149,26 +148,26 @@ const AttributeDetails = (props: AttributeDetailsProps) => {
       </DashboardCard.Header>
 
       <DashboardCard.Content>
-        <TextField
+        <Input
+          size="small"
           data-test-id="attribute-default-label-input"
           disabled={disabled}
           error={!!formApiErrors.name}
           label={intl.formatMessage(messages.attributeLabel)}
           name={"name" as keyof AttributePageFormData}
-          fullWidth
           helperText={getAttributeErrorMessage(formApiErrors.name, intl)}
           value={data.name}
           onChange={onChange}
         />
         <FormSpacer />
-        <TextField
+        <Input
+          size="small"
           data-test-id="attribute-code-input"
           disabled={disabled}
           error={!!formApiErrors.slug}
           label={intl.formatMessage(messages.attributeSlug)}
           name={"slug" as keyof AttributePageFormData}
           placeholder={slugify(data.name).toLowerCase()}
-          fullWidth
           helperText={
             getAttributeSlugErrorMessage(formApiErrors.slug, intl) ||
             intl.formatMessage(messages.attributeSlugHelperText)

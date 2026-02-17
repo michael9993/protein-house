@@ -10,8 +10,7 @@ import { CountryWithCodeFragment } from "@dashboard/graphql";
 import { fuzzySearch } from "@dashboard/misc";
 import { getCountrySelectionMap, isRestWorldCountriesSelected } from "@dashboard/shipping/handlers";
 import { TableBody, TableCell } from "@dashboard/components/Table";
-import { TextField } from "@mui/material";
-import { Box, Text } from "@saleor/macaw-ui-next";
+import { Box, Input, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { createCountryChangeHandler, createRestOfTheWorldChangeHandler } from "./handlers";
@@ -70,14 +69,14 @@ const ShippingZoneCountriesAssignDialog = (props: ShippingZoneCountriesAssignDia
                   <FormattedMessage {...messages.assignCountriesDescription} />
                 </Text>
 
-                <TextField
+                <Input
+                  size="small"
                   name="query"
                   data-test-id="search-country-input"
                   value={data.query}
                   onChange={event => change(event)}
                   label={intl.formatMessage(messages.searchCountriesLabel)}
                   placeholder={intl.formatMessage(messages.searchCountriesPlaceholder)}
-                  fullWidth
                 />
 
                 <Hr />

@@ -4,7 +4,7 @@ import { AccountErrorFragment } from "@dashboard/graphql";
 import { commonMessages } from "@dashboard/intl";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getAccountErrorMessage from "@dashboard/utils/errors/account";
-import { TextField } from "@mui/material";
+import { Input } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { useIntl } from "react-intl";
 
@@ -37,50 +37,44 @@ const CustomerCreateDetails = (props: CustomerCreateDetailsProps) => {
       </DashboardCard.Header>
       <DashboardCard.Content>
         <div className="grid grid-cols-2 gap-x-4 gap-y-6">
-          <TextField
+          <Input
+            size="small"
             data-test-id="customer-first-name"
             disabled={disabled}
             error={!!formErrors.customerFirstName}
-            fullWidth
             name="customerFirstName"
             label={intl.formatMessage(commonMessages.firstName)}
             helperText={getAccountErrorMessage(formErrors.customerFirstName, intl)}
             type="text"
             value={data.customerFirstName}
             onChange={onChange}
-            inputProps={{
-              spellCheck: false,
-            }}
+            spellCheck={false}
           />
-          <TextField
+          <Input
+            size="small"
             data-test-id="customer-last-name"
             disabled={disabled}
             error={!!formErrors.customerLastName}
-            fullWidth
             name="customerLastName"
             label={intl.formatMessage(commonMessages.lastName)}
             helperText={getAccountErrorMessage(formErrors.customerLastName, intl)}
             type="text"
             value={data.customerLastName}
             onChange={onChange}
-            inputProps={{
-              spellCheck: false,
-            }}
+            spellCheck={false}
           />
-          <TextField
+          <Input
+            size="small"
             data-test-id="customer-email"
             disabled={disabled}
             error={!!formErrors.email}
-            fullWidth
             name="email"
             label={intl.formatMessage(commonMessages.email)}
             helperText={getAccountErrorMessage(formErrors.email, intl)}
             type="email"
             value={data.email}
             onChange={onChange}
-            inputProps={{
-              spellCheck: false,
-            }}
+            spellCheck={false}
           />
         </div>
       </DashboardCard.Content>

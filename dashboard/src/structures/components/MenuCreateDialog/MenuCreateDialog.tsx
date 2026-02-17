@@ -6,8 +6,7 @@ import { MenuErrorFragment } from "@dashboard/graphql";
 import { buttonMessages } from "@dashboard/intl";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getMenuErrorMessage from "@dashboard/utils/errors/menu";
-import { TextField } from "@mui/material";
-import { Box } from "@saleor/macaw-ui-next";
+import { Box, Input } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 interface MenuCreateDialogFormData {
@@ -51,11 +50,11 @@ const MenuCreateDialog = ({
                 />
               </DashboardModal.Header>
 
-              <TextField
+              <Input
+                size="small"
                 data-test-id="menu-name-input"
                 disabled={disabled}
                 error={!!formErrors.name}
-                fullWidth
                 helperText={getMenuErrorMessage(formErrors.name, intl)}
                 label={intl.formatMessage({
                   id: "5KS3f4",

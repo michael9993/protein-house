@@ -3,8 +3,7 @@ import CardSpacer from "@dashboard/components/CardSpacer";
 import VerticalSpacer from "@dashboard/components/VerticalSpacer";
 import GiftCardTagInput from "@dashboard/giftCards/components/GiftCardTagInput";
 import GiftCardUpdateExpirySelect from "@dashboard/giftCards/GiftCardUpdate/GiftCardUpdateExpirySelect";
-import { Divider } from "@mui/material";
-import { Button, Skeleton, Text } from "@saleor/macaw-ui-next";
+import { Button, Divider, Skeleton, Text } from "@saleor/macaw-ui-next";
 import { useIntl } from "react-intl";
 
 import useGiftCardDetails from "../providers/GiftCardDetailsProvider/hooks/useGiftCardDetails";

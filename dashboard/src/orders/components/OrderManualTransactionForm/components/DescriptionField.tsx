@@ -1,26 +1,24 @@
 // @ts-strict-ignore
-import { TextField, TextFieldProps } from "@mui/material";
+import { Input } from "@saleor/macaw-ui-next";
+import * as React from "react";
 
 import { useManualTransactionContext } from "../context";
 
 export const DescriptionField = ({
   disabled,
   ...props
-}: Omit<TextFieldProps, "onChange" | "value">) => {
+}: Omit<React.ComponentProps<typeof Input>, "onChange" | "value">) => {
   const { submitState, handleChangeDescription, description } = useManualTransactionContext();
 
   return (
-    <TextField
-      variant="outlined"
+    <Input
+      size="small"
       {...props}
       disabled={submitState === "loading" || disabled}
       onChange={handleChangeDescription}
       value={description}
-      inputProps={{
-        ...props.inputProps,
-        maxLength: 512,
-        "data-test-id": "transactionDescription",
-      }}
+      maxLength={512}
+      data-test-id="transactionDescription"
     />
   );
 };

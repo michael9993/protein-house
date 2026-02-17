@@ -3,8 +3,7 @@ import FormSpacer from "@dashboard/components/FormSpacer";
 import { AccountErrorFragment } from "@dashboard/graphql";
 import { SubmitPromise } from "@dashboard/hooks/useForm";
 import getAccountErrorMessage from "@dashboard/utils/errors/account";
-import { TextField } from "@mui/material";
-import { Box, Button, Text } from "@saleor/macaw-ui-next";
+import { Box, Button, Input, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 export interface NewPasswordPageFormData {
@@ -58,9 +57,9 @@ const NewPasswordPage = (props: NewPasswordPageProps) => {
               />
             </Text>
             <FormSpacer />
-            <TextField
+            <Input
+              size="small"
               autoFocus
-              fullWidth
               autoComplete="none"
               disabled={loading}
               label={intl.formatMessage({
@@ -71,15 +70,13 @@ const NewPasswordPage = (props: NewPasswordPageProps) => {
               onChange={handleChange}
               type="password"
               value={data.password}
-              inputProps={{
-                "data-test-id": "password",
-                spellCheck: false,
-              }}
+              data-test-id="password"
+              spellCheck={false}
               required
             />
             <FormSpacer />
-            <TextField
-              fullWidth
+            <Input
+              size="small"
               error={passwordError}
               autoComplete="none"
               disabled={loading}
@@ -98,10 +95,8 @@ const NewPasswordPage = (props: NewPasswordPageProps) => {
                   defaultMessage: "Passwords do not match",
                 })
               }
-              inputProps={{
-                "data-test-id": "confirm-password",
-                spellCheck: false,
-              }}
+              data-test-id="confirm-password"
+              spellCheck={false}
               required
             />
             <FormSpacer />

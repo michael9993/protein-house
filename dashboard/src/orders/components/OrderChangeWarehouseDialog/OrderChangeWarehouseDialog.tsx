@@ -10,15 +10,13 @@ import useWarehouseSearch from "@dashboard/searches/useWarehouseSearch";
 import { mapEdgesToItems } from "@dashboard/utils/maps";
 import {
   FormControlLabel,
-  InputAdornment,
   Radio,
   RadioGroup,
   Table,
   TableCell,
-  TextField,
 } from "@mui/material";
 import { Button, isScrolledToBottom, SearchIcon, useElementScroll } from "@saleor/macaw-ui";
-import { Box, Skeleton, Text } from "@saleor/macaw-ui-next";
+import { Box, Input, Skeleton, Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -104,23 +102,17 @@ const OrderChangeWarehouseDialog = ({
             };
 
             return (
-              <TextField
+              <Input
+                size="small"
                 value={query}
-                variant="outlined"
                 onChange={handleSearchChange}
                 placeholder={intl.formatMessage(messages.searchFieldPlaceholder)}
-                fullWidth
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon
-                        onPointerEnterCapture={undefined}
-                        onPointerLeaveCapture={undefined}
-                      />
-                    </InputAdornment>
-                  ),
-                }}
-                inputProps={{ className: "py-4" }}
+                startAdornment={
+                  <SearchIcon
+                    onPointerEnterCapture={undefined}
+                    onPointerLeaveCapture={undefined}
+                  />
+                }
               />
             );
           }}

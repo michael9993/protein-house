@@ -1,7 +1,7 @@
 import { ConfirmButton, ConfirmButtonTransitionState } from "@dashboard/components/ConfirmButton";
 import { DashboardModal } from "@dashboard/components/Modal";
 import { buttonMessages } from "@dashboard/intl";
-import { TextField } from "@mui/material";
+import { Input } from "@saleor/macaw-ui-next";
 import { useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -54,9 +54,9 @@ const SaveFilterTabDialog = ({
                 />
               </DashboardModal.Header>
 
-              <TextField
+              <Input
+                size="small"
                 autoFocus
-                fullWidth
                 label={intl.formatMessage({
                   id: "zhnwl6",
                   defaultMessage: "Preset name",

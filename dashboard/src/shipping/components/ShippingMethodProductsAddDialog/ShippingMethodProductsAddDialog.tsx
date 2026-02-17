@@ -15,8 +15,7 @@ import { renderCollection } from "@dashboard/misc";
 import { isProductSelected } from "@dashboard/shipping/components/ShippingMethodProductsAddDialog/utils";
 import { FetchMoreProps } from "@dashboard/types";
 import { TableBody, TableCell } from "@dashboard/components/Table";
-import { TextField } from "@mui/material";
-import { Box, Skeleton, Text } from "@saleor/macaw-ui-next";
+import { Box, Input, Skeleton, Text } from "@saleor/macaw-ui-next";
 import { Fragment, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -88,7 +87,8 @@ const ShippingMethodProductsAddDialog = ({
         </DashboardModal.Header>
 
         <Box data-test-id="assign-products-dialog-content">
-          <TextField
+          <Input
+            size="small"
             data-test-id="search-bar"
             name="query"
             value={query}
@@ -101,11 +101,8 @@ const ShippingMethodProductsAddDialog = ({
               id: "/TF6BZ",
               defaultMessage: "Search Products",
             })}
-            fullWidth
-            InputProps={{
-              autoComplete: "off",
-              endAdornment: loading && <SaleorThrobber size={16} />,
-            }}
+            autoComplete="off"
+            endAdornment={loading && <SaleorThrobber size={16} />}
           />
         </Box>
 

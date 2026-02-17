@@ -6,8 +6,7 @@ import { AccountErrorFragment } from "@dashboard/graphql";
 import { commonMessages } from "@dashboard/intl";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getAccountErrorMessage from "@dashboard/utils/errors/account";
-import { TextField } from "@mui/material";
-import { Text } from "@saleor/macaw-ui-next";
+import { Input, Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -45,35 +44,31 @@ const CustomerInfo = (props: CustomerInfoProps) => {
           <FormattedMessage {...commonMessages.generalInformations} />
         </Text>
         <Grid variant="uniform">
-          <TextField
+          <Input
+            size="small"
             data-test-id="customer-first-name"
             disabled={disabled}
             error={!!formErrors.firstName}
-            fullWidth
             helperText={getAccountErrorMessage(formErrors.firstName, intl)}
             name="firstName"
             type="text"
             label={intl.formatMessage(commonMessages.firstName)}
             value={data.firstName}
             onChange={onChange}
-            inputProps={{
-              spellCheck: false,
-            }}
+            spellCheck={false}
           />
-          <TextField
+          <Input
+            size="small"
             data-test-id="customer-last-name"
             disabled={disabled}
             error={!!formErrors.lastName}
-            fullWidth
             helperText={getAccountErrorMessage(formErrors.lastName, intl)}
             name="lastName"
             type="text"
             label={intl.formatMessage(commonMessages.lastName)}
             value={data.lastName}
             onChange={onChange}
-            inputProps={{
-              spellCheck: false,
-            }}
+            spellCheck={false}
           />
         </Grid>
         <Hr className="my-6" />
@@ -84,20 +79,18 @@ const CustomerInfo = (props: CustomerInfoProps) => {
             description="customer contact section, header"
           />
         </Text>
-        <TextField
+        <Input
+          size="small"
           data-test-id="customer-email"
           disabled={disabled}
           error={!!formErrors.email}
-          fullWidth
           helperText={getAccountErrorMessage(formErrors.email, intl)}
           name="email"
           type="email"
           label={intl.formatMessage(commonMessages.email)}
           value={data.email}
           onChange={onChange}
-          inputProps={{
-            spellCheck: false,
-          }}
+          spellCheck={false}
         />
       </DashboardCard.Content>
     </DashboardCard>

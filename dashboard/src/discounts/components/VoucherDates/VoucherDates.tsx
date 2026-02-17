@@ -5,7 +5,7 @@ import { DiscountErrorFragment } from "@dashboard/graphql";
 import { commonMessages } from "@dashboard/intl";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getDiscountErrorMessage from "@dashboard/utils/errors/discounts";
-import { TextField } from "@mui/material";
+import { Input } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { useIntl } from "react-intl";
 
@@ -35,7 +35,8 @@ const VoucherDates = ({ data, disabled, errors, onChange }: VoucherDatesProps) =
       </DashboardCard.Header>
       <DashboardCard.Content>
         <Grid variant="uniform">
-          <TextField
+          <Input
+            size="small"
             disabled={disabled}
             error={!!formErrors.startDate}
             helperText={getDiscountErrorMessage(formErrors.startDate, intl)}
@@ -44,12 +45,9 @@ const VoucherDates = ({ data, disabled, errors, onChange }: VoucherDatesProps) =
             label={intl.formatMessage(commonMessages.startDate)}
             value={data.startDate}
             type="date"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            fullWidth
           />
-          <TextField
+          <Input
+            size="small"
             disabled={disabled}
             error={!!formErrors.startDate}
             helperText={getDiscountErrorMessage(formErrors.startDate, intl)}
@@ -58,10 +56,6 @@ const VoucherDates = ({ data, disabled, errors, onChange }: VoucherDatesProps) =
             label={intl.formatMessage(commonMessages.startHour)}
             value={data.startTime}
             type="time"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            fullWidth
           />
         </Grid>
         <ControlledCheckbox
@@ -76,7 +70,8 @@ const VoucherDates = ({ data, disabled, errors, onChange }: VoucherDatesProps) =
         />
         {data.hasEndDate && (
           <Grid variant="uniform">
-            <TextField
+            <Input
+              size="small"
               disabled={disabled}
               error={!!formErrors.endDate}
               helperText={getDiscountErrorMessage(formErrors.endDate, intl)}
@@ -85,12 +80,9 @@ const VoucherDates = ({ data, disabled, errors, onChange }: VoucherDatesProps) =
               label={intl.formatMessage(commonMessages.endDate)}
               value={data.endDate}
               type="date"
-              InputLabelProps={{
-                shrink: true,
-              }}
-              fullWidth
             />
-            <TextField
+            <Input
+              size="small"
               disabled={disabled}
               error={!!formErrors.endDate}
               helperText={getDiscountErrorMessage(formErrors.endDate, intl)}
@@ -99,10 +91,6 @@ const VoucherDates = ({ data, disabled, errors, onChange }: VoucherDatesProps) =
               label={intl.formatMessage(commonMessages.endHour)}
               value={data.endTime}
               type="time"
-              InputLabelProps={{
-                shrink: true,
-              }}
-              fullWidth
             />
           </Grid>
         )}

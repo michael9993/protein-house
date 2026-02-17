@@ -4,8 +4,7 @@ import { ConfigurationTypeFieldEnum } from "@dashboard/graphql";
 import { ChangeEvent } from "@dashboard/hooks/useForm";
 import { UserError } from "@dashboard/types";
 import { getFieldError } from "@dashboard/utils/errors";
-import { TextField } from "@mui/material";
-import { Box, Checkbox, Text } from "@saleor/macaw-ui-next";
+import { Box, Checkbox, Input, Text, Textarea } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { PluginDetailsPageFormData } from "../PluginsDetailsPage";
@@ -46,26 +45,43 @@ export const PluginSettings = ({ data, disabled, errors, onChange }: PluginSetti
         <Box display="flex" flexDirection="column" gap={4}>
           {textConfigFields.map(field => (
             <Box key={field.name} display="flex" flexDirection="row" alignItems="center">
-              <TextField
-                disabled={disabled}
-                error={!!getFieldError(errors, "name")}
-                helperText={field.helpText}
-                label={field.label}
-                name={field.name}
-                multiline={field.type === ConfigurationTypeFieldEnum.MULTILINE}
-                InputProps={{
-                  rowsMax: 6,
-                  readOnly: field.type === ConfigurationTypeFieldEnum.OUTPUT,
-                }}
-                onFocus={event => {
-                  if (field.type === ConfigurationTypeFieldEnum.OUTPUT) {
-                    event.target.select();
-                  }
-                }}
-                fullWidth
-                value={field.value}
-                onChange={onChange}
-              />
+              {field.type === ConfigurationTypeFieldEnum.MULTILINE ? (
+                <Textarea
+                  size="small"
+                  disabled={disabled}
+                  error={!!getFieldError(errors, "name")}
+                  helperText={field.helpText}
+                  label={field.label}
+                  name={field.name}
+                  readOnly={field.type === ConfigurationTypeFieldEnum.OUTPUT}
+                  onFocus={event => {
+                    if (field.type === ConfigurationTypeFieldEnum.OUTPUT) {
+                      event.target.select();
+                    }
+                  }}
+                  value={field.value}
+                  onChange={onChange}
+                  width="100%"
+                />
+              ) : (
+                <Input
+                  size="small"
+                  disabled={disabled}
+                  error={!!getFieldError(errors, "name")}
+                  helperText={field.helpText}
+                  label={field.label}
+                  name={field.name}
+                  readOnly={field.type === ConfigurationTypeFieldEnum.OUTPUT}
+                  onFocus={event => {
+                    if (field.type === ConfigurationTypeFieldEnum.OUTPUT) {
+                      event.target.select();
+                    }
+                  }}
+                  value={field.value}
+                  onChange={onChange}
+                  width="100%"
+                />
+              )}
             </Box>
           ))}
           {booleanConfigFields.map(field => {

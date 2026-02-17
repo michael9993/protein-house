@@ -10,8 +10,7 @@ import { CountryWithCodeFragment } from "@dashboard/graphql";
 import { SubmitPromise } from "@dashboard/hooks/useForm";
 import { fuzzySearch } from "@dashboard/misc";
 import { TableBody, TableCell } from "@dashboard/components/Table";
-import { TextField } from "@mui/material";
-import { Box, Text } from "@saleor/macaw-ui-next";
+import { Box, Input, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 interface FormData {
@@ -77,7 +76,8 @@ const DiscountCountrySelectDialog = (props: DiscountCountrySelectDialogProps) =>
                   />
                 </Text>
 
-                <TextField
+                <Input
+                  size="small"
                   name="query"
                   value={data.query}
                   onChange={event => change(event)}
@@ -91,7 +91,6 @@ const DiscountCountrySelectDialog = (props: DiscountCountrySelectDialogProps) =>
                     defaultMessage: "Search by country name",
                     description: "search box placeholder",
                   })}
-                  fullWidth
                 />
 
                 <Hr />

@@ -5,7 +5,7 @@ import { FormChange } from "@dashboard/hooks/useForm";
 import { commonMessages } from "@dashboard/intl";
 import { getFieldError, getFormErrors } from "@dashboard/utils/errors";
 import getPermissionGroupErrorMessage from "@dashboard/utils/errors/permissionGroups";
-import { TextField } from "@mui/material";
+import { Input } from "@saleor/macaw-ui-next";
 import { useIntl } from "react-intl";
 
 interface PermissionGroupInfoProps {
@@ -29,7 +29,8 @@ const PermissionGroupInfo = ({ disabled, onChange, data, errors }: PermissionGro
         </DashboardCard.Title>
       </DashboardCard.Header>
       <DashboardCard.Content>
-        <TextField
+        <Input
+          size="small"
           data-test-id="permission-group-name-input"
           name="name"
           label={intl.formatMessage({
@@ -42,7 +43,6 @@ const PermissionGroupInfo = ({ disabled, onChange, data, errors }: PermissionGro
           disabled={disabled}
           error={!!getFieldError(errors, "name")}
           helperText={getPermissionGroupErrorMessage(formErrors.name, intl)}
-          fullWidth
         />
       </DashboardCard.Content>
     </DashboardCard>

@@ -9,8 +9,7 @@ import { ProductMediaType } from "@dashboard/graphql";
 import useNavigator from "@dashboard/hooks/useNavigator";
 import { commonMessages } from "@dashboard/intl";
 import { productUrl } from "@dashboard/products/urls";
-import { TextField } from "@mui/material";
-import { Skeleton } from "@saleor/macaw-ui-next";
+import { Skeleton, Textarea } from "@saleor/macaw-ui-next";
 import { defineMessages, useIntl } from "react-intl";
 
 import ProductMediaNavigation from "../ProductMediaNavigation";
@@ -92,15 +91,14 @@ const ProductMediaPage = (props: ProductMediaPageProps) => {
                   </DashboardCard.Title>
                 </DashboardCard.Header>
                 <DashboardCard.Content>
-                  <TextField
+                  <Textarea
+                    size="small"
                     name="description"
                     label={intl.formatMessage(commonMessages.description)}
                     helperText={intl.formatMessage(messages.optional)}
                     disabled={disabled}
                     onChange={change}
                     value={data.description}
-                    multiline
-                    fullWidth
                   />
                 </DashboardCard.Content>
               </DashboardCard>

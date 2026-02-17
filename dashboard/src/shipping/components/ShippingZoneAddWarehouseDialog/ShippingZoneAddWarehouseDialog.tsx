@@ -15,7 +15,7 @@ import { buttonMessages } from "@dashboard/intl";
 import { DialogProps } from "@dashboard/types";
 import createSingleAutocompleteSelectHandler from "@dashboard/utils/handlers/singleAutocompleteSelectChangeHandler";
 import { mapCountriesToChoices } from "@dashboard/utils/maps";
-import { TextField } from "@mui/material";
+import { Input } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 interface ShippingZoneAddWarehouseDialogSubmitData extends AddressTypeInput {
@@ -82,8 +82,8 @@ const ShippingZoneAddWarehouseDialog = ({
                 />
               </DashboardModal.Header>
 
-              <TextField
-                fullWidth
+              <Input
+                size="small"
                 label={intl.formatMessage({
                   id: "llBnr+",
                   defaultMessage: "Warehouse Name",

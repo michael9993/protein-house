@@ -8,7 +8,7 @@ import { commonMessages } from "@dashboard/intl";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getPageErrorMessage from "@dashboard/utils/errors/page";
 import { useRichTextContext } from "@dashboard/utils/richText/context";
-import { TextField } from "@mui/material";
+import { Input } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { useIntl } from "react-intl";
 
@@ -35,10 +35,10 @@ const PageInfo = (props: PageInfoProps) => {
         </DashboardCard.Title>
       </DashboardCard.Header>
       <DashboardCard.Content>
-        <TextField
+        <Input
+          size="small"
           disabled={disabled}
           error={!!formErrors.title}
-          fullWidth
           helperText={getPageErrorMessage(formErrors.title, intl)}
           label={intl.formatMessage({
             id: "gr+oXW",

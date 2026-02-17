@@ -1,8 +1,7 @@
 import { ConfirmButtonTransitionState } from "@dashboard/components/ConfirmButton";
 import Form from "@dashboard/components/Form";
 import { SubmitPromise } from "@dashboard/hooks/useForm";
-import { TextField } from "@mui/material";
-import { Text } from "@saleor/macaw-ui-next";
+import { Text, Textarea } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import TranslationFieldsSave from "./TranslationFieldsSave";
@@ -36,10 +35,9 @@ const TranslationFieldsLong = ({
     >
       {({ change, data, submit }) => (
         <div>
-          <TextField
+          <Textarea
+            size="small"
             disabled={disabled}
-            fullWidth
-            multiline
             label={intl.formatMessage({
               id: "/vCXIP",
               defaultMessage: "Translation",

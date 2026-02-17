@@ -12,8 +12,7 @@ import { useModalSearchWithFilters } from "@dashboard/hooks/useModalSearchWithFi
 import { maybe } from "@dashboard/misc";
 import { Container, FetchMoreProps } from "@dashboard/types";
 import { TableBody, TableCell } from "@dashboard/components/Table";
-import { TextField } from "@mui/material";
-import { Text } from "@saleor/macaw-ui-next";
+import { Input, Text } from "@saleor/macaw-ui-next";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -146,17 +145,15 @@ export const AssignProductDialogMulti = (props: AssignProductDialogMultiProps) =
 
   return (
     <>
-      <TextField
+      <Input
+        size="small"
         name="query"
         value={query}
         onChange={onQueryChange}
         label={intl.formatMessage(messages.assignProductDialogSearch)}
         placeholder={intl.formatMessage(messages.assignProductDialogContent)}
-        fullWidth
-        InputProps={{
-          autoComplete: "off",
-          endAdornment: loading && <SaleorThrobber size={16} />,
-        }}
+        autoComplete="off"
+        endAdornment={loading && <SaleorThrobber size={16} />}
       />
 
       <ModalFilters />

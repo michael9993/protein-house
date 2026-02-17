@@ -4,8 +4,7 @@ import { Grid } from "@dashboard/components/Grid";
 import { DiscountErrorFragment } from "@dashboard/graphql";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getDiscountErrorMessage from "@dashboard/utils/errors/discounts";
-import { TextField } from "@mui/material";
-import { Text } from "@saleor/macaw-ui-next";
+import { Input, Text } from "@saleor/macaw-ui-next";
 import { useIntl } from "react-intl";
 
 import { VoucherDetailsPageFormData } from "../VoucherDetailsPage";
@@ -52,7 +51,8 @@ const VoucherLimits = ({
         />
         {data.hasUsageLimit &&
           (isNewVoucher ? (
-            <TextField
+            <Input
+              size="small"
               data-test-id="usage-limit"
               disabled={disabled}
               error={!!formErrors.usageLimit || data.usageLimit <= 0}
@@ -62,14 +62,12 @@ const VoucherLimits = ({
               value={data.usageLimit}
               onChange={onChange}
               type="number"
-              fullWidth
-              inputProps={{
-                min: 1,
-              }}
+              min={1}
             />
           ) : (
             <Grid variant="uniform">
-              <TextField
+              <Input
+                size="small"
                 data-test-id="usage-limit"
                 disabled={disabled}
                 error={!!formErrors.usageLimit || data.usageLimit <= 0}
@@ -79,9 +77,7 @@ const VoucherLimits = ({
                 value={data.usageLimit}
                 onChange={onChange}
                 type="number"
-                inputProps={{
-                  min: 1,
-                }}
+                min={1}
               />
               <div className="flex flex-col flex-1">
                 <Text size={2} fontWeight="light">

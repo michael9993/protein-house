@@ -3,8 +3,8 @@ import { FilterDateTimeField } from "@dashboard/components/Filter/FilterContent/
 import { FilterNumericField } from "@dashboard/components/Filter/FilterContent/FilterNumericField";
 import { FilterSingleSelectField } from "@dashboard/components/Filter/FilterContent/FilterSingleSelectField";
 import { commonFilterStyles } from "@dashboard/components/Filter/FilterContent/utils";
-import { FormControlLabel, Radio, TextField } from "@mui/material";
-import { Option, Skeleton } from "@saleor/macaw-ui-next";
+import { FormControlLabel, Radio } from "@mui/material";
+import { Input, Option, Skeleton } from "@saleor/macaw-ui-next";
 import * as React from "react";
 
 import FilterAutocompleteField, {
@@ -50,11 +50,11 @@ export const FilterContentBody = <K extends string = string>({
     <div className="py-4 px-6">
       {children}
       {isFilterType(filter, FieldType.text) && (
-        <TextField
+        <Input
+          size="small"
           data-test-id={filterTestingContext + filter.name}
-          fullWidth
           name={filter.name}
-          InputProps={{ classes: { input: commonFilterStyles.input } }}
+          className={commonFilterStyles.input}
           value={filter.value[0]}
           onChange={event =>
             onFilterPropertyChange<FieldType.text>({

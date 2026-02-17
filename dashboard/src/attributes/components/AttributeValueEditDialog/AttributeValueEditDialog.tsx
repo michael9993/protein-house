@@ -7,7 +7,7 @@ import { AttributeErrorFragment, AttributeInputTypeEnum } from "@dashboard/graph
 import useModalDialogErrors from "@dashboard/hooks/useModalDialogErrors";
 import { buttonMessages } from "@dashboard/intl";
 import { getFormErrors } from "@dashboard/utils/errors";
-import { TextField } from "@mui/material";
+import { Input } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { AttributeValueEditDialogFormData } from "../../utils/data";
@@ -67,12 +67,12 @@ const AttributeValueEditDialog = ({
                 )}
               </DashboardModal.Header>
 
-              <TextField
+              <Input
+                size="small"
                 data-test-id="value-name"
                 autoFocus
                 disabled={disabled}
                 error={!!formErrors.name}
-                fullWidth
                 helperText={getAttributeValueErrorMessage(formErrors.name, intl)}
                 name={"name" as keyof AttributeValueEditDialogFormData}
                 label={intl.formatMessage({

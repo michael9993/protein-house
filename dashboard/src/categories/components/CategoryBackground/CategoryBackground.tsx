@@ -5,8 +5,7 @@ import ImageUpload from "@dashboard/components/ImageUpload";
 import MediaTile from "@dashboard/components/MediaTile";
 import { CategoryDetailsFragment } from "@dashboard/graphql";
 import { commonMessages } from "@dashboard/intl";
-import { TextField } from "@mui/material";
-import { Skeleton } from "@saleor/macaw-ui-next";
+import { Skeleton, Textarea } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -71,7 +70,8 @@ const CategoryBackground = (props: CategoryBackgroundProps) => {
         <>
           <Hr />
           <DashboardCard.Content>
-            <TextField
+            <Textarea
+              size="small"
               name="backgroundImageAlt"
               label={intl.formatMessage(commonMessages.description)}
               helperText={intl.formatMessage({
@@ -81,8 +81,6 @@ const CategoryBackground = (props: CategoryBackgroundProps) => {
               })}
               value={data.backgroundImageAlt}
               onChange={onChange}
-              fullWidth
-              multiline
             />
           </DashboardCard.Content>
         </>

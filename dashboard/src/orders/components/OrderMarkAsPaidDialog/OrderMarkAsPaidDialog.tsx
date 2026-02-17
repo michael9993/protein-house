@@ -3,8 +3,7 @@ import { ConfirmButtonTransitionState } from "@dashboard/components/ConfirmButto
 import { OrderErrorFragment } from "@dashboard/graphql";
 import useModalDialogErrors from "@dashboard/hooks/useModalDialogErrors";
 import getOrderErrorMessage from "@dashboard/utils/errors/order";
-import { TextField } from "@mui/material";
-import { Box, Text } from "@saleor/macaw-ui-next";
+import { Box, Input, Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -48,8 +47,8 @@ const OrderMarkAsPaidDialog = ({
           id="rwOx2s"
           defaultMessage="Please provide a transaction reference using the input below:"
         />
-        <TextField
-          fullWidth
+        <Input
+          size="small"
           name="transactionReference"
           label={intl.formatMessage({
             id: "EbVf0Z",

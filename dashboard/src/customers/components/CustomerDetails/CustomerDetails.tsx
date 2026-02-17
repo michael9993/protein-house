@@ -4,8 +4,7 @@ import { AccountErrorFragment, CustomerDetailsQuery } from "@dashboard/graphql";
 import { maybe } from "@dashboard/misc";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getAccountErrorMessage from "@dashboard/utils/errors/account";
-import { TextField } from "@mui/material";
-import { Checkbox, Skeleton, Text } from "@saleor/macaw-ui-next";
+import { Checkbox, Skeleton, Text, Textarea } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -82,12 +81,11 @@ const CustomerDetails = (props: CustomerDetailsProps) => {
             })}
           </Text>
         </Checkbox>
-        <TextField
+        <Textarea
+          size="small"
           data-test-id="customer-note"
           disabled={disabled}
           error={!!formErrors.note}
-          fullWidth
-          multiline
           helperText={getAccountErrorMessage(formErrors.note, intl)}
           name="note"
           label={intl.formatMessage({

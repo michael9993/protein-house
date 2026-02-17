@@ -9,8 +9,7 @@ import {
   useGiftCardSettingsQuery,
 } from "@dashboard/graphql";
 import useForm from "@dashboard/hooks/useForm";
-import { Divider, TextField } from "@mui/material";
-import { Text } from "@saleor/macaw-ui-next";
+import { Divider, Input, Text } from "@saleor/macaw-ui-next";
 import { useIntl } from "react-intl";
 
 import GiftCardCreateExpirySelect from "../GiftCardCreateDialog/GiftCardCreateExpirySelect";
@@ -87,11 +86,11 @@ const GiftCardBulkCreateDialogForm = ({
 
   return (
     <>
-      <TextField
+      <Input
+        size="small"
         error={!!formErrors?.count}
         name="cardsAmount"
         onChange={change}
-        fullWidth
         label={intl.formatMessage(messages.giftCardsAmountLabel)}
         value={cardsAmount}
         helperText={getGiftCardErrorMessage(formErrors?.count, intl)}

@@ -6,8 +6,7 @@ import { getAppMountUri } from "@dashboard/config";
 import { AccountErrorCode } from "@dashboard/graphql";
 import { SubmitPromise } from "@dashboard/hooks/useForm";
 import { commonMessages } from "@dashboard/intl";
-import { TextField } from "@mui/material";
-import { Box, Button, Paragraph, Text } from "@saleor/macaw-ui-next";
+import { Box, Button, Input, Paragraph, Text } from "@saleor/macaw-ui-next";
 import { ArrowLeft } from "lucide-react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -67,19 +66,17 @@ const ResetPasswordPage = (props: ResetPasswordPageProps) => {
             </>
           )}
           <FormSpacer />
-          <TextField
+          <Input
+            size="small"
             autoFocus
             disabled={disabled}
-            fullWidth
             autoComplete="username"
             label={intl.formatMessage(commonMessages.email)}
             name="email"
             onChange={handleChange}
             value={data.email}
-            inputProps={{
-              "data-test-id": "email",
-              spellCheck: false,
-            }}
+            data-test-id="email"
+            spellCheck={false}
           />
           <FormSpacer />
           <Button

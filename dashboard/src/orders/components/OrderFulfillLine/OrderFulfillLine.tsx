@@ -10,9 +10,8 @@ import {
   OrderFulfillLineFormData,
 } from "@dashboard/orders/utils/data";
 import { TableCell } from "@dashboard/components/Table";
-import { TextField } from "@mui/material";
 import { ChevronIcon, IconButton, WarningIcon } from "@saleor/macaw-ui";
-import { Box, Skeleton, Text, Tooltip } from "@saleor/macaw-ui-next";
+import { Box, Input, Skeleton, Text, Tooltip } from "@saleor/macaw-ui-next";
 import { useIntl } from "react-intl";
 
 import { cn } from "@dashboard/utils/cn";
@@ -99,16 +98,14 @@ const OrderFulfillLine = (props: OrderFulfillLineProps) => {
           className="text-right w-[210px]"
           key={warehouseStock?.id ?? "deletedVariant" + lineIndex}
         >
-          <TextField
+          <Input
+            size="small"
             type="number"
-            inputProps={{
-              className: cn("py-4", {
-                "pr-0": !line.variant?.trackInventory,
-              }),
-              min: 0,
-              style: { textAlign: "right" },
-            }}
-            fullWidth
+            className={cn({
+              "!border-saleor-warning-dark shadow-[0_0_0_3px_var(--color-saleor-warning-light)]": isStockExceeded && !overfulfill,
+            })}
+            min={0}
+            style={{ textAlign: "right" }}
             value={lineFormQuantity}
             onChange={event =>
               formsetChange(line.id, [
@@ -119,18 +116,9 @@ const OrderFulfillLine = (props: OrderFulfillLineProps) => {
               ])
             }
             error={overfulfill}
-            variant="outlined"
-            InputProps={{
-              classes: {
-                ...(isStockExceeded &&
-                  !overfulfill && {
-                    notchedOutline: "!border-saleor-warning-dark shadow-[0_0_0_3px_var(--color-saleor-warning-light)]",
-                  }),
-              },
-              endAdornment: (
-                <div className="py-4 text-text-secondary whitespace-nowrap">/ {line.quantityToFulfill}</div>
-              ),
-            }}
+            endAdornment={
+              <div className="py-4 text-text-secondary whitespace-nowrap">/ {line.quantityToFulfill}</div>
+            }
           />
         </TableCell>
       )}

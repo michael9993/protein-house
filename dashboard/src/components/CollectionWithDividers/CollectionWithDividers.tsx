@@ -1,4 +1,4 @@
-import { Divider } from "@mui/material";
+import { Divider } from "@saleor/macaw-ui-next";
 import { PropsWithChildren } from "react";
 import * as React from "react";
 

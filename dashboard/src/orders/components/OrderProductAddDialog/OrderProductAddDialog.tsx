@@ -18,8 +18,7 @@ import { maybe, renderCollection } from "@dashboard/misc";
 import { FetchMoreProps, RelayToFlat } from "@dashboard/types";
 import getOrderErrorMessage from "@dashboard/utils/errors/order";
 import { TableBody, TableCell } from "@dashboard/components/Table";
-import { TextField } from "@mui/material";
-import { Box, Text } from "@saleor/macaw-ui-next";
+import { Box, Input, Text } from "@saleor/macaw-ui-next";
 import { Fragment, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -104,17 +103,15 @@ const OrderProductAddDialog = (props: OrderProductAddDialogProps) => {
         </Text>
 
         <Box data-test-id="search-query">
-          <TextField
+          <Input
+            size="small"
             name="query"
             value={query}
             onChange={onQueryChange}
             label={intl.formatMessage(messages.search)}
             placeholder={intl.formatMessage(messages.searchPlaceholder)}
-            fullWidth
-            InputProps={{
-              autoComplete: "off",
-              endAdornment: loading && <SaleorThrobber size={16} />,
-            }}
+            autoComplete="off"
+            endAdornment={loading && <SaleorThrobber size={16} />}
           />
         </Box>
 

@@ -1,6 +1,5 @@
 import { DashboardModal } from "@dashboard/components/Modal";
-import { Box, Button, Text } from "@saleor/macaw-ui-next";
-import { TextField } from "@mui/material";
+import { Box, Button, Input, Text, Textarea } from "@saleor/macaw-ui-next";
 import { useMutation } from "@apollo/client";
 import { useIntl } from "react-intl";
 import { buttonMessages } from "@dashboard/intl";
@@ -150,8 +149,8 @@ const ReviewEditDialog = ({ open, onClose, onSuccess }: ReviewEditDialogProps) =
         </DashboardModal.Header>
         <Box display="flex" flexDirection="column" gap={4}>
           <Box>
-            <TextField
-              fullWidth
+            <Input
+              size="small"
               label={intl.formatMessage(messages.title)}
               value={title}
               onChange={e => setTitle(e.target.value)}
@@ -176,12 +175,11 @@ const ReviewEditDialog = ({ open, onClose, onSuccess }: ReviewEditDialogProps) =
             </Box>
           </Box>
           <Box>
-            <TextField
-              fullWidth
+            <Textarea
+              size="small"
               label={intl.formatMessage(messages.body)}
               value={body}
               onChange={e => setBody(e.target.value)}
-              multiline
               rows={6}
             />
           </Box>

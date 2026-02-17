@@ -1,8 +1,7 @@
 import { ControlledCheckbox } from "@dashboard/components/ControlledCheckbox";
 import Hr from "@dashboard/components/Hr";
 import Label from "@dashboard/orders/components/OrderHistory/Label";
-import { TextField } from "@mui/material";
-import { Text } from "@saleor/macaw-ui-next";
+import { Input, Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { defineMessages, FormattedMessage, useIntl } from "react-intl";
 
@@ -63,14 +62,14 @@ const ChannelsAvailabilityContentWrapper = ({
           <FormattedMessage {...messages.selectTitle} />
         </Text>
       )}
-      <TextField
+      <Input
+        size="small"
         name="query"
         value={query}
         className="[&_label]:overflow-x-visible"
         onChange={e => onQueryChange(e.target.value)}
         label={searchText}
         placeholder={searchText}
-        fullWidth
       />
       <div className="-mb-[30px] mt-4">
         {!!toggleAll && (

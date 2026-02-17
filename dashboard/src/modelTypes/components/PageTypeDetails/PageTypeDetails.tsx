@@ -4,7 +4,7 @@ import { PageErrorFragment } from "@dashboard/graphql";
 import { commonMessages } from "@dashboard/intl";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getPageErrorMessage from "@dashboard/utils/errors/page";
-import { TextField } from "@mui/material";
+import { Input } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { useIntl } from "react-intl";
 
@@ -30,9 +30,9 @@ const PageTypeDetails = (props: PageTypeDetailsProps) => {
         </DashboardCard.Title>
       </DashboardCard.Header>
       <DashboardCard.Content>
-        <TextField
+        <Input
+          size="small"
           disabled={disabled}
-          fullWidth
           error={!!formErrors.name}
           helperText={getPageErrorMessage(formErrors.name, intl)}
           label={intl.formatMessage({

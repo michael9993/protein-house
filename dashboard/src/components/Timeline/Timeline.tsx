@@ -2,8 +2,7 @@
 import { useUser } from "@dashboard/auth";
 import { Button } from "@dashboard/components/Button";
 import { getUserInitials } from "@dashboard/misc";
-import { TextField } from "@mui/material";
-import { sprinkles, vars } from "@saleor/macaw-ui-next";
+import { sprinkles, Textarea, vars } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -49,7 +48,8 @@ export const TimelineAddNote = (props: TimelineAddNoteProps) => {
           })}
           style={{ left: -19 }}
         />
-        <TextField
+        <Textarea
+          size="small"
           disabled={disabled}
           className="[&>div]:p-[0_0_0_14px] [&_textarea::placeholder]:!opacity-100"
           style={{ background: vars.colors.background.default1 }}
@@ -60,24 +60,19 @@ export const TimelineAddNote = (props: TimelineAddNoteProps) => {
           onChange={onChange}
           value={message}
           name="message"
-          fullWidth
-          multiline
-          InputProps={{
-            endAdornment: (
-              <Button
-                className="p-[7px] rounded-tl-none rounded-bl-none"
-                disabled={disabled}
-                onClick={e => submit(e)}
-              >
-                <FormattedMessage
-                  id="v/1VA6"
-                  defaultMessage="Send"
-                  description="add order note, button"
-                />
-              </Button>
-            ),
-          }}
-          variant="outlined"
+          endAdornment={
+            <Button
+              className="p-[7px] rounded-tl-none rounded-bl-none"
+              disabled={disabled}
+              onClick={e => submit(e)}
+            >
+              <FormattedMessage
+                id="v/1VA6"
+                defaultMessage="Send"
+                description="add order note, button"
+              />
+            </Button>
+          }
         />
       </DashboardCard.Content>
     </div>

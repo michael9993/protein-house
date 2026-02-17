@@ -7,7 +7,7 @@ import { commonMessages } from "@dashboard/intl";
 import { getFormErrors, getProductErrorMessage } from "@dashboard/utils/errors";
 import { useRichTextContext } from "@dashboard/utils/richText/context";
 import { OutputData } from "@editorjs/editorjs";
-import { TextField } from "@mui/material";
+import { Input } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { useIntl } from "react-intl";
 
@@ -36,7 +36,8 @@ const CategoryDetailsForm = ({ disabled, data, onChange, errors }: CategoryDetai
 
       <DashboardCard.Content>
         <div>
-          <TextField
+          <Input
+            size="small"
             data-test-id="category-name-input"
             label={intl.formatMessage({
               id: "vEYtiq",
@@ -48,7 +49,6 @@ const CategoryDetailsForm = ({ disabled, data, onChange, errors }: CategoryDetai
             onChange={onChange}
             error={!!formErrors.name}
             helperText={getProductErrorMessage(formErrors.name, intl)}
-            fullWidth
           />
         </div>
         <FormSpacer />

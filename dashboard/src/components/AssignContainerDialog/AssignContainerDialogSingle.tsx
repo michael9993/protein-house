@@ -8,8 +8,8 @@ import useModalDialogOpen from "@dashboard/hooks/useModalDialogOpen";
 import useSearchQuery from "@dashboard/hooks/useSearchQuery";
 import { Container, FetchMoreProps } from "@dashboard/types";
 import { TableBody, TableCell } from "@dashboard/components/Table";
-import { Radio, TextField } from "@mui/material";
-import { Text } from "@saleor/macaw-ui-next";
+import { Radio } from "@mui/material";
+import { Input, Text } from "@saleor/macaw-ui-next";
 import { useState } from "react";
 
 import BackButton from "../BackButton";
@@ -74,17 +74,15 @@ export const AssignContainerDialogSingle = (props: AssignContainerDialogSinglePr
 
   return (
     <>
-      <TextField
+      <Input
+        size="small"
         name="query"
         value={query}
         onChange={onQueryChange}
         label={labels.label}
         placeholder={labels.placeholder}
-        fullWidth
-        InputProps={{
-          autoComplete: "off",
-          endAdornment: loading && <SaleorThrobber size={16} />,
-        }}
+        autoComplete="off"
+        endAdornment={loading && <SaleorThrobber size={16} />}
       />
 
       <InfiniteScroll

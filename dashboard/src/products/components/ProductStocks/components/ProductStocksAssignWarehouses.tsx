@@ -8,9 +8,8 @@ import { SaleorThrobber } from "@dashboard/components/Throbber";
 import { WarehouseFragment } from "@dashboard/graphql";
 import useSearchQuery from "@dashboard/hooks/useSearchQuery";
 import { TableBody, TableCell, TableRow } from "@dashboard/components/Table";
-import { TextField } from "@mui/material";
 import { ConfirmButton } from "@saleor/macaw-ui";
-import { Button, Option, sprinkles, Text } from "@saleor/macaw-ui-next";
+import { Button, Input, Option, sprinkles, Text } from "@saleor/macaw-ui-next";
 import { useState } from "react";
 import { useIntl } from "react-intl";
 
@@ -70,17 +69,15 @@ export const ProductStocksAssignWarehouses = ({
             })}
           </DashboardModal.Header>
 
-          <TextField
+          <Input
+            size="small"
             name="query"
             value={query}
             onChange={onQueryChange}
             label="Search warehouses"
             placeholder="Search by warehouse name"
-            fullWidth
-            InputProps={{
-              autoComplete: "off",
-              endAdornment: loading && <SaleorThrobber size={16} />,
-            }}
+            autoComplete="off"
+            endAdornment={loading && <SaleorThrobber size={16} />}
           />
 
           <InfiniteScroll

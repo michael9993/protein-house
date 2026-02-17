@@ -3,7 +3,7 @@ import HorizontalSpacer from "@dashboard/components/HorizontalSpacer";
 import { UseFormResult } from "@dashboard/hooks/useForm";
 import { RequireOnlyOne } from "@dashboard/misc";
 import commonErrorMessages from "@dashboard/utils/errors/common";
-import { TextField } from "@mui/material";
+import { Input } from "@saleor/macaw-ui-next";
 import Hue from "@uiw/react-color-hue";
 import Saturation from "@uiw/react-color-saturation";
 import convert from "color-convert";
@@ -84,30 +84,35 @@ export const ColorPicker = ({
       </div>
       <HorizontalSpacer spacing={4} />
       <div>
-        <TextField
+        <Input
+          size="small"
           className="whitespace-nowrap w-[170px] mb-2 [&_input]:text-right [&_input]:p-[15px]"
-          InputProps={{ startAdornment: "R" }}
+          startAdornment="R"
           value={r}
           onChange={event => handleRGBChange({ r: event.target.value })}
         />
-        <TextField
+        <Input
+          size="small"
           className="whitespace-nowrap w-[170px] mb-2 [&_input]:text-right [&_input]:p-[15px]"
-          InputProps={{ startAdornment: "G" }}
+          startAdornment="G"
           value={g}
           onChange={event => handleRGBChange({ g: event.target.value })}
         />
-        <TextField
+        <Input
+          size="small"
           className="whitespace-nowrap w-[170px] mb-2 [&_input]:text-right [&_input]:p-[15px]"
-          InputProps={{ startAdornment: "B" }}
+          startAdornment="B"
           value={b}
           onChange={event => handleRGBChange({ b: event.target.value })}
         />
-        <TextField
+        <Input
+          size="small"
           error={!isValidColor}
           helperText={errors?.value}
           className="whitespace-nowrap w-[170px] mb-2 [&_input]:text-right [&_input]:p-[15px]"
-          InputProps={{ startAdornment: "HEX" }}
-          inputProps={{ pattern: "[A-Za-z0-9]{6}", maxLength: 7 }}
+          startAdornment="HEX"
+          pattern="[A-Za-z0-9]{6}"
+          maxLength={7}
           value={`#${hex}`}
           onChange={event => handleHEXChange(event.target.value)}
         />

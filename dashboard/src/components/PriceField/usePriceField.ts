@@ -1,6 +1,5 @@
 import { FormChange } from "@dashboard/hooks/useForm";
-import { TextFieldProps } from "@mui/material";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 
 import { SEPARATOR_CHARACTERS } from "./consts";
 import { findPriceSeparator, getCurrencyDecimalPoints } from "./utils";
@@ -31,7 +30,7 @@ export function usePriceField(currency: string | undefined, onChange: FormChange
       },
     });
   };
-  const handleKeyDown: TextFieldProps["onKeyDown"] = e => {
+  const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = e => {
     // Disallow entering e (exponent)
     if (e.key === "e" || e.key === "E" || e.key === "-") {
       e.preventDefault();

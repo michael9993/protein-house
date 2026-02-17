@@ -18,8 +18,8 @@ import useModalDialogErrors from "@dashboard/hooks/useModalDialogErrors";
 import { buttonMessages } from "@dashboard/intl";
 import { getById, transformAddressToAddressInput } from "@dashboard/misc";
 import { mapCountriesToChoices } from "@dashboard/utils/maps";
-import { Divider, FormControlLabel } from "@mui/material";
-import { Text } from "@saleor/macaw-ui-next";
+import { FormControlLabel } from "@mui/material";
+import { Divider, Text } from "@saleor/macaw-ui-next";
 import { useState } from "react";
 import { FormattedMessage, MessageDescriptor, useIntl } from "react-intl";
 

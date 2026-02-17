@@ -4,8 +4,7 @@ import ImageUpload from "@dashboard/components/ImageUpload";
 import MediaTile from "@dashboard/components/MediaTile";
 import { CollectionDetailsFragment } from "@dashboard/graphql";
 import { commonMessages } from "@dashboard/intl";
-import { TextField } from "@mui/material";
-import { Button, Skeleton } from "@saleor/macaw-ui-next";
+import { Button, Skeleton, Textarea } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -75,7 +74,8 @@ export const CollectionImage = (props: CollectionImageProps) => {
         <>
           <Hr />
           <DashboardCard.Content>
-            <TextField
+            <Textarea
+              size="small"
               name="backgroundImageAlt"
               label={intl.formatMessage(commonMessages.description)}
               helperText={intl.formatMessage({
@@ -85,8 +85,6 @@ export const CollectionImage = (props: CollectionImageProps) => {
               })}
               value={data.backgroundImageAlt}
               onChange={onChange}
-              fullWidth
-              multiline
             />
           </DashboardCard.Content>
         </>

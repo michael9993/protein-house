@@ -8,8 +8,7 @@ import { OrderErrorFragment } from "@dashboard/graphql";
 import { buttonMessages } from "@dashboard/intl";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getOrderErrorMessage from "@dashboard/utils/errors/order";
-import { TextField } from "@mui/material";
-import { Text } from "@saleor/macaw-ui-next";
+import { Input, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 interface FormData {
@@ -55,9 +54,9 @@ const OrderPaymentDialog = ({
               })}
             </DashboardModal.Header>
 
-            <TextField
+            <Input
+              size="small"
               error={!!formErrors.payment}
-              fullWidth
               helperText={getOrderErrorMessage(formErrors.payment, intl)}
               label={intl.formatMessage({
                 id: "OhdPS1",
@@ -66,9 +65,7 @@ const OrderPaymentDialog = ({
               })}
               name="amount"
               onChange={change}
-              inputProps={{
-                step: "0.01",
-              }}
+              step="0.01"
               type="number"
               value={data.amount}
             />

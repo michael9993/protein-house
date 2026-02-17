@@ -13,8 +13,8 @@ import { buttonMessages } from "@dashboard/intl";
 import { getUserInitials, getUserName, renderCollection } from "@dashboard/misc";
 import { DialogProps, FetchMoreProps, RelayToFlat, SearchPageProps } from "@dashboard/types";
 import { TableBody, TableCell } from "@dashboard/components/Table";
-import { Checkbox, TextField } from "@mui/material";
-import { Box, Skeleton, Text } from "@saleor/macaw-ui-next";
+import { Checkbox } from "@mui/material";
+import { Box, Input, Skeleton, Text } from "@saleor/macaw-ui-next";
 import { useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -70,18 +70,16 @@ const AssignMembersDialog = ({
           <FormattedMessage {...messages.title} />
         </DashboardModal.Header>
 
-        <TextField
+        <Input
+          size="small"
           data-test-id="search-members-input"
           name="query"
           value={query}
           onChange={onQueryChange}
           label={intl.formatMessage(messages.searchInputLabel)}
           placeholder={intl.formatMessage(messages.searchInputPlaceholder)}
-          fullWidth
-          InputProps={{
-            autoComplete: "off",
-            endAdornment: loading && <SaleorThrobber size={16} />,
-          }}
+          autoComplete="off"
+          endAdornment={loading && <SaleorThrobber size={16} />}
           disabled={disabled}
         />
 

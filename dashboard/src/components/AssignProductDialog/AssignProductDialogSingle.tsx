@@ -11,8 +11,8 @@ import { useModalSearchWithFilters } from "@dashboard/hooks/useModalSearchWithFi
 import { maybe } from "@dashboard/misc";
 import { Container, FetchMoreProps } from "@dashboard/types";
 import { TableBody, TableCell } from "@dashboard/components/Table";
-import { Radio, TextField } from "@mui/material";
-import { Text } from "@saleor/macaw-ui-next";
+import { Radio } from "@mui/material";
+import { Input, Text } from "@saleor/macaw-ui-next";
 import { useEffect, useMemo, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -123,17 +123,15 @@ export const AssignProductDialogSingle = (props: AssignProductDialogSingleProps)
 
   return (
     <>
-      <TextField
+      <Input
+        size="small"
         name="query"
         value={query}
         onChange={onQueryChange}
         label={intl.formatMessage(messages.assignProductDialogSearch)}
         placeholder={intl.formatMessage(messages.assignProductDialogContent)}
-        fullWidth
-        InputProps={{
-          autoComplete: "off",
-          endAdornment: loading && <SaleorThrobber size={16} />,
-        }}
+        autoComplete="off"
+        endAdornment={loading && <SaleorThrobber size={16} />}
       />
 
       <ModalFilters />

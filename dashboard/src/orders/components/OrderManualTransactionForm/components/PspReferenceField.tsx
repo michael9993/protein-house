@@ -1,27 +1,24 @@
 // @ts-strict-ignore
-import { TextField, TextFieldProps } from "@mui/material";
+import { Input } from "@saleor/macaw-ui-next";
+import * as React from "react";
 
 import { useManualTransactionContext } from "../context";
 
 export const PspReferenceField = ({
   disabled,
-  variant = "outlined",
   ...props
-}: Omit<TextFieldProps, "onChange" | "value">) => {
+}: Omit<React.ComponentProps<typeof Input>, "onChange" | "value">) => {
   const { submitState, pspReference, handleChangePspReference } = useManualTransactionContext();
 
   return (
-    <TextField
+    <Input
+      size="small"
       {...props}
-      variant={variant}
       disabled={submitState === "loading" || disabled}
       onChange={handleChangePspReference}
       value={pspReference}
-      inputProps={{
-        ...props.inputProps,
-        maxLength: 512,
-        "data-test-id": "transactionPspReference",
-      }}
+      maxLength={512}
+      data-test-id="transactionPspReference"
     />
   );
 };

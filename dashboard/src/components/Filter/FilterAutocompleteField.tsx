@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { toggle } from "@dashboard/utils/lists";
-import { FormControlLabel, TextField } from "@mui/material";
-import { Option, Text } from "@saleor/macaw-ui-next";
+import { FormControlLabel } from "@mui/material";
+import { Input, Option, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage } from "react-intl";
 
 import Checkbox from "../Checkbox";
@@ -68,16 +68,11 @@ const FilterAutocompleteField = ({
   return (
     <div {...rest}>
       {filter?.onSearchChange && (
-        <TextField
+        <Input
+          size="small"
           data-test-id="filter-field-autocomplete-input"
           className="mb-2 pt-2"
-          fullWidth
           name={filter.name + "_autocomplete"}
-          InputProps={{
-            classes: {
-              input: "!py-[9px] !pb-[9px] !ps-3 !pe-0",
-            },
-          }}
           onChange={event => filter.onSearchChange(event.target.value)}
         />
       )}

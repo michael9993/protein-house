@@ -2,8 +2,7 @@ import VerticalSpacer from "@dashboard/components/VerticalSpacer";
 import { getGiftCardErrorMessage } from "@dashboard/giftCards/GiftCardUpdate/messages";
 import useGiftCardUpdateForm from "@dashboard/giftCards/GiftCardUpdate/providers/GiftCardUpdateFormProvider/hooks/useGiftCardUpdateForm";
 import useStateFromProps from "@dashboard/hooks/useStateFromProps";
-import { TextField } from "@mui/material";
-import { Checkbox, Text } from "@saleor/macaw-ui-next";
+import { Checkbox, Input, Text } from "@saleor/macaw-ui-next";
 import { useEffect } from "react";
 import { useIntl } from "react-intl";
 
@@ -44,18 +43,15 @@ const GiftCardUpdateExpirySelect = () => {
       </Checkbox>
 
       {cardExpiresSelected && (
-        <TextField
+        <Input
+          size="small"
           error={!!formErrors?.expiryDate}
           helperText={getGiftCardErrorMessage(formErrors?.expiryDate, intl)}
           onChange={change}
           name={"expiryDate"}
-          fullWidth
           className="block w-[400px] mt-4"
           label={intl.formatMessage(messages.expiryDateLabel)}
           value={expiryDate}
-          InputLabelProps={{
-            shrink: true,
-          }}
           type="date"
         />
       )}

@@ -6,8 +6,7 @@ import { ConfigurationItemFragment, ConfigurationTypeFieldEnum } from "@dashboar
 import { buttonMessages } from "@dashboard/intl";
 import { maybe } from "@dashboard/misc";
 import { DialogProps } from "@dashboard/types";
-import { TextField } from "@mui/material";
-import { Skeleton } from "@saleor/macaw-ui-next";
+import { Input, Skeleton, Textarea } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 interface PluginSecretFieldDialogFormData {
@@ -57,20 +56,30 @@ export const PluginSecretFieldDialog = ({
                 )}
               </DashboardModal.Header>
 
-              <TextField
-                multiline={field?.type === ConfigurationTypeFieldEnum.SECRETMULTILINE}
-                autoComplete="off"
-                fullWidth
-                label={field && field.label}
-                name="value"
-                type={
-                  maybe(() => field.type) === ConfigurationTypeFieldEnum.PASSWORD
-                    ? "password"
-                    : "text"
-                }
-                value={data.value || ""}
-                onChange={change}
-              />
+              {field?.type === ConfigurationTypeFieldEnum.SECRETMULTILINE ? (
+                <Textarea
+                  size="small"
+                  autoComplete="off"
+                  label={field && field.label}
+                  name="value"
+                  value={data.value || ""}
+                  onChange={change}
+                />
+              ) : (
+                <Input
+                  size="small"
+                  autoComplete="off"
+                  label={field && field.label}
+                  name="value"
+                  type={
+                    maybe(() => field.type) === ConfigurationTypeFieldEnum.PASSWORD
+                      ? "password"
+                      : "text"
+                  }
+                  value={data.value || ""}
+                  onChange={change}
+                />
+              )}
 
               <DashboardModal.Actions>
                 <BackButton onClick={onClose} />

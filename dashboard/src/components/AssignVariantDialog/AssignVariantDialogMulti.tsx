@@ -13,8 +13,7 @@ import useSearchQuery from "@dashboard/hooks/useSearchQuery";
 import { maybe, renderCollection } from "@dashboard/misc";
 import { Container, FetchMoreProps, RelayToFlat } from "@dashboard/types";
 import { TableBody, TableCell } from "@dashboard/components/Table";
-import { TextField } from "@mui/material";
-import { Text } from "@saleor/macaw-ui-next";
+import { Input, Text } from "@saleor/macaw-ui-next";
 import { Fragment, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -92,17 +91,15 @@ export const AssignVariantDialogMulti = (props: AssignVariantDialogMultiProps) =
 
   return (
     <>
-      <TextField
+      <Input
+        size="small"
         name="query"
         value={query}
         onChange={onQueryChange}
         label={intl.formatMessage(messages.assignVariantDialogSearch)}
         placeholder={intl.formatMessage(messages.assignVariantDialogContent)}
-        fullWidth
-        InputProps={{
-          autoComplete: "off",
-          endAdornment: loading && <SaleorThrobber size={16} />,
-        }}
+        autoComplete="off"
+        endAdornment={loading && <SaleorThrobber size={16} />}
       />
 
       <InfiniteScroll

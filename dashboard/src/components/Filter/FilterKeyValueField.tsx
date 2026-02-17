@@ -1,7 +1,7 @@
 import { iconSize, iconStrokeWidthBySize } from "@dashboard/components/icons";
 import { KeyValue } from "@dashboard/types";
-import { TextField } from "@mui/material";
 import { Button, IconButton } from "@saleor/macaw-ui";
+import { Input } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { useIntl } from "react-intl";
 
@@ -36,8 +36,8 @@ export const FilterKeyValueField = <K extends string = string>({
       <div className="flex flex-col gap-1 mb-2">
         {values.map((innerField, index) => (
           <div className="flex items-center gap-1" key={`${innerField.key}-${index}`}>
-            <TextField
-              fullWidth
+            <Input
+              size="small"
               name={filter.name}
               label={intl.formatMessage(keyValueMessages.key)}
               value={innerField.key}
@@ -53,8 +53,8 @@ export const FilterKeyValueField = <K extends string = string>({
                 })
               }
             />
-            <TextField
-              fullWidth
+            <Input
+              size="small"
               name={filter.name}
               label={intl.formatMessage(keyValueMessages.value)}
               value={innerField.value ?? ""}

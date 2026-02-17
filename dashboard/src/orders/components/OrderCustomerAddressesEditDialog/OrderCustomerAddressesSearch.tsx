@@ -6,8 +6,9 @@ import { AddressFragment, AddressTypeEnum } from "@dashboard/graphql";
 import { FormChange } from "@dashboard/hooks/useForm";
 import { buttonMessages } from "@dashboard/intl";
 import { getById } from "@dashboard/misc";
-import { Checkbox, FormControlLabel, InputAdornment, TextField } from "@mui/material";
+import { Checkbox, FormControlLabel } from "@mui/material";
 import { Button, SearchIcon } from "@saleor/macaw-ui";
+import { Input } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -68,20 +69,14 @@ const OrderCustomerAddressesSearch = (props: OrderCustomerAddressesSearchProps) 
     <>
       {intl.formatMessage(messages.searchInfo)}
 
-      <TextField
+      <Input
+        size="small"
         value={query}
-        variant="outlined"
         onChange={handleChange}
         placeholder={"Search addresses"}
-        fullWidth
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
-            </InputAdornment>
-          ),
-        }}
-        inputProps={{ className: "py-4" }}
+        startAdornment={
+          <SearchIcon onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
+        }
       />
 
       <div className="max-h-[400px] overflow-y-scroll">
