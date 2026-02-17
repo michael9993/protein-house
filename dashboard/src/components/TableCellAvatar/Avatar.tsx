@@ -1,8 +1,7 @@
-import clsx from "clsx";
+import { cn } from "@dashboard/utils/cn";
 import * as React from "react";
 
 import AvatarImage from "./AvatarImage";
-import { useAvatarStyles } from "./styles";
 
 export const AVATAR_MARGIN = 40;
 
@@ -25,17 +24,17 @@ const Avatar = ({
   badge,
   className,
 }: AvatarProps) => {
-  const classes = useAvatarStyles();
-
   return (
     <div
-      className={clsx(classes.content, className, {
-        [classes.alignRight]: alignRight,
-      })}
+      className={cn(
+        "flex items-center",
+        alignRight && "justify-end",
+        className,
+      )}
     >
       {badge}
       <AvatarImage thumbnail={thumbnail} initials={initials} avatarProps={avatarProps} />
-      {!alignRight && <div className={classes.children}>{children}</div>}
+      {!alignRight && <div className="ml-4 w-full self-center">{children}</div>}
     </div>
   );
 };

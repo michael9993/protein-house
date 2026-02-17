@@ -1,9 +1,8 @@
+import { cn } from "@dashboard/utils/cn";
 import { TableCell } from "@mui/material";
 import { TableCellProps } from "@mui/material/TableCell";
-import clsx from "clsx";
 
 import Avatar, { AvatarProps } from "./Avatar";
-import { useStyles } from "./styles";
 
 interface TableCellAvatarProps extends TableCellProps, Omit<AvatarProps, "children"> {
   className?: string;
@@ -12,10 +11,13 @@ interface TableCellAvatarProps extends TableCellProps, Omit<AvatarProps, "childr
 
 const TableCellAvatar = (props: TableCellAvatarProps) => {
   const { className, avatarClassName, ...rest } = props;
-  const classes = useStyles(props);
 
   return (
-    <TableCell className={clsx(classes.root, className)} data-test-id="table-cell-avatar" {...rest}>
+    <TableCell
+      className={cn("w-[1%] pr-6 [&:not(:first-child)]:pl-0", className)}
+      data-test-id="table-cell-avatar"
+      {...rest}
+    >
       <Avatar className={avatarClassName} {...rest} />
     </TableCell>
   );

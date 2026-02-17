@@ -1,16 +1,5 @@
 import { Tabs } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import * as React from "react";
-
-const useStyles = makeStyles(
-  theme => ({
-    tabsRoot: {
-      borderBottom: `1px solid ${theme.palette.divider}`,
-      paddingLeft: theme.spacing(4),
-    },
-  }),
-  { name: "FilterTabs" },
-);
 
 interface FilterTabsProps {
   children?: React.ReactNode;
@@ -19,10 +8,9 @@ interface FilterTabsProps {
 
 const FilterTabs = (props: FilterTabsProps) => {
   const { children, currentTab } = props;
-  const classes = useStyles(props);
 
   return (
-    <Tabs className={classes.tabsRoot} value={currentTab} indicatorColor={"primary"}>
+    <Tabs className="border-b border-divider pl-8" value={currentTab} indicatorColor={"primary"}>
       {children}
     </Tabs>
   );

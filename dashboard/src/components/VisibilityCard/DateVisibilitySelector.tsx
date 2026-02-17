@@ -1,5 +1,4 @@
 import closeIcon from "@assets/images/close-thin.svg";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import { useState } from "react";
 import * as React from "react";
@@ -7,29 +6,6 @@ import * as React from "react";
 import FormSpacer from "../FormSpacer";
 
 const CLOSE_ICON_SIZE = 14;
-const useStyles = makeStyles(
-  theme => ({
-    buttonText: {
-      color: theme.palette.primary.main,
-      cursor: "pointer",
-      fontSize: 14,
-      margin: theme.spacing(1, 0),
-      paddingBottom: 10,
-      paddingTop: 0,
-    },
-    container: {
-      alignItems: "baseline",
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "space-between",
-    },
-    icon: {
-      cursor: "pointer",
-      marginLeft: theme.spacing(2),
-    },
-  }),
-  { name: "DateVisibilitySelector" },
-);
 
 interface Props {
   buttonText: string;
@@ -38,7 +14,6 @@ interface Props {
 }
 
 const DateVisibilitySelector = ({ buttonText, children, onInputClose }: Props) => {
-  const classes = useStyles({});
   const [showInput, setShowInput] = useState<boolean>(false);
   const handleCloseIconClick = () => {
     setShowInput(false);
@@ -47,7 +22,10 @@ const DateVisibilitySelector = ({ buttonText, children, onInputClose }: Props) =
 
   if (!showInput) {
     return (
-      <Text className={classes.buttonText} onClick={() => setShowInput(true)}>
+      <Text
+        className="my-2 cursor-pointer pb-[10px] text-sm text-primary"
+        onClick={() => setShowInput(true)}
+      >
         {buttonText}
       </Text>
     );
@@ -55,9 +33,9 @@ const DateVisibilitySelector = ({ buttonText, children, onInputClose }: Props) =
 
   return (
     <>
-      <div className={classes.container}>
+      <div className="flex flex-row items-baseline justify-between">
         {children}
-        <div className={classes.icon} onClick={handleCloseIconClick}>
+        <div className="ml-4 cursor-pointer" onClick={handleCloseIconClick}>
           <img src={closeIcon} alt="close icon" width={CLOSE_ICON_SIZE} height={CLOSE_ICON_SIZE} />
         </div>
       </div>

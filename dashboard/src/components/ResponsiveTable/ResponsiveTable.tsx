@@ -1,25 +1,6 @@
+import { cn } from "@dashboard/utils/cn";
 import { Table } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
-import clsx from "clsx";
 import * as React from "react";
-
-const useStyles = makeStyles(
-  theme => ({
-    root: {
-      overflowX: "auto",
-      width: "100%",
-    },
-    table: {
-      [theme.breakpoints.up("md")]: {
-        tableLayout: "fixed",
-      },
-      tableLayout: "auto",
-    },
-  }),
-  {
-    name: "ResponsiveTable",
-  },
-);
 
 interface ResponsiveTableProps {
   children: React.ReactNode | React.ReactNodeArray;
@@ -30,11 +11,13 @@ interface ResponsiveTableProps {
 
 const ResponsiveTable = (props: ResponsiveTableProps) => {
   const { children, className, onMouseLeave } = props;
-  const classes = useStyles(props);
 
   return (
-    <div className={classes.root}>
-      <Table className={clsx(classes.table, className)} onMouseLeave={onMouseLeave}>
+    <div className="w-full overflow-x-auto">
+      <Table
+        className={cn("table-auto md:table-fixed", className)}
+        onMouseLeave={onMouseLeave}
+      >
         {children}
       </Table>
     </div>

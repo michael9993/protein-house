@@ -7,9 +7,7 @@ import useDateLocalize from "@dashboard/hooks/useDateLocalize";
 import { ChangeEvent } from "@dashboard/hooks/useForm";
 import { UserError } from "@dashboard/types";
 import { getFieldError } from "@dashboard/utils/errors";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Box, Checkbox, RadioGroup, Text } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import { useState } from "react";
 import * as React from "react";
 import { useIntl } from "react-intl";
@@ -20,46 +18,6 @@ import FormSpacer from "../FormSpacer";
 import DateVisibilitySelector from "./DateVisibilitySelector";
 import { visibilityCardMessages } from "./messages";
 import { isAvailableOrPublished } from "./utils";
-
-const useStyles = makeStyles(
-  theme => ({
-    checkbox: {
-      alignItems: "flex-start",
-      marginTop: 10,
-    },
-    children: {
-      "& button": {
-        margin: "0 9px",
-      },
-      "& label": {
-        marginTop: theme.spacing(2.5),
-      },
-    },
-    date: {
-      "& svg": {
-        fill: theme.palette.primary.main,
-      },
-      marginTop: theme.spacing(1),
-    },
-    label: {
-      lineHeight: 1.2,
-      marginBottom: 5,
-      marginTop: 0,
-    },
-    listingLabel: {
-      marginTop: 9,
-    },
-    secondLabel: {
-      color: theme.palette.text.hint,
-      fontSize: 12,
-      marginBottom: theme.spacing(2),
-    },
-    switchField: {
-      marginTop: theme.spacing(1),
-    },
-  }),
-  { name: "VisibilityCard" },
-);
 
 interface Message {
   visibleLabel: string;
@@ -106,7 +64,6 @@ const VisibilityCard = (props: VisibilityCardProps) => {
     messages,
     onChange,
   } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
   const localizeDate = useDateLocalize();
   const dateNow = useCurrentDate();
@@ -232,18 +189,18 @@ const VisibilityCard = (props: VisibilityCardProps) => {
           <>
             <Hr />
             <RadioSwitchField
-              className={classes.switchField}
+              className="mt-2"
               disabled={disabled}
               error={!!getFieldError(errors, "isAvailableForPurchase")}
               firstOptionLabel={
                 <>
-                  <p className={classes.label}>{messages.availableLabel}</p>
+                  <p className="mb-[5px] mt-0 leading-tight">{messages.availableLabel}</p>
                   {isAvailableOrPublished({
                     condition: isAvailableForPurchase,
                     date: availableForPurchaseAt,
                     now: dateNow,
                   }) && (
-                    <span className={classes.secondLabel}>
+                    <span className="mb-4 text-xs text-text-disabled">
                       {visibleMessage(availableForPurchaseAt)}
                     </span>
                   )}
@@ -252,9 +209,9 @@ const VisibilityCard = (props: VisibilityCardProps) => {
               name={"isAvailableForPurchase" as keyof FormData}
               secondOptionLabel={
                 <>
-                  <p className={classes.label}>{messages.unavailableLabel}</p>
+                  <p className="mb-[5px] mt-0 leading-tight">{messages.unavailableLabel}</p>
                   {availableForPurchaseAt && !isAvailableForPurchase && (
-                    <span className={classes.secondLabel}>{messages.availableSecondLabel}</span>
+                    <span className="mb-4 text-xs text-text-disabled">{messages.availableSecondLabel}</span>
                   )}
                 </>
               }
@@ -303,17 +260,17 @@ const VisibilityCard = (props: VisibilityCardProps) => {
           <>
             <Hr />
             <ControlledCheckbox
-              className={classes.checkbox}
+              className="items-start mt-[10px]"
               name="visibleInListings"
               checked={!visibleInListings}
               disabled={disabled}
               label={
                 <>
-                  <p className={clsx(classes.label, classes.listingLabel)}>
+                  <p className="mb-[5px] mt-[9px] leading-tight">
                     {intl.formatMessage(visibilityCardMessages.hideInListings)}
                   </p>
 
-                  <span className={classes.secondLabel}>
+                  <span className="mb-4 text-xs text-text-disabled">
                     {intl.formatMessage(visibilityCardMessages.hideInListingsDescription)}
                   </span>
                 </>
@@ -330,7 +287,7 @@ const VisibilityCard = (props: VisibilityCardProps) => {
             />
           </>
         )}
-        <div className={classes.children}>{children}</div>
+        <div className="[&_button]:mx-[9px] [&_label]:mt-5">{children}</div>
       </DashboardCard.Content>
     </DashboardCard>
   );

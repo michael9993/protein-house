@@ -13,7 +13,6 @@ import getAccountErrorMessage from "@dashboard/utils/errors/account";
 import getShopErrorMessage from "@dashboard/utils/errors/shop";
 import getWarehouseErrorMessage from "@dashboard/utils/errors/warehouse";
 import { TextField } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Option } from "@saleor/macaw-ui-next";
 import { IntlShape, useIntl } from "react-intl";
 
@@ -29,13 +28,6 @@ export interface CompanyAddressFormProps {
   onChange: (event: ChangeEvent) => void;
   onCountryChange: (event: ChangeEvent) => void;
 }
-
-const useStyles = makeStyles(
-  {
-    root: {},
-  },
-  { name: "CompanyAddressForm" },
-);
 
 function getErrorMessage(
   err: AccountErrorFragment | ShopErrorFragment | WarehouseErrorFragment,
@@ -54,7 +46,6 @@ function getErrorMessage(
 const CompanyAddressForm = (props: CompanyAddressFormProps) => {
   const { countries, data, disabled, displayCountry, errors, onChange, onCountryChange } = props;
   const { areas, isFieldAllowed, getDisplayValue } = useAddressValidation(data.country);
-  const classes = useStyles(props);
   const intl = useIntl();
   const formFields = [
     "companyName",
@@ -70,7 +61,7 @@ const CompanyAddressForm = (props: CompanyAddressFormProps) => {
   const formErrors = getFormErrors(formFields, errors);
 
   return (
-    <div className={classes.root} data-test-id="company-info">
+    <div data-test-id="company-info">
       <TextField
         disabled={disabled}
         data-test-id="company-name-input"

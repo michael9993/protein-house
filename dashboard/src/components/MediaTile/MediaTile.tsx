@@ -1,81 +1,10 @@
 import { IconButton } from "@dashboard/components/IconButton";
 import { iconSize, iconStrokeWidthBySize } from "@dashboard/components/icons";
-import { makeStyles } from "@saleor/macaw-ui";
-import { vars } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
+import { cn } from "@dashboard/utils/cn";
 import { Pencil, Trash2 } from "lucide-react";
 import * as React from "react";
 
 import { SaleorThrobber } from "../Throbber";
-
-const useStyles = makeStyles(
-  theme => ({
-    media: {
-      height: "100%",
-      objectFit: "contain",
-      userSelect: "none",
-      width: "100%",
-    },
-    mediaContainer: {
-      "&:hover, &.dragged": {
-        "& $mediaOverlay": {
-          display: "block",
-        },
-      },
-      background: theme.palette.background.paper,
-      border: `1px solid ${theme.palette.divider}`,
-      borderRadius: theme.spacing(),
-      height: 148,
-      overflow: "hidden",
-      padding: vars.spacing[1],
-      position: "relative",
-      width: 148,
-    },
-    mediaOverlay: {
-      background: theme.palette.background.default,
-      opacity: 0.8,
-      cursor: "move",
-      display: "none",
-      height: 148,
-      left: 0,
-      position: "absolute",
-      top: 0,
-      width: 148,
-    },
-    disableOverlay: {
-      "&$mediaOverlay": {
-        display: "none !important",
-      },
-    },
-    mediaOverlayShadow: {
-      $mediaOverlay: {
-        alignItems: "center",
-        display: "flex",
-        justifyContent: "center",
-      },
-    },
-    mediaOverlayToolbar: {
-      display: "flex",
-      justifyContent: "flex-end",
-    },
-    controlButton: {
-      color: theme.palette.saleor.main[1],
-      backgroundColor: "transparent",
-      border: "none",
-      cursor: "pointer",
-      margin: theme.spacing(2),
-      padding: 0,
-
-      "&:hover": {
-        color: theme.palette.saleor.active[1],
-      },
-      "&:first-child": {
-        marginRight: 0,
-      },
-    },
-  }),
-  { name: "MediaTile" },
-);
 
 interface MediaTileBaseProps {
   media: {
@@ -104,28 +33,31 @@ type MediaTileProps = MediaTileBaseProps &
 
 const MediaTile = (props: MediaTileProps) => {
   const { loading, onDelete, onEdit, editHref, media, disableOverlay = false } = props;
-  const classes = useStyles(props);
   const parsedMediaOembedData = media?.oembedData ? JSON.parse(media.oembedData) : null;
   const mediaUrl = parsedMediaOembedData?.thumbnail_url || media.url;
 
   return (
-    <div className={classes.mediaContainer} data-test-id="product-image">
+    <div
+      className="relative h-[148px] w-[148px] overflow-hidden rounded-lg border border-divider bg-background-paper p-1 group"
+      data-test-id="product-image"
+    >
       <div
-        className={clsx(classes.mediaOverlay, {
-          [classes.mediaOverlayShadow]: loading,
-          [classes.disableOverlay]: disableOverlay,
-        })}
+        className={cn(
+          "absolute left-0 top-0 hidden h-[148px] w-[148px] cursor-move bg-background-default opacity-80 group-hover:block [.dragged_&]:block",
+          loading && "flex items-center justify-center",
+          disableOverlay && "!hidden",
+        )}
       >
         {loading ? (
           <SaleorThrobber size={32} />
         ) : (
-          <div className={classes.mediaOverlayToolbar}>
+          <div className="flex justify-end">
             {(onEdit || editHref) && (
               <IconButton
                 href={editHref}
                 hoverOutline={false}
                 variant="secondary"
-                className={classes.controlButton}
+                className="m-4 mr-0 cursor-pointer border-none bg-transparent p-0 text-saleor-main-1 hover:text-saleor-active-1"
                 onClick={onEdit}
                 size="medium">
                 <Pencil size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />
@@ -135,7 +67,7 @@ const MediaTile = (props: MediaTileProps) => {
               <IconButton
                 variant="secondary"
                 hoverOutline={false}
-                className={classes.controlButton}
+                className="m-4 cursor-pointer border-none bg-transparent p-0 text-saleor-main-1 hover:text-saleor-active-1"
                 onClick={onDelete}
                 size="medium">
                 <Trash2 size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />
@@ -144,7 +76,7 @@ const MediaTile = (props: MediaTileProps) => {
           </div>
         )}
       </div>
-      <img className={classes.media} src={mediaUrl} alt={media.alt!} />
+      <img className="h-full w-full object-contain select-none" src={mediaUrl} alt={media.alt!} />
     </div>
   );
 };

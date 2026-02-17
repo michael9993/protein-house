@@ -1,10 +1,9 @@
 // @ts-strict-ignore
 import TableRowLink from "@dashboard/components/TableRowLink";
+import { cn } from "@dashboard/utils/cn";
 import { TableCell, TableHead as MuiTableHead } from "@mui/material";
 import { TableHeadProps as MuiTableHeadProps } from "@mui/material/TableHead";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import * as React from "react";
 import { FormattedMessage } from "react-intl";
 
@@ -20,43 +19,6 @@ interface TableHeadProps extends MuiTableHeadProps {
   toolbar?: React.ReactNode | React.ReactNodeArray;
   toggleAll?: (items: Node[], selected: number) => void;
 }
-
-const useStyles = makeStyles(
-  theme => ({
-    cell: {
-      height: 56,
-    },
-    container: {
-      alignItems: "center",
-      display: "flex",
-      height: 47,
-      marginRight: theme.spacing(-2),
-    },
-    dragRows: {
-      padding: 0,
-      width: 52,
-    },
-    padding: {
-      "&:last-child": {
-        padding: 0,
-      },
-    },
-    root: {
-      paddingLeft: 0,
-      paddingRight: theme.spacing(4),
-    },
-    spacer: {
-      flex: 1,
-    },
-    toolbar: {
-      "& > *": {
-        marginLeft: theme.spacing(1),
-      },
-      marginRight: theme.spacing(1.5),
-    },
-  }),
-  { name: "TableHead" },
-);
 
 function getColSpan(colSpan: number, dragRows: boolean): number {
   if (dragRows) {
@@ -78,7 +40,6 @@ const TableHead = (props: TableHeadProps) => {
     toolbar,
     ...muiTableHeadProps
   } = props;
-  const classes = useStyles(props);
 
   return (
     <MuiTableHead {...muiTableHeadProps}>
@@ -87,9 +48,10 @@ const TableHead = (props: TableHeadProps) => {
         {(items === undefined || items.length > 0) && (
           <TableCell
             padding="checkbox"
-            className={clsx(classes.cell, {
-              [classes.dragRows]: dragRows,
-            })}
+            className={cn(
+              "h-[56px]",
+              dragRows && "w-[52px] p-0",
+            )}
           >
             <Checkbox
               data-test-id="select-all-checkbox"
@@ -103,10 +65,10 @@ const TableHead = (props: TableHeadProps) => {
         {selected ? (
           <>
             <TableCell
-              className={clsx(classes.cell, classes.root)}
+              className="h-[56px] pl-0 pr-8"
               colSpan={getColSpan(colSpan, dragRows)}
             >
-              <div className={classes.container}>
+              <div className="flex items-center h-[47px] -mr-4">
                 {selected && (
                   <Text data-test-id="SelectedText">
                     <FormattedMessage
@@ -118,9 +80,12 @@ const TableHead = (props: TableHeadProps) => {
                     />
                   </Text>
                 )}
-                <div className={classes.spacer} />
+                <div className="flex-1" />
                 {toolbar && (
-                  <div data-test-id="bulk-delete-button" className={classes.toolbar}>
+                  <div
+                    data-test-id="bulk-delete-button"
+                    className="mr-3 [&>*]:ml-2"
+                  >
                     {toolbar}
                   </div>
                 )}

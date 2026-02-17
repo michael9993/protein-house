@@ -1,7 +1,6 @@
+import { cn } from "@dashboard/utils/cn";
 import { isExternalURL } from "@dashboard/utils/urls";
 import { TableRow, TableRowTypeMap } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
-import clsx from "clsx";
 import { forwardRef } from "react";
 import * as React from "react";
 import { Link, LinkProps } from "react-router";
@@ -19,19 +18,8 @@ export interface TableRowLinkProps extends MaterialTableRowPropsType {
   onClick?: () => void;
 }
 
-const useStyles = makeStyles(
-  {
-    link: {
-      all: "inherit",
-      display: "contents",
-    },
-  },
-  { name: "TableRowLink" },
-);
-
 const TableRowLink = forwardRef<HTMLTableRowElement, TableRowLinkProps>((props, ref) => {
   const { href, children, linkClassName, onClick, ...restProps } = props;
-  const classes = useStyles();
 
   if (!href || (typeof href === "string" && isExternalURL(href))) {
     return (
@@ -55,7 +43,7 @@ const TableRowLink = forwardRef<HTMLTableRowElement, TableRowLinkProps>((props, 
 
   return (
     <TableRow ref={ref} hover={true} onClick={onClick} {...restProps}>
-      <Link className={clsx(classes.link, linkClassName)} to={to} state={state}>
+      <Link className={cn("[all:inherit] contents", linkClassName)} to={to} state={state}>
         {children}
       </Link>
     </TableRow>

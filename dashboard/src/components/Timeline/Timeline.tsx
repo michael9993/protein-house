@@ -3,53 +3,12 @@ import { useUser } from "@dashboard/auth";
 import { Button } from "@dashboard/components/Button";
 import { getUserInitials } from "@dashboard/misc";
 import { TextField } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { sprinkles, vars } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { DashboardCard } from "../Card";
 import { UserAvatar } from "../UserAvatar";
-
-const useStyles = makeStyles(
-  theme => ({
-    button: {
-      padding: `7px`,
-      borderTopLeftRadius: 0,
-      borderBottomLeftRadius: 0,
-    },
-    input: {
-      "& > div": {
-        padding: "0 0 0 14px",
-      },
-      "& textarea": {
-        "&::placeholder": {
-          opacity: [[1], "!important"] as any,
-        },
-      },
-      background: vars.colors.background.default1,
-    },
-    noteRoot: {
-      marginBottom: theme.spacing(3),
-      top: 0,
-      left: -19,
-      right: 0,
-    },
-    noteTitle: {
-      "&:last-child": {
-        paddingBottom: 0,
-        paddingRight: 0,
-      },
-      paddingLeft: 0,
-    },
-    root: {
-      marginLeft: 20,
-      paddingLeft: 21,
-      position: "relative",
-    },
-  }),
-  { name: "Timeline" },
-);
 
 interface TimelineProps {
   children?: React.ReactNode;
@@ -65,14 +24,12 @@ interface TimelineAddNoteProps {
 
 export const Timeline = (props: TimelineProps) => {
   const { children } = props;
-  const classes = useStyles(props);
 
-  return <div className={classes.root}>{children}</div>;
+  return <div className="ml-[20px] pl-[21px] relative">{children}</div>;
 };
 
 export const TimelineAddNote = (props: TimelineAddNoteProps) => {
   const { message, onChange, onSubmit, reset, disabled } = props;
-  const classes = useStyles(props);
   const { user } = useUser();
   const intl = useIntl();
   const submit = e => {
@@ -81,7 +38,7 @@ export const TimelineAddNote = (props: TimelineAddNoteProps) => {
   };
 
   return (
-    <div className={classes.noteRoot}>
+    <div className="mb-6 top-0 left-[-19px] right-0">
       <DashboardCard.Content paddingX={0}>
         <UserAvatar
           url={user?.avatar?.url}
@@ -94,7 +51,8 @@ export const TimelineAddNote = (props: TimelineAddNoteProps) => {
         />
         <TextField
           disabled={disabled}
-          className={classes.input}
+          className="[&>div]:p-[0_0_0_14px] [&_textarea::placeholder]:!opacity-100"
+          style={{ background: vars.colors.background.default1 }}
           placeholder={intl.formatMessage({
             id: "3evXPj",
             defaultMessage: "Leave your note here...",
@@ -106,7 +64,11 @@ export const TimelineAddNote = (props: TimelineAddNoteProps) => {
           multiline
           InputProps={{
             endAdornment: (
-              <Button className={classes.button} disabled={disabled} onClick={e => submit(e)}>
+              <Button
+                className="p-[7px] rounded-tl-none rounded-bl-none"
+                disabled={disabled}
+                onClick={e => submit(e)}
+              >
                 <FormattedMessage
                   id="v/1VA6"
                   defaultMessage="Send"

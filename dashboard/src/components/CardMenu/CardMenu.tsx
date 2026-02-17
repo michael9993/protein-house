@@ -1,10 +1,10 @@
 // @ts-strict-ignore
 import { iconSize, iconStrokeWidthBySize } from "@dashboard/components/icons";
 import { SaleorThrobber } from "@dashboard/components/Throbber";
+import { cn } from "@dashboard/utils/cn";
 import { ClickAwayListener, Grow, MenuItem, MenuList, Paper, Popper } from "@mui/material";
-import { IconButtonProps, makeStyles } from "@saleor/macaw-ui";
+import { IconButtonProps } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import { EllipsisVertical } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import * as React from "react";
@@ -37,34 +37,6 @@ interface CardMenuProps {
   showMenuIcon?: boolean;
 }
 
-const useStyles = makeStyles(
-  theme => ({
-    container: {
-      zIndex: 1,
-    },
-    iconButton: {
-      background: theme.palette.background.paper,
-      borderRadius: "100%",
-      height: 32,
-      padding: 0,
-      width: 32,
-    },
-    paper: {
-      marginTop: theme.spacing(2),
-      maxHeight: ITEM_HEIGHT * 4.5,
-      overflowY: "scroll",
-    },
-    loadingContent: {
-      width: "100%",
-      display: "grid",
-      gridTemplateColumns: "1fr 24px",
-      gap: theme.spacing(2),
-      alignItems: "center",
-      justifyContent: "flex-end",
-    },
-  }),
-  { name: "CardMenu" },
-);
 /**
  * @deprecated use [`TopNav.Menu`](https://github.com/saleor/saleor-dashboard/blob/main/src/components/AppLayout/TopNav/Menu.tsx) instead
  */
@@ -80,7 +52,6 @@ const CardMenu = (props: CardMenuProps) => {
     showMenuIcon = false,
     ...rest
   } = props;
-  const classes = useStyles(props);
   const anchorRef = useRef<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
   const handleToggle = () => setOpen(prevOpen => !prevOpen);
@@ -149,7 +120,7 @@ const CardMenu = (props: CardMenuProps) => {
       </IconButton>
       <Popper
         placement="bottom-end"
-        className={classes.container}
+        className="z-[1]"
         open={open}
         anchorEl={anchorRef.current}
         transition
@@ -162,7 +133,7 @@ const CardMenu = (props: CardMenuProps) => {
               overflowY: "auto",
             }}
           >
-            <Paper className={classes.paper} elevation={8}>
+            <Paper className="mt-4 overflow-y-scroll" style={{ maxHeight: ITEM_HEIGHT * 4.5 }} elevation={8}>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList
                   autoFocusItem={autoFocusItem && open}
@@ -178,9 +149,10 @@ const CardMenu = (props: CardMenuProps) => {
                       button
                     >
                       <div
-                        className={clsx(className, {
-                          [classes.loadingContent]: isWithLoading,
-                        })}
+                        className={cn(
+                          className,
+                          isWithLoading && "w-full grid grid-cols-[1fr_24px] gap-4 items-center justify-end",
+                        )}
                       >
                         {menuItem.loading ? (
                           <>

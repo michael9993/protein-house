@@ -1,59 +1,9 @@
+import { cn } from "@dashboard/utils/cn";
 import { TableCell } from "@mui/material";
 import { TableCellProps } from "@mui/material/TableCell";
-import { makeStyles } from "@saleor/macaw-ui";
-import { vars } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import { forwardRef } from "react";
 
 import ArrowSort from "../../icons/ArrowSort";
-
-const useStyles = makeStyles(
-  theme => ({
-    arrow: {
-      transition: theme.transitions.duration.short + "ms",
-      marginBottom: vars.spacing[1],
-    },
-    arrowLeft: {
-      marginLeft: -24,
-    },
-    arrowUp: {
-      transform: "rotate(180deg)",
-    },
-    disabled: {
-      opacity: 0.7,
-      "&&": {
-        cursor: "unset",
-      },
-    },
-    label: {
-      alignSelf: "center",
-      display: "inline-block",
-      userSelect: "none",
-    },
-    labelContainer: {
-      "&:hover": {
-        color: theme.palette.text.primary,
-      },
-      display: "flex",
-    },
-    labelContainerActive: {
-      color: theme.palette.text.primary,
-    },
-    labelContainerCenter: {
-      justifyContent: "center",
-    },
-    labelContainerRight: {
-      justifyContent: "flex-end",
-    },
-    root: {
-      cursor: "pointer",
-    },
-    notSortable: {
-      cursor: "unset",
-    },
-  }),
-  { name: "TableCellHeader" },
-);
 
 export type TableCellHeaderArrowDirection = "asc" | "desc";
 type TableCellHeaderArrowPosition = "left" | "right";
@@ -65,7 +15,6 @@ interface TableCellHeaderProps extends TableCellProps {
 }
 
 const TableCellHeader = forwardRef<unknown, TableCellHeaderProps>((props, ref) => {
-  const classes = useStyles(props);
   const {
     arrowPosition,
     children,
@@ -88,31 +37,36 @@ const TableCellHeader = forwardRef<unknown, TableCellHeaderProps>((props, ref) =
           onClick(e);
         }
       }}
-      className={clsx(classes.root, className, {
-        [classes.disabled]: disabled,
-        [classes.notSortable]: !onClick,
-      })}
+      className={cn(
+        "cursor-pointer",
+        disabled && "opacity-70 [&&]:cursor-[unset]",
+        !onClick && "cursor-[unset]",
+        className,
+      )}
     >
       <div
-        className={clsx(classes.labelContainer, {
-          [classes.labelContainerActive]: !!direction && !!arrowPosition,
-          [classes.labelContainerCenter]: textAlign === "center",
-          [classes.labelContainerRight]: textAlign === "right",
-        })}
+        className={cn(
+          "flex hover:text-text-primary",
+          !!direction && !!arrowPosition && "text-text-primary",
+          textAlign === "center" && "justify-center",
+          textAlign === "right" && "justify-end",
+        )}
       >
         {!!direction && arrowPosition === "left" && (
           <ArrowSort
-            className={clsx(classes.arrow, classes.arrowLeft, {
-              [classes.arrowUp]: direction === "asc",
-            })}
+            className={cn(
+              "transition-transform duration-200 mb-1 -ml-6",
+              direction === "asc" && "rotate-180",
+            )}
           />
         )}
-        <div className={classes.label}>{children}</div>
+        <div className="inline-block self-center select-none">{children}</div>
         {!!direction && arrowPosition === "right" && (
           <ArrowSort
-            className={clsx(classes.arrow, {
-              [classes.arrowUp]: direction === "asc",
-            })}
+            className={cn(
+              "transition-transform duration-200 mb-1",
+              direction === "asc" && "rotate-180",
+            )}
           />
         )}
       </div>
