@@ -1,0 +1,30 @@
+.pre {
+  white-space: break-spaces;
+  max-height: 450px;
+  overflow-y: scroll;
+  margin-bottom: 0;
+  margin-top: -26px;
+}
+
+.main {
+  position: relative;
+}
+
+.scrollable > :first-child {
+  overflow-y: scroll !important;
+}
+
+.graphiqlSessions {
+  margin: 0 !important;
+  margin-right: var(--px-16) !important;
+  padding-top: var(--px-16);
+  border-radius: 0 !important;
+}
+
+.graphiqlEditors {
+  border-radius: 0 !important;
+}
+
+.graphiqlContainer {
+  font-variant-ligatures: none;
+}

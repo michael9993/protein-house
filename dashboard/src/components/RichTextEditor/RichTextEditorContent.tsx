@@ -6,7 +6,7 @@ import { createReactEditorJS } from "react-editor-js";
 import { tools } from "./consts";
 import { useHasRendered } from "./hooks";
 import { EditorJsProps } from "./RichTextEditor";
-import useStyles from "./styles";
+import styles from "./styles.module.css";
 
 interface RichTextEditorContentProps extends Omit<EditorJsProps, "defaultValue"> {
   id?: string;
@@ -20,7 +20,7 @@ const RichTextEditorContent = ({
   value,
   ...props
 }: RichTextEditorContentProps) => {
-  const classes = useStyles({});
+  const classes = styles;
   const id = useId(defaultId);
   // We need to render FormControl first to get id from @reach/auto-id
   const hasRendered = useHasRendered();

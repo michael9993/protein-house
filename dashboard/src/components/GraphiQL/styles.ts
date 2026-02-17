@@ -1,42 +1,10 @@
 import { useDragResize, usePluginContext, useTheme as useGraphiQLTheme } from "@graphiql/react";
-import { makeStyles } from "@saleor/macaw-ui";
 import { useTheme, vars } from "@saleor/macaw-ui-next";
 import { useEffect } from "react";
 
-export const useStyles = makeStyles(
-  () => ({
-    pre: {
-      whiteSpace: "break-spaces",
-      maxHeight: 450,
-      overflowY: "scroll",
-      marginBottom: 0,
-      marginTop: -26,
-    },
-    main: {
-      position: "relative",
-    },
-    scrollable: {
-      // Overrides inline styling which breaks scroll
-      // on doc explorer plugin
-      "& > :first-child": {
-        overflowY: "scroll !important",
-      },
-    },
-    graphiqlSessions: {
-      margin: "0 !important",
-      marginRight: "var(--px-16) !important",
-      paddingTop: "var(--px-16)",
-      borderRadius: "0 !important",
-    },
-    graphiqlEditors: {
-      borderRadius: "0 !important",
-    },
-    graphiqlContainer: {
-      fontVariantLigatures: "none",
-    },
-  }),
-  { name: "GraphiQL" },
-);
+import graphiqlStyles from "./styles.module.css";
+
+export { graphiqlStyles };
 
 export const useEditorStyles = () => {
   const pluginContext = usePluginContext();

@@ -27,7 +27,7 @@ import { useIntl } from "react-intl";
 
 import DryRun from "../DryRun";
 import { messages } from "./messages";
-import { useDashboardTheme, useEditorStyles, useGraphiQLThemeSwitcher, useStyles } from "./styles";
+import { graphiqlStyles, useDashboardTheme, useEditorStyles, useGraphiQLThemeSwitcher } from "./styles";
 
 interface GraphiQLToolbarConfig {
   /**
@@ -152,7 +152,6 @@ function GraphiQLInterface(props: GraphiQLInterfaceProps) {
   const intl = useIntl();
   const editorContext = useEditorContext({ nonNull: true });
   const pluginContext = usePluginContext();
-  const classes = useStyles();
   const { pluginResize, editorResize, editorToolsResize } = useEditorStyles();
   const copy = useCopyQuery({ onCopyQuery: props.onCopyQuery });
   const prettify = usePrettifyEditors();
@@ -200,7 +199,7 @@ function GraphiQLInterface(props: GraphiQLInterfaceProps) {
   return (
     <div
       data-test-id="graphiql-container"
-      className={clsx("graphiql-container", classes.graphiqlContainer)}
+      className={clsx("graphiql-container", graphiqlStyles.graphiqlContainer)}
       style={rootStyle}
     >
       <style dangerouslySetInnerHTML={overwriteCodeMirrorCSSVariables}></style>
@@ -235,7 +234,7 @@ function GraphiQLInterface(props: GraphiQLInterfaceProps) {
         </div>
         <div className="graphiql-sidebar-section"></div>
       </div>
-      <div className={clsx("graphiql-main", classes.main)}>
+      <div className={clsx("graphiql-main", graphiqlStyles.main)}>
         <div
           ref={pluginResize.firstRef}
           style={{
@@ -244,7 +243,7 @@ function GraphiQLInterface(props: GraphiQLInterfaceProps) {
             minWidth: "200px",
           }}
         >
-          <div className={clsx("graphiql-plugin", classes.scrollable)}>
+          <div className={clsx("graphiql-plugin", graphiqlStyles.scrollable)}>
             {PluginContent ? <PluginContent /> : null}
           </div>
         </div>
@@ -252,7 +251,7 @@ function GraphiQLInterface(props: GraphiQLInterfaceProps) {
           {pluginContext?.visiblePlugin ? <div className="graphiql-horizontal-drag-bar" /> : null}
         </div>
         <div ref={pluginResize.secondRef} style={{ minWidth: 0 }}>
-          <div className={clsx("graphiql-sessions", classes.graphiqlSessions)}>
+          <div className={clsx("graphiql-sessions", graphiqlStyles.graphiqlSessions)}>
             <div
               role="tabpanel"
               id="graphiql-session"
@@ -262,7 +261,7 @@ function GraphiQLInterface(props: GraphiQLInterfaceProps) {
             >
               <div ref={editorResize.firstRef}>
                 <div
-                  className={clsx("graphiql-editors full-height", classes.graphiqlEditors)}
+                  className={clsx("graphiql-editors full-height", graphiqlStyles.graphiqlEditors)}
                   style={{ boxShadow: "none" }}
                 >
                   <div ref={editorToolsResize.firstRef}>
@@ -292,7 +291,7 @@ function GraphiQLInterface(props: GraphiQLInterfaceProps) {
                 </div>
                 <div ref={editorResize.secondRef}>
                   <div className="graphiql-response">
-                    <pre className={classes.pre}>{props.result}</pre>
+                    <pre className={graphiqlStyles.pre}>{props.result}</pre>
                   </div>
                 </div>
               </div>

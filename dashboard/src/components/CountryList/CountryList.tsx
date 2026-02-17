@@ -2,11 +2,11 @@
 import { iconSize, iconStrokeWidthBySize } from "@dashboard/components/icons";
 import ResponsiveTable from "@dashboard/components/ResponsiveTable";
 import TableRowLink from "@dashboard/components/TableRowLink";
+import { cn } from "@dashboard/utils/cn";
 import { CountryFragment } from "@dashboard/graphql";
 import { TableBody, TableCell } from "@mui/material";
-import { IconButton, makeStyles } from "@saleor/macaw-ui";
+import { IconButton } from "@saleor/macaw-ui";
 import { Button, Text } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import { ChevronDownIcon, Trash2 } from "lucide-react";
 import * as React from "react";
 import { FormattedMessage } from "react-intl";
@@ -24,57 +24,8 @@ interface CountryListProps {
   onCountryUnassign: (country: string) => void;
 }
 
-const useStyles = makeStyles(
-  theme => ({
-    iconCell: {
-      "&:last-child": {
-        paddingRight: theme.spacing(3),
-        paddingLeft: 0,
-      },
-      width: `calc(48px + ${theme.spacing(4)})`,
-    },
-    indicator: {
-      color: theme.palette.text.disabled,
-      display: "inline-block",
-      left: 0,
-      marginRight: theme.spacing(0.5),
-      position: "absolute",
-    },
-    offsetCell: {
-      "&:first-child": {
-        paddingLeft: theme.spacing(3),
-      },
-      position: "relative",
-    },
-    pointer: {
-      cursor: "pointer",
-    },
-    root: {
-      "&:last-child": {
-        paddingBottom: 0,
-      },
-      paddingTop: 0,
-    },
-    rotate: {
-      transform: "rotate(180deg)",
-    },
-    textRight: {
-      textAlign: "right",
-    },
-    toLeft: {
-      "&:first-child": {
-        paddingLeft: 0,
-      },
-    },
-    wideColumn: {
-      width: "100%",
-    },
-  }),
-  { name: "CountryList" },
-);
 const CountryList = (props: CountryListProps) => {
   const { countries, disabled, emptyText, title, onCountryAssign, onCountryUnassign } = props;
-  const classes = useStyles(props);
   const [isCollapsed, setCollapseStatus] = React.useState(true);
   const toggleCollapse = () => setCollapseStatus(!isCollapsed);
 
@@ -103,8 +54,8 @@ const CountryList = (props: CountryListProps) => {
       </DashboardCard.Header>
       <ResponsiveTable>
         <TableBody>
-          <TableRowLink className={classes.pointer} onClick={toggleCollapse}>
-            <TableCell className={clsx(classes.wideColumn, classes.toLeft)}>
+          <TableRowLink className="cursor-pointer" onClick={toggleCollapse}>
+            <TableCell className="w-full first:pl-0">
               <FormattedMessage
                 id="62Ywh2"
                 defaultMessage="{number} Countries"
@@ -114,13 +65,11 @@ const CountryList = (props: CountryListProps) => {
                 }}
               />
             </TableCell>
-            <TableCell className={clsx(classes.textRight, classes.iconCell)}>
+            <TableCell className="text-right last:pr-6 last:pl-0 w-[calc(48px+32px)]">
               <IconButton variant="secondary" size="medium">
                 <ChevronDownIcon
                   data-test-id="countries-drop-down-icon"
-                  className={clsx({
-                    [classes.rotate]: !isCollapsed,
-                  })}
+                  className={cn(!isCollapsed && "rotate-180")}
                 />
               </IconButton>
             </TableCell>
@@ -131,7 +80,7 @@ const CountryList = (props: CountryListProps) => {
 
               return countries.map((country, countryIndex) => (
                 <TableRowLink key={country ? country.code : "skeleton"}>
-                  <TableCell className={classes.offsetCell}>
+                  <TableCell className="relative first:pl-6">
                     {countryIndex === 0 && (
                       <Text color="default2" display="inline-block" left={2} position="absolute">
                         {country.country[0]}
@@ -139,7 +88,7 @@ const CountryList = (props: CountryListProps) => {
                     )}
                     {country.country}
                   </TableCell>
-                  <TableCell className={clsx(classes.textRight, classes.iconCell)}>
+                  <TableCell className="text-right last:pr-6 last:pl-0 w-[calc(48px+32px)]">
                     <IconButton
                       data-test-id="delete-icon"
                       variant="secondary"
@@ -154,7 +103,7 @@ const CountryList = (props: CountryListProps) => {
             })
           ) : (
             <TableRowLink>
-              <TableCell className={classes.toLeft} colSpan={2}>
+              <TableCell className="first:pl-0" colSpan={2}>
                 {emptyText}
               </TableCell>
             </TableRowLink>

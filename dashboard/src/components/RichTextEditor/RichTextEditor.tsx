@@ -9,7 +9,7 @@ import * as React from "react";
 import { tools } from "./consts";
 import { useHasRendered, useUpdateOnRerender } from "./hooks";
 import { ReactEditorJS } from "./ReactEditorJS";
-import useStyles from "./styles";
+import styles from "./styles.module.css";
 
 export type EditorJsProps = Omit<ReactEditorJSProps, "factory">;
 
@@ -39,7 +39,7 @@ const RichTextEditor = ({
   onBlur,
   ...props
 }: RichTextEditorProps) => {
-  const classes = useStyles({});
+  const classes = styles;
   const id = useId(defaultId);
   const ref = React.useRef<EditorCore | null>(null);
   const [isFocused, setIsFocused] = React.useState(false);

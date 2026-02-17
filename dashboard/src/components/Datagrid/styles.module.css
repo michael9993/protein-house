@@ -1,0 +1,200 @@
+/* Datagrid CSS Module — migrated from makeStyles */
+
+.root {
+  /* Placeholder class for fullscreen targeting */
+}
+
+.actionBtnBar {
+  position: absolute;
+  z-index: 1;
+  background: var(--mu-colors-background-default1);
+  border-radius: var(--mu-border-radius-4);
+  width: calc(100% - 64px - 40px - 1px);
+  margin-top: 1px;
+  margin-left: 50px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: var(--mu-spacing-1-5);
+}
+
+.columnPicker {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 40px;
+  width: 100%;
+}
+
+.columnPickerBackground {
+  background: var(--mu-colors-background-default1);
+}
+
+.ghostIcon {
+  color: var(--mu-colors-text-default1);
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.portal input::-webkit-outer-spin-button,
+.portal input::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.portal input[type="number"] {
+  appearance: textfield;
+}
+
+.portal :global(.clip-region) {
+  border: 1px solid var(--mu-colors-border-accent1);
+}
+
+.portal :global(.gdg-growing-entry) {
+  flex: 1;
+  margin-top: 0;
+}
+
+.portal :global(.gdg-style) {
+  background: var(--mu-colors-background-default1);
+  border: none;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.portal input:not([class*="MuiInputBase"]),
+.portal textarea {
+  appearance: none;
+  background: none;
+  border: none;
+  font-size: var(--mu-font-size-3);
+  letter-spacing: var(--mu-letter-spacing-3);
+  line-height: var(--mu-line-height-3);
+  font-weight: var(--mu-font-weight-regular);
+  padding: var(--mu-spacing-1);
+  outline: 0;
+}
+
+.portal input[type="number"]:not([class*="MuiInputBase"]) {
+  text-align: right;
+  width: 100%;
+}
+
+.portal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2;
+}
+
+.datagrid :global(.dvn-scroller) {
+  overscroll-behavior-x: none;
+  overflow-y: hidden;
+}
+
+.datagrid {
+  border-radius: 0;
+  box-sizing: content-box;
+  width: 100%;
+  padding-bottom: 1px;
+}
+
+.rowActionBar {
+  height: 100%;
+  width: 40px;
+}
+
+.rowActionBarWithItems {
+  /* Marker class — no additional styles needed */
+}
+
+.rowActionBarScrolledToRight {
+  border-left-color: var(--mu-colors-border-default1);
+}
+
+.rowAction {
+  border-top: 1px solid var(--mu-colors-border-default1);
+  border-bottom: 1px solid var(--mu-colors-border-default1);
+  border-left: 1px solid var(--mu-colors-border-default1);
+  border-right: none;
+  color: var(--mu-colors-text-default1);
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  justify-items: center;
+  height: calc(40px - 1px);
+  background: var(--mu-colors-background-default1);
+  box-shadow: -8px 0px 8px -4px rgba(0, 0, 0, 0.12);
+}
+
+.rowAction:not(:last-child) {
+  margin-bottom: -1px;
+}
+
+.rowAction:hover,
+.rowActionSelected {
+  background: transparent;
+  color: var(--mu-colors-border-default1);
+}
+
+.rowActionWithMetadata {
+  grid-template-columns: 1fr auto 1fr;
+}
+
+.rowColumnGroup {
+  height: calc(40px - 1px);
+}
+
+.rowActionScrolledToRight {
+  border-left-color: var(--mu-colors-border-default1);
+}
+
+.columnGroupFixer {
+  position: absolute;
+  top: 1px;
+  left: 0;
+  height: 40px;
+  width: 10px;
+  border-left: 0;
+  background: var(--mu-colors-background-default1);
+}
+
+.editorContainer {
+  position: relative;
+  height: 100%;
+}
+
+.rowActionBarShadow {
+  height: 100%;
+  width: 1px;
+  position: absolute;
+  z-index: -1;
+  transition: box-shadow 0.2s ease-in-out;
+  box-shadow: -1px 0px 12px transparent;
+}
+
+.rowActionBarShadowActive {
+  box-shadow: none;
+}
+
+/* === Fullscreen styles === */
+
+.fullScreenContainer .root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.fullScreenContainer .datagrid {
+  height: 100%;
+}
+
+.fullScreenContainer .datagrid :global(.dvn-scroller) {
+  overflow-y: scroll;
+}

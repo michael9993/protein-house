@@ -4,8 +4,6 @@ import userEvent from "@testing-library/user-event";
 import ExitFormDialog from "./ExitFormDialog";
 
 vi.mock("@saleor/macaw-ui", () => ({
-  useStyles: vi.fn(() => () => ({})),
-  makeStyles: vi.fn(() => () => ({})),
   // eslint-disable-next-line react/display-name
   DialogHeader: vi.fn(() => () => <></>),
 }));

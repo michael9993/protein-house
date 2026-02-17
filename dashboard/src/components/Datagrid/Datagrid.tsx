@@ -165,7 +165,7 @@ const Datagrid = ({
   const editor = useRef<DataEditorRef | null>(null);
   const customRenderers = useCustomCellRenderers();
   const { scrolledToRight } = useScrollRight();
-  const fullScreenClasses = useFullScreenStyles(classes);
+  const fullScreenClasses = useFullScreenStyles();
   const { isOpen, isAnimationOpenFinished, toggle } = useFullScreenMode();
   const { clearTooltip, tooltip, setTooltip } = useTooltipContainer();
   const [selection, setSelection] = useState<GridSelection>();
@@ -463,7 +463,7 @@ const Datagrid = ({
   return (
     <FullScreenContainer open={isOpen} className={fullScreenClasses.fullScreenContainer}>
       <PreventHistoryBack __height={isOpen ? "100%" : "auto"}>
-        <DashboardCard position="relative" __height={isOpen ? "100%" : "auto"} gap={0}>
+        <DashboardCard className={classes.root} position="relative" __height={isOpen ? "100%" : "auto"} gap={0}>
           {renderHeader?.({
             toggleFullscreen: toggle,
             addRowOnDatagrid: onRowAdded,
@@ -480,7 +480,7 @@ const Datagrid = ({
             {rowsTotal > 0 || showEmptyDatagrid ? (
               <>
                 {selection?.rows && selection?.rows.length > 0 && selectionActionsComponent && (
-                  <div className={classes.actionBtnBar}>{selectionActionsComponent}</div>
+                  <div className={classes.actionBtnBar} style={classes.actionBtnBarStyle}>{selectionActionsComponent}</div>
                 )}
                 <div className={classes.editorContainer}>
                   <Box
@@ -531,7 +531,7 @@ const Datagrid = ({
                       <div
                         className={clsx(classes.rowActionBar, {
                           [classes.rowActionBarScrolledToRight]: scrolledToRight,
-                          [classes.rowActionvBarWithItems]: hasMenuItem,
+                          [classes.rowActionBarWithItems]: hasMenuItem,
                         })}
                         style={{ width: rowActionBarWidth }}
                       >
