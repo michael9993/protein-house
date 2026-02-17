@@ -5,10 +5,10 @@ import { TaxClassFragment } from "@dashboard/graphql";
 import { taxesMessages } from "@dashboard/taxes/messages";
 import { taxClassesListUrl } from "@dashboard/taxes/urls";
 import { isLastElement } from "@dashboard/taxes/utils/utils";
+import { DashboardCard } from "@dashboard/components/Card";
 import { cn } from "@dashboard/utils/cn";
-import { Card, CardContent, Divider } from "@mui/material";
 import { List, ListHeader, ListItem, ListItemCell } from "@saleor/macaw-ui";
-import { Button, Skeleton } from "@saleor/macaw-ui-next";
+import { Button, Divider, Skeleton } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { Fragment } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -30,7 +30,7 @@ const TaxClassesMenu = ({
   const isCreatingNew = selectedTaxClassId === "new";
 
   return (
-    <Card className="h-fit">
+    <DashboardCard className="h-fit">
       <CardTitle
         title={intl.formatMessage(taxesMessages.taxClassList)}
         toolbar={
@@ -95,11 +95,11 @@ const TaxClassesMenu = ({
           </List>
         </>
       ) : (
-        <CardContent className="text-[var(--mu-colors-text-default2)]">
+        <DashboardCard.Content className="text-[var(--mu-colors-text-default2)]">
           <FormattedMessage {...taxesMessages.noTaxClasses} />
-        </CardContent>
+        </DashboardCard.Content>
       )}
-    </Card>
+    </DashboardCard>
   );
 };
 

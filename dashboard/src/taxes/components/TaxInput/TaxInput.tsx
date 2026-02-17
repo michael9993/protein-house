@@ -1,6 +1,7 @@
 import { findPriceSeparator } from "@dashboard/components/PriceField/utils";
 import { FormChange } from "@dashboard/hooks/useForm";
-import { InputAdornment, TextField, TextFieldProps } from "@mui/material";
+import { Input, Text } from "@saleor/macaw-ui-next";
+import React from "react";
 
 interface TaxInputProps {
   placeholder?: string;
@@ -27,7 +28,7 @@ const TaxInput = ({ placeholder, value, change }: TaxInputProps) => {
       },
     });
   };
-  const handleKeyDown: TextFieldProps["onKeyDown"] = event => {
+  const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = event => {
     switch (event.key.toLowerCase()) {
       case "e":
       case "-": {
@@ -38,22 +39,13 @@ const TaxInput = ({ placeholder, value, change }: TaxInputProps) => {
   };
 
   return (
-    <TextField
+    <Input
       data-test-id="tax-input"
       type="number"
-      fullWidth
+      size="small"
       placeholder={placeholder}
       value={value}
-      InputProps={{
-        startAdornment: <InputAdornment position="start">%</InputAdornment>,
-        className: "[&_input::-webkit-outer-spin-button]:appearance-none [&_input::-webkit-inner-spin-button]:appearance-none [&_input::-webkit-outer-spin-button]:m-0 [&_input::-webkit-inner-spin-button]:m-0 [&_input]:[-moz-appearance:textfield]",
-      }}
-      inputProps={{
-        className: "py-4 px-0",
-        min: 0,
-        max: 100,
-        step: 0.001,
-      }}
+      startAdornment={<Text size={2} marginLeft={2}>%</Text>}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
     />

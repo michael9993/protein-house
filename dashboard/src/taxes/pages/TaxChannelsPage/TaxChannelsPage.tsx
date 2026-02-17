@@ -20,9 +20,9 @@ import TaxCountryDialog from "@dashboard/taxes/components/TaxCountryDialog";
 import TaxPageTitle from "@dashboard/taxes/components/TaxPageTitle";
 import { taxesMessages } from "@dashboard/taxes/messages";
 import { isLastElement } from "@dashboard/taxes/utils/utils";
-import { Card, CardContent, Divider } from "@mui/material";
+import { DashboardCard } from "@dashboard/components/Card";
 import { List, ListHeader, ListItem, ListItemCell, PageTab, PageTabs } from "@saleor/macaw-ui";
-import { Box, Button, Skeleton } from "@saleor/macaw-ui-next";
+import { Box, Button, Divider, Skeleton } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { getSelectedTaxStrategy, getTaxAppId, getTaxCalculationStrategy } from "./helpers";
@@ -192,7 +192,7 @@ const TaxChannelsPage = (props: TaxChannelsPageProps) => {
                       strategyChoicesLoading={loading}
                     />
                     <VerticalSpacer spacing={3} />
-                    <Card>
+                    <DashboardCard>
                       <CardTitle
                         className="last:mr-0"
                         title={intl.formatMessage(taxesMessages.countryExceptions)}
@@ -207,9 +207,9 @@ const TaxChannelsPage = (props: TaxChannelsPageProps) => {
                         }
                       />
                       {countryExceptions?.length === 0 ? (
-                        <CardContent>
+                        <DashboardCard.Content>
                           <FormattedMessage {...taxesMessages.noExceptionsForChannel} />
-                        </CardContent>
+                        </DashboardCard.Content>
                       ) : (
                         <List gridTemplate={["1fr 500px 1fr 1fr"]}>
                           <ListHeader>
@@ -257,7 +257,7 @@ const TaxChannelsPage = (props: TaxChannelsPageProps) => {
                           )) ?? <Skeleton />}
                         </List>
                       )}
-                    </Card>
+                    </DashboardCard>
                   </div>
                 </Grid>
 

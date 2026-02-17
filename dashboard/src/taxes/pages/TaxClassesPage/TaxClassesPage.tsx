@@ -20,7 +20,7 @@ import { useAutofocus } from "@dashboard/taxes/utils/useAutofocus";
 import { isLastElement } from "@dashboard/taxes/utils/utils";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getTaxesErrorMessage from "@dashboard/utils/errors/taxes";
-import { Card, CardContent, Divider, InputAdornment, TextField } from "@mui/material";
+import { DashboardCard } from "@dashboard/components/Card";
 import {
   List,
   ListHeader,
@@ -30,7 +30,7 @@ import {
   PageTabs,
   SearchIcon,
 } from "@saleor/macaw-ui";
-import { Box, Skeleton } from "@saleor/macaw-ui-next";
+import { Box, Divider, Input, Skeleton } from "@saleor/macaw-ui-next";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -130,61 +130,51 @@ const TaxClassesPage = (props: TaxClassesPageProps) => {
                   />
                   {taxClasses?.length !== 0 && (
                     <div>
-                      <Card>
+                      <DashboardCard>
                         <CardTitle title={intl.formatMessage(taxesMessages.generalInformation)} />
-                        <CardContent>
-                          <TextField
+                        <DashboardCard.Content>
+                          <Input
                             value={data?.name}
                             onChange={change}
                             name="name"
                             data-test-id="class-name-input"
-                            variant="outlined"
-                            placeholder={intl.formatMessage(taxesMessages.taxRateName)}
-                            fullWidth
-                            inputProps={{ className: "p-4" }}
-                            inputRef={nameInputRef}
+                            size="small"
+                            label={intl.formatMessage(taxesMessages.taxRateName)}
+                            ref={nameInputRef}
                             error={!!formErrors.name}
                             helperText={getTaxesErrorMessage(formErrors.name, intl)}
                           />
-                        </CardContent>
-                      </Card>
+                        </DashboardCard.Content>
+                      </DashboardCard>
                       <VerticalSpacer spacing={3} />
-                      <Card>
+                      <DashboardCard>
                         <CardTitle title={intl.formatMessage(taxesMessages.taxClassRates)} />
                         {currentTaxClass?.countries.length === 0 ? (
-                          <CardContent className="text-saleor-main-3">
+                          <DashboardCard.Content className="text-saleor-main-3">
                             <FormattedMessage
                               {...taxesMessages.noRatesInTaxClass}
                               values={{
                                 tab: <b>{intl.formatMessage(taxesMessages.countriesSection)}</b>,
                               }}
                             />
-                          </CardContent>
+                          </DashboardCard.Content>
                         ) : (
                           <>
-                            <CardContent>
-                              <TextField
+                            <DashboardCard.Content>
+                              <Input
                                 data-test-id="search-tax-countries-input"
                                 value={query}
-                                variant="outlined"
+                                size="small"
                                 onChange={e => setQuery(e.target.value)}
                                 placeholder={intl.formatMessage(taxesMessages.searchTaxCountries)}
-                                fullWidth
-                                InputProps={{
-                                  startAdornment: (
-                                    <InputAdornment position="start">
-                                      <SearchIcon
-                                        onPointerEnterCapture={undefined}
-                                        onPointerLeaveCapture={undefined}
-                                      />
-                                    </InputAdornment>
-                                  ),
-                                }}
-                                inputProps={{
-                                  className: "py-4 px-0",
-                                }}
+                                startAdornment={
+                                  <SearchIcon
+                                    onPointerEnterCapture={undefined}
+                                    onPointerLeaveCapture={undefined}
+                                  />
+                                }
                               />
-                            </CardContent>
+                            </DashboardCard.Content>
                             <List gridTemplate={["5fr 2fr"]}>
                               <ListHeader>
                                 <ListItem>
@@ -234,7 +224,7 @@ const TaxClassesPage = (props: TaxClassesPageProps) => {
                             </List>
                           </>
                         )}
-                      </Card>
+                      </DashboardCard>
                       <VerticalSpacer spacing={3} />
                       <Metadata data={data} onChange={handlers.changeMetadata} />
                     </div>

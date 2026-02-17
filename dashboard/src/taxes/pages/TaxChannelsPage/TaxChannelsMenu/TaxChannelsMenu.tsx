@@ -3,10 +3,10 @@ import { TaxConfigurationFragment } from "@dashboard/graphql";
 import { taxesMessages } from "@dashboard/taxes/messages";
 import { taxConfigurationListUrl } from "@dashboard/taxes/urls";
 import { isLastElement } from "@dashboard/taxes/utils/utils";
-import { Card, Divider } from "@mui/material";
-import { List, ListHeader, ListItem, ListItemCell } from "@saleor/macaw-ui";
+import { DashboardCard } from "@dashboard/components/Card";
 import { cn } from "@dashboard/utils/cn";
-import { Skeleton } from "@saleor/macaw-ui-next";
+import { List, ListHeader, ListItem, ListItemCell } from "@saleor/macaw-ui";
+import { Divider, Skeleton } from "@saleor/macaw-ui-next";
 import { Fragment } from "react";
 import { FormattedMessage } from "react-intl";
 
@@ -18,7 +18,7 @@ interface TaxChannelsMenuProps {
 const TaxChannelsMenu = ({ configurations, selectedConfigurationId }: TaxChannelsMenuProps) => {
 
   return (
-    <Card>
+    <DashboardCard>
       <List gridTemplate={["1fr"]}>
         <ListHeader>
           <ListItem className="min-h-[48px] after:hidden">
@@ -44,7 +44,7 @@ const TaxChannelsMenu = ({ configurations, selectedConfigurationId }: TaxChannel
           </Fragment>
         )) ?? <Skeleton />}
       </List>
-    </Card>
+    </DashboardCard>
   );
 };
 

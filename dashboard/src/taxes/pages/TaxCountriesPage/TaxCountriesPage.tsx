@@ -18,7 +18,7 @@ import { parseQuery } from "@dashboard/orders/components/OrderCustomerAddressesE
 import TaxPageTitle from "@dashboard/taxes/components/TaxPageTitle";
 import { taxesMessages } from "@dashboard/taxes/messages";
 import { isLastElement } from "@dashboard/taxes/utils/utils";
-import { Card, CardContent, Divider, InputAdornment, TextField } from "@mui/material";
+import { DashboardCard } from "@dashboard/components/Card";
 import {
   List,
   ListHeader,
@@ -28,7 +28,7 @@ import {
   PageTabs,
   SearchIcon,
 } from "@saleor/macaw-ui";
-import { Box, Skeleton } from "@saleor/macaw-ui-next";
+import { Box, Divider, Input, Skeleton } from "@saleor/macaw-ui-next";
 import { Fragment, useMemo, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -103,7 +103,7 @@ const TaxCountriesPage = (props: TaxCountriesPageProps) => {
                     onCountryDelete={onDeleteConfiguration}
                     onCountryAdd={() => openDialog("add-country")}
                   />
-                  <Card>
+                  <DashboardCard>
                     <CardTitle
                       title={
                         currentCountry ? (
@@ -116,32 +116,26 @@ const TaxCountriesPage = (props: TaxCountriesPageProps) => {
                       }
                     />
                     {countryTaxesData?.length === 0 ? (
-                      <CardContent className="text-text-disabled">
+                      <DashboardCard.Content className="text-text-disabled">
                         <FormattedMessage {...taxesMessages.addCountryToAccessClass} />
-                      </CardContent>
+                      </DashboardCard.Content>
                     ) : (
                       <>
-                        <CardContent>
-                          <TextField
+                        <DashboardCard.Content>
+                          <Input
                             data-test-id="search-tax-class-input"
                             value={query}
-                            variant="outlined"
+                            size="small"
                             onChange={e => setQuery(e.target.value)}
                             placeholder={intl.formatMessage(taxesMessages.searchTaxClasses)}
-                            fullWidth
-                            InputProps={{
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  <SearchIcon
-                                    onPointerEnterCapture={undefined}
-                                    onPointerLeaveCapture={undefined}
-                                  />
-                                </InputAdornment>
-                              ),
-                            }}
-                            inputProps={{ className: "py-4 px-0" }}
+                            startAdornment={
+                              <SearchIcon
+                                onPointerEnterCapture={undefined}
+                                onPointerLeaveCapture={undefined}
+                              />
+                            }
                           />
-                        </CardContent>
+                        </DashboardCard.Content>
                         <List gridTemplate={["5fr 2fr"]}>
                           <ListHeader>
                             <ListItem>
@@ -176,7 +170,7 @@ const TaxCountriesPage = (props: TaxCountriesPageProps) => {
                         </List>
                       </>
                     )}
-                  </Card>
+                  </DashboardCard>
                 </Grid>
               </Box>
               <Savebar>

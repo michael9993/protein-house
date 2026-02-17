@@ -5,9 +5,8 @@ import { useLocalSearch } from "@dashboard/hooks/useLocalSearch";
 import useModalDialogOpen from "@dashboard/hooks/useModalDialogOpen";
 import { buttonMessages } from "@dashboard/intl";
 import { taxesMessages } from "@dashboard/taxes/messages";
-import { Divider, FormControlLabel, InputAdornment, Radio, TextField } from "@mui/material";
 import { SearchIcon } from "@saleor/macaw-ui";
-import { Box, Button } from "@saleor/macaw-ui-next";
+import { Box, Button, Divider, Input, RadioGroup, Text } from "@saleor/macaw-ui-next";
 import { Fragment, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -42,44 +41,42 @@ const TaxCountryDialog = ({ open, countries, onConfirm, onClose }: TaxCountryDia
           <FormattedMessage {...taxesMessages.chooseCountryDialogTitle} />
         </DashboardModal.Header>
 
-        <TextField
+        <Input
           data-test-id="search-country-input"
           value={query}
           onChange={e => setQuery(e.target.value)}
-          variant="outlined"
+          size="small"
           placeholder={intl.formatMessage(taxesMessages.country)}
-          fullWidth
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
-              </InputAdornment>
-            ),
-          }}
-          inputProps={{ className: "py-4 px-0" }}
+          startAdornment={
+            <SearchIcon onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
+          }
         />
 
-        <Box
+        <RadioGroup
+          value={selectedCountry?.code ?? ""}
+          onValueChange={value => {
+            const country = filteredCountries.find(c => c.code === value);
+            if (country) setSelectedCountry(country);
+          }}
           display="flex"
           flexDirection="column"
           overflowY="scroll"
           __maxHeight="60vh"
-          __marginLeft={-15}
-          __paddingLeft={15}
         >
           {filteredCountries.map(country => (
             <Fragment key={country.code}>
-              <FormControlLabel
+              <RadioGroup.Item
+                id={country.code}
+                value={country.code}
                 data-test-id="country-row"
-                label={country.country}
-                checked={country.code === selectedCountry?.code}
-                onChange={() => setSelectedCountry(country)}
-                control={<Radio />}
-              />
+                paddingY={2}
+              >
+                <Text size={2}>{country.country}</Text>
+              </RadioGroup.Item>
               <Divider />
             </Fragment>
           ))}
-        </Box>
+        </RadioGroup>
 
         <DashboardModal.Actions>
           <Button

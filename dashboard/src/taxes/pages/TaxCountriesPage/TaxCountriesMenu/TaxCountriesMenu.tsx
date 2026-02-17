@@ -5,10 +5,10 @@ import { TaxCountryConfigurationFragment } from "@dashboard/graphql";
 import { taxesMessages } from "@dashboard/taxes/messages";
 import { taxCountriesListUrl } from "@dashboard/taxes/urls";
 import { isLastElement } from "@dashboard/taxes/utils/utils";
-import { Card, CardContent, Divider } from "@mui/material";
-import { List, ListHeader, ListItem, ListItemCell } from "@saleor/macaw-ui";
+import { DashboardCard } from "@dashboard/components/Card";
 import { cn } from "@dashboard/utils/cn";
-import { Button, Skeleton } from "@saleor/macaw-ui-next";
+import { List, ListHeader, ListItem, ListItemCell } from "@saleor/macaw-ui";
+import { Button, Divider, Skeleton } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { Fragment } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -29,7 +29,7 @@ const TaxCountriesMenu = ({
   const intl = useIntl();
 
   return (
-    <Card className="h-fit">
+    <DashboardCard className="h-fit">
       <CardTitle
         title={intl.formatMessage(taxesMessages.countryList)}
         toolbar={
@@ -39,9 +39,9 @@ const TaxCountriesMenu = ({
         }
       />
       {configurations?.length === 0 ? (
-        <CardContent className="text-text-disabled">
+        <DashboardCard.Content className="text-text-disabled">
           <FormattedMessage {...taxesMessages.noCountriesAssigned} />
-        </CardContent>
+        </DashboardCard.Content>
       ) : (
         <List gridTemplate={["1fr"]}>
           <ListHeader>
@@ -84,7 +84,7 @@ const TaxCountriesMenu = ({
           )) ?? <Skeleton />}
         </List>
       )}
-    </Card>
+    </DashboardCard>
   );
 };
 

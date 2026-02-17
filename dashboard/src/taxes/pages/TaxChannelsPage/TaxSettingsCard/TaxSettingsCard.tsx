@@ -6,16 +6,8 @@ import { TaxConfigurationUpdateInput } from "@dashboard/graphql";
 import { FormChange } from "@dashboard/hooks/useForm";
 import { LegacyFlowWarning } from "@dashboard/taxes/components";
 import { taxesMessages } from "@dashboard/taxes/messages";
-import {
-  Card,
-  CardContent,
-  Divider,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  Typography,
-} from "@mui/material";
-import { Option } from "@saleor/macaw-ui-next";
+import { DashboardCard } from "@dashboard/components/Card";
+import { Divider, Option, RadioGroup, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { TaxConfigurationFormData } from "../TaxChannelsPage";
@@ -36,12 +28,12 @@ const TaxSettingsCard = ({
   const intl = useIntl();
 
   return (
-    <Card>
+    <DashboardCard>
       <CardTitle title={intl.formatMessage(taxesMessages.defaultSettings)} />
-      <CardContent>
-        <Typography className="font-medium text-xs leading-[160%] tracking-[0.1em] uppercase">
+      <DashboardCard.Content>
+        <Text className="font-medium text-xs leading-[160%] tracking-[0.1em] uppercase">
           <FormattedMessage {...taxesMessages.chargeTaxesHeader} />
-        </Typography>
+        </Text>
         <div className="flex items-center gap-4 [&>:first-child]:pt-8">
           <ControlledCheckbox
             data-test-id="charge-taxes-for-this-channel-checkbox"
@@ -68,41 +60,41 @@ const TaxSettingsCard = ({
             />
           </div>
         </div>
-      </CardContent>
+      </DashboardCard.Content>
       <Divider />
-      <CardContent data-test-id="entered-rendered-prices-section">
+      <DashboardCard.Content data-test-id="entered-rendered-prices-section">
         <Grid variant="uniform">
           <RadioGroup
-            value={values.pricesEnteredWithTax}
-            name={"pricesEnteredWithTax" as keyof TaxConfigurationUpdateInput}
-            onChange={e => {
+            value={String(values.pricesEnteredWithTax)}
+            onValueChange={value => {
               onChange({
                 target: {
-                  name: e.target.name,
-                  value: e.target.value === "true",
+                  name: "pricesEnteredWithTax" as keyof TaxConfigurationUpdateInput,
+                  value: value === "true",
                 },
               });
             }}
-            className="[&&]:overflow-visible"
           >
-            <Typography className="font-medium text-xs leading-[160%] tracking-[0.1em] uppercase">
+            <Text className="font-medium text-xs leading-[160%] tracking-[0.1em] uppercase">
               <FormattedMessage {...taxesMessages.enteredPrices} />
-            </Typography>
-            <FormControlLabel
-              value={true}
-              control={<Radio />}
-              label={intl.formatMessage(taxesMessages.pricesWithTaxLabel)}
-            />
-            <FormControlLabel
-              value={false}
-              control={<Radio />}
-              label={intl.formatMessage(taxesMessages.pricesWithoutTaxLabel)}
-            />
+            </Text>
+            <RadioGroup.Item
+              id="pricesEnteredWithTax-true"
+              value="true"
+            >
+              <Text size={2}>{intl.formatMessage(taxesMessages.pricesWithTaxLabel)}</Text>
+            </RadioGroup.Item>
+            <RadioGroup.Item
+              id="pricesEnteredWithTax-false"
+              value="false"
+            >
+              <Text size={2}>{intl.formatMessage(taxesMessages.pricesWithoutTaxLabel)}</Text>
+            </RadioGroup.Item>
           </RadioGroup>
-          <div className="[&&]:overflow-visible">
-            <Typography className="font-medium text-xs leading-[160%] tracking-[0.1em] uppercase">
+          <div className="overflow-visible">
+            <Text className="font-medium text-xs leading-[160%] tracking-[0.1em] uppercase">
               <FormattedMessage {...taxesMessages.renderedPrices} />
-            </Typography>
+            </Text>
             <ControlledCheckbox
               label={intl.formatMessage(taxesMessages.showGrossHeader)}
               name={"displayGrossPrices" as keyof TaxConfigurationUpdateInput}
@@ -111,8 +103,8 @@ const TaxSettingsCard = ({
             />
           </div>
         </Grid>
-      </CardContent>
-    </Card>
+      </DashboardCard.Content>
+    </DashboardCard>
   );
 };
 
