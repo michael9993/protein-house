@@ -11,7 +11,6 @@ import { renderCollection } from "@dashboard/misc";
 import { shippingZoneUrl } from "@dashboard/shipping/urls";
 import { RelayToFlat } from "@dashboard/types";
 import { Divider } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Skeleton, Text } from "@saleor/macaw-ui-next";
 import { ReactNode, useEffect } from "react";
 import { FormattedMessage } from "react-intl";
@@ -33,18 +32,6 @@ interface WarehouseSettingsProps {
   setData: (data: Partial<WarehouseDetailsPageFormData>) => void;
 }
 
-const useStyles = makeStyles(
-  theme => ({
-    link: {
-      "&:not(:last-of-type)": {
-        marginBottom: theme.spacing(),
-      },
-    },
-  }),
-  {
-    name: "WarehouseInfoProps",
-  },
-);
 const WarehouseSettings = ({
   zones,
   disabled,
@@ -60,7 +47,6 @@ const WarehouseSettings = ({
     }
   }, [data.isPrivate]);
 
-  const classes = useStyles({});
   const booleanRadioHandler = ({ target: { name, value } }: ChangeEvent) => {
     setData({ [name]: value === "true" });
   };
@@ -145,7 +131,7 @@ const WarehouseSettings = ({
           zones,
           zone =>
             zone ? (
-              <div className={classes.link} key={zone.id}>
+              <div className="[&:not(:last-of-type)]:mb-2" key={zone.id}>
                 <Link underline href={shippingZoneUrl(zone.id)}>
                   {zone.name}
                 </Link>

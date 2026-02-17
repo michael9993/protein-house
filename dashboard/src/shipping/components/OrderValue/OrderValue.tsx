@@ -13,8 +13,6 @@ import { TableBody, TableCell } from "@mui/material";
 import { Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { useStyles } from "./styles";
-
 interface Value {
   maxValue: string;
   minValue: string;
@@ -39,7 +37,6 @@ const OrderValue = ({
   onChannelsChange,
   onChange,
 }: OrderValueProps) => {
-  const classes = useStyles({});
   const intl = useIntl();
   const formErrors = getFormChannelErrors(
     ["maximumOrderPrice", "minimumOrderPrice"],
@@ -57,8 +54,8 @@ const OrderValue = ({
           })}
         </DashboardCard.Title>
       </DashboardCard.Header>
-      <div className={classes.content}>
-        <div className={classes.subheader}>
+      <div className="py-6">
+        <div className="px-6">
           <ControlledCheckbox
             data-test-id="order-value-checkbox"
             name="orderValueRestricted"
@@ -84,9 +81,9 @@ const OrderValue = ({
           />
         </div>
         {orderValueRestricted && (
-          <ResponsiveTable className={classes.table}>
+          <ResponsiveTable className="table-fixed">
             <TableHead colSpan={numberOfColumns} disabled={disabled} items={[]}>
-              <TableCell className={classes.colName}>
+              <TableCell className="pl-0 w-auto text-sm">
                 <span>
                   <FormattedMessage
                     id="UymotP"
@@ -95,7 +92,7 @@ const OrderValue = ({
                   />
                 </span>
               </TableCell>
-              <TableCell className={classes.colType}>
+              <TableCell className="text-sm text-right w-[250px]">
                 <span>
                   <FormattedMessage
                     id="0FexL7"
@@ -104,7 +101,7 @@ const OrderValue = ({
                   />
                 </span>
               </TableCell>
-              <TableCell className={classes.colType}>
+              <TableCell className="text-sm text-right w-[250px]">
                 <span>
                   <FormattedMessage
                     id="ER/yBq"
@@ -124,7 +121,7 @@ const OrderValue = ({
                     <TableCell>
                       <Text>{channel.name}</Text>
                     </TableCell>
-                    <TableCell className={classes.price}>
+                    <TableCell className="align-top">
                       <PriceField
                         data-test-id="min-value-price-input"
                         disabled={disabled}
@@ -145,7 +142,7 @@ const OrderValue = ({
                         hint={minError && getShippingErrorMessage(minError, intl)}
                       />
                     </TableCell>
-                    <TableCell className={classes.price}>
+                    <TableCell className="align-top">
                       <PriceField
                         data-test-id="max-value-price-input"
                         disabled={disabled}

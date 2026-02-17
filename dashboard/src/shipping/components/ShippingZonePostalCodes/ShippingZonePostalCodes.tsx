@@ -8,10 +8,10 @@ import TableRowLink from "@dashboard/components/TableRowLink";
 import { PostalCodeRuleInclusionTypeEnum, ShippingMethodTypeFragment } from "@dashboard/graphql";
 import ArrowDropdown from "@dashboard/icons/ArrowDropdown";
 import { renderCollection } from "@dashboard/misc";
+import { cn } from "@dashboard/utils/cn";
 import { TableBody, TableCell, TableHead } from "@mui/material";
-import { IconButton, makeStyles } from "@saleor/macaw-ui";
+import { IconButton } from "@saleor/macaw-ui";
 import { Skeleton, Text } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import { Trash2 } from "lucide-react";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -24,34 +24,6 @@ interface ShippingZonePostalCodesProps {
   onPostalCodeDelete: (code: ShippingMethodTypeFragment["postalCodeRules"][0]) => void;
   onPostalCodeRangeAdd: () => void;
 }
-
-const useStyles = makeStyles(
-  theme => ({
-    arrow: {
-      transition: theme.transitions.create("transform"),
-    },
-    arrowRotate: {
-      transform: "scale(-1)",
-    },
-    colAction: {
-      width: 80,
-    },
-    colCode: {},
-    option: {
-      marginBottom: theme.spacing(2),
-      width: 400,
-    },
-    radioContainer: {
-      paddingBottom: 0,
-    },
-    skeleton: {
-      width: 80,
-    },
-  }),
-  {
-    name: "ShippingZonePostalCodes",
-  },
-);
 const ShippingZonePostalCodes = ({
   disabled,
   initialExpanded = true,
@@ -63,7 +35,6 @@ const ShippingZonePostalCodes = ({
   const [expanded, setExpanded] = React.useState(initialExpanded);
   const [inclusionType, setInclusionType] = React.useState(null);
   const intl = useIntl();
-  const classes = useStyles({});
   const getInclusionType = () => {
     if (inclusionType) {
       return inclusionType;
@@ -115,13 +86,13 @@ const ShippingZonePostalCodes = ({
           </Button>
         </DashboardCard.Toolbar>
       </DashboardCard.Header>
-      <DashboardCard.Content className={clsx(classes.radioContainer)}>
+      <DashboardCard.Content className="pb-0">
         <RadioGroupField
           alignTop
           choices={[
             {
               label: (
-                <div className={classes.option}>
+                <div className="mb-4 w-[400px]">
                   <Text size={4} fontWeight="regular">
                     <FormattedMessage
                       id="YpLVVc"
@@ -141,7 +112,7 @@ const ShippingZonePostalCodes = ({
             },
             {
               label: (
-                <div className={classes.option}>
+                <div className="mb-4 w-[400px]">
                   <Text size={4} fontWeight="regular">
                     <FormattedMessage
                       id="7qsOwa"
@@ -168,13 +139,13 @@ const ShippingZonePostalCodes = ({
       <ResponsiveTable>
         <colgroup>
           <col />
-          <col className={classes.colAction} />
+          <col className="w-20" />
         </colgroup>
         <TableHead>
           <TableRowLink>
             <TableCell>
               {postalCodes === undefined ? (
-                <Skeleton className={classes.skeleton} />
+                <Skeleton className="w-20" />
               ) : (
                 <Text size={2} fontWeight="light">
                   <FormattedMessage
@@ -191,9 +162,10 @@ const ShippingZonePostalCodes = ({
             <TableCell>
               <IconButton variant="secondary" onClick={() => setExpanded(!expanded)} size="medium">
                 <ArrowDropdown
-                  className={clsx(classes.arrow, {
-                    [classes.arrowRotate]: expanded,
-                  })}
+                  className={cn(
+                    "transition-transform",
+                    expanded && "scale-[-1]",
+                  )}
                 />
               </IconButton>
             </TableCell>

@@ -10,7 +10,6 @@ import { useIntl } from "react-intl";
 
 import { VoucherDetailsPageFormData } from "../VoucherDetailsPage";
 import messages from "./messages";
-import { useStyles } from "./styles";
 
 interface VoucherLimitsProps {
   data: VoucherDetailsPageFormData;
@@ -32,7 +31,6 @@ const VoucherLimits = ({
   isNewVoucher,
 }: VoucherLimitsProps) => {
   const intl = useIntl();
-  const classes = useStyles();
   const formErrors = getFormErrors(["usageLimit"], errors);
   const usesLeft = data.usageLimit - data.used;
 
@@ -41,7 +39,7 @@ const VoucherLimits = ({
       <DashboardCard.Header>
         <DashboardCard.Title>{intl.formatMessage(messages.usageLimitsTitle)}</DashboardCard.Title>
       </DashboardCard.Header>
-      <DashboardCard.Content className={classes.cardContent}>
+      <DashboardCard.Content className="flex flex-col">
         <ControlledCheckbox
           testId="has-usage-limit"
           checked={data.hasUsageLimit}
@@ -85,7 +83,7 @@ const VoucherLimits = ({
                   min: 1,
                 }}
               />
-              <div className={classes.usesLeftLabelWrapper}>
+              <div className="flex flex-col flex-1">
                 <Text size={2} fontWeight="light">
                   {intl.formatMessage(messages.usesLeftCaption)}
                 </Text>

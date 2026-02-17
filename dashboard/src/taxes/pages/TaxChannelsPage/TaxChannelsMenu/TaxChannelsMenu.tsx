@@ -5,12 +5,10 @@ import { taxConfigurationListUrl } from "@dashboard/taxes/urls";
 import { isLastElement } from "@dashboard/taxes/utils/utils";
 import { Card, Divider } from "@mui/material";
 import { List, ListHeader, ListItem, ListItemCell } from "@saleor/macaw-ui";
+import { cn } from "@dashboard/utils/cn";
 import { Skeleton } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import { Fragment } from "react";
 import { FormattedMessage } from "react-intl";
-
-import { useStyles } from "./styles";
 
 interface TaxChannelsMenuProps {
   configurations: TaxConfigurationFragment[] | undefined;
@@ -18,13 +16,12 @@ interface TaxChannelsMenuProps {
 }
 
 const TaxChannelsMenu = ({ configurations, selectedConfigurationId }: TaxChannelsMenuProps) => {
-  const classes = useStyles();
 
   return (
     <Card>
       <List gridTemplate={["1fr"]}>
         <ListHeader>
-          <ListItem className={classes.tableRow}>
+          <ListItem className="min-h-[48px] after:hidden">
             <ListItemCell>
               <FormattedMessage {...taxesMessages.channelList} />
             </ListItemCell>
@@ -35,12 +32,13 @@ const TaxChannelsMenu = ({ configurations, selectedConfigurationId }: TaxChannel
           <Fragment key={configuration.id}>
             <ListItemLink
               data-test-id="channels-list-rows"
-              className={clsx(classes.clickable, classes.tableRow, {
-                [classes.selected]: configuration.id === selectedConfigurationId,
-              })}
+              className={cn(
+                "cursor-pointer min-h-[48px] after:hidden",
+                configuration.id === selectedConfigurationId && "[&&&]:before:block [&&&]:before:absolute [&&&]:before:left-0 [&&&]:before:w-1 [&&&]:before:h-full [&&&]:before:bg-saleor-active-1",
+              )}
               href={taxConfigurationListUrl(configuration.id)}
             >
-              <ListItemCell className={classes.ellipsis}>{configuration.channel.name}</ListItemCell>
+              <ListItemCell className="text-ellipsis overflow-hidden">{configuration.channel.name}</ListItemCell>
             </ListItemLink>
             {!isLastElement(configurations, confIndex) && <Divider />}
           </Fragment>

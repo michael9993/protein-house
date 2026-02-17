@@ -7,13 +7,11 @@ import { taxCountriesListUrl } from "@dashboard/taxes/urls";
 import { isLastElement } from "@dashboard/taxes/utils/utils";
 import { Card, CardContent, Divider } from "@mui/material";
 import { List, ListHeader, ListItem, ListItemCell } from "@saleor/macaw-ui";
+import { cn } from "@dashboard/utils/cn";
 import { Button, Skeleton } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import { Trash2 } from "lucide-react";
 import { Fragment } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
-
-import { useStyles } from "./styles";
 
 interface TaxCountriesMenuProps {
   configurations: TaxCountryConfigurationFragment[] | undefined;
@@ -28,11 +26,10 @@ const TaxCountriesMenu = ({
   onCountryDelete,
   onCountryAdd,
 }: TaxCountriesMenuProps) => {
-  const classes = useStyles();
   const intl = useIntl();
 
   return (
-    <Card className={classes.menu}>
+    <Card className="h-fit">
       <CardTitle
         title={intl.formatMessage(taxesMessages.countryList)}
         toolbar={
@@ -42,13 +39,13 @@ const TaxCountriesMenu = ({
         }
       />
       {configurations?.length === 0 ? (
-        <CardContent className={classes.greyText}>
+        <CardContent className="text-text-disabled">
           <FormattedMessage {...taxesMessages.noCountriesAssigned} />
         </CardContent>
       ) : (
         <List gridTemplate={["1fr"]}>
           <ListHeader>
-            <ListItem className={classes.tableRow}>
+            <ListItem className="min-h-[48px] after:hidden">
               <ListItemCell>
                 <FormattedMessage {...taxesMessages.countryNameHeader} />
               </ListItemCell>
@@ -59,13 +56,14 @@ const TaxCountriesMenu = ({
             <Fragment key={config.country.code}>
               <ListItemLink
                 data-test-id="countries-list-rows"
-                className={clsx(classes.clickable, classes.tableRow, {
-                  [classes.selected]: config.country.code === selectedCountryId,
-                })}
+                className={cn(
+                  "cursor-pointer min-h-[48px] after:hidden",
+                  config.country.code === selectedCountryId && "[&&&&]:before:absolute [&&&&]:before:left-0 [&&&&]:before:w-1 [&&&&]:before:h-full [&&&&]:before:bg-saleor-active-1",
+                )}
                 href={taxCountriesListUrl(config.country.code)}
               >
                 <ListItemCell>
-                  <div className={classes.spaceBetween}>
+                  <div className="flex justify-between items-center">
                     {config.country.country}
                     <Button
                       icon={

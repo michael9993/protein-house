@@ -19,7 +19,6 @@ import { Option } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { TaxConfigurationFormData } from "../TaxChannelsPage";
-import { useStyles } from "./styles";
 
 interface TaxSettingsCardProps {
   values: TaxConfigurationFormData;
@@ -35,16 +34,15 @@ const TaxSettingsCard = ({
   strategyChoicesLoading,
 }: TaxSettingsCardProps) => {
   const intl = useIntl();
-  const classes = useStyles();
 
   return (
     <Card>
       <CardTitle title={intl.formatMessage(taxesMessages.defaultSettings)} />
       <CardContent>
-        <Typography className={classes.supportHeader}>
+        <Typography className="font-medium text-xs leading-[160%] tracking-[0.1em] uppercase">
           <FormattedMessage {...taxesMessages.chargeTaxesHeader} />
         </Typography>
-        <div className={classes.taxStrategySection}>
+        <div className="flex items-center gap-4 [&>:first-child]:pt-8">
           <ControlledCheckbox
             data-test-id="charge-taxes-for-this-channel-checkbox"
             checked={values.chargeTaxes}
@@ -52,8 +50,8 @@ const TaxSettingsCard = ({
             onChange={onChange}
             label={intl.formatMessage(taxesMessages.chargeTaxes)}
           />
-          <div className={classes.singleSelectWrapper} data-test-id="app-flat-select">
-            <span className={classes.hint}>
+          <div className="flex flex-col flex-1" data-test-id="app-flat-select">
+            <span className="ml-0 text-saleor-main-3">
               <FormattedMessage {...taxesMessages.taxStrategyHint} />
               {!strategyChoicesLoading && (
                 <LegacyFlowWarning taxCalculationStrategy={values.taxCalculationStrategy} />
@@ -85,9 +83,9 @@ const TaxSettingsCard = ({
                 },
               });
             }}
-            className={classes.showCheckboxShadows}
+            className="[&&]:overflow-visible"
           >
-            <Typography className={classes.supportHeader}>
+            <Typography className="font-medium text-xs leading-[160%] tracking-[0.1em] uppercase">
               <FormattedMessage {...taxesMessages.enteredPrices} />
             </Typography>
             <FormControlLabel
@@ -101,8 +99,8 @@ const TaxSettingsCard = ({
               label={intl.formatMessage(taxesMessages.pricesWithoutTaxLabel)}
             />
           </RadioGroup>
-          <div className={classes.showCheckboxShadows}>
-            <Typography className={classes.supportHeader}>
+          <div className="[&&]:overflow-visible">
+            <Typography className="font-medium text-xs leading-[160%] tracking-[0.1em] uppercase">
               <FormattedMessage {...taxesMessages.renderedPrices} />
             </Typography>
             <ControlledCheckbox

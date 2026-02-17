@@ -10,7 +10,6 @@ import getShippingErrorMessage from "@dashboard/utils/errors/shipping";
 import { useRichTextContext } from "@dashboard/utils/richText/context";
 import { OutputData } from "@editorjs/editorjs";
 import { TextField } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import * as React from "react";
 import { defineMessages, useIntl } from "react-intl";
 
@@ -36,24 +35,6 @@ const messages = defineMessages({
     description: "label",
   },
 });
-const useStyles = makeStyles(
-  theme => ({
-    deliveryTimeFields: {
-      display: "grid",
-      gridColumnGap: theme.spacing(1),
-      gridRowGap: theme.spacing(1),
-      gridTemplateColumns: "1fr 1fr 1fr",
-      [theme.breakpoints.down('lg')]: {
-        gridTemplateColumns: "1fr 1fr",
-      },
-      [theme.breakpoints.down('sm')]: {
-        gridTemplateColumns: "1fr",
-      },
-    },
-  }),
-  { name: "ShippingRateInfo" },
-);
-
 interface ShippingRateInfoProps {
   data: {
     description: OutputData | null;
@@ -69,7 +50,6 @@ interface ShippingRateInfoProps {
 const ShippingRateInfo = (props: ShippingRateInfoProps) => {
   const { data, disabled, errors, onChange } = props;
   const intl = useIntl();
-  const classes = useStyles(props);
   const { defaultValue, editorRef, isReadyForMount, handleChange } = useRichTextContext();
   const formErrors = getFormErrors(["name", "description", "minDays", "maxDays"], errors);
 
@@ -111,7 +91,7 @@ const ShippingRateInfo = (props: ShippingRateInfoProps) => {
           />
         )}
         <CardSpacer />
-        <div className={classes.deliveryTimeFields}>
+        <div className="grid gap-2 grid-cols-3 max-lg:grid-cols-2 max-sm:grid-cols-1">
           <TextField
             data-test-id="min-delivery-time-input"
             disabled={disabled}

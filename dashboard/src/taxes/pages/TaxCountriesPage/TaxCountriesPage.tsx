@@ -34,7 +34,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import TaxInput from "../../components/TaxInput";
 import TaxCountriesForm from "./form";
-import { useStyles } from "./styles";
 import TaxCountriesMenu from "./TaxCountriesMenu";
 
 interface TaxCountriesPageProps {
@@ -60,7 +59,6 @@ const TaxCountriesPage = (props: TaxCountriesPageProps) => {
     disabled,
   } = props;
   const intl = useIntl();
-  const classes = useStyles();
   const navigate = useNavigator();
   const [query, setQuery] = useState("");
   const currentCountry = useMemo(
@@ -118,7 +116,7 @@ const TaxCountriesPage = (props: TaxCountriesPageProps) => {
                       }
                     />
                     {countryTaxesData?.length === 0 ? (
-                      <CardContent className={classes.greyText}>
+                      <CardContent className="text-text-disabled">
                         <FormattedMessage {...taxesMessages.addCountryToAccessClass} />
                       </CardContent>
                     ) : (
@@ -141,7 +139,7 @@ const TaxCountriesPage = (props: TaxCountriesPageProps) => {
                                 </InputAdornment>
                               ),
                             }}
-                            inputProps={{ className: classes.inputPadding }}
+                            inputProps={{ className: "py-4 px-0" }}
                           />
                         </CardContent>
                         <List gridTemplate={["5fr 2fr"]}>
@@ -150,7 +148,7 @@ const TaxCountriesPage = (props: TaxCountriesPageProps) => {
                               <ListItemCell>
                                 <FormattedMessage {...taxesMessages.taxNameHeader} />
                               </ListItemCell>
-                              <ListItemCell className={classes.right}>
+                              <ListItemCell className="m-0 flex place-content-end text-right">
                                 <FormattedMessage {...taxesMessages.taxRateHeader} />
                               </ListItemCell>
                             </ListItem>
@@ -160,7 +158,7 @@ const TaxCountriesPage = (props: TaxCountriesPageProps) => {
                             <Fragment key={rate.id}>
                               <ListItem
                                 hover={false}
-                                className={classes.noDivider}
+                                className="before:hidden after:hidden"
                                 data-test-id={rate.label}
                               >
                                 <ListItemCell>{rate.label}</ListItemCell>

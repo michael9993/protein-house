@@ -12,7 +12,6 @@ import { ShippingZoneDetailsFragment } from "@dashboard/graphql";
 import useNavigator from "@dashboard/hooks/useNavigator";
 import { ChannelProps } from "@dashboard/types";
 import { TableBody, TableCell, TableHead } from "@mui/material";
-import { ICONBUTTON_SIZE, makeStyles } from "@saleor/macaw-ui";
 import { Button, Skeleton } from "@saleor/macaw-ui-next";
 import { Pencil, Trash2 } from "lucide-react";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -28,29 +27,6 @@ interface ShippingZoneRatesProps extends ChannelProps {
   getRateEditHref: (id: string) => string;
   onRateRemove: (id: string) => void;
 }
-
-const useStyles = makeStyles(
-  theme => ({
-    alignRight: {
-      paddingRight: 24,
-      width: `calc(${ICONBUTTON_SIZE}px + ${theme.spacing(0.5)})`,
-    },
-    buttonColumn: {
-      padding: "4px 0",
-      width: "44px",
-      "&:last-child": {
-        paddingRight: theme.spacing(4),
-      },
-    },
-    nameColumn: {
-      width: "auto",
-    },
-    valueColumn: {
-      width: "auto",
-    },
-  }),
-  { name: "ShippingZoneRates" },
-);
 const ShippingZoneRates = (props: ShippingZoneRatesProps) => {
   const {
     disabled,
@@ -62,7 +38,6 @@ const ShippingZoneRates = (props: ShippingZoneRatesProps) => {
     variant,
     testId,
   } = props;
-  const classes = useStyles(props);
   const navigate = useNavigator();
   const intl = useIntl();
 
@@ -91,14 +66,14 @@ const ShippingZoneRates = (props: ShippingZoneRatesProps) => {
       <ResponsiveTable>
         <TableHead>
           <TableRowLink>
-            <TableCell className={classes.nameColumn}>
+            <TableCell className="w-auto">
               <FormattedMessage
                 id="aPCrsp"
                 defaultMessage="Name"
                 description="shipping method name"
               />
             </TableCell>
-            <TableCell className={classes.valueColumn}>
+            <TableCell className="w-auto">
               {variant === "price"
                 ? intl.formatMessage({
                     id: "njUQPz",
@@ -111,15 +86,15 @@ const ShippingZoneRates = (props: ShippingZoneRatesProps) => {
                     description: "shipping method weight range",
                   })}
             </TableCell>
-            <TableCell className={classes.nameColumn}>
+            <TableCell className="w-auto">
               <FormattedMessage
                 id="EKoPNg"
                 defaultMessage="Price"
                 description="shipping method price"
               />
             </TableCell>
-            <TableCell className={classes.buttonColumn} />
-            <TableCell className={classes.buttonColumn} />
+            <TableCell className="py-1 px-0 w-[44px] last:pr-8" />
+            <TableCell className="py-1 px-0 w-[44px] last:pr-8" />
           </TableRowLink>
         </TableHead>
         <TableBody>
@@ -137,7 +112,7 @@ const ShippingZoneRates = (props: ShippingZoneRatesProps) => {
                   href={rate && getRateEditHref(rate.id)}
                   data-test-id="shipping-method-row"
                 >
-                  <TableCell className={classes.nameColumn}>
+                  <TableCell className="w-auto">
                     {maybe<React.ReactNode>(() => rate.name, <Skeleton />)}
                   </TableCell>
                   <TableCell>
@@ -169,7 +144,7 @@ const ShippingZoneRates = (props: ShippingZoneRatesProps) => {
                     <IconButtonTableCell
                       disabled={disabled}
                       onClick={() => navigate(getRateEditHref(rate.id))}
-                      className={classes.buttonColumn}
+                      className="py-1 px-0 w-[44px] last:pr-8"
                     >
                       <Pencil size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />
                     </IconButtonTableCell>
@@ -179,7 +154,7 @@ const ShippingZoneRates = (props: ShippingZoneRatesProps) => {
                     <IconButtonTableCell
                       disabled={disabled}
                       onClick={() => onRateRemove(rate.id)}
-                      className={classes.buttonColumn}
+                      className="py-1 px-0 w-[44px] last:pr-8"
                     >
                       <Trash2
                         size={iconSize.small}

@@ -12,37 +12,10 @@ import { mapEdgesToItems } from "@dashboard/utils/maps";
 import { getArrowDirection } from "@dashboard/utils/sort";
 import { WarehouseListUrlSortField, warehouseUrl } from "@dashboard/warehouses/urls";
 import { TableBody, TableCell, TableFooter, TableHead } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Button, Skeleton } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { FormattedMessage } from "react-intl";
 import { useLocation } from "react-router";
-
-const useStyles = makeStyles(
-  theme => ({
-    [theme.breakpoints.up("lg")]: {
-      colActions: {
-        width: 160,
-      },
-      colName: {
-        width: 400,
-      },
-      colZones: {
-        width: "auto",
-      },
-    },
-    colName: {
-      paddingLeft: 0,
-    },
-    colZones: {
-      paddingLeft: 0,
-    },
-    tableRow: {
-      cursor: "pointer",
-    },
-  }),
-  { name: "WarehouseList" },
-);
 
 interface WarehouseListProps extends ListProps, SortPage<WarehouseListUrlSortField> {
   warehouses: WarehouseWithShippingFragment[] | undefined;
@@ -52,7 +25,6 @@ interface WarehouseListProps extends ListProps, SortPage<WarehouseListUrlSortFie
 const numberOfColumns = 3;
 const WarehouseList = (props: WarehouseListProps) => {
   const { warehouses, disabled, settings, sort, onUpdateListSettings, onRemove, onSort } = props;
-  const classes = useStyles(props);
   const location = useLocation();
 
   return (
@@ -66,15 +38,15 @@ const WarehouseList = (props: WarehouseListProps) => {
                 : undefined
             }
             arrowPosition="right"
-            className={classes.colName}
+            className="pl-0 lg:w-[400px]"
             onClick={() => onSort(WarehouseListUrlSortField.name)}
           >
             <FormattedMessage id="aCJwVq" defaultMessage="Name" description="warehouse" />
           </TableCellHeader>
-          <TableCell className={classes.colZones}>
+          <TableCell className="pl-0 lg:w-auto">
             <FormattedMessage id="PFXGaR" defaultMessage="Shipping Zones" />
           </TableCell>
-          <TableCell className={classes.colActions}>
+          <TableCell className="lg:w-[160px]">
             <FormattedMessage id="wL7VAE" defaultMessage="Actions" />
           </TableCell>
         </TableRowLink>
@@ -102,15 +74,15 @@ const WarehouseList = (props: WarehouseListProps) => {
                     }
                   : undefined
               }
-              className={classes.tableRow}
+              className="cursor-pointer"
               hover={!!warehouse}
               key={warehouse ? warehouse.id : "skeleton"}
               data-test-id={"warehouse-entry-" + warehouse?.name.toLowerCase().replace(" ", "")}
             >
-              <TableCell className={classes.colName} data-test-id="name">
+              <TableCell className="pl-0 lg:w-[400px]" data-test-id="name">
                 {warehouse?.name ?? <Skeleton />}
               </TableCell>
-              <TableCell className={classes.colZones} data-test-id="zones">
+              <TableCell className="pl-0 lg:w-auto" data-test-id="zones">
                 {warehouse?.shippingZones === undefined ? (
                   <Skeleton />
                 ) : (

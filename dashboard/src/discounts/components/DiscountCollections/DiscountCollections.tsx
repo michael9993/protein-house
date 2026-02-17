@@ -18,7 +18,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { renderCollection } from "../../../misc";
 import { ListActions, ListProps } from "../../../types";
 import { messages } from "./messages";
-import { useStyles } from "./styles";
 
 interface DiscountCollectionsProps extends ListProps, ListActions {
   collections: CollectionWithTotalProductsFragment[];
@@ -39,7 +38,6 @@ const DiscountCollections = (props: DiscountCollectionsProps) => {
     toggleAll,
     toolbar,
   } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
 
   return (
@@ -61,9 +59,9 @@ const DiscountCollections = (props: DiscountCollectionsProps) => {
       <ResponsiveTable>
         <colgroup>
           <col />
-          <col className={classes.colName} />
-          <col className={classes.colProducts} />
-          <col className={classes.colActions} />
+          <col className="w-auto" />
+          <col className="text-right w-[140px]" />
+          <col className="w-[84px]" />
         </colgroup>
         <TableHead
           colSpan={numberOfColumns}
@@ -73,10 +71,10 @@ const DiscountCollections = (props: DiscountCollectionsProps) => {
           toggleAll={toggleAll}
           toolbar={toolbar}
         >
-          <TableCell className={classes.colName}>
+          <TableCell className="w-auto">
             <FormattedMessage {...messages.discountCollectionsTableProductHeader} />
           </TableCell>
-          <TableCell className={classes.colProducts}>
+          <TableCell className="text-right w-[140px]">
             <FormattedMessage {...messages.discountCollectionsTableProductNumber} />
           </TableCell>
           <TableCell />
@@ -99,7 +97,7 @@ const DiscountCollections = (props: DiscountCollectionsProps) => {
                   hover={!!collection}
                   key={collection ? collection.id : "skeleton"}
                   href={collection && collectionUrl(collection.id)}
-                  className={classes.tableRow}
+                  className="cursor-pointer"
                 >
                   <TableCell padding="checkbox">
                     <Checkbox
@@ -109,13 +107,13 @@ const DiscountCollections = (props: DiscountCollectionsProps) => {
                       onChange={() => toggle(collection.id)}
                     />
                   </TableCell>
-                  <TableCell className={classes.colName}>
+                  <TableCell className="w-auto">
                     {collection ? collection.name : <Skeleton />}
                   </TableCell>
-                  <TableCell className={classes.colProducts}>
+                  <TableCell className="text-right w-[140px]">
                     {collection ? collection?.products.totalCount : <Skeleton />}
                   </TableCell>
-                  <TableCell className={classes.colActions}>
+                  <TableCell className="w-[84px]">
                     <TableButtonWrapper>
                       <IconButton
                         variant="secondary"

@@ -1,6 +1,6 @@
 import { ConfirmButton, ConfirmButtonTransitionState } from "@dashboard/components/ConfirmButton";
 import { buttonMessages } from "@dashboard/intl";
-import { Button, makeStyles } from "@saleor/macaw-ui";
+import { Button } from "@saleor/macaw-ui";
 import { FormattedMessage } from "react-intl";
 
 interface TranslationFieldsSaveProps {
@@ -9,30 +9,14 @@ interface TranslationFieldsSaveProps {
   onSave: () => void;
 }
 
-const useStyles = makeStyles(
-  theme => ({
-    confirmButton: {
-      marginLeft: theme.spacing(1),
-    },
-    root: {
-      display: "flex",
-      flexDirection: "row-reverse",
-      marginTop: theme.spacing(1),
-    },
-  }),
-  {
-    name: "TranslationFieldsSave",
-  },
-);
 const TranslationFieldsSave = (props: TranslationFieldsSaveProps) => {
   const { saveButtonState, onDiscard, onSave } = props;
-  const classes = useStyles(props);
 
   return (
-    <div className={classes.root}>
+    <div className="flex flex-row-reverse mt-2">
       <ConfirmButton
         data-test-id="button-bar-confirm"
-        className={classes.confirmButton}
+        className="ml-2"
         transitionState={saveButtonState}
         onClick={onSave}
       >

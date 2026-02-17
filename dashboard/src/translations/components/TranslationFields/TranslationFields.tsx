@@ -8,10 +8,10 @@ import { SubmitPromise } from "@dashboard/hooks/useForm";
 import { buttonMessages } from "@dashboard/intl";
 import { TranslationField, TranslationFieldType } from "@dashboard/translations/types";
 import { ListProps } from "@dashboard/types";
+import { cn } from "@dashboard/utils/cn";
 import { OutputData } from "@editorjs/editorjs";
-import { Button, IconButton, makeStyles } from "@saleor/macaw-ui";
+import { Button, IconButton } from "@saleor/macaw-ui";
 import { Skeleton, Text } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import { ChevronDown } from "lucide-react";
 import { Fragment, useState } from "react";
 import { FormattedMessage } from "react-intl";
@@ -37,70 +37,6 @@ interface TranslationFieldsProps {
   onValueChange?(field: TranslationField, currentValue: string): void;
 }
 
-const useStyles = makeStyles(
-  theme => ({
-    cardCaption: {
-      fontSize: 14,
-    },
-    cardContent: {
-      "&:last-child": {
-        paddingBottom: theme.spacing(1),
-      },
-    },
-    columnHeader: {
-      marginBottom: theme.spacing(0.5),
-    },
-    content: {
-      "& a": {
-        color: theme.palette.textHighlighted.active,
-      },
-      "& blockquote": {
-        borderLeft: `2px solid ${theme.palette.divider}`,
-        margin: 0,
-        padding: theme.spacing(1, 2),
-      },
-      "& h2": {
-        fontSize: 22,
-        marginBottom: theme.spacing(1),
-      },
-      "& h3": {
-        fontSize: 19,
-        marginBottom: theme.spacing(1),
-      },
-      "& p": {
-        "&:last-child": {
-          marginBottom: 0,
-        },
-        marginBottom: theme.spacing(),
-        marginTop: 0,
-      },
-      paddingBottom: theme.spacing(2),
-    },
-    editButtonContainer: {
-      alignItems: "center",
-      display: "flex",
-      justifyContent: "flex-end",
-    },
-    fieldName: {
-      color: theme.typography.caption.color,
-      fontSize: 14,
-      fontWeight: 500,
-      marginBottom: theme.spacing(),
-      marginTop: theme.spacing(2),
-    },
-    grid: {
-      gridRowGap: 0,
-    },
-    hr: {
-      gridColumnEnd: "span 2",
-    },
-
-    rotate: {
-      transform: "rotate(180deg)",
-    },
-  }),
-  { name: "TranslationFields" },
-);
 const numberOfColumns = 2;
 const TranslationFields = (props: TranslationFieldsProps) => {
   const {
@@ -117,7 +53,6 @@ const TranslationFields = (props: TranslationFieldsProps) => {
     onSubmit,
     onValueChange,
   } = props;
-  const classes = useStyles(props);
   const [expanded, setExpandedState] = useState(initialState);
 
   return (
@@ -130,20 +65,18 @@ const TranslationFields = (props: TranslationFieldsProps) => {
             onClick={() => setExpandedState(!expanded)}
             size="medium">
             <ChevronDown
-              className={clsx({
-                [classes.rotate]: expanded,
-              })}
+              className={cn(expanded && "rotate-180")}
             />
           </IconButton>
         </DashboardCard.Toolbar>
       </DashboardCard.Header>
       {expanded ? (
-        <DashboardCard.Content className={classes.cardContent}>
-          <Grid className={classes.grid} variant="uniform">
-            <Text className={classes.columnHeader} fontSize={3}>
+        <DashboardCard.Content className="last:pb-2">
+          <Grid className="[grid-row-gap:0]" variant="uniform">
+            <Text className="mb-1" fontSize={3}>
               <FormattedMessage id="Xtd0AT" defaultMessage="Original String" />
             </Text>
-            <Text className={classes.columnHeader} fontSize={3}>
+            <Text className="mb-1" fontSize={3}>
               <FormattedMessage
                 id="bVY7j0"
                 defaultMessage="Translation"
@@ -152,16 +85,16 @@ const TranslationFields = (props: TranslationFieldsProps) => {
             </Text>
             {fields.map(field => (
               <Fragment key={field.name}>
-                <Hr className={classes.hr} />
-                <Text className={classes.fieldName} fontSize={3}>
+                <Hr className="col-span-2" />
+                <Text className="text-sm font-medium mt-4 mb-2 text-[caption]" fontSize={3}>
                   {field.displayName}
                 </Text>
-                <div className={classes.editButtonContainer}>
+                <div className="flex items-center justify-end">
                   <Button data-test-id={`edit-${field.name}`} onClick={() => onEdit(field.name)}>
                     <FormattedMessage {...buttonMessages.edit} />
                   </Button>
                 </div>
-                <div className={classes.content}>
+                <div className="pb-4 [&_a]:text-text-highlighted [&_blockquote]:border-l-2 [&_blockquote]:border-divider [&_blockquote]:m-0 [&_blockquote]:py-2 [&_blockquote]:px-4 [&_h2]:text-[22px] [&_h2]:mb-2 [&_h3]:text-[19px] [&_h3]:mb-2 [&_p]:mb-2 [&_p]:mt-0 [&_p:last-child]:mb-0">
                   {field && field.value !== undefined ? (
                     field.type === TranslationFieldType.SHORT ? (
                       <TranslationFieldsShort
@@ -211,7 +144,7 @@ const TranslationFields = (props: TranslationFieldsProps) => {
                     <Skeleton />
                   )}
                 </div>
-                <Text className={classes.content}>
+                <Text className="pb-4 [&_a]:text-text-highlighted [&_blockquote]:border-l-2 [&_blockquote]:border-divider [&_blockquote]:m-0 [&_blockquote]:py-2 [&_blockquote]:px-4 [&_h2]:text-[22px] [&_h2]:mb-2 [&_h3]:text-[19px] [&_h3]:mb-2 [&_p]:mb-2 [&_p]:mt-0 [&_p:last-child]:mb-0">
                   {field && field.translation !== undefined ? (
                     field.type === TranslationFieldType.SHORT ? (
                       <TranslationFieldsShort
@@ -287,7 +220,7 @@ const TranslationFields = (props: TranslationFieldsProps) => {
         </DashboardCard.Content>
       ) : (
         <DashboardCard.Content>
-          <Text className={classes.cardCaption} size={2} fontWeight="light">
+          <Text className="text-sm" size={2} fontWeight="light">
             <FormattedMessage
               id="bh+Keo"
               defaultMessage="{numberOfFields} Translations, {numberOfTranslatedFields} Completed"

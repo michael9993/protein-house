@@ -1,5 +1,5 @@
 import { commonMessages } from "@dashboard/intl";
-import { makeStyles, Pagination } from "@saleor/macaw-ui";
+import { Pagination } from "@saleor/macaw-ui";
 import { useIntl } from "react-intl";
 
 interface TaxPaginationProps {
@@ -11,15 +11,6 @@ interface TaxPaginationProps {
   setCurrentPage: (currentPage: number) => void;
 }
 
-const useStyles = makeStyles(
-  theme => ({
-    container: {
-      padding: theme.spacing(0, 4),
-    },
-  }),
-  { name: "TaxPagination" },
-);
-
 export const TaxPagination = ({
   rowNumber,
   setRowNumber,
@@ -28,7 +19,6 @@ export const TaxPagination = ({
   hasPrevPage,
   currentPage,
 }: TaxPaginationProps) => {
-  const classes = useStyles();
   const intl = useIntl();
   const handleNextPage = () => {
     setCurrentPage(currentPage + 1);
@@ -38,7 +28,7 @@ export const TaxPagination = ({
   };
 
   return (
-    <div className={classes.container}>
+    <div className="px-8">
       <Pagination
         hasNextPage={hasNextPage}
         hasPreviousPage={hasPrevPage}

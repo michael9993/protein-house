@@ -19,7 +19,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { translateVoucherTypes } from "../../translations";
 import { VoucherDetailsPageFormData } from "../VoucherDetailsPage";
-import { useStyles } from "./styles";
 
 interface VoucherValueProps {
   data: VoucherDetailsPageFormData;
@@ -37,7 +36,6 @@ enum VoucherType {
 const numberOfColumns = 2;
 const VoucherValue = (props: VoucherValueProps) => {
   const { data, disabled, errors, onChange, onChannelChange } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
   const formErrors = getFormErrors(["discountValue", "type"], errors);
   const translatedVoucherTypes = translateVoucherTypes(intl);
@@ -58,10 +56,10 @@ const VoucherValue = (props: VoucherValueProps) => {
         </DashboardCard.Title>
       </DashboardCard.Header>
       <DashboardCard.Content>
-        <div className={classes.tableContainer}>
-          <ResponsiveTable className={classes.table}>
+        <div className="mx-[-32px]">
+          <ResponsiveTable className="table-fixed">
             <TableHead colSpan={numberOfColumns} disabled={disabled} items={[]}>
-              <TableCell className={classes.colName}>
+              <TableCell className="text-sm pl-0 w-auto">
                 <span>
                   <FormattedMessage
                     id="Hj3T7P"
@@ -70,7 +68,7 @@ const VoucherValue = (props: VoucherValueProps) => {
                   />
                 </span>
               </TableCell>
-              <TableCell className={classes.colType}>
+              <TableCell className="text-sm text-right w-[300px]">
                 <span>
                   <FormattedMessage id="1shOIS" defaultMessage="Price" description="column title" />
                 </span>
@@ -90,7 +88,7 @@ const VoucherValue = (props: VoucherValueProps) => {
                       <TableCell>
                         <Text>{listing?.name || <Skeleton />}</Text>
                       </TableCell>
-                      <TableCell className={classes.colPrice}>
+                      <TableCell className="min-w-[300px] py-3">
                         {listing ? (
                           <Input
                             data-test-id="discount-value-input"

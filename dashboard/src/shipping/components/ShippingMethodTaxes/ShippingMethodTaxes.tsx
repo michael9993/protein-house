@@ -5,7 +5,6 @@ import { ChangeEvent } from "@dashboard/hooks/useForm";
 import { sectionNames } from "@dashboard/intl";
 import { taxesMessages } from "@dashboard/taxes/messages";
 import { FetchMoreProps } from "@dashboard/types";
-import { makeStyles } from "@saleor/macaw-ui";
 import { useIntl } from "react-intl";
 
 interface ShippingMethodTaxesProps {
@@ -17,21 +16,12 @@ interface ShippingMethodTaxesProps {
   onFetchMore: FetchMoreProps;
 }
 
-const useStyles = makeStyles(
-  {
-    root: {
-      overflow: "visible",
-    },
-  },
-  { name: "ShippingMethodTaxes" },
-);
 const ShippingMethodTaxes = (props: ShippingMethodTaxesProps) => {
   const { value, disabled, taxClasses, taxClassDisplayName, onChange, onFetchMore } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
 
   return (
-    <DashboardCard className={classes.root}>
+    <DashboardCard className="overflow-visible">
       <DashboardCard.Header>
         <DashboardCard.Title>{intl.formatMessage(sectionNames.taxes)}</DashboardCard.Title>
       </DashboardCard.Header>

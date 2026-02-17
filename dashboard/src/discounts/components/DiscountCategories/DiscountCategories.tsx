@@ -18,7 +18,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { renderCollection } from "../../../misc";
 import { ListActions, ListProps } from "../../../types";
 import { messages } from "./messages";
-import { useStyles } from "./styles";
 
 interface DiscountCategoriesProps extends ListProps, ListActions {
   categories: CategoryWithTotalProductsFragment[];
@@ -39,7 +38,6 @@ const DiscountCategories = (props: DiscountCategoriesProps) => {
     selected,
     isChecked,
   } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
 
   return (
@@ -61,9 +59,9 @@ const DiscountCategories = (props: DiscountCategoriesProps) => {
       <ResponsiveTable>
         <colgroup>
           <col />
-          <col className={classes.colName} />
-          <col className={classes.colProducts} />
-          <col className={classes.colActions} />
+          <col className="w-auto" />
+          <col className="text-right w-[140px]" />
+          <col className="w-[84px]" />
         </colgroup>
         <TableHead
           colSpan={numberOfColumns}
@@ -74,10 +72,10 @@ const DiscountCategories = (props: DiscountCategoriesProps) => {
           toolbar={toolbar}
         >
           <>
-            <TableCell className={classes.colName}>
+            <TableCell className="w-auto">
               <FormattedMessage {...messages.discountCategoriesTableProductHeader} />
             </TableCell>
-            <TableCell className={classes.colProducts}>
+            <TableCell className="text-right w-[140px]">
               <FormattedMessage {...messages.discountCategoriesTableProductNumber} />
             </TableCell>
             <TableCell />
@@ -99,7 +97,7 @@ const DiscountCategories = (props: DiscountCategoriesProps) => {
                   hover={!!category}
                   key={category ? category.id : "skeleton"}
                   href={category && categoryUrl(category.id)}
-                  className={classes.tableRow}
+                  className="cursor-pointer"
                   selected={isSelected}
                   data-test-id="assigned-specific-product"
                 >
@@ -113,7 +111,7 @@ const DiscountCategories = (props: DiscountCategoriesProps) => {
                   </TableCell>
                   <TableCell>{category ? category.name : <Skeleton />}</TableCell>
                   <TableCell>{category ? category.products?.totalCount : <Skeleton />}</TableCell>
-                  <TableCell className={classes.colActions}>
+                  <TableCell className="w-[84px]">
                     <TableButtonWrapper>
                       <IconButton
                         variant="secondary"

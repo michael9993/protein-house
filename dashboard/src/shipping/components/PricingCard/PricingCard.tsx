@@ -12,8 +12,6 @@ import { TableBody, TableCell } from "@mui/material";
 import { Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { useStyles } from "./styles";
-
 interface Value {
   maxValue: string;
   minValue: string;
@@ -30,7 +28,6 @@ interface PricingCardProps {
 const numberOfColumns = 2;
 
 const PricingCard = ({ channels, disabled, errors, onChange }: PricingCardProps) => {
-  const classes = useStyles({});
   const intl = useIntl();
   const formErrors = getFormChannelErrors(["price"], errors);
 
@@ -45,10 +42,10 @@ const PricingCard = ({ channels, disabled, errors, onChange }: PricingCardProps)
           })}
         </DashboardCard.Title>
       </DashboardCard.Header>
-      <DashboardCard.Content className={classes.pricingContent}>
-        <ResponsiveTable className={classes.table}>
+      <DashboardCard.Content className="px-0 last:pb-0">
+        <ResponsiveTable className="table-fixed">
           <TableHead colSpan={numberOfColumns} disabled={disabled} items={[]}>
-            <TableCell className={classes.colName}>
+            <TableCell className="pl-0 w-auto text-sm">
               <span>
                 <FormattedMessage
                   id="Hj3T7P"
@@ -57,7 +54,7 @@ const PricingCard = ({ channels, disabled, errors, onChange }: PricingCardProps)
                 />
               </span>
             </TableCell>
-            <TableCell className={classes.colType}>
+            <TableCell className="text-sm text-right w-[250px]">
               <span>
                 <FormattedMessage id="1shOIS" defaultMessage="Price" description="column title" />
               </span>

@@ -5,7 +5,6 @@ import { commonMessages } from "@dashboard/intl";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getShippingErrorMessage from "@dashboard/utils/errors/shipping";
 import { TextField } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import * as React from "react";
 import { defineMessages, FormattedMessage, useIntl } from "react-intl";
 
@@ -34,24 +33,9 @@ interface ShippingZoneInfoProps {
   onChange: (event: React.ChangeEvent<any>) => void;
 }
 
-const useStyles = makeStyles(
-  {
-    label: {
-      flex: 1,
-    },
-    labelContainer: {
-      "& span": {
-        paddingRight: 30,
-      },
-      display: "flex",
-    },
-  },
-  { name: "ShippingZoneCreatePage" },
-);
 const MAX_DESCRIPTION_LENGTH = 300;
 const ShippingZoneInfo = ({ data, disabled, errors, onChange }: ShippingZoneInfoProps) => {
   const intl = useIntl();
-  const classes = useStyles({});
   const formErrors = getFormErrors(["name"], errors);
 
   return (
@@ -81,8 +65,8 @@ const ShippingZoneInfo = ({ data, disabled, errors, onChange }: ShippingZoneInfo
           name={"description"}
           data-test-id="shipping-zone-description"
           label={
-            <div className={classes.labelContainer}>
-              <div className={classes.label}>
+            <div className="flex [&_span]:pr-[30px]">
+              <div className="flex-1">
                 <FormattedMessage {...commonMessages.descriptionOptional} />
               </div>
               {data.description?.length > 0 && (

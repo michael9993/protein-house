@@ -18,7 +18,6 @@ import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { VoucherDetailsPageFormData } from "../VoucherDetailsPage";
-import { useStyles } from "./styles";
 
 interface VoucherRequirementsProps {
   data: VoucherDetailsPageFormData;
@@ -36,7 +35,6 @@ const VoucherRequirements = ({
   onChange,
   onChannelChange,
 }: VoucherRequirementsProps) => {
-  const classes = useStyles({});
   const intl = useIntl();
   const formErrors = getFormErrors(["minSpent", "minCheckoutItemsQuantity"], errors);
   const minimalOrderValueText = intl.formatMessage({
@@ -92,10 +90,10 @@ const VoucherRequirements = ({
         )}
         {data.requirementsPicker === RequirementsPicker.ORDER ? (
           <>
-            <div className={classes.tableContainer}>
-              <ResponsiveTable className={classes.table}>
+            <div className="mx-[-24px] w-[calc(100%+48px)]">
+              <ResponsiveTable className="table-fixed">
                 <TableHead colSpan={numberOfColumns} disabled={disabled} items={[]}>
-                  <TableCell className={classes.colName}>
+                  <TableCell className="text-sm pl-0 w-auto">
                     <span>
                       <FormattedMessage
                         id="Hj3T7P"
@@ -104,7 +102,7 @@ const VoucherRequirements = ({
                       />
                     </span>
                   </TableCell>
-                  <TableCell className={classes.colType}>
+                  <TableCell className="text-sm text-right w-[300px]">
                     <span>
                       <FormattedMessage
                         id="GVinbz"
@@ -128,7 +126,7 @@ const VoucherRequirements = ({
                           <TableCell>
                             <Text>{listing?.name || <Skeleton />}</Text>
                           </TableCell>
-                          <TableCell className={classes.colPrice}>
+                          <TableCell className="min-w-[300px]">
                             {listing ? (
                               <PriceField
                                 disabled={disabled}

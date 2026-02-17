@@ -2,8 +2,6 @@ import { findPriceSeparator } from "@dashboard/components/PriceField/utils";
 import { FormChange } from "@dashboard/hooks/useForm";
 import { InputAdornment, TextField, TextFieldProps } from "@mui/material";
 
-import { useStyles } from "./styles";
-
 interface TaxInputProps {
   placeholder?: string;
   value: string | undefined;
@@ -11,7 +9,6 @@ interface TaxInputProps {
 }
 
 const TaxInput = ({ placeholder, value, change }: TaxInputProps) => {
-  const classes = useStyles();
   const handleChange: FormChange = e => {
     let value = e.target.value;
     const splitCharacter = findPriceSeparator(value);
@@ -49,10 +46,10 @@ const TaxInput = ({ placeholder, value, change }: TaxInputProps) => {
       value={value}
       InputProps={{
         startAdornment: <InputAdornment position="start">%</InputAdornment>,
-        className: classes.hideSpinboxes,
+        className: "[&_input::-webkit-outer-spin-button]:appearance-none [&_input::-webkit-inner-spin-button]:appearance-none [&_input::-webkit-outer-spin-button]:m-0 [&_input::-webkit-inner-spin-button]:m-0 [&_input]:[-moz-appearance:textfield]",
       }}
       inputProps={{
-        className: classes.inputPadding,
+        className: "py-4 px-0",
         min: 0,
         max: 100,
         step: 0.001,

@@ -13,8 +13,6 @@ import { TableBody, TableCell, TextField } from "@mui/material";
 import { Box, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { useStyles } from "./styles";
-
 interface FormData {
   allCountries: boolean;
   countries: string[];
@@ -35,7 +33,6 @@ interface DiscountCountrySelectDialogProps {
 
 const DiscountCountrySelectDialog = (props: DiscountCountrySelectDialogProps) => {
   const { confirmButtonState, onClose, countries, open, initial, onConfirm, labels } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
   const initialForm: FormData = {
     allCountries: true,
@@ -114,8 +111,8 @@ const DiscountCountrySelectDialog = (props: DiscountCountrySelectDialogProps) =>
 
                         return (
                           <TableRowLink key={country.code}>
-                            <TableCell className={classes.wideCell}>{country.country}</TableCell>
-                            <TableCell padding="checkbox" className={classes.checkboxCell}>
+                            <TableCell className="w-full">{country.country}</TableCell>
+                            <TableCell padding="checkbox" className="pl-0">
                               <Checkbox
                                 checked={!!isChecked}
                                 onChange={() =>

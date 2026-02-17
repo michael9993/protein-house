@@ -20,7 +20,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { maybe, renderCollection } from "../../../misc";
 import { ListActions, ListProps } from "../../../types";
 import { messages } from "./messages";
-import { useStyles } from "./styles";
 
 interface SaleVariantsProps extends ListProps, ListActions {
   variants: SaleDetailsFragment["variants"] | VoucherDetailsFragment["variants"];
@@ -41,7 +40,6 @@ const DiscountVariants = (props: SaleVariantsProps) => {
     toggleAll,
     toolbar,
   } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
 
   const variants = mapEdgesToItems(discountVariants);
@@ -61,10 +59,10 @@ const DiscountVariants = (props: SaleVariantsProps) => {
       <ResponsiveTable>
         <colgroup>
           <col />
-          <col className={classes.colProductName} />
-          <col className={classes.colVariantName} />
-          <col className={classes.colType} />
-          <col className={classes.colActions} />
+          <col className="pl-0 w-auto min-w-[200px]" />
+          <col className="w-auto min-w-[150px]" />
+          <col className="w-auto min-w-[150px]" />
+          <col className="w-20 last:pr-0" />
         </colgroup>
         <TableHead
           colSpan={numberOfColumns}
@@ -74,18 +72,18 @@ const DiscountVariants = (props: SaleVariantsProps) => {
           toggleAll={toggleAll}
           toolbar={toolbar}
         >
-          <TableCell className={classes.colProductName}>
-            <span className={variants?.length > 0 && classes.colNameLabel}>
+          <TableCell className="pl-0 w-auto min-w-[200px]">
+            <span className={variants?.length > 0 ? "ml-16" : undefined}>
               <FormattedMessage {...messages.discountVariantsTableProductHeader} />
             </span>
           </TableCell>
-          <TableCell className={classes.colVariantName}>
+          <TableCell className="w-auto min-w-[150px]">
             <FormattedMessage {...messages.discountVariantsTableVariantHeader} />
           </TableCell>
-          <TableCell className={classes.colType}>
+          <TableCell className="w-auto min-w-[150px]">
             <FormattedMessage {...messages.discountVariantsTableProductHeader} />
           </TableCell>
-          <TableCell className={classes.colActions} />
+          <TableCell className="w-20 last:pr-0" />
         </TableHead>
         <TableFooter>
           <TableRowLink>
@@ -103,7 +101,7 @@ const DiscountVariants = (props: SaleVariantsProps) => {
                   hover={!!variant}
                   key={variant ? variant.id : "skeleton"}
                   href={variant && productVariantEditPath(variant.id)}
-                  className={classes.tableRow}
+                  className="cursor-pointer"
                   selected={isSelected}
                 >
                   <TableCell padding="checkbox">
@@ -115,18 +113,18 @@ const DiscountVariants = (props: SaleVariantsProps) => {
                     />
                   </TableCell>
                   <TableCellAvatar
-                    className={classes.colProductName}
+                    className="pl-0 w-auto min-w-[200px]"
                     thumbnail={maybe(() => variant.product.thumbnail.url)}
                   >
                     {maybe<React.ReactNode>(() => variant.product.name, <Skeleton />)}
                   </TableCellAvatar>
-                  <TableCell className={classes.colType}>
+                  <TableCell className="w-auto min-w-[150px]">
                     {maybe<React.ReactNode>(() => variant.name, <Skeleton />)}
                   </TableCell>
-                  <TableCell className={classes.colType}>
+                  <TableCell className="w-auto min-w-[150px]">
                     {maybe<React.ReactNode>(() => variant.product.productType.name, <Skeleton />)}
                   </TableCell>
-                  <TableCell className={classes.colActions}>
+                  <TableCell className="w-20 last:pr-0">
                     <TableButtonWrapper>
                       <IconButton
                         variant="secondary"

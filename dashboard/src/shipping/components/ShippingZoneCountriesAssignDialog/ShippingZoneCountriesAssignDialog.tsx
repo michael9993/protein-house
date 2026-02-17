@@ -15,7 +15,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { createCountryChangeHandler, createRestOfTheWorldChangeHandler } from "./handlers";
 import { messages } from "./messages";
-import { useStyles } from "./styles";
 
 interface FormData {
   countries: string[];
@@ -35,7 +34,6 @@ interface ShippingZoneCountriesAssignDialogProps {
 const ShippingZoneCountriesAssignDialog = (props: ShippingZoneCountriesAssignDialogProps) => {
   const { confirmButtonState, onClose, countries, restWorldCountries, open, initial, onConfirm } =
     props;
-  const classes = useStyles(props);
   const intl = useIntl();
   const initialForm: FormData = {
     countries: initial,
@@ -89,20 +87,20 @@ const ShippingZoneCountriesAssignDialog = (props: ShippingZoneCountriesAssignDia
                       <FormattedMessage {...messages.quickPickSubtitle} />
                     </Text>
 
-                    <ResponsiveTable className={classes.table}>
+                    <ResponsiveTable className="border border-gray-200">
                       <TableBody>
                         <TableRowLink
                           data-test-id="rest-of-the-world-row"
-                          className={classes.clickableRow}
+                          className="cursor-pointer select-none"
                           onClick={() => handleRestOfTheWorldChange(!isRestOfTheWorldSelected)}
                         >
-                          <TableCell className={classes.wideCell}>
+                          <TableCell className="w-full">
                             <FormattedMessage {...messages.restOfTheWorldCheckbox} />
                             <Text size={2} fontWeight="light">
                               <FormattedMessage {...messages.restOfTheWorldCheckboxDescription} />
                             </Text>
                           </TableCell>
-                          <TableCell padding="checkbox" className={classes.checkboxCell}>
+                          <TableCell padding="checkbox" className="pl-0">
                             <Checkbox name="restOfTheWorld" checked={isRestOfTheWorldSelected} />
                           </TableCell>
                         </TableRowLink>
@@ -116,7 +114,7 @@ const ShippingZoneCountriesAssignDialog = (props: ShippingZoneCountriesAssignDia
                 </Text>
 
                 <Box overflowY="auto" __maxHeight={400}>
-                  <ResponsiveTable className={classes.table}>
+                  <ResponsiveTable className="border border-gray-200">
                     <TableBody>
                       {displayCountries.map(country => {
                         const isChecked = countrySelectionMap[country.code];
@@ -124,12 +122,12 @@ const ShippingZoneCountriesAssignDialog = (props: ShippingZoneCountriesAssignDia
                         return (
                           <TableRowLink
                             data-test-id="country-row"
-                            className={classes.clickableRow}
+                            className="cursor-pointer select-none"
                             onClick={() => handleCountryChange(country.code, !isChecked)}
                             key={country.code}
                           >
-                            <TableCell className={classes.wideCell}>{country.country}</TableCell>
-                            <TableCell padding="checkbox" className={classes.checkboxCell}>
+                            <TableCell className="w-full">{country.country}</TableCell>
+                            <TableCell padding="checkbox" className="pl-0">
                               <Checkbox checked={isChecked} />
                             </TableCell>
                           </TableRowLink>

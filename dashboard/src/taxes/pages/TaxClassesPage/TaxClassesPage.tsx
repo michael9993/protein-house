@@ -37,7 +37,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 import TaxInput from "../../components/TaxInput";
 import { TaxPagination } from "../../components/TaxPagination";
 import TaxClassesForm from "./form";
-import { useStyles } from "./styles";
 import TaxClassesMenu from "./TaxClassesMenu";
 
 interface TaxClassesPageProps {
@@ -66,7 +65,6 @@ const TaxClassesPage = (props: TaxClassesPageProps) => {
   } = props;
   const intl = useIntl();
   const navigate = useNavigator();
-  const classes = useStyles();
   const [query, setQuery] = useState("");
   const {
     rowNumber,
@@ -143,7 +141,7 @@ const TaxClassesPage = (props: TaxClassesPageProps) => {
                             variant="outlined"
                             placeholder={intl.formatMessage(taxesMessages.taxRateName)}
                             fullWidth
-                            inputProps={{ className: classes.namePadding }}
+                            inputProps={{ className: "p-4" }}
                             inputRef={nameInputRef}
                             error={!!formErrors.name}
                             helperText={getTaxesErrorMessage(formErrors.name, intl)}
@@ -154,7 +152,7 @@ const TaxClassesPage = (props: TaxClassesPageProps) => {
                       <Card>
                         <CardTitle title={intl.formatMessage(taxesMessages.taxClassRates)} />
                         {currentTaxClass?.countries.length === 0 ? (
-                          <CardContent className={classes.supportText}>
+                          <CardContent className="text-saleor-main-3">
                             <FormattedMessage
                               {...taxesMessages.noRatesInTaxClass}
                               values={{
@@ -183,7 +181,7 @@ const TaxClassesPage = (props: TaxClassesPageProps) => {
                                   ),
                                 }}
                                 inputProps={{
-                                  className: classes.searchPadding,
+                                  className: "py-4 px-0",
                                 }}
                               />
                             </CardContent>
@@ -193,7 +191,7 @@ const TaxClassesPage = (props: TaxClassesPageProps) => {
                                   <ListItemCell>
                                     <FormattedMessage {...taxesMessages.countryNameHeader} />
                                   </ListItemCell>
-                                  <ListItemCell className={classes.right}>
+                                  <ListItemCell className="m-0 flex place-content-end text-right">
                                     <FormattedMessage {...taxesMessages.taxRateHeader} />
                                   </ListItemCell>
                                 </ListItem>
@@ -203,7 +201,7 @@ const TaxClassesPage = (props: TaxClassesPageProps) => {
                                 <Fragment key={countryRate.id}>
                                   <ListItem
                                     hover={false}
-                                    className={classes.noDivider}
+                                    className="before:hidden after:hidden"
                                     data-test-id="country-rows"
                                   >
                                     <ListItemCell>{countryRate.label}</ListItemCell>

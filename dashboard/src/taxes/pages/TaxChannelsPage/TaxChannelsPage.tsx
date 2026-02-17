@@ -26,7 +26,6 @@ import { Box, Button, Skeleton } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { getSelectedTaxStrategy, getTaxAppId, getTaxCalculationStrategy } from "./helpers";
-import { useStyles } from "./styles";
 import TaxChannelsMenu from "./TaxChannelsMenu";
 import TaxCountryExceptionListItem from "./TaxCountryExceptionListItem";
 import TaxSettingsCard from "./TaxSettingsCard";
@@ -75,7 +74,6 @@ const TaxChannelsPage = (props: TaxChannelsPageProps) => {
     disabled,
   } = props;
   const intl = useIntl();
-  const classes = useStyles();
   const navigate = useNavigator();
   const { taxStrategyChoices, loading } = useTaxStrategyChoices();
   const currentTaxConfiguration = taxConfigurations?.find(
@@ -196,7 +194,7 @@ const TaxChannelsPage = (props: TaxChannelsPageProps) => {
                     <VerticalSpacer spacing={3} />
                     <Card>
                       <CardTitle
-                        className={classes.toolbarMargin}
+                        className="last:mr-0"
                         title={intl.formatMessage(taxesMessages.countryExceptions)}
                         toolbar={
                           <Button
@@ -219,15 +217,15 @@ const TaxChannelsPage = (props: TaxChannelsPageProps) => {
                               <ListItemCell>
                                 <FormattedMessage {...taxesMessages.countryNameHeader} />
                               </ListItemCell>
-                              <ListItemCell className={classes.left}>
+                              <ListItemCell className="m-0 flex place-content-start text-left">
                                 <FormattedMessage {...taxesMessages.chargeTaxesHeader} />
                               </ListItemCell>
-                              <ListItemCell className={classes.center}>
+                              <ListItemCell className="m-0 flex place-content-center text-center">
                                 <FormattedMessage {...taxesMessages.showGrossHeader} />
                               </ListItemCell>
                               <ListItemCell>
                                 {/* This is required for the header row to be aligned with list items */}
-                                <div className={classes.dummy}></div>
+                                <div className="w-10 h-10 invisible"></div>
                               </ListItemCell>
                             </ListItem>
                           </ListHeader>

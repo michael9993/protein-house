@@ -15,31 +15,11 @@ import { renderCollection } from "@dashboard/misc";
 import { isProductSelected } from "@dashboard/shipping/components/ShippingMethodProductsAddDialog/utils";
 import { FetchMoreProps } from "@dashboard/types";
 import { TableBody, TableCell, TextField } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Box, Skeleton, Text } from "@saleor/macaw-ui-next";
 import { Fragment, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { Product, Products } from "./types";
-
-const useStyles = makeStyles(
-  () => ({
-    avatar: {
-      paddingLeft: 0,
-      width: 64,
-    },
-    colName: {
-      paddingLeft: 0,
-    },
-    productCheckboxCell: {
-      "&:first-child": {
-        paddingLeft: 0,
-        paddingRight: 0,
-      },
-    },
-  }),
-  { name: "ShippingMethodProductsAddDialog" },
-);
 
 interface ShippingMethodProductsAddDialogProps extends FetchMoreProps {
   confirmButtonState: ConfirmButtonTransitionState;
@@ -80,7 +60,6 @@ const ShippingMethodProductsAddDialog = ({
   onSubmit,
   availableChannels,
 }: ShippingMethodProductsAddDialogProps) => {
-  const classes = useStyles();
   const intl = useIntl();
   const [query, onQueryChange, resetQuery] = useSearchQuery(onFetch);
   const [selectedProducts, setSelectedProducts] = useState<Products>([]);
@@ -154,7 +133,7 @@ const ShippingMethodProductsAddDialog = ({
                   return (
                     <Fragment key={product ? product.id : `skeleton-${productIndex}`}>
                       <TableRowLink data-test-id="product-row">
-                        <TableCell padding="checkbox" className={classes.productCheckboxCell}>
+                        <TableCell padding="checkbox" className="first:px-0">
                           {product && (
                             <Checkbox
                               checked={isSelected}
@@ -171,13 +150,13 @@ const ShippingMethodProductsAddDialog = ({
                           )}
                         </TableCell>
                         <TableCellAvatar
-                          className={classes.avatar}
+                          className="pl-0 w-16"
                           thumbnail={product?.thumbnail?.url}
                           style={{
                             opacity: isProductDisabled ? 0.5 : 1,
                           }}
                         />
-                        <TableCell className={classes.colName} colSpan={2}>
+                        <TableCell className="pl-0" colSpan={2}>
                           {product?.name || <Skeleton />}
                           {!isProductAvailable && (
                             <Text display="block" size={1} color="default2">

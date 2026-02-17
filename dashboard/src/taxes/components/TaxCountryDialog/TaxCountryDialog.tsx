@@ -11,8 +11,6 @@ import { Box, Button } from "@saleor/macaw-ui-next";
 import { Fragment, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { useStyles } from "./styles";
-
 interface TaxCountryDialogProps {
   open: boolean;
   countries: CountryFragment[];
@@ -21,7 +19,6 @@ interface TaxCountryDialogProps {
 }
 
 const TaxCountryDialog = ({ open, countries, onConfirm, onClose }: TaxCountryDialogProps) => {
-  const classes = useStyles();
   const intl = useIntl();
   const [selectedCountry, setSelectedCountry] = useState<CountryFragment>();
 
@@ -59,7 +56,7 @@ const TaxCountryDialog = ({ open, countries, onConfirm, onClose }: TaxCountryDia
               </InputAdornment>
             ),
           }}
-          inputProps={{ className: classes.inputPadding }}
+          inputProps={{ className: "py-4 px-0" }}
         />
 
         <Box

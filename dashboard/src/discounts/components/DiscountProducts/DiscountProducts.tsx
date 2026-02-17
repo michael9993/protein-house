@@ -20,7 +20,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { maybe, renderCollection } from "../../../misc";
 import { ListActions, ListProps } from "../../../types";
 import { messages } from "./messages";
-import { useStyles } from "./styles";
 
 interface SaleProductsProps extends ListProps, ListActions {
   products: SearchProductFragment[];
@@ -41,7 +40,6 @@ const DiscountProducts = (props: SaleProductsProps) => {
     toggleAll,
     toolbar,
   } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
 
   return (
@@ -59,10 +57,10 @@ const DiscountProducts = (props: SaleProductsProps) => {
       <ResponsiveTable>
         <colgroup>
           <col />
-          <col className={classes.colName} />
-          <col className={classes.colType} />
-          <col className={classes.colPublished} />
-          <col className={classes.colActions} />
+          <col className="pl-0 w-auto min-w-[200px]" />
+          <col className="w-auto min-w-[150px]" />
+          <col className="w-auto min-w-[150px]" />
+          <col className="w-[84px]" />
         </colgroup>
         <TableHead
           colSpan={numberOfColumns}
@@ -72,18 +70,18 @@ const DiscountProducts = (props: SaleProductsProps) => {
           toggleAll={toggleAll}
           toolbar={toolbar}
         >
-          <TableCell className={classes.colName}>
-            <span className={products?.length > 0 && classes.colNameLabel}>
+          <TableCell className="pl-0 w-auto min-w-[200px]">
+            <span className={products?.length > 0 ? "ml-16" : undefined}>
               <FormattedMessage {...messages.discountProductsTableProductHeader} />
             </span>
           </TableCell>
-          <TableCell className={classes.colType}>
+          <TableCell className="w-auto min-w-[150px]">
             <FormattedMessage {...messages.discountProductsTableTypeHeader} />
           </TableCell>
-          <TableCell className={classes.colPublished}>
+          <TableCell className="w-auto min-w-[150px]">
             <FormattedMessage {...messages.discountProductsTableAvailabilityHeader} />
           </TableCell>
-          <TableCell className={classes.colActions} />
+          <TableCell className="w-[84px]" />
         </TableHead>
         <TableFooter>
           <TableRowLink>
@@ -101,7 +99,7 @@ const DiscountProducts = (props: SaleProductsProps) => {
                   hover={!!product}
                   key={product ? product.id : "skeleton"}
                   href={product && productUrl(product.id)}
-                  className={classes.tableRow}
+                  className="cursor-pointer"
                   selected={isSelected}
                   data-test-id="assigned-specific-product"
                 >
@@ -114,15 +112,15 @@ const DiscountProducts = (props: SaleProductsProps) => {
                     />
                   </TableCell>
                   <TableCellAvatar
-                    className={classes.colName}
+                    className="pl-0 w-auto min-w-[200px]"
                     thumbnail={maybe(() => product.thumbnail?.url)}
                   >
                     {maybe<React.ReactNode>(() => product.name, <Skeleton />)}
                   </TableCellAvatar>
-                  <TableCell className={classes.colType}>
+                  <TableCell className="w-auto min-w-[150px]">
                     {maybe<React.ReactNode>(() => product.productType.name, <Skeleton />)}
                   </TableCell>
-                  <TableCell className={classes.colType}>
+                  <TableCell className="w-auto min-w-[150px]">
                     {product && !product?.channelListings?.length ? (
                       "-"
                     ) : product?.channelListings !== undefined ? (
@@ -131,7 +129,7 @@ const DiscountProducts = (props: SaleProductsProps) => {
                       <Skeleton />
                     )}
                   </TableCell>
-                  <TableCell className={classes.colActions}>
+                  <TableCell className="w-[84px]">
                     <TableButtonWrapper>
                       <IconButton
                         variant="secondary"

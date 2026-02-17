@@ -12,32 +12,10 @@ import { ShippingZoneQuery } from "@dashboard/graphql";
 import { renderCollection } from "@dashboard/misc";
 import { ListActions, ListProps, RelayToFlat } from "@dashboard/types";
 import { TableBody, TableCell, TableFooter } from "@mui/material";
-import { IconButton, makeStyles } from "@saleor/macaw-ui";
+import { IconButton } from "@saleor/macaw-ui";
 import { Skeleton, Text } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { FormattedMessage, useIntl } from "react-intl";
-
-const useStyles = makeStyles(
-  theme => ({
-    colAction: {
-      "&:last-child": {
-        paddingRight: theme.spacing(3),
-      },
-      textAlign: "right",
-      width: 100,
-    },
-    colName: {
-      width: "auto",
-    },
-    colProductName: {
-      paddingLeft: 0,
-    },
-    table: {
-      tableLayout: "fixed",
-    },
-  }),
-  { name: "ShippingMethodProducts" },
-);
 
 interface ShippingMethodProductsProps
   extends Pick<ListProps, Exclude<keyof ListProps, "getRowHref">>,
@@ -62,7 +40,6 @@ const ShippingMethodProducts = (props: ShippingMethodProductsProps) => {
     toggleAll,
     toolbar,
   } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
 
   return (
@@ -81,7 +58,7 @@ const ShippingMethodProducts = (props: ShippingMethodProductsProps) => {
           </Button>
         </DashboardCard.Toolbar>
       </DashboardCard.Header>
-      <ResponsiveTable className={classes.table}>
+      <ResponsiveTable className="table-fixed">
         {!!products?.length && (
           <>
             <TableHead
@@ -92,10 +69,10 @@ const ShippingMethodProducts = (props: ShippingMethodProductsProps) => {
               toggleAll={toggleAll}
               toolbar={toolbar}
             >
-              <TableCell className={classes.colProductName}>
+              <TableCell className="pl-0">
                 <FormattedMessage id="ZIc5lM" defaultMessage="Product Name" />
               </TableCell>
-              <TableCell className={classes.colAction}>
+              <TableCell className="text-right w-[100px] last:pr-6">
                 <FormattedMessage id="wL7VAE" defaultMessage="Actions" />
               </TableCell>
             </TableHead>
@@ -130,7 +107,7 @@ const ShippingMethodProducts = (props: ShippingMethodProductsProps) => {
                       onChange={() => toggle(product.id)}
                     />
                   </TableCell>
-                  <TableCellAvatar className={classes.colName} thumbnail={product?.thumbnail?.url}>
+                  <TableCellAvatar className="w-auto" thumbnail={product?.thumbnail?.url}>
                     {product?.name ? (
                       <Text size={3} fontWeight="regular">
                         {product.name}
@@ -139,7 +116,7 @@ const ShippingMethodProducts = (props: ShippingMethodProductsProps) => {
                       <Skeleton />
                     )}
                   </TableCellAvatar>
-                  <TableCell className={classes.colAction}>
+                  <TableCell className="text-right w-[100px] last:pr-6">
                     <IconButton
                       variant="secondary"
                       onClick={() => onProductUnassign([product.id])}

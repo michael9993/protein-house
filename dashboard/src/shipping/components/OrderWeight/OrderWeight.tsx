@@ -11,8 +11,6 @@ import { InputAdornment, TextField } from "@mui/material";
 import { Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { useStyles } from "./styles";
-
 interface OrderWeightProps {
   disabled: boolean;
   errors: ShippingErrorFragment[];
@@ -30,7 +28,6 @@ const OrderWeight = ({
   minValue = "",
   onChange,
 }: OrderWeightProps) => {
-  const classes = useStyles({});
   const intl = useIntl();
   const shop = useShop();
   const formFields = ["minimumOrderWeight", "maximumOrderWeight"];
@@ -74,7 +71,7 @@ const OrderWeight = ({
         {orderValueRestricted && (
           <>
             <VerticalSpacer spacing={2} />
-            <div className={classes.grid}>
+            <div className="grid grid-cols-2 gap-x-4">
               <TextField
                 data-test-id="min-order-weight-input"
                 disabled={disabled}
