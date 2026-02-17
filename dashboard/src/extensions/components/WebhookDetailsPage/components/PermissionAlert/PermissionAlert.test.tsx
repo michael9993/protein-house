@@ -13,8 +13,6 @@ vi.mock("@graphiql/toolkit", () => ({
 
 vi.mock("@saleor/macaw-ui", () => ({
   useTheme: vi.fn(() => () => ({})),
-  useStyles: vi.fn(() => () => ({})),
-  makeStyles: vi.fn(() => () => ({})),
   // eslint-disable-next-line react/display-name
   DialogHeader: vi.fn(() => () => <></>),
 }));

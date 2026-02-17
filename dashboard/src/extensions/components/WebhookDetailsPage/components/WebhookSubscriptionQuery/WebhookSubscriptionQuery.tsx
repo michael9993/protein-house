@@ -11,7 +11,6 @@ import * as React from "react";
 import { defineMessages, useIntl } from "react-intl";
 
 import { WebhookFormData } from "../../WebhookDetailsPage";
-import { useStyles } from "./styles";
 
 const messages = defineMessages({
   title: {
@@ -44,11 +43,10 @@ export const WebhookSubscriptionQuery = ({
     onEdit: setQuery,
     showAttribution: false,
   });
-  const classes = useStyles();
   const formErrors = getFormErrors(["subscriptionQuery"], errors);
 
   return (
-    <DashboardCard className={classes.card}>
+    <DashboardCard className="mb-4">
       <DashboardCard.Header>
         <DashboardCard.Title color={formErrors.subscriptionQuery ? "critical1" : null}>
           {intl.formatMessage(messages.title)}
@@ -56,7 +54,7 @@ export const WebhookSubscriptionQuery = ({
           <DashboardCard.Subtitle>{formErrors.subscriptionQuery?.message}</DashboardCard.Subtitle>
         </DashboardCard.Title>
       </DashboardCard.Header>
-      <DashboardCard.Content className={classes.cardContent}>
+      <DashboardCard.Content className="h-[500px] p-0">
         <GraphiQL
           data-test-id="graphiql-webhook"
           defaultEditorToolsVisibility={"headers"}

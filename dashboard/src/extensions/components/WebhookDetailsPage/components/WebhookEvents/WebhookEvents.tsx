@@ -10,14 +10,12 @@ import {
   ListHeader,
   ListItem,
   ListItemCell,
-  useListWidths,
 } from "@saleor/macaw-ui";
 import { Box, Checkbox, Chip, Switch, Text } from "@saleor/macaw-ui-next";
 import { Dispatch, SetStateAction, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { messages } from "./messages";
-import { useStyles } from "./styles";
 import { EventTypes, getEventName } from "./utils";
 
 interface WebhookEventsProps {
@@ -39,8 +37,6 @@ export const WebhookEvents = ({
   onAsyncEventChange,
 }: WebhookEventsProps) => {
   const intl = useIntl();
-  const { checkbox } = useListWidths();
-  const classes = useStyles({ checkbox });
   const [tab, setTab] = useState<WebhookEventTypeSelection>("async");
   const [object, setObject] = useState<string | null>(null);
 
@@ -98,17 +94,17 @@ export const WebhookEvents = ({
         </DashboardCard.Content>
         <Hr />
         <Grid variant="uniform">
-          <div className={classes.objectsWrapper}>
+          <div className="border-r border-border-default1 p-6">
             <List gridTemplate={["1fr 50px"]}>
               <ListHeader>
-                <ListItem className={classes.listHeader}>
-                  <ListItemCell className={classes.listItemCell}>
+                <ListItem className="min-h-0 p-2 uppercase">
+                  <ListItemCell className="!pl-0 break-all font-semibold">
                     <FormattedMessage {...messages.objects} />
                   </ListItemCell>
                   <ListItemCell></ListItemCell>
                 </ListItem>
               </ListHeader>
-              <ListBody className={classes.listBody}>
+              <ListBody className="h-[300px] overflow-y-auto">
                 {Object.keys(EventTypes[tab]).map((object, idx) => {
                   const eventCount = countEvents(object);
 
@@ -116,10 +112,10 @@ export const WebhookEvents = ({
                     <ListItem
                       data-test-id="webhook-objects-items"
                       key={idx}
-                      className={classes.listItem}
+                      className="min-h-0 cursor-pointer gap-0 p-2"
                       onClick={() => setObject(object)}
                     >
-                      <ListItemCell className={classes.listItemCell}>
+                      <ListItemCell className="!pl-0 break-all font-semibold">
                         {capitalize(object.replaceAll("_", " ").toLowerCase())}
                       </ListItemCell>
                       <ListItemCell>
@@ -135,21 +131,21 @@ export const WebhookEvents = ({
               </ListBody>
             </List>
           </div>
-          <div className={classes.eventsWrapper}>
-            <List gridTemplate={["1fr", checkbox]}>
+          <div className="p-8 pl-0">
+            <List gridTemplate={["1fr"]}>
               <ListHeader>
-                <ListItem className={classes.listHeader}>
-                  <ListItemCell className={classes.listItemCell}>
+                <ListItem className="min-h-0 p-2 uppercase">
+                  <ListItemCell className="!pl-0 break-all font-semibold">
                     <FormattedMessage {...messages.events} />
                   </ListItemCell>
                 </ListItem>
               </ListHeader>
-              <ListBody className={classes.listBody}>
+              <ListBody className="h-[300px] overflow-y-auto">
                 {object &&
                   EventTypes[tab][object] &&
                   EventTypes[tab][object].map((event, idx) => (
-                    <ListItem className={classes.eventListItem} key={event}>
-                      <ListItemCell className={classes.eventListItemCell}>
+                    <ListItem className="min-h-0 cursor-pointer gap-0 p-0 [grid-template-columns:unset]" key={event}>
+                      <ListItemCell className="!p-0 break-all">
                         <Checkbox
                           data-test-id="events-checkbox"
                           name={`${tab}Events`}

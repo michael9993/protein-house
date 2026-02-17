@@ -2,12 +2,11 @@ import { SaleorThrobber } from "@dashboard/components/Throbber";
 import { useAppFrameReferences } from "@dashboard/extensions/popup-frame-reference";
 import { AppDetailsUrlQueryParams } from "@dashboard/extensions/urls";
 import { useAllFlags } from "@dashboard/featureFlags";
+import { cn } from "@dashboard/utils/cn";
 import { DashboardEventFactory } from "@saleor/app-sdk/app-bridge";
-import clsx from "clsx";
 import { useCallback, useEffect, useRef } from "react";
 
 import { AppIFrame } from "./AppIFrame";
-import { useStyles } from "./styles";
 import { useAppActions } from "./useAppActions";
 import { useAppDashboardUpdates } from "./useAppDashboardUpdates";
 import { useTokenRefresh } from "./useTokenRefresh";
@@ -41,7 +40,6 @@ export const AppFrame = ({
   target,
 }: Props) => {
   const frameRef = useRef<HTMLIFrameElement | null>(null);
-  const classes = useStyles();
   const appOrigin = getOrigin(src);
   const flags = useAllFlags();
   const { setIframe, clearIframe } = useAppFrameReferences();
@@ -97,7 +95,7 @@ export const AppFrame = ({
   return (
     <>
       {!handshakeDone && (
-        <div className={classes.loader}>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10">
           <SaleorThrobber />
         </div>
       )}
@@ -109,9 +107,7 @@ export const AppFrame = ({
         params={params}
         onLoad={handleLoad}
         onError={onError}
-        className={clsx(classes.iframe, className, {
-          [classes.iframeHidden]: !handshakeDone,
-        })}
+        className={cn("h-full w-full border-none", className, !handshakeDone && "invisible")}
       />
     </>
   );

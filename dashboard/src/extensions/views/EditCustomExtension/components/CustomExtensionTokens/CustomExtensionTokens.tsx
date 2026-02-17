@@ -11,8 +11,6 @@ import { Box, Button, Skeleton, Text } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { useStyles } from "./styles";
-
 interface CustomAppTokensProps {
   tokens: AppUpdateMutation["appUpdate"]["app"]["tokens"] | null;
   onCreate: () => void;
@@ -25,7 +23,6 @@ const numberOfColumns = 3;
 
 export const CustomExtensionTokens = (props: CustomAppTokensProps) => {
   const { tokens, onCreate, onDelete, hasManagedAppsPermission, isLoading } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
 
   const getTableBody = () => {
@@ -47,13 +44,13 @@ export const CustomExtensionTokens = (props: CustomAppTokensProps) => {
     if (isLoading) {
       return (
         <TableRowLink key={"skeleton"}>
-          <TableCell className={classes.colNote}>
+          <TableCell className="w-[200px]">
             <Skeleton />
           </TableCell>
-          <TableCell className={classes.colKey}>
+          <TableCell className="w-[200px]">
             <Skeleton />
           </TableCell>
-          <TableCell className={classes.colActions}></TableCell>
+          <TableCell className="w-[100px] text-right"></TableCell>
         </TableRowLink>
       );
     }
@@ -62,7 +59,7 @@ export const CustomExtensionTokens = (props: CustomAppTokensProps) => {
       tokens,
       token => (
         <TableRowLink key={token.id}>
-          <TableCell className={classes.colNote}>
+          <TableCell className="w-[200px]">
             {token.name || (
               <Box as="span" fontStyle="italic">
                 <FormattedMessage
@@ -73,8 +70,8 @@ export const CustomExtensionTokens = (props: CustomAppTokensProps) => {
               </Box>
             )}
           </TableCell>
-          <TableCell className={classes.colKey}>{`**** ${token?.authToken}`}</TableCell>
-          <TableCell className={classes.colActions}>
+          <TableCell className="w-[200px]">{`**** ${token?.authToken}`}</TableCell>
+          <TableCell className="w-[100px] text-right">
             {hasManagedAppsPermission && (
               <Box display="flex" justifyContent="flex-end" width="100%">
                 <TableButtonWrapper>
@@ -126,17 +123,17 @@ export const CustomExtensionTokens = (props: CustomAppTokensProps) => {
           {hasManagedAppsPermission && (
             <TableHead>
               <TableRowLink>
-                <TableCell className={classes.colNote}>
+                <TableCell className="w-[200px]">
                   <FormattedMessage id="0DRBjg" defaultMessage="Token Note" />
                 </TableCell>
-                <TableCell className={classes.colKey}>
+                <TableCell className="w-[200px]">
                   <FormattedMessage
                     id="MAsLIT"
                     defaultMessage="Key"
                     description="custom app token key"
                   />
                 </TableCell>
-                <TableCell className={classes.colActions}>
+                <TableCell className="w-[100px] text-right">
                   <FormattedMessage
                     id="VHuzgq"
                     defaultMessage="Actions"

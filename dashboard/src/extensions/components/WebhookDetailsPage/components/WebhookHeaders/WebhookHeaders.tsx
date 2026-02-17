@@ -3,14 +3,12 @@ import TableRowLink from "@dashboard/components/TableRowLink";
 import { FormChange } from "@dashboard/hooks/useForm";
 import { Table, TableCell, TableHead } from "@mui/material";
 import { Button, Skeleton, Text } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import { ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { WebhookFormData } from "../../WebhookDetailsPage";
 import { messages } from "./messages";
-import { useStyles } from "./styles";
 import { hasEmptyHeader, mapHeaders, stringifyHeaders } from "./utils";
 import { WebhookHeadersTableBody } from "./WebhookHeadersTableBody";
 
@@ -22,7 +20,6 @@ export interface WebhookHeadersProps {
 export const WebhookHeaders = ({ data: { customHeaders }, onChange }: WebhookHeadersProps) => {
   const intl = useIntl();
   const [expanded, setExpanded] = useState(false);
-  const classes = useStyles();
   const headers = useMemo(() => mapHeaders(customHeaders), [customHeaders]);
 
   useEffect(() => {
@@ -72,7 +69,7 @@ export const WebhookHeaders = ({ data: { customHeaders }, onChange }: WebhookHea
         </DashboardCard.Content>
       ) : (
         <>
-          <DashboardCard.Content className={classes.content}>
+          <DashboardCard.Content className="pb-0 pt-2">
             {headers.length > 0 && (
               <Text color="default2" fontSize={3}>
                 <FormattedMessage
@@ -87,7 +84,7 @@ export const WebhookHeaders = ({ data: { customHeaders }, onChange }: WebhookHea
           {expanded && (
             <>
               {headers.length === 0 ? (
-                <DashboardCard.Content className={classes.emptyContainer}>
+                <DashboardCard.Content className="pb-0 pt-0">
                   <Text size={3} fontWeight="regular" color="default2">
                     <FormattedMessage {...messages.noHeaders} />
                   </Text>
@@ -105,16 +102,16 @@ export const WebhookHeaders = ({ data: { customHeaders }, onChange }: WebhookHea
                     </Text>
                   </DashboardCard.Content>
 
-                  <Table className={classes.table}>
+                  <Table className="mt-4 table-fixed">
                     <TableHead>
                       <TableRowLink>
-                        <TableCell className={clsx(classes.colNameHeader, classes.tableCell)}>
+                        <TableCell className="w-[250px] text-right pt-6 !pl-[3.2rem] pr-2 [&_.MuiFormHelperText-root]:m-0">
                           <FormattedMessage {...messages.headerName} />
                         </TableCell>
-                        <TableCell className={clsx(classes.colValue, classes.tableCell)}>
+                        <TableCell className="pt-6 !pl-[3.2rem] pr-2 [&_.MuiFormHelperText-root]:m-0">
                           <FormattedMessage {...messages.headerValue} />
                         </TableCell>
-                        <TableCell className={classes.colActionHeader}>
+                        <TableCell className="w-[130px] text-right">
                           <FormattedMessage {...messages.actions} />
                         </TableCell>
                       </TableRowLink>

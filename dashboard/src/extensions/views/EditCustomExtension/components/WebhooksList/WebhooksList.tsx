@@ -10,14 +10,13 @@ import { WebhookFragment } from "@dashboard/graphql";
 import useNavigator from "@dashboard/hooks/useNavigator";
 import { commonMessages, commonStatusMessages, sectionNames } from "@dashboard/intl";
 import { renderCollection, stopPropagation } from "@dashboard/misc";
+import { cn } from "@dashboard/utils/cn";
 import { TableBody, TableCell, TableHead } from "@mui/material";
 import { Box, Button, Chip, Skeleton, Text } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import { Trash2 } from "lucide-react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { messages } from "./messages";
-import { useStyles } from "./styles";
 
 interface WebhooksListProps {
   webhooks: WebhookFragment[];
@@ -33,7 +32,6 @@ export const WebhooksList = ({
   hasManagedAppsPermission,
 }: WebhooksListProps) => {
   const intl = useIntl();
-  const classes = useStyles();
   const navigate = useNavigator();
   const numberOfColumns = hasManagedAppsPermission ? 3 : 1;
 
@@ -46,7 +44,7 @@ export const WebhooksList = ({
   return (
     <DashboardCard>
       <DashboardCard.Header>
-        <DashboardCard.Title className={classes.cardTitle}>
+        <DashboardCard.Title>
           {intl.formatMessage(sectionNames.webhooksAndEvents)}
         </DashboardCard.Title>
         <DashboardCard.Toolbar>
@@ -58,13 +56,13 @@ export const WebhooksList = ({
         </DashboardCard.Toolbar>
       </DashboardCard.Header>
       <DashboardCard.Content paddingX={0}>
-        <ResponsiveTable className={classes.table}>
+        <ResponsiveTable className="table-fixed">
           {hasManagedAppsPermission && (
             <TableHead>
               <TableRowLink>
                 <TableCellHeader>{intl.formatMessage(commonMessages.name)}</TableCellHeader>
                 <TableCellHeader>{intl.formatMessage(commonMessages.status)}</TableCellHeader>
-                <TableCell className={clsx(classes.colAction, classes.colRight)}>
+                <TableCell className="text-right lg:[&_svg]:text-primary">
                   <FormattedMessage {...messages.action} />
                 </TableCell>
               </TableRowLink>
@@ -77,7 +75,7 @@ export const WebhooksList = ({
                 webhook => (
                   <TableRowLink
                     hover={!!webhook}
-                    className={webhook ? classes.tableRow : undefined}
+                    className={webhook ? "cursor-pointer" : undefined}
                     href={
                       webhook &&
                       ExtensionsUrls.resolveEditCustomExtensionWebhookUrl(
@@ -88,9 +86,10 @@ export const WebhooksList = ({
                     key={webhook ? webhook.id : "skeleton"}
                   >
                     <TableCell
-                      className={clsx(classes.colName, {
-                        [classes.colNameUnnamed]: isUnnamed(webhook),
-                      })}
+                      className={cn(
+                        "w-[250px] pl-0 lg:w-auto",
+                        isUnnamed(webhook) && "text-text-secondary",
+                      )}
                     >
                       {isUnnamed(webhook) ? (
                         <FormattedMessage {...messages.unnamedWebhook} />
@@ -116,7 +115,7 @@ export const WebhooksList = ({
                         <Skeleton />
                       )}
                     </TableCell>
-                    <TableCell className={clsx(classes.colAction, classes.colRight)}>
+                    <TableCell className="text-right lg:[&_svg]:text-primary">
                       {hasManagedAppsPermission && (
                         <Box display="flex" justifyContent="flex-end" width="100%">
                           <TableButtonWrapper>

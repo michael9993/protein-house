@@ -5,13 +5,11 @@ import { FormChange } from "@dashboard/hooks/useForm";
 import { removeAtIndex, updateAtIndex } from "@dashboard/utils/lists";
 import { TableBody, TableCell, TextField } from "@mui/material";
 import { IconButton } from "@saleor/macaw-ui";
-import clsx from "clsx";
 import { Trash2 } from "lucide-react";
 import { ChangeEvent } from "react";
 import { useIntl } from "react-intl";
 
 import { messages } from "./messages";
-import { useStyles } from "./styles";
 import { Header, stringifyHeaders } from "./utils";
 
 const nameSeparator = ":";
@@ -24,7 +22,6 @@ interface WebhookHeadersTableBodyProps {
 }
 
 export const WebhookHeadersTableBody = ({ onChange, headers }: WebhookHeadersTableBodyProps) => {
-  const classes = useStyles();
   const intl = useIntl();
   const updateWebhookItem = (target: EventTarget & HTMLTextAreaElement) => {
     const { name, value } = target;
@@ -58,11 +55,11 @@ export const WebhookHeadersTableBody = ({ onChange, headers }: WebhookHeadersTab
     <TableBody>
       {headers.map((field, fieldIndex) => (
         <TableRowLink data-test-id="field" key={fieldIndex}>
-          <TableCell className={clsx(classes.colName, classes.tableCell)}>
+          <TableCell className="w-[250px] text-right pt-6 !pl-[3.2rem] pr-2 [&_.MuiFormHelperText-root]:m-0">
             <TextField
               InputProps={{
                 classes: {
-                  input: classes.input,
+                  input: "py-3 px-4",
                 },
               }}
               inputProps={{
@@ -76,11 +73,11 @@ export const WebhookHeadersTableBody = ({ onChange, headers }: WebhookHeadersTab
               helperText={(field.error && intl.formatMessage(messages.headerNameError)) || " "}
             />
           </TableCell>
-          <TableCell className={clsx(classes.colValue, classes.tableCell)}>
+          <TableCell className="pt-6 !pl-[3.2rem] pr-2 [&_.MuiFormHelperText-root]:m-0">
             <TextField
               InputProps={{
                 classes: {
-                  input: classes.input,
+                  input: "py-3 px-4",
                 },
               }}
               inputProps={{
@@ -93,7 +90,7 @@ export const WebhookHeadersTableBody = ({ onChange, headers }: WebhookHeadersTab
               helperText={" "}
             />
           </TableCell>
-          <TableCell className={classes.colAction}>
+          <TableCell className="text-right [&:last-child]:w-[130px] [&:last-child]:pr-[3.2rem]">
             <IconButton
               variant="secondary"
               data-test-id={"delete-field-" + fieldIndex}
