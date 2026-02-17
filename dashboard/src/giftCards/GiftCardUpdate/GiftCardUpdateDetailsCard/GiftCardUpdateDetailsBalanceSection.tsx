@@ -3,15 +3,12 @@ import CardSpacer from "@dashboard/components/CardSpacer";
 import HorizontalSpacer from "@dashboard/components/HorizontalSpacer";
 import Money from "@dashboard/components/Money";
 import { Text } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import { useIntl } from "react-intl";
 
 import useGiftCardDetails from "../providers/GiftCardDetailsProvider/hooks/useGiftCardDetails";
 import { giftCardUpdateDetailsCardMessages as messages } from "./messages";
-import { useGiftCardDetailsBalanceStyles as useStyles } from "./styles";
 
 const GiftCardUpdateDetailsBalanceSection = () => {
-  const classes = useStyles({});
   const intl = useIntl();
   const {
     giftCard: { currentBalance, initialBalance },
@@ -19,9 +16,9 @@ const GiftCardUpdateDetailsBalanceSection = () => {
 
   return (
     <>
-      <div className={clsx(classes.labelsContainer, classes.wideContainer)}>
+      <div className="flex items-baseline justify-between">
         <Text>{intl.formatMessage(messages.cardBalanceLabel)}</Text>
-        <Text className={classes.labelsContainer}>
+        <Text className="flex items-baseline">
           <Money money={currentBalance} />
           <HorizontalSpacer />
           /

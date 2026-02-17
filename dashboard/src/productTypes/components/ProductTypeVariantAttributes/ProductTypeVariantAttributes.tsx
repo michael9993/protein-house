@@ -12,53 +12,12 @@ import { ProductAttributeType, ProductTypeDetailsQuery } from "@dashboard/graphq
 import { maybe, renderCollection } from "@dashboard/misc";
 import { ListActions, ReorderAction } from "@dashboard/types";
 import { TableCell } from "@mui/material";
-import { IconButton, makeStyles } from "@saleor/macaw-ui";
+import { IconButton } from "@saleor/macaw-ui";
 import { Button, Skeleton, Tooltip } from "@saleor/macaw-ui-next";
 import capitalize from "lodash/capitalize";
 import { CircleQuestionMark, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
-
-const useStyles = makeStyles(
-  theme => ({
-    colAction: {
-      "&:last-child": {
-        paddingRight: 0,
-      },
-      width: 80,
-    },
-    colGrab: {
-      width: 60,
-    },
-    colName: {
-      width: 200,
-    },
-    colSlug: {
-      width: 200,
-    },
-    colVariant: {
-      width: 150,
-    },
-    colVariantContent: {
-      display: "flex",
-      alignItems: "center",
-    },
-    colVariantDisabled: {
-      fill: theme.palette.alert.icon.info,
-      fillOpacity: 0.6,
-      "&:hover": {
-        fillOpacity: 1,
-      },
-    },
-    link: {
-      cursor: "pointer",
-    },
-    textLeft: {
-      textAlign: "left",
-    },
-  }),
-  { name: "ProductTypeAttributes" },
-);
 
 interface ProductTypeVariantAttributesProps extends ListActions {
   assignedVariantAttributes: ProductTypeDetailsQuery["productType"]["assignedVariantAttributes"];
@@ -105,7 +64,6 @@ const ProductTypeVariantAttributes = (props: ProductTypeVariantAttributesProps) 
     setSelectedVariantAttributes,
     selectedVariantAttributes,
   } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
 
   useEffect(() => {
@@ -140,12 +98,12 @@ const ProductTypeVariantAttributes = (props: ProductTypeVariantAttributesProps) 
       <DashboardCard.Content>
         <ResponsiveTable>
           <colgroup>
-            <col className={classes.colGrab} />
+            <col className="w-[60px]" />
             <col />
-            <col className={classes.colName} />
-            <col className={classes.colSlug} />
-            <col className={classes.colVariant} />
-            <col className={classes.colAction} />
+            <col className="w-[200px]" />
+            <col className="w-[200px]" />
+            <col className="w-[150px]" />
+            <col className="w-[80px] last:pr-0" />
           </colgroup>
           {assignedVariantAttributes?.length > 0 && (
             <TableHead
@@ -159,17 +117,17 @@ const ProductTypeVariantAttributes = (props: ProductTypeVariantAttributesProps) 
               toggleAll={toggleAll}
               toolbar={toolbar}
             >
-              <TableCell className={classes.colName}>
+              <TableCell className="w-[200px]">
                 <FormattedMessage id="kTr2o8" defaultMessage="Attribute name" />
               </TableCell>
-              <TableCell className={classes.colName}>
+              <TableCell className="w-[200px]">
                 <FormattedMessage
                   id="nf3XSt"
                   defaultMessage="Slug"
                   description="attribute internal name"
                 />
               </TableCell>
-              <TableCell className={classes.colName}>
+              <TableCell className="w-[200px]">
                 <FormattedMessage
                   id="4k9rMQ"
                   defaultMessage="Variant Selection"
@@ -203,7 +161,7 @@ const ProductTypeVariantAttributes = (props: ProductTypeVariantAttributesProps) 
                 return (
                   <SortableTableRow
                     selected={isVariantSelected}
-                    className={attribute ? classes.link : undefined}
+                    className={attribute ? "cursor-pointer" : undefined}
                     hover={!!attribute}
                     href={attribute ? attributeUrl(attribute.id) : undefined}
                     key={maybe(() => attribute.id)}
@@ -218,14 +176,14 @@ const ProductTypeVariantAttributes = (props: ProductTypeVariantAttributesProps) 
                         onChange={() => toggle(attribute.id)}
                       />
                     </TableCell>
-                    <TableCell className={classes.colName} data-test-id="name">
+                    <TableCell className="w-[200px]" data-test-id="name">
                       {attribute.name ?? <Skeleton />}
                     </TableCell>
-                    <TableCell className={classes.colSlug} data-test-id="slug">
+                    <TableCell className="w-[200px]" data-test-id="slug">
                       {maybe(() => attribute.slug) ? attribute.slug : <Skeleton />}
                     </TableCell>
-                    <TableCell className={classes.colVariant} data-test-id="variant-selection">
-                      <div className={classes.colVariantContent}>
+                    <TableCell className="w-[150px]" data-test-id="variant-selection">
+                      <div className="flex items-center">
                         <Checkbox
                           data-test-id="variant-selection-checkbox"
                           checked={isSelected}
@@ -246,7 +204,7 @@ const ProductTypeVariantAttributes = (props: ProductTypeVariantAttributesProps) 
                               <CircleQuestionMark
                                 size={iconSize.small}
                                 strokeWidth={iconStrokeWidthBySize.small}
-                                className={classes.colVariantDisabled}
+                                className="fill-alert-icon-info fill-opacity-60 hover:fill-opacity-100"
                               />
                             </Tooltip.Trigger>
                             <Tooltip.Content side="bottom">
@@ -263,7 +221,7 @@ const ProductTypeVariantAttributes = (props: ProductTypeVariantAttributesProps) 
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className={classes.colAction}>
+                    <TableCell className="w-[80px] last:pr-0">
                       <TableButtonWrapper>
                         <IconButton
                           data-test-id="delete-icon"

@@ -7,22 +7,9 @@ import { commonMessages } from "@dashboard/intl";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getAccountErrorMessage from "@dashboard/utils/errors/account";
 import { TextField } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
-
-const useStyles = makeStyles(
-  theme => ({
-    content: {
-      paddingTop: theme.spacing(2),
-    },
-    hr: {
-      margin: theme.spacing(3, 0),
-    },
-  }),
-  { name: "CustomerInfo" },
-);
 
 interface CustomerInfoProps {
   data: {
@@ -38,7 +25,6 @@ interface CustomerInfoProps {
 const CustomerInfo = (props: CustomerInfoProps) => {
   const { data, disabled, errors, onChange } = props;
 
-  const classes = useStyles(props);
   const intl = useIntl();
 
   const formErrors = getFormErrors(["firstName", "lastName", "email"], errors);
@@ -54,7 +40,7 @@ const CustomerInfo = (props: CustomerInfoProps) => {
           />
         </DashboardCard.Title>
       </DashboardCard.Header>
-      <DashboardCard.Content className={classes.content}>
+      <DashboardCard.Content className="pt-4">
         <Text>
           <FormattedMessage {...commonMessages.generalInformations} />
         </Text>
@@ -90,7 +76,7 @@ const CustomerInfo = (props: CustomerInfoProps) => {
             }}
           />
         </Grid>
-        <Hr className={classes.hr} />
+        <Hr className="my-6" />
         <Text>
           <FormattedMessage
             id="SMakqb"

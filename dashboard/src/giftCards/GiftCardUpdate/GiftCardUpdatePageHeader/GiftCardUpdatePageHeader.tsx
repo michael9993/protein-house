@@ -16,10 +16,8 @@ import useGiftCardDetails from "../providers/GiftCardDetailsProvider/hooks/useGi
 import useGiftCardUpdateDialogs from "../providers/GiftCardUpdateDialogsProvider/hooks/useGiftCardUpdateDialogs";
 import GiftCardEnableDisableSection from "./GiftCardEnableDisableSection";
 import { giftCardUpdatePageHeaderMessages as messages } from "./messages";
-import useStyles from "./styles";
 
 const GiftCardUpdatePageHeader = () => {
-  const classes = useStyles();
   const giftCardBackLink = useBackLinkWithState({
     path: giftCardsListPath,
   });
@@ -50,7 +48,7 @@ const GiftCardUpdatePageHeader = () => {
       <TopNav
         href={giftCardBackLink}
         title={
-          <div className={classes.title}>
+          <div className="inline-flex items-center">
             {title}
             <HorizontalSpacer spacing={2} />
             <GiftCardStatusChip giftCard={giftCard} />

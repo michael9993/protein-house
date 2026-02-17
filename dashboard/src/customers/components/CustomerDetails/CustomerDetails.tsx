@@ -5,28 +5,9 @@ import { maybe } from "@dashboard/misc";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getAccountErrorMessage from "@dashboard/utils/errors/account";
 import { TextField } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Checkbox, Skeleton, Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
-
-const useStyles = makeStyles(
-  theme => ({
-    cardTitle: {
-      height: 72,
-    },
-    checkbox: {
-      marginBottom: theme.spacing(),
-    },
-    content: {
-      paddingTop: theme.spacing(),
-    },
-    subtitle: {
-      marginTop: theme.spacing(),
-    },
-  }),
-  { name: "CustomerDetails" },
-);
 
 interface CustomerDetailsProps {
   customer: CustomerDetailsQuery["user"];
@@ -42,7 +23,6 @@ interface CustomerDetailsProps {
 const CustomerDetails = (props: CustomerDetailsProps) => {
   const { customer, data, disabled, errors, onChange } = props;
 
-  const classes = useStyles(props);
   const intl = useIntl();
 
   const formErrors = getFormErrors(["note"], errors);
@@ -51,7 +31,7 @@ const CustomerDetails = (props: CustomerDetailsProps) => {
     <DashboardCard>
       <DashboardCard.Header>
         <DashboardCard.Title
-          className={classes.cardTitle}
+          className="h-[72px]"
           display="flex"
           flexDirection="column"
           gap={2}
@@ -59,7 +39,7 @@ const CustomerDetails = (props: CustomerDetailsProps) => {
           <>
             {maybe<React.ReactNode>(() => customer.email, <Skeleton />)}
             {customer && customer.dateJoined ? (
-              <Text className={classes.subtitle} size={2} fontWeight="light">
+              <Text className="mt-2" size={2} fontWeight="light">
                 <FormattedMessage
                   id="MjUyhA"
                   defaultMessage="Active member since {date}"
@@ -78,11 +58,11 @@ const CustomerDetails = (props: CustomerDetailsProps) => {
           </>
         </DashboardCard.Title>
       </DashboardCard.Header>
-      <DashboardCard.Content className={classes.content}>
+      <DashboardCard.Content className="pt-2">
         <Checkbox
           data-test-id="customer-active-checkbox"
           checked={data.isActive}
-          className={classes.checkbox}
+          className="mb-2"
           disabled={disabled}
           name="isActive"
           onCheckedChange={value => {

@@ -13,68 +13,12 @@ import { buttonMessages } from "@dashboard/intl";
 import { getUserInitials, getUserName, renderCollection } from "@dashboard/misc";
 import { DialogProps, FetchMoreProps, RelayToFlat, SearchPageProps } from "@dashboard/types";
 import { Checkbox, TableBody, TableCell, TextField } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Box, Skeleton, Text } from "@saleor/macaw-ui-next";
 import { useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { messages } from "./messages";
 
-const useStyles = makeStyles(
-  theme => ({
-    avatarCell: {
-      padding: 0,
-      width: 32,
-    },
-    avatarDefault: {
-      "& div": {
-        color: "#fff",
-        lineHeight: 2.8,
-        fontSize: "0.75rem",
-      },
-      background: theme.palette.primary.main,
-      height: 32,
-      textAlign: "center",
-      width: 32,
-    },
-    avatarImage: {
-      pointerEvents: "none",
-      width: "100%",
-    },
-    checkboxCell: {
-      "&&:not(first-child)": {
-        paddingLeft: 0,
-        paddingRight: 0,
-        width: 48,
-      },
-    },
-    colActions: {
-      textAlign: "right",
-    },
-    colName: {
-      paddingLeft: theme.spacing(),
-    },
-    dialogPaper: {
-      overflow: "hidden",
-    },
-    dropShadow: {
-      boxShadow: `0px -5px 10px 0px ${theme.palette.divider}`,
-    },
-    inputContainer: {
-      overflowY: "visible",
-    },
-    overflow: {
-      overflowY: "visible",
-    },
-    table: {
-      marginBottom: theme.spacing(3),
-    },
-    wideCell: {
-      width: "80%",
-    },
-  }),
-  { name: "AssignStaffMembersDialog" },
-);
 
 interface AssignMembersDialogProps extends DialogProps, FetchMoreProps, SearchPageProps {
   confirmButtonState: ConfirmButtonTransitionState;
@@ -113,7 +57,6 @@ const AssignMembersDialog = ({
   staffMembers,
 }: AssignMembersDialogProps) => {
   const intl = useIntl();
-  const classes = useStyles({});
   const [query, onQueryChange] = useSearchQuery(onSearchChange);
   const [selectedMembers, setSelectedMembers] = useState<
     RelayToFlat<SearchStaffMembersQuery["search"]>
@@ -149,7 +92,7 @@ const AssignMembersDialog = ({
           scrollThreshold="100px"
           scrollableTarget={scrollableTargetId}
         >
-          <ResponsiveTable className={classes.table}>
+          <ResponsiveTable className="mb-6">
             <TableBody data-test-id="search-results">
               {renderCollection(
                 staffMembers,
@@ -164,7 +107,7 @@ const AssignMembersDialog = ({
 
                   return (
                     <TableRowLink key={member.id} data-test-id="user-row">
-                      <TableCell padding="checkbox" className={classes.checkboxCell}>
+                      <TableCell padding="checkbox" className="!pl-0 !pr-0 !w-12">
                         <Checkbox
                           color="primary"
                           checked={isSelected}
@@ -178,10 +121,10 @@ const AssignMembersDialog = ({
                           }
                         />
                       </TableCell>
-                      <TableCell className={classes.avatarCell}>
+                      <TableCell className="p-0 w-8">
                         <UserAvatar url={member?.avatar?.url} initials={getUserInitials(member)} />
                       </TableCell>
-                      <TableCell className={classes.colName}>
+                      <TableCell className="pl-2">
                         <Box display="flex" flexDirection="column" justifyContent="center">
                           <Text>{getUserName(member) || <Skeleton />}</Text>
                           <Text size={2} color="default2">

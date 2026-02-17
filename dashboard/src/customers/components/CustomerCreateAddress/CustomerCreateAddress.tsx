@@ -3,21 +3,11 @@ import { AddressEdit } from "@dashboard/components/AddressEdit/AddressEdit";
 import { DashboardCard } from "@dashboard/components/Card";
 import { FormSpacer } from "@dashboard/components/FormSpacer";
 import { AccountErrorFragment } from "@dashboard/graphql";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Box, Option, Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { AddressTypeInput } from "../../types";
-
-const useStyles = makeStyles(
-  {
-    overflow: {
-      overflow: "visible",
-    },
-  },
-  { name: "CustomerCreateAddress" },
-);
 
 interface CustomerCreateAddressProps {
   countries: Option[];
@@ -32,11 +22,10 @@ interface CustomerCreateAddressProps {
 const CustomerCreateAddress = (props: CustomerCreateAddressProps) => {
   const { countries, countryDisplayName, data, disabled, errors, onChange, onCountryChange } =
     props;
-  const classes = useStyles(props);
   const intl = useIntl();
 
   return (
-    <DashboardCard className={classes.overflow}>
+    <DashboardCard className="overflow-visible">
       <DashboardCard.Header>
         <DashboardCard.Title>
           {intl.formatMessage({
@@ -46,7 +35,7 @@ const CustomerCreateAddress = (props: CustomerCreateAddressProps) => {
           })}
         </DashboardCard.Title>
       </DashboardCard.Header>
-      <DashboardCard.Content className={classes.overflow}>
+      <DashboardCard.Content className="overflow-visible">
         <Text>
           <FormattedMessage id="wNQzS/" defaultMessage="The primary address of this customer." />
         </Text>

@@ -14,7 +14,6 @@ import { sectionNames } from "@dashboard/intl";
 import { FetchMoreProps } from "@dashboard/types";
 import { toggle } from "@dashboard/utils/lists";
 import { Button, FormControlLabel, TextField } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Option as MacawOptionType, Text } from "@saleor/macaw-ui-next";
 import { PropsWithChildren } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -31,78 +30,6 @@ const inventoryFields = [
   ProductFieldEnum.VARIANT_SKU,
   ProductFieldEnum.VARIANT_WEIGHT,
 ];
-const useStyles = makeStyles(
-  theme => ({
-    accordion: {
-      marginBottom: theme.spacing(2),
-    },
-    checkbox: {
-      position: "relative",
-      right: theme.spacing(-1.5),
-    },
-    chip: {
-      marginBottom: theme.spacing(1),
-      marginRight: theme.spacing(),
-    },
-    dialogLabel: {
-      marginBottom: theme.spacing(2),
-    },
-    hr: {
-      marginBottom: theme.spacing(3),
-      marginTop: theme.spacing(3),
-    },
-    hrWarehouses: {
-      marginBottom: theme.spacing(3),
-      marginTop: theme.spacing(1),
-    },
-    label: {
-      "&&": {
-        overflow: "visible",
-      },
-      "&:first-of-type": {
-        paddingTop: 0,
-      },
-      "&:not(:last-of-type)": {
-        borderBottom: `1px solid ${theme.palette.divider}`,
-      },
-      justifyContent: "space-between",
-      margin: theme.spacing(0),
-      padding: theme.spacing(1, 0),
-      width: "100%",
-    },
-    loadMoreContainer: {
-      display: "flex",
-      justifyContent: "center",
-      marginTop: theme.spacing(2),
-    },
-    moreLabel: {
-      display: "inline-block",
-      marginBottom: theme.spacing(),
-    },
-    optionLabel: {
-      fontSize: 14,
-      marginLeft: 0,
-    },
-    quickPeekContainer: {
-      marginBottom: theme.spacing(-1),
-    },
-    warehousesLabel: {
-      marginBottom: theme.spacing(2),
-    },
-    scrollArea: {
-      maxHeight: "calc(100vh - 390px)",
-      minHeight: "auto",
-      "@media (min-height: 800px)": {
-        minHeight: 440,
-      },
-      overflowY: "auto",
-      overflowX: "hidden",
-    },
-  }),
-  {
-    name: "ProductExportDialogInfo",
-  },
-);
 const Option = ({
   checked,
   children,
@@ -113,18 +40,16 @@ const Option = ({
   name: string;
   onChange: (event: ChangeEvent) => void;
 }>) => {
-  const classes = useStyles({});
-
   return (
     <FormControlLabel
       classes={{
-        label: classes.optionLabel,
+        label: "text-sm ml-0",
       }}
       color="primary"
       control={
-        <Checkbox className={classes.checkbox} checked={checked} name={name} onChange={onChange} />
+        <Checkbox className="relative -right-3" checked={checked} name={name} onChange={onChange} />
       }
-      className={classes.label}
+      className="[&&]:overflow-visible first-of-type:pt-0 [&:not(:last-of-type)]:border-b [&:not(:last-of-type)]:border-divider justify-between m-0 py-2 w-full"
       label={children}
       labelPlacement="start"
     />
@@ -142,7 +67,6 @@ const FieldAccordion = ({
   onChange: (event: ChangeEvent) => void;
   onToggleAll: (field: ProductFieldEnum[], setTo: boolean) => void;
 }) => {
-  const classes = useStyles({});
   const getFieldLabel = useProductExportFieldMessages();
   const selectedAll = fields.every(field => data.exportInfo.fields.includes(field));
   const selectedFields = data.exportInfo.fields.filter(field => fields.includes(field));
@@ -151,10 +75,10 @@ const FieldAccordion = ({
     <Accordion
       quickPeek={
         selectedFields.length > 0 && (
-          <div className={classes.quickPeekContainer}>
+          <div className="-mb-2">
             {selectedFields.slice(0, maxChips).map(field => (
               <Chip
-                className={classes.chip}
+                className="mb-2 mr-2"
                 label={getFieldLabel(field)}
                 onClose={() =>
                   onChange({
@@ -168,7 +92,7 @@ const FieldAccordion = ({
               />
             ))}
             {selectedFields.length > maxChips && (
-              <Text className={classes.moreLabel} size={2} fontWeight="light">
+              <Text className="inline-block mb-2" size={2} fontWeight="light">
                 <FormattedMessage
                   id="ve/Sph"
                   defaultMessage="and {number} more"
@@ -239,7 +163,6 @@ const ProductExportDialogInfo = ({
   onSelectAllChannels,
   onSelectAllWarehouses,
 }: ProductExportDialogInfoProps) => {
-  const classes = useStyles({});
   const intl = useIntl();
   const [query, onQueryChange] = useSearchQuery(onFetch);
   const getFieldLabel = useProductExportFieldMessages();
@@ -281,31 +204,31 @@ const ProductExportDialogInfo = ({
 
   return (
     <>
-      <Text className={classes.dialogLabel}>
+      <Text className="mb-4">
         <FormattedMessage
           id="Jwuu4X"
           defaultMessage="Information exported:"
           description="select product informations to be exported"
         />
       </Text>
-      <div className={classes.scrollArea}>
+      <div className="max-h-[calc(100vh-390px)] min-h-auto [@media(min-height:800px)]:min-h-[440px] overflow-y-auto overflow-x-hidden">
         <Accordion
           dataTestId="channel-expand-button"
-          className={classes.accordion}
+          className="mb-4"
           title={intl.formatMessage(sectionNames.channels)}
           quickPeek={
             selectedChannels.length > 0 && (
-              <div className={classes.quickPeekContainer}>
+              <div className="-mb-2">
                 {selectedChannels.slice(0, maxChips).map(channel => (
                   <Chip
-                    className={classes.chip}
+                    className="mb-2 mr-2"
                     label={channel.name}
                     onClose={() => onChannelSelect(channel)}
                     key={channel.id}
                   />
                 ))}
                 {selectedChannels.length > maxChips && (
-                  <Text className={classes.moreLabel} size={2} fontWeight="light">
+                  <Text className="inline-block mb-2" size={2} fontWeight="light">
                     <FormattedMessage
                       id="ve/Sph"
                       defaultMessage="and {number} more"
@@ -338,7 +261,7 @@ const ProductExportDialogInfo = ({
           </ChannelsAvailabilityDialogContentWrapper>
         </Accordion>
         <FieldAccordion
-          className={classes.accordion}
+          className="mb-4"
           title={intl.formatMessage({
             id: "64aYF0",
             defaultMessage: "Product Organization",
@@ -355,14 +278,14 @@ const ProductExportDialogInfo = ({
           data-test-id="organization"
         />
         <Accordion
-          className={classes.accordion}
+          className="mb-4"
           title={intl.formatMessage(sectionNames.attributes)}
           quickPeek={
             selectedAttributes.length > 0 && (
-              <div className={classes.quickPeekContainer}>
+              <div className="-mb-2">
                 {selectedAttributes.slice(0, maxChips).map(attribute => (
                   <Chip
-                    className={classes.chip}
+                    className="mb-2 mr-2"
                     label={attribute.label}
                     onClose={() =>
                       onAttrtibuteSelect({
@@ -376,7 +299,7 @@ const ProductExportDialogInfo = ({
                   />
                 ))}
                 {selectedAttributes.length > maxChips && (
-                  <Text className={classes.moreLabel} size={2} fontWeight="light">
+                  <Text className="inline-block mb-2" size={2} fontWeight="light">
                     <FormattedMessage
                       id="ve/Sph"
                       defaultMessage="and {number} more"
@@ -412,7 +335,7 @@ const ProductExportDialogInfo = ({
               endAdornment: loading && <SaleorThrobber size={16} />,
             }}
           />
-          <Hr className={classes.hr} />
+          <Hr className="my-6" />
           {attributes.map(attribute => (
             <Option
               checked={data.exportInfo.attributes.includes(attribute.value)}
@@ -424,7 +347,7 @@ const ProductExportDialogInfo = ({
             </Option>
           ))}
           {(hasMore || loading) && (
-            <div className={classes.loadMoreContainer}>
+            <div className="flex justify-center mt-4">
               {hasMore && !loading && (
                 <Button color="primary" onClick={onFetchMore}>
                   <FormattedMessage id="ZDJEat" defaultMessage="Load More" description="button" />
@@ -435,7 +358,7 @@ const ProductExportDialogInfo = ({
           )}
         </Accordion>
         <FieldAccordion
-          className={classes.accordion}
+          className="mb-4"
           title={intl.formatMessage({
             id: "jj3Cb8",
             defaultMessage: "Financial Information",
@@ -448,7 +371,7 @@ const ProductExportDialogInfo = ({
           data-test-id="financial"
         />
         <Accordion
-          className={classes.accordion}
+          className="mb-4"
           title={intl.formatMessage({
             id: "xjpTLF",
             defaultMessage: "Inventory Information",
@@ -456,11 +379,11 @@ const ProductExportDialogInfo = ({
           })}
           quickPeek={
             (data.exportInfo.warehouses.length > 0 || selectedInventoryFields.length > 0) && (
-              <div className={classes.quickPeekContainer}>
+              <div className="-mb-2">
                 {selectedInventoryFields.slice(0, maxChips).map(field => (
                   <Chip
                     key={field}
-                    className={classes.chip}
+                    className="mb-2 mr-2"
                     label={getFieldLabel(field)}
                     onClose={() =>
                       onChange({
@@ -477,7 +400,7 @@ const ProductExportDialogInfo = ({
                   .map(warehouseId => (
                     <Chip
                       key={warehouseId}
-                      className={classes.chip}
+                      className="mb-2 mr-2"
                       label={warehouses.find(warehouse => warehouse.value === warehouseId).label}
                       onClose={() =>
                         onWarehouseSelect({
@@ -490,7 +413,7 @@ const ProductExportDialogInfo = ({
                     />
                   ))}
                 {data.exportInfo.warehouses.length + selectedInventoryFields.length > maxChips && (
-                  <Text className={classes.moreLabel} size={2} fontWeight="light">
+                  <Text className="inline-block mb-2" size={2} fontWeight="light">
                     <FormattedMessage
                       id="ve/Sph"
                       defaultMessage="and {number} more"
@@ -532,7 +455,7 @@ const ProductExportDialogInfo = ({
               </Option>
             ))}
           </div>
-          <Hr className={classes.hrWarehouses} />
+          <Hr className="mb-6 mt-2" />
           <Text>
             <FormattedMessage id="ZRz3hM" defaultMessage="Export Product Stock Quantity to CSV" />
           </Text>
@@ -551,8 +474,8 @@ const ProductExportDialogInfo = ({
               />
             </Option>
           </div>
-          <Hr className={classes.hrWarehouses} />
-          <Text className={classes.warehousesLabel} fontSize={3}>
+          <Hr className="mb-6 mt-2" />
+          <Text className="mb-4" fontSize={3}>
             <FormattedMessage
               id="WQMTKI"
               defaultMessage="Warehouses A to Z"

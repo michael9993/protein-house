@@ -13,7 +13,6 @@ import GiftCardDeleteDialogContent from "../GiftCardDeleteDialog/GiftCardDeleteD
 import useGiftCardSingleDelete from "../GiftCardDeleteDialog/useGiftCardSingleDelete";
 import GiftCardStatusChip from "../GiftCardStatusChip/GiftCardStatusChip";
 import { CUSTOMER_GIFT_CARD_LIST_QUERY } from "./queries";
-import { useListWrapperStyles } from "./styles";
 
 interface CustomerGiftCardsCardListItemProps {
   giftCard: ExtendedGiftCard<CustomerGiftCardFragment>;
@@ -21,7 +20,6 @@ interface CustomerGiftCardsCardListItemProps {
 
 const CustomerGiftCardsCardListItem = ({ giftCard }: CustomerGiftCardsCardListItemProps) => {
   const intl = useIntl();
-  const classes = useListWrapperStyles();
   const [openDeleteGiftCard, setOpenDeleteGiftCard] = useState(false);
   const { isExpired, isActive, last4CodeChars } = giftCard;
   const onGiftCardDeleteDialogClose = () => setOpenDeleteGiftCard(false);
@@ -82,7 +80,7 @@ const CustomerGiftCardsCardListItem = ({ giftCard }: CustomerGiftCardsCardListIt
 
   return (
     <>
-      <div className={classes.listingWrapper}>
+      <div className="grid grid-cols-[max-content_1fr_min-content] mx-6 my-4 items-center justify-items-center">
         <FormattedMessage
           values={{
             last4CodeChars,
@@ -90,7 +88,7 @@ const CustomerGiftCardsCardListItem = ({ giftCard }: CustomerGiftCardsCardListIt
           {...giftCardsListTableMessages.codeEndingWithLabel}
         />
         <GiftCardStatusChip giftCard={giftCard} />
-        <CardMenu className={classes.listingMenu} menuItems={getMenuItems()} />
+        <CardMenu className="col-start-3" menuItems={getMenuItems()} />
       </div>
       <GiftCardDeleteDialogContent
         singleDeletion

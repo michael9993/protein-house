@@ -12,35 +12,9 @@ import { AttributeFragment, ProductAttributeType } from "@dashboard/graphql";
 import { maybe, renderCollection } from "@dashboard/misc";
 import { ListActions, ReorderAction } from "@dashboard/types";
 import { TableCell } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Button, Skeleton } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { FormattedMessage, useIntl } from "react-intl";
-
-const useStyles = makeStyles(
-  {
-    colAction: {
-      "&:last-child": {
-        paddingRight: 0,
-      },
-      width: 84,
-    },
-    colGrab: {
-      width: 60,
-    },
-    colName: {},
-    colSlug: {
-      width: 300,
-    },
-    link: {
-      cursor: "pointer",
-    },
-    textLeft: {
-      textAlign: "left",
-    },
-  },
-  { name: "ProductTypeAttributes" },
-);
 
 interface ProductTypeAttributesProps extends ListActions {
   attributes: AttributeFragment[];
@@ -69,7 +43,6 @@ const ProductTypeAttributes = (props: ProductTypeAttributesProps) => {
     onAttributeReorder,
     onAttributeUnassign,
   } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
 
   return (
@@ -96,11 +69,11 @@ const ProductTypeAttributes = (props: ProductTypeAttributesProps) => {
       <DashboardCard.Content>
         <ResponsiveTable>
           <colgroup>
-            <col className={classes.colGrab} />
+            <col className="w-[60px]" />
             <col />
-            <col className={classes.colName} />
-            <col className={classes.colSlug} />
-            <col className={classes.colAction} />
+            <col className="" />
+            <col className="w-[300px]" />
+            <col className="w-[84px] last:pr-0" />
           </colgroup>
           {attributes?.length > 0 && (
             <TableHead
@@ -112,10 +85,10 @@ const ProductTypeAttributes = (props: ProductTypeAttributesProps) => {
               toggleAll={toggleAll}
               toolbar={toolbar}
             >
-              <TableCell className={classes.colName}>
+              <TableCell className="">
                 <FormattedMessage id="kTr2o8" defaultMessage="Attribute name" />
               </TableCell>
-              <TableCell className={classes.colName}>
+              <TableCell className="">
                 <FormattedMessage
                   id="nf3XSt"
                   defaultMessage="Slug"
@@ -134,7 +107,7 @@ const ProductTypeAttributes = (props: ProductTypeAttributesProps) => {
                 return (
                   <SortableTableRow
                     selected={isSelected}
-                    className={attribute ? classes.link : undefined}
+                    className={attribute ? "cursor-pointer" : undefined}
                     hover={!!attribute}
                     href={attribute ? attributeUrl(attribute.id) : undefined}
                     key={maybe(() => attribute.id)}
@@ -149,13 +122,13 @@ const ProductTypeAttributes = (props: ProductTypeAttributesProps) => {
                         onChange={() => toggle(attribute.id)}
                       />
                     </TableCell>
-                    <TableCell className={classes.colName} data-test-id="name">
+                    <TableCell className="" data-test-id="name">
                       {maybe(() => attribute.name) ? attribute.name : <Skeleton />}
                     </TableCell>
-                    <TableCell className={classes.colSlug} data-test-id="slug">
+                    <TableCell className="w-[300px]" data-test-id="slug">
                       {maybe(() => attribute.slug) ? attribute.slug : <Skeleton />}
                     </TableCell>
-                    <TableCell className={classes.colAction}>
+                    <TableCell className="w-[84px] last:pr-0">
                       <TableButtonWrapper>
                         <Button
                           data-test-id="delete-icon"

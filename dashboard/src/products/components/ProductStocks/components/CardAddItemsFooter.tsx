@@ -1,23 +1,7 @@
 import Link from "@dashboard/components/Link";
-import { IconButton, makeStyles } from "@saleor/macaw-ui";
+import { IconButton } from "@saleor/macaw-ui";
 import { Plus } from "lucide-react";
 import { MutableRefObject, PropsWithChildren } from "react";
-
-const useStyles = makeStyles(
-  theme => ({
-    container: {
-      paddingTop: theme.spacing(1),
-      paddingBottom: theme.spacing(1),
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      width: "100%",
-      position: "relative",
-    },
-  }),
-  { name: "CardAddItemsFooter" },
-);
 
 interface CardAddItemsFooterProps {
   title: string;
@@ -36,10 +20,8 @@ const CardAddItemsFooter = ({
   ref,
   children,
 }: PropsWithChildren<CardAddItemsFooterProps>) => {
-  const classes = useStyles({});
-
   return (
-    <div className={classes.container} ref={ref}>
+    <div className="py-2 flex flex-row justify-between items-center w-full relative" ref={ref}>
       <Link data-test-id={testIds.link} onClick={onAdd}>
         {title}
       </Link>

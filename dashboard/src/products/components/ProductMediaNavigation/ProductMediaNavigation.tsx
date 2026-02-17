@@ -1,8 +1,7 @@
 // @ts-strict-ignore
 import { DashboardCard } from "@dashboard/components/Card";
-import { makeStyles } from "@saleor/macaw-ui";
-import { Skeleton, vars } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
+import { cn } from "@dashboard/utils/cn";
+import { Skeleton } from "@saleor/macaw-ui-next";
 import { defineMessages, useIntl } from "react-intl";
 
 const messages = defineMessages({
@@ -12,39 +11,6 @@ const messages = defineMessages({
     description: "section header",
   },
 });
-const useStyles = makeStyles(
-  theme => ({
-    card: {
-      marginBottom: theme.spacing(2),
-    },
-    highlightedImageContainer: {
-      borderColor: theme.palette.primary.main,
-    },
-    image: {
-      height: "100%",
-      objectFit: "contain",
-      userSelect: "none",
-      width: "100%",
-    },
-    imageContainer: {
-      border: `2px solid ${vars.colors.border.default1}`,
-      borderRadius: theme.spacing(),
-      cursor: "pointer",
-      height: 48,
-      overflow: "hidden",
-      padding: theme.spacing(0.5),
-      position: "relative",
-    },
-    root: {
-      display: "grid",
-      gridColumnGap: theme.spacing(2),
-      gridRowGap: theme.spacing(1),
-      gridTemplateColumns: "repeat(4, 1fr)",
-    },
-    toolbar: { marginTop: theme.spacing(-0.5) },
-  }),
-  { name: "ProductMediaNavigation" },
-);
 
 interface ProductMediaNavigationProps {
   disabled: boolean;
@@ -61,11 +27,10 @@ interface ProductMediaNavigationProps {
 
 const ProductMediaNavigation = (props: ProductMediaNavigationProps) => {
   const { highlighted, media, onRowClick } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
 
   return (
-    <DashboardCard className={classes.card}>
+    <DashboardCard className="mb-4">
       <DashboardCard.Header>
         <DashboardCard.Title>{intl.formatMessage(messages.allMedia)}</DashboardCard.Title>
       </DashboardCard.Header>
@@ -73,21 +38,25 @@ const ProductMediaNavigation = (props: ProductMediaNavigationProps) => {
         {!media ? (
           <Skeleton />
         ) : (
-          <div className={classes.root}>
+          <div className="grid gap-x-4 gap-y-2 grid-cols-4">
             {media.map(mediaObj => {
               const mediaObjOembedData = JSON.parse(mediaObj?.oembedData);
               const mediaUrl = mediaObjOembedData?.thumbnail_url || mediaObj.url;
 
               return (
                 <div
-                  className={clsx({
-                    [classes.imageContainer]: true,
-                    [classes.highlightedImageContainer]: mediaObj.id === highlighted,
-                  })}
+                  className={cn(
+                    "border-2 border-default-1 rounded-lg cursor-pointer h-12 overflow-hidden p-1 relative",
+                    mediaObj.id === highlighted && "border-primary",
+                  )}
                   onClick={onRowClick(mediaObj.id)}
                   key={mediaObj.id}
                 >
-                  <img className={classes.image} src={mediaUrl} alt={mediaObj.alt} />
+                  <img
+                    className="h-full object-contain select-none w-full"
+                    src={mediaUrl}
+                    alt={mediaObj.alt}
+                  />
                 </div>
               );
             })}

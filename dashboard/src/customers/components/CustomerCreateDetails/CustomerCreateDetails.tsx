@@ -5,23 +5,10 @@ import { commonMessages } from "@dashboard/intl";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getAccountErrorMessage from "@dashboard/utils/errors/account";
 import { TextField } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import * as React from "react";
 import { useIntl } from "react-intl";
 
 import { CustomerCreatePageFormData } from "../CustomerCreatePage";
-
-const useStyles = makeStyles(
-  theme => ({
-    root: {
-      display: "grid",
-      gridColumnGap: theme.spacing(2),
-      gridRowGap: theme.spacing(3),
-      gridTemplateColumns: "1fr 1fr",
-    },
-  }),
-  { name: "CustomerCreateDetails" },
-);
 
 interface CustomerCreateDetailsProps {
   data: CustomerCreatePageFormData;
@@ -33,7 +20,6 @@ interface CustomerCreateDetailsProps {
 const CustomerCreateDetails = (props: CustomerCreateDetailsProps) => {
   const { data, disabled, errors, onChange } = props;
 
-  const classes = useStyles(props);
   const intl = useIntl();
 
   const formErrors = getFormErrors(["customerFirstName", "customerLastName", "email"], errors);
@@ -50,7 +36,7 @@ const CustomerCreateDetails = (props: CustomerCreateDetailsProps) => {
         </DashboardCard.Title>
       </DashboardCard.Header>
       <DashboardCard.Content>
-        <div className={classes.root}>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-6">
           <TextField
             data-test-id="customer-first-name"
             disabled={disabled}

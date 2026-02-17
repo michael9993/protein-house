@@ -8,11 +8,9 @@ import { useEffect } from "react";
 import { useIntl } from "react-intl";
 
 import { giftCardExpirySelectMessages as messages } from "./messages";
-import { useGiftCardExpirySelectStyles as useStyles } from "./styles";
 
 const GiftCardUpdateExpirySelect = () => {
   const intl = useIntl();
-  const classes = useStyles({});
   const {
     change,
     data: { expiryDate },
@@ -52,7 +50,7 @@ const GiftCardUpdateExpirySelect = () => {
           onChange={change}
           name={"expiryDate"}
           fullWidth
-          className={classes.dateField}
+          className="block w-[400px] mt-4"
           label={intl.formatMessage(messages.expiryDateLabel)}
           value={expiryDate}
           InputLabelProps={{

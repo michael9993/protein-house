@@ -10,8 +10,7 @@ import useNavigator from "@dashboard/hooks/useNavigator";
 import { commonMessages } from "@dashboard/intl";
 import { productUrl } from "@dashboard/products/urls";
 import { TextField } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
-import { Skeleton, vars } from "@saleor/macaw-ui-next";
+import { Skeleton } from "@saleor/macaw-ui-next";
 import { defineMessages, useIntl } from "react-intl";
 
 import ProductMediaNavigation from "../ProductMediaNavigation";
@@ -38,28 +37,6 @@ const messages = defineMessages({
     description: "field is optional",
   },
 });
-const useStyles = makeStyles(
-  theme => ({
-    image: {
-      height: "100%",
-      objectFit: "contain",
-      width: "100%",
-    },
-    imageContainer: {
-      "& iframe": {
-        width: "100%",
-        maxHeight: 420,
-      },
-      border: `1px solid ${vars.colors.border.default1}`,
-      borderRadius: theme.spacing(),
-      margin: `0 auto ${theme.spacing(2)}`,
-      width: "100%",
-      padding: theme.spacing(2),
-    },
-  }),
-  { name: "ProductMediaPage" },
-);
-
 interface ProductMediaPageProps {
   productId: string;
   mediaObj?: {
@@ -92,7 +69,6 @@ const ProductMediaPage = (props: ProductMediaPageProps) => {
     onRowClick,
     onSubmit,
   } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
   const navigate = useNavigator();
 
@@ -139,12 +115,12 @@ const ProductMediaPage = (props: ProductMediaPageProps) => {
                 <DashboardCard.Content>
                   {mediaObj ? (
                     mediaObj?.type === ProductMediaType.IMAGE ? (
-                      <div className={classes.imageContainer}>
-                        <img className={classes.image} src={mediaObj.url} alt={mediaObj.alt} />
+                      <div className="[&_iframe]:w-full [&_iframe]:max-h-[420px] border border-default-1 rounded-lg mx-auto mb-4 w-full p-4">
+                        <img className="h-full object-contain w-full" src={mediaObj.url} alt={mediaObj.alt} />
                       </div>
                     ) : (
                       <div
-                        className={classes.imageContainer}
+                        className="[&_iframe]:w-full [&_iframe]:max-h-[420px] border border-default-1 rounded-lg mx-auto mb-4 w-full p-4"
                         dangerouslySetInnerHTML={{
                           __html: JSON.parse(mediaObj?.oembedData)?.html,
                         }}

@@ -15,51 +15,10 @@ import { MembersListUrlSortField } from "@dashboard/permissionGroups/urls";
 import { ListActions, SortPage } from "@dashboard/types";
 import { getArrowDirection } from "@dashboard/utils/sort";
 import { TableBody, TableCell } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
-import { Box, Button, Skeleton, Text, vars } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
+import { Box, Button, Skeleton, Text } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-const useStyles = makeStyles(
-  theme => ({
-    [theme.breakpoints.up("lg")]: {
-      colActions: {
-        width: 120,
-      },
-      colEmail: {
-        width: 300,
-      },
-    },
-    colName: {
-      display: "flex",
-      alignItems: "center",
-      gap: vars.spacing[2],
-    },
-    avatarDefault: {
-      "& div": {
-        color: theme.palette.primary.contrastText,
-        lineHeight: "47px",
-      },
-      background: theme.palette.primary.main,
-      height: 47,
-      textAlign: "center",
-      width: 47,
-    },
-    avatarImage: {
-      pointerEvents: "none",
-      width: "100%",
-    },
-    colActions: {
-      textAlign: "right",
-    },
-    helperText: {
-      textAlign: "center",
-    },
-    tableRow: {},
-  }),
-  { name: "PermissionGroup" },
-);
 const numberOfColumns = 4;
 
 interface PermissionGroupProps extends ListActions, SortPage<MembersListUrlSortField> {
@@ -83,7 +42,6 @@ const PermissionGroupMemberList = (props: PermissionGroupProps) => {
     toggleAll,
     sort,
   } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
   const members = [...users].sort(sortMembers(sort?.sort, sort?.asc));
 
@@ -110,7 +68,7 @@ const PermissionGroupMemberList = (props: PermissionGroupProps) => {
         </DashboardCard.Toolbar>
       </DashboardCard.Header>
       {members?.length === 0 ? (
-        <DashboardCard.Content className={classes.helperText} data-test-id="no-members-text">
+        <DashboardCard.Content className="text-center" data-test-id="no-members-text">
           <Text color="default2">
             <FormattedMessage
               id="gVD1os"
@@ -137,7 +95,7 @@ const PermissionGroupMemberList = (props: PermissionGroupProps) => {
             toolbar={toolbar}
           >
             <TableCellHeader
-              className={classes.colName}
+              className="flex items-center gap-2"
               arrowPosition="right"
               onClick={() => onSort(MembersListUrlSortField.name)}
               direction={
@@ -153,7 +111,7 @@ const PermissionGroupMemberList = (props: PermissionGroupProps) => {
               />
             </TableCellHeader>
             <TableCellHeader
-              className={classes.colEmail}
+              className="lg:w-[300px]"
               arrowPosition="right"
               onClick={() => onSort(MembersListUrlSortField.email)}
               direction={
@@ -177,9 +135,6 @@ const PermissionGroupMemberList = (props: PermissionGroupProps) => {
                 return (
                   <TableRowLink
                     data-test-id="assigned-member-row"
-                    className={clsx({
-                      [classes.tableRow]: !!user,
-                    })}
                     hover={!!user}
                     selected={isSelected}
                     key={user ? user.id : "skeleton"}
@@ -192,7 +147,7 @@ const PermissionGroupMemberList = (props: PermissionGroupProps) => {
                         onChange={() => toggle(user.id)}
                       />
                     </TableCell>
-                    <TableCell className={classes.colName}>
+                    <TableCell className="flex items-center gap-2">
                       <UserAvatar initials={getUserInitials(user)} url={user?.avatar?.url} />
                       <Box display="flex" flexDirection="column">
                         <Text data-test-id="member-name">{getUserName(user) || <Skeleton />}</Text>
@@ -207,10 +162,10 @@ const PermissionGroupMemberList = (props: PermissionGroupProps) => {
                         </Text>
                       </Box>
                     </TableCell>
-                    <TableCell className={classes.colEmail}>
+                    <TableCell className="lg:w-[300px]">
                       {user?.email || <Skeleton />}
                     </TableCell>
-                    <TableCell className={classes.colActions}>
+                    <TableCell className="text-right lg:w-[120px]">
                       {user ? (
                         <>
                           <Button

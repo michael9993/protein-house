@@ -10,25 +10,12 @@ import { getPrevLocationState } from "@dashboard/hooks/useBackLinkWithState";
 import { PageTypeListUrlSortField, pageTypeUrl } from "@dashboard/modelTypes/urls";
 import { getArrowDirection } from "@dashboard/utils/sort";
 import { TableBody, TableCell, TableFooter } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Skeleton } from "@saleor/macaw-ui-next";
 import { FormattedMessage } from "react-intl";
 import { useLocation } from "react-router";
 
 import { renderCollection } from "../../../misc";
 import { ListActions, ListProps, SortPage } from "../../../types";
-
-const useStyles = makeStyles(
-  {
-    colName: {
-      paddingLeft: 0,
-    },
-    link: {
-      cursor: "pointer",
-    },
-  },
-  { name: "PageTypeList" },
-);
 
 interface PageTypeListProps extends ListProps, ListActions, SortPage<PageTypeListUrlSortField> {
   pageTypes: PageTypeFragment[];
@@ -38,7 +25,6 @@ const PageTypeList = (props: PageTypeListProps) => {
   const { disabled, pageTypes, onSort, isChecked, selected, sort, toggle, toggleAll, toolbar } =
     props;
   const location = useLocation();
-  const classes = useStyles(props);
   const numberOfColumns = pageTypes?.length === 0 ? 1 : 2;
 
   return (
@@ -57,7 +43,7 @@ const PageTypeList = (props: PageTypeListProps) => {
           }
           arrowPosition="right"
           onClick={() => onSort(PageTypeListUrlSortField.name)}
-          className={classes.colName}
+          className="pl-0"
         >
           <FormattedMessage
             id="r5h6qc"
@@ -79,7 +65,7 @@ const PageTypeList = (props: PageTypeListProps) => {
 
             return (
               <TableRowLink
-                className={pageType ? classes.link : undefined}
+                className={pageType ? "cursor-pointer" : undefined}
                 hover={!!pageType}
                 key={pageType ? pageType.id : "skeleton"}
                 href={
@@ -101,7 +87,7 @@ const PageTypeList = (props: PageTypeListProps) => {
                     onChange={() => toggle(pageType.id)}
                   />
                 </TableCell>
-                <TableCell className={classes.colName}>
+                <TableCell className="pl-0">
                   {pageType ? <span data-test-id="name">{pageType.name}</span> : <Skeleton />}
                 </TableCell>
               </TableRowLink>

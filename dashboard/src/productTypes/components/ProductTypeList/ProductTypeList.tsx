@@ -10,36 +10,12 @@ import { getPrevLocationState } from "@dashboard/hooks/useBackLinkWithState";
 import { ProductTypeListUrlSortField, productTypeUrl } from "@dashboard/productTypes/urls";
 import { getArrowDirection } from "@dashboard/utils/sort";
 import { TableBody, TableCell, TableFooter } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Skeleton } from "@saleor/macaw-ui-next";
 import { FormattedMessage } from "react-intl";
 import { useLocation } from "react-router";
 
 import { maybe, renderCollection } from "../../../misc";
 import { ListActions, ListProps, SortPage } from "../../../types";
-
-const useStyles = makeStyles(
-  theme => ({
-    [theme.breakpoints.up("lg")]: {
-      colName: {},
-      colTax: {
-        width: 300,
-      },
-      colType: {
-        width: 300,
-      },
-    },
-    colName: {
-      paddingLeft: 0,
-    },
-    colTax: {},
-    colType: {},
-    link: {
-      cursor: "pointer",
-    },
-  }),
-  { name: "ProductTypeList" },
-);
 
 interface ProductTypeListProps
   extends ListProps,
@@ -60,7 +36,6 @@ const ProductTypeList = ({
   toggleAll,
   toolbar,
 }: ProductTypeListProps) => {
-  const classes = useStyles();
   const location = useLocation();
 
   return (
@@ -79,7 +54,7 @@ const ProductTypeList = ({
           }
           arrowPosition="right"
           onClick={() => onSort(ProductTypeListUrlSortField.name)}
-          className={classes.colName}
+          className="pl-0"
         >
           <FormattedMessage
             id="hHOI7D"
@@ -94,7 +69,7 @@ const ProductTypeList = ({
               : undefined
           }
           onClick={() => onSort(ProductTypeListUrlSortField.digital)}
-          className={classes.colType}
+          className="lg:w-[300px]"
         >
           <FormattedMessage
             id="9QtKvB"
@@ -102,7 +77,7 @@ const ProductTypeList = ({
             description="Product type is shippable"
           />
         </TableCellHeader>
-        <TableCell className={classes.colTax}>
+        <TableCell className="lg:w-[300px]">
           <FormattedMessage
             id="+Jgot0"
             defaultMessage="Tax class"
@@ -123,7 +98,7 @@ const ProductTypeList = ({
 
             return (
               <TableRowLink
-                className={productType ? classes.link : undefined}
+                className={productType ? "cursor-pointer" : undefined}
                 hover={!!productType}
                 key={productType ? productType.id : "skeleton"}
                 href={
@@ -145,10 +120,10 @@ const ProductTypeList = ({
                     onChange={() => toggle(productType.id)}
                   />
                 </TableCell>
-                <TableCell className={classes.colName}>
+                <TableCell className="pl-0">
                   {productType ? <span data-test-id="name">{productType.name}</span> : <Skeleton />}
                 </TableCell>
-                <TableCell className={classes.colType}>
+                <TableCell className="lg:w-[300px]">
                   {maybe(() => productType.isShippingRequired) !== undefined ? (
                     productType.isShippingRequired ? (
                       <>
@@ -171,7 +146,7 @@ const ProductTypeList = ({
                     <Skeleton />
                   )}
                 </TableCell>
-                <TableCell className={classes.colTax}>
+                <TableCell className="lg:w-[300px]">
                   {productType?.taxClass?.name ?? "-"}
                 </TableCell>
               </TableRowLink>

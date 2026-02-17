@@ -3,7 +3,6 @@ import { DashboardCard } from "@dashboard/components/Card";
 import GiftCardSettingsExpirySelect, {
   GiftCardSettingsExpirySelectProps,
 } from "@dashboard/giftCards/components/GiftCardSettingsExpirySelect";
-import { makeStyles } from "@saleor/macaw-ui";
 import * as React from "react";
 import { useIntl } from "react-intl";
 
@@ -17,14 +16,6 @@ interface GiftCardExpirySettingsCardProps
   onChange: (event: React.ChangeEvent<any>) => void;
 }
 
-const useStyles = makeStyles(
-  () => ({
-    cardTitle: {
-      paddingTop: 0,
-    },
-  }),
-  { name: "GiftCardExpirySettingsCard" },
-);
 const GiftCardExpirySettingsCard = ({
   data,
   disabled,
@@ -32,12 +23,11 @@ const GiftCardExpirySettingsCard = ({
   onChange,
 }: GiftCardExpirySettingsCardProps) => {
   const intl = useIntl();
-  const classes = useStyles({});
 
   return (
     <DashboardCard data-test-id="gift-card-settings">
       <DashboardCard.Header>
-        <DashboardCard.Title className={classes.cardTitle}>
+        <DashboardCard.Title className="pt-0">
           {intl.formatMessage(messages.expiryDateTitle)}
         </DashboardCard.Title>
       </DashboardCard.Header>

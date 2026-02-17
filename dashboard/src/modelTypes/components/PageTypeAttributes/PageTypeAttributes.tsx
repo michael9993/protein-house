@@ -12,35 +12,9 @@ import { AttributeFragment, AttributeTypeEnum } from "@dashboard/graphql";
 import { renderCollection } from "@dashboard/misc";
 import { ListActions, ReorderAction } from "@dashboard/types";
 import { TableCell } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Button, Skeleton } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { FormattedMessage, useIntl } from "react-intl";
-
-const useStyles = makeStyles(
-  {
-    colAction: {
-      "&:last-child": {
-        paddingRight: 0,
-      },
-      width: 80,
-    },
-    colGrab: {
-      width: 60,
-    },
-    colName: {},
-    colSlug: {
-      width: 300,
-    },
-    link: {
-      cursor: "pointer",
-    },
-    textLeft: {
-      textAlign: "left",
-    },
-  },
-  { name: "PageTypeAttributes" },
-);
 
 interface PageTypeAttributesProps extends ListActions {
   attributes: AttributeFragment[];
@@ -66,7 +40,6 @@ const PageTypeAttributes = (props: PageTypeAttributesProps) => {
     onAttributeReorder,
     onAttributeUnassign,
   } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
 
   return (
@@ -92,11 +65,11 @@ const PageTypeAttributes = (props: PageTypeAttributesProps) => {
       <DashboardCard.Content>
         <ResponsiveTable>
           <colgroup>
-            <col className={classes.colGrab} />
+            <col className="w-[60px]" />
             <col />
-            <col className={classes.colName} />
-            <col className={classes.colSlug} />
-            <col className={classes.colAction} />
+            <col className="" />
+            <col className="w-[300px]" />
+            <col className="w-[80px] last:pr-0" />
           </colgroup>
           {attributes?.length > 0 && (
             <TableHead
@@ -108,10 +81,10 @@ const PageTypeAttributes = (props: PageTypeAttributesProps) => {
               toggleAll={toggleAll}
               toolbar={toolbar}
             >
-              <TableCell className={classes.colName}>
+              <TableCell className="">
                 <FormattedMessage id="kTr2o8" defaultMessage="Attribute name" />
               </TableCell>
-              <TableCell className={classes.colName}>
+              <TableCell className="">
                 <FormattedMessage
                   id="nf3XSt"
                   defaultMessage="Slug"
@@ -130,7 +103,7 @@ const PageTypeAttributes = (props: PageTypeAttributesProps) => {
                 return (
                   <SortableTableRow
                     selected={isSelected}
-                    className={attribute ? classes.link : undefined}
+                    className={attribute ? "cursor-pointer" : undefined}
                     hover={!!attribute}
                     href={attribute ? attributeUrl(attribute.id) : undefined}
                     key={attribute?.id}
@@ -145,13 +118,13 @@ const PageTypeAttributes = (props: PageTypeAttributesProps) => {
                         onChange={() => toggle(attribute.id)}
                       />
                     </TableCell>
-                    <TableCell className={classes.colName} data-test-id="name">
+                    <TableCell className="" data-test-id="name">
                       {attribute?.name || <Skeleton />}
                     </TableCell>
-                    <TableCell className={classes.colSlug} data-test-id="slug">
+                    <TableCell className="w-[300px]" data-test-id="slug">
                       {attribute?.slug || <Skeleton />}
                     </TableCell>
-                    <TableCell className={classes.colAction}>
+                    <TableCell className="w-[80px] last:pr-0">
                       <TableButtonWrapper>
                         <Button
                           icon={

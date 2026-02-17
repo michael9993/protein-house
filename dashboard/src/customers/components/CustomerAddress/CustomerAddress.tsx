@@ -3,7 +3,6 @@ import AddressFormatter from "@dashboard/components/AddressFormatter";
 import { DashboardCard } from "@dashboard/components/Card";
 import CardMenu from "@dashboard/components/CardMenu";
 import { AddressFragment, AddressTypeEnum } from "@dashboard/graphql";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Skeleton } from "@saleor/macaw-ui-next";
 import { defineMessages, useIntl } from "react-intl";
 
@@ -53,24 +52,6 @@ const messages = defineMessages({
   },
 });
 
-const useStyles = makeStyles(
-  {
-    actions: {
-      flexDirection: "row",
-    },
-    actionsContainer: {
-      display: "flex",
-      flexDirection: "column",
-      height: "100%",
-      justifyContent: "flex-end",
-    },
-    card: {
-      display: "flex",
-      flexDirection: "column",
-    },
-  },
-  { name: "CustomerAddress" },
-);
 const CustomerAddress = (props: CustomerAddressProps) => {
   const {
     address,
@@ -81,12 +62,11 @@ const CustomerAddress = (props: CustomerAddressProps) => {
     onRemove,
     onSetAsDefault,
   } = props;
-  const classes = useStyles(props);
 
   const intl = useIntl();
 
   return (
-    <DashboardCard data-test-id="address-card" className={classes.card}>
+    <DashboardCard data-test-id="address-card" className="flex flex-col">
       <DashboardCard.Header>
         <DashboardCard.Title data-test-id="address-type-title">
           {address ? (

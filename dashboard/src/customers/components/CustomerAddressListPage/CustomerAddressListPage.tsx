@@ -4,7 +4,6 @@ import { ListPageLayout } from "@dashboard/components/Layouts";
 import { customerUrl } from "@dashboard/customers/urls";
 import { AddressTypeEnum, CustomerAddressesFragment } from "@dashboard/graphql";
 import { getStringOrPlaceholder, renderCollection } from "@dashboard/misc";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Box, Button, Text } from "@saleor/macaw-ui-next";
 import { defineMessages, useIntl } from "react-intl";
 
@@ -51,37 +50,8 @@ const messages = defineMessages({
   },
 });
 
-const useStyles = makeStyles(
-  theme => ({
-    addButton: {
-      marginTop: theme.spacing(2),
-    },
-    description: {
-      marginTop: theme.spacing(1),
-    },
-    empty: {
-      margin: `${theme.spacing(13)} auto 0`,
-      textAlign: "center",
-      width: 600,
-    },
-    root: {
-      display: "grid",
-      gap: theme.spacing(3),
-      gridTemplateColumns: "repeat(3, 1fr)",
-      [theme.breakpoints.down('lg')]: {
-        gridTemplateColumns: "repeat(2, 1fr)",
-      },
-      [theme.breakpoints.down('md')]: {
-        gridTemplateColumns: "repeat(1, 1fr)",
-      },
-    },
-  }),
-  { name: "CustomerAddressListPage" },
-);
-
 const CustomerAddressListPage = (props: CustomerAddressListPageProps) => {
   const { customer, disabled, onAdd, onEdit, onRemove, onSetAsDefault } = props;
-  const classes = useStyles(props);
 
   const intl = useIntl();
 
@@ -117,15 +87,15 @@ const CustomerAddressListPage = (props: CustomerAddressListPageProps) => {
           <Text size={3} fontWeight="bold" lineHeight={2}>
             {intl.formatMessage(messages.noAddressToShow)}
           </Text>
-          <Text className={classes.description}>
+          <Text className="mt-2">
             {intl.formatMessage(messages.doesntHaveAddresses)}
           </Text>
-          <Button className={classes.addButton} variant="primary" onClick={onAdd}>
+          <Button className="mt-4" variant="primary" onClick={onAdd}>
             {intl.formatMessage(messages.addAddress)}
           </Button>
         </Box>
       ) : (
-        <div className={classes.root}>
+        <div className="grid gap-6 grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-1">
           {renderCollection(customer?.addresses, (address, addressNumber) => (
             <CustomerAddress
               address={address}

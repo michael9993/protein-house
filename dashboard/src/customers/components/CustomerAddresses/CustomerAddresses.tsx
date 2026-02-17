@@ -4,22 +4,11 @@ import { DashboardCard } from "@dashboard/components/Card";
 import { Hr } from "@dashboard/components/Hr";
 import { CustomerDetailsFragment } from "@dashboard/graphql";
 import { buttonMessages } from "@dashboard/intl";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Button, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 import { Link } from "react-router";
 
 import { maybe } from "../../../misc";
-
-const useStyles = makeStyles(
-  theme => ({
-    label: {
-      fontWeight: 600,
-      marginBottom: theme.spacing(1),
-    },
-  }),
-  { name: "CustomerAddresses" },
-);
 
 interface CustomerAddressesProps {
   customer: CustomerDetailsFragment;
@@ -29,7 +18,6 @@ interface CustomerAddressesProps {
 
 const CustomerAddresses = (props: CustomerAddressesProps) => {
   const { customer, disabled, manageAddressHref } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
 
   return (
@@ -55,7 +43,7 @@ const CustomerAddresses = (props: CustomerAddressesProps) => {
         <>
           {maybe(() => customer.defaultBillingAddress) !== null && (
             <DashboardCard.Content>
-              <Text className={classes.label}>
+              <Text className="font-semibold mb-2">
                 <FormattedMessage
                   id="biVFKU"
                   defaultMessage="Billing Address"
@@ -68,7 +56,7 @@ const CustomerAddresses = (props: CustomerAddressesProps) => {
           {maybe(() => customer.defaultBillingAddress && customer.defaultShippingAddress) && <Hr />}
           {maybe(() => customer.defaultShippingAddress) && (
             <DashboardCard.Content>
-              <Text className={classes.label}>
+              <Text className="font-semibold mb-2">
                 <FormattedMessage
                   id="Zd3Eew"
                   defaultMessage="Shipping Address"
@@ -88,7 +76,7 @@ const CustomerAddresses = (props: CustomerAddressesProps) => {
         </DashboardCard.Content>
       ) : (
         <DashboardCard.Content>
-          <Text className={classes.label}>
+          <Text className="font-semibold mb-2">
             <FormattedMessage
               id="bHdFph"
               defaultMessage="Address"
