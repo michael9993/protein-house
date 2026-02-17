@@ -12,11 +12,11 @@ import {
 import { TableCell, TextField } from "@mui/material";
 import { ChevronIcon, IconButton, WarningIcon } from "@saleor/macaw-ui";
 import { Box, Skeleton, Text, Tooltip } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import { useIntl } from "react-intl";
 
+import { cn } from "@dashboard/utils/cn";
+
 import { messages } from "./messages";
-import { useStyles } from "./styles";
 
 interface OrderFulfillLineProps {
   line: OrderFulfillLineFragment;
@@ -28,7 +28,6 @@ interface OrderFulfillLineProps {
 
 const OrderFulfillLine = (props: OrderFulfillLineProps) => {
   const { line, lineIndex, formsetData, formsetChange, onWarehouseChange } = props;
-  const classes = useStyles();
   const intl = useIntl();
   const isDeletedVariant = !line?.variant;
   const isPreorder = !!line.variant?.preorder;
@@ -42,19 +41,19 @@ const OrderFulfillLine = (props: OrderFulfillLineProps) => {
   if (!line) {
     return (
       <TableRowLink key={lineIndex}>
-        <TableCellAvatar className={classes.colName}>
+        <TableCellAvatar className="w-[220px]">
           <Skeleton />
         </TableCellAvatar>
-        <TableCell className={classes.colSku}>
+        <TableCell className="text-right text-ellipsis w-[100px]">
           <Skeleton />
         </TableCell>
-        <TableCell className={classes.colQuantity}>
+        <TableCell className="text-right w-[210px]">
           <Skeleton />
         </TableCell>
-        <TableCell className={classes.colStock}>
+        <TableCell className="text-right w-[180px]">
           <Skeleton />
         </TableCell>
-        <TableCell className={classes.colWarehouse}>
+        <TableCell className="w-[200px] text-right">
           <Skeleton />
         </TableCell>
       </TableRowLink>
@@ -64,13 +63,13 @@ const OrderFulfillLine = (props: OrderFulfillLineProps) => {
   return (
     <TableRowLink key={line.id}>
       <TableCellAvatar
-        className={classes.colName}
+        className="w-[220px]"
         thumbnail={line?.thumbnail?.url}
         badge={
           isPreorder || !line?.variant ? (
             <Tooltip>
               <Tooltip.Trigger>
-                <div className={classes.warningIcon}>
+                <div className="text-saleor-warning mr-4">
                   <WarningIcon />
                 </div>
               </Tooltip.Trigger>
@@ -91,19 +90,19 @@ const OrderFulfillLine = (props: OrderFulfillLineProps) => {
           {getAttributesCaption(line.variant?.attributes)}
         </Text>
       </TableCellAvatar>
-      <TableCell className={classes.colSku}>{line.variant?.sku}</TableCell>
+      <TableCell className="text-right text-ellipsis w-[100px]">{line.variant?.sku}</TableCell>
       {isPreorder ? (
-        <TableCell className={classes.colQuantity} />
+        <TableCell className="text-right w-[210px]" />
       ) : (
         <TableCell
-          className={classes.colQuantity}
+          className="text-right w-[210px]"
           key={warehouseStock?.id ?? "deletedVariant" + lineIndex}
         >
           <TextField
             type="number"
             inputProps={{
-              className: clsx(classes.quantityInnerInput, {
-                [classes.quantityInnerInputNoRemaining]: !line.variant?.trackInventory,
+              className: cn("py-4", {
+                "pr-0": !line.variant?.trackInventory,
               }),
               min: 0,
               style: { textAlign: "right" },
@@ -124,33 +123,33 @@ const OrderFulfillLine = (props: OrderFulfillLineProps) => {
               classes: {
                 ...(isStockExceeded &&
                   !overfulfill && {
-                    notchedOutline: classes.warning,
+                    notchedOutline: "!border-saleor-warning-dark shadow-[0_0_0_3px_var(--color-saleor-warning-light)]",
                   }),
               },
               endAdornment: (
-                <div className={classes.remainingQuantity}>/ {line.quantityToFulfill}</div>
+                <div className="py-4 text-text-secondary whitespace-nowrap">/ {line.quantityToFulfill}</div>
               ),
             }}
           />
         </TableCell>
       )}
-      <TableCell className={classes.colStock} key="total">
+      <TableCell className="text-right w-[180px]" key="total">
         {lineFormWarehouse ? (isPreorder || isDeletedVariant ? undefined : availableQuantity) : "-"}
       </TableCell>
-      <TableCell className={classes.colWarehouse}>
+      <TableCell className="w-[200px] text-right">
         {isPreorder ? (
           "-"
         ) : (
           <IconButton
             onClick={onWarehouseChange}
-            className={clsx(
-              classes.warehouseButton,
+            className={cn(
+              "p-3 w-full justify-end cursor-pointer border border-primary-dark hover:border-transparent",
               "MuiInputBase-root MuiOutlinedInput-root MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiOutlinedInput-adornedEnd",
             )}
             data-test-id="select-warehouse-button"
             size="medium">
-            <div className={classes.warehouseButtonContent}>
-              <Text className={classes.warehouseButtonContentText}>
+            <div className="flex justify-between items-center w-full cursor-pointer">
+              <Text className="overflow-hidden text-ellipsis whitespace-nowrap">
                 {lineFormWarehouse?.name ?? intl.formatMessage(messages.selectWarehouse)}
               </Text>
               <ChevronIcon onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />

@@ -6,37 +6,9 @@ import TableRowLink from "@dashboard/components/TableRowLink";
 import { InvoiceFragment } from "@dashboard/graphql";
 import { buttonMessages } from "@dashboard/intl";
 import { TableBody, TableCell } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Button, Skeleton, Text } from "@saleor/macaw-ui-next";
 import { Trash2Icon } from "lucide-react";
 import { FormattedMessage, useIntl } from "react-intl";
-
-const useStyles = makeStyles(
-  () => ({
-    card: {
-      overflow: "hidden",
-    },
-    colAction: {
-      button: {
-        padding: "0",
-      },
-      padding: "0 0.5rem",
-      width: "auto",
-    },
-    colNumber: { width: "100%" },
-    colNumberClickable: {
-      cursor: "pointer",
-      width: "100%",
-    },
-    invoicesTable: {
-      display: "flex",
-    },
-    invoicesTableBody: {
-      width: "100%",
-    },
-  }),
-  { name: "OrderInvoiceList" },
-);
 
 interface OrderInvoiceListProps {
   invoices: InvoiceFragment[];
@@ -48,12 +20,11 @@ interface OrderInvoiceListProps {
 
 const OrderInvoiceList = (props: OrderInvoiceListProps) => {
   const { invoices, onInvoiceGenerate, onInvoiceClick, onInvoiceSend, onInvoiceDelete } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
   const generatedInvoices = invoices?.filter(invoice => invoice.status === "SUCCESS");
 
   return (
-    <DashboardCard className={classes.card}>
+    <DashboardCard className="overflow-hidden">
       <DashboardCard.Header>
         <DashboardCard.Title>
           {intl.formatMessage({
@@ -82,12 +53,12 @@ const OrderInvoiceList = (props: OrderInvoiceListProps) => {
             <FormattedMessage id="hPB89Y" defaultMessage="No invoices to be shown" />
           </Text>
         ) : (
-          <ResponsiveTable className={classes.invoicesTable}>
-            <TableBody className={classes.invoicesTableBody}>
+          <ResponsiveTable className="flex">
+            <TableBody className="w-full">
               {generatedInvoices.map(invoice => (
                 <TableRowLink key={invoice.id} hover={!!invoice}>
                   <TableCell
-                    className={onInvoiceClick ? classes.colNumberClickable : classes.colNumber}
+                    className={onInvoiceClick ? "cursor-pointer w-full" : "w-full"}
                     onClick={() => onInvoiceClick(invoice.id)}
                   >
                     <div>
@@ -117,7 +88,7 @@ const OrderInvoiceList = (props: OrderInvoiceListProps) => {
                   </TableCell>
                   {onInvoiceSend && (
                     <TableCell
-                      className={classes.colAction}
+                      className="[&_button]:p-0 px-2 w-auto"
                       onClick={() => onInvoiceSend(invoice.id)}
                     >
                       <Button>
@@ -127,7 +98,7 @@ const OrderInvoiceList = (props: OrderInvoiceListProps) => {
                   )}
                   {onInvoiceDelete && generatedInvoices.length > 1 && (
                     <TableCell
-                      className={classes.colAction}
+                      className="[&_button]:p-0 px-2 w-auto"
                       onClick={e => {
                         e.stopPropagation();
                         onInvoiceDelete(invoice.id);

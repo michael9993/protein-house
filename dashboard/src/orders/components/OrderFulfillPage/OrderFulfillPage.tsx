@@ -35,14 +35,12 @@ import {
 } from "@dashboard/orders/utils/data";
 import { TableBody, TableCell, TableHead } from "@mui/material";
 import { Box, Checkbox, Input, Skeleton, Text, Tooltip } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import OrderFulfillLine from "../OrderFulfillLine/OrderFulfillLine";
 import OrderFulfillStockExceededDialog from "../OrderFulfillStockExceededDialog";
 import { messages } from "./messages";
-import { useStyles } from "./styles";
 
 interface OrderFulfillFormData {
   sendInfo: boolean;
@@ -82,7 +80,6 @@ const OrderFulfillPage = (props: OrderFulfillPageProps) => {
     closeModal,
   } = props;
   const intl = useIntl();
-  const classes = useStyles(props);
   const navigate = useNavigator();
   const { change: formsetChange, data: formsetData } = useFormset<null, OrderFulfillLineFormData[]>(
     (getToFulfillOrderLines(order?.lines) as OrderFulfillLineFragment[]).map(line => {
@@ -190,22 +187,22 @@ const OrderFulfillPage = (props: OrderFulfillPageProps) => {
                   </DashboardCard.Title>
                 </DashboardCard.Header>
                 {order ? (
-                  <ResponsiveTable className={classes.table}>
+                  <ResponsiveTable className="table-fixed">
                     <TableHead>
                       <TableRowLink>
-                        <TableCell className={classes.colName}>
+                        <TableCell className="w-[220px]">
                           <FormattedMessage {...messages.productName} />
                         </TableCell>
-                        <TableCell className={classes.colSku}>
+                        <TableCell className="text-right text-ellipsis w-[100px]">
                           <FormattedMessage {...messages.sku} />
                         </TableCell>
-                        <TableCell className={clsx(classes.colQuantity, classes.colQuantityHeader)}>
+                        <TableCell className="text-right w-[210px]">
                           <FormattedMessage {...messages.quantity} />
                         </TableCell>
-                        <TableCell className={classes.colStock}>
+                        <TableCell className="text-right w-[180px]">
                           <FormattedMessage {...messages.stock} />
                         </TableCell>
-                        <TableCell className={classes.colWarehouse}>
+                        <TableCell className="text-right w-[200px]">
                           <FormattedMessage {...messages.warehouse} />
                         </TableCell>
                       </TableRowLink>

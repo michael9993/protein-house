@@ -1,25 +1,9 @@
 import HorizontalSpacer from "@dashboard/components/HorizontalSpacer";
 import { DiscountValueTypeEnum, MoneyFragment } from "@dashboard/graphql";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import { defineMessages, useIntl } from "react-intl";
 
 import Label from "../Label";
-
-const useStyles = makeStyles(
-  () => ({
-    container: {
-      display: "flex",
-      flexDirection: "column",
-    },
-    horizontalContainer: {
-      display: "flex",
-      flexDirection: "row",
-      alignItems: "baseline",
-    },
-  }),
-  { name: "MoneySection" },
-);
 
 const messages = defineMessages({
   discount: {
@@ -68,7 +52,6 @@ const MoneySection = ({
   moneyData,
   sectionType = MoneySectionType.ONLY,
 }: MoneySectionProps) => {
-  const classes = useStyles({});
   const intl = useIntl();
 
   if (!value) {
@@ -90,9 +73,9 @@ const MoneySection = ({
   const renderMoney = (money: MoneyFragment) => <Text>{`${money.amount} ${money.currency}`}</Text>;
 
   return (
-    <div className={classes.container}>
+    <div className="flex flex-col">
       <Label text={intl.formatMessage(messages[sectionTitleMessageKey])} />
-      <div className={classes.horizontalContainer}>
+      <div className="flex flex-row items-baseline">
         <Text>{moneyData ? renderMoney(moneyData) : <Text>n/a</Text>}</Text>
         <HorizontalSpacer />
         <Label text={getDiscountSubtitle()} />

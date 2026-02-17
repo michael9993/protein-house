@@ -2,7 +2,6 @@ import { DateTime } from "@dashboard/components/Date";
 import { Pill } from "@dashboard/components/Pill";
 import { OrderDetailsFragment } from "@dashboard/graphql";
 import { transformOrderStatus } from "@dashboard/misc";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Box, Skeleton, Text } from "@saleor/macaw-ui-next";
 import { useIntl } from "react-intl";
 
@@ -10,22 +9,8 @@ interface TitleProps {
   order?: OrderDetailsFragment;
 }
 
-const useStyles = makeStyles(
-  theme => ({
-    container: {
-      alignItems: "center",
-      display: "flex",
-      gap: theme.spacing(2),
-    },
-    statusContainer: {
-      marginLeft: theme.spacing(2),
-    },
-  }),
-  { name: "OrderDetailsTitle" },
-);
 const Title = (props: TitleProps) => {
   const intl = useIntl();
-  const classes = useStyles(props);
   const { order } = props;
 
   if (!order) {
@@ -35,13 +20,13 @@ const Title = (props: TitleProps) => {
   const { localized, status } = transformOrderStatus(order.status, intl);
 
   return (
-    <div className={classes.container}>
+    <div className="flex items-center gap-4">
       <Box display="flex" justifyContent="center" alignItems="center">
         {intl.formatMessage(
           { id: "AqXzM2", defaultMessage: "Order #{orderNumber}" },
           { orderNumber: order?.number },
         )}
-        <div className={classes.statusContainer}>
+        <div className="ml-4">
           <Pill data-test-id="status-info" label={localized} color={status} />
         </div>
       </Box>

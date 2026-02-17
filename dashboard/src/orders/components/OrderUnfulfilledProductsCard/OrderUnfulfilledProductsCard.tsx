@@ -7,7 +7,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { OrderCardTitle } from "../OrderCardTitle/OrderCardTitle";
 import { OrderDetailsDatagrid } from "../OrderDetailsDatagrid/OrderDetailsDatagrid";
-import { useStyles } from "./styles";
 import { toLineWithUnfulfilledQuantity } from "./utils";
 
 interface OrderUnfulfilledProductsCardProps {
@@ -27,7 +26,6 @@ const OrderUnfulfilledProductsCard = ({
   onFulfill,
   loading,
 }: OrderUnfulfilledProductsCardProps) => {
-  const classes = useStyles();
   const intl = useIntl();
 
   if (!lines.length) {
@@ -39,7 +37,7 @@ const OrderUnfulfilledProductsCard = ({
       <DashboardCard gap={0}>
         <OrderCardTitle
           status="unfulfilled"
-          className={classes.cardTitle}
+          className="justify-between [&>div:first-child]:flex-none [&>div:first-child]:whitespace-nowrap [&>div:last-child]:flex-[0_1_auto] [&>div:last-child]:min-w-0 [&>div:last-child]:ml-2"
           toolbar={
             showFulfillmentAction && (
               <Box>

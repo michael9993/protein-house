@@ -7,7 +7,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import OrderCustomerChangeForm, { CustomerChangeActionEnum, OrderCustomerChangeData } from "./form";
 import messages from "./messages";
-import { useStyles } from "./styles";
 
 interface OrderCustomerChangeDialogProps {
   open: boolean;
@@ -17,7 +16,6 @@ interface OrderCustomerChangeDialogProps {
 
 const OrderCustomerChangeDialog = (props: OrderCustomerChangeDialogProps) => {
   const { open, onClose, onConfirm } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
 
   return (
@@ -33,7 +31,7 @@ const OrderCustomerChangeDialog = (props: OrderCustomerChangeDialogProps) => {
                 <FormattedMessage {...messages.description} />
               </Text>
               <RadioGroup
-                className={classes.container}
+                className="block"
                 value={data.changeActionOption}
                 name="changeActionOption"
                 onChange={event => change(event)}
@@ -42,13 +40,13 @@ const OrderCustomerChangeDialog = (props: OrderCustomerChangeDialogProps) => {
                   value={CustomerChangeActionEnum.KEEP_ADDRESS}
                   control={<Radio color="primary" />}
                   label={intl.formatMessage(messages.keepAddress)}
-                  className={classes.optionLabel}
+                  className="block"
                 />
                 <FormControlLabel
                   value={CustomerChangeActionEnum.CHANGE_ADDRESS}
                   control={<Radio color="primary" />}
                   label={intl.formatMessage(messages.changeAddress)}
-                  className={classes.optionLabel}
+                  className="block"
                 />
               </RadioGroup>
               <DashboardModal.Actions>

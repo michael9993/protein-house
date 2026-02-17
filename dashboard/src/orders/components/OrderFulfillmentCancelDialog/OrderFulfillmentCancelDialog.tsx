@@ -8,7 +8,6 @@ import { FulfillmentStatus, OrderErrorFragment, WarehouseFragment } from "@dashb
 import { buttonMessages } from "@dashboard/intl";
 import getOrderErrorMessage from "@dashboard/utils/errors/order";
 import createSingleAutocompleteSelectHandler from "@dashboard/utils/handlers/singleAutocompleteSelectChangeHandler";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import { useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -16,21 +15,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 interface OrderFulfillmentCancelDialogFormData {
   warehouseId: string;
 }
-
-const useStyles = makeStyles(
-  theme => ({
-    enableOverflow: {
-      overflow: "visible",
-    },
-    paragraph: {
-      marginBottom: theme.spacing(2),
-    },
-    selectCcontainer: {
-      width: "60%",
-    },
-  }),
-  { name: "OrderFulfillmentCancelDialog" },
-);
 
 interface OrderFulfillmentCancelDialogProps {
   confirmButtonState: ConfirmButtonTransitionState;
@@ -45,7 +29,6 @@ interface OrderFulfillmentCancelDialogProps {
 const OrderFulfillmentCancelDialog = (props: OrderFulfillmentCancelDialogProps) => {
   const { confirmButtonState, errors, open, warehouses, fulfillmentStatus, onConfirm, onClose } =
     props;
-  const classes = useStyles(props);
   const intl = useIntl();
   const [displayValue, setDisplayValue] = useState("");
   const choices = warehouses?.map(warehouse => ({
@@ -89,7 +72,7 @@ const OrderFulfillmentCancelDialog = (props: OrderFulfillmentCancelDialogProps) 
 
               {!waitingForApproval && (
                 <div
-                  className={classes.selectCcontainer}
+                  className="w-[60%]"
                   data-test-id="cancel-fulfillment-select-field"
                 >
                   <Combobox

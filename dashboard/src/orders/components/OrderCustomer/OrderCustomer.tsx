@@ -23,7 +23,6 @@ import { AddressTextError } from "./AddrssTextError";
 import { CustomerEditForm } from "./CustomerEditForm";
 import { CustomerSection } from "./CustomerSection";
 import { PickupAnnotation } from "./PickupAnnotation";
-import { useStyles } from "./styles";
 
 export interface CustomerEditData {
   user?: string;
@@ -62,7 +61,6 @@ const OrderCustomer = (props: OrderCustomerProps) => {
     onProfileView,
     onShippingAddressEdit,
   } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
   const user = maybe(() => order.user);
   const [userDisplayName, setUserDisplayName] = useStateFromProps(maybe(() => user?.email, ""));
@@ -122,7 +120,7 @@ const OrderCustomer = (props: OrderCustomerProps) => {
             user={user}
             userEmail={order?.userEmail}
             onProfileView={onProfileView}
-            userEmailClassName={classes.userEmail}
+            userEmailClassName="font-semibold mb-2"
           />
         )}
       </DashboardCard.Content>
@@ -130,8 +128,8 @@ const OrderCustomer = (props: OrderCustomerProps) => {
         <>
           <Hr />
           <DashboardCard.Content>
-            <div className={classes.sectionHeader}>
-              <Text className={classes.sectionHeaderTitle}>
+            <div className="flex items-center mb-6">
+              <Text className="flex-1 font-semibold leading-none">
                 <FormattedMessage
                   id="4Jp83O"
                   defaultMessage="Contact Information"
@@ -160,8 +158,8 @@ const OrderCustomer = (props: OrderCustomerProps) => {
       )}
       <Hr />
       <DashboardCard.Content data-test-id="shipping-address-section">
-        <div className={classes.sectionHeader}>
-          <Text className={classes.sectionHeaderTitle}>
+        <div className="flex items-center mb-6">
+          <Text className="flex-1 font-semibold leading-none">
             <FormattedMessage id="DP5VOH" defaultMessage="Shipping Address" />
           </Text>
           {canEditAddresses && (
@@ -201,8 +199,8 @@ const OrderCustomer = (props: OrderCustomerProps) => {
       </DashboardCard.Content>
       <Hr />
       <DashboardCard.Content data-test-id="billing-address-section">
-        <div className={classes.sectionHeader}>
-          <Text className={classes.sectionHeaderTitle}>
+        <div className="flex items-center mb-6">
+          <Text className="flex-1 font-semibold leading-none">
             <FormattedMessage id="c7/79+" defaultMessage="Billing Address" />
           </Text>
           {canEditAddresses && (

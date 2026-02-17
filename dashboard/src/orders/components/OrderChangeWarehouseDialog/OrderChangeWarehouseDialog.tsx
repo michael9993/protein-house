@@ -23,7 +23,6 @@ import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { changeWarehouseDialogMessages as messages } from "./messages";
-import { useStyles } from "./styles";
 
 interface OrderChangeWarehouseDialogProps {
   open: boolean;
@@ -40,7 +39,6 @@ const OrderChangeWarehouseDialog = ({
   onConfirm,
   onClose,
 }: OrderChangeWarehouseDialogProps) => {
-  const classes = useStyles();
   const intl = useIntl();
   const { anchor, position, setAnchor } = useElementScroll();
   const bottomShadow = !isScrolledToBottom(anchor, position, 20);
@@ -122,7 +120,7 @@ const OrderChangeWarehouseDialog = ({
                     </InputAdornment>
                   ),
                 }}
-                inputProps={{ className: classes.searchInput }}
+                inputProps={{ className: "py-4" }}
               />
             );
           }}
@@ -138,7 +136,7 @@ const OrderChangeWarehouseDialog = ({
               <RadioGroup
                 value={selectedWarehouseId}
                 onChange={handleChange}
-                className={classes.tableBody}
+                className="table w-full"
               >
                 {filteredWarehouses.map(warehouse => {
                   const lineQuantityInWarehouse = getLineAvailableQuantityInWarehouse(
@@ -148,13 +146,13 @@ const OrderChangeWarehouseDialog = ({
 
                   return (
                     <TableRowLink key={warehouse.id}>
-                      <TableCell className={classes.tableCell}>
+                      <TableCell className="flex justify-between items-center">
                         <FormControlLabel
                           value={warehouse.id}
                           control={<Radio color="primary" />}
                           label={
-                            <div className={classes.radioLabelContainer}>
-                              <span className={classes.warehouseName}>{warehouse.name}</span>
+                            <div className="flex flex-col">
+                              <span className="max-w-[350px] overflow-hidden text-ellipsis">{warehouse.name}</span>
                               <Text>
                                 <FormattedMessage
                                   {...messages.productAvailability}

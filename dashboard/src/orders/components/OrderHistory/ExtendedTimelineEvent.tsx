@@ -2,7 +2,6 @@
 import Money from "@dashboard/components/Money";
 import { TimelineEvent } from "@dashboard/components/Timeline";
 import { OrderEventFragment, OrderEventsEnum } from "@dashboard/graphql";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import camelCase from "lodash/camelCase";
 import { defineMessages, useIntl } from "react-intl";
@@ -15,30 +14,6 @@ import {
   hasOrderLineDiscountWithNoPreviousValue,
   isTimelineEventOfDiscountType,
 } from "./utils";
-
-const useStyles = makeStyles(
-  theme => ({
-    eventSubtitle: {
-      marginBottom: theme.spacing(0.5),
-      marginTop: theme.spacing(1),
-    },
-    header: {
-      fontWeight: 500,
-      marginBottom: theme.spacing(1),
-    },
-    linesTableCell: {
-      paddingRight: theme.spacing(3),
-    },
-    root: { marginTop: theme.spacing(4) },
-    topSpacer: {
-      marginTop: theme.spacing(3),
-    },
-    user: {
-      marginBottom: theme.spacing(1),
-    },
-  }),
-  { name: "OrderHistory" },
-);
 
 const productTitles = defineMessages({
   draftCreatedFromReplace: {
@@ -151,7 +126,6 @@ const ExtendedTimelineEvent = ({
   hasPlainDate,
 }: ExtendedTimelineEventProps) => {
   const { id, date, type, lines, amount, transactionReference, shippingCostsIncluded } = event;
-  const classes = useStyles({});
   const intl = useIntl();
   const eventTypeInCamelCase = camelCase(type);
   const getEventTitleMessageInCamelCase = () => {
@@ -210,11 +184,11 @@ const ExtendedTimelineEvent = ({
             <tbody>
               {lines.map(({ orderLine, quantity, itemName }, i) => (
                 <tr key={`${itemName}-${i}`}>
-                  <td className={classes.linesTableCell}>{orderLine?.productName || itemName}</td>
-                  <td className={classes.linesTableCell}>
+                  <td className="pr-6">{orderLine?.productName || itemName}</td>
+                  <td className="pr-6">
                     <Label text={orderLine?.variantName} />
                   </td>
-                  <td className={classes.linesTableCell}>
+                  <td className="pr-6">
                     <Label text={`qty: ${quantity}`} />
                   </td>
                 </tr>

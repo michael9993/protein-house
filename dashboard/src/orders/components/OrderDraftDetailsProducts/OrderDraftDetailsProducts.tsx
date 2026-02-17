@@ -1,5 +1,4 @@
 import { OrderDetailsFragment, OrderErrorFragment } from "@dashboard/graphql";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Skeleton } from "@saleor/macaw-ui-next";
 
 import { OrderDraftDetailsDatagrid } from "../OrderDraftDetailsDatagrid/OrderDraftDetailsDatagrid";
@@ -7,15 +6,6 @@ import { OrderDraftDetailsDatagrid } from "../OrderDraftDetailsDatagrid/OrderDra
 export interface FormData {
   quantity: number;
 }
-
-const useStyles = makeStyles(
-  theme => ({
-    skeleton: {
-      margin: theme.spacing(0, 4),
-    },
-  }),
-  { name: "OrderDraftDetailsProducts" },
-);
 
 interface OrderDraftDetailsProductsProps {
   order?: OrderDetailsFragment;
@@ -34,12 +24,11 @@ const OrderDraftDetailsProducts = ({
   onOrderLineRemove,
   onOrderLineShowMetadata,
 }: OrderDraftDetailsProductsProps) => {
-  const classes = useStyles();
   const lines = order?.lines ?? [];
   const formErrors = errors.filter(error => error.field === "lines");
 
   if (order === undefined) {
-    return <Skeleton className={classes.skeleton} />;
+    return <Skeleton className="mx-8" />;
   }
 
   return (

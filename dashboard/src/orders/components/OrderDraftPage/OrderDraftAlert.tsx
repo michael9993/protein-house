@@ -8,7 +8,6 @@ import { Link } from "react-router";
 
 import OrderAlerts from "../OrderAlerts";
 import { alertMessages } from "./messages";
-import { useAlertStyles } from "./styles";
 
 const getAlerts = (
   order?: OrderDetailsFragment,
@@ -45,7 +44,6 @@ export type OrderDraftAlertProps = Omit<AlertProps, "variant" | "close"> & {
 
 const OrderDraftAlert = (props: OrderDraftAlertProps) => {
   const { order, channelUsabilityData, ...alertProps } = props;
-  const classes = useAlertStyles();
   const intl = useIntl();
   const alerts = getAlerts(order, channelUsabilityData);
 
@@ -57,7 +55,7 @@ const OrderDraftAlert = (props: OrderDraftAlertProps) => {
     <Alert
       variant="warning"
       close
-      className={clsx(classes.root, "remove-icon-background")}
+      className={clsx("mb-6 [&_.MuiCardContent-root]:bg-[unset] [&_.MuiCardContent-root]:pr-8", "remove-icon-background")}
       {...alertProps}
     >
       <OrderAlerts

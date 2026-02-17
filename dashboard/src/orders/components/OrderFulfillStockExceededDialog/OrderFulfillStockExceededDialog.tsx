@@ -17,7 +17,6 @@ import { useIntl } from "react-intl";
 
 import OrderFulfillStockExceededDialogLine from "../OrderFulfillStockExceededDialogLine";
 import { stockExceededDialogMessages as messages } from "./messages";
-import { useStyles } from "./styles";
 
 interface OrderFulfillStockExceededDialogProps {
   lines: Array<FulfillmentFragment["lines"][0] | OrderFulfillLineFragment>;
@@ -31,7 +30,6 @@ interface OrderFulfillStockExceededDialogProps {
 const OrderFulfillStockExceededDialog = (props: OrderFulfillStockExceededDialogProps) => {
   const { lines, open, formsetData, confirmButtonState, onClose, onSubmit } = props;
   const intl = useIntl();
-  const classes = useStyles(props);
   const exceededLines = lines?.filter(el => {
     const line = "orderLine" in el ? el.orderLine : el;
     const lineFormWarehouse = formsetData?.find(item => item.id === el.id)?.value?.[0]?.warehouse;
@@ -54,18 +52,18 @@ const OrderFulfillStockExceededDialog = (props: OrderFulfillStockExceededDialogP
       >
         <Text>{intl.formatMessage(messages.infoLabel)}</Text>
         <CardSpacer />
-        <div className={classes.scrollable}>
-          <ResponsiveTable className={classes.table}>
+        <div className="max-h-[450px] overflow-scroll">
+          <ResponsiveTable className="table-fixed">
             {!!lines?.length && (
               <TableHead>
                 <TableRowLink>
-                  <TableCell className={classes.colName}>
+                  <TableCell className="w-auto m-0">
                     {intl.formatMessage(messages.productLabel)}
                   </TableCell>
-                  <TableCell className={classes.colQuantity}>
+                  <TableCell className="text-right w-[100px] p-1">
                     {intl.formatMessage(messages.requiredStockLabel)}
                   </TableCell>
-                  <TableCell className={classes.colWarehouseStock}>
+                  <TableCell className="text-right w-[150px] px-6 py-1">
                     {intl.formatMessage(messages.warehouseStockLabel)}
                   </TableCell>
                 </TableRowLink>

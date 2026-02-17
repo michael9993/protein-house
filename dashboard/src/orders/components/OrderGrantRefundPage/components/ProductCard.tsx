@@ -10,7 +10,6 @@ import { FormattedMessage } from "react-intl";
 
 import { useGrantRefundContext } from "../context";
 import { grantRefundPageMessages, productCardMessages } from "../messages";
-import { useProductsCardStyles } from "../styles";
 
 interface ProductsCardProps {
   title: React.ReactNode;
@@ -19,7 +18,6 @@ interface ProductsCardProps {
 }
 
 export const ProductsCard = ({ title, subtitle, lines }: ProductsCardProps) => {
-  const classes = useProductsCardStyles();
   const { dispatch, state } = useGrantRefundContext();
 
   if (lines.length === 0) {
@@ -66,16 +64,16 @@ export const ProductsCard = ({ title, subtitle, lines }: ProductsCardProps) => {
       </Box>
       <Table>
         <TableHead>
-          <TableCell className={classes.colProduct}>
+          <TableCell className="w-auto">
             <FormattedMessage {...productCardMessages.product} />
           </TableCell>
-          <TableCell className={classes.colUnitPrice}>
+          <TableCell className="text-right w-[164px]">
             <FormattedMessage {...productCardMessages.unitPrice} />
           </TableCell>
-          <TableCell className={classes.colQuantity}>
+          <TableCell className="text-right w-[139px]">
             <FormattedMessage {...productCardMessages.quantity} />
           </TableCell>
-          <TableCell className={classes.colQuantityInput}>
+          <TableCell className="text-right w-[164px]">
             <FormattedMessage {...productCardMessages.qtyToRefund} />
           </TableCell>
         </TableHead>
@@ -91,17 +89,17 @@ export const ProductsCard = ({ title, subtitle, lines }: ProductsCardProps) => {
 
               return (
                 <TableRowLink key={line.id}>
-                  <TableCellAvatar thumbnail={line.thumbnail?.url} className={classes.colProduct}>
-                    <div className={classes.productName}>
+                  <TableCellAvatar thumbnail={line.thumbnail?.url} className="w-auto">
+                    <div className="flex flex-col [&_span:last-child]:text-saleor-main-3 [&_span:last-child]:text-xl">
                       <span>{line.productName}</span>
                       <span>{line.variantName}</span>
                     </div>
                   </TableCellAvatar>
-                  <TableCell className={classes.colUnitPrice}>
+                  <TableCell className="text-right w-[164px]">
                     <Money money={line.unitPrice.gross} />
                   </TableCell>
-                  <TableCell className={classes.colQuantity}>{line.quantity}</TableCell>
-                  <TableCell className={classes.colQuantityInput}>
+                  <TableCell className="text-right w-[139px]">{line.quantity}</TableCell>
+                  <TableCell className="text-right w-[164px]">
                     <Input
                       size="small"
                       textAlign="right"

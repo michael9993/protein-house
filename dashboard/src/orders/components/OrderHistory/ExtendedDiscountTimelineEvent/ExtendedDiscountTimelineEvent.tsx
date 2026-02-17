@@ -4,25 +4,11 @@ import HorizontalSpacer from "@dashboard/components/HorizontalSpacer";
 import { TimelineEvent } from "@dashboard/components/Timeline";
 import { TitleElement } from "@dashboard/components/Timeline/TimelineEventHeader";
 import { OrderEventFragment, OrderEventsEnum } from "@dashboard/graphql";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import { defineMessages, useIntl } from "react-intl";
 
 import Label from "../Label";
 import MoneySection, { MoneySectionType } from "./MoneySection";
-
-const useStyles = makeStyles(
-  () => ({
-    horizontalContainer: {
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "baseline",
-      width: "100%",
-    },
-  }),
-  { name: "ExtendedDiscountTimelineEvent" },
-);
 
 const messages = defineMessages({
   reasonLabel: {
@@ -38,7 +24,6 @@ interface ExtendedTimelineEventProps {
 }
 
 const ExtendedDiscountTimelineEvent = ({ event, titleElements }: ExtendedTimelineEventProps) => {
-  const classes = useStyles({});
   const intl = useIntl();
   const { lines, date, type } = event;
   const parsedDiscount =
@@ -57,7 +42,7 @@ const ExtendedDiscountTimelineEvent = ({ event, titleElements }: ExtendedTimelin
   return (
     <TimelineEvent date={date} titleElements={titleElements}>
       {shouldDisplayOldNewSections && (
-        <div className={classes.horizontalContainer}>
+        <div className="flex flex-row justify-between items-baseline w-full">
           <MoneySection
             sectionType={MoneySectionType.NEW}
             value={value}

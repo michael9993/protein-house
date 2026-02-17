@@ -14,7 +14,6 @@ import { useIntl } from "react-intl";
 
 import { AddressInputOptionEnum } from "./form";
 import { addressEditMessages } from "./messages";
-import { useStyles } from "./styles";
 
 export interface OrderCustomerAddressEditProps {
   loading: boolean;
@@ -50,7 +49,6 @@ const OrderCustomerAddressEdit = (props: OrderCustomerAddressEditProps) => {
     onEdit,
     showCard = true,
   } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
 
   if (loading) {
@@ -72,7 +70,7 @@ const OrderCustomerAddressEdit = (props: OrderCustomerAddressEditProps) => {
 
   return (
     <RadioGroup
-      className={classes.container}
+      className="block"
       value={addressInputOption}
       name={addressInputName}
       onChange={event => onChangeAddressInputOption(event)}
@@ -81,7 +79,7 @@ const OrderCustomerAddressEdit = (props: OrderCustomerAddressEditProps) => {
         value={AddressInputOptionEnum.CUSTOMER_ADDRESS}
         control={<Radio color="primary" data-test-id={AddressInputOptionEnum.CUSTOMER_ADDRESS} />}
         label={intl.formatMessage(addressEditMessages.customerAddress)}
-        className={classes.optionLabel}
+        className="block"
       />
       {addressInputOption === AddressInputOptionEnum.CUSTOMER_ADDRESS && showCard && (
         <>
@@ -98,7 +96,7 @@ const OrderCustomerAddressEdit = (props: OrderCustomerAddressEditProps) => {
         value={AddressInputOptionEnum.NEW_ADDRESS}
         control={<Radio color="primary" data-test-id={AddressInputOptionEnum.NEW_ADDRESS} />}
         label={intl.formatMessage(addressEditMessages.newAddress)}
-        className={classes.optionLabel}
+        className="block"
       />
       {addressInputOption === AddressInputOptionEnum.NEW_ADDRESS && (
         <Box display="grid" gap={5}>

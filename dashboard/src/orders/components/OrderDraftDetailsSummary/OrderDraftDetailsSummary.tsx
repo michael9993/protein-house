@@ -11,7 +11,6 @@ import { OrderDiscountContextConsumerProps } from "@dashboard/products/component
 import { OrderDiscountData } from "@dashboard/products/components/OrderDiscountProviders/types";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getOrderErrorMessage from "@dashboard/utils/errors/order";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Box, Popover, sprinkles, Text } from "@saleor/macaw-ui-next";
 import { useIntl } from "react-intl";
 
@@ -19,42 +18,6 @@ import OrderDiscountCommonModal from "../OrderDiscountCommonModal";
 import { ORDER_DISCOUNT } from "../OrderDiscountCommonModal/types";
 import { messages } from "./messages";
 
-const useStyles = makeStyles(
-  theme => ({
-    root: {
-      ...theme.typography.body1,
-      lineHeight: 1.9,
-      width: "100%",
-    },
-    textRight: {
-      textAlign: "right",
-    },
-    textError: {
-      color: theme.palette.error.main,
-      marginLeft: theme.spacing(1.5),
-      display: "inline",
-    },
-    subtitle: {
-      color: theme.palette.grey[500],
-      paddingRight: theme.spacing(1),
-    },
-    relativeRow: {
-      position: "relative",
-    },
-    percentDiscountLabelContainer: {
-      display: "flex",
-      flexDirection: "row",
-      alignItems: "baseline",
-      justifyContent: "flex-end",
-    },
-    shippingMethodContainer: {
-      display: "flex",
-      flexDirection: "row",
-      alignItems: "baseline",
-    },
-  }),
-  { name: "OrderDraftDetailsSummary" },
-);
 const PRICE_PLACEHOLDER = "---";
 
 interface OrderDraftDetailsSummaryProps extends OrderDiscountContextConsumerProps {
@@ -80,7 +43,6 @@ const OrderDraftDetailsSummary = (props: OrderDraftDetailsSummaryProps) => {
     undiscountedPrice,
   } = props;
   const intl = useIntl();
-  const classes = useStyles(props);
 
   if (!order) {
     return null;
@@ -110,8 +72,8 @@ const OrderDraftDetailsSummary = (props: OrderDraftDetailsSummaryProps) => {
 
     if (calculationMode === DiscountValueTypeEnum.PERCENTAGE) {
       return (
-        <div className={classes.percentDiscountLabelContainer}>
-          <Text className={classes.subtitle}>{`(${discountValue}%)`}</Text>
+        <div className="flex flex-row items-baseline justify-end">
+          <Text className="text-gray-500 pr-2">{`(${discountValue}%)`}</Text>
           <Money money={discountAmount} />
         </div>
       );
@@ -137,7 +99,7 @@ const OrderDraftDetailsSummary = (props: OrderDraftDetailsSummaryProps) => {
     const addShippingAddressInfo = intl.formatMessage(messages.addShippingAddressInfo);
 
     return (
-      <div className={classes.shippingMethodContainer}>
+      <div className="flex flex-row items-baseline">
         <ButtonLink underline disabled onClick={onShippingMethodEdit}>
           {shippingCarrierBase}
         </ButtonLink>
@@ -148,9 +110,9 @@ const OrderDraftDetailsSummary = (props: OrderDraftDetailsSummaryProps) => {
   };
 
   return (
-    <table data-test-id="order-summary" className={classes.root}>
+    <table data-test-id="order-summary" className="text-base leading-[1.9] w-full">
       <tbody>
-        <tr className={classes.relativeRow}>
+        <tr className="relative">
           <td>
             <Popover
               onOpenChange={val => {
@@ -183,11 +145,11 @@ const OrderDraftDetailsSummary = (props: OrderDraftDetailsSummaryProps) => {
               </Popover.Content>
             </Popover>
           </td>
-          <td className={classes.textRight}>{getOrderDiscountLabel(orderDiscount)}</td>
+          <td className="text-right">{getOrderDiscountLabel(orderDiscount)}</td>
         </tr>
         <tr data-test-id="order-subtotal-price">
           <td>{intl.formatMessage(messages.subtotal)}</td>
-          <td className={classes.textRight}>
+          <td className="text-right">
             <Money money={subtotal.gross} />
           </td>
         </tr>
@@ -198,25 +160,25 @@ const OrderDraftDetailsSummary = (props: OrderDraftDetailsSummaryProps) => {
             {!hasShippingMethods && intl.formatMessage(messages.noShippingCarriers)}
 
             {formErrors.shipping && (
-              <Text size={3} fontWeight="regular" className={classes.textError}>
+              <Text size={3} fontWeight="regular" className="text-error ml-3 inline">
                 {getOrderErrorMessage(formErrors.shipping, intl)}
               </Text>
             )}
           </td>
 
-          <td className={classes.textRight}>
+          <td className="text-right">
             {hasChosenShippingMethod ? <Money money={shippingPrice.gross} /> : PRICE_PLACEHOLDER}
           </td>
         </tr>
         <tr data-test-id="order-taxes-price">
           <td>{intl.formatMessage(messages.taxes)}</td>
-          <td className={classes.textRight}>
+          <td className="text-right">
             <Money money={order.total.tax} />
           </td>
         </tr>
         <tr data-test-id="order-total-price">
           <td>{intl.formatMessage(messages.total)}</td>
-          <td className={classes.textRight}>
+          <td className="text-right">
             <Money money={total.gross} />
           </td>
         </tr>

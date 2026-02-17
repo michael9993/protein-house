@@ -12,7 +12,6 @@ import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { dialogMessages as messages } from "./messages";
-import { useStyles } from "./styles";
 import { parseQuery, stringifyAddress } from "./utils";
 
 interface OrderCustomerAddressesSearchProps {
@@ -42,7 +41,6 @@ const OrderCustomerAddressesSearch = (props: OrderCustomerAddressesSearchProps) 
     exitSearch,
   } = props;
   const intl = useIntl();
-  const classes = useStyles(props);
   const initialAddress = customerAddresses.find(getById(selectedCustomerAddressId));
   const [query, setQuery] = React.useState("");
   const [temporarySelectedAddress, setTemporarySelectedAddress] = React.useState(initialAddress);
@@ -83,10 +81,10 @@ const OrderCustomerAddressesSearch = (props: OrderCustomerAddressesSearchProps) 
             </InputAdornment>
           ),
         }}
-        inputProps={{ className: classes.searchInput }}
+        inputProps={{ className: "py-4" }}
       />
 
-      <div className={classes.scrollableWrapper}>
+      <div className="max-h-[400px] overflow-y-scroll">
         {filteredCustomerAddresses.length === 0
           ? intl.formatMessage(messages.noResultsFound)
           : filteredCustomerAddresses?.map(address => (
