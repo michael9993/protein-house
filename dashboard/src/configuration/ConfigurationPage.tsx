@@ -3,8 +3,6 @@ import { TopNav } from "@dashboard/components/AppLayout/TopNav";
 import { DetailPageLayout } from "@dashboard/components/Layouts";
 import { UserFragment } from "@dashboard/graphql";
 import { sectionNames } from "@dashboard/intl";
-import { useTheme } from "@mui/material/styles";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import { NavigationCard } from "@saleor/macaw-ui";
 import { Box, Text } from "@saleor/macaw-ui-next";
 import { useIntl } from "react-intl";
@@ -31,17 +29,14 @@ export const ConfigurationPage = (props: ConfigurationPageProps) => {
     user,
     versionInfo: { dashboardVersion, coreVersion },
   } = props;
-  const theme = useTheme();
-  const isSmUp = useMediaQuery(theme.breakpoints.up("sm"));
-  const renderVersionInfo = (
-    <VersionInfo dashboardVersion={dashboardVersion} coreVersion={coreVersion} />
-  );
   const intl = useIntl();
 
   return (
     <DetailPageLayout gridTemplateColumns={1} withSavebar={false}>
       <TopNav title={intl.formatMessage(sectionNames.configuration)}>
-        {isSmUp && renderVersionInfo}
+        <div className="hidden sm:block">
+          <VersionInfo dashboardVersion={dashboardVersion} coreVersion={coreVersion} />
+        </div>
       </TopNav>
       <DetailPageLayout.Content data-test-id="configuration-menu">
         <Box paddingX={6} __maxWidth={"1024px"} margin="auto">

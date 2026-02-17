@@ -6,8 +6,7 @@ import { commonMessages } from "@dashboard/intl";
 import { getUserInitials } from "@dashboard/misc";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getStaffErrorMessage from "@dashboard/utils/errors/staff";
-import { TextField } from "@mui/material";
-import { Box, Text } from "@saleor/macaw-ui-next";
+import { Box, Input, Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import SVG from "react-inlinesvg";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -172,36 +171,30 @@ const StaffProperties = (props: StaffPropertiesProps) => {
               }}
             >
               <Box>
-                <TextField
+                <Input
+                  size="small"
                   {...getFieldProps("firstName")}
                   onChange={onChange}
-                  fullWidth
-                  inputProps={{
-                    spellCheck: false,
-                    "data-test-id": "staffFirstName",
-                  }}
+                  spellCheck={false}
+                  data-test-id="staffFirstName"
                 />
               </Box>
               <Box>
-                <TextField
+                <Input
+                  size="small"
                   {...getFieldProps("lastName")}
                   onChange={onChange}
-                  fullWidth
-                  inputProps={{
-                    spellCheck: false,
-                    "data-test-id": "staffLastName",
-                  }}
+                  spellCheck={false}
+                  data-test-id="staffLastName"
                 />
               </Box>
               <Box>
-                <TextField
+                <Input
+                  size="small"
                   {...getFieldProps("email")}
                   onChange={onChange}
-                  fullWidth
-                  inputProps={{
-                    spellCheck: false,
-                    "data-test-id": "staffEmail",
-                  }}
+                  spellCheck={false}
+                  data-test-id="staffEmail"
                 />
               </Box>
             </Box>

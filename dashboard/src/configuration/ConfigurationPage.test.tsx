@@ -1,4 +1,3 @@
-import useMediaQuery from "@mui/material/useMediaQuery";
 import { render, screen, waitFor } from "@testing-library/react";
 import { useIntl } from "react-intl";
 import { Link } from "react-router";
@@ -8,7 +7,6 @@ import { PermissionEnum, UserFragment } from "../graphql";
 import { ConfigurationPage } from "./ConfigurationPage";
 import { MenuSection } from "./types";
 
-vi.mock("@mui/material/useMediaQuery", () => ({ default: vi.fn() }));
 vi.mock("@dashboard/featureFlags", () => ({
   useFlag: vi.fn(() => ({ enabled: true })),
 }));
@@ -73,7 +71,6 @@ const renderComponent = (props = {}) => {
 
 describe("ConfigurationPage", () => {
   beforeEach(() => {
-    vi.mocked(useMediaQuery).mockReturnValue(true);
     vi.mocked(useIntl).mockReturnValue({
       formatMessage: ({ defaultMessage }: { defaultMessage: string }) => defaultMessage,
     });
@@ -93,26 +90,14 @@ describe("ConfigurationPage", () => {
     });
   });
 
-  it("should display version information when screen size is large enough", async () => {
+  it("should render version information in the DOM", async () => {
     // Arrange
     renderComponent();
 
-    // Assert
+    // Assert - version info is always in the DOM (visibility controlled by CSS)
     await waitFor(() => {
       expect(screen.getByText(/dashboard 1.0.0/)).toBeInTheDocument();
       expect(screen.getByText(/core v2.0.0/)).toBeInTheDocument();
-    });
-  });
-
-  it("should not display version information when screen size is small", async () => {
-    // Arrange
-    vi.mocked(useMediaQuery).mockReturnValue(false);
-    renderComponent();
-
-    // Assert
-    await waitFor(() => {
-      expect(screen.queryByText(/dashboard 1.0.0/)).not.toBeInTheDocument();
-      expect(screen.queryByText(/core v2.0.0/)).not.toBeInTheDocument();
     });
   });
 

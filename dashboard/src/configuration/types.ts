@@ -1,9 +1,8 @@
 import { PermissionEnum } from "@dashboard/graphql";
-import { IconProps } from "@mui/material";
 
 export interface MenuItem {
   description: string;
-  icon: React.ReactElement<IconProps>;
+  icon: React.ReactElement;
   permissions?: PermissionEnum[];
   requireAllPermissions?: boolean;
   title: string;

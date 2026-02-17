@@ -2,7 +2,6 @@
 import Grid from "@dashboard/components/Grid";
 import { DashboardModal } from "@dashboard/components/Modal";
 import { useTriggerWebhookDryRunMutation, WebhookEventTypeSyncEnum } from "@dashboard/graphql";
-import { capitalize } from "@mui/material";
 import {
   Alert,
   Button,
@@ -33,8 +32,9 @@ const DryRun = ({ setResult, showDialog, setShowDialog, query, syncEvents }: Dry
   const intl = useIntl();
   const [objectId, setObjectId] = useState<string | null>(null);
   const [triggerWebhookDryRun] = useTriggerWebhookDryRunMutation();
+  const capitalizeStr = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
   const availableObjects = Object.keys(DocumentMap).map(object =>
-    capitalize(object.split("_").join(" ").toLowerCase()),
+    capitalizeStr(object.split("_").join(" ").toLowerCase()),
   );
   const unavailableObjects = getUnavailableObjects(query);
   const [object, setObject] = useState<string | null>(null);
@@ -108,7 +108,7 @@ const DryRun = ({ setResult, showDialog, setShowDialog, query, syncEvents }: Dry
                     onClick={() => setObject(object.split(" ").join("_").toUpperCase())}
                   >
                     <ListItemCell className="!pl-0 break-all font-semibold">
-                      <strong>{capitalize(object.replaceAll("_", " ").toLowerCase())}</strong>
+                      <strong>{capitalizeStr(object.replaceAll("_", " ").toLowerCase())}</strong>
                     </ListItemCell>
                     <ListItemCell></ListItemCell>
                   </ListItem>

@@ -2,8 +2,7 @@ import { DashboardCard } from "@dashboard/components/Card";
 import FormSpacer from "@dashboard/components/FormSpacer";
 import { ShopErrorFragment } from "@dashboard/graphql";
 import { getFormErrors } from "@dashboard/utils/errors";
-import { TextField } from "@mui/material";
-import { Text } from "@saleor/macaw-ui-next";
+import { Input, Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -43,12 +42,12 @@ const SiteCheckoutSettingsCard = ({
           <FormattedMessage {...messages.reservedStockDescription} />
         </Text>
         <FormSpacer />
-        <TextField
+        <Input
+          size="small"
           data-test-id="reserve-stock-duration-for-auth-user-input"
           disabled={disabled}
           error={!!formErrors.reserveStockDurationAuthenticatedUser}
           type="number"
-          fullWidth
           name="reserveStockDurationAuthenticatedUser"
           label={intl.formatMessage(messages.stockReservationForAuthenticatedUser)}
           helperText={intl.formatMessage(messages.stockWillNotBeReserved)}
@@ -58,19 +57,15 @@ const SiteCheckoutSettingsCard = ({
               : ""
           }
           onChange={onChange}
-          InputProps={{
-            inputProps: {
-              autoComplete: "none",
-            },
-          }}
+          autoComplete="none"
         />
         <FormSpacer />
-        <TextField
+        <Input
+          size="small"
           data-test-id="reserve-stock-duration-for-anon-user-input"
           disabled={disabled}
           error={!!formErrors.reserveStockDurationAnonymousUser}
           type="number"
-          fullWidth
           name="reserveStockDurationAnonymousUser"
           label={intl.formatMessage(messages.stockReservationForAnonymousUser)}
           helperText={intl.formatMessage(messages.stockWillNotBeReserved)}
@@ -80,34 +75,26 @@ const SiteCheckoutSettingsCard = ({
               : ""
           }
           onChange={onChange}
-          InputProps={{
-            inputProps: {
-              autoComplete: "none",
-            },
-          }}
+          autoComplete="none"
         />
       </DashboardCard.Content>
       <DashboardCard.Header>
         <DashboardCard.Title>{intl.formatMessage(messages.checkoutLimits)}</DashboardCard.Title>
       </DashboardCard.Header>
       <DashboardCard.Content>
-        <TextField
+        <Input
+          size="small"
           data-test-id="checkout-limits-input"
           disabled={disabled}
           error={!!formErrors.reserveStockDurationAuthenticatedUser}
           type="number"
-          fullWidth
           name="limitQuantityPerCheckout"
           label={intl.formatMessage(messages.checkoutLineLimit)}
           helperText={intl.formatMessage(messages.checkoutLimitsDescription)}
           value={data.limitQuantityPerCheckout ? String(data.limitQuantityPerCheckout) : ""}
           onChange={onChange}
-          InputProps={{
-            inputProps: {
-              autoComplete: "none",
-              min: 0,
-            },
-          }}
+          autoComplete="none"
+          min={0}
         />
       </DashboardCard.Content>
     </DashboardCard>

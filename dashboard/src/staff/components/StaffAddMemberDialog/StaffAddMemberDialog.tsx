@@ -9,11 +9,9 @@ import useModalDialogErrors from "@dashboard/hooks/useModalDialogErrors";
 import { commonMessages } from "@dashboard/intl";
 import { FetchMoreProps, RelayToFlat, SearchPageProps } from "@dashboard/types";
 import { getFormErrors } from "@dashboard/utils/errors";
-import { TextField } from "@mui/material";
-import { Box } from "@saleor/macaw-ui-next";
+import { Box, Input } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { ExtendedFormHelperTextProps } from "./types";
 
 export interface AddMemberFormData {
   email: string;
@@ -71,36 +69,31 @@ const StaffAddMemberDialog = (props: StaffAddMemberDialogProps) => {
             </DashboardModal.Header>
 
             <Box display="flex" gap={3} justifyContent="space-between">
-              <TextField
+              <Input
+                size="small"
                 data-test-id="first-name-input"
                 {...getFieldProps("firstName")}
                 type="text"
                 value={formData.firstName}
                 onChange={change}
-                fullWidth
               />
-              <TextField
+              <Input
+                size="small"
                 data-test-id="last-name-input"
                 {...getFieldProps("lastName")}
                 type="text"
                 value={formData.lastName}
                 onChange={change}
-                fullWidth
               />
             </Box>
 
-            <TextField
+            <Input
+              size="small"
               data-test-id="email-input"
-              fullWidth
               {...getFieldProps("email")}
               type="email"
               value={formData.email}
               onChange={change}
-              FormHelperTextProps={
-                {
-                  "data-test-id": "email-text-input-helper-text",
-                } as ExtendedFormHelperTextProps
-              }
             />
 
             <DashboardModal.Actions>
