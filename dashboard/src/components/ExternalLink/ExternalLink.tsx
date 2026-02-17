@@ -1,16 +1,6 @@
-import { makeStyles } from "@saleor/macaw-ui";
 import { Text, TextProps } from "@saleor/macaw-ui-next";
 import { HTMLAttributes } from "react";
 import * as React from "react";
-
-const useStyles = makeStyles(
-  {
-    link: {
-      textDecoration: "none",
-    },
-  },
-  { name: "ExternalLink" },
-);
 
 interface ExternalLinkProps extends React.HTMLProps<HTMLAnchorElement> {
   href: string;
@@ -22,13 +12,12 @@ interface ExternalLinkProps extends React.HTMLProps<HTMLAnchorElement> {
  */
 const ExternalLink = (props: ExternalLinkProps) => {
   const { className, children, href, target, rel, ...rest } = props;
-  const classes = useStyles(props);
   const opensNewTab = target === "_blank";
 
   return (
     <a
       href={href}
-      className={classes.link}
+      className="no-underline"
       target={target}
       rel={(rel ?? opensNewTab) ? "noopener noreferer" : ""}
       {...rest}

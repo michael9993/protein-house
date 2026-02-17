@@ -1,8 +1,7 @@
 // @ts-strict-ignore
-import { alpha } from "@mui/material/styles";
-import { ImageIcon, makeStyles } from "@saleor/macaw-ui";
-import { Text, vars } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
+import { cn } from "@dashboard/utils/cn";
+import { ImageIcon } from "@saleor/macaw-ui";
+import { Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage } from "react-intl";
 
@@ -19,40 +18,6 @@ interface ImageUploadProps {
   onImageUpload: (file: FileList) => void;
 }
 
-const useStyles = makeStyles(
-  theme => ({
-    backdrop: {
-      background: alpha(theme.palette.primary.main, 0.1),
-      color: theme.palette.primary.main,
-    },
-    fileField: {
-      display: "none",
-    },
-    imageContainer: {
-      background: "#ffffff",
-      border: `1px solid ${vars.colors.border.default1}`,
-      borderRadius: theme.spacing(),
-      height: 148,
-      justifySelf: "start",
-      overflow: "hidden",
-      padding: theme.spacing(2),
-      position: "relative",
-      transition: theme.transitions.duration.standard + "s",
-      width: 148,
-    },
-    photosIcon: {
-      height: 32,
-      margin: "0 auto",
-      width: 32,
-    },
-    photosIconContainer: {
-      padding: theme.spacing(5, 0),
-      textAlign: "center",
-    },
-  }),
-  { name: "ImageUpload" },
-);
-
 const ImageUpload = (props: ImageUploadProps) => {
   const {
     children,
@@ -64,7 +29,6 @@ const ImageUpload = (props: ImageUploadProps) => {
     hideUploadIcon,
     onImageUpload,
   } = props;
-  const classes = useStyles(props);
 
   return (
     <Dropzone disableClick={disableClick} onDrop={onImageUpload}>
@@ -72,19 +36,22 @@ const ImageUpload = (props: ImageUploadProps) => {
         <>
           <div
             {...getRootProps()}
-            className={clsx(className, classes.photosIconContainer, {
-              [classes.backdrop]: isDragActive,
-              [isActiveClassName]: isDragActive,
-            })}
+            className={cn(
+              "py-10 text-center",
+              isDragActive && "bg-primary/10 text-primary",
+              isDragActive && isActiveClassName,
+              className,
+            )}
           >
             {!hideUploadIcon && (
               <div
-                className={clsx(iconContainerClassName, {
-                  [iconContainerActiveClassName]: isDragActive,
-                })}
+                className={cn(
+                  iconContainerClassName,
+                  isDragActive && iconContainerActiveClassName,
+                )}
               >
-                <input {...getInputProps()} className={classes.fileField} accept="image/*" />
-                <ImageIcon className={classes.photosIcon} />
+                <input {...getInputProps()} className="hidden" accept="image/*" />
+                <ImageIcon className="h-[32px] mx-auto w-[32px]" />
                 <Text display="block" fontWeight="bold" textTransform="uppercase" fontSize={3}>
                   <FormattedMessage
                     id="NxeDbG"

@@ -1,16 +1,6 @@
 // @ts-strict-ignore
 import MuiCheckbox, { CheckboxProps as MuiCheckboxProps } from "@mui/material/Checkbox";
 import FormHelperText from "@mui/material/FormHelperText";
-import { makeStyles } from "@saleor/macaw-ui";
-
-const useStyles = makeStyles(
-  theme => ({
-    error: {
-      color: theme.palette.error.main,
-    },
-  }),
-  { name: "Checkbox" },
-);
 
 type CheckboxProps = Omit<
   MuiCheckboxProps,
@@ -27,7 +17,6 @@ const firefoxHandler = (event, onChange, checked) => {
 };
 const Checkbox = ({ helperText, error, ...props }: CheckboxProps) => {
   const { disableClickPropagation, ...rest } = props;
-  const classes = useStyles();
 
   return (
     <>
@@ -48,7 +37,7 @@ const Checkbox = ({ helperText, error, ...props }: CheckboxProps) => {
         }
       />
       {helperText && (
-        <FormHelperText classes={{ root: error && classes.error }}>{helperText}</FormHelperText>
+        <FormHelperText classes={{ root: error ? "text-error" : undefined }}>{helperText}</FormHelperText>
       )}
     </>
   );

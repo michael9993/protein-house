@@ -1,52 +1,8 @@
 import notFoundImage from "@assets/images/not-found-404.svg";
 import { Button } from "@dashboard/components/Button";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import SVG from "react-inlinesvg";
 import { FormattedMessage } from "react-intl";
-
-const useStyles = makeStyles(
-  theme => ({
-    button: {
-      marginTop: theme.spacing(2),
-      padding: 20,
-    },
-    container: {
-      [theme.breakpoints.down('md')]: {
-        gridTemplateColumns: "1fr",
-        padding: theme.spacing(3),
-        width: "100%",
-      },
-      display: "grid",
-      gridTemplateColumns: "1fr 487px",
-      margin: "0 auto",
-      width: 830,
-    },
-    header: {
-      fontWeight: 600 as const,
-    },
-    innerContainer: {
-      [theme.breakpoints.down('md')]: {
-        order: 1,
-        textAlign: "center",
-      },
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-    },
-    notFoundImage: {
-      "& svg": {
-        width: "100%",
-      },
-    },
-    root: {
-      alignItems: "center",
-      display: "flex",
-      height: "100vh",
-    },
-  }),
-  { name: "NotFoundPage" },
-);
 
 type NotFoundPageProps =
   | {
@@ -60,18 +16,17 @@ type NotFoundPageProps =
 
 const NotFoundPage = (props: NotFoundPageProps) => {
   const { onBack, backHref } = props;
-  const classes = useStyles(props);
 
   return (
-    <div className={classes.root}>
-      <div className={classes.container}>
-        <div className={classes.innerContainer}>
+    <div className="flex items-center h-screen">
+      <div className="grid grid-cols-[1fr_487px] mx-auto w-[830px] max-md:grid-cols-1 max-md:p-6 max-md:w-full">
+        <div className="flex flex-col justify-center max-md:order-1 max-md:text-center">
           <div>
-            <Text className={classes.header} size={6} fontWeight="bold" lineHeight={3}>
+            <Text className="font-semibold" size={6} fontWeight="bold" lineHeight={3}>
               <FormattedMessage id="yH56V+" defaultMessage="Ooops!..." />
             </Text>
             <Text
-              className={classes.header}
+              className="font-semibold"
               size={4}
               fontWeight="bold"
               lineHeight={2}
@@ -84,7 +39,7 @@ const NotFoundPage = (props: NotFoundPageProps) => {
             </Text>
           </div>
           <div>
-            <Button className={classes.button} variant="primary" onClick={onBack} href={backHref}>
+            <Button className="mt-4 p-[20px]" variant="primary" onClick={onBack} href={backHref}>
               <FormattedMessage
                 id="95oJ5d"
                 defaultMessage="Go back to dashboard"
@@ -94,7 +49,7 @@ const NotFoundPage = (props: NotFoundPageProps) => {
           </div>
         </div>
         <div>
-          <SVG className={classes.notFoundImage} src={notFoundImage} />
+          <SVG className="[&_svg]:w-full" src={notFoundImage} />
         </div>
       </div>
     </div>

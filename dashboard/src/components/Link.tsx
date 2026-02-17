@@ -1,37 +1,10 @@
 // @ts-strict-ignore
+import { cn } from "@dashboard/utils/cn";
 import { isExternalURL } from "@dashboard/utils/urls";
 import { TypographyProps } from "@mui/material/Typography";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import * as React from "react";
 import { Link as RouterLink } from "react-router";
-
-const useStyles = makeStyles(
-  theme => ({
-    primary: {
-      color: theme.palette.textHighlighted.active,
-    },
-    root: {
-      cursor: "pointer",
-      display: "inline",
-    },
-    secondary: {
-      color: theme.palette.primary.main,
-    },
-    underline: {
-      textDecoration: "underline",
-    },
-    noUnderline: {
-      textDecoration: "none",
-    },
-    disabled: {
-      cursor: "default",
-      color: theme.palette.textHighlighted.inactive,
-    },
-  }),
-  { name: "Link" },
-);
 
 interface LinkState {
   from?: string;
@@ -66,17 +39,14 @@ const Link = (props: LinkProps) => {
     state,
     ...linkProps
   } = props;
-  const classes = useStyles(props);
   const opensNewTab = target === "_blank";
   const commonLinkProps = {
-    className: clsx(
-      {
-        [classes.root]: inline,
-        [classes[color]]: true,
-        [classes.underline]: underline,
-        [classes.noUnderline]: !underline,
-        [classes.disabled]: disabled,
-      },
+    className: cn(
+      inline && "cursor-pointer inline",
+      color === "primary" && "text-text-highlighted",
+      color === "secondary" && "text-primary",
+      underline ? "underline" : "no-underline",
+      disabled && "cursor-default text-text-highlighted-inactive",
       className,
     ),
     onClick: event => {

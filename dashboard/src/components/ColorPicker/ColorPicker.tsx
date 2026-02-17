@@ -4,38 +4,12 @@ import { UseFormResult } from "@dashboard/hooks/useForm";
 import { RequireOnlyOne } from "@dashboard/misc";
 import commonErrorMessages from "@dashboard/utils/errors/common";
 import { TextField } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import Hue from "@uiw/react-color-hue";
 import Saturation from "@uiw/react-color-saturation";
 import convert from "color-convert";
 import { RGB } from "color-convert/conversions";
 import { useEffect, useState } from "react";
 import { useIntl } from "react-intl";
-
-const useStyles = makeStyles(
-  theme => ({
-    picker: {
-      display: "flex",
-    },
-
-    saturation: {
-      width: "220px !important",
-      height: "220px !important",
-    },
-
-    colorInput: {
-      whiteSpace: "nowrap",
-      width: "170px",
-      marginBottom: theme.spacing(1),
-
-      "& input": {
-        textAlign: "right",
-        padding: "15px",
-      },
-    },
-  }),
-  { name: "ColorPicker" },
-);
 
 export type ColorPickerProps<T = any> = Pick<
   UseFormResult<T>,
@@ -49,7 +23,6 @@ export const ColorPicker = ({
   onColorChange,
   data,
 }: ColorPickerProps) => {
-  const classes = useStyles();
   const intl = useIntl();
   const [hex, setHex] = useState<string>(data.value ? data.value.replace("#", "") : "000000");
   const [hue, setHue] = useState<number>(convert.hex.hsv(hex)[0]);
@@ -88,12 +61,12 @@ export const ColorPicker = ({
   }, [errors, hex]);
 
   return (
-    <div className={classes.picker}>
+    <div className="flex">
       <div>
         <Saturation
           hsva={{ h: hue, s, v, a: 1 }}
           onChange={({ h, s, v }) => setHex(convert.hsv.hex([h, s, v]))}
-          className={classes.saturation}
+          className="!w-[220px] !h-[220px]"
         />
       </div>
       <HorizontalSpacer spacing={4} />
@@ -112,19 +85,19 @@ export const ColorPicker = ({
       <HorizontalSpacer spacing={4} />
       <div>
         <TextField
-          className={classes.colorInput}
+          className="whitespace-nowrap w-[170px] mb-2 [&_input]:text-right [&_input]:p-[15px]"
           InputProps={{ startAdornment: "R" }}
           value={r}
           onChange={event => handleRGBChange({ r: event.target.value })}
         />
         <TextField
-          className={classes.colorInput}
+          className="whitespace-nowrap w-[170px] mb-2 [&_input]:text-right [&_input]:p-[15px]"
           InputProps={{ startAdornment: "G" }}
           value={g}
           onChange={event => handleRGBChange({ g: event.target.value })}
         />
         <TextField
-          className={classes.colorInput}
+          className="whitespace-nowrap w-[170px] mb-2 [&_input]:text-right [&_input]:p-[15px]"
           InputProps={{ startAdornment: "B" }}
           value={b}
           onChange={event => handleRGBChange({ b: event.target.value })}
@@ -132,7 +105,7 @@ export const ColorPicker = ({
         <TextField
           error={!isValidColor}
           helperText={errors?.value}
-          className={classes.colorInput}
+          className="whitespace-nowrap w-[170px] mb-2 [&_input]:text-right [&_input]:p-[15px]"
           InputProps={{ startAdornment: "HEX" }}
           inputProps={{ pattern: "[A-Za-z0-9]{6}", maxLength: 7 }}
           value={`#${hex}`}

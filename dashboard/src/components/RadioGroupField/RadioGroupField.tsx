@@ -1,4 +1,5 @@
 // @ts-strict-ignore
+import { cn } from "@dashboard/utils/cn";
 import {
   FormControl,
   FormControlLabel,
@@ -7,12 +8,10 @@ import {
   Radio,
   RadioGroup,
 } from "@mui/material";
-import clsx from "clsx";
 import * as React from "react";
 import { FormattedMessage } from "react-intl";
 
 import { SimpleRadioGroupField } from "../SimpleRadioGroupField";
-import { useStyles } from "./styles";
 
 export interface RadioGroupFieldChoice<T extends string | number = string | number> {
   disabled?: boolean;
@@ -52,45 +51,44 @@ const RadioGroupField = (props: RadioGroupFieldProps) => {
     variant = "block",
     innerContainerClassName,
   } = props;
-  const classes = useStyles(props);
 
   return (
     <FormControl
-      className={clsx(classes.root, className, {
-        [classes.rootNoLabel]: !label,
-      })}
+      className={cn(
+        "p-0 w-full [&_.radio-label]:last-of-type:mb-0",
+        !label && "-mt-3",
+        className,
+      )}
       error={error}
       disabled={disabled}
     >
-      {!!label && <label className={classes.formLabel}>{label}</label>}
+      {!!label && <label className="text-base mb-2">{label}</label>}
       <RadioGroup
         aria-label={name}
         name={name}
         value={value}
         onChange={onChange}
-        className={clsx({
-          [classes.radioGroupInline]: variant === "inline",
-          [innerContainerClassName]: !!innerContainerClassName,
-        })}
+        className={cn(
+          variant === "inline" && "flex-row",
+          innerContainerClassName,
+        )}
       >
         {choices.length > 0 ? (
           choices.map(choice => (
             <FormControlLabel
               disabled={choice.disabled}
               value={choice.value}
-              className={clsx({
-                [classes.radioLabel]: variant !== "inline",
-                [classes.radioLabelInline]: variant === "inline",
-              })}
+              className={cn(
+                variant !== "inline" && "-mb-1 flex items-center",
+                variant === "inline" && "items-start mr-8",
+              )}
               classes={{
-                label: classes.label,
+                label: "mt-[1.6px] flex flex-col",
               }}
               control={
                 <Radio
                   data-test-id={choice.value}
-                  className={clsx({
-                    [classes.alignTop]: alignTop,
-                  })}
+                  className={cn(alignTop && "self-baseline relative -top-[6px]")}
                   color="secondary"
                 />
               }

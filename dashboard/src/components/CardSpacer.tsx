@@ -1,18 +1,5 @@
-import { makeStyles } from "@saleor/macaw-ui";
 import { vars } from "@saleor/macaw-ui-next";
 import * as React from "react";
-
-const useStyles = makeStyles(
-  theme => ({
-    spacer: {
-      [theme.breakpoints.down('md')]: {
-        marginTop: theme.spacing(2),
-      },
-      marginTop: theme.spacing(4),
-    },
-  }),
-  { name: "CardSpacer" },
-);
 
 interface CardSpacerProps {
   children?: React.ReactNode;
@@ -20,11 +7,9 @@ interface CardSpacerProps {
 }
 
 export const CardSpacer = ({ children, backgroundColor = "default1" }: CardSpacerProps) => {
-  const classes = useStyles(children);
-
   return (
     <div
-      className={classes.spacer}
+      className="mt-8 max-md:mt-4"
       style={{
         backgroundColor: vars.colors.background[backgroundColor],
       }}

@@ -1,38 +1,6 @@
-import { alpha } from "@mui/material/styles";
-import { makeStyles } from "@saleor/macaw-ui";
+import { cn } from "@dashboard/utils/cn";
 import { Text } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import * as React from "react";
-
-const useStyles = makeStyles(
-  theme => ({
-    active: {
-      color: theme.palette.text.secondary,
-    },
-    root: {
-      "&$active": {
-        borderBottomColor: theme.palette.primary.main,
-        color: theme.typography.body1.color,
-      },
-      "&:focus": {
-        color: theme.palette.primary.main,
-      },
-      "&:hover": {
-        color: theme.palette.primary.main,
-      },
-      borderBottom: "1px solid transparent",
-      color: alpha(theme.palette.text.secondary, 0.6),
-      cursor: "pointer",
-      display: "inline-block",
-      fontWeight: theme.typography.fontWeightRegular,
-      marginRight: theme.spacing(2),
-      minWidth: 40,
-      padding: theme.spacing(1),
-      transition: theme.transitions.duration.short + "ms",
-    },
-  }),
-  { name: "Tab" },
-);
 
 interface TabProps<T> {
   children?: React.ReactNode;
@@ -44,16 +12,16 @@ interface TabProps<T> {
 export function Tab<T>(value: T) {
   const Component = (props: TabProps<T>) => {
     const { children, isActive, changeTab, testId } = props;
-    const classes = useStyles(props);
 
     return (
       <Text
         as="span"
         data-test-id={testId}
-        className={clsx({
-          [classes.root]: true,
-          [classes.active]: isActive,
-        })}
+        className={cn(
+          "border-b border-transparent text-text-secondary/60 cursor-pointer inline-block font-normal mr-4 min-w-[40px] p-2 transition-all duration-200",
+          "hover:text-primary focus:text-primary",
+          isActive && "border-b-primary text-text-secondary",
+        )}
         onClick={() => changeTab(value)}
       >
         {children}

@@ -1,5 +1,5 @@
-import { BaseListItemProps, ListItem, makeStyles } from "@saleor/macaw-ui";
-import clsx from "clsx";
+import { BaseListItemProps, ListItem } from "@saleor/macaw-ui";
+import { cn } from "@dashboard/utils/cn";
 
 import Link from "../Link";
 
@@ -9,26 +9,14 @@ interface ListItemLinkProps extends Omit<BaseListItemProps, "onClick" | "classes
   linkClassName?: string;
 }
 
-const useStyles = makeStyles(
-  {
-    link: {
-      all: "inherit",
-      display: "contents",
-    },
-  },
-  { name: "ListItemLink" },
-);
-
 const ListItemLink = ({ href, children, linkClassName, ...props }: ListItemLinkProps) => {
-  const classes = useStyles();
-
   if (!href) {
     return <ListItem {...props}>{children}</ListItem>;
   }
 
   return (
     <ListItem {...props}>
-      <Link className={clsx(classes.link, linkClassName)} href={href}>
+      <Link className={cn("[all:inherit] contents", linkClassName)} href={href}>
         {children}
       </Link>
     </ListItem>

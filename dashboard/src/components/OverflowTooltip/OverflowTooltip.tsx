@@ -1,6 +1,5 @@
-import { makeStyles } from "@saleor/macaw-ui";
+import { cn } from "@dashboard/utils/cn";
 import { Tooltip } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import * as React from "react";
 
 import { useOverflow } from "./useOverflow";
@@ -14,23 +13,6 @@ interface OverflowTooltipProps {
   className?: string;
 }
 
-const useStyles = makeStyles(
-  {
-    wrapper: {
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    },
-    children: {
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      maxWidth: "80vw",
-      wordBreak: "break-word",
-    },
-  },
-  {
-    name: "OverflowTooltip",
-  },
-);
 const OverflowTooltip = ({
   checkHorizontal = true,
   checkVertical = true,
@@ -39,7 +21,6 @@ const OverflowTooltip = ({
   className,
   children,
 }: OverflowTooltipProps) => {
-  const classes = useStyles();
   const { ref, isOverflow } = useOverflow<HTMLDivElement>({
     horizontal: checkHorizontal,
     vertical: checkVertical,
@@ -47,7 +28,7 @@ const OverflowTooltip = ({
 
   if (!isOverflow) {
     return (
-      <div ref={ref} className={clsx(classes.wrapper, className)}>
+      <div ref={ref} className={cn("overflow-hidden text-ellipsis", className)}>
         {children}
       </div>
     );
@@ -56,14 +37,14 @@ const OverflowTooltip = ({
   return (
     <Tooltip>
       <Tooltip.Trigger>
-        <div ref={ref} className={clsx(classes.wrapper, className)}>
+        <div ref={ref} className={cn("overflow-hidden text-ellipsis", className)}>
           {children}
         </div>
       </Tooltip.Trigger>
       <Tooltip.Content side="top">
         <Tooltip.Arrow />
         <Tooltip.ContentHeading>{header}</Tooltip.ContentHeading>
-        <div className={classes.children}>{title ?? children}</div>
+        <div className="overflow-hidden text-ellipsis max-w-[80vw] break-words">{title ?? children}</div>
       </Tooltip.Content>
     </Tooltip>
   );

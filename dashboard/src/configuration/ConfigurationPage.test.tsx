@@ -22,9 +22,6 @@ vi.mock("@dashboard/auth", () => ({
 vi.mock("./styles", () => ({
   useStyles: vi.fn(() => ({})),
 }));
-vi.mock("../components/VersionInfo/styles", () => ({
-  useStyles: vi.fn(() => ({})),
-}));
 
 const mockUser: UserFragment = {
   __typename: "User",

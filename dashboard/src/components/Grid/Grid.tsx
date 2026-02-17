@@ -1,5 +1,4 @@
-import { makeStyles } from "@saleor/macaw-ui";
-import clsx from "clsx";
+import { cn } from "@dashboard/utils/cn";
 import * as React from "react";
 
 type GridVariant = "default" | "inverted" | "uniform";
@@ -10,51 +9,20 @@ interface GridProps {
   richText?: boolean;
 }
 
-const useStyles = makeStyles(
-  theme => ({
-    default: {
-      gridTemplateColumns: "9fr 4fr",
-    },
-    inverted: {
-      gridTemplateColumns: "4fr 9fr",
-    },
-    root: {
-      "& > div": {
-        minWidth: 0,
-      },
-      display: "grid",
-      gridColumnGap: theme.spacing(3),
-      gridRowGap: theme.spacing(3),
-      [theme.breakpoints.down('md')]: {
-        gridRowGap: theme.spacing(1),
-        gridTemplateColumns: "1fr",
-      },
-    },
-    uniform: {
-      gridTemplateColumns: "1fr 1fr",
-    },
-    // TODO: Remove me
-    richText: {},
-  }),
-  { name: "Grid" },
-);
-
 export const Grid = ({
   className,
   children,
   variant = "default",
-  richText,
 }: GridProps) => {
-  const classes = useStyles({ variant, richText });
-
   return (
     <div
-      className={clsx(className, classes.root, {
-        [classes.default]: variant === "default",
-        [classes.inverted]: variant === "inverted",
-        [classes.uniform]: variant === "uniform",
-        [classes.richText]: richText,
-      })}
+      className={cn(
+        "grid gap-6 [&>div]:min-w-0 max-md:grid-rows-1 max-md:grid-cols-1 max-md:gap-2",
+        variant === "default" && "grid-cols-[9fr_4fr]",
+        variant === "inverted" && "grid-cols-[4fr_9fr]",
+        variant === "uniform" && "grid-cols-[1fr_1fr]",
+        className,
+      )}
     >
       {children}
     </div>

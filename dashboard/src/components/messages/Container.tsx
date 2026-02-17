@@ -1,10 +1,11 @@
 // @ts-strict-ignore
-import { useStyles } from "./styles";
 
 const Container = ({ children }) => {
-  const classes = useStyles({});
-
-  return !!children.length && <div className={classes.container}>{children}</div>;
+  return !!children.length && (
+    <div className="grid justify-end right-0 pointer-events-auto fixed top-0 w-auto max-h-screen overflow-y-auto z-[10000]">
+      {children}
+    </div>
+  );
 };
 
 export default Container;

@@ -1,32 +1,7 @@
 // @ts-strict-ignore
+import { cn } from "@dashboard/utils/cn";
 import { FormControl, FormControlLabel, Radio, RadioGroup } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
-import clsx from "clsx";
 import * as React from "react";
-
-const useStyles = makeStyles(
-  theme => ({
-    formControl: {
-      padding: 0,
-      width: "100%",
-    },
-    formLabel: {
-      marginLeft: "-5px",
-      paddingBottom: "10px",
-    },
-    radioLabel: {
-      "& > span": {
-        paddingTop: theme.spacing(),
-        paddingBottom: theme.spacing(),
-      },
-    },
-    secondLabel: {
-      display: "block",
-      fontSize: "12px",
-    },
-  }),
-  { name: "RadioSwitchField" },
-);
 
 interface RadioSwitchFieldProps {
   classes?: Record<"radioLabel", string>;
@@ -52,7 +27,6 @@ const RadioSwitchField = (props: RadioSwitchFieldProps) => {
     secondOptionLabel,
     value,
   } = props;
-  const classes = useStyles(props);
   const initialValue = value ? "true" : "false";
   const change = event => {
     onChange({
@@ -64,7 +38,7 @@ const RadioSwitchField = (props: RadioSwitchFieldProps) => {
   };
 
   return (
-    <FormControl className={clsx(classes.formControl, className)} error={error} disabled={disabled}>
+    <FormControl className={cn("p-0 w-full", className)} error={error} disabled={disabled}>
       <RadioGroup
         aria-label={name}
         name={name}
@@ -73,14 +47,14 @@ const RadioSwitchField = (props: RadioSwitchFieldProps) => {
       >
         <FormControlLabel
           value="true"
-          className={clsx(classes.radioLabel, overrideClasses?.radioLabel)}
+          className={cn("[&>span]:py-2", overrideClasses?.radioLabel)}
           control={<Radio color="secondary" />}
           label={firstOptionLabel}
           name={name}
         />
         <FormControlLabel
           value="false"
-          className={clsx(classes.radioLabel, overrideClasses?.radioLabel)}
+          className={cn("[&>span]:py-2", overrideClasses?.radioLabel)}
           control={<Radio color="secondary" />}
           label={secondOptionLabel}
           name={name}

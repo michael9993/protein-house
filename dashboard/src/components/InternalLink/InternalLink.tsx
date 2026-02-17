@@ -1,10 +1,6 @@
-import clsx from "clsx";
+import { cn } from "@dashboard/utils/cn";
 import { Link, LinkProps } from "react-router";
 
-import { useStyles } from "./styles";
-
 export const InternalLink = ({ className, ...props }: LinkProps) => {
-  const classes = useStyles();
-
-  return <Link className={clsx(classes.root, className)} {...props} />;
+  return <Link className={cn("no-underline", className)} {...props} />;
 };

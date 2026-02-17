@@ -6,7 +6,6 @@ import { TransitionGroup } from "react-transition-group";
 
 import Container from "./Container";
 import { messages as notificationMessages } from "./messages";
-import { useStyles } from "./styles";
 import Transition from "./Transition";
 import { MessageComponentValues } from "./useMessageState";
 
@@ -15,7 +14,6 @@ export const MessageDisplay = ({
   pauseTimer,
   resumeTimer,
 }: MessageComponentValues) => {
-  const classes = useStyles();
   const intl = useIntl();
 
   return (
@@ -62,7 +60,7 @@ export const MessageDisplay = ({
                     },
                   }
                 : {})}
-              className={classes.notification}
+              className="pointer-events-auto m-4"
             />
           </Transition>
         ))}
