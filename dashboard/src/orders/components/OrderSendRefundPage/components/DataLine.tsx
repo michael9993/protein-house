@@ -1,18 +1,14 @@
 import * as React from "react";
 
-import { useDataLineStyles } from "../styles";
-
 interface DataLineProps {
   label: React.ReactNode;
   children: React.ReactNode;
 }
 
 export const DataLine = ({ label, children }: DataLineProps) => {
-  const classes = useDataLineStyles();
-
   return (
     <li>
-      <dl className={classes.wrapper}>
+      <dl className="flex justify-between [&_dd]:m-0">
         <dt>{label}</dt>
         <dd>{children}</dd>
       </dl>

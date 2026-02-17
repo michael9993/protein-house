@@ -8,55 +8,11 @@ import { OrderRefundDataQuery } from "@dashboard/graphql";
 import { FormsetChange } from "@dashboard/hooks/useFormset";
 import { renderCollection } from "@dashboard/misc";
 import { Table, TableBody, TableCell, TableHead } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Button, Skeleton, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { OrderRefundFormData } from "../OrderRefundPage/form";
 import { getTitle } from "./messages";
-
-const useStyles = makeStyles(
-  theme => {
-    const inputPadding = {
-      paddingBottom: theme.spacing(2),
-      paddingTop: theme.spacing(2),
-    };
-
-    return {
-      cartContent: {
-        paddingBottom: 0,
-        paddingTop: 0,
-      },
-      colQuantity: {
-        textAlign: "right",
-        width: 210,
-      },
-      notice: {
-        marginBottom: theme.spacing(1),
-        marginTop: theme.spacing(2),
-      },
-      orderNumber: {
-        display: "inline",
-        marginLeft: theme.spacing(1),
-      },
-      quantityInnerInput: {
-        ...inputPadding,
-      },
-      quantityInnerInputNoRemaining: {
-        paddingRight: 0,
-      },
-      remainingQuantity: {
-        ...inputPadding,
-        color: theme.palette.text.secondary,
-        whiteSpace: "nowrap",
-      },
-      setMaximalQuantityButton: {
-        marginTop: theme.spacing(1),
-      },
-    };
-  },
-  { name: "OrderRefundFulfilledProducts" },
-);
 
 interface OrderRefundFulfilledProductsProps {
   fulfillment: OrderRefundDataQuery["order"]["fulfillments"][0];
@@ -76,7 +32,6 @@ const OrderRefundFulfilledProducts = (props: OrderRefundFulfilledProductsProps) 
     onRefundedProductQuantityChange,
     onSetMaximalQuantities,
   } = props;
-  const classes = useStyles({});
   const intl = useIntl();
 
   return (
@@ -86,16 +41,16 @@ const OrderRefundFulfilledProducts = (props: OrderRefundFulfilledProductsProps) 
           <>
             {getTitle(fulfillment.status, intl)}
             {fulfillment && (
-              <Text className={classes.orderNumber} fontSize={3}>
+              <Text className="inline ml-2" fontSize={3}>
                 {`#${orderNumber}-${fulfillment?.fulfillmentOrder}`}
               </Text>
             )}
           </>
         </DashboardCard.Title>
       </DashboardCard.Header>
-      <DashboardCard.Content className={classes.cartContent}>
+      <DashboardCard.Content className="py-0">
         <Button
-          className={classes.setMaximalQuantityButton}
+          className="mt-2"
           onClick={onSetMaximalQuantities}
           data-test-id={"set-maximal-quantity-fulfilled-button-" + fulfillment?.id}
           variant="secondary"
@@ -164,11 +119,11 @@ const OrderRefundFulfilledProducts = (props: OrderRefundFulfilledProductsProps) 
                       <Skeleton />
                     )}
                   </TableCell>
-                  <TableCell className={classes.colQuantity}>
+                  <TableCell className="text-right w-[210px]">
                     {line?.quantity ? (
                       <QuantityInput
                         disabled={disabled}
-                        className={classes.quantityInnerInputNoRemaining}
+                        className="pr-0"
                         data-test-id={"quantityInput" + line?.id}
                         value={Number(selectedLineQuantity?.value || 0)}
                         onChange={event =>

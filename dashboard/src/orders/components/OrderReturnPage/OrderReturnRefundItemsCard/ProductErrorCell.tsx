@@ -1,41 +1,8 @@
 import ErrorExclamationCircleIcon from "@dashboard/icons/ErrorExclamationCircle";
 import { Popper, TableCell } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import { useRef, useState } from "react";
 import { defineMessages, useIntl } from "react-intl";
-
-const useStyles = makeStyles(
-  theme => ({
-    container: {
-      position: "relative",
-    },
-    errorBox: {
-      backgroundColor: theme.palette.error.main,
-      borderRadius: 8,
-      marginRight: theme.spacing(3),
-      padding: theme.spacing(2, 3),
-      width: 280,
-      zIndex: 1000,
-    },
-    errorText: {
-      color: "white",
-      fontSize: 14,
-    },
-    errorTextHighlighted: {
-      color: theme.palette.error.main,
-      fontSize: 12,
-      marginRight: theme.spacing(1),
-    },
-    titleContainer: {
-      alignItems: "center",
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "flex-end",
-    },
-  }),
-  { name: "ProductErrorCell" },
-);
 const messages = defineMessages({
   description: {
     id: "RlbhwF",
@@ -54,7 +21,6 @@ interface ProductErrorCellProps {
 }
 
 const ProductErrorCell = ({ hasVariant }: ProductErrorCellProps) => {
-  const classes = useStyles({});
   const intl = useIntl();
   const popperAnchorRef = useRef<HTMLButtonElement | null>(null);
   const [showErrorBox, setShowErrorBox] = useState<boolean>(false);
@@ -64,18 +30,18 @@ const ProductErrorCell = ({ hasVariant }: ProductErrorCellProps) => {
   }
 
   return (
-    <TableCell align="right" className={classes.container} ref={popperAnchorRef}>
+    <TableCell align="right" className="relative" ref={popperAnchorRef}>
       <div
-        className={classes.titleContainer}
+        className="flex flex-row items-center justify-end"
         onMouseEnter={() => setShowErrorBox(true)}
         onMouseLeave={() => setShowErrorBox(false)}
       >
-        <Text className={classes.errorTextHighlighted}>{intl.formatMessage(messages.title)}</Text>
+        <Text className="text-error text-xs mr-2">{intl.formatMessage(messages.title)}</Text>
         <ErrorExclamationCircleIcon />
       </div>
       <Popper placement="bottom-end" open={showErrorBox} anchorEl={popperAnchorRef.current}>
-        <div className={classes.errorBox}>
-          <Text className={classes.errorText}>{intl.formatMessage(messages.description)}</Text>
+        <div className="bg-error rounded-lg mr-6 px-6 py-4 w-[280px] z-[1000]">
+          <Text className="text-white text-sm">{intl.formatMessage(messages.description)}</Text>
         </div>
       </Popper>
     </TableCell>

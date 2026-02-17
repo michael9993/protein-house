@@ -1,9 +1,8 @@
 import Money from "@dashboard/components/Money";
 import { TransactionEventFragment, TransactionEventTypeEnum } from "@dashboard/graphql";
 import { TransactionFakeEvent } from "@dashboard/orders/types";
+import { cn } from "@dashboard/utils/cn";
 import { TableCell, TableRow } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
-import clsx from "clsx";
 
 import { mapTransactionEvent } from "../../../utils";
 import { EventCreatedBy } from "./EventCreatedBy";
@@ -18,73 +17,6 @@ interface EventItemProps {
   hoveredPspReference: string;
   hasCreatedBy: boolean;
 }
-
-const useStyles = makeStyles(
-  theme => ({
-    cardContent: {
-      paddingLeft: 0,
-      paddingRight: 0,
-    },
-    row: {
-      "&&:hover": {
-        backgroundColor: theme.palette.saleor.active[5],
-      },
-    },
-    hover: {
-      backgroundColor: theme.palette.saleor.active[5],
-    },
-    colSmall: {
-      [theme.breakpoints.down('lg')]: {
-        // Take as little space as possible on mobile
-        width: "1%",
-        whiteSpace: "nowrap",
-      },
-    },
-    colStatus: {
-      [theme.breakpoints.up("md")]: {
-        // Max text with "Success"
-        width: "126px",
-      },
-    },
-    colMessage: {
-      minWidth: "200px",
-      maxWidth: "250px",
-      wordBreak: "break-word",
-      whiteSpace: "normal",
-    },
-    colPspReference: {
-      minWidth: "10px",
-      maxWidth: "150px",
-    },
-    spacer: {
-      minWidth: "150px",
-      maxWidth: "150px",
-    },
-    colDate: {
-      width: "25%",
-      whiteSpace: "nowrap",
-    },
-    colCreatedBy: {
-      width: "20%",
-    },
-    colLast: {
-      // Align with card
-      [theme.breakpoints.up("md")]: {
-        "&&&": {
-          paddingRight: "32px",
-          textAlign: "right",
-        },
-      },
-      [theme.breakpoints.down('lg')]: {
-        whiteSpace: "nowrap",
-      },
-      "&$colDate": {
-        width: "35%",
-      },
-    },
-  }),
-  { name: "OrderTransactionEvents-EventItem" },
-);
 const eventsWithoutAmount = new Set([
   TransactionEventTypeEnum.CANCEL_SUCCESS,
   TransactionEventTypeEnum.CANCEL_REQUEST,
@@ -112,35 +44,39 @@ export const EventItem = ({
   hoveredPspReference,
   hasCreatedBy,
 }: EventItemProps) => {
-  const classes = useStyles();
   const { type, status } = mapTransactionEvent(event);
   const isHovered = event.pspReference && event.pspReference === hoveredPspReference;
 
   return (
     <TableRow
       onMouseOver={() => onHover(event.pspReference)}
-      className={clsx(classes.row, isHovered && classes.hover)}
+      className={cn("hover:bg-saleor-active-5", isHovered && "bg-saleor-active-5")}
       data-ishovered={isHovered}
     >
-      <TableCell className={clsx(classes.colSmall, classes.colStatus)}>
+      <TableCell className="max-lg:w-[1%] max-lg:whitespace-nowrap md:w-[126px]">
         <EventStatus status={status} />
       </TableCell>
       <TableCell>{shouldShowAmount(event) && <Money money={event.amount} />}</TableCell>
-      <TableCell className={clsx(classes.colSmall, classes.colMessage)}>
+      <TableCell className="max-lg:w-[1%] max-lg:whitespace-nowrap min-w-[200px] max-w-[250px] break-words whitespace-normal">
         <EventType type={type} message={event.message} />
       </TableCell>
-      <TableCell className={clsx(classes.colSmall, classes.colPspReference)}>
+      <TableCell className="max-lg:w-[1%] max-lg:whitespace-nowrap min-w-[10px] max-w-[150px]">
         {event.pspReference ? (
           <PspReference reference={event.pspReference} url={event.externalUrl} />
         ) : (
-          <div className={classes.spacer} />
+          <div className="min-w-[150px] max-w-[150px]" />
         )}
       </TableCell>
-      <TableCell className={clsx(classes.colDate, !hasCreatedBy && classes.colLast)}>
+      <TableCell
+        className={cn(
+          "w-1/4 whitespace-nowrap",
+          !hasCreatedBy && "md:pr-8 md:text-right max-lg:whitespace-nowrap w-[35%]",
+        )}
+      >
         <EventTime date={event.createdAt} />
       </TableCell>
       {hasCreatedBy && (
-        <TableCell className={clsx(classes.colCreatedBy, classes.colLast)}>
+        <TableCell className="w-1/5 md:pr-8 md:text-right max-lg:whitespace-nowrap">
           <EventCreatedBy createdBy={event.createdBy} />
         </TableCell>
       )}

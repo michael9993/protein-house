@@ -7,7 +7,7 @@ import {
   TransactionItemFragment,
 } from "@dashboard/graphql";
 import { useId } from "@reach/auto-id";
-import { Button, makeStyles } from "@saleor/macaw-ui";
+import { Button } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -22,33 +22,11 @@ interface TransactionCardProps {
   totalRemainingGrant: OrderDetailsFragment["totalRemainingGrant"];
 }
 
-const useStyles = makeStyles(
-  theme => ({
-    wrapper: {
-      display: "flex",
-      flexDirection: "column",
-      padding: theme.spacing(2),
-      alignItems: "flex-end",
-      gap: theme.spacing(1),
-    },
-    form: {
-      display: "flex",
-      gap: theme.spacing(1),
-      justifyContent: "flex-end",
-    },
-    input: {
-      maxWidth: "24rem",
-    },
-  }),
-  { name: "TransactionCard" },
-);
-
 export const TransactionCard = ({
   transaction,
   orderId,
   totalRemainingGrant,
 }: TransactionCardProps) => {
-  const classes = useStyles();
   const intl = useIntl();
   const id = useId();
 
@@ -92,8 +70,8 @@ export const TransactionCard = ({
       disabled={!canBeRefunded}
       cardFooter={
         canBeRefunded && (
-          <div className={classes.wrapper}>
-            <form className={classes.form} onSubmit={handleSubmit}>
+          <div className="flex flex-col p-4 items-end gap-2">
+            <form className="flex gap-2 justify-end" onSubmit={handleSubmit}>
               <Button variant="tertiary" onClick={setMaxRefundValue}>
                 <FormattedMessage {...refundPageMessages.setMax} />
               </Button>
@@ -102,7 +80,7 @@ export const TransactionCard = ({
                 aria-invalid={submitError ? "true" : "false"}
                 aria-describedby={errorId}
                 disabled={loading}
-                className={classes.input}
+                className="max-w-[24rem]"
                 label={intl.formatMessage(refundPageMessages.refundAmount)}
                 name="amount"
                 onChange={handleChange}

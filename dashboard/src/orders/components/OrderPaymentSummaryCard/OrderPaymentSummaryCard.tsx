@@ -9,7 +9,6 @@ import { extractOrderGiftCardUsedAmount } from "../OrderSummaryCard/utils";
 import { OrderPaymentStatusPill } from "./components/OrderPaymentStatusPill";
 import { PaymentsSummary } from "./components/PaymentsSummary";
 import { orderPaymentActionButtonMessages, orderPaymentMessages } from "./messages";
-import { useStyles } from "./styles";
 
 interface OrderPaymementProps {
   order: OrderDetailsFragment | undefined;
@@ -17,8 +16,6 @@ interface OrderPaymementProps {
 }
 
 export const OrderPaymentSummaryCard = ({ order, onMarkAsPaid }: OrderPaymementProps) => {
-  const classes = useStyles();
-
   const giftCardAmount = extractOrderGiftCardUsedAmount(order);
   const canGrantRefund = order?.transactions?.length > 0 || order?.payments?.length > 0;
   const canSendRefund = order?.grantedRefunds?.length > 0;
@@ -49,7 +46,7 @@ export const OrderPaymentSummaryCard = ({ order, onMarkAsPaid }: OrderPaymementP
   }
 
   return (
-    <DashboardCard className={classes.root}>
+    <DashboardCard className="flex flex-col">
       <DashboardCard.Header>
         <DashboardCard.Title>
           <FormattedMessage {...orderPaymentMessages.paymentTitle} />
@@ -63,8 +60,8 @@ export const OrderPaymentSummaryCard = ({ order, onMarkAsPaid }: OrderPaymementP
         </DashboardCard.Toolbar>
       </DashboardCard.Header>
       {showHasNoPayment ? (
-        <DashboardCard.Content className={classes.noPaymentContent} data-test-id="payment-section">
-          <Text size={3} fontWeight="bold" lineHeight={2} className={classes.noPaymentTitle}>
+        <DashboardCard.Content className="flex h-full flex-col items-center justify-center gap-8" data-test-id="payment-section">
+          <Text size={3} fontWeight="bold" lineHeight={2} className="text-saleor-main-3 font-normal">
             <FormattedMessage {...orderPaymentMessages.noPayments} />
           </Text>
           {canMarkAsPaid && (

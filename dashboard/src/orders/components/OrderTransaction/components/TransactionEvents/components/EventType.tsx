@@ -2,7 +2,6 @@
 import { capitalize } from "@dashboard/misc";
 import { transactionEventTypeMap } from "@dashboard/orders/messages";
 import { TransactionEventType } from "@dashboard/orders/types";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Box, Tooltip } from "@saleor/macaw-ui-next";
 import { Info } from "lucide-react";
 import { useIntl } from "react-intl";
@@ -12,20 +11,8 @@ interface EventTypeProps {
   message: string | undefined;
 }
 
-const useStyles = makeStyles(
-  theme => ({
-    tooltipWrapper: {
-      padding: theme.spacing(1),
-      display: "flex",
-      cursor: "pointer",
-    },
-  }),
-  { name: "EventType" },
-);
-
 export const EventType = ({ type, message }: EventTypeProps) => {
   const intl = useIntl();
-  const classes = useStyles();
   const mapEventToMessage = transactionEventTypeMap[type];
   const displayType = capitalize(
     mapEventToMessage ? intl.formatMessage(mapEventToMessage) : message || type,
@@ -37,7 +24,7 @@ export const EventType = ({ type, message }: EventTypeProps) => {
       {displayType !== message && message && (
         <Tooltip>
           <Tooltip.Trigger>
-            <div className={classes.tooltipWrapper}>
+            <div className="p-2 flex cursor-pointer">
               <Info />
             </div>
           </Tooltip.Trigger>

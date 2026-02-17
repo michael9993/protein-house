@@ -8,10 +8,8 @@ import {
   OrderManualTransactionFormProps,
 } from "../../OrderManualTransactionForm";
 import { manualRefundMessages, refundPageMessages } from "../messages";
-import { useManualRefundCardStyles } from "../styles";
 
 export const ManualRefundCard = (props: OrderManualTransactionFormProps) => {
-  const classes = useManualRefundCardStyles();
   const intl = useIntl();
 
   return (
@@ -27,21 +25,21 @@ export const ManualRefundCard = (props: OrderManualTransactionFormProps) => {
         </Text>
       </DashboardCard.Content>
       <OrderManualTransactionForm {...props}>
-        <div className={classes.wrapper}>
-          <OrderManualTransactionForm.Form className={classes.form}>
+        <div className="flex flex-col p-4 items-end gap-2">
+          <OrderManualTransactionForm.Form className="flex gap-2 w-full flex-col items-center sm:flex-row sm:flex-wrap sm:justify-end">
             <OrderManualTransactionForm.DescriptionField
-              className={classes.descriptionInput}
+              className="w-full sm:max-w-[30rem]"
               label={intl.formatMessage(commonMessages.descriptionOptional)}
             />
             <OrderManualTransactionForm.PspReferenceField
-              className={classes.pspReferenceInput}
+              className="w-full sm:max-w-[25rem]"
               label={intl.formatMessage(commonMessages.pspReferenceOptional)}
             />
             <OrderManualTransactionForm.PriceInputField
-              className={classes.priceInput}
+              className="sm:max-w-[24rem]"
               label={intl.formatMessage(refundPageMessages.refundAmount)}
             />
-            <OrderManualTransactionForm.SubmitButton className={classes.submitButton}>
+            <OrderManualTransactionForm.SubmitButton className="shrink-0">
               <FormattedMessage {...manualRefundMessages.refund} />
             </OrderManualTransactionForm.SubmitButton>
           </OrderManualTransactionForm.Form>

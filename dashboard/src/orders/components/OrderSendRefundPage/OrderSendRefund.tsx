@@ -18,7 +18,6 @@ import { DataLineSettled } from "./components/DataLineSettled";
 import { ManualRefundCard } from "./components/ManualRefundCard";
 import { TransactionCard } from "./components/TransactionCard";
 import { refundPageMessages } from "./messages";
-import { useStyles } from "./styles";
 
 interface OrderSendRefundPageProps {
   order: OrderDetailsFragment;
@@ -35,7 +34,6 @@ const OrderSendRefundPage = ({
   addManualRefundState,
   addManualRefundError,
 }: OrderSendRefundPageProps) => {
-  const classes = useStyles();
   const currency = order?.totalBalance?.currency || "";
   const transactions = order?.transactions ?? [];
 
@@ -85,7 +83,7 @@ const OrderSendRefundPage = ({
             </DashboardCard.Title>
           </DashboardCard.Header>
           <DashboardCard.Content>
-            <ul className={classes.dataList}>
+            <ul className="list-none p-0 m-0">
               <DataLine label={<FormattedMessage {...refundPageMessages.totalCaptured} />}>
                 <DataLineMoney money={order?.totalCharged} />
               </DataLine>
@@ -105,7 +103,7 @@ const OrderSendRefundPage = ({
           </DashboardCard.Header>
           <DashboardCard.Content>
             {loading && <Skeleton />}
-            <ul className={classes.dataList}>
+            <ul className="list-none p-0 m-0">
               {order?.transactions.map(transaction => (
                 <DataLine label={transaction.name} key={transaction.id}>
                   <DataLineMoney money={transaction.refundedAmount} />

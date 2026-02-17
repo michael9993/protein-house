@@ -8,7 +8,6 @@ import {
 } from "@dashboard/components/SimpleRadioGroupField";
 import { OrderDetailsFragment, OrderErrorFragment, OrderRefundDataQuery } from "@dashboard/graphql";
 import { ChangeEvent } from "@dashboard/hooks/useForm";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Checkbox, Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { defineMessages, FormattedMessage, IntlShape, useIntl } from "react-intl";
@@ -22,34 +21,6 @@ import { OrderReturnFormData } from "../../form";
 import { PaymentSubmitCardValues, PaymentSubmitCardValuesProps } from "./PaymentSubmitCardValues";
 import RefundAmountInput from "./RefundAmountInput";
 
-const useStyles = makeStyles(
-  theme => ({
-    content: {
-      paddingTop: theme.spacing(1.5),
-    },
-    hr: {
-      margin: theme.spacing(1, 0),
-    },
-    maxRefundRow: {
-      fontWeight: 600,
-    },
-    priceField: {
-      marginTop: theme.spacing(2),
-    },
-    refundButton: {
-      marginTop: theme.spacing(2),
-    },
-    root: {
-      ...theme.typography.body1,
-      lineHeight: 1.9,
-      width: "100%",
-    },
-    textRight: {
-      textAlign: "right",
-    },
-  }),
-  { name: "PaymentSubmitCard" },
-);
 const messages = defineMessages({
   refundButton: {
     id: "QkFeOa",
@@ -141,7 +112,6 @@ export const PaymentSubmitCard: React.FC<PaymentSubmitCardProps> = props => {
     disableSubmitButton,
     allowNoRefund = false,
   } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
   const { type = OrderRefundType.PRODUCTS } = data as OrderRefundFormData;
   const amountCurrency = order?.total?.gross?.currency;
@@ -199,7 +169,7 @@ export const PaymentSubmitCard: React.FC<PaymentSubmitCardProps> = props => {
           })}
         </DashboardCard.Title>
       </DashboardCard.Header>
-      <DashboardCard.Content className={classes.content}>
+      <DashboardCard.Content className="pt-3">
         <SimpleRadioGroupField
           choices={getAmountCalculationModeOptions({
             type,
@@ -235,7 +205,7 @@ export const PaymentSubmitCard: React.FC<PaymentSubmitCardProps> = props => {
                 />
               </Text>
             </Checkbox>
-            <Hr className={classes.hr} />
+            <Hr className="my-2" />
           </>
         )}
 
@@ -312,7 +282,7 @@ export const PaymentSubmitCard: React.FC<PaymentSubmitCardProps> = props => {
           variant="primary"
           width="100%"
           onClick={onRefund}
-          className={classes.refundButton}
+          className="mt-4"
           disabled={disableRefundButton || disabled}
           data-test-id="submit"
           transitionState={loading ? "loading" : "default"}

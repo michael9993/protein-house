@@ -4,40 +4,10 @@ import { OrderErrorFragment } from "@dashboard/graphql";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getOrderErrorMessage from "@dashboard/utils/errors/order";
 import { IMoney } from "@dashboard/utils/intl";
-import { makeStyles } from "@saleor/macaw-ui";
 import * as React from "react";
 import { defineMessages, useIntl } from "react-intl";
 
 import { OrderRefundFormData } from "../../../OrderRefundPage/form";
-
-const useStyles = makeStyles(
-  theme => ({
-    hr: {
-      margin: theme.spacing(1, 0),
-    },
-    maxRefundRow: {
-      fontWeight: 600,
-    },
-    priceField: {
-      marginTop: theme.spacing(2),
-    },
-    refundButton: {
-      marginTop: theme.spacing(2),
-    },
-    refundCaution: {
-      marginTop: theme.spacing(1),
-    },
-    root: {
-      ...theme.typography.body1,
-      lineHeight: 1.9,
-      width: "100%",
-    },
-    textRight: {
-      textAlign: "right",
-    },
-  }),
-  { name: "OrderRefundAmount" },
-);
 
 interface RefundAmountInputProps {
   data: OrderRefundFormData;
@@ -79,7 +49,6 @@ const RefundAmountInput = (props: RefundAmountInputProps) => {
     onChange,
   } = props;
   const intl = useIntl();
-  const classes = useStyles(props);
   const formErrors = getFormErrors(["amount"], errors);
   const isError = !!formErrors.amount || amountTooSmall || amountTooBig;
 
@@ -91,7 +60,7 @@ const RefundAmountInput = (props: RefundAmountInputProps) => {
       name={"amount" as keyof FormData}
       value={data.amount}
       label={intl.formatMessage(messages.label)}
-      className={classes.priceField}
+      className="mt-4"
       max={maxRefund?.amount}
       data-test-id="amountInput"
       error={isError}

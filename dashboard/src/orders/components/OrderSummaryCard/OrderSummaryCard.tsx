@@ -2,7 +2,6 @@ import { DashboardCard } from "@dashboard/components/Card";
 import { OrderDetailsFragment } from "@dashboard/graphql";
 import { getDiscountTypeLabel } from "@dashboard/orders/utils/data";
 import { OrderDetailsViewModel } from "@dashboard/orders/utils/OrderDetailsViewModel";
-import { makeStyles } from "@saleor/macaw-ui";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { OrderUsedGiftCards } from "../OrderUsedGiftCards";
@@ -14,25 +13,8 @@ import { extractOrderGiftCardUsedAmount, getDeliveryMethodName, getTaxTypeText }
 interface OrderPaymentProps {
   order: OrderDetailsFragment;
 }
-
-const useStyles = makeStyles(
-  theme => ({
-    list: {
-      "& li:nth-last-child(2)": {
-        paddingBottom: theme.spacing(1),
-      },
-      "& li:last-of-type": {
-        borderTop: `1px solid ${theme.palette.saleor.main[5]}`,
-        paddingTop: theme.spacing(1),
-        marginTop: "auto",
-      },
-    },
-  }),
-  { name: "OrderSummaryCard" },
-);
 // TODO: remove this in the next PR
 const OrderSummaryCard = ({ order }: OrderPaymentProps) => {
-  const classes = useStyles();
   const intl = useIntl();
   const giftCardAmount = extractOrderGiftCardUsedAmount(order);
   const usedGiftcards = OrderDetailsViewModel.getUsedGiftCards(order.giftCards);
@@ -45,7 +27,7 @@ const OrderSummaryCard = ({ order }: OrderPaymentProps) => {
         </DashboardCard.Title>
       </DashboardCard.Header>
       <DashboardCard.Content>
-        <SummaryList className={classes.list}>
+        <SummaryList className="[&_li:nth-last-child(2)]:pb-2 [&_li:last-of-type]:border-t [&_li:last-of-type]:border-saleor-main-5 [&_li:last-of-type]:pt-2 [&_li:last-of-type]:mt-auto">
           <SummaryLine
             text={<FormattedMessage {...orderSummaryMessages.subtotal} />}
             money={order?.subtotal?.gross}

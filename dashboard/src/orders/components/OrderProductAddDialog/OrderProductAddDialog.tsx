@@ -24,7 +24,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import OrderPriceLabel from "../OrderPriceLabel/OrderPriceLabel";
 import { messages } from "./messages";
-import { useStyles } from "./styles";
 import { hasAllVariantsSelected, isVariantSelected, onProductAdd, onVariantAdd } from "./utils";
 
 interface OrderProductAddDialogProps extends FetchMoreProps {
@@ -53,7 +52,6 @@ const OrderProductAddDialog = (props: OrderProductAddDialogProps) => {
     onSubmit,
     channelName,
   } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
   const [query, onQueryChange] = useSearchQuery(onFetch);
   const [variants, setVariants] = useState<
@@ -134,7 +132,7 @@ const OrderProductAddDialog = (props: OrderProductAddDialogProps) => {
                 (product, productIndex) => (
                   <Fragment key={product ? product.id : "skeleton"}>
                     <TableRowLink data-test-id="product">
-                      <TableCell padding="checkbox" className={classes.productCheckboxCell}>
+                      <TableCell padding="checkbox" className="[&:first-child]:px-0">
                         <Checkbox
                           checked={productsWithAllVariantsSelected[productIndex]}
                           disabled={loading}
@@ -150,11 +148,11 @@ const OrderProductAddDialog = (props: OrderProductAddDialogProps) => {
                         />
                       </TableCell>
                       <TableCellAvatar
-                        className={classes.avatar}
+                        className="pl-0 w-16"
                         thumbnail={maybe(() => product.thumbnail.url)}
                       />
                       <TableCell
-                        className={classes.colName}
+                        className="pl-0"
                         colSpan={2}
                         data-test-id="product-name"
                       >
@@ -166,9 +164,9 @@ const OrderProductAddDialog = (props: OrderProductAddDialogProps) => {
                       .map((variant, variantIndex) => (
                         <TableRowLink key={variant.id} data-test-id="variant">
                           <TableCell />
-                          <TableCell className={classes.colVariantCheckbox}>
+                          <TableCell className="p-0">
                             <Checkbox
-                              className={classes.variantCheckbox}
+                              className="relative left-2"
                               checked={selectedVariantsToProductsMap[productIndex][variantIndex]}
                               disabled={loading}
                               onChange={() =>
@@ -183,7 +181,7 @@ const OrderProductAddDialog = (props: OrderProductAddDialogProps) => {
                               }
                             />
                           </TableCell>
-                          <TableCell className={classes.colName}>
+                          <TableCell className="pl-0">
                             <div>{variant.name}</div>
                             {variant.sku && (
                               <Box color="default2">
@@ -196,7 +194,7 @@ const OrderProductAddDialog = (props: OrderProductAddDialogProps) => {
                               </Box>
                             )}
                           </TableCell>
-                          <TableCell className={classes.textRight} data-test-id="variant-price">
+                          <TableCell className="text-right" data-test-id="variant-price">
                             <OrderPriceLabel pricing={variant.pricing} />
                           </TableCell>
                         </TableRowLink>

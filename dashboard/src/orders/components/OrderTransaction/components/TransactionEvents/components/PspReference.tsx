@@ -2,51 +2,11 @@
 import OverflowTooltip from "@dashboard/components/OverflowTooltip";
 import { useClipboard } from "@dashboard/hooks/useClipboard";
 import { commonMessages } from "@dashboard/intl";
-import { CheckIcon, CopyIcon, IconButton, makeStyles } from "@saleor/macaw-ui";
-import clsx from "clsx";
+import { cn } from "@dashboard/utils/cn";
+import { CheckIcon, CopyIcon, IconButton } from "@saleor/macaw-ui";
 import { useIntl } from "react-intl";
 
 import { PspReferenceLink } from "./PspReferenceLink";
-
-const useStyles = makeStyles(
-  theme => ({
-    wrapper: {
-      display: "flex",
-      gap: theme.spacing(1),
-    },
-    pill: {
-      fontFamily:
-        "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-      fontWeight: 600,
-      fontSize: "12px",
-      borderRadius: "4px",
-      background:
-        theme.palette.mode === "light" ? theme.palette.grey[100] : theme.palette.background.paper,
-      padding: "4px",
-      cursor: "default",
-      whiteSpace: "nowrap",
-      textOverflow: "ellipsis",
-      overflow: "hidden",
-    },
-    copyButton: {
-      height: "26px",
-      width: "26px",
-      "&&": {
-        transition: theme.transitions.create(["color", "background"], {
-          duration: theme.transitions.duration.short,
-        }),
-      },
-
-      "&&.copied": {
-        background: theme.palette.saleor.success.mid,
-        color: theme.palette.saleor.main[1],
-      },
-    },
-  }),
-  {
-    name: "PspReference",
-  },
-);
 
 interface PspReferenceProps {
   reference: string;
@@ -56,12 +16,11 @@ interface PspReferenceProps {
 export const PspReference = ({ reference, url }: PspReferenceProps) => {
   const intl = useIntl();
   const [copied, copy] = useClipboard();
-  const classes = useStyles();
 
   return (
-    <div className={classes.wrapper}>
+    <div className="flex gap-2">
       <OverflowTooltip
-        className={classes.pill}
+        className="font-mono font-semibold text-xs rounded bg-gray-100 dark:bg-background-paper p-1 cursor-default whitespace-nowrap text-ellipsis overflow-hidden"
         header={intl.formatMessage(commonMessages.pspReference)}
       >
         <PspReferenceLink href={url}>{reference}</PspReferenceLink>
@@ -69,7 +28,10 @@ export const PspReference = ({ reference, url }: PspReferenceProps) => {
       {!!navigator.clipboard && (
         <IconButton
           variant="secondary"
-          className={clsx(classes.copyButton, copied && "copied")}
+          className={cn(
+            "h-[26px] w-[26px] transition-colors duration-200",
+            copied && "bg-saleor-success text-saleor-main-1",
+          )}
           onClick={event => {
             event.preventDefault();
             copy(reference);

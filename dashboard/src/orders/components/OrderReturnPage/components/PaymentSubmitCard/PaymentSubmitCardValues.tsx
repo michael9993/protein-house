@@ -1,32 +1,10 @@
 // @ts-strict-ignore
 import Money from "@dashboard/components/Money";
+import { cn } from "@dashboard/utils/cn";
 import { IMoney } from "@dashboard/utils/intl";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Skeleton } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import reduce from "lodash/reduce";
 import { defineMessages, useIntl } from "react-intl";
-
-const useStyles = makeStyles(
-  theme => ({
-    container: {
-      ...theme.typography.body1,
-      lineHeight: 1.9,
-      width: "100%",
-    },
-    highlightedRow: {
-      fontWeight: 600,
-    },
-    row: {
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "space-between",
-      marginBottom: theme.spacing(2),
-      textAlign: "right",
-    },
-  }),
-  { name: "PaymentSubmitCardValues" },
-);
 
 export interface PaymentSubmitCardValuesProps {
   authorizedAmount: IMoney;
@@ -84,7 +62,6 @@ const messages = defineMessages({
 
 export const PaymentSubmitCardValues = (props: PaymentSubmitCardValuesProps) => {
   const intl = useIntl();
-  const classes = useStyles({});
   const orderedKeys: Array<keyof PaymentSubmitCardValuesProps> = [
     "authorizedAmount",
     "shipmentCost",
@@ -113,12 +90,10 @@ export const PaymentSubmitCardValues = (props: PaymentSubmitCardValuesProps) => 
   );
 
   return (
-    <div className={classes.container}>
+    <div className="text-base leading-[1.9] w-full">
       {items.map(({ key, data, highlighted }) => (
         <div
-          className={clsx(classes.row, {
-            [classes.highlightedRow]: highlighted,
-          })}
+          className={cn("flex flex-row justify-between mb-4 text-right", highlighted && "font-semibold")}
           key={key}
         >
           {intl.formatMessage(messages[key])}

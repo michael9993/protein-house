@@ -1,34 +1,15 @@
-import { makeStyles } from "@saleor/macaw-ui";
-import clsx from "clsx";
+import { cn } from "@dashboard/utils/cn";
 import { PropsWithChildren } from "react";
 
-const useStyles = makeStyles(
-  theme => ({
-    list: {
-      ...theme.typography.body1,
-      listStyle: "none",
-      margin: 0,
-      padding: 0,
-      display: "flex",
-      flexDirection: "column",
-      gap: theme.spacing(1),
-
-      "& dl": {
-        margin: 0,
-      },
-
-      "& dd": {
-        margin: 0,
-      },
-      lineHeight: 1.9,
-      width: "100%",
-    },
-  }),
-  { name: "SummaryList" },
-);
-
 export const SummaryList = ({ children, className }: PropsWithChildren<{ className?: string }>) => {
-  const classes = useStyles();
-
-  return <ul className={clsx(classes.list, className)}>{children}</ul>;
+  return (
+    <ul
+      className={cn(
+        "list-none m-0 p-0 flex flex-col gap-2 text-base leading-[1.9] w-full [&_dl]:m-0 [&_dd]:m-0",
+        className,
+      )}
+    >
+      {children}
+    </ul>
+  );
 };

@@ -5,14 +5,12 @@ import { useRef, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { productErrorCellMessages } from "./messages";
-import { useProductErrorCellStyles } from "./styles";
 
 interface ProductErrorCellProps {
   hasVariant: boolean;
 }
 
 export const ProductErrorCell = ({ hasVariant }: ProductErrorCellProps) => {
-  const classes = useProductErrorCellStyles({});
   const intl = useIntl();
   const popperAnchorRef = useRef<HTMLButtonElement | null>(null);
   const [showErrorBox, setShowErrorBox] = useState<boolean>(false);
@@ -22,14 +20,14 @@ export const ProductErrorCell = ({ hasVariant }: ProductErrorCellProps) => {
   }
 
   return (
-    <TableCell align="right" className={classes.container} ref={popperAnchorRef}>
+    <TableCell align="right" className="relative" ref={popperAnchorRef}>
       <div
         data-test-id="product-error-message"
-        className={classes.titleContainer}
+        className="flex flex-row items-center justify-end"
         onMouseEnter={() => setShowErrorBox(true)}
         onMouseLeave={() => setShowErrorBox(false)}
       >
-        <Text className={classes.errorTextHighlighted}>
+        <Text className="text-error text-xs mr-2">
           {intl.formatMessage(productErrorCellMessages.title)}
         </Text>
         <ErrorExclamationCircleIcon />
@@ -40,8 +38,8 @@ export const ProductErrorCell = ({ hasVariant }: ProductErrorCellProps) => {
         open={showErrorBox}
         anchorEl={popperAnchorRef.current}
       >
-        <div className={classes.errorBox}>
-          <Text className={classes.errorText}>
+        <div className="bg-error rounded-lg mr-6 px-6 py-4 w-[280px] z-[1000]">
+          <Text className="text-white text-sm">
             {intl.formatMessage(productErrorCellMessages.description)}
           </Text>
         </div>

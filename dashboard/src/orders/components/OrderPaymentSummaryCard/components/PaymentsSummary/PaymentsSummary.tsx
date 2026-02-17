@@ -6,19 +6,17 @@ import { FormattedMessage } from "react-intl";
 import SummaryLine from "../../../OrderSummaryCard/SummaryLine";
 import { SummaryList } from "../../../OrderSummaryCard/SummaryList";
 import { orderPaymentMessages } from "../../messages";
-import { useStyles } from "../../styles";
 
 interface PaymentsSummaryProps {
   order: OrderDetailsFragment;
 }
 
 export const PaymentsSummary = ({ order }: PaymentsSummaryProps) => {
-  const classes = useStyles();
   const shouldDisplay = OrderDetailsViewModel.getShouldDisplayAmounts(order);
 
   return (
     <DashboardCard.Content>
-      <SummaryList className={classes.amountGrid}>
+      <SummaryList className="pr-2">
         <SummaryLine
           text={<FormattedMessage {...orderPaymentMessages.authorized} />}
           money={order.totalAuthorized}

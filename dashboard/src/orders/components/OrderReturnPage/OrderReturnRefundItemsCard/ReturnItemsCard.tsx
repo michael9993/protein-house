@@ -8,10 +8,9 @@ import { OrderDetailsFragment, OrderErrorFragment, OrderLineFragment } from "@da
 import { FormsetChange } from "@dashboard/hooks/useFormset";
 import { getById, renderCollection } from "@dashboard/misc";
 import { TableBody, TableCell, TableHead } from "@mui/material";
-import { makeStyles, ResponsiveTable } from "@saleor/macaw-ui";
+import { ResponsiveTable } from "@saleor/macaw-ui";
 import { Checkbox, Skeleton } from "@saleor/macaw-ui-next";
 import * as React from "react";
-import { CSSProperties } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { OrderCardTitle } from "../../OrderCardTitle/OrderCardTitle";
@@ -19,48 +18,6 @@ import { MaximalButton } from "../components/MaximalButton";
 import { FormsetQuantityData, FormsetReplacementData } from "../form";
 import { getQuantityDataFromItems, getReplacementDataFromItems } from "../utils";
 import ProductErrorCell from "./ProductErrorCell";
-
-const useStyles = makeStyles(
-  theme => {
-    const inputPadding: CSSProperties = {
-      paddingBottom: theme.spacing(2),
-      paddingTop: theme.spacing(2),
-    };
-
-    return {
-      cartContent: {
-        paddingBottom: 0,
-        paddingTop: 0,
-      },
-
-      notice: {
-        marginBottom: theme.spacing(1),
-        marginTop: theme.spacing(2),
-      },
-
-      quantityField: {
-        minWidth: "80px",
-      },
-      quantityInnerInput: {
-        ...inputPadding,
-      },
-      quantityInnerInputNoRemaining: {
-        paddingRight: 0,
-      },
-      remainingQuantity: {
-        ...inputPadding,
-        color: theme.palette.text.secondary,
-        whiteSpace: "nowrap",
-      },
-      setMaximalQuantityButton: {
-        marginBottom: theme.spacing(1),
-        marginTop: theme.spacing(2),
-        padding: 0,
-      },
-    };
-  },
-  { name: "ItemsCard" },
-);
 
 interface OrderReturnRefundLinesCardProps {
   onChangeQuantity: FormsetChange<number>;
@@ -85,7 +42,6 @@ const ItemsCard = ({
   fulfilmentId,
   order,
 }: OrderReturnRefundLinesCardProps) => {
-  const classes = useStyles({});
   const handleChangeQuantity = (id: string) => (event: React.ChangeEvent<HTMLInputElement>) =>
     onChangeQuantity(id, parseInt(event.target.value, 10));
   const fulfillment = order?.fulfillments.find(getById(fulfilmentId));
@@ -93,7 +49,7 @@ const ItemsCard = ({
   return (
     <DashboardCard>
       <OrderCardTitle status={fulfillment?.status} />
-      <DashboardCard.Content className={classes.cartContent}>
+      <DashboardCard.Content className="py-0">
         <MaximalButton onClick={onSetMaxQuantity} />
       </DashboardCard.Content>
       <ResponsiveTable>
@@ -174,7 +130,7 @@ const ItemsCard = ({
                     {isReturnable && (
                       <QuantityInput
                         disabled={isPreorder}
-                        className={classes.quantityField}
+                        className="min-w-[80px]"
                         data-test-id={"quantityInput" + line?.id}
                         value={currentQuantity}
                         onChange={handleChangeQuantity(id)}

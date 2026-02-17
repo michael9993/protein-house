@@ -8,28 +8,10 @@ import { OrderRefundDataQuery } from "@dashboard/graphql";
 import { FormsetChange } from "@dashboard/hooks/useFormset";
 import { renderCollection } from "@dashboard/misc";
 import { Table, TableBody, TableCell, TableHead } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Button, Skeleton, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { OrderRefundFormData } from "../OrderRefundPage/form";
-
-const useStyles = makeStyles(
-  () => ({
-    colQuantity: {
-      textAlign: "right",
-      width: 210,
-    },
-    colProduct: {
-      width: 400,
-    },
-    colTotal: {
-      textAlign: "right",
-      width: 210,
-    },
-  }),
-  { name: "OrderRefundUnfulfilledProducts" },
-);
 
 interface OrderRefundUnfulfilledProductsProps {
   unfulfilledLines: OrderRefundDataQuery["order"]["lines"];
@@ -47,7 +29,6 @@ const OrderRefundUnfulfilledProducts = (props: OrderRefundUnfulfilledProductsPro
     onRefundedProductQuantityChange,
     onSetMaximalQuantities,
   } = props;
-  const classes = useStyles({});
   const intl = useIntl();
 
   return (
@@ -107,7 +88,7 @@ const OrderRefundUnfulfilledProducts = (props: OrderRefundUnfulfilledProductsPro
                 description="tabel column header"
               />
             </TableCell>
-            <TableCell className={classes.colTotal}>
+            <TableCell className="text-right w-[210px]">
               <FormattedMessage
                 id="+PclgM"
                 defaultMessage="Total"
@@ -130,13 +111,13 @@ const OrderRefundUnfulfilledProducts = (props: OrderRefundUnfulfilledProductsPro
 
               return (
                 <TableRowLink key={line?.id}>
-                  <TableCellAvatar thumbnail={line?.thumbnail?.url} className={classes.colProduct}>
+                  <TableCellAvatar thumbnail={line?.thumbnail?.url} className="w-[400px]">
                     {line?.productName ? line?.productName : <Skeleton />}
                   </TableCellAvatar>
                   <TableCell>
                     {line?.unitPrice ? <Money money={line?.unitPrice.gross} /> : <Skeleton />}
                   </TableCell>
-                  <TableCell className={classes.colQuantity}>
+                  <TableCell className="text-right w-[210px]">
                     {lineQuantity || lineQuantity === 0 ? (
                       <QuantityInput
                         data-test-id="product-quantity-input"
@@ -154,7 +135,7 @@ const OrderRefundUnfulfilledProducts = (props: OrderRefundUnfulfilledProductsPro
                       <Skeleton />
                     )}
                   </TableCell>
-                  <TableCell className={classes.colTotal}>
+                  <TableCell className="text-right w-[210px]">
                     {(line?.unitPrice.gross && (
                       <Money
                         money={{
