@@ -1,6 +1,5 @@
 // @ts-strict-ignore
 
-import { useStyles } from "@dashboard/extensions/components/WebhookDetailsPage/components/WebhookEvents/styles";
 import { useQuery } from "@dashboard/hooks/graphql";
 import { mapEdgesToItems } from "@dashboard/utils/maps";
 import { Radio } from "@mui/material";
@@ -29,7 +28,6 @@ interface DryRunItemsListProps {
 
 const DryRunItemsList = ({ object, objectId, setObjectId }: DryRunItemsListProps) => {
   const intl = useIntl();
-  const classes = useStyles({});
   const { checkbox } = useListWidths();
   const objectDocument = DocumentMap[object];
   const objectCollection = objectDocument.collection ?? camelCase(`${object.toLowerCase()}s`);
@@ -41,8 +39,8 @@ const DryRunItemsList = ({ object, objectId, setObjectId }: DryRunItemsListProps
   return (
     <List gridTemplate={["1fr", checkbox, checkbox]} data-test-id="dry-run-items-list">
       <ListHeader>
-        <ListItem className={classes.listHeader}>
-          <ListItemCell className={classes.listItemCell}>
+        <ListItem className="uppercase p-2 min-h-0">
+          <ListItemCell className="!pl-0 break-all font-semibold">
             {intl.formatMessage(messages.item)}
             &nbsp;
             {objectDocument.collection
@@ -54,10 +52,10 @@ const DryRunItemsList = ({ object, objectId, setObjectId }: DryRunItemsListProps
           </ListItemCell>
         </ListItem>
       </ListHeader>
-      <ListBody className={classes.listBody}>
+      <ListBody className="h-[300px] overflow-y-auto">
         {loading ? (
-          <ListItem className={classes.listItem}>
-            <ListItemCell className={classes.listItemCell}>
+          <ListItem className="min-h-0 gap-0 p-2 cursor-pointer">
+            <ListItemCell className="!pl-0 break-all font-semibold">
               <Skeleton />
             </ListItemCell>
             <ListItemCell>
@@ -69,8 +67,8 @@ const DryRunItemsList = ({ object, objectId, setObjectId }: DryRunItemsListProps
           </ListItem>
         ) : (
           (mapEdgesToItems<any>(data?.[objectCollection]) || []).map((item, idx) => (
-            <ListItem className={classes.listItem} key={idx} onClick={() => setObjectId(item.id)}>
-              <ListItemCell className={classes.listItemCell}>
+            <ListItem className="min-h-0 gap-0 p-2 cursor-pointer" key={idx} onClick={() => setObjectId(item.id)}>
+              <ListItemCell className="!pl-0 break-all font-semibold">
                 {item.name || item[objectDocument.displayedAttribute] || item.id || item.__typename}
               </ListItemCell>
               <ListItemCell>

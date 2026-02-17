@@ -11,8 +11,6 @@ import {
 import { TableCell } from "@mui/material";
 import { Text } from "@saleor/macaw-ui-next";
 
-import { useStyles } from "../OrderFulfillStockExceededDialog/styles";
-
 interface OrderFulfillStockExceededDialogLineProps {
   line: OrderFulfillLineFragment | FulfillmentFragment["lines"][0];
   warehouseId: string;
@@ -21,7 +19,6 @@ interface OrderFulfillStockExceededDialogLineProps {
 
 const OrderFulfillStockExceededDialogLine = (props: OrderFulfillStockExceededDialogLineProps) => {
   const { line: genericLine, warehouseId, formsetData } = props;
-  const classes = useStyles(props);
 
   if (!genericLine) {
     return null;
@@ -32,7 +29,7 @@ const OrderFulfillStockExceededDialogLine = (props: OrderFulfillStockExceededDia
 
   return (
     <TableRowLink key={line?.id}>
-      <TableCellAvatar className={classes.colName} thumbnail={line?.thumbnail?.url}>
+      <TableCellAvatar className="w-auto m-0" thumbnail={line?.thumbnail?.url}>
         {line?.productName}
         {line.variant && "attributes" in line.variant && (
           <Text color="default2" size={2} fontWeight="light">
@@ -40,10 +37,10 @@ const OrderFulfillStockExceededDialogLine = (props: OrderFulfillStockExceededDia
           </Text>
         )}
       </TableCellAvatar>
-      <TableCell className={classes.colQuantity}>
+      <TableCell className="text-right w-[100px] p-1">
         {getFulfillmentFormsetQuantity(formsetData, line)}
       </TableCell>
-      <TableCell className={classes.colWarehouseStock}>
+      <TableCell className="text-right w-[150px] px-6 py-1">
         {getOrderLineAvailableQuantity(line, stock)}
       </TableCell>
     </TableRowLink>

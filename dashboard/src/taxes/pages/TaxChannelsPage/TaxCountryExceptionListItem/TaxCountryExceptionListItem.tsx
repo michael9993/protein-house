@@ -10,7 +10,6 @@ import { ListItem, ListItemCell } from "@saleor/macaw-ui";
 import { Box, Button, Option } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 
-import { useStyles } from "../styles";
 import { TaxCountryConfiguration } from "../TaxChannelsPage";
 
 interface TaxCountryExceptionListItemProps {
@@ -30,19 +29,21 @@ const TaxCountryExceptionListItem = ({
   divider = true,
   strategyChoicesLoading,
 }: TaxCountryExceptionListItemProps) => {
-  const classes = useStyles();
-
   return (
     <>
-      <ListItem hover={false} className={classes.noDivider} data-test-id="exception-country">
+      <ListItem
+        hover={false}
+        className="grid grid-cols-[1fr_500px_1fr_1fr] before:hidden after:hidden"
+        data-test-id="exception-country"
+      >
         <ListItemCell>{country.country.country}</ListItemCell>
-        <ListItemCell className={classes.cell}>
+        <ListItemCell className="grid">
           {!strategyChoicesLoading && (
             <LegacyFlowWarning taxCalculationStrategy={country.taxCalculationStrategy} />
           )}
           <Box display="flex" alignItems="center">
             <ControlledCheckbox
-              className={classes.center}
+              className="m-0 flex place-content-center text-center"
               checked={country.chargeTaxes}
               name={"chargeTaxes" as keyof TaxConfigurationUpdateInput}
               onChange={onChange}
@@ -58,9 +59,9 @@ const TaxCountryExceptionListItem = ({
             </Box>
           </Box>
         </ListItemCell>
-        <ListItemCell className={classes.center} data-test-id="display-gross-prices-checkbox">
+        <ListItemCell className="m-0 flex place-content-center text-center" data-test-id="display-gross-prices-checkbox">
           <ControlledCheckbox
-            className={classes.center}
+            className="m-0 flex place-content-center text-center"
             checked={country.displayGrossPrices}
             name={"displayGrossPrices" as keyof TaxConfigurationUpdateInput}
             onChange={onChange}

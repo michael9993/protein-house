@@ -5,15 +5,13 @@ import { TaxClassFragment } from "@dashboard/graphql";
 import { taxesMessages } from "@dashboard/taxes/messages";
 import { taxClassesListUrl } from "@dashboard/taxes/urls";
 import { isLastElement } from "@dashboard/taxes/utils/utils";
+import { cn } from "@dashboard/utils/cn";
 import { Card, CardContent, Divider } from "@mui/material";
 import { List, ListHeader, ListItem, ListItemCell } from "@saleor/macaw-ui";
 import { Button, Skeleton } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import { Trash2 } from "lucide-react";
 import { Fragment } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
-
-import { useStyles } from "../../TaxCountriesPage/TaxCountriesMenu/styles";
 
 interface TaxClassesMenuProps {
   taxClasses: TaxClassFragment[] | undefined;
@@ -28,12 +26,11 @@ const TaxClassesMenu = ({
   onTaxClassDelete,
   onCreateNew,
 }: TaxClassesMenuProps) => {
-  const classes = useStyles();
   const intl = useIntl();
   const isCreatingNew = selectedTaxClassId === "new";
 
   return (
-    <Card className={classes.menu}>
+    <Card className="h-fit">
       <CardTitle
         title={intl.formatMessage(taxesMessages.taxClassList)}
         toolbar={
@@ -51,7 +48,7 @@ const TaxClassesMenu = ({
       {taxClasses?.length !== 0 ? (
         <>
           <ListHeader>
-            <ListItem className={classes.tableRow}>
+            <ListItem className="min-h-12 after:hidden">
               <ListItemCell>
                 <FormattedMessage {...taxesMessages.taxClassNameHeader} />
               </ListItemCell>
@@ -63,13 +60,14 @@ const TaxClassesMenu = ({
               <Fragment key={taxClass.id}>
                 <ListItemLink
                   data-test-id="class-list-rows"
-                  className={clsx(classes.clickable, classes.tableRow, {
-                    [classes.selected]: taxClass.id === selectedTaxClassId,
-                  })}
+                  className={cn(
+                    "cursor-pointer min-h-12 after:hidden",
+                    taxClass.id === selectedTaxClassId && "before:absolute before:left-0 before:w-1 before:h-full before:bg-[var(--mu-colors-background-interactiveNeutralDefault)]",
+                  )}
                   href={taxClassesListUrl(taxClass.id)}
                 >
                   <ListItemCell>
-                    <div className={classes.spaceBetween}>
+                    <div className="flex justify-between items-center">
                       {taxClass.name}
                       {taxClass.id !== "new" && (
                         <Button
@@ -97,7 +95,7 @@ const TaxClassesMenu = ({
           </List>
         </>
       ) : (
-        <CardContent className={classes.greyText}>
+        <CardContent className="text-[var(--mu-colors-text-default2)]">
           <FormattedMessage {...taxesMessages.noTaxClasses} />
         </CardContent>
       )}

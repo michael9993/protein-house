@@ -1,7 +1,6 @@
 // @ts-strict-ignore
 import Grid from "@dashboard/components/Grid";
 import { DashboardModal } from "@dashboard/components/Modal";
-import { useStyles } from "@dashboard/extensions/components/WebhookDetailsPage/components/WebhookEvents/styles";
 import { useTriggerWebhookDryRunMutation, WebhookEventTypeSyncEnum } from "@dashboard/graphql";
 import { capitalize } from "@mui/material";
 import {
@@ -32,7 +31,6 @@ interface DryRunProps {
 
 const DryRun = ({ setResult, showDialog, setShowDialog, query, syncEvents }: DryRunProps) => {
   const intl = useIntl();
-  const classes = useStyles({});
   const [objectId, setObjectId] = useState<string | null>(null);
   const [triggerWebhookDryRun] = useTriggerWebhookDryRunMutation();
   const availableObjects = Object.keys(DocumentMap).map(object =>
@@ -91,25 +89,25 @@ const DryRun = ({ setResult, showDialog, setShowDialog, query, syncEvents }: Dry
         )}
 
         <Grid variant="uniform">
-          <div className={classes.objectsWrapper}>
+          <div className="border-r border-[var(--mu-colors-border-default1)] p-6">
             <List gridTemplate={["1fr 50px"]}>
               <ListHeader>
-                <ListItem className={classes.listHeader}>
-                  <ListItemCell className={classes.listItemCell}>
+                <ListItem className="uppercase p-2 min-h-0">
+                  <ListItemCell className="!pl-0 break-all font-semibold">
                     {intl.formatMessage(messages.objects)}
                   </ListItemCell>
                   <ListItemCell></ListItemCell>
                 </ListItem>
               </ListHeader>
-              <ListBody className={classes.listBody}>
+              <ListBody className="h-[300px] overflow-y-auto">
                 {!availableObjects.length && <Text>{intl.formatMessage(messages.noObjects)}</Text>}
                 {availableObjects.map((object, idx) => (
                   <ListItem
                     key={idx}
-                    className={classes.listItem}
+                    className="min-h-0 gap-0 p-2 cursor-pointer"
                     onClick={() => setObject(object.split(" ").join("_").toUpperCase())}
                   >
-                    <ListItemCell className={classes.listItemCell}>
+                    <ListItemCell className="!pl-0 break-all font-semibold">
                       <strong>{capitalize(object.replaceAll("_", " ").toLowerCase())}</strong>
                     </ListItemCell>
                     <ListItemCell></ListItemCell>
@@ -118,19 +116,19 @@ const DryRun = ({ setResult, showDialog, setShowDialog, query, syncEvents }: Dry
               </ListBody>
             </List>
           </div>
-          <div className={classes.eventsWrapper}>
+          <div className="p-8 pl-0">
             {object ? (
               <DryRunItemsList setObjectId={setObjectId} objectId={objectId} object={object} />
             ) : (
               <>
                 <ListHeader>
-                  <ListItem className={classes.listHeader}>
-                    <ListItemCell className={classes.listItemCell}>
+                  <ListItem className="uppercase p-2 min-h-0">
+                    <ListItemCell className="!pl-0 break-all font-semibold">
                       {intl.formatMessage(messages.item)}
                     </ListItemCell>
                   </ListItem>
                 </ListHeader>
-                <ListBody className={classes.listBody}>
+                <ListBody className="h-[300px] overflow-y-auto">
                   <Text>{intl.formatMessage(messages.itemsDefaultMessage)}</Text>
                 </ListBody>
               </>
