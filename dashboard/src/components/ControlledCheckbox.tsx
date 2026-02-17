@@ -1,6 +1,7 @@
-// @ts-strict-ignore
-import { Checkbox, FormControlLabel } from "@mui/material";
+import { cn } from "@dashboard/utils/cn";
 import * as React from "react";
+
+import Checkbox from "./Checkbox";
 
 interface ControlledCheckboxProps {
   className?: string;
@@ -20,27 +21,30 @@ export const ControlledCheckbox = ({
   name,
   label,
   onChange,
-  checkedIcon,
+  checkedIcon: _checkedIcon,
   indeterminate,
   testId,
+  className,
   ...props
 }: ControlledCheckboxProps) => (
-  <FormControlLabel
-    disabled={disabled}
-    control={
-      <Checkbox
-        data-test-id={testId}
-        checkedIcon={checkedIcon}
-        checked={!!checked}
-        indeterminate={indeterminate}
-        disabled={disabled}
-        name={name}
-        onChange={() => onChange({ target: { name, value: !checked } })}
-      />
-    }
-    label={label}
+  <label
+    className={cn(
+      "inline-flex items-center gap-0 select-none",
+      disabled ? "opacity-50 cursor-default" : "cursor-pointer",
+      className,
+    )}
     {...props}
-  />
+  >
+    <Checkbox
+      data-test-id={testId}
+      checked={!!checked}
+      indeterminate={indeterminate}
+      disabled={disabled}
+      name={name}
+      onChange={() => onChange({ target: { name, value: !checked } })}
+    />
+    {label && <span className="text-sm">{label}</span>}
+  </label>
 );
 ControlledCheckbox.displayName = "ControlledCheckbox";
 export default ControlledCheckbox;

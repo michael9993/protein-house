@@ -8,7 +8,6 @@ import useModalDialogOpen from "@dashboard/hooks/useModalDialogOpen";
 import useSearchQuery from "@dashboard/hooks/useSearchQuery";
 import { Container, FetchMoreProps } from "@dashboard/types";
 import { TableBody, TableCell } from "@dashboard/components/Table";
-import { Radio } from "@mui/material";
 import { Input, Text } from "@saleor/macaw-ui-next";
 import { useState } from "react";
 
@@ -110,12 +109,16 @@ export const AssignContainerDialogSingle = (props: AssignContainerDialogSinglePr
                   onClick={() => handleContainerSelect(container.id)}
                 >
                   <TableCell padding="checkbox" className="pl-0">
-                    <Radio
-                      checked={isSelected}
-                      onChange={() => handleContainerSelect(container.id)}
-                      value={container.id}
-                      name="container-selection"
-                    />
+                    <span className="inline-flex items-center justify-center w-[42px] h-[42px]">
+                      <input
+                        type="radio"
+                        checked={isSelected}
+                        onChange={() => handleContainerSelect(container.id)}
+                        value={container.id}
+                        name="container-selection"
+                        className="w-[18px] h-[18px] accent-[var(--mu-colors-background-interactiveNeutralDefault)] cursor-pointer"
+                      />
+                    </span>
                   </TableCell>
                   <TableCell className="w-full" data-test-id={container.name}>
                     {container.name}

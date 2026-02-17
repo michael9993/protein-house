@@ -12,7 +12,6 @@ import useSearchQuery from "@dashboard/hooks/useSearchQuery";
 import { maybe, renderCollection } from "@dashboard/misc";
 import { Container, FetchMoreProps, RelayToFlat } from "@dashboard/types";
 import { TableBody, TableCell } from "@dashboard/components/Table";
-import { Radio } from "@mui/material";
 import { Input, Text } from "@saleor/macaw-ui-next";
 import { Fragment, useMemo, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -159,14 +158,17 @@ export const AssignVariantDialogSingle = (props: AssignVariantDialogSingleProps)
                         >
                           <TableCell />
                           <TableCell className="p-0">
-                            <Radio
-                              className="relative left-2"
-                              checked={isSelected}
-                              disabled={loading}
-                              onChange={() => handleVariantSelect(variant.id)}
-                              value={variant.id}
-                              name="variant-selection"
-                            />
+                            <span className="inline-flex items-center justify-center w-[42px] h-[42px] relative left-2">
+                              <input
+                                type="radio"
+                                checked={isSelected}
+                                disabled={loading}
+                                onChange={() => handleVariantSelect(variant.id)}
+                                value={variant.id}
+                                name="variant-selection"
+                                className="w-[18px] h-[18px] accent-[var(--mu-colors-background-interactiveNeutralDefault)] cursor-pointer"
+                              />
+                            </span>
                           </TableCell>
                           <TableCell className="pl-0">
                             <div>{variant.name}</div>

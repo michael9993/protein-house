@@ -1,6 +1,7 @@
 // @ts-strict-ignore
 import Debounce from "@dashboard/components/Debounce";
 import { DashboardModal } from "@dashboard/components/Modal";
+import { Table, TableCell } from "@dashboard/components/Table";
 import TableRowLink from "@dashboard/components/TableRowLink";
 import { OrderFulfillLineFragment, WarehouseFragment } from "@dashboard/graphql";
 import { buttonMessages } from "@dashboard/intl";
@@ -8,15 +9,8 @@ import { getById } from "@dashboard/misc";
 import { getLineAvailableQuantityInWarehouse } from "@dashboard/orders/utils/data";
 import useWarehouseSearch from "@dashboard/searches/useWarehouseSearch";
 import { mapEdgesToItems } from "@dashboard/utils/maps";
-import {
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  Table,
-  TableCell,
-} from "@mui/material";
 import { Button, isScrolledToBottom, SearchIcon, useElementScroll } from "@saleor/macaw-ui";
-import { Box, Input, Skeleton, Text } from "@saleor/macaw-ui-next";
+import { Box, Input, RadioGroup, Skeleton, Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -63,9 +57,6 @@ const OrderChangeWarehouseDialog = ({
   });
   const filteredWarehouses = mapEdgesToItems(warehousesOpts?.data?.search);
   const selectedWarehouse = filteredWarehouses?.find(getById(selectedWarehouseId ?? ""));
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedWarehouseId(e.target.value);
-  };
   const handleSubmit = () => {
     onConfirm(selectedWarehouse);
     onClose();
@@ -127,7 +118,8 @@ const OrderChangeWarehouseDialog = ({
             {filteredWarehouses ? (
               <RadioGroup
                 value={selectedWarehouseId}
-                onChange={handleChange}
+                name="warehouse"
+                onValueChange={value => setSelectedWarehouseId(value)}
                 className="table w-full"
               >
                 {filteredWarehouses.map(warehouse => {
@@ -139,12 +131,12 @@ const OrderChangeWarehouseDialog = ({
                   return (
                     <TableRowLink key={warehouse.id}>
                       <TableCell className="flex justify-between items-center">
-                        <FormControlLabel
-                          value={warehouse.id}
-                          control={<Radio color="primary" />}
-                          label={
+                        <RadioGroup.Item value={warehouse.id} id={warehouse.id}>
+                          <Text>
                             <div className="flex flex-col">
-                              <span className="max-w-[350px] overflow-hidden text-ellipsis">{warehouse.name}</span>
+                              <span className="max-w-[350px] overflow-hidden text-ellipsis">
+                                {warehouse.name}
+                              </span>
                               <Text>
                                 <FormattedMessage
                                   {...messages.productAvailability}
@@ -154,8 +146,8 @@ const OrderChangeWarehouseDialog = ({
                                 />
                               </Text>
                             </div>
-                          }
-                        />
+                          </Text>
+                        </RadioGroup.Item>
                         {currentWarehouseId === warehouse?.id && (
                           <Text display="inline-block" fontSize={3}>
                             <FormattedMessage {...messages.currentSelection} />

@@ -1,4 +1,3 @@
-import { List } from "@mui/material";
 import * as React from "react";
 
 interface ScrollableContentProps {
@@ -8,7 +7,7 @@ interface ScrollableContentProps {
 export const ScrollableContent = ({ children }: ScrollableContentProps) => {
   return (
     <div className="max-h-[450px] overflow-auto">
-      <List>{children}</List>
+      <ul className="list-none p-0 m-0">{children}</ul>
     </div>
   );
 };

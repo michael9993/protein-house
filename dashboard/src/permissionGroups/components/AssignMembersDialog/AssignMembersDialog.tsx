@@ -13,7 +13,7 @@ import { buttonMessages } from "@dashboard/intl";
 import { getUserInitials, getUserName, renderCollection } from "@dashboard/misc";
 import { DialogProps, FetchMoreProps, RelayToFlat, SearchPageProps } from "@dashboard/types";
 import { TableBody, TableCell } from "@dashboard/components/Table";
-import { Checkbox } from "@mui/material";
+import Checkbox from "@dashboard/components/Checkbox";
 import { Box, Input, Skeleton, Text } from "@saleor/macaw-ui-next";
 import { useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -108,7 +108,6 @@ const AssignMembersDialog = ({
                     <TableRowLink key={member.id} data-test-id="user-row">
                       <TableCell padding="checkbox" className="!pl-0 !pr-0 !w-12">
                         <Checkbox
-                          color="primary"
                           checked={isSelected}
                           onChange={() =>
                             handleStaffMemberAssign(

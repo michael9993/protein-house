@@ -1,4 +1,4 @@
-import { Checkbox, FormControlLabel } from "@mui/material";
+import Checkbox from "@dashboard/components/Checkbox";
 
 import { FilterElement } from "../types";
 import { FilterDispatchFunction } from "../useFilter";
@@ -14,24 +14,27 @@ export const FilterContentBodyNameField = ({
 }: FilterContentBodyNameFieldProps) => {
   return (
     <div className="py-2 px-5 [&:not(:last-of-type)]:border-b [&:not(:last-of-type)]:border-divider">
-      <FormControlLabel
-        control={
-          <Checkbox data-test-id={"filter-group-active-" + filter.name} checked={filter.active} />
-        }
-        label={filter.label}
-        onClick={event => event.stopPropagation()}
-        onChange={() => {
-          onFilterPropertyChange({
-            payload: {
-              name: filter.name,
-              update: {
-                active: !filter.active,
+      <label
+        className="inline-flex items-center gap-0 cursor-pointer"
+        onClick={e => e.stopPropagation()}
+      >
+        <Checkbox
+          data-test-id={"filter-group-active-" + filter.name}
+          checked={filter.active}
+          onChange={() => {
+            onFilterPropertyChange({
+              payload: {
+                name: filter.name,
+                update: {
+                  active: !filter.active,
+                },
               },
-            },
-            type: "set-property",
-          });
-        }}
-      />
+              type: "set-property",
+            });
+          }}
+        />
+        <span>{filter.label}</span>
+      </label>
     </div>
   );
 };

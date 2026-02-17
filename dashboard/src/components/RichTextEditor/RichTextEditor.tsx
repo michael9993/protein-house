@@ -1,5 +1,5 @@
 import { LogLevels, OutputData } from "@editorjs/editorjs";
-import { FormControl, FormHelperText } from "@mui/material";
+import { cn } from "@dashboard/utils/cn";
 import { useId } from "@reach/auto-id";
 import { EditorCore, Props as ReactEditorJSProps } from "@react-editor-js/core";
 import { Box } from "@saleor/macaw-ui-next";
@@ -72,12 +72,9 @@ const RichTextEditor = ({
   });
 
   return (
-    <FormControl
+    <div
       data-test-id={"rich-text-editor-" + name}
-      disabled={disabled}
-      error={error}
-      fullWidth
-      variant="outlined"
+      className={cn("w-full relative", disabled && "opacity-50 pointer-events-none")}
     >
       <Box
         as="label"
@@ -127,8 +124,12 @@ const RichTextEditor = ({
           />
         </ReactEditorJS>
       )}
-      {helperText && <FormHelperText>{helperText}</FormHelperText>}
-    </FormControl>
+      {helperText && (
+        <p className={cn("text-xs mt-1 mx-3.5", error && "text-[var(--mu-colors-text-critical1)]")}>
+          {helperText}
+        </p>
+      )}
+    </div>
   );
 };
 

@@ -1,4 +1,3 @@
-import { CardHeader } from "@mui/material";
 import { vars } from "@saleor/macaw-ui-next";
 import * as React from "react";
 
@@ -22,17 +21,27 @@ export const CardTitle = ({
   backgroundColor = "default1",
   ...rest
 }: CardTitleProps) => (
-  <CardHeader
-    action={toolbar}
+  <div
     className={className}
-    title={title}
-    subheader={subtitle}
-    {...rest}
     style={{
       backgroundColor: vars.colors.background[backgroundColor],
       paddingBottom: "13px",
     }}
+    {...rest}
   >
+    <div className="flex items-start justify-between px-6 pt-6">
+      <div>
+        {typeof title === "string" ? (
+          <span className="text-base font-semibold">{title}</span>
+        ) : (
+          title
+        )}
+        {subtitle && (
+          <div className="text-sm text-[var(--mu-colors-text-default2)] mt-1">{subtitle}</div>
+        )}
+      </div>
+      {toolbar && <div>{toolbar}</div>}
+    </div>
     {children}
-  </CardHeader>
+  </div>
 );

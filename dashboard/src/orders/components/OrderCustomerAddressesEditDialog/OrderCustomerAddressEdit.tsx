@@ -7,8 +7,7 @@ import { AddressTypeInput } from "@dashboard/customers/types";
 import { AccountErrorFragment, AddressFragment, OrderErrorFragment } from "@dashboard/graphql";
 import { FormChange } from "@dashboard/hooks/useForm";
 import { getById } from "@dashboard/misc";
-import { FormControlLabel, Radio, RadioGroup } from "@mui/material";
-import { Box, Option, Skeleton } from "@saleor/macaw-ui-next";
+import { Box, Option, RadioGroup, Skeleton, Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { useIntl } from "react-intl";
 
@@ -73,14 +72,18 @@ const OrderCustomerAddressEdit = (props: OrderCustomerAddressEditProps) => {
       className="block"
       value={addressInputOption}
       name={addressInputName}
-      onChange={event => onChangeAddressInputOption(event)}
+      onValueChange={value =>
+        onChangeAddressInputOption({ target: { name: addressInputName, value } } as any)
+      }
     >
-      <FormControlLabel
+      <RadioGroup.Item
         value={AddressInputOptionEnum.CUSTOMER_ADDRESS}
-        control={<Radio color="primary" data-test-id={AddressInputOptionEnum.CUSTOMER_ADDRESS} />}
-        label={intl.formatMessage(addressEditMessages.customerAddress)}
+        id={`${addressInputName}-customer-address`}
+        data-test-id={AddressInputOptionEnum.CUSTOMER_ADDRESS}
         className="block"
-      />
+      >
+        <Text>{intl.formatMessage(addressEditMessages.customerAddress)}</Text>
+      </RadioGroup.Item>
       {addressInputOption === AddressInputOptionEnum.CUSTOMER_ADDRESS && showCard && (
         <>
           <CardSpacer />
@@ -92,12 +95,14 @@ const OrderCustomerAddressEdit = (props: OrderCustomerAddressEditProps) => {
           <FormSpacer />
         </>
       )}
-      <FormControlLabel
+      <RadioGroup.Item
         value={AddressInputOptionEnum.NEW_ADDRESS}
-        control={<Radio color="primary" data-test-id={AddressInputOptionEnum.NEW_ADDRESS} />}
-        label={intl.formatMessage(addressEditMessages.newAddress)}
+        id={`${addressInputName}-new-address`}
+        data-test-id={AddressInputOptionEnum.NEW_ADDRESS}
         className="block"
-      />
+      >
+        <Text>{intl.formatMessage(addressEditMessages.newAddress)}</Text>
+      </RadioGroup.Item>
       {addressInputOption === AddressInputOptionEnum.NEW_ADDRESS && (
         <Box display="grid" gap={5}>
           <AddressEdit

@@ -1,23 +1,20 @@
-import { FormControl, FormHelperText, InputLabel } from "@mui/material";
+import { cn } from "@dashboard/utils/cn";
 
 import { RichTextEditorProps } from "../RichTextEditor";
 
 export const HOLDER = "TEST_HOLDER";
 
 const RichTextEditor = ({ disabled, error, label, name, helperText }: RichTextEditorProps) => (
-  <FormControl
+  <div
     data-test-id={"rich-text-editor-" + name}
-    disabled={disabled}
-    error={error}
-    fullWidth
-    variant="outlined"
+    className={cn("w-full relative", disabled && "opacity-50 pointer-events-none")}
   >
-    <InputLabel focused={true} shrink={true}>
-      {label}
-    </InputLabel>
+    <label>{label}</label>
 
-    <FormHelperText>{helperText}</FormHelperText>
-  </FormControl>
+    <p className={cn("text-xs mt-1 mx-3.5", error && "text-[var(--mu-colors-text-critical1)]")}>
+      {helperText}
+    </p>
+  </div>
 );
 
 export default RichTextEditor;

@@ -1,4 +1,4 @@
-import { Tab } from "@mui/material";
+import { cn } from "@dashboard/utils/cn";
 
 interface FilterTabProps {
   onClick: () => void;
@@ -8,21 +8,22 @@ interface FilterTabProps {
 }
 
 export const FilterTab = (props: FilterTabProps) => {
-  const { onClick, label, selected, value } = props;
+  const { onClick, label, selected } = props;
 
   return (
-    <Tab
-      disableRipple
-      label={label}
-      classes={{
-        root: "min-w-[80px] opacity-100 pt-2 normal-case",
-        wrapper: selected
-          ? "text-base font-medium text-text-primary"
-          : "text-base font-medium text-text-secondary hover:text-text-primary",
-      }}
+    <button
+      role="tab"
+      aria-selected={selected}
       onClick={onClick}
-      value={value}
-    />
+      className={cn(
+        "min-w-[80px] pt-2 px-4 pb-3 border-b-2 bg-transparent cursor-pointer normal-case text-base font-medium",
+        selected
+          ? "text-text-primary border-[var(--mu-colors-background-interactiveNeutralDefault)]"
+          : "text-text-secondary hover:text-text-primary border-transparent",
+      )}
+    >
+      {label}
+    </button>
   );
 };
 FilterTab.displayName = "FilterTab";

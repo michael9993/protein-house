@@ -1,6 +1,5 @@
 import { isExternalURL } from "@dashboard/utils/urls";
-import { OverridableComponent } from "@mui/material/OverridableComponent";
-import { Button as MacawButton, ButtonTypeMap } from "@saleor/macaw-ui";
+import { Button as MacawButton } from "@saleor/macaw-ui";
 import { forwardRef } from "react";
 import { Link } from "react-router";
 
@@ -15,4 +14,5 @@ const _Button = forwardRef<HTMLButtonElement, any>(({ href, ...props }, ref) => 
 
 _Button.displayName = "Button";
 
-export const Button = _Button as OverridableComponent<ButtonTypeMap>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const Button = _Button as any;

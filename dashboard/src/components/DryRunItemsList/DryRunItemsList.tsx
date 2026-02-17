@@ -2,7 +2,6 @@
 
 import { useQuery } from "@dashboard/hooks/graphql";
 import { mapEdgesToItems } from "@dashboard/utils/maps";
-import { Radio } from "@mui/material";
 import {
   List,
   ListBody,
@@ -75,7 +74,12 @@ const DryRunItemsList = ({ object, objectId, setObjectId }: DryRunItemsListProps
                 {item.thumbnail && <Avatar thumbnail={item.thumbnail?.url} />}
               </ListItemCell>
               <ListItemCell>
-                <Radio checked={item.id === objectId} />
+                <input
+                  type="radio"
+                  checked={item.id === objectId}
+                  readOnly
+                  className="w-4 h-4 accent-[var(--mu-colors-background-interactiveNeutralDefault)] cursor-pointer"
+                />
               </ListItemCell>
             </ListItem>
           ))

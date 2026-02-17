@@ -3,7 +3,6 @@ import { FilterDateTimeField } from "@dashboard/components/Filter/FilterContent/
 import { FilterNumericField } from "@dashboard/components/Filter/FilterContent/FilterNumericField";
 import { FilterSingleSelectField } from "@dashboard/components/Filter/FilterContent/FilterSingleSelectField";
 import { commonFilterStyles } from "@dashboard/components/Filter/FilterContent/utils";
-import { FormControlLabel, Radio } from "@mui/material";
 import { Input, Option, Skeleton } from "@saleor/macaw-ui-next";
 import * as React from "react";
 
@@ -102,29 +101,30 @@ export const FilterContentBody = <K extends string = string>({
       {isFilterType(filter, FieldType.boolean) &&
         filter.options.map(option => (
           <div className="relative -left-[3px]" key={option.value}>
-            <FormControlLabel
-              control={
-                <Radio
+            <label className="inline-flex items-center gap-0 cursor-pointer">
+              <span className="inline-flex items-center justify-center w-[42px] h-[42px]">
+                <input
+                  type="radio"
                   data-test-id="filter-boolean"
                   data-test-is-checked={filter.value[0] === option.value}
                   checked={filter.value[0] === option.value}
-                  color="secondary"
+                  onChange={() =>
+                    onFilterPropertyChange({
+                      payload: {
+                        name: filter.name,
+                        update: {
+                          value: [option.value],
+                        },
+                      },
+                      type: "set-property",
+                    })
+                  }
+                  name={filter.name}
+                  className="w-[18px] h-[18px] accent-[var(--mu-colors-background-interactiveNeutralDefault)] cursor-pointer"
                 />
-              }
-              label={option.label}
-              name={filter.name}
-              onChange={() =>
-                onFilterPropertyChange({
-                  payload: {
-                    name: filter.name,
-                    update: {
-                      value: [option.value],
-                    },
-                  },
-                  type: "set-property",
-                })
-              }
-            />
+              </span>
+              <span>{option.label}</span>
+            </label>
           </div>
         ))}
       {isFilterType(filter, FieldType.keyValue) && (

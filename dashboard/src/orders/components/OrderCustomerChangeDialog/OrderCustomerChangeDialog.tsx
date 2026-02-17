@@ -1,8 +1,7 @@
 import { ConfirmButton } from "@dashboard/components/ConfirmButton";
 import { DashboardModal } from "@dashboard/components/Modal";
 import { buttonMessages } from "@dashboard/intl";
-import { FormControlLabel, Radio, RadioGroup } from "@mui/material";
-import { Box, Text } from "@saleor/macaw-ui-next";
+import { Box, RadioGroup, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import OrderCustomerChangeForm, { CustomerChangeActionEnum, OrderCustomerChangeData } from "./form";
@@ -31,23 +30,26 @@ const OrderCustomerChangeDialog = (props: OrderCustomerChangeDialogProps) => {
                 <FormattedMessage {...messages.description} />
               </Text>
               <RadioGroup
-                className="block"
                 value={data.changeActionOption}
                 name="changeActionOption"
-                onChange={event => change(event)}
+                onValueChange={value =>
+                  change({ target: { name: "changeActionOption", value } } as any)
+                }
               >
-                <FormControlLabel
+                <RadioGroup.Item
                   value={CustomerChangeActionEnum.KEEP_ADDRESS}
-                  control={<Radio color="primary" />}
-                  label={intl.formatMessage(messages.keepAddress)}
+                  id="keep-address"
                   className="block"
-                />
-                <FormControlLabel
+                >
+                  <Text>{intl.formatMessage(messages.keepAddress)}</Text>
+                </RadioGroup.Item>
+                <RadioGroup.Item
                   value={CustomerChangeActionEnum.CHANGE_ADDRESS}
-                  control={<Radio color="primary" />}
-                  label={intl.formatMessage(messages.changeAddress)}
+                  id="change-address"
                   className="block"
-                />
+                >
+                  <Text>{intl.formatMessage(messages.changeAddress)}</Text>
+                </RadioGroup.Item>
               </RadioGroup>
               <DashboardModal.Actions>
                 <ConfirmButton transitionState="default" type="submit">

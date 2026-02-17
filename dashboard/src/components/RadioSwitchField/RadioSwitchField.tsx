@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { cn } from "@dashboard/utils/cn";
-import { FormControl, FormControlLabel, Radio, RadioGroup } from "@mui/material";
+import { RadioGroup, Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 
 interface RadioSwitchFieldProps {
@@ -28,39 +28,39 @@ const RadioSwitchField = (props: RadioSwitchFieldProps) => {
     value,
   } = props;
   const initialValue = value ? "true" : "false";
-  const change = event => {
+  const change = (newValue: string) => {
     onChange({
       target: {
-        name: event.target.name,
-        value: event.target.value === "true",
+        name,
+        value: newValue === "true",
       },
     } as any);
   };
 
   return (
-    <FormControl className={cn("p-0 w-full", className)} error={error} disabled={disabled}>
+    <div className={cn("p-0 w-full", disabled && "opacity-50 pointer-events-none", className)}>
       <RadioGroup
-        aria-label={name}
         name={name}
         value={initialValue}
-        onChange={event => change(event)}
+        error={error}
+        onValueChange={change}
       >
-        <FormControlLabel
+        <RadioGroup.Item
           value="true"
+          id={`${name}-true`}
           className={cn("[&>span]:py-2", overrideClasses?.radioLabel)}
-          control={<Radio color="secondary" />}
-          label={firstOptionLabel}
-          name={name}
-        />
-        <FormControlLabel
+        >
+          <Text>{firstOptionLabel}</Text>
+        </RadioGroup.Item>
+        <RadioGroup.Item
           value="false"
+          id={`${name}-false`}
           className={cn("[&>span]:py-2", overrideClasses?.radioLabel)}
-          control={<Radio color="secondary" />}
-          label={secondOptionLabel}
-          name={name}
-        />
+        >
+          <Text>{secondOptionLabel}</Text>
+        </RadioGroup.Item>
       </RadioGroup>
-    </FormControl>
+    </div>
   );
 };
 

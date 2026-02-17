@@ -13,7 +13,6 @@ import useSearchQuery from "@dashboard/hooks/useSearchQuery";
 import { sectionNames } from "@dashboard/intl";
 import { FetchMoreProps } from "@dashboard/types";
 import { toggle } from "@dashboard/utils/lists";
-import { Button, FormControlLabel } from "@mui/material";
 import { Input, Option as MacawOptionType, Text } from "@saleor/macaw-ui-next";
 import { PropsWithChildren } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -41,18 +40,10 @@ const Option = ({
   onChange: (event: ChangeEvent) => void;
 }>) => {
   return (
-    <FormControlLabel
-      classes={{
-        label: "text-sm ml-0",
-      }}
-      color="primary"
-      control={
-        <Checkbox className="relative -right-3" checked={checked} name={name} onChange={onChange} />
-      }
-      className="[&&]:overflow-visible first-of-type:pt-0 [&:not(:last-of-type)]:border-b [&:not(:last-of-type)]:border-divider justify-between m-0 py-2 w-full"
-      label={children}
-      labelPlacement="start"
-    />
+    <label className="flex items-center justify-between overflow-visible first-of-type:pt-0 [&:not(:last-of-type)]:border-b [&:not(:last-of-type)]:border-divider m-0 py-2 w-full cursor-pointer">
+      <span className="text-sm">{children}</span>
+      <Checkbox className="relative -right-3" checked={checked} name={name} onChange={onChange} />
+    </label>
   );
 };
 const FieldAccordion = ({
@@ -347,9 +338,12 @@ const ProductExportDialogInfo = ({
           {(hasMore || loading) && (
             <div className="flex justify-center mt-4">
               {hasMore && !loading && (
-                <Button color="primary" onClick={onFetchMore}>
+                <button
+                  className="text-sm font-medium text-[var(--mu-colors-text-accent1)] cursor-pointer bg-transparent border-none hover:underline"
+                  onClick={onFetchMore}
+                >
                   <FormattedMessage id="ZDJEat" defaultMessage="Load More" description="button" />
-                </Button>
+                </button>
               )}
               {loading && <SaleorThrobber size={32} />}
             </div>

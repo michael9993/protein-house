@@ -1,6 +1,5 @@
 // @ts-strict-ignore
 import { toggle } from "@dashboard/utils/lists";
-import { FormControlLabel } from "@mui/material";
 import { Input, Option, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage } from "react-intl";
 
@@ -78,17 +77,14 @@ const FilterAutocompleteField = ({
       )}
       {filteredValuesChecked.map(displayValue => (
         <div className="relative -left-1" key={displayValue.value}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                data-test-id={"filter-field-autocomplete-selected-" + filter.value}
-                checked={filter.value.includes(displayValue.value)}
-              />
-            }
-            label={displayValue.label}
-            name={filter.name}
-            onChange={() => handleChange(displayValue)}
-          />
+          <label className="inline-flex items-center gap-0 cursor-pointer">
+            <Checkbox
+              data-test-id={"filter-field-autocomplete-selected-" + filter.value}
+              checked={filter.value.includes(displayValue.value)}
+              onChange={() => handleChange(displayValue)}
+            />
+            <span>{displayValue.label}</span>
+          </label>
         </div>
       ))}
       {displayHr && <Hr className="bg-primary-light my-2" />}
@@ -103,17 +99,14 @@ const FilterAutocompleteField = ({
       )}
       {filteredValuesUnchecked.map(option => (
         <div className="relative -left-1" key={option.value} data-test-id="filter-option">
-          <FormControlLabel
-            control={
-              <Checkbox
-                data-test-id={"filter-field-autocomplete-option-" + filter.value}
-                checked={filter.value.includes(option.value)}
-              />
-            }
-            label={option.label}
-            name={filter.name}
-            onChange={() => handleChange(option)}
-          />
+          <label className="inline-flex items-center gap-0 cursor-pointer">
+            <Checkbox
+              data-test-id={"filter-field-autocomplete-option-" + filter.value}
+              checked={filter.value.includes(option.value)}
+              onChange={() => handleChange(option)}
+            />
+            <span>{option.label}</span>
+          </label>
         </div>
       ))}
       {filter.hasMore && (

@@ -1,43 +1,74 @@
-// @ts-strict-ignore
-import MuiCheckbox, { CheckboxProps as MuiCheckboxProps } from "@mui/material/Checkbox";
-import FormHelperText from "@mui/material/FormHelperText";
+import { cn } from "@dashboard/utils/cn";
+import * as React from "react";
 
-type CheckboxProps = Omit<
-  MuiCheckboxProps,
-  "checkedIcon" | "color" | "icon" | "indeterminateIcon" | "classes" | "onClick"
-> & {
+type CheckboxProps = {
+  checked?: boolean;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>, checked?: boolean) => void;
+  disabled?: boolean;
+  name?: string;
   disableClickPropagation?: boolean;
   helperText?: string;
   error?: boolean;
+  indeterminate?: boolean;
+  className?: string;
+  "data-test-id"?: string;
+  [key: string]: any;
 };
 
-const firefoxHandler = (event, onChange, checked) => {
-  event.preventDefault();
-  onChange(event, checked);
-};
-const Checkbox = ({ helperText, error, ...props }: CheckboxProps) => {
-  const { disableClickPropagation, ...rest } = props;
+const Checkbox = ({
+  helperText,
+  error,
+  checked,
+  onChange,
+  disabled,
+  disableClickPropagation,
+  indeterminate,
+  className,
+  ...rest
+}: CheckboxProps) => {
+  const ref = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    if (ref.current) {
+      ref.current.indeterminate = !!indeterminate;
+    }
+  }, [indeterminate]);
 
   return (
     <>
-      <MuiCheckbox
-        data-test-id="checkbox"
-        {...rest}
-        onClick={
-          disableClickPropagation
-            ? event => {
-                event.stopPropagation();
-                /*
-              Workaround for firefox
-              ref: https://bugzilla.mozilla.org/show_bug.cgi?id=62151
-            */
-                firefoxHandler(event, rest.onChange, rest.checked);
-              }
-            : undefined
-        }
-      />
+      <span
+        className={cn(
+          "inline-flex items-center justify-center w-[42px] h-[42px] shrink-0",
+          !disabled && "cursor-pointer",
+          className,
+        )}
+        onClick={disableClickPropagation ? e => e.stopPropagation() : undefined}
+      >
+        <input
+          ref={ref}
+          type="checkbox"
+          data-test-id={rest["data-test-id"] ?? "checkbox"}
+          checked={!!checked}
+          disabled={disabled}
+          name={rest.name}
+          onChange={e => onChange?.(e, e.target.checked)}
+          className={cn(
+            "w-[18px] h-[18px] accent-[var(--mu-colors-background-interactiveNeutralDefault)]",
+            !disabled && "cursor-pointer",
+          )}
+        />
+      </span>
       {helperText && (
-        <FormHelperText classes={{ root: error ? "text-error" : undefined }}>{helperText}</FormHelperText>
+        <p
+          className={cn(
+            "text-xs mt-0 mx-3.5 mb-0",
+            error
+              ? "text-[var(--mu-colors-text-critical1)]"
+              : "text-[var(--mu-colors-text-default2)]",
+          )}
+        >
+          {helperText}
+        </p>
       )}
     </>
   );

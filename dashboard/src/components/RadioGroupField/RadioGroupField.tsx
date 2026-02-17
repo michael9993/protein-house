@@ -1,13 +1,6 @@
 // @ts-strict-ignore
 import { cn } from "@dashboard/utils/cn";
-import {
-  FormControl,
-  FormControlLabel,
-  FormHelperText,
-  MenuItem,
-  Radio,
-  RadioGroup,
-} from "@mui/material";
+import { RadioGroup, Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage } from "react-intl";
 
@@ -53,21 +46,20 @@ const RadioGroupField = (props: RadioGroupFieldProps) => {
   } = props;
 
   return (
-    <FormControl
+    <div
       className={cn(
-        "p-0 w-full [&_.radio-label]:last-of-type:mb-0",
+        "p-0 w-full",
         !label && "-mt-3",
+        disabled && "opacity-50 pointer-events-none",
         className,
       )}
-      error={error}
-      disabled={disabled}
     >
-      {!!label && <label className="text-base mb-2">{label}</label>}
+      {!!label && <label className="text-base mb-2 block">{label}</label>}
       <RadioGroup
-        aria-label={name}
+        value={String(value)}
         name={name}
-        value={value}
-        onChange={onChange}
+        error={error}
+        onValueChange={newValue => onChange({ target: { name, value: newValue } } as any)}
         className={cn(
           variant === "inline" && "flex-row",
           innerContainerClassName,
@@ -75,35 +67,47 @@ const RadioGroupField = (props: RadioGroupFieldProps) => {
       >
         {choices.length > 0 ? (
           choices.map(choice => (
-            <FormControlLabel
-              disabled={choice.disabled}
-              value={choice.value}
-              className={cn(
-                variant !== "inline" && "-mb-1 flex items-center",
-                variant === "inline" && "items-start mr-8",
-              )}
-              classes={{
-                label: "mt-[1.6px] flex flex-col",
-              }}
-              control={
-                <Radio
-                  data-test-id={choice.value}
-                  className={cn(alignTop && "self-baseline relative -top-[6px]")}
-                  color="secondary"
-                />
-              }
-              label={choice.label}
+            <RadioGroup.Item
               key={choice.value}
-            />
+              value={String(choice.value)}
+              id={String(choice.value)}
+              disabled={choice.disabled}
+              data-test-id={choice.value}
+              className={cn(
+                "radio-label",
+                variant !== "inline" && "-mb-1",
+                variant === "inline" && "items-start mr-8",
+                alignTop && "items-start",
+              )}
+              marginBottom={1}
+            >
+              <Text
+                color={choice.disabled ? "defaultDisabled" : "default1"}
+                className="flex flex-col"
+              >
+                {choice.label}
+              </Text>
+            </RadioGroup.Item>
           ))
         ) : (
-          <MenuItem disabled={true}>
+          <Text color="default2" paddingX={4} paddingY={2}>
             <FormattedMessage id="hX5PAb" defaultMessage="No results found" />
-          </MenuItem>
+          </Text>
         )}
       </RadioGroup>
-      {hint && <FormHelperText>{hint}</FormHelperText>}
-    </FormControl>
+      {hint && (
+        <p
+          className={cn(
+            "text-xs mt-1 mx-3.5",
+            error
+              ? "text-[var(--mu-colors-text-critical1)]"
+              : "text-[var(--mu-colors-text-default2)]",
+          )}
+        >
+          {hint}
+        </p>
+      )}
+    </div>
   );
 };
 

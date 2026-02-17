@@ -1,7 +1,6 @@
 // @ts-strict-ignore
 import CollectionWithDividers from "@dashboard/components/CollectionWithDividers";
 import useStateFromProps from "@dashboard/hooks/useStateFromProps";
-import { Paper } from "@mui/material";
 import { Accordion, AccordionSummary } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import { useState } from "react";
@@ -134,7 +133,7 @@ export const FilterContent = ({
   };
 
   return (
-    <Paper elevation={8}>
+    <div className="rounded shadow-lg bg-[var(--mu-colors-background-default1)]">
       <form
         onSubmit={event => {
           event.preventDefault();
@@ -206,7 +205,7 @@ export const FilterContent = ({
             );
           })}
       </form>
-    </Paper>
+    </div>
   );
 };
 

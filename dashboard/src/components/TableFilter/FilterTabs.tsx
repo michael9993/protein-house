@@ -1,4 +1,3 @@
-import { Tabs } from "@mui/material";
 import * as React from "react";
 
 interface FilterTabsProps {
@@ -7,12 +6,12 @@ interface FilterTabsProps {
 }
 
 const FilterTabs = (props: FilterTabsProps) => {
-  const { children, currentTab } = props;
+  const { children } = props;
 
   return (
-    <Tabs className="border-b border-divider pl-8" value={currentTab} indicatorColor={"primary"}>
+    <div className="border-b border-divider pl-8 flex" role="tablist">
       {children}
-    </Tabs>
+    </div>
   );
 };
 

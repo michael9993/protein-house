@@ -1,7 +1,6 @@
 // @ts-strict-ignore
 import { cn } from "@dashboard/utils/cn";
 import { isExternalURL } from "@dashboard/utils/urls";
-import { TypographyProps } from "@mui/material/Typography";
 import { Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { Link as RouterLink } from "react-router";
@@ -18,7 +17,6 @@ interface LinkProps
   color?: "primary" | "secondary";
   inline?: boolean;
   underline?: boolean;
-  typographyProps?: TypographyProps;
   onClick?: React.MouseEventHandler;
   disabled?: boolean;
   state?: LinkState;

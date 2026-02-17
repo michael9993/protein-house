@@ -1,5 +1,4 @@
 import useAppState from "@dashboard/hooks/useAppState";
-import { LinearProgress } from "@mui/material";
 import { Box } from "@saleor/macaw-ui-next";
 import * as React from "react";
 
@@ -24,7 +23,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       <NavigatorSearch />
 
       <Box display="grid" __gridTemplateColumns="auto 1fr">
-        {appState.loading && <LinearProgress className="h-[2px] z-[1201] fixed w-full top-0" color="primary" />}
+        {appState.loading && <div className="h-[2px] z-[1201] fixed w-full top-0 bg-[var(--mu-colors-background-interactiveNeutralDefault)] animate-pulse" />}
         <Box
           height="100vh"
           borderColor="default1"

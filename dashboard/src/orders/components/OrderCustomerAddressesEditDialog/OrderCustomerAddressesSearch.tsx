@@ -6,7 +6,7 @@ import { AddressFragment, AddressTypeEnum } from "@dashboard/graphql";
 import { FormChange } from "@dashboard/hooks/useForm";
 import { buttonMessages } from "@dashboard/intl";
 import { getById } from "@dashboard/misc";
-import { Checkbox, FormControlLabel } from "@mui/material";
+import Checkbox from "@dashboard/components/Checkbox";
 import { Button, SearchIcon } from "@saleor/macaw-ui";
 import { Input } from "@saleor/macaw-ui-next";
 import * as React from "react";
@@ -94,27 +94,27 @@ const OrderCustomerAddressesSearch = (props: OrderCustomerAddressesSearchProps) 
       </div>
 
       {!openFromCustomerChange && filteredCustomerAddresses.length !== 0 && (
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={cloneAddress}
-              name="cloneAddress"
-              onChange={() =>
-                formChange({
-                  target: {
-                    name: "cloneAddress",
-                    value: !cloneAddress,
-                  },
-                })
-              }
-            />
-          }
-          label={intl.formatMessage(
-            type === AddressTypeEnum.SHIPPING
-              ? messages.billingSameAsShipping
-              : messages.shippingSameAsBilling,
-          )}
-        />
+        <label className="inline-flex items-center gap-0 cursor-pointer">
+          <Checkbox
+            checked={cloneAddress}
+            name="cloneAddress"
+            onChange={() =>
+              formChange({
+                target: {
+                  name: "cloneAddress",
+                  value: !cloneAddress,
+                },
+              })
+            }
+          />
+          <span className="text-sm">
+            {intl.formatMessage(
+              type === AddressTypeEnum.SHIPPING
+                ? messages.billingSameAsShipping
+                : messages.shippingSameAsBilling,
+            )}
+          </span>
+        </label>
       )}
 
       <DashboardModal.Actions>

@@ -11,7 +11,6 @@ import { useModalSearchWithFilters } from "@dashboard/hooks/useModalSearchWithFi
 import { maybe } from "@dashboard/misc";
 import { Container, FetchMoreProps } from "@dashboard/types";
 import { TableBody, TableCell } from "@dashboard/components/Table";
-import { Radio } from "@mui/material";
 import { Input, Text } from "@saleor/macaw-ui-next";
 import { useEffect, useMemo, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -161,13 +160,17 @@ export const AssignProductDialogSingle = (props: AssignProductDialogSingleProps)
                     onClick={() => (!isProductAvailable ? null : handleChange(product.id))}
                   >
                     <TableCell padding="checkbox" className="w-[88px] pl-0">
-                      <Radio
-                        checked={isSelected}
-                        disabled={!isProductAvailable}
-                        onChange={() => handleChange(product.id)}
-                        value={product.id}
-                        name="product-selection"
-                      />
+                      <span className="inline-flex items-center justify-center w-[42px] h-[42px]">
+                        <input
+                          type="radio"
+                          checked={isSelected}
+                          disabled={!isProductAvailable}
+                          onChange={() => handleChange(product.id)}
+                          value={product.id}
+                          name="product-selection"
+                          className="w-[18px] h-[18px] accent-[var(--mu-colors-background-interactiveNeutralDefault)] cursor-pointer"
+                        />
+                      </span>
                     </TableCell>
                     <TableCellAvatar
                       className="w-[72px] [&:first-child]:pl-0"
