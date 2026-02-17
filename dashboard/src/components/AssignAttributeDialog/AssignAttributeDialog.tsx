@@ -13,31 +13,11 @@ import useSearchQuery from "@dashboard/hooks/useSearchQuery";
 import { maybe, renderCollection } from "@dashboard/misc";
 import { FetchMoreProps } from "@dashboard/types";
 import { TableBody, TableCell, TextField } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Box, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import BackButton from "../BackButton";
 import { messages } from "./messages";
-
-const useStyles = makeStyles(
-  theme => ({
-    checkboxCell: {
-      paddingLeft: 0,
-    },
-    loadMoreLoaderContainer: {
-      alignItems: "center",
-      display: "flex",
-      marginTop: theme.spacing(2),
-      height: theme.spacing(3),
-      justifyContent: "center",
-    },
-    wideCell: {
-      width: "100%",
-    },
-  }),
-  { name: "AssignAttributeDialog" },
-);
 
 interface AssignAttributeDialogProps extends FetchMoreProps {
   confirmButtonState: ConfirmButtonTransitionState;
@@ -69,7 +49,6 @@ const AssignAttributeDialog = ({
   onToggle,
 }: AssignAttributeDialogProps) => {
   const intl = useIntl();
-  const classes = useStyles({});
   const [query, onQueryChange, resetQuery] = useSearchQuery(onFetch);
   const errors = useModalDialogErrors(apiErrors, open);
 
@@ -122,10 +101,10 @@ const AssignAttributeDialog = ({
 
                   return (
                     <TableRowLink key={maybe(() => attribute.id)}>
-                      <TableCell padding="checkbox" className={classes.checkboxCell}>
+                      <TableCell padding="checkbox" className="pl-0">
                         <Checkbox checked={isChecked} onChange={() => onToggle(attribute.id)} />
                       </TableCell>
-                      <TableCell className={classes.wideCell}>
+                      <TableCell className="w-full">
                         {attribute.name}
                         <Text size={2} fontWeight="light" display="block">
                           {attribute.slug}

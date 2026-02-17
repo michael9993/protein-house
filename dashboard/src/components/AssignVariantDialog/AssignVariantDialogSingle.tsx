@@ -19,7 +19,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { AssignContainerDialogProps } from "../AssignContainerDialog";
 import BackButton from "../BackButton";
 import { messages } from "./messages";
-import { useStyles } from "./styles";
 import { getCompositeLabel, VariantWithProductLabel } from "./utils";
 
 interface AssignVariantDialogSingleProps extends FetchMoreProps {
@@ -50,7 +49,6 @@ export const AssignVariantDialogSingle = (props: AssignVariantDialogSingleProps)
     selectedId,
     open,
   } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
   const [query, onQueryChange, queryReset] = useSearchQuery(onFetch);
   const [selectedVariantId, setSelectedVariantId] = useState<string>(selectedId ?? "");
@@ -137,14 +135,14 @@ export const AssignVariantDialogSingle = (props: AssignVariantDialogSingleProps)
                 <Fragment key={product ? product.id : "skeleton"}>
                   {/* Product header row (non-selectable) */}
                   <TableRowLink>
-                    <TableCell padding="checkbox" className={classes.productCheckboxCell}>
+                    <TableCell padding="checkbox" className="[&:first-child]:pl-0 [&:first-child]:pr-0">
                       {/* No checkbox for products in single mode */}
                     </TableCell>
                     <TableCellAvatar
-                      className={classes.avatar}
+                      className="w-16 pl-0"
                       thumbnail={product ? maybe(() => product.thumbnail?.url) : undefined}
                     />
-                    <TableCell className={classes.colName} colSpan={2}>
+                    <TableCell className="pl-0" colSpan={2}>
                       {product ? maybe(() => product.name) : null}
                     </TableCell>
                   </TableRowLink>
@@ -161,9 +159,9 @@ export const AssignVariantDialogSingle = (props: AssignVariantDialogSingleProps)
                           onClick={() => handleVariantSelect(variant.id)}
                         >
                           <TableCell />
-                          <TableCell className={classes.colVariantCheckbox}>
+                          <TableCell className="p-0">
                             <Radio
-                              className={classes.variantCheckbox}
+                              className="relative left-2"
                               checked={isSelected}
                               disabled={loading}
                               onChange={() => handleVariantSelect(variant.id)}
@@ -171,9 +169,9 @@ export const AssignVariantDialogSingle = (props: AssignVariantDialogSingleProps)
                               name="variant-selection"
                             />
                           </TableCell>
-                          <TableCell className={classes.colName}>
+                          <TableCell className="pl-0">
                             <div>{variant.name}</div>
-                            <div className={classes.grayText}>
+                            <div className="text-text-disabled">
                               <FormattedMessage
                                 {...messages.assignVariantDialogSKU}
                                 values={{
@@ -182,7 +180,7 @@ export const AssignVariantDialogSingle = (props: AssignVariantDialogSingleProps)
                               />
                             </div>
                           </TableCell>
-                          <TableCell className={classes.textRight}>
+                          <TableCell className="text-right">
                             {variant?.channelListings?.[0]?.price && (
                               <Money money={variant.channelListings[0].price} />
                             )}
@@ -193,7 +191,7 @@ export const AssignVariantDialogSingle = (props: AssignVariantDialogSingleProps)
                 </Fragment>
               ),
               () => (
-                <Text className={classes.noContentText}>
+                <Text className="mb-6">
                   {query
                     ? intl.formatMessage(messages.noProductsInQuery)
                     : intl.formatMessage(messages.noProductsInChannel)}

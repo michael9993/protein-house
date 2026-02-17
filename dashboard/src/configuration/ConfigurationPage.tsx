@@ -11,7 +11,6 @@ import { useIntl } from "react-intl";
 import { Link } from "react-router";
 
 import VersionInfo from "../components/VersionInfo";
-import { useStyles } from "./styles";
 import { MenuSection } from "./types";
 import { hasUserMenuItemPermissions } from "./utils";
 
@@ -32,7 +31,6 @@ export const ConfigurationPage = (props: ConfigurationPageProps) => {
     user,
     versionInfo: { dashboardVersion, coreVersion },
   } = props;
-  const classes = useStyles(props);
   const theme = useTheme();
   const isSmUp = useMediaQuery(theme.breakpoints.up("sm"));
   const renderVersionInfo = (
@@ -52,23 +50,23 @@ export const ConfigurationPage = (props: ConfigurationPageProps) => {
               menu.menuItems.some(menuItem => hasUserMenuItemPermissions(menuItem, user)),
             )
             .map((menu, menuIndex) => (
-              <div className={classes.configurationCategory} key={menuIndex}>
-                <div className={classes.configurationLabel}>
+              <div className="grid gap-8 grid-cols-[1fr_3fr] max-lg:grid-cols-1 py-8" key={menuIndex}>
+                <div className="pb-5">
                   <Text>{menu.label}</Text>
                 </div>
-                <div className={classes.configurationItem}>
+                <div className="grid gap-8 grid-cols-2">
                   {menu.menuItems
                     .filter(
                       menuItem => hasUserMenuItemPermissions(menuItem, user) && !menuItem?.hidden,
                     )
                     .map((item, itemIndex) => (
                       <Link
-                        className={classes.link}
+                        className="contents mb-8"
                         to={item.url}
                         key={`${item.title}-${itemIndex}`}
                       >
                         <NavigationCard
-                          className={classes.navigationCard}
+                          className="border border-[var(--color-border-default1)] h-[130px] !shadow-none [&_.MuiCardContent-root]:rounded-[var(--borderRadius-3)]"
                           key={itemIndex}
                           icon={item.icon}
                           title={item.title}

@@ -1,25 +1,7 @@
 import { Channel } from "@dashboard/channels/utils";
 import { ControlledCheckbox } from "@dashboard/components/ControlledCheckbox";
 import Hr from "@dashboard/components/Hr";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
-
-const useStyles = makeStyles(
-  theme => ({
-    label: {
-      fontSize: 14,
-    },
-    option: {
-      "&:last-child": {
-        "& hr": {
-          display: "none",
-        },
-      },
-      margin: theme.spacing(1, 0),
-    },
-  }),
-  { name: "ChannelsAvailabilityContent" },
-);
 
 interface ChannelsAvailabilityContentProps {
   isChannelSelected: (channel: Channel) => boolean;
@@ -32,16 +14,18 @@ const ChannelsAvailabilityContent = ({
   channels,
   onChange,
 }: ChannelsAvailabilityContentProps) => {
-  const classes = useStyles({});
-
   return (
     <>
       {channels.map(option => (
-        <div key={option.id} className={classes.option} data-test-id="channel-row">
+        <div
+          key={option.id}
+          className="my-2 last:[&_hr]:hidden"
+          data-test-id="channel-row"
+        >
           <ControlledCheckbox
             checked={isChannelSelected(option)}
             name={option.name}
-            label={<Text className={classes.label}>{option.name}</Text>}
+            label={<Text className="text-sm">{option.name}</Text>}
             onChange={() => onChange(option)}
           />
           <Hr />

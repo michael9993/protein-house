@@ -8,7 +8,6 @@ import { MessageDescriptor, useIntl } from "react-intl";
 import { messages } from "../ChannelsAvailabilityDropdown/messages";
 import { Pill } from "../Pill";
 import { ScrollableContent } from "./PluginAvailabilityStatusPopup/ScrollableContent";
-import { useStyles } from "./styles";
 
 interface ChannelsAvailabilityMenuContentProps {
   pills: Pill[];
@@ -23,21 +22,20 @@ export const ChannelsAvailabilityMenuContent = ({
   pills,
 }: ChannelsAvailabilityMenuContentProps) => {
   const intl = useIntl();
-  const classes = useStyles({});
 
   return (
-    <div className={classes.menuContainer}>
-      <div className={classes.row}>
-        <Text size={2} fontWeight="light" className={classes.caption}>
+    <div className="p-4">
+      <div className="flex justify-between [&:not(:last-child)]:mb-4">
+        <Text size={2} fontWeight="light" className="uppercase text-saleor-main-3 font-medium tracking-widest">
           {intl.formatMessage(messages.channel)}
         </Text>
-        <Text size={2} fontWeight="light" className={classes.caption}>
+        <Text size={2} fontWeight="light" className="uppercase text-saleor-main-3 font-medium tracking-widest">
           {intl.formatMessage(messages.status)}
         </Text>
       </div>
       <ScrollableContent>
         {pills.map(pill => (
-          <div key={pill.channel.id} className={classes.row}>
+          <div key={pill.channel.id} className="flex justify-between [&:not(:last-child)]:mb-4">
             <Text>{pill.channel.name}</Text>
             <HorizontalSpacer spacing={4} />
             <Pill label={intl.formatMessage(pill.label)} color={pill.color} />

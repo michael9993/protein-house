@@ -1,22 +1,8 @@
 import { SaleorThrobber } from "@dashboard/components/Throbber";
-import { makeStyles } from "@saleor/macaw-ui";
 
-const useStyles = makeStyles(
-  {
-    root: {
-      alignItems: "center",
-      display: "flex",
-      height: "100vh",
-      justifyContent: "center",
-    },
-  },
-  { name: "LoginLoading" },
-);
-const LoginLoading = (props: {}) => {
-  const classes = useStyles(props);
-
+const LoginLoading = () => {
   return (
-    <div className={classes.root}>
+    <div className="flex items-center h-screen justify-center">
       <SaleorThrobber size={64} />
     </div>
   );

@@ -13,7 +13,6 @@ import { Fragment, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 import { Link } from "react-router";
 
-import useStyles from "../styles";
 import LoginForm, { LoginFormData } from "./form";
 import { LastLoginIndicator } from "./LastLoginIndicator";
 import { getErrorMessage } from "./messages";
@@ -38,7 +37,6 @@ const LoginPage = (props: LoginCardProps) => {
     onSubmit,
     lastLoginMethod,
   } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
   const [showPassword, setShowPassword] = useState(false);
   const [optimisticLoaderAuthId, setOptimisticLoaderAuthId] = useState<null | string>(null);
@@ -109,7 +107,7 @@ const LoginPage = (props: LoginCardProps) => {
             required
           />
           <Link to={passwordResetUrl}>
-            <Text className={classes.link} fontSize={3} data-test-id="reset-password-link">
+            <Text className="text-primary cursor-pointer block my-4 underline text-right" fontSize={3} data-test-id="reset-password-link">
               <FormattedMessage
                 id="3tbL7x"
                 defaultMessage="Forgot password?"
@@ -118,7 +116,7 @@ const LoginPage = (props: LoginCardProps) => {
             </Text>
           </Link>
 
-          <div className={classes.buttonContainer}>
+          <div className="flex justify-end w-full">
             <ButtonWithLoader
               width="100%"
               disabled={disabled}

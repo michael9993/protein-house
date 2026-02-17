@@ -8,7 +8,6 @@ import NavigatorSearch from "../NavigatorSearch";
 import { useSavebarRef } from "../Savebar/SavebarRefContext";
 import { Sidebar } from "../Sidebar";
 import { SidebarProvider } from "../Sidebar/SidebarContext";
-import { useStyles } from "./styles";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -16,7 +15,6 @@ interface AppLayoutProps {
 }
 
 const AppLayout = ({ children }: AppLayoutProps) => {
-  const classes = useStyles();
   const { setAnchor } = useSavebarRef();
   const [appState] = useAppState();
 
@@ -26,7 +24,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       <NavigatorSearch />
 
       <Box display="grid" __gridTemplateColumns="auto 1fr">
-        {appState.loading && <LinearProgress className={classes.appLoader} color="primary" />}
+        {appState.loading && <LinearProgress className="h-[2px] z-[1201] fixed w-full top-0" color="primary" />}
         <Box
           height="100vh"
           borderColor="default1"

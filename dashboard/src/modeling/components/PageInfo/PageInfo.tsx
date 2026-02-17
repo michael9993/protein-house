@@ -9,7 +9,6 @@ import { getFormErrors } from "@dashboard/utils/errors";
 import getPageErrorMessage from "@dashboard/utils/errors/page";
 import { useRichTextContext } from "@dashboard/utils/richText/context";
 import { TextField } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import * as React from "react";
 import { useIntl } from "react-intl";
 
@@ -22,23 +21,14 @@ interface PageInfoProps {
   onChange: (event: React.ChangeEvent<any>) => void;
 }
 
-const useStyles = makeStyles(
-  {
-    root: {
-      overflow: "visible",
-    },
-  },
-  { name: "PageInfo" },
-);
 const PageInfo = (props: PageInfoProps) => {
   const { data, disabled, errors, onChange } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
   const { defaultValue, editorRef, isReadyForMount, handleChange } = useRichTextContext();
   const formErrors = getFormErrors(["title", "content"], errors);
 
   return (
-    <DashboardCard className={classes.root}>
+    <DashboardCard className="overflow-visible">
       <DashboardCard.Header>
         <DashboardCard.Title>
           {intl.formatMessage(commonMessages.generalInformations)}

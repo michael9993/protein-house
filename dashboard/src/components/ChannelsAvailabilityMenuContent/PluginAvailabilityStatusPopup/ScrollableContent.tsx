@@ -1,26 +1,13 @@
 import { List } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import * as React from "react";
-
-const useStyles = makeStyles(
-  () => ({
-    container: {
-      maxHeight: 450,
-      overflow: "auto",
-    },
-  }),
-  { name: "ScrollableContent" },
-);
 
 interface ScrollableContentProps {
   children: React.ReactNode | React.ReactNode[];
 }
 
 export const ScrollableContent = ({ children }: ScrollableContentProps) => {
-  const classes = useStyles({});
-
   return (
-    <div className={classes.container}>
+    <div className="max-h-[450px] overflow-auto">
       <List>{children}</List>
     </div>
   );

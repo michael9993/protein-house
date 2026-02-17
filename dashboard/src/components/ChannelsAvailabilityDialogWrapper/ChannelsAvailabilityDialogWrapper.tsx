@@ -2,52 +2,9 @@ import { ControlledCheckbox } from "@dashboard/components/ControlledCheckbox";
 import Hr from "@dashboard/components/Hr";
 import Label from "@dashboard/orders/components/OrderHistory/Label";
 import { TextField } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
 import * as React from "react";
 import { defineMessages, FormattedMessage, useIntl } from "react-intl";
-
-const useStyles = makeStyles(
-  theme => ({
-    content: {
-      "& hr": {
-        left: -24,
-        position: "relative",
-        width: "calc(100% + 48px)",
-      },
-    },
-    contentTitle: {
-      margin: theme.spacing(1, 0),
-    },
-    dialog: {
-      marginBottom: -30,
-      marginTop: theme.spacing(2),
-    },
-    input: {
-      "& label": {
-        overflowX: "inherit",
-      },
-    },
-    notFound: {
-      paddingBottom: theme.spacing(2),
-    },
-    scrollArea: {
-      overflowY: "scroll",
-      overflowX: "hidden",
-      // overflowX can't be "visible" when overflowY is "scroll"
-      // workaround for visible button ripples:
-      marginLeft: -15,
-      paddingLeft: 15,
-
-      marginBottom: theme.spacing(3),
-    },
-    text: {
-      marginBottom: 5,
-    },
-  }),
-  { name: "ChannelsAvailabilityContent" },
-);
 
 const messages = defineMessages({
   selectTitle: {
@@ -93,7 +50,6 @@ const ChannelsAvailabilityContentWrapper = ({
   onQueryChange,
   hasAllSelected,
 }: ChannelsAvailabilityContentProps) => {
-  const classes = useStyles({});
   const intl = useIntl();
   const searchText = intl.formatMessage({
     id: "ybaLoZ",
@@ -101,22 +57,22 @@ const ChannelsAvailabilityContentWrapper = ({
   });
 
   return (
-    <div className={classes.content}>
+    <div className="[&_hr]:relative [&_hr]:-left-6 [&_hr]:w-[calc(100%+48px)]">
       {!!contentType && (
-        <Text className={classes.text} size={2} fontWeight="light">
+        <Text className="mb-[5px]" size={2} fontWeight="light">
           <FormattedMessage {...messages.selectTitle} />
         </Text>
       )}
       <TextField
         name="query"
         value={query}
-        className={classes.input}
+        className="[&_label]:overflow-x-visible"
         onChange={e => onQueryChange(e.target.value)}
         label={searchText}
         placeholder={searchText}
         fullWidth
       />
-      <div className={classes.dialog}>
+      <div className="-mb-[30px] mt-4">
         {!!toggleAll && (
           <>
             <ControlledCheckbox
@@ -132,17 +88,17 @@ const ChannelsAvailabilityContentWrapper = ({
             <Hr />
           </>
         )}
-        <Text className={classes.contentTitle}>
+        <Text className="my-2">
           <FormattedMessage {...messages.channelsAlphabeticallyTitle} />
         </Text>
         <div
-          className={clsx(classes.scrollArea, "scrollArea")}
+          className="scrollArea overflow-y-scroll overflow-x-hidden -ml-[15px] pl-[15px] mb-6"
           data-test-id="manage-products-channels-availiability-list"
         >
           {hasAnyChannelsToDisplay ? (
             children
           ) : (
-            <div className={classes.notFound}>
+            <div className="pb-4">
               <FormattedMessage {...messages.notFoundTitle} />
             </div>
           )}

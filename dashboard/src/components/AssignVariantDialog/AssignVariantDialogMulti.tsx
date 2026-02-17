@@ -21,7 +21,6 @@ import { AssignContainerDialogProps } from "../AssignContainerDialog";
 import BackButton from "../BackButton";
 import Checkbox from "../Checkbox";
 import { messages } from "./messages";
-import { useStyles } from "./styles";
 import {
   getCompositeLabel,
   handleProductAssign,
@@ -57,7 +56,6 @@ export const AssignVariantDialogMulti = (props: AssignVariantDialogMultiProps) =
     onSubmit,
     open,
   } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
   const [query, onQueryChange, queryReset] = useSearchQuery(onFetch);
   const [variants, setVariants] = useState<VariantWithProductLabel[]>([]);
@@ -121,7 +119,7 @@ export const AssignVariantDialogMulti = (props: AssignVariantDialogMultiProps) =
               (product, productIndex) => (
                 <Fragment key={product ? product.id : "skeleton"}>
                   <TableRowLink>
-                    <TableCell padding="checkbox" className={classes.productCheckboxCell}>
+                    <TableCell padding="checkbox" className="[&:first-child]:pl-0 [&:first-child]:pr-0">
                       <Checkbox
                         checked={productsWithAllVariantsSelected[productIndex]}
                         disabled={loading}
@@ -137,19 +135,19 @@ export const AssignVariantDialogMulti = (props: AssignVariantDialogMultiProps) =
                       />
                     </TableCell>
                     <TableCellAvatar
-                      className={classes.avatar}
+                      className="w-16 pl-0"
                       thumbnail={maybe(() => product.thumbnail.url)}
                     />
-                    <TableCell className={classes.colName} colSpan={2}>
+                    <TableCell className="pl-0" colSpan={2}>
                       {maybe(() => product.name)}
                     </TableCell>
                   </TableRowLink>
                   {maybe(() => product.variants, []).map((variant, variantIndex) => (
                     <TableRowLink key={variant.id} data-test-id="assign-variant-table-row">
                       <TableCell />
-                      <TableCell className={classes.colVariantCheckbox}>
+                      <TableCell className="p-0">
                         <Checkbox
-                          className={classes.variantCheckbox}
+                          className="relative left-2"
                           checked={selectedVariantsToProductsMap[productIndex][variantIndex]}
                           disabled={loading}
                           onChange={() =>
@@ -165,9 +163,9 @@ export const AssignVariantDialogMulti = (props: AssignVariantDialogMultiProps) =
                           }
                         />
                       </TableCell>
-                      <TableCell className={classes.colName}>
+                      <TableCell className="pl-0">
                         <div>{variant.name}</div>
-                        <div className={classes.grayText}>
+                        <div className="text-text-disabled">
                           <FormattedMessage
                             {...messages.assignVariantDialogSKU}
                             values={{
@@ -176,7 +174,7 @@ export const AssignVariantDialogMulti = (props: AssignVariantDialogMultiProps) =
                           />
                         </div>
                       </TableCell>
-                      <TableCell className={classes.textRight}>
+                      <TableCell className="text-right">
                         {variant?.channelListings[0]?.price && (
                           <Money money={variant.channelListings[0].price} />
                         )}
@@ -186,7 +184,7 @@ export const AssignVariantDialogMulti = (props: AssignVariantDialogMultiProps) =
                 </Fragment>
               ),
               () => (
-                <Text className={classes.noContentText}>
+                <Text className="mb-6">
                   {query
                     ? intl.formatMessage(messages.noProductsInQuery)
                     : intl.formatMessage(messages.noProductsInChannel)}

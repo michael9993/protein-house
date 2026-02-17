@@ -13,7 +13,6 @@ import { useState } from "react";
 
 import BackButton from "../BackButton";
 import Checkbox from "../Checkbox";
-import { useStyles } from "./styles";
 
 type Labels = Record<"confirmBtn" | "title" | "label" | "placeholder", string>;
 
@@ -60,7 +59,6 @@ export const AssignContainerDialogMulti = (props: AssignContainerDialogMultiProp
     emptyMessage,
     open,
   } = props;
-  const classes = useStyles(props);
   const [query, onQueryChange, queryReset] = useSearchQuery(onFetch);
   const [selectedContainers, setSelectedContainers] = useState<Container[]>([]);
   const handleSubmit = () => onSubmit(selectedContainers);
@@ -114,7 +112,7 @@ export const AssignContainerDialogMulti = (props: AssignContainerDialogMultiProp
 
               return (
                 <TableRowLink key={container.id} data-test-id="dialog-row">
-                  <TableCell padding="checkbox" className={classes.checkboxCell}>
+                  <TableCell padding="checkbox" className="pl-0">
                     <Checkbox
                       checked={isSelected}
                       onChange={() =>
@@ -127,7 +125,7 @@ export const AssignContainerDialogMulti = (props: AssignContainerDialogMultiProp
                       }
                     />
                   </TableCell>
-                  <TableCell className={classes.wideCell} data-test-id={container.name}>
+                  <TableCell className="w-full" data-test-id={container.name}>
                     {container.name}
                   </TableCell>
                 </TableRowLink>

@@ -15,7 +15,6 @@ import { MenuListUrlSortField, menuUrl } from "@dashboard/structures/urls";
 import { ListActions, ListProps, SortPage } from "@dashboard/types";
 import { getArrowDirection } from "@dashboard/utils/sort";
 import { TableBody, TableCell, TableFooter } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Skeleton } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { FormattedMessage } from "react-intl";
@@ -25,29 +24,6 @@ interface MenuListProps extends ListProps, ListActions, SortPage<MenuListUrlSort
   onDelete: (id: string) => void;
 }
 
-const useStyles = makeStyles(
-  theme => ({
-    [theme.breakpoints.up("lg")]: {
-      colItems: {
-        width: 200,
-      },
-      colTitle: {},
-    },
-    colAction: {
-      width: 84,
-    },
-    colItems: {
-      textAlign: "right",
-    },
-    colTitle: {
-      paddingLeft: 0,
-    },
-    row: {
-      cursor: "pointer",
-    },
-  }),
-  { name: "MenuList" },
-);
 const numberOfColumns = 4;
 const MenuList = (props: MenuListProps) => {
   const {
@@ -64,7 +40,6 @@ const MenuList = (props: MenuListProps) => {
     toggleAll,
     toolbar,
   } = props;
-  const classes = useStyles(props);
 
   return (
     <DashboardCard>
@@ -83,7 +58,7 @@ const MenuList = (props: MenuListProps) => {
             }
             arrowPosition="right"
             onClick={() => onSort(MenuListUrlSortField.name)}
-            className={classes.colTitle}
+            className="pl-0"
           >
             <FormattedMessage id="qL9Oi9" defaultMessage="Structure Title" />
           </TableCellHeader>
@@ -93,7 +68,7 @@ const MenuList = (props: MenuListProps) => {
             }
             textAlign="right"
             onClick={() => onSort(MenuListUrlSortField.items)}
-            className={classes.colItems}
+            className="text-right lg:w-[200px]"
           >
             <FormattedMessage
               id="U86VKF"
@@ -101,7 +76,7 @@ const MenuList = (props: MenuListProps) => {
               description="number of structures"
             />
           </TableCellHeader>
-          <TableCell className={classes.colAction} />
+          <TableCell className="w-[84px]" />
         </TableHead>
         <TableFooter>
           <TableRowLink>
@@ -124,7 +99,7 @@ const MenuList = (props: MenuListProps) => {
                   hover={!!menu}
                   key={menu ? menu.id : "skeleton"}
                   href={menu && menuUrl(menu.id)}
-                  className={classes.row}
+                  className="cursor-pointer"
                   selected={isSelected}
                 >
                   <TableCell padding="checkbox">
@@ -135,15 +110,15 @@ const MenuList = (props: MenuListProps) => {
                       onChange={() => toggle(menu.id)}
                     />
                   </TableCell>
-                  <TableCell className={classes.colTitle} data-test-id="menu-name">
+                  <TableCell className="pl-0" data-test-id="menu-name">
                     {maybe<React.ReactNode>(() => menu.name, <Skeleton />)}
                   </TableCell>
-                  <TableCell className={classes.colItems}>
+                  <TableCell className="text-right lg:w-[200px]">
                     {maybe<React.ReactNode>(() => menu.items.length, <Skeleton />)}
                   </TableCell>
                   <TableButtonWrapper>
                     <IconButtonTableCell
-                      className={classes.colAction}
+                      className="w-[84px]"
                       disabled={disabled}
                       onClick={() => onDelete(menu.id)}
                     >

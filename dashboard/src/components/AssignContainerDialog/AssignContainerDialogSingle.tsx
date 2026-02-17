@@ -12,7 +12,6 @@ import { Text } from "@saleor/macaw-ui-next";
 import { useState } from "react";
 
 import BackButton from "../BackButton";
-import { useStyles } from "./styles";
 
 type Labels = Record<"confirmBtn" | "title" | "label" | "placeholder", string>;
 
@@ -46,7 +45,6 @@ export const AssignContainerDialogSingle = (props: AssignContainerDialogSinglePr
     emptyMessage,
     open,
   } = props;
-  const classes = useStyles(props);
   const [query, onQueryChange, queryReset] = useSearchQuery(onFetch);
   const [selectedContainerId, setSelectedContainerId] = useState<string>(selectedId ?? "");
 
@@ -112,7 +110,7 @@ export const AssignContainerDialogSingle = (props: AssignContainerDialogSinglePr
                   data-test-id="dialog-row"
                   onClick={() => handleContainerSelect(container.id)}
                 >
-                  <TableCell padding="checkbox" className={classes.checkboxCell}>
+                  <TableCell padding="checkbox" className="pl-0">
                     <Radio
                       checked={isSelected}
                       onChange={() => handleContainerSelect(container.id)}
@@ -120,7 +118,7 @@ export const AssignContainerDialogSingle = (props: AssignContainerDialogSinglePr
                       name="container-selection"
                     />
                   </TableCell>
-                  <TableCell className={classes.wideCell} data-test-id={container.name}>
+                  <TableCell className="w-full" data-test-id={container.name}>
                     {container.name}
                   </TableCell>
                 </TableRowLink>

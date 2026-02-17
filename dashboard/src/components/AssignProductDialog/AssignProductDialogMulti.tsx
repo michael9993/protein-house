@@ -21,7 +21,6 @@ import Checkbox from "../Checkbox";
 import { messages } from "./messages";
 import { ModalFilters } from "./ModalFilters";
 import { useModalProductFilterContext } from "./ModalProductFilterProvider";
-import { useStyles } from "./styles";
 import { Products, SelectedChannel } from "./types";
 import { isProductAvailableInVoucherChannels } from "./utils";
 
@@ -63,7 +62,6 @@ export const AssignProductDialogMulti = (props: AssignProductDialogMultiProps) =
     labels,
     open,
   } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
   const [productsDict, setProductsDict] = useState(selectedIds || {});
   const { filterVariables, filterChannel, clearFilters } = useModalProductFilterContext();
@@ -182,7 +180,7 @@ export const AssignProductDialogMulti = (props: AssignProductDialogMultiProps) =
 
                 return (
                   <TableRowLink key={product.id} data-test-id="assign-product-table-row">
-                    <TableCell padding="checkbox" className={classes.checkboxCell}>
+                    <TableCell padding="checkbox" className="w-[88px] pl-0">
                       <Checkbox
                         checked={isSelected}
                         disabled={!isProductAvailable}
@@ -190,13 +188,13 @@ export const AssignProductDialogMulti = (props: AssignProductDialogMultiProps) =
                       />
                     </TableCell>
                     <TableCellAvatar
-                      className={classes.avatar}
+                      className="w-[72px] [&&:first-child]:pl-0"
                       thumbnail={maybe(() => product.thumbnail.url)}
                       style={{
                         opacity: !isProductAvailable ? 0.5 : 1,
                       }}
                     />
-                    <TableCell className={classes.colName}>
+                    <TableCell className="pl-0">
                       {product.name}
                       {!isProductAvailable && productUnavailableText && (
                         <Text display="block" size={1} color="default2">
