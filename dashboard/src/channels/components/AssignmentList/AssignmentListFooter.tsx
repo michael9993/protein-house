@@ -1,8 +1,8 @@
 import { Combobox } from "@dashboard/components/Combobox";
 import { ChangeEvent } from "@dashboard/hooks/useForm";
+import { useClickOutside } from "@dashboard/hooks/useClickOutside";
 import CardAddItemsFooter from "@dashboard/products/components/ProductStocks/components/CardAddItemsFooter";
 import { mapNodeToChoice } from "@dashboard/utils/maps";
-import { ClickAwayListener } from "@mui/material";
 import { Box } from "@saleor/macaw-ui-next";
 import { useEffect, useRef, useState } from "react";
 import { defineMessages, useIntl } from "react-intl";
@@ -32,6 +32,14 @@ const AssignmentListFooter = ({
   const intl = useIntl();
   const [isChoicesSelectShown, setIsChoicesSelectShown] = useState(false);
   const itemsRef = useRef<AssignItem[]>(items);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleFooterClickAway = () => {
+    setIsChoicesSelectShown(false);
+    searchItems("");
+  };
+
+  useClickOutside([containerRef], handleFooterClickAway);
 
   // select holds value and displays it so it needs remounting
   // to display empty input after adding new zone
@@ -51,28 +59,22 @@ const AssignmentListFooter = ({
     setIsChoicesSelectShown(false);
     addItem(target.value);
   };
-  const handleFooterClickAway = () => {
-    setIsChoicesSelectShown(false);
-    searchItems("");
-  };
 
   return isChoicesSelectShown ? (
-    <ClickAwayListener onClickAway={handleFooterClickAway}>
-      <Box marginTop={3}>
-        <Combobox
-          data-test-id={`${dataTestId}-auto-complete-select`}
-          name={inputName}
-          onChange={handleChoice}
-          fetchOptions={searchItems}
-          options={mapNodeToChoice(itemsChoices)}
-          fetchMore={fetchMoreItems}
-          value={{
-            value: "",
-            label: "",
-          }}
-        />
-      </Box>
-    </ClickAwayListener>
+    <Box ref={containerRef} marginTop={3}>
+      <Combobox
+        data-test-id={`${dataTestId}-auto-complete-select`}
+        name={inputName}
+        onChange={handleChoice}
+        fetchOptions={searchItems}
+        options={mapNodeToChoice(itemsChoices)}
+        fetchMore={fetchMoreItems}
+        value={{
+          value: "",
+          label: "",
+        }}
+      />
+    </Box>
   ) : (
     <CardAddItemsFooter
       onAdd={() => setIsChoicesSelectShown(true)}

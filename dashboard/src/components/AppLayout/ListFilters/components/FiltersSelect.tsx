@@ -8,9 +8,9 @@ import {
 } from "@dashboard/components/Filter/types";
 import useFilter from "@dashboard/components/Filter/useFilter";
 import { extractInvalidFilters } from "@dashboard/components/Filter/utils";
-import { ClickAwayListener, Grow, Popper } from "@mui/material";
-import { DropdownButton, sprinkles } from "@saleor/macaw-ui-next";
-import { useMemo, useRef, useState } from "react";
+import { useClickOutside } from "@dashboard/hooks/useClickOutside";
+import { DropdownButton } from "@saleor/macaw-ui-next";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { getSelectedFilterAmount } from "../utils";
@@ -30,12 +30,21 @@ export const FiltersSelect = <TFilterKeys extends string = string>({
   onFilterAttributeFocus,
   errorMessages,
 }: FilterProps<TFilterKeys>) => {
-  const anchor = useRef<HTMLDivElement>();
+  const anchor = useRef<HTMLDivElement>(null);
   const [isFilterMenuOpened, setFilterMenuOpened] = useState(false);
   const [filterErrors, setFilterErrors] = useState<InvalidFilters<string>>({});
   const [data, dispatch, reset] = useFilter(menu);
   const isFilterActive = menu.some(filterElement => filterElement.active);
   const selectedFilterAmount = useMemo(() => getSelectedFilterAmount(menu, data), [data, menu]);
+
+  const handleClickAway = useCallback((event: MouseEvent) => {
+    if ((event.target as HTMLElement).getAttribute("role") !== "option") {
+      setFilterMenuOpened(false);
+    }
+  }, []);
+
+  useClickOutside([anchor], handleClickAway, "mouseup");
+
   const handleSubmit = () => {
     const invalidFilters = extractInvalidFilters(data, menu);
 
@@ -55,69 +64,33 @@ export const FiltersSelect = <TFilterKeys extends string = string>({
   };
 
   return (
-    <ClickAwayListener
-      onClickAway={event => {
-        if ((event.target as HTMLElement).getAttribute("role") !== "option") {
-          setFilterMenuOpened(false);
-        }
-      }}
-      mouseEvent="onMouseUp"
-    >
-      <div ref={anchor}>
-        <DropdownButton
-          data-test-id="show-filters-button"
-          onClick={() => setFilterMenuOpened(!isFilterMenuOpened)}
+    <div ref={anchor} className="relative">
+      <DropdownButton
+        data-test-id="show-filters-button"
+        onClick={() => setFilterMenuOpened(!isFilterMenuOpened)}
+      >
+        <FormattedMessage id="FNpv6K" defaultMessage="Filters" description="button" />
+        {isFilterActive && selectedFilterAmount > 0 && <>({selectedFilterAmount})</>}
+      </DropdownButton>
+      {isFilterMenuOpened && (
+        <div
+          className="absolute left-0 top-full bg-[var(--mu-colors-background-default1)] overflow-y-scroll shadow-[0_8px_24px_rgba(0,0,0,0.15)] z-[3]"
+          style={{ width: "376px", maxHeight: "450px" }}
         >
-          <FormattedMessage id="FNpv6K" defaultMessage="Filters" description="button" />
-          {isFilterActive && selectedFilterAmount > 0 && <>({selectedFilterAmount})</>}
-        </DropdownButton>
-        <Popper
-          className={sprinkles({
-            backgroundColor: "default1",
-            overflowY: "scroll",
-            boxShadow: "defaultModal",
-            zIndex: "3",
-          })}
-          style={{
-            width: "376px",
-            maxHeight: "450px",
-          }}
-          open={isFilterMenuOpened}
-          anchorEl={anchor.current}
-          transition
-          disablePortal
-          placement="bottom-start"
-          modifiers={{
-            flip: {
-              enabled: false,
-            },
-            hide: {
-              enabled: false,
-            },
-            preventOverflow: {
-              boundariesElement: "scrollParent",
-              enabled: false,
-            },
-          }}
-        >
-          {() => (
-            <Grow>
-              <FilterContent
-                errorMessages={errorMessages}
-                errors={filterErrors}
-                dataStructure={menu}
-                currencySymbol={currencySymbol}
-                filters={data}
-                onClear={handleClear}
-                onFilterPropertyChange={dispatch}
-                onFilterAttributeFocus={onFilterAttributeFocus}
-                onSubmit={handleSubmit}
-              />
-            </Grow>
-          )}
-        </Popper>
-      </div>
-    </ClickAwayListener>
+          <FilterContent
+            errorMessages={errorMessages}
+            errors={filterErrors}
+            dataStructure={menu}
+            currencySymbol={currencySymbol}
+            filters={data}
+            onClear={handleClear}
+            onFilterPropertyChange={dispatch}
+            onFilterAttributeFocus={onFilterAttributeFocus}
+            onSubmit={handleSubmit}
+          />
+        </div>
+      )}
+    </div>
   );
 };
 

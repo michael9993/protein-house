@@ -1,6 +1,5 @@
 // @ts-strict-ignore
-import { Popper } from "@mui/material";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { DashboardCard } from "../Card";
@@ -16,7 +15,6 @@ interface ChannelsAvailabilityDropdownProps {
 export const ChannelsAvailabilityDropdown = ({ channels }: ChannelsAvailabilityDropdownProps) => {
   const intl = useIntl();
   const [isPopupOpen, setPopupOpen] = useState(false);
-  const anchor = useRef<HTMLDivElement>(null);
   const dropdownColor = useMemo(() => getDropdownColor(channels), [channels]);
 
   if (!channels?.length) {
@@ -25,11 +23,11 @@ export const ChannelsAvailabilityDropdown = ({ channels }: ChannelsAvailabilityD
 
   return (
     <div
+      className="relative"
       onClick={e => {
         e.preventDefault();
         e.stopPropagation();
       }}
-      ref={anchor}
       onMouseOver={() => setPopupOpen(true)}
       onMouseLeave={() => setPopupOpen(false)}
     >
@@ -42,11 +40,13 @@ export const ChannelsAvailabilityDropdown = ({ channels }: ChannelsAvailabilityD
           outlined
         />
       </div>
-      <Popper anchorEl={anchor.current} open={isPopupOpen} placement={"left"}>
-        <DashboardCard boxShadow="defaultModal">
-          <ChannelsAvailabilityMenuContent pills={mapChannelsToPills(channels)} />
-        </DashboardCard>
-      </Popper>
+      {isPopupOpen && (
+        <div className="absolute right-full top-0 z-10">
+          <DashboardCard boxShadow="defaultModal">
+            <ChannelsAvailabilityMenuContent pills={mapChannelsToPills(channels)} />
+          </DashboardCard>
+        </div>
+      )}
     </div>
   );
 };

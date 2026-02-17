@@ -1,8 +1,8 @@
 // @ts-strict-ignore
 import { iconSize, iconStrokeWidthBySize } from "@dashboard/components/icons";
 import { SaleorThrobber } from "@dashboard/components/Throbber";
+import { useClickOutside } from "@dashboard/hooks/useClickOutside";
 import { cn } from "@dashboard/utils/cn";
-import { ClickAwayListener, Grow, MenuItem, MenuList, Paper, Popper } from "@mui/material";
 import { IconButtonProps } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import { EllipsisVertical } from "lucide-react";
@@ -53,15 +53,12 @@ const CardMenu = (props: CardMenuProps) => {
     ...rest
   } = props;
   const anchorRef = useRef<HTMLButtonElement | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const handleToggle = () => setOpen(prevOpen => !prevOpen);
-  const handleClose = (event: React.MouseEvent<EventTarget>) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target as HTMLElement)) {
-      return;
-    }
 
-    setOpen(false);
-  };
+  useClickOutside([anchorRef, menuRef], () => setOpen(false));
+
   const handleListKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Tab") {
       event.preventDefault();
@@ -103,7 +100,7 @@ const CardMenu = (props: CardMenuProps) => {
   const Icon = icon ?? DefaultIcon;
 
   return (
-    <div className={className} {...rest}>
+    <div className={cn("relative", className)} {...rest}>
       <IconButton
         data-test-id="show-more-button"
         aria-label="More"
@@ -118,63 +115,56 @@ const CardMenu = (props: CardMenuProps) => {
         size="medium">
         <Icon onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
       </IconButton>
-      <Popper
-        placement="bottom-end"
-        className="z-[1]"
-        open={open}
-        anchorEl={anchorRef.current}
-        transition
-      >
-        {({ TransitionProps, placement }) => (
-          <Grow
-            {...TransitionProps}
-            style={{
-              transformOrigin: placement === "bottom" ? "right top" : "right bottom",
-              overflowY: "auto",
-            }}
+      {open && (
+        <div ref={menuRef} className="absolute right-0 top-full z-[1] mt-1">
+          <div
+            className="rounded bg-[var(--mu-colors-background-default1)] shadow-lg overflow-y-auto"
+            style={{ maxHeight: ITEM_HEIGHT * 4.5 }}
           >
-            <Paper className="mt-4 overflow-y-scroll" style={{ maxHeight: ITEM_HEIGHT * 4.5 }} elevation={8}>
-              <ClickAwayListener onClickAway={handleClose}>
-                <MenuList
-                  autoFocusItem={autoFocusItem && open}
-                  id="menu-list-grow"
-                  onKeyDown={handleListKeyDown}
+            <ul
+              role="menu"
+              id="menu-list-grow"
+              onKeyDown={handleListKeyDown}
+              className="list-none p-1 m-0"
+            >
+              {menuItems.map((menuItem, menuItemIndex) => (
+                <li
+                  key={menuItem.label}
+                  role="menuitem"
+                  data-test-id={menuItem.testId}
+                  aria-disabled={menuItem.loading || menuItem.disabled || undefined}
+                  onClick={() => !(menuItem.loading || menuItem.disabled) && handleMenuClick(menuItemIndex)}
+                  className={cn(
+                    "px-4 py-2 cursor-pointer select-none rounded",
+                    (menuItem.loading || menuItem.disabled)
+                      ? "opacity-50 pointer-events-none"
+                      : "hover:bg-[var(--mu-colors-background-interactiveNeutralHighlightDefault)]",
+                  )}
                 >
-                  {menuItems.map((menuItem, menuItemIndex) => (
-                    <MenuItem
-                      data-test-id={menuItem.testId}
-                      disabled={menuItem.loading || menuItem.disabled}
-                      onClick={() => handleMenuClick(menuItemIndex)}
-                      key={menuItem.label}
-                      button
-                    >
-                      <div
-                        className={cn(
-                          className,
-                          isWithLoading && "w-full grid grid-cols-[1fr_24px] gap-4 items-center justify-end",
-                        )}
-                      >
-                        {menuItem.loading ? (
-                          <>
-                            <Text fontSize={3}>
-                              <FormattedMessage {...messages.cardMenuItemLoading} />
-                            </Text>
-                            <SaleorThrobber size={24} />
-                          </>
-                        ) : (
-                          <Text>
-                            {showMenuIcon && menuItem.Icon} {menuItem.label}
-                          </Text>
-                        )}
-                      </div>
-                    </MenuItem>
-                  ))}
-                </MenuList>
-              </ClickAwayListener>
-            </Paper>
-          </Grow>
-        )}
-      </Popper>
+                  <div
+                    className={cn(
+                      isWithLoading && "w-full grid grid-cols-[1fr_24px] gap-4 items-center justify-end",
+                    )}
+                  >
+                    {menuItem.loading ? (
+                      <>
+                        <Text fontSize={3}>
+                          <FormattedMessage {...messages.cardMenuItemLoading} />
+                        </Text>
+                        <SaleorThrobber size={24} />
+                      </>
+                    ) : (
+                      <Text>
+                        {showMenuIcon && menuItem.Icon} {menuItem.label}
+                      </Text>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

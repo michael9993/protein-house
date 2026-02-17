@@ -1,8 +1,7 @@
 import ErrorExclamationCircleIcon from "@dashboard/icons/ErrorExclamationCircle";
 import { TableCell } from "@dashboard/components/Table";
-import { Popper } from "@mui/material";
 import { Text } from "@saleor/macaw-ui-next";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useIntl } from "react-intl";
 
 import { productErrorCellMessages } from "./messages";
@@ -13,7 +12,6 @@ interface ProductErrorCellProps {
 
 export const ProductErrorCell = ({ hasVariant }: ProductErrorCellProps) => {
   const intl = useIntl();
-  const popperAnchorRef = useRef<HTMLButtonElement | null>(null);
   const [showErrorBox, setShowErrorBox] = useState<boolean>(false);
 
   if (hasVariant) {
@@ -21,7 +19,7 @@ export const ProductErrorCell = ({ hasVariant }: ProductErrorCellProps) => {
   }
 
   return (
-    <TableCell align="right" className="relative" ref={popperAnchorRef}>
+    <TableCell align="right" className="relative">
       <div
         data-test-id="product-error-message"
         className="flex flex-row items-center justify-end"
@@ -33,18 +31,15 @@ export const ProductErrorCell = ({ hasVariant }: ProductErrorCellProps) => {
         </Text>
         <ErrorExclamationCircleIcon />
       </div>
-      <Popper
-        placement="bottom-end"
-        data-test-id="product-error-popup"
-        open={showErrorBox}
-        anchorEl={popperAnchorRef.current}
-      >
-        <div className="bg-error rounded-lg mr-6 px-6 py-4 w-[280px] z-[1000]">
-          <Text className="text-white text-sm">
-            {intl.formatMessage(productErrorCellMessages.description)}
-          </Text>
+      {showErrorBox && (
+        <div data-test-id="product-error-popup" className="absolute right-0 top-full z-[1000]">
+          <div className="bg-error rounded-lg mr-6 px-6 py-4 w-[280px]">
+            <Text className="text-white text-sm">
+              {intl.formatMessage(productErrorCellMessages.description)}
+            </Text>
+          </div>
         </div>
-      </Popper>
+      )}
     </TableCell>
   );
 };

@@ -12,7 +12,6 @@ import { modelTypesPath } from "@dashboard/modelTypes/urls";
 import { refundsSettingsPath } from "@dashboard/refundsSettings/urls";
 import { structuresListPath } from "@dashboard/structures/urls";
 import { ThemeProvider } from "@dashboard/theme";
-import { StyledEngineProvider } from "@mui/material/styles";
 import { OnboardingProvider } from "@dashboard/welcomePage/WelcomePageOnboarding/onboardingContext";
 import { ThemeProvider as LegacyThemeProvider } from "@saleor/macaw-ui";
 import { SaleorProvider } from "@saleor/sdk";
@@ -129,41 +128,39 @@ const AppContent = () => (
     <ApolloProvider client={apolloClient}>
       {/* @ts-expect-error legacy types */}
       <LegacyThemeProvider overrides={themeOverrides} palettes={paletteOverrides}>
-        <StyledEngineProvider injectFirst>
-          <ThemeProvider>
-            <DateProvider>
-              <LocaleProvider>
-                <MessageManagerProvider>
-                  <BackgroundTasksProvider>
-                    <AppStateProvider>
-                      <AuthProvider>
-                        <ProductAnalytics>
-                          <ShopProvider>
-                            <AppChannelProvider>
-                              <ExitFormDialogProvider>
-                                <DevModeProvider>
-                                  <NavigatorSearchProvider>
-                                    <SavebarRefProvider>
-                                      <FeatureFlagsProviderWithUser>
-                                        <OnboardingProvider>
-                                          <AppRoutes />
-                                        </OnboardingProvider>
-                                      </FeatureFlagsProviderWithUser>
-                                    </SavebarRefProvider>
-                                  </NavigatorSearchProvider>
-                                </DevModeProvider>
-                              </ExitFormDialogProvider>
-                            </AppChannelProvider>
-                          </ShopProvider>
-                        </ProductAnalytics>
-                      </AuthProvider>
-                    </AppStateProvider>
-                  </BackgroundTasksProvider>
-                </MessageManagerProvider>
-              </LocaleProvider>
-            </DateProvider>
-          </ThemeProvider>
-        </StyledEngineProvider>
+        <ThemeProvider>
+          <DateProvider>
+            <LocaleProvider>
+              <MessageManagerProvider>
+                <BackgroundTasksProvider>
+                  <AppStateProvider>
+                    <AuthProvider>
+                      <ProductAnalytics>
+                        <ShopProvider>
+                          <AppChannelProvider>
+                            <ExitFormDialogProvider>
+                              <DevModeProvider>
+                                <NavigatorSearchProvider>
+                                  <SavebarRefProvider>
+                                    <FeatureFlagsProviderWithUser>
+                                      <OnboardingProvider>
+                                        <AppRoutes />
+                                      </OnboardingProvider>
+                                    </FeatureFlagsProviderWithUser>
+                                  </SavebarRefProvider>
+                                </NavigatorSearchProvider>
+                              </DevModeProvider>
+                            </ExitFormDialogProvider>
+                          </AppChannelProvider>
+                        </ShopProvider>
+                      </ProductAnalytics>
+                    </AuthProvider>
+                  </AppStateProvider>
+                </BackgroundTasksProvider>
+              </MessageManagerProvider>
+            </LocaleProvider>
+          </DateProvider>
+        </ThemeProvider>
       </LegacyThemeProvider>
     </ApolloProvider>
   </SaleorProvider>)
