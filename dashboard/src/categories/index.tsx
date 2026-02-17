@@ -6,11 +6,8 @@ import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
-  categoryAddPath,
-  categoryListPath,
   CategoryListUrlQueryParams,
   CategoryListUrlSortField,
-  categoryPath,
   CategoryUrlQueryParams,
 } from "./urls";
 import { CategoryCreateView } from "./views/CategoryCreate";
@@ -53,10 +50,10 @@ const Component = () => {
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.categories)} />
       <Routes>
-        <Route path={categoryListPath} element={<CategoryList />} />
-        <Route path={categoryAddPath()} element={<CategoryCreate />} />
-        <Route path={categoryAddPath(":id")} element={<CategoryCreate />} />
-        <Route path={categoryPath(":id")} element={<CategoryDetails />} />
+        <Route index element={<CategoryList />} />
+        <Route path="add" element={<CategoryCreate />} />
+        <Route path=":id/add" element={<CategoryCreate />} />
+        <Route path=":id" element={<CategoryDetails />} />
       </Routes>
     </>
   );

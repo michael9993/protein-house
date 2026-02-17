@@ -7,12 +7,9 @@ import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
-  productTypeAddPath,
   ProductTypeAddUrlQueryParams,
-  productTypeListPath,
   ProductTypeListUrlQueryParams,
   ProductTypeListUrlSortField,
-  productTypePath,
   ProductTypeUrlQueryParams,
 } from "./urls";
 import ProductTypeCreateComponent from "./views/ProductTypeCreate";
@@ -61,9 +58,9 @@ const ProductTypeRouter = () => {
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.productTypes)} />
       <Routes>
-        <Route path={productTypeListPath} element={<ProductTypeList />} />
-        <Route path={productTypeAddPath} element={<ProductTypeCreate />} />
-        <Route path={productTypePath(":id")} element={<ProductTypeUpdate />} />
+        <Route index element={<ProductTypeList />} />
+        <Route path="add" element={<ProductTypeCreate />} />
+        <Route path=":id" element={<ProductTypeUpdate />} />
       </Routes>
     </>
   );

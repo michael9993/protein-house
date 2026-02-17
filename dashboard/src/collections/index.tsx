@@ -7,12 +7,9 @@ import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
-  collectionAddPath,
   CollectionCreateUrlQueryParams,
-  collectionListPath,
   CollectionListUrlQueryParams,
   CollectionListUrlSortField,
-  collectionPath,
   CollectionUrlQueryParams,
 } from "./urls";
 import CollectionCreateView from "./views/CollectionCreate";
@@ -55,9 +52,9 @@ const Component = () => {
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.collections)} />
       <Routes>
-        <Route path={collectionListPath} element={<CollectionList />} />
-        <Route path={collectionAddPath} element={<CollectionCreate />} />
-        <Route path={collectionPath(":id")} element={<CollectionDetails />} />
+        <Route index element={<CollectionList />} />
+        <Route path="add" element={<CollectionCreate />} />
+        <Route path=":id" element={<CollectionDetails />} />
       </Routes>
     </>
   );

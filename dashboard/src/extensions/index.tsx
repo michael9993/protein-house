@@ -4,7 +4,6 @@ import {
   AppDetailsUrlQueryParams,
   CustomAppDetailsUrlQueryParams,
   ExtensionInstallQueryParams,
-  ExtensionsPaths,
   PluginUrlQueryParams,
 } from "@dashboard/extensions/urls";
 import { ExploreExtensions } from "@dashboard/extensions/views/ExploreExtensions/ExploreExtensions";
@@ -133,13 +132,10 @@ export const ExtensionsSection = () => {
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.extensions)} />
       <Routes>
-        <Route path={ExtensionsPaths.exploreExtensions} element={<ExploreExtensionsView />} />
+        <Route path="explore" element={<ExploreExtensionsView />} />
+        <Route path="installed" element={<InstalledExtensionsView />} />
         <Route
-          path={ExtensionsPaths.installedExtensions}
-          element={<InstalledExtensionsView />}
-        />
-        <Route
-          path={ExtensionsPaths.installCustomExtension}
+          path="app/install"
           element={
             <SectionGuard permissions={[PermissionEnum.MANAGE_APPS]}>
               <InstallCustomExtensionView />
@@ -148,32 +144,23 @@ export const ExtensionsSection = () => {
         />
 
         {/* -- Manifest app routes -- */}
+        <Route path="app/:id/edit" element={<EditManifestExtensionView />} />
         <Route
-          path={ExtensionsPaths.resolveEditManifestExtension(":id")}
-          element={<EditManifestExtensionView />}
-        />
-        <Route
-          path={ExtensionsPaths.resolveAppRequestPermissionsPath(":id")}
+          path="app/:id/edit/permissions"
           element={<EditManifestExtensionPermissionsView />}
         />
-        <Route
-          path={ExtensionsPaths.resolveViewManifestExtension(":id")}
-          element={<ViewManifestExtensionIframeView />}
-        />
+        <Route path="app/:id" element={<ViewManifestExtensionIframeView />} />
 
         {/* -- Plugin routes -- */}
-        <Route
-          path={ExtensionsPaths.resolveEditPluginExtension(":id")}
-          element={<EditPluginExtensionView />}
-        />
+        <Route path="plugin/:id" element={<EditPluginExtensionView />} />
 
         {/* -- Custom apps routes -- */}
         <Route
-          path={ExtensionsPaths.addCustomExtension}
+          path="custom/add"
           element={<AddCustomExtension setToken={setCustomAppToken} />}
         />
         <Route
-          path={ExtensionsPaths.resolveEditCustomExtension(":id")}
+          path="custom/:id"
           element={
             <EditCustomExtensionView
               token={customAppToken || ""}
@@ -183,7 +170,7 @@ export const ExtensionsSection = () => {
         />
 
         <Route
-          path={ExtensionsPaths.resolveAddCustomExtensionWebhook(":appId")}
+          path="custom/:appId/webhook"
           element={
             <SectionGuard permissions={[PermissionEnum.MANAGE_APPS]}>
               <AddCustomExtensionWebhookView />
@@ -191,7 +178,7 @@ export const ExtensionsSection = () => {
           }
         />
         <Route
-          path={ExtensionsPaths.resolveEditCustomExtensionWebhook(":appId", ":id")}
+          path="custom/:appId/webhook/:id"
           element={
             <SectionGuard permissions={[PermissionEnum.MANAGE_APPS]}>
               <EditCustomExtensionWebhookView />

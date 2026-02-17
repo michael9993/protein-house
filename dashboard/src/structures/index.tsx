@@ -2,7 +2,7 @@ import { parseQs } from "@dashboard/url-utils";
 import { asSortParams } from "@dashboard/utils/sort";
 import { Route, Routes, useLocation, useParams } from "react-router";
 
-import { MenuListUrlQueryParams, MenuListUrlSortField, menuPath, structuresListPath } from "./urls";
+import { MenuListUrlQueryParams, MenuListUrlSortField } from "./urls";
 import MenuDetailsComponent from "./views/MenuDetails";
 import MenuListComponent from "./views/MenuList";
 
@@ -22,8 +22,8 @@ const MenuDetails = () => {
 };
 const NavigationRouter = () => (
   <Routes>
-    <Route path={structuresListPath} element={<MenuList />} />
-    <Route path={menuPath(":id")} element={<MenuDetails />} />
+    <Route index element={<MenuList />} />
+    <Route path=":id" element={<MenuDetails />} />
   </Routes>
 );
 

@@ -6,11 +6,8 @@ import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
-  warehouseAddPath,
-  warehouseListPath,
   WarehouseListUrlQueryParams,
   WarehouseListUrlSortField,
-  warehousePath,
   WarehouseUrlQueryParams,
 } from "./urls";
 import WarehouseCreate from "./views/WarehouseCreate";
@@ -41,9 +38,9 @@ const WarehouseSection = () => {
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.warehouses)} />
       <Routes>
-        <Route path={warehouseListPath} element={<WarehouseList />} />
-        <Route path={warehouseAddPath} element={<WarehouseCreate />} />
-        <Route path={warehousePath(":id")} element={<WarehouseDetails />} />
+        <Route index element={<WarehouseList />} />
+        <Route path="add" element={<WarehouseCreate />} />
+        <Route path=":id" element={<WarehouseDetails />} />
       </Routes>
     </>
   );

@@ -7,15 +7,9 @@ import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
-  customerAddPath,
-  customerAddressesPath,
   CustomerAddressesUrlQueryParams,
-  customerListPath,
   CustomerListUrlQueryParams,
   CustomerListUrlSortField,
-  customerPath,
-  customerServiceListPath,
-  customerServicePath,
   CustomerServiceListUrlQueryParams,
   CustomerServiceListUrlSortField,
   CustomerServiceUrlQueryParams,
@@ -86,12 +80,12 @@ export const CustomerSection = () => {
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.customers)} />
       <Routes>
-        <Route path={customerListPath} element={<CustomerListView />} />
-        <Route path={customerAddPath} element={<CustomerCreateView />} />
-        <Route path={customerServiceListPath} element={<CustomerServiceListView />} />
-        <Route path={customerServicePath(":id")} element={<CustomerServiceDetailsView />} />
-        <Route path={customerAddressesPath(":id")} element={<CustomerAddressesView />} />
-        <Route path={customerPath(":id")} element={<CustomerDetailsView />} />
+        <Route index element={<CustomerListView />} />
+        <Route path="add" element={<CustomerCreateView />} />
+        <Route path="service" element={<CustomerServiceListView />} />
+        <Route path="service/:id" element={<CustomerServiceDetailsView />} />
+        <Route path=":id/addresses" element={<CustomerAddressesView />} />
+        <Route path=":id" element={<CustomerDetailsView />} />
       </Routes>
     </>
   );

@@ -11,7 +11,6 @@ import GiftCardListComponent from "./GiftCardsList";
 import { GiftCardListUrlQueryParams, GiftCardUrlSortField } from "./GiftCardsList/types";
 import GiftCardUpdateComponent from "./GiftCardUpdate";
 import { GiftCardUpdatePageUrlQueryParams } from "./GiftCardUpdate/types";
-import { giftCardPath, giftCardSettingsUrl, giftCardsListPath } from "./urls";
 
 const GiftCardUpdatePage = () => {
   const { id } = useParams();
@@ -45,9 +44,9 @@ const Component = () => {
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.giftCards)} />
       <Routes>
-        <Route path={giftCardSettingsUrl} element={<GiftCardSettings />} />
-        <Route path={giftCardsListPath} element={<GiftCardList />} />
-        <Route path={giftCardPath(":id")} element={<GiftCardUpdatePage />} />
+        <Route path="settings" element={<GiftCardSettings />} />
+        <Route index element={<GiftCardList />} />
+        <Route path=":id" element={<GiftCardUpdatePage />} />
       </Routes>
     </>
   );

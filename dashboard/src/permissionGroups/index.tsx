@@ -7,10 +7,7 @@ import { Route, Routes, useParams, useLocation } from "react-router";
 import { WindowTitle } from "../components/WindowTitle";
 import {
   MembersListUrlSortField,
-  permissionGroupAddPath,
-  permissionGroupDetailsPath,
   PermissionGroupDetailsUrlQueryParams,
-  permissionGroupListPath,
   PermissionGroupListUrlQueryParams,
   PermissionGroupListUrlSortField,
 } from "./urls";
@@ -47,9 +44,9 @@ const Component = () => {
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.permissionGroups)} />
       <Routes>
-        <Route path={permissionGroupListPath} element={<PermissionGroupList />} />
-        <Route path={permissionGroupAddPath} element={<PermissionGroupCreate />} />
-        <Route path={permissionGroupDetailsPath(":id")} element={<PermissionGroupDetails />} />
+        <Route index element={<PermissionGroupList />} />
+        <Route path="add" element={<PermissionGroupCreate />} />
+        <Route path=":id" element={<PermissionGroupDetails />} />
       </Routes>
     </>
   );

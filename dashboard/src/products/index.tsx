@@ -8,20 +8,15 @@ import { Navigate, Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
-  productAddPath,
   ProductCreateUrlQueryParams,
-  productImagePath,
   ProductImageUrlQueryParams,
   productListPath,
   ProductListUrlQueryParams,
   ProductListUrlSortField,
-  productPath,
   ProductUrlQueryParams,
-  productVariantAddPath,
   ProductVariantAddUrlQueryParams,
   productVariantEditPath,
   ProductVariantEditUrlQueryParams,
-  productVariantLegacyEditPath,
 } from "./urls";
 import ProductCreateComponent from "./views/ProductCreate";
 import ProductImageComponent from "./views/ProductImage";
@@ -142,16 +137,16 @@ const Component = () => {
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.products)} />
       <Routes>
-        <Route path={productListPath} element={<ProductList />} />
-        <Route path={productAddPath} element={<ProductCreate />} />
-        <Route path={productVariantAddPath(":id")} element={<ProductVariantCreate />} />
+        <Route index element={<ProductList />} />
+        <Route path="add" element={<ProductCreate />} />
+        <Route path=":id/variant/add" element={<ProductVariantCreate />} />
         <Route
-          path={productVariantLegacyEditPath(":productId", ":variantId")}
+          path=":productId/variant/:variantId"
           element={<LegacyVariantRedirect />}
         />
-        <Route path={productVariantEditPath(":variantId")} element={<ProductVariant />} />
-        <Route path={productImagePath(":productId", ":imageId")} element={<ProductImage />} />
-        <Route path={productPath(":id")} element={<ProductUpdate />} />
+        <Route path="variant/:variantId" element={<ProductVariant />} />
+        <Route path=":productId/image/:imageId" element={<ProductImage />} />
+        <Route path=":id" element={<ProductUpdate />} />
       </Routes>
     </>
   );

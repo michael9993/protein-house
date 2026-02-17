@@ -5,12 +5,7 @@ import { useIntl } from "react-intl";
 import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
-import {
-  languageEntitiesPath,
-  languageEntityPath,
-  languageListPath,
-  TranslatableEntities,
-} from "./urls";
+
 import TranslationsAttributesComponent, {
   TranslationsAttributesQueryParams,
 } from "./views/TranslationsAttributes";
@@ -226,57 +221,24 @@ const TranslationsRouter = () => {
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.translations)} />
       <Routes>
-        <Route path={languageListPath} element={<TranslationsLanguageList />} />
+        <Route index element={<TranslationsLanguageList />} />
+        <Route path=":languageCode" element={<TranslationsEntities />} />
+        <Route path=":languageCode/products/:id" element={<TranslationsProducts />} />
         <Route
-          path={languageEntitiesPath(":languageCode")}
-          element={<TranslationsEntities />}
-        />
-        <Route
-          path={languageEntityPath(":languageCode", TranslatableEntities.products, ":id")}
-          element={<TranslationsProducts />}
-        />
-        <Route
-          path={languageEntityPath(
-            ":languageCode",
-            TranslatableEntities.products,
-            ":productId",
-            TranslatableEntities.productVariants,
-            ":id",
-          )}
+          path=":languageCode/products/:productId/variants/:id"
           element={<TranslationsProductVariants />}
         />
+        <Route path=":languageCode/categories/:id" element={<TranslationsCategories />} />
+        <Route path=":languageCode/collections/:id" element={<TranslationsCollections />} />
+        <Route path=":languageCode/sales/:id" element={<TranslationsSales />} />
+        <Route path=":languageCode/vouchers/:id" element={<TranslationsVouchers />} />
+        <Route path=":languageCode/pages/:id" element={<TranslationsPages />} />
+        <Route path=":languageCode/attributes/:id" element={<TranslationsAttributes />} />
         <Route
-          path={languageEntityPath(":languageCode", TranslatableEntities.categories, ":id")}
-          element={<TranslationsCategories />}
-        />
-        <Route
-          path={languageEntityPath(":languageCode", TranslatableEntities.collections, ":id")}
-          element={<TranslationsCollections />}
-        />
-        <Route
-          path={languageEntityPath(":languageCode", TranslatableEntities.sales, ":id")}
-          element={<TranslationsSales />}
-        />
-        <Route
-          path={languageEntityPath(":languageCode", TranslatableEntities.vouchers, ":id")}
-          element={<TranslationsVouchers />}
-        />
-        <Route
-          path={languageEntityPath(":languageCode", TranslatableEntities.pages, ":id")}
-          element={<TranslationsPages />}
-        />
-        <Route
-          path={languageEntityPath(":languageCode", TranslatableEntities.attributes, ":id")}
-          element={<TranslationsAttributes />}
-        />
-        <Route
-          path={languageEntityPath(":languageCode", TranslatableEntities.shippingMethods, ":id")}
+          path=":languageCode/shippingMethods/:id"
           element={<TranslationsShippingMethod />}
         />
-        <Route
-          path={languageEntityPath(":languageCode", TranslatableEntities.menuItems, ":id")}
-          element={<TranslationsMenuItem />}
-        />
+        <Route path=":languageCode/menuItems/:id" element={<TranslationsMenuItem />} />
       </Routes>
     </>
   );

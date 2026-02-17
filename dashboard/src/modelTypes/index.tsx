@@ -6,11 +6,8 @@ import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
-  modelTypesPath,
-  pageTypeAddPath,
   PageTypeListUrlQueryParams,
   PageTypeListUrlSortField,
-  pageTypePath,
   PageTypeUrlQueryParams,
 } from "./urls";
 import PageTypeCreate from "./views/PageTypeCreate";
@@ -41,9 +38,9 @@ const PageTypeRouter = () => {
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.modelTypes)} />
       <Routes>
-        <Route path={modelTypesPath} element={<PageTypeList />} />
-        <Route path={pageTypeAddPath} element={<PageTypeCreate />} />
-        <Route path={pageTypePath(":id")} element={<PageTypeDetails />} />
+        <Route index element={<PageTypeList />} />
+        <Route path="add" element={<PageTypeCreate />} />
+        <Route path=":id" element={<PageTypeDetails />} />
       </Routes>
     </>
   );

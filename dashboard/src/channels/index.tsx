@@ -6,9 +6,6 @@ import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
-  channelAddPath,
-  channelPath,
-  channelsListPath,
   ChannelsListUrlQueryParams,
   ChannelsListUrlSortField,
 } from "./urls";
@@ -39,9 +36,9 @@ const ChannelsSection = () => {
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.channels)} />
       <Routes>
-        <Route path={channelsListPath} element={<ChannelsList />} />
-        <Route path={channelAddPath} element={<ChannelCreateComponent />} />
-        <Route path={channelPath(":id")} element={<ChannelDetails />} />
+        <Route index element={<ChannelsList />} />
+        <Route path="add" element={<ChannelCreateComponent />} />
+        <Route path=":id" element={<ChannelDetails />} />
       </Routes>
     </>
   );

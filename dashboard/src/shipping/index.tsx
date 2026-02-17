@@ -5,13 +5,8 @@ import { Route, Routes, useParams, useLocation } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
-  shippingRateCreatePath,
   ShippingRateCreateUrlQueryParams,
-  shippingRateEditPath,
   ShippingRateUrlQueryParams,
-  shippingZoneAddPath,
-  shippingZonePath,
-  shippingZonesListPath,
   ShippingZonesListUrlQueryParams,
   ShippingZoneUrlQueryParams,
 } from "./urls";
@@ -69,11 +64,11 @@ const ShippingRouter = () => {
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.shipping)} />
       <Routes>
-        <Route path={shippingZonesListPath} element={<ShippingZonesList />} />
-        <Route path={shippingZoneAddPath} element={<ShippingZoneCreate />} />
-        <Route path={shippingZonePath(":id")} element={<ShippingZoneDetails />} />
-        <Route path={shippingRateCreatePath(":id")} element={<RateCreate />} />
-        <Route path={shippingRateEditPath(":id", ":rateId")} element={<RateUpdate />} />
+        <Route index element={<ShippingZonesList />} />
+        <Route path="add" element={<ShippingZoneCreate />} />
+        <Route path=":id" element={<ShippingZoneDetails />} />
+        <Route path=":id/add" element={<RateCreate />} />
+        <Route path=":id/:rateId" element={<RateUpdate />} />
       </Routes>
     </>
   );

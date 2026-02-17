@@ -11,15 +11,9 @@ import { Route, Routes, useLocation, useParams } from "react-router";
 import { WindowTitle } from "../components/WindowTitle";
 import { DiscountListUrlQueryParams, DiscountListUrlSortField } from "./discountsUrls";
 import {
-  saleAddPath,
-  saleListPath,
-  salePath,
-  voucherAddPath,
   VoucherCreateUrlQueryParams,
-  voucherListPath,
   VoucherListUrlQueryParams,
   VoucherListUrlSortField,
-  voucherPath,
   VoucherUrlQueryParams,
 } from "./urls";
 import { DiscountCreate } from "./views/DiscountCreate";
@@ -90,12 +84,12 @@ const DiscountSection = () => {
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.vouchers)} />
       <Routes>
-        <Route path={saleListPath} element={<SaleListView />} />
-        <Route path={saleAddPath} element={<SaleCreateView />} />
-        <Route path={voucherAddPath} element={<VoucherCreateView />} />
-        <Route path={salePath(":id")} element={<SaleDetailsView />} />
-        <Route path={voucherListPath} element={<VoucherListView />} />
-        <Route path={voucherPath(":id")} element={<VoucherDetailsView />} />
+        <Route path="sales" element={<SaleListView />} />
+        <Route path="sales/add" element={<SaleCreateView />} />
+        <Route path="vouchers/add" element={<VoucherCreateView />} />
+        <Route path="sales/:id" element={<SaleDetailsView />} />
+        <Route path="vouchers" element={<VoucherListView />} />
+        <Route path="vouchers/:id" element={<VoucherDetailsView />} />
       </Routes>
     </>
   );

@@ -7,12 +7,9 @@ import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
-  attributeAddPath,
   AttributeAddUrlQueryParams,
-  attributeListPath,
   AttributeListUrlQueryParams,
   AttributeListUrlSortField,
-  attributePath,
   AttributeUrlQueryParams,
 } from "./urls";
 import AttributeCreateComponent from "./views/AttributeCreate";
@@ -55,9 +52,9 @@ const AttributeSection = () => {
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.attributes)} />
       <Routes>
-        <Route path={attributeListPath} element={<AttributeList />} />
-        <Route path={attributeAddPath} element={<AttributeCreate />} />
-        <Route path={attributePath(":id")} element={<AttributeDetails />} />
+        <Route index element={<AttributeList />} />
+        <Route path="add" element={<AttributeCreate />} />
+        <Route path=":id" element={<AttributeDetails />} />
       </Routes>
     </>
   );

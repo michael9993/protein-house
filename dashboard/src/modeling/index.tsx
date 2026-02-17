@@ -7,12 +7,9 @@ import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
-  pageCreatePath,
   PageCreateUrlQueryParams,
-  pageListPath,
   PageListUrlQueryParams,
   PageListUrlSortField,
-  pagePath,
   PageUrlQueryParams,
 } from "./urls";
 import PageCreateComponent from "./views/PageCreate";
@@ -60,9 +57,9 @@ const Component = () => {
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.models)} />
       <Routes>
-        <Route path={pageListPath} element={<PageList />} />
-        <Route path={pageCreatePath} element={<PageCreate />} />
-        <Route path={pagePath(":id")} element={<PageDetails />} />
+        <Route index element={<PageList />} />
+        <Route path="add" element={<PageCreate />} />
+        <Route path=":id" element={<PageDetails />} />
       </Routes>
     </>
   );

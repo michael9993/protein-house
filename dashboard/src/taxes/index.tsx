@@ -4,12 +4,7 @@ import { useIntl } from "react-intl";
 import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
-import {
-  taxClassesListUrl,
-  taxConfigurationListPath,
-  taxCountriesListPath,
-  TaxesUrlQueryParams,
-} from "./urls";
+import { TaxesUrlQueryParams } from "./urls";
 import TaxChannelsListComponent from "./views/TaxChannelsList";
 import TaxClassesListComponent from "./views/TaxClassesList";
 import TaxCountriesListComponent from "./views/TaxCountriesList";
@@ -40,12 +35,12 @@ const Component = () => {
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.taxes)} />
       <Routes>
-        <Route path={taxConfigurationListPath(":id")} element={<TaxChannelsList />} />
-        <Route path={taxConfigurationListPath()} element={<TaxChannelsList />} />
-        <Route path={taxCountriesListPath(":id")} element={<TaxCountriesList />} />
-        <Route path={taxCountriesListPath()} element={<TaxCountriesList />} />
-        <Route path={taxClassesListUrl(":id")} element={<TaxClassesList />} />
-        <Route path={taxClassesListUrl()} element={<TaxClassesList />} />
+        <Route path="channels/:id" element={<TaxChannelsList />} />
+        <Route path="channels" element={<TaxChannelsList />} />
+        <Route path="countries/:id" element={<TaxCountriesList />} />
+        <Route path="countries" element={<TaxCountriesList />} />
+        <Route path="tax-classes/:id" element={<TaxClassesList />} />
+        <Route path="tax-classes" element={<TaxClassesList />} />
       </Routes>
     </>
   );

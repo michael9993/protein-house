@@ -7,10 +7,8 @@ import { Route, Routes, useParams, useLocation } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
-  staffListPath,
   StaffListUrlQueryParams,
   StaffListUrlSortField,
-  staffMemberDetailsPath,
   StaffMemberDetailsUrlQueryParams,
 } from "./urls";
 import { StaffDetailsView } from "./views/StaffDetails";
@@ -44,8 +42,8 @@ const Component = () => {
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.staff)} />
       <Routes>
-        <Route path={staffListPath} element={<StaffList />} />
-        <Route path={staffMemberDetailsPath(":id")} element={<StaffDetailsComponent />} />
+        <Route index element={<StaffList />} />
+        <Route path=":id" element={<StaffDetailsComponent />} />
       </Routes>
     </>
   );

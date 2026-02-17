@@ -13,7 +13,6 @@ import { QUERY_API_TYPES } from "@dashboard/components/ConditionalFilter/queryVa
 
 import { ReviewListPage } from "./ReviewsList/ReviewListPage";
 import { ReviewListUrlQueryParams, ReviewUrlSortField } from "./ReviewsList/types";
-import { reviewsListPath, reviewPath } from "./urls";
 import ReviewUpdate from "./ReviewUpdate";
 import { ReviewUpdatePageUrlQueryParams } from "./ReviewUpdate/types";
 
@@ -66,8 +65,8 @@ const Component = () => {
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.reviews)} />
       <Routes>
-        <Route path={reviewsListPath} element={<ReviewList />} />
-        <Route path={reviewPath(":id")} element={<ReviewUpdatePage />} />
+        <Route index element={<ReviewList />} />
+        <Route path=":id" element={<ReviewUpdatePage />} />
       </Routes>
     </>
   );

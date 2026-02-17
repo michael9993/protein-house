@@ -10,24 +10,11 @@ import { Route, Routes, useLocation, useParams } from "react-router";
 
 import { WindowTitle } from "../components/WindowTitle";
 import {
-  orderDraftListPath,
   OrderDraftListUrlQueryParams,
   OrderDraftListUrlSortField,
-  orderFulfillPath,
   OrderFulfillUrlQueryParams,
-  orderGrantRefundEditPath,
-  orderGrantRefundPath,
-  orderListPath,
   OrderListUrlQueryParams,
   OrderListUrlSortField,
-  orderManualTransactionRefundPath,
-  orderPath,
-  orderPaymentRefundPath,
-  orderReturnPath,
-  orderSendRefundPath,
-  orderSettingsPath,
-  orderTransactionRefundEditPath,
-  orderTransactionRefundPath,
   OrderUrlQueryParams,
 } from "./urls";
 import OrderDetailsComponent from "./views/OrderDetails";
@@ -153,28 +140,19 @@ const Component = () => {
     <>
       <WindowTitle title={intl.formatMessage(sectionNames.orders)} />
       <Routes>
-        <Route path={orderSettingsPath} element={<OrderSettings />} />
-        <Route path={orderDraftListPath} element={<OrderDraftList />} />
-        <Route path={orderListPath} element={<OrderList />} />
-        <Route path={orderFulfillPath(":id")} element={<OrderFulfill />} />
-        <Route path={orderReturnPath(":id")} element={<OrderReturn />} />
-        <Route path={orderPaymentRefundPath(":id")} element={<OrderPaymentRefund />} />
-        <Route path={orderSendRefundPath(":id")} element={<OrderSendRefund />} />
-        <Route
-          path={orderGrantRefundEditPath(":orderId", ":refundId")}
-          element={<OrderGrantRefundEdit />}
-        />
-        <Route path={orderGrantRefundPath(":id")} element={<OrderGrantRefund />} />
-        <Route
-          path={orderTransactionRefundEditPath(":orderId", ":refundId")}
-          element={<OrderTransactionRefundEdit />}
-        />
-        <Route path={orderTransactionRefundPath(":id")} element={<OrderTransactionRefund />} />
-        <Route
-          path={orderManualTransactionRefundPath(":id")}
-          element={<OrderManualTransactionRefund />}
-        />
-        <Route path={orderPath(":id")} element={<OrderDetails />} />
+        <Route path="settings" element={<OrderSettings />} />
+        <Route path="drafts" element={<OrderDraftList />} />
+        <Route index element={<OrderList />} />
+        <Route path=":id/fulfill" element={<OrderFulfill />} />
+        <Route path=":id/return" element={<OrderReturn />} />
+        <Route path=":id/payment-refund" element={<OrderPaymentRefund />} />
+        <Route path=":id/send-refund" element={<OrderSendRefund />} />
+        <Route path=":orderId/grant-refund/:refundId" element={<OrderGrantRefundEdit />} />
+        <Route path=":id/grant-refund" element={<OrderGrantRefund />} />
+        <Route path=":orderId/refund/:refundId" element={<OrderTransactionRefundEdit />} />
+        <Route path=":id/refund" element={<OrderTransactionRefund />} />
+        <Route path=":id/manual-refund" element={<OrderManualTransactionRefund />} />
+        <Route path=":id" element={<OrderDetails />} />
       </Routes>
     </>
   );
