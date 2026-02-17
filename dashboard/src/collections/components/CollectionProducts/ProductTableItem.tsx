@@ -76,7 +76,7 @@ export const ProductTableItem = ({
         <Link href={href}>
           <Box padding={2} display="flex" alignItems="center" gap={2} height="100%">
             {product?.thumbnail ? (
-              <Box borderColor="default1" borderWidth={1} borderRadius="2px" borderStyle="solid">
+              <Box borderColor="default1" borderWidth={1} borderRadius={2} borderStyle="solid">
                 <Box
                   as="img"
                   src={product?.thumbnail?.url}

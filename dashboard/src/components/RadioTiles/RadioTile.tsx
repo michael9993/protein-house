@@ -35,7 +35,7 @@ export const RadioTile = ({
         borderColor={getBorderColor({ checked, isHoverState })}
         borderWidth={1}
         borderStyle="solid"
-        borderRadius="2px"
+        borderRadius={2}
         padding={3}
         onMouseEnter={() => setHoverState(true)}
         onMouseLeave={() => setHoverState(false)}

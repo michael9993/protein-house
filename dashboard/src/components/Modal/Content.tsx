@@ -33,7 +33,7 @@ export const Content = ({ children, disableAutofocus, size, ...rest }: ContentPr
       <Box
         backgroundColor="default1"
         boxShadow="defaultModal"
-        borderRadius="4px"
+        borderRadius={4}
         position="fixed"
         __left="50%"
         __top="50%"

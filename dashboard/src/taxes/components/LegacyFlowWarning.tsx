@@ -22,7 +22,7 @@ export const LegacyFlowWarning = ({
       color="warning1"
       padding={2}
       gap={1}
-      borderRadius="3px"
+      borderRadius={3}
       marginTop={1}
       marginBottom={1}
     >

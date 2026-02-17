@@ -18,7 +18,7 @@ export const IconsSection = ({ appLogo }: { appLogo: string | undefined }) => {
         height={12}
         display="flex"
         placeItems="center"
-        borderRadius="5px"
+        borderRadius={5}
         overflow="hidden"
       >
         <SaleorLogo />

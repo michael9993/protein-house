@@ -16,7 +16,7 @@ export const Placeholder = () => {
       flexDirection="column"
       alignItems="center"
       gap={4}
-      borderRadius="4px"
+      borderRadius={4}
       borderColor="default1"
       borderWidth={1}
       borderStyle="solid"

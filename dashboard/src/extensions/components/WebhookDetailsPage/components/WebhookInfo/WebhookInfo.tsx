@@ -95,7 +95,7 @@ export const WebhookInfo = ({ data, disabled, errors, onChange, setValue }: Webh
                 <Box
                   backgroundColor="critical1"
                   padding={4}
-                  borderRadius="2px"
+                  borderRadius={2}
                   style={{ minWidth: 200 }}
                 >
                   <Text fontWeight="bold" color="default1" marginBottom={2}>

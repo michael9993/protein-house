@@ -24,7 +24,7 @@ export const ProductTile = ({ product, onClick }: ProductTileProps) => (
     flexDirection="column"
     onClick={onClick}
     cursor="pointer"
-    borderRadius="3px"
+    borderRadius={3}
     position="relative"
     data-test-id={`product-tile-${product.id}`}
   >
@@ -80,7 +80,7 @@ export const ProductTile = ({ product, onClick }: ProductTileProps) => (
       __width={`calc(100% + ${vars.spacing[5]})`}
       __height={`calc(100% + ${vars.spacing[5]})`}
       __opacity={0.1}
-      borderRadius="5px"
+      borderRadius={5}
       backgroundColor={{
         hover: "default1Hovered",
       }}

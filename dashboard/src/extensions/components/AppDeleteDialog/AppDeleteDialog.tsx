@@ -59,7 +59,7 @@ export const AppDeleteDialog = ({
         <Box
           backgroundColor="warning1"
           padding={2}
-          borderRadius="2px"
+          borderRadius={2}
           marginBottom={4}
           borderWidth={1}
           borderColor="warning1"

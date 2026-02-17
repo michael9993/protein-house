@@ -14,7 +14,7 @@ export const OrderManualTransactionRefundWarning = () => {
   const textColor = theme.theme === "defaultDark" ? "buttonDefaultPrimary" : "default1";
 
   return (
-    <Box backgroundColor="warning1" padding={3} borderRadius="3px">
+    <Box backgroundColor="warning1" padding={3} borderRadius={3}>
       <Text size={2} color={textColor}>
         <FormattedMessage {...messages.sidebardDescription} />
         <br />

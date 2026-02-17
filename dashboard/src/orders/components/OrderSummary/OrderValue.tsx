@@ -34,7 +34,7 @@ export const OrderValue = ({
     <Box
       backgroundColor="default2"
       padding={5}
-      borderRadius="4px"
+      borderRadius={4}
       borderStyle="solid"
       borderColor="transparent"
       borderWidth={1}

@@ -55,7 +55,7 @@ export const OrderTransactionTiles = ({ transactions, control }: OrderTransactio
                 borderStyle="solid"
                 borderWidth={1}
                 borderColor="default1"
-                borderRadius="3px"
+                borderRadius={3}
               >
                 <Box
                   display="flex"

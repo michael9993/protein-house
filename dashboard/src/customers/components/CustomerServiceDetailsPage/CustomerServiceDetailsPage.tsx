@@ -256,7 +256,7 @@ export const CustomerServiceDetailsPage = ({
               </div>
               <Box
                 padding={4}
-                borderRadius="2px"
+                borderRadius={2}
                 style={{ 
                   whiteSpace: "pre-wrap",
                   backgroundColor: "var(--macaw-ui-colors-background-default1, #f5f5f5)"

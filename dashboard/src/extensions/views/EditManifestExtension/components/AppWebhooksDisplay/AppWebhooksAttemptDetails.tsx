@@ -14,7 +14,7 @@ export const AppWebhooksAttemptDetails = ({ attempt }: AppWebhooksAttemptDetails
       display="flex"
       flexDirection="column"
       paddingX={2}
-      borderRadius="4px"
+      borderRadius={4}
       backgroundColor={{
         hover: "default1Hovered",
       }}

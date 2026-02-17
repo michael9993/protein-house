@@ -96,7 +96,7 @@ export const MetadataInput = ({
         default: "default1",
         focusWithin: "accent1",
       }}
-      borderRadius="3px"
+      borderRadius={3}
     >
       <Input
         data-test-id={`right-${index}-1`}

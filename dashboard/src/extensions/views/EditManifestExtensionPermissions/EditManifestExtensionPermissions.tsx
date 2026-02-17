@@ -23,7 +23,7 @@ const WrapperBox = (props: BoxProps) => (
     borderStyle="solid"
     padding={8}
     __maxWidth={"600px"}
-    borderRadius="4px"
+    borderRadius={4}
     {...props}
   />
 );

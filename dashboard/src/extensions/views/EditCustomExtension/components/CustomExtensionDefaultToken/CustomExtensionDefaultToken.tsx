@@ -37,7 +37,7 @@ export const CustomExtensionDefaultToken = (props: CustomExtensionDefaultTokenPr
           ></Button>
         </Box>
 
-        <Box marginTop={4} backgroundColor="default2" padding={4} borderRadius="8px">
+        <Box marginTop={4} backgroundColor="default2" padding={4} borderRadius={8}>
           <Text size={3} fontWeight="medium">
             <FormattedMessage id="Kxiige" defaultMessage="Generated Token" />
           </Text>

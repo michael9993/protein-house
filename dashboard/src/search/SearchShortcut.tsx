@@ -51,7 +51,7 @@ export const SearchShortcut = () => {
       borderStyle="solid"
       borderWidth={1}
       paddingX={1.5}
-      borderRadius="2px"
+      borderRadius={2}
       fontWeight="medium"
       fontSize={2}
       textAlign="center"

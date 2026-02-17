@@ -25,7 +25,7 @@ export const PaymentsSummary = ({ orderAmounts, order, hasNoPayment, ...props }:
       <Box
         backgroundColor="default2"
         padding={5}
-        borderRadius="4px"
+        borderRadius={4}
         borderStyle="solid"
         borderColor="default1"
         borderWidth={1}
@@ -46,7 +46,7 @@ export const PaymentsSummary = ({ orderAmounts, order, hasNoPayment, ...props }:
     <Box
       backgroundColor="default2"
       padding={5}
-      borderRadius="4px"
+      borderRadius={4}
       borderStyle="solid"
       borderColor="default1"
       borderWidth={1}

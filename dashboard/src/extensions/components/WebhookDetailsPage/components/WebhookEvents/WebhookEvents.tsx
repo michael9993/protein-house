@@ -74,7 +74,7 @@ export const WebhookEvents = ({
           <DashboardCard.Title>{intl.formatMessage(messages.webhookEvents)}</DashboardCard.Title>
         </DashboardCard.Header>
         <DashboardCard.Content>
-          <Box display="flex" padding={1} borderRadius="3px">
+          <Box display="flex" padding={1} borderRadius={3}>
             <Switch value={tab} onValueChange={handleTabChange}>
               <Switch.Item id="async" value="async" fontWeight="medium">
                 {intl.formatMessage(messages.asynchronous)}

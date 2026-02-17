@@ -79,7 +79,7 @@ const ProductVariantMediaSelectDialog = (props: ProductVariantImageSelectDialogP
                   overflow="hidden"
                   padding={3}
                   position="relative"
-                  borderRadius="2px"
+                  borderRadius={2}
                   onClick={() => handleMediaSelect(mediaObj.id)}
                   key={mediaObj.id}
                 >

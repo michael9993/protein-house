@@ -43,7 +43,7 @@ const ResetPasswordPage = (props: ResetPasswordPageProps) => {
           </Text>
           {!!error && (
             <Box
-              borderRadius="4px"
+              borderRadius={4}
               padding={4}
               backgroundColor="critical1"
               width="100%"

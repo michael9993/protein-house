@@ -97,7 +97,7 @@ const SwatchPreviewBox = ({
     <Box
       width={8}
       height={8}
-      borderRadius="2px"
+      borderRadius={2}
       marginRight={2}
       style={{
         ...(isFile

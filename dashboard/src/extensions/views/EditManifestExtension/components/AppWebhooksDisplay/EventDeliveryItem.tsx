@@ -98,7 +98,7 @@ export const EventDeliveryItem = ({
         }}
         margin={4}
         padding={2}
-        borderRadius="4px"
+        borderRadius={4}
       >
         {attempts.map(attempt => (
           <AppWebhooksAttemptDetails attempt={attempt} key={`attempt-details-${attempt.id}`} />
