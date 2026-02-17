@@ -9,7 +9,7 @@ import { FormsetAtomicData, FormsetChange } from "@dashboard/hooks/useFormset";
 import { renderCollection } from "@dashboard/misc";
 import { getFormErrors, getProductErrorMessage } from "@dashboard/utils/errors";
 import createNonNegativeValueChangeHandler from "@dashboard/utils/handlers/nonNegativeValueChangeHandler";
-import { Table, TableBody, TableCell, TableHead } from "@mui/material";
+import { Table, TableBody, TableCell, TableHead } from "@dashboard/components/Table";
 import { Box, Button, Checkbox, Input, Text, vars } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import * as React from "react";

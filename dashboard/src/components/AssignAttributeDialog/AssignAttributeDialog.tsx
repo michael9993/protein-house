@@ -12,7 +12,8 @@ import useModalDialogOpen from "@dashboard/hooks/useModalDialogOpen";
 import useSearchQuery from "@dashboard/hooks/useSearchQuery";
 import { maybe, renderCollection } from "@dashboard/misc";
 import { FetchMoreProps } from "@dashboard/types";
-import { TableBody, TableCell, TextField } from "@mui/material";
+import { TableBody, TableCell } from "@dashboard/components/Table";
+import { TextField } from "@mui/material";
 import { Box, Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 

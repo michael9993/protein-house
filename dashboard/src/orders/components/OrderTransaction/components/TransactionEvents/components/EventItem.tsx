@@ -2,7 +2,7 @@ import Money from "@dashboard/components/Money";
 import { TransactionEventFragment, TransactionEventTypeEnum } from "@dashboard/graphql";
 import { TransactionFakeEvent } from "@dashboard/orders/types";
 import { cn } from "@dashboard/utils/cn";
-import { TableCell, TableRow } from "@mui/material";
+import { TableCell, TableRow } from "@dashboard/components/Table";
 
 import { mapTransactionEvent } from "../../../utils";
 import { EventCreatedBy } from "./EventCreatedBy";

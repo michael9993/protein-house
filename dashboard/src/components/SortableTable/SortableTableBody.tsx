@@ -1,7 +1,6 @@
 // @ts-strict-ignore
+import { TableBody, type TableBodyProps } from "@dashboard/components/Table";
 import { ReorderAction } from "@dashboard/types";
-import { TableBody } from "@mui/material";
-import { TableBodyProps } from "@mui/material/TableBody";
 import { SortableContainer } from "react-sortable-hoc";
 
 const InnerSortableTableBody = SortableContainer<TableBodyProps>(({ children, ...props }) => (

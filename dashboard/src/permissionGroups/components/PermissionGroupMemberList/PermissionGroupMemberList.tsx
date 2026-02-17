@@ -14,7 +14,7 @@ import { sortMembers } from "@dashboard/permissionGroups/sort";
 import { MembersListUrlSortField } from "@dashboard/permissionGroups/urls";
 import { ListActions, SortPage } from "@dashboard/types";
 import { getArrowDirection } from "@dashboard/utils/sort";
-import { TableBody, TableCell } from "@mui/material";
+import { TableBody, TableCell } from "@dashboard/components/Table";
 import { Box, Button, Skeleton, Text } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { FormattedMessage, useIntl } from "react-intl";

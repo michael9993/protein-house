@@ -1,7 +1,7 @@
 import { DashboardCard } from "@dashboard/components/Card";
 import TableRowLink from "@dashboard/components/TableRowLink";
 import { FormChange } from "@dashboard/hooks/useForm";
-import { Table, TableCell, TableHead } from "@mui/material";
+import { Table, TableCell, TableHead } from "@dashboard/components/Table";
 import { Button, Skeleton, Text } from "@saleor/macaw-ui-next";
 import { ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";

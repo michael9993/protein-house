@@ -7,7 +7,7 @@ import TableRowLink from "@dashboard/components/TableRowLink";
 import { OrderDetailsFragment, OrderErrorFragment, OrderLineFragment } from "@dashboard/graphql";
 import { FormsetChange } from "@dashboard/hooks/useFormset";
 import { getById, renderCollection } from "@dashboard/misc";
-import { TableBody, TableCell, TableHead } from "@mui/material";
+import { TableBody, TableCell, TableHead } from "@dashboard/components/Table";
 import { ResponsiveTable } from "@saleor/macaw-ui";
 import { Checkbox, Skeleton } from "@saleor/macaw-ui-next";
 import * as React from "react";

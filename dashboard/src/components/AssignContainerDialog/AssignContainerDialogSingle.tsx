@@ -7,7 +7,8 @@ import { SaleorThrobber } from "@dashboard/components/Throbber";
 import useModalDialogOpen from "@dashboard/hooks/useModalDialogOpen";
 import useSearchQuery from "@dashboard/hooks/useSearchQuery";
 import { Container, FetchMoreProps } from "@dashboard/types";
-import { Radio, TableBody, TableCell, TextField } from "@mui/material";
+import { TableBody, TableCell } from "@dashboard/components/Table";
+import { Radio, TextField } from "@mui/material";
 import { Text } from "@saleor/macaw-ui-next";
 import { useState } from "react";
 

@@ -11,7 +11,7 @@ import TableRowLink from "@dashboard/components/TableRowLink";
 import { AttributeFragment, ProductAttributeType } from "@dashboard/graphql";
 import { maybe, renderCollection } from "@dashboard/misc";
 import { ListActions, ReorderAction } from "@dashboard/types";
-import { TableCell } from "@mui/material";
+import { TableCell } from "@dashboard/components/Table";
 import { Button, Skeleton } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { FormattedMessage, useIntl } from "react-intl";

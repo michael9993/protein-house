@@ -11,7 +11,7 @@ import TableRowLink from "@dashboard/components/TableRowLink";
 import { ProductAttributeType, ProductTypeDetailsQuery } from "@dashboard/graphql";
 import { maybe, renderCollection } from "@dashboard/misc";
 import { ListActions, ReorderAction } from "@dashboard/types";
-import { TableCell } from "@mui/material";
+import { TableCell } from "@dashboard/components/Table";
 import { IconButton } from "@saleor/macaw-ui";
 import { Button, Skeleton, Tooltip } from "@saleor/macaw-ui-next";
 import capitalize from "lodash/capitalize";

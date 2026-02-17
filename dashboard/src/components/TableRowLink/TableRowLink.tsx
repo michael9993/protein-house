@@ -1,16 +1,14 @@
+import { TableRow, type TableRowProps } from "@dashboard/components/Table";
 import { cn } from "@dashboard/utils/cn";
 import { isExternalURL } from "@dashboard/utils/urls";
-import { TableRow, TableRowTypeMap } from "@mui/material";
 import { forwardRef } from "react";
 import * as React from "react";
 import { Link, LinkProps } from "react-router";
 
-type MaterialTableRowPropsType = TableRowTypeMap["props"];
-
 /** Extends react-router's `To` to also accept an inline `state` property. */
 type LocationDescriptor = LinkProps["to"] | { pathname: string; state?: unknown; search?: string; hash?: string };
 
-export interface TableRowLinkProps extends MaterialTableRowPropsType {
+export interface TableRowLinkProps extends TableRowProps {
   children: React.ReactNode;
   href?: string | LocationDescriptor;
   className?: string;

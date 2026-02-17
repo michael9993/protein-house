@@ -5,7 +5,7 @@ import ResponsiveTable from "@dashboard/components/ResponsiveTable";
 import TableRowLink from "@dashboard/components/TableRowLink";
 import { InvoiceFragment } from "@dashboard/graphql";
 import { buttonMessages } from "@dashboard/intl";
-import { TableBody, TableCell } from "@mui/material";
+import { TableBody, TableCell } from "@dashboard/components/Table";
 import { Button, Skeleton, Text } from "@saleor/macaw-ui-next";
 import { Trash2Icon } from "lucide-react";
 import { FormattedMessage, useIntl } from "react-intl";

@@ -11,7 +11,7 @@ import TableRowLink from "@dashboard/components/TableRowLink";
 import { SaleDetailsFragment, VoucherDetailsFragment } from "@dashboard/graphql";
 import { productVariantEditPath } from "@dashboard/products/urls";
 import { getLoadableList, mapEdgesToItems } from "@dashboard/utils/maps";
-import { TableBody, TableCell, TableFooter } from "@mui/material";
+import { TableBody, TableCell, TableFooter } from "@dashboard/components/Table";
 import { IconButton } from "@saleor/macaw-ui";
 import { Button, Skeleton } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";

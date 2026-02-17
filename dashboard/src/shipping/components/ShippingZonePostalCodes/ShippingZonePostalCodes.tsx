@@ -9,7 +9,7 @@ import { PostalCodeRuleInclusionTypeEnum, ShippingMethodTypeFragment } from "@da
 import ArrowDropdown from "@dashboard/icons/ArrowDropdown";
 import { renderCollection } from "@dashboard/misc";
 import { cn } from "@dashboard/utils/cn";
-import { TableBody, TableCell, TableHead } from "@mui/material";
+import { TableBody, TableCell, TableHead } from "@dashboard/components/Table";
 import { IconButton } from "@saleor/macaw-ui";
 import { Skeleton, Text } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";

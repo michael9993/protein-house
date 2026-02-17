@@ -11,7 +11,7 @@ import {
 } from "@dashboard/graphql";
 import { renderCollection, stopPropagation } from "@dashboard/misc";
 import { ListProps, PaginateListProps, RelayToFlat, ReorderAction } from "@dashboard/types";
-import { TableCell, TableFooter, TableHead } from "@mui/material";
+import { TableCell, TableFooter, TableHead } from "@dashboard/components/Table";
 import { Box, Button, Skeleton } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { FormattedMessage, useIntl } from "react-intl";

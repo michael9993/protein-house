@@ -4,7 +4,7 @@ import ResponsiveTable from "@dashboard/components/ResponsiveTable";
 import TableRowLink from "@dashboard/components/TableRowLink";
 import { cn } from "@dashboard/utils/cn";
 import { CountryFragment } from "@dashboard/graphql";
-import { TableBody, TableCell } from "@mui/material";
+import { TableBody, TableCell } from "@dashboard/components/Table";
 import { IconButton } from "@saleor/macaw-ui";
 import { Button, Text } from "@saleor/macaw-ui-next";
 import { ChevronDownIcon, Trash2 } from "lucide-react";

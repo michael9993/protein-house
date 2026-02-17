@@ -8,7 +8,7 @@ import {
   getOrderLineAvailableQuantity,
   OrderFulfillStockFormsetData,
 } from "@dashboard/orders/utils/data";
-import { TableCell } from "@mui/material";
+import { TableCell } from "@dashboard/components/Table";
 import { Text } from "@saleor/macaw-ui-next";
 
 interface OrderFulfillStockExceededDialogLineProps {

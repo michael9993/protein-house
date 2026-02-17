@@ -11,7 +11,7 @@ import TableRowLink from "@dashboard/components/TableRowLink";
 import { ShippingZoneQuery } from "@dashboard/graphql";
 import { renderCollection } from "@dashboard/misc";
 import { ListActions, ListProps, RelayToFlat } from "@dashboard/types";
-import { TableBody, TableCell, TableFooter } from "@mui/material";
+import { TableBody, TableCell, TableFooter } from "@dashboard/components/Table";
 import { IconButton } from "@saleor/macaw-ui";
 import { Skeleton, Text } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";

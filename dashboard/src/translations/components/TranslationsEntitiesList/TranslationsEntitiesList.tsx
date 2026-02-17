@@ -2,7 +2,7 @@ import ResponsiveTable from "@dashboard/components/ResponsiveTable";
 import { TablePaginationWithContext } from "@dashboard/components/TablePagination";
 import TableRowLink from "@dashboard/components/TableRowLink";
 import { cn } from "@dashboard/utils/cn";
-import { TableBody, TableCell, TableFooter, TableHead } from "@mui/material";
+import { TableBody, TableCell, TableFooter, TableHead } from "@dashboard/components/Table";
 import { Skeleton } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 

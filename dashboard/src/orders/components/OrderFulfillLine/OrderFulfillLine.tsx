@@ -9,7 +9,8 @@ import {
   getWarehouseStock,
   OrderFulfillLineFormData,
 } from "@dashboard/orders/utils/data";
-import { TableCell, TextField } from "@mui/material";
+import { TableCell } from "@dashboard/components/Table";
+import { TextField } from "@mui/material";
 import { ChevronIcon, IconButton, WarningIcon } from "@saleor/macaw-ui";
 import { Box, Skeleton, Text, Tooltip } from "@saleor/macaw-ui-next";
 import { useIntl } from "react-intl";

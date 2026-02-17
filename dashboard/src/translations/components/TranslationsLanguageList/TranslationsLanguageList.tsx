@@ -5,7 +5,7 @@ import TableRowLink from "@dashboard/components/TableRowLink";
 import { LanguageFragment } from "@dashboard/graphql";
 import { languageEntitiesUrl } from "@dashboard/translations/urls";
 import { cn } from "@dashboard/utils/cn";
-import { TableBody, TableCell } from "@mui/material";
+import { TableBody, TableCell } from "@dashboard/components/Table";
 import { Skeleton } from "@saleor/macaw-ui-next";
 import { FormattedMessage } from "react-intl";
 

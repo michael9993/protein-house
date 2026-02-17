@@ -1,5 +1,6 @@
 import ErrorExclamationCircleIcon from "@dashboard/icons/ErrorExclamationCircle";
-import { Popper, TableCell } from "@mui/material";
+import { TableCell } from "@dashboard/components/Table";
+import { Popper } from "@mui/material";
 import { Text } from "@saleor/macaw-ui-next";
 import { useRef, useState } from "react";
 import { defineMessages, useIntl } from "react-intl";

@@ -11,7 +11,7 @@ import {
   getOrderLineAvailableQuantity,
   OrderFulfillStockFormsetData,
 } from "@dashboard/orders/utils/data";
-import { TableBody, TableCell, TableHead } from "@mui/material";
+import { TableBody, TableCell, TableHead } from "@dashboard/components/Table";
 import { Text } from "@saleor/macaw-ui-next";
 import { useIntl } from "react-intl";
 

@@ -1,8 +1,7 @@
 // @ts-strict-ignore
+import { TableCell, TableHead as NativeTableHead, type TableHeadProps as NativeTableHeadProps } from "@dashboard/components/Table";
 import TableRowLink from "@dashboard/components/TableRowLink";
 import { cn } from "@dashboard/utils/cn";
-import { TableCell, TableHead as MuiTableHead } from "@mui/material";
-import { TableHeadProps as MuiTableHeadProps } from "@mui/material/TableHead";
 import { Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage } from "react-intl";
@@ -10,7 +9,7 @@ import { FormattedMessage } from "react-intl";
 import { Node } from "../../types";
 import Checkbox from "../Checkbox";
 
-interface TableHeadProps extends MuiTableHeadProps {
+interface TableHeadProps extends NativeTableHeadProps {
   colSpan: number;
   disabled: boolean;
   dragRows?: boolean;
@@ -38,11 +37,11 @@ const TableHead = (props: TableHeadProps) => {
     selected,
     toggleAll,
     toolbar,
-    ...muiTableHeadProps
+    ...nativeTableHeadProps
   } = props;
 
   return (
-    <MuiTableHead {...muiTableHeadProps}>
+    <NativeTableHead {...nativeTableHeadProps}>
       <TableRowLink>
         {dragRows && (items === undefined || items.length > 0) && <TableCell />}
         {(items === undefined || items.length > 0) && (
@@ -96,7 +95,7 @@ const TableHead = (props: TableHeadProps) => {
           children
         )}
       </TableRowLink>
-    </MuiTableHead>
+    </NativeTableHead>
   );
 };
 

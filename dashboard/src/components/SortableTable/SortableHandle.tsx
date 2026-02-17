@@ -1,5 +1,5 @@
 import { iconSize, iconStrokeWidthBySize } from "@dashboard/components/icons";
-import { TableCell } from "@mui/material";
+import { TableCell } from "@dashboard/components/Table";
 import { GripVertical } from "lucide-react";
 import { SortableHandle as SortableHandleHoc } from "react-sortable-hoc";
 

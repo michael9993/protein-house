@@ -1,5 +1,5 @@
+import { Table } from "@dashboard/components/Table";
 import { cn } from "@dashboard/utils/cn";
-import { Table } from "@mui/material";
 import * as React from "react";
 
 interface ResponsiveTableProps {

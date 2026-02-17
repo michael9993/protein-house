@@ -1,6 +1,5 @@
+import { TableCell, type TableCellProps } from "@dashboard/components/Table";
 import { cn } from "@dashboard/utils/cn";
-import { TableCell } from "@mui/material";
-import { TableCellProps } from "@mui/material/TableCell";
 
 import Avatar, { AvatarProps } from "./Avatar";
 
