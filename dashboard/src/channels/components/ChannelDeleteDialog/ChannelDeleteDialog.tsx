@@ -6,8 +6,6 @@ import { buttonMessages } from "@dashboard/intl";
 import { Option, Text } from "@saleor/macaw-ui-next";
 import { defineMessages, useIntl } from "react-intl";
 
-import { useStyles } from "../styles";
-
 const messages = defineMessages({
   deleteChannel: {
     id: "LATHyi",
@@ -66,7 +64,6 @@ const ChannelDeleteDialog = ({
   onClose,
   onConfirm,
 }: ChannelDeleteDialogProps) => {
-  const classes = useStyles({});
   const intl = useIntl();
   const [choice, setChoice] = useStateFromProps(
     channelsChoices.length ? channelsChoices[0].value : "",
@@ -100,7 +97,7 @@ const ChannelDeleteDialog = ({
                 <br />
                 {intl.formatMessage(messages.note)}
               </Text>
-              <div className={classes.select}>
+              <div className="my-4">
                 <Select
                   label={intl.formatMessage(messages.selectChannel)}
                   name="channels"

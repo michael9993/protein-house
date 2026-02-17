@@ -7,7 +7,6 @@ import { CircleQuestionMark } from "lucide-react";
 import { FormattedMessage } from "react-intl";
 
 import { messages } from "./messages";
-import { useStyles } from "./styles";
 
 const strategyOptions = [
   {
@@ -33,13 +32,11 @@ const ChannelAllocationStrategy = ({
   disabled,
   onChange,
 }: ChannelAllocationStrategyProps) => {
-  const classes = useStyles();
-
   return (
     <DashboardCard>
       <DashboardCard.Header>
         <DashboardCard.Title>
-          <div className={classes.preview}>
+          <div className="flex gap-2 flex-wrap items-center">
             <FormattedMessage {...messages.allocationStrategy} />
           </div>
         </DashboardCard.Title>
@@ -52,7 +49,7 @@ const ChannelAllocationStrategy = ({
               <FormattedMessage {...messages.allocationStrategyDescription} />
               <Tooltip>
                 <Tooltip.Trigger>
-                  <CircleQuestionMark className={classes.tooltipIcon} />
+                  <CircleQuestionMark className="fill-[#28234A] dark:fill-[#FAFAFA] opacity-60 hover:opacity-100 p-0.5 ml-1 align-bottom" />
                 </Tooltip.Trigger>
                 <Tooltip.Content side="bottom">
                   <Tooltip.Arrow />

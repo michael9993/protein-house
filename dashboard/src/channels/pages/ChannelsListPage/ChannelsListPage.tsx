@@ -20,8 +20,6 @@ import { Button, Skeleton } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { useStyles } from "./styles";
-
 interface ChannelsListPageProps {
   channelsList: ChannelDetailsFragment[] | undefined;
   limits: RefreshLimitsQuery["shop"]["limits"];
@@ -32,7 +30,6 @@ const numberOfColumns = 2;
 
 const ChannelsListPage = ({ channelsList, limits, onRemove }: ChannelsListPageProps) => {
   const intl = useIntl();
-  const classes = useStyles({});
   const limitReached = isLimitReached(limits, "channels");
   const navigator = useNavigator();
 
@@ -88,7 +85,7 @@ const ChannelsListPage = ({ channelsList, limits, onRemove }: ChannelsListPagePr
                   description="channel name"
                 />
               </TableCellHeader>
-              <TableCell className={classes.colRight}>
+              <TableCell className="text-right">
                 <FormattedMessage
                   id="VHuzgq"
                   defaultMessage="Actions"
@@ -105,13 +102,13 @@ const ChannelsListPage = ({ channelsList, limits, onRemove }: ChannelsListPagePr
                   data-test-id="channel-row"
                   hover={!!channel}
                   key={channel ? channel.id : "skeleton"}
-                  className={classes.tableRow}
+                  className="cursor-pointer"
                   href={channel && channelUrl(channel.id)}
                 >
-                  <TableCell className={classes.colName}>
+                  <TableCell className="pl-0 w-[250px] lg:w-auto">
                     <span data-test-id="name">{channel?.name || <Skeleton />}</span>
                   </TableCell>
-                  <TableCell className={classes.colAction}>
+                  <TableCell className="!pr-6 text-right w-[140px]">
                     {channelsList && channelsList.length > 1 && (
                       <TableButtonWrapper>
                         <Button

@@ -1,6 +1,5 @@
 import { DashboardCard } from "@dashboard/components/Card";
 import { AttributeTypeEnum } from "@dashboard/graphql";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Box, RadioGroup, Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { defineMessages, FormattedMessage, useIntl } from "react-intl";
@@ -26,24 +25,8 @@ const messages = defineMessages({
     description: "attribute type",
   },
 });
-const useStyles = makeStyles(
-  theme => ({
-    card: {
-      overflow: "visible",
-    },
-    cardSubtitle: {
-      fontSize: theme.typography.body1.fontSize,
-      marginBottom: theme.spacing(0.5),
-    },
-    label: {
-      marginBottom: theme.spacing(0.5),
-    },
-  }),
-  { name: "AttributeOrganization" },
-);
 const AttributeOrganization = (props: AttributeOrganizationProps) => {
   const { canChangeType, data, disabled, onChange } = props;
-  const classes = useStyles(props);
   const intl = useIntl();
 
   return (
@@ -93,7 +76,7 @@ const AttributeOrganization = (props: AttributeOrganizationProps) => {
           </RadioGroup>
         ) : (
           <>
-            <Text className={classes.label} size={2} fontWeight="light" display="block">
+            <Text className="mb-1" size={2} fontWeight="light" display="block">
               <FormattedMessage id="v1pNHW" defaultMessage="Attribute Class" />
             </Text>
             <Text>

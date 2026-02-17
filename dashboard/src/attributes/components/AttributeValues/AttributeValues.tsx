@@ -12,7 +12,6 @@ import {
 import { renderCollection, stopPropagation } from "@dashboard/misc";
 import { ListProps, PaginateListProps, RelayToFlat, ReorderAction } from "@dashboard/types";
 import { TableCell, TableFooter, TableHead } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Box, Button, Skeleton } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -29,39 +28,6 @@ interface AttributeValuesProps
   inputType: AttributeInputTypeEnum;
 }
 
-const useStyles = makeStyles(
-  theme => ({
-    columnSwatch: {
-      width: 100,
-    },
-    columnAdmin: {
-      width: 300,
-    },
-    columnDrag: {
-      width: theme.spacing(6 + 1.5),
-    },
-    columnStore: {
-      width: "auto",
-    },
-    dragIcon: {
-      cursor: "grab",
-    },
-    iconCell: {
-      width: 84,
-    },
-    link: {
-      cursor: "pointer",
-    },
-    swatch: {
-      width: 32,
-      height: 32,
-      borderRadius: 4,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-    },
-  }),
-  { name: "AttributeValues" },
-);
 const getSwatchCellStyle = (value?: AttributeValueFragment | undefined) => {
   if (!value) {
     return;
@@ -85,7 +51,6 @@ const AttributeValues = ({
   onPreviousPage,
   inputType,
 }: AttributeValuesProps) => {
-  const classes = useStyles({});
   const intl = useIntl();
   const isSwatch = inputType === AttributeInputTypeEnum.SWATCH;
   const numberOfColumns = isSwatch ? 5 : 4;
@@ -119,9 +84,9 @@ const AttributeValues = ({
       <ResponsiveTable>
         <TableHead>
           <TableRowLink>
-            <TableCell className={classes.columnDrag} />
+            <TableCell className="w-[60px]" />
             {isSwatch && (
-              <TableCell className={classes.columnSwatch}>
+              <TableCell className="w-[100px]">
                 <FormattedMessage
                   id="NUevU9"
                   defaultMessage="Swatch"
@@ -129,21 +94,21 @@ const AttributeValues = ({
                 />
               </TableCell>
             )}
-            <TableCell className={classes.columnAdmin}>
+            <TableCell className="w-[300px]">
               <FormattedMessage
                 id="3psvRS"
                 defaultMessage="Admin"
                 description="attribute values list: slug column header"
               />
             </TableCell>
-            <TableCell className={classes.columnStore}>
+            <TableCell className="w-auto">
               <FormattedMessage
                 id="H60H6L"
                 defaultMessage="Default Store View"
                 description="attribute values list: name column header"
               />
             </TableCell>
-            <TableCell className={classes.iconCell} />
+            <TableCell className="w-[84px]" />
           </TableRowLink>
         </TableHead>
         <TableFooter>
@@ -165,14 +130,14 @@ const AttributeValues = ({
             (value, valueIndex) => (
               <SortableTableRow<"row">
                 data-test-id="attributes-rows"
-                className={value ? classes.link : undefined}
+                className={value ? "cursor-pointer" : undefined}
                 hover={!!value}
                 onClick={value ? () => onValueUpdate(value.id) : undefined}
                 key={value?.id}
                 index={valueIndex || 0}
               >
                 {isSwatch && (
-                  <TableCell className={classes.columnSwatch}>
+                  <TableCell className="w-[100px]">
                     {value?.file ? (
                       <Box
                         as="img"
@@ -186,17 +151,17 @@ const AttributeValues = ({
                     ) : (
                       <div
                         data-test-id="swatch-image"
-                        className={classes.swatch}
+                        className="w-8 h-8 rounded bg-cover bg-center"
                         style={getSwatchCellStyle(value)}
                       />
                     )}
                   </TableCell>
                 )}
-                <TableCell className={classes.columnAdmin} data-test-id="attribute-value-name">
+                <TableCell className="w-[300px]" data-test-id="attribute-value-name">
                   {value?.slug ?? <Skeleton />}
                 </TableCell>
-                <TableCell className={classes.columnStore}>{value?.name ?? <Skeleton />}</TableCell>
-                <TableCell className={classes.iconCell}>
+                <TableCell className="w-auto">{value?.name ?? <Skeleton />}</TableCell>
+                <TableCell className="w-[84px]">
                   <Button
                     icon={
                       <Trash2 size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />

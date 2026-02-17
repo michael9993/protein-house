@@ -5,7 +5,6 @@ import { defineMessages, useIntl } from "react-intl";
 import AssignmentListFooter from "./AssignmentListFooter";
 import Item from "./Item";
 import SortableContainer from "./SortableContainer";
-import { useStyles } from "./styles";
 import { AssignmentListProps } from "./types";
 
 const messages = defineMessages({
@@ -18,12 +17,11 @@ const messages = defineMessages({
 const AssignmentList = (props: AssignmentListProps) => {
   const { items, itemsName, totalCount = 0, loading, removeItem, reorderItem } = props;
   const intl = useIntl();
-  const classes = useStyles();
   const handleSortStart = () => {
-    document.body.classList.add(classes.grabbing);
+    document.body.classList.add("cursor-grabbing");
   };
   const handleSortEnd = (event: ReorderEvent) => {
-    document.body.classList.remove(classes.grabbing);
+    document.body.classList.remove("cursor-grabbing");
 
     if (reorderItem) {
       reorderItem(event);
@@ -48,7 +46,7 @@ const AssignmentList = (props: AssignmentListProps) => {
         <Accordion.Content>
           <Divider />
           {loading ? (
-            <Skeleton className={classes.skeleton} />
+            <Skeleton className="my-8" />
           ) : (
             <>
               {/* @ts-expect-error legacy types */}
@@ -75,7 +73,7 @@ const AssignmentList = (props: AssignmentListProps) => {
               {hasMoreItemsToBeSelected ? (
                 <AssignmentListFooter {...props} />
               ) : (
-                <Text color="default2" fontSize={3} className={classes.infoMessage}>
+                <Text color="default2" fontSize={3} className="p-6">
                   {intl.formatMessage(messages.allSelectedMessage, {
                     itemsName: itemsName.toLowerCase(),
                   })}

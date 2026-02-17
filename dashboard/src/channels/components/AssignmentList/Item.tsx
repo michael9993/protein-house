@@ -3,7 +3,6 @@ import { Divider, Text } from "@saleor/macaw-ui-next";
 import { SortableElement, SortableElementProps } from "react-sortable-hoc";
 
 import SortableHandle from "./SortableHandle";
-import { useStyles } from "./styles";
 import { AssignItem } from "./types";
 
 interface ItemProps extends SortableElementProps {
@@ -15,15 +14,14 @@ interface ItemProps extends SortableElementProps {
 /** @deprecated This component should use @dnd-kit instead of react-sortable-hoc */
 const Item = SortableElement(({ item, sortable = false, onDelete }: ItemProps) => {
   const { id, name } = item;
-  const classes = useStyles();
 
   return (
     <>
-      <div className={classes.container}>
-        <div className={classes.containerContent}>
+      <div className="flex flex-row justify-between items-center bg-background-paper">
+        <div className="flex overflow-auto">
           {sortable && (
             // @ts-expect-error - legacy types
-            (<SortableHandle className={classes.sortableHandle} data-test-id="button-drag-handle" />)
+            (<SortableHandle className="mr-2" data-test-id="button-drag-handle" />)
           )}
           <Text size={3}>{name}</Text>
         </div>

@@ -6,38 +6,11 @@ import MediaTile from "@dashboard/components/MediaTile";
 import { CategoryDetailsFragment } from "@dashboard/graphql";
 import { commonMessages } from "@dashboard/intl";
 import { TextField } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
-import { Skeleton, vars } from "@saleor/macaw-ui-next";
+import { Skeleton } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { CategoryUpdateData } from "../CategoryUpdatePage/form";
-
-const useStyles = makeStyles(
-  theme => ({
-    fileField: {
-      display: "none",
-    },
-    image: {
-      height: "100%",
-      objectFit: "contain",
-      userSelect: "none",
-      width: "100%",
-    },
-    imageContainer: {
-      background: "#ffffff",
-      border: `1px solid ${vars.colors.border.default1}`,
-      borderRadius: theme.spacing(),
-      height: 148,
-      justifySelf: "start",
-      overflow: "hidden",
-      padding: theme.spacing(2),
-      position: "relative",
-      width: 148,
-    },
-  }),
-  { name: "CategoryBackground" },
-);
 
 interface CategoryBackgroundProps {
   data: CategoryUpdateData;
@@ -48,7 +21,6 @@ interface CategoryBackgroundProps {
 }
 
 const CategoryBackground = (props: CategoryBackgroundProps) => {
-  const classes = useStyles(props);
   const intl = useIntl();
   const anchor = React.useRef<HTMLInputElement>(null);
   const { data, onImageUpload, image, onChange, onImageDelete } = props;
@@ -69,7 +41,7 @@ const CategoryBackground = (props: CategoryBackgroundProps) => {
             <FormattedMessage {...commonMessages.uploadImage} />
           </Button>
           <input
-            className={classes.fileField}
+            className="hidden"
             id="fileUpload"
             onChange={({ target: { files } }) => onImageUpload(files && files[0])}
             type="file"
@@ -82,7 +54,7 @@ const CategoryBackground = (props: CategoryBackgroundProps) => {
       {image === undefined ? (
         <DashboardCard.Content>
           <div>
-            <div className={classes.imageContainer}>
+            <div className="bg-white border border-border-default1 rounded-lg h-[148px] justify-self-start overflow-hidden p-4 relative w-[148px]">
               <Skeleton />
             </div>
           </div>

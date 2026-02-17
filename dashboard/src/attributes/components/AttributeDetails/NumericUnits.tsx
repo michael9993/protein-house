@@ -3,26 +3,12 @@ import { Select } from "@dashboard/components/Select";
 import { MeasurementUnitsEnum } from "@dashboard/graphql";
 import { UseFormResult } from "@dashboard/hooks/useForm";
 import { commonMessages } from "@dashboard/intl";
-import { makeStyles } from "@saleor/macaw-ui";
 import { Box, Checkbox, Option, Text } from "@saleor/macaw-ui-next";
 import { useEffect, useMemo, useState } from "react";
 import { useIntl } from "react-intl";
 
 import * as M from "./messages";
 import { getUnitChoices, UnitSystem, unitSystemChoices, UnitType, unitTypeChoices } from "./utils";
-
-const useStyles = makeStyles(
-  theme => ({
-    hr: {
-      border: "none",
-      borderTop: `1px solid ${theme.palette.divider}`,
-      height: 0,
-      margin: "0.5rem 0",
-      width: "100%",
-    },
-  }),
-  { name: "NumericUnits" },
-);
 
 interface UnitData {
   unit: MeasurementUnitsEnum | null | undefined;
@@ -47,7 +33,6 @@ export const NumericUnits = ({
   clearErrors,
 }: NumericUnitsProps) => {
   const { formatMessage } = useIntl();
-  const classes = useStyles();
   const [unitData, setUnitData] = useState<UnitData>({
     unit: data.unit ?? null,
   });
@@ -113,7 +98,7 @@ export const NumericUnits = ({
 
   return (
     <div>
-      <div className={classes.hr} />
+      <div className="border-none border-t border-divider h-0 my-2 w-full" />
 
       <Checkbox
         data-test-id="numeric-with-unit"

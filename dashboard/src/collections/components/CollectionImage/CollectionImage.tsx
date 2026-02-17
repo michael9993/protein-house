@@ -5,47 +5,9 @@ import MediaTile from "@dashboard/components/MediaTile";
 import { CollectionDetailsFragment } from "@dashboard/graphql";
 import { commonMessages } from "@dashboard/intl";
 import { TextField } from "@mui/material";
-import { makeStyles } from "@saleor/macaw-ui";
-import { Button, Skeleton, vars } from "@saleor/macaw-ui-next";
+import { Button, Skeleton } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
-
-const useStyles = makeStyles(
-  theme => ({
-    PhotosIcon: {
-      height: "64px",
-      margin: "0 auto",
-      width: "64px",
-    },
-    PhotosIconContainer: {
-      margin: theme.spacing(5, 0),
-      textAlign: "center",
-    },
-    fileField: {
-      display: "none",
-    },
-    image: {
-      height: "100%",
-      objectFit: "contain",
-      userSelect: "none",
-      width: "100%",
-    },
-    imageContainer: {
-      background: "#ffffff",
-      border: `1px solid ${vars.colors.border.default1}`,
-      borderRadius: theme.spacing(),
-      height: 148,
-      justifySelf: "start",
-      overflow: "hidden",
-      padding: theme.spacing(2),
-      position: "relative",
-      width: 148,
-    },
-  }),
-  {
-    name: "CollectionImage",
-  },
-);
 
 interface CollectionImageProps {
   data: {
@@ -60,7 +22,6 @@ interface CollectionImageProps {
 export const CollectionImage = (props: CollectionImageProps) => {
   const { data, onImageUpload, image, onChange, onImageDelete } = props;
   const anchor = React.useRef<HTMLInputElement | null>(null);
-  const classes = useStyles(props);
   const intl = useIntl();
   const handleImageUploadButtonClick = () => anchor?.current?.click();
 
@@ -84,7 +45,7 @@ export const CollectionImage = (props: CollectionImageProps) => {
               <FormattedMessage {...commonMessages.uploadImage} />
             </Button>
             <input
-              className={classes.fileField}
+              className="hidden"
               id="fileUpload"
               onChange={event => event?.target?.files && onImageUpload(event.target.files[0])}
               type="file"
@@ -98,7 +59,7 @@ export const CollectionImage = (props: CollectionImageProps) => {
       {image === undefined ? (
         <DashboardCard.Content>
           <div>
-            <div className={classes.imageContainer}>
+            <div className="bg-white border border-border-default1 rounded-lg h-[148px] justify-self-start overflow-hidden p-4 relative w-[148px]">
               <Skeleton />
             </div>
           </div>
