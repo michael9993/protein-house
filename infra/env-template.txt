@@ -86,6 +86,7 @@ CELERY_RESULT_BACKEND=redis://redis:6379/2
 # INVOICE_APP_TUNNEL_URL=https://your-invoice-app-tunnel.trycloudflare.com
 # DASHBOARD_TUNNEL_URL=https://your-dashboard-tunnel.trycloudflare.com
 # STOREFRONT_TUNNEL_URL=https://your-storefront-tunnel.trycloudflare.com
+# DROPSHIP_APP_TUNNEL_URL=https://your-dropship-app-tunnel.trycloudflare.com
 
 # ============================================================================
 # DASHBOARD CONFIGURATION
@@ -173,3 +174,11 @@ NEXT_PUBLIC_SENTRY_DSN=
 # Auth token for source map uploads (optional, improves stack traces)
 # Generate at: https://sentry.io/settings/auth-tokens/
 SENTRY_AUTH_TOKEN=
+
+# ============================================================================
+# DROPSHIP ORCHESTRATOR APP CONFIGURATION
+# ============================================================================
+DROPSHIP_APP_PORT=3009
+# Encryption key for supplier credentials (REQUIRED for production)
+# Generate with: openssl rand -hex 32
+# DROPSHIP_SECRET_KEY=

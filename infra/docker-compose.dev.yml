@@ -205,7 +205,7 @@ services:
     container_name: saleor-dashboard-dev
     working_dir: /app
     # Dev server: faster startup, HMR support. Use 'pnpm build && pnpm preview' for production testing.
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --prefer-offline && pnpm run generate:main && pnpm dev --host 0.0.0.0 --port 9000"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --prefer-offline && pnpm run generate:main && pnpm build && pnpm preview --host 0.0.0.0 --port 9000"
     env_file:
       - .env
     ports:
@@ -837,6 +837,63 @@ services:
       retries: 3
       start_period: 120s
 
+  # Dropship Orchestrator App - Multi-supplier dropshipping management
+  # Manages: AliExpress + CJ Dropshipping order forwarding, tracking sync, fraud detection
+  saleor-dropship-app:
+    image: node:22-alpine
+    container_name: saleor-dropship-app-dev
+    working_dir: /app
+    # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-dropship-orchestrator... --prefer-offline && cd apps/dropship-orchestrator && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run check-types && pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    env_file:
+      - .env
+    ports:
+      - "${DROPSHIP_APP_PORT:-3009}:3000"
+    volumes:
+      - ..\apps:/app
+      - dropship-app-node-modules:/app/node_modules
+      - dropship-app-pnpm-store:/root/.local/share/pnpm/store
+    environment:
+      SALEOR_API_URL: ${SALEOR_API_URL}
+      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+      # Use tunnel URL for app registration (Dashboard needs to reach this)
+      DROPSHIP_APP_URL: ${DROPSHIP_APP_TUNNEL_URL:-http://localhost:${DROPSHIP_APP_PORT:-3009}}
+      APP_API_BASE_URL: ${DROPSHIP_APP_TUNNEL_URL:-http://localhost:${DROPSHIP_APP_PORT:-3009}}
+      APP_IFRAME_BASE_URL: ${DROPSHIP_APP_TUNNEL_URL:-http://localhost:${DROPSHIP_APP_PORT:-3009}}
+      # APL type: 'file' for local dev
+      APL: file
+      # Secret key for encrypting app metadata (supplier credentials)
+      SECRET_KEY: ${APP_SECRET_KEY}
+      # Redis for BullMQ background jobs (tracking sync, reconciliation)
+      REDIS_URL: ${REDIS_URL}
+      NODE_ENV: ${NODE_ENV:-development}
+      # Disable OpenTelemetry/Sentry in development
+      OTEL_ENABLED: "false"
+      NEXT_PUBLIC_SENTRY_DSN: ""
+      # Set APPS_MODE=production in .env to run production build in container
+      APPS_MODE: ${APPS_MODE:-dev}
+    depends_on:
+      saleor-api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - saleor-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
 volumes:
   postgres-data:
     driver: local
@@ -887,6 +944,10 @@ volumes:
   image-studio-app-node-modules:
     driver: local
   image-studio-app-pnpm-store:
+    driver: local
+  dropship-app-node-modules:
+    driver: local
+  dropship-app-pnpm-store:
     driver: local
 
 networks:

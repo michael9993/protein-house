@@ -28,7 +28,8 @@ $services = @(
     @{Port = 3005; Name = "Newsletter App"; EnvVar = "NEWSLETTER_APP_TUNNEL_URL"; Script = "tunnel-newsletter.ps1" },
     @{Port = 3006; Name = "Sales Analytics App"; EnvVar = "SALES_ANALYTICS_APP_TUNNEL_URL"; Script = "tunnel-sales-analytics.ps1" },
     @{Port = 3007; Name = "Bulk Manager App"; EnvVar = "BULK_MANAGER_APP_TUNNEL_URL"; Script = "tunnel-bulk-manager.ps1" },
-    @{Port = 3008; Name = "Image Studio App"; EnvVar = "IMAGE_STUDIO_APP_TUNNEL_URL"; Script = "tunnel-image-studio.ps1" }
+    @{Port = 3008; Name = "Image Studio App"; EnvVar = "IMAGE_STUDIO_APP_TUNNEL_URL"; Script = "tunnel-image-studio.ps1" },
+    @{Port = 3009; Name = "Dropship Orchestrator App"; EnvVar = "DROPSHIP_APP_TUNNEL_URL"; Script = "tunnel-dropship.ps1" }
 )
 
 # Get script directory
@@ -336,6 +337,28 @@ if ($tunnelUrls.Count -gt 0) {
     # Write updated .env
     $envContent | Set-Content $envFile -Encoding utf8
     Write-Host "✓ .env file updated!" -ForegroundColor Green
+
+    # Also update .env.self-hosted if it exists
+    $envSelfHosted = Join-Path $infraDir ".env.self-hosted"
+    if (Test-Path $envSelfHosted) {
+        Write-Host "`nUpdating .env.self-hosted..." -ForegroundColor Green
+        $selfHostedContent = Get-Content $envSelfHosted -Raw -ErrorAction SilentlyContinue
+        if ($selfHostedContent) {
+            foreach ($envVar in $tunnelUrls.Keys) {
+                $url = $tunnelUrls[$envVar]
+                if ($selfHostedContent -match "$envVar=(.+?)(?:\r?\n|$)") {
+                    $selfHostedContent = $selfHostedContent -replace "$envVar=.*", "$envVar=$url"
+                    Write-Host "  Updated $envVar" -ForegroundColor Green
+                }
+                else {
+                    $selfHostedContent += "`n$envVar=$url"
+                    Write-Host "  Added $envVar" -ForegroundColor Green
+                }
+            }
+            $selfHostedContent | Set-Content $envSelfHosted -Encoding utf8
+            Write-Host "✓ .env.self-hosted updated!" -ForegroundColor Green
+        }
+    }
 }
 
 # Update vite.config.js with dashboard tunnel URL

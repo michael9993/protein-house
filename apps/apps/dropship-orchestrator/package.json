@@ -1,0 +1,73 @@
+{
+  "name": "saleor-app-dropship-orchestrator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm run type-check && next build",
+    "build:skip-type-check": "next build",
+    "check-types": "tsc",
+    "type-check": "tsc --noEmit",
+    "dev": "NODE_OPTIONS='--inspect' next dev --port 3000",
+    "dev:debug": "APP_LOG_LEVEL=debug pnpm dev",
+    "fetch-schema": "curl https://raw.githubusercontent.com/saleor/saleor/${npm_package_config_saleor_schemaVersion}/saleor/graphql/schema.graphql > graphql/schema.graphql",
+    "generate": "graphql-codegen",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "start": "next start",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "config": {
+    "saleor": {
+      "schemaVersion": "3.20"
+    }
+  },
+  "dependencies": {
+    "@hookform/resolvers": "catalog:",
+    "@saleor/app-sdk": "link:../../node_modules/@saleor/app-sdk",
+    "@saleor/apps-logger": "workspace:*",
+    "@saleor/apps-shared": "workspace:*",
+    "@saleor/apps-ui": "workspace:*",
+    "@saleor/macaw-ui": "catalog:",
+    "@saleor/react-hook-form-macaw": "workspace:*",
+    "@tanstack/react-query": "catalog:",
+    "@trpc/client": "catalog:",
+    "@trpc/next": "catalog:",
+    "@trpc/react-query": "catalog:",
+    "@trpc/server": "catalog:",
+    "bullmq": "^5.34.8",
+    "dotenv": "catalog:",
+    "graphql": "catalog:",
+    "graphql-tag": "catalog:",
+    "ioredis": "^5.4.2",
+    "neverthrow": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-hook-form": "catalog:",
+    "urql": "catalog:",
+    "usehooks-ts": "catalog:",
+    "uuid": "^10.0.0",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "catalog:",
+    "@graphql-codegen/introspection": "catalog:",
+    "@graphql-codegen/typed-document-node": "catalog:",
+    "@graphql-codegen/typescript": "catalog:",
+    "@graphql-codegen/typescript-operations": "catalog:",
+    "@graphql-codegen/typescript-urql": "catalog:",
+    "@graphql-typed-document-node/core": "catalog:",
+    "@saleor/eslint-config-apps": "workspace:*",
+    "@saleor/typescript-config-apps": "workspace:*",
+    "@types/react": "18.2.5",
+    "@types/react-dom": "18.2.5",
+    "@types/uuid": "^10.0.0",
+    "eslint": "catalog:",
+    "graphql-config": "5.0.3",
+    "tsx": "catalog:",
+    "typescript": "5.8.2",
+    "vitest": "catalog:"
+  }
+}

@@ -58,6 +58,7 @@ $urls = @{
     "Analytics App"     = "https://analytics.$domain"
     "Bulk Manager App"  = "https://bulk.$domain"
     "Image Studio App"  = "https://studio.$domain"
+    "Dropship App"      = "https://dropship.$domain"
 }
 
 function Write-Banner {
@@ -344,7 +345,7 @@ function Show-ServiceUrls {
 
     # App URLs
     Write-Host "  Saleor Apps:" -ForegroundColor Yellow
-    $appKeys = @("Stripe App", "SMTP App", "Invoice App", "Control App", "Newsletter App", "Analytics App", "Bulk Manager App", "Image Studio App")
+    $appKeys = @("Stripe App", "SMTP App", "Invoice App", "Control App", "Newsletter App", "Analytics App", "Bulk Manager App", "Image Studio App", "Dropship App")
     foreach ($key in $appKeys) {
         Write-Host "    $($key): $($urls[$key])" -ForegroundColor Gray
     }

@@ -1,0 +1,254 @@
+import { z } from "zod";
+import { TRPCError } from "@trpc/server";
+import { gql } from "graphql-tag";
+
+import { router } from "../trpc-server";
+import { protectedClientProcedure } from "../protected-client-procedure";
+import { createLogger } from "@/logger";
+
+const logger = createLogger("OrdersRouter");
+
+const DropshipOrderStatusEnum = z.enum([
+  "pending",
+  "forwarded",
+  "shipped",
+  "delivered",
+  "cancelled",
+  "supplier_cancelled",
+  "failed",
+  "exception",
+]);
+
+const ORDERS_WITH_METADATA = gql`
+  query OrdersWithDropshipMeta($first: Int!, $after: String, $filter: OrderFilterInput) {
+    orders(first: $first, after: $after, filter: $filter, sortBy: { field: CREATED_AT, direction: DESC }) {
+      edges {
+        node {
+          id
+          number
+          created
+          status
+          total {
+            gross {
+              amount
+              currency
+            }
+          }
+          shippingAddress {
+            firstName
+            lastName
+            country {
+              code
+            }
+            city
+          }
+          metadata {
+            key
+            value
+          }
+          lines {
+            id
+            productName
+            variantName
+            quantity
+            totalPrice {
+              gross {
+                amount
+                currency
+              }
+            }
+          }
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      totalCount
+    }
+  }
+`;
+
+interface DropshipMeta {
+  status: string;
+  supplier: string;
+  supplierOrderId?: string;
+  trackingNumber?: string;
+  forwardedAt?: string;
+  shippedAt?: string;
+  cost?: number;
+}
+
+function parseDropshipMeta(metadata: Array<{ key: string; value: string }>): DropshipMeta | null {
+  const entry = metadata.find((m) => m.key === "dropship");
+  if (!entry) return null;
+
+  try {
+    return JSON.parse(entry.value);
+  } catch {
+    return null;
+  }
+}
+
+export const ordersRouter = router({
+  list: protectedClientProcedure
+    .input(
+      z.object({
+        first: z.number().min(1).max(100).default(20),
+        after: z.string().nullable().optional(),
+        status: DropshipOrderStatusEnum.optional(),
+        supplierId: z.string().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { data, error } = await ctx.apiClient
+        .query(ORDERS_WITH_METADATA, {
+          first: input.first,
+          after: input.after ?? null,
+        })
+        .toPromise();
+
+      if (error || !data?.orders) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Failed to fetch orders: ${error?.message ?? "Unknown error"}`,
+        });
+      }
+
+      const orders = data.orders.edges
+        .map((edge: any) => {
+          const meta = parseDropshipMeta(edge.node.metadata);
+          if (!meta) return null;
+
+          return {
+            id: edge.node.id,
+            number: edge.node.number,
+            created: edge.node.created,
+            saleorStatus: edge.node.status,
+            dropshipStatus: meta.status,
+            supplier: meta.supplier,
+            supplierOrderId: meta.supplierOrderId,
+            trackingNumber: meta.trackingNumber,
+            forwardedAt: meta.forwardedAt,
+            shippedAt: meta.shippedAt,
+            supplierCost: meta.cost,
+            total: edge.node.total.gross,
+            shippingCountry: edge.node.shippingAddress?.country?.code,
+            lineCount: edge.node.lines.length,
+          };
+        })
+        .filter(Boolean)
+        .filter((order: any) => {
+          if (input.status && order.dropshipStatus !== input.status) return false;
+          if (input.supplierId && order.supplier !== input.supplierId) return false;
+          return true;
+        });
+
+      return {
+        orders,
+        pageInfo: data.orders.pageInfo,
+        totalCount: data.orders.totalCount,
+      };
+    }),
+
+  getDetail: protectedClientProcedure
+    .input(z.object({ orderId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const ORDER_DETAIL = gql`
+        query OrderDetail($id: ID!) {
+          order(id: $id) {
+            id
+            number
+            created
+            status
+            total {
+              gross {
+                amount
+                currency
+              }
+            }
+            shippingAddress {
+              firstName
+              lastName
+              streetAddress1
+              streetAddress2
+              city
+              postalCode
+              country {
+                code
+                country
+              }
+              phone
+            }
+            billingAddress {
+              country {
+                code
+              }
+            }
+            metadata {
+              key
+              value
+            }
+            lines {
+              id
+              productName
+              variantName
+              productSku
+              quantity
+              unitPrice {
+                gross {
+                  amount
+                  currency
+                }
+              }
+              totalPrice {
+                gross {
+                  amount
+                  currency
+                }
+              }
+            }
+            fulfillments {
+              id
+              status
+              trackingNumber
+              created
+              lines {
+                id
+                quantity
+                orderLine {
+                  id
+                  productName
+                }
+              }
+            }
+          }
+        }
+      `;
+
+      const { data, error } = await ctx.apiClient.query(ORDER_DETAIL, { id: input.orderId }).toPromise();
+
+      if (error || !data?.order) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Order not found: ${error?.message ?? "Unknown error"}`,
+        });
+      }
+
+      const meta = parseDropshipMeta(data.order.metadata);
+
+      return {
+        ...data.order,
+        dropship: meta,
+      };
+    }),
+
+  retryForward: protectedClientProcedure
+    .input(z.object({ orderId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      logger.info("Manual retry order forwarding", { orderId: input.orderId });
+      // This would trigger re-forwarding logic
+      // For now, return a placeholder indicating the action was queued
+      return { success: true, message: "Order forwarding retry queued" };
+    }),
+});

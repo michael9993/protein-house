@@ -80,6 +80,12 @@ $apps = @(
         AppId = "saleor.app.image-studio"
         EnvVar = "IMAGE_STUDIO_APP_TUNNEL_URL"
         ManifestPath = "/api/manifest"
+    },
+    @{
+        Name = "Dropship Orchestrator App"
+        AppId = "saleor.app.dropship-orchestrator"
+        EnvVar = "DROPSHIP_APP_TUNNEL_URL"
+        ManifestPath = "/api/manifest"
     }
 )
 

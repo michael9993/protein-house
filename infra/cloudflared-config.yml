@@ -20,6 +20,7 @@
 #      - analytics.halacosmetics.org  → <tunnel-id>.cfargotunnel.com (proxied)
 #      - bulk.halacosmetics.org     → <tunnel-id>.cfargotunnel.com (proxied)
 #      - studio.halacosmetics.org   → <tunnel-id>.cfargotunnel.com (proxied)
+#      - dropship.halacosmetics.org → <tunnel-id>.cfargotunnel.com (proxied)
 #   6. Run: cloudflared tunnel --config infra/cloudflared-config.yml run
 #
 # Usage:
@@ -88,6 +89,10 @@ ingress:
   # Image Studio App
   - hostname: studio.halacosmetics.org
     service: http://localhost:3008
+
+  # Dropship Orchestrator App
+  - hostname: dropship.halacosmetics.org
+    service: http://localhost:3009
 
   # Catch-all — return 404 for unmatched hostnames
   - service: http_status:404

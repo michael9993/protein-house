@@ -1,0 +1,18 @@
+import { router } from "./trpc-server";
+import { suppliersRouter } from "./routers/suppliers-router";
+import { ordersRouter } from "./routers/orders-router";
+import { exceptionsRouter } from "./routers/exceptions-router";
+import { settingsRouter } from "./routers/settings-router";
+import { auditRouter } from "./routers/audit-router";
+import { dashboardRouter } from "./routers/dashboard-router";
+
+export const appRouter = router({
+  suppliers: suppliersRouter,
+  orders: ordersRouter,
+  exceptions: exceptionsRouter,
+  settings: settingsRouter,
+  audit: auditRouter,
+  dashboard: dashboardRouter,
+});
+
+export type AppRouter = typeof appRouter;
