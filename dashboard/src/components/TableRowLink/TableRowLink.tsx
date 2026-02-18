@@ -49,7 +49,7 @@ const TableRowLink = forwardRef<HTMLTableRowElement, TableRowLinkProps>((props, 
 
   return (
     <TableRow ref={ref} hover={true} onClick={onClick} {...restProps}>
-      <Link className={cn("[all:inherit] contents", linkClassName)} to={to} state={state}>
+      <Link style={{ all: "inherit", display: "contents" }} className={linkClassName} to={to} state={state}>
         {children}
       </Link>
     </TableRow>

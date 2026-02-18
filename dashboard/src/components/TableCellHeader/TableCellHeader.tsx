@@ -54,7 +54,7 @@ const TableCellHeader = forwardRef<unknown, TableCellHeaderProps>((props, ref) =
         {!!direction && arrowPosition === "left" && (
           <ArrowSort
             className={cn(
-              "transition-transform duration-200 mb-1 -ml-6",
+              "w-6 h-6 shrink-0 transition-transform duration-200 mb-1 -ml-6",
               direction === "asc" && "rotate-180",
             )}
           />
@@ -63,7 +63,7 @@ const TableCellHeader = forwardRef<unknown, TableCellHeaderProps>((props, ref) =
         {!!direction && arrowPosition === "right" && (
           <ArrowSort
             className={cn(
-              "transition-transform duration-200 mb-1",
+              "w-6 h-6 shrink-0 transition-transform duration-200 mb-1",
               direction === "asc" && "rotate-180",
             )}
           />
