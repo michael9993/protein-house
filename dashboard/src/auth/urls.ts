@@ -1,4 +1,4 @@
-import { stringifyQs } from "@dashboard/utils/urls";
+import { withQs } from "@dashboard/utils/urls";
 
 export const passwordResetPath = "/reset-password/";
 export const passwordResetUrl = passwordResetPath;
@@ -15,7 +15,7 @@ export interface NewPasswordUrlQueryParams {
   token: string;
 }
 export const newPasswordUrl = (params?: NewPasswordUrlQueryParams) =>
-  newPasswordPath + "?" + stringifyQs(params);
+  withQs(newPasswordPath, params);
 
 interface LoginOpenidconnectUrlQueryParams {
   code: string;

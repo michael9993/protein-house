@@ -10,6 +10,16 @@ export function stringifyQs(
   });
 }
 
+/**
+ * Build a URL by joining a path with optional query string params.
+ * Unlike `path + "?" + stringifyQs(params)`, this omits the `?`
+ * when params is empty — which React Router v7 requires.
+ */
+export function withQs(path: string, params?: unknown): string {
+  const qs = stringifyQs(params);
+  return qs ? `${path}?${qs}` : path;
+}
+
 export function getArrayQueryParam(param: string | string[]): string[] | undefined {
   if (!param) {
     return undefined;

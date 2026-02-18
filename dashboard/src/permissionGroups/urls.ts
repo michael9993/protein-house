@@ -6,7 +6,7 @@ import {
   Sort,
   TabActionDialog,
 } from "@dashboard/types";
-import { stringifyQs } from "@dashboard/utils/urls";
+import { withQs } from "@dashboard/utils/urls";
 import urlJoin from "url-join";
 
 const permissionGroupSection = "/permission-groups/";
@@ -23,7 +23,7 @@ export type PermissionGroupListUrlQueryParams = Dialog<PermissionGroupListUrlDia
   PermissionGroupListUrlSort &
   SingleAction;
 export const permissionGroupListUrl = (params?: PermissionGroupListUrlQueryParams) =>
-  permissionGroupListPath + "?" + stringifyQs(params);
+  withQs(permissionGroupListPath, params);
 
 export const permissionGroupAddPath = urlJoin(permissionGroupSection, "add");
 export const permissionGroupAddUrl = permissionGroupAddPath;
@@ -44,4 +44,4 @@ export type PermissionGroupDetailsUrlQueryParams = BulkAction &
 export const permissionGroupDetailsUrl = (
   id: string,
   params?: PermissionGroupDetailsUrlQueryParams,
-) => permissionGroupDetailsPath(encodeURIComponent(id)) + "?" + stringifyQs(params);
+) => withQs(permissionGroupDetailsPath(encodeURIComponent(id)), params);

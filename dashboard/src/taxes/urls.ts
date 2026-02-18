@@ -1,5 +1,5 @@
 import { Dialog } from "@dashboard/types";
-import { stringifyQs } from "@dashboard/utils/urls";
+import { withQs } from "@dashboard/utils/urls";
 import urlJoin from "url-join";
 
 import { encodeURIComponentOptional } from "./utils/utils";
@@ -17,13 +17,13 @@ export const taxConfigurationListPath = (id?: string) =>
   id ? urlJoin(taxTabPath("channels"), id) : taxTabPath("channels");
 
 export const taxConfigurationListUrl = (id?: string, params?: TaxesUrlQueryParams) =>
-  taxConfigurationListPath(encodeURIComponentOptional(id)) + "?" + stringifyQs(params);
+  withQs(taxConfigurationListPath(encodeURIComponentOptional(id)), params);
 
 export const taxCountriesListPath = (id?: string) =>
   id ? urlJoin(taxTabPath("countries"), id) : taxTabPath("countries");
 
 export const taxCountriesListUrl = (id?: string, params?: TaxesUrlQueryParams) =>
-  taxCountriesListPath(encodeURIComponentOptional(id)) + "?" + stringifyQs(params);
+  withQs(taxCountriesListPath(encodeURIComponentOptional(id)), params);
 
 export const taxClassesListUrl = (id?: string) =>
   id ? urlJoin(taxTabPath("tax-classes"), id) : taxTabPath("tax-classes");

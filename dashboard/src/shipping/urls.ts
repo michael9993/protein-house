@@ -1,6 +1,6 @@
 import { ChannelsAction } from "@dashboard/channels/urls";
 import { ShippingMethodTypeEnum } from "@dashboard/graphql";
-import { stringifyQs } from "@dashboard/utils/urls";
+import { withQs } from "@dashboard/utils/urls";
 import urlJoin from "url-join";
 
 import { BulkAction, Dialog, Pagination, Search, SingleAction } from "../types";
@@ -15,7 +15,7 @@ export type ShippingZonesListUrlQueryParams = BulkAction &
   Search &
   SingleAction;
 export const shippingZonesListUrl = (params?: ShippingZonesListUrlQueryParams) =>
-  shippingZonesListPath + "?" + stringifyQs(params);
+  withQs(shippingZonesListPath, params);
 
 export const shippingZonePath = (id: string) => urlJoin(shippingZonesListPath, id);
 export type ShippingZoneUrlDialog =
@@ -35,7 +35,7 @@ export type ShippingZoneUrlQueryParams = Dialog<ShippingZoneUrlDialog> &
     type: ShippingMethodTypeEnum;
   }>;
 export const shippingZoneUrl = (id: string, params?: ShippingZoneUrlQueryParams) =>
-  shippingZonePath(encodeURIComponent(id)) + "?" + stringifyQs(params);
+  withQs(shippingZonePath(encodeURIComponent(id)), params);
 
 type ZipCodeRangeActions = "add-range" | "remove-range";
 export type ShippingRateUrlDialog =
@@ -54,7 +54,7 @@ export type ShippingRateCreateUrlQueryParams = Dialog<ShippingRateCreateUrlDialo
 
 export const shippingRateCreatePath = (id: string) => urlJoin(shippingZonePath(id), "add");
 export const shippingRateCreateUrl = (id: string, params?: ShippingRateCreateUrlQueryParams) =>
-  shippingRateCreatePath(encodeURIComponent(id)) + "?" + stringifyQs(params);
+  withQs(shippingRateCreatePath(encodeURIComponent(id)), params);
 
 export const shippingRateEditPath = (id: string, rateId: string) =>
   urlJoin(shippingZonePath(id), rateId);
@@ -63,9 +63,7 @@ export const shippingRateEditUrl = (
   rateId: string,
   params?: ShippingRateUrlQueryParams,
 ) =>
-  shippingRateEditPath(encodeURIComponent(id), encodeURIComponent(rateId)) +
-  "?" +
-  stringifyQs(params);
+  withQs(shippingRateEditPath(encodeURIComponent(id), encodeURIComponent(rateId)), params);
 
 export const shippingZoneAddPath = urlJoin(shippingZonesListPath, "add");
-export const shippingZoneAddUrl = shippingZoneAddPath + "?";
+export const shippingZoneAddUrl = shippingZoneAddPath;

@@ -1,4 +1,4 @@
-import { stringifyQs } from "@dashboard/utils/urls";
+import { withQs } from "@dashboard/utils/urls";
 import urlJoin from "url-join";
 
 import {
@@ -38,7 +38,7 @@ export type AttributeListUrlQueryParams = ActiveTab &
   Pagination;
 export const attributeListPath = attributeSection;
 export const attributeListUrl = (params?: AttributeListUrlQueryParams) =>
-  attributeListPath + "?" + stringifyQs(params);
+  withQs(attributeListPath, params);
 
 export type AttributeAddUrlDialog =
   | "add-value"
@@ -49,7 +49,7 @@ export type AttributeAddUrlDialog =
 export type AttributeAddUrlQueryParams = Dialog<AttributeAddUrlDialog> & SingleAction;
 export const attributeAddPath = urlJoin(attributeSection, "add");
 export const attributeAddUrl = (params?: AttributeAddUrlQueryParams) =>
-  attributeAddPath + "?" + stringifyQs(params);
+  withQs(attributeAddPath, params);
 
 export type AttributeUrlDialog =
   | "add-value"
@@ -61,4 +61,4 @@ export type AttributeUrlDialog =
 export type AttributeUrlQueryParams = BulkAction & Dialog<AttributeUrlDialog> & SingleAction;
 export const attributePath = (id: string) => urlJoin(attributeSection, id);
 export const attributeUrl = (id: string, params?: AttributeUrlQueryParams) =>
-  attributePath(encodeURIComponent(id)) + "?" + stringifyQs(params);
+  withQs(attributePath(encodeURIComponent(id)), params);

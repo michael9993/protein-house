@@ -1,5 +1,5 @@
 import { ChannelsAction } from "@dashboard/channels/urls";
-import { stringifyQs } from "@dashboard/utils/urls";
+import { withQs } from "@dashboard/utils/urls";
 import urlJoin from "url-join";
 
 import {
@@ -35,15 +35,15 @@ export type CollectionListUrlQueryParams = ActiveTab &
   Dialog<CollectionListUrlDialog> &
   Pagination;
 export const collectionListUrl = (params?: CollectionListUrlQueryParams) =>
-  collectionSectionUrl + "?" + stringifyQs(params);
+  withQs(collectionSectionUrl, params);
 
 export const collectionPath = (id: string) => urlJoin(collectionSectionUrl, id);
 export type CollectionUrlDialog = "remove" | "removeImage" | "assign" | "unassign" | ChannelsAction;
 export type CollectionUrlQueryParams = BulkAction & Dialog<CollectionUrlDialog>;
 export type CollectionCreateUrlQueryParams = Dialog<ChannelsAction>;
 export const collectionUrl = (id: string, params?: CollectionUrlQueryParams) =>
-  collectionPath(encodeURIComponent(id)) + "?" + stringifyQs(params);
+  withQs(collectionPath(encodeURIComponent(id)), params);
 
 export const collectionAddPath = urlJoin(collectionSectionUrl, "add");
 export const collectionAddUrl = (params?: CollectionCreateUrlQueryParams) =>
-  collectionAddPath + "?" + stringifyQs(params);
+  withQs(collectionAddPath, params);

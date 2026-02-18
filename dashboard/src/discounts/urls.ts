@@ -1,5 +1,5 @@
 import { ChannelsAction } from "@dashboard/channels/urls";
-import { stringifyQs } from "@dashboard/utils/urls";
+import { withQs } from "@dashboard/utils/urls";
 import urlJoin from "url-join";
 
 import {
@@ -46,12 +46,12 @@ type SaleListUrlQueryParams = ActiveTab &
   SaleListUrlFilters &
   SaleListUrlSort;
 export const saleListUrl = (params?: SaleListUrlQueryParams) =>
-  saleListPath + "?" + stringifyQs(params);
+  withQs(saleListPath, params);
 export const salePath = (id: string) => urlJoin(saleSection, id);
 type SaleCreateUrlQueryParams = Dialog<ChannelsAction>;
 export const saleAddPath = urlJoin(saleSection, "add");
 export const saleAddUrl = (params?: SaleCreateUrlQueryParams) =>
-  saleAddPath + "?" + stringifyQs(params);
+  withQs(saleAddPath, params);
 
 const voucherSection = urlJoin(discountSection, "vouchers");
 
@@ -88,7 +88,7 @@ export type VoucherListUrlQueryParams = ActiveTab &
   VoucherListUrlFilters &
   VoucherListUrlSort;
 export const voucherListUrl = (params?: VoucherListUrlQueryParams) =>
-  voucherListPath + "?" + stringifyQs(params);
+  withQs(voucherListPath, params);
 export const voucherPath = (id: string) => urlJoin(voucherSection, id);
 export type VoucherUrlDialog =
   | "assign-category"
@@ -105,7 +105,7 @@ export type VoucherUrlDialog =
 export type VoucherUrlQueryParams = BulkAction & Dialog<VoucherUrlDialog>;
 export type VoucherCreateUrlQueryParams = BulkAction & Dialog<VoucherUrlDialog>;
 export const voucherUrl = (id: string, params?: VoucherUrlQueryParams) =>
-  voucherPath(encodeURIComponent(id)) + "?" + stringifyQs(params);
+  withQs(voucherPath(encodeURIComponent(id)), params);
 export const voucherAddPath = urlJoin(voucherSection, "add");
 export const voucherAddUrl = (params?: VoucherCreateUrlQueryParams) =>
-  voucherAddPath + "?" + stringifyQs(params);
+  withQs(voucherAddPath, params);

@@ -1,4 +1,4 @@
-import { stringifyQs } from "@dashboard/utils/urls";
+import { withQs } from "@dashboard/utils/urls";
 import urlJoin from "url-join";
 
 import {
@@ -32,7 +32,7 @@ export type PageTypeListUrlQueryParams = ActiveTab &
   PageTypeListUrlFilters &
   PageTypeListUrlSort;
 export const pageTypeListUrl = (params?: PageTypeListUrlQueryParams) =>
-  modelTypesPath + "?" + stringifyQs(params);
+  withQs(modelTypesPath, params);
 
 export const pageTypeAddPath = urlJoin(modelTypesSection, "add");
 export const pageTypeAddUrl = pageTypeAddPath;
@@ -49,4 +49,4 @@ export type PageTypeUrlQueryParams = BulkAction &
     type?: string;
   };
 export const pageTypeUrl = (id: string, params?: PageTypeUrlQueryParams) =>
-  pageTypePath(encodeURIComponent(id)) + "?" + stringifyQs(params);
+  withQs(pageTypePath(encodeURIComponent(id)), params);

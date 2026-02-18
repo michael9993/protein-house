@@ -1,4 +1,4 @@
-import { stringifyQs } from "@dashboard/utils/urls";
+import { withQs } from "@dashboard/utils/urls";
 import urlJoin from "url-join";
 
 import { Dialog, Filters, SingleAction, Sort } from "../types";
@@ -26,7 +26,7 @@ export const channelsSection = "/channels/";
 export const channelsListPath = channelsSection;
 
 export const channelsListUrl = (params?: ChannelsListUrlQueryParams) =>
-  channelsListPath + "?" + stringifyQs(params);
+  withQs(channelsListPath, params);
 
 export const channelAddPath = urlJoin(channelsSection, "add");
 export const channelAddUrl = channelAddPath;
@@ -34,4 +34,4 @@ export const channelAddUrl = channelAddPath;
 export const channelPath = (id: string) => urlJoin(channelsSection, id);
 
 export const channelUrl = (id: string, params?: ChannelsListUrlQueryParams) =>
-  channelPath(encodeURIComponent(id)) + "?" + stringifyQs(params);
+  withQs(channelPath(encodeURIComponent(id)), params);

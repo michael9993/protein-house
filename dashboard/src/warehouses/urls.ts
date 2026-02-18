@@ -1,4 +1,4 @@
-import { stringifyQs } from "@dashboard/utils/urls";
+import { withQs } from "@dashboard/utils/urls";
 import urlJoin from "url-join";
 
 import {
@@ -30,13 +30,13 @@ export type WarehouseListUrlQueryParams = ActiveTab &
   WarehouseListUrlSort &
   SingleAction;
 export const warehouseListUrl = (params?: WarehouseListUrlQueryParams) =>
-  warehouseListPath + "?" + stringifyQs(params);
+  withQs(warehouseListPath, params);
 
 export const warehousePath = (id: string) => urlJoin(warehouseSection, id);
 type WarehouseUrlDialog = "delete";
 export type WarehouseUrlQueryParams = Dialog<WarehouseUrlDialog> & SingleAction;
 export const warehouseUrl = (id: string, params?: WarehouseUrlQueryParams) =>
-  warehousePath(encodeURIComponent(id)) + "?" + stringifyQs(params);
+  withQs(warehousePath(encodeURIComponent(id)), params);
 
 export const warehouseAddPath = urlJoin(warehouseSection, "add");
 export const warehouseAddUrl = warehouseAddPath;

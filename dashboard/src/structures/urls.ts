@@ -1,4 +1,4 @@
-import { stringifyQs } from "@dashboard/utils/urls";
+import { withQs } from "@dashboard/utils/urls";
 import urlJoin from "url-join";
 
 import { BulkAction, Dialog, Pagination, SingleAction, Sort } from "../types";
@@ -18,10 +18,10 @@ export type MenuListUrlQueryParams = BulkAction &
   Pagination &
   SingleAction;
 export const menuListUrl = (params?: MenuListUrlQueryParams) =>
-  structuresListPath + "?" + stringifyQs(params);
+  withQs(structuresListPath, params);
 
 export const menuPath = (id: string) => urlJoin(navigationSection, id);
 type MenuUrlDialog = "add-item" | "edit-item" | "remove";
 export type MenuUrlQueryParams = Dialog<MenuUrlDialog> & SingleAction;
 export const menuUrl = (id: string, params?: MenuUrlQueryParams) =>
-  menuPath(encodeURIComponent(id)) + "?" + stringifyQs(params);
+  withQs(menuPath(encodeURIComponent(id)), params);

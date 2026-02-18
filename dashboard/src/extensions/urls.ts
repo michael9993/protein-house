@@ -1,7 +1,7 @@
 import { getAbsoluteApiUrl } from "@dashboard/config";
 import { FlagList } from "@dashboard/featureFlags";
 import { Dialog, SingleAction } from "@dashboard/types";
-import { stringifyQs } from "@dashboard/utils/urls";
+import { stringifyQs, withQs } from "@dashboard/utils/urls";
 import { ThemeType } from "@saleor/app-sdk/app-bridge";
 import urlJoin from "url-join";
 
@@ -121,40 +121,32 @@ export type CustomExtensionDetailsUrlQueryParams = Dialog<CustomExtensionDetails
 
 export const ExtensionsUrls = {
   resolveInstalledExtensionsUrl: (params?: ExtensionsListUrlQueryParams) =>
-    ExtensionsPaths.installedExtensions + "?" + stringifyQs(params),
+    withQs(ExtensionsPaths.installedExtensions, params),
   resolveExploreExtensionsUrl: (params?: ExtensionsListUrlQueryParams) =>
-    ExtensionsPaths.exploreExtensions + "?" + stringifyQs(params),
+    withQs(ExtensionsPaths.exploreExtensions, params),
   resolveInstallCustomExtensionUrl: (manifestUrl?: string) =>
-    ExtensionsPaths.installCustomExtension +
-    "?" +
-    stringifyQs({ manifestUrl } as ExtensionInstallQueryParams),
+    withQs(ExtensionsPaths.installCustomExtension, { manifestUrl } as ExtensionInstallQueryParams),
   addCustomExtensionUrl: (params?: ExtensionsListUrlQueryParams) =>
-    ExtensionsPaths.addCustomExtension + "?" + stringifyQs(params),
+    withQs(ExtensionsPaths.addCustomExtension, params),
   editCustomExtensionUrl: (id: string, params?: CustomExtensionDetailsUrlQueryParams) =>
-    ExtensionsPaths.resolveEditCustomExtension(encodeURIComponent(id)) + "?" + stringifyQs(params),
+    withQs(ExtensionsPaths.resolveEditCustomExtension(encodeURIComponent(id)), params),
   installCustomExtensionUrl: (params?: ExtensionInstallQueryParams) =>
-    ExtensionsPaths.installCustomExtension + "?" + stringifyQs(params),
+    withQs(ExtensionsPaths.installCustomExtension, params),
   resolveEditPluginExtensionUrl: (id: string, params?: PluginUrlQueryParams) =>
-    ExtensionsPaths.resolveEditPluginExtension(encodeURIComponent(id)) + "?" + stringifyQs(params),
+    withQs(ExtensionsPaths.resolveEditPluginExtension(encodeURIComponent(id)), params),
   resolveAddCustomExtensionWebhookUrl: (id: string, params?: ExtensionsListUrlQueryParams) =>
-    ExtensionsPaths.resolveAddCustomExtensionWebhook(encodeURIComponent(id)) +
-    "?" +
-    stringifyQs(params),
+    withQs(ExtensionsPaths.resolveAddCustomExtensionWebhook(encodeURIComponent(id)), params),
   resolveEditCustomExtensionWebhookUrl: (id: string, webhookId: string) =>
     ExtensionsPaths.resolveEditCustomExtensionWebhook(
       encodeURIComponent(id),
       encodeURIComponent(webhookId),
     ),
   resolveViewManifestExtensionUrl: (id: string, params?: AppDetailsUrlQueryParams) =>
-    ExtensionsPaths.resolveViewManifestExtension(encodeURIComponent(id)) +
-    "?" +
-    stringifyQs(params),
+    withQs(ExtensionsPaths.resolveViewManifestExtension(encodeURIComponent(id)), params),
   resolveEditManifestExtensionUrl: (id: string, params?: AppDetailsUrlQueryParams) =>
-    ExtensionsPaths.resolveEditManifestExtension(encodeURIComponent(id)) +
-    "?" +
-    stringifyQs(params),
+    withQs(ExtensionsPaths.resolveEditManifestExtension(encodeURIComponent(id)), params),
   resolveAppDeepUrl: (id: string, subPath: string, params?: AppDetailsUrlQueryParams) =>
-    ExtensionsPaths.resolveAppDeepPath(encodeURIComponent(id), subPath) + "?" + stringifyQs(params),
+    withQs(ExtensionsPaths.resolveAppDeepPath(encodeURIComponent(id), subPath), params),
 
   // Used when checking if navigation was made inside app iframe
   isAppDeepUrlChange: (appId: string, from: string, to: string) => {

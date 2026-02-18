@@ -1,5 +1,5 @@
 import { Pagination } from "@dashboard/types";
-import { stringifyQs } from "@dashboard/utils/urls";
+import { withQs } from "@dashboard/utils/urls";
 import urlJoin from "url-join";
 
 import { TranslationsEntitiesListFilterTab } from "./components/TranslationsEntitiesListPage";
@@ -31,7 +31,7 @@ export type LanguageEntitiesUrlQueryParams = Pagination &
     tab: TranslationsEntitiesListFilterTab;
   }>;
 export const languageEntitiesUrl = (code: string, params: LanguageEntitiesUrlQueryParams) =>
-  languageEntitiesPath(code) + "?" + stringifyQs(params);
+  withQs(languageEntitiesPath(code), params);
 
 export const languageEntityPath = (
   code: string,

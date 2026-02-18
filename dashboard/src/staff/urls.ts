@@ -1,4 +1,4 @@
-import { stringifyQs } from "@dashboard/utils/urls";
+import { withQs } from "@dashboard/utils/urls";
 import urlJoin from "url-join";
 
 import {
@@ -32,11 +32,11 @@ export type StaffListUrlQueryParams = ActiveTab &
   StaffListUrlFilters &
   StaffListUrlSort;
 export const staffListUrl = (params?: StaffListUrlQueryParams) =>
-  staffListPath + "?" + stringifyQs(params);
+  withQs(staffListPath, params);
 
 export const staffMemberDetailsPath = (id: string) => urlJoin(staffSection, id);
 type StaffMemberDetailsUrlDialog = "reset-password" | "remove" | "remove-avatar";
 export type StaffMemberDetailsUrlQueryParams = Dialog<StaffMemberDetailsUrlDialog>;
 
 export const staffMemberDetailsUrl = (id: string, params?: StaffMemberDetailsUrlQueryParams) =>
-  staffMemberDetailsPath(encodeURIComponent(id)) + "?" + stringifyQs(params);
+  withQs(staffMemberDetailsPath(encodeURIComponent(id)), params);

@@ -1,5 +1,5 @@
 import { TransactionActionEnum } from "@dashboard/graphql";
-import { stringifyQs } from "@dashboard/utils/urls";
+import { withQs } from "@dashboard/utils/urls";
 import { stringify } from "qs";
 import urlJoin from "url-join";
 
@@ -78,15 +78,8 @@ export type OrderListUrlQueryParams = BulkAction &
   OrderListUrlSort &
   Pagination &
   ActiveTab;
-export const orderListUrl = (params?: OrderListUrlQueryParams): string => {
-  const orderList = orderListPath;
-
-  if (params === undefined) {
-    return orderList;
-  } else {
-    return urlJoin(orderList, "?" + stringifyQs(params));
-  }
-};
+export const orderListUrl = (params?: OrderListUrlQueryParams): string =>
+  withQs(orderListPath, params);
 
 /**
  * Creates a customer ID filter element using the conditional filter system
@@ -174,15 +167,8 @@ export type OrderDraftListUrlQueryParams = ActiveTab &
   OrderDraftListUrlFilters &
   OrderDraftListUrlSort &
   Pagination;
-export const orderDraftListUrl = (params?: OrderDraftListUrlQueryParams): string => {
-  const orderDraftList = orderDraftListPath;
-
-  if (params === undefined) {
-    return orderDraftList;
-  } else {
-    return urlJoin(orderDraftList, "?" + stringifyQs(params));
-  }
-};
+export const orderDraftListUrl = (params?: OrderDraftListUrlQueryParams): string =>
+  withQs(orderDraftListPath, params);
 
 export const orderPath = (id: string) => urlJoin(orderSectionUrl, id);
 
@@ -226,14 +212,14 @@ export type OrderFulfillUrlDialog = "change-warehouse";
 export type OrderFulfillUrlQueryParams = Dialog<OrderFulfillUrlDialog> & OrderFulfillUrlFilters;
 
 export const orderUrl = (id: string, params?: OrderUrlQueryParams) =>
-  orderPath(encodeURIComponent(id)) + "?" + stringifyQs(params);
+  withQs(orderPath(encodeURIComponent(id)), params);
 
 export const orderFulfillPath = (id: string) => urlJoin(orderPath(id), "fulfill");
 
 export const orderReturnPath = (id: string) => urlJoin(orderPath(id), "return");
 
 export const orderFulfillUrl = (id: string, params?: OrderFulfillUrlQueryParams) =>
-  orderFulfillPath(encodeURIComponent(id)) + "?" + stringifyQs(params);
+  withQs(orderFulfillPath(encodeURIComponent(id)), params);
 
 export const orderSettingsPath = urlJoin(orderSectionUrl, "settings");
 

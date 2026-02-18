@@ -1,4 +1,4 @@
-import { stringifyQs } from "@dashboard/utils/urls";
+import { withQs } from "@dashboard/utils/urls";
 
 import { Dialog } from "../types";
 
@@ -8,4 +8,4 @@ export const siteSettingsPath = siteSettingsSection;
 type SiteSettingsUrlDialog = "add-key";
 type SiteSettingsUrlQueryParams = Dialog<SiteSettingsUrlDialog>;
 export const siteSettingsUrl = (params?: SiteSettingsUrlQueryParams) =>
-  `${siteSettingsPath}?${stringifyQs(params)}`;
+  withQs(siteSettingsPath, params);

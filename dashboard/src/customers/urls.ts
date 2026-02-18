@@ -1,4 +1,4 @@
-import { stringifyQs } from "@dashboard/utils/urls";
+import { withQs } from "@dashboard/utils/urls";
 import urlJoin from "url-join";
 
 import {
@@ -37,13 +37,13 @@ export type CustomerListUrlQueryParams = ActiveTab &
   Dialog<CustomerListUrlDialog> &
   Pagination;
 export const customerListUrl = (params?: CustomerListUrlQueryParams) =>
-  customerListPath + "?" + stringifyQs(params);
+  withQs(customerListPath, params);
 
 export const customerPath = (id: string) => urlJoin(customerSection, id);
 type CustomerUrlDialog = "remove";
 export type CustomerUrlQueryParams = Dialog<CustomerUrlDialog>;
 export const customerUrl = (id: string, params?: CustomerUrlQueryParams) =>
-  customerPath(encodeURIComponent(id)) + "?" + stringifyQs(params);
+  withQs(customerPath(encodeURIComponent(id)), params);
 
 export const customerAddPath = urlJoin(customerSection, "add");
 export const customerAddUrl = customerAddPath;
@@ -52,7 +52,7 @@ export const customerAddressesPath = (id: string) => urlJoin(customerPath(id), "
 export type CustomerAddressesUrlDialog = "add" | "edit" | "remove";
 export type CustomerAddressesUrlQueryParams = Dialog<CustomerAddressesUrlDialog> & SingleAction;
 export const customerAddressesUrl = (id: string, params?: CustomerAddressesUrlQueryParams) =>
-  customerAddressesPath(encodeURIComponent(id)) + "?" + stringifyQs(params);
+  withQs(customerAddressesPath(encodeURIComponent(id)), params);
 
 export const customerServiceListPath = urlJoin(customerSection, "service");
 export enum CustomerServiceListUrlFiltersEnum {
@@ -79,10 +79,10 @@ export type CustomerServiceListUrlQueryParams = ActiveTab &
   Dialog<CustomerServiceListUrlDialog> &
   Pagination;
 export const customerServiceListUrl = (params?: CustomerServiceListUrlQueryParams) =>
-  customerServiceListPath + "?" + stringifyQs(params);
+  withQs(customerServiceListPath, params);
 
 export const customerServicePath = (id: string) => urlJoin(customerServiceListPath, id);
 type CustomerServiceUrlDialog = "remove";
 export type CustomerServiceUrlQueryParams = Dialog<CustomerServiceUrlDialog>;
 export const customerServiceUrl = (id: string, params?: CustomerServiceUrlQueryParams) =>
-  customerServicePath(encodeURIComponent(id)) + "?" + stringifyQs(params);
+  withQs(customerServicePath(encodeURIComponent(id)), params);

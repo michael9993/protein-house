@@ -1,4 +1,4 @@
-import { stringifyQs } from "@dashboard/utils/urls";
+import { withQs } from "@dashboard/utils/urls";
 import urlJoin from "url-join";
 
 import {
@@ -47,7 +47,7 @@ export type PageListUrlQueryParams = BulkAction &
   Pagination &
   ActiveTab;
 export const pageListUrl = (params?: PageListUrlQueryParams) =>
-  pageListPath + "?" + stringifyQs(params);
+  withQs(pageListPath, params);
 
 export const pagePath = (id: string) => urlJoin(modelingSection, id);
 type PageUrlDialog = "remove" | "assign-attribute-value";
@@ -57,8 +57,8 @@ interface PageCreateUrlPageType {
 export type PageUrlQueryParams = Dialog<PageUrlDialog> & SingleAction;
 export type PageCreateUrlQueryParams = Dialog<PageUrlDialog> & SingleAction & PageCreateUrlPageType;
 export const pageUrl = (id: string, params?: PageUrlQueryParams) =>
-  pagePath(encodeURIComponent(id)) + "?" + stringifyQs(params);
+  withQs(pagePath(encodeURIComponent(id)), params);
 
 export const pageCreatePath = urlJoin(modelingSection, "add");
 export const pageCreateUrl = (params?: PageCreateUrlQueryParams) =>
-  pageCreatePath + "?" + stringifyQs(params);
+  withQs(pageCreatePath, params);

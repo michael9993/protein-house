@@ -1,4 +1,4 @@
-import { stringifyQs } from "@dashboard/utils/urls";
+import { withQs } from "@dashboard/utils/urls";
 import urlJoin from "url-join";
 
 import {
@@ -32,13 +32,13 @@ export type CategoryListUrlQueryParams = ActiveTab &
   Dialog<CategoryListUrlDialog> &
   Pagination;
 export const categoryListUrl = (params?: CategoryListUrlQueryParams) =>
-  categorySectionUrl + "?" + stringifyQs(params);
+  withQs(categorySectionUrl, params);
 
 export const categoryPath = (id: string) => urlJoin(categorySectionUrl, id);
 export type CategoryUrlDialog = "delete" | "delete-categories" | "delete-products";
 export type CategoryUrlQueryParams = BulkAction & Dialog<CategoryUrlDialog>;
 export const categoryUrl = (id: string, params?: CategoryUrlQueryParams) =>
-  categoryPath(encodeURIComponent(id)) + "?" + stringifyQs(params);
+  withQs(categoryPath(encodeURIComponent(id)), params);
 
 export const categoryAddPath = (parentId?: string) => {
   if (parentId) {
