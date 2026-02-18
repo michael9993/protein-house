@@ -316,12 +316,16 @@ Customer Request → CDN → Next.js SSR → GraphQL Query → Saleor API → Po
 | -------------- | ------------ | ------- | -------------------------- |
 | **Storefront** | Next.js      | 15.1.4  | SSR/ISR, App Router        |
 | **React**      | React        | 19.1.0  | UI Components              |
-| **Styling**    | Tailwind CSS | 3.4.0   | Utility-first CSS          |
+| **Styling**    | Tailwind CSS | 3.4.0   | Utility-first CSS (storefront) |
 | **State**      | Zustand      | 4.4.6   | Client state management    |
 | **Forms**      | Formik + Yup | 2.4.5   | Form handling & validation |
 | **Icons**      | Lucide React | 0.358.0 | Icon library               |
 | **Payments**   | Stripe.js    | 7.3.0   | Payment UI components      |
 | **GraphQL**    | URQL         | 4.0.6   | GraphQL client             |
+| **Dashboard**  | Vite + React 18 | 6.4.1 / 18.x | Admin SPA              |
+| **Dashboard Styling** | Tailwind CSS v4 | 4.x | Dashboard utility CSS (px overrides for macaw-ui compat) |
+| **Dashboard UI** | macaw-ui-next + Lucide | Latest | Dashboard components + icons |
+| **Dashboard Routing** | React Router | 7.x | Client-side routing |
 
 ### 4.2 Backend Technologies
 
@@ -750,11 +754,31 @@ The following 11 locations form the configuration pipeline. When modifying any o
 
 The Saleor Dashboard is a React single-page application built with Vite, providing comprehensive store management capabilities.
 
-**Version:** 3.22.24  
-**Container:** `saleor-dashboard-dev`  
+**Version:** 3.22.24
+**Container:** `saleor-dashboard-dev`
 **Port:** 9000
 
-### 8.2 Key Capabilities
+### 8.2 Dashboard Modernization (D6 Migration)
+
+The dashboard has been modernized from MUI v5 to a hybrid stack:
+
+| Layer | Before (MUI v5) | After (D6) |
+|-------|-----------------|-------------|
+| **CSS Framework** | MUI's JSS (`makeStyles`) | Tailwind CSS v4 (`@theme` overrides in px) |
+| **UI Components** | `@mui/material` (partially) | `@saleor/macaw-ui-next` + native HTML |
+| **Icons** | `@mui/icons-material` | Lucide React |
+| **Table Primitives** | MUI `Table`/`TableCell`/etc. | Custom HTML `<table>` components (`dashboard/src/components/Table/`) |
+| **Routing** | React Router v5 | React Router v7 (relative paths, no `?` in pathname) |
+
+**Key Technical Decisions:**
+
+- **Root font-size compatibility**: macaw-ui sets `html { font-size: 50.782% }` (1rem = 8px). Tailwind's `@theme` block overrides `--spacing` and `--text-*` with px values so utilities like `text-sm`, `p-4` produce correct pixel sizes regardless of root font-size.
+- **URL utility (`withQs`)**: All 26 URL files use `withQs(path, params)` to prevent trailing `?` that React Router v7 rejects in pathname objects.
+- **Table link pattern**: Data rows wrap cells in `<Link style={{ all: "inherit", display: "contents" }}>` — inline style guarantees property order (Tailwind CSS generation order can cause `all: inherit` to override `display: contents`).
+
+**Migration Status:** D6a–D6g complete (MUI v7 upgrade, Tailwind CSS v4 setup, makeStyles→Tailwind conversion of 192 files, MUI component replacement, routing fixes, icon migration). Remaining MUI imports (~140 files) are in active use by macaw-ui-next and will be addressed in future phases.
+
+### 8.3 Key Capabilities
 
 | Module            | Features                                                |
 | ----------------- | ------------------------------------------------------- |
@@ -767,7 +791,7 @@ The Saleor Dashboard is a React single-page application built with Vite, providi
 | **Content**       | Pages, menus, translations                              |
 | **Analytics**     | Built-in + Sales Analytics App                          |
 
-### 8.3 App Extensions
+### 8.4 App Extensions
 
 Saleor Apps can extend the dashboard via:
 

@@ -27,11 +27,12 @@ This project uses Docker Compose for local development. All services run in cont
 - **saleor-api** - Django/GraphQL backend (Saleor API)
 - **saleor-worker** - Celery worker for background tasks
 - **saleor-scheduler** - Celery beat scheduler for periodic tasks
-- **saleor-dashboard** - React admin dashboard
+- **saleor-dashboard** - React admin dashboard (Vite + React 18 + Tailwind CSS v4 + macaw-ui-next + Lucide icons)
 - **saleor-storefront** - Next.js storefront
 - **saleor-storefront-control-app** - Storefront control CMS app (6-section admin: Store/Design/Pages/Commerce/Content/Integrations; shadcn/ui + Tailwind; Cmd+K command palette; live preview)
 - **saleor-bulk-manager-app** - Bulk import/export manager (products, categories, collections, customers, orders, vouchers, gift cards via CSV/Excel)
 - **saleor-image-studio-app** - AI-powered image editor (Fabric.js canvas, 12 templates, bg removal via rembg, AI generation via Nano Banana/Gemini, upscaling via Real-ESRGAN, Sharp enhancement, save to product)
+- **saleor-dropship-app** - Multi-supplier dropship orchestrator (AliExpress + CJ Dropshipping, auto-forward orders, tracking sync, fraud detection, exception queue, financial safety, admin dashboard)
 - **saleor-stripe-app** - Stripe payment app
 - **saleor-smtp-app** - SMTP email app (handles email notifications, fulfillment, invoices, welcome emails)
 - **saleor-invoice-app** - Invoice generation app (generates PDF invoices for orders)
@@ -89,7 +90,14 @@ This project uses Docker Compose for local development. All services run in cont
    - If tRPC router or AI client changed: Restart required
    - AI services (rembg, esrgan) are separate containers
 
-9. **Other App changes (apps/apps/\*/)**:
+9. **Dropship Orchestrator changes (apps/apps/dropship-orchestrator/)**:
+
+   - Restart `saleor-dropship-app` (use service name, not container name with `-dev`)
+   - If supplier adapter or webhook handler changed: Restart required
+   - If BullMQ job/worker/scheduler changed: Restart required
+   - Depends on Redis for BullMQ job queues
+
+10. **Other App changes (apps/apps/\*/)**:
 
    - Restart the corresponding app container:
      - `saleor-stripe-app` for Stripe app
@@ -209,10 +217,16 @@ docker compose -f infra/docker-compose.dev.yml ps
 
 ### Dashboard Patterns (dashboard/)
 
-- Uses React 18, Vite, and Jest; keep test files near source.
+- Uses React 18, Vite, Jest, and **Tailwind CSS v4**; keep test files near source.
 - Imports should be sorted (simple-import-sort ESLint rule).
 - Prefer `React.FC` only if existing file uses it; otherwise use function components.
 - Keep GraphQL operations in the codegen flow; run `pnpm generate` if changed.
+- **Styling**: Tailwind CSS v4 via `cn()` from `@dashboard/utils/cn`. Root font-size is 50.782% (macaw-ui); Tailwind `@theme` overrides `--spacing` and `--text-*` with px values so utilities produce correct sizes.
+- **Icons**: Lucide React (`lucide-react`), not `@mui/icons-material`. Use `iconSize`/`iconStrokeWidthBySize` from `@dashboard/components/icons`.
+- **Tables**: Custom HTML primitives from `@dashboard/components/Table` (Table, TableHead, TableBody, TableFooter, TableRow, TableCell). Use `TableCellHeader` for sortable columns, `TableRowLink` for clickable rows.
+- **URLs**: Use `withQs(path, params)` from `@dashboard/utils/urls` — never `path + "?" + stringifyQs(params)` (React Router v7 rejects `?` in pathname).
+- **Routes**: Relative paths only in nested routes (React Router v7). No leading `/` on child route paths.
+- **SVG sizing**: Any SVG icon without a sizing parent must have `w-6 h-6` or similar Tailwind classes. SVGs with only `viewBox` expand to fill their container.
 
 ### Storefront Patterns (storefront/)
 
@@ -427,6 +441,39 @@ docker compose -f infra/docker-compose.dev.yml ps
 - Nano Banana / Gemini: External API (Gemini 2.5 Flash Image), requires `GEMINI_API_KEY` (free 50 req/day)
 
 **Restart**: Use service name `saleor-image-studio-app`
+
+### Dropship Orchestrator (`apps/apps/dropship-orchestrator/`)
+
+**Purpose**: Multi-supplier dropshipping middleware. Auto-forwards dropship-tagged orders to AliExpress/CJ Dropshipping, syncs tracking/fulfillment back to Saleor, with fraud detection, exception queue, financial safety, and admin dashboard. Toggleable — when disabled, store operates normally with concrete inventory.
+
+**Architecture**:
+- **Supplier Adapter Pattern**: Pluggable `SupplierAdapter` interface — AliExpress (OAuth, RPC gateway, polling) + CJ (API Key, REST, webhooks)
+- **Order Flow**: ORDER_PAID webhook → classify lines (concrete vs dropship) → fraud checks → cost ceiling → auto-forward to supplier → store supplier_order_id in metadata
+- **Background Jobs**: BullMQ + Redis — tracking sync (every 2h), reconciliation (every 6h), token refresh (every 12d)
+- **Fraud Detection**: Velocity check, address validation, value threshold, blacklist — composite score (passes if < 50)
+- **Financial Safety**: Cost ceiling, daily spend limit, price drift detection, margin calculation
+- **Security**: Encrypted credentials (EncryptedMetadataManager), IP whitelisting (CJ webhooks), HMAC verification, audit trail, data minimization
+
+**Product Tagging**: Products tagged via Saleor metadata `dropship.supplier`, `dropship.supplierSku`, etc. Products WITHOUT this metadata are concrete inventory (ignored by the app).
+
+**Key directories**:
+- `src/modules/suppliers/` — Adapter interface, registry, AliExpress + CJ implementations
+- `src/modules/webhooks/` — ORDER_PAID/ORDER_CANCELLED use cases + CJ webhook handlers
+- `src/modules/jobs/` — BullMQ queues, workers (tracking-sync, reconciliation, token-refresh), scheduler
+- `src/modules/fraud/` — Fraud checker + 4 rules (velocity, address, value, blacklist)
+- `src/modules/pricing/` — Margin calculator, cost ceiling, daily spend tracker, price drift detector
+- `src/modules/security/` — IP whitelist (CIDR), idempotency (djb2 hash + dedup)
+- `src/modules/audit/` — Audit logger (17 event types, capped at 1000 entries)
+- `src/modules/trpc/routers/` — 6 routers: suppliers, orders, exceptions, settings, audit, dashboard
+- `src/pages/` — Admin dashboard: overview, suppliers (AliExpress/CJ config), orders, exceptions, settings, audit log
+
+**Tech Stack**: Next.js (Pages Router), tRPC, BullMQ, ioredis, neverthrow, macaw-ui, Zod
+
+**Permissions**: MANAGE_PRODUCTS, MANAGE_ORDERS, MANAGE_APPS, MANAGE_SHIPPING, MANAGE_CHECKOUTS
+
+**Container**: `saleor-dropship-app-dev` (port 3009). Depends on Redis for BullMQ.
+
+**Restart**: Use service name `saleor-dropship-app`
 
 ### Catalog Generator (`scripts/catalog-generator/`)
 

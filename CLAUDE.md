@@ -21,7 +21,7 @@ These principles **must guide every feature and code change**:
 ```
 saleor-platform/
 ├── saleor/              # Django/GraphQL backend (Python 3.12)
-├── dashboard/           # Admin dashboard (React 18 + Vite, TypeScript)
+├── dashboard/           # Admin dashboard (React 18 + Vite + Tailwind CSS v4, TypeScript)
 ├── storefront/          # Customer storefront (Next.js 15, React 19, TypeScript)
 ├── apps/                # Saleor Apps monorepo (Turborepo, TypeScript)
 │   ├── apps/            # Individual apps (storefront-control, bulk-manager, stripe, newsletter, etc.)
@@ -63,6 +63,7 @@ docker compose -f infra/docker-compose.dev.yml ps    # Verify health
 | `saleor-sales-analytics-app-dev` | 3006 | Sales analytics |
 | `saleor-bulk-manager-app-dev` | 3007 | Bulk import/export manager |
 | `saleor-image-studio-app-dev` | 3008 | AI-powered image editor |
+| `saleor-dropship-app-dev` | 3009 | Dropship orchestrator (AliExpress + CJ) |
 | `saleor-postgres-dev` | 5432 | PostgreSQL database |
 | `saleor-redis-dev` | 6379 | Redis cache/broker |
 
@@ -153,6 +154,7 @@ docker exec saleor-postgres-dev pg_dump -U saleor saleor > backup.sql  # Backup
 | `apps/apps/sales-analytics/` | `saleor-sales-analytics-app-dev` |
 | `apps/apps/bulk-manager/` | `saleor-bulk-manager-app-dev` |
 | `apps/apps/image-studio/` | `saleor-image-studio-app-dev` |
+| `apps/apps/dropship-orchestrator/` | `saleor-dropship-app-dev` |
 
 ```bash
 docker compose -f infra/docker-compose.dev.yml restart <container-name>
@@ -402,6 +404,36 @@ export async function addToCart(cartId: string, productId: string) {
 - Multiple Zustand stores for form validation and update state
 - Payment integrations: Stripe (`@stripe/react-stripe-js`) and Adyen (`@adyen/adyen-web`)
 
+### Dashboard Architecture (D6 Modernization)
+
+The dashboard was modernized from MUI v5 to Tailwind CSS v4 + macaw-ui-next. Key architecture:
+
+**Styling Stack:**
+- Tailwind CSS v4 with `@theme` overrides in `dashboard/src/index.css` — `--spacing: 4px` and `--text-*` variables in px (not rem) because macaw-ui sets `html { font-size: 50.782% }` making 1rem = 8px
+- macaw-ui-next components (Input, Text, Divider, RadioGroup, etc.)
+- Lucide React icons (replaced @mui/icons-material)
+- `cn()` utility in `dashboard/src/utils/cn.ts` for class merging
+
+**Custom Table Components** (`dashboard/src/components/Table/`):
+- `Table`, `TableHead`, `TableBody`, `TableFooter`, `TableRow`, `TableCell` — native HTML `<table>` wrappers with Tailwind styling
+- `TableSectionContext` for automatic `<th>` vs `<td>` rendering
+- `TableCellHeader` — sortable column header with `ArrowSort` icon (24x24px, `w-6 h-6`)
+- `TableRowLink` — wraps data rows in `<Link style={{ all: "inherit", display: "contents" }}>` for clickable rows
+
+**URL Pattern** (`dashboard/src/utils/urls.ts`):
+- `withQs(path, params)` utility — all 26 URL files use this to prevent trailing `?` (React Router v7 rejects `?` in pathname objects)
+- `stringifyQs()` still used for iframe URLs in extensions
+
+**Routing:** React Router v7 with relative paths (all nested routes converted from absolute to relative).
+
+**Key Files:**
+- `dashboard/src/index.css` — Tailwind `@theme` with px overrides, color tokens, root font-size
+- `dashboard/src/components/Table/` — Custom table primitives (6 components + context)
+- `dashboard/src/components/TableCellHeader/` — Sortable header with ArrowSort icon
+- `dashboard/src/components/TableRowLink/` — Clickable table row with Link wrapper
+- `dashboard/src/utils/urls.ts` — `withQs` utility + `stringifyQs` re-export
+- `dashboard/src/utils/cn.ts` — `clsx` + `twMerge` utility
+
 ## Testing Conventions
 
 **Python (saleor/):** Pytest with fixtures from `tests/fixtures/`. Use `--reuse-db` for speed. Prefer fixtures over mocking. Flat test functions (no classes).
@@ -444,6 +476,7 @@ These skills MUST be invoked (via the Skill tool) at the start of the correspond
 | invoices | `saleor-invoice-app-dev` | 3003 | PDF invoice generation |
 | bulk-manager | `saleor-bulk-manager-app-dev` | 3007 | CSV/Excel bulk import/export/delete for products, categories, collections, customers, orders, vouchers, gift cards |
 | image-studio | `saleor-image-studio-app-dev` | 3008 | AI-powered image editor with canvas, templates, bg removal, generation, upscaling |
+| dropship-orchestrator | `saleor-dropship-app-dev` | 3009 | Multi-supplier dropshipping middleware (AliExpress + CJ), order forwarding, tracking sync, fraud detection, exception queue |
 
 ## Catalog Generator & Store Infrastructure (`scripts/catalog-generator/`)
 
