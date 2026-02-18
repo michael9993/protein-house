@@ -28,12 +28,20 @@ const TableRowLink = forwardRef<HTMLTableRowElement, TableRowLinkProps>((props, 
   }
 
   // Extract `state` from href object (react-router v7 requires state as separate prop)
+  // Also split any embedded '?' from pathname → search (React Router v7 rejects '?' in pathname)
   let to: LinkProps["to"];
   let state: unknown;
 
   if (typeof href === "object" && "state" in href) {
-    const { state: hrefState, ...rest } = href;
-    to = rest;
+    const { state: hrefState, pathname, search, hash, ...rest } = href;
+    let cleanPathname = pathname;
+    let derivedSearch = search;
+    if (pathname?.includes("?")) {
+      const idx = pathname.indexOf("?");
+      cleanPathname = pathname.slice(0, idx);
+      derivedSearch = search ?? pathname.slice(idx);
+    }
+    to = { ...rest, pathname: cleanPathname, search: derivedSearch, hash };
     state = hrefState;
   } else {
     to = href;

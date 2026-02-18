@@ -6,7 +6,8 @@ import { useTableSection } from "./context";
 export type TableCellPadding = "checkbox" | "none" | "normal";
 export type TableCellAlign = "center" | "inherit" | "justify" | "left" | "right";
 
-export interface TableCellProps extends React.TdHTMLAttributes<HTMLTableCellElement> {
+export interface TableCellProps
+  extends Omit<React.TdHTMLAttributes<HTMLTableCellElement>, "padding" | "align"> {
   children?: React.ReactNode;
   className?: string;
   padding?: TableCellPadding;
