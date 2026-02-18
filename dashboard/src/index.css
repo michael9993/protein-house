@@ -8,6 +8,28 @@
   --breakpoint-lg: 1680px;
   --breakpoint-xl: 1920px;
 
+  /* === Spacing & typography override ===
+     macaw-ui sets html { font-size: ~50% } making 1rem ≈ 8px.
+     Tailwind utilities assume 1rem = 16px, so all rem-based values are halved.
+     Fix: define spacing in px so utilities produce correct pixel values. */
+  --spacing: 4px;
+
+  /* Font-size scale in px (standard Tailwind values, immune to root font-size) */
+  --text-xs: 12px;
+  --text-xs--line-height: 16px;
+  --text-sm: 14px;
+  --text-sm--line-height: 20px;
+  --text-base: 16px;
+  --text-base--line-height: 24px;
+  --text-lg: 18px;
+  --text-lg--line-height: 28px;
+  --text-xl: 20px;
+  --text-xl--line-height: 28px;
+  --text-2xl: 24px;
+  --text-2xl--line-height: 32px;
+  --text-3xl: 30px;
+  --text-3xl--line-height: 36px;
+
   /* === Color tokens from macaw-ui v0.7.4 light theme (themes.ts + palette.ts) === */
 
   /* Primary palette (palette.primary.main = colors.main[1]) */
@@ -86,7 +108,9 @@
 }
 
 html {
-  /* set base font size to 13px */
+  /* macaw-ui's JSS theme uses rem values calibrated for this reduced root (1.4rem → ~11px body text).
+     Do NOT change to 100% — it would break macaw-ui pagination, icons, inputs, etc.
+     Custom Tailwind components must use px values or compensated rem values. */
   font-size: 50.782% !important;
 }
 

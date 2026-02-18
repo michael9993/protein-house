@@ -29,7 +29,7 @@ const TranslationsLanguageList = (props: TranslationsLanguageListProps) => {
                 <TableRowLink
                   data-test-id={language ? language.code : "skeleton"}
                   className={cn(
-                    "[&_.MuiTableCell-root]:!pl-6",
+                    "[&_td]:!pl-6 [&_th]:!pl-6",
                     language && "cursor-pointer",
                   )}
                   hover={!!language}
