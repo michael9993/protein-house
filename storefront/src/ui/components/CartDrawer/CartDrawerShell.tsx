@@ -8,6 +8,18 @@ import { CartDrawerProvider, useCartDrawer, useCartDrawerSafe } from '@/provider
 import { deleteLineAction, updateLineQuantityAction, applyPromoCodeAction, removePromoCodeAction, createCheckoutWithItemsAction } from "@/app/cart-actions";
 import { CartDrawer } from './CartDrawer';
 
+/** Minimal checkout shape matching CartDrawer expectations. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type CheckoutData = {
+  id: string;
+  lines: any[];
+  totalPrice: { gross: { amount: number; currency: string } };
+  voucherCode?: string | null;
+  voucherId?: string | null;
+  discount?: { amount: number; currency: string } | null;
+  discountName?: string | null;
+};
+
 /**
  * CartDrawerShell wraps the app with drawer functionality when enabled.
  * It handles:
@@ -62,7 +74,7 @@ function CartDrawerContent({
   channel: string;
   createCheckoutWithItems?: (channel: string, items: { variantId: string; quantity: number }[], voucherCode?: string | null) => Promise<{ checkoutId: string } | null>;
 }) {
-  const [checkoutData, setCheckoutData] = useState<{ voucherCode?: string | null; [key: string]: unknown } | null>(null);
+  const [checkoutData, setCheckoutData] = useState<CheckoutData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { isOpen } = useCartDrawer();
   // Per-line lock to allow concurrent operations on different items
@@ -75,7 +87,7 @@ function CartDrawerContent({
         cache: "no-store",
       });
       if (res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as { checkout: CheckoutData | null };
         setCheckoutData(data.checkout);
       }
     } catch (error) {
@@ -93,11 +105,9 @@ function CartDrawerContent({
     // Optimistic: update quantity in local state immediately
     setCheckoutData(prev => {
       if (!prev) return prev;
-      const lines = (prev as any).lines;
-      if (!Array.isArray(lines)) return prev;
       return {
         ...prev,
-        lines: lines.map((line: any) => {
+        lines: prev.lines.map((line: any) => {
           if (line.id !== lineId) return line;
           const unitAmount = line.quantity > 0
             ? line.totalPrice.gross.amount / line.quantity
@@ -134,9 +144,7 @@ function CartDrawerContent({
     // Optimistic: remove line immediately
     setCheckoutData(prev => {
       if (!prev) return prev;
-      const lines = (prev as any).lines;
-      if (!Array.isArray(lines)) return prev;
-      return { ...prev, lines: lines.filter((line: any) => line.id !== lineId) };
+      return { ...prev, lines: prev.lines.filter((line: any) => line.id !== lineId) };
     });
 
     try {
@@ -172,7 +180,7 @@ function CartDrawerContent({
       timeoutId = setTimeout(() => {
         if (channel) {
           fetch(`/api/cart-data?channel=${channel}`, { cache: 'no-store' })
-            .then(res => res.json())
+            .then(res => res.json() as Promise<{ checkout: CheckoutData | null }>)
             .then(data => setCheckoutData(data.checkout))
             .catch(() => {});
         }

@@ -1,7 +1,6 @@
 import { useCloud } from "@dashboard/auth/hooks/useCloud";
 import { useDevModeContext } from "@dashboard/components/DevModePanel/hooks";
 import { useNavigatorSearchContext } from "@dashboard/components/NavigatorSearch/useNavigatorSearchContext";
-import { ThemeProvider as LegacyThemeProvider } from "@saleor/macaw-ui";
 import { ThemeProvider } from "@saleor/macaw-ui-next";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -55,12 +54,9 @@ vi.mock("@dashboard/ripples/state", () => ({
 const Wrapper = ({ children }: { children: ReactNode }) => {
   return (
     <MemoryRouter>
-      {/* @ts-expect-error - legacy types */}
-      <LegacyThemeProvider>
-        <ThemeProvider>
-          <SidebarProvider>{children}</SidebarProvider>
-        </ThemeProvider>
-      </LegacyThemeProvider>
+      <ThemeProvider>
+        <SidebarProvider>{children}</SidebarProvider>
+      </ThemeProvider>
     </MemoryRouter>
   );
 };

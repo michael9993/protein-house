@@ -39,13 +39,15 @@ async function fetchWithTimeout(
 // ---------------------------------------------------------------------------
 
 /**
- * Obtain an access token from CJ Dropshipping using an API key (email).
+ * Obtain an access token from CJ Dropshipping using an API key.
  *
  * POST /authentication/getAccessToken
- * Body: { email: "<apiKey>" }
+ * Body: { apiKey: "CJUserNum@api@xxxxxxxxx" }
  *
+ * The API key is generated from the CJ developer portal (https://developers.cjdropshipping.com/).
  * Access token is valid for 15 days.
  * Refresh token is valid for 180 days.
+ * Note: This endpoint can only be called once every 5 minutes.
  */
 export async function getAccessToken(
   apiKey: string,
@@ -58,7 +60,7 @@ export async function getAccessToken(
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: apiKey }),
+        body: JSON.stringify({ apiKey }),
       },
       REQUEST_TIMEOUT_MS,
     );

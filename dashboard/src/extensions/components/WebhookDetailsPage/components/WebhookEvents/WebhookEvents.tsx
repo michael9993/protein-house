@@ -4,13 +4,6 @@ import Hr from "@dashboard/components/Hr";
 import { WebhookEventTypeAsyncEnum, WebhookEventTypeSyncEnum } from "@dashboard/graphql";
 import { ChangeEvent } from "@dashboard/hooks/useForm";
 import { capitalize } from "@dashboard/misc";
-import {
-  List,
-  ListBody,
-  ListHeader,
-  ListItem,
-  ListItemCell,
-} from "@saleor/macaw-ui";
 import { Box, Checkbox, Chip, Switch, Text } from "@saleor/macaw-ui-next";
 import { Dispatch, SetStateAction, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -95,57 +88,57 @@ export const WebhookEvents = ({
         <Hr />
         <Grid variant="uniform">
           <div className="border-r border-border-default1 p-6">
-            <List gridTemplate={["1fr 50px"]}>
-              <ListHeader>
-                <ListItem className="min-h-0 p-2 uppercase">
-                  <ListItemCell className="!pl-0 break-all font-semibold">
+            <div>
+              <div>
+                <div className="grid grid-cols-[1fr_50px] min-h-0 p-2 uppercase">
+                  <div className="break-all font-semibold">
                     <FormattedMessage {...messages.objects} />
-                  </ListItemCell>
-                  <ListItemCell></ListItemCell>
-                </ListItem>
-              </ListHeader>
-              <ListBody className="h-[300px] overflow-y-auto">
+                  </div>
+                  <div></div>
+                </div>
+              </div>
+              <div className="h-[300px] overflow-y-auto">
                 {Object.keys(EventTypes[tab]).map((object, idx) => {
                   const eventCount = countEvents(object);
 
                   return (
-                    <ListItem
+                    <div
                       data-test-id="webhook-objects-items"
                       key={idx}
-                      className="min-h-0 cursor-pointer gap-0 p-2"
+                      className="grid grid-cols-[1fr_50px] min-h-0 cursor-pointer gap-0 p-2"
                       onClick={() => setObject(object)}
                     >
-                      <ListItemCell className="!pl-0 break-all font-semibold">
+                      <div className="break-all font-semibold">
                         {capitalize(object.replaceAll("_", " ").toLowerCase())}
-                      </ListItemCell>
-                      <ListItemCell>
+                      </div>
+                      <div>
                         {eventCount > 0 && (
                           <Chip size="small" backgroundColor="critical1" color="critical1">
                             {eventCount}
                           </Chip>
                         )}
-                      </ListItemCell>
-                    </ListItem>
+                      </div>
+                    </div>
                   );
                 })}
-              </ListBody>
-            </List>
+              </div>
+            </div>
           </div>
           <div className="p-8 pl-0">
-            <List gridTemplate={["1fr"]}>
-              <ListHeader>
-                <ListItem className="min-h-0 p-2 uppercase">
-                  <ListItemCell className="!pl-0 break-all font-semibold">
+            <div>
+              <div>
+                <div className="grid grid-cols-[1fr] min-h-0 p-2 uppercase">
+                  <div className="break-all font-semibold">
                     <FormattedMessage {...messages.events} />
-                  </ListItemCell>
-                </ListItem>
-              </ListHeader>
-              <ListBody className="h-[300px] overflow-y-auto">
+                  </div>
+                </div>
+              </div>
+              <div className="h-[300px] overflow-y-auto">
                 {object &&
                   EventTypes[tab][object] &&
                   EventTypes[tab][object].map((event, idx) => (
-                    <ListItem className="min-h-0 cursor-pointer gap-0 p-0 [grid-template-columns:unset]" key={event}>
-                      <ListItemCell className="!p-0 break-all">
+                    <div className="min-h-0 cursor-pointer gap-0 p-0" key={event}>
+                      <div className="!p-0 break-all">
                         <Checkbox
                           data-test-id="events-checkbox"
                           name={`${tab}Events`}
@@ -170,11 +163,11 @@ export const WebhookEvents = ({
                         >
                           {capitalize(event.toLowerCase().replaceAll("_", " "))}
                         </Checkbox>
-                      </ListItemCell>
-                    </ListItem>
+                      </div>
+                    </div>
                   ))}
-              </ListBody>
-            </List>
+              </div>
+            </div>
           </div>
         </Grid>
         <Hr />

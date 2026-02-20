@@ -13,7 +13,7 @@ import { refundsSettingsPath } from "@dashboard/refundsSettings/urls";
 import { structuresListPath } from "@dashboard/structures/urls";
 import { ThemeProvider } from "@dashboard/theme";
 import { OnboardingProvider } from "@dashboard/welcomePage/WelcomePageOnboarding/onboardingContext";
-import { ThemeProvider as LegacyThemeProvider } from "@saleor/macaw-ui";
+
 import { SaleorProvider } from "@saleor/sdk";
 import { lazy, StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
@@ -54,7 +54,7 @@ import { useLocationState } from "./hooks/useLocationState";
 import { commonMessages } from "./intl";
 import { NotFound } from "./NotFound";
 import { errorTracker } from "./services/errorTracking";
-import { paletteOverrides, themeOverrides } from "./themeOverrides";
+
 import { warehouseSection } from "./warehouses/urls";
 
 
@@ -99,23 +99,6 @@ if (GTM_ID) {
 
 errorTracker.init();
 
-/*
-  Handle legacy theming toggle. Since we use new and old macaw,
-  we need to handle both theme swticher for a while.
-*/
-const handleLegacyTheming = () => {
-  const activeTheme = localStorage.getItem("activeMacawUITheme");
-
-  if (activeTheme === "defaultDark") {
-    localStorage.setItem("macaw-ui-theme", "dark");
-
-    return;
-  }
-
-  localStorage.setItem("macaw-ui-theme", "light");
-};
-
-handleLegacyTheming();
 
 /**
  * AppContent contains all providers and is rendered as the element
@@ -126,8 +109,6 @@ const AppContent = () => (
   // @ts-expect-error legacy types
   (<SaleorProvider client={saleorClient}>
     <ApolloProvider client={apolloClient}>
-      {/* @ts-expect-error legacy types */}
-      <LegacyThemeProvider overrides={themeOverrides} palettes={paletteOverrides}>
         <ThemeProvider>
           <DateProvider>
             <LocaleProvider>
@@ -161,7 +142,6 @@ const AppContent = () => (
             </LocaleProvider>
           </DateProvider>
         </ThemeProvider>
-      </LegacyThemeProvider>
     </ApolloProvider>
   </SaleorProvider>)
 );

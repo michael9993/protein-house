@@ -28,13 +28,13 @@
 #
 # Or via the launch script:
 #   .\infra\scripts\launch-self-hosted.ps1
-
+# e3d8f3ef-a6eb-46bc-b8e3-26162dbba0af
 # Replace with your tunnel name (from step 3)
 tunnel: aura-platform
 
 # Replace <TUNNEL_ID> with the UUID from `cloudflared tunnel create` output
 # The credentials file is auto-created at this path during `cloudflared tunnel create`
-credentials-file: C:\Users\micha\.cloudflared\<TUNNEL_ID>.json
+credentials-file: C:\Users\micha\.cloudflared\e3d8f3ef-a6eb-46bc-b8e3-26162dbba0af.json
 
 ingress:
   # Storefront (Next.js) — primary customer-facing site

@@ -1,5 +1,5 @@
 import { cn } from "@dashboard/utils/cn";
-import { DragIcon } from "@saleor/macaw-ui";
+import { GripVertical } from "lucide-react";
 import { SortableHandle as SortableHandleHoc } from "react-sortable-hoc";
 
 interface SortableHandleProps {
@@ -11,11 +11,10 @@ const SortableHandle = SortableHandleHoc((props: SortableHandleProps) => {
   const { className, ...restProps } = props;
 
   return (
-    <DragIcon
+    <GripVertical
       className={cn("cursor-grab", className)}
       tabIndex={0}
-      onPointerEnterCapture={undefined}
-      onPointerLeaveCapture={undefined}
+      size={24}
       {...restProps}
     />
   );

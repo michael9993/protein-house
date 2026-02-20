@@ -94,7 +94,7 @@ export const commonMessages = defineMessages({
   },
   readOnly: {
     id: "kFYlu2",
-    defaultMessage: "Saleor runs in read-only mode. Changes not saved.",
+    defaultMessage: "Running in read-only mode. Changes not saved.",
   },
   requiredField: {
     id: "TKmub+",
@@ -114,7 +114,7 @@ export const commonMessages = defineMessages({
   },
   somethingWentWrong: {
     id: "LVa5ew",
-    defaultMessage: "Saleor ran into an unexpected problem",
+    defaultMessage: "An unexpected problem occurred",
   },
   defaultErrorTitle: {
     id: "JqiqNj",

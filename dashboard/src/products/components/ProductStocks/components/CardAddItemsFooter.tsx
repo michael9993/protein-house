@@ -1,5 +1,5 @@
 import Link from "@dashboard/components/Link";
-import { IconButton } from "@saleor/macaw-ui";
+import { IconButton } from "@dashboard/components/IconButton/IconButton";
 import { Plus } from "lucide-react";
 import { MutableRefObject, PropsWithChildren } from "react";
 

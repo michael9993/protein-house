@@ -1,6 +1,5 @@
 // @ts-strict-ignore
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { ThemeProvider } from "@saleor/macaw-ui";
 import { productsMocks } from "@test/mocks/products";
 import { render, screen } from "@testing-library/react";
 
@@ -21,10 +20,7 @@ describe("DryRunItemsList", () => {
     // Act
     render(
       <MockedProvider mocks={mocks} >
-        {/* @ts-expect-error legacy types */}
-        <ThemeProvider>
-          <DryRunItemsList {...props} />
-        </ThemeProvider>
+        <DryRunItemsList {...props} />
       </MockedProvider>,
     );
     // Assert

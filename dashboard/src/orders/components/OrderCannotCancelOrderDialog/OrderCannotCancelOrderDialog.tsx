@@ -11,7 +11,7 @@ const OrderCannotCancelOrderDialog = ({ open, onClose }: DialogProps) => {
         <DashboardModal.Header>
           <FormattedMessage
             id="NhQboB"
-            defaultMessage="Saleor couldn’t cancel order"
+            defaultMessage="Could not cancel order"
             description="dialog header"
           />
         </DashboardModal.Header>

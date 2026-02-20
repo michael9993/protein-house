@@ -12,7 +12,7 @@ import { ProductAttributeType, ProductTypeDetailsQuery } from "@dashboard/graphq
 import { maybe, renderCollection } from "@dashboard/misc";
 import { ListActions, ReorderAction } from "@dashboard/types";
 import { TableCell } from "@dashboard/components/Table";
-import { IconButton } from "@saleor/macaw-ui";
+import { IconButton } from "@dashboard/components/IconButton/IconButton";
 import { Button, Skeleton, Tooltip } from "@saleor/macaw-ui-next";
 import capitalize from "lodash/capitalize";
 import { CircleQuestionMark, Trash2 } from "lucide-react";

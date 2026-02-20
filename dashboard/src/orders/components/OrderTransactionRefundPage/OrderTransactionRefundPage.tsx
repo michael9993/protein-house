@@ -20,7 +20,7 @@ import { rippleNewRefundReasons } from "@dashboard/orders/ripples/newRefundReaso
 import { orderUrl } from "@dashboard/orders/urls";
 import { refundsSettingsPath } from "@dashboard/refundsSettings/urls";
 import { Ripple } from "@dashboard/ripples/components/Ripple";
-import { ConfirmButtonTransitionState } from "@saleor/macaw-ui";
+import { ConfirmButtonTransitionState } from "@dashboard/components/ConfirmButton";
 import { Box, Select, Skeleton, Text } from "@saleor/macaw-ui-next";
 import { useState } from "react";
 import { Control, SubmitHandler, useController, useFieldArray, useForm } from "react-hook-form";

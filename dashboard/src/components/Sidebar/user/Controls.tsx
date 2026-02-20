@@ -1,7 +1,6 @@
 import { useUser } from "@dashboard/auth";
 import { staffMemberDetailsUrl } from "@dashboard/staff/urls";
 import { useTheme } from "@dashboard/theme";
-import { useTheme as useLegacyTheme } from "@saleor/macaw-ui";
 import {
   Box,
   Button,
@@ -11,7 +10,7 @@ import {
   sprinkles,
   Text,
 } from "@saleor/macaw-ui-next";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FormattedMessage } from "react-intl";
 import { Link } from "react-router";
 
@@ -20,27 +19,9 @@ import { ThemeSwitcher } from "./ThemeSwitcher";
 
 export const useLegacyThemeHandler = () => {
   const { theme, setTheme } = useTheme();
-  const { setTheme: setLegacyTheme } = useLegacyTheme();
   const changeTheme = () => {
-    setLegacyTheme(theme === "defaultLight" ? "dark" : "light");
     setTheme(theme === "defaultLight" ? "defaultDark" : "defaultLight");
   };
-  const handleStorage = (event: StorageEvent) => {
-    if (!["macaw-ui-theme", "activeMacawUITheme"].includes(event.key || "")) {
-      return;
-    }
-
-    const isDark = event.newValue?.toLowerCase().includes("dark");
-
-    setLegacyTheme(isDark ? "dark" : "light");
-    setTheme(isDark ? "defaultDark" : "defaultLight");
-  };
-
-  useEffect(() => {
-    window.addEventListener("storage", handleStorage);
-
-    return () => window.removeEventListener("storage", handleStorage);
-  }, []);
 
   return { changeTheme, theme };
 };

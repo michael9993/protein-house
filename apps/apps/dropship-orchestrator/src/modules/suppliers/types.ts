@@ -27,6 +27,7 @@ export const AddressSchema = z.object({
   name: z.string().min(1, "Name is required"),
   street: z.string().min(1, "Street is required"),
   city: z.string().min(1, "City is required"),
+  province: z.string().optional(),
   postalCode: z.string().min(1, "Postal code is required"),
   country: z.string().length(2, "Country must be a 2-letter ISO code"),
   phone: z.string().min(1, "Phone is required"),
@@ -71,6 +72,8 @@ export interface AuthToken {
 
 export const SupplierOrderRequestSchema = z.object({
   supplierSku: z.string().min(1, "Supplier SKU is required"),
+  /** AliExpress variant attribute string, e.g. "14:350853#Black;5:361386#M". Not used by CJ. */
+  supplierSkuAttr: z.string().optional(),
   quantity: z.number().int().positive("Quantity must be a positive integer"),
   shippingAddress: AddressSchema,
   shippingMethod: z.string().min(1, "Shipping method is required"),

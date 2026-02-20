@@ -10,7 +10,7 @@ import ArrowDropdown from "@dashboard/icons/ArrowDropdown";
 import { renderCollection } from "@dashboard/misc";
 import { cn } from "@dashboard/utils/cn";
 import { TableBody, TableCell, TableHead } from "@dashboard/components/Table";
-import { IconButton } from "@saleor/macaw-ui";
+import { IconButton } from "@dashboard/components/IconButton/IconButton";
 import { Skeleton, Text } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import * as React from "react";

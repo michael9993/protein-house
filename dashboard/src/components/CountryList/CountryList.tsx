@@ -5,7 +5,7 @@ import TableRowLink from "@dashboard/components/TableRowLink";
 import { cn } from "@dashboard/utils/cn";
 import { CountryFragment } from "@dashboard/graphql";
 import { TableBody, TableCell } from "@dashboard/components/Table";
-import { IconButton } from "@saleor/macaw-ui";
+import { IconButton } from "@dashboard/components/IconButton/IconButton";
 import { Button, Text } from "@saleor/macaw-ui-next";
 import { ChevronDownIcon, Trash2 } from "lucide-react";
 import * as React from "react";

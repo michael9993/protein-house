@@ -1,5 +1,5 @@
 import { iconSize, iconStrokeWidthBySize } from "@dashboard/components/icons";
-import { IconButton } from "@saleor/macaw-ui";
+import { IconButton } from "@dashboard/components/IconButton/IconButton";
 import { Box, Popover, PopoverContentProps, sprinkles, Text } from "@saleor/macaw-ui-next";
 import { Columns3 } from "lucide-react";
 import { useState } from "react";

@@ -8,7 +8,7 @@ import { OrderDetailsFragment, OrderErrorFragment, OrderLineFragment } from "@da
 import { FormsetChange } from "@dashboard/hooks/useFormset";
 import { getById, renderCollection } from "@dashboard/misc";
 import { TableBody, TableCell, TableHead } from "@dashboard/components/Table";
-import { ResponsiveTable } from "@saleor/macaw-ui";
+import ResponsiveTable from "@dashboard/components/ResponsiveTable";
 import { Checkbox, Skeleton } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage } from "react-intl";

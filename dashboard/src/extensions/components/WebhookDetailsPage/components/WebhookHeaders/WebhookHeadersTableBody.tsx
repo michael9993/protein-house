@@ -4,7 +4,7 @@ import TableRowLink from "@dashboard/components/TableRowLink";
 import { FormChange } from "@dashboard/hooks/useForm";
 import { removeAtIndex, updateAtIndex } from "@dashboard/utils/lists";
 import { TableBody, TableCell } from "@dashboard/components/Table";
-import { IconButton } from "@saleor/macaw-ui";
+import { IconButton } from "@dashboard/components/IconButton/IconButton";
 import { Input } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { ChangeEvent } from "react";

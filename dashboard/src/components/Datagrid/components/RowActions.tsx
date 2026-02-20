@@ -1,5 +1,5 @@
 import { iconSize, iconStrokeWidthBySize } from "@dashboard/components/icons";
-import { IconButton } from "@saleor/macaw-ui";
+import { IconButton } from "@dashboard/components/IconButton/IconButton";
 import { EllipsisVertical } from "lucide-react";
 
 import CardMenu, { CardMenuItem } from "../../CardMenu";

@@ -199,13 +199,13 @@ export function Testimonials({
   // But we need to keep hooks consistent, so we'll render empty state instead
   const hasReviews = !loading && displayTestimonials.length > 0;
 
-  // Don't render if disabled - check AFTER all hooks to maintain hook consistency
-  if (!homepage.sections.testimonials.enabled) {
+  // Don't render if section not configured or disabled — check AFTER all hooks to maintain hook consistency
+  if (!homepage.sections.testimonials?.enabled) {
     return null;
   }
 
   // Get background config
-  const backgroundConfig = homepage.sections.testimonials.background as SectionBackgroundConfig | undefined;
+  const backgroundConfig = homepage.sections.testimonials?.background as SectionBackgroundConfig | undefined;
   const backgroundStyles = generateSectionBackground(backgroundConfig, branding);
   const patternOverlay = generatePatternOverlay(backgroundConfig, branding);
 

@@ -1,7 +1,7 @@
 @import "tailwindcss/theme" layer(theme);
 @import "tailwindcss/utilities" layer(utilities);
 
-/* Custom breakpoints matching existing themeOverrides.ts */
+/* Custom breakpoints and design tokens */
 @theme {
   --breakpoint-sm: 600px;
   --breakpoint-md: 1280px;
@@ -30,76 +30,99 @@
   --text-3xl: 30px;
   --text-3xl--line-height: 36px;
 
-  /* === Color tokens from macaw-ui v0.7.4 light theme (themes.ts + palette.ts) === */
+  /* === Aura color system — pure black & white with high contrast === */
 
-  /* Primary palette (palette.primary.main = colors.main[1]) */
-  --color-primary: rgba(37, 41, 41, 1);
-  --color-primary-dark: rgba(168, 169, 169, 1);
+  /* Primary */
+  --color-primary: #000000;
+  --color-primary-dark: #1A1A1A;
 
-  /* Text colors */
-  --color-text-primary: rgba(37, 41, 41, 1);
-  --color-text-secondary: rgba(124, 127, 127, 1);
-  --color-text-disabled: rgba(168, 169, 169, 1);
-  --color-text-hint: rgba(124, 127, 127, 1);
+  /* Text */
+  --color-text-primary: #000000;
+  --color-text-secondary: #666666;
+  --color-text-disabled: #999999;
+  --color-text-hint: #666666;
 
   /* Background */
-  --color-background-default: #FAFBFA;
+  --color-background-default: #FFFFFF;
   --color-background-paper: #FFFFFF;
 
   /* Error */
-  --color-error: #B63755;
+  --color-error: #DC2626;
 
   /* Divider */
-  --color-divider: #EAEAEA;
+  --color-divider: #E5E5E5;
 
-  /* Grey */
-  --color-grey-300: #C8C8C8;
-  --color-grey-disabled: #C0CFE2;
+  /* Grey scale */
+  --color-grey-300: #D4D4D4;
+  --color-grey-disabled: #CCCCCC;
 
-  /* Saleor grayscale (colors.main[]) */
-  --color-saleor-main-1: rgba(37, 41, 41, 1);
-  --color-saleor-main-2: rgba(81, 84, 84, 1);
-  --color-saleor-main-3: rgba(124, 127, 127, 1);
-  --color-saleor-main-4: rgba(168, 169, 169, 1);
-  --color-saleor-main-5: rgba(211, 212, 212, 1);
-  --color-saleor-main-6: rgba(233, 234, 234, 1);
+  /* Neutral grayscale */
+  --color-neutral-1: #000000;
+  --color-neutral-2: #1A1A1A;
+  --color-neutral-3: #444444;
+  --color-neutral-4: #666666;
+  --color-neutral-5: #999999;
+  --color-neutral-6: #CCCCCC;
+  --color-neutral-7: #E5E5E5;
+  --color-neutral-8: #F5F5F5;
+  --color-neutral-9: #FAFAFA;
 
-  /* Saleor active/accent (colors.active[]) */
-  --color-saleor-active-1: rgba(5, 109, 255, 1);
-  --color-saleor-active-2: rgba(55, 138, 255, 1);
-  --color-saleor-active-3: rgba(104, 167, 255, 1);
-  --color-saleor-active-4: rgba(193, 219, 255, 1);
-  --color-saleor-active-5: rgba(230, 240, 255, 1);
+  /* Active/accent — pure black & white */
+  --color-accent-1: #000000;
+  --color-accent-2: #1A1A1A;
+  --color-accent-3: #444444;
+  --color-accent-4: #CCCCCC;
+  --color-accent-5: #F5F5F5;
 
-  /* Saleor status: fail */
-  --color-saleor-fail-dark: #B65757;
-  --color-saleor-fail: #FEADAD;
-  --color-saleor-fail-light: #FEDEDE;
+  /* Status: error */
+  --color-status-error-dark: #DC2626;
+  --color-status-error: #FCA5A5;
+  --color-status-error-light: #FEE2E2;
 
-  /* Saleor status: success */
-  --color-saleor-success-dark: #439C7B;
-  --color-saleor-success: #A4E8BA;
-  --color-saleor-success-light: #E6F9F0;
+  /* Status: success */
+  --color-status-success-dark: #16A34A;
+  --color-status-success: #86EFAC;
+  --color-status-success-light: #DCFCE7;
 
-  /* Saleor status: warning */
-  --color-saleor-warning-dark: #B78A48;
-  --color-saleor-warning: #FFE6AB;
-  --color-saleor-warning-light: #FFF4D2;
+  /* Status: warning */
+  --color-status-warning-dark: #CA8A04;
+  --color-status-warning: #FDE68A;
+  --color-status-warning-light: #FEF9C3;
+
+  /* Status: info */
+  --color-status-info: #2563EB;
 
   /* Highlighted text */
-  --color-text-highlighted: rgba(5, 109, 255, 1);
-  --color-text-highlighted-inactive: #C8C8C8;
+  --color-text-highlighted: #000000;
+  --color-text-highlighted-inactive: #CCCCCC;
 
   /* Alert icons */
-  --color-alert-info-icon: #28234A;
-  --color-alert-error-icon: #FE6E76;
-  --color-alert-success-icon: #5DC292;
-  --color-alert-warning-icon: #FFB84E;
+  --color-alert-info-icon: #2563EB;
+  --color-alert-error-icon: #DC2626;
+  --color-alert-success-icon: #16A34A;
+  --color-alert-warning-icon: #CA8A04;
 
   /* Generic */
-  --color-generic-light: #F1F1F1;
-  --color-generic-mid: #EAEAEA;
-  --color-generic-dark: #7C7F7F;
+  --color-generic-light: #F5F5F5;
+  --color-generic-mid: #E5E5E5;
+  --color-generic-dark: #444444;
+
+  /* Legacy aliases (maps old saleor-* class names to new palette) */
+  --color-saleor-main-1: #000000;
+  --color-saleor-main-2: #444444;
+  --color-saleor-main-3: #666666;
+  --color-saleor-main-5: #E5E5E5;
+  --color-saleor-active-1: #000000;
+  --color-saleor-active-3: #444444;
+  --color-saleor-active-5: #F5F5F5;
+  --color-saleor-success: #DCFCE7;
+  --color-saleor-success-dark: #16A34A;
+  --color-saleor-fail-dark: #DC2626;
+  --color-saleor-warning: #CA8A04;
+  --color-saleor-warning-dark: #CA8A04;
+  --color-saleor-warning-light: #FEF9C3;
+  --color-border-default1: #E5E5E5;
+  --color-text-disabled: #999999;
 }
 
 #portal {
@@ -116,7 +139,58 @@ html {
 
 body {
   color: var(--mu-colors-foreground-text-neutral-plain) !important;
+  /* macaw-ui-next components use rem/CSS vars for sizing, so they're unaffected.
+     This only fixes raw HTML text (divs, spans, table cells) that inherit from body. */
+  font-size: 14px !important;
   overscroll-behavior-y: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* === Aura theme — light mode overrides (pure B&W) === */
+[data-macaw-ui-theme="defaultLight"] {
+  --mu-colors-background-default1: #FFFFFF;
+  --mu-colors-background-default2: #F5F5F5;
+  --mu-colors-background-default3: #FAFAFA;
+  --mu-colors-background-interactiveNeutralDefault: #000000;
+  --mu-colors-background-interactiveNeutralHovering: #1A1A1A;
+  --mu-colors-background-interactiveNeutralFocused: #111111;
+  --mu-colors-background-interactiveNeutralPressed: #000000;
+  --mu-colors-background-accent1: #000000;
+  --mu-colors-text-default1: #000000;
+  --mu-colors-text-default2: #666666;
+  --mu-colors-text-default3: #999999;
+  --mu-colors-text-accent1: #000000;
+  --mu-colors-border-default1: #E5E5E5;
+  --mu-colors-border-accent1: #000000;
+  --mu-colors-foreground-text-neutral-plain: #000000;
+  --mu-colors-foreground-text-neutral-subtle: #666666;
+  --mu-colors-foreground-text-brandDefault: #000000;
+  --mu-colors-foreground-icon-neutral-plain: #444444;
+  --mu-colors-foreground-icon-neutral-subtle: #666666;
+}
+
+/* === Aura theme — dark mode overrides (pure B&W) === */
+[data-macaw-ui-theme="defaultDark"] {
+  --mu-colors-background-default1: #000000;
+  --mu-colors-background-default2: #111111;
+  --mu-colors-background-default3: #0A0A0A;
+  --mu-colors-background-interactiveNeutralDefault: #FFFFFF;
+  --mu-colors-background-interactiveNeutralHovering: #E5E5E5;
+  --mu-colors-background-interactiveNeutralFocused: #F5F5F5;
+  --mu-colors-background-interactiveNeutralPressed: #FFFFFF;
+  --mu-colors-background-accent1: #FFFFFF;
+  --mu-colors-text-default1: #FFFFFF;
+  --mu-colors-text-default2: #999999;
+  --mu-colors-text-default3: #666666;
+  --mu-colors-text-accent1: #FFFFFF;
+  --mu-colors-border-default1: #1A1A1A;
+  --mu-colors-border-accent1: #FFFFFF;
+  --mu-colors-foreground-text-neutral-plain: #FFFFFF;
+  --mu-colors-foreground-text-neutral-subtle: #999999;
+  --mu-colors-foreground-text-brandDefault: #FFFFFF;
+  --mu-colors-foreground-icon-neutral-plain: #CCCCCC;
+  --mu-colors-foreground-icon-neutral-subtle: #999999;
 }
 
 .hide-scrollbar::-webkit-scrollbar {
@@ -145,14 +219,6 @@ body {
 .animate-copy {
   animation: pulse 0.2s;
   transition: all 0.2s;
-}
-
-.remove-icon-background svg {
-  background: none !important;
-}
-
-.remove-content-padding-top .MuiCardContent-root {
-  padding-top: 0 !important;
 }
 
 [id*="ScrollableDialog"] .infinite-scroll-component {
@@ -234,4 +300,33 @@ a.command-menu-item {
 
 .command-menu tr[data-focus="true"] {
   background-color: var(--mu-colors-background-default1-hovered) !important;
+}
+
+/* === Aura Visual Polish === */
+
+/* Table row hover */
+table tbody tr {
+  transition: background-color 0.1s ease;
+}
+table tbody tr:hover {
+  background-color: var(--mu-colors-background-default2) !important;
+}
+
+/* Input focus ring */
+[data-macaw-ui-component="input"]:focus-within {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08) !important;
+}
+[data-macaw-ui-theme="defaultDark"] [data-macaw-ui-component="input"]:focus-within {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Secondary button border */
+[data-macaw-ui-component="button"][data-variant="secondary"] {
+  border-color: var(--mu-colors-border-default1) !important;
+}
+
+/* Search Switch tabs — increase size for readability */
+[data-macaw-ui-component="switch"] [data-macaw-ui-component="switch-item"] {
+  font-size: 14px !important;
+  padding: 8px 14px !important;
 }

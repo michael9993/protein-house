@@ -112,7 +112,7 @@ export const infoMessages = defineMessages({
   },
   permissionsDescription: {
     defaultMessage:
-      "Expand or restrict extension permissions to access certain part of Saleor system.",
+      "Expand or restrict extension permissions to access certain parts of the system.",
     id: "kr1PlW",
   },
   grantFullAccess: {
@@ -200,7 +200,7 @@ export const messages = defineMessages({
     id: "80g19N",
   },
   pluginDescription: {
-    defaultMessage: "Plugin built-in to Saleor's core codebase",
+    defaultMessage: "Plugin built-in to the core codebase",
     id: "EEWsPs",
   },
   pluginInfoImportant: {
@@ -237,7 +237,7 @@ export const messages = defineMessages({
     id: "4YJHut",
   },
   installationCloudOnly: {
-    defaultMessage: "Use Saleor Cloud to access Saleor Extensions",
+    defaultMessage: "Use Cloud to access Extensions",
     description: "description",
     id: "jm2YzF",
   },
@@ -379,7 +379,7 @@ export const appManifestErrorMessages = defineMessages({
     // AppErrorCode.MANIFEST_URL_CANT_CONNECT
     defaultMessage:
       // TODO: Add docs link when we have docs page with explanation
-      "Saleor could not connect to the provided manifest URL. ({errorCode})",
+      "Could not connect to the provided manifest URL. ({errorCode})",
     id: "DbNXK5",
   },
   notFound: {
@@ -438,7 +438,7 @@ export const appManifestErrorMessages = defineMessages({
     // AppErrorCode.UNSUPPORTED_SALEOR_VERSION
     id: "fWaj1M",
     defaultMessage:
-      "The Saleor version your extension is trying to use is newer than your current Saleor version. {docsLink} ({errorCode})",
+      "The platform version your extension requires is newer than your current version. {docsLink} ({errorCode})",
   },
 });
 
@@ -450,7 +450,7 @@ export const localAppErrorMessages = defineMessages({
   },
   invalidPermission: {
     id: "tI7/Ib",
-    defaultMessage: "Extension requested permissions that are not available in Saleor.",
+    defaultMessage: "Extension requested permissions that are not available.",
   },
   outOfScopeApp: {
     id: "PFmBz7",

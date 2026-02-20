@@ -19,16 +19,9 @@ import TaxPageTitle from "@dashboard/taxes/components/TaxPageTitle";
 import { taxesMessages } from "@dashboard/taxes/messages";
 import { isLastElement } from "@dashboard/taxes/utils/utils";
 import { DashboardCard } from "@dashboard/components/Card";
-import {
-  List,
-  ListHeader,
-  ListItem,
-  ListItemCell,
-  PageTab,
-  PageTabs,
-  SearchIcon,
-} from "@saleor/macaw-ui";
+import { DashboardTab, DashboardTabs } from "@dashboard/components/Tabs/DashboardTabs";
 import { Box, Divider, Input, Skeleton } from "@saleor/macaw-ui-next";
+import { Search } from "lucide-react";
 import { Fragment, useMemo, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -78,23 +71,26 @@ const TaxCountriesPage = (props: TaxCountriesPageProps) => {
             <TopNav title={<TaxPageTitle />} href={configurationMenuUrl} />
             <DetailPageLayout.Content>
               <Box padding={6}>
-                <PageTabs value="countries" onChange={handleTabChange}>
-                  <PageTab
+                <DashboardTabs
+                  value="countries"
+                  onChange={value => handleTabChange(value)}
+                >
+                  <DashboardTab
                     label={intl.formatMessage(taxesMessages.channelsSection)}
                     value="channels"
                     data-test-id="channels-tab"
                   />
-                  <PageTab
+                  <DashboardTab
                     label={intl.formatMessage(taxesMessages.countriesSection)}
                     value="countries"
                     data-test-id="countries-tab"
                   />
-                  <PageTab
+                  <DashboardTab
                     label={intl.formatMessage(taxesMessages.taxClassesSection)}
                     value="tax-classes"
                     data-test-id="tax-classes-tab"
                   />
-                </PageTabs>
+                </DashboardTabs>
                 <VerticalSpacer spacing={2} />
                 <Grid variant="inverted">
                   <TaxCountriesMenu
@@ -128,46 +124,38 @@ const TaxCountriesPage = (props: TaxCountriesPageProps) => {
                             size="small"
                             onChange={e => setQuery(e.target.value)}
                             placeholder={intl.formatMessage(taxesMessages.searchTaxClasses)}
-                            startAdornment={
-                              <SearchIcon
-                                onPointerEnterCapture={undefined}
-                                onPointerLeaveCapture={undefined}
-                              />
-                            }
+                            startAdornment={<Search size={20} />}
                           />
                         </DashboardCard.Content>
-                        <List gridTemplate={["5fr 2fr"]}>
-                          <ListHeader>
-                            <ListItem>
-                              <ListItemCell>
-                                <FormattedMessage {...taxesMessages.taxNameHeader} />
-                              </ListItemCell>
-                              <ListItemCell className="m-0 flex place-content-end text-right">
-                                <FormattedMessage {...taxesMessages.taxRateHeader} />
-                              </ListItemCell>
-                            </ListItem>
-                          </ListHeader>
+                        <div>
+                          <div className="grid grid-cols-[5fr_2fr] items-center px-6 py-3">
+                            <div>
+                              <FormattedMessage {...taxesMessages.taxNameHeader} />
+                            </div>
+                            <div className="m-0 flex place-content-end text-right">
+                              <FormattedMessage {...taxesMessages.taxRateHeader} />
+                            </div>
+                          </div>
                           <Divider />
                           {filteredRates?.map((rate, rateIndex) => (
                             <Fragment key={rate.id}>
-                              <ListItem
-                                hover={false}
-                                className="before:hidden after:hidden"
+                              <div
+                                className="grid grid-cols-[5fr_2fr] items-center px-6 py-3"
                                 data-test-id={rate.label}
                               >
-                                <ListItemCell>{rate.label}</ListItemCell>
-                                <ListItemCell>
+                                <div>{rate.label}</div>
+                                <div>
                                   <TaxInput
                                     placeholder={data[0]?.rate}
                                     value={rate?.value}
                                     change={e => handlers.handleRateChange(rate.id, e.target.value)}
                                   />
-                                </ListItemCell>
-                              </ListItem>
+                                </div>
+                              </div>
                               {!isLastElement(filteredRates, rateIndex) && <Divider />}
                             </Fragment>
                           )) ?? <Skeleton />}
-                        </List>
+                        </div>
                       </>
                     )}
                   </DashboardCard>

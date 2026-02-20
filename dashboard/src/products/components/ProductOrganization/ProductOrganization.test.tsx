@@ -1,5 +1,4 @@
 import { getChoicesWithAncestors } from "@dashboard/products/utils/utils";
-import { ThemeProvider } from "@saleor/macaw-ui";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { PropsWithChildren } from "react";
 import { MemoryRouter as Router } from "react-router";
@@ -93,8 +92,7 @@ const categoriesWithAncestors = getChoicesWithAncestors([
 
 const Wrapper = ({ children }: PropsWithChildren<{}>) => (
   <Router>
-    {/*@ts-expect-error - legacy types */}
-    <ThemeProvider>{children}</ThemeProvider>
+    {children}
   </Router>
 );
 

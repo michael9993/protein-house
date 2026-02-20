@@ -1,8 +1,8 @@
-import sideBarDefaultLogoDarkMode from "@assets/images/sidebar-deafult-logo-darkMode.png";
-import sideBarDefaultLogo from "@assets/images/sidebar-default-logo.png";
+import sideBarDefaultLogoDarkMode from "@assets/images/logo-sidebar-light.svg";
+import sideBarDefaultLogo from "@assets/images/logo-sidebar-dark.svg";
 import { useCloud } from "@dashboard/auth/hooks/useCloud";
 import { useLegacyThemeHandler } from "@dashboard/components/Sidebar/user/Controls";
-import { Avatar, Box, Text, Tooltip } from "@saleor/macaw-ui-next";
+import { Box, Text, Tooltip } from "@saleor/macaw-ui-next";
 import { CloudIcon } from "lucide-react";
 import { useState } from "react";
 import { FormattedMessage } from "react-intl";
@@ -21,14 +21,14 @@ export const MountingPoint = () => {
       display="flex"
       gap={3}
       paddingX={4}
-      paddingY={5}
+      paddingY={4}
       alignItems="center"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Avatar.Store src={logo} scheme="accent1" size="small" />
+      <img src={logo} alt="Aura" width={24} height={22} />
       <Text size={3} fontWeight="bold" __flex="1">
-        Saleor Dashboard
+        Aura
       </Text>
       {isAuthenticatedViaCloud && (
         <Tooltip>
@@ -54,7 +54,7 @@ export const MountingPoint = () => {
           <Tooltip.Content side="bottom">
             <Tooltip.Arrow />
             <Text size={2}>
-              <FormattedMessage defaultMessage="Go to Saleor Cloud" id="EXqb2l" />
+              <FormattedMessage defaultMessage="Go to Cloud" id="EXqb2l" />
             </Text>
           </Tooltip.Content>
         </Tooltip>

@@ -174,8 +174,8 @@ export default defineConfig(({ command, mode }) => {
             "localhost",
             "127.0.0.1",
             DASHBOARD_TUNNEL_URL, // Current tunnel domain
-            "wives-cartridge-medicaid-parties.trycloudflare.com", // Cloudflare tunnel host
-            "wives-cartridge-medicaid-parties.trycloudflare.com",
+            "dash.halacosmetics.org", // Cloudflare tunnel host
+            "dash.halacosmetics.org",
 
             // Add more tunnel domains here as needed, or use a function pattern
           ]
@@ -219,8 +219,8 @@ export default defineConfig(({ command, mode }) => {
         "localhost",
         "127.0.0.1",
         DASHBOARD_TUNNEL_URL,
-        "wives-cartridge-medicaid-parties.trycloudflare.com", // Cloudflare tunnel host
-        "wives-cartridge-medicaid-parties.trycloudflare.com",
+        "dash.halacosmetics.org", // Cloudflare tunnel host
+        "dash.halacosmetics.org",
       ],
     },
     define: {
@@ -297,11 +297,7 @@ export default defineConfig(({ command, mode }) => {
     optimizeDeps: {
       include: [
         "esm-dep > cjs-dep",
-        "@saleor/macaw-ui",
         "@saleor/macaw-ui-next",
-        "@mui/material",
-        "@emotion/react",
-        "@emotion/styled",
         "react",
         "react-dom",
         "react-router-dom",
@@ -323,7 +319,7 @@ export default defineConfig(({ command, mode }) => {
       },
     },
     resolve: {
-      dedupe: ["react", "react-dom", "clsx", "@material-ui/styles"],
+      dedupe: ["react", "react-dom", "clsx"],
       alias: {
         "@assets": path.resolve(__dirname, "./assets"),
         "@locale": path.resolve(__dirname, "./locale"),
@@ -335,6 +331,9 @@ export default defineConfig(({ command, mode }) => {
     esbuild: { jsx: "automatic" },
   };
 });
+
+
+
 
 
 

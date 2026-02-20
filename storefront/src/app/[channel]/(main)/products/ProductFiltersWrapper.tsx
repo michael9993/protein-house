@@ -76,8 +76,9 @@ export function ProductFiltersWrapper({
           return;
         }
 
-        // Fetch only what's missing, use initial data if available
-        const [categoriesData, collectionsData, brandsData, sizesData, colorsData] = await Promise.all([
+        // Fetch only what's missing — use allSettled so individual failures
+        // don't prevent other filters from loading
+        const results = await Promise.allSettled([
           initialCategories ? Promise.resolve(initialCategories) : fetchCategories(apiUrl, channel),
           initialCollections ? Promise.resolve(initialCollections) : fetchCollections(apiUrl, channel),
           initialBrands && initialBrands.length > 0 ? Promise.resolve(initialBrands) : fetchBrands(apiUrl, channel),
@@ -85,13 +86,14 @@ export function ProductFiltersWrapper({
           initialColors && initialColors.length > 0 ? Promise.resolve(initialColors) : fetchColors(apiUrl, channel),
         ]);
 
-        setCategories(categoriesData);
-        setCollections(collectionsData);
-        setBrands(brandsData);
-        setSizes(sizesData);
-        setColors(colorsData);
-      } catch (error) {
-        console.error("Failed to fetch filter data:", error);
+        // Extract values — settled failures gracefully become empty arrays
+        setCategories(results[0].status === "fulfilled" ? results[0].value : []);
+        setCollections(results[1].status === "fulfilled" ? results[1].value : []);
+        setBrands(results[2].status === "fulfilled" ? results[2].value : []);
+        setSizes(results[3].status === "fulfilled" ? results[3].value : []);
+        setColors(results[4].status === "fulfilled" ? results[4].value : []);
+      } catch {
+        // Silently handle — empty arrays mean filter sections won't render
       } finally {
         setLoading(false);
       }
@@ -256,6 +258,7 @@ async function fetchCategories(apiUrl: string, channel: string): Promise<Categor
 
     return data.categories.edges.map((edge: any) => mapNode(edge.node));
   } catch {
+    // Network error or API unreachable — return empty so section is hidden
     return [];
   }
 }
@@ -299,6 +302,7 @@ async function fetchCollections(apiUrl: string, channel: string): Promise<Collec
       }))
       .filter((c: Collection) => (c.productCount ?? 0) > 0);
   } catch {
+    // Network error or API unreachable — return empty so section is hidden
     return [];
   }
 }
@@ -387,8 +391,12 @@ async function fetchBrands(apiUrl: string, channel: string): Promise<Brand[]> {
     // Fallback: extract from product attributes (legacy approach)
     return await fetchBrandsFromAttributes(apiUrl, channel);
   } catch {
-    // Fallback to attribute-based approach
-    return await fetchBrandsFromAttributes(apiUrl, channel);
+    // Network error — try attribute-based fallback, or return empty
+    try {
+      return await fetchBrandsFromAttributes(apiUrl, channel);
+    } catch {
+      return [];
+    }
   }
 }
 
@@ -432,15 +440,12 @@ async function fetchBrandsFromAttributes(apiUrl: string, channel: string): Promi
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("[Brands Filter] HTTP error:", response.status, response.statusText, errorText);
       return [];
     }
 
     const responseData = await response.json() as any;
 
     if (responseData.errors) {
-      console.error("[Brands Filter] GraphQL errors:", responseData.errors);
       return [];
     }
     
@@ -498,8 +503,7 @@ async function fetchBrandsFromAttributes(apiUrl: string, channel: string): Promi
       .sort((a, b) => (b.productCount || 0) - (a.productCount || 0));
 
     return brands;
-  } catch (error) {
-    console.error("[Brands Filter] Failed to fetch brands from attributes:", error);
+  } catch {
     return [];
   }
 }
@@ -542,14 +546,12 @@ async function fetchColors(apiUrl: string, channel: string): Promise<Color[]> {
     });
 
     if (!response.ok) {
-      console.error("[Colors Filter] HTTP error:", response.status, response.statusText);
       return [];
     }
 
     const responseData = await response.json() as any;
-    
+
     if (responseData.errors) {
-      console.error("[Colors Filter] GraphQL errors:", responseData.errors);
       return [];
     }
     
@@ -599,8 +601,7 @@ async function fetchColors(apiUrl: string, channel: string): Promise<Color[]> {
         productCount: color.count,
       }))
       .sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically
-  } catch (error) {
-    console.error("[Colors Filter] Failed to fetch colors:", error);
+  } catch {
     return [];
   }
 }
@@ -643,14 +644,12 @@ async function fetchSizes(apiUrl: string, channel: string): Promise<Size[]> {
     });
 
     if (!response.ok) {
-      console.error("[Sizes Filter] HTTP error:", response.status, response.statusText);
       return [];
     }
 
     const responseData = await response.json() as any;
-    
+
     if (responseData.errors) {
-      console.error("[Sizes Filter] GraphQL errors:", responseData.errors);
       return [];
     }
     
@@ -718,8 +717,7 @@ async function fetchSizes(apiUrl: string, channel: string): Promise<Size[]> {
         // Otherwise, alphabetical
         return aLower.localeCompare(bLower);
       });
-  } catch (error) {
-    console.error("[Sizes Filter] Failed to fetch sizes from attributes:", error);
+  } catch {
     return [];
   }
 }

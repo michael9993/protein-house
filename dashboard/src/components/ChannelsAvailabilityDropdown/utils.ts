@@ -1,11 +1,12 @@
 // @ts-strict-ignore
 import { CollectionFragment } from "@dashboard/graphql";
-import { PillColor } from "@saleor/macaw-ui";
 import { MessageDescriptor } from "react-intl";
 
 import { Pill } from "../ChannelsAvailabilityMenuContent";
 import { DotStatus } from "../StatusDot/StatusDot";
 import { channelStatusMessages } from "./messages";
+
+type PillColor = "error" | "warning" | "success" | "info" | "generic";
 
 export type CollectionChannels = Pick<
   CollectionFragment["channelListings"][0],

@@ -281,6 +281,14 @@ export async function post<T>(
   return makeRequest<T>("POST", path, accessToken, body);
 }
 
+export async function patch<T>(
+  path: string,
+  accessToken: string,
+  body: unknown,
+): Promise<Result<T, SupplierError>> {
+  return makeRequest<T>("PATCH", path, accessToken, body);
+}
+
 export async function del<T>(
   path: string,
   accessToken: string,

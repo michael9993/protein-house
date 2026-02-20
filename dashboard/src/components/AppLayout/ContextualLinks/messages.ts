@@ -18,7 +18,7 @@ export const contextualLinks = defineMessages({
     id: "zT1CvH",
   },
   extendingSaleor: {
-    defaultMessage: "extending Saleor with Webhooks",
+    defaultMessage: "extending with Webhooks",
     id: "B8PvdI",
   },
   staffMembers: {

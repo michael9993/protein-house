@@ -175,7 +175,7 @@ export function NewsletterSignup({
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span style={{ color: branding.colors.primary }} className="font-medium">
-              {content.general.newsletterAlreadyActive || "You're already subscribed to our newsletter!"}
+              {content.general.newsletterAlreadySubscribed || "You're already subscribed to our newsletter!"}
             </span>
           </div>
         ) : (

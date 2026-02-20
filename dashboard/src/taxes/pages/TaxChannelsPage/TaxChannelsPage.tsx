@@ -21,7 +21,7 @@ import TaxPageTitle from "@dashboard/taxes/components/TaxPageTitle";
 import { taxesMessages } from "@dashboard/taxes/messages";
 import { isLastElement } from "@dashboard/taxes/utils/utils";
 import { DashboardCard } from "@dashboard/components/Card";
-import { List, ListHeader, ListItem, ListItemCell, PageTab, PageTabs } from "@saleor/macaw-ui";
+import { DashboardTab, DashboardTabs } from "@dashboard/components/Tabs/DashboardTabs";
 import { Box, Button, Divider, Skeleton } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -159,23 +159,26 @@ const TaxChannelsPage = (props: TaxChannelsPageProps) => {
             <TopNav title={<TaxPageTitle />} href={configurationMenuUrl} />
             <DetailPageLayout.Content>
               <Box padding={6}>
-                <PageTabs value="channels" onChange={handleTabChange}>
-                  <PageTab
+                <DashboardTabs
+                  value="channels"
+                  onChange={value => handleTabChange(value)}
+                >
+                  <DashboardTab
                     label={intl.formatMessage(taxesMessages.channelsSection)}
                     value="channels"
                     data-test-id="channels-tab"
                   />
-                  <PageTab
+                  <DashboardTab
                     label={intl.formatMessage(taxesMessages.countriesSection)}
                     value="countries"
                     data-test-id="countries-tab"
                   />
-                  <PageTab
+                  <DashboardTab
                     label={intl.formatMessage(taxesMessages.taxClassesSection)}
                     value="tax-classes"
                     data-test-id="tax-classes-tab"
                   />
-                </PageTabs>
+                </DashboardTabs>
                 <VerticalSpacer spacing={2} />
                 <Grid variant="inverted">
                   <div>
@@ -211,24 +214,22 @@ const TaxChannelsPage = (props: TaxChannelsPageProps) => {
                           <FormattedMessage {...taxesMessages.noExceptionsForChannel} />
                         </DashboardCard.Content>
                       ) : (
-                        <List gridTemplate={["1fr 500px 1fr 1fr"]}>
-                          <ListHeader>
-                            <ListItem>
-                              <ListItemCell>
-                                <FormattedMessage {...taxesMessages.countryNameHeader} />
-                              </ListItemCell>
-                              <ListItemCell className="m-0 flex place-content-start text-left">
-                                <FormattedMessage {...taxesMessages.chargeTaxesHeader} />
-                              </ListItemCell>
-                              <ListItemCell className="m-0 flex place-content-center text-center">
-                                <FormattedMessage {...taxesMessages.showGrossHeader} />
-                              </ListItemCell>
-                              <ListItemCell>
-                                {/* This is required for the header row to be aligned with list items */}
-                                <div className="w-10 h-10 invisible"></div>
-                              </ListItemCell>
-                            </ListItem>
-                          </ListHeader>
+                        <div>
+                          <div className="grid grid-cols-[1fr_500px_1fr_1fr] items-center px-6 py-3">
+                            <div>
+                              <FormattedMessage {...taxesMessages.countryNameHeader} />
+                            </div>
+                            <div className="m-0 flex place-content-start text-left">
+                              <FormattedMessage {...taxesMessages.chargeTaxesHeader} />
+                            </div>
+                            <div className="m-0 flex place-content-center text-center">
+                              <FormattedMessage {...taxesMessages.showGrossHeader} />
+                            </div>
+                            <div>
+                              {/* This is required for the header row to be aligned with list items */}
+                              <div className="w-10 h-10 invisible"></div>
+                            </div>
+                          </div>
                           <Divider />
                           {countryExceptions?.map((country, countryIndex) => (
                             <TaxCountryExceptionListItem
@@ -255,7 +256,7 @@ const TaxChannelsPage = (props: TaxChannelsPageProps) => {
                               onChange={event => handleExceptionChange(event, countryIndex)}
                             />
                           )) ?? <Skeleton />}
-                        </List>
+                        </div>
                       )}
                     </DashboardCard>
                   </div>

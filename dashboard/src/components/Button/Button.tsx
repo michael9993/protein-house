@@ -1,15 +1,26 @@
 import { isExternalURL } from "@dashboard/utils/urls";
-import { Button as MacawButton } from "@saleor/macaw-ui";
+import { Button as MacawNextButton } from "@saleor/macaw-ui-next";
 import { forwardRef } from "react";
 import { Link } from "react-router";
 
 const _Button = forwardRef<HTMLButtonElement, any>(({ href, ...props }, ref) => {
   if (href && !isExternalURL(href)) {
-    // @ts-expect-error legacy macaw types
-    return <MacawButton {...props} to={href} component={Link} ref={ref} />;
+    return (
+      <Link to={href}>
+        <MacawNextButton {...props} ref={ref} />
+      </Link>
+    );
   }
 
-  return <MacawButton href={href} {...props} ref={ref} />;
+  if (href) {
+    return (
+      <a href={href}>
+        <MacawNextButton {...props} ref={ref} />
+      </a>
+    );
+  }
+
+  return <MacawNextButton {...props} ref={ref} />;
 });
 
 _Button.displayName = "Button";

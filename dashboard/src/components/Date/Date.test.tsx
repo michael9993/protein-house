@@ -1,5 +1,4 @@
 // @ts-strict-ignore
-import { ThemeProvider } from "@saleor/macaw-ui";
 import { render, screen } from "@testing-library/react";
 
 import { TimezoneProvider } from "../Timezone";
@@ -12,12 +11,9 @@ describe("Date", () => {
   it("Render plain date with timezone GMT-11", () => {
     // Arrange & Act
     render(
-      // @ts-expect-error - legacy types
-      <ThemeProvider>
-        <TimezoneProvider value="Pacific/Midway">
-          <Date date={testDate} plain />
-        </TimezoneProvider>
-      </ThemeProvider>,
+      <TimezoneProvider value="Pacific/Midway">
+        <Date date={testDate} plain />
+      </TimezoneProvider>,
     );
     // Assert
     expect(screen.queryByText(expectedDate)).toBeInTheDocument();
@@ -25,12 +21,9 @@ describe("Date", () => {
   it("Render plain date with timezone GMT+13", () => {
     // Arrange & Act
     render(
-      // @ts-expect-error - legacy types
-      <ThemeProvider>
-        <TimezoneProvider value="Pacific/Tongatapu">
-          <Date date={testDate} plain />
-        </TimezoneProvider>
-      </ThemeProvider>,
+      <TimezoneProvider value="Pacific/Tongatapu">
+        <Date date={testDate} plain />
+      </TimezoneProvider>,
     );
     // Assert
     expect(screen.queryByText(expectedDate)).toBeInTheDocument();
@@ -38,12 +31,9 @@ describe("Date", () => {
   it("Render humanized date with timezone GMT-11", () => {
     // Arrange & Act
     const { container } = render(
-      // @ts-expect-error - legacy types
-      <ThemeProvider>
-        <TimezoneProvider value="Pacific/Midway">
-          <Date date={testDate} />
-        </TimezoneProvider>
-      </ThemeProvider>,
+      <TimezoneProvider value="Pacific/Midway">
+        <Date date={testDate} />
+      </TimezoneProvider>,
     );
     // Assert — use container query as Radix Tooltip may not render in jsdom
     const timeEl = container.querySelector("time[data-test-id='dateTime']");
@@ -54,12 +44,9 @@ describe("Date", () => {
   it("Render humanized date with timezone GMT+13", () => {
     // Arrange & Act
     const { container } = render(
-      // @ts-expect-error - legacy types
-      <ThemeProvider>
-        <TimezoneProvider value="Pacific/Tongatapu">
-          <Date date={testDate} />
-        </TimezoneProvider>
-      </ThemeProvider>,
+      <TimezoneProvider value="Pacific/Tongatapu">
+        <Date date={testDate} />
+      </TimezoneProvider>,
     );
     // Assert — use container query as Radix Tooltip may not render in jsdom
     const timeEl = container.querySelector("time[data-test-id='dateTime']");

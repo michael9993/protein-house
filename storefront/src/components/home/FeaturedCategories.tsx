@@ -35,8 +35,14 @@ export function FeaturedCategories({
   const { homepage, branding } = useStoreConfig();
   const content = useContentConfig();
   const config = homepage.sections.featuredCategories;
+
+  // Don't render if section not configured or disabled
+  if (!config?.enabled) {
+    return null;
+  }
+
   const cardConfig = config.card || {};
-  
+
   const displayTitle = title || content.homepage.categoriesTitle;
   const displaySubtitle = subtitle || content.homepage.categoriesSubtitle;
   const shopCollectionText = content.homepage.shopNowButton || "Shop Collection";
@@ -45,14 +51,9 @@ export function FeaturedCategories({
     content.general.viewAllButton ||
     "View All Categories";
 
-  // Don't render if disabled
-  if (!config.enabled) {
-    return null;
-  }
-
   // Limit categories to config limit
   const displayCategories = categories.slice(0, config.limit);
-  
+
   // Background setup
   const backgroundConfig = config.background as SectionBackgroundConfig | undefined;
   const backgroundStyles = generateSectionBackground(backgroundConfig, branding);

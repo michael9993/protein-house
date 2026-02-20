@@ -1,6 +1,6 @@
 import { ChannelUsabilityDataQuery, OrderDetailsFragment } from "@dashboard/graphql";
 import { shippingZonesListPath } from "@dashboard/shipping/urls";
-import { Alert, AlertProps } from "@saleor/macaw-ui";
+import { DashboardAlert, DashboardAlertProps } from "@dashboard/components/Alert/DashboardAlert";
 import { sprinkles } from "@saleor/macaw-ui-next";
 import clsx from "clsx";
 import { FormattedMessage, MessageDescriptor, useIntl } from "react-intl";
@@ -37,7 +37,7 @@ const getAlerts = (
   return alerts;
 };
 
-export type OrderDraftAlertProps = Omit<AlertProps, "variant" | "close"> & {
+export type OrderDraftAlertProps = Omit<DashboardAlertProps, "severity"> & {
   order?: OrderDetailsFragment;
   channelUsabilityData?: ChannelUsabilityDataQuery;
 };
@@ -52,10 +52,9 @@ const OrderDraftAlert = (props: OrderDraftAlertProps) => {
   }
 
   return (
-    <Alert
-      variant="warning"
-      close
-      className={clsx("mb-6 [&_.MuiCardContent-root]:bg-[unset] [&_.MuiCardContent-root]:pr-8", "remove-icon-background")}
+    <DashboardAlert
+      severity="warning"
+      className="mb-6"
       {...alertProps}
     >
       <OrderAlerts
@@ -81,7 +80,7 @@ const OrderDraftAlert = (props: OrderDraftAlertProps) => {
           ),
         }}
       />
-    </Alert>
+    </DashboardAlert>
   );
 };
 

@@ -1,14 +1,14 @@
-import saleorLogoDarkMode from "@assets/images/sidebar-deafult-logo-darkMode.png";
-import saleorLogoLightMode from "@assets/images/sidebar-default-logo.png";
+import auraLogoDarkMode from "@assets/images/logo-sidebar-light.svg";
+import auraLogoLightMode from "@assets/images/logo-sidebar-dark.svg";
 import { useTheme } from "@dashboard/theme";
 import { DefaultTheme } from "@saleor/macaw-ui-next";
 
-const getSaleorLogoUrl = (theme: DefaultTheme) => {
+const getAuraLogoUrl = (theme: DefaultTheme) => {
   switch (theme) {
     case "defaultLight":
-      return saleorLogoLightMode;
+      return auraLogoLightMode;
     case "defaultDark":
-      return saleorLogoDarkMode;
+      return auraLogoDarkMode;
     default:
       throw new Error("Invalid theme mode, should not happen.");
   }
@@ -17,5 +17,5 @@ const getSaleorLogoUrl = (theme: DefaultTheme) => {
 export const SaleorLogo = () => {
   const { theme } = useTheme();
 
-  return <img src={getSaleorLogoUrl(theme)} alt="" />;
+  return <img src={getAuraLogoUrl(theme)} alt="Aura" />;
 };

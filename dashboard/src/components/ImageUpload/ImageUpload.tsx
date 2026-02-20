@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { cn } from "@dashboard/utils/cn";
-import { ImageIcon } from "@saleor/macaw-ui";
+import { ImageIcon } from "lucide-react";
 import { Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage } from "react-intl";
@@ -51,7 +51,7 @@ const ImageUpload = (props: ImageUploadProps) => {
                 )}
               >
                 <input {...getInputProps()} className="hidden" accept="image/*" />
-                <ImageIcon className="h-[32px] mx-auto w-[32px]" />
+                <ImageIcon size={32} className="mx-auto" />
                 <Text display="block" fontWeight="bold" textTransform="uppercase" fontSize={3}>
                   <FormattedMessage
                     id="NxeDbG"

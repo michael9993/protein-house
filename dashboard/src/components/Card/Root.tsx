@@ -4,7 +4,7 @@ const borderProps: BoxProps = {
   borderWidth: 1,
   borderStyle: "solid",
   borderColor: "default1",
-  borderRadius: 2,
+  borderRadius: 3,
   padding: 4,
 };
 

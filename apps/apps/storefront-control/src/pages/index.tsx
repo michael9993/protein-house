@@ -39,11 +39,11 @@ const IndexPage: NextPage = () => {
   const channels = channelsData?.channels || [];
 
   useEffect(() => {
-    // Auto-select first channel if only one exists
+    // Auto-navigate if only one channel exists
     if (channels.length === 1 && !selectedChannel) {
-      setSelectedChannel(channels[0].slug);
+      router.push(`/${channels[0].slug}`);
     }
-  }, [channels, selectedChannel]);
+  }, [channels, selectedChannel, router]);
 
   const handleChannelSelect = (value: string) => {
     setSelectedChannel(value);

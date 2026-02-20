@@ -909,7 +909,7 @@ export function CartClient({
                   <div className="flex items-center justify-between gap-2 rounded-lg border border-emerald-200 bg-emerald-50/50 px-3 py-2.5">
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-emerald-800 truncate">
-                        {content.cart.voucherLabel ?? "Voucher"}: {cart.voucherCode}
+                        {(content.cart as Record<string, string>).voucherLabel ?? "Voucher"}: {cart.voucherCode}
                       </p>
                       {cart.discount && (
                         <p className="text-xs text-emerald-600 mt-0.5">
@@ -930,7 +930,7 @@ export function CartClient({
                           });
                           setPromoPending(false);
                           if (result.success) {
-                            toast.success(content.cart.voucherRemoved ?? "Voucher removed");
+                            toast.success((content.cart as Record<string, string>).voucherRemoved ?? "Voucher removed");
                             window.dispatchEvent(new CustomEvent("cart-updated"));
                           } else {
                             setPromoError(result.error ?? "Failed to remove");
@@ -974,7 +974,7 @@ export function CartClient({
                           const result = await applyPromoCodeAction(cart.id, promoCodeInput.trim());
                           setPromoPending(false);
                           if (result.success) {
-                            toast.success(content.cart.promoCodeApplied ?? "Promo code applied");
+                            toast.success((content.cart as Record<string, string>).promoCodeApplied ?? "Promo code applied");
                             setPromoCodeInput("");
                             window.dispatchEvent(new CustomEvent("cart-updated"));
                           } else {

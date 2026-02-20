@@ -9,8 +9,8 @@ import { getById } from "@dashboard/misc";
 import { getLineAvailableQuantityInWarehouse } from "@dashboard/orders/utils/data";
 import useWarehouseSearch from "@dashboard/searches/useWarehouseSearch";
 import { mapEdgesToItems } from "@dashboard/utils/maps";
-import { Button, isScrolledToBottom, SearchIcon, useElementScroll } from "@saleor/macaw-ui";
-import { Box, Input, RadioGroup, Skeleton, Text } from "@saleor/macaw-ui-next";
+import { Box, Button, Input, RadioGroup, Skeleton, Text } from "@saleor/macaw-ui-next";
+import { Search } from "lucide-react";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -32,10 +32,22 @@ const OrderChangeWarehouseDialog = ({
   onClose,
 }: OrderChangeWarehouseDialogProps) => {
   const intl = useIntl();
-  const { anchor, position, setAnchor } = useElementScroll();
-  const bottomShadow = !isScrolledToBottom(anchor, position, 20);
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const [bottomReached, setBottomReached] = React.useState(false);
   const [query, setQuery] = React.useState<string>("");
   const [selectedWarehouseId, setSelectedWarehouseId] = React.useState<string | null>(null);
+
+  const handleScroll = React.useCallback(() => {
+    const el = scrollRef.current;
+
+    if (!el) {
+      return;
+    }
+
+    const isAtBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 20;
+
+    setBottomReached(isAtBottom);
+  }, []);
 
   React.useEffect(() => {
     if (currentWarehouseId) {
@@ -63,10 +75,10 @@ const OrderChangeWarehouseDialog = ({
   };
 
   React.useEffect(() => {
-    if (!bottomShadow) {
+    if (bottomReached) {
       loadMore();
     }
-  }, [bottomShadow]);
+  }, [bottomReached]);
 
   return (
     <DashboardModal open={open} onChange={onClose}>
@@ -99,10 +111,7 @@ const OrderChangeWarehouseDialog = ({
                 onChange={handleSearchChange}
                 placeholder={intl.formatMessage(messages.searchFieldPlaceholder)}
                 startAdornment={
-                  <SearchIcon
-                    onPointerEnterCapture={undefined}
-                    onPointerLeaveCapture={undefined}
-                  />
+                  <Search size={20} />
                 }
               />
             );
@@ -113,7 +122,7 @@ const OrderChangeWarehouseDialog = ({
           <FormattedMessage {...messages.warehouseListLabel} />
         </Text>
 
-        <Box ref={setAnchor} overflowY="auto">
+        <Box ref={scrollRef} overflowY="auto" onScroll={handleScroll}>
           <Table>
             {filteredWarehouses ? (
               <RadioGroup
@@ -167,7 +176,6 @@ const OrderChangeWarehouseDialog = ({
         <DashboardModal.Actions>
           <Button
             onClick={handleSubmit}
-            color="primary"
             variant="primary"
             disabled={!selectedWarehouse}
           >

@@ -86,9 +86,9 @@ export function ProductsContent({
                 channel={channel}
                 mobileOnly
                 initialCategories={categoriesForFilter}
-                initialBrands={brandsForQuickFilters}
-                initialSizes={sizesForFilters}
-                initialColors={colorsForFilters}
+                initialBrands={brandsForQuickFilters.map(b => ({ id: b.slug, ...b }))}
+                initialSizes={sizesForFilters.map(s => ({ id: s.slug, ...s }))}
+                initialColors={colorsForFilters.map(c => ({ id: c.slug, ...c }))}
               />
             </div>
 

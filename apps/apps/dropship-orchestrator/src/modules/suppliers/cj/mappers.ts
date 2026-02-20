@@ -188,7 +188,7 @@ export function mapAddress(address: Address): CJShippingAddress {
     shippingCustomerName: address.name,
     shippingAddress: address.street,
     shippingCity: address.city,
-    shippingProvince: "", // CJ province — not always required, the city can suffice
+    shippingProvince: address.province ?? "",
     shippingZip: address.postalCode,
     shippingPhone: address.phone,
   };

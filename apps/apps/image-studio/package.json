@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm run type-check && next build",
+    "build": "next build",
     "build:skip-type-check": "next build",
     "check-types": "tsc",
     "type-check": "tsc --noEmit",

@@ -180,15 +180,40 @@ export function mapStockInfo(sku: AliExpressSkuInfo): StockInfo {
 // Address Mapping — Our format → AliExpress logistics address
 // ---------------------------------------------------------------------------
 
+/**
+ * Common phone country prefixes keyed by ISO 3166-1 alpha-2 country code.
+ * Used when the phone doesn't already start with "+".
+ */
+const PHONE_PREFIX: Record<string, string> = {
+  US: "+1", CA: "+1", GB: "+44", IL: "+972", AU: "+61", DE: "+49",
+  FR: "+33", IT: "+39", ES: "+34", NL: "+31", BR: "+55", MX: "+52",
+  JP: "+81", KR: "+82", CN: "+86", IN: "+91", RU: "+7", SA: "+966",
+  AE: "+971", TR: "+90", PL: "+48", SE: "+46", NO: "+47", DK: "+45",
+  FI: "+358", PT: "+351", GR: "+30", CZ: "+420", AT: "+43", CH: "+41",
+  BE: "+32", IE: "+353", NZ: "+64", SG: "+65", MY: "+60", TH: "+66",
+  PH: "+63", ID: "+62", VN: "+84", CL: "+56", CO: "+57", AR: "+54",
+};
+
 export function mapAddress(address: Address): AliExpressLogisticsAddress {
+  // Extract phone prefix: if phone starts with "+", use that; otherwise lookup by country
+  let phoneCountry = "";
+
+  if (address.phone.startsWith("+")) {
+    const match = address.phone.match(/^(\+\d{1,4})/);
+    phoneCountry = match?.[1] ?? "";
+  } else {
+    phoneCountry = PHONE_PREFIX[address.country] ?? "";
+  }
+
   return {
     contact_person: address.name,
     address: address.street,
     city: address.city,
     zip: address.postalCode,
     country: address.country,
-    phone_country: "",
+    phone_country: phoneCountry,
     mobile_no: address.phone,
+    province: address.province,
   };
 }
 

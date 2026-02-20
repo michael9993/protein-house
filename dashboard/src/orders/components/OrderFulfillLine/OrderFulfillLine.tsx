@@ -10,7 +10,8 @@ import {
   OrderFulfillLineFormData,
 } from "@dashboard/orders/utils/data";
 import { TableCell } from "@dashboard/components/Table";
-import { ChevronIcon, IconButton, WarningIcon } from "@saleor/macaw-ui";
+import { IconButton } from "@dashboard/components/IconButton/IconButton";
+import { AlertTriangle, ChevronDown } from "lucide-react";
 import { Box, Input, Skeleton, Text, Tooltip } from "@saleor/macaw-ui-next";
 import { useIntl } from "react-intl";
 
@@ -70,7 +71,7 @@ const OrderFulfillLine = (props: OrderFulfillLineProps) => {
             <Tooltip>
               <Tooltip.Trigger>
                 <div className="text-saleor-warning mr-4">
-                  <WarningIcon />
+                  <AlertTriangle size={20} />
                 </div>
               </Tooltip.Trigger>
               <Tooltip.Content side="bottom">
@@ -102,7 +103,7 @@ const OrderFulfillLine = (props: OrderFulfillLineProps) => {
             size="small"
             type="number"
             className={cn({
-              "!border-saleor-warning-dark shadow-[0_0_0_3px_var(--color-saleor-warning-light)]": isStockExceeded && !overfulfill,
+              "!border-status-warning-dark shadow-[0_0_0_3px_var(--color-status-warning-light)]": isStockExceeded && !overfulfill,
             })}
             min={0}
             style={{ textAlign: "right" }}
@@ -141,7 +142,7 @@ const OrderFulfillLine = (props: OrderFulfillLineProps) => {
               <Text className="overflow-hidden text-ellipsis whitespace-nowrap">
                 {lineFormWarehouse?.name ?? intl.formatMessage(messages.selectWarehouse)}
               </Text>
-              <ChevronIcon onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
+              <ChevronDown size={20} />
             </div>
           </IconButton>
         )}

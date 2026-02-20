@@ -442,7 +442,7 @@ export function FooterClient({ menuItems, channel }: FooterClientPropsWithChanne
 							placeholder={contentConfig.general.newsletterPlaceholder}
 							buttonText={contentConfig.general.newsletterButton}
 							successMessage={contentConfig.general.newsletterSuccess}
-							alreadyActiveMessage={contentConfig.general.newsletterAlreadyActive || "You're already subscribed to our newsletter!"}
+							alreadyActiveMessage={contentConfig.general.newsletterAlreadySubscribed || "You're already subscribed to our newsletter!"}
 							primaryColor={branding.colors.primary}
 							channel={channel}
 						/>

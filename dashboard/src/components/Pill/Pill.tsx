@@ -1,19 +1,19 @@
 // @ts-strict-ignore
 import { getStatusColor, PillStatusType } from "@dashboard/misc";
 import { cn } from "@dashboard/utils/cn";
-import { Pill as MacawuiPill, PillProps } from "@saleor/macaw-ui";
 import { useTheme } from "@saleor/macaw-ui-next";
 import { forwardRef } from "react";
 
-export interface CustomPillProps extends Omit<PillProps, "color"> {
+export interface CustomPillProps {
   color: PillStatusType;
+  label: string;
+  className?: string;
+  style?: React.CSSProperties;
+  outlined?: boolean;
 }
 
-// Main purpose of this component is to override default Pill component
-// from macaw-ui to add custom styles
-// TODO: migrate to Pill component from new macaw-ui when it will be ready
-export const Pill = forwardRef<HTMLDivElement, CustomPillProps>(
-  ({ color: status, ...props }, ref) => {
+export const Pill = forwardRef<HTMLSpanElement, CustomPillProps>(
+  ({ color: status, label, className, style, outlined, ...props }, ref) => {
     const { theme: currentTheme } = useTheme();
 
     const colors = getStatusColor({
@@ -22,24 +22,23 @@ export const Pill = forwardRef<HTMLDivElement, CustomPillProps>(
     });
 
     return (
-      <MacawuiPill
-        placeholder={undefined}
-        onPointerEnterCapture={undefined}
-        onPointerLeaveCapture={undefined}
-        {...(props as any)}
+      <span
         ref={ref}
         className={cn(
-          "rounded-[32px] border border-solid font-medium px-[2px] py-0 [&>span]:font-medium [&>div]:ml-2 [&>svg]:ml-2",
-          props.className,
+          "inline-flex items-center rounded-[32px] border border-solid font-medium px-2 py-0.5 text-xs leading-normal",
+          className,
         )}
         style={{
           backgroundColor: colors.base,
           borderColor: colors.border,
           color: colors.text,
           fontWeight: 500,
-          ...props.style,
+          ...style,
         }}
-      />
+        {...props}
+      >
+        {label}
+      </span>
     );
   },
 );

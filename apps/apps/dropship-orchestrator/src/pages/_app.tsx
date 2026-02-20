@@ -4,7 +4,7 @@ import { AppBridge, AppBridgeProvider } from "@saleor/app-sdk/app-bridge";
 import { RoutePropagator } from "@saleor/app-sdk/app-bridge/next";
 import { NoSSRWrapper } from "@saleor/apps-shared/no-ssr-wrapper";
 import { ThemeSynchronizer } from "@saleor/apps-shared/theme-synchronizer";
-import { Box, ThemeProvider } from "@saleor/macaw-ui";
+import { ThemeProvider } from "@saleor/macaw-ui";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppProps } from "next/app";
 
@@ -33,9 +33,9 @@ function NextApp({ Component, pageProps }: AppProps) {
             <ThemeSynchronizer />
             <RoutePropagator />
             <QueryClientProvider client={queryClient}>
-              <Box padding={10}>
+              <div style={{ padding: "40px" }}>
                 <Component {...pageProps} />
-              </Box>
+              </div>
             </QueryClientProvider>
           </GraphQLProvider>
         </AppBridgeProvider>

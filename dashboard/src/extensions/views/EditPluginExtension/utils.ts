@@ -4,8 +4,9 @@ import {
   ConfigurationTypeFieldEnum,
   PluginConfigurationBaseFragment,
 } from "@dashboard/graphql";
-import { PillColor } from "@saleor/macaw-ui";
 import { MessageDescriptor } from "react-intl";
+
+type PillColor = "error" | "warning" | "success" | "info" | "generic";
 
 export const isPluginGlobal = (globalConfiguration: PluginConfigurationBaseFragment) =>
   !!globalConfiguration;

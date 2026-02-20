@@ -16,7 +16,7 @@ services:
       # Script to create additional database for Stripe app
       - ./scripts/init-stripe-database.sh:/docker-entrypoint-initdb.d/01-init-stripe-database.sh:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U saleor"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -105,8 +105,8 @@ services:
       # When using tunnels, set SALEOR_API_TUNNEL_URL so PUBLIC_URL matches; otherwise apps return 401 SIGNATURE_VERIFICATION_FAILED.
       PUBLIC_URL: ${SALEOR_API_TUNNEL_URL:-${PUBLIC_URL:-http://localhost:8000}}
 
-      # Enable Playground in Development
-      GRAPHQL_PLAYGROUND_ENABLED: "True"
+      # GraphQL Playground - disable in production
+      GRAPHQL_PLAYGROUND_ENABLED: ${GRAPHQL_PLAYGROUND_ENABLED:-True}
     depends_on:
       postgres:
         condition: service_healthy
@@ -180,14 +180,18 @@ services:
       - ../saleor:/app
       # Mount custom plugins
       - ../backend/plugins:/app/plugins/custom:ro
+    env_file:
+      - .env
     environment:
-      SECRET_KEY: ${SECRET_KEY:-changeme-in-production}
-      DATABASE_URL: postgres://${POSTGRES_USER:-saleor}:${POSTGRES_PASSWORD:-saleor}@postgres:5432/${POSTGRES_DB:-saleor}
+      SECRET_KEY: ${SECRET_KEY}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       DB_CONN_MAX_AGE: ${DB_CONN_MAX_AGE:-60}
-      REDIS_URL: redis://redis:6379/0
-      CELERY_BROKER_URL: redis://redis:6379/1
-      CELERY_RESULT_BACKEND: redis://redis:6379/2
-      TIME_ZONE: ${TIME_ZONE:-UTC}
+      REDIS_URL: ${REDIS_URL}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+      TIME_ZONE: ${TIME_ZONE}
+      DEBUG: ${DEBUG}
+      PUBLIC_URL: ${SALEOR_API_TUNNEL_URL:-${PUBLIC_URL:-http://localhost:8000}}
     depends_on:
       postgres:
         condition: service_healthy
@@ -242,7 +246,7 @@ services:
           "--quiet",
           "--tries=1",
           "--spider",
-          "http://localhost:9000/dashboard/",
+          "http://127.0.0.1:9000/dashboard/",
         ]
       interval: 30s
       timeout: 10s
@@ -262,7 +266,7 @@ services:
     # Only install if node_modules doesn't exist or package.json changed (pnpm handles this automatically)
     # Optionally generate storefront config fallback file if env vars are set
     # Uses tunnel URL if available (for tunneling setups), otherwise falls back to internal/public URLs
-    command: sh -c "corepack enable && corepack prepare pnpm@9.6.0 --activate && unset NODE_ENV && pnpm install --prefer-offline && echo '🔍 Generating GraphQL types...' && pnpm run generate && if [ -f ../scripts/fetch-storefront-config.ts ] && [ -n \"$${SALEOR_API_URL}\" ] && [ -n \"$${STOREFRONT_CHANNELS}\" ]; then echo '🔍 Generating storefront config fallback (using tunnel URL if available)...' && cd .. && export STOREFRONT_CONTROL_APP_TUNNEL_URL=\"$${STOREFRONT_CONTROL_APP_TUNNEL_URL}\" && export STOREFRONT_CONTROL_APP_URL=\"$${STOREFRONT_CONTROL_APP_URL}\" && node scripts/fetch-storefront-config.ts || echo '⚠️  Config generation failed, continuing...' && cd storefront; fi && if [ \"$${STOREFRONT_MODE:-dev}\" = \"production\" ]; then echo '🔍 Running type check before build...' && pnpm run type-check && echo '✅ Type check passed! Building production...' && export NODE_ENV=production && pnpm run build && echo 'Starting production server...' && pnpm run start; else echo 'Starting dev server...' && export NODE_ENV=development && pnpm run dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@9.6.0 --activate && unset NODE_ENV && pnpm install --prefer-offline && echo '🔍 Generating GraphQL types...' && pnpm run generate && if [ -f ../scripts/fetch-storefront-config.ts ] && [ -n \"$${SALEOR_API_URL}\" ] && [ -n \"$${STOREFRONT_CHANNELS}\" ]; then echo '🔍 Generating storefront config fallback (using tunnel URL if available)...' && cd .. && export STOREFRONT_CONTROL_APP_TUNNEL_URL=\"$${STOREFRONT_CONTROL_APP_TUNNEL_URL}\" && export STOREFRONT_CONTROL_APP_URL=\"$${STOREFRONT_CONTROL_APP_URL}\" && node scripts/fetch-storefront-config.ts || echo '⚠️  Config generation failed, continuing...' && cd storefront; fi && if [ \"$${STOREFRONT_MODE:-dev}\" = \"production\" ]; then echo '🔍 Building production...' && export NODE_ENV=production && pnpm run build && echo 'Starting production server...' && pnpm run start; else echo 'Starting dev server...' && export NODE_ENV=development && pnpm run dev; fi"
     env_file:
       - .env
     ports:
@@ -345,7 +349,7 @@ services:
     container_name: saleor-smtp-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-smtp... --prefer-offline && cd apps/smtp && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run check-types && pnpm build && pnpm start; else pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-smtp... --prefer-offline && cd apps/smtp && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && pnpm start; else pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -366,8 +370,8 @@ services:
       # Secret key for encrypting app metadata - MUST match Newsletter app
       SECRET_KEY: ${APP_SECRET_KEY}
       # Disable OpenTelemetry/Sentry in development
-      OTEL_ENABLED: "false"
-      NEXT_PUBLIC_SENTRY_DSN: ""
+      OTEL_ENABLED: ${OTEL_ENABLED:-false}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
       # Set APPS_MODE=production in .env to run production build in container
       APPS_MODE: ${APPS_MODE:-dev}
     depends_on:
@@ -396,7 +400,7 @@ services:
     container_name: saleor-invoice-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-invoices... --prefer-offline && cd apps/invoices && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run generate && pnpm run check-types && pnpm build && pnpm start; else pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-invoices... --prefer-offline && cd apps/invoices && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run generate && pnpm build && pnpm start; else pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -413,8 +417,8 @@ services:
       APP_API_BASE_URL: ${INVOICE_APP_URL}
       NODE_ENV: ${NODE_ENV:-development}
       # Disable OpenTelemetry/Sentry in development
-      OTEL_ENABLED: "false"
-      NEXT_PUBLIC_SENTRY_DSN: ""
+      OTEL_ENABLED: ${OTEL_ENABLED:-false}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
       # Set APPS_MODE=production in .env to run production build in container
       APPS_MODE: ${APPS_MODE:-dev}
     depends_on:
@@ -447,7 +451,7 @@ services:
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
     # Must install from monorepo root to get catalog entries and workspace dependencies
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-payment-stripe... --prefer-offline && cd apps/stripe && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run check-types && pnpm build && pnpm start; else pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-payment-stripe... --prefer-offline && cd apps/stripe && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && pnpm start; else pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -458,7 +462,7 @@ services:
       # Using absolute Windows path (forward slashes work in Docker on Windows)
       # Note: Update this path if your saleor-platform is in a different location
       # Alternative: Use relative path if running from infra/ directory: ../apps:/app
-      - C:/Users/micha/saleor-platform/apps:/app
+      - ../apps:/app
       # Preserve node_modules at root level (monorepo structure)
       - stripe-app-node-modules:/app/node_modules
       # Preserve Next.js build cache
@@ -480,7 +484,7 @@ services:
       # App configuration
       APP_ID: stripe
       APP_NAME: Stripe
-      APP_ENV: development
+      APP_ENV: ${NODE_ENV:-development}
       APP_URL: ${STRIPE_APP_URL}
       APP_API_BASE_URL: ${STRIPE_APP_API_BASE_URL}
       NODE_ENV: ${NODE_ENV:-development}
@@ -493,8 +497,8 @@ services:
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/stripe_app
 
       # Disable instrumentation features in development to avoid errors
-      OTEL_ENABLED: "false"
-      NEXT_PUBLIC_SENTRY_DSN: ""
+      OTEL_ENABLED: ${OTEL_ENABLED:-false}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
 
       # Next.js
       PORT: 3000
@@ -517,7 +521,7 @@ services:
     container_name: saleor-storefront-control-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-storefront-control... --prefer-offline && cd apps/storefront-control && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run check-types && pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-storefront-control... --prefer-offline && cd apps/storefront-control && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -539,13 +543,13 @@ services:
       # Public URL for storefront (fallback)
       STOREFRONT_URL: ${NEXT_PUBLIC_STOREFRONT_URL}
       # APL type: 'file' for local dev
-      APL: file
+      APL: ${APL:-file}
       # Secret key for encrypting app metadata
       SECRET_KEY: ${APP_SECRET_KEY}
       NODE_ENV: ${NODE_ENV:-development}
       # Disable OpenTelemetry/Sentry in development
-      OTEL_ENABLED: "false"
-      NEXT_PUBLIC_SENTRY_DSN: ""
+      OTEL_ENABLED: ${OTEL_ENABLED:-false}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
       # Set APPS_MODE=production in .env to run production build in container
       APPS_MODE: ${APPS_MODE:-dev}
     depends_on:
@@ -574,7 +578,7 @@ services:
     container_name: saleor-newsletter-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-newsletter... --prefer-offline && cd apps/newsletter && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run check-types && pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-newsletter... --prefer-offline && cd apps/newsletter && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -591,7 +595,7 @@ services:
       APP_API_BASE_URL: ${NEWSLETTER_APP_TUNNEL_URL:-http://localhost:${NEWSLETTER_APP_PORT:-3005}}
       APP_IFRAME_BASE_URL: ${NEWSLETTER_APP_TUNNEL_URL:-http://localhost:${NEWSLETTER_APP_PORT:-3005}}
       # APL type: 'file' for local dev
-      APL: file
+      APL: ${APL:-file}
       # Secret key for encrypting app metadata
       SECRET_KEY: ${APP_SECRET_KEY}
       NODE_ENV: ${NODE_ENV:-development}
@@ -600,8 +604,8 @@ services:
       # Redis for BullMQ (campaign queue) - use service name 'redis' for Docker network
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       # Disable OpenTelemetry/Sentry in development
-      OTEL_ENABLED: "false"
-      NEXT_PUBLIC_SENTRY_DSN: ""
+      OTEL_ENABLED: ${OTEL_ENABLED:-false}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
       # Storefront Control app URL for fetching branding (Docker internal network)
       STOREFRONT_CONTROL_APP_INTERNAL_URL: http://saleor-storefront-control-app:3000
       # Storefront URL for unsubscribe links (use tunnel URL for external access)
@@ -647,7 +651,7 @@ services:
     container_name: saleor-sales-analytics-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-sales-analytics... --prefer-offline && cd apps/sales-analytics && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run check-types && pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-sales-analytics... --prefer-offline && cd apps/sales-analytics && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -664,13 +668,13 @@ services:
       APP_API_BASE_URL: ${SALES_ANALYTICS_APP_TUNNEL_URL:-http://localhost:${SALES_ANALYTICS_APP_PORT:-3006}}
       APP_IFRAME_BASE_URL: ${SALES_ANALYTICS_APP_TUNNEL_URL:-http://localhost:${SALES_ANALYTICS_APP_PORT:-3006}}
       # APL type: 'file' for local dev
-      APL: file
+      APL: ${APL:-file}
       # Secret key for encrypting app metadata
       SECRET_KEY: ${APP_SECRET_KEY}
       NODE_ENV: ${NODE_ENV:-development}
       # Disable OpenTelemetry/Sentry in development
-      OTEL_ENABLED: "false"
-      NEXT_PUBLIC_SENTRY_DSN: ""
+      OTEL_ENABLED: ${OTEL_ENABLED:-false}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
       APPS_MODE: ${APPS_MODE:-dev}
     depends_on:
       saleor-api:
@@ -699,7 +703,7 @@ services:
     container_name: saleor-bulk-manager-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-bulk-manager... --prefer-offline && cd apps/bulk-manager && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run check-types && pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-bulk-manager... --prefer-offline && cd apps/bulk-manager && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -715,13 +719,13 @@ services:
       BULK_MANAGER_APP_URL: ${BULK_MANAGER_APP_TUNNEL_URL:-http://localhost:${BULK_MANAGER_APP_PORT:-3007}}
       APP_API_BASE_URL: ${BULK_MANAGER_APP_TUNNEL_URL:-http://localhost:${BULK_MANAGER_APP_PORT:-3007}}
       # APL type: 'file' for local dev
-      APL: file
+      APL: ${APL:-file}
       # Secret key for encrypting app metadata
       SECRET_KEY: ${APP_SECRET_KEY}
       NODE_ENV: ${NODE_ENV:-development}
       # Disable OpenTelemetry/Sentry in development
-      OTEL_ENABLED: "false"
-      NEXT_PUBLIC_SENTRY_DSN: ""
+      OTEL_ENABLED: ${OTEL_ENABLED:-false}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
       # Set APPS_MODE=production in .env to run production build in container
       APPS_MODE: ${APPS_MODE:-dev}
     depends_on:
@@ -750,7 +754,7 @@ services:
     image: node:22-alpine
     container_name: saleor-image-studio-app-dev
     working_dir: /app
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-image-studio... --prefer-offline && cd apps/image-studio && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run check-types && pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-image-studio... --prefer-offline && cd apps/image-studio && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -764,11 +768,11 @@ services:
       NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
       IMAGE_STUDIO_APP_URL: ${IMAGE_STUDIO_APP_TUNNEL_URL:-http://localhost:${IMAGE_STUDIO_APP_PORT:-3008}}
       APP_API_BASE_URL: ${IMAGE_STUDIO_APP_TUNNEL_URL:-http://localhost:${IMAGE_STUDIO_APP_PORT:-3008}}
-      APL: file
+      APL: ${APL:-file}
       SECRET_KEY: ${APP_SECRET_KEY}
       NODE_ENV: ${NODE_ENV:-development}
-      OTEL_ENABLED: "false"
-      NEXT_PUBLIC_SENTRY_DSN: ""
+      OTEL_ENABLED: ${OTEL_ENABLED:-false}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
       APPS_MODE: ${APPS_MODE:-dev}
       # AI Service URLs (internal Docker network)
       REMBG_URL: http://saleor-rembg:7000
@@ -844,7 +848,7 @@ services:
     container_name: saleor-dropship-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-dropship-orchestrator... --prefer-offline && cd apps/dropship-orchestrator && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run check-types && pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-dropship-orchestrator... --prefer-offline && cd apps/dropship-orchestrator && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -861,15 +865,15 @@ services:
       APP_API_BASE_URL: ${DROPSHIP_APP_TUNNEL_URL:-http://localhost:${DROPSHIP_APP_PORT:-3009}}
       APP_IFRAME_BASE_URL: ${DROPSHIP_APP_TUNNEL_URL:-http://localhost:${DROPSHIP_APP_PORT:-3009}}
       # APL type: 'file' for local dev
-      APL: file
+      APL: ${APL:-file}
       # Secret key for encrypting app metadata (supplier credentials)
       SECRET_KEY: ${APP_SECRET_KEY}
       # Redis for BullMQ background jobs (tracking sync, reconciliation)
       REDIS_URL: ${REDIS_URL}
       NODE_ENV: ${NODE_ENV:-development}
       # Disable OpenTelemetry/Sentry in development
-      OTEL_ENABLED: "false"
-      NEXT_PUBLIC_SENTRY_DSN: ""
+      OTEL_ENABLED: ${OTEL_ENABLED:-false}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
       # Set APPS_MODE=production in .env to run production build in container
       APPS_MODE: ${APPS_MODE:-dev}
     depends_on:

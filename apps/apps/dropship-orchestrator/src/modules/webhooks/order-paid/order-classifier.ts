@@ -11,6 +11,8 @@ const logger = createLogger("OrderClassifier");
 const DropshipMetadataSchema = z.object({
   supplier: z.enum(["aliexpress", "cj"]),
   supplierSku: z.string().min(1),
+  /** AliExpress variant attribute string, e.g. "14:350853#Black;5:361386#M". Not used by CJ. */
+  supplierSkuAttr: z.string().optional(),
   costPrice: z.number().nonnegative(),
 });
 

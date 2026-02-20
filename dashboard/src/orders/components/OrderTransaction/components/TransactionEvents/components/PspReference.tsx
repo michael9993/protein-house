@@ -3,7 +3,8 @@ import OverflowTooltip from "@dashboard/components/OverflowTooltip";
 import { useClipboard } from "@dashboard/hooks/useClipboard";
 import { commonMessages } from "@dashboard/intl";
 import { cn } from "@dashboard/utils/cn";
-import { CheckIcon, CopyIcon, IconButton } from "@saleor/macaw-ui";
+import { IconButton } from "@dashboard/components/IconButton/IconButton";
+import { Check, Copy } from "lucide-react";
 import { useIntl } from "react-intl";
 
 import { PspReferenceLink } from "./PspReferenceLink";
@@ -38,9 +39,9 @@ export const PspReference = ({ reference, url }: PspReferenceProps) => {
           }}
           size="medium">
           {copied ? (
-            <CheckIcon onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
+            <Check size={16} />
           ) : (
-            <CopyIcon onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
+            <Copy size={16} />
           )}
         </IconButton>
       )}

@@ -1,5 +1,7 @@
 import { OrderDetailsGrantRefundFragment, OrderGrantedRefundStatusEnum } from "@dashboard/graphql";
-import { ConfirmButtonTransitionState, SavebarLabels } from "@saleor/macaw-ui";
+import { ConfirmButtonTransitionState } from "@dashboard/components/ConfirmButton";
+
+type SavebarLabels = Record<"confirm" | "error", string>;
 import { useEffect } from "react";
 import { UseFieldArrayUpdate, UseFormGetValues, UseFormSetValue } from "react-hook-form";
 import { IntlShape } from "react-intl";

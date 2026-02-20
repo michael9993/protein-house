@@ -7,7 +7,6 @@ import { taxClassesListUrl } from "@dashboard/taxes/urls";
 import { isLastElement } from "@dashboard/taxes/utils/utils";
 import { DashboardCard } from "@dashboard/components/Card";
 import { cn } from "@dashboard/utils/cn";
-import { List, ListHeader, ListItem, ListItemCell } from "@saleor/macaw-ui";
 import { Button, Divider, Skeleton } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { Fragment } from "react";
@@ -47,26 +46,24 @@ const TaxClassesMenu = ({
 
       {taxClasses?.length !== 0 ? (
         <>
-          <ListHeader>
-            <ListItem className="min-h-12 after:hidden">
-              <ListItemCell>
-                <FormattedMessage {...taxesMessages.taxClassNameHeader} />
-              </ListItemCell>
-            </ListItem>
-          </ListHeader>
+          <div className="grid grid-cols-[1fr] min-h-12 items-center px-6">
+            <div>
+              <FormattedMessage {...taxesMessages.taxClassNameHeader} />
+            </div>
+          </div>
           <Divider />
-          <List gridTemplate={["1fr"]}>
+          <div>
             {taxClasses?.map((taxClass, taxClassId) => (
               <Fragment key={taxClass.id}>
                 <ListItemLink
                   data-test-id="class-list-rows"
                   className={cn(
-                    "cursor-pointer min-h-12 after:hidden",
+                    "grid grid-cols-[1fr] cursor-pointer min-h-12 items-center px-6",
                     taxClass.id === selectedTaxClassId && "before:absolute before:left-0 before:w-1 before:h-full before:bg-[var(--mu-colors-background-interactiveNeutralDefault)]",
                   )}
                   href={taxClassesListUrl(taxClass.id)}
                 >
-                  <ListItemCell>
+                  <div>
                     <div className="flex justify-between items-center">
                       {taxClass.name}
                       {taxClass.id !== "new" && (
@@ -87,12 +84,12 @@ const TaxClassesMenu = ({
                         />
                       )}
                     </div>
-                  </ListItemCell>
+                  </div>
                 </ListItemLink>
                 {!isLastElement(taxClasses, taxClassId) && <Divider />}
               </Fragment>
             )) ?? <Skeleton />}
-          </List>
+          </div>
         </>
       ) : (
         <DashboardCard.Content className="text-[var(--mu-colors-text-default2)]">

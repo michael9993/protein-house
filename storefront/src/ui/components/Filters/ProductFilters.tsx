@@ -142,15 +142,6 @@ export function ProductFilters({
   const collectionsLabel = content.navbar?.collectionsLabel ?? filtersText.collectionTitle;
   const brandsLabel = content.navbar?.brandsLabel ?? filtersText.brandTitle;
   
-  // Debug: Log sizes when component receives them
-  useEffect(() => {
-    if (sizes.length > 0) {
-      console.log("[ProductFilters] Received sizes:", sizes.length, sizes.map(s => `${s.name} (${s.slug})`));
-    } else {
-      console.log("[ProductFilters] No sizes received");
-    }
-  }, [sizes]);
-  
   // Use the centralized hook - URL is source of truth
   const {
     filters,

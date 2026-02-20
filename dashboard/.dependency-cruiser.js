@@ -1,25 +1,6 @@
 /** @type {import('dependency-cruiser').IConfiguration} */
 module.exports = {
   forbidden: [
-    {
-      name: "Macaw UI - migration",
-      severity: "info",
-      comment: "Macaw UI migration",
-      from: {},
-      to: {
-        path: "@saleor/macaw-ui",
-        pathNot: "@saleor/macaw-ui-next",
-      },
-    },
-    {
-      name: "Material UI - migration",
-      severity: "info",
-      comment: "Material UI migration",
-      from: {},
-      to: {
-        path: "@material-ui/*",
-      },
-    },
   ],
   options: {
     doNotFollow: {

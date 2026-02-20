@@ -2,7 +2,6 @@ import {
   mockResizeObserver,
   prepareDatagridScroller,
 } from "@dashboard/components/Datagrid/testUtils";
-import { ThemeProvider as LegacyThemeProvider } from "@saleor/macaw-ui";
 import { ThemeProvider } from "@saleor/macaw-ui-next";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -24,10 +23,7 @@ const Wrapper = ({ children }: { children: ReactNode }) => {
   return (
     // @ts-expect-error - old router
     <BrowserRouter>
-      {/* @ts-expect-error - old router*/}
-      <LegacyThemeProvider>
-        <ThemeProvider>{children}</ThemeProvider>
-      </LegacyThemeProvider>
+      <ThemeProvider>{children}</ThemeProvider>
     </BrowserRouter>
   );
 };

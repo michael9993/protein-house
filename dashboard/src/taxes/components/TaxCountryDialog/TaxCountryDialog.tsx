@@ -5,7 +5,7 @@ import { useLocalSearch } from "@dashboard/hooks/useLocalSearch";
 import useModalDialogOpen from "@dashboard/hooks/useModalDialogOpen";
 import { buttonMessages } from "@dashboard/intl";
 import { taxesMessages } from "@dashboard/taxes/messages";
-import { SearchIcon } from "@saleor/macaw-ui";
+import { Search } from "lucide-react";
 import { Box, Button, Divider, Input, RadioGroup, Text } from "@saleor/macaw-ui-next";
 import { Fragment, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -48,7 +48,7 @@ const TaxCountryDialog = ({ open, countries, onConfirm, onClose }: TaxCountryDia
           size="small"
           placeholder={intl.formatMessage(taxesMessages.country)}
           startAdornment={
-            <SearchIcon onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
+            <Search size={20} />
           }
         />
 

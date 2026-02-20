@@ -115,7 +115,7 @@ export default async function Page(props: {
 	const images: Array<{ url: string; alt: string | null }> = [];
 	if (product.thumbnail) {
 		seen.add(product.thumbnail.url);
-		images.push({ url: product.thumbnail.url, alt: product.thumbnail.alt });
+		images.push({ url: product.thumbnail.url, alt: product.thumbnail.alt ?? null });
 	}
 	for (const m of product.media || []) {
 		if (!seen.has(m.url)) {

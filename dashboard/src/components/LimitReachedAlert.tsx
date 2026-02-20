@@ -1,23 +1,21 @@
-import { Alert, AlertProps } from "@saleor/macaw-ui";
+import { DashboardAlert, DashboardAlertProps } from "@dashboard/components/Alert/DashboardAlert";
 import { sprinkles } from "@saleor/macaw-ui-next";
 import clsx from "clsx";
 
-type LimitReachedAlertProps = Omit<AlertProps, "variant" | "close">;
+type LimitReachedAlertProps = Omit<DashboardAlertProps, "severity">;
 
 const LimitReachedAlert = (props: LimitReachedAlertProps) => (
-  // TODO: migrate to new macaw-ui alert
-  (<Alert
-    variant="warning"
-    close
+  <DashboardAlert
+    severity="warning"
     className={clsx(
       sprinkles({
         gridColumn: "8",
         marginBottom: 2,
       }),
-      "remove-icon-background",
+      props.className,
     )}
     {...props}
-  />)
+  />
 );
 
 LimitReachedAlert.displayName = "LimitReachedAlert";

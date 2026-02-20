@@ -1,5 +1,4 @@
 import { iconSize, iconStrokeWidthBySize } from "@dashboard/components/icons";
-import { ThemeProvider } from "@saleor/macaw-ui";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Pencil } from "lucide-react";
@@ -12,10 +11,7 @@ describe("RowActions", () => {
     // Arrange & Act
 
     const { container } = render(
-      // @ts-expect-error - legacy provider
-      <ThemeProvider>
-        <RowActions menuItems={[]} disabled={false} />
-      </ThemeProvider>,
+      <RowActions menuItems={[]} disabled={false} />,
     );
 
     // Assert
@@ -24,25 +20,22 @@ describe("RowActions", () => {
   it("should render icon button when only one menu item and has icon props", () => {
     // Arrange & Act
     render(
-      // @ts-expect-error - legacy provider
-      <ThemeProvider>
-        <RowActions
-          menuItems={[
-            {
-              label: "Edit",
-              onSelect: vi.fn(),
-              Icon: (
-                <Pencil
-                  size={iconSize.small}
-                  strokeWidth={iconStrokeWidthBySize.small}
-                  data-test-id="edit-icon"
-                />
-              ),
-            },
-          ]}
-          disabled={false}
-        />
-      </ThemeProvider>,
+      <RowActions
+        menuItems={[
+          {
+            label: "Edit",
+            onSelect: vi.fn(),
+            Icon: (
+              <Pencil
+                size={iconSize.small}
+                strokeWidth={iconStrokeWidthBySize.small}
+                data-test-id="edit-icon"
+              />
+            ),
+          },
+        ]}
+        disabled={false}
+      />,
     );
     // Assert
     expect(screen.getByTestId("row-action-button")).toBeInTheDocument();
@@ -51,18 +44,15 @@ describe("RowActions", () => {
   it("should render card meu when only one menu item and has no icon props", () => {
     // Arrange & Act
     render(
-      // @ts-expect-error - legacy provider
-      <ThemeProvider>
-        <RowActions
-          menuItems={[
-            {
-              label: "Edit",
-              onSelect: vi.fn(),
-            },
-          ]}
-          disabled={false}
-        />
-      </ThemeProvider>,
+      <RowActions
+        menuItems={[
+          {
+            label: "Edit",
+            onSelect: vi.fn(),
+          },
+        ]}
+        disabled={false}
+      />,
     );
     // Assert
     expect(screen.getByTestId("show-more-button")).toBeInTheDocument();
@@ -70,29 +60,26 @@ describe("RowActions", () => {
   it("should render card menu with multiple items", async () => {
     // Arrange
     render(
-      // @ts-expect-error - legacy provider
-      <ThemeProvider>
-        <RowActions
-          menuItems={[
-            {
-              label: "Edit",
-              onSelect: vi.fn(),
-              testId: "edit-button",
-            },
-            {
-              label: "Delete",
-              onSelect: vi.fn(),
-              testId: "delete-button",
-            },
-            {
-              label: "Upgrade",
-              onSelect: vi.fn(),
-              testId: "upgrade-button",
-            },
-          ]}
-          disabled={false}
-        />
-      </ThemeProvider>,
+      <RowActions
+        menuItems={[
+          {
+            label: "Edit",
+            onSelect: vi.fn(),
+            testId: "edit-button",
+          },
+          {
+            label: "Delete",
+            onSelect: vi.fn(),
+            testId: "delete-button",
+          },
+          {
+            label: "Upgrade",
+            onSelect: vi.fn(),
+            testId: "upgrade-button",
+          },
+        ]}
+        disabled={false}
+      />,
     );
     // Act
     await userEvent.click(screen.getByTestId("show-more-button"));
@@ -107,19 +94,16 @@ describe("RowActions", () => {
     const onSelectCallback = vi.fn();
 
     render(
-      // @ts-expect-error - legacy provider
-      <ThemeProvider>
-        <RowActions
-          menuItems={[
-            {
-              label: "Edit",
-              onSelect: onSelectCallback,
-              Icon: <Pencil size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />,
-            },
-          ]}
-          disabled={false}
-        />
-      </ThemeProvider>,
+      <RowActions
+        menuItems={[
+          {
+            label: "Edit",
+            onSelect: onSelectCallback,
+            Icon: <Pencil size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />,
+          },
+        ]}
+        disabled={false}
+      />,
     );
     // Act
     await userEvent.click(screen.getByTestId("row-action-button"));
@@ -131,27 +115,24 @@ describe("RowActions", () => {
     const onIconClickCallback = vi.fn();
 
     render(
-      // @ts-expect-error - legacy provider
-      <ThemeProvider>
-        <RowActions
-          menuItems={[
-            {
-              label: "Edit",
-              onSelect: onIconClickCallback,
-              testId: "edit-button",
-            },
-            {
-              label: "Delete",
-              onSelect: vi.fn(),
-            },
-            {
-              label: "Upgrade",
-              onSelect: vi.fn(),
-            },
-          ]}
-          disabled={false}
-        />
-      </ThemeProvider>,
+      <RowActions
+        menuItems={[
+          {
+            label: "Edit",
+            onSelect: onIconClickCallback,
+            testId: "edit-button",
+          },
+          {
+            label: "Delete",
+            onSelect: vi.fn(),
+          },
+          {
+            label: "Upgrade",
+            onSelect: vi.fn(),
+          },
+        ]}
+        disabled={false}
+      />,
     );
     // Act
     await userEvent.click(screen.getByTestId("show-more-button"));
@@ -162,22 +143,19 @@ describe("RowActions", () => {
   it("should disabled show more button when RowAction disabled", async () => {
     // Arrange & Act
     render(
-      // @ts-expect-error - legacy provider
-      <ThemeProvider>
-        <RowActions
-          menuItems={[
-            {
-              label: "Edit",
-              onSelect: vi.fn(),
-            },
-            {
-              label: "Delete",
-              onSelect: vi.fn(),
-            },
-          ]}
-          disabled={true}
-        />
-      </ThemeProvider>,
+      <RowActions
+        menuItems={[
+          {
+            label: "Edit",
+            onSelect: vi.fn(),
+          },
+          {
+            label: "Delete",
+            onSelect: vi.fn(),
+          },
+        ]}
+        disabled={true}
+      />,
     );
     // Assert
     expect(screen.getByTestId("show-more-button")).toBeDisabled();
@@ -185,19 +163,16 @@ describe("RowActions", () => {
   it("should disabled row action button when RowAction disabled", async () => {
     // Arrange & Act
     render(
-      // @ts-expect-error - legacy provider
-      <ThemeProvider>
-        <RowActions
-          menuItems={[
-            {
-              label: "Edit",
-              onSelect: vi.fn(),
-              Icon: <Pencil size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />,
-            },
-          ]}
-          disabled={true}
-        />
-      </ThemeProvider>,
+      <RowActions
+        menuItems={[
+          {
+            label: "Edit",
+            onSelect: vi.fn(),
+            Icon: <Pencil size={iconSize.small} strokeWidth={iconStrokeWidthBySize.small} />,
+          },
+        ]}
+        disabled={true}
+      />,
     );
     // Assert
     expect(screen.getByTestId("row-action-button")).toBeDisabled();

@@ -77,9 +77,9 @@ const defaultJobOptions: DefaultJobOptions = {
 // ---------------------------------------------------------------------------
 
 export const QUEUE_NAMES = {
-  TRACKING_SYNC: "dropship:tracking-sync",
-  RECONCILIATION: "dropship:reconciliation",
-  TOKEN_REFRESH: "dropship:token-refresh",
+  TRACKING_SYNC: "dropship-tracking-sync",
+  RECONCILIATION: "dropship-reconciliation",
+  TOKEN_REFRESH: "dropship-token-refresh",
 } as const;
 
 /**

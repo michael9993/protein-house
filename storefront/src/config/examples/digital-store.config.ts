@@ -7,7 +7,7 @@
 
 import { createStoreConfig, StoreConfig } from '../store.config';
 
-export const digitalStoreConfig: StoreConfig = createStoreConfig('digital', {
+export const digitalStoreConfig = createStoreConfig('digital', {
   store: {
     name: "DigitalVault",
     tagline: "Premium Digital Assets",
@@ -104,7 +104,7 @@ export const digitalStoreConfig: StoreConfig = createStoreConfig('digital', {
       hero: { enabled: true, type: "slider" },
       featuredCategories: { enabled: true, limit: 6 },
       newArrivals: { enabled: true, limit: 8 },
-      bestSellers: { enabled: true, limit: 8 },
+      bestSellers: { enabled: true, maxProducts: 8 },
       onSale: { enabled: true, limit: 4 },
       featuredBrands: { enabled: false },
       testimonials: { enabled: true },

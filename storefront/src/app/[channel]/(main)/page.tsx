@@ -38,7 +38,7 @@ const organizationJsonLd = {
 	"@type": "Organization",
 	name: storeConfig.store.name,
 	url: baseUrl,
-	logo: storeConfig.branding?.logos?.primary || undefined,
+	logo: storeConfig.branding?.logo || undefined,
 	description: storeConfig.seo.defaultDescription,
 	contactPoint: {
 		"@type": "ContactPoint",
@@ -156,8 +156,8 @@ export default async function Page(
 	const params = await props.params;
 	const { channel } = params;
 	
-	const newArrivalsLimit = storeConfig.homepage.sections.newArrivals.limit ?? 8;
-	const bestSellersLimit = storeConfig.homepage.sections.bestSellers.limit ?? 8;
+	const newArrivalsLimit = storeConfig.homepage?.sections?.newArrivals?.limit ?? 8;
+	const bestSellersLimit = storeConfig.homepage?.sections?.bestSellers?.maxProducts ?? 8;
 	const languageCode = getLanguageCodeForChannel(channel);
 
 	// Fetch all data in parallel for better performance

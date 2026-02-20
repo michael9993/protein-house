@@ -104,7 +104,7 @@ export function SettingsClient({
 		}
 		const emailValidation = validateEmail(emailTrimmed);
 		if (!emailValidation.valid) {
-			const invalidEmailMsg = settingsText.profileInvalidEmailError ?? contentConfig.account?.invalidEmailError ?? "Please enter a valid email address. Check the domain and extension (e.g. .com not .comm).";
+			const invalidEmailMsg = settingsText.profileInvalidEmailError ?? "Please enter a valid email address. Check the domain and extension (e.g. .com not .comm).";
 			setMessage({ type: "error", text: emailValidation.message ?? invalidEmailMsg });
 			return;
 		}

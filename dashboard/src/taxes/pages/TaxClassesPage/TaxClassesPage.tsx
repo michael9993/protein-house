@@ -21,16 +21,9 @@ import { isLastElement } from "@dashboard/taxes/utils/utils";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getTaxesErrorMessage from "@dashboard/utils/errors/taxes";
 import { DashboardCard } from "@dashboard/components/Card";
-import {
-  List,
-  ListHeader,
-  ListItem,
-  ListItemCell,
-  PageTab,
-  PageTabs,
-  SearchIcon,
-} from "@saleor/macaw-ui";
+import { DashboardTab, DashboardTabs } from "@dashboard/components/Tabs/DashboardTabs";
 import { Box, Divider, Input, Skeleton } from "@saleor/macaw-ui-next";
+import { Search } from "lucide-react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -103,23 +96,26 @@ const TaxClassesPage = (props: TaxClassesPageProps) => {
             <TopNav title={<TaxPageTitle />} href={configurationMenuUrl} />
             <DetailPageLayout.Content>
               <Box padding={6}>
-                <PageTabs value="tax-classes" onChange={handleTabChange}>
-                  <PageTab
+                <DashboardTabs
+                  value="tax-classes"
+                  onChange={value => handleTabChange(value)}
+                >
+                  <DashboardTab
                     label={intl.formatMessage(taxesMessages.channelsSection)}
                     value="channels"
                     data-test-id="channels-tab"
                   />
-                  <PageTab
+                  <DashboardTab
                     label={intl.formatMessage(taxesMessages.countriesSection)}
                     value="countries"
                     data-test-id="countries-tab"
                   />
-                  <PageTab
+                  <DashboardTab
                     label={intl.formatMessage(taxesMessages.taxClassesSection)}
                     value="tax-classes"
                     data-test-id="tax-classes-tab"
                   />
-                </PageTabs>
+                </DashboardTabs>
                 <VerticalSpacer spacing={2} />
                 <Grid variant="inverted">
                   <TaxClassesMenu
@@ -150,7 +146,7 @@ const TaxClassesPage = (props: TaxClassesPageProps) => {
                       <DashboardCard>
                         <CardTitle title={intl.formatMessage(taxesMessages.taxClassRates)} />
                         {currentTaxClass?.countries.length === 0 ? (
-                          <DashboardCard.Content className="text-saleor-main-3">
+                          <DashboardCard.Content className="text-[var(--mu-colors-text-default2)]">
                             <FormattedMessage
                               {...taxesMessages.noRatesInTaxClass}
                               values={{
@@ -167,43 +163,35 @@ const TaxClassesPage = (props: TaxClassesPageProps) => {
                                 size="small"
                                 onChange={e => setQuery(e.target.value)}
                                 placeholder={intl.formatMessage(taxesMessages.searchTaxCountries)}
-                                startAdornment={
-                                  <SearchIcon
-                                    onPointerEnterCapture={undefined}
-                                    onPointerLeaveCapture={undefined}
-                                  />
-                                }
+                                startAdornment={<Search size={20} />}
                               />
                             </DashboardCard.Content>
-                            <List gridTemplate={["5fr 2fr"]}>
-                              <ListHeader>
-                                <ListItem>
-                                  <ListItemCell>
-                                    <FormattedMessage {...taxesMessages.countryNameHeader} />
-                                  </ListItemCell>
-                                  <ListItemCell className="m-0 flex place-content-end text-right">
-                                    <FormattedMessage {...taxesMessages.taxRateHeader} />
-                                  </ListItemCell>
-                                </ListItem>
-                              </ListHeader>
+                            <div>
+                              <div className="grid grid-cols-[5fr_2fr] items-center px-6 py-3">
+                                <div>
+                                  <FormattedMessage {...taxesMessages.countryNameHeader} />
+                                </div>
+                                <div className="m-0 flex place-content-end text-right">
+                                  <FormattedMessage {...taxesMessages.taxRateHeader} />
+                                </div>
+                              </div>
                               <Divider />
                               {paginatedRates?.map((countryRate, countryRateIndex) => (
                                 <Fragment key={countryRate.id}>
-                                  <ListItem
-                                    hover={false}
-                                    className="before:hidden after:hidden"
+                                  <div
+                                    className="grid grid-cols-[5fr_2fr] items-center px-6 py-3"
                                     data-test-id="country-rows"
                                   >
-                                    <ListItemCell>{countryRate.label}</ListItemCell>
-                                    <ListItemCell>
+                                    <div>{countryRate.label}</div>
+                                    <div>
                                       <TaxInput
                                         value={countryRate.value}
                                         change={e =>
                                           handlers.handleRateChange(countryRate.id, e.target.value)
                                         }
                                       />
-                                    </ListItemCell>
-                                  </ListItem>
+                                    </div>
+                                  </div>
                                   {!isLastElement(filteredRates, countryRateIndex) && <Divider />}
                                 </Fragment>
                               )) ?? (
@@ -221,7 +209,7 @@ const TaxClassesPage = (props: TaxClassesPageProps) => {
                                 currentPage={currentPage}
                                 setCurrentPage={changeCurrentPage}
                               />
-                            </List>
+                            </div>
                           </>
                         )}
                       </DashboardCard>

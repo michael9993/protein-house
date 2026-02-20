@@ -10,7 +10,7 @@ export const WelcomePageTitle = () => {
   return (
     <Text as="h1" size={9} data-test-id="home-header">
       <FormattedMessage
-        defaultMessage="Hello {userName}, welcome to your Store Dashboard"
+        defaultMessage="Hello {userName}, welcome to Aura"
         id="0+zatS"
         values={{
           userName,

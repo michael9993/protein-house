@@ -46,8 +46,8 @@ const AttributeOrganization = (props: AttributeOrganizationProps) => {
           <RadioGroup
             label={intl.formatMessage({
               id: "T0lfLH",
-              defaultMessage: "Define where this attribute should be used in Saleor system",
-              description: "Define where this attribute should be used in Saleor system",
+              defaultMessage: "Define where this attribute should be used in the system",
+              description: "Define where this attribute should be used in the system",
             })}
             size="medium"
             value={data.type as AttributeTypeEnum}

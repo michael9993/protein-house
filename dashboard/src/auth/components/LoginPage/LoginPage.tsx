@@ -7,7 +7,7 @@ import { FormSpacer } from "@dashboard/components/FormSpacer";
 import { AvailableExternalAuthenticationsQuery } from "@dashboard/graphql";
 import { SubmitPromise } from "@dashboard/hooks/useForm";
 import { commonMessages } from "@dashboard/intl";
-import { EyeIcon } from "@saleor/macaw-ui";
+import { Eye } from "lucide-react";
 import { Box, Button, Input, Text } from "@saleor/macaw-ui-next";
 import { Fragment, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -96,7 +96,7 @@ const LoginPage = (props: LoginCardProps) => {
             endAdornment={
               <Button
                 icon={
-                  <EyeIcon onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
+                  <Eye size={20} />
                 }
                 onMouseDown={() => setShowPassword(true)}
                 onMouseUp={() => setShowPassword(false)}

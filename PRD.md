@@ -2,8 +2,8 @@
 
 ## Aura E-Commerce Platform
 
-**Version:** 1.3.0
-**Last Updated:** February 8, 2026
+**Version:** 1.5.0
+**Last Updated:** February 20, 2026
 **Status:** Active Development
 **Document Owner:** Development Team
 
@@ -61,7 +61,7 @@ Aura is a fully-featured, enterprise-grade, multi-tenant e-commerce platform bui
 - **Full RTL/LTR Support**: Native bidirectional text support for Hebrew and English markets
 - **CMS-Driven Configuration**: Real-time storefront customization without code deployments
 - **Modular App Ecosystem**: Extensible via Saleor Apps for payments, analytics, email, and more
-- **Enterprise Performance**: Next.js 15 with React 19, optimized for Core Web Vitals
+- **Enterprise Performance**: Next.js 16 with React 19, optimized for Core Web Vitals
 
 ### 1.3 Target Markets
 
@@ -80,7 +80,7 @@ Aura is a fully-featured, enterprise-grade, multi-tenant e-commerce platform bui
 saleor-platform/
 ├── saleor/                    # Django/GraphQL Backend (Python 3.12)
 ├── dashboard/                 # Admin Dashboard (React 18 + Vite)
-├── storefront/               # Customer-Facing Storefront (Next.js 15, React 19)
+├── storefront/               # Customer-Facing Storefront (Next.js 16, React 19)
 ├── apps/                     # Saleor Apps Monorepo (Turborepo)
 │   ├── apps/
 │   │   ├── storefront-control/   # CMS Configuration App (shadcn/ui + Tailwind)
@@ -245,7 +245,7 @@ const price = formatPrice(product.pricing);
 │                              PRESENTATION LAYER                              │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │  ┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────────┐  │
-│  │   Next.js 15        │    │   React Dashboard   │    │   Mobile Apps   │  │
+│  │   Next.js 16        │    │   React Dashboard   │    │   Mobile Apps   │  │
 │  │   Storefront        │    │   (Vite + React)    │    │   (Future)      │  │
 │  │   - SSR/ISR         │    │   - SPA             │    │                 │  │
 │  │   - React 19        │    │   - Macaw UI        │    │                 │  │
@@ -274,6 +274,13 @@ const price = formatPrice(product.pricing);
 │  │  Categories, Collections,          │  │  Schema, Types, Migrations     │  │
 │  │  Customers, Orders, Vouchers,      │  │  (20 domain schema files)      │  │
 │  │  Gift Cards                        │  │                                │  │
+│  └────────────────────────────────────┘  └────────────────────────────────┘  │
+│                                                                              │
+│  ┌────────────────────────────────────┐  ┌────────────────────────────────┐  │
+│  │       Image Studio App             │  │  Dropship Orchestrator App     │  │
+│  │  AI-powered product image editor   │  │  AliExpress + CJ Dropshipping │  │
+│  │  Canvas, BG removal, upscaling,    │  │  Order forwarding, tracking,  │  │
+│  │  generation, templates             │  │  fraud detection, exceptions   │  │
 │  └────────────────────────────────────┘  └────────────────────────────────┘  │
 │                                                                              │
 │  ┌─────────────────────────────────────────────────────────────────────────┐ │
@@ -314,18 +321,18 @@ Customer Request → CDN → Next.js SSR → GraphQL Query → Saleor API → Po
 
 | Component      | Technology   | Version | Purpose                    |
 | -------------- | ------------ | ------- | -------------------------- |
-| **Storefront** | Next.js      | 15.1.4  | SSR/ISR, App Router        |
-| **React**      | React        | 19.1.0  | UI Components              |
-| **Styling**    | Tailwind CSS | 3.4.0   | Utility-first CSS (storefront) |
-| **State**      | Zustand      | 4.4.6   | Client state management    |
+| **Storefront** | Next.js      | 16.1.6  | SSR/ISR, App Router        |
+| **React**      | React        | 19.2.4  | UI Components              |
+| **Styling**    | Tailwind CSS | 4.1.18  | Utility-first CSS (storefront + dashboard) |
+| **State**      | Zustand      | 5.0.11  | Client state management    |
 | **Forms**      | Formik + Yup | 2.4.5   | Form handling & validation |
 | **Icons**      | Lucide React | 0.358.0 | Icon library               |
 | **Payments**   | Stripe.js    | 7.3.0   | Payment UI components      |
-| **GraphQL**    | URQL         | 4.0.6   | GraphQL client             |
-| **Dashboard**  | Vite + React 18 | 6.4.1 / 18.x | Admin SPA              |
-| **Dashboard Styling** | Tailwind CSS v4 | 4.x | Dashboard utility CSS (px overrides for macaw-ui compat) |
-| **Dashboard UI** | macaw-ui-next + Lucide | Latest | Dashboard components + icons |
-| **Dashboard Routing** | React Router | 7.x | Client-side routing |
+| **GraphQL**    | URQL         | 5.0.1   | GraphQL client             |
+| **Dashboard**  | Vite + React 18 | 6.4.1 / 18.3.1 | Admin SPA              |
+| **Dashboard Styling** | Tailwind CSS v4 | 4.1.18 | Dashboard utility CSS (px overrides for macaw-ui compat) |
+| **Dashboard UI** | macaw-ui-next + Lucide | 1.4.1 | Dashboard components + icons |
+| **Dashboard Routing** | React Router | 7.13.0 | Client-side routing |
 
 ### 4.2 Backend Technologies
 
@@ -344,7 +351,7 @@ Customer Request → CDN → Next.js SSR → GraphQL Query → Saleor API → Po
 | Component      | Technology | Version | Purpose                     |
 | -------------- | ---------- | ------- | --------------------------- |
 | **Build**      | Turborepo  | Latest  | Monorepo build system       |
-| **Framework**  | Next.js    | 15.x    | Pages Router for apps       |
+| **Framework**  | Next.js    | 15.x+   | Pages Router for apps       |
 | **UI (legacy)**| Macaw UI   | Latest  | Saleor design system (most apps) |
 | **UI (new)**   | shadcn/ui + Radix | Latest  | Storefront Control admin UI |
 | **Styling**    | Tailwind CSS | Latest | Storefront Control styling  |
@@ -389,6 +396,10 @@ All development happens inside Docker containers. **Never run npm/pnpm/npx direc
 | `saleor-newsletter-app-dev`         | 3005 | Newsletter management    |
 | `saleor-sales-analytics-app-dev`    | 3006 | Sales analytics          |
 | `saleor-bulk-manager-app-dev`       | 3007 | Bulk import/export       |
+| `saleor-image-studio-app-dev`      | 3008 | AI image editor          |
+| `saleor-dropship-app-dev`          | 3009 | Dropship orchestrator    |
+| `saleor-rembg-dev`                 | 7000 | AI background removal    |
+| `saleor-esrgan-dev`                | 7001 | AI image upscaling       |
 
 ### 5.2 Container Dependencies
 
@@ -430,7 +441,7 @@ docker compose -f infra/docker-compose.dev.yml build saleor-storefront-dev
 
 ### 6.1 Overview
 
-The storefront is a Next.js 15 application using the App Router, React 19, and Tailwind CSS. It provides a modern, performant, and accessible e-commerce experience.
+The storefront is a Next.js 16 application using the App Router, React 19, and Tailwind CSS. It provides a modern, performant, and accessible e-commerce experience.
 
 ### 6.2 Directory Structure
 
@@ -1024,6 +1035,36 @@ npm run generate      # Product Excel + CSVs
 - `media-router`: uploadToProduct, updateAlt, delete, downloadOriginal
 - `enhance-router`: resize, adjustColors, convertFormat
 
+### 9.10 Dropship Orchestrator App
+
+**Purpose**: Multi-supplier dropshipping middleware for mixed inventory stores. Auto-forwards dropship-tagged orders to AliExpress/CJ Dropshipping, syncs tracking/fulfillment back to Saleor, with fraud detection, financial safety controls, exception queue, and admin dashboard. Toggleable — when disabled, store operates normally with concrete inventory.
+
+**Container**: `saleor-dropship-app-dev` | **Port**: 3009
+
+**Key Features**:
+- **Supplier Adapter Pattern**: Pluggable `SupplierAdapter` interface with `SupplierRegistry` singleton. Two adapters: AliExpress (OAuth, RPC gateway, MD5 signing, polling-based tracking) + CJ Dropshipping (API Key, REST, webhook-based tracking)
+- **Order Flow**: ORDER_PAID webhook → classify lines (concrete vs dropship via product metadata) → fraud checks (4 rules, composite score < 50) → cost ceiling check → daily spend check → auto-forward to supplier → audit trail entry
+- **Background Jobs**: BullMQ + Redis — tracking-sync (every 2h), reconciliation (every 6h), AliExpress token refresh (every 12d)
+- **Fraud Detection**: 4 rules (velocity, address validation, value threshold, blacklist), composite score, configurable thresholds
+- **Financial Safety**: Margin calculator, cost ceiling (default 70%), daily spend limit, price drift detector (default 15% threshold)
+- **Security**: EncryptedMetadataManager for credentials, IP whitelist (CIDR) for CJ webhooks, HMAC verification, idempotency (djb2 hash), audit trail (17 event types)
+- **Admin Dashboard**: 8 pages — overview (stats + recent orders), suppliers (list + AliExpress OAuth config + CJ API key config), orders (forwarded order list), exceptions (manual resolution queue), settings (global config), audit log (searchable event history)
+- **Product Tagging**: Products tagged via Saleor metadata `dropship.supplier`, `dropship.supplierSku`, etc. Untagged products are concrete inventory (ignored by the app)
+
+**Tech Stack**: Next.js (Pages Router), tRPC (6 sub-routers: suppliers, orders, exceptions, settings, audit, dashboard), BullMQ, ioredis, neverthrow, Zod
+
+**tRPC Routers**:
+- `suppliers-router`: list, getConfig, updateConfig (per-supplier), testConnection
+- `orders-router`: list (paginated with filters), getDetail, retry, cancel
+- `exceptions-router`: list, resolve, escalate
+- `settings-router`: get, update (fraud thresholds, financial limits, feature toggles)
+- `audit-router`: list (paginated, filterable by event type)
+- `dashboard-router`: stats (order counts, spend, exception count)
+
+**Permissions**: MANAGE_PRODUCTS, MANAGE_ORDERS, MANAGE_APPS, MANAGE_SHIPPING, MANAGE_CHECKOUTS
+
+**UI Note**: Uses plain HTML primitives (`src/components/ui/primitives.tsx`) instead of macaw-ui Box/Text/Button — macaw-ui Sprinkles crash in Saleor Dashboard iframe. ThemeProvider/ThemeSynchronizer kept in `_app.tsx` only.
+
 ---
 
 ## 10. Feature Specifications
@@ -1357,6 +1398,8 @@ docker exec -i saleor-postgres-dev psql -U saleor saleor < backup.sql
 | `apps/apps/newsletter/`         | `saleor-newsletter-app-dev`                                   |
 | `apps/apps/sales-analytics/`    | `saleor-sales-analytics-app-dev`                              |
 | `apps/apps/bulk-manager/`       | `saleor-bulk-manager-app-dev`                                 |
+| `apps/apps/image-studio/`      | `saleor-image-studio-app-dev`                                 |
+| `apps/apps/dropship-orchestrator/` | `saleor-dropship-app-dev`                                 |
 
 **Restart command:**
 
@@ -1572,6 +1615,7 @@ SMTP_HOST=smtp.example.com
 | 1.2.0   | 2026-02-02 | Added Core Design Principles (Scalability, Configurability, Multi-Tenancy, Reusability) |
 | 1.3.0   | 2026-02-08 | Platform state review: Added shared config package, Storefront Control admin redesign (6-section nav, shadcn/ui, Cmd+K, live preview), Bulk Manager in architecture diagram, updated INP metric, 64 config hooks, account UI refurbish |
 | 1.4.0   | 2026-02-11 | Added Catalog Generator & Store Infrastructure tool (section 9.8): @saleor/configurator integration with SINGLE_REFERENCE patch, config.yml for infrastructure-as-code, product catalog generation pipeline, Hebrew translation script |
+| 1.5.0   | 2026-02-20 | Documentation audit: Updated tech stack versions (Next.js 16, React 19.2, Tailwind 4.1, Zustand 5, URQL 5), added Dropship Orchestrator app (section 9.10), added missing containers (Image Studio, Dropship, rembg, esrgan), updated architecture diagram |
 
 ---
 

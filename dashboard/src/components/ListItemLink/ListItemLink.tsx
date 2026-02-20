@@ -1,25 +1,29 @@
-import { BaseListItemProps, ListItem } from "@saleor/macaw-ui";
 import { cn } from "@dashboard/utils/cn";
+import { HTMLAttributes, ReactNode } from "react";
 
 import Link from "../Link";
 
-interface ListItemLinkProps extends Omit<BaseListItemProps, "onClick" | "classes"> {
+interface ListItemLinkProps extends HTMLAttributes<HTMLDivElement> {
   href?: string;
-  className?: string;
+  children?: ReactNode;
   linkClassName?: string;
 }
 
-const ListItemLink = ({ href, children, linkClassName, ...props }: ListItemLinkProps) => {
+const ListItemLink = ({ href, children, linkClassName, className, ...props }: ListItemLinkProps) => {
   if (!href) {
-    return <ListItem {...props}>{children}</ListItem>;
+    return (
+      <div className={cn("relative", className)} {...props}>
+        {children}
+      </div>
+    );
   }
 
   return (
-    <ListItem {...props}>
+    <div className={cn("relative", className)} {...props}>
       <Link className={cn("[all:inherit] contents", linkClassName)} href={href}>
         {children}
       </Link>
-    </ListItem>
+    </div>
   );
 };
 

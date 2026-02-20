@@ -49,6 +49,7 @@ const FETCH_ORDER_WITH_LINES = gql`
         streetAddress1
         streetAddress2
         city
+        countryArea
         postalCode
         country {
           code
@@ -376,6 +377,7 @@ export async function handleOrderPaid(
       streetAddress1: string;
       streetAddress2?: string;
       city: string;
+      countryArea?: string;
       postalCode: string;
       country: { code: string };
       phone: string;
@@ -651,11 +653,13 @@ export async function handleOrderPaid(
 
       const request: SupplierOrderRequest = {
         supplierSku: meta.supplierSku,
+        supplierSkuAttr: meta.supplierSkuAttr,
         quantity: line.quantity,
         shippingAddress: {
           name: `${order.shippingAddress?.firstName ?? ""} ${order.shippingAddress?.lastName ?? ""}`.trim(),
           street: order.shippingAddress?.streetAddress1 ?? "",
           city: order.shippingAddress?.city ?? "",
+          province: order.shippingAddress?.countryArea || undefined,
           postalCode: order.shippingAddress?.postalCode ?? "",
           country: order.shippingAddress?.country?.code ?? "",
           phone: order.shippingAddress?.phone ?? "",

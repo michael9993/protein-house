@@ -1,7 +1,6 @@
 // @ts-strict-ignore
 import CollectionWithDividers from "@dashboard/components/CollectionWithDividers";
 import useStateFromProps from "@dashboard/hooks/useStateFromProps";
-import { Accordion, AccordionSummary } from "@saleor/macaw-ui";
 import { Text } from "@saleor/macaw-ui-next";
 import { useState } from "react";
 
@@ -12,24 +11,6 @@ import { FilterContentBody, FilterContentBodyProps } from "./FilterContentBody";
 import { FilterContentBodyNameField } from "./FilterContentBodyNameField";
 import { FilterContentHeader } from "./FilterContentHeader";
 import { FilterErrorsList } from "./FilterErrorsList";
-
-const expanderSx = {
-  boxShadow: "none",
-  margin: 0,
-  padding: 0,
-  "&:before": { content: "none" },
-  "&.Mui-expanded": { margin: 0, border: "none" },
-} as const;
-
-const summarySx = {
-  width: "100%",
-  border: "none",
-  margin: 0,
-  padding: 0,
-  minHeight: 0,
-  paddingRight: 2,
-  "&.Mui-expanded": { minHeight: 0 },
-} as const;
 
 interface FilterContentProps<K extends string = string> {
   filters: IFilter<K>;
@@ -147,19 +128,15 @@ export const FilterContent = ({
           .map(filter => {
             const currentFilter = getFilterFromCurrentData(filter);
 
+            const isExpanded = filter.name === openedFilter?.name;
+
             return (
-              <Accordion
+              <div
                 key={filter.name}
-                sx={expanderSx}
                 data-test-id={"channel-availability-item-" + filter.name}
-                expanded={filter.name === openedFilter?.name}
               >
-                <AccordionSummary
-                  IconButtonProps={{
-                    className: "mr-2",
-                    disableRipple: true,
-                  }}
-                  sx={summarySx}
+                <div
+                  className="w-full cursor-pointer pr-2"
                   onClick={() => handleFilterOpen(filter)}
                 >
                   {currentFilter && (
@@ -170,38 +147,42 @@ export const FilterContent = ({
                       }
                     />
                   )}
-                </AccordionSummary>
-                {currentFilter?.active && (
-                  <FilterErrorsList
-                    errors={errors?.[filter.name]}
-                    errorMessages={errorMessages}
-                    filter={filter}
-                  />
-                )}
-                {filter.multipleFields ? (
-                  <CollectionWithDividers
-                    collection={filter.multipleFields}
-                    renderItem={filterField => (
+                </div>
+                {isExpanded && (
+                  <>
+                    {currentFilter?.active && (
+                      <FilterErrorsList
+                        errors={errors?.[filter.name]}
+                        errorMessages={errorMessages}
+                        filter={filter}
+                      />
+                    )}
+                    {filter.multipleFields ? (
+                      <CollectionWithDividers
+                        collection={filter.multipleFields}
+                        renderItem={filterField => (
+                          <FilterContentBody
+                            {...commonFilterBodyProps}
+                            onFilterPropertyChange={handleMultipleFieldPropertyChange}
+                            filter={{
+                              ...getFilterFromCurrentData(filterField),
+                              active: currentFilter?.active,
+                            }}
+                          >
+                            <Text>{filterField.label}</Text>
+                          </FilterContentBody>
+                        )}
+                      />
+                    ) : (
                       <FilterContentBody
                         {...commonFilterBodyProps}
-                        onFilterPropertyChange={handleMultipleFieldPropertyChange}
-                        filter={{
-                          ...getFilterFromCurrentData(filterField),
-                          active: currentFilter?.active,
-                        }}
-                      >
-                        <Text>{filterField.label}</Text>
-                      </FilterContentBody>
+                        onFilterPropertyChange={onFilterPropertyChange}
+                        filter={currentFilter}
+                      />
                     )}
-                  />
-                ) : (
-                  <FilterContentBody
-                    {...commonFilterBodyProps}
-                    onFilterPropertyChange={onFilterPropertyChange}
-                    filter={currentFilter}
-                  />
+                  </>
                 )}
-              </Accordion>
+              </div>
             );
           })}
       </form>

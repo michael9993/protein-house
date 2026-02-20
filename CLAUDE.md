@@ -22,7 +22,7 @@ These principles **must guide every feature and code change**:
 saleor-platform/
 ├── saleor/              # Django/GraphQL backend (Python 3.12)
 ├── dashboard/           # Admin dashboard (React 18 + Vite + Tailwind CSS v4, TypeScript)
-├── storefront/          # Customer storefront (Next.js 15, React 19, TypeScript)
+├── storefront/          # Customer storefront (Next.js 16, React 19, TypeScript)
 ├── apps/                # Saleor Apps monorepo (Turborepo, TypeScript)
 │   ├── apps/            # Individual apps (storefront-control, bulk-manager, stripe, newsletter, etc.)
 │   └── packages/        # Shared packages (@saleor/apps-storefront-config, apps-logger, apps-ui, etc.)
@@ -66,6 +66,8 @@ docker compose -f infra/docker-compose.dev.yml ps    # Verify health
 | `saleor-dropship-app-dev` | 3009 | Dropship orchestrator (AliExpress + CJ) |
 | `saleor-postgres-dev` | 5432 | PostgreSQL database |
 | `saleor-redis-dev` | 6379 | Redis cache/broker |
+| `saleor-rembg-dev` | 7000 | AI background removal (Image Studio) |
+| `saleor-esrgan-dev` | 7001 | AI image upscaling (Image Studio) |
 
 ### Access Points
 

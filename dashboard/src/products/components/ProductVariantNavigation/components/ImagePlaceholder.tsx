@@ -1,4 +1,4 @@
-import { ImageIcon } from "@saleor/macaw-ui";
+import { ImageIcon } from "lucide-react";
 import { Box } from "@saleor/macaw-ui-next";
 
 export const ImagePlaceholder = () => {
@@ -15,7 +15,7 @@ export const ImagePlaceholder = () => {
       borderWidth={1}
       flexShrink="0"
     >
-      <ImageIcon />
+      <ImageIcon size={20} />
     </Box>
   );
 };

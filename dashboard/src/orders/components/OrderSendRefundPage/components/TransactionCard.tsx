@@ -7,8 +7,7 @@ import {
   TransactionItemFragment,
 } from "@dashboard/graphql";
 import { useId } from "@reach/auto-id";
-import { Button } from "@saleor/macaw-ui";
-import { Text } from "@saleor/macaw-ui-next";
+import { Button, Text } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 

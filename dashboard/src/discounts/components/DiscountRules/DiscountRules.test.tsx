@@ -1,7 +1,6 @@
 import { MockedProvider } from "@apollo/client/testing";
 import { mockResizeObserver } from "@dashboard/components/Datagrid/testUtils";
 import { PromotionTypeEnum } from "@dashboard/graphql";
-import { ThemeProvider as LegacyThemeProvider } from "@saleor/macaw-ui";
 import { ThemeProvider } from "@saleor/macaw-ui-next";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -53,10 +52,7 @@ const Wrapper = ({ children }: { children: ReactNode }) => {
         variantsWithProductDataMock,
       ]}
     >
-      {/* @ts-expect-error legacy types */}
-      <LegacyThemeProvider>
-        <ThemeProvider>{children}</ThemeProvider>
-      </LegacyThemeProvider>
+      <ThemeProvider>{children}</ThemeProvider>
     </MockedProvider>
   );
 };

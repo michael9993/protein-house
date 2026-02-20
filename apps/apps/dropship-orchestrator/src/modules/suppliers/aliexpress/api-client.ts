@@ -118,16 +118,12 @@ export function generateSign(
 // Timestamp helper
 // ---------------------------------------------------------------------------
 
+/**
+ * Millisecond epoch timestamp — timezone-agnostic, compatible with the
+ * AliExpress api-sg.aliexpress.com gateway.
+ */
 function formatTimestamp(): string {
-  const now = new Date();
-  const yyyy = now.getUTCFullYear();
-  const mm = String(now.getUTCMonth() + 1).padStart(2, "0");
-  const dd = String(now.getUTCDate()).padStart(2, "0");
-  const hh = String(now.getUTCHours()).padStart(2, "0");
-  const mi = String(now.getUTCMinutes()).padStart(2, "0");
-  const ss = String(now.getUTCSeconds()).padStart(2, "0");
-
-  return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+  return String(Date.now());
 }
 
 // ---------------------------------------------------------------------------

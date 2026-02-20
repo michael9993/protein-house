@@ -7,7 +7,6 @@ import { taxCountriesListUrl } from "@dashboard/taxes/urls";
 import { isLastElement } from "@dashboard/taxes/utils/utils";
 import { DashboardCard } from "@dashboard/components/Card";
 import { cn } from "@dashboard/utils/cn";
-import { List, ListHeader, ListItem, ListItemCell } from "@saleor/macaw-ui";
 import { Button, Divider, Skeleton } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { Fragment } from "react";
@@ -43,26 +42,24 @@ const TaxCountriesMenu = ({
           <FormattedMessage {...taxesMessages.noCountriesAssigned} />
         </DashboardCard.Content>
       ) : (
-        <List gridTemplate={["1fr"]}>
-          <ListHeader>
-            <ListItem className="min-h-[48px] after:hidden">
-              <ListItemCell>
-                <FormattedMessage {...taxesMessages.countryNameHeader} />
-              </ListItemCell>
-            </ListItem>
-          </ListHeader>
+        <div>
+          <div className="grid grid-cols-[1fr] min-h-[48px] items-center px-6">
+            <div>
+              <FormattedMessage {...taxesMessages.countryNameHeader} />
+            </div>
+          </div>
           <Divider />
           {configurations?.map((config, configIndex) => (
             <Fragment key={config.country.code}>
               <ListItemLink
                 data-test-id="countries-list-rows"
                 className={cn(
-                  "cursor-pointer min-h-[48px] after:hidden",
-                  config.country.code === selectedCountryId && "[&&&&]:before:absolute [&&&&]:before:left-0 [&&&&]:before:w-1 [&&&&]:before:h-full [&&&&]:before:bg-saleor-active-1",
+                  "grid grid-cols-[1fr] cursor-pointer min-h-[48px] items-center px-6",
+                  config.country.code === selectedCountryId && "before:absolute before:left-0 before:w-1 before:h-full before:bg-saleor-active-1",
                 )}
                 href={taxCountriesListUrl(config.country.code)}
               >
-                <ListItemCell>
+                <div>
                   <div className="flex justify-between items-center">
                     {config.country.country}
                     <Button
@@ -77,12 +74,12 @@ const TaxCountriesMenu = ({
                       }}
                     />
                   </div>
-                </ListItemCell>
+                </div>
               </ListItemLink>
               {!isLastElement(configurations, configIndex) && <Divider />}
             </Fragment>
           )) ?? <Skeleton />}
-        </List>
+        </div>
       )}
     </DashboardCard>
   );

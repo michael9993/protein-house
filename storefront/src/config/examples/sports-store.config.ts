@@ -7,7 +7,7 @@
 
 import { createStoreConfig, StoreConfig } from '../store.config';
 
-export const sportsStoreConfig: StoreConfig = createStoreConfig('physical', {
+export const sportsStoreConfig = createStoreConfig('physical', {
   store: {
     name: "SportZone",
     tagline: "Gear Up for Greatness",
@@ -128,7 +128,7 @@ export const sportsStoreConfig: StoreConfig = createStoreConfig('physical', {
       },
       bestSellers: {
         enabled: true,
-        limit: 8,
+        maxProducts: 8,
         background: {
           style: 'mesh',
           color: null,

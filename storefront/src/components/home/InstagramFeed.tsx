@@ -46,8 +46,8 @@ export function InstagramFeed({
   const isEnabled = useFeature("instagramFeed");
   const config = homepage.sections.instagramFeed;
 
-  // Don't render if disabled
-  if (!isEnabled || !config.enabled) {
+  // Don't render if section not configured or disabled
+  if (!isEnabled || !config?.enabled) {
     return null;
   }
 

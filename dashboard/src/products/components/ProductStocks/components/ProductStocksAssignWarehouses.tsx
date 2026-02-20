@@ -8,7 +8,7 @@ import { SaleorThrobber } from "@dashboard/components/Throbber";
 import { WarehouseFragment } from "@dashboard/graphql";
 import useSearchQuery from "@dashboard/hooks/useSearchQuery";
 import { TableBody, TableCell, TableRow } from "@dashboard/components/Table";
-import { ConfirmButton } from "@saleor/macaw-ui";
+import { ConfirmButton } from "@dashboard/components/ConfirmButton";
 import { Button, Input, Option, sprinkles, Text } from "@saleor/macaw-ui-next";
 import { useState } from "react";
 import { useIntl } from "react-intl";

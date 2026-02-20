@@ -590,6 +590,7 @@ export const DEFAULT_NAVBAR_TEXT: NavbarText = {
   mobileMenuStyle: "visual",
   dropdownArrowDirection: "auto",
   dropdownArrowDirectionExpanded: "down",
+  subcategoriesSide: "auto",
   // Mobile navigation
   homeLabel: "Home",
   shopLabel: "Shop",
@@ -1434,12 +1435,15 @@ export const storeTypePresets: Record<StoreType, Partial<StoreConfig>> = {
 // HELPER FUNCTIONS
 // ============================================
 
+/** Deep partial — makes all nested properties optional recursively. */
+type DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } : T;
+
 /**
  * Merge default config with store type preset and custom overrides
  */
 export function createStoreConfig(
   storeType: StoreType,
-  customConfig: Partial<StoreConfig> = {}
+  customConfig: DeepPartial<StoreConfig> = {}
 ): StoreConfig {
   const preset = storeTypePresets[storeType];
 

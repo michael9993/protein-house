@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, type Dispatch, type SetStateAction } from "react";
 import Link from "next/link";
 import { useBranding, useHeaderConfig, useStoreConfig } from "@/providers/StoreConfigProvider";
 
@@ -119,7 +119,7 @@ export function HeaderBanner({ channel }: { channel?: string }) {
 interface HeaderBannerCarouselProps {
 	items: BannerItem[];
 	activeIndex: number;
-	setActiveIndex: (i: number) => void;
+	setActiveIndex: Dispatch<SetStateAction<number>>;
 	paused: boolean;
 	setPaused: (p: boolean) => void;
 	intervalSeconds: number;

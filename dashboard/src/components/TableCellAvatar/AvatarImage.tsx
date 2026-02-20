@@ -1,5 +1,5 @@
 import { cn } from "@dashboard/utils/cn";
-import { ImageIcon } from "@saleor/macaw-ui";
+import { ImageIcon } from "lucide-react";
 import { Text } from "@saleor/macaw-ui-next";
 
 interface AvatarImageProps {
@@ -27,7 +27,7 @@ const AvatarImage = ({ initials, thumbnail, avatarProps }: AvatarImageProps) => 
   if (!thumbnail) {
     return (
       <div className={avatarClassName}>
-        <ImageIcon color="primary" data-test-id="imageIcon" />
+        <ImageIcon size={20} data-test-id="imageIcon" />
       </div>
     );
   }

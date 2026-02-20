@@ -1,5 +1,7 @@
 import { createLogger } from "@/logger";
 
+import { AliExpressAdapter } from "./aliexpress/adapter";
+import { CJAdapter } from "./cj/adapter";
 import type { SupplierAdapter } from "./types";
 
 const logger = createLogger("SupplierRegistry");
@@ -62,3 +64,9 @@ export const getAdapter = (supplierId: string) => supplierRegistry.getAdapter(su
 export const registerAdapter = (adapter: SupplierAdapter) => supplierRegistry.registerAdapter(adapter);
 export const getAllAdapters = () => supplierRegistry.getAllAdapters();
 export const isSupplierEnabled = (supplierId: string) => supplierRegistry.isSupplierEnabled(supplierId);
+
+// ---------------------------------------------------------------------------
+// Auto-register built-in adapters at module load time.
+// ---------------------------------------------------------------------------
+supplierRegistry.registerAdapter(new AliExpressAdapter());
+supplierRegistry.registerAdapter(new CJAdapter());

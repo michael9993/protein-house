@@ -1,7 +1,7 @@
 import { AppDetailsUrlMountQueryParams, ExtensionsUrls } from "@dashboard/extensions/urls";
 import { FlagList } from "@dashboard/featureFlags";
 import { ThemeType } from "@saleor/app-sdk/app-bridge";
-import { useTheme } from "@saleor/macaw-ui";
+import { useTheme } from "@saleor/macaw-ui-next";
 import isEqualWith from "lodash/isEqualWith";
 import { forwardRef, memo, useEffect, useRef } from "react";
 
@@ -18,9 +18,10 @@ interface AppIFrameProps {
 const _AppIFrame = forwardRef<HTMLIFrameElement, AppIFrameProps>(
   ({ appId, src, featureFlags, params, onLoad, onError, className }, ref) => {
     const themeRef = useRef<ThemeType>();
-    const { themeType } = useTheme();
+    const { theme } = useTheme();
+    const themeType: ThemeType = theme === "defaultDark" ? "dark" : "light";
 
-    // Ignore updates to themeType - iframe will be notified via events
+    // Ignore updates to theme - iframe will be notified via events
     // Otherwise this will cause reload of entire iframe
     useEffect(() => {
       themeRef.current = themeType;

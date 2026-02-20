@@ -1,6 +1,5 @@
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { WebhookEventTypeSyncEnum } from "@dashboard/graphql";
-import { ThemeProvider } from "@saleor/macaw-ui";
 import productsMocks from "@test/mocks/products";
 import { render, screen } from "@testing-library/react";
 
@@ -23,10 +22,7 @@ describe("DryRun", () => {
     // Act
     render(
       <MockedProvider mocks={mocks} >
-        {/* @ts-expect-error legacy types */}
-        <ThemeProvider>
-          <DryRun {...props} />
-        </ThemeProvider>
+        <DryRun {...props} />
       </MockedProvider>,
     );
     // Assert

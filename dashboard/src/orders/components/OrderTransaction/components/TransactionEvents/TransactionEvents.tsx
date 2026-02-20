@@ -3,7 +3,7 @@ import { TransactionEventFragment } from "@dashboard/graphql";
 import { renderCollection } from "@dashboard/misc";
 import { TransactionFakeEvent } from "@dashboard/orders/types";
 import { TableCell, TableRow } from "@dashboard/components/Table";
-import { ResponsiveTable } from "@saleor/macaw-ui";
+import ResponsiveTable from "@dashboard/components/ResponsiveTable";
 import { useMemo, useState } from "react";
 import { FormattedMessage } from "react-intl";
 

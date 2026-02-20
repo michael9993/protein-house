@@ -10,7 +10,7 @@ import { TablePaginationWithContext } from "@dashboard/components/TablePaginatio
 import TableRowLink from "@dashboard/components/TableRowLink";
 import { CollectionWithTotalProductsFragment } from "@dashboard/graphql";
 import { TableBody, TableCell, TableFooter } from "@dashboard/components/Table";
-import { IconButton } from "@saleor/macaw-ui";
+import { IconButton } from "@dashboard/components/IconButton/IconButton";
 import { Button, Skeleton } from "@saleor/macaw-ui-next";
 import { Trash2 } from "lucide-react";
 import { FormattedMessage, useIntl } from "react-intl";

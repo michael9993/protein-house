@@ -128,16 +128,21 @@ export class AliExpressAdapter implements SupplierAdapter {
 
     const logisticsAddress = mapAddress(request.shippingAddress);
 
+    const productItem: Record<string, unknown> = {
+      product_id: Number(request.supplierSku),
+      product_count: request.quantity,
+      logistics_service_name: request.shippingMethod,
+    };
+
+    // sku_attr is REQUIRED for AliExpress variant selection (e.g. "14:350853#Black;5:361386#M")
+    if (request.supplierSkuAttr) {
+      productItem.sku_attr = request.supplierSkuAttr;
+    }
+
     const params: Record<string, string> = {
       param_place_order_request4_open_api_d_t_o: JSON.stringify({
         logistics_address: logisticsAddress,
-        product_items: [
-          {
-            product_id: Number(request.supplierSku),
-            product_count: request.quantity,
-            logistics_service_name: request.shippingMethod,
-          },
-        ],
+        product_items: [productItem],
       }),
     };
 

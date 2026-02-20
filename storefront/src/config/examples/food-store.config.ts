@@ -7,7 +7,7 @@
 
 import { createStoreConfig, StoreConfig } from '../store.config';
 
-export const foodStoreConfig: StoreConfig = createStoreConfig('food', {
+export const foodStoreConfig = createStoreConfig('food', {
   store: {
     name: "FreshBite",
     tagline: "Fresh Food, Fast Delivery",
@@ -110,7 +110,7 @@ export const foodStoreConfig: StoreConfig = createStoreConfig('food', {
       hero: { enabled: true, type: "slider" },
       featuredCategories: { enabled: true, limit: 8 },     // Cuisines
       newArrivals: { enabled: true, limit: 6 },            // New dishes
-      bestSellers: { enabled: true, limit: 8 },            // Popular items
+      bestSellers: { enabled: true, maxProducts: 8 },       // Popular items
       onSale: { enabled: true, limit: 4 },                 // Daily deals
       featuredBrands: { enabled: false },
       testimonials: { enabled: true },

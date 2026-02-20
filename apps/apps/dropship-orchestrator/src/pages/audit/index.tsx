@@ -1,5 +1,5 @@
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
-import { Box, Text, Button, Input } from "@saleor/macaw-ui";
+import { Box, Text, Button, Input } from "@/components/ui/primitives";
 import { useState } from "react";
 
 import { trpcClient } from "@/modules/trpc/trpc-client";

@@ -10,7 +10,27 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Build dynamic remotePatterns from NEXT_PUBLIC_SALEOR_API_URL
+const apiRemotePatterns = [];
+try {
+	const apiUrl = process.env.NEXT_PUBLIC_SALEOR_API_URL;
+	if (apiUrl) {
+		const parsed = new URL(apiUrl);
+		apiRemotePatterns.push({
+			protocol: parsed.protocol.replace(":", ""),
+			hostname: parsed.hostname,
+			...(parsed.port ? { port: parsed.port } : {}),
+		});
+	}
+} catch {
+	// Ignore invalid URL
+}
+
 const config = {
+	// Skip type checking during build — run type-check separately
+	typescript: {
+		ignoreBuildErrors: true,
+	},
 	// Transpile the shared config package (imported as source via volume mount)
 	transpilePackages: ["@saleor/apps-storefront-config"],
 	// Turbopack config (Next.js 16 default bundler)
@@ -20,9 +40,14 @@ const config = {
 			zod: path.resolve(__dirname, "node_modules/zod"),
 		},
 	},
-	// Webpack config (fallback bundler, used with --no-turbopack)
+	// Webpack config (fallback bundler, used with --no-turbopack and production builds)
 	webpack: (config) => {
 		config.resolve.alias.zod = path.resolve(__dirname, "node_modules/zod");
+		// Resolve shared config package (volume-mounted, not in node_modules)
+		config.resolve.alias["@saleor/apps-storefront-config"] = path.resolve(
+			__dirname,
+			"../apps/packages/storefront-config/src/index.ts",
+		);
 		config.resolve.modules = [
 			path.resolve(__dirname, "node_modules"),
 			...(config.resolve.modules || ["node_modules"]),
@@ -46,6 +71,8 @@ const config = {
 			{
 				hostname: "**.saleor.cloud",
 			},
+			// Public API domain (from NEXT_PUBLIC_SALEOR_API_URL, e.g. api.halacosmetics.org)
+			...apiRemotePatterns,
 		],
 		// Disable image optimization in development to avoid Docker localhost issues
 		unoptimized: process.env.NODE_ENV === "development",

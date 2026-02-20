@@ -467,7 +467,7 @@ docker compose -f infra/docker-compose.dev.yml ps
 - `src/modules/trpc/routers/` — 6 routers: suppliers, orders, exceptions, settings, audit, dashboard
 - `src/pages/` — Admin dashboard: overview, suppliers (AliExpress/CJ config), orders, exceptions, settings, audit log
 
-**Tech Stack**: Next.js (Pages Router), tRPC, BullMQ, ioredis, neverthrow, macaw-ui, Zod
+**Tech Stack**: Next.js (Pages Router), tRPC, BullMQ, ioredis, neverthrow, Zod. UI uses plain HTML primitives (`src/components/ui/primitives.tsx`) — macaw-ui Box/Text crash in iframe.
 
 **Permissions**: MANAGE_PRODUCTS, MANAGE_ORDERS, MANAGE_APPS, MANAGE_SHIPPING, MANAGE_CHECKOUTS
 

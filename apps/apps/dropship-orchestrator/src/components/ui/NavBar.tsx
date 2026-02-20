@@ -1,4 +1,4 @@
-import { Box, Button } from "@saleor/macaw-ui";
+import { Box, Button } from "@/components/ui/primitives";
 import { useRouter } from "next/router";
 
 export const NAV_ITEMS = [

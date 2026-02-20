@@ -10,10 +10,6 @@ export default defineConfig({
       "@test": path.resolve(__dirname, "./testUtils"),
       // Mock react-intl in tests (replaces Jest's moduleNameMapper)
       "react-intl": path.resolve(__dirname, "./__mocks__/react-intl.ts"),
-      // Force resolution for hoisted packages
-      "@material-ui/core": path.resolve(__dirname, "./node_modules/@material-ui/core"),
-      "@material-ui/icons": path.resolve(__dirname, "./node_modules/@material-ui/icons"),
-      "@material-ui/styles": path.resolve(__dirname, "./node_modules/@material-ui/styles"),
     },
   },
   test: {

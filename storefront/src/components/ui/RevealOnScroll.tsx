@@ -6,9 +6,10 @@ interface RevealOnScrollProps {
   children: React.ReactNode;
   className?: string;
   delay?: number;
+  style?: React.CSSProperties;
 }
 
-export const RevealOnScroll: React.FC<RevealOnScrollProps> = ({ children, className = "", delay = 0 }) => {
+export const RevealOnScroll: React.FC<RevealOnScrollProps> = ({ children, className = "", delay = 0, style }) => {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -45,6 +46,7 @@ export const RevealOnScroll: React.FC<RevealOnScrollProps> = ({ children, classN
   return (
     <div
       ref={ref}
+      style={style}
       className={`transition-all duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] will-change-transform transform ${
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       } ${className}`}

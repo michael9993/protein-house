@@ -1,0 +1,291 @@
+name,productType,category,slug,description,variantName,sku,price,costPrice,variantAttr:Shoe size,variantAttr:Color,variantAttr:Apparel Size,attr:Gender,attr:Material,attr:Style,attr:Apparel Type,imageUrl,seoTitle,seoDescription,collections,metadata,isPublished,trackInventory
+Urban Mesh Runner,Shoes,men-running-shoes,urban-mesh-runner,Lightweight mesh running shoe with breathable upper and responsive cushioning for everyday runs,40 / Black,DS-SH-001-40-BLK,39.99,14,40,Black,,Men,Mesh,Running,,https://via.placeholder.com/800x800/333/fff?text=Urban%2BMesh%2BRunner,Urban Mesh Runner - Mansour Shoes,Lightweight mesh running shoe with breathable upper and responsive cushioning for everyday runs,new-arrivals;running-essentials;featured-products,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-100100"",""costPrice"":14};source:cj-dropship",Yes,No
+,,,,,41 / Black,DS-SH-001-41-BLK,39.99,14,41,Black,,,,,,,,,,,Yes,No
+,,,,,42 / Black,DS-SH-001-42-BLK,39.99,14,42,Black,,,,,,,,,,,Yes,No
+,,,,,43 / Black,DS-SH-001-43-BLK,39.99,14,43,Black,,,,,,,,,,,Yes,No
+,,,,,44 / Black,DS-SH-001-44-BLK,39.99,14,44,Black,,,,,,,,,,,Yes,No
+,,,,,45 / Black,DS-SH-001-45-BLK,39.99,14,45,Black,,,,,,,,,,,Yes,No
+,,,,,40 / Navy,DS-SH-001-40-NVY,39.99,14,40,Navy,,,,,,,,,,,Yes,No
+,,,,,41 / Navy,DS-SH-001-41-NVY,39.99,14,41,Navy,,,,,,,,,,,Yes,No
+,,,,,42 / Navy,DS-SH-001-42-NVY,39.99,14,42,Navy,,,,,,,,,,,Yes,No
+,,,,,43 / Navy,DS-SH-001-43-NVY,39.99,14,43,Navy,,,,,,,,,,,Yes,No
+,,,,,44 / Navy,DS-SH-001-44-NVY,39.99,14,44,Navy,,,,,,,,,,,Yes,No
+,,,,,45 / Navy,DS-SH-001-45-NVY,39.99,14,45,Navy,,,,,,,,,,,Yes,No
+Classic Canvas Low-Top,Shoes,men-casual-shoes,classic-canvas-low-top,Timeless canvas sneaker with vulcanized rubber sole and clean minimal design,40 / Black,DS-SH-002-40-BLK,29.99,10,40,Black,,Men,Canvas,Casual,,https://via.placeholder.com/800x800/333/fff?text=Classic%2BCanvas%2BLow-Top,Classic Canvas Low-Top - Mansour Shoes,Timeless canvas sneaker with vulcanized rubber sole and clean minimal design,new-arrivals;casual-style;under-200,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-100200"",""costPrice"":10};source:cj-dropship",Yes,No
+,,,,,41 / Black,DS-SH-002-41-BLK,29.99,10,41,Black,,,,,,,,,,,Yes,No
+,,,,,42 / Black,DS-SH-002-42-BLK,29.99,10,42,Black,,,,,,,,,,,Yes,No
+,,,,,43 / Black,DS-SH-002-43-BLK,29.99,10,43,Black,,,,,,,,,,,Yes,No
+,,,,,44 / Black,DS-SH-002-44-BLK,29.99,10,44,Black,,,,,,,,,,,Yes,No
+,,,,,45 / Black,DS-SH-002-45-BLK,29.99,10,45,Black,,,,,,,,,,,Yes,No
+,,,,,40 / White,DS-SH-002-40-WHT,29.99,10,40,White,,,,,,,,,,,Yes,No
+,,,,,41 / White,DS-SH-002-41-WHT,29.99,10,41,White,,,,,,,,,,,Yes,No
+,,,,,42 / White,DS-SH-002-42-WHT,29.99,10,42,White,,,,,,,,,,,Yes,No
+,,,,,43 / White,DS-SH-002-43-WHT,29.99,10,43,White,,,,,,,,,,,Yes,No
+,,,,,44 / White,DS-SH-002-44-WHT,29.99,10,44,White,,,,,,,,,,,Yes,No
+,,,,,45 / White,DS-SH-002-45-WHT,29.99,10,45,White,,,,,,,,,,,Yes,No
+Retro Chunky Dad Sneaker,Shoes,men-casual-shoes,retro-chunky-dad-sneaker,Bold chunky sneaker with retro-inspired silhouette and multi-layer sole unit,40 / Black,DS-SH-003-40-BLK,44.99,16,40,Black,,Men,Synthetic,Fashion,,https://via.placeholder.com/800x800/333/fff?text=Retro%2BChunky%2BDad%2BSneaker,Retro Chunky Dad Sneaker - Mansour Shoes,Bold chunky sneaker with retro-inspired silhouette and multi-layer sole unit,new-arrivals;casual-style;featured-products,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-100300"",""costPrice"":16};source:cj-dropship",Yes,No
+,,,,,41 / Black,DS-SH-003-41-BLK,44.99,16,41,Black,,,,,,,,,,,Yes,No
+,,,,,42 / Black,DS-SH-003-42-BLK,44.99,16,42,Black,,,,,,,,,,,Yes,No
+,,,,,43 / Black,DS-SH-003-43-BLK,44.99,16,43,Black,,,,,,,,,,,Yes,No
+,,,,,44 / Black,DS-SH-003-44-BLK,44.99,16,44,Black,,,,,,,,,,,Yes,No
+,,,,,45 / Black,DS-SH-003-45-BLK,44.99,16,45,Black,,,,,,,,,,,Yes,No
+,,,,,40 / Gray,DS-SH-003-40-GRY,44.99,16,40,Gray,,,,,,,,,,,Yes,No
+,,,,,41 / Gray,DS-SH-003-41-GRY,44.99,16,41,Gray,,,,,,,,,,,Yes,No
+,,,,,42 / Gray,DS-SH-003-42-GRY,44.99,16,42,Gray,,,,,,,,,,,Yes,No
+,,,,,43 / Gray,DS-SH-003-43-GRY,44.99,16,43,Gray,,,,,,,,,,,Yes,No
+,,,,,44 / Gray,DS-SH-003-44-GRY,44.99,16,44,Gray,,,,,,,,,,,Yes,No
+,,,,,45 / Gray,DS-SH-003-45-GRY,44.99,16,45,Gray,,,,,,,,,,,Yes,No
+Breathable Knit Trainer,Shoes,men-training-shoes,breathable-knit-trainer,Flexible knit training shoe with supportive midfoot cage for gym and cross-training,40 / Black,DS-SH-004-40-BLK,34.99,12,40,Black,,Men,Knit,Training,,https://via.placeholder.com/800x800/333/fff?text=Breathable%2BKnit%2BTrainer,Breathable Knit Trainer - Mansour Shoes,Flexible knit training shoe with supportive midfoot cage for gym and cross-training,new-arrivals;training-gear,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-100400"",""costPrice"":12};source:cj-dropship",Yes,No
+,,,,,41 / Black,DS-SH-004-41-BLK,34.99,12,41,Black,,,,,,,,,,,Yes,No
+,,,,,42 / Black,DS-SH-004-42-BLK,34.99,12,42,Black,,,,,,,,,,,Yes,No
+,,,,,43 / Black,DS-SH-004-43-BLK,34.99,12,43,Black,,,,,,,,,,,Yes,No
+,,,,,44 / Black,DS-SH-004-44-BLK,34.99,12,44,Black,,,,,,,,,,,Yes,No
+,,,,,45 / Black,DS-SH-004-45-BLK,34.99,12,45,Black,,,,,,,,,,,Yes,No
+,,,,,40 / Red,DS-SH-004-40-RED,34.99,12,40,Red,,,,,,,,,,,Yes,No
+,,,,,41 / Red,DS-SH-004-41-RED,34.99,12,41,Red,,,,,,,,,,,Yes,No
+,,,,,42 / Red,DS-SH-004-42-RED,34.99,12,42,Red,,,,,,,,,,,Yes,No
+,,,,,43 / Red,DS-SH-004-43-RED,34.99,12,43,Red,,,,,,,,,,,Yes,No
+,,,,,44 / Red,DS-SH-004-44-RED,34.99,12,44,Red,,,,,,,,,,,Yes,No
+,,,,,45 / Red,DS-SH-004-45-RED,34.99,12,45,Red,,,,,,,,,,,Yes,No
+Street High-Top Basketball,Shoes,men-casual-shoes,street-high-top-basketball,Street-ready high-top with padded ankle collar and premium court-style outsole,40 / Black,DS-SH-005-40-BLK,49.99,18,40,Black,,Men,Synthetic,Fashion,,https://via.placeholder.com/800x800/333/fff?text=Street%2BHigh-Top%2BBasketball,Street High-Top Basketball - Mansour Shoes,Street-ready high-top with padded ankle collar and premium court-style outsole,new-arrivals;casual-style;featured-products;best-sellers,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-100500"",""costPrice"":18};source:cj-dropship",Yes,No
+,,,,,41 / Black,DS-SH-005-41-BLK,49.99,18,41,Black,,,,,,,,,,,Yes,No
+,,,,,42 / Black,DS-SH-005-42-BLK,49.99,18,42,Black,,,,,,,,,,,Yes,No
+,,,,,43 / Black,DS-SH-005-43-BLK,49.99,18,43,Black,,,,,,,,,,,Yes,No
+,,,,,44 / Black,DS-SH-005-44-BLK,49.99,18,44,Black,,,,,,,,,,,Yes,No
+,,,,,45 / Black,DS-SH-005-45-BLK,49.99,18,45,Black,,,,,,,,,,,Yes,No
+,,,,,40 / White,DS-SH-005-40-WHT,49.99,18,40,White,,,,,,,,,,,Yes,No
+,,,,,41 / White,DS-SH-005-41-WHT,49.99,18,41,White,,,,,,,,,,,Yes,No
+,,,,,42 / White,DS-SH-005-42-WHT,49.99,18,42,White,,,,,,,,,,,Yes,No
+,,,,,43 / White,DS-SH-005-43-WHT,49.99,18,43,White,,,,,,,,,,,Yes,No
+,,,,,44 / White,DS-SH-005-44-WHT,49.99,18,44,White,,,,,,,,,,,Yes,No
+,,,,,45 / White,DS-SH-005-45-WHT,49.99,18,45,White,,,,,,,,,,,Yes,No
+Minimalist White Leather,Shoes,men-casual-shoes,minimalist-white-leather,Clean white leather sneaker with minimalist design for versatile everyday styling,40 / White,DS-SH-006-40-WHT,42.99,15,40,White,,Men,Leather,Casual,,https://via.placeholder.com/800x800/333/fff?text=Minimalist%2BWhite%2BLeather,Minimalist White Leather - Mansour Shoes,Clean white leather sneaker with minimalist design for versatile everyday styling,new-arrivals;casual-style;featured-products,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-100600"",""costPrice"":15};source:cj-dropship",Yes,No
+,,,,,41 / White,DS-SH-006-41-WHT,42.99,15,41,White,,,,,,,,,,,Yes,No
+,,,,,42 / White,DS-SH-006-42-WHT,42.99,15,42,White,,,,,,,,,,,Yes,No
+,,,,,43 / White,DS-SH-006-43-WHT,42.99,15,43,White,,,,,,,,,,,Yes,No
+,,,,,44 / White,DS-SH-006-44-WHT,42.99,15,44,White,,,,,,,,,,,Yes,No
+,,,,,45 / White,DS-SH-006-45-WHT,42.99,15,45,White,,,,,,,,,,,Yes,No
+,,,,,40 / Beige,DS-SH-006-40-BGE,42.99,15,40,Beige,,,,,,,,,,,Yes,No
+,,,,,41 / Beige,DS-SH-006-41-BGE,42.99,15,41,Beige,,,,,,,,,,,Yes,No
+,,,,,42 / Beige,DS-SH-006-42-BGE,42.99,15,42,Beige,,,,,,,,,,,Yes,No
+,,,,,43 / Beige,DS-SH-006-43-BGE,42.99,15,43,Beige,,,,,,,,,,,Yes,No
+,,,,,44 / Beige,DS-SH-006-44-BGE,42.99,15,44,Beige,,,,,,,,,,,Yes,No
+,,,,,45 / Beige,DS-SH-006-45-BGE,42.99,15,45,Beige,,,,,,,,,,,Yes,No
+Air Cushion Sport Runner,Shoes,men-running-shoes,air-cushion-sport-runner,Performance running shoe with visible air cushion unit and engineered mesh upper,40 / Black,DS-SH-007-40-BLK,45.99,16,40,Black,,Men,Mesh,Running,,https://via.placeholder.com/800x800/333/fff?text=Air%2BCushion%2BSport%2BRunner,Air Cushion Sport Runner - Mansour Shoes,Performance running shoe with visible air cushion unit and engineered mesh upper,new-arrivals;running-essentials;best-sellers,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-100700"",""costPrice"":16};source:cj-dropship",Yes,No
+,,,,,41 / Black,DS-SH-007-41-BLK,45.99,16,41,Black,,,,,,,,,,,Yes,No
+,,,,,42 / Black,DS-SH-007-42-BLK,45.99,16,42,Black,,,,,,,,,,,Yes,No
+,,,,,43 / Black,DS-SH-007-43-BLK,45.99,16,43,Black,,,,,,,,,,,Yes,No
+,,,,,44 / Black,DS-SH-007-44-BLK,45.99,16,44,Black,,,,,,,,,,,Yes,No
+,,,,,45 / Black,DS-SH-007-45-BLK,45.99,16,45,Black,,,,,,,,,,,Yes,No
+,,,,,40 / Blue,DS-SH-007-40-BLU,45.99,16,40,Blue,,,,,,,,,,,Yes,No
+,,,,,41 / Blue,DS-SH-007-41-BLU,45.99,16,41,Blue,,,,,,,,,,,Yes,No
+,,,,,42 / Blue,DS-SH-007-42-BLU,45.99,16,42,Blue,,,,,,,,,,,Yes,No
+,,,,,43 / Blue,DS-SH-007-43-BLU,45.99,16,43,Blue,,,,,,,,,,,Yes,No
+,,,,,44 / Blue,DS-SH-007-44-BLU,45.99,16,44,Blue,,,,,,,,,,,Yes,No
+,,,,,45 / Blue,DS-SH-007-45-BLU,45.99,16,45,Blue,,,,,,,,,,,Yes,No
+Suede Retro Skate Shoe,Shoes,men-casual-shoes,suede-retro-skate-shoe,Classic suede skate shoe with reinforced toe cap and grippy gum rubber outsole,40 / Black,DS-SH-008-40-BLK,37.99,13,40,Black,,Men,Suede,Casual,,https://via.placeholder.com/800x800/333/fff?text=Suede%2BRetro%2BSkate%2BShoe,Suede Retro Skate Shoe - Mansour Shoes,Classic suede skate shoe with reinforced toe cap and grippy gum rubber outsole,new-arrivals;casual-style,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-100800"",""costPrice"":13};source:cj-dropship",Yes,No
+,,,,,41 / Black,DS-SH-008-41-BLK,37.99,13,41,Black,,,,,,,,,,,Yes,No
+,,,,,42 / Black,DS-SH-008-42-BLK,37.99,13,42,Black,,,,,,,,,,,Yes,No
+,,,,,43 / Black,DS-SH-008-43-BLK,37.99,13,43,Black,,,,,,,,,,,Yes,No
+,,,,,44 / Black,DS-SH-008-44-BLK,37.99,13,44,Black,,,,,,,,,,,Yes,No
+,,,,,45 / Black,DS-SH-008-45-BLK,37.99,13,45,Black,,,,,,,,,,,Yes,No
+,,,,,40 / Brown,DS-SH-008-40-BRN,37.99,13,40,Brown,,,,,,,,,,,Yes,No
+,,,,,41 / Brown,DS-SH-008-41-BRN,37.99,13,41,Brown,,,,,,,,,,,Yes,No
+,,,,,42 / Brown,DS-SH-008-42-BRN,37.99,13,42,Brown,,,,,,,,,,,Yes,No
+,,,,,43 / Brown,DS-SH-008-43-BRN,37.99,13,43,Brown,,,,,,,,,,,Yes,No
+,,,,,44 / Brown,DS-SH-008-44-BRN,37.99,13,44,Brown,,,,,,,,,,,Yes,No
+,,,,,45 / Brown,DS-SH-008-45-BRN,37.99,13,45,Brown,,,,,,,,,,,Yes,No
+Memory Foam Slip-On,Shoes,men-walking-comfort,memory-foam-slip-on-men,Easy slip-on walking shoe with memory foam insole for all-day cushioned comfort,40 / Black,DS-SH-009-40-BLK,32.99,11,40,Black,,Men,Knit,Comfort,,https://via.placeholder.com/800x800/333/fff?text=Memory%2BFoam%2BSlip-On,Memory Foam Slip-On - Mansour Shoes,Easy slip-on walking shoe with memory foam insole for all-day cushioned comfort,new-arrivals;walking-comfort-collection,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-100900"",""costPrice"":11};source:cj-dropship",Yes,No
+,,,,,41 / Black,DS-SH-009-41-BLK,32.99,11,41,Black,,,,,,,,,,,Yes,No
+,,,,,42 / Black,DS-SH-009-42-BLK,32.99,11,42,Black,,,,,,,,,,,Yes,No
+,,,,,43 / Black,DS-SH-009-43-BLK,32.99,11,43,Black,,,,,,,,,,,Yes,No
+,,,,,44 / Black,DS-SH-009-44-BLK,32.99,11,44,Black,,,,,,,,,,,Yes,No
+,,,,,45 / Black,DS-SH-009-45-BLK,32.99,11,45,Black,,,,,,,,,,,Yes,No
+,,,,,40 / Gray,DS-SH-009-40-GRY,32.99,11,40,Gray,,,,,,,,,,,Yes,No
+,,,,,41 / Gray,DS-SH-009-41-GRY,32.99,11,41,Gray,,,,,,,,,,,Yes,No
+,,,,,42 / Gray,DS-SH-009-42-GRY,32.99,11,42,Gray,,,,,,,,,,,Yes,No
+,,,,,43 / Gray,DS-SH-009-43-GRY,32.99,11,43,Gray,,,,,,,,,,,Yes,No
+,,,,,44 / Gray,DS-SH-009-44-GRY,32.99,11,44,Gray,,,,,,,,,,,Yes,No
+,,,,,45 / Gray,DS-SH-009-45-GRY,32.99,11,45,Gray,,,,,,,,,,,Yes,No
+Reflective Night Runner,Shoes,men-running-shoes,reflective-night-runner,High-visibility running shoe with 360-degree reflective details for safe night runs,40 / Black,DS-SH-010-40-BLK,47.99,17,40,Black,,Men,Mesh,Running,,https://via.placeholder.com/800x800/333/fff?text=Reflective%2BNight%2BRunner,Reflective Night Runner - Mansour Shoes,High-visibility running shoe with 360-degree reflective details for safe night runs,new-arrivals;running-essentials;featured-products,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-101000"",""costPrice"":17};source:cj-dropship",Yes,No
+,,,,,41 / Black,DS-SH-010-41-BLK,47.99,17,41,Black,,,,,,,,,,,Yes,No
+,,,,,42 / Black,DS-SH-010-42-BLK,47.99,17,42,Black,,,,,,,,,,,Yes,No
+,,,,,43 / Black,DS-SH-010-43-BLK,47.99,17,43,Black,,,,,,,,,,,Yes,No
+,,,,,44 / Black,DS-SH-010-44-BLK,47.99,17,44,Black,,,,,,,,,,,Yes,No
+,,,,,45 / Black,DS-SH-010-45-BLK,47.99,17,45,Black,,,,,,,,,,,Yes,No
+,,,,,40 / Neon Green,DS-SH-010-40-NGR,47.99,17,40,Neon Green,,,,,,,,,,,Yes,No
+,,,,,41 / Neon Green,DS-SH-010-41-NGR,47.99,17,41,Neon Green,,,,,,,,,,,Yes,No
+,,,,,42 / Neon Green,DS-SH-010-42-NGR,47.99,17,42,Neon Green,,,,,,,,,,,Yes,No
+,,,,,43 / Neon Green,DS-SH-010-43-NGR,47.99,17,43,Neon Green,,,,,,,,,,,Yes,No
+,,,,,44 / Neon Green,DS-SH-010-44-NGR,47.99,17,44,Neon Green,,,,,,,,,,,Yes,No
+,,,,,45 / Neon Green,DS-SH-010-45-NGR,47.99,17,45,Neon Green,,,,,,,,,,,Yes,No
+All-Black Stealth Trainer,Shoes,men-training-shoes,all-black-stealth-trainer,Murdered-out training shoe with non-marking outsole and lateral stability support,40 / Black,DS-SH-011-40-BLK,39.99,14,40,Black,,Men,Synthetic,Training,,https://via.placeholder.com/800x800/333/fff?text=All-Black%2BStealth%2BTrainer,All-Black Stealth Trainer - Mansour Shoes,Murdered-out training shoe with non-marking outsole and lateral stability support,new-arrivals;training-gear;best-sellers,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-101100"",""costPrice"":14};source:cj-dropship",Yes,No
+,,,,,41 / Black,DS-SH-011-41-BLK,39.99,14,41,Black,,,,,,,,,,,Yes,No
+,,,,,42 / Black,DS-SH-011-42-BLK,39.99,14,42,Black,,,,,,,,,,,Yes,No
+,,,,,43 / Black,DS-SH-011-43-BLK,39.99,14,43,Black,,,,,,,,,,,Yes,No
+,,,,,44 / Black,DS-SH-011-44-BLK,39.99,14,44,Black,,,,,,,,,,,Yes,No
+,,,,,45 / Black,DS-SH-011-45-BLK,39.99,14,45,Black,,,,,,,,,,,Yes,No
+,,,,,40 / Dark Gray,DS-SH-011-40-DGR,39.99,14,40,Dark Gray,,,,,,,,,,,Yes,No
+,,,,,41 / Dark Gray,DS-SH-011-41-DGR,39.99,14,41,Dark Gray,,,,,,,,,,,Yes,No
+,,,,,42 / Dark Gray,DS-SH-011-42-DGR,39.99,14,42,Dark Gray,,,,,,,,,,,Yes,No
+,,,,,43 / Dark Gray,DS-SH-011-43-DGR,39.99,14,43,Dark Gray,,,,,,,,,,,Yes,No
+,,,,,44 / Dark Gray,DS-SH-011-44-DGR,39.99,14,44,Dark Gray,,,,,,,,,,,Yes,No
+,,,,,45 / Dark Gray,DS-SH-011-45-DGR,39.99,14,45,Dark Gray,,,,,,,,,,,Yes,No
+Colorblock Retro Jogger,Shoes,men-casual-shoes,colorblock-retro-jogger,Retro-inspired jogger sneaker with bold colorblock panels and EVA midsole,40 / White,DS-SH-012-40-WHT,42.99,15,40,White,,Men,Synthetic,Fashion,,https://via.placeholder.com/800x800/333/fff?text=Colorblock%2BRetro%2BJogger,Colorblock Retro Jogger - Mansour Shoes,Retro-inspired jogger sneaker with bold colorblock panels and EVA midsole,new-arrivals;casual-style,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-101200"",""costPrice"":15};source:cj-dropship",Yes,No
+,,,,,41 / White,DS-SH-012-41-WHT,42.99,15,41,White,,,,,,,,,,,Yes,No
+,,,,,42 / White,DS-SH-012-42-WHT,42.99,15,42,White,,,,,,,,,,,Yes,No
+,,,,,43 / White,DS-SH-012-43-WHT,42.99,15,43,White,,,,,,,,,,,Yes,No
+,,,,,44 / White,DS-SH-012-44-WHT,42.99,15,44,White,,,,,,,,,,,Yes,No
+,,,,,45 / White,DS-SH-012-45-WHT,42.99,15,45,White,,,,,,,,,,,Yes,No
+,,,,,40 / Red,DS-SH-012-40-RED,42.99,15,40,Red,,,,,,,,,,,Yes,No
+,,,,,41 / Red,DS-SH-012-41-RED,42.99,15,41,Red,,,,,,,,,,,Yes,No
+,,,,,42 / Red,DS-SH-012-42-RED,42.99,15,42,Red,,,,,,,,,,,Yes,No
+,,,,,43 / Red,DS-SH-012-43-RED,42.99,15,43,Red,,,,,,,,,,,Yes,No
+,,,,,44 / Red,DS-SH-012-44-RED,42.99,15,44,Red,,,,,,,,,,,Yes,No
+,,,,,45 / Red,DS-SH-012-45-RED,42.99,15,45,Red,,,,,,,,,,,Yes,No
+Chunky Platform Sneaker,Shoes,women-casual-shoes,chunky-platform-sneaker-w,Trend-setting chunky platform sneaker with 5cm sole height and padded collar,36 / White,DS-SH-013-36-WHT,44.99,16,36,White,,Women,Synthetic,Fashion,,https://via.placeholder.com/800x800/333/fff?text=Chunky%2BPlatform%2BSneaker,Chunky Platform Sneaker - Mansour Shoes,Trend-setting chunky platform sneaker with 5cm sole height and padded collar,new-arrivals;casual-style;featured-products;best-sellers,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-101300"",""costPrice"":16};source:cj-dropship",Yes,No
+,,,,,37 / White,DS-SH-013-37-WHT,44.99,16,37,White,,,,,,,,,,,Yes,No
+,,,,,38 / White,DS-SH-013-38-WHT,44.99,16,38,White,,,,,,,,,,,Yes,No
+,,,,,39 / White,DS-SH-013-39-WHT,44.99,16,39,White,,,,,,,,,,,Yes,No
+,,,,,40 / White,DS-SH-013-40-WHT,44.99,16,40,White,,,,,,,,,,,Yes,No
+,,,,,41 / White,DS-SH-013-41-WHT,44.99,16,41,White,,,,,,,,,,,Yes,No
+,,,,,36 / Pink,DS-SH-013-36-PNK,44.99,16,36,Pink,,,,,,,,,,,Yes,No
+,,,,,37 / Pink,DS-SH-013-37-PNK,44.99,16,37,Pink,,,,,,,,,,,Yes,No
+,,,,,38 / Pink,DS-SH-013-38-PNK,44.99,16,38,Pink,,,,,,,,,,,Yes,No
+,,,,,39 / Pink,DS-SH-013-39-PNK,44.99,16,39,Pink,,,,,,,,,,,Yes,No
+,,,,,40 / Pink,DS-SH-013-40-PNK,44.99,16,40,Pink,,,,,,,,,,,Yes,No
+,,,,,41 / Pink,DS-SH-013-41-PNK,44.99,16,41,Pink,,,,,,,,,,,Yes,No
+Pastel Knit Sock Sneaker,Shoes,women-casual-shoes,pastel-knit-sock-sneaker,Lightweight sock-style sneaker in soft pastel tones with flexible knit upper,36 / Pink,DS-SH-014-36-PNK,36.99,13,36,Pink,,Women,Knit,Fashion,,https://via.placeholder.com/800x800/333/fff?text=Pastel%2BKnit%2BSock%2BSneaker,Pastel Knit Sock Sneaker - Mansour Shoes,Lightweight sock-style sneaker in soft pastel tones with flexible knit upper,new-arrivals;casual-style,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-101400"",""costPrice"":13};source:cj-dropship",Yes,No
+,,,,,37 / Pink,DS-SH-014-37-PNK,36.99,13,37,Pink,,,,,,,,,,,Yes,No
+,,,,,38 / Pink,DS-SH-014-38-PNK,36.99,13,38,Pink,,,,,,,,,,,Yes,No
+,,,,,39 / Pink,DS-SH-014-39-PNK,36.99,13,39,Pink,,,,,,,,,,,Yes,No
+,,,,,40 / Pink,DS-SH-014-40-PNK,36.99,13,40,Pink,,,,,,,,,,,Yes,No
+,,,,,41 / Pink,DS-SH-014-41-PNK,36.99,13,41,Pink,,,,,,,,,,,Yes,No
+,,,,,36 / Lavender,DS-SH-014-36-LAV,36.99,13,36,Lavender,,,,,,,,,,,Yes,No
+,,,,,37 / Lavender,DS-SH-014-37-LAV,36.99,13,37,Lavender,,,,,,,,,,,Yes,No
+,,,,,38 / Lavender,DS-SH-014-38-LAV,36.99,13,38,Lavender,,,,,,,,,,,Yes,No
+,,,,,39 / Lavender,DS-SH-014-39-LAV,36.99,13,39,Lavender,,,,,,,,,,,Yes,No
+,,,,,40 / Lavender,DS-SH-014-40-LAV,36.99,13,40,Lavender,,,,,,,,,,,Yes,No
+,,,,,41 / Lavender,DS-SH-014-41-LAV,36.99,13,41,Lavender,,,,,,,,,,,Yes,No
+Lightweight Mesh Runner,Shoes,women-running-shoes,lightweight-mesh-runner-w,Featherlight women's running shoe with breathable mesh and responsive foam midsole,36 / Black,DS-SH-015-36-BLK,39.99,14,36,Black,,Women,Mesh,Running,,https://via.placeholder.com/800x800/333/fff?text=Lightweight%2BMesh%2BRunner,Lightweight Mesh Runner - Mansour Shoes,Featherlight women's running shoe with breathable mesh and responsive foam midsole,new-arrivals;running-essentials,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-101500"",""costPrice"":14};source:cj-dropship",Yes,No
+,,,,,37 / Black,DS-SH-015-37-BLK,39.99,14,37,Black,,,,,,,,,,,Yes,No
+,,,,,38 / Black,DS-SH-015-38-BLK,39.99,14,38,Black,,,,,,,,,,,Yes,No
+,,,,,39 / Black,DS-SH-015-39-BLK,39.99,14,39,Black,,,,,,,,,,,Yes,No
+,,,,,40 / Black,DS-SH-015-40-BLK,39.99,14,40,Black,,,,,,,,,,,Yes,No
+,,,,,41 / Black,DS-SH-015-41-BLK,39.99,14,41,Black,,,,,,,,,,,Yes,No
+,,,,,36 / Coral,DS-SH-015-36-CRL,39.99,14,36,Coral,,,,,,,,,,,Yes,No
+,,,,,37 / Coral,DS-SH-015-37-CRL,39.99,14,37,Coral,,,,,,,,,,,Yes,No
+,,,,,38 / Coral,DS-SH-015-38-CRL,39.99,14,38,Coral,,,,,,,,,,,Yes,No
+,,,,,39 / Coral,DS-SH-015-39-CRL,39.99,14,39,Coral,,,,,,,,,,,Yes,No
+,,,,,40 / Coral,DS-SH-015-40-CRL,39.99,14,40,Coral,,,,,,,,,,,Yes,No
+,,,,,41 / Coral,DS-SH-015-41-CRL,39.99,14,41,Coral,,,,,,,,,,,Yes,No
+Butterfly Print Fashion,Shoes,women-casual-shoes,butterfly-print-fashion,Eye-catching fashion sneaker with butterfly print canvas upper and white sole,36 / White,DS-SH-016-36-WHT,34.99,12,36,White,,Women,Canvas,Fashion,,https://via.placeholder.com/800x800/333/fff?text=Butterfly%2BPrint%2BFashion,Butterfly Print Fashion - Mansour Shoes,Eye-catching fashion sneaker with butterfly print canvas upper and white sole,new-arrivals;casual-style,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-101600"",""costPrice"":12};source:cj-dropship",Yes,No
+,,,,,37 / White,DS-SH-016-37-WHT,34.99,12,37,White,,,,,,,,,,,Yes,No
+,,,,,38 / White,DS-SH-016-38-WHT,34.99,12,38,White,,,,,,,,,,,Yes,No
+,,,,,39 / White,DS-SH-016-39-WHT,34.99,12,39,White,,,,,,,,,,,Yes,No
+,,,,,40 / White,DS-SH-016-40-WHT,34.99,12,40,White,,,,,,,,,,,Yes,No
+,,,,,41 / White,DS-SH-016-41-WHT,34.99,12,41,White,,,,,,,,,,,Yes,No
+,,,,,36 / Multicolor,DS-SH-016-36-MLT,34.99,12,36,Multicolor,,,,,,,,,,,Yes,No
+,,,,,37 / Multicolor,DS-SH-016-37-MLT,34.99,12,37,Multicolor,,,,,,,,,,,Yes,No
+,,,,,38 / Multicolor,DS-SH-016-38-MLT,34.99,12,38,Multicolor,,,,,,,,,,,Yes,No
+,,,,,39 / Multicolor,DS-SH-016-39-MLT,34.99,12,39,Multicolor,,,,,,,,,,,Yes,No
+,,,,,40 / Multicolor,DS-SH-016-40-MLT,34.99,12,40,Multicolor,,,,,,,,,,,Yes,No
+,,,,,41 / Multicolor,DS-SH-016-41-MLT,34.99,12,41,Multicolor,,,,,,,,,,,Yes,No
+White Platform Court Shoe,Shoes,women-casual-shoes,white-platform-court-shoe,Elevated court sneaker with platform sole and subtle metallic accent details,36 / White,DS-SH-017-36-WHT,42.99,15,36,White,,Women,Leather,Fashion,,https://via.placeholder.com/800x800/333/fff?text=White%2BPlatform%2BCourt%2BShoe,White Platform Court Shoe - Mansour Shoes,Elevated court sneaker with platform sole and subtle metallic accent details,new-arrivals;casual-style;featured-products,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-101700"",""costPrice"":15};source:cj-dropship",Yes,No
+,,,,,37 / White,DS-SH-017-37-WHT,42.99,15,37,White,,,,,,,,,,,Yes,No
+,,,,,38 / White,DS-SH-017-38-WHT,42.99,15,38,White,,,,,,,,,,,Yes,No
+,,,,,39 / White,DS-SH-017-39-WHT,42.99,15,39,White,,,,,,,,,,,Yes,No
+,,,,,40 / White,DS-SH-017-40-WHT,42.99,15,40,White,,,,,,,,,,,Yes,No
+,,,,,41 / White,DS-SH-017-41-WHT,42.99,15,41,White,,,,,,,,,,,Yes,No
+,,,,,36 / Gold,DS-SH-017-36-GLD,42.99,15,36,Gold,,,,,,,,,,,Yes,No
+,,,,,37 / Gold,DS-SH-017-37-GLD,42.99,15,37,Gold,,,,,,,,,,,Yes,No
+,,,,,38 / Gold,DS-SH-017-38-GLD,42.99,15,38,Gold,,,,,,,,,,,Yes,No
+,,,,,39 / Gold,DS-SH-017-39-GLD,42.99,15,39,Gold,,,,,,,,,,,Yes,No
+,,,,,40 / Gold,DS-SH-017-40-GLD,42.99,15,40,Gold,,,,,,,,,,,Yes,No
+,,,,,41 / Gold,DS-SH-017-41-GLD,42.99,15,41,Gold,,,,,,,,,,,Yes,No
+Color Block Lifestyle,Shoes,women-casual-shoes,color-block-lifestyle-w,Sporty lifestyle sneaker with bold color blocking and comfortable cushioned insole,36 / Black,DS-SH-018-36-BLK,37.99,13,36,Black,,Women,Synthetic,Fashion,,https://via.placeholder.com/800x800/333/fff?text=Color%2BBlock%2BLifestyle,Color Block Lifestyle - Mansour Shoes,Sporty lifestyle sneaker with bold color blocking and comfortable cushioned insole,new-arrivals;casual-style,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-101800"",""costPrice"":13};source:cj-dropship",Yes,No
+,,,,,37 / Black,DS-SH-018-37-BLK,37.99,13,37,Black,,,,,,,,,,,Yes,No
+,,,,,38 / Black,DS-SH-018-38-BLK,37.99,13,38,Black,,,,,,,,,,,Yes,No
+,,,,,39 / Black,DS-SH-018-39-BLK,37.99,13,39,Black,,,,,,,,,,,Yes,No
+,,,,,40 / Black,DS-SH-018-40-BLK,37.99,13,40,Black,,,,,,,,,,,Yes,No
+,,,,,41 / Black,DS-SH-018-41-BLK,37.99,13,41,Black,,,,,,,,,,,Yes,No
+,,,,,36 / Pink,DS-SH-018-36-PNK,37.99,13,36,Pink,,,,,,,,,,,Yes,No
+,,,,,37 / Pink,DS-SH-018-37-PNK,37.99,13,37,Pink,,,,,,,,,,,Yes,No
+,,,,,38 / Pink,DS-SH-018-38-PNK,37.99,13,38,Pink,,,,,,,,,,,Yes,No
+,,,,,39 / Pink,DS-SH-018-39-PNK,37.99,13,39,Pink,,,,,,,,,,,Yes,No
+,,,,,40 / Pink,DS-SH-018-40-PNK,37.99,13,40,Pink,,,,,,,,,,,Yes,No
+,,,,,41 / Pink,DS-SH-018-41-PNK,37.99,13,41,Pink,,,,,,,,,,,Yes,No
+Memory Foam Walking Shoe,Shoes,women-walking-comfort,memory-foam-walking-shoe-w,Ultra-comfortable walking shoe with premium memory foam and lightweight knit upper,36 / Black,DS-SH-019-36-BLK,32.99,11,36,Black,,Women,Knit,Comfort,,https://via.placeholder.com/800x800/333/fff?text=Memory%2BFoam%2BWalking%2BShoe,Memory Foam Walking Shoe - Mansour Shoes,Ultra-comfortable walking shoe with premium memory foam and lightweight knit upper,new-arrivals;walking-comfort-collection,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-101900"",""costPrice"":11};source:cj-dropship",Yes,No
+,,,,,37 / Black,DS-SH-019-37-BLK,32.99,11,37,Black,,,,,,,,,,,Yes,No
+,,,,,38 / Black,DS-SH-019-38-BLK,32.99,11,38,Black,,,,,,,,,,,Yes,No
+,,,,,39 / Black,DS-SH-019-39-BLK,32.99,11,39,Black,,,,,,,,,,,Yes,No
+,,,,,40 / Black,DS-SH-019-40-BLK,32.99,11,40,Black,,,,,,,,,,,Yes,No
+,,,,,41 / Black,DS-SH-019-41-BLK,32.99,11,41,Black,,,,,,,,,,,Yes,No
+,,,,,36 / Gray,DS-SH-019-36-GRY,32.99,11,36,Gray,,,,,,,,,,,Yes,No
+,,,,,37 / Gray,DS-SH-019-37-GRY,32.99,11,37,Gray,,,,,,,,,,,Yes,No
+,,,,,38 / Gray,DS-SH-019-38-GRY,32.99,11,38,Gray,,,,,,,,,,,Yes,No
+,,,,,39 / Gray,DS-SH-019-39-GRY,32.99,11,39,Gray,,,,,,,,,,,Yes,No
+,,,,,40 / Gray,DS-SH-019-40-GRY,32.99,11,40,Gray,,,,,,,,,,,Yes,No
+,,,,,41 / Gray,DS-SH-019-41-GRY,32.99,11,41,Gray,,,,,,,,,,,Yes,No
+Canvas Classic Slip-On,Shoes,women-casual-shoes,canvas-classic-slip-on-w,Easy-on canvas slip-on with elastic gore panels and cushioned footbed,36 / Black,DS-SH-020-36-BLK,27.99,9,36,Black,,Women,Canvas,Casual,,https://via.placeholder.com/800x800/333/fff?text=Canvas%2BClassic%2BSlip-On,Canvas Classic Slip-On - Mansour Shoes,Easy-on canvas slip-on with elastic gore panels and cushioned footbed,new-arrivals;casual-style;under-200,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-102000"",""costPrice"":9};source:cj-dropship",Yes,No
+,,,,,37 / Black,DS-SH-020-37-BLK,27.99,9,37,Black,,,,,,,,,,,Yes,No
+,,,,,38 / Black,DS-SH-020-38-BLK,27.99,9,38,Black,,,,,,,,,,,Yes,No
+,,,,,39 / Black,DS-SH-020-39-BLK,27.99,9,39,Black,,,,,,,,,,,Yes,No
+,,,,,40 / Black,DS-SH-020-40-BLK,27.99,9,40,Black,,,,,,,,,,,Yes,No
+,,,,,41 / Black,DS-SH-020-41-BLK,27.99,9,41,Black,,,,,,,,,,,Yes,No
+,,,,,36 / Navy,DS-SH-020-36-NVY,27.99,9,36,Navy,,,,,,,,,,,Yes,No
+,,,,,37 / Navy,DS-SH-020-37-NVY,27.99,9,37,Navy,,,,,,,,,,,Yes,No
+,,,,,38 / Navy,DS-SH-020-38-NVY,27.99,9,38,Navy,,,,,,,,,,,Yes,No
+,,,,,39 / Navy,DS-SH-020-39-NVY,27.99,9,39,Navy,,,,,,,,,,,Yes,No
+,,,,,40 / Navy,DS-SH-020-40-NVY,27.99,9,40,Navy,,,,,,,,,,,Yes,No
+,,,,,41 / Navy,DS-SH-020-41-NVY,27.99,9,41,Navy,,,,,,,,,,,Yes,No
+Oversized Graphic Tee,Tops,men-tops,oversized-graphic-tee,Relaxed fit graphic tee with drop shoulder and premium cotton construction,S / Black,DS-TOP-021-S-BLK,25.99,8,,Black,S,Men,Cotton,,T-Shirt,https://via.placeholder.com/800x800/333/fff?text=Oversized%2BGraphic%2BTee,Oversized Graphic Tee - Mansour Shoes,Relaxed fit graphic tee with drop shoulder and premium cotton construction,new-arrivals;casual-style,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-200100"",""costPrice"":8};source:cj-dropship",Yes,No
+,,,,,M / Black,DS-TOP-021-M-BLK,25.99,8,,Black,M,,,,,,,,,,Yes,No
+,,,,,L / Black,DS-TOP-021-L-BLK,25.99,8,,Black,L,,,,,,,,,,Yes,No
+,,,,,XL / Black,DS-TOP-021-XL-BLK,25.99,8,,Black,XL,,,,,,,,,,Yes,No
+,,,,,S / White,DS-TOP-021-S-WHT,25.99,8,,White,S,,,,,,,,,,Yes,No
+,,,,,M / White,DS-TOP-021-M-WHT,25.99,8,,White,M,,,,,,,,,,Yes,No
+,,,,,L / White,DS-TOP-021-L-WHT,25.99,8,,White,L,,,,,,,,,,Yes,No
+,,,,,XL / White,DS-TOP-021-XL-WHT,25.99,8,,White,XL,,,,,,,,,,Yes,No
+Zip-Up Windbreaker,Tops,men-tops,zip-up-windbreaker,"Lightweight windbreaker jacket with full zip, hood, and water-resistant finish",S / Black,DS-TOP-022-S-BLK,49.99,18,,Black,S,Men,Polyester,,Jacket,https://via.placeholder.com/800x800/333/fff?text=Zip-Up%2BWindbreaker,Zip-Up Windbreaker - Mansour Shoes,"Lightweight windbreaker jacket with full zip, hood, and water-resistant finish",new-arrivals;featured-products,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-200200"",""costPrice"":18};source:cj-dropship",Yes,No
+,,,,,M / Black,DS-TOP-022-M-BLK,49.99,18,,Black,M,,,,,,,,,,Yes,No
+,,,,,L / Black,DS-TOP-022-L-BLK,49.99,18,,Black,L,,,,,,,,,,Yes,No
+,,,,,XL / Black,DS-TOP-022-XL-BLK,49.99,18,,Black,XL,,,,,,,,,,Yes,No
+,,,,,S / Navy,DS-TOP-022-S-NVY,49.99,18,,Navy,S,,,,,,,,,,Yes,No
+,,,,,M / Navy,DS-TOP-022-M-NVY,49.99,18,,Navy,M,,,,,,,,,,Yes,No
+,,,,,L / Navy,DS-TOP-022-L-NVY,49.99,18,,Navy,L,,,,,,,,,,Yes,No
+,,,,,XL / Navy,DS-TOP-022-XL-NVY,49.99,18,,Navy,XL,,,,,,,,,,Yes,No
+Vintage Wash Crew Sweatshirt,Tops,men-tops,vintage-wash-crew-sweatshirt,Pre-washed crew neck sweatshirt with lived-in feel and brushed fleece interior,S / Black,DS-TOP-023-S-BLK,39.99,14,,Black,S,Men,Cotton Blend,,Sweatshirt,https://via.placeholder.com/800x800/333/fff?text=Vintage%2BWash%2BCrew%2BSweatshirt,Vintage Wash Crew Sweatshirt - Mansour Shoes,Pre-washed crew neck sweatshirt with lived-in feel and brushed fleece interior,new-arrivals;casual-style;best-sellers,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-200300"",""costPrice"":14};source:cj-dropship",Yes,No
+,,,,,M / Black,DS-TOP-023-M-BLK,39.99,14,,Black,M,,,,,,,,,,Yes,No
+,,,,,L / Black,DS-TOP-023-L-BLK,39.99,14,,Black,L,,,,,,,,,,Yes,No
+,,,,,XL / Black,DS-TOP-023-XL-BLK,39.99,14,,Black,XL,,,,,,,,,,Yes,No
+,,,,,S / Charcoal,DS-TOP-023-S-CHR,39.99,14,,Charcoal,S,,,,,,,,,,Yes,No
+,,,,,M / Charcoal,DS-TOP-023-M-CHR,39.99,14,,Charcoal,M,,,,,,,,,,Yes,No
+,,,,,L / Charcoal,DS-TOP-023-L-CHR,39.99,14,,Charcoal,L,,,,,,,,,,Yes,No
+,,,,,XL / Charcoal,DS-TOP-023-XL-CHR,39.99,14,,Charcoal,XL,,,,,,,,,,Yes,No
+Cropped Street Hoodie,Tops,women-tops,cropped-street-hoodie,Trendy cropped hoodie with kangaroo pocket and adjustable drawstring hood,S / Black,DS-TOP-024-S-BLK,34.99,12,,Black,S,Women,Cotton Blend,,Hoodie,https://via.placeholder.com/800x800/333/fff?text=Cropped%2BStreet%2BHoodie,Cropped Street Hoodie - Mansour Shoes,Trendy cropped hoodie with kangaroo pocket and adjustable drawstring hood,new-arrivals;casual-style,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-200400"",""costPrice"":12};source:cj-dropship",Yes,No
+,,,,,M / Black,DS-TOP-024-M-BLK,34.99,12,,Black,M,,,,,,,,,,Yes,No
+,,,,,L / Black,DS-TOP-024-L-BLK,34.99,12,,Black,L,,,,,,,,,,Yes,No
+,,,,,XL / Black,DS-TOP-024-XL-BLK,34.99,12,,Black,XL,,,,,,,,,,Yes,No
+,,,,,S / Pink,DS-TOP-024-S-PNK,34.99,12,,Pink,S,,,,,,,,,,Yes,No
+,,,,,M / Pink,DS-TOP-024-M-PNK,34.99,12,,Pink,M,,,,,,,,,,Yes,No
+,,,,,L / Pink,DS-TOP-024-L-PNK,34.99,12,,Pink,L,,,,,,,,,,Yes,No
+,,,,,XL / Pink,DS-TOP-024-XL-PNK,34.99,12,,Pink,XL,,,,,,,,,,Yes,No
+Color Block Tank Top,Tops,women-tops,color-block-tank-top,Breathable color block tank with racerback design for workouts and casual wear,S / Black,DS-TOP-025-S-BLK,22.99,7,,Black,S,Women,Polyester,,Tank Top,https://via.placeholder.com/800x800/333/fff?text=Color%2BBlock%2BTank%2BTop,Color Block Tank Top - Mansour Shoes,Breathable color block tank with racerback design for workouts and casual wear,new-arrivals;casual-style,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-200500"",""costPrice"":7};source:cj-dropship",Yes,No
+,,,,,M / Black,DS-TOP-025-M-BLK,22.99,7,,Black,M,,,,,,,,,,Yes,No
+,,,,,L / Black,DS-TOP-025-L-BLK,22.99,7,,Black,L,,,,,,,,,,Yes,No
+,,,,,XL / Black,DS-TOP-025-XL-BLK,22.99,7,,Black,XL,,,,,,,,,,Yes,No
+,,,,,S / White,DS-TOP-025-S-WHT,22.99,7,,White,S,,,,,,,,,,Yes,No
+,,,,,M / White,DS-TOP-025-M-WHT,22.99,7,,White,M,,,,,,,,,,Yes,No
+,,,,,L / White,DS-TOP-025-L-WHT,22.99,7,,White,L,,,,,,,,,,Yes,No
+,,,,,XL / White,DS-TOP-025-XL-WHT,22.99,7,,White,XL,,,,,,,,,,Yes,No
+Streetwear Baseball Cap,Accessories,,streetwear-baseball-cap,Adjustable cotton baseball cap with embroidered logo and curved brim,Black,DS-ACC-026-BLK,18.99,5,,Black,,,Cotton,,,https://via.placeholder.com/800x800/333/fff?text=Streetwear%2BBaseball%2BCap,Streetwear Baseball Cap - Mansour Shoes,Adjustable cotton baseball cap with embroidered logo and curved brim,new-arrivals;casual-style,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-300100"",""costPrice"":5};source:cj-dropship",Yes,No
+,,,,,White,DS-ACC-026-WHT,18.99,5,,White,,,,,,,,,,,Yes,No
+Sport Crossbody Sling Bag,Accessories,,sport-crossbody-sling-bag,Compact crossbody sling bag with multiple compartments and adjustable strap,Black,DS-ACC-027-BLK,26.99,8,,Black,,,Nylon,,,https://via.placeholder.com/800x800/333/fff?text=Sport%2BCrossbody%2BSling%2BBag,Sport Crossbody Sling Bag - Mansour Shoes,Compact crossbody sling bag with multiple compartments and adjustable strap,new-arrivals;casual-style,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-300200"",""costPrice"":8};source:cj-dropship",Yes,No
+,,,,,Gray,DS-ACC-027-GRY,26.99,8,,Gray,,,,,,,,,,,Yes,No
+Cushioned Athletic Socks 3-Pack,Accessories,,cushioned-athletic-socks-3pack,Three-pack of cushioned athletic crew socks with arch support and moisture wicking,Black,DS-ACC-028-BLK,14.99,4,,Black,,,Cotton Blend,,,https://via.placeholder.com/800x800/333/fff?text=Cushioned%2BAthletic%2BSocks%2B3-Pack,Cushioned Athletic Socks 3-Pack - Mansour Shoes,Three-pack of cushioned athletic crew socks with arch support and moisture wicking,new-arrivals,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-300300"",""costPrice"":4};source:cj-dropship",Yes,No
+,,,,,White,DS-ACC-028-WHT,14.99,4,,White,,,,,,,,,,,Yes,No
+Premium Shoe Cleaning Kit,Accessories,,premium-shoe-cleaning-kit,"Complete shoe care kit with cleaning solution, brush, microfiber cloth, and carrying case",Black,DS-ACC-029-BLK,19.99,6,,Black,,,Mixed,,,https://via.placeholder.com/800x800/333/fff?text=Premium%2BShoe%2BCleaning%2BKit,Premium Shoe Cleaning Kit - Mansour Shoes,"Complete shoe care kit with cleaning solution, brush, microfiber cloth, and carrying case",new-arrivals,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-300400"",""costPrice"":6};source:cj-dropship",Yes,No
+,,,,,Clear,DS-ACC-029-CLR,19.99,6,,Clear,,,,,,,,,,,Yes,No
+Reflective Drawstring Backpack,Accessories,,reflective-drawstring-backpack,Lightweight drawstring backpack with reflective strips and interior zip pocket,Black,DS-ACC-030-BLK,24.99,7,,Black,,,Polyester,,,https://via.placeholder.com/800x800/333/fff?text=Reflective%2BDrawstring%2BBackpack,Reflective Drawstring Backpack - Mansour Shoes,Lightweight drawstring backpack with reflective strips and interior zip pocket,new-arrivals;casual-style,"dropship:{""supplier"":""cj"",""supplierSku"":""vid-300500"",""costPrice"":7};source:cj-dropship",Yes,No
+,,,,,Gray,DS-ACC-030-GRY,24.99,7,,Gray,,,,,,,,,,,Yes,No

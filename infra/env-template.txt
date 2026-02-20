@@ -14,6 +14,14 @@ SALEOR_API_PORT=8000
 DASHBOARD_PORT=9000
 STOREFRONT_PORT=3000
 STRIPE_APP_PORT=3002
+SMTP_APP_PORT=3001
+INVOICE_APP_PORT=3003
+STOREFRONT_CONTROL_APP_PORT=3004
+NEWSLETTER_APP_PORT=3005
+SALES_ANALYTICS_APP_PORT=3006
+BULK_MANAGER_APP_PORT=3007
+IMAGE_STUDIO_APP_PORT=3008
+DROPSHIP_APP_PORT=3009
 
 # ============================================================================
 # DATABASE CONFIGURATION
@@ -24,49 +32,57 @@ POSTGRES_DB=saleor
 # Database connection pooling (in seconds)
 # Set to 0 to disable (connections closed after each request)
 # Set to 60+ to enable connection reuse (recommended for production)
-# This prevents "too many clients" errors when handling multiple simultaneous requests
 DB_CONN_MAX_AGE=60
 
 # ============================================================================
 # SALEOR API CONFIGURATION
 # ============================================================================
-# Django Secret Key - Generate a random string (REQUIRED)
+# Django Secret Key - Generate a random string (REQUIRED for production)
 # Generate with: openssl rand -hex 32
 SECRET_KEY=changeme-in-production-generate-random-string-here
 
-# Debug mode (True/False)
+# Debug mode (True/False) — disable in production to hide error details
 DEBUG=True
 
-# Allowed hosts (comma-separated)
+# Allowed hosts (comma-separated) — add your domain for tunnel/production
 ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,saleor-api
 
-# Allowed client hosts (comma-separated, includes ports)
-ALLOWED_CLIENT_HOSTS=localhost:3000,localhost:3002,localhost:9000,127.0.0.1:9000
+# Allowed client hosts (comma-separated) — add your domain for tunnel/production
+ALLOWED_CLIENT_HOSTS=localhost:3000,localhost:9000,127.0.0.1:9000
 
 # CORS allowed origins (* for development, specific URLs for production)
 ALLOWED_GRAPHQL_ORIGINS=*
 
 # Public URL - Used for JWT token issuer URL (required for webhook signature verification).
-# When using tunnels, set SALEOR_API_TUNNEL_URL in the tunnel section below; Saleor will use it as PUBLIC_URL so SMTP/app webhooks succeed (otherwise 401 SIGNATURE_VERIFICATION_FAILED).
+# When using tunnels, set SALEOR_API_TUNNEL_URL in the tunnel section below; Saleor will use
+# it as PUBLIC_URL so SMTP/app webhooks succeed (otherwise 401 SIGNATURE_VERIFICATION_FAILED).
 PUBLIC_URL=http://localhost:8000
 
-# Email configuration
+# GraphQL Playground — set to False in production
+GRAPHQL_PLAYGROUND_ENABLED=True
+
+# Disable SSL redirect for Docker internal HTTP traffic
+# Set to False when TLS is terminated externally (Cloudflare tunnel, nginx, etc.)
+# SECURE_SSL_REDIRECT=False
+
+# Email configuration (consolemail:// prints to console, smtp://user:pass@host:port for real SMTP)
 EMAIL_URL=consolemail://
+DEFAULT_FROM_EMAIL=noreply@localhost
 
 # Timezone
 TIME_ZONE=UTC
 
 # Password reset and account confirmation link expiry (seconds). Default 86400 = 24 hours.
-# Must match the email copy ("This link will expire in 24 hours"). Use 600 for 10 minutes if you prefer.
 PASSWORD_RESET_TIMEOUT=86400
+# Lockout time after too many failed password reset attempts (minutes)
+RESET_PASSWORD_LOCK_TIME=15
 
 # Webhook secret key (optional)
 WEBHOOK_SECRET_KEY=
 
 # RSA private key for webhook JWS signing (REQUIRED for webhook signature verification).
-# Saleor API and Worker must use the SAME key; otherwise apps get 401 SIGNATURE_VERIFICATION_FAILED.
-# Generate with: openssl genrsa 2048 (then paste PEM into .env; use \n for newlines in one line, or use a single-line form).
-# Example .env line (replace with your key): RSA_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\nMIIE...\n-----END RSA PRIVATE KEY-----"
+# Saleor API, Worker, and Scheduler must use the SAME key; otherwise apps get 401 SIGNATURE_VERIFICATION_FAILED.
+# Generate with: openssl genrsa 2048 (then paste PEM; use \n for newlines on a single line).
 RSA_PRIVATE_KEY=
 
 # Redis URLs (internal Docker service names)
@@ -75,63 +91,84 @@ CELERY_BROKER_URL=redis://redis:6379/1
 CELERY_RESULT_BACKEND=redis://redis:6379/2
 
 # ============================================================================
-# TUNNEL URLs (Optional - only if using tunnels)
+# RUNTIME MODE
 # ============================================================================
-# Uncomment and set these if you're using Cloudflare/ngrok tunnels.
-# SALEOR_API_TUNNEL_URL is used as Saleor PUBLIC_URL so webhook JWT verification
-# succeeds (SMTP app and other apps return 401 SIGNATURE_VERIFICATION_FAILED if PUBLIC_URL is localhost).
-# SALEOR_API_TUNNEL_URL=https://your-api-tunnel.trycloudflare.com
-# STRIPE_APP_TUNNEL_URL=https://your-stripe-app-tunnel.trycloudflare.com
-# SMTP_APP_TUNNEL_URL=https://your-smtp-app-tunnel.trycloudflare.com
-# INVOICE_APP_TUNNEL_URL=https://your-invoice-app-tunnel.trycloudflare.com
-# DASHBOARD_TUNNEL_URL=https://your-dashboard-tunnel.trycloudflare.com
-# STOREFRONT_TUNNEL_URL=https://your-storefront-tunnel.trycloudflare.com
-# DROPSHIP_APP_TUNNEL_URL=https://your-dropship-app-tunnel.trycloudflare.com
+# Node environment (development/production) — affects all Node.js containers
+NODE_ENV=development
+
+# Storefront build mode: 'dev' (hot-reload) or 'production' (optimized build)
+STOREFRONT_MODE=dev
+
+# Apps build mode: 'dev' (hot-reload) or 'production' (build then start)
+# Applies to: SMTP, Invoice, Stripe, Storefront Control, Newsletter, Sales Analytics, etc.
+APPS_MODE=dev
+
+# App Persistence Layer: 'file' (local dev) or 'rest'/'env' (production)
+# Controls how app auth tokens are stored
+APL=file
+
+# OpenTelemetry instrumentation (true/false) — enable for production observability
+OTEL_ENABLED=false
+
+# ============================================================================
+# TUNNEL URLs (Optional — only if using Cloudflare/ngrok tunnels)
+# ============================================================================
+# Uncomment and set these if you're using named tunnels for public access.
+# SALEOR_API_TUNNEL_URL is used as Saleor PUBLIC_URL so webhook JWT verification succeeds.
+#
+# SALEOR_API_TUNNEL_URL=https://api.yourdomain.com
+# DASHBOARD_TUNNEL_URL=https://dash.yourdomain.com
+# STOREFRONT_TUNNEL_URL=https://shop.yourdomain.com
+# STRIPE_APP_TUNNEL_URL=https://stripe.yourdomain.com
+# SMTP_APP_TUNNEL_URL=https://smtp.yourdomain.com
+# INVOICE_APP_TUNNEL_URL=https://invoices.yourdomain.com
+# STOREFRONT_CONTROL_APP_TUNNEL_URL=https://control.yourdomain.com
+# NEWSLETTER_APP_TUNNEL_URL=https://newsletter.yourdomain.com
+# SALES_ANALYTICS_APP_TUNNEL_URL=https://analytics.yourdomain.com
+# BULK_MANAGER_APP_TUNNEL_URL=https://bulk.yourdomain.com
+# IMAGE_STUDIO_APP_TUNNEL_URL=https://studio.yourdomain.com
+# DROPSHIP_APP_TUNNEL_URL=https://dropship.yourdomain.com
 
 # ============================================================================
 # DASHBOARD CONFIGURATION
 # ============================================================================
+# API URL for Dashboard GraphQL requests — baked at build time!
+# Local dev: http://localhost:8000/graphql/
+# Production with domain: https://api.yourdomain.com/graphql/
 API_URL=http://localhost:8000/graphql/
 VITE_API_URL=http://localhost:8000/graphql/
 APPS_MARKETPLACE_API_URL=
 EXTENSIONS_API_URL=
 APP_MOUNT_URI=/dashboard/
 STATIC_URL=/dashboard/
-# Disable React StrictMode in dashboard build (helps RichTextEditor/Combobox in Docker).
-# Set to "true" in infra/.env so the dashboard build bakes it in; then restart saleor-dashboard.
+# Disable React StrictMode (helps RichTextEditor/Combobox in Docker)
 # VITE_DISABLE_STRICT_MODE=true
+# Code inspector for development (true/false)
+ENABLE_CODE_INSPECTOR=false
 
 # ============================================================================
 # STOREFRONT CONFIGURATION
 # ============================================================================
+# BROWSER-SIDE API URL — must be reachable from the user's browser (NOT Docker service name!)
+# Local dev: http://localhost:8000/graphql/
+# Production with domain: https://api.yourdomain.com/graphql/
+# NEVER use http://saleor-api:8000 here — browsers can't resolve Docker service names
 NEXT_PUBLIC_SALEOR_API_URL=http://localhost:8000/graphql/
-SALEOR_API_URL=http://localhost:8000/graphql/
+# SERVER-SIDE API URL — used inside Docker containers (SSR, server components)
+# Should use Docker service name for direct container-to-container communication
+SALEOR_API_URL=http://saleor-api:8000/graphql/
+# Public storefront URL
 NEXT_PUBLIC_STOREFRONT_URL=http://localhost:3000
+# Default channel slug
 NEXT_PUBLIC_DEFAULT_CHANNEL=default-channel
-# Comma-separated list of channel slugs (e.g., "default-channel,us-channel,eu-channel")
-# If set, this will be used instead of fetching from API (useful when SALEOR_APP_TOKEN lacks permissions)
-NEXT_PUBLIC_CHANNELS=
+# Comma-separated channel slugs for config fetching (e.g., "ils,usd")
+STOREFRONT_CHANNELS=
+# Saleor App Token for server-side operations
 SALEOR_APP_TOKEN=
-# Storefront build mode: 'dev' (default, hot-reload) or 'production' (optimized build)
-# Use production mode for speed testing and production-like behavior
-# Switch back to 'dev' for development with hot-reload
-STOREFRONT_MODE=dev
-
-# Apps build mode: 'dev' (default, hot-reload) or 'production' (build then start)
-# Applies to: SMTP, Invoice, Stripe, Storefront Control, Newsletter, Sales Analytics
-# Set APPS_MODE=production to run production builds inside containers
-APPS_MODE=dev
 
 # GraphQL request timeout and retry configuration
-# Timeout in milliseconds (default: 30000 = 30 seconds)
-# Increase this if using slow/unstable tunnel connections (e.g., Cloudflare)
 GRAPHQL_TIMEOUT_MS=30000
-# Maximum number of retries for timeout/network errors (default: 4)
-# Increased from 2 to handle unstable connections (Cloudflare tunnels, etc.)
-# Retries handle: ETIMEDOUT, ECONNRESET, ECONNREFUSED, ENOTFOUND, and other network errors
 GRAPHQL_MAX_RETRIES=4
-# Initial retry delay in milliseconds (default: 1000 = 1 second)
-# Uses exponential backoff: delay * 2^attempt (1s, 2s, 4s, 8s, etc.)
 GRAPHQL_RETRY_DELAY_MS=1000
 
 # ============================================================================
@@ -140,45 +177,69 @@ GRAPHQL_RETRY_DELAY_MS=1000
 STRIPE_PUBLISHABLE_KEY=
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
-APP_SECRET_KEY=a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456
+STRIPE_RESTRICTED_KEY=
 STRIPE_APP_TOKEN=
 STRIPE_APP_URL=http://localhost:3002
 STRIPE_APP_API_BASE_URL=http://localhost:3002
+# Shared encryption key for all apps — MUST be the same across all apps
+# Generate with: openssl rand -hex 32
+APP_SECRET_KEY=changeme-generate-random-hex-here
+
+# ============================================================================
+# APP URLs (for webhook registration — use tunnel URLs for external access)
+# ============================================================================
+INVOICE_APP_URL=http://localhost:3003
+INVOICE_APP_API_BASE_URL=http://localhost:3003
+STOREFRONT_CONTROL_APP_URL=http://localhost:3004
+NEWSLETTER_APP_URL=http://localhost:3005
+SALES_ANALYTICS_APP_URL=http://localhost:3006
+BULK_MANAGER_APP_URL=http://localhost:3007
+IMAGE_STUDIO_APP_URL=http://localhost:3008
+# Auto-update sample config on save (storefront control)
+AUTO_UPDATE_SAMPLE_CONFIG=true
 
 # ============================================================================
 # SMTP EMAIL APP CONFIGURATION
 # ============================================================================
-SMTP_APP_PORT=3001
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_ENCRYPTION=TLS
+SMTP_USER=
+SMTP_PASSWORD=
+SMTP_FROM_EMAIL=
+SMTP_FROM_NAME="Your Store Name"
 
 # ============================================================================
-# INVOICE APP CONFIGURATION
+# OAUTH (Google Login — optional)
 # ============================================================================
-INVOICE_APP_PORT=3003
-INVOICE_APP_URL=http://localhost:3003
+# GOOGLE_CLIENT_ID=
+# GOOGLE_CLIENT_SECRET=
 
 # ============================================================================
-# STOREFRONT CONTROL APP CONFIGURATION
+# AI SERVICES (Image Studio — optional)
 # ============================================================================
-# Dashboard extension for managing storefront UI configuration per channel
-# Manages: theme, features, homepage sections, filters, quickFilters, SEO
-STOREFRONT_CONTROL_APP_PORT=3004
-STOREFRONT_CONTROL_APP_URL=http://localhost:3004
+# Gemini API key for AI background generation
+# GEMINI_API_KEY=
+# OpenAI API key (optional, for future features)
+# OPENAPI_API_KEY=
+
+# ============================================================================
+# NEWSLETTER APP
+# ============================================================================
+# Image storage backend: 'local' (dev) or 's3' (production)
+NEWSLETTER_IMAGE_STORAGE=local
 
 # ============================================================================
 # SENTRY ERROR MONITORING (Optional)
 # ============================================================================
 # Get your DSN from https://sentry.io → Project Settings → Client Keys
-# Free tier: 5,000 errors/month, 10,000 transactions/month
 SENTRY_DSN=
 NEXT_PUBLIC_SENTRY_DSN=
 # Auth token for source map uploads (optional, improves stack traces)
-# Generate at: https://sentry.io/settings/auth-tokens/
 SENTRY_AUTH_TOKEN=
 
 # ============================================================================
 # DROPSHIP ORCHESTRATOR APP CONFIGURATION
 # ============================================================================
-DROPSHIP_APP_PORT=3009
-# Encryption key for supplier credentials (REQUIRED for production)
-# Generate with: openssl rand -hex 32
+# Encryption key for supplier credentials (uses APP_SECRET_KEY by default)
 # DROPSHIP_SECRET_KEY=

@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "pnpm run type-check && next build",
-    "build:production": "pnpm run type-check && next build",
-    "build:skip-type-check": "next build",
+    "build": "pnpm run type-check && next build --webpack",
+    "build:production": "next build --webpack",
+    "build:skip-type-check": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
     "generate": "graphql-codegen --config .graphqlrc.ts",

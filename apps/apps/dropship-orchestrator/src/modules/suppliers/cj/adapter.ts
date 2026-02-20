@@ -15,7 +15,7 @@ import type {
   SupplierProduct,
   TrackingInfo,
 } from "../types";
-import { del, get, post } from "./api-client";
+import { del, get, patch, post } from "./api-client";
 import { getAccessToken, refreshAccessToken } from "./auth";
 import {
   mapAddress,
@@ -105,7 +105,7 @@ export class CJAdapter implements SupplierAdapter {
       body,
     );
 
-    return result.andThen((data) => {
+    return result.andThen(async (data) => {
       if (!data.orderId) {
         return err(
           SupplierError.orderFailed("cj", "Order creation returned no order ID", {
@@ -115,12 +115,30 @@ export class CJAdapter implements SupplierAdapter {
         );
       }
 
-      logger.info("CJ order placed successfully", { orderId: data.orderId });
+      logger.info("CJ order created", { orderId: data.orderId });
+
+      // CJ workflow: Create → Confirm → (CJ processes payment from balance)
+      // The confirm step transitions the order from CREATED to UNPAID/processing.
+      const confirmResult = await patch<{ orderId: string }>(
+        "/shopping/order/confirmOrder",
+        token.accessToken,
+        { orderId: data.orderId },
+      );
+
+      if (confirmResult.isErr()) {
+        logger.warn("CJ order confirm failed (order was created but not confirmed)", {
+          orderId: data.orderId,
+          error: confirmResult.error.message,
+        });
+        // Don't fail the whole operation — the order exists, admin can confirm manually
+      } else {
+        logger.info("CJ order confirmed", { orderId: data.orderId });
+      }
 
       return ok<SupplierOrderResponse, SupplierError>({
         supplierOrderId: data.orderId,
         cost: {
-          amount: 0, // Cost is determined after order creation in CJ
+          amount: 0, // Cost is determined after order confirmation in CJ
           currency: "USD",
         },
       });
@@ -155,20 +173,45 @@ export class CJAdapter implements SupplierAdapter {
     supplierOrderId: string,
     token: AuthToken,
   ): Promise<Result<TrackingInfo, SupplierError>> {
-    const result = await get<CJTrackingData>(
-      "/logistic/trackInfo",
+    // CJ tracking endpoint uses trackNumber, not orderId.
+    // First fetch the order detail to get the trackNumber.
+    const orderResult = await get<CJOrderDetail>(
+      "/shopping/order/getOrderDetail",
       token.accessToken,
       { orderId: supplierOrderId },
     );
 
+    if (orderResult.isErr()) {
+      return err(orderResult.error);
+    }
+
+    const trackNumber = orderResult.value.trackNumber;
+
+    if (!trackNumber) {
+      return err(
+        SupplierError.trackingNotAvailable("cj", supplierOrderId, {
+          apiMethod: "GET /shopping/order/getOrderDetail",
+          rawResponse: orderResult.value,
+        }),
+      );
+    }
+
+    // Now fetch detailed tracking info using the trackNumber
+    const result = await get<CJTrackingData>(
+      "/logistic/trackInfo",
+      token.accessToken,
+      { trackNumber },
+    );
+
     return result.andThen((data) => {
       if (!data.trackNumber) {
-        return err(
-          SupplierError.trackingNotAvailable("cj", supplierOrderId, {
-            apiMethod: "GET /logistic/trackInfo",
-            rawResponse: data,
-          }),
-        );
+        // Fallback: return basic tracking from order detail
+        return ok<TrackingInfo, SupplierError>({
+          trackingNumber: trackNumber,
+          carrier: orderResult.value.logisticName ?? "Unknown",
+          status: mapOrderStatus(orderResult.value.orderStatus),
+          events: [],
+        });
       }
 
       return ok(mapTrackingInfo(data));

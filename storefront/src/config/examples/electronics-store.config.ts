@@ -7,7 +7,7 @@
 
 import { createStoreConfig, StoreConfig } from '../store.config';
 
-export const electronicsStoreConfig: StoreConfig = createStoreConfig('physical', {
+export const electronicsStoreConfig = createStoreConfig('physical', {
   store: {
     name: "TechNova",
     tagline: "Innovation at Your Fingertips",
@@ -110,7 +110,7 @@ export const electronicsStoreConfig: StoreConfig = createStoreConfig('physical',
       hero: { enabled: true, type: "slider" },         // New launches
       featuredCategories: { enabled: true, limit: 8 },
       newArrivals: { enabled: true, limit: 8 },        // Latest tech
-      bestSellers: { enabled: true, limit: 8 },
+      bestSellers: { enabled: true, maxProducts: 8 },
       onSale: { enabled: true, limit: 4 },
       featuredBrands: { enabled: true },               // Apple, Samsung, etc.
       testimonials: { enabled: true },

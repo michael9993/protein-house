@@ -3,7 +3,7 @@ import { iconSize, iconStrokeWidthBySize } from "@dashboard/components/icons";
 import { SaleorThrobber } from "@dashboard/components/Throbber";
 import { useClickOutside } from "@dashboard/hooks/useClickOutside";
 import { cn } from "@dashboard/utils/cn";
-import { IconButtonProps } from "@saleor/macaw-ui";
+import { IconButtonProps } from "@dashboard/components/IconButton/IconButton";
 import { Text } from "@saleor/macaw-ui-next";
 import { EllipsisVertical } from "lucide-react";
 import { useEffect, useRef, useState } from "react";

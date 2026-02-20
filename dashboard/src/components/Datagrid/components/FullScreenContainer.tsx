@@ -1,5 +1,4 @@
 // @ts-strict-ignore
-import { useTheme } from "@saleor/macaw-ui";
 import { CSSProperties, FC, PropsWithChildren } from "react";
 import ReactDOM from "react-dom";
 
@@ -7,17 +6,8 @@ import { useDelayedState } from "../hooks/useDelayedState";
 
 const modalRoot = document.getElementById("modal-root") || document.createElement("div");
 const useEase = (duration: number) => {
-  const { transitions } = useTheme();
-  const { easeIn, easeOut } = transitions.easing;
-  const options = { duration, delay: 0 };
-  const transitionIn = transitions.create("all", {
-    ...options,
-    easing: easeIn,
-  });
-  const transitionOut = transitions.create("all", {
-    ...options,
-    easing: easeOut,
-  });
+  const transitionIn = `all ${duration}ms cubic-bezier(0.4, 0, 1, 1) 0ms`;
+  const transitionOut = `all ${duration}ms cubic-bezier(0.0, 0, 0.2, 1) 0ms`;
 
   return { transitionIn, transitionOut };
 };

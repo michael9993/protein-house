@@ -2,16 +2,8 @@
 import Grid from "@dashboard/components/Grid";
 import { DashboardModal } from "@dashboard/components/Modal";
 import { useTriggerWebhookDryRunMutation, WebhookEventTypeSyncEnum } from "@dashboard/graphql";
-import {
-  Alert,
-  Button,
-  List,
-  ListBody,
-  ListHeader,
-  ListItem,
-  ListItemCell,
-} from "@saleor/macaw-ui";
-import { Text } from "@saleor/macaw-ui-next";
+import { DashboardAlert } from "@dashboard/components/Alert/DashboardAlert";
+import { Button, Text } from "@saleor/macaw-ui-next";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useIntl } from "react-intl";
 
@@ -63,9 +55,9 @@ const DryRun = ({ setResult, showDialog, setShowDialog, query, syncEvents }: Dry
         <DashboardModal.Content size="lg" data-test-id="dry-run">
           <DashboardModal.Header>{intl.formatMessage(messages.header)}</DashboardModal.Header>
 
-          <Alert variant="error" close={false}>
+          <DashboardAlert severity="error">
             <Text>{intl.formatMessage(messages.unavailableSyncEvents)}</Text>
-          </Alert>
+          </DashboardAlert>
         </DashboardModal.Content>
       </DashboardModal>
     );
@@ -79,65 +71,65 @@ const DryRun = ({ setResult, showDialog, setShowDialog, query, syncEvents }: Dry
         <Text>{intl.formatMessage(messages.selectObject)}</Text>
 
         {!!unavailableObjects.length && (
-          <Alert variant="warning" close={false} className="remove-icon-background">
+          <DashboardAlert severity="warning">
             <Text>
               {intl.formatMessage(messages.unavailableEvents)}
               <br />
               <strong>{unavailableObjects.join(", ")}</strong>
             </Text>
-          </Alert>
+          </DashboardAlert>
         )}
 
         <Grid variant="uniform">
           <div className="border-r border-[var(--mu-colors-border-default1)] p-6">
-            <List gridTemplate={["1fr 50px"]}>
-              <ListHeader>
-                <ListItem className="uppercase p-2 min-h-0">
-                  <ListItemCell className="!pl-0 break-all font-semibold">
+            <div>
+              <div>
+                <div className="grid grid-cols-[1fr_50px] uppercase p-2 min-h-0">
+                  <div className="break-all font-semibold">
                     {intl.formatMessage(messages.objects)}
-                  </ListItemCell>
-                  <ListItemCell></ListItemCell>
-                </ListItem>
-              </ListHeader>
-              <ListBody className="h-[300px] overflow-y-auto">
+                  </div>
+                  <div></div>
+                </div>
+              </div>
+              <div className="h-[300px] overflow-y-auto">
                 {!availableObjects.length && <Text>{intl.formatMessage(messages.noObjects)}</Text>}
                 {availableObjects.map((object, idx) => (
-                  <ListItem
+                  <div
                     key={idx}
-                    className="min-h-0 gap-0 p-2 cursor-pointer"
+                    className="grid grid-cols-[1fr_50px] min-h-0 gap-0 p-2 cursor-pointer"
                     onClick={() => setObject(object.split(" ").join("_").toUpperCase())}
                   >
-                    <ListItemCell className="!pl-0 break-all font-semibold">
+                    <div className="break-all font-semibold">
                       <strong>{capitalizeStr(object.replaceAll("_", " ").toLowerCase())}</strong>
-                    </ListItemCell>
-                    <ListItemCell></ListItemCell>
-                  </ListItem>
+                    </div>
+                    <div></div>
+                  </div>
                 ))}
-              </ListBody>
-            </List>
+              </div>
+            </div>
           </div>
           <div className="p-8 pl-0">
             {object ? (
               <DryRunItemsList setObjectId={setObjectId} objectId={objectId} object={object} />
             ) : (
               <>
-                <ListHeader>
-                  <ListItem className="uppercase p-2 min-h-0">
-                    <ListItemCell className="!pl-0 break-all font-semibold">
+                <div>
+                  <div className="uppercase p-2 min-h-0">
+                    <div className="break-all font-semibold">
                       {intl.formatMessage(messages.item)}
-                    </ListItemCell>
-                  </ListItem>
-                </ListHeader>
-                <ListBody className="h-[300px] overflow-y-auto">
+                    </div>
+                  </div>
+                </div>
+                <div className="h-[300px] overflow-y-auto">
                   <Text>{intl.formatMessage(messages.itemsDefaultMessage)}</Text>
-                </ListBody>
+                </div>
               </>
             )}
           </div>
         </Grid>
 
         <DashboardModal.Actions>
-          <Button color="primary" variant="primary" onClick={dryRun} disabled={!object}>
+          <Button variant="primary" onClick={dryRun} disabled={!object}>
             {intl.formatMessage(messages.run)}
           </Button>
         </DashboardModal.Actions>

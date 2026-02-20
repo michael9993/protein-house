@@ -65,8 +65,8 @@ export function FeaturedBrands({
   const displayTitle = title || content.homepage.brandsTitle;
   const displaySubtitle = subtitle || content.homepage.brandsSubtitle;
 
-  // Don't render if disabled
-  if (!homepage.sections.featuredBrands.enabled) {
+  // Don't render if disabled or section not configured
+  if (!homepage.sections.featuredBrands?.enabled) {
     return null;
   }
 
@@ -81,7 +81,7 @@ export function FeaturedBrands({
     : brands;
 
   // Get background config
-  const backgroundConfig = homepage.sections.featuredBrands.background as SectionBackgroundConfig | undefined;
+  const backgroundConfig = homepage.sections.featuredBrands?.background as SectionBackgroundConfig | undefined;
   const backgroundStyles = generateSectionBackground(backgroundConfig, branding);
   const patternOverlay = generatePatternOverlay(backgroundConfig, branding);
 

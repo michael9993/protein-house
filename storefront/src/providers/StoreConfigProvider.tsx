@@ -792,8 +792,7 @@ export const DEFAULT_CONTENT_CONFIG = {
     newsletterNoSpam: "No spam, ever",
     newsletterWeeklyUpdates: "Weekly updates",
     newsletterExclusiveOffers: "Exclusive offers",
-    newsletterAlreadySubscribed: "You're subscribed to our newsletter!",
-    newsletterAlreadyActive: "You're already subscribed to our newsletter!",
+    newsletterAlreadySubscribed: "You're already subscribed to our newsletter!",
     loadMoreButton: "Load More",
     viewAllButton: "View All",
     backButton: "Back",
@@ -1675,17 +1674,63 @@ export function useOrdersText(): NonNullable<StoreConfig["content"]>["orders"] {
 /**
  * Get order tracking page text configuration
  */
-export function useOrderTrackingText(): NonNullable<StoreConfig["content"]>["orderTracking"] {
+export function useOrderTrackingText(): NonNullable<NonNullable<StoreConfig["content"]>["orderTracking"]> {
   const content = useContentConfig();
-  return content.orderTracking as NonNullable<StoreConfig["content"]>["orderTracking"];
+  return content.orderTracking ?? {
+    title: "Track Your Order",
+    description: "Enter your order number and email address to view your order status and tracking information.",
+    orderNumberLabel: "Order Number",
+    orderNumberPlaceholder: "e.g., 12345",
+    orderNumberHelp: "You can find your order number in your confirmation email.",
+    emailLabel: "Email Address",
+    emailPlaceholder: "your@email.com",
+    emailHelp: "The email address you used when placing the order.",
+    trackButton: "Track Order",
+    trackingButton: "Tracking...",
+    errorNotFound: "Order not found. Please check your order number and email address.",
+    errorGeneric: "An error occurred while tracking your order. Please try again.",
+    backToTracking: "Track Another Order",
+    orderFoundTitle: "Order Details",
+    createAccountTitle: "Create an Account",
+    createAccountDescription: "Sign up to track all your orders, save your addresses, and enjoy faster checkout.",
+    createAccountButton: "Create Account",
+    needHelpText: "Need help?",
+    contactSupportLink: "Contact Support",
+  };
 }
 
 /**
  * Get contact page text configuration
  */
-export function useContactText(): NonNullable<StoreConfig["content"]>["contact"] {
+export function useContactText(): NonNullable<NonNullable<StoreConfig["content"]>["contact"]> {
   const content = useContentConfig();
-  return content.contact as NonNullable<StoreConfig["content"]>["contact"];
+  return content.contact ?? {
+    heroTitle: "Get in Touch",
+    heroDescription: "Have a question or need help? We're here for you.",
+    emailLabel: "Email",
+    phoneLabel: "Phone",
+    addressLabel: "Address",
+    formTitle: "Send Us a Message",
+    formDescription: "We'll get back to you within 24 hours.",
+    nameLabel: "Your Name",
+    namePlaceholder: "John Doe",
+    emailLabelForm: "Email Address",
+    emailPlaceholder: "john@example.com",
+    subjectLabel: "Subject",
+    subjectPlaceholder: "How can we help?",
+    messageLabel: "Message",
+    messagePlaceholder: "Tell us more about your inquiry...",
+    sendButton: "Send Message",
+    sendingButton: "Sending...",
+    successTitle: "Message Sent!",
+    successDescription: "Thank you for reaching out. We'll be in touch soon.",
+    sendAnotherMessage: "Send another message",
+    faqsTitle: "Frequently Asked Questions",
+    faqsDescription: "Find quick answers to common questions.",
+    viewAllFaqs: "View All FAQs",
+    followUsTitle: "Follow Us",
+    followUsDescription: "Stay connected with us on social media.",
+  };
 }
 
 /**

@@ -7,8 +7,8 @@ import { FormChange } from "@dashboard/hooks/useForm";
 import { buttonMessages } from "@dashboard/intl";
 import { getById } from "@dashboard/misc";
 import Checkbox from "@dashboard/components/Checkbox";
-import { Button, SearchIcon } from "@saleor/macaw-ui";
-import { Input } from "@saleor/macaw-ui-next";
+import { Button, Input } from "@saleor/macaw-ui-next";
+import { Search } from "lucide-react";
 import * as React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -75,7 +75,7 @@ const OrderCustomerAddressesSearch = (props: OrderCustomerAddressesSearchProps) 
         onChange={handleChange}
         placeholder={"Search addresses"}
         startAdornment={
-          <SearchIcon onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
+          <Search size={20} />
         }
       />
 

@@ -7,7 +7,6 @@ import {
   TransactionItemFragment,
 } from "@dashboard/graphql";
 import useNotifier from "@dashboard/hooks/useNotifier";
-import { ThemeProvider as LegacyThemeProvider } from "@saleor/macaw-ui";
 import { ThemeProvider } from "@saleor/macaw-ui-next";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -32,10 +31,7 @@ const getWrapper = (mocks: MockedResponse[] = []) => {
       // @ts-expect-error - old router
       <BrowserRouter>
         <MockedProvider mocks={mocks}>
-          {/* @ts-expect-error - LegacyThemeProvider is not typed properly */}
-          <LegacyThemeProvider>
-            <ThemeProvider>{children}</ThemeProvider>
-          </LegacyThemeProvider>
+          <ThemeProvider>{children}</ThemeProvider>
         </MockedProvider>
       </BrowserRouter>
     );

@@ -10,7 +10,8 @@ import { TranslationField, TranslationFieldType } from "@dashboard/translations/
 import { ListProps } from "@dashboard/types";
 import { cn } from "@dashboard/utils/cn";
 import { OutputData } from "@editorjs/editorjs";
-import { Button, IconButton } from "@saleor/macaw-ui";
+import { IconButton } from "@dashboard/components/IconButton/IconButton";
+import { Button } from "@saleor/macaw-ui-next";
 import { Skeleton, Text } from "@saleor/macaw-ui-next";
 import { ChevronDown } from "lucide-react";
 import { Fragment, useState } from "react";
