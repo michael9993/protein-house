@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import type { Control, FieldErrors, UseFormRegister, UseFormWatch } from "react-hook-form";
+import { useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import {
   Copyright,
@@ -9,6 +10,8 @@ import {
   Link2,
   Megaphone,
   PanelTop,
+  Plus,
+  Trash2,
   Type,
 } from "lucide-react";
 
@@ -190,6 +193,10 @@ interface HeaderTabProps {
 function HeaderTab({ register, control, errors, watch }: HeaderTabProps) {
   const bannerEnabled = watch("header.banner.enabled");
   const useGradient = watch("header.banner.useGradient");
+  const { fields: manualItemFields, append: addManualItem, remove: removeManualItem } = useFieldArray({
+    control,
+    name: "header.banner.manualItems",
+  });
 
   return (
     <>
@@ -284,6 +291,74 @@ function HeaderTab({ register, control, errors, watch }: HeaderTabProps) {
                 control={control}
               />
             </FieldGroup>
+
+            {/* Manual Banner Items */}
+            <div className="mt-6 space-y-4">
+              <div>
+                <h4 className="text-sm font-medium">Custom Banner Items</h4>
+                <p className="text-xs text-neutral-500">
+                  Add custom text items to rotate in the banner alongside Saleor promotions
+                </p>
+              </div>
+              {manualItemFields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="rounded-lg border border-neutral-200 bg-neutral-50 p-4"
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <span className="text-sm font-medium">Item #{index + 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeManualItem(index)}
+                      className="inline-flex items-center gap-1 text-sm text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Remove
+                    </button>
+                  </div>
+                  <div className="space-y-3">
+                    <FormField<LayoutFormData>
+                      label="Text"
+                      name={`header.banner.manualItems.${index}.text`}
+                      register={register}
+                      errors={errors}
+                      placeholder="Free shipping on orders over $50!"
+                    />
+                    <FieldGroup columns={2}>
+                      <FormField<LayoutFormData>
+                        label="Link (optional)"
+                        name={`header.banner.manualItems.${index}.link`}
+                        register={register}
+                        errors={errors}
+                        placeholder="/products or https://..."
+                      />
+                      <FormField<LayoutFormData>
+                        label="Icon / Emoji (optional)"
+                        name={`header.banner.manualItems.${index}.icon`}
+                        register={register}
+                        errors={errors}
+                        placeholder="🎉"
+                      />
+                    </FieldGroup>
+                  </div>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() =>
+                  addManualItem({
+                    id: `manual-${Date.now()}`,
+                    text: "",
+                    link: null,
+                    icon: null,
+                  })
+                }
+                className="inline-flex items-center gap-2 rounded-md border border-dashed border-neutral-300 px-4 py-2 text-sm text-neutral-600 hover:border-neutral-400 hover:text-neutral-700"
+              >
+                <Plus className="h-4 w-4" />
+                Add Banner Item
+              </button>
+            </div>
           </div>
         )}
       </FormSection>
