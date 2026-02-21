@@ -6,6 +6,192 @@
 
 ---
 
+## 0. Execution Guide (For Implementing Agent)
+
+### Skills to Invoke
+
+Invoke these skills **before** starting the corresponding work:
+
+| When | Skill | Invocation |
+|------|-------|------------|
+| Before executing any phase | `superpowers:executing-plans` | Always — this is the execution orchestrator |
+| Before any storefront UI work (Phases 1, 6b, 6c, 6d, 6f) | `senior-frontend` | Required for React/Next.js component work |
+| Before creating/modifying UI components | `frontend-design` | For product cards, badges, timeline, cart estimates |
+| Before UI/UX decisions (badges, timeline, delivery display) | `ui-ux-pro-max` | Layout, visual hierarchy, interaction patterns |
+| Before Saleor GraphQL queries/mutations | `saleor-api-skill` | GraphQL field names, mutation shapes, metadata API |
+| Before backend work (tRPC routers, workers, pricing) | `senior-backend` | For Phase 3, 4, 5, 6a, 6e |
+| Before config system 11-file sync (Phase 2) | `ecommerce-expert` | Shipping config, delivery display best practices |
+
+### Parallel Agent Strategy
+
+Use `superpowers:dispatching-parallel-agents` for independent work within phases:
+
+**Pre-Req Fixes** — All 4 fixes are independent, deploy 4 parallel agents:
+- Agent 1: Fix A (order-classifier.ts + use-case.ts)
+- Agent 2: Fix B (source/types.ts — costPrice to privateMetadata)
+- Agent 3: Fix C (field-mapper.ts + products-router.ts — variantMetadata)
+- Agent 4: Fix D (products-router.ts export separator)
+- **Note**: Fix C and Fix D both touch `products-router.ts` — sequence C before D, or have one agent do both.
+
+**Phase 1** — Steps 1.1–1.3 are independent; 1.4–1.9 depend on 1.3:
+- Wave 1 (parallel): Step 1.1 (CSV metadata), Step 1.2 (classifier fix — already done in Pre-Req), Step 1.3 (GraphQL queries + `pnpm generate`)
+- Wave 2 (parallel after 1.3): Step 1.4 (shipping.ts helper), Step 1.8 (JSON-LD), Step 1.9 (RTL audit)
+- Wave 3 (parallel after 1.4): Step 1.5 (ProductDetailClient), Step 1.6 (product cards), Step 1.7 (order details)
+
+**Phase 2** — Sequential (11-file sync must be atomic):
+- One agent, one commit. All 11 files updated together.
+
+**Phase 3** — Two parallel agents:
+- Agent 1: Step 3.1 (`importToSaleor` mutation)
+- Agent 2: Step 3.2 (Source page UI)
+- Then: Step 3.3 (`refreshProducts`) after 3.1
+
+**Phase 4** — Three parallel agents:
+- Agent 1: Step 4.1 (order metadata enrichment)
+- Agent 2: Step 4.3 (SMTP email templates)
+- Agent 3: Step 4.4 (fulfillment timeline UI)
+
+**Phase 5** — Three parallel agents:
+- Agent 1: Steps 5.1 + 5.2 (pricing rules + currency converter)
+- Agent 2: Step 5.3 (pricing admin page)
+- Agent 3: Step 5.4 (NavBar update — trivial, can be part of Agent 2)
+
+**Phase 6** — Five parallel agents:
+- Agent 1: Step 6a (stock sync worker)
+- Agent 2: Step 6b (cart estimates)
+- Agent 3: Step 6c (checkout multi-supplier)
+- Agent 4: Step 6d (search filter) + 6f (wishlist badges)
+- Agent 5: Step 6e (returns workflow — new pages + router)
+
+### Docker Commands Quick Reference
+
+```bash
+# Container restarts after code changes
+docker compose -f infra/docker-compose.dev.yml restart saleor-storefront-dev          # Storefront changes
+docker compose -f infra/docker-compose.dev.yml restart saleor-dropship-app-dev        # Dropship app changes
+docker compose -f infra/docker-compose.dev.yml restart saleor-bulk-manager-app-dev    # Bulk Manager changes (use SERVICE name, not container)
+docker compose -f infra/docker-compose.dev.yml restart saleor-storefront-control-app-dev  # Config/admin changes
+docker compose -f infra/docker-compose.dev.yml restart saleor-smtp-app-dev            # SMTP template changes
+
+# GraphQL type regeneration (after modifying .graphql files)
+docker exec saleor-storefront-dev pnpm generate
+
+# Verification commands (run AFTER restart)
+docker exec saleor-storefront-dev pnpm type-check                    # Storefront types
+docker exec saleor-storefront-dev pnpm lint                          # Storefront lint
+docker exec saleor-dropship-app-dev pnpm build                       # Dropship app build
+docker exec saleor-bulk-manager-app-dev pnpm build                   # Bulk Manager build
+docker exec saleor-storefront-control-app-dev pnpm build              # Storefront Control build
+
+# Log checking (if something breaks)
+docker compose -f infra/docker-compose.dev.yml logs --tail=50 saleor-storefront-dev
+docker compose -f infra/docker-compose.dev.yml logs --tail=50 saleor-dropship-app-dev
+```
+
+### Critical Gotchas for the Executing Agent
+
+1. **Docker-first**: ALL commands via `docker exec`. Never run `pnpm` or `python` on host.
+2. **HMR is unreliable**: Always `docker compose restart` after changes. Don't trust hot-reload.
+3. **11-file config sync** (Phase 2): All files must be updated atomically. Missing any one causes runtime errors. See CLAUDE.md "Keeping Everything in Sync" for the full list.
+4. **Sample config JSONs**: ALWAYS update BOTH `sample-config-import.json` (Hebrew) AND `sample-config-import-en.json` (English). Every content field needs proper translations.
+5. **RTL**: Use logical CSS properties everywhere (`ms-4` not `ml-4`, `text-start` not `text-left`, `ps-2` not `pl-2`). Test Hebrew channel rendering.
+6. **macaw-ui Sprinkles crash**: In Saleor apps loaded in dashboard iframe, NEVER import macaw-ui `Box`/`Text`/`Button`/`Input` in page-level files. Use plain HTML primitives from `src/components/ui/primitives.tsx`. macaw-ui is ONLY safe in `_app.tsx`.
+7. **AppBridge navigation**: In Saleor apps, use `router.push()` with `<button>`, NOT `<Link>` from Next.js. Links fail silently in the iframe.
+8. **GraphQL regeneration**: After modifying ANY `.graphql` file, must run `pnpm generate` in the relevant container BEFORE type-checking.
+9. **Bulk Manager service name**: Use `saleor-bulk-manager-app` (service name) for `docker compose restart`, not `saleor-bulk-manager-app-dev` (container name).
+10. **`export { X } from` does NOT make X local**: If you need to use an imported type in the same file, add a separate `import { X }` statement.
+11. **Large file rewrites**: For files >500 lines, use `Edit` tool with targeted replacements. Don't try to `Write` entire large files (token limits).
+12. **Verification after EVERY phase**: Run type-check + lint + build for all affected containers. Check logs. Don't skip this.
+
+### Commit Strategy
+
+One commit per logical unit of work:
+- Pre-Req Fixes: 1 commit per fix (4 commits total), or 1 combined commit if fixes are small
+- Phase 1: 2-3 commits (GraphQL + types gen, shipping helper + UI, order tracking)
+- Phase 2: 1 commit (atomic 11-file sync)
+- Phase 3: 2 commits (import mutation, source page UI)
+- Phase 4: 2 commits (order metadata, email templates + timeline)
+- Phase 5: 2 commits (pricing engine, admin page)
+- Phase 6: 1 commit per sub-step (6 commits)
+
+Commit message format: `feat(dropship): <description>` for features, `fix(dropship): <description>` for bug fixes.
+
+### Key File Paths (Quick Copy)
+
+```
+# Pre-Req Fixes
+apps/apps/dropship-orchestrator/src/modules/webhooks/order-paid/order-classifier.ts
+apps/apps/dropship-orchestrator/src/modules/webhooks/order-paid/use-case.ts
+apps/apps/dropship-orchestrator/src/modules/source/types.ts
+apps/apps/bulk-manager/src/modules/import/field-mapper.ts
+apps/apps/bulk-manager/src/modules/trpc/routers/products-router.ts
+
+# Phase 1 - Storefront
+storefront/src/graphql/ProductDetails.graphql
+storefront/src/graphql/ProductListItem.graphql
+storefront/src/graphql/OrderDetailsFragment.graphql
+storefront/src/checkout/graphql/checkout.graphql
+storefront/src/lib/shipping.ts                                        # NEW
+storefront/src/app/[channel]/(main)/products/[slug]/ProductDetailClient.tsx
+storefront/src/app/[channel]/(main)/products/[slug]/page.tsx
+storefront/src/app/[channel]/(main)/products/components/ProductCard.tsx
+storefront/src/ui/components/ProductCard/ProductCard.tsx
+storefront/src/components/home/HomepageProductCard.tsx
+storefront/src/app/[channel]/(main)/account/orders/[orderId]/OrderDetailsClient.tsx
+storefront/src/checkout/sections/DeliveryMethods/DeliveryMethods.tsx
+
+# Phase 2 - Config Sync (all 11 files)
+apps/packages/storefront-config/src/schema/ecommerce.ts
+apps/packages/storefront-config/src/schema/content.ts
+apps/packages/storefront-config/src/types.ts
+apps/apps/storefront-control/src/modules/config/defaults.ts
+apps/apps/storefront-control/src/modules/config/schema.ts
+storefront/src/config/store.config.ts
+storefront/src/providers/StoreConfigProvider.tsx
+apps/apps/storefront-control/sample-config-import.json
+apps/apps/storefront-control/sample-config-import-en.json
+apps/apps/storefront-control/src/lib/settings-index.ts
+apps/apps/storefront-control/src/pages/[channelSlug]/commerce.tsx
+
+# Phase 3 - Direct Import
+apps/apps/dropship-orchestrator/src/modules/trpc/routers/source-router.ts
+apps/apps/dropship-orchestrator/src/pages/source/index.tsx
+
+# Phase 4 - Tracking
+apps/apps/dropship-orchestrator/src/modules/jobs/workers/tracking-sync-worker.ts
+apps/apps/dropship-orchestrator/src/pages/api/webhooks/cj/logistics.ts
+apps/apps/smtp/src/modules/smtp/default-templates.ts
+
+# Phase 5 - Pricing
+apps/apps/dropship-orchestrator/src/modules/pricing/pricing-rules.ts   # NEW
+apps/apps/dropship-orchestrator/src/modules/pricing/currency-converter.ts  # NEW
+apps/apps/dropship-orchestrator/src/modules/trpc/routers/pricing-router.ts  # NEW
+apps/apps/dropship-orchestrator/src/pages/pricing/index.tsx            # NEW
+apps/apps/dropship-orchestrator/src/components/ui/NavBar.tsx
+
+# Phase 6 - Polish
+apps/apps/dropship-orchestrator/src/modules/jobs/workers/stock-sync-worker.ts  # NEW
+apps/apps/dropship-orchestrator/src/modules/jobs/scheduler.ts
+storefront/src/app/[channel]/(main)/cart/CartClient.tsx
+storefront/src/app/[channel]/(main)/search/page.tsx
+apps/apps/dropship-orchestrator/src/modules/trpc/routers/returns-router.ts  # NEW
+apps/apps/dropship-orchestrator/src/pages/returns/index.tsx            # NEW
+apps/apps/dropship-orchestrator/src/modules/trpc/router.ts
+```
+
+### Phase Completion Checklist
+
+After each phase, before moving on:
+- [ ] All affected containers restarted
+- [ ] `pnpm generate` run (if GraphQL files changed)
+- [ ] `pnpm type-check` passes (storefront)
+- [ ] `pnpm build` passes (apps)
+- [ ] Container logs checked (no runtime errors)
+- [ ] Git commit created with descriptive message
+- [ ] Verification items for the phase checked off (Section 11)
+
+---
+
 ## 1. Core Architectural Principle
 
 **The storefront is store-type agnostic.** Zero `if (isDropship)` logic anywhere in storefront code.
