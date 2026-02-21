@@ -12,8 +12,6 @@ import { modelTypesPath } from "@dashboard/modelTypes/urls";
 import { refundsSettingsPath } from "@dashboard/refundsSettings/urls";
 import { structuresListPath } from "@dashboard/structures/urls";
 import { ThemeProvider } from "@dashboard/theme";
-import { OnboardingProvider } from "@dashboard/welcomePage/WelcomePageOnboarding/onboardingContext";
-
 import { SaleorProvider } from "@saleor/sdk";
 import { lazy, StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
@@ -124,9 +122,7 @@ const AppContent = () => (
                                 <NavigatorSearchProvider>
                                   <SavebarRefProvider>
                                     <FeatureFlagsProviderWithUser>
-                                      <OnboardingProvider>
-                                        <AppRoutes />
-                                      </OnboardingProvider>
+                                      <AppRoutes />
                                     </FeatureFlagsProviderWithUser>
                                   </SavebarRefProvider>
                                 </NavigatorSearchProvider>

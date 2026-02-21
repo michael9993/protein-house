@@ -2,6 +2,7 @@ export { ProductGallery } from "./ProductGallery";
 export { useVariantSelection } from "./useVariantSelection";
 export { VariantSelector } from "./VariantSelector";
 export { AttributeSwatchSelector } from "./AttributeSwatchSelector";
+export { AttributeImageSwatchSelector } from "./AttributeImageSwatchSelector";
 export { AttributePillSelector } from "./AttributePillSelector";
 export { StockStatus } from "./StockStatus";
 export { QuantitySelector } from "./QuantitySelector";
@@ -15,6 +16,7 @@ export type {
   EnrichedVariant,
   VariantAttribute,
   VariantAttributeValue,
+  VariantMedia,
   SelectionState,
   SelectionAttribute,
   SelectionAttributeOption,

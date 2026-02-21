@@ -1,18 +1,20 @@
-import { Grid, Col, Flex, Title, Subtitle } from "@tremor/react";
-import { ReactNode } from "react";
+import { type ReactNode } from "react";
+
+import { NavTabs, type TabId } from "../components/nav-tabs";
 
 interface DashboardShellProps {
   children: ReactNode;
+  activeTab?: TabId;
 }
 
 /**
  * Dashboard shell with constrained width for iframe display
- * Max width of ~1400px works well in Saleor Dashboard's APP_PAGE frame
  */
-export function DashboardShell({ children }: DashboardShellProps) {
+export function DashboardShell({ children, activeTab = "overview" }: DashboardShellProps) {
   return (
     <div className="p-2 max-w-7xl mx-auto">
-      <div className="space-y-6">{children}</div>
+      <NavTabs activeTab={activeTab} />
+      <div className="mt-6 space-y-6">{children}</div>
     </div>
   );
 }
@@ -25,21 +27,13 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ title, subtitle, actions }: DashboardHeaderProps) {
   return (
-    <Flex
-      justifyContent="between"
-      alignItems="start"
-      className="flex-col sm:flex-row gap-4"
-    >
+    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
       <div>
-        <Title>{title}</Title>
-        {subtitle && <Subtitle className="mt-1">{subtitle}</Subtitle>}
+        <h1 className="text-xl font-bold text-text-primary">{title}</h1>
+        {subtitle && <p className="mt-1 text-sm text-text-muted">{subtitle}</p>}
       </div>
-      {actions && (
-        <Flex justifyContent="end" className="flex-wrap gap-2">
-          {actions}
-        </Flex>
-      )}
-    </Flex>
+      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+    </div>
   );
 }
 
@@ -62,9 +56,7 @@ interface TwoColumnGridProps {
  */
 export function TwoColumnGrid({ children, className = "" }: TwoColumnGridProps) {
   return (
-    <Grid numItemsLg={2} className={`gap-4 ${className}`}>
-      {children}
-    </Grid>
+    <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 ${className}`}>{children}</div>
   );
 }
 
@@ -76,5 +68,5 @@ interface FullWidthColumnProps {
  * Full width column spanning both columns on large screens
  */
 export function FullWidthColumn({ children }: FullWidthColumnProps) {
-  return <Col numColSpanLg={2}>{children}</Col>;
+  return <div className="lg:col-span-2">{children}</div>;
 }

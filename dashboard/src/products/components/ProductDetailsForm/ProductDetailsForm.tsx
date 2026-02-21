@@ -6,19 +6,17 @@ import { ProductErrorFragment } from "@dashboard/graphql";
 import { commonMessages } from "@dashboard/intl";
 import { getFormErrors, getProductErrorMessage } from "@dashboard/utils/errors";
 import { useRichTextContext } from "@dashboard/utils/richText/context";
-import { OutputData } from "@editorjs/editorjs";
 import { Box, Input } from "@saleor/macaw-ui-next";
 import { useIntl } from "react-intl";
 
 interface ProductDetailsFormProps {
   data: {
-    description: OutputData;
     name: string;
     rating: number;
   };
   disabled?: boolean;
   errors: ProductErrorFragment[];
-  onDescriptionChange?: (data: OutputData) => void;
+  onDescriptionChange?: (html: string) => void;
   onChange: (event: any) => any;
 }
 
@@ -31,7 +29,7 @@ export const ProductDetailsForm = ({
 }: ProductDetailsFormProps) => {
   const intl = useIntl();
   const formErrors = getFormErrors(["name", "description", "rating"], errors);
-  const { editorRef, defaultValue, isReadyForMount, handleChange } = useRichTextContext();
+  const { defaultValue, isReadyForMount, handleChange } = useRichTextContext();
 
   return (
     <DashboardCard>
@@ -58,15 +56,14 @@ export const ProductDetailsForm = ({
 
         {isReadyForMount ? (
           <RichTextEditor
-            editorRef={editorRef}
             defaultValue={defaultValue}
-            onChange={event => {
+            onChange={html => {
               // We need explicit handler so parent can access data real time
               if (onDescriptionChange) {
-                onDescriptionChange(event);
+                onDescriptionChange(html);
               }
 
-              handleChange();
+              handleChange(html);
             }}
             disabled={disabled}
             error={!!formErrors.description}

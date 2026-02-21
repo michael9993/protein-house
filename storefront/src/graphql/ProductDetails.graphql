@@ -54,6 +54,13 @@ query ProductDetails($slug: String!, $channel: String!, $languageCode: LanguageC
 				}
 			}
 		}
+		productType {
+			id
+			hasVariants
+			variantAttributes(variantSelection: VARIANT_SELECTION) {
+				slug
+			}
+		}
 		variants {
 			...VariantDetails
 		}

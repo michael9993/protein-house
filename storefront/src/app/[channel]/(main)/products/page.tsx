@@ -29,6 +29,7 @@ import { fetchColorsForQuickFilters } from "./fetchColors";
 import { computePriceRange } from "@/lib/price-utils";
 import { getChannelCurrency } from "@/lib/channel-utils";
 import { deriveBrandSlug } from "@/components/home/utils";
+import { TrackSearch } from "./TrackSearch";
 
 // ============================================================================
 // Metadata
@@ -823,6 +824,7 @@ export default async function Page(props: {
   return (
     <>
       <DesignStyles />
+      <TrackSearch query={filters.search} />
       <div className="min-h-screen bg-white">
         <div className="flex">
           {/* Left Sidebar - Minimal Layout */}

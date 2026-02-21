@@ -525,6 +525,9 @@ const { product } = await executeGraphQL(ProductDetailsDocument, {
 - **Search Autocomplete**: Real-time product search suggestions
 - **Wishlist**: Persistent wishlist with Zustand
 - **Related Products**: Category-based product recommendations
+- **GA4/GTM Analytics**: Consent-gated Google Tag Manager with full GA4 e-commerce events (view_item, add_to_cart, begin_checkout, purchase, search). Events queue before consent and flush after. Deduplication prevents double-firing.
+- **Cookie Consent**: GDPR-compliant banner with 3 categories (essential/analytics/marketing). Configurable via Storefront Control (position, expiry, all text translatable). localStorage-based with `consent-updated` custom event.
+- **Product JSON-LD**: Structured data on PDP (Product, Offer, BreadcrumbList) for Google rich results
 
 ---
 
@@ -1516,6 +1519,7 @@ mutation CheckoutCreate($channel: String!) {
 - **PCI Compliance**: Payment data handled by Stripe
 - **Password Hashing**: bcrypt via Django
 - **Sensitive Data**: Environment variables, never committed
+- **Cookie Consent**: GDPR + Israeli Privacy Protection Law compliant. 3 consent categories (essential always on, analytics and marketing opt-in). GTM/GA4 scripts blocked until analytics consent granted. Consent stored in localStorage per channel with configurable expiry.
 
 ### 14.3 Rate Limiting
 
@@ -1616,6 +1620,7 @@ SMTP_HOST=smtp.example.com
 | 1.3.0   | 2026-02-08 | Platform state review: Added shared config package, Storefront Control admin redesign (6-section nav, shadcn/ui, Cmd+K, live preview), Bulk Manager in architecture diagram, updated INP metric, 64 config hooks, account UI refurbish |
 | 1.4.0   | 2026-02-11 | Added Catalog Generator & Store Infrastructure tool (section 9.8): @saleor/configurator integration with SINGLE_REFERENCE patch, config.yml for infrastructure-as-code, product catalog generation pipeline, Hebrew translation script |
 | 1.5.0   | 2026-02-20 | Documentation audit: Updated tech stack versions (Next.js 16, React 19.2, Tailwind 4.1, Zustand 5, URQL 5), added Dropship Orchestrator app (section 9.10), added missing containers (Image Studio, Dropship, rembg, esrgan), updated architecture diagram |
+| 1.6.0   | 2026-02-21 | Phase 0 pre-launch blockers: Added GA4/GTM analytics integration (consent-gated, 5 e-commerce events), GDPR cookie consent banner (3 categories, configurable via Storefront Control), Google Ads conversion tracking. Updated security section with cookie consent compliance. |
 
 ---
 

@@ -76,7 +76,15 @@
       "mcp__plugin_playwright_playwright__browser_install",
       "mcp__plugin_playwright_playwright__browser_network_requests",
       "mcp__plugin_playwright_playwright__browser_tabs",
-      "WebSearch"
+      "WebSearch",
+      "Bash(done)",
+      "WebFetch(domain:developers.cjdropshipping.cn)",
+      "WebFetch(domain:www.naveedulhaq.com)",
+      "WebFetch(domain:developers.cjdropshipping.com)",
+      "WebFetch(domain:apify.com)",
+      "Bash(timeout:*)",
+      "WebFetch(domain:cjdropshipping.com)",
+      "mcp__plugin_claude-mem_mcp-search__search"
     ],
     "deny": [
       "Read(./.env*)",

@@ -64,6 +64,18 @@ urlpatterns = [
     ),
 ]
 
+# Always serve media files when using FileSystemStorage (local development).
+# In production with S3/GCS/Azure, Saleor returns direct cloud URLs so this never matches.
+if settings.STORAGES["default"]["BACKEND"] == "django.core.files.storage.FileSystemStorage":
+    from django.views.static import serve as static_serve
+    urlpatterns += [
+        re_path(
+            r"^media/(?P<path>.*)$",
+            static_serve,
+            {"document_root": settings.MEDIA_ROOT},
+        ),
+    ]
+
 if settings.DEBUG:
     from django.contrib import admin
     from django.views.generic.base import RedirectView
@@ -74,18 +86,8 @@ if settings.DEBUG:
     ] + urlpatterns
 
     from .core import views
-    import warnings
 
-    # Suppress the Django warning about MEDIA_URL within STATIC_URL
-    # This is a known limitation of Django's runserver in development
-    # In production, media files should be served by a web server (nginx, etc.)
-    with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore",
-            message=".*runserver can't serve media if MEDIA_URL is within STATIC_URL.*",
-            category=UserWarning,
-        )
-        urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
+    urlpatterns += [
         re_path(r"^static/(?P<path>.*)$", serve),
         re_path(r"^$", views.home, name="home"),
     ]

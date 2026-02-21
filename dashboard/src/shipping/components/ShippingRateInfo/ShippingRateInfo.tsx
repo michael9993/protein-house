@@ -8,7 +8,6 @@ import { commonMessages } from "@dashboard/intl";
 import { getFormErrors } from "@dashboard/utils/errors";
 import getShippingErrorMessage from "@dashboard/utils/errors/shipping";
 import { useRichTextContext } from "@dashboard/utils/richText/context";
-import { OutputData } from "@editorjs/editorjs";
 import { Input } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { defineMessages, useIntl } from "react-intl";
@@ -37,7 +36,6 @@ const messages = defineMessages({
 });
 interface ShippingRateInfoProps {
   data: {
-    description: OutputData | null;
     name: string;
     maxDays: string;
     minDays: string;
@@ -50,7 +48,7 @@ interface ShippingRateInfoProps {
 const ShippingRateInfo = (props: ShippingRateInfoProps) => {
   const { data, disabled, errors, onChange } = props;
   const intl = useIntl();
-  const { defaultValue, editorRef, isReadyForMount, handleChange } = useRichTextContext();
+  const { defaultValue, isReadyForMount, handleChange } = useRichTextContext();
   const formErrors = getFormErrors(["name", "description", "minDays", "maxDays"], errors);
 
   return (
@@ -76,7 +74,6 @@ const ShippingRateInfo = (props: ShippingRateInfoProps) => {
         {isReadyForMount ? (
           <RichTextEditor
             defaultValue={defaultValue}
-            editorRef={editorRef}
             onChange={handleChange}
             disabled={disabled}
             error={!!formErrors.description}

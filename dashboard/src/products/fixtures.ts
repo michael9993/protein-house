@@ -15,9 +15,11 @@ import {
 import { RelayToFlat } from "@dashboard/types";
 import { ProductType } from "@saleor/sdk/dist/apollo/types";
 
-import * as richTextEditorFixtures from "../components/RichTextEditor/fixtures.json";
-
-const content = richTextEditorFixtures.richTextEditor;
+const content = {
+  time: 1234567890,
+  version: "2.0.0",
+  blocks: [{ type: "rawHtml", data: { html: "<p>Sample product description</p>", text: "Sample product description" } }],
+};
 
 export const product: (
   placeholderImage: string,

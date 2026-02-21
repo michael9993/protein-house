@@ -11,7 +11,7 @@ import useShop from "@dashboard/hooks/useShop";
 import { commonMessages } from "@dashboard/intl";
 import { extractMutationErrors } from "@dashboard/misc";
 import { stringifyQs } from "@dashboard/utils/urls";
-import { OutputData } from "@editorjs/editorjs";
+import { OutputData } from "@dashboard/components/RichTextEditor/types";
 import { useIntl } from "react-intl";
 
 import TranslationsPagesPage from "../components/TranslationsPagesPage";

@@ -16,6 +16,44 @@ const ACCESS_TOKEN_LIFETIME_DAYS = 15;
 const REFRESH_TOKEN_LIFETIME_DAYS = 180;
 
 // ---------------------------------------------------------------------------
+// In-memory token cache (access token valid 15 days, auth endpoint rate-limited)
+// ---------------------------------------------------------------------------
+
+interface CachedToken {
+  token: AuthToken;
+  apiKey: string;
+  cachedAt: number;
+}
+
+let tokenCache: CachedToken | null = null;
+
+// Refresh 1 hour before expiry to be safe
+const TOKEN_SAFETY_MARGIN_MS = 60 * 60 * 1_000;
+
+function getCachedToken(apiKey: string): AuthToken | null {
+  if (!tokenCache || tokenCache.apiKey !== apiKey) return null;
+
+  const now = Date.now();
+  const expiresAt = tokenCache.token.expiresAt.getTime();
+
+  if (now >= expiresAt - TOKEN_SAFETY_MARGIN_MS) {
+    tokenCache = null;
+    return null;
+  }
+
+  return tokenCache.token;
+}
+
+function setCachedToken(apiKey: string, token: AuthToken): void {
+  tokenCache = { token, apiKey, cachedAt: Date.now() };
+}
+
+/** Clear cached token — useful for testing or forced re-auth. */
+export function clearTokenCache(): void {
+  tokenCache = null;
+}
+
+// ---------------------------------------------------------------------------
 // Fetch with timeout
 // ---------------------------------------------------------------------------
 
@@ -52,7 +90,16 @@ async function fetchWithTimeout(
 export async function getAccessToken(
   apiKey: string,
 ): Promise<Result<AuthToken, SupplierError>> {
-  logger.info("Requesting CJ access token");
+  // Check in-memory cache first (avoids hitting rate-limited auth endpoint)
+  const cached = getCachedToken(apiKey);
+  if (cached) {
+    logger.info("Using cached CJ access token", {
+      expiresAt: cached.expiresAt.toISOString(),
+    });
+    return ok(cached);
+  }
+
+  logger.info("Requesting CJ access token (no cache hit)");
 
   try {
     const response = await fetchWithTimeout(
@@ -100,6 +147,7 @@ export async function getAccessToken(
       hasRefreshToken: !!data.refreshToken,
     });
 
+    setCachedToken(apiKey, token);
     return ok(token);
   } catch (error) {
     const isAbort = error instanceof DOMException && error.name === "AbortError";

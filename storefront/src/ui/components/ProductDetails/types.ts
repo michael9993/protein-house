@@ -53,6 +53,15 @@ export interface VariantAttribute {
   values: VariantAttributeValue[];
 }
 
+// ---------- Variant media ----------
+
+export interface VariantMedia {
+  id: string;
+  url: string;
+  alt: string | null;
+  type?: string;
+}
+
 // ---------- Enriched variant ----------
 
 export interface EnrichedVariant {
@@ -61,6 +70,7 @@ export interface EnrichedVariant {
   quantityAvailable: number;
   trackInventory: boolean;
   quantityLimitPerCustomer: number | null;
+  media?: VariantMedia[] | null;
   attributes?: VariantAttribute[] | null;
   pricing?: {
     price?: { gross: { amount: number; currency: string } } | null;

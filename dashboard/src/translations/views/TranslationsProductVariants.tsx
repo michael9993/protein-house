@@ -9,7 +9,7 @@ import useNavigator from "@dashboard/hooks/useNavigator";
 import useNotifier from "@dashboard/hooks/useNotifier";
 import useShop from "@dashboard/hooks/useShop";
 import { commonMessages } from "@dashboard/intl";
-import { OutputData } from "@editorjs/editorjs";
+import { OutputData } from "@dashboard/components/RichTextEditor/types";
 import { stringify as stringifyQs } from "qs";
 import { useIntl } from "react-intl";
 

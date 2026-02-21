@@ -57,7 +57,11 @@ import { productUrl as createTranslateProductUrl } from "@dashboard/translations
 import { useCachedLocales } from "@dashboard/translations/useCachedLocales";
 import { FetchMoreProps, RelayToFlat } from "@dashboard/types";
 import { UseRichTextResult } from "@dashboard/utils/richText/useRichText";
-import { OutputData } from "@editorjs/editorjs";
+import {
+  htmlToOutputData,
+  getHtmlFromOutputData,
+} from "@dashboard/components/RichTextEditor/format-bridge";
+import { OutputData } from "@dashboard/components/RichTextEditor/types";
 import { Box, Divider, Option } from "@saleor/macaw-ui-next";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useIntl } from "react-intl";
@@ -182,8 +186,8 @@ const ProductUpdatePage = ({
 }: ProductUpdatePageProps) => {
   // Cache inner form data so it can be passed into App when modal is opened
   const dataCache = useRef<ProductUpdateData | null>(null);
-  // Description is not passed in root "data"
-  const descriptionCache = useRef<OutputData | null>(null);
+  // Description HTML cache (not passed in root "data")
+  const descriptionCache = useRef<string | null>(null);
   // Store form change handler to allow updating form from outside render prop
   const changeHandlerRef = useRef<FormChange | null>(null);
   // Store richText ref to allow updating description from outside render prop
@@ -295,23 +299,22 @@ const ProductUpdatePage = ({
       const newProductDescription = productDescriptionField.value;
 
       // cache may be empty if editor was not used before sending event to app
-      const productDescriptionWithFallback = descriptionCache.current ?? product.description;
+      const currentHtml = descriptionCache.current ?? (
+        product.description ? getHtmlFromOutputData(
+          typeof product.description === "string"
+            ? JSON.parse(product.description) as OutputData
+            : product.description as OutputData
+        ) : ""
+      );
 
       try {
         const parsedEditorJs = JSON.parse(newProductDescription) as OutputData;
+        const newHtml = getHtmlFromOutputData(parsedEditorJs);
 
         // Only update if the value has changed
-        if (
-          JSON.stringify(parsedEditorJs.blocks) !==
-          JSON.stringify(productDescriptionWithFallback.blocks)
-        ) {
-          // Update the EditorJS content directly
-          if (richTextRef.current?.editorRef?.current) {
-            richTextRef.current.editorRef.current.render(parsedEditorJs).then(() => {
-              // Mark as dirty and trigger change after render completes
-              richTextRef.current.handleChange();
-            });
-          }
+        if (newHtml !== currentHtml && richTextRef.current) {
+          richTextRef.current.handleChange(newHtml);
+          descriptionCache.current = newHtml;
         }
       } catch (e) {
         console.error(e);
@@ -335,7 +338,7 @@ const ProductUpdatePage = ({
           },
           productDescription: {
             currentValue: descriptionCache.current
-              ? JSON.stringify(descriptionCache.current)
+              ? JSON.stringify(htmlToOutputData(descriptionCache.current))
               : product.description,
             type: "editorjs",
             fieldName: "productDescription",
@@ -443,8 +446,8 @@ const ProductUpdatePage = ({
                 disabled={disabled}
                 errors={productErrors}
                 onChange={change}
-                onDescriptionChange={value => {
-                  descriptionCache.current = value;
+                onDescriptionChange={html => {
+                  descriptionCache.current = html;
                 }}
               />
               <ProductMedia

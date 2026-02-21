@@ -172,7 +172,7 @@ const AttributeRow = ({
       );
     }
     case AttributeInputTypeEnum.RICH_TEXT: {
-      const { getShouldMount, getDefaultValue, getMountEditor, getHandleChange } = richTextGetters;
+      const { getShouldMount, getDefaultValue, getHandleChange } = richTextGetters;
       const defaultValue = getDefaultValue(attribute.id);
 
       return (
@@ -184,7 +184,6 @@ const AttributeRow = ({
             <Box __minWidth={210}>
               <RichTextEditor
                 defaultValue={defaultValue}
-                editorRef={getMountEditor(attribute.id)}
                 onChange={getHandleChange(attribute.id)}
                 name={`attribute:${attribute.label}`}
                 disabled={disabled}

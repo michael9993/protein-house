@@ -1,6 +1,10 @@
-import { OutputData } from "@editorjs/editorjs";
-import { EditorCore } from "@react-editor-js/core";
-import { MutableRefObject, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+
+import { OutputData } from "@dashboard/components/RichTextEditor/types";
+import {
+  getHtmlFromOutputData,
+  htmlToOutputData,
+} from "@dashboard/components/RichTextEditor/format-bridge";
 
 export interface UseRichTextOptions {
   initial: string | OutputData | null | undefined;
@@ -9,10 +13,9 @@ export interface UseRichTextOptions {
 }
 
 export interface UseRichTextResult {
-  editorRef: MutableRefObject<EditorCore | null>;
-  handleChange: () => void;
+  handleChange: (html: string) => void;
   getValue: () => Promise<OutputData>;
-  defaultValue: OutputData | undefined;
+  defaultValue: string;
   isReadyForMount: boolean;
   isDirty: boolean;
 }
@@ -22,70 +25,81 @@ export function useRichText({
   loading,
   triggerChange,
 }: UseRichTextOptions): UseRichTextResult {
-  const editorRef = useRef<EditorCore | null>(null);
   const [isDirty, setIsDirty] = useState(false);
-  const handleChange = () => {
+  const htmlRef = useRef<string>("");
+
+  const handleChange = (html: string) => {
+    htmlRef.current = html;
     setIsDirty(true);
     triggerChange();
   };
-  const getValue = async () => {
-    if (editorRef.current) {
-      setIsDirty(false);
 
-      return editorRef.current.save();
-    } else {
-      throw new Error("Editor instance is not available");
+  const getValue = async (): Promise<OutputData> => {
+    setIsDirty(false);
+    const html = htmlRef.current;
+
+    if (!html || html === "<p></p>") {
+      return { blocks: [] };
     }
+
+    return htmlToOutputData(html);
   };
 
-  // Compute defaultValue; support both JSON string and OutputData object (e.g. from GraphQL/form)
-  const defaultValue = useMemo<OutputData | undefined>(() => {
+  // Compute defaultValue as HTML string from the initial data
+  const defaultValue = useMemo<string>(() => {
     if (loading) {
-      return;
+      return "";
     }
-
-    const emptyOutput: OutputData = { blocks: [] };
 
     if (initial === undefined || initial === null) {
-      return emptyOutput;
+      return "";
     }
 
-    // Already an OutputData object (e.g. product.description from form)
+    // Already an OutputData object
     if (
       typeof initial === "object" &&
       initial !== null &&
       Array.isArray((initial as OutputData).blocks)
     ) {
-      return initial as OutputData;
+      const html = getHtmlFromOutputData(initial as OutputData);
+
+      htmlRef.current = html;
+
+      return html;
     }
 
     if (typeof initial === "string") {
       if (initial.trim() === "") {
-        return emptyOutput;
+        return "";
       }
 
       try {
-        const result = JSON.parse(initial) as OutputData;
+        const parsed = JSON.parse(initial) as OutputData;
 
-        if (!result || typeof result !== "object" || !Array.isArray(result.blocks)) {
-          return emptyOutput;
+        if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.blocks)) {
+          return "";
         }
 
-        return result;
+        const html = getHtmlFromOutputData(parsed);
+
+        htmlRef.current = html;
+
+        return html;
       } catch {
-        return undefined;
+        // If it's not JSON, treat as raw HTML
+        htmlRef.current = initial;
+
+        return initial;
       }
     }
 
-    return emptyOutput;
+    return "";
   }, [initial, loading]);
 
-  // Derive synchronously so editor mounts on first paint when data is ready (no useEffect delay)
-  const isReadyForMount = !loading && defaultValue !== undefined;
+  const isReadyForMount = !loading;
 
   return {
     isDirty,
-    editorRef,
     handleChange,
     getValue,
     defaultValue,

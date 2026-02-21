@@ -1,8 +1,18 @@
-import { Card, Title, AreaChart, Text, Flex, TabGroup, TabList, Tab } from "@tremor/react";
 import { useState } from "react";
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from "recharts";
 
 import type { RevenueDataPoint } from "../../analytics/domain/kpi-types";
-import { formatCurrency } from "../../analytics/domain/money";
+import { formatCurrency, formatCompactNumber } from "../../analytics/domain/money";
+import { ChartCard } from "./chart-card";
+import { ChartTooltip } from "./chart-tooltip";
 
 interface RevenueChartProps {
   data: RevenueDataPoint[];
@@ -15,55 +25,94 @@ export function RevenueChart({ data, currency, isLoading }: RevenueChartProps) {
 
   if (isLoading) {
     return (
-      <Card className="rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div className="h-4 bg-gray-200 rounded w-32 mb-4 animate-pulse" />
+      <ChartCard title="Revenue Over Time">
         <div className="h-72 bg-gray-100 rounded animate-pulse" />
-      </Card>
+      </ChartCard>
     );
   }
 
-  const categories = showOrders ? ["orders"] : ["revenue"];
-  const colors = showOrders ? ["emerald"] : ["blue"];
-
-  const valueFormatter = (value: number) => {
-    if (showOrders) {
-      return `${value} orders`;
-    }
-    return formatCurrency(value, currency);
-  };
+  const dataKey = showOrders ? "orders" : "revenue";
+  const strokeColor = showOrders ? "#059669" : "#18181B";
+  const fillColor = showOrders ? "#059669" : "#18181B";
 
   return (
-    <Card className="rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
-      <Flex justifyContent="between" alignItems="center" className="mb-4">
-        <Title>Revenue Over Time</Title>
-        <TabGroup
-          index={showOrders ? 1 : 0}
-          onIndexChange={(index) => setShowOrders(index === 1)}
-        >
-          <TabList variant="solid" className="w-fit">
-            <Tab>Revenue</Tab>
-            <Tab>Orders</Tab>
-          </TabList>
-        </TabGroup>
-      </Flex>
-
+    <ChartCard
+      title="Revenue Over Time"
+      actions={
+        <div className="flex rounded-lg border border-border overflow-hidden text-sm">
+          <button
+            onClick={() => setShowOrders(false)}
+            className={`px-3 py-1.5 font-medium transition-colors ${
+              !showOrders
+                ? "bg-brand text-white"
+                : "bg-white text-text-muted hover:bg-gray-50"
+            }`}
+          >
+            Revenue
+          </button>
+          <button
+            onClick={() => setShowOrders(true)}
+            className={`px-3 py-1.5 font-medium transition-colors ${
+              showOrders
+                ? "bg-brand text-white"
+                : "bg-white text-text-muted hover:bg-gray-50"
+            }`}
+          >
+            Orders
+          </button>
+        </div>
+      }
+    >
       {data.length === 0 ? (
-        <Flex justifyContent="center" alignItems="center" className="h-72">
-          <Text color="gray">No data available for the selected period</Text>
-        </Flex>
+        <div className="flex items-center justify-center h-72 text-text-muted">
+          No data available for the selected period
+        </div>
       ) : (
-        <AreaChart
-          className="h-72"
-          data={data}
-          index="date"
-          categories={categories}
-          colors={colors}
-          valueFormatter={valueFormatter}
-          showLegend={false}
-          showAnimation={true}
-          curveType="monotone"
-        />
+        <ResponsiveContainer width="100%" height={288}>
+          <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={fillColor} stopOpacity={0.2} />
+                <stop offset="100%" stopColor={fillColor} stopOpacity={0.02} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+            <XAxis
+              dataKey="date"
+              tick={{ fontSize: 12, fill: "#6B7280" }}
+              tickLine={false}
+              axisLine={false}
+            />
+            <YAxis
+              tick={{ fontSize: 12, fill: "#6B7280" }}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(v) =>
+                showOrders ? v.toLocaleString() : formatCompactNumber(v)
+              }
+              width={60}
+            />
+            <Tooltip
+              content={
+                <ChartTooltip
+                  currency={showOrders ? undefined : currency}
+                  valueFormatter={
+                    showOrders ? (v) => `${v.toLocaleString()} orders` : undefined
+                  }
+                />
+              }
+            />
+            <Area
+              type="monotone"
+              dataKey={dataKey}
+              stroke={strokeColor}
+              strokeWidth={2}
+              fill="url(#areaGradient)"
+              animationDuration={500}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
       )}
-    </Card>
+    </ChartCard>
   );
 }

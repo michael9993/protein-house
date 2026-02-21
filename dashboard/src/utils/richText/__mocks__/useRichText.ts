@@ -1,13 +1,14 @@
-import { useRichText, UseRichTextOptions } from "../useRichText";
+import { UseRichTextOptions, UseRichTextResult } from "../useRichText";
 
 const useRichTextMocked = ({
   initial,
   triggerChange,
-}: UseRichTextOptions): ReturnType<typeof useRichText> => ({
-  editorRef: { current: null },
-  defaultValue: initial ? JSON.parse(initial) : undefined,
+}: UseRichTextOptions): UseRichTextResult => ({
+  defaultValue: typeof initial === "string" ? initial : "",
   getValue: async () => ({ blocks: [] }),
-  handleChange: triggerChange,
+  handleChange: (_html: string) => {
+    triggerChange();
+  },
   isReadyForMount: true,
   isDirty: false,
 });

@@ -17,6 +17,11 @@ export const ManualBannerItemSchema = z.object({
   icon: z.string().nullable().optional(),
 });
 
+export const GradientStopSchema = z.object({
+  color: z.string(),
+  position: z.number().min(0).max(100),
+});
+
 export const HeaderBannerSchema = z.object({
   enabled: z.boolean(),
   text: z.string(),
@@ -30,6 +35,8 @@ export const HeaderBannerSchema = z.object({
   useGradient: z.boolean().optional().default(false),
   gradientFrom: z.string().nullable().optional(),
   gradientTo: z.string().nullable().optional(),
+  gradientStops: z.array(GradientStopSchema).optional().default([]),
+  gradientAngle: z.number().min(0).max(360).optional().default(90),
   dismissible: z.boolean().optional().default(false),
 });
 

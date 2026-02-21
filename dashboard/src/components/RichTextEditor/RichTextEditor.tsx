@@ -1,131 +1,53 @@
-import { LogLevels, OutputData } from "@editorjs/editorjs";
 import { cn } from "@dashboard/utils/cn";
-import { useId } from "@reach/auto-id";
-import { EditorCore, Props as ReactEditorJSProps } from "@react-editor-js/core";
-import { Box } from "@saleor/macaw-ui-next";
-import clsx from "clsx";
-import * as React from "react";
 
-import { tools } from "./consts";
-import { useHasRendered, useUpdateOnRerender } from "./hooks";
-import { ReactEditorJS } from "./ReactEditorJS";
-import styles from "./styles.module.css";
+import { TipTapEditor } from "./TipTapEditor";
 
-export type EditorJsProps = Omit<ReactEditorJSProps, "factory">;
-
-export interface RichTextEditorProps extends Omit<EditorJsProps, "onChange"> {
+export interface RichTextEditorProps {
   id?: string;
   disabled: boolean;
   error: boolean;
   helperText?: string;
   label: string;
   name: string;
-  editorRef: React.RefCallback<EditorCore> | React.MutableRefObject<EditorCore | null> | null;
-  // onChange with value shouldn't be used due to issues with React and EditorJS integration
-  onChange?: (data?: OutputData) => void;
+  defaultValue?: string;
+  onChange?: (html: string) => void;
   onBlur?: () => void;
+  readOnly?: boolean;
 }
 
 const RichTextEditor = ({
-  id: defaultId,
   disabled,
   error,
   label,
   name,
   helperText,
-  editorRef,
-  onInitialize,
+  defaultValue = "",
   onChange,
   onBlur,
-  ...props
+  readOnly,
 }: RichTextEditorProps) => {
-  const classes = styles;
-  const id = useId(defaultId);
-  const ref = React.useRef<EditorCore | null>(null);
-  const [isFocused, setIsFocused] = React.useState(false);
-  const [hasValue, setHasValue] = React.useState(false);
-  const isTyped = Boolean(hasValue || isFocused);
-  const handleInitialize = React.useCallback((editor: EditorCore) => {
-    if (onInitialize) {
-      onInitialize(editor);
-    }
-
-    if (typeof editorRef === "function") {
-      return editorRef(editor);
-    }
-
-    if (editorRef) {
-      ref.current = editor;
-
-      return (editorRef.current = editor);
-    }
-  }, []);
-  // We need to render FormControl first to get id from @reach/auto-id
-  const hasRendered = useHasRendered();
-
-  // EditorJS does not rerender when default value changes,
-  // so we need to manually update it
-  useUpdateOnRerender({
-    render: ref.current?.render.bind(ref.current),
-    defaultValue: props.defaultValue,
-    hasRendered,
-  });
-
   return (
     <div
       data-test-id={"rich-text-editor-" + name}
-      className={cn("w-full relative", disabled && "opacity-50 pointer-events-none")}
+      className={cn("w-full relative", (disabled || readOnly) && "opacity-60")}
     >
-      <Box
-        as="label"
-        color={error ? "critical2" : "default2"}
-        fontWeight="regular"
-        size={1}
-        position="absolute"
-        htmlFor={id}
-        zIndex="2"
-        __top={9}
-        __left={9}
-      >
-        {label}
-      </Box>
-      {hasRendered && (
-        <ReactEditorJS
-          key={id}
-          holder={id}
-          tools={tools}
-          // Log level is undefined at runtime
-          logLevel={"ERROR" as LogLevels.ERROR}
-          onInitialize={handleInitialize}
-          onChange={async event => {
-            const editorJsValue = await event.saver.save();
-
-            setHasValue(editorJsValue.blocks.length > 0);
-
-            return onChange?.(editorJsValue);
-          }}
-          {...props}
-        >
-          <div
-            id={id}
-            className={clsx(classes.editor, classes.root, {
-              [classes.rootErrorFocus]: isFocused && error,
-              [classes.rootActive]: isFocused,
-              [classes.rootDisabled]: disabled,
-              [classes.rootError]: error,
-              [classes.rootHasLabel]: label !== "",
-              [classes.rootTyped]: isTyped || props.defaultValue?.blocks?.length! > 0,
-            })}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => {
-              setIsFocused(false);
-              onBlur?.();
-            }}
-          />
-        </ReactEditorJS>
+      {label && (
+        <label className={cn(
+          "block text-xs font-medium mb-1.5",
+          error ? "text-red-600" : "text-gray-500",
+        )}>
+          {label}
+        </label>
       )}
+      <TipTapEditor
+        content={defaultValue}
+        onChange={html => onChange?.(html)}
+        disabled={disabled || readOnly}
+        onBlur={onBlur}
+        placeholder="Start writing..."
+      />
       {helperText && (
-        <p className={cn("text-xs mt-1 mx-3.5", error && "text-[var(--mu-colors-text-critical1)]")}>
+        <p className={cn("text-xs mt-1", error ? "text-red-600" : "text-gray-500")}>
           {helperText}
         </p>
       )}

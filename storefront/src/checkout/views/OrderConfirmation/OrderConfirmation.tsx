@@ -1,17 +1,41 @@
-import { Suspense, useCallback, useRef } from "react";
+import { Suspense, useCallback, useEffect, useRef } from "react";
 import { Summary, SummarySkeleton } from "@/checkout/sections/Summary";
 import { OrderInfo } from "@/checkout/sections/OrderInfo";
 import { useOrder } from "@/checkout/hooks/useOrder";
 import { useAutoCartCleanup } from "@/checkout/hooks/useCartCleanup";
 import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
+import { trackPurchase } from "@/lib/analytics";
 
 export const OrderConfirmation = () => {
 	const { order } = useOrder();
 	const printRef = useRef<HTMLDivElement>(null);
 	const text = useCheckoutText();
+	const purchaseTracked = useRef(false);
 
 	// Automatically clean up purchased items from the original cart
 	useAutoCartCleanup(order?.id);
+
+	// GA4 purchase event — fire once when order data loads
+	useEffect(() => {
+		if (!order || purchaseTracked.current) return;
+		purchaseTracked.current = true;
+
+		trackPurchase({
+			transaction_id: order.number,
+			currency: order.total.gross.currency,
+			value: order.total.gross.amount,
+			tax: order.total.tax?.amount ?? 0,
+			shipping: order.shippingPrice?.gross?.amount ?? 0,
+			coupon: order.voucher?.code ?? undefined,
+			items: order.lines.map((line) => ({
+				item_id: line.id,
+				item_name: line.productName,
+				price: line.unitPrice.gross.amount,
+				currency: line.unitPrice.gross.currency,
+				quantity: line.quantity,
+			})),
+		});
+	}, [order]);
 
 	const handlePrint = useCallback(() => {
 		// Trigger browser print

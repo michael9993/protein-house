@@ -1,4 +1,3 @@
-import edjsHTML from "editorjs-html";
 import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
 import { type ResolvingMetadata, type Metadata } from "next";
@@ -16,6 +15,7 @@ import { addProductToCartAction } from "../actions";
 import { RelatedProductsSection } from "./RelatedProductsSection";
 import { RelatedProductsSkeleton } from "@/ui/components/RelatedProducts";
 import { RecentlyViewedProducts } from "@/components/RecentlyViewedProducts";
+import { parseDescription } from "@/lib/parse-description";
 
 export async function generateMetadata(
 	props: {
@@ -84,8 +84,6 @@ export async function generateStaticParams({ params }: { params: { channel: stri
 	return paths;
 }
 
-const parser = edjsHTML();
-
 export default async function Page(props: {
 	params: Promise<{ slug: string; channel: string }>;
 	searchParams: Promise<{ variant?: string }>;
@@ -107,8 +105,7 @@ export default async function Page(props: {
 
 	// Parse description (prefer translated)
 	const rawDescription = product.translation?.description || product?.description;
-	const description = rawDescription ? parser.parse(JSON.parse(rawDescription)) : null;
-	const descriptionHtml = description ? description.map((content: string) => xss(content)).join("") : null;
+	const descriptionHtml = rawDescription ? xss(parseDescription(rawDescription)) : null;
 
 	// Build images array — deduplicate since thumbnail is also in media
 	const seen = new Set<string>();
@@ -284,6 +281,12 @@ export default async function Page(props: {
 						quantityAvailable: v.quantityAvailable || 0,
 						trackInventory: (v as any).trackInventory ?? true,
 						quantityLimitPerCustomer: (v as any).quantityLimitPerCustomer ?? null,
+						media: ((v as any).media || []).map((m: any) => ({
+							id: m.id,
+							url: m.url,
+							alt: m.alt ?? null,
+							type: m.type,
+						})),
 						attributes: v.attributes ? v.attributes.map(attr => ({
 							attribute: {
 								id: attr.attribute.id,
@@ -321,6 +324,9 @@ export default async function Page(props: {
 							file: val.file ? { url: val.file.url, contentType: val.file.contentType || null } : null,
 						})),
 					})),
+					variantSelectionSlugs: (product.productType?.variantAttributes || [])
+						.map((a: any) => a.slug as string)
+						.filter(Boolean),
 					rating: (product as any).rating || null,
 					reviewCount: (product as any).reviews?.totalCount || null,
 					created: (product as any).created || undefined,

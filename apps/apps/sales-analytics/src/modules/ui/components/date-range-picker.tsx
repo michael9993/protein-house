@@ -1,4 +1,5 @@
 import { parseISO, format } from "date-fns";
+import { Calendar } from "lucide-react";
 import { useState } from "react";
 
 import type { TimeRange, TimeRangePreset } from "../../analytics/domain/time-range";
@@ -9,17 +10,12 @@ interface DateRangePickerProps {
   onChange: (range: TimeRange) => void;
 }
 
-/**
- * Custom date range picker using native HTML5 date inputs
- * Replaces Tremor's DateRangePicker to avoid ESM compatibility issues
- */
 export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const fromDate = parseISO(value.from);
   const toDate = parseISO(value.to);
 
-  // Format dates for input (YYYY-MM-DD)
   const fromDateStr = format(fromDate, "yyyy-MM-dd");
   const toDateStr = format(toDate, "yyyy-MM-dd");
 
@@ -27,11 +23,7 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
     if (e.target.value) {
       const newFrom = new Date(e.target.value);
       newFrom.setHours(0, 0, 0, 0);
-      onChange({
-        from: newFrom.toISOString(),
-        to: value.to,
-        preset: "custom",
-      });
+      onChange({ from: newFrom.toISOString(), to: value.to, preset: "custom" });
     }
   };
 
@@ -39,11 +31,7 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
     if (e.target.value) {
       const newTo = new Date(e.target.value);
       newTo.setHours(23, 59, 59, 999);
-      onChange({
-        from: value.from,
-        to: newTo.toISOString(),
-        preset: "custom",
-      });
+      onChange({ from: value.from, to: newTo.toISOString(), preset: "custom" });
     }
   };
 
@@ -54,24 +42,12 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-[200px]"
+        className="flex items-center gap-2 px-3 py-2 text-sm border border-border rounded-lg bg-white hover:bg-surface focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand min-w-[200px] transition-colors"
       >
+        <Calendar size={16} className="text-text-muted" />
+        <span className="flex-1 text-left text-text-primary">{displayText}</span>
         <svg
-          className="w-4 h-4 text-gray-500"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-          />
-        </svg>
-        <span className="flex-1 text-left">{displayText}</span>
-        <svg
-          className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
+          className={`w-4 h-4 text-text-muted transition-transform ${isOpen ? "rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -82,44 +58,34 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
 
       {isOpen && (
         <>
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 z-10"
-            onClick={() => setIsOpen(false)}
-          />
-
-          {/* Dropdown */}
-          <div className="absolute right-0 z-20 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-4 min-w-[320px]">
+          <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
+          <div className="absolute right-0 z-20 mt-2 bg-white border border-border rounded-xl shadow-lg p-4 min-w-[320px]">
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  From Date
-                </label>
+                <label className="block text-xs font-medium text-text-muted mb-1">From Date</label>
                 <input
                   type="date"
                   value={fromDateStr}
                   onChange={handleFromChange}
                   max={toDateStr}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  To Date
-                </label>
+                <label className="block text-xs font-medium text-text-muted mb-1">To Date</label>
                 <input
                   type="date"
                   value={toDateStr}
                   onChange={handleToChange}
                   min={fromDateStr}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand"
                 />
               </div>
-              <div className="flex justify-end gap-2 pt-2 border-t">
+              <div className="flex justify-end pt-2 border-t border-border">
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="px-3 py-1.5 text-sm text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                  className="px-3 py-1.5 text-sm text-text-muted bg-surface rounded-lg hover:bg-gray-200 transition-colors"
                 >
                   Close
                 </button>
@@ -156,10 +122,10 @@ export function QuickDateSelect({ currentPreset, onChange }: QuickDateSelectProp
         <button
           key={preset.value}
           onClick={() => onChange(getTimeRangeFromPreset(preset.value))}
-          className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+          className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
             currentPreset === preset.value
-              ? "bg-blue-100 text-blue-700 font-medium"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-brand text-white font-medium"
+              : "bg-surface text-text-muted hover:bg-gray-200"
           }`}
         >
           {preset.label}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, type Dispatch, type SetStateAction } from "react";
 import Link from "next/link";
-import { useBranding, useHeaderConfig, useStoreConfig } from "@/providers/StoreConfigProvider";
+import { useBranding, useHeaderConfig, useStoreConfig, useNavbarText } from "@/providers/StoreConfigProvider";
 
 const DEFAULT_INTERVAL_SECONDS = 6;
 const DISMISS_STORAGE_PREFIX = "banner-dismissed-";
@@ -25,6 +25,7 @@ export function HeaderBanner({ channel }: { channel?: string }) {
 	const branding = useBranding();
 	const headerConfig = useHeaderConfig();
 	const config = useStoreConfig();
+	const navbarText = useNavbarText();
 
 	const showBanner = headerConfig.banner.enabled;
 	const items = (headerConfig.banner.items ?? []) as BannerItem[];
@@ -33,6 +34,8 @@ export function HeaderBanner({ channel }: { channel?: string }) {
 	const bannerBgColor = headerConfig.banner.backgroundColor || branding.colors.primary;
 	const bannerTextColor = headerConfig.banner.textColor ?? "#FFFFFF";
 	const useGradient = headerConfig.banner.useGradient ?? false;
+	const gradientStops = (headerConfig.banner.gradientStops ?? []) as Array<{ color: string; position: number }>;
+	const gradientAngle = (headerConfig.banner.gradientAngle ?? 90) as number;
 	const gradientFrom = headerConfig.banner.gradientFrom ?? bannerBgColor;
 	const gradientTo = headerConfig.banner.gradientTo ?? bannerBgColor;
 	const dismissible = headerConfig.banner.dismissible ?? false;
@@ -64,10 +67,22 @@ export function HeaderBanner({ channel }: { channel?: string }) {
 		return null;
 	}
 
-	const backgroundStyle =
-		useGradient && (gradientFrom || gradientTo)
-			? { background: `linear-gradient(90deg, ${gradientFrom}, ${gradientTo})`, color: bannerTextColor }
-			: { backgroundColor: bannerBgColor, color: bannerTextColor };
+	const backgroundStyle: React.CSSProperties = (() => {
+		if (!useGradient) {
+			return { backgroundColor: bannerBgColor, color: bannerTextColor };
+		}
+		// Multi-stop gradient (new)
+		if (gradientStops && gradientStops.length >= 2) {
+			const sorted = [...gradientStops].sort((a, b) => a.position - b.position);
+			const css = sorted.map((s) => `${s.color} ${s.position}%`).join(", ");
+			return { background: `linear-gradient(${gradientAngle}deg, ${css})`, color: bannerTextColor };
+		}
+		// Legacy two-color fallback
+		if (gradientFrom || gradientTo) {
+			return { background: `linear-gradient(${gradientAngle}deg, ${gradientFrom}, ${gradientTo})`, color: bannerTextColor };
+		}
+		return { backgroundColor: bannerBgColor, color: bannerTextColor };
+	})();
 
 	// Multiple items: carousel with auto-scroll
 	if (items.length > 0) {
@@ -82,6 +97,9 @@ export function HeaderBanner({ channel }: { channel?: string }) {
 				backgroundStyle={backgroundStyle}
 				dismissible={dismissible}
 				onDismiss={handleDismiss}
+				dismissAriaLabel={navbarText.bannerDismissAriaLabel || "Dismiss banner"}
+				prevAriaLabel={navbarText.bannerPrevAriaLabel || "Previous banner"}
+				nextAriaLabel={navbarText.bannerNextAriaLabel || "Next banner"}
 			/>
 		);
 	}
@@ -102,7 +120,7 @@ export function HeaderBanner({ channel }: { channel?: string }) {
 						onClick={handleDismiss}
 						className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white/20 hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50"
 						style={{ color: "inherit" }}
-						aria-label="Dismiss banner"
+						aria-label={navbarText.bannerDismissAriaLabel || "Dismiss banner"}
 					>
 						<svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
 							<path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -126,6 +144,9 @@ interface HeaderBannerCarouselProps {
 	backgroundStyle: React.CSSProperties;
 	dismissible: boolean;
 	onDismiss: () => void;
+	dismissAriaLabel: string;
+	prevAriaLabel: string;
+	nextAriaLabel: string;
 }
 
 function HeaderBannerCarousel({
@@ -138,6 +159,9 @@ function HeaderBannerCarousel({
 	backgroundStyle,
 	dismissible,
 	onDismiss,
+	dismissAriaLabel,
+	prevAriaLabel,
+	nextAriaLabel,
 }: HeaderBannerCarouselProps) {
 	const len = items.length;
 
@@ -201,7 +225,7 @@ function HeaderBannerCarousel({
 					onClick={goPrev}
 					className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/20 hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50"
 					style={{ color: "inherit" }}
-					aria-label="Previous banner"
+					aria-label={prevAriaLabel}
 				>
 					<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
 						<path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -223,7 +247,7 @@ function HeaderBannerCarousel({
 					onClick={goNext}
 					className={`absolute top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/20 hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 ${dismissible ? "right-10" : "right-2"}`}
 					style={{ color: "inherit" }}
-					aria-label="Next banner"
+					aria-label={nextAriaLabel}
 				>
 					<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
 						<path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -236,7 +260,7 @@ function HeaderBannerCarousel({
 					onClick={onDismiss}
 					className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white/20 hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50"
 					style={{ color: "inherit" }}
-					aria-label="Dismiss banner"
+					aria-label={dismissAriaLabel}
 				>
 					<svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
 						<path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

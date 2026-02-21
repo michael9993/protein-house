@@ -3,14 +3,14 @@
  * Uses xlsx library (SheetJS) for Excel generation
  */
 
-import type { 
-  DashboardKPIs, 
-  RevenueDataPoint, 
-  TopProduct, 
-  CategoryData, 
-  RecentOrder 
+import type {
+  DashboardKPIs,
+  RevenueDataPoint,
+  TopProduct,
+  CategoryData,
+  RecentOrder
 } from "../../analytics/domain/kpi-types";
-import { formatCurrency } from "../../analytics/domain/money";
+import type { ProductPerformance } from "../../analytics/domain/analytics-calculator";
 import { format } from "date-fns";
 
 export interface ExportData {
@@ -19,6 +19,7 @@ export interface ExportData {
   topProducts?: TopProduct[];
   topCategories?: CategoryData[];
   allOrders?: RecentOrder[];
+  productPerformance?: ProductPerformance[];
   currency: string;
   dateFrom: string;
   dateTo: string;
@@ -34,7 +35,7 @@ function applyWorksheetStyling(worksheet: any, headerRow: number = 0, XLSX: any)
   // Define styles
   const headerStyle = {
     font: { bold: true, color: { rgb: "FFFFFF" }, sz: 11 },
-    fill: { fgColor: { rgb: "4472C4" } },
+    fill: { fgColor: { rgb: "18181B" } },
     alignment: { horizontal: "center", vertical: "center", wrapText: true },
     border: {
       top: { style: "thin", color: { rgb: "000000" } },
@@ -189,7 +190,36 @@ export async function exportAnalyticsToExcel(data: ExportData): Promise<void> {
     XLSX.utils.book_append_sheet(workbook, productsSheet, "Top Products");
   }
 
-  // Sheet 4: Sales by Category
+  // Sheet 4: Product Performance (full list with daily revenue)
+  if (data.productPerformance && data.productPerformance.length > 0) {
+    const perfData = [
+      ["Product Name", "Revenue", "Quantity", "% of Total", "Daily Revenue Trend"],
+      ...data.productPerformance.map((product) => [
+        product.name,
+        product.revenue,
+        product.quantity,
+        `${product.percentOfTotal.toFixed(1)}%`,
+        product.dailyRevenue.join(", "),
+      ]),
+    ];
+
+    const perfSheet = XLSX.utils.aoa_to_sheet(perfData);
+
+    // Format currency column
+    const range = XLSX.utils.decode_range(perfSheet["!ref"] || "A1");
+    for (let R = 1; R <= range.e.r; R++) {
+      const cellAddress = XLSX.utils.encode_cell({ c: 1, r: R });
+      if (perfSheet[cellAddress]) {
+        perfSheet[cellAddress].z = `"${data.currency}" #,##0.00`;
+      }
+    }
+
+    applyWorksheetStyling(perfSheet, 0, XLSX);
+    setColumnWidths(perfSheet, [40, 18, 12, 12, 50]);
+    XLSX.utils.book_append_sheet(workbook, perfSheet, "Product Performance");
+  }
+
+  // Sheet 5: Sales by Category (renumbered)
   if (data.topCategories && data.topCategories.length > 0) {
     const categoriesData = [
       ["Category", "Sales"],
@@ -215,7 +245,7 @@ export async function exportAnalyticsToExcel(data: ExportData): Promise<void> {
     XLSX.utils.book_append_sheet(workbook, categoriesSheet, "Sales by Category");
   }
 
-  // Sheet 5: All Orders
+  // Sheet 6: All Orders
   if (data.allOrders && data.allOrders.length > 0) {
     const ordersData = [
       ["Order Number", "Date", "Customer", "Total", "Status"],

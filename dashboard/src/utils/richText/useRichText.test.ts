@@ -1,22 +1,7 @@
-import { OutputData } from "@editorjs/editorjs";
 import { act, renderHook } from "@testing-library/react";
 
 import useRichText from "./useRichText";
 
-type Fixtures = Record<"short", OutputData>;
-
-const fixtures: Fixtures = {
-  short: {
-    blocks: [
-      {
-        data: {
-          text: "Some text",
-        },
-        type: "paragraph",
-      },
-    ],
-  },
-};
 const triggerChange = vi.fn();
 
 describe("useRichText", () => {
@@ -26,14 +11,18 @@ describe("useRichText", () => {
     const { result, rerender } = renderHook(() => useRichText({ initial, loading, triggerChange }));
 
     expect(result.current.isReadyForMount).toBe(false);
-    initial = JSON.stringify(fixtures.short); // for JSON.parse()
+    initial = JSON.stringify({
+      blocks: [{ type: "paragraph", data: { text: "Some text" } }],
+    });
     loading = false;
     rerender();
-    expect(result.current.defaultValue).toStrictEqual(fixtures.short);
+    // defaultValue is now an HTML string
+    expect(result.current.defaultValue).toBe("<p>Some text</p>");
     expect(result.current.isReadyForMount).toBe(true);
     expect(result.current.isDirty).toBe(false);
   });
-  it("returns undefined when JSON cannot be parsed", () => {
+
+  it("returns empty string when JSON cannot be parsed", () => {
     let initial: string | undefined;
     let loading = true;
     const { result, rerender } = renderHook(() => useRichText({ initial, loading, triggerChange }));
@@ -42,32 +31,34 @@ describe("useRichText", () => {
     initial = "this-isnt-valid-json";
     loading = false;
     rerender();
-    expect(result.current.defaultValue).toBe(undefined);
-    expect(result.current.isReadyForMount).toBe(false);
+    // Invalid JSON is treated as raw HTML
+    expect(result.current.defaultValue).toBe("this-isnt-valid-json");
+    expect(result.current.isReadyForMount).toBe(true);
     expect(result.current.isDirty).toBe(false);
   });
-  it("runs editorJS .save() when getValue is called", async () => {
-    const saveFn = vi.fn(async () => fixtures.short);
+
+  it("wraps HTML in OutputData when getValue is called", async () => {
     const { result } = renderHook(() => useRichText({ initial: "", triggerChange }));
 
-    result.current.editorRef.current = {
-      save: saveFn,
-      destroy: vi.fn(),
-      clear: vi.fn(),
-      render: vi.fn(),
-      dangerouslyLowLevelInstance: {},
-    };
-    expect(await result.current.getValue()).toStrictEqual(fixtures.short);
-    expect(saveFn).toHaveBeenCalled();
+    act(() => {
+      result.current.handleChange("<p>Hello</p>");
+    });
+
+    const value = await result.current.getValue();
+
+    expect(value.blocks).toHaveLength(1);
+    expect(value.blocks[0].type).toBe("rawHtml");
+    expect(value.blocks[0].data.html).toBe("<p>Hello</p>");
     expect(result.current.isDirty).toBe(false);
   });
+
   it("calls triggerChange when change is made in the editor", () => {
     triggerChange.mockClear();
 
     const { result } = renderHook(() => useRichText({ initial: "", triggerChange }));
 
     act(() => {
-      result.current.handleChange();
+      result.current.handleChange("<p>Updated</p>");
     });
     expect(triggerChange).toHaveBeenCalled();
     expect(result.current.isDirty).toBe(true);

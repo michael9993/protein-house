@@ -1108,6 +1108,9 @@ export const NavbarTextSchema = z.object({
   searchPlaceholder: z.string(),       // "Search..." (navbar search input placeholder)
   searchClearAriaLabel: z.string().optional(),   // "Clear search" (aria-label for clear button)
   searchInputAriaLabel: z.string().optional(),   // "Search products" (aria-label for search input)
+  bannerDismissAriaLabel: z.string().optional(), // "Dismiss banner" (aria-label for banner dismiss button)
+  bannerPrevAriaLabel: z.string().optional(),    // "Previous banner" (aria-label for banner prev button)
+  bannerNextAriaLabel: z.string().optional(),    // "Next banner" (aria-label for banner next button)
   viewAllResultsFor: z.string().optional(),     // "View all results for" (navbar search dropdown)
   recentlySearchedLabel: z.string().optional(), // "Recent Searches" (navbar search dropdown)
   recentSearchesClearLabel: z.string().optional(), // "Clear" (button next to Recent Searches)
@@ -1171,6 +1174,22 @@ export const NotFoundTextSchema = z.object({
   productNotFoundBackButton: z.string().optional(), // "Back to Products"
 });
 
+export const CookieConsentTextSchema = z.object({
+  bannerTitle: z.string().optional(),
+  bannerDescription: z.string().optional(),
+  acceptAllButton: z.string().optional(),
+  rejectAllButton: z.string().optional(),
+  manageButton: z.string().optional(),
+  essentialLabel: z.string().optional(),
+  essentialDescription: z.string().optional(),
+  analyticsLabel: z.string().optional(),
+  analyticsDescription: z.string().optional(),
+  marketingLabel: z.string().optional(),
+  marketingDescription: z.string().optional(),
+  savePreferencesButton: z.string().optional(),
+  policyLinkText: z.string().optional(),
+});
+
 export const ContentSchema = z.object({
   cart: CartTextSchema,
   product: ProductTextSchema,
@@ -1182,8 +1201,8 @@ export const ContentSchema = z.object({
   productDetail: ProductDetailTextSchema,
   dashboard: AccountDashboardTextSchema,
   orders: OrdersTextSchema,
-  orderTracking: OrderTrackingTextSchema.optional(), // Optional for backward compatibility
-  contact: ContactTextSchema.optional(), // Optional for backward compatibility
+  orderTracking: OrderTrackingTextSchema.optional(),
+  contact: ContactTextSchema.optional(),
   addresses: AddressesTextSchema,
   wishlist: WishlistTextSchema,
   settings: SettingsTextSchema,
@@ -1191,4 +1210,5 @@ export const ContentSchema = z.object({
   navbar: NavbarTextSchema,
   error: ErrorTextSchema,
   notFound: NotFoundTextSchema,
+  cookieConsent: CookieConsentTextSchema.optional(),
 });

@@ -1,7 +1,8 @@
 "use client";
 
-import { useFooterConfig, useFooterText } from "@/providers/StoreConfigProvider";
+import { useFooterConfig, useFooterText, useStoreConfig } from "@/providers/StoreConfigProvider";
 import { PolicyContentBlock } from "./PolicyContentBlock";
+import type { StoreConfig } from "@/config/store.config";
 
 type PolicyKey = "returnPolicy" | "shippingPolicy" | "privacyPolicy" | "termsOfService";
 
@@ -12,14 +13,30 @@ const FALLBACK_TITLE_KEY: Record<PolicyKey, keyof NonNullable<ReturnType<typeof 
   termsOfService: "termsOfServiceLink",
 };
 
+const POLICY_TO_PAGE_KEY: Record<PolicyKey, keyof StoreConfig["pages"]> = {
+  returnPolicy: "returnPolicy",
+  shippingPolicy: "shippingPolicy",
+  privacyPolicy: "privacyPolicy",
+  termsOfService: "termsOfService",
+};
+
 /**
  * Shared policy page layout: title, optional header, main content (content || defaultContent || emptyMessage), optional footer.
  * Content supports simple markup: ## heading, ### subheading, * bullets, **bold**.
  * All text from Storefront Control → Footer → Policy Page Content. Nothing hardcoded.
  */
 export function PolicyPageView({ policyKey }: { policyKey: PolicyKey }) {
+  const { pages } = useStoreConfig();
   const footerConfig = useFooterConfig();
   const footerText = useFooterText();
+
+  if (!pages[POLICY_TO_PAGE_KEY[policyKey]]) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <p className="text-lg text-neutral-500">This page is not available.</p>
+      </div>
+    );
+  }
 
   const footerConfigRecord = footerConfig as unknown as Record<string, string | undefined>;
   const pageTitle =

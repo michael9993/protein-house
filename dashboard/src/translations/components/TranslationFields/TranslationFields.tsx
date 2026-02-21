@@ -9,7 +9,7 @@ import { buttonMessages } from "@dashboard/intl";
 import { TranslationField, TranslationFieldType } from "@dashboard/translations/types";
 import { ListProps } from "@dashboard/types";
 import { cn } from "@dashboard/utils/cn";
-import { OutputData } from "@editorjs/editorjs";
+import { OutputData } from "@dashboard/components/RichTextEditor/types";
 import { IconButton } from "@dashboard/components/IconButton/IconButton";
 import { Button } from "@saleor/macaw-ui-next";
 import { Skeleton, Text } from "@saleor/macaw-ui-next";

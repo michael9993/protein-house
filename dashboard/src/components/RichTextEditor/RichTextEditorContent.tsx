@@ -1,45 +1,26 @@
-import { LogLevels } from "@editorjs/editorjs";
-import { useId } from "@reach/auto-id";
-import clsx from "clsx";
-import { createReactEditorJS } from "react-editor-js";
+import RichTextEditor from "./RichTextEditor";
 
-import { tools } from "./consts";
-import { useHasRendered } from "./hooks";
-import { EditorJsProps } from "./RichTextEditor";
-import styles from "./styles.module.css";
-
-interface RichTextEditorContentProps extends Omit<EditorJsProps, "defaultValue"> {
+interface RichTextEditorContentProps {
   id?: string;
   className?: string;
+  value?: string;
 }
 
-const ReactEditorJS = createReactEditorJS();
 const RichTextEditorContent = ({
-  id: defaultId,
-  className,
-  value,
+  value = "",
   ...props
 }: RichTextEditorContentProps) => {
-  const classes = styles;
-  const id = useId(defaultId);
-  // We need to render FormControl first to get id from @reach/auto-id
-  const hasRendered = useHasRendered();
-
-  if (!hasRendered) {
-    return <div />;
-  }
-
   return (
-    <ReactEditorJS
-      holder={id}
-      logLevel={"ERROR" as LogLevels.ERROR}
-      tools={tools}
+    <RichTextEditor
       {...props}
       defaultValue={value}
+      disabled={true}
       readOnly={true}
-    >
-      <div id={id} className={clsx(classes.editor, classes.rootStatic, className)} />
-    </ReactEditorJS>
+      error={false}
+      label=""
+      name="content-viewer"
+      helperText=""
+    />
   );
 };
 

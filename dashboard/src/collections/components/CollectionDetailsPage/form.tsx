@@ -12,7 +12,7 @@ import getMetadata from "@dashboard/utils/metadata/getMetadata";
 import useMetadataChangeTrigger from "@dashboard/utils/metadata/useMetadataChangeTrigger";
 import { RichTextContext, RichTextContextValues } from "@dashboard/utils/richText/context";
 import useRichText from "@dashboard/utils/richText/useRichText";
-import { OutputData } from "@editorjs/editorjs";
+import { OutputData } from "@dashboard/components/RichTextEditor/types";
 import { useEffect } from "react";
 import * as React from "react";
 

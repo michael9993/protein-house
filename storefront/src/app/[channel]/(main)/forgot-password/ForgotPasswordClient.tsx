@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useBranding, useStoreInfo, useContentConfig } from "@/providers/StoreConfigProvider";
+import { useBranding, useStoreInfo, useContentConfig, usePageEnabled } from "@/providers/StoreConfigProvider";
 import { requestPasswordResetAction } from "./actions";
 
 interface ForgotPasswordClientProps {
@@ -17,6 +17,15 @@ export function ForgotPasswordClient({ channel }: ForgotPasswordClientProps) {
 	const branding = useBranding();
 	const store = useStoreInfo();
 	const content = useContentConfig();
+	const forgotPasswordEnabled = usePageEnabled("forgotPassword");
+
+	if (!forgotPasswordEnabled) {
+		return (
+			<div className="flex min-h-[50vh] items-center justify-center">
+				<p className="text-lg text-neutral-500">This page is not available.</p>
+			</div>
+		);
+	}
 
 	const handleSubmit = async (formData: FormData) => {
 		setError(null);

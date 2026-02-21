@@ -13609,14 +13609,6 @@ export type WarehousesCountQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type WarehousesCountQuery = { __typename: 'Query', warehouses: { __typename: 'WarehouseCountableConnection', totalCount: number | null } | null };
 
-export type SaveOnBoardingStateMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-  input: Array<MetadataInput> | MetadataInput;
-}>;
-
-
-export type SaveOnBoardingStateMutation = { __typename: 'Mutation', updateMetadata: { __typename: 'UpdateMetadata', errors: Array<{ __typename: 'MetadataError', code: MetadataErrorCode, field: string | null, message: string | null }> } | null };
-
 export type WelcomePageActivitiesQueryVariables = Exact<{
   hasPermissionToManageOrders: Scalars['Boolean']['input'];
 }>;
@@ -13630,7 +13622,7 @@ export type WelcomePageAnalyticsQueryVariables = Exact<{
 }>;
 
 
-export type WelcomePageAnalyticsQuery = { __typename: 'Query', salesToday?: { __typename: 'TaxedMoney', gross: { __typename: 'Money', amount: number, currency: string } } | null };
+export type WelcomePageAnalyticsQuery = { __typename: 'Query', salesToday?: { __typename: 'TaxedMoney', gross: { __typename: 'Money', amount: number, currency: string } } | null, salesThisMonth?: { __typename: 'TaxedMoney', gross: { __typename: 'Money', amount: number, currency: string } } | null };
 
 export type WelcomePageNotificationsQueryVariables = Exact<{
   channel: Scalars['String']['input'];
@@ -13638,3 +13630,20 @@ export type WelcomePageNotificationsQueryVariables = Exact<{
 
 
 export type WelcomePageNotificationsQuery = { __typename: 'Query', productsOutOfStock: { __typename: 'ProductCountableConnection', totalCount: number | null } | null };
+
+export type DashboardStatsQueryVariables = Exact<{
+  channel: Scalars['String']['input'];
+  today: Scalars['Date']['input'];
+  hasPermissionToManageOrders: Scalars['Boolean']['input'];
+  hasPermissionToManageUsers: Scalars['Boolean']['input'];
+}>;
+
+
+export type DashboardStatsQuery = { __typename: 'Query', ordersToday?: { __typename: 'OrderCountableConnection', totalCount: number | null } | null, ordersToFulfill?: { __typename: 'OrderCountableConnection', totalCount: number | null } | null, productsOutOfStock: { __typename: 'ProductCountableConnection', totalCount: number | null } | null, productsTotal: { __typename: 'ProductCountableConnection', totalCount: number | null } | null, customersTotal?: { __typename: 'UserCountableConnection', totalCount: number | null } | null, customersToday?: { __typename: 'UserCountableConnection', totalCount: number | null } | null };
+
+export type DashboardRecentOrdersQueryVariables = Exact<{
+  hasPermissionToManageOrders: Scalars['Boolean']['input'];
+}>;
+
+
+export type DashboardRecentOrdersQuery = { __typename: 'Query', orders?: { __typename: 'OrderCountableConnection', edges: Array<{ __typename: 'OrderCountableEdge', node: { __typename: 'Order', id: string, number: string, status: OrderStatus, created: any, userEmail: string | null, total: { __typename: 'TaxedMoney', gross: { __typename: 'Money', amount: number, currency: string } }, billingAddress: { __typename: 'Address', firstName: string, lastName: string } | null } }> } | null };

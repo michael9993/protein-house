@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { saleorAuthClient } from "@/ui/components/AuthProvider";
-import { useBranding, useStoreInfo, useContentConfig } from "@/providers/StoreConfigProvider";
+import { useBranding, useStoreInfo, useContentConfig, usePageEnabled } from "@/providers/StoreConfigProvider";
 
 interface ResetPasswordClientProps {
 	channel: string;
@@ -20,6 +20,15 @@ export function ResetPasswordClient({ channel, email, token }: ResetPasswordClie
 	const branding = useBranding();
 	const store = useStoreInfo();
 	const content = useContentConfig();
+	const resetPasswordEnabled = usePageEnabled("resetPassword");
+
+	if (!resetPasswordEnabled) {
+		return (
+			<div className="flex min-h-[50vh] items-center justify-center">
+				<p className="text-lg text-neutral-500">This page is not available.</p>
+			</div>
+		);
+	}
 
 	const invalidLink = !email?.trim() || !token?.trim();
 

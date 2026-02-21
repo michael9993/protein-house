@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect, useCallback } from "react";
+import { useState, useTransition, useEffect, useCallback, useMemo } from "react";
 import { toast } from "react-toastify";
 import { Breadcrumbs } from "@/ui/components/Breadcrumbs";
 import { useWishlist } from "@/lib/wishlist";
@@ -31,6 +31,7 @@ import {
 } from "@/ui/components/ProductDetails";
 import type { EnrichedVariant, ProductAttribute } from "@/ui/components/ProductDetails";
 import { SizeGuideModal } from "@/ui/components/SizeGuideModal";
+import { trackViewItem, trackAddToCart } from "@/lib/analytics";
 
 const EMPTY_VARIANT_SELECTION_SLUGS: string[] = [];
 
@@ -119,14 +120,14 @@ export function ProductDetailClient({
 
   // Track product view
   useEffect(() => {
-    if (mode === "page") {
-      // Compute brand from product attributes
-      const brandSlugs = ["brand", "vendor", "manufacturer", "label"];
-      const brandAttr = product.productAttributes?.find(
-        (a) => a.attribute.slug && brandSlugs.includes(a.attribute.slug),
-      );
-      const brand = brandAttr?.values?.[0]?.name || undefined;
+    // Compute brand from product attributes (used by both recently-viewed and GA4)
+    const brandSlugs = ["brand", "vendor", "manufacturer", "label"];
+    const brandAttr = product.productAttributes?.find(
+      (a) => a.attribute.slug && brandSlugs.includes(a.attribute.slug),
+    );
+    const brand = brandAttr?.values?.[0]?.name || undefined;
 
+    if (mode === "page") {
       // Compute total stock across all variants
       const totalStock = product.variants.reduce(
         (sum, v) => sum + (v.quantityAvailable || 0),
@@ -151,6 +152,18 @@ export function ProductDetailClient({
         totalStock,
         rating: product.rating,
         created: product.created,
+      });
+    }
+
+    // GA4 view_item event — fires in both page and modal modes
+    if (product.priceAmount != null && product.priceCurrency) {
+      trackViewItem({
+        item_id: product.id,
+        item_name: product.name,
+        item_brand: brand,
+        item_category: product.category ?? undefined,
+        price: product.priceAmount,
+        currency: product.priceCurrency,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -197,17 +210,58 @@ export function ProductDetailClient({
     return limit ? Math.min(stock, limit) : stock;
   }, [selectedVariant]);
 
-  // Price & discount
-  const hasDiscount = product.originalPrice !== null;
-  const discountPercent =
-    hasDiscount && product.originalPrice
-      ? Math.round(
-          (1 -
-            parseFloat(product.price.replace(/[^0-9.]/g, "")) /
-              parseFloat(product.originalPrice.replace(/[^0-9.]/g, ""))) *
-            100
-        )
-      : 0;
+  // Price & discount — use variant price when available, fall back to product-level
+  const { displayPrice, displayOriginalPrice, hasDiscount, discountPercent } = useMemo(() => {
+    const variantPricing = selectedVariant?.pricing;
+    const variantPrice = variantPricing?.price?.gross;
+    const variantUndiscounted = variantPricing?.priceUndiscounted?.gross;
+
+    if (variantPrice) {
+      const formatter = new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: variantPrice.currency,
+      });
+      const price = formatter.format(variantPrice.amount);
+
+      const hasVarDiscount =
+        variantUndiscounted != null &&
+        variantUndiscounted.amount > variantPrice.amount;
+
+      const originalPrice = hasVarDiscount
+        ? formatter.format(variantUndiscounted.amount)
+        : null;
+
+      const discount = hasVarDiscount
+        ? Math.round((1 - variantPrice.amount / variantUndiscounted.amount) * 100)
+        : 0;
+
+      return {
+        displayPrice: price,
+        displayOriginalPrice: originalPrice,
+        hasDiscount: hasVarDiscount,
+        discountPercent: discount,
+      };
+    }
+
+    // Fallback to product-level prices
+    const hasProdDiscount = product.originalPrice !== null;
+    const prodDiscountPercent =
+      hasProdDiscount && product.originalPrice
+        ? Math.round(
+            (1 -
+              parseFloat(product.price.replace(/[^0-9.]/g, "")) /
+                parseFloat(product.originalPrice.replace(/[^0-9.]/g, ""))) *
+              100,
+          )
+        : 0;
+
+    return {
+      displayPrice: product.price,
+      displayOriginalPrice: product.originalPrice,
+      hasDiscount: hasProdDiscount,
+      discountPercent: prodDiscountPercent,
+    };
+  }, [selectedVariant, product.price, product.originalPrice]);
 
   // Stock computed values
   const isInStock = selectedVariant
@@ -244,6 +298,20 @@ export function ProductDetailClient({
         setTimeout(() => setAddedToCart(false), 3000);
         toast.success("Item added to cart!");
         window.dispatchEvent(new CustomEvent("cart-updated"));
+
+        // GA4 add_to_cart event
+        if (product.priceAmount != null && product.priceCurrency) {
+          trackAddToCart(
+            {
+              item_id: selectedVariant?.id || product.id,
+              item_name: product.name,
+              item_category: product.category ?? undefined,
+              price: product.priceAmount,
+              currency: product.priceCurrency,
+            },
+            quantity,
+          );
+        }
       } else {
         setAddedToCart(false);
         window.dispatchEvent(new CustomEvent("cart-updated"));
@@ -299,10 +367,40 @@ export function ProductDetailClient({
       attrName
     );
 
-  const displayImages =
-    product.images.length > 0
+  const displayImages = useMemo(() => {
+    // 1. Fully resolved variant with media — highest priority
+    if (selectedVariant?.media && selectedVariant.media.length > 0) {
+      return selectedVariant.media.map((m) => ({ url: m.url, alt: m.alt }));
+    }
+
+    // 2. Color-only selection — show images from first variant matching selected color
+    //    This lets the gallery update as soon as a color swatch is clicked, without needing size
+    const colorSlugs = ["color", "colour", "color-1"];
+    const selectedColorSlug = Object.keys(selections).find(
+      (slug) => colorSlugs.includes(slug) && selections[slug],
+    );
+
+    if (selectedColorSlug) {
+      const colorValueId = selections[selectedColorSlug];
+      const matchingVariant = product.variants.find((v) => {
+        if (!v.media || v.media.length === 0 || !v.attributes) return false;
+        return v.attributes.some(
+          (attr) =>
+            colorSlugs.includes(attr.attribute.slug) &&
+            attr.values.some((val) => val.id === colorValueId),
+        );
+      });
+
+      if (matchingVariant?.media && matchingVariant.media.length > 0) {
+        return matchingVariant.media.map((m) => ({ url: m.url, alt: m.alt }));
+      }
+    }
+
+    // 3. Fallback to product images
+    return product.images.length > 0
       ? product.images
       : [{ url: "/placeholder-product.jpg", alt: product.name }];
+  }, [selectedVariant, selections, product.variants, product.images, product.name]);
 
   const isModal = mode === "modal";
 
@@ -348,6 +446,7 @@ export function ProductDetailClient({
               }
             >
               <ProductGallery
+                key={selectedVariant?.id || "all"}
                 images={displayImages}
                 productName={product.name}
                 discountPercent={discountPercent}
@@ -401,11 +500,11 @@ export function ProductDetailClient({
                   className="text-2xl font-bold sm:text-3xl"
                   style={{ color: hasDiscount ? "#ef4444" : branding.colors.text }}
                 >
-                  {product.price}
+                  {displayPrice}
                 </span>
-                {product.originalPrice && (
+                {displayOriginalPrice && (
                   <span className="text-lg text-neutral-400 line-through">
-                    {product.originalPrice}
+                    {displayOriginalPrice}
                   </span>
                 )}
                 {hasDiscount && discountPercent > 0 && (
@@ -458,6 +557,7 @@ export function ProductDetailClient({
                     selections={selections}
                     onSelect={selectValue}
                     primaryColor={branding.colors.primary}
+                    variants={product.variants}
                     getLabel={getAttributeLabel}
                     getValidationMessage={getValidationMessage}
                     showSizeGuide

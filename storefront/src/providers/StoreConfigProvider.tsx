@@ -236,6 +236,30 @@ export function useSocialLinks(): StoreConfig["integrations"]["social"] {
 }
 
 /**
+ * Get analytics integrations config (GTM ID, GA ID, etc.)
+ */
+export function useAnalyticsConfig(): StoreConfig["integrations"]["analytics"] {
+  const config = useStoreConfig();
+  return config.integrations.analytics;
+}
+
+/**
+ * Get cookie consent configuration
+ */
+export function useCookieConsentConfig(): StoreConfig["integrations"]["cookieConsent"] {
+  const config = useStoreConfig();
+  return config.integrations.cookieConsent;
+}
+
+/**
+ * Get cookie consent text/translations
+ */
+export function useCookieConsentText() {
+  const config = useStoreConfig();
+  return config.content?.cookieConsent ?? {};
+}
+
+/**
  * Get WhatsApp Business Chat configuration
  */
 export function useWhatsAppConfig() {
@@ -318,6 +342,8 @@ const DEFAULT_HEADER_CONFIG = {
     useGradient: false,
     gradientFrom: null as string | null,
     gradientTo: null as string | null,
+    gradientStops: [] as Array<{ color: string; position: number }>,
+    gradientAngle: 90,
     dismissible: false,
   },
   showStoreName: true,

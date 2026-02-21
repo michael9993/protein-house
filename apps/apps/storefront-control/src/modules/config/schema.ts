@@ -74,6 +74,7 @@ export {
   // Header
   HeaderBannerItemSchema,
   ManualBannerItemSchema,
+  GradientStopSchema,
   HeaderBannerSchema,
   LogoPositionSchema,
   HeaderSchema,
@@ -90,6 +91,7 @@ export {
   MarketingIntegrationsSchema,
   SupportIntegrationsSchema,
   SocialIntegrationsSchema,
+  CookieConsentSchema,
   IntegrationsSchema,
 
   // SEO
@@ -149,6 +151,7 @@ export {
   NavbarTextSchema,
   ErrorTextSchema,
   NotFoundTextSchema,
+  CookieConsentTextSchema,
   ContentSchema,
 
   // Storefront UX

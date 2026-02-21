@@ -1,8 +1,10 @@
 import { CategoryDetailsQuery, CategoryFragment } from "@dashboard/graphql";
 
-import * as richTextEditorFixtures from "../components/RichTextEditor/fixtures.json";
-
-const content = richTextEditorFixtures.richTextEditor;
+const content = {
+  time: 1234567890,
+  version: "2.0.0",
+  blocks: [{ type: "rawHtml", data: { html: "<p>Sample category description</p>", text: "Sample category description" } }],
+};
 
 export const categories: CategoryFragment[] = [
   {

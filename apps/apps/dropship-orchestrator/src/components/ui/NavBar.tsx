@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 export const NAV_ITEMS = [
   { label: "Dashboard", path: "/" },
   { label: "Suppliers", path: "/suppliers" },
+  { label: "Source", path: "/source" },
   { label: "Orders", path: "/orders" },
   { label: "Exceptions", path: "/exceptions" },
   { label: "Settings", path: "/settings" },

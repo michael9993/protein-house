@@ -23209,42 +23209,6 @@ export type WarehousesCountQueryHookResult = ReturnType<typeof useWarehousesCoun
 export type WarehousesCountLazyQueryHookResult = ReturnType<typeof useWarehousesCountLazyQuery>;
 export type WarehousesCountSuspenseQueryHookResult = ReturnType<typeof useWarehousesCountSuspenseQuery>;
 export type WarehousesCountQueryResult = Apollo.QueryResult<Types.WarehousesCountQuery, Types.WarehousesCountQueryVariables>;
-export const SaveOnBoardingStateDocument = gql`
-    mutation SaveOnBoardingState($id: ID!, $input: [MetadataInput!]!) {
-  updateMetadata(id: $id, input: $input) {
-    errors {
-      ...MetadataError
-    }
-  }
-}
-    ${MetadataErrorFragmentDoc}`;
-export type SaveOnBoardingStateMutationFn = Apollo.MutationFunction<Types.SaveOnBoardingStateMutation, Types.SaveOnBoardingStateMutationVariables>;
-
-/**
- * __useSaveOnBoardingStateMutation__
- *
- * To run a mutation, you first call `useSaveOnBoardingStateMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useSaveOnBoardingStateMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [saveOnBoardingStateMutation, { data, loading, error }] = useSaveOnBoardingStateMutation({
- *   variables: {
- *      id: // value for 'id'
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useSaveOnBoardingStateMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<Types.SaveOnBoardingStateMutation, Types.SaveOnBoardingStateMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<Types.SaveOnBoardingStateMutation, Types.SaveOnBoardingStateMutationVariables>(SaveOnBoardingStateDocument, options);
-      }
-export type SaveOnBoardingStateMutationHookResult = ReturnType<typeof useSaveOnBoardingStateMutation>;
-export type SaveOnBoardingStateMutationResult = Apollo.MutationResult<Types.SaveOnBoardingStateMutation>;
-export type SaveOnBoardingStateMutationOptions = Apollo.BaseMutationOptions<Types.SaveOnBoardingStateMutation, Types.SaveOnBoardingStateMutationVariables>;
 export const WelcomePageActivitiesDocument = gql`
     query WelcomePageActivities($hasPermissionToManageOrders: Boolean!) {
   activities: homepageEvents(last: 10) @include(if: $hasPermissionToManageOrders) {
@@ -23295,6 +23259,12 @@ export type WelcomePageActivitiesQueryResult = Apollo.QueryResult<Types.WelcomeP
 export const WelcomePageAnalyticsDocument = gql`
     query WelcomePageAnalytics($channel: String!, $hasPermissionToManageOrders: Boolean!) {
   salesToday: ordersTotal(period: TODAY, channel: $channel) @include(if: $hasPermissionToManageOrders) {
+    gross {
+      amount
+      currency
+    }
+  }
+  salesThisMonth: ordersTotal(period: THIS_MONTH, channel: $channel) @include(if: $hasPermissionToManageOrders) {
     gross {
       amount
       currency
@@ -23385,3 +23355,128 @@ export type WelcomePageNotificationsQueryHookResult = ReturnType<typeof useWelco
 export type WelcomePageNotificationsLazyQueryHookResult = ReturnType<typeof useWelcomePageNotificationsLazyQuery>;
 export type WelcomePageNotificationsSuspenseQueryHookResult = ReturnType<typeof useWelcomePageNotificationsSuspenseQuery>;
 export type WelcomePageNotificationsQueryResult = Apollo.QueryResult<Types.WelcomePageNotificationsQuery, Types.WelcomePageNotificationsQueryVariables>;
+export const DashboardStatsDocument = gql`
+    query DashboardStats($channel: String!, $today: Date!, $hasPermissionToManageOrders: Boolean!, $hasPermissionToManageUsers: Boolean!) {
+  ordersToday: orders(filter: {created: {gte: $today}}) @include(if: $hasPermissionToManageOrders) {
+    totalCount
+  }
+  ordersToFulfill: orders(filter: {status: [UNFULFILLED, PARTIALLY_FULFILLED]}) @include(if: $hasPermissionToManageOrders) {
+    totalCount
+  }
+  productsOutOfStock: products(
+    filter: {stockAvailability: OUT_OF_STOCK}
+    channel: $channel
+  ) {
+    totalCount
+  }
+  productsTotal: products(channel: $channel) {
+    totalCount
+  }
+  customersTotal: customers @include(if: $hasPermissionToManageUsers) {
+    totalCount
+  }
+  customersToday: customers(filter: {dateJoined: {gte: $today}}) @include(if: $hasPermissionToManageUsers) {
+    totalCount
+  }
+}
+    `;
+
+/**
+ * __useDashboardStatsQuery__
+ *
+ * To run a query within a React component, call `useDashboardStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useDashboardStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useDashboardStatsQuery({
+ *   variables: {
+ *      channel: // value for 'channel'
+ *      today: // value for 'today'
+ *      hasPermissionToManageOrders: // value for 'hasPermissionToManageOrders'
+ *      hasPermissionToManageUsers: // value for 'hasPermissionToManageUsers'
+ *   },
+ * });
+ */
+export function useDashboardStatsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<Types.DashboardStatsQuery, Types.DashboardStatsQueryVariables> & ({ variables: Types.DashboardStatsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<Types.DashboardStatsQuery, Types.DashboardStatsQueryVariables>(DashboardStatsDocument, options);
+      }
+export function useDashboardStatsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<Types.DashboardStatsQuery, Types.DashboardStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<Types.DashboardStatsQuery, Types.DashboardStatsQueryVariables>(DashboardStatsDocument, options);
+        }
+// @ts-ignore
+export function useDashboardStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<Types.DashboardStatsQuery, Types.DashboardStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<Types.DashboardStatsQuery, Types.DashboardStatsQueryVariables>;
+export function useDashboardStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<Types.DashboardStatsQuery, Types.DashboardStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<Types.DashboardStatsQuery | undefined, Types.DashboardStatsQueryVariables>;
+export function useDashboardStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<Types.DashboardStatsQuery, Types.DashboardStatsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useSuspenseQuery<Types.DashboardStatsQuery, Types.DashboardStatsQueryVariables>(DashboardStatsDocument, options);
+        }
+export type DashboardStatsQueryHookResult = ReturnType<typeof useDashboardStatsQuery>;
+export type DashboardStatsLazyQueryHookResult = ReturnType<typeof useDashboardStatsLazyQuery>;
+export type DashboardStatsSuspenseQueryHookResult = ReturnType<typeof useDashboardStatsSuspenseQuery>;
+export type DashboardStatsQueryResult = Apollo.QueryResult<Types.DashboardStatsQuery, Types.DashboardStatsQueryVariables>;
+export const DashboardRecentOrdersDocument = gql`
+    query DashboardRecentOrders($hasPermissionToManageOrders: Boolean!) {
+  orders(first: 10, sortBy: {direction: DESC, field: CREATED_AT}) @include(if: $hasPermissionToManageOrders) {
+    edges {
+      node {
+        id
+        number
+        status
+        created
+        total {
+          gross {
+            amount
+            currency
+          }
+        }
+        billingAddress {
+          firstName
+          lastName
+        }
+        userEmail
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useDashboardRecentOrdersQuery__
+ *
+ * To run a query within a React component, call `useDashboardRecentOrdersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useDashboardRecentOrdersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useDashboardRecentOrdersQuery({
+ *   variables: {
+ *      hasPermissionToManageOrders: // value for 'hasPermissionToManageOrders'
+ *   },
+ * });
+ */
+export function useDashboardRecentOrdersQuery(baseOptions: ApolloReactHooks.QueryHookOptions<Types.DashboardRecentOrdersQuery, Types.DashboardRecentOrdersQueryVariables> & ({ variables: Types.DashboardRecentOrdersQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<Types.DashboardRecentOrdersQuery, Types.DashboardRecentOrdersQueryVariables>(DashboardRecentOrdersDocument, options);
+      }
+export function useDashboardRecentOrdersLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<Types.DashboardRecentOrdersQuery, Types.DashboardRecentOrdersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<Types.DashboardRecentOrdersQuery, Types.DashboardRecentOrdersQueryVariables>(DashboardRecentOrdersDocument, options);
+        }
+// @ts-ignore
+export function useDashboardRecentOrdersSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<Types.DashboardRecentOrdersQuery, Types.DashboardRecentOrdersQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<Types.DashboardRecentOrdersQuery, Types.DashboardRecentOrdersQueryVariables>;
+export function useDashboardRecentOrdersSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<Types.DashboardRecentOrdersQuery, Types.DashboardRecentOrdersQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<Types.DashboardRecentOrdersQuery | undefined, Types.DashboardRecentOrdersQueryVariables>;
+export function useDashboardRecentOrdersSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<Types.DashboardRecentOrdersQuery, Types.DashboardRecentOrdersQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useSuspenseQuery<Types.DashboardRecentOrdersQuery, Types.DashboardRecentOrdersQueryVariables>(DashboardRecentOrdersDocument, options);
+        }
+export type DashboardRecentOrdersQueryHookResult = ReturnType<typeof useDashboardRecentOrdersQuery>;
+export type DashboardRecentOrdersLazyQueryHookResult = ReturnType<typeof useDashboardRecentOrdersLazyQuery>;
+export type DashboardRecentOrdersSuspenseQueryHookResult = ReturnType<typeof useDashboardRecentOrdersSuspenseQuery>;
+export type DashboardRecentOrdersQueryResult = Apollo.QueryResult<Types.DashboardRecentOrdersQuery, Types.DashboardRecentOrdersQueryVariables>;

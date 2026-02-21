@@ -148,26 +148,31 @@ export function calculateKPIs(
         label: "Gross Revenue",
         value: formatCurrency(gmv, currency),
         trend: calculateTrend(gmv, prevGmv),
+        previousValue: formatCurrency(prevGmv, currency),
       },
       totalOrders: {
         label: "Total Orders",
         value: formatCompactNumber(totalOrders),
         trend: calculateTrend(totalOrders, prevTotalOrders),
+        previousValue: formatCompactNumber(prevTotalOrders),
       },
       averageOrderValue: {
         label: "Avg Order Value",
         value: formatCurrency(aov, currency),
         trend: calculateTrend(aov, prevAov),
+        previousValue: formatCurrency(prevAov, currency),
       },
       itemsSold: {
         label: "Items Sold",
         value: formatCompactNumber(itemsSold),
         trend: calculateTrend(itemsSold, prevItemsSold),
+        previousValue: formatCompactNumber(prevItemsSold),
       },
       uniqueCustomers: {
         label: "Unique Customers",
         value: formatCompactNumber(uniqueCustomers),
         trend: calculateTrend(uniqueCustomers, prevUniqueCustomers),
+        previousValue: formatCompactNumber(prevUniqueCustomers),
       },
     });
   } catch (error) {
@@ -304,6 +309,77 @@ export function calculateRevenueOverTime(
     return ok(sortedData);
   } catch (error) {
     return err(new AnalyticsCalculationError("Failed to calculate revenue over time", error));
+  }
+}
+
+/**
+ * Product performance data with daily revenue for sparkline
+ */
+export interface ProductPerformance {
+  name: string;
+  revenue: number;
+  quantity: number;
+  percentOfTotal: number;
+  dailyRevenue: number[];
+}
+
+/**
+ * Calculate product performance with daily revenue series for sparklines
+ */
+export function calculateProductPerformance(
+  orders: OrderAnalyticsFragment[],
+  currency: string
+): Result<ProductPerformance[], AnalyticsCalculationError> {
+  try {
+    const filteredOrders = filterOrdersByCurrency(orders, currency);
+
+    const productMap = new Map<
+      string,
+      { name: string; revenue: number; quantity: number; dailyMap: Map<string, number> }
+    >();
+
+    for (const order of filteredOrders) {
+      const dateKey = format(startOfDay(parseISO(order.created)), "yyyy-MM-dd");
+      for (const line of order.lines) {
+        const productName = line.productName;
+        const existing = productMap.get(productName) || {
+          name: productName,
+          revenue: 0,
+          quantity: 0,
+          dailyMap: new Map<string, number>(),
+        };
+
+        existing.revenue += line.totalPrice.gross.amount;
+        existing.quantity += line.quantity;
+        existing.dailyMap.set(dateKey, (existing.dailyMap.get(dateKey) || 0) + line.totalPrice.gross.amount);
+        productMap.set(productName, existing);
+      }
+    }
+
+    const totalRevenue = Array.from(productMap.values()).reduce((sum, p) => sum + p.revenue, 0);
+
+    // Get all unique dates sorted
+    const allDates = new Set<string>();
+    for (const product of productMap.values()) {
+      for (const date of product.dailyMap.keys()) {
+        allDates.add(date);
+      }
+    }
+    const sortedDates = Array.from(allDates).sort();
+
+    const products: ProductPerformance[] = Array.from(productMap.values())
+      .map((p) => ({
+        name: p.name,
+        revenue: p.revenue,
+        quantity: p.quantity,
+        percentOfTotal: totalRevenue > 0 ? (p.revenue / totalRevenue) * 100 : 0,
+        dailyRevenue: sortedDates.map((date) => p.dailyMap.get(date) || 0),
+      }))
+      .sort((a, b) => b.revenue - a.revenue);
+
+    return ok(products);
+  } catch (error) {
+    return err(new AnalyticsCalculationError("Failed to calculate product performance", error));
   }
 }
 

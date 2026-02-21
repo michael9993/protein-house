@@ -66,7 +66,7 @@ import useMetadataChangeTrigger from "@dashboard/utils/metadata/useMetadataChang
 import { RichTextContext } from "@dashboard/utils/richText/context";
 import { useMultipleRichText } from "@dashboard/utils/richText/useMultipleRichText";
 import useRichText from "@dashboard/utils/richText/useRichText";
-import { OutputData } from "@editorjs/editorjs";
+import { OutputData } from "@dashboard/components/RichTextEditor/types";
 import { Option } from "@saleor/macaw-ui-next";
 import { Dispatch, ReactNode, SetStateAction, useEffect, useState } from "react";
 import { useIntl } from "react-intl";

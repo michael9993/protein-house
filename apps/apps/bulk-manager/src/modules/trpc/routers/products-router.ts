@@ -147,6 +147,9 @@ export const productsRouter = router({
         upsertMode: z.boolean().optional().default(false),
         autoCreateAttributes: z.boolean().optional().default(true),
         autoCreatePages: z.boolean().optional().default(true),
+        autoCreateProductTypes: z.boolean().optional().default(true),
+        autoCreateCategories: z.boolean().optional().default(true),
+        autoCreateCollections: z.boolean().optional().default(true),
         attributeDefaults: z.record(z.string(), z.string()).optional(),
       })
     )
@@ -246,6 +249,144 @@ export const productsRouter = router({
         }
       } catch { /* ignore */ }
 
+      // ═══════════════════════════════════════════════════════════════════
+      // AUTO-CREATE MISSING PRODUCT TYPES
+      // ═══════════════════════════════════════════════════════════════════
+      if (input.autoCreateProductTypes) {
+        // Discover all product type names referenced in CSV
+        const referencedTypes = new Set<string>();
+        for (const row of mappedRows) {
+          const ptName = row.productType?.trim();
+          if (ptName) referencedTypes.add(ptName);
+        }
+
+        // Helper: register a product type into the lookup map
+        const registerProductType = (node: any) => {
+          const mapAttr = (a: any): AttributeInfo => ({
+            id: a.id, slug: a.slug, name: a.name,
+            inputType: a.inputType || "DROPDOWN",
+            entityType: a.entityType || undefined,
+            values: (a.choices?.edges || []).map((ce: any) => ({
+              id: ce.node.id, name: ce.node.name, slug: ce.node.slug,
+            })),
+          });
+          const info: ProductTypeInfo = {
+            id: node.id,
+            productAttributes: (node.productAttributes || []).map(mapAttr),
+            variantAttributes: (node.variantAttributes || []).map(mapAttr),
+          };
+          productTypeMap.set(node.name.toLowerCase(), info);
+          if (node.slug) productTypeMap.set(node.slug.toLowerCase(), info);
+          productTypeMap.set(node.id, info);
+          return info;
+        };
+
+        // Helper: fetch a single product type by slug from Saleor
+        const fetchProductTypeBySlug = async (slug: string) => {
+          try {
+            const result = await ctx.apiClient.query(
+              `query ProductTypeBySlug($slug: String!) {
+                productTypes(first: 1, filter: { slugs: [$slug] }) {
+                  edges {
+                    node {
+                      id name slug
+                      productAttributes {
+                        id slug name inputType entityType
+                        choices(first: 100) { edges { node { id name slug } } }
+                      }
+                      variantAttributes {
+                        id slug name inputType entityType
+                        choices(first: 100) { edges { node { id name slug } } }
+                      }
+                    }
+                  }
+                }
+              }`,
+              { slug }
+            );
+            const node = result.data?.productTypes?.edges?.[0]?.node;
+            if (node) {
+              registerProductType(node);
+              return true;
+            }
+          } catch { /* ignore */ }
+          return false;
+        };
+
+        for (const ptName of referencedTypes) {
+          const ptLower = ptName.toLowerCase();
+          if (productTypeMap.has(ptLower)) continue;
+
+          // Product type doesn't exist — create it
+          const slug = slugifyForSaleor(ptName);
+          try {
+            const createResult = await ctx.apiClient.mutation(
+              `mutation ProductTypeCreate($input: ProductTypeInput!) {
+                productTypeCreate(input: $input) {
+                  productType {
+                    id name slug
+                    productAttributes {
+                      id slug name inputType entityType
+                      choices(first: 100) { edges { node { id name slug } } }
+                    }
+                    variantAttributes {
+                      id slug name inputType entityType
+                      choices(first: 100) { edges { node { id name slug } } }
+                    }
+                  }
+                  errors { field code message }
+                }
+              }`,
+              {
+                input: {
+                  name: ptName,
+                  slug,
+                  isShippingRequired: true,
+                  isDigital: false,
+                  hasVariants: true,
+                },
+              }
+            );
+
+            // Check for urql transport-level errors
+            if (createResult.error) {
+              const errMsg = createResult.error.graphQLErrors?.map((e: any) => e.message).join("; ")
+                || createResult.error.message || "Unknown transport error";
+              console.warn(`[DynamicImport] Transport error creating product type "${ptName}": ${errMsg}`);
+              // Try to fetch by slug in case it already exists
+              await fetchProductTypeBySlug(slug);
+              continue;
+            }
+
+            const created = createResult.data?.productTypeCreate?.productType;
+            if (created) {
+              console.log(`[DynamicImport] Created product type "${ptName}" (${created.id}, slug: ${created.slug})`);
+              registerProductType(created);
+            } else {
+              const errors = createResult.data?.productTypeCreate?.errors;
+              const slugExists = errors?.some((e: any) => e.field === "slug" && e.code === "UNIQUE");
+              if (slugExists) {
+                // Slug collision — fetch the existing product type by slug so the import can continue
+                console.log(`[DynamicImport] Product type slug "${slug}" already exists, fetching existing...`);
+                const found = await fetchProductTypeBySlug(slug);
+                if (found) {
+                  console.log(`[DynamicImport] Resolved existing product type by slug "${slug}"`);
+                } else {
+                  console.warn(`[DynamicImport] Could not fetch product type with slug "${slug}" after collision`);
+                }
+              } else {
+                console.warn(`[DynamicImport] Failed to create product type "${ptName}":`,
+                  errors?.map((e: any) => `${e.field}: ${e.code} - ${e.message}`).join("; ") || "Unknown error");
+              }
+            }
+          } catch (err: any) {
+            console.warn(`[DynamicImport] Error creating product type "${ptName}":`, err.message?.substring(0, 200));
+            // Last resort: try fetching by slug in case it exists despite the error
+            await fetchProductTypeBySlug(slug);
+          }
+        }
+      }
+
       // ─── Pre-fetch ALL attributes globally (for creating/assigning unassigned attrs) ───
       const globalAttributeMap = new Map<string, GlobalAttrInfo>();
       try {
@@ -309,6 +450,48 @@ export const productsRouter = router({
         }
       } catch { /* ignore */ }
 
+      // ─── Auto-create missing categories ───
+      if (input.autoCreateCategories) {
+        const referencedCategories = new Set<string>();
+        for (const row of mappedRows) {
+          const catName = row.category?.trim();
+          if (catName && !categoryMap.has(catName.toLowerCase())) {
+            referencedCategories.add(catName);
+          }
+        }
+
+        for (const catName of referencedCategories) {
+          const slug = catName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+          try {
+            const result = await ctx.apiClient.mutation(
+              `mutation CategoryCreate($input: CategoryInput!) {
+                categoryCreate(input: $input) {
+                  category { id name slug }
+                  errors { field code message }
+                }
+              }`,
+              { input: { name: catName, slug } }
+            );
+            const created = result.data?.categoryCreate?.category;
+            if (created) {
+              categoryMap.set(created.name.toLowerCase(), created.id);
+              categoryMap.set(created.slug.toLowerCase(), created.id);
+              console.log(`[Import] Auto-created category: ${created.name} (${created.id})`);
+            } else {
+              const errors = result.data?.categoryCreate?.errors;
+              const slugExists = errors?.some((e: any) => e.field === "slug" && e.code === "UNIQUE");
+              if (slugExists) {
+                console.log(`[Import] Category slug "${slug}" already exists, skipping`);
+              } else {
+                console.warn(`[Import] Failed to create category "${catName}":`, errors);
+              }
+            }
+          } catch (e) {
+            console.warn(`[Import] Failed to create category "${catName}": ${e}`);
+          }
+        }
+      }
+
       // ─── Pre-fetch collections → name/slug → ID ───
       const collectionSlugMap = new Map<string, string>();
       const collectionNameMap = new Map<string, string>();
@@ -333,6 +516,74 @@ export const productsRouter = router({
           after = colResult.data?.collections?.pageInfo?.endCursor;
         }
       } catch { /* ignore */ }
+
+      // ─── Auto-create missing collections ───
+      if (input.autoCreateCollections) {
+        const referencedCollections = new Set<string>();
+        for (const row of mappedRows) {
+          if (!row.collections) continue;
+          for (const ref of parseSemicolonList(row.collections)) {
+            const lower = ref.toLowerCase();
+            if (!collectionSlugMap.has(lower) && !collectionNameMap.has(lower)) {
+              referencedCollections.add(ref.trim());
+            }
+          }
+        }
+
+        for (const colName of referencedCollections) {
+          const slug = colName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+          try {
+            const result = await ctx.apiClient.mutation(
+              `mutation CollectionCreate($input: CollectionCreateInput!) {
+                collectionCreate(input: $input) {
+                  collection { id name slug }
+                  errors { field code message }
+                }
+              }`,
+              { input: { name: colName, slug } }
+            );
+            const created = result.data?.collectionCreate?.collection;
+            if (created) {
+              collectionSlugMap.set(created.slug.toLowerCase(), created.id);
+              collectionNameMap.set(created.name.toLowerCase(), created.id);
+              console.log(`[Import] Auto-created collection: ${created.name} (${created.id})`);
+
+              // Publish to all selected channels
+              if (channelIds.length > 0) {
+                try {
+                  await ctx.apiClient.mutation(
+                    `mutation CollectionChannelListingUpdate($id: ID!, $input: CollectionChannelListingUpdateInput!) {
+                      collectionChannelListingUpdate(id: $id, input: $input) {
+                        collection { id }
+                        errors { field message }
+                      }
+                    }`,
+                    {
+                      id: created.id,
+                      input: {
+                        addChannels: channelIds.map((ch) => ({
+                          channelId: ch.id,
+                          isPublished: true,
+                        })),
+                      },
+                    }
+                  );
+                } catch { /* non-critical */ }
+              }
+            } else {
+              const errors = result.data?.collectionCreate?.errors;
+              const slugExists = errors?.some((e: any) => e.field === "slug" && e.code === "UNIQUE");
+              if (slugExists) {
+                console.log(`[Import] Collection slug "${slug}" already exists, skipping`);
+              } else {
+                console.warn(`[Import] Failed to create collection "${colName}":`, errors);
+              }
+            }
+          } catch (e) {
+            console.warn(`[Import] Failed to create collection "${colName}": ${e}`);
+          }
+        }
+      }
 
       // ─── Pre-fetch tax classes → name → ID ───
       const taxClassMap = new Map<string, string>();
@@ -608,6 +859,7 @@ export const productsRouter = router({
         }
 
         // ── Step 5: Assign attributes to product types ──
+        // Uses productAttributeAssign mutation (NOT productTypeUpdate which doesn't have addProductAttributes/addVariantAttributes)
         const seenAssignments = new Set<string>();
         for (const assignment of attrsToAssign) {
           const key = `${assignment.attrId}::${assignment.productTypeId}::${assignment.isVariant}`;
@@ -615,23 +867,106 @@ export const productsRouter = router({
           seenAssignments.add(key);
 
           try {
-            const field = assignment.isVariant ? "addVariantAttributes" : "addProductAttributes";
+            const assignType = assignment.isVariant ? "VARIANT" : "PRODUCT_TYPE";
+            console.log(`[DynamicImport] Assigning attribute ${assignment.attrId} to PT ${assignment.productTypeId} (type=${assignType})...`);
+
             const result = await ctx.apiClient.mutation(
-              `mutation ProductTypeUpdate($id: ID!, $input: ProductTypeInput!) {
-                productTypeUpdate(id: $id, input: $input) {
+              `mutation ProductAttributeAssign($productTypeId: ID!, $operations: [ProductAttributeAssignInput!]!) {
+                productAttributeAssign(productTypeId: $productTypeId, operations: $operations) {
+                  productType { id name }
+                  errors { field code message }
+                }
+              }`,
+              {
+                productTypeId: assignment.productTypeId,
+                operations: [{ id: assignment.attrId, type: assignType }],
+              }
+            );
+
+            if (result.error) {
+              const errMsg = result.error.graphQLErrors?.map((e: any) => e.message).join("; ")
+                || result.error.message || "Unknown transport error";
+              console.warn(`[DynamicImport] Transport error assigning attribute ${assignment.attrId}: ${errMsg}`);
+              continue;
+            }
+
+            if (result.data?.productAttributeAssign?.productType) {
+              console.log(`[DynamicImport] Assigned attribute ${assignment.attrId} → ${result.data.productAttributeAssign.productType.name} (${assignType})`);
+            } else {
+              const errors = result.data?.productAttributeAssign?.errors;
+              console.warn(`[DynamicImport] Failed to assign attribute ${assignment.attrId}:`, errors);
+            }
+          } catch (err: any) {
+            console.warn(`[DynamicImport] Error assigning attribute:`, err.message?.substring(0, 200));
+          }
+        }
+
+        // ── Step 5b: Mark variant attributes as variant-selectable ──
+        // Saleor requires a separate mutation to enable variant selection on assigned variant attributes.
+        // Only DROPDOWN, BOOLEAN, SWATCH, NUMERIC types can be variant-selectable.
+        const VARIANT_SELECTABLE_TYPES = new Set(["DROPDOWN", "BOOLEAN", "SWATCH", "NUMERIC"]);
+        const variantAttrsByPT = new Map<string, string[]>();
+
+        for (const assignment of attrsToAssign) {
+          if (!assignment.isVariant) continue;
+          // Check if attribute type is eligible for variant selection
+          const attrInfo = [...globalAttributeMap.values()].find(a => a.id === assignment.attrId);
+          if (attrInfo && !VARIANT_SELECTABLE_TYPES.has(attrInfo.inputType)) continue;
+
+          if (!variantAttrsByPT.has(assignment.productTypeId)) {
+            variantAttrsByPT.set(assignment.productTypeId, []);
+          }
+          variantAttrsByPT.get(assignment.productTypeId)!.push(assignment.attrId);
+        }
+
+        // Also include newly created attributes (from Step 3) that were assigned as variant attrs
+        for (const disc of attrsToCreate) {
+          if (!disc.isVariant) continue;
+          const attrNameLower = disc.attrName.toLowerCase();
+          const attrInfo = globalAttributeMap.get(attrNameLower);
+          if (!attrInfo) continue;
+          if (!VARIANT_SELECTABLE_TYPES.has(attrInfo.inputType)) continue;
+
+          for (const ptRef of disc.productTypes) {
+            const ptInfo = productTypeMap.get(ptRef);
+            if (!ptInfo) continue;
+            if (!variantAttrsByPT.has(ptInfo.id)) {
+              variantAttrsByPT.set(ptInfo.id, []);
+            }
+            const list = variantAttrsByPT.get(ptInfo.id)!;
+            if (!list.includes(attrInfo.id)) {
+              list.push(attrInfo.id);
+            }
+          }
+        }
+
+        for (const [productTypeId, attrIds] of variantAttrsByPT) {
+          try {
+            const operations = attrIds.map(id => ({
+              id,
+              variantSelection: true,
+            }));
+
+            const result = await ctx.apiClient.mutation(
+              `mutation ProductAttributeAssignmentUpdate($productTypeId: ID!, $operations: [ProductAttributeAssignmentUpdateInput!]!) {
+                productAttributeAssignmentUpdate(productTypeId: $productTypeId, operations: $operations) {
                   productType { id }
                   errors { field code message }
                 }
               }`,
-              { id: assignment.productTypeId, input: { [field]: [assignment.attrId] } }
+              { productTypeId, operations }
             );
-            if (result.data?.productTypeUpdate?.productType) {
-              console.log(`[DynamicImport] Assigned attribute ${assignment.attrId} to product type ${assignment.productTypeId} (${field})`);
+
+            if (result.data?.productAttributeAssignmentUpdate?.productType) {
+              console.log(`[DynamicImport] Set variantSelection=true for ${attrIds.length} attrs on product type ${productTypeId}`);
             } else {
-              console.warn(`[DynamicImport] Failed to assign attribute:`, result.data?.productTypeUpdate?.errors);
+              const errors = result.data?.productAttributeAssignmentUpdate?.errors;
+              if (errors?.length) {
+                console.warn(`[DynamicImport] Failed to set variantSelection:`, errors);
+              }
             }
           } catch (err: any) {
-            console.warn(`[DynamicImport] Error assigning attribute:`, err.message?.substring(0, 100));
+            console.warn(`[DynamicImport] Error setting variantSelection for PT ${productTypeId}:`, err.message?.substring(0, 100));
           }
         }
 
@@ -778,7 +1113,10 @@ export const productsRouter = router({
               productAttributes = ptInfo.productAttributes;
               variantAttributes = ptInfo.variantAttributes;
             } else {
-              for (const idx of indices) results.push({ row: idx + 1, success: false, error: `Product type "${first.productType}" not found. Check name/slug spelling.` });
+              const hint = input.autoCreateProductTypes
+                ? `Product type "${first.productType}" could not be created or found. Check Saleor Dashboard logs for details.`
+                : `Product type "${first.productType}" not found. Enable "Auto-create missing product types" or create it in Dashboard first.`;
+              for (const idx of indices) results.push({ row: idx + 1, success: false, error: hint });
               continue;
             }
           } else if (resolvedProductTypeId) {
@@ -1017,6 +1355,8 @@ export const productsRouter = router({
           const imageAlt = first.imageAlt || first.name || "";
           const imageErrors: string[] = [];
           const shouldReplaceImages = parseBool(first.replaceImages, false);
+          // Map of source URL → uploaded media ID (for image deduplication with variant images)
+          const uploadedMediaMap = new Map<string, string>();
           // Skip image upload if product already has media (upsert mode) unless replaceImages=Yes
           if (imageUrls.length > 0 && existingMediaCount > 0 && !shouldReplaceImages) {
             console.log(`[Import] Skipping ${imageUrls.length} image(s) for "${first.name}" — product already has ${existingMediaCount} media (use replaceImages=Yes to update)`);
@@ -1049,6 +1389,7 @@ export const productsRouter = router({
               );
               if (uploadResult.success) {
                 console.log(`[Import] Image uploaded: ${uploadResult.id}`);
+                if (uploadResult.id) uploadedMediaMap.set(imgUrl, uploadResult.id);
               } else {
                 console.error(`[Import] Image failed for "${first.name}": ${uploadResult.error}`);
                 imageErrors.push(`Image "${imgUrl.substring(0, 60)}": ${uploadResult.error}`);
@@ -1229,6 +1570,50 @@ export const productsRouter = router({
                 try {
                   await ctx.apiClient.mutation(stockMutation, { variantId, stocks });
                 } catch { /* non-critical */ }
+              }
+
+              // ── Upload and assign variant-specific image (with deduplication) ──
+              if (vRow.variantImageUrl && isValidUrl(vRow.variantImageUrl) && variantId && productId) {
+                try {
+                  // Check if this URL was already uploaded as a product-level image
+                  const existingMediaId = uploadedMediaMap.get(vRow.variantImageUrl);
+                  if (existingMediaId) {
+                    // Reuse existing media — no duplicate upload
+                    console.log(`[Import] Reusing product image for variant ${variantName} (dedup)`);
+                    await ctx.apiClient.mutation(
+                      `mutation VariantMediaAssign($variantId: ID!, $mediaId: ID!) {
+                        variantMediaAssign(variantId: $variantId, mediaId: $mediaId) {
+                          productVariant { id }
+                          errors { field message }
+                        }
+                      }`,
+                      { variantId, mediaId: existingMediaId }
+                    );
+                  } else {
+                    // Upload new image and track it in the map
+                    const variantImgResult = await uploadProductImage(
+                      vRow.variantImageUrl,
+                      productId,
+                      `${variantName} variant image`,
+                      ctx.saleorApiUrl,
+                      ctx.appToken,
+                    );
+                    if (variantImgResult.success && variantImgResult.id) {
+                      uploadedMediaMap.set(vRow.variantImageUrl, variantImgResult.id);
+                      await ctx.apiClient.mutation(
+                        `mutation VariantMediaAssign($variantId: ID!, $mediaId: ID!) {
+                          variantMediaAssign(variantId: $variantId, mediaId: $mediaId) {
+                            productVariant { id }
+                            errors { field message }
+                          }
+                        }`,
+                        { variantId, mediaId: variantImgResult.id }
+                      );
+                    }
+                  }
+                } catch (e) {
+                  console.warn(`[Import] Variant image failed for ${variantName}: ${e}`);
+                }
               }
 
               const warnings = imageErrors.length > 0 ? ` (image warnings: ${imageErrors.join("; ")})` : "";

@@ -37,6 +37,7 @@ export const KPICardSchema = z.object({
   label: z.string(),
   value: z.string(),
   trend: KPITrendSchema.optional(),
+  previousValue: z.string().optional(),
 });
 export type KPICard = z.infer<typeof KPICardSchema>;
 

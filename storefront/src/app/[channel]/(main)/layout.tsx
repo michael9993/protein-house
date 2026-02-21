@@ -23,6 +23,8 @@ import { WishlistProvider } from "@/lib/wishlist";
 import { RecentlyViewedFloatingButton } from "@/components/RecentlyViewedDrawer";
 import { WishlistFloatingButton } from "@/components/WishlistDrawer";
 import { QuickViewWrapper } from "./QuickViewWrapper";
+import { CookieConsent } from "@/ui/components/CookieConsent";
+import { GoogleTagManager } from "@/ui/components/GoogleTagManager";
 
 /**
  * Generate metadata with direction attribute to prevent FOUC
@@ -142,8 +144,65 @@ export default async function RootLayout(props: {
 	const resolvedDirection = resolveDirection(storeConfig);
 	const resolvedLocale = storeConfig.localization?.defaultLocale || 'en-US';
 
+	// Build sitewide JSON-LD (Organization + WebSite with SearchAction)
+	const siteUrl = process.env.NEXT_PUBLIC_STOREFRONT_URL || `https://shops.halacosmetics.org`;
+	const socialLinks = [
+		storeConfig.integrations?.social?.facebook,
+		storeConfig.integrations?.social?.instagram,
+		storeConfig.integrations?.social?.twitter,
+		storeConfig.integrations?.social?.youtube,
+		storeConfig.integrations?.social?.tiktok,
+		storeConfig.integrations?.social?.pinterest,
+	].filter(Boolean) as string[];
+
+	const organizationJsonLd = {
+		"@context": "https://schema.org",
+		"@type": "Organization",
+		name: storeConfig.store?.name || "Aura Store",
+		url: siteUrl,
+		logo: storeConfig.branding?.logo || undefined,
+		description: storeConfig.store?.description || storeConfig.seo?.defaultDescription || undefined,
+		email: storeConfig.store?.email || undefined,
+		telephone: storeConfig.store?.phone || undefined,
+		...(socialLinks.length > 0 ? { sameAs: socialLinks } : {}),
+		...(storeConfig.store?.address ? {
+			address: {
+				"@type": "PostalAddress",
+				streetAddress: storeConfig.store.address.street,
+				addressLocality: storeConfig.store.address.city,
+				addressRegion: storeConfig.store.address.state,
+				postalCode: storeConfig.store.address.zip,
+				addressCountry: storeConfig.store.address.country,
+			},
+		} : {}),
+	};
+
+	const websiteJsonLd = {
+		"@context": "https://schema.org",
+		"@type": "WebSite",
+		name: storeConfig.store?.name || "Aura Store",
+		url: siteUrl,
+		potentialAction: {
+			"@type": "SearchAction",
+			target: {
+				"@type": "EntryPoint",
+				urlTemplate: `${siteUrl}/${channel}/products?search={search_term_string}`,
+			},
+			"query-input": "required name=search_term_string",
+		},
+	};
+
 	return (
 		<>
+			{/* Sitewide JSON-LD: Organization + WebSite with SearchAction */}
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+			/>
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+			/>
 			{/* Blocking inline script - runs synchronously before React hydration */}
 			{/* This prevents FOUC by setting direction immediately */}
 			<script
@@ -157,6 +216,8 @@ export default async function RootLayout(props: {
 			<RecentlyViewedProvider channel={channel}>
 			<CartDrawerShell createCheckoutWithItems={createCheckoutWithItemsAction}>
 				<QuickViewWrapper channel={channel}>
+				{/* GA4/GTM — loads only after analytics consent */}
+				<GoogleTagManager channel={channel} />
 				{/* Client-side direction setter - backup and for dynamic updates */}
 				<DirectionSetter config={storeConfig} />
 				<ScrollHideController />
@@ -173,6 +234,8 @@ export default async function RootLayout(props: {
 			<WhatsAppChatButton />
 			<WishlistFloatingButton channel={channel} />
 			<RecentlyViewedFloatingButton />
+			{/* Cookie Consent Banner — GDPR/Israeli Privacy Law */}
+			<CookieConsent channel={channel} />
 			{/* Promotion Popup - only renders client-side if there are active sales */}
 			<PromoPopupLoader
 				channel={channel}

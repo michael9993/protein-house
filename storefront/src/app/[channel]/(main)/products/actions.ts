@@ -1,6 +1,5 @@
 "use server";
 
-import edjsHTML from "editorjs-html";
 import { revalidatePath } from "next/cache";
 import xss from "xss";
 import {
@@ -12,9 +11,8 @@ import {
 import { executeGraphQL } from "@/lib/graphql";
 import { getLanguageCodeForChannel } from "@/lib/language";
 import { formatMoney, formatMoneyRange } from "@/lib/utils";
+import { parseDescription } from "@/lib/parse-description";
 import * as Checkout from "@/lib/checkout";
-
-const parser = edjsHTML();
 
 /**
  * Product payload shape for ProductDetailClient (same as built in products/[slug]/page.tsx).
@@ -36,6 +34,7 @@ export interface ProductDetailPayload {
 		quantityAvailable: number;
 		trackInventory: boolean;
 		quantityLimitPerCustomer: number | null;
+		media?: Array<{ id: string; url: string; alt: string | null; type?: string }> | null;
 		attributes?: Array<{
 			attribute: { id: string; name: string; slug: string; inputType: string | null };
 			values: Array<{ id: string; name: string; slug: string; value: string | null }>;
@@ -78,11 +77,8 @@ export async function getProductDetailsForQuickView(
 	}
 
 	const rawDescription = product.translation?.description || product.description;
-	const description = rawDescription
-		? parser.parse(JSON.parse(rawDescription))
-		: null;
-	const descriptionHtml = description
-		? description.map((content: string) => xss(content)).join("")
+	const descriptionHtml = rawDescription
+		? xss(parseDescription(rawDescription))
 		: null;
 
 	// Deduplicate: thumbnail is often the first media item, avoid showing it twice
@@ -161,6 +157,12 @@ export async function getProductDetailsForQuickView(
 			quantityAvailable: v.quantityAvailable || 0,
 			trackInventory: (v as any).trackInventory ?? true,
 			quantityLimitPerCustomer: (v as any).quantityLimitPerCustomer ?? null,
+			media: ((v as any).media || []).map((m: any) => ({
+				id: m.id,
+				url: m.url,
+				alt: m.alt ?? null,
+				type: m.type,
+			})),
 			attributes: v.attributes
 				? v.attributes.map((attr) => ({
 						attribute: {

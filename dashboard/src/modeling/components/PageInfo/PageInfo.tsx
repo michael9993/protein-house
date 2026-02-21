@@ -24,7 +24,7 @@ interface PageInfoProps {
 const PageInfo = (props: PageInfoProps) => {
   const { data, disabled, errors, onChange } = props;
   const intl = useIntl();
-  const { defaultValue, editorRef, isReadyForMount, handleChange } = useRichTextContext();
+  const { defaultValue, isReadyForMount, handleChange } = useRichTextContext();
   const formErrors = getFormErrors(["title", "content"], errors);
 
   return (
@@ -53,7 +53,6 @@ const PageInfo = (props: PageInfoProps) => {
         {isReadyForMount ? (
           <RichTextEditor
             defaultValue={defaultValue}
-            editorRef={editorRef}
             onChange={handleChange}
             disabled={disabled}
             error={!!formErrors.content}

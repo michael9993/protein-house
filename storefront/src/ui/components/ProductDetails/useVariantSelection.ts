@@ -19,8 +19,8 @@ interface UseVariantSelectionReturn {
   selectionAttributes: SelectionAttribute[];
   /** Current selection state (slug → value ID or null) */
   selections: SelectionState;
-  /** Callback to set a value for an attribute */
-  selectValue: (attributeSlug: string, valueId: string) => void;
+  /** Callback to set (or clear with null) a value for an attribute */
+  selectValue: (attributeSlug: string, valueId: string | null) => void;
   /** The fully-resolved variant (null if selection incomplete or no match) */
   selectedVariant: EnrichedVariant | null;
   /** True when all required attributes have a value and resolve to a variant */
@@ -69,16 +69,40 @@ export function useVariantSelection({
 }: UseVariantSelectionProps): UseVariantSelectionReturn {
   // 1. Identify selection attribute slugs from product type
   const selectionSlugs = useMemo(() => {
-    if (variantSelectionSlugs.length > 0) return variantSelectionSlugs;
-    // Fallback: infer from variant attributes
-    const slugSet = new Set<string>();
-    for (const v of variants) {
-      if (!v.attributes) continue;
-      for (const attr of v.attributes) {
-        slugSet.add(attr.attribute.slug);
+    let slugs: string[];
+    if (variantSelectionSlugs.length > 0) {
+      slugs = variantSelectionSlugs;
+    } else {
+      // Fallback: infer from variant attributes (only include if at least one variant has values)
+      const slugSet = new Set<string>();
+      for (const v of variants) {
+        if (!v.attributes) continue;
+        for (const attr of v.attributes) {
+          if (attr.values && attr.values.length > 0) {
+            slugSet.add(attr.attribute.slug);
+          }
+        }
       }
+      slugs = Array.from(slugSet);
     }
-    return Array.from(slugSet);
+
+    // Sort: color-like attributes first, then size-like, then alphabetical.
+    // This ensures the cascade (select color → then size) works naturally.
+    const COLOR_SLUGS = new Set(["color", "colour", "color-1"]);
+    const SIZE_SLUGS = new Set([
+      "size", "shoe-size", "clothing-size", "apparel-size",
+      "shoe_size", "clothing_size", "apparel_size",
+    ]);
+    return slugs.sort((a, b) => {
+      const aColor = COLOR_SLUGS.has(a) ? 0 : 2;
+      const bColor = COLOR_SLUGS.has(b) ? 0 : 2;
+      const aSize = SIZE_SLUGS.has(a) ? 1 : 2;
+      const bSize = SIZE_SLUGS.has(b) ? 1 : 2;
+      const aPrio = Math.min(aColor, aSize);
+      const bPrio = Math.min(bColor, bSize);
+      if (aPrio !== bPrio) return aPrio - bPrio;
+      return a.localeCompare(b);
+    });
   }, [variantSelectionSlugs, variants]);
 
   // 2. Build unique values per attribute from all variants
@@ -271,10 +295,21 @@ export function useVariantSelection({
 
   // 5. Select value handler — cascade reset attributes after this one
   const selectValue = useCallback(
-    (attributeSlug: string, valueId: string) => {
+    (attributeSlug: string, valueId: string | null) => {
       setSelections((prev) => {
         const next = { ...prev };
         next[attributeSlug] = valueId;
+
+        // If deselecting, clear this and all downstream attributes
+        if (valueId === null) {
+          const idx = selectionSlugs.indexOf(attributeSlug);
+          if (idx >= 0) {
+            for (let i = idx; i < selectionSlugs.length; i++) {
+              next[selectionSlugs[i]] = null;
+            }
+          }
+          return next;
+        }
 
         // Cascade: clear all attributes that come AFTER this one
         const idx = selectionSlugs.indexOf(attributeSlug);

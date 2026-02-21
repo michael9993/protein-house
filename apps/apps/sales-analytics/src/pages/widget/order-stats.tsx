@@ -1,10 +1,7 @@
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
-import { Box, Text, Spinner } from "@saleor/macaw-ui";
-import { Card, Flex, Badge } from "@tremor/react";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
-
-import { formatCurrency } from "@/modules/analytics/domain/money";
+import { Loader2, BarChart3 } from "lucide-react";
 
 /**
  * Force dynamic rendering to avoid Next.js 15 prerender bug where _document/Html
@@ -18,9 +15,6 @@ export const getServerSideProps: GetServerSideProps = async () => ({
  * Order Stats Widget
  * This is the WIDGET target for the ORDER_DETAILS_WIDGETS extension
  * It receives orderId from the URL query parameters
- *
- * Note: In a real implementation, this would fetch order-specific analytics
- * from the tRPC API. For now, it shows the order ID and a placeholder.
  */
 export default function OrderStatsWidget() {
   const { appBridgeState } = useAppBridge();
@@ -29,59 +23,40 @@ export default function OrderStatsWidget() {
 
   if (!appBridgeState?.ready) {
     return (
-      <Box display="flex" alignItems="center" justifyContent="center" padding={4}>
-        <Spinner />
-      </Box>
+      <div className="flex items-center justify-center p-4">
+        <Loader2 size={20} className="animate-spin text-brand" />
+      </div>
     );
   }
 
   if (!orderId) {
     return (
-      <Box padding={4}>
-        <Text size={2} color="default2">
-          No order selected
-        </Text>
-      </Box>
+      <div className="p-4">
+        <span className="text-sm text-text-muted">No order selected</span>
+      </div>
     );
   }
 
-  // In a full implementation, we'd fetch order data here
-  // For now, show the order ID and helpful context
+  const displayId = typeof orderId === "string" ? orderId : orderId[0];
 
   return (
     <div className="p-3 space-y-3">
-      <Flex justifyContent="between" alignItems="center">
-        <Text as="h3" className="font-semibold">
-          Order Analytics
-        </Text>
-        <Badge color="blue" size="xs">
+      <div className="flex items-center justify-between">
+        <h3 className="font-semibold text-text-primary text-sm">Order Analytics</h3>
+        <span className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-2 py-0.5 text-xs font-medium text-brand">
+          <BarChart3 size={12} />
           Widget
-        </Badge>
-      </Flex>
-
-      <Card className="p-3">
-        <Text className="text-xs text-gray-500 mb-1">Order ID</Text>
-        <Text className="font-mono text-sm truncate">
-          {typeof orderId === "string" ? orderId : orderId[0]}
-        </Text>
-      </Card>
-
-      <div className="grid grid-cols-2 gap-2">
-        <Card className="p-2">
-          <Text className="text-xs text-gray-500">Status</Text>
-          <Badge color="emerald" size="xs" className="mt-1">
-            View Details
-          </Badge>
-        </Card>
-        <Card className="p-2">
-          <Text className="text-xs text-gray-500">Analytics</Text>
-          <Text className="text-sm font-medium mt-1">Available</Text>
-        </Card>
+        </span>
       </div>
 
-      <Text className="text-xs text-gray-400 text-center">
+      <div className="rounded-lg border border-border bg-white p-3">
+        <p className="text-xs text-text-muted mb-1">Order ID</p>
+        <p className="font-mono text-sm truncate text-text-primary">{displayId}</p>
+      </div>
+
+      <p className="text-xs text-text-muted text-center">
         Open Sales Analytics for full dashboard
-      </Text>
+      </p>
     </div>
   );
 }

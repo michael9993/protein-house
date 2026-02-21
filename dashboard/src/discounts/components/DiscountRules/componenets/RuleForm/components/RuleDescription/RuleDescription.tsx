@@ -1,4 +1,5 @@
 import RichTextEditor from "@dashboard/components/RichTextEditor";
+import { htmlToOutputData } from "@dashboard/components/RichTextEditor/format-bridge";
 import { RichTextEditorLoading } from "@dashboard/components/RichTextEditor/RichTextEditorLoading";
 import { useDiscountRulesContext } from "@dashboard/discounts/components/DiscountRules/context";
 import { Rule } from "@dashboard/discounts/models";
@@ -17,7 +18,7 @@ interface RuleDescriptionProps {
 export const RuleDescription = ({ error = false }: RuleDescriptionProps) => {
   const intl = useIntl();
   const { disabled } = useDiscountRulesContext();
-  const { defaultValue, editorRef, isReadyForMount, handleChange } = useRichTextContext();
+  const { defaultValue, isReadyForMount, handleChange } = useRichTextContext();
   const { field } = useController<Rule, "description">({
     name: "description",
   });
@@ -32,10 +33,9 @@ export const RuleDescription = ({ error = false }: RuleDescriptionProps) => {
         {isReadyForMount ? (
           <RichTextEditor
             defaultValue={defaultValue}
-            editorRef={editorRef}
-            onChange={data => {
-              handleChange();
-              field.onChange(JSON.stringify(data));
+            onChange={html => {
+              handleChange(html);
+              field.onChange(JSON.stringify(htmlToOutputData(html)));
             }}
             onBlur={field.onBlur}
             disabled={disabled}

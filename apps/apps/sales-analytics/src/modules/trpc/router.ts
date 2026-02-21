@@ -12,11 +12,13 @@ import {
   calculateTopProducts,
   calculateTopCategories,
   calculateRevenueOverTime,
+  calculateProductPerformance,
   formatRecentOrders,
   detectCurrencies,
 } from "../analytics/domain/analytics-calculator";
 import { getPreviousPeriod, getOptimalGranularity } from "../analytics/domain/time-range";
 import type { Granularity } from "../analytics/domain/time-range";
+import { calculateFunnelData } from "../analytics/domain/funnel-calculator";
 
 /**
  * Analytics router - provides KPIs, charts, and data for the dashboard
@@ -270,6 +272,47 @@ export const analyticsRouter = router({
     }),
 
   /**
+   * Get product performance with daily revenue series for sparklines
+   */
+  getProductPerformance: protectedClientProcedure
+    .input(
+      z.object({
+        channelSlug: z.string().optional(),
+        dateFrom: z.string(),
+        dateTo: z.string(),
+        currency: z.string().optional(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const ordersResult = await fetchOrdersForAnalytics(ctx.apiClient, {
+        channelSlug: input.channelSlug,
+        dateFrom: input.dateFrom,
+        dateTo: input.dateTo,
+      });
+
+      if (ordersResult.isErr()) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ordersResult.error.message,
+        });
+      }
+
+      const currencyInfo = detectCurrencies(ordersResult.value);
+      const currency = input.currency || currencyInfo.primaryCurrency || "USD";
+
+      const performanceResult = calculateProductPerformance(ordersResult.value, currency);
+
+      if (performanceResult.isErr()) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: performanceResult.error.message,
+        });
+      }
+
+      return performanceResult.value;
+    }),
+
+  /**
    * Get all orders for export (no limit)
    */
   getAllOrders: protectedClientProcedure
@@ -309,6 +352,47 @@ export const analyticsRouter = router({
       }
 
       return allOrdersResult.value;
+    }),
+
+  /**
+   * Get order funnel data (status-based conversion)
+   */
+  getFunnelData: protectedClientProcedure
+    .input(
+      z.object({
+        channelSlug: z.string().optional(),
+        dateFrom: z.string(),
+        dateTo: z.string(),
+        currency: z.string().optional(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const ordersResult = await fetchOrdersForAnalytics(ctx.apiClient, {
+        channelSlug: input.channelSlug,
+        dateFrom: input.dateFrom,
+        dateTo: input.dateTo,
+      });
+
+      if (ordersResult.isErr()) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: ordersResult.error.message,
+        });
+      }
+
+      const currencyInfo = detectCurrencies(ordersResult.value);
+      const currency = input.currency || currencyInfo.primaryCurrency || "USD";
+
+      const funnelResult = calculateFunnelData(ordersResult.value, currency);
+
+      if (funnelResult.isErr()) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: funnelResult.error.message,
+        });
+      }
+
+      return funnelResult.value;
     }),
 });
 

@@ -36,6 +36,9 @@ export default function ProductsPage() {
   const [excludedFields, setExcludedFields] = useState<Set<string>>(new Set());
   const [autoCreateAttributes, setAutoCreateAttributes] = useState(true);
   const [autoCreatePages, setAutoCreatePages] = useState(true);
+  const [autoCreateProductTypes, setAutoCreateProductTypes] = useState(true);
+  const [autoCreateCategories, setAutoCreateCategories] = useState(true);
+  const [autoCreateCollections, setAutoCreateCollections] = useState(true);
   const [attributeDefaults, setAttributeDefaults] = useState<Record<string, string>>({});
   const [discoveredAttrColumns, setDiscoveredAttrColumns] = useState<string[]>([]);
 
@@ -162,6 +165,9 @@ export default function ProductsPage() {
           upsertMode,
           autoCreateAttributes,
           autoCreatePages,
+          autoCreateProductTypes,
+          autoCreateCategories,
+          autoCreateCollections,
           attributeDefaults: Object.keys(attributeDefaults).length > 0 ? attributeDefaults : undefined,
         });
 
@@ -174,7 +180,7 @@ export default function ProductsPage() {
 
       return { total: totalSuccessful + totalFailed, successful: totalSuccessful, failed: totalFailed, results: allResults };
     },
-    [importProducts, channelSlugs, productTypeId, categoryId, warehouseId, taxClassId, upsertMode, autoCreateAttributes, autoCreatePages, attributeDefaults]
+    [importProducts, channelSlugs, productTypeId, categoryId, warehouseId, taxClassId, upsertMode, autoCreateAttributes, autoCreatePages, autoCreateProductTypes, autoCreateCategories, autoCreateCollections, attributeDefaults]
   );
 
   const handleExport = useCallback(
@@ -264,10 +270,34 @@ export default function ProductsPage() {
               <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
                 <input
                   type="checkbox"
+                  checked={autoCreateProductTypes}
+                  onChange={(e) => setAutoCreateProductTypes(e.target.checked)}
+                />
+                <Text size={2}>Auto-create missing product types</Text>
+              </label>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                <input
+                  type="checkbox"
                   checked={autoCreateAttributes}
                   onChange={(e) => setAutoCreateAttributes(e.target.checked)}
                 />
                 <Text size={2}>Auto-create missing attributes &amp; values</Text>
+              </label>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                <input
+                  type="checkbox"
+                  checked={autoCreateCategories}
+                  onChange={(e) => setAutoCreateCategories(e.target.checked)}
+                />
+                <Text size={2}>Auto-create missing categories</Text>
+              </label>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                <input
+                  type="checkbox"
+                  checked={autoCreateCollections}
+                  onChange={(e) => setAutoCreateCollections(e.target.checked)}
+                />
+                <Text size={2}>Auto-create missing collections</Text>
               </label>
               <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
                 <input

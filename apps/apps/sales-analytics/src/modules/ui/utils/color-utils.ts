@@ -1,73 +1,40 @@
 /**
- * Utility functions for working with Tremor/Tailwind colors dynamically
- * Uses Tailwind's default color palette without hardcoding values
+ * Aura brand-harmonized chart color palette
+ * 8 colors optimized for visual distinction in charts
  */
-
-// Tremor color names that map to Tailwind colors
-export const TREMOR_COLORS = [
-  "blue",
-  "emerald",
-  "amber",
-  "rose",
-  "indigo",
-  "violet",
-  "teal",
-  "fuchsia",
-  "cyan",
-  "pink",
-  "slate",
-  "zinc",
+export const CHART_COLORS = [
+  "#18181B", // Brand primary (rich black)
+  "#3B82F6", // Blue
+  "#059669", // Success (green)
+  "#8B5CF6", // Violet
+  "#F59E0B", // Amber
+  "#EC4899", // Pink
+  "#14B8A6", // Teal
+  "#EF4444", // Red
 ] as const;
 
-export type TremorColor = (typeof TREMOR_COLORS)[number];
-
 /**
- * Tailwind's default color palette (500 shades)
- * These values come from Tailwind's default theme and are stable
- * Using this approach ensures we're using Tailwind's color system without hardcoding
+ * Get a chart color by index, cycling through the palette
  */
-const TAILWIND_COLOR_500: Record<string, string> = {
-  blue: "#3b82f6",
-  emerald: "#10b981",
-  amber: "#f59e0b",
-  rose: "#f43f5e",
-  indigo: "#6366f1",
-  violet: "#8b5cf6",
-  teal: "#14b8a6",
-  fuchsia: "#d946ef",
-  cyan: "#06b6d4",
-  pink: "#ec4899",
-  slate: "#64748b",
-  zinc: "#71717a",
-};
-
-const TAILWIND_COLOR_600: Record<string, string> = {
-  blue: "#2563eb",
-  emerald: "#059669",
-  amber: "#d97706",
-  rose: "#e11d48",
-  indigo: "#4f46e5",
-  violet: "#7c3aed",
-  teal: "#0d9488",
-  fuchsia: "#c026d3",
-  cyan: "#0891b2",
-  pink: "#db2777",
-  slate: "#475569",
-  zinc: "#52525b",
-};
-
-/**
- * Get the hex color value for a Tailwind color at shade 500
- * Uses Tailwind's default color palette
- */
-export function getColorValue(color: string, shade: 500 | 600 = 500): string {
-  const colorMap = shade === 500 ? TAILWIND_COLOR_500 : TAILWIND_COLOR_600;
-  return colorMap[color] || colorMap.blue;
+export function getChartColor(index: number): string {
+  return CHART_COLORS[index % CHART_COLORS.length];
 }
 
 /**
- * Get the Tailwind CSS class for a Tremor color at a specific shade (default 500)
+ * Status color mapping for order/payment status badges
  */
-export function getTailwindColorClass(color: string, shade: number = 500): string {
-  return `${color}-${shade}`;
+export const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
+  FULFILLED: { bg: "bg-emerald-100", text: "text-emerald-800" },
+  UNFULFILLED: { bg: "bg-amber-100", text: "text-amber-800" },
+  PARTIALLY_FULFILLED: { bg: "bg-orange-100", text: "text-orange-800" },
+  CANCELED: { bg: "bg-red-100", text: "text-red-800" },
+  RETURNED: { bg: "bg-blue-100", text: "text-blue-800" },
+  UNCONFIRMED: { bg: "bg-gray-100", text: "text-gray-800" },
+};
+
+/**
+ * Get status badge color classes
+ */
+export function getStatusColors(status: string): { bg: string; text: string } {
+  return STATUS_COLORS[status] ?? { bg: "bg-gray-100", text: "text-gray-800" };
 }

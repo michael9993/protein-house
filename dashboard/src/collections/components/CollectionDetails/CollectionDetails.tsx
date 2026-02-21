@@ -6,14 +6,12 @@ import { CollectionErrorFragment } from "@dashboard/graphql";
 import { commonMessages } from "@dashboard/intl";
 import { getFormErrors, getProductErrorMessage } from "@dashboard/utils/errors";
 import { useRichTextContext } from "@dashboard/utils/richText/context";
-import { OutputData } from "@editorjs/editorjs";
 import { Input } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { useIntl } from "react-intl";
 
 interface CollectionDetailsProps {
   data: {
-    description: OutputData;
     name: string;
   };
   disabled: boolean;
@@ -23,7 +21,7 @@ interface CollectionDetailsProps {
 
 const CollectionDetails = ({ disabled, data, onChange, errors }: CollectionDetailsProps) => {
   const intl = useIntl();
-  const { defaultValue, editorRef, isReadyForMount, handleChange } = useRichTextContext();
+  const { defaultValue, isReadyForMount, handleChange } = useRichTextContext();
   const formErrors = getFormErrors(["name", "description"], errors);
 
   return (
@@ -52,7 +50,6 @@ const CollectionDetails = ({ disabled, data, onChange, errors }: CollectionDetai
         {isReadyForMount ? (
           <RichTextEditor
             defaultValue={defaultValue}
-            editorRef={editorRef}
             onChange={handleChange}
             error={!!formErrors.description}
             helperText={getProductErrorMessage(formErrors.description, intl)}

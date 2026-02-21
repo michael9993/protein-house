@@ -94,6 +94,7 @@ export interface CJOrderProductDetail {
 export interface CJProductInfo {
   pid: string;
   productNameEn: string;
+  productName?: string;
   productSku: string;
   productImage: string;
   productWeight: number;
@@ -102,7 +103,16 @@ export interface CJProductInfo {
   categoryName: string;
   description: string;
   sellPrice: number;
+  suggestSellPrice?: number;
   sourceFrom: number;
+  status?: number;
+  productProEnSet?: string[];
+  supplierId?: string;
+  supplierName?: string;
+  listedNum?: number;
+  entryNameEn?: string;
+  materialNameEn?: string;
+  packingNameEn?: string;
   variants?: CJVariantInfo[];
   productImageSet?: string[];
 }
@@ -110,12 +120,21 @@ export interface CJProductInfo {
 export interface CJVariantInfo {
   vid: string;
   variantNameEn: string;
+  variantName?: string;
   variantSku: string;
   variantImage?: string;
   variantSellPrice: number;
   variantStandard?: string;
   variantKey?: string;
   variantProperty?: string;
+  variantWeight?: number;
+  variantLength?: number;
+  variantWidth?: number;
+  variantHeight?: number;
+  variantVolume?: number;
+  variantSugSellPrice?: number;
+  variantUnit?: string;
+  createTime?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -165,6 +184,60 @@ export interface CJFreightResult {
   logisticAging: string;
   logisticPriceUnit: string;
   trackable: boolean;
+}
+
+// ---------------------------------------------------------------------------
+// Product Search (listV2)
+// ---------------------------------------------------------------------------
+
+export interface CJProductSearchItem {
+  id: string;
+  nameEn: string;
+  sku: string;
+  bigImage: string;
+  sellPrice: string;
+  nowPrice: string;
+  listedNum: number;
+  categoryId: string;
+  threeCategoryName: string;
+  twoCategoryName?: string;
+  oneCategoryName?: string;
+  addMarkStatus: number;
+  supplierName: string;
+  warehouseInventoryNum: number;
+  productType: string;
+  currency?: string;
+  deliveryCycle?: string;
+}
+
+export interface CJProductSearchResult {
+  pageSize: number;
+  pageNumber: number;
+  totalRecords: number;
+  totalPages: number;
+  content: Array<{
+    productList: CJProductSearchItem[];
+    relatedCategoryList?: Array<{ categoryId: string; categoryName: string }>;
+  }>;
+}
+
+// ---------------------------------------------------------------------------
+// Category Tree (getCategory)
+// ---------------------------------------------------------------------------
+
+export interface CJCategoryThird {
+  categoryId: string;
+  categoryName: string;
+}
+
+export interface CJCategorySecond {
+  categorySecondName: string;
+  categorySecondList: CJCategoryThird[];
+}
+
+export interface CJCategoryFirst {
+  categoryFirstName: string;
+  categoryFirstList: CJCategorySecond[];
 }
 
 // ---------------------------------------------------------------------------

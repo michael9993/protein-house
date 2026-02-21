@@ -29,9 +29,16 @@ export const SocialIntegrationsSchema = z.object({
   pinterest: z.string().nullable(),
 });
 
+export const CookieConsentSchema = z.object({
+  enabled: z.boolean(),
+  position: z.enum(["bottom", "bottom-left", "bottom-right"]),
+  consentExpiryDays: z.number(),
+});
+
 export const IntegrationsSchema = z.object({
   analytics: AnalyticsIntegrationsSchema,
   marketing: MarketingIntegrationsSchema,
   support: SupportIntegrationsSchema,
   social: SocialIntegrationsSchema,
+  cookieConsent: CookieConsentSchema,
 });

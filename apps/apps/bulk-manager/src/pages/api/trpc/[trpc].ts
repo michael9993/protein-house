@@ -8,7 +8,11 @@ export const config = {
     bodyParser: {
       sizeLimit: "50mb",
     },
+    // Allow long-running imports (products with many variants + image uploads)
+    responseLimit: false,
+    externalResolver: true,
   },
+  maxDuration: 600, // 10 minutes
 };
 
 const handler = trpcNext.createNextApiHandler({

@@ -1,44 +1,13 @@
-import {
-  Card,
-  Title,
-  Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
-  TableBody,
-  TableCell,
-  Badge,
-  Text,
-  Flex,
-} from "@tremor/react";
 import { format, parseISO } from "date-fns";
 
 import type { RecentOrder } from "../../analytics/domain/kpi-types";
 import { formatCurrency } from "../../analytics/domain/money";
+import { getStatusColors } from "../utils/color-utils";
+import { ChartCard } from "./chart-card";
 
 interface OrdersTableProps {
   orders: RecentOrder[];
   isLoading?: boolean;
-}
-
-function getStatusColor(
-  status: string
-): "gray" | "emerald" | "yellow" | "red" | "blue" | "orange" {
-  switch (status.toUpperCase()) {
-    case "FULFILLED":
-      return "emerald";
-    case "UNFULFILLED":
-      return "yellow";
-    case "PARTIALLY_FULFILLED":
-      return "orange";
-    case "CANCELED":
-      return "red";
-    case "RETURNED":
-    case "PARTIALLY_RETURNED":
-      return "blue";
-    default:
-      return "gray";
-  }
 }
 
 function formatStatus(status: string): string {
@@ -48,71 +17,75 @@ function formatStatus(status: string): string {
     .replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
+function StatusBadge({ status }: { status: string }) {
+  const colors = getStatusColors(status.toUpperCase());
+  return (
+    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${colors.bg} ${colors.text}`}>
+      {formatStatus(status)}
+    </span>
+  );
+}
+
 export function RecentOrdersTable({ orders, isLoading }: OrdersTableProps) {
   if (isLoading) {
     return (
-      <Card className="rounded-xl border border-gray-200 bg-white shadow-sm">
-        <Title>Recent Orders</Title>
-        <div className="mt-4 space-y-2">
+      <ChartCard title="Recent Orders">
+        <div className="space-y-2">
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="h-12 bg-gray-100 rounded animate-pulse" />
           ))}
         </div>
-      </Card>
+      </ChartCard>
     );
   }
 
   if (orders.length === 0) {
     return (
-      <Card className="rounded-xl border border-gray-200 bg-white shadow-sm">
-        <Title>Recent Orders</Title>
-        <Flex justifyContent="center" alignItems="center" className="h-48">
-          <Text color="gray">No orders in this period</Text>
-        </Flex>
-      </Card>
+      <ChartCard title="Recent Orders">
+        <div className="flex justify-center items-center h-48 text-text-muted">
+          No orders in this period
+        </div>
+      </ChartCard>
     );
   }
 
   return (
-    <Card className="rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
-      <Title>Recent Orders</Title>
-      
-      <Table className="mt-4">
-        <TableHead>
-          <TableRow>
-            <TableHeaderCell>Order</TableHeaderCell>
-            <TableHeaderCell>Date</TableHeaderCell>
-            <TableHeaderCell>Customer</TableHeaderCell>
-            <TableHeaderCell>Status</TableHeaderCell>
-            <TableHeaderCell className="text-right">Total</TableHeaderCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {orders.map((order) => (
-            <TableRow key={order.id}>
-              <TableCell>
-                <Text className="font-medium">#{order.number}</Text>
-              </TableCell>
-              <TableCell>
-                <Text>{format(parseISO(order.date), "MMM d, yyyy")}</Text>
-              </TableCell>
-              <TableCell>
-                <Text className="truncate max-w-[150px]">{order.customer}</Text>
-              </TableCell>
-              <TableCell>
-                <Badge color={getStatusColor(order.status)} size="xs">
-                  {formatStatus(order.status)}
-                </Badge>
-              </TableCell>
-              <TableCell className="text-right">
-                <Text className="font-medium">
+    <ChartCard title="Recent Orders">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border">
+              <th className="pb-2 text-left font-semibold text-text-muted">Order</th>
+              <th className="pb-2 text-left font-semibold text-text-muted">Date</th>
+              <th className="pb-2 text-left font-semibold text-text-muted">Customer</th>
+              <th className="pb-2 text-left font-semibold text-text-muted">Status</th>
+              <th className="pb-2 text-right font-semibold text-text-muted">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.map((order) => (
+              <tr
+                key={order.id}
+                className="border-b border-gray-50 hover:bg-surface transition-colors"
+              >
+                <td className="py-2.5 font-medium text-text-primary">#{order.number}</td>
+                <td className="py-2.5 text-text-muted">
+                  {format(parseISO(order.date), "MMM d, yyyy")}
+                </td>
+                <td className="py-2.5 text-text-primary truncate max-w-[150px]">
+                  {order.customer}
+                </td>
+                <td className="py-2.5">
+                  <StatusBadge status={order.status} />
+                </td>
+                <td className="py-2.5 text-right font-semibold text-text-primary">
                   {formatCurrency(order.total.amount, order.total.currency)}
-                </Text>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </Card>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </ChartCard>
   );
 }

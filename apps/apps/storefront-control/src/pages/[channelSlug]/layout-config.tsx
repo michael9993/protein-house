@@ -193,9 +193,15 @@ interface HeaderTabProps {
 function HeaderTab({ register, control, errors, watch }: HeaderTabProps) {
   const bannerEnabled = watch("header.banner.enabled");
   const useGradient = watch("header.banner.useGradient");
+  const gradientStops = watch("header.banner.gradientStops") ?? [];
+  const gradientAngle = watch("header.banner.gradientAngle") ?? 90;
   const { fields: manualItemFields, append: addManualItem, remove: removeManualItem } = useFieldArray({
     control,
     name: "header.banner.manualItems",
+  });
+  const { fields: stopFields, append: addStop, remove: removeStop } = useFieldArray({
+    control,
+    name: "header.banner.gradientStops",
   });
 
   return (
@@ -260,22 +266,109 @@ function HeaderTab({ register, control, errors, watch }: HeaderTabProps) {
               label="Use Gradient"
               name="header.banner.useGradient"
               control={control}
-              description="Use a two-color gradient instead of solid background"
+              description="Use a multi-color gradient instead of solid background"
             />
 
             {useGradient && (
-              <FieldGroup columns={2}>
-                <FormColorPicker<LayoutFormData>
-                  label="Gradient From"
-                  name="header.banner.gradientFrom"
+              <div className="space-y-4">
+                {/* Gradient preview */}
+                {gradientStops.length >= 2 && (
+                  <div
+                    className="h-8 w-full rounded-md border border-neutral-200"
+                    style={{
+                      background: `linear-gradient(${gradientAngle}deg, ${gradientStops
+                        .slice()
+                        .sort((a, b) => a.position - b.position)
+                        .map((s) => `${s.color} ${s.position}%`)
+                        .join(", ")})`,
+                    }}
+                  />
+                )}
+
+                <FormSlider<LayoutFormData>
+                  label="Gradient Angle"
+                  name="header.banner.gradientAngle"
                   control={control}
+                  min={0}
+                  max={360}
+                  unit="°"
+                  description="Direction of the gradient (90° = left to right)"
                 />
-                <FormColorPicker<LayoutFormData>
-                  label="Gradient To"
-                  name="header.banner.gradientTo"
-                  control={control}
-                />
-              </FieldGroup>
+
+                {/* Gradient Stops */}
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="text-sm font-medium">Gradient Color Stops</h4>
+                    <p className="text-xs text-neutral-500">
+                      Add colors with position percentages (0% = start, 100% = end)
+                    </p>
+                  </div>
+                  {stopFields.map((field, index) => (
+                    <div
+                      key={field.id}
+                      className="flex items-end gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3"
+                    >
+                      <div className="flex-1">
+                        <FormColorPicker<LayoutFormData>
+                          label={`Color #${index + 1}`}
+                          name={`header.banner.gradientStops.${index}.color`}
+                          control={control}
+                        />
+                      </div>
+                      <div className="w-28">
+                        <FormSlider<LayoutFormData>
+                          label="Position"
+                          name={`header.banner.gradientStops.${index}.position`}
+                          control={control}
+                          min={0}
+                          max={100}
+                          unit="%"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeStop(index)}
+                        className="mb-1 inline-flex items-center gap-1 rounded p-1.5 text-red-600 hover:bg-red-50 hover:text-red-700"
+                        aria-label={`Remove color stop ${index + 1}`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      addStop({
+                        color: "#000000",
+                        position: stopFields.length === 0 ? 0 : 100,
+                      })
+                    }
+                    className="inline-flex items-center gap-2 rounded-md border border-dashed border-neutral-300 px-4 py-2 text-sm text-neutral-600 hover:border-neutral-400 hover:text-neutral-700"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add Color Stop
+                  </button>
+                </div>
+
+                {/* Legacy from/to fallback */}
+                <details className="rounded-lg border border-neutral-200 p-3">
+                  <summary className="cursor-pointer text-xs text-neutral-500">
+                    Legacy two-color fallback (used if no stops defined)
+                  </summary>
+                  <FieldGroup columns={2} className="mt-3">
+                    <FormColorPicker<LayoutFormData>
+                      label="Gradient From"
+                      name="header.banner.gradientFrom"
+                      control={control}
+                    />
+                    <FormColorPicker<LayoutFormData>
+                      label="Gradient To"
+                      name="header.banner.gradientTo"
+                      control={control}
+                    />
+                  </FieldGroup>
+                </details>
+              </div>
             )}
 
             <FieldGroup columns={2}>

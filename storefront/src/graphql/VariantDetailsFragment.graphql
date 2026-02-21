@@ -6,6 +6,12 @@ fragment VariantDetails on ProductVariant {
 	quantityAvailable
 	trackInventory
 	quantityLimitPerCustomer
+	media {
+		id
+		url(size: 1024)
+		alt
+		type
+	}
 	attributes {
 		attribute {
 			id

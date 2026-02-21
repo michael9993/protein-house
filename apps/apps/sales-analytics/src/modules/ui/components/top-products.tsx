@@ -1,82 +1,86 @@
-import { Card, Title, BarList, Flex, Text, Bold, Badge } from "@tremor/react";
-
 import type { TopProduct } from "../../analytics/domain/kpi-types";
 import { formatCurrency, formatCompactNumber } from "../../analytics/domain/money";
+import { ChartCard } from "./chart-card";
 
 interface TopProductsProps {
   data: TopProduct[];
   currency: string;
   isLoading?: boolean;
+  onProductClick?: (productName: string) => void;
 }
 
-export function TopProductsList({ data, currency, isLoading }: TopProductsProps) {
+export function TopProductsList({ data, currency, isLoading, onProductClick }: TopProductsProps) {
   if (isLoading) {
     return (
-      <Card className="rounded-xl border border-gray-200 bg-white shadow-sm">
-        <Title>Top Products</Title>
-        <div className="mt-4 space-y-2">
+      <ChartCard title="Top Products by Revenue">
+        <div className="space-y-2">
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="h-8 bg-gray-100 rounded animate-pulse" />
           ))}
         </div>
-      </Card>
+      </ChartCard>
     );
   }
 
   if (data.length === 0) {
     return (
-      <Card className="rounded-xl border border-gray-200 bg-white shadow-sm">
-        <Title>Top Products</Title>
-        <Flex justifyContent="center" alignItems="center" className="h-48">
-          <Text color="gray">No products sold in this period</Text>
-        </Flex>
-      </Card>
+      <ChartCard title="Top Products by Revenue">
+        <div className="flex justify-center items-center h-48 text-text-muted">
+          No products sold in this period
+        </div>
+      </ChartCard>
     );
   }
 
-  const barListData = data.map((product) => ({
-    name: product.name,
-    value: product.revenue,
-  }));
+  const maxRevenue = Math.max(...data.map((p) => p.revenue));
 
   return (
-    <Card className="rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
-      <Title>Top Products by Revenue</Title>
-      
-      <div className="mt-4">
-        {/* Table Header */}
-        <div className="grid grid-cols-[1fr_auto_auto] gap-4 mb-2 pb-2 border-b border-gray-200">
-          <Text>
-            <Bold>Product</Bold>
-          </Text>
-          <Text className="text-center">
-            <Bold>Items Sold</Bold>
-          </Text>
-          <Text className="text-right">
-            <Bold>Revenue</Bold>
-          </Text>
-        </div>
-
-        {/* Table Rows */}
-        <div className="space-y-3">
-          {data.map((product) => (
-            <div
+    <ChartCard title="Top Products by Revenue">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-border">
+            <th className="pb-2 text-left font-semibold text-text-muted w-8">#</th>
+            <th className="pb-2 text-left font-semibold text-text-muted">Product</th>
+            <th className="pb-2 text-center font-semibold text-text-muted">Qty</th>
+            <th className="pb-2 text-right font-semibold text-text-muted">Revenue</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((product, index) => (
+            <tr
               key={product.name}
-              className="grid grid-cols-[1fr_auto_auto] gap-4 items-center"
+              className={`border-b border-gray-50 hover:bg-surface transition-colors ${
+                onProductClick ? "cursor-pointer" : ""
+              }`}
+              onClick={() => onProductClick?.(product.name)}
             >
-              <Text className="truncate">{product.name}</Text>
-              <div className="flex justify-center">
-                <Badge size="xs" color="gray">
-                  {formatCompactNumber(product.quantity)} sold
-                </Badge>
-              </div>
-              <Text className="text-right font-medium">
+              <td className="py-2.5 text-text-muted font-medium">{index + 1}</td>
+              <td className="py-2.5">
+                <div className="flex flex-col gap-1">
+                  <span className="truncate font-medium text-text-primary max-w-[180px]">
+                    {product.name}
+                  </span>
+                  {/* Revenue bar */}
+                  <div className="h-1 rounded-full bg-gray-100 w-full">
+                    <div
+                      className="h-1 rounded-full bg-brand"
+                      style={{ width: `${maxRevenue > 0 ? (product.revenue / maxRevenue) * 100 : 0}%` }}
+                    />
+                  </div>
+                </div>
+              </td>
+              <td className="py-2.5 text-center">
+                <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-text-muted">
+                  {formatCompactNumber(product.quantity)}
+                </span>
+              </td>
+              <td className="py-2.5 text-right font-semibold text-text-primary">
                 {formatCurrency(product.revenue, currency)}
-              </Text>
-            </div>
+              </td>
+            </tr>
           ))}
-        </div>
-      </div>
-    </Card>
+        </tbody>
+      </table>
+    </ChartCard>
   );
 }

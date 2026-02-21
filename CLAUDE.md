@@ -406,6 +406,14 @@ export async function addToCart(cartId: string, productId: string) {
 - Multiple Zustand stores for form validation and update state
 - Payment integrations: Stripe (`@stripe/react-stripe-js`) and Adyen (`@adyen/adyen-web`)
 
+**Analytics & Consent Architecture:**
+- **Cookie Consent** (`storefront/src/lib/consent.ts`): localStorage-based, per-channel (`aura_cookie_consent_{channel}`), 3 categories (essential always on, analytics + marketing opt-in), configurable expiry. Dispatches `consent-updated` custom event on save.
+- **GA4 Analytics** (`storefront/src/lib/analytics.ts`): All events push to `window.dataLayer`. If no analytics consent, events queue in memory. After consent granted, `flushEventQueue()` sends queued events. Deduplication via `_sentEvents` Set prevents double-firing of `view_item` and `purchase`.
+- **GTM Loader** (`storefront/src/ui/components/GoogleTagManager.tsx`): Loads GTM script (`<Script strategy="afterInteractive">`) only after analytics consent. Listens for `consent-updated` event.
+- **Cookie Banner** (`storefront/src/ui/components/CookieConsent/CookieConsent.tsx`): Accept All / Essential Only / Manage Preferences. All text from `useCookieConsentText()`. Position + expiry from `useCookieConsentConfig()`.
+- **GA4 Events wired at**: `ProductDetailClient.tsx` (view_item + add_to_cart), `CartClient.tsx` (begin_checkout), `OrderConfirmation.tsx` (purchase), `TrackSearch.tsx` (search). Quick view modal fires view_item + add_to_cart via shared ProductDetailClient.
+- **GTM Container:** `GTM-PWN35T2R` | **GA4 Property:** `G-1X96SJX4SP`
+
 ### Dashboard Architecture (D6 Modernization)
 
 The dashboard was modernized from MUI v5 to Tailwind CSS v4 + macaw-ui-next. Key architecture:
@@ -530,6 +538,10 @@ npm run generate      # Generate product Excel + CSVs
 | `apps/apps/storefront-control/src/modules/config/defaults.ts` | Default config values (1,665 lines) |
 | `apps/apps/storefront-control/sample-config-import.json` | Hebrew/ILS sample config |
 | `apps/apps/storefront-control/sample-config-import-en.json` | English/USD sample config |
+| `storefront/src/lib/consent.ts` | Cookie consent manager (localStorage, 3 categories, custom events) |
+| `storefront/src/lib/analytics.ts` | GA4 dataLayer events with consent queue + deduplication |
+| `storefront/src/ui/components/CookieConsent/CookieConsent.tsx` | GDPR cookie consent banner (configurable via Storefront Control) |
+| `storefront/src/ui/components/GoogleTagManager.tsx` | Consent-gated GTM script loader |
 | `apps/turbo.json` | Turborepo task pipeline |
 | `saleor/saleor/settings.py` | Django settings and installed apps |
 

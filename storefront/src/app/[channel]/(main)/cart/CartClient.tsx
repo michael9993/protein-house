@@ -1,12 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useTransition, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { formatMoney, getHrefForVariant } from "@/lib/utils";
 import { useBranding, useEcommerceSettings, useContentConfig, useButtonStyle, useBadgeStyle } from "@/providers/StoreConfigProvider";
+import { trackBeginCheckout } from "@/lib/analytics";
 
 interface CartLine {
   id: string;
@@ -104,9 +105,37 @@ export function CartClient({
   const [promoError, setPromoError] = useState<string | null>(null);
   const [promoPending, setPromoPending] = useState(false);
   const [deletingLines, setDeletingLines] = useState<Set<string>>(new Set());
-  const [, startTransition] = useTransition();
   const [isCreatingCheckout, setIsCreatingCheckout] = useState(false);
   const [isNavigatingToCheckout, setIsNavigatingToCheckout] = useState(false);
+
+  // Optimistic quantity state — shows user's intended quantity immediately
+  const [optimisticQuantities, setOptimisticQuantities] = useState<Map<string, number>>(new Map());
+  const debounceTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  const pendingQuantitiesRef = useRef<Map<string, number>>(new Map());
+
+  // Cleanup debounce timers on unmount
+  useEffect(() => {
+    return () => {
+      debounceTimersRef.current.forEach(timer => clearTimeout(timer));
+    };
+  }, []);
+
+  // When server data arrives (via revalidatePath), clear matching optimistic entries
+  useEffect(() => {
+    if (!cart) return;
+    setOptimisticQuantities(prev => {
+      if (prev.size === 0) return prev;
+      const next = new Map(prev);
+      let changed = false;
+      for (const line of cart.lines) {
+        if (next.has(line.id) && next.get(line.id) === line.quantity) {
+          next.delete(line.id);
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, [cart]);
 
   // One-time toast when cart has a gift line (Option A: show once per session)
   const giftToastShownRef = useRef(false);
@@ -313,61 +342,73 @@ export function CartClient({
     return variant.pricing.price.gross.amount < variant.pricing.priceUndiscounted.gross.amount;
   };
 
-  const [updatingQuantities, setUpdatingQuantities] = useState<Set<string>>(new Set());
+  // Helper to get the displayed quantity (optimistic or server)
+  const getDisplayQuantity = useCallback((lineId: string, serverQuantity: number) => {
+    return optimisticQuantities.get(lineId) ?? serverQuantity;
+  }, [optimisticQuantities]);
 
-  const handleUpdateQuantity = async (lineId: string, newQuantity: number) => {
+  const handleUpdateQuantity = (lineId: string, newQuantity: number) => {
     const line = cart?.lines.find(l => l.id === lineId);
     if (!line) return;
-    
-    // Validate quantity
+
     if (newQuantity < 1) {
       toast.error(content.cart.quantityMinError);
       return;
     }
-    
-    // Calculate total available stock (what's available + what's already in cart)
+
+    // Stock check: use server's original quantity for available calculation
     const totalAvailable = line.variant.quantityAvailable + line.quantity;
-    
-    // Only check stock limit when increasing quantity
-    // When decreasing, we're freeing up stock, so it's always allowed
-    if (newQuantity > line.quantity && newQuantity > totalAvailable) {
+    const currentDisplayQty = getDisplayQuantity(lineId, line.quantity);
+    if (newQuantity > currentDisplayQty && newQuantity > totalAvailable) {
       toast.error(content.cart.onlyXItemsAvailable.replace("{count}", totalAvailable.toString()));
       return;
     }
-    
-    // When decreasing, ensure we don't go below 1 (use Delete button instead)
-    if (newQuantity < 1) {
-      toast.error(content.cart.useDeleteButtonMessage);
-      return;
-    }
-    
-    setUpdatingQuantities(prev => new Set(prev).add(lineId));
-    
-    startTransition(async () => {
-      const result = await updateLineQuantityAction(
-        lineId,
-        newQuantity,
-        line.variant.product.slug
-      );
-      
-      setUpdatingQuantities(prev => {
-        const next = new Set(prev);
-        next.delete(lineId);
-        return next;
-      });
-      
-      if (result.success) {
-        toast.success(content.cart.quantityUpdatedSuccess);
-        window.dispatchEvent(new CustomEvent("cart-updated"));
-      } else {
-        toast.error(result.error || content.cart.failedToUpdateQuantity);
-      }
-    });
+
+    // Set optimistic quantity immediately — no spinner, instant feedback
+    setOptimisticQuantities(prev => new Map(prev).set(lineId, newQuantity));
+
+    // Debounce the server call so rapid clicks coalesce into one mutation
+    const existing = debounceTimersRef.current.get(lineId);
+    if (existing) clearTimeout(existing);
+
+    pendingQuantitiesRef.current.set(lineId, newQuantity);
+
+    const timer = setTimeout(() => {
+      const finalQty = pendingQuantitiesRef.current.get(lineId);
+      if (finalQty === undefined) return;
+      pendingQuantitiesRef.current.delete(lineId);
+      debounceTimersRef.current.delete(lineId);
+
+      updateLineQuantityAction(lineId, finalQty, line.variant.product.slug)
+        .then(result => {
+          if (result.success) {
+            window.dispatchEvent(new CustomEvent("cart-updated"));
+          } else {
+            // Revert optimistic on error
+            setOptimisticQuantities(prev => {
+              const next = new Map(prev);
+              next.delete(lineId);
+              return next;
+            });
+            toast.error(result.error || content.cart.failedToUpdateQuantity);
+          }
+        });
+    }, 400);
+
+    debounceTimersRef.current.set(lineId, timer);
   };
 
   const handleDeleteLine = async (lineId: string) => {
     const line = cart?.lines.find(l => l.id === lineId);
     const productSlug = line?.variant.product.slug;
+
+    // Cancel any pending quantity update for this line
+    const pendingTimer = debounceTimersRef.current.get(lineId);
+    if (pendingTimer) {
+      clearTimeout(pendingTimer);
+      debounceTimersRef.current.delete(lineId);
+      pendingQuantitiesRef.current.delete(lineId);
+    }
 
     setDeletingLines(prev => new Set(prev).add(lineId));
     setSelectedItems(prev => {
@@ -375,24 +416,40 @@ export function CartClient({
       next.delete(lineId);
       return next;
     });
-    startTransition(async () => {
-      const result = await deleteLineAction(lineId, productSlug);
-      setDeletingLines(prev => {
-        const next = new Set(prev);
-        next.delete(lineId);
-        return next;
-      });
-      if (result && !result.success) {
-        toast.error(result.error ?? content.cart.failedToUpdateQuantity);
-      } else if (result?.success) {
-        toast.success(content.cart.quantityUpdatedSuccess ?? "Item removed");
-        window.dispatchEvent(new CustomEvent("cart-updated"));
-      }
+
+    const result = await deleteLineAction(lineId, productSlug);
+    setDeletingLines(prev => {
+      const next = new Set(prev);
+      next.delete(lineId);
+      return next;
     });
+    if (result && !result.success) {
+      toast.error(result.error ?? content.cart.failedToUpdateQuantity);
+    } else if (result?.success) {
+      toast.success(content.cart.quantityUpdatedSuccess ?? "Item removed");
+      window.dispatchEvent(new CustomEvent("cart-updated"));
+    }
   };
 
   const handleProceedToCheckout = async () => {
     if (!cart || selectedItems.size === 0) return;
+
+    // GA4 begin_checkout event
+    if (selectedLines.length > 0) {
+      const firstCurrency = selectedLines[0].unitPrice.gross.currency;
+      trackBeginCheckout({
+        currency: firstCurrency,
+        value: selectedLines.reduce((sum, l) => sum + l.totalPrice.gross.amount, 0),
+        items: selectedLines.map((l) => ({
+          item_id: l.variant.id,
+          item_name: l.variant.product?.name || l.variant.name,
+          price: l.unitPrice.gross.amount,
+          currency: l.unitPrice.gross.currency,
+          quantity: l.quantity,
+        })),
+        coupon: cart.voucherCode || undefined,
+      });
+    }
 
     // Set navigating state to show loader
     setIsNavigatingToCheckout(true);
@@ -774,50 +831,49 @@ export function CartClient({
                           ) : (
                             <>
                               {/* Quantity Controls */}
-                              <div className="flex items-center gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
-                                  disabled={item.quantity <= 1 || updatingQuantities.has(item.id) || isDeleting}
-                                  className="flex h-8 w-8 items-center justify-center rounded border border-neutral-300 bg-white text-neutral-600 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
-                                  title={item.quantity <= 1 ? "Use Delete to remove item" : undefined}
-                                >
-                                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                                  </svg>
-                                </button>
-                                <div className="flex min-w-[3rem] items-center justify-center rounded border border-neutral-200 bg-neutral-50 px-3 py-1">
-                                  {updatingQuantities.has(item.id) ? (
-                                    <svg className="h-4 w-4 animate-spin text-neutral-500" fill="none" viewBox="0 0 24 24">
-                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                                    </svg>
-                                  ) : (
-                                    <span className="text-sm font-medium text-neutral-700">
-                                      {item.quantity}
-                                    </span>
-                                  )}
-                                </div>
-                                <button
-                                  type="button"
-                                  onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
-                                  disabled={
-                                    item.variant.quantityAvailable === 0 ||
-                                    updatingQuantities.has(item.id) ||
-                                    isDeleting
-                                  }
-                                  className="flex h-8 w-8 items-center justify-center rounded border border-neutral-300 bg-white text-neutral-600 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
-                                  title={
-                                    item.variant.quantityAvailable === 0
-                                      ? "No additional stock available"
-                                      : undefined
-                                  }
-                                >
-                                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                  </svg>
-                                </button>
-                              </div>
+                              {(() => {
+                                const displayQty = getDisplayQuantity(item.id, item.quantity);
+                                const totalAvailable = item.variant.quantityAvailable + item.quantity;
+                                return (
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleUpdateQuantity(item.id, displayQty - 1)}
+                                      disabled={displayQty <= 1 || isDeleting}
+                                      className="flex h-8 w-8 items-center justify-center rounded border border-neutral-300 bg-white text-neutral-600 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                      title={displayQty <= 1 ? "Use Delete to remove item" : undefined}
+                                    >
+                                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                                      </svg>
+                                    </button>
+                                    <div className="flex min-w-[3rem] items-center justify-center rounded border border-neutral-200 bg-neutral-50 px-3 py-1">
+                                      <span className="text-sm font-medium text-neutral-700">
+                                        {displayQty}
+                                      </span>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleUpdateQuantity(item.id, displayQty + 1)}
+                                      disabled={
+                                        item.variant.quantityAvailable === 0 ||
+                                        displayQty >= totalAvailable ||
+                                        isDeleting
+                                      }
+                                      className="flex h-8 w-8 items-center justify-center rounded border border-neutral-300 bg-white text-neutral-600 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                      title={
+                                        item.variant.quantityAvailable === 0
+                                          ? "No additional stock available"
+                                          : undefined
+                                      }
+                                    >
+                                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                );
+                              })()}
 
                               {/* Actions */}
                               <div className="flex items-center gap-4">

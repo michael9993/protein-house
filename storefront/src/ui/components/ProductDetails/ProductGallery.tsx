@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { FreeMode, Navigation, Thumbs, Zoom, EffectFade } from "swiper/modules";
+import { FreeMode, Navigation, Thumbs, Zoom } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
 
 // Swiper CSS
@@ -12,7 +12,6 @@ import "swiper/css/free-mode";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
 import "swiper/css/zoom";
-import "swiper/css/effect-fade";
 
 import { Dialog, Transition, TransitionChild } from "@headlessui/react";
 
@@ -28,6 +27,8 @@ interface ProductGalleryProps {
 
 export function ProductGallery({ images, productName, discountPercent, allowLightbox = true }: ProductGalleryProps) {
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
+  const [mainSwiper, setMainSwiper] = useState<SwiperType | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
@@ -75,11 +76,14 @@ export function ProductGallery({ images, productName, discountPercent, allowLigh
             spaceBetween={10}
             navigation={true}
             thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
-            modules={[FreeMode, Navigation, Thumbs, Zoom, EffectFade]}
+            modules={[FreeMode, Navigation, Thumbs, Zoom]}
             className="h-full w-full"
-            loop={true}
             zoom={allowLightbox}
-            onSlideChange={(swiper) => setLightboxIndex(swiper.realIndex)}
+            onSwiper={setMainSwiper}
+            onSlideChange={(swiper) => {
+              setActiveIndex(swiper.activeIndex);
+              setLightboxIndex(swiper.activeIndex);
+            }}
           >
             {images.map((image, index) => (
               <SwiperSlide key={index}>
@@ -148,7 +152,12 @@ export function ProductGallery({ images, productName, discountPercent, allowLigh
               {images.map((image, index) => (
                 <SwiperSlide key={index}>
                   <button
-                     className={`relative flex-shrink-0 overflow-hidden rounded-lg transition-all duration-300 w-full opacity-60 hover:opacity-100 hover:scale-95 data-[selected]:opacity-100 data-[selected]:ring-2 ring-offset-1`}
+                     onClick={() => mainSwiper?.slideTo(index)}
+                     className={`relative flex-shrink-0 overflow-hidden rounded-lg transition-all duration-300 w-full ${
+                       activeIndex === index
+                         ? "opacity-100 scale-95 ring-2 ring-neutral-900 ring-offset-1"
+                         : "opacity-60 hover:opacity-100 hover:scale-95"
+                     }`}
                   >
                      <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-neutral-100">
                         <Image
@@ -164,13 +173,7 @@ export function ProductGallery({ images, productName, discountPercent, allowLigh
               ))}
             </Swiper>
             
-            {/* Active Thumb Style Logic */}
             <style jsx global>{`
-              .swiper-slide-thumb-active button {
-                opacity: 1;
-                transform: scale(0.95);
-                box-shadow: 0 0 0 2px var(--test-primary, #000);
-              }
               .swiper-slide {
                 height: auto;
               }

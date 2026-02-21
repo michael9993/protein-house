@@ -1,10 +1,10 @@
 // @ts-strict-ignore
 import { ConfirmButtonTransitionState } from "@dashboard/components/ConfirmButton";
 import RichTextEditor from "@dashboard/components/RichTextEditor";
-import RichTextEditorContent from "@dashboard/components/RichTextEditor/RichTextEditorContent";
+import { htmlToOutputData } from "@dashboard/components/RichTextEditor/format-bridge";
 import { RichTextEditorLoading } from "@dashboard/components/RichTextEditor/RichTextEditorLoading";
 import { SubmitPromise } from "@dashboard/hooks/useForm";
-import { OutputData } from "@editorjs/editorjs";
+import { OutputData } from "@dashboard/components/RichTextEditor/types";
 import { Text } from "@saleor/macaw-ui-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -33,7 +33,7 @@ const TranslationFieldsRich = ({
   onValueChange,
 }: TranslationFieldsRichProps) => {
   const intl = useIntl();
-  const { isReadyForMount, handleSubmit, defaultValue, handleChange, editorRef } =
+  const { isReadyForMount, handleSubmit, defaultValue, handleChange } =
     useRichTextSubmit(initial, onSubmit, disabled);
 
   return edit ? (
@@ -41,12 +41,11 @@ const TranslationFieldsRich = ({
       {isReadyForMount ? (
         <RichTextEditor
           defaultValue={defaultValue}
-          editorRef={editorRef}
-          onChange={changeEvent => {
-            handleChange();
+          onChange={html => {
+            handleChange(html);
 
             if (onValueChange) {
-              onValueChange(JSON.stringify(changeEvent));
+              onValueChange(JSON.stringify(htmlToOutputData(html)));
             }
           }}
           disabled={disabled}
@@ -80,11 +79,19 @@ const TranslationFieldsRich = ({
       <FormattedMessage id="T/5OyA" defaultMessage="No translation yet" />
     </Text>
   ) : (
-    <Text>
+    <div>
       {isReadyForMount && (
-        <RichTextEditorContent key={resetKey + "_" + defaultValue?.time} value={defaultValue} />
+        <RichTextEditor
+          key={resetKey}
+          defaultValue={defaultValue}
+          readOnly={true}
+          disabled={true}
+          error={false}
+          label=""
+          name="translation-readonly"
+        />
       )}
-    </Text>
+    </div>
   );
 };
 

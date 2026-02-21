@@ -6,7 +6,6 @@ import { ProductErrorFragment } from "@dashboard/graphql";
 import { commonMessages } from "@dashboard/intl";
 import { getFormErrors, getProductErrorMessage } from "@dashboard/utils/errors";
 import { useRichTextContext } from "@dashboard/utils/richText/context";
-import { OutputData } from "@editorjs/editorjs";
 import { Input } from "@saleor/macaw-ui-next";
 import * as React from "react";
 import { useIntl } from "react-intl";
@@ -14,7 +13,6 @@ import { useIntl } from "react-intl";
 interface CategoryDetailsFormProps {
   data: {
     name: string;
-    description: OutputData | null;
   };
   disabled: boolean;
   errors: ProductErrorFragment[];
@@ -23,7 +21,7 @@ interface CategoryDetailsFormProps {
 
 const CategoryDetailsForm = ({ disabled, data, onChange, errors }: CategoryDetailsFormProps) => {
   const intl = useIntl();
-  const { defaultValue, editorRef, isReadyForMount, handleChange } = useRichTextContext();
+  const { defaultValue, isReadyForMount, handleChange } = useRichTextContext();
   const formErrors = getFormErrors(["name", "description"], errors);
 
   return (
@@ -56,7 +54,6 @@ const CategoryDetailsForm = ({ disabled, data, onChange, errors }: CategoryDetai
           <RichTextEditor
             data-test-id="category-description-editor"
             defaultValue={defaultValue}
-            editorRef={editorRef}
             onChange={handleChange}
             disabled={disabled}
             error={!!formErrors.description}
