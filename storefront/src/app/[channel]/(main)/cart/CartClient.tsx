@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
@@ -137,6 +137,26 @@ export function CartClient({
     });
   }, [cart]);
 
+  // Effective cart lines — overlays optimistic quantities on server data.
+  // This is the single source of truth for all rendering and calculations.
+  const effectiveLines = useMemo(() => {
+    if (!cart) return [];
+    if (optimisticQuantities.size === 0) return cart.lines;
+    return cart.lines.map(line => {
+      const oQty = optimisticQuantities.get(line.id);
+      if (oQty === undefined) return line;
+      const unitAmount = line.unitPrice.gross.amount;
+      return {
+        ...line,
+        quantity: oQty,
+        totalPrice: {
+          ...line.totalPrice,
+          gross: { ...line.totalPrice.gross, amount: unitAmount * oQty },
+        },
+      };
+    });
+  }, [cart, optimisticQuantities]);
+
   // One-time toast when cart has a gift line (Option A: show once per session)
   const giftToastShownRef = useRef(false);
   useEffect(() => {
@@ -188,12 +208,12 @@ export function CartClient({
   const { selectedLines, selectedSubtotal, selectedItemCount, totalSavings, subtotalBeforeDiscount } = useMemo(() => {
     if (!cart) return { selectedLines: [], selectedSubtotal: 0, selectedItemCount: 0, totalSavings: 0, subtotalBeforeDiscount: 0 };
 
-    const lines = cart.lines.filter(line => selectedItems.has(line.id));
+    // Use effectiveLines (with optimistic quantities) for all calculations
+    const lines = effectiveLines.filter(line => selectedItems.has(line.id));
     const subtotal = lines.reduce((sum, line) => sum + line.totalPrice.gross.amount, 0);
     const itemCount = lines.reduce((sum, line) => sum + line.quantity, 0);
 
     // Savings: for gift lines use full undiscounted value; for regular lines use (undiscounted - current) * qty.
-    // Fallback for gift: if priceUndiscounted missing, use variant price so we show at least sale value.
     const savings = lines.reduce((sum, line) => {
       const undiscounted = line.variant.pricing?.priceUndiscounted?.gross?.amount ?? line.variant.pricing?.price?.gross?.amount ?? line.unitPrice.gross.amount ?? 0;
       const current = line.variant.pricing?.price?.gross?.amount ?? line.unitPrice.gross.amount ?? 0;
@@ -219,7 +239,7 @@ export function CartClient({
       totalSavings: savings,
       subtotalBeforeDiscount: beforeDiscount,
     };
-  }, [cart, selectedItems]);
+  }, [cart, effectiveLines, selectedItems]);
 
   const freeShippingThreshold = ecommerce.shipping.freeShippingThreshold;
   // Use same "Your price" as order summary so free shipping message matches threshold (no voucher/subtotal mismatch)
@@ -342,24 +362,19 @@ export function CartClient({
     return variant.pricing.price.gross.amount < variant.pricing.priceUndiscounted.gross.amount;
   };
 
-  // Helper to get the displayed quantity (optimistic or server)
-  const getDisplayQuantity = useCallback((lineId: string, serverQuantity: number) => {
-    return optimisticQuantities.get(lineId) ?? serverQuantity;
-  }, [optimisticQuantities]);
-
   const handleUpdateQuantity = (lineId: string, newQuantity: number) => {
-    const line = cart?.lines.find(l => l.id === lineId);
-    if (!line) return;
+    // Use original server cart data for stock validation
+    const serverLine = cart?.lines.find(l => l.id === lineId);
+    if (!serverLine) return;
 
     if (newQuantity < 1) {
       toast.error(content.cart.quantityMinError);
       return;
     }
 
-    // Stock check: use server's original quantity for available calculation
-    const totalAvailable = line.variant.quantityAvailable + line.quantity;
-    const currentDisplayQty = getDisplayQuantity(lineId, line.quantity);
-    if (newQuantity > currentDisplayQty && newQuantity > totalAvailable) {
+    // Stock check: totalAvailable = what's available + what's already in cart (server qty)
+    const totalAvailable = serverLine.variant.quantityAvailable + serverLine.quantity;
+    if (newQuantity > totalAvailable) {
       toast.error(content.cart.onlyXItemsAvailable.replace("{count}", totalAvailable.toString()));
       return;
     }
@@ -379,7 +394,7 @@ export function CartClient({
       pendingQuantitiesRef.current.delete(lineId);
       debounceTimersRef.current.delete(lineId);
 
-      updateLineQuantityAction(lineId, finalQty, line.variant.product.slug)
+      updateLineQuantityAction(lineId, finalQty, serverLine.variant.product.slug)
         .then(result => {
           if (result.success) {
             window.dispatchEvent(new CustomEvent("cart-updated"));
@@ -431,8 +446,32 @@ export function CartClient({
     }
   };
 
+  // Flush any pending debounced quantity updates — called before checkout
+  const flushPendingUpdates = async () => {
+    const pending = Array.from(pendingQuantitiesRef.current.entries());
+    if (pending.length === 0) return;
+
+    // Clear all debounce timers
+    debounceTimersRef.current.forEach(timer => clearTimeout(timer));
+    debounceTimersRef.current.clear();
+
+    // Fire all pending mutations immediately
+    await Promise.all(
+      pending.map(([lineId, qty]) => {
+        pendingQuantitiesRef.current.delete(lineId);
+        const serverLine = cart?.lines.find(l => l.id === lineId);
+        return updateLineQuantityAction(lineId, qty, serverLine?.variant.product.slug);
+      })
+    );
+
+    window.dispatchEvent(new CustomEvent("cart-updated"));
+  };
+
   const handleProceedToCheckout = async () => {
     if (!cart || selectedItems.size === 0) return;
+
+    // Flush any pending quantity debounces before proceeding
+    await flushPendingUpdates();
 
     // GA4 begin_checkout event
     if (selectedLines.length > 0) {
@@ -686,7 +725,7 @@ export function CartClient({
               )}
 
               <ul className="mt-6 divide-y divide-neutral-100">
-                {cart.lines.map((item) => {
+                {effectiveLines.map((item) => {
                   const isSelected = selectedItems.has(item.id);
                   const isDeleting = deletingLines.has(item.id);
 
@@ -831,49 +870,43 @@ export function CartClient({
                           ) : (
                             <>
                               {/* Quantity Controls */}
-                              {(() => {
-                                const displayQty = getDisplayQuantity(item.id, item.quantity);
-                                const totalAvailable = item.variant.quantityAvailable + item.quantity;
-                                return (
-                                  <div className="flex items-center gap-2">
-                                    <button
-                                      type="button"
-                                      onClick={() => handleUpdateQuantity(item.id, displayQty - 1)}
-                                      disabled={displayQty <= 1 || isDeleting}
-                                      className="flex h-8 w-8 items-center justify-center rounded border border-neutral-300 bg-white text-neutral-600 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
-                                      title={displayQty <= 1 ? "Use Delete to remove item" : undefined}
-                                    >
-                                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                                      </svg>
-                                    </button>
-                                    <div className="flex min-w-[3rem] items-center justify-center rounded border border-neutral-200 bg-neutral-50 px-3 py-1">
-                                      <span className="text-sm font-medium text-neutral-700">
-                                        {displayQty}
-                                      </span>
-                                    </div>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleUpdateQuantity(item.id, displayQty + 1)}
-                                      disabled={
-                                        item.variant.quantityAvailable === 0 ||
-                                        displayQty >= totalAvailable ||
-                                        isDeleting
-                                      }
-                                      className="flex h-8 w-8 items-center justify-center rounded border border-neutral-300 bg-white text-neutral-600 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
-                                      title={
-                                        item.variant.quantityAvailable === 0
-                                          ? "No additional stock available"
-                                          : undefined
-                                      }
-                                    >
-                                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                      </svg>
-                                    </button>
-                                  </div>
-                                );
-                              })()}
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                                  disabled={item.quantity <= 1 || isDeleting}
+                                  className="flex h-8 w-8 items-center justify-center rounded border border-neutral-300 bg-white text-neutral-600 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                  title={item.quantity <= 1 ? "Use Delete to remove item" : undefined}
+                                >
+                                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                                  </svg>
+                                </button>
+                                <div className="flex min-w-[3rem] items-center justify-center rounded border border-neutral-200 bg-neutral-50 px-3 py-1">
+                                  <span className="text-sm font-medium text-neutral-700">
+                                    {item.quantity}
+                                  </span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                                  disabled={
+                                    item.variant.quantityAvailable === 0 ||
+                                    item.quantity >= (item.variant.quantityAvailable + (cart?.lines.find(l => l.id === item.id)?.quantity ?? 0)) ||
+                                    isDeleting
+                                  }
+                                  className="flex h-8 w-8 items-center justify-center rounded border border-neutral-300 bg-white text-neutral-600 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                  title={
+                                    item.variant.quantityAvailable === 0
+                                      ? "No additional stock available"
+                                      : undefined
+                                  }
+                                >
+                                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                  </svg>
+                                </button>
+                              </div>
 
                               {/* Actions */}
                               <div className="flex items-center gap-4">

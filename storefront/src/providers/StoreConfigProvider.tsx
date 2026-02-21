@@ -567,6 +567,12 @@ const DEFAULT_UI_CONFIG = {
     showBrandLabel: true,
     showRating: true,
     imageFit: "cover" as const,
+    textStyles: {
+      name: { fontSize: "sm" as const, fontWeight: "semibold" as const, color: null },
+      price: { fontSize: "base" as const, fontWeight: "bold" as const, color: null },
+      originalPrice: { fontSize: "sm" as const, fontWeight: "normal" as const, color: null },
+      reviewCount: { fontSize: "xs" as const, fontWeight: "normal" as const, color: null },
+    },
   },
   toasts: {
     position: "bottom-right" as const,
@@ -1559,7 +1565,16 @@ export function useUiConfig(): NonNullable<StoreConfig["ui"]> {
     badges: { ...DEFAULT_UI_CONFIG.badges, ...config.ui.badges },
     inputs: { ...DEFAULT_UI_CONFIG.inputs, ...config.ui.inputs },
     checkbox: { ...DEFAULT_UI_CONFIG.checkbox, ...config.ui.checkbox },
-    productCard: { ...DEFAULT_UI_CONFIG.productCard, ...config.ui.productCard },
+    productCard: {
+      ...DEFAULT_UI_CONFIG.productCard,
+      ...config.ui.productCard,
+      textStyles: {
+        name: { ...DEFAULT_UI_CONFIG.productCard.textStyles?.name, ...config.ui.productCard?.textStyles?.name },
+        price: { ...DEFAULT_UI_CONFIG.productCard.textStyles?.price, ...config.ui.productCard?.textStyles?.price },
+        originalPrice: { ...DEFAULT_UI_CONFIG.productCard.textStyles?.originalPrice, ...config.ui.productCard?.textStyles?.originalPrice },
+        reviewCount: { ...DEFAULT_UI_CONFIG.productCard.textStyles?.reviewCount, ...config.ui.productCard?.textStyles?.reviewCount },
+      },
+    },
     toasts: { ...DEFAULT_UI_CONFIG.toasts, ...config.ui.toasts },
     icons: { ...DEFAULT_UI_CONFIG.icons, ...config.ui.icons },
     filterSidebar: { ...DEFAULT_UI_CONFIG.filterSidebar, ...config.ui.filterSidebar },

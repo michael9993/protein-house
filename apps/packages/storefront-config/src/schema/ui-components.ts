@@ -58,6 +58,12 @@ export const CheckboxSchema = z.object({
 // PRODUCT CARD
 // ============================================
 
+export const ProductCardTextStyleSchema = z.object({
+  fontSize: z.enum(["xs", "sm", "base", "lg", "xl"]).optional(),
+  fontWeight: z.enum(["normal", "medium", "semibold", "bold", "extrabold"]).optional(),
+  color: z.string().nullable().optional(),
+});
+
 export const ProductCardSchema = z.object({
   borderRadius: z.enum(["none", "sm", "md", "lg", "xl"]),
   shadow: z.enum(["none", "sm", "md", "lg"]),
@@ -71,6 +77,12 @@ export const ProductCardSchema = z.object({
   showBrandLabel: z.boolean().optional(),
   showRating: z.boolean().optional(),
   imageFit: z.enum(["cover", "contain"]).optional(),
+  textStyles: z.object({
+    name: ProductCardTextStyleSchema.optional(),
+    price: ProductCardTextStyleSchema.optional(),
+    originalPrice: ProductCardTextStyleSchema.optional(),
+    reviewCount: ProductCardTextStyleSchema.optional(),
+  }).optional(),
 });
 
 // ============================================

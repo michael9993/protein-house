@@ -37,6 +37,24 @@ const shadowMap = {
   xl: "shadow-xl",
 };
 
+// Map font size config to Tailwind classes
+const fontSizeMap: Record<string, string> = {
+  xs: "text-xs",
+  sm: "text-sm",
+  base: "text-base",
+  lg: "text-lg",
+  xl: "text-xl",
+};
+
+// Map font weight config to Tailwind classes
+const fontWeightMap: Record<string, string> = {
+  normal: "font-normal",
+  medium: "font-medium",
+  semibold: "font-semibold",
+  bold: "font-bold",
+  extrabold: "font-extrabold",
+};
+
 // Map aspect ratio config
 const aspectRatioMap = {
   square: "aspect-square",
@@ -62,6 +80,7 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
 
   // Product card config
   const cardConfig = ui.productCard;
+  const ts = cardConfig.textStyles;
   const showQuickView = cardConfig.showQuickView ?? false;
   const quickAddLabel = (content.product as { quickAddButton?: string })?.quickAddButton ?? "Quick add";
 
@@ -270,18 +289,18 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
         {/* Product Info */}
         <div className="mt-3 flex flex-col p-4 sm:mt-4 sm:p-5">
           {/* Product Name */}
-          <h3 
-            className="mt-1 line-clamp-2 text-sm font-semibold transition-colors group-hover:opacity-80"
-            style={{ color: branding.colors.text }}
+          <h3
+            className={`mt-1 line-clamp-2 ${fontSizeMap[ts?.name?.fontSize || "sm"]} ${fontWeightMap[ts?.name?.fontWeight || "semibold"]} transition-colors group-hover:opacity-80`}
+            style={{ color: ts?.name?.color || branding.colors.text }}
           >
             {t(product)}
           </h3>
           
           {/* Price */}
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <span 
-              className="text-base font-bold"
-              style={{ color: branding.colors.primary }}
+            <span
+              className={`${fontSizeMap[ts?.price?.fontSize || "base"]} ${fontWeightMap[ts?.price?.fontWeight || "bold"]}`}
+              style={{ color: ts?.price?.color || branding.colors.primary }}
             >
               {formatMoneyRange({
                 start: product.pricing?.priceRange?.start?.gross,
@@ -290,7 +309,10 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
             </span>
             
             {hasDiscount && product.pricing?.priceRangeUndiscounted?.start?.gross && (
-              <span className="text-sm text-neutral-400 line-through">
+              <span
+                className={`${fontSizeMap[ts?.originalPrice?.fontSize || "sm"]} ${fontWeightMap[ts?.originalPrice?.fontWeight || "normal"]} line-through ${!ts?.originalPrice?.color ? "text-neutral-400" : ""}`}
+                style={ts?.originalPrice?.color ? { color: ts.originalPrice.color } : undefined}
+              >
                 {formatMoney(
                   product.pricing.priceRangeUndiscounted.start.gross.amount,
                   product.pricing.priceRangeUndiscounted.start.gross.currency
@@ -313,7 +335,10 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
                 </svg>
               ))}
               {(product as any).reviews?.totalCount !== null && (product as any).reviews?.totalCount !== undefined && (
-                <span className="ml-1 text-xs text-neutral-500">({(product as any).reviews.totalCount})</span>
+                <span
+                  className={`ml-1 ${fontSizeMap[ts?.reviewCount?.fontSize || "xs"]} ${fontWeightMap[ts?.reviewCount?.fontWeight || "normal"]} ${!ts?.reviewCount?.color ? "text-neutral-500" : ""}`}
+                  style={ts?.reviewCount?.color ? { color: ts.reviewCount.color } : undefined}
+                >({(product as any).reviews.totalCount})</span>
               )}
             </div>
           )}

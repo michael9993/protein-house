@@ -709,6 +709,12 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       showBrandLabel: true,
       showRating: true,
       imageFit: "cover",
+      textStyles: {
+        name: { fontSize: "sm", fontWeight: "semibold", color: null },
+        price: { fontSize: "base", fontWeight: "bold", color: null },
+        originalPrice: { fontSize: "sm", fontWeight: "normal", color: null },
+        reviewCount: { fontSize: "xs", fontWeight: "normal", color: null },
+      },
     },
     toasts: {
       position: "bottom-right",

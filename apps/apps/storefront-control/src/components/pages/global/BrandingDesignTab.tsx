@@ -11,6 +11,8 @@ import { FieldGroup } from "@/components/shared/FieldGroup";
 import type { GlobalFormData, GlobalTabWithWatchProps } from "./types";
 import {
   FONT_SIZE_OPTIONS,
+  CARD_FONT_SIZE_OPTIONS,
+  FONT_WEIGHT_OPTIONS,
   BORDER_RADIUS_OPTIONS,
   BORDER_RADIUS_NO_FULL_OPTIONS,
   SHADOW_OPTIONS,
@@ -517,6 +519,103 @@ export function BrandingDesignTab({ register, control, errors, watch }: GlobalTa
             options={IMAGE_FIT_OPTIONS}
           />
         </FieldGroup>
+
+        {/* Text Styles */}
+        <div className="mt-4 border-t pt-4">
+          <h4 className="mb-3 text-sm font-semibold text-gray-700">Product Name Text</h4>
+          <FieldGroup columns={3}>
+            <FormSelect<GlobalFormData>
+              label="Font Size"
+              name="ui.productCard.textStyles.name.fontSize"
+              control={control}
+              options={CARD_FONT_SIZE_OPTIONS}
+            />
+            <FormSelect<GlobalFormData>
+              label="Font Weight"
+              name="ui.productCard.textStyles.name.fontWeight"
+              control={control}
+              options={FONT_WEIGHT_OPTIONS}
+            />
+            <FormColorPicker<GlobalFormData>
+              label="Color"
+              name="ui.productCard.textStyles.name.color"
+              control={control}
+              description="Leave empty for branding text color"
+            />
+          </FieldGroup>
+        </div>
+
+        <div className="mt-4 border-t pt-4">
+          <h4 className="mb-3 text-sm font-semibold text-gray-700">Price Text</h4>
+          <FieldGroup columns={3}>
+            <FormSelect<GlobalFormData>
+              label="Font Size"
+              name="ui.productCard.textStyles.price.fontSize"
+              control={control}
+              options={CARD_FONT_SIZE_OPTIONS}
+            />
+            <FormSelect<GlobalFormData>
+              label="Font Weight"
+              name="ui.productCard.textStyles.price.fontWeight"
+              control={control}
+              options={FONT_WEIGHT_OPTIONS}
+            />
+            <FormColorPicker<GlobalFormData>
+              label="Color"
+              name="ui.productCard.textStyles.price.color"
+              control={control}
+              description="Leave empty for branding primary color"
+            />
+          </FieldGroup>
+        </div>
+
+        <div className="mt-4 border-t pt-4">
+          <h4 className="mb-3 text-sm font-semibold text-gray-700">Original Price Text</h4>
+          <FieldGroup columns={3}>
+            <FormSelect<GlobalFormData>
+              label="Font Size"
+              name="ui.productCard.textStyles.originalPrice.fontSize"
+              control={control}
+              options={CARD_FONT_SIZE_OPTIONS}
+            />
+            <FormSelect<GlobalFormData>
+              label="Font Weight"
+              name="ui.productCard.textStyles.originalPrice.fontWeight"
+              control={control}
+              options={FONT_WEIGHT_OPTIONS}
+            />
+            <FormColorPicker<GlobalFormData>
+              label="Color"
+              name="ui.productCard.textStyles.originalPrice.color"
+              control={control}
+              description="Leave empty for neutral gray"
+            />
+          </FieldGroup>
+        </div>
+
+        <div className="mt-4 border-t pt-4">
+          <h4 className="mb-3 text-sm font-semibold text-gray-700">Review Count Text</h4>
+          <FieldGroup columns={3}>
+            <FormSelect<GlobalFormData>
+              label="Font Size"
+              name="ui.productCard.textStyles.reviewCount.fontSize"
+              control={control}
+              options={CARD_FONT_SIZE_OPTIONS}
+            />
+            <FormSelect<GlobalFormData>
+              label="Font Weight"
+              name="ui.productCard.textStyles.reviewCount.fontWeight"
+              control={control}
+              options={FONT_WEIGHT_OPTIONS}
+            />
+            <FormColorPicker<GlobalFormData>
+              label="Color"
+              name="ui.productCard.textStyles.reviewCount.color"
+              control={control}
+              description="Leave empty for neutral gray"
+            />
+          </FieldGroup>
+        </div>
       </FormSection>
 
       {/* Cart */}

@@ -18,6 +18,22 @@ export const FONT_SIZE_OPTIONS = [
   { value: "9xl", label: "9xl" },
 ];
 
+export const CARD_FONT_SIZE_OPTIONS = [
+  { value: "xs", label: "xs" },
+  { value: "sm", label: "sm" },
+  { value: "base", label: "base" },
+  { value: "lg", label: "lg" },
+  { value: "xl", label: "xl" },
+];
+
+export const FONT_WEIGHT_OPTIONS = [
+  { value: "normal", label: "Normal" },
+  { value: "medium", label: "Medium" },
+  { value: "semibold", label: "Semibold" },
+  { value: "bold", label: "Bold" },
+  { value: "extrabold", label: "Extra Bold" },
+];
+
 export const BORDER_RADIUS_OPTIONS = [
   { value: "none", label: "None (0px)" },
   { value: "sm", label: "Small (4px)" },
