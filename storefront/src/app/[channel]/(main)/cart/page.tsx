@@ -14,6 +14,7 @@ import {
 export const metadata = {
 	title: `Shopping Cart | ${storeConfig.store.name}`,
 	description: "Review your shopping cart",
+	robots: { index: false, follow: false },
 };
 
 export default async function Page(props: { params: Promise<{ channel: string }> }) {

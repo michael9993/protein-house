@@ -79,6 +79,14 @@ export default function RootLayout(props: { children: ReactNode }) {
 
 	return (
 		<html lang="en" dir="ltr" className="min-h-dvh" suppressHydrationWarning>
+			<head>
+				{/* Preconnect to critical third-party origins for faster first-paint */}
+				<link rel="preconnect" href={process.env.NEXT_PUBLIC_SALEOR_API_URL?.replace("/graphql/", "") || "http://localhost:8000"} />
+				<link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_SALEOR_API_URL?.replace("/graphql/", "") || "http://localhost:8000"} />
+				{/* Preconnect to Saleor media/thumbnail CDN */}
+				<link rel="preconnect" href="https://fonts.googleapis.com" />
+				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+			</head>
 			<body className={`${fontVariables} ${inter.className} min-h-dvh`}>
 				<a
 					href="#main-content"

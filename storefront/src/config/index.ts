@@ -15,7 +15,7 @@ import { sportsStoreConfig } from './examples/sports-store.config';
 // ACTIVE CONFIGURATION
 // ============================================
 // Change this import to switch between store configurations
-// Currently using: SportZone (Sports Store)
+// Currently using: Mansour Shoes (configured via Storefront Control)
 export const storeConfig = sportsStoreConfig;
 
 // ============================================

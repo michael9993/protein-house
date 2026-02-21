@@ -7,10 +7,19 @@ import { getLanguageCodeForChannel } from "@/lib/language";
 import * as Checkout from "@/lib/checkout";
 import { OrderDetailsClient } from "./OrderDetailsClient";
 
-export const metadata = {
-	title: "Order Details | SportZone",
-	description: "View your order details and tracking information.",
-};
+import { fetchStorefrontConfig } from "@/lib/storefront-control";
+
+export async function generateMetadata({ params }: { params: Promise<{ channel: string; orderId: string }> }) {
+	const { channel } = await params;
+	const config = await fetchStorefrontConfig(channel);
+	const storeName = config.store?.name || "Store";
+	const orderLabel = config.content?.orders?.orderLabel || "Order Details";
+	return {
+		title: `${orderLabel} | ${storeName}`,
+		description: config.content?.orders?.trackOrder || "View your order details and tracking information.",
+		robots: { index: false, follow: false },
+	};
+}
 
 export default async function OrderDetailPage({
 	params,

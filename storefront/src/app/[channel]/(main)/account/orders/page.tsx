@@ -1,12 +1,20 @@
 import { CurrentUserOrderListDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { getLanguageCodeForChannel } from "@/lib/language";
+import { fetchStorefrontConfig } from "@/lib/storefront-control";
 import { OrdersPageContent } from "./OrdersPageContent";
 
-export const metadata = {
-	title: "My Orders | SportZone",
-	description: "View and track your order history.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ channel: string }> }) {
+	const { channel } = await params;
+	const config = await fetchStorefrontConfig(channel);
+	const storeName = config.store?.name || "Store";
+	const ordersTitle = config.content?.orders?.myOrdersTitle || "My Orders";
+	return {
+		title: `${ordersTitle} | ${storeName}`,
+		description: config.content?.orders?.noOrdersMessage || "View and track your order history.",
+		robots: { index: false, follow: false },
+	};
+}
 
 const statusColors: Record<string, { bg: string; text: string }> = {
 	UNFULFILLED: { bg: "bg-yellow-100", text: "text-yellow-700" },

@@ -2,12 +2,20 @@ import { redirect } from "next/navigation";
 import { CurrentUserDocument, type CurrentUserQuery } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { isAuthOrRscContextError } from "@/lib/auth-errors";
+import { fetchStorefrontConfig } from "@/lib/storefront-control";
 import { LoginClient } from "./LoginClient";
 
-export const metadata = {
-	title: "Sign In | SportZone",
-	description: "Sign in to your SportZone account to access your orders, wishlist, and more.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ channel: string }> }) {
+	const { channel } = await params;
+	const config = await fetchStorefrontConfig(channel);
+	const storeName = config.store?.name || "Store";
+	const signInTitle = config.content?.account?.signInTitle || "Sign In";
+	return {
+		title: `${signInTitle} | ${storeName}`,
+		description: `Sign in to your ${storeName} account to access your orders, wishlist, and more.`,
+		robots: { index: false, follow: false },
+	};
+}
 
 export default async function LoginPage({
 	params,

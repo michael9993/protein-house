@@ -1,15 +1,23 @@
 import { CurrentUserOrderListDocument, CurrentUserAddressesDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { getLanguageCodeForChannel } from "@/lib/language";
+import { fetchStorefrontConfig } from "@/lib/storefront-control";
 import { AccountStatsGrid } from "./AccountStatsGrid";
 import { AccountSections } from "./AccountSections";
 import { AccountDashboardContent } from "./AccountDashboardContent";
 import { AccountWelcomeHeader } from "./AccountWelcomeHeader";
 
-export const metadata = {
-	title: "My Account | SportZone",
-	description: "Manage your SportZone account, view orders, and update your preferences.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ channel: string }> }) {
+	const { channel } = await params;
+	const config = await fetchStorefrontConfig(channel);
+	const storeName = config.store?.name || "Store";
+	const accountTitle = config.content?.account?.myAccountTitle || "My Account";
+	return {
+		title: `${accountTitle} | ${storeName}`,
+		description: config.content?.account?.needHelpDescription || `Manage your ${storeName} account, view orders, and update your preferences.`,
+		robots: { index: false, follow: false },
+	};
+}
 
 export default async function AccountDashboardPage({ 
 	params 

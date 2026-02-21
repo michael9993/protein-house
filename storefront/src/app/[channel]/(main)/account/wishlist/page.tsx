@@ -1,12 +1,20 @@
 import { redirect } from "next/navigation";
 import { CurrentUserDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
+import { fetchStorefrontConfig } from "@/lib/storefront-control";
 import { WishlistClient } from "./WishlistClient";
 
-export const metadata = {
-	title: "My Wishlist | SportZone",
-	description: "View and manage your saved items.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ channel: string }> }) {
+	const { channel } = await params;
+	const config = await fetchStorefrontConfig(channel);
+	const storeName = config.store?.name || "Store";
+	const wishlistTitle = config.content?.wishlist?.myWishlistTitle || "My Wishlist";
+	return {
+		title: `${wishlistTitle} | ${storeName}`,
+		description: "View and manage your saved items.",
+		robots: { index: false, follow: false },
+	};
+}
 
 export default async function WishlistPage({
 	params,

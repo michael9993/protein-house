@@ -1,12 +1,20 @@
 import { redirect } from "next/navigation";
 import { CurrentUserAddressesDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
+import { fetchStorefrontConfig } from "@/lib/storefront-control";
 import { AddressesClient } from "./AddressesClient";
 
-export const metadata = {
-	title: "My Addresses | SportZone",
-	description: "Manage your saved addresses for faster checkout.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ channel: string }> }) {
+	const { channel } = await params;
+	const config = await fetchStorefrontConfig(channel);
+	const storeName = config.store?.name || "Store";
+	const addressesTitle = config.content?.addresses?.myAddresses || "My Addresses";
+	return {
+		title: `${addressesTitle} | ${storeName}`,
+		description: config.content?.addresses?.noAddressesMessage || "Manage your saved addresses for faster checkout.",
+		robots: { index: false, follow: false },
+	};
+}
 
 export default async function AddressesPage({
 	params,

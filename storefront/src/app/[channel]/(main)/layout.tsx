@@ -161,6 +161,7 @@ export default async function RootLayout(props: {
 		name: storeConfig.store?.name || "Aura Store",
 		url: siteUrl,
 		logo: storeConfig.branding?.logo || undefined,
+		image: storeConfig.seo?.defaultImage || storeConfig.branding?.logo || undefined,
 		description: storeConfig.store?.description || storeConfig.seo?.defaultDescription || undefined,
 		email: storeConfig.store?.email || undefined,
 		telephone: storeConfig.store?.phone || undefined,

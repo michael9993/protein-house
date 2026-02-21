@@ -12,6 +12,7 @@ export async function generateMetadata({
 	return {
 		title: `Confirm Your Email | ${storeName}`,
 		description: "Confirm your email address to activate your account.",
+		robots: { index: false, follow: false },
 	};
 }
 
