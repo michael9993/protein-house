@@ -32,7 +32,6 @@ function SourceProducts() {
   const [products, setProducts] = useState<SourcedProduct[]>([]);
   const [fetchErrors, setFetchErrors] = useState<Array<{ pid: string; error: string }>>([]);
   const [shippingLoading, setShippingLoading] = useState(false);
-  const [warehouseLoading, setWarehouseLoading] = useState(false);
   const [warehouseStrategy, setWarehouseStrategy] = useState<"cheapest" | "fastest">("cheapest");
 
   // ── Import state ──
@@ -70,32 +69,38 @@ function SourceProducts() {
     return ch?.currencyCode === "ILS";
   });
 
-  // ── Shipping auto-fetch ──
-  const shippingMutation = trpcClient.source.fetchShipping.useMutation({
+  // ── Shipping: fetch all warehouse options in one shot ──
+  const parseDays = (s: string) => parseInt(s.match(/(\d+)/)?.[1] || "999", 10);
+
+  function pickBestWarehouse(
+    warehouses: SourcedProduct["warehouseOptions"],
+    strategy: "cheapest" | "fastest",
+  ) {
+    return warehouses.reduce((best, wh) => {
+      const pick = strategy === "cheapest" ? wh.cheapest : wh.fastest;
+      const bestPick = strategy === "cheapest" ? best.cheapest : best.fastest;
+      if (!pick) return best;
+      if (!bestPick) return wh;
+      if (strategy === "cheapest") return pick.cost < bestPick.cost ? wh : best;
+      return parseDays(pick.days) < parseDays(bestPick.days) ? wh : best;
+    });
+  }
+
+  const shippingMutation = trpcClient.source.fetchWarehouseShipping.useMutation({
     onSuccess: (data) => {
       setProducts((prev) =>
         prev.map((p) => {
-          const updatedVariants = p.variants.map((v) => {
-            const shipping = data.results.find((r) => r.pid === p.pid && r.vid === v.vid);
-            if (!shipping) return v;
-            return {
-              ...v,
-              shippingCost: shipping.shippingCost,
-              shippingCarrier: shipping.carrier,
-              shippingDays: shipping.deliveryDays,
-            };
-          });
-          const withShipping = updatedVariants.filter((v) => v.shippingCost != null);
-          const cheapest = withShipping.length > 0
-            ? withShipping.reduce((best, v) =>
-                (v.shippingCost ?? Infinity) < (best.shippingCost ?? Infinity) ? v : best)
-            : null;
+          const match = data.results.find((r) => r.pid === p.pid);
+          if (!match || match.warehouses.length === 0) return p;
+          const bestWh = pickBestWarehouse(match.warehouses, warehouseStrategy);
+          const pick = warehouseStrategy === "cheapest" ? bestWh.cheapest : bestWh.fastest;
           return {
             ...p,
-            variants: updatedVariants,
-            shippingCost: cheapest?.shippingCost ?? null,
-            shippingCarrier: cheapest?.shippingCarrier ?? "",
-            shippingDays: cheapest?.shippingDays ?? "",
+            warehouseOptions: match.warehouses,
+            selectedWarehouse: bestWh.origin,
+            shippingCost: pick?.cost ?? null,
+            shippingCarrier: pick?.carrier ?? "",
+            shippingDays: pick?.days ?? "",
           };
         }),
       );
@@ -104,89 +109,28 @@ function SourceProducts() {
     onError: () => setShippingLoading(false),
   });
 
+  // Trigger when new products arrive that don't have warehouse options yet
   useEffect(() => {
     if (products.length === 0 || shippingLoading) return;
-    const allVariants = products
-      .filter((p) => p.variants.some((v) => v.shippingCost === null))
-      .flatMap((p) =>
-        p.variants
-          .filter((v) => v.shippingCost === null)
-          .map((v) => ({ pid: p.pid, vid: v.vid, weight: v.weight })),
-      );
-    if (allVariants.length === 0) return;
+    const needsShipping = products.filter((p) => p.warehouseOptions.length === 0);
+    if (needsShipping.length === 0) return;
     setShippingLoading(true);
-    shippingMutation.mutate({ variants: allVariants, destinationCountry });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [products.length]);
-
-  // ── Warehouse shipping auto-fetch ──
-  const warehouseMutation = trpcClient.source.fetchWarehouseShipping.useMutation({
-    onSuccess: (data) => {
-      setProducts((prev) =>
-        prev.map((p) => {
-          const match = data.results.find((r) => r.pid === p.pid);
-          if (!match || match.warehouses.length === 0) return p;
-          // Pick best warehouse based on strategy
-          const bestWh = match.warehouses.reduce((best, wh) => {
-            const pick = warehouseStrategy === "cheapest" ? wh.cheapest : wh.fastest;
-            const bestPick = warehouseStrategy === "cheapest" ? best.cheapest : best.fastest;
-            if (!pick) return best;
-            if (!bestPick) return wh;
-            if (warehouseStrategy === "cheapest") return pick.cost < bestPick.cost ? wh : best;
-            // fastest — compare days (parse first number)
-            const parseDays = (s: string) => parseInt(s.match(/(\d+)/)?.[1] || "999", 10);
-            return parseDays(pick.days) < parseDays(bestPick.days) ? wh : best;
-          });
-          const selected = bestWh.origin;
-          const pick = warehouseStrategy === "cheapest" ? bestWh.cheapest : bestWh.fastest;
-          return {
-            ...p,
-            warehouseOptions: match.warehouses,
-            selectedWarehouse: selected,
-            shippingCost: pick?.cost ?? p.shippingCost,
-            shippingCarrier: pick?.carrier ?? p.shippingCarrier,
-            shippingDays: pick?.days ?? p.shippingDays,
-          };
-        }),
-      );
-      setWarehouseLoading(false);
-    },
-    onError: () => setWarehouseLoading(false),
-  });
-
-  // Trigger warehouse fetch after basic shipping resolves
-  useEffect(() => {
-    if (products.length === 0 || warehouseLoading) return;
-    // Only fetch warehouses for products that don't have options yet
-    const needsWarehouse = products.filter(
-      (p) => p.warehouseOptions.length === 0 && p.shippingCost != null,
-    );
-    if (needsWarehouse.length === 0) return;
-    setWarehouseLoading(true);
-    warehouseMutation.mutate({
-      products: needsWarehouse.map((p) => ({
+    shippingMutation.mutate({
+      products: needsShipping.map((p) => ({
         pid: p.pid,
         vid: p.variants[0]?.vid ?? "",
       })),
       destinationCountry,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [products.map((p) => `${p.pid}:${p.shippingCost}`).join(",")]);
+  }, [products.length]);
 
-  // When strategy changes, re-apply warehouse selection
+  // When strategy changes, re-apply warehouse selection from cached options
   useEffect(() => {
     setProducts((prev) =>
       prev.map((p) => {
         if (p.warehouseOptions.length === 0) return p;
-        const bestWh = p.warehouseOptions.reduce((best, wh) => {
-          const pick = warehouseStrategy === "cheapest" ? wh.cheapest : wh.fastest;
-          const bestPick = warehouseStrategy === "cheapest" ? best.cheapest : best.fastest;
-          if (!pick) return best;
-          if (!bestPick) return wh;
-          if (warehouseStrategy === "cheapest") return pick.cost < bestPick.cost ? wh : best;
-          const parseDays = (s: string) => parseInt(s.match(/(\d+)/)?.[1] || "999", 10);
-          return parseDays(pick.days) < parseDays(bestPick.days) ? wh : best;
-        });
+        const bestWh = pickBestWarehouse(p.warehouseOptions, warehouseStrategy);
         const pick = warehouseStrategy === "cheapest" ? bestWh.cheapest : bestWh.fastest;
         return {
           ...p,
@@ -564,7 +508,6 @@ function SourceProducts() {
             products={products}
             markup={markup}
             shippingLoading={shippingLoading}
-            warehouseLoading={warehouseLoading}
             warehouseStrategy={warehouseStrategy}
             onUpdateProduct={updateProduct}
             onRemoveProduct={removeProduct}

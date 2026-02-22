@@ -116,6 +116,17 @@ const FIND_PRODUCT_BY_EXTERNAL_REF = gql`
       id
       name
       externalReference
+      metadata { key value }
+      variants {
+        id
+        sku
+        metadata { key value }
+        channelListings {
+          channel { slug currencyCode }
+          costPrice { amount }
+          price { amount }
+        }
+      }
     }
   }
 `;
@@ -168,7 +179,7 @@ const UPDATE_PRIVATE_METADATA = gql`
 const UPDATE_PUBLIC_METADATA = gql`
   mutation UpdatePublicMetadata($id: ID!, $input: [MetadataInput!]!) {
     updateMetadata(id: $id, input: $input) {
-      item { ... on Product { id } }
+      item { ... on Product { id } ... on ProductVariant { id } }
       errors { field code message }
     }
   }
@@ -1478,7 +1489,7 @@ export const sourceRouter = router({
           );
           const productId = createResult.productCreate.product.id;
 
-          // 8. Set private metadata (dropship.supplier, dropship.costPrice)
+          // 8. Set private metadata (dropship.costPrice) + public metadata (dropship.supplier)
           await saleorMutate(client, UPDATE_PRIVATE_METADATA, {
             id: productId,
             input: [
@@ -1486,6 +1497,13 @@ export const sourceRouter = router({
               { key: "dropship.costPrice", value: String(product.costPrice) },
             ],
           }, "Private metadata");
+          // Also set dropship.supplier in PUBLIC metadata (checkout webhooks can only read public metadata)
+          await saleorMutate(client, UPDATE_PUBLIC_METADATA, {
+            id: productId,
+            input: [
+              { key: "dropship.supplier", value: "cj" },
+            ],
+          }, "Public metadata");
 
           // 9. Publish to channels (always publish — matches Bulk Manager)
           const channelListings = selectedChannels.map((ch) => ({
@@ -1597,11 +1615,15 @@ export const sourceRouter = router({
                 `Variant pricing ${sku}`,
               );
 
-              // 12c. Set variant private metadata
+              // 12c. Set variant private metadata + public metadata
               await saleorMutate(client, UPDATE_PRIVATE_METADATA, {
                 id: variantId,
                 input: [{ key: "dropship.supplierSku", value: variant.vid }],
-              }, "Variant metadata");
+              }, "Variant private metadata");
+              await saleorMutate(client, UPDATE_PUBLIC_METADATA, {
+                id: variantId,
+                input: [{ key: "dropship.supplierSku", value: variant.vid }],
+              }, "Variant public metadata");
 
               // 12c2. Allocate stock in warehouse (required for Saleor shipping availability)
               if (warehouseId) {
@@ -1759,8 +1781,10 @@ export const sourceRouter = router({
             continue;
           }
 
-          // Compare price drift
-          const oldPrice = 0; // Would need to read from variant channelListings
+          // Compare price drift — read cost price from first variant's channel listing
+          const firstVariant = prodData.product.variants?.[0];
+          const firstListing = firstVariant?.channelListings?.[0];
+          const oldPrice = firstListing?.costPrice?.amount ?? 0;
           const newPrice = Number(cjProduct.sellPrice) || 0;
           const drift =
             oldPrice > 0 ? Math.abs((newPrice - oldPrice) / oldPrice) * 100 : 0;

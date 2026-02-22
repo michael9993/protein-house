@@ -6,7 +6,6 @@ interface SourcingTableProps {
   products: SourcedProduct[];
   markup: number;
   shippingLoading: boolean;
-  warehouseLoading: boolean;
   warehouseStrategy: "cheapest" | "fastest";
   onUpdateProduct: (pid: string, field: keyof SourcedProduct, value: string) => void;
   onRemoveProduct: (pid: string) => void;
@@ -23,7 +22,6 @@ export function SourcingTable({
   products,
   markup,
   shippingLoading,
-  warehouseLoading,
   warehouseStrategy,
   onUpdateProduct,
   onRemoveProduct,
@@ -54,7 +52,6 @@ export function SourcingTable({
                 product={product}
                 markup={markup}
                 shippingLoading={shippingLoading}
-                warehouseLoading={warehouseLoading}
                 warehouseStrategy={warehouseStrategy}
                 onUpdateProduct={onUpdateProduct}
                 onRemoveProduct={onRemoveProduct}
@@ -77,7 +74,6 @@ function ProductRow({
   product,
   markup,
   shippingLoading,
-  warehouseLoading,
   warehouseStrategy,
   onUpdateProduct,
   onRemoveProduct,
@@ -87,7 +83,6 @@ function ProductRow({
   product: SourcedProduct;
   markup: number;
   shippingLoading: boolean;
-  warehouseLoading: boolean;
   warehouseStrategy: "cheapest" | "fastest";
   onUpdateProduct: (pid: string, field: keyof SourcedProduct, value: string) => void;
   onRemoveProduct: (pid: string) => void;
@@ -209,8 +204,6 @@ function ProductRow({
                     {product.warehouseOptions[0].originLabel}
                   </span>
                 </div>
-              ) : warehouseLoading ? (
-                <div className="mt-0.5 text-[10px] text-text-muted">warehouses...</div>
               ) : null}
             </div>
           ) : (
