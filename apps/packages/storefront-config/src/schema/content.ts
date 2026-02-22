@@ -77,6 +77,8 @@ export const CartTextSchema = z.object({
   giftLabel: z.string().optional(),               // "Gift" badge next to gift line
   giftAddedMessage: z.string().optional(),         // Toast: "A free gift has been added to your cart."
   giftRemoveHint: z.string().optional(),           // "(You can remove it)" or empty to hide
+  // Delivery estimates
+  deliverySummaryLabel: z.string().optional(),      // "All items arrive within {days} business days"
 });
 
 export const ProductTextSchema = z.object({

@@ -875,7 +875,8 @@
         "shippingNote": "Shipping and taxes calculated at checkout",
         "giftLabel": "Gift",
         "giftAddedMessage": "A free gift has been added to your cart.",
-        "giftRemoveHint": "(You can remove it)"
+        "giftRemoveHint": "(You can remove it)",
+        "deliverySummaryLabel": "All items arrive within {days} business days"
       },
       "product": {
         "addToCartButton": "Add to Cart",

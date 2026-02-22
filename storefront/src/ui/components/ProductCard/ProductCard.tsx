@@ -359,7 +359,7 @@ function UiCardDeliveryBadge({ metadata }: { metadata?: Array<{ key: string; val
   if (!ecommerce.shipping?.showEstimatedDelivery) return null;
   const est = getProductShippingEstimate(metadata);
   if (!est) return null;
-  const days = formatEstimate(est, (ecommerce.shipping as any).estimatedDeliveryFormat ?? "range");
-  const label = (pdText as any).deliveryEstimateLabel?.replace("{days}", days) ?? `Ships in ${days} days`;
+  const days = formatEstimate(est, ecommerce.shipping.estimatedDeliveryFormat ?? "range");
+  const label = pdText.deliveryEstimateLabel?.replace("{days}", days) ?? `Ships in ${days} days`;
   return <p className="mt-1 truncate text-xs text-neutral-500">{label}</p>;
 }

@@ -825,6 +825,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       giftLabel: "Gift",
       giftAddedMessage: "A free gift has been added to your cart.",
       giftRemoveHint: "(You can remove it)",
+      deliverySummaryLabel: "All items arrive within {days} business days",
       loadingCheckoutTitle: "Loading Checkout...",
       loadingCheckoutMessage: "Please wait while we prepare your checkout",
       selectItemsButton: "Select Items",

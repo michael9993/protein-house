@@ -452,7 +452,17 @@ The dashboard was modernized from MUI v5 to Tailwind CSS v4 + macaw-ui-next. Key
 
 **Apps:** Vitest with workspace config. Unit tests in `src/**/*.test.ts`, E2E via `vitest --project e2e`. Mocks in `src/__tests__/mocks/`. For neverthrow: `._unsafeUnwrap()` for success, `._unsafeUnwrapErr()` for errors.
 
-**Storefront:** No test runner. Relies on TypeScript strict mode and ESLint.
+**Storefront E2E:** Playwright test suite with 23 tests across 5 flows (cart, checkout, auth, search, account). **Runs on the host machine** (not Docker) against `http://localhost:3000`. Page object pattern in `storefront/e2e/pages/`. Auth uses cookie injection (bypasses JWT ISS mismatch in dev). Global setup verifies storefront + API reachability.
+
+```bash
+# Run from storefront/ directory (on host, NOT in Docker)
+cd storefront
+pnpm test:e2e          # Headless
+pnpm test:e2e:headed   # With browser
+pnpm test:e2e:ui       # Interactive UI mode
+```
+
+**Storefront static analysis:** TypeScript strict mode + ESLint (no unit test runner).
 
 ## Code Style
 
@@ -544,6 +554,10 @@ npm run generate      # Generate product Excel + CSVs
 | `storefront/src/ui/components/GoogleTagManager.tsx` | Consent-gated GTM script loader |
 | `apps/turbo.json` | Turborepo task pipeline |
 | `saleor/saleor/settings.py` | Django settings and installed apps |
+| `storefront/playwright.config.ts` | Playwright E2E config (Chrome, 60s timeout, traces on failure) |
+| `storefront/e2e/global-setup.ts` | E2E pre-flight checks (storefront + API + test user) |
+| `storefront/e2e/fixtures/graphql-client.ts` | Direct Saleor API client for E2E setup |
+| `storefront/e2e/fixtures/test-data.ts` | Test constants (channel, credentials, Stripe test card) |
 
 ## Important Documentation
 

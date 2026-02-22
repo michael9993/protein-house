@@ -846,7 +846,7 @@ export function CartClient({
                               const maxDays = est?.maxDays ?? ecommerce.shipping.defaultEstimatedMaxDays;
                               if (!minDays || !maxDays) return null;
                               const range = minDays === maxDays ? `${minDays}` : `${minDays}-${maxDays}`;
-                              const label = (content as any).product?.deliveryEstimateLabel ?? "Ships in {days} business days";
+                              const label = content.productDetail?.deliveryEstimateLabel ?? "Ships in {days} business days";
                               return (
                                 <p className="mt-1 text-xs text-neutral-500">
                                   {label.replace("{days}", range)}
@@ -1185,7 +1185,7 @@ export function CartClient({
                     return Math.max(max, days);
                   }, 0);
                   if (!maxDays) return null;
-                  const label = (content as any).cart?.deliverySummaryLabel ?? "All items arrive within {days} business days";
+                  const label = content.cart?.deliverySummaryLabel ?? "All items arrive within {days} business days";
                   return (
                     <p className="mt-3 text-xs text-neutral-500 text-center">
                       {label.replace("{days}", String(maxDays))}

@@ -946,7 +946,8 @@
         "youSaveLabel": "חיסכון של",
         "giftLabel": "מתנה",
         "giftAddedMessage": "מתנה חינם נוספה לעגלה שלך.",
-        "giftRemoveHint": "(ניתן להסיר)"
+        "giftRemoveHint": "(ניתן להסיר)",
+        "deliverySummaryLabel": "כל הפריטים מגיעים תוך {days} ימי עסקים"
       },
       "product": {
         "addToCartButton": "הוסף לסל",

@@ -107,6 +107,9 @@ services:
 
       # GraphQL Playground - disable in production
       GRAPHQL_PLAYGROUND_ENABLED: ${GRAPHQL_PLAYGROUND_ENABLED:-True}
+
+      # Allow Docker internal IPs for webhooks (sync webhooks use Docker service names)
+      HTTP_IP_FILTER_ENABLED: "False"
     depends_on:
       postgres:
         condition: service_healthy
@@ -157,6 +160,8 @@ services:
       RSA_PRIVATE_PASSWORD: ${RSA_PRIVATE_PASSWORD:-}
       DEBUG: ${DEBUG}
       PUBLIC_URL: ${SALEOR_API_TUNNEL_URL:-${PUBLIC_URL:-http://localhost:8000}}
+      # Allow Docker internal IPs for webhooks
+      HTTP_IP_FILTER_ENABLED: "False"
     depends_on:
       postgres:
         condition: service_healthy
@@ -860,9 +865,10 @@ services:
     environment:
       SALEOR_API_URL: ${SALEOR_API_URL}
       NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
-      # Use tunnel URL for app registration (Dashboard needs to reach this)
+      # Docker internal URL for webhooks (Saleor API → app communication)
       DROPSHIP_APP_URL: ${DROPSHIP_APP_TUNNEL_URL:-http://localhost:${DROPSHIP_APP_PORT:-3009}}
-      APP_API_BASE_URL: ${DROPSHIP_APP_TUNNEL_URL:-http://localhost:${DROPSHIP_APP_PORT:-3009}}
+      APP_API_BASE_URL: http://saleor-dropship-app:3000
+      # Tunnel URL for Dashboard iframe (browser needs to reach this)
       APP_IFRAME_BASE_URL: ${DROPSHIP_APP_TUNNEL_URL:-http://localhost:${DROPSHIP_APP_PORT:-3009}}
       # APL type: 'file' for local dev
       APL: ${APL:-file}

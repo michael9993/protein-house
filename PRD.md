@@ -2,8 +2,8 @@
 
 ## Aura E-Commerce Platform
 
-**Version:** 1.5.0
-**Last Updated:** February 20, 2026
+**Version:** 1.7.0
+**Last Updated:** February 22, 2026
 **Status:** Active Development
 **Document Owner:** Development Team
 
@@ -45,7 +45,8 @@
 13. [API Reference](#13-api-reference)
 14. [Security & Compliance](#14-security--compliance)
 15. [Performance Requirements](#15-performance-requirements)
-16. [Appendices](#appendices)
+16. [End-to-End Testing](#16-end-to-end-testing)
+17. [Appendices](#appendices)
 
 ---
 
@@ -1559,6 +1560,63 @@ mutation CheckoutCreate($channel: String!) {
 
 ---
 
+## 16. End-to-End Testing
+
+### 16.1 Overview
+
+The storefront has a Playwright E2E test suite covering 5 critical user flows with 23 tests. Tests run on the **host machine** (not Docker) against the live dev environment at `http://localhost:3000`.
+
+**Prerequisites:**
+- Storefront running at `http://localhost:3000`
+- Saleor API running at `http://localhost:8000/graphql/`
+- Test user `e2e-test@example.com` / `Test1234!` exists (created via Django shell)
+- Playwright browsers installed (`npx playwright install chromium`)
+
+### 16.2 Test Suite
+
+| Spec | Tests | Flows Covered |
+|------|-------|---------------|
+| `cart.spec.ts` | 5 | Add to cart from PDP, drawer count, quantity +/-, remove item, empty state |
+| `checkout.spec.ts` | 3 | Full Stripe guest checkout (test card 4242...), order summary, email required |
+| `auth.spec.ts` | 5 | Login processing state, wrong password error, register, forgot password, access guard |
+| `search.spec.ts` | 4 | No results, page load, header search, products listing |
+| `account.spec.ts` | 5 + setup | Auth redirect for all sections, redirect URL preservation |
+
+### 16.3 Architecture
+
+- **Page Object pattern**: `storefront/e2e/pages/` — 7 page objects (BasePage, CartPage, CheckoutPage, LoginPage, ProductDetailPage, SearchPage, AccountPage)
+- **Fixtures**: `storefront/e2e/fixtures/` — GraphQL client for test setup, test data constants, Stripe test card
+- **Auth setup**: Cookie injection via `tokenCreate` API + `context.addCookies()` (bypasses JWT ISS mismatch in dev)
+- **Global setup**: `storefront/e2e/global-setup.ts` — verifies storefront + API reachable, checks test user
+- **Cookie consent**: Suppressed via `localStorage.setItem` in `addInitScript` before every test
+
+### 16.4 Running Tests
+
+```bash
+cd storefront
+pnpm test:e2e          # Headless (CI)
+pnpm test:e2e:headed   # With browser visible
+pnpm test:e2e:ui       # Playwright UI mode (interactive)
+```
+
+### 16.5 Known Limitations
+
+- **JWT ISS mismatch**: Server-side auth doesn't work in dev because JWT `iss` (production URL) doesn't match `SALEOR_API_URL` (Docker internal). Auth tests use cookie injection workaround.
+- **Search not indexed**: Saleor full-text search returns 0 results. Search tests verify page structure, not search results.
+- **CI not automated**: Tests require running Saleor API + storefront. CI integration needs service containers (future work).
+
+### 16.6 Key Files
+
+| File | Purpose |
+|------|---------|
+| `storefront/playwright.config.ts` | Playwright config (Chrome desktop, 60s timeout, traces on failure) |
+| `storefront/e2e/global-setup.ts` | Pre-flight checks (storefront + API reachable, test user exists) |
+| `storefront/e2e/auth.setup.ts` | Auth cookie injection for authenticated test project |
+| `storefront/e2e/fixtures/graphql-client.ts` | Direct Saleor API client for test setup |
+| `storefront/e2e/fixtures/test-data.ts` | Test constants (channel, credentials, addresses, Stripe test card) |
+
+---
+
 ## Appendices
 
 ### A. Environment Variables
@@ -1621,6 +1679,7 @@ SMTP_HOST=smtp.example.com
 | 1.4.0   | 2026-02-11 | Added Catalog Generator & Store Infrastructure tool (section 9.8): @saleor/configurator integration with SINGLE_REFERENCE patch, config.yml for infrastructure-as-code, product catalog generation pipeline, Hebrew translation script |
 | 1.5.0   | 2026-02-20 | Documentation audit: Updated tech stack versions (Next.js 16, React 19.2, Tailwind 4.1, Zustand 5, URQL 5), added Dropship Orchestrator app (section 9.10), added missing containers (Image Studio, Dropship, rembg, esrgan), updated architecture diagram |
 | 1.6.0   | 2026-02-21 | Phase 0 pre-launch blockers: Added GA4/GTM analytics integration (consent-gated, 5 e-commerce events), GDPR cookie consent banner (3 categories, configurable via Storefront Control), Google Ads conversion tracking. Updated security section with cookie consent compliance. |
+| 1.7.0   | 2026-02-22 | Added E2E testing section (16): 23 Playwright tests across 5 critical flows (cart, checkout, auth, search, account). Page object pattern, cookie injection auth, global setup. Updated TOC. |
 
 ---
 

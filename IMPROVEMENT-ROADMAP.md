@@ -2,8 +2,8 @@
 
 > **Created:** February 20, 2026
 > **Last Updated:** February 22, 2026
-> **Platform Readiness:** ~96% (Pre-Launch — Phase 0 Complete)
-> **Total Mapped Work:** ~130-180 hours remaining across 3 phases
+> **Platform Readiness:** ~99% (Pre-Launch — Phase 0 Complete, GDPR + Rate Limiting + E2E + CWV Done)
+> **Total Mapped Work:** ~120-165 hours remaining across 3 phases
 
 ---
 
@@ -26,11 +26,12 @@
 - Dropship Orchestrator (AliExpress + CJ Dropshipping, order forwarding, tracking sync, fraud detection, pricing engine, returns management, delivery estimates)
 - Image Studio (AI-powered image editor with canvas, templates, bg removal, generation, upscaling)
 - Bulk Manager (CSV/Excel import/export/delete for 7 entity types: products, categories, collections, customers, orders, vouchers, gift cards)
-- CI pipelines for storefront, dashboard, backend, and apps monorepo (separate workflows per service)
+- CI pipelines for storefront, dashboard, backend, and apps monorepo (separate workflows per service + Lighthouse CI)
+- Core Web Vitals RUM monitoring (LCP, INP, CLS, FCP, TTFB → GA4 via web-vitals library)
+- GDPR compliance: account deletion (2-step email flow), personal data export (JSON download), server-side consent audit trail (user metadata), cookie preference center re-opener
+- App-level rate limiting: sliding-window limiter on all 15 API routes (3 tiers: strict/normal/relaxed), GraphQL query depth limiting (max 15)
 
 **What's missing (in order of urgency):**
-- No E2E tests on the storefront (can't deploy with confidence)
-- No Core Web Vitals monitoring (can't measure performance)
 - BNPL partially integrated (Klarna payment method exists in Stripe app but needs completion)
 
 ---
@@ -78,17 +79,17 @@ High-impact items that directly affect revenue and stability.
 | # | Task | Time | Revenue Impact | Detail |
 |---|------|------|---------------|--------|
 | 1 | ~~**Abandoned cart email sequence**~~ | ~~6-8 hrs~~ | ~~5-15% cart recovery~~ | **DONE** — 3-email sequence (1hr, 24hr, 72hr) via Celery Beat + SMTP app. Signed recovery URLs with 7-day expiry. MJML templates in EN+HE. `CheckoutRecover` GraphQL mutation. E2E tested. |
-| 2 | **E2E tests — critical flows** | 10-15 hrs | Risk reduction | Start with 5 flows: checkout completion, login/register, add-to-cart, search, account orders. Playwright setup + first test suite. No test runner exists in storefront currently. |
-| 3 | **Performance monitoring** | 8-10 hrs | SEO + UX | No Core Web Vitals data. Google ranks on CWV. Add web-vitals RUM reporting to GA4 + Lighthouse CI in pipeline. |
+| 2 | ~~**E2E tests — critical flows**~~ | ~~10-15 hrs~~ | ~~Risk reduction~~ | **DONE** — 23 Playwright tests across 5 flows: cart (5), checkout (3), auth (5), search (4), account (5+setup). Page object pattern, cookie injection auth, global setup with health checks. `storefront/e2e/`. Run: `pnpm test:e2e`. |
+| 3 | ~~**Performance monitoring**~~ | ~~8-10 hrs~~ | ~~SEO + UX~~ | **DONE** — `web-vitals` v5.1 sends LCP/INP/CLS/FCP/TTFB to GA4 via dataLayer. Consent-gated (queues until analytics consent). Lighthouse CI added to storefront pipeline with performance budgets. `storefront/src/lib/web-vitals.ts` + `WebVitalsReporter.tsx`. |
 
 ### Week 2: Compliance & Security
 
 | # | Task | Time | Impact | Detail |
 |---|------|------|--------|--------|
 | 4 | **CI/CD unification** | 8-12 hrs | Risk reduction | Each service (storefront, dashboard, backend, apps) has its own CI workflow. Add unified orchestration pipeline that runs all checks on PR, plus deployment automation for staging/production. |
-| 5 | **GDPR consent management** | 4-6 hrs | Legal | Full system beyond the cookie banner: data export endpoint, consent records, preference center UI. Cookie banner and consent manager already exist. |
-| 6 | **App-level rate limiting** | 4-6 hrs | Security | Nginx rate limiting exists but apps have no throttling. Add express-rate-limit or similar to GraphQL-heavy endpoints. |
-| 7 | **E2E tests — extended** | 10-15 hrs | Risk reduction | Continue Playwright: promo codes, wishlist, newsletter subscribe, track order, multi-channel switching. |
+| 5 | ~~**GDPR consent management**~~ | ~~4-6 hrs~~ | ~~Legal~~ | **DONE** — Account deletion UI (2-step email flow with confirmation page), personal data export (`GET /api/data-export` JSON download), server-side consent audit trail (Saleor user metadata: `consent_analytics`, `consent_marketing`, `consent_timestamp`), cookie preference center re-opener in account settings. Files: `AccountDeletion.graphql`, `DataExport.graphql`, `ConsentLog.graphql`, `delete-confirm/page.tsx`, `data-export/route.ts`, `consent-log/route.ts`. |
+| 6 | ~~**App-level rate limiting**~~ | ~~4-6 hrs~~ | ~~Security~~ | **DONE** — Shared sliding-window rate limiter (`storefront/src/lib/rate-limit.ts`) applied to all 15 API routes in 3 tiers: strict (5 req/min: contact, data-export, recover-cart, invoice, consent-log), normal (30 req/min: search, cart, reviews), relaxed (60 req/min: config, draft). Contact form's inline limiter replaced. GraphQL depth limiting added to Saleor backend (max 15, configurable via `GRAPHQL_QUERY_MAX_DEPTH`). |
+| 7 | **E2E tests — extended** | 10-15 hrs | Risk reduction | Continue Playwright: promo codes, wishlist, newsletter subscribe, track order, multi-channel switching. Base infrastructure + 23 critical flow tests already done. |
 
 **Previously listed — now confirmed DONE:**
 - ~~Reviews/Ratings UI (8-12 hrs)~~ — Full backend (GraphQL mutations, DB models) + storefront UI (star ratings, review form with image upload, review list, helpful votes) already exist in `storefront/src/ui/components/ProductReviews/`.
@@ -179,15 +180,15 @@ This work can run in parallel with Phases 1-3 above since it mostly touches diff
                             |
      BNPL Completion (P2)   |  ✅ GA4/GTM (P0) — DONE
      Loyalty (P2)           |  ✅ Abandoned Cart (P1) — DONE
-     Dropship Remaining     |  E2E Tests (P1)
+     Dropship Remaining     |  ✅ E2E Tests (P1) — DONE
                             |  ✅ Reviews/Ratings — DONE
                             |  ✅ Product JSON-LD (P0) — DONE
   ─────────────────────────-+──────────────────────── URGENT
                             |
      A/B Testing (P3)       |  ✅ Cookie Consent (P0) — DONE
-     Storybook (P3)         |  GDPR (P1)
-     Log Aggregation (P2)   |  Perf Monitoring (P1)
-     Load Testing (P2)      |  Rate Limiting (P1)
+     Storybook (P3)         |  ✅ Perf Monitoring (P1) — DONE
+     Log Aggregation (P2)   |  ✅ GDPR (P1) — DONE
+     Load Testing (P2)      |  ✅ Rate Limiting (P1) — DONE
                             |  CI/CD Unification (P1)
                             |
                         LOW IMPACT
@@ -208,15 +209,15 @@ If working solo, this is the optimal sequence:
 
 ### Week 1 Post-Launch
 6. ~~Abandoned cart emails (6-8 hrs)~~ DONE
-7. Playwright E2E — critical flows (10-15 hrs)
+7. ~~Playwright E2E — critical flows (10-15 hrs)~~ DONE
 
 ### Week 2 Post-Launch
-8. Performance monitoring + CWV (8-10 hrs)
+8. ~~Performance monitoring + CWV (8-10 hrs)~~ DONE
 9. CI/CD unification (8-12 hrs)
 
 ### Week 3-4
-10. GDPR consent management (4-6 hrs)
-11. App-level rate limiting (4-6 hrs)
+10. ~~GDPR consent management (4-6 hrs)~~ DONE
+11. ~~App-level rate limiting (4-6 hrs)~~ DONE
 12. E2E tests — extended coverage (10-15 hrs)
 
 ### Month 2
@@ -250,7 +251,7 @@ If working solo, this is the optimal sequence:
 | BNPL (Klarna) | 20-30% conversion lift | 8-12 hrs | Excellent | Partial |
 | Loyalty program | 2-3x customer LTV | 20-30 hrs | High | TODO |
 | A/B testing | Compound 1-5% per test | 10-15 hrs | Medium | TODO |
-| Performance (CWV) | 1-2% per 100ms improvement | 8-10 hrs | Medium | TODO |
+| Performance (CWV) | 1-2% per 100ms improvement | — | — | DONE |
 
 ---
 
@@ -258,7 +259,7 @@ If working solo, this is the optimal sequence:
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|-----------|--------|-----------|
-| Broken checkout deployed with no tests | High | Critical — lost revenue | E2E tests (Phase 1) |
+| ~~Broken checkout deployed with no tests~~ | ~~High~~ | ~~Critical — lost revenue~~ | ~~E2E tests (Phase 1)~~ RESOLVED |
 | ~~No analytics = blind decisions~~ | ~~Certain~~ | ~~High~~ | ~~GA4/GTM (Phase 0)~~ RESOLVED |
 | ~~Legal exposure without cookie consent~~ | ~~Certain~~ | ~~Medium~~ | ~~Cookie banner (Phase 0)~~ RESOLVED |
 | ~~No abandoned cart recovery = lost revenue~~ | ~~High~~ | ~~High~~ | ~~Abandoned cart emails (Phase 1)~~ RESOLVED |
@@ -275,5 +276,8 @@ If working solo, this is the optimal sequence:
 | 2026-02-20 | Initial roadmap created from PLATFORM-STATE.md assessment |
 | 2026-02-21 | Phase 0 completed: GA4/GTM (GTM-PWN35T2R), cookie consent, Google Ads conversion tracking. Product JSON-LD was pre-existing. |
 | 2026-02-22 | Full audit: Abandoned cart emails completed (3-email Celery + SMTP + recovery URL, E2E tested). Reviews/Ratings confirmed DONE (removed from Phase 1). PayPal confirmed DONE via Stripe (removed from Phase 3). BreadcrumbList JSON-LD confirmed DONE (removed from Phase 3). BNPL/Klarna updated to partial (reduced hours). CI/CD description corrected (all services have CI, need unification not creation). Dropship integration significantly expanded: pricing engine, returns management, delivery estimates, direct import pipeline all complete. Product gallery refactored (vertical thumbnails, lightbox zoom). Updated platform readiness to ~96%. |
+| 2026-02-22 | E2E tests completed: 23 Playwright tests across 5 critical flows (cart, checkout, auth, search, account). Page object pattern, cookie injection auth (bypasses JWT ISS mismatch), global setup with health checks. `storefront/e2e/`. Updated platform readiness to ~97%. |
+| 2026-02-22 | Performance monitoring completed: `web-vitals` v5.1 RUM reporting to GA4 (LCP, INP, CLS, FCP, TTFB). Consent-gated via existing analytics consent. Lighthouse CI added to storefront pipeline with performance budgets. Updated platform readiness to ~98%. |
+| 2026-02-22 | GDPR compliance completed: Account deletion UI (2-step email + confirmation page), personal data export (JSON download), server-side consent audit trail (user metadata), cookie preference center re-opener. App-level rate limiting completed: shared sliding-window limiter on all 15 API routes (3 tiers), GraphQL depth limiting (max 15). Updated platform readiness to ~99%. |
 
 *This roadmap should be reviewed and updated after each phase completion.*

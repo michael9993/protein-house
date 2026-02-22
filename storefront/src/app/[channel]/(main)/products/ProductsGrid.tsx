@@ -30,6 +30,7 @@ import {
 } from "@/lib/filters";
 import { useFiltersText, useBranding } from "@/providers/StoreConfigProvider";
 import { getLanguageCodeForChannel } from "@/lib/language";
+import { getProductShippingEstimate } from "@/lib/shipping";
 
 interface ProductsGridProps {
   initialProducts: ProductListItemFragment[];
@@ -146,6 +147,17 @@ export function ProductsGrid({
             return (
               currentPrice && originalPrice && currentPrice < originalPrice
             );
+          });
+        }
+
+        // Client-side sort by delivery speed (metadata-based, can't be done server-side)
+        if (sortValue === "delivery-fast") {
+          filtered = [...filtered].sort((a, b) => {
+            const estA = getProductShippingEstimate((a as any).metadata);
+            const estB = getProductShippingEstimate((b as any).metadata);
+            const daysA = estA?.maxDays ?? 999;
+            const daysB = estB?.maxDays ?? 999;
+            return daysA - daysB;
           });
         }
       }

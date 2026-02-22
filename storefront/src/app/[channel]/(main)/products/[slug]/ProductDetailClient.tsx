@@ -720,16 +720,16 @@ function DeliveryEstimate({ metadata }: { metadata?: Array<{ key: string; value:
   if (!ecommerce.shipping?.showEstimatedDelivery) return null;
 
   const estimate = getProductShippingEstimate(metadata);
-  const format = (ecommerce.shipping as any).estimatedDeliveryFormat ?? "range";
+  const format = ecommerce.shipping.estimatedDeliveryFormat ?? "range";
 
   // Per-product estimate or fall back to config defaults
-  const minDays = estimate?.minDays ?? (ecommerce.shipping as any).defaultEstimatedMinDays ?? 2;
-  const maxDays = estimate?.maxDays ?? (ecommerce.shipping as any).defaultEstimatedMaxDays ?? 5;
+  const minDays = estimate?.minDays ?? ecommerce.shipping.defaultEstimatedMinDays ?? 2;
+  const maxDays = estimate?.maxDays ?? ecommerce.shipping.defaultEstimatedMaxDays ?? 5;
   const days = formatEstimate({ minDays, maxDays }, format);
 
   // Use configurable label template, e.g. "Ships in {days} business days"
   const label =
-    (productDetailText as any).deliveryEstimateLabel?.replace("{days}", days) ??
+    productDetailText.deliveryEstimateLabel?.replace("{days}", days) ??
     `Ships in ${days} business days`;
 
   return (
