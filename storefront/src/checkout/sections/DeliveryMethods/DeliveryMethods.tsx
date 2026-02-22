@@ -17,9 +17,13 @@ import { getProductShippingEstimate } from "@/lib/shipping";
 export const DeliveryMethods: React.FC<CommonSectionProps> = ({ collapsed }) => {
 	const { checkout } = useCheckout();
 	const { authenticated } = useUser();
-	// Sort by lowest price first so free shipping appears first when available
-	const shippingMethods = [...(checkout?.shippingMethods ?? [])].sort(
-		(a, b) => (a.price?.amount ?? 0) - (b.price?.amount ?? 0),
+	// Filter out inactive (excluded) methods, then sort by lowest price first
+	// Memoized to prevent unnecessary re-renders
+	const shippingMethods = useMemo(
+		() => [...(checkout?.shippingMethods ?? [])]
+			.filter((m) => m.active !== false)
+			.sort((a, b) => (a.price?.amount ?? 0) - (b.price?.amount ?? 0)),
+		[checkout?.shippingMethods],
 	);
 	const shippingAddress = checkout?.shippingAddress;
 	const form = useDeliveryMethodsForm();

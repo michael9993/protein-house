@@ -78,6 +78,7 @@ fragment CheckoutFragment on Checkout {
 	shippingMethods {
 		id
 		name
+		active
 		price {
 			...Money
 		}

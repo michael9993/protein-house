@@ -14,7 +14,12 @@ interface DeliveryMethodsFormData {
 
 export const useDeliveryMethodsForm = (): UseFormReturn<DeliveryMethodsFormData> => {
 	const { checkout } = useCheckout();
-	const shippingMethods = checkout?.shippingMethods || [];
+	// Filter out inactive (excluded by CHECKOUT_FILTER_SHIPPING_METHODS webhook) methods
+	// Must be memoized to prevent new array reference on every render (causes infinite useEffect loop)
+	const shippingMethods = useMemo(
+		() => (checkout?.shippingMethods || []).filter((m) => m.active !== false),
+		[checkout?.shippingMethods],
+	);
 	const shippingAddress = checkout?.shippingAddress;
 	const deliveryMethod = checkout?.deliveryMethod;
 	const [, updateDeliveryMethod] = useCheckoutDeliveryMethodUpdateMutation();
