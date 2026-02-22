@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { clearChannelStale } from "@/lib/storefront-control/cache";
+import { getClientIp, rateLimitResponse, relaxedLimiter } from "@/lib/rate-limit";
 
 /**
  * Clear stale flag for a channel (called by client after fetching fresh config).
@@ -10,6 +11,9 @@ import { clearChannelStale } from "@/lib/storefront-control/cache";
  * successfully fetched and applied the new config.
  */
 export async function POST(request: NextRequest) {
+  const { allowed, resetAt } = relaxedLimiter(getClientIp(request));
+  if (!allowed) return rateLimitResponse(resetAt);
+
   try {
     const { searchParams } = new URL(request.url);
     const channel = searchParams.get('channel');

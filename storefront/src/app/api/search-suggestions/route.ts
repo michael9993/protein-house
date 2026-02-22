@@ -3,8 +3,12 @@ import { executeGraphQL } from "@/lib/graphql";
 import { SearchProductsDocument } from "@/gql/graphql";
 import { ProductOrderField, OrderDirection } from "@/gql/graphql";
 import { getLanguageCodeForChannel } from "@/lib/language";
+import { getClientIp, rateLimitResponse, normalLimiter } from "@/lib/rate-limit";
 
 export async function GET(request: NextRequest) {
+  const { allowed, resetAt } = normalLimiter(getClientIp(request));
+  if (!allowed) return rateLimitResponse(resetAt);
+
   try {
     const searchParams = request.nextUrl.searchParams;
     const query = searchParams.get("query");

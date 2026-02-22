@@ -1,42 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { executeGraphQL } from "@/lib/graphql";
 import { ContactSubmissionCreateDocument } from "@/gql/graphql";
-
-// Simple rate limiting using in-memory store (for production, use Redis or similar)
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 5; // 5 requests per minute per IP
-
-function checkRateLimit(ip: string): boolean {
-	const now = Date.now();
-	const record = rateLimitMap.get(ip);
-
-	if (!record || now > record.resetTime) {
-		rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
-		return true;
-	}
-
-	if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
-		return false;
-	}
-
-	record.count++;
-	return true;
-}
+import { getClientIp, rateLimitResponse, strictLimiter } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
 	try {
-		// Get client IP for rate limiting
-		const forwarded = request.headers.get("x-forwarded-for");
-		const ip = forwarded ? forwarded.split(",")[0].trim() : request.headers.get("x-real-ip") || "unknown";
-
-		// Check rate limit
-		if (!checkRateLimit(ip)) {
-			return NextResponse.json(
-				{ success: false, error: "Too many requests. Please try again later." },
-				{ status: 429 }
-			);
-		}
+		const { allowed, resetAt } = strictLimiter(getClientIp(request));
+		if (!allowed) return rateLimitResponse(resetAt);
 
 		const body = (await request.json()) as { channel?: string; name?: string; email?: string; subject?: string; message?: string };
 		const { channel, name, email, subject, message } = body;

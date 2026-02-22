@@ -34,6 +34,7 @@ from ..webhook import observability
 from .api import API_PATH, schema
 from .context import clear_context, get_context_value
 from .core.validators.query_cost import validate_query_cost
+from .core.validators.query_depth import validate_query_depth
 from .error import clear_errors
 from .metrics import (
     record_graphql_query_cost,
@@ -382,6 +383,36 @@ class GraphQLView(View):
                 span.set_attribute(
                     saleor_attributes.SALEOR_SOURCE_SERVICE_NAME, source_service_name
                 )
+
+            if settings.GRAPHQL_QUERY_MAX_DEPTH:
+                depth_errors = validate_query_depth(
+                    schema,
+                    document,
+                    settings.GRAPHQL_QUERY_MAX_DEPTH,
+                )
+                if depth_errors:
+                    result = ExecutionResult(errors=depth_errors, invalid=True)
+                    error_description = self.format_span_error_description(
+                        result
+                    )
+                    span.set_status(
+                        status=StatusCode.ERROR,
+                        description=error_description,
+                    )
+                    error_type = (
+                        depth_errors[0].__class__.__name__
+                        if depth_errors
+                        else None
+                    )
+                    record_graphql_query_count(
+                        operation_type=operation_type,
+                        error_type=error_type,
+                    )
+                    if error_type:
+                        query_duration_attrs[error_attributes.ERROR_TYPE] = (
+                            error_type
+                        )
+                    return set_query_cost_on_result(result, 0)
 
             query_cost, cost_errors = validate_query_cost(
                 schema,

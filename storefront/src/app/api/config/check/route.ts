@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isChannelStale, getStaleTimestamp } from "@/lib/storefront-control/cache";
+import { getClientIp, rateLimitResponse, relaxedLimiter } from "@/lib/rate-limit";
 
 /**
  * Check if a channel's config is stale (needs refresh).
@@ -14,6 +15,9 @@ import { isChannelStale, getStaleTimestamp } from "@/lib/storefront-control/cach
  * fresh config should be fetched.
  */
 export async function GET(request: NextRequest) {
+  const { allowed, resetAt } = relaxedLimiter(getClientIp(request));
+  if (!allowed) return rateLimitResponse(resetAt);
+
   try {
     const { searchParams } = new URL(request.url);
     const channel = searchParams.get('channel');

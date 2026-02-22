@@ -997,6 +997,9 @@ GRAPHQL_QUERY_MAX_COMPLEXITY = int(
     os.environ.get("GRAPHQL_QUERY_MAX_COMPLEXITY", 50000)
 )
 
+# Set GRAPHQL_QUERY_MAX_DEPTH=0 in env to disable (not recommended)
+GRAPHQL_QUERY_MAX_DEPTH = int(os.environ.get("GRAPHQL_QUERY_MAX_DEPTH", 15))
+
 # Max number entities that can be requested in single query by Apollo Federation
 # Federation protocol implements no securities on its own part - malicious actor
 # may build a query that requests for potentially few thousands of entities.

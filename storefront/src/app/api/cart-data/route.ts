@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as Checkout from "@/lib/checkout";
+import { getClientIp, rateLimitResponse, normalLimiter } from "@/lib/rate-limit";
 
 /**
  * API route to get cart data for the cart drawer.
  * Returns checkout lines with product details.
  */
 export async function GET(request: NextRequest) {
+    const { allowed, resetAt } = normalLimiter(getClientIp(request));
+    if (!allowed) return rateLimitResponse(resetAt);
+
     try {
         const searchParams = request.nextUrl.searchParams;
         const channel = searchParams.get("channel");

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getClientIp, rateLimitResponse, strictLimiter } from "@/lib/rate-limit";
 
 /**
  * Invoice Request API Route
@@ -16,6 +17,9 @@ const INVOICES_APP_PUBLIC_URL = process.env.INVOICES_APP_URL ||
                                 "http://localhost:3003";
 
 export async function POST(request: NextRequest) {
+	const { allowed, resetAt } = strictLimiter(getClientIp(request));
+	if (!allowed) return rateLimitResponse(resetAt);
+
 	try {
 		const { orderId } = (await request.json()) as { orderId?: string };
 
@@ -90,6 +94,9 @@ export async function POST(request: NextRequest) {
 
 // GET endpoint to check invoice status
 export async function GET(request: NextRequest) {
+	const { allowed, resetAt } = strictLimiter(getClientIp(request));
+	if (!allowed) return rateLimitResponse(resetAt);
+
 	const { searchParams } = new URL(request.url);
 	const orderId = searchParams.get("orderId");
 

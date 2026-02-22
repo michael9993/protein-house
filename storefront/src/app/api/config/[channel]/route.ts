@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchStorefrontConfig, refreshConfig } from "@/lib/storefront-control/fetch-config";
+import { getClientIp, rateLimitResponse, relaxedLimiter } from "@/lib/rate-limit";
 
 /**
  * Client-side API endpoint to fetch fresh config for a channel.
@@ -16,6 +17,9 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ channel: string }> }
 ) {
+  const { allowed, resetAt } = relaxedLimiter(getClientIp(request));
+  if (!allowed) return rateLimitResponse(resetAt);
+
   try {
     const { channel } = await params;
     const { searchParams } = new URL(request.url);

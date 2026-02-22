@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { markChannelStale } from "@/lib/storefront-control/cache";
 import { refreshConfig } from "@/lib/storefront-control/fetch-config";
 import { updateFallbackConfigFile } from "@/lib/storefront-control/fallback-updater";
+import { getClientIp, rateLimitResponse, relaxedLimiter } from "@/lib/rate-limit";
 
 /**
  * Webhook endpoint for Storefront Control app to invalidate cache.
@@ -17,6 +18,9 @@ import { updateFallbackConfigFile } from "@/lib/storefront-control/fallback-upda
  * 4. Client-side components will detect stale status and fetch fresh config
  */
 export async function POST(request: NextRequest) {
+  const { allowed, resetAt } = relaxedLimiter(getClientIp(request));
+  if (!allowed) return rateLimitResponse(resetAt);
+
   try {
     const body = (await request.json()) as {
       channelSlug?: string;

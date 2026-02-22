@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import sharp from "sharp";
+import { getClientIp, rateLimitResponse, normalLimiter } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -9,6 +10,9 @@ const MAX_IMAGE_DIMENSION = 1200; // Max width/height
 const QUALITY = 80; // JPEG quality (0-100)
 
 export async function POST(request: NextRequest) {
+  const { allowed, resetAt } = normalLimiter(getClientIp(request));
+  if (!allowed) return rateLimitResponse(resetAt);
+
   try {
     const formData = await request.formData();
     const file = formData.get("image") as File | null;
