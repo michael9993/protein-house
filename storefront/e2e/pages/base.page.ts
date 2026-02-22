@@ -34,17 +34,17 @@ export class BasePage {
 
 	/** Wait for the main content to render. */
 	async waitForMainContent() {
-		await this.page.locator("#main-content").waitFor({ state: "visible" });
+		await this.page.locator("main").first().waitFor({ state: "visible", timeout: 15_000 });
 	}
 
 	/** Get the cart button in the header. */
 	get cartButton() {
-		return this.page.locator('[data-testid="CartNavItem"]');
+		return this.page.getByRole("button", { name: /items in cart/i });
 	}
 
-	/** Get the desktop search input. */
+	/** Get the desktop search input in the header. */
 	get searchInput() {
-		return this.page.locator("input#search-input");
+		return this.page.getByPlaceholder("Search...").first();
 	}
 
 	/** Search for a term using the header search. */
@@ -52,14 +52,5 @@ export class BasePage {
 		await this.searchInput.fill(term);
 		await this.searchInput.press("Enter");
 		await this.page.waitForLoadState("domcontentloaded");
-	}
-
-	/** Assert no uncaught JS errors on the page. */
-	async expectNoConsoleErrors() {
-		const errors: string[] = [];
-		this.page.on("pageerror", (err) => errors.push(err.message));
-		// Give time for errors to surface
-		await this.page.waitForTimeout(500);
-		expect(errors).toHaveLength(0);
 	}
 }

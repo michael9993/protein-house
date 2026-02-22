@@ -143,7 +143,7 @@ export async function productList(
 		products: { edges: Array<{ node: Product }> };
 	}>(
 		`query Products($channel: String!, $first: Int!) {
-			products(channel: $channel, first: $first, filter: { isPublished: true, stockAvailability: IN_STOCK }) {
+			products(channel: $channel, first: $first, filter: { isPublished: true }) {
 				edges {
 					node {
 						id

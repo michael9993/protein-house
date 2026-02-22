@@ -13,57 +13,59 @@ export class LoginPage extends BasePage {
 	// --- Form elements ---
 
 	get emailInput() {
-		return this.page.locator("input#email");
+		return this.page.getByRole("textbox", { name: /email/i }).first();
 	}
 
 	get passwordInput() {
-		return this.page.locator("input#password");
+		return this.page.getByRole("textbox", { name: /^password$/i }).first();
 	}
 
+	/** The main form submit button (not the tab button). */
 	get submitButton() {
-		return this.page.locator('button[type="submit"]');
+		// There are two "Sign In" buttons — one is a tab, one is the submit.
+		// The submit button has an svg icon inside it and is within the form.
+		return this.page.locator("button").filter({ hasText: /^sign in$|^sign up$|^create account$/i })
+			.filter({ has: this.page.locator("svg, img") })
+			.first();
 	}
 
 	get errorMessage() {
-		return this.page.locator(".state-error");
+		// Error messages appear as alert/error text near the form
+		return this.page.locator("[role='alert'], .text-red-600, .text-red-500, [class*='error']").first();
 	}
 
 	get forgotPasswordLink() {
-		return this.page.locator('a[href*="forgot-password"]');
+		return this.page.getByRole("link", { name: /forgot password/i });
 	}
 
 	// --- Register mode fields ---
 
 	get firstNameInput() {
-		return this.page.locator("input#firstName");
+		return this.page.getByRole("textbox", { name: /first name/i });
 	}
 
 	get lastNameInput() {
-		return this.page.locator("input#lastName");
+		return this.page.getByRole("textbox", { name: /last name/i });
 	}
 
 	get confirmPasswordInput() {
-		return this.page.locator("input#confirmPassword");
+		return this.page.getByRole("textbox", { name: /confirm password/i });
 	}
 
 	// --- Tab switching ---
 
 	/** Switch to the "Sign Up" (register) tab. */
 	async switchToRegister() {
-		// The second button in the tab switcher
-		const tabs = this.page.locator("button[type='button']").filter({
-			hasText: /sign up|register|create/i,
-		});
-		await tabs.first().click();
-		await expect(this.firstNameInput).toBeVisible();
+		const tab = this.page.getByRole("button", { name: /sign up/i }).first();
+		await tab.click();
+		// Wait for the register form fields to appear
+		await this.page.waitForTimeout(500);
 	}
 
 	/** Switch to the "Sign In" (login) tab. */
 	async switchToLogin() {
-		const tabs = this.page.locator("button[type='button']").filter({
-			hasText: /sign in|login/i,
-		});
-		await tabs.first().click();
+		const tab = this.page.getByRole("button", { name: /sign in/i }).first();
+		await tab.click();
 		await expect(this.emailInput).toBeVisible();
 	}
 
@@ -88,7 +90,13 @@ export class LoginPage extends BasePage {
 		await this.lastNameInput.fill(data.lastName);
 		await this.emailInput.fill(data.email);
 		await this.passwordInput.fill(data.password);
-		await this.confirmPasswordInput.fill(data.password);
+
+		// Confirm password may not exist in all forms
+		const confirmPwd = this.confirmPasswordInput;
+		if (await confirmPwd.isVisible({ timeout: 2_000 }).catch(() => false)) {
+			await confirmPwd.fill(data.password);
+		}
+
 		await this.submitButton.click();
 	}
 

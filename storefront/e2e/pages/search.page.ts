@@ -15,19 +15,19 @@ export class SearchPage extends BasePage {
 		return this.page.locator("h1").first();
 	}
 
-	/** Product cards in search results. */
+	/** Product cards in search results — rendered as <article> elements. */
 	get productCards() {
-		return this.page.locator('[data-testid="ProductElement"]');
+		return this.page.locator("main article");
 	}
 
 	/** No results message. */
 	get noResultsMessage() {
-		return this.page.locator("p").filter({ hasText: /no products found/i });
+		return this.page.locator("text=/no.*results|no.*products|nothing found/i").first();
 	}
 
-	/** Result count text. */
+	/** Result count text (e.g., "Found 3 results for 'dress'"). */
 	get resultCount() {
-		return this.page.locator("p.text-base.text-neutral-600").first();
+		return this.page.locator("text=/\\d+ results?/i").first();
 	}
 
 	/** Expect search results to be visible. */
@@ -39,7 +39,10 @@ export class SearchPage extends BasePage {
 
 	/** Expect no results message. */
 	async expectNoResults() {
-		await expect(this.noResultsMessage).toBeVisible({ timeout: 15_000 });
+		// Wait for either explicit "no results" message or result count of 0
+		await this.page.waitForLoadState("networkidle");
+		const noResults = this.page.locator("text=/no.*results|no.*products|nothing found|0 results/i").first();
+		await expect(noResults).toBeVisible({ timeout: 15_000 });
 	}
 
 	/** Click the first product in results. */

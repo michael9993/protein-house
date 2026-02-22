@@ -2,7 +2,7 @@
  * Shared test data and configuration.
  */
 export const TEST_CONFIG = {
-	channel: process.env.E2E_CHANNEL || "default-channel",
+	channel: process.env.E2E_CHANNEL || "usd",
 	userEmail: process.env.E2E_USER_EMAIL || "e2e-test@example.com",
 	userPassword: process.env.E2E_USER_PASSWORD || "Test1234!",
 	/** Generate a unique email for register tests */

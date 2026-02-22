@@ -1,8 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
 import dotenv from "dotenv";
-import path from "path";
+import { dirname, resolve } from "path";
+import { fileURLToPath } from "url";
 
-dotenv.config({ path: path.resolve(__dirname, "e2e/.env") });
+const __dirname = dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: resolve(__dirname, "e2e/.env") });
 
 const baseURL = process.env.STOREFRONT_URL || "http://localhost:3000";
 
@@ -34,6 +36,7 @@ export default defineConfig({
 		{
 			name: "e2e",
 			dependencies: ["setup"],
+			testMatch: /account\.spec\.ts/,
 			use: {
 				...devices["Desktop Chrome"],
 				storageState: "e2e/.auth/user.json",
@@ -41,6 +44,7 @@ export default defineConfig({
 		},
 		{
 			name: "guest",
+			testIgnore: /account\.spec\.ts/,
 			use: {
 				...devices["Desktop Chrome"],
 			},
