@@ -1,0 +1,19 @@
+mutation AccountRequestDeletion($redirectUrl: String!, $channel: String) {
+  accountRequestDeletion(redirectUrl: $redirectUrl, channel: $channel) {
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+
+mutation AccountConfirmDeletion($token: String!) {
+  accountDelete(token: $token) {
+    errors {
+      field
+      code
+      message
+    }
+  }
+}

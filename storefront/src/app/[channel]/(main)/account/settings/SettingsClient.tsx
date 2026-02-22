@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { type UserDetailsFragment } from "@/gql/graphql";
 import { useBranding, useSettingsText, useContentConfig } from "@/providers/StoreConfigProvider";
-import { changePassword, setNewsletterActive, updateProfile, requestEmailChange } from "./actions";
+import { changePassword, setNewsletterActive, updateProfile, requestEmailChange, requestAccountDeletion } from "./actions";
 
 /** Common TLD typos (e.g. .comm instead of .com) to reject */
 const INVALID_TLD_TYPOS = new Set([
@@ -73,6 +73,10 @@ export function SettingsClient({
 	const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 	const [passwordMessage, setPasswordMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 	const [newsletterSaving, setNewsletterSaving] = useState(false);
+	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+	const [deleteLoading, setDeleteLoading] = useState(false);
+	const [deleteEmailSent, setDeleteEmailSent] = useState(false);
+	const [exportLoading, setExportLoading] = useState(false);
 	const branding = useBranding();
 	const settingsText = useSettingsText();
 	const contentConfig = useContentConfig();
@@ -178,6 +182,45 @@ export function SettingsClient({
 			setSaving(false);
 		}
 	};
+
+	async function handleRequestDeletion(): Promise<void> {
+		setDeleteLoading(true);
+		const redirectUrl = `${window.location.origin}/${channel}/account/delete-confirm`;
+		const result = await requestAccountDeletion(redirectUrl, channel);
+		setDeleteLoading(false);
+		if (result.success) {
+			setDeleteEmailSent(true);
+		} else {
+			setShowDeleteDialog(false);
+			setMessage({ type: "error", text: result.error ?? "Failed to request account deletion." });
+		}
+	}
+
+	async function handleDataExport(): Promise<void> {
+		setExportLoading(true);
+		try {
+			const response = await fetch("/api/data-export", { credentials: "include" });
+			if (response.ok) {
+				const blob = await response.blob();
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement("a");
+				a.href = url;
+				a.download = "my-data-export.json";
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+			} else {
+				setMessage({ type: "error", text: "Failed to export data. Please try again." });
+			}
+		} finally {
+			setExportLoading(false);
+		}
+	}
+
+	function handleCookiePreferences(): void {
+		window.dispatchEvent(new CustomEvent("open-cookie-settings"));
+	}
 
 	return (
 		<div className="space-y-6">
@@ -451,19 +494,166 @@ export function SettingsClient({
 				</div>
 			</div>
 
+			{/* Privacy & Data */}
+			<div className="rounded-lg border border-neutral-200 bg-white p-6">
+				<h2 className="text-lg font-semibold text-neutral-900">Privacy &amp; Data</h2>
+				<p className="mt-1 text-sm text-neutral-500">
+					Manage your privacy settings and personal data
+				</p>
+
+				<div className="mt-6 divide-y divide-neutral-100">
+					{/* Download My Data */}
+					<div className="flex items-center justify-between py-4 first:pt-0 last:pb-0">
+						<div className="flex items-start gap-3">
+							<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600">
+								<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+									<path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+								</svg>
+							</div>
+							<div>
+								<p className="font-medium text-neutral-900">Download My Data</p>
+								<p className="text-sm text-neutral-500">Download a copy of all your personal data</p>
+							</div>
+						</div>
+						<button
+							type="button"
+							onClick={handleDataExport}
+							disabled={exportLoading}
+							className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:opacity-50"
+						>
+							{exportLoading && (
+								<svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+									<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+									<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+								</svg>
+							)}
+							{exportLoading ? "Exporting..." : "Download"}
+						</button>
+					</div>
+
+					{/* Manage Cookie Preferences */}
+					<div className="flex items-center justify-between py-4 first:pt-0 last:pb-0">
+						<div className="flex items-start gap-3">
+							<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600">
+								<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+									<path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+								</svg>
+							</div>
+							<div>
+								<p className="font-medium text-neutral-900">Manage Cookie Preferences</p>
+								<p className="text-sm text-neutral-500">Review and change your cookie consent settings</p>
+							</div>
+						</div>
+						<button
+							type="button"
+							onClick={handleCookiePreferences}
+							className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+						>
+							Manage
+						</button>
+					</div>
+				</div>
+			</div>
+
 			{/* Danger Zone */}
 			<div className="rounded-lg border border-red-200 bg-red-50 p-6">
 				<h2 className="text-lg font-semibold text-red-900">{settingsText.dangerZone}</h2>
 				<p className="mt-1 text-sm text-red-700">
 					{settingsText.deleteAccountWarning}
 				</p>
-				<button className="mt-4 inline-flex items-center gap-2 rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50">
+				<button
+					type="button"
+					onClick={() => setShowDeleteDialog(true)}
+					className="mt-4 inline-flex items-center gap-2 rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50"
+				>
 					<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
 					</svg>
 					{settingsText.deleteAccountButton}
 				</button>
 			</div>
+
+			{/* Account Deletion Confirmation Dialog */}
+			{showDeleteDialog && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+					<div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+						{deleteEmailSent ? (
+							<>
+								<div className="flex items-center gap-3">
+									<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100">
+										<svg className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+										</svg>
+									</div>
+									<h3 className="text-lg font-semibold text-neutral-900">
+										Check your email
+									</h3>
+								</div>
+								<p className="mt-3 text-sm text-neutral-600">
+									We&apos;ve sent a confirmation link to <strong>{user.email}</strong>.
+									Click the link in the email to permanently delete your account.
+								</p>
+								<div className="mt-6 flex justify-end">
+									<button
+										type="button"
+										onClick={() => {
+											setShowDeleteDialog(false);
+											setDeleteEmailSent(false);
+										}}
+										className="rounded-lg px-4 py-2 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-100"
+									>
+										Close
+									</button>
+								</div>
+							</>
+						) : (
+							<>
+								<div className="flex items-center gap-3">
+									<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100">
+										<svg className="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+										</svg>
+									</div>
+									<h3 className="text-lg font-semibold text-red-900">
+										{settingsText.confirmDeleteTitle}
+									</h3>
+								</div>
+								<p className="mt-3 text-sm text-neutral-600">
+									{settingsText.confirmDeleteMessage}
+								</p>
+								<p className="mt-2 text-sm text-neutral-500">
+									We will send a confirmation email to <strong>{user.email}</strong>.
+									You must click the link in that email to finalize the deletion.
+								</p>
+								<div className="mt-6 flex justify-end gap-3">
+									<button
+										type="button"
+										onClick={() => setShowDeleteDialog(false)}
+										disabled={deleteLoading}
+										className="rounded-lg px-4 py-2 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-100 disabled:opacity-50"
+									>
+										Cancel
+									</button>
+									<button
+										type="button"
+										onClick={handleRequestDeletion}
+										disabled={deleteLoading}
+										className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+									>
+										{deleteLoading && (
+											<svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+												<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+												<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+											</svg>
+										)}
+										{deleteLoading ? "Sending..." : "Send Deletion Email"}
+									</button>
+								</div>
+							</>
+						)}
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }

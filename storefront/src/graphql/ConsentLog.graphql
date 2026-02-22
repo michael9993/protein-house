@@ -1,0 +1,14 @@
+mutation UpdateUserConsentMetadata($id: ID!, $input: [MetadataInput!]!) {
+	updateMetadata(id: $id, input: $input) {
+		errors {
+			field
+			message
+		}
+	}
+}
+
+query MeForConsent {
+	me {
+		id
+	}
+}

@@ -257,6 +257,62 @@ export async function updateProfile(
  * Request email change: sends confirmation to the new email; user must click link to confirm.
  * Saleor sends an email with a link that includes a token; our confirm-email-change page handles the token.
  */
+const ACCOUNT_REQUEST_DELETION_MUTATION = `
+  mutation AccountRequestDeletion($redirectUrl: String!, $channel: String) {
+    accountRequestDeletion(redirectUrl: $redirectUrl, channel: $channel) {
+      errors {
+        field
+        code
+        message
+      }
+    }
+  }
+`;
+
+/**
+ * Request account deletion: Saleor sends a confirmation email with a token link.
+ * The user must click the link to confirm deletion (2-step GDPR process).
+ */
+export async function requestAccountDeletion(
+	redirectUrl: string,
+	channel: string
+): Promise<{ success: boolean; error?: string }> {
+	if (!redirectUrl?.trim()) {
+		return { success: false, error: "Redirect URL is required." };
+	}
+	try {
+		const authClient = await getServerAuthClient();
+		const graphqlUrl = getGraphqlUrl();
+		const res = await authClient.fetchWithAuth(graphqlUrl, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				query: ACCOUNT_REQUEST_DELETION_MUTATION,
+				variables: {
+					redirectUrl: redirectUrl.trim(),
+					channel: channel || null,
+				},
+			}),
+		});
+		if (!res.ok) return { success: false, error: "Request failed. Please try again." };
+		const json = (await res.json()) as {
+			data?: { accountRequestDeletion?: { errors?: Array<{ message?: string }> } };
+			errors?: Array<{ message?: string }>;
+		};
+		if (json.errors?.length) {
+			return { success: false, error: json.errors[0].message ?? "Request failed." };
+		}
+		const data = json.data?.accountRequestDeletion;
+		if (data?.errors?.length) {
+			return { success: false, error: data.errors[0].message ?? "Account deletion request failed." };
+		}
+		return { success: true };
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : "Request failed";
+		return { success: false, error: msg };
+	}
+}
+
 export async function requestEmailChange(
 	newEmail: string,
 	password: string,

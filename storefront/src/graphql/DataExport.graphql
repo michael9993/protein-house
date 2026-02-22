@@ -1,0 +1,70 @@
+query MyDataExport {
+	me {
+		id
+		email
+		firstName
+		lastName
+		languageCode
+		dateJoined
+		lastLogin
+		addresses {
+			id
+			firstName
+			lastName
+			streetAddress1
+			streetAddress2
+			city
+			cityArea
+			postalCode
+			country {
+				code
+				country
+			}
+			countryArea
+			phone
+			isDefaultShippingAddress
+			isDefaultBillingAddress
+		}
+		orders(first: 100) {
+			edges {
+				node {
+					id
+					number
+					created
+					status
+					total {
+						gross {
+							amount
+							currency
+						}
+					}
+					shippingAddress {
+						firstName
+						lastName
+						streetAddress1
+						city
+						postalCode
+						country {
+							code
+						}
+					}
+					lines {
+						productName
+						variantName
+						quantity
+						totalPrice {
+							gross {
+								amount
+								currency
+							}
+						}
+					}
+				}
+			}
+		}
+		metadata {
+			key
+			value
+		}
+	}
+}

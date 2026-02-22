@@ -9,6 +9,22 @@ import { hasAnyConsent, saveConsent } from "@/lib/consent";
 
 type View = "banner" | "preferences";
 
+/** Fire-and-forget POST to log consent preferences to user metadata (GDPR audit trail). */
+function logConsentToServer(
+  channel: string,
+  categories: { analytics: boolean; marketing: boolean },
+): void {
+  fetch("/api/consent-log", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      categories: { essential: true, ...categories },
+      channel,
+    }),
+    credentials: "include",
+  }).catch(() => {});
+}
+
 export function CookieConsent({ channel }: { channel: string }) {
   const config = useCookieConsentConfig();
   const text = useCookieConsentText();
@@ -24,22 +40,36 @@ export function CookieConsent({ channel }: { channel: string }) {
     }
   }, [config.enabled, channel]);
 
+  // Allow re-opening cookie preferences from other parts of the app (e.g. account settings)
+  useEffect(() => {
+    function handleOpenSettings() {
+      setVisible(true);
+      setView("preferences");
+    }
+    window.addEventListener("open-cookie-settings", handleOpenSettings);
+    return () => {
+      window.removeEventListener("open-cookie-settings", handleOpenSettings);
+    };
+  }, []);
+
   const handleAcceptAll = useCallback(() => {
-    saveConsent(channel, { analytics: true, marketing: true }, config.consentExpiryDays);
+    const categories = { analytics: true, marketing: true };
+    saveConsent(channel, categories, config.consentExpiryDays);
+    logConsentToServer(channel, categories);
     setVisible(false);
   }, [channel, config.consentExpiryDays]);
 
   const handleRejectAll = useCallback(() => {
-    saveConsent(channel, { analytics: false, marketing: false }, config.consentExpiryDays);
+    const categories = { analytics: false, marketing: false };
+    saveConsent(channel, categories, config.consentExpiryDays);
+    logConsentToServer(channel, categories);
     setVisible(false);
   }, [channel, config.consentExpiryDays]);
 
   const handleSavePreferences = useCallback(() => {
-    saveConsent(
-      channel,
-      { analytics: analyticsChecked, marketing: marketingChecked },
-      config.consentExpiryDays,
-    );
+    const categories = { analytics: analyticsChecked, marketing: marketingChecked };
+    saveConsent(channel, categories, config.consentExpiryDays);
+    logConsentToServer(channel, categories);
     setVisible(false);
   }, [channel, analyticsChecked, marketingChecked, config.consentExpiryDays]);
 
