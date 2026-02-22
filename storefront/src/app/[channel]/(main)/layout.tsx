@@ -25,6 +25,7 @@ import { WishlistFloatingButton } from "@/components/WishlistDrawer";
 import { QuickViewWrapper } from "./QuickViewWrapper";
 import { CookieConsent } from "@/ui/components/CookieConsent";
 import { GoogleTagManager } from "@/ui/components/GoogleTagManager";
+import { WebVitalsReporter } from "@/ui/components/WebVitalsReporter";
 
 /**
  * Generate metadata with direction attribute to prevent FOUC
@@ -219,6 +220,8 @@ export default async function RootLayout(props: {
 				<QuickViewWrapper channel={channel}>
 				{/* GA4/GTM — loads only after analytics consent */}
 				<GoogleTagManager channel={channel} />
+				{/* Core Web Vitals — sends LCP/INP/CLS/FCP/TTFB to GA4 */}
+				<WebVitalsReporter />
 				{/* Client-side direction setter - backup and for dynamic updates */}
 				<DirectionSetter config={storeConfig} />
 				<ScrollHideController />
