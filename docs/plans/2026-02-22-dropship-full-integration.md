@@ -1,9 +1,9 @@
 # Full Dropship Integration Plan
 
 **Date**: 2026-02-22
-**Status**: In Progress
+**Status**: COMPLETE
 **Scope**: End-to-end integration across Storefront, Dashboard, Dropship App, Saleor API, Bulk Manager
-**Last Updated**: 2026-02-22 01:30 GMT+2
+**Last Updated**: 2026-02-22 07:15 GMT+2
 
 ### Progress Summary
 
@@ -15,14 +15,18 @@
 | Pre-Req Fix D | DONE | Export separator changed from `key=value; ` to `key:value;` (matching import) |
 | Phase 1 Step 1.1 | DONE | `shipping.estimatedMinDays/MaxDays/carrier` added to CSV generation |
 | Phase 1 Step 1.2 | DONE | (Covered by Fix A) |
-| Phase 1 Step 1.3 | DONE | `metadata { key value }` added to ProductDetails, ProductListItem, OrderDetailsFragment, checkout.graphql |
-| Phase 1 Step 1.4 | **NEXT** | Create `storefront/src/lib/shipping.ts` helper — needs `pnpm generate` first |
-| Phase 1 Steps 1.5–1.9 | Pending | ProductDetailClient, product cards, order details, JSON-LD, RTL audit |
-| Phase 2 | Pending | Config system 11-file sync |
-| Phase 3 | Pending | Direct import pipeline |
-| Phase 4 | Pending | Order tracking & fulfillment |
-| Phase 5 | Pending | Dynamic pricing engine |
-| Phase 6 | Pending | Polish & completeness |
+| Phase 1 Step 1.3 | DONE | `metadata { key value }` added to ProductDetails, ProductListItem, OrderDetailsFragment, checkout.graphql; `pnpm generate` run |
+| Phase 1 Step 1.4 | DONE | `storefront/src/lib/shipping.ts` — `getProductShippingEstimate`, `formatEstimate`, `getOrderTrackingData` |
+| Phase 1 Steps 1.5–1.9 | DONE | ProductDetailClient, 3 product card variants, order details tracking, JSON-LD shippingDetails, RTL + multi-supplier notice |
+| Phase 2 | DONE | 11-file config sync — schema, defaults, sample configs (HE+EN), search index, admin page, type-safe hooks |
+| Phase 3 | DONE | Direct import (`importToSaleor`), `refreshProducts` with price drift detection, `fixDropshipAvailability` retroactive fix |
+| Phase 4 | DONE | CJ logistics webhook tracking, tracking-sync-worker, SMTP "Track Your Package" button, `OrderTimeline` component |
+| Phase 5 | DONE | Pricing rules, currency converter, pricing admin page, NavBar updated |
+| Phase 6 | DONE | Stock sync worker, cart delivery estimates, checkout multi-supplier notice, delivery speed sort, returns workflow, wishlist badges |
+| Checkout Fix | DONE | Auto stock creation + shipping zone expansion during import; `fixDropshipAvailability` procedure |
+| Dynamic CJ Shipping | DONE | `SHIPPING_LIST_METHODS_FOR_CHECKOUT` + `CHECKOUT_FILTER_SHIPPING_METHODS` sync webhooks; CJ freight API with postal code |
+
+**Remaining action:** Reinstall dropship app in Dashboard to register 2 new sync webhooks.
 
 ---
 
