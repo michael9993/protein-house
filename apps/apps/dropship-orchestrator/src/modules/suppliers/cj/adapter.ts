@@ -264,6 +264,35 @@ export class CJAdapter implements SupplierAdapter {
     return result.map((data) => mapShippingOptions(data ?? []));
   }
 
+  /**
+   * Get combined shipping options for multiple products in one API call.
+   * CJ's freight API calculates total shipping cost for the full cart.
+   */
+  async getShippingOptionsMulti(
+    items: Array<{ vid: string; quantity: number }>,
+    destinationCountry: string,
+    token: AuthToken,
+    zip?: string,
+  ): Promise<Result<ShippingOption[], SupplierError>> {
+    const body: Record<string, unknown> = {
+      startCountryCode: "CN",
+      endCountryCode: destinationCountry,
+      products: items,
+    };
+
+    if (zip) {
+      body.zip = zip;
+    }
+
+    const result = await post<CJFreightResult[]>(
+      "/logistic/freightCalculate",
+      token.accessToken,
+      body,
+    );
+
+    return result.map((data) => mapShippingOptions(data ?? []));
+  }
+
   // -------------------------------------------------------------------------
   // Catalog
   // -------------------------------------------------------------------------

@@ -93,7 +93,10 @@
         "enabled": true,
         "freeShippingThreshold": 200,
         "showEstimatedDelivery": true,
-        "deliverySlots": false
+        "deliverySlots": false,
+        "defaultEstimatedMinDays": 2,
+        "defaultEstimatedMaxDays": 5,
+        "estimatedDeliveryFormat": "range"
       },
       "tax": {
         "showPricesWithTax": true,
@@ -1458,6 +1461,10 @@
         "freeStandardShippingDescription": "להזמנות מעל 75$. משלוח תוך 5-7 ימי עסקים.",
         "expressShippingTitle": "משלוח מהיר",
         "expressShippingDescription": "{price}. משלוח תוך 2-3 ימי עסקים.",
+        "deliveryEstimateLabel": "נשלח תוך {days} ימי עסקים",
+        "estimatedDeliveryPrefix": "משלוח משוער",
+        "businessDaysLabel": "ימי עסקים",
+        "trackOrderLabel": "עקוב אחר ההזמנה",
         "loadingReviews": "טוען חוות דעת...",
         "reviewCountText": "{count} חוות דעת",
         "noReviewsMatchFilters": "אין חוות דעת התואמות את המסננים שלך.",

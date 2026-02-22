@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { useCartDisplayMode } from '@/providers/StoreConfigProvider';
@@ -77,10 +77,19 @@ function CartDrawerContent({
   const [checkoutData, setCheckoutData] = useState<CheckoutData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { isOpen } = useCartDrawer();
-  // Per-line lock to allow concurrent operations on different items
-  const updatingLinesRef = React.useRef(new Set<string>());
+  // Optimistic qty ref — always synchronously up-to-date (no React batching delay)
+  const optimisticQtyRef = useRef(new Map<string, number>());
+  // Debounce refs — coalesce rapid clicks into single server mutation
+  const debounceTimersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
 
-  // Helper to refresh cart data from API
+  // Cleanup debounce timers on unmount
+  useEffect(() => {
+    return () => {
+      debounceTimersRef.current.forEach(t => clearTimeout(t));
+    };
+  }, []);
+
+  // Helper to refresh cart data from API, overlaying any pending optimistic quantities
   const refreshCartData = async () => {
     try {
       const res = await fetch(`/api/cart-data?channel=${channel}`, {
@@ -88,6 +97,26 @@ function CartDrawerContent({
       });
       if (res.ok) {
         const data = (await res.json()) as { checkout: CheckoutData | null };
+        if (data.checkout) {
+          // Reconcile optimistic ref with server data
+          data.checkout.lines = data.checkout.lines.map((line: any) => {
+            const optQty = optimisticQtyRef.current.get(line.id);
+            if (optQty === undefined) return line;
+            if (optQty === line.quantity) {
+              // Server matches optimistic — converged, clear ref
+              optimisticQtyRef.current.delete(line.id);
+              return line;
+            }
+            // Server doesn't match yet — overlay optimistic qty
+            const unitAmount = line.unitPrice?.gross?.amount
+              ?? (line.quantity > 0 ? line.totalPrice.gross.amount / line.quantity : 0);
+            return {
+              ...line,
+              quantity: optQty,
+              totalPrice: { ...line.totalPrice, gross: { ...line.totalPrice.gross, amount: unitAmount * optQty } },
+            };
+          });
+        }
         setCheckoutData(data.checkout);
       }
     } catch (error) {
@@ -95,48 +124,81 @@ function CartDrawerContent({
     }
   };
 
-  // ... (lines 75-121 omitted)
+  // Handle quantity updates — delta-based (+1/-1), optimistic via sync ref, debounced server call
+  const handleUpdateQuantity = async (lineId: string, delta: number) => {
+    const serverLine = checkoutData?.lines.find((l: any) => l.id === lineId);
+    if (!serverLine) return;
 
-  // Handle quantity updates with optimistic UI
-  const handleUpdateQuantity = async (lineId: string, quantity: number) => {
-    if (updatingLinesRef.current.has(lineId)) return;
-    updatingLinesRef.current.add(lineId);
+    // Use ref (always sync) to get the true latest quantity — not stale React state
+    const currentQty = optimisticQtyRef.current.get(lineId) ?? serverLine.quantity;
+    const newQty = currentQty + delta;
+    if (newQty < 1) return;
 
-    // Optimistic: update quantity in local state immediately
+    // Update ref synchronously — next click sees this immediately
+    optimisticQtyRef.current.set(lineId, newQty);
+
+    // Optimistic React state update for rendering
     setCheckoutData(prev => {
       if (!prev) return prev;
       return {
         ...prev,
         lines: prev.lines.map((line: any) => {
           if (line.id !== lineId) return line;
-          const unitAmount = line.quantity > 0
-            ? line.totalPrice.gross.amount / line.quantity
-            : 0;
+          const unitAmount = line.unitPrice?.gross?.amount
+            ?? (line.quantity > 0 ? line.totalPrice.gross.amount / line.quantity : 0);
           return {
             ...line,
-            quantity,
-            totalPrice: { ...line.totalPrice, gross: { ...line.totalPrice.gross, amount: unitAmount * quantity } },
+            quantity: newQty,
+            totalPrice: { ...line.totalPrice, gross: { ...line.totalPrice.gross, amount: unitAmount * newQty } },
           };
         }),
       };
     });
 
-    try {
-      await updateLineQuantityAction(channel, lineId, quantity);
-      // Background refresh for accurate totals + notify header badge
-      window.dispatchEvent(new Event("cart-updated"));
-    } catch (error) {
-      console.error("Failed to update quantity:", error);
-      refreshCartData();
-    } finally {
-      updatingLinesRef.current.delete(lineId);
-    }
+    // Debounce the server call — rapid clicks coalesce into one mutation
+    const existing = debounceTimersRef.current.get(lineId);
+    if (existing) clearTimeout(existing);
+
+    const timer = setTimeout(async () => {
+      const finalQty = optimisticQtyRef.current.get(lineId);
+      if (finalQty === undefined) return;
+      debounceTimersRef.current.delete(lineId);
+      try {
+        await updateLineQuantityAction(channel, lineId, finalQty);
+        window.dispatchEvent(new Event("cart-updated"));
+      } catch (error) {
+        console.error("Failed to update quantity:", error);
+        optimisticQtyRef.current.delete(lineId);
+        refreshCartData();
+      }
+    }, 400);
+    debounceTimersRef.current.set(lineId, timer);
+  };
+
+  // Flush all pending debounced mutations (called before checkout navigation)
+  const flushPendingUpdates = async () => {
+    if (debounceTimersRef.current.size === 0) return;
+    // Cancel all debounce timers
+    debounceTimersRef.current.forEach(t => clearTimeout(t));
+    debounceTimersRef.current.clear();
+    // Fire all pending optimistic quantities
+    const pending = Array.from(optimisticQtyRef.current.entries());
+    if (pending.length === 0) return;
+    await Promise.all(
+      pending.map(([lineId, qty]) => updateLineQuantityAction(channel, lineId, qty))
+    );
+    window.dispatchEvent(new Event("cart-updated"));
   };
 
   // Handle line deletion with optimistic UI
   const handleDeleteLine = async (lineId: string) => {
-    if (updatingLinesRef.current.has(lineId)) return;
-    updatingLinesRef.current.add(lineId);
+    // Cancel any pending quantity debounce for this line
+    const pendingTimer = debounceTimersRef.current.get(lineId);
+    if (pendingTimer) {
+      clearTimeout(pendingTimer);
+      debounceTimersRef.current.delete(lineId);
+    }
+    optimisticQtyRef.current.delete(lineId);
 
     // Capture pre-update state for rollback
     const previousData = checkoutData;
@@ -159,8 +221,6 @@ function CartDrawerContent({
       console.error("Failed to delete line:", error);
       toast.error("Could not remove item");
       setCheckoutData(previousData);
-    } finally {
-      updatingLinesRef.current.delete(lineId);
     }
   };
 
@@ -172,18 +232,13 @@ function CartDrawerContent({
     }
   }, [isOpen, channel]);
 
-  // Listen for cart-updated events to refresh (debounced)
+  // Listen for cart-updated events to refresh (debounced, overlays pending quantities)
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
     const handleCartUpdate = () => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
-        if (channel) {
-          fetch(`/api/cart-data?channel=${channel}`, { cache: 'no-store' })
-            .then(res => res.json() as Promise<{ checkout: CheckoutData | null }>)
-            .then(data => setCheckoutData(data.checkout))
-            .catch(() => {});
-        }
+        if (channel) refreshCartData();
       }, 300);
     };
 
@@ -215,6 +270,7 @@ function CartDrawerContent({
       onApplyPromoCode={handleApplyPromoCode}
       onRemovePromoCode={handleRemovePromoCode}
       onCreateCheckoutWithSelection={handleCreateCheckoutWithSelection}
+      onBeforeCheckout={flushPendingUpdates}
       loading={isLoading}
     />
   );

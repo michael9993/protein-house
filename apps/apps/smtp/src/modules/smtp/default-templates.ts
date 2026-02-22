@@ -432,8 +432,16 @@ const enOrderFulfilled = `<mjml>
         </mj-text>
         <mj-text padding="16px" container-background-color="#F9FAFB" css-class="info-box">
           <div class="detail-row"><strong>Order:</strong> <span class="accent">#{{order.number}}</span></div>
+          {{#if fulfillment.tracking_number}}
+          <div class="detail-row"><strong>Tracking:</strong> <span style="font-family: 'JetBrains Mono', monospace; color: \${PRIMARY_COLOR}; font-weight: 600;">{{fulfillment.tracking_number}}</span></div>
+          {{/if}}
           <div class="detail-row"><strong>Status:</strong> <span style="color: #059669; font-weight: 600;">Shipped</span></div>
         </mj-text>
+        {{#if fulfillment.tracking_number}}
+        <mj-button background-color="\${PRIMARY_COLOR}" color="#FFFFFF" font-size="14px" font-weight="600" border-radius="6px" inner-padding="12px 28px" href="https://t.17track.net/en#nums={{fulfillment.tracking_number}}" padding-top="16px">
+          Track Your Package
+        </mj-button>
+        {{/if}}
       </mj-column>
     </mj-section>
     ${addressBlockEn}
@@ -461,9 +469,9 @@ const enOrderFulfillmentUpdate = `<mjml>
           <div class="detail-row"><strong>Status:</strong> <span style="color: #059669; font-weight: 600;">Updated</span></div>
         </mj-text>
         {{#if fulfillment.tracking_number}}
-        <mj-text font-size="13px" color="#6B7280" padding-top="16px">
-          Use the tracking number above to track your shipment with your carrier.
-        </mj-text>
+        <mj-button background-color="\${PRIMARY_COLOR}" color="#FFFFFF" font-size="14px" font-weight="600" border-radius="6px" inner-padding="12px 28px" href="https://t.17track.net/en#nums={{fulfillment.tracking_number}}" padding-top="16px">
+          Track Your Package
+        </mj-button>
         {{/if}}
       </mj-column>
     </mj-section>
@@ -1001,8 +1009,16 @@ const heOrderFulfilled = `<mjml>
         </mj-text>
         <mj-text padding="16px" container-background-color="#F9FAFB" css-class="info-box">
           <div class="detail-row"><strong>הזמנה:</strong> <span class="accent">#{{order.number}}</span></div>
+          {{#if fulfillment.tracking_number}}
+          <div class="detail-row"><strong>מספר מעקב:</strong> <span style="font-family: 'JetBrains Mono', monospace; color: \${PRIMARY_COLOR}; font-weight: 600;">{{fulfillment.tracking_number}}</span></div>
+          {{/if}}
           <div class="detail-row"><strong>סטטוס:</strong> <span style="color: #059669; font-weight: 600;">נשלח</span></div>
         </mj-text>
+        {{#if fulfillment.tracking_number}}
+        <mj-button background-color="\${PRIMARY_COLOR}" color="#FFFFFF" font-size="14px" font-weight="600" border-radius="6px" inner-padding="12px 28px" href="https://t.17track.net/en#nums={{fulfillment.tracking_number}}" padding-top="16px">
+          עקוב אחר המשלוח
+        </mj-button>
+        {{/if}}
       </mj-column>
     </mj-section>
     ${addressBlockHe}
@@ -1030,9 +1046,9 @@ const heOrderFulfillmentUpdate = `<mjml>
           <div class="detail-row"><strong>סטטוס:</strong> <span style="color: #059669; font-weight: 600;">עודכן</span></div>
         </mj-text>
         {{#if fulfillment.tracking_number}}
-        <mj-text font-size="13px" color="#6B7280" padding-top="16px">
-          השתמשו במספר המעקב לעיל כדי לעקוב אחר המשלוח שלכם.
-        </mj-text>
+        <mj-button background-color="\${PRIMARY_COLOR}" color="#FFFFFF" font-size="14px" font-weight="600" border-radius="6px" inner-padding="12px 28px" href="https://t.17track.net/en#nums={{fulfillment.tracking_number}}" padding-top="16px">
+          עקוב אחר המשלוח
+        </mj-button>
         {{/if}}
       </mj-column>
     </mj-section>
@@ -1450,11 +1466,144 @@ const heNewsletterReactivate = `<mjml>
   </mj-body>
 </mjml>`;
 
+// ─── Abandoned Checkout Templates ─────────────────────────────────────────
+
+const cartItemsTableEn = `
+        <mj-table padding="0" cellpadding="0">
+          <thead>
+            <tr style="border-bottom: 2px solid #E5E7EB;">
+              <th style="text-align: left; padding: 10px 0; font-size: 11px; text-transform: uppercase; color: #6B7280; font-weight: 600; letter-spacing: 0.05em;">Item</th>
+              <th style="text-align: center; padding: 10px 0; font-size: 11px; text-transform: uppercase; color: #6B7280; font-weight: 600; letter-spacing: 0.05em;">Qty</th>
+              <th style="text-align: right; padding: 10px 0; font-size: 11px; text-transform: uppercase; color: #6B7280; font-weight: 600; letter-spacing: 0.05em;">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each lines}}
+            <tr style="border-bottom: 1px solid #F3F4F6;">
+              <td style="padding: 12px 0; color: #374151; font-size: 14px;">{{this.product_name}}{{#if this.variant_name}} — {{this.variant_name}}{{/if}}</td>
+              <td style="text-align: center; padding: 12px 0; color: #6B7280; font-size: 14px;">{{this.quantity}}</td>
+              <td style="text-align: right; padding: 12px 0; color: #374151; font-weight: 500; font-size: 14px;">{{this.total_gross_amount}} {{this.currency}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </mj-table>`;
+
+const cartTotalsEn = `
+        <mj-table padding="12px 0 0 0">
+          <tbody>
+            <tr style="border-top: 2px solid #E5E7EB;">
+              <td style="text-align: right; padding: 14px 0 0 0; color: #111827; font-size: 16px; font-weight: 700;">Total:</td>
+              <td style="text-align: right; padding: 14px 0 0 16px; color: \${PRIMARY_COLOR}; font-size: 16px; font-weight: 700; width: 120px;">{{total_gross_amount}} {{currency}}</td>
+            </tr>
+          </tbody>
+        </mj-table>`;
+
+const enAbandonedCheckout = `<mjml>
+  ${emailHeadEn}
+  <mj-body background-color="#F9FAFB">
+    ${headerEn}
+
+    <mj-section background-color="#FFFFFF" padding="32px 24px 16px">
+      <mj-column>
+        <mj-text font-size="22px" font-weight="700" color="#111827" padding-bottom="8px">
+          {{#eq email_number 1}}You left something behind!{{/eq}}{{#eq email_number 2}}Your cart is waiting for you{{/eq}}{{#eq email_number 3}}Last chance — your items may sell out{{/eq}}
+        </mj-text>
+        <mj-text color="#6B7280" padding-bottom="4px">
+          {{#eq email_number 1}}It looks like you didn't finish checking out. No worries — your items are still saved.{{/eq}}{{#eq email_number 2}}We noticed you left some great items in your cart. They're still waiting for you!{{/eq}}{{#eq email_number 3}}Your cart items are selling fast and we can't guarantee they'll stay in stock. Complete your order before it's too late!{{/eq}}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#FFFFFF" padding="0 24px 16px">
+      <mj-column>
+        ${cartItemsTableEn}
+        ${cartTotalsEn}
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#FFFFFF" padding="8px 24px 32px">
+      <mj-column>
+        <mj-button background-color="\${PRIMARY_COLOR}" color="#FFFFFF" border-radius="6px" font-size="16px" font-weight="600" inner-padding="14px 36px" href="{{recover_url}}">
+          {{#eq email_number 1}}Complete Your Order{{/eq}}{{#eq email_number 2}}Return to Your Cart{{/eq}}{{#eq email_number 3}}Complete Purchase Now{{/eq}}
+        </mj-button>
+      </mj-column>
+    </mj-section>
+
+    ${footerEn}
+  </mj-body>
+</mjml>`;
+
+const cartItemsTableHe = `
+        <mj-table padding="0" cellpadding="0">
+          <thead>
+            <tr style="border-bottom: 2px solid #E5E7EB;">
+              <th style="text-align: right; padding: 10px 0; font-size: 11px; text-transform: uppercase; color: #6B7280; font-weight: 600; letter-spacing: 0.05em;">פריט</th>
+              <th style="text-align: center; padding: 10px 0; font-size: 11px; text-transform: uppercase; color: #6B7280; font-weight: 600; letter-spacing: 0.05em;">כמות</th>
+              <th style="text-align: left; padding: 10px 0; font-size: 11px; text-transform: uppercase; color: #6B7280; font-weight: 600; letter-spacing: 0.05em;">מחיר</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each lines}}
+            <tr style="border-bottom: 1px solid #F3F4F6;">
+              <td style="padding: 12px 0; color: #374151; font-size: 14px; text-align: right;">{{this.product_name}}{{#if this.variant_name}} — {{this.variant_name}}{{/if}}</td>
+              <td style="text-align: center; padding: 12px 0; color: #6B7280; font-size: 14px;">{{this.quantity}}</td>
+              <td style="text-align: left; padding: 12px 0; color: #374151; font-weight: 500; font-size: 14px;">{{this.total_gross_amount}} {{this.currency}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </mj-table>`;
+
+const cartTotalsHe = `
+        <mj-table padding="12px 0 0 0">
+          <tbody>
+            <tr style="border-top: 2px solid #E5E7EB;">
+              <td style="text-align: left; padding: 14px 0 0 0; color: #111827; font-size: 16px; font-weight: 700;">סה"כ:</td>
+              <td style="text-align: left; padding: 14px 16px 0 0; color: \${PRIMARY_COLOR}; font-size: 16px; font-weight: 700; width: 120px;">{{total_gross_amount}} {{currency}}</td>
+            </tr>
+          </tbody>
+        </mj-table>`;
+
+const heAbandonedCheckout = `<mjml>
+  ${emailHeadHe}
+  <mj-body background-color="#F9FAFB">
+    ${headerHe}
+
+    <mj-section background-color="#FFFFFF" padding="32px 24px 16px">
+      <mj-column>
+        <mj-text font-size="22px" font-weight="700" color="#111827" padding-bottom="8px" align="right">
+          {{#eq email_number 1}}שכחת משהו!{{/eq}}{{#eq email_number 2}}העגלה שלך מחכה לך{{/eq}}{{#eq email_number 3}}הזדמנות אחרונה — המוצרים עלולים לאזול{{/eq}}
+        </mj-text>
+        <mj-text color="#6B7280" padding-bottom="4px" align="right">
+          {{#eq email_number 1}}נראה שלא סיימת את ההזמנה. אל דאגה — הפריטים שלך עדיין שמורים.{{/eq}}{{#eq email_number 2}}שמנו לב שהשארת פריטים מעולים בעגלה. הם עדיין מחכים לך!{{/eq}}{{#eq email_number 3}}הפריטים בעגלה שלך נמכרים מהר ואנחנו לא יכולים להבטיח שיישארו במלאי. השלימו את ההזמנה לפני שיהיה מאוחר!{{/eq}}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#FFFFFF" padding="0 24px 16px">
+      <mj-column>
+        ${cartItemsTableHe}
+        ${cartTotalsHe}
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#FFFFFF" padding="8px 24px 32px">
+      <mj-column>
+        <mj-button background-color="\${PRIMARY_COLOR}" color="#FFFFFF" border-radius="6px" font-size="16px" font-weight="600" inner-padding="14px 36px" href="{{recover_url}}">
+          {{#eq email_number 1}}השלימו את ההזמנה{{/eq}}{{#eq email_number 2}}חזרו לעגלה{{/eq}}{{#eq email_number 3}}השלימו רכישה עכשיו{{/eq}}
+        </mj-button>
+      </mj-column>
+    </mj-section>
+
+    ${footerHe}
+  </mj-body>
+</mjml>`;
+
 // ═══════════════════════════════════════════════════════════════════════════
 // EXPORTS
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const defaultMjmlTemplates: Record<MessageEventTypes, string> = {
+  ABANDONED_CHECKOUT: enAbandonedCheckout,
   ACCOUNT_CHANGE_EMAIL_CONFIRM: enAccountChangeEmailConfirm,
   ACCOUNT_CHANGE_EMAIL_REQUEST: enAccountChangeEmailRequest,
   ACCOUNT_CONFIRMATION: enAccountConfirmation,
@@ -1475,6 +1624,7 @@ export const defaultMjmlTemplates: Record<MessageEventTypes, string> = {
 };
 
 export const defaultMjmlSubjectTemplates: Record<MessageEventTypes, string> = {
+  ABANDONED_CHECKOUT: `{{#eq email_number 1}}You left something behind!{{/eq}}{{#eq email_number 2}}Your cart is waiting for you{{/eq}}{{#eq email_number 3}}Last chance — don't miss out!{{/eq}} — \${COMPANY_NAME}`,
   ACCOUNT_CHANGE_EMAIL_CONFIRM: `Email Updated Successfully — \${COMPANY_NAME}`,
   ACCOUNT_CHANGE_EMAIL_REQUEST: `Confirm Your New Email Address — \${COMPANY_NAME}`,
   ACCOUNT_CONFIRMATION: `Welcome to \${COMPANY_NAME} — Confirm Your Email`,
@@ -1497,6 +1647,7 @@ export const defaultMjmlSubjectTemplates: Record<MessageEventTypes, string> = {
 // ─── Hebrew Templates ───────────────────────────────────────────────────────
 
 export const defaultMjmlTemplatesHe: Record<MessageEventTypes, string> = {
+  ABANDONED_CHECKOUT: heAbandonedCheckout,
   ACCOUNT_CHANGE_EMAIL_CONFIRM: heAccountChangeEmailConfirm,
   ACCOUNT_CHANGE_EMAIL_REQUEST: heAccountChangeEmailRequest,
   ACCOUNT_CONFIRMATION: heAccountConfirmation,
@@ -1517,6 +1668,7 @@ export const defaultMjmlTemplatesHe: Record<MessageEventTypes, string> = {
 };
 
 export const defaultMjmlSubjectTemplatesHe: Record<MessageEventTypes, string> = {
+  ABANDONED_CHECKOUT: `{{#eq email_number 1}}שכחת משהו!{{/eq}}{{#eq email_number 2}}העגלה שלך מחכה לך{{/eq}}{{#eq email_number 3}}הזדמנות אחרונה — אל תפספסו!{{/eq}} — \${COMPANY_NAME}`,
   ACCOUNT_CHANGE_EMAIL_CONFIRM: `המייל עודכן בהצלחה — \${COMPANY_NAME}`,
   ACCOUNT_CHANGE_EMAIL_REQUEST: `אשרו את כתובת המייל החדשה — \${COMPANY_NAME}`,
   ACCOUNT_CONFIRMATION: `ברוכים הבאים ל-\${COMPANY_NAME} — אשרו את המייל`,

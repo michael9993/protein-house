@@ -1,5 +1,4 @@
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
-import { Box, Text, Button } from "@/components/ui/primitives";
 import { useState } from "react";
 
 import { trpcClient } from "@/modules/trpc/trpc-client";
@@ -26,19 +25,19 @@ const SUPPLIER_OPTIONS: Array<{ value: SupplierFilter | "all"; label: string }> 
   { value: "cj", label: "CJ Dropshipping" },
 ];
 
-function statusColor(status: string): "success1" | "critical1" | "warning1" | "default2" {
+function statusBadgeCls(status: string): string {
   switch (status) {
     case "delivered":
     case "shipped":
-      return "success1";
+      return "bg-green-50 text-green-800";
     case "failed":
     case "cancelled":
     case "supplier_cancelled":
-      return "critical1";
+      return "bg-red-50 text-red-800";
     case "exception":
-      return "warning1";
+      return "bg-yellow-50 text-yellow-800";
     default:
-      return "default2";
+      return "bg-gray-100 text-gray-800";
   }
 }
 
@@ -62,175 +61,159 @@ function OrdersList() {
 
   if (isLoading) {
     return (
-      <Box padding={8}>
-        <Text variant="heading" size="large">Loading orders...</Text>
-      </Box>
+      <div className="p-8">
+        <h1 className="text-xl font-semibold text-text-primary">Loading orders...</h1>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Box padding={8}>
-        <Text variant="heading" size="large" color="critical1">Error loading orders</Text>
-        <Text>{error.message}</Text>
-      </Box>
+      <div className="p-8">
+        <h1 className="text-xl font-semibold text-red-600">Error loading orders</h1>
+        <p className="text-sm text-text-primary">{error.message}</p>
+      </div>
     );
   }
 
   return (
-    <Box display="flex" flexDirection="column" gap={6}>
+    <div className="flex flex-col gap-6">
       <NavBar />
 
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Box>
-          <Text variant="heading" size="large">Dropship Orders</Text>
-          <Text color="default2">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-xl font-semibold text-text-primary">Dropship Orders</h1>
+          <p className="text-sm text-text-muted">
             {data?.totalCount ?? 0} total orders
-          </Text>
-        </Box>
-      </Box>
+          </p>
+        </div>
+      </div>
 
       {/* Filters */}
-      <Box display="flex" gap={3} flexWrap="wrap">
-        <Box display="flex" flexDirection="column" gap={1}>
-          <Text variant="caption" color="default2">Status</Text>
-          <Box display="flex" gap={1} flexWrap="wrap">
+      <div className="flex gap-3 flex-wrap">
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-text-muted">Status</span>
+          <div className="flex gap-1 flex-wrap">
             {STATUS_OPTIONS.map((opt) => (
-              <Button
+              <button
                 key={opt.value}
-                variant={statusFilter === opt.value ? "primary" : "tertiary"}
-                size="small"
+                className={
+                  statusFilter === opt.value
+                    ? "px-2.5 py-1 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light transition-colors"
+                    : "px-2.5 py-1 text-sm font-medium text-text-muted hover:text-text-primary transition-colors"
+                }
                 onClick={() => {
                   setStatusFilter(opt.value as DropshipStatus | "all");
                   setCursor(null);
                 }}
               >
                 {opt.label}
-              </Button>
+              </button>
             ))}
-          </Box>
-        </Box>
-        <Box display="flex" flexDirection="column" gap={1}>
-          <Text variant="caption" color="default2">Supplier</Text>
-          <Box display="flex" gap={1}>
+          </div>
+        </div>
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-text-muted">Supplier</span>
+          <div className="flex gap-1">
             {SUPPLIER_OPTIONS.map((opt) => (
-              <Button
+              <button
                 key={opt.value}
-                variant={supplierFilter === opt.value ? "primary" : "tertiary"}
-                size="small"
+                className={
+                  supplierFilter === opt.value
+                    ? "px-2.5 py-1 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light transition-colors"
+                    : "px-2.5 py-1 text-sm font-medium text-text-muted hover:text-text-primary transition-colors"
+                }
                 onClick={() => {
                   setSupplierFilter(opt.value as SupplierFilter | "all");
                   setCursor(null);
                 }}
               >
                 {opt.label}
-              </Button>
+              </button>
             ))}
-          </Box>
-        </Box>
-      </Box>
+          </div>
+        </div>
+      </div>
 
       {/* Orders Table */}
-      <Box display="flex" flexDirection="column" gap={1}>
+      <div className="flex flex-col gap-1">
         {/* Header */}
-        <Box
-          display="grid"
-          __gridTemplateColumns="80px 1fr 120px 100px 100px 140px 120px"
-          gap={2}
-          paddingX={4}
-          paddingY={2}
-          backgroundColor="default1"
-          borderRadius={4}
+        <div
+          className="grid gap-2 px-4 py-2 bg-gray-50 rounded-lg"
+          style={{ gridTemplateColumns: "80px 1fr 120px 100px 100px 140px 120px" }}
         >
-          <Text variant="caption" color="default2">Order #</Text>
-          <Text variant="caption" color="default2">Supplier</Text>
-          <Text variant="caption" color="default2">Status</Text>
-          <Text variant="caption" color="default2">Cost</Text>
-          <Text variant="caption" color="default2">Total</Text>
-          <Text variant="caption" color="default2">Date</Text>
-          <Text variant="caption" color="default2">Actions</Text>
-        </Box>
+          <span className="text-xs text-text-muted">Order #</span>
+          <span className="text-xs text-text-muted">Supplier</span>
+          <span className="text-xs text-text-muted">Status</span>
+          <span className="text-xs text-text-muted">Cost</span>
+          <span className="text-xs text-text-muted">Total</span>
+          <span className="text-xs text-text-muted">Date</span>
+          <span className="text-xs text-text-muted">Actions</span>
+        </div>
 
         {/* Rows */}
         {data?.orders.map((order: any) => (
-          <Box
+          <div
             key={order.id}
-            display="grid"
-            __gridTemplateColumns="80px 1fr 120px 100px 100px 140px 120px"
-            gap={2}
-            paddingX={4}
-            paddingY={3}
-            borderWidth={1}
-            borderStyle="solid"
-            borderColor="default1"
-            borderRadius={4}
-            alignItems="center"
+            className="grid gap-2 px-4 py-3 border border-border rounded-lg items-center"
+            style={{ gridTemplateColumns: "80px 1fr 120px 100px 100px 140px 120px" }}
           >
-            <Text variant="bodyStrong">#{order.number}</Text>
-            <Text>{order.supplier === "aliexpress" ? "AliExpress" : "CJ"}</Text>
-            <Box>
-              <Box
-                paddingX={2}
-                paddingY={1}
-                borderRadius={4}
-                backgroundColor={statusColor(order.dropshipStatus)}
-                __display="inline-block"
-              >
-                <Text variant="caption">
-                  {order.dropshipStatus.replace("_", " ").toUpperCase()}
-                </Text>
-              </Box>
-            </Box>
-            <Text variant="caption">
+            <span className="font-semibold">#{order.number}</span>
+            <span className="text-sm">{order.supplier === "aliexpress" ? "AliExpress" : "CJ"}</span>
+            <div>
+              <span className={`inline-block px-2 py-1 rounded-lg text-xs ${statusBadgeCls(order.dropshipStatus)}`}>
+                {order.dropshipStatus.replace("_", " ").toUpperCase()}
+              </span>
+            </div>
+            <span className="text-xs">
               {order.supplierCost != null
                 ? `$${order.supplierCost.toFixed(2)}`
                 : "--"}
-            </Text>
-            <Text variant="caption">
+            </span>
+            <span className="text-xs">
               {order.total.currency} {order.total.amount.toFixed(2)}
-            </Text>
-            <Text variant="caption">
+            </span>
+            <span className="text-xs">
               {new Date(order.created).toLocaleDateString()}
-            </Text>
-            <Box display="flex" gap={1}>
+            </span>
+            <div className="flex gap-1">
               {order.dropshipStatus === "failed" && (
-                <Button
-                  variant="secondary"
-                  size="small"
+                <button
+                  className="px-2.5 py-1 text-sm font-medium border border-border rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
                   disabled={retryMutation.isLoading}
                   onClick={() => retryMutation.mutate({ orderId: order.id })}
                 >
                   Retry
-                </Button>
+                </button>
               )}
               {order.trackingNumber && (
-                <Text variant="caption" color="default2" title={order.trackingNumber}>
+                <span className="text-xs text-text-muted" title={order.trackingNumber}>
                   Tracked
-                </Text>
+                </span>
               )}
-            </Box>
-          </Box>
+            </div>
+          </div>
         ))}
 
         {data?.orders.length === 0 && (
-          <Box padding={8} display="flex" justifyContent="center">
-            <Text color="default2">No dropship orders found matching the current filters.</Text>
-          </Box>
+          <div className="p-8 flex justify-center">
+            <p className="text-sm text-text-muted">No dropship orders found matching the current filters.</p>
+          </div>
         )}
-      </Box>
+      </div>
 
       {/* Pagination */}
       {data?.pageInfo.hasNextPage && (
-        <Box display="flex" justifyContent="center">
-          <Button
-            variant="secondary"
+        <div className="flex justify-center">
+          <button
+            className="px-3 py-1.5 text-sm font-medium border border-border rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
             onClick={() => setCursor(data.pageInfo.endCursor)}
           >
             Load More
-          </Button>
-        </Box>
+          </button>
+        </div>
       )}
-    </Box>
+    </div>
   );
 }
 
@@ -239,9 +222,9 @@ export default function OrdersPage() {
 
   if (!appBridgeState?.ready) {
     return (
-      <Box padding={8}>
-        <Text>Connecting to Saleor Dashboard...</Text>
-      </Box>
+      <div className="p-8">
+        <p className="text-sm text-text-primary">Connecting to Saleor Dashboard...</p>
+      </div>
     );
   }
 

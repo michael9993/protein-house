@@ -1,10 +1,20 @@
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
-import { Box, Text, Button, Input } from "@/components/ui/primitives";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
-import { trpcClient } from "@/modules/trpc/trpc-client";
 import { NavBar } from "@/components/ui/NavBar";
+import { trpcClient } from "@/modules/trpc/trpc-client";
+
+function connectionStatusCls(status: string): string {
+  switch (status) {
+    case "connected":
+      return "bg-green-50 text-green-800";
+    case "error":
+      return "bg-red-50 text-red-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+}
 
 function AliExpressConfig() {
   const router = useRouter();
@@ -40,18 +50,18 @@ function AliExpressConfig() {
 
   if (isLoading) {
     return (
-      <Box padding={8}>
-        <Text variant="heading" size="large">Loading AliExpress configuration...</Text>
-      </Box>
+      <div className="p-8">
+        <h1 className="text-xl font-semibold text-text-primary">Loading AliExpress configuration...</h1>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Box padding={8}>
-        <Text variant="heading" size="large" color="critical1">Error loading configuration</Text>
-        <Text>{error.message}</Text>
-      </Box>
+      <div className="p-8">
+        <h1 className="text-xl font-semibold text-red-700">Error loading configuration</h1>
+        <p className="text-sm">{error.message}</p>
+      </div>
     );
   }
 
@@ -62,121 +72,95 @@ function AliExpressConfig() {
     : null;
 
   return (
-    <Box display="flex" flexDirection="column" gap={6}>
+    <div className="flex flex-col gap-6">
       <NavBar />
 
       {/* Header with back */}
-      <Box display="flex" alignItems="center" gap={3}>
-        <Button variant="tertiary" size="small" onClick={() => router.push("/suppliers")}>
+      <div className="flex items-center gap-3">
+        <button
+          className="px-2.5 py-1 text-sm font-medium text-text-muted hover:text-text-primary disabled:opacity-50 transition-colors"
+          onClick={() => router.push("/suppliers")}
+        >
           Back
-        </Button>
-        <Box>
-          <Text variant="heading" size="large">AliExpress Configuration</Text>
-          <Text color="default2">Manage AliExpress API credentials and OAuth connection</Text>
-        </Box>
-      </Box>
+        </button>
+        <div>
+          <h1 className="text-xl font-semibold text-text-primary">AliExpress Configuration</h1>
+          <p className="text-sm text-text-muted">Manage AliExpress API credentials and OAuth connection</p>
+        </div>
+      </div>
 
       {/* Status Card */}
-      <Box
-        padding={5}
-        borderRadius={4}
-        borderWidth={1}
-        borderStyle="solid"
-        borderColor="default1"
-      >
-        <Text variant="heading" size="medium" __display="block" marginBottom={3}>
-          Connection Status
-        </Text>
-        <Box display="flex" gap={6} flexWrap="wrap">
-          <Box>
-            <Text color="default2" variant="caption" __display="block">Status</Text>
-            <Box
-              paddingX={3}
-              paddingY={1}
-              borderRadius={4}
-              marginTop={1}
-              backgroundColor={
-                config.status === "connected"
-                  ? "success1"
-                  : config.status === "error"
-                    ? "critical1"
-                    : "default2"
-              }
-              __display="inline-block"
+      <div className="p-5 rounded-lg border border-border">
+        <h2 className="block text-base font-semibold text-text-primary mb-3">Connection Status</h2>
+        <div className="flex gap-6 flex-wrap">
+          <div>
+            <span className="block text-xs text-text-muted">Status</span>
+            <span
+              className={`inline-block mt-1 px-3 py-1 rounded-lg text-xs ${connectionStatusCls(config.status)}`}
             >
-              <Text variant="caption">
-                {config.status.replace("_", " ").toUpperCase()}
-              </Text>
-            </Box>
-          </Box>
-          <Box>
-            <Text color="default2" variant="caption" __display="block">Enabled</Text>
-            <Text __display="block" marginTop={1}>{config.enabled ? "Yes" : "No"}</Text>
-          </Box>
-          <Box>
-            <Text color="default2" variant="caption" __display="block">Last Connected</Text>
-            <Text __display="block" marginTop={1}>
+              {config.status.replace("_", " ").toUpperCase()}
+            </span>
+          </div>
+          <div>
+            <span className="block text-xs text-text-muted">Enabled</span>
+            <span className="block mt-1 text-sm">{config.enabled ? "Yes" : "No"}</span>
+          </div>
+          <div>
+            <span className="block text-xs text-text-muted">Last Connected</span>
+            <span className="block mt-1 text-sm">
               {config.lastConnectedAt
                 ? new Date(config.lastConnectedAt).toLocaleString()
                 : "Never"}
-            </Text>
-          </Box>
-          <Box>
-            <Text color="default2" variant="caption" __display="block">Token Expires</Text>
-            <Text __display="block" marginTop={1}>
+            </span>
+          </div>
+          <div>
+            <span className="block text-xs text-text-muted">Token Expires</span>
+            <span className="block mt-1 text-sm">
               {config.tokenExpiresAt
                 ? new Date(config.tokenExpiresAt).toLocaleString()
                 : "N/A"}
-            </Text>
-          </Box>
-        </Box>
-      </Box>
+            </span>
+          </div>
+        </div>
+      </div>
 
       {/* Credentials Form */}
-      <Box
-        padding={5}
-        borderRadius={4}
-        borderWidth={1}
-        borderStyle="solid"
-        borderColor="default1"
-      >
-        <Text variant="heading" size="medium" __display="block" marginBottom={4}>
-          API Credentials
-        </Text>
-        <Box display="flex" flexDirection="column" gap={4}>
-          <Box>
-            <Text variant="caption" color="default2" __display="block" marginBottom={1}>App Key</Text>
-            <Input
+      <div className="p-5 rounded-lg border border-border">
+        <h2 className="block text-base font-semibold text-text-primary mb-4">API Credentials</h2>
+        <div className="flex flex-col gap-4">
+          <div>
+            <label className="block text-xs text-text-muted mb-1">App Key</label>
+            <input
+              className="w-full px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
               value={appKey}
               onChange={(e) => setAppKey(e.target.value)}
               placeholder="Enter AliExpress App Key"
-              size="small"
             />
-          </Box>
-          <Box>
-            <Text variant="caption" color="default2" __display="block" marginBottom={1}>App Secret</Text>
-            <Input
+          </div>
+          <div>
+            <label className="block text-xs text-text-muted mb-1">App Secret</label>
+            <input
+              className="w-full px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
               type="password"
               value={appSecret}
               onChange={(e) => setAppSecret(e.target.value)}
               placeholder="Enter AliExpress App Secret"
-              size="small"
             />
-          </Box>
+          </div>
 
           {saveMessage && (
-            <Box
-              padding={3}
-              borderRadius={4}
-              backgroundColor={saveMessage.type === "success" ? "success1" : "critical1"}
+            <div
+              className={`p-3 rounded-lg text-sm ${
+                saveMessage.type === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+              }`}
             >
-              <Text>{saveMessage.text}</Text>
-            </Box>
+              {saveMessage.text}
+            </div>
           )}
 
-          <Box display="flex" gap={3}>
-            <Button
-              variant="primary"
+          <div className="flex gap-3">
+            <button
+              className="px-3 py-1.5 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light disabled:opacity-50 transition-colors"
               disabled={!appKey || !appSecret || saveMutation.isLoading}
               onClick={() =>
                 saveMutation.mutate({
@@ -186,84 +170,62 @@ function AliExpressConfig() {
               }
             >
               {saveMutation.isLoading ? "Saving..." : "Save Credentials"}
-            </Button>
-          </Box>
-        </Box>
-      </Box>
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* OAuth Flow */}
-      <Box
-        padding={5}
-        borderRadius={4}
-        borderWidth={1}
-        borderStyle="solid"
-        borderColor="default1"
-      >
-        <Text variant="heading" size="medium" __display="block" marginBottom={3}>
-          OAuth Authorization
-        </Text>
-        <Text color="default2" __display="block" marginBottom={4}>
+      <div className="p-5 rounded-lg border border-border">
+        <h2 className="block text-base font-semibold text-text-primary mb-3">OAuth Authorization</h2>
+        <p className="block text-sm text-text-muted mb-4">
           After saving your App Key and Secret, use the OAuth URL below to authorize this app with AliExpress.
           The authorization will grant access to the AliExpress API for order forwarding and product data.
-        </Text>
+        </p>
 
         {oauthUrl ? (
-          <Box display="flex" flexDirection="column" gap={3}>
-            <Box
-              padding={3}
-              borderRadius={4}
-              backgroundColor="default1"
-              __wordBreak="break-all"
-            >
-              <Text variant="caption">{oauthUrl}</Text>
-            </Box>
-            <Button
-              variant="secondary"
+          <div className="flex flex-col gap-3">
+            <div className="p-3 rounded-lg bg-gray-50 break-all">
+              <span className="text-xs">{oauthUrl}</span>
+            </div>
+            <button
+              className="px-3 py-1.5 text-sm font-medium border border-border rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
               onClick={() => window.open(oauthUrl, "_blank")}
             >
               Open OAuth Authorization Page
-            </Button>
-          </Box>
+            </button>
+          </div>
         ) : (
-          <Text color="default2">Enter your App Key above to generate the OAuth URL.</Text>
+          <p className="text-sm text-text-muted">Enter your App Key above to generate the OAuth URL.</p>
         )}
-      </Box>
+      </div>
 
       {/* Test Connection */}
-      <Box
-        padding={5}
-        borderRadius={4}
-        borderWidth={1}
-        borderStyle="solid"
-        borderColor="default1"
-      >
-        <Text variant="heading" size="medium" __display="block" marginBottom={3}>
-          Test Connection
-        </Text>
-        <Text color="default2" __display="block" marginBottom={4}>
+      <div className="p-5 rounded-lg border border-border">
+        <h2 className="block text-base font-semibold text-text-primary mb-3">Test Connection</h2>
+        <p className="block text-sm text-text-muted mb-4">
           Verify that the stored credentials are valid and the API is reachable.
-        </Text>
+        </p>
 
         {testResult && (
-          <Box
-            padding={3}
-            borderRadius={4}
-            marginBottom={3}
-            backgroundColor={testResult.success ? "success1" : "critical1"}
+          <div
+            className={`p-3 rounded-lg mb-3 text-sm ${
+              testResult.success ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+            }`}
           >
-            <Text>{testResult.success ? testResult.message : testResult.error}</Text>
-          </Box>
+            {testResult.success ? testResult.message : testResult.error}
+          </div>
         )}
 
-        <Button
-          variant="secondary"
+        <button
+          className="px-3 py-1.5 text-sm font-medium border border-border rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
           disabled={testMutation.isLoading}
           onClick={() => testMutation.mutate({ supplierId: "aliexpress" })}
         >
           {testMutation.isLoading ? "Testing..." : "Test Connection"}
-        </Button>
-      </Box>
-    </Box>
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -272,9 +234,9 @@ export default function AliExpressPage() {
 
   if (!appBridgeState?.ready) {
     return (
-      <Box padding={8}>
-        <Text>Connecting to Saleor Dashboard...</Text>
-      </Box>
+      <div className="p-8">
+        <p className="text-sm">Connecting to Saleor Dashboard...</p>
+      </div>
     );
   }
 

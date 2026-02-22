@@ -288,6 +288,10 @@ export const DEFAULT_PRODUCT_DETAIL_TEXT: ProductDetailText = {
   freeStandardShippingDescription: "On orders over $75. Delivery in 5-7 business days.",
   expressShippingTitle: "Express Shipping",
   expressShippingDescription: "{price}. Delivery in 2-3 business days.",
+  deliveryEstimateLabel: "Ships in {days} business days",
+  estimatedDeliveryPrefix: "Estimated delivery",
+  businessDaysLabel: "business days",
+  trackOrderLabel: "Track your order",
   // Review list and loading states
   loadingReviews: "Loading reviews...",
   reviewCountText: "{count} review(s)", // Not used directly, using reviewSingular/reviewPlural instead
@@ -686,6 +690,9 @@ export const defaultStoreConfig = {
       freeShippingThreshold: 50,
       showEstimatedDelivery: true,
       deliverySlots: false,
+      defaultEstimatedMinDays: 2,
+      defaultEstimatedMaxDays: 5,
+      estimatedDeliveryFormat: "range" as const,
     },
     tax: {
       showPricesWithTax: false,
@@ -1333,6 +1340,9 @@ export const storeTypePresets: Record<StoreType, Partial<StoreConfig>> = {
         freeShippingThreshold: null,
         showEstimatedDelivery: false,
         deliverySlots: false,
+        defaultEstimatedMinDays: 0,
+        defaultEstimatedMaxDays: 0,
+        estimatedDeliveryFormat: "range" as const,
       },
       tax: { showPricesWithTax: true, taxIncludedInPrice: true },
       inventory: { showStockLevel: false, lowStockThreshold: 0, allowBackorders: true },
@@ -1370,6 +1380,9 @@ export const storeTypePresets: Record<StoreType, Partial<StoreConfig>> = {
         freeShippingThreshold: 30,
         showEstimatedDelivery: true,
         deliverySlots: true,  // Time slot delivery
+        defaultEstimatedMinDays: 1,
+        defaultEstimatedMaxDays: 3,
+        estimatedDeliveryFormat: "range" as const,
       },
       tax: { showPricesWithTax: true, taxIncludedInPrice: true },
       inventory: { showStockLevel: true, lowStockThreshold: 10, allowBackorders: false },
@@ -1407,6 +1420,9 @@ export const storeTypePresets: Record<StoreType, Partial<StoreConfig>> = {
         freeShippingThreshold: null,
         showEstimatedDelivery: false,
         deliverySlots: true,  // Appointment slots
+        defaultEstimatedMinDays: 0,
+        defaultEstimatedMaxDays: 0,
+        estimatedDeliveryFormat: "range" as const,
       },
       tax: { showPricesWithTax: true, taxIncludedInPrice: true },
       inventory: { showStockLevel: false, lowStockThreshold: 0, allowBackorders: true },

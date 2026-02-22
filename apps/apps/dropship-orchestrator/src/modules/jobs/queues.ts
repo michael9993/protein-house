@@ -3,7 +3,7 @@ import IORedis from "ioredis";
 
 import { createLogger } from "@/logger";
 
-import type { ReconciliationJobData, TokenRefreshJobData, TrackingSyncJobData } from "./job-types";
+import type { ReconciliationJobData, StockSyncJobData, TokenRefreshJobData, TrackingSyncJobData } from "./job-types";
 
 const logger = createLogger("JobQueues");
 
@@ -80,6 +80,7 @@ export const QUEUE_NAMES = {
   TRACKING_SYNC: "dropship-tracking-sync",
   RECONCILIATION: "dropship-reconciliation",
   TOKEN_REFRESH: "dropship-token-refresh",
+  STOCK_SYNC: "dropship-stock-sync",
 } as const;
 
 /**
@@ -105,6 +106,15 @@ export const reconciliationQueue = new Queue<ReconciliationJobData>(QUEUE_NAMES.
  * Repeatable: every 12 days (CJ tokens expire after 15 days).
  */
 export const tokenRefreshQueue = new Queue<TokenRefreshJobData>(QUEUE_NAMES.TOKEN_REFRESH, {
+  connection: getRedisConnection(),
+  defaultJobOptions,
+});
+
+/**
+ * Stock sync queue — queries supplier APIs for stock levels and updates Saleor.
+ * Repeatable: every 4 hours.
+ */
+export const stockSyncQueue = new Queue<StockSyncJobData>(QUEUE_NAMES.STOCK_SYNC, {
   connection: getRedisConnection(),
   defaultJobOptions,
 });

@@ -4,6 +4,8 @@ import { AppManifest } from "@saleor/app-sdk/types";
 import packageJson from "../../../package.json";
 import { orderCancelledWebhook } from "./webhooks/saleor/order-cancelled";
 import { orderPaidWebhook } from "./webhooks/saleor/order-paid";
+import { shippingFilterWebhook } from "./webhooks/saleor/shipping-filter";
+import { shippingListWebhook } from "./webhooks/saleor/shipping-list";
 
 const handler = createManifestHandler({
   async manifestFactory({ appBaseUrl }) {
@@ -31,6 +33,7 @@ const handler = createManifestHandler({
         "MANAGE_APPS",
         "MANAGE_SHIPPING",
         "MANAGE_CHECKOUTS",
+        "MANAGE_CHANNELS",
       ] as unknown as AppManifest["permissions"],
       requiredSaleorVersion: ">=3.20 <4",
       supportUrl: "https://github.com/saleor/apps/discussions",
@@ -39,6 +42,8 @@ const handler = createManifestHandler({
       webhooks: [
         orderPaidWebhook.getWebhookManifest(apiBaseURL),
         orderCancelledWebhook.getWebhookManifest(apiBaseURL),
+        shippingListWebhook.getWebhookManifest(apiBaseURL),
+        shippingFilterWebhook.getWebhookManifest(apiBaseURL),
       ],
     };
 

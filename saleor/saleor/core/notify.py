@@ -35,6 +35,7 @@ class UserNotifyEvent:
     ORDER_CANCELED = "order_canceled"
     ORDER_REFUND_CONFIRMATION = "order_refund_confirmation"
     SEND_GIFT_CARD = "send_gift_card"
+    ABANDONED_CHECKOUT = "abandoned_checkout"
 
     CHOICES = [
         ACCOUNT_CONFIRMATION,
@@ -52,6 +53,7 @@ class UserNotifyEvent:
         ORDER_CANCELED,
         ORDER_REFUND_CONFIRMATION,
         SEND_GIFT_CARD,
+        ABANDONED_CHECKOUT,
     ]
 
 

@@ -93,7 +93,10 @@
         "enabled": true,
         "freeShippingThreshold": 75,
         "showEstimatedDelivery": true,
-        "deliverySlots": false
+        "deliverySlots": false,
+        "defaultEstimatedMinDays": 2,
+        "defaultEstimatedMaxDays": 5,
+        "estimatedDeliveryFormat": "range"
       },
       "tax": {
         "showPricesWithTax": false,
@@ -1382,6 +1385,10 @@
         "freeStandardShippingDescription": "For orders over $75. Delivery within 5-7 business days.",
         "expressShippingTitle": "Express Shipping",
         "expressShippingDescription": "{price}. Delivery within 2-3 business days.",
+        "deliveryEstimateLabel": "Ships in {days} business days",
+        "estimatedDeliveryPrefix": "Estimated delivery",
+        "businessDaysLabel": "business days",
+        "trackOrderLabel": "Track your order",
         "loadingReviews": "Loading reviews...",
         "reviewCountText": "{count} reviews",
         "noReviewsMatchFilters": "No reviews match your filters.",

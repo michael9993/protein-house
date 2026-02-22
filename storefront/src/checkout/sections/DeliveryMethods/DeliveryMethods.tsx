@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Title } from "@/checkout/components/Title";
 import { useCheckout } from "@/checkout/hooks/useCheckout";
 import { SelectBox } from "@/checkout/components/SelectBox";
@@ -12,6 +12,7 @@ import { useCheckoutUpdateState } from "@/checkout/state/updateStateStore";
 import { DeliveryMethodsSkeleton } from "@/checkout/sections/DeliveryMethods/DeliveryMethodsSkeleton";
 import { useUser } from "@/checkout/hooks/useUser";
 import { useCheckoutText, formatText } from "@/checkout/hooks/useCheckoutText";
+import { getProductShippingEstimate } from "@/lib/shipping";
 
 export const DeliveryMethods: React.FC<CommonSectionProps> = ({ collapsed }) => {
 	const { checkout } = useCheckout();
@@ -37,6 +38,35 @@ export const DeliveryMethods: React.FC<CommonSectionProps> = ({ collapsed }) => 
 	if (!checkout || !checkout.isShippingRequired || collapsed) {
 		return null;
 	}
+
+	// Group checkout lines by delivery speed for multi-supplier notice
+	const deliveryGroups = useMemo(() => {
+		const lines = (checkout as any)?.lines ?? [];
+		if (lines.length < 2) return null;
+
+		const groups: { label: string; items: string[]; maxDays: number }[] = [];
+		const fast: string[] = [];
+		const standard: string[] = [];
+		const extended: string[] = [];
+
+		for (const line of lines) {
+			const productMeta = (line as any)?.variant?.product?.metadata;
+			const est = getProductShippingEstimate(productMeta);
+			const maxDays = est?.maxDays ?? 0;
+			const name = (line as any)?.variant?.product?.name ?? "Item";
+
+			if (maxDays > 0 && maxDays <= 5) fast.push(name);
+			else if (maxDays > 5 && maxDays <= 14) standard.push(name);
+			else if (maxDays > 14) extended.push(name);
+		}
+
+		if (fast.length > 0) groups.push({ label: "1-5 days", items: fast, maxDays: 5 });
+		if (standard.length > 0) groups.push({ label: "6-14 days", items: standard, maxDays: 14 });
+		if (extended.length > 0) groups.push({ label: "15+ days", items: extended, maxDays: 30 });
+
+		// Only show if there are multiple speed groups
+		return groups.length > 1 ? groups : null;
+	}, [checkout]);
 
 	return (
 		<FormProvider form={form}>
@@ -67,6 +97,19 @@ export const DeliveryMethods: React.FC<CommonSectionProps> = ({ collapsed }) => 
 								),
 							)}
 						</SelectBoxGroup>
+						{/* Multi-supplier delivery notice */}
+						{deliveryGroups && (
+							<div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
+								<p className="text-sm font-medium text-amber-800 mb-1">
+									Your order may arrive in multiple shipments
+								</p>
+								{deliveryGroups.map((group) => (
+									<p key={group.label} className="text-xs text-amber-700">
+										{group.items.join(", ")}: Ships in {group.label}
+									</p>
+								))}
+							</div>
+						)}
 					</>
 				)}
 			</div>

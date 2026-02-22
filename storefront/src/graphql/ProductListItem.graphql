@@ -83,6 +83,10 @@ fragment ProductListItem on Product {
 			}
 		}
 	}
+	metadata {
+		key
+		value
+	}
 	variants {
 		id
 		quantityAvailable

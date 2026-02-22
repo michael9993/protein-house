@@ -43,25 +43,32 @@ export interface SourcedProduct {
   shippingCost: number | null;
   shippingCarrier: string;
   shippingDays: string;
+  // Multi-warehouse shipping options (populated async)
+  warehouseOptions: WarehouseOption[];
+  selectedWarehouse: string; // country code (e.g. "CN", "US")
   // UI state
   showVariants: boolean;
 }
 
-// ---------------------------------------------------------------------------
-// Suggestion lists for datalist autocomplete
-// ---------------------------------------------------------------------------
-
-export const TYPE_SUGGESTIONS = ["Dropship Product", "Shoes", "Tops", "Bottoms", "Accessories"];
-export const GENDER_SUGGESTIONS = ["Men", "Women", "Unisex"];
-export const CATEGORY_SUGGESTIONS = [
-  "men-running-shoes", "men-casual-shoes", "men-formal-shoes", "men-sandals",
-  "women-heels", "women-sneakers", "women-flats", "women-sandals", "women-boots",
-  "men-t-shirts", "men-shirts", "men-hoodies", "men-jackets",
-  "women-blouses", "women-t-shirts", "women-sweaters", "women-jackets",
-  "men-jeans", "men-trousers", "men-shorts",
-  "women-jeans", "women-skirts", "women-trousers", "women-shorts",
-  "bags", "wallets", "belts", "hats", "sunglasses", "jewelry", "watches",
-];
+export interface WarehouseOption {
+  origin: string;       // country code: "CN", "US", "DE", etc.
+  originLabel: string;  // human label: "China", "United States", etc.
+  cheapest: {
+    cost: number;
+    carrier: string;
+    days: string;
+  } | null;
+  fastest: {
+    cost: number;
+    carrier: string;
+    days: string;
+  } | null;
+  allOptions: Array<{
+    cost: number;
+    carrier: string;
+    days: string;
+  }>;
+}
 
 // ---------------------------------------------------------------------------
 // Utility functions
@@ -87,7 +94,14 @@ export function escapeCSV(value: string): string {
   return value;
 }
 
-export function generateCSV(products: SourcedProduct[], markup: number): string {
+export interface CSVOverrides {
+  type?: string;
+  category?: string;
+  gender?: string;
+  collections?: string;
+}
+
+export function generateCSV(products: SourcedProduct[], markup: number, overrides?: CSVOverrides): string {
   const hasVariantWeights = products.some((p) =>
     p.variants.some((v) => v.weight > 0),
   );
@@ -136,11 +150,17 @@ export function generateCSV(products: SourcedProduct[], markup: number): string 
     "attr:Gender",
     "collections",
     "metadata",
+    "variantMetadata",
     "isPublished",
     "trackInventory",
   ];
 
   const rows: string[][] = [];
+
+  const oType = overrides?.type;
+  const oCategory = overrides?.category;
+  const oGender = overrides?.gender;
+  const oCollections = overrides?.collections;
 
   for (const product of products) {
     const description = product.description;
@@ -156,7 +176,34 @@ export function generateCSV(products: SourcedProduct[], markup: number): string 
       const variantWeight = variant.weight > 0 ? variant.weight.toFixed(2) : "";
       const shippingMeta = variant.shippingCost != null ? `;dropship.shippingCost:${variant.shippingCost}` : "";
       const weightMeta = variantWeight ? `;dropship.variantWeight:${variantWeight}` : "";
-      const metadataStr = `dropship.supplier:cj;dropship.supplierSku:${variant.vid};dropship.costPrice:${variant.price}${shippingMeta}${weightMeta}`;
+
+      // Parse shipping days (e.g. "10-20") into min/max for universal shipping.* metadata
+      let shippingEstimateMeta = "";
+      const shippingDaysStr = variant.shippingDays || product.shippingDays;
+      if (shippingDaysStr) {
+        const parts = shippingDaysStr.split("-").map((s) => s.trim());
+        const minDays = parts[0] || "";
+        const maxDays = parts[1] || parts[0] || "";
+        if (minDays) {
+          shippingEstimateMeta += `;shipping.estimatedMinDays:${minDays}`;
+          shippingEstimateMeta += `;shipping.estimatedMaxDays:${maxDays}`;
+        }
+      }
+      const carrier = variant.shippingCarrier || product.shippingCarrier;
+      if (carrier) {
+        shippingEstimateMeta += `;shipping.carrier:${carrier}`;
+      }
+
+      // Product-level metadata: supplier info + shipping estimates
+      // Note: dropship.costPrice is in public metadata for CSV flow.
+      // For production, use the direct import pipeline (Phase 3) which stores
+      // costPrice in privateMetadata instead.
+      const metadataStr = isFirstRow
+        ? `dropship.supplier:cj;dropship.costPrice:${variant.price}${shippingMeta}${weightMeta}${shippingEstimateMeta}`
+        : "";
+
+      // Variant-level metadata: supplierSku is variant-specific (each CJ variant has a different vid)
+      const variantMetadataStr = `dropship.supplierSku:${variant.vid}`;
 
       // Always include variant image — Bulk Manager needs it for variant-level image assignment
       const variantImgUrl = variant.image || "";
@@ -164,8 +211,8 @@ export function generateCSV(products: SourcedProduct[], markup: number): string 
       const row: string[] = [
         isFirstRow ? product.editName : "",
         isFirstRow ? slug : "",
-        isFirstRow ? product.editType : "",
-        isFirstRow ? product.editCategory : "",
+        isFirstRow ? (oType ?? product.editType) : "",
+        isFirstRow ? (oCategory ?? product.editCategory) : "",
         isFirstRow ? description : "",
         isFirstRow && product.weight > 0 ? product.weight.toFixed(2) : "",
         isFirstRow ? externalRef : "",
@@ -180,9 +227,10 @@ export function generateCSV(products: SourcedProduct[], markup: number): string 
         isFirstRow ? (product.images[4] || "") : "",
         ...(hasVariantImages ? [variantImgUrl] : []),
         ...sortedAttrNames.map((name) => variant.attributes[name] || ""),
-        isFirstRow ? product.editGender : "",
-        isFirstRow ? product.editCollections : "",
+        isFirstRow ? (oGender ?? product.editGender) : "",
+        isFirstRow ? (oCollections ?? product.editCollections) : "",
         metadataStr,
+        variantMetadataStr,
         isFirstRow ? "Yes" : "",
         "No",  // trackInventory — always No for dropship (inventory is at supplier)
       ];
@@ -199,80 +247,3 @@ export function generateCSV(products: SourcedProduct[], markup: number): string 
   return csvLines.join("\n");
 }
 
-// ---------------------------------------------------------------------------
-// Shared inline styles
-// ---------------------------------------------------------------------------
-
-export const labelStyle = {
-  display: "block" as const,
-  fontSize: "12px",
-  fontWeight: 500 as const,
-  marginBottom: "4px",
-  color: "#6b6b6f",
-  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-};
-
-export const inputStyle = {
-  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-  border: "1px solid #dcdcde",
-  borderRadius: "6px",
-  padding: "6px 10px",
-  fontSize: "13px",
-  width: "100%",
-  outline: "none",
-  backgroundColor: "#fff",
-  boxSizing: "border-box" as const,
-};
-
-export const textareaStyle = {
-  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-  border: "1px solid #dcdcde",
-  borderRadius: "6px",
-  padding: "8px 12px",
-  fontSize: "13px",
-  width: "100%",
-  minHeight: "120px",
-  outline: "none",
-  resize: "vertical" as const,
-  boxSizing: "border-box" as const,
-};
-
-export const tableStyle = {
-  width: "100%",
-  borderCollapse: "collapse" as const,
-  fontSize: "13px",
-  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-};
-
-export const thStyle = {
-  textAlign: "left" as const,
-  padding: "8px 12px",
-  borderBottom: "2px solid #e5e5e7",
-  fontWeight: 600,
-  fontSize: "12px",
-  color: "#6b6b6f",
-  whiteSpace: "nowrap" as const,
-};
-
-export const tdStyle = {
-  padding: "8px 12px",
-  borderBottom: "1px solid #f0f0f2",
-  verticalAlign: "middle" as const,
-};
-
-export const smallInputStyle = {
-  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-  border: "1px solid #dcdcde",
-  borderRadius: "4px",
-  padding: "4px 8px",
-  fontSize: "12px",
-  width: "100%",
-  outline: "none",
-  boxSizing: "border-box" as const,
-};
-
-export const refCellStyle = {
-  ...tdStyle,
-  fontSize: "11px",
-  color: "#9ca3af",
-};

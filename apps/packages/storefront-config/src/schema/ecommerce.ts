@@ -10,6 +10,9 @@ export const ShippingSettingsSchema = z.object({
   freeShippingThreshold: z.number().nullable(),
   showEstimatedDelivery: z.boolean(),
   deliverySlots: z.boolean(),
+  defaultEstimatedMinDays: z.number().min(0).default(2),
+  defaultEstimatedMaxDays: z.number().min(0).default(5),
+  estimatedDeliveryFormat: z.enum(["range", "max"]).default("range"),
 });
 
 export const TaxSettingsSchema = z.object({

@@ -150,6 +150,10 @@ fragment CheckoutLineFragment on CheckoutLine {
 				id
 				name
 			}
+			metadata {
+				key
+				value
+			}
 			media {
 				alt
 				type

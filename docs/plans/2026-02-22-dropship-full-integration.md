@@ -1,8 +1,28 @@
 # Full Dropship Integration Plan
 
 **Date**: 2026-02-22
-**Status**: Draft
+**Status**: In Progress
 **Scope**: End-to-end integration across Storefront, Dashboard, Dropship App, Saleor API, Bulk Manager
+**Last Updated**: 2026-02-22 01:30 GMT+2
+
+### Progress Summary
+
+| Section | Status | Notes |
+|---------|--------|-------|
+| Pre-Req Fix A | DONE | Order classifier reads individual `dropship.*` keys + legacy JSON fallback |
+| Pre-Req Fix B | DONE | `shipping.*` metadata added to CSV; costPrice documented as public (Phase 3 moves to private) |
+| Pre-Req Fix C | DONE | `variantMetadata` column in Bulk Manager field-mapper + products-router; CSV generates `dropship.supplierSku` per variant |
+| Pre-Req Fix D | DONE | Export separator changed from `key=value; ` to `key:value;` (matching import) |
+| Phase 1 Step 1.1 | DONE | `shipping.estimatedMinDays/MaxDays/carrier` added to CSV generation |
+| Phase 1 Step 1.2 | DONE | (Covered by Fix A) |
+| Phase 1 Step 1.3 | DONE | `metadata { key value }` added to ProductDetails, ProductListItem, OrderDetailsFragment, checkout.graphql |
+| Phase 1 Step 1.4 | **NEXT** | Create `storefront/src/lib/shipping.ts` helper — needs `pnpm generate` first |
+| Phase 1 Steps 1.5–1.9 | Pending | ProductDetailClient, product cards, order details, JSON-LD, RTL audit |
+| Phase 2 | Pending | Config system 11-file sync |
+| Phase 3 | Pending | Direct import pipeline |
+| Phase 4 | Pending | Order tracking & fulfillment |
+| Phase 5 | Pending | Dynamic pricing engine |
+| Phase 6 | Pending | Polish & completeness |
 
 ---
 
@@ -217,7 +237,7 @@ Two metadata namespaces, strictly separated:
 
 Three bugs and one security issue must be fixed first — they affect the entire integration.
 
-### Fix A: Order Classifier Metadata Key Format
+### Fix A: Order Classifier Metadata Key Format — DONE
 
 **Problem**: The order-paid classifier reads `productMetadata.find(m => m.key === "dropship")` expecting a single JSON key. But the CSV generates individual keys like `dropship.supplier`, `dropship.supplierSku`. Products imported via CSV are **invisible** to the order automation.
 
@@ -242,7 +262,7 @@ if (!supplier) {
 
 Also update any other code in `order-paid/use-case.ts` that reads the `dropship` key from products.
 
-### Fix B: Move costPrice to privateMetadata
+### Fix B: Move costPrice to privateMetadata — DONE (shipping.* added; costPrice deferred to Phase 3)
 
 **Problem**: The CSV puts `dropship.costPrice` in product `metadata` (public). Customers can see your supplier cost via GraphQL introspection.
 
@@ -253,7 +273,7 @@ Also update any other code in `order-paid/use-case.ts` that reads the `dropship`
 - Move `dropship.costPrice` and `dropship.shippingCost` to product `privateMetadata` via a post-import step in the direct import pipeline (Phase 3)
 - For the CSV flow: document that `costPrice` in metadata is acceptable during development but must be moved to `privateMetadata` before production
 
-### Fix C: Variant-Level Metadata for Supplier SKU
+### Fix C: Variant-Level Metadata for Supplier SKU — DONE
 
 **Problem**: Bulk Manager `parseMetadata()` sets metadata on the product, not individual variants. But `dropship.supplierSku` is variant-specific (each CJ variant has a different `vid`).
 
@@ -267,7 +287,7 @@ Also update any other code in `order-paid/use-case.ts` that reads the `dropship`
 
 Also update CSV generation in Source page to put `dropship.supplierSku:{vid}` in `variantMetadata` column instead of `metadata`.
 
-### Fix D: Bulk Manager Metadata Format Asymmetry
+### Fix D: Bulk Manager Metadata Format Asymmetry — DONE
 
 **Problem**: Import parses `key:value` (colon separator) but export generates `key=value` (equals separator). Re-importing an export would break metadata.
 
@@ -287,7 +307,7 @@ const metadataStr = (product.metadata || []).map((m) => `${m.key}:${m.value}`).j
 
 **Goal**: Products show delivery estimates. Order details show tracking links. Everything driven by `shipping.*` metadata with config fallback.
 
-### 1.1 Fix CSV Metadata to Include Shipping Data
+### 1.1 Fix CSV Metadata to Include Shipping Data — DONE
 
 **File**: `apps/apps/dropship-orchestrator/src/modules/source/types.ts`
 
@@ -300,7 +320,7 @@ Add:      shipping.estimatedMinDays:{min};shipping.estimatedMaxDays:{max};shippi
 
 The `shippingDays` field (e.g., "10-20") is already populated on each variant from the freight API. Parse min/max from the string.
 
-### 1.2 Fix Product Metadata Key Format
+### 1.2 Fix Product Metadata Key Format — DONE (covered by Fix A)
 
 **File**: `apps/apps/dropship-orchestrator/src/modules/webhooks/order-paid/order-classifier.ts`
 
@@ -319,7 +339,7 @@ const costPrice = productMetadata.find(m => m.key === "dropship.costPrice")?.val
 
 Also update the order-paid use case and any other code that reads the `dropship` key.
 
-### 1.3 Add `metadata` to GraphQL Queries
+### 1.3 Add `metadata` to GraphQL Queries — DONE
 
 **Files**:
 | File | Change |
@@ -808,11 +828,11 @@ Since `ProductListItem.graphql` now includes `metadata` (from Phase 1.3), wishli
 ## 11. Verification Plan
 
 ### Pre-Req Fixes
-- [ ] Order classifier reads `dropship.supplier` as individual metadata key
-- [ ] Order classifier falls back to legacy `dropship` JSON key (backward compat)
-- [ ] `dropship.costPrice` NOT visible in public product metadata (moved to privateMetadata or removed)
-- [ ] Bulk Manager import supports `variantMetadata` column
-- [ ] Bulk Manager export uses `:` separator (matching import format)
+- [x] Order classifier reads `dropship.supplier` as individual metadata key
+- [x] Order classifier falls back to legacy `dropship` JSON key (backward compat)
+- [ ] `dropship.costPrice` NOT visible in public product metadata (deferred to Phase 3 direct import pipeline)
+- [x] Bulk Manager import supports `variantMetadata` column
+- [x] Bulk Manager export uses `:` separator (matching import format)
 - [ ] End-to-end: CSV import → order placed → order classifier recognizes product as dropship
 
 ### Phase 1
@@ -825,7 +845,7 @@ Since `ProductListItem.graphql` now includes `metadata` (from Phase 1.3), wishli
 - [ ] Product cards show delivery badge (subtle text below price)
 - [ ] Wishlist items show delivery estimate (same fragment as cards)
 - [ ] Checkout DeliveryMethods renders correctly in RTL (Hebrew channel)
-- [ ] `docker exec saleor-storefront-dev pnpm generate` succeeds
+- [ ] `docker exec saleor-storefront-dev pnpm generate` succeeds (GraphQL files modified, needs running)
 - [ ] `docker exec saleor-storefront-dev pnpm type-check` passes
 
 ### Phase 2

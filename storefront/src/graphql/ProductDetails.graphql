@@ -94,6 +94,10 @@ query ProductDetails($slug: String!, $channel: String!, $languageCode: LanguageC
 				}
 			}
 		}
+		metadata {
+			key
+			value
+		}
 		rating
 		reviews {
 			totalCount

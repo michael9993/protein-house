@@ -171,6 +171,8 @@ export interface CJTrackingEvent {
 export interface CJFreightCalculateParams {
   startCountryCode: string;
   endCountryCode: string;
+  /** Optional postal/zip code for more accurate pricing. */
+  zip?: string;
   products: Array<{
     quantity: number;
     vid: string;

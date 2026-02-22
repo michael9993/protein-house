@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useBranding, useOrdersText } from "@/providers/StoreConfigProvider";
 import { formatMoney } from "@/lib/utils";
+import { getOrderTrackingData } from "@/lib/shipping";
 import { ReorderButton } from "./ReorderButton";
 import type { OrderByIdQuery } from "@/gql/graphql";
 
@@ -260,6 +261,12 @@ export function OrderDetailsClient({ order, channel, orderLinesForReorder, reord
 						</div>
 					)}
 
+					{/* Order Progress Timeline */}
+					<OrderTimeline order={order} ordersText={ordersText} />
+
+					{/* Order-Level Tracking from Metadata (e.g., dropship fulfillment) */}
+					<OrderMetadataTracking metadata={order.metadata} ordersText={ordersText} branding={branding} />
+
 					{/* Tracking Information */}
 					{order.fulfillments && order.fulfillments.length > 0 && (
 						<div className="rounded-lg border border-neutral-200 bg-white p-6">
@@ -445,6 +452,205 @@ export function OrderDetailsClient({ order, channel, orderLinesForReorder, reord
 						</div>
 					</div>
 				</div>
+			</div>
+		</div>
+	);
+}
+
+/** Shows tracking info from order metadata (e.g., from dropship fulfillment systems). */
+function OrderMetadataTracking({
+	metadata,
+	ordersText,
+	branding,
+}: {
+	metadata?: Array<{ key: string; value: string }> | null;
+	ordersText: ReturnType<typeof useOrdersText>;
+	branding: ReturnType<typeof useBranding>;
+}) {
+	const tracking = getOrderTrackingData(metadata);
+	if (!tracking?.trackingUrl) return null;
+
+	return (
+		<div className="rounded-lg border border-neutral-200 bg-white p-6">
+			<div className="mb-4 flex items-center gap-2">
+				<svg className="h-5 w-5 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+					<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+				</svg>
+				<h2 className="font-semibold text-neutral-900">
+					{(ordersText as any).trackOrderLabel || "Track your order"}
+				</h2>
+			</div>
+			<div className="space-y-3">
+				{tracking.carrier && (
+					<p className="text-sm text-neutral-600">
+						{tracking.carrier}
+						{tracking.trackingNumber ? ` — ${tracking.trackingNumber}` : ""}
+					</p>
+				)}
+				{tracking.estimatedDeliveryDate && (
+					<p className="text-sm text-neutral-600">
+						{(ordersText as any).estimatedDeliveryPrefix || "Estimated delivery"}:{" "}
+						{new Date(tracking.estimatedDeliveryDate).toLocaleDateString()}
+					</p>
+				)}
+				<a
+					href={tracking.trackingUrl}
+					target="_blank"
+					rel="noopener noreferrer"
+					className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
+					style={{ backgroundColor: branding.colors.primary }}
+				>
+					<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+					</svg>
+					{(ordersText as any).trackOrderLabel || "Track your order"}
+				</a>
+			</div>
+		</div>
+	);
+}
+
+/** Visual order progress timeline. */
+function OrderTimeline({
+	order,
+	ordersText,
+}: {
+	order: NonNullable<OrderByIdQuery["order"]>;
+	ordersText: ReturnType<typeof useOrdersText>;
+}) {
+	const tracking = getOrderTrackingData(order.metadata);
+	const status = order.status || "UNFULFILLED";
+
+	// Define timeline steps
+	type Step = { label: string; date?: string; active: boolean; completed: boolean };
+	const steps: Step[] = [];
+
+	// Step 1: Order placed (always completed)
+	steps.push({
+		label: (ordersText as any).orderPlacedLabel || "Order Placed",
+		date: order.created ? new Date(order.created).toLocaleDateString() : undefined,
+		active: false,
+		completed: true,
+	});
+
+	// Step 2: Processing
+	const isProcessing = status === "UNFULFILLED";
+	steps.push({
+		label: ordersText.statusProcessing,
+		active: isProcessing,
+		completed: !isProcessing,
+	});
+
+	// Step 2.5: Forwarded to fulfillment (only if dropship with forwardedAt)
+	if (tracking?.forwardedAt) {
+		steps.push({
+			label: (ordersText as any).sentToFulfillmentLabel || "Sent to Fulfillment",
+			date: new Date(tracking.forwardedAt).toLocaleDateString(),
+			active: false,
+			completed: true,
+		});
+	}
+
+	// Step 3: Shipped
+	const isShipped = status === "FULFILLED" || tracking?.status === "shipped";
+	const isDelivered = tracking?.status === "delivered";
+	steps.push({
+		label: ordersText.statusShipped,
+		date: tracking?.shippedAt ? new Date(tracking.shippedAt).toLocaleDateString() : undefined,
+		active: isShipped && !isDelivered,
+		completed: isShipped || isDelivered,
+	});
+
+	// Step 4: Delivered
+	steps.push({
+		label: ordersText.statusDelivered,
+		date: tracking?.estimatedDeliveryDate
+			? new Date(tracking.estimatedDeliveryDate).toLocaleDateString()
+			: undefined,
+		active: false,
+		completed: isDelivered,
+	});
+
+	// Don't show timeline for canceled/returned orders
+	if (status === "CANCELED" || status === "RETURNED" || status === "PARTIALLY_RETURNED") return null;
+
+	return (
+		<div className="rounded-lg border border-neutral-200 bg-white p-6">
+			<h2 className="mb-4 font-semibold text-neutral-900">
+				{(ordersText as any).orderProgressTitle || "Order Progress"}
+			</h2>
+			{/* Desktop: horizontal */}
+			<div className="hidden sm:flex sm:items-start sm:gap-0">
+				{steps.map((step, i) => (
+					<div key={i} className="flex flex-1 items-start">
+						<div className="flex flex-col items-center">
+							<div
+								className={`flex h-7 w-7 items-center justify-center rounded-full border-2 text-xs font-bold ${
+									step.completed
+										? "border-green-500 bg-green-500 text-white"
+										: step.active
+											? "border-blue-500 bg-blue-50 text-blue-600"
+											: "border-neutral-300 bg-white text-neutral-400"
+								}`}
+							>
+								{step.completed ? (
+									<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+										<path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+									</svg>
+								) : (
+									i + 1
+								)}
+							</div>
+							<p className={`mt-1.5 text-center text-xs font-medium ${step.completed ? "text-green-700" : step.active ? "text-blue-600" : "text-neutral-400"}`}>
+								{step.label}
+							</p>
+							{step.date && (
+								<p className="text-center text-[10px] text-neutral-400">{step.date}</p>
+							)}
+						</div>
+						{i < steps.length - 1 && (
+							<div className={`mt-3.5 h-0.5 flex-1 ${step.completed ? "bg-green-400" : "bg-neutral-200"}`} />
+						)}
+					</div>
+				))}
+			</div>
+			{/* Mobile: vertical */}
+			<div className="flex flex-col gap-0 sm:hidden">
+				{steps.map((step, i) => (
+					<div key={i} className="flex gap-3">
+						<div className="flex flex-col items-center">
+							<div
+								className={`flex h-6 w-6 items-center justify-center rounded-full border-2 text-[10px] font-bold ${
+									step.completed
+										? "border-green-500 bg-green-500 text-white"
+										: step.active
+											? "border-blue-500 bg-blue-50 text-blue-600"
+											: "border-neutral-300 bg-white text-neutral-400"
+								}`}
+							>
+								{step.completed ? (
+									<svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+										<path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+									</svg>
+								) : (
+									i + 1
+								)}
+							</div>
+							{i < steps.length - 1 && (
+								<div className={`w-0.5 flex-1 ${step.completed ? "bg-green-400" : "bg-neutral-200"}`} style={{ minHeight: "24px" }} />
+							)}
+						</div>
+						<div className="pb-4">
+							<p className={`text-sm font-medium ${step.completed ? "text-green-700" : step.active ? "text-blue-600" : "text-neutral-400"}`}>
+								{step.label}
+							</p>
+							{step.date && (
+								<p className="text-xs text-neutral-400">{step.date}</p>
+							)}
+						</div>
+					</div>
+				))}
 			</div>
 		</div>
 	);

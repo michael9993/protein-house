@@ -1,14 +1,6 @@
 import { useState, useCallback } from "react";
-
-import { Box, Text, Button } from "@/components/ui/primitives";
 import { trpcClient } from "@/modules/trpc/trpc-client";
-
 import type { SourcedProduct } from "./types";
-import { labelStyle, textareaStyle } from "./types";
-
-// ---------------------------------------------------------------------------
-// Props
-// ---------------------------------------------------------------------------
 
 interface UrlTabProps {
   defaults: {
@@ -23,10 +15,6 @@ interface UrlTabProps {
     errors: Array<{ pid: string; error: string }>,
   ) => void;
 }
-
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
 
 export function UrlTab({ defaults, onProductsFetched }: UrlTabProps) {
   const [urlText, setUrlText] = useState("");
@@ -49,6 +37,8 @@ export function UrlTab({ defaults, onProductsFetched }: UrlTabProps) {
         shippingCost: null,
         shippingCarrier: "",
         shippingDays: "",
+        warehouseOptions: [],
+        selectedWarehouse: "CN",
         showVariants: false,
       }));
       onProductsFetched(sourced, data.errors);
@@ -61,54 +51,41 @@ export function UrlTab({ defaults, onProductsFetched }: UrlTabProps) {
       .split("\n")
       .map((l) => l.trim())
       .filter(Boolean);
-
     if (urls.length === 0) return;
     fetchMutation.mutate({ urls });
   }, [urlText, fetchMutation]);
 
   return (
-    <Box
-      padding={5}
-      borderRadius={4}
-      borderWidth={1}
-      borderStyle="solid"
-      borderColor="default1"
-      display="flex"
-      flexDirection="column"
-      gap={4}
-    >
-      <Box>
-        <label style={labelStyle}>
+    <div className="rounded-lg border border-border p-4 space-y-4">
+      <div>
+        <label className="block text-xs font-medium text-text-muted mb-1">
           CJ Product URLs, PIDs, UUIDs, or SKUs (one per line)
         </label>
         <textarea
-          style={textareaStyle}
+          className="w-full min-h-[120px] px-3 py-2 text-sm border border-border rounded-md resize-y focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
           value={urlText}
           onChange={(e) => setUrlText(e.target.value)}
           placeholder={"https://cjdropshipping.com/product/detail/1005006839284893.html\n1005006839284893\n77501FB4-7146-452E-9889-CDF41697E5CF\nCJJSBGBG01517"}
         />
-      </Box>
+      </div>
 
-      <Box display="flex" gap={3} alignItems="center">
-        <Button
-          variant="primary"
+      <div className="flex gap-3 items-center">
+        <button
+          className="px-4 py-2 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light disabled:opacity-50 transition-colors"
           onClick={handleFetch}
           disabled={fetchMutation.isLoading || !urlText.trim()}
         >
           {fetchMutation.isLoading ? "Fetching..." : "Fetch from CJ"}
-        </Button>
-        <Text color="default2" variant="caption">
-          Paste product URLs or IDs, one per line
-        </Text>
-      </Box>
+        </button>
+        <span className="text-xs text-text-muted">Paste product URLs or IDs, one per line</span>
+      </div>
 
-      {/* Error Display */}
       {fetchMutation.error && (
-        <Box padding={4} borderRadius={4} backgroundColor="critical1">
-          <Text color="critical1" variant="bodyStrong">Error</Text>
-          <Text>{fetchMutation.error.message}</Text>
-        </Box>
+        <div className="p-3 rounded-md bg-red-50 border border-red-200">
+          <p className="text-sm font-medium text-red-800">Error</p>
+          <p className="text-sm text-red-700">{fetchMutation.error.message}</p>
+        </div>
       )}
-    </Box>
+    </div>
   );
 }

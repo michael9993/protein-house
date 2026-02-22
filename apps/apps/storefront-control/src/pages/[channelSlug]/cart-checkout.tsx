@@ -17,6 +17,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { SaveBar } from "@/components/layout/SaveBar";
 import { FormField } from "@/components/forms/FormField";
 import { FormSwitch } from "@/components/forms/FormSwitch";
+import { FormSelect } from "@/components/forms/FormSelect";
 import { FormTextarea } from "@/components/forms/FormTextarea";
 import { FormSection } from "@/components/forms/FormSection";
 import { FeatureCard } from "@/components/shared/FeatureCard";
@@ -216,6 +217,34 @@ function CartShippingTab({ control, register, errors }: TabProps) {
           label="Show Estimated Delivery"
           name="ecommerce.shipping.showEstimatedDelivery"
           control={control}
+        />
+        <FieldGroup columns={2}>
+          <FormField<CartCheckoutFormData>
+            label="Default Min Delivery Days"
+            name="ecommerce.shipping.defaultEstimatedMinDays"
+            register={register}
+            errors={errors}
+            type="number"
+            description="Fallback minimum days when product has no metadata"
+          />
+          <FormField<CartCheckoutFormData>
+            label="Default Max Delivery Days"
+            name="ecommerce.shipping.defaultEstimatedMaxDays"
+            register={register}
+            errors={errors}
+            type="number"
+            description="Fallback maximum days when product has no metadata"
+          />
+        </FieldGroup>
+        <FormSelect<CartCheckoutFormData>
+          label="Delivery Estimate Format"
+          name="ecommerce.shipping.estimatedDeliveryFormat"
+          control={control}
+          options={[
+            { value: "range", label: "Range (2-5 days)" },
+            { value: "max", label: "Maximum (5 days)" },
+          ]}
+          description="How delivery estimates are displayed to customers"
         />
       </FormSection>
 

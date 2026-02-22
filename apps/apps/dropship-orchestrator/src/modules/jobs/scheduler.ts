@@ -2,16 +2,18 @@ import { Worker } from "bullmq";
 
 import { createLogger } from "@/logger";
 
-import type { ReconciliationJobData, TokenRefreshJobData, TrackingSyncJobData } from "./job-types";
+import type { ReconciliationJobData, StockSyncJobData, TokenRefreshJobData, TrackingSyncJobData } from "./job-types";
 import {
   trackingSyncQueue,
   reconciliationQueue,
   tokenRefreshQueue,
+  stockSyncQueue,
   closeRedisConnection,
 } from "./queues";
 import { createTrackingSyncWorker } from "./workers/tracking-sync-worker";
 import { createReconciliationWorker } from "./workers/reconciliation-worker";
 import { createTokenRefreshWorker } from "./workers/token-refresh-worker";
+import { createStockSyncWorker } from "./workers/stock-sync-worker";
 
 const logger = createLogger("JobScheduler");
 
@@ -22,6 +24,7 @@ const logger = createLogger("JobScheduler");
 let trackingSyncWorker: Worker<TrackingSyncJobData> | null = null;
 let reconciliationWorker: Worker<ReconciliationJobData> | null = null;
 let tokenRefreshWorker: Worker<TokenRefreshJobData> | null = null;
+let stockSyncWorker: Worker<StockSyncJobData> | null = null;
 let isRunning = false;
 
 // ---------------------------------------------------------------------------
@@ -34,11 +37,13 @@ let isRunning = false;
  * - Tracking sync:     every 2 hours
  * - Reconciliation:    every 6 hours
  * - Token refresh (CJ): every 12 days (CJ tokens expire after 15 days)
+ * - Stock sync:        every 4 hours
  */
 const SCHEDULES = {
   TRACKING_SYNC: "0 */2 * * *",       // At minute 0, every 2 hours
   RECONCILIATION: "0 */6 * * *",       // At minute 0, every 6 hours
   TOKEN_REFRESH_CJ: "0 0 */12 * *",   // At 00:00, every 12 days
+  STOCK_SYNC: "0 1,5,9,13,17,21 * * *", // At minute 1, every 4 hours (offset from tracking)
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -102,6 +107,18 @@ export async function startScheduler(
 
   logger.info("Registered CJ token refresh job", { cron: SCHEDULES.TOKEN_REFRESH_CJ });
 
+  // Stock sync — every 4 hours
+  await stockSyncQueue.upsertJobScheduler(
+    "stock-sync-repeatable",
+    { pattern: SCHEDULES.STOCK_SYNC },
+    {
+      name: "stock-sync",
+      data: { saleorApiUrl, appToken },
+    },
+  );
+
+  logger.info("Registered stock sync job", { cron: SCHEDULES.STOCK_SYNC });
+
   // ------------------------------------------------------------------
   // Start workers
   // ------------------------------------------------------------------
@@ -109,6 +126,7 @@ export async function startScheduler(
   trackingSyncWorker = createTrackingSyncWorker();
   reconciliationWorker = createReconciliationWorker();
   tokenRefreshWorker = createTokenRefreshWorker();
+  stockSyncWorker = createStockSyncWorker();
 
   isRunning = true;
   logger.info("Job scheduler started — all workers running");
@@ -143,6 +161,11 @@ export async function stopScheduler(): Promise<void> {
     tokenRefreshWorker = null;
   }
 
+  if (stockSyncWorker) {
+    closePromises.push(stockSyncWorker.close());
+    stockSyncWorker = null;
+  }
+
   await Promise.all(closePromises);
 
   // Close queues
@@ -150,6 +173,7 @@ export async function stopScheduler(): Promise<void> {
     trackingSyncQueue.close(),
     reconciliationQueue.close(),
     tokenRefreshQueue.close(),
+    stockSyncQueue.close(),
   ]);
 
   // Close Redis

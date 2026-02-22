@@ -8,7 +8,8 @@ import { type ProductListItemFragment } from "@/gql/graphql";
 import { formatMoneyRange } from "@/lib/utils";
 import { t } from "@/lib/language";
 import { ShareButton } from "@/ui/components/ProductSharing";
-import { useBadgeStyle, useContentConfig, useEcommerceSettings } from "@/providers/StoreConfigProvider";
+import { useBadgeStyle, useContentConfig, useEcommerceSettings, useProductDetailText } from "@/providers/StoreConfigProvider";
+import { getProductShippingEstimate, formatEstimate } from "@/lib/shipping";
 import { buildProductUrl, withChannel } from "@/lib/urls";
 import {
 	getProductImage,
@@ -248,6 +249,18 @@ export function HomepageProductCard({
 					)}
 				</div>
 			</div>
+			<HomepageDeliveryBadge metadata={product.metadata} />
 		</Link>
 	);
+}
+
+function HomepageDeliveryBadge({ metadata }: { metadata?: Array<{ key: string; value: string }> | null }) {
+	const ecommerce = useEcommerceSettings();
+	const pdText = useProductDetailText();
+	if (!ecommerce.shipping?.showEstimatedDelivery) return null;
+	const est = getProductShippingEstimate(metadata);
+	if (!est) return null;
+	const days = formatEstimate(est, (ecommerce.shipping as any).estimatedDeliveryFormat ?? "range");
+	const label = (pdText as any).deliveryEstimateLabel?.replace("{days}", days) ?? `Ships in ${days} days`;
+	return <p className="mt-1 truncate px-4 pb-2 text-[10px] text-neutral-500">{label}</p>;
 }

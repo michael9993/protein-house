@@ -7,7 +7,8 @@ import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { formatMoneyRange, formatMoney } from "@/lib/utils";
 import type { ProductListItemFragment } from "@/gql/graphql";
 import { t } from "@/lib/language";
-import { useBranding, useFeature, useUiConfig, useContentConfig, useBadgeStyle, useEcommerceSettings } from "@/providers/StoreConfigProvider";
+import { useBranding, useFeature, useUiConfig, useContentConfig, useBadgeStyle, useEcommerceSettings, useProductDetailText } from "@/providers/StoreConfigProvider";
+import { getProductShippingEstimate, formatEstimate } from "@/lib/shipping";
 import { useWishlist } from "@/lib/wishlist";
 import { useQuickView } from "@/providers/QuickViewProvider";
 import { ShareButton } from "@/ui/components/ProductSharing";
@@ -140,6 +141,7 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
         category: product.category ? t(product.category) : undefined,
         inStock: isInStock,
         channel: channel || undefined,
+        metadata: product.metadata ?? undefined,
       });
     }
   };
@@ -342,8 +344,22 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
               )}
             </div>
           )}
+
+          {/* Delivery Estimate */}
+          <UiCardDeliveryBadge metadata={product.metadata} />
         </div>
       </LinkWithChannel>
     </article>
   );
+}
+
+function UiCardDeliveryBadge({ metadata }: { metadata?: Array<{ key: string; value: string }> | null }) {
+  const ecommerce = useEcommerceSettings();
+  const pdText = useProductDetailText();
+  if (!ecommerce.shipping?.showEstimatedDelivery) return null;
+  const est = getProductShippingEstimate(metadata);
+  if (!est) return null;
+  const days = formatEstimate(est, (ecommerce.shipping as any).estimatedDeliveryFormat ?? "range");
+  const label = (pdText as any).deliveryEstimateLabel?.replace("{days}", days) ?? `Ships in ${days} days`;
+  return <p className="mt-1 truncate text-xs text-neutral-500">{label}</p>;
 }

@@ -43,6 +43,7 @@ const FETCH_ORDER_WITH_LINES = gql`
           currency
         }
       }
+      shippingMethodName
       shippingAddress {
         firstName
         lastName
@@ -370,6 +371,7 @@ export async function handleOrderPaid(
     number: string;
     created: string;
     userEmail: string;
+    shippingMethodName: string | null;
     total: { gross: { amount: number; currency: string } };
     shippingAddress: {
       firstName: string;
@@ -664,7 +666,7 @@ export async function handleOrderPaid(
           country: order.shippingAddress?.country?.code ?? "",
           phone: order.shippingAddress?.phone ?? "",
         },
-        shippingMethod: "standard",
+        shippingMethod: order.shippingMethodName || "standard",
         idempotencyKey,
       };
 

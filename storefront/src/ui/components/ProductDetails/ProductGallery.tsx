@@ -3,14 +3,12 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { FreeMode, Navigation, Thumbs, Zoom } from "swiper/modules";
+import { Navigation, Zoom } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
 
 // Swiper CSS
 import "swiper/css";
-import "swiper/css/free-mode";
 import "swiper/css/navigation";
-import "swiper/css/thumbs";
 import "swiper/css/zoom";
 
 import { Dialog, Transition, TransitionChild } from "@headlessui/react";
@@ -26,7 +24,6 @@ interface ProductGalleryProps {
 }
 
 export function ProductGallery({ images, productName, discountPercent, allowLightbox = true }: ProductGalleryProps) {
-  const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
   const [mainSwiper, setMainSwiper] = useState<SwiperType | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -44,140 +41,127 @@ export function ProductGallery({ images, productName, discountPercent, allowLigh
 
   return (
     <>
-      <div className="flex flex-col gap-4 group relative">
-        {/* Discount Ribbon */}
-        {(discountPercent || 0) > 0 && (
-            <div className="absolute -left-2 top-4 z-20 sm:-left-3 sm:top-6 pointer-events-none">
-                <div 
+      {/* Main image + thumbnails below */}
+      <div className="flex flex-col gap-3 group relative">
+        {/* Main image */}
+        <div className="relative">
+          {/* Discount Ribbon */}
+          {(discountPercent || 0) > 0 && (
+            <div className="absolute -start-2 top-4 z-20 sm:-start-3 sm:top-6 pointer-events-none">
+              <div
                 className="relative flex items-center px-3 py-1.5 text-xs font-bold text-white shadow-lg sm:px-4 sm:py-2 sm:text-sm"
                 style={{ backgroundColor: "#ef4444" }}
-                >
+              >
                 <span>{discountPercent}% OFF</span>
-                <div 
-                    className="absolute -right-2 top-0 h-full w-2"
-                    style={{
+                <div
+                  className="absolute -end-2 top-0 h-full w-2"
+                  style={{
                     background: "linear-gradient(135deg, #ef4444 50%, transparent 50%)",
-                    }}
+                  }}
                 />
-                <div 
-                    className="absolute -left-1 -bottom-1 h-2 w-2"
-                    style={{
+                <div
+                  className="absolute -start-1 -bottom-1 h-2 w-2"
+                  style={{
                     background: "#b91c1c",
                     clipPath: "polygon(100% 0, 0 0, 100% 100%)",
-                    }}
-                />
-                </div>
-            </div>
-        )}
-
-        {/* Main Swiper */}
-        <div className="relative w-full aspect-square overflow-hidden rounded-2xl bg-neutral-100">
-          <Swiper
-            spaceBetween={10}
-            navigation={true}
-            thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
-            modules={[FreeMode, Navigation, Thumbs, Zoom]}
-            className="h-full w-full"
-            zoom={allowLightbox}
-            onSwiper={setMainSwiper}
-            onSlideChange={(swiper) => {
-              setActiveIndex(swiper.activeIndex);
-              setLightboxIndex(swiper.activeIndex);
-            }}
-          >
-            {images.map((image, index) => (
-              <SwiperSlide key={index}>
-                <div 
-                  className={`relative h-full w-full ${allowLightbox ? "cursor-zoom-in swiper-zoom-container" : ""}`}
-                  onClick={() => {
-                    if (allowLightbox) {
-                        setLightboxIndex(index);
-                        setIsLightboxOpen(true);
-                    }
                   }}
-                >
-                  <Image
-                    src={image.url}
-                    alt={image.alt || `${productName} - Image ${index + 1}`}
-                    fill
-                    priority={index === 0}
-                    className="object-contain p-2"
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                  />
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+                />
+              </div>
+            </div>
+          )}
 
-          {/* Custom Navigation Overlay Styles - Minimal & Smaller */}
-          <style jsx global>{`
-            .swiper-button-next, .swiper-button-prev {
-              color: var(--store-neutral-900, #171717);
-              background: transparent;
-              width: 32px;
-              height: 32px;
-              border-radius: 0;
-              backdrop-filter: none;
-              box-shadow: none;
-              margin-top: -16px; /* Center adjustment */
-            }
-            .swiper-button-next:hover, .swiper-button-prev:hover {
-              background: transparent;
-              transform: scale(1.1);
-            }
-            .swiper-button-next:after, .swiper-button-prev:after {
-              font-size: 16px;
-              font-weight: 600; 
-            }
-          `}</style>
-        </div>
-
-        {/* Thumbnail Swiper */}
-        {images.length > 1 && (
-          <div className="w-full mt-4 select-none min-h-[80px]">
+          {/* Main Swiper */}
+          <div className="relative w-full aspect-square overflow-hidden rounded-2xl bg-neutral-100">
             <Swiper
-              onSwiper={setThumbsSwiper}
-              spaceBetween={12}
-              slidesPerView={4}
-              freeMode={true}
-              watchSlidesProgress={true}
-              modules={[FreeMode, Navigation, Thumbs]}
-              className="mySwiper"
-              breakpoints={{
-                640: { slidesPerView: 5 },
-                768: { slidesPerView: 5 },
-                1024: { slidesPerView: 6 },
+              spaceBetween={10}
+              navigation={true}
+              modules={[Navigation, Zoom]}
+              className="h-full w-full"
+              zoom={allowLightbox}
+              onSwiper={setMainSwiper}
+              onSlideChange={(swiper) => {
+                setActiveIndex(swiper.activeIndex);
+                setLightboxIndex(swiper.activeIndex);
               }}
             >
               {images.map((image, index) => (
                 <SwiperSlide key={index}>
-                  <button
-                     onClick={() => mainSwiper?.slideTo(index)}
-                     className={`relative flex-shrink-0 overflow-hidden rounded-lg transition-all duration-300 w-full ${
-                       activeIndex === index
-                         ? "opacity-100 scale-95 ring-2 ring-neutral-900 ring-offset-1"
-                         : "opacity-60 hover:opacity-100 hover:scale-95"
-                     }`}
+                  <div
+                    className={`relative h-full w-full ${allowLightbox ? "cursor-zoom-in swiper-zoom-container" : ""}`}
+                    onClick={() => {
+                      if (allowLightbox) {
+                        setLightboxIndex(index);
+                        setIsLightboxOpen(true);
+                      }
+                    }}
                   >
-                     <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-neutral-100">
-                        <Image
-                          src={image.url}
-                          alt={image.alt || `Thumbnail ${index + 1}`}
-                          fill
-                          className="object-cover"
-                          sizes="80px"
-                        />
-                     </div>
-                  </button>
+                    <Image
+                      src={image.url}
+                      alt={image.alt || `${productName} - Image ${index + 1}`}
+                      fill
+                      priority={index === 0}
+                      className="object-contain p-2"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                  </div>
                 </SwiperSlide>
               ))}
             </Swiper>
-            
+
             <style jsx global>{`
-              .swiper-slide {
-                height: auto;
+              .swiper-button-next, .swiper-button-prev {
+                color: var(--store-neutral-900, #171717);
+                background: transparent;
+                width: 32px;
+                height: 32px;
+                border-radius: 0;
+                backdrop-filter: none;
+                box-shadow: none;
+                margin-top: -16px;
+              }
+              .swiper-button-next:hover, .swiper-button-prev:hover {
+                background: transparent;
+                transform: scale(1.1);
+              }
+              .swiper-button-next:after, .swiper-button-prev:after {
+                font-size: 16px;
+                font-weight: 600;
+              }
+              .product-gallery-thumbs {
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+              }
+              .product-gallery-thumbs::-webkit-scrollbar {
+                display: none;
               }
             `}</style>
+          </div>
+        </div>
+
+        {/* Thumbnail strip */}
+        {images.length > 1 && (
+          <div className="flex gap-2 overflow-x-auto select-none pb-1 product-gallery-thumbs">
+            {images.map((image, index) => (
+              <button
+                key={index}
+                onClick={() => mainSwiper?.slideTo(index)}
+                className={`relative flex-shrink-0 overflow-hidden rounded-lg transition-all duration-300 w-16 ${
+                  activeIndex === index
+                    ? "opacity-100 scale-95 ring-2 ring-neutral-900 ring-offset-1"
+                    : "opacity-60 hover:opacity-100 hover:scale-95"
+                }`}
+              >
+                <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-neutral-100">
+                  <Image
+                    src={image.url}
+                    alt={image.alt || `Thumbnail ${index + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="80px"
+                  />
+                </div>
+              </button>
+            ))}
           </div>
         )}
       </div>

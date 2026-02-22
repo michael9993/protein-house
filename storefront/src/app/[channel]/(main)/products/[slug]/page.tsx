@@ -10,6 +10,7 @@ import { executeGraphQL } from "@/lib/graphql";
 import { getLanguageCodeForChannel } from "@/lib/language";
 import { formatMoney, formatMoneyRange } from "@/lib/utils";
 import { storeConfig } from "@/config";
+import { getProductShippingEstimate } from "@/lib/shipping";
 import { ProductDetailClient } from "./ProductDetailClient";
 import { addProductToCartAction } from "../actions";
 import { RelatedProductsSection } from "./RelatedProductsSection";
@@ -166,6 +167,25 @@ export default async function Page(props: {
 	const rating = (product as any).rating as number | null;
 	const reviewCount = ((product as any).reviews?.totalCount as number) || 0;
 
+	// Shipping estimate for JSON-LD (from per-product metadata)
+	const shippingEstimate = getProductShippingEstimate(product.metadata);
+	const shippingDetailsLd = shippingEstimate
+		? {
+				shippingDetails: {
+					"@type": "OfferShippingDetails" as const,
+					deliveryTime: {
+						"@type": "ShippingDeliveryTime" as const,
+						transitTime: {
+							"@type": "QuantitativeValue" as const,
+							minValue: shippingEstimate.minDays,
+							maxValue: shippingEstimate.maxDays,
+							unitCode: "d",
+						},
+					},
+				},
+			}
+		: {};
+
 	// JSON-LD for SEO — Product schema
 	const productJsonLd: WithContext<Product> = {
 		"@context": "https://schema.org",
@@ -197,6 +217,7 @@ export default async function Page(props: {
 						priceCurrency: selectedVariant.pricing?.price?.gross.currency,
 						price: selectedVariant.pricing?.price?.gross.amount,
 						url: `${process.env.NEXT_PUBLIC_STOREFRONT_URL || ""}/${params.channel}/products/${params.slug}`,
+						...shippingDetailsLd,
 					},
 				}
 			: {
@@ -210,6 +231,7 @@ export default async function Page(props: {
 						priceCurrency: product.pricing?.priceRange?.start?.gross.currency,
 						lowPrice: product.pricing?.priceRange?.start?.gross.amount,
 						highPrice: product.pricing?.priceRange?.stop?.gross.amount,
+						...shippingDetailsLd,
 					},
 				}),
 	};
@@ -330,6 +352,7 @@ export default async function Page(props: {
 					rating: (product as any).rating || null,
 					reviewCount: (product as any).reviews?.totalCount || null,
 					created: (product as any).created || undefined,
+					metadata: product.metadata?.map(m => ({ key: m.key, value: m.value })) ?? [],
 				}}
 				selectedVariantId={selectedVariantID}
 				channel={params.channel}

@@ -84,7 +84,10 @@
       "WebFetch(domain:apify.com)",
       "Bash(timeout:*)",
       "WebFetch(domain:cjdropshipping.com)",
-      "mcp__plugin_claude-mem_mcp-search__search"
+      "mcp__plugin_claude-mem_mcp-search__search",
+      "WebFetch(domain:unpkg.com)",
+      "WebFetch(domain:app.unpkg.com)",
+      "Bash(COREPACK_INTEGRITY_KEYS=0 pnpm add:*)"
     ],
     "deny": [
       "Read(./.env*)",

@@ -1,14 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
-
-import { Box, Text, Button } from "@/components/ui/primitives";
 import { trpcClient } from "@/modules/trpc/trpc-client";
-
 import type { SourcedProduct } from "./types";
-import { labelStyle, inputStyle } from "./types";
-
-// ---------------------------------------------------------------------------
-// Props
-// ---------------------------------------------------------------------------
 
 interface SearchTabProps {
   defaults: {
@@ -25,10 +17,6 @@ interface SearchTabProps {
   ) => void;
 }
 
-// ---------------------------------------------------------------------------
-// Sort options
-// ---------------------------------------------------------------------------
-
 const SORT_OPTIONS = [
   { value: "default", label: "Relevance" },
   { value: "price", label: "Price: Low to High" },
@@ -39,76 +27,16 @@ const SORT_OPTIONS = [
 
 type SortValue = (typeof SORT_OPTIONS)[number]["value"];
 
-// ---------------------------------------------------------------------------
-// Styles
-// ---------------------------------------------------------------------------
-
-const selectStyle = {
-  ...inputStyle,
-  cursor: "pointer" as const,
-  appearance: "auto" as const,
-};
-
-const cardStyle = {
-  border: "1px solid #e5e5e7",
-  borderRadius: "8px",
-  padding: "12px",
-  backgroundColor: "#fff",
-  cursor: "pointer",
-  transition: "border-color 0.15s, box-shadow 0.15s",
-  position: "relative" as const,
-  display: "flex",
-  gap: "12px",
-  alignItems: "flex-start",
-};
-
-const cardSelectedStyle = {
-  ...cardStyle,
-  borderColor: "#2563eb",
-  boxShadow: "0 0 0 2px rgba(37, 99, 235, 0.15)",
-};
-
-const checkboxStyle = {
-  width: "16px",
-  height: "16px",
-  flexShrink: 0,
-  marginTop: "2px",
-  cursor: "pointer",
-  accentColor: "#2563eb",
-};
-
-const badgeStyle = {
-  display: "inline-block",
-  fontSize: "10px",
-  fontWeight: 500 as const,
-  padding: "1px 6px",
-  borderRadius: "4px",
-  lineHeight: "16px",
-};
-
-const paginationBtnStyle = {
-  padding: "6px 16px",
-  fontSize: "13px",
-  border: "1px solid #dcdcde",
-  borderRadius: "6px",
-  backgroundColor: "#fff",
-  cursor: "pointer",
-  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-};
-
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
+const inputCls = "w-full px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand";
+const selectCls = `${inputCls} cursor-pointer`;
 
 export function SearchTab({ defaults, existingPids, onProductsFetched }: SearchTabProps) {
-  // Form state (live, changes on every keystroke — NOT used by query)
   const [keyWord, setKeyWord] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [sort, setSort] = useState<SortValue>("default");
 
-  // Submitted state (frozen — only updates on explicit search action)
   const [submittedParams, setSubmittedParams] = useState<{
     keyWord?: string;
     page: number;
@@ -119,39 +47,24 @@ export function SearchTab({ defaults, existingPids, onProductsFetched }: SearchT
     sort: SortValue;
   } | null>(null);
 
-  // Selection state
   const [selected, setSelected] = useState<Set<string>>(new Set());
-
-  // Fetch detail progress
   const [fetchProgress, setFetchProgress] = useState<{ done: number; total: number } | null>(null);
 
-  // Categories query
   const categoriesQuery = trpcClient.source.getCategories.useQuery(undefined, {
-    staleTime: 10 * 60 * 1000, // cache 10 min
+    staleTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 
-  // Search query — ONLY fires when submittedParams is set (user clicked Search)
   const searchQuery = trpcClient.source.searchProducts.useQuery(
     submittedParams ?? { page: 1, size: 20, sort: "default" },
-    {
-      enabled: submittedParams !== null,
-      keepPreviousData: true,
-      refetchOnWindowFocus: false,
-    },
+    { enabled: submittedParams !== null, keepPreviousData: true, refetchOnWindowFocus: false },
   );
 
-  // Fetch details mutation (reuses existing fetchProducts)
   const fetchDetailsMutation = trpcClient.source.fetchProducts.useMutation({
     onSuccess: (data) => {
       const sourced: SourcedProduct[] = data.products.map((p) => ({
         ...p,
-        variants: p.variants.map((v) => ({
-          ...v,
-          shippingCost: null,
-          shippingCarrier: "",
-          shippingDays: "",
-        })),
+        variants: p.variants.map((v) => ({ ...v, shippingCost: null, shippingCarrier: "", shippingDays: "" })),
         editName: p.name,
         editType: defaults.type,
         editCategory: defaults.category,
@@ -160,15 +73,15 @@ export function SearchTab({ defaults, existingPids, onProductsFetched }: SearchT
         shippingCost: null,
         shippingCarrier: "",
         shippingDays: "",
+        warehouseOptions: [],
+        selectedWarehouse: "CN",
         showVariants: false,
       }));
       onProductsFetched(sourced, data.errors);
       setSelected(new Set());
       setFetchProgress(null);
     },
-    onError: () => {
-      setFetchProgress(null);
-    },
+    onError: () => setFetchProgress(null),
   });
 
   const handleSearch = useCallback(() => {
@@ -184,31 +97,22 @@ export function SearchTab({ defaults, existingPids, onProductsFetched }: SearchT
   }, [keyWord, categoryId, minPrice, maxPrice, sort]);
 
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === "Enter") handleSearch();
-    },
+    (e: React.KeyboardEvent) => { if (e.key === "Enter") handleSearch(); },
     [handleSearch],
   );
 
   const toggleSelect = useCallback((id: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
+      next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
   }, []);
 
   const handleAddSelected = useCallback(() => {
-    // Filter out products already in sourcing table
     const existingSet = new Set(existingPids);
     const pidsToFetch = Array.from(selected).filter((id) => !existingSet.has(id));
-
     if (pidsToFetch.length === 0) return;
-
     setFetchProgress({ done: 0, total: pidsToFetch.length });
     fetchDetailsMutation.mutate({ urls: pidsToFetch });
   }, [selected, existingPids, fetchDetailsMutation]);
@@ -217,16 +121,15 @@ export function SearchTab({ defaults, existingPids, onProductsFetched }: SearchT
     setSubmittedParams((prev) => prev ? { ...prev, page: newPage } : prev);
   }, []);
 
-  // Build category options for the select
   const categoryOptions = useMemo(() => {
     if (!categoriesQuery.data?.categories) return [];
-    const options: Array<{ value: string; label: string; level: number }> = [];
+    const options: Array<{ value: string; label: string }> = [];
     for (const first of categoriesQuery.data.categories) {
-      options.push({ value: "", label: `--- ${first.name} ---`, level: 0 });
+      options.push({ value: "", label: `--- ${first.name} ---` });
       for (const second of first.children) {
-        options.push({ value: "", label: `  ${second.name}`, level: 1 });
+        options.push({ value: "", label: `  ${second.name}` });
         for (const third of second.children) {
-          options.push({ value: third.id, label: `    ${third.name}`, level: 2 });
+          options.push({ value: third.id, label: `    ${third.name}` });
         }
       }
     }
@@ -239,148 +142,88 @@ export function SearchTab({ defaults, existingPids, onProductsFetched }: SearchT
   const newSelectedCount = Array.from(selected).filter((id) => !existingSet.has(id)).length;
 
   return (
-    <Box display="flex" flexDirection="column" gap={4}>
+    <div className="space-y-4">
       {/* Search Form */}
-      <Box
-        padding={5}
-        borderRadius={4}
-        borderWidth={1}
-        borderStyle="solid"
-        borderColor="default1"
-        display="flex"
-        flexDirection="column"
-        gap={4}
-      >
-        {/* Keyword + Search button */}
-        <Box display="flex" gap={3} alignItems="flex-end">
-          <Box __width="100%" style={{ flex: 1 }}>
-            <label style={labelStyle}>Search CJ Products</label>
+      <div className="rounded-lg border border-border p-4 space-y-3">
+        <div className="flex gap-3 items-end">
+          <div className="flex-1">
+            <label className="block text-xs font-medium text-text-muted mb-1">Search CJ Products</label>
             <input
-              style={inputStyle}
+              className={inputCls}
               value={keyWord}
               onChange={(e) => setKeyWord(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="e.g. men shoes, summer dress, phone case..."
             />
-          </Box>
-          <Button
-            variant="primary"
+          </div>
+          <button
+            className="px-4 py-1.5 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light disabled:opacity-50 transition-colors"
             onClick={handleSearch}
             disabled={searchQuery.isFetching}
           >
             {searchQuery.isFetching ? "Searching..." : "Search"}
-          </Button>
-        </Box>
+          </button>
+        </div>
 
-        {/* Filters row */}
-        <Box display="flex" gap={3} flexWrap="wrap" alignItems="flex-end">
-          <Box __width="220px">
-            <label style={labelStyle}>Category</label>
-            <select
-              style={selectStyle}
-              value={categoryId}
-              onChange={(e) => {
-                setCategoryId(e.target.value);
-              }}
-            >
+        <div className="flex gap-3 flex-wrap items-end">
+          <div className="w-[220px]">
+            <label className="block text-xs font-medium text-text-muted mb-1">Category</label>
+            <select className={selectCls} value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
               <option value="">All Categories</option>
               {categoryOptions.map((opt, i) =>
-                opt.value ? (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ) : (
-                  <option key={`group-${i}`} disabled>
-                    {opt.label}
-                  </option>
-                ),
+                opt.value
+                  ? <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  : <option key={`g-${i}`} disabled>{opt.label}</option>
               )}
             </select>
-          </Box>
-
-          <Box __width="110px">
-            <label style={labelStyle}>Min Price ($)</label>
-            <input
-              type="number"
-              style={inputStyle}
-              value={minPrice}
-              onChange={(e) => setMinPrice(e.target.value)}
-              placeholder="0"
-              min="0"
-              step="0.01"
-            />
-          </Box>
-
-          <Box __width="110px">
-            <label style={labelStyle}>Max Price ($)</label>
-            <input
-              type="number"
-              style={inputStyle}
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(e.target.value)}
-              placeholder="999"
-              min="0"
-              step="0.01"
-            />
-          </Box>
-
-          <Box __width="180px">
-            <label style={labelStyle}>Sort By</label>
-            <select
-              style={selectStyle}
-              value={sort}
-              onChange={(e) => {
-                setSort(e.target.value as SortValue);
-              }}
-            >
-              {SORT_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
+          </div>
+          <div className="w-[110px]">
+            <label className="block text-xs font-medium text-text-muted mb-1">Min Price ($)</label>
+            <input type="number" className={inputCls} value={minPrice} onChange={(e) => setMinPrice(e.target.value)} placeholder="0" min="0" step="0.01" />
+          </div>
+          <div className="w-[110px]">
+            <label className="block text-xs font-medium text-text-muted mb-1">Max Price ($)</label>
+            <input type="number" className={inputCls} value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="999" min="0" step="0.01" />
+          </div>
+          <div className="w-[180px]">
+            <label className="block text-xs font-medium text-text-muted mb-1">Sort By</label>
+            <select className={selectCls} value={sort} onChange={(e) => setSort(e.target.value as SortValue)}>
+              {SORT_OPTIONS.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
             </select>
-          </Box>
-        </Box>
-      </Box>
+          </div>
+        </div>
+      </div>
 
-      {/* Search Results */}
+      {/* Error */}
       {searchQuery.isError && (
-        <Box padding={4} borderRadius={4} backgroundColor="critical1">
-          <Text color="critical1" variant="bodyStrong">Search Error</Text>
-          <Text>{searchQuery.error.message}</Text>
-        </Box>
+        <div className="p-3 rounded-md bg-red-50 border border-red-200">
+          <p className="text-sm font-medium text-red-800">Search Error</p>
+          <p className="text-sm text-red-700">{searchQuery.error.message}</p>
+        </div>
       )}
 
       {submittedParams !== null && !searchQuery.isError && (
         <>
           {/* Results header */}
           {results && (
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Text color="default2" variant="caption">
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-text-muted">
                 {results.pagination.totalRecords} results
                 {keyWord ? ` for "${keyWord}"` : ""}
-                {" "} (page {results.pagination.page} of {results.pagination.totalPages})
-              </Text>
+                {" "}(page {results.pagination.page} of {results.pagination.totalPages})
+              </span>
               {selectedCount > 0 && (
-                <Text variant="caption" color="default2">
+                <span className="text-xs text-text-muted">
                   {selectedCount} selected
-                  {newSelectedCount < selectedCount
-                    ? ` (${selectedCount - newSelectedCount} already in table)`
-                    : ""}
-                </Text>
+                  {newSelectedCount < selectedCount ? ` (${selectedCount - newSelectedCount} already in table)` : ""}
+                </span>
               )}
-            </Box>
+            </div>
           )}
 
           {/* Product Grid */}
           {results && results.products.length > 0 && (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
-                gap: "12px",
-              }}
-            >
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(340px,1fr))] gap-3">
               {results.products.map((product) => {
                 const isSelected = selected.has(product.id);
                 const isExisting = existingSet.has(product.id);
@@ -389,115 +232,44 @@ export function SearchTab({ defaults, existingPids, onProductsFetched }: SearchT
                 return (
                   <div
                     key={product.id}
-                    style={isSelected ? cardSelectedStyle : cardStyle}
+                    className={`
+                      flex gap-3 items-start p-3 rounded-lg border cursor-pointer transition-all
+                      ${isSelected ? "border-brand shadow-[0_0_0_2px_rgba(24,24,27,0.15)]" : "border-border hover:border-gray-300 hover:shadow-sm"}
+                    `}
                     onClick={() => !isExisting && toggleSelect(product.id)}
                   >
-                    {/* Checkbox */}
                     <input
                       type="checkbox"
                       checked={isSelected}
                       disabled={isExisting}
                       onChange={() => toggleSelect(product.id)}
-                      style={checkboxStyle}
+                      className="w-4 h-4 shrink-0 mt-0.5 cursor-pointer accent-brand"
                       onClick={(e) => e.stopPropagation()}
                     />
 
-                    {/* Image */}
                     {product.image ? (
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        style={{
-                          width: "80px",
-                          height: "80px",
-                          objectFit: "cover",
-                          borderRadius: "6px",
-                          border: "1px solid #e5e5e7",
-                          flexShrink: 0,
-                        }}
-                      />
+                      <img src={product.image} alt={product.name} className="w-20 h-20 object-cover rounded-md border border-border shrink-0" />
                     ) : (
-                      <div
-                        style={{
-                          width: "80px",
-                          height: "80px",
-                          backgroundColor: "#f5f5f5",
-                          borderRadius: "6px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
-                          fontSize: "11px",
-                          color: "#9ca3af",
-                        }}
-                      >
-                        No img
-                      </div>
+                      <div className="w-20 h-20 bg-gray-100 rounded-md flex items-center justify-center shrink-0 text-xs text-text-muted">No img</div>
                     )}
 
-                    {/* Info */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div
-                        style={{
-                          fontSize: "13px",
-                          fontWeight: 600,
-                          lineHeight: "1.3",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                          overflow: "hidden",
-                          color: isExisting ? "#9ca3af" : "#111",
-                        }}
-                        title={product.name}
-                      >
+                    <div className="flex-1 min-w-0">
+                      <div className={`text-sm font-semibold leading-tight line-clamp-2 ${isExisting ? "text-text-muted" : "text-text-primary"}`} title={product.name}>
                         {product.name}
-                        {isExisting && (
-                          <span style={{ fontWeight: 400, color: "#6b6b6f", marginLeft: "4px" }}>
-                            (already added)
-                          </span>
-                        )}
+                        {isExisting && <span className="font-normal text-text-muted ml-1">(already added)</span>}
                       </div>
-
-                      {/* Price row */}
-                      <div style={{ marginTop: "4px", display: "flex", gap: "6px", alignItems: "baseline" }}>
-                        <span style={{ fontSize: "14px", fontWeight: 700, color: "#111" }}>
-                          ${product.nowPrice.toFixed(2)}
-                        </span>
-                        {hasDiscount && (
-                          <span style={{ fontSize: "12px", color: "#9ca3af", textDecoration: "line-through" }}>
-                            ${product.sellPrice.toFixed(2)}
-                          </span>
-                        )}
+                      <div className="mt-1 flex gap-1.5 items-baseline">
+                        <span className="text-sm font-bold text-text-primary">${product.nowPrice.toFixed(2)}</span>
+                        {hasDiscount && <span className="text-xs text-text-muted line-through">${product.sellPrice.toFixed(2)}</span>}
                       </div>
-
-                      {/* Badges */}
-                      <div style={{ marginTop: "4px", display: "flex", gap: "4px", flexWrap: "wrap" }}>
-                        {product.freeShipping && (
-                          <span style={{ ...badgeStyle, backgroundColor: "#ecfdf5", color: "#059669" }}>
-                            Free Shipping
-                          </span>
-                        )}
-                        {product.inventory > 0 && (
-                          <span style={{ ...badgeStyle, backgroundColor: "#f0f9ff", color: "#2563eb" }}>
-                            {product.inventory} in stock
-                          </span>
-                        )}
-                        {product.deliveryCycle && (
-                          <span style={{ ...badgeStyle, backgroundColor: "#fefce8", color: "#a16207" }}>
-                            {product.deliveryCycle}
-                          </span>
-                        )}
-                        {product.listedNum > 0 && (
-                          <span style={{ ...badgeStyle, backgroundColor: "#f5f5f5", color: "#6b6b6f" }}>
-                            {product.listedNum} listed
-                          </span>
-                        )}
+                      <div className="mt-1 flex gap-1 flex-wrap">
+                        {product.freeShipping && <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-green-50 text-green-700">Free Shipping</span>}
+                        {product.inventory > 0 && <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">{product.inventory} in stock</span>}
+                        {product.deliveryCycle && <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-yellow-50 text-yellow-700">{product.deliveryCycle}</span>}
+                        {product.listedNum > 0 && <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-gray-100 text-text-muted">{product.listedNum} listed</span>}
                       </div>
-
-                      {/* Caption */}
-                      <div style={{ marginTop: "4px", fontSize: "11px", color: "#9ca3af" }}>
-                        {product.supplierName}
-                        {product.categoryName ? ` \u00B7 ${product.categoryName}` : ""}
+                      <div className="mt-1 text-[11px] text-text-muted">
+                        {product.supplierName}{product.categoryName ? ` \u00B7 ${product.categoryName}` : ""}
                       </div>
                     </div>
                   </div>
@@ -508,129 +280,74 @@ export function SearchTab({ defaults, existingPids, onProductsFetched }: SearchT
 
           {/* Empty state */}
           {results && results.products.length === 0 && (
-            <Box
-              padding={8}
-              borderRadius={4}
-              borderWidth={1}
-              borderStyle="dashed"
-              borderColor="default2"
-              display="flex"
-              flexDirection="column"
-              alignItems="center"
-              gap={2}
-            >
-              <Text variant="heading" size="medium" color="default2">
-                No products found
-              </Text>
-              <Text color="default2">
-                Try different keywords or adjust your filters
-              </Text>
-            </Box>
+            <div className="p-8 rounded-lg border border-dashed border-border flex flex-col items-center gap-2">
+              <p className="text-base font-medium text-text-muted">No products found</p>
+              <p className="text-sm text-text-muted">Try different keywords or adjust your filters</p>
+            </div>
           )}
 
-          {/* Loading state */}
+          {/* Loading */}
           {searchQuery.isFetching && !results && (
-            <Box padding={6} display="flex" justifyContent="center">
-              <Text color="default2">Searching CJ products...</Text>
-            </Box>
+            <div className="p-6 flex justify-center">
+              <span className="text-sm text-text-muted">Searching CJ products...</span>
+            </div>
           )}
 
           {/* Pagination */}
           {results && results.pagination.totalPages > 1 && (
-            <Box display="flex" justifyContent="center" gap={3} alignItems="center">
+            <div className="flex justify-center gap-3 items-center">
               <button
-                style={{
-                  ...paginationBtnStyle,
-                  opacity: (submittedParams?.page ?? 1) <= 1 ? 0.4 : 1,
-                  cursor: (submittedParams?.page ?? 1) <= 1 ? "default" : "pointer",
-                }}
+                className="px-4 py-1.5 text-sm border border-border rounded-md bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-default transition-colors"
                 disabled={(submittedParams?.page ?? 1) <= 1}
                 onClick={() => handlePageChange((submittedParams?.page ?? 1) - 1)}
               >
                 Previous
               </button>
-              <Text variant="caption" color="default2">
-                Page {results.pagination.page} of {results.pagination.totalPages}
-              </Text>
+              <span className="text-xs text-text-muted">Page {results.pagination.page} of {results.pagination.totalPages}</span>
               <button
-                style={{
-                  ...paginationBtnStyle,
-                  opacity: (submittedParams?.page ?? 1) >= results.pagination.totalPages ? 0.4 : 1,
-                  cursor: (submittedParams?.page ?? 1) >= results.pagination.totalPages ? "default" : "pointer",
-                }}
+                className="px-4 py-1.5 text-sm border border-border rounded-md bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-default transition-colors"
                 disabled={(submittedParams?.page ?? 1) >= results.pagination.totalPages}
                 onClick={() => handlePageChange((submittedParams?.page ?? 1) + 1)}
               >
                 Next
               </button>
-            </Box>
+            </div>
           )}
         </>
       )}
 
       {/* Selection Bar */}
       {selectedCount > 0 && (
-        <div
-          style={{
-            position: "sticky",
-            bottom: "0",
-            backgroundColor: "#fff",
-            borderTop: "1px solid #e5e5e7",
-            padding: "12px 16px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            zIndex: 10,
-            boxShadow: "0 -2px 8px rgba(0,0,0,0.06)",
-          }}
-        >
-          <Text>
+        <div className="sticky bottom-0 bg-white border-t border-border px-4 py-3 flex justify-between items-center z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.06)]">
+          <span className="text-sm">
             {newSelectedCount} product{newSelectedCount !== 1 ? "s" : ""} ready to add
             {newSelectedCount < selectedCount && (
-              <span style={{ color: "#9ca3af" }}>
-                {" "}({selectedCount - newSelectedCount} already in table, will be skipped)
-              </span>
+              <span className="text-text-muted"> ({selectedCount - newSelectedCount} already in table, will be skipped)</span>
             )}
-          </Text>
-
+          </span>
           {fetchProgress ? (
-            <Text color="default2">
+            <span className="text-sm text-text-muted">
               Fetching product details... ({fetchProgress.done}/{fetchProgress.total})
-              {" "}&mdash; this takes ~{fetchProgress.total} seconds
-            </Text>
+            </span>
           ) : (
-            <Button
-              variant="primary"
+            <button
+              className="px-4 py-2 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light disabled:opacity-50 transition-colors"
               onClick={handleAddSelected}
               disabled={newSelectedCount === 0 || fetchDetailsMutation.isLoading}
             >
               Add {newSelectedCount} Selected to Sourcing Table
-            </Button>
+            </button>
           )}
         </div>
       )}
 
       {/* Initial empty state */}
       {submittedParams === null && (
-        <Box
-          padding={8}
-          borderRadius={4}
-          borderWidth={1}
-          borderStyle="dashed"
-          borderColor="default2"
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          gap={2}
-        >
-          <Text variant="heading" size="medium" color="default2">
-            Search CJ's product catalog
-          </Text>
-          <Text color="default2">
-            Enter keywords above and click "Search" to discover products
-          </Text>
-        </Box>
+        <div className="p-8 rounded-lg border border-dashed border-border flex flex-col items-center gap-2">
+          <p className="text-base font-medium text-text-muted">Search CJ's product catalog</p>
+          <p className="text-sm text-text-muted">Enter keywords above and click "Search" to discover products</p>
+        </div>
       )}
-    </Box>
+    </div>
   );
 }

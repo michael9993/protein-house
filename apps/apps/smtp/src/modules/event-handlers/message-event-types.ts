@@ -1,4 +1,5 @@
 export const messageEventTypes = [
+  "ABANDONED_CHECKOUT",
   "ACCOUNT_CHANGE_EMAIL_CONFIRM",
   "ACCOUNT_CHANGE_EMAIL_REQUEST",
   "ACCOUNT_CONFIRMATION",
@@ -21,6 +22,7 @@ export const messageEventTypes = [
 export type MessageEventTypes = (typeof messageEventTypes)[number];
 
 export const messageEventTypesLabels: Record<MessageEventTypes, string> = {
+  ABANDONED_CHECKOUT: "Abandoned checkout recovery",
   ACCOUNT_CHANGE_EMAIL_CONFIRM: "Customer account change email confirmation",
   ACCOUNT_CHANGE_EMAIL_REQUEST: "Customer account change email request",
   ACCOUNT_CONFIRMATION: "Customer account confirmation",

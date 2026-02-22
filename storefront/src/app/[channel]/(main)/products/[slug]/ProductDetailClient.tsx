@@ -12,7 +12,9 @@ import {
   useFeature,
   useProductDetailText,
   useContentConfig,
+  useEcommerceSettings,
 } from "@/providers/StoreConfigProvider";
+import { getProductShippingEstimate, formatEstimate } from "@/lib/shipping";
 import {
   subscribeToStockAlert,
   unsubscribeFromStockAlert,
@@ -61,6 +63,7 @@ interface ProductDetailClientProps {
     priceAmount?: number;
     priceCurrency?: string;
     originalPriceAmount?: number;
+    metadata?: Array<{ key: string; value: string }>;
   };
   selectedVariantId?: string;
   channel: string;
@@ -351,6 +354,7 @@ export function ProductDetailClient({
         category: product.category || undefined,
         inStock: isInStock,
         channel,
+        metadata: product.metadata ?? undefined,
       });
     }
   };
@@ -535,6 +539,9 @@ export function ProductDetailClient({
                 />
               </div>
 
+              {/* Delivery Estimate — from per-product metadata or config defaults */}
+              <DeliveryEstimate metadata={product.metadata} />
+
               {/* Stock Alert — out of stock */}
               {!isInStock && selectedVariant && (
                 <div className="mt-4">
@@ -702,5 +709,37 @@ export function ProductDetailClient({
       </div>
       <SizeGuideModal open={showSizeGuide} onOpenChange={setShowSizeGuide} defaultCategory={sizeGuideCategory} />
     </>
+  );
+}
+
+/** Delivery estimate badge — reads per-product metadata, falls back to config defaults. */
+function DeliveryEstimate({ metadata }: { metadata?: Array<{ key: string; value: string }> }) {
+  const ecommerce = useEcommerceSettings();
+  const productDetailText = useProductDetailText();
+
+  if (!ecommerce.shipping?.showEstimatedDelivery) return null;
+
+  const estimate = getProductShippingEstimate(metadata);
+  const format = (ecommerce.shipping as any).estimatedDeliveryFormat ?? "range";
+
+  // Per-product estimate or fall back to config defaults
+  const minDays = estimate?.minDays ?? (ecommerce.shipping as any).defaultEstimatedMinDays ?? 2;
+  const maxDays = estimate?.maxDays ?? (ecommerce.shipping as any).defaultEstimatedMaxDays ?? 5;
+  const days = formatEstimate({ minDays, maxDays }, format);
+
+  // Use configurable label template, e.g. "Ships in {days} business days"
+  const label =
+    (productDetailText as any).deliveryEstimateLabel?.replace("{days}", days) ??
+    `Ships in ${days} business days`;
+
+  return (
+    <div className="mt-3 flex items-center gap-2 text-sm text-neutral-600">
+      <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M5 18H3c-.6 0-1-.4-1-1V7c0-.6.4-1 1-1h10c.6 0 1 .4 1 1v11" />
+        <path d="M14 9h4l4 4v4c0 .6-.4 1-1 1h-2" />
+        <circle cx="7" cy="18" r="2" /><circle cx="17" cy="18" r="2" />
+      </svg>
+      <span>{label}</span>
+    </div>
   );
 }

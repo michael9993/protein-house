@@ -1,5 +1,4 @@
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
-import { Box, Text, Button, Input } from "@/components/ui/primitives";
 import { useState } from "react";
 
 import { trpcClient } from "@/modules/trpc/trpc-client";
@@ -33,16 +32,16 @@ const SUPPLIER_OPTIONS: Array<{ value: string; label: string }> = [
   { value: "cj", label: "CJ" },
 ];
 
-function statusColor(status: string): "success1" | "critical1" | "warning1" | "default2" {
+function statusBadgeCls(status: string): string {
   switch (status) {
     case "success":
-      return "success1";
+      return "bg-green-50 text-green-800";
     case "failure":
-      return "warning1";
+      return "bg-yellow-50 text-yellow-800";
     case "error":
-      return "critical1";
+      return "bg-red-50 text-red-800";
     default:
-      return "default2";
+      return "bg-gray-100 text-gray-800";
   }
 }
 
@@ -77,277 +76,231 @@ function AuditLog() {
 
   if (isLoading) {
     return (
-      <Box padding={8}>
-        <Text variant="heading" size="large">Loading audit log...</Text>
-      </Box>
+      <div className="p-8">
+        <h1 className="text-xl font-semibold text-text-primary">Loading audit log...</h1>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Box padding={8}>
-        <Text variant="heading" size="large" color="critical1">Error loading audit log</Text>
-        <Text>{error.message}</Text>
-      </Box>
+      <div className="p-8">
+        <h1 className="text-xl font-semibold text-red-600">Error loading audit log</h1>
+        <p className="text-sm">{error.message}</p>
+      </div>
     );
   }
 
   return (
-    <Box display="flex" flexDirection="column" gap={6}>
+    <div className="flex flex-col gap-6">
       <NavBar />
 
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Box>
-          <Text variant="heading" size="large">Audit Log</Text>
-          <Text color="default2">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-xl font-semibold text-text-primary">Audit Log</h1>
+          <p className="text-sm text-text-muted">
             {data?.totalCount ?? 0} events matching filters
-          </Text>
-        </Box>
-      </Box>
+          </p>
+        </div>
+      </div>
 
       {/* Stats */}
       {data?.stats && (
-        <Box display="grid" __gridTemplateColumns="repeat(4, 1fr)" gap={3}>
-          <Box
-            padding={3}
-            borderRadius={4}
-            borderWidth={1}
-            borderStyle="solid"
-            borderColor="default1"
-          >
-            <Text color="default2" variant="caption" __display="block">Total Events</Text>
-            <Text variant="heading" size="medium">{data.stats.total}</Text>
-          </Box>
-          <Box
-            padding={3}
-            borderRadius={4}
-            borderWidth={1}
-            borderStyle="solid"
-            borderColor="default1"
-          >
-            <Text color="default2" variant="caption" __display="block">Success</Text>
-            <Text variant="heading" size="medium">{data.stats.success}</Text>
-          </Box>
-          <Box
-            padding={3}
-            borderRadius={4}
-            borderWidth={1}
-            borderStyle="solid"
-            borderColor="default1"
-          >
-            <Text color="default2" variant="caption" __display="block">Failures</Text>
-            <Text variant="heading" size="medium" color={data.stats.failure > 0 ? "critical1" : undefined}>
+        <div className="grid grid-cols-4 gap-3">
+          <div className="p-3 rounded-lg border border-border">
+            <span className="text-xs text-text-muted block">Total Events</span>
+            <span className="text-base font-semibold text-text-primary">{data.stats.total}</span>
+          </div>
+          <div className="p-3 rounded-lg border border-border">
+            <span className="text-xs text-text-muted block">Success</span>
+            <span className="text-base font-semibold text-text-primary">{data.stats.success}</span>
+          </div>
+          <div className="p-3 rounded-lg border border-border">
+            <span className="text-xs text-text-muted block">Failures</span>
+            <span className={`text-base font-semibold ${data.stats.failure > 0 ? "text-red-600" : "text-text-primary"}`}>
               {data.stats.failure}
-            </Text>
-          </Box>
-          <Box
-            padding={3}
-            borderRadius={4}
-            borderWidth={1}
-            borderStyle="solid"
-            borderColor="default1"
-          >
-            <Text color="default2" variant="caption" __display="block">Errors</Text>
-            <Text variant="heading" size="medium" color={data.stats.error > 0 ? "critical1" : undefined}>
+            </span>
+          </div>
+          <div className="p-3 rounded-lg border border-border">
+            <span className="text-xs text-text-muted block">Errors</span>
+            <span className={`text-base font-semibold ${data.stats.error > 0 ? "text-red-600" : "text-text-primary"}`}>
               {data.stats.error}
-            </Text>
-          </Box>
-        </Box>
+            </span>
+          </div>
+        </div>
       )}
 
       {/* Filters */}
-      <Box display="flex" flexDirection="column" gap={3}>
-        <Box display="flex" gap={4} flexWrap="wrap" alignItems="flex-end">
+      <div className="flex flex-col gap-3">
+        <div className="flex gap-4 flex-wrap items-end">
           {/* Type filter */}
-          <Box display="flex" flexDirection="column" gap={1}>
-            <Text variant="caption" color="default2">Type</Text>
-            <Box display="flex" gap={1} flexWrap="wrap">
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-text-muted">Type</span>
+            <div className="flex gap-1 flex-wrap">
               {TYPE_OPTIONS.map((opt) => (
-                <Button
+                <button
                   key={opt.value}
-                  variant={typeFilter === opt.value ? "primary" : "tertiary"}
-                  size="small"
+                  className={`px-2.5 py-1 text-sm font-medium rounded-md transition-colors ${
+                    typeFilter === opt.value
+                      ? "text-white bg-brand hover:bg-brand-light"
+                      : "text-text-muted hover:text-text-primary"
+                  }`}
                   onClick={() => setTypeFilter(opt.value as AuditType | "all")}
                 >
                   {opt.label}
-                </Button>
+                </button>
               ))}
-            </Box>
-          </Box>
-        </Box>
+            </div>
+          </div>
+        </div>
 
-        <Box display="flex" gap={4} flexWrap="wrap" alignItems="flex-end">
+        <div className="flex gap-4 flex-wrap items-end">
           {/* Status filter */}
-          <Box display="flex" flexDirection="column" gap={1}>
-            <Text variant="caption" color="default2">Status</Text>
-            <Box display="flex" gap={1}>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-text-muted">Status</span>
+            <div className="flex gap-1">
               {STATUS_OPTIONS.map((opt) => (
-                <Button
+                <button
                   key={opt.value}
-                  variant={statusFilter === opt.value ? "primary" : "tertiary"}
-                  size="small"
+                  className={`px-2.5 py-1 text-sm font-medium rounded-md transition-colors ${
+                    statusFilter === opt.value
+                      ? "text-white bg-brand hover:bg-brand-light"
+                      : "text-text-muted hover:text-text-primary"
+                  }`}
                   onClick={() => setStatusFilter(opt.value as AuditStatus | "all")}
                 >
                   {opt.label}
-                </Button>
+                </button>
               ))}
-            </Box>
-          </Box>
+            </div>
+          </div>
 
           {/* Supplier filter */}
-          <Box display="flex" flexDirection="column" gap={1}>
-            <Text variant="caption" color="default2">Supplier</Text>
-            <Box display="flex" gap={1}>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-text-muted">Supplier</span>
+            <div className="flex gap-1">
               {SUPPLIER_OPTIONS.map((opt) => (
-                <Button
+                <button
                   key={opt.value}
-                  variant={supplierFilter === opt.value ? "primary" : "tertiary"}
-                  size="small"
+                  className={`px-2.5 py-1 text-sm font-medium rounded-md transition-colors ${
+                    supplierFilter === opt.value
+                      ? "text-white bg-brand hover:bg-brand-light"
+                      : "text-text-muted hover:text-text-primary"
+                  }`}
                   onClick={() => setSupplierFilter(opt.value)}
                 >
                   {opt.label}
-                </Button>
+                </button>
               ))}
-            </Box>
-          </Box>
+            </div>
+          </div>
 
           {/* Order ID search */}
-          <Box display="flex" flexDirection="column" gap={1}>
-            <Text variant="caption" color="default2">Order ID</Text>
-            <Input
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-text-muted">Order ID</span>
+            <input
+              className="w-full px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
               value={orderIdSearch}
               onChange={(e) => setOrderIdSearch(e.target.value)}
               placeholder="Search by Order ID"
-              size="small"
             />
-          </Box>
-        </Box>
-      </Box>
+          </div>
+        </div>
+      </div>
 
       {/* Events Table */}
-      <Box display="flex" flexDirection="column" gap={1}>
+      <div className="flex flex-col gap-1">
         {/* Header */}
-        <Box
-          display="grid"
-          __gridTemplateColumns="160px 130px 100px 100px 1fr 80px"
-          gap={2}
-          paddingX={4}
-          paddingY={2}
-          backgroundColor="default1"
-          borderRadius={4}
+        <div
+          className="grid gap-2 px-4 py-2 bg-gray-50 rounded-lg"
+          style={{ gridTemplateColumns: "160px 130px 100px 100px 1fr 80px" }}
         >
-          <Text variant="caption" color="default2">Timestamp</Text>
-          <Text variant="caption" color="default2">Type</Text>
-          <Text variant="caption" color="default2">Supplier</Text>
-          <Text variant="caption" color="default2">Status</Text>
-          <Text variant="caption" color="default2">Action</Text>
-          <Text variant="caption" color="default2">Duration</Text>
-        </Box>
+          <span className="text-xs text-text-muted">Timestamp</span>
+          <span className="text-xs text-text-muted">Type</span>
+          <span className="text-xs text-text-muted">Supplier</span>
+          <span className="text-xs text-text-muted">Status</span>
+          <span className="text-xs text-text-muted">Action</span>
+          <span className="text-xs text-text-muted">Duration</span>
+        </div>
 
         {/* Rows */}
         {data?.events.map((event) => (
-          <Box
+          <div
             key={event.id}
-            display="grid"
-            __gridTemplateColumns="160px 130px 100px 100px 1fr 80px"
-            gap={2}
-            paddingX={4}
-            paddingY={3}
-            borderWidth={1}
-            borderStyle="solid"
-            borderColor="default1"
-            borderRadius={4}
-            alignItems="center"
+            className="grid gap-2 px-4 py-3 border border-border rounded-lg items-center"
+            style={{ gridTemplateColumns: "160px 130px 100px 100px 1fr 80px" }}
           >
-            <Text variant="caption">
+            <span className="text-xs">
               {new Date(event.timestamp).toLocaleString()}
-            </Text>
-            <Text variant="caption">
+            </span>
+            <span className="text-xs">
               {event.type.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
-            </Text>
-            <Text variant="caption">
+            </span>
+            <span className="text-xs">
               {event.supplierId === "aliexpress" ? "AliExpress" : event.supplierId === "cj" ? "CJ" : event.supplierId}
-            </Text>
-            <Box>
-              <Box
-                paddingX={2}
-                paddingY={1}
-                borderRadius={4}
-                backgroundColor={statusColor(event.status)}
-                __display="inline-block"
-              >
-                <Text variant="caption">{event.status.toUpperCase()}</Text>
-              </Box>
-            </Box>
-            <Box>
-              <Text variant="caption">{event.action}</Text>
+            </span>
+            <div>
+              <span className={`inline-block px-2 py-1 rounded-lg text-xs ${statusBadgeCls(event.status)}`}>
+                {event.status.toUpperCase()}
+              </span>
+            </div>
+            <div>
+              <span className="text-xs">{event.action}</span>
               {event.orderId && (
-                <Text variant="caption" color="default2" __display="block">
+                <span className="text-xs text-text-muted block">
                   Order: {event.orderId}
-                </Text>
+                </span>
               )}
               {event.error && (
-                <Text variant="caption" color="critical1" __display="block">
+                <span className="text-xs text-red-600 block">
                   {event.error}
-                </Text>
+                </span>
               )}
-            </Box>
-            <Text variant="caption" color="default2">
+            </div>
+            <span className="text-xs text-text-muted">
               {event.duration != null ? `${event.duration}ms` : "--"}
-            </Text>
-          </Box>
+            </span>
+          </div>
         ))}
 
         {data?.events.length === 0 && (
-          <Box padding={8} display="flex" justifyContent="center">
-            <Text color="default2">No audit events found matching the current filters.</Text>
-          </Box>
+          <div className="p-8 flex justify-center">
+            <span className="text-sm text-text-muted">No audit events found matching the current filters.</span>
+          </div>
         )}
-      </Box>
+      </div>
 
       {/* Clear old entries */}
-      <Box
-        padding={4}
-        borderRadius={4}
-        borderWidth={1}
-        borderStyle="solid"
-        borderColor="default1"
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        flexWrap="wrap"
-        gap={3}
-      >
-        <Box display="flex" gap={3} alignItems="center">
-          <Text variant="bodyStrong">Clear Old Entries</Text>
-          <Box display="flex" gap={2} alignItems="center">
-            <Text variant="caption" color="default2">Older than</Text>
-            <Input
+      <div className="p-4 rounded-lg border border-border flex justify-between items-center flex-wrap gap-3">
+        <div className="flex gap-3 items-center">
+          <span className="font-semibold">Clear Old Entries</span>
+          <div className="flex gap-2 items-center">
+            <span className="text-xs text-text-muted">Older than</span>
+            <input
               type="number"
+              className="px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
+              style={{ width: "80px" }}
               value={String(clearDays)}
               onChange={(e) => setClearDays(Number(e.target.value))}
-              size="small"
-              __width="80px"
             />
-            <Text variant="caption" color="default2">days</Text>
-          </Box>
-        </Box>
-        <Button
-          variant="secondary"
-          size="small"
+            <span className="text-xs text-text-muted">days</span>
+          </div>
+        </div>
+        <button
+          className="px-2.5 py-1 text-sm font-medium border border-border rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
           disabled={clearMutation.isLoading}
           onClick={() => clearMutation.mutate({ olderThanDays: clearDays })}
         >
           {clearMutation.isLoading ? "Clearing..." : "Clear"}
-        </Button>
-      </Box>
+        </button>
+      </div>
 
       {clearMessage && (
-        <Box padding={3} borderRadius={4} backgroundColor="success1">
-          <Text>{clearMessage}</Text>
-        </Box>
+        <div className="p-3 rounded-lg bg-green-50 text-green-800 text-sm">
+          {clearMessage}
+        </div>
       )}
-    </Box>
+    </div>
   );
 }
 
@@ -356,9 +309,9 @@ export default function AuditPage() {
 
   if (!appBridgeState?.ready) {
     return (
-      <Box padding={8}>
-        <Text>Connecting to Saleor Dashboard...</Text>
-      </Box>
+      <div className="p-8">
+        <p className="text-sm">Connecting to Saleor Dashboard...</p>
+      </div>
     );
   }
 

@@ -49,9 +49,12 @@
     "urql": "catalog:",
     "usehooks-ts": "catalog:",
     "uuid": "^10.0.0",
+    "lucide-react": "^0.468.0",
     "zod": "catalog:"
   },
   "devDependencies": {
+    "tailwindcss": "^4.0.0",
+    "@tailwindcss/postcss": "^4.0.0",
     "@graphql-codegen/cli": "catalog:",
     "@graphql-codegen/introspection": "catalog:",
     "@graphql-codegen/typed-document-node": "catalog:",

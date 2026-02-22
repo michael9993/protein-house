@@ -1,9 +1,21 @@
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
-import { Box, Text, Button } from "@/components/ui/primitives";
 import { useRouter } from "next/router";
 
-import { trpcClient } from "@/modules/trpc/trpc-client";
 import { NavBar } from "@/components/ui/NavBar";
+import { trpcClient } from "@/modules/trpc/trpc-client";
+
+function supplierStatusCls(status: string): string {
+  switch (status) {
+    case "connected":
+      return "bg-green-50 text-green-800";
+    case "error":
+      return "bg-red-50 text-red-800";
+    case "token_expiring":
+      return "bg-yellow-50 text-yellow-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+}
 
 function SupplierList() {
   const router = useRouter();
@@ -14,93 +26,75 @@ function SupplierList() {
 
   if (isLoading) {
     return (
-      <Box padding={8}>
-        <Text variant="heading" size="large">Loading suppliers...</Text>
-      </Box>
+      <div className="p-8">
+        <h1 className="text-xl font-semibold text-text-primary">Loading suppliers...</h1>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Box padding={8}>
-        <Text variant="heading" size="large" color="critical1">Error loading suppliers</Text>
-        <Text>{error.message}</Text>
-      </Box>
+      <div className="p-8">
+        <h1 className="text-xl font-semibold text-red-700">Error loading suppliers</h1>
+        <p className="text-sm">{error.message}</p>
+      </div>
     );
   }
 
   if (!suppliers) return null;
 
   return (
-    <Box display="flex" flexDirection="column" gap={6}>
+    <div className="flex flex-col gap-6">
       <NavBar />
 
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Box>
-          <Text variant="heading" size="large">Suppliers</Text>
-          <Text color="default2">Manage dropshipping supplier connections</Text>
-        </Box>
-      </Box>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-xl font-semibold text-text-primary">Suppliers</h1>
+          <p className="text-sm text-text-muted">Manage dropshipping supplier connections</p>
+        </div>
+      </div>
 
-      <Box display="flex" flexDirection="column" gap={3}>
+      <div className="flex flex-col gap-3">
         {suppliers.map((supplier) => (
-          <Box
+          <div
             key={supplier.id}
-            padding={5}
-            borderRadius={4}
-            borderWidth={1}
-            borderStyle="solid"
-            borderColor="default1"
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
+            className="p-5 rounded-lg border border-border flex justify-between items-center"
           >
-            <Box display="flex" flexDirection="column" gap={1}>
-              <Text variant="heading" size="medium">{supplier.name}</Text>
-              <Box display="flex" gap={4} alignItems="center">
-                <Box
-                  paddingX={3}
-                  paddingY={1}
-                  borderRadius={4}
-                  backgroundColor={
-                    supplier.status === "connected"
-                      ? "success1"
-                      : supplier.status === "error"
-                        ? "critical1"
-                        : supplier.status === "token_expiring"
-                          ? "warning1"
-                          : "default2"
-                  }
-                >
-                  <Text variant="caption">{supplier.status.replace("_", " ").toUpperCase()}</Text>
-                </Box>
-                <Text color="default2" variant="caption">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-base font-semibold text-text-primary">{supplier.name}</h2>
+              <div className="flex gap-4 items-center">
+                <span className={`px-3 py-1 rounded-lg text-xs ${supplierStatusCls(supplier.status)}`}>
+                  {supplier.status.replace("_", " ").toUpperCase()}
+                </span>
+                <span className="text-xs text-text-muted">
                   Type: {supplier.type}
-                </Text>
+                </span>
                 {supplier.lastConnectedAt && (
-                  <Text color="default2" variant="caption">
+                  <span className="text-xs text-text-muted">
                     Last connected: {new Date(supplier.lastConnectedAt).toLocaleDateString()}
-                  </Text>
+                  </span>
                 )}
                 {supplier.tokenExpiresAt && (
-                  <Text color="default2" variant="caption">
+                  <span className="text-xs text-text-muted">
                     Token expires: {new Date(supplier.tokenExpiresAt).toLocaleDateString()}
-                  </Text>
+                  </span>
                 )}
-              </Box>
-            </Box>
+              </div>
+            </div>
 
-            <Box display="flex" gap={2} alignItems="center">
-              <Button
-                variant="secondary"
-                size="small"
+            <div className="flex gap-2 items-center">
+              <button
+                className="px-2.5 py-1 text-sm font-medium border border-border rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
                 onClick={() => router.push(`/suppliers/${supplier.type}`)}
               >
                 Configure
-              </Button>
-              <Button
-                variant={supplier.enabled ? "primary" : "secondary"}
-                size="small"
+              </button>
+              <button
+                className={`px-2.5 py-1 text-sm font-medium rounded-md disabled:opacity-50 transition-colors ${
+                  supplier.enabled
+                    ? "text-white bg-brand hover:bg-brand-light"
+                    : "border border-border hover:bg-gray-50"
+                }`}
                 disabled={toggleMutation.isLoading}
                 onClick={() =>
                   toggleMutation.mutate({
@@ -110,18 +104,18 @@ function SupplierList() {
                 }
               >
                 {supplier.enabled ? "Disable" : "Enable"}
-              </Button>
-            </Box>
-          </Box>
+              </button>
+            </div>
+          </div>
         ))}
-      </Box>
+      </div>
 
       {suppliers.length === 0 && (
-        <Box padding={8} display="flex" justifyContent="center">
-          <Text color="default2">No suppliers configured</Text>
-        </Box>
+        <div className="p-8 flex justify-center">
+          <p className="text-sm text-text-muted">No suppliers configured</p>
+        </div>
       )}
-    </Box>
+    </div>
   );
 }
 
@@ -130,9 +124,9 @@ export default function SuppliersPage() {
 
   if (!appBridgeState?.ready) {
     return (
-      <Box padding={8}>
-        <Text>Connecting to Saleor Dashboard...</Text>
-      </Box>
+      <div className="p-8">
+        <p className="text-sm">Connecting to Saleor Dashboard...</p>
+      </div>
     );
   }
 

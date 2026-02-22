@@ -4,6 +4,10 @@ fragment OrderDetails on Order {
 	created
 	status
 	paymentStatus
+	metadata {
+		key
+		value
+	}
 	total {
 		gross {
 			amount

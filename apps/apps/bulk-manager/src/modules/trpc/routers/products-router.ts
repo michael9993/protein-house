@@ -1616,6 +1616,26 @@ export const productsRouter = router({
                 }
               }
 
+              // ── Set variant-level metadata (e.g. dropship.supplierSku per variant) ──
+              if (vRow.variantMetadata && variantId) {
+                try {
+                  const variantMeta = parseMetadata(vRow.variantMetadata);
+                  if (variantMeta.length > 0) {
+                    await ctx.apiClient.mutation(
+                      `mutation UpdateVariantMetadata($id: ID!, $input: [MetadataInput!]!) {
+                        updateMetadata(id: $id, input: $input) {
+                          item { ... on ProductVariant { id } }
+                          errors { field message }
+                        }
+                      }`,
+                      { id: variantId, input: variantMeta }
+                    );
+                  }
+                } catch (e) {
+                  console.warn(`[Import] Variant metadata failed for ${variantName}: ${e}`);
+                }
+              }
+
               const warnings = imageErrors.length > 0 ? ` (image warnings: ${imageErrors.join("; ")})` : "";
               results.push({ row: origIdx + 1, success: true, id: productId, error: warnings || undefined });
             } catch (error) {
@@ -1776,8 +1796,8 @@ export const productsRouter = router({
           .map((m: any) => m.url)
           .join("; ");
         const metadataStr = (product.metadata || [])
-          .map((m: any) => `${m.key}=${m.value}`)
-          .join("; ");
+          .map((m: any) => `${m.key}:${m.value}`)
+          .join(";");
 
         // Build product-level attribute columns
         const productAttrCols: Record<string, string> = {};

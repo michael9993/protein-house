@@ -6,7 +6,8 @@ import { useState } from "react";
 import { useWishlist } from "@/lib/wishlist";
 import { formatMoney } from "@/lib/utils";
 import imageLoader from "@/lib/imageLoader";
-import { useBranding, useWishlistText } from "@/providers/StoreConfigProvider";
+import { useBranding, useWishlistText, useEcommerceSettings, useProductDetailText } from "@/providers/StoreConfigProvider";
+import { getProductShippingEstimate, formatEstimate } from "@/lib/shipping";
 
 interface WishlistClientProps {
 	channel: string;
@@ -152,6 +153,7 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 											</span>
 										)}
 									</div>
+									<WishlistDeliveryBadge metadata={item.metadata} inStock={item.inStock} />
 									<div className="mt-4 flex gap-2">
 										<Link
 											href={`/${item.channel || channel}/products/${item.slug}`}
@@ -187,5 +189,16 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 			)}
 		</div>
 	);
+}
+
+function WishlistDeliveryBadge({ metadata, inStock }: { metadata?: Array<{ key: string; value: string }> | null; inStock: boolean }) {
+	const ecommerce = useEcommerceSettings();
+	const pdText = useProductDetailText();
+	if (!inStock || !ecommerce.shipping?.showEstimatedDelivery) return null;
+	const est = getProductShippingEstimate(metadata);
+	if (!est) return null;
+	const days = formatEstimate(est, (ecommerce.shipping as any).estimatedDeliveryFormat ?? "range");
+	const label = (pdText as any).deliveryEstimateLabel?.replace("{days}", days) ?? `Ships in ${days} days`;
+	return <p className="mt-1 text-xs text-neutral-500">{label}</p>;
 }
 

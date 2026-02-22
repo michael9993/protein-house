@@ -14,7 +14,9 @@ import {
   useBadgeStyle,
   useStoreInfo,
   useEcommerceSettings,
+  useProductDetailText,
 } from "@/providers/StoreConfigProvider";
+import { getProductShippingEstimate, formatEstimate } from "@/lib/shipping";
 import { useWishlist } from "@/lib/wishlist";
 import { useQuickView } from "@/providers/QuickViewProvider";
 import { t } from "@/lib/language";
@@ -163,6 +165,7 @@ export function ProductCard({
         category: product.category ? t(product.category) : undefined,
         inStock: isInStock,
         channel: channel || undefined,
+        metadata: product.metadata ?? undefined,
       });
     }
   };
@@ -508,8 +511,26 @@ export function ProductCard({
               </button>
             )}
           </div>
+
+          {/* Delivery Estimate Badge */}
+          <CardDeliveryBadge metadata={product.metadata} compact={isCompactMode} />
         </div>
       </LinkWithChannel>
     </article>
+  );
+}
+
+function CardDeliveryBadge({ metadata, compact }: { metadata?: Array<{ key: string; value: string }> | null; compact?: boolean }) {
+  const ecommerce = useEcommerceSettings();
+  const pdText = useProductDetailText();
+  if (!ecommerce.shipping?.showEstimatedDelivery) return null;
+  const est = getProductShippingEstimate(metadata);
+  if (!est) return null;
+  const days = formatEstimate(est, (ecommerce.shipping as any).estimatedDeliveryFormat ?? "range");
+  const label = (pdText as any).deliveryEstimateLabel?.replace("{days}", days) ?? `Ships in ${days} days`;
+  return (
+    <p className={`mt-1 truncate text-neutral-500 ${compact ? "text-[10px]" : "text-xs"}`}>
+      {label}
+    </p>
   );
 }

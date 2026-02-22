@@ -729,6 +729,14 @@ EMPTY_CHECKOUTS_TIMEDELTA = datetime.timedelta(
     seconds=parse(os.environ.get("EMPTY_CHECKOUTS_TIMEDELTA", "6 hours"))
 )
 
+# Abandoned checkout email recovery settings
+STOREFRONT_URL = os.environ.get("STOREFRONT_URL", "http://localhost:3000")
+ABANDONED_CHECKOUT_EMAIL_DELAYS = [
+    datetime.timedelta(hours=1),   # Email 1: gentle reminder
+    datetime.timedelta(hours=24),  # Email 2: nudge
+    datetime.timedelta(hours=72),  # Email 3: last chance
+]
+
 # Exports settings - defines after what time exported files will be deleted
 EXPORT_FILES_TIMEDELTA = datetime.timedelta(
     seconds=parse(os.environ.get("EXPORT_FILES_TIMEDELTA", "30 days"))
@@ -863,6 +871,10 @@ CELERY_BEAT_SCHEDULE = {
         # readiness for automatic completion.
         "task": "saleor.checkout.tasks.trigger_automatic_checkout_completion_task",
         "schedule": initiated_checkout_automatic_completion_schedule,
+    },
+    "check-abandoned-checkouts": {
+        "task": "saleor.checkout.tasks.check_abandoned_checkouts",
+        "schedule": datetime.timedelta(minutes=30),
     },
 }
 

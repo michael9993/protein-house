@@ -62,8 +62,12 @@ export interface ClassifiedOrder {
 // ---------------------------------------------------------------------------
 
 /**
- * Attempt to extract and validate the `dropship` metadata object from a
- * product's metadata array.
+ * Attempt to extract and validate dropship metadata from a product's metadata
+ * array.
+ *
+ * Supports two formats:
+ * 1. **Individual keys** (from CSV import): `dropship.supplier`, `dropship.supplierSku`, etc.
+ * 2. **Legacy JSON** (from direct API): a single `dropship` key with JSON value.
  *
  * Returns `null` when the product does not carry dropship metadata or if the
  * metadata is malformed.
@@ -71,6 +75,35 @@ export interface ClassifiedOrder {
 function extractDropshipMetadata(
   productMetadata: Array<{ key: string; value: string }>,
 ): DropshipMetadata | null {
+  // Try individual keys first (from CSV/Bulk Manager import)
+  const supplier = productMetadata.find((m) => m.key === "dropship.supplier")?.value;
+
+  if (supplier) {
+    const supplierSku = productMetadata.find((m) => m.key === "dropship.supplierSku")?.value;
+    const costPriceStr = productMetadata.find((m) => m.key === "dropship.costPrice")?.value;
+    const supplierSkuAttr = productMetadata.find((m) => m.key === "dropship.supplierSkuAttr")?.value;
+
+    const assembled = {
+      supplier,
+      supplierSku: supplierSku ?? "",
+      costPrice: costPriceStr ? Number(costPriceStr) : 0,
+      supplierSkuAttr: supplierSkuAttr || undefined,
+    };
+
+    const result = DropshipMetadataSchema.safeParse(assembled);
+
+    if (!result.success) {
+      logger.warn("Invalid dropship metadata (individual keys) — skipping line", {
+        errors: result.error.flatten().fieldErrors,
+        assembled,
+      });
+      return null;
+    }
+
+    return result.data;
+  }
+
+  // Fallback: legacy JSON format (single `dropship` key with JSON value)
   const entry = productMetadata.find((m) => m.key === "dropship");
 
   if (!entry) {
@@ -82,7 +115,7 @@ function extractDropshipMetadata(
     const result = DropshipMetadataSchema.safeParse(parsed);
 
     if (!result.success) {
-      logger.warn("Invalid dropship metadata — skipping line", {
+      logger.warn("Invalid dropship metadata (legacy JSON) — skipping line", {
         errors: result.error.flatten().fieldErrors,
         raw: entry.value,
       });
@@ -108,17 +141,15 @@ function extractDropshipMetadata(
  * Classify order lines into concrete (normal fulfillment) and dropship
  * (forwarded to suppliers) groups.
  *
- * The classification is based on the `dropship` metadata entry on each line's
- * product:
+ * The classification is based on dropship metadata on each line's product.
+ * Two formats are supported:
  *
+ * **Individual keys** (from CSV import):
+ * `dropship.supplier=aliexpress`, `dropship.supplierSku=4000123456789`, `dropship.costPrice=12.50`
+ *
+ * **Legacy JSON** (from direct API):
  * ```json
- * {
- *   "dropship": {
- *     "supplier": "aliexpress",
- *     "supplierSku": "4000123456789",
- *     "costPrice": 12.50
- *   }
- * }
+ * { "dropship": "{\"supplier\":\"aliexpress\",\"supplierSku\":\"4000123456789\",\"costPrice\":12.50}" }
  * ```
  *
  * Lines without this metadata — or with invalid metadata — are placed in the

@@ -55,11 +55,13 @@ interface CartDrawerProps {
   onRemovePromoCode?: (checkoutId: string, options: { promoCodeId?: string; promoCode?: string }) => Promise<{ success: boolean; error?: string }>;
   /** When user has partial selection (e.g. gift deselected), create checkout with only selected items and redirect */
   onCreateCheckoutWithSelection?: (items: { variantId: string; quantity: number }[]) => Promise<{ checkoutId: string } | null>;
+  /** Flush any pending debounced quantity mutations before navigating to checkout */
+  onBeforeCheckout?: () => Promise<void>;
   channel: string;
   loading?: boolean;
 }
 
-export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApplyPromoCode, onRemovePromoCode, onCreateCheckoutWithSelection, channel, loading = false }: CartDrawerProps) {
+export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApplyPromoCode, onRemovePromoCode, onCreateCheckoutWithSelection, onBeforeCheckout, channel, loading = false }: CartDrawerProps) {
   const { isOpen, closeDrawer } = useCartDrawer();
   const [isCreatingCheckout, setIsCreatingCheckout] = useState(false);
   const [isNavigatingToCheckout, setIsNavigatingToCheckout] = useState(false);
@@ -388,13 +390,13 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
                           <>
                             <div className="cart-drawer__item-qty">
                               <button
-                                onClick={() => line.quantity > 1 ? onUpdateQuantity?.(line.id, line.quantity - 1) : onDeleteLine?.(line.id)}
+                                onClick={() => line.quantity > 1 ? onUpdateQuantity?.(line.id, -1) : onDeleteLine?.(line.id)}
                                 className="cart-drawer__qty-btn"
                                 disabled={loading}
                               >−</button>
                               <span className="cart-drawer__qty-value">{line.quantity}</span>
                               <button
-                                onClick={() => onUpdateQuantity?.(line.id, line.quantity + 1)}
+                                onClick={() => onUpdateQuantity?.(line.id, 1)}
                                 className="cart-drawer__qty-btn"
                                 disabled={loading || (line.variant.quantityAvailable !== undefined && line.quantity >= line.variant.quantityAvailable)}
                               >+</button>
@@ -588,6 +590,8 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
                 style={{ backgroundColor: branding.colors.primary, color: '#FFFFFF', borderRadius: '9999px' }}
                 onClick={async () => {
                   if (noneSelected || !checkoutData?.lines) return;
+                  // Flush any pending debounced quantity mutations before navigating
+                  if (onBeforeCheckout) await onBeforeCheckout();
                   if (allSelected && checkoutData?.id) {
                     setIsNavigatingToCheckout(true);
                     closeDrawer();

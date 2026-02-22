@@ -277,3 +277,100 @@ def automatic_checkout_completion_task(
             checkout_id,
             extra={"checkout_id": checkout_id},
         )
+
+
+@app.task
+@allow_writer()
+def check_abandoned_checkouts(batch_size: int = 100) -> int:
+    """Scan for abandoned checkouts and send recovery emails.
+
+    Runs periodically via Celery Beat (every 30 minutes).
+    Sends up to 3 emails per abandoned checkout at configurable intervals.
+
+    Returns the number of recovery emails sent.
+    """
+    from .notifications import create_recovery_url, send_abandoned_checkout_notification
+
+    now = timezone.now()
+    storefront_url = settings.STOREFRONT_URL
+    email_delays = settings.ABANDONED_CHECKOUT_EMAIL_DELAYS
+    manager = get_plugins_manager(allow_replica=False)
+    total_sent = 0
+
+    for email_number, delay in enumerate(email_delays, start=1):
+        metadata_key = f"abandoned_email_{email_number}_sent"
+
+        # Find checkouts that:
+        # 1. Haven't been touched for longer than the delay
+        # 2. Have an email address (for sending)
+        # 3. Have at least one line item (not empty)
+        # 4. Haven't already received this email
+        abandoned_qs = (
+            Checkout.objects.filter(
+                last_change__lte=now - delay,
+            )
+            .filter(Q(email__isnull=False) & ~Q(email=""))
+            .filter(
+                Exists(
+                    Subquery(
+                        CheckoutLine.objects.filter(checkout_id=OuterRef("pk"))
+                    )
+                )
+            )
+            .exclude(
+                metadata_storage__private_metadata__has_key=metadata_key,
+            )
+            .select_related("channel", "metadata_storage")
+            .order_by("last_change")[:batch_size]
+        )
+
+        for checkout in abandoned_qs:
+            # Skip if a later email was already sent
+            if _later_email_already_sent(checkout, email_number, len(email_delays)):
+                continue
+
+            try:
+                recovery_url = create_recovery_url(checkout, storefront_url)
+                send_abandoned_checkout_notification(
+                    checkout, manager, recovery_url, email_number
+                )
+
+                # Mark this email as sent in private metadata
+                meta = checkout.metadata_storage
+                meta.store_value_in_private_metadata(
+                    {metadata_key: now.isoformat()}
+                )
+                meta.save(update_fields=["private_metadata"])
+                total_sent += 1
+
+            except Exception:
+                task_logger.exception(
+                    "Failed to send abandoned checkout email #%d for checkout %s.",
+                    email_number,
+                    checkout.pk,
+                )
+
+    if total_sent:
+        task_logger.info("Sent %d abandoned checkout recovery emails.", total_sent)
+
+    return total_sent
+
+
+def _later_email_already_sent(
+    checkout: Checkout,
+    current_email_number: int,
+    total_emails: int,
+) -> bool:
+    """Check if a later email in the sequence was already sent.
+
+    Prevents sending email #1 if email #2 or #3 was already sent.
+    """
+    try:
+        private_meta = checkout.metadata_storage.private_metadata or {}
+    except Exception:
+        return False
+
+    for later_number in range(current_email_number + 1, total_emails + 1):
+        if f"abandoned_email_{later_number}_sent" in private_meta:
+            return True
+    return False

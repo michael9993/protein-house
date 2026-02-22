@@ -1,10 +1,8 @@
-import "@saleor/macaw-ui/style";
+import "../styles/globals.css";
 
 import { AppBridge, AppBridgeProvider } from "@saleor/app-sdk/app-bridge";
 import { RoutePropagator } from "@saleor/app-sdk/app-bridge/next";
 import { NoSSRWrapper } from "@saleor/apps-shared/no-ssr-wrapper";
-import { ThemeSynchronizer } from "@saleor/apps-shared/theme-synchronizer";
-import { ThemeProvider } from "@saleor/macaw-ui";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppProps } from "next/app";
 
@@ -27,19 +25,16 @@ const queryClient = new QueryClient({
 function NextApp({ Component, pageProps }: AppProps) {
   return (
     <NoSSRWrapper>
-      <ThemeProvider>
-        <AppBridgeProvider appBridgeInstance={appBridgeInstance}>
-          <GraphQLProvider>
-            <ThemeSynchronizer />
-            <RoutePropagator />
-            <QueryClientProvider client={queryClient}>
-              <div style={{ padding: "40px" }}>
-                <Component {...pageProps} />
-              </div>
-            </QueryClientProvider>
-          </GraphQLProvider>
-        </AppBridgeProvider>
-      </ThemeProvider>
+      <AppBridgeProvider appBridgeInstance={appBridgeInstance}>
+        <GraphQLProvider>
+          <RoutePropagator />
+          <QueryClientProvider client={queryClient}>
+            <div className="p-6 max-w-7xl mx-auto">
+              <Component {...pageProps} />
+            </div>
+          </QueryClientProvider>
+        </GraphQLProvider>
+      </AppBridgeProvider>
     </NoSSRWrapper>
   );
 }

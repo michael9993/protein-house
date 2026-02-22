@@ -8,6 +8,7 @@ import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { formatMoney, getHrefForVariant } from "@/lib/utils";
 import { useBranding, useEcommerceSettings, useContentConfig, useButtonStyle, useBadgeStyle } from "@/providers/StoreConfigProvider";
 import { trackBeginCheckout } from "@/lib/analytics";
+import { getProductShippingEstimate, formatEstimate } from "@/lib/shipping";
 
 interface CartLine {
   id: string;
@@ -54,6 +55,7 @@ interface CartLine {
       name: string;
       thumbnail: { url: string; alt: string | null } | null;
       category: { name: string } | null;
+      metadata?: Array<{ key: string; value: string }> | null;
     };
   };
 }
@@ -827,7 +829,7 @@ export function CartClient({
                             )}
                             {/* Display sale badge if on sale */}
                             {isOnSale(item.variant) && (
-                              <span 
+                              <span
                                 className="mt-1 inline-block rounded px-2 py-0.5 text-xs font-semibold"
                                 style={{
                                   backgroundColor: saleBadgeStyle.backgroundColor,
@@ -837,6 +839,20 @@ export function CartClient({
                                 {content.product.saleBadgeText}
                               </span>
                             )}
+                            {/* Per-line delivery estimate */}
+                            {ecommerce.shipping.showEstimatedDelivery && (() => {
+                              const est = getProductShippingEstimate(item.variant.product.metadata);
+                              const minDays = est?.minDays ?? ecommerce.shipping.defaultEstimatedMinDays;
+                              const maxDays = est?.maxDays ?? ecommerce.shipping.defaultEstimatedMaxDays;
+                              if (!minDays || !maxDays) return null;
+                              const range = minDays === maxDays ? `${minDays}` : `${minDays}-${maxDays}`;
+                              const label = (content as any).product?.deliveryEstimateLabel ?? "Ships in {days} business days";
+                              return (
+                                <p className="mt-1 text-xs text-neutral-500">
+                                  {label.replace("{days}", range)}
+                                </p>
+                              );
+                            })()}
                           </div>
                           <div className="text-right">
                             <p className="font-semibold text-neutral-900">
@@ -1160,6 +1176,22 @@ export function CartClient({
                 {!allSelected && selectedItems.size > 0 && (cart?.voucherCode ?? cart?.discount) && (
                   <p className="mt-3 text-xs text-neutral-500">{content.cart.shippingCalculatedAtCheckout}</p>
                 )}
+
+                {/* Order-level delivery estimate */}
+                {ecommerce.shipping.showEstimatedDelivery && effectiveLines.length > 0 && (() => {
+                  const maxDays = effectiveLines.reduce((max, line) => {
+                    const est = getProductShippingEstimate(line.variant.product.metadata);
+                    const days = est?.maxDays ?? ecommerce.shipping.defaultEstimatedMaxDays ?? 0;
+                    return Math.max(max, days);
+                  }, 0);
+                  if (!maxDays) return null;
+                  const label = (content as any).cart?.deliverySummaryLabel ?? "All items arrive within {days} business days";
+                  return (
+                    <p className="mt-3 text-xs text-neutral-500 text-center">
+                      {label.replace("{days}", String(maxDays))}
+                    </p>
+                  );
+                })()}
               </div>
 
               {/* Checkout Button */}

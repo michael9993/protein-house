@@ -724,6 +724,12 @@ export const ProductDetailTextSchema = z.object({
   expressShippingTitle: z.string(),           // "Express Shipping"
   expressShippingDescription: z.string(),     // "{price}. Delivery in 2-3 business days."
 
+  // Delivery estimate labels
+  deliveryEstimateLabel: z.string(),          // "Ships in {days} business days"
+  estimatedDeliveryPrefix: z.string(),        // "Estimated delivery"
+  businessDaysLabel: z.string(),              // "business days"
+  trackOrderLabel: z.string(),               // "Track your order"
+
   // Review list and loading states
   loadingReviews: z.string(),                 // "Loading reviews..."
   reviewCountText: z.string(),                // "{count} review" or "{count} reviews" (handled by pluralization)

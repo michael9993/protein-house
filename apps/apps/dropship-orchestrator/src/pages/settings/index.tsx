@@ -1,5 +1,4 @@
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
-import { Box, Text, Button, Input } from "@/components/ui/primitives";
 import { useState, useEffect } from "react";
 
 import { trpcClient } from "@/modules/trpc/trpc-client";
@@ -46,135 +45,115 @@ function GeneralSettings() {
   }, [data]);
 
   if (isLoading) {
-    return <Text>Loading general settings...</Text>;
+    return <p className="text-sm">Loading general settings...</p>;
   }
 
   if (error) {
-    return <Text color="critical1">Error: {error.message}</Text>;
+    return <p className="text-sm text-red-600">Error: {error.message}</p>;
   }
 
   return (
-    <Box display="flex" flexDirection="column" gap={5}>
-      <Text variant="heading" size="medium">General Configuration</Text>
+    <div className="flex flex-col gap-5">
+      <h2 className="text-base font-semibold text-text-primary">General Configuration</h2>
 
-      <Box display="flex" flexDirection="column" gap={4}>
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          padding={4}
-          borderRadius={4}
-          borderWidth={1}
-          borderStyle="solid"
-          borderColor="default1"
-        >
-          <Box>
-            <Text variant="bodyStrong" __display="block">Dropship Orchestrator Enabled</Text>
-            <Text color="default2" variant="caption">Master switch for all dropshipping operations</Text>
-          </Box>
-          <Button
-            variant={enabled ? "primary" : "secondary"}
-            size="small"
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between items-center p-4 rounded-lg border border-border">
+          <div>
+            <span className="font-semibold block">Dropship Orchestrator Enabled</span>
+            <span className="text-xs text-text-muted">Master switch for all dropshipping operations</span>
+          </div>
+          <button
+            className={`px-2.5 py-1 text-sm font-medium rounded-md transition-colors ${
+              enabled
+                ? "text-white bg-brand hover:bg-brand-light"
+                : "border border-border hover:bg-gray-50"
+            }`}
             onClick={() => setEnabled(!enabled)}
           >
             {enabled ? "Enabled" : "Disabled"}
-          </Button>
-        </Box>
+          </button>
+        </div>
 
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          padding={4}
-          borderRadius={4}
-          borderWidth={1}
-          borderStyle="solid"
-          borderColor="default1"
-        >
-          <Box>
-            <Text variant="bodyStrong" __display="block">Auto-Forward Orders</Text>
-            <Text color="default2" variant="caption">
+        <div className="flex justify-between items-center p-4 rounded-lg border border-border">
+          <div>
+            <span className="font-semibold block">Auto-Forward Orders</span>
+            <span className="text-xs text-text-muted">
               Automatically forward orders to suppliers when payment is confirmed
-            </Text>
-          </Box>
-          <Button
-            variant={autoForward ? "primary" : "secondary"}
-            size="small"
+            </span>
+          </div>
+          <button
+            className={`px-2.5 py-1 text-sm font-medium rounded-md transition-colors ${
+              autoForward
+                ? "text-white bg-brand hover:bg-brand-light"
+                : "border border-border hover:bg-gray-50"
+            }`}
             onClick={() => setAutoForward(!autoForward)}
           >
             {autoForward ? "Auto" : "Manual"}
-          </Button>
-        </Box>
+          </button>
+        </div>
 
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          padding={4}
-          borderRadius={4}
-          borderWidth={1}
-          borderStyle="solid"
-          borderColor="default1"
-        >
-          <Box>
-            <Text variant="bodyStrong" __display="block">Fraud Checks Enabled</Text>
-            <Text color="default2" variant="caption">
+        <div className="flex justify-between items-center p-4 rounded-lg border border-border">
+          <div>
+            <span className="font-semibold block">Fraud Checks Enabled</span>
+            <span className="text-xs text-text-muted">
               Run fraud detection rules before forwarding orders
-            </Text>
-          </Box>
-          <Button
-            variant={fraudChecksEnabled ? "primary" : "secondary"}
-            size="small"
+            </span>
+          </div>
+          <button
+            className={`px-2.5 py-1 text-sm font-medium rounded-md transition-colors ${
+              fraudChecksEnabled
+                ? "text-white bg-brand hover:bg-brand-light"
+                : "border border-border hover:bg-gray-50"
+            }`}
             onClick={() => setFraudChecksEnabled(!fraudChecksEnabled)}
           >
             {fraudChecksEnabled ? "Enabled" : "Disabled"}
-          </Button>
-        </Box>
+          </button>
+        </div>
 
-        <Box padding={4} borderRadius={4} borderWidth={1} borderStyle="solid" borderColor="default1">
-          <Text variant="bodyStrong" __display="block" marginBottom={2}>
-            Cost Ceiling (%)
-          </Text>
-          <Text color="default2" variant="caption" __display="block" marginBottom={2}>
+        <div className="p-4 rounded-lg border border-border">
+          <span className="font-semibold block mb-2">Cost Ceiling (%)</span>
+          <span className="text-xs text-text-muted block mb-2">
             Maximum supplier cost as a percentage of the selling price.
             Orders exceeding this create an exception for review.
-          </Text>
-          <Input
+          </span>
+          <input
             type="number"
+            className="w-full px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
             value={String(costCeilingPercent)}
             onChange={(e) => setCostCeilingPercent(Number(e.target.value))}
-            size="small"
           />
-        </Box>
+        </div>
 
-        <Box padding={4} borderRadius={4} borderWidth={1} borderStyle="solid" borderColor="default1">
-          <Text variant="bodyStrong" __display="block" marginBottom={2}>
-            Daily Spend Limit ($)
-          </Text>
-          <Text color="default2" variant="caption" __display="block" marginBottom={2}>
+        <div className="p-4 rounded-lg border border-border">
+          <span className="font-semibold block mb-2">Daily Spend Limit ($)</span>
+          <span className="text-xs text-text-muted block mb-2">
             Maximum total spend on supplier orders per day. Pauses forwarding when exceeded.
-          </Text>
-          <Input
+          </span>
+          <input
             type="number"
+            className="w-full px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
             value={String(dailySpendLimit)}
             onChange={(e) => setDailySpendLimit(Number(e.target.value))}
-            size="small"
           />
-        </Box>
-      </Box>
+        </div>
+      </div>
 
       {saveMessage && (
-        <Box
-          padding={3}
-          borderRadius={4}
-          backgroundColor={saveMessage.type === "success" ? "success1" : "critical1"}
+        <div
+          className={`p-3 rounded-lg text-sm ${
+            saveMessage.type === "success"
+              ? "bg-green-50 text-green-800"
+              : "bg-red-50 text-red-800"
+          }`}
         >
-          <Text>{saveMessage.text}</Text>
-        </Box>
+          {saveMessage.text}
+        </div>
       )}
 
-      <Button
-        variant="primary"
+      <button
+        className="px-3 py-1.5 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light disabled:opacity-50 transition-colors"
         disabled={updateMutation.isLoading}
         onClick={() =>
           updateMutation.mutate({
@@ -187,8 +166,8 @@ function GeneralSettings() {
         }
       >
         {updateMutation.isLoading ? "Saving..." : "Save General Settings"}
-      </Button>
-    </Box>
+      </button>
+    </div>
   );
 }
 
@@ -225,11 +204,11 @@ function FraudSettings() {
   }, [data]);
 
   if (isLoading) {
-    return <Text>Loading fraud settings...</Text>;
+    return <p className="text-sm">Loading fraud settings...</p>;
   }
 
   if (error) {
-    return <Text color="critical1">Error: {error.message}</Text>;
+    return <p className="text-sm text-red-600">Error: {error.message}</p>;
   }
 
   const allRules = [
@@ -247,123 +226,105 @@ function FraudSettings() {
   }
 
   return (
-    <Box display="flex" flexDirection="column" gap={5}>
-      <Text variant="heading" size="medium">Fraud Detection Rules</Text>
+    <div className="flex flex-col gap-5">
+      <h2 className="text-base font-semibold text-text-primary">Fraud Detection Rules</h2>
 
       {/* Rule toggles */}
-      <Box display="flex" flexDirection="column" gap={2}>
+      <div className="flex flex-col gap-2">
         {allRules.map((rule) => (
-          <Box
+          <div
             key={rule}
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            padding={4}
-            borderRadius={4}
-            borderWidth={1}
-            borderStyle="solid"
-            borderColor="default1"
+            className="flex justify-between items-center p-4 rounded-lg border border-border"
           >
-            <Text>{FRAUD_RULE_LABELS[rule] ?? rule}</Text>
-            <Button
-              variant={enabledRules.includes(rule) ? "primary" : "secondary"}
-              size="small"
+            <span className="text-sm">{FRAUD_RULE_LABELS[rule] ?? rule}</span>
+            <button
+              className={`px-2.5 py-1 text-sm font-medium rounded-md transition-colors ${
+                enabledRules.includes(rule)
+                  ? "text-white bg-brand hover:bg-brand-light"
+                  : "border border-border hover:bg-gray-50"
+              }`}
               onClick={() => toggleRule(rule)}
             >
               {enabledRules.includes(rule) ? "On" : "Off"}
-            </Button>
-          </Box>
+            </button>
+          </div>
         ))}
-      </Box>
+      </div>
 
       {/* Thresholds */}
-      <Text variant="heading" size="medium">Thresholds</Text>
-      <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
-        <Box padding={4} borderRadius={4} borderWidth={1} borderStyle="solid" borderColor="default1">
-          <Text variant="bodyStrong" __display="block" marginBottom={2}>
-            Max Orders Per Hour
-          </Text>
-          <Input
+      <h2 className="text-base font-semibold text-text-primary">Thresholds</h2>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="p-4 rounded-lg border border-border">
+          <span className="font-semibold block mb-2">Max Orders Per Hour</span>
+          <input
             type="number"
+            className="w-full px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
             value={String(maxOrdersPerHour)}
             onChange={(e) => setMaxOrdersPerHour(Number(e.target.value))}
-            size="small"
           />
-        </Box>
-        <Box padding={4} borderRadius={4} borderWidth={1} borderStyle="solid" borderColor="default1">
-          <Text variant="bodyStrong" __display="block" marginBottom={2}>
-            Max Spend Per 24h ($)
-          </Text>
-          <Input
+        </div>
+        <div className="p-4 rounded-lg border border-border">
+          <span className="font-semibold block mb-2">Max Spend Per 24h ($)</span>
+          <input
             type="number"
+            className="w-full px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
             value={String(maxSpendPer24h)}
             onChange={(e) => setMaxSpendPer24h(Number(e.target.value))}
-            size="small"
           />
-        </Box>
-        <Box padding={4} borderRadius={4} borderWidth={1} borderStyle="solid" borderColor="default1">
-          <Text variant="bodyStrong" __display="block" marginBottom={2}>
-            High Value Threshold ($)
-          </Text>
-          <Input
+        </div>
+        <div className="p-4 rounded-lg border border-border">
+          <span className="font-semibold block mb-2">High Value Threshold ($)</span>
+          <input
             type="number"
+            className="w-full px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
             value={String(highValueThreshold)}
             onChange={(e) => setHighValueThreshold(Number(e.target.value))}
-            size="small"
           />
-        </Box>
-        <Box padding={4} borderRadius={4} borderWidth={1} borderStyle="solid" borderColor="default1">
-          <Text variant="bodyStrong" __display="block" marginBottom={2}>
-            New Customer High Value ($)
-          </Text>
-          <Input
+        </div>
+        <div className="p-4 rounded-lg border border-border">
+          <span className="font-semibold block mb-2">New Customer High Value ($)</span>
+          <input
             type="number"
+            className="w-full px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
             value={String(newCustomerHighValueThreshold)}
             onChange={(e) => setNewCustomerHighValueThreshold(Number(e.target.value))}
-            size="small"
           />
-        </Box>
-      </Box>
+        </div>
+      </div>
 
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        padding={4}
-        borderRadius={4}
-        borderWidth={1}
-        borderStyle="solid"
-        borderColor="default1"
-      >
-        <Box>
-          <Text variant="bodyStrong" __display="block">
-            Billing/Shipping Mismatch Blocking
-          </Text>
-          <Text color="default2" variant="caption">
+      <div className="flex justify-between items-center p-4 rounded-lg border border-border">
+        <div>
+          <span className="font-semibold block">Billing/Shipping Mismatch Blocking</span>
+          <span className="text-xs text-text-muted">
             Block orders (not just flag) when billing and shipping addresses differ
-          </Text>
-        </Box>
-        <Button
-          variant={billingShippingMismatchBlocking ? "primary" : "secondary"}
-          size="small"
+          </span>
+        </div>
+        <button
+          className={`px-2.5 py-1 text-sm font-medium rounded-md transition-colors ${
+            billingShippingMismatchBlocking
+              ? "text-white bg-brand hover:bg-brand-light"
+              : "border border-border hover:bg-gray-50"
+          }`}
           onClick={() => setBillingShippingMismatchBlocking(!billingShippingMismatchBlocking)}
         >
           {billingShippingMismatchBlocking ? "Blocking" : "Flag Only"}
-        </Button>
-      </Box>
+        </button>
+      </div>
 
       {saveMessage && (
-        <Box
-          padding={3}
-          borderRadius={4}
-          backgroundColor={saveMessage.type === "success" ? "success1" : "critical1"}
+        <div
+          className={`p-3 rounded-lg text-sm ${
+            saveMessage.type === "success"
+              ? "bg-green-50 text-green-800"
+              : "bg-red-50 text-red-800"
+          }`}
         >
-          <Text>{saveMessage.text}</Text>
-        </Box>
+          {saveMessage.text}
+        </div>
       )}
 
-      <Button
-        variant="primary"
+      <button
+        className="px-3 py-1.5 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light disabled:opacity-50 transition-colors"
         disabled={updateMutation.isLoading}
         onClick={() =>
           updateMutation.mutate({
@@ -377,8 +338,8 @@ function FraudSettings() {
         }
       >
         {updateMutation.isLoading ? "Saving..." : "Save Fraud Settings"}
-      </Button>
-    </Box>
+      </button>
+    </div>
   );
 }
 
@@ -408,11 +369,11 @@ function IpWhitelistSettings() {
   }, [data]);
 
   if (isLoading) {
-    return <Text>Loading IP whitelist...</Text>;
+    return <p className="text-sm">Loading IP whitelist...</p>;
   }
 
   if (error) {
-    return <Text color="critical1">Error: {error.message}</Text>;
+    return <p className="text-sm text-red-600">Error: {error.message}</p>;
   }
 
   function addIp() {
@@ -428,92 +389,85 @@ function IpWhitelistSettings() {
   }
 
   return (
-    <Box display="flex" flexDirection="column" gap={5}>
-      <Text variant="heading" size="medium">IP Whitelist for CJ Webhooks</Text>
-      <Text color="default2">
+    <div className="flex flex-col gap-5">
+      <h2 className="text-base font-semibold text-text-primary">IP Whitelist for CJ Webhooks</h2>
+      <p className="text-sm text-text-muted">
         When enabled, only requests from these IP addresses will be accepted for CJ webhook endpoints.
-      </Text>
+      </p>
 
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        padding={4}
-        borderRadius={4}
-        borderWidth={1}
-        borderStyle="solid"
-        borderColor="default1"
-      >
-        <Text variant="bodyStrong">IP Whitelist Enabled</Text>
-        <Button
-          variant={whitelistEnabled ? "primary" : "secondary"}
-          size="small"
+      <div className="flex justify-between items-center p-4 rounded-lg border border-border">
+        <span className="font-semibold">IP Whitelist Enabled</span>
+        <button
+          className={`px-2.5 py-1 text-sm font-medium rounded-md transition-colors ${
+            whitelistEnabled
+              ? "text-white bg-brand hover:bg-brand-light"
+              : "border border-border hover:bg-gray-50"
+          }`}
           onClick={() => setWhitelistEnabled(!whitelistEnabled)}
         >
           {whitelistEnabled ? "Enabled" : "Disabled"}
-        </Button>
-      </Box>
+        </button>
+      </div>
 
       {/* Add IP */}
-      <Box display="flex" gap={2} alignItems="flex-end">
-        <Box __flex="1">
-          <Text variant="caption" color="default2" __display="block" marginBottom={1}>
-            Add IP Address
-          </Text>
-          <Input
+      <div className="flex gap-2 items-end">
+        <div className="flex-1">
+          <span className="text-xs text-text-muted block mb-1">Add IP Address</span>
+          <input
+            className="w-full px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
             value={newIp}
             onChange={(e) => setNewIp(e.target.value)}
             placeholder="e.g. 203.0.113.50"
-            size="small"
             onKeyDown={(e) => {
               if (e.key === "Enter") addIp();
             }}
           />
-        </Box>
-        <Button variant="secondary" size="small" onClick={addIp}>
+        </div>
+        <button
+          className="px-2.5 py-1 text-sm font-medium border border-border rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
+          onClick={addIp}
+        >
           Add
-        </Button>
-      </Box>
+        </button>
+      </div>
 
       {/* IP List */}
-      <Box display="flex" flexDirection="column" gap={1}>
+      <div className="flex flex-col gap-1">
         {ips.map((ip) => (
-          <Box
+          <div
             key={ip}
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            padding={3}
-            borderRadius={4}
-            borderWidth={1}
-            borderStyle="solid"
-            borderColor="default1"
+            className="flex justify-between items-center p-3 rounded-lg border border-border"
           >
-            <Text variant="caption">{ip}</Text>
-            <Button variant="tertiary" size="small" onClick={() => removeIp(ip)}>
+            <span className="text-xs">{ip}</span>
+            <button
+              className="px-2.5 py-1 text-sm font-medium text-text-muted hover:text-text-primary disabled:opacity-50 transition-colors"
+              onClick={() => removeIp(ip)}
+            >
               Remove
-            </Button>
-          </Box>
+            </button>
+          </div>
         ))}
         {ips.length === 0 && (
-          <Text color="default2" variant="caption">
+          <span className="text-xs text-text-muted">
             No IPs whitelisted. All webhook requests will be accepted.
-          </Text>
+          </span>
         )}
-      </Box>
+      </div>
 
       {saveMessage && (
-        <Box
-          padding={3}
-          borderRadius={4}
-          backgroundColor={saveMessage.type === "success" ? "success1" : "critical1"}
+        <div
+          className={`p-3 rounded-lg text-sm ${
+            saveMessage.type === "success"
+              ? "bg-green-50 text-green-800"
+              : "bg-red-50 text-red-800"
+          }`}
         >
-          <Text>{saveMessage.text}</Text>
-        </Box>
+          {saveMessage.text}
+        </div>
       )}
 
-      <Button
-        variant="primary"
+      <button
+        className="px-3 py-1.5 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light disabled:opacity-50 transition-colors"
         disabled={updateMutation.isLoading}
         onClick={() =>
           updateMutation.mutate({
@@ -523,8 +477,8 @@ function IpWhitelistSettings() {
         }
       >
         {updateMutation.isLoading ? "Saving..." : "Save IP Whitelist"}
-      </Button>
-    </Box>
+      </button>
+    </div>
   );
 }
 
@@ -546,11 +500,11 @@ function BlacklistSettings() {
   const [newReason, setNewReason] = useState("");
 
   if (isLoading) {
-    return <Text>Loading blacklist...</Text>;
+    return <p className="text-sm">Loading blacklist...</p>;
   }
 
   if (error) {
-    return <Text color="critical1">Error: {error.message}</Text>;
+    return <p className="text-sm text-red-600">Error: {error.message}</p>;
   }
 
   const typeOptions = [
@@ -561,51 +515,44 @@ function BlacklistSettings() {
   ];
 
   return (
-    <Box display="flex" flexDirection="column" gap={5}>
-      <Text variant="heading" size="medium">Blacklist Management</Text>
-      <Text color="default2">
+    <div className="flex flex-col gap-5">
+      <h2 className="text-base font-semibold text-text-primary">Blacklist Management</h2>
+      <p className="text-sm text-text-muted">
         Orders matching blacklisted entries will be flagged for review.
-      </Text>
+      </p>
 
       {/* Add entry */}
-      <Box
-        padding={4}
-        borderRadius={4}
-        borderWidth={1}
-        borderStyle="solid"
-        borderColor="default1"
-        display="flex"
-        flexDirection="column"
-        gap={3}
-      >
-        <Text variant="bodyStrong">Add Entry</Text>
-        <Box display="flex" gap={2} flexWrap="wrap">
+      <div className="p-4 rounded-lg border border-border flex flex-col gap-3">
+        <span className="font-semibold">Add Entry</span>
+        <div className="flex gap-2 flex-wrap">
           {typeOptions.map((opt) => (
-            <Button
+            <button
               key={opt.value}
-              variant={newType === opt.value ? "primary" : "tertiary"}
-              size="small"
+              className={`px-2.5 py-1 text-sm font-medium rounded-md transition-colors ${
+                newType === opt.value
+                  ? "text-white bg-brand hover:bg-brand-light"
+                  : "text-text-muted hover:text-text-primary"
+              }`}
               onClick={() => setNewType(opt.value)}
             >
               {opt.label}
-            </Button>
+            </button>
           ))}
-        </Box>
-        <Input
+        </div>
+        <input
+          className="w-full px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
           value={newValue}
           onChange={(e) => setNewValue(e.target.value)}
           placeholder={`Enter ${newType} to blacklist`}
-          size="small"
         />
-        <Input
+        <input
+          className="w-full px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
           value={newReason}
           onChange={(e) => setNewReason(e.target.value)}
           placeholder="Reason for blacklisting"
-          size="small"
         />
-        <Button
-          variant="primary"
-          size="small"
+        <button
+          className="px-2.5 py-1 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light disabled:opacity-50 transition-colors"
           disabled={!newValue.trim() || !newReason.trim() || addMutation.isLoading}
           onClick={() =>
             addMutation.mutate({
@@ -616,76 +563,56 @@ function BlacklistSettings() {
           }
         >
           {addMutation.isLoading ? "Adding..." : "Add to Blacklist"}
-        </Button>
-      </Box>
+        </button>
+      </div>
 
       {/* Blacklist table */}
-      <Box display="flex" flexDirection="column" gap={1}>
+      <div className="flex flex-col gap-1">
         {/* Header */}
-        <Box
-          display="grid"
-          __gridTemplateColumns="80px 1fr 1fr 140px 80px"
-          gap={2}
-          paddingX={4}
-          paddingY={2}
-          backgroundColor="default1"
-          borderRadius={4}
+        <div
+          className="grid gap-2 px-4 py-2 bg-gray-50 rounded-lg"
+          style={{ gridTemplateColumns: "80px 1fr 1fr 140px 80px" }}
         >
-          <Text variant="caption" color="default2">Type</Text>
-          <Text variant="caption" color="default2">Value</Text>
-          <Text variant="caption" color="default2">Reason</Text>
-          <Text variant="caption" color="default2">Added</Text>
-          <Text variant="caption" color="default2">Action</Text>
-        </Box>
+          <span className="text-xs text-text-muted">Type</span>
+          <span className="text-xs text-text-muted">Value</span>
+          <span className="text-xs text-text-muted">Reason</span>
+          <span className="text-xs text-text-muted">Added</span>
+          <span className="text-xs text-text-muted">Action</span>
+        </div>
 
         {blacklist?.map((entry, idx) => (
-          <Box
+          <div
             key={`${entry.type}-${entry.value}-${idx}`}
-            display="grid"
-            __gridTemplateColumns="80px 1fr 1fr 140px 80px"
-            gap={2}
-            paddingX={4}
-            paddingY={3}
-            borderWidth={1}
-            borderStyle="solid"
-            borderColor="default1"
-            borderRadius={4}
-            alignItems="center"
+            className="grid gap-2 px-4 py-3 border border-border rounded-lg items-center"
+            style={{ gridTemplateColumns: "80px 1fr 1fr 140px 80px" }}
           >
-            <Box
-              paddingX={2}
-              paddingY={1}
-              borderRadius={4}
-              backgroundColor="default2"
-              __display="inline-block"
-            >
-              <Text variant="caption">{entry.type.toUpperCase()}</Text>
-            </Box>
-            <Text variant="caption" __wordBreak="break-all">{entry.value}</Text>
-            <Text variant="caption" color="default2">{entry.reason}</Text>
-            <Text variant="caption" color="default2">
+            <span className="inline-block px-2 py-1 rounded-lg bg-gray-100 text-xs">
+              {entry.type.toUpperCase()}
+            </span>
+            <span className="text-xs break-all">{entry.value}</span>
+            <span className="text-xs text-text-muted">{entry.reason}</span>
+            <span className="text-xs text-text-muted">
               {new Date(entry.addedAt).toLocaleDateString()}
-            </Text>
-            <Button
-              variant="tertiary"
-              size="small"
+            </span>
+            <button
+              className="px-2.5 py-1 text-sm font-medium text-text-muted hover:text-text-primary disabled:opacity-50 transition-colors"
               disabled={removeMutation.isLoading}
               onClick={() =>
                 removeMutation.mutate({ type: entry.type, value: entry.value })
               }
             >
               Remove
-            </Button>
-          </Box>
+            </button>
+          </div>
         ))}
 
         {(!blacklist || blacklist.length === 0) && (
-          <Box padding={6} display="flex" justifyContent="center">
-            <Text color="default2">No blacklist entries.</Text>
-          </Box>
+          <div className="p-6 flex justify-center">
+            <span className="text-sm text-text-muted">No blacklist entries.</span>
+          </div>
         )}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 
@@ -700,43 +627,37 @@ function SettingsContent() {
   ];
 
   return (
-    <Box display="flex" flexDirection="column" gap={6}>
+    <div className="flex flex-col gap-6">
       <NavBar />
 
-      <Box>
-        <Text variant="heading" size="large">Settings</Text>
-        <Text color="default2">Configure dropshipping rules, fraud detection, and security</Text>
-      </Box>
+      <div>
+        <h1 className="text-xl font-semibold text-text-primary">Settings</h1>
+        <p className="text-sm text-text-muted">Configure dropshipping rules, fraud detection, and security</p>
+      </div>
 
       {/* Tabs */}
-      <Box display="flex" gap={1} borderBottomWidth={1} borderBottomStyle="solid" borderColor="default1">
+      <div className="flex gap-0 border-b border-border">
         {tabs.map((tab) => (
-          <Box
+          <button
             key={tab.value}
-            paddingX={4}
-            paddingY={2}
-            cursor="pointer"
-            borderBottomWidth={2}
-            borderBottomStyle="solid"
-            borderColor={activeTab === tab.value ? "info1" : "transparent"}
             onClick={() => setActiveTab(tab.value)}
+            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors duration-150 ${
+              activeTab === tab.value
+                ? "border-brand text-brand"
+                : "border-transparent text-text-muted hover:text-text-primary hover:border-gray-300"
+            }`}
           >
-            <Text
-              variant={activeTab === tab.value ? "bodyStrong" : "body"}
-              color={activeTab === tab.value ? undefined : "default2"}
-            >
-              {tab.label}
-            </Text>
-          </Box>
+            {tab.label}
+          </button>
         ))}
-      </Box>
+      </div>
 
       {/* Tab Content */}
       {activeTab === "general" && <GeneralSettings />}
       {activeTab === "fraud" && <FraudSettings />}
       {activeTab === "ip-whitelist" && <IpWhitelistSettings />}
       {activeTab === "blacklist" && <BlacklistSettings />}
-    </Box>
+    </div>
   );
 }
 
@@ -745,9 +666,9 @@ export default function SettingsPage() {
 
   if (!appBridgeState?.ready) {
     return (
-      <Box padding={8}>
-        <Text>Connecting to Saleor Dashboard...</Text>
-      </Box>
+      <div className="p-8">
+        <p className="text-sm">Connecting to Saleor Dashboard...</p>
+      </div>
     );
   }
 

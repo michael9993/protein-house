@@ -116,6 +116,7 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 					category: line.variant.product.category ? {
 						name: (line.variant.product.category as any).translation?.name || line.variant.product.category.name,
 					} : null,
+					metadata: (line.variant.product as any).metadata ?? null,
 				},
 			},
 		})),

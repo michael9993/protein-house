@@ -41,3 +41,15 @@ export interface TokenRefreshJobData {
   /** Which supplier's token to refresh (e.g. "cj", "aliexpress"). */
   supplierId: string;
 }
+
+/**
+ * Data payload for the stock sync repeatable job.
+ * Queries supplier APIs for current stock levels and updates Saleor.
+ */
+export interface StockSyncJobData {
+  /** The Saleor GraphQL API URL. */
+  saleorApiUrl: string;
+
+  /** The app's auth token. */
+  appToken: string;
+}

@@ -1,5 +1,4 @@
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
-import { Box, Text, Button } from "@/components/ui/primitives";
 import { useState } from "react";
 
 import { trpcClient } from "@/modules/trpc/trpc-client";
@@ -15,17 +14,17 @@ const STATUS_OPTIONS: Array<{ value: ExceptionStatus | "all"; label: string }> =
   { value: "auto_resolved", label: "Auto Resolved" },
 ];
 
-function exceptionStatusColor(status: string): "success1" | "critical1" | "warning1" | "default2" {
+function exceptionStatusBadgeCls(status: string): string {
   switch (status) {
     case "approved":
     case "auto_resolved":
-      return "success1";
+      return "bg-green-50 text-green-800";
     case "rejected":
-      return "critical1";
+      return "bg-red-50 text-red-800";
     case "pending_review":
-      return "warning1";
+      return "bg-yellow-50 text-yellow-800";
     default:
-      return "default2";
+      return "bg-gray-100 text-gray-800";
   }
 }
 
@@ -55,183 +54,139 @@ function ExceptionQueue() {
 
   if (isLoading) {
     return (
-      <Box padding={8}>
-        <Text variant="heading" size="large">Loading exceptions...</Text>
-      </Box>
+      <div className="p-8">
+        <h1 className="text-xl font-semibold text-text-primary">Loading exceptions...</h1>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Box padding={8}>
-        <Text variant="heading" size="large" color="critical1">Error loading exceptions</Text>
-        <Text>{error.message}</Text>
-      </Box>
+      <div className="p-8">
+        <h1 className="text-xl font-semibold text-red-600">Error loading exceptions</h1>
+        <p className="text-sm text-text-primary">{error.message}</p>
+      </div>
     );
   }
 
   return (
-    <Box display="flex" flexDirection="column" gap={6}>
+    <div className="flex flex-col gap-6">
       <NavBar />
 
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Box>
-          <Text variant="heading" size="large">Exception Queue</Text>
-          <Text color="default2">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-xl font-semibold text-text-primary">Exception Queue</h1>
+          <p className="text-sm text-text-muted">
             Review flagged orders requiring manual approval
-          </Text>
-        </Box>
+          </p>
+        </div>
         {stats && stats.pending > 0 && (
-          <Box
-            paddingX={4}
-            paddingY={2}
-            borderRadius={4}
-            backgroundColor="warning1"
-          >
-            <Text variant="bodyStrong">{stats.pending} pending</Text>
-          </Box>
+          <div className="px-4 py-2 rounded-lg bg-yellow-50 text-yellow-800">
+            <span className="font-semibold">{stats.pending} pending</span>
+          </div>
         )}
-      </Box>
+      </div>
 
       {/* Stats */}
       {stats && (
-        <Box display="grid" __gridTemplateColumns="repeat(4, 1fr)" gap={3}>
-          <Box
-            padding={3}
-            borderRadius={4}
-            borderWidth={1}
-            borderStyle="solid"
-            borderColor="default1"
-          >
-            <Text color="default2" variant="caption" __display="block">Total</Text>
-            <Text variant="heading" size="medium">{stats.total}</Text>
-          </Box>
-          <Box
-            padding={3}
-            borderRadius={4}
-            borderWidth={1}
-            borderStyle="solid"
-            borderColor="default1"
-          >
-            <Text color="default2" variant="caption" __display="block">Pending</Text>
-            <Text variant="heading" size="medium" color={stats.pending > 0 ? "critical1" : undefined}>
+        <div className="grid grid-cols-4 gap-3">
+          <div className="p-3 rounded-lg border border-border">
+            <span className="text-xs text-text-muted block">Total</span>
+            <h2 className="text-base font-semibold text-text-primary">{stats.total}</h2>
+          </div>
+          <div className="p-3 rounded-lg border border-border">
+            <span className="text-xs text-text-muted block">Pending</span>
+            <h2 className={`text-base font-semibold ${stats.pending > 0 ? "text-red-600" : "text-text-primary"}`}>
               {stats.pending}
-            </Text>
-          </Box>
-          <Box
-            padding={3}
-            borderRadius={4}
-            borderWidth={1}
-            borderStyle="solid"
-            borderColor="default1"
-          >
-            <Text color="default2" variant="caption" __display="block">Approved</Text>
-            <Text variant="heading" size="medium">{stats.approved}</Text>
-          </Box>
-          <Box
-            padding={3}
-            borderRadius={4}
-            borderWidth={1}
-            borderStyle="solid"
-            borderColor="default1"
-          >
-            <Text color="default2" variant="caption" __display="block">Rejected</Text>
-            <Text variant="heading" size="medium">{stats.rejected}</Text>
-          </Box>
-        </Box>
+            </h2>
+          </div>
+          <div className="p-3 rounded-lg border border-border">
+            <span className="text-xs text-text-muted block">Approved</span>
+            <h2 className="text-base font-semibold text-text-primary">{stats.approved}</h2>
+          </div>
+          <div className="p-3 rounded-lg border border-border">
+            <span className="text-xs text-text-muted block">Rejected</span>
+            <h2 className="text-base font-semibold text-text-primary">{stats.rejected}</h2>
+          </div>
+        </div>
       )}
 
       {/* Filters */}
-      <Box display="flex" gap={1} flexWrap="wrap">
+      <div className="flex gap-1 flex-wrap">
         {STATUS_OPTIONS.map((opt) => (
-          <Button
+          <button
             key={opt.value}
-            variant={statusFilter === opt.value ? "primary" : "tertiary"}
-            size="small"
+            className={
+              statusFilter === opt.value
+                ? "px-2.5 py-1 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light transition-colors"
+                : "px-2.5 py-1 text-sm font-medium text-text-muted hover:text-text-primary transition-colors"
+            }
             onClick={() => setStatusFilter(opt.value as ExceptionStatus | "all")}
           >
             {opt.label}
-          </Button>
+          </button>
         ))}
-      </Box>
+      </div>
 
       {/* Exception Cards */}
-      <Box display="flex" flexDirection="column" gap={3}>
+      <div className="flex flex-col gap-3">
         {data?.exceptions.map((exception) => (
-          <Box
+          <div
             key={exception.id}
-            padding={5}
-            borderRadius={4}
-            borderWidth={1}
-            borderStyle="solid"
-            borderColor={exception.status === "pending_review" ? "warning1" : "default1"}
+            className={`p-5 rounded-lg border ${
+              exception.status === "pending_review" ? "border-yellow-300" : "border-border"
+            }`}
           >
-            <Box display="flex" justifyContent="space-between" alignItems="flex-start" marginBottom={3}>
-              <Box display="flex" gap={3} alignItems="center">
-                <Text variant="bodyStrong">Order #{exception.orderNumber}</Text>
-                <Box
-                  paddingX={2}
-                  paddingY={1}
-                  borderRadius={4}
-                  backgroundColor={exceptionStatusColor(exception.status)}
-                  __display="inline-block"
-                >
-                  <Text variant="caption">
-                    {exception.status.replace("_", " ").toUpperCase()}
-                  </Text>
-                </Box>
-              </Box>
-              <Text variant="caption" color="default2">
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex gap-3 items-center">
+                <span className="font-semibold">Order #{exception.orderNumber}</span>
+                <span className={`inline-block px-2 py-1 rounded-lg text-xs ${exceptionStatusBadgeCls(exception.status)}`}>
+                  {exception.status.replace("_", " ").toUpperCase()}
+                </span>
+              </div>
+              <span className="text-xs text-text-muted">
                 {new Date(exception.createdAt).toLocaleString()}
-              </Text>
-            </Box>
+              </span>
+            </div>
 
-            <Box marginBottom={3}>
-              <Text variant="bodyStrong" __display="block" marginBottom={1}>
+            <div className="mb-3">
+              <span className="font-semibold block mb-1">
                 Reason: {exception.reason.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
-              </Text>
-              <Text color="default2">{exception.details}</Text>
-            </Box>
+              </span>
+              <p className="text-sm text-text-muted">{exception.details}</p>
+            </div>
 
             {exception.resolvedAt && (
-              <Box marginBottom={3}>
-                <Text variant="caption" color="default2">
+              <div className="mb-3">
+                <span className="text-xs text-text-muted">
                   Resolved: {new Date(exception.resolvedAt).toLocaleString()}
                   {exception.resolvedBy && ` by ${exception.resolvedBy}`}
-                </Text>
-              </Box>
+                </span>
+              </div>
             )}
 
             {/* Actions for pending exceptions */}
             {exception.status === "pending_review" && (
-              <Box display="flex" gap={2} alignItems="center" flexWrap="wrap">
-                <Button
-                  variant="primary"
-                  size="small"
+              <div className="flex gap-2 items-center flex-wrap">
+                <button
+                  className="px-2.5 py-1 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light disabled:opacity-50 transition-colors"
                   disabled={approveMutation.isLoading}
                   onClick={() => approveMutation.mutate({ exceptionId: exception.id })}
                 >
                   {approveMutation.isLoading ? "Approving..." : "Approve & Forward"}
-                </Button>
+                </button>
 
                 {rejectingId === exception.id ? (
-                  <Box display="flex" gap={2} alignItems="center">
+                  <div className="flex gap-2 items-center">
                     <input
                       type="text"
                       value={rejectReason}
                       onChange={(e) => setRejectReason(e.target.value)}
                       placeholder="Rejection reason (optional)"
-                      style={{
-                        padding: "6px 12px",
-                        borderRadius: "4px",
-                        border: "1px solid #ccc",
-                        fontSize: "13px",
-                        width: "250px",
-                      }}
+                      className="w-[250px] px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
                     />
-                    <Button
-                      variant="secondary"
-                      size="small"
+                    <button
+                      className="px-2.5 py-1 text-sm font-medium border border-border rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
                       disabled={rejectMutation.isLoading}
                       onClick={() =>
                         rejectMutation.mutate({
@@ -241,43 +196,41 @@ function ExceptionQueue() {
                       }
                     >
                       Confirm Reject
-                    </Button>
-                    <Button
-                      variant="tertiary"
-                      size="small"
+                    </button>
+                    <button
+                      className="px-2.5 py-1 text-sm font-medium text-text-muted hover:text-text-primary disabled:opacity-50 transition-colors"
                       onClick={() => {
                         setRejectingId(null);
                         setRejectReason("");
                       }}
                     >
                       Cancel
-                    </Button>
-                  </Box>
+                    </button>
+                  </div>
                 ) : (
-                  <Button
-                    variant="secondary"
-                    size="small"
+                  <button
+                    className="px-2.5 py-1 text-sm font-medium border border-border rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
                     onClick={() => setRejectingId(exception.id)}
                   >
                     Reject
-                  </Button>
+                  </button>
                 )}
-              </Box>
+              </div>
             )}
-          </Box>
+          </div>
         ))}
 
         {data?.exceptions.length === 0 && (
-          <Box padding={8} display="flex" justifyContent="center">
-            <Text color="default2">
+          <div className="p-8 flex justify-center">
+            <p className="text-sm text-text-muted">
               {statusFilter === "pending_review"
                 ? "No pending exceptions. All clear!"
                 : "No exceptions found matching the current filter."}
-            </Text>
-          </Box>
+            </p>
+          </div>
         )}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 
@@ -286,9 +239,9 @@ export default function ExceptionsPage() {
 
   if (!appBridgeState?.ready) {
     return (
-      <Box padding={8}>
-        <Text>Connecting to Saleor Dashboard...</Text>
-      </Box>
+      <div className="p-8">
+        <p className="text-sm text-text-primary">Connecting to Saleor Dashboard...</p>
+      </div>
     );
   }
 

@@ -4,6 +4,7 @@ import { gql } from "graphql-tag";
 
 import { router } from "../trpc-server";
 import { protectedClientProcedure } from "../protected-client-procedure";
+import { uploadProductImage } from "../utils/image-upload";
 import { createLogger } from "@/logger";
 import { getAccessToken } from "@/modules/suppliers/cj/auth";
 import * as cjApi from "@/modules/suppliers/cj/api-client";
@@ -13,6 +14,7 @@ import type {
   CJProductSearchResult,
   CJCategoryFirst,
 } from "@/modules/suppliers/cj/types";
+import { slugify, stripHtml } from "@/modules/source/types";
 
 const logger = createLogger("SourceRouter");
 
@@ -27,6 +29,280 @@ const FETCH_APP_METADATA = gql`
     }
   }
 `;
+
+// ---------------------------------------------------------------------------
+// GraphQL mutations for direct Saleor import
+// ---------------------------------------------------------------------------
+
+const FIND_PRODUCT_TYPE = gql`
+  query FindProductType($slug: String!) {
+    productTypes(filter: { slugs: [$slug] }, first: 1) {
+      edges {
+        node {
+          id
+          name
+          isShippingRequired
+          productAttributes { id slug name }
+          variantAttributes { id slug name }
+        }
+      }
+    }
+  }
+`;
+
+const FIND_CATEGORY = gql`
+  query FindCategory($slug: String!) {
+    categories(filter: { slugs: [$slug] }, first: 1) {
+      edges { node { id name } }
+    }
+  }
+`;
+
+const FIND_COLLECTION = gql`
+  query FindCollection($slug: String!) {
+    collections(filter: { slugs: [$slug] }, first: 1) {
+      edges { node { id } }
+    }
+  }
+`;
+
+const FIND_CHANNELS = gql`
+  query FindChannels {
+    channels {
+      id
+      slug
+      currencyCode
+      defaultCountry { code }
+    }
+  }
+`;
+
+// Metadata queries for populating dropdowns in the UI
+const LIST_PRODUCT_TYPES = gql`
+  query ListProductTypes {
+    productTypes(first: 100, sortBy: { field: NAME, direction: ASC }) {
+      edges { node { id name slug } }
+    }
+  }
+`;
+
+const LIST_CATEGORIES = gql`
+  query ListCategories {
+    categories(first: 100, sortBy: { field: NAME, direction: ASC }) {
+      edges { node { id name slug level } }
+    }
+  }
+`;
+
+const LIST_COLLECTIONS = gql`
+  query ListCollections {
+    collections(first: 100, sortBy: { field: NAME, direction: ASC }) {
+      edges { node { id name slug } }
+    }
+  }
+`;
+
+const FIND_ATTRIBUTE = gql`
+  query FindAttribute($slug: String!) {
+    attributes(filter: { slugs: [$slug] }, first: 1) {
+      edges { node { id slug inputType choices(first: 100) { edges { node { slug value } } } } }
+    }
+  }
+`;
+
+const FIND_PRODUCT_BY_EXTERNAL_REF = gql`
+  query FindProductByExternalRef($externalReference: String!) {
+    product(externalReference: $externalReference) {
+      id
+      name
+      externalReference
+    }
+  }
+`;
+
+const CREATE_PRODUCT = gql`
+  mutation CreateProduct($input: ProductCreateInput!) {
+    productCreate(input: $input) {
+      product { id name slug externalReference }
+      errors { field code message }
+    }
+  }
+`;
+
+const UPDATE_PRODUCT = gql`
+  mutation UpdateProduct($id: ID!, $input: ProductInput!) {
+    productUpdate(id: $id, input: $input) {
+      product { id name }
+      errors { field code message }
+    }
+  }
+`;
+
+const PRODUCT_CHANNEL_LISTING_UPDATE = gql`
+  mutation ProductChannelListingUpdate($id: ID!, $input: ProductChannelListingUpdateInput!) {
+    productChannelListingUpdate(id: $id, input: $input) {
+      product { id }
+      errors { field code message }
+    }
+  }
+`;
+
+const CREATE_VARIANT = gql`
+  mutation CreateVariant($input: ProductVariantCreateInput!) {
+    productVariantCreate(input: $input) {
+      productVariant { id name sku }
+      errors { field code message }
+    }
+  }
+`;
+
+const UPDATE_PRIVATE_METADATA = gql`
+  mutation UpdatePrivateMetadata($id: ID!, $input: [MetadataInput!]!) {
+    updatePrivateMetadata(id: $id, input: $input) {
+      item { ... on ProductVariant { id } ... on Product { id } }
+      errors { field code message }
+    }
+  }
+`;
+
+const UPDATE_PUBLIC_METADATA = gql`
+  mutation UpdatePublicMetadata($id: ID!, $input: [MetadataInput!]!) {
+    updateMetadata(id: $id, input: $input) {
+      item { ... on Product { id } }
+      errors { field code message }
+    }
+  }
+`;
+
+const VARIANT_CHANNEL_LISTING_UPDATE = gql`
+  mutation VariantChannelListingUpdate($id: ID!, $input: [ProductVariantChannelListingAddInput!]!) {
+    productVariantChannelListingUpdate(id: $id, input: $input) {
+      variant { id }
+      errors { field code message }
+    }
+  }
+`;
+
+const VARIANT_MEDIA_ASSIGN = gql`
+  mutation VariantMediaAssign($variantId: ID!, $mediaId: ID!) {
+    variantMediaAssign(variantId: $variantId, mediaId: $mediaId) {
+      productVariant { id }
+      errors { field message }
+    }
+  }
+`;
+
+const UPDATE_PRODUCT_TYPE = gql`
+  mutation UpdateProductType($id: ID!, $input: ProductTypeInput!) {
+    productTypeUpdate(id: $id, input: $input) {
+      productType { id isShippingRequired }
+      errors { field code message }
+    }
+  }
+`;
+
+const COLLECTION_ADD_PRODUCTS = gql`
+  mutation CollectionAddProducts($collectionId: ID!, $products: [ID!]!) {
+    collectionAddProducts(collectionId: $collectionId, products: $products) {
+      errors { field code message }
+    }
+  }
+`;
+
+const LIST_WAREHOUSES = gql`
+  query ListWarehouses {
+    warehouses(first: 10) {
+      edges {
+        node {
+          id
+          name
+          shippingZones(first: 10) {
+            edges {
+              node {
+                id
+                name
+                countries { code }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+const VARIANT_STOCKS_CREATE = gql`
+  mutation VariantStocksCreate($variantId: ID!, $stocks: [StockInput!]!) {
+    productVariantStocksCreate(variantId: $variantId, stocks: $stocks) {
+      productVariant { id }
+      errors { field code message }
+    }
+  }
+`;
+
+const UPDATE_SHIPPING_ZONE = gql`
+  mutation UpdateShippingZone($id: ID!, $input: ShippingZoneUpdateInput!) {
+    shippingZoneUpdate(id: $id, input: $input) {
+      shippingZone { id name countries { code } }
+      errors { field code message }
+    }
+  }
+`;
+
+// Helper: run a Saleor mutation and throw on errors
+async function saleorMutate<T>(
+  client: any,
+  mutation: any,
+  variables: Record<string, any>,
+  label: string,
+): Promise<T> {
+  const { data, error } = await client.mutation(mutation, variables).toPromise();
+  if (error) {
+    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: `${label}: ${error.message}` });
+  }
+  // Check for Saleor-level errors in any mutation result field
+  const resultKey = Object.keys(data || {}).find((k) => data[k]?.errors?.length > 0);
+  if (resultKey) {
+    const saleorErrors = data[resultKey].errors;
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: `${label}: ${saleorErrors.map((e: any) => `${e.field}: ${e.message}`).join("; ")}`,
+    });
+  }
+  return data as T;
+}
+
+// Helper: find or resolve a Saleor entity by slug
+async function findBySlug(
+  client: any,
+  query: any,
+  slug: string,
+  label: string,
+): Promise<string | null> {
+  const { data } = await client.query(query, { slug }).toPromise();
+  const edges = Object.values(data || {}).find((v: any) => v?.edges)  as any;
+  return edges?.edges?.[0]?.node?.id ?? null;
+}
+
+interface ProductTypeInfo {
+  id: string;
+  isShippingRequired: boolean;
+  productAttributeSlugs: Set<string>;
+  variantAttributeSlugs: Set<string>;
+}
+
+/** Fetch a product type by slug, including its assigned product & variant attribute slugs. */
+async function findProductType(client: any, slug: string): Promise<ProductTypeInfo | null> {
+  const { data } = await client.query(FIND_PRODUCT_TYPE, { slug }).toPromise();
+  const node = data?.productTypes?.edges?.[0]?.node;
+  if (!node) return null;
+  return {
+    id: node.id,
+    isShippingRequired: node.isShippingRequired ?? true,
+    productAttributeSlugs: new Set((node.productAttributes || []).map((a: any) => a.slug)),
+    variantAttributeSlugs: new Set((node.variantAttributes || []).map((a: any) => a.slug)),
+  };
+}
 
 async function getCJCredentials(client: any): Promise<string> {
   const { data, error } = await client.query(FETCH_APP_METADATA, {}).toPromise();
@@ -325,6 +601,51 @@ function tryHyphenSplit(val: string): Record<string, string> {
 }
 
 export const sourceRouter = router({
+  // -------------------------------------------------------------------------
+  // Fetch Saleor metadata for UI dropdowns (channels, product types, etc.)
+  // -------------------------------------------------------------------------
+  saleorMetadata: protectedClientProcedure.query(async ({ ctx }) => {
+    const client = ctx.apiClient;
+
+    const [channelRes, typeRes, categoryRes, collectionRes] = await Promise.all([
+      client.query(FIND_CHANNELS, {}).toPromise(),
+      client.query(LIST_PRODUCT_TYPES, {}).toPromise(),
+      client.query(LIST_CATEGORIES, {}).toPromise(),
+      client.query(LIST_COLLECTIONS, {}).toPromise(),
+    ]);
+
+    const channels: Array<{ id: string; slug: string; currencyCode: string }> =
+      (channelRes.data?.channels ?? []).map((c: any) => ({
+        id: c.id,
+        slug: c.slug,
+        currencyCode: c.currencyCode,
+      }));
+
+    const productTypes: Array<{ id: string; name: string; slug: string }> =
+      (typeRes.data?.productTypes?.edges ?? []).map((e: any) => ({
+        id: e.node.id,
+        name: e.node.name,
+        slug: e.node.slug,
+      }));
+
+    const categories: Array<{ id: string; name: string; slug: string; level: number }> =
+      (categoryRes.data?.categories?.edges ?? []).map((e: any) => ({
+        id: e.node.id,
+        name: e.node.name,
+        slug: e.node.slug,
+        level: e.node.level ?? 0,
+      }));
+
+    const collections: Array<{ id: string; name: string; slug: string }> =
+      (collectionRes.data?.collections?.edges ?? []).map((e: any) => ({
+        id: e.node.id,
+        name: e.node.name,
+        slug: e.node.slug,
+      }));
+
+    return { channels, productTypes, categories, collections };
+  }),
+
   fetchProducts: protectedClientProcedure
     .input(
       z.object({
@@ -544,10 +865,10 @@ export const sourceRouter = router({
             vid: v.vid,
             name: v.variantNameEn || v.vid,
             sku: v.variantSku || "",
-            price: v.variantSellPrice,
-            suggestPrice: v.variantSugSellPrice ?? p.suggestSellPrice ?? 0,
+            price: Number(v.variantSellPrice) || 0,
+            suggestPrice: Number(v.variantSugSellPrice ?? p.suggestSellPrice) || 0,
             image: v.variantImage || undefined,
-            weight: v.variantWeight ?? p.productWeight ?? 0,
+            weight: Number(v.variantWeight ?? p.productWeight) || 0,
             attributes,
           };
         });
@@ -558,10 +879,10 @@ export const sourceRouter = router({
             vid: p.pid,
             name: "Default",
             sku: p.productSku || "",
-            price: p.sellPrice,
-            suggestPrice: p.suggestSellPrice ?? 0,
+            price: Number(p.sellPrice) || 0,
+            suggestPrice: Number(p.suggestSellPrice) || 0,
             image: p.productImage || undefined,
-            weight: p.productWeight ?? 0,
+            weight: Number(p.productWeight) || 0,
             attributes: {},
           });
         }
@@ -571,9 +892,9 @@ export const sourceRouter = router({
           name: p.productNameEn,
           description: p.description || "",
           images,
-          costPrice: p.sellPrice,
-          suggestSellPrice: p.suggestSellPrice ?? 0,
-          weight: p.productWeight || 0,
+          costPrice: Number(p.sellPrice) || 0,
+          suggestSellPrice: Number(p.suggestSellPrice) || 0,
+          weight: Number(p.productWeight) || 0,
           cjProductType: p.productType || "",
           cjCategoryId: p.categoryId || "",
           cjCategoryName: p.categoryName || "",
@@ -685,6 +1006,112 @@ export const sourceRouter = router({
           ...shipping,
         };
       });
+
+      return { results };
+    }),
+
+  // ── Multi-warehouse shipping discovery ──
+  // Queries CJ freight API from multiple origin countries to find which
+  // warehouses can ship a product and compares cost / speed.
+  fetchWarehouseShipping: protectedClientProcedure
+    .input(
+      z.object({
+        products: z.array(
+          z.object({
+            pid: z.string(),
+            vid: z.string(), // representative variant id
+          }),
+        ),
+        destinationCountry: z.string().default("IL"),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const apiKey = await getCJCredentials(ctx.apiClient);
+      const authResult = await getAccessToken(apiKey);
+      if (authResult.isErr()) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: `CJ authentication failed: ${authResult.error.message}`,
+        });
+      }
+
+      const accessToken = authResult.value.accessToken;
+
+      const CJ_WAREHOUSES: Array<{ code: string; label: string }> = [
+        { code: "CN", label: "China" },
+        { code: "US", label: "United States" },
+        { code: "DE", label: "Germany" },
+        { code: "GB", label: "United Kingdom" },
+        { code: "AU", label: "Australia" },
+        { code: "TH", label: "Thailand" },
+      ];
+
+      function parseDaysMin(aging: string): number {
+        const match = aging.match(/(\d+)/);
+        return match ? parseInt(match[1], 10) : 999;
+      }
+
+      // For each product, query all warehouses in parallel
+      const results: Array<{
+        pid: string;
+        warehouses: Array<{
+          origin: string;
+          originLabel: string;
+          cheapest: { cost: number; carrier: string; days: string } | null;
+          fastest: { cost: number; carrier: string; days: string } | null;
+          allOptions: Array<{ cost: number; carrier: string; days: string }>;
+        }>;
+      }> = [];
+
+      for (const product of input.products) {
+        const warehouseQueries = CJ_WAREHOUSES.map(async (wh) => {
+          try {
+            const freightResult = await cjApi.post<CJFreightResult[]>(
+              "/logistic/freightCalculate",
+              accessToken,
+              {
+                startCountryCode: wh.code,
+                endCountryCode: input.destinationCountry,
+                products: [{ quantity: 1, vid: product.vid }],
+              },
+            );
+
+            if (freightResult.isErr() || !freightResult.value || freightResult.value.length === 0) {
+              return null;
+            }
+
+            const allOptions = freightResult.value.map((opt) => ({
+              cost: opt.logisticPrice,
+              carrier: opt.logisticName,
+              days: opt.logisticAging || "",
+            }));
+
+            const cheapest = allOptions.reduce((best, opt) =>
+              opt.cost < best.cost ? opt : best,
+            );
+            const fastest = allOptions.reduce((best, opt) =>
+              parseDaysMin(opt.days) < parseDaysMin(best.days) ? opt : best,
+            );
+
+            return {
+              origin: wh.code,
+              originLabel: wh.label,
+              cheapest,
+              fastest,
+              allOptions,
+            };
+          } catch {
+            return null;
+          }
+        });
+
+        const warehouseResults = await Promise.all(warehouseQueries);
+        const warehouses = warehouseResults.filter(
+          (w): w is NonNullable<typeof w> => w !== null && w.allOptions.length > 0,
+        );
+
+        results.push({ pid: product.pid, warehouses });
+      }
 
       return { results };
     }),
@@ -829,4 +1256,653 @@ export const sourceRouter = router({
 
     return { categories };
   }),
+
+  // -------------------------------------------------------------------------
+  // Import sourced products into Aura (mirrors Bulk Manager's proven flow)
+  // -------------------------------------------------------------------------
+
+  importToAura: protectedClientProcedure
+    .input(
+      z.object({
+        products: z.array(
+          z.object({
+            pid: z.string(),
+            name: z.string(),
+            description: z.string(),
+            images: z.array(z.string()),
+            costPrice: z.number(),
+            weight: z.number(),
+            variants: z.array(
+              z.object({
+                vid: z.string(),
+                sku: z.string(),
+                price: z.number(),
+                weight: z.number(),
+                image: z.string().optional(),
+                attributes: z.record(z.string()),
+                shippingCost: z.number().nullable(),
+                shippingCarrier: z.string(),
+                shippingDays: z.string(),
+              }),
+            ),
+            editName: z.string(),
+            editType: z.string(),
+            editCategory: z.string(),
+            editCollections: z.string(),
+            editGender: z.string(),
+            shippingDays: z.string(),
+            shippingCarrier: z.string(),
+          }),
+        ),
+        channelSlugs: z.array(z.string()).min(1),
+        markup: z.number().min(1).default(2.5),
+        ilsRate: z.number().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const client = ctx.apiClient;
+
+      // 1. Resolve channels
+      const { data: channelData } = await client.query(FIND_CHANNELS, {}).toPromise();
+      const allChannels: Array<{ id: string; slug: string; currencyCode: string; defaultCountry?: { code: string } }> =
+        channelData?.channels ?? [];
+      const selectedChannels = allChannels.filter((c) =>
+        input.channelSlugs.includes(c.slug),
+      );
+      if (selectedChannels.length === 0) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "No valid channels found" });
+      }
+
+      // 1b. Resolve warehouse for stock allocation (dropship products need stock entries
+      // for Saleor to consider them available for shipping, even with trackInventory=false)
+      const { data: warehouseData } = await client.query(LIST_WAREHOUSES, {}).toPromise();
+      const warehouseNodes: Array<{
+        id: string;
+        name: string;
+        shippingZones: { edges: Array<{ node: { id: string; name: string; countries: Array<{ code: string }> } }> };
+      }> = (warehouseData?.warehouses?.edges ?? []).map((e: any) => e.node);
+      const warehouse = warehouseNodes[0];
+      const warehouseId = warehouse?.id;
+      if (!warehouseId) {
+        logger.warn("No warehouses found — variants will be created without stock entries");
+      }
+
+      // 1c. Ensure shipping zone covers selected channels' countries
+      // Without this, Saleor won't compute shipping methods for those countries
+      if (warehouse) {
+        const zone = warehouse.shippingZones?.edges?.[0]?.node;
+        if (zone) {
+          const coveredCountries = new Set(zone.countries.map((c) => c.code));
+          const channelCountries = selectedChannels
+            .map((ch) => ch.defaultCountry?.code)
+            .filter(Boolean) as string[];
+          const missingCountries = channelCountries.filter((c) => !coveredCountries.has(c));
+
+          if (missingCountries.length > 0) {
+            const allCountries = [...coveredCountries, ...missingCountries];
+            try {
+              await saleorMutate(client, UPDATE_SHIPPING_ZONE, {
+                id: zone.id,
+                input: { countries: allCountries },
+              }, "Shipping zone update");
+              logger.info("Shipping zone updated with missing countries", {
+                zone: zone.name,
+                added: missingCountries,
+              });
+            } catch (zoneErr: any) {
+              logger.warn("Failed to update shipping zone (non-fatal)", {
+                error: zoneErr.message,
+              });
+            }
+          }
+        }
+      }
+
+      const created: Array<{ id: string; name: string; variantCount: number }> = [];
+      const errors: Array<{ name: string; error: string }> = [];
+
+      for (const product of input.products) {
+        try {
+          // 2. Check for existing product (upsert by externalReference)
+          const extRef = `CJ-${product.pid}`;
+          const { data: existingData } = await client
+            .query(FIND_PRODUCT_BY_EXTERNAL_REF, { externalReference: extRef })
+            .toPromise();
+
+          if (existingData?.product?.id) {
+            logger.info("Product already exists, skipping creation", {
+              name: product.editName,
+              id: existingData.product.id,
+            });
+            created.push({
+              id: existingData.product.id,
+              name: product.editName,
+              variantCount: 0,
+            });
+            continue;
+          }
+
+          // 3. Resolve product type (with its assigned attributes)
+          const typeSlug = slugify(product.editType || "dropship-product");
+          const productTypeInfo = await findProductType(client, typeSlug);
+          if (!productTypeInfo) {
+            errors.push({ name: product.editName, error: `Product type "${product.editType}" not found` });
+            continue;
+          }
+          const productTypeId = productTypeInfo.id;
+
+          if (!productTypeInfo.isShippingRequired) {
+            logger.warn(
+              `Product type "${product.editType}" has isShippingRequired=false — auto-fixing for dropship.`,
+            );
+            const { data: ptUpdateData } = await client.mutation(UPDATE_PRODUCT_TYPE, {
+              id: productTypeInfo.id,
+              input: { isShippingRequired: true },
+            }).toPromise();
+            if (ptUpdateData?.productTypeUpdate?.errors?.length) {
+              logger.error("Failed to update product type isShippingRequired", {
+                errors: ptUpdateData.productTypeUpdate.errors,
+              });
+            } else {
+              logger.info(`Product type "${product.editType}" updated: isShippingRequired=true`);
+              productTypeInfo.isShippingRequired = true;
+            }
+          }
+
+          // 4. Resolve category
+          const categorySlug = product.editCategory || "uncategorized";
+          const categoryId = await findBySlug(client, FIND_CATEGORY, categorySlug, "Category");
+
+          // 5. Parse shipping days for metadata
+          let minDays = "";
+          let maxDays = "";
+          const shippingDaysStr =
+            product.variants[0]?.shippingDays || product.shippingDays || "";
+          if (shippingDaysStr) {
+            const parts = shippingDaysStr.split("-").map((s) => s.trim());
+            minDays = parts[0] || "";
+            maxDays = parts[1] || parts[0] || "";
+          }
+          const carrier =
+            product.variants[0]?.shippingCarrier || product.shippingCarrier || "";
+
+          // 6. Build description as EditorJS JSON (rawHtml block preserves formatting)
+          const descHtml = (product.description || "").trim();
+          const descText = stripHtml(descHtml);
+          const descriptionJson = descHtml
+            ? JSON.stringify({
+                time: Date.now(),
+                version: "2.0.0",
+                blocks: [{ type: "rawHtml", data: { html: descHtml, text: descText } }],
+              })
+            : undefined;
+
+          // 7. Create product
+          const publicMetadata: Array<{ key: string; value: string }> = [];
+          if (minDays) {
+            publicMetadata.push({ key: "shipping.estimatedMinDays", value: minDays });
+            publicMetadata.push({ key: "shipping.estimatedMaxDays", value: maxDays });
+          }
+          if (carrier) {
+            publicMetadata.push({ key: "shipping.carrier", value: carrier });
+          }
+
+          const productInput: Record<string, any> = {
+            name: product.editName,
+            slug: slugify(product.editName),
+            productType: productTypeId,
+            description: descriptionJson,
+            weight: product.weight > 0 ? product.weight : undefined,
+            externalReference: extRef,
+            metadata: publicMetadata,
+          };
+          // Always include category (Bulk Manager pattern)
+          if (categoryId) {
+            productInput.category = categoryId;
+          } else {
+            logger.warn(`Category "${categorySlug}" not found — product will be created without category`);
+          }
+
+          if (product.editGender && productTypeInfo.productAttributeSlugs.has("gender")) {
+            const genderAttrId = await findBySlug(client, FIND_ATTRIBUTE, "gender", "Gender attr");
+            if (genderAttrId) {
+              productInput.attributes = [{ id: genderAttrId, values: [product.editGender] }];
+            }
+          }
+
+          const createResult = await saleorMutate<any>(
+            client,
+            CREATE_PRODUCT,
+            { input: productInput },
+            `Create ${product.editName}`,
+          );
+          const productId = createResult.productCreate.product.id;
+
+          // 8. Set private metadata (dropship.supplier, dropship.costPrice)
+          await saleorMutate(client, UPDATE_PRIVATE_METADATA, {
+            id: productId,
+            input: [
+              { key: "dropship.supplier", value: "cj" },
+              { key: "dropship.costPrice", value: String(product.costPrice) },
+            ],
+          }, "Private metadata");
+
+          // 9. Publish to channels (always publish — matches Bulk Manager)
+          const channelListings = selectedChannels.map((ch) => ({
+            channelId: ch.id,
+            isPublished: true,
+            visibleInListings: true,
+            isAvailableForPurchase: true,
+            availableForPurchaseAt: new Date().toISOString(),
+          }));
+          await saleorMutate(
+            client,
+            PRODUCT_CHANNEL_LISTING_UPDATE,
+            { id: productId, input: { updateChannels: channelListings } },
+            "Channel listing",
+          );
+
+          // 10. Upload product images via multipart (Bulk Manager pattern)
+          const uploadedMediaMap = new Map<string, string>();
+          for (const imgUrl of product.images.slice(0, 5)) {
+            if (!imgUrl) continue;
+            try {
+              const imgResult = await uploadProductImage(
+                imgUrl,
+                productId,
+                product.editName,
+                ctx.saleorApiUrl,
+                ctx.appToken,
+              );
+              if (imgResult.success && imgResult.id) {
+                uploadedMediaMap.set(imgUrl, imgResult.id);
+                logger.info("Image uploaded", { productId, mediaId: imgResult.id });
+              } else {
+                logger.warn("Image upload failed", { url: imgUrl.substring(0, 80), error: imgResult.error });
+              }
+            } catch (imgErr: any) {
+              logger.warn("Image upload error", { url: imgUrl.substring(0, 80), error: imgErr.message });
+            }
+          }
+
+          // 11. Resolve variant attribute IDs (only assigned ones)
+          const attrNames = new Set<string>();
+          for (const v of product.variants) {
+            for (const key of Object.keys(v.attributes)) {
+              attrNames.add(key);
+            }
+          }
+          const attrIdMap = new Map<string, string>();
+          for (const name of attrNames) {
+            const attrSlug = slugify(name);
+            if (!productTypeInfo.variantAttributeSlugs.has(attrSlug)) {
+              logger.warn(`Skipping variant attr "${name}" (slug: ${attrSlug}) — not assigned to product type "${product.editType}"`);
+              continue;
+            }
+            const attrId = await findBySlug(client, FIND_ATTRIBUTE, attrSlug, `Attr ${name}`);
+            if (attrId) attrIdMap.set(name, attrId);
+          }
+
+          // 12. Create variants (Bulk Manager pattern: create → pricing → metadata → image)
+          let variantCount = 0;
+          for (const variant of product.variants) {
+            const sku = `DS-CJ-${product.pid}-${variant.vid}`;
+
+            const variantAttributes: Array<{ id: string; values: string[] }> = [];
+            for (const [name, value] of Object.entries(variant.attributes)) {
+              const attrId = attrIdMap.get(name);
+              if (attrId) {
+                variantAttributes.push({ id: attrId, values: [value] });
+              }
+            }
+
+            try {
+              // 12a. Create variant (no inline channelListings)
+              const variantResult = await saleorMutate<any>(
+                client,
+                CREATE_VARIANT,
+                {
+                  input: {
+                    product: productId,
+                    sku,
+                    trackInventory: false,
+                    weight: variant.weight > 0 ? variant.weight : undefined,
+                    attributes: variantAttributes,
+                  },
+                },
+                `Variant ${sku}`,
+              );
+
+              const variantId = variantResult.productVariantCreate.productVariant.id;
+
+              // 12b. Set variant pricing per channel (separate mutation — more reliable)
+              const variantPricing = selectedChannels.map((ch) => {
+                let price = variant.price * input.markup;
+                let costPrice = variant.price;
+                if (ch.currencyCode === "ILS" && input.ilsRate && input.ilsRate > 0) {
+                  price = price * input.ilsRate;
+                  costPrice = costPrice * input.ilsRate;
+                }
+                return {
+                  channelId: ch.id,
+                  price: parseFloat(price.toFixed(2)),
+                  costPrice: parseFloat(costPrice.toFixed(2)),
+                };
+              });
+
+              await saleorMutate(
+                client,
+                VARIANT_CHANNEL_LISTING_UPDATE,
+                { id: variantId, input: variantPricing },
+                `Variant pricing ${sku}`,
+              );
+
+              // 12c. Set variant private metadata
+              await saleorMutate(client, UPDATE_PRIVATE_METADATA, {
+                id: variantId,
+                input: [{ key: "dropship.supplierSku", value: variant.vid }],
+              }, "Variant metadata");
+
+              // 12c2. Allocate stock in warehouse (required for Saleor shipping availability)
+              if (warehouseId) {
+                try {
+                  await saleorMutate(client, VARIANT_STOCKS_CREATE, {
+                    variantId,
+                    stocks: [{ warehouse: warehouseId, quantity: 1000 }],
+                  }, `Stock ${sku}`);
+                } catch (stockErr: any) {
+                  logger.warn("Stock allocation failed (non-fatal)", {
+                    sku,
+                    error: stockErr.message,
+                  });
+                }
+              }
+
+              // 12d. Upload + assign variant image (with dedup)
+              if (variant.image) {
+                const existingMediaId = uploadedMediaMap.get(variant.image);
+                if (existingMediaId) {
+                  try {
+                    await saleorMutate(client, VARIANT_MEDIA_ASSIGN, {
+                      variantId,
+                      mediaId: existingMediaId,
+                    }, "Variant media assign (dedup)");
+                  } catch { /* non-fatal */ }
+                } else {
+                  try {
+                    const varImgResult = await uploadProductImage(
+                      variant.image,
+                      productId,
+                      `${sku} variant`,
+                      ctx.saleorApiUrl,
+                      ctx.appToken,
+                    );
+                    if (varImgResult.success && varImgResult.id) {
+                      uploadedMediaMap.set(variant.image, varImgResult.id);
+                      await saleorMutate(client, VARIANT_MEDIA_ASSIGN, {
+                        variantId,
+                        mediaId: varImgResult.id,
+                      }, "Variant media assign");
+                    }
+                  } catch { /* non-fatal */ }
+                }
+              }
+
+              variantCount++;
+            } catch (varErr: any) {
+              logger.warn("Variant creation failed", { sku, error: varErr.message });
+            }
+          }
+
+          // 13. Add to collections
+          if (product.editCollections) {
+            const collectionSlugs = product.editCollections
+              .split(";")
+              .map((s) => s.trim())
+              .filter(Boolean);
+            for (const colSlug of collectionSlugs) {
+              const colId = await findBySlug(client, FIND_COLLECTION, colSlug, "Collection");
+              if (colId) {
+                try {
+                  await saleorMutate(client, COLLECTION_ADD_PRODUCTS, {
+                    collectionId: colId,
+                    products: [productId],
+                  }, "Collection add");
+                } catch { /* non-fatal */ }
+              }
+            }
+          }
+
+          created.push({ id: productId, name: product.editName, variantCount });
+          logger.info("Product imported", { name: product.editName, id: productId, variants: variantCount });
+        } catch (err: any) {
+          errors.push({ name: product.editName, error: err.message });
+          logger.error("Product import failed", { name: product.editName, error: err.message });
+        }
+      }
+
+      return { created, errors };
+    }),
+
+  // -------------------------------------------------------------------------
+  // Refresh already-imported products (re-fetch from CJ, compare, flag drift)
+  // -------------------------------------------------------------------------
+
+  refreshProducts: protectedClientProcedure
+    .input(
+      z.object({
+        externalReferences: z.array(z.string()), // e.g. ["CJ-abc123", "CJ-def456"]
+        driftThreshold: z.number().min(0).max(100).default(15), // % price drift tolerance
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const client = ctx.apiClient;
+      const apiKey = await getCJCredentials(client);
+      const authResult = await getAccessToken(apiKey);
+      if (authResult.isErr()) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: `CJ authentication failed: ${authResult.error.message}`,
+        });
+      }
+      const accessToken = authResult.value.accessToken;
+
+      const results: Array<{
+        externalReference: string;
+        name: string;
+        status: "ok" | "drift" | "unavailable" | "error";
+        priceDrift?: number; // percentage
+        oldPrice?: number;
+        newPrice?: number;
+      }> = [];
+
+      for (const extRef of input.externalReferences) {
+        try {
+          // Find product in Saleor
+          const { data: prodData } = await client
+            .query(FIND_PRODUCT_BY_EXTERNAL_REF, { externalReference: extRef })
+            .toPromise();
+
+          if (!prodData?.product?.id) {
+            results.push({ externalReference: extRef, name: extRef, status: "error" });
+            continue;
+          }
+
+          // Extract CJ PID from external reference
+          const pid = extRef.replace(/^CJ-/, "");
+
+          // Fetch latest from CJ
+          const cjResult = await cjApi.get<CJProductInfo>(
+            "/product/query",
+            accessToken,
+            { pid },
+          );
+
+          if (cjResult.isErr()) {
+            results.push({
+              externalReference: extRef,
+              name: prodData.product.name,
+              status: "error",
+            });
+            continue;
+          }
+
+          const cjProduct = cjResult.value;
+
+          // Check availability
+          if (cjProduct.status !== 1 && cjProduct.status !== 0) {
+            results.push({
+              externalReference: extRef,
+              name: prodData.product.name,
+              status: "unavailable",
+            });
+            continue;
+          }
+
+          // Compare price drift
+          const oldPrice = 0; // Would need to read from variant channelListings
+          const newPrice = Number(cjProduct.sellPrice) || 0;
+          const drift =
+            oldPrice > 0 ? Math.abs((newPrice - oldPrice) / oldPrice) * 100 : 0;
+
+          if (drift > input.driftThreshold) {
+            results.push({
+              externalReference: extRef,
+              name: prodData.product.name,
+              status: "drift",
+              priceDrift: Math.round(drift * 10) / 10,
+              oldPrice,
+              newPrice,
+            });
+          } else {
+            results.push({
+              externalReference: extRef,
+              name: prodData.product.name,
+              status: "ok",
+            });
+          }
+        } catch (err: any) {
+          results.push({
+            externalReference: extRef,
+            name: extRef,
+            status: "error",
+          });
+        }
+      }
+
+      return { results };
+    }),
+
+  // -------------------------------------------------------------------------
+  // Fix dropship product availability (retroactive stock + shipping zone fix)
+  // Ensures all dropship products have stock entries and shipping zones cover
+  // all channel default countries. Run once to fix existing imports.
+  // -------------------------------------------------------------------------
+
+  fixDropshipAvailability: protectedClientProcedure
+    .mutation(async ({ ctx }) => {
+      const client = ctx.apiClient;
+
+      // 1. Get all warehouses with their shipping zones
+      const { data: warehouseData } = await client.query(LIST_WAREHOUSES, {}).toPromise();
+      const warehouseNodes = (warehouseData?.warehouses?.edges ?? []).map((e: any) => e.node);
+      const warehouse = warehouseNodes[0];
+      if (!warehouse) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "No warehouses found" });
+      }
+
+      // 2. Get all channels to determine required countries
+      const { data: channelData } = await client.query(FIND_CHANNELS, {}).toPromise();
+      const channels: Array<{ id: string; slug: string; currencyCode: string; defaultCountry?: { code: string } }> =
+        channelData?.channels ?? [];
+
+      // 3. Ensure shipping zone covers all channel countries
+      const zone = warehouse.shippingZones?.edges?.[0]?.node;
+      let zoneFixed = false;
+      if (zone) {
+        const coveredCountries = new Set((zone.countries ?? []).map((c: any) => c.code));
+        const channelCountries = channels
+          .map((ch) => ch.defaultCountry?.code)
+          .filter(Boolean) as string[];
+        const missingCountries = channelCountries.filter((c) => !coveredCountries.has(c));
+
+        if (missingCountries.length > 0) {
+          const allCountries = [...coveredCountries, ...missingCountries];
+          await saleorMutate(client, UPDATE_SHIPPING_ZONE, {
+            id: zone.id,
+            input: { countries: allCountries },
+          }, "Fix shipping zone");
+          zoneFixed = true;
+          logger.info("Shipping zone fixed", { added: missingCountries });
+        }
+      }
+
+      // 4. Find all dropship products (have dropship.supplier in metadata)
+      const FIND_DROPSHIP_PRODUCTS = gql`
+        query FindDropshipProducts($after: String) {
+          products(
+            filter: { metadata: [{ key: "dropship.supplier" }] }
+            first: 100
+            after: $after
+          ) {
+            edges {
+              node {
+                id
+                name
+                variants {
+                  id
+                  sku
+                  stocks { warehouse { id } quantity }
+                }
+              }
+            }
+            pageInfo { hasNextPage endCursor }
+          }
+        }
+      `;
+
+      let fixedVariants = 0;
+      let cursor: string | null = null;
+      let hasMore = true;
+
+      while (hasMore) {
+        const { data: prodData } = await client
+          .query(FIND_DROPSHIP_PRODUCTS, { after: cursor })
+          .toPromise();
+
+        const edges = prodData?.products?.edges ?? [];
+        for (const edge of edges) {
+          const product = edge.node;
+          for (const variant of product.variants ?? []) {
+            const hasStockInWarehouse = (variant.stocks ?? []).some(
+              (s: any) => s.warehouse?.id === warehouse.id,
+            );
+            if (!hasStockInWarehouse) {
+              try {
+                await saleorMutate(client, VARIANT_STOCKS_CREATE, {
+                  variantId: variant.id,
+                  stocks: [{ warehouse: warehouse.id, quantity: 1000 }],
+                }, `Fix stock ${variant.sku}`);
+                fixedVariants++;
+              } catch (e: any) {
+                logger.warn("Failed to fix stock for variant", {
+                  variantId: variant.id,
+                  error: e.message,
+                });
+              }
+            }
+          }
+        }
+
+        hasMore = prodData?.products?.pageInfo?.hasNextPage ?? false;
+        cursor = prodData?.products?.pageInfo?.endCursor ?? null;
+      }
+
+      return {
+        zoneFixed,
+        fixedVariants,
+        warehouseName: warehouse.name,
+        zoneName: zone?.name ?? "none",
+      };
+    }),
 });

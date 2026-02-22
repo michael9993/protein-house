@@ -1,24 +1,47 @@
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
 import { useRouter } from "next/router";
 
-import { Box, Text, Button } from "@/components/ui/primitives";
-import { trpcClient } from "@/modules/trpc/trpc-client";
 import { NavBar } from "@/components/ui/NavBar";
+import { trpcClient } from "@/modules/trpc/trpc-client";
 
-function statusColor(status: string): string {
+function statusBadgeCls(status: string): string {
   switch (status) {
     case "delivered":
     case "shipped":
-      return "success1";
+      return "bg-green-50 text-green-800";
     case "failed":
     case "cancelled":
     case "supplier_cancelled":
-      return "critical1";
+      return "bg-red-50 text-red-800";
     case "exception":
     case "pending":
-      return "warning1";
+      return "bg-yellow-50 text-yellow-800";
     default:
-      return "default2";
+      return "bg-gray-100 text-gray-800";
+  }
+}
+
+function supplierStatusCls(status: string): string {
+  switch (status) {
+    case "connected":
+      return "bg-green-50 text-green-800";
+    case "error":
+      return "bg-red-50 text-red-800";
+    case "token_expiring":
+      return "bg-yellow-50 text-yellow-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+}
+
+function supplierLabel(id: string): string {
+  switch (id) {
+    case "aliexpress":
+      return "AliExpress";
+    case "cj":
+      return "CJ Dropshipping";
+    default:
+      return id;
   }
 }
 
@@ -28,383 +51,253 @@ function DashboardOverview() {
 
   if (isLoading) {
     return (
-      <Box padding={8}>
-        <Text variant="heading" size="large">Loading dashboard...</Text>
-      </Box>
+      <div className="p-8">
+        <h1 className="text-xl font-semibold text-text-primary">Loading dashboard...</h1>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Box padding={8}>
-        <Text variant="heading" size="large" color="critical1">Error loading dashboard</Text>
-        <Text>{error.message}</Text>
-      </Box>
+      <div className="p-8">
+        <h1 className="text-xl font-semibold text-red-700">Error loading dashboard</h1>
+        <p className="text-sm">{error.message}</p>
+      </div>
     );
   }
 
   if (!data) return null;
 
   return (
-    <Box display="flex" flexDirection="column" gap={6}>
+    <div className="flex flex-col gap-6">
       <NavBar />
 
       {/* Header */}
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Box>
-          <Text variant="heading" size="large">Dropship Orchestrator</Text>
-          <Text color="default2">Multi-supplier dropshipping management</Text>
-        </Box>
-        <Box
-          paddingX={3}
-          paddingY={1}
-          borderRadius={4}
-          backgroundColor={data.config.enabled ? "success1" : "critical1"}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-xl font-semibold text-text-primary">Dropship Orchestrator</h1>
+          <p className="text-sm text-text-muted">Multi-supplier dropshipping management</p>
+        </div>
+        <span
+          className={`px-3 py-1 rounded-lg text-xs ${
+            data.config.enabled ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+          }`}
         >
-          <Text variant="caption">
-            {data.config.enabled ? "ENABLED" : "DISABLED"}
-          </Text>
-        </Box>
-      </Box>
+          {data.config.enabled ? "ENABLED" : "DISABLED"}
+        </span>
+      </div>
 
       {/* Alerts */}
       {data.alerts.length > 0 && (
-        <Box display="flex" flexDirection="column" gap={2}>
+        <div className="flex flex-col gap-2">
           {data.alerts.map((alert, idx) => (
-            <Box
+            <div
               key={idx}
-              padding={3}
-              borderRadius={4}
-              backgroundColor={alert.type === "error" ? "critical1" : "warning1"}
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
+              className={`p-3 rounded-lg flex justify-between items-center ${
+                alert.type === "error" ? "bg-red-50 text-red-800" : "bg-yellow-50 text-yellow-800"
+              }`}
             >
-              <Text>{alert.message}</Text>
+              <span className="text-sm">{alert.message}</span>
               {alert.type === "warning" && alert.message.includes("exceptions") && (
-                <Button
-                  variant="secondary"
-                  size="small"
+                <button
+                  className="px-2.5 py-1 text-sm font-medium border border-border rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
                   onClick={() => router.push("/exceptions")}
                 >
                   Review
-                </Button>
+                </button>
               )}
-            </Box>
+            </div>
           ))}
-        </Box>
+        </div>
       )}
 
       {/* Stats Grid */}
-      <Box display="grid" __gridTemplateColumns="repeat(5, 1fr)" gap={3}>
-        <Box
-          padding={4}
-          borderRadius={4}
-          borderWidth={1}
-          borderStyle="solid"
-          borderColor="default1"
-        >
-          <Text color="default2" variant="caption" __display="block">Total Orders</Text>
-          <Text variant="heading" size="medium">{data.stats.totalDropshipOrders}</Text>
-        </Box>
-        <Box
-          padding={4}
-          borderRadius={4}
-          borderWidth={1}
-          borderStyle="solid"
-          borderColor="default1"
-        >
-          <Text color="default2" variant="caption" __display="block">Today</Text>
-          <Text variant="heading" size="medium">{data.stats.todayOrders}</Text>
-        </Box>
-        <Box
-          padding={4}
-          borderRadius={4}
-          borderWidth={1}
-          borderStyle="solid"
-          borderColor="default1"
-        >
-          <Text color="default2" variant="caption" __display="block">Pending Exceptions</Text>
-          <Text
-            variant="heading"
-            size="medium"
-            color={data.stats.pendingExceptions > 0 ? "critical1" : undefined}
+      <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(5, 1fr)" }}>
+        <div className="p-4 rounded-lg border border-border">
+          <span className="block text-xs text-text-muted">Total Orders</span>
+          <h2 className="text-base font-semibold text-text-primary">{data.stats.totalDropshipOrders}</h2>
+        </div>
+        <div className="p-4 rounded-lg border border-border">
+          <span className="block text-xs text-text-muted">Today</span>
+          <h2 className="text-base font-semibold text-text-primary">{data.stats.todayOrders}</h2>
+        </div>
+        <div className="p-4 rounded-lg border border-border">
+          <span className="block text-xs text-text-muted">Pending Exceptions</span>
+          <h2
+            className={`text-base font-semibold ${
+              data.stats.pendingExceptions > 0 ? "text-red-700" : "text-text-primary"
+            }`}
           >
             {data.stats.pendingExceptions}
-          </Text>
-        </Box>
-        <Box
-          padding={4}
-          borderRadius={4}
-          borderWidth={1}
-          borderStyle="solid"
-          borderColor="default1"
-        >
-          <Text color="default2" variant="caption" __display="block">Errors (24h)</Text>
-          <Text
-            variant="heading"
-            size="medium"
-            color={data.stats.recentErrors > 0 ? "critical1" : undefined}
+          </h2>
+        </div>
+        <div className="p-4 rounded-lg border border-border">
+          <span className="block text-xs text-text-muted">Errors (24h)</span>
+          <h2
+            className={`text-base font-semibold ${
+              data.stats.recentErrors > 0 ? "text-red-700" : "text-text-primary"
+            }`}
           >
             {data.stats.recentErrors}
-          </Text>
-        </Box>
-        <Box
-          padding={4}
-          borderRadius={4}
-          borderWidth={1}
-          borderStyle="solid"
-          borderColor="default1"
-        >
-          <Text color="default2" variant="caption" __display="block">Active Suppliers</Text>
-          <Text variant="heading" size="medium">{data.stats.activeSuppliers}</Text>
-        </Box>
-      </Box>
+          </h2>
+        </div>
+        <div className="p-4 rounded-lg border border-border">
+          <span className="block text-xs text-text-muted">Active Suppliers</span>
+          <h2 className="text-base font-semibold text-text-primary">{data.stats.activeSuppliers}</h2>
+        </div>
+      </div>
 
       {/* Suppliers + Status Distribution */}
-      <Box display="grid" __gridTemplateColumns="1fr 1fr" gap={4}>
+      <div className="grid gap-4" style={{ gridTemplateColumns: "1fr 1fr" }}>
         {/* Suppliers */}
-        <Box
-          padding={5}
-          borderRadius={4}
-          borderWidth={1}
-          borderStyle="solid"
-          borderColor="default1"
-        >
-          <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom={4}>
-            <Text variant="heading" size="medium">Suppliers</Text>
-            <Button
-              variant="secondary"
-              size="small"
+        <div className="p-5 rounded-lg border border-border">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-base font-semibold text-text-primary">Suppliers</h2>
+            <button
+              className="px-2.5 py-1 text-sm font-medium border border-border rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
               onClick={() => router.push("/suppliers")}
             >
               Manage
-            </Button>
-          </Box>
+            </button>
+          </div>
           {data.suppliers.length > 0 ? (
-            <Box display="flex" flexDirection="column" gap={2}>
+            <div className="flex flex-col gap-2">
               {data.suppliers.map((supplier) => (
-                <Box
+                <div
                   key={supplier.id}
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  padding={3}
-                  borderRadius={4}
-                  borderWidth={1}
-                  borderStyle="solid"
-                  borderColor="default1"
+                  className="flex justify-between items-center p-3 rounded-lg border border-border"
                 >
-                  <Text variant="bodyStrong">{supplier.name}</Text>
-                  <Box display="flex" gap={2} alignItems="center">
-                    <Box
-                      paddingX={2}
-                      paddingY={1}
-                      borderRadius={4}
-                      backgroundColor={
-                        supplier.status === "connected" ? "success1" :
-                        supplier.status === "error" ? "critical1" :
-                        supplier.status === "token_expiring" ? "warning1" : "default2"
-                      }
+                  <span className="font-semibold">{supplier.name}</span>
+                  <div className="flex gap-2 items-center">
+                    <span className={`px-2 py-1 rounded-lg text-xs ${supplierStatusCls(supplier.status)}`}>
+                      {supplier.status.replace("_", " ").toUpperCase()}
+                    </span>
+                    <span
+                      className={`px-2 py-1 rounded-lg text-xs ${
+                        supplier.enabled ? "bg-green-50 text-green-800" : "bg-gray-100 text-gray-800"
+                      }`}
                     >
-                      <Text variant="caption">
-                        {supplier.status.replace("_", " ").toUpperCase()}
-                      </Text>
-                    </Box>
-                    <Box
-                      paddingX={2}
-                      paddingY={1}
-                      borderRadius={4}
-                      backgroundColor={supplier.enabled ? "success1" : "default1"}
-                    >
-                      <Text variant="caption">
-                        {supplier.enabled ? "ON" : "OFF"}
-                      </Text>
-                    </Box>
-                  </Box>
-                </Box>
+                      {supplier.enabled ? "ON" : "OFF"}
+                    </span>
+                  </div>
+                </div>
               ))}
-            </Box>
+            </div>
           ) : (
-            <Text color="default2">No suppliers configured yet.</Text>
+            <p className="text-sm text-text-muted">No suppliers configured yet.</p>
           )}
-        </Box>
+        </div>
 
         {/* Order Status Distribution */}
-        <Box
-          padding={5}
-          borderRadius={4}
-          borderWidth={1}
-          borderStyle="solid"
-          borderColor="default1"
-        >
-          <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom={4}>
-            <Text variant="heading" size="medium">Order Status</Text>
-            <Button
-              variant="secondary"
-              size="small"
+        <div className="p-5 rounded-lg border border-border">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-base font-semibold text-text-primary">Order Status</h2>
+            <button
+              className="px-2.5 py-1 text-sm font-medium border border-border rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
               onClick={() => router.push("/orders")}
             >
               View All
-            </Button>
-          </Box>
+            </button>
+          </div>
           {Object.keys(data.statusDistribution).length > 0 ? (
-            <Box display="flex" flexDirection="column" gap={2}>
+            <div className="flex flex-col gap-2">
               {Object.entries(data.statusDistribution).map(([status, count]) => (
-                <Box
+                <div
                   key={status}
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  padding={3}
-                  borderRadius={4}
-                  borderWidth={1}
-                  borderStyle="solid"
-                  borderColor="default1"
+                  className="flex justify-between items-center p-3 rounded-lg border border-border"
                 >
-                  <Box display="flex" gap={2} alignItems="center">
-                    <Box
-                      paddingX={2}
-                      paddingY={1}
-                      borderRadius={4}
-                      backgroundColor={statusColor(status)}
-                    >
-                      <Text variant="caption">
-                        {status.replace("_", " ").toUpperCase()}
-                      </Text>
-                    </Box>
-                  </Box>
-                  <Text variant="bodyStrong">{count}</Text>
-                </Box>
+                  <div className="flex gap-2 items-center">
+                    <span className={`px-2 py-1 rounded-lg text-xs ${statusBadgeCls(status)}`}>
+                      {status.replace("_", " ").toUpperCase()}
+                    </span>
+                  </div>
+                  <span className="font-semibold">{count}</span>
+                </div>
               ))}
-            </Box>
+            </div>
           ) : (
-            <Text color="default2">No dropship orders yet.</Text>
+            <p className="text-sm text-text-muted">No dropship orders yet.</p>
           )}
-        </Box>
-      </Box>
+        </div>
+      </div>
 
       {/* Revenue by Supplier */}
       {Object.keys(data.revenueBySupplier).length > 0 && (
-        <Box
-          padding={5}
-          borderRadius={4}
-          borderWidth={1}
-          borderStyle="solid"
-          borderColor="default1"
-        >
-          <Text variant="heading" size="medium" __display="block" marginBottom={4}>
-            Revenue by Supplier
-          </Text>
-          <Box display="flex" gap={4} flexWrap="wrap">
+        <div className="p-5 rounded-lg border border-border">
+          <h2 className="block text-base font-semibold text-text-primary mb-4">Revenue by Supplier</h2>
+          <div className="flex gap-4 flex-wrap">
             {Object.entries(data.revenueBySupplier).map(([supplier, revenue]) => (
-              <Box
-                key={supplier}
-                padding={4}
-                borderRadius={4}
-                borderWidth={1}
-                borderStyle="solid"
-                borderColor="default1"
-                __flex="1"
-              >
-                <Text color="default2" variant="caption" __display="block">
-                  {supplier === "aliexpress" ? "AliExpress" : supplier === "cj" ? "CJ Dropshipping" : supplier}
-                </Text>
-                <Text variant="heading" size="medium">
+              <div key={supplier} className="flex-1 p-4 rounded-lg border border-border">
+                <span className="block text-xs text-text-muted">{supplierLabel(supplier)}</span>
+                <h2 className="text-base font-semibold text-text-primary">
                   ${(revenue as number).toFixed(2)}
-                </Text>
-              </Box>
+                </h2>
+              </div>
             ))}
-          </Box>
-        </Box>
+          </div>
+        </div>
       )}
 
       {/* Recent Orders */}
-      <Box
-        padding={5}
-        borderRadius={4}
-        borderWidth={1}
-        borderStyle="solid"
-        borderColor="default1"
-      >
-        <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom={4}>
-          <Text variant="heading" size="medium">Recent Orders</Text>
-          <Button
-            variant="secondary"
-            size="small"
+      <div className="p-5 rounded-lg border border-border">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-base font-semibold text-text-primary">Recent Orders</h2>
+          <button
+            className="px-2.5 py-1 text-sm font-medium border border-border rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
             onClick={() => router.push("/orders")}
           >
             View All
-          </Button>
-        </Box>
+          </button>
+        </div>
 
         {data.recentOrders.length > 0 ? (
-          <Box display="flex" flexDirection="column" gap={1}>
+          <div className="flex flex-col gap-1">
             {/* Header */}
-            <Box
-              display="grid"
-              __gridTemplateColumns="80px 120px 120px 100px 140px"
-              gap={2}
-              paddingX={4}
-              paddingY={2}
-              backgroundColor="default1"
-              borderRadius={4}
+            <div
+              className="grid gap-2 px-4 py-2 bg-gray-50 rounded-lg"
+              style={{ gridTemplateColumns: "80px 120px 120px 100px 140px" }}
             >
-              <Text variant="caption" color="default2">Order #</Text>
-              <Text variant="caption" color="default2">Supplier</Text>
-              <Text variant="caption" color="default2">Status</Text>
-              <Text variant="caption" color="default2">Total</Text>
-              <Text variant="caption" color="default2">Date</Text>
-            </Box>
+              <span className="text-xs text-text-muted">Order #</span>
+              <span className="text-xs text-text-muted">Supplier</span>
+              <span className="text-xs text-text-muted">Status</span>
+              <span className="text-xs text-text-muted">Total</span>
+              <span className="text-xs text-text-muted">Date</span>
+            </div>
 
             {/* Rows */}
             {data.recentOrders.map((order: any) => (
-              <Box
+              <div
                 key={order.id}
-                display="grid"
-                __gridTemplateColumns="80px 120px 120px 100px 140px"
-                gap={2}
-                paddingX={4}
-                paddingY={3}
-                borderWidth={1}
-                borderStyle="solid"
-                borderColor="default1"
-                borderRadius={4}
-                alignItems="center"
+                className="grid gap-2 px-4 py-3 border border-border rounded-lg items-center"
+                style={{ gridTemplateColumns: "80px 120px 120px 100px 140px" }}
               >
-                <Text variant="bodyStrong">#{order.number}</Text>
-                <Text variant="caption">
+                <span className="font-semibold">#{order.number}</span>
+                <span className="text-xs">
                   {order.supplier === "aliexpress" ? "AliExpress" : order.supplier === "cj" ? "CJ" : order.supplier}
-                </Text>
-                <Box>
-                  <Box
-                    paddingX={2}
-                    paddingY={1}
-                    borderRadius={4}
-                    backgroundColor={statusColor(order.status)}
-                    __display="inline-block"
-                  >
-                    <Text variant="caption">
-                      {order.status.replace("_", " ").toUpperCase()}
-                    </Text>
-                  </Box>
-                </Box>
-                <Text variant="caption">
+                </span>
+                <div>
+                  <span className={`inline-block px-2 py-1 rounded-lg text-xs ${statusBadgeCls(order.status)}`}>
+                    {order.status.replace("_", " ").toUpperCase()}
+                  </span>
+                </div>
+                <span className="text-xs">
                   {order.currency} {order.total.toFixed(2)}
-                </Text>
-                <Text variant="caption">
+                </span>
+                <span className="text-xs">
                   {new Date(order.created).toLocaleDateString()}
-                </Text>
-              </Box>
+                </span>
+              </div>
             ))}
-          </Box>
+          </div>
         ) : (
-          <Box padding={6} display="flex" justifyContent="center">
-            <Text color="default2">No dropship orders yet. Orders will appear here once products with dropship metadata are purchased.</Text>
-          </Box>
+          <div className="p-6 flex justify-center">
+            <p className="text-sm text-text-muted">
+              No dropship orders yet. Orders will appear here once products with dropship metadata are purchased.
+            </p>
+          </div>
         )}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 
@@ -413,9 +306,9 @@ export default function IndexPage() {
 
   if (!appBridgeState?.ready) {
     return (
-      <Box padding={8}>
-        <Text>Connecting to Saleor Dashboard...</Text>
-      </Box>
+      <div className="p-8">
+        <p className="text-sm">Connecting to Saleor Dashboard...</p>
+      </div>
     );
   }
 

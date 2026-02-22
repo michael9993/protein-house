@@ -30,6 +30,7 @@ export const AppWebhooks = {
 export type AppWebhook = keyof typeof AppWebhooks;
 
 export const eventToWebhookMapping: Record<MessageEventTypes, AppWebhook> = {
+  ABANDONED_CHECKOUT: "notifyWebhook",
   ACCOUNT_CHANGE_EMAIL_CONFIRM: "notifyWebhook",
   ACCOUNT_CHANGE_EMAIL_REQUEST: "notifyWebhook",
   ACCOUNT_CONFIRMATION: "notifyWebhook",
