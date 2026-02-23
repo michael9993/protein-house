@@ -87,7 +87,11 @@
       "mcp__plugin_claude-mem_mcp-search__search",
       "WebFetch(domain:unpkg.com)",
       "WebFetch(domain:app.unpkg.com)",
-      "Bash(COREPACK_INTEGRITY_KEYS=0 pnpm add:*)"
+      "Bash(COREPACK_INTEGRITY_KEYS=0 pnpm add:*)",
+      "Bash(pnpm add:*)",
+      "mcp__plugin_claude-mem_mcp-search__save_memory",
+      "mcp__plugin_playwright_playwright__browser_select_option",
+      "Bash(gh auth status:*)"
     ],
     "deny": [
       "Read(./.env*)",
