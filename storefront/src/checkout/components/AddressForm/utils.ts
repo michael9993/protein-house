@@ -173,9 +173,26 @@ export const getRequiredAddressFields = (requiredFields: AddressField[] = []): A
 	"lastName",
 ];
 
+// Default fields shown when addressValidationRules query hasn't resolved yet.
+// Shows a complete form rather than just firstName/lastName/phone during loading.
+const DEFAULT_ADDRESS_FIELDS: AddressField[] = [
+	"firstName",
+	"lastName",
+	"streetAddress1",
+	"streetAddress2",
+	"city",
+	"postalCode",
+	"countryArea",
+	"phone",
+];
+
 // api doesn't approve of "name" so we replace it with "firstName"
 // and "lastName"
 export const getFilteredAddressFields = (addressFields: ApiAddressField[]): AddressField[] => {
+	if (!addressFields || addressFields.length === 0) {
+		return DEFAULT_ADDRESS_FIELDS;
+	}
+
 	const filteredAddressFields = addressFields.filter(
 		(addressField: ApiAddressField) => addressField !== "name",
 	) as AddressField[];

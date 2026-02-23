@@ -112,6 +112,40 @@ export class CheckoutPage {
 		await method.click();
 	}
 
+	/** Get all shipping method labels (radio-style labels). */
+	get shippingMethodLabels() {
+		return this.deliveryMethodsSection.locator("label");
+	}
+
+	/** Select a shipping method by index (0-based). */
+	async selectShippingMethodByIndex(index: number) {
+		await this.deliveryMethodsSection.waitFor({ state: "visible", timeout: 15_000 });
+		const label = this.shippingMethodLabels.nth(index);
+		await label.click();
+	}
+
+	/** Get the shipping cost from the order summary (aria-label="shipping cost"). */
+	get shippingCost() {
+		return this.page.locator('[aria-label="shipping cost"]');
+	}
+
+	/** Read the shipping cost text from the summary. */
+	async getShippingCostText(): Promise<string> {
+		await this.shippingCost.waitFor({ state: "visible", timeout: 15_000 });
+		return (await this.shippingCost.textContent()) || "";
+	}
+
+	/** Get the total price text from the summary. */
+	async getTotalPriceText(): Promise<string> {
+		await this.totalPrice.waitFor({ state: "visible", timeout: 15_000 });
+		return (await this.totalPrice.textContent()) || "";
+	}
+
+	/** Get the "no shipping methods" warning message. */
+	get noShippingMethodsMessage() {
+		return this.deliveryMethodsSection.locator("text=/no shipping methods/i");
+	}
+
 	// --- Payment (Stripe) ---
 
 	/** Fill Stripe card details via the Stripe iframe. */

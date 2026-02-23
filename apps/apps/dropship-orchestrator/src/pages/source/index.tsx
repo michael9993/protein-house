@@ -10,6 +10,8 @@ import { generateCSV } from "@/modules/source/types";
 import { SourcingTable } from "@/modules/source/sourcing-table";
 import { UrlTab } from "@/modules/source/url-tab";
 import { SearchTab } from "@/modules/source/search-tab";
+import { ComboboxInput } from "@/modules/source/combobox-input";
+import { ComboboxMulti } from "@/modules/source/combobox-multi";
 
 const inputCls =
   "w-full px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20";
@@ -143,22 +145,9 @@ function SourceProducts() {
     );
   }, [warehouseStrategy]);
 
-  // ── Import mutation ──
-  const importMutation = trpcClient.source.importToAura.useMutation({
-    onSuccess: (data) => {
-      const results: Array<{ name: string; status: "ok" | "error"; error?: string }> = [];
-      for (const c of data.created) results.push({ name: c.name, status: "ok" });
-      for (const e of data.errors) results.push({ name: e.name, status: "error", error: e.error });
-      setImportProgress({ total: products.length, done: products.length, results });
-    },
-    onError: (err) => {
-      setImportProgress({
-        total: products.length,
-        done: products.length,
-        results: [{ name: "Import", status: "error", error: err.message }],
-      });
-    },
-  });
+  // ── Import mutation (used per-product to avoid Cloudflare 524 timeout) ──
+  const importMutation = trpcClient.source.importToAura.useMutation();
+  const [importing, setImporting] = useState(false);
 
   // ── Handlers ──
   const handleProductsFetched = useCallback(
@@ -212,40 +201,59 @@ function SourceProducts() {
     URL.revokeObjectURL(url);
   }, [products, markup, defaultType, defaultCategory, defaultGender, defaultCollections]);
 
-  const handleImport = useCallback(() => {
+  const handleImport = useCallback(async () => {
     if (products.length === 0 || selectedChannels.length === 0) return;
+    setImporting(true);
     setImportProgress({ total: products.length, done: 0, results: [] });
-    importMutation.mutate({
-      products: products.map((p) => ({
-        pid: p.pid,
-        name: p.editName,
-        description: p.description,
-        images: p.images,
-        costPrice: p.costPrice,
-        weight: p.weight,
-        variants: p.variants.map((v) => ({
-          vid: v.vid,
-          sku: v.sku,
-          price: v.price,
-          weight: v.weight,
-          image: v.image,
-          attributes: v.attributes,
-          shippingCost: v.shippingCost,
-          shippingCarrier: v.shippingCarrier,
-          shippingDays: v.shippingDays,
-        })),
-        editName: p.editName,
-        editType: defaultType,
-        editCategory: defaultCategory,
-        editCollections: defaultCollections.join(";"),
-        editGender: defaultGender,
-        shippingDays: p.shippingDays,
-        shippingCarrier: p.shippingCarrier,
-      })),
-      channelSlugs: selectedChannels,
-      markup,
-      ilsRate: hasIlsChannel ? ilsRate : undefined,
-    });
+
+    const results: Array<{ name: string; status: "ok" | "error"; error?: string }> = [];
+
+    // Import one product at a time to avoid Cloudflare 524 timeout
+    for (let i = 0; i < products.length; i++) {
+      const p = products[i];
+      try {
+        const data = await importMutation.mutateAsync({
+          products: [{
+            pid: p.pid,
+            name: p.editName,
+            description: p.description,
+            images: p.images,
+            costPrice: p.costPrice,
+            weight: p.weight,
+            variants: p.variants.map((v) => ({
+              vid: v.vid,
+              sku: v.sku,
+              price: v.price,
+              weight: v.weight,
+              image: v.image,
+              attributes: v.attributes,
+              // Use product-level shipping as fallback (warehouse fetch only sets product-level)
+              shippingCost: v.shippingCost ?? p.shippingCost,
+              shippingCarrier: v.shippingCarrier || p.shippingCarrier,
+              shippingDays: v.shippingDays || p.shippingDays,
+            })),
+            editName: p.editName,
+            editType: defaultType,
+            editCategory: defaultCategory,
+            editCollections: defaultCollections.join(";"),
+            editGender: defaultGender,
+            shippingDays: p.shippingDays,
+            shippingCarrier: p.shippingCarrier,
+          }],
+          channelSlugs: selectedChannels,
+          markup,
+          ilsRate: hasIlsChannel ? ilsRate : undefined,
+        });
+        for (const c of data.created) results.push({ name: c.name, status: "ok" });
+        for (const e of data.errors) results.push({ name: e.name, status: "error", error: e.error });
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Unknown error";
+        results.push({ name: p.editName, status: "error", error: msg });
+      }
+      setImportProgress({ total: products.length, done: i + 1, results: [...results] });
+    }
+
+    setImporting(false);
   }, [products, selectedChannels, markup, ilsRate, hasIlsChannel, importMutation, defaultType, defaultCategory, defaultGender, defaultCollections]);
 
   const toggleChannel = (slug: string) => {
@@ -254,11 +262,7 @@ function SourceProducts() {
     );
   };
 
-  const toggleCollection = (slug: string) => {
-    setDefaultCollections((prev) =>
-      prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug],
-    );
-  };
+  // toggleCollection removed — ComboboxMulti handles add/remove
 
   const totalVariants = products.reduce((sum, p) => sum + p.variants.length, 0);
   const okCount = importProgress?.results.filter((r) => r.status === "ok").length ?? 0;
@@ -334,24 +338,28 @@ function SourceProducts() {
               {/* Product Type */}
               <div>
                 <label className="block text-xs font-medium text-text-muted mb-1">Product Type</label>
-                <select className={selectCls} value={defaultType} onChange={(e) => setDefaultType(e.target.value)}>
-                  {meta?.productTypes?.map((t) => (
-                    <option key={t.slug} value={t.slug}>{t.name}</option>
-                  )) ?? <option value="dropship-product">Dropship Product</option>}
-                </select>
+                <ComboboxInput
+                  value={defaultType}
+                  onChange={setDefaultType}
+                  options={meta?.productTypes?.map((t) => ({ value: t.slug, label: t.name })) ?? []}
+                  placeholder="Type or select..."
+                  className={inputCls}
+                />
               </div>
 
               {/* Category */}
               <div>
                 <label className="block text-xs font-medium text-text-muted mb-1">Category</label>
-                <select className={selectCls} value={defaultCategory} onChange={(e) => setDefaultCategory(e.target.value)}>
-                  <option value="">-- None --</option>
-                  {meta?.categories?.map((c) => (
-                    <option key={c.slug} value={c.slug}>
-                      {c.level > 0 ? "\u00A0".repeat(c.level * 2) + "└ " : ""}{c.name}
-                    </option>
-                  ))}
-                </select>
+                <ComboboxInput
+                  value={defaultCategory}
+                  onChange={setDefaultCategory}
+                  options={meta?.categories?.map((c) => ({
+                    value: c.slug,
+                    label: c.level > 0 ? "\u00A0".repeat(c.level * 2) + "└ " + c.name : c.name,
+                  })) ?? []}
+                  placeholder="Type or select..."
+                  className={inputCls}
+                />
               </div>
 
               {/* Gender */}
@@ -397,29 +405,18 @@ function SourceProducts() {
               )}
             </div>
 
-            {/* Collections (multi-select chips) */}
+            {/* Collections (combobox multi-select) */}
             <div>
               <label className="block text-xs font-medium text-text-muted mb-1">
-                Collections <span className="font-normal text-text-muted">(multi-select)</span>
+                Collections <span className="font-normal text-text-muted">(type to add new or select existing)</span>
               </label>
-              <div className="flex flex-wrap gap-1.5">
-                {meta?.collections?.map((col) => {
-                  const isSelected = defaultCollections.includes(col.slug);
-                  return (
-                    <button
-                      key={col.slug}
-                      onClick={() => toggleCollection(col.slug)}
-                      className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
-                        isSelected
-                          ? "bg-brand text-white border-brand"
-                          : "bg-white text-text-muted border-border hover:border-gray-400"
-                      }`}
-                    >
-                      {col.name}
-                    </button>
-                  );
-                }) ?? <span className="text-xs text-text-muted">Loading...</span>}
-              </div>
+              <ComboboxMulti
+                values={defaultCollections}
+                onChange={setDefaultCollections}
+                options={meta?.collections?.map((col) => ({ value: col.slug, label: col.name })) ?? []}
+                placeholder="Type collection name..."
+                className={inputCls}
+              />
             </div>
 
             {/* Channels (multi-select chips) */}
@@ -463,25 +460,32 @@ function SourceProducts() {
                 <button
                   className="px-4 py-1.5 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light disabled:opacity-50 transition-colors"
                   onClick={handleImport}
-                  disabled={importMutation.isLoading || selectedChannels.length === 0}
+                  disabled={importing || selectedChannels.length === 0}
                 >
-                  {importMutation.isLoading ? "Importing..." : `Import ${products.length} to Aura`}
+                  {importing
+                    ? `Importing ${importProgress?.done ?? 0}/${products.length}...`
+                    : `Import ${products.length} to Aura`}
                 </button>
               </div>
             </div>
 
             {/* Import progress */}
-            {importMutation.isLoading && (
+            {importing && importProgress && (
               <div className="space-y-1">
                 <div className="w-full h-1.5 rounded-full bg-gray-200 overflow-hidden">
-                  <div className="h-full bg-brand rounded-full animate-pulse" style={{ width: "100%" }} />
+                  <div
+                    className="h-full bg-brand rounded-full transition-all duration-300"
+                    style={{ width: `${((importProgress.done / importProgress.total) * 100).toFixed(0)}%` }}
+                  />
                 </div>
-                <p className="text-xs text-text-muted">Importing products to Aura...</p>
+                <p className="text-xs text-text-muted">
+                  Importing product {importProgress.done}/{importProgress.total}...
+                </p>
               </div>
             )}
 
             {/* Import results */}
-            {importProgress && !importMutation.isLoading && (
+            {importProgress && !importing && importProgress.done > 0 && (
               <div className="space-y-2">
                 <p className="text-sm font-medium">
                   Import complete: {okCount} succeeded, {errCount} failed

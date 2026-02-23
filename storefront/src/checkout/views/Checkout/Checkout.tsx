@@ -23,21 +23,22 @@ export const Checkout = () => {
 
 	const isCheckoutInvalid = !fetchingCheckout && !checkout && !isAuthenticating;
 
-	const isInitiallyAuthenticating = isAuthenticating && !checkout;
+	// Show skeleton while loading initial data (suspense disabled for smooth mutation updates)
+	const isInitialLoading = (isAuthenticating || fetchingCheckout) && !checkout;
 
 	const isEmptyCart = checkout && !checkout.lines.length;
 
 	return isCheckoutInvalid ? (
 		<PageNotFound reason="invalid" />
-	) : isInitiallyAuthenticating ? (
+	) : isInitialLoading ? (
 		<CheckoutSkeleton />
 	) : (
 		<ErrorBoundary FallbackComponent={PageNotFound}>
-			<div className="page animate-fade-in">
+			<div>
 				{isEmptyCart ? (
 					<EmptyCartPage />
 				) : (
-					<div className="grid min-h-screen grid-cols-1 gap-x-16 lg:grid-cols-2 animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
+					<div className="grid grid-cols-1 gap-x-16 gap-y-8 lg:grid-cols-2">
 						<Suspense fallback={<CheckoutFormSkeleton />}>
 							<CheckoutForm />
 						</Suspense>

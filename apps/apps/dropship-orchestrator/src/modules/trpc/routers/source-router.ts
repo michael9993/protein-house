@@ -315,6 +315,29 @@ async function findProductType(client: any, slug: string): Promise<ProductTypeIn
   };
 }
 
+// ---------------------------------------------------------------------------
+// Dynamic auto-creation types (enriched product type information)
+// Matches Bulk Manager pattern for full attribute details
+// ---------------------------------------------------------------------------
+interface DynAttributeValueInfo { id: string; name: string; slug: string; }
+interface DynAttributeInfo {
+  id: string; slug: string; name: string; inputType: string; entityType?: string;
+  values: DynAttributeValueInfo[];
+}
+interface DynProductTypeInfo {
+  id: string;
+  name: string;
+  slug: string;
+  isShippingRequired: boolean;
+  productAttributes: DynAttributeInfo[];
+  variantAttributes: DynAttributeInfo[];
+}
+interface DynGlobalAttrInfo {
+  id: string; slug: string; name: string; inputType: string; entityType?: string;
+  type: string;
+  values: DynAttributeValueInfo[];
+}
+
 async function getCJCredentials(client: any): Promise<string> {
   const { data, error } = await client.query(FETCH_APP_METADATA, {}).toPromise();
 
@@ -1369,6 +1392,596 @@ export const sourceRouter = router({
         }
       }
 
+      // =======================================================================
+      // PRE-PROCESSING PHASE: Pre-fetch & auto-create all entities
+      // Builds lookup maps for product types, categories, collections, and
+      // attributes so the per-product loop never needs to do individual lookups.
+      // Missing entities are auto-created on the fly.
+      // =======================================================================
+
+      // ── 2a. Pre-fetch ALL product types with full attribute details ─────────
+      const PRODUCT_TYPES_WITH_ATTRS = `
+        query ProductTypesWithAttrs($after: String) {
+          productTypes(first: 100, after: $after) {
+            edges {
+              node {
+                id name slug isShippingRequired
+                productAttributes {
+                  id slug name inputType entityType
+                  choices(first: 100) { edges { node { id name slug } } }
+                }
+                variantAttributes {
+                  id slug name inputType entityType
+                  choices(first: 100) { edges { node { id name slug } } }
+                }
+              }
+            }
+            pageInfo { hasNextPage endCursor }
+          }
+        }
+      `;
+
+      const productTypeMap = new Map<string, DynProductTypeInfo>();
+
+      function mapAttrNode(a: any): DynAttributeInfo {
+        return {
+          id: a.id,
+          slug: a.slug,
+          name: a.name,
+          inputType: a.inputType,
+          entityType: a.entityType ?? undefined,
+          values: (a.choices?.edges ?? []).map((e: any) => ({
+            id: e.node.id,
+            name: e.node.name,
+            slug: e.node.slug,
+          })),
+        };
+      }
+
+      function registerProductType(node: any): DynProductTypeInfo {
+        const info: DynProductTypeInfo = {
+          id: node.id,
+          name: node.name,
+          slug: node.slug,
+          isShippingRequired: node.isShippingRequired ?? true,
+          productAttributes: (node.productAttributes ?? []).map(mapAttrNode),
+          variantAttributes: (node.variantAttributes ?? []).map(mapAttrNode),
+        };
+        productTypeMap.set(node.name.toLowerCase(), info);
+        productTypeMap.set(node.slug.toLowerCase(), info);
+        productTypeMap.set(node.id, info);
+        return info;
+      }
+
+      {
+        let ptCursor: string | null = null;
+        let ptHasMore = true;
+        while (ptHasMore) {
+          const { data: ptData } = await client.query(PRODUCT_TYPES_WITH_ATTRS, { after: ptCursor }).toPromise();
+          for (const edge of ptData?.productTypes?.edges ?? []) {
+            registerProductType(edge.node);
+          }
+          ptHasMore = ptData?.productTypes?.pageInfo?.hasNextPage ?? false;
+          ptCursor = ptData?.productTypes?.pageInfo?.endCursor ?? null;
+        }
+      }
+      logger.info("Pre-fetched product types", { count: productTypeMap.size / 3 });
+
+      // ── 2b. Auto-create missing product types ──────────────────────────────
+      const CREATE_PRODUCT_TYPE = `
+        mutation CreateProductType($input: ProductTypeInput!) {
+          productTypeCreate(input: $input) {
+            productType {
+              id name slug isShippingRequired
+              productAttributes {
+                id slug name inputType entityType
+                choices(first: 100) { edges { node { id name slug } } }
+              }
+              variantAttributes {
+                id slug name inputType entityType
+                choices(first: 100) { edges { node { id name slug } } }
+              }
+            }
+            errors { field code message }
+          }
+        }
+      `;
+
+      const neededTypes = new Set<string>();
+      for (const p of input.products) {
+        const typeName = p.editType || "Dropship Product";
+        neededTypes.add(typeName);
+      }
+
+      for (const typeName of neededTypes) {
+        const typeSlug = slugify(typeName);
+        if (productTypeMap.has(typeName.toLowerCase()) || productTypeMap.has(typeSlug)) {
+          continue;
+        }
+        logger.info("Auto-creating product type", { name: typeName, slug: typeSlug });
+        try {
+          const result = await saleorMutate<any>(client, CREATE_PRODUCT_TYPE, {
+            input: {
+              name: typeName,
+              slug: typeSlug,
+              isShippingRequired: true,
+              isDigital: false,
+              hasVariants: true,
+            },
+          }, `Create product type "${typeName}"`);
+          const node = result.productTypeCreate.productType;
+          if (node) registerProductType(node);
+        } catch (ptErr: any) {
+          // Slug collision — try to find existing by slug
+          if (ptErr.message?.includes("UNIQUE") || ptErr.message?.includes("unique") || ptErr.message?.includes("already exists")) {
+            logger.info("Product type slug exists, fetching existing", { slug: typeSlug });
+            const ptInfo = await findProductType(client, typeSlug);
+            if (ptInfo) {
+              // Re-fetch full details
+              const { data: refetchData } = await client.query(PRODUCT_TYPES_WITH_ATTRS, {}).toPromise();
+              for (const edge of refetchData?.productTypes?.edges ?? []) {
+                if (edge.node.id === ptInfo.id) {
+                  registerProductType(edge.node);
+                  break;
+                }
+              }
+            }
+          } else {
+            logger.error("Failed to create product type", { name: typeName, error: ptErr.message });
+          }
+        }
+      }
+
+      // ── 2c. Pre-fetch ALL categories ───────────────────────────────────────
+      const CATEGORIES_LOOKUP = `
+        query CategoriesLookup($after: String) {
+          categories(first: 100, after: $after) {
+            edges { node { id name slug } }
+            pageInfo { hasNextPage endCursor }
+          }
+        }
+      `;
+
+      const categoryMap = new Map<string, string>(); // name.toLowerCase() / slug → id
+      {
+        let catCursor: string | null = null;
+        let catHasMore = true;
+        while (catHasMore) {
+          const { data: catData } = await client.query(CATEGORIES_LOOKUP, { after: catCursor }).toPromise();
+          for (const edge of catData?.categories?.edges ?? []) {
+            const n = edge.node;
+            categoryMap.set(n.name.toLowerCase(), n.id);
+            categoryMap.set(n.slug.toLowerCase(), n.id);
+          }
+          catHasMore = catData?.categories?.pageInfo?.hasNextPage ?? false;
+          catCursor = catData?.categories?.pageInfo?.endCursor ?? null;
+        }
+      }
+      logger.info("Pre-fetched categories", { count: categoryMap.size / 2 });
+
+      // ── 2d. Auto-create missing categories ─────────────────────────────────
+      const CREATE_CATEGORY = `
+        mutation CreateCategory($input: CategoryInput!) {
+          categoryCreate(input: $input) {
+            category { id name slug }
+            errors { field code message }
+          }
+        }
+      `;
+
+      const neededCategories = new Set<string>();
+      for (const p of input.products) {
+        if (p.editCategory) neededCategories.add(p.editCategory);
+      }
+
+      for (const catName of neededCategories) {
+        const catSlug = slugify(catName);
+        if (categoryMap.has(catName.toLowerCase()) || categoryMap.has(catSlug)) {
+          continue;
+        }
+        logger.info("Auto-creating category", { name: catName, slug: catSlug });
+        try {
+          const result = await saleorMutate<any>(client, CREATE_CATEGORY, {
+            input: { name: catName, slug: catSlug },
+          }, `Create category "${catName}"`);
+          const node = result.categoryCreate.category;
+          if (node) {
+            categoryMap.set(node.name.toLowerCase(), node.id);
+            categoryMap.set(node.slug.toLowerCase(), node.id);
+          }
+        } catch (catErr: any) {
+          if (catErr.message?.includes("UNIQUE") || catErr.message?.includes("unique") || catErr.message?.includes("already exists")) {
+            // Slug collision — find by slug
+            const existingId = await findBySlug(client, FIND_CATEGORY, catSlug, "Category");
+            if (existingId) {
+              categoryMap.set(catName.toLowerCase(), existingId);
+              categoryMap.set(catSlug, existingId);
+            }
+          } else {
+            logger.error("Failed to create category", { name: catName, error: catErr.message });
+          }
+        }
+      }
+
+      // ── 2e. Pre-fetch ALL collections ──────────────────────────────────────
+      const COLLECTIONS_LOOKUP = `
+        query CollectionsLookup($after: String) {
+          collections(first: 100, after: $after) {
+            edges { node { id name slug } }
+            pageInfo { hasNextPage endCursor }
+          }
+        }
+      `;
+
+      const collectionMap = new Map<string, string>(); // name.toLowerCase() / slug → id
+      {
+        let colCursor: string | null = null;
+        let colHasMore = true;
+        while (colHasMore) {
+          const { data: colData } = await client.query(COLLECTIONS_LOOKUP, { after: colCursor }).toPromise();
+          for (const edge of colData?.collections?.edges ?? []) {
+            const n = edge.node;
+            collectionMap.set(n.name.toLowerCase(), n.id);
+            collectionMap.set(n.slug.toLowerCase(), n.id);
+          }
+          colHasMore = colData?.collections?.pageInfo?.hasNextPage ?? false;
+          colCursor = colData?.collections?.pageInfo?.endCursor ?? null;
+        }
+      }
+      logger.info("Pre-fetched collections", { count: collectionMap.size / 2 });
+
+      // ── 2f. Auto-create missing collections ────────────────────────────────
+      const CREATE_COLLECTION = `
+        mutation CreateCollection($input: CollectionCreateInput!) {
+          collectionCreate(input: $input) {
+            collection { id name slug }
+            errors { field code message }
+          }
+        }
+      `;
+      const COLLECTION_CHANNEL_LISTING_UPDATE = `
+        mutation CollectionChannelListingUpdate($id: ID!, $input: CollectionChannelListingUpdateInput!) {
+          collectionChannelListingUpdate(id: $id, input: $input) {
+            collection { id }
+            errors { field code message }
+          }
+        }
+      `;
+
+      const neededCollections = new Set<string>();
+      for (const p of input.products) {
+        if (p.editCollections) {
+          for (const c of p.editCollections.split(";").map((s) => s.trim()).filter(Boolean)) {
+            neededCollections.add(c);
+          }
+        }
+      }
+
+      for (const colName of neededCollections) {
+        const colSlug = slugify(colName);
+        if (collectionMap.has(colName.toLowerCase()) || collectionMap.has(colSlug)) {
+          continue;
+        }
+        logger.info("Auto-creating collection", { name: colName, slug: colSlug });
+        try {
+          const result = await saleorMutate<any>(client, CREATE_COLLECTION, {
+            input: { name: colName, slug: colSlug, isPublished: true },
+          }, `Create collection "${colName}"`);
+          const node = result.collectionCreate.collection;
+          if (node) {
+            collectionMap.set(node.name.toLowerCase(), node.id);
+            collectionMap.set(node.slug.toLowerCase(), node.id);
+
+            // Publish collection to selected channels
+            try {
+              await saleorMutate(client, COLLECTION_CHANNEL_LISTING_UPDATE, {
+                id: node.id,
+                input: {
+                  addChannels: selectedChannels.map((ch) => ({
+                    channelId: ch.id,
+                    isPublished: true,
+                  })),
+                },
+              }, `Publish collection "${colName}"`);
+            } catch { /* non-fatal */ }
+          }
+        } catch (colErr: any) {
+          if (colErr.message?.includes("UNIQUE") || colErr.message?.includes("unique") || colErr.message?.includes("already exists")) {
+            const existingId = await findBySlug(client, FIND_COLLECTION, colSlug, "Collection");
+            if (existingId) {
+              collectionMap.set(colName.toLowerCase(), existingId);
+              collectionMap.set(colSlug, existingId);
+            }
+          } else {
+            logger.error("Failed to create collection", { name: colName, error: colErr.message });
+          }
+        }
+      }
+
+      // ── 2g. Pre-fetch ALL global attributes ────────────────────────────────
+      const ALL_ATTRIBUTES_QUERY = `
+        query AllAttributes($after: String) {
+          attributes(first: 100, after: $after, filter: { type: PRODUCT_TYPE }) {
+            edges {
+              node {
+                id slug name inputType entityType type
+                choices(first: 100) { edges { node { id name slug } } }
+              }
+            }
+            pageInfo { hasNextPage endCursor }
+          }
+        }
+      `;
+
+      const globalAttributeMap = new Map<string, DynGlobalAttrInfo>();
+      {
+        let attrCursor: string | null = null;
+        let attrHasMore = true;
+        while (attrHasMore) {
+          const { data: attrData } = await client.query(ALL_ATTRIBUTES_QUERY, { after: attrCursor }).toPromise();
+          for (const edge of attrData?.attributes?.edges ?? []) {
+            const a = edge.node;
+            const info: DynGlobalAttrInfo = {
+              id: a.id,
+              slug: a.slug,
+              name: a.name,
+              inputType: a.inputType,
+              entityType: a.entityType ?? undefined,
+              type: a.type,
+              values: (a.choices?.edges ?? []).map((e: any) => ({
+                id: e.node.id,
+                name: e.node.name,
+                slug: e.node.slug,
+              })),
+            };
+            globalAttributeMap.set(a.slug.toLowerCase(), info);
+            globalAttributeMap.set(a.name.toLowerCase(), info);
+          }
+          attrHasMore = attrData?.attributes?.pageInfo?.hasNextPage ?? false;
+          attrCursor = attrData?.attributes?.pageInfo?.endCursor ?? null;
+        }
+      }
+      logger.info("Pre-fetched global attributes", { count: globalAttributeMap.size / 2 });
+
+      // ── 2h. Discover & auto-create attributes, assign to product types ─────
+      const CREATE_ATTRIBUTE = `
+        mutation CreateAttribute($input: AttributeCreateInput!) {
+          attributeCreate(input: $input) {
+            attribute {
+              id slug name inputType type
+              choices(first: 100) { edges { node { id name slug } } }
+            }
+            errors { field code message }
+          }
+        }
+      `;
+      const CREATE_ATTRIBUTE_VALUE = `
+        mutation CreateAttributeValue($id: ID!, $input: AttributeValueCreateInput!) {
+          attributeValueCreate(attribute: $id, input: $input) {
+            attributeValue { id name slug }
+            errors { field code message }
+          }
+        }
+      `;
+      const ASSIGN_PRODUCT_ATTRIBUTE = `
+        mutation AssignProductAttribute($productTypeId: ID!, $operations: [ProductAttributeAssignInput!]!) {
+          productAttributeAssign(productTypeId: $productTypeId, operations: $operations) {
+            productType { id }
+            errors { field code message }
+          }
+        }
+      `;
+      const UPDATE_ATTRIBUTE_ASSIGNMENT = `
+        mutation UpdateAttributeAssignment($productTypeId: ID!, $operations: [ProductAttributeAssignmentUpdateInput!]!) {
+          productAttributeAssignmentUpdate(productTypeId: $productTypeId, operations: $operations) {
+            productType { id }
+            errors { field code message }
+          }
+        }
+      `;
+
+      // Gather all unique variant attribute names across all products and their target product types
+      const typeAttrAssignments = new Map<string, Set<string>>(); // productTypeId → Set of attr slugs to assign
+      const attrValuesToCreate = new Map<string, Set<string>>(); // attr slug → Set of value names to create
+
+      for (const p of input.products) {
+        const typeName = p.editType || "Dropship Product";
+        const typeSlug = slugify(typeName);
+        const ptInfo = productTypeMap.get(typeName.toLowerCase()) || productTypeMap.get(typeSlug);
+        if (!ptInfo) continue;
+
+        for (const v of p.variants) {
+          for (const [attrName, attrValue] of Object.entries(v.attributes)) {
+            const attrSlug = slugify(attrName);
+            const globalAttr = globalAttributeMap.get(attrSlug) || globalAttributeMap.get(attrName.toLowerCase());
+
+            if (!globalAttr) {
+              // Attribute doesn't exist globally — will need to create it
+              // For now, mark for creation
+              if (!attrValuesToCreate.has(attrSlug)) {
+                attrValuesToCreate.set(attrSlug, new Set());
+              }
+              attrValuesToCreate.get(attrSlug)!.add(attrValue);
+
+              // Also needs assignment to product type
+              if (!typeAttrAssignments.has(ptInfo.id)) {
+                typeAttrAssignments.set(ptInfo.id, new Set());
+              }
+              typeAttrAssignments.get(ptInfo.id)!.add(attrSlug);
+            } else {
+              // Attribute exists globally — check if assigned to this product type
+              const isAssigned = ptInfo.variantAttributes.some(
+                (a) => a.slug === globalAttr.slug || a.id === globalAttr.id,
+              );
+              if (!isAssigned) {
+                if (!typeAttrAssignments.has(ptInfo.id)) {
+                  typeAttrAssignments.set(ptInfo.id, new Set());
+                }
+                typeAttrAssignments.get(ptInfo.id)!.add(globalAttr.slug);
+              }
+
+              // Check if value exists
+              const valueExists = globalAttr.values.some(
+                (v) => v.name.toLowerCase() === attrValue.toLowerCase() || v.slug === slugify(attrValue),
+              );
+              if (!valueExists && globalAttr.inputType === "DROPDOWN") {
+                if (!attrValuesToCreate.has(globalAttr.slug)) {
+                  attrValuesToCreate.set(globalAttr.slug, new Set());
+                }
+                attrValuesToCreate.get(globalAttr.slug)!.add(attrValue);
+              }
+            }
+          }
+        }
+      }
+
+      // Create missing attributes
+      const newlyCreatedAttrSlugs = new Set<string>();
+      for (const [attrSlug, values] of attrValuesToCreate.entries()) {
+        let globalAttr = globalAttributeMap.get(attrSlug);
+
+        if (!globalAttr) {
+          // Create the attribute
+          const attrName = attrSlug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+          logger.info("Auto-creating attribute", { name: attrName, slug: attrSlug });
+          try {
+            const result = await saleorMutate<any>(client, CREATE_ATTRIBUTE, {
+              input: {
+                name: attrName,
+                slug: attrSlug,
+                type: "PRODUCT_TYPE",
+                inputType: "DROPDOWN",
+              },
+            }, `Create attribute "${attrName}"`);
+            const node = result.attributeCreate.attribute;
+            if (node) {
+              globalAttr = {
+                id: node.id,
+                slug: node.slug,
+                name: node.name,
+                inputType: node.inputType,
+                type: node.type,
+                values: (node.choices?.edges ?? []).map((e: any) => ({
+                  id: e.node.id,
+                  name: e.node.name,
+                  slug: e.node.slug,
+                })),
+              };
+              globalAttributeMap.set(node.slug.toLowerCase(), globalAttr);
+              globalAttributeMap.set(node.name.toLowerCase(), globalAttr);
+              newlyCreatedAttrSlugs.add(node.slug);
+            }
+          } catch (aErr: any) {
+            // Slug collision — look up existing
+            if (aErr.message?.includes("UNIQUE") || aErr.message?.includes("unique") || aErr.message?.includes("already exists")) {
+              const { data: existData } = await client.query(FIND_ATTRIBUTE, { slug: attrSlug }).toPromise();
+              const existNode = existData?.attributes?.edges?.[0]?.node;
+              if (existNode) {
+                globalAttr = {
+                  id: existNode.id,
+                  slug: existNode.slug,
+                  name: existNode.slug, // minimal
+                  inputType: existNode.inputType,
+                  type: "PRODUCT_TYPE",
+                  values: (existNode.choices?.edges ?? []).map((e: any) => ({
+                    id: e.node.id,
+                    name: e.node.value ?? e.node.slug,
+                    slug: e.node.slug,
+                  })),
+                };
+                globalAttributeMap.set(existNode.slug.toLowerCase(), globalAttr);
+              }
+            } else {
+              logger.error("Failed to create attribute", { slug: attrSlug, error: aErr.message });
+            }
+          }
+        }
+
+        // Create missing values for this attribute
+        if (globalAttr && globalAttr.inputType === "DROPDOWN") {
+          for (const valName of values) {
+            const valExists = globalAttr.values.some(
+              (v) => v.name.toLowerCase() === valName.toLowerCase() || v.slug === slugify(valName),
+            );
+            if (!valExists) {
+              try {
+                const result = await saleorMutate<any>(client, CREATE_ATTRIBUTE_VALUE, {
+                  id: globalAttr.id,
+                  input: { name: valName },
+                }, `Create value "${valName}" on attr "${globalAttr.slug}"`);
+                const newVal = result.attributeValueCreate.attributeValue;
+                if (newVal) {
+                  globalAttr.values.push({ id: newVal.id, name: newVal.name, slug: newVal.slug });
+                }
+              } catch (valErr: any) {
+                logger.warn("Failed to create attribute value (non-fatal)", {
+                  attr: globalAttr.slug,
+                  value: valName,
+                  error: valErr.message,
+                });
+              }
+            }
+          }
+        }
+      }
+
+      // Assign attributes to product types
+      for (const [ptId, attrSlugs] of typeAttrAssignments.entries()) {
+        const operations: Array<{ id: string; type: string }> = [];
+        for (const slug of attrSlugs) {
+          const globalAttr = globalAttributeMap.get(slug);
+          if (globalAttr) {
+            operations.push({ id: globalAttr.id, type: "VARIANT" });
+          }
+        }
+        if (operations.length > 0) {
+          logger.info("Assigning attributes to product type", { ptId, count: operations.length });
+          try {
+            await saleorMutate(client, ASSIGN_PRODUCT_ATTRIBUTE, {
+              productTypeId: ptId,
+              operations,
+            }, `Assign attrs to product type`);
+
+            // Set variantSelection: true for each assigned attribute
+            const updateOps = operations.map((op) => ({
+              id: op.id,
+              variantSelection: true,
+            }));
+            try {
+              await saleorMutate(client, UPDATE_ATTRIBUTE_ASSIGNMENT, {
+                productTypeId: ptId,
+                operations: updateOps,
+              }, `Update attr assignment variant selection`);
+            } catch { /* non-fatal — some attrs may not support variantSelection */ }
+          } catch (assignErr: any) {
+            logger.warn("Failed to assign attributes to product type (non-fatal)", {
+              ptId,
+              error: assignErr.message,
+            });
+          }
+        }
+      }
+
+      // ── 2i. Refresh productTypeMap after attribute operations ───────────────
+      if (typeAttrAssignments.size > 0 || newlyCreatedAttrSlugs.size > 0) {
+        productTypeMap.clear();
+        let ptCursor2: string | null = null;
+        let ptHasMore2 = true;
+        while (ptHasMore2) {
+          const { data: ptData } = await client.query(PRODUCT_TYPES_WITH_ATTRS, { after: ptCursor2 }).toPromise();
+          for (const edge of ptData?.productTypes?.edges ?? []) {
+            registerProductType(edge.node);
+          }
+          ptHasMore2 = ptData?.productTypes?.pageInfo?.hasNextPage ?? false;
+          ptCursor2 = ptData?.productTypes?.pageInfo?.endCursor ?? null;
+        }
+        logger.info("Refreshed product types after attribute operations", { count: productTypeMap.size / 3 });
+      }
+
+      // =======================================================================
+      // END PRE-PROCESSING PHASE — Begin per-product loop
+      // =======================================================================
+
       const created: Array<{ id: string; name: string; variantCount: number }> = [];
       const errors: Array<{ name: string; error: string }> = [];
 
@@ -1393,21 +2006,22 @@ export const sourceRouter = router({
             continue;
           }
 
-          // 3. Resolve product type (with its assigned attributes)
-          const typeSlug = slugify(product.editType || "dropship-product");
-          const productTypeInfo = await findProductType(client, typeSlug);
-          if (!productTypeInfo) {
-            errors.push({ name: product.editName, error: `Product type "${product.editType}" not found` });
+          // 3. Resolve product type from pre-built map (auto-created in pre-processing)
+          const typeName = product.editType || "Dropship Product";
+          const typeSlug = slugify(typeName);
+          const ptInfo = productTypeMap.get(typeName.toLowerCase()) || productTypeMap.get(typeSlug);
+          if (!ptInfo) {
+            errors.push({ name: product.editName, error: `Product type "${typeName}" not found (even after auto-create attempt)` });
             continue;
           }
-          const productTypeId = productTypeInfo.id;
+          const productTypeId = ptInfo.id;
 
-          if (!productTypeInfo.isShippingRequired) {
+          if (!ptInfo.isShippingRequired) {
             logger.warn(
-              `Product type "${product.editType}" has isShippingRequired=false — auto-fixing for dropship.`,
+              `Product type "${typeName}" has isShippingRequired=false — auto-fixing for dropship.`,
             );
             const { data: ptUpdateData } = await client.mutation(UPDATE_PRODUCT_TYPE, {
-              id: productTypeInfo.id,
+              id: ptInfo.id,
               input: { isShippingRequired: true },
             }).toPromise();
             if (ptUpdateData?.productTypeUpdate?.errors?.length) {
@@ -1415,14 +2029,15 @@ export const sourceRouter = router({
                 errors: ptUpdateData.productTypeUpdate.errors,
               });
             } else {
-              logger.info(`Product type "${product.editType}" updated: isShippingRequired=true`);
-              productTypeInfo.isShippingRequired = true;
+              logger.info(`Product type "${typeName}" updated: isShippingRequired=true`);
+              ptInfo.isShippingRequired = true;
             }
           }
 
-          // 4. Resolve category
-          const categorySlug = product.editCategory || "uncategorized";
-          const categoryId = await findBySlug(client, FIND_CATEGORY, categorySlug, "Category");
+          // 4. Resolve category from pre-built map (auto-created in pre-processing)
+          const catName = product.editCategory || "uncategorized";
+          const catSlug = slugify(catName);
+          const categoryId = categoryMap.get(catName.toLowerCase()) || categoryMap.get(catSlug) || null;
 
           // 5. Parse shipping days for metadata
           let minDays = "";
@@ -1471,13 +2086,16 @@ export const sourceRouter = router({
           if (categoryId) {
             productInput.category = categoryId;
           } else {
-            logger.warn(`Category "${categorySlug}" not found — product will be created without category`);
+            logger.warn(`Category "${catName}" not found — product will be created without category`);
           }
 
-          if (product.editGender && productTypeInfo.productAttributeSlugs.has("gender")) {
-            const genderAttrId = await findBySlug(client, FIND_ATTRIBUTE, "gender", "Gender attr");
-            if (genderAttrId) {
-              productInput.attributes = [{ id: genderAttrId, values: [product.editGender] }];
+          // Gender attribute from enriched product type info
+          if (product.editGender) {
+            const genderAttr = ptInfo.productAttributes.find(
+              (a) => a.slug === "gender" || a.name.toLowerCase() === "gender",
+            );
+            if (genderAttr) {
+              productInput.attributes = [{ id: genderAttr.id, values: [product.editGender] }];
             }
           }
 
@@ -1543,7 +2161,7 @@ export const sourceRouter = router({
             }
           }
 
-          // 11. Resolve variant attribute IDs (only assigned ones)
+          // 11. Resolve variant attribute IDs from enriched product type info
           const attrNames = new Set<string>();
           for (const v of product.variants) {
             for (const key of Object.keys(v.attributes)) {
@@ -1553,12 +2171,15 @@ export const sourceRouter = router({
           const attrIdMap = new Map<string, string>();
           for (const name of attrNames) {
             const attrSlug = slugify(name);
-            if (!productTypeInfo.variantAttributeSlugs.has(attrSlug)) {
-              logger.warn(`Skipping variant attr "${name}" (slug: ${attrSlug}) — not assigned to product type "${product.editType}"`);
-              continue;
+            // Look up directly from enriched product type variant attributes
+            const matchedAttr = ptInfo.variantAttributes.find(
+              (a) => a.slug === attrSlug || a.name.toLowerCase() === name.toLowerCase(),
+            );
+            if (matchedAttr) {
+              attrIdMap.set(name, matchedAttr.id);
+            } else {
+              logger.warn(`Variant attr "${name}" (slug: ${attrSlug}) not assigned to product type "${typeName}" — skipping`);
             }
-            const attrId = await findBySlug(client, FIND_ATTRIBUTE, attrSlug, `Attr ${name}`);
-            if (attrId) attrIdMap.set(name, attrId);
           }
 
           // 12. Create variants (Bulk Manager pattern: create → pricing → metadata → image)
@@ -1676,14 +2297,15 @@ export const sourceRouter = router({
             }
           }
 
-          // 13. Add to collections
+          // 13. Add to collections from pre-built map (auto-created in pre-processing)
           if (product.editCollections) {
-            const collectionSlugs = product.editCollections
+            const collectionNames = product.editCollections
               .split(";")
               .map((s) => s.trim())
               .filter(Boolean);
-            for (const colSlug of collectionSlugs) {
-              const colId = await findBySlug(client, FIND_COLLECTION, colSlug, "Collection");
+            for (const colName of collectionNames) {
+              const colSlug = slugify(colName);
+              const colId = collectionMap.get(colName.toLowerCase()) || collectionMap.get(colSlug) || null;
               if (colId) {
                 try {
                   await saleorMutate(client, COLLECTION_ADD_PRODUCTS, {
@@ -1691,6 +2313,8 @@ export const sourceRouter = router({
                     products: [productId],
                   }, "Collection add");
                 } catch { /* non-fatal */ }
+              } else {
+                logger.warn(`Collection "${colName}" not found in map — skipping`);
               }
             }
           }

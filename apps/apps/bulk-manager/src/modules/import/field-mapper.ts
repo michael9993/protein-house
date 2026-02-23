@@ -57,6 +57,10 @@ const fieldMappingRules: Record<string, Record<string, string[]>> = {
     variantMetadata: ["variant_metadata", "variantmetadata", "variant metadata", "variant_meta"],
     availableForPurchase: ["available_for_purchase", "availableforpurchase", "available for purchase", "purchasable"],
     replaceImages: ["replace_images", "replaceimages", "update_images", "replace images"],
+    supplierSku: ["supplier_sku", "suppliersku", "supplier sku", "cj_sku", "aliexpress_sku", "source_sku"],
+    shippingMinDays: ["shipping_min_days", "shippingmindays", "shipping min days", "min_shipping_days", "est_min_days"],
+    shippingMaxDays: ["shipping_max_days", "shippingmaxdays", "shipping max days", "max_shipping_days", "est_max_days"],
+    shippingCarrier: ["shipping_carrier", "shippingcarrier", "shipping carrier", "carrier", "logistics"],
   },
   categories: {
     name: ["name", "category_name", "category name", "title", "category"],
@@ -282,6 +286,10 @@ const targetFieldMeta: Record<string, Record<string, { required: boolean; descri
     variantMetadata: { required: false, description: "Per-variant metadata as key:value;key:value pairs" },
     availableForPurchase: { required: false, description: "Available for purchase (Yes/No or ISO date, default: Yes)" },
     replaceImages: { required: false, description: "Replace existing images in upsert (Yes/No, default: No)" },
+    supplierSku: { required: false, description: "Dropship supplier SKU (per-variant, stored as metadata)" },
+    shippingMinDays: { required: false, description: "Estimated minimum shipping days (stored as product metadata)" },
+    shippingMaxDays: { required: false, description: "Estimated maximum shipping days (stored as product metadata)" },
+    shippingCarrier: { required: false, description: "Shipping carrier name (stored as product metadata)" },
   },
   categories: {
     name: { required: true, description: "Category name" },
@@ -443,6 +451,10 @@ const sampleRows: Record<string, Record<string, string>> = {
     variantMetadata: "",
     availableForPurchase: "Yes",
     replaceImages: "No",
+    supplierSku: "CJ-AM90-BLK-42",
+    shippingMinDays: "7",
+    shippingMaxDays: "15",
+    shippingCarrier: "CJ Packet",
   },
   categories: {
     name: "Running Shoes",

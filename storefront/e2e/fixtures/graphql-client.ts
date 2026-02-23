@@ -187,6 +187,64 @@ export async function findInStockProduct(
 	throw new Error(`No in-stock products found in channel ${channel}`);
 }
 
+/**
+ * Find products tagged with dropship.supplier metadata (CJ/AliExpress).
+ * Returns products with their variants and prices.
+ */
+export async function findDropshipProducts(
+	channel: string,
+	first = 20,
+): Promise<{ product: Product; variant: ProductVariant }[]> {
+	const data = await graphql<{
+		products: {
+			edges: Array<{
+				node: Product & { metadata: Array<{ key: string; value: string }> };
+			}>;
+		};
+	}>(
+		`query DropshipProducts($channel: String!, $first: Int!) {
+			products(channel: $channel, first: $first, filter: {
+				isPublished: true,
+				metadata: [{ key: "dropship.supplier" }]
+			}) {
+				edges {
+					node {
+						id
+						name
+						slug
+						metadata { key value }
+						variants {
+							id
+							name
+							sku
+							quantityAvailable
+							pricing(address: {}) {
+								price {
+									gross { amount currency }
+								}
+							}
+						}
+					}
+				}
+			}
+		}`,
+		{ channel, first },
+	);
+
+	const results: { product: Product; variant: ProductVariant }[] = [];
+	for (const edge of data.products.edges) {
+		const product = edge.node;
+		const variant = product.variants?.find(
+			(v) => v.quantityAvailable === null || v.quantityAvailable > 0,
+		);
+		if (variant) {
+			results.push({ product, variant });
+		}
+	}
+
+	return results;
+}
+
 export async function checkoutCreate(
 	channel: string,
 	lines: Array<{ variantId: string; quantity: number }>,
@@ -220,4 +278,47 @@ export async function checkoutCreate(
 	}
 
 	return data.checkoutCreate.checkout!;
+}
+
+interface AddressInput {
+	firstName: string;
+	lastName: string;
+	streetAddress1: string;
+	streetAddress2?: string;
+	city: string;
+	postalCode: string;
+	country: string;
+	countryArea?: string;
+	phone?: string;
+	companyName?: string;
+}
+
+/**
+ * Set shipping address on an existing checkout via GraphQL API.
+ * Triggers SHIPPING_LIST_METHODS_FOR_CHECKOUT webhook server-side.
+ */
+export async function checkoutShippingAddressUpdate(
+	checkoutId: string,
+	address: AddressInput,
+): Promise<void> {
+	const data = await graphql<{
+		checkoutShippingAddressUpdate: {
+			checkout: { id: string } | null;
+			errors: Array<{ field: string; message: string; code: string }>;
+		};
+	}>(
+		`mutation CheckoutShippingAddressUpdate($id: ID!, $address: AddressInput!) {
+			checkoutShippingAddressUpdate(id: $id, shippingAddress: $address) {
+				checkout { id }
+				errors { field message code }
+			}
+		}`,
+		{ id: checkoutId, address },
+	);
+
+	if (data.checkoutShippingAddressUpdate.errors.length) {
+		throw new Error(
+			`Address update failed: ${data.checkoutShippingAddressUpdate.errors.map((e) => `${e.field}: ${e.message}`).join(", ")}`,
+		);
+	}
 }

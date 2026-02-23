@@ -15,6 +15,10 @@ const logger = createLogger("webhook:shipping-list");
 // GraphQL subscription — tells Saleor what fields to include in the payload
 // ---------------------------------------------------------------------------
 
+// NOTE: Do NOT include subtotalPrice, totalPrice, or shippingPrice here.
+// These fields trigger @prevent_sync_event_circular_query in Saleor,
+// causing CircularSubscriptionSyncEvent and a null payload.
+// We fetch subtotalPrice separately via a GraphQL query inside the handler.
 const ShippingListPayload = gql`
   fragment ShippingListPayload on ShippingListMethodsForCheckout {
     checkout {
@@ -84,6 +88,24 @@ interface ShippingListWebhookPayload {
 }
 
 // ---------------------------------------------------------------------------
+// Separate query to fetch checkout subtotal (can't include in subscription
+// payload because subtotalPrice resolution triggers circular sync events)
+// ---------------------------------------------------------------------------
+
+const FETCH_CHECKOUT_SUBTOTAL = gql`
+  query FetchCheckoutSubtotal($id: ID!) {
+    checkout(id: $id) {
+      subtotalPrice {
+        gross {
+          amount
+          currency
+        }
+      }
+    }
+  }
+`;
+
+// ---------------------------------------------------------------------------
 // Webhook definition
 // ---------------------------------------------------------------------------
 
@@ -120,14 +142,42 @@ const handler: NextJsSyncWebhookHandler<ShippingListWebhookPayload> = async (
     token: authData.token,
   });
 
+  // Fetch checkout subtotal via separate query (not in subscription payload
+  // because subtotalPrice triggers CircularSubscriptionSyncEvent)
+  let subtotalAmount: number | undefined;
   try {
-    const methods: ExternalShippingMethod[] = await handleShippingList(
-      client,
-      checkout.lines,
-      checkout.shippingAddress.country.code,
-      checkout.channel.currencyCode,
-      checkout.shippingAddress.postalCode || undefined,
-    );
+    const { data: subtotalData } = await client
+      .query(FETCH_CHECKOUT_SUBTOTAL, { id: checkout.id })
+      .toPromise();
+    subtotalAmount = subtotalData?.checkout?.subtotalPrice?.gross?.amount;
+  } catch {
+    logger.warn("Failed to fetch checkout subtotal", { checkoutId: checkout.id });
+  }
+
+  // Saleor sync webhooks timeout at ~18s. Use 12s budget so we respond in time.
+  const TIMEOUT_MS = 12_000;
+
+  try {
+    const methods: ExternalShippingMethod[] = await Promise.race([
+      handleShippingList(
+        client,
+        checkout.lines,
+        checkout.shippingAddress.country.code,
+        checkout.channel.currencyCode,
+        checkout.shippingAddress.postalCode || undefined,
+        subtotalAmount,
+        checkout.channel.slug,
+      ),
+      new Promise<ExternalShippingMethod[]>((resolve) =>
+        setTimeout(() => {
+          logger.warn("Shipping list timed out — returning empty to keep checkout functional", {
+            checkoutId: checkout.id,
+            timeoutMs: TIMEOUT_MS,
+          });
+          resolve([]);
+        }, TIMEOUT_MS),
+      ),
+    ]);
 
     logger.info("Shipping list response", {
       checkoutId: checkout.id,

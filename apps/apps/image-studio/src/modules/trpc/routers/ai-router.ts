@@ -6,6 +6,26 @@ import { removeBackground, checkRembgHealth } from "../../ai/rembg-client";
 import { generateImage, editImage, isGenerationConfigured } from "../../ai/together-client";
 import { upscaleImage, checkEsrganHealth } from "../../ai/esrgan-client";
 
+// In-memory job store for async upscaling (avoids Cloudflare 100s timeout)
+interface UpscaleJob {
+  status: "processing" | "complete" | "error";
+  resultBase64?: string;
+  error?: string;
+  createdAt: number;
+}
+
+const upscaleJobs = new Map<string, UpscaleJob>();
+
+// Clean up jobs older than 10 minutes to prevent memory leaks
+function cleanupOldJobs() {
+  const cutoff = Date.now() - 10 * 60 * 1000;
+  for (const [id, job] of upscaleJobs) {
+    if (job.createdAt < cutoff) {
+      upscaleJobs.delete(id);
+    }
+  }
+}
+
 export const aiRouter = router({
   removeBackground: protectedClientProcedure
     .input(z.object({ imageBase64: z.string() }))
@@ -39,6 +59,7 @@ export const aiRouter = router({
       return { resultBase64: result.resultBase64 };
     }),
 
+  // Legacy sync upscale — kept for backward compat but will timeout on Cloudflare Free
   upscale: protectedClientProcedure
     .input(
       z.object({
@@ -55,6 +76,75 @@ export const aiRouter = router({
         });
       }
       return { resultBase64: result.resultBase64 };
+    }),
+
+  // Async upscale — returns job ID instantly, client polls for result
+  upscaleStart: protectedClientProcedure
+    .input(
+      z.object({
+        imageBase64: z.string(),
+        scale: z.enum(["2", "3", "4"]).default("2"),
+      })
+    )
+    .mutation(async ({ input }) => {
+      cleanupOldJobs();
+
+      const jobId = `upscale_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+      upscaleJobs.set(jobId, {
+        status: "processing",
+        createdAt: Date.now(),
+      });
+
+      // Fire and forget — process in background
+      upscaleImage(input.imageBase64, parseInt(input.scale) as 2 | 3 | 4)
+        .then((result) => {
+          const job = upscaleJobs.get(jobId);
+          if (!job) return; // cleaned up
+          if (result.success) {
+            job.status = "complete";
+            job.resultBase64 = result.resultBase64;
+          } else {
+            job.status = "error";
+            job.error = result.error ?? "Upscaling failed";
+          }
+        })
+        .catch((err) => {
+          const job = upscaleJobs.get(jobId);
+          if (!job) return;
+          job.status = "error";
+          job.error = err instanceof Error ? err.message : "Unknown error";
+        });
+
+      return { jobId };
+    }),
+
+  // Poll for upscale result
+  upscaleStatus: protectedClientProcedure
+    .input(z.object({ jobId: z.string() }))
+    .query(async ({ input }) => {
+      const job = upscaleJobs.get(input.jobId);
+      if (!job) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Job not found or expired",
+        });
+      }
+
+      if (job.status === "complete") {
+        const result = job.resultBase64;
+        // Clean up after delivering result
+        upscaleJobs.delete(input.jobId);
+        return { status: "complete" as const, resultBase64: result };
+      }
+
+      if (job.status === "error") {
+        const error = job.error;
+        upscaleJobs.delete(input.jobId);
+        return { status: "error" as const, error };
+      }
+
+      return { status: "processing" as const };
     }),
 
   aiEdit: protectedClientProcedure

@@ -63,9 +63,12 @@ export interface CheckoutTextConfig {
 	
 	// Delivery Methods Section
 	deliveryMethodsTitle?: string;
+	deliveryMethodsSubtitle?: string;
+	noShippingMethodsAvailable?: string;
 	businessDaysText?: string;
 	freeShippingLabel?: string;
 	noDeliveryMethodsText?: string;
+	fetchingShippingRates?: string;
 	/** Shown when a free shipping voucher is applied but selected method has no isFree metadata */
 	freeShippingVoucherNotApplicable?: string;
 	/** Shown when a free shipping voucher is applied and selected method has isFree true */
@@ -231,6 +234,10 @@ export interface CheckoutTextConfig {
 	easyReturnsBadge?: string;
 	securePaymentBadge?: string;
 	
+	// Order Not Found (failed checkout completion)
+	orderNotFoundTitle?: string;
+	orderNotFoundMessage?: string;
+
 	// Page Not Found
 	noCheckoutFoundTitle?: string;
 	noCheckoutFoundMessage?: string;
@@ -298,6 +305,8 @@ const defaultCheckoutText: CheckoutTextConfig = {
 	
 	// Delivery Methods Section
 	deliveryMethodsTitle: "Delivery methods",
+	deliveryMethodsSubtitle: "Choose shipping speed",
+	noShippingMethodsAvailable: "No shipping methods available for this address. Please try a different shipping address.",
 	businessDaysText: "{min}-{max} business days",
 	freeShippingLabel: "Free",
 	noDeliveryMethodsText: "No delivery methods available",

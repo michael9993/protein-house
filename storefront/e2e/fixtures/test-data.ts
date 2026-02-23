@@ -35,3 +35,19 @@ export const TEST_ADDRESS = {
 	phone: "+12125551234",
 	companyName: "",
 };
+
+/**
+ * Israel test address for ILS channel dropship checkout.
+ */
+export const TEST_ADDRESS_IL = {
+	firstName: "E2E",
+	lastName: "TestUser",
+	streetAddress1: "123 Rothschild Blvd",
+	streetAddress2: "",
+	city: "Tel Aviv",
+	postalCode: "6688101",
+	country: "IL",
+	countryArea: "",
+	phone: "+972501234567",
+	companyName: "",
+};

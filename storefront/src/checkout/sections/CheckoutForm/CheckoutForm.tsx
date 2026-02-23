@@ -14,6 +14,7 @@ import { PaymentSection, PaymentSectionSkeleton } from "@/checkout/sections/Paym
 import { GuestBillingAddressSection } from "@/checkout/sections/GuestBillingAddressSection";
 import { useUser } from "@/checkout/hooks/useUser";
 import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
+import { CheckoutErrorBoundary } from "@/checkout/components/CheckoutErrorBoundary";
 
 interface CheckoutStepProps {
 	number: number;
@@ -63,9 +64,10 @@ export const CheckoutForm = () => {
 	return (
 		<div className="flex flex-col gap-6">
 			{/* Contact Section */}
-			<CheckoutStep 
-				number={1} 
-				title={text.contactInfoTitle || "Contact Information"} 
+			<CheckoutStep
+				number={1}
+				isComplete={!!checkout?.email}
+				title={text.contactInfoTitle || "Contact Information"}
 				description={text.contactInfoSubtitle || "We'll use this to send order updates"}
 			>
 				<Suspense fallback={<ContactSkeleton />}>
@@ -73,45 +75,59 @@ export const CheckoutForm = () => {
 				</Suspense>
 			</CheckoutStep>
 
-			{/* Shipping Address Section */}
+			{/* Shipping Address + Billing Address + Delivery Methods */}
 			{checkout?.isShippingRequired && (
-				<Suspense fallback={<AddressSectionSkeleton />}>
-					<CollapseSection collapse={showOnlyContact}>
-						<CheckoutStep 
-							number={2} 
-							title={text.shippingAddressTitle || "Shipping Address"} 
-							description={text.shippingAddressSubtitle || "Where should we deliver?"}
-						>
-							<div data-testid="shippingAddressSection">
-								{user ? <UserShippingAddressSection /> : <GuestShippingAddressSection />}
-							</div>
-						</CheckoutStep>
-						
-						{/* Billing Address */}
-						<div className="mt-6">
-							<CheckoutStep 
-								number={3} 
-								title={text.billingAddressTitle || "Billing Address"} 
-								description={text.billingAddressSubtitle || "For your invoice"}
+				<CheckoutErrorBoundary>
+					<Suspense fallback={<AddressSectionSkeleton />}>
+						<CollapseSection collapse={showOnlyContact}>
+							<CheckoutStep
+								number={2}
+								isComplete={!!checkout?.shippingAddress?.streetAddress1}
+								title={text.shippingAddressTitle || "Shipping Address"}
+								description={text.shippingAddressSubtitle || "Where should we deliver?"}
 							>
-								{user ? <UserBillingAddressSection /> : <GuestBillingAddressSection />}
+								<div data-testid="shippingAddressSection">
+									{user ? <UserShippingAddressSection /> : <GuestShippingAddressSection />}
+								</div>
 							</CheckoutStep>
-						</div>
-					</CollapseSection>
-				</Suspense>
-			)}
 
-			{/* Delivery Methods Section */}
-			<Suspense fallback={<DeliveryMethodsSkeleton />}>
-				<DeliveryMethods collapsed={showOnlyContact} />
-			</Suspense>
+							{/* Billing Address */}
+							<div className="mt-6">
+								<CheckoutStep
+									number={3}
+									isComplete={!!checkout?.billingAddress?.streetAddress1}
+									title={text.billingAddressTitle || "Billing Address"}
+									description={text.billingAddressSubtitle || "For your invoice"}
+								>
+									{user ? <UserBillingAddressSection /> : <GuestBillingAddressSection />}
+								</CheckoutStep>
+							</div>
+
+							{/* Delivery Methods */}
+							<div className="mt-6">
+								<Suspense fallback={<DeliveryMethodsSkeleton />}>
+									<CheckoutStep
+										number={4}
+										isComplete={!!checkout?.deliveryMethod?.id}
+										title={text.deliveryMethodsTitle || "Delivery Method"}
+										description={text.deliveryMethodsSubtitle || "Choose shipping speed"}
+									>
+										<DeliveryMethods />
+									</CheckoutStep>
+								</Suspense>
+							</div>
+						</CollapseSection>
+					</Suspense>
+				</CheckoutErrorBoundary>
+			)}
 
 			{/* Payment Section */}
 			<Suspense fallback={<PaymentSectionSkeleton />}>
 				<CollapseSection collapse={showOnlyContact}>
-					<CheckoutStep 
-						number={checkout?.isShippingRequired ? 5 : 2} 
-						title={text.paymentTitle || "Payment"} 
+					<CheckoutStep
+						number={checkout?.isShippingRequired ? 5 : 2}
+						isComplete={checkout?.authorizeStatus === "FULL"}
+						title={text.paymentTitle || "Payment"}
 						description={text.paymentSubtitle || "Select your payment method"}
 					>
 						<PaymentSection />

@@ -5,9 +5,10 @@ import { useOrder } from "@/checkout/hooks/useOrder";
 import { useAutoCartCleanup } from "@/checkout/hooks/useCartCleanup";
 import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 import { trackPurchase } from "@/lib/analytics";
+import { OrderConfirmationSkeleton } from "./OrderConfirmationSkeleton";
 
 export const OrderConfirmation = () => {
-	const { order } = useOrder();
+	const { order, loading } = useOrder();
 	const printRef = useRef<HTMLDivElement>(null);
 	const text = useCheckoutText();
 	const purchaseTracked = useRef(false);
@@ -44,6 +45,40 @@ export const OrderConfirmation = () => {
 
 	// Format date for display (order date not available in OrderFragment)
 	const orderDate = '';
+
+	if (loading) {
+		return <OrderConfirmationSkeleton />;
+	}
+
+	if (!order) {
+		return (
+			<div className="flex flex-col items-center justify-center py-16 text-center">
+				<div
+					className="mb-6 flex h-20 w-20 items-center justify-center rounded-full"
+					style={{ backgroundColor: "var(--store-neutral-100)" }}
+				>
+					<svg className="h-10 w-10" style={{ color: "var(--store-neutral-400)" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+					</svg>
+				</div>
+				<h2 className="text-xl font-semibold" style={{ color: "var(--store-text)" }}>
+					{text.orderNotFoundTitle || "Order not found"}
+				</h2>
+				<p className="mt-2 max-w-md text-sm" style={{ color: "var(--store-text-muted)" }}>
+					{text.orderNotFoundMessage || "We couldn't load your order details. The order may still be processing — please check your email for confirmation."}
+				</p>
+				<div className="mt-6 flex gap-3">
+					<a
+						href="/"
+						className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white transition-colors hover:opacity-90"
+						style={{ backgroundColor: "var(--store-primary)" }}
+					>
+						{text.continueShoppingButton || "Continue Shopping"}
+					</a>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<>

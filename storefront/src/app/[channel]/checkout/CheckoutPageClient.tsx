@@ -95,7 +95,7 @@ export function CheckoutPageClient({ saleorApiUrl, isOrderConfirmation, channel,
 		<div className="min-h-dvh bg-gradient-to-b from-neutral-50 to-white print:bg-white animate-fade-in">
 			<section className="mx-auto flex min-h-dvh max-w-7xl flex-col p-4 sm:p-8">
 				{/* Header */}
-				<header className="flex items-center justify-between border-b border-neutral-200 pb-4 print:border-none animate-fade-in-up" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
+				<header className="flex items-center justify-between border-b border-neutral-200 pb-4 print:border-none">
 					<Link 
 						aria-label="homepage" 
 						href={`/${channel}`}
@@ -128,7 +128,7 @@ export function CheckoutPageClient({ saleorApiUrl, isOrderConfirmation, channel,
 				</header>
 
 				{/* Progress indicator */}
-				<div className="animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
+				<div>
 					<CheckoutBreadcrumbs 
 						isOrderConfirmation={isOrderConfirmation} 
 						primaryColor={branding.colors.primary} 
@@ -136,7 +136,7 @@ export function CheckoutPageClient({ saleorApiUrl, isOrderConfirmation, channel,
 				</div>
 
 				{/* Main checkout content */}
-				<section className="mb-12 mt-6 flex-1 animate-fade-in-up" style={{ animationDelay: "150ms", animationFillMode: "both" }}>
+				<section className="mb-12 mt-6 flex-1">
 					<Root saleorApiUrl={saleorApiUrl} checkoutText={checkoutText} checkoutId={checkoutId} />
 				</section>
 

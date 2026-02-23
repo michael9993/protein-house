@@ -8,6 +8,24 @@ import { exportToExcel } from "../../export/excel-exporter";
 import { assertQuerySuccess, applyFieldMappings, tryParseDescription, parseBool, parseMetadata, parseSemicolonList, isValidUrl, type ImportResult, buildImportResponse } from "../utils/helpers";
 import { uploadProductImage } from "../utils/image-upload";
 
+const UPDATE_PRIVATE_METADATA_MUTATION = `
+  mutation UpdatePrivateMetadata($id: ID!, $input: [MetadataInput!]!) {
+    updatePrivateMetadata(id: $id, input: $input) {
+      item { ... on Product { id } ... on ProductVariant { id } }
+      errors { field message }
+    }
+  }
+`;
+
+const UPDATE_PUBLIC_METADATA_MUTATION = `
+  mutation UpdatePublicMetadata($id: ID!, $input: [MetadataInput!]!) {
+    updateMetadata(id: $id, input: $input) {
+      item { ... on Product { id } ... on ProductVariant { id } }
+      errors { field message }
+    }
+  }
+`;
+
 interface AttributeValueInfo {
   id: string;
   name: string;
@@ -151,6 +169,8 @@ export const productsRouter = router({
         autoCreateCategories: z.boolean().optional().default(true),
         autoCreateCollections: z.boolean().optional().default(true),
         attributeDefaults: z.record(z.string(), z.string()).optional(),
+        isDropship: z.boolean().optional().default(false),
+        dropshipSupplier: z.string().optional().default("cj"),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -196,6 +216,60 @@ export const productsRouter = router({
           );
           defaultWarehouseId = whResult.data?.warehouses?.edges?.[0]?.node?.id;
         } catch { /* ignore */ }
+      }
+
+      // ─── Dropship: ensure shipping zone covers all selected channels' countries ───
+      if (input.isDropship && defaultWarehouseId && channelIds.length > 0) {
+        try {
+          const whDetailResult = await ctx.apiClient.query(
+            `query WarehouseShippingZones($id: ID!) {
+              warehouse(id: $id) {
+                id name
+                shippingZones(first: 10) {
+                  edges { node { id name countries { code } } }
+                }
+              }
+            }`,
+            { id: defaultWarehouseId }
+          );
+          const warehouse = whDetailResult.data?.warehouse;
+          const zone = warehouse?.shippingZones?.edges?.[0]?.node;
+          if (zone) {
+            const coveredCountries = new Set((zone.countries || []).map((c: any) => c.code));
+            // Fetch channel default countries
+            const chDetailResult = await ctx.apiClient.query(
+              `query ChannelsWithCountry { channels { slug defaultCountry { code } } }`, {}
+            );
+            const allChannels = chDetailResult.data?.channels || [];
+            const channelCountries = channelIds
+              .map((ch) => {
+                const found = allChannels.find((c: any) => c.slug === ch.slug);
+                return found?.defaultCountry?.code;
+              })
+              .filter(Boolean) as string[];
+            const missingCountries = channelCountries.filter((c) => !coveredCountries.has(c));
+
+            if (missingCountries.length > 0) {
+              const allCountries = [...coveredCountries, ...missingCountries];
+              try {
+                await ctx.apiClient.mutation(
+                  `mutation ShippingZoneUpdate($id: ID!, $input: ShippingZoneUpdateInput!) {
+                    shippingZoneUpdate(id: $id, input: $input) {
+                      shippingZone { id }
+                      errors { field message }
+                    }
+                  }`,
+                  { id: zone.id, input: { countries: allCountries } }
+                );
+                console.log(`[Dropship] Shipping zone "${zone.name}" updated with countries: ${missingCountries.join(", ")}`);
+              } catch {
+                console.warn(`[Dropship] Failed to update shipping zone (non-fatal)`);
+              }
+            }
+          }
+        } catch {
+          console.warn(`[Dropship] Could not check shipping zone coverage (non-fatal)`);
+        }
       }
 
       // ─── Pre-fetch ALL product types with attributes ───
@@ -1348,6 +1422,41 @@ export const productsRouter = router({
             } catch { /* non-critical */ }
           }
 
+          // ── Dropship: product-level metadata ──
+          if (input.isDropship && productId) {
+            try {
+              // Private metadata (cost price for margin calculation)
+              await ctx.apiClient.mutation(UPDATE_PRIVATE_METADATA_MUTATION, {
+                id: productId,
+                input: [
+                  { key: "dropship.supplier", value: input.dropshipSupplier },
+                  { key: "dropship.costPrice", value: String(first.price || "0") },
+                ],
+              });
+              // Public metadata (checkout webhooks need supplier info)
+              await ctx.apiClient.mutation(UPDATE_PUBLIC_METADATA_MUTATION, {
+                id: productId,
+                input: [
+                  { key: "dropship.supplier", value: input.dropshipSupplier },
+                ],
+              });
+            } catch { /* non-critical */ }
+          }
+
+          // ── Shipping estimation metadata (from CSV columns) ──
+          const shippingMeta: Array<{ key: string; value: string }> = [];
+          if (first.shippingMinDays) shippingMeta.push({ key: "shipping.estimatedMinDays", value: first.shippingMinDays });
+          if (first.shippingMaxDays) shippingMeta.push({ key: "shipping.estimatedMaxDays", value: first.shippingMaxDays });
+          if (first.shippingCarrier) shippingMeta.push({ key: "shipping.carrier", value: first.shippingCarrier });
+          if (shippingMeta.length > 0 && productId) {
+            try {
+              await ctx.apiClient.mutation(UPDATE_PUBLIC_METADATA_MUTATION, {
+                id: productId,
+                input: shippingMeta,
+              });
+            } catch { /* non-critical */ }
+          }
+
           // ── Add product images from URLs (supports up to 5 images) ──
           const imageUrls = [first.imageUrl, first.imageUrl2, first.imageUrl3, first.imageUrl4, first.imageUrl5]
             .filter(Boolean)
@@ -1459,7 +1568,7 @@ export const productsRouter = router({
                     input: {
                       name: variantName,
                       sku: vRow.sku || undefined,
-                      trackInventory: parseBool(vRow.trackInventory, true),
+                      trackInventory: input.isDropship ? false : parseBool(vRow.trackInventory, true),
                       quantityLimitPerCustomer: vRow.quantityLimit ? parseInt(vRow.quantityLimit) : undefined,
                       weight: vRow.variantWeight ? parseFloat(vRow.variantWeight) : undefined,
                       externalReference: vRow.variantExternalReference || undefined,
@@ -1488,7 +1597,7 @@ export const productsRouter = router({
                       product: productId,
                       name: variantName,
                       sku: vRow.sku || undefined,
-                      trackInventory: parseBool(vRow.trackInventory, true),
+                      trackInventory: input.isDropship ? false : parseBool(vRow.trackInventory, true),
                       quantityLimitPerCustomer: vRow.quantityLimit ? parseInt(vRow.quantityLimit) : undefined,
                       weight: vRow.variantWeight ? parseFloat(vRow.variantWeight) : undefined,
                       externalReference: vRow.variantExternalReference || undefined,
@@ -1570,6 +1679,36 @@ export const productsRouter = router({
                 try {
                   await ctx.apiClient.mutation(stockMutation, { variantId, stocks });
                 } catch { /* non-critical */ }
+              }
+
+              // ── Dropship: variant-level metadata + dummy stock ──
+              if (input.isDropship && variantId) {
+                const supplierSku = vRow.supplierSku || vRow.sku || "";
+                try {
+                  await ctx.apiClient.mutation(UPDATE_PRIVATE_METADATA_MUTATION, {
+                    id: variantId,
+                    input: [{ key: "dropship.supplierSku", value: supplierSku }],
+                  });
+                  await ctx.apiClient.mutation(UPDATE_PUBLIC_METADATA_MUTATION, {
+                    id: variantId,
+                    input: [{ key: "dropship.supplierSku", value: supplierSku }],
+                  });
+                } catch { /* non-critical */ }
+
+                // Allocate dummy stock so Saleor considers variant available for purchase
+                if (rowWarehouseId && stocks.length === 0) {
+                  try {
+                    await ctx.apiClient.mutation(
+                      `mutation ProductVariantStocksCreate($variantId: ID!, $stocks: [StockInput!]!) {
+                        productVariantStocksCreate(variantId: $variantId, stocks: $stocks) {
+                          productVariant { id }
+                          errors { field message }
+                        }
+                      }`,
+                      { variantId, stocks: [{ warehouse: rowWarehouseId, quantity: 1000 }] }
+                    );
+                  } catch { /* non-critical */ }
+                }
               }
 
               // ── Upload and assign variant-specific image (with deduplication) ──

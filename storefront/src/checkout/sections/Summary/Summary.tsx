@@ -58,7 +58,7 @@ export const Summary: FC<SummaryProps> = ({
 	};
 
 	return (
-		<div className="sticky top-8 h-fit w-full print:static">
+		<div className="lg:sticky lg:top-8 h-fit w-full print:static">
 			{/* Summary Card */}
 			<div className="rounded-xl border bg-white shadow-sm print:shadow-none" style={{ borderColor: "var(--store-neutral-200)" }}>
 				{/* Header */}

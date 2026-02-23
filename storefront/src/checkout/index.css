@@ -1,5 +1,10 @@
 @import "react-toastify/dist/ReactToastify.css";
 
+/* Prevent layout shift from scrollbar appearing/disappearing during load */
+html {
+  scrollbar-gutter: stable;
+}
+
 /* Print styles for order receipt */
 @media print {
   /* Hide unnecessary elements */

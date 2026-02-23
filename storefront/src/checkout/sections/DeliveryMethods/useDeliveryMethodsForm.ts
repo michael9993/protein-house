@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { type CountryCode, useCheckoutDeliveryMethodUpdateMutation } from "@/checkout/graphql";
 import { useCheckout } from "@/checkout/hooks/useCheckout";
-import { useDebouncedSubmit } from "@/checkout/hooks/useDebouncedSubmit";
 import { type ChangeHandler, useForm, type UseFormReturn } from "@/checkout/hooks/useForm";
 import { useFormSubmit } from "@/checkout/hooks/useFormSubmit";
 import { type MightNotExist } from "@/checkout/lib/globalTypes";
@@ -75,11 +74,11 @@ export const useDeliveryMethodsForm = (): UseFormReturn<DeliveryMethodsFormData>
 		),
 	);
 
-	const debouncedSubmit = useDebouncedSubmit(onSubmit);
-
+	// No debounce — delivery method is a radio select, not text input.
+	// Immediate submission ensures shipping price updates in the Summary right away.
 	const form = useForm<DeliveryMethodsFormData>({
 		initialValues: defaultFormData,
-		onSubmit: debouncedSubmit,
+		onSubmit,
 		initialDirty: true,
 	});
 

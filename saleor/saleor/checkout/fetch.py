@@ -627,6 +627,28 @@ def _refresh_checkout_deliveries(
         # Missing refreshed delivery method means that assigned
         # delivery is no more valid.
         if not refreshed_delivery_method:
+            # Delete any existing is_valid=False record with the same
+            # external/built-in shipping method id to prevent
+            # UniqueViolation on the "unique_for_checkout" constraint.
+            conflict_filter = Q(checkout_id=checkout.pk, is_valid=False)
+            if assigned_delivery.external_shipping_method_id:
+                conflict_filter &= Q(
+                    external_shipping_method_id=(
+                        assigned_delivery.external_shipping_method_id
+                    ),
+                    built_in_shipping_method_id__isnull=True,
+                )
+            elif assigned_delivery.built_in_shipping_method_id:
+                conflict_filter &= Q(
+                    built_in_shipping_method_id=(
+                        assigned_delivery.built_in_shipping_method_id
+                    ),
+                    external_shipping_method_id__isnull=True,
+                )
+            CheckoutDelivery.objects.filter(conflict_filter).exclude(
+                pk=assigned_delivery.pk
+            ).delete()
+
             assigned_delivery.is_valid = False
             assigned_delivery.save(update_fields=["is_valid"])
 

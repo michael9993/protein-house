@@ -41,6 +41,8 @@ export default function ProductsPage() {
   const [autoCreateCollections, setAutoCreateCollections] = useState(true);
   const [attributeDefaults, setAttributeDefaults] = useState<Record<string, string>>({});
   const [discoveredAttrColumns, setDiscoveredAttrColumns] = useState<string[]>([]);
+  const [isDropship, setIsDropship] = useState(false);
+  const [dropshipSupplier, setDropshipSupplier] = useState("cj");
 
   // Export filter state
   const [searchFilter, setSearchFilter] = useState("");
@@ -169,6 +171,8 @@ export default function ProductsPage() {
           autoCreateCategories,
           autoCreateCollections,
           attributeDefaults: Object.keys(attributeDefaults).length > 0 ? attributeDefaults : undefined,
+          isDropship,
+          dropshipSupplier: isDropship ? dropshipSupplier : undefined,
         });
 
         for (const r of result.results) allResults.push({ ...r, row: r.row + rowOffset });
@@ -180,7 +184,7 @@ export default function ProductsPage() {
 
       return { total: totalSuccessful + totalFailed, successful: totalSuccessful, failed: totalFailed, results: allResults };
     },
-    [importProducts, channelSlugs, productTypeId, categoryId, warehouseId, taxClassId, upsertMode, autoCreateAttributes, autoCreatePages, autoCreateProductTypes, autoCreateCategories, autoCreateCollections, attributeDefaults]
+    [importProducts, channelSlugs, productTypeId, categoryId, warehouseId, taxClassId, upsertMode, autoCreateAttributes, autoCreatePages, autoCreateProductTypes, autoCreateCategories, autoCreateCollections, attributeDefaults, isDropship, dropshipSupplier]
   );
 
   const handleExport = useCallback(
@@ -307,6 +311,47 @@ export default function ProductsPage() {
                 />
                 <Text size={2}>Auto-create brand/reference pages</Text>
               </label>
+            </Box>
+            <Box
+              display="flex"
+              gap={4}
+              alignItems="center"
+              __flexWrap="wrap"
+              marginBottom={3}
+              padding={3}
+              borderRadius={4}
+              __backgroundColor={isDropship ? "#fef3c7" : "transparent"}
+              __border={isDropship ? "1px solid #f59e0b" : "1px solid transparent"}
+            >
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                <input
+                  type="checkbox"
+                  checked={isDropship}
+                  onChange={(e) => setIsDropship(e.target.checked)}
+                />
+                <Text size={2} __fontWeight="600">Dropship product</Text>
+              </label>
+              {isDropship && (
+                <Box display="flex" gap={2} alignItems="center">
+                  <Text size={2} __color="#64748b">Supplier:</Text>
+                  <input
+                    type="text"
+                    value={dropshipSupplier}
+                    onChange={(e) => setDropshipSupplier(e.target.value)}
+                    placeholder="cj"
+                    style={{
+                      width: "120px",
+                      padding: "4px 8px",
+                      border: "1px solid #d1d5db",
+                      borderRadius: "6px",
+                      fontSize: "13px",
+                    }}
+                  />
+                  <Text size={1} __color="#92400e">
+                    trackInventory=false, dummy stock=1000, supplier metadata auto-applied
+                  </Text>
+                </Box>
+              )}
             </Box>
             {discoveredAttrColumns.length > 0 && (
               <Box>

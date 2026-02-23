@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 import { type Checkout, useCheckoutQuery } from "@/checkout/graphql";
 import { useCheckoutIdFromServer } from "@/checkout/contexts/CheckoutIdContext";
@@ -19,15 +19,26 @@ export const useCheckout = ({ pause = false } = {}) => {
 		pause: shouldPause,
 	});
 
+	// Keep last known checkout data during cache invalidation refetches.
+	// When urql's document cache invalidates a query (after a mutation),
+	// data temporarily becomes undefined. This ref preserves the previous
+	// checkout so the UI doesn't flash a skeleton during refetch.
+	const lastCheckoutRef = useRef<Checkout | null>(null);
+	if (data?.checkout) {
+		lastCheckoutRef.current = data.checkout as Checkout;
+	}
+
+	const checkout = (data?.checkout ?? lastCheckoutRef.current) as Checkout | null;
+
 	useEffect(() => setLoadingCheckout(fetching || stale), [fetching, setLoadingCheckout, stale]);
 
 	return useMemo(
-		() => ({ 
-			checkout: data?.checkout as Checkout | null, 
-			fetching: fetching || stale, 
+		() => ({
+			checkout,
+			fetching: fetching || stale,
 			refetch,
 			hasValidCheckoutId: !!id,
 		}),
-		[data?.checkout, fetching, refetch, stale, id],
+		[checkout, fetching, refetch, stale, id],
 	);
 };

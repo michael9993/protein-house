@@ -40,8 +40,9 @@ function decodeMethodId(encodedId: string): string {
 
 /**
  * Handle CHECKOUT_FILTER_SHIPPING_METHODS:
- * - If ALL checkout items are dropship → exclude built-in ShippingMethod IDs
- * - Otherwise → exclude nothing (let all methods through)
+ * - If ALL checkout items are dropship AND app-provided (CJ) methods exist
+ *   → exclude built-in ShippingMethod IDs
+ * - Otherwise → exclude nothing (built-in methods serve as fallback)
  */
 export function handleShippingFilter(
   lines: CheckoutLine[],
@@ -56,10 +57,25 @@ export function handleShippingFilter(
     return { excluded_methods: [] };
   }
 
-  // Exclude all built-in shipping methods for all-dropship checkouts.
-  // The SHIPPING_LIST_METHODS_FOR_CHECKOUT webhook provides CJ carrier methods.
-  // Note: Saleor's filter payload only includes built-in methods, not app-provided ones.
-  const excluded: Array<{ id: string }> = [];
+  // Check if any app-provided (CJ) methods exist in the available methods.
+  // Saleor calls SHIPPING_LIST_METHODS_FOR_CHECKOUT first, then passes all methods
+  // (built-in + external) to this filter. App methods decode to "app:<appId>:<methodId>".
+  const hasAppMethods = availableMethods.some((method) => {
+    const decoded = decodeMethodId(method.id);
+    return decoded.startsWith("app:");
+  });
+
+  if (!hasAppMethods) {
+    // No supplier shipping methods were returned — keep built-in methods as fallback
+    // so the customer can still complete checkout.
+    logger.info("No app-provided shipping methods found — keeping built-in as fallback", {
+      totalMethods: availableMethods.length,
+    });
+    return { excluded_methods: [] };
+  }
+
+  // CJ methods are available — exclude built-in methods so only supplier methods show.
+  const excluded: Array<{ id: string; reason?: string }> = [];
 
   for (const method of availableMethods) {
     const decoded = decodeMethodId(method.id);
@@ -72,6 +88,7 @@ export function handleShippingFilter(
   logger.info("Filtering shipping methods for all-dropship checkout", {
     totalMethods: availableMethods.length,
     excludedCount: excluded.length,
+    appMethodCount: availableMethods.length - excluded.length,
   });
 
   return { excluded_methods: excluded };

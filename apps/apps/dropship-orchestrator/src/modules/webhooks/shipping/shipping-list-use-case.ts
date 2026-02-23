@@ -2,6 +2,7 @@ import { Client, gql } from "urql";
 
 import { createLogger } from "@/logger";
 import { fetchAppId, getSupplierCredentials } from "@/modules/lib/metadata-manager";
+import { getFreeShippingThreshold } from "@/modules/lib/storefront-config-reader";
 import { convertCurrency, DEFAULT_RATES } from "@/modules/pricing/currency-converter";
 import type { ExchangeRate } from "@/modules/pricing/currency-converter";
 import { CJAdapter } from "@/modules/suppliers/cj/adapter";
@@ -80,6 +81,26 @@ function parseExchangeRates(meta: Array<{ key: string; value: string }>): Exchan
 }
 
 // ---------------------------------------------------------------------------
+// CJ Auth Token Cache — avoids re-authenticating on every checkout query
+// ---------------------------------------------------------------------------
+
+let cachedAuthToken: AuthToken | null = null;
+let cachedAuthExpiry = 0;
+
+function getCachedAuth(): AuthToken | null {
+  // Return cached token if it's valid for at least 60 more seconds
+  if (cachedAuthToken && Date.now() < cachedAuthExpiry - 60_000) {
+    return cachedAuthToken;
+  }
+  return null;
+}
+
+function setCachedAuth(token: AuthToken): void {
+  cachedAuthToken = token;
+  cachedAuthExpiry = token.expiresAt.getTime();
+}
+
+// ---------------------------------------------------------------------------
 // Use Case
 // ---------------------------------------------------------------------------
 
@@ -97,23 +118,40 @@ export async function handleShippingList(
   shippingCountryCode: string,
   checkoutCurrency: string,
   shippingPostalCode?: string,
+  subtotalAmount?: number,
+  channelSlug?: string,
 ): Promise<ExternalShippingMethod[]> {
   // 1. Classify
   const classification = classifyCheckout(lines);
 
   if (classification.type !== "all_dropship") {
-    logger.debug("Not all-dropship, skipping", { type: classification.type });
     return [];
   }
 
   // 2. Get app ID + CJ credentials
   const appId = await fetchAppId(client);
   if (!appId) {
-    logger.error("Failed to fetch app ID");
     return [];
   }
 
-  let creds = await getSupplierCredentials(client, appId, "cj");
+  // Fetch credentials from encrypted metadata with timeout protection
+  let creds: Awaited<ReturnType<typeof getSupplierCredentials>> = null;
+  try {
+    creds = await Promise.race([
+      getSupplierCredentials(client, appId, "cj"),
+      new Promise<null>((resolve) =>
+        setTimeout(() => {
+          logger.warn("getSupplierCredentials timed out after 5s");
+          resolve(null);
+        }, 5_000),
+      ),
+    ]);
+  } catch (credErr) {
+    logger.warn("getSupplierCredentials threw", {
+      error: credErr instanceof Error ? credErr.message : String(credErr),
+    });
+    creds = null;
+  }
 
   // Fallback to env var if no metadata credentials (dev mode)
   if (!creds || creds.type !== "cj") {
@@ -126,17 +164,21 @@ export async function handleShippingList(
     }
   }
 
-  // Authenticate with CJ to get a valid access token
+  // Authenticate with CJ to get a valid access token (cached in-memory)
   const adapter = new CJAdapter();
   let authToken: AuthToken;
 
-  if (creds.accessToken) {
+  const cached = getCachedAuth();
+  if (cached) {
+    authToken = cached;
+  } else if (creds.accessToken) {
     authToken = {
       accessToken: creds.accessToken,
       expiresAt: creds.tokenExpiresAt
         ? new Date(creds.tokenExpiresAt)
         : new Date(Date.now() + 86400_000),
     };
+    setCachedAuth(authToken);
   } else {
     // No stored access token — authenticate using API key
     const authResult = await adapter.authenticate(creds);
@@ -145,6 +187,7 @@ export async function handleShippingList(
       return [];
     }
     authToken = authResult.value;
+    setCachedAuth(authToken);
   }
 
   // 3. Fetch exchange rates from app metadata
@@ -273,6 +316,21 @@ export async function handleShippingList(
 
   // Sort by price ascending
   methods.sort((a, b) => a.amount - b.amount);
+
+  // 7. Apply free shipping threshold — cheapest method becomes free
+  if (subtotalAmount != null && channelSlug && methods.length > 0) {
+    const threshold = await getFreeShippingThreshold(client, channelSlug);
+
+    if (threshold != null && subtotalAmount >= threshold) {
+      logger.info("Free shipping threshold met — cheapest method set to free", {
+        subtotal: subtotalAmount,
+        threshold,
+        freeMethod: methods[0].name,
+      });
+      methods[0].amount = 0;
+      methods[0].name = methods[0].name + " (Free)";
+    }
+  }
 
   logger.info("Returning CJ shipping methods", {
     count: methods.length,
