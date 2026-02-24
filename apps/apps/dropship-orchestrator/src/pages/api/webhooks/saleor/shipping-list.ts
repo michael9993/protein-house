@@ -150,8 +150,8 @@ const handler: NextJsSyncWebhookHandler<ShippingListWebhookPayload> = async (
       .query(FETCH_CHECKOUT_SUBTOTAL, { id: checkout.id })
       .toPromise();
     subtotalAmount = subtotalData?.checkout?.subtotalPrice?.gross?.amount;
-  } catch {
-    logger.warn("Failed to fetch checkout subtotal", { checkoutId: checkout.id });
+  } catch (subtotalErr) {
+    console.warn("[ShippingWebhook] Failed to fetch subtotal:", (subtotalErr as Error).message);
   }
 
   // Saleor sync webhooks timeout at ~18s. Use 12s budget so we respond in time.

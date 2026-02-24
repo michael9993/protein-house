@@ -1084,6 +1084,8 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       addressLine2Label: "Street address (continue)",
       cityLabel: "City",
       countryLabel: "Country",
+      countryPlaceholder: "Search country...",
+      noCountryFound: "No country found",
       stateLabel: "State",
       postalCodeLabel: "Postal code",
       phoneLabel: "Phone number",
@@ -1106,9 +1108,23 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
 
       // Delivery Methods Section
       deliveryMethodsTitle: "Delivery methods",
+      deliveryMethodsSubtitle: "Choose shipping speed",
+      noShippingMethodsAvailable: "No shipping methods available for this address. Please try a different shipping address.",
       businessDaysText: "{min}-{max} business days",
       freeShippingLabel: "Free",
       noDeliveryMethodsText: "No delivery methods available",
+      fetchingShippingRates: "Calculating shipping rates...",
+      updatingShippingRates: "Updating shipping rates for new address...",
+      calculateShippingButton: "Calculate Shipping Rates",
+      calculatingShippingText: "Calculating shipping rates...",
+      recalculateRatesButton: "Recalculate",
+      addressChangedNotice: "Shipping address changed since last calculation",
+      shippingFetchErrorText: "Could not fetch shipping rates",
+      shippingFetchErrorHint: "Please verify your shipping address is correct and try again.",
+      noShippingMethodsHint: "Please check that your address details are correct, or try a different address.",
+      tryAgainButton: "Try Again",
+      shippingAddressDetected: "Shipping address detected",
+      calculateShippingHint: "Click below to see available shipping options and pricing for your address.",
       freeShippingVoucherNotApplicable:
         "Free shipping voucher is not applicable with this delivery method. Choose a free shipping method to use your voucher.",
       freeShippingAppliedWithMethod: "Free shipping applied with this method.",
@@ -1127,6 +1143,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       invalidPaymentDataError: "Invalid payment data received. Please try again.",
       paymentInitIncompleteError: "Payment initialization incomplete. Please try again.",
       paymentConfirmationFailedError: "Payment confirmation failed. Please try again.",
+      paymentTimeoutError: "Payment timed out. Please try again.",
       paymentFailedError: "Payment failed",
       unexpectedPaymentError: "An unexpected error occurred with your payment",
       paymentSuccessOrderFailedError: "Payment was successful but order processing failed. Please contact support.",
@@ -1236,6 +1253,32 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       contactDetailsTitle: "Contact details",
       createAccountLabel: "I want to create account",
       passwordMinChars: "Password (minimum 8 characters)",
+
+      // Reset Password
+      resetPasswordTitle: "Reset password",
+      rememberedPasswordText: "Remembered your password?",
+      provideNewPasswordText: "Provide a new password for your account",
+
+      // Address List
+      noSavedAddressesText: "You currently have no saved addresses.",
+
+      // Voucher/Gift Card
+      voucherLabel: "Voucher:",
+      giftCardMaskedLabel: "Gift Card: ••••",
+
+      // Empty Cart
+      emptyCartTitle: "Your cart is empty",
+      emptyCartMessage: "Looks like you haven't added anything to your cart yet. Explore our products and find something you'll love!",
+      browseProductsButton: "Browse Products",
+      goToHomepageButton: "Go to Homepage",
+      needHelpText: "Need help?",
+      freeShippingBadge: "Free shipping on orders over $50",
+      easyReturnsBadge: "Easy 30-day returns",
+      securePaymentBadge: "Secure payment processing",
+
+      // Order Not Found
+      orderNotFoundTitle: "Order not found",
+      orderNotFoundMessage: "We couldn't find the order you're looking for. Please check your order number and try again.",
 
       // No checkout found / Error pages
       noCheckoutFoundTitle: "No checkout found",
@@ -1409,6 +1452,14 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       estimatedDeliveryPrefix: "Estimated delivery",
       businessDaysLabel: "business days",
       trackOrderLabel: "Track your order",
+      shippingEstimatedDelivery: "Estimated delivery: {days} business days",
+      shippingFreeLabel: "Free Shipping",
+      shippingProcessingTime: "Processing time: 1-3 business days",
+      shippingTrackingNotice: "You'll receive tracking information via email once your order ships",
+      shippingWarehouseNotice: "This item ships from our international fulfillment center",
+      shippingReturnPolicyNote: "Returns accepted within 30 days of delivery",
+      shippingCarrierLabel: "Carrier: {carrier}",
+      shippingExtendedReturnNote: "Please note: return shipping for international items may take additional time",
       loadingReviews: "Loading reviews...",
       reviewCountText: "{count} review",
       noReviewsMatchFilters: "No reviews match your filters.",

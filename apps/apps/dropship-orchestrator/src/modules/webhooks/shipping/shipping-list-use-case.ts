@@ -322,21 +322,10 @@ export async function handleShippingList(
     const threshold = await getFreeShippingThreshold(client, channelSlug);
 
     if (threshold != null && subtotalAmount >= threshold) {
-      logger.info("Free shipping threshold met — cheapest method set to free", {
-        subtotal: subtotalAmount,
-        threshold,
-        freeMethod: methods[0].name,
-      });
       methods[0].amount = 0;
       methods[0].name = methods[0].name + " (Free)";
     }
   }
-
-  logger.info("Returning CJ shipping methods", {
-    count: methods.length,
-    country: shippingCountryCode,
-    currency: checkoutCurrency,
-  });
 
   return methods;
 }

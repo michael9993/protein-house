@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { type Checkout, useCheckoutQuery } from "@/checkout/graphql";
 import { useCheckoutIdFromServer } from "@/checkout/contexts/CheckoutIdContext";
 import { extractCheckoutIdFromUrl } from "@/checkout/lib/utils/url";
+import { getLanguageCodeForChannel, getChannelFromUrl } from "@/checkout/lib/utils/language";
 import { useCheckoutUpdateStateActions } from "@/checkout/state/updateStateStore";
 
 export const useCheckout = ({ pause = false } = {}) => {
@@ -11,11 +12,18 @@ export const useCheckout = ({ pause = false } = {}) => {
 	const id = idFromServer ?? idFromUrl;
 	const { setLoadingCheckout } = useCheckoutUpdateStateActions();
 
+	// Derive language code from URL channel slug (available before first fetch)
+	const channelFromUrl = useMemo(() => getChannelFromUrl(), []);
+	const languageCode = useMemo(
+		() => getLanguageCodeForChannel(channelFromUrl),
+		[channelFromUrl],
+	);
+
 	// If no checkout ID, pause the query
 	const shouldPause = pause || !id;
 
 	const [{ data, fetching, stale }, refetch] = useCheckoutQuery({
-		variables: { id: id || "", languageCode: "EN_US" },
+		variables: { id: id || "", languageCode },
 		pause: shouldPause,
 	});
 
@@ -38,7 +46,8 @@ export const useCheckout = ({ pause = false } = {}) => {
 			fetching: fetching || stale,
 			refetch,
 			hasValidCheckoutId: !!id,
+			languageCode,
 		}),
-		[checkout, fetching, refetch, stale, id],
+		[checkout, fetching, refetch, stale, id, languageCode],
 	);
 };

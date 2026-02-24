@@ -10,6 +10,27 @@ import { useTransactionInitializeMutation, useTransactionProcessMutation } from 
 import { useCheckoutComplete } from "@/checkout/hooks/useCheckoutComplete";
 import { useCheckoutText } from "@/checkout/hooks/useCheckoutText";
 
+/** Retry an async operation with exponential backoff when Stripe frame errors occur */
+async function withFrameRetry<T>(
+	fn: () => Promise<T>,
+	maxRetries = 3,
+): Promise<T> {
+	for (let attempt = 0; attempt < maxRetries; attempt++) {
+		try {
+			return await fn();
+		} catch (error: any) {
+			const isFrameError =
+				error?.message?.includes("Frame not initialized") ||
+				error?.message?.includes("frame");
+			if (!isFrameError || attempt === maxRetries - 1) throw error;
+			await new Promise((r) => setTimeout(r, 300 * Math.pow(2, attempt)));
+		}
+	}
+	throw new Error("Stripe submit failed after retries");
+}
+
+const PAYMENT_TIMEOUT_MS = 60_000;
+
 // PaymentElement options - onReady is handled via PaymentElement's onReady prop, not in options
 const createPaymentElementOptions = (): StripePaymentElementOptions => ({
 	layout: "tabs",
@@ -92,36 +113,31 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 
 		setIsLoading(true);
 
+		// Payment timeout — prevent indefinite loading state
+		const timeoutId = setTimeout(() => {
+			setIsLoading(false);
+			showCustomErrors([{ message: text.paymentTimeoutError || "Payment timed out. Please try again." }]);
+		}, PAYMENT_TIMEOUT_MS);
+
 		try {
 			// First submit Stripe form to validate and get the payment method
 			let submitResult;
 			try {
 				console.log("[StripeForm] Submitting Stripe form...");
-				submitResult = await elements.submit();
+				submitResult = await withFrameRetry(() => elements.submit());
 				console.log("[StripeForm] Stripe form submitted", { hasError: !!submitResult.error, selectedPaymentMethod: (submitResult as any)?.selectedPaymentMethod });
 			} catch (frameError: any) {
-				// Handle Stripe frame initialization errors
-				if (frameError?.message?.includes("Frame not initialized") || frameError?.message?.includes("frame")) {
-					console.warn("Stripe frame initialization issue, retrying...", frameError);
-					// Wait a bit and retry once
-					await new Promise(resolve => setTimeout(resolve, 500));
-					try {
-						submitResult = await elements.submit();
-					} catch (retryError) {
-						console.error("[StripeForm] Retry failed", retryError);
-						showCustomErrors([{ message: text.paymentFormNotReadyError || "Payment form is not ready. Please refresh the page and try again." }]);
-						setIsLoading(false);
-						return;
-					}
-				} else {
-					console.error("[StripeForm] Submit error", frameError);
-					throw frameError;
-				}
+				console.error("[StripeForm] Submit error after retries", frameError);
+				showCustomErrors([{ message: text.paymentFormNotReadyError || "Payment form is not ready. Please refresh the page and try again." }]);
+				clearTimeout(timeoutId);
+				setIsLoading(false);
+				return;
 			}
 
 			if (submitResult.error) {
 				console.error("[StripeForm] Stripe validation error", submitResult.error);
 				showCustomErrors([{ message: submitResult.error.message || text.paymentValidationFailedError || "Payment validation failed" }]);
+				clearTimeout(timeoutId);
 				setIsLoading(false);
 				return;
 			}
@@ -167,6 +183,7 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 				showCustomErrors([
 					{ message: initializeResult.error.message || "Transaction initialization failed" },
 				]);
+				clearTimeout(timeoutId);
 				setIsLoading(false);
 				return;
 			}
@@ -177,6 +194,7 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 			if (transactionData?.errors?.length) {
 				const errorMessages = transactionData.errors.map((err) => ({ message: err.message || "Error" }));
 				showCustomErrors(errorMessages);
+				clearTimeout(timeoutId);
 				setIsLoading(false);
 				return;
 			}
@@ -186,6 +204,7 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 			const transactionId = transactionData?.transaction?.id;
 			if (!transactionId) {
 				showCustomErrors([{ message: text.transactionCreationFailedError || "Transaction could not be created. Please try again." }]);
+				clearTimeout(timeoutId);
 				setIsLoading(false);
 				return;
 			}
@@ -201,9 +220,10 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 					data = JSON.parse(data);
 				} catch (e) {
 					console.error("Failed to parse transaction data as JSON:", e);
-					showCustomErrors([{ 
-						message: text.invalidPaymentDataError || "Invalid payment data received. Please try again." 
+					showCustomErrors([{
+						message: text.invalidPaymentDataError || "Invalid payment data received. Please try again."
 					}]);
+					clearTimeout(timeoutId);
 					setIsLoading(false);
 					return;
 				}
@@ -227,9 +247,10 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 					hasPaymentIntent: !!data?.paymentIntent,
 					paymentIntentType: typeof data?.paymentIntent,
 				});
-				showCustomErrors([{ 
-					message: text.paymentInitIncompleteError || "Payment initialization incomplete. The payment intent was created but the client secret is missing. Please try again." 
+				showCustomErrors([{
+					message: text.paymentInitIncompleteError || "Payment initialization incomplete. The payment intent was created but the client secret is missing. Please try again."
 				}]);
+				clearTimeout(timeoutId);
 				setIsLoading(false);
 				return;
 			}
@@ -241,73 +262,44 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 				transaction: transactionId,
 			});
 
-			// Confirm the payment with Stripe
+			// Confirm the payment with Stripe (with frame retry)
 			let confirmResult;
 			try {
-				confirmResult = await stripe.confirmPayment({
-					elements,
-					clientSecret,
-					confirmParams: {
-						return_url: returnUrl,
-						payment_method_data: {
-							billing_details: {
-								name: `${checkout.billingAddress?.firstName} ${checkout.billingAddress?.lastName}`.trim(),
-								email: checkout.email || "",
-								phone: checkout.billingAddress?.phone || "",
-								address: {
-									city: checkout.billingAddress?.city || "",
-									country: checkout.billingAddress?.country?.code || "",
-									line1: checkout.billingAddress?.streetAddress1 || "",
-									line2: checkout.billingAddress?.streetAddress2 || "",
-									postal_code: checkout.billingAddress?.postalCode || "",
-									state: checkout.billingAddress?.countryArea || "",
-								},
-							},
-						},
-					},
-				});
-			} catch (frameError: any) {
-				// Handle Stripe frame initialization errors during confirmation
-				if (frameError?.message?.includes("Frame not initialized") || frameError?.message?.includes("frame")) {
-					console.warn("Stripe frame error during confirmation, retrying...", frameError);
-					// Wait a bit and retry once
-					await new Promise(resolve => setTimeout(resolve, 500));
-					try {
-						confirmResult = await stripe.confirmPayment({
-							elements,
-							clientSecret,
-							confirmParams: {
-								return_url: returnUrl,
-								payment_method_data: {
-									billing_details: {
-										name: `${checkout.billingAddress?.firstName} ${checkout.billingAddress?.lastName}`.trim(),
-										email: checkout.email || "",
-										phone: checkout.billingAddress?.phone || "",
-										address: {
-											city: checkout.billingAddress?.city || "",
-											country: checkout.billingAddress?.country?.code || "",
-											line1: checkout.billingAddress?.streetAddress1 || "",
-											line2: checkout.billingAddress?.streetAddress2 || "",
-											postal_code: checkout.billingAddress?.postalCode || "",
-											state: checkout.billingAddress?.countryArea || "",
-										},
+				confirmResult = await withFrameRetry(() =>
+					stripe.confirmPayment({
+						elements,
+						clientSecret,
+						confirmParams: {
+							return_url: returnUrl,
+							payment_method_data: {
+								billing_details: {
+									name: `${checkout.billingAddress?.firstName} ${checkout.billingAddress?.lastName}`.trim(),
+									email: checkout.email || "",
+									phone: checkout.billingAddress?.phone || "",
+									address: {
+										city: checkout.billingAddress?.city || "",
+										country: checkout.billingAddress?.country?.code || "",
+										line1: checkout.billingAddress?.streetAddress1 || "",
+										line2: checkout.billingAddress?.streetAddress2 || "",
+										postal_code: checkout.billingAddress?.postalCode || "",
+										state: checkout.billingAddress?.countryArea || "",
 									},
 								},
 							},
-						});
-					} catch (retryError) {
-						showCustomErrors([{ message: text.paymentConfirmationFailedError || "Payment confirmation failed. Please try again." }]);
-						setIsLoading(false);
-						return;
-					}
-				} else {
-					throw frameError;
-				}
+						},
+					}),
+				);
+			} catch (frameError: any) {
+				showCustomErrors([{ message: text.paymentConfirmationFailedError || "Payment confirmation failed. Please try again." }]);
+				clearTimeout(timeoutId);
+				setIsLoading(false);
+				return;
 			}
 
 			const { error: confirmError } = confirmResult;
 
 			if (confirmError) {
+				clearTimeout(timeoutId);
 				setIsLoading(false);
 				if (confirmError.type === "card_error" || confirmError.type === "validation_error") {
 					showCustomErrors([{ message: confirmError.message ?? text.paymentFailedError ?? "Payment failed" }]);
@@ -326,6 +318,7 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 					showCustomErrors([
 						{ message: text.paymentSuccessOrderFailedError || "Payment was successful but order processing failed. Please contact support." },
 					]);
+					clearTimeout(timeoutId);
 					setIsLoading(false);
 					return;
 				}
@@ -339,7 +332,9 @@ export function CheckoutForm({ gatewayId }: CheckoutFormProps) {
 
 			// Note: If Stripe requires redirect (3DS, etc.), it will redirect to the return_url
 			// The redirect flow is handled by useCheckoutCompleteRedirect
+			clearTimeout(timeoutId);
 		} catch (error) {
+			clearTimeout(timeoutId);
 			console.error("Payment processing error:", error);
 			showCustomErrors([{ message: "An unexpected error occurred during payment" }]);
 			setIsLoading(false);

@@ -41,6 +41,8 @@ export interface CheckoutTextConfig {
 	addressLine2Label?: string;
 	cityLabel?: string;
 	countryLabel?: string;
+	countryPlaceholder?: string;
+	noCountryFound?: string;
 	stateLabel?: string;
 	postalCodeLabel?: string;
 	phoneLabel?: string;
@@ -69,6 +71,17 @@ export interface CheckoutTextConfig {
 	freeShippingLabel?: string;
 	noDeliveryMethodsText?: string;
 	fetchingShippingRates?: string;
+	updatingShippingRates?: string;
+	calculateShippingButton?: string;
+	calculatingShippingText?: string;
+	recalculateRatesButton?: string;
+	addressChangedNotice?: string;
+	shippingFetchErrorText?: string;
+	shippingFetchErrorHint?: string;
+	noShippingMethodsHint?: string;
+	tryAgainButton?: string;
+	shippingAddressDetected?: string;
+	calculateShippingHint?: string;
 	/** Shown when a free shipping voucher is applied but selected method has no isFree metadata */
 	freeShippingVoucherNotApplicable?: string;
 	/** Shown when a free shipping voucher is applied and selected method has isFree true */
@@ -88,6 +101,7 @@ export interface CheckoutTextConfig {
 	invalidPaymentDataError?: string;
 	paymentInitIncompleteError?: string;
 	paymentConfirmationFailedError?: string;
+	paymentTimeoutError?: string;
 	paymentFailedError?: string;
 	unexpectedPaymentError?: string;
 	paymentSuccessOrderFailedError?: string;
@@ -283,6 +297,8 @@ const defaultCheckoutText: CheckoutTextConfig = {
 	addressLine2Label: "Street address (continue)",
 	cityLabel: "City",
 	countryLabel: "Country",
+	countryPlaceholder: "Search country...",
+	noCountryFound: "No country found",
 	stateLabel: "State",
 	postalCodeLabel: "Postal code",
 	phoneLabel: "Phone number",
@@ -309,6 +325,17 @@ const defaultCheckoutText: CheckoutTextConfig = {
 	noShippingMethodsAvailable: "No shipping methods available for this address. Please try a different shipping address.",
 	businessDaysText: "{min}-{max} business days",
 	freeShippingLabel: "Free",
+	updatingShippingRates: "Updating shipping rates for new address...",
+	calculateShippingButton: "Calculate Shipping Rates",
+	calculatingShippingText: "Calculating shipping rates...",
+	recalculateRatesButton: "Recalculate",
+	addressChangedNotice: "Shipping address changed since last calculation",
+	shippingFetchErrorText: "Could not fetch shipping rates",
+	shippingFetchErrorHint: "Please verify your shipping address is correct and try again.",
+	noShippingMethodsHint: "Please check that your address details are correct, or try a different address.",
+	tryAgainButton: "Try Again",
+	shippingAddressDetected: "Shipping address detected",
+	calculateShippingHint: "Click below to see available shipping options and pricing for your address.",
 	noDeliveryMethodsText: "No delivery methods available",
 	freeShippingVoucherNotApplicable:
 		"Free shipping voucher is not applicable with this delivery method. Choose a free shipping method to use your voucher.",
@@ -328,6 +355,7 @@ const defaultCheckoutText: CheckoutTextConfig = {
 	invalidPaymentDataError: "Invalid payment data received. Please try again.",
 	paymentInitIncompleteError: "Payment initialization incomplete. The payment intent was created but the client secret is missing. Please try again.",
 	paymentConfirmationFailedError: "Payment confirmation failed. Please try again.",
+	paymentTimeoutError: "Payment timed out. Please try again.",
 	paymentFailedError: "Payment failed",
 	unexpectedPaymentError: "An unexpected error occurred with your payment",
 	paymentSuccessOrderFailedError: "Payment was successful but order processing failed. Please contact support.",

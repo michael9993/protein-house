@@ -5,6 +5,7 @@ import { RemoveIcon } from "@/checkout/ui-kit/icons";
 import { useCheckoutRemovePromoCodeMutation } from "@/checkout/graphql";
 import { useCheckout } from "@/checkout/hooks/useCheckout";
 import { isOrderConfirmationPage } from "@/checkout/lib/utils/url";
+import { getLanguageCodeForChannel } from "@/checkout/lib/utils/language";
 
 interface SummaryPromoCodeRowProps extends SummaryMoneyRowProps {
 	promoCode?: string;
@@ -29,7 +30,7 @@ export const SummaryPromoCodeRow: React.FC<SummaryPromoCodeRowProps> = ({
 		const variables = promoCode ? { promoCode: promoCode } : { promoCodeId: promoCodeId as string };
 
 		void checkoutRemovePromoCode({
-			languageCode: "EN_US",
+			languageCode: getLanguageCodeForChannel(checkout.channel?.slug),
 			checkoutId: checkout.id,
 			...variables,
 		});

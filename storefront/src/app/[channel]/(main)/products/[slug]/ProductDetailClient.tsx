@@ -686,6 +686,7 @@ export function ProductDetailClient({
                   reviewsEnabled={reviewsEnabled}
                   rating={product.rating || 0}
                   reviewCount={product.reviewCount || 0}
+                  metadata={product.metadata}
                   text={{
                     descriptionTab: productDetailText.descriptionTab,
                     specificationsTab: productDetailText.specificationsTab,
@@ -700,6 +701,14 @@ export function ProductDetailClient({
                     expressShippingDescription:
                       productDetailText.expressShippingDescription,
                     writeReviewButton: content.product.writeReviewButton,
+                    shippingEstimatedDelivery: productDetailText.shippingEstimatedDelivery,
+                    shippingFreeLabel: productDetailText.shippingFreeLabel,
+                    shippingProcessingTime: productDetailText.shippingProcessingTime,
+                    shippingTrackingNotice: productDetailText.shippingTrackingNotice,
+                    shippingWarehouseNotice: productDetailText.shippingWarehouseNotice,
+                    shippingReturnPolicyNote: productDetailText.shippingReturnPolicyNote,
+                    shippingCarrierLabel: productDetailText.shippingCarrierLabel,
+                    shippingExtendedReturnNote: productDetailText.shippingExtendedReturnNote,
                   }}
                 />
               </div>

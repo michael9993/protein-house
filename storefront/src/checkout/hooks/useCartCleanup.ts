@@ -1,5 +1,6 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useCheckoutLineDeleteMutation } from "@/checkout/graphql";
+import { getLanguageCodeForChannel, getChannelFromUrl } from "@/checkout/lib/utils/language";
 
 interface PendingCartCleanup {
 	originalCartId: string;
@@ -15,6 +16,7 @@ export const useCartCleanup = () => {
 	const [isCleaningUp, setIsCleaningUp] = useState(false);
 	const [cleanupComplete, setCleanupComplete] = useState(false);
 	const [, deleteLine] = useCheckoutLineDeleteMutation();
+	const languageCode = useMemo(() => getLanguageCodeForChannel(getChannelFromUrl()), []);
 
 	const cleanupCart = useCallback(async () => {
 		try {
@@ -47,7 +49,7 @@ export const useCartCleanup = () => {
 				const result = await deleteLine({
 					checkoutId: cleanup.originalCartId,
 					lineId: lineId,
-					languageCode: "EN_US",
+					languageCode,
 				});
 
 				if (result.error) {

@@ -1,7 +1,9 @@
 @import "react-toastify/dist/ReactToastify.css";
 
-/* Prevent layout shift from scrollbar appearing/disappearing during load */
-html {
+/* Prevent layout shift from scrollbar appearing/disappearing during load.
+   body has overflow-x:hidden (globals.css) making it the scroll container,
+   so scrollbar-gutter must be on body, not html. */
+body {
   scrollbar-gutter: stable;
 }
 

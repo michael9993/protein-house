@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useCheckout } from "@/checkout/hooks/useCheckout";
 import { useCheckoutIdFromServer } from "@/checkout/contexts/CheckoutIdContext";
 import { useCheckoutLineDeleteMutation } from "@/checkout/graphql";
+import { getLanguageCodeForChannel } from "@/checkout/lib/utils/language";
 
 const STORAGE_KEY = "checkout-no-gift-ids";
 /** Must match CHECKOUT_NO_GIFT_COOKIE in cart-actions (used so checkout page can add ID to no-gift list when opened in new tab). */
@@ -100,7 +101,7 @@ export function useRemoveGiftLinesForPartialCheckout() {
 					await deleteLine({
 						checkoutId: checkout.id,
 						lineId: line.id,
-						languageCode: "EN_US",
+						languageCode: getLanguageCodeForChannel(checkout.channel?.slug),
 					});
 				} catch {
 					// Continue with next line

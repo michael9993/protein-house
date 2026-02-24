@@ -292,6 +292,15 @@ export const DEFAULT_PRODUCT_DETAIL_TEXT: ProductDetailText = {
   estimatedDeliveryPrefix: "Estimated delivery",
   businessDaysLabel: "business days",
   trackOrderLabel: "Track your order",
+  // Dropship / extended shipping tab text
+  shippingEstimatedDelivery: "Estimated delivery: {days} business days",
+  shippingFreeLabel: "Free Shipping",
+  shippingProcessingTime: "Processing time: 1-3 business days",
+  shippingTrackingNotice: "You'll receive tracking information via email once your order ships",
+  shippingWarehouseNotice: "This item ships from our international fulfillment center",
+  shippingReturnPolicyNote: "Returns accepted within 30 days of delivery",
+  shippingCarrierLabel: "Carrier: {carrier}",
+  shippingExtendedReturnNote: "Please note: return shipping for international items may take additional time",
   // Review list and loading states
   loadingReviews: "Loading reviews...",
   reviewCountText: "{count} review(s)", // Not used directly, using reviewSingular/reviewPlural instead

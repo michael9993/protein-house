@@ -6,7 +6,7 @@ import { type AddressField, type AddressFormData } from "@/checkout/components/A
 import { Title } from "@/checkout/components/Title";
 import { TextInput } from "@/checkout/components/TextInput";
 import { autocompleteTags, typeTags } from "@/checkout/lib/consts/inputAttributes";
-import { CountrySelect } from "@/checkout/components/CountrySelect";
+import { CountryCombobox } from "@/checkout/components/CountryCombobox";
 import { Select } from "@/checkout/components/Select";
 import { getEmptyAddressFormData, isMatchingAddressFormData } from "@/checkout/components/AddressForm/utils";
 import { type ChangeHandler, useFormContext, type BlurHandler } from "@/checkout/hooks/useForm";
@@ -41,6 +41,11 @@ export const AddressForm: FC<PropsWithChildren<AddressFormProps>> = ({
 	} = useAddressFormUtils(values.countryCode);
 
 	const allowedFieldsRef = useRef(allowedFields);
+
+	// Keep ref in sync so the cleanup effect uses the latest allowed fields
+	useEffect(() => {
+		allowedFieldsRef.current = allowedFields;
+	}, [allowedFields]);
 
 	const customValidators: Partial<Record<AddressField, FieldValidator>> = {
 		phone: isValidPhoneNumber,
@@ -79,7 +84,7 @@ export const AddressForm: FC<PropsWithChildren<AddressFormProps>> = ({
 		<>
 			<Title className="mb-4">{title}</Title>
 			<div className="mt-2 grid grid-cols-1 gap-3">
-				<CountrySelect only={availableCountries} />
+				<CountryCombobox only={availableCountries} />
 				{orderedAddressFields.map((field) => {
 					const isRequired = isRequiredField(field);
 					const label = getFieldLabel(field);

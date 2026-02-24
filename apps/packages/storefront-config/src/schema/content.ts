@@ -370,6 +370,8 @@ export const CheckoutTextSchema = z.object({
   addressLine2Label: z.string().optional(),       // "Apartment, suite, etc. (optional)"
   cityLabel: z.string().optional(),               // "City"
   countryLabel: z.string().optional(),            // "Country"
+  countryPlaceholder: z.string().optional(),      // "Search country..."
+  noCountryFound: z.string().optional(),          // "No country found"
   stateLabel: z.string().optional(),              // "State/Province"
   postalCodeLabel: z.string().optional(),         // "Postal code"
   phoneLabel: z.string().optional(),              // "Phone"
@@ -392,9 +394,23 @@ export const CheckoutTextSchema = z.object({
 
   // Delivery Methods Section
   deliveryMethodsTitle: z.string().optional(),    // "Delivery methods"
+  deliveryMethodsSubtitle: z.string().optional(), // "Choose shipping speed"
+  noShippingMethodsAvailable: z.string().optional(), // "No shipping methods available for this address..."
   businessDaysText: z.string().optional(),        // "{min}-{max} business days"
   freeShippingLabel: z.string().optional(),       // "Free"
   noDeliveryMethodsText: z.string().optional(),   // "No delivery methods available"
+  fetchingShippingRates: z.string().optional(),   // "Calculating shipping rates..."
+  updatingShippingRates: z.string().optional(),   // "Updating shipping rates for new address..."
+  calculateShippingButton: z.string().optional(),  // "Calculate Shipping Rates"
+  calculatingShippingText: z.string().optional(),  // "Calculating..."
+  recalculateRatesButton: z.string().optional(),   // "Recalculate"
+  addressChangedNotice: z.string().optional(),     // "Shipping address changed since last calculation"
+  shippingFetchErrorText: z.string().optional(),   // "Could not fetch shipping rates"
+  shippingFetchErrorHint: z.string().optional(),   // "Please verify your shipping address is correct and try again."
+  noShippingMethodsHint: z.string().optional(),    // "Please check that your address details are correct, or try a different address."
+  tryAgainButton: z.string().optional(),           // "Try Again"
+  shippingAddressDetected: z.string().optional(),  // "Shipping address detected"
+  calculateShippingHint: z.string().optional(),    // "Click below to see available shipping options..."
   freeShippingVoucherNotApplicable: z.string().optional(),  // When voucher is shipping but selected method has no isFree
   freeShippingAppliedWithMethod: z.string().optional(),      // When voucher is shipping and selected method has isFree true
 
@@ -412,6 +428,7 @@ export const CheckoutTextSchema = z.object({
   invalidPaymentDataError: z.string().optional(), // "Invalid payment data received..."
   paymentInitIncompleteError: z.string().optional(), // "Payment initialization incomplete..."
   paymentConfirmationFailedError: z.string().optional(), // "Payment confirmation failed..."
+  paymentTimeoutError: z.string().optional(),     // "Payment timed out. Please try again."
   paymentFailedError: z.string().optional(),      // "Payment failed"
   unexpectedPaymentError: z.string().optional(),  // "An unexpected error occurred..."
   paymentSuccessOrderFailedError: z.string().optional(), // "Payment was successful but order processing failed..."
@@ -530,6 +547,32 @@ export const CheckoutTextSchema = z.object({
   contactDetailsTitle: z.string().optional(),     // "Contact details"
   createAccountLabel: z.string().optional(),      // "I want to create account"
   passwordMinChars: z.string().optional(),        // "Password (minimum 8 characters)"
+
+  // Reset Password
+  resetPasswordTitle: z.string().optional(),      // "Reset password"
+  rememberedPasswordText: z.string().optional(),  // "Remembered your password?"
+  provideNewPasswordText: z.string().optional(),  // "Provide a new password for your account"
+
+  // Address List
+  noSavedAddressesText: z.string().optional(),    // "You currently have no saved addresses."
+
+  // Voucher/Gift Card
+  voucherLabel: z.string().optional(),            // "Voucher:"
+  giftCardMaskedLabel: z.string().optional(),     // "Gift Card: ••••"
+
+  // Empty Cart
+  emptyCartTitle: z.string().optional(),          // "Your cart is empty"
+  emptyCartMessage: z.string().optional(),        // "Looks like you haven't added anything..."
+  browseProductsButton: z.string().optional(),    // "Browse Products"
+  goToHomepageButton: z.string().optional(),      // "Go to Homepage"
+  needHelpText: z.string().optional(),            // "Need help?"
+  freeShippingBadge: z.string().optional(),       // "Free shipping on orders over $50"
+  easyReturnsBadge: z.string().optional(),        // "Easy 30-day returns"
+  securePaymentBadge: z.string().optional(),      // "Secure payment processing"
+
+  // Order Not Found
+  orderNotFoundTitle: z.string().optional(),      // "Order not found"
+  orderNotFoundMessage: z.string().optional(),    // "We couldn't find the order..."
 
   // SSL/Security
   sslEncryptionText: z.string().optional(),       // "Secure 256-bit SSL encryption"
@@ -731,6 +774,16 @@ export const ProductDetailTextSchema = z.object({
   estimatedDeliveryPrefix: z.string(),        // "Estimated delivery"
   businessDaysLabel: z.string(),              // "business days"
   trackOrderLabel: z.string(),               // "Track your order"
+
+  // Dropship / extended shipping tab text
+  shippingEstimatedDelivery: z.string().optional(),    // "Estimated delivery: {days} business days"
+  shippingFreeLabel: z.string().optional(),             // "Free Shipping"
+  shippingProcessingTime: z.string().optional(),        // "Processing time: 1-3 business days"
+  shippingTrackingNotice: z.string().optional(),        // "You'll receive tracking information via email once your order ships"
+  shippingWarehouseNotice: z.string().optional(),       // "This item ships from our international fulfillment center"
+  shippingReturnPolicyNote: z.string().optional(),      // "Returns accepted within 30 days of delivery"
+  shippingCarrierLabel: z.string().optional(),          // "Carrier: {carrier}"
+  shippingExtendedReturnNote: z.string().optional(),    // "Please note: return shipping for international items may take additional time"
 
   // Review list and loading states
   loadingReviews: z.string(),                 // "Loading reviews..."

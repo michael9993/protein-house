@@ -19,6 +19,7 @@ import {
 } from "@/checkout/hooks/useSubmit/types";
 import { type ApiErrors } from "@/checkout/hooks/useGetParsedErrors/types";
 import { extractMutationData, extractMutationErrors } from "@/checkout/hooks/useSubmit/utils";
+import { getLanguageCodeForChannel } from "@/checkout/lib/utils/language";
 
 interface CallbackProps<TData> {
 	formData: TData;
@@ -100,7 +101,7 @@ export const useSubmit = <
 			}
 
 			const commonData: CommonVars = {
-				languageCode: "EN_US",
+				languageCode: getLanguageCodeForChannel(checkout.channel.slug),
 				channel: checkout.channel.slug,
 				checkoutId: checkout.id,
 			};

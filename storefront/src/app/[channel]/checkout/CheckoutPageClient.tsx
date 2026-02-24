@@ -24,7 +24,7 @@ function CheckoutBreadcrumbs({ isOrderConfirmation, primaryColor }: CheckoutBrea
 
 	return (
 		<nav aria-label="Checkout progress" className="mt-4 print:hidden">
-			<ol className="flex items-center justify-center space-x-2 text-sm sm:space-x-4">
+			<ol className="flex items-center justify-center gap-2 text-sm sm:gap-4">
 				{steps.map((step, index) => (
 					<li key={step.id} className="flex items-center">
 						<span
@@ -48,7 +48,7 @@ function CheckoutBreadcrumbs({ isOrderConfirmation, primaryColor }: CheckoutBrea
 							)}
 						</span>
 						<span
-							className={`ml-2 hidden sm:inline ${
+							className={`ms-2 hidden sm:inline ${
 								step.completed ? "font-medium text-neutral-900" : "text-neutral-500"
 							}`}
 						>
@@ -56,7 +56,7 @@ function CheckoutBreadcrumbs({ isOrderConfirmation, primaryColor }: CheckoutBrea
 						</span>
 						{index < steps.length - 1 && (
 							<svg
-								className="ml-2 h-5 w-5 text-neutral-300 sm:ml-4"
+								className="ms-2 h-5 w-5 text-neutral-300 rtl:rotate-180 sm:ms-4"
 								fill="currentColor"
 								viewBox="0 0 20 20"
 							>

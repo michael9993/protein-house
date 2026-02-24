@@ -9,6 +9,7 @@ import { useFormSubmit } from "@/checkout/hooks/useFormSubmit";
 import { FormProvider } from "@/checkout/hooks/useForm/FormProvider";
 import { useForm } from "@/checkout/hooks/useForm";
 import { useCheckoutText, formatText } from "@/checkout/hooks/useCheckoutText";
+import { getLanguageCodeForChannel } from "@/checkout/lib/utils/language";
 
 interface PromoCodeFormData {
 	promoCode: string;
@@ -80,7 +81,7 @@ export const PromoCodeAdd: FC<Classes> = ({ className }) => {
 				const result = await checkoutAddPromoCode({
 					checkoutId: checkout.id,
 					promoCode: code,
-					languageCode: "EN_US",
+					languageCode: getLanguageCodeForChannel(checkout.channel?.slug),
 				});
 				if (result.data?.checkoutAddPromoCode?.checkout?.voucherCode) {
 					applied = true;
