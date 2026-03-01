@@ -11,6 +11,58 @@ query CheckoutFind($id: ID!, $languageCode: LanguageCodeEnum!) {
 		channel {
 			slug
 		}
+		# Shipping address — needed for step auto-completion on back navigation
+		shippingAddress {
+			firstName
+			lastName
+			companyName
+			streetAddress1
+			streetAddress2
+			city
+			cityArea
+			countryArea
+			postalCode
+			phone
+			country {
+				code
+			}
+		}
+		# Delivery method — needed for step auto-completion on back navigation
+		deliveryMethod {
+			... on ShippingMethod {
+				id
+				name
+				price {
+					amount
+					currency
+				}
+			}
+		}
+		shippingMethods {
+			id
+			name
+			price {
+				amount
+				currency
+			}
+			minimumDeliveryDays
+			maximumDeliveryDays
+		}
+		shippingPrice {
+			gross {
+				amount
+				currency
+			}
+		}
+		# Gift cards applied to checkout
+		giftCards {
+			id
+			last4CodeChars
+			currentBalance {
+				amount
+				currency
+			}
+		}
 		lines {
 			id
 			quantity
@@ -82,6 +134,10 @@ query CheckoutFind($id: ID!, $languageCode: LanguageCodeEnum!) {
 		}
 		totalPrice {
 			gross {
+				amount
+				currency
+			}
+			tax {
 				amount
 				currency
 			}

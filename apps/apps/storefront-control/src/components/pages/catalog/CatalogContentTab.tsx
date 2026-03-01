@@ -1266,6 +1266,67 @@ export function CatalogContentTab({ register, errors }: CatalogTabProps) {
           />
         </FieldGroup>
 
+        {/* Dropship Shipping Text */}
+        <p className="text-sm font-medium text-muted-foreground mb-2 mt-4">Dropship Shipping Text</p>
+        <FieldGroup columns={2}>
+          <FormField<CatalogFormData>
+            label="Estimated Delivery"
+            name="content.productDetail.shippingEstimatedDelivery"
+            register={register}
+            errors={errors}
+            placeholder="Estimated delivery: {days} business days"
+          />
+          <FormField<CatalogFormData>
+            label="Free Shipping Label"
+            name="content.productDetail.shippingFreeLabel"
+            register={register}
+            errors={errors}
+            placeholder="Free Shipping"
+          />
+          <FormField<CatalogFormData>
+            label="Processing Time"
+            name="content.productDetail.shippingProcessingTime"
+            register={register}
+            errors={errors}
+            placeholder="Processing time: 1-3 business days"
+          />
+          <FormField<CatalogFormData>
+            label="Tracking Notice"
+            name="content.productDetail.shippingTrackingNotice"
+            register={register}
+            errors={errors}
+            placeholder="You'll receive tracking information via email once your order ships"
+          />
+          <FormField<CatalogFormData>
+            label="Warehouse Notice"
+            name="content.productDetail.shippingWarehouseNotice"
+            register={register}
+            errors={errors}
+            placeholder="This item ships from our international fulfillment center"
+          />
+          <FormField<CatalogFormData>
+            label="Return Policy Note"
+            name="content.productDetail.shippingReturnPolicyNote"
+            register={register}
+            errors={errors}
+            placeholder="Returns accepted within 30 days of delivery"
+          />
+          <FormField<CatalogFormData>
+            label="Carrier Label"
+            name="content.productDetail.shippingCarrierLabel"
+            register={register}
+            errors={errors}
+            placeholder="Carrier: {carrier}"
+          />
+          <FormField<CatalogFormData>
+            label="Extended Return Note"
+            name="content.productDetail.shippingExtendedReturnNote"
+            register={register}
+            errors={errors}
+            placeholder="Please note: return shipping for international items may take additional time"
+          />
+        </FieldGroup>
+
         {/* Size Guide */}
         <p className="text-sm font-medium text-muted-foreground mb-2 mt-4">Size Guide</p>
         <FieldGroup columns={2}>

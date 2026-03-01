@@ -55,6 +55,7 @@ export interface ProductDetailPayload {
 	}>;
 	rating?: number | null;
 	reviewCount?: number | null;
+	metadata?: Array<{ key: string; value: string }>;
 }
 
 /**
@@ -184,6 +185,7 @@ export async function getProductDetailsForQuickView(
 		productAttributes,
 		rating: (product as { rating?: number }).rating ?? null,
 		reviewCount: (product as { reviews?: { totalCount?: number } }).reviews?.totalCount ?? null,
+		metadata: product.metadata?.map((m) => ({ key: m.key, value: m.value })) ?? [],
 	};
 }
 

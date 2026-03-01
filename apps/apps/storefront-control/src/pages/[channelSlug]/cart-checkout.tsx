@@ -248,6 +248,45 @@ function CartShippingTab({ control, register, errors }: TabProps) {
         />
       </FormSection>
 
+      <FormSection title="Shipping Price Adjustment" description="Transform shipping method prices before display (display-only — does not affect actual Saleor prices)">
+        <FormSwitch<CartCheckoutFormData>
+          label="Enable Price Adjustment"
+          name="ecommerce.shipping.priceAdjustment.enabled"
+          control={control}
+        />
+        <FieldGroup columns={2}>
+          <FormSelect<CartCheckoutFormData>
+            label="Adjustment Type"
+            name="ecommerce.shipping.priceAdjustment.type"
+            control={control}
+            options={[
+              { value: "round_down", label: "Round Down" },
+              { value: "round_up", label: "Round Up" },
+              { value: "flat_discount", label: "Flat Discount" },
+              { value: "flat_markup", label: "Flat Markup" },
+              { value: "percentage_discount", label: "Percentage Discount" },
+              { value: "percentage_markup", label: "Percentage Markup" },
+            ]}
+          />
+          <FormField<CartCheckoutFormData>
+            label="Value"
+            name="ecommerce.shipping.priceAdjustment.value"
+            register={register}
+            errors={errors}
+            type="number"
+            description="Rounding interval, flat amount, or percentage"
+          />
+          <FormField<CartCheckoutFormData>
+            label="Minimum Price"
+            name="ecommerce.shipping.priceAdjustment.minPrice"
+            register={register}
+            errors={errors}
+            type="number"
+            description="Floor: adjusted price won't go below this"
+          />
+        </FieldGroup>
+      </FormSection>
+
       <FormSection title="Tax" description="Tax display preferences" comingSoon>
         <FormSwitch<CartCheckoutFormData>
           label="Show Prices With Tax"
@@ -608,6 +647,15 @@ function CartCheckoutContentTab({ register, errors }: TabProps) {
           <FormField<CartCheckoutFormData> label="Shipping Step" name="content.checkout.shippingStep" register={register} errors={errors} placeholder="Shipping" />
           <FormField<CartCheckoutFormData> label="Payment Step" name="content.checkout.paymentStep" register={register} errors={errors} placeholder="Payment" />
           <FormField<CartCheckoutFormData> label="Confirmation Step" name="content.checkout.confirmationStep" register={register} errors={errors} placeholder="Confirmation" />
+          <FormField<CartCheckoutFormData> label="Continue Button" name="content.checkout.continueButtonText" register={register} errors={errors} placeholder="Continue" description="Shared continue button text across all checkout steps" />
+        </FieldGroup>
+
+        <p className="text-sm font-medium text-muted-foreground mb-2 mt-4">Empty Cart Confirmation</p>
+        <FieldGroup columns={2}>
+          <FormField<CartCheckoutFormData> label="Confirm Title" name="content.checkout.emptyCartConfirmTitle" register={register} errors={errors} placeholder="Remove last item?" />
+          <FormField<CartCheckoutFormData> label="Confirm Message" name="content.checkout.emptyCartConfirmMessage" register={register} errors={errors} placeholder="This will empty your cart and take you back to the store." />
+          <FormField<CartCheckoutFormData> label="Confirm Button" name="content.checkout.emptyCartConfirmButton" register={register} errors={errors} placeholder="Empty cart" />
+          <FormField<CartCheckoutFormData> label="Cancel Button" name="content.checkout.emptyCartCancelButton" register={register} errors={errors} placeholder="Keep shopping" />
         </FieldGroup>
 
         <p className="text-sm font-medium text-muted-foreground mb-2 mt-4">No Checkout Found & Error Pages</p>
@@ -729,6 +777,7 @@ function CartCheckoutContentTab({ register, errors }: TabProps) {
         <FieldGroup columns={2}>
           <FormField<CartCheckoutFormData> label="Place Order Button" name="content.checkout.placeOrderButton" register={register} errors={errors} placeholder="Place Order" />
           <FormField<CartCheckoutFormData> label="Processing Text" name="content.checkout.processingOrderText" register={register} errors={errors} placeholder="Processing your order..." />
+          <FormField<CartCheckoutFormData> label="Don't Close Page Text" name="content.checkout.doNotClosePageText" register={register} errors={errors} placeholder="Please do not close this page" />
           <FormField<CartCheckoutFormData> label="Agreement Text" name="content.checkout.agreementText" register={register} errors={errors} placeholder="By placing this order, you agree to our" />
         </FieldGroup>
 
@@ -775,6 +824,7 @@ function CartCheckoutContentTab({ register, errors }: TabProps) {
           <FormField<CartCheckoutFormData> label="Invalid Email Error" name="content.checkout.invalidEmailError" register={register} errors={errors} placeholder="Please enter a valid email" />
           <FormField<CartCheckoutFormData> label="Invalid Phone Error" name="content.checkout.invalidPhoneError" register={register} errors={errors} placeholder="Please enter a valid phone number" />
           <FormField<CartCheckoutFormData> label="Select Delivery Method Error" name="content.checkout.selectDeliveryMethodError" register={register} errors={errors} placeholder="Please select a delivery method" />
+          <FormField<CartCheckoutFormData> label="Delivery Method Unavailable" name="content.checkout.deliveryMethodUnavailable" register={register} errors={errors} placeholder="Your selected shipping method is no longer available..." />
           <FormField<CartCheckoutFormData> label="Select Payment Method Error" name="content.checkout.selectPaymentMethodError" register={register} errors={errors} placeholder="Please select a payment method" />
         </FieldGroup>
 

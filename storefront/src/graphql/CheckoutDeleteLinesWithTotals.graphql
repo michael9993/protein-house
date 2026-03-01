@@ -1,0 +1,56 @@
+mutation CheckoutDeleteLinesWithTotals($checkoutId: ID!, $lineIds: [ID!]!) {
+	checkoutLinesDelete(id: $checkoutId, linesIds: $lineIds) {
+		checkout {
+			id
+			lines {
+				id
+				quantity
+				totalPrice {
+					gross {
+						amount
+						currency
+					}
+				}
+				variant {
+					id
+					product {
+						name
+					}
+				}
+			}
+			subtotalPrice {
+				gross {
+					amount
+					currency
+				}
+			}
+			totalPrice {
+				gross {
+					amount
+					currency
+				}
+			}
+			shippingPrice {
+				gross {
+					amount
+					currency
+				}
+			}
+			shippingMethods {
+				id
+				name
+				price {
+					amount
+					currency
+				}
+				minimumDeliveryDays
+				maximumDeliveryDays
+			}
+		}
+		errors {
+			field
+			message
+			code
+		}
+	}
+}

@@ -45,7 +45,7 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 
 	const handleSubmit = async (formData: FormData) => {
 		setError(null);
-		
+
 		// If registering, store password temporarily for auto-login after confirmation
 		if (!isLogin) {
 			const password = formData.get("password")?.toString();
@@ -62,10 +62,10 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 				}
 			}
 		}
-		
+
 		// Add channel to FormData for cart merge
 		formData.append("channel", channel);
-		
+
 		startTransition(async () => {
 			const action = isLogin ? loginAction : registerAction;
 			const result = await action(formData);
@@ -78,21 +78,21 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 					router.push(`/${channel}/verify-email?email=${encodeURIComponent((result as any).email)}`);
 					return;
 				}
-				
+
 				// If auto-resend was requested, redirect to verify-email page to trigger resend
 				if (autoResend && initialEmail) {
 					router.push(`/${channel}/verify-email?email=${encodeURIComponent(initialEmail)}&autoResend=true`);
 					return;
 				}
-				
+
 				// Dispatch login event for wishlist to reload
 				window.dispatchEvent(new CustomEvent("wishlist:login"));
-				
-				// Small delay to ensure cookies are set before navigation
-				// This helps the wishlist load correctly after login
-				await new Promise(resolve => setTimeout(resolve, 100));
-				router.push(redirectUrl || `/${channel}`);
-				router.refresh();
+
+				// Navigate to target page — use window.location for a full page load
+				// to ensure auth cookies are applied to all server components.
+				// router.push + router.refresh inside startTransition creates competing
+				// navigations that prevent the transition from settling.
+				window.location.href = redirectUrl || `/${channel}`;
 			}
 		});
 	};

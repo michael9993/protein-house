@@ -1,0 +1,30 @@
+mutation CheckoutShippingAddressUpdate(
+	$id: ID!
+	$shippingAddress: AddressInput!
+	$validationRules: CheckoutAddressValidationRules
+) {
+	checkoutShippingAddressUpdate(
+		id: $id
+		shippingAddress: $shippingAddress
+		validationRules: $validationRules
+	) {
+		checkout {
+			id
+			shippingMethods {
+				id
+				name
+				price {
+					amount
+					currency
+				}
+				minimumDeliveryDays
+				maximumDeliveryDays
+			}
+		}
+		errors {
+			field
+			message
+			code
+		}
+	}
+}

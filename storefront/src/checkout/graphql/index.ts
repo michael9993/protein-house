@@ -26293,6 +26293,7 @@ export type CheckoutFragment = {
 					type: ProductMediaType;
 					url: string;
 				}> | null;
+				thumbnail?: { __typename?: "Image"; url: string; alt?: string | null } | null;
 			};
 			media?: Array<{
 				__typename?: "ProductMedia";
@@ -26347,6 +26348,7 @@ export type CheckoutLineFragment = {
 				type: ProductMediaType;
 				url: string;
 			}> | null;
+			thumbnail?: { __typename?: "Image"; url: string; alt?: string | null } | null;
 		};
 		media?: Array<{
 			__typename?: "ProductMedia";
@@ -28810,6 +28812,10 @@ export const CheckoutLineFragmentDoc = gql`
 					alt
 					type
 					url(size: 72)
+				}
+				thumbnail {
+					url
+					alt
 				}
 			}
 			media {

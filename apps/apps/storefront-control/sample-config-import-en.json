@@ -96,7 +96,13 @@
         "deliverySlots": false,
         "defaultEstimatedMinDays": 2,
         "defaultEstimatedMaxDays": 5,
-        "estimatedDeliveryFormat": "range"
+        "estimatedDeliveryFormat": "range",
+        "priceAdjustment": {
+          "enabled": false,
+          "type": "round_down",
+          "value": 10,
+          "minPrice": 0
+        }
       },
       "tax": {
         "showPricesWithTax": false,
@@ -128,8 +134,14 @@
         "gradientFrom": "#000000",
         "gradientTo": "#000000",
         "gradientStops": [
-          { "color": "#000000", "position": 0 },
-          { "color": "#000000", "position": 100 }
+          {
+            "color": "#000000",
+            "position": 0
+          },
+          {
+            "color": "#000000",
+            "position": 100
+          }
         ],
         "gradientAngle": 90,
         "dismissible": false
@@ -380,8 +392,14 @@
           "title": "Don't miss out",
           "highlight": "Up to 25% off",
           "description": "Premium performance gear for run, court, and studio. Limited time collection.",
-          "primaryCta": { "text": "Shop Sale Items", "link": "/products?collection=sale" },
-          "secondaryCta": { "text": "All Products", "link": "/products" },
+          "primaryCta": {
+            "text": "Shop Sale Items",
+            "link": "/products?collection=sale"
+          },
+          "secondaryCta": {
+            "text": "All Products",
+            "link": "/products"
+          },
           "autoDetectDiscount": true,
           "background": {
             "style": "gradient",
@@ -408,7 +426,11 @@
           "title": "Shop by Collection",
           "subtitle": "Curated for you",
           "maxCollections": 5,
-          "excludeSlugs": ["hero-banner", "testimonials", "brands"],
+          "excludeSlugs": [
+            "hero-banner",
+            "testimonials",
+            "brands"
+          ],
           "layoutStyle": "mosaic",
           "background": {
             "style": "mesh",
@@ -720,10 +742,26 @@
         "showRating": true,
         "imageFit": "cover",
         "textStyles": {
-          "name": { "fontSize": "sm", "fontWeight": "semibold", "color": null },
-          "price": { "fontSize": "base", "fontWeight": "bold", "color": null },
-          "originalPrice": { "fontSize": "sm", "fontWeight": "normal", "color": null },
-          "reviewCount": { "fontSize": "xs", "fontWeight": "normal", "color": null }
+          "name": {
+            "fontSize": "sm",
+            "fontWeight": "semibold",
+            "color": null
+          },
+          "price": {
+            "fontSize": "base",
+            "fontWeight": "bold",
+            "color": null
+          },
+          "originalPrice": {
+            "fontSize": "sm",
+            "fontWeight": "normal",
+            "color": null
+          },
+          "reviewCount": {
+            "fontSize": "xs",
+            "fontWeight": "normal",
+            "color": null
+          }
         }
       },
       "toasts": {
@@ -1199,6 +1237,7 @@
         "placeOrder": "Place Order",
         "placeOrderButton": "Place Order",
         "processingOrderText": "Processing your order...",
+        "doNotClosePageText": "Please do not close this page",
         "agreementText": "By placing this order, you agree to our",
         "almostDoneText": "Almost done…",
         "orderConfirmation": "Order Confirmation",
@@ -1237,6 +1276,10 @@
         "invalidEmailError": "Please enter a valid email",
         "invalidPhoneError": "Please enter a valid phone number",
         "selectDeliveryMethodError": "Please select a delivery method",
+        "deliveryFreeShippingUnlocked": "Free shipping applied!",
+        "deliveryFreeShippingNudge": "You've unlocked free shipping! Switch to {methodName} to save {amount}",
+        "deliveryAddMoreForFreeShipping": "Add {amount} more for free shipping",
+        "deliveryMethodUnavailable": "Your selected shipping method is no longer available for the current cart. Please choose another.",
         "selectPaymentMethodError": "Please select a payment method",
         "noCheckoutFoundTitle": "No checkout found",
         "noCheckoutFoundMessage": "It looks like you haven't started a checkout yet. Add some items to your cart first.",
@@ -1289,7 +1332,12 @@
         "securityNote": "Protected by SSL encryption • Your payment details are secure",
         "privacyPolicyLinkText": "Privacy Policy",
         "termsOfServiceLinkText": "Terms of Service",
-        "sslEncryptionMessage": "Protected by SSL encryption • Your payment details are secure"
+        "sslEncryptionMessage": "Protected by SSL encryption • Your payment details are secure",
+        "continueButtonText": "Continue",
+        "emptyCartConfirmTitle": "Remove last item?",
+        "emptyCartConfirmMessage": "This will empty your cart and take you back to the store.",
+        "emptyCartConfirmButton": "Empty cart",
+        "emptyCartCancelButton": "Keep shopping"
       },
       "filters": {
         "sectionTitle": "Filters",
@@ -1340,7 +1388,7 @@
         "resultsCountText": "Found {count} results",
         "noResultsMessage": "No results found for \"{query}\"",
         "resultsText": "results",
-        "itemsAvailable": "items available",
+        "itemsAvailable": "items",
         "productsPageTitle": "All Products",
         "discoverProducts": "Discover Products",
         "shopAllButton": "Shop All",

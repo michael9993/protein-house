@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useTransition, useEffect, useCallback, useMemo } from "react";
-import { toast } from "react-toastify";
+import { useState, useTransition, useEffect, useCallback, useMemo, useRef } from "react";
+import { useToast } from "@/ui/components/Toast";
+import { FlyToCart, CartAddedToast } from "@/ui/components/AddToCartFeedback";
 import { Breadcrumbs } from "@/ui/components/Breadcrumbs";
 import { useWishlist } from "@/lib/wishlist";
 import { RatingStars } from "@/ui/components/ProductReviews";
@@ -20,6 +21,7 @@ import {
   unsubscribeFromStockAlert,
 } from "../actions";
 import { useRecentlyViewed } from "@/lib/recently-viewed";
+import { useQuickView } from "@/providers/QuickViewProvider";
 import { useOpenCart } from "@/ui/components/CartDrawer/CartDrawerShell";
 import {
   ProductGallery,
@@ -82,6 +84,7 @@ export function ProductDetailClient({
 }: ProductDetailClientProps) {
   const branding = useBranding();
   const openCart = useOpenCart();
+  const { closeQuickView } = useQuickView();
   const wishlistEnabled = useFeature("wishlist");
   const reviewsEnabled = useFeature("productReviews");
   const stockAlertsEnabled = useFeature("stockAlerts");
@@ -91,10 +94,13 @@ export function ProductDetailClient({
   const [isPending, startTransition] = useTransition();
   const { addItem, removeItem, isInWishlist } = useWishlist();
   const { trackProduct } = useRecentlyViewed();
+  const { addToast } = useToast();
 
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
+  const [flyTrigger, setFlyTrigger] = useState(0);
+  const addToCartBtnRef = useRef<HTMLDivElement>(null);
 
   const isWishlisted = isInWishlist(product.id);
 
@@ -291,6 +297,7 @@ export function ProductDetailClient({
     if (productSlug) formData.append("productSlug", productSlug);
 
     setAddedToCart(true);
+    setFlyTrigger((n) => n + 1);
     window.dispatchEvent(
       new CustomEvent("cart-updated", { detail: { addQuantity: quantity } })
     );
@@ -299,7 +306,18 @@ export function ProductDetailClient({
       const result = await addItemAction(formData);
       if (result.success) {
         setTimeout(() => setAddedToCart(false), 3000);
-        toast.success("Item added to cart!");
+        addToast(
+          content.product.addedToCartButton || "Added to cart",
+          "success",
+          4000,
+          <CartAddedToast
+            productName={product.name}
+            productImage={product.images[0]?.url}
+            quantity={quantity}
+            onViewCart={() => { closeQuickView(); openCart(); }}
+            viewCartText={content.product.viewCartLink}
+          />,
+        );
         window.dispatchEvent(new CustomEvent("cart-updated"));
 
         // GA4 add_to_cart event
@@ -319,9 +337,9 @@ export function ProductDetailClient({
         setAddedToCart(false);
         window.dispatchEvent(new CustomEvent("cart-updated"));
         if (result.error) {
-          toast.error(result.error);
+          addToast(result.error, "error");
         } else {
-          toast.error("Failed to add item to cart. Please try again.");
+          addToast("Failed to add item to cart. Please try again.", "error");
         }
       }
     });
@@ -585,17 +603,24 @@ export function ProductDetailClient({
                     label={productDetailText.qtyLabelWithColon}
                   />
 
-                  <AddToCartButton
-                    state={getButtonState()}
-                    onClick={handleAddToCart}
-                    primaryColor={branding.colors.primary}
-                    text={{
-                      selectOptions: content.product.selectOptionsButton,
-                      outOfStock: content.product.outOfStockText,
-                      addToCart: content.product.addToCartButton,
-                      adding: content.product.addingButton,
-                      addedToCart: content.product.addedToCartButton,
-                    }}
+                  <div ref={addToCartBtnRef} className="flex-1">
+                    <AddToCartButton
+                      state={getButtonState()}
+                      onClick={handleAddToCart}
+                      primaryColor={branding.colors.primary}
+                      text={{
+                        selectOptions: content.product.selectOptionsButton,
+                        outOfStock: content.product.outOfStockText,
+                        addToCart: content.product.addToCartButton,
+                        adding: content.product.addingButton,
+                        addedToCart: content.product.addedToCartButton,
+                      }}
+                    />
+                  </div>
+                  <FlyToCart
+                    trigger={flyTrigger}
+                    color={branding.colors.primary}
+                    sourceRef={addToCartBtnRef}
                   />
 
                   {/* Wishlist + Share */}

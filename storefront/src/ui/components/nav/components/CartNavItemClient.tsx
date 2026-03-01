@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import clsx from "clsx";
 import { useCartDisplayMode, useBranding } from "@/providers/StoreConfigProvider";
 import { useCartDrawerSafe } from "@/providers/CartDrawerProvider";
@@ -19,6 +19,18 @@ export function CartNavItemClient({ channel, lineCount }: CartNavItemClientProps
   const displayMode = useCartDisplayMode();
   const drawerContext = useCartDrawerSafe();
   const branding = useBranding();
+  const [bouncing, setBouncing] = useState(false);
+
+  // Listen for fly-to-cart animation completion to trigger badge bounce
+  useEffect(() => {
+    const handleBounce = () => {
+      setBouncing(true);
+      const timer = setTimeout(() => setBouncing(false), 400);
+      return () => clearTimeout(timer);
+    };
+    window.addEventListener("cart-badge-bounce", handleBounce);
+    return () => window.removeEventListener("cart-badge-bounce", handleBounce);
+  }, []);
 
   const handleClick = (e: React.MouseEvent) => {
     if (displayMode === 'drawer' && drawerContext) {
@@ -51,6 +63,7 @@ export function CartNavItemClient({ channel, lineCount }: CartNavItemClientProps
           className={clsx(
             "absolute -end-0.5 -top-0.5 flex items-center justify-center rounded-full text-[10px] font-bold text-white transition-all duration-200 group-hover:scale-110",
             lineCount > 9 ? "h-[18px] min-w-[18px] px-1" : "h-[18px] w-[18px]",
+            bouncing && "animate-cart-badge-bounce",
           )}
           style={{ backgroundColor: branding.colors.primary }}
         >

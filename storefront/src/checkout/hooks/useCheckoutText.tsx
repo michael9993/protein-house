@@ -132,6 +132,7 @@ export interface CheckoutTextConfig {
 	// Place Order Section
 	placeOrderButton?: string;
 	processingOrderText?: string;
+	doNotClosePageText?: string;
 	agreementText?: string;
 	
 	// Order confirmation
@@ -147,6 +148,11 @@ export interface CheckoutTextConfig {
 	invalidEmailError?: string;
 	invalidPhoneError?: string;
 	selectDeliveryMethodError?: string;
+	deliveryFreeShippingUnlocked?: string;
+	deliveryFreeShippingNudge?: string;
+	deliveryAddMoreForFreeShipping?: string;
+	/** Shown when cart quantity change causes the selected delivery method to become unavailable */
+	deliveryMethodUnavailable?: string;
 	selectPaymentMethodError?: string;
 	
 	// Footer links
@@ -260,6 +266,15 @@ export interface CheckoutTextConfig {
 	somethingWentWrongTitle?: string;
 	somethingWentWrongMessage?: string;
 	returnToCartButton?: string;
+
+	// Continue Button (shared across steps)
+	continueButtonText?: string;
+
+	// Empty Cart Confirmation
+	emptyCartConfirmTitle?: string;
+	emptyCartConfirmMessage?: string;
+	emptyCartConfirmButton?: string;
+	emptyCartCancelButton?: string;
 }
 
 const defaultCheckoutText: CheckoutTextConfig = {
@@ -384,6 +399,7 @@ const defaultCheckoutText: CheckoutTextConfig = {
 	// Place Order Section
 	placeOrderButton: "Place Order",
 	processingOrderText: "Processing your order...",
+	doNotClosePageText: "Please do not close this page",
 	agreementText: "By placing this order, you agree to our",
 	
 	// Legacy
@@ -407,6 +423,10 @@ const defaultCheckoutText: CheckoutTextConfig = {
 	invalidEmailError: "Please enter a valid email",
 	invalidPhoneError: "Please enter a valid phone number",
 	selectDeliveryMethodError: "Please select a delivery method",
+	deliveryFreeShippingUnlocked: "Free shipping applied!",
+	deliveryFreeShippingNudge: "You've unlocked free shipping! Switch to {methodName} to save {amount}",
+	deliveryAddMoreForFreeShipping: "Add {amount} more for free shipping",
+	deliveryMethodUnavailable: "Your selected shipping method is no longer available for the current cart. Please choose another.",
 	selectPaymentMethodError: "Please select a payment method",
 	
 	// Sign In/Out
@@ -503,6 +523,15 @@ const defaultCheckoutText: CheckoutTextConfig = {
 	somethingWentWrongTitle: "Something went wrong",
 	somethingWentWrongMessage: "We couldn't load your checkout. Please return to your cart and try again.",
 	returnToCartButton: "Return to Cart",
+
+	// Continue Button (shared across steps)
+	continueButtonText: "Continue",
+
+	// Empty Cart Confirmation
+	emptyCartConfirmTitle: "Remove last item?",
+	emptyCartConfirmMessage: "This will empty your cart and take you back to the store.",
+	emptyCartConfirmButton: "Empty cart",
+	emptyCartCancelButton: "Keep shopping",
 };
 
 const CheckoutTextContext = createContext<CheckoutTextConfig>(defaultCheckoutText);

@@ -96,7 +96,13 @@
         "deliverySlots": false,
         "defaultEstimatedMinDays": 2,
         "defaultEstimatedMaxDays": 5,
-        "estimatedDeliveryFormat": "range"
+        "estimatedDeliveryFormat": "range",
+        "priceAdjustment": {
+          "enabled": false,
+          "type": "round_down",
+          "value": 10,
+          "minPrice": 0
+        }
       },
       "tax": {
         "showPricesWithTax": true,
@@ -157,8 +163,14 @@
         "gradientFrom": "#c67f15",
         "gradientTo": "#c67700",
         "gradientStops": [
-          { "color": "#c67f15", "position": 0 },
-          { "color": "#c67700", "position": 100 }
+          {
+            "color": "#c67f15",
+            "position": 0
+          },
+          {
+            "color": "#c67700",
+            "position": 100
+          }
         ],
         "gradientAngle": 90,
         "dismissible": false
@@ -787,10 +799,26 @@
         "showRating": true,
         "imageFit": "cover",
         "textStyles": {
-          "name": { "fontSize": "sm", "fontWeight": "semibold", "color": null },
-          "price": { "fontSize": "base", "fontWeight": "bold", "color": null },
-          "originalPrice": { "fontSize": "sm", "fontWeight": "normal", "color": null },
-          "reviewCount": { "fontSize": "xs", "fontWeight": "normal", "color": null }
+          "name": {
+            "fontSize": "sm",
+            "fontWeight": "semibold",
+            "color": null
+          },
+          "price": {
+            "fontSize": "base",
+            "fontWeight": "bold",
+            "color": null
+          },
+          "originalPrice": {
+            "fontSize": "sm",
+            "fontWeight": "normal",
+            "color": null
+          },
+          "reviewCount": {
+            "fontSize": "xs",
+            "fontWeight": "normal",
+            "color": null
+          }
         }
       },
       "toasts": {
@@ -1275,6 +1303,7 @@
         "placeOrder": "לביצוע הזמנה",
         "placeOrderButton": "לביצוע הזמנה",
         "processingOrderText": "מעבד את ההזמנה שלך...",
+        "doNotClosePageText": "אנא אל תסגור דף זה",
         "agreementText": "בביצוע הזמנה זו, אתה מסכים ל",
         "almostDoneText": "כמעט סיימנו…",
         "orderConfirmation": "אישור הזמנה",
@@ -1313,6 +1342,10 @@
         "invalidEmailError": "אנא הזן אימייל תקין",
         "invalidPhoneError": "אנא הזן מספר טלפון תקין",
         "selectDeliveryMethodError": "אנא בחר שיטת משלוח",
+        "deliveryFreeShippingUnlocked": "משלוח חינם הופעל!",
+        "deliveryFreeShippingNudge": "פתחת משלוח חינם! עבור ל-{methodName} כדי לחסוך {amount}",
+        "deliveryAddMoreForFreeShipping": "הוסף עוד {amount} למשלוח חינם",
+        "deliveryMethodUnavailable": "שיטת המשלוח שנבחרה אינה זמינה עוד עבור העגלה הנוכחית. אנא בחר שיטה אחרת.",
         "selectPaymentMethodError": "אנא בחר אמצעי תשלום",
         "noCheckoutFoundTitle": "לא נמצא תשלום",
         "noCheckoutFoundMessage": "נראה שעדיין לא התחלת תשלום. הוסף פריטים לעגלה קודם.",
@@ -1365,7 +1398,12 @@
         "securityNote": "מוגן על ידי הצפנת SSL • פרטי התשלום שלך בטוחים",
         "privacyPolicyLinkText": "מדיניות פרטיות",
         "termsOfServiceLinkText": "תנאי שימוש",
-        "sslEncryptionMessage": "מוגן על ידי הצפנת SSL • פרטי התשלום שלך בטוחים"
+        "sslEncryptionMessage": "מוגן על ידי הצפנת SSL • פרטי התשלום שלך בטוחים",
+        "continueButtonText": "המשך",
+        "emptyCartConfirmTitle": "להסיר את הפריט האחרון?",
+        "emptyCartConfirmMessage": "פעולה זו תרוקן את העגלה ותחזיר אותך לחנות.",
+        "emptyCartConfirmButton": "רוקן עגלה",
+        "emptyCartCancelButton": "המשך לקנות"
       },
       "filters": {
         "sectionTitle": "סינון",
@@ -1416,7 +1454,7 @@
         "resultsCountText": "נמצאו {count} תוצאות",
         "noResultsMessage": "לא נמצאו תוצאות עבור \"{query}\"",
         "resultsText": "תוצאות",
-        "itemsAvailable": "פריטים זמינים",
+        "itemsAvailable": "פריטים",
         "productsPageTitle": "כל המוצרים",
         "discoverProducts": "גלה מוצרים",
         "shopAllButton": "קנה הכל",

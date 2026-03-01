@@ -448,22 +448,26 @@ function SourceProducts() {
             <div className="flex justify-between items-center pt-2 border-t border-border">
               <span className="text-xs text-text-muted">
                 {products.length} products, {totalVariants} variants | Markup: {markup}x | Margin: ~{((1 - 1 / markup) * 100).toFixed(0)}%
+                {shippingLoading && " | ⏳ Fetching shipping rates..."}
               </span>
               <div className="flex gap-3">
                 <button
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-border rounded-md hover:bg-gray-50 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-border rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
                   onClick={handleDownloadCSV}
+                  disabled={shippingLoading}
                 >
                   <Download size={14} />
-                  Download CSV
+                  {shippingLoading ? "Loading rates..." : "Download CSV"}
                 </button>
                 <button
                   className="px-4 py-1.5 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light disabled:opacity-50 transition-colors"
                   onClick={handleImport}
-                  disabled={importing || selectedChannels.length === 0}
+                  disabled={importing || selectedChannels.length === 0 || shippingLoading}
                 >
                   {importing
                     ? `Importing ${importProgress?.done ?? 0}/${products.length}...`
+                    : shippingLoading
+                    ? "Fetching shipping rates..."
                     : `Import ${products.length} to Aura`}
                 </button>
               </div>

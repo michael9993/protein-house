@@ -160,6 +160,10 @@ fragment CheckoutLineFragment on CheckoutLine {
 				type
 				url(size: 72)
 			}
+			thumbnail {
+				url
+				alt
+			}
 		}
 		media {
 			alt

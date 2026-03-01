@@ -121,7 +121,7 @@ export function ProductTabs({
 
         {activeTab === "shipping" && (
           <div className="space-y-4 text-sm text-neutral-600">
-            {isDropship && shippingEstimate ? (
+            {isDropship ? (
               <DropshipShippingContent estimate={shippingEstimate} text={text} />
             ) : (
               <RegularShippingContent text={text} />
@@ -192,10 +192,12 @@ function DropshipShippingContent({
   estimate,
   text,
 }: {
-  estimate: ShippingEstimate;
+  estimate: ShippingEstimate | null;
   text: Props["text"];
 }) {
-  const days = formatEstimate(estimate);
+  // Fall back to 7-21 days if no per-product metadata
+  const effectiveEstimate = estimate ?? { minDays: 7, maxDays: 21 };
+  const days = formatEstimate(effectiveEstimate);
 
   return (
     <>
@@ -240,12 +242,12 @@ function DropshipShippingContent({
       </div>
 
       {/* Carrier (if available) */}
-      {estimate.carrier && (
+      {effectiveEstimate.carrier && (
         <div className="flex items-start gap-3">
           <PackageIcon />
           <div>
             <p className="text-neutral-700">
-              {(text.shippingCarrierLabel ?? "Carrier: {carrier}").replace("{carrier}", estimate.carrier)}
+              {(text.shippingCarrierLabel ?? "Carrier: {carrier}").replace("{carrier}", effectiveEstimate.carrier!)}
             </p>
           </div>
         </div>

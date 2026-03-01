@@ -402,8 +402,14 @@ export async function addToCart(cartId: string, productId: string) {
 - Auth via `@saleor/auth-sdk` cookies with server-side session
 
 **Checkout Architecture:**
-- Separate app within storefront using Pages Router (`storefront/src/checkout/`)
-- Multiple Zustand stores for form validation and update state
+- **Legacy checkout**: `storefront/src/checkout/` — Pages Router, Formik+Yup, Zustand stores (default when `NEXT_PUBLIC_CHECKOUT_V2` is not `"true"`)
+- **Checkout V2** (new): `storefront/src/checkout-v2/` — App Router, single-page accordion, React Hook Form + Zod, `useReducer` + Context state (no Zustand)
+  - Feature flag: `NEXT_PUBLIC_CHECKOUT_V2=true` in `infra/docker-compose.dev.yml` environment section
+  - Accordion steps: 0=Contact, 1=Shipping, 2=Delivery, 3=Payment — IDs: `#checkout-step-{N}-header` / `#checkout-step-{N}-panel`
+  - Server Actions: `storefront/src/checkout-v2/_actions/` (11 actions)
+  - Order confirmation: `storefront/src/checkout-v2/confirmation/` (OrderConfirmation, OrderSummary, OrderNextSteps)
+  - E2E tests: `storefront/e2e/checkout-v2.spec.ts` — enable with `E2E_CHECKOUT_V2=true pnpm test:e2e`
+  - Page object: `storefront/e2e/pages/checkout-v2.page.ts`
 - Payment integrations: Stripe (`@stripe/react-stripe-js`) and Adyen (`@adyen/adyen-web`)
 
 **Analytics & Consent Architecture:**
@@ -452,14 +458,25 @@ The dashboard was modernized from MUI v5 to Tailwind CSS v4 + macaw-ui-next. Key
 
 **Apps:** Vitest with workspace config. Unit tests in `src/**/*.test.ts`, E2E via `vitest --project e2e`. Mocks in `src/__tests__/mocks/`. For neverthrow: `._unsafeUnwrap()` for success, `._unsafeUnwrapErr()` for errors.
 
-**Storefront E2E:** Playwright test suite with 23 tests across 5 flows (cart, checkout, auth, search, account). **Runs on the host machine** (not Docker) against `http://localhost:3000`. Page object pattern in `storefront/e2e/pages/`. Auth uses cookie injection (bypasses JWT ISS mismatch in dev). Global setup verifies storefront + API reachability.
+**Storefront E2E:** Playwright test suite. **Runs on the host machine** (not Docker) against `http://localhost:3000`. Page object pattern in `storefront/e2e/pages/`. Auth uses cookie injection (bypasses JWT ISS mismatch in dev). Global setup verifies storefront + API reachability.
+
+| Spec | Tests | Notes |
+|------|-------|-------|
+| `cart.spec.ts` | 5 | Add to cart, drawer, qty, remove |
+| `checkout.spec.ts` | 3 | Legacy guest checkout, order summary |
+| `checkout-shipping.spec.ts` | 7 | CJ dropship methods desktop/mobile, free shipping threshold |
+| `checkout-v2.spec.ts` | 6 | **Requires `E2E_CHECKOUT_V2=true`** — accordion V2: guest checkout, step locking, auth, CJ display (no order), promo UX, RTL |
+| `auth.spec.ts` | 5 | Login, register, password reset, access guard |
+| `search.spec.ts` | 4 | Search flows |
+| `account.spec.ts` | 5+ | Auth redirect flows |
 
 ```bash
 # Run from storefront/ directory (on host, NOT in Docker)
 cd storefront
-pnpm test:e2e          # Headless
-pnpm test:e2e:headed   # With browser
-pnpm test:e2e:ui       # Interactive UI mode
+pnpm test:e2e                          # All tests (headless)
+pnpm test:e2e:headed                   # With browser visible
+pnpm test:e2e:ui                       # Playwright interactive UI
+E2E_CHECKOUT_V2=true pnpm test:e2e     # Include V2 checkout tests
 ```
 
 **Storefront static analysis:** TypeScript strict mode + ESLint (no unit test runner).

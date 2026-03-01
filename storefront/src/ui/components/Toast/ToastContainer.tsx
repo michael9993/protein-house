@@ -38,7 +38,7 @@ export function ToastContainer() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2">
+    <div className="fixed bottom-4 end-4 z-[10000] flex flex-col gap-2">
       {toasts.map((toast) => (
         <div
           key={toast.id}
@@ -47,10 +47,13 @@ export function ToastContainer() {
             animation: "slideIn 0.3s ease-out",
           }}
         >
-          <div className={`flex h-8 w-8 items-center justify-center rounded-full text-white ${colorMap[toast.type]}`}>
+          <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-white ${colorMap[toast.type]}`}>
             {iconMap[toast.type]}
           </div>
-          <p className="text-sm font-medium text-neutral-800">{toast.message}</p>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-neutral-800">{toast.message}</p>
+            {toast.content && <div className="mt-1">{toast.content}</div>}
+          </div>
           <button
             onClick={() => removeToast(toast.id)}
             className="ml-2 text-neutral-400 transition-colors hover:text-neutral-600"

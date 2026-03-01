@@ -24,7 +24,7 @@ export function AddToCartButton({ state, onClick, primaryColor, text }: Props) {
       type="button"
       onClick={onClick}
       disabled={isDisabled}
-      className="flex flex-1 items-center justify-center gap-2 rounded-lg py-3.5 text-base font-semibold text-white transition-all hover:opacity-90 active:scale-[0.98] active:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 sm:py-4"
+      className="flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3.5 text-base font-semibold text-white whitespace-nowrap transition-all hover:opacity-90 active:scale-[0.98] active:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 sm:py-4"
       style={{ backgroundColor: bgColor }}
     >
       {state === "adding" && (

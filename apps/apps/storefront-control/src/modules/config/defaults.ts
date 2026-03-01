@@ -233,6 +233,12 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       defaultEstimatedMinDays: 2,
       defaultEstimatedMaxDays: 5,
       estimatedDeliveryFormat: "range" as const,
+      priceAdjustment: {
+        enabled: false,
+        type: "round_down" as const,
+        value: 10,
+        minPrice: 0,
+      },
     },
     tax: {
       showPricesWithTax: false,
@@ -1180,6 +1186,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       // Place Order Section
       placeOrderButton: "Place Order",
       processingOrderText: "Processing your order...",
+      doNotClosePageText: "Please do not close this page",
       agreementText: "By placing this order, you agree to our",
 
       // Order confirmation
@@ -1224,6 +1231,11 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       invalidEmailError: "Please enter a valid email",
       invalidPhoneError: "Please enter a valid phone number",
       selectDeliveryMethodError: "Please select a delivery method",
+      deliveryMethodUnavailable: "Your selected shipping method is no longer available for the current cart. Please choose another.",
+      deliveryFreeShippingUnlocked: "Free shipping applied!",
+      deliveryFreeShippingNudge:
+        "You've unlocked free shipping! Switch to {methodName} to save {amount}",
+      deliveryAddMoreForFreeShipping: "Add {amount} more for free shipping",
       selectPaymentMethodError: "Please select a payment method",
 
       // Address Form Actions
@@ -1296,6 +1308,15 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       privacyPolicy: "Privacy Policy",
       termsOfService: "Terms of Service",
       securityNote: "Protected by SSL encryption • Your payment info is safe",
+
+      // Continue Button (shared across steps)
+      continueButtonText: "Continue",
+
+      // Empty Cart Confirmation
+      emptyCartConfirmTitle: "Remove last item?",
+      emptyCartConfirmMessage: "This will empty your cart and take you back to the store.",
+      emptyCartConfirmButton: "Empty cart",
+      emptyCartCancelButton: "Keep shopping",
     },
     filters: {
       // Section titles
@@ -1363,7 +1384,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
 
       // Results text
       resultsText: "results",
-      itemsAvailable: "items available",
+      itemsAvailable: "items",
       productsPageTitle: "All Products",
       discoverProducts: "Discover Products",
 

@@ -1,7 +1,46 @@
 {
   "permissions": {
     "allow": [
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Javascript(node:*)",
+      "Javascript(npm:*)",
+      "Javascript(yarn:*)",
+      "Javascript(pnpm:*)",
+      "Javascript(bun:*)",
+      "Javascript(vite:*)",
+      "Javascript(vitest:*)",
+      "Javascript(jest:*)",
+      "Javascript(react:*)",
+      "Javascript(react-dom:*)",
+      "Docker(docker:*)",
+      "Docker(docker ps:*)",
+      "Docker(docker exec:*)",
+      "Docker(docker exec -it:*)",
+      "Docker(docker compose:*)",
+      "Docker(docker compose up -d:*)",
+      "Docker(docker compose down:*)",
+      "Docker(docker compose restart:*)",
+      "Docker(docker compose logs -f:*)",
+      "Docker(docker compose ps:*)",
+      "Docker(docker compose exec:*)",
+      "Docker(docker compose exec -it:*)",
+      "Python(python:*)",
+      "Mcp(mcp__plugin_context7_context7__resolve-library-id)",
+      "Mcp(mcp__plugin_context7_context7__query-docs)",
+      "Mcp(mcp__plugin_playwright_playwright__browser_take_screenshot)",
+      "Mcp(mcp__plugin_playwright_playwright__browser_snapshot)",
+      "Mcp(mcp__plugin_playwright_playwright__browser_evaluate)",
+      "Mcp(mcp__plugin_playwright_playwright__browser_navigate)",
+      "Mcp(mcp__plugin_playwright_playwright__browser_wait_for_selector)",
+      "Mcp(mcp__plugin_playwright_playwright__browser_wait_for_timeout)",
+      "Mcp(mcp__plugin_playwright_playwright__browser_wait_for_event)",
+      "Mcp(mcp__plugin_playwright_playwright__browser_wait_for_function)",
+      "Mcp(mcp__plugin_playwright_playwright__browser_wait_for_navigation)",
+      "Mcp(mcp__plugin_playwright_playwright__browser_wait_for_response)",
+      "Mcp(mcp__plugin_playwright_playwright__browser_wait_for_request)",
+      "Mcp(mcp__plugin_playwright_playwright__browser_wait_for_request_finished)",
+      "Mcp(mcp__plugin_playwright_playwright__browser_wait_for_request_failed)",
+      "Mcp(mcp__plugin_playwright_playwright__browser_wait_for_request_finished)"
     ]
   }
 }

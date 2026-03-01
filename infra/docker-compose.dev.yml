@@ -323,6 +323,9 @@ services:
       # Next.js
       PORT: ${STOREFRONT_PORT}
       HOSTNAME: 0.0.0.0
+      # Checkout V2: set to "true" to enable the new accordion checkout (checkout-v2/)
+      # After enabling, restart the container and run E2E tests with E2E_CHECKOUT_V2=true
+      NEXT_PUBLIC_CHECKOUT_V2: ${NEXT_PUBLIC_CHECKOUT_V2:-false}
       # Sentry error monitoring (set in .env or .env.self-hosted)
       SENTRY_DSN: ${SENTRY_DSN:-}
       NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}

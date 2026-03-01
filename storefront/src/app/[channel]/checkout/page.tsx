@@ -2,6 +2,15 @@ import { invariant } from "ts-invariant";
 import { fetchStorefrontConfig } from "@/lib/storefront-control/fetch-config";
 import * as Checkout from "@/lib/checkout";
 import { CheckoutPageClient } from "./CheckoutPageClient";
+import { CheckoutV2Loader, OrderConfirmationV2Loader } from "./CheckoutV2Loaders";
+import { executeGraphQL } from "@/lib/graphql";
+import { GetOrderForConfirmationDocument } from "@/gql/graphql";
+import type { CheckoutTextConfig } from "@/checkout/hooks/useCheckoutText";
+
+// Feature flag: NEXT_PUBLIC_CHECKOUT_V2=true enables the new checkout.
+// The actual dynamic(..., { ssr: false }) calls live in CheckoutV2Loaders.tsx
+// (a Client Component), because ssr:false is not allowed in Server Components.
+const USE_CHECKOUT_V2 = process.env.NEXT_PUBLIC_CHECKOUT_V2 === "true";
 
 export async function generateMetadata(props: { params: Promise<{ channel: string }> }) {
 	const { channel } = await props.params;
@@ -24,20 +33,42 @@ export default async function CheckoutPage(props: {
 		return null;
 	}
 
+	// Fetch config once for V2 checkout text translations
+	const config = USE_CHECKOUT_V2 ? await fetchStorefrontConfig(channel) : null;
+	const checkoutText = (config?.content?.checkout ?? undefined) as CheckoutTextConfig | undefined;
+
 	const isOrderConfirmation = !!searchParams.order;
 
-	// Auto-apply free shipping (and other auto) vouchers when checkout page loads and no voucher is applied
+	// V2: order confirmation
+	if (USE_CHECKOUT_V2 && searchParams.order) {
+		const { order } = await executeGraphQL(GetOrderForConfirmationDocument, {
+			variables: {
+				id: searchParams.order,
+			},
+			revalidate: 0,
+		});
+
+		if (!order) {
+			// Order not found — fall through to legacy (which shows an error state)
+		} else {
+			return <OrderConfirmationV2Loader order={order} channel={channel} checkoutText={checkoutText} />;
+		}
+	}
+
+	// Fetch the checkout once for auto-voucher logic + V2 initial state hydration
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	let initialCheckout: any = null;
 	if (searchParams.checkout && !searchParams.order) {
 		try {
-			const checkout = await Checkout.find(searchParams.checkout, {
+			initialCheckout = await Checkout.find(searchParams.checkout, {
 				channel,
 				skipOwnershipCheck: true,
 			});
-			const subtotalAmount = checkout?.subtotalPrice?.gross?.amount ?? 0;
+			const subtotalAmount = initialCheckout?.subtotalPrice?.gross?.amount ?? 0;
 			if (
-				checkout &&
-				!(checkout as { voucherCode?: string }).voucherCode &&
-				checkout.lines?.length
+				initialCheckout &&
+				!(initialCheckout as { voucherCode?: string }).voucherCode &&
+				initialCheckout.lines?.length
 			) {
 				await Checkout.applyAutoVouchers(searchParams.checkout, channel, subtotalAmount);
 			}
@@ -47,6 +78,19 @@ export default async function CheckoutPage(props: {
 		}
 	}
 
+	// V2: checkout flow
+	if (USE_CHECKOUT_V2) {
+		return (
+			<CheckoutV2Loader
+				channel={channel}
+				checkoutId={searchParams.checkout ?? undefined}
+				initialCheckout={initialCheckout}
+				checkoutText={checkoutText}
+			/>
+		);
+	}
+
+	// Default: legacy checkout
 	return (
 		<CheckoutPageClient
 			saleorApiUrl={process.env.NEXT_PUBLIC_SALEOR_API_URL}

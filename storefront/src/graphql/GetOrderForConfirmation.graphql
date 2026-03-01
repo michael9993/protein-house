@@ -1,0 +1,106 @@
+query GetOrderForConfirmation($id: ID!) {
+	order(id: $id) {
+		id
+		number
+		userEmail
+		isPaid
+		total {
+			gross {
+				currency
+				amount
+			}
+			tax {
+				currency
+				amount
+			}
+		}
+		subtotal {
+			gross {
+				currency
+				amount
+			}
+		}
+		shippingPrice {
+			gross {
+				currency
+				amount
+			}
+		}
+		voucher {
+			code
+		}
+		discounts {
+			type
+			name
+			amount {
+				currency
+				amount
+			}
+		}
+		shippingAddress {
+			firstName
+			lastName
+			companyName
+			streetAddress1
+			streetAddress2
+			city
+			cityArea
+			countryArea
+			postalCode
+			country {
+				code
+				country
+			}
+			phone
+		}
+		billingAddress {
+			firstName
+			lastName
+			companyName
+			streetAddress1
+			streetAddress2
+			city
+			cityArea
+			countryArea
+			postalCode
+			country {
+				code
+				country
+			}
+			phone
+		}
+		deliveryMethod {
+			__typename
+			... on ShippingMethod {
+				name
+				minimumDeliveryDays
+				maximumDeliveryDays
+			}
+			... on Warehouse {
+				name
+			}
+		}
+		lines {
+			id
+			quantity
+			productName
+			variantName
+			unitPrice {
+				gross {
+					currency
+					amount
+				}
+			}
+			totalPrice {
+				gross {
+					currency
+					amount
+				}
+			}
+			thumbnail {
+				url
+				alt
+			}
+		}
+	}
+}

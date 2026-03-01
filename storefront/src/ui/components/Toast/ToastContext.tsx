@@ -9,11 +9,13 @@ export interface Toast {
   message: string;
   type: ToastType;
   duration?: number;
+  /** Optional rich content rendered below the message */
+  content?: ReactNode;
 }
 
 interface ToastContextType {
   toasts: Toast[];
-  addToast: (message: string, type?: ToastType, duration?: number) => void;
+  addToast: (message: string, type?: ToastType, duration?: number, content?: ReactNode) => void;
   removeToast: (id: string) => void;
 }
 
@@ -22,10 +24,10 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const addToast = useCallback((message: string, type: ToastType = "info", duration = 4000) => {
+  const addToast = useCallback((message: string, type: ToastType = "info", duration = 4000, content?: ReactNode) => {
     const id = Math.random().toString(36).substr(2, 9);
-    const newToast: Toast = { id, message, type, duration };
-    
+    const newToast: Toast = { id, message, type, duration, content };
+
     setToasts((prev) => [...prev, newToast]);
 
     if (duration > 0) {

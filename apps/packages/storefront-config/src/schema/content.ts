@@ -398,6 +398,9 @@ export const CheckoutTextSchema = z.object({
   noShippingMethodsAvailable: z.string().optional(), // "No shipping methods available for this address..."
   businessDaysText: z.string().optional(),        // "{min}-{max} business days"
   freeShippingLabel: z.string().optional(),       // "Free"
+  deliveryFreeShippingUnlocked: z.string().optional(), // "Free shipping applied!"
+  deliveryFreeShippingNudge: z.string().optional(),    // "You've unlocked free shipping! Switch to {methodName} to save {amount}"
+  deliveryAddMoreForFreeShipping: z.string().optional(), // "Add {amount} more for free shipping"
   noDeliveryMethodsText: z.string().optional(),   // "No delivery methods available"
   fetchingShippingRates: z.string().optional(),   // "Calculating shipping rates..."
   updatingShippingRates: z.string().optional(),   // "Updating shipping rates for new address..."
@@ -465,6 +468,7 @@ export const CheckoutTextSchema = z.object({
   // Place Order Section
   placeOrderButton: z.string().optional(),        // "Place Order"
   processingOrderText: z.string().optional(),     // "Processing your order..."
+  doNotClosePageText: z.string().optional(),      // "Please do not close this page"
   agreementText: z.string().optional(),           // "By placing this order, you agree to our"
 
   // Order confirmation
@@ -509,6 +513,7 @@ export const CheckoutTextSchema = z.object({
   invalidEmailError: z.string().optional(),       // "Please enter a valid email"
   invalidPhoneError: z.string().optional(),       // "Please enter a valid phone number"
   selectDeliveryMethodError: z.string().optional(), // "Please select a delivery method"
+  deliveryMethodUnavailable: z.string().optional(), // "Your selected shipping method is no longer available..."
   selectPaymentMethodError: z.string().optional(), // "Please select a payment method"
 
   // No checkout found / Error pages (checkout not found, expired, or generic error)
@@ -585,6 +590,15 @@ export const CheckoutTextSchema = z.object({
   privacyPolicyLinkText: z.string().optional(),
   termsOfServiceLinkText: z.string().optional(),
   sslEncryptionMessage: z.string().optional(),
+
+  // Continue Button (shared across steps)
+  continueButtonText: z.string().optional(),        // "Continue"
+
+  // Empty Cart Confirmation
+  emptyCartConfirmTitle: z.string().optional(),     // "Remove last item?"
+  emptyCartConfirmMessage: z.string().optional(),   // "This will empty your cart and take you back to the store."
+  emptyCartConfirmButton: z.string().optional(),    // "Empty cart"
+  emptyCartCancelButton: z.string().optional(),     // "Keep shopping"
 });
 
 // Filters/Sort/Product List Text

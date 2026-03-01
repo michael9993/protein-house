@@ -3,7 +3,7 @@
     "USE_BUILTIN_RIPGREP": "1",
     "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": "1",
     "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "0",
-    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "8000",
+    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "32000",
     "DISABLE_NON_ESSENTIAL_MODEL_CALLS": "1",
     "DISABLE_COST_WARNINGS": "1"
   },
@@ -95,7 +95,23 @@
       "mcp__context7__resolve-library-id",
       "mcp__context7__query-docs",
       "mcp__plugin_playwright_playwright__browser_type",
-      "mcp__plugin_playwright_playwright__browser_press_key"
+      "mcp__plugin_playwright_playwright__browser_press_key",
+      "Bash(/c/Users/micha/saleor-platform/storefront/src/checkout-v2/_actions/update-billing-address.ts:*)",
+      "Bash(/c/Users/micha/saleor-platform/storefront/src/checkout-v2/_actions/update-shipping-address.ts:*)",
+      "Bash(/c/Users/micha/saleor-platform/storefront/src/checkout-v2/_actions/get-address-validation-rules.ts:*)",
+      "Bash(/c/Users/micha/saleor-platform/storefront/src/checkout-v2/hooks/useAddressValidation.ts:*)",
+      "Bash(/c/Users/micha/saleor-platform/storefront/src/checkout-v2/hooks/useGooglePlaces.ts:*)",
+      "Bash(/c/Users/micha/saleor-platform/storefront/src/checkout-v2/components/FormField.tsx:*)",
+      "Bash(/c/Users/micha/saleor-platform/storefront/src/checkout-v2/components/AddressForm.tsx:*)",
+      "Bash(/c/Users/micha/saleor-platform/storefront/src/checkout-v2/_actions/update-email.ts:*)",
+      "Bash(pnpm test:e2e:*)",
+      "Bash(E2E_CHECKOUT_V2=true pnpm test:e2e:*)",
+      "Bash(E2E_CHECKOUT_V2=true npx playwright test:*)",
+      "mcp__playwright-server__browser_navigate",
+      "mcp__playwright-server__browser_snapshot",
+      "mcp__playwright-server__browser_take_screenshot",
+      "mcp__playwright-server__browser_run_code",
+      "mcp__playwright-server__browser_wait_for"
     ],
     "deny": [
       "Read(./.env*)",
@@ -104,6 +120,7 @@
       "Bash(sudo:*)"
     ]
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "memory",
     "context7",

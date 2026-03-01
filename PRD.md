@@ -2,8 +2,8 @@
 
 ## Aura E-Commerce Platform
 
-**Version:** 1.7.0
-**Last Updated:** February 22, 2026
+**Version:** 1.8.0
+**Last Updated:** February 25, 2026
 **Status:** Active Development
 **Document Owner:** Development Team
 
@@ -1578,13 +1578,18 @@ The storefront has a Playwright E2E test suite covering 5 critical user flows wi
 |------|-------|---------------|
 | `cart.spec.ts` | 5 | Add to cart from PDP, drawer count, quantity +/-, remove item, empty state |
 | `checkout.spec.ts` | 3 | Full Stripe guest checkout (test card 4242...), order summary, email required |
+| `checkout-shipping.spec.ts` | 7 | CJ dropship shipping methods (desktop + mobile), shipping price updates on method change, free shipping threshold |
+| `checkout-v2.spec.ts` | 6 | V2 accordion: guest checkout, step locking, auth pre-fill, CJ dropship methods display (no order placed), promo code UX, RTL dir=rtl |
 | `auth.spec.ts` | 5 | Login processing state, wrong password error, register, forgot password, access guard |
 | `search.spec.ts` | 4 | No results, page load, header search, products listing |
 | `account.spec.ts` | 5 + setup | Auth redirect for all sections, redirect URL preservation |
 
+> **checkout-v2.spec.ts** requires `E2E_CHECKOUT_V2=true` env var. Enable with: `E2E_CHECKOUT_V2=true pnpm test:e2e`
+> The dropship test verifies shipping methods display only — no CJ order is created.
+
 ### 16.3 Architecture
 
-- **Page Object pattern**: `storefront/e2e/pages/` — 7 page objects (BasePage, CartPage, CheckoutPage, LoginPage, ProductDetailPage, SearchPage, AccountPage)
+- **Page Object pattern**: `storefront/e2e/pages/` — 8 page objects (BasePage, CartPage, CheckoutPage, CheckoutV2Page, LoginPage, ProductDetailPage, SearchPage, AccountPage)
 - **Fixtures**: `storefront/e2e/fixtures/` — GraphQL client for test setup, test data constants, Stripe test card
 - **Auth setup**: Cookie injection via `tokenCreate` API + `context.addCookies()` (bypasses JWT ISS mismatch in dev)
 - **Global setup**: `storefront/e2e/global-setup.ts` — verifies storefront + API reachable, checks test user

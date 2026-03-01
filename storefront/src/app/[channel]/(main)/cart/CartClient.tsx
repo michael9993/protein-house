@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { toast } from "react-toastify";
+import { useToast } from "@/ui/components/Toast";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { formatMoney, getHrefForVariant } from "@/lib/utils";
 import { useBranding, useEcommerceSettings, useContentConfig, useButtonStyle, useBadgeStyle } from "@/providers/StoreConfigProvider";
@@ -101,6 +101,7 @@ export function CartClient({
   const primaryButtonStyle = useButtonStyle("primary");
   const saleBadgeStyle = useBadgeStyle("sale");
   
+  const { addToast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
   const [promoCodeInput, setPromoCodeInput] = useState("");
@@ -166,7 +167,7 @@ export function CartClient({
     const hasGift = cart.lines.some((l) => l.isGift);
     if (hasGift) {
       giftToastShownRef.current = true;
-      toast.info(content.cart.giftAddedMessage ?? "A free gift has been added to your cart.");
+      addToast(content.cart.giftAddedMessage ?? "A free gift has been added to your cart.", "info");
     }
   }, [cart?.lines, content.cart.giftAddedMessage]);
 
@@ -370,14 +371,14 @@ export function CartClient({
     if (!serverLine) return;
 
     if (newQuantity < 1) {
-      toast.error(content.cart.quantityMinError);
+      addToast(content.cart.quantityMinError, "error");
       return;
     }
 
     // Stock check: totalAvailable = what's available + what's already in cart (server qty)
     const totalAvailable = serverLine.variant.quantityAvailable + serverLine.quantity;
     if (newQuantity > totalAvailable) {
-      toast.error(content.cart.onlyXItemsAvailable.replace("{count}", totalAvailable.toString()));
+      addToast(content.cart.onlyXItemsAvailable.replace("{count}", totalAvailable.toString()), "error");
       return;
     }
 
@@ -407,7 +408,7 @@ export function CartClient({
               next.delete(lineId);
               return next;
             });
-            toast.error(result.error || content.cart.failedToUpdateQuantity);
+            addToast(result.error || content.cart.failedToUpdateQuantity, "error");
           }
         });
     }, 400);
@@ -441,9 +442,9 @@ export function CartClient({
       return next;
     });
     if (result && !result.success) {
-      toast.error(result.error ?? content.cart.failedToUpdateQuantity);
+      addToast(result.error ?? content.cart.failedToUpdateQuantity, "error");
     } else if (result?.success) {
-      toast.success(content.cart.quantityUpdatedSuccess ?? "Item removed");
+      addToast(content.cart.quantityUpdatedSuccess ?? "Item removed", "success");
       window.dispatchEvent(new CustomEvent("cart-updated"));
     }
   };
@@ -1035,7 +1036,7 @@ export function CartClient({
                           });
                           setPromoPending(false);
                           if (result.success) {
-                            toast.success((content.cart as Record<string, string>).voucherRemoved ?? "Voucher removed");
+                            addToast((content.cart as Record<string, string>).voucherRemoved ?? "Voucher removed", "success");
                             window.dispatchEvent(new CustomEvent("cart-updated"));
                           } else {
                             setPromoError(result.error ?? "Failed to remove");
@@ -1079,7 +1080,7 @@ export function CartClient({
                           const result = await applyPromoCodeAction(cart.id, promoCodeInput.trim());
                           setPromoPending(false);
                           if (result.success) {
-                            toast.success((content.cart as Record<string, string>).promoCodeApplied ?? "Promo code applied");
+                            addToast((content.cart as Record<string, string>).promoCodeApplied ?? "Promo code applied", "success");
                             setPromoCodeInput("");
                             window.dispatchEvent(new CustomEvent("cart-updated"));
                           } else {

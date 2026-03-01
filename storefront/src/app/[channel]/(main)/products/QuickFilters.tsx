@@ -467,7 +467,7 @@ export function QuickFilters({
                   active ? "text-white/70" : "text-neutral-500"
                 }`}
               >
-                {item.productCount} {item.productCount === 1 ? "item" : "items"}
+                {item.productCount} {filtersText.itemsAvailable || "items"}
               </span>
             )}
           </div>
