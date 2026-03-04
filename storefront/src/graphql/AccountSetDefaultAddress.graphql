@@ -1,0 +1,18 @@
+mutation AccountSetDefaultAddress($id: ID!, $type: AddressTypeEnum!) {
+  accountSetDefaultAddress(id: $id, type: $type) {
+    user {
+      id
+      defaultShippingAddress {
+        id
+      }
+      defaultBillingAddress {
+        id
+      }
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
