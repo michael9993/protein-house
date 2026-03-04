@@ -6,6 +6,9 @@ import { getFilteredAddressFields, getRequiredAddressFields } from "@/lib/checko
 import type { AddressField } from "@/lib/checkout/address-types";
 import { getAddressValidationRules, type AddressValidationResult } from "../_actions/get-address-validation-rules";
 
+/** Module-level cache so remounts with the same country skip the async fetch. */
+const rulesCache = new Map<string, AddressValidationResult | null>();
+
 interface AddressValidationState {
 	/** Dynamic Zod schema built from Saleor's validation rules */
 	schema: ReturnType<typeof buildAddressSchema>;
@@ -25,13 +28,22 @@ interface AddressValidationState {
  * Uses a server action to fetch rules — works in App Router context (no urql needed).
  */
 export function useAddressValidation(countryCode: string): AddressValidationState {
-	const [rules, setRules] = useState<AddressValidationResult | null>(null);
+	const [rules, setRules] = useState<AddressValidationResult | null>(
+		// Seed from cache so a remount with the same country renders instantly
+		() => rulesCache.get(countryCode) ?? null,
+	);
 	const [isPending, startTransition] = useTransition();
 
 	useEffect(() => {
 		if (!countryCode) return;
+		// If already cached, apply synchronously — no flicker
+		if (rulesCache.has(countryCode)) {
+			setRules(rulesCache.get(countryCode) ?? null);
+			return;
+		}
 		startTransition(async () => {
 			const data = await getAddressValidationRules(countryCode);
+			rulesCache.set(countryCode, data);
 			setRules(data);
 		});
 	}, [countryCode]);
