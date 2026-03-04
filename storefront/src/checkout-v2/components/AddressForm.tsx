@@ -10,7 +10,7 @@ import { useGooglePlaces } from "../hooks/useGooglePlaces";
 import { FormField } from "./FormField";
 import { CountryCombobox } from "./CountryCombobox";
 import { buildAddressSchema, type AddressFormValues } from "../schemas";
-import type { AddressField } from "@/checkout/components/AddressForm/types";
+import type { AddressField } from "@/lib/checkout/address-types";
 
 type AddressFieldLabel = Exclude<AddressField, "countryCode"> | "country";
 

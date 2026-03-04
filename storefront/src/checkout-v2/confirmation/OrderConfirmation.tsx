@@ -9,7 +9,7 @@ import { CheckoutHeader } from "@/checkout-v2/components/CheckoutHeader";
 import { CheckoutFooter } from "@/checkout-v2/components/CheckoutFooter";
 import { OrderSummary } from "./OrderSummary";
 import { OrderNextSteps } from "./OrderNextSteps";
-import type { CheckoutTextConfig } from "@/checkout/hooks/useCheckoutText";
+import type { CheckoutTextConfig } from "@/lib/checkout/useCheckoutText";
 
 type Order = NonNullable<GetOrderForConfirmationQuery["order"]>;
 

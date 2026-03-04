@@ -8,7 +8,7 @@ import { updateLineQuantity } from "../_actions/update-line-quantity";
 import { removeLine } from "../_actions/remove-line";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { STEP_DELIVERY, STEP_PAYMENT } from "../types";
-import type { CheckoutFragment } from "@/checkout/graphql";
+import type { CheckoutFragment } from "@/lib/checkout/graphql-types";
 
 type CheckoutLine = CheckoutFragment["lines"][number];
 

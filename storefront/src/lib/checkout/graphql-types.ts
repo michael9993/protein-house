@@ -5,6 +5,8 @@
 // fragment "CheckoutFragment" → type "CheckoutFragmentFragment"
 // We re-export with the short names V2 components expect.
 
+import { type CountryCode as CountryCodeEnum } from "@/gql/graphql";
+
 export type {
 	CheckoutFragmentFragment as CheckoutFragment,
 	AddressFragmentFragment as AddressFragment,
@@ -14,5 +16,9 @@ export type {
 	PaymentGatewayFragmentFragment as PaymentGatewayFragment,
 	ValidationRulesFragmentFragment as ValidationRulesFragment,
 	MoneyFragment,
-	CountryCode,
 } from "@/gql/graphql";
+
+// V1 codegen generated CountryCode as a string union type ("AD" | "AE" | ...),
+// but the main codegen generates it as an enum (CountryCode.Ad = 'AD').
+// Template literal type extracts the string values, making string literals assignable.
+export type CountryCode = `${CountryCodeEnum}`;

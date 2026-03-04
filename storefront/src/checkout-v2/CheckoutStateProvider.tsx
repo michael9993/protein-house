@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useReducer, useCallback, type ReactNode } from "react";
-import type { CheckoutFragment } from "@/checkout/graphql";
+import type { CheckoutFragment } from "@/lib/checkout/graphql-types";
 import type {
 	CheckoutState,
 	CheckoutAction,

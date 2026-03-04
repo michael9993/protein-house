@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { buildAddressSchema } from "../schemas";
-import { getFilteredAddressFields, getRequiredAddressFields } from "@/checkout/components/AddressForm/utils";
-import type { AddressField } from "@/checkout/components/AddressForm/types";
+import { getFilteredAddressFields, getRequiredAddressFields } from "@/lib/checkout/address-utils";
+import type { AddressField } from "@/lib/checkout/address-types";
 import { getAddressValidationRules, type AddressValidationResult } from "../_actions/get-address-validation-rules";
 
 interface AddressValidationState {

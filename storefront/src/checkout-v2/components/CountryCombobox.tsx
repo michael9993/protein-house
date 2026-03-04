@@ -9,9 +9,9 @@ import {
 } from "@headlessui/react";
 import type { UseFormSetValue } from "react-hook-form";
 import type { FieldError } from "react-hook-form";
-import { countries as allCountries } from "@/checkout/lib/consts/countries";
-import { getCountryName } from "@/checkout/lib/utils/locale";
-import type { CountryCode } from "@/checkout/graphql";
+import { countries as allCountries } from "@/lib/checkout/countries";
+import { getCountryName } from "@/lib/checkout/locale";
+import type { CountryCode } from "@/lib/checkout/graphql-types";
 import { useCheckoutText } from "../hooks/useCheckoutText";
 import type { AddressFormValues } from "../schemas";
 

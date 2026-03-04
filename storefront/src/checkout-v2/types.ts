@@ -1,4 +1,4 @@
-import type { CheckoutFragment } from "@/checkout/graphql";
+import type { CheckoutFragment } from "@/lib/checkout/graphql-types";
 
 /** Checkout accordion step indices */
 export type StepIndex = 0 | 1 | 2 | 3;

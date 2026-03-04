@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useUser } from "@/checkout/hooks/useUser";
-import { getQueryParams } from "@/checkout/lib/utils/url";
+import { useUser } from "@/lib/checkout/UserContext";
+import { getQueryParams } from "@/lib/checkout/url";
 import { useCheckoutState } from "../CheckoutStateProvider";
 import { useCheckoutText } from "../hooks/useCheckoutText";
 import { FormField } from "../components/FormField";

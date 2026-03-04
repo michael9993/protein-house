@@ -1,6 +1,6 @@
 "use client";
 
-import type { AddressFragment } from "@/checkout/graphql";
+import type { AddressFragment } from "@/lib/checkout/graphql-types";
 import { useCheckoutText } from "../hooks/useCheckoutText";
 import type { AddressFormValues } from "../schemas";
 

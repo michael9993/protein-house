@@ -10,7 +10,7 @@ import {
 	type AddressFragment,
 	type CountryCode,
 } from "@/lib/checkout/graphql-types";
-import type { AddressInput, CheckoutAddressValidationRules, CountryDisplay } from "@/gql/graphql";
+import type { AddressInput, CheckoutAddressValidationRules, CountryCode as CountryCodeEnum, CountryDisplay } from "@/gql/graphql";
 import { type MightNotExist } from "@/lib/checkout/globalTypes";
 
 export const getEmptyAddressFormData = (): AddressFormData => ({
@@ -53,7 +53,7 @@ export const getAddressInputData = ({
 	}
 >): AddressInput => ({
 	...pick(rest, getAllAddressFieldKeys()),
-	country: countryCode || (country?.code as CountryCode),
+	country: (countryCode || country?.code) as CountryCodeEnum,
 });
 
 export const getAddressInputDataFromAddress = (
@@ -67,7 +67,7 @@ export const getAddressInputDataFromAddress = (
 
 	return {
 		...pick(rest, getAllAddressFieldKeys()),
-		country: country?.code as CountryCode,
+		country: country?.code as CountryCodeEnum,
 		// cause in api phone can be null
 		phone: phone || "",
 	};

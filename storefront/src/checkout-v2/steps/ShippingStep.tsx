@@ -3,11 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { CountryCode } from "@/checkout/graphql";
+import type { CountryCode } from "@/lib/checkout/graphql-types";
 import { useCheckoutState } from "../CheckoutStateProvider";
 import { useCheckoutText } from "../hooks/useCheckoutText";
 import { useAddressValidation } from "../hooks/useAddressValidation";
-import { useUser } from "@/checkout/hooks/useUser";
+import { useUser } from "@/lib/checkout/UserContext";
 import { AddressForm } from "../components/AddressForm";
 import { SavedAddressList } from "../components/SavedAddressList";
 import { AddressSuggestionDialog } from "../components/AddressSuggestionDialog";

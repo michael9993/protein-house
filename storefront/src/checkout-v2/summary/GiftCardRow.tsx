@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useCheckoutState } from "../CheckoutStateProvider";
 import { removePromoCode } from "../_actions/remove-promo-code";
 import { useCheckoutText } from "../hooks/useCheckoutText";
-import type { CheckoutFragment } from "@/checkout/graphql";
+import type { CheckoutFragment } from "@/lib/checkout/graphql-types";
 
 type GiftCard = CheckoutFragment["giftCards"][number];
 

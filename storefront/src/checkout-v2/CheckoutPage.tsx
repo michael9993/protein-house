@@ -14,8 +14,8 @@ import { ShippingStep, ShippingSummary } from "./steps/ShippingStep";
 import { DeliveryStep, DeliverySummary } from "./steps/DeliveryStep";
 import { PaymentStep } from "./steps/PaymentStep";
 import { useCheckoutText } from "./hooks/useCheckoutText";
-import type { CheckoutFragment } from "@/checkout/graphql";
-import type { CheckoutTextConfig } from "@/checkout/hooks/useCheckoutText";
+import type { CheckoutFragment } from "@/lib/checkout/graphql-types";
+import type { CheckoutTextConfig } from "@/lib/checkout/useCheckoutText";
 import {
 	STEP_CONTACT,
 	STEP_DELIVERY,
