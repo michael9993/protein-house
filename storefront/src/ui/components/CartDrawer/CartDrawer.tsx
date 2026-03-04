@@ -228,7 +228,7 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
 
       {/* Overlay */}
       <div
-        className={`cart-drawer-overlay ${isOpen ? 'cart-drawer-overlay--open' : ''} ${!hasInteracted.current ? 'cart-drawer-overlay--no-transition' : ''}`}
+        className={`cart-drawer-overlay ${isOpen ? 'cart-drawer-overlay--open' : ''} ${!hasInteracted.current && !isOpen ? 'cart-drawer-overlay--no-transition' : ''}`}
         onClick={closeDrawer}
         aria-hidden="true"
       />
@@ -240,7 +240,7 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
         aria-modal="true"
         aria-label={cartText?.cartTitle ?? 'Shopping Cart'}
         tabIndex={-1}
-        className={`cart-drawer ${isOpen ? 'cart-drawer--open' : ''} ${isLeft ? 'cart-drawer--left' : ''} ${!hasInteracted.current ? 'cart-drawer--no-transition' : ''}`}
+        className={`cart-drawer ${isOpen ? 'cart-drawer--open' : ''} ${isLeft ? 'cart-drawer--left' : ''} ${!hasInteracted.current && !isOpen ? 'cart-drawer--no-transition' : ''}`}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
         {/* Header */}
