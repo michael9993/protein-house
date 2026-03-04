@@ -15,17 +15,14 @@ export async function getOAuthUrl(
 	try {
 		const pluginId = "mirumee.authentication.openidconnect";
 		
-		// IMPORTANT: The redirectUri passed to Saleor is what Google will use as redirect_uri
-		// It MUST be the storefront callback URL (where Google will redirect)
-		// The redirect_uri must NOT include query parameters - Google requires exact match
-		// Store the finalRedirectUrl in the state instead (Saleor will include it in state)
-		// Build storefront callback URL WITHOUT query parameters for OAuth redirect_uri
+		// Build the callback URL that Google will redirect to after auth.
+		// Google requires the registered redirect_uri to match exactly, so query
+		// params are NOT allowed on the redirect_uri itself.
+		// Instead, we store the final redirect (e.g. the checkout page) in
+		// sessionStorage so the callback route can pick it up.
 		const storefrontCallbackUrl = new URL(redirectUri);
-		// Remove any existing query parameters - Google requires exact redirect_uri match
 		storefrontCallbackUrl.search = "";
-		
-		// Pass storefront callback URL WITHOUT query params as redirectUri
-		// The finalRedirectUrl will be handled by the callback page after OAuth completes
+
 		const input = JSON.stringify({
 			redirectUri: storefrontCallbackUrl.toString(),
 		});

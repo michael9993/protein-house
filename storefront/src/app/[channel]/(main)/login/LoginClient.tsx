@@ -459,6 +459,8 @@ function SocialLoginButton({
 
 			// Validate URL before redirecting
 			if (result.url && typeof result.url === "string" && result.url.startsWith("http")) {
+				// Store final redirect so the OAuth callback sends user to the right place
+				try { sessionStorage.setItem("oauth_redirect", finalRedirectUrl); } catch {}
 				// Redirect to OAuth provider (via Saleor)
 				window.location.href = result.url;
 			} else {

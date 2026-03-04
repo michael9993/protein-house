@@ -43,6 +43,8 @@ function GoogleSignInButton({
 				return;
 			}
 			if (result.url) {
+				// Store the current checkout URL so the OAuth callback redirects back here
+				try { sessionStorage.setItem("oauth_redirect", window.location.href); } catch {}
 				window.location.href = result.url;
 			}
 		} catch {
