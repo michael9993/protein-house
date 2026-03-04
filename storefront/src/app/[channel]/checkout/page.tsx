@@ -5,12 +5,12 @@ import { CheckoutPageClient } from "./CheckoutPageClient";
 import { CheckoutV2Loader, OrderConfirmationV2Loader } from "./CheckoutV2Loaders";
 import { executeGraphQL } from "@/lib/graphql";
 import { GetOrderForConfirmationDocument } from "@/gql/graphql";
-import type { CheckoutTextConfig } from "@/checkout/hooks/useCheckoutText";
+import type { CheckoutTextConfig } from "@/lib/checkout/useCheckoutText";
 
-// Feature flag: NEXT_PUBLIC_CHECKOUT_V2=true enables the new checkout.
+// Feature flag: V2 is now the default checkout. Set NEXT_PUBLIC_CHECKOUT_V2=false to revert.
 // The actual dynamic(..., { ssr: false }) calls live in CheckoutV2Loaders.tsx
 // (a Client Component), because ssr:false is not allowed in Server Components.
-const USE_CHECKOUT_V2 = process.env.NEXT_PUBLIC_CHECKOUT_V2 === "true";
+const USE_CHECKOUT_V2 = process.env.NEXT_PUBLIC_CHECKOUT_V2 !== "false";
 
 export async function generateMetadata(props: { params: Promise<{ channel: string }> }) {
 	const { channel } = await props.params;
