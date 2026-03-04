@@ -18,6 +18,8 @@ const initialState: CheckoutState = {
 	mutating: null,
 	stepErrors: new Map(),
 	billingMatchesShipping: true,
+	selectedBillingId: null,
+	billingDefaults: {},
 	optimisticLines: new Map(),
 };
 
@@ -69,6 +71,12 @@ function checkoutReducer(state: CheckoutState, action: CheckoutAction): Checkout
 
 		case "SET_BILLING_MATCHES_SHIPPING":
 			return { ...state, billingMatchesShipping: action.matches };
+
+		case "SET_SELECTED_BILLING_ID":
+			return { ...state, selectedBillingId: action.id };
+
+		case "SET_BILLING_DEFAULTS":
+			return { ...state, billingDefaults: action.defaults };
 
 		case "OPTIMISTIC_QUANTITY": {
 			const next = new Map(state.optimisticLines);

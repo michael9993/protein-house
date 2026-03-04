@@ -5,6 +5,75 @@ import { getServerAuthClient } from "@/app/config";
 import { executeGraphQL } from "@/lib/graphql";
 import { CurrentUserDocument } from "@/gql/graphql";
 
+// --- Auth cookie key helpers (must match @saleor/auth-sdk key format) ---
+const serverSaleorApiUrl = process.env.SALEOR_API_URL || process.env.NEXT_PUBLIC_SALEOR_API_URL || "";
+const refreshTokenKey = `${serverSaleorApiUrl}+saleor_auth_module_refresh_token`;
+const authStateKey = `${serverSaleorApiUrl}+saleor_auth_module_auth_state`;
+const accessTokenKey = `${serverSaleorApiUrl}+saleor_auth_access_token`;
+
+function tryGetExpFromJwt(token: string): Date | undefined {
+	try {
+		const exp = (JSON.parse(atob(token.split(".")[1] ?? "")) as { exp?: number }).exp;
+		const nowInSeconds = Date.now() / 1e3;
+		if (exp && typeof exp === "number" && exp > nowInSeconds) {
+			return new Date(exp * 1e3);
+		}
+	} catch { /* ignore malformed tokens */ }
+	return undefined;
+}
+
+/**
+ * Syncs auth tokens from client-side signIn to server-side cookies.
+ *
+ * The client-side saleorAuthClient stores tokens in localStorage/memory,
+ * but server-side actions read from cookies. This bridges the gap by
+ * writing the tokens to httpOnly cookies with the server-side key prefix.
+ */
+export async function syncAuthToCookies(refreshToken: string, accessToken?: string) {
+	"use server";
+
+	const cookieStore = await cookies();
+
+	// Store refresh token
+	cookieStore.set(refreshTokenKey, refreshToken, {
+		httpOnly: true,
+		sameSite: "lax",
+		secure: true,
+		expires: tryGetExpFromJwt(refreshToken),
+	});
+
+	// Store auth state
+	cookieStore.set(authStateKey, "signedIn", {
+		httpOnly: true,
+		sameSite: "lax",
+		secure: true,
+	});
+
+	// Store access token if provided
+	if (accessToken) {
+		cookieStore.set(accessTokenKey, accessToken, {
+			httpOnly: true,
+			sameSite: "lax",
+			secure: true,
+			expires: tryGetExpFromJwt(accessToken),
+		});
+	}
+}
+
+/**
+ * Clears auth cookies on sign-out.
+ * Must be called alongside client-side saleorAuthClient.signOut().
+ */
+export async function clearAuthCookies() {
+	"use server";
+
+	const cookieStore = await cookies();
+	cookieStore.delete(refreshTokenKey);
+	cookieStore.delete(authStateKey);
+	cookieStore.delete(accessTokenKey);
+	cookieStore.delete("token"); // legacy cookie
+}
+
 // Removed unused function _getCurrentUserId
 
 /**

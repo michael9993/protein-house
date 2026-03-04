@@ -79,6 +79,7 @@ export function AccordionStep({
 						? "border-neutral-200 shadow-sm"
 						: "border-neutral-200 opacity-60"
 			}`}
+			style={{ contain: "layout" }}
 		>
 			{/* Step header */}
 			<div className="flex items-center justify-between px-4 py-4 sm:px-6">

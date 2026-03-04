@@ -31,6 +31,10 @@ export interface CheckoutState {
 	mutating: MutatingScope;
 	stepErrors: Map<number, string[]>;
 	billingMatchesShipping: boolean;
+	/** Selected billing address ID (survives accordion remounts) */
+	selectedBillingId: string | null;
+	/** Billing address form defaults (survives accordion remounts) */
+	billingDefaults: Partial<AddressFormValues>;
 	/** Optimistic line updates — revert on error */
 	optimisticLines: Map<string, { quantity: number } | "removed">;
 }
@@ -45,6 +49,8 @@ export type CheckoutAction =
 	| { type: "SET_STEP_ERRORS"; step: StepIndex; errors: string[] }
 	| { type: "CLEAR_STEP_ERRORS"; step: StepIndex }
 	| { type: "SET_BILLING_MATCHES_SHIPPING"; matches: boolean }
+	| { type: "SET_SELECTED_BILLING_ID"; id: string | null }
+	| { type: "SET_BILLING_DEFAULTS"; defaults: Partial<AddressFormValues> }
 	| { type: "OPTIMISTIC_QUANTITY"; lineId: string; quantity: number }
 	| { type: "OPTIMISTIC_REMOVE_LINE"; lineId: string }
 	| { type: "REVERT_OPTIMISTIC" };

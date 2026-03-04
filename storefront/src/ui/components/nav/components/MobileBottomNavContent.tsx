@@ -1,5 +1,4 @@
 "use client";
-"use client";
 
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { useBranding, useContentConfig } from "@/providers/StoreConfigProvider";
@@ -28,16 +27,23 @@ export function MobileBottomNavContent({
   const branding = useBranding();
   const content = useContentConfig();
   const navbarText = content.navbar;
-  
+
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
+  // On product detail pages, keep the nav always visible (sticky add-to-cart bar sits above it)
+  const pathParts = _pathname.split("/").filter(Boolean);
+  const isProductDetail =
+    pathParts.length >= 3 && pathParts[1] === "products" && pathParts.length === 3;
+
   useEffect(() => {
+    if (isProductDetail) return; // No scroll-hide on PDP
+
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
-      
+
       // Determine if at bottom (within 50px)
       const isAtBottom = windowHeight + currentScrollY >= documentHeight - 50;
 
@@ -56,7 +62,7 @@ export function MobileBottomNavContent({
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+  }, [lastScrollY, isProductDetail]);
 
   return (
     <nav 

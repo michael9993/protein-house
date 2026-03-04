@@ -408,3 +408,106 @@ test("V2: ILS channel checkout renders with dir=rtl", async ({ page }) => {
 		fullPage: false,
 	});
 });
+
+// =============================================================================
+// Test 7 — Deferred account creation: "Create account" checkbox creates customer after order
+// =============================================================================
+
+test("V2: create account checkbox creates customer after successful order", async ({ page }) => {
+	skipIfV2Disabled();
+	test.setTimeout(150_000);
+
+	const testEmail = `e2e-create-account-${Date.now()}@test.local`;
+	const testPassword = "TestAccount123!";
+
+	const checkout = await goToCheckoutV2(page, productSlug, variantId);
+
+	const isV2 = await checkout.isV2Active();
+	expect(isV2, "Expected V2 accordion").toBe(true);
+
+	// Step 0: Contact — with "Create account" checkbox
+	await checkout.fillContactEmailWithAccount(testEmail, testPassword);
+
+	// Wait for step 1 to appear (means onSubmit completed and sessionStorage was set)
+	await checkout.stepPanel(1).waitFor({ state: "visible", timeout: 15_000 });
+
+	// Verify sessionStorage has the pending password
+	const pendingStored = await page.evaluate(() =>
+		sessionStorage.getItem("checkout_pending_account"),
+	);
+	expect(pendingStored, "Password should be stored in sessionStorage").toBeTruthy();
+
+	// Step 1: Shipping address
+	await checkout.fillShippingAddress(TEST_ADDRESS);
+	await page.waitForTimeout(2_000);
+
+	// Step 2: Delivery method
+	await checkout.selectFirstDeliveryMethod();
+	await page.waitForTimeout(1_000);
+
+	// Step 3: Payment (Stripe test card)
+	const paymentPanel = checkout.stepPanel(3);
+	await paymentPanel.waitFor({ state: "visible", timeout: 15_000 });
+	const gatewayError = await page
+		.locator("text=Failed to initialize payment system")
+		.isVisible()
+		.catch(() => false);
+	if (gatewayError) {
+		test.skip(true, "Stripe payment gateway not configured — skipping");
+		return;
+	}
+
+	await checkout.fillStripeCard();
+	await page.waitForTimeout(1_000);
+
+	// Place order
+	await checkout.placeOrder();
+
+	// Verify order confirmation page
+	await checkout.expectOrderConfirmation();
+	expect(page.url()).toMatch(/[?&]order=/);
+
+	// Wait for deferred account creation to complete (runs on confirmation page load)
+	await page.waitForTimeout(5_000);
+
+	// Verify the account was created by checking the "account created" banner
+	const accountBanner = page.locator("text=Your account has been created");
+	const bannerVisible = await accountBanner.isVisible().catch(() => false);
+
+	// Also verify sessionStorage was cleaned up
+	const pendingAfter = await page.evaluate(() =>
+		sessionStorage.getItem("checkout_pending_account"),
+	);
+	expect(pendingAfter, "sessionStorage should be cleaned up after registration").toBeNull();
+
+	// Verify the account exists in Saleor by trying to sign in
+	// (This uses the Saleor API directly — more reliable than checking the banner)
+	const loginResult = await fetch("http://localhost:8000/graphql/", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({
+			query: `mutation TokenCreate($email: String!, $password: String!) {
+				tokenCreate(email: $email, password: $password) {
+					token
+					errors { field message }
+				}
+			}`,
+			variables: { email: testEmail, password: testPassword },
+		}),
+	}).then((r) => r.json() as Promise<{
+		data?: { tokenCreate?: { token?: string; errors?: Array<{ message: string }> } };
+	}>);
+
+	const token = loginResult.data?.tokenCreate?.token;
+	const loginErrors = loginResult.data?.tokenCreate?.errors ?? [];
+
+	// The account should be created and sign-in should work
+	expect(loginErrors, `Login should succeed for ${testEmail}`).toHaveLength(0);
+	expect(token, "Should receive auth token for newly created account").toBeTruthy();
+
+	if (bannerVisible) {
+		console.log("[Test] ✅ Account created banner visible on confirmation page");
+	} else {
+		console.log("[Test] ⚠️ Account created banner not visible, but login succeeded — account was created");
+	}
+});

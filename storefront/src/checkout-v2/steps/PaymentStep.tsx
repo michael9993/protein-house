@@ -276,6 +276,7 @@ function StripeCheckoutForm({
 
 			if (completeResult.orderId) {
 				// Lock the UI to the loader — never let the form re-appear during navigation
+				// Account creation (if requested) happens on the confirmation page
 				setPaymentSucceeded(true);
 				router.replace(`/${channel}/checkout?order=${completeResult.orderId}`);
 			}
@@ -317,10 +318,14 @@ function StripeCheckoutForm({
 				</div>
 			)}
 
-			<PaymentElement
-				options={paymentElementOptions}
-				onReady={() => setElementsReady(true)}
-			/>
+			{/* Stable container prevents Stripe iframe from re-laying out when
+			    other checkout sections (e.g. summary toggle) change page height */}
+			<div style={{ contain: "layout", willChange: "auto" }}>
+				<PaymentElement
+					options={paymentElementOptions}
+					onReady={() => setElementsReady(true)}
+				/>
+			</div>
 
 			<PlaceOrderButton
 				onSubmit={handlePayment}

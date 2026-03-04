@@ -62,7 +62,8 @@ export interface CheckoutTextConfig {
 	billingAddressTitle?: string;
 	billingAddressSubtitle?: string;
 	useSameAsShipping?: string;
-	
+	useSavedAddressButton?: string;
+
 	// Delivery Methods Section
 	deliveryMethodsTitle?: string;
 	deliveryMethodsSubtitle?: string;
@@ -196,6 +197,8 @@ export interface CheckoutTextConfig {
 	
 	// Address Form Actions
 	deleteAddressButton?: string;
+	deleteAddressConfirmTitle?: string;
+	deleteAddressConfirmMessage?: string;
 	savingAddressText?: string;
 	savedText?: string;
 	createAddressTitle?: string;
@@ -243,7 +246,11 @@ export interface CheckoutTextConfig {
 	deliveryMessage?: string;
 	printReceiptButton?: string;
 	thankYouPurchaseMessage?: string;
-	
+
+	// Account creation (deferred to confirmation page)
+	accountCreatedTitle?: string;
+	accountCreatedDescription?: string;
+
 	// Empty Cart
 	emptyCartTitle?: string;
 	emptyCartMessage?: string;
@@ -333,7 +340,8 @@ const defaultCheckoutText: CheckoutTextConfig = {
 	billingAddressTitle: "Billing Address",
 	billingAddressSubtitle: "For your invoice",
 	useSameAsShipping: "Use shipping address as billing address",
-	
+	useSavedAddressButton: "Use a saved address",
+
 	// Delivery Methods Section
 	deliveryMethodsTitle: "Delivery methods",
 	deliveryMethodsSubtitle: "Choose shipping speed",
@@ -424,7 +432,7 @@ const defaultCheckoutText: CheckoutTextConfig = {
 	invalidPhoneError: "Please enter a valid phone number",
 	selectDeliveryMethodError: "Please select a delivery method",
 	deliveryFreeShippingUnlocked: "Free shipping applied!",
-	deliveryFreeShippingNudge: "You've unlocked free shipping! Switch to {methodName} to save {amount}",
+	deliveryFreeShippingNudge: "You've unlocked free shipping! Select {methodName} to save {amount}",
 	deliveryAddMoreForFreeShipping: "Add {amount} more for free shipping",
 	deliveryMethodUnavailable: "Your selected shipping method is no longer available for the current cart. Please choose another.",
 	selectPaymentMethodError: "Please select a payment method",
@@ -457,6 +465,8 @@ const defaultCheckoutText: CheckoutTextConfig = {
 	
 	// Address Form Actions
 	deleteAddressButton: "Delete address",
+	deleteAddressConfirmTitle: "Delete address?",
+	deleteAddressConfirmMessage: "This address will be permanently removed from your account.",
 	savingAddressText: "Saving…",
 	savedText: "Saved",
 	createAddressTitle: "Create address",
@@ -504,7 +514,11 @@ const defaultCheckoutText: CheckoutTextConfig = {
 	deliveryMessage: "Your order will arrive at your doorstep!",
 	printReceiptButton: "Print Receipt",
 	thankYouPurchaseMessage: "Thank you for your purchase! If you have any questions, please contact our support team.",
-	
+
+	// Account creation (deferred to confirmation page)
+	accountCreatedTitle: "Account Created",
+	accountCreatedDescription: "Your account has been set up with your shipping address saved. Sign in anytime with your email and password.",
+
 	// Empty Cart
 	emptyCartTitle: "Your cart is empty",
 	emptyCartMessage: "Looks like you haven't added anything to your cart yet. Explore our products and find something you'll love!",

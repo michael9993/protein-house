@@ -8,7 +8,7 @@ interface UserContextType {
 	user: any;
 	loading: boolean;
 	authenticated: boolean;
-	reload: () => Promise<void>;
+	reload: (force?: boolean) => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | null>(null);
@@ -25,12 +25,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
 	const hasLoadedRef = useRef(false);
 	
 	// Load user using Server Action (like wishlist does)
-	const loadUser = useCallback(async () => {
-		// Prevent concurrent loads
-		if (isLoadingRef.current) {
+	// force=true bypasses the concurrency guard (used after cookie sync)
+	const loadUser = useCallback(async (force?: boolean) => {
+		// Prevent concurrent loads (unless forced — e.g. after auth cookie sync)
+		if (isLoadingRef.current && !force) {
 			return;
 		}
-		
+
 		try {
 			isLoadingRef.current = true;
 			setLoading(true);

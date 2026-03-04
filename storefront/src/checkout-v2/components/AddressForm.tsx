@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, forwardRef, useImperativeHandle } from "react";
 import { useForm, Controller, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CountryCode } from "@/gql/graphql";
@@ -13,6 +13,11 @@ import { buildAddressSchema, type AddressFormValues } from "../schemas";
 import type { AddressField } from "@/lib/checkout/address-types";
 
 type AddressFieldLabel = Exclude<AddressField, "countryCode"> | "country";
+
+export interface AddressFormHandle {
+	getValues: () => AddressFormValues;
+	trigger: () => Promise<boolean>;
+}
 
 interface AddressFormProps {
 	/** Form ID — used to link external submit buttons */
@@ -29,8 +34,11 @@ interface AddressFormProps {
  * - Google Places Autocomplete (progressive enhancement)
  * - Country-specific field ordering from addressValidationRules
  * - RTL-safe with logical CSS properties
+ *
+ * Supports forwardRef to expose getValues/trigger for parent-driven submission.
  */
-export function AddressForm({ id, defaultValues, onSubmit, serverErrors = {} }: AddressFormProps) {
+export const AddressForm = forwardRef<AddressFormHandle, AddressFormProps>(
+	function AddressForm({ id, defaultValues, onSubmit, serverErrors = {} }, ref) {
 	const t = useCheckoutText();
 	const streetInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -40,6 +48,8 @@ export function AddressForm({ id, defaultValues, onSubmit, serverErrors = {} }: 
 		control,
 		watch,
 		setValue,
+		getValues,
+		trigger,
 		formState: { errors },
 	} = useForm<AddressFormValues>({
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -59,6 +69,12 @@ export function AddressForm({ id, defaultValues, onSubmit, serverErrors = {} }: 
 			...defaultValues,
 		},
 	});
+
+	// Expose form methods to parent via ref
+	useImperativeHandle(ref, () => ({
+		getValues: () => getValues() as AddressFormValues,
+		trigger: () => trigger(),
+	}));
 
 	const countryCode = watch("countryCode") as CountryCode;
 
@@ -213,4 +229,4 @@ export function AddressForm({ id, defaultValues, onSubmit, serverErrors = {} }: 
 			</div>
 		</form>
 	);
-}
+});

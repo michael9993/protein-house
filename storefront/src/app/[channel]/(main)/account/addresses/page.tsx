@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { CurrentUserAddressesDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { fetchStorefrontConfig } from "@/lib/storefront-control";
+import type { CheckoutTextConfig } from "@/checkout/hooks/useCheckoutText";
 import { AddressesClient } from "./AddressesClient";
 
 export async function generateMetadata({ params }: { params: Promise<{ channel: string }> }) {
@@ -34,6 +35,8 @@ export default async function AddressesPage({
 	const addresses = user.addresses || [];
 	const defaultShippingId = user.defaultShippingAddress?.id;
 	const defaultBillingId = user.defaultBillingAddress?.id;
+	const config = await fetchStorefrontConfig(channel);
+	const checkoutText = (config?.content?.checkout ?? undefined) as CheckoutTextConfig | undefined;
 
 	return (
 		<AddressesClient
@@ -41,6 +44,7 @@ export default async function AddressesPage({
 			addresses={addresses}
 			defaultShippingId={defaultShippingId}
 			defaultBillingId={defaultBillingId}
+			checkoutText={checkoutText}
 		/>
 	);
 }

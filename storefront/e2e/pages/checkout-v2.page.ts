@@ -83,7 +83,27 @@ export class CheckoutV2Page {
 	async fillContactEmail(email: string) {
 		await this.emailInput.waitFor({ state: "visible", timeout: 15_000 });
 		await this.emailInput.fill(email);
-		await this.stepPanel(0).getByRole("button", { name: "Continue" }).click();
+		await this.stepPanel(0).getByRole("button", { name: "Continue", exact: true }).click();
+	}
+
+	/**
+	 * Fill the email field, check "Create account", type password, and click "Continue".
+	 * This stores the password in sessionStorage for deferred registration after order.
+	 */
+	async fillContactEmailWithAccount(email: string, password: string) {
+		await this.emailInput.waitFor({ state: "visible", timeout: 15_000 });
+		await this.emailInput.fill(email);
+
+		// Check the "Create account" checkbox
+		const createAccountCheckbox = this.stepPanel(0).locator("#createAccount");
+		await createAccountCheckbox.check();
+
+		// Fill password field (appears after checkbox is checked)
+		const passwordInput = this.stepPanel(0).locator('input[type="password"]');
+		await passwordInput.waitFor({ state: "visible", timeout: 5_000 });
+		await passwordInput.fill(password);
+
+		await this.stepPanel(0).getByRole("button", { name: "Continue", exact: true }).click();
 	}
 
 	// ---------------------------------------------------------------------------
@@ -218,7 +238,9 @@ export class CheckoutV2Page {
 
 	/** The "Order Confirmed" / "Thank you" heading shown after a successful order. */
 	get confirmationHeading() {
-		return this.page.getByRole("heading", { name: /order confirmed|thank you/i });
+		// The "Order Confirmed" text is in a <p data-testid="orderConfrmationTitle">,
+		// and the heading is "Order #NN". Match either.
+		return this.page.locator('[data-testid="orderConfrmationTitle"], :is(h1):has-text("Order #")').first();
 	}
 
 	/** Wait for the V2 order confirmation page to render. */

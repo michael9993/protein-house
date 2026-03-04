@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { GetOrderForConfirmationQuery } from "@/gql/graphql";
 import { trackPurchase } from "@/lib/analytics";
+import { saleorAuthClient } from "@/ui/components/AuthProvider";
+import { registerAccount } from "@/checkout-v2/_actions/register-account";
 import { useAutoCartCleanup } from "@/checkout-v2/hooks/useCartCleanup";
 import { useCheckoutText, CheckoutTextProvider } from "@/checkout-v2/hooks/useCheckoutText";
 import { CheckoutHeader } from "@/checkout-v2/components/CheckoutHeader";
@@ -26,6 +28,8 @@ interface Props {
 function OrderConfirmationInner({ order, channel }: Omit<Props, "checkoutText">) {
 	const t = useCheckoutText();
 	const purchaseTracked = useRef(false);
+	const registrationAttempted = useRef(false);
+	const [accountCreated, setAccountCreated] = useState(false);
 
 	// Clean up original cart lines after purchase
 	useAutoCartCleanup(order.id);
@@ -51,6 +55,65 @@ function OrderConfirmationInner({ order, channel }: Omit<Props, "checkoutText">)
 			})),
 		});
 	}, [order]);
+
+	// Deferred account creation — runs once on confirmation page load
+	// Best practice: account creation after order, never during checkout
+	useEffect(() => {
+		if (registrationAttempted.current) return;
+
+		const pendingPassword = sessionStorage.getItem("checkout_pending_account");
+		if (!pendingPassword) return;
+
+		registrationAttempted.current = true;
+		sessionStorage.removeItem("checkout_pending_account");
+
+		const email = order.userEmail ?? "";
+		const addr = order.shippingAddress;
+
+		if (!email) return;
+
+		// Build address input from order shipping address
+		const shippingAddress = addr
+			? {
+					firstName: addr.firstName ?? "",
+					lastName: addr.lastName ?? "",
+					streetAddress1: addr.streetAddress1 ?? "",
+					streetAddress2: addr.streetAddress2 ?? "",
+					city: addr.city ?? "",
+					cityArea: addr.cityArea ?? "",
+					postalCode: addr.postalCode ?? "",
+					countryCode: addr.country?.code ?? "",
+					countryArea: addr.countryArea ?? "",
+					phone: addr.phone ?? "",
+					companyName: addr.companyName ?? "",
+				}
+			: null;
+
+		registerAccount(
+			email,
+			pendingPassword,
+			channel,
+			addr?.firstName ?? "",
+			addr?.lastName ?? "",
+			shippingAddress,
+		)
+			.then((result) => {
+				if (result.success) {
+					setAccountCreated(true);
+					// Auto sign-in so user is authenticated on the client side
+					saleorAuthClient
+						.signIn({ email, password: pendingPassword }, { cache: "no-store" })
+						.catch(() => {
+							// Non-fatal — account exists, user can sign in manually
+						});
+				} else {
+					console.warn("[OrderConfirmation] Account creation failed:", result.error);
+				}
+			})
+			.catch((err) => {
+				console.warn("[OrderConfirmation] Account creation error:", err);
+			});
+	}, [order, channel]);
 
 	return (
 		<div className="min-h-dvh bg-gradient-to-b from-neutral-50 to-white print:bg-white">
@@ -125,6 +188,23 @@ function OrderConfirmationInner({ order, channel }: Omit<Props, "checkoutText">)
 							)}
 						</div>
 					</div>
+					{accountCreated && (
+						<div className="mt-4 flex items-start gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
+							<div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100">
+								<svg className="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+								</svg>
+							</div>
+							<div className="flex-1">
+								<p className="text-sm font-semibold text-emerald-900">
+									{t.accountCreatedTitle ?? "Account Created"}
+								</p>
+								<p className="mt-0.5 text-sm text-emerald-700">
+									{t.accountCreatedDescription ?? "Your account has been set up with your shipping address saved. Sign in anytime with your email and password."}
+								</p>
+							</div>
+						</div>
+					)}
 				</header>
 
 				{/* Two-column layout */}

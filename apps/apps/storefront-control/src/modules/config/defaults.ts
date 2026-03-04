@@ -1111,6 +1111,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       billingAddressTitle: "Billing Address",
       billingAddressSubtitle: "For your invoice",
       useSameAsShipping: "Use shipping address as billing address",
+      useSavedAddressButton: "Use a saved address",
 
       // Delivery Methods Section
       deliveryMethodsTitle: "Delivery methods",
@@ -1213,6 +1214,10 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       deliveryMessage: "Your order will arrive at your doorstep!",
       printReceiptButton: "Print Receipt",
       thankYouPurchaseMessage: "Thank you for your purchase! If you have any questions, please contact our support team.",
+
+      // Account creation (deferred to confirmation page)
+      accountCreatedTitle: "Account Created",
+      accountCreatedDescription: "Your account has been set up with your shipping address saved. Sign in anytime with your email and password.",
 
       // Order Info Section (confirmation page)
       orderDetailsTitle: "Order Details",
@@ -1625,10 +1630,17 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       addAddressButton: "Add Address",
       addNewAddressTitle: "Add New Address",
       editButton: "Edit",
+      editAddressTitle: "Edit Address",
       deleteButton: "Delete",
+      deleteConfirmTitle: "Delete address?",
+      deleteConfirmMessage: "This address will be permanently removed from your account.",
+      saving: "Saving…",
+      saveChanges: "Save changes",
       defaultBilling: "Default Billing Address",
       defaultShipping: "Default Shipping Address",
       setAsDefault: "Set as Default",
+      setAsDefaultShipping: "Set as Default Shipping",
+      setAsDefaultBilling: "Set as Default Billing",
       noAddresses: "You haven't added any addresses yet.",
       noAddressesMessage: "Add an address to make checkout faster.",
       addressesCount: "{count} address(es) saved",

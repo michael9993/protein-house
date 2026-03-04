@@ -724,6 +724,9 @@ function CartCheckoutContentTab({ register, errors }: TabProps) {
           <FormField<CartCheckoutFormData> label="No Methods Available" name="content.checkout.noDeliveryMethodsText" register={register} errors={errors} placeholder="No delivery methods available" />
           <FormField<CartCheckoutFormData> label="Free Shipping Voucher Not Applicable" name="content.checkout.freeShippingVoucherNotApplicable" register={register} errors={errors} placeholder="Free shipping voucher is not applicable with this delivery method." />
           <FormField<CartCheckoutFormData> label="Free Shipping Applied With Method" name="content.checkout.freeShippingAppliedWithMethod" register={register} errors={errors} placeholder="Free shipping applied with this method." />
+          <FormField<CartCheckoutFormData> label="Free Shipping Unlocked" name="content.checkout.deliveryFreeShippingUnlocked" register={register} errors={errors} placeholder="Free shipping applied!" description="Shown when free shipping method is selected" />
+          <FormField<CartCheckoutFormData> label="Free Shipping Nudge" name="content.checkout.deliveryFreeShippingNudge" register={register} errors={errors} placeholder="You've unlocked free shipping! Select {methodName} to save {amount}" description="Use {methodName} and {amount} as placeholders. Shown when free method available but not selected. In the order summary, a 'go back' variant is shown automatically." />
+          <FormField<CartCheckoutFormData> label="Add More for Free Shipping" name="content.checkout.deliveryAddMoreForFreeShipping" register={register} errors={errors} placeholder="Add {amount} more for free shipping" description="Use {amount} as placeholder. Shows progress bar toward free shipping threshold" />
         </FieldGroup>
 
         <p className="text-sm font-medium text-muted-foreground mb-2 mt-4">5. Payment</p>

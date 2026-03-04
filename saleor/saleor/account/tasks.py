@@ -117,6 +117,16 @@ def finish_creating_user(user_pk, redirect_url, channel_slug, context_data):
             token,
             redirect_url,
         )
+    else:
+        # Auto-confirm account and match orders when email confirmation is disabled
+        from ..order.utils import match_orders_with_new_user
+        from ..giftcard.utils import assign_user_gift_cards
+
+        if not user.is_confirmed:
+            user.is_confirmed = True
+            user.save(update_fields=["is_confirmed", "updated_at"])
+            match_orders_with_new_user(user)
+            assign_user_gift_cards(user)
 
     call_event(manager.customer_created, user)
     events.customer_account_created_event(user=user)

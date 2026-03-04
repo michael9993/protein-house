@@ -111,7 +111,12 @@
       "mcp__playwright-server__browser_snapshot",
       "mcp__playwright-server__browser_take_screenshot",
       "mcp__playwright-server__browser_run_code",
-      "mcp__playwright-server__browser_wait_for"
+      "mcp__playwright-server__browser_wait_for",
+      "mcp__plugin_playwright_playwright__browser_run_code",
+      "mcp__plugin_serena_serena__replace_content",
+      "mcp__playwright-server__browser_install",
+      "mcp__playwright-server__browser_close",
+      "mcp__playwright-server__browser_evaluate"
     ],
     "deny": [
       "Read(./.env*)",

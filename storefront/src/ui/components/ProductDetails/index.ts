@@ -10,6 +10,7 @@ export { AddToCartButton } from "./AddToCartButton";
 export { TrustBadges } from "./TrustBadges";
 export { ProductTabs } from "./ProductTabs";
 export { ProductAttributes } from "./ProductAttributes";
+export { StickyMobileAddToCart } from "./StickyMobileAddToCart";
 export type {
   ProductAttribute,
   ProductAttributeValue,

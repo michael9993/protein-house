@@ -105,7 +105,7 @@ export class PaymentListGatewaysUseCase {
             {
               id: "stripe",
               name: "Stripe",
-              currencies: ["USD", "EUR", "GBP", "PLN"], // Add more as needed
+              currencies: ["USD", "EUR", "GBP", "PLN", "ILS"], // Add more as needed
               config: [
                 {
                   field: "stripePublishableKey",
@@ -319,7 +319,7 @@ export class PaymentListGatewaysUseCase {
           {
             id: "stripe",
             name: "Stripe",
-            currencies: ["USD", "EUR", "GBP", "PLN"],
+            currencies: ["USD", "EUR", "GBP", "PLN", "ILS"],
             config: publishableKey
               ? [
                   {

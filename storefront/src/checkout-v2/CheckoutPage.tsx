@@ -124,7 +124,7 @@ function CheckoutAccordion({ channel, checkoutId }: CheckoutAccordionProps) {
 				onEdit={() => openStep(STEP_CONTACT)}
 				editLabel={t.editAddressButton ?? "Edit"}
 			>
-				<ContactStep checkoutId={checkoutId} />
+				<ContactStep checkoutId={checkoutId} channel={channel} />
 			</AccordionStep>
 
 			{/* Step 1 — Shipping Address */}

@@ -391,6 +391,7 @@ export const CheckoutTextSchema = z.object({
   billingAddressTitle: z.string().optional(),     // "Billing Address"
   billingAddressSubtitle: z.string().optional(),  // "For your invoice"
   useSameAsShipping: z.string().optional(),       // "Use shipping address as billing address"
+  useSavedAddressButton: z.string().optional(),   // "Use a saved address"
 
   // Delivery Methods Section
   deliveryMethodsTitle: z.string().optional(),    // "Delivery methods"
@@ -399,7 +400,7 @@ export const CheckoutTextSchema = z.object({
   businessDaysText: z.string().optional(),        // "{min}-{max} business days"
   freeShippingLabel: z.string().optional(),       // "Free"
   deliveryFreeShippingUnlocked: z.string().optional(), // "Free shipping applied!"
-  deliveryFreeShippingNudge: z.string().optional(),    // "You've unlocked free shipping! Switch to {methodName} to save {amount}"
+  deliveryFreeShippingNudge: z.string().optional(),    // "You've unlocked free shipping! Select {methodName} to save {amount}"
   deliveryAddMoreForFreeShipping: z.string().optional(), // "Add {amount} more for free shipping"
   noDeliveryMethodsText: z.string().optional(),   // "No delivery methods available"
   fetchingShippingRates: z.string().optional(),   // "Calculating shipping rates..."
@@ -495,6 +496,10 @@ export const CheckoutTextSchema = z.object({
   deliveryMessage: z.string().optional(),         // "Your order will arrive at your doorstep!"
   printReceiptButton: z.string().optional(),      // "Print Receipt"
   thankYouPurchaseMessage: z.string().optional(), // "Thank you for your purchase!..."
+
+  // Account creation (deferred to confirmation page)
+  accountCreatedTitle: z.string().optional(),       // "Account Created"
+  accountCreatedDescription: z.string().optional(), // "Your account has been set up..."
 
   // Order Info Section (confirmation page)
   orderDetailsTitle: z.string().optional(),       // "Order Details"
@@ -1070,6 +1075,8 @@ export const AddressesTextSchema = z.object({
   billingAddress: z.string(),        // "Billing Address"
   savedAddress: z.string(),           // "Saved Address"
   setAsDefault: z.string(),           // "Set as Default"
+  setAsDefaultShipping: z.string().optional(), // "Set as Default Shipping"
+  setAsDefaultBilling: z.string().optional(),  // "Set as Default Billing"
   noAddresses: z.string(),            // "No addresses saved"
   noAddressesMessage: z.string(),     // "Add your first address to speed up checkout"
   noAddressesCheckoutMessage: z.string(), // "Your shipping and billing addresses will be saved here when you complete checkout."
@@ -1077,7 +1084,12 @@ export const AddressesTextSchema = z.object({
   addNewAddressTitle: z.string(),    // "Add New Address"
   addAddressDescription: z.string(), // "Adding new addresses requires going through checkout. Your addresses will be saved automatically when you complete a purchase."
   editButton: z.string(),             // "Edit"
+  editAddressTitle: z.string(),      // "Edit Address"
   deleteButton: z.string(),          // "Delete"
+  deleteConfirmTitle: z.string(),    // "Delete address?"
+  deleteConfirmMessage: z.string(),  // "This address will be permanently removed from your account."
+  saving: z.string(),                // "Saving…"
+  saveChanges: z.string(),           // "Save changes"
   continueShoppingButton: z.string(), // "Continue Shopping" (in addresses context)
   startShopping: z.string(),         // "Start Shopping"
   cancel: z.string(),                 // "Cancel"

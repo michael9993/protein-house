@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useCheckoutText } from "@/checkout-v2/hooks/useCheckoutText";
 
 interface PlaceOrderButtonProps {
@@ -10,14 +9,14 @@ interface PlaceOrderButtonProps {
 }
 
 /**
- * Full-width "Place Order" button with terms & conditions checkbox.
- * Located in summary/ because it appears at the bottom of the order summary sidebar.
+ * Full-width "Place Order" button with passive terms disclaimer.
+ * Uses browsewrap pattern (text-only, no checkbox) — industry standard
+ * for reducing checkout friction while maintaining legal compliance.
  */
 export function PlaceOrderButton({ onSubmit, isLoading, disabled }: PlaceOrderButtonProps) {
 	const t = useCheckoutText();
-	const [termsAccepted, setTermsAccepted] = useState(false);
 
-	const isDisabled = disabled || isLoading || !termsAccepted;
+	const isDisabled = disabled || isLoading;
 
 	const handleClick = async () => {
 		if (isDisabled) return;
@@ -25,21 +24,7 @@ export function PlaceOrderButton({ onSubmit, isLoading, disabled }: PlaceOrderBu
 	};
 
 	return (
-		<div className="space-y-3">
-			{/* Terms checkbox */}
-			<label className="flex cursor-pointer items-start gap-3">
-				<input
-					type="checkbox"
-					checked={termsAccepted}
-					onChange={(e) => setTermsAccepted(e.target.checked)}
-					className="mt-0.5 h-4 w-4 flex-shrink-0 cursor-pointer rounded border-neutral-300 accent-[var(--store-primary)]"
-					aria-label={t.termsOfService ?? "I agree to the terms and conditions"}
-				/>
-				<span className="text-xs leading-relaxed text-neutral-600">
-					{t.termsOfService ?? "I agree to the terms and conditions and privacy policy"}
-				</span>
-			</label>
-
+		<div className="space-y-2">
 			{/* Submit button */}
 			<button
 				type="button"
@@ -59,6 +44,11 @@ export function PlaceOrderButton({ onSubmit, isLoading, disabled }: PlaceOrderBu
 					t.placeOrderButton ?? "Place Order"
 				)}
 			</button>
+
+			{/* Passive terms disclaimer */}
+			<p className="text-center text-[11px] leading-relaxed text-neutral-500">
+				{t.termsOfService ?? "By placing your order, you agree to our terms and conditions and privacy policy"}
+			</p>
 		</div>
 	);
 }

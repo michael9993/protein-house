@@ -15,6 +15,7 @@ These principles **must guide every feature and code change**:
 3. **Multi-Tenancy Ready** — All settings are per-channel. One deployment serves multiple storefronts/brands.
 4. **Reusability & DRY** — Extract common patterns into hooks/components. Use composition over inheritance.
 5. **Future-Proof** — Decouple UI, business logic, and data fetching. API-first design.
+6. **Conversion-First E-Commerce** — Always recommend and implement industry best practices for e-commerce flows. Protect the checkout funnel: never interrupt it with non-essential steps (email confirmations, account setup, redirects). Defer non-critical operations (account creation, newsletter signup, analytics) to after order placement. When proposing any checkout, cart, or payment flow change, proactively explain the conversion rate implications and recommend the approach that major platforms (Shopify, Amazon, etc.) use.
 
 ## Workspace Structure
 

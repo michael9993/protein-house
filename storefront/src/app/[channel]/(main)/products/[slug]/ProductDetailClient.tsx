@@ -32,7 +32,9 @@ import {
   AddToCartButton,
   TrustBadges,
   ProductTabs,
+  StickyMobileAddToCart,
 } from "@/ui/components/ProductDetails";
+import { useInViewport } from "@/hooks/useInViewport";
 import type { EnrichedVariant, ProductAttribute } from "@/ui/components/ProductDetails";
 import { SizeGuideModal } from "@/ui/components/SizeGuideModal";
 import { trackViewItem, trackAddToCart } from "@/lib/analytics";
@@ -101,6 +103,8 @@ export function ProductDetailClient({
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [flyTrigger, setFlyTrigger] = useState(0);
   const addToCartBtnRef = useRef<HTMLDivElement>(null);
+  const stickyAddToCartRef = useRef<HTMLDivElement>(null);
+  const { ref: addToCartSectionRef, isInViewport: isAddToCartVisible } = useInViewport();
 
   const isWishlisted = isInWishlist(product.id);
 
@@ -576,7 +580,7 @@ export function ProductDetailClient({
 
               {/* Dynamic Variant Selectors */}
               {needsSelection && (
-                <div className="mt-6">
+                <div className="mt-6" data-variant-selector>
                   <VariantSelector
                     selectionAttributes={selectionAttributes}
                     selections={selections}
@@ -593,7 +597,7 @@ export function ProductDetailClient({
               )}
 
               {/* Quantity & Add to Cart */}
-              <div className="mt-8">
+              <div ref={addToCartSectionRef} className="mt-8">
                 <div className="flex flex-col gap-4 sm:flex-row">
                   <QuantitySelector
                     quantity={quantity}
@@ -620,7 +624,7 @@ export function ProductDetailClient({
                   <FlyToCart
                     trigger={flyTrigger}
                     color={branding.colors.primary}
-                    sourceRef={addToCartBtnRef}
+                    sourceRef={isAddToCartVisible ? addToCartBtnRef : stickyAddToCartRef}
                   />
 
                   {/* Wishlist + Share */}
@@ -741,6 +745,32 @@ export function ProductDetailClient({
           </div>
         </div>
       </div>
+      <StickyMobileAddToCart
+        isOriginalVisible={isAddToCartVisible}
+        buttonRef={stickyAddToCartRef}
+        displayPrice={displayPrice}
+        displayOriginalPrice={displayOriginalPrice}
+        hasDiscount={hasDiscount}
+        primaryColor={branding.colors.primary}
+        buttonState={getButtonState()}
+        onAddToCart={handleAddToCart}
+        wishlistEnabled={wishlistEnabled}
+        isWishlisted={isWishlisted}
+        onWishlistToggle={handleWishlistToggle}
+        shareProps={{
+          productName: product.name,
+          productUrl: typeof window !== "undefined" ? window.location.href : "",
+          productImage: product.images[0]?.url || null,
+        }}
+        text={{
+          selectOptions: content.product.selectOptionsButton,
+          outOfStock: content.product.outOfStockText,
+          addToCart: content.product.addToCartButton,
+          adding: content.product.addingButton,
+          addedToCart: content.product.addedToCartButton,
+        }}
+        mode={mode}
+      />
       <SizeGuideModal open={showSizeGuide} onOpenChange={setShowSizeGuide} defaultCategory={sizeGuideCategory} />
     </>
   );
