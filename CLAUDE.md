@@ -402,14 +402,15 @@ export async function addToCart(cartId: string, productId: string) {
 - Auth via `@saleor/auth-sdk` cookies with server-side session
 
 **Checkout Architecture:**
-- **Legacy checkout**: `storefront/src/checkout/` — Pages Router, Formik+Yup, Zustand stores (default when `NEXT_PUBLIC_CHECKOUT_V2` is not `"true"`)
-- **Checkout V2** (new): `storefront/src/checkout-v2/` — App Router, single-page accordion, React Hook Form + Zod, `useReducer` + Context state (no Zustand)
-  - Feature flag: `NEXT_PUBLIC_CHECKOUT_V2=true` in `infra/docker-compose.dev.yml` environment section
+- **Checkout V2** (default): `storefront/src/checkout-v2/` — App Router, single-page accordion, React Hook Form + Zod, `useReducer` + Context state (no Zustand)
+  - Feature flag: `NEXT_PUBLIC_CHECKOUT_V2` defaults to `true` in `infra/docker-compose.dev.yml`. Set to `"false"` to revert to legacy checkout.
+  - Shared modules: `storefront/src/lib/checkout/` (GraphQL types, useCheckoutText, UserContext, country data, address utils)
   - Accordion steps: 0=Contact, 1=Shipping, 2=Delivery, 3=Payment — IDs: `#checkout-step-{N}-header` / `#checkout-step-{N}-panel`
   - Server Actions: `storefront/src/checkout-v2/_actions/` (11 actions)
   - Order confirmation: `storefront/src/checkout-v2/confirmation/` (OrderConfirmation, OrderSummary, OrderNextSteps)
-  - E2E tests: `storefront/e2e/checkout-v2.spec.ts` — enable with `E2E_CHECKOUT_V2=true pnpm test:e2e`
+  - E2E tests: `storefront/e2e/checkout-v2.spec.ts` — runs by default with `pnpm test:e2e`
   - Page object: `storefront/e2e/pages/checkout-v2.page.ts`
+- **Legacy checkout** (deprecated): `storefront/src/checkout/` — Pages Router, Formik+Yup, Zustand stores. Enable with `NEXT_PUBLIC_CHECKOUT_V2=false`. E2E tests require `E2E_CHECKOUT_V1=true`.
 - Payment integrations: Stripe (`@stripe/react-stripe-js`) and Adyen (`@adyen/adyen-web`)
 
 **Analytics & Consent Architecture:**
@@ -463,9 +464,9 @@ The dashboard was modernized from MUI v5 to Tailwind CSS v4 + macaw-ui-next. Key
 | Spec | Tests | Notes |
 |------|-------|-------|
 | `cart.spec.ts` | 5 | Add to cart, drawer, qty, remove |
-| `checkout.spec.ts` | 3 | Legacy guest checkout, order summary |
-| `checkout-shipping.spec.ts` | 7 | CJ dropship methods desktop/mobile, free shipping threshold |
-| `checkout-v2.spec.ts` | 6 | **Requires `E2E_CHECKOUT_V2=true`** — accordion V2: guest checkout, step locking, auth, CJ display (no order), promo UX, RTL |
+| `checkout-v2.spec.ts` | 6 | Default checkout tests — accordion V2: guest checkout, step locking, auth, CJ display (no order), promo UX, RTL |
+| `checkout.spec.ts` | 3 | Legacy V1 — **requires `E2E_CHECKOUT_V1=true`** |
+| `checkout-shipping.spec.ts` | 7 | Legacy V1 shipping — **requires `E2E_CHECKOUT_V1=true`** |
 | `auth.spec.ts` | 5 | Login, register, password reset, access guard |
 | `search.spec.ts` | 4 | Search flows |
 | `account.spec.ts` | 5+ | Auth redirect flows |
@@ -473,10 +474,10 @@ The dashboard was modernized from MUI v5 to Tailwind CSS v4 + macaw-ui-next. Key
 ```bash
 # Run from storefront/ directory (on host, NOT in Docker)
 cd storefront
-pnpm test:e2e                          # All tests (headless)
+pnpm test:e2e                          # All tests (headless) — V2 checkout by default
 pnpm test:e2e:headed                   # With browser visible
 pnpm test:e2e:ui                       # Playwright interactive UI
-E2E_CHECKOUT_V2=true pnpm test:e2e     # Include V2 checkout tests
+E2E_CHECKOUT_V1=true pnpm test:e2e     # Include legacy V1 checkout tests
 ```
 
 **Storefront static analysis:** TypeScript strict mode + ESLint (no unit test runner).
