@@ -1,5 +1,6 @@
 "use client";
 
+import { Pencil, Trash2 } from "lucide-react";
 import type { AddressFragment } from "@/lib/checkout/graphql-types";
 import { useCheckoutText } from "../hooks/useCheckoutText";
 import type { AddressFormValues } from "../schemas";
@@ -9,6 +10,10 @@ interface SavedAddressListProps {
 	selectedId: string | null;
 	onSelect: (address: AddressFormValues) => void;
 	onAddNew: () => void;
+	onEdit?: (addressId: string) => void;
+	onDelete?: (addressId: string) => void;
+	/** Unique radio group name — must differ between shipping and billing instances */
+	name: string;
 }
 
 function formatAddress(addr: AddressFragment): string {
@@ -34,12 +39,16 @@ function addressToFormValues(addr: AddressFragment): AddressFormValues {
 /**
  * Saved address selector for authenticated users.
  * Shows radio list of saved addresses + "Add new address" button.
+ * Optional edit/delete callbacks show action buttons per card.
  */
 export function SavedAddressList({
 	addresses,
 	selectedId,
 	onSelect,
 	onAddNew,
+	onEdit,
+	onDelete,
+	name,
 }: SavedAddressListProps) {
 	const t = useCheckoutText();
 
@@ -75,17 +84,53 @@ export function SavedAddressList({
 						>
 							<input
 								type="radio"
-								name="savedAddress"
+								name={name}
 								value={addr.id}
 								checked={selectedId === addr.id}
 								onChange={() => onSelect(addressToFormValues(addr))}
 								className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--store-primary,theme(colors.neutral.900))]"
 							/>
-							<div className="min-w-0 text-sm">
-								<p className="font-medium text-neutral-900">
-									{addr.firstName} {addr.lastName}
-								</p>
-								<p className="truncate text-neutral-500">{formatAddress(addr)}</p>
+							<div className="min-w-0 flex-1 text-sm">
+								<div className="flex items-start justify-between gap-2">
+									<div className="min-w-0">
+										<p className="font-medium text-neutral-900">
+											{addr.firstName} {addr.lastName}
+										</p>
+										<p className="truncate text-neutral-500">{formatAddress(addr)}</p>
+									</div>
+									{(onEdit || onDelete) && (
+										<div className="flex shrink-0 gap-1">
+											{onEdit && (
+												<button
+													type="button"
+													onClick={(e) => {
+														e.stopPropagation();
+														e.preventDefault();
+														onEdit(addr.id);
+													}}
+													aria-label={t.editAddressTitle ?? "Edit"}
+													className="rounded p-1 text-[var(--store-primary,theme(colors.neutral.900))] hover:bg-neutral-100"
+												>
+													<Pencil className="h-3.5 w-3.5" />
+												</button>
+											)}
+											{onDelete && (
+												<button
+													type="button"
+													onClick={(e) => {
+														e.stopPropagation();
+														e.preventDefault();
+														onDelete(addr.id);
+													}}
+													aria-label={t.deleteAddressButton ?? "Delete"}
+													className="rounded p-1 text-red-500 hover:bg-red-50"
+												>
+													<Trash2 className="h-3.5 w-3.5" />
+												</button>
+											)}
+										</div>
+									)}
+								</div>
 							</div>
 						</label>
 					))}

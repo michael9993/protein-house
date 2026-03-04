@@ -4,13 +4,94 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useUser } from "@/lib/checkout/UserContext";
+import { saleorAuthClient } from "@/ui/components/AuthProvider";
 import { getQueryParams } from "@/lib/checkout/url";
 import { useCheckoutState } from "../CheckoutStateProvider";
 import { useCheckoutText } from "../hooks/useCheckoutText";
 import { FormField } from "../components/FormField";
 import { contactSchema, type ContactFormValues } from "../schemas";
 import { updateEmail } from "../_actions/update-email";
-import { STEP_CONTACT } from "../types";
+import { syncAuthToCookies, clearAuthCookies } from "@/app/actions";
+import { STEP_CONTACT, STEP_SHIPPING } from "../types";
+
+// ---------------------------------------------------------------------------
+// GoogleSignInButton — reusable Google OAuth trigger
+// ---------------------------------------------------------------------------
+
+function GoogleSignInButton({
+	channel,
+	label,
+}: {
+	channel: string;
+	label: string;
+}) {
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+
+	async function handleClick() {
+		setLoading(true);
+		setError(null);
+		try {
+			const { getOAuthUrl } = await import(
+				"@/app/[channel]/(main)/login/oauth-actions"
+			);
+			const callbackUrl = `${window.location.origin}/${channel}/auth/callback`;
+			const result = await getOAuthUrl("google", callbackUrl, window.location.href);
+			if (result.error) {
+				setError(result.error);
+				setLoading(false);
+				return;
+			}
+			if (result.url) {
+				window.location.href = result.url;
+			}
+		} catch {
+			setError("Failed to initiate Google login");
+			setLoading(false);
+		}
+	}
+
+	return (
+		<div className="space-y-2">
+			<button
+				type="button"
+				onClick={handleClick}
+				disabled={loading}
+				className="flex w-full items-center justify-center gap-3 rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:opacity-50"
+			>
+				{loading ? (
+					<svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+						<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+						<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+					</svg>
+				) : (
+					<svg className="h-5 w-5" viewBox="0 0 24 24">
+						<path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+						<path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+						<path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+						<path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+					</svg>
+				)}
+				{label}
+			</button>
+			{error && <p className="text-xs text-red-500">{error}</p>}
+		</div>
+	);
+}
+
+// ---------------------------------------------------------------------------
+// Or-divider
+// ---------------------------------------------------------------------------
+
+function OrDivider({ text }: { text: string }) {
+	return (
+		<div className="flex items-center gap-3">
+			<div className="h-px flex-1 bg-neutral-200" />
+			<span className="text-xs text-neutral-400">{text}</span>
+			<div className="h-px flex-1 bg-neutral-200" />
+		</div>
+	);
+}
 
 // ---------------------------------------------------------------------------
 // GuestSection — email + optional account creation
@@ -18,17 +99,19 @@ import { STEP_CONTACT } from "../types";
 
 function GuestSection({
 	checkoutId,
+	channel,
 	initialEmail,
 	onSignIn,
 	onSuccess,
 }: {
 	checkoutId: string;
+	channel: string;
 	initialEmail: string;
 	onSignIn: () => void;
 	onSuccess: (email: string) => void;
 }) {
 	const t = useCheckoutText();
-	const { state, setCheckout, setMutating, setStepErrors, completeStepAndAdvance } = useCheckoutState();
+	const { state, setCheckout, setMutating, setStepErrors, clearStepErrors, completeStepAndAdvance } = useCheckoutState();
 
 	const {
 		register,
@@ -46,15 +129,25 @@ function GuestSection({
 	async function onSubmit(values: ContactFormValues) {
 		if (!checkoutId) return;
 		setMutating("email");
+		clearStepErrors(STEP_CONTACT);
 
 		const result = await updateEmail({ checkoutId, email: values.email });
 
-		setMutating(null);
-
 		if (result.errors?.length) {
+			setMutating(null);
 			setStepErrors(STEP_CONTACT, result.errors.map((e) => e.message ?? "Unknown error"));
 			return;
 		}
+
+		// Defer account creation to after order placement (best practice: never interrupt checkout)
+		// Use sessionStorage — survives component re-renders between checkout steps
+		if (values.createAccount && values.password) {
+			sessionStorage.setItem("checkout_pending_account", values.password);
+		} else {
+			sessionStorage.removeItem("checkout_pending_account");
+		}
+
+		setMutating(null);
 
 		// Persist email in checkout state so Edit button re-populates the field
 		if (state.checkout) {
@@ -66,109 +159,146 @@ function GuestSection({
 	}
 
 	return (
-		<form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-			<FormField
-				{...register("email")}
-				label={t.guestEmailLabel ?? "Email"}
-				type="email"
-				autoComplete="email"
-				placeholder={t.guestEmailPlaceholder ?? "Enter your email"}
-				error={errors.email?.message}
-				required
+		<div className="space-y-4">
+			<GoogleSignInButton
+				channel={channel}
+				label={t.continueWithGoogle ?? "Continue with Google"}
 			/>
+			<OrDivider text={t.orText ?? "or"} />
 
-			<div className="flex items-center gap-2">
-				<input
-					{...register("createAccount")}
-					type="checkbox"
-					id="createAccount"
-					className="h-4 w-4 rounded border-neutral-300"
-				/>
-				<label htmlFor="createAccount" className="text-sm text-neutral-700">
-					{t.createAccountCheckbox ?? "Create account for faster checkout"}
-				</label>
-			</div>
-
-			{createAccount && (
+			<form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
 				<FormField
-					{...register("password")}
-					label={t.passwordLabel ?? "Password"}
-					type="password"
-					autoComplete="new-password"
-					placeholder="••••••••"
-					hint={t.passwordMinChars ?? "Minimum 8 characters"}
-					error={errors.password?.message}
+					{...register("email")}
+					label={t.guestEmailLabel ?? "Email"}
+					type="email"
+					autoComplete="email"
+					placeholder={t.guestEmailPlaceholder ?? "Enter your email"}
+					error={errors.email?.message}
 					required
 				/>
-			)}
 
-			{state.stepErrors.get(STEP_CONTACT)?.map((msg) => (
-				<p key={msg} className="text-sm text-red-600" role="alert">
-					{msg}
-				</p>
-			))}
+				<div className="flex items-center gap-2">
+					<input
+						{...register("createAccount")}
+						type="checkbox"
+						id="createAccount"
+						className="h-4 w-4 rounded border-neutral-300"
+					/>
+					<label htmlFor="createAccount" className="text-sm text-neutral-700">
+						{t.createAccountCheckbox ?? "Create account for faster checkout"}
+					</label>
+				</div>
 
-			<div className="flex items-center justify-between gap-4">
-				<button
-					type="button"
-					onClick={onSignIn}
-					className="text-sm text-[var(--store-primary,theme(colors.neutral.900))] underline-offset-2 hover:underline"
-				>
-					{t.alreadyHaveAccount ?? "Already have an account?"}
-				</button>
+				{createAccount && (
+					<FormField
+						{...register("password")}
+						label={t.passwordLabel ?? "Password"}
+						type="password"
+						autoComplete="new-password"
+						placeholder="••••••••"
+						hint={t.passwordMinChars ?? "Minimum 8 characters"}
+						error={errors.password?.message}
+						required
+					/>
+				)}
 
-				<button
-					type="submit"
-					disabled={isSubmitting}
-					className="rounded-lg bg-[var(--store-primary,theme(colors.neutral.900))] px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-90 disabled:opacity-60"
-				>
-					{isSubmitting ? (t.processingText ?? "Processing…") : (t.continueButtonText ?? "Continue")}
-				</button>
-			</div>
-		</form>
+				{state.stepErrors.get(STEP_CONTACT)?.map((msg) => (
+					<p key={msg} className="text-sm text-red-600" role="alert">
+						{msg}
+					</p>
+				))}
+
+				<div className="flex items-center justify-between gap-4">
+					<button
+						type="button"
+						onClick={onSignIn}
+						className="text-sm text-[var(--store-primary,theme(colors.neutral.900))] underline-offset-2 hover:underline"
+					>
+						{t.alreadyHaveAccount ?? "Already have an account?"}
+					</button>
+
+					<button
+						type="submit"
+						disabled={isSubmitting}
+						className="rounded-lg bg-[var(--store-primary,theme(colors.neutral.900))] px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-90 disabled:opacity-60"
+					>
+						{isSubmitting ? (t.processingText ?? "Processing…") : (t.continueButtonText ?? "Continue")}
+					</button>
+				</div>
+			</form>
+		</div>
 	);
 }
 
 // ---------------------------------------------------------------------------
-// SignInSection — email + password
+// SignInSection — email + password (uses saleorAuthClient directly)
 // ---------------------------------------------------------------------------
 
 function SignInSection({
+	channel,
 	initialEmail,
 	onGuestCheckout,
 	onSuccess,
+	reloadUser,
 }: {
+	channel: string;
 	initialEmail: string;
 	onGuestCheckout: () => void;
-	onSuccess: () => void;
+	onSuccess: (email: string) => void;
+	reloadUser: (force?: boolean) => Promise<void>;
 }) {
 	const t = useCheckoutText();
 	const [email, setEmail] = useState(initialEmail);
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
-	// signIn is provided by the auth SDK's useUser hook
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const userCtx = useUser() as any;
-	const signIn = userCtx?.signIn as
-		| ((e: string, p: string) => Promise<{ errors?: { message: string }[] }>)
-		| undefined;
 
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
-		if (!signIn) return;
 		setLoading(true);
 		setError(null);
 
-		const result = await signIn(email, password);
-		setLoading(false);
+		try {
+			const { data } = await saleorAuthClient.signIn(
+				{ email, password },
+				{ cache: "no-store" },
+			);
 
-		if (result.errors?.length) {
-			setError(result.errors[0]?.message ?? "Sign-in failed");
-			return;
+			const tokenErrors = data?.tokenCreate?.errors;
+			if (tokenErrors?.length) {
+				setError(tokenErrors[0]?.message ?? "Sign-in failed");
+				setLoading(false);
+				return;
+			}
+
+			if (!data?.tokenCreate?.token) {
+				setError("Sign-in failed. Please check your credentials.");
+				setLoading(false);
+				return;
+			}
+
+			// Sync tokens to server-side cookies so that server actions
+			// (getCurrentUser, executeGraphQL with auth) can authenticate.
+			// Without this, tokens live only in client localStorage/memory
+			// and the server auth client can't find them.
+			const refreshToken = data.tokenCreate.refreshToken;
+			if (refreshToken) {
+				await syncAuthToCookies(refreshToken, data.tokenCreate.token);
+			}
+
+			// Reload user data NOW — cookies are set so getCurrentUser()
+			// will return the user with their saved addresses.
+			// NOTE: useAuthChange.onSignedIn may have already fired (race condition)
+			// but it ran before cookies were set, so it got null. force=true
+			// bypasses the concurrency guard to ensure we get real user data.
+			await reloadUser(true);
+
+			setLoading(false);
+			onSuccess(email);
+		} catch (err) {
+			setError("An error occurred. Please try again.");
+			setLoading(false);
 		}
-
-		onSuccess();
 	}
 
 	return (
@@ -228,6 +358,14 @@ function SignInSection({
 					{loading ? (t.processingText ?? "Processing…") : (t.signInButton ?? "Sign in")}
 				</button>
 			</div>
+
+			<div className="mt-4 space-y-4">
+				<OrDivider text={t.orText ?? "or"} />
+				<GoogleSignInButton
+					channel={channel}
+					label={t.signInWithGoogle ?? "Sign in with Google"}
+				/>
+			</div>
 		</form>
 	);
 }
@@ -239,9 +377,11 @@ function SignInSection({
 function SignedInSection({
 	onSignOut,
 	onContinue,
+	fallbackEmail,
 }: {
 	onSignOut: () => void;
 	onContinue: () => void;
+	fallbackEmail?: string;
 }) {
 	const t = useCheckoutText();
 	const { user } = useUser();
@@ -251,7 +391,7 @@ function SignedInSection({
 			<div className="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3">
 				<div>
 					<p className="text-xs text-neutral-500">{t.accountLabel ?? "Account"}</p>
-					<p className="text-sm font-medium text-neutral-900">{user?.email}</p>
+					<p className="text-sm font-medium text-neutral-900">{user?.email ?? fallbackEmail}</p>
 				</div>
 				<button
 					type="button"
@@ -307,16 +447,12 @@ function ResetPasswordSection({ onBack }: { onBack: () => void }) {
 
 interface ContactStepProps {
 	checkoutId: string;
+	channel: string;
 }
 
-export function ContactStep({ checkoutId }: ContactStepProps) {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const userCtx = useUser() as any;
-	const user = userCtx?.user as { email?: string } | null | undefined;
-	const authenticated: boolean = userCtx?.authenticated ?? false;
-	const signOut = userCtx?.signOut as (() => Promise<void>) | undefined;
-
-	const { state, completeStepAndAdvance } = useCheckoutState();
+export function ContactStep({ checkoutId, channel }: ContactStepProps) {
+	const { user, authenticated, reload: reloadUser } = useUser();
+	const { state, dispatch, setMutating, completeStepAndAdvance } = useCheckoutState();
 
 	const passwordResetToken = getQueryParams().passwordResetToken;
 	const [passwordResetShown, setPasswordResetShown] = useState(false);
@@ -340,7 +476,7 @@ export function ContactStep({ checkoutId }: ContactStepProps) {
 		selectInitial,
 	);
 
-	// Sync section when auth state changes
+	// Sync section when auth state changes (sign-in/out detected via useAuthChange)
 	useEffect(() => {
 		if (prevAuthRef.current !== authenticated) {
 			prevAuthRef.current = authenticated;
@@ -354,11 +490,25 @@ export function ContactStep({ checkoutId }: ContactStepProps) {
 	}, [section]);
 
 	async function handleSignOut() {
-		await signOut?.();
+		// Clear server-side auth cookies first, then client-side tokens
+		await clearAuthCookies();
+		saleorAuthClient.signOut();
+		// Reset checkout state — user needs to re-enter contact info,
+		// and shipping step loses saved addresses so uncomplete it too
+		dispatch({ type: "UNCOMPLETE_STEP", step: STEP_CONTACT });
+		dispatch({ type: "UNCOMPLETE_STEP", step: STEP_SHIPPING });
+		dispatch({ type: "OPEN_STEP", step: STEP_CONTACT });
 		setSection("guest");
 	}
 
-	function handleSignedInContinue() {
+	async function handleSignedInContinue() {
+		// Update checkout email to the authenticated user's email
+		const userEmail = user?.email ?? email;
+		if (userEmail && checkoutId) {
+			setMutating("email");
+			await updateEmail({ checkoutId, email: userEmail });
+			setMutating(null);
+		}
 		completeStepAndAdvance(STEP_CONTACT);
 	}
 
@@ -367,6 +517,7 @@ export function ContactStep({ checkoutId }: ContactStepProps) {
 			{section === "guest" && (
 				<GuestSection
 					checkoutId={checkoutId}
+					channel={channel}
 					initialEmail={email}
 					onSignIn={() => setSection("signIn")}
 					onSuccess={(e) => setEmail(e)}
@@ -375,9 +526,14 @@ export function ContactStep({ checkoutId }: ContactStepProps) {
 
 			{section === "signIn" && (
 				<SignInSection
+					channel={channel}
 					initialEmail={email}
 					onGuestCheckout={() => setSection("guest")}
-					onSuccess={() => setSection("signedIn")}
+					reloadUser={reloadUser}
+					onSuccess={(e) => {
+						setEmail(e);
+						setSection("signedIn");
+					}}
 				/>
 			)}
 
@@ -385,6 +541,7 @@ export function ContactStep({ checkoutId }: ContactStepProps) {
 				<SignedInSection
 					onSignOut={handleSignOut}
 					onContinue={handleSignedInContinue}
+					fallbackEmail={email}
 				/>
 			)}
 

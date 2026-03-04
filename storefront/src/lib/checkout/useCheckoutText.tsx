@@ -193,9 +193,12 @@ export interface CheckoutTextConfig {
 	
 	// Address List
 	noSavedAddressesText?: string;
-	
+	useSavedAddressButton?: string;
+
 	// Address Form Actions
 	deleteAddressButton?: string;
+	deleteAddressConfirmTitle?: string;
+	deleteAddressConfirmMessage?: string;
 	savingAddressText?: string;
 	savedText?: string;
 	createAddressTitle?: string;
@@ -243,7 +246,11 @@ export interface CheckoutTextConfig {
 	deliveryMessage?: string;
 	printReceiptButton?: string;
 	thankYouPurchaseMessage?: string;
-	
+
+	// Account Created (post-checkout)
+	accountCreatedTitle?: string;
+	accountCreatedDescription?: string;
+
 	// Empty Cart
 	emptyCartTitle?: string;
 	emptyCartMessage?: string;
