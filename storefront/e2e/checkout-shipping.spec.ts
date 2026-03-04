@@ -8,7 +8,10 @@ import {
 } from "./fixtures/graphql-client";
 
 /**
- * Checkout Shipping E2E Tests
+ * Checkout Shipping E2E Tests (Legacy V1)
+ *
+ * Skipped by default — set E2E_CHECKOUT_V1=true to run.
+ * Requires NEXT_PUBLIC_CHECKOUT_V2=false in the storefront build.
  *
  * Uses GraphQL checkoutCreate to bypass PDP variant selection and test
  * checkout shipping behavior directly:
@@ -16,6 +19,9 @@ import {
  * 2. Shipping price in Summary updates when selecting different methods
  * 3. Free shipping threshold: cheapest method becomes free when subtotal > threshold
  */
+
+// Legacy checkout tests — skip by default
+const V1_ENABLED = process.env.E2E_CHECKOUT_V1 === "true";
 
 // Shared state populated in beforeAll
 let cheapVariantId: string | null = null;
@@ -170,6 +176,7 @@ test.beforeEach(async ({ page }) => {
 // ─── Desktop Tests ──────────────────────────────────────────────────────────
 
 test.describe("Checkout Shipping — Desktop", () => {
+	test.skip(!V1_ENABLED, "Legacy checkout tests — set E2E_CHECKOUT_V1=true to run");
 	test("dropship product shows CJ shipping methods after address entry", async ({ page }) => {
 		test.setTimeout(90_000);
 		test.skip(!cheapVariantId, "No dropship products found in channel");
@@ -256,6 +263,7 @@ test.describe("Checkout Shipping — Desktop", () => {
 // ─── Mobile Tests ───────────────────────────────────────────────────────────
 
 test.describe("Checkout Shipping — Mobile", () => {
+	test.skip(!V1_ENABLED, "Legacy checkout tests — set E2E_CHECKOUT_V1=true to run");
 	test.use({ viewport: { width: 375, height: 812 } }); // iPhone X
 
 	test("dropship product shows shipping methods on mobile", async ({ page }) => {
@@ -326,6 +334,7 @@ test.describe("Checkout Shipping — Mobile", () => {
 // ─── Free Shipping Threshold Tests ──────────────────────────────────────────
 
 test.describe("Free Shipping Threshold", () => {
+	test.skip(!V1_ENABLED, "Legacy checkout tests — set E2E_CHECKOUT_V1=true to run");
 	test("cart below threshold shows regular (non-free) shipping", async ({ page }) => {
 		test.setTimeout(90_000);
 		test.skip(!cheapVariantId, "No dropship products found in channel");

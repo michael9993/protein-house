@@ -1,12 +1,10 @@
 /**
  * Checkout V2 E2E Tests
  *
- * Tests for the new accordion-style checkout (checkout-v2/).
+ * Tests for the accordion-style checkout (checkout-v2/) — now the default.
  *
- * Requires NEXT_PUBLIC_CHECKOUT_V2=true to be set in the storefront build.
- * Set E2E_CHECKOUT_V2=true in your environment to enable these tests:
- *
- *   E2E_CHECKOUT_V2=true pnpm test:e2e
+ * Requires NEXT_PUBLIC_CHECKOUT_V2 to NOT be set to "false" in the storefront build.
+ * These tests run by default with `pnpm test:e2e`.
  *
  * CJ Dropshipping note: The dropship test creates a checkout and verifies that
  * CJ shipping methods DISPLAY correctly in the DeliveryStep. It deliberately
@@ -27,13 +25,8 @@ import {
 } from "./fixtures/graphql-client";
 
 // ---------------------------------------------------------------------------
-// Guard — skip all V2 tests unless explicitly enabled
+// V2 is now the default — these tests always run
 // ---------------------------------------------------------------------------
-const V2_ENABLED = process.env.E2E_CHECKOUT_V2 === "true";
-
-function skipIfV2Disabled() {
-	test.skip(!V2_ENABLED, "Set E2E_CHECKOUT_V2=true to run checkout-v2 tests");
-}
 
 const CHANNEL = TEST_CONFIG.channel;
 const IL_CHANNEL = process.env.E2E_IL_CHANNEL ?? "ils";
@@ -109,7 +102,7 @@ test.beforeEach(async ({ page }) => {
 // =============================================================================
 
 test("V2: guest checkout completes end-to-end with Stripe", async ({ page }) => {
-	skipIfV2Disabled();
+
 	test.setTimeout(120_000);
 
 	const checkout = await goToCheckoutV2(page, productSlug, variantId);
@@ -162,7 +155,7 @@ test("V2: guest checkout completes end-to-end with Stripe", async ({ page }) => 
 test("V2: shipping/delivery/payment steps are locked until contact step completes", async ({
 	page,
 }) => {
-	skipIfV2Disabled();
+
 
 	const checkout = await goToCheckoutV2(page, productSlug, variantId);
 
@@ -191,7 +184,7 @@ test("V2: shipping/delivery/payment steps are locked until contact step complete
 // =============================================================================
 
 test("V2: authenticated user sees email pre-filled in Contact step", async ({ page }) => {
-	skipIfV2Disabled();
+
 
 	// Load auth cookies from the storage state file produced by auth.setup.ts
 	const AUTH_FILE = "e2e/.auth/user.json";
@@ -253,7 +246,7 @@ test("V2: authenticated user sees email pre-filled in Contact step", async ({ pa
 test("V2: dropship product shows CJ shipping methods in DeliveryStep (no order placed)", async ({
 	page,
 }) => {
-	skipIfV2Disabled();
+
 	test.skip(!dropshipVariantId, "No dropship products found in channel");
 	test.setTimeout(90_000);
 
@@ -329,7 +322,7 @@ test("V2: dropship product shows CJ shipping methods in DeliveryStep (no order p
 test("V2: promo code input expands, shows error on invalid code, collapses on Cancel", async ({
 	page,
 }) => {
-	skipIfV2Disabled();
+
 	test.setTimeout(60_000);
 
 	const checkout = await goToCheckoutV2(page, productSlug, variantId);
@@ -366,7 +359,7 @@ test("V2: promo code input expands, shows error on invalid code, collapses on Ca
 // =============================================================================
 
 test("V2: ILS channel checkout renders with dir=rtl", async ({ page }) => {
-	skipIfV2Disabled();
+
 
 	await suppressCookies(page, IL_CHANNEL);
 

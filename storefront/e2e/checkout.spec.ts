@@ -5,7 +5,12 @@ import { CheckoutPage } from "./pages/checkout.page";
 import { TEST_CONFIG, TEST_ADDRESS } from "./fixtures/test-data";
 import { findInStockProduct } from "./fixtures/graphql-client";
 
+// Legacy checkout tests — skipped by default now that V2 is the default.
+// Set E2E_CHECKOUT_V1=true to run these (requires NEXT_PUBLIC_CHECKOUT_V2=false in the build).
+const V1_ENABLED = process.env.E2E_CHECKOUT_V1 === "true";
+
 test.describe("Checkout", () => {
+	test.skip(!V1_ENABLED, "Legacy checkout tests — set E2E_CHECKOUT_V1=true to run");
 	let productSlug: string;
 	let variantId: string;
 
