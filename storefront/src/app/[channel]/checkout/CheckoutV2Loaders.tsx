@@ -11,7 +11,7 @@
 import { Suspense } from "react";
 import dynamic from "next/dynamic";
 import type { GetOrderForConfirmationQuery } from "@/gql/graphql";
-import type { CheckoutTextConfig } from "@/checkout/hooks/useCheckoutText";
+import type { CheckoutTextConfig } from "@/lib/checkout/useCheckoutText";
 
 type Order = NonNullable<GetOrderForConfirmationQuery["order"]>;
 

@@ -72,6 +72,11 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
   const ecommerce = useEcommerceSettings();
   const saleBadgeStyle = useBadgeStyle("sale");
   const drawerRef = useRef<HTMLDivElement>(null);
+  const hasInteracted = useRef(false);
+
+  useEffect(() => {
+    if (isOpen) hasInteracted.current = true;
+  }, [isOpen]);
 
   const cartUi = ui.cart as { showDeleteText?: boolean; showSaveForLater?: boolean } | undefined;
   const showDeleteText = cartUi?.showDeleteText ?? false;
@@ -223,7 +228,7 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
 
       {/* Overlay */}
       <div
-        className={`cart-drawer-overlay ${isOpen ? 'cart-drawer-overlay--open' : ''}`}
+        className={`cart-drawer-overlay ${isOpen ? 'cart-drawer-overlay--open' : ''} ${!hasInteracted.current ? 'cart-drawer-overlay--no-transition' : ''}`}
         onClick={closeDrawer}
         aria-hidden="true"
       />
@@ -235,7 +240,7 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
         aria-modal="true"
         aria-label={cartText?.cartTitle ?? 'Shopping Cart'}
         tabIndex={-1}
-        className={`cart-drawer ${isOpen ? 'cart-drawer--open' : ''} ${isLeft ? 'cart-drawer--left' : ''}`}
+        className={`cart-drawer ${isOpen ? 'cart-drawer--open' : ''} ${isLeft ? 'cart-drawer--left' : ''} ${!hasInteracted.current ? 'cart-drawer--no-transition' : ''}`}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
         {/* Header */}
@@ -718,6 +723,10 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
           transform: translateX(0);
           visibility: visible;
           transition: transform 0.3s ease, visibility 0s linear 0s;
+        }
+        .cart-drawer--no-transition,
+        .cart-drawer-overlay--no-transition {
+          transition: none !important;
         }
         @media (prefers-reduced-motion: reduce) {
           .cart-drawer,

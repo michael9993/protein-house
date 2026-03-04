@@ -4,7 +4,7 @@ import { type ReactNode } from "react";
 // Import the same auth client instance used by the main storefront
 import { saleorAuthClient } from "@/ui/components/AuthProvider";
 import { SaleorAuthProvider } from "@saleor/auth-sdk/react";
-import { UserProvider } from "@/checkout/hooks/UserContext";
+import { UserProvider } from "@/lib/checkout/UserContext";
 
 /**
  * Client component wrapper for SaleorAuthProvider + UserProvider in checkout.

@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-02-26T10:55:06.358Z",
+  "exportedAt": "2026-03-04T17:51:35.650Z",
   "channels": {
     "ils": {
-      "version": 13,
-      "updatedAt": "2026-02-26T10:55:05.083Z",
+      "version": 16,
+      "updatedAt": "2026-03-04T17:51:08.594Z",
       "channelSlug": "ils",
       "store": {
         "name": "Mansour Shoes",
@@ -91,12 +91,18 @@
         },
         "shipping": {
           "enabled": true,
-          "freeShippingThreshold": 300,
+          "freeShippingThreshold": 200,
           "showEstimatedDelivery": true,
           "deliverySlots": false,
-          "defaultEstimatedMinDays": 7,
-          "defaultEstimatedMaxDays": 30,
-          "estimatedDeliveryFormat": "range"
+          "defaultEstimatedMinDays": 2,
+          "defaultEstimatedMaxDays": 5,
+          "estimatedDeliveryFormat": "range",
+          "priceAdjustment": {
+            "enabled": false,
+            "type": "round_down",
+            "value": 10,
+            "minPrice": 0
+          }
         },
         "tax": {
           "showPricesWithTax": true,
@@ -116,7 +122,7 @@
       "header": {
         "banner": {
           "enabled": true,
-          "text": "משלוח חינם בהזמנות מעל ₪300!",
+          "text": "משלוח חינם בהזמנות מעל ₪200!",
           "backgroundColor": "#000000",
           "textColor": "#fff",
           "useSaleorPromotions": true,
@@ -124,7 +130,7 @@
           "items": [
             {
               "id": "manual-1769994856696",
-              "name": "משלוח חינם עם קנייה מעל ₪300",
+              "name": "משלוח חינם עם קנייה מעל ₪200",
               "description": null,
               "link": null,
               "icon": null
@@ -133,7 +139,7 @@
           "manualItems": [
             {
               "id": "manual-1769994856696",
-              "text": "משלוח חינם עם קנייה מעל ₪300",
+              "text": "משלוח חינם עם קנייה מעל ₪200",
               "link": null,
               "icon": null
             }
@@ -629,7 +635,7 @@
           "enabled": true
         },
         "stockFilter": {
-          "enabled": false
+          "enabled": true
         }
       },
       "quickFilters": {
@@ -766,7 +772,7 @@
           "borderRadius": "sm"
         },
         "productCard": {
-          "borderRadius": "lg",
+          "borderRadius": "sm",
           "shadow": "lg",
           "hoverShadow": "lg",
           "showQuickView": true,
@@ -777,7 +783,7 @@
           "badgePosition": "top-start",
           "showBrandLabel": true,
           "showRating": true,
-          "imageFit": "cover",
+          "imageFit": "contain",
           "textStyles": {
             "name": {
               "fontSize": "sm",
@@ -1219,11 +1225,15 @@
           "billingAddressTitle": "כתובת לחיוב",
           "billingAddressSubtitle": "לחשבונית שלך",
           "useSameAsShipping": "השתמש בכתובת המשלוח ככתובת לחיוב",
+          "useSavedAddressButton": "השתמש בכתובת שמורה",
           "deliveryMethodsTitle": "שיטות משלוח",
           "deliveryMethodsSubtitle": "בחר מהירות משלוח",
           "noShippingMethodsAvailable": "אין שיטות משלוח זמינות לכתובת זו",
           "businessDaysText": "{min}-{max} ימי עסקים",
           "freeShippingLabel": "חינם",
+          "deliveryFreeShippingUnlocked": "משלוח חינם הופעל!",
+          "deliveryFreeShippingNudge": "פתחת משלוח חינם! בחר {methodName} כדי לחסוך {amount}",
+          "deliveryAddMoreForFreeShipping": "הוסף עוד {amount} למשלוח חינם",
           "noDeliveryMethodsText": "אין שיטות משלוח זמינות",
           "fetchingShippingRates": "מחשב תעריפי משלוח...",
           "updatingShippingRates": "מעדכן תעריפי משלוח לכתובת החדשה...",
@@ -1283,6 +1293,7 @@
           "placeOrder": "לביצוע הזמנה",
           "placeOrderButton": "לביצוע הזמנה",
           "processingOrderText": "מעבד את ההזמנה שלך...",
+          "doNotClosePageText": "אנא אל תסגור דף זה",
           "agreementText": "בביצוע הזמנה זו, אתה מסכים ל",
           "almostDoneText": "כמעט סיימנו…",
           "orderConfirmation": "אישור הזמנה",
@@ -1307,6 +1318,8 @@
           "deliveryMessage": "ההזמנה שלך תגיע לפתח הדלת שלך!",
           "printReceiptButton": "הדפס קבלה",
           "thankYouPurchaseMessage": "תודה על הרכישה! אם יש לך שאלות, אנא צור קשר עם צוות התמיכה שלנו.",
+          "accountCreatedTitle": "החשבון נוצר בהצלחה",
+          "accountCreatedDescription": "החשבון שלך הוקם עם כתובת המשלוח השמורה. היכנס בכל עת עם האימייל והסיסמה שלך.",
           "orderDetailsTitle": "פרטי ההזמנה",
           "contactLabel": "יצירת קשר",
           "authorizedStatus": "מאושר",
@@ -1321,6 +1334,7 @@
           "invalidEmailError": "אנא הזן אימייל תקין",
           "invalidPhoneError": "אנא הזן מספר טלפון תקין",
           "selectDeliveryMethodError": "אנא בחר שיטת משלוח",
+          "deliveryMethodUnavailable": "שיטת המשלוח שנבחרה אינה זמינה עוד עבור העגלה הנוכחית. אנא בחר שיטה אחרת.",
           "selectPaymentMethodError": "אנא בחר אמצעי תשלום",
           "noCheckoutFoundTitle": "לא נמצא תשלום",
           "noCheckoutFoundMessage": "נראה שעדיין לא התחלת תשלום. הוסף פריטים לעגלה קודם.",
@@ -1373,7 +1387,12 @@
           "securityNote": "מוגן על ידי הצפנת SSL • פרטי התשלום שלך בטוחים",
           "privacyPolicyLinkText": "מדיניות פרטיות",
           "termsOfServiceLinkText": "תנאי שימוש",
-          "sslEncryptionMessage": "מוגן על ידי הצפנת SSL • פרטי התשלום שלך בטוחים"
+          "sslEncryptionMessage": "מוגן על ידי הצפנת SSL • פרטי התשלום שלך בטוחים",
+          "continueButtonText": "המשך",
+          "emptyCartConfirmTitle": "להסיר את הפריט האחרון?",
+          "emptyCartConfirmMessage": "פעולה זו תרוקן את העגלה ותחזיר אותך לחנות.",
+          "emptyCartConfirmButton": "רוקן עגלה",
+          "emptyCartCancelButton": "המשך לקנות"
         },
         "filters": {
           "sectionTitle": "סינון",
@@ -1758,13 +1777,20 @@
           "billingAddress": "כתובת חיוב",
           "savedAddress": "כתובת שמורה",
           "setAsDefault": "הגדר כברירת מחדל",
+          "setAsDefaultShipping": "הגדר ככתובת משלוח ברירת מחדל",
+          "setAsDefaultBilling": "הגדר ככתובת חיוב ברירת מחדל",
           "noAddresses": "לא נשמרו כתובות",
           "noAddressesMessage": "הוסף את הכתובת הראשונה שלך כדי לזרז את התשלום",
           "noAddressesCheckoutMessage": "כתובות המשלוח והחיוב שלך יישמרו כאן כשתסיים את התשלום.",
           "addNewAddressTitle": "הוסף כתובת חדשה",
           "addAddressDescription": "הוספת כתובות חדשות דורשת מעבר דרך התשלום. הכתובות שלך יישמרו אוטומטית כשתסיים רכישה.",
           "editButton": "ערוך",
+          "editAddressTitle": "עריכת כתובת",
           "deleteButton": "מחק",
+          "deleteConfirmTitle": "למחוק כתובת?",
+          "deleteConfirmMessage": "כתובת זו תוסר לצמיתות מהחשבון שלך.",
+          "saving": "שומר...",
+          "saveChanges": "שמור שינויים",
           "continueShoppingButton": "המשך בקניות",
           "startShopping": "התחל לקנות",
           "cancel": "ביטול"

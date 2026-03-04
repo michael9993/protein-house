@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Pencil, Trash2 } from "lucide-react";
 import { useBranding, useAddressesText } from "@/providers/StoreConfigProvider";
-import { CheckoutTextProvider, type CheckoutTextConfig } from "@/checkout/hooks/useCheckoutText";
+import { CheckoutTextProvider, type CheckoutTextConfig } from "@/lib/checkout/useCheckoutText";
 import { AddressForm } from "@/checkout-v2/components/AddressForm";
 import { ConfirmDialog } from "@/checkout-v2/components/ConfirmDialog";
 import { createUserAddress } from "@/checkout-v2/_actions/create-user-address";

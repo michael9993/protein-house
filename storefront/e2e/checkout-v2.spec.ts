@@ -1,9 +1,7 @@
 /**
- * Checkout V2 E2E Tests
+ * Checkout E2E Tests
  *
- * Tests for the accordion-style checkout (checkout-v2/) — now the default.
- *
- * Requires NEXT_PUBLIC_CHECKOUT_V2 to NOT be set to "false" in the storefront build.
+ * Tests for the accordion-style checkout (checkout-v2/).
  * These tests run by default with `pnpm test:e2e`.
  *
  * CJ Dropshipping note: The dropship test creates a checkout and verifies that
@@ -107,11 +105,9 @@ test("V2: guest checkout completes end-to-end with Stripe", async ({ page }) => 
 
 	const checkout = await goToCheckoutV2(page, productSlug, variantId);
 
-	// Confirm we got V2 accordion, not legacy checkout
+	// Confirm we got the accordion checkout
 	const isV2 = await checkout.isV2Active();
-	expect(isV2, "Expected V2 accordion — NEXT_PUBLIC_CHECKOUT_V2 may not be set in the build").toBe(
-		true,
-	);
+	expect(isV2, "Expected accordion checkout to be active").toBe(true);
 
 	// Step 0: Contact
 	await checkout.fillContactEmail("e2e-v2-guest@test.local");

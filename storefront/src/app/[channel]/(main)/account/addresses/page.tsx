@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { CurrentUserAddressesDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { fetchStorefrontConfig } from "@/lib/storefront-control";
-import type { CheckoutTextConfig } from "@/checkout/hooks/useCheckoutText";
+import type { CheckoutTextConfig } from "@/lib/checkout/useCheckoutText";
 import { AddressesClient } from "./AddressesClient";
 
 export async function generateMetadata({ params }: { params: Promise<{ channel: string }> }) {
