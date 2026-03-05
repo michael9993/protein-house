@@ -22,6 +22,9 @@ import {
   ButtonsSchema,
   BadgesSchema,
   ProductCardSchema,
+  ProductCardOverrideSchema,
+  CardOverridesSchema,
+  CardLocationSchema,
   ToastsSchema,
   DarkModeSchema,
   DarkModeColorsSchema,
@@ -43,6 +46,8 @@ import {
   RelatedProductsSchema,
   RelatedProductsStrategySchema,
   DesignTokensSchema,
+  StatusColorsSchema,
+  CheckoutUiSchema,
   TrustStripSectionSchema,
   BrandGridSectionSchema,
   CategoriesSectionSchema,
@@ -82,6 +87,9 @@ export type ContentConfig = z.infer<typeof ContentSchema>;
 export type ButtonsConfig = z.infer<typeof ButtonsSchema>;
 export type BadgesConfig = z.infer<typeof BadgesSchema>;
 export type ProductCardConfig = z.infer<typeof ProductCardSchema>;
+export type ProductCardOverride = z.infer<typeof ProductCardOverrideSchema>;
+export type CardOverrides = z.infer<typeof CardOverridesSchema>;
+export type CardLocation = z.infer<typeof CardLocationSchema>;
 export type ToastsConfig = z.infer<typeof ToastsSchema>;
 export type DarkModeConfig = z.infer<typeof DarkModeSchema>;
 export type DarkModeColors = z.infer<typeof DarkModeColorsSchema>;
@@ -103,6 +111,8 @@ export type NavbarText = z.infer<typeof NavbarTextSchema>;
 export type RelatedProductsConfig = z.infer<typeof RelatedProductsSchema>;
 export type RelatedProductsStrategy = z.infer<typeof RelatedProductsStrategySchema>;
 export type DesignTokensConfig = z.infer<typeof DesignTokensSchema>;
+export type StatusColorsConfig = z.infer<typeof StatusColorsSchema>;
+export type CheckoutUiConfig = z.infer<typeof CheckoutUiSchema>;
 
 // Homepage section types
 export type TrustStripConfig = z.infer<typeof TrustStripSectionSchema>;

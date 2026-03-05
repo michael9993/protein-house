@@ -49,7 +49,7 @@ export function RatingStars({
             >
               <svg
                 className={`${sizeClasses[size]} ${
-                  isFilled ? "text-amber-400" : isHalf ? "text-amber-300" : "text-neutral-400"
+                  isFilled ? "text-warning-400" : isHalf ? "text-warning-300" : "text-neutral-400"
                 }`}
                 fill={isFilled || isHalf ? "currentColor" : "none"}
                 stroke={!isFilled && !isHalf ? "currentColor" : "none"}

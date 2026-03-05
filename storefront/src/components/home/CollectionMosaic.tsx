@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { parseDescription } from "./utils";
-import { useBranding, useCollectionMosaicConfig, useContentConfig } from "@/providers/StoreConfigProvider";
+import { useBranding, useCollectionMosaicConfig, useContentConfig, useDesignTokens } from "@/providers/StoreConfigProvider";
 import { buildCollectionUrl, buildProductsUrl, withChannel } from "@/lib/urls";
 import { SectionViewAllButton } from "./SectionViewAllButton";
 
@@ -45,7 +45,7 @@ interface CollectionMosaicProps {
 // Constants & Desktop Slot Positions
 // ---------------------------------------------------------------------------
 
-const CYCLE_MS = 6000;
+const DEFAULT_CYCLE_MS = 6000;
 const TRANSITION_CSS = "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
 const GAP = 12; // px gap between cards
 
@@ -316,6 +316,10 @@ export function CollectionMosaic({
   const { colors } = useBranding();
   const config = useCollectionMosaicConfig();
   const contentConfig = useContentConfig();
+  const designTokens = useDesignTokens();
+  const CYCLE_MS = (designTokens.animations as { carouselCycleSeconds?: number }).carouselCycleSeconds
+    ? (designTokens.animations as { carouselCycleSeconds?: number }).carouselCycleSeconds! * 1000
+    : DEFAULT_CYCLE_MS;
 
   // Config values
   const enabled = config?.enabled ?? true;

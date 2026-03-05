@@ -7,7 +7,7 @@ import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { formatMoneyRange, formatMoney } from "@/lib/utils";
 import type { ProductListItemFragment } from "@/gql/graphql";
 import { t } from "@/lib/language";
-import { useBranding, useFeature, useUiConfig, useContentConfig, useBadgeStyle, useEcommerceSettings, useProductDetailText } from "@/providers/StoreConfigProvider";
+import { useBranding, useFeature, useProductCardConfig, useContentConfig, useBadgeStyle, useEcommerceSettings, useProductDetailText } from "@/providers/StoreConfigProvider";
 import { getProductShippingEstimate, formatEstimate } from "@/lib/shipping";
 import { useWishlist } from "@/lib/wishlist";
 import { useQuickView } from "@/providers/QuickViewProvider";
@@ -30,7 +30,7 @@ const radiusMap: Record<"none" | "sm" | "md" | "lg" | "xl" | "full", string> = {
 };
 
 // Map shadow config to Tailwind classes
-const shadowMap = {
+const shadowMap: Record<string, string> = {
   none: "",
   sm: "shadow-sm",
   md: "shadow-md",
@@ -57,7 +57,7 @@ const fontWeightMap: Record<string, string> = {
 };
 
 // Map aspect ratio config
-const aspectRatioMap = {
+const aspectRatioMap: Record<string, string> = {
   square: "aspect-square",
   portrait: "aspect-[3/4]",
   landscape: "aspect-[4/3]",
@@ -72,15 +72,12 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
   const branding = useBranding();
   const wishlistEnabled = useFeature("wishlist");
   const reviewsEnabled = useFeature("productReviews");
-  const ui = useUiConfig();
+  const cardConfig = useProductCardConfig("plp");
   const content = useContentConfig();
   const ecommerce = useEcommerceSettings();
   const saleBadgeStyle = useBadgeStyle("sale");
   const outOfStockBadgeStyle = useBadgeStyle("outOfStock");
   const lowStockBadgeStyle = useBadgeStyle("lowStock");
-
-  // Product card config
-  const cardConfig = ui.productCard;
   const ts = cardConfig.textStyles;
   const showQuickView = cardConfig.showQuickView ?? false;
   const quickAddLabel = (content.product as { quickAddButton?: string })?.quickAddButton ?? "Quick add";
@@ -147,14 +144,24 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
   };
 
   // Get classes from config
-  const cardRadius = radiusMap[cardConfig.borderRadius] || "rounded-lg";
-  const cardShadow = shadowMap[cardConfig.shadow] || "";
-  const hoverShadow = shadowMap[cardConfig.hoverShadow] || "shadow-lg";
-  const imageAspect = aspectRatioMap[cardConfig.imageAspectRatio] || "aspect-square";
+  const cardRadius = radiusMap[cardConfig.borderRadius ?? "lg"] || "rounded-lg";
+  const cardShadow = shadowMap[cardConfig.shadow ?? "sm"] || "";
+  const imageAspect = aspectRatioMap[cardConfig.imageAspectRatio ?? "square"] || "aspect-square";
+
+  // Shadow values for inline style hover (Tailwind can't purge dynamic hover: classes)
+  const hoverShadowValues: Record<string, string> = {
+    none: "none",
+    sm: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+    md: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+    lg: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+    xl: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+  };
+  const hoverShadowCSS = hoverShadowValues[cardConfig.hoverShadow ?? "lg"] || hoverShadowValues.lg;
 
   return (
     <article 
-      className={`group relative flex flex-col ${cardRadius} overflow-hidden bg-white transition-all duration-300 ${cardShadow} hover:${hoverShadow}`}
+      className={`group relative flex flex-col ${cardRadius} overflow-hidden bg-white transition-all duration-300 ${cardShadow}`}
+      style={isHovered ? { boxShadow: hoverShadowCSS } : undefined}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -219,7 +226,7 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
 
           {/* Badges - Top Left */}
           <div className="absolute left-2 top-2 flex flex-col gap-1.5 sm:left-3 sm:top-3 sm:gap-2">
-            {hasDiscount && discountPercent > 0 && (
+            {cardConfig.showDiscountBadge !== false && hasDiscount && discountPercent > 0 && (
               <span 
                 className={`${radiusMap[saleBadgeStyle.borderRadius] || "rounded"} px-2 py-1 text-xs font-bold shadow-sm`}
                 style={{ 
@@ -230,8 +237,8 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
                 -{discountPercent}%
               </span>
             )}
-            {!isInStock && (
-              <span 
+            {cardConfig.showOutOfStockBadge !== false && !isInStock && (
+              <span
                 className={`${radiusMap[outOfStockBadgeStyle.borderRadius] || "rounded-full"} px-2 py-0.5 text-[10px] font-medium shadow-sm sm:px-2.5 sm:py-1 sm:text-xs`}
                 style={{ 
                   backgroundColor: outOfStockBadgeStyle.backgroundColor,
@@ -241,7 +248,7 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
                 {content.product.outOfStockText}
               </span>
             )}
-            {isLowStock && (
+            {cardConfig.showLowStockBadge !== false && isLowStock && (
               <span
                 className={`${radiusMap[lowStockBadgeStyle.borderRadius] || "rounded"} inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold leading-none`}
                 style={{
@@ -277,51 +284,55 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
                 </svg>
               </button>
             )}
-            <ShareButton
-              variant="icon"
-              productName={t(product)}
-              productSlug={product.slug}
-              productImage={product.thumbnail?.url || null}
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-md text-neutral-400 opacity-70 transition-all duration-200 hover:text-neutral-600 hover:opacity-100 sm:h-9 sm:w-9"
-              iconClassName="h-3.5 w-3.5 sm:h-4 sm:w-4"
-            />
+            {cardConfig.showShareButton !== false && (
+              <ShareButton
+                variant="icon"
+                productName={t(product)}
+                productSlug={product.slug}
+                productImage={product.thumbnail?.url || null}
+                className="flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-md text-neutral-400 opacity-70 transition-all duration-200 hover:text-neutral-600 hover:opacity-100 sm:h-9 sm:w-9"
+                iconClassName="h-3.5 w-3.5 sm:h-4 sm:w-4"
+              />
+            )}
           </div>
         </div>
 
         {/* Product Info */}
-        <div className="mt-3 flex flex-col p-4 sm:mt-4 sm:p-5">
+        <div className={`mt-3 flex flex-col p-4 sm:mt-4 sm:p-5 text-${cardConfig.contentAlignment ?? "start"}`}>
           {/* Product Name */}
           <h3
-            className={`mt-1 line-clamp-2 ${fontSizeMap[ts?.name?.fontSize || "sm"]} ${fontWeightMap[ts?.name?.fontWeight || "semibold"]} transition-colors group-hover:opacity-80`}
+            className={`mt-1 line-clamp-${cardConfig.titleMaxLines ?? 2} ${fontSizeMap[ts?.name?.fontSize || "sm"]} ${fontWeightMap[ts?.name?.fontWeight || "semibold"]} transition-colors group-hover:opacity-80`}
             style={{ color: ts?.name?.color || branding.colors.text }}
           >
             {t(product)}
           </h3>
           
           {/* Price */}
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <span
-              className={`${fontSizeMap[ts?.price?.fontSize || "base"]} ${fontWeightMap[ts?.price?.fontWeight || "bold"]}`}
-              style={{ color: ts?.price?.color || branding.colors.primary }}
-            >
-              {formatMoneyRange({
-                start: product.pricing?.priceRange?.start?.gross,
-                stop: product.pricing?.priceRange?.stop?.gross,
-              })}
-            </span>
-            
-            {hasDiscount && product.pricing?.priceRangeUndiscounted?.start?.gross && (
+          {cardConfig.showPrice !== false && (
+            <div className="mt-2 flex flex-wrap items-center gap-2">
               <span
-                className={`${fontSizeMap[ts?.originalPrice?.fontSize || "sm"]} ${fontWeightMap[ts?.originalPrice?.fontWeight || "normal"]} line-through ${!ts?.originalPrice?.color ? "text-neutral-400" : ""}`}
-                style={ts?.originalPrice?.color ? { color: ts.originalPrice.color } : undefined}
+                className={`${fontSizeMap[ts?.price?.fontSize || "base"]} ${fontWeightMap[ts?.price?.fontWeight || "bold"]}`}
+                style={{ color: ts?.price?.color || branding.colors.primary }}
               >
-                {formatMoney(
-                  product.pricing.priceRangeUndiscounted.start.gross.amount,
-                  product.pricing.priceRangeUndiscounted.start.gross.currency
-                )}
+                {formatMoneyRange({
+                  start: product.pricing?.priceRange?.start?.gross,
+                  stop: product.pricing?.priceRange?.stop?.gross,
+                })}
               </span>
-            )}
-          </div>
+
+              {cardConfig.showOriginalPrice !== false && hasDiscount && product.pricing?.priceRangeUndiscounted?.start?.gross && (
+                <span
+                  className={`${fontSizeMap[ts?.originalPrice?.fontSize || "sm"]} ${fontWeightMap[ts?.originalPrice?.fontWeight || "normal"]} line-through ${!ts?.originalPrice?.color ? "text-neutral-400" : ""}`}
+                  style={ts?.originalPrice?.color ? { color: ts.originalPrice.color } : undefined}
+                >
+                  {formatMoney(
+                    product.pricing.priceRangeUndiscounted.start.gross.amount,
+                    product.pricing.priceRangeUndiscounted.start.gross.currency
+                  )}
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Rating */}
           {reviewsEnabled && (product as any).rating !== null && (product as any).rating !== undefined && (
@@ -329,7 +340,7 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
               {[1, 2, 3, 4, 5].map((star) => (
                 <svg
                   key={star}
-                  className={`h-4 w-4 ${star <= Math.round((product as any).rating || 0) ? "text-amber-400" : "text-neutral-300"}`}
+                  className={`h-4 w-4 ${star <= Math.round((product as any).rating || 0) ? "text-warning-400" : "text-neutral-300"}`}
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -346,7 +357,9 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
           )}
 
           {/* Delivery Estimate */}
-          <UiCardDeliveryBadge metadata={product.metadata} />
+          {cardConfig.showDeliveryEstimate !== false && (
+            <UiCardDeliveryBadge metadata={product.metadata} />
+          )}
         </div>
       </LinkWithChannel>
     </article>

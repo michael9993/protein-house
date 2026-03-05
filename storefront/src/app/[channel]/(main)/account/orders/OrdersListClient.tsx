@@ -70,30 +70,30 @@ function Toast({
 	}, [onClose]);
 
 	const styles = {
-		info: "bg-blue-50 text-blue-800 border-blue-200",
-		success: "bg-green-50 text-green-800 border-green-200",
-		error: "bg-red-50 text-red-800 border-red-200",
-		warning: "bg-yellow-50 text-yellow-800 border-yellow-200",
+		info: "bg-info-50 text-info-800 border-info-200",
+		success: "bg-success-50 text-success-800 border-success-200",
+		error: "bg-error-50 text-error-800 border-error-200",
+		warning: "bg-warning-50 text-warning-800 border-warning-200",
 	};
 
 	const icons = {
 		info: (
-			<svg className="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			<svg className="h-5 w-5 text-info-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 				<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
 			</svg>
 		),
 		success: (
-			<svg className="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			<svg className="h-5 w-5 text-success-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 				<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
 			</svg>
 		),
 		error: (
-			<svg className="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			<svg className="h-5 w-5 text-error-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 				<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
 			</svg>
 		),
 		warning: (
-			<svg className="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			<svg className="h-5 w-5 text-warning-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 				<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
 			</svg>
 		),
@@ -166,13 +166,13 @@ function InvoiceModal({
 					{isPaid ? (
 						// Paid order - offer to generate and download invoice
 						<div className="space-y-4">
-							<div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
-								<svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<div className="flex items-center gap-3 rounded-lg border border-success-200 bg-success-50 p-4">
+								<svg className="h-6 w-6 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
 								</svg>
 								<div>
-									<p className="font-medium text-green-800">{ordersText.invoiceAvailable}</p>
-									<p className="text-sm text-green-700">
+									<p className="font-medium text-success-800">{ordersText.invoiceAvailable}</p>
+									<p className="text-sm text-success-700">
 										{ordersText.invoiceAvailableMessage}
 									</p>
 								</div>
@@ -602,7 +602,7 @@ export function OrdersListClient({ orders, channel, statusColors, primaryColor }
 											href={carrier.url(trackingModalOrder.fulfillments?.[0]?.trackingNumber || "")}
 											target="_blank"
 											rel="noopener noreferrer"
-											className="rounded-lg border-2 border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
+											className="rounded-lg border-2 border-info-200 bg-info-50 px-3 py-2 text-sm font-medium text-info-700 hover:bg-info-100"
 										>
 											{carrier.name}
 										</a>

@@ -82,9 +82,9 @@ export function AccountDashboardContent({ channel, recentOrders }: AccountDashbo
 								</p>
 								<span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
 									order.status === "FULFILLED"
-										? "bg-green-50 text-green-700"
+										? "bg-success-50 text-success-700"
 										: order.status === "CANCELED"
-										? "bg-red-50 text-red-700"
+										? "bg-error-50 text-error-700"
 										: "bg-neutral-100 text-neutral-600"
 								}`}>
 									{statusLabels[order.status || "UNFULFILLED"] || (order.status || "PENDING").toLowerCase().replace(/_/g, " ")}

@@ -49,7 +49,7 @@ export function ReorderButton({ channel, orderLines, reorderAction }: ReorderBut
 
 	if (result?.success) {
 		return (
-			<div className="flex w-full flex-col items-center justify-center gap-2 rounded-lg bg-green-50 px-4 py-3 text-green-700">
+			<div className="flex w-full flex-col items-center justify-center gap-2 rounded-lg bg-success-50 px-4 py-3 text-success-700">
 				<div className="flex items-center gap-2">
 					<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -58,7 +58,7 @@ export function ReorderButton({ channel, orderLines, reorderAction }: ReorderBut
 						{result.itemsAdded} item{result.itemsAdded !== 1 ? "s" : ""} added to cart!
 					</span>
 				</div>
-				<span className="text-xs text-green-600">Redirecting to cart...</span>
+				<span className="text-xs text-success-600">Redirecting to cart...</span>
 			</div>
 		);
 	}
@@ -66,7 +66,7 @@ export function ReorderButton({ channel, orderLines, reorderAction }: ReorderBut
 	if (result?.error) {
 		return (
 			<div className="space-y-2">
-				<div className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-50 px-4 py-3 text-red-700">
+				<div className="flex w-full items-center justify-center gap-2 rounded-lg bg-error-50 px-4 py-3 text-error-700">
 					<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
 					</svg>

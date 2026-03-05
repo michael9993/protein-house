@@ -27,7 +27,7 @@ export function FormSelect({
 			<label htmlFor={id} className="block text-sm font-medium text-neutral-700">
 				{label}
 				{selectProps.required && (
-					<span className="ms-0.5 text-red-500" aria-hidden="true">
+					<span className="ms-0.5 text-error-500" aria-hidden="true">
 						*
 					</span>
 				)}
@@ -43,7 +43,7 @@ export function FormSelect({
 					"focus:outline-none focus:ring-2 focus:ring-[var(--store-primary,theme(colors.neutral.900))] focus:ring-offset-1",
 					"disabled:cursor-not-allowed disabled:opacity-50",
 					errorMessage
-						? "border-red-400 bg-red-50 focus:ring-red-500"
+						? "border-error-400 bg-error-50 focus:ring-error-500"
 						: "border-neutral-300 bg-white hover:border-neutral-400",
 					className ?? "",
 				].join(" ")}
@@ -61,7 +61,7 @@ export function FormSelect({
 			</select>
 
 			{errorMessage && (
-				<p id={errorId} className="flex items-center gap-1 text-xs text-red-600" role="alert">
+				<p id={errorId} className="flex items-center gap-1 text-xs text-error-600" role="alert">
 					<svg className="h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
 						<path d="M8 1a7 7 0 100 14A7 7 0 008 1zM7 5a1 1 0 112 0v3a1 1 0 11-2 0V5zm1 6a1 1 0 100-2 1 1 0 000 2z" />
 					</svg>

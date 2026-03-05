@@ -158,7 +158,12 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
 
   const totalItemCount = useMemo(() => lines.reduce((acc, line) => acc + line.quantity, 0), [lines]);
 
-  const freeShippingThreshold = ecommerce.shipping.freeShippingThreshold;
+  const freeRule = ecommerce?.shipping?.freeShippingRule;
+  const freeShippingThreshold = freeRule?.enabled
+    ? freeRule.cartMinimum
+    : (ecommerce.shipping.freeShippingThreshold ?? null);
+  const hasShippingRestrictions = !!(freeRule?.enabled &&
+    (freeRule.methodNameFilter?.trim() || (freeRule.maxMethodPrice && freeRule.maxMethodPrice > 0)));
   // Use same "Your price" as order summary so free shipping message matches threshold (no voucher/subtotal mismatch)
   const effectiveTotalForShipping = selectedItemCount > 0
     ? Math.max(0, subtotalBeforeDiscount - totalSavings - (discount?.amount ?? 0))
@@ -346,7 +351,7 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
                           </Link>
                           {(line as { isGift?: boolean }).isGift && (
                             <span className="ml-1.5 inline-flex items-center">
-                              <span className="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-800">
+                              <span className="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-success-100 text-success-800">
                                 {(cartText as { giftLabel?: string })?.giftLabel ?? 'Gift'}
                               </span>
                             </span>
@@ -378,7 +383,7 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
                               {formatMoney(unitPrice.amount, unitPrice.currency)} {cartText?.eachLabel ?? 'each'}
                             </p>
                           )}
-                          <p className={`text-xs ${(line.variant.quantityAvailable ?? 0) > 0 ? 'text-gray-500' : 'text-red-600 font-medium'}`}>
+                          <p className={`text-xs ${(line.variant.quantityAvailable ?? 0) > 0 ? 'text-gray-500' : 'text-error-600 font-medium'}`}>
                             {(line.variant.quantityAvailable ?? 0) > 0
                               ? `${line.variant.quantityAvailable} ${cartText?.availableLabel ?? 'available'}`
                               : cartText?.outOfStockLabel ?? 'Out of stock'}
@@ -422,7 +427,7 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
                               )}
                               <button
                                 onClick={() => onDeleteLine?.(line.id)}
-                                className="flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-700"
+                                className="flex items-center gap-1 text-xs font-medium text-error-600 hover:text-error-700"
                                 disabled={loading}
                                 aria-label={cartText?.deleteButton ?? 'Delete'}
                               >
@@ -448,38 +453,52 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
           <div className="cart-drawer__footer">
             {/* Free shipping progress (same as cart page) */}
             {freeShippingThreshold != null && !hasReachedFreeShipping && amountToFreeShipping != null && effectiveTotalForShipping > 0 && (
-              <div className="mb-2 rounded-lg bg-emerald-50/80 px-2.5 py-1.5">
-                <p className="text-xs font-medium text-emerald-800">
+              <div className="mb-2 rounded-lg bg-success-50/80 px-2.5 py-1.5">
+                <p className="text-xs font-medium text-success-800">
                   {(cartText as { addXMoreForFreeShipping?: string })?.addXMoreForFreeShipping?.replace('{amount}', formatMoney(amountToFreeShipping, currency)) ?? `Add ${formatMoney(amountToFreeShipping, currency)} more for free shipping`}
                 </p>
-                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-emerald-200">
+                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-success-200">
                   <div
-                    className="h-full rounded-full bg-emerald-500 transition-all duration-300"
+                    className="h-full rounded-full bg-success-500 transition-all duration-300"
                     style={{ width: `${Math.min(100, (effectiveTotalForShipping / freeShippingThreshold) * 100)}%` }}
                   />
                 </div>
               </div>
             )}
             {freeShippingThreshold != null && hasReachedFreeShipping && effectiveTotalForShipping > 0 && (
-              <div className="mb-2 flex items-center gap-1.5 rounded-lg bg-emerald-100 px-2.5 py-1.5">
-                <svg className="h-3.5 w-3.5 shrink-0 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <p className="text-xs font-medium text-emerald-800">
-                  {(cartText as { unlockedFreeShipping?: string })?.unlockedFreeShipping ?? "You've unlocked free shipping!"}
-                </p>
+              <div className="mb-2 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 bg-success-100">
+                {/* TODO: Re-enable blue "select methods" variant when ready
+                {hasShippingRestrictions ? (
+                  <>
+                    <svg className="h-3.5 w-3.5 shrink-0 text-info-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-xs font-medium text-info-800">
+                      {(cartText as { freeShippingSelectMethods?: string })?.freeShippingSelectMethods ?? "You may qualify for free shipping on select methods"}
+                    </p>
+                  </>
+                ) : ( */}
+                <>
+                  <svg className="h-3.5 w-3.5 shrink-0 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <p className="text-xs font-medium text-success-800">
+                    {(cartText as { unlockedFreeShipping?: string })?.unlockedFreeShipping ?? "You've unlocked free shipping!"}
+                  </p>
+                </>
+                {/* )} */}
               </div>
             )}
             {/* Promo / Voucher */}
             <div className="cart-drawer__promo-section">
               {voucherCode ? (
-                <div className="flex items-center justify-between gap-2 rounded-lg border border-emerald-200 bg-emerald-50/50 px-2.5 py-2">
+                <div className="flex items-center justify-between gap-2 rounded-lg border border-success-200 bg-success-50/50 px-2.5 py-2">
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium text-emerald-800 truncate">
+                    <p className="text-xs font-medium text-success-800 truncate">
                       {(cartText as { voucherLabel?: string })?.voucherLabel ?? 'Voucher'}: {voucherCode}
                     </p>
                     {discount && (
-                      <p className="text-xs text-emerald-600 mt-0.5">
+                      <p className="text-xs text-success-600 mt-0.5">
                         −{formatMoney(discount.amount, discount.currency)}
                         {discountName ? ` (${discountName})` : ''}
                       </p>
@@ -497,7 +516,7 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
                         else if (typeof window !== 'undefined') window.dispatchEvent(new Event('cart-updated'));
                       }}
                       disabled={promoPending}
-                      className="shrink-0 rounded p-1 text-neutral-500 hover:bg-emerald-100 hover:text-neutral-700 disabled:opacity-50"
+                      className="shrink-0 rounded p-1 text-neutral-500 hover:bg-success-100 hover:text-neutral-700 disabled:opacity-50"
                       aria-label="Remove voucher"
                     >
                       <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -537,7 +556,7 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
                   </button>
                 </div>
               ) : null}
-              {promoError && <p className="mt-1 text-xs text-red-600">{promoError}</p>}
+              {promoError && <p className="mt-1 text-xs text-error-600">{promoError}</p>}
             </div>
 
             {/* Order summary: single section; "You save" includes product + voucher discounts */}
@@ -911,7 +930,7 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
         .cart-drawer__subtotal-amount { font-weight: 600; }
         .cart-drawer__subtotal-amount--discounted { 
           font-weight: 700; 
-          color: #059669;
+          color: var(--store-success-600, #059669);
         }
         
         /* Subtotal row variant (for original price) */
@@ -987,7 +1006,7 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
           display: flex;
           align-items: center;
           gap: 6px;
-          color: #059669;
+          color: var(--store-success-600, #059669);
           font-weight: 500;
         }
         .cart-drawer__savings-icon {

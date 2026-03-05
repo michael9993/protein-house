@@ -93,7 +93,7 @@ export function DeliveryStep({ checkoutId }: DeliveryStepProps) {
 
 	if (methods.length === 0) {
 		return (
-			<div className="rounded-lg bg-amber-50 p-4 text-sm text-amber-700">
+			<div className="rounded-lg bg-warning-50 p-4 text-sm text-warning-700">
 				{t.noShippingMethodsAvailable ??
 					"No shipping methods available for this address. Please try a different shipping address."}
 			</div>
@@ -103,11 +103,11 @@ export function DeliveryStep({ checkoutId }: DeliveryStepProps) {
 	return (
 		<div className="space-y-4">
 			{stepErrors.length > 0 && (
-				<div role="alert" className="flex items-start gap-2 rounded-lg bg-amber-50 p-3">
-					<svg className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+				<div role="alert" className="flex items-start gap-2 rounded-lg bg-warning-50 p-3">
+					<svg className="mt-0.5 h-4 w-4 shrink-0 text-warning-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
 						<path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
 					</svg>
-					<p className="text-sm text-amber-700">{stepErrors[0]}</p>
+					<p className="text-sm text-warning-700">{stepErrors[0]}</p>
 				</div>
 			)}
 
@@ -143,7 +143,7 @@ export function DeliveryStep({ checkoutId }: DeliveryStepProps) {
 			/>
 
 			{fieldError && (
-				<p role="alert" className="text-sm text-red-600">
+				<p role="alert" className="text-sm text-error-600">
 					{fieldError}
 				</p>
 			)}

@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Drawer } from "vaul";
 import { Clock, X, Trash2, Heart } from "lucide-react";
 import { useRecentlyViewed, type RecentlyViewedItem } from "@/lib/recently-viewed";
-import { useFeature, useBranding, useContentConfig, useUiConfig, useBadgeStyle } from "@/providers/StoreConfigProvider";
+import { useFeature, useBranding, useContentConfig, useProductCardConfig, useBadgeStyle } from "@/providers/StoreConfigProvider";
 import { useWishlist } from "@/lib/wishlist";
 import { useQuickView } from "@/providers/QuickViewProvider";
 import { buildProductUrl, withChannel } from "@/lib/urls";
@@ -237,8 +237,7 @@ function RecentlyViewedDrawerContent({
 	const { items, removeItem: removeRecentItem, clearAll, channel } = useRecentlyViewed();
 	const { colors } = useBranding();
 	const contentConfig = useContentConfig();
-	const ui = useUiConfig();
-	const cardConfig: ProductCardConfig = ui.productCard;
+	const cardConfig = useProductCardConfig("recentlyViewed");
 	const wishlistEnabled = useFeature("wishlist");
 	const { addItem, removeItem, isInWishlist } = useWishlist();
 	const { openQuickView } = useQuickView();

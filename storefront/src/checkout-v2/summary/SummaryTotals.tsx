@@ -1,7 +1,7 @@
 "use client";
 
 import { useCheckoutState } from "../CheckoutStateProvider";
-import { useCheckoutText } from "../hooks/useCheckoutText";
+import { useCheckoutText, formatText } from "../hooks/useCheckoutText";
 import { useEcommerceSettings } from "@/providers/StoreConfigProvider";
 import { applyShippingRules, type ShippingRulesConfig } from "../utils/adjustShippingPrice";
 
@@ -46,18 +46,26 @@ export function SummaryTotals() {
 	const isDropshipAdjusted = !!(selectedMethodName && dropshipPrices?.[selectedMethodName] != null);
 
 	// For dropship methods, the server already set the correct price — no client-side adjustment
-	const displayShipping = shipping
+	const shippingResult = shipping
 		? isDropshipAdjusted
-			? { amount: shipping.amount, currency: shipping.currency }
-			: { amount: applyShippingRules(shipping.amount, subtotalAmount, rulesConfig, selectedMethodName).amount, currency: shipping.currency }
+			? {
+				amount: shipping.amount,
+				originalAmount: dropshipPrices![selectedMethodName!],
+				wasFreeByRule: shipping.amount === 0 && dropshipPrices![selectedMethodName!] > 0,
+				wasDiscounted: shipping.amount !== dropshipPrices![selectedMethodName!],
+			}
+			: applyShippingRules(shipping.amount, subtotalAmount, rulesConfig, selectedMethodName)
+		: null;
+	const displayShipping = shippingResult
+		? { amount: shippingResult.amount, currency: shipping!.currency }
 		: null;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const hasDeliveryMethod = !!(checkout.deliveryMethod as any)?.id;
 	const tax = checkout.totalPrice?.tax;
 	const rawTotal = checkout.totalPrice?.gross;
 	// Correct total by the shipping adjustment delta (only for non-dropship methods)
-	const shippingDelta = displayShipping && shipping
-		? displayShipping.amount - shipping.amount
+	const shippingDelta = shippingResult && shipping
+		? shippingResult.amount - shipping.amount
 		: 0;
 	const total = rawTotal
 		? { amount: Math.max(0, rawTotal.amount + shippingDelta), currency: rawTotal.currency }
@@ -84,7 +92,23 @@ export function SummaryTotals() {
 						{!hasDeliveryMethod ? (
 							<span className="text-neutral-400">—</span>
 						) : displayShipping.amount === 0 ? (
-							t.freeShippingLabel ?? "Free"
+							<span className="flex items-center gap-1.5">
+								{shippingResult?.originalAmount != null && shippingResult.originalAmount > 0 && (
+									<span className="text-xs text-neutral-400 line-through">
+										{fmt(shippingResult.originalAmount, displayShipping.currency)}
+									</span>
+								)}
+								<span className="font-medium text-success-600">{t.freeShippingLabel ?? "Free"}</span>
+							</span>
+						) : shippingResult?.wasDiscounted && shippingResult.originalAmount !== shippingResult.amount ? (
+							<span className="flex items-center gap-1.5">
+								<span className="text-xs text-neutral-400 line-through">
+									{fmt(shippingResult.originalAmount, displayShipping.currency)}
+								</span>
+								<span className="font-medium text-success-600">
+									{fmt(displayShipping.amount, displayShipping.currency)}
+								</span>
+							</span>
 						) : (
 							fmt(displayShipping.amount, displayShipping.currency)
 						)}
@@ -92,8 +116,18 @@ export function SummaryTotals() {
 				</div>
 			)}
 
+			{shippingResult && hasDeliveryMethod &&
+			 (shippingResult.wasFreeByRule || shippingResult.wasDiscounted) &&
+			 shippingResult.originalAmount > shippingResult.amount && (
+				<div className="text-xs text-success-600">
+					{formatText(t.shippingSavingsMessage ?? "You saved {amount} on shipping!", {
+						amount: fmt(shippingResult.originalAmount - shippingResult.amount, displayShipping!.currency),
+					})}
+				</div>
+			)}
+
 			{discount && discount.amount > 0 && (
-				<div className="flex justify-between text-emerald-600">
+				<div className="flex justify-between text-success-600">
 					<span>{checkout.discountName ?? "Discount"}</span>
 					<span>−{fmt(discount.amount, discount.currency)}</span>
 				</div>

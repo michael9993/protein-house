@@ -132,11 +132,11 @@ function OrderConfirmationInner({ order, channel }: Omit<Props, "checkoutText">)
 				</div>
 
 				{/* Success banner */}
-				<header className="mt-8 rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-green-50 p-6 print:hidden">
+				<header className="mt-8 rounded-xl border border-success-200 bg-gradient-to-r from-success-50 to-success-100 p-6 print:hidden">
 					<div className="flex items-start gap-4">
-						<div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100">
+						<div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-success-100">
 							<svg
-								className="h-6 w-6 text-emerald-600"
+								className="h-6 w-6 text-success-600"
 								fill="none"
 								viewBox="0 0 24 24"
 								stroke="currentColor"
@@ -152,7 +152,7 @@ function OrderConfirmationInner({ order, channel }: Omit<Props, "checkoutText">)
 						</div>
 						<div className="flex-1">
 							<p
-								className="text-sm font-medium text-emerald-700"
+								className="text-sm font-medium text-success-700"
 								data-testid="orderConfrmationTitle"
 							>
 								{t.orderConfirmedTitle ?? "Order Confirmed"}
@@ -189,17 +189,17 @@ function OrderConfirmationInner({ order, channel }: Omit<Props, "checkoutText">)
 						</div>
 					</div>
 					{accountCreated && (
-						<div className="mt-4 flex items-start gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
-							<div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100">
-								<svg className="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<div className="mt-4 flex items-start gap-3 rounded-lg border border-success-200 bg-success-50 px-4 py-3">
+							<div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-success-100">
+								<svg className="h-4 w-4 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
 								</svg>
 							</div>
 							<div className="flex-1">
-								<p className="text-sm font-semibold text-emerald-900">
+								<p className="text-sm font-semibold text-success-900">
 									{t.accountCreatedTitle ?? "Account Created"}
 								</p>
-								<p className="mt-0.5 text-sm text-emerald-700">
+								<p className="mt-0.5 text-sm text-success-700">
 									{t.accountCreatedDescription ?? "Your account has been set up with your shipping address saved. Sign in anytime with your email and password."}
 								</p>
 							</div>

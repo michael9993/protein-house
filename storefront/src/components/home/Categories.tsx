@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import { useBranding, useContentConfig, useCategoriesConfig } from "@/providers/StoreConfigProvider";
+import { useBranding, useContentConfig, useCategoriesConfig, useDesignTokens } from "@/providers/StoreConfigProvider";
 import { buildCategoryUrl, buildCategoryUrlFromChildren, buildProductsUrl, withChannel } from "@/lib/urls";
 import { type DashboardCategory, type DashboardCategoryChild } from "./utils";
 import { SectionViewAllButton } from "./SectionViewAllButton";
@@ -32,7 +32,7 @@ function getCategoryHref(channel: string, category: DashboardCategory): string {
 // Mosaic Animation Constants & Helpers
 // ---------------------------------------------------------------------------
 
-const CYCLE_MS = 6000;
+const DEFAULT_CYCLE_MS = 6000;
 const TRANSITION_CSS = "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
 const GAP = 12;
 
@@ -402,6 +402,10 @@ export function Categories({ categories, channel, title, subtitle }: CategoriesP
   const { colors } = useBranding();
   const contentConfig = useContentConfig();
   const config = useCategoriesConfig();
+  const designTokens = useDesignTokens();
+  const CYCLE_MS = (designTokens.animations as { carouselCycleSeconds?: number }).carouselCycleSeconds
+    ? (designTokens.animations as { carouselCycleSeconds?: number }).carouselCycleSeconds! * 1000
+    : DEFAULT_CYCLE_MS;
 
   const enabled = config?.enabled ?? true;
   const maxCategories = config?.maxCategories ?? 6;

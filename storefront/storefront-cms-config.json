@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-03-05T01:25:13.643Z",
+  "exportedAt": "2026-03-05T21:57:46.997Z",
   "channels": {
     "ils": {
-      "version": 34,
-      "updatedAt": "2026-03-05T01:25:11.577Z",
+      "version": 46,
+      "updatedAt": "2026-03-05T21:57:44.987Z",
       "channelSlug": "ils",
       "store": {
         "name": "Mansour Shoes",
@@ -73,7 +73,7 @@
         "productBundles": false,
         "newsletter": true,
         "promotionalBanners": true,
-        "abandonedCartEmails": false,
+        "abandonedCartEmails": true,
         "socialLogin": true,
         "shareButtons": true,
         "instagramFeed": false,
@@ -101,7 +101,7 @@
             "enabled": true,
             "type": "round_down",
             "value": 10,
-            "minPrice": 18
+            "minPrice": 20
           },
           "freeShippingRule": {
             "enabled": true,
@@ -114,7 +114,7 @@
             "cartMinimum": 300,
             "type": "percentage",
             "value": 20,
-            "maxMethodPrice": 100,
+            "maxMethodPrice": 0,
             "minPrice": 20,
             "methodNameFilter": ""
           },
@@ -793,7 +793,7 @@
           "borderRadius": "sm"
         },
         "productCard": {
-          "borderRadius": "sm",
+          "borderRadius": "none",
           "shadow": "lg",
           "hoverShadow": "lg",
           "showQuickView": true,
@@ -826,7 +826,18 @@
               "fontWeight": "normal",
               "color": null
             }
-          }
+          },
+          "showPrice": true,
+          "showOriginalPrice": true,
+          "showCategory": true,
+          "showDeliveryEstimate": true,
+          "showShareButton": true,
+          "showDiscountBadge": true,
+          "showOutOfStockBadge": true,
+          "showLowStockBadge": true,
+          "showNewBadge": true,
+          "titleMaxLines": 2,
+          "contentAlignment": "start"
         },
         "toasts": {
           "position": "top-right",
@@ -938,6 +949,7 @@
           "freeShippingThresholdReached": "הגעת למשלוח חינם!",
           "addXMoreForFreeShipping": "הוסף עוד {amount} למשלוח חינם!",
           "unlockedFreeShipping": "פתחת משלוח חינם!",
+          "freeShippingSelectMethods": "ייתכן שתהיה זכאי למשלוח חינם בשיטות נבחרות",
           "saveForLaterButton": "שמור later",
           "moveToCartButton": "העבר לעגלה",
           "deleteButton": "מחק",
@@ -1263,6 +1275,8 @@
           "deliveryFreeShippingUnlocked": "משלוח חינם הופעל!",
           "deliveryFreeShippingNudge": "פתחת משלוח חינם! בחר {methodName} כדי לחסוך {amount}",
           "deliveryAddMoreForFreeShipping": "הוסף עוד {amount} למשלוח חינם",
+          "deliveryFreeShippingSelectMethods": "משלוח חינם זמין בשיטות משלוח נבחרות",
+          "shippingSavingsMessage": "חסכת {amount} במשלוח!",
           "noDeliveryMethodsText": "אין שיטות משלוח זמינות",
           "fetchingShippingRates": "מחשב תעריפי משלוח...",
           "updatingShippingRates": "מעדכן תעריפי משלוח לכתובת החדשה...",
@@ -1977,6 +1991,11 @@
           "marketingDescription": "משמשות לפרסום ממוקד ושיווק מחדש.",
           "savePreferencesButton": "שמירת העדפות",
           "policyLinkText": "מדיניות עוגיות"
+        },
+        "pagination": {
+          "previousButton": "הקודם",
+          "nextButton": "הבא",
+          "pageLabel": "עמוד {current} מתוך {total}"
         }
       },
       "darkMode": {
@@ -2009,10 +2028,59 @@
       },
       "design": {
         "animations": {
-          "preset": "moderate"
+          "preset": "moderate",
+          "carouselCycleSeconds": 6,
+          "toastDurationMs": 4000
         },
         "spacing": {
           "sectionPaddingY": "normal"
+        },
+        "grid": {
+          "productColumns": {
+            "sm": 2,
+            "md": 3,
+            "lg": 4,
+            "xl": 4
+          },
+          "productGap": "normal"
+        },
+        "statusColors": {
+          "info": "#3b82f6"
+        }
+      },
+      "checkoutUi": {
+        "confirmation": {
+          "showTimeline": true,
+          "showPrintReceipt": true
+        }
+      },
+      "cardOverrides": {
+        "plp": {
+          "showWishlistButton": true,
+          "showAddToCart": true,
+          "showBrandLabel": true,
+          "showRating": true,
+          "showPrice": true,
+          "showOriginalPrice": true,
+          "showShareButton": true,
+          "showDiscountBadge": true,
+          "showOutOfStockBadge": true,
+          "showLowStockBadge": true,
+          "showNewBadge": true,
+          "titleMaxLines": 1
+        },
+        "relatedProducts": {},
+        "recentlyViewed": {},
+        "wishlistDrawer": {},
+        "productGrid": {
+          "showWishlistButton": true,
+          "showAddToCart": true,
+          "showBrandLabel": true,
+          "showRating": true,
+          "showPrice": true,
+          "showOriginalPrice": true,
+          "showShareButton": true,
+          "titleMaxLines": 1
         }
       }
     },

@@ -573,6 +573,17 @@ const DEFAULT_UI_CONFIG = {
       originalPrice: { fontSize: "sm" as const, fontWeight: "normal" as const, color: null },
       reviewCount: { fontSize: "xs" as const, fontWeight: "normal" as const, color: null },
     },
+    showPrice: true,
+    showOriginalPrice: true,
+    showCategory: true,
+    showDeliveryEstimate: true,
+    showShareButton: true,
+    showDiscountBadge: true,
+    showOutOfStockBadge: true,
+    showLowStockBadge: true,
+    showNewBadge: true,
+    titleMaxLines: 2,
+    contentAlignment: "start" as const,
   },
   toasts: {
     position: "bottom-right" as const,
@@ -1596,6 +1607,41 @@ export function useSectionViewAllButtonConfig() {
   return ui.sectionViewAllButton ?? { style: "pill" as const, icon: "chevron" as const };
 }
 
+// ============================================
+// PER-LOCATION PRODUCT CARD CONFIG
+// ============================================
+
+import type { ProductCardConfig } from "@/components/home/utils";
+
+type CardLocation = "homepage" | "plp" | "relatedProducts" | "recentlyViewed" | "wishlistDrawer" | "productGrid";
+
+/**
+ * Get product card config for a specific location.
+ * Merges: global defaults → global config → location override.
+ * Homepage sections use this with "homepage" location, then merge section-level card config on top.
+ */
+export function useProductCardConfig(location?: CardLocation): ProductCardConfig {
+  const ui = useUiConfig();
+  const config = useStoreConfig();
+  const globalCard = ui.productCard;
+
+  if (!location || location === "homepage") return globalCard;
+
+  const override = config.cardOverrides?.[location as keyof NonNullable<StoreConfig["cardOverrides"]>];
+  if (!override) return globalCard;
+
+  return {
+    ...globalCard,
+    ...override,
+    textStyles: {
+      name: { ...globalCard.textStyles?.name, ...override.textStyles?.name },
+      price: { ...globalCard.textStyles?.price, ...override.textStyles?.price },
+      originalPrice: { ...globalCard.textStyles?.originalPrice, ...override.textStyles?.originalPrice },
+      reviewCount: { ...globalCard.textStyles?.reviewCount, ...override.textStyles?.reviewCount },
+    },
+  };
+}
+
 // Default filter sidebar config (with resolved fallback colors)
 const DEFAULT_FILTER_SIDEBAR_CONFIG = {
   checkboxAccentColor: "#171717",
@@ -1951,6 +1997,14 @@ export function useDesignTokens() {
     spacing: design.spacing,
     grid: design.grid ?? { productColumns: { sm: 2, md: 2, lg: 4 } },
   };
+}
+
+/**
+ * Get checkout UI configuration (accordion, confirmation, progress bar)
+ */
+export function useCheckoutUiConfig() {
+  const config = useStoreConfig();
+  return config.checkoutUi;
 }
 
 // Re-export homepage section types from shared package

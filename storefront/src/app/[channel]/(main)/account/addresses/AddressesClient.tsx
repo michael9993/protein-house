@@ -250,7 +250,7 @@ export function AddressesClient({
 										</span>
 									)}
 									{isDefaultBilling && (
-										<span className="rounded-full bg-green-500 px-2 py-0.5 text-xs font-medium text-white whitespace-nowrap">
+										<span className="rounded-full bg-success-500 px-2 py-0.5 text-xs font-medium text-white whitespace-nowrap">
 											{addressesText.defaultBilling}
 										</span>
 									)}
@@ -315,7 +315,7 @@ export function AddressesClient({
 										<button
 											onClick={() => handleSetDefault(address.id, "BILLING")}
 											disabled={saving}
-											className="text-sm font-medium text-green-600 hover:underline disabled:opacity-50"
+											className="text-sm font-medium text-success-600 hover:underline disabled:opacity-50"
 										>
 											{addressesText.setAsDefaultBilling ?? "Set as Default Billing"}
 										</button>

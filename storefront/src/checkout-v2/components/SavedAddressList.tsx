@@ -123,7 +123,7 @@ export function SavedAddressList({
 														onDelete(addr.id);
 													}}
 													aria-label={t.deleteAddressButton ?? "Delete"}
-													className="rounded p-1 text-red-500 hover:bg-red-50"
+													className="rounded p-1 text-error-500 hover:bg-error-50"
 												>
 													<Trash2 className="h-3.5 w-3.5" />
 												</button>

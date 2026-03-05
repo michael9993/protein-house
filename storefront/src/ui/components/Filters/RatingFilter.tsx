@@ -93,7 +93,7 @@ export function RatingFilter() {
                         star <= rating
                           ? isActive
                             ? "text-white"
-                            : "text-amber-400"
+                            : "text-warning-400"
                           : "text-neutral-300"
                       }`}
                       fill="currentColor"

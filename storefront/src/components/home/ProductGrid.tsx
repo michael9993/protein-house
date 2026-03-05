@@ -3,7 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { useStoreConfig, useFeature, useUiConfig, useContentConfig } from "@/providers/StoreConfigProvider";
+import { useStoreConfig, useFeature, useProductCardConfig, useContentConfig } from "@/providers/StoreConfigProvider";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { type ProductListItemFragment } from "@/gql/graphql";
 import { formatMoneyRange } from "@/lib/utils";
@@ -206,8 +206,8 @@ function ProductCard({
   content,
   cardConfig = {},
 }: ProductCardProps) {
-  const ui = useUiConfig();
-  const showQuickView = ui.productCard?.showQuickView ?? false;
+  const pgCardConfig = useProductCardConfig("productGrid");
+  const showQuickView = pgCardConfig.showQuickView ?? false;
   const quickAddLabel = (content.product as { quickAddButton?: string })?.quickAddButton ?? "Quick add";
   const { openQuickView, prefetchQuickView } = useQuickView();
   const { addItem, removeItem, isInWishlist } = useWishlist();

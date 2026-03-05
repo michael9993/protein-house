@@ -149,7 +149,7 @@ const NewsletterFooterSection = ({
 							}}
 						/>
 						{status === "error" && errorMessage && (
-							<p className="text-xs text-red-300">{errorMessage}</p>
+							<p className="text-xs text-error-300">{errorMessage}</p>
 						)}
 						<button
 							type="submit"

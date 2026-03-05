@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import { type ProductListItemFragment } from "@/gql/graphql";
 import { t } from "@/lib/language";
 import { useWishlist } from "@/lib/wishlist";
-import { useBranding, useStoreInfo, useFlashDealsConfig, useContentConfig, useUiConfig, useFeature } from "@/providers/StoreConfigProvider";
+import { useBranding, useStoreInfo, useFlashDealsConfig, useContentConfig, useProductCardConfig, useFeature, useBadgeStyle } from "@/providers/StoreConfigProvider";
 import { useQuickView } from "@/providers/QuickViewProvider";
 import { CountdownTimer } from "@/ui/components/CountdownTimer";
 import { HomepageProductCard } from "./HomepageProductCard";
@@ -30,8 +30,8 @@ export function FlashDeals({ products, channel, maxDiscount, saleEndDate }: Flas
   const storeInfo = useStoreInfo();
   const config = useFlashDealsConfig();
   const contentConfig = useContentConfig();
-  const ui = useUiConfig();
-  const cardConfig: ProductCardConfig = ui.productCard;
+  const cardConfig = useProductCardConfig("homepage");
+  const discountBadge = useBadgeStyle("discount");
   const { openQuickView, prefetchQuickView } = useQuickView();
   const wishlistEnabled = useFeature("wishlist");
   const { addItem, removeItem, isInWishlist } = useWishlist();
@@ -102,7 +102,13 @@ export function FlashDeals({ products, channel, maxDiscount, saleEndDate }: Flas
           <div className="flex flex-col gap-2">
             {/* Discount badge */}
             {maxDiscount > 0 && (
-              <span className="inline-flex w-fit items-center gap-2 rounded-full bg-red-600 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+              <span
+                className="inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider"
+                style={{
+                  backgroundColor: discountBadge.backgroundColor ?? "var(--store-error, #dc2626)",
+                  color: discountBadge.color ?? "#ffffff",
+                }}
+              >
                 {badgeText} &bull; {products.length} {itemsText}
               </span>
             )}
@@ -125,7 +131,7 @@ export function FlashDeals({ products, channel, maxDiscount, saleEndDate }: Flas
         </div>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 product-grid-config">
           {saleItems.map((product) => (
             <div key={product.id}>
               <HomepageProductCard

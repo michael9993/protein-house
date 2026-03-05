@@ -186,6 +186,7 @@ export const configRouter = router({
         "content",
         "darkMode",
         "storefront",
+        "cardOverrides",
       ]),
       data: z.unknown(),
     }))

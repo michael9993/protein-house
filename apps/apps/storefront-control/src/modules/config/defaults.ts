@@ -745,6 +745,17 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
         originalPrice: { fontSize: "sm", fontWeight: "normal", color: null },
         reviewCount: { fontSize: "xs", fontWeight: "normal", color: null },
       },
+      showPrice: true,
+      showOriginalPrice: true,
+      showCategory: true,
+      showDeliveryEstimate: true,
+      showShareButton: true,
+      showDiscountBadge: true,
+      showOutOfStockBadge: true,
+      showLowStockBadge: true,
+      showNewBadge: true,
+      titleMaxLines: 2,
+      contentAlignment: "start",
     },
     toasts: {
       position: "bottom-right",
@@ -866,6 +877,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       selectItemsButton: "Select Items",
       preparingCheckout: "Preparing...",
       loadingCheckout: "Loading...",
+      freeShippingSelectMethods: "You may qualify for free shipping on select methods",
     } as unknown as StorefrontConfig["content"]["cart"],
     product: {
       addToCartButton: "Add to Cart",
@@ -1278,6 +1290,8 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       deliveryFreeShippingNudge:
         "You've unlocked free shipping! Switch to {methodName} to save {amount}",
       deliveryAddMoreForFreeShipping: "Add {amount} more for free shipping",
+      deliveryFreeShippingSelectMethods: "Free shipping is available on select delivery methods",
+      shippingSavingsMessage: "You saved {amount} on shipping!",
       selectPaymentMethodError: "Please select a payment method",
 
       // Address Form Actions
@@ -1891,11 +1905,34 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
   design: {
     animations: {
       preset: "moderate" as const,
+      carouselCycleSeconds: 6,
+      toastDurationMs: 4000,
     },
     spacing: {
       sectionPaddingY: "normal" as const,
     },
+    grid: {
+      productColumns: {
+        sm: 2,
+        md: 3,
+        lg: 4,
+        xl: 4,
+      },
+      productGap: "normal" as const,
+    },
+    statusColors: {
+      info: "#3b82f6",
+    },
   },
+
+  checkoutUi: {
+    confirmation: {
+      showTimeline: true,
+      showPrintReceipt: true,
+    },
+  },
+
+  cardOverrides: {},
 });
 
 /**

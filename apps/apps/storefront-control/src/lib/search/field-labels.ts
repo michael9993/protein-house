@@ -145,6 +145,24 @@ const FIELD_LABELS: Record<string, string> = {
   "ui.productCard.hoverEffect": "Product Card Hover Effect",
   "ui.productCard.badgePosition": "Product Card Badge Position",
   "ui.productCard.imageFit": "Product Card Image Fit",
+  "ui.productCard.showPrice": "Show Price on Product Cards",
+  "ui.productCard.showOriginalPrice": "Show Original Price on Product Cards",
+  "ui.productCard.showCategory": "Show Category Label on Product Cards",
+  "ui.productCard.showDeliveryEstimate": "Show Delivery Estimate on Product Cards",
+  "ui.productCard.showShareButton": "Show Share Button on Product Cards",
+  "ui.productCard.showDiscountBadge": "Show Discount Badge on Product Cards",
+  "ui.productCard.showOutOfStockBadge": "Show Out of Stock Badge on Product Cards",
+  "ui.productCard.showLowStockBadge": "Show Low Stock Badge on Product Cards",
+  "ui.productCard.showNewBadge": "Show New Badge on Product Cards",
+  "ui.productCard.titleMaxLines": "Product Card Title Max Lines",
+  "ui.productCard.contentAlignment": "Product Card Content Alignment",
+
+  // Per-location card overrides
+  "cardOverrides.plp": "PLP Product Card Overrides",
+  "cardOverrides.relatedProducts": "Related Products Card Overrides",
+  "cardOverrides.recentlyViewed": "Recently Viewed Card Overrides",
+  "cardOverrides.wishlistDrawer": "Wishlist Drawer Card Overrides",
+  "cardOverrides.productGrid": "Product Grid Card Overrides",
   "ui.productCard.textStyles.name.fontSize": "Product Name Font Size",
   "ui.productCard.textStyles.name.fontWeight": "Product Name Font Weight",
   "ui.productCard.textStyles.name.color": "Product Name Color",
@@ -247,6 +265,9 @@ const FIELD_LABELS: Record<string, string> = {
   "content.checkout.shippingAddressDetected": "Shipping Address Detected Text",
   "content.checkout.savingAddressText": "Saving Address Text",
   "content.checkout.calculateShippingHint": "Calculate Shipping Hint Text",
+  "content.checkout.deliveryFreeShippingSelectMethods": "Free Shipping Select Methods Message",
+  "content.checkout.shippingSavingsMessage": "Shipping Savings Message",
+  "content.cart.freeShippingSelectMethods": "Cart Free Shipping Select Methods",
 
   // Dropship Shipping Text (Product Detail)
   "content.productDetail.shippingEstimatedDelivery": "Dropship Estimated Delivery Text",
@@ -257,4 +278,34 @@ const FIELD_LABELS: Record<string, string> = {
   "content.productDetail.shippingReturnPolicyNote": "Dropship Return Policy Note",
   "content.productDetail.shippingCarrierLabel": "Dropship Carrier Label Text",
   "content.productDetail.shippingExtendedReturnNote": "Dropship Extended Return Note",
+
+  // Design tokens — status colors
+  "design.statusColors.success": "Success Status Color",
+  "design.statusColors.warning": "Warning Status Color",
+  "design.statusColors.error": "Error Status Color",
+  "design.statusColors.info": "Info Status Color",
+
+  // Design tokens — grid
+  "design.grid.productColumns.sm": "Product Columns (Small Screens)",
+  "design.grid.productColumns.md": "Product Columns (Medium Screens)",
+  "design.grid.productColumns.lg": "Product Columns (Large Screens)",
+  "design.grid.productColumns.xl": "Product Columns (Extra Large Screens)",
+  "design.grid.productGap": "Product Grid Gap",
+
+  // Design tokens — animation timings
+  "design.animations.carouselCycleSeconds": "Carousel Cycle Duration (seconds)",
+  "design.animations.toastDurationMs": "Toast Auto-Dismiss Duration (ms)",
+
+  // Checkout UI
+  "checkoutUi.accordion.completedStepColor": "Checkout Completed Step Color",
+  "checkoutUi.accordion.activeStepColor": "Checkout Active Step Color",
+  "checkoutUi.confirmation.showTimeline": "Show Order Timeline",
+  "checkoutUi.confirmation.showPrintReceipt": "Show Print Receipt Button",
+  "checkoutUi.progressBar.completedColor": "Progress Bar Completed Color",
+  "checkoutUi.progressBar.activeColor": "Progress Bar Active Color",
+
+  // Pagination text
+  "content.pagination.previousButton": "Pagination Previous Button",
+  "content.pagination.nextButton": "Pagination Next Button",
+  "content.pagination.pageLabel": "Pagination Page Label",
 };

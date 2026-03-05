@@ -213,8 +213,8 @@ function LoadingCard() {
 function SuccessCard() {
 	return (
 		<CardShell>
-			<div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
-				<CheckIcon className="h-7 w-7 text-green-600" />
+			<div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-success-100">
+				<CheckIcon className="h-7 w-7 text-success-600" />
 			</div>
 			<h1 className="mb-2 text-xl font-semibold text-neutral-900">
 				Account Deleted

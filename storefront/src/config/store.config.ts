@@ -32,6 +32,8 @@ import {
 } from "@saleor/apps-storefront-config";
 export { DEFAULT_SECTION_ORDER, DEFAULT_RTL_LOCALES };
 
+import { generateShadeVars } from "@/lib/color-utils";
+
 // Backward-compatible alias: storefront code uses 'StoreConfig' everywhere
 export type StoreConfig = StorefrontConfig;
 export type StoreType = StoreTypeImport;
@@ -1595,6 +1597,14 @@ export function getThemeCSSVariables(config: StoreConfig): Record<string, string
     '--store-success': colors.success,
     '--store-warning': colors.warning,
     '--store-error': colors.error,
+    // Status colors — merge statusColors overrides with branding defaults
+    '--store-info': config.design?.statusColors?.info ?? '#3b82f6',
+
+    // Status color shade palettes (for bg-success-50, text-error-600, etc.)
+    ...generateShadeVars('success', config.design?.statusColors?.success ?? colors.success),
+    ...generateShadeVars('warning', config.design?.statusColors?.warning ?? colors.warning),
+    ...generateShadeVars('error', config.design?.statusColors?.error ?? colors.error),
+    ...generateShadeVars('info', config.design?.statusColors?.info ?? '#3b82f6'),
     // Typography
     '--store-font-heading': typography.fontHeading,
     '--store-font-body': typography.fontBody,

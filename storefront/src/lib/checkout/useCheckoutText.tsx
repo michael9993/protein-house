@@ -151,6 +151,8 @@ export interface CheckoutTextConfig {
 	deliveryFreeShippingUnlocked?: string;
 	deliveryFreeShippingNudge?: string;
 	deliveryAddMoreForFreeShipping?: string;
+	deliveryFreeShippingSelectMethods?: string;
+	shippingSavingsMessage?: string;
 	/** Shown when cart quantity change causes the selected delivery method to become unavailable */
 	deliveryMethodUnavailable?: string;
 	selectPaymentMethodError?: string;

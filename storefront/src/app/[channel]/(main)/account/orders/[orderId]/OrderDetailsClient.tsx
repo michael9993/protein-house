@@ -51,23 +51,23 @@ export function OrderDetailsClient({ order, channel, orderLinesForReorder, reord
 	};
 
 	const statusColors: Record<string, { bg: string; text: string }> = {
-		UNFULFILLED: { bg: "bg-yellow-100", text: "text-yellow-700" },
-		PARTIALLY_FULFILLED: { bg: "bg-blue-100", text: "text-blue-700" },
-		FULFILLED: { bg: "bg-green-100", text: "text-green-700" },
-		DELIVERED: { bg: "bg-green-100", text: "text-green-700" },
-		CANCELED: { bg: "bg-red-100", text: "text-red-700" },
+		UNFULFILLED: { bg: "bg-warning-100", text: "text-warning-700" },
+		PARTIALLY_FULFILLED: { bg: "bg-info-100", text: "text-info-700" },
+		FULFILLED: { bg: "bg-success-100", text: "text-success-700" },
+		DELIVERED: { bg: "bg-success-100", text: "text-success-700" },
+		CANCELED: { bg: "bg-error-100", text: "text-error-700" },
 		RETURNED: { bg: "bg-neutral-100", text: "text-neutral-700" },
 	};
 
 	const paymentStatusColors: Record<string, { bg: string; text: string }> = {
-		NOT_CHARGED: { bg: "bg-yellow-100", text: "text-yellow-700" },
-		PENDING: { bg: "bg-yellow-100", text: "text-yellow-700" },
-		PARTIALLY_CHARGED: { bg: "bg-blue-100", text: "text-blue-700" },
-		FULLY_CHARGED: { bg: "bg-green-100", text: "text-green-700" },
+		NOT_CHARGED: { bg: "bg-warning-100", text: "text-warning-700" },
+		PENDING: { bg: "bg-warning-100", text: "text-warning-700" },
+		PARTIALLY_CHARGED: { bg: "bg-info-100", text: "text-info-700" },
+		FULLY_CHARGED: { bg: "bg-success-100", text: "text-success-700" },
 		PARTIALLY_REFUNDED: { bg: "bg-orange-100", text: "text-orange-700" },
 		FULLY_REFUNDED: { bg: "bg-neutral-100", text: "text-neutral-700" },
-		REFUSED: { bg: "bg-red-100", text: "text-red-700" },
-		CANCELLED: { bg: "bg-red-100", text: "text-red-700" },
+		REFUSED: { bg: "bg-error-100", text: "text-error-700" },
+		CANCELLED: { bg: "bg-error-100", text: "text-error-700" },
 	};
 
 	const orderStatus = order.status || "UNFULFILLED";
@@ -303,7 +303,7 @@ export function OrderDetailsClient({ order, channel, orderLinesForReorder, reord
 														href={`https://t.17track.net/en#nums=${fulfillment.trackingNumber}`}
 														target="_blank"
 														rel="noopener noreferrer"
-														className="rounded-md border-2 border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100"
+														className="rounded-md border-2 border-info-200 bg-info-50 px-3 py-1.5 text-xs font-medium text-info-700 hover:bg-info-100"
 													>
 														17Track
 													</a>
@@ -311,7 +311,7 @@ export function OrderDetailsClient({ order, channel, orderLinesForReorder, reord
 														href={`https://parcelsapp.com/en/tracking/${fulfillment.trackingNumber}`}
 														target="_blank"
 														rel="noopener noreferrer"
-														className="rounded-md border-2 border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100"
+														className="rounded-md border-2 border-info-200 bg-info-50 px-3 py-1.5 text-xs font-medium text-info-700 hover:bg-info-100"
 													>
 														Parcelsapp
 													</a>
@@ -319,7 +319,7 @@ export function OrderDetailsClient({ order, channel, orderLinesForReorder, reord
 														href={`https://track.aftership.com/${fulfillment.trackingNumber}`}
 														target="_blank"
 														rel="noopener noreferrer"
-														className="rounded-md border-2 border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100"
+														className="rounded-md border-2 border-info-200 bg-info-50 px-3 py-1.5 text-xs font-medium text-info-700 hover:bg-info-100"
 													>
 														AfterShip
 													</a>
@@ -588,9 +588,9 @@ function OrderTimeline({
 							<div
 								className={`flex h-7 w-7 items-center justify-center rounded-full border-2 text-xs font-bold ${
 									step.completed
-										? "border-green-500 bg-green-500 text-white"
+										? "border-success-500 bg-success-500 text-white"
 										: step.active
-											? "border-blue-500 bg-blue-50 text-blue-600"
+											? "border-info-500 bg-info-50 text-info-600"
 											: "border-neutral-300 bg-white text-neutral-400"
 								}`}
 							>
@@ -602,7 +602,7 @@ function OrderTimeline({
 									i + 1
 								)}
 							</div>
-							<p className={`mt-1.5 text-center text-xs font-medium ${step.completed ? "text-green-700" : step.active ? "text-blue-600" : "text-neutral-400"}`}>
+							<p className={`mt-1.5 text-center text-xs font-medium ${step.completed ? "text-success-700" : step.active ? "text-info-600" : "text-neutral-400"}`}>
 								{step.label}
 							</p>
 							{step.date && (
@@ -610,7 +610,7 @@ function OrderTimeline({
 							)}
 						</div>
 						{i < steps.length - 1 && (
-							<div className={`mt-3.5 h-0.5 flex-1 ${step.completed ? "bg-green-400" : "bg-neutral-200"}`} />
+							<div className={`mt-3.5 h-0.5 flex-1 ${step.completed ? "bg-success-400" : "bg-neutral-200"}`} />
 						)}
 					</div>
 				))}
@@ -623,9 +623,9 @@ function OrderTimeline({
 							<div
 								className={`flex h-6 w-6 items-center justify-center rounded-full border-2 text-[10px] font-bold ${
 									step.completed
-										? "border-green-500 bg-green-500 text-white"
+										? "border-success-500 bg-success-500 text-white"
 										: step.active
-											? "border-blue-500 bg-blue-50 text-blue-600"
+											? "border-info-500 bg-info-50 text-info-600"
 											: "border-neutral-300 bg-white text-neutral-400"
 								}`}
 							>
@@ -638,11 +638,11 @@ function OrderTimeline({
 								)}
 							</div>
 							{i < steps.length - 1 && (
-								<div className={`w-0.5 flex-1 ${step.completed ? "bg-green-400" : "bg-neutral-200"}`} style={{ minHeight: "24px" }} />
+								<div className={`w-0.5 flex-1 ${step.completed ? "bg-success-400" : "bg-neutral-200"}`} style={{ minHeight: "24px" }} />
 							)}
 						</div>
 						<div className="pb-4">
-							<p className={`text-sm font-medium ${step.completed ? "text-green-700" : step.active ? "text-blue-600" : "text-neutral-400"}`}>
+							<p className={`text-sm font-medium ${step.completed ? "text-success-700" : step.active ? "text-info-600" : "text-neutral-400"}`}>
 								{step.label}
 							</p>
 							{step.date && (

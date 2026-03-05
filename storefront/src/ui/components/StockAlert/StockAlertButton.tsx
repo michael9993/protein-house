@@ -103,25 +103,25 @@ export function StockAlertButton({
   // Subscribed confirmation
   if (state === "subscribed") {
     return (
-      <div className={`rounded-lg border border-emerald-200 bg-emerald-50 p-3 ${className}`}>
+      <div className={`rounded-lg border border-success-200 bg-success-50 p-3 ${className}`}>
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
-            <svg className="h-5 w-5 shrink-0 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="h-5 w-5 shrink-0 text-success-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="text-sm font-medium text-emerald-900">
+            <span className="text-sm font-medium text-success-900">
               {wasAlreadySubscribed ? t.alreadySubscribed : t.success}
             </span>
           </div>
           <button
             onClick={handleUnsubscribe}
-            className="shrink-0 text-sm text-emerald-700 hover:text-emerald-900 underline"
+            className="shrink-0 text-sm text-success-700 hover:text-success-900 underline"
           >
             {t.unsubscribe}
           </button>
         </div>
         {error && (
-          <div className="mt-2 rounded border border-red-200 bg-red-50 p-2 text-xs text-red-800">
+          <div className="mt-2 rounded border border-error-200 bg-error-50 p-2 text-xs text-error-800">
             {error}
           </div>
         )}
@@ -148,7 +148,7 @@ export function StockAlertButton({
 
         <form onSubmit={handleSubscribe} className="space-y-3">
           {error && (
-            <div className="rounded border border-red-200 bg-red-50 p-2 text-xs text-red-800">
+            <div className="rounded border border-error-200 bg-error-50 p-2 text-xs text-error-800">
               {error}
             </div>
           )}

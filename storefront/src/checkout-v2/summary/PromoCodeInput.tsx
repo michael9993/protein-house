@@ -113,7 +113,7 @@ export function PromoCodeInput({ checkoutId }: PromoCodeInputProps) {
 					<span className="text-neutral-700">
 						<span className="font-medium">{checkout?.discountName ?? existingVoucher}</span>
 						{checkout?.discount && (
-							<span className="ms-2 text-emerald-600">
+							<span className="ms-2 text-success-600">
 								−{checkout.discount.amount.toFixed(2)} {checkout.discount.currency}
 							</span>
 						)}
@@ -123,7 +123,7 @@ export function PromoCodeInput({ checkoutId }: PromoCodeInputProps) {
 						aria-label={`Remove voucher ${existingVoucher}`}
 						onClick={handleRemoveVoucher}
 						disabled={isPending}
-						className="flex min-h-[44px] items-center px-2 text-xs text-neutral-400 hover:text-red-500 disabled:opacity-40"
+						className="flex min-h-[44px] items-center px-2 text-xs text-neutral-400 hover:text-error-500 disabled:opacity-40"
 					>
 						{t.removePromoButton ?? "Remove"}
 					</button>
@@ -174,7 +174,7 @@ export function PromoCodeInput({ checkoutId }: PromoCodeInputProps) {
 					</div>
 
 					{error && (
-						<p role="alert" className="text-xs text-red-600">
+						<p role="alert" className="text-xs text-error-600">
 							{error}
 						</p>
 					)}

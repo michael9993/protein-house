@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import {
+  CreditCard,
   FileText,
   Globe,
   Home,
@@ -47,6 +48,12 @@ function getNavItems(channelSlug: string): NavItem[] {
       page: "layout-config",
     },
     { label: "Catalog", icon: Package, href: `${base}/catalog`, page: "catalog" },
+    {
+      label: "Product Cards",
+      icon: CreditCard,
+      href: `${base}/product-cards`,
+      page: "product-cards",
+    },
     {
       label: "Cart & Checkout",
       icon: ShoppingCart,

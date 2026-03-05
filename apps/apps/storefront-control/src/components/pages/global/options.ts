@@ -154,3 +154,22 @@ export const IMAGE_FIT_OPTIONS = [
   { value: "cover", label: "Cover (crop to fill)" },
   { value: "contain", label: "Contain (show full image)" },
 ];
+
+export const TITLE_MAX_LINES_OPTIONS = [
+  { value: "1", label: "1 line" },
+  { value: "2", label: "2 lines" },
+  { value: "3", label: "3 lines" },
+];
+
+export const CONTENT_ALIGNMENT_OPTIONS = [
+  { value: "start", label: "Start" },
+  { value: "center", label: "Center" },
+  { value: "end", label: "End" },
+];
+
+export const IMAGE_ASPECT_RATIO_OPTIONS = [
+  { value: "square", label: "Square (1:1)" },
+  { value: "portrait", label: "Portrait (3:4)" },
+  { value: "landscape", label: "Landscape (4:3)" },
+  { value: "wide", label: "Wide (16:9)" },
+];

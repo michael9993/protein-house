@@ -123,6 +123,9 @@ export {
   InputsSchema,
   CheckboxSchema,
   ProductCardSchema,
+  ProductCardOverrideSchema,
+  CardOverridesSchema,
+  CardLocationSchema,
   ToastsSchema,
   IconsSchema,
   ActiveFiltersTagsSchema,
@@ -166,6 +169,9 @@ export {
   SpacingSchema,
   GridSchema,
   DesignTokensSchema,
+
+  // Checkout UI
+  CheckoutUiSchema,
 
   // Full Config
   StorefrontConfigSchema,
@@ -227,4 +233,8 @@ export type {
   CustomerFeedbackConfig,
   NewsletterConfig,
   CtaConfig,
+  CheckoutUiConfig,
+  ProductCardOverride,
+  CardOverrides,
+  CardLocation,
 } from "@saleor/apps-storefront-config";

@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Drawer } from "vaul";
 import { Heart, X, Trash2 } from "lucide-react";
 import { useWishlist, type WishlistItem } from "@/lib/wishlist";
-import { useFeature, useBranding, useContentConfig, useUiConfig } from "@/providers/StoreConfigProvider";
+import { useFeature, useBranding, useContentConfig, useProductCardConfig } from "@/providers/StoreConfigProvider";
 import { useQuickView } from "@/providers/QuickViewProvider";
 import { ShareButton } from "@/ui/components/ProductSharing";
 import { formatMoney } from "@/lib/utils";
@@ -182,8 +182,7 @@ function WishlistDrawerContent({
 	const { items, removeItem, clearWishlist } = useWishlist();
 	const { colors } = useBranding();
 	const contentConfig = useContentConfig();
-	const ui = useUiConfig();
-	const cardConfig: ProductCardConfig = ui.productCard;
+	const cardConfig = useProductCardConfig("wishlistDrawer");
 	const { openQuickView } = useQuickView();
 	const isRTL = typeof document !== "undefined" && document.documentElement.dir === "rtl";
 

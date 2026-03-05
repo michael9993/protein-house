@@ -11,6 +11,7 @@ import {
   Truck,
   UserX,
   Zap,
+  Settings2,
 } from "lucide-react";
 
 import { AppShell } from "@/components/layout/AppShell";
@@ -30,6 +31,7 @@ import {
   EcommerceSchema,
   PromoPopupSchema,
   ContentSchema,
+  CheckoutUiSchema,
 } from "@/modules/config/schema";
 
 // ---------------------------------------------------------------------------
@@ -41,6 +43,7 @@ const CartCheckoutFormSchema = z.object({
   ecommerce: EcommerceSchema,
   promoPopup: PromoPopupSchema,
   content: ContentSchema,
+  checkoutUi: CheckoutUiSchema,
 });
 
 type CartCheckoutFormData = z.infer<typeof CartCheckoutFormSchema>;
@@ -61,6 +64,7 @@ const TABS = [
   { id: "features", label: "Checkout Features", icon: Zap },
   { id: "promo", label: "Promo & Marketing", icon: Sparkles },
   { id: "content", label: "Content", icon: FileText },
+  { id: "checkout-ui", label: "Checkout UI", icon: Settings2 },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -97,12 +101,13 @@ function CartCheckoutPage() {
 
   const { config, isNotReady, form, onSubmit, saveStatus } = useConfigPage({
     schema: CartCheckoutFormSchema,
-    sections: ["features", "ecommerce", "promoPopup", "content"],
+    sections: ["features", "ecommerce", "promoPopup", "content", "checkoutUi"],
     extractFormData: (c) => ({
       features: c.features,
       ecommerce: c.ecommerce,
       promoPopup: c.promoPopup,
       content: c.content,
+      checkoutUi: c.checkoutUi,
     }),
   });
 
@@ -174,6 +179,14 @@ function CartCheckoutPage() {
             className={activeTab !== "content" ? "hidden" : "space-y-6"}
           >
             <CartCheckoutContentTab control={control} register={register} errors={errors} watch={watch} />
+          </TabsContent>
+
+          <TabsContent
+            value="checkout-ui"
+            forceMount
+            className={activeTab !== "checkout-ui" ? "hidden" : "space-y-6"}
+          >
+            <CheckoutUiTab control={control} register={register} errors={errors} watch={watch} />
           </TabsContent>
         </Tabs>
 
@@ -698,6 +711,7 @@ function CartCheckoutContentTab({ register, errors }: TabProps) {
           <FormField<CartCheckoutFormData> label="Free Shipping Threshold Reached" name="content.cart.freeShippingThresholdReached" register={register} errors={errors} placeholder="You've qualified for free shipping!" />
           <FormField<CartCheckoutFormData> label="Add X More For Free Shipping" name="content.cart.addXMoreForFreeShipping" register={register} errors={errors} placeholder="Add {amount} more for FREE shipping!" />
           <FormField<CartCheckoutFormData> label="Unlocked Free Shipping" name="content.cart.unlockedFreeShipping" register={register} errors={errors} placeholder="You've unlocked FREE shipping!" />
+          <FormField<CartCheckoutFormData> label="Free Shipping (Select Methods)" name="content.cart.freeShippingSelectMethods" register={register} errors={errors} placeholder="You may qualify for free shipping on select methods" description="Shown when cart meets threshold but a method name filter may limit which methods qualify" />
           <FormField<CartCheckoutFormData> label="Select All Items Button" name="content.cart.selectAllItemsButton" register={register} errors={errors} placeholder="Select all items" />
           <FormField<CartCheckoutFormData> label="Select Items To Checkout" name="content.cart.selectItemsToCheckout" register={register} errors={errors} placeholder="Select items to proceed to checkout" />
           <FormField<CartCheckoutFormData> label="Save For Later Button" name="content.cart.saveForLaterButton" register={register} errors={errors} placeholder="Save for Later" />
@@ -863,6 +877,8 @@ function CartCheckoutContentTab({ register, errors }: TabProps) {
           <FormField<CartCheckoutFormData> label="Free Shipping Unlocked" name="content.checkout.deliveryFreeShippingUnlocked" register={register} errors={errors} placeholder="Free shipping applied!" description="Shown when free shipping method is selected" />
           <FormField<CartCheckoutFormData> label="Free Shipping Nudge" name="content.checkout.deliveryFreeShippingNudge" register={register} errors={errors} placeholder="You've unlocked free shipping! Select {methodName} to save {amount}" description="Use {methodName} and {amount} as placeholders. Shown when free method available but not selected. In the order summary, a 'go back' variant is shown automatically." />
           <FormField<CartCheckoutFormData> label="Add More for Free Shipping" name="content.checkout.deliveryAddMoreForFreeShipping" register={register} errors={errors} placeholder="Add {amount} more for free shipping" description="Use {amount} as placeholder. Shows progress bar toward free shipping threshold" />
+          <FormField<CartCheckoutFormData> label="Free Shipping (Select Methods)" name="content.checkout.deliveryFreeShippingSelectMethods" register={register} errors={errors} placeholder="Free shipping is available on select delivery methods" description="Shown when threshold is met but available methods don't match the name filter" />
+          <FormField<CartCheckoutFormData> label="Shipping Savings Message" name="content.checkout.shippingSavingsMessage" register={register} errors={errors} placeholder="You saved {amount} on shipping!" description="Shown in order summary when discounted/free shipping applied. Use {amount} placeholder." />
         </FieldGroup>
 
         <p className="text-sm font-medium text-muted-foreground mb-2 mt-4">5. Payment</p>
@@ -972,6 +988,37 @@ function CartCheckoutContentTab({ register, errors }: TabProps) {
           <FormField<CartCheckoutFormData> label="Privacy Policy" name="content.checkout.privacyPolicy" register={register} errors={errors} placeholder="Privacy Policy" />
           <FormField<CartCheckoutFormData> label="Terms of Service" name="content.checkout.termsOfService" register={register} errors={errors} placeholder="Terms of Service" />
           <FormField<CartCheckoutFormData> label="Security Note" name="content.checkout.securityNote" register={register} errors={errors} placeholder="Protected by SSL encryption" />
+        </FieldGroup>
+      </FormSection>
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Tab 5: Checkout UI
+// ---------------------------------------------------------------------------
+
+function CheckoutUiTab({ control }: TabProps) {
+  return (
+    <>
+      <FormSection
+        title="Order Confirmation"
+        description="Control what appears on the order confirmation page"
+        icon={<FileText className="h-5 w-5" />}
+      >
+        <FieldGroup>
+          <FormSwitch<CartCheckoutFormData>
+            label="Show Order Timeline"
+            name="checkoutUi.confirmation.showTimeline"
+            control={control}
+            description="Show the order processing timeline steps on the confirmation page"
+          />
+          <FormSwitch<CartCheckoutFormData>
+            label="Show Print Receipt Button"
+            name="checkoutUi.confirmation.showPrintReceipt"
+            control={control}
+            description="Show a button to print the order receipt"
+          />
         </FieldGroup>
       </FormSection>
     </>

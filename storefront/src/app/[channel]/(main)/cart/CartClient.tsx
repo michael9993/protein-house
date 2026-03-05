@@ -245,7 +245,12 @@ export function CartClient({
     };
   }, [cart, effectiveLines, selectedItems]);
 
-  const freeShippingThreshold = ecommerce.shipping.freeShippingThreshold;
+  const freeRule = ecommerce?.shipping?.freeShippingRule;
+  const freeShippingThreshold = freeRule?.enabled
+    ? freeRule.cartMinimum
+    : (ecommerce.shipping.freeShippingThreshold ?? null);
+  const hasShippingRestrictions = !!(freeRule?.enabled &&
+    (freeRule.methodNameFilter?.trim() || (freeRule.maxMethodPrice && freeRule.maxMethodPrice > 0)));
   // Use same "Your price" as order summary so free shipping message matches threshold (no voucher/subtotal mismatch)
   const effectiveTotalForShipping = selectedItems.size > 0
     ? Math.max(0, subtotalBeforeDiscount - totalSavings - (cart?.discount?.amount ?? 0))
@@ -621,21 +626,21 @@ export function CartClient({
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Free Shipping Progress */}
         {freeShippingThreshold && !hasReachedFreeShipping && amountToFreeShipping !== null && effectiveTotalForShipping > 0 && (
-          <div className="mb-6 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 p-4 sm:mb-8 animate-fade-in-up" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
+          <div className="mb-6 rounded-xl bg-gradient-to-r from-success-50 to-success-100 p-4 sm:mb-8 animate-fade-in-up" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100">
-                <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-success-100">
+                <svg className="h-5 w-5 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
                 </svg>
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-emerald-800">
+                <p className="text-sm font-medium text-success-800">
                   {content.cart.addXMoreForFreeShipping.replace("{amount}", formatMoney(amountToFreeShipping, currency))}
                 </p>
-                <div className="mt-2 h-2 overflow-hidden rounded-full bg-emerald-200">
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-success-200">
                   <div
-                    className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                    className="h-full rounded-full bg-success-500 transition-all duration-500"
                     style={{
                       width: `${Math.min(100, (effectiveTotalForShipping / freeShippingThreshold) * 100)}%`,
                     }}
@@ -647,16 +652,32 @@ export function CartClient({
         )}
 
         {hasReachedFreeShipping && effectiveTotalForShipping > 0 && (
-          <div className="mb-6 rounded-xl bg-emerald-50 p-4 sm:mb-8 animate-fade-in-up" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
+          <div className="mb-6 rounded-xl p-4 sm:mb-8 animate-fade-in-up bg-success-50" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500">
-                <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <p className="font-medium text-emerald-800">
-                🎉 {content.cart.unlockedFreeShipping}
-              </p>
+              {/* TODO: Re-enable blue "select methods" variant when ready
+              {hasShippingRestrictions ? (
+                <>
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-info-100">
+                    <svg className="h-5 w-5 text-info-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <p className="font-medium text-info-800">
+                    {content.cart.freeShippingSelectMethods ?? "You may qualify for free shipping on select methods"}
+                  </p>
+                </>
+              ) : ( */}
+              <>
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-success-500">
+                  <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <p className="font-medium text-success-800">
+                  🎉 {content.cart.unlockedFreeShipping}
+                </p>
+              </>
+              {/* )} */}
             </div>
           </div>
         )}
@@ -704,13 +725,13 @@ export function CartClient({
 
               {/* Selection Info Banner */}
               {!allSelected && selectedItems.size > 0 && (
-                <div className="mt-4 flex items-center justify-between rounded-lg bg-blue-50 px-4 py-3">
-                  <p className="text-sm text-blue-700">
+                <div className="mt-4 flex items-center justify-between rounded-lg bg-info-50 px-4 py-3">
+                  <p className="text-sm text-info-700">
                     <span className="font-semibold">{selectedItemCount}</span> {selectedItemCount === 1 ? content.cart.itemSingular : content.cart.itemPlural} of {totalItemCount} {totalItemCount === 1 ? content.cart.itemSingular : content.cart.itemPlural} {content.cart.selectItemsToCheckout}
                   </p>
                   <button
                     onClick={() => setSelectedItems(new Set(cart.lines.map(line => line.id)))}
-                    className="text-sm font-medium text-blue-700 hover:underline"
+                    className="text-sm font-medium text-info-700 hover:underline"
                   >
                     {content.cart.selectAllItemsButton}
                   </button>
@@ -718,11 +739,11 @@ export function CartClient({
               )}
 
               {noneSelected && (
-                <div className="mt-4 flex items-center gap-3 rounded-lg bg-amber-50 px-4 py-3">
-                  <svg className="h-5 w-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="mt-4 flex items-center gap-3 rounded-lg bg-warning-50 px-4 py-3">
+                  <svg className="h-5 w-5 text-warning-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
-                  <p className="text-sm text-amber-700">
+                  <p className="text-sm text-warning-700">
                     {content.cart.selectItemsToCheckout}
                   </p>
                 </div>
@@ -813,7 +834,7 @@ export function CartClient({
                               </LinkWithChannel>
                               {item.isGift && (
                                 <span className="ml-2 inline-flex items-center">
-                                  <span className="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-800">
+                                  <span className="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-success-100 text-success-800">
                                     {content.cart.giftLabel ?? "Gift"}
                                   </span>
                                 </span>
@@ -871,7 +892,7 @@ export function CartClient({
                             <p className="mt-0.5 text-xs text-neutral-500">
                               {formatMoney(item.unitPrice.gross.amount, item.unitPrice.gross.currency)} {content.cart.eachLabel}
                             </p>
-                            <p className={`mt-0.5 text-xs ${item.variant.quantityAvailable > 0 ? 'text-neutral-500' : 'text-red-600 font-medium'}`}>
+                            <p className={`mt-0.5 text-xs ${item.variant.quantityAvailable > 0 ? 'text-neutral-500' : 'text-error-600 font-medium'}`}>
                               {item.variant.quantityAvailable > 0 
                                 ? `${item.variant.quantityAvailable} ${content.cart.availableLabel}`
                                 : content.cart.outOfStockLabel}
@@ -1013,13 +1034,13 @@ export function CartClient({
               {/* Promo Code: applied voucher or input */}
               <div className="mt-6">
                 {cart.voucherCode ? (
-                  <div className="flex items-center justify-between gap-2 rounded-lg border border-emerald-200 bg-emerald-50/50 px-3 py-2.5">
+                  <div className="flex items-center justify-between gap-2 rounded-lg border border-success-200 bg-success-50/50 px-3 py-2.5">
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-emerald-800 truncate">
+                      <p className="text-sm font-medium text-success-800 truncate">
                         {(content.cart as Record<string, string>).voucherLabel ?? "Voucher"}: {cart.voucherCode}
                       </p>
                       {cart.discount && (
-                        <p className="text-xs text-emerald-600 mt-0.5">
+                        <p className="text-xs text-success-600 mt-0.5">
                           −{formatMoney(cart.discount.amount, cart.discount.currency)}
                           {cart.discountName ? ` (${cart.discountName})` : ""}
                         </p>
@@ -1044,7 +1065,7 @@ export function CartClient({
                           }
                         }}
                         disabled={promoPending}
-                        className="shrink-0 rounded p-1.5 text-neutral-500 hover:bg-emerald-100 hover:text-neutral-700 disabled:opacity-50"
+                        className="shrink-0 rounded p-1.5 text-neutral-500 hover:bg-success-100 hover:text-neutral-700 disabled:opacity-50"
                         aria-label="Remove voucher"
                       >
                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1101,7 +1122,7 @@ export function CartClient({
                       </button>
                     </div>
                     {promoError && (
-                      <p className="mt-1.5 text-sm text-red-600">{promoError}</p>
+                      <p className="mt-1.5 text-sm text-error-600">{promoError}</p>
                     )}
                   </>
                 )}
@@ -1127,14 +1148,14 @@ export function CartClient({
                           <dt>{(content.cart as { originalSubtotalLabel?: string })?.originalSubtotalLabel ?? content.cart.subtotalLabel ?? "Subtotal"}</dt>
                           <dd className="line-through">{formatMoney(subtotalBeforeDiscount, currency)}</dd>
                         </div>
-                        <div className="flex justify-between items-center rounded-lg bg-emerald-50 px-3 py-2 border border-emerald-200">
-                          <dt className="flex items-center gap-1.5 font-medium text-emerald-800">
+                        <div className="flex justify-between items-center rounded-lg bg-success-50 px-3 py-2 border border-success-200">
+                          <dt className="flex items-center gap-1.5 font-medium text-success-800">
                             <svg className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
                               <path fillRule="evenodd" d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5z" clipRule="evenodd" />
                             </svg>
                             {(content.cart as { youSaveLabel?: string })?.youSaveLabel ?? "You save"}
                           </dt>
-                          <dd className="font-semibold text-emerald-800">−{formatMoney(combinedSavings, currency)}</dd>
+                          <dd className="font-semibold text-success-800">−{formatMoney(combinedSavings, currency)}</dd>
                         </div>
                       </>
                     ) : null;
@@ -1157,7 +1178,7 @@ export function CartClient({
                     <dt>{content.cart.shippingLabel}</dt>
                     <dd>
                       {selectedSubtotal > 0 && hasReachedFreeShipping ? (
-                        <span className="text-emerald-600 font-medium">{content.cart.shippingFree}</span>
+                        <span className="text-success-600 font-medium">{content.cart.shippingFree}</span>
                       ) : (
                         content.cart.shippingCalculatedAtCheckout
                       )}
@@ -1243,13 +1264,13 @@ export function CartClient({
               {/* Trust Badges */}
               <div className="mt-6 flex items-center justify-center gap-4 border-t border-neutral-200 pt-6">
                 <div className="flex items-center gap-1.5 text-xs text-neutral-500">
-                  <svg className="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-4 w-4 text-success-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
                   {content.cart.secureCheckoutText}
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-neutral-500">
-                  <svg className="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-4 w-4 text-success-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                   {content.cart.sslEncryptedText}

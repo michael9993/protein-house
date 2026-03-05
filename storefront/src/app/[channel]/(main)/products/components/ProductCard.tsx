@@ -10,6 +10,7 @@ import type { ProductListItemFragment } from "@/gql/graphql";
 import {
   useBranding,
   useFeature,
+  useProductCardConfig,
   useContentConfig,
   useBadgeStyle,
   useStoreInfo,
@@ -84,6 +85,7 @@ export function ProductCard({
   const storeInfo = useStoreInfo();
   const wishlistEnabled = useFeature("wishlist");
   const reviewsEnabled = useFeature("productReviews");
+  const cardConfig = useProductCardConfig("plp");
   const content = useContentConfig();
   const ecommerce = useEcommerceSettings();
   const saleBadgeStyle = useBadgeStyle("sale");
@@ -186,8 +188,16 @@ export function ProductCard({
       className={`v7-card group relative flex h-full overflow-hidden bg-white ${
         featured ? "v7-card-featured" : ""
       } ${isSingleColumn
-        ? "flex-row rounded-2xl"
-        : "flex-col rounded-2xl sm:rounded-3xl"
+        ? "flex-row"
+        : "flex-col"
+      } ${
+        cardConfig.borderRadius === "none" ? "rounded-none"
+          : cardConfig.borderRadius === "sm" ? "rounded-sm"
+          : cardConfig.borderRadius === "md" ? "rounded-md"
+          : cardConfig.borderRadius === "lg" ? "rounded-lg"
+          : cardConfig.borderRadius === "xl" ? "rounded-xl"
+          : cardConfig.borderRadius === "full" ? "rounded-full"
+          : "rounded-2xl sm:rounded-3xl"
       }`}
       style={{
         boxShadow: "var(--v7-shadow-card)",
@@ -205,11 +215,13 @@ export function ProductCard({
             featured
               ? "min-h-[320px] sm:min-h-[400px]"
               : isSingleColumn
-                ? "aspect-square w-36 shrink-0 sm:w-48"
-                : isCompactMode
-                  ? "aspect-square"
-                  : "aspect-square"
-          }`}
+                ? "w-36 shrink-0 sm:w-48"
+                : ""
+          } ${!featured ? (
+            cardConfig.imageAspectRatio === "portrait" ? "aspect-[3/4]"
+              : cardConfig.imageAspectRatio === "landscape" ? "aspect-[4/3]"
+              : "aspect-square"
+          ) : ""}`}
           style={{
             background: `linear-gradient(145deg, #f8f8f8 0%, #ffffff 50%, #f5f5f5 100%)`,
           }}
@@ -310,7 +322,7 @@ export function ProductCard({
               : "end-3 top-3 sm:end-4 sm:top-4"
           }`}>
             {/* Wishlist Button */}
-            {wishlistEnabled && (
+            {wishlistEnabled && (cardConfig.showWishlistButton ?? true) && (
               <button
                 type="button"
                 onClick={handleWishlistClick}
@@ -406,13 +418,23 @@ export function ProductCard({
           )}
 
           {/* Product Name */}
-          <h3 className={`font-bold leading-tight text-neutral-900 ${
-            isCompactMode
-              ? "line-clamp-2 min-h-[2.25rem] text-sm sm:min-h-[2.5rem] sm:text-base"
-              : isSingleColumn
-                ? "line-clamp-2 text-base sm:text-lg"
-                : "line-clamp-2 min-h-[2.5rem] text-sm sm:min-h-[2.75rem] sm:text-base"
-          }`}>
+          <h3
+            className={`leading-tight ${
+              isCompactMode
+                ? "line-clamp-2 min-h-[2.25rem] text-sm sm:min-h-[2.5rem] sm:text-base"
+                : isSingleColumn
+                  ? "line-clamp-2 text-base sm:text-lg"
+                  : "line-clamp-2 min-h-[2.5rem] text-sm sm:min-h-[2.75rem] sm:text-base"
+            }`}
+            style={{
+              fontWeight: cardConfig.textStyles?.name?.fontWeight === "extrabold" ? 800
+                : cardConfig.textStyles?.name?.fontWeight === "semibold" ? 600
+                : cardConfig.textStyles?.name?.fontWeight === "medium" ? 500
+                : cardConfig.textStyles?.name?.fontWeight === "normal" ? 400
+                : 700,
+              color: cardConfig.textStyles?.name?.color || branding.colors.text || "#171717",
+            }}
+          >
             <span className="v7-name-underline">{t(product)}</span>
           </h3>
 
@@ -429,7 +451,7 @@ export function ProductCard({
                       isCompactMode ? "h-2.5 w-2.5" : "h-3 w-3 sm:h-3.5 sm:w-3.5"
                     } ${
                       star <= Math.round(productRating)
-                        ? "fill-amber-400 text-amber-400"
+                        ? "fill-warning-400 text-warning-400"
                         : "fill-neutral-200 text-neutral-200"
                     }`}
                     strokeWidth={0}
@@ -463,14 +485,21 @@ export function ProductCard({
               <span className="v7-price relative">
                 <span className="v7-price-highlight" />
                 <span
-                  className={`relative font-black tracking-tight ${
+                  className={`relative tracking-tight ${
                     isCompactMode
                       ? "text-base sm:text-lg"
                       : isSingleColumn
                         ? "text-xl"
                         : "text-lg sm:text-xl"
                   }`}
-                  style={{ color: branding.colors.primary }}
+                  style={{
+                    color: cardConfig.textStyles?.price?.color || branding.colors.primary,
+                    fontWeight: cardConfig.textStyles?.price?.fontWeight === "extrabold" ? 800
+                      : cardConfig.textStyles?.price?.fontWeight === "semibold" ? 600
+                      : cardConfig.textStyles?.price?.fontWeight === "medium" ? 500
+                      : cardConfig.textStyles?.price?.fontWeight === "normal" ? 400
+                      : 900,
+                  }}
                 >
                   {formatMoneyRange({
                     start: product.pricing?.priceRange?.start?.gross,

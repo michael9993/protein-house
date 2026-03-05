@@ -11,7 +11,7 @@ import {
   useStoreInfo,
   useContentConfig,
   useFeature,
-  useUiConfig,
+  useProductCardConfig,
 } from "@/providers/StoreConfigProvider";
 import { useQuickView } from "@/providers/QuickViewProvider";
 import { HomepageProductCard } from "@/components/home/HomepageProductCard";
@@ -33,8 +33,7 @@ export function RelatedProductsCarousel({ products, channel }: RelatedProductsCa
   const storeInfo = useStoreInfo();
   const config = useRelatedProductsConfig();
   const contentConfig = useContentConfig();
-  const ui = useUiConfig();
-  const cardConfig: ProductCardConfig = ui.productCard;
+  const cardConfig = useProductCardConfig("relatedProducts");
   const { openQuickView, prefetchQuickView } = useQuickView();
   const wishlistEnabled = useFeature("wishlist");
   const { addItem, removeItem, isInWishlist } = useWishlist();
@@ -71,7 +70,7 @@ export function RelatedProductsCarousel({ products, channel }: RelatedProductsCa
   const homepageContent = contentConfig.homepage;
   const title = pdContent?.relatedProductsTitle || config.title || "You May Also Like";
   const subtitle = pdContent?.relatedProductsSubtitle || config.subtitle || "Customers also viewed these products";
-  const storeName = storeInfo.name || "Mansour Shoes";
+  const storeName = storeInfo.name || "";
   const accent = colors.primary;
 
   // Get translated content — prefer productDetail, fall back to homepage
@@ -128,7 +127,8 @@ export function RelatedProductsCarousel({ products, channel }: RelatedProductsCa
   const scroll = useCallback((direction: "prev" | "next") => {
     if (!scrollContainerRef.current) return;
     const container = scrollContainerRef.current;
-    const scrollAmount = 300;
+    const firstChild = container.firstElementChild as HTMLElement | null;
+    const scrollAmount = firstChild ? firstChild.offsetWidth + 24 : 300;
     const actualDirection = isRTL ? (direction === "next" ? -1 : 1) : (direction === "next" ? 1 : -1);
     const newScrollLeft = container.scrollLeft + (scrollAmount * actualDirection);
     container.scrollTo({ left: newScrollLeft, behavior: "smooth" });

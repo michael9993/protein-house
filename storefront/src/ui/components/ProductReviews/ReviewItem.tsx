@@ -235,7 +235,7 @@ export function ReviewItem({
     return (
       <div className="border-b border-neutral-200 py-6 last:border-b-0">
         {error && (
-          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+          <div className="mb-4 rounded-lg border border-error-200 bg-error-50 p-3 text-sm text-error-800">
             {error}
           </div>
         )}
@@ -379,7 +379,7 @@ export function ReviewItem({
               <div className="flex items-center gap-2">
                 <p className="font-medium text-neutral-900">{userName}</p>
                 {isVerifiedPurchase && (
-                  <span className="rounded bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                  <span className="rounded bg-success-100 px-2 py-0.5 text-xs font-medium text-success-700">
                     {productDetailText.verifiedPurchase}
                   </span>
                 )}
@@ -489,7 +489,7 @@ export function ReviewItem({
             )}
           </div>
           {error && !isEditing && (
-            <div className="mt-2 rounded-lg border border-red-200 bg-red-50 p-2 text-sm text-red-800">
+            <div className="mt-2 rounded-lg border border-error-200 bg-error-50 p-2 text-sm text-error-800">
               {error}
             </div>
           )}

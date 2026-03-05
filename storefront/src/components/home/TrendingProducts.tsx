@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import { type ProductListItemFragment } from "@/gql/graphql";
 import { t } from "@/lib/language";
 import { useWishlist } from "@/lib/wishlist";
-import { useBranding, useStoreInfo, useContentConfig, useTrendingConfig, useFeature, useUiConfig } from "@/providers/StoreConfigProvider";
+import { useBranding, useStoreInfo, useContentConfig, useTrendingConfig, useFeature, useProductCardConfig } from "@/providers/StoreConfigProvider";
 import { buildProductsUrl, withChannel } from "@/lib/urls";
 import { SectionViewAllButton } from "./SectionViewAllButton";
 import { useQuickView } from "@/providers/QuickViewProvider";
@@ -31,8 +31,7 @@ export function TrendingProducts({ products, channel, title, subtitle }: Trendin
   const { openQuickView, prefetchQuickView } = useQuickView();
   const wishlistEnabled = useFeature("wishlist");
   const { addItem, removeItem, isInWishlist } = useWishlist();
-  const ui = useUiConfig();
-  const cardConfig: ProductCardConfig = ui.productCard;
+  const cardConfig = useProductCardConfig("homepage");
 
   // Wishlist toggle handler
   const handleWishlistToggle = useCallback((product: ProductListItemFragment) => {
@@ -116,7 +115,7 @@ export function TrendingProducts({ products, channel, title, subtitle }: Trendin
         </div>
 
         {/* Product Grid */}
-        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid gap-6 product-grid-config">
           {displayProducts.map((product) => (
             <div key={product.id}>
               <HomepageProductCard

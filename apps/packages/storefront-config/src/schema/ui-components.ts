@@ -83,6 +83,40 @@ export const ProductCardSchema = z.object({
     originalPrice: ProductCardTextStyleSchema.optional(),
     reviewCount: ProductCardTextStyleSchema.optional(),
   }).optional(),
+  // Visibility controls
+  showPrice: z.boolean().optional(),
+  showOriginalPrice: z.boolean().optional(),
+  showCategory: z.boolean().optional(),
+  showDeliveryEstimate: z.boolean().optional(),
+  showShareButton: z.boolean().optional(),
+  showDiscountBadge: z.boolean().optional(),
+  showOutOfStockBadge: z.boolean().optional(),
+  showLowStockBadge: z.boolean().optional(),
+  showNewBadge: z.boolean().optional(),
+  // Layout controls
+  titleMaxLines: z.coerce.number().min(1).max(3).optional(),
+  contentAlignment: z.enum(["start", "center", "end"]).optional(),
+});
+
+// Override schema: all fields optional for per-location overrides
+export const ProductCardOverrideSchema = ProductCardSchema.partial();
+
+// Card location identifiers
+export const CardLocationSchema = z.enum([
+  "plp",
+  "relatedProducts",
+  "recentlyViewed",
+  "wishlistDrawer",
+  "productGrid",
+]);
+
+// Per-location card overrides
+export const CardOverridesSchema = z.object({
+  plp: ProductCardOverrideSchema.optional(),
+  relatedProducts: ProductCardOverrideSchema.optional(),
+  recentlyViewed: ProductCardOverrideSchema.optional(),
+  wishlistDrawer: ProductCardOverrideSchema.optional(),
+  productGrid: ProductCardOverrideSchema.optional(),
 });
 
 // ============================================

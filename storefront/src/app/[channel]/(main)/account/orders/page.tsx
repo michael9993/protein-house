@@ -17,11 +17,11 @@ export async function generateMetadata({ params }: { params: Promise<{ channel: 
 }
 
 const statusColors: Record<string, { bg: string; text: string }> = {
-	UNFULFILLED: { bg: "bg-yellow-100", text: "text-yellow-700" },
-	PARTIALLY_FULFILLED: { bg: "bg-blue-100", text: "text-blue-700" },
-	FULFILLED: { bg: "bg-green-100", text: "text-green-700" },
-	DELIVERED: { bg: "bg-green-100", text: "text-green-700" },
-	CANCELED: { bg: "bg-red-100", text: "text-red-700" },
+	UNFULFILLED: { bg: "bg-warning-100", text: "text-warning-700" },
+	PARTIALLY_FULFILLED: { bg: "bg-info-100", text: "text-info-700" },
+	FULFILLED: { bg: "bg-success-100", text: "text-success-700" },
+	DELIVERED: { bg: "bg-success-100", text: "text-success-700" },
+	CANCELED: { bg: "bg-error-100", text: "text-error-700" },
 	RETURNED: { bg: "bg-neutral-100", text: "text-neutral-700" },
 };
 

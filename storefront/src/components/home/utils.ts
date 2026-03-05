@@ -169,6 +169,32 @@ export interface ProductCardConfig {
   showBrandLabel?: boolean;
   showRating?: boolean;
   imageFit?: ImageFit;
+  borderRadius?: "none" | "sm" | "md" | "lg" | "xl" | "full";
+  imageAspectRatio?: "square" | "portrait" | "landscape";
+  showQuickView?: boolean;
+  showWishlistButton?: boolean;
+  showAddToCart?: boolean;
+  shadow?: string;
+  hoverShadow?: string;
+  textStyles?: {
+    name?: { fontSize?: string; fontWeight?: string; color?: string | null };
+    price?: { fontSize?: string; fontWeight?: string; color?: string | null };
+    originalPrice?: { fontSize?: string; fontWeight?: string; color?: string | null };
+    reviewCount?: { fontSize?: string; fontWeight?: string; color?: string | null };
+  };
+  // Visibility controls
+  showPrice?: boolean;
+  showOriginalPrice?: boolean;
+  showCategory?: boolean;
+  showDeliveryEstimate?: boolean;
+  showShareButton?: boolean;
+  showDiscountBadge?: boolean;
+  showOutOfStockBadge?: boolean;
+  showLowStockBadge?: boolean;
+  showNewBadge?: boolean;
+  // Layout controls
+  titleMaxLines?: number;
+  contentAlignment?: "start" | "center" | "end";
 }
 
 /** Get badge position CSS classes */

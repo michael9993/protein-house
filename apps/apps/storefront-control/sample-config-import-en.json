@@ -783,7 +783,18 @@
             "fontWeight": "normal",
             "color": null
           }
-        }
+        },
+        "showPrice": true,
+        "showOriginalPrice": true,
+        "showCategory": true,
+        "showDeliveryEstimate": true,
+        "showShareButton": true,
+        "showDiscountBadge": true,
+        "showOutOfStockBadge": true,
+        "showLowStockBadge": true,
+        "showNewBadge": true,
+        "titleMaxLines": 2,
+        "contentAlignment": "start"
       },
       "toasts": {
         "position": "bottom-right",
@@ -895,6 +906,7 @@
         "freeShippingThresholdReached": "You've unlocked free shipping!",
         "addXMoreForFreeShipping": "Add {amount} more for free shipping!",
         "unlockedFreeShipping": "You've unlocked free shipping!",
+        "freeShippingSelectMethods": "You may qualify for free shipping on select methods",
         "saveForLaterButton": "Save for Later",
         "moveToCartButton": "Move to Cart",
         "deleteButton": "Delete",
@@ -1319,6 +1331,8 @@
         "deliveryFreeShippingUnlocked": "Free shipping applied!",
         "deliveryFreeShippingNudge": "You've unlocked free shipping! Select {methodName} to save {amount}",
         "deliveryAddMoreForFreeShipping": "Add {amount} more for free shipping",
+        "deliveryFreeShippingSelectMethods": "Free shipping is available on select delivery methods",
+        "shippingSavingsMessage": "You saved {amount} on shipping!",
         "deliveryMethodUnavailable": "Your selected shipping method is no longer available for the current cart. Please choose another.",
         "selectPaymentMethodError": "Please select a payment method",
         "noCheckoutFoundTitle": "No checkout found",
@@ -1927,6 +1941,11 @@
         "marketingDescription": "Used for targeted advertising and remarketing.",
         "savePreferencesButton": "Save Preferences",
         "policyLinkText": "Cookie Policy"
+      },
+      "pagination": {
+        "previousButton": "Previous",
+        "nextButton": "Next",
+        "pageLabel": "Page {current} of {total}"
       }
     },
     "darkMode": {
@@ -1959,11 +1978,32 @@
     },
     "design": {
       "animations": {
-        "preset": "moderate"
+        "preset": "moderate",
+        "carouselCycleSeconds": 6,
+        "toastDurationMs": 4000
       },
       "spacing": {
         "sectionPaddingY": "normal"
+      },
+      "grid": {
+        "productColumns": {
+          "sm": 2,
+          "md": 3,
+          "lg": 4,
+          "xl": 4
+        },
+        "productGap": "normal"
+      },
+      "statusColors": {
+        "info": "#3b82f6"
       }
-    }
+    },
+    "checkoutUi": {
+      "confirmation": {
+        "showTimeline": true,
+        "showPrintReceipt": true
+      }
+    },
+    "cardOverrides": {}
   }
 }

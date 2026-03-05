@@ -521,7 +521,7 @@ export function ShippingStep({ checkoutId }: ShippingStepProps) {
 
 			{/* Server-side errors */}
 			{stepErrors?.map((msg) => (
-				<p key={msg} className="text-sm text-red-600" role="alert">
+				<p key={msg} className="text-sm text-error-600" role="alert">
 					{msg}
 				</p>
 			))}

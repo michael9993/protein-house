@@ -56,7 +56,7 @@ export function AttributePillSelector({
           >
             {opt.valueName}
             {isAvailable && (opt as any)._lowStock && (
-              <span className="absolute -end-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white">
+              <span className="absolute -end-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-warning-500 text-[10px] font-bold text-white">
                 !
               </span>
             )}

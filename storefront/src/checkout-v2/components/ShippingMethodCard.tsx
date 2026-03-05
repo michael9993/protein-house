@@ -59,14 +59,14 @@ export function ShippingMethodCard({ method, isSelected, onChange, showOriginalP
 									{method.originalPrice!.amount.toFixed(2)} {method.originalPrice!.currency}
 								</span>
 							)}
-							<span className="shrink-0 text-sm font-semibold text-emerald-600">Free</span>
+							<span className="shrink-0 text-sm font-semibold text-success-600">Free</span>
 						</span>
 					) : hasDiscount ? (
 						<span className="flex items-center gap-1.5">
 							<span className="text-xs text-neutral-400 line-through">
 								{method.originalPrice!.amount.toFixed(2)} {method.originalPrice!.currency}
 							</span>
-							<span className="shrink-0 font-medium text-emerald-600">
+							<span className="shrink-0 font-medium text-success-600">
 								{method.price.amount.toFixed(2)} {method.price.currency}
 							</span>
 						</span>

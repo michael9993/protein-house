@@ -38,13 +38,13 @@ export function FreeShippingIndicator({
 	// State 1: Success — user already selected the free method
 	if (freeMethod && selectedMethodId === freeMethod.id) {
 		return (
-			<div className="flex items-center gap-2 rounded-lg bg-emerald-50 p-2.5">
-				<div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500">
+			<div className="flex items-center gap-2 rounded-lg bg-success-50 p-2.5">
+				<div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success-500">
 					<svg className="h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
 						<path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
 					</svg>
 				</div>
-				<p className="text-sm font-medium text-emerald-800">
+				<p className="text-sm font-medium text-success-800">
 					{t.deliveryFreeShippingUnlocked ?? "Free shipping applied!"}
 				</p>
 			</div>
@@ -67,18 +67,18 @@ export function FreeShippingIndicator({
 				<button
 					type="button"
 					onClick={onChangeMethod}
-					className="flex w-full items-center gap-2 rounded-lg bg-emerald-50 p-2.5 text-start transition-colors hover:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1"
+					className="flex w-full items-center gap-2 rounded-lg bg-success-50 p-2.5 text-start transition-colors hover:bg-success-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success-500 focus-visible:ring-offset-1"
 				>
-					<div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100">
-						<svg className="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+					<div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success-100">
+						<svg className="h-3.5 w-3.5 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
 							<path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
 						</svg>
 					</div>
-					<p className="flex-1 text-sm font-medium text-emerald-800">
+					<p className="flex-1 text-sm font-medium text-success-800">
 						{message}
 					</p>
-					<svg className="h-4 w-4 shrink-0 text-emerald-600 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+					<svg className="h-4 w-4 shrink-0 text-success-600 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
 						<path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
 					</svg>
 				</button>
@@ -86,14 +86,14 @@ export function FreeShippingIndicator({
 		}
 
 		return (
-			<div className="flex items-center gap-2 rounded-lg bg-emerald-50 p-2.5">
-				<div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100">
-					<svg className="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+			<div className="flex items-center gap-2 rounded-lg bg-success-50 p-2.5">
+				<div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success-100">
+					<svg className="h-3.5 w-3.5 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
 						<path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
 					</svg>
 				</div>
-				<p className="text-sm font-medium text-emerald-800">
+				<p className="text-sm font-medium text-success-800">
 					{message}
 				</p>
 			</div>
@@ -104,29 +104,55 @@ export function FreeShippingIndicator({
 	// When free rule has a maxMethodPrice cap, only show progress if there are eligible methods
 	const maxCap = freeRule?.enabled ? (freeRule.maxMethodPrice ?? 0) : 0;
 	const hasEligibleMethods = maxCap <= 0 || methods.some((m) => m.price.amount > 0 && m.price.amount <= maxCap);
-	if (!freeMethod && threshold && threshold > 0 && subtotalAmount > 0 && hasEligibleMethods) {
+	if (!freeMethod && threshold && threshold > 0 && subtotalAmount > 0) {
 		const remaining = threshold - subtotalAmount;
-		if (remaining <= 0) return null;
+
+		// State 2b: Threshold met but no method qualifies
+		// This can happen when: (a) methodNameFilter excludes all methods, or
+		// (b) maxMethodPrice cap excludes all methods (all methods cost more than the cap)
+		if (remaining <= 0) {
+			const hasRestrictions = freeRule?.enabled &&
+				(freeRule.methodNameFilter?.trim() || !hasEligibleMethods);
+			if (hasRestrictions) {
+				return (
+					<div className="flex items-center gap-2 rounded-lg bg-info-50 p-2.5">
+						<div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-info-100">
+							<svg className="h-3.5 w-3.5 text-info-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+								<path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+							</svg>
+						</div>
+						<p className="text-sm font-medium text-info-800">
+							{t.deliveryFreeShippingSelectMethods ?? "Free shipping is available on select delivery methods"}
+						</p>
+					</div>
+				);
+			}
+			return null;
+		}
+
+		// Only show progress bar if there are eligible methods
+		if (!hasEligibleMethods) return null;
+
 		const progress = Math.min(100, (subtotalAmount / threshold) * 100);
 		const amountStr = `${remaining.toFixed(2)} ${currency}`;
 		const template = t.deliveryAddMoreForFreeShipping ?? "Add {amount} more for free shipping";
 
 		return (
-			<div className="rounded-lg bg-emerald-50 p-2.5">
+			<div className="rounded-lg bg-success-50 p-2.5">
 				<div className="flex items-center gap-2">
-					<div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100">
-						<svg className="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+					<div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success-100">
+						<svg className="h-3.5 w-3.5 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
 							<path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
 						</svg>
 					</div>
-					<p className="text-sm font-medium text-emerald-800">
+					<p className="text-sm font-medium text-success-800">
 						{formatText(template, { amount: amountStr })}
 					</p>
 				</div>
-				<div className="mt-1.5 ms-8 h-1 overflow-hidden rounded-full bg-emerald-200">
+				<div className="mt-1.5 ms-8 h-1 overflow-hidden rounded-full bg-success-200">
 					<div
-						className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+						className="h-full rounded-full bg-success-500 transition-all duration-500"
 						style={{ width: `${progress}%` }}
 					/>
 				</div>

@@ -73,7 +73,7 @@ export function OrderSummary({ order }: Props) {
 				</div>
 
 				{voucherDiscount && voucherDiscount.amount.amount > 0 && (
-					<div className="flex justify-between text-emerald-600">
+					<div className="flex justify-between text-success-600">
 						<span>
 							{order.voucher?.code ? `Discount (${order.voucher.code})` : "Discount"}
 						</span>

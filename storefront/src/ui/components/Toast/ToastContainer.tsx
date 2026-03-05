@@ -1,6 +1,17 @@
 "use client";
 
+import { useContext } from "react";
 import { useToast, type ToastType } from "./ToastContext";
+import { StoreConfigContext } from "@/providers/StoreConfigProvider";
+
+const positionClasses: Record<string, string> = {
+  "top-left": "fixed top-4 start-4",
+  "top-right": "fixed top-4 end-4",
+  "top-center": "fixed top-4 start-1/2 -translate-x-1/2",
+  "bottom-left": "fixed bottom-24 start-4 md:bottom-4",
+  "bottom-right": "fixed bottom-24 end-4 md:bottom-4",
+  "bottom-center": "fixed bottom-24 start-1/2 -translate-x-1/2 md:bottom-4",
+};
 
 const iconMap: Record<ToastType, React.ReactElement> = {
   success: (
@@ -25,45 +36,75 @@ const iconMap: Record<ToastType, React.ReactElement> = {
   ),
 };
 
-const colorMap: Record<ToastType, string> = {
-  success: "bg-emerald-500",
-  error: "bg-red-500",
-  warning: "bg-amber-500",
-  info: "bg-blue-500",
+/** Fallback Tailwind classes when no config colors are set */
+const fallbackColorMap: Record<ToastType, string> = {
+  success: "bg-success-500",
+  error: "bg-error-500",
+  warning: "bg-warning-500",
+  info: "bg-info-500",
+};
+
+const borderRadiusMap: Record<string, string> = {
+  none: "rounded-none",
+  sm: "rounded-sm",
+  md: "rounded-lg",
+  lg: "rounded-xl",
 };
 
 export function ToastContainer() {
   const { toasts, removeToast } = useToast();
+  // Use context directly (not useUiConfig) to gracefully handle being outside StoreConfigProvider
+  // This is needed because ToastContainer is rendered in the root layout, which doesn't have StoreConfigProvider
+  const config = useContext(StoreConfigContext);
+  const toastConfig = config?.ui?.toasts;
+  const position = positionClasses[toastConfig?.position ?? "bottom-right"] ?? positionClasses["bottom-right"];
+  const borderRadius = borderRadiusMap[toastConfig?.borderRadius ?? "md"] ?? borderRadiusMap.md;
 
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed bottom-24 end-4 z-[10000] flex flex-col gap-2 md:bottom-4">
-      {toasts.map((toast) => (
-        <div
-          key={toast.id}
-          className="animate-slide-in flex items-center gap-3 rounded-lg bg-white px-4 py-3 shadow-lg ring-1 ring-black/5"
-          style={{
-            animation: "slideIn 0.3s ease-out",
-          }}
-        >
-          <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-white ${colorMap[toast.type]}`}>
-            {iconMap[toast.type]}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-neutral-800">{toast.message}</p>
-            {toast.content && <div className="mt-1">{toast.content}</div>}
-          </div>
-          <button
-            onClick={() => removeToast(toast.id)}
-            className="ml-2 text-neutral-400 transition-colors hover:text-neutral-600"
+    <div className={`${position} z-[10000] flex flex-col gap-2`}>
+      {toasts.map((toast) => {
+        const variant = toastConfig?.[toast.type];
+        const hasBg = variant?.backgroundColor;
+        const hasText = variant?.textColor;
+        const hasIcon = variant?.iconColor;
+
+        return (
+          <div
+            key={toast.id}
+            className={`animate-slide-in flex items-center gap-3 ${borderRadius} bg-white px-4 py-3 shadow-lg ring-1 ring-black/5`}
+            style={{ animation: "slideIn 0.3s ease-out" }}
           >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-      ))}
+            <div
+              className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-white ${!hasBg ? fallbackColorMap[toast.type] : ""}`}
+              style={hasBg || hasIcon ? {
+                backgroundColor: hasBg || undefined,
+                color: hasIcon || undefined,
+              } : undefined}
+            >
+              {iconMap[toast.type]}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p
+                className={`text-sm font-medium ${!hasText ? "text-neutral-800" : ""}`}
+                style={hasText ? { color: hasText } : undefined}
+              >
+                {toast.message}
+              </p>
+              {toast.content && <div className="mt-1">{toast.content}</div>}
+            </div>
+            <button
+              onClick={() => removeToast(toast.id)}
+              className="ms-2 text-neutral-400 transition-colors hover:text-neutral-600"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        );
+      })}
       <style jsx>{`
         @keyframes slideIn {
           from {
@@ -79,4 +120,3 @@ export function ToastContainer() {
     </div>
   );
 }
-

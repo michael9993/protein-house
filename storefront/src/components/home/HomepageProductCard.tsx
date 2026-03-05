@@ -128,15 +128,26 @@ export function HomepageProductCard({
 	return (
 		<Link
 			href={withChannel(channel, buildProductUrl(product.slug))}
-			className={`group relative flex h-full flex-col overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm transition-all duration-300 ${getCardHoverClasses(cardConfig.hoverEffect)}`}
+			className={`group relative flex h-full flex-col overflow-hidden border border-neutral-200 bg-white shadow-sm transition-all duration-300 ${getCardHoverClasses(cardConfig.hoverEffect)} ${
+				cardConfig.borderRadius === "none" ? "rounded-none"
+					: cardConfig.borderRadius === "sm" ? "rounded-sm"
+					: cardConfig.borderRadius === "md" ? "rounded-md"
+					: cardConfig.borderRadius === "lg" ? "rounded-lg"
+					: cardConfig.borderRadius === "xl" ? "rounded-xl"
+					: "rounded-3xl"
+			}`}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
 		>
 			{/* Product image area */}
-			<div className="relative aspect-square bg-gradient-to-br from-neutral-50 via-white to-neutral-100">
+			<div className={`relative bg-gradient-to-br from-neutral-50 via-white to-neutral-100 ${
+				cardConfig.imageAspectRatio === "portrait" ? "aspect-[3/4]"
+					: cardConfig.imageAspectRatio === "landscape" ? "aspect-[4/3]"
+					: "aspect-square"
+			}`}>
 				{/* Badges — same style as PLP ProductCard */}
 				<div className={`absolute ${getBadgePositionClasses(cardConfig.badgePosition)} z-10 flex flex-col gap-1.5`}>
-					{hasDiscountBadge && (
+					{cardConfig.showDiscountBadge !== false && hasDiscountBadge && (
 						<span
 							className={`${radiusMap[saleBadgeStyle.borderRadius] || "rounded"} px-2 py-1 text-xs font-bold shadow-sm`}
 							style={{ backgroundColor: saleBadgeStyle.backgroundColor, color: saleBadgeStyle.color }}
@@ -144,7 +155,7 @@ export function HomepageProductCard({
 							-{discountPercent}%
 						</span>
 					)}
-					{!isInStock && (
+					{cardConfig.showOutOfStockBadge !== false && !isInStock && (
 						<span
 							className={`${radiusMap[outOfStockBadgeStyle.borderRadius] || "rounded-full"} px-2 py-0.5 text-[10px] font-medium shadow-sm`}
 							style={{ backgroundColor: outOfStockBadgeStyle.backgroundColor, color: outOfStockBadgeStyle.color }}
@@ -152,7 +163,7 @@ export function HomepageProductCard({
 							{content.product.outOfStockText || badgeLabels.outOfStock}
 						</span>
 					)}
-					{isLowStock && (
+					{cardConfig.showLowStockBadge !== false && isLowStock && (
 						<span
 							className={`${radiusMap[lowStockBadgeStyle.borderRadius] || "rounded"} inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold leading-none`}
 							style={{ backgroundColor: lowStockBadgeStyle.backgroundColor, color: lowStockBadgeStyle.color }}
@@ -183,14 +194,16 @@ export function HomepageProductCard({
 							/>
 						</button>
 					)}
-					<ShareButton
-						variant="icon"
-						productName={t(product)}
-						productSlug={product.slug}
-						productImage={getProductImage(product) || null}
-						className="flex h-9 w-9 items-center justify-center rounded-full border border-white/60 bg-white/90 shadow-sm text-neutral-500 transition-all duration-200 hover:scale-110 hover:shadow-md hover:text-neutral-700"
-						iconClassName="h-4 w-4"
-					/>
+					{cardConfig.showShareButton !== false && (
+						<ShareButton
+							variant="icon"
+							productName={t(product)}
+							productSlug={product.slug}
+							productImage={getProductImage(product) || null}
+							className="flex h-9 w-9 items-center justify-center rounded-full border border-white/60 bg-white/90 shadow-sm text-neutral-500 transition-all duration-200 hover:scale-110 hover:shadow-md hover:text-neutral-700"
+							iconClassName="h-4 w-4"
+						/>
+					)}
 				</div>
 				{image ? (
 					<Image
@@ -226,19 +239,33 @@ export function HomepageProductCard({
 				</button>
 			</div>
 			{/* Product info */}
-			<div className="border-t border-neutral-100 px-5 pb-5 pt-4">
-				<h3 className="line-clamp-2 text-sm font-black uppercase tracking-tight text-neutral-900">
+			<div className={`border-t border-neutral-100 px-5 pb-5 pt-4 text-${cardConfig.contentAlignment ?? "start"}`}>
+				<h3
+					className={`line-clamp-${cardConfig.titleMaxLines ?? 2} text-sm uppercase tracking-tight`}
+					style={{
+						fontWeight: cardConfig.textStyles?.name?.fontWeight === "extrabold" ? 800
+							: cardConfig.textStyles?.name?.fontWeight === "semibold" ? 600
+							: cardConfig.textStyles?.name?.fontWeight === "medium" ? 500
+							: cardConfig.textStyles?.name?.fontWeight === "normal" ? 400
+							: 900,
+						color: cardConfig.textStyles?.name?.color || "#171717",
+					}}
+				>
 					{t(product)}
 				</h3>
 				<div className="mt-2 flex items-center justify-between">
 					<div>
-						<div className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">
-							{(product.category ? t(product.category) : null) ?? performanceFallback}
-						</div>
-						<div className="mt-2 text-lg font-black" style={{ color: accent }}>
-							{priceRange || "N/A"}
-						</div>
-						{hasDiscount && (
+						{cardConfig.showCategory !== false && (
+							<div className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">
+								{(product.category ? t(product.category) : null) ?? performanceFallback}
+							</div>
+						)}
+						{cardConfig.showPrice !== false && (
+							<div className="mt-2 text-lg font-black" style={{ color: cardConfig.textStyles?.price?.color || accent }}>
+								{priceRange || "N/A"}
+							</div>
+						)}
+						{cardConfig.showOriginalPrice !== false && hasDiscount && (
 							<div className="text-xs text-neutral-400 line-through">{originalRange}</div>
 						)}
 					</div>
@@ -249,7 +276,9 @@ export function HomepageProductCard({
 					)}
 				</div>
 			</div>
+			{cardConfig.showDeliveryEstimate !== false && (
 			<HomepageDeliveryBadge metadata={product.metadata} />
+			)}
 		</Link>
 	);
 }

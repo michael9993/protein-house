@@ -47,8 +47,8 @@ export function StockStatus({
     return (
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-          <span className="text-sm font-medium text-emerald-600">
+          <span className="h-2.5 w-2.5 rounded-full bg-success-500" />
+          <span className="text-sm font-medium text-success-600">
             {text.unlimitedStock || "In Stock"}
           </span>
         </div>
@@ -75,18 +75,18 @@ export function StockStatus({
             className={`h-2.5 w-2.5 rounded-full ${
               isInStock
                 ? isLowStock
-                  ? "bg-amber-500"
-                  : "bg-emerald-500"
-                : "bg-red-500"
+                  ? "bg-warning-500"
+                  : "bg-success-500"
+                : "bg-error-500"
             }`}
           />
           <span
             className={`text-sm font-medium ${
               isInStock
                 ? isLowStock
-                  ? "text-amber-600"
-                  : "text-emerald-600"
-                : "text-red-600"
+                  ? "text-warning-600"
+                  : "text-success-600"
+                : "text-error-600"
             }`}
           >
             {isInStock
@@ -97,7 +97,7 @@ export function StockStatus({
           </span>
         </div>
         {isLowStock && (
-          <span className="flex items-center gap-1 text-xs text-amber-600">
+          <span className="flex items-center gap-1 text-xs text-warning-600">
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"

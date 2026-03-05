@@ -150,21 +150,21 @@ export function CartPage({
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Free Shipping Progress */}
       {freeShippingThreshold && !hasReachedFreeShipping && (
-        <div className="mb-8 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 p-4">
+        <div className="mb-8 rounded-xl bg-gradient-to-r from-success-50 to-success-100 p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
-              <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-success-100">
+              <svg className="h-5 w-5 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
               </svg>
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-emerald-800">
+              <p className="text-sm font-medium text-success-800">
                 Add {formatMoney(amountToFreeShipping!, totalPrice.gross.currency)} more for FREE shipping!
               </p>
-              <div className="mt-2 h-2 overflow-hidden rounded-full bg-emerald-200">
+              <div className="mt-2 h-2 overflow-hidden rounded-full bg-success-200">
                 <div 
-                  className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                  className="h-full rounded-full bg-success-500 transition-all duration-500"
                   style={{ 
                     width: `${Math.min(100, (totalPrice.gross.amount / freeShippingThreshold) * 100)}%` 
                   }}
@@ -176,14 +176,14 @@ export function CartPage({
       )}
 
       {hasReachedFreeShipping && (
-        <div className="mb-8 rounded-xl bg-emerald-50 p-4">
+        <div className="mb-8 rounded-xl bg-success-50 p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-success-500">
               <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <p className="font-medium text-emerald-800">
+            <p className="font-medium text-success-800">
               🎉 Congratulations! You've unlocked FREE shipping!
             </p>
           </div>
@@ -352,7 +352,7 @@ export function CartPage({
                 <dt className="text-sm text-neutral-600">Shipping</dt>
                 <dd className="text-sm font-medium text-neutral-900">
                   {hasReachedFreeShipping ? (
-                    <span className="text-emerald-600">FREE</span>
+                    <span className="text-success-600">FREE</span>
                   ) : (
                     "Calculated at checkout"
                   )}
@@ -381,13 +381,13 @@ export function CartPage({
             {/* Trust Badges */}
             <div className="mt-6 flex items-center justify-center gap-4 border-t border-neutral-200 pt-6">
               <div className="flex items-center gap-1.5 text-xs text-neutral-500">
-                <svg className="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-4 w-4 text-success-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
                 Secure Checkout
               </div>
               <div className="flex items-center gap-1.5 text-xs text-neutral-500">
-                <svg className="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-4 w-4 text-success-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
                 SSL Encrypted

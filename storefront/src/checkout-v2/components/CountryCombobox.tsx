@@ -86,7 +86,7 @@ export function CountryCombobox({
 				<span className="block text-sm font-medium text-neutral-700">
 					{label}
 					{required && (
-						<span className="ms-0.5 text-red-500" aria-hidden="true">
+						<span className="ms-0.5 text-error-500" aria-hidden="true">
 							*
 						</span>
 					)}
@@ -104,7 +104,7 @@ export function CountryCombobox({
 							"block w-full rounded-lg border px-3 py-2.5 pe-9 text-sm text-neutral-900 shadow-sm",
 							"focus:outline-none focus:ring-2 focus:ring-[var(--store-primary,theme(colors.neutral.900))]",
 							errorMessage
-								? "border-red-400 bg-red-50"
+								? "border-error-400 bg-error-50"
 								: "border-neutral-300 bg-white hover:border-neutral-400",
 						].join(" ")}
 						displayValue={(c: CountryOption | null) => c?.name ?? ""}
@@ -147,7 +147,7 @@ export function CountryCombobox({
 			</Combobox>
 
 			{errorMessage && (
-				<p className="flex items-center gap-1 text-xs text-red-600" role="alert">
+				<p className="flex items-center gap-1 text-xs text-error-600" role="alert">
 					{errorMessage}
 				</p>
 			)}

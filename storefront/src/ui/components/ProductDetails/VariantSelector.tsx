@@ -124,7 +124,7 @@ export function VariantSelector({
             )}
 
             {!selectedValueId && getValidationMessage && (
-              <p className="mt-2 text-sm text-red-500">
+              <p className="mt-2 text-sm text-error-500">
                 {getValidationMessage(attr.attributeName)}
               </p>
             )}

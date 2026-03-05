@@ -17,7 +17,7 @@ interface Props {
 
 export function AddToCartButton({ state, onClick, primaryColor, text }: Props) {
   const isDisabled = state === "needsSelection" || state === "outOfStock" || state === "adding";
-  const bgColor = state === "added" ? "#059669" : primaryColor;
+  const bgColor = state === "added" ? "var(--store-success-600, #059669)" : primaryColor;
 
   return (
     <button

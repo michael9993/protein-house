@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { type ProductListItemFragment } from "@/gql/graphql";
 import { t } from "@/lib/language";
 import { useWishlist } from "@/lib/wishlist";
-import { useBranding, useStoreInfo, useContentConfig, useBestSellersConfig, useFeature, useUiConfig } from "@/providers/StoreConfigProvider";
+import { useBranding, useStoreInfo, useContentConfig, useBestSellersConfig, useFeature, useProductCardConfig } from "@/providers/StoreConfigProvider";
 import { buildProductsUrl, withChannel } from "@/lib/urls";
 import { SectionViewAllButton } from "./SectionViewAllButton";
 import { useQuickView } from "@/providers/QuickViewProvider";
@@ -35,8 +35,7 @@ export function BestSellersSection({ products, channel, title, subtitle }: BestS
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
-  const ui = useUiConfig();
-  const cardConfig: ProductCardConfig = ui.productCard;
+  const cardConfig = useProductCardConfig("homepage");
 
   // Wishlist toggle handler
   const handleWishlistToggle = useCallback((product: ProductListItemFragment) => {
@@ -103,7 +102,8 @@ export function BestSellersSection({ products, channel, title, subtitle }: BestS
   const scroll = useCallback((direction: "prev" | "next") => {
     if (!scrollContainerRef.current) return;
     const container = scrollContainerRef.current;
-    const scrollAmount = 300;
+    const firstChild = container.firstElementChild as HTMLElement | null;
+    const scrollAmount = firstChild ? firstChild.offsetWidth + 24 : 300;
     const actualDirection = isRTL ? (direction === "next" ? -1 : 1) : (direction === "next" ? 1 : -1);
     const newScrollLeft = container.scrollLeft + (scrollAmount * actualDirection);
     container.scrollTo({ left: newScrollLeft, behavior: "smooth" });

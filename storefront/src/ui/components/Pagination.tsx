@@ -3,6 +3,7 @@
 import clsx from "clsx";
 import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useContentConfig } from "@/providers/StoreConfigProvider";
 
 export function Pagination({
 	pageInfo,
@@ -16,6 +17,8 @@ export function Pagination({
 }) {
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
+	const content = useContentConfig();
+	const paginationText = content.pagination;
 
 	// Construct next and previous page URLs based on the current search parameters
 	// and the pageInfo provided.
@@ -40,7 +43,7 @@ export function Pagination({
 				})}
 				aria-disabled={!pageInfo.hasPreviousPage}
 			>
-				Previous
+				{paginationText?.previousButton ?? "Previous"}
 			</Link>
 
 			<Link
@@ -52,7 +55,7 @@ export function Pagination({
 				})}
 				aria-disabled={!pageInfo.hasNextPage}
 			>
-				Next
+				{paginationText?.nextButton ?? "Next"}
 			</Link>
 		</nav>
 	);

@@ -309,9 +309,9 @@ function StripeCheckoutForm({
 	return (
 		<div className="space-y-4">
 			{errors.length > 0 && (
-				<div role="alert" className="rounded-md border border-red-200 bg-red-50 px-4 py-3">
+				<div role="alert" className="rounded-md border border-error-200 bg-error-50 px-4 py-3">
 					{errors.map((msg, i) => (
-						<p key={i} className="text-sm text-red-700">
+						<p key={i} className="text-sm text-error-700">
 							{msg}
 						</p>
 					))}
@@ -470,16 +470,16 @@ export function PaymentStep({ checkoutId, channel }: PaymentStepProps) {
 
 	if (loadError) {
 		return (
-			<div className="rounded-md border border-red-200 bg-red-50 px-4 py-3">
-				<p className="text-sm text-red-700">{loadError}</p>
+			<div className="rounded-md border border-error-200 bg-error-50 px-4 py-3">
+				<p className="text-sm text-error-700">{loadError}</p>
 			</div>
 		);
 	}
 
 	if (!stripePromise) {
 		return (
-			<div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3">
-				<p className="text-sm text-amber-700">
+			<div className="rounded-md border border-warning-200 bg-warning-50 px-4 py-3">
+				<p className="text-sm text-warning-700">
 					Payment configuration is missing. Please contact support.
 				</p>
 			</div>

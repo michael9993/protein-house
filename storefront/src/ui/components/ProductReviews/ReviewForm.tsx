@@ -139,9 +139,9 @@ export function ReviewForm({ productId, onSuccess, onCancel }: ReviewFormProps) 
 
   if (success) {
     return (
-      <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-6 text-center">
+      <div className="rounded-lg border border-success-200 bg-success-50 p-6 text-center">
         <svg
-          className="mx-auto h-12 w-12 text-emerald-500"
+          className="mx-auto h-12 w-12 text-success-500"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -153,8 +153,8 @@ export function ReviewForm({ productId, onSuccess, onCancel }: ReviewFormProps) 
             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
           />
         </svg>
-        <p className="mt-2 font-medium text-emerald-900">{productDetailText.thankYouMessage}</p>
-        <p className="mt-1 text-sm text-emerald-700">{productDetailText.reviewSubmittedMessage}</p>
+        <p className="mt-2 font-medium text-success-900">{productDetailText.thankYouMessage}</p>
+        <p className="mt-1 text-sm text-success-700">{productDetailText.reviewSubmittedMessage}</p>
       </div>
     );
   }
@@ -162,7 +162,7 @@ export function ReviewForm({ productId, onSuccess, onCancel }: ReviewFormProps) 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+        <div className="rounded-lg border border-error-200 bg-error-50 p-3 text-sm text-error-800">
           {error}
         </div>
       )}

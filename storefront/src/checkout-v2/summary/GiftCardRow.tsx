@@ -50,14 +50,14 @@ export function GiftCardRow({ card, checkoutId }: GiftCardRowProps) {
 				<span className="ms-2 text-neutral-500">
 					−{card.currentBalance.amount.toFixed(2)} {card.currentBalance.currency}
 				</span>
-				{error && <p className="mt-0.5 text-xs text-red-600">{error}</p>}
+				{error && <p className="mt-0.5 text-xs text-error-600">{error}</p>}
 			</div>
 			<button
 				type="button"
 				onClick={handleRemove}
 				disabled={isPending}
 				aria-label={`Remove gift card ${card.displayCode}`}
-				className="flex min-h-[44px] items-center px-2 text-xs text-neutral-400 hover:text-red-500 disabled:opacity-40"
+				className="flex min-h-[44px] items-center px-2 text-xs text-neutral-400 hover:text-error-500 disabled:opacity-40"
 			>
 				{t.removePromoButton ?? "Remove"}
 			</button>

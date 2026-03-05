@@ -31,6 +31,9 @@ import {
   HOVER_EFFECT_OPTIONS,
   BADGE_POSITION_OPTIONS,
   IMAGE_FIT_OPTIONS,
+  TITLE_MAX_LINES_OPTIONS,
+  CONTENT_ALIGNMENT_OPTIONS,
+  IMAGE_ASPECT_RATIO_OPTIONS,
 } from "./options";
 
 export function BrandingDesignTab({ register, control, errors, watch }: GlobalTabWithWatchProps) {
@@ -518,7 +521,105 @@ export function BrandingDesignTab({ register, control, errors, watch }: GlobalTa
             control={control}
             options={IMAGE_FIT_OPTIONS}
           />
+          <FormSelect<GlobalFormData>
+            label="Image Aspect Ratio"
+            name="ui.productCard.imageAspectRatio"
+            control={control}
+            options={IMAGE_ASPECT_RATIO_OPTIONS}
+          />
+          <FormSwitch<GlobalFormData>
+            label="Show Wishlist Button"
+            name="ui.productCard.showWishlistButton"
+            control={control}
+            description="Display wishlist heart icon on cards"
+          />
+          <FormSwitch<GlobalFormData>
+            label="Show Add to Cart"
+            name="ui.productCard.showAddToCart"
+            control={control}
+            description="Display add-to-cart button on cards"
+          />
         </FieldGroup>
+
+        {/* Visibility Controls */}
+        <div className="mt-4 border-t pt-4">
+          <h4 className="mb-3 text-sm font-semibold text-gray-700">Element Visibility</h4>
+          <FieldGroup columns={3}>
+            <FormSwitch<GlobalFormData>
+              label="Show Price"
+              name="ui.productCard.showPrice"
+              control={control}
+              description="Display product price"
+            />
+            <FormSwitch<GlobalFormData>
+              label="Show Original Price"
+              name="ui.productCard.showOriginalPrice"
+              control={control}
+              description="Display strikethrough original price"
+            />
+            <FormSwitch<GlobalFormData>
+              label="Show Category"
+              name="ui.productCard.showCategory"
+              control={control}
+              description="Display category label"
+            />
+            <FormSwitch<GlobalFormData>
+              label="Show Delivery Estimate"
+              name="ui.productCard.showDeliveryEstimate"
+              control={control}
+              description="Display delivery estimate"
+            />
+            <FormSwitch<GlobalFormData>
+              label="Show Share Button"
+              name="ui.productCard.showShareButton"
+              control={control}
+              description="Display share button"
+            />
+            <FormSwitch<GlobalFormData>
+              label="Show Discount Badge"
+              name="ui.productCard.showDiscountBadge"
+              control={control}
+              description="Display discount percentage badge"
+            />
+            <FormSwitch<GlobalFormData>
+              label="Show Out of Stock Badge"
+              name="ui.productCard.showOutOfStockBadge"
+              control={control}
+              description="Display out-of-stock badge"
+            />
+            <FormSwitch<GlobalFormData>
+              label="Show Low Stock Badge"
+              name="ui.productCard.showLowStockBadge"
+              control={control}
+              description="Display low stock warning badge"
+            />
+            <FormSwitch<GlobalFormData>
+              label="Show New Badge"
+              name="ui.productCard.showNewBadge"
+              control={control}
+              description="Display 'New' badge on recent products"
+            />
+          </FieldGroup>
+        </div>
+
+        {/* Layout Controls */}
+        <div className="mt-4 border-t pt-4">
+          <h4 className="mb-3 text-sm font-semibold text-gray-700">Layout</h4>
+          <FieldGroup columns={2}>
+            <FormSelect<GlobalFormData>
+              label="Title Max Lines"
+              name="ui.productCard.titleMaxLines"
+              control={control}
+              options={TITLE_MAX_LINES_OPTIONS}
+            />
+            <FormSelect<GlobalFormData>
+              label="Content Alignment"
+              name="ui.productCard.contentAlignment"
+              control={control}
+              options={CONTENT_ALIGNMENT_OPTIONS}
+            />
+          </FieldGroup>
+        </div>
 
         {/* Text Styles */}
         <div className="mt-4 border-t pt-4">

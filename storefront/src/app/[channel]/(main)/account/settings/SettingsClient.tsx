@@ -243,7 +243,7 @@ export function SettingsClient({
 			{/* Status Message */}
 			{message && (
 				<div className={`flex items-center gap-3 rounded-lg px-4 py-3 ${
-					message.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
+					message.type === "success" ? "bg-success-50 text-success-700" : "bg-error-50 text-error-700"
 				}`}>
 					{message.type === "success" ? (
 						<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -348,7 +348,7 @@ export function SettingsClient({
 				{passwordMessage && (
 					<div
 						className={`mt-4 flex items-center gap-3 rounded-lg px-4 py-3 ${
-							passwordMessage.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
+							passwordMessage.type === "success" ? "bg-success-50 text-success-700" : "bg-error-50 text-error-700"
 						}`}
 						role="alert"
 					>
@@ -580,8 +580,8 @@ export function SettingsClient({
 						{deleteEmailSent ? (
 							<>
 								<div className="flex items-center gap-3">
-									<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100">
-										<svg className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-success-100">
+										<svg className="h-5 w-5 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
 										</svg>
 									</div>

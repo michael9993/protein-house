@@ -154,7 +154,7 @@ export function ReviewList({
   if (error) {
     return (
       <div className="py-8 text-center">
-        <p className="text-sm text-red-600">{error}</p>
+        <p className="text-sm text-error-600">{error}</p>
         <button
           onClick={() => loadReviews()}
           className="mt-2 text-sm font-medium text-neutral-900 hover:underline"

@@ -207,7 +207,7 @@ export function CustomerFeedback({ channel, cmsTestimonials = [] }: CustomerFeed
                             fill="currentColor"
                             className={
                               starIndex < item.rating
-                                ? "text-amber-400 fill-amber-400"
+                                ? "text-warning-400 fill-warning-400"
                                 : "text-neutral-200 fill-neutral-200"
                             }
                             aria-hidden="true"
@@ -241,7 +241,7 @@ export function CustomerFeedback({ channel, cmsTestimonials = [] }: CustomerFeed
                         </cite>
                         <BadgeCheck
                           size={14}
-                          className="text-blue-500 fill-blue-500"
+                          className="text-info-500 fill-info-500"
                           aria-label="Verified purchase"
                         />
                       </div>

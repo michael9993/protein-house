@@ -70,7 +70,7 @@ export function StickyMobileAddToCart({
     buttonState === "outOfStock" ||
     buttonState === "adding";
 
-  const bgColor = buttonState === "added" ? "#059669" : primaryColor;
+  const bgColor = buttonState === "added" ? "var(--store-success-600, #059669)" : primaryColor;
 
   const buttonLabel =
     buttonState === "adding"

@@ -20,6 +20,7 @@ export * from "./promo-popup";
 export * from "./content";
 export * from "./storefront";
 export * from "./design";
+export * from "./checkout-ui";
 
 // Import domain schemas for assembly
 import { StoreSchema } from "./store";
@@ -35,11 +36,12 @@ import { SeoSchema } from "./seo";
 import { LocalizationSchema } from "./localization";
 import { DarkModeSchema } from "./dark-mode";
 import { FiltersSchema, QuickFiltersSchema } from "./filters";
-import { UiSchema } from "./ui-components";
+import { UiSchema, CardOverridesSchema } from "./ui-components";
 import { PromoPopupSchema } from "./promo-popup";
 import { ContentSchema } from "./content";
 import { StorefrontUXSchema, RelatedProductsSchema } from "./storefront";
 import { DesignTokensSchema } from "./design";
+import { CheckoutUiSchema } from "./checkout-ui";
 
 // ============================================
 // FULL CONFIG SCHEMA
@@ -69,4 +71,6 @@ export const StorefrontConfigSchema = z.object({
   storefront: StorefrontUXSchema,
   relatedProducts: RelatedProductsSchema,
   design: DesignTokensSchema,
+  checkoutUi: CheckoutUiSchema,
+  cardOverrides: CardOverridesSchema.optional(),
 });

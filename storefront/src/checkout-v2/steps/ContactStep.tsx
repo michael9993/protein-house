@@ -76,7 +76,7 @@ function GoogleSignInButton({
 				)}
 				{label}
 			</button>
-			{error && <p className="text-xs text-red-500">{error}</p>}
+			{error && <p className="text-xs text-error-500">{error}</p>}
 		</div>
 	);
 }
@@ -205,7 +205,7 @@ function GuestSection({
 				)}
 
 				{state.stepErrors.get(STEP_CONTACT)?.map((msg) => (
-					<p key={msg} className="text-sm text-red-600" role="alert">
+					<p key={msg} className="text-sm text-error-600" role="alert">
 						{msg}
 					</p>
 				))}
@@ -338,7 +338,7 @@ function SignInSection({
 			</div>
 
 			{error && (
-				<p className="text-sm text-red-600" role="alert">
+				<p className="text-sm text-error-600" role="alert">
 					{error}
 				</p>
 			)}

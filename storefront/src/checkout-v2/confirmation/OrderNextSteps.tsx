@@ -1,6 +1,7 @@
 "use client";
 
 import { useCheckoutText } from "@/checkout-v2/hooks/useCheckoutText";
+import { useCheckoutUiConfig } from "@/providers/StoreConfigProvider";
 
 interface Props {
 	channel: string;
@@ -8,6 +9,7 @@ interface Props {
 
 export function OrderNextSteps({ channel }: Props) {
 	const t = useCheckoutText();
+	const checkoutUi = useCheckoutUiConfig();
 
 	const steps = [
 		{
@@ -43,7 +45,7 @@ export function OrderNextSteps({ channel }: Props) {
 							<div
 								className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium ${
 									step.active
-										? "bg-blue-50 text-blue-600"
+										? "bg-info-50 text-info-600"
 										: "bg-neutral-100 text-neutral-500"
 								}`}
 							>
@@ -76,21 +78,23 @@ export function OrderNextSteps({ channel }: Props) {
 					{t.continueShoppingButton ?? "Continue Shopping"}
 				</a>
 
-				<button
-					type="button"
-					onClick={() => window.print()}
-					className="inline-flex items-center gap-2 rounded-lg border border-neutral-300 bg-white px-5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
-				>
-					<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeWidth={2}
-							d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
-						/>
-					</svg>
-					{t.printReceiptButton ?? "Print Receipt"}
-				</button>
+				{(checkoutUi?.confirmation?.showPrintReceipt !== false) && (
+					<button
+						type="button"
+						onClick={() => window.print()}
+						className="inline-flex items-center gap-2 rounded-lg border border-neutral-300 bg-white px-5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+					>
+						<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+							/>
+						</svg>
+						{t.printReceiptButton ?? "Print Receipt"}
+					</button>
+				)}
 			</div>
 		</div>
 	);

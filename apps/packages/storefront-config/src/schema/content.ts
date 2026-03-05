@@ -19,6 +19,7 @@ export const CartTextSchema = z.object({
   freeShippingThresholdReached: z.string(), // "You've qualified for free shipping!"
   addXMoreForFreeShipping: z.string(),    // "Add {amount} more for FREE shipping!"
   unlockedFreeShipping: z.string(),       // "You've unlocked FREE shipping!"
+  freeShippingSelectMethods: z.string(),  // "You may qualify for free shipping on select methods"
   // Item actions
   saveForLaterButton: z.string(),         // "Save for Later"
   moveToCartButton: z.string(),           // "Move to Cart"
@@ -411,6 +412,8 @@ export const CheckoutTextSchema = z.object({
   deliveryFreeShippingUnlocked: z.string().optional(), // "Free shipping applied!"
   deliveryFreeShippingNudge: z.string().optional(),    // "You've unlocked free shipping! Select {methodName} to save {amount}"
   deliveryAddMoreForFreeShipping: z.string().optional(), // "Add {amount} more for free shipping"
+  deliveryFreeShippingSelectMethods: z.string().optional(), // "Free shipping is available on select delivery methods"
+  shippingSavingsMessage: z.string().optional(), // "You saved {amount} on shipping!"
   noDeliveryMethodsText: z.string().optional(),   // "No delivery methods available"
   fetchingShippingRates: z.string().optional(),   // "Calculating shipping rates..."
   updatingShippingRates: z.string().optional(),   // "Updating shipping rates for new address..."
@@ -1295,6 +1298,16 @@ export const CookieConsentTextSchema = z.object({
   policyLinkText: z.string().optional(),
 });
 
+// ============================================
+// PAGINATION TEXT
+// ============================================
+
+export const PaginationTextSchema = z.object({
+  previousButton: z.string().optional(),     // "Previous"
+  nextButton: z.string().optional(),         // "Next"
+  pageLabel: z.string().optional(),          // "Page {current} of {total}"
+}).optional();
+
 export const ContentSchema = z.object({
   cart: CartTextSchema,
   product: ProductTextSchema,
@@ -1316,4 +1329,5 @@ export const ContentSchema = z.object({
   error: ErrorTextSchema,
   notFound: NotFoundTextSchema,
   cookieConsent: CookieConsentTextSchema.optional(),
+  pagination: PaginationTextSchema,
 });

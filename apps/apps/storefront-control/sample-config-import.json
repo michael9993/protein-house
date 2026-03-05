@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-02-08T00:46:56.206Z",
+  "exportedAt": "2026-03-05T21:57:45.716Z",
   "channelSlug": "ils",
   "config": {
-    "version": 13,
-    "updatedAt": "2026-02-08T00:46:55.452Z",
+    "version": 46,
+    "updatedAt": "2026-03-05T21:57:44.987Z",
     "channelSlug": "ils",
     "store": {
       "name": "Mansour Shoes",
@@ -73,8 +73,8 @@
       "productBundles": false,
       "newsletter": true,
       "promotionalBanners": true,
-      "abandonedCartEmails": false,
-      "socialLogin": false,
+      "abandonedCartEmails": true,
+      "socialLogin": true,
       "shareButtons": true,
       "instagramFeed": false,
       "relatedProducts": true,
@@ -91,37 +91,37 @@
       },
       "shipping": {
         "enabled": true,
-        "freeShippingThreshold": 200,
+        "freeShippingThreshold": 300,
         "showEstimatedDelivery": true,
         "deliverySlots": false,
         "defaultEstimatedMinDays": 2,
         "defaultEstimatedMaxDays": 5,
         "estimatedDeliveryFormat": "range",
         "priceAdjustment": {
-          "enabled": false,
+          "enabled": true,
           "type": "round_down",
           "value": 10,
-          "minPrice": 0
+          "minPrice": 20
         },
         "freeShippingRule": {
-          "enabled": false,
-          "cartMinimum": 100,
-          "maxMethodPrice": 0,
+          "enabled": true,
+          "cartMinimum": 300,
+          "maxMethodPrice": 100,
           "methodNameFilter": ""
         },
         "discountRule": {
-          "enabled": false,
-          "cartMinimum": 50,
+          "enabled": true,
+          "cartMinimum": 300,
           "type": "percentage",
-          "value": 10,
+          "value": 20,
           "maxMethodPrice": 0,
-          "minPrice": 0,
+          "minPrice": 20,
           "methodNameFilter": ""
         },
         "showOriginalPrice": true,
         "dropship": {
-          "marginProtectionEnabled": false,
-          "marginThreshold": 15,
+          "marginProtectionEnabled": true,
+          "marginThreshold": 20,
           "trackOriginalPrices": true
         }
       },
@@ -269,7 +269,7 @@
           "showNavDots": true,
           "background": {
             "style": "solid",
-            "color": "#0a0a0a",
+            "color": "#000000",
             "secondaryColor": null
           }
         },
@@ -589,7 +589,7 @@
     "integrations": {
       "analytics": {
         "googleAnalyticsId": null,
-        "googleTagManagerId": null,
+        "googleTagManagerId": "GTM-PWN35T2R",
         "facebookPixelId": null,
         "hotjarId": null
       },
@@ -601,7 +601,7 @@
         "intercomAppId": null,
         "zendeskKey": null,
         "crispWebsiteId": null,
-        "whatsappBusinessNumber": "+972501234567",
+        "whatsappBusinessNumber": "+972545373118",
         "whatsappDefaultMessage": "שלום! אני מעוניין לקבל מידע נוסף"
       },
       "social": {
@@ -621,7 +621,7 @@
     "seo": {
       "titleTemplate": "%s | Mansour Shoes",
       "defaultTitle": "מנצור נעליים - נעליים לכל המשפחה",
-      "defaultDescription": "חנות נעליים מובילה בשפרעם. משלוח חינם בהזמנות מעל ₪200. נעלי ספורט, נעלי ריצה ונעליים לכל המשפחה.",
+      "defaultDescription": "חנות נעליים מובילה בשפרעם. משלוח חינם בהזמנות מעל ₪300. נעלי ספורט, נעלי ריצה ונעליים לכל המשפחה.",
       "defaultImage": "/og-image.jpg",
       "twitterHandle": null
     },
@@ -807,7 +807,7 @@
         "borderRadius": "sm"
       },
       "productCard": {
-        "borderRadius": "lg",
+        "borderRadius": "none",
         "shadow": "lg",
         "hoverShadow": "lg",
         "showQuickView": true,
@@ -818,7 +818,7 @@
         "badgePosition": "top-start",
         "showBrandLabel": true,
         "showRating": true,
-        "imageFit": "cover",
+        "imageFit": "contain",
         "textStyles": {
           "name": {
             "fontSize": "sm",
@@ -840,7 +840,18 @@
             "fontWeight": "normal",
             "color": null
           }
-        }
+        },
+        "showPrice": true,
+        "showOriginalPrice": true,
+        "showCategory": true,
+        "showDeliveryEstimate": true,
+        "showShareButton": true,
+        "showDiscountBadge": true,
+        "showOutOfStockBadge": true,
+        "showLowStockBadge": true,
+        "showNewBadge": true,
+        "titleMaxLines": 2,
+        "contentAlignment": "start"
       },
       "toasts": {
         "position": "top-right",
@@ -952,6 +963,7 @@
         "freeShippingThresholdReached": "הגעת למשלוח חינם!",
         "addXMoreForFreeShipping": "הוסף עוד {amount} למשלוח חינם!",
         "unlockedFreeShipping": "פתחת משלוח חינם!",
+        "freeShippingSelectMethods": "ייתכן שתהיה זכאי למשלוח חינם בשיטות נבחרות",
         "saveForLaterButton": "שמור later",
         "moveToCartButton": "העבר לעגלה",
         "deleteButton": "מחק",
@@ -1271,10 +1283,15 @@
         "useSavedAddressButton": "השתמש בכתובת שמורה",
         "deliveryMethodsTitle": "שיטות משלוח",
         "deliveryMethodsSubtitle": "בחר מהירות משלוח",
+        "noShippingMethodsAvailable": "אין שיטות משלוח זמינות לכתובת זו",
         "businessDaysText": "{min}-{max} ימי עסקים",
         "freeShippingLabel": "חינם",
+        "deliveryFreeShippingUnlocked": "משלוח חינם הופעל!",
+        "deliveryFreeShippingNudge": "פתחת משלוח חינם! בחר {methodName} כדי לחסוך {amount}",
+        "deliveryAddMoreForFreeShipping": "הוסף עוד {amount} למשלוח חינם",
+        "deliveryFreeShippingSelectMethods": "משלוח חינם זמין בשיטות משלוח נבחרות",
+        "shippingSavingsMessage": "חסכת {amount} במשלוח!",
         "noDeliveryMethodsText": "אין שיטות משלוח זמינות",
-        "noShippingMethodsAvailable": "אין שיטות משלוח זמינות לכתובת זו",
         "fetchingShippingRates": "מחשב תעריפי משלוח...",
         "updatingShippingRates": "מעדכן תעריפי משלוח לכתובת החדשה...",
         "calculateShippingButton": "חשב תעריפי משלוח",
@@ -1382,9 +1399,6 @@
         "invalidEmailError": "אנא הזן אימייל תקין",
         "invalidPhoneError": "אנא הזן מספר טלפון תקין",
         "selectDeliveryMethodError": "אנא בחר שיטת משלוח",
-        "deliveryFreeShippingUnlocked": "משלוח חינם הופעל!",
-        "deliveryFreeShippingNudge": "פתחת משלוח חינם! בחר {methodName} כדי לחסוך {amount}",
-        "deliveryAddMoreForFreeShipping": "הוסף עוד {amount} למשלוח חינם",
         "deliveryMethodUnavailable": "שיטת המשלוח שנבחרה אינה זמינה עוד עבור העגלה הנוכחית. אנא בחר שיטה אחרת.",
         "selectPaymentMethodError": "אנא בחר אמצעי תשלום",
         "noCheckoutFoundTitle": "לא נמצא תשלום",
@@ -1395,8 +1409,6 @@
         "somethingWentWrongTitle": "משהו השתבש",
         "somethingWentWrongMessage": "לא הצלחנו לטעון את התשלום. אנא חזור לעגלה ונסה שוב.",
         "deleteAddressButton": "מחק כתובת",
-        "deleteAddressConfirmTitle": "למחוק כתובת?",
-        "deleteAddressConfirmMessage": "כתובת זו תוסר לצמיתות מהחשבון שלך.",
         "savingAddressText": "שומר...",
         "savedText": "נשמר",
         "createAddressTitle": "יצירת כתובת",
@@ -1436,7 +1448,7 @@
         "orderNotFoundMessage": "לא הצלחנו למצוא את ההזמנה שלך. אנא בדוק את מספר ההזמנה ונסה שוב.",
         "sslEncryptionText": "הצפנת SSL מאובטחת 256-סיביות",
         "privacyPolicy": "מדיניות פרטיות",
-        "termsOfService": "בביצוע ההזמנה, הנך מסכים/ה לתנאי השימוש ומדיניות הפרטיות שלנו",
+        "termsOfService": "תנאי שימוש",
         "securityNote": "מוגן על ידי הצפנת SSL • פרטי התשלום שלך בטוחים",
         "privacyPolicyLinkText": "מדיניות פרטיות",
         "termsOfServiceLinkText": "תנאי שימוש",
@@ -1496,7 +1508,7 @@
         "resultsCountText": "נמצאו {count} תוצאות",
         "noResultsMessage": "לא נמצאו תוצאות עבור \"{query}\"",
         "resultsText": "תוצאות",
-        "itemsAvailable": "פריטים",
+        "itemsAvailable": "פריטים זמינים",
         "productsPageTitle": "כל המוצרים",
         "discoverProducts": "גלה מוצרים",
         "shopAllButton": "קנה הכל",
@@ -1580,7 +1592,7 @@
         "businessDaysLabel": "ימי עסקים",
         "trackOrderLabel": "עקוב אחר ההזמנה",
         "shippingEstimatedDelivery": "משלוח משוער: {days} ימי עסקים",
-        "shippingFreeLabel": "משלוח חינם",
+        "shippingFreeLabel": "נכלל בהטבת משלוח חינם",
         "shippingProcessingTime": "זמן עיבוד: 1-3 ימי עסקים",
         "shippingTrackingNotice": "תקבלו מידע מעקב במייל לאחר שהמשלוח ייצא",
         "shippingWarehouseNotice": "פריט זה נשלח ממרכז ההפצה הבינלאומי שלנו",
@@ -1993,6 +2005,11 @@
         "marketingDescription": "משמשות לפרסום ממוקד ושיווק מחדש.",
         "savePreferencesButton": "שמירת העדפות",
         "policyLinkText": "מדיניות עוגיות"
+      },
+      "pagination": {
+        "previousButton": "הקודם",
+        "nextButton": "הבא",
+        "pageLabel": "עמוד {current} מתוך {total}"
       }
     },
     "darkMode": {
@@ -2025,10 +2042,59 @@
     },
     "design": {
       "animations": {
-        "preset": "moderate"
+        "preset": "moderate",
+        "carouselCycleSeconds": 6,
+        "toastDurationMs": 4000
       },
       "spacing": {
         "sectionPaddingY": "normal"
+      },
+      "grid": {
+        "productColumns": {
+          "sm": 2,
+          "md": 3,
+          "lg": 4,
+          "xl": 4
+        },
+        "productGap": "normal"
+      },
+      "statusColors": {
+        "info": "#3b82f6"
+      }
+    },
+    "checkoutUi": {
+      "confirmation": {
+        "showTimeline": true,
+        "showPrintReceipt": true
+      }
+    },
+    "cardOverrides": {
+      "plp": {
+        "showWishlistButton": true,
+        "showAddToCart": true,
+        "showBrandLabel": true,
+        "showRating": true,
+        "showPrice": true,
+        "showOriginalPrice": true,
+        "showShareButton": true,
+        "showDiscountBadge": true,
+        "showOutOfStockBadge": true,
+        "showLowStockBadge": true,
+        "showNewBadge": true,
+        "titleMaxLines": 1
+      },
+      "relatedProducts": {},
+      "recentlyViewed": {},
+      "wishlistDrawer": {},
+      "productGrid": {
+        "showWishlistButton": true,
+        "showAddToCart": true,
+        "showBrandLabel": true,
+        "showRating": true,
+        "showPrice": true,
+        "showOriginalPrice": true,
+        "showShareButton": true,
+        "titleMaxLines": 1
       }
     }
   }

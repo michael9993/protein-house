@@ -10,7 +10,7 @@ import {
 	useBranding,
 	useStoreInfo,
 	useContentConfig,
-	useUiConfig,
+	useProductCardConfig,
 	useBadgeStyle,
 } from "@/providers/StoreConfigProvider";
 import { useQuickView } from "@/providers/QuickViewProvider";
@@ -262,8 +262,7 @@ export function RecentlyViewedProducts({
 	const { colors } = useBranding();
 	const storeInfo = useStoreInfo();
 	const contentConfig = useContentConfig();
-	const ui = useUiConfig();
-	const cardConfig: ProductCardConfig = ui.productCard;
+	const cardConfig = useProductCardConfig("recentlyViewed");
 	const { openQuickView, prefetchQuickView } = useQuickView();
 	const wishlistEnabled = useFeature("wishlist");
 	const { addItem, removeItem, isInWishlist } = useWishlist();
@@ -277,7 +276,7 @@ export function RecentlyViewedProducts({
 	const subtitle = homepageContent.recentlyViewedSubtitle || "Products you've looked at recently";
 	const viewDetailsText = homepageContent.viewDetailsButton || "View details";
 	const performanceFallback = homepageContent.performanceFallback || "Performance";
-	const storeName = storeInfo.name || "Mansour Shoes";
+	const storeName = storeInfo.name || "";
 	const accent = colors.primary;
 
 	// Badge labels — full set matching homepage cards
