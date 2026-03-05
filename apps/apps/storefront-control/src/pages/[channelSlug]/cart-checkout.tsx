@@ -287,6 +287,142 @@ function CartShippingTab({ control, register, errors }: TabProps) {
         </FieldGroup>
       </FormSection>
 
+      <FormSection title="Free Shipping Rule" description="Automatically make shipping methods free when cart exceeds a threshold (display-only)">
+        <FormSwitch<CartCheckoutFormData>
+          label="Enable Free Shipping Rule"
+          name="ecommerce.shipping.freeShippingRule.enabled"
+          control={control}
+        />
+        <FieldGroup columns={2}>
+          <FormField<CartCheckoutFormData>
+            label="Cart Minimum"
+            name="ecommerce.shipping.freeShippingRule.cartMinimum"
+            register={register}
+            errors={errors}
+            type="number"
+            description="Cart subtotal must be ≥ this amount to qualify"
+          />
+          <FormField<CartCheckoutFormData>
+            label="Max Method Price"
+            name="ecommerce.shipping.freeShippingRule.maxMethodPrice"
+            register={register}
+            errors={errors}
+            type="number"
+            description="Only make methods priced ≤ this free (0 = no limit)"
+          />
+        </FieldGroup>
+        <FormField<CartCheckoutFormData>
+          label="Method Name Filter"
+          name="ecommerce.shipping.freeShippingRule.methodNameFilter"
+          register={register}
+          errors={errors}
+          description='Comma-separated list of names to match, e.g. "CJ,DHL" (empty = all methods)'
+        />
+      </FormSection>
+
+      <FormSection title="Shipping Discount Rule" description="Apply discounts to shipping prices based on cart value (display-only)">
+        <FormSwitch<CartCheckoutFormData>
+          label="Enable Shipping Discount"
+          name="ecommerce.shipping.discountRule.enabled"
+          control={control}
+        />
+        <FieldGroup columns={2}>
+          <FormField<CartCheckoutFormData>
+            label="Cart Minimum"
+            name="ecommerce.shipping.discountRule.cartMinimum"
+            register={register}
+            errors={errors}
+            type="number"
+            description="Cart subtotal must be ≥ this to trigger discount"
+          />
+          <FormSelect<CartCheckoutFormData>
+            label="Discount Type"
+            name="ecommerce.shipping.discountRule.type"
+            control={control}
+            options={[
+              { value: "percentage", label: "Percentage Off" },
+              { value: "flat", label: "Flat Amount Off" },
+            ]}
+          />
+          <FormField<CartCheckoutFormData>
+            label="Discount Value"
+            name="ecommerce.shipping.discountRule.value"
+            register={register}
+            errors={errors}
+            type="number"
+            description="Percentage (0-100) or flat currency amount"
+          />
+          <FormField<CartCheckoutFormData>
+            label="Max Method Price"
+            name="ecommerce.shipping.discountRule.maxMethodPrice"
+            register={register}
+            errors={errors}
+            type="number"
+            description="Only discount methods priced ≤ this (0 = no limit)"
+          />
+          <FormField<CartCheckoutFormData>
+            label="Floor Price"
+            name="ecommerce.shipping.discountRule.minPrice"
+            register={register}
+            errors={errors}
+            type="number"
+            description="Discounted price won't go below this"
+          />
+        </FieldGroup>
+        <FormField<CartCheckoutFormData>
+          label="Method Name Filter"
+          name="ecommerce.shipping.discountRule.methodNameFilter"
+          register={register}
+          errors={errors}
+          description='Comma-separated list of names to match, e.g. "CJ,DHL" (empty = all methods)'
+        />
+      </FormSection>
+
+      <FormSection title="Shipping Display" description="Control how adjusted shipping prices are shown">
+        <FormSwitch<CartCheckoutFormData>
+          label="Show Original Price"
+          name="ecommerce.shipping.showOriginalPrice"
+          control={control}
+          description="Show original price with strikethrough when a rule changes the price"
+        />
+      </FormSection>
+
+      <FormSection
+        title="Dropship Shipping"
+        description="Profit protection for dropship orders (CJ, DHL). Controls when free shipping or discounts are economically viable."
+      >
+        <FormSwitch<CartCheckoutFormData>
+          label="Enable Margin Protection"
+          name="ecommerce.shipping.dropship.marginProtectionEnabled"
+          control={control}
+          description="Block free/discounted shipping when it would push profit margin below threshold"
+        />
+        <FormField<CartCheckoutFormData>
+          label="Minimum Margin (%)"
+          name="ecommerce.shipping.dropship.marginThreshold"
+          register={register}
+          errors={errors}
+          type="number"
+          description="Free shipping rules are skipped if margin would drop below this (e.g., 15 = 15%)"
+        />
+        <FormSwitch<CartCheckoutFormData>
+          label="Track Original CJ Prices"
+          name="ecommerce.shipping.dropship.trackOriginalPrices"
+          control={control}
+          description="Store original supplier shipping prices in order metadata for cost tracking"
+        />
+
+        <div className="rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-blue-800">
+          <p className="font-medium">How it works</p>
+          <ul className="mt-1 list-disc ps-4 space-y-1">
+            <li>CJ shipping methods are received, prices converted to your currency</li>
+            <li>The <strong>Free Shipping Rule</strong> and <strong>Discount Rule</strong> above are applied automatically — use Method Name Filter to target specific carriers (e.g., &quot;CJ Packet,DHL&quot;)</li>
+            <li>With margin protection ON: the system checks if (cart total - product costs - shipping subsidy) stays above your margin threshold before offering free/discounted shipping</li>
+            <li>Original CJ prices are stored in order metadata for cost tracking</li>
+          </ul>
+        </div>
+      </FormSection>
+
       <FormSection title="Tax" description="Tax display preferences" comingSoon>
         <FormSwitch<CartCheckoutFormData>
           label="Show Prices With Tax"

@@ -207,6 +207,16 @@ export interface CheckoutTextConfig {
 	addressUpdatedSuccess?: string;
 	cantShipToAddressText?: string;
 	
+	// Promo code error messages (mapped from Saleor API error codes)
+	promoCodeVoucherNotApplicableError?: string;
+	promoCodeGiftCardNotApplicableError?: string;
+	promoCodeNotFoundError?: string;
+	promoCodeInvalidError?: string;
+	promoCodeGenericError?: string;
+	promoCodeAppliedSuccess?: string;
+	promoCodeRemovedSuccess?: string;
+	promoCodeRemoveError?: string;
+
 	// Voucher/Gift Card
 	voucherLabel?: string;
 	giftCardMaskedLabel?: string;
@@ -472,6 +482,16 @@ const defaultCheckoutText: CheckoutTextConfig = {
 	addressUpdatedSuccess: "Address updated successfully!",
 	cantShipToAddressText: "Can't ship to this address",
 	
+	// Promo code error messages
+	promoCodeVoucherNotApplicableError: "This voucher is not applicable to your order",
+	promoCodeGiftCardNotApplicableError: "This gift card is not applicable",
+	promoCodeNotFoundError: "Code not found. Please check and try again",
+	promoCodeInvalidError: "Invalid code",
+	promoCodeGenericError: "Could not apply code. Please try again",
+	promoCodeAppliedSuccess: "Promo code applied!",
+	promoCodeRemovedSuccess: "Promo code removed",
+	promoCodeRemoveError: "Failed to remove code",
+
 	// Voucher/Gift Card
 	voucherLabel: "Voucher:",
 	giftCardMaskedLabel: "Gift Card: ••••",

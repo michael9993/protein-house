@@ -3,9 +3,14 @@
 import type { ShippingMethod } from "../types";
 
 interface ShippingMethodCardProps {
-	method: ShippingMethod;
+	method: ShippingMethod & {
+		originalPrice?: { amount: number; currency: string };
+		wasFreeByRule?: boolean;
+		wasDiscounted?: boolean;
+	};
 	isSelected: boolean;
 	onChange: (id: string) => void;
+	showOriginalPrice?: boolean;
 }
 
 function deliveryEstimate(min: number | null, max: number | null): string | null {
@@ -14,10 +19,16 @@ function deliveryEstimate(min: number | null, max: number | null): string | null
 	return `Est. ${range} business days`;
 }
 
-export function ShippingMethodCard({ method, isSelected, onChange }: ShippingMethodCardProps) {
+export function ShippingMethodCard({ method, isSelected, onChange, showOriginalPrice }: ShippingMethodCardProps) {
 	const isFree = method.price.amount === 0;
 	const radioId = `delivery-method-${method.id}`;
 	const estimate = deliveryEstimate(method.minimumDeliveryDays, method.maximumDeliveryDays);
+
+	const hasDiscount =
+		showOriginalPrice !== false &&
+		(method.wasFreeByRule || method.wasDiscounted) &&
+		method.originalPrice &&
+		method.originalPrice.amount !== method.price.amount;
 
 	return (
 		<label
@@ -42,7 +53,23 @@ export function ShippingMethodCard({ method, isSelected, onChange }: ShippingMet
 				<div className="flex items-center justify-between gap-2">
 					<span className="font-medium text-neutral-900">{method.name}</span>
 					{isFree ? (
-						<span className="shrink-0 text-sm font-semibold text-emerald-600">Free</span>
+						<span className="flex items-center gap-1.5">
+							{hasDiscount && (
+								<span className="text-xs text-neutral-400 line-through">
+									{method.originalPrice!.amount.toFixed(2)} {method.originalPrice!.currency}
+								</span>
+							)}
+							<span className="shrink-0 text-sm font-semibold text-emerald-600">Free</span>
+						</span>
+					) : hasDiscount ? (
+						<span className="flex items-center gap-1.5">
+							<span className="text-xs text-neutral-400 line-through">
+								{method.originalPrice!.amount.toFixed(2)} {method.originalPrice!.currency}
+							</span>
+							<span className="shrink-0 font-medium text-emerald-600">
+								{method.price.amount.toFixed(2)} {method.price.currency}
+							</span>
+						</span>
 					) : (
 						<span className="shrink-0 font-medium text-neutral-900">
 							{method.price.amount.toFixed(2)} {method.price.currency}

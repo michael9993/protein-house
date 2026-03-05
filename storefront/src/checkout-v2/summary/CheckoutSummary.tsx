@@ -43,12 +43,15 @@ export function CheckoutSummary({ channel: _channel }: CheckoutSummaryProps) {
 			? (t.itemsCountSingular ?? "1 item")
 			: (t.itemsCountPlural ?? "{count} items").replace("{count}", String(lineCount));
 
+	const subtotal = checkout?.subtotalPrice?.gross?.amount ?? 0;
 	const adjustedMethods = useAdjustedShippingMethods(
 		(checkout?.shippingMethods ?? []).map((m) => ({
 			id: m.id,
 			name: m.name,
 			price: { amount: m.price.amount, currency: m.price.currency },
 		})),
+		subtotal,
+		checkout?.metadata,
 	);
 
 	const total = checkout?.totalPrice?.gross;

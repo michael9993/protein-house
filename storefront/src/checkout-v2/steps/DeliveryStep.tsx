@@ -6,6 +6,7 @@ import { useCheckoutText } from "../hooks/useCheckoutText";
 import { ShippingMethodCard } from "../components/ShippingMethodCard";
 import { FreeShippingIndicator } from "../components/FreeShippingIndicator";
 import { useAdjustedShippingMethods } from "../hooks/useAdjustedShippingMethods";
+import { useEcommerceSettings } from "@/providers/StoreConfigProvider";
 import { updateDeliveryMethod } from "../_actions/update-delivery-method";
 import { STEP_DELIVERY } from "../types";
 
@@ -37,7 +38,10 @@ export function DeliveryStep({ checkoutId }: DeliveryStepProps) {
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedId]);
 
+	const ecommerce = useEcommerceSettings();
+	const showOriginalPrice = ecommerce?.shipping?.showOriginalPrice !== false;
 	const rawMethods = checkout?.shippingMethods ?? [];
+	const subtotal = checkout?.subtotalPrice?.gross?.amount ?? 0;
 	const methods = useAdjustedShippingMethods(
 		rawMethods.map((m) => ({
 			id: m.id,
@@ -46,6 +50,8 @@ export function DeliveryStep({ checkoutId }: DeliveryStepProps) {
 			minimumDeliveryDays: m.minimumDeliveryDays ?? null,
 			maximumDeliveryDays: m.maximumDeliveryDays ?? null,
 		})),
+		subtotal,
+		checkout?.metadata,
 	);
 
 	function handleContinue() {
@@ -119,6 +125,7 @@ export function DeliveryStep({ checkoutId }: DeliveryStepProps) {
 						key={method.id}
 						method={method}
 						isSelected={localSelectedId === method.id}
+						showOriginalPrice={showOriginalPrice}
 						onChange={(id) => {
 							setLocalSelectedId(id);
 							setFieldError(null);

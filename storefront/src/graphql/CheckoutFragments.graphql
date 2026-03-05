@@ -126,6 +126,10 @@ fragment CheckoutLineFragment on CheckoutLine {
 fragment CheckoutFragment on Checkout {
 	id
 	email
+	metadata {
+		key
+		value
+	}
 	discount {
 		...Money
 	}

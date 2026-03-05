@@ -11,6 +11,36 @@ export interface ShippingPriceAdjustment {
 	minPrice: number;
 }
 
+export interface ShippingFreeRule {
+	enabled: boolean;
+	cartMinimum: number;
+	maxMethodPrice: number;
+	methodNameFilter?: string;
+}
+
+export interface ShippingDiscountRule {
+	enabled: boolean;
+	cartMinimum: number;
+	type: "flat" | "percentage";
+	value: number;
+	maxMethodPrice: number;
+	minPrice: number;
+	methodNameFilter?: string;
+}
+
+export interface ShippingRulesConfig {
+	freeShippingRule?: ShippingFreeRule | null;
+	discountRule?: ShippingDiscountRule | null;
+	priceAdjustment?: ShippingPriceAdjustment | null;
+}
+
+export interface AdjustedPrice {
+	amount: number;
+	originalAmount: number;
+	wasFreeByRule: boolean;
+	wasDiscounted: boolean;
+}
+
 /**
  * Apply a display-only price adjustment to a shipping method price.
  * Never adjusts free shipping (rawPrice === 0).
@@ -44,4 +74,72 @@ export function adjustShippingPrice(
 	}
 
 	return Math.max(config.minPrice, Math.round(adjusted * 100) / 100);
+}
+
+/** Case-insensitive check: does methodName match any comma-separated filter term? */
+function matchesNameFilter(methodName: string, filter?: string): boolean {
+	if (!filter) return true;
+	const name = methodName.toLowerCase();
+	return filter.split(",").some((term) => {
+		const trimmed = term.trim().toLowerCase();
+		return trimmed.length > 0 && name.includes(trimmed);
+	});
+}
+
+/**
+ * Apply shipping rules in order: free → discount → priceAdjustment.
+ * Never adjusts already-free methods (rawPrice === 0).
+ * When methodName is provided, rules with a methodNameFilter only apply to matching methods.
+ */
+export function applyShippingRules(
+	rawPrice: number,
+	cartSubtotal: number,
+	config: ShippingRulesConfig,
+	methodName?: string,
+): AdjustedPrice {
+	const result: AdjustedPrice = {
+		amount: rawPrice,
+		originalAmount: rawPrice,
+		wasFreeByRule: false,
+		wasDiscounted: false,
+	};
+
+	if (rawPrice === 0) return result;
+
+	// 1. Free shipping rule
+	const free = config.freeShippingRule;
+	if (free?.enabled && cartSubtotal >= free.cartMinimum && matchesNameFilter(methodName ?? "", free.methodNameFilter)) {
+		const withinPriceCap = free.maxMethodPrice <= 0 || rawPrice <= free.maxMethodPrice;
+		if (withinPriceCap) {
+			result.amount = 0;
+			result.wasFreeByRule = true;
+			return result;
+		}
+	}
+
+	// 2. Discount rule
+	const discount = config.discountRule;
+	if (discount?.enabled && cartSubtotal >= discount.cartMinimum && matchesNameFilter(methodName ?? "", discount.methodNameFilter)) {
+		const withinPriceCap = discount.maxMethodPrice <= 0 || rawPrice <= discount.maxMethodPrice;
+		if (withinPriceCap) {
+			let discounted = rawPrice;
+			if (discount.type === "flat") {
+				discounted = rawPrice - discount.value;
+			} else {
+				discounted = rawPrice * (1 - discount.value / 100);
+			}
+			result.amount = Math.max(discount.minPrice, Math.round(discounted * 100) / 100);
+			result.wasDiscounted = result.amount !== rawPrice;
+		}
+	}
+
+	// 3. Existing price adjustment (rounding/markup — applied on top)
+	if (config.priceAdjustment?.enabled && result.amount > 0) {
+		result.amount = adjustShippingPrice(result.amount, config.priceAdjustment);
+		if (!result.wasDiscounted && result.amount !== rawPrice) {
+			result.wasDiscounted = true;
+		}
+	}
+
+	return result;
 }

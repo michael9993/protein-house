@@ -102,6 +102,27 @@
           "type": "round_down",
           "value": 10,
           "minPrice": 0
+        },
+        "freeShippingRule": {
+          "enabled": false,
+          "cartMinimum": 100,
+          "maxMethodPrice": 0,
+          "methodNameFilter": ""
+        },
+        "discountRule": {
+          "enabled": false,
+          "cartMinimum": 50,
+          "type": "percentage",
+          "value": 10,
+          "maxMethodPrice": 0,
+          "minPrice": 0,
+          "methodNameFilter": ""
+        },
+        "showOriginalPrice": true,
+        "dropship": {
+          "marginProtectionEnabled": false,
+          "marginThreshold": 15,
+          "trackOriginalPrices": true
         }
       },
       "tax": {
@@ -914,7 +935,15 @@
         "giftLabel": "Gift",
         "giftAddedMessage": "A free gift has been added to your cart.",
         "giftRemoveHint": "(You can remove it)",
-        "deliverySummaryLabel": "All items arrive within {days} business days"
+        "deliverySummaryLabel": "All items arrive within {days} business days",
+        "promoCodeVoucherNotApplicableError": "This voucher is not applicable to your order",
+        "promoCodeGiftCardNotApplicableError": "This gift card is not applicable",
+        "promoCodeNotFoundError": "Code not found. Please check and try again",
+        "promoCodeInvalidError": "Invalid code",
+        "promoCodeGenericError": "Could not apply code. Please try again",
+        "promoCodeAppliedSuccess": "Promo code applied!",
+        "promoCodeRemovedSuccess": "Promo code removed",
+        "promoCodeRemoveError": "Failed to remove code"
       },
       "product": {
         "addToCartButton": "Add to Cart",
@@ -1225,6 +1254,14 @@
         "oneVoucherPerOrderHint": "One voucher per order. Gift cards can be combined.",
         "replaceVoucherConfirm": "Only one voucher can be used per order. Applying this code will replace {code}. Continue?",
         "giftCardLabel": "Gift card",
+        "promoCodeVoucherNotApplicableError": "This voucher is not applicable to your order",
+        "promoCodeGiftCardNotApplicableError": "This gift card is not applicable",
+        "promoCodeNotFoundError": "Code not found. Please check and try again",
+        "promoCodeInvalidError": "Invalid code",
+        "promoCodeGenericError": "Could not apply code. Please try again",
+        "promoCodeAppliedSuccess": "Promo code applied!",
+        "promoCodeRemovedSuccess": "Promo code removed",
+        "promoCodeRemoveError": "Failed to remove code",
         "subtotalLabel": "Subtotal",
         "shippingLabel": "Shipping",
         "taxLabel": "Tax",

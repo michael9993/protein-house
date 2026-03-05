@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-03-04T19:06:04.440Z",
+  "exportedAt": "2026-03-05T01:25:13.643Z",
   "channels": {
     "ils": {
-      "version": 19,
-      "updatedAt": "2026-03-04T19:05:46.289Z",
+      "version": 34,
+      "updatedAt": "2026-03-05T01:25:11.577Z",
       "channelSlug": "ils",
       "store": {
         "name": "Mansour Shoes",
@@ -74,7 +74,7 @@
         "newsletter": true,
         "promotionalBanners": true,
         "abandonedCartEmails": false,
-        "socialLogin": false,
+        "socialLogin": true,
         "shareButtons": true,
         "instagramFeed": false,
         "relatedProducts": true,
@@ -91,17 +91,38 @@
         },
         "shipping": {
           "enabled": true,
-          "freeShippingThreshold": 200,
+          "freeShippingThreshold": 300,
           "showEstimatedDelivery": true,
           "deliverySlots": false,
           "defaultEstimatedMinDays": 2,
           "defaultEstimatedMaxDays": 5,
           "estimatedDeliveryFormat": "range",
           "priceAdjustment": {
-            "enabled": false,
+            "enabled": true,
             "type": "round_down",
             "value": 10,
-            "minPrice": 0
+            "minPrice": 18
+          },
+          "freeShippingRule": {
+            "enabled": true,
+            "cartMinimum": 300,
+            "maxMethodPrice": 100,
+            "methodNameFilter": ""
+          },
+          "discountRule": {
+            "enabled": true,
+            "cartMinimum": 300,
+            "type": "percentage",
+            "value": 20,
+            "maxMethodPrice": 100,
+            "minPrice": 20,
+            "methodNameFilter": ""
+          },
+          "showOriginalPrice": true,
+          "dropship": {
+            "marginProtectionEnabled": true,
+            "marginThreshold": 20,
+            "trackOriginalPrices": true
           }
         },
         "tax": {
@@ -961,7 +982,15 @@
           "giftLabel": "מתנה",
           "giftAddedMessage": "מתנה חינם נוספה לעגלה שלך.",
           "giftRemoveHint": "(ניתן להסיר)",
-          "deliverySummaryLabel": "כל הפריטים מגיעים תוך {days} ימי עסקים"
+          "deliverySummaryLabel": "כל הפריטים מגיעים תוך {days} ימי עסקים",
+          "promoCodeVoucherNotApplicableError": "הקופון לא תקף להזמנה זו",
+          "promoCodeGiftCardNotApplicableError": "כרטיס המתנה לא תקף",
+          "promoCodeNotFoundError": "הקוד לא נמצא. בדקו ונסו שוב",
+          "promoCodeInvalidError": "קוד לא תקין",
+          "promoCodeGenericError": "לא ניתן להחיל את הקוד. נסו שוב",
+          "promoCodeAppliedSuccess": "!הקופון הוחל בהצלחה",
+          "promoCodeRemovedSuccess": "הקופון הוסר",
+          "promoCodeRemoveError": "לא ניתן להסיר את הקוד"
         },
         "product": {
           "addToCartButton": "הוסף לסל",
@@ -1280,6 +1309,14 @@
           "replaceVoucherConfirm": "ניתן להשתמש בקופון אחד להזמנה. שימוש בקוד זה יחליף את {code}. להמשיך?",
           "eligibleForFreeShipping": "זכאי למשלוח חינם",
           "giftCardLabel": "כרטיס מתנה",
+          "promoCodeVoucherNotApplicableError": "הקופון לא תקף להזמנה זו",
+          "promoCodeGiftCardNotApplicableError": "כרטיס המתנה לא תקף",
+          "promoCodeNotFoundError": "הקוד לא נמצא. בדקו ונסו שוב",
+          "promoCodeInvalidError": "קוד לא תקין",
+          "promoCodeGenericError": "לא ניתן להחיל את הקוד. נסו שוב",
+          "promoCodeAppliedSuccess": "!הקופון הוחל בהצלחה",
+          "promoCodeRemovedSuccess": "הקופון הוסר",
+          "promoCodeRemoveError": "לא ניתן להסיר את הקוד",
           "subtotalLabel": "סיכום ביניים",
           "shippingLabel": "משלוח",
           "taxLabel": "מס",

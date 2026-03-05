@@ -3,7 +3,7 @@
 import { useCheckoutState } from "../CheckoutStateProvider";
 import { useCheckoutText } from "../hooks/useCheckoutText";
 import { useEcommerceSettings } from "@/providers/StoreConfigProvider";
-import { adjustShippingPrice, type ShippingPriceAdjustment } from "../utils/adjustShippingPrice";
+import { applyShippingRules, type ShippingRulesConfig } from "../utils/adjustShippingPrice";
 
 export function SummaryTotals() {
 	const { state } = useCheckoutState();
@@ -21,18 +21,41 @@ export function SummaryTotals() {
 	}
 
 	const ecommerce = useEcommerceSettings();
-	const adjustment = ecommerce?.shipping?.priceAdjustment as ShippingPriceAdjustment | undefined;
+	const rulesConfig: ShippingRulesConfig = {
+		freeShippingRule: ecommerce?.shipping?.freeShippingRule ?? undefined,
+		discountRule: ecommerce?.shipping?.discountRule ?? undefined,
+		priceAdjustment: ecommerce?.shipping?.priceAdjustment ?? undefined,
+	};
 
 	const subtotal = checkout.subtotalPrice?.gross;
 	const shipping = checkout.shippingPrice?.gross;
+	const subtotalAmount = subtotal?.amount ?? 0;
+
+	// Resolve the selected method's name for the name filter
+	const selectedMethodId = (checkout.deliveryMethod as { id: string } | null)?.id;
+	const selectedMethodName = selectedMethodId
+		? checkout.shippingMethods?.find((m) => m.id === selectedMethodId)?.name
+		: undefined;
+
+	// Check if this is a dropship method with server-side adjusted prices
+	const dropshipOriginalEntry = checkout.metadata
+		?.find((m: { key: string }) => m.key === "dropship.shippingOriginalPrices");
+	const dropshipPrices = dropshipOriginalEntry
+		? (() => { try { return JSON.parse(dropshipOriginalEntry.value) as Record<string, number>; } catch { return null; } })()
+		: null;
+	const isDropshipAdjusted = !!(selectedMethodName && dropshipPrices?.[selectedMethodName] != null);
+
+	// For dropship methods, the server already set the correct price — no client-side adjustment
 	const displayShipping = shipping
-		? { amount: adjustShippingPrice(shipping.amount, adjustment), currency: shipping.currency }
+		? isDropshipAdjusted
+			? { amount: shipping.amount, currency: shipping.currency }
+			: { amount: applyShippingRules(shipping.amount, subtotalAmount, rulesConfig, selectedMethodName).amount, currency: shipping.currency }
 		: null;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const hasDeliveryMethod = !!(checkout.deliveryMethod as any)?.id;
 	const tax = checkout.totalPrice?.tax;
 	const rawTotal = checkout.totalPrice?.gross;
-	// Correct total by the shipping adjustment delta
+	// Correct total by the shipping adjustment delta (only for non-dropship methods)
 	const shippingDelta = displayShipping && shipping
 		? displayShipping.amount - shipping.amount
 		: 0;

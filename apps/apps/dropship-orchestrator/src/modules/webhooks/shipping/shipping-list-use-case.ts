@@ -2,9 +2,10 @@ import { Client, gql } from "urql";
 
 import { createLogger } from "@/logger";
 import { fetchAppId, getSupplierCredentials } from "@/modules/lib/metadata-manager";
-import { getFreeShippingThreshold } from "@/modules/lib/storefront-config-reader";
+import { getShippingConfig } from "@/modules/lib/storefront-config-reader";
 import { convertCurrency, DEFAULT_RATES } from "@/modules/pricing/currency-converter";
 import type { ExchangeRate } from "@/modules/pricing/currency-converter";
+import { applyShippingRules, applyShippingRulesWithMargin } from "@/modules/pricing/shipping-rules";
 import { CJAdapter } from "@/modules/suppliers/cj/adapter";
 import type { AuthToken } from "@/modules/suppliers/types";
 
@@ -56,6 +57,12 @@ export interface ExternalShippingMethod {
   currency: string;
   maximum_delivery_days?: number;
   minimum_delivery_days?: number;
+}
+
+/** Return type includes original prices for metadata storage */
+export interface ShippingListResult {
+  methods: ExternalShippingMethod[];
+  originalPrices: Record<string, number>;
 }
 
 // ---------------------------------------------------------------------------
@@ -120,18 +127,20 @@ export async function handleShippingList(
   shippingPostalCode?: string,
   subtotalAmount?: number,
   channelSlug?: string,
-): Promise<ExternalShippingMethod[]> {
+): Promise<ShippingListResult> {
+  const EMPTY: ShippingListResult = { methods: [], originalPrices: {} };
+
   // 1. Classify
   const classification = classifyCheckout(lines);
 
   if (classification.type !== "all_dropship") {
-    return [];
+    return EMPTY;
   }
 
   // 2. Get app ID + CJ credentials
   const appId = await fetchAppId(client);
   if (!appId) {
-    return [];
+    return EMPTY;
   }
 
   // Fetch credentials from encrypted metadata with timeout protection
@@ -160,7 +169,7 @@ export async function handleShippingList(
       creds = { type: "cj", apiKey: envApiKey };
     } else {
       logger.warn("No CJ credentials found (metadata or env)");
-      return [];
+      return EMPTY;
     }
   }
 
@@ -184,7 +193,7 @@ export async function handleShippingList(
     const authResult = await adapter.authenticate(creds);
     if (authResult.isErr()) {
       logger.error("CJ authentication failed", { error: authResult.error.message });
-      return [];
+      return EMPTY;
     }
     authToken = authResult.value;
     setCachedAuth(authToken);
@@ -255,7 +264,23 @@ export async function handleShippingList(
 
   if (items.length === 0) {
     logger.warn("No CJ variant IDs found in variant metadata");
-    return [];
+    return EMPTY;
+  }
+
+  // 4b. Extract product costs from line metadata for margin calculation
+  let totalProductCost = 0;
+  for (const line of lines) {
+    const meta = line.variant?.product?.metadata ?? [];
+    const costStr = meta.find((m) => m.key === "dropship.costPrice")?.value;
+    if (costStr) {
+      let cost = parseFloat(costStr);
+      // Convert cost to checkout currency if needed (costs are typically in USD)
+      if (checkoutCurrency !== "USD" && cost > 0) {
+        const converted = convertCurrency(cost, "USD", checkoutCurrency, rates);
+        if (converted != null) cost = converted;
+      }
+      totalProductCost += cost * line.quantity;
+    }
   }
 
   // 5. Call CJ freight API with all items in one request
@@ -271,14 +296,14 @@ export async function handleShippingList(
       error: freightResult.error.message,
       code: freightResult.error.code,
     });
-    return [];
+    return EMPTY;
   }
 
   const options = freightResult.value;
 
   if (options.length === 0) {
     logger.info("CJ returned 0 shipping options", { country: shippingCountryCode });
-    return [];
+    return EMPTY;
   }
 
   // 6. Convert prices + format for Saleor
@@ -317,15 +342,43 @@ export async function handleShippingList(
   // Sort by price ascending
   methods.sort((a, b) => a.amount - b.amount);
 
-  // 7. Apply free shipping threshold — cheapest method becomes free
-  if (subtotalAmount != null && channelSlug && methods.length > 0) {
-    const threshold = await getFreeShippingThreshold(client, channelSlug);
+  // 7. Record original prices BEFORE applying rules
+  const originalPrices: Record<string, number> = {};
+  for (const m of methods) {
+    originalPrices[m.name] = m.amount;
+  }
 
-    if (threshold != null && subtotalAmount >= threshold) {
-      methods[0].amount = 0;
-      methods[0].name = methods[0].name + " (Free)";
+  // 8. Apply shipping rules from Storefront Control config
+  if (subtotalAmount != null && channelSlug && methods.length > 0) {
+    const shippingConfig = await getShippingConfig(client, channelSlug);
+
+    if (shippingConfig) {
+      const rulesConfig = {
+        freeShippingRule: shippingConfig.freeShippingRule ?? undefined,
+        discountRule: shippingConfig.discountRule ?? undefined,
+        priceAdjustment: shippingConfig.priceAdjustment ?? undefined,
+      };
+
+      const marginEnabled = shippingConfig.dropship?.marginProtectionEnabled ?? false;
+      const marginThreshold = shippingConfig.dropship?.marginThreshold ?? 15;
+
+      for (const method of methods) {
+        if (method.amount === 0) continue; // Already free from CJ
+
+        const result = marginEnabled
+          ? applyShippingRulesWithMargin(
+              method.amount, subtotalAmount, totalProductCost,
+              rulesConfig, marginThreshold, method.name,
+            )
+          : applyShippingRules(method.amount, subtotalAmount, rulesConfig, method.name);
+
+        method.amount = result.amount;
+      }
+
+      // Re-sort after adjustments
+      methods.sort((a, b) => a.amount - b.amount);
     }
   }
 
-  return methods;
+  return { methods, originalPrices };
 }

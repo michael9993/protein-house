@@ -5,7 +5,7 @@ import { gql } from "urql";
 import { createLogger } from "@/logger";
 import {
   handleShippingList,
-  type ExternalShippingMethod,
+  type ShippingListResult,
 } from "@/modules/webhooks/shipping/shipping-list-use-case";
 import { saleorApp } from "@/saleor-app";
 
@@ -106,6 +106,26 @@ const FETCH_CHECKOUT_SUBTOTAL = gql`
 `;
 
 // ---------------------------------------------------------------------------
+// Mutation to store original shipping prices in checkout metadata
+// ---------------------------------------------------------------------------
+
+const UPDATE_CHECKOUT_METADATA = gql`
+  mutation UpdateCheckoutMetadata($id: ID!, $input: [MetadataInput!]!) {
+    updateMetadata(id: $id, input: $input) {
+      item {
+        ... on Checkout {
+          id
+        }
+      }
+      errors {
+        field
+        message
+      }
+    }
+  }
+`;
+
+// ---------------------------------------------------------------------------
 // Webhook definition
 // ---------------------------------------------------------------------------
 
@@ -158,7 +178,7 @@ const handler: NextJsSyncWebhookHandler<ShippingListWebhookPayload> = async (
   const TIMEOUT_MS = 12_000;
 
   try {
-    const methods: ExternalShippingMethod[] = await Promise.race([
+    const { methods, originalPrices }: ShippingListResult = await Promise.race([
       handleShippingList(
         client,
         checkout.lines,
@@ -168,16 +188,36 @@ const handler: NextJsSyncWebhookHandler<ShippingListWebhookPayload> = async (
         subtotalAmount,
         checkout.channel.slug,
       ),
-      new Promise<ExternalShippingMethod[]>((resolve) =>
+      new Promise<ShippingListResult>((resolve) =>
         setTimeout(() => {
           logger.warn("Shipping list timed out — returning empty to keep checkout functional", {
             checkoutId: checkout.id,
             timeoutMs: TIMEOUT_MS,
           });
-          resolve([]);
+          resolve({ methods: [], originalPrices: {} });
         }, TIMEOUT_MS),
       ),
     ]);
+
+    // Store original prices in checkout metadata (fire-and-forget)
+    if (Object.keys(originalPrices).length > 0) {
+      client
+        .mutation(UPDATE_CHECKOUT_METADATA, {
+          id: checkout.id,
+          input: [
+            {
+              key: "dropship.shippingOriginalPrices",
+              value: JSON.stringify(originalPrices),
+            },
+          ],
+        })
+        .toPromise()
+        .catch((err) => {
+          logger.warn("Failed to store original shipping prices in checkout metadata", {
+            error: err instanceof Error ? err.message : String(err),
+          });
+        });
+    }
 
     logger.info("Shipping list response", {
       checkoutId: checkout.id,

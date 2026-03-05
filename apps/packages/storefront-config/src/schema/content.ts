@@ -79,6 +79,15 @@ export const CartTextSchema = z.object({
   giftRemoveHint: z.string().optional(),           // "(You can remove it)" or empty to hide
   // Delivery estimates
   deliverySummaryLabel: z.string().optional(),      // "All items arrive within {days} business days"
+  // Promo code error messages (mapped from Saleor API error codes)
+  promoCodeVoucherNotApplicableError: z.string().optional(),  // "This voucher is not applicable to your order"
+  promoCodeGiftCardNotApplicableError: z.string().optional(), // "This gift card is not applicable"
+  promoCodeNotFoundError: z.string().optional(),              // "Code not found. Please check and try again"
+  promoCodeInvalidError: z.string().optional(),               // "Invalid code"
+  promoCodeGenericError: z.string().optional(),               // "Could not apply code. Please try again"
+  promoCodeAppliedSuccess: z.string().optional(),             // "Promo code applied!"
+  promoCodeRemovedSuccess: z.string().optional(),             // "Promo code removed"
+  promoCodeRemoveError: z.string().optional(),                // "Failed to remove code"
 });
 
 export const ProductTextSchema = z.object({
@@ -452,6 +461,15 @@ export const CheckoutTextSchema = z.object({
   replaceVoucherConfirm: z.string().optional(),    // "Only one voucher... Replace {code}. Continue?" (use {code})
   eligibleForFreeShipping: z.string().optional(), // "Eligible for free shipping" (when shipping voucher applied)
   giftCardLabel: z.string().optional(),           // "Gift card"
+  // Promo code error messages (mapped from Saleor API error codes)
+  promoCodeVoucherNotApplicableError: z.string().optional(),  // "This voucher is not applicable to your order"
+  promoCodeGiftCardNotApplicableError: z.string().optional(), // "This gift card is not applicable"
+  promoCodeNotFoundError: z.string().optional(),              // "Code not found. Please check and try again"
+  promoCodeInvalidError: z.string().optional(),               // "Invalid code"
+  promoCodeGenericError: z.string().optional(),               // "Could not apply code. Please try again"
+  promoCodeAppliedSuccess: z.string().optional(),             // "Promo code applied!"
+  promoCodeRemovedSuccess: z.string().optional(),             // "Promo code removed"
+  promoCodeRemoveError: z.string().optional(),                // "Failed to remove code"
   subtotalLabel: z.string().optional(),           // "Subtotal"
   shippingLabel: z.string().optional(),           // "Shipping"
   taxLabel: z.string().optional(),                // "Tax"

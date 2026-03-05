@@ -21,7 +21,13 @@ export function FreeShippingIndicator({
 }: FreeShippingIndicatorProps) {
 	const t = useCheckoutText();
 	const ecommerce = useEcommerceSettings();
-	const threshold = ecommerce?.shipping?.freeShippingThreshold ?? null;
+	const freeRule = ecommerce?.shipping?.freeShippingRule;
+
+	// When the free shipping rule is enabled, use its cartMinimum as the threshold;
+	// otherwise fall back to the legacy freeShippingThreshold.
+	const threshold = freeRule?.enabled
+		? freeRule.cartMinimum
+		: (ecommerce?.shipping?.freeShippingThreshold ?? null);
 
 	// Find cheapest free method (price === 0)
 	const freeMethod = methods.find((m) => m.price.amount === 0);
@@ -95,7 +101,10 @@ export function FreeShippingIndicator({
 	}
 
 	// State 3: Progress — no free method yet, but threshold is configured
-	if (!freeMethod && threshold && threshold > 0 && subtotalAmount > 0) {
+	// When free rule has a maxMethodPrice cap, only show progress if there are eligible methods
+	const maxCap = freeRule?.enabled ? (freeRule.maxMethodPrice ?? 0) : 0;
+	const hasEligibleMethods = maxCap <= 0 || methods.some((m) => m.price.amount > 0 && m.price.amount <= maxCap);
+	if (!freeMethod && threshold && threshold > 0 && subtotalAmount > 0 && hasEligibleMethods) {
 		const remaining = threshold - subtotalAmount;
 		if (remaining <= 0) return null;
 		const progress = Math.min(100, (subtotalAmount / threshold) * 100);

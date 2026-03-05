@@ -102,6 +102,27 @@
           "type": "round_down",
           "value": 10,
           "minPrice": 0
+        },
+        "freeShippingRule": {
+          "enabled": false,
+          "cartMinimum": 100,
+          "maxMethodPrice": 0,
+          "methodNameFilter": ""
+        },
+        "discountRule": {
+          "enabled": false,
+          "cartMinimum": 50,
+          "type": "percentage",
+          "value": 10,
+          "maxMethodPrice": 0,
+          "minPrice": 0,
+          "methodNameFilter": ""
+        },
+        "showOriginalPrice": true,
+        "dropship": {
+          "marginProtectionEnabled": false,
+          "marginThreshold": 15,
+          "trackOriginalPrices": true
         }
       },
       "tax": {
@@ -975,7 +996,15 @@
         "giftLabel": "מתנה",
         "giftAddedMessage": "מתנה חינם נוספה לעגלה שלך.",
         "giftRemoveHint": "(ניתן להסיר)",
-        "deliverySummaryLabel": "כל הפריטים מגיעים תוך {days} ימי עסקים"
+        "deliverySummaryLabel": "כל הפריטים מגיעים תוך {days} ימי עסקים",
+        "promoCodeVoucherNotApplicableError": "הקופון לא תקף להזמנה זו",
+        "promoCodeGiftCardNotApplicableError": "כרטיס המתנה לא תקף",
+        "promoCodeNotFoundError": "הקוד לא נמצא. בדקו ונסו שוב",
+        "promoCodeInvalidError": "קוד לא תקין",
+        "promoCodeGenericError": "לא ניתן להחיל את הקוד. נסו שוב",
+        "promoCodeAppliedSuccess": "!הקופון הוחל בהצלחה",
+        "promoCodeRemovedSuccess": "הקופון הוסר",
+        "promoCodeRemoveError": "לא ניתן להסיר את הקוד"
       },
       "product": {
         "addToCartButton": "הוסף לסל",
@@ -1291,6 +1320,14 @@
         "replaceVoucherConfirm": "ניתן להשתמש בקופון אחד להזמנה. שימוש בקוד זה יחליף את {code}. להמשיך?",
         "eligibleForFreeShipping": "זכאי למשלוח חינם",
         "giftCardLabel": "כרטיס מתנה",
+        "promoCodeVoucherNotApplicableError": "הקופון לא תקף להזמנה זו",
+        "promoCodeGiftCardNotApplicableError": "כרטיס המתנה לא תקף",
+        "promoCodeNotFoundError": "הקוד לא נמצא. בדקו ונסו שוב",
+        "promoCodeInvalidError": "קוד לא תקין",
+        "promoCodeGenericError": "לא ניתן להחיל את הקוד. נסו שוב",
+        "promoCodeAppliedSuccess": "!הקופון הוחל בהצלחה",
+        "promoCodeRemovedSuccess": "הקופון הוסר",
+        "promoCodeRemoveError": "לא ניתן להסיר את הקוד",
         "subtotalLabel": "סיכום ביניים",
         "shippingLabel": "משלוח",
         "taxLabel": "מס",

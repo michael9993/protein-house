@@ -126,13 +126,13 @@ export async function updateLineQuantityAction(channel: string, lineId: string, 
 }
 
 // Server action for applying a promo/voucher code (used by cart page and drawer)
-export async function applyPromoCodeAction(channel: string, checkoutId: string, promoCode: string): Promise<{ success: boolean; error?: string }> {
+export async function applyPromoCodeAction(channel: string, checkoutId: string, promoCode: string): Promise<{ success: boolean; error?: string; errorCode?: string }> {
     const result = await Checkout.applyPromoCode(checkoutId, promoCode.trim());
     if (result.success) {
         revalidatePath(`/${channel}/cart`);
         return { success: true };
     }
-    return { success: false, error: result.errors?.[0] ?? "Invalid code" };
+    return { success: false, error: result.errors?.[0] ?? "Invalid code", errorCode: result.errorCodes?.[0] ?? "UNKNOWN" };
 }
 
 // Server action for removing the applied voucher (used by cart page and drawer)

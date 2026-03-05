@@ -9,6 +9,7 @@ import { formatMoney, getHrefForVariant } from "@/lib/utils";
 import { useBranding, useEcommerceSettings, useContentConfig, useButtonStyle, useBadgeStyle } from "@/providers/StoreConfigProvider";
 import { trackBeginCheckout } from "@/lib/analytics";
 import { getProductShippingEstimate, formatEstimate } from "@/lib/shipping";
+import { mapPromoCodeError } from "@/lib/checkout/promo-error-map";
 
 interface CartLine {
   id: string;
@@ -81,7 +82,7 @@ interface CartClientProps {
   deleteLineAction: (lineId: string, productSlug?: string) => Promise<{ success: boolean; error?: string } | void>;
   updateLineQuantityAction: (lineId: string, quantity: number, productSlug?: string) => Promise<{ success: boolean; error?: string }>;
   createCheckoutWithItems?: (variantIds: { variantId: string; quantity: number }[], channel: string) => Promise<{ checkoutId: string } | null>;
-  applyPromoCodeAction?: (checkoutId: string, promoCode: string) => Promise<{ success: boolean; error?: string }>;
+  applyPromoCodeAction?: (checkoutId: string, promoCode: string) => Promise<{ success: boolean; error?: string; errorCode?: string }>;
   removePromoCodeAction?: (checkoutId: string, options: { promoCodeId?: string; promoCode?: string }) => Promise<{ success: boolean; error?: string }>;
 }
 
@@ -1080,11 +1081,11 @@ export function CartClient({
                           const result = await applyPromoCodeAction(cart.id, promoCodeInput.trim());
                           setPromoPending(false);
                           if (result.success) {
-                            addToast((content.cart as Record<string, string>).promoCodeApplied ?? "Promo code applied", "success");
+                            addToast((content.cart as Record<string, string>).promoCodeAppliedSuccess ?? "Promo code applied!", "success");
                             setPromoCodeInput("");
                             window.dispatchEvent(new CustomEvent("cart-updated"));
                           } else {
-                            setPromoError(result.error ?? "Invalid code");
+                            setPromoError(result.errorCode ? mapPromoCodeError(result.errorCode, content.cart) : (result.error ?? "Invalid code"));
                           }
                         }}
                         className="rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"

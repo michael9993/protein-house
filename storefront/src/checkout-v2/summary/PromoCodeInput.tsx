@@ -6,6 +6,7 @@ import { useCheckoutText } from "../hooks/useCheckoutText";
 import { applyPromoCode } from "../_actions/apply-promo-code";
 import { removePromoCode } from "../_actions/remove-promo-code";
 import { ConfirmDialog } from "../components/ConfirmDialog";
+import { mapPromoCodeError } from "@/lib/checkout/promo-error-map";
 
 interface PromoCodeInputProps {
 	checkoutId: string;
@@ -48,7 +49,7 @@ export function PromoCodeInput({ checkoutId }: PromoCodeInputProps) {
 		startTransition(async () => {
 			const result = await applyPromoCode(checkoutId, trimmed);
 			if (result.errors.length > 0) {
-				setError(result.errors.map((e) => e.message ?? e.code).join("; "));
+				setError(result.errors.map((e) => mapPromoCodeError(e.code, t)).join("; "));
 				return;
 			}
 			if (result.checkout) {
@@ -81,7 +82,7 @@ export function PromoCodeInput({ checkoutId }: PromoCodeInputProps) {
 		startTransition(async () => {
 			const result = await removePromoCode(checkoutId, { promoCode: existingVoucher });
 			if (result.errors.length > 0) {
-				setError(result.errors.map((e) => e.message ?? e.code).join("; "));
+				setError(t.promoCodeRemoveError ?? "Failed to remove code");
 				return;
 			}
 			if (result.checkout) {
@@ -168,7 +169,7 @@ export function PromoCodeInput({ checkoutId }: PromoCodeInputProps) {
 							disabled={isPending || !code.trim()}
 							className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-700 disabled:opacity-50"
 						>
-							{isPending ? "…" : "Apply"}
+							{isPending ? "…" : (t.applyPromoButton ?? "Apply")}
 						</button>
 					</div>
 
