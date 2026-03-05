@@ -116,7 +116,8 @@
       "mcp__plugin_serena_serena__replace_content",
       "mcp__playwright-server__browser_install",
       "mcp__playwright-server__browser_close",
-      "mcp__playwright-server__browser_evaluate"
+      "mcp__playwright-server__browser_evaluate",
+      "Bash(ssh:*)"
     ],
     "deny": [
       "Read(./.env*)",
