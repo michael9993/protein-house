@@ -62,7 +62,7 @@ export function StylePropertiesPanel<T extends FieldValues>({
       <div className="flex h-full items-center justify-center p-8 text-center">
         <div className="text-neutral-400">
           <p className="text-sm font-medium">No component selected</p>
-          <p className="mt-1 text-xs">Select a component from the tree to edit its style overrides</p>
+          <p className="mt-1 text-xs">Select a component from the tree or click one in the preview</p>
         </div>
       </div>
     );

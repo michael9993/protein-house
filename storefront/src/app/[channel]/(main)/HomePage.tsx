@@ -461,7 +461,7 @@ export function HomePage({
     <main className="bg-white text-neutral-900" dir={direction}>
       {sectionOrder.map((sectionId) => {
         const element = renderSection(sectionId);
-        return element ? <div key={sectionId}>{element}</div> : null;
+        return element ? <div key={sectionId} data-homepage-section={sectionId}>{element}</div> : null;
       })}
     </main>
   );

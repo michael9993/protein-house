@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/router";
 import { z } from "zod";
-import { Paintbrush, RotateCcw, Eye, EyeOff } from "lucide-react";
+import { Paintbrush, RotateCcw, Eye, EyeOff, MousePointer2 } from "lucide-react";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { SaveBar } from "@/components/layout/SaveBar";
@@ -14,6 +14,7 @@ import { ComponentStyleOverrideSchema } from "@saleor/apps-storefront-config";
 import { ComponentTree } from "@/components/pages/component-designer/ComponentTree";
 import { StylePropertiesPanel } from "@/components/pages/component-designer/StylePropertiesPanel";
 import { getComponentByKey, PAGE_PREVIEW_ROUTES } from "@/lib/component-registry";
+import { PAGE_REGISTRY } from "@/lib/page-registry";
 
 import { nestOverrides, flattenOverrides } from "@/lib/override-helpers";
 
@@ -75,7 +76,11 @@ function ComponentDesignerPage() {
   } = form;
 
   // Preview hook
-  const { iframeRef, isReady, sendConfig, navigate, refresh } = usePreview({
+  const {
+    iframeRef, isReady, sendConfig, navigate, refresh,
+    selectedFromPreview, highlightComponent, initOverlay,
+    overlayEnabled, setOverlayEnabled, sendOverrideKeys, onSectionsReordered,
+  } = usePreview({
     storefrontUrl: STOREFRONT_URL,
     channelSlug: channelSlug || "default-channel",
   });
@@ -97,6 +102,15 @@ function ComponentDesignerPage() {
     }
     return keys;
   }, [overrides]);
+
+  // Current page label for breadcrumb
+  const viewingPage = useMemo(() => {
+    if (!selectedKey) return null;
+    const comp = getComponentByKey(selectedKey);
+    if (!comp) return null;
+    const page = PAGE_REGISTRY.find((p) => p.id === comp.page);
+    return page?.label ?? comp.page;
+  }, [selectedKey]);
 
   // Brand color presets from config
   const brandPresets = useMemo(() => {
@@ -127,6 +141,41 @@ function ComponentDesignerPage() {
     const route = PAGE_PREVIEW_ROUTES[comp.page]?.replace("{channel}", channelSlug || "default-channel");
     if (route) navigate(route);
   }, [selectedKey, isReady, channelSlug, navigate, previewOpen]);
+
+  // Auto-select component when clicked in preview overlay
+  useEffect(() => {
+    if (selectedFromPreview) {
+      setSelectedKey(selectedFromPreview);
+    }
+  }, [selectedFromPreview]);
+
+  // Highlight component in preview when tree selection changes
+  useEffect(() => {
+    if (selectedKey && isReady && previewOpen) {
+      highlightComponent(selectedKey);
+    }
+  }, [selectedKey, isReady, highlightComponent, previewOpen]);
+
+  // Initialize overlay when iframe becomes ready
+  useEffect(() => {
+    if (isReady) {
+      initOverlay();
+    }
+  }, [isReady, initOverlay]);
+
+  // Send override indicator keys to preview overlay
+  useEffect(() => {
+    if (isReady) {
+      sendOverrideKeys(Array.from(overriddenKeys));
+    }
+  }, [isReady, overriddenKeys, sendOverrideKeys]);
+
+  // Handle section reorder from preview drag-and-drop
+  useEffect(() => {
+    if (onSectionsReordered) {
+      sendConfig({ homepage: { sectionOrder: onSectionsReordered } } as any);
+    }
+  }, [onSectionsReordered, sendConfig]);
 
   // Reset a single component's overrides
   const handleResetComponent = useCallback(
@@ -171,8 +220,26 @@ function ComponentDesignerPage() {
             <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
               {overriddenKeys.size} override{overriddenKeys.size !== 1 ? "s" : ""}
             </span>
+            {viewingPage && (
+              <span className="text-xs text-neutral-400">
+                · Viewing: {viewingPage}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setOverlayEnabled(!overlayEnabled)}
+              className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs ${
+                overlayEnabled
+                  ? "bg-blue-50 text-blue-700"
+                  : "text-neutral-500 hover:bg-neutral-100"
+              }`}
+              title={overlayEnabled ? "Disable visual selection" : "Enable visual selection"}
+            >
+              <MousePointer2 className="h-3.5 w-3.5" />
+              Visual Select
+            </button>
             <button
               type="button"
               onClick={() => setPreviewOpen(!previewOpen)}
@@ -194,6 +261,13 @@ function ComponentDesignerPage() {
             )}
           </div>
         </div>
+
+        {/* Instruction banner for visual selection */}
+        {overlayEnabled && !selectedKey && previewOpen && (
+          <div className="border-b border-blue-100 bg-blue-50 px-4 py-1.5 text-xs text-blue-700">
+            Click any component in the preview to select and edit it
+          </div>
+        )}
 
         {/* 3-panel layout */}
         <div className="flex flex-1 overflow-hidden">

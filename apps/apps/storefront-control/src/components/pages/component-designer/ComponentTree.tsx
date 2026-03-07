@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { ChevronDown, ChevronRight, Search as SearchIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -21,6 +21,27 @@ export function ComponentTree({ selectedKey, onSelect, overriddenKeys }: Compone
   const pages = getAllComponentPages();
   const [expandedPages, setExpandedPages] = useState<Set<string>>(new Set(pages));
   const [search, setSearch] = useState("");
+  const navRef = useRef<HTMLElement>(null);
+
+  // Auto-scroll to selected component in tree
+  useEffect(() => {
+    if (!selectedKey || !navRef.current) return;
+    const el = navRef.current.querySelector(`[data-tree-key="${selectedKey}"]`);
+    if (el) {
+      // Expand the page section if collapsed
+      const comp = COMPONENT_REGISTRY.find((c) => c.configKey === selectedKey);
+      if (comp && !expandedPages.has(comp.page)) {
+        setExpandedPages((prev) => new Set([...prev, comp.page]));
+        // Scroll after DOM update
+        requestAnimationFrame(() => {
+          const refreshedEl = navRef.current?.querySelector(`[data-tree-key="${selectedKey}"]`);
+          refreshedEl?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        });
+      } else {
+        el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    }
+  }, [selectedKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Filter components by search query
   const filteredComponents = useMemo(() => {
@@ -47,7 +68,7 @@ export function ComponentTree({ selectedKey, onSelect, overriddenKeys }: Compone
   }
 
   return (
-    <nav className="flex flex-col gap-0.5">
+    <nav ref={navRef} className="flex flex-col gap-0.5">
       {/* Search input */}
       <div className="relative mb-1">
         <SearchIcon className="pointer-events-none absolute start-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-400" />
@@ -171,6 +192,7 @@ function ComponentItem({
     <button
       type="button"
       onClick={onSelect}
+      data-tree-key={component.configKey}
       className={cn(
         "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors",
         isSelected
