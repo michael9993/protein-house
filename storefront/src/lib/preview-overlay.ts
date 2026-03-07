@@ -33,6 +33,7 @@ let observer: MutationObserver | null = null;
 let rescanTimer: ReturnType<typeof setInterval> | null = null;
 let sectionsReorderedCallback: ((order: string[]) => void) | null = null;
 let dragHandlesContainer: HTMLDivElement | null = null;
+let mutationTimer: ReturnType<typeof setTimeout> | null = null;
 let overrideDotsContainer: HTMLDivElement | null = null;
 let overriddenConfigKeys = new Set<string>();
 let rafId: number | null = null;
@@ -173,14 +174,22 @@ function scanElements() {
     const cd = el.getAttribute("data-cd");
     if (cd) elementMap.set(cd, el);
   });
+
+  // If the selected element was removed from DOM, hide selected box
+  if (selectedKey && !elementMap.has(selectedKey) && selectedBox) {
+    hideBox(selectedBox);
+  }
 }
 
 function startScanner() {
   scanElements();
 
   observer = new MutationObserver(() => {
-    scanElements();
-    updateDragHandles();
+    if (mutationTimer) clearTimeout(mutationTimer);
+    mutationTimer = setTimeout(() => {
+      scanElements();
+      updateDragHandles();
+    }, 100);
   });
   observer.observe(document.body, { childList: true, subtree: true });
 
@@ -490,7 +499,7 @@ function updateOverrideDots() {
     if (!el) continue;
 
     // Skip hidden elements
-    if (!(el as HTMLElement).offsetParent && (el as HTMLElement).style.display !== "fixed") continue;
+    if (!(el as HTMLElement).offsetParent && (el as HTMLElement).style.position !== "fixed") continue;
 
     const rect = el.getBoundingClientRect();
     const dot = document.createElement("div");
@@ -571,6 +580,10 @@ export function destroyOverlay(): void {
   if (rescanTimer) {
     clearInterval(rescanTimer);
     rescanTimer = null;
+  }
+  if (mutationTimer) {
+    clearTimeout(mutationTimer);
+    mutationTimer = null;
   }
   if (rafId) {
     cancelAnimationFrame(rafId);

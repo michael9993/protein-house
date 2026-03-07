@@ -30,8 +30,11 @@ function isInPreviewMode(): boolean {
   }
 }
 
+let initialized = false;
+
 export function initPreviewMode(): void {
-  if (!isInPreviewMode()) return;
+  if (!isInPreviewMode() || initialized) return;
+  initialized = true;
 
   // Notify parent that we're ready
   window.parent.postMessage(
@@ -71,7 +74,8 @@ export function initPreviewMode(): void {
 
     if (event.data?.type === "storefront-control:navigate") {
       const path = event.data.payload?.path;
-      if (path && typeof path === "string") {
+      // Only allow relative paths to prevent open redirect attacks
+      if (path && typeof path === "string" && path.startsWith("/")) {
         window.location.href = path;
       }
     }

@@ -150,11 +150,12 @@ function ComponentDesignerPage() {
   }, [selectedFromPreview]);
 
   // Highlight component in preview when tree selection changes
+  // Skip if the selection just came from a preview click (avoid roundtrip)
   useEffect(() => {
-    if (selectedKey && isReady && previewOpen) {
+    if (selectedKey && isReady && previewOpen && selectedKey !== selectedFromPreview) {
       highlightComponent(selectedKey);
     }
-  }, [selectedKey, isReady, highlightComponent, previewOpen]);
+  }, [selectedKey, isReady, highlightComponent, previewOpen, selectedFromPreview]);
 
   // Initialize overlay when iframe becomes ready
   useEffect(() => {
