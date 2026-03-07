@@ -7,11 +7,11 @@
     "updatedAt": "2026-02-04T23:01:53.808Z",
     "channelSlug": "usd",
     "store": {
-      "name": "Mansour Shoes",
-      "tagline": "Shoes for the Whole Family",
+      "name": "Pawzen",
+      "tagline": "Calm. Curated. Pet Care.",
       "type": "physical",
-      "description": "A store for sports shoes and shoes for the whole family from leading brands.",
-      "email": "support@mansourshoes.example",
+      "description": "Modern, curated pet accessories for dogs and cats. Thoughtfully designed products for your furry family.",
+      "email": "support@pawzen.co",
       "phone": "+1-555-0123",
       "address": {
         "street": "123 Main Street",
@@ -23,19 +23,19 @@
     },
     "branding": {
       "logo": "https://media.easy.co.il/images/UserThumbs/10035528_1752326685636_0.jpg",
-      "logoAlt": "Mansour Shoes Logo",
+      "logoAlt": "Pawzen - Pet Accessories",
       "favicon": "/favicon.ico",
       "colors": {
-        "primary": "#E78F21",
-        "secondary": "#0A0707",
-        "accent": "#E0A55A",
-        "background": "#FFFFFF",
-        "surface": "#F9FAFB",
-        "text": "#111827",
-        "textMuted": "#6B7280",
-        "success": "#059669",
-        "warning": "#D97706",
-        "error": "#DC2626"
+        "primary": "#1B2838",
+        "secondary": "#1E4D3A",
+        "accent": "#C9A962",
+        "background": "#F8F7F5",
+        "surface": "#EDEAE5",
+        "text": "#0F1419",
+        "textMuted": "#7A756E",
+        "success": "#1E4D3A",
+        "warning": "#C9A962",
+        "error": "#8B3A3A"
       },
       "typography": {
         "fontHeading": "Inter",
@@ -91,7 +91,7 @@
       },
       "shipping": {
         "enabled": true,
-        "freeShippingThreshold": 75,
+        "freeShippingThreshold": 50,
         "showEstimatedDelivery": true,
         "deliverySlots": false,
         "defaultEstimatedMinDays": 2,
@@ -143,7 +143,7 @@
     "header": {
       "banner": {
         "enabled": true,
-        "text": "Free shipping on orders over $75!",
+        "text": "Free shipping on orders over $50!",
         "backgroundColor": "#1a1a2e",
         "textColor": null,
         "useSaleorPromotions": false,
@@ -176,7 +176,7 @@
       "showContactInfo": true,
       "showMenu": true,
       "showBrand": true,
-      "copyrightText": "© 2026 Mansour Shoes. All rights reserved",
+      "copyrightText": "© 2026 Pawzen. All rights reserved.",
       "legalLinks": {
         "trackOrder": {
           "enabled": true,
@@ -214,8 +214,8 @@
         "hero": {
           "enabled": true,
           "type": "image",
-          "title": "Welcome to Mansour Shoes",
-          "subtitle": "Quality shoes for the whole family at affordable prices",
+          "title": "Welcome to Pawzen",
+          "subtitle": "Modern, curated pet accessories for dogs & cats",
           "ctaText": "Shop Now",
           "ctaLink": "/products",
           "badgeText": "New Season Collection",
@@ -234,7 +234,7 @@
         },
         "marquee": {
           "enabled": true,
-          "text": "Free shipping on all orders over $100! • Shop the new collection now • Limited time offer",
+          "text": "Free shipping over $50! • New pet accessories just arrived • Pet-safe & premium quality",
           "speedSeconds": 20,
           "textColor": null,
           "background": {
@@ -355,10 +355,10 @@
         },
         "trustStrip": {
           "enabled": true,
-          "freeShippingText": "Free shipping on orders over $75",
-          "easyReturnsText": "Easy returns",
-          "secureCheckoutText": "Secure checkout",
-          "supportText": "24/7 support",
+          "freeShippingText": "Pet-safe materials",
+          "easyReturnsText": "Free shipping over $50",
+          "secureCheckoutText": "24/7 support",
+          "supportText": "30-day returns",
           "background": {
             "style": "solid",
             "color": "#f9fafb",
@@ -412,7 +412,7 @@
           "badgeText": "Special Offer",
           "title": "Don't miss out",
           "highlight": "Up to 25% off",
-          "description": "Premium performance gear for run, court, and studio. Limited time collection.",
+          "description": "Premium pet accessories for dogs and cats. Limited time collection.",
           "primaryCta": {
             "text": "Shop Sale Items",
             "link": "/products?collection=sale"
@@ -549,7 +549,7 @@
       },
       "social": {
         "facebook": null,
-        "instagram": "https://www.instagram.com/mansour_shoes_shefaraam/",
+        "instagram": "https://www.instagram.com/pawzen.co/",
         "twitter": null,
         "youtube": null,
         "tiktok": null,
@@ -562,9 +562,9 @@
       }
     },
     "seo": {
-      "titleTemplate": "%s | Mansour Shoes",
-      "defaultTitle": "Mansour Shoes - Shoes for the Whole Family",
-      "defaultDescription": "Leading shoe store. Free shipping on orders over $75. Sports shoes, running shoes, and shoes for the whole family.",
+      "titleTemplate": "%s | Pawzen",
+      "defaultTitle": "Pawzen - Modern Pet Accessories for Dogs & Cats",
+      "defaultDescription": "Modern, curated pet accessories for dogs and cats. Free shipping on orders over $50. Thoughtfully designed products for your furry family.",
       "defaultImage": "/og-image.jpg",
       "twitterHandle": null
     },
@@ -662,7 +662,7 @@
     "promoPopup": {
       "enabled": true,
       "title": "Special Offer!",
-      "body": "Up to 30% off on selected sports shoes. Don't miss out!",
+      "body": "Up to 30% off on selected pet accessories. Don't miss out!",
       "badge": "Up to 30% Off",
       "imageUrl": null,
       "backgroundImageUrl": null,
@@ -1571,13 +1571,13 @@
         "sizeGuideButton": "Size Guide",
         "sizeGuideTitle": "Size Guide",
         "sizeGuideSubtitle": "Find your perfect fit",
-        "sizeGuideMensTab": "Men's",
-        "sizeGuideWomensTab": "Women's",
-        "sizeGuideKidsTab": "Kids'",
+        "sizeGuideDogsTab": "Dogs",
+        "sizeGuideCatsTab": "Cats",
+        "sizeGuideCollarsCategory": "Collars & Harnesses",
         "sizeGuideHowToMeasure": "How to Measure",
         "sizeGuideMeasureTip": "Stand on a piece of paper with your heel against a wall. Mark the longest toe and measure the distance in centimeters. Compare with the CM column above.",
         "sizeGuideProTip": "Pro Tip: Measure your feet in the evening when they're at their largest. If you're between sizes, go up half a size for the most comfortable fit.",
-        "sizeGuideShoesCategory": "Shoes",
+        "sizeGuideBedCategory": "Beds",
         "sizeGuideClothingCategory": "Clothing",
         "sizeGuideClothingMeasureTip": "Use a soft measuring tape. For chest, measure around the fullest part. For waist, measure at the natural waistline (above belly button). Keep the tape snug but not tight.",
         "sizeGuideClothingProTip": "Pro Tip: If you're between sizes, size up for a relaxed fit or size down for a snug fit. Check the fabric composition — stretchy materials are more forgiving.",
@@ -1885,9 +1885,9 @@
         "recentSearchesClearLabel": "Clear",
         "popularSearchesLabel": "Popular Searches",
         "popularSearchTerms": [
-          "Shoes",
-          "Bags",
-          "New Arrivals",
+          "Dogs",
+          "Cats",
+          "Toys",
           "Sale"
         ],
         "noResultsText": "No products found",
@@ -2162,7 +2162,7 @@
         "activeColor": null
       }
     },
-    "cardOverrides": {}
-  },
-  "componentOverrides": {}
+    "cardOverrides": {},
+    "componentOverrides": {}
+  }
 }
