@@ -8,15 +8,15 @@ import { z } from "zod";
 
 export const CheckoutUiSchema = z.object({
   accordion: z.object({
-    completedStepColor: z.string().optional(),  // defaults to statusColors.success
-    activeStepColor: z.string().optional(),     // defaults to branding.colors.primary
+    completedStepColor: z.string().nullable().optional(),  // defaults to statusColors.success
+    activeStepColor: z.string().nullable().optional(),     // defaults to branding.colors.primary
   }).optional(),
   confirmation: z.object({
     showTimeline: z.boolean().optional(),       // default true
     showPrintReceipt: z.boolean().optional(),   // default true
   }).optional(),
   progressBar: z.object({
-    completedColor: z.string().optional(),      // defaults to branding.colors.primary
-    activeColor: z.string().optional(),         // defaults to neutral-900
+    completedColor: z.string().nullable().optional(),      // defaults to branding.colors.primary
+    activeColor: z.string().nullable().optional(),         // defaults to neutral-900
   }).optional(),
 }).optional();
