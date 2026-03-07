@@ -4,9 +4,9 @@ import { gql } from "urql";
 
 import { createLogger } from "@/logger";
 import { logAuditEvent } from "@/modules/audit/audit-logger";
-import { getSupplierCredentials } from "@/modules/lib/metadata-manager";
+import { fetchAppId, getSupplierCredentials } from "@/modules/lib/metadata-manager";
+import type { SupplierCredentials } from "@/modules/lib/metadata-manager";
 import { supplierRegistry } from "@/modules/suppliers/registry";
-import type { AuthToken } from "@/modules/suppliers/types";
 
 import type { StockSyncJobData } from "../job-types";
 import { QUEUE_NAMES, getRedisConnection } from "../queues";
@@ -189,11 +189,11 @@ async function processStockSync(job: Job<StockSyncJobData>): Promise<void> {
   logger.info(`Found ${allProducts.length} dropship products to sync stock for`);
 
   if (allProducts.length === 0) {
-    await logAuditEvent({
-      eventType: "STOCK_SYNC_COMPLETE",
-      details: { totalProducts: 0, message: "No dropship products found" },
-      saleorApiUrl,
-      appToken,
+    await logAuditEvent(client, {
+      type: "stock_updated",
+      action: "Stock sync completed — no dropship products found",
+      status: "skipped",
+      timestamp: new Date().toISOString(),
     });
     return;
   }
@@ -215,6 +215,8 @@ async function processStockSync(job: Job<StockSyncJobData>): Promise<void> {
   };
 
   // 4. For each supplier, batch-check stock
+  const appId = await fetchAppId(client);
+
   for (const [supplierId, products] of bySupplier) {
     const adapter = supplierRegistry.getAdapter(supplierId);
     if (!adapter) {
@@ -224,9 +226,9 @@ async function processStockSync(job: Job<StockSyncJobData>): Promise<void> {
     }
 
     // Get supplier credentials
-    let credentials: AuthToken | null = null;
+    let credentials: SupplierCredentials | null = null;
     try {
-      credentials = await getSupplierCredentials(supplierId, client);
+      credentials = await getSupplierCredentials(client, appId ?? "", supplierId);
     } catch {
       logger.warn(`No credentials for supplier "${supplierId}" — skipping stock sync`);
       result.errors += products.length;
@@ -305,11 +307,12 @@ async function processStockSync(job: Job<StockSyncJobData>): Promise<void> {
   // 5. Log result
   logger.info("Stock sync complete", result);
 
-  await logAuditEvent({
-    eventType: "STOCK_SYNC_COMPLETE",
-    details: result,
-    saleorApiUrl,
-    appToken,
+  await logAuditEvent(client, {
+    type: "stock_updated",
+    action: "Stock sync completed",
+    status: "success",
+    response: result as any,
+    timestamp: new Date().toISOString(),
   });
 }
 

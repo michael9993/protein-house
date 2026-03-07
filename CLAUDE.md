@@ -371,25 +371,25 @@ Visual playground in Storefront Control for overriding any storefront component'
 | `apps/apps/storefront-control/src/pages/[channelSlug]/component-designer.tsx` | Admin page: split panel (tree + properties) |
 | `apps/apps/storefront-control/src/components/pages/component-designer/` | ComponentTree, StylePropertiesPanel, PropertyFieldRenderer |
 | `storefront/src/providers/StoreConfigProvider.tsx` | `useComponentStyle(key)` + `useComponentClasses(key)` hooks |
-| `storefront/src/config/store.config.ts` | `getComponentOverrideCSSVariables()` — generates `--cd-*` CSS vars |
+| `storefront/src/config/store.config.ts` | `getComponentOverrideCSSVariables()` — generates `--cd-*` CSS vars; `buildComponentStyle()` — maps overrides to inline styles |
 
 **Storefront Wiring Pattern** (client components):
 ```tsx
+import { buildComponentStyle } from "@/config";
+import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+
 const cdStyle = useComponentStyle("homepage.hero");
 const cdClasses = useComponentClasses("homepage.hero");
 <section
   data-cd="homepage-hero"
   className={`base-classes ${cdClasses}`}
-  style={{
-    ...(cdStyle?.backgroundColor && { backgroundColor: `var(--cd-homepage-hero-bg)` }),
-    ...(cdStyle?.textColor && { color: `var(--cd-homepage-hero-text)` }),
-  }}
+  style={{ ...buildComponentStyle("homepage.hero", cdStyle) }}
 >
 ```
 
 Server components use CSS variables directly (no hooks): `style={{ backgroundColor: 'var(--cd-layout-header-bg, transparent)' }}`.
 
-**Wired Components** (17): Hero, TrustStrip, Marquee, Categories, TrendingProducts, PromotionBanner, FlashDeals, CollectionMosaic, BestSellers, CustomerFeedback, Newsletter, Header, Footer, ActiveFiltersTags, StickyQuickFilters, ProductGallery, StickyMobileAddToCart.
+**Wired Components** (47): All registered components are fully wired via `buildComponentStyle()` helper. Homepage (13): Hero, TrustStrip, Marquee, Categories, TrendingProducts, PromotionBanner, FlashDeals, CollectionMosaic, BestSellers, CustomerFeedback, Newsletter, BrandGrid, HomepageProductCard. Layout (5): Header, Footer, HeaderBanner, MobileBottomNav, SearchDialog. PLP (5): ActiveFiltersTags, StickyQuickFilters, ProductCard, ProductGrid, SortBy. PDP (7): ProductGallery, AddToCart, StickyMobileAddToCart, VariantSelector, QuantitySelector, ProductTabs, RelatedProducts. Cart (2): CartPage, CartDrawer. Checkout (8): CheckoutPage, Summary, PlaceOrder, ContactStep, ShippingStep, DeliveryStep, PaymentStep, OrderConfirmation. Account (5): Dashboard, Orders, Addresses, Wishlist, Settings. Auth (2): Login, ForgotPassword.
 
 ### Apps Architecture Patterns
 

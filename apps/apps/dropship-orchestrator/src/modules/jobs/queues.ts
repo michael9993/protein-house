@@ -81,6 +81,7 @@ export const QUEUE_NAMES = {
   RECONCILIATION: "dropship-reconciliation",
   TOKEN_REFRESH: "dropship-token-refresh",
   STOCK_SYNC: "dropship-stock-sync",
+  DLQ_RETRY: "dropship-dlq-retry",
 } as const;
 
 /**
@@ -115,6 +116,15 @@ export const tokenRefreshQueue = new Queue<TokenRefreshJobData>(QUEUE_NAMES.TOKE
  * Repeatable: every 4 hours.
  */
 export const stockSyncQueue = new Queue<StockSyncJobData>(QUEUE_NAMES.STOCK_SYNC, {
+  connection: getRedisConnection(),
+  defaultJobOptions,
+});
+
+/**
+ * DLQ retry queue — processes failed CJ webhook payloads.
+ * Repeatable: on-demand or periodic check.
+ */
+export const dlqRetryQueue = new Queue(QUEUE_NAMES.DLQ_RETRY, {
   connection: getRedisConnection(),
   defaultJobOptions,
 });

@@ -1,4 +1,5 @@
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
+import { useRouter } from "next/router";
 import { useState } from "react";
 
 import { trpcClient } from "@/modules/trpc/trpc-client";
@@ -29,9 +30,12 @@ function exceptionStatusBadgeCls(status: string): string {
 }
 
 function ExceptionQueue() {
+  const router = useRouter();
   const [statusFilter, setStatusFilter] = useState<ExceptionStatus | "all">("pending_review");
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const { data, isLoading, error, refetch } = trpcClient.exceptions.list.useQuery({
     status: statusFilter === "all" ? undefined : statusFilter,
@@ -51,6 +55,46 @@ function ExceptionQueue() {
       refetch();
     },
   });
+
+  const bulkApproveMutation = trpcClient.exceptions.bulkApprove.useMutation({
+    onSuccess: (result) => {
+      const failed = result.results.filter((r) => !r.success);
+      if (failed.length > 0) {
+        alert(`${result.results.length - failed.length} approved, ${failed.length} failed.`);
+      }
+      setSelectedIds(new Set());
+      refetch();
+    },
+  });
+
+  const bulkRejectMutation = trpcClient.exceptions.bulkReject.useMutation({
+    onSuccess: (result) => {
+      const failed = result.results.filter((r) => !r.success);
+      if (failed.length > 0) {
+        alert(`${result.results.length - failed.length} rejected, ${failed.length} failed.`);
+      }
+      setSelectedIds(new Set());
+      refetch();
+    },
+  });
+
+  const toggleExpand = (id: string) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const pendingExceptions = data?.exceptions.filter((e) => e.status === "pending_review") ?? [];
 
   if (isLoading) {
     return (
@@ -128,6 +172,54 @@ function ExceptionQueue() {
         ))}
       </div>
 
+      {/* Bulk Action Bar */}
+      {selectedIds.size > 0 && (
+        <div className="p-3 bg-yellow-50 rounded-lg flex justify-between items-center">
+          <span className="text-sm font-medium">{selectedIds.size} selected</span>
+          <div className="flex gap-2">
+            <button
+              className="px-3 py-1.5 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light disabled:opacity-50 transition-colors"
+              disabled={bulkApproveMutation.isLoading}
+              onClick={() => bulkApproveMutation.mutate({ exceptionIds: Array.from(selectedIds) })}
+            >
+              {bulkApproveMutation.isLoading ? "Approving..." : "Approve Selected"}
+            </button>
+            <button
+              className="px-3 py-1.5 text-sm font-medium border border-border rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
+              disabled={bulkRejectMutation.isLoading}
+              onClick={() => bulkRejectMutation.mutate({ exceptionIds: Array.from(selectedIds) })}
+            >
+              {bulkRejectMutation.isLoading ? "Rejecting..." : "Reject Selected"}
+            </button>
+            <button
+              className="text-sm text-text-muted hover:text-text-primary transition-colors"
+              onClick={() => setSelectedIds(new Set())}
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Select All Pending */}
+      {pendingExceptions.length > 0 && (
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={pendingExceptions.length > 0 && pendingExceptions.every((e) => selectedIds.has(e.id))}
+            onChange={() => {
+              if (pendingExceptions.every((e) => selectedIds.has(e.id))) {
+                setSelectedIds(new Set());
+              } else {
+                setSelectedIds(new Set(pendingExceptions.map((e) => e.id)));
+              }
+            }}
+            className="w-4 h-4"
+          />
+          <span className="text-sm text-text-muted">Select All Pending ({pendingExceptions.length})</span>
+        </div>
+      )}
+
       {/* Exception Cards */}
       <div className="flex flex-col gap-3">
         {data?.exceptions.map((exception) => (
@@ -139,10 +231,29 @@ function ExceptionQueue() {
           >
             <div className="flex justify-between items-start mb-3">
               <div className="flex gap-3 items-center">
-                <span className="font-semibold">Order #{exception.orderNumber}</span>
+                {exception.status === "pending_review" && (
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(exception.id)}
+                    onChange={() => toggleSelect(exception.id)}
+                    className="w-4 h-4"
+                  />
+                )}
+                <button
+                  className="font-semibold hover:text-brand transition-colors"
+                  onClick={() => router.push(`/orders/${exception.orderId}`)}
+                >
+                  Order #{exception.orderNumber}
+                </button>
                 <span className={`inline-block px-2 py-1 rounded-lg text-xs ${exceptionStatusBadgeCls(exception.status)}`}>
                   {exception.status.replace("_", " ").toUpperCase()}
                 </span>
+                <button
+                  className="text-xs text-text-muted hover:text-text-primary transition-colors"
+                  onClick={() => toggleExpand(exception.id)}
+                >
+                  Details {expandedIds.has(exception.id) ? "\u25BE" : "\u25B8"}
+                </button>
               </div>
               <span className="text-xs text-text-muted">
                 {new Date(exception.createdAt).toLocaleString()}
@@ -153,8 +264,35 @@ function ExceptionQueue() {
               <span className="font-semibold block mb-1">
                 Reason: {exception.reason.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
               </span>
-              <p className="text-sm text-text-muted">{exception.details}</p>
+              <p className="text-sm text-text-muted">
+                {expandedIds.has(exception.id) ? exception.details : exception.details.slice(0, 120) + (exception.details.length > 120 ? "..." : "")}
+              </p>
             </div>
+
+            {/* Expanded details */}
+            {expandedIds.has(exception.id) && (
+              <div className="mb-3 p-3 bg-gray-50 rounded-lg">
+                <div className="flex flex-col gap-1 text-sm">
+                  <div className="flex gap-2">
+                    <span className="text-text-muted">Order ID:</span>
+                    <button
+                      className="text-brand hover:underline"
+                      onClick={() => router.push(`/orders/${exception.orderId}`)}
+                    >
+                      {exception.orderId}
+                    </button>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="text-text-muted">Created:</span>
+                    <span>{new Date(exception.createdAt).toLocaleString()}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="text-text-muted">Exception ID:</span>
+                    <span className="text-xs font-mono">{exception.id}</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {exception.resolvedAt && (
               <div className="mb-3">

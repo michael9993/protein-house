@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Pencil, Trash2 } from "lucide-react";
 import { useBranding, useAddressesText, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { CheckoutTextProvider, type CheckoutTextConfig } from "@/lib/checkout/useCheckoutText";
 import { AddressForm } from "@/checkout-v2/components/AddressForm";
 import { ConfirmDialog } from "@/checkout-v2/components/ConfirmDialog";
@@ -152,8 +153,7 @@ export function AddressesClient({
 
 	return (
 		<div data-cd="account-addresses" className={`space-y-6 ${cdClasses}`} style={{
-			...(cdStyle?.backgroundColor && { background: 'var(--cd-account-addresses-bg)' }),
-			...(cdStyle?.textColor && { color: 'var(--cd-account-addresses-text)' }),
+			...buildComponentStyle("account.addresses", cdStyle),
 		}}>
 			{/* Header */}
 			<div className="flex items-center justify-between">

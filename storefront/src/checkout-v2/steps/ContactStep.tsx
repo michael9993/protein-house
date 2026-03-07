@@ -13,6 +13,8 @@ import { contactSchema, type ContactFormValues } from "../schemas";
 import { updateEmail } from "../_actions/update-email";
 import { syncAuthToCookies, clearAuthCookies } from "@/app/actions";
 import { STEP_CONTACT, STEP_SHIPPING } from "../types";
+import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 
 // ---------------------------------------------------------------------------
 // GoogleSignInButton — reusable Google OAuth trigger
@@ -453,6 +455,8 @@ interface ContactStepProps {
 }
 
 export function ContactStep({ checkoutId, channel }: ContactStepProps) {
+	const cdStyle = useComponentStyle("checkout.contactStep");
+	const cdClasses = useComponentClasses("checkout.contactStep");
 	const { user, authenticated, reload: reloadUser } = useUser();
 	const { state, dispatch, setMutating, completeStepAndAdvance } = useCheckoutState();
 
@@ -515,7 +519,7 @@ export function ContactStep({ checkoutId, channel }: ContactStepProps) {
 	}
 
 	return (
-		<div data-cd="checkout-contactStep">
+		<div data-cd="checkout-contactStep" className={cdClasses} style={{ ...buildComponentStyle("checkout.contactStep", cdStyle) }}>
 			{section === "guest" && (
 				<GuestSection
 					checkoutId={checkoutId}

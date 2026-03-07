@@ -5,6 +5,7 @@ import { type ProductListItemFragment } from "@/gql/graphql";
 import { t } from "@/lib/language";
 import { useWishlist } from "@/lib/wishlist";
 import { useBranding, useStoreInfo, useContentConfig, useTrendingConfig, useFeature, useProductCardConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { buildProductsUrl, withChannel } from "@/lib/urls";
 import { SectionViewAllButton } from "./SectionViewAllButton";
 import { useQuickView } from "@/providers/QuickViewProvider";
@@ -98,8 +99,7 @@ export function TrendingProducts({ products, channel, title, subtitle }: Trendin
       className={`py-20 ${cdClasses}`}
       aria-label="Trending products"
       style={{
-        ...(cdStyle?.backgroundColor && { background: `var(--cd-homepage-trending-bg)` }),
-        ...(cdStyle?.textColor && { color: `var(--cd-homepage-trending-text)` }),
+        ...buildComponentStyle("homepage.trending", cdStyle),
       }}
     >
       <div className="mx-auto max-w-[var(--design-container-max)] px-6 lg:px-12">

@@ -18,6 +18,8 @@ import { deleteUserAddress } from "../_actions/delete-user-address";
 import { validateAddressExists } from "../_actions/validate-address";
 import { setDefaultAddress } from "../_actions/set-default-address";
 import { STEP_SHIPPING } from "../types";
+import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import type { AddressSuggestion } from "../types";
 
 // ---------------------------------------------------------------------------
@@ -29,6 +31,8 @@ interface ShippingStepProps {
 }
 
 export function ShippingStep({ checkoutId }: ShippingStepProps) {
+	const cdStyle = useComponentStyle("checkout.shippingStep");
+	const cdClasses = useComponentClasses("checkout.shippingStep");
 	const t = useCheckoutText();
 	const { state, dispatch, setMutating, setStepErrors, clearStepErrors, setCheckout, completeStepAndAdvance } =
 		useCheckoutState();
@@ -459,7 +463,7 @@ export function ShippingStep({ checkoutId }: ShippingStepProps) {
 	const stepErrors = state.stepErrors.get(STEP_SHIPPING);
 
 	return (
-		<div data-cd="checkout-shippingStep" className="space-y-6">
+		<div data-cd="checkout-shippingStep" className={`space-y-6 ${cdClasses}`} style={{ ...buildComponentStyle("checkout.shippingStep", cdStyle) }}>
 			<p className="text-sm text-neutral-500">
 				{t.shippingAddressSubtitle ?? "Where should we deliver?"}
 			</p>

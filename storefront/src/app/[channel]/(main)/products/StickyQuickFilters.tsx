@@ -2,6 +2,7 @@
 
 import { useProductFilters } from "@/hooks/useProductFilters";
 import { useStoreConfig, useQuickFiltersConfig, useFiltersText, useBranding, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { type MouseEvent, useCallback, useEffect, useRef, useState } from "react";
 
@@ -395,8 +396,7 @@ export function StickyQuickFilters() {
       style={{
         top: `${topOffset}px`,
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-        ...(cdStyle?.backgroundColor && { background: `var(--cd-plp-quickFilters-bg)` }),
-        ...(cdStyle?.textColor && { color: `var(--cd-plp-quickFilters-text)` }),
+        ...buildComponentStyle("plp.quickFilters", cdStyle),
       }}
     >
       {/* Quick filter chips — horizontally scrollable */}

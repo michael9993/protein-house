@@ -1,5 +1,8 @@
 "use client";
 
+import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
+
 interface Props {
   quantity: number;
   onChange: (qty: number) => void;
@@ -17,10 +20,12 @@ export function QuantitySelector({
   label = "Qty:",
   maxPerOrderLabel,
 }: Props) {
+  const cdStyle = useComponentStyle("pdp.quantitySelector");
+  const cdClasses = useComponentClasses("pdp.quantitySelector");
   const effectiveMax = Math.max(1, max);
 
   return (
-    <div data-cd="pdp-quantitySelector" className="flex flex-col gap-1">
+    <div data-cd="pdp-quantitySelector" className={`flex flex-col gap-1 ${cdClasses}`} style={buildComponentStyle("pdp.quantitySelector", cdStyle)}>
       <div className="flex items-center">
         <label className="me-3 text-sm font-medium text-neutral-700">{label}</label>
         <div className="flex items-center rounded-lg border border-neutral-300">

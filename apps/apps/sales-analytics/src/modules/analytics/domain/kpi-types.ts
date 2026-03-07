@@ -10,12 +10,6 @@ export const MoneySchema = z.object({
 export type Money = z.infer<typeof MoneySchema>;
 
 /**
- * Branded type for channel slugs
- */
-export const ChannelSlugSchema = z.string().min(1).brand("ChannelSlug");
-export type ChannelSlug = z.infer<typeof ChannelSlugSchema>;
-
-/**
  * Trend direction for KPI comparison
  */
 export const TrendDirectionSchema = z.enum(["up", "down", "neutral"]);
@@ -96,33 +90,6 @@ export const RecentOrderSchema = z.object({
 export type RecentOrder = z.infer<typeof RecentOrderSchema>;
 
 /**
- * Complete analytics dashboard data
- */
-export const AnalyticsDashboardDataSchema = z.object({
-  kpis: DashboardKPIsSchema,
-  revenueOverTime: z.array(RevenueDataPointSchema),
-  topProducts: z.array(TopProductSchema),
-  topCategories: z.array(CategoryDataSchema),
-  recentOrders: z.array(RecentOrderSchema),
-});
-export type AnalyticsDashboardData = z.infer<typeof AnalyticsDashboardDataSchema>;
-
-/**
- * Order status types
- */
-export const OrderStatusSchema = z.enum([
-  "DRAFT",
-  "UNCONFIRMED",
-  "UNFULFILLED",
-  "PARTIALLY_FULFILLED",
-  "FULFILLED",
-  "PARTIALLY_RETURNED",
-  "RETURNED",
-  "CANCELED",
-]);
-export type OrderStatus = z.infer<typeof OrderStatusSchema>;
-
-/**
  * Currency information for multi-currency handling
  */
 export const CurrencyInfoSchema = z.object({
@@ -131,3 +98,38 @@ export const CurrencyInfoSchema = z.object({
   isMultiCurrency: z.boolean(),
 });
 export type CurrencyInfo = z.infer<typeof CurrencyInfoSchema>;
+
+/**
+ * Order type filter for dropship vs non-dropship analytics
+ */
+export const OrderTypeFilterSchema = z.enum(["all", "dropship", "non-dropship"]);
+export type OrderTypeFilter = z.infer<typeof OrderTypeFilterSchema>;
+
+/**
+ * Profitability P&L breakdown
+ */
+export const ProfitabilityDataSchema = z.object({
+  grossRevenue: z.number(),
+  shippingRevenue: z.number(),
+  cogs: z.number(),
+  cogsAvailable: z.boolean(),
+  discounts: z.number(),
+  grossProfit: z.number(),
+  netRevenue: z.number(),
+  marginPercent: z.number(),
+  orderCount: z.number(),
+  linesWithCost: z.number(),
+  linesTotal: z.number(),
+});
+export type ProfitabilityData = z.infer<typeof ProfitabilityDataSchema>;
+
+/**
+ * Profitability data point for charts
+ */
+export const ProfitabilityDataPointSchema = z.object({
+  date: z.string(),
+  revenue: z.number(),
+  cogs: z.number(),
+  profit: z.number(),
+});
+export type ProfitabilityDataPoint = z.infer<typeof ProfitabilityDataPointSchema>;

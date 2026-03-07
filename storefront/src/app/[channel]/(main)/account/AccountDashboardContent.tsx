@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { formatMoney } from "@/lib/utils";
 import { useBranding, useDashboardText, useOrdersText, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 
 interface Order {
 	id: string;
@@ -35,8 +36,7 @@ export function AccountDashboardContent({ channel, recentOrders }: AccountDashbo
 
 	return (
 		<div data-cd="account-dashboard" className={`rounded-lg border border-neutral-200 bg-white ${cdClasses}`} style={{
-			...(cdStyle?.backgroundColor && { background: 'var(--cd-account-dashboard-bg)' }),
-			...(cdStyle?.textColor && { color: 'var(--cd-account-dashboard-text)' }),
+			...buildComponentStyle("account.dashboard", cdStyle),
 		}}>
 			<div className="flex items-center justify-between border-b border-neutral-200 px-5 py-3.5">
 				<h2 className="text-sm font-semibold text-neutral-900">{dashboardText.recentOrders}</h2>

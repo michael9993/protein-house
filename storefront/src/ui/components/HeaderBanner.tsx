@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, type Dispatch, type SetStateAction } from "react";
 import Link from "next/link";
 import { useBranding, useHeaderConfig, useStoreConfig, useNavbarText, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 
 const DEFAULT_INTERVAL_SECONDS = 6;
 const DISMISS_STORAGE_PREFIX = "banner-dismissed-";
@@ -220,8 +221,7 @@ function HeaderBannerCarousel({
 			className={`relative w-full py-1.5 text-center font-medium ${cdClasses}`}
 			style={{
 				...backgroundStyle,
-				...(cdStyle?.backgroundColor && { background: `var(--cd-layout-headerBanner-bg)` }),
-				...(cdStyle?.textColor && { color: `var(--cd-layout-headerBanner-text)` }),
+				...buildComponentStyle("layout.headerBanner", cdStyle),
 			}}
 			onMouseEnter={() => setPaused(true)}
 			onMouseLeave={() => setPaused(false)}

@@ -17,10 +17,12 @@ import { CategoryDonutChart } from "@/modules/ui/components/category-chart";
 import { RecentOrdersTable } from "@/modules/ui/components/orders-table";
 import { DateRangePicker, QuickDateSelect } from "@/modules/ui/components/date-range-picker";
 import { ChannelSelector } from "@/modules/ui/components/channel-selector";
+import { OrderTypeSelector } from "@/modules/ui/components/order-type-selector";
 import { ExportButton } from "@/modules/ui/components/export-button";
 import { AutoRefreshToggle, useAutoRefresh } from "@/modules/ui/components/auto-refresh-toggle";
 import { getTimeRangeFromPreset, type TimeRange } from "@/modules/analytics/domain/time-range";
 import { exportAnalyticsToExcel } from "@/modules/ui/utils/export-analytics";
+import type { OrderTypeFilter } from "@/modules/analytics/domain/kpi-types";
 
 const REFRESH_INTERVAL = 30_000;
 
@@ -44,6 +46,7 @@ export default function IndexPage() {
   // State for filters
   const [dateRange, setDateRange] = useState<TimeRange>(() => getTimeRangeFromPreset("last30days"));
   const [channelSlug, setChannelSlug] = useState<string | undefined>(undefined);
+  const [orderType, setOrderType] = useState<OrderTypeFilter>("all");
 
   // Fetch channels
   const channelsQuery = trpcClient.channels.list.useQuery(undefined, {
@@ -82,8 +85,9 @@ export default function IndexPage() {
       dateFrom: dateRange.from,
       dateTo: dateRange.to,
       currency,
+      orderType,
     }),
-    [effectiveChannelSlug, dateRange.from, dateRange.to, currency],
+    [effectiveChannelSlug, dateRange.from, dateRange.to, currency, orderType],
   );
 
   // Shared query options with auto-refresh
@@ -129,6 +133,12 @@ export default function IndexPage() {
     },
   );
 
+  const profitabilityQuery = trpcClient.analytics.getProfitability.useQuery(queryInput, {
+    enabled: !!appBridgeState?.ready && !!effectiveChannelSlug,
+    refetchInterval,
+    keepPreviousData: true,
+  });
+
   // Track last updated time
   useEffect(() => {
     if (kpisQuery.dataUpdatedAt > 0) {
@@ -166,6 +176,7 @@ export default function IndexPage() {
               onToggle={autoRefresh.toggle}
               lastUpdated={autoRefresh.lastUpdated}
             />
+            <OrderTypeSelector value={orderType} onChange={setOrderType} />
             <ChannelSelector
               channels={channelsQuery.data ?? []}
               value={channelSlug}
@@ -234,7 +245,12 @@ export default function IndexPage() {
       <DashboardSection>
         <div className={isRefreshing ? "opacity-80 transition-opacity" : ""}>
           {kpisQuery.data?.kpis ? (
-            <KPICardsGrid kpis={kpisQuery.data.kpis} isLoading={kpisQuery.isLoading} />
+            <KPICardsGrid
+              kpis={kpisQuery.data.kpis}
+              profitability={profitabilityQuery.data?.profitability}
+              currency={currency}
+              isLoading={kpisQuery.isLoading}
+            />
           ) : (
             <KPICardsGrid
               kpis={{

@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { parseDescription } from "./utils";
 import { CountdownTimer } from "@/ui/components/CountdownTimer";
 import { useBranding, usePromoPopupConfig, usePromotionBannerConfig, useContentConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { withChannel } from "@/lib/urls";
 
 interface PromotionBannerProps {
@@ -75,8 +76,7 @@ export function PromotionBanner({ channel, promoData }: PromotionBannerProps) {
       className={`relative overflow-hidden border-y border-neutral-200 transform-gpu will-change-transform ${cdClasses}`}
       aria-label="Promotional sale banner"
       style={{
-        ...(cdStyle?.backgroundColor && { background: `var(--cd-homepage-promotionBanner-bg)` }),
-        ...(cdStyle?.textColor && { color: `var(--cd-homepage-promotionBanner-text)` }),
+        ...buildComponentStyle("homepage.promotionBanner", cdStyle),
       }}
     >
       <div className="relative mx-auto max-w-[var(--design-container-max)] px-6 py-16 lg:px-12 lg:py-20">

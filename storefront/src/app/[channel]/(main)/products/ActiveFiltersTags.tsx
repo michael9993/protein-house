@@ -2,6 +2,7 @@
 
 import { useProductFilters } from "@/hooks/useProductFilters";
 import { useStoreConfig, useUiConfig, useFiltersText, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { type FilterState } from "@/lib/filters";
 import { getChannelCurrencyClient } from "@/lib/channel-utils";
 import { getCurrencySymbol } from "@/lib/currency";
@@ -149,10 +150,10 @@ export function ActiveFiltersTags({
       data-cd="plp-activeFiltersTags"
       className={`mb-4 ${borderRadiusClasses[containerBorderRadius]} ${shadowClasses[containerShadow]} border ${cdClasses}`}
       style={{
-        background: cdStyle?.backgroundColor ? `var(--cd-plp-activeFiltersTags-bg)` : containerBg,
+        background: containerBg,
         borderColor: containerBorderColor,
         padding: `${containerPadding}px`,
-        ...(cdStyle?.textColor && { color: `var(--cd-plp-activeFiltersTags-text)` }),
+        ...buildComponentStyle("plp.activeFiltersTags", cdStyle),
       }}
     >
       <div className="mb-3 flex items-center justify-between">

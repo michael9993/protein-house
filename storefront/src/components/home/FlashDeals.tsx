@@ -5,6 +5,7 @@ import { type ProductListItemFragment } from "@/gql/graphql";
 import { t } from "@/lib/language";
 import { useWishlist } from "@/lib/wishlist";
 import { useBranding, useStoreInfo, useFlashDealsConfig, useContentConfig, useProductCardConfig, useFeature, useBadgeStyle, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { useQuickView } from "@/providers/QuickViewProvider";
 import { CountdownTimer } from "@/ui/components/CountdownTimer";
 import { HomepageProductCard } from "./HomepageProductCard";
@@ -102,8 +103,7 @@ export function FlashDeals({ products, channel, maxDiscount, saleEndDate }: Flas
       className={`border-b border-neutral-100 py-20 ${cdClasses}`}
       aria-label="Flash deals section"
       style={{
-        ...(cdStyle?.backgroundColor && { background: `var(--cd-homepage-flashDeals-bg)` }),
-        ...(cdStyle?.textColor && { color: `var(--cd-homepage-flashDeals-text)` }),
+        ...buildComponentStyle("homepage.flashDeals", cdStyle),
       }}
     >
       <div className="mx-auto max-w-[var(--design-container-max)] px-6 lg:px-12">

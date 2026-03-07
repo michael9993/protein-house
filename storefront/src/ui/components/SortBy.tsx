@@ -5,12 +5,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption, Transition } from "@headlessui/react";
 import { ChevronDown } from "lucide-react";
 import clsx from "clsx";
-import { useFiltersText, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { useFiltersText, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 
 export const SortBy = () => {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const filtersText = useFiltersText();
+	const cdStyle = useComponentStyle("plp.sortBy");
 	const cdClasses = useComponentClasses("plp.sortBy");
 	const currentSortValue = searchParams.get("sort") || "name-asc";
 
@@ -35,7 +37,7 @@ export const SortBy = () => {
 	};
 
 	return (
-		<div data-cd="plp-sortBy" className={`w-auto max-w-[200px] ${cdClasses}`}>
+		<div data-cd="plp-sortBy" className={`w-auto max-w-[200px] ${cdClasses}`} style={{ ...buildComponentStyle("plp.sortBy", cdStyle) }}>
 			<Listbox value={currentSortValue} onChange={handleChange}>
 				<div className="relative mt-1">
 					<ListboxButton className="relative w-full cursor-pointer bg-transparent py-2 ps-3 pe-10 text-start text-sm font-medium text-neutral-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-300 sm:text-sm">

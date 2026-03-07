@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
 import { useStoreConfig, useFiltersText, useNavbarText, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { buildProductUrl, buildSearchUrl, withChannel } from "@/lib/urls";
 
 interface SearchResult {
@@ -118,7 +119,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
   if (!isOpen) return null;
 
   return (
-    <div data-cd="layout-searchDialog" className={`fixed inset-0 z-50 overflow-y-auto ${cdClasses}`}>
+    <div data-cd="layout-searchDialog" className={`fixed inset-0 z-50 overflow-y-auto ${cdClasses}`} style={{ ...buildComponentStyle("layout.searchDialog", cdStyle) }}>
       {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"

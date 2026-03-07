@@ -1746,3 +1746,35 @@ function getComponentOverrideCSSVariables(config: StoreConfig): Record<string, s
 
   return vars;
 }
+
+/**
+ * Build an inline style object for a component that references its CSS custom properties.
+ * Components use this instead of manually spreading 14+ style entries.
+ *
+ * @param key - Component key in dot notation, e.g. "homepage.hero"
+ * @param cdStyle - The component's override data (or undefined if none)
+ * @returns React.CSSProperties referencing --cd-{key}-{prop} CSS variables
+ */
+export function buildComponentStyle(
+  key: string,
+  cdStyle: Record<string, unknown> | undefined
+): Record<string, string> {
+  if (!cdStyle) return {};
+  const prefix = `--cd-${key.replace(/\./g, '-')}`;
+  const style: Record<string, string> = {};
+  if (cdStyle.backgroundColor) style.background = `var(${prefix}-bg)`;
+  if (cdStyle.textColor) style.color = `var(${prefix}-text)`;
+  if (cdStyle.borderColor) style.borderColor = `var(${prefix}-border)`;
+  if (cdStyle.borderWidth != null) style.borderWidth = `var(${prefix}-border-w)`;
+  if (cdStyle.borderRadius) style.borderRadius = `var(${prefix}-radius)`;
+  if (cdStyle.shadow) style.boxShadow = `var(${prefix}-shadow)`;
+  if (cdStyle.opacity != null) style.opacity = `var(${prefix}-opacity)`;
+  if (cdStyle.fontFamily) style.fontFamily = `var(${prefix}-font)`;
+  if (cdStyle.fontSize) style.fontSize = `var(${prefix}-font-size)`;
+  if (cdStyle.fontWeight) style.fontWeight = `var(${prefix}-font-weight)`;
+  if (cdStyle.textTransform) style.textTransform = `var(${prefix}-text-transform)`;
+  if (cdStyle.padding) style.padding = `var(${prefix}-padding)`;
+  if (cdStyle.margin) style.margin = `var(${prefix}-margin)`;
+  if (cdStyle.gap) style.gap = `var(${prefix}-gap)`;
+  return style;
+}

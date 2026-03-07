@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { useBranding, useContentConfig, useCategoriesConfig, useDesignTokens, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { buildCategoryUrl, buildCategoryUrlFromChildren, buildProductsUrl, withChannel } from "@/lib/urls";
 import { type DashboardCategory, type DashboardCategoryChild } from "./utils";
 import { SectionViewAllButton } from "./SectionViewAllButton";
@@ -517,8 +518,7 @@ export function Categories({ categories, channel, title, subtitle }: CategoriesP
       className={`relative border-t border-neutral-100 ${cdClasses}`}
       aria-label={displayTitle}
       style={{
-        ...(cdStyle?.backgroundColor && { background: `var(--cd-homepage-categories-bg)` }),
-        ...(cdStyle?.textColor && { color: `var(--cd-homepage-categories-text)` }),
+        ...buildComponentStyle("homepage.categories", cdStyle),
       }}
     >
       {/* CSS keyframes for progress bar */}

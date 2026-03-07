@@ -1,5 +1,0 @@
-query FetchOrderById($id: ID!) {
-  order(id: $id) {
-    ...OrderAnalytics
-  }
-}

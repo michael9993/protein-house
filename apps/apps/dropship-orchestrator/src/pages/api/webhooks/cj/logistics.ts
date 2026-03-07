@@ -1,22 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { createGraphQLClient } from "@saleor/apps-shared/create-graphql-client";
 import { gql } from "urql";
 import { z } from "zod";
 
 import { createLogger } from "@/logger";
 import { logAuditEvent } from "@/modules/audit/audit-logger";
 import { getRedisConnection } from "@/modules/jobs/queues";
-import { getClientIp, isIpAllowed } from "@/modules/security/ip-whitelist";
-import { saleorApp } from "@/saleor-app";
+import { withCJWebhookAuth } from "@/modules/webhooks/cj/shared";
 
 const logger = createLogger("webhook:cj:logistics");
 
 // ---------------------------------------------------------------------------
 // Payload validation
 // ---------------------------------------------------------------------------
-
-// CJ actual webhook format: { messageId, type: "LOGISTICS", messageType: "UPDATE", params: { ... } }
-// See: https://developers.cjdropshipping.cn/en/api/start/webhook
 
 const CJLogisticsWebhookPayloadSchema = z.object({
   messageId: z.string().min(1),
@@ -34,51 +29,6 @@ const CJLogisticsWebhookPayloadSchema = z.object({
 });
 
 type CJLogisticsWebhookPayload = z.infer<typeof CJLogisticsWebhookPayloadSchema>;
-
-// ---------------------------------------------------------------------------
-// Deduplication (Redis-backed, persists across restarts)
-// ---------------------------------------------------------------------------
-
-const DEDUP_TTL_SECONDS = 24 * 60 * 60; // 24 hours
-const DEDUP_KEY_PREFIX = "dropship:cj:dedup:";
-
-async function isDuplicate(messageId: string): Promise<boolean> {
-  try {
-    const redis = getRedisConnection();
-    const existing = await redis.get(DEDUP_KEY_PREFIX + messageId);
-    return existing !== null;
-  } catch (error) {
-    logger.warn("Redis dedup check failed — allowing message", {
-      messageId,
-      error: error instanceof Error ? error.message : String(error),
-    });
-    return false;
-  }
-}
-
-async function markProcessed(messageId: string): Promise<void> {
-  try {
-    const redis = getRedisConnection();
-    await redis.set(DEDUP_KEY_PREFIX + messageId, "1", "EX", DEDUP_TTL_SECONDS);
-  } catch (error) {
-    logger.warn("Redis dedup mark failed", {
-      messageId,
-      error: error instanceof Error ? error.message : String(error),
-    });
-  }
-}
-
-// ---------------------------------------------------------------------------
-// IP whitelist for CJ Dropshipping
-// ---------------------------------------------------------------------------
-
-const CJ_WEBHOOK_IPS = [
-  "47.252.50.116",
-  "47.252.50.117",
-  "47.252.50.118",
-  "47.252.50.119",
-  "47.88.76.0/24",
-];
 
 // ---------------------------------------------------------------------------
 // GraphQL
@@ -185,248 +135,246 @@ const FETCH_WAREHOUSES = gql`
 // ---------------------------------------------------------------------------
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
-  const startTime = Date.now();
-
-  if (req.method !== "POST") {
-    res.status(405).json({ error: "Method not allowed" });
-    return;
-  }
-
-  // --- IP whitelist check (log-only behind Cloudflare tunnel) ---
-  const clientIp = getClientIp(req);
-
-  if (!isIpAllowed(clientIp, CJ_WEBHOOK_IPS)) {
-    // Behind Cloudflare tunnel, CJ's real IP may not match the whitelist.
-    // Log for audit but don't block — Cloudflare provides the security layer.
-    logger.warn("CJ logistics webhook: IP not in whitelist (allowed — behind tunnel)", { clientIp });
-  }
-
-  // --- Parse and validate payload ---
   const parseResult = CJLogisticsWebhookPayloadSchema.safeParse(req.body);
 
-  if (!parseResult.success) {
+  if (req.method === "POST" && !parseResult.success) {
     logger.warn("CJ logistics webhook: invalid payload", {
-      errors: parseResult.error.flatten().fieldErrors,
+      errors: parseResult.error?.flatten().fieldErrors,
     });
     res.status(200).json({ success: true, message: "Invalid payload — acknowledged" });
     return;
   }
 
-  const payload: CJLogisticsWebhookPayload = parseResult.data;
+  const payload: CJLogisticsWebhookPayload | undefined = parseResult.success ? parseResult.data : undefined;
 
-  logger.info("CJ logistics webhook received", {
-    messageId: payload.messageId,
-    cjOrderId: payload.params.cjOrderId,
-    trackingNumber: payload.params.trackNumber,
-  });
+  await withCJWebhookAuth(
+    req,
+    res,
+    { messageId: payload?.messageId ?? "", dedupTtl: 86400, loggerName: "webhook:cj:logistics" },
+    async ({ client, startTime }) => {
+      if (!payload) return;
 
-  // --- Deduplicate ---
-  if (await isDuplicate(payload.messageId)) {
-    logger.info("CJ logistics webhook: duplicate — skipping", {
-      messageId: payload.messageId,
-    });
-    res.status(200).json({ success: true, message: "Duplicate — already processed" });
-    return;
-  }
-
-  await markProcessed(payload.messageId);
-
-  // --- Resolve Saleor auth data ---
-  const allAuth = typeof (saleorApp.apl as any).getAll === "function"
-    ? await (saleorApp.apl as any).getAll()
-    : [];
-  const authData = Array.isArray(allAuth) ? allAuth[0] : null;
-
-  if (!authData) {
-    logger.error("No Saleor auth data available");
-    res.status(200).json({ success: true, message: "No auth data — acknowledged" });
-    return;
-  }
-
-  const client = createGraphQLClient({
-    saleorApiUrl: authData.saleorApiUrl,
-    token: authData.token,
-  });
-
-  // --- Find matching Saleor order ---
-  // Strategy 1: Redis reverse index (O(1))
-  // Strategy 2: Fallback metadata scan
-  let matchedOrder: {
-    id: string;
-    number: string;
-    lines: Array<{ id: string; quantity: number; variant: { id: string } | null }>;
-  } | null = null;
-  let existingMeta: Record<string, unknown> = {};
-
-  try {
-    const redis = getRedisConnection();
-    const saleorOrderId = await redis.get("dropship:supplier-order:" + payload.params.cjOrderId);
-
-    if (saleorOrderId) {
-      const { data: orderData } = await client
-        .query(FIND_ORDER_BY_ID, { id: saleorOrderId })
-        .toPromise();
-
-      if (orderData?.order) {
-        matchedOrder = orderData.order;
-        const meta = (orderData.order.metadata as Array<{ key: string; value: string }>)?.find(
-          (m: { key: string }) => m.key === "dropship",
-        );
-        if (meta) {
-          try { existingMeta = JSON.parse(meta.value); } catch { /* skip */ }
-        }
-      }
-    }
-  } catch (error) {
-    logger.warn("Redis reverse index lookup failed — falling back to scan", {
-      error: error instanceof Error ? error.message : String(error),
-    });
-  }
-
-  // Fallback: scan recent orders by metadata
-  if (!matchedOrder) {
-    const { data: ordersData } = await client
-      .query(SEARCH_ORDERS, { first: 100 })
-      .toPromise();
-
-    if (ordersData?.orders?.edges) {
-      for (const edge of ordersData.orders.edges) {
-        const meta = (edge.node.metadata as Array<{ key: string; value: string }>)?.find(
-          (m: { key: string }) => m.key === "dropship",
-        );
-
-        if (!meta) continue;
-
-        try {
-          const parsed = JSON.parse(meta.value);
-          const suppliers = parsed.suppliers as Record<string, string> | undefined;
-
-          if (suppliers && Object.values(suppliers).includes(payload.params.cjOrderId)) {
-            matchedOrder = edge.node;
-            existingMeta = parsed;
-            break;
-          }
-        } catch {
-          // Skip malformed
-        }
-      }
-    }
-  }
-
-  if (!matchedOrder) {
-    logger.warn("CJ logistics webhook: no matching Saleor order", {
-      cjOrderId: payload.params.cjOrderId,
-    });
-    res.status(200).json({ success: true, message: "No matching order — acknowledged" });
-    return;
-  }
-
-  // --- Create Saleor Fulfillment ---
-  try {
-    // Get a warehouse for the fulfillment
-    const { data: warehouseData } = await client
-      .query(FETCH_WAREHOUSES, { first: 1 })
-      .toPromise();
-
-    const warehouseId = warehouseData?.warehouses?.edges?.[0]?.node?.id;
-
-    if (!warehouseId) {
-      logger.error("No warehouses found — cannot create fulfillment");
-      res.status(200).json({ success: true, message: "No warehouse — acknowledged" });
-      return;
-    }
-
-    // Build fulfillment lines from the order lines
-    const fulfillmentLines = matchedOrder.lines
-      .filter((line) => line.variant !== null)
-      .map((line) => ({
-        orderLineId: line.id,
-        stocks: [
-          {
-            warehouse: warehouseId,
-            quantity: line.quantity,
-          },
-        ],
-      }));
-
-    if (fulfillmentLines.length === 0) {
-      logger.warn("No fulfillable lines found", { orderId: matchedOrder.id });
-      res.status(200).json({ success: true, message: "No fulfillable lines — acknowledged" });
-      return;
-    }
-
-    const { data: fulfillmentData, error: fulfillmentError } = await client
-      .mutation(CREATE_FULFILLMENT, {
-        orderId: matchedOrder.id,
-        input: {
-          lines: fulfillmentLines,
-          trackingNumber: payload.params.trackNumber,
-          notifyCustomer: true,
-        },
-      })
-      .toPromise();
-
-    if (fulfillmentError) {
-      logger.error("Failed to create fulfillment", {
-        orderId: matchedOrder.id,
-        error: fulfillmentError.message,
-      });
-    } else if (fulfillmentData?.orderFulfill?.errors?.length > 0) {
-      logger.error("Fulfillment mutation errors", {
-        orderId: matchedOrder.id,
-        errors: fulfillmentData.orderFulfill.errors,
-      });
-    } else {
-      logger.info("Fulfillment created", {
-        orderId: matchedOrder.id,
-        fulfillmentId: fulfillmentData?.orderFulfill?.fulfillments?.[0]?.id,
+      logger.info("CJ logistics webhook received", {
+        messageId: payload.messageId,
+        cjOrderId: payload.params.cjOrderId,
         trackingNumber: payload.params.trackNumber,
       });
-    }
-  } catch (e) {
-    logger.error("Error creating fulfillment", {
-      orderId: matchedOrder.id,
-      error: e instanceof Error ? e.message : String(e),
-    });
-  }
 
-  // --- Update order metadata ---
-  const updatedMeta = {
-    ...existingMeta,
-    status: "shipped",
-    trackingNumber: payload.params.trackNumber,
-    trackingUrl: payload.params.trackingUrl ?? "",
-    carrier: payload.params.logisticName ?? "",
-    shippedAt: new Date().toISOString(),
-  };
+      // --- Find matching Saleor order ---
+      let matchedOrder: {
+        id: string;
+        number: string;
+        lines: Array<{ id: string; quantity: number; variant: { id: string } | null }>;
+      } | null = null;
+      let existingMeta: Record<string, unknown> = {};
 
-  await client
-    .mutation(UPDATE_ORDER_METADATA, {
-      id: matchedOrder.id,
-      input: [{ key: "dropship", value: JSON.stringify(updatedMeta) }],
-    })
-    .toPromise();
+      try {
+        const redis = getRedisConnection();
+        const saleorOrderId = await redis.get("dropship:supplier-order:" + payload.params.cjOrderId);
 
-  await logAuditEvent(client, {
-    type: "fulfillment_created",
-    supplierId: "cj",
-    orderId: matchedOrder.id,
-    action: `CJ logistics: tracking ${payload.params.trackNumber} received, fulfillment created`,
-    request: {
-      messageId: payload.messageId,
-      cjOrderId: payload.params.cjOrderId,
-      trackingNumber: payload.params.trackNumber,
+        if (saleorOrderId) {
+          const { data: orderData } = await client
+            .query(FIND_ORDER_BY_ID, { id: saleorOrderId })
+            .toPromise();
+
+          if (orderData?.order) {
+            matchedOrder = orderData.order;
+            const meta = (orderData.order.metadata as Array<{ key: string; value: string }>)?.find(
+              (m: { key: string }) => m.key === "dropship",
+            );
+            if (meta) {
+              try { existingMeta = JSON.parse(meta.value); } catch { /* skip */ }
+            }
+          }
+        }
+      } catch (error) {
+        logger.warn("Redis reverse index lookup failed — falling back to scan", {
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+
+      // Fallback: scan recent orders by metadata
+      if (!matchedOrder) {
+        const { data: ordersData } = await client
+          .query(SEARCH_ORDERS, { first: 100 })
+          .toPromise();
+
+        if (ordersData?.orders?.edges) {
+          for (const edge of ordersData.orders.edges) {
+            const meta = (edge.node.metadata as Array<{ key: string; value: string }>)?.find(
+              (m: { key: string }) => m.key === "dropship",
+            );
+
+            if (!meta) continue;
+
+            try {
+              const parsed = JSON.parse(meta.value);
+              const suppliers = parsed.suppliers as Record<string, string> | undefined;
+
+              if (suppliers && Object.values(suppliers).includes(payload.params.cjOrderId)) {
+                matchedOrder = edge.node;
+                existingMeta = parsed;
+                break;
+              }
+            } catch {
+              // Skip malformed
+            }
+          }
+        }
+      }
+
+      if (!matchedOrder) {
+        logger.warn("CJ logistics webhook: no matching Saleor order", {
+          cjOrderId: payload.params.cjOrderId,
+        });
+        res.status(200).json({ success: true, message: "No matching order — acknowledged" });
+        return;
+      }
+
+      // --- Build shipments array (split-shipment support) ---
+      const existingShipments: Array<{
+        trackingNumber: string;
+        carrier: string;
+        trackingUrl: string;
+        status: string;
+      }> = Array.isArray(existingMeta.shipments)
+        ? (existingMeta.shipments as typeof existingShipments)
+        : [];
+
+      // Migrate legacy flat format
+      if (
+        existingShipments.length === 0 &&
+        typeof existingMeta.trackingNumber === "string" &&
+        existingMeta.trackingNumber
+      ) {
+        existingShipments.push({
+          trackingNumber: existingMeta.trackingNumber as string,
+          carrier: (existingMeta.carrier as string) || "",
+          trackingUrl: (existingMeta.trackingUrl as string) || "",
+          status: "shipped",
+        });
+      }
+
+      // Check if this tracking number already exists
+      const alreadyExists = existingShipments.some(
+        (s) => s.trackingNumber === payload.params.trackNumber,
+      );
+
+      if (!alreadyExists) {
+        existingShipments.push({
+          trackingNumber: payload.params.trackNumber,
+          carrier: payload.params.logisticName ?? "",
+          trackingUrl: payload.params.trackingUrl ?? "",
+          status: payload.params.logisticsStatus ?? "shipped",
+        });
+      }
+
+      // --- Create Saleor Fulfillment (only for new tracking numbers) ---
+      if (!alreadyExists) {
+        try {
+          const { data: warehouseData } = await client
+            .query(FETCH_WAREHOUSES, { first: 1 })
+            .toPromise();
+
+          const warehouseId = warehouseData?.warehouses?.edges?.[0]?.node?.id;
+
+          if (!warehouseId) {
+            logger.error("No warehouses found — cannot create fulfillment");
+          } else {
+            const fulfillmentLines = matchedOrder.lines
+              .filter((line) => line.variant !== null)
+              .map((line) => ({
+                orderLineId: line.id,
+                stocks: [{ warehouse: warehouseId, quantity: line.quantity }],
+              }));
+
+            if (fulfillmentLines.length === 0) {
+              logger.warn("No fulfillable lines found", { orderId: matchedOrder.id });
+            } else {
+              const { data: fulfillmentData, error: fulfillmentError } = await client
+                .mutation(CREATE_FULFILLMENT, {
+                  orderId: matchedOrder.id,
+                  input: {
+                    lines: fulfillmentLines,
+                    trackingNumber: payload.params.trackNumber,
+                    notifyCustomer: true,
+                  },
+                })
+                .toPromise();
+
+              if (fulfillmentError) {
+                logger.error("Failed to create fulfillment", {
+                  orderId: matchedOrder.id,
+                  error: fulfillmentError.message,
+                });
+              } else if (fulfillmentData?.orderFulfill?.errors?.length > 0) {
+                logger.error("Fulfillment mutation errors", {
+                  orderId: matchedOrder.id,
+                  errors: fulfillmentData.orderFulfill.errors,
+                });
+              } else {
+                logger.info("Fulfillment created", {
+                  orderId: matchedOrder.id,
+                  fulfillmentId: fulfillmentData?.orderFulfill?.fulfillments?.[0]?.id,
+                  trackingNumber: payload.params.trackNumber,
+                });
+              }
+            }
+          }
+        } catch (e) {
+          logger.error("Error creating fulfillment", {
+            orderId: matchedOrder.id,
+            error: e instanceof Error ? e.message : String(e),
+          });
+        }
+      } else {
+        logger.info("Tracking number already processed — skipping fulfillment", {
+          orderId: matchedOrder.id,
+          trackingNumber: payload.params.trackNumber,
+        });
+      }
+
+      // --- Update order metadata ---
+      const updatedMeta = {
+        ...existingMeta,
+        status: "shipped",
+        // Keep flat fields for backward compat (set to latest)
+        trackingNumber: payload.params.trackNumber,
+        trackingUrl: payload.params.trackingUrl ?? "",
+        carrier: payload.params.logisticName ?? "",
+        shipments: existingShipments,
+        shippedAt: new Date().toISOString(),
+      };
+
+      await client
+        .mutation(UPDATE_ORDER_METADATA, {
+          id: matchedOrder.id,
+          input: [{ key: "dropship", value: JSON.stringify(updatedMeta) }],
+        })
+        .toPromise();
+
+      await logAuditEvent(client, {
+        type: "fulfillment_created",
+        supplierId: "cj",
+        orderId: matchedOrder.id,
+        action: `CJ logistics: tracking ${payload.params.trackNumber} received, fulfillment created`,
+        request: {
+          messageId: payload.messageId,
+          cjOrderId: payload.params.cjOrderId,
+          trackingNumber: payload.params.trackNumber,
+        },
+        status: "success",
+        duration: Date.now() - startTime,
+        timestamp: new Date().toISOString(),
+      });
+
+      logger.info("CJ logistics webhook processed", {
+        orderId: matchedOrder.id,
+        trackingNumber: payload.params.trackNumber,
+        duration: Date.now() - startTime,
+      });
+
+      res.status(200).json({ success: true });
     },
-    status: "success",
-    duration: Date.now() - startTime,
-    timestamp: new Date().toISOString(),
-  });
-
-  logger.info("CJ logistics webhook processed", {
-    orderId: matchedOrder.id,
-    trackingNumber: payload.params.trackNumber,
-    duration: Date.now() - startTime,
-  });
-
-  res.status(200).json({ success: true });
+  );
 }

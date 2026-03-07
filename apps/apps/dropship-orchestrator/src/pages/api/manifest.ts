@@ -4,6 +4,7 @@ import { AppManifest } from "@saleor/app-sdk/types";
 import packageJson from "../../../package.json";
 import { orderCancelledWebhook } from "./webhooks/saleor/order-cancelled";
 import { orderPaidWebhook } from "./webhooks/saleor/order-paid";
+import { orderRefundedWebhook } from "./webhooks/saleor/order-refunded";
 import { shippingFilterWebhook } from "./webhooks/saleor/shipping-filter";
 import { shippingListWebhook } from "./webhooks/saleor/shipping-list";
 
@@ -42,6 +43,7 @@ const handler = createManifestHandler({
       webhooks: [
         orderPaidWebhook.getWebhookManifest(apiBaseURL),
         orderCancelledWebhook.getWebhookManifest(apiBaseURL),
+        orderRefundedWebhook.getWebhookManifest(apiBaseURL),
         shippingListWebhook.getWebhookManifest(apiBaseURL),
         shippingFilterWebhook.getWebhookManifest(apiBaseURL),
       ],

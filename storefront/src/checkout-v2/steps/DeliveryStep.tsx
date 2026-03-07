@@ -9,12 +9,16 @@ import { useAdjustedShippingMethods } from "../hooks/useAdjustedShippingMethods"
 import { useEcommerceSettings } from "@/providers/StoreConfigProvider";
 import { updateDeliveryMethod } from "../_actions/update-delivery-method";
 import { STEP_DELIVERY } from "../types";
+import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 
 interface DeliveryStepProps {
 	checkoutId: string;
 }
 
 export function DeliveryStep({ checkoutId }: DeliveryStepProps) {
+	const cdStyle = useComponentStyle("checkout.deliveryStep");
+	const cdClasses = useComponentClasses("checkout.deliveryStep");
 	const { state, setCheckout, completeStepAndAdvance, setMutating, clearStepErrors } = useCheckoutState();
 	const t = useCheckoutText();
 	const checkout = state.checkout;
@@ -101,7 +105,7 @@ export function DeliveryStep({ checkoutId }: DeliveryStepProps) {
 	}
 
 	return (
-		<div data-cd="checkout-deliveryStep" className="space-y-4">
+		<div data-cd="checkout-deliveryStep" className={`space-y-4 ${cdClasses}`} style={{ ...buildComponentStyle("checkout.deliveryStep", cdStyle) }}>
 			{stepErrors.length > 0 && (
 				<div role="alert" className="flex items-start gap-2 rounded-lg bg-warning-50 p-3">
 					<svg className="mt-0.5 h-4 w-4 shrink-0 text-warning-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">

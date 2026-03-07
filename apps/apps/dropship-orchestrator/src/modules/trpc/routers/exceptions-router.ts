@@ -381,6 +381,69 @@ export const exceptionsRouter = router({
       return { success: true, exception: exceptions[idx] };
     }),
 
+  bulkApprove: protectedClientProcedure
+    .input(z.object({ exceptionIds: z.array(z.string()).min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      const { appId, exceptions } = await getExceptions(ctx.apiClient);
+      const results: Array<{ id: string; success: boolean; error?: string }> = [];
+
+      for (const exceptionId of input.exceptionIds) {
+        const idx = exceptions.findIndex((e) => e.id === exceptionId);
+        if (idx === -1) {
+          results.push({ id: exceptionId, success: false, error: "Not found" });
+          continue;
+        }
+        if (exceptions[idx].status !== "pending_review") {
+          results.push({ id: exceptionId, success: false, error: "Not pending" });
+          continue;
+        }
+
+        exceptions[idx].status = "approved";
+        exceptions[idx].resolvedAt = new Date().toISOString();
+        exceptions[idx].resolvedBy = "admin";
+
+        const forwardResult = await forwardApprovedOrder(ctx.apiClient, exceptions[idx].orderId);
+        results.push({ id: exceptionId, success: true, error: forwardResult.errors.length > 0 ? forwardResult.errors.join("; ") : undefined });
+      }
+
+      await saveExceptions(ctx.apiClient, appId, exceptions);
+      logger.info("Bulk approve", { count: input.exceptionIds.length, approved: results.filter((r) => r.success).length });
+
+      return { results };
+    }),
+
+  bulkReject: protectedClientProcedure
+    .input(z.object({ exceptionIds: z.array(z.string()).min(1), reason: z.string().optional() }))
+    .mutation(async ({ ctx, input }) => {
+      const { appId, exceptions } = await getExceptions(ctx.apiClient);
+      const results: Array<{ id: string; success: boolean; error?: string }> = [];
+
+      for (const exceptionId of input.exceptionIds) {
+        const idx = exceptions.findIndex((e) => e.id === exceptionId);
+        if (idx === -1) {
+          results.push({ id: exceptionId, success: false, error: "Not found" });
+          continue;
+        }
+        if (exceptions[idx].status !== "pending_review") {
+          results.push({ id: exceptionId, success: false, error: "Not pending" });
+          continue;
+        }
+
+        exceptions[idx].status = "rejected";
+        exceptions[idx].resolvedAt = new Date().toISOString();
+        exceptions[idx].resolvedBy = "admin";
+        if (input.reason) {
+          exceptions[idx].details += ` | Rejection reason: ${input.reason}`;
+        }
+        results.push({ id: exceptionId, success: true });
+      }
+
+      await saveExceptions(ctx.apiClient, appId, exceptions);
+      logger.info("Bulk reject", { count: input.exceptionIds.length, rejected: results.filter((r) => r.success).length });
+
+      return { results };
+    }),
+
   getStats: protectedClientProcedure.query(async ({ ctx }) => {
     const { exceptions } = await getExceptions(ctx.apiClient);
 

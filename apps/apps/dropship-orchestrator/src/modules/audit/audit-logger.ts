@@ -86,6 +86,61 @@ const UPDATE_APP_METADATA = gql`
 `;
 
 // ---------------------------------------------------------------------------
+// PII redaction
+// ---------------------------------------------------------------------------
+
+const PII_KEY_PATTERNS = {
+  email: /email/i,
+  phone: /phone|mobile|tel/i,
+  street: /street|streetAddress/i,
+} as const;
+
+function redactValue(key: string, value: string): string {
+  if (PII_KEY_PATTERNS.email.test(key) && value.includes("@")) {
+    return "***" + value.slice(value.indexOf("@"));
+  }
+  if (PII_KEY_PATTERNS.phone.test(key) && value.length >= 4) {
+    return "***" + value.slice(-4);
+  }
+  if (PII_KEY_PATTERNS.street.test(key)) {
+    return "[redacted]";
+  }
+  return value;
+}
+
+function sanitizeObject(obj: unknown): unknown {
+  if (obj === null || obj === undefined) return obj;
+  if (typeof obj === "string") return obj;
+  if (Array.isArray(obj)) return obj.map((item) => sanitizeObject(item));
+  if (typeof obj === "object") {
+    const result: Record<string, unknown> = {};
+    for (const [key, val] of Object.entries(obj as Record<string, unknown>)) {
+      if (typeof val === "string") {
+        result[key] = redactValue(key, val);
+      } else if (typeof val === "object" && val !== null) {
+        result[key] = sanitizeObject(val);
+      } else {
+        result[key] = val;
+      }
+    }
+    return result;
+  }
+  return obj;
+}
+
+function sanitizeForAudit(event: AuditEvent): AuditEvent {
+  return {
+    ...event,
+    request: event.request
+      ? (sanitizeObject(event.request) as Record<string, unknown>)
+      : undefined,
+    response: event.response
+      ? (sanitizeObject(event.response) as Record<string, unknown>)
+      : undefined,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
 
@@ -164,7 +219,7 @@ export async function logAuditEvent(client: Client, event: AuditEvent): Promise<
       return;
     }
 
-    entries.push(event);
+    entries.push(sanitizeForAudit(event));
     await persistAuditEntries(client, appId, entries);
   } catch (e) {
     // Audit logging should never crash the main flow

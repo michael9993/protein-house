@@ -1,6 +1,7 @@
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 import type { DashboardKPIs, KPICard as KPICardType } from "../../analytics/domain/kpi-types";
+import { formatCurrency } from "../../analytics/domain/money";
 
 interface KPICardProps {
   title: string;
@@ -40,8 +41,8 @@ export function KPICard({ title, value, trend, previousValue }: KPICardProps) {
     <div className="rounded-xl border border-border bg-white p-4 shadow-sm hover:shadow-md hover:border-brand/40 transition-all duration-200">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-text-muted">{title}</p>
-          <p className="mt-1 truncate text-2xl font-bold text-text-primary">{value}</p>
+          <p className="whitespace-nowrap text-sm font-medium text-text-muted">{title}</p>
+          <p className="mt-1 whitespace-nowrap text-lg sm:text-2xl font-bold text-text-primary">{value}</p>
           {previousValue && (
             <p className="mt-1 text-xs text-text-muted">
               vs {previousValue} last period
@@ -54,12 +55,22 @@ export function KPICard({ title, value, trend, previousValue }: KPICardProps) {
   );
 }
 
+interface ProfitabilityInfo {
+  grossProfit: number;
+  marginPercent: number;
+  cogsAvailable: boolean;
+  linesWithCost: number;
+  linesTotal: number;
+}
+
 interface KPICardsGridProps {
   kpis: DashboardKPIs;
+  profitability?: ProfitabilityInfo | null;
+  currency?: string;
   isLoading?: boolean;
 }
 
-export function KPICardsGrid({ kpis, isLoading }: KPICardsGridProps) {
+export function KPICardsGrid({ kpis, profitability, currency, isLoading }: KPICardsGridProps) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
@@ -84,8 +95,23 @@ export function KPICardsGrid({ kpis, isLoading }: KPICardsGridProps) {
     { key: "customers", ...kpis.uniqueCustomers },
   ];
 
+  if (profitability && profitability.cogsAvailable && currency) {
+    kpiCards.push(
+      {
+        key: "grossProfit",
+        label: "Gross Profit",
+        value: formatCurrency(profitability.grossProfit, currency),
+      },
+      {
+        key: "margin",
+        label: "Margin",
+        value: `${profitability.marginPercent.toFixed(1)}%`,
+      },
+    );
+  }
+
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
       {kpiCards.map((kpi) => (
         <KPICard
           key={kpi.key}

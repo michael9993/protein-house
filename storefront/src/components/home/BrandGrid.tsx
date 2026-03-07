@@ -8,6 +8,7 @@ import { SectionViewAllButton } from "./SectionViewAllButton";
 import { SectionWrapper } from "./SectionWrapper";
 import { type FeaturedBrand } from "@/lib/cms";
 import { useBranding, useBrandGridConfig, useContentConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 
 interface BrandGridProps {
   brands: FeaturedBrand[];
@@ -47,8 +48,7 @@ export function BrandGrid({ brands, channel }: BrandGridProps) {
       className={`border-b border-neutral-100 ${cdClasses}`}
       aria-label="Featured brands"
       style={{
-        ...(cdStyle?.backgroundColor && { background: `var(--cd-homepage-brandGrid-bg)` }),
-        ...(cdStyle?.textColor && { color: `var(--cd-homepage-brandGrid-text)` }),
+        ...buildComponentStyle("homepage.brandGrid", cdStyle),
       }}
     >
       <div className="mx-auto max-w-[var(--design-container-max)] px-6 py-16 lg:px-12">

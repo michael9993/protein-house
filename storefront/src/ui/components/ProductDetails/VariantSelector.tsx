@@ -5,6 +5,8 @@ import type { SelectionAttribute, SelectionState, EnrichedVariant } from "./type
 import { AttributeSwatchSelector } from "./AttributeSwatchSelector";
 import { AttributeImageSwatchSelector } from "./AttributeImageSwatchSelector";
 import { AttributePillSelector } from "./AttributePillSelector";
+import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 
 const SIZE_SLUGS = new Set([
   "size", "shoe-size", "clothing-size", "apparel-size",
@@ -42,6 +44,9 @@ export function VariantSelector({
   onSizeGuideClick,
   sizeGuideLabel,
 }: Props) {
+  const cdStyle = useComponentStyle("pdp.variantSelector");
+  const cdClasses = useComponentClasses("pdp.variantSelector");
+
   // Build map: color value ID → first variant image for that color
   const variantMediaByColorValueId = useMemo(() => {
     const map = new Map<string, { url: string; alt: string | null }>();
@@ -64,7 +69,7 @@ export function VariantSelector({
   if (selectionAttributes.length === 0) return null;
 
   return (
-    <div data-cd="pdp-variantSelector" className="space-y-6">
+    <div data-cd="pdp-variantSelector" className={`space-y-6 ${cdClasses}`} style={buildComponentStyle("pdp.variantSelector", cdStyle)}>
       {selectionAttributes.map((attr) => {
         const selectedValueId = selections[attr.attributeSlug] ?? null;
         const isColorAttr = COLOR_SLUGS.has(attr.attributeSlug);

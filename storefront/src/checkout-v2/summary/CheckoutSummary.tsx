@@ -10,12 +10,16 @@ import { SummaryTotals } from "./SummaryTotals";
 import { FreeShippingIndicator } from "../components/FreeShippingIndicator";
 import { useAdjustedShippingMethods } from "../hooks/useAdjustedShippingMethods";
 import { STEP_DELIVERY } from "../types";
+import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 
 interface CheckoutSummaryProps {
 	channel: string;
 }
 
 export function CheckoutSummary({ channel: _channel }: CheckoutSummaryProps) {
+	const cdStyle = useComponentStyle("checkout.summary");
+	const cdClasses = useComponentClasses("checkout.summary");
 	const { state, visibleLines, openStep } = useCheckoutState();
 	const t = useCheckoutText();
 	const checkout = state.checkout;
@@ -61,8 +65,8 @@ export function CheckoutSummary({ channel: _channel }: CheckoutSummaryProps) {
 		<aside
 			data-cd="checkout-summary"
 			aria-label={t.orderSummaryTitle ?? "Order Summary"}
-			className="rounded-xl border border-neutral-200 bg-white shadow-sm"
-			style={{ contain: "layout" }}
+			className={`rounded-xl border border-neutral-200 bg-white shadow-sm ${cdClasses}`}
+			style={{ contain: "layout", ...buildComponentStyle("checkout.summary", cdStyle) }}
 		>
 			{/* Mobile toggle header */}
 			<button

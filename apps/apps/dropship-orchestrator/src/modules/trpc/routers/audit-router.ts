@@ -81,6 +81,52 @@ export const auditRouter = router({
       };
     }),
 
+  exportCsv: protectedClientProcedure
+    .input(z.object({ type: z.string().optional(), since: z.string().optional() }).optional())
+    .query(async ({ ctx, input }) => {
+      const { data, error } = await ctx.apiClient.query(FETCH_APP_METADATA, {}).toPromise();
+
+      if (error || !data?.app) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to fetch audit log" });
+      }
+
+      const entry = (data.app.privateMetadata || []).find((m: any) => m.key === "dropship-audit-log");
+      let events: AuditEvent[] = [];
+      if (entry) {
+        try {
+          events = JSON.parse(entry.value);
+        } catch {
+          events = [];
+        }
+      }
+
+      // Apply filters
+      if (input?.type) events = events.filter((e) => e.type === input.type);
+      if (input?.since) {
+        const sinceDate = new Date(input.since);
+        events = events.filter((e) => new Date(e.timestamp) >= sinceDate);
+      }
+
+      // Sort by timestamp DESC
+      events.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+      const headers = ["timestamp", "type", "action", "status", "orderId", "supplierId", "duration", "error"];
+      const rows = events.map((e) =>
+        [
+          e.timestamp,
+          e.type,
+          `"${(e.action || "").replace(/"/g, '""')}"`,
+          e.status,
+          e.orderId || "",
+          e.supplierId || "",
+          e.duration?.toString() || "",
+          `"${(e.error || "").replace(/"/g, '""')}"`,
+        ].join(","),
+      );
+
+      return [headers.join(","), ...rows].join("\n");
+    }),
+
   clear: protectedClientProcedure
     .input(z.object({ olderThanDays: z.number().min(1).default(30) }))
     .mutation(async ({ ctx, input }) => {

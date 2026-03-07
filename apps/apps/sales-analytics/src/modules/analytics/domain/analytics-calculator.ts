@@ -11,6 +11,7 @@ import type {
   RevenueDataPoint,
   TrendDirection,
   CurrencyInfo,
+  OrderTypeFilter,
 } from "./kpi-types";
 import { formatCurrency, formatCompactNumber } from "./money";
 import type { Granularity } from "./time-range";
@@ -77,6 +78,34 @@ function filterOrdersByCurrency(
   currency: string
 ): OrderAnalyticsFragment[] {
   return orders.filter((order) => order.total.gross.currency === currency);
+}
+
+/**
+ * Check if an order line is a dropship item.
+ * Looks for `dropship.supplier` key in product metadata.
+ */
+export function isDropshipLine(line: OrderAnalyticsFragment["lines"][number]): boolean {
+  const metadata = line.variant?.product?.metadata ?? [];
+  return metadata.some((m) => m.key === "dropship.supplier");
+}
+
+/**
+ * Check if an order contains any dropship line items.
+ */
+export function isDropshipOrder(order: OrderAnalyticsFragment): boolean {
+  return order.lines.some(isDropshipLine);
+}
+
+/**
+ * Filter orders by order type (all, dropship, non-dropship).
+ */
+export function filterOrdersByType(
+  orders: OrderAnalyticsFragment[],
+  orderType: OrderTypeFilter
+): OrderAnalyticsFragment[] {
+  if (orderType === "all") return orders;
+  if (orderType === "dropship") return orders.filter(isDropshipOrder);
+  return orders.filter((o) => !isDropshipOrder(o));
 }
 
 /**

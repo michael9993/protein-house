@@ -12,7 +12,10 @@ import {
   useContentConfig,
   useFeature,
   useProductCardConfig,
+  useComponentStyle,
+  useComponentClasses,
 } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { useQuickView } from "@/providers/QuickViewProvider";
 import { HomepageProductCard } from "@/components/home/HomepageProductCard";
 import { type BadgeLabels, type ProductCardConfig } from "@/components/home/utils";
@@ -28,6 +31,8 @@ interface RelatedProductsCarouselProps {
  * RTL/LTR aware navigation arrows with smart visibility.
  */
 export function RelatedProductsCarousel({ products, channel }: RelatedProductsCarouselProps) {
+  const cdStyle = useComponentStyle("pdp.relatedProducts");
+  const cdClasses = useComponentClasses("pdp.relatedProducts");
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { colors } = useBranding();
   const storeInfo = useStoreInfo();
@@ -139,7 +144,7 @@ export function RelatedProductsCarousel({ products, channel }: RelatedProductsCa
   }
 
   return (
-    <section data-cd="pdp-relatedProducts" className="border-t border-neutral-200 bg-white py-16" aria-label="Related products">
+    <section data-cd="pdp-relatedProducts" className={`border-t border-neutral-200 bg-white py-16 ${cdClasses}`} style={buildComponentStyle("pdp.relatedProducts", cdStyle)} aria-label="Related products">
       <div className="mx-auto max-w-[var(--design-container-max)] px-6 lg:px-12">
         {/* Section Header */}
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">

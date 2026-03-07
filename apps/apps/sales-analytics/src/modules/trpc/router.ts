@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
+import { createLogger } from "../../logger";
 import { router } from "./trpc-server";
 import { protectedClientProcedure } from "./protected-client-procedure";
 import {
@@ -15,10 +16,22 @@ import {
   calculateProductPerformance,
   formatRecentOrders,
   detectCurrencies,
+  filterOrdersByType,
 } from "../analytics/domain/analytics-calculator";
 import { getPreviousPeriod, getOptimalGranularity } from "../analytics/domain/time-range";
 import type { Granularity } from "../analytics/domain/time-range";
 import { calculateFunnelData } from "../analytics/domain/funnel-calculator";
+import { calculateProfitability, calculateProfitabilityOverTime } from "../analytics/domain/profitability-calculator";
+import { OrderTypeFilterSchema } from "../analytics/domain/kpi-types";
+import type { OrderAnalyticsFragment } from "../../../generated/graphql";
+
+const logger = createLogger("analytics-router");
+
+function resolveCurrency(orders: OrderAnalyticsFragment[], inputCurrency?: string) {
+  const currencyInfo = detectCurrencies(orders);
+  const currency = inputCurrency || currencyInfo.primaryCurrency || "USD";
+  return { currency, currencyInfo };
+}
 
 /**
  * Analytics router - provides KPIs, charts, and data for the dashboard
@@ -33,13 +46,13 @@ export const analyticsRouter = router({
         channelSlug: z.string().optional(),
         dateFrom: z.string(),
         dateTo: z.string(),
-        currency: z.string().optional(), // Optional currency from frontend
+        currency: z.string().optional(),
+        orderType: OrderTypeFilterSchema.default("all"),
       })
     )
     .query(async ({ ctx, input }) => {
-      console.log("[getKPIs] Fetching KPIs for", input);
+      logger.info("[getKPIs] Fetching KPIs", { channelSlug: input.channelSlug, dateFrom: input.dateFrom, dateTo: input.dateTo, orderType: input.orderType });
 
-      // Fetch current period orders
       const ordersResult = await fetchOrdersForAnalytics(ctx.apiClient, {
         channelSlug: input.channelSlug,
         dateFrom: input.dateFrom,
@@ -53,12 +66,8 @@ export const analyticsRouter = router({
         });
       }
 
-      // Detect currencies in the orders
-      const currencyInfo = detectCurrencies(ordersResult.value);
-
-      // Use provided currency, detected primary currency, or default to USD
-      const currency =
-        input.currency || currencyInfo.primaryCurrency || "USD";
+      const orders = filterOrdersByType(ordersResult.value, input.orderType);
+      const { currency, currencyInfo } = resolveCurrency(orders, input.currency);
 
       // Fetch previous period for comparison
       const previousPeriod = getPreviousPeriod({
@@ -72,10 +81,11 @@ export const analyticsRouter = router({
         dateTo: previousPeriod.to,
       });
 
-      const previousOrders = previousOrdersResult.isOk() ? previousOrdersResult.value : [];
+      const previousOrders = previousOrdersResult.isOk()
+        ? filterOrdersByType(previousOrdersResult.value, input.orderType)
+        : [];
 
-      // Calculate KPIs (only for the specified currency)
-      const kpisResult = calculateKPIs(ordersResult.value, previousOrders, currency);
+      const kpisResult = calculateKPIs(orders, previousOrders, currency);
 
       if (kpisResult.isErr()) {
         throw new TRPCError({
@@ -101,11 +111,12 @@ export const analyticsRouter = router({
         dateFrom: z.string(),
         dateTo: z.string(),
         limit: z.number().default(10),
-        currency: z.string().optional(), // Optional currency from frontend
+        currency: z.string().optional(),
+        orderType: OrderTypeFilterSchema.default("all"),
       })
     )
     .query(async ({ ctx, input }) => {
-      console.log("[getTopProducts] Fetching top products for", input);
+      logger.info("[getTopProducts] Fetching top products", { channelSlug: input.channelSlug, dateFrom: input.dateFrom, dateTo: input.dateTo });
 
       const ordersResult = await fetchOrdersForAnalytics(ctx.apiClient, {
         channelSlug: input.channelSlug,
@@ -120,11 +131,10 @@ export const analyticsRouter = router({
         });
       }
 
-      // Detect currencies and use provided currency or primary currency
-      const currencyInfo = detectCurrencies(ordersResult.value);
-      const currency = input.currency || currencyInfo.primaryCurrency || "USD";
+      const orders = filterOrdersByType(ordersResult.value, input.orderType);
+      const { currency } = resolveCurrency(orders, input.currency);
 
-      const productsResult = calculateTopProducts(ordersResult.value, currency, input.limit);
+      const productsResult = calculateTopProducts(orders, currency, input.limit);
 
       if (productsResult.isErr()) {
         throw new TRPCError({
@@ -146,11 +156,12 @@ export const analyticsRouter = router({
         dateFrom: z.string(),
         dateTo: z.string(),
         granularity: z.enum(["day", "week", "month"]).optional(),
-        currency: z.string().optional(), // Optional currency from frontend
+        currency: z.string().optional(),
+        orderType: OrderTypeFilterSchema.default("all"),
       })
     )
     .query(async ({ ctx, input }) => {
-      console.log("[getRevenueOverTime] Fetching revenue over time for", input);
+      logger.info("[getRevenueOverTime] Fetching revenue over time", { channelSlug: input.channelSlug, dateFrom: input.dateFrom, dateTo: input.dateTo });
 
       const ordersResult = await fetchOrdersForAnalytics(ctx.apiClient, {
         channelSlug: input.channelSlug,
@@ -165,15 +176,13 @@ export const analyticsRouter = router({
         });
       }
 
-      // Detect currencies and use provided currency or primary currency
-      const currencyInfo = detectCurrencies(ordersResult.value);
-      const currency = input.currency || currencyInfo.primaryCurrency || "USD";
+      const orders = filterOrdersByType(ordersResult.value, input.orderType);
+      const { currency } = resolveCurrency(orders, input.currency);
 
-      // Use provided granularity or determine optimal one
       const granularity: Granularity =
         input.granularity ?? getOptimalGranularity({ from: input.dateFrom, to: input.dateTo });
 
-      const revenueResult = calculateRevenueOverTime(ordersResult.value, currency, granularity);
+      const revenueResult = calculateRevenueOverTime(orders, currency, granularity);
 
       if (revenueResult.isErr()) {
         throw new TRPCError({
@@ -195,11 +204,12 @@ export const analyticsRouter = router({
         dateFrom: z.string(),
         dateTo: z.string(),
         limit: z.number().default(10),
-        currency: z.string().optional(), // Optional currency from frontend
+        currency: z.string().optional(),
+        orderType: OrderTypeFilterSchema.default("all"),
       })
     )
     .query(async ({ ctx, input }) => {
-      console.log("[getTopCategories] Fetching top categories for", input);
+      logger.info("[getTopCategories] Fetching top categories", { channelSlug: input.channelSlug, dateFrom: input.dateFrom, dateTo: input.dateTo });
 
       const ordersResult = await fetchOrdersForAnalytics(ctx.apiClient, {
         channelSlug: input.channelSlug,
@@ -214,11 +224,10 @@ export const analyticsRouter = router({
         });
       }
 
-      // Detect currencies and use provided currency or primary currency
-      const currencyInfo = detectCurrencies(ordersResult.value);
-      const currency = input.currency || currencyInfo.primaryCurrency || "USD";
+      const orders = filterOrdersByType(ordersResult.value, input.orderType);
+      const { currency } = resolveCurrency(orders, input.currency);
 
-      const categoriesResult = calculateTopCategories(ordersResult.value, currency, input.limit);
+      const categoriesResult = calculateTopCategories(orders, currency, input.limit);
 
       if (categoriesResult.isErr()) {
         throw new TRPCError({
@@ -240,10 +249,11 @@ export const analyticsRouter = router({
         dateFrom: z.string(),
         dateTo: z.string(),
         limit: z.number().default(10),
+        orderType: OrderTypeFilterSchema.default("all"),
       })
     )
     .query(async ({ ctx, input }) => {
-      console.log("[getRecentOrders] Fetching recent orders for", input);
+      logger.info("[getRecentOrders] Fetching recent orders", { channelSlug: input.channelSlug, dateFrom: input.dateFrom, dateTo: input.dateTo });
 
       const ordersResult = await fetchOrdersForAnalytics(ctx.apiClient, {
         channelSlug: input.channelSlug,
@@ -259,7 +269,8 @@ export const analyticsRouter = router({
         });
       }
 
-      const recentOrdersResult = formatRecentOrders(ordersResult.value, input.limit);
+      const orders = filterOrdersByType(ordersResult.value, input.orderType);
+      const recentOrdersResult = formatRecentOrders(orders, input.limit);
 
       if (recentOrdersResult.isErr()) {
         throw new TRPCError({
@@ -281,6 +292,7 @@ export const analyticsRouter = router({
         dateFrom: z.string(),
         dateTo: z.string(),
         currency: z.string().optional(),
+        orderType: OrderTypeFilterSchema.default("all"),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -297,10 +309,10 @@ export const analyticsRouter = router({
         });
       }
 
-      const currencyInfo = detectCurrencies(ordersResult.value);
-      const currency = input.currency || currencyInfo.primaryCurrency || "USD";
+      const orders = filterOrdersByType(ordersResult.value, input.orderType);
+      const { currency } = resolveCurrency(orders, input.currency);
 
-      const performanceResult = calculateProductPerformance(ordersResult.value, currency);
+      const performanceResult = calculateProductPerformance(orders, currency);
 
       if (performanceResult.isErr()) {
         throw new TRPCError({
@@ -321,17 +333,16 @@ export const analyticsRouter = router({
         channelSlug: z.string().optional(),
         dateFrom: z.string(),
         dateTo: z.string(),
+        orderType: OrderTypeFilterSchema.default("all"),
       })
     )
     .query(async ({ ctx, input }) => {
-      console.log("[getAllOrders] Fetching all orders for export", input);
+      logger.info("[getAllOrders] Fetching all orders for export", { channelSlug: input.channelSlug, dateFrom: input.dateFrom, dateTo: input.dateTo });
 
-      // Fetch all orders without limit
       const ordersResult = await fetchOrdersForAnalytics(ctx.apiClient, {
         channelSlug: input.channelSlug,
         dateFrom: input.dateFrom,
         dateTo: input.dateTo,
-        // No limit - fetch all orders in the period
       });
 
       if (ordersResult.isErr()) {
@@ -341,8 +352,8 @@ export const analyticsRouter = router({
         });
       }
 
-      // Format all orders (no limit)
-      const allOrdersResult = formatRecentOrders(ordersResult.value, ordersResult.value.length);
+      const orders = filterOrdersByType(ordersResult.value, input.orderType);
+      const allOrdersResult = formatRecentOrders(orders, orders.length);
 
       if (allOrdersResult.isErr()) {
         throw new TRPCError({
@@ -364,6 +375,7 @@ export const analyticsRouter = router({
         dateFrom: z.string(),
         dateTo: z.string(),
         currency: z.string().optional(),
+        orderType: OrderTypeFilterSchema.default("all"),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -380,10 +392,10 @@ export const analyticsRouter = router({
         });
       }
 
-      const currencyInfo = detectCurrencies(ordersResult.value);
-      const currency = input.currency || currencyInfo.primaryCurrency || "USD";
+      const orders = filterOrdersByType(ordersResult.value, input.orderType);
+      const { currency } = resolveCurrency(orders, input.currency);
 
-      const funnelResult = calculateFunnelData(ordersResult.value, currency);
+      const funnelResult = calculateFunnelData(orders, currency);
 
       if (funnelResult.isErr()) {
         throw new TRPCError({
@@ -393,6 +405,82 @@ export const analyticsRouter = router({
       }
 
       return funnelResult.value;
+    }),
+
+  /**
+   * Get profitability P&L breakdown
+   */
+  getProfitability: protectedClientProcedure
+    .input(
+      z.object({
+        channelSlug: z.string().optional(),
+        dateFrom: z.string(),
+        dateTo: z.string(),
+        currency: z.string().optional(),
+        orderType: OrderTypeFilterSchema.default("all"),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      logger.info("[getProfitability] Fetching profitability", { channelSlug: input.channelSlug, dateFrom: input.dateFrom, dateTo: input.dateTo, orderType: input.orderType });
+
+      const ordersResult = await fetchOrdersForAnalytics(ctx.apiClient, {
+        channelSlug: input.channelSlug,
+        dateFrom: input.dateFrom,
+        dateTo: input.dateTo,
+      });
+
+      if (ordersResult.isErr()) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: ordersResult.error.message });
+      }
+
+      const orders = filterOrdersByType(ordersResult.value, input.orderType);
+      const { currency } = resolveCurrency(orders, input.currency);
+
+      const result = calculateProfitability(orders, currency, input.channelSlug);
+      if (result.isErr()) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: result.error.message });
+      }
+
+      return { profitability: result.value, currency };
+    }),
+
+  /**
+   * Get profitability over time for charts
+   */
+  getProfitabilityOverTime: protectedClientProcedure
+    .input(
+      z.object({
+        channelSlug: z.string().optional(),
+        dateFrom: z.string(),
+        dateTo: z.string(),
+        granularity: z.enum(["day", "week", "month"]).optional(),
+        currency: z.string().optional(),
+        orderType: OrderTypeFilterSchema.default("all"),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      logger.info("[getProfitabilityOverTime] Fetching profitability over time", { channelSlug: input.channelSlug, dateFrom: input.dateFrom, dateTo: input.dateTo });
+
+      const ordersResult = await fetchOrdersForAnalytics(ctx.apiClient, {
+        channelSlug: input.channelSlug,
+        dateFrom: input.dateFrom,
+        dateTo: input.dateTo,
+      });
+
+      if (ordersResult.isErr()) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: ordersResult.error.message });
+      }
+
+      const orders = filterOrdersByType(ordersResult.value, input.orderType);
+      const { currency } = resolveCurrency(orders, input.currency);
+      const granularity: Granularity = input.granularity ?? getOptimalGranularity({ from: input.dateFrom, to: input.dateTo });
+
+      const result = calculateProfitabilityOverTime(orders, currency, granularity, input.channelSlug);
+      if (result.isErr()) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: result.error.message });
+      }
+
+      return result.value;
     }),
 });
 
@@ -404,7 +492,7 @@ export const channelsRouter = router({
    * List all available channels
    */
   list: protectedClientProcedure.query(async ({ ctx }) => {
-    console.log("[channels.list] Fetching channels");
+    logger.info("[channels.list] Fetching channels");
 
     const channelsResult = await fetchChannels(ctx.apiClient);
 

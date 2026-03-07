@@ -14,7 +14,8 @@ import { initializeTransaction } from "@/checkout-v2/_actions/initialize-transac
 import { processTransaction } from "@/checkout-v2/_actions/process-transaction";
 import { completeCheckout } from "@/checkout-v2/_actions/complete-checkout";
 import { updateCheckoutMetadata } from "@/checkout-v2/_actions/update-checkout-metadata";
-import { useEcommerceSettings } from "@/providers/StoreConfigProvider";
+import { useEcommerceSettings, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { adjustShippingPrice, type ShippingPriceAdjustment } from "@/checkout-v2/utils/adjustShippingPrice";
 
 // ---------------------------------------------------------------------------
@@ -307,7 +308,7 @@ function StripeCheckoutForm({
 	}
 
 	return (
-		<div data-cd="checkout-paymentStep" className="space-y-4">
+		<div className="space-y-4">
 			{errors.length > 0 && (
 				<div role="alert" className="rounded-md border border-error-200 bg-error-50 px-4 py-3">
 					{errors.map((msg, i) => (
@@ -355,6 +356,8 @@ interface GatewayConfig {
 }
 
 export function PaymentStep({ checkoutId, channel }: PaymentStepProps) {
+	const cdStyle = useComponentStyle("checkout.paymentStep");
+	const cdClasses = useComponentClasses("checkout.paymentStep");
 	const { state } = useCheckoutState();
 	const checkout = state.checkout;
 	const t = useCheckoutText();
@@ -495,18 +498,20 @@ export function PaymentStep({ checkoutId, channel }: PaymentStepProps) {
 	}
 
 	return (
-		<Elements
-			key={`stripe-${gatewayConfig?.publishableKey}-${stripeLocale}`}
-			options={stripeOptions}
-			stripe={stripePromise}
-		>
-			<StripeCheckoutForm
-				checkoutId={checkoutId}
-				gatewayId={gatewayConfig?.id ?? "stripe"}
-				checkoutAmount={checkout.totalPrice.gross.amount}
-				channel={channel}
-			/>
-		</Elements>
+		<div data-cd="checkout-paymentStep" className={cdClasses} style={{ ...buildComponentStyle("checkout.paymentStep", cdStyle) }}>
+			<Elements
+				key={`stripe-${gatewayConfig?.publishableKey}-${stripeLocale}`}
+				options={stripeOptions}
+				stripe={stripePromise}
+			>
+				<StripeCheckoutForm
+					checkoutId={checkoutId}
+					gatewayId={gatewayConfig?.id ?? "stripe"}
+					checkoutAmount={checkout.totalPrice.gross.amount}
+					channel={channel}
+				/>
+			</Elements>
+		</div>
 	);
 }
 

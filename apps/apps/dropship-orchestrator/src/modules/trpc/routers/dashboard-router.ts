@@ -1,8 +1,10 @@
+import { Queue } from "bullmq";
 import { TRPCError } from "@trpc/server";
 import { gql } from "graphql-tag";
 
 import { router } from "../trpc-server";
 import { protectedClientProcedure } from "../protected-client-procedure";
+import { QUEUE_NAMES, getRedisConnection } from "@/modules/jobs/queues";
 
 const FETCH_APP_METADATA = gql`
   query FetchDashboardMetadata {
@@ -52,6 +54,34 @@ function parseMetadataValue<T>(metadata: Array<{ key: string; value: string }>, 
 }
 
 export const dashboardRouter = router({
+  getJobStats: protectedClientProcedure.query(async () => {
+    const stats: Record<string, { completed: number; failed: number; active: number; waiting: number; lastRun?: string }> = {};
+
+    for (const [name, queueName] of Object.entries(QUEUE_NAMES)) {
+      try {
+        const queue = new Queue(queueName, { connection: getRedisConnection() });
+        const [completed, failed, active, waiting] = await Promise.all([
+          queue.getCompletedCount(),
+          queue.getFailedCount(),
+          queue.getActiveCount(),
+          queue.getWaitingCount(),
+        ]);
+
+        const completedJobs = await queue.getCompleted(0, 0);
+        const lastRun = completedJobs[0]?.finishedOn
+          ? new Date(completedJobs[0].finishedOn).toISOString()
+          : undefined;
+
+        stats[name] = { completed, failed, active, waiting, lastRun };
+        await queue.close();
+      } catch {
+        stats[name] = { completed: 0, failed: 0, active: 0, waiting: 0 };
+      }
+    }
+
+    return stats;
+  }),
+
   overview: protectedClientProcedure.query(async ({ ctx }) => {
     const [appResult, ordersResult] = await Promise.all([
       ctx.apiClient.query(FETCH_APP_METADATA, {}).toPromise(),
@@ -75,12 +105,18 @@ export const dashboardRouter = router({
         if (!meta) return null;
         try {
           const dropship = JSON.parse(meta.value);
+          // Resolve supplier: use-case stores `suppliers` map, exception approval stores flat `supplier`
+          let supplier = dropship.supplier ?? "";
+          if (!supplier && dropship.suppliers && typeof dropship.suppliers === "object") {
+            const keys = Object.keys(dropship.suppliers);
+            if (keys.length > 0) supplier = keys[0];
+          }
           return {
             id: edge.node.id,
             number: edge.node.number,
             created: edge.node.created,
             status: dropship.status,
-            supplier: dropship.supplier,
+            supplier,
             total: edge.node.total.gross.amount,
             currency: edge.node.total.gross.currency,
           };
@@ -101,9 +137,11 @@ export const dashboardRouter = router({
       (e) => e.status === "error" && new Date(e.timestamp) > last24h,
     );
 
-    // Revenue by supplier
+    // Revenue by supplier (exclude cancelled orders)
+    const cancelledStatuses = new Set(["cancelled", "supplier_cancelled", "refunded"]);
     const revenueBySupplier: Record<string, number> = {};
     for (const order of orders as any[]) {
+      if (cancelledStatuses.has(order.status)) continue;
       revenueBySupplier[order.supplier] = (revenueBySupplier[order.supplier] || 0) + order.total;
     }
 

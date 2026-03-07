@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { type UserDetailsFragment } from "@/gql/graphql";
 import { useBranding, useSettingsText, useContentConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { changePassword, setNewsletterActive, updateProfile, requestEmailChange, requestAccountDeletion } from "./actions";
 
 /** Common TLD typos (e.g. .comm instead of .com) to reject */
@@ -226,8 +227,7 @@ export function SettingsClient({
 
 	return (
 		<div data-cd="account-settings" className={`space-y-6 ${cdClasses}`} style={{
-			...(cdStyle?.backgroundColor && { background: 'var(--cd-account-settings-bg)' }),
-			...(cdStyle?.textColor && { color: 'var(--cd-account-settings-text)' }),
+			...buildComponentStyle("account.settings", cdStyle),
 		}}>
 			{/* Inject dynamic focus styles */}
 			<style>{`

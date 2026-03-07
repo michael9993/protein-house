@@ -11,6 +11,19 @@ fragment OrderAnalytics on Order {
       ...Money
     }
   }
+  shippingPrice {
+    gross {
+      ...Money
+    }
+  }
+  discounts {
+    id
+    type
+    name
+    amount {
+      ...Money
+    }
+  }
   channel {
     slug
     name
@@ -26,13 +39,32 @@ fragment OrderAnalytics on Order {
         ...Money
       }
     }
+    unitDiscount {
+      ...Money
+    }
     variant {
+      channelListings {
+        costPrice {
+          ...Money
+        }
+        channel {
+          slug
+        }
+      }
       product {
         id
         name
         category {
           id
           name
+        }
+        metadata {
+          key
+          value
+        }
+        privateMetadata {
+          key
+          value
         }
       }
     }

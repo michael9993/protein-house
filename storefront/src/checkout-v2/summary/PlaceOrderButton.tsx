@@ -1,6 +1,8 @@
 "use client";
 
 import { useCheckoutText } from "@/checkout-v2/hooks/useCheckoutText";
+import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 
 interface PlaceOrderButtonProps {
 	onSubmit: () => Promise<void>;
@@ -15,6 +17,8 @@ interface PlaceOrderButtonProps {
  */
 export function PlaceOrderButton({ onSubmit, isLoading, disabled }: PlaceOrderButtonProps) {
 	const t = useCheckoutText();
+	const cdStyle = useComponentStyle("checkout.placeOrder");
+	const cdClasses = useComponentClasses("checkout.placeOrder");
 
 	const isDisabled = disabled || isLoading;
 
@@ -24,7 +28,7 @@ export function PlaceOrderButton({ onSubmit, isLoading, disabled }: PlaceOrderBu
 	};
 
 	return (
-		<div data-cd="checkout-placeOrder" className="space-y-2">
+		<div data-cd="checkout-placeOrder" className={`space-y-2 ${cdClasses}`} style={{ ...buildComponentStyle("checkout.placeOrder", cdStyle) }}>
 			{/* Submit button */}
 			<button
 				type="button"

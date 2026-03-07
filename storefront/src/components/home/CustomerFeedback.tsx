@@ -5,6 +5,7 @@ import { Star, Quote, BadgeCheck, ShoppingBag } from "lucide-react";
 import { useParams } from "next/navigation";
 import { getAllProductReviews, type ReviewWithProduct } from "@/app/actions";
 import { useBranding, useCustomerFeedbackConfig, useContentConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import type { Testimonial } from "@/lib/cms";
 
 interface CustomerFeedbackProps {
@@ -108,8 +109,7 @@ export function CustomerFeedback({ channel, cmsTestimonials = [] }: CustomerFeed
       className={`py-24 ${cdClasses}`}
       aria-label="Customer testimonials"
       style={{
-        ...(cdStyle?.backgroundColor && { background: `var(--cd-homepage-customerFeedback-bg)` }),
-        ...(cdStyle?.textColor && { color: `var(--cd-homepage-customerFeedback-text)` }),
+        ...buildComponentStyle("homepage.customerFeedback", cdStyle),
       }}
     >
       <div className="mx-auto max-w-[var(--design-container-max)] px-6 lg:px-12">

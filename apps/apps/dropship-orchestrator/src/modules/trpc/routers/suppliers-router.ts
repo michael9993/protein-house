@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { gql } from "graphql-tag";
@@ -7,6 +8,7 @@ import { protectedClientProcedure } from "../protected-client-procedure";
 import { createLogger } from "@/logger";
 import { fetchAppId, setSupplierCredentials } from "@/modules/lib/metadata-manager";
 import { supplierRegistry } from "@/modules/suppliers/registry";
+import { getRedisConnection } from "@/modules/jobs/queues";
 
 const logger = createLogger("SuppliersRouter");
 
@@ -264,9 +266,22 @@ export const suppliersRouter = router({
         return { success: false, error: "APP_API_BASE_URL is not set. Configure your tunnel URL in the environment." };
       }
 
+      // Generate a webhook secret for authentication
+      const webhookSecret = crypto.randomUUID();
+
+      const urls = {
+        order: `${baseUrl}/api/webhooks/cj/order?secret=${webhookSecret}`,
+        logistics: `${baseUrl}/api/webhooks/cj/logistics?secret=${webhookSecret}`,
+        stock: `${baseUrl}/api/webhooks/cj/stock?secret=${webhookSecret}`,
+      };
+
       logger.info("Registering CJ webhooks", { baseUrl });
 
       try {
+        // Store secret in Redis for fast lookup by webhook handlers
+        const redis = getRedisConnection();
+        await redis.set("dropship:cj-webhook-secret", webhookSecret);
+
         const response = await fetch("https://developers.cjdropshipping.com/api2.0/v1/webhook/set", {
           method: "POST",
           headers: {
@@ -276,15 +291,15 @@ export const suppliersRouter = router({
           body: JSON.stringify({
             order: {
               type: "ENABLE",
-              callbackUrls: [`${baseUrl}/api/webhooks/cj/order`],
+              callbackUrls: [urls.order],
             },
             logistics: {
               type: "ENABLE",
-              callbackUrls: [`${baseUrl}/api/webhooks/cj/logistics`],
+              callbackUrls: [urls.logistics],
             },
             stock: {
               type: "ENABLE",
-              callbackUrls: [`${baseUrl}/api/webhooks/cj/stock`],
+              callbackUrls: [urls.stock],
             },
           }),
         });
@@ -299,21 +314,14 @@ export const suppliersRouter = router({
           await setAppMetadata(ctx.apiClient, metaAppId, "dropship-cj-webhooks", JSON.stringify({
             registeredAt: new Date().toISOString(),
             baseUrl,
-            urls: {
-              order: `${baseUrl}/api/webhooks/cj/order`,
-              logistics: `${baseUrl}/api/webhooks/cj/logistics`,
-              stock: `${baseUrl}/api/webhooks/cj/stock`,
-            },
+            secret: webhookSecret,
+            urls,
           }));
 
           return {
             success: true,
             message: `Webhooks registered at ${baseUrl}`,
-            urls: {
-              order: `${baseUrl}/api/webhooks/cj/order`,
-              logistics: `${baseUrl}/api/webhooks/cj/logistics`,
-              stock: `${baseUrl}/api/webhooks/cj/stock`,
-            },
+            urls,
           };
         }
 

@@ -15,6 +15,7 @@ import {
 	useComponentStyle,
 	useComponentClasses,
 } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { useNewsletterState } from "@/hooks/useNewsletterState";
 import { isAlreadySubscribed, NEWSLETTER_STORAGE_KEY } from "@/lib/newsletter";
 import { useToast } from "@/ui/components/Toast/ToastContext";
@@ -280,9 +281,9 @@ export function FooterClient({ menuItems, channel }: FooterClientPropsWithChanne
 			data-cd="layout-footer"
 			className={`border-t ${cdClasses}`}
 			style={{
-				background: cdStyle?.backgroundColor ? `var(--cd-layout-footer-bg)` : branding.colors.secondary,
+				background: branding.colors.secondary,
 				borderColor: `${branding.colors.textMuted}20`,
-				...(cdStyle?.textColor && { color: `var(--cd-layout-footer-text)` }),
+				...buildComponentStyle("layout.footer", cdStyle),
 			}}
 		>
 			<div className="mx-auto max-w-7xl px-4 lg:px-8">

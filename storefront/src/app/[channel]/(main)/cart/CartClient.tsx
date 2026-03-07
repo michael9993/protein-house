@@ -7,6 +7,7 @@ import { useToast } from "@/ui/components/Toast";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { formatMoney, getHrefForVariant } from "@/lib/utils";
 import { useBranding, useEcommerceSettings, useContentConfig, useButtonStyle, useBadgeStyle, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { trackBeginCheckout } from "@/lib/analytics";
 import { getProductShippingEstimate, formatEstimate } from "@/lib/shipping";
 import { mapPromoCodeError } from "@/lib/checkout/promo-error-map";
@@ -567,7 +568,7 @@ export function CartClient({
   // Empty cart state
   if (!cart || cart.lines.length === 0) {
     return (
-      <div data-cd="cart-page" className={`min-h-screen animate-fade-in ${cdClasses}`} style={{ background: cdStyle?.backgroundColor ? 'var(--cd-cart-page-bg)' : branding.colors.surface }}>
+      <div data-cd="cart-page" className={`min-h-screen animate-fade-in ${cdClasses}`} style={{ background: branding.colors.surface, ...buildComponentStyle("cart.page", cdStyle) }}>
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="text-center animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
             <div 
@@ -612,7 +613,7 @@ export function CartClient({
 
   return (
     <div data-cd="cart-page" className={`min-h-screen bg-neutral-50/50 relative animate-fade-in ${cdClasses}`} style={{
-      ...(cdStyle?.backgroundColor && { background: 'var(--cd-cart-page-bg)' }),
+      ...buildComponentStyle("cart.page", cdStyle),
     }}>
       {/* Full-page loading overlay during navigation to checkout */}
       {showLoadingOverlay && (

@@ -7,6 +7,7 @@ import { useWishlist } from "@/lib/wishlist";
 import { formatMoney } from "@/lib/utils";
 import imageLoader from "@/lib/imageLoader";
 import { useBranding, useWishlistText, useEcommerceSettings, useProductDetailText, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { getProductShippingEstimate, formatEstimate } from "@/lib/shipping";
 
 interface WishlistClientProps {
@@ -34,8 +35,7 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 
 	return (
 		<div data-cd="account-wishlist" className={`space-y-6 ${cdClasses}`} style={{
-			...(cdStyle?.backgroundColor && { background: 'var(--cd-account-wishlist-bg)' }),
-			...(cdStyle?.textColor && { color: 'var(--cd-account-wishlist-text)' }),
+			...buildComponentStyle("account.wishlist", cdStyle),
 		}}>
 			{/* Header */}
 			<div className="flex items-center justify-between">

@@ -1,9 +1,10 @@
 import { useRouter } from "next/router";
-import { BarChart3, Package, Filter } from "lucide-react";
+import { BarChart3, Package, Filter, DollarSign } from "lucide-react";
 
 const TABS = [
   { id: "overview", label: "Overview", href: "/", icon: BarChart3 },
   { id: "products", label: "Products", href: "/products", icon: Package },
+  { id: "profitability", label: "Profitability", href: "/profitability", icon: DollarSign },
   { id: "funnel", label: "Funnel", href: "/funnel", icon: Filter },
 ] as const;
 

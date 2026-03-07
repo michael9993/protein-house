@@ -3,6 +3,8 @@
 import { useRef, useCallback, useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { ShareButton } from "@/ui/components/ProductSharing";
+import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 
 type ButtonState = "needsSelection" | "outOfStock" | "ready" | "adding" | "added";
 
@@ -47,6 +49,8 @@ export function StickyMobileAddToCart({
   text,
   mode = "page",
 }: StickyMobileAddToCartProps) {
+  const cdStyle = useComponentStyle("pdp.stickyAddToCart");
+  const cdClasses = useComponentClasses("pdp.stickyAddToCart");
   const variantSectionRef = useRef<HTMLElement | null>(null);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -98,8 +102,8 @@ export function StickyMobileAddToCart({
       data-cd="pdp-stickyAddToCart"
       className={`fixed inset-x-0 ${positionClass} md:hidden transition-[translate] duration-250 ease-[cubic-bezier(0.4,0,0.2,1)] motion-reduce:transition-none ${
         isOriginalVisible ? hideTranslate : "translate-y-0"
-      }`}
-      style={isModal ? { paddingBottom: "env(safe-area-inset-bottom, 0px)" } : undefined}
+      } ${cdClasses}`}
+      style={{ ...(isModal ? { paddingBottom: "env(safe-area-inset-bottom, 0px)" } : {}), ...buildComponentStyle("pdp.stickyAddToCart", cdStyle) }}
     >
       <div
         className="border-t border-neutral-200 bg-white/95 backdrop-blur-md shadow-[0_-4px_20px_rgba(0,0,0,0.08)]"

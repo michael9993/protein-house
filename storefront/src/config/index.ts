@@ -34,6 +34,7 @@ export {
   DEFAULT_FILTERS_TEXT,
   DEFAULT_NOT_FOUND_TEXT,
   ANIMATION_PRESETS,
+  buildComponentStyle,
 } from './store.config';
 
 // Export examples for reference

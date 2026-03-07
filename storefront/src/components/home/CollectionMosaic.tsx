@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { parseDescription } from "./utils";
 import { useBranding, useCollectionMosaicConfig, useContentConfig, useDesignTokens, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { buildCollectionUrl, buildProductsUrl, withChannel } from "@/lib/urls";
 import { SectionViewAllButton } from "./SectionViewAllButton";
 
@@ -451,8 +452,7 @@ export function CollectionMosaic({
       className={`relative overflow-hidden border-t border-neutral-100 ${cdClasses}`}
       aria-label="Collection showcase"
       style={{
-        ...(cdStyle?.backgroundColor && { background: `var(--cd-homepage-collectionMosaic-bg)` }),
-        ...(cdStyle?.textColor && { color: `var(--cd-homepage-collectionMosaic-text)` }),
+        ...buildComponentStyle("homepage.collectionMosaic", cdStyle),
       }}
     >
       {/* CSS keyframes for progress bar — injected once, avoids 60fps re-renders */}

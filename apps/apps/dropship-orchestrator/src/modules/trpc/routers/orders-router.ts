@@ -548,6 +548,69 @@ export const ordersRouter = router({
       };
     }),
 
+  bulkCancel: protectedClientProcedure
+    .input(z.object({ orderIds: z.array(z.string()).min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      logger.info("Bulk cancel orders", { count: input.orderIds.length });
+      const results: Array<{ id: string; success: boolean; error?: string }> = [];
+
+      for (const orderId of input.orderIds) {
+        try {
+          const ORDER_META = gql`
+            query FetchOrderMetaForBulkCancel($id: ID!) {
+              order(id: $id) {
+                id
+                metadata { key value }
+              }
+            }
+          `;
+
+          const { data, error } = await ctx.apiClient.query(ORDER_META, { id: orderId }).toPromise();
+          if (error || !data?.order) {
+            results.push({ id: orderId, success: false, error: "Order not found" });
+            continue;
+          }
+
+          const existingEntry = data.order.metadata.find((m: any) => m.key === "dropship");
+          let existingMeta: Record<string, unknown> = {};
+          if (existingEntry) {
+            try { existingMeta = JSON.parse(existingEntry.value); } catch { /* empty */ }
+          }
+
+          const UPDATE_META = gql`
+            mutation UpdateOrderMetaBulkCancel($id: ID!, $input: [MetadataInput!]!) {
+              updateMetadata(id: $id, input: $input) {
+                item { metadata { key value } }
+                errors { field message }
+              }
+            }
+          `;
+
+          await ctx.apiClient
+            .mutation(UPDATE_META, {
+              id: orderId,
+              input: [
+                {
+                  key: "dropship",
+                  value: JSON.stringify({
+                    ...existingMeta,
+                    status: "cancelled",
+                    cancelledAt: new Date().toISOString(),
+                  }),
+                },
+              ],
+            })
+            .toPromise();
+
+          results.push({ id: orderId, success: true });
+        } catch (err: any) {
+          results.push({ id: orderId, success: false, error: err.message ?? "Unknown error" });
+        }
+      }
+
+      return { results };
+    }),
+
   updateStatus: protectedClientProcedure
     .input(
       z.object({

@@ -11,9 +11,11 @@ import {
 } from "@/modules/ui/layout/dashboard-shell";
 import { DateRangePicker, QuickDateSelect } from "@/modules/ui/components/date-range-picker";
 import { ChannelSelector } from "@/modules/ui/components/channel-selector";
+import { OrderTypeSelector } from "@/modules/ui/components/order-type-selector";
 import { ProductPerformanceTable } from "@/modules/ui/components/product-performance-table";
 import { AutoRefreshToggle, useAutoRefresh } from "@/modules/ui/components/auto-refresh-toggle";
 import { getTimeRangeFromPreset, type TimeRange } from "@/modules/analytics/domain/time-range";
+import type { OrderTypeFilter } from "@/modules/analytics/domain/kpi-types";
 
 const REFRESH_INTERVAL = 30_000;
 
@@ -27,6 +29,7 @@ export default function ProductsPage() {
 
   const [dateRange, setDateRange] = useState<TimeRange>(() => getTimeRangeFromPreset("last30days"));
   const [channelSlug, setChannelSlug] = useState<string | undefined>(undefined);
+  const [orderType, setOrderType] = useState<OrderTypeFilter>("all");
 
   const channelsQuery = trpcClient.channels.list.useQuery(undefined, {
     enabled: !!appBridgeState?.ready,
@@ -58,8 +61,9 @@ export default function ProductsPage() {
       dateFrom: dateRange.from,
       dateTo: dateRange.to,
       currency,
+      orderType,
     }),
-    [effectiveChannelSlug, dateRange.from, dateRange.to, currency],
+    [effectiveChannelSlug, dateRange.from, dateRange.to, currency, orderType],
   );
 
   const refetchInterval = autoRefresh.enabled ? REFRESH_INTERVAL : false;
@@ -95,6 +99,7 @@ export default function ProductsPage() {
               onToggle={autoRefresh.toggle}
               lastUpdated={autoRefresh.lastUpdated}
             />
+            <OrderTypeSelector value={orderType} onChange={setOrderType} />
             <ChannelSelector
               channels={channelsQuery.data ?? []}
               value={channelSlug}

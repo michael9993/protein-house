@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useStoreConfig, useFeature, useContentConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 
 import { useNewsletterState } from "@/hooks/useNewsletterState";
 import { SectionHeader } from "./SectionHeader";
@@ -75,8 +76,8 @@ export function NewsletterSignup({
         data-cd="homepage-newsletter"
         className={`relative overflow-hidden py-12 ${cdClasses}`}
         style={{
-          background: cdStyle?.backgroundColor ? `var(--cd-homepage-newsletter-bg)` : branding.colors.secondary,
-          ...(cdStyle?.textColor && { color: `var(--cd-homepage-newsletter-text)` }),
+          background: branding.colors.secondary,
+          ...buildComponentStyle("homepage.newsletter", cdStyle),
         }}
       >
         <div className="relative mx-auto max-w-4xl px-4 text-center">
@@ -109,8 +110,8 @@ export function NewsletterSignup({
       data-cd="homepage-newsletter"
       className={`relative overflow-hidden py-20 ${cdClasses}`}
       style={{
-        background: cdStyle?.backgroundColor ? `var(--cd-homepage-newsletter-bg)` : branding.colors.secondary,
-        ...(cdStyle?.textColor && { color: `var(--cd-homepage-newsletter-text)` }),
+        background: branding.colors.secondary,
+        ...buildComponentStyle("homepage.newsletter", cdStyle),
       }}
     >
       {/* Decorative Elements */}

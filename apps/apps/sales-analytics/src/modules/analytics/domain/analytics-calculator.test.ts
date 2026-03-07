@@ -28,6 +28,11 @@ const createMockOrder = (
       gross: { __typename: "Money", amount: total, currency },
       net: { __typename: "Money", amount: total * 0.9, currency },
     },
+    shippingPrice: {
+      __typename: "TaxedMoney",
+      gross: { __typename: "Money", amount: 0, currency },
+    },
+    discounts: [],
     channel: {
       __typename: "Channel",
       slug: "default",
@@ -44,8 +49,10 @@ const createMockOrder = (
         __typename: "TaxedMoney",
         gross: { __typename: "Money", amount: line.totalPrice, currency },
       },
+      unitDiscount: { __typename: "Money", amount: 0, currency },
       variant: {
         __typename: "ProductVariant",
+        channelListings: null,
         product: {
           __typename: "Product",
           id: `product-${line.productName}`,
@@ -55,6 +62,8 @@ const createMockOrder = (
             id: `cat-${line.productName}`,
             name: `${line.productName} Category`,
           },
+          metadata: [],
+          privateMetadata: [],
         },
       },
     })),

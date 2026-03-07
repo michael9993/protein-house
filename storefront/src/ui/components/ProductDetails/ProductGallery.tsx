@@ -13,6 +13,7 @@ import "swiper/css/zoom";
 
 import { Dialog, Transition, TransitionChild } from "@headlessui/react";
 import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 
 interface ProductGalleryProps {
   images: Array<{
@@ -49,8 +50,7 @@ export function ProductGallery({ images, productName, discountPercent, allowLigh
         data-cd="pdp-gallery"
         className={`flex flex-col gap-3 group relative ${cdClasses}`}
         style={{
-          ...(cdStyle?.backgroundColor && { background: `var(--cd-pdp-gallery-bg)` }),
-          ...(cdStyle?.textColor && { color: `var(--cd-pdp-gallery-text)` }),
+          ...buildComponentStyle("pdp.gallery", cdStyle),
         }}
       >
         {/* Main image */}

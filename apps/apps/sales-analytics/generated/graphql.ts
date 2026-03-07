@@ -50,6 +50,17 @@ export type OrderAnalyticsFragment = {
     gross: MoneyFragment;
     net: MoneyFragment;
   };
+  shippingPrice: {
+    __typename?: "TaxedMoney";
+    gross: MoneyFragment;
+  };
+  discounts: Array<{
+    __typename?: "OrderDiscount";
+    id: string;
+    type: string;
+    name: string | null;
+    amount: MoneyFragment;
+  }>;
   channel: {
     __typename?: "Channel";
     slug: string;
@@ -66,8 +77,17 @@ export type OrderAnalyticsFragment = {
       __typename?: "TaxedMoney";
       gross: MoneyFragment;
     };
+    unitDiscount: MoneyFragment;
     variant: {
       __typename?: "ProductVariant";
+      channelListings: Array<{
+        __typename?: "ProductVariantChannelListing";
+        costPrice: MoneyFragment | null;
+        channel: {
+          __typename?: "Channel";
+          slug: string;
+        };
+      }> | null;
       product: {
         __typename?: "Product";
         id: string;
@@ -77,6 +97,16 @@ export type OrderAnalyticsFragment = {
           id: string;
           name: string;
         } | null;
+        metadata: Array<{
+          __typename?: "MetadataItem";
+          key: string;
+          value: string;
+        }>;
+        privateMetadata: Array<{
+          __typename?: "MetadataItem";
+          key: string;
+          value: string;
+        }>;
       };
     } | null;
   }>;
@@ -183,6 +213,19 @@ export const OrderAnalyticsFragmentDoc = gql`
         ...Money
       }
     }
+    shippingPrice {
+      gross {
+        ...Money
+      }
+    }
+    discounts {
+      id
+      type
+      name
+      amount {
+        ...Money
+      }
+    }
     channel {
       slug
       name
@@ -198,13 +241,32 @@ export const OrderAnalyticsFragmentDoc = gql`
           ...Money
         }
       }
+      unitDiscount {
+        ...Money
+      }
       variant {
+        channelListings {
+          costPrice {
+            ...Money
+          }
+          channel {
+            slug
+          }
+        }
         product {
           id
           name
           category {
             id
             name
+          }
+          metadata {
+            key
+            value
+          }
+          privateMetadata {
+            key
+            value
           }
         }
       }

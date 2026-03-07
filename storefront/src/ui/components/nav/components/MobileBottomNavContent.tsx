@@ -2,6 +2,7 @@
 
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { useBranding, useContentConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { MobileCartButtonClient } from "./MobileCartButtonClient";
 import { MobileAccountButtonClient } from "./MobileAccountButtonClient";
 
@@ -73,10 +74,11 @@ export function MobileBottomNavContent({
         isVisible ? "translate-y-0" : "translate-y-full"
       } ${cdClasses}`}
       style={{
-        background: cdStyle?.backgroundColor ? 'var(--cd-layout-mobileBottomNav-bg)' : "var(--store-mobile-nav-bg)",
+        background: "var(--store-mobile-nav-bg)",
         backdropFilter: "blur(16px)",
         borderTop: "1px solid var(--store-neutral-200)",
         boxShadow: "0 -4px 20px rgba(0, 0, 0, 0.08)",
+        ...buildComponentStyle("layout.mobileBottomNav", cdStyle),
       }}
     >
       <div className="flex h-20 items-center justify-around px-2 py-2">

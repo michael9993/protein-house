@@ -1,6 +1,7 @@
 "use client";
 
 import { useBranding, useMarqueeConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 
 interface MarqueeProps {
   items: string[];
@@ -63,8 +64,7 @@ export function Marquee({ items }: MarqueeProps) {
       className={`py-4 border-y border-neutral-800 ${cdClasses}`}
       aria-label="Brand marquee"
       style={{
-        ...(cdStyle?.backgroundColor && { background: `var(--cd-homepage-marquee-bg)` }),
-        ...(cdStyle?.textColor && { color: `var(--cd-homepage-marquee-text)` }),
+        ...buildComponentStyle("homepage.marquee", cdStyle),
       }}
     >
       {/* .marquee class in globals.css: flex, overflow:hidden, gap, dir:ltr */}

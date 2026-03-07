@@ -2,16 +2,17 @@ import { Result, ok, err } from "neverthrow";
 import { Client, type OperationResult } from "urql";
 import { format, parseISO } from "date-fns";
 
+import { createLogger } from "../../../logger";
 import {
   FetchOrdersAnalyticsDocument,
   FetchChannelsDocument,
-  FetchOrderByIdDocument,
   type FetchOrdersAnalyticsQuery,
   type FetchChannelsQuery,
-  type FetchOrderByIdQuery,
   type OrderAnalyticsFragment,
   type ChannelDetailsFragment,
 } from "../../../../generated/graphql";
+
+const logger = createLogger("orders-data-fetcher");
 
 /**
  * Error types for data fetching
@@ -87,22 +88,7 @@ export async function fetchOrdersForAnalytics(
 
       if (result.error) {
         const errorMessage = result.error.graphQLErrors?.[0]?.message || result.error.message || "Unknown GraphQL error";
-        const errorDetails = result.error.graphQLErrors?.[0] || result.error;
-        console.error("[fetchOrdersForAnalytics] GraphQL error:", {
-          message: errorMessage,
-          details: errorDetails,
-          variables: {
-            channel: options.channelSlug,
-            first: Math.min(pageSize, maxOrders - allOrders.length),
-            after: cursor,
-            filter: {
-              created: {
-                gte: options.dateFrom,
-                lte: options.dateTo,
-              },
-            },
-          },
-        });
+        logger.error("[fetchOrdersForAnalytics] GraphQL error", { message: errorMessage });
         return err(new DataFetchError(`Failed to fetch orders: ${errorMessage}`, result.error));
       }
 
@@ -122,27 +108,5 @@ export async function fetchOrdersForAnalytics(
     return ok(allOrders);
   } catch (error) {
     return err(new DataFetchError("Failed to fetch orders", error));
-  }
-}
-
-/**
- * Fetch a single order by ID
- */
-export async function fetchOrderById(
-  client: Client,
-  orderId: string
-): Promise<Result<OrderAnalyticsFragment | null, DataFetchError>> {
-  try {
-    const result = await client
-      .query<FetchOrderByIdQuery>(FetchOrderByIdDocument, { id: orderId })
-      .toPromise();
-
-    if (result.error) {
-      return err(new DataFetchError("Failed to fetch order", result.error));
-    }
-
-    return ok(result.data?.order ?? null);
-  } catch (error) {
-    return err(new DataFetchError("Failed to fetch order", error));
   }
 }

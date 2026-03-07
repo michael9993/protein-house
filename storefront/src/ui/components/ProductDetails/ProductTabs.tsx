@@ -10,6 +10,8 @@ import {
   formatEstimate,
   type ShippingEstimate,
 } from "@/lib/shipping";
+import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 
 interface Props {
   productId: string;
@@ -56,6 +58,9 @@ export function ProductTabs({
   metadata,
   text,
 }: Props) {
+  const cdStyle = useComponentStyle("pdp.tabs");
+  const cdClasses = useComponentClasses("pdp.tabs");
+
   const hasVisibleAttributes = productAttributes.some(
     (a) => a.attribute.visibleInStorefront
   );
@@ -76,7 +81,7 @@ export function ProductTabs({
   const shippingEstimate = getProductShippingEstimate(metadata);
 
   return (
-    <div data-cd="pdp-tabs" className="mt-8 border-t border-neutral-200 pt-8">
+    <div data-cd="pdp-tabs" className={`mt-8 border-t border-neutral-200 pt-8 ${cdClasses}`} style={buildComponentStyle("pdp.tabs", cdStyle)}>
       {/* Tab headers */}
       <div className="flex gap-8 border-b border-neutral-200">
         {tabs.map((tab) => (

@@ -12,6 +12,8 @@ import { CheckoutFooter } from "@/checkout-v2/components/CheckoutFooter";
 import { OrderSummary } from "./OrderSummary";
 import { OrderNextSteps } from "./OrderNextSteps";
 import type { CheckoutTextConfig } from "@/lib/checkout/useCheckoutText";
+import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 
 type Order = NonNullable<GetOrderForConfirmationQuery["order"]>;
 
@@ -26,6 +28,8 @@ interface Props {
 // ---------------------------------------------------------------------------
 
 function OrderConfirmationInner({ order, channel }: Omit<Props, "checkoutText">) {
+	const cdStyle = useComponentStyle("checkout.confirmation");
+	const cdClasses = useComponentClasses("checkout.confirmation");
 	const t = useCheckoutText();
 	const purchaseTracked = useRef(false);
 	const registrationAttempted = useRef(false);
@@ -116,7 +120,7 @@ function OrderConfirmationInner({ order, channel }: Omit<Props, "checkoutText">)
 	}, [order, channel]);
 
 	return (
-		<div data-cd="checkout-confirmation" className="min-h-dvh bg-gradient-to-b from-neutral-50 to-white print:bg-white">
+		<div data-cd="checkout-confirmation" className={`min-h-dvh bg-gradient-to-b from-neutral-50 to-white print:bg-white ${cdClasses}`} style={{ ...buildComponentStyle("checkout.confirmation", cdStyle) }}>
 			<section className="mx-auto flex min-h-dvh max-w-7xl flex-col px-4 py-6 sm:px-8">
 				<CheckoutHeader channel={channel} />
 

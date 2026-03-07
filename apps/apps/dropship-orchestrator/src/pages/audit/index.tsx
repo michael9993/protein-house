@@ -1,5 +1,5 @@
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { NavBar } from "@/components/ui/NavBar";
@@ -73,6 +73,28 @@ function AuditLog() {
   });
 
   const [clearMessage, setClearMessage] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const utils = trpcClient.useContext();
+
+  const handleExportCsv = useCallback(async () => {
+    setIsExporting(true);
+    try {
+      const csv = await utils.audit.exportCsv.fetch({
+        type: typeFilter === "all" ? undefined : typeFilter,
+      });
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `audit-log-${new Date().toISOString().split("T")[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setClearMessage(`Export failed: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setIsExporting(false);
+    }
+  }, [typeFilter]);
 
   if (isLoading) {
     return (
@@ -102,6 +124,13 @@ function AuditLog() {
             {data?.totalCount ?? 0} events matching filters
           </p>
         </div>
+        <button
+          className="px-3 py-1.5 text-sm font-medium border border-border rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
+          disabled={isExporting}
+          onClick={handleExportCsv}
+        >
+          {isExporting ? "Exporting..." : "Download CSV"}
+        </button>
       </div>
 
       {/* Stats */}

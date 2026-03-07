@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatMoney } from "@/lib/utils";
 import { useOrdersText, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 
 interface OrderLine {
 	id: string;
@@ -376,8 +377,7 @@ export function OrdersListClient({ orders, channel, statusColors, primaryColor }
 	return (
 		<>
 			<div data-cd="account-orders" className={`space-y-4 ${cdClasses}`} style={{
-				...(cdStyle?.backgroundColor && { background: 'var(--cd-account-orders-bg)' }),
-				...(cdStyle?.textColor && { color: 'var(--cd-account-orders-text)' }),
+				...buildComponentStyle("account.orders", cdStyle),
 			}}>
 				{displayedOrders.map((order) => {
 					const orderStatus = order.status;

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useCartDrawer } from '@/providers/CartDrawerProvider';
 import { useDirection } from '@/providers/DirectionProvider';
 import { useBranding, useContentConfig, useBadgeStyle, useUiConfig, useEcommerceSettings, useComponentStyle, useComponentClasses } from '@/providers/StoreConfigProvider';
+import { buildComponentStyle } from "@/config";
 import { formatMoney } from '@/lib/utils';
 import { mapPromoCodeError } from '@/lib/checkout/promo-error-map';
 
@@ -252,8 +253,7 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
         className={`cart-drawer ${isOpen ? 'cart-drawer--open' : ''} ${isLeft ? 'cart-drawer--left' : ''} ${!hasInteracted.current && !isOpen ? 'cart-drawer--no-transition' : ''} ${cdClasses}`}
         dir={isRTL ? 'rtl' : 'ltr'}
         style={{
-          ...(cdStyle?.backgroundColor && { background: `var(--cd-cart-drawer-bg)` }),
-          ...(cdStyle?.textColor && { color: `var(--cd-cart-drawer-text)` }),
+          ...buildComponentStyle("cart.drawer", cdStyle),
         }}
       >
         {/* Header */}

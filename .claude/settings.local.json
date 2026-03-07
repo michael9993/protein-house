@@ -121,7 +121,12 @@
       "Bash(/tmp/audit_report.txt:*)",
       "Read(//tmp/**)",
       "Bash(do grep:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(for f in storefront/src/components/home/Hero.tsx storefront/src/components/home/Marquee.tsx storefront/src/components/home/BrandGrid.tsx storefront/src/ui/components/FooterClient.tsx storefront/src/ui/components/CartDrawer/CartDrawer.tsx storefront/src/checkout-v2/CheckoutPage.tsx storefront/src/ui/components/ProductDetails/ProductGallery.tsx storefront/src/app/[channel]/\\\\\\(main\\\\\\)/products/ActiveFiltersTags.tsx)",
+      "Bash(do echo \"=== $f ===\")",
+      "Read(//c/Users/micha/saleor-platform/**)",
+      "Bash(for f in \"storefront/src/app/[channel]/\\(main\\)/cart/CartClient.tsx\" \"storefront/src/app/[channel]/\\(main\\)/account/AccountDashboardContent.tsx\" \"storefront/src/checkout-v2/CheckoutPage.tsx\" \"storefront/src/checkout-v2/steps/ContactStep.tsx\" \"storefront/src/checkout-v2/steps/PaymentStep.tsx\")",
+      "Bash(do)"
     ],
     "deny": [
       "Read(./.env*)",

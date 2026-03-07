@@ -131,14 +131,14 @@ function ComponentDesignerPage() {
   // Reset a single component's overrides
   const handleResetComponent = useCallback(
     (key: string) => {
-      setValue(`componentOverrides.${key}` as any, {} as any, { shouldDirty: true });
+      setValue(`componentOverrides.${key}` as any, undefined as any, { shouldDirty: true });
     },
     [setValue]
   );
 
   // Reset all overrides
   const handleResetAll = useCallback(() => {
-    setValue("componentOverrides", {}, { shouldDirty: true });
+    setValue("componentOverrides", undefined as any, { shouldDirty: true });
   }, [setValue]);
 
   if (isNotReady) {
@@ -209,6 +209,7 @@ function ComponentDesignerPage() {
           {/* Center: Properties Panel */}
           <div className={previewOpen ? "w-80 shrink-0 overflow-y-auto border-r border-neutral-200 bg-white" : "flex-1 overflow-y-auto bg-white"}>
             <StylePropertiesPanel
+              key={selectedKey ?? "__none"}
               selectedKey={selectedKey}
               control={control}
               register={register}

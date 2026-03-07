@@ -16,6 +16,8 @@ import { PaymentStep } from "./steps/PaymentStep";
 import { useCheckoutText } from "./hooks/useCheckoutText";
 import type { CheckoutFragment } from "@/lib/checkout/graphql-types";
 import type { CheckoutTextConfig } from "@/lib/checkout/useCheckoutText";
+import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import {
 	STEP_CONTACT,
 	STEP_DELIVERY,
@@ -188,6 +190,9 @@ export function CheckoutPageV2({
 	initialCheckout,
 	checkoutText,
 }: CheckoutPageProps) {
+	const cdStyle = useComponentStyle("checkout.page");
+	const cdClasses = useComponentClasses("checkout.page");
+
 	if (!checkoutId) {
 		// No checkout ID — page.tsx handles empty state before rendering this
 		return null;
@@ -196,7 +201,7 @@ export function CheckoutPageV2({
 	return (
 		<CheckoutStateProvider initialCheckout={initialCheckout}>
 			<CheckoutTextProvider config={checkoutText}>
-				<div data-cd="checkout-page" className="min-h-dvh bg-gradient-to-b from-neutral-50 to-white print:bg-white">
+				<div data-cd="checkout-page" className={`min-h-dvh bg-gradient-to-b from-neutral-50 to-white print:bg-white ${cdClasses}`} style={{ ...buildComponentStyle("checkout.page", cdStyle) }}>
 					<section className="mx-auto flex min-h-dvh max-w-7xl flex-col px-4 py-6 sm:px-8">
 						<CheckoutHeader channel={channel} />
 						<CheckoutProgressBar />

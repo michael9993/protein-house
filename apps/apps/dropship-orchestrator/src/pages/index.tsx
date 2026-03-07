@@ -45,9 +45,36 @@ function supplierLabel(id: string): string {
   }
 }
 
+function statusBarColor(status: string): string {
+  switch (status) {
+    case "shipped":
+    case "delivered":
+      return "bg-green-500";
+    case "failed":
+    case "cancelled":
+    case "supplier_cancelled":
+      return "bg-red-500";
+    case "pending":
+    case "exception":
+      return "bg-yellow-500";
+    case "forwarded":
+      return "bg-blue-500";
+    default:
+      return "bg-gray-400";
+  }
+}
+
+function formatQueueName(name: string): string {
+  return name
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (l) => l.toUpperCase());
+}
+
 function DashboardOverview() {
   const router = useRouter();
   const { data, isLoading, error } = trpcClient.dashboard.overview.useQuery();
+  const { data: jobStats } = trpcClient.dashboard.getJobStats.useQuery();
 
   if (isLoading) {
     return (
@@ -188,7 +215,7 @@ function DashboardOverview() {
           )}
         </div>
 
-        {/* Order Status Distribution */}
+        {/* Order Status Distribution - Bar Chart */}
         <div className="p-5 rounded-lg border border-border">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-base font-semibold text-text-primary">Order Status</h2>
@@ -199,23 +226,27 @@ function DashboardOverview() {
               View All
             </button>
           </div>
-          {Object.keys(data.statusDistribution).length > 0 ? (
-            <div className="flex flex-col gap-2">
-              {Object.entries(data.statusDistribution).map(([status, count]) => (
-                <div
-                  key={status}
-                  className="flex justify-between items-center p-3 rounded-lg border border-border"
-                >
-                  <div className="flex gap-2 items-center">
-                    <span className={`px-2 py-1 rounded-lg text-xs ${statusBadgeCls(status)}`}>
-                      {status.replace("_", " ").toUpperCase()}
+          {Object.keys(data.statusDistribution).length > 0 ? (() => {
+            const total = Object.values(data.statusDistribution).reduce((a, b) => a + (b as number), 0);
+            return (
+              <div className="flex flex-col gap-2">
+                {Object.entries(data.statusDistribution).map(([status, count]) => (
+                  <div key={status} className="flex items-center gap-3">
+                    <span className="text-xs w-28 text-right text-text-muted capitalize">
+                      {status.replace(/_/g, " ")}
                     </span>
+                    <div className="flex-1 h-5 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${statusBarColor(status)}`}
+                        style={{ width: `${total > 0 ? ((count as number) / total) * 100 : 0}%`, minWidth: (count as number) > 0 ? "8px" : "0" }}
+                      />
+                    </div>
+                    <span className="text-xs w-8 font-medium">{count as number}</span>
                   </div>
-                  <span className="font-semibold">{count}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
+                ))}
+              </div>
+            );
+          })() : (
             <p className="text-sm text-text-muted">No dropship orders yet.</p>
           )}
         </div>
@@ -232,6 +263,52 @@ function DashboardOverview() {
                 <h2 className="text-base font-semibold text-text-primary">
                   ${(revenue as number).toFixed(2)}
                 </h2>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Background Jobs */}
+      {jobStats && (
+        <div className="p-5 rounded-lg border border-border">
+          <h2 className="text-base font-semibold text-text-primary mb-4">Background Jobs</h2>
+          <div className="flex flex-col gap-1">
+            {/* Header */}
+            <div
+              className="grid gap-2 px-4 py-2 bg-gray-50 rounded-lg"
+              style={{ gridTemplateColumns: "1fr 80px 80px 80px 80px 160px" }}
+            >
+              <span className="text-xs text-text-muted">Queue</span>
+              <span className="text-xs text-text-muted">Active</span>
+              <span className="text-xs text-text-muted">Waiting</span>
+              <span className="text-xs text-text-muted">Completed</span>
+              <span className="text-xs text-text-muted">Failed</span>
+              <span className="text-xs text-text-muted">Last Run</span>
+            </div>
+            {Object.entries(jobStats).map(([name, stats]) => (
+              <div
+                key={name}
+                className="grid gap-2 px-4 py-3 border border-border rounded-lg items-center"
+                style={{ gridTemplateColumns: "1fr 80px 80px 80px 80px 160px" }}
+              >
+                <div className="flex gap-2 items-center">
+                  <span className={`inline-block w-2 h-2 rounded-full ${
+                    stats.active > 0 ? "bg-blue-500" : stats.failed > 0 ? "bg-red-500" : "bg-green-500"
+                  }`} />
+                  <span className="text-sm font-medium">{formatQueueName(name)}</span>
+                </div>
+                <span className={`text-xs ${stats.active > 0 ? "font-semibold text-blue-700" : ""}`}>
+                  {stats.active}
+                </span>
+                <span className="text-xs">{stats.waiting}</span>
+                <span className="text-xs">{stats.completed}</span>
+                <span className={`text-xs ${stats.failed > 0 ? "font-semibold text-red-700" : ""}`}>
+                  {stats.failed}
+                </span>
+                <span className="text-xs text-text-muted">
+                  {stats.lastRun ? new Date(stats.lastRun).toLocaleString() : "--"}
+                </span>
               </div>
             ))}
           </div>

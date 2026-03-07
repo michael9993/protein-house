@@ -124,12 +124,38 @@ export function StoreConfigProvider({
       root.classList.remove("dark-auto");
     }
 
+    // --- Component Designer Hover Styles ---
+    // Inject a <style> tag with hover rules for components that have hover overrides
+    let hoverStyleEl: HTMLStyleElement | null = null;
+    const overrides = config.componentOverrides;
+    if (overrides) {
+      const rules: string[] = [];
+      for (const [key, style] of Object.entries(overrides)) {
+        if (!style) continue;
+        const s = style as Record<string, unknown>;
+        const selector = `[data-cd="${key.replace(/\./g, '-')}"]`;
+        const prefix = `--cd-${key.replace(/\./g, '-')}`;
+        if (s.hoverBackgroundColor) rules.push(`${selector}:hover { background: var(${prefix}-hover-bg) !important; }`);
+        if (s.hoverTextColor) rules.push(`${selector}:hover { color: var(${prefix}-hover-text) !important; }`);
+        if (s.hoverShadow) rules.push(`${selector}:hover { box-shadow: var(${prefix}-hover-shadow) !important; }`);
+      }
+      if (rules.length > 0) {
+        hoverStyleEl = document.createElement("style");
+        hoverStyleEl.id = "cd-hover-styles";
+        // Remove any existing hover style tag first
+        document.getElementById("cd-hover-styles")?.remove();
+        hoverStyleEl.textContent = rules.join("\n");
+        document.head.appendChild(hoverStyleEl);
+      }
+    }
+
     return () => {
       Object.keys(cssVariables).forEach((key) => root.style.removeProperty(key));
       mediaCleanup?.();
       if (!darkMode?.auto) root.classList.remove("dark");
+      hoverStyleEl?.remove();
     };
-  }, [cssVariables, config.localization, config.darkMode]);
+  }, [cssVariables, config.localization, config.darkMode, config.componentOverrides]);
 
   return (
     <StoreConfigContext.Provider value={config}>

@@ -12,7 +12,9 @@ import type { BlacklistEntry, ExceptionRecord, FraudCheckResult, OrderForFraudCh
 import { getCountryName } from "@/modules/lib/country-names";
 import { getRedisConnection } from "@/modules/jobs/queues";
 import { checkCostCeiling } from "@/modules/pricing/cost-ceiling";
+import { convertCurrency, DEFAULT_RATES } from "@/modules/pricing/currency-converter";
 import {
+  atomicCheckAndIncrementDailySpend,
   fetchAppId,
   getDailySpend,
   getDropshipConfig,
@@ -531,7 +533,7 @@ export async function handleOrderPaid(
       });
 
       // Update order metadata to reflect exception status
-      await client
+      const fraudMetaResult = await client
         .mutation(UPDATE_ORDER_METADATA, {
           id: orderId,
           input: [
@@ -546,6 +548,13 @@ export async function handleOrderPaid(
           ],
         })
         .toPromise();
+
+      if (fraudMetaResult.error || (fraudMetaResult.data?.updateMetadata?.errors?.length ?? 0) > 0) {
+        logger.error("Failed to save fraud exception metadata", {
+          orderId,
+          error: fraudMetaResult.error?.message ?? JSON.stringify(fraudMetaResult.data?.updateMetadata?.errors ?? []),
+        });
+      }
 
       return ok({ forwarded: [], skipped: true });
     }
@@ -563,7 +572,24 @@ export async function handleOrderPaid(
   }, 0);
 
   const orderTotal = order.total.gross.amount;
-  const costCeilingResult = checkCostCeiling(totalDropshipCost, orderTotal, dropshipConfig.costCeilingPercent);
+  const orderCurrency = order.total.gross.currency;
+  let orderTotalInUSD = orderTotal;
+
+  if (orderCurrency !== "USD") {
+    const converted = convertCurrency(orderTotal, orderCurrency, "USD", DEFAULT_RATES);
+
+    if (converted !== null) {
+      orderTotalInUSD = converted;
+    } else {
+      logger.warn("Cannot convert order total to USD for cost ceiling — using raw amount", {
+        orderId,
+        orderCurrency,
+        orderTotal,
+      });
+    }
+  }
+
+  const costCeilingResult = checkCostCeiling(totalDropshipCost, orderTotalInUSD, dropshipConfig.costCeilingPercent);
 
   if (!costCeilingResult.passed) {
     await createExceptionRecord(client, {
@@ -582,19 +608,23 @@ export async function handleOrderPaid(
     return ok({ forwarded: [], skipped: true });
   }
 
-  const dailySpend = await getDailySpend(client, appId);
+  // Atomic daily spend check — uses Redis INCRBYFLOAT to prevent race conditions
+  const spendCheck = await atomicCheckAndIncrementDailySpend(
+    totalDropshipCost,
+    dropshipConfig.dailySpendLimit,
+  );
 
-  if (dailySpend.total + totalDropshipCost > dropshipConfig.dailySpendLimit) {
+  if (!spendCheck.allowed) {
     await createExceptionRecord(client, {
       orderId,
       orderNumber: order.number,
       reason: "daily_spend_limit",
-      details: `Adding $${totalDropshipCost.toFixed(2)} would exceed daily limit of $${dropshipConfig.dailySpendLimit} (current: $${dailySpend.total.toFixed(2)})`,
+      details: `Adding $${totalDropshipCost.toFixed(2)} would exceed daily limit of $${dropshipConfig.dailySpendLimit} (current: $${spendCheck.newTotal.toFixed(2)})`,
     });
 
     logger.warn("Daily spend limit would be exceeded — exception created", {
       orderId,
-      currentSpend: dailySpend.total,
+      currentSpend: spendCheck.newTotal,
       additionalCost: totalDropshipCost,
       limit: dropshipConfig.dailySpendLimit,
     });
@@ -609,7 +639,7 @@ export async function handleOrderPaid(
   if (!dropshipConfig.autoForward) {
     logger.info("Auto-forward disabled — marking as pending", { orderId });
 
-    await client
+    const pendingMetaResult = await client
       .mutation(UPDATE_ORDER_METADATA, {
         id: orderId,
         input: [
@@ -623,6 +653,13 @@ export async function handleOrderPaid(
         ],
       })
       .toPromise();
+
+    if (pendingMetaResult.error || (pendingMetaResult.data?.updateMetadata?.errors?.length ?? 0) > 0) {
+      logger.error("Failed to save pending status metadata", {
+        orderId,
+        error: pendingMetaResult.error?.message ?? JSON.stringify(pendingMetaResult.data?.updateMetadata?.errors ?? []),
+      });
+    }
 
     return ok({ forwarded: [], skipped: true });
   }
@@ -780,14 +817,16 @@ export async function handleOrderPaid(
 
   if (forwarded.length > 0) {
     const supplierOrders: Record<string, string> = {};
+    const listedCostPrices: Record<string, number> = {};
     let totalCost = 0;
 
     for (const f of forwarded) {
       supplierOrders[f.supplierId] = f.supplierOrderId;
+      listedCostPrices[f.supplierOrderId] = f.cost;
       totalCost += f.cost;
     }
 
-    await client
+    const metaResult = await client
       .mutation(UPDATE_ORDER_METADATA, {
         id: orderId,
         input: [
@@ -798,13 +837,40 @@ export async function handleOrderPaid(
               suppliers: supplierOrders,
               forwardedAt: new Date().toISOString(),
               totalCost,
+              listedCostPrices,
             }),
           },
         ],
       })
       .toPromise();
 
-    // Increment daily spend tracker
+    if (metaResult.error || (metaResult.data?.updateMetadata?.errors?.length ?? 0) > 0) {
+      const metaErrors = metaResult.data?.updateMetadata?.errors ?? [];
+      logger.error("CRITICAL: Failed to save dropship metadata — order forwarded but metadata not persisted", {
+        orderId,
+        suppliers: supplierOrders,
+        error: metaResult.error?.message ?? JSON.stringify(metaErrors),
+      });
+
+      // Store backup mapping in Redis for recovery
+      try {
+        const redis = getRedisConnection();
+        await redis.set(
+          `dropship:meta-backup:${orderId}`,
+          JSON.stringify({ suppliers: supplierOrders, totalCost, forwardedAt: new Date().toISOString() }),
+          "EX",
+          7 * 24 * 60 * 60, // 7 days
+        );
+      } catch (redisErr) {
+        logger.error("Failed to store metadata backup in Redis", {
+          orderId,
+          error: redisErr instanceof Error ? redisErr.message : String(redisErr),
+        });
+      }
+    }
+
+    // Increment daily spend in metadata as secondary record
+    // (primary atomic check already done via Redis INCRBYFLOAT above)
     await incrementDailySpend(client, appId, totalCost);
   }
 

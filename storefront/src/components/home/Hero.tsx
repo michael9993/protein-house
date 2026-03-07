@@ -9,6 +9,7 @@ import { type HeroBannerConfig } from "@/lib/cms";
 import { formatMoney } from "@/lib/utils";
 import { t } from "@/lib/language";
 import { useBranding, useStoreInfo, useHeroConfig, useContentConfig, useBadgeStyle, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { buildProductUrl, buildProductsUrl, withChannel } from "@/lib/urls";
 import {
   getProductImage,
@@ -230,8 +231,7 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
       data-cd="homepage-hero"
       className={`relative overflow-hidden ${cdClasses}`}
       style={{
-        ...(cdStyle?.backgroundColor && { background: `var(--cd-homepage-hero-bg)` }),
-        ...(cdStyle?.textColor && { color: `var(--cd-homepage-hero-text)` }),
+        ...buildComponentStyle("homepage.hero", cdStyle),
       }}
     >
       {/* Background layers */}

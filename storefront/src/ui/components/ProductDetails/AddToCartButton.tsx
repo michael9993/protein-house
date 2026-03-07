@@ -1,5 +1,8 @@
 "use client";
 
+import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
+
 type ButtonState = "needsSelection" | "outOfStock" | "ready" | "adding" | "added";
 
 interface Props {
@@ -16,17 +19,19 @@ interface Props {
 }
 
 export function AddToCartButton({ state, onClick, primaryColor, text }: Props) {
+  const cdStyle = useComponentStyle("pdp.addToCart");
+  const cdClasses = useComponentClasses("pdp.addToCart");
   const isDisabled = state === "needsSelection" || state === "outOfStock" || state === "adding";
   const bgColor = state === "added" ? "var(--store-success-600, #059669)" : primaryColor;
 
   return (
     <button
-      data-cd="pdp-addToCartButton"
+      data-cd="pdp-addToCart"
       type="button"
       onClick={onClick}
       disabled={isDisabled}
-      className="flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3.5 text-base font-semibold text-white whitespace-nowrap transition-all hover:opacity-90 active:scale-[0.98] active:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 sm:py-4"
-      style={{ backgroundColor: bgColor }}
+      className={`flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3.5 text-base font-semibold text-white whitespace-nowrap transition-all hover:opacity-90 active:scale-[0.98] active:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 sm:py-4 ${cdClasses}`}
+      style={{ backgroundColor: bgColor, ...buildComponentStyle("pdp.addToCart", cdStyle) }}
     >
       {state === "adding" && (
         <>

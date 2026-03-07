@@ -2,6 +2,7 @@
 
 import { Truck, RotateCcw, ShieldCheck, Headphones } from "lucide-react";
 import { useBranding, useEcommerceSettings, useTrustStripConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { formatMoney } from "@/lib/utils";
 
 /**
@@ -47,8 +48,7 @@ export function TrustStrip() {
       className={`border-b border-neutral-100 ${cdClasses}`}
       aria-label="Trust indicators"
       style={{
-        ...(cdStyle?.backgroundColor && { background: `var(--cd-homepage-trustStrip-bg)` }),
-        ...(cdStyle?.textColor && { color: `var(--cd-homepage-trustStrip-text)` }),
+        ...buildComponentStyle("homepage.trustStrip", cdStyle),
       }}
     >
       <div className="mx-auto max-w-[var(--design-container-max)] px-6 py-5 lg:px-12">
