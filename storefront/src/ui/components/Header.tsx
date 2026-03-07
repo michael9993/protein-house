@@ -12,7 +12,13 @@ import type { MobileNavData } from "./nav/components/NavLinksClient";
 export function Header({ channel, navData, isLoggedIn }: { channel: string; navData?: MobileNavData; isLoggedIn?: boolean }) {
 	return (
 		<>
-			<header className="sticky top-0 z-50 w-full">
+			<header
+				data-cd="layout-header"
+				className="sticky top-0 z-50 w-full"
+				style={{
+					background: 'var(--cd-layout-header-bg, transparent)',
+				}}
+			>
 				{/* Only the banner + nav hide on scroll */}
 				<div data-scroll-hide="header">
 					<HeaderBanner channel={channel} />

@@ -1,4 +1,4 @@
-import { BarChart3, Headphones, Megaphone, Share2 } from "lucide-react";
+import { BarChart3, Headphones, Share2 } from "lucide-react";
 
 import { FormField } from "@/components/forms/FormField";
 import { FormSection } from "@/components/forms/FormSection";
@@ -13,7 +13,6 @@ export function IntegrationsToolsTab({ register, errors }: GlobalTabProps) {
         title="Analytics"
         description="Tracking and analytics integrations"
         icon={<BarChart3 className="h-4 w-4" />}
-        comingSoon
       >
         <FieldGroup columns={2}>
           <FormField<GlobalFormData>
@@ -47,30 +46,6 @@ export function IntegrationsToolsTab({ register, errors }: GlobalTabProps) {
         </FieldGroup>
       </FormSection>
 
-      {/* Marketing */}
-      <FormSection
-        title="Marketing"
-        description="Email marketing and automation"
-        icon={<Megaphone className="h-4 w-4" />}
-        comingSoon
-      >
-        <FieldGroup columns={2}>
-          <FormField<GlobalFormData>
-            label="Mailchimp List ID"
-            name="integrations.marketing.mailchimpListId"
-            register={register}
-            errors={errors}
-            placeholder="abcdef1234"
-          />
-          <FormField<GlobalFormData>
-            label="Klaviyo API Key"
-            name="integrations.marketing.klaviyoApiKey"
-            register={register}
-            errors={errors}
-            placeholder="pk_xxxx..."
-          />
-        </FieldGroup>
-      </FormSection>
 
       {/* Customer Support */}
       <FormSection

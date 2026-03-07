@@ -312,6 +312,28 @@ export function BrandingDesignTab({ register, control, errors, watch }: GlobalTa
               />
             </FieldGroup>
           </div>
+
+          {/* Danger Button */}
+          <div className="space-y-3">
+            <h4 className="text-sm font-semibold">Danger Button</h4>
+            <FieldGroup columns={3}>
+              <FormColorPicker<GlobalFormData>
+                label="Background"
+                name="ui.buttons.danger.backgroundColor"
+                control={control}
+              />
+              <FormColorPicker<GlobalFormData>
+                label="Text Color"
+                name="ui.buttons.danger.textColor"
+                control={control}
+              />
+              <FormColorPicker<GlobalFormData>
+                label="Hover Background"
+                name="ui.buttons.danger.hoverBackgroundColor"
+                control={control}
+              />
+            </FieldGroup>
+          </div>
         </div>
       </FormSection>
 
@@ -432,6 +454,22 @@ export function BrandingDesignTab({ register, control, errors, watch }: GlobalTa
               />
             </FieldGroup>
           </div>
+
+          <div className="space-y-3">
+            <h4 className="text-sm font-semibold">Discount Badge</h4>
+            <FieldGroup columns={2}>
+              <FormColorPicker<GlobalFormData>
+                label="Background"
+                name="ui.badges.discount.backgroundColor"
+                control={control}
+              />
+              <FormColorPicker<GlobalFormData>
+                label="Text Color"
+                name="ui.badges.discount.textColor"
+                control={control}
+              />
+            </FieldGroup>
+          </div>
         </div>
       </FormSection>
 
@@ -460,6 +498,32 @@ export function BrandingDesignTab({ register, control, errors, watch }: GlobalTa
             name="ui.inputs.focusRingColor"
             control={control}
             description="Ring/glow color when focused"
+          />
+        </FieldGroup>
+      </FormSection>
+
+      {/* Status Colors */}
+      <FormSection title="Status Colors" description="Colors for success, warning, error, and info states" collapsible defaultExpanded={false}>
+        <FieldGroup columns={4}>
+          <FormColorPicker<GlobalFormData>
+            label="Success"
+            name="design.statusColors.success"
+            control={control}
+          />
+          <FormColorPicker<GlobalFormData>
+            label="Warning"
+            name="design.statusColors.warning"
+            control={control}
+          />
+          <FormColorPicker<GlobalFormData>
+            label="Error"
+            name="design.statusColors.error"
+            control={control}
+          />
+          <FormColorPicker<GlobalFormData>
+            label="Info"
+            name="design.statusColors.info"
+            control={control}
           />
         </FieldGroup>
       </FormSection>
@@ -997,7 +1061,6 @@ export function BrandingDesignTab({ register, control, errors, watch }: GlobalTa
           title="Dark Mode Colors"
           description="Override colors for dark theme"
           icon={<Moon className="h-4 w-4" />}
-          comingSoon
         >
           <FieldGroup columns={2}>
             <FormColorPicker<GlobalFormData>

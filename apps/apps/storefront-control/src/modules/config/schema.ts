@@ -173,6 +173,10 @@ export {
   // Checkout UI
   CheckoutUiSchema,
 
+  // Component Overrides
+  ComponentStyleOverrideSchema,
+  ComponentOverridesSchema,
+
   // Full Config
   StorefrontConfigSchema,
 } from "@saleor/apps-storefront-config";
@@ -237,4 +241,6 @@ export type {
   ProductCardOverride,
   CardOverrides,
   CardLocation,
+  ComponentStyleOverride,
+  ComponentOverrides,
 } from "@saleor/apps-storefront-config";

@@ -524,7 +524,7 @@ export function ProductDetailClient({
               <div className="mt-4 flex items-baseline gap-3">
                 <span
                   className="text-2xl font-bold sm:text-3xl"
-                  style={{ color: hasDiscount ? "#ef4444" : branding.colors.text }}
+                  style={{ color: hasDiscount ? "var(--store-error, #ef4444)" : branding.colors.text }}
                 >
                   {displayPrice}
                 </span>

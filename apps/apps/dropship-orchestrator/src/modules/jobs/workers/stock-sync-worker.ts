@@ -216,7 +216,7 @@ async function processStockSync(job: Job<StockSyncJobData>): Promise<void> {
 
   // 4. For each supplier, batch-check stock
   for (const [supplierId, products] of bySupplier) {
-    const adapter = supplierRegistry.get(supplierId);
+    const adapter = supplierRegistry.getAdapter(supplierId);
     if (!adapter) {
       logger.warn(`No adapter for supplier "${supplierId}" — skipping ${products.length} products`);
       result.errors += products.length;

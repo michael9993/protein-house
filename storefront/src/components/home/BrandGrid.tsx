@@ -7,7 +7,7 @@ import { buildProductsUrl, buildBrandUrl, withChannel } from "@/lib/urls";
 import { SectionViewAllButton } from "./SectionViewAllButton";
 import { SectionWrapper } from "./SectionWrapper";
 import { type FeaturedBrand } from "@/lib/cms";
-import { useBranding, useBrandGridConfig, useContentConfig } from "@/providers/StoreConfigProvider";
+import { useBranding, useBrandGridConfig, useContentConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 
 interface BrandGridProps {
   brands: FeaturedBrand[];
@@ -23,6 +23,8 @@ export function BrandGrid({ brands, channel }: BrandGridProps) {
   const { colors } = useBranding();
   const config = useBrandGridConfig();
   const contentConfig = useContentConfig();
+  const cdStyle = useComponentStyle("homepage.brandGrid");
+  const cdClasses = useComponentClasses("homepage.brandGrid");
 
   // Use config values with fallback chain
   const enabled = config?.enabled ?? true;
@@ -41,8 +43,13 @@ export function BrandGrid({ brands, channel }: BrandGridProps) {
 
   return (
     <section
-      className="border-b border-neutral-100"
+      data-cd="homepage-brandGrid"
+      className={`border-b border-neutral-100 ${cdClasses}`}
       aria-label="Featured brands"
+      style={{
+        ...(cdStyle?.backgroundColor && { background: `var(--cd-homepage-brandGrid-bg)` }),
+        ...(cdStyle?.textColor && { color: `var(--cd-homepage-brandGrid-text)` }),
+      }}
     >
       <div className="mx-auto max-w-[var(--design-container-max)] px-6 py-16 lg:px-12">
         <SectionWrapper>

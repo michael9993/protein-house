@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import { useBranding, useContentConfig, useCategoriesConfig, useDesignTokens } from "@/providers/StoreConfigProvider";
+import { useBranding, useContentConfig, useCategoriesConfig, useDesignTokens, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { buildCategoryUrl, buildCategoryUrlFromChildren, buildProductsUrl, withChannel } from "@/lib/urls";
 import { type DashboardCategory, type DashboardCategoryChild } from "./utils";
 import { SectionViewAllButton } from "./SectionViewAllButton";
@@ -403,6 +403,8 @@ export function Categories({ categories, channel, title, subtitle }: CategoriesP
   const contentConfig = useContentConfig();
   const config = useCategoriesConfig();
   const designTokens = useDesignTokens();
+  const cdStyle = useComponentStyle("homepage.categories");
+  const cdClasses = useComponentClasses("homepage.categories");
   const CYCLE_MS = (designTokens.animations as { carouselCycleSeconds?: number }).carouselCycleSeconds
     ? (designTokens.animations as { carouselCycleSeconds?: number }).carouselCycleSeconds! * 1000
     : DEFAULT_CYCLE_MS;
@@ -511,8 +513,13 @@ export function Categories({ categories, channel, title, subtitle }: CategoriesP
 
   return (
     <section
-      className="relative border-t border-neutral-100"
+      data-cd="homepage-categories"
+      className={`relative border-t border-neutral-100 ${cdClasses}`}
       aria-label={displayTitle}
+      style={{
+        ...(cdStyle?.backgroundColor && { background: `var(--cd-homepage-categories-bg)` }),
+        ...(cdStyle?.textColor && { color: `var(--cd-homepage-categories-text)` }),
+      }}
     >
       {/* CSS keyframes for progress bar */}
       <style dangerouslySetInnerHTML={{ __html: `

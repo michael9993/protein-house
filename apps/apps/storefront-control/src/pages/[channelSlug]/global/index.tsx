@@ -113,7 +113,7 @@ function GlobalPage() {
 
   if (isNotReady) {
     return (
-      <AppShell channelSlug="" activePage="global" title="Global">
+      <AppShell channelSlug="" activePage="global" title="Global Design">
         <LoadingState />
       </AppShell>
     );
@@ -124,7 +124,7 @@ function GlobalPage() {
       channelSlug={router.query.channelSlug as string}
       channelName={config?.store.name}
       activePage="global"
-      title="Global"
+      title="Global Design"
       description="Store identity, branding, localization, integrations, and global settings"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 p-6">

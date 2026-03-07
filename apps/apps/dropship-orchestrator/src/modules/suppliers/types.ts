@@ -78,6 +78,12 @@ export const SupplierOrderRequestSchema = z.object({
   shippingAddress: AddressSchema,
   shippingMethod: z.string().min(1, "Shipping method is required"),
   idempotencyKey: z.string().uuid("Idempotency key must be a valid UUID"),
+  /** Store-side line item ID — required by CJ to correlate line items for disputes/returns. */
+  lineItemId: z.string().optional(),
+  /** Full country name (e.g. "United States") — required by CJ for shipping label printing. */
+  countryName: z.string().optional(),
+  /** Customer email — used by CJ for tracking notifications. */
+  customerEmail: z.string().email().optional(),
 });
 
 export type SupplierOrderRequest = z.infer<typeof SupplierOrderRequestSchema>;
@@ -211,4 +217,10 @@ export interface SupplierAdapter {
     supplierSkus: string[],
     token: AuthToken,
   ): Promise<Result<StockInfo[], SupplierError>>;
+
+  // Cost (optional — for suppliers with deferred pricing like CJ)
+  getOrderCost?(
+    supplierOrderId: string,
+    token: AuthToken,
+  ): Promise<Result<{ amount: number; currency: string }, SupplierError>>;
 }

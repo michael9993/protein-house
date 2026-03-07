@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-03-05T21:57:46.997Z",
+  "exportedAt": "2026-03-07T00:37:43.697Z",
   "channels": {
     "ils": {
-      "version": 46,
-      "updatedAt": "2026-03-05T21:57:44.987Z",
+      "version": 78,
+      "updatedAt": "2026-03-07T00:37:42.361Z",
       "channelSlug": "ils",
       "store": {
         "name": "Mansour Shoes",
@@ -17,7 +17,7 @@
           "street": "כמאל גונבלאט 2",
           "city": "שפרעם",
           "state": "Northern District",
-          "zip": "",
+          "zip": "16000",
           "country": "Israel"
         }
       },
@@ -66,7 +66,7 @@
         "scrollToTop": true,
         "guestCheckout": true,
         "expressCheckout": false,
-        "savePaymentMethods": true,
+        "savePaymentMethods": false,
         "digitalDownloads": false,
         "subscriptions": false,
         "giftCards": true,
@@ -248,6 +248,7 @@
             "badgeText": "קולקציית העונה החדשה",
             "imageUrl": null,
             "videoUrl": "https://www.canva.com/design/DAG_kAcgiq8/avrQcftAOLBm9gptRikDaQ/watch?utm_content=DAG_kAcgiq8&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=ha3a6efdfee",
+            "slides": [],
             "overlayOpacity": 40,
             "textAlignment": "center",
             "autoRotateSeconds": 4,
@@ -274,7 +275,7 @@
           "marquee": {
             "enabled": true,
             "text": "משלוח חינם בהזמנות מעל 200 ₪! • קולקציה חדשה בחנות",
-            "speedSeconds": 20,
+            "speedSeconds": 45,
             "textColor": "#fff",
             "background": {
               "style": "solid",
@@ -307,7 +308,8 @@
             "background": {
               "style": "none",
               "color": null,
-              "secondaryColor": null
+              "secondaryColor": null,
+              "mixPercentage": 3
             }
           },
           "trending": {
@@ -435,110 +437,75 @@
             }
           },
           "featuredCategories": {
-            "enabled": true,
+            "enabled": false,
             "limit": 6,
             "background": {
-              "style": "mesh",
+              "style": "none",
               "color": null,
-              "secondaryColor": null,
-              "mixPercentage": 8,
-              "meshOpacity": 10,
-              "meshGrade": "deep"
+              "secondaryColor": null
             }
           },
           "newArrivals": {
-            "enabled": true,
+            "enabled": false,
             "limit": 8,
             "background": {
-              "style": "mesh",
+              "style": "none",
               "color": null,
-              "secondaryColor": null,
-              "mixPercentage": 8,
-              "meshOpacity": 10,
-              "meshGrade": "deep"
+              "secondaryColor": null
             }
           },
           "feature": {
-            "enabled": true,
-            "title": "קולקציה מובחרת",
-            "description": "גלה את המבחר הייחודי שלנו של מוצרים איכותיים.",
+            "enabled": false,
+            "title": "Featured Collection",
+            "description": "Discover our hand-picked selection of premium products.",
             "imageUrl": null,
-            "imagePosition": "right",
-            "ctaText": "קנה עכשיו",
+            "imagePosition": "left",
+            "ctaText": "Shop Now",
             "ctaLink": "/collections/featured",
             "background": {
-              "style": "mesh",
+              "style": "none",
               "color": null,
-              "secondaryColor": null,
-              "meshOpacity": 10,
-              "meshGrade": "deep"
+              "secondaryColor": null
             }
           },
           "onSale": {
-            "enabled": true,
+            "enabled": false,
             "limit": 4,
             "background": {
-              "style": "mesh",
+              "style": "none",
               "color": null,
-              "secondaryColor": null,
-              "mixPercentage": 8,
-              "meshOpacity": 10,
-              "meshGrade": "deep"
+              "secondaryColor": null
             }
           },
           "featuredBrands": {
             "enabled": false,
             "background": {
-              "style": "mesh",
+              "style": "none",
               "color": null,
-              "secondaryColor": null,
-              "mixPercentage": 8,
-              "meshOpacity": 15,
-              "meshGrade": "deep"
+              "secondaryColor": null
             }
           },
           "testimonials": {
-            "enabled": true,
+            "enabled": false,
             "background": {
-              "style": "mesh",
+              "style": "none",
               "color": null,
-              "secondaryColor": null,
-              "mixPercentage": 8,
-              "meshOpacity": 10,
-              "meshGrade": "deep"
+              "secondaryColor": null
             },
             "starColor": "#FFD700",
             "starEmptyColor": null,
             "starSize": "base",
             "loadingReviewsText": null,
             "verifiedPurchaseLabel": null,
-            "customerLabel": null,
-            "card": {
-              "backgroundColor": null,
-              "borderColor": null,
-              "borderRadius": null,
-              "padding": null,
-              "shadow": null,
-              "hoverShadow": null,
-              "hoverTransform": null
-            },
-            "trustBadges": {
-              "showAverageRating": true,
-              "showCustomerCount": true,
-              "showSatisfactionRate": true,
-              "showOrdersDelivered": true,
-              "borderColor": null,
-              "textColor": null
-            }
+            "customerLabel": null
           },
           "instagramFeed": {
             "enabled": false,
             "username": null,
             "background": {
-              "style": "color-mix",
+              "style": "none",
               "color": null,
-              "secondaryColor": null,
-              "mixPercentage": 8
+              "secondaryColor": null
             }
           }
         },
@@ -554,8 +521,8 @@
           "collectionMosaic",
           "bestSellers",
           "customerFeedback",
-          "newsletter",
-          "recentlyViewed"
+          "recentlyViewed",
+          "newsletter"
         ]
       },
       "pages": {
@@ -1513,7 +1480,9 @@
           "clearPriceFilter": "נקה",
           "applyPriceFilter": "החל",
           "priceUnderLabel": "מתחת ל",
-          "priceAboveLabel": "+"
+          "priceAboveLabel": "+",
+          "priceFromLabel": "From",
+          "priceUpToLabel": "Up to"
         },
         "productDetail": {
           "freeShipping": "משלוח חינם",
@@ -1929,6 +1898,16 @@
           "viewAllResultsFor": "הצג את כל התוצאות עבור",
           "recentlySearchedLabel": "חיפושים אחרונים",
           "recentSearchesClearLabel": "נקה",
+          "popularSearchesLabel": "Popular Searches",
+          "popularSearchTerms": [
+            "Shoes",
+            "Bags",
+            "New Arrivals",
+            "Sale"
+          ],
+          "noResultsText": "No products found",
+          "noResultsHint": "Try searching with different keywords",
+          "searchForText": "Search for",
           "cartLabel": "עגלה",
           "accountLabel": "חשבון",
           "menuLabel": "תפריט",
@@ -1996,6 +1975,139 @@
           "previousButton": "הקודם",
           "nextButton": "הבא",
           "pageLabel": "עמוד {current} מתוך {total}"
+        },
+        "faq": {
+          "heroTitle": "How Can We Help?",
+          "heroDescription": "Find answers to frequently asked questions about orders, shipping, returns, and more.",
+          "searchPlaceholder": "Search for answers...",
+          "categoriesLabel": "Categories",
+          "resultsLabel": "{count} result(s) for \"{query}\"",
+          "noResultsText": "No results found. Try a different search term or",
+          "contactUsLink": "contact us",
+          "stillHaveQuestionsTitle": "Still Have Questions?",
+          "stillHaveQuestionsDescription": "Our support team is available 24/7 to help you out.",
+          "contactUsButton": "Contact Us",
+          "callUsButton": "Call Us",
+          "categories": [
+            {
+              "name": "Orders & Shipping",
+              "icon": "📦",
+              "items": [
+                {
+                  "question": "How long does shipping take?",
+                  "answer": "Standard shipping takes 3-5 business days. Express shipping is available for 1-2 business day delivery. International orders typically arrive within 7-14 business days."
+                },
+                {
+                  "question": "Do you offer free shipping?",
+                  "answer": "Yes! We offer free standard shipping on all orders over $75."
+                },
+                {
+                  "question": "Can I track my order?",
+                  "answer": "Once your order ships, you'll receive an email with tracking information. You can also track your order in your account."
+                },
+                {
+                  "question": "Do you ship internationally?",
+                  "answer": "Yes, we ship to most countries worldwide. Shipping rates and delivery times vary by location."
+                },
+                {
+                  "question": "Can I change or cancel my order?",
+                  "answer": "You can modify or cancel your order within 1 hour of placing it. After that, orders enter processing and cannot be changed."
+                }
+              ]
+            },
+            {
+              "name": "Returns & Exchanges",
+              "icon": "🔄",
+              "items": [
+                {
+                  "question": "What is your return policy?",
+                  "answer": "We offer a 30-day return policy on all unused items in their original packaging."
+                },
+                {
+                  "question": "How do I return an item?",
+                  "answer": "Log into your account, go to your order history, and select 'Return Item'. You'll receive a prepaid shipping label via email."
+                },
+                {
+                  "question": "Are returns free?",
+                  "answer": "Returns are free within the continental US. For international returns, customers are responsible for return shipping costs."
+                },
+                {
+                  "question": "How long do refunds take?",
+                  "answer": "Once we receive your return, please allow 3-5 business days for inspection. Refunds may take an additional 5-10 business days to appear."
+                },
+                {
+                  "question": "Can I exchange an item for a different size?",
+                  "answer": "Yes! We offer free exchanges for different sizes. Initiate a return and place a new order for the size you need."
+                }
+              ]
+            },
+            {
+              "name": "Products",
+              "icon": "🏃",
+              "items": [
+                {
+                  "question": "Are all products authentic?",
+                  "answer": "100% yes! We are an authorized retailer for all brands we carry."
+                },
+                {
+                  "question": "How do I find my size?",
+                  "answer": "Each product page includes a detailed size guide. We recommend measuring yourself and comparing to our charts."
+                },
+                {
+                  "question": "Do you offer product warranties?",
+                  "answer": "Many of our products come with manufacturer warranties. Details are listed on individual product pages."
+                },
+                {
+                  "question": "Can I get notified when an item is back in stock?",
+                  "answer": "Yes! On any sold-out product page, you'll find a 'Notify Me' button."
+                }
+              ]
+            },
+            {
+              "name": "Payment & Security",
+              "icon": "🔒",
+              "items": [
+                {
+                  "question": "What payment methods do you accept?",
+                  "answer": "We accept all major credit cards, PayPal, Apple Pay, Google Pay, and Shop Pay."
+                },
+                {
+                  "question": "Is my payment information secure?",
+                  "answer": "We use industry-standard SSL encryption. All payments are processed through secure, PCI-compliant processors."
+                },
+                {
+                  "question": "Do you offer financing options?",
+                  "answer": "Yes! We offer buy-now-pay-later options. At checkout, you can split your purchase into 4 interest-free payments."
+                },
+                {
+                  "question": "When will I be charged?",
+                  "answer": "Your payment method is charged when you place your order."
+                }
+              ]
+            },
+            {
+              "name": "Account & Orders",
+              "icon": "👤",
+              "items": [
+                {
+                  "question": "Do I need an account to place an order?",
+                  "answer": "No, you can checkout as a guest. However, creating an account allows you to track orders and save addresses."
+                },
+                {
+                  "question": "How do I reset my password?",
+                  "answer": "Click 'Sign In' then 'Forgot Password'. Enter your email and we'll send you a reset link."
+                },
+                {
+                  "question": "Can I view my order history?",
+                  "answer": "Yes! Log into your account and click on 'Order History' to view all your orders."
+                },
+                {
+                  "question": "How do I unsubscribe from emails?",
+                  "answer": "Click the 'Unsubscribe' link at the bottom of any marketing email."
+                }
+              ]
+            }
+          ]
         }
       },
       "darkMode": {
@@ -2015,7 +2127,9 @@
       "storefront": {
         "cart": {
           "displayMode": "drawer",
-          "drawerSide": "left"
+          "drawerSide": "left",
+          "showDeleteText": false,
+          "showSaveForLater": false
         }
       },
       "relatedProducts": {
@@ -2045,13 +2159,24 @@
           "productGap": "normal"
         },
         "statusColors": {
+          "success": "#22c55e",
+          "warning": "#f59e0b",
+          "error": "#ef4444",
           "info": "#3b82f6"
         }
       },
       "checkoutUi": {
+        "accordion": {
+          "completedStepColor": "",
+          "activeStepColor": ""
+        },
         "confirmation": {
           "showTimeline": true,
           "showPrintReceipt": true
+        },
+        "progressBar": {
+          "completedColor": "",
+          "activeColor": ""
         }
       },
       "cardOverrides": {
@@ -2081,6 +2206,60 @@
           "showOriginalPrice": true,
           "showShareButton": true,
           "titleMaxLines": 1
+        }
+      },
+      "componentOverrides": {
+        "homepage": {},
+        "plp": {},
+        "pdp": {},
+        "ui": {},
+        "plp.productCard": {
+          "textColor": "#E0A55A",
+          "borderColor": "#E0A55A",
+          "borderWidth": 8,
+          "borderRadius": "lg",
+          "shadow": "lg",
+          "opacity": 55,
+          "fontFamily": "body",
+          "fontSize": "xs",
+          "fontWeight": "extrabold",
+          "textTransform": "lowercase",
+          "padding": "2rem 3rem",
+          "margin": "0 auto",
+          "gap": "3rem"
+        },
+        "homepage.productCard": {
+          "textColor": "#E0A55A",
+          "borderColor": "#E0A55A",
+          "borderWidth": 8,
+          "borderRadius": "full",
+          "shadow": "lg",
+          "opacity": 55,
+          "padding": "2rem 3rem",
+          "margin": "0 auto",
+          "gap": "3rem"
+        },
+        "plp.filterSidebar": {
+          "textColor": "#E0A55A",
+          "borderColor": "#E0A55A",
+          "borderWidth": 8,
+          "borderRadius": "full",
+          "shadow": "lg",
+          "opacity": 55,
+          "padding": "2rem 3rem",
+          "margin": "0 auto",
+          "gap": "3rem"
+        },
+        "pdp.stickyAddToCart": {
+          "textColor": "#E0A55A",
+          "borderColor": "#E0A55A",
+          "borderWidth": 8,
+          "borderRadius": "full",
+          "shadow": "lg",
+          "opacity": 55,
+          "padding": "2rem 3rem",
+          "margin": "0 auto",
+          "gap": "3rem"
         }
       }
     },

@@ -459,7 +459,7 @@ export function ShippingStep({ checkoutId }: ShippingStepProps) {
 	const stepErrors = state.stepErrors.get(STEP_SHIPPING);
 
 	return (
-		<div className="space-y-6">
+		<div data-cd="checkout-shippingStep" className="space-y-6">
 			<p className="text-sm text-neutral-500">
 				{t.shippingAddressSubtitle ?? "Where should we deliver?"}
 			</p>

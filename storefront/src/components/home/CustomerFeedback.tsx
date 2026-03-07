@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Star, Quote, BadgeCheck, ShoppingBag } from "lucide-react";
 import { useParams } from "next/navigation";
 import { getAllProductReviews, type ReviewWithProduct } from "@/app/actions";
-import { useBranding, useCustomerFeedbackConfig, useContentConfig } from "@/providers/StoreConfigProvider";
+import { useBranding, useCustomerFeedbackConfig, useContentConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import type { Testimonial } from "@/lib/cms";
 
 interface CustomerFeedbackProps {
@@ -24,6 +24,8 @@ export function CustomerFeedback({ channel, cmsTestimonials = [] }: CustomerFeed
   const { colors } = useBranding();
   const config = useCustomerFeedbackConfig();
   const contentConfig = useContentConfig();
+  const cdStyle = useComponentStyle("homepage.customerFeedback");
+  const cdClasses = useComponentClasses("homepage.customerFeedback");
 
   // Get translated content from config
   const homepageContent = contentConfig.homepage;
@@ -101,7 +103,15 @@ export function CustomerFeedback({ channel, cmsTestimonials = [] }: CustomerFeed
   if (!loading && displayItems.length === 0) return null;
 
   return (
-    <section className="py-24" aria-label="Customer testimonials">
+    <section
+      data-cd="homepage-customerFeedback"
+      className={`py-24 ${cdClasses}`}
+      aria-label="Customer testimonials"
+      style={{
+        ...(cdStyle?.backgroundColor && { background: `var(--cd-homepage-customerFeedback-bg)` }),
+        ...(cdStyle?.textColor && { color: `var(--cd-homepage-customerFeedback-text)` }),
+      }}
+    >
       <div className="mx-auto max-w-[var(--design-container-max)] px-6 lg:px-12">
         {/* Header */}
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">

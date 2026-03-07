@@ -76,7 +76,7 @@ export function HeroVideo({
         <div 
           className="absolute left-1/2 top-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-10 blur-3xl"
           style={{ 
-            backgroundColor: '#00D4FF', 
+            backgroundColor: 'var(--store-accent, #00D4FF)',
             animation: 'pulse 4s ease-in-out infinite 2s',
             willChange: 'opacity',
           }}

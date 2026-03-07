@@ -127,7 +127,6 @@ function PageTogglesTab({ control }: TabProps) {
             description="Data privacy information"
             name="pages.privacyPolicy"
             control={control}
-            comingSoon
           />
           <FeatureCard
             icon={<Scale className="h-5 w-5" />}
@@ -135,7 +134,6 @@ function PageTogglesTab({ control }: TabProps) {
             description="Terms and conditions"
             name="pages.termsOfService"
             control={control}
-            comingSoon
           />
           <FeatureCard
             icon={<Scale className="h-5 w-5" />}
@@ -143,7 +141,6 @@ function PageTogglesTab({ control }: TabProps) {
             description="Shipping information"
             name="pages.shippingPolicy"
             control={control}
-            comingSoon
           />
           <FeatureCard
             icon={<Scale className="h-5 w-5" />}
@@ -151,7 +148,6 @@ function PageTogglesTab({ control }: TabProps) {
             description="Returns and refunds"
             name="pages.returnPolicy"
             control={control}
-            comingSoon
           />
         </div>
       </div>
@@ -171,7 +167,6 @@ function PageTogglesTab({ control }: TabProps) {
             description="Request password reset link via email"
             name="pages.forgotPassword"
             control={control}
-            comingSoon
           />
           <FeatureCard
             icon={<Lock className="h-5 w-5" />}
@@ -179,7 +174,6 @@ function PageTogglesTab({ control }: TabProps) {
             description="Password reset and recovery page"
             name="pages.resetPassword"
             control={control}
-            comingSoon
           />
           <FeatureCard
             icon={<Lock className="h-5 w-5" />}
@@ -187,7 +181,6 @@ function PageTogglesTab({ control }: TabProps) {
             description="Request a new confirmation email"
             name="pages.verifyEmail"
             control={control}
-            comingSoon
           />
           <FeatureCard
             icon={<Lock className="h-5 w-5" />}
@@ -195,7 +188,6 @@ function PageTogglesTab({ control }: TabProps) {
             description="Landing page for confirmation link"
             name="pages.confirmEmail"
             control={control}
-            comingSoon
           />
         </div>
       </div>

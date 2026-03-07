@@ -2,6 +2,7 @@ import type {
   Address,
   ShippingOption,
   StockInfo,
+  SupplierOrderRequest,
   SupplierOrderStatus,
   SupplierProduct,
   SupplierProductVariant,
@@ -174,6 +175,7 @@ export function mapStockInfo(stockData: CJStockInfo): StockInfo {
 
 export interface CJShippingAddress {
   shippingCountryCode: string;
+  shippingCountry: string;
   shippingCustomerName: string;
   shippingAddress: string;
   shippingCity: string;
@@ -182,9 +184,10 @@ export interface CJShippingAddress {
   shippingPhone: string;
 }
 
-export function mapAddress(address: Address): CJShippingAddress {
+export function mapAddress(address: Address, countryName?: string): CJShippingAddress {
   return {
     shippingCountryCode: address.country,
+    shippingCountry: countryName ?? address.country,
     shippingCustomerName: address.name,
     shippingAddress: address.street,
     shippingCity: address.city,

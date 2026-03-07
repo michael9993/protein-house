@@ -1,7 +1,7 @@
 "use client";
 
 import { useProductFilters } from "@/hooks/useProductFilters";
-import { useStoreConfig, useQuickFiltersConfig, useFiltersText, useBranding } from "@/providers/StoreConfigProvider";
+import { useStoreConfig, useQuickFiltersConfig, useFiltersText, useBranding, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { type MouseEvent, useCallback, useEffect, useRef, useState } from "react";
 
@@ -32,6 +32,8 @@ export function StickyQuickFilters() {
   const quickFiltersConfig = useQuickFiltersConfig();
   const config = useStoreConfig();
   const branding = useBranding();
+  const cdStyle = useComponentStyle("plp.quickFilters");
+  const cdClasses = useComponentClasses("plp.quickFilters");
   const primaryColor = branding.colors.primary;
   const { localization } = config;
 
@@ -360,10 +362,10 @@ export function StickyQuickFilters() {
   if (filters.priceMin !== undefined || filters.priceMax !== undefined) {
     const min = filters.priceMin;
     const max = filters.priceMax;
-    let label = "Price";
+    let label = filtersText.priceTitle || "Price";
     if (min !== undefined && max !== undefined) label = `${min} - ${max}`;
-    else if (min !== undefined) label = `From ${min}`;
-    else if (max !== undefined) label = `Up to ${max}`;
+    else if (min !== undefined) label = `${filtersText.priceFromLabel || "From"} ${min}`;
+    else if (max !== undefined) label = `${filtersText.priceUpToLabel || "Up to"} ${max}`;
     activeFilterTags.push({
       key: "price",
       label,
@@ -388,8 +390,14 @@ export function StickyQuickFilters() {
   return (
     <div
       data-sticky-quick-filters
-      className="fixed inset-x-0 z-[60] w-full border-b border-neutral-200/60 bg-white/95 backdrop-blur-sm animate-fade-in-up"
-      style={{ top: `${topOffset}px`, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}
+      data-cd="plp-quickFilters"
+      className={`fixed inset-x-0 z-[60] w-full border-b border-neutral-200/60 bg-white/95 backdrop-blur-sm animate-fade-in-up ${cdClasses}`}
+      style={{
+        top: `${topOffset}px`,
+        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+        ...(cdStyle?.backgroundColor && { background: `var(--cd-plp-quickFilters-bg)` }),
+        ...(cdStyle?.textColor && { color: `var(--cd-plp-quickFilters-text)` }),
+      }}
     >
       {/* Quick filter chips — horizontally scrollable */}
       <div

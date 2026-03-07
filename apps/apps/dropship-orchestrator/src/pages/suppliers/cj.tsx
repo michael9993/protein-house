@@ -25,6 +25,7 @@ function CJConfig() {
   const [apiKey, setApiKey] = useState("");
   const [saveMessage, setSaveMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [testResult, setTestResult] = useState<{ success: boolean; message?: string; error?: string } | null>(null);
+  const [webhookResult, setWebhookResult] = useState<{ success: boolean; message?: string; error?: string } | null>(null);
 
   const saveMutation = trpcClient.suppliers.saveCredentials.useMutation({
     onSuccess: () => {
@@ -44,6 +45,18 @@ function CJConfig() {
     },
     onError: (err) => {
       setTestResult({ success: false, error: err.message });
+    },
+  });
+
+  const webhookMutation = trpcClient.suppliers.registerWebhooks.useMutation({
+    onSuccess: (result) => {
+      setWebhookResult(result);
+      if (result.success) {
+        setTimeout(() => setWebhookResult(null), 8000);
+      }
+    },
+    onError: (err) => {
+      setWebhookResult({ success: false, error: err.message });
     },
   });
 
@@ -167,37 +180,81 @@ function CJConfig() {
 
       {/* Webhook Registration */}
       <div className="p-5 rounded-lg border border-border">
-        <h2 className="block text-base font-semibold text-text-primary mb-3">Webhook Registration</h2>
-        <p className="block text-sm text-text-muted mb-4">
-          CJ sends tracking updates and order status changes via webhooks.
-          Configure your CJ dashboard to send webhooks to the URL below.
-        </p>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="block text-base font-semibold text-text-primary">Webhook Registration</h2>
+          {config.webhooks && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs bg-green-50 text-green-800">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+              Registered {new Date(config.webhooks.registeredAt).toLocaleDateString()}
+            </span>
+          )}
+        </div>
+
+        {config.webhooks && (
+          <div className="mb-4 p-3 rounded-lg bg-green-50 text-sm text-green-800">
+            Webhooks are active at <strong>{config.webhooks.baseUrl}</strong>. CJ will push order status, tracking, and stock updates to your endpoints.
+          </div>
+        )}
+
+        {!config.webhooks && (
+          <p className="block text-sm text-text-muted mb-4">
+            Register webhook URLs with CJ so they can push order status changes, shipping updates, and stock changes to your endpoints.
+          </p>
+        )}
 
         <div className="flex flex-col gap-3">
-          <div>
-            <label className="block text-xs text-text-muted mb-1">Webhook URL</label>
-            <div className="p-3 rounded-lg bg-gray-50 break-all">
-              <span className="text-xs">
-                {typeof window !== "undefined"
-                  ? `${window.location.origin}/api/webhooks/cj/tracking`
-                  : "/api/webhooks/cj/tracking"}
-              </span>
-            </div>
+          {[
+            { label: "Order Status", path: "/api/webhooks/cj/order", desc: "Receives order status changes (UNSHIPPED, SHIPPED, etc.)" },
+            { label: "Logistics / Tracking", path: "/api/webhooks/cj/logistics", desc: "Receives tracking numbers — auto-creates fulfillments" },
+            { label: "Stock Updates", path: "/api/webhooks/cj/stock", desc: "Receives inventory changes — updates variant stock" },
+          ].map((wh) => {
+            const baseUrl = typeof window !== "undefined"
+              ? (process.env.NEXT_PUBLIC_APP_API_BASE_URL || window.location.origin)
+              : "";
+            return (
+              <div key={wh.path}>
+                <label className="block text-xs text-text-muted mb-1">{wh.label}</label>
+                <div className="p-3 rounded-lg bg-gray-50 break-all">
+                  <span className="text-xs font-mono">{baseUrl}{wh.path}</span>
+                </div>
+                <span className="block text-xs text-text-muted mt-0.5">{wh.desc}</span>
+              </div>
+            );
+          })}
+
+          <div className="mt-2 p-3 rounded-lg bg-amber-50 text-amber-800 text-xs">
+            <strong>Important:</strong> These URLs must be publicly accessible for CJ to reach them.
+            In development, use a tunnel (e.g. Cloudflare Tunnel) pointed at port 3009.
+            The tunnel URL should be set as <code>APP_API_BASE_URL</code> in your environment.
           </div>
 
-          <div>
-            <label className="block text-xs text-text-muted mb-1">Webhook Status</label>
-            <span
-              className={`inline-block px-3 py-1 rounded-lg text-xs ${
-                config.status === "connected" ? "bg-green-50 text-green-800" : "bg-gray-100 text-gray-800"
+          <span className="text-xs text-text-muted">
+            CJ authenticates webhooks via IP whitelist (pre-configured). You can manage allowed IPs in Settings &gt; IP Whitelist.
+          </span>
+
+          {webhookResult && (
+            <div
+              className={`p-3 rounded-lg text-sm ${
+                webhookResult.success ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
               }`}
             >
-              {config.status === "connected" ? "Registered" : "Not registered"}
+              {webhookResult.success ? webhookResult.message : webhookResult.error}
+            </div>
+          )}
+
+          <button
+            className="mt-1 px-3 py-1.5 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light disabled:opacity-50 transition-colors self-start"
+            disabled={webhookMutation.isLoading || config.status !== "connected"}
+            onClick={() => webhookMutation.mutate({ supplierId: "cj" })}
+          >
+            {webhookMutation.isLoading ? "Registering..." : "Register Webhooks at CJ"}
+          </button>
+
+          {config.status !== "connected" && (
+            <span className="text-xs text-amber-600">
+              Save your API key and test connection first before registering webhooks.
             </span>
-          </div>
-          <span className="text-xs text-text-muted">
-            Note: You can restrict which IPs can call this webhook in the Settings page under IP Whitelist.
-          </span>
+          )}
         </div>
       </div>
 

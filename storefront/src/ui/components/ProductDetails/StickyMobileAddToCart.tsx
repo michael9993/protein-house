@@ -95,6 +95,7 @@ export function StickyMobileAddToCart({
 
   return createPortal(
     <div
+      data-cd="pdp-stickyAddToCart"
       className={`fixed inset-x-0 ${positionClass} md:hidden transition-[translate] duration-250 ease-[cubic-bezier(0.4,0,0.2,1)] motion-reduce:transition-none ${
         isOriginalVisible ? hideTranslate : "translate-y-0"
       }`}
@@ -108,7 +109,7 @@ export function StickyMobileAddToCart({
           <div className="flex shrink-0 flex-col items-start leading-tight">
             <span
               className="text-base font-bold"
-              style={{ color: hasDiscount ? "#ef4444" : undefined }}
+              style={{ color: hasDiscount ? "var(--store-error, #ef4444)" : undefined }}
             >
               {displayPrice}
             </span>

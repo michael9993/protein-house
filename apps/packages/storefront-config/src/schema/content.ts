@@ -24,6 +24,8 @@ export const CartTextSchema = z.object({
   saveForLaterButton: z.string(),         // "Save for Later"
   moveToCartButton: z.string(),           // "Move to Cart"
   deleteButton: z.string(),               // "Delete"
+  removeButton: z.string().optional(),    // "Remove" (cart line remove button)
+  removingText: z.string().optional(),    // "Removing" (cart line remove loading state)
   // Labels and text
   itemSingular: z.string(),               // "item"
   itemPlural: z.string(),                 // "items"
@@ -720,6 +722,8 @@ export const FiltersTextSchema = z.object({
   applyPriceFilter: z.string(),      // "Apply"
   priceUnderLabel: z.string(),       // "Under" (preset range prefix, e.g. "Under 50")
   priceAboveLabel: z.string(),       // "+" or "and above" (preset range suffix, e.g. "500+")
+  priceFromLabel: z.string().optional(),  // "From" (active filter tag: "From $50")
+  priceUpToLabel: z.string().optional(),  // "Up to" (active filter tag: "Up to $100")
 });
 
 // Product Detail Page Text
@@ -960,6 +964,29 @@ export const FAQItemSchema = z.object({
   question: z.string(),                       // "What are your shipping times?"
   answer: z.string(),                          // "Most orders ship within 24 hours..."
 });
+
+// FAQ Category Schema
+export const FAQCategorySchema = z.object({
+  name: z.string(),                            // "Orders & Shipping"
+  icon: z.string(),                            // "📦"
+  items: z.array(FAQItemSchema),
+});
+
+// FAQ Page Text
+export const FaqTextSchema = z.object({
+  heroTitle: z.string(),                       // "How Can We Help?"
+  heroDescription: z.string(),                 // "Find answers to frequently asked questions..."
+  searchPlaceholder: z.string(),               // "Search for answers..."
+  categoriesLabel: z.string(),                 // "Categories"
+  resultsLabel: z.string(),                    // "{count} result(s) for \"{query}\""
+  noResultsText: z.string(),                   // "No results found. Try a different search term or"
+  contactUsLink: z.string(),                   // "contact us"
+  stillHaveQuestionsTitle: z.string(),         // "Still Have Questions?"
+  stillHaveQuestionsDescription: z.string(),   // "Our support team is available 24/7 to help you out."
+  contactUsButton: z.string(),                 // "Contact Us"
+  callUsButton: z.string(),                    // "Call Us"
+  categories: z.array(FAQCategorySchema).optional(), // FAQ categories with items
+}).optional();
 
 // Contact Page Text
 export const ContactTextSchema = z.object({
@@ -1222,6 +1249,11 @@ export const NavbarTextSchema = z.object({
   viewAllResultsFor: z.string().optional(),     // "View all results for" (navbar search dropdown)
   recentlySearchedLabel: z.string().optional(), // "Recent Searches" (navbar search dropdown)
   recentSearchesClearLabel: z.string().optional(), // "Clear" (button next to Recent Searches)
+  popularSearchesLabel: z.string().optional(),     // "Popular Searches" (search dialog empty state heading)
+  popularSearchTerms: z.array(z.string()).optional(), // ["Shoes", "Bags", "New Arrivals"] (search dialog popular term buttons)
+  noResultsText: z.string().optional(),            // "No products found" (search dialog no results message)
+  noResultsHint: z.string().optional(),            // "Try searching with different keywords" (search dialog hint)
+  searchForText: z.string().optional(),            // "Search for" (search dialog CTA prefix)
   cartLabel: z.string(),               // "Cart"
   accountLabel: z.string(),            // "Account"
   menuLabel: z.string(),               // "Menu"
@@ -1330,4 +1362,5 @@ export const ContentSchema = z.object({
   notFound: NotFoundTextSchema,
   cookieConsent: CookieConsentTextSchema.optional(),
   pagination: PaginationTextSchema,
+  faq: FaqTextSchema,
 });

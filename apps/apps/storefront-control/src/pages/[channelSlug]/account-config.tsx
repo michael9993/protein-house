@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import type { Control, FieldErrors, UseFormRegister } from "react-hook-form";
 import { z } from "zod";
-import { FileText, RefreshCw, Users, Zap } from "lucide-react";
+import { FileText, Users, Zap } from "lucide-react";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { SaveBar } from "@/components/layout/SaveBar";
@@ -168,15 +168,6 @@ function AccountFeaturesTab({ control }: TabProps) {
           title="Social Login"
           description="Login with social accounts"
           icon={<Users className="h-5 w-5" />}
-          comingSoon
-        />
-        <FeatureCard
-          name="features.subscriptions"
-          control={control}
-          title="Subscriptions"
-          description="Recurring product subscriptions"
-          icon={<RefreshCw className="h-5 w-5" />}
-          comingSoon
         />
       </div>
     </FormSection>

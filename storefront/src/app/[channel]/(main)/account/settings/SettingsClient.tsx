@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { type UserDetailsFragment } from "@/gql/graphql";
-import { useBranding, useSettingsText, useContentConfig } from "@/providers/StoreConfigProvider";
+import { useBranding, useSettingsText, useContentConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { changePassword, setNewsletterActive, updateProfile, requestEmailChange, requestAccountDeletion } from "./actions";
 
 /** Common TLD typos (e.g. .comm instead of .com) to reject */
@@ -80,6 +80,8 @@ export function SettingsClient({
 	const branding = useBranding();
 	const settingsText = useSettingsText();
 	const contentConfig = useContentConfig();
+	const cdStyle = useComponentStyle("account.settings");
+	const cdClasses = useComponentClasses("account.settings");
 
 	// Focus ring color with transparency
 	const focusRingColor = `${branding.colors.primary}33`;
@@ -223,7 +225,10 @@ export function SettingsClient({
 	}
 
 	return (
-		<div className="space-y-6">
+		<div data-cd="account-settings" className={`space-y-6 ${cdClasses}`} style={{
+			...(cdStyle?.backgroundColor && { background: 'var(--cd-account-settings-bg)' }),
+			...(cdStyle?.textColor && { color: 'var(--cd-account-settings-text)' }),
+		}}>
 			{/* Inject dynamic focus styles */}
 			<style>{`
 				.settings-input:focus {

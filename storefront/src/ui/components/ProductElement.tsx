@@ -11,7 +11,7 @@ export function ProductElement({
 	priority,
 }: { product: ProductListItemFragment } & { loading: "eager" | "lazy"; priority?: boolean }) {
 	return (
-		<li data-testid="ProductElement">
+		<li data-testid="ProductElement" data-cd="plp-productCard">
 			<LinkWithChannel href={`/products/${product.slug}`} key={product.id}>
 				<div>
 					{product?.thumbnail?.url && (

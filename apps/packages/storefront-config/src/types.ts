@@ -59,6 +59,8 @@ import {
   CustomerFeedbackSectionSchema,
   NewsletterSectionSchema,
   CtaSchema,
+  ComponentStyleOverrideSchema,
+  ComponentOverridesSchema,
 } from "./schema";
 
 // ============================================
@@ -126,3 +128,5 @@ export type BestSellersConfig = z.infer<typeof BestSellersSectionSchema>;
 export type CustomerFeedbackConfig = z.infer<typeof CustomerFeedbackSectionSchema>;
 export type NewsletterConfig = z.infer<typeof NewsletterSectionSchema>;
 export type CtaConfig = z.infer<typeof CtaSchema>;
+export type ComponentStyleOverride = z.infer<typeof ComponentStyleOverrideSchema>;
+export type ComponentOverrides = z.infer<typeof ComponentOverridesSchema>;

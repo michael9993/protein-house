@@ -24,7 +24,8 @@ import { FormSlider } from "@/components/forms/FormSlider";
 import { FormColorPicker } from "@/components/forms/FormColorPicker";
 import { FormSection } from "@/components/forms/FormSection";
 import { FieldGroup } from "@/components/shared/FieldGroup";
-import { SectionDivider } from "@/components/shared/SectionDivider";
+import { ComponentBlock } from "@/components/shared/ComponentBlock";
+
 import { LoadingState } from "@/components/shared/LoadingState";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useConfigPage } from "@/hooks/useConfigPage";
@@ -206,11 +207,11 @@ function HeaderTab({ register, control, errors, watch }: HeaderTabProps) {
 
   return (
     <>
-      {/* Promotional Banner */}
-      <FormSection
+      <ComponentBlock
+        icon={Megaphone}
         title="Promotional Banner"
         description="Announcement bar above the header"
-        icon={<Megaphone className="h-4 w-4" />}
+        defaultExpanded
       >
         <FormSwitch<LayoutFormData>
           label="Show Banner"
@@ -454,13 +455,13 @@ function HeaderTab({ register, control, errors, watch }: HeaderTabProps) {
             </div>
           </div>
         )}
-      </FormSection>
+      </ComponentBlock>
 
-      {/* Header Layout */}
-      <FormSection
+      <ComponentBlock
+        icon={Layout}
         title="Header Layout"
         description="Configure how the header appears"
-        icon={<Layout className="h-4 w-4" />}
+        defaultExpanded
       >
         <FormSwitch<LayoutFormData>
           label="Show Store Name"
@@ -477,7 +478,7 @@ function HeaderTab({ register, control, errors, watch }: HeaderTabProps) {
             { value: "center", label: "Center" },
           ]}
         />
-      </FormSection>
+      </ComponentBlock>
     </>
   );
 }
@@ -495,11 +496,11 @@ interface FooterTabProps {
 function FooterTab({ register, control, errors }: FooterTabProps) {
   return (
     <>
-      {/* Footer Sections */}
-      <FormSection
+      <ComponentBlock
+        icon={Footprints}
         title="Footer Sections"
         description="Choose which sections to display in the footer"
-        icon={<Footprints className="h-4 w-4" />}
+        defaultExpanded
       >
         <FormSwitch<LayoutFormData>
           label="Show Brand"
@@ -531,13 +532,13 @@ function FooterTab({ register, control, errors }: FooterTabProps) {
           control={control}
           description="Display social media icons"
         />
-      </FormSection>
+      </ComponentBlock>
 
-      {/* Legal Links */}
-      <FormSection
+      <ComponentBlock
+        icon={Link2}
         title="Legal Links"
         description="Footer bottom bar links"
-        icon={<Link2 className="h-4 w-4" />}
+        defaultExpanded={false}
       >
         {([
           { key: "trackOrder", label: "Track Order" },
@@ -562,13 +563,13 @@ function FooterTab({ register, control, errors }: FooterTabProps) {
             />
           </div>
         ))}
-      </FormSection>
+      </ComponentBlock>
 
-      {/* Copyright */}
-      <FormSection
+      <ComponentBlock
+        icon={Copyright}
         title="Copyright"
         description="Footer copyright text"
-        icon={<Copyright className="h-4 w-4" />}
+        defaultExpanded={false}
       >
         <FormField<LayoutFormData>
           label="Copyright Text"
@@ -578,7 +579,7 @@ function FooterTab({ register, control, errors }: FooterTabProps) {
           placeholder={`\u00A9 ${new Date().getFullYear()} Your Store Name. All rights reserved.`}
           description="Leave empty to auto-generate from store name and year"
         />
-      </FormSection>
+      </ComponentBlock>
     </>
   );
 }
@@ -590,8 +591,12 @@ function FooterTab({ register, control, errors }: FooterTabProps) {
 function LayoutTextTab({ register, control, errors }: FooterTabProps) {
   return (
     <>
-      {/* Navbar Text */}
-      <FormSection title="Navbar Text" description="Navigation bar labels and search">
+      <ComponentBlock
+        icon={PanelTop}
+        title="Navbar Text"
+        description="Navigation bar labels and search"
+        defaultExpanded
+      >
         <FieldGroup columns={3}>
           <FormField<LayoutFormData>
             label="Select Channel"
@@ -770,111 +775,115 @@ function LayoutTextTab({ register, control, errors }: FooterTabProps) {
             ]}
           />
         </FieldGroup>
-      </FormSection>
+      </ComponentBlock>
 
-      <SectionDivider label="Footer Text" className="my-4" />
+      <ComponentBlock
+        icon={Footprints}
+        title="Footer Text"
+        description="Footer labels, legal links, and section titles"
+        defaultExpanded
+      >
+        <div className="space-y-6">
+          <FormSection title="Legal Links Text" description="Display text for legal links">
+            <FieldGroup columns={4}>
+              <FormField<LayoutFormData>
+                label="Privacy Policy"
+                name="content.footer.privacyPolicyLink"
+                register={register}
+                errors={errors}
+                placeholder="Privacy Policy"
+              />
+              <FormField<LayoutFormData>
+                label="Terms of Service"
+                name="content.footer.termsOfServiceLink"
+                register={register}
+                errors={errors}
+                placeholder="Terms of Service"
+              />
+              <FormField<LayoutFormData>
+                label="Shipping"
+                name="content.footer.shippingLink"
+                register={register}
+                errors={errors}
+                placeholder="Shipping"
+              />
+              <FormField<LayoutFormData>
+                label="Return Policy"
+                name="content.footer.returnPolicyLink"
+                register={register}
+                errors={errors}
+                placeholder="Return Policy"
+              />
+            </FieldGroup>
+          </FormSection>
 
-      {/* Footer Text - Legal Links */}
-      <FormSection title="Footer Legal Links Text" description="Display text for legal links">
-        <FieldGroup columns={4}>
-          <FormField<LayoutFormData>
-            label="Privacy Policy"
-            name="content.footer.privacyPolicyLink"
-            register={register}
-            errors={errors}
-            placeholder="Privacy Policy"
-          />
-          <FormField<LayoutFormData>
-            label="Terms of Service"
-            name="content.footer.termsOfServiceLink"
-            register={register}
-            errors={errors}
-            placeholder="Terms of Service"
-          />
-          <FormField<LayoutFormData>
-            label="Shipping"
-            name="content.footer.shippingLink"
-            register={register}
-            errors={errors}
-            placeholder="Shipping"
-          />
-          <FormField<LayoutFormData>
-            label="Return Policy"
-            name="content.footer.returnPolicyLink"
-            register={register}
-            errors={errors}
-            placeholder="Return Policy"
-          />
-        </FieldGroup>
-      </FormSection>
+          <FormSection title="Footer Labels" description="General footer text">
+            <FieldGroup columns={3}>
+              <FormField<LayoutFormData>
+                label="All Rights Reserved"
+                name="content.footer.allRightsReserved"
+                register={register}
+                errors={errors}
+                placeholder="All rights reserved"
+              />
+              <FormField<LayoutFormData>
+                label="Contact Us"
+                name="content.footer.contactUs"
+                register={register}
+                errors={errors}
+                placeholder="Contact Us"
+              />
+              <FormField<LayoutFormData>
+                label="Customer Service"
+                name="content.footer.customerService"
+                register={register}
+                errors={errors}
+                placeholder="Customer Service"
+              />
+            </FieldGroup>
+          </FormSection>
 
-      {/* Footer Text */}
-      <FormSection title="Footer Labels" description="General footer text">
-        <FieldGroup columns={3}>
-          <FormField<LayoutFormData>
-            label="All Rights Reserved"
-            name="content.footer.allRightsReserved"
-            register={register}
-            errors={errors}
-            placeholder="All rights reserved"
-          />
-          <FormField<LayoutFormData>
-            label="Contact Us"
-            name="content.footer.contactUs"
-            register={register}
-            errors={errors}
-            placeholder="Contact Us"
-          />
-          <FormField<LayoutFormData>
-            label="Customer Service"
-            name="content.footer.customerService"
-            register={register}
-            errors={errors}
-            placeholder="Customer Service"
-          />
-        </FieldGroup>
-      </FormSection>
-
-      {/* Footer Section Titles */}
-      <FormSection title="Footer Section Titles" description="Column header labels">
-        <FieldGroup columns={4}>
-          <FormField<LayoutFormData>
-            label="Shop Title"
-            name="content.footer.shopTitle"
-            register={register}
-            errors={errors}
-            placeholder="Shop"
-          />
-          <FormField<LayoutFormData>
-            label="Company Title"
-            name="content.footer.companyTitle"
-            register={register}
-            errors={errors}
-            placeholder="Company"
-          />
-          <FormField<LayoutFormData>
-            label="Support Title"
-            name="content.footer.supportTitle"
-            register={register}
-            errors={errors}
-            placeholder="Support"
-          />
-          <FormField<LayoutFormData>
-            label="Follow Us Title"
-            name="content.footer.followUsTitle"
-            register={register}
-            errors={errors}
-            placeholder="Follow Us"
-          />
-          <FormField<LayoutFormData>
-            label="Track Order"
-            name="content.footer.trackOrderLink"
-            register={register}
-            errors={errors}
-            placeholder="Track Order"
-          />
-        </FieldGroup>
-      </FormSection>
+          <FormSection title="Section Titles" description="Column header labels">
+            <FieldGroup columns={4}>
+              <FormField<LayoutFormData>
+                label="Shop Title"
+                name="content.footer.shopTitle"
+                register={register}
+                errors={errors}
+                placeholder="Shop"
+              />
+              <FormField<LayoutFormData>
+                label="Company Title"
+                name="content.footer.companyTitle"
+                register={register}
+                errors={errors}
+                placeholder="Company"
+              />
+              <FormField<LayoutFormData>
+                label="Support Title"
+                name="content.footer.supportTitle"
+                register={register}
+                errors={errors}
+                placeholder="Support"
+              />
+              <FormField<LayoutFormData>
+                label="Follow Us Title"
+                name="content.footer.followUsTitle"
+                register={register}
+                errors={errors}
+                placeholder="Follow Us"
+              />
+              <FormField<LayoutFormData>
+                label="Track Order"
+                name="content.footer.trackOrderLink"
+                register={register}
+                errors={errors}
+                placeholder="Track Order"
+              />
+            </FieldGroup>
+          </FormSection>
+        </div>
+      </ComponentBlock>
     </>
   );
 }

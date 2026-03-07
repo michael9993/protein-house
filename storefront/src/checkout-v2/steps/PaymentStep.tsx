@@ -307,7 +307,7 @@ function StripeCheckoutForm({
 	}
 
 	return (
-		<div className="space-y-4">
+		<div data-cd="checkout-paymentStep" className="space-y-4">
 			{errors.length > 0 && (
 				<div role="alert" className="rounded-md border border-error-200 bg-error-50 px-4 py-3">
 					{errors.map((msg, i) => (

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
-import { useStoreConfig, useFiltersText } from "@/providers/StoreConfigProvider";
+import { useStoreConfig, useFiltersText, useNavbarText, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { buildProductUrl, buildSearchUrl, withChannel } from "@/lib/urls";
 
 interface SearchResult {
@@ -23,6 +23,9 @@ interface SearchDialogProps {
 export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
   const { branding } = useStoreConfig();
   const filtersText = useFiltersText();
+  const navbarText = useNavbarText();
+  const cdStyle = useComponentStyle("layout.searchDialog");
+  const cdClasses = useComponentClasses("layout.searchDialog");
   const router = useRouter();
   const params = useParams();
   const channel = params.channel as string;
@@ -115,7 +118,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div data-cd="layout-searchDialog" className={`fixed inset-0 z-50 overflow-y-auto ${cdClasses}`}>
       {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
@@ -209,14 +212,14 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                 <svg className="mx-auto h-12 w-12 text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <p className="mt-3 text-neutral-600">No products found for "{query}"</p>
-                <p className="mt-1 text-sm text-neutral-500">Try searching with different keywords</p>
+                <p className="mt-3 text-neutral-600">{navbarText.noResultsText ?? "No products found"} "{query}"</p>
+                <p className="mt-1 text-sm text-neutral-500">{navbarText.noResultsHint ?? "Try searching with different keywords"}</p>
               </div>
             ) : (
               <div className="p-6">
-                <p className="mb-4 text-sm font-medium text-neutral-500">Popular Searches</p>
+                <p className="mb-4 text-sm font-medium text-neutral-500">{navbarText.popularSearchesLabel ?? "Popular Searches"}</p>
                 <div className="flex flex-wrap gap-2">
-                  {["Running Shoes", "Training Gear", "Sportswear", "Accessories"].map((term) => (
+                  {(navbarText.popularSearchTerms ?? ["Shoes", "Bags", "New Arrivals", "Sale"]).map((term) => (
                     <button
                       key={term}
                       onClick={() => setQuery(term)}
@@ -241,7 +244,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                Search for "{query}"
+                {navbarText.searchForText ?? "Search for"} "{query}"
               </button>
             </div>
           )}

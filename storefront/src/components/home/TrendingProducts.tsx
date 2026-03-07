@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import { type ProductListItemFragment } from "@/gql/graphql";
 import { t } from "@/lib/language";
 import { useWishlist } from "@/lib/wishlist";
-import { useBranding, useStoreInfo, useContentConfig, useTrendingConfig, useFeature, useProductCardConfig } from "@/providers/StoreConfigProvider";
+import { useBranding, useStoreInfo, useContentConfig, useTrendingConfig, useFeature, useProductCardConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { buildProductsUrl, withChannel } from "@/lib/urls";
 import { SectionViewAllButton } from "./SectionViewAllButton";
 import { useQuickView } from "@/providers/QuickViewProvider";
@@ -32,6 +32,8 @@ export function TrendingProducts({ products, channel, title, subtitle }: Trendin
   const wishlistEnabled = useFeature("wishlist");
   const { addItem, removeItem, isInWishlist } = useWishlist();
   const cardConfig = useProductCardConfig("homepage");
+  const cdStyle = useComponentStyle("homepage.trending");
+  const cdClasses = useComponentClasses("homepage.trending");
 
   // Wishlist toggle handler
   const handleWishlistToggle = useCallback((product: ProductListItemFragment) => {
@@ -91,7 +93,15 @@ export function TrendingProducts({ products, channel, title, subtitle }: Trendin
   const displayProducts = products.slice(0, maxProducts);
 
   return (
-    <section className="py-20" aria-label="Trending products">
+    <section
+      data-cd="homepage-trending"
+      className={`py-20 ${cdClasses}`}
+      aria-label="Trending products"
+      style={{
+        ...(cdStyle?.backgroundColor && { background: `var(--cd-homepage-trending-bg)` }),
+        ...(cdStyle?.textColor && { color: `var(--cd-homepage-trending-text)` }),
+      }}
+    >
       <div className="mx-auto max-w-[var(--design-container-max)] px-6 lg:px-12">
         {/* V6-style section header — matching BestSellers / FlashDeals */}
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">

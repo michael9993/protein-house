@@ -1630,6 +1630,9 @@ export function getThemeCSSVariables(config: StoreConfig): Record<string, string
 
     // Design tokens (animations, spacing, grid)
     ...getDesignTokenCSSVariables(config),
+
+    // Component Designer overrides (--cd-{key}-{prop})
+    ...getComponentOverrideCSSVariables(config),
   };
 }
 
@@ -1668,4 +1671,78 @@ function getDesignTokenCSSVariables(config: StoreConfig): Record<string, string>
     '--design-grid-md': `${grid?.productColumns?.md ?? 2}`,
     '--design-grid-lg': `${grid?.productColumns?.lg ?? 4}`,
   };
+}
+
+/**
+ * Generate CSS custom properties from Component Designer overrides.
+ * Each override key (e.g., "homepage.hero") generates variables like:
+ *   --cd-homepage-hero-bg, --cd-homepage-hero-text, etc.
+ * Components reference these with fallbacks: var(--cd-homepage-hero-bg, var(--store-primary))
+ */
+function getComponentOverrideCSSVariables(config: StoreConfig): Record<string, string> {
+  const overrides = config.componentOverrides;
+  if (!overrides) return {};
+
+  const vars: Record<string, string> = {};
+
+  const shadowMap: Record<string, string> = {
+    none: 'none',
+    sm: '0 1px 2px rgba(0,0,0,0.05)',
+    md: '0 4px 6px -1px rgba(0,0,0,0.1)',
+    lg: '0 10px 15px -3px rgba(0,0,0,0.1)',
+    xl: '0 20px 25px -5px rgba(0,0,0,0.1)',
+  };
+
+  const radiusMap: Record<string, string> = {
+    none: '0px',
+    sm: '4px',
+    md: '8px',
+    lg: '16px',
+    full: '9999px',
+  };
+
+  const fontFamilyMap: Record<string, string> = {
+    heading: 'var(--store-font-heading)',
+    body: 'var(--store-font-body)',
+    mono: 'var(--store-font-mono)',
+  };
+
+  for (const [key, style] of Object.entries(overrides)) {
+    if (!style) continue;
+    // Convert dot key to dash: "homepage.hero" → "homepage-hero"
+    const prefix = `--cd-${key.replace(/\./g, '-')}`;
+
+    if (style.backgroundColor) {
+      if (style.backgroundStyle === "gradient" && style.backgroundSecondaryColor) {
+        const dirMap: Record<string, string> = {
+          "to-right": "to right", "to-left": "to left", "to-bottom": "to bottom",
+          "to-top": "to top", "to-bottom-right": "to bottom right",
+          "to-top-left": "to top left", "diagonal": "135deg",
+        };
+        vars[`${prefix}-bg`] = `linear-gradient(${dirMap[style.gradientDirection ?? "to-right"]}, ${style.backgroundColor}, ${style.backgroundSecondaryColor})`;
+      } else if (style.backgroundStyle === "radial-gradient" && style.backgroundSecondaryColor) {
+        vars[`${prefix}-bg`] = `radial-gradient(circle, ${style.backgroundColor}, ${style.backgroundSecondaryColor})`;
+      } else {
+        vars[`${prefix}-bg`] = style.backgroundColor;
+      }
+    }
+    if (style.textColor) vars[`${prefix}-text`] = style.textColor;
+    if (style.borderColor) vars[`${prefix}-border`] = style.borderColor;
+    if (style.borderWidth != null) vars[`${prefix}-border-w`] = `${style.borderWidth}px`;
+    if (style.borderRadius) vars[`${prefix}-radius`] = radiusMap[style.borderRadius] ?? style.borderRadius;
+    if (style.shadow) vars[`${prefix}-shadow`] = shadowMap[style.shadow] ?? 'none';
+    if (style.opacity != null) vars[`${prefix}-opacity`] = `${style.opacity / 100}`;
+    if (style.fontFamily) vars[`${prefix}-font`] = fontFamilyMap[style.fontFamily] ?? style.fontFamily;
+    if (style.fontSize) vars[`${prefix}-font-size`] = style.fontSize;
+    if (style.fontWeight) vars[`${prefix}-font-weight`] = style.fontWeight;
+    if (style.textTransform) vars[`${prefix}-text-transform`] = style.textTransform;
+    if (style.padding) vars[`${prefix}-padding`] = style.padding;
+    if (style.margin) vars[`${prefix}-margin`] = style.margin;
+    if (style.gap) vars[`${prefix}-gap`] = style.gap;
+    if (style.hoverBackgroundColor) vars[`${prefix}-hover-bg`] = style.hoverBackgroundColor;
+    if (style.hoverTextColor) vars[`${prefix}-hover-text`] = style.hoverTextColor;
+    if (style.hoverShadow) vars[`${prefix}-hover-shadow`] = shadowMap[style.hoverShadow] ?? 'none';
+  }
+
+  return vars;
 }

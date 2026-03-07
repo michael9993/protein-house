@@ -1,6 +1,5 @@
 import {
   ArrowUp,
-  Download,
   Instagram,
   Mail,
   Megaphone,
@@ -38,7 +37,6 @@ export function GlobalFeaturesTab({ control }: GlobalTabProps) {
             title="Abandoned Cart Emails"
             description="Recovery email campaigns"
             icon={<ShoppingCart className="h-5 w-5" />}
-            comingSoon
           />
           <FeatureCard
             name="features.instagramFeed"
@@ -53,14 +51,6 @@ export function GlobalFeaturesTab({ control }: GlobalTabProps) {
       {/* Product Features */}
       <FormSection title="Products" description="Global product feature toggles">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <FeatureCard
-            name="features.digitalDownloads"
-            control={control}
-            title="Digital Downloads"
-            description="Sell digital products"
-            icon={<Download className="h-5 w-5" />}
-            comingSoon
-          />
           <FeatureCard
             name="features.productBundles"
             control={control}

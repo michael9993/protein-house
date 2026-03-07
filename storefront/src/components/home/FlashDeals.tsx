@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import { type ProductListItemFragment } from "@/gql/graphql";
 import { t } from "@/lib/language";
 import { useWishlist } from "@/lib/wishlist";
-import { useBranding, useStoreInfo, useFlashDealsConfig, useContentConfig, useProductCardConfig, useFeature, useBadgeStyle } from "@/providers/StoreConfigProvider";
+import { useBranding, useStoreInfo, useFlashDealsConfig, useContentConfig, useProductCardConfig, useFeature, useBadgeStyle, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { useQuickView } from "@/providers/QuickViewProvider";
 import { CountdownTimer } from "@/ui/components/CountdownTimer";
 import { HomepageProductCard } from "./HomepageProductCard";
@@ -32,6 +32,8 @@ export function FlashDeals({ products, channel, maxDiscount, saleEndDate }: Flas
   const contentConfig = useContentConfig();
   const cardConfig = useProductCardConfig("homepage");
   const discountBadge = useBadgeStyle("discount");
+  const cdStyle = useComponentStyle("homepage.flashDeals");
+  const cdClasses = useComponentClasses("homepage.flashDeals");
   const { openQuickView, prefetchQuickView } = useQuickView();
   const wishlistEnabled = useFeature("wishlist");
   const { addItem, removeItem, isInWishlist } = useWishlist();
@@ -95,7 +97,15 @@ export function FlashDeals({ products, channel, maxDiscount, saleEndDate }: Flas
   const badgeText = badgeTemplate.replace("{discount}", String(maxDiscount));
 
   return (
-    <section className="border-b border-neutral-100 py-20" aria-label="Flash deals section">
+    <section
+      data-cd="homepage-flashDeals"
+      className={`border-b border-neutral-100 py-20 ${cdClasses}`}
+      aria-label="Flash deals section"
+      style={{
+        ...(cdStyle?.backgroundColor && { background: `var(--cd-homepage-flashDeals-bg)` }),
+        ...(cdStyle?.textColor && { color: `var(--cd-homepage-flashDeals-text)` }),
+      }}
+    >
       <div className="mx-auto max-w-[var(--design-container-max)] px-6 lg:px-12">
         {/* Header */}
         <div className="mb-12 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">

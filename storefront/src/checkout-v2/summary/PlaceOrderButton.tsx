@@ -24,7 +24,7 @@ export function PlaceOrderButton({ onSubmit, isLoading, disabled }: PlaceOrderBu
 	};
 
 	return (
-		<div className="space-y-2">
+		<div data-cd="checkout-placeOrder" className="space-y-2">
 			{/* Submit button */}
 			<button
 				type="button"

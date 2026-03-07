@@ -5,6 +5,7 @@ import { gql } from "graphql-tag";
 import { router } from "../trpc-server";
 import { protectedClientProcedure } from "../protected-client-procedure";
 import { createLogger } from "@/logger";
+import { fetchAppId, setSupplierCredentials } from "@/modules/lib/metadata-manager";
 import { supplierRegistry } from "@/modules/suppliers/registry";
 
 const logger = createLogger("SuppliersRouter");
@@ -128,7 +129,16 @@ export const suppliersRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: `Supplier ${input.supplierId} not found` });
       }
 
-      return config;
+      // Include webhook registration status for CJ
+      let webhooks: { registeredAt: string; baseUrl: string; urls: Record<string, string> } | null = null;
+      if (input.supplierId === "cj") {
+        const raw = metadata["dropship-cj-webhooks"];
+        if (raw) {
+          try { webhooks = JSON.parse(raw); } catch { /* ignore */ }
+        }
+      }
+
+      return { ...config, webhooks };
     }),
 
   toggle: protectedClientProcedure
@@ -157,7 +167,7 @@ export const suppliersRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { appId, metadata } = await getAppMetadata(ctx.apiClient);
+      const { appId: metaAppId, metadata } = await getAppMetadata(ctx.apiClient);
       const configs = getSupplierConfigs(metadata);
       const idx = configs.findIndex((c) => c.id === input.supplierId);
 
@@ -165,67 +175,197 @@ export const suppliersRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: `Supplier ${input.supplierId} not found` });
       }
 
-      // Store credentials separately (encrypted via Saleor's private metadata)
-      await setAppMetadata(
-        ctx.apiClient,
-        appId,
-        `dropship-creds-${input.supplierId}`,
-        JSON.stringify(input.credentials),
-      );
+      // Resolve the app ID for encrypted storage
+      const appId = await fetchAppId(ctx.apiClient);
+      if (!appId) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to resolve app ID" });
+      }
 
-      configs[idx].status = "connected";
+      // Authenticate with supplier to get access token
+      const adapter = supplierRegistry.getAdapter(input.supplierId);
+      let accessToken: string | undefined;
+      let tokenExpiresAt: string | undefined;
+      let refreshToken: string | undefined;
+
+      if (adapter && input.supplierId === "cj" && input.credentials.apiKey) {
+        const authResult = await adapter.authenticate({
+          type: "cj",
+          apiKey: input.credentials.apiKey,
+        });
+
+        if (authResult.isOk()) {
+          accessToken = authResult.value.accessToken;
+          tokenExpiresAt = authResult.value.expiresAt.toISOString();
+          refreshToken = authResult.value.refreshToken;
+          logger.info("CJ authentication successful", { tokenExpiresAt });
+        } else {
+          logger.warn("CJ authentication failed — credentials saved without token", {
+            error: authResult.error.message,
+          });
+        }
+      }
+
+      // Store credentials in encrypted metadata (format matching SupplierCredentialsSchema)
+      if (input.supplierId === "cj") {
+        await setSupplierCredentials(ctx.apiClient, appId, input.supplierId, {
+          type: "cj",
+          apiKey: input.credentials.apiKey,
+          accessToken,
+          tokenExpiresAt,
+        });
+      } else if (input.supplierId === "aliexpress") {
+        await setSupplierCredentials(ctx.apiClient, appId, input.supplierId, {
+          type: "aliexpress",
+          appKey: input.credentials.appKey ?? "",
+          appSecret: input.credentials.appSecret ?? "",
+          accessToken,
+          refreshToken,
+          tokenExpiresAt,
+        });
+      }
+
+      // Update supplier status in the config list
+      configs[idx].status = accessToken ? "connected" : "error";
+      configs[idx].enabled = !!accessToken;
       configs[idx].lastConnectedAt = new Date().toISOString();
-      await setAppMetadata(ctx.apiClient, appId, "dropship-suppliers", JSON.stringify(configs));
+      configs[idx].tokenExpiresAt = tokenExpiresAt ?? null;
+      await setAppMetadata(ctx.apiClient, metaAppId, "dropship-suppliers", JSON.stringify(configs));
 
-      logger.info("Saved supplier credentials", { supplierId: input.supplierId });
-      return { success: true };
+      logger.info("Saved supplier credentials", {
+        supplierId: input.supplierId,
+        authenticated: !!accessToken,
+      });
+
+      return {
+        success: true,
+        authenticated: !!accessToken,
+        tokenExpiresAt: tokenExpiresAt ?? null,
+      };
+    }),
+
+  registerWebhooks: protectedClientProcedure
+    .input(z.object({ supplierId: z.literal("cj") }))
+    .mutation(async ({ ctx, input }) => {
+      const appId = await fetchAppId(ctx.apiClient);
+      if (!appId) {
+        return { success: false, error: "Failed to resolve app ID" };
+      }
+
+      const { getSupplierCredentials } = await import("@/modules/lib/metadata-manager");
+      const creds = await getSupplierCredentials(ctx.apiClient, appId, input.supplierId);
+
+      if (!creds || !creds.accessToken) {
+        return { success: false, error: "No access token found. Save your API key and test connection first." };
+      }
+
+      // Determine the public base URL for webhooks
+      const baseUrl = process.env.APP_API_BASE_URL || process.env.NEXT_PUBLIC_APP_API_BASE_URL || "";
+      if (!baseUrl) {
+        return { success: false, error: "APP_API_BASE_URL is not set. Configure your tunnel URL in the environment." };
+      }
+
+      logger.info("Registering CJ webhooks", { baseUrl });
+
+      try {
+        const response = await fetch("https://developers.cjdropshipping.com/api2.0/v1/webhook/set", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "CJ-Access-Token": creds.accessToken,
+          },
+          body: JSON.stringify({
+            order: {
+              type: "ENABLE",
+              callbackUrls: [`${baseUrl}/api/webhooks/cj/order`],
+            },
+            logistics: {
+              type: "ENABLE",
+              callbackUrls: [`${baseUrl}/api/webhooks/cj/logistics`],
+            },
+            stock: {
+              type: "ENABLE",
+              callbackUrls: [`${baseUrl}/api/webhooks/cj/stock`],
+            },
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.code === 200 || data.result === true) {
+          logger.info("CJ webhooks registered successfully", { baseUrl });
+
+          // Persist registration state in app metadata
+          const { appId: metaAppId } = await getAppMetadata(ctx.apiClient);
+          await setAppMetadata(ctx.apiClient, metaAppId, "dropship-cj-webhooks", JSON.stringify({
+            registeredAt: new Date().toISOString(),
+            baseUrl,
+            urls: {
+              order: `${baseUrl}/api/webhooks/cj/order`,
+              logistics: `${baseUrl}/api/webhooks/cj/logistics`,
+              stock: `${baseUrl}/api/webhooks/cj/stock`,
+            },
+          }));
+
+          return {
+            success: true,
+            message: `Webhooks registered at ${baseUrl}`,
+            urls: {
+              order: `${baseUrl}/api/webhooks/cj/order`,
+              logistics: `${baseUrl}/api/webhooks/cj/logistics`,
+              stock: `${baseUrl}/api/webhooks/cj/stock`,
+            },
+          };
+        }
+
+        logger.warn("CJ webhook registration returned non-success", { data });
+        return {
+          success: false,
+          error: `CJ API returned: ${data.message || JSON.stringify(data)}`,
+        };
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        logger.error("CJ webhook registration failed", { error: msg });
+        return { success: false, error: `Request failed: ${msg}` };
+      }
     }),
 
   testConnection: protectedClientProcedure
     .input(z.object({ supplierId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const { metadata } = await getAppMetadata(ctx.apiClient);
-      const credsRaw = metadata[`dropship-creds-${input.supplierId}`];
-
-      if (!credsRaw) {
-        return { success: false, error: "No credentials found. Please save credentials first." };
-      }
-
-      let creds: Record<string, string>;
-      try {
-        creds = JSON.parse(credsRaw);
-      } catch {
-        return { success: false, error: "Failed to parse stored credentials" };
-      }
-
       const adapter = supplierRegistry.getAdapter(input.supplierId);
 
       if (!adapter) {
         return { success: false, error: `No adapter registered for supplier "${input.supplierId}"` };
       }
 
+      // Read credentials from encrypted storage
+      const appId = await fetchAppId(ctx.apiClient);
+      if (!appId) {
+        return { success: false, error: "Failed to resolve app ID" };
+      }
+
+      const { getSupplierCredentials } = await import("@/modules/lib/metadata-manager");
+      const creds = await getSupplierCredentials(ctx.apiClient, appId, input.supplierId);
+
+      if (!creds) {
+        return { success: false, error: "No credentials found. Please save your API key first." };
+      }
+
       logger.info("Testing supplier connection", { supplierId: input.supplierId });
 
-      const result = await adapter.authenticate({
-        type: input.supplierId as "aliexpress" | "cj",
-        ...creds,
-      } as any);
+      // Test by actually authenticating with the supplier API
+      const result = await adapter.authenticate(creds as any);
 
       if (result.isOk()) {
-        return { success: true, message: `Connection to ${adapter.name} verified successfully` };
+        return {
+          success: true,
+          message: `Connected to ${adapter.name} successfully. Token valid until ${result.value.expiresAt.toLocaleDateString()}.`,
+        };
       }
 
-      // For AliExpress, authenticate() returns an error directing to OAuth flow —
-      // but if we got here it means credentials exist, so check if we have a token
-      if (input.supplierId === "aliexpress" && creds.accessToken) {
-        return { success: true, message: "AliExpress credentials stored. Token present." };
-      }
-
-      // For CJ, a real auth failure means invalid API key
-      if (input.supplierId === "cj") {
-        return { success: false, error: `CJ connection failed: ${result.error.message}` };
-      }
-
-      return { success: true, message: "Credentials stored and adapter available" };
+      return {
+        success: false,
+        error: `${adapter.name} connection failed: ${result.error.message}`,
+      };
     }),
 });

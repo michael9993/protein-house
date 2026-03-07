@@ -23,7 +23,7 @@ export function PreviewToolbar({
   storefrontUrl,
 }: PreviewToolbarProps) {
   return (
-    <div className="flex items-center justify-between border-b border-border bg-muted/50 px-4 py-2">
+    <div className="flex items-center justify-between border-b border-neutral-200 bg-neutral-50 px-4 py-2">
       <div className="flex items-center gap-1">
         {DEVICE_OPTIONS.map((option) => {
           const Icon = option.icon;
@@ -42,7 +42,7 @@ export function PreviewToolbar({
       </div>
       <div className="flex items-center gap-2">
         {!isReady && (
-          <span className="text-xs text-muted-foreground animate-pulse">Connecting...</span>
+          <span className="text-xs text-neutral-400 animate-pulse">Connecting...</span>
         )}
         <Button variant="ghost" size="sm" onClick={onRefresh} title="Refresh preview">
           <RefreshCw className="h-4 w-4" />

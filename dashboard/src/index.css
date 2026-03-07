@@ -330,3 +330,91 @@ table tbody tr:hover {
   font-size: 14px !important;
   padding: 8px 14px !important;
 }
+
+/* === AI Assistant markdown styles === */
+.ai-markdown {
+  font-size: 13px;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.ai-markdown p {
+  margin: 0 0 8px;
+}
+
+.ai-markdown p:last-child {
+  margin-bottom: 0;
+}
+
+.ai-markdown strong {
+  font-weight: 600;
+}
+
+.ai-markdown em {
+  font-style: italic;
+}
+
+.ai-markdown code {
+  background: var(--mu-colors-background-default2);
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.ai-markdown pre {
+  background: var(--mu-colors-background-default2);
+  padding: 10px 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 8px 0;
+}
+
+.ai-markdown pre code {
+  background: transparent;
+  padding: 0;
+  font-size: 12px;
+}
+
+.ai-markdown ul,
+.ai-markdown ol {
+  margin: 6px 0;
+  padding-left: 20px;
+}
+
+.ai-markdown li {
+  margin: 2px 0;
+}
+
+.ai-markdown a {
+  color: var(--mu-colors-text-accent1);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.ai-markdown a:hover {
+  opacity: 0.7;
+}
+
+.ai-markdown h1, .ai-markdown h2, .ai-markdown h3 {
+  font-weight: 600;
+  margin: 12px 0 6px;
+}
+
+.ai-markdown h1 { font-size: 16px; }
+.ai-markdown h2 { font-size: 15px; }
+.ai-markdown h3 { font-size: 14px; }
+
+.ai-markdown blockquote {
+  border-left: 3px solid var(--mu-colors-border-default1);
+  padding-left: 10px;
+  margin: 8px 0;
+  opacity: 0.85;
+}
+
+.ai-markdown hr {
+  border: none;
+  border-top: 1px solid var(--mu-colors-border-default1);
+  margin: 10px 0;
+}

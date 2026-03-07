@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useBranding, useStoreInfo, useContentConfig } from "@/providers/StoreConfigProvider";
+import { useBranding, useStoreInfo, useContentConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { loginAction, registerAction } from "./actions";
 import { getOAuthUrl } from "./oauth-actions";
 
@@ -27,6 +27,8 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 	const branding = useBranding();
 	const store = useStoreInfo();
 	const content = useContentConfig();
+	const cdStyle = useComponentStyle("auth.login");
+	const cdClasses = useComponentClasses("auth.login");
 
 	// Auto-hide success message after 5 seconds
 	useEffect(() => {
@@ -98,7 +100,10 @@ export function LoginClient({ channel, redirectUrl, initialError, confirmed, ini
 	};
 
 	return (
-		<div className="auth-page flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12">
+		<div data-cd="auth-login" className={`auth-page flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12 ${cdClasses}`} style={{
+			...(cdStyle?.backgroundColor && { background: 'var(--cd-auth-login-bg)' }),
+			...(cdStyle?.textColor && { color: 'var(--cd-auth-login-text)' }),
+		}}>
 			<div className="w-full max-w-md">
 				{/* Logo */}
 				<div className="mb-8 text-center">

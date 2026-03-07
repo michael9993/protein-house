@@ -76,7 +76,7 @@ export function ProductTabs({
   const shippingEstimate = getProductShippingEstimate(metadata);
 
   return (
-    <div className="mt-8 border-t border-neutral-200 pt-8">
+    <div data-cd="pdp-tabs" className="mt-8 border-t border-neutral-200 pt-8">
       {/* Tab headers */}
       <div className="flex gap-8 border-b border-neutral-200">
         {tabs.map((tab) => (

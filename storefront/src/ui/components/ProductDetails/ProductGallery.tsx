@@ -12,6 +12,7 @@ import "swiper/css/navigation";
 import "swiper/css/zoom";
 
 import { Dialog, Transition, TransitionChild } from "@headlessui/react";
+import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 
 interface ProductGalleryProps {
   images: Array<{
@@ -28,6 +29,8 @@ export function ProductGallery({ images, productName, discountPercent, allowLigh
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const cdStyle = useComponentStyle("pdp.gallery");
+  const cdClasses = useComponentClasses("pdp.gallery");
 
   if (images.length === 0) {
     return (
@@ -42,7 +45,14 @@ export function ProductGallery({ images, productName, discountPercent, allowLigh
   return (
     <>
       {/* Main image + thumbnails below */}
-      <div className="flex flex-col gap-3 group relative">
+      <div
+        data-cd="pdp-gallery"
+        className={`flex flex-col gap-3 group relative ${cdClasses}`}
+        style={{
+          ...(cdStyle?.backgroundColor && { background: `var(--cd-pdp-gallery-bg)` }),
+          ...(cdStyle?.textColor && { color: `var(--cd-pdp-gallery-text)` }),
+        }}
+      >
         {/* Main image */}
         <div className="relative">
           {/* Discount Ribbon */}
@@ -50,19 +60,19 @@ export function ProductGallery({ images, productName, discountPercent, allowLigh
             <div className="absolute -start-2 top-4 z-20 sm:-start-3 sm:top-6 pointer-events-none">
               <div
                 className="relative flex items-center px-3 py-1.5 text-xs font-bold text-white shadow-lg sm:px-4 sm:py-2 sm:text-sm"
-                style={{ backgroundColor: "#ef4444" }}
+                style={{ backgroundColor: "var(--store-error, #ef4444)" }}
               >
                 <span>{discountPercent}% OFF</span>
                 <div
                   className="absolute -end-2 top-0 h-full w-2"
                   style={{
-                    background: "linear-gradient(135deg, #ef4444 50%, transparent 50%)",
+                    background: "linear-gradient(135deg, var(--store-error, #ef4444) 50%, transparent 50%)",
                   }}
                 />
                 <div
                   className="absolute -start-1 -bottom-1 h-2 w-2"
                   style={{
-                    background: "#b91c1c",
+                    background: "var(--store-error-700, #b91c1c)",
                     clipPath: "polygon(100% 0, 0 0, 100% 100%)",
                   }}
                 />

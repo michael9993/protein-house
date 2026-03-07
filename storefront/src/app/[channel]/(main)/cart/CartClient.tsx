@@ -6,7 +6,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useToast } from "@/ui/components/Toast";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { formatMoney, getHrefForVariant } from "@/lib/utils";
-import { useBranding, useEcommerceSettings, useContentConfig, useButtonStyle, useBadgeStyle } from "@/providers/StoreConfigProvider";
+import { useBranding, useEcommerceSettings, useContentConfig, useButtonStyle, useBadgeStyle, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { trackBeginCheckout } from "@/lib/analytics";
 import { getProductShippingEstimate, formatEstimate } from "@/lib/shipping";
 import { mapPromoCodeError } from "@/lib/checkout/promo-error-map";
@@ -101,7 +101,9 @@ export function CartClient({
   const content = useContentConfig();
   const primaryButtonStyle = useButtonStyle("primary");
   const saleBadgeStyle = useBadgeStyle("sale");
-  
+  const cdStyle = useComponentStyle("cart.page");
+  const cdClasses = useComponentClasses("cart.page");
+
   const { addToast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
@@ -565,7 +567,7 @@ export function CartClient({
   // Empty cart state
   if (!cart || cart.lines.length === 0) {
     return (
-      <div className="min-h-screen animate-fade-in" style={{ backgroundColor: branding.colors.surface }}>
+      <div data-cd="cart-page" className={`min-h-screen animate-fade-in ${cdClasses}`} style={{ background: cdStyle?.backgroundColor ? 'var(--cd-cart-page-bg)' : branding.colors.surface }}>
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="text-center animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
             <div 
@@ -609,7 +611,9 @@ export function CartClient({
   const currency = cart.totalPrice.gross.currency;
 
   return (
-    <div className="min-h-screen bg-neutral-50/50 relative animate-fade-in">
+    <div data-cd="cart-page" className={`min-h-screen bg-neutral-50/50 relative animate-fade-in ${cdClasses}`} style={{
+      ...(cdStyle?.backgroundColor && { background: 'var(--cd-cart-page-bg)' }),
+    }}>
       {/* Full-page loading overlay during navigation to checkout */}
       {showLoadingOverlay && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">

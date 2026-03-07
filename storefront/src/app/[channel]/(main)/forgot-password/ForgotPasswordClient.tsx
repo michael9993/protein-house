@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useBranding, useStoreInfo, useContentConfig, usePageEnabled } from "@/providers/StoreConfigProvider";
+import { useBranding, useStoreInfo, useContentConfig, usePageEnabled, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { requestPasswordResetAction } from "./actions";
 
 interface ForgotPasswordClientProps {
@@ -17,6 +17,8 @@ export function ForgotPasswordClient({ channel }: ForgotPasswordClientProps) {
 	const branding = useBranding();
 	const store = useStoreInfo();
 	const content = useContentConfig();
+	const cdStyle = useComponentStyle("auth.forgotPassword");
+	const cdClasses = useComponentClasses("auth.forgotPassword");
 	const forgotPasswordEnabled = usePageEnabled("forgotPassword");
 
 	if (!forgotPasswordEnabled) {
@@ -47,7 +49,10 @@ export function ForgotPasswordClient({ channel }: ForgotPasswordClientProps) {
 	};
 
 	return (
-		<div className="auth-page flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12">
+		<div data-cd="auth-forgotPassword" className={`auth-page flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12 ${cdClasses}`} style={{
+			...(cdStyle?.backgroundColor && { background: 'var(--cd-auth-forgotPassword-bg)' }),
+			...(cdStyle?.textColor && { color: 'var(--cd-auth-forgotPassword-text)' }),
+		}}>
 			<div className="w-full max-w-md">
 				<div className="mb-8 text-center">
 					<Link

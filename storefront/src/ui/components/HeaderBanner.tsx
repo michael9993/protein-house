@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, type Dispatch, type SetStateAction } from "react";
 import Link from "next/link";
-import { useBranding, useHeaderConfig, useStoreConfig, useNavbarText } from "@/providers/StoreConfigProvider";
+import { useBranding, useHeaderConfig, useStoreConfig, useNavbarText, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 
 const DEFAULT_INTERVAL_SECONDS = 6;
 const DISMISS_STORAGE_PREFIX = "banner-dismissed-";
@@ -26,6 +26,8 @@ export function HeaderBanner({ channel }: { channel?: string }) {
 	const headerConfig = useHeaderConfig();
 	const config = useStoreConfig();
 	const navbarText = useNavbarText();
+	const cdStyle = useComponentStyle("layout.headerBanner");
+	const cdClasses = useComponentClasses("layout.headerBanner");
 
 	const showBanner = headerConfig.banner.enabled;
 	const items = (headerConfig.banner.items ?? []) as BannerItem[];
@@ -163,6 +165,8 @@ function HeaderBannerCarousel({
 	prevAriaLabel,
 	nextAriaLabel,
 }: HeaderBannerCarouselProps) {
+	const cdStyle = useComponentStyle("layout.headerBanner");
+	const cdClasses = useComponentClasses("layout.headerBanner");
 	const len = items.length;
 
 	const advance = useCallback(() => {
@@ -212,8 +216,13 @@ function HeaderBannerCarousel({
 
 	return (
 		<div
-			className="relative w-full py-1.5 text-center font-medium"
-			style={backgroundStyle}
+			data-cd="layout-headerBanner"
+			className={`relative w-full py-1.5 text-center font-medium ${cdClasses}`}
+			style={{
+				...backgroundStyle,
+				...(cdStyle?.backgroundColor && { background: `var(--cd-layout-headerBanner-bg)` }),
+				...(cdStyle?.textColor && { color: `var(--cd-layout-headerBanner-text)` }),
+			}}
 			onMouseEnter={() => setPaused(true)}
 			onMouseLeave={() => setPaused(false)}
 			onFocus={() => setPaused(true)}

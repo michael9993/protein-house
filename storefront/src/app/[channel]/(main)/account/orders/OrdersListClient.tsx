@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatMoney } from "@/lib/utils";
-import { useOrdersText } from "@/providers/StoreConfigProvider";
+import { useOrdersText, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 
 interface OrderLine {
 	id: string;
@@ -248,6 +248,8 @@ export function OrdersListClient({ orders, channel, statusColors, primaryColor }
 	const [isRequestingInvoice, setIsRequestingInvoice] = useState(false);
 	const [toast, setToast] = useState<{ message: string; type: "info" | "success" | "error" | "warning" } | null>(null);
 	const ordersText = useOrdersText();
+	const cdStyle = useComponentStyle("account.orders");
+	const cdClasses = useComponentClasses("account.orders");
 
 	// Status labels mapping
 	const statusLabels: Record<string, string> = {
@@ -373,7 +375,10 @@ export function OrdersListClient({ orders, channel, statusColors, primaryColor }
 
 	return (
 		<>
-			<div className="space-y-4">
+			<div data-cd="account-orders" className={`space-y-4 ${cdClasses}`} style={{
+				...(cdStyle?.backgroundColor && { background: 'var(--cd-account-orders-bg)' }),
+				...(cdStyle?.textColor && { color: 'var(--cd-account-orders-text)' }),
+			}}>
 				{displayedOrders.map((order) => {
 					const orderStatus = order.status;
 					const statusStyle = statusColors[orderStatus] || statusColors.UNFULFILLED;

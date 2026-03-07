@@ -515,7 +515,7 @@ export function ContactStep({ checkoutId, channel }: ContactStepProps) {
 	}
 
 	return (
-		<div>
+		<div data-cd="checkout-contactStep">
 			{section === "guest" && (
 				<GuestSection
 					checkoutId={checkoutId}

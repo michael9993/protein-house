@@ -189,11 +189,9 @@ export function HomepageSectionsTab({
 
             <SectionBackgroundFields sectionKey="hero" register={register} control={control} watch={watch} errors={errors} />
 
-            {/* Background Media — Coming Soon */}
             <FormSection
               title="Background Media"
               description="Custom background image, video, or image slider for the hero"
-              comingSoon
               collapsible
               defaultExpanded={false}
             >

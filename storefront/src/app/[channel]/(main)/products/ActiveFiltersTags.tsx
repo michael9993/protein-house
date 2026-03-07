@@ -1,7 +1,7 @@
 "use client";
 
 import { useProductFilters } from "@/hooks/useProductFilters";
-import { useStoreConfig, useUiConfig, useFiltersText } from "@/providers/StoreConfigProvider";
+import { useStoreConfig, useUiConfig, useFiltersText, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { type FilterState } from "@/lib/filters";
 import { getChannelCurrencyClient } from "@/lib/channel-utils";
 import { getCurrencySymbol } from "@/lib/currency";
@@ -29,6 +29,8 @@ export function ActiveFiltersTags({
   const { branding } = useStoreConfig();
   const ui = useUiConfig();
   const filtersText = useFiltersText();
+  const cdStyle = useComponentStyle("plp.activeFiltersTags");
+  const cdClasses = useComponentClasses("plp.activeFiltersTags");
   const { toggleCategory, toggleCollection, toggleBrand, toggleSize, toggleColor, toggleInStock, toggleOnSale, updateFilters, clearAll } = useProductFilters();
   const [currencyCode, setCurrencyCode] = useState<string>("");
   
@@ -143,12 +145,14 @@ export function ActiveFiltersTags({
   };
 
   return (
-    <div 
-      className={`mb-4 ${borderRadiusClasses[containerBorderRadius]} ${shadowClasses[containerShadow]} border`}
+    <div
+      data-cd="plp-activeFiltersTags"
+      className={`mb-4 ${borderRadiusClasses[containerBorderRadius]} ${shadowClasses[containerShadow]} border ${cdClasses}`}
       style={{
-        backgroundColor: containerBg,
+        background: cdStyle?.backgroundColor ? `var(--cd-plp-activeFiltersTags-bg)` : containerBg,
         borderColor: containerBorderColor,
         padding: `${containerPadding}px`,
+        ...(cdStyle?.textColor && { color: `var(--cd-plp-activeFiltersTags-text)` }),
       }}
     >
       <div className="mb-3 flex items-center justify-between">
@@ -244,7 +248,7 @@ export function ActiveFiltersTags({
           (filters.priceMax !== undefined && filters.priceMax !== null)) && (
           <FilterTag
             onRemove={() => updateFilters({ priceMin: undefined, priceMax: undefined })}
-            label={formatPriceRange(filters.priceMin, filters.priceMax, currencyCode)}
+            label={formatPriceRange(filters.priceMin, filters.priceMax, currencyCode, filtersText)}
             type="price"
           />
         )}
@@ -261,18 +265,24 @@ export function ActiveFiltersTags({
   );
 }
 
-function formatPriceRange(min: number | undefined, max: number | undefined, currencyCode: string): string {
-  // Get currency symbol (handles ILS, NIS, name variants, case variations)
+function formatPriceRange(
+  min: number | undefined,
+  max: number | undefined,
+  currencyCode: string,
+  labels: { priceTitle: string; priceFromLabel?: string; priceUpToLabel?: string },
+): string {
   const currencySymbol = getCurrencySymbol(currencyCode) || currencyCode || "";
+  const fromLabel = labels.priceFromLabel ?? "From";
+  const upToLabel = labels.priceUpToLabel ?? "Up to";
 
   if (min !== undefined && max !== undefined) {
     return `${currencySymbol}${min.toFixed(2)} - ${currencySymbol}${max.toFixed(2)}`;
   } else if (min !== undefined) {
-    return `From ${currencySymbol}${min.toFixed(2)}`;
+    return `${fromLabel} ${currencySymbol}${min.toFixed(2)}`;
   } else if (max !== undefined) {
-    return `Up to ${currencySymbol}${max.toFixed(2)}`;
+    return `${upToLabel} ${currencySymbol}${max.toFixed(2)}`;
   }
-  return "Price";
+  return labels.priceTitle;
 }
 
 function FilterTag({ 

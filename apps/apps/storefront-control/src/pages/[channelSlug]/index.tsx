@@ -5,17 +5,9 @@ import { useRouter } from "next/router";
 import {
   Check,
   Download,
-  FileText,
-  Globe,
-  Home,
   Loader2,
-  Package,
-  PanelTop,
   Save,
-  Search,
-  ShoppingCart,
   Upload,
-  User,
   type LucideIcon,
 } from "lucide-react";
 
@@ -26,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { ConfigImport } from "@/modules/ui/config-import";
 import { downloadConfigFile } from "@/modules/config/export";
+import { PAGE_REGISTRY } from "@/lib/page-registry";
 
 // ---------------------------------------------------------------------------
 // ConfigCard
@@ -295,190 +288,26 @@ const ChannelIndexPage: NextPage = () => {
           </CardContent>
         </Card>
 
-        {/* Config Cards Grid */}
+        {/* Config Cards Grid — from PAGE_REGISTRY */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <ConfigCard
-            title="Global"
-            href={`/${channelSlug}/global`}
-            summary="Store identity, branding, integrations"
-            status={config?.store?.name ? "ready" : "attention"}
-            icon={Globe}
-            onNavigate={(h) => router.push(h)}
-            items={[
-              { label: "Name", value: config?.store.name || "Not set" },
-              {
-                label: "Primary Color",
-                value: config?.branding?.colors?.primary ?? "",
-                isColor: true,
-              },
-              { label: "Locale", value: config?.localization?.defaultLocale ?? "en-US" },
-            ]}
-          />
-
-          <ConfigCard
-            title="Homepage"
-            href={`/${channelSlug}/homepage`}
-            summary="Sections and layout"
-            status={config?.homepage ? "ready" : "attention"}
-            icon={Home}
-            onNavigate={(h) => router.push(h)}
-            items={[
-              {
-                label: "Hero",
-                value: config?.homepage.sections.hero.enabled ? "Enabled" : "Disabled",
-              },
-              {
-                label: "Trending/New",
-                value: config?.homepage.sections.trending?.enabled ? "Enabled" : "Disabled",
-              },
-              {
-                label: "Best Sellers",
-                value: config?.homepage.sections.bestSellers?.enabled ? "Enabled" : "Disabled",
-              },
-            ]}
-          />
-
-          <ConfigCard
-            title="Layout"
-            href={`/${channelSlug}/layout-config`}
-            summary="Header, footer, navigation"
-            status={config?.header ? "ready" : "attention"}
-            icon={PanelTop}
-            onNavigate={(h) => router.push(h)}
-            items={[
-              {
-                label: "Banner",
-                value: config?.header?.banner?.enabled ? "Enabled" : "Disabled",
-              },
-              {
-                label: "Logo Position",
-                value: config?.header?.logoPosition ?? "center",
-              },
-              {
-                label: "Footer Newsletter",
-                value: config?.footer?.showNewsletter ? "Enabled" : "Disabled",
-              },
-            ]}
-          />
-
-          <ConfigCard
-            title="Catalog"
-            href={`/${channelSlug}/catalog`}
-            summary="Filters, product detail, reviews"
-            status={config?.filters ? "ready" : "attention"}
-            icon={Package}
-            onNavigate={(h) => router.push(h)}
-            items={[
-              {
-                label: "Filters",
-                value: config?.filters.enabled ? "Enabled" : "Disabled",
-              },
-              {
-                label: "Quick Filters",
-                value: config?.quickFilters.enabled ? "Enabled" : "Disabled",
-              },
-              {
-                label: "Wishlist",
-                value: config?.features.wishlist ? "Enabled" : "Disabled",
-              },
-            ]}
-          />
-
-          <ConfigCard
-            title="Cart & Checkout"
-            href={`/${channelSlug}/cart-checkout`}
-            summary="Shipping, tax, promo popup"
-            status={config?.ecommerce ? "ready" : "attention"}
-            icon={ShoppingCart}
-            onNavigate={(h) => router.push(h)}
-            items={[
-              {
-                label: "Free Shipping",
-                value: config?.ecommerce?.shipping?.freeShippingThreshold
-                  ? `$${config.ecommerce.shipping.freeShippingThreshold}`
-                  : "Not set",
-              },
-              {
-                label: "Guest Checkout",
-                value: config?.features.guestCheckout ? "Enabled" : "Disabled",
-              },
-              {
-                label: "Promo Popup",
-                value: config?.promoPopup?.enabled ? "Enabled" : "Disabled",
-              },
-            ]}
-          />
-
-          <ConfigCard
-            title="Account"
-            href={`/${channelSlug}/account-config`}
-            summary="Auth, account text"
-            status={config?.content?.account ? "ready" : "attention"}
-            icon={User}
-            onNavigate={(h) => router.push(h)}
-            items={[
-              {
-                label: "Social Login",
-                value: config?.features.socialLogin ? "Enabled" : "Disabled",
-              },
-              { label: "Sign In", value: config?.content?.account?.signInTitle || "Sign In" },
-              { label: "Sign Up", value: config?.content?.account?.signUpTitle || "Sign Up" },
-            ]}
-          />
-
-          <ConfigCard
-            title="Other Pages"
-            href={`/${channelSlug}/other-pages`}
-            summary="Contact, FAQ, error pages"
-            status={config?.pages ? "ready" : "attention"}
-            icon={FileText}
-            onNavigate={(h) => router.push(h)}
-            items={[
-              { label: "About Us", value: config?.pages.aboutUs ? "Enabled" : "Disabled" },
-              { label: "Contact", value: config?.pages.contact ? "Enabled" : "Disabled" },
-              { label: "FAQ", value: config?.pages.faq ? "Enabled" : "Disabled" },
-            ]}
-          />
-
-          <ConfigCard
-            title="SEO"
-            href={`/${channelSlug}/global?tab=localization`}
-            summary="Search and sharing"
-            status={config?.seo ? "ready" : "attention"}
-            icon={Search}
-            onNavigate={(h) => router.push(h)}
-            items={[
-              {
-                label: "Title Template",
-                value: config?.seo.titleTemplate ? "Set" : "Not set",
-              },
-              { label: "Default Title", value: config?.seo.defaultTitle ? "Set" : "Not set" },
-              { label: "OG Image", value: config?.seo.defaultImage ? "Set" : "Not set" },
-            ]}
-          />
-
-          <ConfigCard
-            title="Features"
-            href={`/${channelSlug}/global?tab=features`}
-            summary="Customer experience switches"
-            status={config?.features ? "ready" : "attention"}
-            icon={Globe}
-            onNavigate={(h) => router.push(h)}
-            items={[
-              {
-                label: "Features Enabled",
-                value: `${enabledFeaturesCount} / ${totalFeaturesCount}`,
-              },
-              {
-                label: "Reviews",
-                value: config?.features.productReviews ? "Enabled" : "Disabled",
-              },
-              {
-                label: "Newsletter",
-                value: config?.features.newsletter ? "Enabled" : "Disabled",
-              },
-            ]}
-          />
+          {PAGE_REGISTRY.map((page) => {
+            const Icon = page.icon;
+            return (
+              <ConfigCard
+                key={page.id}
+                title={page.label}
+                href={page.href(channelSlug)}
+                summary={page.summary}
+                status="ready"
+                icon={Icon}
+                onNavigate={(h) => router.push(h)}
+                items={[
+                  { label: "Blocks", value: `${page.blocks.length} components` },
+                  { label: "Group", value: page.group === "pages" ? "Page" : "Global" },
+                ]}
+              />
+            );
+          })}
         </div>
       </div>
     </AppShell>

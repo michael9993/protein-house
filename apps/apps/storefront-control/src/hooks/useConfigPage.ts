@@ -98,8 +98,12 @@ export function useConfigPage<TSchema extends z.ZodType<FieldValues>>(
           });
         }
 
-        await utils.config.getConfig.invalidate({ channelSlug });
-        form.reset(data);
+        // Refetch config from server. The useEffect on config change will
+        // call form.reset(extractFormData(freshConfig)), properly re-transforming
+        // data (e.g., re-nesting dot-keys for component designer).
+        // This is better than form.reset(data) which uses Zod's preprocessed
+        // output that may have a different shape than extractFormData produces.
+        await refetch();
         setSaveStatus("success");
         setTimeout(() => setSaveStatus("idle"), 3000);
       } catch {
@@ -111,7 +115,7 @@ export function useConfigPage<TSchema extends z.ZodType<FieldValues>>(
       sections,
       updateSectionMutation,
       updateMultipleSectionsMutation,
-      utils.config.getConfig,
+      refetch,
       form,
     ]
   );

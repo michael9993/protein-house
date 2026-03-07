@@ -50,12 +50,14 @@ export function StoreConfigProvider({
     setConfig(initialConfig);
   }, [initialConfig]);
 
-  // Listen for real-time config updates from useConfigSync hook
+  // Listen for real-time config updates from useConfigSync hook and preview bridge.
+  // Updates may be partial (e.g., only componentOverrides from Component Designer),
+  // so we merge with existing config to preserve other sections.
   useEffect(() => {
     const handleConfigUpdate = (event: Event) => {
-      const customEvent = event as CustomEvent<{ channel: string; config: StoreConfig }>;
+      const customEvent = event as CustomEvent<{ channel?: string; config: Partial<StoreConfig> }>;
       if (customEvent.detail?.config) {
-        setConfig(customEvent.detail.config);
+        setConfig((prev) => ({ ...prev, ...customEvent.detail.config }));
       }
     };
 
@@ -257,6 +259,22 @@ export function useCookieConsentConfig(): StoreConfig["integrations"]["cookieCon
 export function useCookieConsentText() {
   const config = useStoreConfig();
   return config.content?.cookieConsent ?? {};
+}
+
+/**
+ * Get FAQ page text/translations
+ */
+export function useFaqText(): Partial<NonNullable<StoreConfig["content"]["faq"]>> {
+  const config = useStoreConfig();
+  return config.content?.faq ?? {};
+}
+
+/**
+ * Get pagination text/translations
+ */
+export function usePaginationText(): Partial<NonNullable<StoreConfig["content"]["pagination"]>> {
+  const config = useStoreConfig();
+  return config.content?.pagination ?? {};
 }
 
 /**
@@ -2005,6 +2023,29 @@ export function useDesignTokens() {
 export function useCheckoutUiConfig() {
   const config = useStoreConfig();
   return config.checkoutUi;
+}
+
+// ============================================
+// COMPONENT DESIGNER HOOKS
+// ============================================
+
+/**
+ * Get style overrides for a specific component by its registry key.
+ * Returns undefined if no overrides exist for this component.
+ * Key format: "homepage.hero", "plp.filterSidebar", etc.
+ */
+export function useComponentStyle(key: string) {
+  const config = useStoreConfig();
+  return config.componentOverrides?.[key];
+}
+
+/**
+ * Get custom Tailwind classes for a component (from Component Designer).
+ * Returns empty string if none configured — safe to pass to cn().
+ */
+export function useComponentClasses(key: string): string {
+  const style = useComponentStyle(key);
+  return style?.customClasses ?? "";
 }
 
 // Re-export homepage section types from shared package

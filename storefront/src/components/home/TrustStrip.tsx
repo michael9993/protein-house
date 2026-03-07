@@ -1,7 +1,7 @@
 "use client";
 
 import { Truck, RotateCcw, ShieldCheck, Headphones } from "lucide-react";
-import { useBranding, useEcommerceSettings, useTrustStripConfig } from "@/providers/StoreConfigProvider";
+import { useBranding, useEcommerceSettings, useTrustStripConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { formatMoney } from "@/lib/utils";
 
 /**
@@ -12,6 +12,8 @@ export function TrustStrip() {
   const { colors } = useBranding();
   const ecommerce = useEcommerceSettings();
   const config = useTrustStripConfig();
+  const cdStyle = useComponentStyle("homepage.trustStrip");
+  const cdClasses = useComponentClasses("homepage.trustStrip");
 
   // Use config values with fallback chain
   const enabled = config?.enabled ?? true;
@@ -41,8 +43,13 @@ export function TrustStrip() {
 
   return (
     <section
-      className="border-b border-neutral-100"
+      data-cd="homepage-trustStrip"
+      className={`border-b border-neutral-100 ${cdClasses}`}
       aria-label="Trust indicators"
+      style={{
+        ...(cdStyle?.backgroundColor && { background: `var(--cd-homepage-trustStrip-bg)` }),
+        ...(cdStyle?.textColor && { color: `var(--cd-homepage-trustStrip-text)` }),
+      }}
     >
       <div className="mx-auto max-w-[var(--design-container-max)] px-6 py-5 lg:px-12">
         <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 md:justify-between">

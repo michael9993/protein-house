@@ -4,14 +4,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { LinkWithChannel } from "../atoms/LinkWithChannel";
-import { 
-	useBranding, 
+import {
+	useBranding,
 	useStoreInfo,
 	useSocialLinks,
 	useFooterConfig,
 	useFooterText,
 	useOrderTrackingText,
 	useContentConfig,
+	useComponentStyle,
+	useComponentClasses,
 } from "@/providers/StoreConfigProvider";
 import { useNewsletterState } from "@/hooks/useNewsletterState";
 import { isAlreadySubscribed, NEWSLETTER_STORAGE_KEY } from "@/lib/newsletter";
@@ -178,6 +180,8 @@ export function FooterClient({ menuItems, channel }: FooterClientPropsWithChanne
 	const store = useStoreInfo();
 	const socialLinks = useSocialLinks();
 	const footerConfig = useFooterConfig();
+	const cdStyle = useComponentStyle("layout.footer");
+	const cdClasses = useComponentClasses("layout.footer");
 	const footerText = useFooterText();
 	const contentConfig = useContentConfig();
 	const [imageError, setImageError] = useState(false);
@@ -272,11 +276,13 @@ export function FooterClient({ menuItems, channel }: FooterClientPropsWithChanne
 		!imageError;
 
 	return (
-		<footer 
-			className="border-t"
-			style={{ 
-				backgroundColor: branding.colors.secondary,
+		<footer
+			data-cd="layout-footer"
+			className={`border-t ${cdClasses}`}
+			style={{
+				background: cdStyle?.backgroundColor ? `var(--cd-layout-footer-bg)` : branding.colors.secondary,
 				borderColor: `${branding.colors.textMuted}20`,
+				...(cdStyle?.textColor && { color: `var(--cd-layout-footer-text)` }),
 			}}
 		>
 			<div className="mx-auto max-w-7xl px-4 lg:px-8">

@@ -78,20 +78,61 @@ const ORDERS_WITH_METADATA = gql`
 
 interface DropshipMeta {
   status: string;
-  supplier: string;
+  /** Single supplier ID (flat format from exception approval). */
+  supplier?: string;
+  /** Supplier map (from auto-forward use-case): { cj: "SD...", aliexpress: "AE..." }. */
+  suppliers?: Record<string, string>;
   supplierOrderId?: string;
   trackingNumber?: string;
   forwardedAt?: string;
   shippedAt?: string;
   cost?: number;
+  totalCost?: number;
+  cancelledAt?: string;
+  approvedByAdmin?: boolean;
 }
 
-function parseDropshipMeta(metadata: Array<{ key: string; value: string }>): DropshipMeta | null {
+/** Normalized view for display. */
+interface ParsedDropshipOrder {
+  status: string;
+  supplier: string;
+  supplierOrderId: string | undefined;
+  trackingNumber: string | undefined;
+  forwardedAt: string | undefined;
+  shippedAt: string | undefined;
+  cost: number | undefined;
+  cancelledAt: string | undefined;
+}
+
+function parseDropshipMeta(metadata: Array<{ key: string; value: string }>): ParsedDropshipOrder | null {
   const entry = metadata.find((m) => m.key === "dropship");
   if (!entry) return null;
 
   try {
-    return JSON.parse(entry.value);
+    const raw: DropshipMeta = JSON.parse(entry.value);
+
+    // Normalize: use-case writes `suppliers` map, exception approval writes `supplier` string
+    let supplier = raw.supplier ?? "";
+    let supplierOrderId = raw.supplierOrderId;
+
+    if (raw.suppliers && typeof raw.suppliers === "object") {
+      const entries = Object.entries(raw.suppliers);
+      if (entries.length > 0) {
+        supplier = entries[0][0];
+        supplierOrderId = entries[0][1];
+      }
+    }
+
+    return {
+      status: raw.status,
+      supplier,
+      supplierOrderId,
+      trackingNumber: raw.trackingNumber,
+      forwardedAt: raw.forwardedAt,
+      shippedAt: raw.shippedAt,
+      cost: raw.totalCost ?? raw.cost,
+      cancelledAt: raw.cancelledAt,
+    };
   } catch {
     return null;
   }
@@ -280,6 +321,7 @@ export const ordersRouter = router({
               totalPrice { gross { amount currency } }
               variant {
                 id
+                metadata { key value }
                 product { metadata { key value } }
               }
             }
@@ -372,5 +414,198 @@ export const ordersRouter = router({
       }
 
       return { success: forwarded > 0, forwarded, errors };
+    }),
+
+  cancelOrder: protectedClientProcedure
+    .input(z.object({ orderId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      logger.info("Cancel order requested", { orderId: input.orderId });
+
+      // Fetch order metadata to find supplier order ID
+      const ORDER_META = gql`
+        query FetchOrderMetaForCancel($id: ID!) {
+          order(id: $id) {
+            id
+            number
+            metadata { key value }
+          }
+        }
+      `;
+
+      const { data, error } = await ctx.apiClient.query(ORDER_META, { id: input.orderId }).toPromise();
+
+      if (error || !data?.order) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Order not found: ${error?.message ?? "Unknown error"}`,
+        });
+      }
+
+      const meta = parseDropshipMeta(data.order.metadata);
+
+      if (!meta) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Order has no dropship metadata",
+        });
+      }
+
+      const errors: string[] = [];
+      let supplierCancelled = false;
+
+      // If there's a supplier order ID, attempt to cancel at the supplier
+      if (meta.supplierOrderId && meta.supplier) {
+        const adapter = supplierRegistry.getAdapter(meta.supplier);
+
+        if (adapter) {
+          const appId = await fetchAppId(ctx.apiClient);
+
+          if (appId) {
+            const creds = await getSupplierCredentials(ctx.apiClient, appId, meta.supplier);
+
+            if (creds) {
+              const authToken: AuthToken = {
+                accessToken: creds.accessToken ?? "",
+                expiresAt: creds.tokenExpiresAt ? new Date(creds.tokenExpiresAt) : new Date(Date.now() + 86400_000),
+                refreshToken: ("refreshToken" in creds ? creds.refreshToken : undefined) as string | undefined,
+              };
+
+              const cancelResult = await adapter.cancelOrder(meta.supplierOrderId, authToken);
+
+              if (cancelResult.isOk()) {
+                supplierCancelled = true;
+                logger.info("Supplier order cancelled", {
+                  orderId: input.orderId,
+                  supplier: meta.supplier,
+                  supplierOrderId: meta.supplierOrderId,
+                });
+              } else {
+                errors.push(`Supplier cancel failed: ${cancelResult.error.message}`);
+                logger.warn("Supplier cancel failed", {
+                  orderId: input.orderId,
+                  supplier: meta.supplier,
+                  error: cancelResult.error.message,
+                });
+              }
+            } else {
+              errors.push("No credentials found for supplier");
+            }
+          } else {
+            errors.push("Cannot resolve app ID");
+          }
+        } else {
+          errors.push(`No adapter for supplier "${meta.supplier}"`);
+        }
+      }
+
+      // Update order metadata to cancelled status
+      const UPDATE_META = gql`
+        mutation UpdateOrderMetaCancel($id: ID!, $input: [MetadataInput!]!) {
+          updateMetadata(id: $id, input: $input) {
+            item { metadata { key value } }
+            errors { field message }
+          }
+        }
+      `;
+
+      // Read existing metadata to preserve supplier info
+      const existingEntry = data.order.metadata.find((m: any) => m.key === "dropship");
+      let existingMeta: Record<string, unknown> = {};
+      if (existingEntry) {
+        try { existingMeta = JSON.parse(existingEntry.value); } catch { /* empty */ }
+      }
+
+      await ctx.apiClient
+        .mutation(UPDATE_META, {
+          id: input.orderId,
+          input: [
+            {
+              key: "dropship",
+              value: JSON.stringify({
+                ...existingMeta,
+                status: "cancelled",
+                cancelledAt: new Date().toISOString(),
+                supplierCancelled,
+              }),
+            },
+          ],
+        })
+        .toPromise();
+
+      await logAuditEvent(ctx.apiClient, {
+        type: "order_cancelled",
+        supplierId: meta.supplier || "unknown",
+        orderId: input.orderId,
+        action: `Order cancelled${supplierCancelled ? " (supplier notified)" : " (local only)"}`,
+        status: "success",
+        timestamp: new Date().toISOString(),
+      });
+
+      return {
+        success: true,
+        supplierCancelled,
+        errors,
+      };
+    }),
+
+  updateStatus: protectedClientProcedure
+    .input(
+      z.object({
+        orderId: z.string(),
+        status: DropshipOrderStatusEnum,
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      logger.info("Update order status", { orderId: input.orderId, status: input.status });
+
+      const ORDER_META = gql`
+        query FetchOrderMetaForUpdate($id: ID!) {
+          order(id: $id) {
+            id
+            metadata { key value }
+          }
+        }
+      `;
+
+      const { data, error } = await ctx.apiClient.query(ORDER_META, { id: input.orderId }).toPromise();
+
+      if (error || !data?.order) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Order not found: ${error?.message ?? "Unknown error"}`,
+        });
+      }
+
+      const existingEntry = data.order.metadata.find((m: any) => m.key === "dropship");
+      let existingMeta: Record<string, unknown> = {};
+      if (existingEntry) {
+        try { existingMeta = JSON.parse(existingEntry.value); } catch { /* empty */ }
+      }
+
+      const UPDATE_META = gql`
+        mutation UpdateOrderMetaStatus($id: ID!, $input: [MetadataInput!]!) {
+          updateMetadata(id: $id, input: $input) {
+            item { metadata { key value } }
+            errors { field message }
+          }
+        }
+      `;
+
+      await ctx.apiClient
+        .mutation(UPDATE_META, {
+          id: input.orderId,
+          input: [
+            {
+              key: "dropship",
+              value: JSON.stringify({
+                ...existingMeta,
+                status: input.status,
+              }),
+            },
+          ],
+        })
+        .toPromise();
+
+      return { success: true };
     }),
 });

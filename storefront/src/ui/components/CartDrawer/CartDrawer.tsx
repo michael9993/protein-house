@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useCartDrawer } from '@/providers/CartDrawerProvider';
 import { useDirection } from '@/providers/DirectionProvider';
-import { useBranding, useContentConfig, useBadgeStyle, useUiConfig, useEcommerceSettings } from '@/providers/StoreConfigProvider';
+import { useBranding, useContentConfig, useBadgeStyle, useUiConfig, useEcommerceSettings, useComponentStyle, useComponentClasses } from '@/providers/StoreConfigProvider';
 import { formatMoney } from '@/lib/utils';
 import { mapPromoCodeError } from '@/lib/checkout/promo-error-map';
 
@@ -72,6 +72,8 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
   const ui = useUiConfig();
   const ecommerce = useEcommerceSettings();
   const saleBadgeStyle = useBadgeStyle("sale");
+  const cdStyle = useComponentStyle("cart.drawer");
+  const cdClasses = useComponentClasses("cart.drawer");
   const drawerRef = useRef<HTMLDivElement>(null);
   const hasInteracted = useRef(false);
 
@@ -242,12 +244,17 @@ export function CartDrawer({ checkoutData, onUpdateQuantity, onDeleteLine, onApp
       {/* Drawer */}
       <div
         ref={drawerRef}
+        data-cd="cart-drawer"
         role="dialog"
         aria-modal="true"
         aria-label={cartText?.cartTitle ?? 'Shopping Cart'}
         tabIndex={-1}
-        className={`cart-drawer ${isOpen ? 'cart-drawer--open' : ''} ${isLeft ? 'cart-drawer--left' : ''} ${!hasInteracted.current && !isOpen ? 'cart-drawer--no-transition' : ''}`}
+        className={`cart-drawer ${isOpen ? 'cart-drawer--open' : ''} ${isLeft ? 'cart-drawer--left' : ''} ${!hasInteracted.current && !isOpen ? 'cart-drawer--no-transition' : ''} ${cdClasses}`}
         dir={isRTL ? 'rtl' : 'ltr'}
+        style={{
+          ...(cdStyle?.backgroundColor && { background: `var(--cd-cart-drawer-bg)` }),
+          ...(cdStyle?.textColor && { color: `var(--cd-cart-drawer-text)` }),
+        }}
       >
         {/* Header */}
         <div className="cart-drawer__header">

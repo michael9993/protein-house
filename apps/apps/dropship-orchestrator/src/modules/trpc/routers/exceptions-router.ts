@@ -57,6 +57,10 @@ const FETCH_ORDER_FOR_FORWARDING = gql`
         }
         variant {
           id
+          metadata {
+            key
+            value
+          }
           product {
             metadata {
               key

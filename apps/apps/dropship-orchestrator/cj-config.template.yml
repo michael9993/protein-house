@@ -1,0 +1,139 @@
+# =============================================================================
+# CJ Dropshipping Integration Configuration Template
+# =============================================================================
+#
+# This template documents every setting needed for CJ integration.
+# Fill in values and apply them via the Dropship Orchestrator admin UI
+# at: Dashboard > Apps > Dropship Orchestrator > Suppliers > CJ
+#
+# For step-by-step setup instructions, see CJ-INTEGRATION-GUIDE.md
+# For full documentation, see SETUP.md
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# 1. CJ API Credentials
+# -----------------------------------------------------------------------------
+# Get your API key from: https://developers.cjdropshipping.com/
+# Navigate to: My Account > API Management > Create API Key
+cj_credentials:
+  api_key: ""  # Required. Example: "a1b2c3d4e5f6..."
+
+# -----------------------------------------------------------------------------
+# 2. Webhook URLs
+# -----------------------------------------------------------------------------
+# Register these URLs in your CJ developer portal under Webhook Settings.
+# Replace <YOUR_DOMAIN> with your production domain or tunnel URL.
+#
+# In development, use the Cloudflare tunnel URL configured in
+# infra/cloudflared-config.yml (default: dropship.halacosmetics.org)
+webhook_urls:
+  order_status: "https://<YOUR_DOMAIN>/api/webhooks/cj/order"
+  logistics:    "https://<YOUR_DOMAIN>/api/webhooks/cj/logistics"
+  stock_update: "https://<YOUR_DOMAIN>/api/webhooks/cj/stock"
+
+# -----------------------------------------------------------------------------
+# 3. Orchestrator Settings
+# -----------------------------------------------------------------------------
+# Configure via: Admin UI > Settings > General tab
+orchestrator_settings:
+  enabled: true                  # Master switch for CJ supplier
+  auto_forward_orders: true      # Auto-forward paid orders to CJ
+  cost_ceiling_percent: 70       # Max supplier cost as % of sell price (0-100)
+  daily_spend_limit_usd: 1000   # Pause auto-ordering when daily spend exceeds this
+
+# -----------------------------------------------------------------------------
+# 4. Fraud Detection
+# -----------------------------------------------------------------------------
+# Configure via: Admin UI > Settings > Fraud Detection tab
+# Orders scoring >= 50 points are routed to the exception queue for manual review
+fraud_detection:
+  enabled: true
+
+  velocity_check:
+    enabled: true
+    max_orders_per_hour: 3       # Flag if customer exceeds this rate
+    max_spend_per_24h_usd: 500   # Flag if customer spends more than this in 24h
+
+  address_mismatch:
+    enabled: true
+    mode: "flag"                 # "flag" = send to exception queue, "block" = reject order
+
+  value_threshold:
+    enabled: true
+    high_value_usd: 200          # Flag orders above this amount
+    new_customer_high_value_usd: 100  # Lower threshold for first-time buyers
+
+  blacklist:
+    enabled: true
+    # Manage entries via: Admin UI > Settings > Blacklist tab
+    # Entry format: { type: email|address|phone|ip, value: "...", reason: "..." }
+    entries: []
+
+# -----------------------------------------------------------------------------
+# 5. IP Whitelist (Webhook Security)
+# -----------------------------------------------------------------------------
+# CJ uses IP whitelisting (not HMAC) for webhook security.
+# Configure via: Admin UI > Settings > IP Whitelist tab
+#
+# These are CJ's known outbound IP ranges as of 2025.
+# Verify current IPs at: https://developers.cjdropshipping.com/
+ip_whitelist:
+  enabled: true                  # Strongly recommended for production
+  allowed_ips:
+    - "47.252.50.116/32"
+    - "47.252.50.117/32"
+    - "47.252.50.118/32"
+    - "47.252.50.119/32"
+    - "47.88.76.0/24"
+
+# -----------------------------------------------------------------------------
+# 6. Margin Protection
+# -----------------------------------------------------------------------------
+# Configure via: Storefront Control App > Global Design > Integrations & Tools
+# Uses the ecommerce schema's margin protection settings
+margin_protection:
+  enabled: false                 # Enable to track supplier price drift
+  threshold_percent: 15          # Alert if CJ price drifts more than 15% from recorded cost
+  track_original_prices: true    # Store original cost prices for comparison
+
+# -----------------------------------------------------------------------------
+# 7. Product Tagging in Saleor
+# -----------------------------------------------------------------------------
+# Each CJ product in your Saleor catalog needs private metadata to link it
+# to CJ. Add these via Dashboard > Products > [Product] > Metadata (private).
+#
+# All metadata lives under the "dropship" key as a JSON object.
+product_tagging:
+  metadata_key: "dropship"
+  # Example metadata value for a CJ product:
+  metadata_value:
+    supplier: "cj"                         # Required. Must be "cj"
+    supplierSku: "<CJ_VARIANT_VID>"        # Required. The CJ variant ID (vid)
+    supplierProductId: "<CJ_PRODUCT_PID>"  # Required. The CJ product ID (pid)
+    costPrice: 0.00                        # Wholesale cost in USD
+    costCurrency: "USD"                    # Cost currency (always USD for CJ)
+    supplierUrl: ""                        # Optional. Direct CJ product link
+
+# Optional: shipping estimate metadata (separate keys on the product)
+shipping_estimates:
+  estimated_min_days: "shipping.estimatedMinDays"   # e.g., 7
+  estimated_max_days: "shipping.estimatedMaxDays"   # e.g., 15
+  carrier: "shipping.carrier"                       # e.g., "CJ Packet"
+
+# -----------------------------------------------------------------------------
+# 8. Environment Variables
+# -----------------------------------------------------------------------------
+# Add these to infra/.env (or your deployment environment)
+environment:
+  DROPSHIP_APP_PORT: 3009
+  DROPSHIP_APP_TUNNEL_URL: ""    # Required for production (public URL for CJ webhooks)
+  SECRET_KEY: ""                 # Required. Generate with: openssl rand -hex 32
+  REDIS_URL: "redis://saleor-redis-dev:6379"  # Default for development
+
+# -----------------------------------------------------------------------------
+# 9. Background Jobs (automatic, no configuration needed)
+# -----------------------------------------------------------------------------
+# These run automatically when the app starts:
+#   - Tracking sync:     Every 2 hours  (polls CJ for tracking updates)
+#   - Reconciliation:    Every 6 hours  (verifies order states match)
+#   - Token refresh:     Every 12 days  (CJ tokens expire after 15 days)

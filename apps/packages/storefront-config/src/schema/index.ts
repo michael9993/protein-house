@@ -21,6 +21,7 @@ export * from "./content";
 export * from "./storefront";
 export * from "./design";
 export * from "./checkout-ui";
+export * from "./component-overrides";
 
 // Import domain schemas for assembly
 import { StoreSchema } from "./store";
@@ -42,6 +43,7 @@ import { ContentSchema } from "./content";
 import { StorefrontUXSchema, RelatedProductsSchema } from "./storefront";
 import { DesignTokensSchema } from "./design";
 import { CheckoutUiSchema } from "./checkout-ui";
+import { ComponentOverridesSchema } from "./component-overrides";
 
 // ============================================
 // FULL CONFIG SCHEMA
@@ -73,4 +75,5 @@ export const StorefrontConfigSchema = z.object({
   design: DesignTokensSchema,
   checkoutUi: CheckoutUiSchema,
   cardOverrides: CardOverridesSchema.optional(),
+  componentOverrides: ComponentOverridesSchema,
 });

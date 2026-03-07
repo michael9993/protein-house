@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useContentConfig } from "@/providers/StoreConfigProvider";
 import { deleteLineFromCheckout } from "./actions";
 
 type Props = {
@@ -10,6 +11,9 @@ type Props = {
 
 export const DeleteLineButton = ({ lineId, checkoutId }: Props) => {
 	const [isPending, startTransition] = useTransition();
+	const content = useContentConfig();
+	const removeLabel = content.cart?.removeButton ?? content.cart?.deleteButton ?? "Remove";
+	const removingLabel = content.cart?.removingText ?? "Removing";
 
 	return (
 		<button
@@ -21,7 +25,7 @@ export const DeleteLineButton = ({ lineId, checkoutId }: Props) => {
 			}}
 			aria-disabled={isPending}
 		>
-			{isPending ? "Removing" : "Remove"}
+			{isPending ? removingLabel : removeLabel}
 			<span className="sr-only">line from cart</span>
 		</button>
 	);

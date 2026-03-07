@@ -1,27 +1,11 @@
-import { useCallback } from "react";
-import {
-  CreditCard,
-  FileText,
-  Globe,
-  Home,
-  LayoutDashboard,
-  Package,
-  PanelTop,
-  ShoppingCart,
-  User,
-} from "lucide-react";
+import { useCallback, useMemo } from "react";
 import type { LucideIcon } from "lucide-react";
 import { useRouter } from "next/router";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
-
-interface NavItem {
-  label: string;
-  icon: LucideIcon;
-  href: string;
-  page: string;
-}
+import { getNavItems, type NavItem } from "@/lib/page-registry";
+import { trpcClient } from "@/modules/trpc/trpc-client";
 
 interface SidebarProps {
   channelSlug: string;
@@ -29,57 +13,24 @@ interface SidebarProps {
   activePage: string;
 }
 
-function getNavItems(channelSlug: string): NavItem[] {
-  const base = `/${channelSlug}`;
-
-  return [
-    {
-      label: "Dashboard",
-      icon: LayoutDashboard,
-      href: base,
-      page: "dashboard",
-    },
-    { label: "Global", icon: Globe, href: `${base}/global`, page: "global" },
-    { label: "Homepage", icon: Home, href: `${base}/homepage`, page: "homepage" },
-    {
-      label: "Layout",
-      icon: PanelTop,
-      href: `${base}/layout-config`,
-      page: "layout-config",
-    },
-    { label: "Catalog", icon: Package, href: `${base}/catalog`, page: "catalog" },
-    {
-      label: "Product Cards",
-      icon: CreditCard,
-      href: `${base}/product-cards`,
-      page: "product-cards",
-    },
-    {
-      label: "Cart & Checkout",
-      icon: ShoppingCart,
-      href: `${base}/cart-checkout`,
-      page: "cart-checkout",
-    },
-    {
-      label: "Account",
-      icon: User,
-      href: `${base}/account-config`,
-      page: "account-config",
-    },
-    {
-      label: "Other Pages",
-      icon: FileText,
-      href: `${base}/other-pages`,
-      page: "other-pages",
-    },
-  ];
-}
-
 export function Sidebar({ channelSlug, channelName, activePage }: SidebarProps) {
   const router = useRouter();
-  const navItems = getNavItems(channelSlug);
-  const dashboardItem = navItems[0];
-  const sectionItems = navItems.slice(1);
+  const { dashboard, pages, global } = getNavItems(channelSlug);
+
+  // Lightweight override count — piggybacks on cached config query
+  const { data: config } = trpcClient.config.getConfig.useQuery(
+    { channelSlug },
+    { staleTime: 60_000 }
+  );
+  const overrideCount = useMemo(() => {
+    const overrides = config?.componentOverrides;
+    if (!overrides || typeof overrides !== "object") return 0;
+    // Only count components that have at least one non-empty property
+    return Object.values(overrides).filter(
+      (v) => v && typeof v === "object" &&
+        Object.values(v as Record<string, unknown>).some((sv) => sv != null && sv !== "")
+    ).length;
+  }, [config?.componentOverrides]);
 
   const navigate = useCallback(
     (href: string) => {
@@ -105,24 +56,42 @@ export function Sidebar({ channelSlug, channelName, activePage }: SidebarProps) 
 
       <nav className="flex-1 px-3 py-3 space-y-1">
         {/* Dashboard Link */}
-        {dashboardItem && (
-          <NavLink
-            item={dashboardItem}
-            isActive={activePage === dashboardItem.page}
-            onNavigate={navigate}
-          />
-        )}
+        <NavLink
+          item={dashboard}
+          isActive={activePage === dashboard.page}
+          onNavigate={navigate}
+        />
 
         {/* Divider */}
         <div className="my-2 border-t border-sidebar-border" />
 
-        {/* Section Links */}
-        {sectionItems.map((item) => (
+        {/* Pages Section */}
+        <p className="px-3 pt-1 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+          Pages
+        </p>
+        {pages.map((item) => (
           <NavLink
             key={item.page}
             item={item}
             isActive={activePage === item.page}
             onNavigate={navigate}
+          />
+        ))}
+
+        {/* Divider */}
+        <div className="my-2 border-t border-sidebar-border" />
+
+        {/* Global Section */}
+        <p className="px-3 pt-1 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+          Global
+        </p>
+        {global.map((item) => (
+          <NavLink
+            key={item.page}
+            item={item}
+            isActive={activePage === item.page}
+            onNavigate={navigate}
+            badge={item.page === "component-designer" ? overrideCount : undefined}
           />
         ))}
       </nav>
@@ -134,9 +103,10 @@ interface NavLinkProps {
   item: NavItem;
   isActive: boolean;
   onNavigate: (href: string) => void;
+  badge?: number;
 }
 
-function NavLink({ item, isActive, onNavigate }: NavLinkProps) {
+function NavLink({ item, isActive, onNavigate, badge }: NavLinkProps) {
   const Icon = item.icon;
 
   return (
@@ -151,7 +121,19 @@ function NavLink({ item, isActive, onNavigate }: NavLinkProps) {
       )}
     >
       <Icon className="h-4 w-4 shrink-0" />
-      <span>{item.label}</span>
+      <span className="flex-1">{item.label}</span>
+      {badge !== undefined && badge > 0 && (
+        <span
+          className={cn(
+            "inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold",
+            isActive
+              ? "bg-primary-foreground/20 text-primary-foreground"
+              : "bg-primary/10 text-primary"
+          )}
+        >
+          {badge}
+        </span>
+      )}
     </button>
   );
 }

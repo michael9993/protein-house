@@ -196,7 +196,7 @@ export function CheckoutPageV2({
 	return (
 		<CheckoutStateProvider initialCheckout={initialCheckout}>
 			<CheckoutTextProvider config={checkoutText}>
-				<div className="min-h-dvh bg-gradient-to-b from-neutral-50 to-white print:bg-white">
+				<div data-cd="checkout-page" className="min-h-dvh bg-gradient-to-b from-neutral-50 to-white print:bg-white">
 					<section className="mx-auto flex min-h-dvh max-w-7xl flex-col px-4 py-6 sm:px-8">
 						<CheckoutHeader channel={channel} />
 						<CheckoutProgressBar />

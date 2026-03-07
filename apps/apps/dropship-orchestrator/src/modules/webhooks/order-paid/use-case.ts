@@ -9,6 +9,8 @@ import { logAuditEvent } from "@/modules/audit/audit-logger";
 import { runFraudChecks } from "@/modules/fraud/fraud-checker";
 import { mergeFraudConfig } from "@/modules/fraud/config";
 import type { BlacklistEntry, ExceptionRecord, FraudCheckResult, OrderForFraudCheck } from "@/modules/fraud/types";
+import { getCountryName } from "@/modules/lib/country-names";
+import { getRedisConnection } from "@/modules/jobs/queues";
 import { checkCostCeiling } from "@/modules/pricing/cost-ceiling";
 import {
   fetchAppId,
@@ -92,6 +94,10 @@ const FETCH_ORDER_WITH_LINES = gql`
         }
         variant {
           id
+          metadata {
+            key
+            value
+          }
           product {
             metadata {
               key
@@ -222,6 +228,23 @@ function generateIdempotencyKey(orderId: string, supplierId: string): string {
 
 async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** Store a CJ/supplier order ID → Saleor order ID mapping in Redis for O(1) webhook lookups. */
+const REVERSE_INDEX_PREFIX = "dropship:supplier-order:";
+const REVERSE_INDEX_TTL = 90 * 24 * 60 * 60; // 90 days
+
+async function storeSupplierOrderIndex(supplierOrderId: string, saleorOrderId: string): Promise<void> {
+  try {
+    const redis = getRedisConnection();
+    await redis.set(REVERSE_INDEX_PREFIX + supplierOrderId, saleorOrderId, "EX", REVERSE_INDEX_TTL);
+  } catch (error) {
+    logger.warn("Failed to store supplier order reverse index", {
+      supplierOrderId,
+      saleorOrderId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
 }
 
 async function getExceptions(client: Client): Promise<{ appId: string; exceptions: ExceptionRecord[] }> {
@@ -668,6 +691,9 @@ export async function handleOrderPaid(
         },
         shippingMethod: order.shippingMethodName || "standard",
         idempotencyKey,
+        lineItemId: line.id,
+        countryName: getCountryName(order.shippingAddress?.country?.code ?? ""),
+        customerEmail: order.userEmail ?? order.user?.email,
       };
 
       const forwardStart = Date.now();
@@ -704,6 +730,9 @@ export async function handleOrderPaid(
           cost: supplierResponse.cost.amount,
           currency: supplierResponse.cost.currency,
         });
+
+        // Store reverse index for O(1) webhook lookups
+        await storeSupplierOrderIndex(supplierResponse.supplierOrderId, orderId);
 
         await logAuditEvent(client, {
           type: "order_forwarded",

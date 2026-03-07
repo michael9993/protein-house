@@ -59,6 +59,15 @@ function OrdersList() {
     },
   });
 
+  const cancelMutation = trpcClient.orders.cancelOrder.useMutation({
+    onSuccess: (result) => {
+      if (result.errors.length > 0) {
+        alert(`Order cancelled locally but supplier cancel had issues:\n${result.errors.join("\n")}`);
+      }
+      refetch();
+    },
+  });
+
   if (isLoading) {
     return (
       <div className="p-8">
@@ -159,7 +168,12 @@ function OrdersList() {
             style={{ gridTemplateColumns: "80px 1fr 120px 100px 100px 140px 120px" }}
           >
             <span className="font-semibold">#{order.number}</span>
-            <span className="text-sm">{order.supplier === "aliexpress" ? "AliExpress" : "CJ"}</span>
+            <div className="flex flex-col">
+              <span className="text-sm">{order.supplier === "aliexpress" ? "AliExpress" : order.supplier === "cj" ? "CJ" : order.supplier || "—"}</span>
+              {order.supplierOrderId && (
+                <span className="text-xs text-text-muted truncate" title={order.supplierOrderId}>{order.supplierOrderId}</span>
+              )}
+            </div>
             <div>
               <span className={`inline-block px-2 py-1 rounded-lg text-xs ${statusBadgeCls(order.dropshipStatus)}`}>
                 {order.dropshipStatus.replace("_", " ").toUpperCase()}
@@ -184,6 +198,19 @@ function OrdersList() {
                   onClick={() => retryMutation.mutate({ orderId: order.id })}
                 >
                   Retry
+                </button>
+              )}
+              {(order.dropshipStatus === "forwarded" || order.dropshipStatus === "pending" || order.dropshipStatus === "failed") && (
+                <button
+                  className="px-2.5 py-1 text-sm font-medium text-red-600 border border-red-200 rounded-md hover:bg-red-50 disabled:opacity-50 transition-colors"
+                  disabled={cancelMutation.isLoading}
+                  onClick={() => {
+                    if (confirm(`Cancel order #${order.number}? This will attempt to cancel at the supplier too.`)) {
+                      cancelMutation.mutate({ orderId: order.id });
+                    }
+                  }}
+                >
+                  Cancel
                 </button>
               )}
               {order.trackingNumber && (

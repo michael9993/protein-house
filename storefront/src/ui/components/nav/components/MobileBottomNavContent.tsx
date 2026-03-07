@@ -1,7 +1,7 @@
 "use client";
 
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
-import { useBranding, useContentConfig } from "@/providers/StoreConfigProvider";
+import { useBranding, useContentConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { MobileCartButtonClient } from "./MobileCartButtonClient";
 import { MobileAccountButtonClient } from "./MobileAccountButtonClient";
 
@@ -26,6 +26,8 @@ export function MobileBottomNavContent({
 }) {
   const branding = useBranding();
   const content = useContentConfig();
+  const cdStyle = useComponentStyle("layout.mobileBottomNav");
+  const cdClasses = useComponentClasses("layout.mobileBottomNav");
   const navbarText = content.navbar;
 
   const [isVisible, setIsVisible] = useState(true);
@@ -65,12 +67,13 @@ export function MobileBottomNavContent({
   }, [lastScrollY, isProductDetail]);
 
   return (
-    <nav 
+    <nav
+      data-cd="layout-mobileBottomNav"
       className={`fixed bottom-0 left-0 right-0 z-50 md:hidden transition-transform duration-300 ease-in-out ${
         isVisible ? "translate-y-0" : "translate-y-full"
-      }`}
+      } ${cdClasses}`}
       style={{
-        backgroundColor: "var(--store-mobile-nav-bg)",
+        background: cdStyle?.backgroundColor ? 'var(--cd-layout-mobileBottomNav-bg)' : "var(--store-mobile-nav-bg)",
         backdropFilter: "blur(16px)",
         borderTop: "1px solid var(--store-neutral-200)",
         boxShadow: "0 -4px 20px rgba(0, 0, 0, 0.08)",

@@ -36,9 +36,10 @@ export interface OrderLine {
       currency: string;
     };
   };
-  /** Product-level metadata — Saleor includes this when the line's variant is fetched with metadata. */
+  /** Variant + product metadata — classifier merges both to find dropship markers. */
   variant: {
     id: string;
+    metadata?: Array<{ key: string; value: string }>;
     product: {
       metadata: Array<{ key: string; value: string }>;
     };
@@ -160,8 +161,12 @@ export function classifyOrderLines(orderLines: OrderLine[]): ClassifiedOrder {
   const dropship = new Map<string, { lines: OrderLine[]; metadata: DropshipMetadata[] }>();
 
   for (const line of orderLines) {
+    // Merge product-level and variant-level metadata.
+    // supplierSku lives on the variant; supplier and costPrice live on the product.
     const productMeta = line.variant?.product?.metadata ?? [];
-    const dropshipMeta = extractDropshipMetadata(productMeta);
+    const variantMeta = line.variant?.metadata ?? [];
+    const mergedMeta = [...productMeta, ...variantMeta];
+    const dropshipMeta = extractDropshipMetadata(mergedMeta);
 
     if (!dropshipMeta) {
       concrete.push(line);

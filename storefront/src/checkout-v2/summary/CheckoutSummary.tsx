@@ -59,6 +59,7 @@ export function CheckoutSummary({ channel: _channel }: CheckoutSummaryProps) {
 
 	return (
 		<aside
+			data-cd="checkout-summary"
 			aria-label={t.orderSummaryTitle ?? "Order Summary"}
 			className="rounded-xl border border-neutral-200 bg-white shadow-sm"
 			style={{ contain: "layout" }}

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { formatMoney } from "@/lib/utils";
-import { useBranding, useDashboardText, useOrdersText } from "@/providers/StoreConfigProvider";
+import { useBranding, useDashboardText, useOrdersText, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 
 interface Order {
 	id: string;
@@ -21,6 +21,8 @@ export function AccountDashboardContent({ channel, recentOrders }: AccountDashbo
 	const branding = useBranding();
 	const dashboardText = useDashboardText();
 	const ordersText = useOrdersText();
+	const cdStyle = useComponentStyle("account.dashboard");
+	const cdClasses = useComponentClasses("account.dashboard");
 
 	const statusLabels: Record<string, string> = {
 		UNFULFILLED: ordersText.statusProcessing,
@@ -32,7 +34,10 @@ export function AccountDashboardContent({ channel, recentOrders }: AccountDashbo
 	};
 
 	return (
-		<div className="rounded-lg border border-neutral-200 bg-white">
+		<div data-cd="account-dashboard" className={`rounded-lg border border-neutral-200 bg-white ${cdClasses}`} style={{
+			...(cdStyle?.backgroundColor && { background: 'var(--cd-account-dashboard-bg)' }),
+			...(cdStyle?.textColor && { color: 'var(--cd-account-dashboard-text)' }),
+		}}>
 			<div className="flex items-center justify-between border-b border-neutral-200 px-5 py-3.5">
 				<h2 className="text-sm font-semibold text-neutral-900">{dashboardText.recentOrders}</h2>
 				<Link

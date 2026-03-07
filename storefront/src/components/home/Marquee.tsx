@@ -1,6 +1,6 @@
 "use client";
 
-import { useBranding, useMarqueeConfig } from "@/providers/StoreConfigProvider";
+import { useBranding, useMarqueeConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 
 interface MarqueeProps {
   items: string[];
@@ -29,6 +29,8 @@ const DEFAULTS = {
 export function Marquee({ items }: MarqueeProps) {
   const { colors } = useBranding();
   const config = useMarqueeConfig();
+  const cdStyle = useComponentStyle("homepage.marquee");
+  const cdClasses = useComponentClasses("homepage.marquee");
 
   const enabled = config?.enabled ?? DEFAULTS.enabled;
   const speed = config?.speedSeconds ?? DEFAULTS.speedSeconds;
@@ -57,8 +59,13 @@ export function Marquee({ items }: MarqueeProps) {
 
   return (
     <section
-      className="py-4 border-y border-neutral-800"
+      data-cd="homepage-marquee"
+      className={`py-4 border-y border-neutral-800 ${cdClasses}`}
       aria-label="Brand marquee"
+      style={{
+        ...(cdStyle?.backgroundColor && { background: `var(--cd-homepage-marquee-bg)` }),
+        ...(cdStyle?.textColor && { color: `var(--cd-homepage-marquee-text)` }),
+      }}
     >
       {/* .marquee class in globals.css: flex, overflow:hidden, gap, dir:ltr */}
       <div className="marquee" style={{ "--marquee-speed": `${speed}s` } as React.CSSProperties}>

@@ -29,7 +29,7 @@ This project uses Docker Compose for local development. All services run in cont
 - **saleor-scheduler** - Celery beat scheduler for periodic tasks
 - **saleor-dashboard** - React admin dashboard (Vite + React 18 + Tailwind CSS v4 + macaw-ui-next + Lucide icons)
 - **saleor-storefront** - Next.js storefront
-- **saleor-storefront-control-app** - Storefront control CMS app (6-section admin: Store/Design/Pages/Commerce/Content/Integrations; shadcn/ui + Tailwind; Cmd+K command palette; live preview)
+- **saleor-storefront-control-app** - Storefront control CMS app (page-based admin: 10 pages — Homepage, Product Listing, Product Detail, Cart, Checkout, Account, Auth, Layout, Static Pages, Global Design; ComponentBlock UI; shadcn/ui + Tailwind; Cmd+K; live preview)
 - **saleor-bulk-manager-app** - Bulk import/export manager (products, categories, collections, customers, orders, vouchers, gift cards via CSV/Excel)
 - **saleor-image-studio-app** - AI-powered image editor (Fabric.js canvas, 12 templates, bg removal via rembg, AI generation via Nano Banana/Gemini, upscaling via Real-ESRGAN, Sharp enhancement, save to product)
 - **saleor-dropship-app** - Multi-supplier dropship orchestrator (AliExpress + CJ Dropshipping, auto-forward orders, tracking sync, fraud detection, exception queue, financial safety, admin dashboard)
@@ -327,24 +327,28 @@ docker compose -f infra/docker-compose.dev.yml ps
 
 ### Storefront Control App (`apps/apps/storefront-control/`)
 
-**Purpose**: Dashboard extension for managing storefront UI configuration — fully redesigned admin interface.
+**Purpose**: Dashboard extension for managing storefront UI configuration — page-based CMS admin like Shopify Theme Editor.
 
-**Architecture (Redesigned):**
+**Architecture (Page-Based CMS):**
 
-- **6-section navigation**: Store, Design, Pages, Commerce, Content, Integrations
+- **11 page-based navigation items**: Homepage, Product Listing, Product Detail, Cart, Checkout, Account, Auth Pages, Layout, Static Pages, Global Design, Component Designer
+- **PAGE_REGISTRY** (`src/lib/page-registry.ts`): Central registry mapping admin pages to config paths, blocks, and icons
+- **ComponentBlock UI**: Collapsible cards with icon, title, description, enable/disable toggle — like Shopify sections
 - **Tech stack**: shadcn/ui (19 primitives) + Radix UI + Tailwind CSS + React Hook Form + Zod
-- **Cmd+K command palette** with settings search across all sections
+- **Cmd+K command palette** with settings search across all pages
 - **Live preview** system via PostMessage iframe bridge
 - **`useConfigPage` hook** eliminates 30+ lines boilerplate per config page
-- **Content tab** split into 6 sub-tabs: Global, Shop, Catalog, Pages, Checkout, Account
 - **Homepage section reordering** via drag-and-drop (@dnd-kit)
 
-**Shared Config Package**: `@saleor/apps-storefront-config` — 20 domain schema files, Zod types, migrations
+**Shared Config Package**: `@saleor/apps-storefront-config` — 21 domain schema files, Zod types, migrations
+
+**Component Designer** (`component-designer` page): Visual playground for per-component style overrides. Split-panel UI (component tree + property editor). Generates `--cd-{key}-{prop}` CSS variables. Registry of 24 components. "Copy style from..." dropdown for duplicating overrides between components. Override count badge in sidebar nav.
 
 **Key Directories:**
-- Pages: `src/pages/[channelSlug]/` (store, design, pages-config, commerce, content/, integrations)
-- Components: `src/components/` (ui/ 19 primitives, layout/ 5, forms/ 12, shared/ 10, preview/ 3)
+- Pages: `src/pages/[channelSlug]/` (homepage/, global/, product-listing, product-detail, cart, checkout, account, auth-pages, layout-config, static-pages, component-designer)
+- Components: `src/components/` (ui/ 19 primitives, layout/ 5, forms/ 12, shared/ 11 incl. ComponentBlock, preview/ 3, pages/ homepage + global + component-designer tab components)
 - Hooks: `src/hooks/` (useConfigPage, usePreview)
+- Search: `src/lib/search/` (field-location-map, field-labels, types) + `src/lib/page-registry.ts`
 
 **Container**: `saleor-storefront-control-app` (port 3004)
 

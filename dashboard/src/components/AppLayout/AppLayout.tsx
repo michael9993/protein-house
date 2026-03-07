@@ -2,6 +2,7 @@ import useAppState from "@dashboard/hooks/useAppState";
 import { Box } from "@saleor/macaw-ui-next";
 import * as React from "react";
 
+import { AiAssistant } from "../AiAssistant";
 import { DevModePanel } from "../DevModePanel/DevModePanel";
 import NavigatorSearch from "../NavigatorSearch";
 import { useSavebarRef } from "../Savebar/SavebarRefContext";
@@ -56,6 +57,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           />
         </Box>
       </Box>
+      <AiAssistant />
     </SidebarProvider>
   );
 };

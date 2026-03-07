@@ -355,6 +355,42 @@ GraphQL definitions: `storefront/src/graphql/HomepageProducts.graphql`
 
 All in `storefront/src/components/home/`. Section order is drag-and-drop configurable via Design page.
 
+### Component Designer (Per-Component Style Overrides)
+
+Visual playground in Storefront Control for overriding any storefront component's styling beyond global branding. Admins select a component from a tree, edit visual properties (colors, typography, spacing, hover states, custom Tailwind classes), and see live preview.
+
+**Architecture**: CSS Custom Properties (`--cd-{key}-{prop}`) on `<html>`. Storefront components reference with fallbacks: `var(--cd-homepage-hero-bg, var(--store-primary))`. No React re-renders needed for live preview.
+
+**Cascade**: Component override > Page config > Global branding.
+
+**Key Files**:
+| File | Purpose |
+|------|---------|
+| `apps/packages/storefront-config/src/schema/component-overrides.ts` | Zod schema (19 properties: visual, typography, layout, hover, customClasses) |
+| `apps/apps/storefront-control/src/lib/component-registry.ts` | Runtime registry of 24 customizable components across 7 pages |
+| `apps/apps/storefront-control/src/pages/[channelSlug]/component-designer.tsx` | Admin page: split panel (tree + properties) |
+| `apps/apps/storefront-control/src/components/pages/component-designer/` | ComponentTree, StylePropertiesPanel, PropertyFieldRenderer |
+| `storefront/src/providers/StoreConfigProvider.tsx` | `useComponentStyle(key)` + `useComponentClasses(key)` hooks |
+| `storefront/src/config/store.config.ts` | `getComponentOverrideCSSVariables()` — generates `--cd-*` CSS vars |
+
+**Storefront Wiring Pattern** (client components):
+```tsx
+const cdStyle = useComponentStyle("homepage.hero");
+const cdClasses = useComponentClasses("homepage.hero");
+<section
+  data-cd="homepage-hero"
+  className={`base-classes ${cdClasses}`}
+  style={{
+    ...(cdStyle?.backgroundColor && { backgroundColor: `var(--cd-homepage-hero-bg)` }),
+    ...(cdStyle?.textColor && { color: `var(--cd-homepage-hero-text)` }),
+  }}
+>
+```
+
+Server components use CSS variables directly (no hooks): `style={{ backgroundColor: 'var(--cd-layout-header-bg, transparent)' }}`.
+
+**Wired Components** (17): Hero, TrustStrip, Marquee, Categories, TrendingProducts, PromotionBanner, FlashDeals, CollectionMosaic, BestSellers, CustomerFeedback, Newsletter, Header, Footer, ActiveFiltersTags, StickyQuickFilters, ProductGallery, StickyMobileAddToCart.
+
 ### Apps Architecture Patterns
 
 Apps in `apps/apps/` follow domain-driven design:
@@ -501,7 +537,7 @@ These skills MUST be invoked (via the Skill tool) at the start of the correspond
 
 | App | Container | Port | Purpose |
 |-----|-----------|------|---------|
-| storefront-control | `saleor-storefront-control-app-dev` | 3004 | 6-section admin (Store/Design/Pages/Commerce/Content/Integrations), shadcn/ui, Cmd+K, live preview |
+| storefront-control | `saleor-storefront-control-app-dev` | 3004 | Page-based CMS admin (11 pages: Homepage, Product Listing, Product Detail, Cart, Checkout, Account, Auth, Layout, Static Pages, Global Design, Component Designer), ComponentBlock UI, shadcn/ui, Cmd+K, live preview |
 | sales-analytics | `saleor-sales-analytics-app-dev` | 3006 | KPIs, charts, Excel export |
 | newsletter | `saleor-newsletter-app-dev` | 3005 | Subscribers, MJML templates, campaigns |
 | stripe | `saleor-stripe-app-dev` | 3002 | Payment processing |
@@ -554,7 +590,9 @@ npm run generate      # Generate product Excel + CSVs
 | `storefront/src/providers/StoreConfigProvider.tsx` | Config context + all config hooks |
 | `storefront/src/lib/graphql.ts` | GraphQL client setup (urql, retries, auth) |
 | `storefront/src/lib/cms.ts` | CMS content structure and metadata schema |
-| `apps/packages/storefront-config/src/schema/` | Shared Zod config schema (20 files, 2,332 lines) |
+| `apps/packages/storefront-config/src/schema/component-overrides.ts` | Component Designer Zod schema (ComponentStyleOverride, ComponentOverrides) |
+| `apps/apps/storefront-control/src/lib/component-registry.ts` | Component Designer runtime registry (24 components, 7 pages) |
+| `apps/packages/storefront-config/src/schema/` | Shared Zod config schema (21 files) |
 | `apps/packages/storefront-config/src/types.ts` | Shared TypeScript types (Zod-inferred) |
 | `apps/packages/storefront-config/src/migrations.ts` | Config version migrations |
 | `apps/apps/storefront-control/src/modules/config/schema.ts` | Admin form validation schema (227 lines) |

@@ -139,7 +139,7 @@ export function RelatedProductsCarousel({ products, channel }: RelatedProductsCa
   }
 
   return (
-    <section className="border-t border-neutral-200 bg-white py-16" aria-label="Related products">
+    <section data-cd="pdp-relatedProducts" className="border-t border-neutral-200 bg-white py-16" aria-label="Related products">
       <div className="mx-auto max-w-[var(--design-container-max)] px-6 lg:px-12">
         {/* Section Header */}
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">

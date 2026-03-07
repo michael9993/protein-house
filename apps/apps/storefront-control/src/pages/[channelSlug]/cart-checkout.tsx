@@ -3,7 +3,6 @@ import { useRouter } from "next/router";
 import type { Control, FieldErrors, UseFormRegister, UseFormWatch } from "react-hook-form";
 import { z } from "zod";
 import {
-  CreditCard,
   FileText,
   Gift,
   ShoppingCart,
@@ -436,7 +435,7 @@ function CartShippingTab({ control, register, errors }: TabProps) {
         </div>
       </FormSection>
 
-      <FormSection title="Tax" description="Tax display preferences" comingSoon>
+      <FormSection title="Tax" description="Tax display preferences">
         <FormSwitch<CartCheckoutFormData>
           label="Show Prices With Tax"
           name="ecommerce.tax.showPricesWithTax"
@@ -449,7 +448,7 @@ function CartShippingTab({ control, register, errors }: TabProps) {
         />
       </FormSection>
 
-      <FormSection title="Inventory" description="Stock display and backorder settings" comingSoon>
+      <FormSection title="Inventory" description="Stock display and backorder settings">
         <FormSwitch<CartCheckoutFormData>
           label="Show Stock Level"
           name="ecommerce.inventory.showStockLevel"
@@ -469,7 +468,7 @@ function CartShippingTab({ control, register, errors }: TabProps) {
         />
       </FormSection>
 
-      <FormSection title="Checkout Limits" description="Order amount restrictions and terms" comingSoon>
+      <FormSection title="Checkout Limits" description="Order amount restrictions and terms">
         <FieldGroup columns={2}>
           <FormField<CartCheckoutFormData>
             label="Min Order Amount"
@@ -511,22 +510,6 @@ function CheckoutFeaturesTab({ control }: TabProps) {
           title="Guest Checkout"
           description="Purchase without account"
           icon={<UserX className="h-5 w-5" />}
-        />
-        <FeatureCard
-          name="features.expressCheckout"
-          control={control}
-          title="Express Checkout"
-          description="One-click checkout"
-          icon={<Zap className="h-5 w-5" />}
-          comingSoon
-        />
-        <FeatureCard
-          name="features.savePaymentMethods"
-          control={control}
-          title="Save Payment Methods"
-          description="Remember payment details"
-          icon={<CreditCard className="h-5 w-5" />}
-          comingSoon
         />
         <FeatureCard
           name="features.giftCards"

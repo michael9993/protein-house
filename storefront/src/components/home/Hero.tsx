@@ -8,7 +8,7 @@ import { type ProductListItemFragment } from "@/gql/graphql";
 import { type HeroBannerConfig } from "@/lib/cms";
 import { formatMoney } from "@/lib/utils";
 import { t } from "@/lib/language";
-import { useBranding, useStoreInfo, useHeroConfig, useContentConfig, useBadgeStyle } from "@/providers/StoreConfigProvider";
+import { useBranding, useStoreInfo, useHeroConfig, useContentConfig, useBadgeStyle, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { buildProductUrl, buildProductsUrl, withChannel } from "@/lib/urls";
 import {
   getProductImage,
@@ -78,6 +78,8 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
   const saleBadgeStyle = useBadgeStyle("sale");
   const outOfStockBadgeStyle = useBadgeStyle("outOfStock");
   const lowStockBadgeStyle = useBadgeStyle("lowStock");
+  const cdStyle = useComponentStyle("homepage.hero");
+  const cdClasses = useComponentClasses("homepage.hero");
 
   // Config values with fallbacks
   // Note: Current config only has enabled and type. Extended properties use defaults.
@@ -224,7 +226,14 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
   const titleRest = titleWords.join(" ");
 
   return (
-    <section className="relative overflow-hidden">
+    <section
+      data-cd="homepage-hero"
+      className={`relative overflow-hidden ${cdClasses}`}
+      style={{
+        ...(cdStyle?.backgroundColor && { background: `var(--cd-homepage-hero-bg)` }),
+        ...(cdStyle?.textColor && { color: `var(--cd-homepage-hero-text)` }),
+      }}
+    >
       {/* Background layers */}
       <div className="absolute inset-0 hero-aurora opacity-20" aria-hidden="true" />
       <div

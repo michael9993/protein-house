@@ -15,28 +15,25 @@ const logger = createLogger("webhook:cj:order");
 // Payload validation
 // ---------------------------------------------------------------------------
 
-const CJOrderStatusEnum = z.enum([
-  "CREATED",
-  "CONFIRMED",
-  "PROCESSING",
-  "IN_TRANSIT",
-  "DELIVERED",
-  "CANCELLED",
-  "FAILED",
-  "RETURNED",
-]);
+// CJ actual webhook format: { messageId, type: "ORDER", messageType: "UPDATE", params: { ... } }
+// See: https://developers.cjdropshipping.cn/en/api/start/webhook
 
 const CJOrderWebhookPayloadSchema = z.object({
   messageId: z.string().min(1),
-  type: z.literal("ORDER_STATUS"),
-  data: z.object({
-    orderId: z.string().min(1),
-    orderNum: z.string().optional(),
-    status: CJOrderStatusEnum,
-    trackingNumber: z.string().optional(),
-    trackingUrl: z.string().url().optional().or(z.literal("")),
-    shippingCompany: z.string().optional(),
-    updateTime: z.string().optional(),
+  type: z.literal("ORDER"),
+  messageType: z.string().optional(),
+  params: z.object({
+    cjOrderId: z.string().min(1),
+    orderNumber: z.string().optional(),
+    orderStatus: z.string().min(1),
+    logisticName: z.string().optional(),
+    trackNumber: z.string().nullable().optional(),
+    trackingUrl: z.string().nullable().optional(),
+    createDate: z.string().optional(),
+    updateDate: z.string().optional(),
+    payDate: z.string().nullable().optional(),
+    deliveryDate: z.string().nullable().optional(),
+    completeDate: z.string().nullable().optional(),
   }),
 });
 
@@ -46,15 +43,16 @@ type CJOrderWebhookPayload = z.infer<typeof CJOrderWebhookPayloadSchema>;
 // CJ status -> Saleor dropship status mapping
 // ---------------------------------------------------------------------------
 
+// CJ native order statuses → internal dropship statuses
 const CJ_STATUS_MAP: Record<string, string> = {
   CREATED: "forwarded",
-  CONFIRMED: "forwarded",
-  PROCESSING: "forwarded",
-  IN_TRANSIT: "shipped",
+  IN_CART: "forwarded",
+  UNPAID: "forwarded",
+  UNSHIPPED: "processing",
+  SHIPPED: "shipped",
   DELIVERED: "delivered",
   CANCELLED: "supplier_cancelled",
-  FAILED: "failed",
-  RETURNED: "supplier_cancelled",
+  OTHER: "forwarded",
 };
 
 // ---------------------------------------------------------------------------
@@ -95,9 +93,22 @@ async function markProcessed(messageId: string): Promise<void> {
 // GraphQL
 // ---------------------------------------------------------------------------
 
-const FIND_ORDER_BY_SUPPLIER_ID = gql`
-  query FindOrderBySupplierMeta($first: Int!, $filter: OrderFilterInput) {
-    orders(first: $first, filter: $filter) {
+const FIND_ORDER_BY_ID = gql`
+  query FindOrderById($id: ID!) {
+    order(id: $id) {
+      id
+      number
+      metadata {
+        key
+        value
+      }
+    }
+  }
+`;
+
+const SEARCH_ORDERS_BY_METADATA = gql`
+  query SearchOrdersByMetadata($first: Int!) {
+    orders(first: $first, sortBy: { field: CREATED_AT, direction: DESC }) {
       edges {
         node {
           id
@@ -154,13 +165,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  // --- IP whitelist check ---
+  // --- IP whitelist check (log-only behind Cloudflare tunnel) ---
   const clientIp = getClientIp(req);
 
   if (!isIpAllowed(clientIp, CJ_WEBHOOK_IPS)) {
-    logger.warn("CJ order webhook: blocked IP", { clientIp });
-    res.status(403).json({ error: "Forbidden" });
-    return;
+    // Behind Cloudflare tunnel, CJ's real IP may not match the whitelist.
+    // Log for audit but don't block — Cloudflare provides the security layer.
+    logger.warn("CJ order webhook: IP not in whitelist (allowed — behind tunnel)", { clientIp });
   }
 
   // --- Parse and validate payload ---
@@ -178,8 +189,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   logger.info("CJ order webhook received", {
     messageId: payload.messageId,
-    cjOrderId: payload.data.orderId,
-    status: payload.data.status,
+    cjOrderId: payload.params.cjOrderId,
+    status: payload.params.orderStatus,
   });
 
   // --- Deduplicate ---
@@ -211,58 +222,87 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     token: authData.token,
   });
 
-  // --- Find the Saleor order by searching metadata ---
-  // We search for orders and then find the one whose dropship.suppliers contains this CJ order ID
-  const { data: ordersData } = await client
-    .query(FIND_ORDER_BY_SUPPLIER_ID, { first: 50 })
-    .toPromise();
-
+  // --- Find the Saleor order ---
+  // Strategy 1: Redis reverse index (O(1), set when order was forwarded)
+  // Strategy 2: Fallback metadata scan (for orders forwarded before Redis index existed)
   let matchedOrderId: string | null = null;
   let existingMeta: Record<string, unknown> = {};
 
-  if (ordersData?.orders?.edges) {
-    for (const edge of ordersData.orders.edges) {
-      const meta = (edge.node.metadata as Array<{ key: string; value: string }>)?.find(
-        (m: { key: string }) => m.key === "dropship",
-      );
+  try {
+    const redis = getRedisConnection();
+    const saleorOrderId = await redis.get("dropship:supplier-order:" + payload.params.cjOrderId);
 
-      if (!meta) continue;
+    if (saleorOrderId) {
+      const { data: orderData } = await client
+        .query(FIND_ORDER_BY_ID, { id: saleorOrderId })
+        .toPromise();
 
-      try {
-        const parsed = JSON.parse(meta.value);
-        const suppliers = parsed.suppliers as Record<string, string> | undefined;
-
-        if (suppliers && Object.values(suppliers).includes(payload.data.orderId)) {
-          matchedOrderId = edge.node.id;
-          existingMeta = parsed;
-          break;
+      if (orderData?.order) {
+        matchedOrderId = orderData.order.id;
+        const meta = (orderData.order.metadata as Array<{ key: string; value: string }>)?.find(
+          (m: { key: string }) => m.key === "dropship",
+        );
+        if (meta) {
+          try { existingMeta = JSON.parse(meta.value); } catch { /* skip */ }
         }
-      } catch {
-        // Skip malformed metadata
+      }
+    }
+  } catch (error) {
+    logger.warn("Redis reverse index lookup failed — falling back to scan", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+
+  // Fallback: scan recent orders by metadata
+  if (!matchedOrderId) {
+    const { data: ordersData } = await client
+      .query(SEARCH_ORDERS_BY_METADATA, { first: 100 })
+      .toPromise();
+
+    if (ordersData?.orders?.edges) {
+      for (const edge of ordersData.orders.edges) {
+        const meta = (edge.node.metadata as Array<{ key: string; value: string }>)?.find(
+          (m: { key: string }) => m.key === "dropship",
+        );
+
+        if (!meta) continue;
+
+        try {
+          const parsed = JSON.parse(meta.value);
+          const suppliers = parsed.suppliers as Record<string, string> | undefined;
+
+          if (suppliers && Object.values(suppliers).includes(payload.params.cjOrderId)) {
+            matchedOrderId = edge.node.id;
+            existingMeta = parsed;
+            break;
+          }
+        } catch {
+          // Skip malformed metadata
+        }
       }
     }
   }
 
   if (!matchedOrderId) {
     logger.warn("CJ order webhook: no matching Saleor order found", {
-      cjOrderId: payload.data.orderId,
+      cjOrderId: payload.params.cjOrderId,
     });
     res.status(200).json({ success: true, message: "No matching order — acknowledged" });
     return;
   }
 
   // --- Update order metadata ---
-  const newStatus = CJ_STATUS_MAP[payload.data.status] ?? "forwarded";
+  const newStatus = CJ_STATUS_MAP[payload.params.orderStatus] ?? "forwarded";
 
   const updatedMeta = {
     ...existingMeta,
     status: newStatus,
-    lastCjUpdate: payload.data.updateTime ?? new Date().toISOString(),
-    ...(payload.data.trackingNumber
+    lastCjUpdate: payload.params.updateDate ?? new Date().toISOString(),
+    ...(payload.params.trackNumber
       ? {
-          trackingNumber: payload.data.trackingNumber,
-          trackingUrl: payload.data.trackingUrl ?? "",
-          shippingCompany: payload.data.shippingCompany ?? "",
+          trackingNumber: payload.params.trackNumber,
+          trackingUrl: payload.params.trackingUrl ?? "",
+          carrier: payload.params.logisticName ?? "",
         }
       : {}),
   };
@@ -278,8 +318,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     type: "webhook_received",
     supplierId: "cj",
     orderId: matchedOrderId,
-    action: `CJ order status update: ${payload.data.status} -> ${newStatus}`,
-    request: { messageId: payload.messageId, cjOrderId: payload.data.orderId },
+    action: `CJ order status update: ${payload.params.orderStatus} -> ${newStatus}`,
+    request: { messageId: payload.messageId, cjOrderId: payload.params.cjOrderId },
     response: { newStatus },
     status: "success",
     duration: Date.now() - startTime,
@@ -288,7 +328,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   logger.info("CJ order status updated in Saleor", {
     saleorOrderId: matchedOrderId,
-    cjOrderId: payload.data.orderId,
+    cjOrderId: payload.params.cjOrderId,
     newStatus,
     duration: Date.now() - startTime,
   });

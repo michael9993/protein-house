@@ -839,7 +839,9 @@ Saleor Apps can extend the dashboard via:
 **Tech Stack:** shadcn/ui (19 primitives) + Radix UI + Tailwind CSS + React Hook Form + @dnd-kit
 **Features:** Cmd+K command palette, live preview (PostMessage iframe bridge), `useConfigPage` hook for form boilerplate elimination
 
-**Shared Config Package:** `@saleor/apps-storefront-config` — 20 domain schema files (2,332 lines), Zod-inferred types, config migrations. Used by both the admin app and the storefront.
+**Component Designer:** Visual playground for per-component style overrides. Split-panel UI: component tree (24 components across 7 pages) + dynamic property editor (19 CSS properties: colors, typography, spacing, hover, custom Tailwind classes). Generates CSS custom properties (`--cd-{key}-{prop}`) for instant live preview without React re-renders. Cascade: Component override > Page config > Global branding. Features: "Copy style from..." to duplicate overrides between components, override count badge in sidebar nav.
+
+**Shared Config Package:** `@saleor/apps-storefront-config` — 21 domain schema files, Zod-inferred types, config migrations. Used by both the admin app and the storefront.
 
 See [Section 7](#7-storefront-control-integration) for detailed integration documentation.
 

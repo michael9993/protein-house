@@ -84,19 +84,23 @@ export class CJAdapter implements SupplierAdapter {
     request: SupplierOrderRequest,
     token: AuthToken,
   ): Promise<Result<SupplierOrderResponse, SupplierError>> {
-    const address = mapAddress(request.shippingAddress);
+    const address = mapAddress(request.shippingAddress, request.countryName);
 
     const body = {
       orderNumber: request.idempotencyKey,
       ...address,
       logisticName: request.shippingMethod,
       fromCountryCode: "CN", // CJ ships from China by default
+      platform: "api",
       products: [
         {
           vid: request.supplierSku,
           quantity: request.quantity,
+          ...(request.lineItemId ? { storeLineItemId: request.lineItemId } : {}),
         },
       ],
+      ...(request.customerEmail ? { email: request.customerEmail } : {}),
+      iossType: 0, // 0 = platform handles VAT (default for non-EU)
     };
 
     const result = await post<CJOrderCreateResult>(
@@ -401,5 +405,31 @@ export class CJAdapter implements SupplierAdapter {
 
     // Empty input → empty output
     return ok([]);
+  }
+
+  // -------------------------------------------------------------------------
+  // Cost (deferred pricing)
+  // -------------------------------------------------------------------------
+
+  async getOrderCost(
+    supplierOrderId: string,
+    token: AuthToken,
+  ): Promise<Result<{ amount: number; currency: string }, SupplierError>> {
+    const result = await get<CJOrderDetail>(
+      "/shopping/order/getOrderDetail",
+      token.accessToken,
+      { orderId: supplierOrderId },
+    );
+
+    return result.andThen((data) => {
+      if (!data.orderId) {
+        return err(SupplierError.orderNotFound("cj", supplierOrderId));
+      }
+
+      return ok({
+        amount: data.orderAmount ?? data.productAmount + (data.shippingAmount ?? 0),
+        currency: "USD",
+      });
+    });
   }
 }

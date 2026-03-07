@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { parseDescription } from "./utils";
-import { useBranding, useCollectionMosaicConfig, useContentConfig, useDesignTokens } from "@/providers/StoreConfigProvider";
+import { useBranding, useCollectionMosaicConfig, useContentConfig, useDesignTokens, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { buildCollectionUrl, buildProductsUrl, withChannel } from "@/lib/urls";
 import { SectionViewAllButton } from "./SectionViewAllButton";
 
@@ -317,6 +317,8 @@ export function CollectionMosaic({
   const config = useCollectionMosaicConfig();
   const contentConfig = useContentConfig();
   const designTokens = useDesignTokens();
+  const cdStyle = useComponentStyle("homepage.collectionMosaic");
+  const cdClasses = useComponentClasses("homepage.collectionMosaic");
   const CYCLE_MS = (designTokens.animations as { carouselCycleSeconds?: number }).carouselCycleSeconds
     ? (designTokens.animations as { carouselCycleSeconds?: number }).carouselCycleSeconds! * 1000
     : DEFAULT_CYCLE_MS;
@@ -445,8 +447,13 @@ export function CollectionMosaic({
 
   return (
     <section
-      className="relative overflow-hidden border-t border-neutral-100"
+      data-cd="homepage-collectionMosaic"
+      className={`relative overflow-hidden border-t border-neutral-100 ${cdClasses}`}
       aria-label="Collection showcase"
+      style={{
+        ...(cdStyle?.backgroundColor && { background: `var(--cd-homepage-collectionMosaic-bg)` }),
+        ...(cdStyle?.textColor && { color: `var(--cd-homepage-collectionMosaic-text)` }),
+      }}
     >
       {/* CSS keyframes for progress bar — injected once, avoids 60fps re-renders */}
       <style dangerouslySetInnerHTML={{ __html: `

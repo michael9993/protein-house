@@ -64,7 +64,7 @@ export function VariantSelector({
   if (selectionAttributes.length === 0) return null;
 
   return (
-    <div className="space-y-6">
+    <div data-cd="pdp-variantSelector" className="space-y-6">
       {selectionAttributes.map((attr) => {
         const selectedValueId = selections[attr.attributeSlug] ?? null;
         const isColorAttr = COLOR_SLUGS.has(attr.attributeSlug);

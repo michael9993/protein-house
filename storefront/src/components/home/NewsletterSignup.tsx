@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useStoreConfig, useFeature, useContentConfig } from "@/providers/StoreConfigProvider";
+import { useStoreConfig, useFeature, useContentConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 
 import { useNewsletterState } from "@/hooks/useNewsletterState";
 import { SectionHeader } from "./SectionHeader";
@@ -40,6 +40,8 @@ export function NewsletterSignup({
   const { branding, store: _store } = useStoreConfig();
   const content = useContentConfig();
   const isEnabled = useFeature("newsletter");
+  const cdStyle = useComponentStyle("homepage.newsletter");
+  const cdClasses = useComponentClasses("homepage.newsletter");
   
   // Use shared newsletter state hook
   const {
@@ -69,12 +71,16 @@ export function NewsletterSignup({
   // Show subscribed state if already subscribed
   if (mounted && status === "already_subscribed") {
     return (
-      <section 
-        className="relative overflow-hidden py-12"
-        style={{ backgroundColor: branding.colors.secondary }}
+      <section
+        data-cd="homepage-newsletter"
+        className={`relative overflow-hidden py-12 ${cdClasses}`}
+        style={{
+          background: cdStyle?.backgroundColor ? `var(--cd-homepage-newsletter-bg)` : branding.colors.secondary,
+          ...(cdStyle?.textColor && { color: `var(--cd-homepage-newsletter-text)` }),
+        }}
       >
         <div className="relative mx-auto max-w-4xl px-4 text-center">
-          <div 
+          <div
             className="inline-flex items-center gap-3 rounded-full px-6 py-4"
             style={{ backgroundColor: `${branding.colors.success}20` }}
           >
@@ -99,9 +105,13 @@ export function NewsletterSignup({
   const onSubmit = (e: React.FormEvent) => handleSubmit(e, "homepage", channel);
 
   return (
-    <section 
-      className="relative overflow-hidden py-20"
-      style={{ backgroundColor: branding.colors.secondary }}
+    <section
+      data-cd="homepage-newsletter"
+      className={`relative overflow-hidden py-20 ${cdClasses}`}
+      style={{
+        background: cdStyle?.backgroundColor ? `var(--cd-homepage-newsletter-bg)` : branding.colors.secondary,
+        ...(cdStyle?.textColor && { color: `var(--cd-homepage-newsletter-text)` }),
+      }}
     >
       {/* Decorative Elements */}
       <div 

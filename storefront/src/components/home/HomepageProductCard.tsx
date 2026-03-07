@@ -8,7 +8,7 @@ import { type ProductListItemFragment } from "@/gql/graphql";
 import { formatMoneyRange } from "@/lib/utils";
 import { t } from "@/lib/language";
 import { ShareButton } from "@/ui/components/ProductSharing";
-import { useBadgeStyle, useContentConfig, useEcommerceSettings, useProductDetailText } from "@/providers/StoreConfigProvider";
+import { useBadgeStyle, useContentConfig, useEcommerceSettings, useProductDetailText, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { getProductShippingEstimate, formatEstimate } from "@/lib/shipping";
 import { buildProductUrl, withChannel } from "@/lib/urls";
 import {
@@ -80,6 +80,7 @@ export function HomepageProductCard({
 	const brand = getProductBrand(product, storeName);
 	const content = useContentConfig();
 	const ecommerce = useEcommerceSettings();
+	const cdClasses = useComponentClasses("homepage.productCard");
 	const saleBadgeStyle = useBadgeStyle("sale");
 	const outOfStockBadgeStyle = useBadgeStyle("outOfStock");
 	const lowStockBadgeStyle = useBadgeStyle("lowStock");
@@ -127,8 +128,9 @@ export function HomepageProductCard({
 
 	return (
 		<Link
+			data-cd="homepage-productCard"
 			href={withChannel(channel, buildProductUrl(product.slug))}
-			className={`group relative flex h-full flex-col overflow-hidden border border-neutral-200 bg-white shadow-sm transition-all duration-300 ${getCardHoverClasses(cardConfig.hoverEffect)} ${
+			className={`group relative flex h-full flex-col overflow-hidden border border-neutral-200 bg-white shadow-sm transition-all duration-300 ${cdClasses} ${getCardHoverClasses(cardConfig.hoverEffect)} ${
 				cardConfig.borderRadius === "none" ? "rounded-none"
 					: cardConfig.borderRadius === "sm" ? "rounded-sm"
 					: cardConfig.borderRadius === "md" ? "rounded-md"

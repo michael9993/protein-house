@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { type ProductListItemFragment } from "@/gql/graphql";
 import { t } from "@/lib/language";
 import { useWishlist } from "@/lib/wishlist";
-import { useBranding, useStoreInfo, useContentConfig, useBestSellersConfig, useFeature, useProductCardConfig } from "@/providers/StoreConfigProvider";
+import { useBranding, useStoreInfo, useContentConfig, useBestSellersConfig, useFeature, useProductCardConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { buildProductsUrl, withChannel } from "@/lib/urls";
 import { SectionViewAllButton } from "./SectionViewAllButton";
 import { useQuickView } from "@/providers/QuickViewProvider";
@@ -33,6 +33,8 @@ export function BestSellersSection({ products, channel, title, subtitle }: BestS
   const wishlistEnabled = useFeature("wishlist");
   const { addItem, removeItem, isInWishlist } = useWishlist();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const cdStyle = useComponentStyle("homepage.bestSellers");
+  const cdClasses = useComponentClasses("homepage.bestSellers");
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
   const cardConfig = useProductCardConfig("homepage");
@@ -143,7 +145,15 @@ export function BestSellersSection({ products, channel, title, subtitle }: BestS
   const displayProducts = products.slice(0, maxProducts);
 
   return (
-    <section className="py-20" aria-label="Best selling products">
+    <section
+      data-cd="homepage-bestSellers"
+      className={`py-20 ${cdClasses}`}
+      aria-label="Best selling products"
+      style={{
+        ...(cdStyle?.backgroundColor && { background: `var(--cd-homepage-bestSellers-bg)` }),
+        ...(cdStyle?.textColor && { color: `var(--cd-homepage-bestSellers-text)` }),
+      }}
+    >
       <div className="mx-auto max-w-[var(--design-container-max)] px-6 lg:px-12">
         {/* V6-style section header */}
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">

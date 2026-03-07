@@ -21,6 +21,7 @@ export function AddToCartButton({ state, onClick, primaryColor, text }: Props) {
 
   return (
     <button
+      data-cd="pdp-addToCartButton"
       type="button"
       onClick={onClick}
       disabled={isDisabled}

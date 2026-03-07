@@ -20,7 +20,7 @@ export function QuantitySelector({
   const effectiveMax = Math.max(1, max);
 
   return (
-    <div className="flex flex-col gap-1">
+    <div data-cd="pdp-quantitySelector" className="flex flex-col gap-1">
       <div className="flex items-center">
         <label className="me-3 text-sm font-medium text-neutral-700">{label}</label>
         <div className="flex items-center rounded-lg border border-neutral-300">

@@ -119,7 +119,9 @@
       "mcp__playwright-server__browser_evaluate",
       "Bash(ssh:*)",
       "Bash(/tmp/audit_report.txt:*)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(do grep:*)",
+      "Bash(wc:*)"
     ],
     "deny": [
       "Read(./.env*)",

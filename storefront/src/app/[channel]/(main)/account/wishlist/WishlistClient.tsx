@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useWishlist } from "@/lib/wishlist";
 import { formatMoney } from "@/lib/utils";
 import imageLoader from "@/lib/imageLoader";
-import { useBranding, useWishlistText, useEcommerceSettings, useProductDetailText } from "@/providers/StoreConfigProvider";
+import { useBranding, useWishlistText, useEcommerceSettings, useProductDetailText, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { getProductShippingEstimate, formatEstimate } from "@/lib/shipping";
 
 interface WishlistClientProps {
@@ -17,6 +17,8 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 	const { items, removeItem, clearWishlist, isLoading } = useWishlist();
 	const brandingConfig = useBranding();
 	const wishlistText = useWishlistText();
+	const cdStyle = useComponentStyle("account.wishlist");
+	const cdClasses = useComponentClasses("account.wishlist");
 	const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
 	if (isLoading) {
@@ -31,7 +33,10 @@ export function WishlistClient({ channel }: WishlistClientProps) {
 	}
 
 	return (
-		<div className="space-y-6">
+		<div data-cd="account-wishlist" className={`space-y-6 ${cdClasses}`} style={{
+			...(cdStyle?.backgroundColor && { background: 'var(--cd-account-wishlist-bg)' }),
+			...(cdStyle?.textColor && { color: 'var(--cd-account-wishlist-text)' }),
+		}}>
 			{/* Header */}
 			<div className="flex items-center justify-between">
 				<div>
