@@ -12,28 +12,19 @@ interface GuideLine {
 }
 
 /**
- * Get the axis-aligned bounding box of an object in canvas coordinate space.
- * Uses getBoundingRect() (which accounts for origin, rotation, scale, stroke)
- * then converts from viewport space to canvas space via the viewport transform.
+ * Get the axis-aligned bounding box of an object in canvas/scene coordinate space.
+ * In Fabric.js v6, getBoundingRect() already returns scene-plane coordinates
+ * (NOT viewport-space), so no viewport transform correction is needed.
  */
-function getCanvasSpaceBounds(
-  obj: FabricObject,
-  zoom: number,
-  panX: number,
-  panY: number,
-) {
+function getCanvasSpaceBounds(obj: FabricObject) {
   const rect = obj.getBoundingRect();
-  const left = (rect.left - panX) / zoom;
-  const top = (rect.top - panY) / zoom;
-  const width = rect.width / zoom;
-  const height = rect.height / zoom;
   return {
-    left,
-    centerX: left + width / 2,
-    right: left + width,
-    top,
-    centerY: top + height / 2,
-    bottom: top + height,
+    left: rect.left,
+    centerX: rect.left + rect.width / 2,
+    right: rect.left + rect.width,
+    top: rect.top,
+    centerY: rect.top + rect.height / 2,
+    bottom: rect.top + rect.height,
   };
 }
 
@@ -51,16 +42,11 @@ export function useSmartGuides(canvas: Canvas | null, enabled: boolean, docWidth
       const target = e.target as FabricObject;
       if (!target) return;
 
-      const vt = canvas.viewportTransform;
-      const zoom = vt ? vt[0] : 1;
-      const panX = vt ? vt[4] : 0;
-      const panY = vt ? vt[5] : 0;
-
       const guides: GuideLine[] = [];
 
       // Ensure target coords are fresh, then get canvas-space bounds
       target.setCoords();
-      const targetPts = getCanvasSpaceBounds(target, zoom, panX, panY);
+      const targetPts = getCanvasSpaceBounds(target);
 
       // Document edge + center snap targets (canvas space, using document dims)
       const dW = docWidth ?? canvas.getWidth();
@@ -71,7 +57,7 @@ export function useSmartGuides(canvas: Canvas | null, enabled: boolean, docWidth
       // Other objects' snap points (canvas space), skip page background
       canvas.getObjects().forEach((obj) => {
         if (obj === target || !obj.visible || (obj as any).__pageBg) return;
-        const pts = getCanvasSpaceBounds(obj, zoom, panX, panY);
+        const pts = getCanvasSpaceBounds(obj);
         verticalSnaps.push(pts.left, pts.centerX, pts.right);
         horizontalSnaps.push(pts.top, pts.centerY, pts.bottom);
       });

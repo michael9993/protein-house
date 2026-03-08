@@ -67,10 +67,13 @@ const attachAppToken = middleware(async ({ ctx, next }) => {
     }
   } else if (!authData && ctx.saleorApiUrl.includes("localhost:8000")) {
     try {
-      if (typeof (saleorApp.apl as any).getAll === "function") {
-        const allAuthData = await (saleorApp.apl as any).getAll();
+      type AuthEntry = { saleorApiUrl: string; token: string; appId: string };
+      const apl = saleorApp.apl as typeof saleorApp.apl & { getAll?: () => Promise<AuthEntry[]> };
+
+      if (typeof apl.getAll === "function") {
+        const allAuthData = await apl.getAll();
         const tunnelAuth = allAuthData?.find(
-          (auth: any) => auth.saleorApiUrl && auth.saleorApiUrl.includes("trycloudflare.com")
+          (auth) => auth.saleorApiUrl && auth.saleorApiUrl.includes("trycloudflare.com")
         );
 
         if (tunnelAuth) {
@@ -82,7 +85,7 @@ const attachAppToken = middleware(async ({ ctx, next }) => {
           await saleorApp.apl.set(mergedAuth as Parameters<typeof saleorApp.apl.set>[0]);
         }
       }
-    } catch (e) {
+    } catch {
       // getAll might not be available, ignore
     }
   }

@@ -13,6 +13,14 @@ function getGeminiUrl(apiKey: string) {
   return `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
 }
 
+interface GeminiPart {
+  text?: string;
+  inlineData?: {
+    mimeType: string;
+    data: string;
+  };
+}
+
 export interface GenerateResult {
   success: boolean;
   resultBase64?: string;
@@ -69,7 +77,7 @@ export async function generateImage(
     }
 
     const imagePart = parts.find(
-      (p: any) => p.inlineData?.mimeType?.startsWith("image/")
+      (p: GeminiPart) => p.inlineData?.mimeType?.startsWith("image/")
     );
 
     if (!imagePart?.inlineData?.data) {
@@ -145,7 +153,7 @@ export async function editImage(
     }
 
     const imagePart = parts.find(
-      (p: any) => p.inlineData?.mimeType?.startsWith("image/")
+      (p: GeminiPart) => p.inlineData?.mimeType?.startsWith("image/")
     );
 
     if (!imagePart?.inlineData?.data) {

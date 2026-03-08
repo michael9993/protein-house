@@ -69,14 +69,14 @@ export async function uploadBase64ToProduct(
 
     const result = await uploadResponse.json();
     if (result.errors?.length > 0) {
-      return { success: false, error: result.errors.map((e: any) => e.message).join("; ") };
+      return { success: false, error: result.errors.map((e: { message: string }) => e.message).join("; ") };
     }
 
     const mutationData = result.data?.productMediaCreate;
     if (mutationData?.errors?.length > 0) {
       return {
         success: false,
-        error: mutationData.errors.map((e: any) => `${e.field}: ${e.message}`).join("; "),
+        error: mutationData.errors.map((e: { field: string; message: string }) => `${e.field}: ${e.message}`).join("; "),
       };
     }
 

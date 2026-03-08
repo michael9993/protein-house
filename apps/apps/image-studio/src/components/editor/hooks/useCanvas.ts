@@ -498,8 +498,10 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
   }, []);
 
   // === Alignment Methods ===
-  // Single object: align relative to document dimensions (canvas space)
+  // Single object: align relative to document dimensions (canvas/scene space)
   // Multiple objects: align relative to each other
+  // Note: Fabric.js v6 getBoundingRect() returns scene-plane coordinates (NOT viewport-space),
+  // so no viewport transform correction is needed.
   const alignObjects = useCallback((alignment: "left" | "centerH" | "right" | "top" | "centerV" | "bottom") => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -511,35 +513,29 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
       ? (active as fabric.ActiveSelection).getObjects()
       : [active];
 
-    // For single object alignment, use document dimensions (not canvas element which is container)
     const docW = canvasDimensions.width;
     const docH = canvasDimensions.height;
 
     if (objects.length === 1) {
-      // Align single object relative to document area
       const obj = objects[0];
+      // getBoundingRect() returns scene-plane coords in Fabric v6 (no viewport correction needed).
+      // We align relative to document dimensions (docW × docH), NOT the canvas element size.
       const bound = obj.getBoundingRect();
-      // Convert bound from viewport space to canvas space
-      const vt = canvas.viewportTransform;
-      const z = vt ? vt[0] : 1;
-      const px = vt ? vt[4] : 0;
-      const py = vt ? vt[5] : 0;
-      const bLeft = (bound.left - px) / z;
-      const bTop = (bound.top - py) / z;
-      const bW = bound.width / z;
-      const bH = bound.height / z;
+      // Offset between obj.left/top and the bounding rect edge (accounts for rotation/origin)
+      const offsetX = (obj.left ?? 0) - bound.left;
+      const offsetY = (obj.top ?? 0) - bound.top;
 
       switch (alignment) {
-        case "left": obj.set("left", (obj.left ?? 0) - bLeft); break;
-        case "centerH": obj.set("left", (docW - bW) / 2 + ((obj.left ?? 0) - bLeft)); break;
-        case "right": obj.set("left", docW - bW + ((obj.left ?? 0) - bLeft)); break;
-        case "top": obj.set("top", (obj.top ?? 0) - bTop); break;
-        case "centerV": obj.set("top", (docH - bH) / 2 + ((obj.top ?? 0) - bTop)); break;
-        case "bottom": obj.set("top", docH - bH + ((obj.top ?? 0) - bTop)); break;
+        case "left": obj.set("left", offsetX); break;
+        case "centerH": obj.set("left", (docW - bound.width) / 2 + offsetX); break;
+        case "right": obj.set("left", docW - bound.width + offsetX); break;
+        case "top": obj.set("top", offsetY); break;
+        case "centerV": obj.set("top", (docH - bound.height) / 2 + offsetY); break;
+        case "bottom": obj.set("top", docH - bound.height + offsetY); break;
       }
       obj.setCoords();
     } else {
-      // Align multiple objects relative to selection bounds (viewport space)
+      // Align multiple objects relative to selection bounds (all in scene-plane coords)
       const bounds = objects.map((o) => o.getBoundingRect());
       const groupLeft = Math.min(...bounds.map((b) => b.left));
       const groupTop = Math.min(...bounds.map((b) => b.top));
@@ -548,13 +544,15 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
 
       objects.forEach((obj, i) => {
         const b = bounds[i];
+        const offsetX = (obj.left ?? 0) - b.left;
+        const offsetY = (obj.top ?? 0) - b.top;
         switch (alignment) {
-          case "left": obj.set("left", groupLeft + ((obj.left ?? 0) - b.left)); break;
-          case "centerH": obj.set("left", (groupLeft + groupRight - b.width) / 2 + ((obj.left ?? 0) - b.left)); break;
-          case "right": obj.set("left", groupRight - b.width + ((obj.left ?? 0) - b.left)); break;
-          case "top": obj.set("top", groupTop + ((obj.top ?? 0) - b.top)); break;
-          case "centerV": obj.set("top", (groupTop + groupBottom - b.height) / 2 + ((obj.top ?? 0) - b.top)); break;
-          case "bottom": obj.set("top", groupBottom - b.height + ((obj.top ?? 0) - b.top)); break;
+          case "left": obj.set("left", groupLeft + offsetX); break;
+          case "centerH": obj.set("left", (groupLeft + groupRight - b.width) / 2 + offsetX); break;
+          case "right": obj.set("left", groupRight - b.width + offsetX); break;
+          case "top": obj.set("top", groupTop + offsetY); break;
+          case "centerV": obj.set("top", (groupTop + groupBottom - b.height) / 2 + offsetY); break;
+          case "bottom": obj.set("top", groupBottom - b.height + offsetY); break;
         }
         obj.setCoords();
       });

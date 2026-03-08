@@ -64,6 +64,14 @@ const CHANNELS_QUERY = gql`
   }
 `;
 
+interface ProductNode {
+  id: string;
+  name: string;
+  slug: string;
+  thumbnail: { url: string } | null;
+  media: Array<{ id: string; url: string; alt: string; type: string }>;
+}
+
 export const productsRouter = router({
   list: protectedClientProcedure
     .input(
@@ -86,7 +94,7 @@ export const productsRouter = router({
 
       const products = result.data?.products;
       return {
-        products: (products?.edges ?? []).map((edge: any) => edge.node),
+        products: (products?.edges ?? []).map((edge: { node: ProductNode }) => edge.node),
         pageInfo: products?.pageInfo ?? { hasNextPage: false, endCursor: null },
         totalCount: products?.totalCount ?? 0,
       };

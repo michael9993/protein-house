@@ -90,7 +90,7 @@ export const mediaRouter = router({
       if (data?.errors?.length > 0) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: data.errors.map((e: any) => e.message).join("; "),
+          message: data.errors.map((e: { message: string }) => e.message).join("; "),
         });
       }
 
@@ -110,7 +110,7 @@ export const mediaRouter = router({
       if (data?.errors?.length > 0) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: data.errors.map((e: any) => e.message).join("; "),
+          message: data.errors.map((e: { message: string }) => e.message).join("; "),
         });
       }
 

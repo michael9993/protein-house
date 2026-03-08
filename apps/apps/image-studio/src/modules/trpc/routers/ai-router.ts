@@ -59,25 +59,6 @@ export const aiRouter = router({
       return { resultBase64: result.resultBase64 };
     }),
 
-  // Legacy sync upscale — kept for backward compat but will timeout on Cloudflare Free
-  upscale: protectedClientProcedure
-    .input(
-      z.object({
-        imageBase64: z.string(),
-        scale: z.enum(["2", "3", "4"]).default("2"),
-      })
-    )
-    .mutation(async ({ input }) => {
-      const result = await upscaleImage(input.imageBase64, parseInt(input.scale) as 2 | 3 | 4);
-      if (!result.success) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: result.error ?? "Upscaling failed",
-        });
-      }
-      return { resultBase64: result.resultBase64 };
-    }),
-
   // Async upscale — returns job ID instantly, client polls for result
   upscaleStart: protectedClientProcedure
     .input(
@@ -123,6 +104,7 @@ export const aiRouter = router({
   upscaleStatus: protectedClientProcedure
     .input(z.object({ jobId: z.string() }))
     .query(async ({ input }) => {
+      cleanupOldJobs();
       const job = upscaleJobs.get(input.jobId);
       if (!job) {
         throw new TRPCError({
