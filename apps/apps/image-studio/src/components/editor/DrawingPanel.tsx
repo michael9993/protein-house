@@ -5,24 +5,38 @@ interface DrawingPanelProps {
   brushColor: string;
   brushWidth: number;
   brushOpacity: number;
+  sprayDensity?: number;
   onBrushTypeChange: (type: BrushType) => void;
   onBrushColorChange: (color: string) => void;
   onBrushWidthChange: (width: number) => void;
   onBrushOpacityChange: (opacity: number) => void;
+  onSprayDensityChange?: (density: number) => void;
   onDone: () => void;
 }
+
+const BRUSH_OPTIONS: { type: BrushType; label: string; icon: string }[] = [
+  { type: "pencil", label: "Pencil", icon: "✏️" },
+  { type: "spray", label: "Spray", icon: "🔫" },
+  { type: "circles", label: "Circles", icon: "⭕" },
+  { type: "eraser", label: "Eraser", icon: "🧹" },
+];
 
 export function DrawingPanel({
   brushType,
   brushColor,
   brushWidth,
   brushOpacity,
+  sprayDensity = 20,
   onBrushTypeChange,
   onBrushColorChange,
   onBrushWidthChange,
   onBrushOpacityChange,
+  onSprayDensityChange,
   onDone,
 }: DrawingPanelProps) {
+  const showColor = brushType !== "eraser";
+  const showOpacity = brushType !== "eraser";
+
   return (
     <div className="space-y-3">
       <div>
@@ -32,28 +46,23 @@ export function DrawingPanel({
         </p>
       </div>
 
-      {/* Brush Type */}
-      <div className="flex gap-1">
-        <button
-          onClick={() => onBrushTypeChange("pencil")}
-          className={`flex-1 px-3 py-1.5 text-xs rounded-md border transition-colors ${
-            brushType === "pencil" ? "bg-primary/10 text-primary border-primary" : "hover:bg-accent"
-          }`}
-        >
-          Pencil
-        </button>
-        <button
-          onClick={() => onBrushTypeChange("eraser")}
-          className={`flex-1 px-3 py-1.5 text-xs rounded-md border transition-colors ${
-            brushType === "eraser" ? "bg-primary/10 text-primary border-primary" : "hover:bg-accent"
-          }`}
-        >
-          Eraser
-        </button>
+      {/* Brush Type — 2x2 grid */}
+      <div className="grid grid-cols-2 gap-1">
+        {BRUSH_OPTIONS.map(({ type, label }) => (
+          <button
+            key={type}
+            onClick={() => onBrushTypeChange(type)}
+            className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
+              brushType === type ? "bg-primary/10 text-primary border-primary" : "hover:bg-accent"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       {/* Color */}
-      {brushType === "pencil" && (
+      {showColor && (
         <div>
           <label className="text-[10px] text-muted-foreground uppercase">Color</label>
           <div className="flex items-center gap-2 mt-1">
@@ -85,8 +94,27 @@ export function DrawingPanel({
         />
       </div>
 
+      {/* Spray Density (spray brush only) */}
+      {brushType === "spray" && onSprayDensityChange && (
+        <div>
+          <label className="text-[10px] text-muted-foreground flex justify-between">
+            <span>Density</span>
+            <span>{sprayDensity}</span>
+          </label>
+          <input
+            type="range"
+            min="5"
+            max="70"
+            step="5"
+            value={sprayDensity}
+            onChange={(e) => onSprayDensityChange(parseInt(e.target.value))}
+            className="w-full h-1.5 mt-1"
+          />
+        </div>
+      )}
+
       {/* Opacity */}
-      {brushType === "pencil" && (
+      {showOpacity && (
         <div>
           <label className="text-[10px] text-muted-foreground flex justify-between">
             <span>Opacity</span>

@@ -597,10 +597,12 @@ export function CanvasEditor() {
                 brushColor={drawing.brushColor}
                 brushWidth={drawing.brushWidth}
                 brushOpacity={drawing.brushOpacity}
+                sprayDensity={drawing.sprayDensity}
                 onBrushTypeChange={drawing.setBrushType}
                 onBrushColorChange={drawing.setBrushColor}
                 onBrushWidthChange={drawing.setBrushWidth}
                 onBrushOpacityChange={drawing.setBrushOpacity}
+                onSprayDensityChange={drawing.setSprayDensity}
                 onDone={() => setActiveAIPanel(null)}
               />
             )}
