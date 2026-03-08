@@ -46,6 +46,8 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
   const { width = 800, height = 600 } = options;
   const canvasRef = useRef<fabric.Canvas | null>(null);
   const clipboardRef = useRef<fabric.FabricObject | null>(null);
+  const isPanningRef = useRef(false);
+  const panStartRef = useRef<{ x: number; y: number } | null>(null);
   const [selectedObject, setSelectedObject] = useState<fabric.FabricObject | null>(null);
   const [zoom, setZoom] = useState(1);
   const [canvasDimensions, setCanvasDimensions] = useState({ width, height });
@@ -191,6 +193,150 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     canvas.add(circle);
     canvas.setActiveObject(circle);
     canvas.renderAll();
+  }, [canvasDimensions]);
+
+  const addTriangle = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const tri = new fabric.Triangle({
+      left: canvasDimensions.width / 2 - 50,
+      top: canvasDimensions.height / 2 - 50,
+      width: 100,
+      height: 100,
+      fill: "rgba(234, 179, 8, 0.5)",
+      stroke: "#eab308",
+      strokeWidth: 2,
+    });
+
+    canvas.add(tri);
+    canvas.setActiveObject(tri);
+    canvas.renderAll();
+  }, [canvasDimensions]);
+
+  const addStar = useCallback((points: number = 5) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const outerR = 50;
+    const innerR = 25;
+    const starPoints: { x: number; y: number }[] = [];
+    for (let i = 0; i < points * 2; i++) {
+      const r = i % 2 === 0 ? outerR : innerR;
+      const angle = (Math.PI / points) * i - Math.PI / 2;
+      starPoints.push({ x: outerR + r * Math.cos(angle), y: outerR + r * Math.sin(angle) });
+    }
+
+    const star = new fabric.Polygon(starPoints, {
+      left: canvasDimensions.width / 2 - outerR,
+      top: canvasDimensions.height / 2 - outerR,
+      fill: "rgba(249, 115, 22, 0.5)",
+      stroke: "#f97316",
+      strokeWidth: 2,
+    });
+
+    canvas.add(star);
+    canvas.setActiveObject(star);
+    canvas.renderAll();
+  }, [canvasDimensions]);
+
+  const addLine = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const cx = canvasDimensions.width / 2;
+    const cy = canvasDimensions.height / 2;
+    const line = new fabric.Line([cx - 75, cy, cx + 75, cy], {
+      stroke: "#000000",
+      strokeWidth: 2,
+    });
+
+    canvas.add(line);
+    canvas.setActiveObject(line);
+    canvas.renderAll();
+  }, [canvasDimensions]);
+
+  const addArrow = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // Arrow as a polygon shape
+    const arrowPoints = [
+      { x: 0, y: 15 },
+      { x: 80, y: 15 },
+      { x: 80, y: 0 },
+      { x: 110, y: 20 },
+      { x: 80, y: 40 },
+      { x: 80, y: 25 },
+      { x: 0, y: 25 },
+    ];
+
+    const arrow = new fabric.Polygon(arrowPoints, {
+      left: canvasDimensions.width / 2 - 55,
+      top: canvasDimensions.height / 2 - 20,
+      fill: "rgba(139, 92, 246, 0.5)",
+      stroke: "#8b5cf6",
+      strokeWidth: 2,
+    });
+
+    canvas.add(arrow);
+    canvas.setActiveObject(arrow);
+    canvas.renderAll();
+  }, [canvasDimensions]);
+
+  const addPolygon = useCallback((sides: number = 6) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const radius = 50;
+    const polyPoints: { x: number; y: number }[] = [];
+    for (let i = 0; i < sides; i++) {
+      const angle = (2 * Math.PI / sides) * i - Math.PI / 2;
+      polyPoints.push({ x: radius + radius * Math.cos(angle), y: radius + radius * Math.sin(angle) });
+    }
+
+    const polygon = new fabric.Polygon(polyPoints, {
+      left: canvasDimensions.width / 2 - radius,
+      top: canvasDimensions.height / 2 - radius,
+      fill: "rgba(14, 165, 233, 0.5)",
+      stroke: "#0ea5e9",
+      strokeWidth: 2,
+    });
+
+    canvas.add(polygon);
+    canvas.setActiveObject(polygon);
+    canvas.renderAll();
+  }, [canvasDimensions]);
+
+  const addSVG = useCallback(async (svgString: string) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    try {
+      const result = await fabric.loadSVGFromString(svgString);
+      if (!result.objects || result.objects.length === 0) return;
+
+      const validObjects = result.objects.filter((o): o is fabric.FabricObject => o !== null);
+      if (validObjects.length === 0) return;
+
+      const group = fabric.util.groupSVGElements(validObjects, result.options);
+      const scale = Math.min(
+        canvasDimensions.width / (group.width ?? 1),
+        canvasDimensions.height / (group.height ?? 1),
+        1
+      );
+      group.scale(scale);
+      group.set({
+        left: (canvasDimensions.width - (group.width ?? 0) * scale) / 2,
+        top: (canvasDimensions.height - (group.height ?? 0) * scale) / 2,
+      });
+
+      canvas.add(group);
+      canvas.setActiveObject(group);
+      canvas.renderAll();
+    } catch (err) {
+      console.error("Failed to load SVG:", err);
+    }
   }, [canvasDimensions]);
 
   const deleteSelected = useCallback(() => {
@@ -629,6 +775,65 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     setZoom(clamped);
   }, [canvasDimensions]);
 
+  const enterPanMode = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || isPanningRef.current) return;
+    isPanningRef.current = true;
+    canvas.defaultCursor = "grab";
+    canvas.selection = false;
+    canvas.forEachObject((obj) => { obj.evented = false; });
+  }, []);
+
+  const exitPanMode = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !isPanningRef.current) return;
+    isPanningRef.current = false;
+    panStartRef.current = null;
+    canvas.defaultCursor = "default";
+    canvas.selection = true;
+    canvas.forEachObject((obj) => {
+      if (!isPageBackground(obj)) obj.evented = true;
+    });
+  }, []);
+
+  // Set up pan mouse handlers once canvas is ready
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const onMouseDown = (opt: fabric.TEvent<MouseEvent>) => {
+      if (!isPanningRef.current) return;
+      canvas.defaultCursor = "grabbing";
+      panStartRef.current = { x: opt.e.clientX, y: opt.e.clientY };
+    };
+
+    const onMouseMove = (opt: fabric.TEvent<MouseEvent>) => {
+      if (!isPanningRef.current || !panStartRef.current) return;
+      const vpt = canvas.viewportTransform;
+      if (!vpt) return;
+      vpt[4] += opt.e.clientX - panStartRef.current.x;
+      vpt[5] += opt.e.clientY - panStartRef.current.y;
+      canvas.setViewportTransform(vpt);
+      panStartRef.current = { x: opt.e.clientX, y: opt.e.clientY };
+    };
+
+    const onMouseUp = () => {
+      if (!isPanningRef.current) return;
+      canvas.defaultCursor = "grab";
+      panStartRef.current = null;
+    };
+
+    canvas.on("mouse:down", onMouseDown as any);
+    canvas.on("mouse:move", onMouseMove as any);
+    canvas.on("mouse:up", onMouseUp as any);
+
+    return () => {
+      canvas.off("mouse:down", onMouseDown as any);
+      canvas.off("mouse:move", onMouseMove as any);
+      canvas.off("mouse:up", onMouseUp as any);
+    };
+  }, [canvasRef.current]);
+
   const discardSelection = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -647,6 +852,12 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     addText,
     addRect,
     addCircle,
+    addTriangle,
+    addStar,
+    addLine,
+    addArrow,
+    addPolygon,
+    addSVG,
     deleteSelected,
     selectAll,
     copySelected,
@@ -672,5 +883,7 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     alignObjects,
     distributeObjects,
     zoomToFit,
+    enterPanMode,
+    exitPanMode,
   };
 }

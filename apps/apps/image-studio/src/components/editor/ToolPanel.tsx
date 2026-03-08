@@ -1,7 +1,6 @@
 interface ToolPanelProps {
   onAddText: () => void;
-  onAddRect: () => void;
-  onAddCircle: () => void;
+  onAddTextbox: () => void;
   onUploadImage: () => void;
   onAddImageUrl: () => void;
   activeAIPanel: string | null;
@@ -10,8 +9,7 @@ interface ToolPanelProps {
 
 export function ToolPanel({
   onAddText,
-  onAddRect,
-  onAddCircle,
+  onAddTextbox,
   onUploadImage,
   onAddImageUrl,
   activeAIPanel,
@@ -28,14 +26,19 @@ export function ToolPanel({
 
       <div className="w-8 h-px bg-border my-1" />
 
-      <ToolButton onClick={onAddText} title="Add Text" label="Text">
+      <ToolButton onClick={onAddText} title="Add Text (IText)" label="Text">
         <TypeIcon />
       </ToolButton>
-      <ToolButton onClick={onAddRect} title="Add Rectangle" label="Rect">
-        <SquareIcon />
+      <ToolButton onClick={onAddTextbox} title="Add Text Box (auto-wrap)" label="TxtBox">
+        <TextboxIcon />
       </ToolButton>
-      <ToolButton onClick={onAddCircle} title="Add Circle" label="Circle">
-        <CircleIcon />
+      <ToolButton
+        onClick={() => onToggleAIPanel(activeAIPanel === "shapes" ? null : "shapes")}
+        title="Shape Library"
+        label="Shapes"
+        active={activeAIPanel === "shapes"}
+      >
+        <ShapesIcon />
       </ToolButton>
 
       <div className="w-8 h-px bg-border my-1" />
@@ -283,6 +286,23 @@ function ShareIcon() {
       <circle cx="18" cy="19" r="3" />
       <line x1="8.59" x2="15.42" y1="13.51" y2="17.49" />
       <line x1="15.41" x2="8.59" y1="6.51" y2="10.49" />
+    </svg>
+  );
+}
+
+function ShapesIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5" />
+    </svg>
+  );
+}
+
+function TextboxIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="M7 8h10M7 12h10M7 16h6" />
     </svg>
   );
 }

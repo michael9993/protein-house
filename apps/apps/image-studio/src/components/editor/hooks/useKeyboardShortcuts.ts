@@ -23,6 +23,8 @@ interface ShortcutActions {
   toggleLeftPanel?: () => void;
   toggleRightPanel?: () => void;
   toggleAllPanels?: () => void;
+  enterPanMode?: () => void;
+  exitPanMode?: () => void;
 }
 
 export function useKeyboardShortcuts(actions: ShortcutActions) {
@@ -44,6 +46,13 @@ export function useKeyboardShortcuts(actions: ShortcutActions) {
       // Escape — deselect / close panels
       if (e.key === "Escape") {
         actions.escape?.();
+        return;
+      }
+
+      // Spacebar: enter pan mode (hold)
+      if (e.code === "Space" && !isInput && !e.repeat) {
+        e.preventDefault();
+        actions.enterPanMode?.();
         return;
       }
 
@@ -164,7 +173,17 @@ export function useKeyboardShortcuts(actions: ShortcutActions) {
       }
     }
 
+    function handleKeyUp(e: KeyboardEvent) {
+      if (e.code === "Space") {
+        actions.exitPanMode?.();
+      }
+    }
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
   }, [actions]);
 }

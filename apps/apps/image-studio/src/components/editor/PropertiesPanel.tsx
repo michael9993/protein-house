@@ -188,7 +188,7 @@ export function PropertiesPanel({
   }
 
   const isText = selectedObject.type === "i-text" || selectedObject.type === "textbox";
-  const isShape = selectedObject.type === "rect" || selectedObject.type === "circle" || selectedObject.type === "path";
+  const isShape = ["rect", "circle", "triangle", "polygon", "line", "path"].includes(selectedObject.type ?? "");
   const isRect = selectedObject.type === "rect";
 
   return (

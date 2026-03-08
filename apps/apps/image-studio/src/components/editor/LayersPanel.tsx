@@ -213,6 +213,16 @@ function getObjectName(obj: fabric.FabricObject, index: number): string {
       return `Rectangle ${index + 1}`;
     case "circle":
       return `Circle ${index + 1}`;
+    case "triangle":
+      return `Triangle ${index + 1}`;
+    case "polygon":
+      return `Polygon ${index + 1}`;
+    case "line":
+      return `Line ${index + 1}`;
+    case "group":
+      return `Group ${index + 1}`;
+    case "path":
+      return `Path ${index + 1}`;
     default:
       return `${type} ${index + 1}`;
   }
@@ -248,6 +258,37 @@ function LayerTypeIcon({ type }: { type: string }) {
       return (
         <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="12" cy="12" r="10" />
+        </svg>
+      );
+    case "triangle":
+      return (
+        <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <polygon points="12,3 3,21 21,21" />
+        </svg>
+      );
+    case "polygon":
+      return (
+        <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5" />
+        </svg>
+      );
+    case "line":
+      return (
+        <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <line x1="4" y1="20" x2="20" y2="4" />
+        </svg>
+      );
+    case "group":
+      return (
+        <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="1" y="1" width="13" height="13" rx="2" />
+          <rect x="10" y="10" width="13" height="13" rx="2" />
+        </svg>
+      );
+    case "path":
+      return (
+        <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
         </svg>
       );
     default:

@@ -25,6 +25,7 @@ import { useSmartGuides } from "./hooks/useSmartGuides";
 import { BUILT_IN_TEMPLATES } from "@/modules/templates/built-in";
 import { applyTemplateToCanvas } from "./utils/applyTemplate";
 import { ComponentsPanel } from "./ComponentsPanel";
+import { ShapesPanel } from "./ShapesPanel";
 import { SocialPresetsPanel } from "./SocialPresetsPanel";
 import { BrandKitDialog } from "./BrandKitDialog";
 import { MockupFillDialog } from "./MockupFillDialog";
@@ -71,6 +72,12 @@ export function CanvasEditor() {
     addText,
     addRect,
     addCircle,
+    addTriangle,
+    addStar,
+    addLine,
+    addArrow,
+    addPolygon,
+    addSVG,
     deleteSelected,
     selectAll,
     copySelected,
@@ -94,6 +101,8 @@ export function CanvasEditor() {
     alignObjects,
     distributeObjects,
     zoomToFit,
+    enterPanMode,
+    exitPanMode,
   } = useCanvas(CANVAS_ID, { width: 800, height: 600 });
 
   const { saveState, undo, redo, canUndo, canRedo, initHistory } = useHistory(canvas);
@@ -336,12 +345,14 @@ export function CanvasEditor() {
       },
       toggleGrid,
       toggleSnap,
+      enterPanMode,
+      exitPanMode,
     }),
     [
       undo, redo, deleteSelected, selectAll, copySelected, pasteFromClipboard,
       duplicateSelected, bringForward, sendBackward, zoom, setZoomLevel,
       handleSaveProject, activeAIPanel, discardSelection, groupSelected, ungroupSelected,
-      leftPanelOpen, rightPanelOpen, toggleGrid, toggleSnap,
+      leftPanelOpen, rightPanelOpen, toggleGrid, toggleSnap, enterPanMode, exitPanMode,
     ]
   );
 
@@ -351,15 +362,26 @@ export function CanvasEditor() {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const dataUrl = event.target?.result as string;
-        if (dataUrl) addImage(dataUrl);
-      };
-      reader.readAsDataURL(file);
+
+      // SVG files: read as text and use addSVG
+      if (file.name.toLowerCase().endsWith(".svg") || file.type === "image/svg+xml") {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const svgText = event.target?.result as string;
+          if (svgText) addSVG(svgText);
+        };
+        reader.readAsText(file);
+      } else {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const dataUrl = event.target?.result as string;
+          if (dataUrl) addImage(dataUrl);
+        };
+        reader.readAsDataURL(file);
+      }
       e.target.value = "";
     },
-    [addImage]
+    [addImage, addSVG]
   );
 
   const handleImageUrlSubmit = useCallback(() => {
@@ -523,8 +545,7 @@ export function CanvasEditor() {
           <>
             <ToolPanel
               onAddText={addText}
-              onAddRect={addRect}
-              onAddCircle={addCircle}
+              onAddTextbox={() => {/* wired in Task 9 */}}
               onUploadImage={() => fileInputRef.current?.click()}
               onAddImageUrl={() => setShowImageInput(true)}
               activeAIPanel={activeAIPanel}
@@ -593,6 +614,18 @@ export function CanvasEditor() {
                 onDeleteComponent={removeComponent}
                 onRenameComponent={updateComponentName}
                 showSaveForm={showSaveComponent}
+              />
+            )}
+            {activeAIPanel === "shapes" && (
+              <ShapesPanel
+                onAddRect={addRect}
+                onAddCircle={addCircle}
+                onAddTriangle={addTriangle}
+                onAddStar={addStar}
+                onAddLine={addLine}
+                onAddArrow={addArrow}
+                onAddPolygon={addPolygon}
+                onClose={() => setActiveAIPanel(null)}
               />
             )}
             {activeAIPanel === "social" && (
@@ -715,7 +748,7 @@ export function CanvasEditor() {
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,.svg"
         onChange={handleFileUpload}
         className="hidden"
       />
