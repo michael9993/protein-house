@@ -5,7 +5,7 @@ import { router } from "../trpc-server";
 import { protectedClientProcedure } from "../protected-client-procedure";
 import { exportToCSV } from "../../export/csv-exporter";
 import { exportToExcel } from "../../export/excel-exporter";
-import { assertQuerySuccess, applyFieldMappings, tryParseDescription, parseBool, parseMetadata, parseSemicolonList, isValidUrl, type ImportResult, buildImportResponse } from "../utils/helpers";
+import { assertQuerySuccess, applyFieldMappings, tryParseDescription, parseBool, parseMetadata, parseSemicolonList, isValidUrl, extractGraphQLError, type ImportResult, buildImportResponse } from "../utils/helpers";
 import { uploadCollectionBackgroundImage } from "../utils/image-upload";
 
 export const collectionsRouter = router({
@@ -145,7 +145,7 @@ export const collectionsRouter = router({
               );
 
               if (updateResult.error) {
-                const errMsg = updateResult.error.graphQLErrors?.map((e: any) => e.message).join("; ") || "GraphQL error";
+                const errMsg = extractGraphQLError(updateResult.error);
                 results.push({ row: i + 1, success: false, error: `Collection update: ${errMsg}` });
                 continue;
               }
@@ -192,7 +192,7 @@ export const collectionsRouter = router({
             );
 
             if (result.error) {
-              const errMsg = result.error.graphQLErrors?.map((e: any) => e.message).join("; ") || result.error.message || "GraphQL error";
+              const errMsg = extractGraphQLError(result.error);
               if (!input.upsertMode && errMsg.toLowerCase().includes("slug") && errMsg.toLowerCase().includes("already exists")) {
                 results.push({ row: i + 1, success: false, error: errMsg + ' — Enable \"Update existing collections\" to update instead of create' });
               } else {
@@ -358,7 +358,7 @@ export const collectionsRouter = router({
       if (data?.errors?.length > 0) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: data.errors.map((e: any) => e.message).join("; "),
+          message: extractGraphQLError({ graphQLErrors: data.errors }),
         });
       }
 

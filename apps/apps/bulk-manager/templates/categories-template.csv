@@ -1,3 +1,5 @@
 name,slug,description,parent
-"Running Shoes","running-shoes","High performance running footwear",""
-"Trail Running","trail-running","Off-road running shoes","running-shoes"
+"Dogs","dogs","Products for dogs",""
+"Cats","cats","Products for cats",""
+"Dog Toys","dog-toys","Fun and durable toys for dogs","dogs"
+"Cat Toys","cat-toys","Interactive toys for cats","cats"

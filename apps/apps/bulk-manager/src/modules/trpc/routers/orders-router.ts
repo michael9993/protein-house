@@ -5,7 +5,7 @@ import { router } from "../trpc-server";
 import { protectedClientProcedure } from "../protected-client-procedure";
 import { exportToCSV } from "../../export/csv-exporter";
 import { exportToExcel } from "../../export/excel-exporter";
-import { assertQuerySuccess } from "../utils/helpers";
+import { assertQuerySuccess, extractGraphQLError } from "../utils/helpers";
 
 export const ordersRouter = router({
   export: protectedClientProcedure
@@ -296,8 +296,7 @@ export const ordersRouter = router({
           );
 
           if (fulfillResult.error) {
-            const errMsg = fulfillResult.error.graphQLErrors?.map((e: any) => e.message).join("; ") || "GraphQL error";
-            results.push({ orderId: item.orderId, success: false, error: errMsg });
+            results.push({ orderId: item.orderId, success: false, error: extractGraphQLError(fulfillResult.error) });
             continue;
           }
 
@@ -341,14 +340,13 @@ export const ordersRouter = router({
           );
 
           if (result.error) {
-            const errMsg = result.error.graphQLErrors?.map((e: any) => e.message).join("; ") || "GraphQL error";
-            results.push({ orderId, success: false, error: errMsg });
+            results.push({ orderId, success: false, error: extractGraphQLError(result.error) });
             continue;
           }
 
           const data = result.data?.orderCancel;
           if (data?.errors?.length > 0) {
-            results.push({ orderId, success: false, error: data.errors.map((e: any) => e.message).join("; ") });
+            results.push({ orderId, success: false, error: extractGraphQLError({ graphQLErrors: data.errors }) });
           } else {
             results.push({ orderId, success: true });
           }

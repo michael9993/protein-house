@@ -1,13 +1,30 @@
 import { TRPCError } from "@trpc/server";
 
 /**
+ * Shape of a urql GraphQL error result.
+ */
+interface GraphQLErrorResult {
+  graphQLErrors?: Array<{ message: string }>;
+  networkError?: { message: string };
+  message?: string;
+}
+
+/**
+ * Extract a human-readable error message from a urql GraphQL error result.
+ */
+export function extractGraphQLError(error: GraphQLErrorResult, fallback = "GraphQL error"): string {
+  return error.graphQLErrors?.map((e) => e.message).join("; ")
+    || error.networkError?.message
+    || error.message
+    || fallback;
+}
+
+/**
  * Check urql query result for errors and throw a descriptive TRPCError if found.
  */
-export function assertQuerySuccess(result: { data?: any; error?: any }, operationName: string) {
+export function assertQuerySuccess(result: { data?: unknown; error?: GraphQLErrorResult }, operationName: string) {
   if (result.error) {
-    const gqlErrors = result.error.graphQLErrors?.map((e: any) => e.message).join("; ");
-    const networkError = result.error.networkError?.message;
-    const errorMsg = gqlErrors || networkError || result.error.message || "Unknown GraphQL error";
+    const errorMsg = extractGraphQLError(result.error, "Unknown GraphQL error");
     console.error(`[${operationName}] GraphQL error:`, errorMsg);
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
@@ -36,7 +53,7 @@ export function tryParseDescription(description: string): string {
   try {
     const parsed = JSON.parse(description);
     if (parsed.blocks) {
-      return parsed.blocks.map((b: any) => b.data?.text || "").join("\n");
+      return parsed.blocks.map((b: { data?: { text?: string } }) => b.data?.text || "").join("\n");
     }
     return description;
   } catch {
@@ -87,6 +104,28 @@ export function parseSemicolonList(value: string | undefined): string[] {
  */
 export function isValidUrl(value: string): boolean {
   try { new URL(value); return true; } catch { return false; }
+}
+
+/**
+ * Parse an integer string, returning undefined if invalid or NaN.
+ * Optionally enforces a minimum value (e.g., 0 for stock quantities).
+ */
+export function safeParseInt(value: string | undefined, min?: number): number | undefined {
+  if (!value) return undefined;
+  const n = parseInt(value, 10);
+  if (isNaN(n)) return undefined;
+  if (min !== undefined && n < min) return undefined;
+  return n;
+}
+
+/**
+ * Parse a float string, returning undefined if invalid or NaN.
+ */
+export function safeParseFloat(value: string | undefined): number | undefined {
+  if (!value) return undefined;
+  const n = parseFloat(value);
+  if (isNaN(n)) return undefined;
+  return n;
 }
 
 /**

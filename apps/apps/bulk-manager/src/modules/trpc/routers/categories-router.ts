@@ -5,7 +5,7 @@ import { router } from "../trpc-server";
 import { protectedClientProcedure } from "../protected-client-procedure";
 import { exportToCSV } from "../../export/csv-exporter";
 import { exportToExcel } from "../../export/excel-exporter";
-import { assertQuerySuccess, applyFieldMappings, tryParseDescription, parseMetadata, isValidUrl, type ImportResult, buildImportResponse } from "../utils/helpers";
+import { assertQuerySuccess, applyFieldMappings, tryParseDescription, parseMetadata, isValidUrl, extractGraphQLError, type ImportResult, buildImportResponse } from "../utils/helpers";
 import { uploadCategoryBackgroundImage } from "../utils/image-upload";
 
 export const categoriesRouter = router({
@@ -121,7 +121,7 @@ export const categoriesRouter = router({
               );
 
               if (updateResult.error) {
-                const errMsg = updateResult.error.graphQLErrors?.map((e: any) => e.message).join("; ") || "GraphQL error";
+                const errMsg = extractGraphQLError(updateResult.error);
                 results.push({ row: origIdx + 1, success: false, error: `Category update: ${errMsg}` });
                 continue;
               }
@@ -148,7 +148,7 @@ export const categoriesRouter = router({
             );
 
             if (result.error) {
-              const errMsg = result.error.graphQLErrors?.map((e: any) => e.message).join("; ") || result.error.message || "GraphQL error";
+              const errMsg = extractGraphQLError(result.error);
               if (!input.upsertMode && errMsg.toLowerCase().includes("slug") && errMsg.toLowerCase().includes("already exists")) {
                 results.push({ row: origIdx + 1, success: false, error: errMsg + ' — Enable "Update existing categories" to update instead of create' });
               } else {
@@ -296,7 +296,7 @@ export const categoriesRouter = router({
       if (data?.errors?.length > 0) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: data.errors.map((e: any) => e.message).join("; "),
+          message: extractGraphQLError({ graphQLErrors: data.errors }),
         });
       }
 

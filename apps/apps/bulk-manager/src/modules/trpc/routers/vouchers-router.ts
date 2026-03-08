@@ -5,7 +5,7 @@ import { router } from "../trpc-server";
 import { protectedClientProcedure } from "../protected-client-procedure";
 import { exportToCSV } from "../../export/csv-exporter";
 import { exportToExcel } from "../../export/excel-exporter";
-import { assertQuerySuccess, applyFieldMappings, parseBool, parseMetadata, parseSemicolonList, type ImportResult, buildImportResponse } from "../utils/helpers";
+import { assertQuerySuccess, applyFieldMappings, parseBool, parseMetadata, parseSemicolonList, extractGraphQLError, type ImportResult, buildImportResponse } from "../utils/helpers";
 
 export const vouchersRouter = router({
   import: protectedClientProcedure
@@ -174,8 +174,7 @@ export const vouchersRouter = router({
               );
 
               if (updateResult.error) {
-                const errMsg = updateResult.error.graphQLErrors?.map((e: any) => e.message).join("; ") || "GraphQL error";
-                results.push({ row: i + 1, success: false, error: `Voucher update: ${errMsg}` });
+                results.push({ row: i + 1, success: false, error: `Voucher update: ${extractGraphQLError(updateResult.error)}` });
                 continue;
               }
               const updateData = updateResult.data?.voucherUpdate;
@@ -201,8 +200,7 @@ export const vouchersRouter = router({
             );
 
             if (result.error) {
-              const errMsg = result.error.graphQLErrors?.map((e: any) => e.message).join("; ") || result.error.message || "GraphQL error";
-              results.push({ row: i + 1, success: false, error: errMsg });
+              results.push({ row: i + 1, success: false, error: extractGraphQLError(result.error) });
               continue;
             }
 
@@ -392,7 +390,7 @@ export const vouchersRouter = router({
       );
       const data = result.data?.voucherBulkDelete;
       if (data?.errors?.length > 0) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: data.errors.map((e: any) => e.message).join("; ") });
+        throw new TRPCError({ code: "BAD_REQUEST", message: extractGraphQLError({ graphQLErrors: data.errors }) });
       }
       return { count: data?.count || 0 };
     }),

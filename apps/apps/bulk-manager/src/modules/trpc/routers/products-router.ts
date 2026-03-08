@@ -5,7 +5,7 @@ import { router } from "../trpc-server";
 import { protectedClientProcedure } from "../protected-client-procedure";
 import { exportToCSV } from "../../export/csv-exporter";
 import { exportToExcel } from "../../export/excel-exporter";
-import { assertQuerySuccess, applyFieldMappings, tryParseDescription, parseBool, parseMetadata, parseSemicolonList, isValidUrl, type ImportResult, buildImportResponse } from "../utils/helpers";
+import { assertQuerySuccess, applyFieldMappings, tryParseDescription, parseBool, parseMetadata, parseSemicolonList, isValidUrl, safeParseInt, safeParseFloat, extractGraphQLError, type ImportResult, buildImportResponse } from "../utils/helpers";
 import { uploadProductImage } from "../utils/image-upload";
 
 const UPDATE_PRIVATE_METADATA_MUTATION = `
@@ -424,8 +424,7 @@ export const productsRouter = router({
 
             // Check for urql transport-level errors
             if (createResult.error) {
-              const errMsg = createResult.error.graphQLErrors?.map((e: any) => e.message).join("; ")
-                || createResult.error.message || "Unknown transport error";
+              const errMsg = extractGraphQLError(createResult.error, "Unknown transport error");
               console.warn(`[DynamicImport] Transport error creating product type "${ptName}": ${errMsg}`);
               // Try to fetch by slug in case it already exists
               await fetchProductTypeBySlug(slug);
@@ -438,7 +437,7 @@ export const productsRouter = router({
               registerProductType(created);
             } else {
               const errors = createResult.data?.productTypeCreate?.errors;
-              const slugExists = errors?.some((e: any) => e.field === "slug" && e.code === "UNIQUE");
+              const slugExists = errors?.some((e: { field: string; code: string }) => e.field === "slug" && e.code === "UNIQUE");
               if (slugExists) {
                 // Slug collision — fetch the existing product type by slug so the import can continue
                 console.log(`[DynamicImport] Product type slug "${slug}" already exists, fetching existing...`);
@@ -450,7 +449,7 @@ export const productsRouter = router({
                 }
               } else {
                 console.warn(`[DynamicImport] Failed to create product type "${ptName}":`,
-                  errors?.map((e: any) => `${e.field}: ${e.code} - ${e.message}`).join("; ") || "Unknown error");
+                  errors?.map((e: { field: string; code: string; message: string }) => `${e.field}: ${e.code} - ${e.message}`).join("; ") || "Unknown error");
               }
             }
           } catch (err: any) {
@@ -553,7 +552,7 @@ export const productsRouter = router({
               console.log(`[Import] Auto-created category: ${created.name} (${created.id})`);
             } else {
               const errors = result.data?.categoryCreate?.errors;
-              const slugExists = errors?.some((e: any) => e.field === "slug" && e.code === "UNIQUE");
+              const slugExists = errors?.some((e: { field: string; code: string }) => e.field === "slug" && e.code === "UNIQUE");
               if (slugExists) {
                 console.log(`[Import] Category slug "${slug}" already exists, skipping`);
               } else {
@@ -646,7 +645,7 @@ export const productsRouter = router({
               }
             } else {
               const errors = result.data?.collectionCreate?.errors;
-              const slugExists = errors?.some((e: any) => e.field === "slug" && e.code === "UNIQUE");
+              const slugExists = errors?.some((e: { field: string; code: string }) => e.field === "slug" && e.code === "UNIQUE");
               if (slugExists) {
                 console.log(`[Import] Collection slug "${slug}" already exists, skipping`);
               } else {
@@ -849,59 +848,95 @@ export const productsRouter = router({
           }
         }
 
-        // ── Step 3: Create new attributes ──
+        // ── Step 3: Create new attributes (query-first to avoid enum compat issues) ──
         for (const disc of attrsToCreate) {
           const detectedType = detectInputType(disc.values);
           const slug = slugifyForSaleor(disc.attrName);
 
           try {
-            const createInput: Record<string, any> = {
-              name: disc.attrName,
-              slug,
-              inputType: detectedType,
-              type: "PRODUCT_TYPE",
-              visibleInStorefront: true,
-              filterableInDashboard: true,
-              filterableInStorefront: true,
-            };
-
-            if (detectedType === "DROPDOWN" || detectedType === "MULTISELECT") {
-              createInput.values = Array.from(disc.values).filter(Boolean).map(v => ({ name: v }));
-            }
-
-            const result = await ctx.apiClient.mutation(
-              `mutation AttributeCreate($input: AttributeCreateInput!) {
-                attributeCreate(input: $input) {
-                  attribute { id slug name inputType entityType }
-                  errors { field code message }
+            // First, try to find the attribute by slug via GraphQL query
+            const lookupResult = await ctx.apiClient.query(
+              `query LookupAttribute($slug: String!) {
+                attributes(first: 1, filter: { slug: $slug }) {
+                  edges { node { id slug name inputType entityType values(first: 100) { edges { node { id name slug } } } } }
                 }
               }`,
-              { input: createInput }
+              { slug }
             );
+            const foundNode = lookupResult?.data?.attributes?.edges?.[0]?.node;
 
-            const created = result.data?.attributeCreate?.attribute;
-            if (created) {
-              console.log(`[DynamicImport] Created attribute "${disc.attrName}" (${detectedType}, slug: ${created.slug})`);
-              const newInfo: GlobalAttrInfo = {
-                id: created.id, slug: created.slug, name: created.name || disc.attrName,
-                inputType: created.inputType || detectedType,
-                entityType: created.entityType || undefined,
+            if (foundNode) {
+              // Attribute already exists — reuse it
+              console.log(`[DynamicImport] Found existing attribute "${disc.attrName}" (id: ${foundNode.id}), reusing`);
+              const existingInfo: GlobalAttrInfo = {
+                id: foundNode.id, slug: foundNode.slug, name: foundNode.name || disc.attrName,
+                inputType: foundNode.inputType || detectedType,
+                entityType: foundNode.entityType || undefined,
                 type: "PRODUCT_TYPE",
-                values: Array.from(disc.values).filter(Boolean).map((v, i) => ({
-                  id: `temp-${i}`, name: v, slug: slugifyForSaleor(v),
+                values: (foundNode.values?.edges || []).map((e: any) => ({
+                  id: e.node.id, name: e.node.name, slug: e.node.slug,
                 })),
               };
-              globalAttributeMap.set(created.slug.toLowerCase(), newInfo);
-              globalAttributeMap.set(disc.attrName.toLowerCase(), newInfo);
+              globalAttributeMap.set(foundNode.slug.toLowerCase(), existingInfo);
+              globalAttributeMap.set(disc.attrName.toLowerCase(), existingInfo);
 
               for (const ptRef of disc.productTypes) {
                 const ptInfo = productTypeMap.get(ptRef);
                 if (ptInfo) {
-                  attrsToAssign.push({ attrId: created.id, productTypeId: ptInfo.id, isVariant: disc.isVariant });
+                  attrsToAssign.push({ attrId: foundNode.id, productTypeId: ptInfo.id, isVariant: disc.isVariant });
                 }
               }
             } else {
-              console.warn(`[DynamicImport] Failed to create attribute "${disc.attrName}":`, result.data?.attributeCreate?.errors);
+              // Attribute truly doesn't exist — create it
+              const createInput: Record<string, any> = {
+                name: disc.attrName,
+                slug,
+                inputType: detectedType,
+                type: "PRODUCT_TYPE",
+                visibleInStorefront: true,
+                filterableInDashboard: true,
+                filterableInStorefront: true,
+              };
+
+              if (detectedType === "DROPDOWN" || detectedType === "MULTISELECT") {
+                createInput.values = Array.from(disc.values).filter(Boolean).map(v => ({ name: v }));
+              }
+
+              const result = await ctx.apiClient.mutation(
+                `mutation AttributeCreate($input: AttributeCreateInput!) {
+                  attributeCreate(input: $input) {
+                    attribute { id slug name inputType entityType }
+                    errors { field code message }
+                  }
+                }`,
+                { input: createInput }
+              );
+
+              const created = result.data?.attributeCreate?.attribute;
+              if (created) {
+                console.log(`[DynamicImport] Created attribute "${disc.attrName}" (${detectedType}, slug: ${created.slug})`);
+                const newInfo: GlobalAttrInfo = {
+                  id: created.id, slug: created.slug, name: created.name || disc.attrName,
+                  inputType: created.inputType || detectedType,
+                  entityType: created.entityType || undefined,
+                  type: "PRODUCT_TYPE",
+                  values: Array.from(disc.values).filter(Boolean).map((v, i) => ({
+                    id: `temp-${i}`, name: v, slug: slugifyForSaleor(v),
+                  })),
+                };
+                globalAttributeMap.set(created.slug.toLowerCase(), newInfo);
+                globalAttributeMap.set(disc.attrName.toLowerCase(), newInfo);
+
+                for (const ptRef of disc.productTypes) {
+                  const ptInfo = productTypeMap.get(ptRef);
+                  if (ptInfo) {
+                    attrsToAssign.push({ attrId: created.id, productTypeId: ptInfo.id, isVariant: disc.isVariant });
+                  }
+                }
+              } else {
+                const errors = result.data?.attributeCreate?.errors || [];
+                console.warn(`[DynamicImport] Failed to create attribute "${disc.attrName}":`, errors);
+              }
             }
           } catch (err: any) {
             console.warn(`[DynamicImport] Error creating attribute "${disc.attrName}":`, err.message?.substring(0, 100));
@@ -958,8 +993,7 @@ export const productsRouter = router({
             );
 
             if (result.error) {
-              const errMsg = result.error.graphQLErrors?.map((e: any) => e.message).join("; ")
-                || result.error.message || "Unknown transport error";
+              const errMsg = extractGraphQLError(result.error, "Unknown transport error");
               console.warn(`[DynamicImport] Transport error assigning attribute ${assignment.attrId}: ${errMsg}`);
               continue;
             }
@@ -1268,11 +1302,9 @@ export const productsRouter = router({
               }
             }
 
-            // Legacy brand field fallback — match any attribute containing "brand" or "manufacturer"
+            // Legacy brand field fallback — exact slug/name match only
             if (!value && first.brand) {
-              if (slug === "brand" || name === "brand" ||
-                  slug.includes("brand") || slug.includes("manufacturer") ||
-                  name.includes("brand") || name.includes("manufacturer")) {
+              if (slug === "brand" || slug === "manufacturer" || name === "brand" || name === "manufacturer") {
                 value = first.brand;
               }
             }
@@ -1298,7 +1330,7 @@ export const productsRouter = router({
               ? JSON.stringify({ blocks: [{ type: "paragraph", data: { text: first.description } }] })
               : undefined,
             category: categoryId,
-            weight: first.weight ? parseFloat(first.weight) : undefined,
+            weight: safeParseFloat(first.weight),
             ...(productAttrs.length > 0 ? { attributes: productAttrs } : {}),
             ...(first.seoTitle || first.seoDescription ? {
               seo: {
@@ -1343,13 +1375,13 @@ export const productsRouter = router({
               );
 
               if (updateResult.error) {
-                const errMsg = updateResult.error.graphQLErrors?.map((e: any) => e.message).join("; ") || "GraphQL error";
+                const errMsg = extractGraphQLError(updateResult.error);
                 for (const idx of indices) results.push({ row: idx + 1, success: false, error: `Product update: ${errMsg}` });
                 continue;
               }
               const updateData = updateResult.data?.productUpdate;
               if (!updateData?.product?.id || updateData.errors?.length > 0) {
-                const errMsg = updateData?.errors?.map((e: any) => `${e.field}: ${e.message}`).join("; ") || "Product update failed";
+                const errMsg = updateData?.errors?.map((e: { field: string; message: string }) => `${e.field}: ${e.message}`).join("; ") || "Product update failed";
                 for (const idx of indices) results.push({ row: idx + 1, success: false, error: errMsg });
                 continue;
               }
@@ -1375,14 +1407,14 @@ export const productsRouter = router({
             );
 
             if (createResult.error) {
-              const errMsg = createResult.error.graphQLErrors?.map((e: any) => e.message).join("; ") || "GraphQL error";
+              const errMsg = extractGraphQLError(createResult.error);
               for (const idx of indices) results.push({ row: idx + 1, success: false, error: `Product: ${errMsg}` });
               continue;
             }
 
             const createData = createResult.data?.productCreate;
             if (!createData?.product?.id || createData.errors?.length > 0) {
-              let errMsg = createData?.errors?.map((e: any) => `${e.field}: ${e.message}`).join("; ") || "Product create failed";
+              let errMsg = createData?.errors?.map((e: { field: string; message: string }) => `${e.field}: ${e.message}`).join("; ") || "Product create failed";
               if (!input.upsertMode && errMsg.toLowerCase().includes("slug") && errMsg.toLowerCase().includes("already exists")) {
                 errMsg += ' — Enable "Update existing products" to update instead of create';
               }
@@ -1430,7 +1462,7 @@ export const productsRouter = router({
                 id: productId,
                 input: [
                   { key: "dropship.supplier", value: input.dropshipSupplier },
-                  { key: "dropship.costPrice", value: String(first.price || "0") },
+                  { key: "dropship.costPrice", value: String(first.costPrice || first.price || "0") },
                 ],
               });
               // Public metadata (checkout webhooks need supplier info)
@@ -1530,10 +1562,10 @@ export const productsRouter = router({
                 }
 
                 // Legacy size/color fallback
-                if (!value && (slug.includes("size") || slug.includes("shoe") || name.includes("size"))) {
+                if (!value && (slug.includes("size") || slug.includes("pet") || name.includes("size"))) {
                   value = vRow.variantName;
                 }
-                if (!value && (slug.includes("color") || slug.includes("colour") || name.includes("color"))) {
+                if (!value && vRow.color && (slug === "color" || slug === "colour" || name === "color" || name === "colour")) {
                   value = vRow.color;
                 }
                 // Apply variant attribute default if no value found
@@ -1569,16 +1601,17 @@ export const productsRouter = router({
                       name: variantName,
                       sku: vRow.sku || undefined,
                       trackInventory: input.isDropship ? false : parseBool(vRow.trackInventory, true),
-                      quantityLimitPerCustomer: vRow.quantityLimit ? parseInt(vRow.quantityLimit) : undefined,
-                      weight: vRow.variantWeight ? parseFloat(vRow.variantWeight) : undefined,
+                      quantityLimitPerCustomer: safeParseInt(vRow.quantityLimit, 0),
+                      weight: safeParseFloat(vRow.variantWeight),
                       externalReference: vRow.variantExternalReference || undefined,
                       ...(variantAttrs.length > 0 ? { attributes: variantAttrs } : {}),
                     },
                   }
                 );
                 if (updateResult.error || updateResult.data?.productVariantUpdate?.errors?.length > 0) {
-                  const errMsg = updateResult.error?.graphQLErrors?.map((e: any) => e.message).join("; ")
-                    || updateResult.data?.productVariantUpdate?.errors?.map((e: any) => `${e.field}: ${e.message}`).join("; ")
+                  const errMsg = updateResult.error
+                    ? extractGraphQLError(updateResult.error)
+                    : updateResult.data?.productVariantUpdate?.errors?.map((e: { field: string; message: string }) => `${e.field}: ${e.message}`).join("; ")
                     || "Variant update failed";
                   const warnings = imageErrors.length > 0 ? ` | ${imageErrors.join("; ")}` : "";
                   results.push({ row: origIdx + 1, success: false, error: `Variant: ${errMsg}${warnings}` });
@@ -1598,8 +1631,8 @@ export const productsRouter = router({
                       name: variantName,
                       sku: vRow.sku || undefined,
                       trackInventory: input.isDropship ? false : parseBool(vRow.trackInventory, true),
-                      quantityLimitPerCustomer: vRow.quantityLimit ? parseInt(vRow.quantityLimit) : undefined,
-                      weight: vRow.variantWeight ? parseFloat(vRow.variantWeight) : undefined,
+                      quantityLimitPerCustomer: safeParseInt(vRow.quantityLimit, 0),
+                      weight: safeParseFloat(vRow.variantWeight),
                       externalReference: vRow.variantExternalReference || undefined,
                       attributes: variantAttrs,
                     },
@@ -1607,14 +1640,14 @@ export const productsRouter = router({
                 );
 
                 if (varResult.error) {
-                  const errMsg = varResult.error.graphQLErrors?.map((e: any) => e.message).join("; ") || "Variant error";
+                  const errMsg = extractGraphQLError(varResult.error, "Variant error");
                   results.push({ row: origIdx + 1, success: false, error: `Variant: ${errMsg}` });
                   continue;
                 }
 
                 const varData = varResult.data?.productVariantCreate;
                 if (!varData?.productVariant?.id || varData.errors?.length > 0) {
-                  const errMsg = varData?.errors?.map((e: any) => `${e.field}: ${e.message}`).join("; ") || "Variant create failed";
+                  const errMsg = varData?.errors?.map((e: { field: string; message: string }) => `${e.field}: ${e.message}`).join("; ") || "Variant create failed";
                   results.push({ row: origIdx + 1, success: false, error: errMsg });
                   continue;
                 }
@@ -1622,8 +1655,8 @@ export const productsRouter = router({
               }
 
               // ── Set price via channel listing ──
-              const price = vRow.price ? parseFloat(vRow.price) : undefined;
-              const costPrice = vRow.costPrice ? parseFloat(vRow.costPrice) : undefined;
+              const price = safeParseFloat(vRow.price);
+              const costPrice = safeParseFloat(vRow.costPrice);
 
               if (channelIds.length > 0 && price !== undefined) {
                 try {
@@ -1649,15 +1682,16 @@ export const productsRouter = router({
                 if (key.startsWith("stock:") && val) {
                   const whName = key.substring(6).toLowerCase();
                   const whId = warehouseNameMap.get(whName);
-                  if (whId && !isNaN(parseInt(val))) {
-                    stocks.push({ warehouse: whId, quantity: parseInt(val) });
+                  const qty = safeParseInt(val, 0);
+                  if (whId && qty !== undefined) {
+                    stocks.push({ warehouse: whId, quantity: qty });
                   }
                 }
               }
 
               if (stocks.length === 0 && vRow.stock && rowWarehouseId) {
-                const qty = parseInt(vRow.stock);
-                if (!isNaN(qty)) {
+                const qty = safeParseInt(vRow.stock, 0);
+                if (qty !== undefined) {
                   stocks.push({ warehouse: rowWarehouseId, quantity: qty });
                 }
               }
@@ -2069,7 +2103,7 @@ export const productsRouter = router({
       if (data?.errors?.length > 0) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: data.errors.map((e: any) => e.message).join("; "),
+          message: extractGraphQLError({ graphQLErrors: data.errors }),
         });
       }
 
