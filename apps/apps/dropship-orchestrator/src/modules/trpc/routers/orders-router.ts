@@ -146,13 +146,25 @@ export const ordersRouter = router({
         after: z.string().nullable().optional(),
         status: DropshipOrderStatusEnum.optional(),
         supplierId: z.string().optional(),
+        dateFrom: z.string().optional(),
+        dateTo: z.string().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
+      // Build Saleor OrderFilterInput — Saleor expects Date scalars as "YYYY-MM-DD"
+      const filter: Record<string, unknown> = {};
+      if (input.dateFrom || input.dateTo) {
+        filter.created = {
+          ...(input.dateFrom ? { gte: input.dateFrom.slice(0, 10) } : {}),
+          ...(input.dateTo ? { lte: input.dateTo.slice(0, 10) } : {}),
+        };
+      }
+
       const { data, error } = await ctx.apiClient
         .query(ORDERS_WITH_METADATA, {
           first: input.first,
           after: input.after ?? null,
+          filter: Object.keys(filter).length > 0 ? filter : undefined,
         })
         .toPromise();
 

@@ -1,12 +1,21 @@
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { NavBar } from "@/components/ui/NavBar";
 
 type DropshipStatus = "pending" | "forwarded" | "shipped" | "delivered" | "cancelled" | "supplier_cancelled" | "failed" | "exception";
 type SupplierFilter = "aliexpress" | "cj";
+
+/** Quick date presets relative to today. */
+const DATE_PRESETS: Array<{ label: string; days: number | null }> = [
+  { label: "All Time", days: null },
+  { label: "Today", days: 0 },
+  { label: "Last 7 days", days: 7 },
+  { label: "Last 30 days", days: 30 },
+  { label: "Last 90 days", days: 90 },
+];
 
 const STATUS_OPTIONS: Array<{ value: DropshipStatus | "all"; label: string }> = [
   { value: "all", label: "All Statuses" },
@@ -42,24 +51,61 @@ function statusBadgeCls(status: string): string {
   }
 }
 
+const PAGE_SIZE = 20;
+
 function OrdersList() {
   const router = useRouter();
   const [statusFilter, setStatusFilter] = useState<DropshipStatus | "all">("all");
   const [supplierFilter, setSupplierFilter] = useState<SupplierFilter | "all">("all");
+  const [dateFrom, setDateFrom] = useState<string>("");
+  const [dateTo, setDateTo] = useState<string>("");
   const [cursor, setCursor] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [accumulated, setAccumulated] = useState<any[]>([]);
+  const filterVersionRef = useRef(0);
+
+  // Reset accumulation when filters change
+  const resetFilters = useCallback(() => {
+    filterVersionRef.current += 1;
+    setCursor(null);
+    setAccumulated([]);
+    setSelectedIds(new Set());
+  }, []);
 
   const { data, isLoading, error, refetch } = trpcClient.orders.list.useQuery({
-    first: 20,
+    first: PAGE_SIZE,
     after: cursor,
     status: statusFilter === "all" ? undefined : statusFilter,
     supplierId: supplierFilter === "all" ? undefined : supplierFilter,
+    dateFrom: dateFrom || undefined,
+    dateTo: dateTo || undefined,
   });
 
+  // Accumulate orders as new pages load
+  useEffect(() => {
+    if (data?.orders) {
+      if (cursor === null) {
+        // First page or filter reset
+        setAccumulated(data.orders);
+      } else {
+        // Append new page (deduplicate by id)
+        setAccumulated((prev) => {
+          const existingIds = new Set(prev.map((o: any) => o.id));
+          const newOrders = data.orders.filter((o: any) => !existingIds.has(o.id));
+          return [...prev, ...newOrders];
+        });
+      }
+    }
+  }, [data, cursor]);
+
+  const refreshAll = useCallback(() => {
+    resetFilters();
+    // Small delay so state updates propagate before refetch
+    setTimeout(() => refetch(), 50);
+  }, [refetch, resetFilters]);
+
   const retryMutation = trpcClient.orders.retryForward.useMutation({
-    onSuccess: () => {
-      refetch();
-    },
+    onSuccess: () => refreshAll(),
   });
 
   const cancelMutation = trpcClient.orders.cancelOrder.useMutation({
@@ -67,7 +113,7 @@ function OrdersList() {
       if (result.errors.length > 0) {
         alert(`Order cancelled locally but supplier cancel had issues:\n${result.errors.join("\n")}`);
       }
-      refetch();
+      refreshAll();
     },
   });
 
@@ -78,7 +124,7 @@ function OrdersList() {
         alert(`${result.results.length - failed.length} cancelled, ${failed.length} failed.`);
       }
       setSelectedIds(new Set());
-      refetch();
+      refreshAll();
     },
   });
 
@@ -91,9 +137,9 @@ function OrdersList() {
   };
 
   const cancellableStatuses = ["forwarded", "pending", "failed"];
-  const cancellableOrders = data?.orders.filter((o: any) => cancellableStatuses.includes(o.dropshipStatus)) ?? [];
+  const cancellableOrders = accumulated.filter((o: any) => cancellableStatuses.includes(o.dropshipStatus));
 
-  if (isLoading) {
+  if (isLoading && accumulated.length === 0) {
     return (
       <div className="p-8">
         <h1 className="text-xl font-semibold text-text-primary">Loading orders...</h1>
@@ -118,53 +164,133 @@ function OrdersList() {
         <div>
           <h1 className="text-xl font-semibold text-text-primary">Dropship Orders</h1>
           <p className="text-sm text-text-muted">
-            {data?.totalCount ?? 0} total orders
+            Showing {accumulated.length} of {data?.totalCount ?? 0} orders
           </p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex gap-3 flex-wrap">
-        <div className="flex flex-col gap-1">
-          <span className="text-xs text-text-muted">Status</span>
-          <div className="flex gap-1 flex-wrap">
-            {STATUS_OPTIONS.map((opt) => (
-              <button
-                key={opt.value}
-                className={
-                  statusFilter === opt.value
-                    ? "px-2.5 py-1 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light transition-colors"
-                    : "px-2.5 py-1 text-sm font-medium text-text-muted hover:text-text-primary transition-colors"
-                }
-                onClick={() => {
-                  setStatusFilter(opt.value as DropshipStatus | "all");
-                  setCursor(null);
-                }}
-              >
-                {opt.label}
-              </button>
-            ))}
+      <div className="flex flex-col gap-3">
+        <div className="flex gap-3 flex-wrap">
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-text-muted">Status</span>
+            <div className="flex gap-1 flex-wrap">
+              {STATUS_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  className={
+                    statusFilter === opt.value
+                      ? "px-2.5 py-1 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light transition-colors"
+                      : "px-2.5 py-1 text-sm font-medium text-text-muted hover:text-text-primary transition-colors"
+                  }
+                  onClick={() => {
+                    setStatusFilter(opt.value as DropshipStatus | "all");
+                    resetFilters();
+                  }}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-text-muted">Supplier</span>
+            <div className="flex gap-1">
+              {SUPPLIER_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  className={
+                    supplierFilter === opt.value
+                      ? "px-2.5 py-1 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light transition-colors"
+                      : "px-2.5 py-1 text-sm font-medium text-text-muted hover:text-text-primary transition-colors"
+                  }
+                  onClick={() => {
+                    setSupplierFilter(opt.value as SupplierFilter | "all");
+                    resetFilters();
+                  }}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-        <div className="flex flex-col gap-1">
-          <span className="text-xs text-text-muted">Supplier</span>
+
+        {/* Date filter */}
+        <div className="flex gap-3 items-end flex-wrap">
           <div className="flex gap-1">
-            {SUPPLIER_OPTIONS.map((opt) => (
+            {DATE_PRESETS.map((preset) => {
+              const isActive =
+                preset.days === null
+                  ? !dateFrom && !dateTo
+                  : dateFrom ===
+                    new Date(Date.now() - preset.days * 86400000)
+                      .toISOString()
+                      .slice(0, 10) && !dateTo;
+
+              return (
+                <button
+                  key={preset.label}
+                  className={
+                    isActive
+                      ? "px-2.5 py-1 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light transition-colors"
+                      : "px-2.5 py-1 text-sm font-medium text-text-muted hover:text-text-primary transition-colors"
+                  }
+                  onClick={() => {
+                    if (preset.days === null) {
+                      setDateFrom("");
+                      setDateTo("");
+                    } else {
+                      const from = new Date();
+                      from.setDate(from.getDate() - preset.days);
+                      setDateFrom(from.toISOString().slice(0, 10));
+                      setDateTo("");
+                    }
+                    resetFilters();
+                  }}
+                >
+                  {preset.label}
+                </button>
+              );
+            })}
+          </div>
+          <div className="flex gap-2 items-center">
+            <div className="flex flex-col gap-0.5">
+              <span className="text-xs text-text-muted">From</span>
+              <input
+                type="date"
+                className="px-2 py-1 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
+                value={dateFrom}
+                onChange={(e) => {
+                  setDateFrom(e.target.value);
+                  resetFilters();
+                }}
+              />
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <span className="text-xs text-text-muted">To</span>
+              <input
+                type="date"
+                className="px-2 py-1 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
+                value={dateTo}
+                onChange={(e) => {
+                  setDateTo(e.target.value);
+                  resetFilters();
+                }}
+              />
+            </div>
+            {(dateFrom || dateTo) && (
               <button
-                key={opt.value}
-                className={
-                  supplierFilter === opt.value
-                    ? "px-2.5 py-1 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light transition-colors"
-                    : "px-2.5 py-1 text-sm font-medium text-text-muted hover:text-text-primary transition-colors"
-                }
+                className="px-2 py-1 text-xs text-text-muted hover:text-text-primary transition-colors self-end"
                 onClick={() => {
-                  setSupplierFilter(opt.value as SupplierFilter | "all");
-                  setCursor(null);
+                  setDateFrom("");
+                  setDateTo("");
+                  resetFilters();
                 }}
               >
-                {opt.label}
+                Clear dates
               </button>
-            ))}
+            )}
           </div>
         </div>
       </div>
@@ -226,7 +352,7 @@ function OrdersList() {
         </div>
 
         {/* Rows */}
-        {data?.orders.map((order: any) => (
+        {accumulated.map((order: any) => (
           <div
             key={order.id}
             className="grid gap-2 px-4 py-3 border border-border rounded-lg items-center"
@@ -305,21 +431,22 @@ function OrdersList() {
           </div>
         ))}
 
-        {data?.orders.length === 0 && (
+        {accumulated.length === 0 && !isLoading && (
           <div className="p-8 flex justify-center">
             <p className="text-sm text-text-muted">No dropship orders found matching the current filters.</p>
           </div>
         )}
       </div>
 
-      {/* Pagination */}
+      {/* Load More */}
       {data?.pageInfo.hasNextPage && (
         <div className="flex justify-center">
           <button
             className="px-3 py-1.5 text-sm font-medium border border-border rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
+            disabled={isLoading}
             onClick={() => setCursor(data.pageInfo.endCursor)}
           >
-            Load More
+            {isLoading ? "Loading..." : "Load More"}
           </button>
         </div>
       )}

@@ -24,6 +24,95 @@ function statusBadgeCls(status: string): string {
   }
 }
 
+function returnStatusBadgeClsLocal(status: string): string {
+  switch (status) {
+    case "refunded": return "bg-green-50 text-green-800";
+    case "approved": return "bg-blue-50 text-blue-800";
+    case "shipped_back": return "bg-indigo-50 text-indigo-800";
+    case "rejected": return "bg-red-50 text-red-800";
+    case "requested": return "bg-yellow-50 text-yellow-800";
+    default: return "bg-gray-100 text-gray-800";
+  }
+}
+
+const RETURN_STATUS_LABELS: Record<string, string> = {
+  requested: "Requested",
+  approved: "Approved",
+  shipped_back: "Shipped Back",
+  refunded: "Refunded",
+  rejected: "Rejected",
+};
+
+function OrderReturnsSection({ orderId, orderNumber }: { orderId: string; orderNumber: string }) {
+  const router = useRouter();
+  const { data } = trpcClient.returns.list.useQuery(undefined);
+
+  const returns = (data?.returns ?? []).filter((r) => r.orderId === orderId);
+
+  if (returns.length === 0) {
+    return (
+      <div className="p-5 rounded-lg border border-border">
+        <div className="flex justify-between items-center">
+          <h2 className="text-base font-semibold text-text-primary">Returns</h2>
+          <button
+            className="px-2.5 py-1 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light transition-colors"
+            onClick={() => router.push("/returns")}
+          >
+            Create Return
+          </button>
+        </div>
+        <p className="text-sm text-text-muted mt-2">No return requests for this order.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-5 rounded-lg border border-border">
+      <div className="flex justify-between items-center mb-3">
+        <h2 className="text-base font-semibold text-text-primary">Returns ({returns.length})</h2>
+        <button
+          className="px-2.5 py-1 text-sm font-medium border border-border rounded-md hover:bg-gray-50 transition-colors"
+          onClick={() => router.push("/returns")}
+        >
+          View All Returns
+        </button>
+      </div>
+      <div className="flex flex-col gap-2">
+        {returns.map((ret) => (
+          <div key={ret.id} className="p-3 rounded-lg border border-border flex flex-col gap-1">
+            <div className="flex justify-between items-center">
+              <div className="flex gap-2 items-center">
+                <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${returnStatusBadgeClsLocal(ret.status)}`}>
+                  {RETURN_STATUS_LABELS[ret.status] ?? ret.status}
+                </span>
+                <span className="text-xs text-text-muted">{ret.supplier.toUpperCase()}</span>
+              </div>
+              <span className="text-xs text-text-muted">{new Date(ret.createdAt).toLocaleDateString()}</span>
+            </div>
+            <span className="text-xs text-text-muted">Reason: {ret.reason}</span>
+            <div className="flex gap-2 flex-wrap">
+              {ret.items.map((item, idx) => (
+                <span key={idx} className="text-xs">
+                  {item.productName} x{item.quantity}
+                </span>
+              ))}
+            </div>
+            {(ret.timeline ?? []).length > 0 && (
+              <div className="flex flex-col gap-0.5 mt-1 ps-2 border-s-2 border-gray-200">
+                {ret.timeline.slice(-3).map((entry, idx) => (
+                  <span key={idx} className="text-xs text-text-muted">
+                    {new Date(entry.at).toLocaleString()} — {entry.action}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function OrderDetail() {
   const router = useRouter();
   const orderId = router.query.id as string;
@@ -208,6 +297,9 @@ function OrderDetail() {
           ))}
         </div>
       </div>
+
+      {/* Returns */}
+      <OrderReturnsSection orderId={orderId} orderNumber={order.number} />
 
       {/* Fulfillments */}
       {order.fulfillments && order.fulfillments.length > 0 && (

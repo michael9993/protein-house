@@ -154,7 +154,7 @@ function RulesTab() {
                   className="w-full px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
                   value={rule.matchValue || ""}
                   onChange={(e) => updateRule(rule.id, "matchValue", e.target.value)}
-                  placeholder={rule.type === "supplier" ? "cj" : rule.type === "category" ? "men-shoes" : "IL"}
+                  placeholder={rule.type === "supplier" ? "cj" : rule.type === "category" ? "dog-toys" : "IL"}
                 />
               </div>
             )}
@@ -397,7 +397,7 @@ function PreviewTab() {
     supplierId: string;
     categorySlug: string;
   }>>([
-    { name: "Sample Product", costPrice: 10, supplierId: "cj", categorySlug: "men-casual-shoes" },
+    { name: "Sample Product", costPrice: 10, supplierId: "cj", categorySlug: "dog-toys" },
   ]);
   const [targetCurrency, setTargetCurrency] = useState("USD");
 
@@ -488,7 +488,7 @@ function PreviewTab() {
               className="w-full px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
               value={p.categorySlug}
               onChange={(e) => updateProduct(idx, "categorySlug", e.target.value)}
-              placeholder="men-casual-shoes"
+              placeholder="dog-toys"
             />
           </div>
           <button

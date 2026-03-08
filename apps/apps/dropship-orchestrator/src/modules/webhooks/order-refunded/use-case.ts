@@ -6,6 +6,14 @@ import { logAuditEvent } from "@/modules/audit/audit-logger";
 import { fetchAppId, getSupplierCredentials } from "@/modules/lib/metadata-manager";
 import { supplierRegistry } from "@/modules/suppliers/registry";
 import type { AuthToken } from "@/modules/suppliers/types";
+import {
+  METADATA_KEY as RETURNS_KEY,
+  type ReturnRequest,
+  getAppMetadata as getReturnsAppMetadata,
+  parseReturns,
+  saveReturns,
+  addTimelineEntry,
+} from "@/modules/returns/returns-store";
 
 const logger = createLogger("OrderRefundedUseCase");
 
@@ -295,6 +303,81 @@ export async function handleOrderRefunded(
       ],
     })
     .toPromise();
+
+  // ------------------------------------------------------------------
+  // 5. Auto-create return request if configured
+  // ------------------------------------------------------------------
+
+  try {
+    const { appId: returnsAppId, meta: returnsMeta } = await getReturnsAppMetadata(client);
+    const returnsConfigRaw = returnsMeta["dropship-returns-config"];
+    let autoCreateFromRefund = false;
+
+    if (returnsConfigRaw) {
+      try {
+        const rc = JSON.parse(returnsConfigRaw);
+        autoCreateFromRefund = rc.autoCreateFromRefund === true;
+      } catch {
+        // ignore parse errors
+      }
+    }
+
+    if (autoCreateFromRefund && returnsAppId) {
+      const existingReturns = parseReturns(returnsMeta[RETURNS_KEY]);
+      const alreadyExists = existingReturns.some(
+        (r) => r.orderId === orderId && r.status !== "rejected",
+      );
+
+      if (!alreadyExists) {
+        const supplierName = Object.keys(suppliers)[0] ?? "unknown";
+        const supplierOrderIdVal = Object.values(suppliers)[0] ?? "";
+        const now = new Date().toISOString();
+
+        let returnRequest: ReturnRequest = {
+          id: `ret-${Date.now()}`,
+          orderId,
+          orderNumber,
+          customerEmail: payload.order?.userEmail ?? "",
+          reason: "Saleor refund issued",
+          items: [{ productName: "Order refund", quantity: 1 }],
+          status: "approved",
+          supplier: supplierName,
+          createdAt: now,
+          updatedAt: now,
+          supplierOrderId: supplierOrderIdVal,
+          timeline: [],
+        };
+
+        returnRequest = addTimelineEntry(
+          returnRequest,
+          "Auto-created from Saleor ORDER_REFUNDED webhook",
+          "system",
+        );
+
+        existingReturns.push(returnRequest);
+        await saveReturns(client, returnsAppId, existingReturns);
+
+        await logAuditEvent(client, {
+          type: "return_created",
+          orderId,
+          action: `Auto-created return from ORDER_REFUNDED for order #${orderNumber}`,
+          status: "success",
+          timestamp: now,
+        });
+
+        logger.info("Auto-created return from refund", {
+          returnId: returnRequest.id,
+          orderId,
+        });
+      }
+    }
+  } catch (e) {
+    // Auto-create should never block the main refund flow
+    logger.error("Error auto-creating return from refund", {
+      error: e instanceof Error ? e.message : String(e),
+      orderId,
+    });
+  }
 
   const duration = Date.now() - startTime;
   logger.info("ORDER_REFUNDED processing complete", {

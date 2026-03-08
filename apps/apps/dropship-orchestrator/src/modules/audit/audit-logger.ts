@@ -21,7 +21,10 @@ export type AuditEventType =
   | "token_refreshed"
   | "reconciliation"
   | "stock_updated"
-  | "webhook_received";
+  | "webhook_received"
+  | "return_created"
+  | "return_updated"
+  | "order_refunded";
 
 export interface AuditEvent {
   type: AuditEventType;

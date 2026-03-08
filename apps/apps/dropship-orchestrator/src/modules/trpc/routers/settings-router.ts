@@ -56,6 +56,27 @@ const FraudConfigSchema = z.object({
     .default(["velocity_check", "address_mismatch", "value_threshold", "blacklist_match", "new_customer_high_value"]),
 });
 
+const ReturnsConfigSchema = z.object({
+  enabled: z.boolean().default(true),
+  returnWindowDays: z
+    .record(z.string(), z.number().min(0))
+    .default({ cj: 15, aliexpress: 30 }),
+  autoCreateFromRefund: z.boolean().default(false),
+  autoRefundOnReceipt: z.boolean().default(false),
+  autoCancelSupplierOnApproval: z.boolean().default(false),
+  autoCreateSaleorRefund: z.boolean().default(false),
+  allowedReasons: z
+    .array(z.string())
+    .default([
+      "Defective/damaged",
+      "Wrong item received",
+      "Wrong size/color",
+      "Changed mind",
+      "Item not as described",
+      "Other",
+    ]),
+});
+
 const IpWhitelistSchema = z.object({
   enabled: z.boolean().default(false),
   allowedIps: z.array(z.string()).default([]),
@@ -164,6 +185,24 @@ export const settingsRouter = router({
       await saveSettings(ctx.apiClient, appId, "dropship-blacklist", blacklist);
       logger.info("Added to blacklist", { type: input.type, value: input.value });
       return blacklist;
+    }),
+
+  getReturnsConfig: protectedClientProcedure.query(async ({ ctx }) => {
+    const { value } = await getSettingsFromMetadata(ctx.apiClient, "dropship-returns-config");
+    return ReturnsConfigSchema.parse(value ?? {});
+  }),
+
+  updateReturnsConfig: protectedClientProcedure
+    .input(ReturnsConfigSchema.partial())
+    .mutation(async ({ ctx, input }) => {
+      const { appId, value: existing } = await getSettingsFromMetadata(
+        ctx.apiClient,
+        "dropship-returns-config",
+      );
+      const merged = ReturnsConfigSchema.parse({ ...(existing ?? {}), ...input });
+      await saveSettings(ctx.apiClient, appId, "dropship-returns-config", merged);
+      logger.info("Updated returns config", { changes: Object.keys(input) });
+      return merged;
     }),
 
   removeFromBlacklist: protectedClientProcedure

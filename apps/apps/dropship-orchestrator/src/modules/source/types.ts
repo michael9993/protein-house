@@ -147,7 +147,7 @@ export function generateCSV(products: SourcedProduct[], markup: number, override
     "imageUrl5",
     ...(hasVariantImages ? ["variantImageUrl"] : []),
     ...sortedAttrNames.map((name) => `variantAttr:${name}`),
-    "attr:Gender",
+    "attr:Pet Type",
     "collections",
     "metadata",
     "variantMetadata",

@@ -24,7 +24,7 @@ function SourceProducts() {
   const [markup, setMarkup] = useState(2.5);
   const [defaultType, setDefaultType] = useState("dropship-product");
   const [defaultCategory, setDefaultCategory] = useState("");
-  const [defaultGender, setDefaultGender] = useState("Men");
+  const [defaultGender, setDefaultGender] = useState("Dog");
   const [defaultCollections, setDefaultCollections] = useState<string[]>([]);
   const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
   const [destinationCountry, setDestinationCountry] = useState("IL");
@@ -362,13 +362,13 @@ function SourceProducts() {
                 />
               </div>
 
-              {/* Gender */}
+              {/* Pet Type */}
               <div>
-                <label className="block text-xs font-medium text-text-muted mb-1">Gender</label>
+                <label className="block text-xs font-medium text-text-muted mb-1">Pet Type</label>
                 <select className={selectCls} value={defaultGender} onChange={(e) => setDefaultGender(e.target.value)}>
-                  <option value="Men">Men</option>
-                  <option value="Women">Women</option>
-                  <option value="Unisex">Unisex</option>
+                  <option value="Dog">Dog</option>
+                  <option value="Cat">Cat</option>
+                  <option value="Both">Both</option>
                 </select>
               </div>
 

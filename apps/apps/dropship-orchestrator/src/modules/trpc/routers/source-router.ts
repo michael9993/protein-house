@@ -444,7 +444,7 @@ const COLOR_NAMES = new Set([
 ]);
 
 const LETTER_SIZE_RE = /^(XXS|XS|S|M|L|XL|XXL|XXXL|2XL|3XL|4XL|5XL|6XL|one\s*size|free\s*size)$/i;
-const SHOE_SIZE_RE = /^(3[5-9]|4[0-8])(\.\d)?$/;
+const PET_SIZE_RE = /^(XXS|XS|S|M|L|XL|XXL|XXXL)$/i;
 const STORAGE_RE = /^\d+(GB|TB|MB)$/i;
 const VOLUME_RE = /^\d+(\.\d+)?\s*(ml|L|oz|fl\s*oz)$/i;
 const POWER_RE = /^\d+(mAh|W|V|A)$/i;
@@ -472,8 +472,8 @@ function classifyVariantValue(value: string): { attribute: string } {
   // 2. Letter sizes
   if (LETTER_SIZE_RE.test(trimmed)) return { attribute: "Size" };
 
-  // 3. Shoe-range numbers (35-48)
-  if (SHOE_SIZE_RE.test(trimmed)) return { attribute: "Size" };
+  // 3. Pet product sizes (S, M, L, XL, XXL)
+  if (PET_SIZE_RE.test(trimmed)) return { attribute: "Size" };
 
   // 4. Storage (64GB, 1TB)
   if (STORAGE_RE.test(trimmed)) return { attribute: "Storage" };
@@ -493,7 +493,7 @@ function classifyVariantValue(value: string): { attribute: string } {
   // 9. Weight (500g, 2kg)
   if (WEIGHT_RE.test(trimmed)) return { attribute: "Weight" };
 
-  // 10. Generic number 1-999 (not in shoe range) → Size
+  // 10. Generic number 1-999 → Size
   if (/^\d{1,3}(\.\d)?$/.test(trimmed)) return { attribute: "Size" };
 
   // 11. Fallback — still "Option" internally, but callers will convert to Color
@@ -510,11 +510,11 @@ const CJ_PLACEHOLDER_COLORS = new Set([
 ]);
 
 /**
- * Checks if a value is a recognized size (letter size, shoe size, or plain number).
+ * Checks if a value is a recognized size (letter size, pet size, or plain number).
  */
 function isKnownSize(val: string): boolean {
   const trimmed = val.trim();
-  return LETTER_SIZE_RE.test(trimmed) || SHOE_SIZE_RE.test(trimmed) || /^\d{1,3}(\.\d)?$/.test(trimmed);
+  return LETTER_SIZE_RE.test(trimmed) || PET_SIZE_RE.test(trimmed) || /^\d{1,3}(\.\d)?$/.test(trimmed);
 }
 
 /**
@@ -2089,13 +2089,13 @@ export const sourceRouter = router({
             logger.warn(`Category "${catName}" not found — product will be created without category`);
           }
 
-          // Gender attribute from enriched product type info
+          // Pet Type attribute from enriched product type info
           if (product.editGender) {
-            const genderAttr = ptInfo.productAttributes.find(
-              (a) => a.slug === "gender" || a.name.toLowerCase() === "gender",
+            const petTypeAttr = ptInfo.productAttributes.find(
+              (a) => a.slug === "pet-type" || a.name.toLowerCase() === "pet type",
             );
-            if (genderAttr) {
-              productInput.attributes = [{ id: genderAttr.id, values: [product.editGender] }];
+            if (petTypeAttr) {
+              productInput.attributes = [{ id: petTypeAttr.id, values: [product.editGender] }];
             }
           }
 

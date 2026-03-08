@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { NavBar } from "@/components/ui/NavBar";
 
-type SettingsTab = "general" | "fraud" | "ip-whitelist" | "blacklist";
+type SettingsTab = "general" | "fraud" | "ip-whitelist" | "blacklist" | "returns";
 
 const FRAUD_RULE_LABELS: Record<string, string> = {
   velocity_check: "Velocity Check (orders per hour)",
@@ -616,6 +616,145 @@ function BlacklistSettings() {
   );
 }
 
+function ReturnsSettings() {
+  const { data, isLoading, error, refetch } = trpcClient.settings.getReturnsConfig.useQuery();
+  const updateMutation = trpcClient.settings.updateReturnsConfig.useMutation({
+    onSuccess: () => {
+      setSaveMessage({ type: "success", text: "Returns settings saved" });
+      refetch();
+      setTimeout(() => setSaveMessage(null), 3000);
+    },
+    onError: (err) => {
+      setSaveMessage({ type: "error", text: err.message });
+    },
+  });
+
+  const [enabled, setEnabled] = useState(true);
+  const [autoCreateFromRefund, setAutoCreateFromRefund] = useState(false);
+  const [autoRefundOnReceipt, setAutoRefundOnReceipt] = useState(false);
+  const [autoCancelSupplierOnApproval, setAutoCancelSupplierOnApproval] = useState(false);
+  const [autoCreateSaleorRefund, setAutoCreateSaleorRefund] = useState(false);
+  const [cjWindow, setCjWindow] = useState(15);
+  const [aliexpressWindow, setAliexpressWindow] = useState(30);
+  const [reasons, setReasons] = useState("");
+  const [saveMessage, setSaveMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  useEffect(() => {
+    if (data) {
+      setEnabled(data.enabled);
+      setAutoCreateFromRefund(data.autoCreateFromRefund);
+      setAutoRefundOnReceipt(data.autoRefundOnReceipt);
+      setAutoCancelSupplierOnApproval(data.autoCancelSupplierOnApproval);
+      setAutoCreateSaleorRefund(data.autoCreateSaleorRefund);
+      setCjWindow(data.returnWindowDays?.cj ?? 15);
+      setAliexpressWindow(data.returnWindowDays?.aliexpress ?? 30);
+      setReasons((data.allowedReasons ?? []).join(", "));
+    }
+  }, [data]);
+
+  if (isLoading) return <p className="text-sm">Loading returns settings...</p>;
+  if (error) return <p className="text-sm text-red-600">Error: {error.message}</p>;
+
+  const toggleBtn = (value: boolean, setter: (v: boolean) => void, onLabel = "Enabled", offLabel = "Disabled") => (
+    <button
+      className={`px-2.5 py-1 text-sm font-medium rounded-md transition-colors ${
+        value ? "text-white bg-brand hover:bg-brand-light" : "border border-border hover:bg-gray-50"
+      }`}
+      onClick={() => setter(!value)}
+    >
+      {value ? onLabel : offLabel}
+    </button>
+  );
+
+  const toggleRow = (label: string, description: string, value: boolean, setter: (v: boolean) => void) => (
+    <div className="flex justify-between items-center p-4 rounded-lg border border-border">
+      <div>
+        <span className="font-semibold block">{label}</span>
+        <span className="text-xs text-text-muted">{description}</span>
+      </div>
+      {toggleBtn(value, setter)}
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col gap-5">
+      <h2 className="text-base font-semibold text-text-primary">Returns Configuration</h2>
+
+      <div className="flex flex-col gap-4">
+        {toggleRow("Returns Enabled", "Master switch for the returns system", enabled, setEnabled)}
+        {toggleRow("Auto-Create from Refund", "Auto-create return when order is refunded in Saleor", autoCreateFromRefund, setAutoCreateFromRefund)}
+        {toggleRow("Auto-Refund on Receipt", "Auto-mark as refunded when shipped back", autoRefundOnReceipt, setAutoRefundOnReceipt)}
+        {toggleRow("Auto-Cancel Supplier on Approval", "Auto-cancel supplier order when return approved", autoCancelSupplierOnApproval, setAutoCancelSupplierOnApproval)}
+        {toggleRow("Auto-Create Saleor Refund", "Create Saleor refund when marking return as refunded", autoCreateSaleorRefund, setAutoCreateSaleorRefund)}
+      </div>
+
+      <h2 className="text-base font-semibold text-text-primary">Return Windows</h2>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="p-4 rounded-lg border border-border">
+          <span className="font-semibold block mb-2">CJ Dropshipping (days)</span>
+          <span className="text-xs text-text-muted block mb-2">0 = unlimited</span>
+          <input
+            type="number"
+            min="0"
+            className="w-full px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
+            value={String(cjWindow)}
+            onChange={(e) => setCjWindow(Number(e.target.value))}
+          />
+        </div>
+        <div className="p-4 rounded-lg border border-border">
+          <span className="font-semibold block mb-2">AliExpress (days)</span>
+          <span className="text-xs text-text-muted block mb-2">0 = unlimited</span>
+          <input
+            type="number"
+            min="0"
+            className="w-full px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
+            value={String(aliexpressWindow)}
+            onChange={(e) => setAliexpressWindow(Number(e.target.value))}
+          />
+        </div>
+      </div>
+
+      <h2 className="text-base font-semibold text-text-primary">Allowed Reasons</h2>
+      <div className="p-4 rounded-lg border border-border">
+        <span className="text-xs text-text-muted block mb-2">Comma-separated list. Leave empty for freeform.</span>
+        <input
+          className="w-full px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20"
+          value={reasons}
+          onChange={(e) => setReasons(e.target.value)}
+          placeholder="Defective/damaged, Wrong item, ..."
+        />
+      </div>
+
+      {saveMessage && (
+        <div className={`p-3 rounded-lg text-sm ${saveMessage.type === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"}`}>
+          {saveMessage.text}
+        </div>
+      )}
+
+      <button
+        className="px-3 py-1.5 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light disabled:opacity-50 transition-colors"
+        disabled={updateMutation.isLoading}
+        onClick={() =>
+          updateMutation.mutate({
+            enabled,
+            autoCreateFromRefund,
+            autoRefundOnReceipt,
+            autoCancelSupplierOnApproval,
+            autoCreateSaleorRefund,
+            returnWindowDays: { cj: cjWindow, aliexpress: aliexpressWindow },
+            allowedReasons: reasons
+              .split(",")
+              .map((r) => r.trim())
+              .filter(Boolean),
+          })
+        }
+      >
+        {updateMutation.isLoading ? "Saving..." : "Save Returns Settings"}
+      </button>
+    </div>
+  );
+}
+
 function SettingsContent() {
   const [activeTab, setActiveTab] = useState<SettingsTab>("general");
 
@@ -624,6 +763,7 @@ function SettingsContent() {
     { value: "fraud", label: "Fraud Detection" },
     { value: "ip-whitelist", label: "IP Whitelist" },
     { value: "blacklist", label: "Blacklist" },
+    { value: "returns", label: "Returns" },
   ];
 
   return (
@@ -657,6 +797,7 @@ function SettingsContent() {
       {activeTab === "fraud" && <FraudSettings />}
       {activeTab === "ip-whitelist" && <IpWhitelistSettings />}
       {activeTab === "blacklist" && <BlacklistSettings />}
+      {activeTab === "returns" && <ReturnsSettings />}
     </div>
   );
 }
