@@ -30,6 +30,7 @@ import { applyTemplateToCanvas } from "./utils/applyTemplate";
 import { ComponentsPanel } from "./ComponentsPanel";
 import { FloatingTextToolbar } from "./FloatingTextToolbar";
 import { ShapesPanel } from "./ShapesPanel";
+import { HistoryPanel } from "./HistoryPanel";
 import { SocialPresetsPanel } from "./SocialPresetsPanel";
 import { BrandKitDialog } from "./BrandKitDialog";
 import { MockupFillDialog } from "./MockupFillDialog";
@@ -40,7 +41,7 @@ import type { Project } from "@/modules/projects/types";
 
 const CANVAS_ID = "image-studio-canvas";
 
-type RightPanel = "properties" | "layers";
+type RightPanel = "properties" | "layers" | "history";
 
 export function CanvasEditor() {
   const [showExport, setShowExport] = useState(false);
@@ -112,7 +113,7 @@ export function CanvasEditor() {
     sampleColor,
   } = useCanvas(CANVAS_ID, { width: 800, height: 600 });
 
-  const { saveState, undo, redo, canUndo, canRedo, initHistory } = useHistory(canvas);
+  const { saveState, undo, redo, canUndo, canRedo, initHistory, entries: historyEntries, currentIndex: historyIndex, jumpTo: historyJumpTo } = useHistory(canvas);
   const crop = useCropTool(canvas, selectedObject);
   const drawing = useDrawing(canvas);
   const {
@@ -731,6 +732,16 @@ export function CanvasEditor() {
               >
                 Layers
               </button>
+              <button
+                onClick={() => setRightPanel("history")}
+                className={`flex-1 px-3 py-2 text-[10px] font-medium uppercase transition-colors ${
+                  rightPanel === "history"
+                    ? "text-primary border-b-2 border-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                History
+              </button>
             </div>
 
             <div className="flex-1 overflow-y-auto">
@@ -755,11 +766,17 @@ export function CanvasEditor() {
                   isImage={crop.isImage}
                   hasClipPath={crop.hasClipPath}
                 />
-              ) : (
+              ) : rightPanel === "layers" ? (
                 <LayersPanel
                   canvas={canvas}
                   selectedObject={selectedObject}
                   onSelectObject={() => setRightPanel("properties")}
+                />
+              ) : (
+                <HistoryPanel
+                  entries={historyEntries}
+                  currentIndex={historyIndex}
+                  onJumpTo={historyJumpTo}
                 />
               )}
             </div>
