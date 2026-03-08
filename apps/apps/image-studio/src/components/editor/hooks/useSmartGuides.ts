@@ -28,7 +28,14 @@ function getCanvasSpaceBounds(obj: FabricObject) {
   };
 }
 
-export function useSmartGuides(canvas: Canvas | null, enabled: boolean, docWidth?: number, docHeight?: number) {
+export function useSmartGuides(
+  canvas: Canvas | null,
+  enabled: boolean,
+  docWidth?: number,
+  docHeight?: number,
+  extraVerticalSnaps?: number[],
+  extraHorizontalSnaps?: number[],
+) {
   const guidesRef = useRef<GuideLine[]>([]);
   const [gridVisible, setGridVisible] = useState(false);
   const [gridSize, setGridSize] = useState(20);
@@ -61,6 +68,10 @@ export function useSmartGuides(canvas: Canvas | null, enabled: boolean, docWidth
         verticalSnaps.push(pts.left, pts.centerX, pts.right);
         horizontalSnaps.push(pts.top, pts.centerY, pts.bottom);
       });
+
+      // Manual guide snap targets
+      if (extraVerticalSnaps) verticalSnaps.push(...extraVerticalSnaps);
+      if (extraHorizontalSnaps) horizontalSnaps.push(...extraHorizontalSnaps);
 
       // Grid snap targets (relative to document area)
       if (gridVisible) {
@@ -186,7 +197,7 @@ export function useSmartGuides(canvas: Canvas | null, enabled: boolean, docWidth
       canvas.off("after:render", renderGuides);
       guidesRef.current = [];
     };
-  }, [canvas, enabled, snapEnabled, gridVisible, gridSize, docWidth, docHeight]);
+  }, [canvas, enabled, snapEnabled, gridVisible, gridSize, docWidth, docHeight, extraVerticalSnaps, extraHorizontalSnaps]);
 
   const toggleGrid = useCallback(() => {
     setGridVisible((v) => !v);

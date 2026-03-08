@@ -24,6 +24,7 @@ import { useCropTool } from "./hooks/useCropTool";
 import { CropOverlay } from "./CropOverlay";
 import { useDrawing } from "./hooks/useDrawing";
 import { useSmartGuides } from "./hooks/useSmartGuides";
+import { useManualGuides } from "./hooks/useManualGuides";
 import { BUILT_IN_TEMPLATES } from "@/modules/templates/built-in";
 import { applyTemplateToCanvas } from "./utils/applyTemplate";
 import { ComponentsPanel } from "./ComponentsPanel";
@@ -124,12 +125,14 @@ export function CanvasEditor() {
     removeBrandKit,
   } = useComponentStorage();
 
+  const manualGuides = useManualGuides(canvas, canvasWidth, canvasHeight);
+
   const {
     gridVisible,
     snapEnabled,
     toggleSnap,
     toggleGrid,
-  } = useSmartGuides(canvas, true, canvasWidth, canvasHeight);
+  } = useSmartGuides(canvas, true, canvasWidth, canvasHeight, manualGuides.verticalSnapTargets, manualGuides.horizontalSnapTargets);
 
   const {
     projects,
