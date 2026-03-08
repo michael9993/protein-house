@@ -1,34 +1,38 @@
-// Extracted from shoes-import-20.xlsx template
+// Pet product images organized by category
 export const IMAGE_URLS = [
-  "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
-  "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=800",
-  "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800",
-  "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=800",
-  "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=800",
-  "https://images.unsplash.com/photo-1539185441755-769473a23570?w=800",
-  "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800",
-  "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=800",
-  "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=800",
-  "https://images.unsplash.com/photo-1584735175315-9d5df23860e6?w=800",
-  "https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?w=800",
-  "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?w=800",
-  "https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=800",
-  "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=800",
-  "https://images.unsplash.com/photo-1543508282-6319a3e2621f?w=800",
-  "https://images.unsplash.com/photo-1465453869711-7e174808ace9?w=800",
-  "https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=800",
-  "https://images.unsplash.com/photo-1587563871167-1ee9c731aefb?w=800",
-  "https://images.unsplash.com/photo-1556906781-9a412961c28c?w=800",
-  "https://images.unsplash.com/photo-1552346154-21d32810aba3?w=800",
-  "https://images.unsplash.com/photo-1607522370275-f14206abe5d3?w=800",
-  "https://images.unsplash.com/photo-1603487742131-4160ec999306?w=800",
-  "https://images.unsplash.com/photo-1600269452121-4f2416e55c28?w=800",
-  "https://images.unsplash.com/photo-1595341888016-a392ef81b7de?w=800",
-  "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=800",
-  "https://images.unsplash.com/photo-1562183241-b937e95585b6?w=800",
-  "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?w=800",
-  "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=800",
-  "https://images.unsplash.com/photo-1618898909019-010e4e234c55?w=800"
+  // Pet Toys
+  "https://images.unsplash.com/photo-1535294435445-d7249524ef2e?w=800",
+  "https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=800",
+  "https://images.unsplash.com/photo-1601758174114-e711c0cbaa69?w=800",
+  "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800",
+  "https://images.unsplash.com/photo-1583511655826-05700d52f4d9?w=800",
+  // Pet Feeding
+  "https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=800",
+  "https://images.unsplash.com/photo-1600804340584-c7db2eacf0bf?w=800",
+  "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=800",
+  "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800",
+  "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=800",
+  // Pet Comfort (beds, blankets)
+  "https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?w=800",
+  "https://images.unsplash.com/photo-1560807707-8cc77767d783?w=800",
+  "https://images.unsplash.com/photo-1615497001839-b0a0eac3274c?w=800",
+  "https://images.unsplash.com/photo-1588943211346-0908a1fb0b01?w=800",
+  "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800",
+  // Pet Care (grooming, accessories)
+  "https://images.unsplash.com/photo-1581888227599-779811939961?w=800",
+  "https://images.unsplash.com/photo-1587764379873-97837921fd44?w=800",
+  "https://images.unsplash.com/photo-1591946614720-90a587da4a36?w=800",
+  "https://images.unsplash.com/photo-1623387641168-d9803ddd3f35?w=800",
+  "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=800",
+  // General pets
+  "https://images.unsplash.com/photo-1450778869180-cfe0f76f8e8a?w=800",
+  "https://images.unsplash.com/photo-1592194996308-7b43878e84a6?w=800",
+  "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800",
+  "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=800",
+  "https://images.unsplash.com/photo-1587402092301-725e37c70fd8?w=800",
+  "https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=800",
+  "https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=800",
+  "https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?w=800",
 ];
 
 export function getRandomImages(count: number = 5): string[] {

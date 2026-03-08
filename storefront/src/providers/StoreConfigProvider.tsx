@@ -1183,7 +1183,7 @@ export const DEFAULT_CONTENT_CONFIG = {
     itemsAvailable: "items available",
     productsPageTitle: "All Products",
     discoverProducts: "Discover Products",
-    searchForText: "for",  // Text between count and search query (e.g., "10 for 'shoes'")
+    searchForText: "for",  // Text between count and search query (e.g., "10 for 'dog toys'")
     
     // Sort dropdown
     sortByLabel: "Sort by:",

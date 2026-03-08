@@ -1,5 +1,8 @@
 "use client";
 
+import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
+
 interface Props {
   freeShipping: string;
   securePayment: string;
@@ -7,8 +10,11 @@ interface Props {
 }
 
 export function TrustBadges({ freeShipping, securePayment, easyReturns }: Props) {
+  const cdStyle = useComponentStyle("ui.badges");
+  const cdClasses = useComponentClasses("ui.badges");
+
   return (
-    <div className="grid grid-cols-3 gap-4 border-t border-neutral-200 pt-8">
+    <div data-cd="ui-badges" className={`grid grid-cols-3 gap-4 border-t border-neutral-200 pt-8 ${cdClasses}`} style={buildComponentStyle("ui.badges", cdStyle)}>
       <div className="flex flex-col items-center gap-1 text-center">
         <svg className="h-6 w-6 text-success-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />

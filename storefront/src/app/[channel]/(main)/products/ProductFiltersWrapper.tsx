@@ -667,7 +667,7 @@ async function fetchSizes(apiUrl: string, channel: string): Promise<Size[]> {
         product.attributes.forEach((attr: any) => {
           const attrName = attr.attribute?.name?.trim().toLowerCase();
           // Look for size-related attributes
-          if (attrName === "size" || attrName === "shoe size" || attrName === "clothing size") {
+          if (attrName === "size" || attrName === "pet size" || attrName === "clothing size") {
             if (attr.values && attr.values.length > 0) {
               attr.values.forEach((value: any) => {
                 const sizeId = value.id || value.slug || value.name;

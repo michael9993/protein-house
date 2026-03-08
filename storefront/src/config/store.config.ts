@@ -198,7 +198,7 @@ export const DEFAULT_FILTERS_TEXT: FiltersText = {
   // Sort dropdown
   sortByLabel: "Sort by:",
   filtersButtonText: "Filters",
-  searchForText: "for",  // Text between count and search query (e.g., "10 for 'shoes'")
+  searchForText: "for",  // Text between count and search query (e.g., "10 for 'dog toys'")
 
   // Quick filters
   shopAllButton: "Shop All",
@@ -627,11 +627,11 @@ export const DEFAULT_NAVBAR_TEXT: NavbarText = {
 // Always accessed through hooks that merge with DEFAULT_* objects.
 export const defaultStoreConfig = {
   store: {
-    name: "Your Store Name",
-    tagline: "Your Store Tagline",
+    name: "Pawzen",
+    tagline: "Calm. Curated. Pet Care.",
     type: "physical",
-    description: "Welcome to our online store",
-    email: "support@yourstore.com",
+    description: "Modern, curated pet accessories for dogs and cats.",
+    email: "support@pawzen.co",
     phone: "+1 (555) 123-4567",
     address: {
       street: "123 Main Street",
@@ -644,20 +644,20 @@ export const defaultStoreConfig = {
 
   branding: {
     logo: "/logo.svg",
-    logoAlt: "Store Logo",
+    logoAlt: "Pawzen",
     favicon: "/favicon.ico",
 
     colors: {
-      primary: "#2563EB",      // Blue
-      secondary: "#1F2937",    // Dark gray
-      accent: "#F59E0B",       // Amber
-      background: "#FFFFFF",
-      surface: "#F9FAFB",
-      text: "#111827",
-      textMuted: "#6B7280",
-      success: "#059669",
-      warning: "#D97706",
-      error: "#DC2626",
+      primary: "#1B2838",      // Deep navy
+      secondary: "#1E4D3A",    // Forest green
+      accent: "#C9A962",       // Warm gold
+      background: "#F8F7F5",
+      surface: "#EDEAE5",
+      text: "#0F1419",
+      textMuted: "#7A756E",
+      success: "#1E4D3A",
+      warning: "#C9A962",
+      error: "#8B3A3A",
     },
 
     typography: {

@@ -1,60 +1,55 @@
-// Template-based product descriptions
+// Template-based pet product descriptions
 
 export function generateDescription(params: {
-  brand: string;
   model: string;
-  gender: string;
+  petType: string;
   type: string;
   material: string;
 }) {
-  const { brand, model, gender, type, material } = params;
+  const { model, petType, type, material } = params;
+
+  const petTypeHe = getPetTypeText_HE(petType);
+  const petTypeEn = petType === "Both" ? "dogs and cats" : petType === "Dog" ? "dogs" : "cats";
 
   const descriptions = {
-    he: `${model} מבית ${brand} - ${getGenderText_HE(gender)}. עשוי מ${material}, מושלם עבור ${type}. איכות מעולה, נוחות מקסימלית ועיצוב מודרני.`,
-    en: `${brand} ${model} for ${gender}. Made from ${material}, perfect for ${type}. Superior quality, maximum comfort, and modern design.`,
+    he: `${model} - ${petTypeHe}. עשוי מ${material}, מושלם עבור ${type}. איכות מעולה, עמידות גבוהה ועיצוב ידידותי לחיות מחמד.`,
+    en: `${model} for ${petTypeEn}. Made from ${material}, perfect for ${type}. Superior quality, durable construction, and pet-friendly design.`,
   };
 
   return descriptions;
 }
 
-function getGenderText_HE(gender: string): string {
+function getPetTypeText_HE(petType: string): string {
   const map: Record<string, string> = {
-    Men: "גברים",
-    Women: "נשים",
-    Kids: "ילדים",
-    Unisex: "יוניסקס",
+    Dog: "כלבים",
+    Cat: "חתולים",
+    Both: "כלבים וחתולים",
   };
-  return map[gender] || gender;
+  return map[petType] || petType;
 }
 
 export function generateProductName(params: {
-  brand: string;
   model: string;
   model_he: string;
-  gender: string;
+  petType: string;
   type: string;
 }) {
-  const { brand, model, model_he, gender, type } = params;
+  const { model, model_he, petType, type } = params;
 
-  const genderMap_HE: Record<string, string> = {
-    Men: "לגברים",
-    Women: "לנשים",
-    Kids: "לילדים",
-    Unisex: "יוניסקס",
+  const petTypeMap_HE: Record<string, string> = {
+    Dog: "לכלבים",
+    Cat: "לחתולים",
+    Both: "לכלבים וחתולים",
   };
 
-  const typeMap_HE: Record<string, string> = {
-    shoes: "נעלי",
-    tops: "חולצת",
-    bottoms: "מכנסי",
-    accessories: "",
+  const petTypeMap_EN: Record<string, string> = {
+    Dog: "for Dogs",
+    Cat: "for Cats",
+    Both: "for Dogs & Cats",
   };
 
-  const name_he = type === "accessories"
-    ? `${model_he} ${brand} ${genderMap_HE[gender] || ""}`
-    : `${typeMap_HE[type] || ""} ${brand} ${genderMap_HE[gender]} | ${model_he}`;
-
-  const name_en = `${brand} ${model} ${gender}'s ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+  const name_he = `${model_he} ${petTypeMap_HE[petType] || ""}`.trim();
+  const name_en = `${model} ${petTypeMap_EN[petType] || ""}`.trim();
 
   return { name_he, name_en };
 }

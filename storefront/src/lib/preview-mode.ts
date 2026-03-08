@@ -45,8 +45,9 @@ export function initPreviewMode(): void {
     "*",
   );
 
-  // Initialize the visual overlay for Component Designer
+  // Initialize the visual overlay for Component Designer (starts disabled — admin toggles it on)
   initOverlay();
+  setOverlayEnabled(false);
 
   // Forward section reorder events to admin
   handleSectionsReordered((order) => {

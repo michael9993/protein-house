@@ -90,8 +90,8 @@ export function useVariantSelection({
     // This ensures the cascade (select color → then size) works naturally.
     const COLOR_SLUGS = new Set(["color", "colour", "color-1"]);
     const SIZE_SLUGS = new Set([
-      "size", "shoe-size", "clothing-size", "apparel-size",
-      "shoe_size", "clothing_size", "apparel_size",
+      "size", "pet-size", "clothing-size", "apparel-size",
+      "pet_size", "clothing_size", "apparel_size",
     ]);
     return slugs.sort((a, b) => {
       const aColor = COLOR_SLUGS.has(a) ? 0 : 2;

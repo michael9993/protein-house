@@ -1,4 +1,4 @@
-# Mansour Shoes — Saleor Store Infrastructure Configuration
+# Pawzen — Saleor Store Infrastructure Configuration
 # Managed by @saleor/configurator (patched for SINGLE_REFERENCE support)
 #
 # Usage:
@@ -11,7 +11,7 @@
 # Categories and collections are created by the Bulk Manager during import.
 
 shop:
-  name: "Mansour Shoes"
+  name: "Pawzen"
   includeTaxesInPrices: true
 
 channels:
@@ -29,116 +29,179 @@ channels:
 # --- Product Types ---
 # Bulk Manager references these by name (productType column).
 # Attributes defined inline — Configurator creates & assigns them to each type.
-# Brand is SINGLE_REFERENCE to Page (brand model type with logo).
 
 productTypes:
-  - name: "Shoes"
+  - name: "Pet Toys & Enrichment"
     isShippingRequired: true
     productAttributes:
-      - name: "Brand"
-        inputType: SINGLE_REFERENCE
-        entityType: PAGE
-      - name: "Gender"
+      - name: "Pet Type"
         inputType: DROPDOWN
         values:
-          - name: Men
-          - name: Women
-          - name: Kids
-          - name: Unisex
+          - name: Dog
+          - name: Cat
+          - name: Both
       - name: "Material"
         inputType: DROPDOWN
         values:
-          - name: Synthetic
-          - name: Mesh
-          - name: Leather
-          - name: Canvas
-          - name: Knit
-          - name: Suede
-          - name: Cotton
-          - name: Polyester
-          - name: Nylon
-          - name: Elastane
-      - name: "Style"
+          - name: Rubber
+          - name: Plush
+          - name: Rope
+          - name: Plastic
+          - name: Natural
+      - name: "Toy Category"
         inputType: DROPDOWN
         values:
-          - name: Running
+          - name: Chew
+          - name: Interactive
+          - name: Fetch
+          - name: Puzzle
+          - name: Comfort
+    variantAttributes:
+      - name: "Size"
+        inputType: DROPDOWN
+        values:
+          - name: Small
+          - name: Medium
+          - name: Large
+      - name: "Color"
+        inputType: DROPDOWN
+        values:
+          - name: Red
+          - name: Blue
+          - name: Green
+          - name: Orange
+          - name: Yellow
+          - name: Pink
+          - name: Brown
+          - name: Grey
+          - name: Black
+          - name: White
+
+  - name: "Pet Feeding & Hydration"
+    isShippingRequired: true
+    productAttributes:
+      - name: "Pet Type"
+        inputType: DROPDOWN
+        values:
+          - name: Dog
+          - name: Cat
+          - name: Both
+      - name: "Material"
+        inputType: DROPDOWN
+        values:
+          - name: Stainless Steel
+          - name: Ceramic
+          - name: Plastic
+          - name: Silicone
+      - name: "Feeding Type"
+        inputType: DROPDOWN
+        values:
+          - name: Bowl
+          - name: Fountain
+          - name: Slow Feeder
+          - name: Auto Feeder
+          - name: Travel Bowl
+    variantAttributes:
+      - name: "Size"
+        inputType: DROPDOWN
+        values:
+          - name: Small
+          - name: Medium
+          - name: Large
+      - name: "Color"
+        inputType: DROPDOWN
+        values:
+          - name: Red
+          - name: Blue
+          - name: Green
+          - name: Orange
+          - name: Yellow
+          - name: Pink
+          - name: Brown
+          - name: Grey
+          - name: Black
+          - name: White
+
+  - name: "Pet Comfort & Living"
+    isShippingRequired: true
+    productAttributes:
+      - name: "Pet Type"
+        inputType: DROPDOWN
+        values:
+          - name: Dog
+          - name: Cat
+          - name: Both
+      - name: "Material"
+        inputType: DROPDOWN
+        values:
+          - name: Fleece
+          - name: Canvas
+          - name: Memory Foam
+          - name: Wood
+          - name: Fabric
+      - name: "Comfort Type"
+        inputType: DROPDOWN
+        values:
+          - name: Bed
+          - name: Blanket
+          - name: House
+          - name: Carrier
+          - name: Clothing
+          - name: Hammock
+    variantAttributes:
+      - name: "Size"
+        inputType: DROPDOWN
+        values:
+          - name: XS
+          - name: S
+          - name: M
+          - name: L
+          - name: XL
+          - name: XXL
+      - name: "Color"
+        inputType: DROPDOWN
+        values:
+          - name: Red
+          - name: Blue
+          - name: Green
+          - name: Orange
+          - name: Yellow
+          - name: Pink
+          - name: Brown
+          - name: Grey
+          - name: Black
+          - name: White
+
+  - name: "Pet Care & Accessories"
+    isShippingRequired: true
+    productAttributes:
+      - name: "Pet Type"
+        inputType: DROPDOWN
+        values:
+          - name: Dog
+          - name: Cat
+          - name: Both
+      - name: "Material"
+        inputType: DROPDOWN
+        values:
+          - name: Nylon
+          - name: Leather
+          - name: Stainless Steel
+          - name: Plastic
+          - name: Silicone
+          - name: Rubber
+      - name: "Accessory Type"
+        inputType: DROPDOWN
+        values:
+          - name: Collar
+          - name: Leash
+          - name: Harness
+          - name: Grooming Tool
+          - name: Health
           - name: Training
-          - name: Soccer
-          - name: Casual
-          - name: Outdoor
-          - name: Basketball
-          - name: Boots
-          - name: Sandals
-          - name: Walking
+          - name: ID Tag
     variantAttributes:
-      - name: "Shoe size"
-        inputType: DROPDOWN
-        values:
-          - name: "35"
-          - name: "36"
-          - name: "37"
-          - name: "38"
-          - name: "39"
-          - name: "40"
-          - name: "41"
-          - name: "42"
-          - name: "43"
-          - name: "44"
-          - name: "45"
-          - name: "46"
-          - name: "47"
-          - name: "48"
-      - name: "Color"
-        inputType: DROPDOWN
-        values:
-          - name: Black
-          - name: White
-          - name: Red
-          - name: Blue
-          - name: Grey
-          - name: Navy
-          - name: Green
-          - name: Pink
-          - name: Orange
-          - name: Yellow
-
-  - name: "Tops"
-    isShippingRequired: true
-    productAttributes:
-      - name: "Brand"
-        inputType: SINGLE_REFERENCE
-        entityType: PAGE
-      - name: "Gender"
-        inputType: DROPDOWN
-        values:
-          - name: Men
-          - name: Women
-          - name: Kids
-          - name: Unisex
-      - name: "Material"
-        inputType: DROPDOWN
-        values:
-          - name: Synthetic
-          - name: Mesh
-          - name: Leather
-          - name: Canvas
-          - name: Knit
-          - name: Suede
-          - name: Cotton
-          - name: Polyester
-          - name: Nylon
-          - name: Elastane
-      - name: "Apparel Type"
-        inputType: DROPDOWN
-        values:
-          - name: T-Shirt
-          - name: Hoodie
-          - name: Jacket
-          - name: Tank Top
-          - name: Sports Bra
-          - name: Vest
-    variantAttributes:
-      - name: "Apparel Size"
+      - name: "Size"
         inputType: DROPDOWN
         values:
           - name: XS
@@ -146,148 +209,26 @@ productTypes:
           - name: M
           - name: L
           - name: XL
-          - name: XXL
-          - name: XXXL
       - name: "Color"
         inputType: DROPDOWN
         values:
-          - name: Black
-          - name: White
           - name: Red
           - name: Blue
-          - name: Grey
-          - name: Navy
           - name: Green
-          - name: Pink
           - name: Orange
           - name: Yellow
-
-  - name: "Bottoms"
-    isShippingRequired: true
-    productAttributes:
-      - name: "Brand"
-        inputType: SINGLE_REFERENCE
-        entityType: PAGE
-      - name: "Gender"
-        inputType: DROPDOWN
-        values:
-          - name: Men
-          - name: Women
-          - name: Kids
-          - name: Unisex
-      - name: "Material"
-        inputType: DROPDOWN
-        values:
-          - name: Synthetic
-          - name: Mesh
-          - name: Leather
-          - name: Canvas
-          - name: Knit
-          - name: Suede
-          - name: Cotton
-          - name: Polyester
-          - name: Nylon
-          - name: Elastane
-      - name: "Apparel Type"
-        inputType: DROPDOWN
-        values:
-          - name: Jogger Pants
-          - name: Shorts
-          - name: Leggings
-          - name: Skirt
-    variantAttributes:
-      - name: "Apparel Size"
-        inputType: DROPDOWN
-        values:
-          - name: XS
-          - name: S
-          - name: M
-          - name: L
-          - name: XL
-          - name: XXL
-          - name: XXXL
-      - name: "Color"
-        inputType: DROPDOWN
-        values:
+          - name: Pink
+          - name: Brown
+          - name: Grey
           - name: Black
           - name: White
-          - name: Red
-          - name: Blue
-          - name: Grey
-          - name: Navy
-          - name: Green
-          - name: Pink
-          - name: Orange
-          - name: Yellow
-
-  - name: "Accessories"
-    isShippingRequired: true
-    productAttributes:
-      - name: "Brand"
-        inputType: SINGLE_REFERENCE
-        entityType: PAGE
-      - name: "Gender"
-        inputType: DROPDOWN
-        values:
-          - name: Men
-          - name: Women
-          - name: Kids
-          - name: Unisex
-      - name: "Material"
-        inputType: DROPDOWN
-        values:
-          - name: Synthetic
-          - name: Mesh
-          - name: Leather
-          - name: Canvas
-          - name: Knit
-          - name: Suede
-          - name: Cotton
-          - name: Polyester
-          - name: Nylon
-          - name: Elastane
-      - name: "Apparel Type"
-        inputType: DROPDOWN
-        values:
-          - name: Backpack
-          - name: Hat
-          - name: Socks
-          - name: Water Bottle
-          - name: Gloves
-          - name: Scarf
-          - name: Belt
-          - name: Sunglasses
-    variantAttributes:
-      - name: "Apparel Size"
-        inputType: DROPDOWN
-        values:
-          - name: XS
-          - name: S
-          - name: M
-          - name: L
-          - name: XL
-          - name: XXL
-          - name: XXXL
-      - name: "Color"
-        inputType: DROPDOWN
-        values:
-          - name: Black
-          - name: White
-          - name: Red
-          - name: Blue
-          - name: Grey
-          - name: Navy
-          - name: Green
-          - name: Pink
-          - name: Orange
-          - name: Yellow
 
 # --- Warehouses ---
-# Maps to stock:Main Warehouse and stock:International Warehouse columns in the product Excel.
+# Maps to stock:Pawzen Israel Warehouse and stock:Pawzen International Warehouse columns in the product Excel.
 
 warehouses:
-  - name: "Main Warehouse"
-    slug: main-warehouse
+  - name: "Pawzen Israel Warehouse"
+    slug: pawzen-israel-warehouse
     address:
       streetAddress1: "Industrial Zone"
       city: "Sakhnin"
@@ -296,8 +237,8 @@ warehouses:
       country: IL
     shippingZones:
       - "Israel Domestic"
-  - name: "International Warehouse"
-    slug: international-warehouse
+  - name: "Pawzen International Warehouse"
+    slug: pawzen-international-warehouse
     address:
       streetAddress1: "123 Commerce Blvd"
       city: "New York"
@@ -322,7 +263,7 @@ shippingZones:
         maximumDeliveryDays: 7
         channelListings:
           - channel: ils
-            price: 29.90
+            price: 19.90
             minimumOrderPrice: 0
       - name: "Express Delivery"
         type: PRICE
@@ -330,7 +271,7 @@ shippingZones:
         maximumDeliveryDays: 3
         channelListings:
           - channel: ils
-            price: 49.90
+            price: 39.90
             minimumOrderPrice: 0
       - name: "Free Shipping"
         type: PRICE
@@ -339,7 +280,7 @@ shippingZones:
         channelListings:
           - channel: ils
             price: 0
-            minimumOrderPrice: 299
+            minimumOrderPrice: 200
   - name: "International"
     countries:
       - US
@@ -354,10 +295,10 @@ shippingZones:
       - name: "Standard International"
         type: PRICE
         minimumDeliveryDays: 7
-        maximumDeliveryDays: 14
+        maximumDeliveryDays: 15
         channelListings:
           - channel: usd
-            price: 14.99
+            price: 9.99
             minimumOrderPrice: 0
       - name: "Express International"
         type: PRICE
@@ -365,7 +306,7 @@ shippingZones:
         maximumDeliveryDays: 7
         channelListings:
           - channel: usd
-            price: 29.99
+            price: 24.99
             minimumOrderPrice: 0
       - name: "Free International Shipping"
         type: PRICE
@@ -374,4 +315,4 @@ shippingZones:
         channelListings:
           - channel: usd
             price: 0
-            minimumOrderPrice: 150
+            minimumOrderPrice: 75

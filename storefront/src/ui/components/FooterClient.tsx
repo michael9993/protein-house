@@ -229,7 +229,7 @@ export function FooterClient({ menuItems, channel }: FooterClientPropsWithChanne
 	// Filter social links that have URLs
 	const activeSocialLinks = Object.entries(socialLinks).filter(([_, url]) => url);
 
-	// Get copyright text - format: "© 2026 Mansour Shoes. All rights reserved."
+	// Get copyright text - format: "© 2026 Pawzen. All rights reserved."
 	const copyrightText = footerConfig.copyrightText || `© ${currentYear} ${store.name}. All rights reserved.`;
 
 	// Get legal links from config - merge enabled/URL from footerConfig with text from footerText

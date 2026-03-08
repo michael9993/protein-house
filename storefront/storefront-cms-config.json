@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-03-07T02:04:31.127Z",
+  "exportedAt": "2026-03-08T01:38:43.079Z",
   "channels": {
     "ils": {
-      "version": 81,
-      "updatedAt": "2026-03-07T02:04:25.987Z",
+      "version": 93,
+      "updatedAt": "2026-03-07T05:58:10.550Z",
       "channelSlug": "ils",
       "store": {
-        "name": "Mansour Shoes",
-        "tagline": "נעליים לכל המשפחה | أحذية لكل العائلة",
+        "name": "Pawzen",
+        "tagline": "שלווה ואיכות לחיית המחמד",
         "type": "physical",
-        "description": "חנות לנעלי ספורט ונעליים לכל המשפחה מהמותגים המובילים.",
-        "email": "support@mansourshoes.example",
+        "description": "חנות אונליין לאביזרי חיות מחמד איכותיים לכלבים וחתולים. מוצרים מודרניים ומעוצבים למחמד שלכם.",
+        "email": "support@pawzen.co",
         "phone": "04-9502222",
         "address": {
           "street": "כמאל גונבלאט 2",
@@ -23,7 +23,7 @@
       },
       "branding": {
         "logo": "https://media.easy.co.il/images/UserThumbs/10035528_1752326685636_0.jpg",
-        "logoAlt": "Mansour Shoes Shefa'amr Logo",
+        "logoAlt": "Pawzen - אביזרים לחיות מחמד",
         "favicon": "/favicon.ico",
         "colors": {
           "primary": "#3b3d3f",
@@ -191,7 +191,7 @@
         "showContactInfo": true,
         "showMenu": true,
         "showBrand": true,
-        "copyrightText": "© 2026 Mansour Shoes. All rights reserved",
+        "copyrightText": "© 2026 Pawzen. כל הזכויות שמורות.",
         "legalLinks": {
           "trackOrder": {
             "enabled": true,
@@ -221,7 +221,7 @@
         "returnPolicyFooter": "",
         "shippingPolicyPageTitle": "מדיניות משלוחים",
         "shippingPolicyHeader": "",
-        "shippingPolicyContent": "1. הלקוח יבחר את סוג המשלוח שירצה בעגלת הקניות ועלות המשלוח תתווסף למחיר המוצר.\n2. המשלוח יתבצע באמצעות חברת שילוח חיצונית \"צ'יטה משלוחים\".\n\n3. החבילה תישלח תוך 1 ימי עסקים מיום ביצוע ההזמנה.\n\n4. זמן האספקה הוא 3-5 ימי עסקים מיום מסירתה לשליח.\n\n5. במשלוח מסוג \"משלוח לנקודת איסוף\" החבילה תישלח לנקודת איסוף הכי קרובה לכתובת שסופקה ע\"י הלקוח. לחברת \"צ'יטה\" יש מאות נקודות איסוף בכל חלקי הארץ. ברגע הגעת החבילה ליעד תישלח הודעת SMS עם כל הפרטים ללקוח.\n\n6. במשלוח עד הבית החבילה תישלח לכתובת שסיפק הלקוח.\n\n7. עלות משלוח עד הבית שחברת המשלוחים גובה מהחנות האינטרנטית נעה בין 40 ש\"ח ל- 60 ש\"ח תלוי באיזור. המחיר הגבוה הוא מחיר שילוח ל- \"איזורים חריגים\" על פי הגדרת חברת השילוח \"צ'יטה\", לרשימת האיזורים החריגים לחצו כאן\n\n8. עלות משלוח מסוג \"משלוח לנקודת איסוף\" היא 20 ש\"ח לכל האיזורים.\n\n9. כל עלויות המשלוח שהלקוח מתבקש לשלם מסופסדות ומוזלות על ידי SHOES BOX בה הלקוח משלם חלק מעלות המשלוח המצויינת בסעיפים 8 ו- 9.\n",
+        "shippingPolicyContent": "מדיניות משלוחים — Pawzen\n\n1. הלקוח יבחר את סוג המשלוח הרצוי בעגלת הקניות ועלות המשלוח תתווסף למחיר המוצרים.\n\n2. המשלוח יתבצע באמצעות חברת שילוח חיצונית.\n\n3. החבילה תישלח תוך 2 ימי עסקים מיום ביצוע ההזמנה.\n\n4. זמן האספקה הוא 5-15 ימי עסקים מיום המשלוח.\n\n5. משלוח סטנדרט: ₪19.90 (3-7 ימי עסקים).\n\n6. משלוח אקספרס: ₪39.90 (1-3 ימי עסקים).\n\n7. משלוח חינם בהזמנות מעל ₪200 (5-10 ימי עסקים).\n\n8. הודעת SMS תישלח ללקוח עם פרטי מעקב לאחר שליחת החבילה.\n\n9. Pawzen אינה אחראית לעיכובים הנגרמים על ידי חברת השילוח או מכס.\n\nלשאלות בנוגע למשלוחים ניתן לפנות אלינו: support@pawzen.co\n",
         "shippingPolicyDefaultContent": "",
         "shippingPolicyFooter": "",
         "privacyPolicyPageTitle": "מדיניות הפרטיות",
@@ -231,7 +231,7 @@
         "privacyPolicyFooter": "",
         "termsOfServicePageTitle": "תקנון",
         "termsOfServiceHeader": "",
-        "termsOfServiceContent": " תקנון החנות\n\n1.הנך מתבקש לקרוא תקנון זה במלואו ובעיון , כתנאי מוקדם להתקשרות בין הצדדים\n\n2. החנות משמשת לרכישת מוצרים על ידי ציבור הגולשים באינטרנט בישראל ורשאים לרכוש בה בני 18 ומעלה ,בעלי תא דואר אלקטרוני ברשת האינטרנט בישראל ובעל כתובת מגורים בישראל , אשר ברשותם כרטיס אשראי תקף בישראל.\n\n3. תנאי מוקדם לתוקף זכייתו של משתתף ברכישה הוא אישור חברת כרטיסי האשראי לעיסקה ולגביה.\n\n4. גלישה בחנות ו/או רכישת המוצר ו/או שירות המוצעים למכירה בו , מהווה את הסכמתך לקבל ולנהוג על פי הוראות התקנון , לפיכך אם אינך מסכים לתנאי מתנאי תקנון זה , הנך מתבקש לא לעשות כל שימוש בחנות.\n\n6. המחיר הינו כולל מע\"מ אלא אם צויין מפורשות אחרת.\n\n7. יתכנו הבדלים ברמת הצבע בין התמונה המוצגת למוצר בפועל. הבדלים אלו נובעים מסוג המצלמה, תיאורה, הגדרות הצבע במסכים וסוגי מסכים שונים וכולה...\n\n \n\nרכישת מוצרים\n\nבאתר מוצעים למכירה כמות מוגבלת של מוצרים במחיר קבוע מראש. הליך המכירה יתבצע בתנאים כדלקמן :\n\n1. החנות תציג רשימת מוצרים לרבות כל הפרטים אודות המוצר או השירות המוצע למכירה ואת המחיר כפי שנקבע מראש, המכירה הינה עד גמר המלאי.\n\n2. לאחר הוספת המוצרים המבוקשים ל\"עגלת הקניות\" ימשיך הקונה בעמוד \"עגלת הקניות\" ל\"אישור קנייה\" ושם ימלא את פרטיו המלאים ולאחר מכן יסתיים הליך הקנייה האינטרנטי.\n\n\n\nאימות כרטיס אשראי\n\nהעסק יהיה רשאי לדרוש מהלקוח אימות כרטיס האשראי שלו ע\"י שליחת צילום סלפי של בעל הכרטיס שבה יופיעו גם ת.ז. וכרטיס האשראי שלו למספר הוואטסאפ של העסק. במקרה זה חייב שהשם שעל כרטיס האשראי יהיה תואם לשם בתעודת הזהות.\n\nבמקרה שאין התאמה או הלקוח יסרב לביצוע אימות הניתונים יהיה העסק רשאי לבטל את העיסקה.\n\n\n\n החלפת מוצר\n\n1. לחלפת מוצר יש לשלוח אותו בחזרה לעסק (רק אם הוא חדש ובקופסה המקורית) תוך 14 ימים מיום קבלתו.\n2. הלקוח ישלח את המוצר על חשבונו באחת מהדרכים המצויינות מטה.\n3. אחרי קבלת המוצר בחזרה על ידי החנות יישלח ללקוח מוצר חליפי שהוא בחר חינם לנקודת איסוף.\n* מוצר שיוחזר לא בקופסה המקורית או משומש או שנגרם לו נזק לא יוחלף ולא יזוכה!\n** את החבילה יש לעטוף בניילון או נייר. אין להדביק או לכתוב על הקופסה המקורית!\n\n    קיימות 2 דרכים לשליחת המוצר ולביצוע החלפה:\n\nבדואר רשום לכתובת שנספק לכם בוואטאפ. (הדואר גובה בין 15-20ש\"ח). ברגע שהחבילה מגיעה אלינו נשלח לכם את המוצר שרציתם לנקודת איסוף חינם ללא עלות.\nהחלפה בבית הלקוח בעלות 49 ש\"ח: שליח מגיע אליכם עד הבית עם המוצר החליפי לביצוע ההחלפה במקום. עלות 49 ₪ בתשלום מראש.\nאם הלקוח יבחר להחליף למוצר יותר יקר הוא ישלם את ההפרש מראש בלינק (קישור) שיישלח אליו במייל או בואטסאפ. אם המוצר יותר זול אז הלקוח יקבל החזר על ההפרש באותו אופן של התשלום.\nהחזר כספי עבור הפרש המחיר יקבל תוך 3 ימי עסקים אחרי שהמוצר שהוא החזיר הגיע למחסן ונמצא תקין ולא משומש!\n\n* שליחת החלפה שנייה תהיה על חשבון הלקוח!\n\n    \n\nהחזרת מוצר וקבלת החזר כספי\n\nלהחזרת המוצר יש לפנות לשירות הלקוחות הואטסאפ לתיאום ההחזרה במספר 0505727854.\nהחזרת מוצר תתאפשר תוך 14 ימים מיום קבלתו רק אם הוא חדש ובקופסה המקורית ולא בוצע בו שימוש .\nהחזרת המוצר תהיה על חשבון הלקוח.\nההחזר הכספי יהיה עבור המוצרים בלבד ולא יכלול החזרת עלות המשלוח ששולמה בעת הרכישה!\nההחזר הכספי יינתן באותו אופן של התשלום ויבוצע תוך 3 ימי עסקים מיום הגעת המוצר לחנות.\nניתן להחזיר את המוצרים באחת מהדרכים הבאות:\nבדואר רשום לכתובת שנספק לכם בוואטאפ. (הדואר גובה בין 15-20ש\"ח). ברגע שהחבילה מגיעה אלינו נשלח לכם את המוצר שרציתם לנקודת איסוף חינם ללא עלות.\nאיסוף ע\"י שליח בעלות 39 ש\"ח: שליח מגיע אליכם עד הבית, אוסף את המוצר ומחזיר לנו. אחרי שהמוצר מגיע אלינו בחזרה עם השליח אנחנו שולחים לכם מוצר חלופי לנקודת איסוף (לא עד הבית): עלות 39 ₪ בתשלום מראש.\n \nביטול הזמנה\n\n1. ככלל הלקוח רשאי לבטל את העיסקה*  בכפוף ובהתאם להוראות חוק הגנת הצרכן התשמ\"א 1981 ( להלן החוק: http://www.consumers.org.il/category/deal-annulment-regulations )\n\n2. ניתן לבטל רכישת מוצר טרם שהוא נשלח. הביטול יעשה אך ורק בהודעה שתשלח באמצעות הוואטסאפ למספר 0505727854.\n\n3. אם המוצר טרם נשלח ההזמנה תבוטל ויבוצע החזר כספי\n\n4. אם הלקוח יבקש ביטול הזמנה אחרי שהמוצר נשלח, יהיה עליו לקבל אותו ואז להחזיר את המוצר לפי נוהל \"החזרת מוצר וקבלת החזר כספי הפיסקה לעיל. מוסכם כי הלקוח יחזיר את המוצר באריזתו ולא משומש, שלם וללא פגיעה ו/או נזק ו/או פגם מכל מין וסוג שהוא. אחרי הגעת המוצר בחזרה אל החנות יבוצע החזר כספי עבור המוצר ולא יכלול עלות המשלוח\n\n5. החנות תהיה רשאית לבטל עיסקה או מכירה כולה או חלקה במקרים הבאים:\n\nנפלה טעות קולמוס , בין אם במחיר המוצר ובין אם בתיאור המוצר.\nבמקרה של כוח עליון , פעולת מלחמה , איבה ,טרור מגפה ו/או כל דבר אחר אשר ימנע המשך ביצוע מכירה תקין.\nהמוצר נמצא פגום.\nהמוצר אזל מהמלאי.\nחשד להונאה בכ\"א\n6. הודעה על ביטול המכירה תימסר לקונים בטלפון ו/או בדואר אלקטרוני לכתובת אשר צויינה בדף ההרשמה.\n\n     *מקרים בהם לא ניתן לבטל עסקה: http://www.consumers.org.il/category/cases-for-no-annulment-rights\n\n \n\n אספקת המוצרים\n\n1. החנות תדאג למסור את המוצר שהוזמן באתר לשליחה תוך שני ימי עסקים לכל היותר לאחר אישור של חברת האשראי על העסקה.\n\n2. החנות ו/או הספקים לא יהיו אחראים לאיחור בביצוע אספקת המוצר במקרים שהם לא בשליטתם. איחורים באספקה הם באחריות חברת המשלוחים.\n\n3. זמני אספקת המוצרים ו/או השירותים כפי שאלה מצויינים בדף המכירה כוללים רק ימי עסקים קרי, יום א-ה לא כולל שישי שבת , ערבי חג וימי חג.\n\n\n\nמשלוח\n\n1. הלקוח יבחר את סוג המשלוח שירצה בעגלת הקניות ועלות המשלוח תתווסף למחיר המוצר.\n2. המשלוח יתבצע באמצעות חברת שילוח חיצונית \"צ'יטה משלוחים\".\n\n3. החבילה תישלח תוך 1 ימי עסקים מיום ביצוע ההזמנה.\n\n4. זמן האספקה הוא 3-5 ימי עסקים מיום מסירתה לשליח.\n\n5. במשלוח מסוג \"משלוח לנקודת איסוף\" החבילה תישלח לנקודת איסוף הכי קרובה לכתובת שסופקה ע\"י הלקוח. לחברת \"צ'יטה\" יש מאות נקודות איסוף בכל חלקי הארץ. ברגע הגעת החבילה ליעד תישלח הודעת SMS עם כל הפרטים ללקוח.\n\n6. במשלוח עד הבית החבילה תישלח לכתובת שסיפק הלקוח.\n\n7. עלות משלוח עד הבית שחברת המשלוחים גובה מהחנות האינטרנטית נעה בין 40 ש\"ח ל- 60 ש\"ח תלוי באיזור. המחיר הגבוה הוא מחיר שילוח ל- \"איזורים חריגים\" על פי הגדרת חברת השילוח \"צ'יטה\", לרשימת האיזורים החריגים לחצו כאן\n\n8. עלות משלוח מסוג \"משלוח לנקודת איסוף\" היא 20 ש\"ח לכל האיזורים.\n\n9. כל עלויות המשלוח שהלקוח מתבקש לשלם מסופסדות ומוזלות על ידי SHOES BOX בה הלקוח משלם חלק מעלות המשלוח המצויינת בסעיפים 8 ו- 9.\n\n\n\nאחריות\n1. האחריות על המוצרים תינתן ע\"י הייבואן או היצרן.\n2. האחריות תינתן על פגם בתהליך הייצור או פגם בחומר.\n3. במידה והמוצר/הנעל נפגמה אחרי שימוש כגון עקב נשבר או סוליה נפתחה וכדומה, הנעל תתוקן בחברה.\n4. האחריות לא תחול במקרים הבאים:\n    4.1 נעשה שימוש במוצר שאינו תואם את ייעודו המקורי כמו לשחק כדורגל בנעל ריצה.\n\n    4.2 המוצר נפגם בזדון או עקב גורם חיצוני בעת השימוש.\n\n    4.3 שפשופים, שריטות, קילופים או קרעים הנובעים מבלאי או משחיקה.\n\n    4.4 הנעל עברה ניקוי באמצעות שטיפה במים, השרייה בסבון, במכונת כביסה או ביד.\n\n    4.5 הבגד כובס לא לפי הוראות היצרן (אם זה מוצר ביגוד).\n\n    4.6  בלאי, שחיקה, ריח ואי נוחות לאחר השימוש במוצר אינם נחשבים לפגמים בייצור ואינם באחריות.\n\n    4.7 נזק שנגרם כתוצאה משימוש רשלני או לא תקין.\n\n\n\n5. האחריות על המוצר תינתן עם הצגת חשבונית קנייה בלבד ותוך זמן סביר.\n\n6. האחריות על המוצר תינתן בחנות הפיזית המפעילה את החנות האינטרנטית.\n\n7. החנות מתחייבת לשלוח את המוצר לבדיקה שבמסגרת האחריות אצל הייבואן או הייצרן ולתקנו תוך 14 ימי עבודה במקרה של פגם בחומר או בתהליך הייצור ובכפוף לשימוש סביר במוצר.\n\n8. אחרי סיום הטיפול הלקוח יבחר אם יאסוף את המוצר מהחנות בעצמו או ייבקש לשלוח את המוצר אליו במשלוח בעלות 30 ש\"ח על חשבונו.\n\n \n\nשירות לקוחות\n\nכל שאלה או בירור לגבי המוצרים המוצגים באתר לרבות מידע על שימוש נכון במוצר ולפרטים ובירורים באשר לחנות ופעילותה , ניתן לפנות אלינו:\n\nוואטסאפ: 0505727854\n\nדוא\"ל: shoesbox@outlook.co.il\n\n \n\n כללי\n\n1. התמונות המוצגות באתר הן להמחשה בלבד , ואינן מחייבות את החנות. ייתכנו הבדלים ברמת הצבע בין התמונה למוצר בפועל, ההבדלים נובעים מרמת תיאורה, סוגי מסך שונים וכולה...\n\n2. החנות ו/או מי מטעמה לא יהיו אחראים ולא ישאו בכל נזק ישיר , עקיף , תוצאתי או מיוחד שנגרם למשתמש או לצד שלישי , כתוצאה משימוש באמצעות האתר .\n\n3. החנות לא תהא אחראית להרכבתם ו/או התקנתם של מוצרים שנרכשו באתר ואחריות זו תחול על הלקוח ועל חשבונו.\n\n4. אייקונים (ICONS) כל מידע ו/או תצוגה המופיעים באתר , לרבות גרפיקה , עיצוב , הצגה מילולית , סימני מסחר , סימני לוגו לרבות עריכתם והצגתם באתר,הנם בבעלותם הבלעדית של החנות.\n\n\n5. אין להעתיק , לשכפל, להפיץ , לפרסם או להשתמש בכל דרך אחרת בתכנים המופיעים באתר , אלא אם כן ניתנה הסכמה בכתב ומראש מטעם החנות.",
+        "termsOfServiceContent": "תקנון החנות — Pawzen\n\n1. הנך מתבקש לקרוא תקנון זה במלואו ובעיון, כתנאי מוקדם להתקשרות בין הצדדים.\n\n2. החנות משמשת לרכישת אביזרי חיות מחמד על ידי ציבור הגולשים באינטרנט. רשאים לרכוש בני 18 ומעלה, בעלי דואר אלקטרוני וכרטיס אשראי תקף.\n\n3. תנאי מוקדם לתוקף הרכישה הוא אישור חברת כרטיסי האשראי לעסקה.\n\n4. גלישה בחנות ו/או רכישת מוצרים מהווה הסכמה לתנאי תקנון זה.\n\n5. המחיר כולל מע\"מ אלא אם צוין אחרת.\n\n6. ייתכנו הבדלים ברמת הצבע בין התמונה המוצגת למוצר בפועל.\n\n\nרכישת מוצרים\n\nבאתר מוצעים למכירה אביזרי חיות מחמד במחיר קבוע מראש, עד גמר המלאי. לאחר הוספת מוצרים לעגלת הקניות, הלקוח ימלא את פרטיו וישלים את הליך הרכישה.\n\n\nהחלפת מוצר\n\n1. להחלפת מוצר יש לשלוח אותו בחזרה (חדש ובאריזה המקורית) תוך 14 ימים מיום קבלתו.\n2. הלקוח ישלח את המוצר על חשבונו.\n3. לאחר קבלת המוצר בחזרה, יישלח מוצר חליפי.\n* מוצר שהוחזר לא באריזה המקורית, משומש או פגום — לא יוחלף ולא יזוכה.\n\n\nהחזרת מוצר וקבלת החזר כספי\n\nלהחזרת מוצר יש לפנות לשירות הלקוחות בדוא\"ל support@pawzen.co.\nהחזרה תתאפשר תוך 14 ימים מיום קבלת המוצר, בתנאי שהוא חדש ובאריזה המקורית.\nהחזרת המוצר על חשבון הלקוח. ההחזר הכספי עבור המוצרים בלבד (לא כולל עלות משלוח) ויבוצע תוך 5 ימי עסקים.\n\n\nביטול הזמנה\n\n1. הלקוח רשאי לבטל עסקה בכפוף לחוק הגנת הצרכן.\n2. ניתן לבטל הזמנה לפני שליחת המוצר בפנייה לדוא\"ל support@pawzen.co.\n3. לאחר שליחת המוצר, יש להחזירו בהתאם לנוהל ההחזרה.\n4. Pawzen רשאית לבטל עסקה במקרים של טעות במחיר/תיאור, כוח עליון, מוצר פגום או שאזל מהמלאי.\n\n\nאספקת מוצרים\n\n1. המוצרים יימסרו לשליחה תוך 2 ימי עסקים לאחר אישור העסקה.\n2. Pawzen לא תהיה אחראית לאיחורים שאינם בשליטתה.\n3. זמני אספקה כוללים ימי עסקים בלבד (א-ה, לא כולל שבת, ערבי חג וחגים).\n\n\nאחריות\n\n1. האחריות על המוצרים ניתנת על פגמי ייצור בלבד.\n2. האחריות לא תחול על בלאי, שימוש לא תקין, או נזק שנגרם על ידי חיית המחמד.\n3. יש להציג חשבונית קנייה לצורך מימוש האחריות.\n\n\nשירות לקוחות\n\nלשאלות ובירורים ניתן לפנות אלינו:\nדוא\"ל: support@pawzen.co\n\n\nכללי\n\n1. התמונות באתר להמחשה בלבד. ייתכנו הבדלים בצבע בין התמונה למוצר בפועל.\n2. Pawzen לא תהיה אחראית לנזק ישיר או עקיף כתוצאה משימוש באתר.\n3. כל התכנים באתר, לרבות גרפיקה, עיצוב, סימני מסחר ולוגו, הם בבעלות Pawzen.\n4. אין להעתיק, לשכפל או להפיץ תכנים מהאתר ללא הסכמה בכתב מראש.",
         "termsOfServiceDefaultContent": "",
         "termsOfServiceFooter": "",
         "policyPageEmptyMessage": "תוכן דף המדיניות אינו זמין כרגע."
@@ -241,11 +241,11 @@
           "hero": {
             "enabled": true,
             "type": "video",
-            "title": "ברוכים הבאים למנצור נעליים",
-            "subtitle": "נעליים איכותיות לכל המשפחה במחירים משתלמים",
+            "title": "ברוכים הבאים ל-Pawzen",
+            "subtitle": "אביזרים מעוצבים ואיכותיים לכלבים וחתולים",
             "ctaText": "לקניות",
             "ctaLink": "/products",
-            "badgeText": "קולקציית העונה החדשה",
+            "badgeText": "קולקציה חדשה",
             "imageUrl": null,
             "videoUrl": "https://www.canva.com/design/DAG_kAcgiq8/avrQcftAOLBm9gptRikDaQ/watch?utm_content=DAG_kAcgiq8&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=ha3a6efdfee",
             "slides": [],
@@ -559,7 +559,7 @@
         },
         "social": {
           "facebook": null,
-          "instagram": "https://www.instagram.com/mansour_shoes_shefaraam/",
+          "instagram": "https://www.instagram.com/pawzen.shop/",
           "twitter": null,
           "youtube": "",
           "tiktok": null,
@@ -572,9 +572,9 @@
         }
       },
       "seo": {
-        "titleTemplate": "%s | Mansour Shoes",
-        "defaultTitle": "מנצור נעליים - נעליים לכל המשפחה",
-        "defaultDescription": "חנות נעליים מובילה בשפרעם. משלוח חינם בהזמנות מעל ₪300. נעלי ספורט, נעלי ריצה ונעליים לכל המשפחה.",
+        "titleTemplate": "%s | Pawzen",
+        "defaultTitle": "Pawzen - אביזרים מודרניים לכלבים וחתולים",
+        "defaultDescription": "חנות אונליין לאביזרי חיות מחמד איכותיים לכלבים וחתולים. משלוח חינם מעל ₪200. צעצועים, מזון, מיטות ואביזרי טיפוח.",
         "defaultImage": "/og-image.jpg",
         "twitterHandle": null
       },
@@ -672,7 +672,7 @@
       "promoPopup": {
         "enabled": true,
         "title": "מבצע מיוחד!",
-        "body": "הנחות של עד 30% על נעלי ספורט נבחרות. אל תפספסו!",
+        "body": "הנחות של עד 30% על אביזרים נבחרים לכלבים וחתולים. אל תפספסו!",
         "badge": "עד 30% הנחה",
         "imageUrl": null,
         "backgroundImageUrl": null,
@@ -1150,7 +1150,7 @@
           "stylesStatLabel": "סגנונות",
           "ratingStatLabel": "דירוג",
           "heroDefaultTitle": "ביצועים מרובי מותגים",
-          "heroDefaultSubtitle": "הנעלה ואופנת ספורט מובחרת מהמותגים המובילים בעולם.",
+          "heroDefaultSubtitle": "אביזרים מעוצבים ואיכותיים לכלבים וחתולים.",
           "watchVideoButton": "צפה בסרטון",
           "shopNowButton": "קנה עכשיו",
           "exploreText": "גלה",
@@ -1586,14 +1586,14 @@
           "sizeGuideButton": "מדריך מידות",
           "sizeGuideTitle": "מדריך מידות",
           "sizeGuideSubtitle": "מצאו את המידה המושלמת",
-          "sizeGuideMensTab": "גברים",
-          "sizeGuideWomensTab": "נשים",
-          "sizeGuideKidsTab": "ילדים",
+          "sizeGuideDogsTab": "כלבים",
+          "sizeGuideCatsTab": "חתולים",
           "sizeGuideHowToMeasure": "איך למדוד",
           "sizeGuideMeasureTip": "עמדו על דף נייר כשהעקב נוגע בקיר. סמנו את קצה האצבע הארוכה ביותר ומדדו את המרחק בסנטימטרים. השוו עם עמודת ה-CM בטבלה.",
           "sizeGuideProTip": "טיפ: מדדו את הרגליים בערב כשהן בגודלן המקסימלי. אם אתם בין שתי מידות, עלו חצי מידה למידה הנוחה ביותר.",
-          "sizeGuideShoesCategory": "נעליים",
           "sizeGuideClothingCategory": "ביגוד",
+          "sizeGuideCollarsCategory": "קולרים ורתמות",
+          "sizeGuideBedCategory": "מיטות",
           "sizeGuideClothingMeasureTip": "השתמשו בסרט מדידה גמיש. לחזה: מדדו סביב החלק הרחב ביותר. למותניים: מדדו סביב הנקודה הצרה ביותר של המותניים.",
           "sizeGuideClothingProTip": "טיפ: אם אתם בין שתי מידות, עלו מידה לגזרה רחבה יותר או ירדו מידה לגזרה צמודה. בדקו את טבלת המידות של המותג הספציפי אם זמינה.",
           "specificationsTab": "מפרט טכני",
@@ -1898,12 +1898,12 @@
           "viewAllResultsFor": "הצג את כל התוצאות עבור",
           "recentlySearchedLabel": "חיפושים אחרונים",
           "recentSearchesClearLabel": "נקה",
-          "popularSearchesLabel": "Popular Searches",
+          "popularSearchesLabel": "חיפושים פופולריים",
           "popularSearchTerms": [
-            "Shoes",
-            "Bags",
-            "New Arrivals",
-            "Sale"
+            "צעצועים לכלבים",
+            "צעצועים לחתולים",
+            "מיטות ושמיכות",
+            "מבצעים"
           ],
           "noResultsText": "No products found",
           "noResultsHint": "Try searching with different keywords",
@@ -2268,11 +2268,11 @@
       "updatedAt": "2026-01-28T05:08:13.137Z",
       "channelSlug": "usd",
       "store": {
-        "name": "Mansour Shoes",
-        "tagline": "Shoes for the Whole Family",
+        "name": "Pawzen",
+        "tagline": "Calm. Curated. Pet Care.",
         "type": "physical",
-        "description": "A store for sports shoes and shoes for the whole family from leading brands.",
-        "email": "support@mansourshoes.example",
+        "description": "Modern, curated pet accessories for dogs and cats. Thoughtfully designed products for your furry family.",
+        "email": "support@pawzen.co",
         "phone": "+1-555-0123",
         "address": {
           "street": "123 Main Street",
@@ -2284,19 +2284,19 @@
       },
       "branding": {
         "logo": "https://media.easy.co.il/images/UserThumbs/10035528_1752326685636_0.jpg",
-        "logoAlt": "Mansour Shoes Logo",
+        "logoAlt": "Pawzen - Pet Accessories",
         "favicon": "/favicon.ico",
         "colors": {
-          "primary": "#E78F21",
-          "secondary": "#0A0707",
-          "accent": "#E0A55A",
-          "background": "#FFFFFF",
-          "surface": "#F9FAFB",
-          "text": "#111827",
-          "textMuted": "#6B7280",
-          "success": "#059669",
-          "warning": "#D97706",
-          "error": "#DC2626"
+          "primary": "#1B2838",
+          "secondary": "#1E4D3A",
+          "accent": "#C9A962",
+          "background": "#F8F7F5",
+          "surface": "#EDEAE5",
+          "text": "#0F1419",
+          "textMuted": "#7A756E",
+          "success": "#1E4D3A",
+          "warning": "#C9A962",
+          "error": "#8B3A3A"
         },
         "typography": {
           "fontHeading": "Inter",
@@ -2350,7 +2350,7 @@
         },
         "shipping": {
           "enabled": true,
-          "freeShippingThreshold": 75,
+          "freeShippingThreshold": 50,
           "showEstimatedDelivery": true,
           "deliverySlots": false
         },
@@ -2372,7 +2372,7 @@
       "header": {
         "banner": {
           "enabled": true,
-          "text": "Free shipping on orders over $75!",
+          "text": "Free shipping on orders over $50!",
           "backgroundColor": null,
           "textColor": null
         },
@@ -2385,7 +2385,7 @@
         "showContactInfo": true,
         "showMenu": true,
         "showBrand": true,
-        "copyrightText": "© 2026 Mansour Shoes. All rights reserved",
+        "copyrightText": "© 2026 Pawzen. All rights reserved.",
         "legalLinks": {
           "trackOrder": {
             "enabled": true,
@@ -2409,21 +2409,21 @@
           }
         },
         "returnPolicyPageTitle": "Returns & Exchanges Policy",
-        "returnPolicyContent": "## Product exchange\n\n1. To exchange a product, contact customer service via WhatsApp to coordinate the return at 0505727854.\n2. To exchange a product, send it back to the business (new and in original packaging only) within 14 days of receipt.\n3. The customer will ship the product at their own expense using one of the methods listed below.\n4. After the store receives the product, a replacement product of the customer's choice will be sent free of charge to a pickup point.\n\nProducts returned without original packaging, used or damaged will not be exchanged or refunded!\n** Wrap the package in plastic or paper. Do not stick labels or write on the original box!\n\nThere are 2 ways to send the product and complete an exchange:\n\nRegistered mail to the address we provide via WhatsApp. (Postage is 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nHome exchange at 49 ILS: A courier comes to your home with the replacement product to complete the exchange on the spot. 49 ILS paid in advance.\n\nIf the customer chooses to exchange for a more expensive product they will pay the difference in advance via a link sent by email or WhatsApp. If the product is cheaper, the customer will receive a refund for the difference by the same payment method.\n\nRefund for a price difference will be made within 3 business days after the returned product reaches the warehouse and is found to be in good and unused condition!\n\nA second exchange shipment is at the customer's expense!\n\n## Product return and refund\n\nTo return a product, contact customer service via WhatsApp to coordinate the return at 0505727854.\n\nReturns are allowed within 14 days of receipt only if the product is new, in original packaging and unused.\n\nReturn shipping is at the customer's expense.\n\nThe refund is for products only and does not include the delivery cost paid at purchase!\n\nThe refund will be made by the same payment method within 5 business days of the product reaching the store.\n\nYou may return products in one of the following ways:\n\nRegistered mail to the address we provide via WhatsApp.\n\nCourier at 40 ILS: A courier comes to your home, collects the product and returns it to us. After the product reaches us with the courier we will process your refund. You may pay the delivery cost directly to the courier or pay us online in advance by credit card via a link we send you.",
+        "returnPolicyContent": "## Product exchange\n\n1. To exchange a product, contact customer service via email at support@pawzen.co.\n2. To exchange a product, send it back to the business (new and in original packaging only) within 14 days of receipt.\n3. The customer will ship the product at their own expense using one of the methods listed below.\n4. After the store receives the product, a replacement product of the customer's choice will be sent free of charge to a pickup point.\n\nProducts returned without original packaging, used or damaged will not be exchanged or refunded!\n** Wrap the package in plastic or paper. Do not stick labels or write on the original box!\n\nThere are 2 ways to send the product and complete an exchange:\n\nRegistered mail to the address we provide via WhatsApp. (Postage is 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nHome exchange at 49 ILS: A courier comes to your home with the replacement product to complete the exchange on the spot. 49 ILS paid in advance.\n\nIf the customer chooses to exchange for a more expensive product they will pay the difference in advance via a link sent by email or WhatsApp. If the product is cheaper, the customer will receive a refund for the difference by the same payment method.\n\nRefund for a price difference will be made within 3 business days after the returned product reaches the warehouse and is found to be in good and unused condition!\n\nA second exchange shipment is at the customer's expense!\n\n## Product return and refund\n\nTo return a product, contact customer service via email at support@pawzen.co.\n\nReturns are allowed within 14 days of receipt only if the product is new, in original packaging and unused.\n\nReturn shipping is at the customer's expense.\n\nThe refund is for products only and does not include the delivery cost paid at purchase!\n\nThe refund will be made by the same payment method within 5 business days of the product reaching the store.\n\nYou may return products in one of the following ways:\n\nRegistered mail to the address we provide via WhatsApp.\n\nCourier at 40 ILS: A courier comes to your home, collects the product and returns it to us. After the product reaches us with the courier we will process your refund. You may pay the delivery cost directly to the courier or pay us online in advance by credit card via a link we send you.",
         "shippingPolicyPageTitle": "Shipping Policy",
-        "shippingPolicyContent": "## Shipping Policy\n\n1. The customer will choose the type of delivery they want in the shopping cart and the delivery cost will be added to the product price.\n2. Delivery will be carried out by an external shipping company \"Cheetah Shipping\".\n3. The package will be sent within 1 business day of placing the order.\n4. Delivery time is 3-5 business days from handover to the courier.\n5. For \"pickup point\" delivery, the package will be sent to the pickup point closest to the address provided by the customer. \"Cheetah\" has hundreds of pickup points across the country. When the package arrives at the destination, an SMS with all details will be sent to the customer.\n6. For home delivery, the package will be sent to the address provided by the customer.\n7. Home delivery cost charged by the shipping company to the online store ranges from 40 ILS to 60 ILS depending on the area. The higher price is for \"special areas\" as defined by \"Cheetah\" shipping company — for the list of special areas click here.\n8. Pickup point delivery cost is 20 ILS for all areas.\n9. All delivery costs that the customer is asked to pay are subsidised and discounted by SHOES BOX, with the customer paying part of the delivery cost as specified in sections 8 and 9.",
+        "shippingPolicyContent": "## Shipping Policy\n\n1. The customer will choose the type of delivery they want in the shopping cart and the delivery cost will be added to the product price.\n2. Delivery will be carried out by an external shipping company \"our shipping partner\".\n3. The package will be sent within 1 business day of placing the order.\n4. Delivery time is 3-5 business days from handover to the courier.\n5. For \"pickup point\" delivery, the package will be sent to the pickup point closest to the address provided by the customer. \"our partner\" has hundreds of pickup points across the country. When the package arrives at the destination, an SMS with all details will be sent to the customer.\n6. For home delivery, the package will be sent to the address provided by the customer.\n7. Home delivery cost charged by the shipping company to the online store ranges from 40 ILS to 60 ILS depending on the area. The higher price is for \"special areas\" as defined by \"our partner\" shipping company — for the list of special areas click here.\n8. Pickup point delivery cost is 20 ILS for all areas.\n9. All delivery costs that the customer is asked to pay are subsidised and discounted by Pawzen, with the customer paying part of the delivery cost as specified in sections 8 and 9.",
         "privacyPolicyPageTitle": "Privacy Policy",
         "privacyPolicyContent": "## Privacy Policy\n\n1. Principles\n\nThis policy explains how we collect, store, use and share personal information on this website (\"the Site\").\n\"Personal information\" and \"processing\" are as defined in the Privacy Protection Law, as amended.\n\n2. Types of information we collect\n\n2.1 Identifying and contact details: name, email, phone, shipping/billing address.\n2.2 Order and payment details (payment details are processed by licensed payment processors; the Site does not store full card details).\n2.3 Technical and usage data: IP address, device/cookie IDs, pages viewed, purchases, site activity.\n2.4 Marketing preferences and correspondence.\n\n3. How we collect information\n\n3.1 Directly from you when you register, place an order or contact us.\n3.2 Automatically via cookies and similar technologies.\n3.3 From third parties: Google Analytics; we may use Facebook (Meta) and TikTok for measurement, personalisation and targeted advertising.\n\n4. Cookies and measurement tools\n\n4.1 The Site uses cookies and pixels of Google Analytics, and may use pixels of Facebook and TikTok for analysis, measurement, improving user experience and targeted marketing.\n4.2 You can manage or delete cookies in your browser and change preferences in the site cookie manager (if available).\n4.3 Third parties may set their own cookies and receive usage data (e.g. IP/advertising ID/purchase events) per their policies. We recommend reviewing those policies.\n4.4 This policy distinguishes between data provided with prior knowledge and data collected via tracking, and clarifies purposes and use by third parties.\n\n5. Purposes of processing\n\n5.1 Account and order management; customer support.\n5.2 Legal and contractual obligations (invoicing, tax).\n5.3 Security, fraud prevention and risk management.\n5.4 Usage analysis and site and product improvement.\n5.5 Marketing and tailored offers (in line with your preferences and applicable law).\n\n6. Sharing with third parties\n\n6.1 Service providers acting as processors: payments, logistics/shipping, email systems, cloud and hosting infrastructure.\n6.2 The store platform \"istores\" — information is stored and processed on the istores platform used to operate the store (\"processor\").\n6.3 Measurement/advertising tools: Google Analytics; possibly Facebook and TikTok, as set out in section 4.\n6.4 Authorities or enforcement as required by law; transfer in the context of permitted business restructuring.\n\n7. Transfer and storage outside Israel\n\nSome information is stored on servers of providers outside Israel. Transfers will be made in accordance with applicable legal requirements.\n\n8. Information security\n\nWe take organisational, technical and physical measures to protect information, in accordance with the law and the Privacy Protection (Information Security) Regulations, 2017.\n\n9. Data retention\n\nWe retain information as long as necessary for the purposes for which it was collected, for contractual/legal obligations and to protect our rights, and thereafter delete or anonymise where possible.\n\n10. Your rights\n\n10.1 Right to access your personal data and receive a copy.\n10.2 Right to correct or delete inaccurate or incomplete data; notice of correction/deletion will be given to those who received the information from us as required by law.\n10.3 Withdrawal of consent for processing based on consent — where feasible and in a reasonable manner.\n\n11. Deleting your account or data – how to request\n\n11.1 You may delete your account or request deletion of data in one of the following ways:\n\nLog in to your account and select the deletion request option;\n\nContact the site owner using the contact details published on the site.\n\n11.2 Deletion will be carried out after we confirm receipt of the request and compliance with legal conditions (including data we are required to retain by law).\n\n12. Data Protection Officer (DPO)\n\nIf we are required to appoint a Data Protection Officer under amendment 13, the Officer's details and contact information will be published on the site.\n\n13. Minors\n\nThe Site is not intended for independent use by minors under 18. If we receive notice that a minor has provided information without parental/guardian consent, we will take steps to remove it.\n\n14. Policy updates\n\nWe may update this policy from time to time. The current version will be published on the site and take effect as of the date of publication.",
         "termsOfServicePageTitle": "Terms of Service",
-        "termsOfServiceContent": "## Store Terms\n\n1. You are asked to read these terms in full and carefully, as a precondition to the agreement between the parties.\n2. The store is for purchasing products by users on the internet in Israel. Purchasers must be 18 or over, have an email address on the internet in Israel and an address in Israel, and hold a valid credit card in Israel.\n3. A precondition for the validity of a purchase is approval by the credit card company for the transaction.\n4. Browsing the store and/or purchasing the product and/or service offered for sale constitutes your agreement to accept and act in accordance with these terms. Therefore, if you do not agree to any term, you are asked not to use the store.\n6. The price includes VAT unless stated otherwise.\n7. There may be colour differences between the image displayed and the actual product. Such differences are due to camera type, display, screen colour settings and different screen types, etc.\n\n## Purchasing products\n\nThe site offers a limited quantity of products at a fixed price. The sale will be conducted on the following terms:\n\n1. The store will display a list of products including all details about the product or service offered for sale and the price as set in advance; sale is subject to stock.\n2. After adding the desired products to the \"shopping cart\", the buyer will proceed on the \"shopping cart\" page to \"confirm purchase\" and there complete their details, after which the online purchase process is complete.\n\n## Card verification\n\nThe business may require the customer to verify their credit card by sending a selfie of the cardholder showing ID and the credit card to the business WhatsApp number. In such a case, the name on the credit card must match the name on the ID.\nIf there is no match or the customer refuses to verify, the business may cancel the transaction.\n\n## Product exchange\n\n1. To exchange a product, send it back to the business (new and in original packaging only) within 14 days of receipt.\n2. The customer will ship the product at their own expense using one of the methods listed below.\n3. After the store receives the product, a replacement product of the customer's choice will be sent free of charge to a pickup point.\n\nProducts returned without original packaging, used or damaged will not be exchanged or refunded!\n** Wrap the package in plastic or paper. Do not stick labels or write on the original box!\n\nThere are 2 ways to send the product and complete an exchange:\n\nRegistered mail to the address we provide via WhatsApp. (Postage is 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nHome exchange at 49 ILS: A courier comes to your home with the replacement product to complete the exchange on the spot. 49 ILS paid in advance.\n\nIf the customer chooses to exchange for a more expensive product they will pay the difference in advance via a link sent by email or WhatsApp. If the product is cheaper, the customer will receive a refund for the difference by the same payment method.\n\nRefund for a price difference will be made within 3 business days after the returned product reaches the warehouse and is found to be in good and unused condition!\n\nA second exchange shipment is at the customer's expense!\n\n## Product return and refund\n\nTo return a product, contact customer service via WhatsApp to coordinate the return at 0505727854.\n\nReturns are allowed within 14 days of receipt only if the product is new, in original packaging and unused.\n\nReturn shipping is at the customer's expense.\n\nThe refund is for products only and does not include the delivery cost paid at purchase!\n\nThe refund will be made by the same payment method within 3 business days of the product reaching the store.\n\nYou may return products in one of the following ways:\n\nRegistered mail to the address we provide via WhatsApp. (Postage 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nCourier pickup at 39 ILS: A courier comes to your home, collects the product and returns it to us. After the product reaches us with the courier we will send you a replacement to a pickup point (not to your home): 39 ILS paid in advance.\n\n## Order cancellation\n\n1. In general the customer may cancel the transaction* subject to the Consumer Protection Law, 1981 (the Law: http://www.consumers.org.il/category/deal-annulment-regulations).\n2. A product purchase may be cancelled before it is sent. Cancellation must be made only by notice sent via WhatsApp to 0505727854.\n3. If the product has not been sent, the order will be cancelled and a refund will be made.\n4. If the customer requests cancellation after the product has been sent, they must receive it and then return the product according to the \"Product return and refund\" procedure above. It is agreed that the customer will return the product in its packaging, unused, intact and without damage or defect of any kind. After the product reaches the store, a refund will be made for the product and will not include delivery cost.\n5. The store may cancel a transaction or sale in whole or in part in the following cases:\n\nA clerical error, whether in the product price or description.\n\nForce majeure, act of war, hostility, terrorism, epidemic and/or anything else that prevents the proper continuation of the sale.\n\nThe product is defective.\n\nThe product is out of stock.\n\nSuspected fraud.\n\n6. Notice of cancellation of the sale will be given to buyers by phone and/or email to the address provided on the registration page.\n\n*Cases in which a transaction cannot be cancelled: http://www.consumers.org.il/category/cases-for-no-annulment-rights\n\n## Product supply\n\n1. The store will deliver the product ordered on the site for shipment within two business days at most after approval of the transaction by the credit card company.\n2. The store and/or suppliers are not responsible for delay in supplying the product in cases outside their control. Delivery delays are the responsibility of the shipping company.\n3. Product and/or service supply times as indicated on the product page refer only to business days (Sun–Thu, excluding Friday, Saturday, holiday eves and holidays).\n\n## Shipping\n\n1. The customer will choose the type of delivery they want in the shopping cart and the delivery cost will be added to the product price.\n2. Delivery will be carried out by an external shipping company \"Cheetah Shipping\".\n3. The package will be sent within 1 business day of placing the order.\n4. Delivery time is 3-5 business days from handover to the courier.\n5. For \"pickup point\" delivery, the package will be sent to the pickup point closest to the address provided by the customer. \"Cheetah\" has hundreds of pickup points across the country. When the package arrives at the destination, an SMS with all details will be sent to the customer.\n6. For home delivery, the package will be sent to the address provided by the customer.\n7. Home delivery cost charged by the shipping company to the online store ranges from 40 ILS to 60 ILS depending on the area. The higher price is for \"special areas\" as defined by \"Cheetah\" shipping company — for the list of special areas click here.\n8. Pickup point delivery cost is 20 ILS for all areas.\n9. All delivery costs that the customer is asked to pay are subsidised and discounted by SHOES BOX, with the customer paying part of the delivery cost as specified in sections 8 and 9.\n\n## Warranty\n\n1. Warranty on products is provided by the importer or manufacturer.\n2. Warranty is given for defects in the manufacturing process or materials.\n3. If the product/shoe is damaged after use (e.g. broken heel or detached sole), the shoe will be repaired by the company.\n4. Warranty does not apply in the following cases:\n\n4.1 The product was used for a purpose other than its intended use (e.g. playing football in running shoes).\n4.2 The product was damaged intentionally or by an external cause during use.\n4.3 Scratches, scuffs, peeling or tears resulting from wear.\n4.4 The shoe was cleaned by washing in water, soaking in soap, in a washing machine or by hand.\n4.5 The garment was washed not according to the manufacturer's instructions (if it is a clothing product).\n4.6 Wear, tear, odour and discomfort after use of the product are not considered manufacturing defects and are not covered by warranty.\n4.7 Damage caused by negligent or improper use.\n\n5. Warranty on the product is given only upon presentation of a purchase invoice and within a reasonable time.\n6. Warranty on the product is given at the physical store operating the online store.\n7. The store undertakes to send the product for warranty inspection to the importer or manufacturer and to have it repaired within 14 working days in case of a defect in materials or the manufacturing process, subject to reasonable use of the product.\n8. After completion of the repair, the customer may choose to collect the product from the store or request delivery to them at a cost of 30 ILS to their account.\n\n## Customer service\n\nFor any question or enquiry regarding the products displayed on the site, including information on correct use of the product and details and enquiries about the store and its operations, you may contact us:\n\nWhatsApp: 0505727854\n\nEmail: shoesbox@outlook.co.il\n\n## General\n\n1. The images displayed on the site are for illustration only and do not bind the store. There may be colour differences between the image and the actual product, due to display level, screen types, etc.\n2. The store and/or anyone on its behalf will not be liable for any direct, indirect, consequential or special damage caused to the user or a third party as a result of use of the site.\n3. The store is not responsible for the assembly and/or installation of products purchased on the site, and such responsibility lies with the customer.\n4. Icons (ICONS), any information and/or display on the site, including graphics, design, text, trademarks and logos including their editing and display on the site, are the exclusive property of the store.\n5. Content on the site may not be copied, reproduced, distributed, published or used in any other way unless prior written consent has been given by the store."
+        "termsOfServiceContent": "## Store Terms\n\n1. You are asked to read these terms in full and carefully, as a precondition to the agreement between the parties.\n2. The store is for purchasing products by users on the internet in Israel. Purchasers must be 18 or over, have an email address on the internet in Israel and an address in Israel, and hold a valid credit card in Israel.\n3. A precondition for the validity of a purchase is approval by the credit card company for the transaction.\n4. Browsing the store and/or purchasing the product and/or service offered for sale constitutes your agreement to accept and act in accordance with these terms. Therefore, if you do not agree to any term, you are asked not to use the store.\n6. The price includes VAT unless stated otherwise.\n7. There may be colour differences between the image displayed and the actual product. Such differences are due to camera type, display, screen colour settings and different screen types, etc.\n\n## Purchasing products\n\nThe site offers a limited quantity of products at a fixed price. The sale will be conducted on the following terms:\n\n1. The store will display a list of products including all details about the product or service offered for sale and the price as set in advance; sale is subject to stock.\n2. After adding the desired products to the \"shopping cart\", the buyer will proceed on the \"shopping cart\" page to \"confirm purchase\" and there complete their details, after which the online purchase process is complete.\n\n## Card verification\n\nThe business may require the customer to verify their credit card by sending a selfie of the cardholder showing ID and the credit card to the business WhatsApp number. In such a case, the name on the credit card must match the name on the ID.\nIf there is no match or the customer refuses to verify, the business may cancel the transaction.\n\n## Product exchange\n\n1. To exchange a product, send it back to the business (new and in original packaging only) within 14 days of receipt.\n2. The customer will ship the product at their own expense using one of the methods listed below.\n3. After the store receives the product, a replacement product of the customer's choice will be sent free of charge to a pickup point.\n\nProducts returned without original packaging, used or damaged will not be exchanged or refunded!\n** Wrap the package in plastic or paper. Do not stick labels or write on the original box!\n\nThere are 2 ways to send the product and complete an exchange:\n\nRegistered mail to the address we provide via WhatsApp. (Postage is 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nHome exchange at 49 ILS: A courier comes to your home with the replacement product to complete the exchange on the spot. 49 ILS paid in advance.\n\nIf the customer chooses to exchange for a more expensive product they will pay the difference in advance via a link sent by email or WhatsApp. If the product is cheaper, the customer will receive a refund for the difference by the same payment method.\n\nRefund for a price difference will be made within 3 business days after the returned product reaches the warehouse and is found to be in good and unused condition!\n\nA second exchange shipment is at the customer's expense!\n\n## Product return and refund\n\nTo return a product, contact customer service via email at support@pawzen.co.\n\nReturns are allowed within 14 days of receipt only if the product is new, in original packaging and unused.\n\nReturn shipping is at the customer's expense.\n\nThe refund is for products only and does not include the delivery cost paid at purchase!\n\nThe refund will be made by the same payment method within 3 business days of the product reaching the store.\n\nYou may return products in one of the following ways:\n\nRegistered mail to the address we provide via WhatsApp. (Postage 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nCourier pickup at 39 ILS: A courier comes to your home, collects the product and returns it to us. After the product reaches us with the courier we will send you a replacement to a pickup point (not to your home): 39 ILS paid in advance.\n\n## Order cancellation\n\n1. In general the customer may cancel the transaction* subject to the Consumer Protection Law, 1981 (the Law: http://www.consumers.org.il/category/deal-annulment-regulations).\n2. A product purchase may be cancelled before it is sent. Cancellation must be made only by notice sent via email to support@pawzen.co.\n3. If the product has not been sent, the order will be cancelled and a refund will be made.\n4. If the customer requests cancellation after the product has been sent, they must receive it and then return the product according to the \"Product return and refund\" procedure above. It is agreed that the customer will return the product in its packaging, unused, intact and without damage or defect of any kind. After the product reaches the store, a refund will be made for the product and will not include delivery cost.\n5. The store may cancel a transaction or sale in whole or in part in the following cases:\n\nA clerical error, whether in the product price or description.\n\nForce majeure, act of war, hostility, terrorism, epidemic and/or anything else that prevents the proper continuation of the sale.\n\nThe product is defective.\n\nThe product is out of stock.\n\nSuspected fraud.\n\n6. Notice of cancellation of the sale will be given to buyers by phone and/or email to the address provided on the registration page.\n\n*Cases in which a transaction cannot be cancelled: http://www.consumers.org.il/category/cases-for-no-annulment-rights\n\n## Product supply\n\n1. The store will deliver the product ordered on the site for shipment within two business days at most after approval of the transaction by the credit card company.\n2. The store and/or suppliers are not responsible for delay in supplying the product in cases outside their control. Delivery delays are the responsibility of the shipping company.\n3. Product and/or service supply times as indicated on the product page refer only to business days (Sun–Thu, excluding Friday, Saturday, holiday eves and holidays).\n\n## Shipping\n\n1. The customer will choose the type of delivery they want in the shopping cart and the delivery cost will be added to the product price.\n2. Delivery will be carried out by an external shipping company \"our shipping partner\".\n3. The package will be sent within 1 business day of placing the order.\n4. Delivery time is 3-5 business days from handover to the courier.\n5. For \"pickup point\" delivery, the package will be sent to the pickup point closest to the address provided by the customer. \"our partner\" has hundreds of pickup points across the country. When the package arrives at the destination, an SMS with all details will be sent to the customer.\n6. For home delivery, the package will be sent to the address provided by the customer.\n7. Home delivery cost charged by the shipping company to the online store ranges from 40 ILS to 60 ILS depending on the area. The higher price is for \"special areas\" as defined by \"our partner\" shipping company — for the list of special areas click here.\n8. Pickup point delivery cost is 20 ILS for all areas.\n9. All delivery costs that the customer is asked to pay are subsidised and discounted by Pawzen, with the customer paying part of the delivery cost as specified in sections 8 and 9.\n\n## Warranty\n\n1. Warranty on products is provided by the importer or manufacturer.\n2. Warranty is given for defects in the manufacturing process or materials.\n3. If the product is damaged due to a manufacturing defect, it will be replaced or repaired.\n4. Warranty does not apply in the following cases:\n\n4.1 The product was used for a purpose other than its intended use (e.g. using a cat toy for a large dog).\n4.2 The product was damaged intentionally or by an external cause during use.\n4.3 Scratches, scuffs, peeling or tears resulting from wear.\n4.4 The product was cleaned in a manner not recommended by the manufacturer.\n4.5 The garment was washed not according to the manufacturer's instructions (if it is a clothing product).\n4.6 Wear, tear, odour and discomfort after use of the product are not considered manufacturing defects and are not covered by warranty.\n4.7 Damage caused by negligent or improper use.\n\n5. Warranty on the product is given only upon presentation of a purchase invoice and within a reasonable time.\n6. Warranty on the product is given at the physical store operating the online store.\n7. The store undertakes to send the product for warranty inspection to the importer or manufacturer and to have it repaired within 14 working days in case of a defect in materials or the manufacturing process, subject to reasonable use of the product.\n8. After completion of the repair, the customer may choose to collect the product from the store or request delivery to them at a cost of 30 ILS to their account.\n\n## Customer service\n\nFor any question or enquiry regarding the products displayed on the site, including information on correct use of the product and details and enquiries about the store and its operations, you may contact us:\n\nEmail: support@pawzen.co\n\nEmail: support@pawzen.co\n\n## General\n\n1. The images displayed on the site are for illustration only and do not bind the store. There may be colour differences between the image and the actual product, due to display level, screen types, etc.\n2. The store and/or anyone on its behalf will not be liable for any direct, indirect, consequential or special damage caused to the user or a third party as a result of use of the site.\n3. The store is not responsible for the assembly and/or installation of products purchased on the site, and such responsibility lies with the customer.\n4. Icons (ICONS), any information and/or display on the site, including graphics, design, text, trademarks and logos including their editing and display on the site, are the exclusive property of the store.\n5. Content on the site may not be copied, reproduced, distributed, published or used in any other way unless prior written consent has been given by the store."
       },
       "homepage": {
         "sections": {
           "hero": {
             "enabled": true,
             "type": "image",
-            "title": "Welcome to Mansour Shoes",
-            "subtitle": "Quality shoes for the whole family at affordable prices",
+            "title": "Welcome to Pawzen",
+            "subtitle": "Modern, curated pet accessories for dogs & cats",
             "ctaText": "Shop Now",
             "ctaLink": "/products",
             "badgeText": "New Season Collection",
@@ -2577,7 +2577,7 @@
         },
         "social": {
           "facebook": null,
-          "instagram": "https://www.instagram.com/mansour_shoes_shefaraam/",
+          "instagram": "https://www.instagram.com/pawzen.co/",
           "twitter": null,
           "youtube": null,
           "tiktok": null,
@@ -2585,9 +2585,9 @@
         }
       },
       "seo": {
-        "titleTemplate": "%s | Mansour Shoes",
-        "defaultTitle": "Mansour Shoes - Shoes for the Whole Family",
-        "defaultDescription": "Leading shoe store. Free shipping on orders over $75. Sports shoes, running shoes, and shoes for the whole family.",
+        "titleTemplate": "%s | Pawzen",
+        "defaultTitle": "Pawzen - Modern Pet Accessories for Dogs & Cats",
+        "defaultDescription": "Modern, curated pet accessories for dogs and cats. Free shipping on orders over $50. Thoughtfully designed products for your furry family.",
         "defaultImage": "/og-image.jpg",
         "twitterHandle": null
       },
@@ -2684,7 +2684,7 @@
       "promoPopup": {
         "enabled": true,
         "title": "Special Offer!",
-        "body": "Up to 30% off on selected sports shoes. Don't miss out!",
+        "body": "Up to 30% off on selected pet accessories. Don't miss out!",
         "badge": "Up to 30% Off",
         "imageUrl": null,
         "backgroundImageUrl": null,
@@ -3682,22 +3682,22 @@
           "text": "#F8FAFC",
           "textMuted": "#94A3B8",
           "border": "#334155",
-          "primary": "#E78F21",
+          "primary": "#1B2838",
           "secondary": "#F59E0B",
           "accent": "#F59E0B"
         }
       }
     },
     "usd": {
-      "version": 5,
-      "updatedAt": "2026-02-09T15:15:31.444Z",
+      "version": 8,
+      "updatedAt": "2026-03-08T01:38:42.198Z",
       "channelSlug": "usd",
       "store": {
-        "name": "Mansour Shoes",
-        "tagline": "Shoes for the Whole Family",
+        "name": "Pawzen",
+        "tagline": "Calm. Curated. Pet Care.",
         "type": "physical",
-        "description": "A store for sports shoes and shoes for the whole family from leading brands.",
-        "email": "support@mansourshoes.example",
+        "description": "Modern, curated pet accessories for dogs and cats. Thoughtfully designed products for your furry family.",
+        "email": "support@pawzen.co",
         "phone": "+1-555-0123",
         "address": {
           "street": "123 Main Street",
@@ -3709,19 +3709,19 @@
       },
       "branding": {
         "logo": "https://media.easy.co.il/images/UserThumbs/10035528_1752326685636_0.jpg",
-        "logoAlt": "Mansour Shoes Logo",
+        "logoAlt": "Pawzen - Pet Accessories",
         "favicon": "/favicon.ico",
         "colors": {
-          "primary": "#E78F21",
-          "secondary": "#0A0707",
-          "accent": "#E0A55A",
-          "background": "#FFFFFF",
-          "surface": "#F9FAFB",
-          "text": "#111827",
-          "textMuted": "#6B7280",
-          "success": "#059669",
-          "warning": "#D97706",
-          "error": "#DC2626"
+          "primary": "#1B2838",
+          "secondary": "#1E4D3A",
+          "accent": "#C9A962",
+          "background": "#F8F7F5",
+          "surface": "#EDEAE5",
+          "text": "#0F1419",
+          "textMuted": "#7A756E",
+          "success": "#1E4D3A",
+          "warning": "#C9A962",
+          "error": "#8B3A3A"
         },
         "typography": {
           "fontHeading": "Inter",
@@ -3777,9 +3777,39 @@
         },
         "shipping": {
           "enabled": true,
-          "freeShippingThreshold": 75,
+          "freeShippingThreshold": 50,
           "showEstimatedDelivery": true,
-          "deliverySlots": false
+          "deliverySlots": false,
+          "defaultEstimatedMinDays": 2,
+          "defaultEstimatedMaxDays": 5,
+          "estimatedDeliveryFormat": "range",
+          "priceAdjustment": {
+            "enabled": false,
+            "type": "round_down",
+            "value": 10,
+            "minPrice": 0
+          },
+          "freeShippingRule": {
+            "enabled": false,
+            "cartMinimum": 100,
+            "maxMethodPrice": 0,
+            "methodNameFilter": ""
+          },
+          "discountRule": {
+            "enabled": false,
+            "cartMinimum": 50,
+            "type": "percentage",
+            "value": 10,
+            "maxMethodPrice": 0,
+            "minPrice": 0,
+            "methodNameFilter": ""
+          },
+          "showOriginalPrice": true,
+          "dropship": {
+            "marginProtectionEnabled": false,
+            "marginThreshold": 15,
+            "trackOriginalPrices": true
+          }
         },
         "tax": {
           "showPricesWithTax": false,
@@ -3799,8 +3829,8 @@
       "header": {
         "banner": {
           "enabled": true,
-          "text": "Free shipping on orders over $75!",
-          "backgroundColor": "",
+          "text": "Free shipping on orders over $50!",
+          "backgroundColor": "#1a1a2e",
           "textColor": null,
           "useSaleorPromotions": false,
           "useSaleorVouchers": false,
@@ -3810,6 +3840,17 @@
           "useGradient": true,
           "gradientFrom": "#000000",
           "gradientTo": "#000000",
+          "gradientStops": [
+            {
+              "color": "#000000",
+              "position": 0
+            },
+            {
+              "color": "#000000",
+              "position": 100
+            }
+          ],
+          "gradientAngle": 90,
           "dismissible": false
         },
         "showStoreName": true,
@@ -3821,7 +3862,7 @@
         "showContactInfo": true,
         "showMenu": true,
         "showBrand": true,
-        "copyrightText": "© 2026 Mansour Shoes. All rights reserved",
+        "copyrightText": "© 2026 Pawzen. All rights reserved.",
         "legalLinks": {
           "trackOrder": {
             "enabled": true,
@@ -3845,21 +3886,22 @@
           }
         },
         "returnPolicyPageTitle": "Returns & Exchanges Policy",
-        "returnPolicyContent": "## Product exchange\n\n1. To exchange a product, contact customer service via WhatsApp to coordinate the return at 0505727854.\n2. To exchange a product, send it back to the business (new and in original packaging only) within 14 days of receipt.\n3. The customer will ship the product at their own expense using one of the methods listed below.\n4. After the store receives the product, a replacement product of the customer's choice will be sent free of charge to a pickup point.\n\nProducts returned without original packaging, used or damaged will not be exchanged or refunded!\n** Wrap the package in plastic or paper. Do not stick labels or write on the original box!\n\nThere are 2 ways to send the product and complete an exchange:\n\nRegistered mail to the address we provide via WhatsApp. (Postage is 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nHome exchange at 49 ILS: A courier comes to your home with the replacement product to complete the exchange on the spot. 49 ILS paid in advance.\n\nIf the customer chooses to exchange for a more expensive product they will pay the difference in advance via a link sent by email or WhatsApp. If the product is cheaper, the customer will receive a refund for the difference by the same payment method.\n\nRefund for a price difference will be made within 3 business days after the returned product reaches the warehouse and is found to be in good and unused condition!\n\nA second exchange shipment is at the customer's expense!\n\n## Product return and refund\n\nTo return a product, contact customer service via WhatsApp to coordinate the return at 0505727854.\n\nReturns are allowed within 14 days of receipt only if the product is new, in original packaging and unused.\n\nReturn shipping is at the customer's expense.\n\nThe refund is for products only and does not include the delivery cost paid at purchase!\n\nThe refund will be made by the same payment method within 5 business days of the product reaching the store.\n\nYou may return products in one of the following ways:\n\nRegistered mail to the address we provide via WhatsApp.\n\nCourier at 40 ILS: A courier comes to your home, collects the product and returns it to us. After the product reaches us with the courier we will process your refund. You may pay the delivery cost directly to the courier or pay us online in advance by credit card via a link we send you.",
+        "returnPolicyContent": "## Returns & Exchanges — Pawzen\n\n### Product Exchange\n\n1. To exchange a product, contact us at support@pawzen.co within 30 days of receipt.\n2. The product must be unused and in its original packaging.\n3. Return shipping is at the customer's expense.\n4. Once we receive the returned item, we'll ship the replacement product free of charge.\n\nProducts returned without original packaging, used, or damaged will not be exchanged or refunded.\n\n### Product Return & Refund\n\n1. To return a product, email support@pawzen.co within 30 days of receipt.\n2. The product must be unused and in its original packaging.\n3. Return shipping is at the customer's expense.\n4. Refunds are for product cost only (shipping fees are non-refundable).\n5. Refunds are processed within 5 business days of receiving the returned item, using the original payment method.\n\n### Order Cancellation\n\n1. Orders can be cancelled before shipment by emailing support@pawzen.co.\n2. If the order has already shipped, follow the return procedure above.\n3. Pawzen reserves the right to cancel orders in cases of pricing errors, stock issues, or suspected fraud.",
         "shippingPolicyPageTitle": "Shipping Policy",
-        "shippingPolicyContent": "## Shipping Policy\n\n1. The customer will choose the type of delivery they want in the shopping cart and the delivery cost will be added to the product price.\n2. Delivery will be carried out by an external shipping company \"Cheetah Shipping\".\n3. The package will be sent within 1 business day of placing the order.\n4. Delivery time is 3-5 business days from handover to the courier.\n5. For \"pickup point\" delivery, the package will be sent to the pickup point closest to the address provided by the customer. \"Cheetah\" has hundreds of pickup points across the country. When the package arrives at the destination, an SMS with all details will be sent to the customer.\n6. For home delivery, the package will be sent to the address provided by the customer.\n7. Home delivery cost charged by the shipping company to the online store ranges from 40 ILS to 60 ILS depending on the area. The higher price is for \"special areas\" as defined by \"Cheetah\" shipping company — for the list of special areas click here.\n8. Pickup point delivery cost is 20 ILS for all areas.\n9. All delivery costs that the customer is asked to pay are subsidised and discounted by SHOES BOX, with the customer paying part of the delivery cost as specified in sections 8 and 9.",
+        "shippingPolicyContent": "## Shipping Policy — Pawzen\n\n1. Select your preferred shipping method at checkout. Shipping costs will be added to the product price.\n\n2. Packages are dispatched within 2 business days of placing your order.\n\n3. Standard Shipping: $9.99 (7-15 business days).\n\n4. Express Shipping: $24.99 (3-7 business days).\n\n5. Free Shipping on orders over $50 (10-21 business days).\n\n6. A tracking number and SMS/email notification will be sent once your order ships.\n\n7. Pawzen is not responsible for delays caused by the shipping carrier or customs.\n\nFor shipping inquiries, contact us at support@pawzen.co.",
         "privacyPolicyPageTitle": "Privacy Policy",
         "privacyPolicyContent": "## Privacy Policy\n\n1. Principles\n\nThis policy explains how we collect, store, use and share personal information on this website (\"the Site\").\n\"Personal information\" and \"processing\" are as defined in the Privacy Protection Law, as amended.\n\n2. Types of information we collect\n\n2.1 Identifying and contact details: name, email, phone, shipping/billing address.\n2.2 Order and payment details (payment details are processed by licensed payment processors; the Site does not store full card details).\n2.3 Technical and usage data: IP address, device/cookie IDs, pages viewed, purchases, site activity.\n2.4 Marketing preferences and correspondence.\n\n3. How we collect information\n\n3.1 Directly from you when you register, place an order or contact us.\n3.2 Automatically via cookies and similar technologies.\n3.3 From third parties: Google Analytics; we may use Facebook (Meta) and TikTok for measurement, personalisation and targeted advertising.\n\n4. Cookies and measurement tools\n\n4.1 The Site uses cookies and pixels of Google Analytics, and may use pixels of Facebook and TikTok for analysis, measurement, improving user experience and targeted marketing.\n4.2 You can manage or delete cookies in your browser and change preferences in the site cookie manager (if available).\n4.3 Third parties may set their own cookies and receive usage data (e.g. IP/advertising ID/purchase events) per their policies. We recommend reviewing those policies.\n4.4 This policy distinguishes between data provided with prior knowledge and data collected via tracking, and clarifies purposes and use by third parties.\n\n5. Purposes of processing\n\n5.1 Account and order management; customer support.\n5.2 Legal and contractual obligations (invoicing, tax).\n5.3 Security, fraud prevention and risk management.\n5.4 Usage analysis and site and product improvement.\n5.5 Marketing and tailored offers (in line with your preferences and applicable law).\n\n6. Sharing with third parties\n\n6.1 Service providers acting as processors: payments, logistics/shipping, email systems, cloud and hosting infrastructure.\n6.2 The store platform \"istores\" — information is stored and processed on the istores platform used to operate the store (\"processor\").\n6.3 Measurement/advertising tools: Google Analytics; possibly Facebook and TikTok, as set out in section 4.\n6.4 Authorities or enforcement as required by law; transfer in the context of permitted business restructuring.\n\n7. Transfer and storage outside Israel\n\nSome information is stored on servers of providers outside Israel. Transfers will be made in accordance with applicable legal requirements.\n\n8. Information security\n\nWe take organisational, technical and physical measures to protect information, in accordance with the law and the Privacy Protection (Information Security) Regulations, 2017.\n\n9. Data retention\n\nWe retain information as long as necessary for the purposes for which it was collected, for contractual/legal obligations and to protect our rights, and thereafter delete or anonymise where possible.\n\n10. Your rights\n\n10.1 Right to access your personal data and receive a copy.\n10.2 Right to correct or delete inaccurate or incomplete data; notice of correction/deletion will be given to those who received the information from us as required by law.\n10.3 Withdrawal of consent for processing based on consent — where feasible and in a reasonable manner.\n\n11. Deleting your account or data – how to request\n\n11.1 You may delete your account or request deletion of data in one of the following ways:\n\nLog in to your account and select the deletion request option;\n\nContact the site owner using the contact details published on the site.\n\n11.2 Deletion will be carried out after we confirm receipt of the request and compliance with legal conditions (including data we are required to retain by law).\n\n12. Data Protection Officer (DPO)\n\nIf we are required to appoint a Data Protection Officer under amendment 13, the Officer's details and contact information will be published on the site.\n\n13. Minors\n\nThe Site is not intended for independent use by minors under 18. If we receive notice that a minor has provided information without parental/guardian consent, we will take steps to remove it.\n\n14. Policy updates\n\nWe may update this policy from time to time. The current version will be published on the site and take effect as of the date of publication.",
         "termsOfServicePageTitle": "Terms of Service",
-        "termsOfServiceContent": "## Store Terms\n\n1. You are asked to read these terms in full and carefully, as a precondition to the agreement between the parties.\n2. The store is for purchasing products by users on the internet in Israel. Purchasers must be 18 or over, have an email address on the internet in Israel and an address in Israel, and hold a valid credit card in Israel.\n3. A precondition for the validity of a purchase is approval by the credit card company for the transaction.\n4. Browsing the store and/or purchasing the product and/or service offered for sale constitutes your agreement to accept and act in accordance with these terms. Therefore, if you do not agree to any term, you are asked not to use the store.\n6. The price includes VAT unless stated otherwise.\n7. There may be colour differences between the image displayed and the actual product. Such differences are due to camera type, display, screen colour settings and different screen types, etc.\n\n## Purchasing products\n\nThe site offers a limited quantity of products at a fixed price. The sale will be conducted on the following terms:\n\n1. The store will display a list of products including all details about the product or service offered for sale and the price as set in advance; sale is subject to stock.\n2. After adding the desired products to the \"shopping cart\", the buyer will proceed on the \"shopping cart\" page to \"confirm purchase\" and there complete their details, after which the online purchase process is complete.\n\n## Card verification\n\nThe business may require the customer to verify their credit card by sending a selfie of the cardholder showing ID and the credit card to the business WhatsApp number. In such a case, the name on the credit card must match the name on the ID.\nIf there is no match or the customer refuses to verify, the business may cancel the transaction.\n\n## Product exchange\n\n1. To exchange a product, send it back to the business (new and in original packaging only) within 14 days of receipt.\n2. The customer will ship the product at their own expense using one of the methods listed below.\n3. After the store receives the product, a replacement product of the customer's choice will be sent free of charge to a pickup point.\n\nProducts returned without original packaging, used or damaged will not be exchanged or refunded!\n** Wrap the package in plastic or paper. Do not stick labels or write on the original box!\n\nThere are 2 ways to send the product and complete an exchange:\n\nRegistered mail to the address we provide via WhatsApp. (Postage is 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nHome exchange at 49 ILS: A courier comes to your home with the replacement product to complete the exchange on the spot. 49 ILS paid in advance.\n\nIf the customer chooses to exchange for a more expensive product they will pay the difference in advance via a link sent by email or WhatsApp. If the product is cheaper, the customer will receive a refund for the difference by the same payment method.\n\nRefund for a price difference will be made within 3 business days after the returned product reaches the warehouse and is found to be in good and unused condition!\n\nA second exchange shipment is at the customer's expense!\n\n## Product return and refund\n\nTo return a product, contact customer service via WhatsApp to coordinate the return at 0505727854.\n\nReturns are allowed within 14 days of receipt only if the product is new, in original packaging and unused.\n\nReturn shipping is at the customer's expense.\n\nThe refund is for products only and does not include the delivery cost paid at purchase!\n\nThe refund will be made by the same payment method within 3 business days of the product reaching the store.\n\nYou may return products in one of the following ways:\n\nRegistered mail to the address we provide via WhatsApp. (Postage 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nCourier pickup at 39 ILS: A courier comes to your home, collects the product and returns it to us. After the product reaches us with the courier we will send you a replacement to a pickup point (not to your home): 39 ILS paid in advance.\n\n## Order cancellation\n\n1. In general the customer may cancel the transaction* subject to the Consumer Protection Law, 1981 (the Law: http://www.consumers.org.il/category/deal-annulment-regulations).\n2. A product purchase may be cancelled before it is sent. Cancellation must be made only by notice sent via WhatsApp to 0505727854.\n3. If the product has not been sent, the order will be cancelled and a refund will be made.\n4. If the customer requests cancellation after the product has been sent, they must receive it and then return the product according to the \"Product return and refund\" procedure above. It is agreed that the customer will return the product in its packaging, unused, intact and without damage or defect of any kind. After the product reaches the store, a refund will be made for the product and will not include delivery cost.\n5. The store may cancel a transaction or sale in whole or in part in the following cases:\n\nA clerical error, whether in the product price or description.\n\nForce majeure, act of war, hostility, terrorism, epidemic and/or anything else that prevents the proper continuation of the sale.\n\nThe product is defective.\n\nThe product is out of stock.\n\nSuspected fraud.\n\n6. Notice of cancellation of the sale will be given to buyers by phone and/or email to the address provided on the registration page.\n\n*Cases in which a transaction cannot be cancelled: http://www.consumers.org.il/category/cases-for-no-annulment-rights\n\n## Product supply\n\n1. The store will deliver the product ordered on the site for shipment within two business days at most after approval of the transaction by the credit card company.\n2. The store and/or suppliers are not responsible for delay in supplying the product in cases outside their control. Delivery delays are the responsibility of the shipping company.\n3. Product and/or service supply times as indicated on the product page refer only to business days (Sun–Thu, excluding Friday, Saturday, holiday eves and holidays).\n\n## Shipping\n\n1. The customer will choose the type of delivery they want in the shopping cart and the delivery cost will be added to the product price.\n2. Delivery will be carried out by an external shipping company \"Cheetah Shipping\".\n3. The package will be sent within 1 business day of placing the order.\n4. Delivery time is 3-5 business days from handover to the courier.\n5. For \"pickup point\" delivery, the package will be sent to the pickup point closest to the address provided by the customer. \"Cheetah\" has hundreds of pickup points across the country. When the package arrives at the destination, an SMS with all details will be sent to the customer.\n6. For home delivery, the package will be sent to the address provided by the customer.\n7. Home delivery cost charged by the shipping company to the online store ranges from 40 ILS to 60 ILS depending on the area. The higher price is for \"special areas\" as defined by \"Cheetah\" shipping company — for the list of special areas click here.\n8. Pickup point delivery cost is 20 ILS for all areas.\n9. All delivery costs that the customer is asked to pay are subsidised and discounted by SHOES BOX, with the customer paying part of the delivery cost as specified in sections 8 and 9.\n\n## Warranty\n\n1. Warranty on products is provided by the importer or manufacturer.\n2. Warranty is given for defects in the manufacturing process or materials.\n3. If the product/shoe is damaged after use (e.g. broken heel or detached sole), the shoe will be repaired by the company.\n4. Warranty does not apply in the following cases:\n\n4.1 The product was used for a purpose other than its intended use (e.g. playing football in running shoes).\n4.2 The product was damaged intentionally or by an external cause during use.\n4.3 Scratches, scuffs, peeling or tears resulting from wear.\n4.4 The shoe was cleaned by washing in water, soaking in soap, in a washing machine or by hand.\n4.5 The garment was washed not according to the manufacturer's instructions (if it is a clothing product).\n4.6 Wear, tear, odour and discomfort after use of the product are not considered manufacturing defects and are not covered by warranty.\n4.7 Damage caused by negligent or improper use.\n\n5. Warranty on the product is given only upon presentation of a purchase invoice and within a reasonable time.\n6. Warranty on the product is given at the physical store operating the online store.\n7. The store undertakes to send the product for warranty inspection to the importer or manufacturer and to have it repaired within 14 working days in case of a defect in materials or the manufacturing process, subject to reasonable use of the product.\n8. After completion of the repair, the customer may choose to collect the product from the store or request delivery to them at a cost of 30 ILS to their account.\n\n## Customer service\n\nFor any question or enquiry regarding the products displayed on the site, including information on correct use of the product and details and enquiries about the store and its operations, you may contact us:\n\nWhatsApp: 0505727854\n\nEmail: shoesbox@outlook.co.il\n\n## General\n\n1. The images displayed on the site are for illustration only and do not bind the store. There may be colour differences between the image and the actual product, due to display level, screen types, etc.\n2. The store and/or anyone on its behalf will not be liable for any direct, indirect, consequential or special damage caused to the user or a third party as a result of use of the site.\n3. The store is not responsible for the assembly and/or installation of products purchased on the site, and such responsibility lies with the customer.\n4. Icons (ICONS), any information and/or display on the site, including graphics, design, text, trademarks and logos including their editing and display on the site, are the exclusive property of the store.\n5. Content on the site may not be copied, reproduced, distributed, published or used in any other way unless prior written consent has been given by the store."
+        "termsOfServiceContent": "## Terms of Service — Pawzen\n\n1. Please read these terms carefully before using our store.\n2. By browsing or purchasing from Pawzen, you agree to these terms.\n3. All prices include applicable taxes unless stated otherwise.\n4. Product images are for illustration purposes. Minor color variations may occur.\n\n## Purchasing\n\nPawzen offers pet accessories at fixed prices, subject to availability. Add items to your cart and complete checkout with your details and payment information.\n\n## Exchanges\n\n1. Products may be exchanged within 30 days of receipt if unused and in original packaging.\n2. Contact support@pawzen.co to initiate an exchange.\n3. Return shipping is at the customer's expense.\n4. Replacement items ship free of charge once we receive your return.\n\n## Returns & Refunds\n\n1. Returns accepted within 30 days of receipt for unused items in original packaging.\n2. Contact support@pawzen.co to initiate a return.\n3. Return shipping is at the customer's expense.\n4. Refunds cover product cost only (shipping is non-refundable).\n5. Refunds processed within 5 business days via original payment method.\n\n## Order Cancellation\n\n1. Orders may be cancelled before shipment by emailing support@pawzen.co.\n2. After shipment, follow the returns procedure above.\n3. Pawzen may cancel orders due to pricing errors, stock issues, or suspected fraud.\n\n## Shipping\n\n1. Orders are dispatched within 2 business days of payment confirmation.\n2. Pawzen is not responsible for carrier delays beyond our control.\n3. Delivery estimates refer to business days only.\n\n## Warranty\n\n1. Products are warranted against manufacturing defects only.\n2. Warranty does not cover normal wear and tear, misuse, or damage caused by pets.\n3. Proof of purchase is required for warranty claims.\n\n## Customer Service\n\nFor questions or support, contact us at support@pawzen.co.\n\n## General\n\n1. All content on the site (graphics, design, trademarks, logos) is the exclusive property of Pawzen.\n2. Pawzen is not liable for indirect or consequential damages from site use.\n3. Content may not be reproduced without prior written consent from Pawzen.",
+        "policyPageEmptyMessage": "This policy page has not been configured yet."
       },
       "homepage": {
         "sections": {
           "hero": {
             "enabled": true,
             "type": "image",
-            "title": "Welcome to Mansour Shoes",
-            "subtitle": "Quality shoes for the whole family at affordable prices",
+            "title": "Welcome to Pawzen",
+            "subtitle": "Modern, curated pet accessories for dogs & cats",
             "ctaText": "Shop Now",
             "ctaLink": "/products",
             "badgeText": "New Season Collection",
@@ -3878,10 +3920,10 @@
           },
           "trustStrip": {
             "enabled": true,
-            "freeShippingText": "Free shipping on orders over $75",
-            "easyReturnsText": "Easy returns",
-            "secureCheckoutText": "Secure checkout",
-            "supportText": "24/7 support",
+            "freeShippingText": "Pet-safe materials",
+            "easyReturnsText": "Free shipping over $50",
+            "secureCheckoutText": "24/7 support",
+            "supportText": "30-day returns",
             "background": {
               "style": "solid",
               "color": "#f9fafb",
@@ -3890,7 +3932,7 @@
           },
           "marquee": {
             "enabled": true,
-            "text": "Free shipping on all orders over $100! • Shop the new collection now • Limited time offer",
+            "text": "Free shipping over $50! • New pet accessories just arrived • Pet-safe & premium quality",
             "speedSeconds": 20,
             "textColor": null,
             "background": {
@@ -3917,7 +3959,7 @@
             "enabled": true,
             "title": "Shop by Category",
             "subtitle": "Find what you're looking for",
-            "maxCategories": 12,
+            "maxCategories": 6,
             "showProductCount": true,
             "showSubcategories": true,
             "layoutStyle": "mosaic",
@@ -3946,7 +3988,7 @@
             "badgeText": "Special Offer",
             "title": "Don't miss out",
             "highlight": "Up to 25% off",
-            "description": "Premium performance gear for run, court, and studio. Limited time collection.",
+            "description": "Premium pet accessories for dogs and cats. Limited time collection.",
             "primaryCta": {
               "text": "Shop Sale Items",
               "link": "/products?collection=sale"
@@ -4188,22 +4230,27 @@
           "intercomAppId": null,
           "zendeskKey": null,
           "crispWebsiteId": null,
-          "whatsappBusinessNumber": "+972545373118",
-          "whatsappDefaultMessage": "bebosh i love you!!"
+          "whatsappBusinessNumber": "+972501234567",
+          "whatsappDefaultMessage": "Hi! I'd like more information"
         },
         "social": {
           "facebook": null,
-          "instagram": "https://www.instagram.com/mansour_shoes_shefaraam/",
+          "instagram": "https://www.instagram.com/pawzen.co/",
           "twitter": null,
           "youtube": null,
           "tiktok": null,
           "pinterest": null
+        },
+        "cookieConsent": {
+          "enabled": true,
+          "position": "bottom",
+          "consentExpiryDays": 365
         }
       },
       "seo": {
-        "titleTemplate": "%s | Mansour Shoes",
-        "defaultTitle": "Mansour Shoes - Shoes for the Whole Family",
-        "defaultDescription": "Leading shoe store. Free shipping on orders over $75. Sports shoes, running shoes, and shoes for the whole family.",
+        "titleTemplate": "%s | Pawzen",
+        "defaultTitle": "Pawzen - Modern Pet Accessories for Dogs & Cats",
+        "defaultDescription": "Modern, curated pet accessories for dogs and cats. Free shipping on orders over $50. Thoughtfully designed products for your furry family.",
         "defaultImage": "/og-image.jpg",
         "twitterHandle": null
       },
@@ -4301,7 +4348,7 @@
       "promoPopup": {
         "enabled": true,
         "title": "Special Offer!",
-        "body": "Up to 30% off on selected sports shoes. Don't miss out!",
+        "body": "Up to 30% off on selected pet accessories. Don't miss out!",
         "badge": "Up to 30% Off",
         "imageUrl": null,
         "backgroundImageUrl": null,
@@ -4400,7 +4447,40 @@
           "badgePosition": "top-start",
           "showBrandLabel": true,
           "showRating": true,
-          "imageFit": "cover"
+          "imageFit": "cover",
+          "textStyles": {
+            "name": {
+              "fontSize": "sm",
+              "fontWeight": "semibold",
+              "color": null
+            },
+            "price": {
+              "fontSize": "base",
+              "fontWeight": "bold",
+              "color": null
+            },
+            "originalPrice": {
+              "fontSize": "sm",
+              "fontWeight": "normal",
+              "color": null
+            },
+            "reviewCount": {
+              "fontSize": "xs",
+              "fontWeight": "normal",
+              "color": null
+            }
+          },
+          "showPrice": true,
+          "showOriginalPrice": true,
+          "showCategory": true,
+          "showDeliveryEstimate": true,
+          "showShareButton": true,
+          "showDiscountBadge": true,
+          "showOutOfStockBadge": true,
+          "showLowStockBadge": true,
+          "showNewBadge": true,
+          "titleMaxLines": 2,
+          "contentAlignment": "start"
         },
         "toasts": {
           "position": "bottom-right",
@@ -4491,6 +4571,10 @@
           "drawerSide": "right",
           "showDeleteText": false,
           "showSaveForLater": false
+        },
+        "sectionViewAllButton": {
+          "style": "pill",
+          "icon": "chevron"
         }
       },
       "content": {
@@ -4508,9 +4592,12 @@
           "freeShippingThresholdReached": "You've unlocked free shipping!",
           "addXMoreForFreeShipping": "Add {amount} more for free shipping!",
           "unlockedFreeShipping": "You've unlocked free shipping!",
+          "freeShippingSelectMethods": "You may qualify for free shipping on select methods",
           "saveForLaterButton": "Save for Later",
           "moveToCartButton": "Move to Cart",
           "deleteButton": "Delete",
+          "removeButton": "Remove",
+          "removingText": "Removing",
           "itemSingular": "item",
           "itemPlural": "items",
           "orderSummaryTitle": "Order Summary",
@@ -4547,13 +4634,22 @@
           "shippingNote": "Shipping and taxes calculated at checkout",
           "giftLabel": "Gift",
           "giftAddedMessage": "A free gift has been added to your cart.",
-          "giftRemoveHint": "(You can remove it)"
+          "giftRemoveHint": "(You can remove it)",
+          "deliverySummaryLabel": "All items arrive within {days} business days",
+          "promoCodeVoucherNotApplicableError": "This voucher is not applicable to your order",
+          "promoCodeGiftCardNotApplicableError": "This gift card is not applicable",
+          "promoCodeNotFoundError": "Code not found. Please check and try again",
+          "promoCodeInvalidError": "Invalid code",
+          "promoCodeGenericError": "Could not apply code. Please try again",
+          "promoCodeAppliedSuccess": "Promo code applied!",
+          "promoCodeRemovedSuccess": "Promo code removed",
+          "promoCodeRemoveError": "Failed to remove code"
         },
         "product": {
           "addToCartButton": "Add to Cart",
           "buyNowButton": "Buy Now",
           "outOfStockText": "Out of Stock",
-          "lowStockText": "Only {count} units left",
+          "lowStockText": "Only {count} left",
           "inStockText": "In Stock",
           "saleBadgeText": "Sale",
           "newBadgeText": "New",
@@ -4686,7 +4782,8 @@
           "confirmButton": "Confirm",
           "deleteButton": "Delete",
           "editButton": "Edit",
-          "homeLabel": "Home"
+          "homeLabel": "Home",
+          "allProductsLabel": "Products"
         },
         "homepage": {
           "newArrivalsTitle": "New Arrivals",
@@ -4734,6 +4831,7 @@
           "viewAllBrandsButton": "View all brands",
           "viewAllOffersButton": "View all offers",
           "allCollectionsButton": "All Collections",
+          "viewAllButton": "View All",
           "itemsText": "items",
           "stylesText": "styles",
           "performanceLineupText": "Performance lineup",
@@ -4788,6 +4886,8 @@
           "addressLine2Label": "Street address (continue)",
           "cityLabel": "City",
           "countryLabel": "Country",
+          "countryPlaceholder": "Search country...",
+          "noCountryFound": "No country found",
           "stateLabel": "State",
           "postalCodeLabel": "Postal code",
           "phoneLabel": "Phone number",
@@ -4803,10 +4903,30 @@
           "billingAddressTitle": "Billing Address",
           "billingAddressSubtitle": "For your invoice",
           "useSameAsShipping": "Use shipping address as billing address",
+          "useSavedAddressButton": "Use a saved address",
           "deliveryMethodsTitle": "Delivery methods",
+          "deliveryMethodsSubtitle": "Choose shipping speed",
+          "noShippingMethodsAvailable": "No shipping methods available for this address",
           "businessDaysText": "{min}-{max} business days",
           "freeShippingLabel": "Free",
+          "deliveryFreeShippingUnlocked": "Free shipping applied!",
+          "deliveryFreeShippingNudge": "You've unlocked free shipping! Select {methodName} to save {amount}",
+          "deliveryAddMoreForFreeShipping": "Add {amount} more for free shipping",
+          "deliveryFreeShippingSelectMethods": "Free shipping is available on select delivery methods",
+          "shippingSavingsMessage": "You saved {amount} on shipping!",
           "noDeliveryMethodsText": "No delivery methods available",
+          "fetchingShippingRates": "Calculating shipping rates...",
+          "updatingShippingRates": "Updating shipping rates for new address...",
+          "calculateShippingButton": "Calculate Shipping Rates",
+          "calculatingShippingText": "Calculating shipping rates...",
+          "recalculateRatesButton": "Recalculate",
+          "addressChangedNotice": "Shipping address changed since last calculation",
+          "shippingFetchErrorText": "Could not fetch shipping rates",
+          "shippingFetchErrorHint": "Please verify your shipping address is correct and try again.",
+          "noShippingMethodsHint": "Please check that your address details are correct, or try a different address.",
+          "tryAgainButton": "Try Again",
+          "shippingAddressDetected": "Shipping address detected",
+          "calculateShippingHint": "Click below to see available shipping options and pricing for your address.",
           "freeShippingVoucherNotApplicable": "Free shipping voucher is not applicable with this delivery method. Choose a free shipping method to use your voucher.",
           "freeShippingAppliedWithMethod": "Free shipping applied with this method.",
           "paymentTitle": "Payment",
@@ -4822,6 +4942,7 @@
           "invalidPaymentDataError": "Invalid payment data received. Please try again.",
           "paymentInitIncompleteError": "Payment initialization incomplete. Please try again.",
           "paymentConfirmationFailedError": "Payment confirmation failed. Please try again.",
+          "paymentTimeoutError": "Payment timed out. Please try again.",
           "paymentFailedError": "Payment failed",
           "unexpectedPaymentError": "An unexpected error occurred with your payment",
           "paymentSuccessOrderFailedError": "Payment was successful but order processing failed. Please contact support.",
@@ -4838,6 +4959,14 @@
           "oneVoucherPerOrderHint": "One voucher per order. Gift cards can be combined.",
           "replaceVoucherConfirm": "Only one voucher can be used per order. Applying this code will replace {code}. Continue?",
           "giftCardLabel": "Gift card",
+          "promoCodeVoucherNotApplicableError": "This voucher is not applicable to your order",
+          "promoCodeGiftCardNotApplicableError": "This gift card is not applicable",
+          "promoCodeNotFoundError": "Code not found. Please check and try again",
+          "promoCodeInvalidError": "Invalid code",
+          "promoCodeGenericError": "Could not apply code. Please try again",
+          "promoCodeAppliedSuccess": "Promo code applied!",
+          "promoCodeRemovedSuccess": "Promo code removed",
+          "promoCodeRemoveError": "Failed to remove code",
           "subtotalLabel": "Subtotal",
           "shippingLabel": "Shipping",
           "taxLabel": "Tax",
@@ -4851,6 +4980,7 @@
           "placeOrder": "Place Order",
           "placeOrderButton": "Place Order",
           "processingOrderText": "Processing your order...",
+          "doNotClosePageText": "Please do not close this page",
           "agreementText": "By placing this order, you agree to our",
           "almostDoneText": "Almost done…",
           "orderConfirmation": "Order Confirmation",
@@ -4875,6 +5005,8 @@
           "deliveryMessage": "Your order will arrive at your doorstep!",
           "printReceiptButton": "Print Receipt",
           "thankYouPurchaseMessage": "Thank you for your purchase! If you have any questions, please contact our support team.",
+          "accountCreatedTitle": "Account Created",
+          "accountCreatedDescription": "Your account has been set up with your shipping address saved. Sign in anytime with your email and password.",
           "orderDetailsTitle": "Order Details",
           "contactLabel": "Contact",
           "authorizedStatus": "Authorized",
@@ -4889,6 +5021,7 @@
           "invalidEmailError": "Please enter a valid email",
           "invalidPhoneError": "Please enter a valid phone number",
           "selectDeliveryMethodError": "Please select a delivery method",
+          "deliveryMethodUnavailable": "Your selected shipping method is no longer available for the current cart. Please choose another.",
           "selectPaymentMethodError": "Please select a payment method",
           "noCheckoutFoundTitle": "No checkout found",
           "noCheckoutFoundMessage": "It looks like you haven't started a checkout yet. Add some items to your cart first.",
@@ -4919,13 +5052,34 @@
           "contactDetailsTitle": "Contact details",
           "createAccountLabel": "I want to create account",
           "passwordMinChars": "Password (minimum 8 characters)",
+          "resetPasswordTitle": "Reset Password",
+          "rememberedPasswordText": "Remembered your password?",
+          "provideNewPasswordText": "Provide a new password",
+          "noSavedAddressesText": "No saved addresses",
+          "voucherLabel": "Voucher",
+          "giftCardMaskedLabel": "Gift card ending in {last4}",
+          "emptyCartTitle": "Your cart is empty",
+          "emptyCartMessage": "You haven't added any items to your cart yet.",
+          "browseProductsButton": "Browse Products",
+          "goToHomepageButton": "Go to Homepage",
+          "needHelpText": "Need help?",
+          "freeShippingBadge": "Free Shipping",
+          "easyReturnsBadge": "Easy Returns",
+          "securePaymentBadge": "Secure Payment",
+          "orderNotFoundTitle": "Order not found",
+          "orderNotFoundMessage": "We couldn't find your order. Please check the order number and try again.",
           "sslEncryptionText": "Secure 256-bit SSL encryption",
           "privacyPolicy": "Privacy Policy",
-          "termsOfService": "Terms of Service",
+          "termsOfService": "By placing your order, you agree to our terms and conditions and privacy policy",
           "securityNote": "Protected by SSL encryption • Your payment details are secure",
           "privacyPolicyLinkText": "Privacy Policy",
           "termsOfServiceLinkText": "Terms of Service",
-          "sslEncryptionMessage": "Protected by SSL encryption • Your payment details are secure"
+          "sslEncryptionMessage": "Protected by SSL encryption • Your payment details are secure",
+          "continueButtonText": "Continue",
+          "emptyCartConfirmTitle": "Remove last item?",
+          "emptyCartConfirmMessage": "This will empty your cart and take you back to the store.",
+          "emptyCartConfirmButton": "Empty cart",
+          "emptyCartCancelButton": "Keep shopping"
         },
         "filters": {
           "sectionTitle": "Filters",
@@ -4969,14 +5123,14 @@
           "seenAllProducts": "You've seen all {count} products",
           "tryAdjustingFilters": "Try adjusting your filters for more results",
           "searchPlaceholder": "Search products",
-          "searchClearAriaLabel": "",
-          "searchInputAriaLabel": "",
+          "searchClearAriaLabel": "Clear search",
+          "searchInputAriaLabel": "Search products",
           "searchProductsTitle": "Search Products",
           "searchResultsTitle": "Search Results",
           "resultsCountText": "Found {count} results",
           "noResultsMessage": "No results found for \"{query}\"",
           "resultsText": "results",
-          "itemsAvailable": "items available",
+          "itemsAvailable": "items",
           "productsPageTitle": "All Products",
           "discoverProducts": "Discover Products",
           "shopAllButton": "Shop All",
@@ -4995,7 +5149,9 @@
           "clearPriceFilter": "Clear",
           "applyPriceFilter": "Apply",
           "priceUnderLabel": "Under",
-          "priceAboveLabel": "+"
+          "priceAboveLabel": "+",
+          "priceFromLabel": "From",
+          "priceUpToLabel": "Up to"
         },
         "productDetail": {
           "freeShipping": "Free Shipping",
@@ -5055,6 +5211,18 @@
           "freeStandardShippingDescription": "For orders over $75. Delivery within 5-7 business days.",
           "expressShippingTitle": "Express Shipping",
           "expressShippingDescription": "{price}. Delivery within 2-3 business days.",
+          "deliveryEstimateLabel": "Ships in {days} business days",
+          "estimatedDeliveryPrefix": "Estimated delivery",
+          "businessDaysLabel": "business days",
+          "trackOrderLabel": "Track your order",
+          "shippingEstimatedDelivery": "Estimated delivery: {days} business days",
+          "shippingFreeLabel": "Free Shipping",
+          "shippingProcessingTime": "Processing time: 1-3 business days",
+          "shippingTrackingNotice": "You'll receive tracking information via email once your order ships",
+          "shippingWarehouseNotice": "This item ships from our international fulfillment center",
+          "shippingReturnPolicyNote": "Returns accepted within 30 days of delivery",
+          "shippingCarrierLabel": "Carrier: {carrier}",
+          "shippingExtendedReturnNote": "Please note: return shipping for international items may take additional time",
           "loadingReviews": "Loading reviews...",
           "reviewCountText": "{count} reviews",
           "noReviewsMatchFilters": "No reviews match your filters.",
@@ -5087,14 +5255,14 @@
           "sizeGuideButton": "Size Guide",
           "sizeGuideTitle": "Size Guide",
           "sizeGuideSubtitle": "Find your perfect fit",
-          "sizeGuideMensTab": "Men's",
-          "sizeGuideWomensTab": "Women's",
-          "sizeGuideKidsTab": "Kids'",
+          "sizeGuideDogsTab": "Dogs",
+          "sizeGuideCatsTab": "Cats",
           "sizeGuideHowToMeasure": "How to Measure",
           "sizeGuideMeasureTip": "Stand on a piece of paper with your heel against a wall. Mark the longest toe and measure the distance in centimeters. Compare with the CM column above.",
           "sizeGuideProTip": "Pro Tip: Measure your feet in the evening when they're at their largest. If you're between sizes, go up half a size for the most comfortable fit.",
-          "sizeGuideShoesCategory": "Shoes",
           "sizeGuideClothingCategory": "Clothing",
+          "sizeGuideCollarsCategory": "Collars & Harnesses",
+          "sizeGuideBedCategory": "Beds",
           "sizeGuideClothingMeasureTip": "Use a soft measuring tape. For chest, measure around the fullest part. For waist, measure at the natural waistline (above belly button). Keep the tape snug but not tight.",
           "sizeGuideClothingProTip": "Pro Tip: If you're between sizes, size up for a relaxed fit or size down for a snug fit. Check the fabric composition — stretchy materials are more forgiving.",
           "specificationsTab": "Specifications",
@@ -5298,13 +5466,20 @@
           "billingAddress": "Billing Address",
           "savedAddress": "Saved Address",
           "setAsDefault": "Set as Default",
+          "setAsDefaultShipping": "Set as Default Shipping",
+          "setAsDefaultBilling": "Set as Default Billing",
           "noAddresses": "No addresses saved",
           "noAddressesMessage": "Add your first address to speed up checkout",
           "noAddressesCheckoutMessage": "Your shipping and billing addresses will be saved here when you complete checkout.",
           "addNewAddressTitle": "Add New Address",
           "addAddressDescription": "Adding new addresses requires going through checkout. Your addresses will be automatically saved when you complete a purchase.",
           "editButton": "Edit",
+          "editAddressTitle": "Edit Address",
           "deleteButton": "Delete",
+          "deleteConfirmTitle": "Delete address?",
+          "deleteConfirmMessage": "This address will be permanently removed from your account.",
+          "saving": "Saving…",
+          "saveChanges": "Save changes",
           "continueShoppingButton": "Continue Shopping",
           "startShopping": "Start Shopping",
           "cancel": "Cancel"
@@ -5384,11 +5559,24 @@
         "navbar": {
           "selectChannel": "Select Channel/Currency",
           "searchPlaceholder": "Search...",
-          "searchClearAriaLabel": "",
-          "searchInputAriaLabel": "",
+          "searchClearAriaLabel": "Clear search",
+          "searchInputAriaLabel": "Search products",
+          "bannerDismissAriaLabel": "Dismiss banner",
+          "bannerPrevAriaLabel": "Previous banner",
+          "bannerNextAriaLabel": "Next banner",
           "viewAllResultsFor": "View all results for",
           "recentlySearchedLabel": "Recent Searches",
           "recentSearchesClearLabel": "Clear",
+          "popularSearchesLabel": "Popular Searches",
+          "popularSearchTerms": [
+            "Dogs",
+            "Cats",
+            "Toys",
+            "Sale"
+          ],
+          "noResultsText": "No products found",
+          "noResultsHint": "Try searching with different keywords",
+          "searchForText": "Search for",
           "cartLabel": "Cart",
           "accountLabel": "Account",
           "menuLabel": "Menu",
@@ -5406,6 +5594,7 @@
           "megaMenuHoverPrompt": "Hover a category to explore",
           "subcategoriesSide": "right",
           "mobileNavPosition": "left",
+          "mobileMenuStyle": "visual",
           "dropdownArrowDirection": "right",
           "dropdownArrowDirectionExpanded": "down",
           "homeLabel": "Home",
@@ -5435,6 +5624,159 @@
           "productNotFoundTitle": "Product Not Found",
           "productNotFoundDescription": "The product you're looking for doesn't exist or has been removed.",
           "productNotFoundBackButton": "Back to Products"
+        },
+        "cookieConsent": {
+          "bannerTitle": "Cookie Preferences",
+          "bannerDescription": "We use cookies to enhance your experience. Essential cookies are always active. You can choose to enable analytics and marketing cookies.",
+          "acceptAllButton": "Accept All",
+          "rejectAllButton": "Essential Only",
+          "manageButton": "Manage Preferences",
+          "essentialLabel": "Essential",
+          "essentialDescription": "Required for basic site functionality (login, cart, checkout).",
+          "analyticsLabel": "Analytics",
+          "analyticsDescription": "Help us understand how visitors interact with our site.",
+          "marketingLabel": "Marketing",
+          "marketingDescription": "Used for targeted advertising and remarketing.",
+          "savePreferencesButton": "Save Preferences",
+          "policyLinkText": "Cookie Policy"
+        },
+        "pagination": {
+          "previousButton": "Previous",
+          "nextButton": "Next",
+          "pageLabel": "Page {current} of {total}"
+        },
+        "faq": {
+          "heroTitle": "How Can We Help?",
+          "heroDescription": "Find answers to frequently asked questions about orders, shipping, returns, and more.",
+          "searchPlaceholder": "Search for answers...",
+          "categoriesLabel": "Categories",
+          "resultsLabel": "{count} result(s) for \"{query}\"",
+          "noResultsText": "No results found. Try a different search term or",
+          "contactUsLink": "contact us",
+          "stillHaveQuestionsTitle": "Still Have Questions?",
+          "stillHaveQuestionsDescription": "Our support team is available 24/7 to help you out.",
+          "contactUsButton": "Contact Us",
+          "callUsButton": "Call Us",
+          "categories": [
+            {
+              "name": "Orders & Shipping",
+              "icon": "📦",
+              "items": [
+                {
+                  "question": "How long does shipping take?",
+                  "answer": "Standard shipping takes 3-5 business days. Express shipping is available for 1-2 business day delivery. International orders typically arrive within 7-14 business days."
+                },
+                {
+                  "question": "Do you offer free shipping?",
+                  "answer": "Yes! We offer free standard shipping on all orders over $75."
+                },
+                {
+                  "question": "Can I track my order?",
+                  "answer": "Once your order ships, you'll receive an email with tracking information. You can also track your order in your account."
+                },
+                {
+                  "question": "Do you ship internationally?",
+                  "answer": "Yes, we ship to most countries worldwide. Shipping rates and delivery times vary by location."
+                },
+                {
+                  "question": "Can I change or cancel my order?",
+                  "answer": "You can modify or cancel your order within 1 hour of placing it. After that, orders enter processing and cannot be changed."
+                }
+              ]
+            },
+            {
+              "name": "Returns & Exchanges",
+              "icon": "🔄",
+              "items": [
+                {
+                  "question": "What is your return policy?",
+                  "answer": "We offer a 30-day return policy on all unused items in their original packaging."
+                },
+                {
+                  "question": "How do I return an item?",
+                  "answer": "Log into your account, go to your order history, and select 'Return Item'. You'll receive a prepaid shipping label via email."
+                },
+                {
+                  "question": "Are returns free?",
+                  "answer": "Returns are free within the continental US. For international returns, customers are responsible for return shipping costs."
+                },
+                {
+                  "question": "How long do refunds take?",
+                  "answer": "Once we receive your return, please allow 3-5 business days for inspection. Refunds may take an additional 5-10 business days to appear."
+                },
+                {
+                  "question": "Can I exchange an item for a different size?",
+                  "answer": "Yes! We offer free exchanges for different sizes. Initiate a return and place a new order for the size you need."
+                }
+              ]
+            },
+            {
+              "name": "Products",
+              "icon": "🏃",
+              "items": [
+                {
+                  "question": "Are all products authentic?",
+                  "answer": "100% yes! We are an authorized retailer for all brands we carry."
+                },
+                {
+                  "question": "How do I find my size?",
+                  "answer": "Each product page includes a detailed size guide. We recommend measuring yourself and comparing to our charts."
+                },
+                {
+                  "question": "Do you offer product warranties?",
+                  "answer": "Many of our products come with manufacturer warranties. Details are listed on individual product pages."
+                },
+                {
+                  "question": "Can I get notified when an item is back in stock?",
+                  "answer": "Yes! On any sold-out product page, you'll find a 'Notify Me' button."
+                }
+              ]
+            },
+            {
+              "name": "Payment & Security",
+              "icon": "🔒",
+              "items": [
+                {
+                  "question": "What payment methods do you accept?",
+                  "answer": "We accept all major credit cards, PayPal, Apple Pay, Google Pay, and Shop Pay."
+                },
+                {
+                  "question": "Is my payment information secure?",
+                  "answer": "We use industry-standard SSL encryption. All payments are processed through secure, PCI-compliant processors."
+                },
+                {
+                  "question": "Do you offer financing options?",
+                  "answer": "Yes! We offer buy-now-pay-later options. At checkout, you can split your purchase into 4 interest-free payments."
+                },
+                {
+                  "question": "When will I be charged?",
+                  "answer": "Your payment method is charged when you place your order."
+                }
+              ]
+            },
+            {
+              "name": "Account & Orders",
+              "icon": "👤",
+              "items": [
+                {
+                  "question": "Do I need an account to place an order?",
+                  "answer": "No, you can checkout as a guest. However, creating an account allows you to track orders and save addresses."
+                },
+                {
+                  "question": "How do I reset my password?",
+                  "answer": "Click 'Sign In' then 'Forgot Password'. Enter your email and we'll send you a reset link."
+                },
+                {
+                  "question": "Can I view my order history?",
+                  "answer": "Yes! Log into your account and click on 'Order History' to view all your orders."
+                },
+                {
+                  "question": "How do I unsubscribe from emails?",
+                  "answer": "Click the 'Unsubscribe' link at the bottom of any marketing email."
+                }
+              ]
+            }
+          ]
         }
       },
       "darkMode": {
@@ -5467,10 +5809,47 @@
       },
       "design": {
         "animations": {
-          "preset": "moderate"
+          "preset": "moderate",
+          "carouselCycleSeconds": 6,
+          "toastDurationMs": 4000
         },
         "spacing": {
           "sectionPaddingY": "normal"
+        },
+        "grid": {
+          "productColumns": {
+            "sm": 2,
+            "md": 3,
+            "lg": 4,
+            "xl": 4
+          },
+          "productGap": "normal"
+        },
+        "statusColors": {
+          "success": "#22c55e",
+          "warning": "#f59e0b",
+          "error": "#ef4444",
+          "info": "#3b82f6"
+        }
+      },
+      "checkoutUi": {
+        "accordion": {
+          "completedStepColor": null,
+          "activeStepColor": null
+        },
+        "confirmation": {
+          "showTimeline": true,
+          "showPrintReceipt": true
+        },
+        "progressBar": {
+          "completedColor": null,
+          "activeColor": null
+        }
+      },
+      "cardOverrides": {},
+      "componentOverrides": {
+        "homepage.hero": {
+          "backgroundColor": "#1E4D3A"
         }
       }
     },
@@ -5479,11 +5858,11 @@
       "updatedAt": "2026-02-21T17:38:40.860Z",
       "channelSlug": "default-channel",
       "store": {
-        "name": "Mansour Shoes",
-        "tagline": "Shoes for the Whole Family",
+        "name": "Pawzen",
+        "tagline": "Calm. Curated. Pet Care.",
         "type": "physical",
-        "description": "A store for sports shoes and shoes for the whole family from leading brands.",
-        "email": "support@mansourshoes.example",
+        "description": "Modern, curated pet accessories for dogs and cats. Thoughtfully designed products for your furry family.",
+        "email": "support@pawzen.co",
         "phone": "+1-555-0123",
         "address": {
           "street": "123 Main Street",
@@ -5495,19 +5874,19 @@
       },
       "branding": {
         "logo": "https://media.easy.co.il/images/UserThumbs/10035528_1752326685636_0.jpg",
-        "logoAlt": "Mansour Shoes Logo",
+        "logoAlt": "Pawzen - Pet Accessories",
         "favicon": "/favicon.ico",
         "colors": {
-          "primary": "#434851",
-          "secondary": "#0A0707",
-          "accent": "#E0A55A",
-          "background": "#FFFFFF",
-          "surface": "#F9FAFB",
-          "text": "#111827",
-          "textMuted": "#6B7280",
-          "success": "#059669",
-          "warning": "#D97706",
-          "error": "#DC2626"
+          "primary": "#1B2838",
+          "secondary": "#1E4D3A",
+          "accent": "#C9A962",
+          "background": "#F8F7F5",
+          "surface": "#EDEAE5",
+          "text": "#0F1419",
+          "textMuted": "#7A756E",
+          "success": "#1E4D3A",
+          "warning": "#C9A962",
+          "error": "#8B3A3A"
         },
         "typography": {
           "fontHeading": "Inter",
@@ -5563,7 +5942,7 @@
         },
         "shipping": {
           "enabled": true,
-          "freeShippingThreshold": 75,
+          "freeShippingThreshold": 50,
           "showEstimatedDelivery": true,
           "deliverySlots": false
         },
@@ -5585,7 +5964,7 @@
       "header": {
         "banner": {
           "enabled": true,
-          "text": "Free shipping on orders over $75!",
+          "text": "Free shipping on orders over $50!",
           "backgroundColor": "",
           "textColor": null,
           "useSaleorPromotions": true,
@@ -5650,7 +6029,7 @@
         "showContactInfo": true,
         "showMenu": true,
         "showBrand": true,
-        "copyrightText": "© 2026 Mansour Shoes. All rights reserved",
+        "copyrightText": "© 2026 Pawzen. All rights reserved.",
         "legalLinks": {
           "trackOrder": {
             "enabled": true,
@@ -5674,13 +6053,13 @@
           }
         },
         "returnPolicyPageTitle": "Returns & Exchanges Policy",
-        "returnPolicyContent": "## Product exchange\n\n1. To exchange a product, contact customer service via WhatsApp to coordinate the return at 0505727854.\n2. To exchange a product, send it back to the business (new and in original packaging only) within 14 days of receipt.\n3. The customer will ship the product at their own expense using one of the methods listed below.\n4. After the store receives the product, a replacement product of the customer's choice will be sent free of charge to a pickup point.\n\nProducts returned without original packaging, used or damaged will not be exchanged or refunded!\n** Wrap the package in plastic or paper. Do not stick labels or write on the original box!\n\nThere are 2 ways to send the product and complete an exchange:\n\nRegistered mail to the address we provide via WhatsApp. (Postage is 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nHome exchange at 49 ILS: A courier comes to your home with the replacement product to complete the exchange on the spot. 49 ILS paid in advance.\n\nIf the customer chooses to exchange for a more expensive product they will pay the difference in advance via a link sent by email or WhatsApp. If the product is cheaper, the customer will receive a refund for the difference by the same payment method.\n\nRefund for a price difference will be made within 3 business days after the returned product reaches the warehouse and is found to be in good and unused condition!\n\nA second exchange shipment is at the customer's expense!\n\n## Product return and refund\n\nTo return a product, contact customer service via WhatsApp to coordinate the return at 0505727854.\n\nReturns are allowed within 14 days of receipt only if the product is new, in original packaging and unused.\n\nReturn shipping is at the customer's expense.\n\nThe refund is for products only and does not include the delivery cost paid at purchase!\n\nThe refund will be made by the same payment method within 5 business days of the product reaching the store.\n\nYou may return products in one of the following ways:\n\nRegistered mail to the address we provide via WhatsApp.\n\nCourier at 40 ILS: A courier comes to your home, collects the product and returns it to us. After the product reaches us with the courier we will process your refund. You may pay the delivery cost directly to the courier or pay us online in advance by credit card via a link we send you.",
+        "returnPolicyContent": "## Product exchange\n\n1. To exchange a product, contact customer service via email at support@pawzen.co.\n2. To exchange a product, send it back to the business (new and in original packaging only) within 14 days of receipt.\n3. The customer will ship the product at their own expense using one of the methods listed below.\n4. After the store receives the product, a replacement product of the customer's choice will be sent free of charge to a pickup point.\n\nProducts returned without original packaging, used or damaged will not be exchanged or refunded!\n** Wrap the package in plastic or paper. Do not stick labels or write on the original box!\n\nThere are 2 ways to send the product and complete an exchange:\n\nRegistered mail to the address we provide via WhatsApp. (Postage is 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nHome exchange at 49 ILS: A courier comes to your home with the replacement product to complete the exchange on the spot. 49 ILS paid in advance.\n\nIf the customer chooses to exchange for a more expensive product they will pay the difference in advance via a link sent by email or WhatsApp. If the product is cheaper, the customer will receive a refund for the difference by the same payment method.\n\nRefund for a price difference will be made within 3 business days after the returned product reaches the warehouse and is found to be in good and unused condition!\n\nA second exchange shipment is at the customer's expense!\n\n## Product return and refund\n\nTo return a product, contact customer service via email at support@pawzen.co.\n\nReturns are allowed within 14 days of receipt only if the product is new, in original packaging and unused.\n\nReturn shipping is at the customer's expense.\n\nThe refund is for products only and does not include the delivery cost paid at purchase!\n\nThe refund will be made by the same payment method within 5 business days of the product reaching the store.\n\nYou may return products in one of the following ways:\n\nRegistered mail to the address we provide via WhatsApp.\n\nCourier at 40 ILS: A courier comes to your home, collects the product and returns it to us. After the product reaches us with the courier we will process your refund. You may pay the delivery cost directly to the courier or pay us online in advance by credit card via a link we send you.",
         "shippingPolicyPageTitle": "Shipping Policy",
-        "shippingPolicyContent": "## Shipping Policy\n\n1. The customer will choose the type of delivery they want in the shopping cart and the delivery cost will be added to the product price.\n2. Delivery will be carried out by an external shipping company \"Cheetah Shipping\".\n3. The package will be sent within 1 business day of placing the order.\n4. Delivery time is 3-5 business days from handover to the courier.\n5. For \"pickup point\" delivery, the package will be sent to the pickup point closest to the address provided by the customer. \"Cheetah\" has hundreds of pickup points across the country. When the package arrives at the destination, an SMS with all details will be sent to the customer.\n6. For home delivery, the package will be sent to the address provided by the customer.\n7. Home delivery cost charged by the shipping company to the online store ranges from 40 ILS to 60 ILS depending on the area. The higher price is for \"special areas\" as defined by \"Cheetah\" shipping company — for the list of special areas click here.\n8. Pickup point delivery cost is 20 ILS for all areas.\n9. All delivery costs that the customer is asked to pay are subsidised and discounted by SHOES BOX, with the customer paying part of the delivery cost as specified in sections 8 and 9.",
+        "shippingPolicyContent": "## Shipping Policy\n\n1. The customer will choose the type of delivery they want in the shopping cart and the delivery cost will be added to the product price.\n2. Delivery will be carried out by an external shipping company \"our shipping partner\".\n3. The package will be sent within 1 business day of placing the order.\n4. Delivery time is 3-5 business days from handover to the courier.\n5. For \"pickup point\" delivery, the package will be sent to the pickup point closest to the address provided by the customer. \"our partner\" has hundreds of pickup points across the country. When the package arrives at the destination, an SMS with all details will be sent to the customer.\n6. For home delivery, the package will be sent to the address provided by the customer.\n7. Home delivery cost charged by the shipping company to the online store ranges from 40 ILS to 60 ILS depending on the area. The higher price is for \"special areas\" as defined by \"our partner\" shipping company — for the list of special areas click here.\n8. Pickup point delivery cost is 20 ILS for all areas.\n9. All delivery costs that the customer is asked to pay are subsidised and discounted by Pawzen, with the customer paying part of the delivery cost as specified in sections 8 and 9.",
         "privacyPolicyPageTitle": "Privacy Policy",
         "privacyPolicyContent": "## Privacy Policy\n\n1. Principles\n\nThis policy explains how we collect, store, use and share personal information on this website (\"the Site\").\n\"Personal information\" and \"processing\" are as defined in the Privacy Protection Law, as amended.\n\n2. Types of information we collect\n\n2.1 Identifying and contact details: name, email, phone, shipping/billing address.\n2.2 Order and payment details (payment details are processed by licensed payment processors; the Site does not store full card details).\n2.3 Technical and usage data: IP address, device/cookie IDs, pages viewed, purchases, site activity.\n2.4 Marketing preferences and correspondence.\n\n3. How we collect information\n\n3.1 Directly from you when you register, place an order or contact us.\n3.2 Automatically via cookies and similar technologies.\n3.3 From third parties: Google Analytics; we may use Facebook (Meta) and TikTok for measurement, personalisation and targeted advertising.\n\n4. Cookies and measurement tools\n\n4.1 The Site uses cookies and pixels of Google Analytics, and may use pixels of Facebook and TikTok for analysis, measurement, improving user experience and targeted marketing.\n4.2 You can manage or delete cookies in your browser and change preferences in the site cookie manager (if available).\n4.3 Third parties may set their own cookies and receive usage data (e.g. IP/advertising ID/purchase events) per their policies. We recommend reviewing those policies.\n4.4 This policy distinguishes between data provided with prior knowledge and data collected via tracking, and clarifies purposes and use by third parties.\n\n5. Purposes of processing\n\n5.1 Account and order management; customer support.\n5.2 Legal and contractual obligations (invoicing, tax).\n5.3 Security, fraud prevention and risk management.\n5.4 Usage analysis and site and product improvement.\n5.5 Marketing and tailored offers (in line with your preferences and applicable law).\n\n6. Sharing with third parties\n\n6.1 Service providers acting as processors: payments, logistics/shipping, email systems, cloud and hosting infrastructure.\n6.2 The store platform \"istores\" — information is stored and processed on the istores platform used to operate the store (\"processor\").\n6.3 Measurement/advertising tools: Google Analytics; possibly Facebook and TikTok, as set out in section 4.\n6.4 Authorities or enforcement as required by law; transfer in the context of permitted business restructuring.\n\n7. Transfer and storage outside Israel\n\nSome information is stored on servers of providers outside Israel. Transfers will be made in accordance with applicable legal requirements.\n\n8. Information security\n\nWe take organisational, technical and physical measures to protect information, in accordance with the law and the Privacy Protection (Information Security) Regulations, 2017.\n\n9. Data retention\n\nWe retain information as long as necessary for the purposes for which it was collected, for contractual/legal obligations and to protect our rights, and thereafter delete or anonymise where possible.\n\n10. Your rights\n\n10.1 Right to access your personal data and receive a copy.\n10.2 Right to correct or delete inaccurate or incomplete data; notice of correction/deletion will be given to those who received the information from us as required by law.\n10.3 Withdrawal of consent for processing based on consent — where feasible and in a reasonable manner.\n\n11. Deleting your account or data – how to request\n\n11.1 You may delete your account or request deletion of data in one of the following ways:\n\nLog in to your account and select the deletion request option;\n\nContact the site owner using the contact details published on the site.\n\n11.2 Deletion will be carried out after we confirm receipt of the request and compliance with legal conditions (including data we are required to retain by law).\n\n12. Data Protection Officer (DPO)\n\nIf we are required to appoint a Data Protection Officer under amendment 13, the Officer's details and contact information will be published on the site.\n\n13. Minors\n\nThe Site is not intended for independent use by minors under 18. If we receive notice that a minor has provided information without parental/guardian consent, we will take steps to remove it.\n\n14. Policy updates\n\nWe may update this policy from time to time. The current version will be published on the site and take effect as of the date of publication.",
         "termsOfServicePageTitle": "Terms of Service",
-        "termsOfServiceContent": "## Store Terms\n\n1. You are asked to read these terms in full and carefully, as a precondition to the agreement between the parties.\n2. The store is for purchasing products by users on the internet in Israel. Purchasers must be 18 or over, have an email address on the internet in Israel and an address in Israel, and hold a valid credit card in Israel.\n3. A precondition for the validity of a purchase is approval by the credit card company for the transaction.\n4. Browsing the store and/or purchasing the product and/or service offered for sale constitutes your agreement to accept and act in accordance with these terms. Therefore, if you do not agree to any term, you are asked not to use the store.\n6. The price includes VAT unless stated otherwise.\n7. There may be colour differences between the image displayed and the actual product. Such differences are due to camera type, display, screen colour settings and different screen types, etc.\n\n## Purchasing products\n\nThe site offers a limited quantity of products at a fixed price. The sale will be conducted on the following terms:\n\n1. The store will display a list of products including all details about the product or service offered for sale and the price as set in advance; sale is subject to stock.\n2. After adding the desired products to the \"shopping cart\", the buyer will proceed on the \"shopping cart\" page to \"confirm purchase\" and there complete their details, after which the online purchase process is complete.\n\n## Card verification\n\nThe business may require the customer to verify their credit card by sending a selfie of the cardholder showing ID and the credit card to the business WhatsApp number. In such a case, the name on the credit card must match the name on the ID.\nIf there is no match or the customer refuses to verify, the business may cancel the transaction.\n\n## Product exchange\n\n1. To exchange a product, send it back to the business (new and in original packaging only) within 14 days of receipt.\n2. The customer will ship the product at their own expense using one of the methods listed below.\n3. After the store receives the product, a replacement product of the customer's choice will be sent free of charge to a pickup point.\n\nProducts returned without original packaging, used or damaged will not be exchanged or refunded!\n** Wrap the package in plastic or paper. Do not stick labels or write on the original box!\n\nThere are 2 ways to send the product and complete an exchange:\n\nRegistered mail to the address we provide via WhatsApp. (Postage is 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nHome exchange at 49 ILS: A courier comes to your home with the replacement product to complete the exchange on the spot. 49 ILS paid in advance.\n\nIf the customer chooses to exchange for a more expensive product they will pay the difference in advance via a link sent by email or WhatsApp. If the product is cheaper, the customer will receive a refund for the difference by the same payment method.\n\nRefund for a price difference will be made within 3 business days after the returned product reaches the warehouse and is found to be in good and unused condition!\n\nA second exchange shipment is at the customer's expense!\n\n## Product return and refund\n\nTo return a product, contact customer service via WhatsApp to coordinate the return at 0505727854.\n\nReturns are allowed within 14 days of receipt only if the product is new, in original packaging and unused.\n\nReturn shipping is at the customer's expense.\n\nThe refund is for products only and does not include the delivery cost paid at purchase!\n\nThe refund will be made by the same payment method within 3 business days of the product reaching the store.\n\nYou may return products in one of the following ways:\n\nRegistered mail to the address we provide via WhatsApp. (Postage 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nCourier pickup at 39 ILS: A courier comes to your home, collects the product and returns it to us. After the product reaches us with the courier we will send you a replacement to a pickup point (not to your home): 39 ILS paid in advance.\n\n## Order cancellation\n\n1. In general the customer may cancel the transaction* subject to the Consumer Protection Law, 1981 (the Law: http://www.consumers.org.il/category/deal-annulment-regulations).\n2. A product purchase may be cancelled before it is sent. Cancellation must be made only by notice sent via WhatsApp to 0505727854.\n3. If the product has not been sent, the order will be cancelled and a refund will be made.\n4. If the customer requests cancellation after the product has been sent, they must receive it and then return the product according to the \"Product return and refund\" procedure above. It is agreed that the customer will return the product in its packaging, unused, intact and without damage or defect of any kind. After the product reaches the store, a refund will be made for the product and will not include delivery cost.\n5. The store may cancel a transaction or sale in whole or in part in the following cases:\n\nA clerical error, whether in the product price or description.\n\nForce majeure, act of war, hostility, terrorism, epidemic and/or anything else that prevents the proper continuation of the sale.\n\nThe product is defective.\n\nThe product is out of stock.\n\nSuspected fraud.\n\n6. Notice of cancellation of the sale will be given to buyers by phone and/or email to the address provided on the registration page.\n\n*Cases in which a transaction cannot be cancelled: http://www.consumers.org.il/category/cases-for-no-annulment-rights\n\n## Product supply\n\n1. The store will deliver the product ordered on the site for shipment within two business days at most after approval of the transaction by the credit card company.\n2. The store and/or suppliers are not responsible for delay in supplying the product in cases outside their control. Delivery delays are the responsibility of the shipping company.\n3. Product and/or service supply times as indicated on the product page refer only to business days (Sun–Thu, excluding Friday, Saturday, holiday eves and holidays).\n\n## Shipping\n\n1. The customer will choose the type of delivery they want in the shopping cart and the delivery cost will be added to the product price.\n2. Delivery will be carried out by an external shipping company \"Cheetah Shipping\".\n3. The package will be sent within 1 business day of placing the order.\n4. Delivery time is 3-5 business days from handover to the courier.\n5. For \"pickup point\" delivery, the package will be sent to the pickup point closest to the address provided by the customer. \"Cheetah\" has hundreds of pickup points across the country. When the package arrives at the destination, an SMS with all details will be sent to the customer.\n6. For home delivery, the package will be sent to the address provided by the customer.\n7. Home delivery cost charged by the shipping company to the online store ranges from 40 ILS to 60 ILS depending on the area. The higher price is for \"special areas\" as defined by \"Cheetah\" shipping company — for the list of special areas click here.\n8. Pickup point delivery cost is 20 ILS for all areas.\n9. All delivery costs that the customer is asked to pay are subsidised and discounted by SHOES BOX, with the customer paying part of the delivery cost as specified in sections 8 and 9.\n\n## Warranty\n\n1. Warranty on products is provided by the importer or manufacturer.\n2. Warranty is given for defects in the manufacturing process or materials.\n3. If the product/shoe is damaged after use (e.g. broken heel or detached sole), the shoe will be repaired by the company.\n4. Warranty does not apply in the following cases:\n\n4.1 The product was used for a purpose other than its intended use (e.g. playing football in running shoes).\n4.2 The product was damaged intentionally or by an external cause during use.\n4.3 Scratches, scuffs, peeling or tears resulting from wear.\n4.4 The shoe was cleaned by washing in water, soaking in soap, in a washing machine or by hand.\n4.5 The garment was washed not according to the manufacturer's instructions (if it is a clothing product).\n4.6 Wear, tear, odour and discomfort after use of the product are not considered manufacturing defects and are not covered by warranty.\n4.7 Damage caused by negligent or improper use.\n\n5. Warranty on the product is given only upon presentation of a purchase invoice and within a reasonable time.\n6. Warranty on the product is given at the physical store operating the online store.\n7. The store undertakes to send the product for warranty inspection to the importer or manufacturer and to have it repaired within 14 working days in case of a defect in materials or the manufacturing process, subject to reasonable use of the product.\n8. After completion of the repair, the customer may choose to collect the product from the store or request delivery to them at a cost of 30 ILS to their account.\n\n## Customer service\n\nFor any question or enquiry regarding the products displayed on the site, including information on correct use of the product and details and enquiries about the store and its operations, you may contact us:\n\nWhatsApp: 0505727854\n\nEmail: shoesbox@outlook.co.il\n\n## General\n\n1. The images displayed on the site are for illustration only and do not bind the store. There may be colour differences between the image and the actual product, due to display level, screen types, etc.\n2. The store and/or anyone on its behalf will not be liable for any direct, indirect, consequential or special damage caused to the user or a third party as a result of use of the site.\n3. The store is not responsible for the assembly and/or installation of products purchased on the site, and such responsibility lies with the customer.\n4. Icons (ICONS), any information and/or display on the site, including graphics, design, text, trademarks and logos including their editing and display on the site, are the exclusive property of the store.\n5. Content on the site may not be copied, reproduced, distributed, published or used in any other way unless prior written consent has been given by the store.",
+        "termsOfServiceContent": "## Store Terms\n\n1. You are asked to read these terms in full and carefully, as a precondition to the agreement between the parties.\n2. The store is for purchasing products by users on the internet in Israel. Purchasers must be 18 or over, have an email address on the internet in Israel and an address in Israel, and hold a valid credit card in Israel.\n3. A precondition for the validity of a purchase is approval by the credit card company for the transaction.\n4. Browsing the store and/or purchasing the product and/or service offered for sale constitutes your agreement to accept and act in accordance with these terms. Therefore, if you do not agree to any term, you are asked not to use the store.\n6. The price includes VAT unless stated otherwise.\n7. There may be colour differences between the image displayed and the actual product. Such differences are due to camera type, display, screen colour settings and different screen types, etc.\n\n## Purchasing products\n\nThe site offers a limited quantity of products at a fixed price. The sale will be conducted on the following terms:\n\n1. The store will display a list of products including all details about the product or service offered for sale and the price as set in advance; sale is subject to stock.\n2. After adding the desired products to the \"shopping cart\", the buyer will proceed on the \"shopping cart\" page to \"confirm purchase\" and there complete their details, after which the online purchase process is complete.\n\n## Card verification\n\nThe business may require the customer to verify their credit card by sending a selfie of the cardholder showing ID and the credit card to the business WhatsApp number. In such a case, the name on the credit card must match the name on the ID.\nIf there is no match or the customer refuses to verify, the business may cancel the transaction.\n\n## Product exchange\n\n1. To exchange a product, send it back to the business (new and in original packaging only) within 14 days of receipt.\n2. The customer will ship the product at their own expense using one of the methods listed below.\n3. After the store receives the product, a replacement product of the customer's choice will be sent free of charge to a pickup point.\n\nProducts returned without original packaging, used or damaged will not be exchanged or refunded!\n** Wrap the package in plastic or paper. Do not stick labels or write on the original box!\n\nThere are 2 ways to send the product and complete an exchange:\n\nRegistered mail to the address we provide via WhatsApp. (Postage is 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nHome exchange at 49 ILS: A courier comes to your home with the replacement product to complete the exchange on the spot. 49 ILS paid in advance.\n\nIf the customer chooses to exchange for a more expensive product they will pay the difference in advance via a link sent by email or WhatsApp. If the product is cheaper, the customer will receive a refund for the difference by the same payment method.\n\nRefund for a price difference will be made within 3 business days after the returned product reaches the warehouse and is found to be in good and unused condition!\n\nA second exchange shipment is at the customer's expense!\n\n## Product return and refund\n\nTo return a product, contact customer service via email at support@pawzen.co.\n\nReturns are allowed within 14 days of receipt only if the product is new, in original packaging and unused.\n\nReturn shipping is at the customer's expense.\n\nThe refund is for products only and does not include the delivery cost paid at purchase!\n\nThe refund will be made by the same payment method within 3 business days of the product reaching the store.\n\nYou may return products in one of the following ways:\n\nRegistered mail to the address we provide via WhatsApp. (Postage 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nCourier pickup at 39 ILS: A courier comes to your home, collects the product and returns it to us. After the product reaches us with the courier we will send you a replacement to a pickup point (not to your home): 39 ILS paid in advance.\n\n## Order cancellation\n\n1. In general the customer may cancel the transaction* subject to the Consumer Protection Law, 1981 (the Law: http://www.consumers.org.il/category/deal-annulment-regulations).\n2. A product purchase may be cancelled before it is sent. Cancellation must be made only by notice sent via email to support@pawzen.co.\n3. If the product has not been sent, the order will be cancelled and a refund will be made.\n4. If the customer requests cancellation after the product has been sent, they must receive it and then return the product according to the \"Product return and refund\" procedure above. It is agreed that the customer will return the product in its packaging, unused, intact and without damage or defect of any kind. After the product reaches the store, a refund will be made for the product and will not include delivery cost.\n5. The store may cancel a transaction or sale in whole or in part in the following cases:\n\nA clerical error, whether in the product price or description.\n\nForce majeure, act of war, hostility, terrorism, epidemic and/or anything else that prevents the proper continuation of the sale.\n\nThe product is defective.\n\nThe product is out of stock.\n\nSuspected fraud.\n\n6. Notice of cancellation of the sale will be given to buyers by phone and/or email to the address provided on the registration page.\n\n*Cases in which a transaction cannot be cancelled: http://www.consumers.org.il/category/cases-for-no-annulment-rights\n\n## Product supply\n\n1. The store will deliver the product ordered on the site for shipment within two business days at most after approval of the transaction by the credit card company.\n2. The store and/or suppliers are not responsible for delay in supplying the product in cases outside their control. Delivery delays are the responsibility of the shipping company.\n3. Product and/or service supply times as indicated on the product page refer only to business days (Sun–Thu, excluding Friday, Saturday, holiday eves and holidays).\n\n## Shipping\n\n1. The customer will choose the type of delivery they want in the shopping cart and the delivery cost will be added to the product price.\n2. Delivery will be carried out by an external shipping company \"our shipping partner\".\n3. The package will be sent within 1 business day of placing the order.\n4. Delivery time is 3-5 business days from handover to the courier.\n5. For \"pickup point\" delivery, the package will be sent to the pickup point closest to the address provided by the customer. \"our partner\" has hundreds of pickup points across the country. When the package arrives at the destination, an SMS with all details will be sent to the customer.\n6. For home delivery, the package will be sent to the address provided by the customer.\n7. Home delivery cost charged by the shipping company to the online store ranges from 40 ILS to 60 ILS depending on the area. The higher price is for \"special areas\" as defined by \"our partner\" shipping company — for the list of special areas click here.\n8. Pickup point delivery cost is 20 ILS for all areas.\n9. All delivery costs that the customer is asked to pay are subsidised and discounted by Pawzen, with the customer paying part of the delivery cost as specified in sections 8 and 9.\n\n## Warranty\n\n1. Warranty on products is provided by the importer or manufacturer.\n2. Warranty is given for defects in the manufacturing process or materials.\n3. If the product is damaged due to a manufacturing defect, it will be replaced or repaired.\n4. Warranty does not apply in the following cases:\n\n4.1 The product was used for a purpose other than its intended use (e.g. using a cat toy for a large dog).\n4.2 The product was damaged intentionally or by an external cause during use.\n4.3 Scratches, scuffs, peeling or tears resulting from wear.\n4.4 The product was cleaned in a manner not recommended by the manufacturer.\n4.5 The garment was washed not according to the manufacturer's instructions (if it is a clothing product).\n4.6 Wear, tear, odour and discomfort after use of the product are not considered manufacturing defects and are not covered by warranty.\n4.7 Damage caused by negligent or improper use.\n\n5. Warranty on the product is given only upon presentation of a purchase invoice and within a reasonable time.\n6. Warranty on the product is given at the physical store operating the online store.\n7. The store undertakes to send the product for warranty inspection to the importer or manufacturer and to have it repaired within 14 working days in case of a defect in materials or the manufacturing process, subject to reasonable use of the product.\n8. After completion of the repair, the customer may choose to collect the product from the store or request delivery to them at a cost of 30 ILS to their account.\n\n## Customer service\n\nFor any question or enquiry regarding the products displayed on the site, including information on correct use of the product and details and enquiries about the store and its operations, you may contact us:\n\nEmail: support@pawzen.co\n\nEmail: support@pawzen.co\n\n## General\n\n1. The images displayed on the site are for illustration only and do not bind the store. There may be colour differences between the image and the actual product, due to display level, screen types, etc.\n2. The store and/or anyone on its behalf will not be liable for any direct, indirect, consequential or special damage caused to the user or a third party as a result of use of the site.\n3. The store is not responsible for the assembly and/or installation of products purchased on the site, and such responsibility lies with the customer.\n4. Icons (ICONS), any information and/or display on the site, including graphics, design, text, trademarks and logos including their editing and display on the site, are the exclusive property of the store.\n5. Content on the site may not be copied, reproduced, distributed, published or used in any other way unless prior written consent has been given by the store.",
         "policyPageEmptyMessage": "This policy page has not been configured yet."
       },
       "homepage": {
@@ -5688,8 +6067,8 @@
           "hero": {
             "enabled": true,
             "type": "image",
-            "title": "Welcome to Mansour Shoes",
-            "subtitle": "Quality shoes for the whole family at affordable prices",
+            "title": "Welcome to Pawzen",
+            "subtitle": "Modern, curated pet accessories for dogs & cats",
             "ctaText": "Shop Now",
             "ctaLink": "/products",
             "badgeText": "New Season Collection",
@@ -5708,10 +6087,10 @@
           },
           "trustStrip": {
             "enabled": true,
-            "freeShippingText": "Free shipping on orders over $75",
-            "easyReturnsText": "Easy returns",
-            "secureCheckoutText": "Secure checkout",
-            "supportText": "24/7 support",
+            "freeShippingText": "Pet-safe materials",
+            "easyReturnsText": "Free shipping over $50",
+            "secureCheckoutText": "24/7 support",
+            "supportText": "30-day returns",
             "background": {
               "style": "solid",
               "color": "#f9fafb",
@@ -5720,7 +6099,7 @@
           },
           "marquee": {
             "enabled": true,
-            "text": "Free shipping on all orders over $100! • Shop the new collection now • Limited time offer",
+            "text": "Free shipping over $50! • New pet accessories just arrived • Pet-safe & premium quality",
             "speedSeconds": 20,
             "textColor": null,
             "background": {
@@ -5776,7 +6155,7 @@
             "badgeText": "Special Offer",
             "title": "Don't miss out",
             "highlight": "Up to 25% off",
-            "description": "Premium performance gear for run, court, and studio. Limited time collection.",
+            "description": "Premium pet accessories for dogs and cats. Limited time collection.",
             "primaryCta": {
               "text": "Shop Sale Items",
               "link": "/products?collection=sale"
@@ -6023,7 +6402,7 @@
         },
         "social": {
           "facebook": null,
-          "instagram": "https://www.instagram.com/mansour_shoes_shefaraam/",
+          "instagram": "https://www.instagram.com/pawzen.co/",
           "twitter": null,
           "youtube": null,
           "tiktok": null,
@@ -6036,9 +6415,9 @@
         }
       },
       "seo": {
-        "titleTemplate": "%s | Mansour Shoes",
-        "defaultTitle": "Mansour Shoes - Shoes for the Whole Family",
-        "defaultDescription": "Leading shoe store. Free shipping on orders over $75. Sports shoes, running shoes, and shoes for the whole family.",
+        "titleTemplate": "%s | Pawzen",
+        "defaultTitle": "Pawzen - Modern Pet Accessories for Dogs & Cats",
+        "defaultDescription": "Modern, curated pet accessories for dogs and cats. Free shipping on orders over $50. Thoughtfully designed products for your furry family.",
         "defaultImage": "/og-image.jpg",
         "twitterHandle": null
       },
@@ -6136,7 +6515,7 @@
       "promoPopup": {
         "enabled": true,
         "title": "Special Offer!",
-        "body": "Up to 30% off on selected sports shoes. Don't miss out!",
+        "body": "Up to 30% off on selected pet accessories. Don't miss out!",
         "badge": "Up to 30% Off",
         "imageUrl": null,
         "backgroundImageUrl": null,
@@ -6598,7 +6977,7 @@
           "dontMissOutTitle": "Don't miss out",
           "shopSaleItemsButton": "Shop Sale Items",
           "allProductsButton": "All Products",
-          "promoDescriptionFallback": "Premium performance gear for run, court, and studio. Limited time collection.",
+          "promoDescriptionFallback": "Premium pet accessories for dogs and cats. Limited time collection.",
           "recentlyViewedSubLabel": "Your History",
           "recentlyViewedTitle": "Recently Viewed",
           "recentlyViewedSubtitle": "Products you've looked at recently"
@@ -6928,13 +7307,13 @@
           "sizeGuideButton": "Size Guide",
           "sizeGuideTitle": "Size Guide",
           "sizeGuideSubtitle": "Find your perfect fit",
-          "sizeGuideMensTab": "Men's",
-          "sizeGuideWomensTab": "Women's",
-          "sizeGuideKidsTab": "Kids'",
+          "sizeGuideDogsTab": "Dogs",
+          "sizeGuideCatsTab": "Cats",
+          "sizeGuideCollarsCategory": "Collars & Harnesses",
           "sizeGuideHowToMeasure": "How to Measure",
           "sizeGuideMeasureTip": "Stand on a piece of paper with your heel against a wall. Mark the longest toe and measure the distance in centimeters. Compare with the CM column above.",
           "sizeGuideProTip": "Pro Tip: Measure your feet in the evening when they're at their largest. If you're between sizes, go up half a size for the most comfortable fit.",
-          "sizeGuideShoesCategory": "Shoes",
+          "sizeGuideBedCategory": "Beds",
           "sizeGuideClothingCategory": "Clothing",
           "sizeGuideClothingMeasureTip": "Use a soft measuring tape. For chest, measure around the fullest part. For waist, measure at the natural waistline (above belly button). Keep the tape snug but not tight.",
           "sizeGuideClothingProTip": "Pro Tip: If you're between sizes, size up for a relaxed fit or size down for a snug fit. Check the fabric composition — stretchy materials are more forgiving.",
@@ -7306,7 +7685,7 @@
           "text": "#F8FAFC",
           "textMuted": "#94A3B8",
           "border": "#334155",
-          "primary": "#E78F21",
+          "primary": "#1B2838",
           "secondary": "#F59E0B",
           "accent": "#F59E0B"
         }

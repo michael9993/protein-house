@@ -1626,7 +1626,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       recentlySearchedLabel: "Recent Searches",
       recentSearchesClearLabel: "Clear",
       popularSearchesLabel: "Popular Searches",
-      popularSearchTerms: ["Shoes", "Bags", "New Arrivals", "Sale"],
+      popularSearchTerms: ["Dog Toys", "Cat Toys", "Beds & Blankets", "Sale"],
       noResultsText: "No products found",
       noResultsHint: "Try searching with different keywords",
       searchForText: "Search for",

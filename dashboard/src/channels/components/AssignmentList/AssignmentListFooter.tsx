@@ -34,7 +34,13 @@ const AssignmentListFooter = ({
   const itemsRef = useRef<AssignItem[]>(items);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleFooterClickAway = () => {
+  const handleFooterClickAway = (event: MouseEvent) => {
+    // Don't close if clicking inside a Radix portal (combobox dropdown options)
+    const target = event.target as HTMLElement;
+    if (target.closest("[data-radix-popper-content-wrapper]")) {
+      return;
+    }
+
     setIsChoicesSelectShown(false);
     searchItems("");
   };

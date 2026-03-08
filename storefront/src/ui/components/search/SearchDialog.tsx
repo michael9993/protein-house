@@ -71,9 +71,9 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
         // In a real implementation, this would call the GraphQL API
         // For now, we'll simulate with placeholder data
         const mockResults: SearchResult[] = [
-          { id: "1", name: `${query} Running Shoes`, slug: "running-shoes", category: "Shoes", price: "$129.99" },
-          { id: "2", name: `${query} Training Gear`, slug: "training-gear", category: "Equipment", price: "$79.99" },
-          { id: "3", name: `${query} Sportswear`, slug: "sportswear", category: "Apparel", price: "$49.99" },
+          { id: "1", name: `${query} Dog Toys`, slug: "dog-toys", category: "Dogs", price: "$24.99" },
+          { id: "2", name: `${query} Cat Accessories`, slug: "cat-accessories", category: "Cats", price: "$19.99" },
+          { id: "3", name: `${query} Pet Beds`, slug: "pet-beds", category: "Beds & Blankets", price: "$49.99" },
         ];
         setResults(mockResults);
       } catch (error) {
@@ -220,7 +220,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
               <div className="p-6">
                 <p className="mb-4 text-sm font-medium text-neutral-500">{navbarText.popularSearchesLabel ?? "Popular Searches"}</p>
                 <div className="flex flex-wrap gap-2">
-                  {(navbarText.popularSearchTerms ?? ["Shoes", "Bags", "New Arrivals", "Sale"]).map((term) => (
+                  {(navbarText.popularSearchTerms ?? ["Dog Toys", "Cat Toys", "Beds & Blankets", "Sale"]).map((term) => (
                     <button
                       key={term}
                       onClick={() => setQuery(term)}

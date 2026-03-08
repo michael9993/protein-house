@@ -26,7 +26,7 @@ export function usePreview({ storefrontUrl, channelSlug }: UsePreviewOptions): U
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isReady, setIsReady] = useState(false);
   const [selectedFromPreview, setSelectedFromPreview] = useState<string | null>(null);
-  const [overlayEnabled, setOverlayEnabledState] = useState(true);
+  const [overlayEnabled, setOverlayEnabledState] = useState(false);
   const [onSectionsReordered, setOnSectionsReordered] = useState<string[] | null>(null);
 
   // Listen for messages from storefront

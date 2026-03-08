@@ -16,7 +16,10 @@ import {
   useStoreInfo,
   useEcommerceSettings,
   useProductDetailText,
+  useComponentStyle,
+  useComponentClasses,
 } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { getProductShippingEstimate, formatEstimate } from "@/lib/shipping";
 import { useWishlist } from "@/lib/wishlist";
 import { useQuickView } from "@/providers/QuickViewProvider";
@@ -91,6 +94,8 @@ export function ProductCard({
   const saleBadgeStyle = useBadgeStyle("sale");
   const outOfStockBadgeStyle = useBadgeStyle("outOfStock");
   const lowStockBadgeStyle = useBadgeStyle("lowStock");
+  const cdStyle = useComponentStyle("plp.productCard");
+  const cdClasses = useComponentClasses("plp.productCard");
 
   const { openQuickView, prefetchQuickView } = useQuickView();
   const { addItem, removeItem, isInWishlist } = useWishlist();
@@ -185,6 +190,7 @@ export function ProductCard({
 
   return (
     <article
+      data-cd="plp-productCard"
       className={`v7-card group relative flex h-full overflow-hidden bg-white ${
         featured ? "v7-card-featured" : ""
       } ${isSingleColumn
@@ -198,9 +204,10 @@ export function ProductCard({
           : cardConfig.borderRadius === "xl" ? "rounded-xl"
           : cardConfig.borderRadius === "full" ? "rounded-full"
           : "rounded-2xl sm:rounded-3xl"
-      }`}
+      } ${cdClasses}`}
       style={{
         boxShadow: "var(--v7-shadow-card)",
+        ...buildComponentStyle("plp.productCard", cdStyle),
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

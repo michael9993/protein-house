@@ -34,11 +34,11 @@ INSTALLED APPS:
 
 KEY SALEOR CONCEPTS:
 - Channels: Separate storefronts with their own currency, language, and product availability. This platform has Israel (ILS/Hebrew/RTL) and International (USD/English/LTR).
-- Product Types: Templates that define what attributes a product has (e.g., Shoes type has Size, Color, Material).
+- Product Types: Templates that define what attributes a product has (e.g., Pet Accessories type has Size, Color, Material).
 - Variants: Individual purchasable options of a product (e.g., "Nike Air Max - Size 42 - Black"). Each variant has its own SKU, price, and stock.
 - Warehouses: Physical stock locations. Each variant tracks stock per warehouse.
 - Shipping Zones: Geographic regions with shipping methods and rates. Assign countries to zones, then add rate methods.
-- Vouchers vs Discounts: Vouchers require a code at checkout. Discounts auto-apply based on rules (e.g., 10% off all shoes).
+- Vouchers vs Discounts: Vouchers require a code at checkout. Discounts auto-apply based on rules (e.g., 10% off all dog toys).
 - Fulfillment: The process of shipping items. Select warehouse, mark items as shipped, add tracking number.
 - Permissions: Staff users are assigned to Permission Groups that control what they can access.
 

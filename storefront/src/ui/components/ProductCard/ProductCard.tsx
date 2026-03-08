@@ -7,7 +7,8 @@ import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { formatMoneyRange, formatMoney } from "@/lib/utils";
 import type { ProductListItemFragment } from "@/gql/graphql";
 import { t } from "@/lib/language";
-import { useBranding, useFeature, useProductCardConfig, useContentConfig, useBadgeStyle, useEcommerceSettings, useProductDetailText } from "@/providers/StoreConfigProvider";
+import { useBranding, useFeature, useProductCardConfig, useContentConfig, useBadgeStyle, useEcommerceSettings, useProductDetailText, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { getProductShippingEstimate, formatEstimate } from "@/lib/shipping";
 import { useWishlist } from "@/lib/wishlist";
 import { useQuickView } from "@/providers/QuickViewProvider";
@@ -78,6 +79,8 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
   const saleBadgeStyle = useBadgeStyle("sale");
   const outOfStockBadgeStyle = useBadgeStyle("outOfStock");
   const lowStockBadgeStyle = useBadgeStyle("lowStock");
+  const cdStyle = useComponentStyle("ui.productCard");
+  const cdClasses = useComponentClasses("ui.productCard");
   const ts = cardConfig.textStyles;
   const showQuickView = cardConfig.showQuickView ?? false;
   const quickAddLabel = (content.product as { quickAddButton?: string })?.quickAddButton ?? "Quick add";
@@ -159,9 +162,10 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
   const hoverShadowCSS = hoverShadowValues[cardConfig.hoverShadow ?? "lg"] || hoverShadowValues.lg;
 
   return (
-    <article 
-      className={`group relative flex flex-col ${cardRadius} overflow-hidden bg-white transition-all duration-300 ${cardShadow}`}
-      style={isHovered ? { boxShadow: hoverShadowCSS } : undefined}
+    <article
+      data-cd="ui-productCard"
+      className={`group relative flex flex-col ${cardRadius} overflow-hidden bg-white transition-all duration-300 ${cardShadow} ${cdClasses}`}
+      style={{ ...(isHovered ? { boxShadow: hoverShadowCSS } : undefined), ...buildComponentStyle("ui.productCard", cdStyle) }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >

@@ -126,7 +126,13 @@
       "Bash(do echo \"=== $f ===\")",
       "Read(//c/Users/micha/saleor-platform/**)",
       "Bash(for f in \"storefront/src/app/[channel]/\\(main\\)/cart/CartClient.tsx\" \"storefront/src/app/[channel]/\\(main\\)/account/AccountDashboardContent.tsx\" \"storefront/src/checkout-v2/CheckoutPage.tsx\" \"storefront/src/checkout-v2/steps/ContactStep.tsx\" \"storefront/src/checkout-v2/steps/PaymentStep.tsx\")",
-      "Bash(do)"
+      "Bash(do)",
+      "Bash(cmd.exe:*)",
+      "Bash(kill %1:*)",
+      "Bash(for f in apps/apps/storefront-control/sample-config-import.json apps/apps/storefront-control/sample-config-import-en.json storefront/storefront-cms-config.json)",
+      "Bash(sed:*)",
+      "Bash(grep data-cd=:*)",
+      "Bash(grep use client\\\\|data-cd\\\\|useComponentStyle\\\\|useComponentClasses\\\\|buildComponentStyle:*)"
     ],
     "deny": [
       "Read(./.env*)",

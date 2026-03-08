@@ -1352,32 +1352,32 @@ export function CatalogContentTab({ register, errors }: CatalogTabProps) {
             placeholder="Find your perfect fit"
           />
           <FormField<CatalogFormData>
-            label="Men's Tab"
-            name="content.productDetail.sizeGuideMensTab"
+            label="Dogs Tab"
+            name="content.productDetail.sizeGuideDogsTab"
             register={register}
             errors={errors}
-            placeholder="Men's"
+            placeholder="Dogs"
           />
           <FormField<CatalogFormData>
-            label="Women's Tab"
-            name="content.productDetail.sizeGuideWomensTab"
+            label="Cats Tab"
+            name="content.productDetail.sizeGuideCatsTab"
             register={register}
             errors={errors}
-            placeholder="Women's"
+            placeholder="Cats"
           />
           <FormField<CatalogFormData>
-            label="Kids' Tab"
-            name="content.productDetail.sizeGuideKidsTab"
+            label="Collars & Harnesses Category"
+            name="content.productDetail.sizeGuideCollarsCategory"
             register={register}
             errors={errors}
-            placeholder="Kids'"
+            placeholder="Collars & Harnesses"
           />
           <FormField<CatalogFormData>
-            label="Shoes Category Label"
-            name="content.productDetail.sizeGuideShoesCategory"
+            label="Beds Category"
+            name="content.productDetail.sizeGuideBedCategory"
             register={register}
             errors={errors}
-            placeholder="Shoes"
+            placeholder="Beds"
           />
           <FormField<CatalogFormData>
             label="Clothing Category Label"

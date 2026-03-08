@@ -15,7 +15,7 @@ import { sportsStoreConfig } from './examples/sports-store.config';
 // ACTIVE CONFIGURATION
 // ============================================
 // Change this import to switch between store configurations
-// Currently using: Mansour Shoes (configured via Storefront Control)
+// Currently using: Pawzen (configured via Storefront Control)
 export const storeConfig = sportsStoreConfig;
 
 // ============================================

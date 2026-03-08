@@ -8,10 +8,8 @@ import { generateProductName, generateDescription } from "./generators/descripti
 import { calculatePricing } from "./generators/pricing";
 import { generateStockLevels } from "./generators/stock";
 
-// Shoe sizes (EU)
-const SHOE_SIZES = ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45"];
-// Apparel sizes
-const APPAREL_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
+// Pet product sizes
+const PET_SIZES = ["XS", "S", "M", "L", "XL"];
 // Colors
 const COLORS = ["Black", "White", "Navy", "Red", "Gray", "Blue", "Green"];
 
@@ -25,7 +23,7 @@ function wrapEditorJS(text: string): string {
 
 async function generateExcel(lang: Lang) {
   const langLabel = lang === "en" ? "English" : "Hebrew";
-  console.log(`\n🚀 Generating Mansour Catalog Excel (${langLabel})...\n`);
+  console.log(`\n🚀 Generating Pawzen Catalog Excel (${langLabel})...\n`);
 
   const workbook = new ExcelJS.Workbook();
 
@@ -43,8 +41,8 @@ async function generateExcel(lang: Lang) {
     { header: "variantName", key: "variantName", width: 20 },
     { header: "price", key: "price", width: 10 },
     { header: "costPrice", key: "costPrice", width: 10 },
-    { header: "stock:Main Warehouse", key: "stockMain", width: 12 },
-    { header: "stock:International Warehouse", key: "stockIntl", width: 12 },
+    { header: "stock:Pawzen Israel Warehouse", key: "stockMain", width: 12 },
+    { header: "stock:Pawzen International Warehouse", key: "stockIntl", width: 12 },
     { header: "trackInventory", key: "trackInventory", width: 12 },
     { header: "imageUrl", key: "imageUrl", width: 80 },
     { header: "imageUrl2", key: "imageUrl2", width: 80 },
@@ -53,13 +51,11 @@ async function generateExcel(lang: Lang) {
     { header: "imageUrl5", key: "imageUrl5", width: 80 },
     { header: "imageAlt", key: "imageAlt", width: 40 },
     { header: "collections", key: "collections", width: 40 },
-    { header: "attr:Brand", key: "brand", width: 15 },
-    { header: "attr:Gender", key: "gender", width: 10 },
+    { header: "attr:Pet Type", key: "petType", width: 10 },
     { header: "attr:Material", key: "material", width: 15 },
-    { header: "attr:Style", key: "style", width: 15 },
-    { header: "attr:Apparel Type", key: "productTypeAttr", width: 15 },
-    { header: "variantAttr:Shoe size", key: "shoeSize", width: 10 },
-    { header: "variantAttr:Apparel Size", key: "apparelSize", width: 12 },
+    { header: "attr:Toy Category", key: "style", width: 15 },
+    { header: "attr:Feeding Type", key: "productTypeAttr", width: 15 },
+    { header: "variantAttr:Size", key: "size", width: 10 },
     { header: "variantAttr:Color", key: "color", width: 10 },
     { header: "isPublished", key: "isPublished", width: 10 },
     { header: "visibleInListings", key: "visibleInListings", width: 15 },
@@ -69,24 +65,30 @@ async function generateExcel(lang: Lang) {
   let productCount = 0;
   let variantCount = 0;
 
+  // SKU prefix map for pet product types
+  const skuPrefixMap: Record<string, string> = {
+    "Pet Toys & Enrichment": "PT",
+    "Pet Feeding & Hydration": "PF",
+    "Pet Comfort & Living": "PC",
+    "Pet Care & Accessories": "PA",
+  };
+
   // Process each product
   for (const product of ALL_PRODUCTS) {
     productCount++;
 
     // Generate product names and descriptions
     const names = generateProductName({
-      brand: product.brand,
       model: product.model,
       model_he: product.model_he,
-      gender: product.gender,
+      petType: product.petType,
       type: product.type,
     });
 
     const descriptions = generateDescription({
-      brand: product.brand,
       model: product.model,
-      gender: product.gender,
-      type: product.style || product.productType || product.type,
+      petType: product.petType,
+      type: product.subType || product.type,
       material: product.material,
     });
 
@@ -102,7 +104,7 @@ async function generateExcel(lang: Lang) {
     );
 
     // Generate slug — strip all non-alphanumeric chars (dots, apostrophes, etc.)
-    const slug = `${product.brand}-${product.model}-${product.gender}`
+    const slug = `${product.petType}-${product.model}`
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
@@ -110,9 +112,8 @@ async function generateExcel(lang: Lang) {
     // Get images
     const images = getRandomImages(5);
 
-    // Determine sizes based on product type
-    const sizes = product.type === "shoes" ? SHOE_SIZES : APPAREL_SIZES;
-    const sizeAttrKey = product.type === "shoes" ? "shoeSize" : "apparelSize";
+    // All pet products use the same size range
+    const sizes = PET_SIZES;
 
     // Generate stock levels for all variants
     const stockLevels = generateStockLevels(sizes.length);
@@ -121,6 +122,9 @@ async function generateExcel(lang: Lang) {
     const categoryName = lang === "en"
       ? product.category
       : (CATEGORIES.find((c) => c.slug === product.category.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))?.name_he || product.category);
+
+    // Determine SKU prefix from product type
+    const skuPrefix = skuPrefixMap[product.type] || "PZ";
 
     // Generate variants
     sizes.forEach((size, index) => {
@@ -132,9 +136,9 @@ async function generateExcel(lang: Lang) {
         name: isFirstVariant ? productName : "",
         slug: isFirstVariant ? slug : "",
         description: isFirstVariant ? productDescription : "",
-        productType: isFirstVariant ? product.type.charAt(0).toUpperCase() + product.type.slice(1) : "",
+        productType: isFirstVariant ? product.type : "",
         category: isFirstVariant ? product.category : "",
-        sku: `${product.brand.substring(0, 2).toUpperCase()}-${product.model.replace(/[^a-zA-Z0-9]/g, "").substring(0, 6).toUpperCase()}-${({ shoes: "SH", tops: "TP", bottoms: "BT", accessories: "AC" } as const)[product.type]}-${product.gender.substring(0, 1).toUpperCase()}-${size}`,
+        sku: `PZ-${product.model.replace(/[^a-zA-Z0-9]/g, "").substring(0, 6).toUpperCase()}-${product.petType.substring(0, 1).toUpperCase()}-${size}`,
         variantName: `Size ${size}`,
         price: pricing.price_ILS.toFixed(2),
         costPrice: pricing.costPrice_ILS.toFixed(2),
@@ -146,16 +150,14 @@ async function generateExcel(lang: Lang) {
         imageUrl3: isFirstVariant ? images[2] : "",
         imageUrl4: isFirstVariant ? images[3] : "",
         imageUrl5: isFirstVariant ? images[4] : "",
-        imageAlt: isFirstVariant ? `${product.brand} ${product.model}` : "",
+        imageAlt: isFirstVariant ? product.model : "",
         collections: isFirstVariant ? product.collections.join(";") : "",
-        brand: product.brand,
-        gender: product.gender,
+        brand: "",
+        petType: product.petType,
         material: product.material,
-        style: product.style || "",
-        productTypeAttr: product.productType || "",
-        [sizeAttrKey]: size,
-        apparelSize: product.type === "shoes" ? "" : size,
-        shoeSize: product.type === "shoes" ? size : "",
+        style: product.subType || "",
+        productTypeAttr: product.subType || "",
+        size: size,
         color: "Black", // Default color
         isPublished: "Yes",
         visibleInListings: "Yes",
@@ -230,7 +232,7 @@ async function generateExcel(lang: Lang) {
 
   // Save file
   const suffix = lang === "en" ? "" : "-he";
-  const outputPath = path.join(__dirname, `../output/mansour-catalog-100products${suffix}.xlsx`);
+  const outputPath = path.join(__dirname, `../output/pawzen-catalog${suffix}.xlsx`);
   await workbook.xlsx.writeFile(outputPath);
 
   console.log(`\n🎉 SUCCESS! Excel file generated (${langLabel}):\n   ${outputPath}`);

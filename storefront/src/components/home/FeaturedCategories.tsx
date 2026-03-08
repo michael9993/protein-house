@@ -241,7 +241,7 @@ export function FeaturedCategories({
  * Placeholder Categories for Demo
  */
 export const placeholderCategories: Category[] = [
-  { id: "1", name: "Running Shoes", slug: "running-shoes", productCount: 45 },
+  { id: "1", name: "Dog Toys", slug: "dog-toys", productCount: 45 },
   { id: "2", name: "Training Gear", slug: "training-gear", productCount: 38 },
   { id: "3", name: "Sportswear", slug: "sportswear", productCount: 62 },
   { id: "4", name: "Accessories", slug: "accessories", productCount: 54 },

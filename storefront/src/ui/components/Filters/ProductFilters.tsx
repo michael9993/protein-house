@@ -10,7 +10,8 @@
  */
 
 import React, { useState, useRef, useEffect, type ReactNode, type ChangeEvent } from "react";
-import { useFiltersConfig, useFiltersText, useContentConfig, useFilterSidebarConfig } from "@/providers/StoreConfigProvider";
+import { useFiltersConfig, useFiltersText, useContentConfig, useFilterSidebarConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { useProductFilters } from "@/hooks/useProductFilters";
 import { PriceRangeFilter } from "./PriceRangeFilter";
 import { RatingFilter } from "./RatingFilter";
@@ -137,6 +138,8 @@ export function ProductFilters({
   const filtersText = useFiltersText();
   const content = useContentConfig();
   const fsConfig = useFilterSidebarConfig();
+  const cdStyle = useComponentStyle("plp.filterSidebar");
+  const cdClasses = useComponentClasses("plp.filterSidebar");
   // Use same labels as nav Shop All dropdown when navbar labels are set (categories → collections → brands)
   const categoriesLabel = content.navbar?.categoriesLabel ?? filtersText.categoryTitle;
   const collectionsLabel = content.navbar?.collectionsLabel ?? filtersText.collectionTitle;
@@ -305,7 +308,7 @@ export function ProductFilters({
   };
 
   return (
-    <aside className="flex h-full w-full flex-col">
+    <aside data-cd="plp-filterSidebar" className={`flex h-full w-full flex-col ${cdClasses}`} style={buildComponentStyle("plp.filterSidebar", cdStyle)}>
       {/* Content */}
       <div className="flex-1 overflow-x-hidden">
         {/* Clear All Button - Configurable via Storefront Control */}

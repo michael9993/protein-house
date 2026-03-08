@@ -28,7 +28,8 @@ import {
   type FilterState,
   hasActiveFilters as checkActiveFilters,
 } from "@/lib/filters";
-import { useFiltersText, useBranding } from "@/providers/StoreConfigProvider";
+import { useFiltersText, useBranding, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { getLanguageCodeForChannel } from "@/lib/language";
 import { getProductShippingEstimate } from "@/lib/shipping";
 
@@ -74,6 +75,8 @@ export function ProductsGrid({
 
   const filtersText = useFiltersText();
   const branding = useBranding();
+  const cdStyle = useComponentStyle("plp.productGrid");
+  const cdClasses = useComponentClasses("plp.productGrid");
 
   // Detect filter/sort changes
   useEffect(() => {
@@ -325,9 +328,11 @@ export function ProductsGrid({
 
       {/* Product Grid - Dynamic Layout */}
       <div
+        data-cd="plp-productGrid"
         className={`grid ${getGridClasses(displayMode)} ${getGapClasses(displayMode)} ${
           !isFiltering ? "v7-grid-enter" : ""
-        }`}
+        } ${cdClasses}`}
+        style={buildComponentStyle("plp.productGrid", cdStyle)}
       >
         {!isFiltering &&
           displayProducts.map((product, index) => (

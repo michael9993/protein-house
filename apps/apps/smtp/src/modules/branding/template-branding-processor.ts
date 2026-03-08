@@ -13,9 +13,9 @@ export class TemplateBrandingProcessor {
   private static readonly DEFAULT_VALUES = {
     PRIMARY_COLOR: "#3b3d3f",
     SECONDARY_COLOR: "#0A0707",
-    COMPANY_NAME: "Mansour Shoes",
-    COMPANY_EMAIL: "support@mansourshoes.com",
-    COMPANY_WEBSITE: "https://www.mansourshoes.com",
+    COMPANY_NAME: "Pawzen",
+    COMPANY_EMAIL: "support@pawzen.co",
+    COMPANY_WEBSITE: "https://pawzen.co",
     LOGO_URL: "https://media.easy.co.il/images/UserThumbs/10035528_1752326685636_0.jpg",
   };
 

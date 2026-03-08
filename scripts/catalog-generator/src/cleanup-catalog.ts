@@ -1,6 +1,6 @@
 /**
  * Cleanup script: Deletes all products, collections, and categories from Saleor.
- * Run BEFORE uploading new Mansour data.
+ * Run BEFORE uploading new catalog data.
  *
  * Usage: npm run cleanup
  *   or:  npm run cleanup -- --dry-run   (just count, don't delete)
@@ -215,11 +215,11 @@ async function main() {
   if (DRY_RUN) {
     console.log("\nThis was a dry run. Run without --dry-run to actually delete.");
   } else {
-    console.log("\nDashboard is clean. Now upload Mansour data:");
+    console.log("\nDashboard is clean. Now upload Pawzen data:");
     console.log("  1. npm run deploy:ci    (apply config.yml attribute updates)");
-    console.log("  2. Upload categories:   Bulk Manager > Categories > output/mansour/categories.csv");
-    console.log("  3. Upload collections:  Bulk Manager > Collections > output/mansour/collections.csv");
-    console.log("  4. Upload products:     Bulk Manager > Products > output/mansour/products.xlsx");
+    console.log("  2. Upload categories:   Bulk Manager > Categories > output/categories.csv");
+    console.log("  3. Upload collections:  Bulk Manager > Collections > output/collections.csv");
+    console.log("  4. Upload products:     Bulk Manager > Products > output/pawzen-catalog.xlsx");
     console.log("  5. npm run translate    (add Hebrew translations)");
   }
 }

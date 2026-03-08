@@ -1,7 +1,7 @@
 {
-  "name": "mansour-catalog-generator",
+  "name": "pawzen-catalog-generator",
   "version": "1.0.0",
-  "description": "Generate product catalog and manage store infrastructure for Mansour Shoes",
+  "description": "Generate product catalog and manage store infrastructure for Pawzen Pet Accessories",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
@@ -14,8 +14,8 @@
     "deploy": "tsx src/run-configurator.ts deploy",
     "deploy:ci": "tsx src/run-configurator.ts deploy --ci",
     "translate": "tsx src/add-translations.ts",
-    "translate:mansour": "tsx src/translate-mansour.ts",
-    "translate:mansour:dry": "tsx src/translate-mansour.ts --dry-run",
+    "translate:legacy": "tsx src/translate-mansour.ts",
+    "translate:legacy:dry": "tsx src/translate-mansour.ts --dry-run",
     "import": "tsx src/import-converter.ts",
     "cleanup": "tsx src/cleanup-catalog.ts",
     "cleanup:dry": "tsx src/cleanup-catalog.ts --dry-run",
@@ -28,7 +28,8 @@
     "saleor",
     "catalog",
     "excel",
-    "configurator"
+    "configurator",
+    "pet-accessories"
   ],
   "author": "",
   "license": "MIT",

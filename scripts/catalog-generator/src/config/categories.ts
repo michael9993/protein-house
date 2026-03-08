@@ -10,181 +10,299 @@ export interface Category {
 }
 
 export const CATEGORIES: Category[] = [
-  // ── L1: Gender Roots (3) ──────────────────────────────────────────────────
+  // ── L1: Pet Roots (2) ──────────────────────────────────────────────────────
   {
-    name_he: "גברים", name_en: "Men", slug: "men",
-    description_he: "נעליים וביגוד ספורט לגברים מהמותגים המובילים",
-    description_en: "Men's shoes and sportswear from leading brands",
-    seoTitle_he: "גברים - מנסור שוז", seoTitle_en: "Men - Mansour Shoes",
+    name_he: "כלבים", name_en: "Dogs", slug: "dogs",
+    description_he: "כל המוצרים לכלבים - צעצועים, מזון, נוחות וטיפוח",
+    description_en: "Everything for dogs - toys, feeding, comfort and care",
+    seoTitle_he: "מוצרים לכלבים - Pawzen", seoTitle_en: "Dog Products - Pawzen",
   },
   {
-    name_he: "נשים", name_en: "Women", slug: "women",
-    description_he: "נעליים וביגוד ספורט לנשים מהמותגים המובילים",
-    description_en: "Women's shoes and sportswear from leading brands",
-    seoTitle_he: "נשים - מנסור שוז", seoTitle_en: "Women - Mansour Shoes",
-  },
-  {
-    name_he: "ילדים", name_en: "Kids", slug: "kids",
-    description_he: "נעליים וביגוד ספורט לילדים מהמותגים המובילים",
-    description_en: "Kids' shoes and sportswear from leading brands",
-    seoTitle_he: "ילדים - מנסור שוז", seoTitle_en: "Kids - Mansour Shoes",
+    name_he: "חתולים", name_en: "Cats", slug: "cats",
+    description_he: "כל המוצרים לחתולים - צעצועים, מזון, נוחות וטיפוח",
+    description_en: "Everything for cats - toys, feeding, comfort and care",
+    seoTitle_he: "מוצרים לחתולים - Pawzen", seoTitle_en: "Cat Products - Pawzen",
   },
 
-  // ── L2: Product Type (8) ──────────────────────────────────────────────────
-
-  // Men
+  // ── L2: Dog Categories (5) ─────────────────────────────────────────────────
   {
-    name_he: "נעליים", name_en: "Shoes", slug: "men-shoes", parent: "men",
-    description_he: "נעליים לגברים - ריצה, אימון, כדורגל, יומיומי ועוד",
-    description_en: "Men's shoes - running, training, soccer, casual and more",
-    seoTitle_he: "נעליים לגברים - מנסור שוז", seoTitle_en: "Men's Shoes - Mansour Shoes",
+    name_he: "צעצועים לכלבים", name_en: "Dog Toys", slug: "dog-toys", parent: "dogs",
+    description_he: "צעצועים לכלבים - לעיסה, אינטראקטיביים, משיכה ופאזלים",
+    description_en: "Dog toys - chew, interactive, fetch and puzzle toys",
+    seoTitle_he: "צעצועים לכלבים - Pawzen", seoTitle_en: "Dog Toys - Pawzen",
   },
   {
-    name_he: "ביגוד עליון", name_en: "Tops", slug: "men-tops", parent: "men",
-    description_he: "חולצות, קפוצ'ונים וג'קטים לגברים",
-    description_en: "Men's t-shirts, hoodies and jackets",
-    seoTitle_he: "ביגוד עליון לגברים - מנסור שוז", seoTitle_en: "Men's Tops - Mansour Shoes",
+    name_he: "האכלה לכלבים", name_en: "Dog Feeding", slug: "dog-feeding", parent: "dogs",
+    description_he: "קערות, מזרקות מים ומאכילים לכלבים",
+    description_en: "Dog bowls, water fountains and feeders",
+    seoTitle_he: "האכלה לכלבים - Pawzen", seoTitle_en: "Dog Feeding - Pawzen",
   },
   {
-    name_he: "מכנסיים", name_en: "Bottoms", slug: "men-bottoms", parent: "men",
-    description_he: "מכנסי ספורט, שורטים וטרנינגים לגברים",
-    description_en: "Men's sport pants, shorts and joggers",
-    seoTitle_he: "מכנסיים לגברים - מנסור שוז", seoTitle_en: "Men's Bottoms - Mansour Shoes",
-  },
-
-  // Women
-  {
-    name_he: "נעליים", name_en: "Shoes", slug: "women-shoes", parent: "women",
-    description_he: "נעליים לנשים - ריצה, אימון, יומיומי, נוחות ועוד",
-    description_en: "Women's shoes - running, training, casual, comfort and more",
-    seoTitle_he: "נעליים לנשים - מנסור שוז", seoTitle_en: "Women's Shoes - Mansour Shoes",
+    name_he: "נוחות לכלבים", name_en: "Dog Comfort", slug: "dog-comfort", parent: "dogs",
+    description_he: "מיטות, שמיכות, ביגוד ונשאים לכלבים",
+    description_en: "Dog beds, blankets, clothing and carriers",
+    seoTitle_he: "נוחות לכלבים - Pawzen", seoTitle_en: "Dog Comfort - Pawzen",
   },
   {
-    name_he: "ביגוד עליון", name_en: "Tops", slug: "women-tops", parent: "women",
-    description_he: "חולצות, קפוצ'ונים וג'קטים לנשים",
-    description_en: "Women's t-shirts, hoodies and jackets",
-    seoTitle_he: "ביגוד עליון לנשים - מנסור שוז", seoTitle_en: "Women's Tops - Mansour Shoes",
+    name_he: "טיפוח לכלבים", name_en: "Dog Care", slug: "dog-care", parent: "dogs",
+    description_he: "קולרים, רצועות, רתמות וכלי טיפוח לכלבים",
+    description_en: "Dog collars, leashes, harnesses and grooming tools",
+    seoTitle_he: "טיפוח לכלבים - Pawzen", seoTitle_en: "Dog Care - Pawzen",
   },
   {
-    name_he: "מכנסיים ולגינסים", name_en: "Bottoms & Leggings", slug: "women-bottoms", parent: "women",
-    description_he: "מכנסי ספורט, לגינסים ושורטים לנשים",
-    description_en: "Women's sport pants, leggings and shorts",
-    seoTitle_he: "מכנסיים ולגינסים לנשים - מנסור שוז", seoTitle_en: "Women's Bottoms - Mansour Shoes",
+    name_he: "טכנולוגיה לכלבים", name_en: "Dog Smart Tech", slug: "dog-smart-tech", parent: "dogs",
+    description_he: "מעקב GPS, מאכילים אוטומטיים ומצלמות לחיות מחמד",
+    description_en: "GPS trackers, auto feeders and pet cameras",
+    seoTitle_he: "טכנולוגיה לכלבים - Pawzen", seoTitle_en: "Dog Smart Tech - Pawzen",
   },
 
-  // Kids
+  // ── L2: Cat Categories (5) ─────────────────────────────────────────────────
   {
-    name_he: "נעליים", name_en: "Shoes", slug: "kids-shoes", parent: "kids",
-    description_he: "נעליים לילדים - ספורט, יומיומי, סנדלים ועוד",
-    description_en: "Kids' shoes - sport, casual, sandals and more",
-    seoTitle_he: "נעליים לילדים - מנסור שוז", seoTitle_en: "Kids' Shoes - Mansour Shoes",
+    name_he: "צעצועים לחתולים", name_en: "Cat Toys", slug: "cat-toys", parent: "cats",
+    description_he: "צעצועים לחתולים - נוצות, לייזר, קטניפ ומתקני גירוד",
+    description_en: "Cat toys - feather, laser, catnip and scratchers",
+    seoTitle_he: "צעצועים לחתולים - Pawzen", seoTitle_en: "Cat Toys - Pawzen",
   },
   {
-    name_he: "ביגוד", name_en: "Clothing", slug: "kids-clothing", parent: "kids",
-    description_he: "ביגוד ספורט לילדים - חולצות, מכנסיים ועוד",
-    description_en: "Kids' sportswear - tops, bottoms and more",
-    seoTitle_he: "ביגוד לילדים - מנסור שוז", seoTitle_en: "Kids' Clothing - Mansour Shoes",
-  },
-
-  // ── L3: Men's Shoes (7) ───────────────────────────────────────────────────
-  {
-    name_he: "נעלי ריצה", name_en: "Running Shoes", slug: "men-running-shoes", parent: "men-shoes",
-    description_he: "נעלי ריצה לגברים מ-Nike, Adidas, ASICS ועוד",
-    description_en: "Men's running shoes from Nike, Adidas, ASICS and more",
-    seoTitle_he: "נעלי ריצה לגברים - מנסור שוז", seoTitle_en: "Men's Running Shoes - Mansour Shoes",
+    name_he: "האכלה לחתולים", name_en: "Cat Feeding", slug: "cat-feeding", parent: "cats",
+    description_he: "קערות, מזרקות מים ומאכילים לחתולים",
+    description_en: "Cat bowls, water fountains and feeders",
+    seoTitle_he: "האכלה לחתולים - Pawzen", seoTitle_en: "Cat Feeding - Pawzen",
   },
   {
-    name_he: "נעלי אימון", name_en: "Training Shoes", slug: "men-training-shoes", parent: "men-shoes",
-    description_he: "נעלי אימון וחדר כושר לגברים",
-    description_en: "Men's training and gym shoes",
-    seoTitle_he: "נעלי אימון לגברים - מנסור שוז", seoTitle_en: "Men's Training Shoes - Mansour Shoes",
+    name_he: "נוחות לחתולים", name_en: "Cat Comfort", slug: "cat-comfort", parent: "cats",
+    description_he: "מיטות, עצי חתולים, מרפסות חלון וארגזי חול",
+    description_en: "Cat beds, trees, window perches and litter accessories",
+    seoTitle_he: "נוחות לחתולים - Pawzen", seoTitle_en: "Cat Comfort - Pawzen",
   },
   {
-    name_he: "נעלי כדורגל", name_en: "Soccer Shoes", slug: "men-soccer-shoes", parent: "men-shoes",
-    description_he: "נעלי כדורגל וקטרגל לגברים מ-Nike ו-Adidas",
-    description_en: "Men's soccer and futsal shoes from Nike and Adidas",
-    seoTitle_he: "נעלי כדורגל לגברים - מנסור שוז", seoTitle_en: "Men's Soccer Shoes - Mansour Shoes",
+    name_he: "טיפוח לחתולים", name_en: "Cat Care", slug: "cat-care", parent: "cats",
+    description_he: "קולרים, כלי טיפוח ומוצרי בריאות לחתולים",
+    description_en: "Cat collars, grooming tools and health products",
+    seoTitle_he: "טיפוח לחתולים - Pawzen", seoTitle_en: "Cat Care - Pawzen",
   },
   {
-    name_he: "נעלי יומיום ואופנה", name_en: "Casual & Fashion", slug: "men-casual-shoes", parent: "men-shoes",
-    description_he: "נעלי אופנה ויומיום לגברים - סניקרס וקז'ואל",
-    description_en: "Men's casual and fashion sneakers",
-    seoTitle_he: "נעלי אופנה לגברים - מנסור שוז", seoTitle_en: "Men's Casual Shoes - Mansour Shoes",
-  },
-  {
-    name_he: "נעלי הליכה ונוחות", name_en: "Walking & Comfort", slug: "men-walking-comfort", parent: "men-shoes",
-    description_he: "נעלי הליכה ונוחות לגברים - Skechers, Lady Comfort ועוד",
-    description_en: "Men's walking and comfort shoes",
-    seoTitle_he: "נעלי הליכה לגברים - מנסור שוז", seoTitle_en: "Men's Walking Shoes - Mansour Shoes",
-  },
-  {
-    name_he: "סנדלים וכפכפים", name_en: "Sandals & Slides", slug: "men-sandals-slides", parent: "men-shoes",
-    description_he: "סנדלים וכפכפים לגברים",
-    description_en: "Men's sandals and slides",
-    seoTitle_he: "סנדלים לגברים - מנסור שוז", seoTitle_en: "Men's Sandals - Mansour Shoes",
-  },
-  {
-    name_he: "מגפיים ונעלי חורף", name_en: "Boots & Winter", slug: "men-boots-winter", parent: "men-shoes",
-    description_he: "מגפיים ונעלי חורף לגברים",
-    description_en: "Men's boots and winter shoes",
-    seoTitle_he: "מגפיים לגברים - מנסור שוז", seoTitle_en: "Men's Boots - Mansour Shoes",
+    name_he: "טכנולוגיה לחתולים", name_en: "Cat Smart Tech", slug: "cat-smart-tech", parent: "cats",
+    description_he: "ארגזי חול אוטומטיים ומאכילים חכמים לחתולים",
+    description_en: "Automatic litter boxes and smart feeders for cats",
+    seoTitle_he: "טכנולוגיה לחתולים - Pawzen", seoTitle_en: "Cat Smart Tech - Pawzen",
   },
 
-  // ── L3: Women's Shoes (6) ─────────────────────────────────────────────────
+  // ── L3: Dog Toys Subcategories (4) ─────────────────────────────────────────
   {
-    name_he: "נעלי ריצה", name_en: "Running Shoes", slug: "women-running-shoes", parent: "women-shoes",
-    description_he: "נעלי ריצה לנשים מ-Nike, Adidas, ASICS ועוד",
-    description_en: "Women's running shoes from Nike, Adidas, ASICS and more",
-    seoTitle_he: "נעלי ריצה לנשים - מנסור שוז", seoTitle_en: "Women's Running Shoes - Mansour Shoes",
+    name_he: "צעצועי לעיסה", name_en: "Chew Toys", slug: "dog-chew-toys", parent: "dog-toys",
+    description_he: "צעצועי לעיסה עמידים לכלבים",
+    description_en: "Durable chew toys for dogs",
+    seoTitle_he: "צעצועי לעיסה לכלבים - Pawzen", seoTitle_en: "Dog Chew Toys - Pawzen",
   },
   {
-    name_he: "נעלי אימון", name_en: "Training Shoes", slug: "women-training-shoes", parent: "women-shoes",
-    description_he: "נעלי אימון וחדר כושר לנשים",
-    description_en: "Women's training and gym shoes",
-    seoTitle_he: "נעלי אימון לנשים - מנסור שוז", seoTitle_en: "Women's Training Shoes - Mansour Shoes",
+    name_he: "צעצועים אינטראקטיביים", name_en: "Interactive Toys", slug: "dog-interactive-toys", parent: "dog-toys",
+    description_he: "צעצועים אינטראקטיביים ומשחקי חשיבה לכלבים",
+    description_en: "Interactive and brain games for dogs",
+    seoTitle_he: "צעצועים אינטראקטיביים לכלבים - Pawzen", seoTitle_en: "Dog Interactive Toys - Pawzen",
   },
   {
-    name_he: "נעלי יומיום ואופנה", name_en: "Casual & Fashion", slug: "women-casual-shoes", parent: "women-shoes",
-    description_he: "נעלי אופנה ויומיום לנשים - סניקרס וקז'ואל",
-    description_en: "Women's casual and fashion sneakers",
-    seoTitle_he: "נעלי אופנה לנשים - מנסור שוז", seoTitle_en: "Women's Casual Shoes - Mansour Shoes",
+    name_he: "משחקי הבאה ושטח", name_en: "Fetch & Outdoor", slug: "dog-fetch-outdoor", parent: "dog-toys",
+    description_he: "כדורים, פריסביז וצעצועי חוץ לכלבים",
+    description_en: "Balls, frisbees and outdoor toys for dogs",
+    seoTitle_he: "צעצועי הבאה לכלבים - Pawzen", seoTitle_en: "Dog Fetch Toys - Pawzen",
   },
   {
-    name_he: "נעלי הליכה ונוחות", name_en: "Walking & Comfort", slug: "women-walking-comfort", parent: "women-shoes",
-    description_he: "נעלי הליכה ונוחות לנשים - Skechers, Lady Comfort ועוד",
-    description_en: "Women's walking and comfort shoes",
-    seoTitle_he: "נעלי הליכה לנשים - מנסור שוז", seoTitle_en: "Women's Walking Shoes - Mansour Shoes",
-  },
-  {
-    name_he: "סנדלים וכפכפים", name_en: "Sandals & Slides", slug: "women-sandals-slides", parent: "women-shoes",
-    description_he: "סנדלים וכפכפים לנשים",
-    description_en: "Women's sandals and slides",
-    seoTitle_he: "סנדלים לנשים - מנסור שוז", seoTitle_en: "Women's Sandals - Mansour Shoes",
-  },
-  {
-    name_he: "מגפיים ונעלי חורף", name_en: "Boots & Winter", slug: "women-boots-winter", parent: "women-shoes",
-    description_he: "מגפיים ונעלי חורף לנשים",
-    description_en: "Women's boots and winter shoes",
-    seoTitle_he: "מגפיים לנשים - מנסור שוז", seoTitle_en: "Women's Boots - Mansour Shoes",
+    name_he: "פאזלים לכלבים", name_en: "Puzzle Toys", slug: "dog-puzzle-toys", parent: "dog-toys",
+    description_he: "צעצועי פאזל והעשרה לכלבים",
+    description_en: "Puzzle and enrichment toys for dogs",
+    seoTitle_he: "פאזלים לכלבים - Pawzen", seoTitle_en: "Dog Puzzle Toys - Pawzen",
   },
 
-  // ── L3: Kids' Shoes (3) ───────────────────────────────────────────────────
+  // ── L3: Dog Feeding Subcategories (3) ──────────────────────────────────────
   {
-    name_he: "נעלי ספורט", name_en: "Sport Shoes", slug: "kids-sport-shoes", parent: "kids-shoes",
-    description_he: "נעלי ספורט לילדים - ריצה, אימון ופעילות",
-    description_en: "Kids' sport shoes - running, training and active",
-    seoTitle_he: "נעלי ספורט לילדים - מנסור שוז", seoTitle_en: "Kids' Sport Shoes - Mansour Shoes",
+    name_he: "קערות ומאכילים", name_en: "Bowls & Feeders", slug: "dog-bowls-feeders", parent: "dog-feeding",
+    description_he: "קערות אוכל ומאכילים לכלבים",
+    description_en: "Food bowls and feeders for dogs",
+    seoTitle_he: "קערות לכלבים - Pawzen", seoTitle_en: "Dog Bowls - Pawzen",
   },
   {
-    name_he: "נעלי יומיום", name_en: "Casual Shoes", slug: "kids-casual-shoes", parent: "kids-shoes",
-    description_he: "נעלי יומיום ובית ספר לילדים",
-    description_en: "Kids' casual and school shoes",
-    seoTitle_he: "נעלי יומיום לילדים - מנסור שוז", seoTitle_en: "Kids' Casual Shoes - Mansour Shoes",
+    name_he: "מזרקות מים", name_en: "Water Fountains", slug: "dog-water-fountains", parent: "dog-feeding",
+    description_he: "מזרקות ומתקני שתייה לכלבים",
+    description_en: "Water fountains and dispensers for dogs",
+    seoTitle_he: "מזרקות מים לכלבים - Pawzen", seoTitle_en: "Dog Water Fountains - Pawzen",
   },
   {
-    name_he: "סנדלים וכפכפים", name_en: "Sandals & Slides", slug: "kids-sandals-slides", parent: "kids-shoes",
-    description_he: "סנדלים וכפכפים לילדים",
-    description_en: "Kids' sandals and slides",
-    seoTitle_he: "סנדלים לילדים - מנסור שוז", seoTitle_en: "Kids' Sandals - Mansour Shoes",
+    name_he: "מאכילים איטיים", name_en: "Slow Feeders", slug: "dog-slow-feeders", parent: "dog-feeding",
+    description_he: "קערות האכלה איטית לכלבים",
+    description_en: "Slow feeder bowls for dogs",
+    seoTitle_he: "מאכילים איטיים לכלבים - Pawzen", seoTitle_en: "Dog Slow Feeders - Pawzen",
+  },
+
+  // ── L3: Dog Comfort Subcategories (4) ──────────────────────────────────────
+  {
+    name_he: "מיטות ומזרנים", name_en: "Beds & Mats", slug: "dog-beds-mats", parent: "dog-comfort",
+    description_he: "מיטות ומזרנים נוחים לכלבים",
+    description_en: "Comfortable beds and mats for dogs",
+    seoTitle_he: "מיטות לכלבים - Pawzen", seoTitle_en: "Dog Beds - Pawzen",
+  },
+  {
+    name_he: "שמיכות", name_en: "Blankets", slug: "dog-blankets", parent: "dog-comfort",
+    description_he: "שמיכות רכות וחמות לכלבים",
+    description_en: "Soft and warm blankets for dogs",
+    seoTitle_he: "שמיכות לכלבים - Pawzen", seoTitle_en: "Dog Blankets - Pawzen",
+  },
+  {
+    name_he: "ביגוד לכלבים", name_en: "Dog Clothing", slug: "dog-clothing", parent: "dog-comfort",
+    description_he: "מעילים, סוודרים וביגוד עונתי לכלבים",
+    description_en: "Coats, sweaters and seasonal clothing for dogs",
+    seoTitle_he: "ביגוד לכלבים - Pawzen", seoTitle_en: "Dog Clothing - Pawzen",
+  },
+  {
+    name_he: "נשאים ותיקי נסיעה", name_en: "Carriers", slug: "dog-carriers", parent: "dog-comfort",
+    description_he: "נשאים ותיקי נסיעה לכלבים",
+    description_en: "Carriers and travel bags for dogs",
+    seoTitle_he: "נשאים לכלבים - Pawzen", seoTitle_en: "Dog Carriers - Pawzen",
+  },
+
+  // ── L3: Dog Care Subcategories (4) ─────────────────────────────────────────
+  {
+    name_he: "כלי טיפוח", name_en: "Grooming Tools", slug: "dog-grooming", parent: "dog-care",
+    description_he: "מברשות, קוצצי ציפורניים וכלי טיפוח לכלבים",
+    description_en: "Brushes, nail clippers and grooming tools for dogs",
+    seoTitle_he: "טיפוח כלבים - Pawzen", seoTitle_en: "Dog Grooming - Pawzen",
+  },
+  {
+    name_he: "קולרים ורצועות", name_en: "Collars & Leashes", slug: "dog-collars-leashes", parent: "dog-care",
+    description_he: "קולרים, רצועות וסרטי הולכה לכלבים",
+    description_en: "Collars, leashes and walking accessories for dogs",
+    seoTitle_he: "קולרים ורצועות לכלבים - Pawzen", seoTitle_en: "Dog Collars & Leashes - Pawzen",
+  },
+  {
+    name_he: "רתמות", name_en: "Harnesses", slug: "dog-harnesses", parent: "dog-care",
+    description_he: "רתמות נוחות ובטוחות לכלבים",
+    description_en: "Comfortable and safe harnesses for dogs",
+    seoTitle_he: "רתמות לכלבים - Pawzen", seoTitle_en: "Dog Harnesses - Pawzen",
+  },
+  {
+    name_he: "בריאות לכלבים", name_en: "Dog Health", slug: "dog-health", parent: "dog-care",
+    description_he: "מוצרי בריאות, עזרה ראשונה ותוספי מזון לכלבים",
+    description_en: "Health products, first aid and supplements for dogs",
+    seoTitle_he: "בריאות כלבים - Pawzen", seoTitle_en: "Dog Health - Pawzen",
+  },
+
+  // ── L3: Dog Smart Tech Subcategories (3) ───────────────────────────────────
+  {
+    name_he: "מעקב GPS", name_en: "GPS Trackers", slug: "dog-gps-trackers", parent: "dog-smart-tech",
+    description_he: "מכשירי מעקב GPS לכלבים",
+    description_en: "GPS tracking devices for dogs",
+    seoTitle_he: "GPS לכלבים - Pawzen", seoTitle_en: "Dog GPS Trackers - Pawzen",
+  },
+  {
+    name_he: "מאכילים אוטומטיים", name_en: "Auto Feeders", slug: "dog-auto-feeders", parent: "dog-smart-tech",
+    description_he: "מאכילים אוטומטיים וחכמים לכלבים",
+    description_en: "Automatic and smart feeders for dogs",
+    seoTitle_he: "מאכילים אוטומטיים לכלבים - Pawzen", seoTitle_en: "Dog Auto Feeders - Pawzen",
+  },
+  {
+    name_he: "מצלמות לחיות מחמד", name_en: "Pet Cameras", slug: "dog-pet-cameras", parent: "dog-smart-tech",
+    description_he: "מצלמות לצפייה בכלבים מרחוק",
+    description_en: "Cameras for monitoring dogs remotely",
+    seoTitle_he: "מצלמות לכלבים - Pawzen", seoTitle_en: "Dog Pet Cameras - Pawzen",
+  },
+
+  // ── L3: Cat Toys Subcategories (4) ─────────────────────────────────────────
+  {
+    name_he: "צעצועי נוצות", name_en: "Feather Toys", slug: "cat-feather-toys", parent: "cat-toys",
+    description_he: "צעצועי נוצות ושרביטים לחתולים",
+    description_en: "Feather wands and toys for cats",
+    seoTitle_he: "צעצועי נוצות לחתולים - Pawzen", seoTitle_en: "Cat Feather Toys - Pawzen",
+  },
+  {
+    name_he: "לייזר ואלקטרוניקה", name_en: "Laser & Electronic", slug: "cat-laser-electronic", parent: "cat-toys",
+    description_he: "צעצועי לייזר ואלקטרוניים לחתולים",
+    description_en: "Laser and electronic toys for cats",
+    seoTitle_he: "צעצועי לייזר לחתולים - Pawzen", seoTitle_en: "Cat Laser Toys - Pawzen",
+  },
+  {
+    name_he: "קטניפ וצעצועים ממולאים", name_en: "Catnip Toys", slug: "cat-catnip-toys", parent: "cat-toys",
+    description_he: "צעצועי קטניפ וצעצועים ממולאים לחתולים",
+    description_en: "Catnip and stuffed toys for cats",
+    seoTitle_he: "צעצועי קטניפ לחתולים - Pawzen", seoTitle_en: "Catnip Toys - Pawzen",
+  },
+  {
+    name_he: "מתקני גירוד", name_en: "Scratchers", slug: "cat-scratchers", parent: "cat-toys",
+    description_he: "מתקני גירוד מקרטון, סיזל ועץ לחתולים",
+    description_en: "Cardboard, sisal and wood scratchers for cats",
+    seoTitle_he: "מתקני גירוד לחתולים - Pawzen", seoTitle_en: "Cat Scratchers - Pawzen",
+  },
+
+  // ── L3: Cat Feeding Subcategories (2) ──────────────────────────────────────
+  {
+    name_he: "קערות ומאכילים", name_en: "Bowls & Feeders", slug: "cat-bowls-feeders", parent: "cat-feeding",
+    description_he: "קערות אוכל ומאכילים לחתולים",
+    description_en: "Food bowls and feeders for cats",
+    seoTitle_he: "קערות לחתולים - Pawzen", seoTitle_en: "Cat Bowls - Pawzen",
+  },
+  {
+    name_he: "מזרקות מים", name_en: "Water Fountains", slug: "cat-water-fountains", parent: "cat-feeding",
+    description_he: "מזרקות ומתקני שתייה לחתולים",
+    description_en: "Water fountains and dispensers for cats",
+    seoTitle_he: "מזרקות מים לחתולים - Pawzen", seoTitle_en: "Cat Water Fountains - Pawzen",
+  },
+
+  // ── L3: Cat Comfort Subcategories (4) ──────────────────────────────────────
+  {
+    name_he: "מיטות לחתולים", name_en: "Cat Beds", slug: "cat-beds", parent: "cat-comfort",
+    description_he: "מיטות ומערות נוחות לחתולים",
+    description_en: "Comfortable beds and caves for cats",
+    seoTitle_he: "מיטות לחתולים - Pawzen", seoTitle_en: "Cat Beds - Pawzen",
+  },
+  {
+    name_he: "עצי חתולים וריהוט", name_en: "Cat Trees & Furniture", slug: "cat-trees-furniture", parent: "cat-comfort",
+    description_he: "עצי חתולים, מדפים וריהוט לחתולים",
+    description_en: "Cat trees, shelves and furniture",
+    seoTitle_he: "עצי חתולים - Pawzen", seoTitle_en: "Cat Trees - Pawzen",
+  },
+  {
+    name_he: "מרפסות חלון", name_en: "Window Perches", slug: "cat-window-perches", parent: "cat-comfort",
+    description_he: "מרפסות חלון ומשטחי שכיבה לחתולים",
+    description_en: "Window perches and lounging platforms for cats",
+    seoTitle_he: "מרפסות חלון לחתולים - Pawzen", seoTitle_en: "Cat Window Perches - Pawzen",
+  },
+  {
+    name_he: "ארגזי חול ואביזרים", name_en: "Litter Accessories", slug: "cat-litter", parent: "cat-comfort",
+    description_he: "ארגזי חול, שטיחים ואביזרי נקיון לחתולים",
+    description_en: "Litter boxes, mats and cleaning accessories for cats",
+    seoTitle_he: "ארגזי חול לחתולים - Pawzen", seoTitle_en: "Cat Litter Accessories - Pawzen",
+  },
+
+  // ── L3: Cat Care Subcategories (3) ─────────────────────────────────────────
+  {
+    name_he: "כלי טיפוח לחתולים", name_en: "Cat Grooming", slug: "cat-grooming", parent: "cat-care",
+    description_he: "מברשות וכלי טיפוח לחתולים",
+    description_en: "Brushes and grooming tools for cats",
+    seoTitle_he: "טיפוח חתולים - Pawzen", seoTitle_en: "Cat Grooming - Pawzen",
+  },
+  {
+    name_he: "קולרים ותגי זיהוי", name_en: "Collars & ID Tags", slug: "cat-collars-id", parent: "cat-care",
+    description_he: "קולרים ותגי זיהוי לחתולים",
+    description_en: "Collars and ID tags for cats",
+    seoTitle_he: "קולרים לחתולים - Pawzen", seoTitle_en: "Cat Collars - Pawzen",
+  },
+  {
+    name_he: "בריאות לחתולים", name_en: "Cat Health", slug: "cat-health", parent: "cat-care",
+    description_he: "מוצרי בריאות ותוספי מזון לחתולים",
+    description_en: "Health products and supplements for cats",
+    seoTitle_he: "בריאות חתולים - Pawzen", seoTitle_en: "Cat Health - Pawzen",
+  },
+
+  // ── L3: Cat Smart Tech Subcategories (2) ───────────────────────────────────
+  {
+    name_he: "ארגזי חול אוטומטיים", name_en: "Auto Litter Boxes", slug: "cat-auto-litter", parent: "cat-smart-tech",
+    description_he: "ארגזי חול אוטומטיים וחכמים לחתולים",
+    description_en: "Automatic and self-cleaning litter boxes for cats",
+    seoTitle_he: "ארגזי חול אוטומטיים - Pawzen", seoTitle_en: "Auto Litter Boxes - Pawzen",
+  },
+  {
+    name_he: "מאכילים חכמים", name_en: "Smart Feeders", slug: "cat-smart-feeders", parent: "cat-smart-tech",
+    description_he: "מאכילים חכמים ומתוזמנים לחתולים",
+    description_en: "Smart and timed feeders for cats",
+    seoTitle_he: "מאכילים חכמים לחתולים - Pawzen", seoTitle_en: "Cat Smart Feeders - Pawzen",
   },
 ];

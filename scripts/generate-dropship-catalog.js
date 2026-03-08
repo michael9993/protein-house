@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Generates dropship-catalog-30.csv for Bulk Manager import.
- * 30 products (20 shoes, 5 tops, 5 accessories) with CJ Dropshipping metadata.
+ * 30 pet products (10 toys, 8 feeding, 7 comfort, 5 care) with CJ Dropshipping metadata.
  * Run: node scripts/generate-dropship-catalog.js
  */
 
@@ -10,58 +10,55 @@ const path = require("path");
 
 // ── Product Definitions ──────────────────────────────────────────────────────
 
-const SHOES = [
-  { name: "Urban Mesh Runner", slug: "urban-mesh-runner", gender: "Men", cat: "men-running-shoes", cost: 14, price: 39.99, style: "Running", material: "Mesh", colors: ["Black", "Navy"], collections: "new-arrivals;running-essentials;featured-products", desc: "Lightweight mesh running shoe with breathable upper and responsive cushioning for everyday runs" },
-  { name: "Classic Canvas Low-Top", slug: "classic-canvas-low-top", gender: "Men", cat: "men-casual-shoes", cost: 10, price: 29.99, style: "Casual", material: "Canvas", colors: ["Black", "White"], collections: "new-arrivals;casual-style;under-200", desc: "Timeless canvas sneaker with vulcanized rubber sole and clean minimal design" },
-  { name: "Retro Chunky Dad Sneaker", slug: "retro-chunky-dad-sneaker", gender: "Men", cat: "men-casual-shoes", cost: 16, price: 44.99, style: "Fashion", material: "Synthetic", colors: ["Black", "Gray"], collections: "new-arrivals;casual-style;featured-products", desc: "Bold chunky sneaker with retro-inspired silhouette and multi-layer sole unit" },
-  { name: "Breathable Knit Trainer", slug: "breathable-knit-trainer", gender: "Men", cat: "men-training-shoes", cost: 12, price: 34.99, style: "Training", material: "Knit", colors: ["Black", "Red"], collections: "new-arrivals;training-gear", desc: "Flexible knit training shoe with supportive midfoot cage for gym and cross-training" },
-  { name: "Street High-Top Basketball", slug: "street-high-top-basketball", gender: "Men", cat: "men-casual-shoes", cost: 18, price: 49.99, style: "Fashion", material: "Synthetic", colors: ["Black", "White"], collections: "new-arrivals;casual-style;featured-products;best-sellers", desc: "Street-ready high-top with padded ankle collar and premium court-style outsole" },
-  { name: "Minimalist White Leather", slug: "minimalist-white-leather", gender: "Men", cat: "men-casual-shoes", cost: 15, price: 42.99, style: "Casual", material: "Leather", colors: ["White", "Beige"], collections: "new-arrivals;casual-style;featured-products", desc: "Clean white leather sneaker with minimalist design for versatile everyday styling" },
-  { name: "Air Cushion Sport Runner", slug: "air-cushion-sport-runner", gender: "Men", cat: "men-running-shoes", cost: 16, price: 45.99, style: "Running", material: "Mesh", colors: ["Black", "Blue"], collections: "new-arrivals;running-essentials;best-sellers", desc: "Performance running shoe with visible air cushion unit and engineered mesh upper" },
-  { name: "Suede Retro Skate Shoe", slug: "suede-retro-skate-shoe", gender: "Men", cat: "men-casual-shoes", cost: 13, price: 37.99, style: "Casual", material: "Suede", colors: ["Black", "Brown"], collections: "new-arrivals;casual-style", desc: "Classic suede skate shoe with reinforced toe cap and grippy gum rubber outsole" },
-  { name: "Memory Foam Slip-On", slug: "memory-foam-slip-on-men", gender: "Men", cat: "men-walking-comfort", cost: 11, price: 32.99, style: "Comfort", material: "Knit", colors: ["Black", "Gray"], collections: "new-arrivals;walking-comfort-collection", desc: "Easy slip-on walking shoe with memory foam insole for all-day cushioned comfort" },
-  { name: "Reflective Night Runner", slug: "reflective-night-runner", gender: "Men", cat: "men-running-shoes", cost: 17, price: 47.99, style: "Running", material: "Mesh", colors: ["Black", "Neon Green"], collections: "new-arrivals;running-essentials;featured-products", desc: "High-visibility running shoe with 360-degree reflective details for safe night runs" },
-  { name: "All-Black Stealth Trainer", slug: "all-black-stealth-trainer", gender: "Men", cat: "men-training-shoes", cost: 14, price: 39.99, style: "Training", material: "Synthetic", colors: ["Black", "Dark Gray"], collections: "new-arrivals;training-gear;best-sellers", desc: "Murdered-out training shoe with non-marking outsole and lateral stability support" },
-  { name: "Colorblock Retro Jogger", slug: "colorblock-retro-jogger", gender: "Men", cat: "men-casual-shoes", cost: 15, price: 42.99, style: "Fashion", material: "Synthetic", colors: ["White", "Red"], collections: "new-arrivals;casual-style", desc: "Retro-inspired jogger sneaker with bold colorblock panels and EVA midsole" },
-  { name: "Chunky Platform Sneaker", slug: "chunky-platform-sneaker-w", gender: "Women", cat: "women-casual-shoes", cost: 16, price: 44.99, style: "Fashion", material: "Synthetic", colors: ["White", "Pink"], collections: "new-arrivals;casual-style;featured-products;best-sellers", desc: "Trend-setting chunky platform sneaker with 5cm sole height and padded collar" },
-  { name: "Pastel Knit Sock Sneaker", slug: "pastel-knit-sock-sneaker", gender: "Women", cat: "women-casual-shoes", cost: 13, price: 36.99, style: "Fashion", material: "Knit", colors: ["Pink", "Lavender"], collections: "new-arrivals;casual-style", desc: "Lightweight sock-style sneaker in soft pastel tones with flexible knit upper" },
-  { name: "Lightweight Mesh Runner", slug: "lightweight-mesh-runner-w", gender: "Women", cat: "women-running-shoes", cost: 14, price: 39.99, style: "Running", material: "Mesh", colors: ["Black", "Coral"], collections: "new-arrivals;running-essentials", desc: "Featherlight women's running shoe with breathable mesh and responsive foam midsole" },
-  { name: "Butterfly Print Fashion", slug: "butterfly-print-fashion", gender: "Women", cat: "women-casual-shoes", cost: 12, price: 34.99, style: "Fashion", material: "Canvas", colors: ["White", "Multicolor"], collections: "new-arrivals;casual-style", desc: "Eye-catching fashion sneaker with butterfly print canvas upper and white sole" },
-  { name: "White Platform Court Shoe", slug: "white-platform-court-shoe", gender: "Women", cat: "women-casual-shoes", cost: 15, price: 42.99, style: "Fashion", material: "Leather", colors: ["White", "Gold"], collections: "new-arrivals;casual-style;featured-products", desc: "Elevated court sneaker with platform sole and subtle metallic accent details" },
-  { name: "Color Block Lifestyle", slug: "color-block-lifestyle-w", gender: "Women", cat: "women-casual-shoes", cost: 13, price: 37.99, style: "Fashion", material: "Synthetic", colors: ["Black", "Pink"], collections: "new-arrivals;casual-style", desc: "Sporty lifestyle sneaker with bold color blocking and comfortable cushioned insole" },
-  { name: "Memory Foam Walking Shoe", slug: "memory-foam-walking-shoe-w", gender: "Women", cat: "women-walking-comfort", cost: 11, price: 32.99, style: "Comfort", material: "Knit", colors: ["Black", "Gray"], collections: "new-arrivals;walking-comfort-collection", desc: "Ultra-comfortable walking shoe with premium memory foam and lightweight knit upper" },
-  { name: "Canvas Classic Slip-On", slug: "canvas-classic-slip-on-w", gender: "Women", cat: "women-casual-shoes", cost: 9, price: 27.99, style: "Casual", material: "Canvas", colors: ["Black", "Navy"], collections: "new-arrivals;casual-style;under-200", desc: "Easy-on canvas slip-on with elastic gore panels and cushioned footbed" },
+const PET_TOYS = [
+  { name: "Rope Tug Toy", slug: "rope-tug-toy", petType: "Dogs", cat: "dog-toys", cost: 5, price: 14.99, style: "Interactive", material: "Cotton Rope", prodType: "Tug Toy", colors: ["Blue", "Red"], sizes: ["M", "L"], collections: "new-arrivals;featured-products", desc: "Durable braided rope toy for interactive tug-of-war play and dental health" },
+  { name: "Squeaky Plush Duck", slug: "squeaky-plush-duck", petType: "Dogs", cat: "dog-toys", cost: 4, price: 12.99, style: "Plush", material: "Polyester", prodType: "Squeaky Toy", colors: ["Yellow", "Orange"], sizes: ["S", "M"], collections: "new-arrivals;best-sellers", desc: "Soft plush duck toy with built-in squeaker for hours of fun" },
+  { name: "Rubber Fetch Ball", slug: "rubber-fetch-ball", petType: "Dogs", cat: "dog-toys", cost: 3, price: 9.99, style: "Active", material: "Natural Rubber", prodType: "Ball", colors: ["Blue", "Green"], sizes: ["S", "M", "L"], collections: "new-arrivals;featured-products", desc: "Bouncy natural rubber ball for fetch games, floats in water" },
+  { name: "Cat Feather Wand", slug: "cat-feather-wand", petType: "Cats", cat: "cat-toys", cost: 3, price: 9.99, style: "Interactive", material: "Wood & Feather", prodType: "Wand Toy", colors: ["Multicolor", "Pink"], sizes: ["One Size"], collections: "new-arrivals;featured-products", desc: "Interactive feather wand toy with bell to stimulate natural hunting instincts" },
+  { name: "Catnip Mouse Set", slug: "catnip-mouse-set", petType: "Cats", cat: "cat-toys", cost: 4, price: 11.99, style: "Plush", material: "Cotton", prodType: "Catnip Toy", colors: ["Gray", "Brown"], sizes: ["One Size"], collections: "new-arrivals", desc: "Set of 3 catnip-filled mice toys for batting and pouncing play" },
+  { name: "Interactive Puzzle Toy", slug: "interactive-puzzle-toy", petType: "Dogs", cat: "dog-toys", cost: 8, price: 24.99, style: "Mental Stimulation", material: "ABS Plastic", prodType: "Puzzle", colors: ["Blue", "Green"], sizes: ["S", "L"], collections: "new-arrivals;best-sellers;featured-products", desc: "Multi-level treat puzzle toy to challenge and engage your dog mentally" },
+  { name: "Cat Tunnel Tube", slug: "cat-tunnel-tube", petType: "Cats", cat: "cat-toys", cost: 7, price: 19.99, style: "Active", material: "Polyester", prodType: "Tunnel", colors: ["Blue", "Pink"], sizes: ["One Size"], collections: "new-arrivals", desc: "Collapsible play tunnel with crinkle material and peek-a-boo holes" },
+  { name: "Dental Chew Bone", slug: "dental-chew-bone", petType: "Dogs", cat: "dog-toys", cost: 4, price: 13.99, style: "Dental", material: "Nylon", prodType: "Chew Toy", colors: ["Blue", "Green"], sizes: ["S", "M", "L"], collections: "new-arrivals", desc: "Textured dental chew bone that cleans teeth and freshens breath during play" },
+  { name: "Laser Pointer Cat Toy", slug: "laser-pointer-cat-toy", petType: "Cats", cat: "cat-toys", cost: 3, price: 8.99, style: "Interactive", material: "Metal", prodType: "Laser Toy", colors: ["Silver", "Black"], sizes: ["One Size"], collections: "new-arrivals", desc: "USB rechargeable laser pointer with multiple patterns for endless chase fun" },
+  { name: "Crinkle Ball Pack", slug: "crinkle-ball-pack", petType: "Cats", cat: "cat-toys", cost: 2, price: 7.99, style: "Active", material: "Mylar", prodType: "Ball", colors: ["Multicolor"], sizes: ["One Size"], collections: "new-arrivals", desc: "Pack of 12 lightweight crinkle balls that cats love to bat and chase" },
 ];
 
-const TOPS = [
-  { name: "Oversized Graphic Tee", slug: "oversized-graphic-tee", gender: "Men", cat: "men-tops", cost: 8, price: 25.99, type: "T-Shirt", material: "Cotton", colors: ["Black", "White"], collections: "new-arrivals;casual-style", desc: "Relaxed fit graphic tee with drop shoulder and premium cotton construction" },
-  { name: "Zip-Up Windbreaker", slug: "zip-up-windbreaker", gender: "Men", cat: "men-tops", cost: 18, price: 49.99, type: "Jacket", material: "Polyester", colors: ["Black", "Navy"], collections: "new-arrivals;featured-products", desc: "Lightweight windbreaker jacket with full zip, hood, and water-resistant finish" },
-  { name: "Vintage Wash Crew Sweatshirt", slug: "vintage-wash-crew-sweatshirt", gender: "Men", cat: "men-tops", cost: 14, price: 39.99, type: "Sweatshirt", material: "Cotton Blend", colors: ["Black", "Charcoal"], collections: "new-arrivals;casual-style;best-sellers", desc: "Pre-washed crew neck sweatshirt with lived-in feel and brushed fleece interior" },
-  { name: "Cropped Street Hoodie", slug: "cropped-street-hoodie", gender: "Women", cat: "women-tops", cost: 12, price: 34.99, type: "Hoodie", material: "Cotton Blend", colors: ["Black", "Pink"], collections: "new-arrivals;casual-style", desc: "Trendy cropped hoodie with kangaroo pocket and adjustable drawstring hood" },
-  { name: "Color Block Tank Top", slug: "color-block-tank-top", gender: "Women", cat: "women-tops", cost: 7, price: 22.99, type: "Tank Top", material: "Polyester", colors: ["Black", "White"], collections: "new-arrivals;casual-style", desc: "Breathable color block tank with racerback design for workouts and casual wear" },
+const PET_FEEDING = [
+  { name: "Slow Feeder Bowl", slug: "slow-feeder-bowl", petType: "Dogs", cat: "dog-feeding", cost: 7, price: 19.99, style: "Functional", material: "BPA-Free Plastic", prodType: "Food Bowl", colors: ["Green", "Blue"], sizes: ["M", "L"], collections: "new-arrivals;best-sellers", desc: "Anti-gulp slow feeder bowl with maze pattern to promote healthy eating habits" },
+  { name: "Elevated Double Bowl", slug: "elevated-double-bowl", petType: "Dogs", cat: "dog-feeding", cost: 12, price: 34.99, style: "Ergonomic", material: "Bamboo & Steel", prodType: "Bowl Stand", colors: ["Natural", "Black"], sizes: ["M", "L"], collections: "new-arrivals;featured-products", desc: "Raised feeding station with bamboo stand and stainless steel bowls for better posture" },
+  { name: "Ceramic Cat Bowl", slug: "ceramic-cat-bowl", petType: "Cats", cat: "cat-feeding", cost: 5, price: 16.99, style: "Classic", material: "Ceramic", prodType: "Food Bowl", colors: ["White", "Blue"], sizes: ["S"], collections: "new-arrivals", desc: "Whisker-friendly wide ceramic bowl with non-slip base for comfortable eating" },
+  { name: "Automatic Water Fountain", slug: "automatic-water-fountain", petType: "Dogs & Cats", cat: "pet-feeding", cost: 15, price: 42.99, style: "Automatic", material: "BPA-Free Plastic", prodType: "Water Fountain", colors: ["White", "Blue"], sizes: ["One Size"], collections: "new-arrivals;featured-products;best-sellers", desc: "2L circulating water fountain with carbon filter for fresh, clean drinking water" },
+  { name: "Travel Water Bottle", slug: "travel-water-bottle", petType: "Dogs", cat: "dog-feeding", cost: 6, price: 17.99, style: "Portable", material: "Silicone & Plastic", prodType: "Water Bottle", colors: ["Blue", "Pink"], sizes: ["S", "L"], collections: "new-arrivals", desc: "Leak-proof portable water bottle with fold-out drinking trough for walks and trips" },
+  { name: "Treat Dispensing Ball", slug: "treat-dispensing-ball", petType: "Dogs", cat: "dog-feeding", cost: 5, price: 15.99, style: "Interactive", material: "Natural Rubber", prodType: "Treat Dispenser", colors: ["Red", "Blue"], sizes: ["S", "M"], collections: "new-arrivals", desc: "Adjustable treat-dispensing ball that rewards play with tasty surprises" },
+  { name: "Silicone Lick Mat", slug: "silicone-lick-mat", petType: "Dogs & Cats", cat: "pet-feeding", cost: 4, price: 12.99, style: "Enrichment", material: "Food-Grade Silicone", prodType: "Lick Mat", colors: ["Blue", "Green"], sizes: ["S", "M"], collections: "new-arrivals", desc: "Textured lick mat with suction cups for slow feeding and anxiety relief" },
+  { name: "Portion Control Scoop", slug: "portion-control-scoop", petType: "Dogs & Cats", cat: "pet-feeding", cost: 3, price: 9.99, style: "Functional", material: "ABS Plastic", prodType: "Feeding Scoop", colors: ["Green", "Gray"], sizes: ["One Size"], collections: "new-arrivals", desc: "Measuring scoop with built-in clip for precise food portions and bag sealing" },
 ];
 
-const ACCESSORIES = [
-  { name: "Streetwear Baseball Cap", slug: "streetwear-baseball-cap", cost: 5, price: 18.99, material: "Cotton", colors: ["Black", "White"], collections: "new-arrivals;casual-style", desc: "Adjustable cotton baseball cap with embroidered logo and curved brim" },
-  { name: "Sport Crossbody Sling Bag", slug: "sport-crossbody-sling-bag", cost: 8, price: 26.99, material: "Nylon", colors: ["Black", "Gray"], collections: "new-arrivals;casual-style", desc: "Compact crossbody sling bag with multiple compartments and adjustable strap" },
-  { name: "Cushioned Athletic Socks 3-Pack", slug: "cushioned-athletic-socks-3pack", cost: 4, price: 14.99, material: "Cotton Blend", colors: ["Black", "White"], collections: "new-arrivals", desc: "Three-pack of cushioned athletic crew socks with arch support and moisture wicking" },
-  { name: "Premium Shoe Cleaning Kit", slug: "premium-shoe-cleaning-kit", cost: 6, price: 19.99, material: "Mixed", colors: ["Black", "Clear"], collections: "new-arrivals", desc: "Complete shoe care kit with cleaning solution, brush, microfiber cloth, and carrying case" },
-  { name: "Reflective Drawstring Backpack", slug: "reflective-drawstring-backpack", cost: 7, price: 24.99, material: "Polyester", colors: ["Black", "Gray"], collections: "new-arrivals;casual-style", desc: "Lightweight drawstring backpack with reflective strips and interior zip pocket" },
+const PET_COMFORT = [
+  { name: "Calming Donut Bed", slug: "calming-donut-bed", petType: "Dogs", cat: "dog-beds", cost: 14, price: 39.99, style: "Comfort", material: "Faux Fur", prodType: "Pet Bed", colors: ["Gray", "Brown"], sizes: ["M", "L"], collections: "new-arrivals;featured-products;best-sellers", desc: "Ultra-soft plush donut bed with raised rim for head and neck support" },
+  { name: "Orthopedic Memory Foam Bed", slug: "orthopedic-memory-foam-bed", petType: "Dogs", cat: "dog-beds", cost: 22, price: 59.99, style: "Orthopedic", material: "Memory Foam", prodType: "Pet Bed", colors: ["Gray", "Navy"], sizes: ["M", "L", "XL"], collections: "new-arrivals;featured-products", desc: "Vet-recommended orthopedic bed with egg-crate memory foam for joint support" },
+  { name: "Cat Window Perch", slug: "cat-window-perch", petType: "Cats", cat: "cat-furniture", cost: 10, price: 29.99, style: "Lounging", material: "Metal & Fleece", prodType: "Window Perch", colors: ["Gray", "Beige"], sizes: ["One Size"], collections: "new-arrivals;best-sellers", desc: "Sturdy suction-cup window perch with soft fleece cover for bird watching" },
+  { name: "Cozy Fleece Blanket", slug: "cozy-fleece-blanket", petType: "Dogs & Cats", cat: "pet-comfort", cost: 6, price: 18.99, style: "Warmth", material: "Fleece", prodType: "Blanket", colors: ["Gray", "Beige", "Brown"], sizes: ["S", "M", "L"], collections: "new-arrivals", desc: "Super-soft pet blanket with paw print design for beds, sofas, and car seats" },
+  { name: "Self-Warming Cat Mat", slug: "self-warming-cat-mat", petType: "Cats", cat: "cat-furniture", cost: 8, price: 22.99, style: "Warmth", material: "Thermal Fabric", prodType: "Warming Mat", colors: ["Gray", "Brown"], sizes: ["S", "M"], collections: "new-arrivals", desc: "Self-heating mat that reflects body heat without electricity for cozy napping" },
+  { name: "Portable Travel Crate", slug: "portable-travel-crate", petType: "Dogs & Cats", cat: "pet-comfort", cost: 18, price: 49.99, style: "Travel", material: "Oxford Fabric", prodType: "Travel Crate", colors: ["Gray", "Blue"], sizes: ["S", "M", "L"], collections: "new-arrivals", desc: "Foldable soft-sided travel crate with mesh windows and carrying handles" },
+  { name: "Anti-Anxiety Vest", slug: "anti-anxiety-vest", petType: "Dogs", cat: "dog-comfort", cost: 11, price: 32.99, style: "Calming", material: "Breathable Fabric", prodType: "Anxiety Wrap", colors: ["Gray", "Blue"], sizes: ["S", "M", "L", "XL"], collections: "new-arrivals;featured-products", desc: "Gentle compression vest that applies calming pressure during storms and fireworks" },
 ];
 
-// ── Size Definitions ─────────────────────────────────────────────────────────
-
-const MEN_SIZES = ["40", "41", "42", "43", "44", "45"];
-const WOMEN_SIZES = ["36", "37", "38", "39", "40", "41"];
-const APPAREL_SIZES = ["S", "M", "L", "XL"];
+const PET_CARE = [
+  { name: "Deshedding Grooming Brush", slug: "deshedding-grooming-brush", petType: "Dogs & Cats", cat: "grooming", cost: 6, price: 17.99, style: "Grooming", material: "Stainless Steel", prodType: "Brush", colors: ["Blue", "Green"], sizes: ["S", "L"], collections: "new-arrivals;best-sellers", desc: "Professional deshedding tool that reduces shedding up to 90% without damaging coat" },
+  { name: "Nail Clipper with Guard", slug: "nail-clipper-with-guard", petType: "Dogs & Cats", cat: "grooming", cost: 4, price: 12.99, style: "Grooming", material: "Stainless Steel", prodType: "Nail Clipper", colors: ["Blue", "Pink"], sizes: ["S", "L"], collections: "new-arrivals", desc: "Safety nail clipper with quick-guard sensor and ergonomic non-slip handles" },
+  { name: "Paw Balm Stick", slug: "paw-balm-stick", petType: "Dogs", cat: "grooming", cost: 3, price: 11.99, style: "Care", material: "Natural Beeswax", prodType: "Paw Care", colors: ["Natural"], sizes: ["One Size"], collections: "new-arrivals", desc: "All-natural paw balm stick that soothes and protects cracked or dry paw pads" },
+  { name: "Pet Shampoo - Oatmeal", slug: "pet-shampoo-oatmeal", petType: "Dogs & Cats", cat: "grooming", cost: 4, price: 14.99, style: "Bath", material: "Natural Ingredients", prodType: "Shampoo", colors: ["Natural"], sizes: ["250ml", "500ml"], collections: "new-arrivals", desc: "Gentle oatmeal shampoo for sensitive skin with aloe vera and vitamin E" },
+  { name: "LED Safety Collar", slug: "led-safety-collar", petType: "Dogs", cat: "dog-accessories", cost: 5, price: 16.99, style: "Safety", material: "Nylon & LED", prodType: "Collar", colors: ["Red", "Blue", "Green"], sizes: ["S", "M", "L"], collections: "new-arrivals;featured-products", desc: "USB rechargeable LED collar with 3 light modes for safe nighttime walks" },
+];
 
 // ── CSV Generation ───────────────────────────────────────────────────────────
 
 const HEADERS = [
   "name", "productType", "category", "slug", "description",
   "variantName", "sku", "price", "costPrice",
-  "variantAttr:Shoe size", "variantAttr:Color", "variantAttr:Apparel Size",
-  "attr:Gender", "attr:Material", "attr:Style", "attr:Apparel Type",
+  "variantAttr:Size", "variantAttr:Color",
+  "attr:Pet Type", "attr:Material", "attr:Style", "attr:Product Type",
   "imageUrl", "seoTitle", "seoDescription",
   "collections", "metadata", "isPublished", "trackInventory"
 ];
@@ -81,163 +78,78 @@ function buildRow(fields) {
 
 function colorCode(c) {
   const map = {
-    Black: "BLK", White: "WHT", Navy: "NVY", Gray: "GRY", Red: "RED",
-    Blue: "BLU", Brown: "BRN", Beige: "BGE", "Neon Green": "NGR",
-    "Dark Gray": "DGR", Pink: "PNK", Lavender: "LAV", Coral: "CRL",
-    Multicolor: "MLT", Gold: "GLD", Charcoal: "CHR", Clear: "CLR",
+    Black: "BLK", White: "WHT", Blue: "BLU", Green: "GRN", Red: "RED",
+    Gray: "GRY", Brown: "BRN", Beige: "BGE", Pink: "PNK", Yellow: "YLW",
+    Orange: "ORG", Navy: "NVY", Multicolor: "MLT", Silver: "SLV",
+    Natural: "NAT", "250ml": "250", "500ml": "500",
   };
   return map[c] || c.substring(0, 3).toUpperCase();
 }
 
 const rows = [HEADERS.join(",")];
-let shoeIdx = 0;
-let topIdx = 0;
-let accIdx = 0;
+let productIdx = 0;
 
-// ── Generate Shoes ───────────────────────────────────────────────────────────
-SHOES.forEach((shoe) => {
-  shoeIdx++;
-  const num = String(shoeIdx).padStart(3, "0");
-  const sizes = shoe.gender === "Women" ? WOMEN_SIZES : MEN_SIZES;
-  const vidBase = 100000 + shoeIdx * 100;
-  let isFirst = true;
+function generateProducts(products, skuPrefix, typeLabel) {
+  products.forEach((prod) => {
+    productIdx++;
+    const num = String(productIdx).padStart(3, "0");
+    const vidBase = 100000 + productIdx * 100;
+    let isFirst = true;
 
-  shoe.colors.forEach((color, ci) => {
-    sizes.forEach((size, si) => {
-      const sku = `DS-SH-${num}-${size}-${colorCode(color)}`;
-      const vid = `vid-${vidBase + ci * sizes.length + si}`;
-      const meta = `dropship:{"supplier":"cj","supplierSku":"${vid}","costPrice":${shoe.cost}};source:cj-dropship`;
-      const variantName = `${size} / ${color}`;
-      const img = `https://via.placeholder.com/800x800/333/fff?text=${encodeURIComponent(shoe.name.replace(/ /g, "+"))}`;
+    prod.colors.forEach((color, ci) => {
+      prod.sizes.forEach((size, si) => {
+        const sku = `DS-${skuPrefix}-${num}-${size.replace(/\s/g, "")}-${colorCode(color)}`;
+        const vid = `vid-${vidBase + ci * prod.sizes.length + si}`;
+        const meta = `dropship:{"supplier":"cj","supplierSku":"${vid}","costPrice":${prod.cost}};source:cj-dropship`;
+        const variantName = `${size} / ${color}`;
+        const img = `https://via.placeholder.com/800x800/333/fff?text=${encodeURIComponent(prod.name.replace(/ /g, "+"))}`;
 
-      const fields = {
-        variantName,
-        sku,
-        price: shoe.price,
-        costPrice: shoe.cost,
-        "variantAttr:Shoe size": size,
-        "variantAttr:Color": color,
-        isPublished: "Yes",
-        trackInventory: "No",
-      };
+        const fields = {
+          variantName,
+          sku,
+          price: prod.price,
+          costPrice: prod.cost,
+          "variantAttr:Size": size,
+          "variantAttr:Color": color,
+          isPublished: "Yes",
+          trackInventory: "No",
+        };
 
-      if (isFirst) {
-        fields.name = shoe.name;
-        fields.productType = "Shoes";
-        fields.category = shoe.cat;
-        fields.slug = shoe.slug;
-        fields.description = shoe.desc;
-        fields["attr:Gender"] = shoe.gender;
-        fields["attr:Material"] = shoe.material;
-        fields["attr:Style"] = shoe.style;
-        fields.imageUrl = img;
-        fields.seoTitle = `${shoe.name} - Mansour Shoes`;
-        fields.seoDescription = shoe.desc;
-        fields.collections = shoe.collections;
-        fields.metadata = meta;
-        isFirst = false;
-      }
+        if (isFirst) {
+          fields.name = prod.name;
+          fields.productType = typeLabel;
+          fields.category = prod.cat;
+          fields.slug = prod.slug;
+          fields.description = prod.desc;
+          fields["attr:Pet Type"] = prod.petType;
+          fields["attr:Material"] = prod.material;
+          fields["attr:Style"] = prod.style;
+          fields["attr:Product Type"] = prod.prodType;
+          fields.imageUrl = img;
+          fields.seoTitle = `${prod.name} - Pawzen`;
+          fields.seoDescription = prod.desc;
+          fields.collections = prod.collections;
+          fields.metadata = meta;
+          isFirst = false;
+        }
 
-      rows.push(buildRow(fields));
+        rows.push(buildRow(fields));
+      });
     });
   });
-});
+}
 
-// ── Generate Tops ────────────────────────────────────────────────────────────
-TOPS.forEach((top) => {
-  topIdx++;
-  const num = String(20 + topIdx).padStart(3, "0");
-  const vidBase = 200000 + topIdx * 100;
-  let isFirst = true;
-
-  top.colors.forEach((color, ci) => {
-    APPAREL_SIZES.forEach((size, si) => {
-      const sku = `DS-TOP-${num}-${size}-${colorCode(color)}`;
-      const vid = `vid-${vidBase + ci * APPAREL_SIZES.length + si}`;
-      const meta = `dropship:{"supplier":"cj","supplierSku":"${vid}","costPrice":${top.cost}};source:cj-dropship`;
-      const variantName = `${size} / ${color}`;
-      const img = `https://via.placeholder.com/800x800/333/fff?text=${encodeURIComponent(top.name.replace(/ /g, "+"))}`;
-
-      const fields = {
-        variantName,
-        sku,
-        price: top.price,
-        costPrice: top.cost,
-        "variantAttr:Apparel Size": size,
-        "variantAttr:Color": color,
-        isPublished: "Yes",
-        trackInventory: "No",
-      };
-
-      if (isFirst) {
-        fields.name = top.name;
-        fields.productType = "Tops";
-        fields.category = top.cat;
-        fields.slug = top.slug;
-        fields.description = top.desc;
-        fields["attr:Gender"] = top.gender;
-        fields["attr:Material"] = top.material;
-        fields["attr:Apparel Type"] = top.type;
-        fields.imageUrl = img;
-        fields.seoTitle = `${top.name} - Mansour Shoes`;
-        fields.seoDescription = top.desc;
-        fields.collections = top.collections;
-        fields.metadata = meta;
-        isFirst = false;
-      }
-
-      rows.push(buildRow(fields));
-    });
-  });
-});
-
-// ── Generate Accessories ─────────────────────────────────────────────────────
-ACCESSORIES.forEach((acc) => {
-  accIdx++;
-  const num = String(25 + accIdx).padStart(3, "0");
-  const vidBase = 300000 + accIdx * 100;
-  let isFirst = true;
-
-  acc.colors.forEach((color, ci) => {
-    const sku = `DS-ACC-${num}-${colorCode(color)}`;
-    const vid = `vid-${vidBase + ci}`;
-    const meta = `dropship:{"supplier":"cj","supplierSku":"${vid}","costPrice":${acc.cost}};source:cj-dropship`;
-    const variantName = color;
-    const img = `https://via.placeholder.com/800x800/333/fff?text=${encodeURIComponent(acc.name.replace(/ /g, "+"))}`;
-
-    const fields = {
-      variantName,
-      sku,
-      price: acc.price,
-      costPrice: acc.cost,
-      "variantAttr:Color": color,
-      isPublished: "Yes",
-      trackInventory: "No",
-    };
-
-    if (isFirst) {
-      fields.name = acc.name;
-      fields.productType = "Accessories";
-      fields.slug = acc.slug;
-      fields.description = acc.desc;
-      fields["attr:Material"] = acc.material;
-      fields.imageUrl = img;
-      fields.seoTitle = `${acc.name} - Mansour Shoes`;
-      fields.seoDescription = acc.desc;
-      fields.collections = acc.collections;
-      fields.metadata = meta;
-      isFirst = false;
-    }
-
-    rows.push(buildRow(fields));
-  });
-});
+// ── Generate All Product Types ───────────────────────────────────────────────
+generateProducts(PET_TOYS, "PT", "Pet Toys");
+generateProducts(PET_FEEDING, "PF", "Pet Feeding");
+generateProducts(PET_COMFORT, "PC", "Pet Comfort");
+generateProducts(PET_CARE, "PA", "Pet Care");
 
 // ── Write CSV ────────────────────────────────────────────────────────────────
 const outPath = path.join(__dirname, "dropship-catalog-30.csv");
 fs.writeFileSync(outPath, rows.join("\n"), "utf-8");
 
+const totalProducts = PET_TOYS.length + PET_FEEDING.length + PET_COMFORT.length + PET_CARE.length;
 console.log(`Generated ${outPath}`);
 console.log(`Total rows: ${rows.length} (1 header + ${rows.length - 1} data)`);
-console.log(`Products: ${SHOES.length} shoes + ${TOPS.length} tops + ${ACCESSORIES.length} accessories = ${SHOES.length + TOPS.length + ACCESSORIES.length}`);
-console.log(`Variant rows: ${rows.length - 1} (${SHOES.length * 12} shoe + ${TOPS.length * 8} top + ${ACCESSORIES.length * 2} accessory)`);
+console.log(`Products: ${PET_TOYS.length} toys + ${PET_FEEDING.length} feeding + ${PET_COMFORT.length} comfort + ${PET_CARE.length} care = ${totalProducts}`);

@@ -123,12 +123,12 @@ export function ProductDetailClient({
   });
 
   // Detect size attribute type for size guide modal default category
-  // Uses selectionAttributes (computed from variant data) to detect shoe vs clothing sizes
+  // Uses selectionAttributes (computed from variant data) to detect pet sizing category
   const sizeGuideCategory = (() => {
     const slugs = selectionAttributes.map((a) => a.attributeSlug);
-    if (slugs.some((s) => s === "shoe-size" || s === "shoe_size")) return "shoes" as const;
-    if (slugs.some((s) => ["apparel-size", "apparel_size", "clothing-size", "clothing_size", "size"].includes(s))) return "clothing" as const;
-    return "shoes" as const;
+    if (slugs.some((s) => s === "collar-size" || s === "collar_size" || s === "harness-size" || s === "harness_size")) return "collars" as const;
+    if (slugs.some((s) => s === "bed-size" || s === "bed_size")) return "beds" as const;
+    return "clothing" as const;
   })();
 
   // Track product view

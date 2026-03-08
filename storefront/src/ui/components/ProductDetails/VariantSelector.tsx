@@ -9,8 +9,8 @@ import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigP
 import { buildComponentStyle } from "@/config";
 
 const SIZE_SLUGS = new Set([
-  "size", "shoe-size", "clothing-size", "apparel-size",
-  "shoe_size", "clothing_size", "apparel_size",
+  "size", "pet-size", "clothing-size", "apparel-size",
+  "pet_size", "clothing_size", "apparel_size",
 ]);
 
 const COLOR_SLUGS = new Set(["color", "colour", "color-1"]);

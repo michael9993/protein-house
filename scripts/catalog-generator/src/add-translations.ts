@@ -88,63 +88,88 @@ async function translateEditorJs(json: string | null | undefined): Promise<strin
 // ============================================================================
 
 const ATTRIBUTE_TRANSLATIONS: Record<string, string> = {
-  Brand: "מותג",
-  Gender: "מגדר",
+  "Pet Type": "סוג חיית מחמד",
   Material: "חומר",
-  Style: "סגנון",
-  Type: "סוג",
-  "Shoe size": "מידת נעל",
-  "Apparel Size": "מידת ביגוד",
+  "Toy Category": "סוג צעצוע",
+  "Feeding Type": "סוג האכלה",
+  "Comfort Type": "סוג נוחות",
+  "Accessory Type": "סוג אביזר",
+  Size: "מידה",
   Color: "צבע",
 };
 
 const ATTRIBUTE_VALUE_TRANSLATIONS: Record<string, string> = {
-  // Gender
-  Men: "גברים",
-  Women: "נשים",
-  Kids: "ילדים",
-  Unisex: "יוניסקס",
-  // Material
-  Leather: "עור",
-  Synthetic: "סינטטי",
-  Mesh: "רשת",
-  Canvas: "בד",
-  Cotton: "כותנה",
-  Polyester: "פוליאסטר",
-  Elastane: "אלסטן",
+  // Pet Type
+  Dog: "כלב",
+  Cat: "חתול",
+  Both: "שניהם",
+  // Material (Toys)
+  Rubber: "גומי",
+  Plush: "קטיפה",
+  Rope: "חבל",
+  Plastic: "פלסטיק",
+  Natural: "טבעי",
+  // Material (Feeding)
+  "Stainless Steel": "נירוסטה",
+  Ceramic: "קרמיקה",
+  Silicone: "סיליקון",
+  // Material (Comfort)
+  Fleece: "פליז",
+  Canvas: "בד קנבס",
+  "Memory Foam": "קצף זיכרון",
+  Wood: "עץ",
+  Fabric: "בד",
+  // Material (Care)
   Nylon: "ניילון",
-  Wool: "צמר",
-  // Style (Shoes)
-  Running: "ריצה",
-  Training: "אימון",
-  Soccer: "כדורגל",
-  Casual: "יומיומי",
-  Boots: "מגפיים",
-  // Type (Tops/Bottoms/Accessories)
-  "T-Shirt": "חולצת טי",
-  Hoodie: "קפוצ'ון",
-  Jacket: "ג'קט",
-  "Tank Top": "גופייה",
-  Pants: "מכנסיים",
-  Shorts: "מכנסיים קצרים",
-  Leggings: "טייצים",
-  Joggers: "מכנסי ג'וגר",
-  Bag: "תיק",
-  Hat: "כובע",
-  Socks: "גרביים",
-  "Water Bottle": "בקבוק מים",
-  Gloves: "כפפות",
+  Leather: "עור",
+  // Toy Category
+  Chew: "לעיסה",
+  Interactive: "אינטראקטיבי",
+  Fetch: "הבאה",
+  Puzzle: "פאזל",
+  Comfort: "נוחות",
+  // Feeding Type
+  Bowl: "קערה",
+  Fountain: "מזרקה",
+  "Slow Feeder": "מאכיל איטי",
+  "Auto Feeder": "מאכיל אוטומטי",
+  "Travel Bowl": "קערת נסיעות",
+  // Comfort Type
+  Bed: "מיטה",
+  Blanket: "שמיכה",
+  House: "בית",
+  Carrier: "נשא",
+  Clothing: "ביגוד",
+  Hammock: "ערסל",
+  // Accessory Type
+  Collar: "קולר",
+  Leash: "רצועה",
+  Harness: "רתמה",
+  "Grooming Tool": "כלי טיפוח",
+  Health: "בריאות",
+  Training: "אילוף",
+  "ID Tag": "תג זיהוי",
+  // Sizes
+  XS: "XS",
+  S: "S",
+  M: "M",
+  L: "L",
+  XL: "XL",
+  XXL: "XXL",
+  Small: "קטן",
+  Medium: "בינוני",
+  Large: "גדול",
   // Colors
   Black: "שחור",
   White: "לבן",
-  Navy: "כחול כהה",
   Red: "אדום",
-  Gray: "אפור",
   Blue: "כחול",
   Green: "ירוק",
-  Pink: "ורוד",
   Orange: "כתום",
   Yellow: "צהוב",
+  Pink: "ורוד",
+  Brown: "חום",
+  Grey: "אפור",
 };
 
 // ============================================================================
@@ -747,7 +772,7 @@ async function addTranslations() {
   console.log("--- Products (English SEO) ---");
 
   for (const product of ALL_PRODUCTS) {
-    const slug = `${product.brand}-${product.model}-${product.gender}`
+    const slug = `${product.petType}-${product.model}`
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
@@ -764,18 +789,16 @@ async function addTranslations() {
     }
 
     const names = generateProductName({
-      brand: product.brand,
       model: product.model,
       model_he: product.model_he,
-      gender: product.gender,
+      petType: product.petType,
       type: product.type,
     });
 
     const descriptions = generateDescription({
-      brand: product.brand,
       model: product.model,
-      gender: product.gender,
-      type: product.style || product.productType || product.type,
+      petType: product.petType,
+      type: product.subType || product.type,
       material: product.material,
     });
 
@@ -927,7 +950,7 @@ async function addTranslations() {
   console.log("--- Products (name + description + SEO) ---");
 
   for (const product of ALL_PRODUCTS) {
-    const slug = `${product.brand}-${product.model}-${product.gender}`
+    const slug = `${product.petType}-${product.model}`
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
@@ -939,18 +962,16 @@ async function addTranslations() {
     }
 
     const names = generateProductName({
-      brand: product.brand,
       model: product.model,
       model_he: product.model_he,
-      gender: product.gender,
+      petType: product.petType,
       type: product.type,
     });
 
     const descriptions = generateDescription({
-      brand: product.brand,
       model: product.model,
-      gender: product.gender,
-      type: product.style || product.productType || product.type,
+      petType: product.petType,
+      type: product.subType || product.type,
       material: product.material,
     });
 
