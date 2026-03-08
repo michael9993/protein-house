@@ -1,7 +1,6 @@
 import { Worker, Job } from "bullmq";
 import type { ConnectionOptions } from "bullmq";
 import IORedis from "ioredis";
-import { Client } from "urql";
 import { gql } from "urql";
 
 import { createLogger } from "../../../logger";
@@ -10,7 +9,6 @@ import { saleorApp } from "../../../saleor-app";
 import { CampaignService } from "./campaign.service";
 import { TemplateService } from "../templates/template.service";
 import { TemplateCompiler } from "../templates/template-compiler";
-import { NewsletterService } from "../newsletter.service";
 import { generateUnsubscribeUrl } from "./unsubscribe-url-generator";
 import type { CampaignJobData } from "./campaign-queue";
 import { sendEmail, getDefaultSmtpConfig } from "./email-sender";
@@ -68,6 +66,23 @@ interface NewsletterSubscription {
     isActive: boolean;
     subscribedAt: string;
     source: string | null;
+}
+
+interface SubscriptionGraphQLFilter {
+    isActive?: boolean;
+    source?: string;
+    channel?: string;
+    subscribedAt?: {
+        gte?: string;
+        lte?: string;
+    };
+}
+
+interface CampaignErrorLogEntry {
+    subscriberId: string;
+    email: string;
+    error: string;
+    timestamp: string;
 }
 
 let worker: Worker<CampaignJobData> | null = null;
@@ -144,7 +159,6 @@ async function processCampaignJob(job: Job<CampaignJobData>): Promise<void> {
 
     const campaignService = new CampaignService(apiClient, saleorApiUrl, appId);
     const templateService = new TemplateService(apiClient, saleorApiUrl, appId);
-    const newsletterService = new NewsletterService(apiClient);
 
     // Get campaign
     const campaign = await campaignService.getCampaign(campaignId);
@@ -227,6 +241,8 @@ async function processCampaignJob(job: Job<CampaignJobData>): Promise<void> {
     let selectedSubscribers: NewsletterSubscription[] = [];
     let actualSentCount = 0;
     let actualFailedCount = 0;
+    // Track error log locally to avoid re-fetching campaign on every error (N+1)
+    const errorLog: CampaignErrorLogEntry[] = [...(campaign.errorLog || [])];
 
     try {
         // First, fetch all matching subscribers based on filter
@@ -263,14 +279,13 @@ async function processCampaignJob(job: Job<CampaignJobData>): Promise<void> {
             }
 
             // Build filter for GraphQL query
-            const graphqlFilter: any = {};
+            const graphqlFilter: SubscriptionGraphQLFilter = {};
             if (recipientFilter.isActive !== undefined) {
                 graphqlFilter.isActive = recipientFilter.isActive;
             }
             if (recipientFilter.sources && recipientFilter.sources.length > 0) {
                 graphqlFilter.source = recipientFilter.sources[0]; // GraphQL only supports single source
             }
-            // Filter by channel if specified - this ensures we only get subscribers from the campaign's channel
             if (channelSlug) {
                 graphqlFilter.channel = channelSlug;
             }
@@ -369,24 +384,17 @@ async function processCampaignJob(job: Job<CampaignJobData>): Promise<void> {
 
         if (selectedSubscribers.length === 0) {
             logger.warn("No subscribers selected for campaign", { campaignId });
+            errorLog.push({
+                subscriberId: "",
+                email: "",
+                error: "No subscribers match the selected filters",
+                timestamp: new Date().toISOString(),
+            });
             await campaignService.updateCampaignStatus(campaignId, "failed");
-            const currentCampaign = await campaignService.getCampaign(campaignId);
-            if (currentCampaign) {
-                const errorLog = currentCampaign.errorLog || [];
-                errorLog.push({
-                    subscriberId: "",
-                    email: "",
-                    error: "No subscribers match the selected filters",
-                    timestamp: new Date().toISOString(),
-                });
-                await campaignService.updateCampaign(
-                    {
-                        id: campaignId,
-                        errorLog,
-                    },
-                    "system"
-                );
-            }
+            await campaignService.updateCampaign(
+                { id: campaignId, errorLog },
+                "system"
+            );
             return;
         }
 
@@ -561,18 +569,15 @@ async function processCampaignJob(job: Job<CampaignJobData>): Promise<void> {
                         actualSentCount++;
                         processedSubscriberIds.push(subscriber.id);
 
-                        const currentCampaign = await campaignService.getCampaign(campaignId);
-                        if (currentCampaign) {
-                            await campaignService.updateCampaign(
-                                {
-                                    id: campaignId,
-                                    sentCount: actualSentCount,
-                                    lastProcessedSubscriberId: subscriber.id,
-                                    lastProcessedIndex: processedCount,
-                                },
-                                "system"
-                            );
-                        }
+                        await campaignService.updateCampaign(
+                            {
+                                id: campaignId,
+                                sentCount: actualSentCount,
+                                lastProcessedSubscriberId: subscriber.id,
+                                lastProcessedIndex: processedCount,
+                            },
+                            "system"
+                        );
                     } catch (sendError) {
                         logger.error("Failed to send email", {
                             campaignId,
@@ -586,27 +591,23 @@ async function processCampaignJob(job: Job<CampaignJobData>): Promise<void> {
                         actualFailedCount++;
                         processedSubscriberIds.push(subscriber.id);
 
-                        const currentCampaign = await campaignService.getCampaign(campaignId);
-                        if (currentCampaign) {
-                            const errorLog = currentCampaign.errorLog || [];
-                            errorLog.push({
-                                subscriberId: subscriber.id,
-                                email: subscriber.email,
-                                error: sendError instanceof Error ? sendError.message : String(sendError),
-                                timestamp: new Date().toISOString(),
-                            });
+                        errorLog.push({
+                            subscriberId: subscriber.id,
+                            email: subscriber.email,
+                            error: sendError instanceof Error ? sendError.message : String(sendError),
+                            timestamp: new Date().toISOString(),
+                        });
 
-                            await campaignService.updateCampaign(
-                                {
-                                    id: campaignId,
-                                    failedCount: actualFailedCount,
-                                    errorLog,
-                                    lastProcessedSubscriberId: subscriber.id,
-                                    lastProcessedIndex: processedCount,
-                                },
-                                "system"
-                            );
-                        }
+                        await campaignService.updateCampaign(
+                            {
+                                id: campaignId,
+                                failedCount: actualFailedCount,
+                                errorLog,
+                                lastProcessedSubscriberId: subscriber.id,
+                                lastProcessedIndex: processedCount,
+                            },
+                            "system"
+                        );
 
                         // Continue processing other subscribers even if one fails
                         // Don't throw - we want to process all subscribers
@@ -629,31 +630,27 @@ async function processCampaignJob(job: Job<CampaignJobData>): Promise<void> {
                     actualFailedCount++;
                     processedSubscriberIds.push(subscriber.id);
 
-                    const currentCampaign = await campaignService.getCampaign(campaignId);
-                    if (currentCampaign) {
-                        const errorLog = currentCampaign.errorLog || [];
-                        errorLog.push({
-                            subscriberId: subscriber.id,
-                            email: subscriber.email,
-                            error: error instanceof Error ? error.message : String(error),
-                            timestamp: new Date().toISOString(),
-                        });
+                    errorLog.push({
+                        subscriberId: subscriber.id,
+                        email: subscriber.email,
+                        error: error instanceof Error ? error.message : String(error),
+                        timestamp: new Date().toISOString(),
+                    });
 
-                        // Keep only last 1000 errors
-                        if (errorLog.length > 1000) {
-                            errorLog.shift();
-                        }
-
-                        await campaignService.updateCampaign(
-                            {
-                                id: campaignId,
-                                failedCount: actualFailedCount,
-                                errorLog,
-                                lastProcessedIndex: processedCount,
-                            },
-                            "system"
-                        );
+                    // Keep only last 1000 errors
+                    if (errorLog.length > 1000) {
+                        errorLog.shift();
                     }
+
+                    await campaignService.updateCampaign(
+                        {
+                            id: campaignId,
+                            failedCount: actualFailedCount,
+                            errorLog,
+                            lastProcessedIndex: processedCount,
+                        },
+                        "system"
+                    );
                 }
             }
 

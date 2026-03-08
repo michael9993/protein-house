@@ -169,7 +169,7 @@ export class NewsletterService {
 
         try {
             // Build filter object, including channel if provided
-            const filter: any = {};
+            const filter: Record<string, unknown> = {};
             if (args.filter?.isActive !== undefined) {
                 filter.isActive = args.filter.isActive;
             }

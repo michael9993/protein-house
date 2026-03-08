@@ -11,6 +11,9 @@ import { fetchStoreBranding, DEFAULT_BRANDING } from "./branding-fetcher";
 
 const logger = createLogger("template-router");
 
+/** Saleor apps act as system — no individual user context available in tRPC */
+const SYSTEM_ACTOR = "system" as const;
+
 export const templateRouter = router({
   list: protectedClientProcedure.query(async ({ ctx }) => {
     const service = new TemplateService(
@@ -32,12 +35,7 @@ export const templateRouter = router({
   }),
 
   get: protectedClientProcedure
-    .input((val: unknown) => {
-      if (typeof val === "object" && val !== null && "id" in val) {
-        return { id: val.id as string };
-      }
-      throw new Error("Invalid input");
-    })
+    .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       const service = new TemplateService(
         ctx.apiClient,
@@ -85,8 +83,7 @@ export const templateRouter = router({
       );
 
       try {
-        // TODO: Get actual user ID from context
-        const template = await service.createTemplate(input, "system");
+        const template = await service.createTemplate(input, SYSTEM_ACTOR);
         return { template };
       } catch (error) {
         logger.error("Error creating template", { error });
@@ -117,8 +114,7 @@ export const templateRouter = router({
       );
 
       try {
-        // TODO: Get actual user ID from context
-        const template = await service.updateTemplate(input, "system");
+        const template = await service.updateTemplate(input, SYSTEM_ACTOR);
         return { template };
       } catch (error) {
         logger.error("Error updating template", { error });
@@ -130,12 +126,7 @@ export const templateRouter = router({
     }),
 
   delete: protectedClientProcedure
-    .input((val: unknown) => {
-      if (typeof val === "object" && val !== null && "id" in val) {
-        return { id: val.id as string };
-      }
-      throw new Error("Invalid input");
-    })
+    .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const service = new TemplateService(
         ctx.apiClient,
@@ -156,12 +147,7 @@ export const templateRouter = router({
     }),
 
   duplicate: protectedClientProcedure
-    .input((val: unknown) => {
-      if (typeof val === "object" && val !== null && "id" in val) {
-        return { id: val.id as string };
-      }
-      throw new Error("Invalid input");
-    })
+    .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const service = new TemplateService(
         ctx.apiClient,
@@ -170,8 +156,7 @@ export const templateRouter = router({
       );
 
       try {
-        // TODO: Get actual user ID from context
-        const template = await service.duplicateTemplate(input.id, "system");
+        const template = await service.duplicateTemplate(input.id, SYSTEM_ACTOR);
         return { template };
       } catch (error) {
         logger.error("Error duplicating template", { error });

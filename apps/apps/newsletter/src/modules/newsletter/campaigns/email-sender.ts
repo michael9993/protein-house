@@ -35,7 +35,7 @@ export async function sendEmail({ to, subject, html, text, smtpConfig }: SendEma
     case "TLS":
       transporter = nodemailer.createTransport({
         tls: {
-          minVersion: "TLSv1.1",
+          minVersion: "TLSv1.2",
         },
         secure: false,
         host: smtpConfig.host,

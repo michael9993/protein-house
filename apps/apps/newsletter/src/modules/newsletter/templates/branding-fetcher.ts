@@ -173,21 +173,22 @@ export async function fetchStoreBranding(
           },
         },
       };
-    } catch (fetchError: any) {
+    } catch (fetchError: unknown) {
       clearTimeout(timeoutId);
-      
+
       // Check if it's a connection error or timeout - these are expected when storefront control isn't running
-      const isConnectionError = 
-        fetchError?.cause?.code === 'ECONNREFUSED' || 
-        fetchError?.name === 'AbortError' ||
-        fetchError?.message?.includes('ECONNREFUSED');
+      const err = fetchError as { cause?: { code?: string }; name?: string; message?: string };
+      const isConnectionError =
+        err?.cause?.code === 'ECONNREFUSED' ||
+        err?.name === 'AbortError' ||
+        err?.message?.includes('ECONNREFUSED');
       
       if (isConnectionError) {
         logger.debug("Storefront control not available, using default branding", { channelSlug });
       } else {
-        logger.warn("Error fetching storefront branding", { 
-          error: fetchError?.message || fetchError, 
-          channelSlug 
+        logger.warn("Error fetching storefront branding", {
+          error: err?.message || String(fetchError),
+          channelSlug
         });
       }
       return DEFAULT_BRANDING;

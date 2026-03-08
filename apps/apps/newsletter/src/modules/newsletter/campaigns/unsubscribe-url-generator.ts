@@ -1,10 +1,17 @@
-import { createHash, randomBytes } from "crypto";
+import { createHash } from "crypto";
 
 import { createLogger } from "../../../logger";
 
 const logger = createLogger("UnsubscribeUrlGenerator");
 
 const TOKEN_SECRET = process.env.UNSUBSCRIBE_SECRET || "change-me-in-production";
+
+if (!process.env.UNSUBSCRIBE_SECRET) {
+    logger.warn(
+        "UNSUBSCRIBE_SECRET env var is not set — using insecure default. " +
+        "Set UNSUBSCRIBE_SECRET to a random 32+ character string in production.",
+    );
+}
 
 export interface UnsubscribeTokenData {
     campaignId: string;

@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import type { Client } from "urql";
 
 import { createLogger } from "../../../logger";
 import { protectedClientProcedure } from "../../trpc/protected-client-procedure";
@@ -10,6 +11,58 @@ import { addCampaignJob, removeCampaignJob } from "./campaign-queue";
 import { createCampaignInputSchema, updateCampaignInputSchema, campaignStatusSchema } from "./campaign-schema";
 
 const logger = createLogger("campaign-router");
+
+/** Saleor apps act as system — no individual user context available in tRPC */
+const SYSTEM_ACTOR = "system" as const;
+
+interface RecipientFilter {
+  isActive?: boolean;
+  sources?: string[];
+  selectionType?: "all" | "selected" | "random" | "newest" | "oldest";
+  selectedSubscriberIds?: string[];
+  limit?: number;
+}
+
+/**
+ * Calculate recipient count based on campaign filter criteria.
+ * For "selected" type, returns the count of selected IDs.
+ * For other types, queries the newsletter service and applies limit.
+ */
+async function calculateRecipientCount(
+  apiClient: Client,
+  recipientFilter: RecipientFilter,
+  channelSlug: string,
+  context: string,
+): Promise<number> {
+  if (recipientFilter.selectionType === "selected" && recipientFilter.selectedSubscriberIds) {
+    return recipientFilter.selectedSubscriberIds.length;
+  }
+
+  const newsletterService = new NewsletterService(apiClient);
+  const subscriptionsResult = await newsletterService.getSubscriptions({
+    first: 1,
+    filter: {
+      isActive: recipientFilter.isActive,
+      source: recipientFilter.sources?.[0],
+      channel: channelSlug,
+    },
+  });
+
+  let count = subscriptionsResult.totalCount || 0;
+
+  if (recipientFilter.limit && count > recipientFilter.limit) {
+    count = recipientFilter.limit;
+  }
+
+  logger.info("Calculated recipient count", {
+    context,
+    channelSlug,
+    recipientCount: count,
+    limit: recipientFilter.limit,
+  });
+
+  return count;
+}
 
 export const campaignRouter = router({
   list: protectedClientProcedure.query(async ({ ctx }) => {
@@ -32,12 +85,7 @@ export const campaignRouter = router({
   }),
 
   get: protectedClientProcedure
-    .input((val: unknown) => {
-      if (typeof val === "object" && val !== null && "id" in val) {
-        return { id: val.id as string };
-      }
-      throw new Error("Invalid input");
-    })
+    .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       const service = new CampaignService(
         ctx.apiClient,
@@ -78,53 +126,28 @@ export const campaignRouter = router({
       try {
         // Calculate recipient count based on selection type
         let recipientCount = 0;
-        
-        if (input.recipientFilter?.selectionType === "selected" && input.recipientFilter?.selectedSubscriberIds) {
-          // For "selected" type, count is the length of selected IDs
-          recipientCount = input.recipientFilter.selectedSubscriberIds.length;
-        } else {
-          // For other types, calculate from newsletter service
-          try {
-            const newsletterService = new NewsletterService(ctx.apiClient);
-            const subscriptionsResult = await newsletterService.getSubscriptions({
-              first: 1, // Just to get total count
-              filter: {
-                isActive: input.recipientFilter?.isActive,
-                source: input.recipientFilter?.sources?.[0], // Use first source if multiple
-                channel: input.channelSlug, // Filter by channel to get accurate count
-              },
-            });
-            
-            recipientCount = subscriptionsResult.totalCount || 0;
-            
-            // Apply limit if specified
-            if (input.recipientFilter?.limit && recipientCount > input.recipientFilter.limit) {
-              recipientCount = input.recipientFilter.limit;
-            }
-            
-            logger.info("Calculated recipient count for new campaign", {
-              campaignName: input.name,
-              channelSlug: input.channelSlug,
-              recipientCount,
-              limit: input.recipientFilter?.limit,
-            });
-          } catch (countError) {
-            logger.warn("Failed to calculate recipient count during creation", { 
-              error: countError,
-              campaignName: input.name,
-            });
-            // Continue with 0 - it will be recalculated when starting
-          }
+
+        try {
+          recipientCount = await calculateRecipientCount(
+            ctx.apiClient,
+            input.recipientFilter,
+            input.channelSlug,
+            `create:${input.name}`,
+          );
+        } catch (countError) {
+          logger.warn("Failed to calculate recipient count during creation", {
+            error: countError,
+            campaignName: input.name,
+          });
         }
-        
-        // TODO: Get actual user ID from context
-        const campaign = await service.createCampaign(input, "system");
+
+        const campaign = await service.createCampaign(input, SYSTEM_ACTOR);
         
         // Update recipient count if calculated
         if (recipientCount > 0) {
           await service.updateCampaign(
             { id: campaign.id, recipientCount },
-            "system"
+            SYSTEM_ACTOR
           );
           // Refetch to get updated campaign
           const updatedCampaign = await service.getCampaign(campaign.id);
@@ -162,52 +185,27 @@ export const campaignRouter = router({
         
         // Calculate recipient count if recipient filter changed
         let recipientCount: number | undefined = undefined;
-        
-        if (input.recipientFilter) {
-          if (input.recipientFilter.selectionType === "selected" && input.recipientFilter.selectedSubscriberIds) {
-            // For "selected" type, count is the length of selected IDs
-            recipientCount = input.recipientFilter.selectedSubscriberIds.length;
-          } else {
-            // For other types, calculate from newsletter service
-            try {
-              const newsletterService = new NewsletterService(ctx.apiClient);
-              const subscriptionsResult = await newsletterService.getSubscriptions({
-                first: 1, // Just to get total count
-                filter: {
-                  isActive: input.recipientFilter.isActive,
-                  source: input.recipientFilter.sources?.[0], // Use first source if multiple
-                  channel: channelSlug, // Filter by channel to get accurate count
-                },
-              });
-              
-              recipientCount = subscriptionsResult.totalCount || 0;
-              
-              // Apply limit if specified
-              if (input.recipientFilter.limit && recipientCount > input.recipientFilter.limit) {
-                recipientCount = input.recipientFilter.limit;
-              }
-              
-              logger.info("Calculated recipient count for campaign update", {
-                campaignId: input.id,
-                channelSlug,
-                recipientCount,
-                limit: input.recipientFilter.limit,
-              });
-            } catch (countError) {
-              logger.warn("Failed to calculate recipient count during update", { 
-                error: countError,
-                campaignId: input.id,
-              });
-              // Continue without updating count - it will be recalculated when starting
-            }
+
+        if (input.recipientFilter && channelSlug) {
+          try {
+            recipientCount = await calculateRecipientCount(
+              ctx.apiClient,
+              input.recipientFilter,
+              channelSlug,
+              `update:${input.id}`,
+            );
+          } catch (countError) {
+            logger.warn("Failed to calculate recipient count during update", {
+              error: countError,
+              campaignId: input.id,
+            });
           }
         }
-        
-        // TODO: Get actual user ID from context
-        const updateInput = recipientCount !== undefined 
+
+        const updateInput = recipientCount !== undefined
           ? { ...input, recipientCount }
           : input;
-        const campaign = await service.updateCampaign(updateInput, "system");
+        const campaign = await service.updateCampaign(updateInput, SYSTEM_ACTOR);
         return { campaign };
       } catch (error) {
         logger.error("Error updating campaign", { error });
@@ -219,12 +217,7 @@ export const campaignRouter = router({
     }),
 
   delete: protectedClientProcedure
-    .input((val: unknown) => {
-      if (typeof val === "object" && val !== null && "id" in val) {
-        return { id: val.id as string };
-      }
-      throw new Error("Invalid input");
-    })
+    .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const service = new CampaignService(
         ctx.apiClient,
@@ -314,38 +307,14 @@ export const campaignRouter = router({
         if (input.status === "sending") {
           // Calculate recipient count before starting
           try {
-            // For "selected" type, use the length of selected IDs
-            if (currentCampaign.recipientFilter.selectionType === "selected" && currentCampaign.recipientFilter.selectedSubscriberIds) {
-              recipientCount = currentCampaign.recipientFilter.selectedSubscriberIds.length;
-            } else {
-              // For other types, query the newsletter service with channel filter
-              const newsletterService = new NewsletterService(ctx.apiClient);
-              const subscriptionsResult = await newsletterService.getSubscriptions({
-                first: 1, // Just to get total count
-                filter: {
-                  isActive: currentCampaign.recipientFilter.isActive,
-                  source: currentCampaign.recipientFilter.sources?.[0],
-                  channel: currentCampaign.channelSlug, // Filter by channel to get accurate count
-                },
-              });
-              
-              recipientCount = subscriptionsResult.totalCount || 0;
-              
-              // Apply limit if specified
-              if (currentCampaign.recipientFilter.limit && recipientCount > currentCampaign.recipientFilter.limit) {
-                recipientCount = currentCampaign.recipientFilter.limit;
-              }
-            }
-            
-            logger.info("Calculated recipient count for sending", { 
-              campaignId: currentCampaign.id, 
-              channelSlug: currentCampaign.channelSlug,
-              recipientCount,
-              selectionType: currentCampaign.recipientFilter.selectionType,
-            });
-            
+            recipientCount = await calculateRecipientCount(
+              ctx.apiClient,
+              currentCampaign.recipientFilter,
+              currentCampaign.channelSlug,
+              `sending:${currentCampaign.id}`,
+            );
+
             if (recipientCount === 0) {
-              // Don't update status if no recipients
               throw new TRPCError({
                 code: "BAD_REQUEST",
                 message: "No subscribers match the selected filters for this channel. Please adjust your recipient filter.",
@@ -356,7 +325,6 @@ export const campaignRouter = router({
               throw countError;
             }
             logger.error("Failed to calculate recipient count", { error: countError, campaignId: currentCampaign.id });
-            // Continue anyway - worker will handle it, but log the error
           }
           
           // Add to queue immediately for sending campaigns BEFORE updating status
@@ -447,12 +415,7 @@ export const campaignRouter = router({
     }),
 
   duplicate: protectedClientProcedure
-    .input((val: unknown) => {
-      if (typeof val === "object" && val !== null && "id" in val) {
-        return { id: val.id as string };
-      }
-      throw new Error("Invalid input");
-    })
+    .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const service = new CampaignService(
         ctx.apiClient,
@@ -470,8 +433,7 @@ export const campaignRouter = router({
           });
         }
 
-        // TODO: Get actual user ID from context
-        const campaign = await service.duplicateCampaign(input.id, "system");
+        const campaign = await service.duplicateCampaign(input.id, SYSTEM_ACTOR);
         logger.info("Campaign duplicated", { originalId: input.id, newId: campaign.id });
         return { campaign };
       } catch (error) {
