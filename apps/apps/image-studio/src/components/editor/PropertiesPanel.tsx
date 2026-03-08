@@ -70,6 +70,10 @@ interface PropertiesPanelProps {
   hasMultipleSelected?: boolean;
   onEyedropper?: (target: "fill" | "stroke") => void;
   eyedropperTarget?: "fill" | "stroke" | null;
+  onCrop?: () => void;
+  onResetCrop?: () => void;
+  isImage?: boolean;
+  hasClipPath?: boolean;
 }
 
 export function PropertiesPanel({
@@ -87,6 +91,10 @@ export function PropertiesPanel({
   hasMultipleSelected,
   onEyedropper,
   eyedropperTarget,
+  onCrop,
+  onResetCrop,
+  isImage,
+  hasClipPath,
 }: PropertiesPanelProps) {
   const [props, setProps] = useState({
     left: 0,
@@ -698,6 +706,26 @@ export function PropertiesPanel({
         </div>
       )}
 
+      {/* Image Tools — Crop */}
+      {isImage && onCrop && (
+        <Section label="Image Tools">
+          <div className="flex gap-1">
+            <button onClick={onCrop}
+              className="flex-1 px-2 py-1.5 text-[10px] rounded border hover:bg-accent flex items-center justify-center gap-1"
+              title="Crop image (non-destructive)">
+              <CropIcon /> Crop
+            </button>
+            {hasClipPath && onResetCrop && (
+              <button onClick={onResetCrop}
+                className="flex-1 px-2 py-1.5 text-[10px] rounded border hover:bg-accent"
+                title="Remove crop and show full image">
+                Reset Crop
+              </button>
+            )}
+          </div>
+        </Section>
+      )}
+
       <button onClick={onDelete}
         className="w-full px-2 py-1.5 text-[10px] rounded border border-destructive text-destructive hover:bg-destructive/10">
         Delete
@@ -723,6 +751,15 @@ function PropInput({ label, value, onChange }: { label: string; value: number; o
         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
         className="w-full px-1.5 py-1 text-xs rounded border bg-background" />
     </div>
+  );
+}
+
+function CropIcon() {
+  return (
+    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 2v14a2 2 0 0 0 2 2h14" />
+      <path d="M18 22V8a2 2 0 0 0-2-2H2" />
+    </svg>
   );
 }
 

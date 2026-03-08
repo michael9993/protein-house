@@ -20,6 +20,8 @@ import { AIEditPanel } from "../ai/AIEditPanel";
 import { DrawingPanel } from "./DrawingPanel";
 import { FiltersPanel } from "./FiltersPanel";
 import { CanvasResizeDialog } from "./CanvasResizeDialog";
+import { useCropTool } from "./hooks/useCropTool";
+import { CropOverlay } from "./CropOverlay";
 import { useDrawing } from "./hooks/useDrawing";
 import { useSmartGuides } from "./hooks/useSmartGuides";
 import { BUILT_IN_TEMPLATES } from "@/modules/templates/built-in";
@@ -110,6 +112,7 @@ export function CanvasEditor() {
   } = useCanvas(CANVAS_ID, { width: 800, height: 600 });
 
   const { saveState, undo, redo, canUndo, canRedo, initHistory } = useHistory(canvas);
+  const crop = useCropTool(canvas, selectedObject);
   const drawing = useDrawing(canvas);
   const {
     components,
@@ -675,7 +678,19 @@ export function CanvasEditor() {
         {/* Canvas Area — canvas element fills this container via zoomToFit */}
         <div ref={canvasContainerRef} className="flex-1 overflow-hidden relative">
           <canvas id={CANVAS_ID} />
-          <FloatingTextToolbar selectedObject={selectedObject} canvas={canvas} />
+          {!crop.isCropping && (
+            <FloatingTextToolbar selectedObject={selectedObject} canvas={canvas} />
+          )}
+          {crop.isCropping && crop.cropRect && canvas && (
+            <CropOverlay
+              cropRect={crop.cropRect}
+              onUpdate={crop.updateCropRect}
+              onApply={crop.applyCrop}
+              onCancel={crop.cancelCrop}
+              containerRect={canvasContainerRef.current?.getBoundingClientRect() ?? null}
+              viewportTransform={canvas.viewportTransform ?? [1, 0, 0, 1, 0, 0]}
+            />
+          )}
         </div>
 
         {/* Right Panel: collapsed strip or full Properties/Layers */}
@@ -732,6 +747,10 @@ export function CanvasEditor() {
                   hasMultipleSelected={selectedObject?.type === "activeselection"}
                   onEyedropper={setEyedropperTarget}
                   eyedropperTarget={eyedropperTarget}
+                  onCrop={crop.startCrop}
+                  onResetCrop={crop.resetCrop}
+                  isImage={crop.isImage}
+                  hasClipPath={crop.hasClipPath}
                 />
               ) : (
                 <LayersPanel
