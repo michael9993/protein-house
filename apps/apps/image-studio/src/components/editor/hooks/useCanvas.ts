@@ -158,6 +158,25 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     canvas.renderAll();
   }, [canvasDimensions]);
 
+  const addTextbox = useCallback((text: string = "Double-click to edit") => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const safeText = typeof text === "string" ? text : String(text ?? "Text Box");
+    const textObj = new fabric.Textbox(safeText, {
+      left: canvasDimensions.width / 2 - 100,
+      top: canvasDimensions.height / 2 - 20,
+      width: 200,
+      fontSize: 24,
+      fontFamily: "Arial",
+      fill: "#000000",
+    });
+
+    canvas.add(textObj);
+    canvas.setActiveObject(textObj);
+    canvas.renderAll();
+  }, [canvasDimensions]);
+
   const addRect = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -865,6 +884,7 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     canvasHeight: canvasDimensions.height,
     addImage,
     addText,
+    addTextbox,
     addRect,
     addCircle,
     addTriangle,

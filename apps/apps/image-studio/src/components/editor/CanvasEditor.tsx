@@ -25,6 +25,7 @@ import { useSmartGuides } from "./hooks/useSmartGuides";
 import { BUILT_IN_TEMPLATES } from "@/modules/templates/built-in";
 import { applyTemplateToCanvas } from "./utils/applyTemplate";
 import { ComponentsPanel } from "./ComponentsPanel";
+import { FloatingTextToolbar } from "./FloatingTextToolbar";
 import { ShapesPanel } from "./ShapesPanel";
 import { SocialPresetsPanel } from "./SocialPresetsPanel";
 import { BrandKitDialog } from "./BrandKitDialog";
@@ -71,6 +72,7 @@ export function CanvasEditor() {
     canvasHeight,
     addImage,
     addText,
+    addTextbox,
     addRect,
     addCircle,
     addTriangle,
@@ -572,7 +574,7 @@ export function CanvasEditor() {
           <>
             <ToolPanel
               onAddText={addText}
-              onAddTextbox={() => {/* wired in Task 9 */}}
+              onAddTextbox={addTextbox}
               onUploadImage={() => fileInputRef.current?.click()}
               onAddImageUrl={() => setShowImageInput(true)}
               activeAIPanel={activeAIPanel}
@@ -671,8 +673,9 @@ export function CanvasEditor() {
         )}
 
         {/* Canvas Area — canvas element fills this container via zoomToFit */}
-        <div ref={canvasContainerRef} className="flex-1 overflow-hidden">
+        <div ref={canvasContainerRef} className="flex-1 overflow-hidden relative">
           <canvas id={CANVAS_ID} />
+          <FloatingTextToolbar selectedObject={selectedObject} canvas={canvas} />
         </div>
 
         {/* Right Panel: collapsed strip or full Properties/Layers */}

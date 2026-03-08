@@ -3,17 +3,42 @@ import * as fabric from "fabric";
 import { AlignmentToolbar } from "./AlignmentToolbar";
 import { GradientEditor, parseGradient } from "./GradientEditor";
 
-const FONT_FAMILIES = [
-  "Arial",
-  "Helvetica",
-  "Times New Roman",
-  "Georgia",
-  "Courier New",
-  "Verdana",
-  "Trebuchet MS",
-  "Impact",
-  "Comic Sans MS",
-];
+const FONT_FAMILIES_GROUPED = {
+  "Sans-serif": [
+    "Arial", "Helvetica", "Verdana", "Trebuchet MS", "Segoe UI", "Tahoma",
+    "Open Sans", "Roboto", "Lato", "Montserrat", "Poppins", "Inter", "Nunito",
+  ],
+  "Serif": [
+    "Times New Roman", "Georgia", "Garamond", "Palatino", "Cambria",
+    "Merriweather", "Playfair Display", "Lora",
+  ],
+  "Display": [
+    "Impact", "Oswald", "Bebas Neue", "Anton", "Pacifico", "Lobster",
+  ],
+  "Monospace": [
+    "Courier New", "Consolas", "Monaco", "Fira Code", "JetBrains Mono",
+  ],
+};
+
+const FONT_FAMILIES = Object.values(FONT_FAMILIES_GROUPED).flat();
+
+const GOOGLE_FONTS = new Set([
+  "Open Sans", "Roboto", "Lato", "Montserrat", "Poppins", "Inter", "Nunito",
+  "Merriweather", "Playfair Display", "Lora",
+  "Oswald", "Bebas Neue", "Anton", "Pacifico", "Lobster",
+  "Fira Code", "JetBrains Mono",
+]);
+
+const loadedFonts = new Set<string>();
+
+function loadGoogleFont(fontFamily: string) {
+  if (loadedFonts.has(fontFamily) || !GOOGLE_FONTS.has(fontFamily)) return;
+  loadedFonts.add(fontFamily);
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontFamily)}:wght@400;700&display=swap`;
+  document.head.appendChild(link);
+}
 
 interface PropertiesPanelProps {
   selectedObject: fabric.FabricObject | null;
@@ -324,13 +349,19 @@ export function PropertiesPanel({
             <select
               value={props.fontFamily}
               onChange={(e) => {
-                setProps((p) => ({ ...p, fontFamily: e.target.value }));
-                updateProp("fontFamily", e.target.value);
+                const font = e.target.value;
+                loadGoogleFont(font);
+                setProps((p) => ({ ...p, fontFamily: font }));
+                updateProp("fontFamily", font);
               }}
               className="w-full px-1.5 py-1 text-xs rounded border bg-background"
             >
-              {FONT_FAMILIES.map((f) => (
-                <option key={f} value={f} style={{ fontFamily: f }}>{f}</option>
+              {Object.entries(FONT_FAMILIES_GROUPED).map(([group, fonts]) => (
+                <optgroup key={group} label={group}>
+                  {fonts.map((f) => (
+                    <option key={f} value={f} style={{ fontFamily: f }}>{f}</option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </Section>
@@ -380,6 +411,50 @@ export function PropertiesPanel({
                   {align.charAt(0).toUpperCase() + align.slice(1)}
                 </button>
               ))}
+            </div>
+          </Section>
+
+          {/* Case Transforms */}
+          <Section label="Case">
+            <div className="flex gap-1">
+              <button
+                onClick={() => {
+                  const o = selectedObject as any;
+                  if (o.text) {
+                    updateProp("text", o.text.toUpperCase());
+                  }
+                }}
+                className="flex-1 px-2 py-1.5 text-[10px] rounded border hover:bg-accent"
+              >
+                UPPER
+              </button>
+              <button
+                onClick={() => {
+                  const o = selectedObject as any;
+                  if (o.text) {
+                    updateProp("text", o.text.toLowerCase());
+                  }
+                }}
+                className="flex-1 px-2 py-1.5 text-[10px] rounded border hover:bg-accent"
+              >
+                lower
+              </button>
+              <button
+                onClick={() => {
+                  const o = selectedObject as any;
+                  if (o.text) {
+                    updateProp(
+                      "text",
+                      o.text.replace(/\w\S*/g, (t: string) =>
+                        t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()
+                      )
+                    );
+                  }
+                }}
+                className="flex-1 px-2 py-1.5 text-[10px] rounded border hover:bg-accent"
+              >
+                Title
+              </button>
             </div>
           </Section>
 
