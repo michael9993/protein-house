@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
-import type * as fabric from "fabric";
+import * as fabric from "fabric";
 import { AlignmentToolbar } from "./AlignmentToolbar";
+import { GradientEditor, parseGradient } from "./GradientEditor";
 
 const FONT_FAMILIES = [
   "Arial",
@@ -27,6 +28,8 @@ interface PropertiesPanelProps {
   onGroup?: () => void;
   onUngroup?: () => void;
   hasMultipleSelected?: boolean;
+  onEyedropper?: (target: "fill" | "stroke") => void;
+  eyedropperTarget?: "fill" | "stroke" | null;
 }
 
 export function PropertiesPanel({
@@ -42,6 +45,8 @@ export function PropertiesPanel({
   onGroup,
   onUngroup,
   hasMultipleSelected,
+  onEyedropper,
+  eyedropperTarget,
 }: PropertiesPanelProps) {
   const [props, setProps] = useState({
     left: 0,
@@ -51,6 +56,7 @@ export function PropertiesPanel({
     angle: 0,
     opacity: 1,
     fill: "#000000",
+    fillType: "solid" as "solid" | "linear" | "radial",
     fontSize: 24,
     fontFamily: "Arial",
     fontWeight: "normal" as string,
@@ -62,6 +68,8 @@ export function PropertiesPanel({
     lineHeight: 1.16,
     stroke: "",
     strokeWidth: 0,
+    strokeDashArray: "" as string,
+    blendMode: "source-over" as string,
     rx: 0,
     hasShadow: false,
     shadowColor: "#00000066",
@@ -84,6 +92,7 @@ export function PropertiesPanel({
       angle: Math.round(obj.angle ?? 0),
       opacity: obj.opacity ?? 1,
       fill: (typeof obj.fill === "string" ? obj.fill : "#000000"),
+      fillType: typeof obj.fill === "string" ? "solid" : (parseGradient(obj.fill)?.type ?? "solid"),
       fontSize: o.fontSize ?? 24,
       fontFamily: o.fontFamily ?? "Arial",
       fontWeight: o.fontWeight ?? "normal",
@@ -95,6 +104,8 @@ export function PropertiesPanel({
       lineHeight: o.lineHeight ?? 1.16,
       stroke: (typeof obj.stroke === "string" ? obj.stroke : ""),
       strokeWidth: obj.strokeWidth ?? 0,
+      strokeDashArray: (obj.strokeDashArray ?? []).join(","),
+      blendMode: (obj as any).globalCompositeOperation ?? "source-over",
       rx: o.rx ?? 0,
       hasShadow: !!shadow,
       shadowColor: shadow?.color ?? "#00000066",
@@ -246,14 +257,63 @@ export function PropertiesPanel({
         </div>
       </Section>
 
-      {/* Fill Color */}
-      <Section label={isText ? "Text Color" : "Fill Color"}>
-        <div className="flex items-center gap-2">
-          <input type="color" value={props.fill}
-            onChange={(e) => { setProps((p) => ({ ...p, fill: e.target.value })); updateProp("fill", e.target.value); }}
-            className="h-7 w-7 rounded border cursor-pointer" />
-          <span className="text-[10px] text-muted-foreground">{props.fill}</span>
-        </div>
+      {/* Fill */}
+      <Section label={isText ? "Text Color" : "Fill"}>
+        {/* Fill type selector (shapes/text only) */}
+        {(isShape || isText) && !isText && (
+          <div className="flex gap-0.5 mb-1.5">
+            {(["solid", "linear", "radial"] as const).map((ft) => (
+              <button
+                key={ft}
+                onClick={() => {
+                  setProps((p) => ({ ...p, fillType: ft }));
+                  if (ft === "solid") {
+                    updateProp("fill", props.fill || "#3b82f6");
+                  }
+                }}
+                className={`flex-1 px-1.5 py-1 text-[9px] rounded border transition-colors ${
+                  props.fillType === ft ? "bg-primary/10 text-primary border-primary" : "hover:bg-accent"
+                }`}
+              >
+                {ft.charAt(0).toUpperCase() + ft.slice(1)}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {props.fillType === "solid" || isText ? (
+          <div className="flex items-center gap-2">
+            <input type="color" value={props.fill}
+              onChange={(e) => { setProps((p) => ({ ...p, fill: e.target.value })); updateProp("fill", e.target.value); }}
+              className="h-7 w-7 rounded border cursor-pointer" />
+            <span className="text-[10px] text-muted-foreground flex-1">{props.fill}</span>
+            {onEyedropper && (
+              <button
+                onClick={() => onEyedropper("fill")}
+                className={`p-1 rounded border text-[10px] ${
+                  eyedropperTarget === "fill" ? "bg-primary/10 text-primary border-primary" : "hover:bg-accent"
+                }`}
+                title="Eyedropper — pick fill color from canvas"
+              >
+                <EyedropperIcon />
+              </button>
+            )}
+          </div>
+        ) : (
+          <GradientEditor
+            type={props.fillType}
+            stops={parseGradient(selectedObject?.fill)?.stops ?? [{ offset: 0, color: "#3b82f6" }, { offset: 1, color: "#8b5cf6" }]}
+            angle={parseGradient(selectedObject?.fill)?.angle ?? 0}
+            objectWidth={(selectedObject?.width ?? 100) * (selectedObject?.scaleX ?? 1)}
+            objectHeight={(selectedObject?.height ?? 100) * (selectedObject?.scaleY ?? 1)}
+            onChange={(gradient) => {
+              if (!selectedObject || !canvas) return;
+              selectedObject.set("fill", gradient);
+              canvas.renderAll();
+              canvas.fire("object:modified", { target: selectedObject });
+            }}
+          />
+        )}
       </Section>
 
       {/* ===== TEXT-SPECIFIC CONTROLS ===== */}
@@ -362,6 +422,17 @@ export function PropertiesPanel({
               <input type="color" value={props.stroke || "#000000"}
                 onChange={(e) => { setProps((p) => ({ ...p, stroke: e.target.value })); updateProp("stroke", e.target.value); }}
                 className="h-6 w-6 rounded border cursor-pointer" />
+              {onEyedropper && (
+                <button
+                  onClick={() => onEyedropper("stroke")}
+                  className={`p-1 rounded border text-[10px] ${
+                    eyedropperTarget === "stroke" ? "bg-primary/10 text-primary border-primary" : "hover:bg-accent"
+                  }`}
+                  title="Eyedropper — pick stroke color from canvas"
+                >
+                  <EyedropperIcon />
+                </button>
+              )}
               <input type="number" min="0" max="20" value={props.strokeWidth}
                 onChange={(e) => {
                   const v = parseInt(e.target.value) || 0;
@@ -371,6 +442,28 @@ export function PropertiesPanel({
                 className="w-14 px-1.5 py-1 text-xs rounded border bg-background" />
               <span className="text-[10px] text-muted-foreground">px</span>
             </div>
+            {/* Dash pattern */}
+            {props.strokeWidth > 0 && (
+              <select
+                value={props.strokeDashArray}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setProps((p) => ({ ...p, strokeDashArray: val }));
+                  if (!selectedObject || !canvas) return;
+                  const arr = val ? val.split(",").map(Number) : [];
+                  selectedObject.set("strokeDashArray", arr.length > 0 ? arr : undefined);
+                  canvas.renderAll();
+                  canvas.fire("object:modified", { target: selectedObject });
+                }}
+                className="w-full mt-1.5 px-1.5 py-1 text-xs rounded border bg-background"
+              >
+                <option value="">Solid</option>
+                <option value="10,5">Dashed</option>
+                <option value="2,5">Dotted</option>
+                <option value="10,5,2,5">Dash-Dot</option>
+                <option value="20,5">Long Dash</option>
+              </select>
+            )}
           </Section>
 
           {/* Corner Radius (rect only) */}
@@ -520,6 +613,16 @@ function PropInput({ label, value, onChange }: { label: string; value: number; o
         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
         className="w-full px-1.5 py-1 text-xs rounded border bg-background" />
     </div>
+  );
+}
+
+function EyedropperIcon() {
+  return (
+    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m2 22 1-1h3l9-9" />
+      <path d="M3 21v-3l9-9" />
+      <path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z" />
+    </svg>
   );
 }
 

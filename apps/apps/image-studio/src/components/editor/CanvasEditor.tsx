@@ -58,6 +58,7 @@ export function CanvasEditor() {
   const [showCodeExport, setShowCodeExport] = useState(false);
   const [showProjectNameDialog, setShowProjectNameDialog] = useState(false);
   const [projectNameInput, setProjectNameInput] = useState("");
+  const [eyedropperTarget, setEyedropperTarget] = useState<"fill" | "stroke" | null>(null);
   const draftPromptShown = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
@@ -103,6 +104,7 @@ export function CanvasEditor() {
     zoomToFit,
     enterPanMode,
     exitPanMode,
+    sampleColor,
   } = useCanvas(CANVAS_ID, { width: 800, height: 600 });
 
   const { saveState, undo, redo, canUndo, canRedo, initHistory } = useHistory(canvas);
@@ -446,6 +448,31 @@ export function CanvasEditor() {
     [addImage, showNotification]
   );
 
+  // Eyedropper mode: set cursor and handle clicks
+  useEffect(() => {
+    if (!canvas || !eyedropperTarget) return;
+    canvas.defaultCursor = "crosshair";
+    canvas.selection = false;
+
+    const handleClick = (opt: any) => {
+      const pointer = canvas.getViewportPoint(opt.e);
+      const color = sampleColor(pointer.x, pointer.y);
+      if (color && selectedObject) {
+        selectedObject.set(eyedropperTarget, color);
+        canvas.renderAll();
+        canvas.fire("object:modified", { target: selectedObject });
+      }
+      setEyedropperTarget(null);
+    };
+
+    canvas.on("mouse:down", handleClick);
+    return () => {
+      canvas.off("mouse:down", handleClick);
+      canvas.defaultCursor = "default";
+      canvas.selection = true;
+    };
+  }, [canvas, eyedropperTarget, sampleColor, selectedObject]);
+
   // Auto-fit canvas zoom when container resizes (panel toggle, window resize)
   useEffect(() => {
     const container = canvasContainerRef.current;
@@ -700,6 +727,8 @@ export function CanvasEditor() {
                   onGroup={groupSelected}
                   onUngroup={ungroupSelected}
                   hasMultipleSelected={selectedObject?.type === "activeselection"}
+                  onEyedropper={setEyedropperTarget}
+                  eyedropperTarget={eyedropperTarget}
                 />
               ) : (
                 <LayersPanel

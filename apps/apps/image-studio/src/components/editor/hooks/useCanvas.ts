@@ -775,6 +775,21 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     setZoom(clamped);
   }, [canvasDimensions]);
 
+  const sampleColor = useCallback((viewportX: number, viewportY: number): string | null => {
+    const canvas = canvasRef.current;
+    if (!canvas) return null;
+
+    const ctx = canvas.getContext() as unknown as CanvasRenderingContext2D;
+    if (!ctx) return null;
+
+    // viewportX/Y are already in canvas element coordinates
+    const pixel = ctx.getImageData(viewportX, viewportY, 1, 1).data;
+    const r = pixel[0].toString(16).padStart(2, "0");
+    const g = pixel[1].toString(16).padStart(2, "0");
+    const b = pixel[2].toString(16).padStart(2, "0");
+    return `#${r}${g}${b}`;
+  }, []);
+
   const enterPanMode = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas || isPanningRef.current) return;
@@ -885,5 +900,6 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     zoomToFit,
     enterPanMode,
     exitPanMode,
+    sampleColor,
   };
 }
