@@ -22,6 +22,21 @@ const FONT_FAMILIES_GROUPED = {
 
 const FONT_FAMILIES = Object.values(FONT_FAMILIES_GROUPED).flat();
 
+const BLEND_MODES = [
+  { value: "source-over", label: "Normal" },
+  { value: "multiply", label: "Multiply" },
+  { value: "screen", label: "Screen" },
+  { value: "overlay", label: "Overlay" },
+  { value: "darken", label: "Darken" },
+  { value: "lighten", label: "Lighten" },
+  { value: "color-dodge", label: "Color Dodge" },
+  { value: "color-burn", label: "Color Burn" },
+  { value: "hard-light", label: "Hard Light" },
+  { value: "soft-light", label: "Soft Light" },
+  { value: "difference", label: "Difference" },
+  { value: "exclusion", label: "Exclusion" },
+];
+
 const GOOGLE_FONTS = new Set([
   "Open Sans", "Roboto", "Lato", "Montserrat", "Poppins", "Inter", "Nunito",
   "Merriweather", "Playfair Display", "Lora",
@@ -280,6 +295,26 @@ export function PropertiesPanel({
             {Math.round(props.opacity * 100)}%
           </span>
         </div>
+      </Section>
+
+      {/* Blend Mode */}
+      <Section label="Blend Mode">
+        <select
+          value={props.blendMode}
+          onChange={(e) => {
+            const mode = e.target.value;
+            setProps((p) => ({ ...p, blendMode: mode }));
+            if (!selectedObject || !canvas) return;
+            (selectedObject as any).globalCompositeOperation = mode;
+            canvas.renderAll();
+            canvas.fire("object:modified", { target: selectedObject });
+          }}
+          className="w-full px-1.5 py-1 text-xs rounded border bg-background"
+        >
+          {BLEND_MODES.map((m) => (
+            <option key={m.value} value={m.value}>{m.label}</option>
+          ))}
+        </select>
       </Section>
 
       {/* Fill */}

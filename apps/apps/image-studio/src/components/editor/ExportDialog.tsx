@@ -1,12 +1,12 @@
 import { useState } from "react";
 
 interface ExportDialogProps {
-  onExport: (format: "png" | "jpeg", quality: number, transparentBg?: boolean) => void;
+  onExport: (format: "png" | "jpeg" | "webp", quality: number, transparentBg?: boolean) => void;
   onClose: () => void;
 }
 
 export function ExportDialog({ onExport, onClose }: ExportDialogProps) {
-  const [format, setFormat] = useState<"png" | "jpeg">("png");
+  const [format, setFormat] = useState<"png" | "jpeg" | "webp">("png");
   const [quality, setQuality] = useState(0.92);
   const [transparentBg, setTransparentBg] = useState(false);
 
@@ -31,11 +31,17 @@ export function ExportDialog({ onExport, onClose }: ExportDialogProps) {
               active={format === "jpeg"}
               onClick={() => setFormat("jpeg")}
             />
+            <FormatButton
+              label="WEBP"
+              description="Modern, small + transparent"
+              active={format === "webp"}
+              onClick={() => setFormat("webp")}
+            />
           </div>
         </div>
 
-        {/* Quality (JPEG only) */}
-        {format === "jpeg" && (
+        {/* Quality (JPEG/WEBP) */}
+        {(format === "jpeg" || format === "webp") && (
           <div className="mb-4">
             <label className="text-xs text-muted-foreground">
               Quality: {Math.round(quality * 100)}%
@@ -52,8 +58,8 @@ export function ExportDialog({ onExport, onClose }: ExportDialogProps) {
           </div>
         )}
 
-        {/* Transparent background (PNG only) */}
-        {format === "png" && (
+        {/* Transparent background (PNG/WEBP) */}
+        {(format === "png" || format === "webp") && (
           <label className="flex items-center gap-2 mb-4 cursor-pointer">
             <input
               type="checkbox"
@@ -74,7 +80,7 @@ export function ExportDialog({ onExport, onClose }: ExportDialogProps) {
             Cancel
           </button>
           <button
-            onClick={() => onExport(format, quality, format === "png" ? transparentBg : false)}
+            onClick={() => onExport(format, quality, (format === "png" || format === "webp") ? transparentBg : false)}
             className="px-3 py-1.5 text-sm rounded-md bg-primary text-primary-foreground hover:bg-primary/90"
           >
             Download

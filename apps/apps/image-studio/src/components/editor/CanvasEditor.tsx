@@ -397,12 +397,12 @@ export function CanvasEditor() {
   }, [imageUrlInput, addImage]);
 
   const handleExport = useCallback(
-    (format: "png" | "jpeg", quality: number, transparentBg?: boolean) => {
+    (format: "png" | "jpeg" | "webp", quality: number, transparentBg?: boolean) => {
       const dataUrl = exportCanvas(format, quality, transparentBg);
       if (!dataUrl) return;
       const a = document.createElement("a");
       a.href = dataUrl;
-      a.download = `image-studio-export.${format}`;
+      a.download = `image-studio-export.${format === "jpeg" ? "jpg" : format}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

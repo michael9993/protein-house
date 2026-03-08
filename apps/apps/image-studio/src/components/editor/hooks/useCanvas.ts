@@ -449,7 +449,7 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
   }, [canvasDimensions]);
 
   const exportCanvas = useCallback(
-    (format: "png" | "jpeg" = "png", quality = 1, transparentBg = false): string | null => {
+    (format: "png" | "jpeg" | "webp" = "png", quality = 1, transparentBg = false): string | null => {
       const canvas = canvasRef.current;
       if (!canvas) return null;
 
