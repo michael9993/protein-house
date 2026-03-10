@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { Suspense, useState, useEffect, useCallback } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { logout } from "@/app/actions";
@@ -9,6 +9,14 @@ import { confirmAccountDeletion } from "./actions";
 type Status = "idle" | "loading" | "success" | "error" | "invalid";
 
 export default function DeleteConfirmPage() {
+	return (
+		<Suspense fallback={<LoadingCard />}>
+			<DeleteConfirmContent />
+		</Suspense>
+	);
+}
+
+function DeleteConfirmContent() {
 	const params = useParams();
 	const searchParams = useSearchParams();
 	const router = useRouter();

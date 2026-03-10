@@ -1,5 +1,6 @@
 import { Box, Text } from "@saleor/macaw-ui";
 import { useMemo } from "react";
+import { colors } from "@/modules/ui/app-layout";
 import type { FieldMapping } from "../import/field-mapper";
 
 const DYNAMIC_PREFIXES = ["attr:", "variantAttr:", "stock:"];
@@ -37,32 +38,32 @@ export function FieldMappingEditor({
   }, [mappings, targetFields]);
 
   return (
-    <Box borderRadius={4} __border="1px solid #e2e8f0" __overflow="hidden">
+    <Box borderRadius={4} __border={`1px solid ${colors.border}`} __overflow="hidden">
       {/* Header */}
       <Box
         display="flex"
         padding={3}
-        __backgroundColor="#f8fafc"
-        __borderBottom="2px solid #e2e8f0"
+        __backgroundColor={colors.surface}
+        __borderBottom={`2px solid ${colors.border}`}
         gap={4}
       >
         <Box __flex="1">
-          <Text size={1} __fontWeight="600" __color="#64748b" __textTransform="uppercase">
+          <Text size={1} __fontWeight="600" __color={colors.textMuted} __textTransform="uppercase">
             Source Column
           </Text>
         </Box>
         <Box __width="40px" __textAlign="center">
-          <Text size={1} __fontWeight="600" __color="#64748b">
+          <Text size={1} __fontWeight="600" __color={colors.textMuted}>
             -&gt;
           </Text>
         </Box>
         <Box __flex="1">
-          <Text size={1} __fontWeight="600" __color="#64748b" __textTransform="uppercase">
+          <Text size={1} __fontWeight="600" __color={colors.textMuted} __textTransform="uppercase">
             Saleor Field
           </Text>
         </Box>
         <Box __width="60px">
-          <Text size={1} __fontWeight="600" __color="#64748b" __textTransform="uppercase">
+          <Text size={1} __fontWeight="600" __color={colors.textMuted} __textTransform="uppercase">
             Match
           </Text>
         </Box>
@@ -78,20 +79,20 @@ export function FieldMappingEditor({
             padding={3}
             alignItems="center"
             gap={4}
-            __borderBottom="1px solid #f1f5f9"
+            __borderBottom={`1px solid ${colors.badgeBg}`}
           >
             <Box __flex="1">
               <Text size={3} __fontWeight="500">
                 {mapping.sourceField}
               </Text>
               {isDynamic && (
-                <Text size={1} __color="#6366f1" __display="block" __marginTop="2px">
+                <Text size={1} __color={colors.brandLight} __display="block" __marginTop="2px">
                   dynamic column (passed through)
                 </Text>
               )}
             </Box>
             <Box __width="40px" __textAlign="center">
-              <Text size={2} __color="#94a3b8">
+              <Text size={2} __color={colors.textLight}>
                 -&gt;
               </Text>
             </Box>
@@ -102,11 +103,11 @@ export function FieldMappingEditor({
                 style={{
                   width: "100%",
                   padding: "6px 8px",
-                  border: "1px solid #d1d5db",
+                  border: `1px solid ${colors.inputBorder}`,
                   borderRadius: "6px",
                   fontSize: "14px",
                   backgroundColor: mapping.targetField
-                    ? isDynamic ? "#eef2ff" : "#f0fdf4"
+                    ? isDynamic ? colors.accentBg : "#f0fdf4"
                     : "#fff",
                 }}
               >

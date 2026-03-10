@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-03-07T05:58:10.800Z",
+  "exportedAt": "2026-03-09T02:51:21.024Z",
   "channelSlug": "ils",
   "config": {
-    "version": 93,
-    "updatedAt": "2026-03-07T05:58:10.550Z",
+    "version": 110,
+    "updatedAt": "2026-03-08T21:54:24.464Z",
     "channelSlug": "ils",
     "store": {
       "name": "Pawzen",
@@ -12,17 +12,17 @@
       "type": "physical",
       "description": "חנות אונליין לאביזרי חיות מחמד איכותיים לכלבים וחתולים. מוצרים מודרניים ומעוצבים למחמד שלכם.",
       "email": "support@pawzen.co",
-      "phone": "",
+      "phone": "04-9502222",
       "address": {
-        "street": "",
-        "city": "",
-        "state": "",
-        "zip": "",
+        "street": "כמאל גונבלאט 2",
+        "city": "שפרעם",
+        "state": "Northern District",
+        "zip": "16000",
         "country": "Israel"
       }
     },
     "branding": {
-      "logo": "",
+      "logo": "/logo/pawzen-logo.png",
       "logoAlt": "Pawzen - אביזרים לחיות מחמד",
       "favicon": "/favicon.ico",
       "colors": {
@@ -38,12 +38,12 @@
         "error": "#8B3A3A"
       },
       "typography": {
-        "fontHeading": "Inter",
+        "fontHeading": "Playfair Display",
         "fontBody": "Inter",
         "fontMono": "JetBrains Mono",
         "fontSize": {
-          "h1": "4xl",
-          "h2": "3xl",
+          "h1": "5xl",
+          "h2": "4xl",
           "h3": "2xl",
           "h4": "xl",
           "body": "base",
@@ -53,7 +53,7 @@
         }
       },
       "style": {
-        "borderRadius": "md",
+        "borderRadius": "lg",
         "buttonStyle": "solid",
         "cardShadow": "sm"
       }
@@ -66,7 +66,7 @@
       "scrollToTop": true,
       "guestCheckout": true,
       "expressCheckout": false,
-      "savePaymentMethods": false,
+      "savePaymentMethods": true,
       "digitalDownloads": false,
       "subscriptions": false,
       "giftCards": true,
@@ -78,7 +78,9 @@
       "shareButtons": true,
       "instagramFeed": false,
       "relatedProducts": true,
-      "stockAlerts": true
+      "stockAlerts": true,
+      "orderTracking": true,
+      "accountDeletion": true
     },
     "ecommerce": {
       "currency": {
@@ -91,11 +93,11 @@
       },
       "shipping": {
         "enabled": true,
-        "freeShippingThreshold": 300,
+        "freeShippingThreshold": 200,
         "showEstimatedDelivery": true,
         "deliverySlots": false,
-        "defaultEstimatedMinDays": 2,
-        "defaultEstimatedMaxDays": 5,
+        "defaultEstimatedMinDays": 5,
+        "defaultEstimatedMaxDays": 15,
         "estimatedDeliveryFormat": "range",
         "priceAdjustment": {
           "enabled": true,
@@ -143,53 +145,28 @@
     "header": {
       "banner": {
         "enabled": true,
-        "text": "משלוח חינם בהזמנות מעל ₪200!",
-        "backgroundColor": "#000000",
-        "textColor": "#fff",
+        "text": "משלוח חינם מעל ⪡200 | אביזרים איכותיים למחמד שלך",
+        "backgroundColor": "#1B2838",
+        "textColor": "#D4B978",
         "useSaleorPromotions": true,
         "useSaleorVouchers": true,
-        "items": [
-          {
-            "id": "manual-1769994856696",
-            "name": "משלוח חינם עם קנייה מעל ₪200",
-            "description": null,
-            "link": null,
-            "icon": null
-          },
-          {
-            "id": "UHJvbW90aW9uOjhhNGY2ZTlhLWVmMmYtNGIxMC04ODYyLWQ0YjhjMjVmNTM1Mw==",
-            "name": "Winter sale Discount 25% on selected products",
-            "description": null,
-            "displayText": "Winter sale Discount 25% on selected products",
-            "link": null
-          },
-          {
-            "id": "voucher-Vm91Y2hlcjoy",
-            "name": "Big order discount",
-            "description": "100 off",
-            "displayText": "Big order discount",
-            "link": null
-          }
-        ],
-        "manualItems": [
-          {
-            "id": "manual-1769994856696",
-            "text": "משלוח חינם עם קנייה מעל ₪200",
-            "link": null,
-            "icon": null
-          }
-        ],
-        "autoScrollIntervalSeconds": 6,
-        "useGradient": false,
-        "gradientFrom": "#c67f15",
-        "gradientTo": "#c67700",
+        "items": [],
+        "manualItems": [],
+        "autoScrollIntervalSeconds": 5,
+        "useGradient": true,
+        "gradientFrom": "#1B2838",
+        "gradientTo": "#111D2B",
         "gradientStops": [
           {
-            "color": "#c67f15",
+            "color": "#111D2B",
             "position": 0
           },
           {
-            "color": "#c67700",
+            "color": "#1B2838",
+            "position": 50
+          },
+          {
+            "color": "#111D2B",
             "position": 100
           }
         ],
@@ -230,12 +207,12 @@
       },
       "returnPolicyPageTitle": "מדיניות החלפות/החזרות",
       "returnPolicyHeader": "",
-      "returnPolicyContent": " החלפת מוצר\n\n1. להחלפת המוצר יש לפנות לשירות הלקוחות באמצעות הואטסאפ לתיאום ההחזרה במספר 0505727854.\n2. לחלפת מוצר יש לשלוח אותו בחזרה לעסק (רק אם הוא חדש ובקופסה המקורית) תוך 14 ימים מיום קבלתו.\n3. הלקוח ישלח את המוצר על חשבונו באחת מהדרכים המצויינות מטה.\n4. אחרי קבלת המוצר בחזרה על ידי החנות יישלח ללקוח מוצר חליפי שהוא בחר חינם לנקודת איסוף.\n* מוצר שיוחזר לא בקופסה המקורית או משומש או שנגרם לו נזק לא יוחלף ולא יזוכה!\n** את החבילה יש לעטוף בניילון או נייר. אין להדביק או לכתוב על הקופסה המקורית!\n\n    קיימות 2 דרכים לשליחת המוצר ולביצוע החלפה:\n\nבדואר רשום לכתובת שנספק לכם בוואטאפ. (הדואר גובה בין 15-20ש\"ח). ברגע שהחבילה מגיעה אלינו נשלח לכם את המוצר שרציתם לנקודת איסוף חינם ללא עלות.\nהחלפה בבית הלקוח בעלות 49 ש\"ח: שליח מגיע אליכם עד הבית עם המוצר החליפי לביצוע ההחלפה במקום. עלות 49 ₪ בתשלום מראש.\nאם הלקוח יבחר להחליף למוצר יותר יקר הוא ישלם את ההפרש מראש בלינק (קישור) שיישלח אליו במייל או בואטסאפ. אם המוצר יותר זול אז הלקוח יקבל החזר על ההפרש באותו אופן של התשלום.\nהחזר כספי עבור הפרש המחיר יקבל תוך 3 ימי עסקים אחרי שהמוצר שהוא החזיר הגיע למחסן ונמצא תקין ולא משומש!\n\n* שליחת החלפה שנייה תהיה על חשבון הלקוח!\n\n    \n\nהחזרת מוצר וקבלת החזר כספי\n\n* להחזרת המוצר יש לפנות לשירות הלקוחות הואטסאפ לתיאום ההחזרה במספר 0505727854.\n* החזרת מוצר תתאפשר תוך 14 ימים מיום קבלתו רק אם הוא חדש ובקופסה המקורית ולא בוצע בו שימוש.\n* החזרת המוצר תהיה על חשבון הלקוח.\n* ההחזר הכספי יהיה עבור המוצרים בלבד ולא יכלול החזרת עלות המשלוח ששולמה בעת הרכישה!\n* ההחזר הכספי יינתן באותו אופן של התשלום ויבוצע תוך 5 ימי עסקים מיום הגעת המוצר לחנות.\nניתן להחזיר את המוצרים באחת מהדרכים הבאות:\nבדואר רשום לכתובת שנספק לכם בוואטאפ.\nעם שליח בעלות 40 ש\"ח: שליח מגיע אליכם עד הבית, אוסף את המוצר ומחזיר לנו. אחרי שהמוצר מגיע אלינו בחזרה עם השליח נבצע לכם החזר כספי. ניתן לשלם את עלות המשלוח ישירות לשליח או לשלם לנו אונליין מראש באמצעות כרטיס אשראי ללינק שנשלח אליכם.",
+      "returnPolicyContent": " החלפת מוצר\n\n1. להחלפת המוצר יש לפנות לשירות הלקוחות באמצעות הואטסאפ לתיאום ההחזרה במספר 04-9502222.\n2. לחלפת מוצר יש לשלוח אותו בחזרה לעסק (רק אם הוא חדש ובקופסה המקורית) תוך 14 ימים מיום קבלתו.\n3. הלקוח ישלח את המוצר על חשבונו באחת מהדרכים המצויינות מטה.\n4. אחרי קבלת המוצר בחזרה על ידי החנות יישלח ללקוח מוצר חליפי שהוא בחר חינם לנקודת איסוף.\n* מוצר שיוחזר לא בקופסה המקורית או משומש או שנגרם לו נזק לא יוחלף ולא יזוכה!\n** את החבילה יש לעטוף בניילון או נייר. אין להדביק או לכתוב על הקופסה המקורית!\n\n    קיימות 2 דרכים לשליחת המוצר ולביצוע החלפה:\n\nבדואר רשום לכתובת שנספק לכם בוואטאפ. (הדואר גובה בין 15-20ש\"ח). ברגע שהחבילה מגיעה אלינו נשלח לכם את המוצר שרציתם לנקודת איסוף חינם ללא עלות.\nהחלפה בבית הלקוח בעלות 49 ש\"ח: שליח מגיע אליכם עד הבית עם המוצר החליפי לביצוע ההחלפה במקום. עלות 49 ₪ בתשלום מראש.\nאם הלקוח יבחר להחליף למוצר יותר יקר הוא ישלם את ההפרש מראש בלינק (קישור) שיישלח אליו במייל או בואטסאפ. אם המוצר יותר זול אז הלקוח יקבל החזר על ההפרש באותו אופן של התשלום.\nהחזר כספי עבור הפרש המחיר יקבל תוך 3 ימי עסקים אחרי שהמוצר שהוא החזיר הגיע למחסן ונמצא תקין ולא משומש!\n\n* שליחת החלפה שנייה תהיה על חשבון הלקוח!\n\n    \n\nהחזרת מוצר וקבלת החזר כספי\n\n* להחזרת המוצר יש לפנות לשירות הלקוחות הואטסאפ לתיאום ההחזרה במספר 04-9502222.\n* החזרת מוצר תתאפשר תוך 14 ימים מיום קבלתו רק אם הוא חדש ובקופסה המקורית ולא בוצע בו שימוש.\n* החזרת המוצר תהיה על חשבון הלקוח.\n* ההחזר הכספי יהיה עבור המוצרים בלבד ולא יכלול החזרת עלות המשלוח ששולמה בעת הרכישה!\n* ההחזר הכספי יינתן באותו אופן של התשלום ויבוצע תוך 5 ימי עסקים מיום הגעת המוצר לחנות.\nניתן להחזיר את המוצרים באחת מהדרכים הבאות:\nבדואר רשום לכתובת שנספק לכם בוואטאפ.\nעם שליח בעלות 40 ש\"ח: שליח מגיע אליכם עד הבית, אוסף את המוצר ומחזיר לנו. אחרי שהמוצר מגיע אלינו בחזרה עם השליח נבצע לכם החזר כספי. ניתן לשלם את עלות המשלוח ישירות לשליח או לשלם לנו אונליין מראש באמצעות כרטיס אשראי ללינק שנשלח אליכם.",
       "returnPolicyDefaultContent": "",
       "returnPolicyFooter": "",
       "shippingPolicyPageTitle": "מדיניות משלוחים",
       "shippingPolicyHeader": "",
-      "shippingPolicyContent": "מדיניות משלוחים — Pawzen\n\n1. הלקוח יבחר את סוג המשלוח הרצוי בעגלת הקניות ועלות המשלוח תתווסף למחיר המוצרים.\n\n2. המשלוח יתבצע באמצעות חברת שילוח חיצונית.\n\n3. החבילה תישלח תוך 2 ימי עסקים מיום ביצוע ההזמנה.\n\n4. זמן האספקה הוא 5-15 ימי עסקים מיום המשלוח.\n\n5. משלוח סטנדרט: ₪19.90 (3-7 ימי עסקים).\n\n6. משלוח אקספרס: ₪39.90 (1-3 ימי עסקים).\n\n7. משלוח חינם בהזמנות מעל ₪200 (5-10 ימי עסקים).\n\n8. הודעת SMS תישלח ללקוח עם פרטי מעקב לאחר שליחת החבילה.\n\n9. Pawzen אינה אחראית לעיכובים הנגרמים על ידי חברת השילוח או מכס.\n\nלשאלות בנוגע למשלוחים ניתן לפנות אלינו: support@pawzen.co\n",
+      "shippingPolicyContent": "1. הלקוח יבחר את סוג המשלוח שירצה בעגלת הקניות ועלות המשלוח תתווסף למחיר המוצר.\n2. המשלוח יתבצע באמצעות חברת שילוח חיצונית \"צ'יטה משלוחים\".\n\n3. החבילה תישלח תוך 1 ימי עסקים מיום ביצוע ההזמנה.\n\n4. זמן האספקה הוא 3-5 ימי עסקים מיום מסירתה לשליח.\n\n5. במשלוח מסוג \"משלוח לנקודת איסוף\" החבילה תישלח לנקודת איסוף הכי קרובה לכתובת שסופקה ע\"י הלקוח. לחברת \"צ'יטה\" יש מאות נקודות איסוף בכל חלקי הארץ. ברגע הגעת החבילה ליעד תישלח הודעת SMS עם כל הפרטים ללקוח.\n\n6. במשלוח עד הבית החבילה תישלח לכתובת שסיפק הלקוח.\n\n7. עלות משלוח עד הבית שחברת המשלוחים גובה מהחנות האינטרנטית נעה בין 40 ש\"ח ל- 60 ש\"ח תלוי באיזור. המחיר הגבוה הוא מחיר שילוח ל- \"איזורים חריגים\" על פי הגדרת חברת השילוח \"צ'יטה\", לרשימת האיזורים החריגים לחצו כאן\n\n8. עלות משלוח מסוג \"משלוח לנקודת איסוף\" היא 20 ש\"ח לכל האיזורים.\n\n9. כל עלויות המשלוח שהלקוח מתבקש לשלם מסופסדות ומוזלות על ידי Pawzen בה הלקוח משלם חלק מעלות המשלוח המצויינת בסעיפים 8 ו- 9.\n",
       "shippingPolicyDefaultContent": "",
       "shippingPolicyFooter": "",
       "privacyPolicyPageTitle": "מדיניות הפרטיות",
@@ -245,7 +222,7 @@
       "privacyPolicyFooter": "",
       "termsOfServicePageTitle": "תקנון",
       "termsOfServiceHeader": "",
-      "termsOfServiceContent": "תקנון החנות — Pawzen\n\n1. הנך מתבקש לקרוא תקנון זה במלואו ובעיון, כתנאי מוקדם להתקשרות בין הצדדים.\n\n2. החנות משמשת לרכישת אביזרי חיות מחמד על ידי ציבור הגולשים באינטרנט. רשאים לרכוש בני 18 ומעלה, בעלי דואר אלקטרוני וכרטיס אשראי תקף.\n\n3. תנאי מוקדם לתוקף הרכישה הוא אישור חברת כרטיסי האשראי לעסקה.\n\n4. גלישה בחנות ו/או רכישת מוצרים מהווה הסכמה לתנאי תקנון זה.\n\n5. המחיר כולל מע\"מ אלא אם צוין אחרת.\n\n6. ייתכנו הבדלים ברמת הצבע בין התמונה המוצגת למוצר בפועל.\n\n\nרכישת מוצרים\n\nבאתר מוצעים למכירה אביזרי חיות מחמד במחיר קבוע מראש, עד גמר המלאי. לאחר הוספת מוצרים לעגלת הקניות, הלקוח ימלא את פרטיו וישלים את הליך הרכישה.\n\n\nהחלפת מוצר\n\n1. להחלפת מוצר יש לשלוח אותו בחזרה (חדש ובאריזה המקורית) תוך 14 ימים מיום קבלתו.\n2. הלקוח ישלח את המוצר על חשבונו.\n3. לאחר קבלת המוצר בחזרה, יישלח מוצר חליפי.\n* מוצר שהוחזר לא באריזה המקורית, משומש או פגום — לא יוחלף ולא יזוכה.\n\n\nהחזרת מוצר וקבלת החזר כספי\n\nלהחזרת מוצר יש לפנות לשירות הלקוחות בדוא\"ל support@pawzen.co.\nהחזרה תתאפשר תוך 14 ימים מיום קבלת המוצר, בתנאי שהוא חדש ובאריזה המקורית.\nהחזרת המוצר על חשבון הלקוח. ההחזר הכספי עבור המוצרים בלבד (לא כולל עלות משלוח) ויבוצע תוך 5 ימי עסקים.\n\n\nביטול הזמנה\n\n1. הלקוח רשאי לבטל עסקה בכפוף לחוק הגנת הצרכן.\n2. ניתן לבטל הזמנה לפני שליחת המוצר בפנייה לדוא\"ל support@pawzen.co.\n3. לאחר שליחת המוצר, יש להחזירו בהתאם לנוהל ההחזרה.\n4. Pawzen רשאית לבטל עסקה במקרים של טעות במחיר/תיאור, כוח עליון, מוצר פגום או שאזל מהמלאי.\n\n\nאספקת מוצרים\n\n1. המוצרים יימסרו לשליחה תוך 2 ימי עסקים לאחר אישור העסקה.\n2. Pawzen לא תהיה אחראית לאיחורים שאינם בשליטתה.\n3. זמני אספקה כוללים ימי עסקים בלבד (א-ה, לא כולל שבת, ערבי חג וחגים).\n\n\nאחריות\n\n1. האחריות על המוצרים ניתנת על פגמי ייצור בלבד.\n2. האחריות לא תחול על בלאי, שימוש לא תקין, או נזק שנגרם על ידי חיית המחמד.\n3. יש להציג חשבונית קנייה לצורך מימוש האחריות.\n\n\nשירות לקוחות\n\nלשאלות ובירורים ניתן לפנות אלינו:\nדוא\"ל: support@pawzen.co\n\n\nכללי\n\n1. התמונות באתר להמחשה בלבד. ייתכנו הבדלים בצבע בין התמונה למוצר בפועל.\n2. Pawzen לא תהיה אחראית לנזק ישיר או עקיף כתוצאה משימוש באתר.\n3. כל התכנים באתר, לרבות גרפיקה, עיצוב, סימני מסחר ולוגו, הם בבעלות Pawzen.\n4. אין להעתיק, לשכפל או להפיץ תכנים מהאתר ללא הסכמה בכתב מראש.",
+      "termsOfServiceContent": " תקנון החנות\n\n1.הנך מתבקש לקרוא תקנון זה במלואו ובעיון , כתנאי מוקדם להתקשרות בין הצדדים\n\n2. החנות משמשת לרכישת מוצרים על ידי ציבור הגולשים באינטרנט בישראל ורשאים לרכוש בה בני 18 ומעלה ,בעלי תא דואר אלקטרוני ברשת האינטרנט בישראל ובעל כתובת מגורים בישראל , אשר ברשותם כרטיס אשראי תקף בישראל.\n\n3. תנאי מוקדם לתוקף זכייתו של משתתף ברכישה הוא אישור חברת כרטיסי האשראי לעיסקה ולגביה.\n\n4. גלישה בחנות ו/או רכישת המוצר ו/או שירות המוצעים למכירה בו , מהווה את הסכמתך לקבל ולנהוג על פי הוראות התקנון , לפיכך אם אינך מסכים לתנאי מתנאי תקנון זה , הנך מתבקש לא לעשות כל שימוש בחנות.\n\n6. המחיר הינו כולל מע\"מ אלא אם צויין מפורשות אחרת.\n\n7. יתכנו הבדלים ברמת הצבע בין התמונה המוצגת למוצר בפועל. הבדלים אלו נובעים מסוג המצלמה, תיאורה, הגדרות הצבע במסכים וסוגי מסכים שונים וכולה...\n\n \n\nרכישת מוצרים\n\nבאתר מוצעים למכירה כמות מוגבלת של מוצרים במחיר קבוע מראש. הליך המכירה יתבצע בתנאים כדלקמן :\n\n1. החנות תציג רשימת מוצרים לרבות כל הפרטים אודות המוצר או השירות המוצע למכירה ואת המחיר כפי שנקבע מראש, המכירה הינה עד גמר המלאי.\n\n2. לאחר הוספת המוצרים המבוקשים ל\"עגלת הקניות\" ימשיך הקונה בעמוד \"עגלת הקניות\" ל\"אישור קנייה\" ושם ימלא את פרטיו המלאים ולאחר מכן יסתיים הליך הקנייה האינטרנטי.\n\n\n\nאימות כרטיס אשראי\n\nהעסק יהיה רשאי לדרוש מהלקוח אימות כרטיס האשראי שלו ע\"י שליחת צילום סלפי של בעל הכרטיס שבה יופיעו גם ת.ז. וכרטיס האשראי שלו למספר הוואטסאפ של העסק. במקרה זה חייב שהשם שעל כרטיס האשראי יהיה תואם לשם בתעודת הזהות.\n\nבמקרה שאין התאמה או הלקוח יסרב לביצוע אימות הניתונים יהיה העסק רשאי לבטל את העיסקה.\n\n\n\n החלפת מוצר\n\n1. לחלפת מוצר יש לשלוח אותו בחזרה לעסק (רק אם הוא חדש ובקופסה המקורית) תוך 14 ימים מיום קבלתו.\n2. הלקוח ישלח את המוצר על חשבונו באחת מהדרכים המצויינות מטה.\n3. אחרי קבלת המוצר בחזרה על ידי החנות יישלח ללקוח מוצר חליפי שהוא בחר חינם לנקודת איסוף.\n* מוצר שיוחזר לא בקופסה המקורית או משומש או שנגרם לו נזק לא יוחלף ולא יזוכה!\n** את החבילה יש לעטוף בניילון או נייר. אין להדביק או לכתוב על הקופסה המקורית!\n\n    קיימות 2 דרכים לשליחת המוצר ולביצוע החלפה:\n\nבדואר רשום לכתובת שנספק לכם בוואטאפ. (הדואר גובה בין 15-20ש\"ח). ברגע שהחבילה מגיעה אלינו נשלח לכם את המוצר שרציתם לנקודת איסוף חינם ללא עלות.\nהחלפה בבית הלקוח בעלות 49 ש\"ח: שליח מגיע אליכם עד הבית עם המוצר החליפי לביצוע ההחלפה במקום. עלות 49 ₪ בתשלום מראש.\nאם הלקוח יבחר להחליף למוצר יותר יקר הוא ישלם את ההפרש מראש בלינק (קישור) שיישלח אליו במייל או בואטסאפ. אם המוצר יותר זול אז הלקוח יקבל החזר על ההפרש באותו אופן של התשלום.\nהחזר כספי עבור הפרש המחיר יקבל תוך 3 ימי עסקים אחרי שהמוצר שהוא החזיר הגיע למחסן ונמצא תקין ולא משומש!\n\n* שליחת החלפה שנייה תהיה על חשבון הלקוח!\n\n    \n\nהחזרת מוצר וקבלת החזר כספי\n\nלהחזרת המוצר יש לפנות לשירות הלקוחות הואטסאפ לתיאום ההחזרה במספר 04-9502222.\nהחזרת מוצר תתאפשר תוך 14 ימים מיום קבלתו רק אם הוא חדש ובקופסה המקורית ולא בוצע בו שימוש .\nהחזרת המוצר תהיה על חשבון הלקוח.\nההחזר הכספי יהיה עבור המוצרים בלבד ולא יכלול החזרת עלות המשלוח ששולמה בעת הרכישה!\nההחזר הכספי יינתן באותו אופן של התשלום ויבוצע תוך 3 ימי עסקים מיום הגעת המוצר לחנות.\nניתן להחזיר את המוצרים באחת מהדרכים הבאות:\nבדואר רשום לכתובת שנספק לכם בוואטאפ. (הדואר גובה בין 15-20ש\"ח). ברגע שהחבילה מגיעה אלינו נשלח לכם את המוצר שרציתם לנקודת איסוף חינם ללא עלות.\nאיסוף ע\"י שליח בעלות 39 ש\"ח: שליח מגיע אליכם עד הבית, אוסף את המוצר ומחזיר לנו. אחרי שהמוצר מגיע אלינו בחזרה עם השליח אנחנו שולחים לכם מוצר חלופי לנקודת איסוף (לא עד הבית): עלות 39 ₪ בתשלום מראש.\n \nביטול הזמנה\n\n1. ככלל הלקוח רשאי לבטל את העיסקה*  בכפוף ובהתאם להוראות חוק הגנת הצרכן התשמ\"א 1981 ( להלן החוק: http://www.consumers.org.il/category/deal-annulment-regulations )\n\n2. ניתן לבטל רכישת מוצר טרם שהוא נשלח. הביטול יעשה אך ורק בהודעה שתשלח באמצעות הוואטסאפ למספר 04-9502222.\n\n3. אם המוצר טרם נשלח ההזמנה תבוטל ויבוצע החזר כספי\n\n4. אם הלקוח יבקש ביטול הזמנה אחרי שהמוצר נשלח, יהיה עליו לקבל אותו ואז להחזיר את המוצר לפי נוהל \"החזרת מוצר וקבלת החזר כספי הפיסקה לעיל. מוסכם כי הלקוח יחזיר את המוצר באריזתו ולא משומש, שלם וללא פגיעה ו/או נזק ו/או פגם מכל מין וסוג שהוא. אחרי הגעת המוצר בחזרה אל החנות יבוצע החזר כספי עבור המוצר ולא יכלול עלות המשלוח\n\n5. החנות תהיה רשאית לבטל עיסקה או מכירה כולה או חלקה במקרים הבאים:\n\nנפלה טעות קולמוס , בין אם במחיר המוצר ובין אם בתיאור המוצר.\nבמקרה של כוח עליון , פעולת מלחמה , איבה ,טרור מגפה ו/או כל דבר אחר אשר ימנע המשך ביצוע מכירה תקין.\nהמוצר נמצא פגום.\nהמוצר אזל מהמלאי.\nחשד להונאה בכ\"א\n6. הודעה על ביטול המכירה תימסר לקונים בטלפון ו/או בדואר אלקטרוני לכתובת אשר צויינה בדף ההרשמה.\n\n     *מקרים בהם לא ניתן לבטל עסקה: http://www.consumers.org.il/category/cases-for-no-annulment-rights\n\n \n\n אספקת המוצרים\n\n1. החנות תדאג למסור את המוצר שהוזמן באתר לשליחה תוך שני ימי עסקים לכל היותר לאחר אישור של חברת האשראי על העסקה.\n\n2. החנות ו/או הספקים לא יהיו אחראים לאיחור בביצוע אספקת המוצר במקרים שהם לא בשליטתם. איחורים באספקה הם באחריות חברת המשלוחים.\n\n3. זמני אספקת המוצרים ו/או השירותים כפי שאלה מצויינים בדף המכירה כוללים רק ימי עסקים קרי, יום א-ה לא כולל שישי שבת , ערבי חג וימי חג.\n\n\n\nמשלוח\n\n1. הלקוח יבחר את סוג המשלוח שירצה בעגלת הקניות ועלות המשלוח תתווסף למחיר המוצר.\n2. המשלוח יתבצע באמצעות חברת שילוח חיצונית \"צ'יטה משלוחים\".\n\n3. החבילה תישלח תוך 1 ימי עסקים מיום ביצוע ההזמנה.\n\n4. זמן האספקה הוא 3-5 ימי עסקים מיום מסירתה לשליח.\n\n5. במשלוח מסוג \"משלוח לנקודת איסוף\" החבילה תישלח לנקודת איסוף הכי קרובה לכתובת שסופקה ע\"י הלקוח. לחברת \"צ'יטה\" יש מאות נקודות איסוף בכל חלקי הארץ. ברגע הגעת החבילה ליעד תישלח הודעת SMS עם כל הפרטים ללקוח.\n\n6. במשלוח עד הבית החבילה תישלח לכתובת שסיפק הלקוח.\n\n7. עלות משלוח עד הבית שחברת המשלוחים גובה מהחנות האינטרנטית נעה בין 40 ש\"ח ל- 60 ש\"ח תלוי באיזור. המחיר הגבוה הוא מחיר שילוח ל- \"איזורים חריגים\" על פי הגדרת חברת השילוח \"צ'יטה\", לרשימת האיזורים החריגים לחצו כאן\n\n8. עלות משלוח מסוג \"משלוח לנקודת איסוף\" היא 20 ש\"ח לכל האיזורים.\n\n9. כל עלויות המשלוח שהלקוח מתבקש לשלם מסופסדות ומוזלות על ידי Pawzen בה הלקוח משלם חלק מעלות המשלוח המצויינת בסעיפים 8 ו- 9.\n\n\n\nאחריות\n1. האחריות על המוצרים תינתן ע\"י הייבואן או היצרן.\n2. האחריות תינתן על פגם בתהליך הייצור או פגם בחומר.\n3. במידה והמוצר/הנעל נפגמה אחרי שימוש כגון עקב נשבר או סוליה נפתחה וכדומה, הנעל תתוקן בחברה.\n4. האחריות לא תחול במקרים הבאים:\n    4.1 נעשה שימוש במוצר שאינו תואם את ייעודו המקורי כמו לשחק כדורגל בנעל ריצה.\n\n    4.2 המוצר נפגם בזדון או עקב גורם חיצוני בעת השימוש.\n\n    4.3 שפשופים, שריטות, קילופים או קרעים הנובעים מבלאי או משחיקה.\n\n    4.4 הנעל עברה ניקוי באמצעות שטיפה במים, השרייה בסבון, במכונת כביסה או ביד.\n\n    4.5 הבגד כובס לא לפי הוראות היצרן (אם זה מוצר ביגוד).\n\n    4.6  בלאי, שחיקה, ריח ואי נוחות לאחר השימוש במוצר אינם נחשבים לפגמים בייצור ואינם באחריות.\n\n    4.7 נזק שנגרם כתוצאה משימוש רשלני או לא תקין.\n\n\n\n5. האחריות על המוצר תינתן עם הצגת חשבונית קנייה בלבד ותוך זמן סביר.\n\n6. האחריות על המוצר תינתן בחנות הפיזית המפעילה את החנות האינטרנטית.\n\n7. החנות מתחייבת לשלוח את המוצר לבדיקה שבמסגרת האחריות אצל הייבואן או הייצרן ולתקנו תוך 14 ימי עבודה במקרה של פגם בחומר או בתהליך הייצור ובכפוף לשימוש סביר במוצר.\n\n8. אחרי סיום הטיפול הלקוח יבחר אם יאסוף את המוצר מהחנות בעצמו או ייבקש לשלוח את המוצר אליו במשלוח בעלות 30 ש\"ח על חשבונו.\n\n \n\nשירות לקוחות\n\nכל שאלה או בירור לגבי המוצרים המוצגים באתר לרבות מידע על שימוש נכון במוצר ולפרטים ובירורים באשר לחנות ופעילותה , ניתן לפנות אלינו:\n\nוואטסאפ: 04-9502222\n\nדוא\"ל: support@pawzen.co\n\n \n\n כללי\n\n1. התמונות המוצגות באתר הן להמחשה בלבד , ואינן מחייבות את החנות. ייתכנו הבדלים ברמת הצבע בין התמונה למוצר בפועל, ההבדלים נובעים מרמת תיאורה, סוגי מסך שונים וכולה...\n\n2. החנות ו/או מי מטעמה לא יהיו אחראים ולא ישאו בכל נזק ישיר , עקיף , תוצאתי או מיוחד שנגרם למשתמש או לצד שלישי , כתוצאה משימוש באמצעות האתר .\n\n3. החנות לא תהא אחראית להרכבתם ו/או התקנתם של מוצרים שנרכשו באתר ואחריות זו תחול על הלקוח ועל חשבונו.\n\n4. אייקונים (ICONS) כל מידע ו/או תצוגה המופיעים באתר , לרבות גרפיקה , עיצוב , הצגה מילולית , סימני מסחר , סימני לוגו לרבות עריכתם והצגתם באתר,הנם בבעלותם הבלעדית של החנות.\n\n\n5. אין להעתיק , לשכפל, להפיץ , לפרסם או להשתמש בכל דרך אחרת בתכנים המופיעים באתר , אלא אם כן ניתנה הסכמה בכתב ומראש מטעם החנות.",
       "termsOfServiceDefaultContent": "",
       "termsOfServiceFooter": "",
       "policyPageEmptyMessage": "תוכן דף המדיניות אינו זמין כרגע."
@@ -256,7 +233,7 @@
           "enabled": true,
           "type": "video",
           "title": "ברוכים הבאים ל-Pawzen",
-          "subtitle": "אביזרים מעוצבים ואיכותיים לכלבים וחתולים",
+          "subtitle": "אביזרים מודרניים ומעוצבים לכלבים וחתולים. מעוצבים באהבה, נשלחים באכפת.",
           "ctaText": "לקניות",
           "ctaLink": "/products",
           "badgeText": "קולקציה חדשה",
@@ -269,52 +246,55 @@
           "showProgressBar": true,
           "showNavDots": true,
           "background": {
-            "style": "solid",
-            "color": "#000000",
-            "secondaryColor": null
+            "style": "gradient",
+            "color": "#1B2838",
+            "secondaryColor": "#1E4D3A",
+            "gradientDirection": "to-bottom-right"
           }
         },
         "trustStrip": {
           "enabled": true,
-          "freeShippingText": "משלוח חינם בהזמנות מעל 200 ₪",
-          "easyReturnsText": "החזרות קלות",
-          "secureCheckoutText": "תשלום מאובטח",
-          "supportText": "תמיכה 24/7",
+          "freeShippingText": "חומרים בטוחים לחיות מחמד",
+          "easyReturnsText": "משלוח חינם מעל ⪡200",
+          "secureCheckoutText": "תמיכה 24/7",
+          "supportText": "החזרות תוך 30 יום",
           "background": {
-            "style": "solid",
-            "color": "#f9fafb",
-            "secondaryColor": null
+            "style": "color-mix",
+            "color": "#1E4D3A",
+            "secondaryColor": "#F8F7F5",
+            "mixPercentage": 6
           }
         },
         "marquee": {
           "enabled": true,
-          "text": "משלוח חינם בהזמנות מעל 200 ₪! • קולקציה חדשה בחנות",
+          "text": "🐾 מוצרים חדשים כל שבוע • משלוח חינם מעל ⪡200 • אביזרים איכותיים למחמד • מאושרי וטרינר • החזרות תוך 30 יום 🐾",
           "speedSeconds": 45,
           "textColor": "#fff",
           "background": {
             "style": "solid",
-            "color": "#0a0a0a",
+            "color": "#1B2838",
             "secondaryColor": null
           }
         },
         "brandGrid": {
           "enabled": true,
           "title": "מותגים מובילים",
-          "subtitle": "נבחרו במיוחד מהמותגים הטובים ביותר",
+          "subtitle": "אוסף מהמותגים הטובים בעולם",
           "maxBrands": 8,
           "showLogos": true,
           "layout": "grid",
           "background": {
-            "style": "color-mix",
+            "style": "mesh",
             "color": null,
             "secondaryColor": null,
-            "mixPercentage": 4
+            "meshOpacity": 6,
+            "meshGrade": "warm"
           }
         },
         "categories": {
           "enabled": true,
           "title": "קניות לפי קטגוריה",
-          "subtitle": "מצאו את מה שאתם מחפשים",
+          "subtitle": "כל מה שהמחמד שלך צריך, מסודר בקפידה",
           "maxCategories": 6,
           "showProductCount": true,
           "showSubcategories": true,
@@ -322,32 +302,32 @@
           "background": {
             "style": "none",
             "color": null,
-            "secondaryColor": null,
-            "mixPercentage": 3
+            "secondaryColor": null
           }
         },
         "trending": {
           "enabled": true,
           "title": "מוצרים חדשים",
-          "subtitle": "הגיעו זה עתה לחנות",
+          "subtitle": "חדש בחנות לחברים הפרוותיים",
           "collectionSlug": "new-arrivals",
           "fallbackToNewest": true,
           "maxProducts": 8,
           "layout": "grid",
           "background": {
-            "style": "none",
-            "color": null,
-            "secondaryColor": null
+            "style": "color-mix",
+            "color": "#C9A962",
+            "secondaryColor": "#F8F7F5",
+            "mixPercentage": 4
           }
         },
         "promotionBanner": {
           "enabled": true,
-          "badgeText": "הצעה מיוחדת",
-          "title": "אל תפספסו",
+          "badgeText": "מבצע מוגבל",
+          "title": "פנקו את המחמד",
           "highlight": "עד 25% הנחה",
-          "description": "ציוד ספורט איכותי לריצה, מגרש ואולם. קולקציה מוגבלת.",
+          "description": "אביזרים איכותיים לכלבים וחתולים. כי הם ראויים להכי טוב.",
           "primaryCta": {
-            "text": "לפריטים במבצע",
+            "text": "למבצעים",
             "link": "/products?collection=sale"
           },
           "secondaryCta": {
@@ -357,28 +337,30 @@
           "autoDetectDiscount": true,
           "background": {
             "style": "gradient",
-            "color": null,
-            "secondaryColor": null,
+            "color": "#1B2838",
+            "secondaryColor": "#1E4D3A",
             "gradientDirection": "to-bottom-right"
           }
         },
         "flashDeals": {
           "enabled": true,
-          "title": "מבצעי ברק",
-          "subtitle": "הצעות לזמן מוגבל",
-          "badgeTemplate": "עד {discount}% הנחה",
+          "title": "מבצעי בזק",
+          "subtitle": "הצעות בזמן מוגבל",
+          "badgeTemplate": "חיסכון {discount}%",
           "collectionSlug": "sale",
           "maxProducts": 8,
           "background": {
-            "style": "none",
-            "color": null,
-            "secondaryColor": null
+            "style": "glass",
+            "color": "#8B3A3A",
+            "secondaryColor": null,
+            "glassBlur": 8,
+            "glassOpacity": 4
           }
         },
         "collectionMosaic": {
           "enabled": true,
-          "title": "קניות לפי קולקציה",
-          "subtitle": "נבחר במיוחד עבורכם",
+          "title": "קולקציות נבחרות",
+          "subtitle": "אוספים שנבחרו בקפידה לכל הורה למחמד",
           "maxCollections": 5,
           "excludeSlugs": [
             "hero-banner",
@@ -390,56 +372,54 @@
             "style": "mesh",
             "color": null,
             "secondaryColor": null,
-            "meshOpacity": 10,
-            "meshGrade": "light"
+            "meshOpacity": 8,
+            "meshGrade": "cool"
           }
         },
         "bestSellers": {
           "enabled": true,
-          "title": null,
-          "subtitle": null,
+          "title": "הנמכרים ביותר",
+          "subtitle": "אהובים על ידי הורים למחמד בכל מקום",
           "collectionSlug": "best-sellers",
           "fallbackToTopRated": true,
           "maxProducts": 8,
           "layout": "horizontal-scroll",
           "background": {
-            "style": "mesh",
-            "color": null,
-            "secondaryColor": null,
-            "mixPercentage": 8,
-            "meshOpacity": 10,
-            "meshGrade": "deep"
+            "style": "color-mix",
+            "color": "#1B2838",
+            "secondaryColor": "#F8F7F5",
+            "mixPercentage": 5
           }
         },
         "customerFeedback": {
           "enabled": true,
-          "title": "משוב לקוחות",
-          "subtitle": "ביקורות מאומתות מהקהילה שלנו",
+          "title": "הורים מרוצים",
+          "subtitle": "סיפורים אמיתיים מהקהילה שלנו",
           "maxReviews": 3,
           "minRating": 4,
           "showProductName": true,
           "background": {
-            "style": "none",
+            "style": "pattern",
             "color": null,
-            "secondaryColor": null
+            "secondaryColor": null,
+            "patternType": "dots",
+            "patternOpacity": 3
           },
-          "starColor": "#FFD700",
-          "starEmptyColor": null
+          "starColor": "#C9A962",
+          "starEmptyColor": "#EDEAE5"
         },
         "newsletter": {
           "enabled": true,
-          "title": null,
-          "subtitle": null,
-          "buttonText": null,
-          "placeholder": null,
+          "title": "הצטרפו ללהקה",
+          "subtitle": "טיפים, טריקים והצעות בלעדיות למחמד שלכם",
+          "buttonText": "הרשמה",
+          "placeholder": "you@email.com",
           "layout": "stacked",
           "background": {
-            "style": "mesh",
-            "color": null,
-            "secondaryColor": null,
-            "gradientDirection": "to-bottom",
-            "meshOpacity": 10,
-            "meshGrade": "deep"
+            "style": "gradient",
+            "color": "#1B2838",
+            "secondaryColor": "#1E4D3A",
+            "gradientDirection": "to-bottom"
           }
         },
         "recentlyViewed": {
@@ -527,16 +507,16 @@
         "hero",
         "trustStrip",
         "marquee",
-        "brandGrid",
         "categories",
         "trending",
+        "brandGrid",
         "promotionBanner",
         "flashDeals",
         "collectionMosaic",
         "bestSellers",
         "customerFeedback",
-        "recentlyViewed",
-        "newsletter"
+        "newsletter",
+        "recentlyViewed"
       ]
     },
     "pages": {
@@ -572,11 +552,11 @@
         "whatsappDefaultMessage": "שלום! אני מעוניין לקבל מידע נוסף"
       },
       "social": {
-        "facebook": null,
-        "instagram": "https://www.instagram.com/pawzen.shop/",
+        "facebook": "https://facebook.com/pawzen",
+        "instagram": "https://instagram.com/pawzen.co",
         "twitter": null,
-        "youtube": "",
-        "tiktok": null,
+        "youtube": null,
+        "tiktok": "https://tiktok.com/@pawzen",
         "pinterest": null
       },
       "cookieConsent": {
@@ -587,10 +567,10 @@
     },
     "seo": {
       "titleTemplate": "%s | Pawzen",
-      "defaultTitle": "Pawzen - אביזרים מודרניים לכלבים וחתולים",
-      "defaultDescription": "חנות אונליין לאביזרי חיות מחמד איכותיים לכלבים וחתולים. משלוח חינם מעל ₪200. צעצועים, מזון, מיטות ואביזרי טיפוח.",
+      "defaultTitle": "Pawzen — אביזרים מודרניים לכלבים וחתולים",
+      "defaultDescription": "גלו אביזרים מעוצבים לחיות מחמד. צעצועים, מיטות, מזינים ועוד לכלבים וחתולים. משלוח חינם מעל ⪡200.",
       "defaultImage": "/og-image.jpg",
-      "twitterHandle": null
+      "twitterHandle": "@pawzen"
     },
     "localization": {
       "defaultLocale": "he-IL",
@@ -645,9 +625,9 @@
       "showCategories": true,
       "showCollections": true,
       "showBrands": true,
-      "categoryLimit": 10,
-      "collectionLimit": 10,
-      "brandLimit": 10,
+      "categoryLimit": 20,
+      "collectionLimit": 20,
+      "brandLimit": 20,
       "style": {
         "cardWidth": 160,
         "cardHeight": 220,
@@ -659,13 +639,27 @@
         "titleColor": null,
         "valueColor": null,
         "activeValueColor": null,
+        "cardBackgroundColor": null,
+        "cardBorderColor": null,
+        "cardBorderRadius": "xl",
+        "cardActiveBorderColor": null,
+        "cardActiveBgColor": null,
+        "cardActiveTextColor": null,
+        "cardTextStripBg": null,
+        "cardHoverBorderColor": null,
+        "cardHoverShadow": "md",
+        "sectionTitleColor": null,
+        "arrowBackgroundColor": null,
+        "arrowIconColor": null,
+        "groupLabelColor": null,
+        "checkBadgeColor": null,
         "shopAllButtonBackgroundColor": null,
         "shopAllButtonTextColor": null,
         "shopAllButtonHoverBackgroundColor": null,
         "shopAllButtonBorderColor": null,
         "navbarMode": {
-          "buttonPaddingX": 14,
-          "buttonPaddingY": 6,
+          "buttonPaddingX": 16,
+          "buttonPaddingY": 8,
           "buttonFontSize": "xs",
           "buttonFontWeight": "semibold",
           "buttonBorderRadius": "full",
@@ -677,24 +671,24 @@
           "separatorHeight": 24,
           "containerPaddingY": 10,
           "backgroundColor": null,
-          "borderTopColor": null,
-          "borderBottomColor": null,
+          "borderTopColor": "#EDEAE5",
+          "borderBottomColor": "#EDEAE5",
           "shadowColor": null
         }
       }
     },
     "promoPopup": {
       "enabled": true,
-      "title": "מבצע מיוחד!",
-      "body": "הנחות של עד 30% על אביזרים נבחרים לכלבים וחתולים. אל תפספסו!",
+      "title": "ברוכים הבאים ל-Pawzen!",
+      "body": "עד 30% הנחה על אביזרים נבחרים. המחמד שלכם ראוי להכי טוב.",
       "badge": "עד 30% הנחה",
       "imageUrl": null,
       "backgroundImageUrl": null,
-      "ctaText": "לצפייה במבצעים",
+      "ctaText": "למבצעים",
       "ctaLink": "/products?onSale=true",
-      "itemsOnSaleText": "{count} {count, plural, =1 {פריט} other {פריטים}} במבצע",
+      "itemsOnSaleText": "{count} {count, plural, =1 {item} other {items}} on sale",
       "maybeLaterText": "אולי מאוחר יותר",
-      "delaySeconds": 2,
+      "delaySeconds": 3,
       "showOncePerSession": false,
       "ttlHours": 24,
       "excludeCheckout": true,
@@ -703,79 +697,79 @@
     },
     "ui": {
       "buttons": {
-        "borderRadius": "md",
+        "borderRadius": "lg",
         "primary": {
-          "backgroundColor": null,
-          "textColor": null,
-          "hoverBackgroundColor": null,
+          "backgroundColor": "#1B2838",
+          "textColor": "#FFFFFF",
+          "hoverBackgroundColor": "#243447",
           "borderColor": null
         },
         "secondary": {
-          "backgroundColor": null,
-          "textColor": null,
-          "hoverBackgroundColor": null,
+          "backgroundColor": "#C9A962",
+          "textColor": "#1B2838",
+          "hoverBackgroundColor": "#B89545",
           "borderColor": null
         },
         "outline": {
-          "backgroundColor": null,
-          "textColor": null,
-          "hoverBackgroundColor": null,
-          "borderColor": null
+          "backgroundColor": "transparent",
+          "textColor": "#1B2838",
+          "hoverBackgroundColor": "#F3F0EB",
+          "borderColor": "#1B2838"
         },
         "danger": {
-          "backgroundColor": null,
-          "textColor": null,
-          "hoverBackgroundColor": null,
+          "backgroundColor": "#8B3A3A",
+          "textColor": "#FFFFFF",
+          "hoverBackgroundColor": "#7A3030",
           "borderColor": null
         }
       },
       "badges": {
         "sale": {
-          "backgroundColor": "#DC2626",
+          "backgroundColor": "#8B3A3A",
           "textColor": "#FFFFFF",
           "borderRadius": "sm"
         },
         "new": {
-          "backgroundColor": "#059669",
+          "backgroundColor": "#1E4D3A",
           "textColor": "#FFFFFF",
           "borderRadius": "sm"
         },
         "outOfStock": {
-          "backgroundColor": "#6B7280",
+          "backgroundColor": "#7A756E",
           "textColor": "#FFFFFF",
           "borderRadius": "sm"
         },
         "lowStock": {
-          "backgroundColor": "#D97706",
-          "textColor": "#FFFFFF",
+          "backgroundColor": "#C9A962",
+          "textColor": "#1B2838",
           "borderRadius": "sm"
         },
         "discount": {
-          "backgroundColor": "#DC2626",
+          "backgroundColor": "#8B3A3A",
           "textColor": "#FFFFFF",
           "borderRadius": "full"
         },
         "featured": {
-          "backgroundColor": "#E78F21",
-          "textColor": "#FFFFFF",
+          "backgroundColor": "#C9A962",
+          "textColor": "#1B2838",
           "borderRadius": "sm"
         }
       },
       "inputs": {
-        "borderRadius": "md",
-        "borderColor": null,
-        "focusBorderColor": null,
-        "focusRingColor": null,
-        "backgroundColor": null,
-        "placeholderColor": null
+        "borderRadius": "lg",
+        "borderColor": "#EDEAE5",
+        "focusBorderColor": "#1B2838",
+        "focusRingColor": "#C9A962",
+        "backgroundColor": "#FFFFFF",
+        "placeholderColor": "#7A756E"
       },
       "checkbox": {
-        "checkedBackgroundColor": null,
+        "checkedBackgroundColor": "#1B2838",
         "borderRadius": "sm"
       },
       "productCard": {
-        "borderRadius": "none",
-        "shadow": "lg",
+        "borderRadius": "lg",
+        "shadow": "sm",
         "hoverShadow": "lg",
         "showQuickView": true,
         "showWishlistButton": true,
@@ -785,7 +779,7 @@
         "badgePosition": "top-start",
         "showBrandLabel": true,
         "showRating": true,
-        "imageFit": "contain",
+        "imageFit": "cover",
         "textStyles": {
           "name": {
             "fontSize": "sm",
@@ -795,17 +789,17 @@
           "price": {
             "fontSize": "base",
             "fontWeight": "bold",
-            "color": null
+            "color": "#1B2838"
           },
           "originalPrice": {
             "fontSize": "sm",
             "fontWeight": "normal",
-            "color": null
+            "color": "#7A756E"
           },
           "reviewCount": {
             "fontSize": "xs",
             "fontWeight": "normal",
-            "color": null
+            "color": "#7A756E"
           }
         },
         "showPrice": true,
@@ -821,92 +815,92 @@
         "contentAlignment": "start"
       },
       "toasts": {
-        "position": "top-right",
-        "borderRadius": "md",
+        "position": "bottom-right",
+        "borderRadius": "lg",
         "success": {
-          "backgroundColor": null,
-          "textColor": null,
-          "iconColor": null
+          "backgroundColor": "#1E4D3A",
+          "textColor": "#FFFFFF",
+          "iconColor": "#FFFFFF"
         },
         "error": {
-          "backgroundColor": null,
-          "textColor": null,
-          "iconColor": null
+          "backgroundColor": "#8B3A3A",
+          "textColor": "#FFFFFF",
+          "iconColor": "#FFFFFF"
         },
         "warning": {
-          "backgroundColor": null,
-          "textColor": null,
-          "iconColor": null
+          "backgroundColor": "#C9A962",
+          "textColor": "#1B2838",
+          "iconColor": "#1B2838"
         },
         "info": {
-          "backgroundColor": null,
-          "textColor": null,
-          "iconColor": null
+          "backgroundColor": "#1B2838",
+          "textColor": "#FFFFFF",
+          "iconColor": "#FFFFFF"
         }
       },
       "icons": {
         "style": "outline",
-        "defaultColor": null,
-        "activeColor": null
+        "defaultColor": "#7A756E",
+        "activeColor": "#1B2838"
       },
       "activeFiltersTags": {
-        "containerBackgroundColor": null,
-        "containerBorderColor": null,
+        "containerBackgroundColor": "#FBF9F6",
+        "containerBorderColor": "#EDEAE5",
         "containerBorderRadius": "lg",
         "containerPadding": 16,
         "containerShadow": "sm",
         "titleFontSize": "sm",
         "titleFontWeight": "semibold",
-        "titleColor": null,
+        "titleColor": "#0F1419",
         "clearAllButtonFontSize": "xs",
         "clearAllButtonFontWeight": "medium",
-        "clearAllButtonColor": null,
-        "clearAllButtonHoverColor": null,
-        "tagBackgroundColor": null,
-        "tagBorderColor": null,
-        "tagTextColor": null,
-        "tagHoverBackgroundColor": null,
-        "tagHoverBorderColor": null,
+        "clearAllButtonColor": "#8B3A3A",
+        "clearAllButtonHoverColor": "#7A3030",
+        "tagBackgroundColor": "#1B2838",
+        "tagBorderColor": "#1B2838",
+        "tagTextColor": "#FFFFFF",
+        "tagHoverBackgroundColor": "#243447",
+        "tagHoverBorderColor": "#243447",
         "tagBorderRadius": "full",
-        "tagPaddingX": 12,
+        "tagPaddingX": 14,
         "tagPaddingY": 6,
         "tagFontSize": "xs",
         "tagFontWeight": "medium",
         "tagGap": 8,
         "removeButtonSize": 16,
-        "removeButtonColor": null,
-        "removeButtonHoverBackgroundColor": null,
-        "removeButtonHoverColor": null,
+        "removeButtonColor": "#FFFFFF",
+        "removeButtonHoverBackgroundColor": "#111D2B",
+        "removeButtonHoverColor": "#FFFFFF",
         "removeButtonBorderRadius": "full"
       },
       "filterSidebar": {
-        "checkboxAccentColor": null,
+        "checkboxAccentColor": "#1B2838",
         "sectionTitleFontSize": "xs",
-        "sectionTitleFontWeight": "semibold",
-        "sectionTitleColor": null,
-        "sectionTitleHoverColor": null,
-        "chevronColor": null,
-        "chevronHoverColor": null,
+        "sectionTitleFontWeight": "bold",
+        "sectionTitleColor": "#0F1419",
+        "sectionTitleHoverColor": "#1B2838",
+        "chevronColor": "#7A756E",
+        "chevronHoverColor": "#1B2838",
         "itemTextFontSize": "xs",
-        "itemTextColor": null,
-        "itemCountColor": null,
-        "sizeChipSelectedBg": null,
-        "sizeChipSelectedText": null,
-        "sizeChipSelectedBorder": null,
-        "clearAllButtonBg": null,
-        "clearAllButtonText": null,
-        "clearAllButtonBorder": null,
-        "clearAllButtonHoverBg": null,
-        "clearAllButtonHoverText": null,
-        "priceInputFocusRingColor": null,
-        "priceQuickButtonActiveBg": null,
-        "priceQuickButtonActiveText": null,
-        "mobileShowResultsBg": null,
-        "mobileShowResultsText": null
+        "itemTextColor": "#0F1419",
+        "itemCountColor": "#7A756E",
+        "sizeChipSelectedBg": "#1B2838",
+        "sizeChipSelectedText": "#FFFFFF",
+        "sizeChipSelectedBorder": "#1B2838",
+        "clearAllButtonBg": "transparent",
+        "clearAllButtonText": "#8B3A3A",
+        "clearAllButtonBorder": "#8B3A3A",
+        "clearAllButtonHoverBg": "#8B3A3A",
+        "clearAllButtonHoverText": "#FFFFFF",
+        "priceInputFocusRingColor": "#C9A962",
+        "priceQuickButtonActiveBg": "#1B2838",
+        "priceQuickButtonActiveText": "#FFFFFF",
+        "mobileShowResultsBg": "#1B2838",
+        "mobileShowResultsText": "#FFFFFF"
       },
       "cart": {
         "displayMode": "drawer",
-        "drawerSide": "left",
+        "drawerSide": "right",
         "showDeleteText": false,
         "showSaveForLater": false
       },
@@ -934,6 +928,8 @@
         "saveForLaterButton": "שמור later",
         "moveToCartButton": "העבר לעגלה",
         "deleteButton": "מחק",
+        "removeButton": "הסרה",
+        "removingText": "מסיר...",
         "itemSingular": "פריט",
         "itemPlural": "פריטים",
         "orderSummaryTitle": "סיכום הזמנה",
@@ -1108,8 +1104,8 @@
       },
       "general": {
         "searchPlaceholder": "חיפוש מוצרים...",
-        "newsletterTitle": "הירשם לניוזלטר שלנו",
-        "newsletterDescription": "קבל עדכונים על מוצרים חדשים ומבצעים",
+        "newsletterTitle": "הצטרפו ללהקה",
+        "newsletterDescription": "טיפים לטיפול במחמד, הצעות בלעדיות ומוצרים חדשים",
         "newsletterButton": "הרשמה",
         "newsletterSuccess": "תודה על ההרשמה!",
         "newsletterPlaceholder": "הזן את האימייל שלך",
@@ -1145,7 +1141,7 @@
         "viewCategoryButton": "צפה בהכל",
         "productsLabel": "מוצרים",
         "brandsTitle": "מותגים מובילים",
-        "brandsSubtitle": "קנו מהמותגים האהובים עליכם",
+        "brandsSubtitle": "מהמותגים הטובים בעולם",
         "testimonialsTitle": "מה הלקוחות שלנו אומרים",
         "testimonialsSubtitle": "חוות דעת אמיתיות מלקוחות אמיתיים",
         "averageRatingLabel": "דירוג ממוצע",
@@ -1163,8 +1159,8 @@
         "brandsStatLabel": "מותגים",
         "stylesStatLabel": "סגנונות",
         "ratingStatLabel": "דירוג",
-        "heroDefaultTitle": "ביצועים מרובי מותגים",
-        "heroDefaultSubtitle": "הנעלה ואופנת ספורט מובחרת מהמותגים המובילים בעולם.",
+        "heroDefaultTitle": "ברוכים הבאים ל-Pawzen",
+        "heroDefaultSubtitle": "אביזרים מודרניים ומעוצבים לכלבים וחתולים",
         "watchVideoButton": "צפה בסרטון",
         "shopNowButton": "קנה עכשיו",
         "exploreText": "גלה",
@@ -1199,7 +1195,7 @@
         "dontMissOutTitle": "אל תפספסו",
         "shopSaleItemsButton": "קנה פריטים במבצע",
         "allProductsButton": "כל המוצרים",
-        "promoDescriptionFallback": "ציוד ביצועים פרימיום לריצה, מגרש וסטודיו. קולקציה לזמן מוגבל.",
+        "promoDescriptionFallback": "אביזרים איכותיים למשפחת הפרוותית. קולקציה בזמן מוגבל.",
         "recentlyViewedSubLabel": "ההיסטוריה שלך",
         "recentlyViewedTitle": "צפית לאחרונה",
         "recentlyViewedSubtitle": "מוצרים שצפית בהם לאחרונה"
@@ -1247,6 +1243,7 @@
         "billingAddressTitle": "כתובת לחיוב",
         "billingAddressSubtitle": "לחשבונית שלך",
         "useSameAsShipping": "השתמש בכתובת המשלוח ככתובת לחיוב",
+        "noShippingToCountry": "מצטערים, אנחנו לא שולחים כרגע ל{country}. אנא השתמש בכתובת משלוח אחרת.",
         "useSavedAddressButton": "השתמש בכתובת שמורה",
         "deliveryMethodsTitle": "שיטות משלוח",
         "deliveryMethodsSubtitle": "בחר מהירות משלוח",
@@ -1454,12 +1451,14 @@
         "colorPlural": "צבעים",
         "sizeSingular": "מידה",
         "sizePlural": "מידות",
+        "sortRecommended": "מומלץ",
         "sortAtoZ": "א עד ת",
         "sortZtoA": "ת עד א",
         "sortPriceLowHigh": "מחיר: מהנמוך לגבוה",
         "sortPriceHighLow": "מחיר: מהגבוה לנמוך",
         "sortNewest": "החדשים ביותר",
         "sortSale": "מבצע",
+        "sortFastDelivery": "משלוח מהיר",
         "noProductsTitle": "לא נמצאו מוצרים",
         "noProductsWithFilters": "נסה לשנות את הסינונים",
         "noProductsEmpty": "חזור מאוחר יותר למוצרים חדשים",
@@ -1912,7 +1911,7 @@
         "viewAllResultsFor": "הצג את כל התוצאות עבור",
         "recentlySearchedLabel": "חיפושים אחרונים",
         "recentSearchesClearLabel": "נקה",
-        "popularSearchesLabel": "חיפושים פופולריים",
+        "popularSearchesLabel": "Popular Searches",
         "popularSearchTerms": [
           "צעצועים לכלבים",
           "צעצועים לחתולים",
@@ -2128,14 +2127,14 @@
       "enabled": false,
       "auto": true,
       "colors": {
-        "background": "#0F172A",
-        "surface": "#1E293B",
-        "text": "#F8FAFC",
-        "textMuted": "#94A3B8",
-        "border": "#334155",
-        "primary": "#E78F21",
-        "secondary": "#F59E0B",
-        "accent": "#F59E0B"
+        "background": "#0D1117",
+        "surface": "#161B22",
+        "text": "#F0F0F0",
+        "textMuted": "#8B949E",
+        "border": "#30363D",
+        "primary": "#C9A962",
+        "secondary": "#2A6B51",
+        "accent": "#D4B978"
       }
     },
     "storefront": {
@@ -2151,17 +2150,17 @@
       "strategy": "category",
       "maxItems": 8,
       "showOnMobile": true,
-      "title": "אולי תאהבו גם",
-      "subtitle": "לקוחות צפו גם במוצרים הבאים"
+      "title": "אולי גם תאהבו",
+      "subtitle": "לקוחות צפו גם במוצרים האלה"
     },
     "design": {
       "animations": {
         "preset": "moderate",
-        "carouselCycleSeconds": 6,
+        "carouselCycleSeconds": 5,
         "toastDurationMs": 4000
       },
       "spacing": {
-        "sectionPaddingY": "normal"
+        "sectionPaddingY": "spacious"
       },
       "grid": {
         "productColumns": {
@@ -2173,24 +2172,24 @@
         "productGap": "normal"
       },
       "statusColors": {
-        "success": "#22c55e",
-        "warning": "#f59e0b",
-        "error": "#ef4444",
-        "info": "#3b82f6"
+        "success": "#1E4D3A",
+        "warning": "#C9A962",
+        "error": "#8B3A3A",
+        "info": "#1B2838"
       }
     },
     "checkoutUi": {
       "accordion": {
-        "completedStepColor": "",
-        "activeStepColor": ""
+        "completedStepColor": "#1E4D3A",
+        "activeStepColor": "#1B2838"
       },
       "confirmation": {
         "showTimeline": true,
         "showPrintReceipt": true
       },
       "progressBar": {
-        "completedColor": "",
-        "activeColor": ""
+        "completedColor": "#1E4D3A",
+        "activeColor": "#1B2838"
       }
     },
     "cardOverrides": {
@@ -2206,7 +2205,7 @@
         "showOutOfStockBadge": true,
         "showLowStockBadge": true,
         "showNewBadge": true,
-        "titleMaxLines": 1
+        "titleMaxLines": 2
       },
       "relatedProducts": {},
       "recentlyViewed": {},
@@ -2219,62 +2218,350 @@
         "showPrice": true,
         "showOriginalPrice": true,
         "showShareButton": true,
-        "titleMaxLines": 1
+        "titleMaxLines": 2
       }
     },
     "componentOverrides": {
-      "homepage": {},
-      "plp": {},
-      "pdp": {},
-      "ui": {},
-      "plp.productCard": {
-        "textColor": "#E0A55A",
-        "borderColor": "#E0A55A",
-        "borderWidth": 8,
-        "borderRadius": "lg",
-        "shadow": "lg",
-        "opacity": 55,
-        "fontFamily": "body",
-        "fontSize": "xs",
-        "fontWeight": "extrabold",
-        "textTransform": "lowercase",
-        "padding": "2rem 3rem",
-        "margin": "0 auto",
-        "gap": "3rem"
+      "homepage.hero": {
+        "backgroundColor": "#1B2838",
+        "textColor": "#FFFFFF",
+        "fontFamily": "heading",
+        "fontSize": "5xl",
+        "fontWeight": "bold"
+      },
+      "homepage.trustStrip": {
+        "backgroundColor": "#FBF9F6",
+        "textColor": "#0F1419",
+        "fontSize": "sm",
+        "fontWeight": "medium"
+      },
+      "homepage.marquee": {
+        "backgroundColor": "#1B2838",
+        "textColor": "#D4B978",
+        "fontSize": "sm",
+        "fontWeight": "semibold"
+      },
+      "homepage.categories": {
+        "textColor": "#0F1419",
+        "fontFamily": "heading",
+        "fontSize": "2xl",
+        "fontWeight": "bold"
+      },
+      "homepage.trending": {
+        "textColor": "#0F1419",
+        "fontFamily": "heading",
+        "fontSize": "2xl",
+        "fontWeight": "bold"
+      },
+      "homepage.promotionBanner": {
+        "backgroundColor": "#1B2838",
+        "textColor": "#FFFFFF",
+        "fontFamily": "heading",
+        "fontSize": "3xl",
+        "fontWeight": "bold"
+      },
+      "homepage.flashDeals": {
+        "textColor": "#0F1419",
+        "fontFamily": "heading",
+        "fontSize": "2xl",
+        "fontWeight": "bold"
+      },
+      "homepage.collectionMosaic": {
+        "textColor": "#0F1419",
+        "fontFamily": "heading",
+        "fontSize": "2xl",
+        "fontWeight": "bold"
+      },
+      "homepage.bestSellers": {
+        "textColor": "#0F1419",
+        "fontFamily": "heading",
+        "fontSize": "2xl",
+        "fontWeight": "bold"
+      },
+      "homepage.customerFeedback": {
+        "textColor": "#0F1419",
+        "fontFamily": "heading",
+        "fontSize": "2xl",
+        "fontWeight": "bold"
+      },
+      "homepage.newsletter": {
+        "backgroundColor": "#1B2838",
+        "textColor": "#FFFFFF",
+        "fontFamily": "heading",
+        "fontSize": "2xl",
+        "fontWeight": "bold"
+      },
+      "homepage.brandGrid": {
+        "textColor": "#0F1419",
+        "fontFamily": "heading",
+        "fontSize": "2xl",
+        "fontWeight": "bold"
       },
       "homepage.productCard": {
-        "textColor": "#E0A55A",
-        "borderColor": "#E0A55A",
-        "borderWidth": 8,
-        "borderRadius": "full",
-        "shadow": "lg",
-        "opacity": 55,
-        "padding": "2rem 3rem",
-        "margin": "0 auto",
-        "gap": "3rem"
+        "borderRadius": "lg",
+        "shadow": "sm",
+        "fontSize": "sm",
+        "fontWeight": "semibold",
+        "hoverShadow": "lg"
+      },
+      "layout.header": {
+        "backgroundColor": "#",
+        "textColor": "#0F1419",
+        "borderColor": "#EDEAE5",
+        "shadow": "sm"
+      },
+      "layout.headerBanner": {
+        "backgroundColor": "#1B2838",
+        "textColor": "#D4B978",
+        "fontSize": "xs",
+        "fontWeight": "medium"
+      },
+      "layout.footer": {
+        "backgroundColor": "#1B2838",
+        "textColor": "#FFFFFF",
+        "fontSize": "sm"
+      },
+      "layout.mobileBottomNav": {
+        "backgroundColor": "#FFFFFF",
+        "textColor": "#7A756E",
+        "borderColor": "#EDEAE5",
+        "shadow": "lg"
+      },
+      "layout.searchDialog": {
+        "backgroundColor": "#FFFFFF",
+        "textColor": "#0F1419",
+        "borderRadius": "lg",
+        "shadow": "lg"
       },
       "plp.filterSidebar": {
-        "textColor": "#E0A55A",
-        "borderColor": "#E0A55A",
-        "borderWidth": 8,
-        "borderRadius": "full",
-        "shadow": "lg",
-        "opacity": 55,
-        "padding": "2rem 3rem",
-        "margin": "0 auto",
-        "gap": "3rem"
+        "backgroundColor": "#FFFFFF",
+        "borderColor": "#EDEAE5",
+        "borderRadius": "lg",
+        "fontSize": "sm"
+      },
+      "plp.productCard": {
+        "borderRadius": "lg",
+        "shadow": "sm",
+        "fontSize": "sm",
+        "hoverShadow": "lg"
+      },
+      "plp.productGrid": {
+        "gap": "1.25rem"
+      },
+      "plp.activeFiltersTags": {
+        "backgroundColor": "#FBF9F6",
+        "borderRadius": "lg",
+        "shadow": "sm"
+      },
+      "plp.quickFilters": {
+        "backgroundColor": "#FFFFFF",
+        "borderColor": "#EDEAE5",
+        "shadow": "sm",
+        "fontSize": "xs"
+      },
+      "plp.sortBy": {
+        "textColor": "#0F1419",
+        "fontSize": "sm",
+        "fontWeight": "medium"
+      },
+      "pdp.gallery": {
+        "borderRadius": "lg"
+      },
+      "pdp.addToCart": {
+        "backgroundColor": "#1B2838",
+        "textColor": "#FFFFFF",
+        "borderRadius": "lg",
+        "fontSize": "base",
+        "fontWeight": "bold",
+        "hoverBackgroundColor": "#243447"
       },
       "pdp.stickyAddToCart": {
-        "textColor": "#E0A55A",
-        "borderColor": "#E0A55A",
-        "borderWidth": 8,
-        "borderRadius": "full",
-        "shadow": "lg",
-        "opacity": 55,
-        "padding": "2rem 3rem",
-        "margin": "0 auto",
-        "gap": "3rem"
-      }
+        "backgroundColor": "#FFFFFF",
+        "borderColor": "#EDEAE5",
+        "shadow": "lg"
+      },
+      "pdp.variantSelector": {
+        "borderColor": "#EDEAE5",
+        "borderRadius": "md",
+        "fontSize": "sm"
+      },
+      "pdp.quantitySelector": {
+        "borderColor": "#EDEAE5",
+        "borderRadius": "md"
+      },
+      "pdp.tabs": {
+        "textColor": "#0F1419",
+        "borderColor": "#EDEAE5",
+        "fontSize": "sm",
+        "fontWeight": "medium"
+      },
+      "pdp.relatedProducts": {
+        "textColor": "#0F1419",
+        "fontFamily": "heading",
+        "fontSize": "xl",
+        "fontWeight": "bold"
+      },
+      "cart.page": {
+        "backgroundColor": "#F8F7F5",
+        "textColor": "#0F1419"
+      },
+      "cart.drawer": {
+        "backgroundColor": "#FFFFFF",
+        "textColor": "#0F1419",
+        "shadow": "lg"
+      },
+      "checkout.page": {
+        "backgroundColor": "#F8F7F5",
+        "textColor": "#0F1419"
+      },
+      "checkout.summary": {
+        "backgroundColor": "#FFFFFF",
+        "borderColor": "#EDEAE5",
+        "borderRadius": "lg",
+        "shadow": "sm"
+      },
+      "checkout.placeOrder": {
+        "backgroundColor": "#1B2838",
+        "textColor": "#FFFFFF",
+        "borderRadius": "lg",
+        "fontWeight": "bold",
+        "hoverBackgroundColor": "#243447"
+      },
+      "checkout.contactStep": {
+        "backgroundColor": "#FFFFFF",
+        "borderColor": "#EDEAE5",
+        "borderRadius": "lg"
+      },
+      "checkout.shippingStep": {
+        "backgroundColor": "#FFFFFF",
+        "borderColor": "#EDEAE5",
+        "borderRadius": "lg"
+      },
+      "checkout.deliveryStep": {
+        "backgroundColor": "#FFFFFF",
+        "borderColor": "#EDEAE5",
+        "borderRadius": "lg"
+      },
+      "checkout.paymentStep": {
+        "backgroundColor": "#FFFFFF",
+        "borderColor": "#EDEAE5",
+        "borderRadius": "lg"
+      },
+      "checkout.confirmation": {
+        "backgroundColor": "#F8F7F5",
+        "textColor": "#0F1419"
+      },
+      "account.dashboard": {
+        "backgroundColor": "#F8F7F5",
+        "textColor": "#0F1419"
+      },
+      "account.orders": {
+        "backgroundColor": "#FFFFFF",
+        "borderRadius": "lg",
+        "shadow": "sm"
+      },
+      "account.addresses": {
+        "backgroundColor": "#FFFFFF",
+        "borderRadius": "lg",
+        "shadow": "sm"
+      },
+      "account.wishlist": {
+        "backgroundColor": "#FFFFFF",
+        "borderRadius": "lg"
+      },
+      "account.settings": {
+        "backgroundColor": "#FFFFFF",
+        "borderRadius": "lg",
+        "shadow": "sm"
+      },
+      "auth.login": {
+        "backgroundColor": "#FFFFFF",
+        "textColor": "#0F1419",
+        "borderRadius": "lg",
+        "shadow": "md"
+      },
+      "auth.forgotPassword": {
+        "backgroundColor": "#FFFFFF",
+        "textColor": "#0F1419",
+        "borderRadius": "lg",
+        "shadow": "md"
+      },
+      "ui.productCard": {
+        "borderRadius": "lg",
+        "shadow": "sm",
+        "fontSize": "sm",
+        "fontWeight": "semibold",
+        "hoverShadow": "lg"
+      },
+      "ui.badges": {
+        "borderRadius": "md",
+        "fontSize": "xs",
+        "fontWeight": "bold",
+        "textTransform": "uppercase"
+      },
+      "ui.imageOverlay": {
+        "backgroundColor": "rgba(0,0,0,0.4)",
+        "borderRadius": "lg"
+      },
+      "plp.stickyQuickFilters": {
+        "backgroundColor": "#FFFFFF",
+        "borderColor": "#EDEAE5",
+        "shadow": "sm",
+        "fontSize": "xs"
+      },
+      "pdp.productGallery": {
+        "borderRadius": "lg"
+      },
+      "pdp.stickyMobileAddToCart": {
+        "backgroundColor": "#FFFFFF",
+        "borderColor": "#EDEAE5",
+        "shadow": "lg"
+      },
+      "pdp.productTabs": {
+        "textColor": "#0F1419",
+        "borderColor": "#EDEAE5",
+        "fontSize": "sm",
+        "fontWeight": "medium"
+      },
+      "cart.cartPage": {
+        "backgroundColor": "#F8F7F5",
+        "textColor": "#0F1419"
+      },
+      "cart.cartDrawer": {
+        "backgroundColor": "#FFFFFF",
+        "textColor": "#0F1419",
+        "shadow": "lg"
+      },
+      "checkout.checkoutPage": {
+        "backgroundColor": "#F8F7F5",
+        "textColor": "#0F1419"
+      },
+      "checkout.orderConfirmation": {
+        "backgroundColor": "#F8F7F5",
+        "textColor": "#0F1419"
+      },
+      "pdp.recentlyViewed": {
+        "backgroundColor": "#FFFFFF"
+      },
+      "ui.breadcrumbs": {},
+      "ui.cookieConsent": {
+        "backgroundColor": "#FFFFFF",
+        "shadow": "lg"
+      },
+      "ui.promoPopup": {
+        "borderRadius": "2xl",
+        "shadow": "2xl"
+      },
+      "cart.wishlistDrawer": {
+        "backgroundColor": "#FAFAF9"
+      },
+      "cart.recentlyViewedDrawer": {
+        "backgroundColor": "#FAFAF9"
+      },
+      "plp": {},
+      "pdp": {},
+      "cart": {},
+      "checkout": {}
     }
   }
 }

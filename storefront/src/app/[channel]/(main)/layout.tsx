@@ -37,11 +37,11 @@ export async function generateMetadata(props: { params: Promise<{ channel: strin
 	const resolvedLocale = storeConfig.localization?.defaultLocale || 'en-US';
 
 	return {
-		title: "Saleor Storefront example",
-		description: "Starter pack for building performant e-commerce experiences with Saleor.",
-		other: {
-			// This will be set via the blocking script, but we include it here for reference
+		title: {
+			template: storeConfig.seo?.titleTemplate || "%s | Pawzen",
+			default: storeConfig.seo?.defaultTitle || "Pawzen - Modern Pet Accessories for Dogs & Cats",
 		},
+		description: storeConfig.seo?.defaultDescription || "Modern, curated pet accessories for dogs and cats.",
 	};
 }
 

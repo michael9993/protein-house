@@ -11,6 +11,7 @@ import {
   QuickFiltersSchema,
   RelatedProductsSchema,
   ContentSchema,
+  UiSchema,
 } from "@/modules/config/schema";
 
 export const CatalogFormSchema = z.object({
@@ -19,6 +20,7 @@ export const CatalogFormSchema = z.object({
   quickFilters: QuickFiltersSchema,
   relatedProducts: RelatedProductsSchema,
   content: ContentSchema,
+  ui: UiSchema,
 });
 
 export type CatalogFormData = z.infer<typeof CatalogFormSchema>;

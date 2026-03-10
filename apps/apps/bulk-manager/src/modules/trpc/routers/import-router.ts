@@ -14,6 +14,7 @@ import { customerImportSchema } from "../../import/schemas/customer-import";
 import { orderImportSchema } from "../../import/schemas/order-import";
 import { voucherImportSchema } from "../../import/schemas/voucher-import";
 import { giftCardImportSchema } from "../../import/schemas/gift-card-import";
+import { translationImportSchema } from "../../import/schemas/translation-import";
 
 const entitySchemaMap = {
   products: productImportSchema,
@@ -23,6 +24,7 @@ const entitySchemaMap = {
   orders: orderImportSchema,
   vouchers: voucherImportSchema,
   giftCards: giftCardImportSchema,
+  translations: translationImportSchema,
 } as const;
 
 type EntityType = keyof typeof entitySchemaMap;
@@ -67,7 +69,7 @@ export const importRouter = router({
     .input(
       z.object({
         headers: z.array(z.string()),
-        entityType: z.enum(["products", "categories", "collections", "customers", "orders", "vouchers", "giftCards"]),
+        entityType: z.enum(["products", "categories", "collections", "customers", "orders", "vouchers", "giftCards", "translations"]),
       })
     )
     .mutation(async ({ input }) => {
@@ -79,7 +81,7 @@ export const importRouter = router({
     .input(
       z.object({
         rows: z.array(z.record(z.string())),
-        entityType: z.enum(["products", "categories", "collections", "customers", "orders", "vouchers", "giftCards"]),
+        entityType: z.enum(["products", "categories", "collections", "customers", "orders", "vouchers", "giftCards", "translations"]),
         fieldMappings: z.record(z.string()),
       })
     )

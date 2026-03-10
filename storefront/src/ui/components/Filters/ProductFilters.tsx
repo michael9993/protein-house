@@ -13,6 +13,7 @@ import React, { useState, useRef, useEffect, type ReactNode, type ChangeEvent } 
 import { useFiltersConfig, useFiltersText, useContentConfig, useFilterSidebarConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { buildComponentStyle } from "@/config";
 import { useProductFilters } from "@/hooks/useProductFilters";
+import { StyledCheckbox } from "@/ui/components/StyledCheckbox";
 import { PriceRangeFilter } from "./PriceRangeFilter";
 import { RatingFilter } from "./RatingFilter";
 
@@ -277,7 +278,7 @@ export function ProductFilters({
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5l-7 7 7 7" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
           ) : (
@@ -367,12 +368,10 @@ export function ProductFilters({
             <div className="space-y-0.5">
               {collections.map(collection => (
                 <label key={collection.id} className="flex cursor-pointer items-center gap-2.5 py-1.5 hover:bg-neutral-50 rounded px-1.5 -mx-1.5 transition-colors min-w-0">
-                  <input
-                    type="checkbox"
+                  <StyledCheckbox
                     checked={isCollectionSelected(collection.slug)}
                     onChange={() => toggleCollection(collection.slug)}
-                    className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
-                    style={{ accentColor: fsConfig.checkboxAccentColor }}
+                    checkedColor={fsConfig.checkboxAccentColor}
                   />
                   <span className="flex-1 text-[13px] truncate" style={{ color: fsConfig.itemTextColor }}>{collection.name}</span>
                   {collection.productCount !== undefined && collection.productCount > 0 && (
@@ -398,12 +397,10 @@ export function ProductFilters({
             <div className="space-y-0.5">
               {brands.map(brand => (
                 <label key={brand.id} className="flex cursor-pointer items-center gap-2.5 py-1.5 hover:bg-neutral-50 rounded px-1.5 -mx-1.5 transition-colors min-w-0">
-                  <input
-                    type="checkbox"
+                  <StyledCheckbox
                     checked={isBrandSelected(brand.slug)}
                     onChange={() => toggleBrand(brand.slug)}
-                    className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
-                    style={{ accentColor: fsConfig.checkboxAccentColor }}
+                    checkedColor={fsConfig.checkboxAccentColor}
                   />
                   <span className="flex-1 text-[13px] truncate" style={{ color: fsConfig.itemTextColor }}>{brand.name}</span>
                   {brand.productCount !== undefined && brand.productCount > 0 && (
@@ -472,12 +469,10 @@ export function ProductFilters({
             <div className="space-y-0.5">
               {colors.map(color => (
                 <label key={color.id} className="flex cursor-pointer items-center gap-2.5 py-1.5 hover:bg-neutral-50 rounded px-1.5 -mx-1.5 transition-colors min-w-0">
-                  <input
-                    type="checkbox"
+                  <StyledCheckbox
                     checked={isColorSelected(color.slug)}
                     onChange={() => toggleColor(color.slug)}
-                    className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
-                    style={{ accentColor: fsConfig.checkboxAccentColor }}
+                    checkedColor={fsConfig.checkboxAccentColor}
                   />
                   <span className="flex-1 text-[13px] truncate" style={{ color: fsConfig.itemTextColor }}>{color.name}</span>
                   {color.productCount !== undefined && color.productCount > 0 && (
@@ -539,22 +534,18 @@ export function ProductFilters({
           >
             <div className="space-y-0.5">
               <label className="flex cursor-pointer items-center gap-2.5 py-1.5 hover:bg-neutral-50 rounded px-1.5 -mx-1.5 transition-colors">
-                <input
-                  type="checkbox"
+                <StyledCheckbox
                   checked={filters.inStock}
                   onChange={toggleInStock}
-                  className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
-                  style={{ accentColor: fsConfig.checkboxAccentColor }}
+                  checkedColor={fsConfig.checkboxAccentColor}
                 />
                 <span className="text-[13px]" style={{ color: fsConfig.itemTextColor }}>{filtersText.inStockOnly}</span>
               </label>
               <label className="flex cursor-pointer items-center gap-2.5 py-1.5 hover:bg-neutral-50 rounded px-1.5 -mx-1.5 transition-colors">
-                <input
-                  type="checkbox"
+                <StyledCheckbox
                   checked={filters.onSale}
                   onChange={toggleOnSale}
-                  className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1 flex-shrink-0"
-                  style={{ accentColor: fsConfig.checkboxAccentColor }}
+                  checkedColor={fsConfig.checkboxAccentColor}
                 />
                 <span className="text-[13px]" style={{ color: fsConfig.itemTextColor }}>{filtersText.onSale}</span>
               </label>
@@ -621,13 +612,11 @@ function CategoryCheckbox({
   }, [indeterminate]);
 
   return (
-    <input
+    <StyledCheckbox
       ref={inputRef}
-      type="checkbox"
       checked={checked}
       onChange={onChange}
-      className="h-4 w-4 rounded border-neutral-300 transition-colors focus:ring-2 focus:ring-offset-1"
-      style={{ accentColor }}
+      checkedColor={accentColor}
     />
   );
 }

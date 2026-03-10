@@ -67,12 +67,12 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     const pageRect = createPageRect(width, height);
     canvas.add(pageRect);
 
-    canvas.on("selection:created", (e) => {
-      setSelectedObject(e.selected?.[0] ?? null);
+    canvas.on("selection:created", () => {
+      setSelectedObject(canvas.getActiveObject() ?? null);
     });
 
-    canvas.on("selection:updated", (e) => {
-      setSelectedObject(e.selected?.[0] ?? null);
+    canvas.on("selection:updated", () => {
+      setSelectedObject(canvas.getActiveObject() ?? null);
     });
 
     canvas.on("selection:cleared", () => {
@@ -116,6 +116,11 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
       if (secondIdx > 0) {
         url = url.substring(secondIdx);
       }
+    }
+
+    // Proxy external URLs to avoid CORS issues with Fabric.js canvas
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      url = `/api/proxy-image?url=${encodeURIComponent(url)}`;
     }
 
     try {
@@ -647,9 +652,28 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     if (!canvas) return;
     const active = canvas.getActiveObject();
     if (!active || active.type !== "activeselection") return;
-    const group = (active as fabric.ActiveSelection).toGroup();
+
+    // Fabric.js v6: manually create Group from ActiveSelection objects
+    const sel = active as fabric.ActiveSelection;
+    const objects = sel.getObjects().slice();
+
+    // Remove individual objects from canvas
+    canvas.discardActiveObject();
+    for (const obj of objects) {
+      canvas.remove(obj);
+    }
+
+    // Create group and add to canvas
+    const group = new fabric.Group(objects, {
+      left: sel.left,
+      top: sel.top,
+    });
+    canvas.add(group);
     canvas.setActiveObject(group);
     canvas.renderAll();
+
+    setSelectedObject(group);
+    canvas.fire("object:modified", { target: group });
   }, []);
 
   const ungroupSelected = useCallback(() => {
@@ -657,9 +681,36 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     if (!canvas) return;
     const active = canvas.getActiveObject();
     if (!active || active.type !== "group") return;
-    const items = (active as fabric.Group).toActiveSelection();
-    canvas.setActiveObject(items);
+
+    // Fabric.js v6: manually ungroup
+    const group = active as fabric.Group;
+    const objects = group.getObjects().slice();
+    const groupLeft = group.left ?? 0;
+    const groupTop = group.top ?? 0;
+    const groupScaleX = group.scaleX ?? 1;
+    const groupScaleY = group.scaleY ?? 1;
+
+    // Remove group from canvas
+    canvas.remove(group);
+
+    // Adjust each child's position relative to where the group was
+    for (const obj of objects) {
+      obj.set({
+        left: groupLeft + (obj.left ?? 0) * groupScaleX,
+        top: groupTop + (obj.top ?? 0) * groupScaleY,
+        scaleX: (obj.scaleX ?? 1) * groupScaleX,
+        scaleY: (obj.scaleY ?? 1) * groupScaleY,
+      });
+      obj.setCoords();
+      canvas.add(obj);
+    }
+
+    // Create active selection from ungrouped objects
+    const sel = new fabric.ActiveSelection(objects, { canvas });
+    canvas.setActiveObject(sel);
     canvas.renderAll();
+
+    setSelectedObject(sel);
   }, []);
 
   // === Alignment Methods ===

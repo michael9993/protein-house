@@ -164,12 +164,14 @@ export const DEFAULT_FILTERS_TEXT: FiltersText = {
   sizePlural: "sizes",
 
   // Sort options
+  sortRecommended: "Recommended",
   sortAtoZ: "A to Z",
   sortZtoA: "Z to A",
   sortPriceLowHigh: "Price: Low to High",
   sortPriceHighLow: "Price: High to Low",
   sortNewest: "Newest",
   sortSale: "Sale",
+  sortFastDelivery: "Fastest Delivery",
 
   // Empty/loading states
   noProductsTitle: "No products found",
@@ -192,7 +194,7 @@ export const DEFAULT_FILTERS_TEXT: FiltersText = {
   // Results text
   resultsText: "results",
   itemsAvailable: "items available",
-  productsPageTitle: "All Products",
+  productsPageTitle: "Products",
   discoverProducts: "Discover Products",
 
   // Sort dropdown
@@ -643,8 +645,9 @@ export const defaultStoreConfig = {
   },
 
   branding: {
-    logo: "/logo.svg",
-    logoAlt: "Pawzen",
+    logo: "/logo/pawzen-logo.png",
+    logoDark: "/logo/pawzen-logo-white.png",
+    logoAlt: "Pawzen - Modern Pet Accessories",
     favicon: "/favicon.ico",
 
     colors: {
@@ -694,6 +697,8 @@ export const defaultStoreConfig = {
     instagramFeed: false,
     relatedProducts: true,
     stockAlerts: true,
+    orderTracking: true,
+    accountDeletion: true,
   },
 
   ecommerce: {
@@ -870,9 +875,9 @@ export const defaultStoreConfig = {
   },
 
   seo: {
-    titleTemplate: "%s | Your Store Name",
-    defaultTitle: "Your Store Name - Online Shopping",
-    defaultDescription: "Shop the best products at Your Store Name. Free shipping on orders over $50.",
+    titleTemplate: "%s | Pawzen",
+    defaultTitle: "Pawzen - Modern Pet Accessories for Dogs & Cats",
+    defaultDescription: "Modern, curated pet accessories for dogs and cats. Thoughtfully designed products for your furry family. Free shipping on orders over $50.",
     defaultImage: "/og-image.jpg",
     twitterHandle: null,
   },
@@ -1242,7 +1247,7 @@ export const defaultStoreConfig = {
       specialOfferText: "Special Offer",
       dontMissOutTitle: "Don't miss out",
       shopSaleItemsButton: "Shop Sale Items",
-      allProductsButton: "All Products",
+      allProductsButton: "Products",
       promoDescriptionFallback: "Premium performance gear for run, court, and studio. Limited time collection.",
       recentlyViewedSubLabel: "Your History",
       recentlyViewedTitle: "Recently Viewed",
@@ -1349,6 +1354,8 @@ export const storeTypePresets: Record<StoreType, Partial<StoreConfig>> = {
       instagramFeed: false,
       relatedProducts: true,
       stockAlerts: true,
+      orderTracking: true,
+      accountDeletion: true,
     },
     ecommerce: {
       currency: { default: "USD", supported: ["USD", "EUR", "GBP"] },
@@ -1390,6 +1397,8 @@ export const storeTypePresets: Record<StoreType, Partial<StoreConfig>> = {
       instagramFeed: true,
       relatedProducts: true,
       stockAlerts: true,
+      orderTracking: true,
+      accountDeletion: true,
     },
     ecommerce: {
       currency: { default: "USD", supported: ["USD"] },
@@ -1431,6 +1440,8 @@ export const storeTypePresets: Record<StoreType, Partial<StoreConfig>> = {
       instagramFeed: false,
       relatedProducts: true,
       stockAlerts: false,
+      orderTracking: true,
+      accountDeletion: true,
     },
     ecommerce: {
       currency: { default: "USD", supported: ["USD", "EUR"] },
@@ -1473,6 +1484,8 @@ export const storeTypePresets: Record<StoreType, Partial<StoreConfig>> = {
       instagramFeed: true,
       relatedProducts: true,
       stockAlerts: true,
+      orderTracking: true,
+      accountDeletion: true,
     },
   },
 };

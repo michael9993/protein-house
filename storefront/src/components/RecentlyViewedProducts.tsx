@@ -12,7 +12,10 @@ import {
 	useContentConfig,
 	useProductCardConfig,
 	useBadgeStyle,
+	useComponentStyle,
+	useComponentClasses,
 } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { useQuickView } from "@/providers/QuickViewProvider";
 import { useWishlist } from "@/lib/wishlist";
 import { buildProductUrl, withChannel } from "@/lib/urls";
@@ -376,10 +379,13 @@ export function RecentlyViewedProducts({
 		[isRTL],
 	);
 
+	const cdStyle = useComponentStyle("pdp.recentlyViewed");
+	const cdClasses = useComponentClasses("pdp.recentlyViewed");
+
 	if (!enabled || displayItems.length === 0) return null;
 
 	return (
-		<section className="bg-white py-20" aria-label={title}>
+		<section data-cd="pdp-recentlyViewed" className={`bg-white py-20 ${cdClasses}`} style={buildComponentStyle("pdp.recentlyViewed", cdStyle)} aria-label={title}>
 			<div className="mx-auto max-w-[var(--design-container-max)] px-6 lg:px-12">
 				{/* V6-style section header — matching Best Sellers */}
 				<div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">

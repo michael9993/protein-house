@@ -4,10 +4,12 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Drawer } from "vaul";
 import { Heart, X, Trash2 } from "lucide-react";
 import { useWishlist, type WishlistItem } from "@/lib/wishlist";
-import { useFeature, useBranding, useContentConfig, useProductCardConfig } from "@/providers/StoreConfigProvider";
+import { useFeature, useBranding, useContentConfig, useProductCardConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { useQuickView } from "@/providers/QuickViewProvider";
 import { ShareButton } from "@/ui/components/ProductSharing";
 import { formatMoney } from "@/lib/utils";
@@ -80,7 +82,10 @@ function WishlistDrawerCard({
 
 			<Link
 				href={`/${encodeURIComponent(itemChannel)}/products/${item.slug}`}
-				onClick={onClose}
+				onClick={() => {
+					window.dispatchEvent(new CustomEvent("force-show-nav"));
+					onClose();
+				}}
 				className={`relative flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm transition-all duration-300 ${getCardHoverClasses(cardConfig.hoverEffect)}`}
 			>
 				{/* Image area */}
@@ -194,15 +199,20 @@ function WishlistDrawerContent({
 		soldOut: homepageContent.outOfStockBadgeLabel || "Sold out",
 	};
 
+	const cdStyle = useComponentStyle("cart.wishlistDrawer");
+	const cdClasses = useComponentClasses("cart.wishlistDrawer");
+
 	return (
 		<Drawer.Root open={open} onOpenChange={onOpenChange} direction="bottom">
 			<Drawer.Portal>
 				<Drawer.Overlay className="fixed inset-0 z-[9998] bg-black/50" />
 				<Drawer.Content
-					className="fixed inset-x-0 bottom-0 z-[9999] mx-auto flex max-h-[85dvh] flex-col rounded-t-2xl bg-neutral-50 outline-none sm:inset-x-4 sm:bottom-4 sm:max-h-[75vh] sm:max-w-lg sm:rounded-2xl"
+					data-cd="cart-wishlistDrawer"
+					className={`fixed inset-x-0 bottom-0 z-[9999] mx-auto flex max-h-[85dvh] flex-col rounded-t-2xl bg-neutral-50 outline-none sm:inset-x-4 sm:bottom-4 sm:max-h-[75vh] sm:max-w-lg sm:rounded-2xl ${cdClasses}`}
 					style={{
 						boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
 						paddingBottom: "env(safe-area-inset-bottom, 0px)",
+						...buildComponentStyle("cart.wishlistDrawer", cdStyle),
 					}}
 					dir={isRTL ? "rtl" : "ltr"}
 					aria-describedby={undefined}
@@ -294,6 +304,11 @@ export function WishlistFloatingButton({ channel }: { channel: string }) {
 	const enabled = useFeature("wishlist");
 	const { items } = useWishlist();
 	const { colors } = useBranding();
+	const pathname = usePathname();
+
+	// Detect PDP — push FABs up to clear the sticky add-to-cart bar
+	const pathParts = (pathname ?? "").split("/").filter(Boolean);
+	const isPDP = pathParts.length >= 3 && pathParts[1] === "products" && pathParts.length === 3;
 
 	useEffect(() => {
 		setMounted(true);
@@ -309,7 +324,7 @@ export function WishlistFloatingButton({ channel }: { channel: string }) {
 				aria-label={`Wishlist (${items.length})`}
 				className="fixed left-5 z-[100] flex h-12 w-12 items-center justify-center rounded-full border border-neutral-200 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.1)] transition-all duration-300 hover:scale-110 hover:shadow-[0_4px_24px_rgba(0,0,0,0.15)] active:scale-95"
 				style={{
-					bottom: "14.5rem",
+					bottom: isPDP ? "18.5rem" : "14.5rem",
 				}}
 			>
 				<Heart className="h-5 w-5 fill-red-500 text-red-500" />

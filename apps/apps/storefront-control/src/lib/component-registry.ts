@@ -35,6 +35,10 @@ import {
   FileText,
   ListOrdered,
   ArrowDownUp,
+  Clock,
+  Cookie,
+  Navigation,
+  Megaphone as MegaphoneAlt,
 } from "lucide-react";
 import type { ComponentStyleOverride } from "@saleor/apps-storefront-config";
 
@@ -569,6 +573,64 @@ export const COMPONENT_REGISTRY: ComponentRegistryEntry[] = [
     group: "Components",
     supportedProperties: [...VISUAL_PROPS, "opacity", "customClasses"],
     configKey: "ui.imageOverlay",
+  },
+  {
+    id: "ui.breadcrumbs",
+    label: "Breadcrumbs",
+    icon: Navigation,
+    page: "global",
+    group: "Components",
+    supportedProperties: [...VISUAL_PROPS, ...TYPOGRAPHY_PROPS, "customClasses"],
+    configKey: "ui.breadcrumbs",
+  },
+  {
+    id: "ui.cookieConsent",
+    label: "Cookie Consent Banner",
+    icon: Cookie,
+    page: "global",
+    group: "Components",
+    supportedProperties: [...VISUAL_PROPS, ...TYPOGRAPHY_PROPS, ...LAYOUT_PROPS, "customClasses"],
+    configKey: "ui.cookieConsent",
+  },
+  {
+    id: "ui.promoPopup",
+    label: "Promo Popup",
+    icon: MegaphoneAlt,
+    page: "global",
+    group: "Components",
+    supportedProperties: ALL_PROPS,
+    configKey: "ui.promoPopup",
+  },
+
+  // ---- PDP (additional) ----
+  {
+    id: "pdp.recentlyViewed",
+    label: "Recently Viewed Products",
+    icon: Clock,
+    page: "product-detail",
+    group: "Product",
+    supportedProperties: SECTION_PROPS,
+    configKey: "pdp.recentlyViewed",
+  },
+
+  // ---- Side Drawers ----
+  {
+    id: "cart.wishlistDrawer",
+    label: "Wishlist Drawer",
+    icon: Heart,
+    page: "cart",
+    group: "Drawers",
+    supportedProperties: [...VISUAL_PROPS, ...LAYOUT_PROPS, "customClasses"],
+    configKey: "cart.wishlistDrawer",
+  },
+  {
+    id: "cart.recentlyViewedDrawer",
+    label: "Recently Viewed Drawer",
+    icon: Clock,
+    page: "cart",
+    group: "Drawers",
+    supportedProperties: [...VISUAL_PROPS, ...LAYOUT_PROPS, "customClasses"],
+    configKey: "cart.recentlyViewedDrawer",
   },
 ];
 

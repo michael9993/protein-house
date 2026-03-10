@@ -40,7 +40,7 @@ export function PromotionBanner({ channel, promoData }: PromotionBannerProps) {
   const itemsOnSaleTemplate = homepageContent.itemsOnSaleText || "{count} items on sale";
   const specialOfferText = homepageContent.specialOfferText || "Special Offer";
   const shopSaleItemsText = homepageContent.shopSaleItemsButton || "Shop Sale Items";
-  const allProductsText = homepageContent.allProductsButton || "All Products";
+  const allProductsText = homepageContent.allProductsButton || "Products";
 
   // Hide if explicitly disabled via config
   const enabled = config?.enabled ?? true;

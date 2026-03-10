@@ -10,10 +10,23 @@
  */
 
 import { useProductFilters } from "@/hooks/useProductFilters";
-import { useStoreConfig, useQuickFiltersConfig, useFiltersText, useBranding } from "@/providers/StoreConfigProvider";
+import { useStoreConfig, useQuickFiltersConfig, useFiltersText, useBranding, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import Image from "next/image";
 import { useState, useRef, useEffect, type MouseEvent } from "react";
 import { Check, ChevronLeft, ChevronRight } from "lucide-react";
+
+const BORDER_RADIUS_MAP: Record<string, string> = {
+  none: "0px", sm: "0.125rem", md: "0.375rem", lg: "0.5rem",
+  xl: "0.75rem", "2xl": "1rem", full: "9999px",
+};
+
+const SHADOW_MAP: Record<string, string> = {
+  none: "none",
+  sm: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+  md: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+  lg: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+};
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -96,7 +109,29 @@ export function QuickFilters({
   const quickFiltersConfig = useQuickFiltersConfig();
   const filtersText = useFiltersText();
   const branding = useBranding();
+  const cdStyle = useComponentStyle("plp.quickFilters");
+  const cdClasses = useComponentClasses("plp.quickFilters");
   const { localization } = config;
+
+  // Extract card style config with branding fallbacks
+  const qs = (quickFiltersConfig.style ?? {}) as Record<string, unknown>;
+  const primaryColor = branding.colors.primary;
+  const cardStyle = {
+    bgColor: (qs.cardBackgroundColor as string) ?? "#f5f5f5",
+    borderColor: (qs.cardBorderColor as string) ?? "#e5e5e5",
+    borderRadius: BORDER_RADIUS_MAP[(qs.cardBorderRadius as string) ?? "xl"] ?? "0.75rem",
+    hoverBorderColor: (qs.cardHoverBorderColor as string) ?? "#a3a3a3",
+    hoverShadow: SHADOW_MAP[(qs.cardHoverShadow as string) ?? "md"] ?? SHADOW_MAP.md,
+    activeBorderColor: (qs.cardActiveBorderColor as string) ?? primaryColor,
+    activeBgColor: (qs.cardActiveBgColor as string) ?? primaryColor,
+    activeTextColor: (qs.cardActiveTextColor as string) ?? "#ffffff",
+    textStripBg: (qs.cardTextStripBg as string) ?? null,
+    sectionTitleColor: (qs.sectionTitleColor as string) ?? "#262626",
+    arrowBg: (qs.arrowBackgroundColor as string) ?? primaryColor,
+    arrowIconColor: (qs.arrowIconColor as string) ?? "#ffffff",
+    groupLabelColor: (qs.groupLabelColor as string) ?? "#171717",
+    checkBadgeColor: (qs.checkBadgeColor as string) ?? primaryColor,
+  };
   const { filters, toggleCategory, toggleCollection, toggleBrand, updateFilters } = useProductFilters();
 
   // RTL detection
@@ -118,7 +153,6 @@ export function QuickFilters({
   const categoryLimit = quickFiltersConfig.categoryLimit;
   const collectionLimit = quickFiltersConfig.collectionLimit;
   const brandLimit = quickFiltersConfig.brandLimit;
-  const primaryColor = branding.colors.primary;
 
   /* ---------------------------------------------------------------- */
   /*  Build grouped render units                                       */
@@ -207,6 +241,9 @@ export function QuickFilters({
     u.kind === "group" ? u.items : [u.item]
   );
 
+  // Stable key for image rotation effect — only re-run when item IDs change
+  const allItemIds = allItems.map(i => i.id).join(",");
+
   /* ---------------------------------------------------------------- */
   /*  Image rotation                                                   */
   /* ---------------------------------------------------------------- */
@@ -215,17 +252,19 @@ export function QuickFilters({
     const intervals: ReturnType<typeof setInterval>[] = [];
     allItems.forEach((item) => {
       if (item.productImages && item.productImages.length > 1) {
+        const imageCount = item.productImages.length;
         const interval = setInterval(() => {
           setCurrentImageIndices((prev: Record<string, number>) => ({
             ...prev,
-            [item.id]: ((prev[item.id] || 0) + 1) % item.productImages!.length,
+            [item.id]: ((prev[item.id] || 0) + 1) % imageCount,
           }));
         }, 4000);
         intervals.push(interval);
       }
     });
     return () => intervals.forEach(clearInterval);
-  }, [allItems]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allItemIds]);
 
   /* ---------------------------------------------------------------- */
   /*  Scroll logic                                                     */
@@ -261,7 +300,8 @@ export function QuickFilters({
       container.removeEventListener("scroll", checkScrollPosition);
       window.removeEventListener("resize", checkScrollPosition);
     };
-  }, [allItems, isRtl]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allItemIds, isRtl]);
 
   const scroll = (direction: "left" | "right") => {
     const el = scrollContainerRef.current;
@@ -381,15 +421,25 @@ export function QuickFilters({
         data-filter-slug={item.slug}
         data-filter-id={item.id}
         onClick={(e: MouseEvent<HTMLButtonElement>) => handleQuickFilterClick(e, item)}
-        className={`group relative shrink-0 overflow-hidden rounded-xl transition-all duration-300 h-full border ${
-          active
-            ? "shadow-md"
-            : "border-neutral-200 hover:border-neutral-400 hover:shadow-md"
-        }`}
+        className="group relative shrink-0 overflow-hidden transition-all duration-300 h-full border"
         style={{
           width: `${cardWidthPx}px`,
           height: "100%",
-          ...(active ? { borderColor: primaryColor } : {}),
+          borderRadius: cardStyle.borderRadius,
+          borderColor: active ? cardStyle.activeBorderColor : cardStyle.borderColor,
+          boxShadow: active ? SHADOW_MAP.md : undefined,
+        }}
+        onMouseEnter={(e) => {
+          if (!active) {
+            e.currentTarget.style.borderColor = cardStyle.hoverBorderColor;
+            e.currentTarget.style.boxShadow = cardStyle.hoverShadow;
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!active) {
+            e.currentTarget.style.borderColor = cardStyle.borderColor;
+            e.currentTarget.style.boxShadow = "none";
+          }
         }}
       >
         {/* Image area */}
@@ -430,8 +480,8 @@ export function QuickFilters({
             </>
           ) : (
             <div
-              className={`h-full w-full ${active ? "" : "bg-neutral-100"}`}
-              style={active ? { backgroundColor: primaryColor } : undefined}
+              className="h-full w-full"
+              style={{ backgroundColor: active ? cardStyle.activeBgColor : cardStyle.bgColor }}
             />
           )}
         </div>
@@ -440,7 +490,7 @@ export function QuickFilters({
         {active && (
           <div
             className="absolute top-2 end-2 z-30 flex h-5 w-5 items-center justify-center rounded-full shadow-sm"
-            style={{ backgroundColor: primaryColor }}
+            style={{ backgroundColor: cardStyle.checkBadgeColor }}
           >
             <Check className="h-3 w-3 text-white" strokeWidth={3} />
           </div>
@@ -449,23 +499,19 @@ export function QuickFilters({
         {/* Bottom text strip */}
         <div className="absolute inset-x-0 bottom-0 z-20">
           <div
-            className={`px-3 py-2 backdrop-blur-md ${
-              active
-                ? "text-white"
-                : image
-                  ? "bg-white/80 text-neutral-900"
-                  : "bg-white/90 text-neutral-700"
-            }`}
-            style={active ? { backgroundColor: `${primaryColor}cc` } : undefined}
+            className="px-3 py-2 backdrop-blur-md"
+            style={active
+              ? { backgroundColor: `${cardStyle.activeBgColor}cc`, color: cardStyle.activeTextColor }
+              : { backgroundColor: cardStyle.textStripBg ?? (image ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.9)"), color: image ? "#171717" : "#404040" }
+            }
           >
             <h3 className="text-[13px] font-semibold leading-snug line-clamp-1">
               {item.name}
             </h3>
             {item.productCount !== undefined && item.productCount > 0 && (
               <span
-                className={`mt-0.5 block text-[11px] ${
-                  active ? "text-white/70" : "text-neutral-500"
-                }`}
+                className="mt-0.5 block text-[11px]"
+                style={{ opacity: active ? 0.7 : 1, color: active ? cardStyle.activeTextColor : "#737373" }}
               >
                 {item.productCount} {filtersText.itemsAvailable || "items"}
               </span>
@@ -486,14 +532,19 @@ export function QuickFilters({
   return (
     <section
       id="quick-filters-section"
-      className="relative w-full py-6"
+      data-cd="plp-quickFilters"
+      className={`relative w-full py-6 ${cdClasses}`}
+      style={{ ...buildComponentStyle("plp.quickFilters", cdStyle) }}
     >
       {/* Section Header */}
       <div className="mb-5 px-1">
-        <h2 className="text-lg font-medium tracking-tight text-neutral-800">
+        <h2
+          className="text-lg font-medium tracking-tight"
+          style={{ color: cardStyle.sectionTitleColor }}
+        >
           {sectionTitle}
         </h2>
-        <div className="mt-1.5 h-px w-12 bg-neutral-300" />
+        <div className="mt-1.5 h-px w-12" style={{ backgroundColor: cardStyle.sectionTitleColor, opacity: 0.3 }} />
       </div>
 
       {/* Cards Container */}
@@ -512,11 +563,11 @@ export function QuickFilters({
               scroll(isRtl ? "right" : "left");
             }}
             className="absolute start-0 top-1/2 z-50 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 hover:scale-105 hover:opacity-90"
-            style={{ backgroundColor: primaryColor }}
+            style={{ backgroundColor: cardStyle.arrowBg }}
             aria-label={filtersText.scrollLeftAriaLabel}
             type="button"
           >
-            <ChevronLeft className="h-5 w-5 text-white rtl:rotate-180" strokeWidth={1.5} />
+            <ChevronLeft className="h-5 w-5 rtl:rotate-180" style={{ color: cardStyle.arrowIconColor }} strokeWidth={1.5} />
           </button>
         )}
 
@@ -561,17 +612,19 @@ export function QuickFilters({
                     >
                       <span
                         className={`text-[10px] font-semibold uppercase tracking-[0.1em] whitespace-nowrap transition-all duration-200 group-hover/label:underline underline-offset-2 ${
-                          groupActive ? "text-neutral-900 underline" : "text-neutral-900"
+                          groupActive ? "underline" : ""
                         }`}
+                        style={{ color: cardStyle.groupLabelColor }}
                       >
                         {unit.label}
                       </span>
                       <Check
                         className={`h-2.5 w-2.5 transition-all duration-200 ${
                           groupActive
-                            ? "text-neutral-900 opacity-100"
-                            : "text-neutral-400 opacity-0 group-hover/label:opacity-100"
+                            ? "opacity-100"
+                            : "opacity-0 group-hover/label:opacity-100"
                         }`}
+                        style={{ color: groupActive ? cardStyle.groupLabelColor : "#a3a3a3" }}
                         strokeWidth={2.5}
                       />
                     </button>
@@ -595,7 +648,10 @@ export function QuickFilters({
                   data-filter-group-type={unit.item.type}
                   data-filter-standalone="true"
                 >
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-neutral-900 whitespace-nowrap mb-1 ps-0.5">
+                  <span
+                    className="text-[10px] font-semibold uppercase tracking-[0.1em] whitespace-nowrap mb-1 ps-0.5"
+                    style={{ color: cardStyle.groupLabelColor }}
+                  >
                     {unit.item.name}
                   </span>
                   <div className="flex-1">
@@ -616,11 +672,11 @@ export function QuickFilters({
               scroll(isRtl ? "left" : "right");
             }}
             className="absolute end-0 top-1/2 z-50 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 hover:scale-105 hover:opacity-90"
-            style={{ backgroundColor: primaryColor }}
+            style={{ backgroundColor: cardStyle.arrowBg }}
             aria-label={filtersText.scrollRightAriaLabel}
             type="button"
           >
-            <ChevronRight className="h-5 w-5 text-white rtl:rotate-180" strokeWidth={1.5} />
+            <ChevronRight className="h-5 w-5 rtl:rotate-180" style={{ color: cardStyle.arrowIconColor }} strokeWidth={1.5} />
           </button>
         )}
       </div>

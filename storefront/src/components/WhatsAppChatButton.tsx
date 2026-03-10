@@ -2,11 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { usePathname } from "next/navigation";
 import { useWhatsAppConfig } from "@/providers/StoreConfigProvider";
 
 export function WhatsAppChatButton() {
 	const [mounted, setMounted] = useState(false);
 	const { enabled, phoneNumber, defaultMessage } = useWhatsAppConfig();
+	const pathname = usePathname();
+
+	const pathParts = (pathname ?? "").split("/").filter(Boolean);
+	const isPDP = pathParts.length >= 3 && pathParts[1] === "products" && pathParts.length === 3;
 
 	useEffect(() => {
 		setMounted(true);
@@ -29,7 +34,7 @@ export function WhatsAppChatButton() {
 			style={{
 				backgroundColor: "#25D366",
 				color: "#fff",
-				bottom: "calc(7rem + env(safe-area-inset-bottom, 0px))",
+				bottom: isPDP ? "calc(11rem + env(safe-area-inset-bottom, 0px))" : "calc(7rem + env(safe-area-inset-bottom, 0px))",
 			}}
 		>
 			<svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">

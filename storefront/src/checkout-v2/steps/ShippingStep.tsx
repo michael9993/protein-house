@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { CountryCode } from "@/lib/checkout/graphql-types";
+import { getCountryName } from "@/lib/checkout/locale";
 import { useCheckoutState } from "../CheckoutStateProvider";
 import { useCheckoutText } from "../hooks/useCheckoutText";
 import { useUser } from "@/lib/checkout/UserContext";
@@ -20,6 +21,7 @@ import { setDefaultAddress } from "../_actions/set-default-address";
 import { STEP_SHIPPING } from "../types";
 import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { buildComponentStyle } from "@/config";
+import { StyledCheckbox } from "@/ui/components/StyledCheckbox";
 import type { AddressSuggestion } from "../types";
 
 // ---------------------------------------------------------------------------
@@ -362,6 +364,21 @@ export function ShippingStep({ checkoutId }: ShippingStepProps) {
 		// Save shipping address (Saleor fires SHIPPING_LIST_METHODS_FOR_CHECKOUT sync webhook here)
 		const result = await updateShippingAddress(checkoutId, address);
 
+		// Check if any errors indicate a shipping/stock mismatch (country not serviceable)
+		const hasStockError = result.errors.some((e) => e.code === "INSUFFICIENT_STOCK");
+		const noShippingMethods = result.checkout && result.checkout.shippingMethods.length === 0;
+
+		if (hasStockError || noShippingMethods) {
+			// INSUFFICIENT_STOCK after address update = no warehouse can fulfill to this country
+			const countryName = getCountryName(address.countryCode as CountryCode);
+			setStepErrors(STEP_SHIPPING, [
+				t.noShippingToCountry
+					? t.noShippingToCountry.replace("{country}", countryName)
+					: `Sorry, we don't currently ship to ${countryName}. Please use a different shipping address.`,
+			]);
+			return;
+		}
+
 		if (result.errors.length) {
 			setStepErrors(
 				STEP_SHIPPING,
@@ -533,11 +550,9 @@ export function ShippingStep({ checkoutId }: ShippingStepProps) {
 			{/* Billing address toggle */}
 			<div className="border-t border-neutral-100 pt-4">
 				<label className="flex cursor-pointer items-center gap-3">
-					<input
-						type="checkbox"
+					<StyledCheckbox
 						checked={billingMatchesShipping}
 						onChange={(e) => setBillingMatchesShipping(e.target.checked)}
-						className="h-4 w-4 rounded border-neutral-300 accent-[var(--store-primary,theme(colors.neutral.900))]"
 					/>
 					<span className="text-sm text-neutral-700">
 						{t.useSameAsShipping ?? "Use shipping address as billing address"}

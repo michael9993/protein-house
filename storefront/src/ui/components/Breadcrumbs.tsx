@@ -1,7 +1,8 @@
 "use client";
 
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
-import { useBranding, useContentConfig } from "@/providers/StoreConfigProvider";
+import { useBranding, useContentConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 
 interface BreadcrumbItem {
   label: string;
@@ -16,9 +17,11 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
   const branding = useBranding();
   const content = useContentConfig();
   const homeLabel = content.general?.homeLabel || "Home";
+  const cdStyle = useComponentStyle("ui.breadcrumbs");
+  const cdClasses = useComponentClasses("ui.breadcrumbs");
 
   return (
-    <nav aria-label="Breadcrumb" className="mb-6">
+    <nav data-cd="ui-breadcrumbs" aria-label="Breadcrumb" className={`mb-6 ${cdClasses}`} style={buildComponentStyle("ui.breadcrumbs", cdStyle)}>
       <ol className="flex flex-wrap items-center gap-2 text-sm">
         <li>
           <LinkWithChannel

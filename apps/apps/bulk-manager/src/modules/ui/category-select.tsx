@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Box, Text } from "@saleor/macaw-ui";
 import { trpcClient } from "@/modules/trpc/trpc-client";
+import { colors } from "@/modules/ui/app-layout";
 
 interface CategorySelectProps {
   value: string;
@@ -37,7 +38,7 @@ export function CategorySelect({
         style={{
           width: "100%",
           padding: "8px 12px",
-          border: "1px solid #d1d5db",
+          border: `1px solid ${colors.inputBorder}`,
           borderRadius: "6px",
           fontSize: "14px",
           backgroundColor: "#fff",

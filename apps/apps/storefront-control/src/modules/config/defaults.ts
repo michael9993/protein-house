@@ -218,6 +218,8 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
     instagramFeed: false,
     relatedProducts: true,
     stockAlerts: true,
+    orderTracking: true,
+    accountDeletion: true,
   },
 
   ecommerce: {
@@ -409,7 +411,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
         highlight: "Up to 25% off",
         description: "Premium performance gear for run, court, and studio. Limited time collection.",
         primaryCta: { text: "Shop Sale Items", link: "/products?collection=sale" },
-        secondaryCta: { text: "All Products", link: "/products" },
+        secondaryCta: { text: "Products", link: "/products" },
         autoDetectDiscount: true,
         background: { style: "gradient", color: "#ffffff", secondaryColor: "#f5f5f5" },
       },
@@ -610,6 +612,20 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       titleColor: null,
       valueColor: null,
       activeValueColor: null,
+      cardBackgroundColor: null,
+      cardBorderColor: null,
+      cardBorderRadius: "xl",
+      cardActiveBorderColor: null,
+      cardActiveBgColor: null,
+      cardActiveTextColor: null,
+      cardTextStripBg: null,
+      cardHoverBorderColor: null,
+      cardHoverShadow: "md",
+      sectionTitleColor: null,
+      arrowBackgroundColor: null,
+      arrowIconColor: null,
+      groupLabelColor: null,
+      checkBadgeColor: null,
       shopAllButtonBackgroundColor: null,
       shopAllButtonTextColor: null,
       shopAllButtonHoverBackgroundColor: null,
@@ -1090,7 +1106,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       specialOfferText: "Special Offer",
       dontMissOutTitle: "Don't miss out",
       shopSaleItemsButton: "Shop Sale Items",
-      allProductsButton: "All Products",
+      allProductsButton: "Products",
       promoDescriptionFallback: "Premium performance gear for run, court, and studio. Limited time collection.",
       recentlyViewedSubLabel: "Your History",
       recentlyViewedTitle: "Recently Viewed",
@@ -1152,6 +1168,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       billingAddressTitle: "Billing Address",
       billingAddressSubtitle: "For your invoice",
       useSameAsShipping: "Use shipping address as billing address",
+      noShippingToCountry: "Sorry, we don't currently ship to {country}. Please use a different shipping address.",
       useSavedAddressButton: "Use a saved address",
 
       // Delivery Methods Section
@@ -1413,12 +1430,14 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       sizePlural: "sizes",
 
       // Sort options
+      sortRecommended: "Recommended",
       sortAtoZ: "A to Z",
       sortZtoA: "Z to A",
       sortPriceLowHigh: "Price: Low to High",
       sortPriceHighLow: "Price: High to Low",
       sortNewest: "Newest",
       sortSale: "Sale",
+      sortFastDelivery: "Fastest Delivery",
 
       // Empty/loading states
       noProductsTitle: "No products found",
@@ -1441,7 +1460,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       // Results text
       resultsText: "results",
       itemsAvailable: "items",
-      productsPageTitle: "All Products",
+      productsPageTitle: "Products",
       discoverProducts: "Discover Products",
 
       // Quick filters
@@ -1639,7 +1658,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       collectionsLabel: "Collections",
       brandsLabel: "Brands",
       categoriesLabel: "Categories",
-      viewAllProducts: "View All Products",
+      viewAllProducts: "View Products",
       exploreCategoryLabel: "Explore",
       browseSubcategoriesLabel: "Browse subcategories",
       megaMenuProductLabel: "product",

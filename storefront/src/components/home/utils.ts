@@ -232,7 +232,8 @@ export const getCategoryLayoutClass = (index: number, total: number) => {
 };
 
 /**
- * Parse EditorJS JSON description to plain text
+ * Parse EditorJS JSON description to plain text.
+ * Handles both "paragraph" (data.text) and "rawHtml" (data.html / data.text) block types.
  */
 export function parseDescription(desc: string | null | undefined): string {
   if (!desc || desc.trim().length === 0) {
@@ -242,23 +243,23 @@ export function parseDescription(desc: string | null | undefined): string {
   // Try to parse as EditorJS JSON format
   try {
     const parsed = JSON.parse(desc) as {
-      blocks?: Array<{ type: string; data: { text: string } }>;
+      blocks?: Array<{ type: string; data: { text?: string; html?: string } }>;
     };
     if (parsed.blocks && Array.isArray(parsed.blocks)) {
-      // Extract text from all paragraph blocks
       const texts = parsed.blocks
-        .filter((block) => block.type === "paragraph")
         .map((block) => {
-          // Clean HTML tags and entities
-          return block.data.text
+          const raw = block.data.text || block.data.html || "";
+          return raw
             .replace(/<br\s*\/?>/gi, " ")
             .replace(/<[^>]*>/g, "")
             .replace(/&lt;/g, "<")
             .replace(/&gt;/g, ">")
             .replace(/&amp;/g, "&")
-            .replace(/&nbsp;/g, " ");
-        });
-      return texts.join(" ") || desc;
+            .replace(/&nbsp;/g, " ")
+            .trim();
+        })
+        .filter(Boolean);
+      if (texts.length > 0) return texts.join(" ");
     }
   } catch {
     // Not JSON, use as plain text

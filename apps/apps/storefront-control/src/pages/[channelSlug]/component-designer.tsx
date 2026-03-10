@@ -75,7 +75,11 @@ function ComponentDesignerPage() {
     formState: { errors, isDirty },
   } = form;
 
-  // Preview hook
+  // Preview hook — onComponentSelected fires on every click (even re-clicks on same component)
+  const handlePreviewSelect = useCallback((key: string) => {
+    setSelectedKey(key);
+  }, []);
+
   const {
     iframeRef, isReady, sendConfig, navigate, refresh,
     selectedFromPreview, highlightComponent, initOverlay,
@@ -83,6 +87,7 @@ function ComponentDesignerPage() {
   } = usePreview({
     storefrontUrl: STOREFRONT_URL,
     channelSlug: channelSlug || "default-channel",
+    onComponentSelected: handlePreviewSelect,
   });
 
   // Track which components have overrides for tree indicators
@@ -142,12 +147,8 @@ function ComponentDesignerPage() {
     if (route) navigate(route);
   }, [selectedKey, isReady, channelSlug, navigate, previewOpen]);
 
-  // Auto-select component when clicked in preview overlay
-  useEffect(() => {
-    if (selectedFromPreview) {
-      setSelectedKey(selectedFromPreview);
-    }
-  }, [selectedFromPreview]);
+  // Component selection from preview is handled by onComponentSelected callback above
+  // (callback fires on every click, unlike state-based effects which skip duplicate values)
 
   // Highlight component in preview when tree selection changes
   // Skip if the selection just came from a preview click (avoid roundtrip)
@@ -310,6 +311,7 @@ function ComponentDesignerPage() {
                 iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>}
                 isReady={isReady}
                 storefrontUrl={STOREFRONT_URL}
+                channelSlug={channelSlug || "default-channel"}
                 deviceSize={deviceSize}
               />
             </div>

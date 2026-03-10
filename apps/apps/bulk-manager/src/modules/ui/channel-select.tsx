@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Box, Text } from "@saleor/macaw-ui";
 import { trpcClient } from "@/modules/trpc/trpc-client";
+import { colors } from "@/modules/ui/app-layout";
 
 interface ChannelSelectProps {
   value: string;
@@ -45,9 +46,9 @@ export function MultiChannelSelect({
         {label}
       </Text>
       {isLoading ? (
-        <Text size={2} __color="#94a3b8">Loading channels...</Text>
+        <Text size={2} __color={colors.textLight}>Loading channels...</Text>
       ) : channels.length === 0 ? (
-        <Text size={2} __color="#94a3b8">No channels found</Text>
+        <Text size={2} __color={colors.textLight}>No channels found</Text>
       ) : (
         <Box
           display="flex"
@@ -64,12 +65,12 @@ export function MultiChannelSelect({
                   alignItems: "center",
                   gap: "6px",
                   padding: "6px 12px",
-                  border: `1.5px solid ${selected ? "#3b82f6" : "#d1d5db"}`,
+                  border: `1.5px solid ${selected ? colors.brand : colors.inputBorder}`,
                   borderRadius: "6px",
                   fontSize: "13px",
                   fontWeight: selected ? 600 : 400,
-                  backgroundColor: selected ? "#eff6ff" : "#fff",
-                  color: selected ? "#1d4ed8" : "#374151",
+                  backgroundColor: selected ? colors.accentBg : "#fff",
+                  color: selected ? colors.brand : colors.textSecondary,
                   cursor: "pointer",
                   transition: "all 0.15s",
                   userSelect: "none",
@@ -79,11 +80,11 @@ export function MultiChannelSelect({
                   type="checkbox"
                   checked={selected}
                   onChange={() => toggle(ch.slug)}
-                  style={{ accentColor: "#3b82f6", margin: 0 }}
+                  style={{ accentColor: colors.brand, margin: 0 }}
                 />
                 {ch.name} ({ch.currencyCode})
                 {!ch.isActive && (
-                  <span style={{ fontSize: "10px", color: "#94a3b8" }}>[inactive]</span>
+                  <span style={{ fontSize: "10px", color: colors.textLight }}>[inactive]</span>
                 )}
               </label>
             );
@@ -123,7 +124,7 @@ export function ChannelSelect({
         style={{
           width: "100%",
           padding: "8px 12px",
-          border: "1px solid #d1d5db",
+          border: `1px solid ${colors.inputBorder}`,
           borderRadius: "6px",
           fontSize: "14px",
           backgroundColor: "#fff",

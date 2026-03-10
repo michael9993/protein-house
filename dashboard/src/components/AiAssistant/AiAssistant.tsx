@@ -93,7 +93,7 @@ function AiAssistantInner() {
 
       <button
         onClick={toggle}
-        className="fixed bottom-4 right-4 z-[999] flex h-12 w-12 items-center justify-center rounded-full bg-black text-white shadow-lg transition-transform hover:scale-105 active:scale-95 sm:bottom-6 sm:right-6"
+        className="fixed bottom-20 right-4 z-[999] flex h-12 w-12 items-center justify-center rounded-full bg-black text-white shadow-lg transition-transform hover:scale-105 active:scale-95 sm:bottom-20 sm:right-6"
         title={
           isOpen ? "Close assistant (Esc)" : "Open Aura Assistant (Ctrl+.)"
         }

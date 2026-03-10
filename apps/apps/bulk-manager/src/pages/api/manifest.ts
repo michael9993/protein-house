@@ -33,6 +33,7 @@ const handler = createManifestHandler({
         "MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES",
         "MANAGE_PAGES",
         "MANAGE_PAGE_TYPES_AND_ATTRIBUTES",
+        "MANAGE_TRANSLATIONS",
       ] as unknown as AppManifest["permissions"],
       requiredSaleorVersion: ">=3.20 <4",
       supportUrl: "https://github.com/saleor/apps/discussions",

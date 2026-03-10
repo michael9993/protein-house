@@ -16,7 +16,7 @@ interface SourcingTableProps {
 const inputCls =
   "w-full px-2 py-1 text-xs border border-border rounded focus:outline-none focus:ring-2 focus:ring-brand/20";
 
-const MAIN_COL_COUNT = 7;
+const MAIN_COL_COUNT = 8;
 
 export function SourcingTable({
   products,
@@ -39,6 +39,7 @@ export function SourcingTable({
               <th className="w-8 px-2 py-2 border-b border-border" />
               <th className="text-left px-3 py-2 text-xs font-medium text-text-muted border-b border-border whitespace-nowrap">Image</th>
               <th className="text-left px-3 py-2 text-xs font-medium text-text-muted border-b border-border whitespace-nowrap min-w-[200px]">Name</th>
+              <th className="text-left px-3 py-2 text-xs font-medium text-text-muted border-b border-border whitespace-nowrap min-w-[140px]">Category</th>
               <th className="text-left px-3 py-2 text-xs font-medium text-text-muted border-b border-border whitespace-nowrap">Variants</th>
               <th className="text-left px-3 py-2 text-xs font-medium text-text-muted border-b border-border whitespace-nowrap">Cost</th>
               <th className="text-left px-3 py-2 text-xs font-medium text-text-muted border-b border-border whitespace-nowrap">Shipping</th>
@@ -151,6 +152,25 @@ function ProductRow({
                 <span className="text-error ml-1">[{product.logisticsType}]</span>
               )}
             </div>
+          )}
+        </td>
+        {/* Category path */}
+        <td className="px-3 py-2 border-b border-border/50">
+          {product.categoryPath && product.categoryPath.length > 0 ? (
+            <div className="text-[11px] text-text-muted leading-tight">
+              {product.categoryPath.map((seg, i) => (
+                <span key={i}>
+                  {i > 0 && <span className="mx-0.5 text-gray-300">&gt;</span>}
+                  <span className={i === product.categoryPath.length - 1 ? "font-semibold text-text-primary" : ""}>
+                    {seg}
+                  </span>
+                </span>
+              ))}
+            </div>
+          ) : product.editCategory ? (
+            <span className="text-[11px] text-text-muted">{product.editCategory}</span>
+          ) : (
+            <span className="text-[10px] text-gray-300">—</span>
           )}
         </td>
         {/* Variants toggle */}

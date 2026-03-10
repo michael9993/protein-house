@@ -13,6 +13,7 @@ import { contactSchema, type ContactFormValues } from "../schemas";
 import { updateEmail } from "../_actions/update-email";
 import { syncAuthToCookies, clearAuthCookies } from "@/app/actions";
 import { STEP_CONTACT, STEP_SHIPPING } from "../types";
+import { StyledCheckbox } from "@/ui/components/StyledCheckbox";
 import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { buildComponentStyle } from "@/config";
 
@@ -182,11 +183,9 @@ function GuestSection({
 				/>
 
 				<div className="flex items-center gap-2">
-					<input
+					<StyledCheckbox
 						{...register("createAccount")}
-						type="checkbox"
 						id="createAccount"
-						className="h-4 w-4 rounded border-neutral-300"
 					/>
 					<label htmlFor="createAccount" className="text-sm text-neutral-700">
 						{t.createAccountCheckbox ?? "Create account for faster checkout"}

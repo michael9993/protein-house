@@ -119,6 +119,54 @@ export async function downloadAndUploadImage(
 }
 
 /**
+ * Upload a category background image (convenience wrapper).
+ */
+export function uploadCategoryImage(
+  imageUrl: string,
+  categoryId: string,
+  alt: string,
+  saleorApiUrl: string,
+  authToken: string,
+): Promise<ImageUploadResult> {
+  return downloadAndUploadImage(
+    imageUrl, saleorApiUrl, authToken,
+    `mutation CategoryUpdate($id: ID!, $input: CategoryInput!) {
+      categoryUpdate(id: $id, input: $input) {
+        category { id }
+        errors { field code message }
+      }
+    }`,
+    { id: categoryId, input: { backgroundImage: null, backgroundImageAlt: alt } },
+    "variables.input.backgroundImage",
+    "categoryUpdate",
+  );
+}
+
+/**
+ * Upload a collection background image (convenience wrapper).
+ */
+export function uploadCollectionImage(
+  imageUrl: string,
+  collectionId: string,
+  alt: string,
+  saleorApiUrl: string,
+  authToken: string,
+): Promise<ImageUploadResult> {
+  return downloadAndUploadImage(
+    imageUrl, saleorApiUrl, authToken,
+    `mutation CollectionUpdate($id: ID!, $input: CollectionInput!) {
+      collectionUpdate(id: $id, input: $input) {
+        collection { id }
+        errors { field code message }
+      }
+    }`,
+    { id: collectionId, input: { backgroundImage: null, backgroundImageAlt: alt } },
+    "variables.input.backgroundImage",
+    "collectionUpdate",
+  );
+}
+
+/**
  * Upload a product media image (convenience wrapper).
  */
 export function uploadProductImage(

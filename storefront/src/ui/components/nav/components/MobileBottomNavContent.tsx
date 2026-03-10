@@ -39,6 +39,13 @@ export function MobileBottomNavContent({
   const isProductDetail =
     pathParts.length >= 3 && pathParts[1] === "products" && pathParts.length === 3;
 
+  // Force-show nav on PDP (sticky add-to-cart sits above it)
+  useEffect(() => {
+    if (isProductDetail) {
+      setIsVisible(true);
+    }
+  }, [isProductDetail]);
+
   useEffect(() => {
     if (isProductDetail) return; // No scroll-hide on PDP
 

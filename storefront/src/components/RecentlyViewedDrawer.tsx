@@ -4,10 +4,12 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Drawer } from "vaul";
 import { Clock, X, Trash2, Heart } from "lucide-react";
 import { useRecentlyViewed, type RecentlyViewedItem } from "@/lib/recently-viewed";
-import { useFeature, useBranding, useContentConfig, useProductCardConfig, useBadgeStyle } from "@/providers/StoreConfigProvider";
+import { useFeature, useBranding, useContentConfig, useProductCardConfig, useBadgeStyle, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { useWishlist } from "@/lib/wishlist";
 import { useQuickView } from "@/providers/QuickViewProvider";
 import { buildProductUrl, withChannel } from "@/lib/urls";
@@ -106,7 +108,10 @@ function DrawerProductCard({
 
 			<Link
 				href={withChannel(channel, buildProductUrl(item.slug))}
-				onClick={onClose}
+				onClick={() => {
+					window.dispatchEvent(new CustomEvent("force-show-nav"));
+					onClose();
+				}}
 				className={`relative flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm transition-all duration-300 ${getCardHoverClasses(cardConfig.hoverEffect)}`}
 			>
 				{/* Image area */}
@@ -278,15 +283,20 @@ function RecentlyViewedDrawerContent({
 		}
 	};
 
+	const cdStyle = useComponentStyle("cart.recentlyViewedDrawer");
+	const cdClasses = useComponentClasses("cart.recentlyViewedDrawer");
+
 	return (
 		<Drawer.Root open={open} onOpenChange={onOpenChange} direction="bottom">
 			<Drawer.Portal>
 				<Drawer.Overlay className="fixed inset-0 z-[9998] bg-black/50" />
 				<Drawer.Content
-					className="fixed inset-x-0 bottom-0 z-[9999] mx-auto flex max-h-[85dvh] flex-col rounded-t-2xl bg-neutral-50 outline-none sm:inset-x-4 sm:bottom-4 sm:max-h-[75vh] sm:max-w-lg sm:rounded-2xl"
+					data-cd="cart-recentlyViewedDrawer"
+					className={`fixed inset-x-0 bottom-0 z-[9999] mx-auto flex max-h-[85dvh] flex-col rounded-t-2xl bg-neutral-50 outline-none sm:inset-x-4 sm:bottom-4 sm:max-h-[75vh] sm:max-w-lg sm:rounded-2xl ${cdClasses}`}
 					style={{
 						boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
 						paddingBottom: "env(safe-area-inset-bottom, 0px)",
+						...buildComponentStyle("cart.recentlyViewedDrawer", cdStyle),
 					}}
 					dir={isRTL ? "rtl" : "ltr"}
 					aria-describedby={undefined}
@@ -381,6 +391,11 @@ export function RecentlyViewedFloatingButton() {
 	const enabled = useFeature("recentlyViewed");
 	const { items } = useRecentlyViewed();
 	const { colors } = useBranding();
+	const pathname = usePathname();
+
+	// Detect PDP — push FABs up to clear the sticky add-to-cart bar
+	const pathParts = (pathname ?? "").split("/").filter(Boolean);
+	const isPDP = pathParts.length >= 3 && pathParts[1] === "products" && pathParts.length === 3;
 
 	useEffect(() => {
 		setMounted(true);
@@ -396,7 +411,7 @@ export function RecentlyViewedFloatingButton() {
 				aria-label={`Recently viewed (${items.length})`}
 				className="fixed left-5 z-[100] flex h-12 w-12 items-center justify-center rounded-full border border-neutral-200 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.1)] transition-all duration-300 hover:scale-110 hover:shadow-[0_4px_24px_rgba(0,0,0,0.15)] active:scale-95"
 				style={{
-					bottom: "11rem",
+					bottom: isPDP ? "15rem" : "11rem",
 				}}
 			>
 				<Clock className="h-5 w-5" style={{ color: colors.primary }} />

@@ -28,7 +28,7 @@ export default function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link href="/products" className="hover:text-white transition-colors">
-                  All Products
+                  Products
                 </Link>
               </li>
               <li>

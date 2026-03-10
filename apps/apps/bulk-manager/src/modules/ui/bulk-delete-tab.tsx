@@ -1,5 +1,6 @@
 import { Box, Text, Button } from "@saleor/macaw-ui";
 import { useState, useCallback } from "react";
+import { colors } from "@/modules/ui/app-layout";
 
 interface BulkDeleteTabProps {
   entityLabel: string;
@@ -59,7 +60,7 @@ export function BulkDeleteTab({ entityLabel, onDelete }: BulkDeleteTabProps) {
         <Text size={2} __fontWeight="500" __display="block" marginBottom={2}>
           {entityLabel} IDs (one per line)
         </Text>
-        <Text size={1} __color="#94a3b8" __display="block" marginBottom={2}>
+        <Text size={1} __color={colors.textLight} __display="block" marginBottom={2}>
           Paste the Saleor IDs of the {entityLabel.toLowerCase()} you want to delete.
           You can find IDs in the export data (first column).
         </Text>
@@ -75,7 +76,7 @@ export function BulkDeleteTab({ entityLabel, onDelete }: BulkDeleteTabProps) {
           style={{
             width: "100%",
             padding: "12px",
-            border: "1px solid #d1d5db",
+            border: `1px solid ${colors.inputBorder}`,
             borderRadius: "6px",
             fontSize: "14px",
             fontFamily: "monospace",
@@ -108,7 +109,7 @@ export function BulkDeleteTab({ entityLabel, onDelete }: BulkDeleteTabProps) {
           </>
         )}
         {ids.length > 0 && !confirming && (
-          <Text size={2} __color="#64748b">
+          <Text size={2} __color={colors.textMuted}>
             {ids.length} {ids.length === 1 ? "item" : "items"} selected
           </Text>
         )}

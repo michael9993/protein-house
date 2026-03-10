@@ -18,7 +18,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
-import { usePromoPopupConfig, useBranding } from "@/providers/StoreConfigProvider";
+import { usePromoPopupConfig, useBranding, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
+import { parseDescription } from "@/components/home/utils";
 
 interface PromoPopupProps {
   channel: string;
@@ -109,13 +111,17 @@ export function PromoPopup({
   // Get config from context
   const popupConfig = usePromoPopupConfig();
   const branding = useBranding();
+  const cdStyle = useComponentStyle("ui.promoPopup");
+  const cdClasses = useComponentClasses("ui.promoPopup");
 
   // Determine if we should use auto-detect or config values
   const useAutoDetect = popupConfig.autoDetectSales && saleProductCount > 0;
   
   // Resolve content - use config values or auto-detected values
   const title = useAutoDetect && promotionName ? promotionName : popupConfig.title;
-  const body = useAutoDetect && description ? parseDescription(description) : popupConfig.body;
+  const body = useAutoDetect && description
+    ? (parseDescription(description) || popupConfig.body)
+    : popupConfig.body;
   const badge = discountPercent ? `Up to ${discountPercent}% Off` : (popupConfig.badge || "Special Offer");
   const bgImage = useAutoDetect && backgroundImage ? backgroundImage : 
     (popupConfig.backgroundImageUrl ? { url: popupConfig.backgroundImageUrl, alt: "Promotion" } : null);
@@ -198,9 +204,11 @@ export function PromoPopup({
         aria-labelledby="promo-title"
       >
         <div
-          className="relative w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden pointer-events-auto"
+          data-cd="ui-promoPopup"
+          className={`relative w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden pointer-events-auto ${cdClasses}`}
           style={{
             animation: "popupSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+            ...buildComponentStyle("ui.promoPopup", cdStyle),
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -350,36 +358,3 @@ export function PromoPopup({
   );
 }
 
-// Helper function to parse EditorJS JSON description
-function parseDescription(desc: string | undefined): string {
-  if (!desc || desc.trim().length === 0) {
-    return "Don't miss out on our biggest sale of the season! Shop now and save on your favorite items.";
-  }
-  
-  // Try to parse as EditorJS JSON format
-  try {
-    const parsed = JSON.parse(desc) as {
-      blocks?: Array<{ type: string; data: { text: string } }>;
-    };
-    if (parsed.blocks && Array.isArray(parsed.blocks)) {
-      // Extract text from all paragraph blocks
-      const texts = parsed.blocks
-        .filter((block) => block.type === "paragraph")
-        .map((block) => {
-          // Clean HTML tags and entities
-          return block.data.text
-            .replace(/<br\s*\/?>/gi, "\n")
-            .replace(/<[^>]*>/g, "")
-            .replace(/&lt;/g, "<")
-            .replace(/&gt;/g, ">")
-            .replace(/&amp;/g, "&")
-            .replace(/&nbsp;/g, " ");
-        });
-      return texts.join("\n") || desc;
-    }
-  } catch {
-    // Not JSON, use as plain text
-  }
-  
-  return desc;
-}

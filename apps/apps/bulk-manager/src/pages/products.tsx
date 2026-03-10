@@ -1,7 +1,7 @@
 import { Box, Text, Button } from "@saleor/macaw-ui";
 import { useState, useCallback, useMemo } from "react";
 
-import { AppLayout } from "@/modules/ui/app-layout";
+import { AppLayout, colors } from "@/modules/ui/app-layout";
 import { ImportWizard, type ProgressInfo } from "@/modules/ui/import-wizard";
 import { ExportDialog } from "@/modules/ui/export-dialog";
 import { UpsertToggle } from "@/modules/ui/upsert-toggle";
@@ -209,11 +209,11 @@ export default function ProductsPage() {
         <Text variant="heading" size={6} __fontWeight="700" __display="block" marginBottom={2}>
           Products
         </Text>
-        <Text size={3} __color="#64748b" __display="block" marginBottom={6}>
+        <Text size={3} __color={colors.textMuted} __display="block" marginBottom={6}>
           Import, export, and manage products in bulk
         </Text>
 
-        <Box display="flex" gap={1} marginBottom={6} __borderBottom="2px solid #e2e8f0">
+        <Box display="flex" gap={1} marginBottom={6} __borderBottom={`2px solid ${colors.border}`}>
           {(["import", "export", "template"] as Tab[]).map((t) => (
             <Box
               key={t}
@@ -221,10 +221,10 @@ export default function ProductsPage() {
               paddingBottom={3}
               cursor="pointer"
               onClick={() => setTab(t)}
-              __borderBottom={tab === t ? "2px solid #3b82f6" : "2px solid transparent"}
+              __borderBottom={tab === t ? `2px solid ${colors.brand}` : "2px solid transparent"}
               __marginBottom="-2px"
             >
-              <Text size={3} __fontWeight={tab === t ? "600" : "400"} __color={tab === t ? "#1e293b" : "#94a3b8"} __textTransform="capitalize">
+              <Text size={3} __fontWeight={tab === t ? "600" : "400"} __color={tab === t ? colors.text : colors.textLight} __textTransform="capitalize">
                 {t}
               </Text>
             </Box>
@@ -233,26 +233,26 @@ export default function ProductsPage() {
 
         {tab === "import" && (
           <Box marginBottom={6}>
-            <Text size={2} __color="#64748b" __display="block" marginBottom={3}>
+            <Text size={2} __color={colors.textMuted} __display="block" marginBottom={3}>
               Default values (fallback when not specified in CSV columns)
             </Text>
             <Box display="flex" gap={4} alignItems="flex-start" __flexWrap="wrap">
               <MultiChannelSelect value={channelSlugs} onChange={setChannelSlugs} label="Publish to Channels" />
               <Box __minWidth="180px">
                 <ProductTypeSelect value={productTypeId} onChange={setProductTypeId} />
-                <Text size={1} __color="#94a3b8" __display="block" __marginTop="4px" __lineHeight="1.2">or use &quot;productType&quot; column</Text>
+                <Text size={1} __color={colors.textLight} __display="block" __marginTop="4px" __lineHeight="1.2">or use &quot;productType&quot; column</Text>
               </Box>
               <Box __minWidth="180px">
                 <CategorySelect value={categoryId} onChange={setCategoryId} label="Default Category" />
-                <Text size={1} __color="#94a3b8" __display="block" __marginTop="4px" __lineHeight="1.2">or use &quot;category&quot; column</Text>
+                <Text size={1} __color={colors.textLight} __display="block" __marginTop="4px" __lineHeight="1.2">or use &quot;category&quot; column</Text>
               </Box>
               <Box __minWidth="180px">
                 <WarehouseSelect value={warehouseId} onChange={setWarehouseId} label="Stock Warehouse" />
-                <Text size={1} __color="#94a3b8" __display="block" __marginTop="4px" __lineHeight="1.2">or use &quot;warehouse&quot; column</Text>
+                <Text size={1} __color={colors.textLight} __display="block" __marginTop="4px" __lineHeight="1.2">or use &quot;warehouse&quot; column</Text>
               </Box>
               <Box __minWidth="180px">
                 <TaxClassSelect value={taxClassId} onChange={setTaxClassId} label="Default Tax Class" />
-                <Text size={1} __color="#94a3b8" __display="block" __marginTop="4px" __lineHeight="1.2">or use &quot;taxClass&quot; column</Text>
+                <Text size={1} __color={colors.textLight} __display="block" __marginTop="4px" __lineHeight="1.2">or use &quot;taxClass&quot; column</Text>
               </Box>
             </Box>
           </Box>
@@ -266,8 +266,8 @@ export default function ProductsPage() {
         )}
 
         {tab === "import" && (
-          <Box marginBottom={4} padding={4} borderRadius={4} __backgroundColor="#f0f9ff" __border="1px solid #bae6fd">
-            <Text size={3} __fontWeight="600" __display="block" marginBottom={3} __color="#0369a1">
+          <Box marginBottom={4} padding={4} borderRadius={4} __backgroundColor={colors.infoBg} __border={`1px solid ${colors.infoBorder}`}>
+            <Text size={3} __fontWeight="600" __display="block" marginBottom={3} __color={colors.infoText}>
               Dynamic Import Options
             </Text>
             <Box display="flex" gap={4} alignItems="center" __flexWrap="wrap" marginBottom={3}>
@@ -333,7 +333,7 @@ export default function ProductsPage() {
               </label>
               {isDropship && (
                 <Box display="flex" gap={2} alignItems="center">
-                  <Text size={2} __color="#64748b">Supplier:</Text>
+                  <Text size={2} __color={colors.textMuted}>Supplier:</Text>
                   <input
                     type="text"
                     value={dropshipSupplier}
@@ -342,7 +342,7 @@ export default function ProductsPage() {
                     style={{
                       width: "120px",
                       padding: "4px 8px",
-                      border: "1px solid #d1d5db",
+                      border: `1px solid ${colors.inputBorder}`,
                       borderRadius: "6px",
                       fontSize: "13px",
                     }}
@@ -355,13 +355,13 @@ export default function ProductsPage() {
             </Box>
             {discoveredAttrColumns.length > 0 && (
               <Box>
-                <Text size={2} __fontWeight="500" __display="block" marginBottom={2} __color="#64748b">
+                <Text size={2} __fontWeight="500" __display="block" marginBottom={2} __color={colors.textMuted}>
                   Attribute Defaults (used when CSV cell is empty)
                 </Text>
                 <Box display="flex" gap={3} __flexWrap="wrap">
                   {discoveredAttrColumns.map((col) => (
                     <Box key={col} __minWidth="180px">
-                      <Text size={1} __fontWeight="500" __display="block" marginBottom={1} __color="#475569">
+                      <Text size={1} __fontWeight="500" __display="block" marginBottom={1} __color={colors.badgeText}>
                         {col}
                       </Text>
                       <input
@@ -377,7 +377,7 @@ export default function ProductsPage() {
                         style={{
                           width: "100%",
                           padding: "6px 10px",
-                          border: "1px solid #d1d5db",
+                          border: `1px solid ${colors.inputBorder}`,
                           borderRadius: "6px",
                           fontSize: "13px",
                         }}
@@ -411,8 +411,8 @@ export default function ProductsPage() {
               marginBottom={6}
               padding={4}
               borderRadius={4}
-              __backgroundColor="#f8fafc"
-              __border="1px solid #e2e8f0"
+              __backgroundColor={colors.surface}
+              __border={`1px solid ${colors.border}`}
               __flexWrap="wrap"
             >
               <ChannelSelect value={exportChannelSlug} onChange={setExportChannelSlug} />
@@ -428,7 +428,7 @@ export default function ProductsPage() {
                   style={{
                     width: "100%",
                     padding: "8px 12px",
-                    border: "1px solid #d1d5db",
+                    border: `1px solid ${colors.inputBorder}`,
                     borderRadius: "6px",
                     fontSize: "14px",
                   }}
@@ -453,9 +453,9 @@ export default function ProductsPage() {
         )}
 
         {tab === "template" && (
-          <Box padding={6} borderRadius={4} __border="1px solid #e2e8f0">
+          <Box padding={6} borderRadius={4} __border={`1px solid ${colors.border}`}>
             <Text variant="heading" size={4} __display="block" marginBottom={4}>Download Import Template</Text>
-            <Text size={2} __color="#64748b" __display="block" marginBottom={4}>
+            <Text size={2} __color={colors.textMuted} __display="block" marginBottom={4}>
               Download a pre-formatted import template (CSV or Excel) with {ALL_TARGET_FIELDS.length} columns — includes field descriptions and sample data.
               Supports variants, pricing, stock, SEO, images, attributes, collections, and metadata.
             </Text>

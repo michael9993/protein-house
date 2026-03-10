@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useCheckoutState } from "../CheckoutStateProvider";
 import { useCheckoutText } from "../hooks/useCheckoutText";
 import { updateLineQuantity } from "../_actions/update-line-quantity";
@@ -67,8 +67,10 @@ export function SummaryLineItem({ line, checkoutId }: SummaryLineItemProps) {
 	const [isPending, startTransition] = useTransition();
 	const [showEmptyCartConfirm, setShowEmptyCartConfirm] = useState(false);
 	const router = useRouter();
+	const params = useParams();
 	const t = useCheckoutText();
 	const checkout = state.checkout;
+	const channel = (params?.channel as string) || "";
 
 	/** Check if the currently selected delivery method still exists in the updated methods list */
 	function isDeliveryMethodGone(newMethods: Array<{ id: string }>) {
@@ -182,6 +184,15 @@ export function SummaryLineItem({ line, checkoutId }: SummaryLineItemProps) {
 				dispatch({ type: "REVERT_OPTIMISTIC" });
 				return;
 			}
+
+			// If this was the last item, redirect to homepage immediately
+			// (before setCheckout to avoid rendering the checkout page with 0 lines)
+			if (visibleLines.length === 1) {
+				window.dispatchEvent(new CustomEvent("cart-updated"));
+				router.replace(channel ? `/${channel}` : "/");
+				return;
+			}
+
 			if (result.checkout) {
 				const methodGone = isDeliveryMethodGone(result.checkout.shippingMethods);
 				const currency = result.checkout.subtotalPrice.gross.currency;
@@ -219,11 +230,6 @@ export function SummaryLineItem({ line, checkoutId }: SummaryLineItemProps) {
 				});
 
 				if (methodGone) handleDeliveryMethodInvalidated();
-			}
-
-			// If this was the last item, redirect to homepage
-			if (visibleLines.length === 1) {
-				router.replace("/");
 			}
 		});
 	}

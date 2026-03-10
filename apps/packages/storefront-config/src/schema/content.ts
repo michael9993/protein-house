@@ -403,6 +403,7 @@ export const CheckoutTextSchema = z.object({
   billingAddressTitle: z.string().optional(),     // "Billing Address"
   billingAddressSubtitle: z.string().optional(),  // "For your invoice"
   useSameAsShipping: z.string().optional(),       // "Use shipping address as billing address"
+  noShippingToCountry: z.string().optional(),     // "Sorry, we don't currently ship to {country}..."
   useSavedAddressButton: z.string().optional(),   // "Use a saved address"
 
   // Delivery Methods Section
@@ -669,12 +670,14 @@ export const FiltersTextSchema = z.object({
   sizePlural: z.string(),             // "sizes"
 
   // Sort options
+  sortRecommended: z.string(),        // "Recommended"
   sortAtoZ: z.string(),               // "A to Z"
   sortZtoA: z.string(),               // "Z to A"
   sortPriceLowHigh: z.string(),       // "Price: Low to High"
   sortPriceHighLow: z.string(),       // "Price: High to Low"
   sortNewest: z.string(),             // "Newest"
   sortSale: z.string(),               // "Sale"
+  sortFastDelivery: z.string(),       // "Fastest Delivery"
 
   // Empty/loading states
   noProductsTitle: z.string(),        // "No products found"

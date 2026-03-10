@@ -103,12 +103,13 @@ export function StickyMobileAddToCart({
       className={`fixed inset-x-0 ${positionClass} md:hidden transition-[translate] duration-250 ease-[cubic-bezier(0.4,0,0.2,1)] motion-reduce:transition-none ${
         isOriginalVisible ? hideTranslate : "translate-y-0"
       } ${cdClasses}`}
-      style={{ ...(isModal ? { paddingBottom: "env(safe-area-inset-bottom, 0px)" } : {}), ...buildComponentStyle("pdp.stickyAddToCart", cdStyle) }}
+      style={buildComponentStyle("pdp.stickyAddToCart", cdStyle)}
     >
       <div
         className="border-t border-neutral-200 bg-white/95 backdrop-blur-md shadow-[0_-4px_20px_rgba(0,0,0,0.08)]"
+        style={isModal ? { paddingBottom: "env(safe-area-inset-bottom, 0px)" } : undefined}
       >
-        <div className="flex h-16 items-center gap-2 px-3">
+        <div className="flex h-14 items-center gap-2 px-3">
           {/* Price */}
           <div className="flex shrink-0 flex-col items-start leading-tight">
             <span

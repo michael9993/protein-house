@@ -4,7 +4,10 @@ import { useEffect, useState, useCallback } from "react";
 import {
   useCookieConsentConfig,
   useCookieConsentText,
+  useComponentStyle,
+  useComponentClasses,
 } from "@/providers/StoreConfigProvider";
+import { buildComponentStyle } from "@/config";
 import { hasAnyConsent, saveConsent } from "@/lib/consent";
 
 type View = "banner" | "preferences";
@@ -28,6 +31,8 @@ function logConsentToServer(
 export function CookieConsent({ channel }: { channel: string }) {
   const config = useCookieConsentConfig();
   const text = useCookieConsentText();
+  const cdStyle = useComponentStyle("ui.cookieConsent");
+  const cdClasses = useComponentClasses("ui.cookieConsent");
   const [visible, setVisible] = useState(false);
   const [view, setView] = useState<View>("banner");
   const [analyticsChecked, setAnalyticsChecked] = useState(false);
@@ -84,9 +89,11 @@ export function CookieConsent({ channel }: { channel: string }) {
 
   return (
     <div
-      className={`fixed ${positionClasses} z-50 animate-slide-up`}
+      data-cd="ui-cookieConsent"
+      className={`fixed ${positionClasses} z-50 animate-slide-up ${cdClasses}`}
       role="dialog"
       aria-label={text.bannerTitle ?? "Cookie Preferences"}
+      style={buildComponentStyle("ui.cookieConsent", cdStyle)}
     >
       <div className="mx-auto max-w-4xl bg-white shadow-xl border border-neutral-200 rounded-t-xl p-5 sm:p-6">
         {view === "banner" ? (

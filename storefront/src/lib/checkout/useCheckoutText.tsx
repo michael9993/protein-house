@@ -58,6 +58,8 @@ export interface CheckoutTextConfig {
 	cityAreaLabel?: string;
 	countryAreaLabel?: string;
 	
+	noShippingToCountry?: string;
+
 	// Billing Address Section
 	billingAddressTitle?: string;
 	billingAddressSubtitle?: string;
@@ -352,7 +354,8 @@ const defaultCheckoutText: CheckoutTextConfig = {
 	billingAddressTitle: "Billing Address",
 	billingAddressSubtitle: "For your invoice",
 	useSameAsShipping: "Use shipping address as billing address",
-	
+	noShippingToCountry: "Sorry, we don't currently ship to {country}. Please use a different shipping address.",
+
 	// Delivery Methods Section
 	deliveryMethodsTitle: "Delivery methods",
 	deliveryMethodsSubtitle: "Choose shipping speed",

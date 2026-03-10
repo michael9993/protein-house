@@ -56,13 +56,14 @@ function CatalogPage() {
 
   const { config, isNotReady, form, onSubmit, saveStatus } = useConfigPage({
     schema: CatalogFormSchema,
-    sections: ["features", "filters", "quickFilters", "relatedProducts", "content"],
+    sections: ["features", "filters", "quickFilters", "relatedProducts", "content", "ui"],
     extractFormData: (c) => ({
       features: c.features,
       filters: c.filters,
       quickFilters: c.quickFilters,
       relatedProducts: c.relatedProducts,
       content: c.content,
+      ui: c.ui,
     }),
   });
 
@@ -155,6 +156,7 @@ function CatalogPage() {
                 quickFilters: config.quickFilters,
                 relatedProducts: config.relatedProducts,
                 content: config.content,
+                ui: config.ui,
               });
             }
           }}

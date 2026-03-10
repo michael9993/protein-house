@@ -1,6 +1,6 @@
 import { Box, Text } from "@saleor/macaw-ui";
 import Link from "next/link";
-import { AppLayout } from "@/modules/ui/app-layout";
+import { AppLayout, colors } from "@/modules/ui/app-layout";
 
 interface EntityCard {
   label: string;
@@ -60,16 +60,23 @@ const entities: EntityCard[] = [
     features: ["CSV/Excel Import", "Export", "Upsert Mode", "Bulk Delete", "Template"],
     icon: "G",
   },
+  {
+    label: "Translations",
+    description: "Import translations for products, categories, and collections in any language",
+    href: "/translations",
+    features: ["CSV/Excel Import", "Multi-Language", "Products", "Categories", "Collections", "Template"],
+    icon: "T",
+  },
 ];
 
 export default function DashboardPage() {
   return (
     <AppLayout>
       <Box>
-        <Text variant="heading" size={6} __fontWeight="700" __display="block">
+        <Text variant="heading" size={6} __fontWeight="700" __display="block" __color={colors.text}>
           Bulk Manager
         </Text>
-        <Text size={3} __color="#64748b" __display="block" marginBottom={8}>
+        <Text size={3} __color={colors.textMuted} __display="block" marginBottom={8}>
           Import, export, and perform batch operations on your store data
         </Text>
 
@@ -87,8 +94,8 @@ export default function DashboardPage() {
               <Box
                 padding={6}
                 borderRadius={4}
-                __border="1px solid #e2e8f0"
-                __transition="all 0.15s ease"
+                __border={`1px solid ${colors.border}`}
+                __transition="all 0.2s ease"
                 cursor="pointer"
                 __height="100%"
                 __display="flex"
@@ -102,19 +109,19 @@ export default function DashboardPage() {
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
-                    __backgroundColor="#eff6ff"
-                    __color="#3b82f6"
+                    __backgroundColor={colors.accentBg}
+                    __color={colors.brand}
                     __fontSize="16px"
                     __fontWeight="700"
                   >
                     {entity.icon}
                   </Box>
-                  <Text variant="heading" size={4} __fontWeight="600">
+                  <Text variant="heading" size={4} __fontWeight="600" __color={colors.text}>
                     {entity.label}
                   </Text>
                 </Box>
 
-                <Text size={2} __color="#64748b" __display="block" marginBottom={4}>
+                <Text size={2} __color={colors.textMuted} __display="block" marginBottom={4}>
                   {entity.description}
                 </Text>
 
@@ -124,9 +131,9 @@ export default function DashboardPage() {
                       key={feature}
                       __padding="2px 8px"
                       borderRadius={4}
-                      __backgroundColor="#f1f5f9"
+                      __backgroundColor={colors.badgeBg}
                     >
-                      <Text size={1} __color="#475569">
+                      <Text size={1} __color={colors.badgeText}>
                         {feature}
                       </Text>
                     </Box>

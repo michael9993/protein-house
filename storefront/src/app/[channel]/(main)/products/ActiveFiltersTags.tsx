@@ -257,7 +257,9 @@ export function ActiveFiltersTags({
         {filters.rating !== undefined && filters.rating !== null && (
           <FilterTag
             onRemove={() => updateFilters({ rating: undefined })}
-            label={`${filters.rating} ${filters.rating === 1 ? filtersText.starAndUp : filtersText.starsAndUp}`}
+            label={filters.rating === 1
+              ? (filtersText.starAndUp || "1 star & up")
+              : (filtersText.starsAndUp || "{count} stars & up").replace("{count}", String(filters.rating))}
             type="rating"
           />
         )}
@@ -341,10 +343,9 @@ function FilterTag({
         backgroundColor: tagBg,
         borderColor: tagBorderColor,
         color: tagTextColor,
-        paddingLeft: `${tagPaddingX}px`,
-        paddingRight: `${tagPaddingX}px`,
-        paddingTop: `${tagPaddingY}px`,
-        paddingBottom: `${tagPaddingY}px`,
+        paddingInlineStart: `${tagPaddingX}px`,
+        paddingInlineEnd: `${tagPaddingX}px`,
+        paddingBlock: `${tagPaddingY}px`,
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.backgroundColor = tagHoverBg;
@@ -358,7 +359,7 @@ function FilterTag({
       <span>{label}</span>
       <button
         onClick={onRemove}
-        className={`ml-0.5 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 ${borderRadiusClasses[removeButtonBorderRadius]}`}
+        className={`ms-0.5 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 ${borderRadiusClasses[removeButtonBorderRadius]}`}
         style={{ 
           height: `${removeButtonSize}px`,
           width: `${removeButtonSize}px`,

@@ -17,25 +17,33 @@ import type { TemplateLanguage } from "./configuration/smtp-config-schema";
 // ─── Shared Fragments (English) ─────────────────────────────────────────────
 
 const headerEn = `
-    <mj-section padding="24px 24px 0">
+    <mj-section background-color="\${PRIMARY_COLOR}" padding="20px 24px 16px">
       <mj-column>
-        <mj-image src="\${LOGO_URL}" alt="\${COMPANY_NAME}" width="140px" align="center" padding-bottom="16px" />
+        <mj-image src="\${LOGO_URL}" alt="\${COMPANY_NAME}" width="160px" align="center" padding="0" />
       </mj-column>
     </mj-section>
     <mj-section padding="0">
       <mj-column>
-        <mj-divider border-color="\${PRIMARY_COLOR}" border-width="3px" padding="0 24px" />
+        <mj-divider border-color="\${SECONDARY_COLOR}" border-width="2px" padding="0" />
       </mj-column>
     </mj-section>`;
 
 const footerEn = `
-    <mj-section padding="24px">
+    <mj-section padding="0">
       <mj-column>
-        <mj-divider border-color="#E5E7EB" border-width="1px" padding="0 0 16px 0" />
-        <mj-text align="center" font-size="13px" color="#6B7280" padding-bottom="8px">
-          Questions? Contact us at <a href="mailto:\${COMPANY_EMAIL}" style="color: \${PRIMARY_COLOR}; text-decoration: none;">\${COMPANY_EMAIL}</a>
+        <mj-divider border-color="\${SECONDARY_COLOR}" border-width="1px" padding="0 24px" />
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="\${PRIMARY_COLOR}" padding="28px 24px 20px">
+      <mj-column>
+        <mj-image src="\${LOGO_URL}" alt="\${COMPANY_NAME}" width="100px" align="center" padding="0 0 12px 0" />
+        <mj-text align="center" font-size="12px" color="rgba(255,255,255,0.7)" padding="0 0 8px 0" line-height="1.5">
+          Calm. Curated. Pet Care.
         </mj-text>
-        <mj-text align="center" font-size="11px" color="#9CA3AF">
+        <mj-text align="center" font-size="13px" color="rgba(255,255,255,0.6)" padding="0 0 4px 0">
+          Questions? <a href="mailto:\${COMPANY_EMAIL}" style="color: \${SECONDARY_COLOR}; text-decoration: none;">\${COMPANY_EMAIL}</a>
+        </mj-text>
+        <mj-text align="center" font-size="11px" color="rgba(255,255,255,0.4)" padding="4px 0 0 0">
           &copy; ${new Date().getFullYear()} \${COMPANY_NAME}. All rights reserved.
         </mj-text>
       </mj-column>
@@ -48,15 +56,17 @@ const emailHeadEn = `
       <mj-all font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" />
       <mj-text font-size="14px" color="#374151" line-height="1.6" padding="0 24px 12px" />
       <mj-section padding="0" background-color="#FFFFFF" />
+      <mj-button background-color="\${PRIMARY_COLOR}" color="#FFFFFF" font-size="14px" font-weight="600" border-radius="6px" inner-padding="12px 28px" />
     </mj-attributes>
     <mj-style inline="inline">
       .detail-row { padding: 10px 0; border-bottom: 1px solid #F3F4F6; }
       .detail-row:last-child { border-bottom: none; }
       .accent { color: \${PRIMARY_COLOR}; font-weight: 600; }
-      .info-box { border-radius: 8px; }
-      .reply-box { border-radius: 8px; border-left: 4px solid \${PRIMARY_COLOR}; }
-      .success-box { border-radius: 8px; }
-      .danger-box { border-radius: 8px; }
+      .gold-accent { color: \${SECONDARY_COLOR}; font-weight: 600; }
+      .info-box { border-radius: 8px; border: 1px solid #E5E7EB; }
+      .reply-box { border-radius: 8px; border-left: 4px solid \${SECONDARY_COLOR}; }
+      .success-box { border-radius: 8px; border: 1px solid #D1FAE5; background-color: #ECFDF5; }
+      .danger-box { border-radius: 8px; border: 1px solid #FEE2E2; background-color: #FEF2F2; }
     </mj-style>
   </mj-head>`;
 
@@ -89,8 +99,14 @@ const orderTotalsEn = `
               <td style="text-align: right; padding: 6px 0 6px 16px; color: #374151; font-weight: 500; font-size: 13px; width: 120px;">{{order.shippingPrice.gross.amount}} {{order.shippingPrice.gross.currency}}</td>
             </tr>
             {{/if}}
-            <tr style="border-top: 2px solid #E5E7EB;">
-              <td style="text-align: right; padding: 14px 0 0 0; color: #111827; font-size: 16px; font-weight: 700;">Total:</td>
+            {{#if order.discounts.length}}
+            <tr>
+              <td style="text-align: right; padding: 6px 0; color: #059669; font-size: 13px;">Discount:</td>
+              <td style="text-align: right; padding: 6px 0 6px 16px; color: #059669; font-weight: 500; font-size: 13px; width: 120px;">-{{order.discounts.0.amount.amount}} {{order.total.gross.currency}}</td>
+            </tr>
+            {{/if}}
+            <tr style="border-top: 2px solid \${SECONDARY_COLOR};">
+              <td style="text-align: right; padding: 14px 0 0 0; color: \${PRIMARY_COLOR}; font-size: 16px; font-weight: 700;">Total:</td>
               <td style="text-align: right; padding: 14px 0 0 16px; color: \${PRIMARY_COLOR}; font-size: 16px; font-weight: 700; width: 120px;">{{order.total.gross.amount}} {{order.total.gross.currency}}</td>
             </tr>
           </tbody>
@@ -165,25 +181,33 @@ const addressBlockForNotifyEn = `
 // ─── Shared Fragments (Hebrew / RTL) ────────────────────────────────────────
 
 const headerHe = `
-    <mj-section padding="24px 24px 0">
+    <mj-section background-color="\${PRIMARY_COLOR}" padding="20px 24px 16px">
       <mj-column>
-        <mj-image src="\${LOGO_URL}" alt="\${COMPANY_NAME}" width="140px" align="center" padding-bottom="16px" />
+        <mj-image src="\${LOGO_URL}" alt="\${COMPANY_NAME}" width="160px" align="center" padding="0" />
       </mj-column>
     </mj-section>
     <mj-section padding="0">
       <mj-column>
-        <mj-divider border-color="\${PRIMARY_COLOR}" border-width="3px" padding="0 24px" />
+        <mj-divider border-color="\${SECONDARY_COLOR}" border-width="2px" padding="0" />
       </mj-column>
     </mj-section>`;
 
 const footerHe = `
-    <mj-section padding="24px">
+    <mj-section padding="0">
       <mj-column>
-        <mj-divider border-color="#E5E7EB" border-width="1px" padding="0 0 16px 0" />
-        <mj-text align="center" font-size="13px" color="#6B7280" padding-bottom="8px">
-          שאלות? צרו קשר: <a href="mailto:\${COMPANY_EMAIL}" style="color: \${PRIMARY_COLOR}; text-decoration: none;">\${COMPANY_EMAIL}</a>
+        <mj-divider border-color="\${SECONDARY_COLOR}" border-width="1px" padding="0 24px" />
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="\${PRIMARY_COLOR}" padding="28px 24px 20px">
+      <mj-column>
+        <mj-image src="\${LOGO_URL}" alt="\${COMPANY_NAME}" width="100px" align="center" padding="0 0 12px 0" />
+        <mj-text align="center" font-size="12px" color="rgba(255,255,255,0.7)" padding="0 0 8px 0" line-height="1.5">
+          שלווה ואיכות לחיית המחמד
         </mj-text>
-        <mj-text align="center" font-size="11px" color="#9CA3AF">
+        <mj-text align="center" font-size="13px" color="rgba(255,255,255,0.6)" padding="0 0 4px 0">
+          שאלות? <a href="mailto:\${COMPANY_EMAIL}" style="color: \${SECONDARY_COLOR}; text-decoration: none;">\${COMPANY_EMAIL}</a>
+        </mj-text>
+        <mj-text align="center" font-size="11px" color="rgba(255,255,255,0.4)" padding="4px 0 0 0">
           &copy; ${new Date().getFullYear()} \${COMPANY_NAME}. כל הזכויות שמורות.
         </mj-text>
       </mj-column>
@@ -196,6 +220,7 @@ const emailHeadHe = `
       <mj-all font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" />
       <mj-text font-size="14px" color="#374151" line-height="1.6" padding="0 24px 12px" align="right" />
       <mj-section padding="0" background-color="#FFFFFF" />
+      <mj-button background-color="\${PRIMARY_COLOR}" color="#FFFFFF" font-size="14px" font-weight="600" border-radius="6px" inner-padding="12px 28px" />
     </mj-attributes>
     <mj-style inline="inline">
       body, div, td, th, span { direction: rtl; text-align: right; }
@@ -203,10 +228,11 @@ const emailHeadHe = `
       .detail-row { padding: 10px 0; border-bottom: 1px solid #F3F4F6; }
       .detail-row:last-child { border-bottom: none; }
       .accent { color: \${PRIMARY_COLOR}; font-weight: 600; }
-      .info-box { border-radius: 8px; }
-      .reply-box { border-radius: 8px; border-right: 4px solid \${PRIMARY_COLOR}; }
-      .success-box { border-radius: 8px; }
-      .danger-box { border-radius: 8px; }
+      .gold-accent { color: \${SECONDARY_COLOR}; font-weight: 600; }
+      .info-box { border-radius: 8px; border: 1px solid #E5E7EB; }
+      .reply-box { border-radius: 8px; border-right: 4px solid \${SECONDARY_COLOR}; }
+      .success-box { border-radius: 8px; border: 1px solid #D1FAE5; background-color: #ECFDF5; }
+      .danger-box { border-radius: 8px; border: 1px solid #FEE2E2; background-color: #FEF2F2; }
     </mj-style>
   </mj-head>`;
 
@@ -239,8 +265,14 @@ const orderTotalsHe = `
               <td style="text-align: left; padding: 6px 16px 6px 0; color: #374151; font-weight: 500; font-size: 13px; width: 120px;">{{order.shippingPrice.gross.amount}} {{order.shippingPrice.gross.currency}}</td>
             </tr>
             {{/if}}
-            <tr style="border-top: 2px solid #E5E7EB;">
-              <td style="text-align: left; padding: 14px 0 0 0; color: #111827; font-size: 16px; font-weight: 700;">סה"כ:</td>
+            {{#if order.discounts.length}}
+            <tr>
+              <td style="text-align: left; padding: 6px 0; color: #059669; font-size: 13px;">הנחה:</td>
+              <td style="text-align: left; padding: 6px 16px 6px 0; color: #059669; font-weight: 500; font-size: 13px; width: 120px;">-{{order.discounts.0.amount.amount}} {{order.total.gross.currency}}</td>
+            </tr>
+            {{/if}}
+            <tr style="border-top: 2px solid \${SECONDARY_COLOR};">
+              <td style="text-align: left; padding: 14px 0 0 0; color: \${PRIMARY_COLOR}; font-size: 16px; font-weight: 700;">סה"כ:</td>
               <td style="text-align: left; padding: 14px 16px 0 0; color: \${PRIMARY_COLOR}; font-size: 16px; font-weight: 700; width: 120px;">{{order.total.gross.amount}} {{order.total.gross.currency}}</td>
             </tr>
           </tbody>
@@ -758,7 +790,7 @@ const enAccountDelete = `<mjml>
             <li>All personal data</li>
           </ul>
         </mj-text>
-        <mj-button background-color="#DC2626" color="#FFFFFF" border-radius="6px" font-size="15px" font-weight="600" padding="24px 0 16px" inner-padding="12px 28px" href="{{redirect_url}}">
+        <mj-button background-color="#DC2626" color="#FFFFFF" border-radius="6px" font-size="15px" font-weight="600" padding="24px 0 16px" inner-padding="12px 28px" href="{{delete_url}}">
           Confirm Account Deletion
         </mj-button>
         <mj-text align="center" font-size="12px" color="#9CA3AF" padding-top="8px">
@@ -1335,7 +1367,7 @@ const heAccountDelete = `<mjml>
             <li>כל המידע האישי</li>
           </ul>
         </mj-text>
-        <mj-button background-color="#DC2626" color="#FFFFFF" border-radius="6px" font-size="15px" font-weight="600" padding="24px 0 16px" inner-padding="12px 28px" href="{{redirect_url}}">
+        <mj-button background-color="#DC2626" color="#FFFFFF" border-radius="6px" font-size="15px" font-weight="600" padding="24px 0 16px" inner-padding="12px 28px" href="{{delete_url}}">
           אשר מחיקת חשבון
         </mj-button>
         <mj-text align="center" font-size="12px" color="#9CA3AF" padding-top="8px">

@@ -13,11 +13,14 @@ const MAX_RETRIES = 3;
 const INITIAL_BACKOFF_MS = 1_000;
 
 // Circuit-breaker constants
-const CIRCUIT_FAILURE_THRESHOLD = 5;
-const CIRCUIT_RECOVERY_MS = 5 * 60 * 1_000; // 5 minutes
+// Each failed request retries MAX_RETRIES times, each calling recordFailure().
+// Threshold must be > MAX_RETRIES to avoid a single slow endpoint tripping it.
+const CIRCUIT_FAILURE_THRESHOLD = 10;
+const CIRCUIT_RECOVERY_MS = 2 * 60 * 1_000; // 2 minutes (was 5)
 
-// Rate limiting — free tier: 1 request per second (configurable)
-const DEFAULT_MIN_REQUEST_INTERVAL_MS = 1_000;
+// Rate limiting — CJ enforces tier-based limits (free: 1 req/s, plus: 2, etc.)
+// Use 2s interval to stay well within limits and avoid undocumented burst caps
+const DEFAULT_MIN_REQUEST_INTERVAL_MS = 2_000;
 
 // ---------------------------------------------------------------------------
 // Circuit Breaker
@@ -202,6 +205,13 @@ async function makeRequest<T>(
       }
 
       // Other errors
+      logger.warn("CJ API non-success response", {
+        method,
+        path,
+        code: responseBody.code,
+        message: responseBody.message,
+        attempt: attempt + 1,
+      });
       recordFailure();
       lastError = new SupplierError({
         code: "ORDER_FAILED",

@@ -146,7 +146,7 @@ export const configRouter = router({
       );
 
       // Optionally update sample config file (if enabled in settings)
-      const shouldUpdateSample = process.env.AUTO_UPDATE_SAMPLE_CONFIG === "true";
+      const shouldUpdateSample = process.env.AUTO_UPDATE_SAMPLE_CONFIG !== "false";
       if (shouldUpdateSample && savedConfig) {
         try {
           const result = updateSampleConfigFile(savedConfig, input.channelSlug);
@@ -228,7 +228,7 @@ export const configRouter = router({
 
         // Optionally update sample config file (if enabled in settings)
         // This can be controlled via an environment variable or config setting
-        const shouldUpdateSample = process.env.AUTO_UPDATE_SAMPLE_CONFIG === "true";
+        const shouldUpdateSample = process.env.AUTO_UPDATE_SAMPLE_CONFIG !== "false";
         if (shouldUpdateSample && savedConfig != null) {
           try {
             const result = updateSampleConfigFile(savedConfig as NonNullable<typeof savedConfig>, input.channelSlug);
@@ -290,6 +290,19 @@ export const configRouter = router({
         triggerConfigWebhook(input.channelSlug, finalVersion, finalUpdatedAt).catch(
           (err) => console.error("[updateMultipleSections] Webhook failed:", err)
         );
+
+        // Auto-update sample config file (opt-out via AUTO_UPDATE_SAMPLE_CONFIG=false)
+        const shouldUpdateSample = process.env.AUTO_UPDATE_SAMPLE_CONFIG !== "false";
+        if (shouldUpdateSample && savedConfig != null) {
+          try {
+            const result = updateSampleConfigFile(savedConfig as NonNullable<typeof savedConfig>, input.channelSlug);
+            if (!result.success) {
+              console.error("[updateMultipleSections] Failed to update sample config:", result.error);
+            }
+          } catch (err) {
+            console.error("[updateMultipleSections] Error updating sample config:", err);
+          }
+        }
 
         return { success: true };
       } catch (error) {

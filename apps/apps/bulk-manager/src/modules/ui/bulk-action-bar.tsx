@@ -1,4 +1,5 @@
 import { Box, Text, Button } from "@saleor/macaw-ui";
+import { colors } from "@/modules/ui/app-layout";
 
 interface BulkActionBarProps {
   selectedCount: number;
@@ -24,11 +25,11 @@ export function BulkActionBar({
       gap={4}
       padding={3}
       borderRadius={4}
-      __backgroundColor="#eff6ff"
-      __border="1px solid #bfdbfe"
+      __backgroundColor={colors.accentBg}
+      __border={`1px solid ${colors.border}`}
       marginBottom={4}
     >
-      <Text size={3} __fontWeight="500" __color="#1e40af">
+      <Text size={3} __fontWeight="500" __color={colors.brand}>
         {selectedCount} {entityLabel.toLowerCase()} selected
       </Text>
 

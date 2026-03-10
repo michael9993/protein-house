@@ -415,6 +415,7 @@ export const productsRouter = router({
                 input: {
                   name: ptName,
                   slug,
+                  kind: "NORMAL",
                   isShippingRequired: true,
                   isDigital: false,
                   hasVariants: true,

@@ -540,8 +540,7 @@ export function StickyQuickFilters() {
         </div>
       )}
       <style jsx>{`
-        div[ref] ::-webkit-scrollbar,
-        div ::-webkit-scrollbar {
+        div[data-sticky-quick-filters] ::-webkit-scrollbar {
           display: none;
         }
       `}</style>

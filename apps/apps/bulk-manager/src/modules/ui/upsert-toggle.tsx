@@ -1,3 +1,5 @@
+import { colors } from "@/modules/ui/app-layout";
+
 interface UpsertToggleProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
@@ -15,7 +17,7 @@ export function UpsertToggle({ checked, onChange, entityLabel, matchDescription 
         style={{ width: "16px", height: "16px" }}
       />
       <span style={{ fontWeight: 500 }}>Update existing {entityLabel}</span>
-      <span style={{ color: "#94a3b8", fontSize: "12px" }}>({matchDescription})</span>
+      <span style={{ color: colors.textLight, fontSize: "12px" }}>({matchDescription})</span>
     </label>
   );
 }

@@ -59,10 +59,10 @@ export function AiChat({
         "fixed z-[998] flex flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl transition-all duration-200 ease-out",
         expanded
           ? "inset-x-4 bottom-4 top-4 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:h-[min(680px,calc(100vh-80px))] sm:w-[640px] sm:-translate-x-1/2 sm:-translate-y-1/2"
-          : "bottom-20 right-4 left-4 sm:left-auto sm:right-6 sm:w-[380px]",
+          : "bottom-36 right-4 left-4 sm:left-auto sm:right-6 sm:w-[380px]",
       )}
       style={
-        expanded ? undefined : { height: "min(500px, calc(100vh - 120px))" }
+        expanded ? undefined : { height: "min(500px, calc(100vh - 180px))" }
       }
     >
       {/* Header */}

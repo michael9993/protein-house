@@ -11,6 +11,7 @@ import { ShareButton } from "@/ui/components/ProductSharing";
 import { useBadgeStyle, useContentConfig, useEcommerceSettings, useProductDetailText, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { getProductShippingEstimate, formatEstimate } from "@/lib/shipping";
 import { buildProductUrl, withChannel } from "@/lib/urls";
+import { buildComponentStyle } from "@/config";
 import {
 	getProductImage,
 	getProductAlt,
@@ -80,6 +81,7 @@ export function HomepageProductCard({
 	const brand = getProductBrand(product, storeName);
 	const content = useContentConfig();
 	const ecommerce = useEcommerceSettings();
+	const cdStyle = useComponentStyle("homepage.productCard");
 	const cdClasses = useComponentClasses("homepage.productCard");
 	const saleBadgeStyle = useBadgeStyle("sale");
 	const outOfStockBadgeStyle = useBadgeStyle("outOfStock");
@@ -138,6 +140,7 @@ export function HomepageProductCard({
 					: cardConfig.borderRadius === "xl" ? "rounded-xl"
 					: "rounded-3xl"
 			}`}
+			style={buildComponentStyle("homepage.productCard", cdStyle)}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
 		>

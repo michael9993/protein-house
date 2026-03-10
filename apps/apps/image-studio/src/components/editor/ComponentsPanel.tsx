@@ -39,8 +39,22 @@ export function ComponentsPanel({
     if (!selectedObject || !canvas || !saveName.trim()) return;
     setSaving(true);
     try {
-      const json = selectedObject.toJSON();
-      const thumbnail = await generateThumbnail(selectedObject);
+      let json: object;
+      let thumbnailTarget: fabric.FabricObject = selectedObject;
+
+      if (selectedObject.type === "activeselection") {
+        // Fabric.js v6: clone each object and create a temp Group for serialization
+        const sel = selectedObject as fabric.ActiveSelection;
+        const objects = sel.getObjects();
+        const clones = await Promise.all(objects.map((o) => o.clone()));
+        const tempGroup = new fabric.Group(clones);
+        json = tempGroup.toJSON();
+        thumbnailTarget = tempGroup;
+      } else {
+        json = selectedObject.toJSON();
+      }
+
+      const thumbnail = await generateThumbnail(thumbnailTarget);
       const comp: SavedComponent = {
         id: `comp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         name: saveName.trim(),
@@ -52,6 +66,8 @@ export function ComponentsPanel({
       await onAddComponent(comp);
       setSaveName("");
       setShowSave(false);
+    } catch (err) {
+      console.error("[Components] Save failed:", err);
     } finally {
       setSaving(false);
     }
@@ -100,12 +116,32 @@ export function ComponentsPanel({
           onClick={() => setShowSave(true)}
           className="w-full mb-3 px-3 py-2 text-xs font-medium rounded-md border border-dashed border-primary text-primary hover:bg-primary/5 transition-colors"
         >
-          + Save Selection
+          {selectedObject.type === "activeselection"
+            ? `+ Save ${(selectedObject as fabric.ActiveSelection).getObjects().length} Objects as Component`
+            : selectedObject.type === "group"
+              ? `+ Save Group as Component`
+              : `+ Save ${selectedObject.type ?? "Object"} as Component`}
         </button>
+      )}
+
+      {!selectedObject && !showSave && (
+        <div className="mb-3 p-2 rounded-md border border-dashed bg-muted/20 text-center">
+          <p className="text-[10px] text-muted-foreground">
+            Select objects on canvas to save as component
+          </p>
+          <p className="text-[9px] text-muted-foreground/60 mt-0.5">
+            Hold Shift to select multiple objects
+          </p>
+        </div>
       )}
 
       {showSave && (
         <div className="mb-3 p-2 rounded-md border bg-muted/30 space-y-2">
+          {selectedObject?.type === "activeselection" && (
+            <div className="px-2 py-1 rounded bg-blue-500/10 text-blue-600 text-[9px]">
+              {(selectedObject as fabric.ActiveSelection).getObjects().length} objects will be grouped into one component
+            </div>
+          )}
           <input
             type="text"
             value={saveName}
@@ -133,10 +169,10 @@ export function ComponentsPanel({
             </button>
             <button
               onClick={handleSave}
-              disabled={!saveName.trim() || saving}
+              disabled={!saveName.trim() || saving || !selectedObject}
               className="flex-1 px-2 py-1.5 text-[10px] rounded bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
-              {saving ? "Saving..." : "Save"}
+              {saving ? "Saving..." : "Save Component"}
             </button>
           </div>
         </div>

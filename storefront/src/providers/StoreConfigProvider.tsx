@@ -1181,7 +1181,7 @@ export const DEFAULT_CONTENT_CONFIG = {
     // Results text
     resultsText: "results",
     itemsAvailable: "items available",
-    productsPageTitle: "All Products",
+    productsPageTitle: "Products",
     discoverProducts: "Discover Products",
     searchForText: "for",  // Text between count and search query (e.g., "10 for 'dog toys'")
     

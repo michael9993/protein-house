@@ -9,6 +9,34 @@ import { withCJWebhookAuth } from "@/modules/webhooks/cj/shared";
 const logger = createLogger("webhook:cj:stock");
 
 // ---------------------------------------------------------------------------
+// SKU miss cache — avoids repeated GraphQL lookups for CJ SKUs not in Saleor.
+// CJ sends stock webhooks for every product in the account, most of which
+// aren't imported. Without this cache, each miss triggers 2 GraphQL queries.
+// ---------------------------------------------------------------------------
+
+const MISS_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+const skuMissCache = new Map<string, number>(); // sku -> timestamp
+
+function isKnownMiss(sku: string): boolean {
+  const ts = skuMissCache.get(sku);
+  if (!ts) return false;
+  if (Date.now() - ts > MISS_CACHE_TTL) {
+    skuMissCache.delete(sku);
+    return false;
+  }
+  return true;
+}
+
+function recordMiss(sku: string): void {
+  skuMissCache.set(sku, Date.now());
+  // Evict oldest entries if cache grows too large
+  if (skuMissCache.size > 5000) {
+    const oldest = skuMissCache.keys().next().value;
+    if (oldest) skuMissCache.delete(oldest);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Payload validation
 // ---------------------------------------------------------------------------
 
@@ -154,24 +182,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const stockEntries = Object.entries(payload.params).flatMap(([_vid, entries]) => entries);
 
       if (stockEntries.length === 0) {
-        logger.warn("CJ stock webhook: no stock entries in payload", { messageId: payload.messageId });
+        // CJ sends frequent empty heartbeats — debug level to reduce noise
+        logger.debug("CJ stock webhook: no stock entries in payload", { messageId: payload.messageId });
         res.status(200).json({ success: true, message: "No stock entries — acknowledged" });
         return;
       }
 
-      logger.info("CJ stock webhook received", {
-        messageId: payload.messageId,
-        messageType: payload.messageType,
-        entryCount: stockEntries.length,
-        vids: stockEntries.map((e) => e.vid),
-      });
+      // Check if all entries are known misses — if so, skip the detailed "received" log
+      const allCached = stockEntries.every((e) => isKnownMiss(e.vid));
+      if (!allCached) {
+        logger.info("CJ stock webhook received", {
+          messageId: payload.messageId,
+          entryCount: stockEntries.length,
+          vids: stockEntries.map((e) => e.vid),
+        });
+      }
 
       // --- Process each stock entry ---
       let updatedCount = 0;
 
+      let skippedCount = 0;
+
       for (const entry of stockEntries) {
         const variantSku = entry.vid;
         const stockQuantity = entry.storageNum;
+
+        // Skip SKUs we already know aren't in Saleor (avoids 2 GraphQL queries per miss)
+        if (isKnownMiss(variantSku)) {
+          skippedCount++;
+          continue;
+        }
 
         // --- Find the Saleor variant ---
         const { data: variantData } = await client
@@ -223,7 +263,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         if (!variantId) {
-          logger.warn("CJ stock webhook: no matching variant found", { sku: variantSku });
+          recordMiss(variantSku);
+          logger.debug("CJ stock webhook: no matching variant found", { sku: variantSku });
           continue;
         }
 
@@ -292,10 +333,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
       }
 
-      logger.info("CJ stock webhook complete", {
+      // Only log completion at info level if something was actually updated
+      const logLevel = updatedCount > 0 ? "info" : "debug";
+      logger[logLevel]("CJ stock webhook complete", {
         messageId: payload.messageId,
         totalEntries: stockEntries.length,
         updatedCount,
+        skippedCount,
         duration: Date.now() - startTime,
       });
 

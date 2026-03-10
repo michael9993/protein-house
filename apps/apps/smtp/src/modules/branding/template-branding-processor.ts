@@ -11,12 +11,12 @@ const logger = createLogger("TemplateBrandingProcessor");
 export class TemplateBrandingProcessor {
   // Default values that might be hardcoded in templates
   private static readonly DEFAULT_VALUES = {
-    PRIMARY_COLOR: "#3b3d3f",
-    SECONDARY_COLOR: "#0A0707",
+    PRIMARY_COLOR: "#1B2838",
+    SECONDARY_COLOR: "#C9A962",
     COMPANY_NAME: "Pawzen",
     COMPANY_EMAIL: "support@pawzen.co",
     COMPANY_WEBSITE: "https://pawzen.co",
-    LOGO_URL: "https://media.easy.co.il/images/UserThumbs/10035528_1752326685636_0.jpg",
+    LOGO_URL: "https://shop.halacosmetics.org/logo/pawzen-logo-white.png",
   };
 
   /**

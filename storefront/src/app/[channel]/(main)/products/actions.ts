@@ -238,8 +238,12 @@ export async function addProductToCartAction(
 
 		const addResult = result.checkoutLinesAdd;
 
-		// If checkout was expired/invalid, create a new one and retry once
-		if (addResult?.errors?.some((e) => e.code === "NOT_FOUND" || e.field === "id")) {
+		// If checkout was expired/invalid or has an unserviceable shipping address
+		// (INSUFFICIENT_STOCK due to country/warehouse mismatch), create a fresh checkout and retry
+		const isNotFound = addResult?.errors?.some((e) => e.code === "NOT_FOUND" || e.field === "id");
+		const isStockError = addResult?.errors?.some((e) => e.code === "INSUFFICIENT_STOCK");
+
+		if (isNotFound || isStockError) {
 			const retryResult = await Checkout.create({ channel });
 			const newCheckout = retryResult.checkoutCreate?.checkout;
 			if (!newCheckout) {

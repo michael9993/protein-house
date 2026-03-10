@@ -1,7 +1,7 @@
 import { Box, Text, Button } from "@saleor/macaw-ui";
 import { useState, useCallback } from "react";
 
-import { AppLayout } from "@/modules/ui/app-layout";
+import { AppLayout, colors } from "@/modules/ui/app-layout";
 import { ExportDialog } from "@/modules/ui/export-dialog";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { trpcVanillaClient } from "@/modules/trpc/trpc-vanilla-client";
@@ -135,24 +135,24 @@ export default function OrdersPage() {
         <Text variant="heading" size={6} __fontWeight="700" __display="block" marginBottom={2}>
           Orders
         </Text>
-        <Text size={3} __color="#64748b" __display="block" marginBottom={6}>
+        <Text size={3} __color={colors.textMuted} __display="block" marginBottom={6}>
           Export order data, bulk fulfill, and bulk cancel orders
         </Text>
 
-        <Box display="flex" gap={1} marginBottom={6} __borderBottom="2px solid #e2e8f0">
+        <Box display="flex" gap={1} marginBottom={6} __borderBottom={`2px solid ${colors.border}`}>
           {(["export", "fulfill", "cancel"] as Tab[]).map((t) => (
             <Box
               key={t}
               padding={3}
               cursor="pointer"
               onClick={() => setTab(t)}
-              __borderBottom={tab === t ? "2px solid #3b82f6" : "2px solid transparent"}
+              __borderBottom={tab === t ? `2px solid ${colors.brand}` : "2px solid transparent"}
               __marginBottom="-2px"
             >
               <Text
                 size={3}
                 __fontWeight={tab === t ? "600" : "400"}
-                __color={tab === t ? "#1e293b" : "#94a3b8"}
+                __color={tab === t ? colors.text : colors.textLight}
               >
                 {t === "fulfill" ? "Bulk Fulfill" : t === "cancel" ? "Bulk Cancel" : "Export"}
               </Text>
@@ -168,8 +168,8 @@ export default function OrdersPage() {
               marginBottom={6}
               padding={4}
               borderRadius={4}
-              __backgroundColor="#f8fafc"
-              __border="1px solid #e2e8f0"
+              __backgroundColor={colors.surface}
+              __border={`1px solid ${colors.border}`}
               __flexWrap="wrap"
             >
               <ChannelSelect value={channelSlug} onChange={setChannelSlug} />
@@ -184,7 +184,7 @@ export default function OrdersPage() {
                   style={{
                     width: "100%",
                     padding: "8px 12px",
-                    border: "1px solid #d1d5db",
+                    border: `1px solid ${colors.inputBorder}`,
                     borderRadius: "6px",
                     fontSize: "14px",
                   }}
@@ -201,7 +201,7 @@ export default function OrdersPage() {
                   style={{
                     width: "100%",
                     padding: "8px 12px",
-                    border: "1px solid #d1d5db",
+                    border: `1px solid ${colors.inputBorder}`,
                     borderRadius: "6px",
                     fontSize: "14px",
                   }}
@@ -224,13 +224,13 @@ export default function OrdersPage() {
                     borderRadius={4}
                     cursor="pointer"
                     onClick={() => toggleStatus(status)}
-                    __border={statusFilter.includes(status) ? "1px solid #3b82f6" : "1px solid #e2e8f0"}
-                    __backgroundColor={statusFilter.includes(status) ? "#eff6ff" : "transparent"}
+                    __border={statusFilter.includes(status) ? `1px solid ${colors.brand}` : `1px solid ${colors.border}`}
+                    __backgroundColor={statusFilter.includes(status) ? colors.accentBg : "transparent"}
                   >
                     <Text
                       size={1}
                       __fontWeight={statusFilter.includes(status) ? "600" : "400"}
-                      __color={statusFilter.includes(status) ? "#3b82f6" : "#64748b"}
+                      __color={statusFilter.includes(status) ? colors.brand : colors.textMuted}
                     >
                       {status.replace(/_/g, " ")}
                     </Text>
@@ -240,7 +240,7 @@ export default function OrdersPage() {
               {statusFilter.length > 0 && (
                 <Text
                   size={1}
-                  __color="#94a3b8"
+                  __color={colors.textLight}
                   __display="block"
                   __marginTop="8px"
                   cursor="pointer"
@@ -260,8 +260,8 @@ export default function OrdersPage() {
             <Box
               padding={4}
               borderRadius={4}
-              __border="1px solid #e2e8f0"
-              __backgroundColor="#f8fafc"
+              __border={`1px solid ${colors.border}`}
+              __backgroundColor={colors.surface}
               marginBottom={4}
             >
               <Text size={2} __fontWeight="500" __display="block" marginBottom={2}>
@@ -286,7 +286,7 @@ export default function OrdersPage() {
               <Text size={2} __fontWeight="500" __display="block" marginBottom={2}>
                 Order IDs (one per line, optionally with tracking number)
               </Text>
-              <Text size={1} __color="#94a3b8" __display="block" marginBottom={2}>
+              <Text size={1} __color={colors.textLight} __display="block" marginBottom={2}>
                 Format: ORDER_ID or ORDER_ID,TRACKING_NUMBER
               </Text>
               <textarea
@@ -297,7 +297,7 @@ export default function OrdersPage() {
                 style={{
                   width: "100%",
                   padding: "12px",
-                  border: "1px solid #d1d5db",
+                  border: `1px solid ${colors.inputBorder}`,
                   borderRadius: "6px",
                   fontSize: "14px",
                   fontFamily: "monospace",
@@ -315,14 +315,14 @@ export default function OrdersPage() {
                 {fulfillLoading ? "Fulfilling..." : "Fulfill Orders"}
               </Button>
               {fulfillText.trim() && (
-                <Text size={2} __color="#64748b">
+                <Text size={2} __color={colors.textMuted}>
                   {fulfillText.trim().split("\n").filter((l) => l.trim()).length} orders
                 </Text>
               )}
             </Box>
 
             {fulfillResult && (
-              <Box padding={4} borderRadius={4} __border="1px solid #e2e8f0" marginBottom={4}>
+              <Box padding={4} borderRadius={4} __border={`1px solid ${colors.border}`} marginBottom={4}>
                 <Text size={3} __fontWeight="600" __display="block" marginBottom={2}>
                   Fulfillment Results
                 </Text>
@@ -376,7 +376,7 @@ export default function OrdersPage() {
               <Text size={2} __fontWeight="500" __display="block" marginBottom={2}>
                 Order IDs (one per line)
               </Text>
-              <Text size={1} __color="#94a3b8" __display="block" marginBottom={2}>
+              <Text size={1} __color={colors.textLight} __display="block" marginBottom={2}>
                 Paste the Saleor order IDs to cancel. You can find IDs in the export data.
               </Text>
               <textarea
@@ -391,7 +391,7 @@ export default function OrdersPage() {
                 style={{
                   width: "100%",
                   padding: "12px",
-                  border: "1px solid #d1d5db",
+                  border: `1px solid ${colors.inputBorder}`,
                   borderRadius: "6px",
                   fontSize: "14px",
                   fontFamily: "monospace",
@@ -420,14 +420,14 @@ export default function OrdersPage() {
                 </>
               )}
               {cancelIds.length > 0 && !cancelConfirming && (
-                <Text size={2} __color="#64748b">
+                <Text size={2} __color={colors.textMuted}>
                   {cancelIds.length} {cancelIds.length === 1 ? "order" : "orders"} selected
                 </Text>
               )}
             </Box>
 
             {cancelResult && (
-              <Box padding={4} borderRadius={4} __border="1px solid #e2e8f0" marginBottom={4}>
+              <Box padding={4} borderRadius={4} __border={`1px solid ${colors.border}`} marginBottom={4}>
                 <Text size={3} __fontWeight="600" __display="block" marginBottom={2}>
                   Cancellation Results
                 </Text>

@@ -40,6 +40,26 @@ export const QuickFiltersStyleSchema = z.object({
   titleColor: ThemeColor,
   valueColor: ThemeColor,
   activeValueColor: ThemeColor,
+  // Card styling
+  cardBackgroundColor: ThemeColor,
+  cardBorderColor: ThemeColor,
+  cardBorderRadius: z.enum(["none", "sm", "md", "lg", "xl", "2xl", "full"]).optional(),
+  cardActiveBorderColor: ThemeColor,
+  cardActiveBgColor: ThemeColor,
+  cardActiveTextColor: ThemeColor,
+  cardTextStripBg: ThemeColor,
+  cardHoverBorderColor: ThemeColor,
+  cardHoverShadow: z.enum(["none", "sm", "md", "lg"]).optional(),
+  // Section header
+  sectionTitleColor: ThemeColor,
+  // Scroll arrows
+  arrowBackgroundColor: ThemeColor,
+  arrowIconColor: ThemeColor,
+  // Group labels
+  groupLabelColor: ThemeColor,
+  // Check badge
+  checkBadgeColor: ThemeColor,
+  // Shop All button
   shopAllButtonBackgroundColor: ThemeColor,
   shopAllButtonTextColor: ThemeColor,
   shopAllButtonHoverBackgroundColor: ThemeColor,

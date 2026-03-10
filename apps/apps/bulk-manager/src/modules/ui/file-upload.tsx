@@ -1,5 +1,6 @@
 import { Box, Text, Button } from "@saleor/macaw-ui";
 import { useCallback, useRef, useState, DragEvent } from "react";
+import { colors } from "@/modules/ui/app-layout";
 
 interface FileUploadProps {
   onFileSelected: (file: File) => void;
@@ -86,18 +87,18 @@ export function FileUpload({
         alignItems="center"
         justifyContent="center"
         cursor="pointer"
-        __border={isDragging ? "2px dashed #3b82f6" : "2px dashed #d1d5db"}
-        __backgroundColor={isDragging ? "rgba(59, 130, 246, 0.05)" : "#fafafa"}
+        __border={isDragging ? `2px dashed ${colors.brand}` : `2px dashed ${colors.inputBorder}`}
+        __backgroundColor={isDragging ? colors.accentSubtle : colors.surfaceAlt}
         __transition="all 0.15s ease"
         __minHeight="200px"
       >
-        <Box __fontSize="48px" __color="#94a3b8" marginBottom={4}>
+        <Box __fontSize="48px" __color={colors.textLight} marginBottom={4}>
           +
         </Box>
-        <Text size={4} __fontWeight="500" __color="#475569">
+        <Text size={4} __fontWeight="500" __color={colors.badgeText}>
           Drop your file here or click to browse
         </Text>
-        <Text size={2} __color="#94a3b8" __marginTop="8px">
+        <Text size={2} __color={colors.textLight} __marginTop="8px">
           Supports CSV and Excel (.xlsx) files up to {maxSizeMB}MB
         </Text>
       </Box>

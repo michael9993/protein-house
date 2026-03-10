@@ -93,7 +93,7 @@ export async function getNewsletterStatus(
 				query: NEWSLETTER_STATUS_QUERY,
 				variables: { email: normalized },
 			}),
-		});
+		}, { allowPassingTokenToThirdPartyDomains: true });
 		if (!res.ok) return null;
 		const json = (await res.json()) as any;
 		const node = json?.data?.newsletterSubscriptionStatus;
@@ -133,7 +133,7 @@ export async function setNewsletterActive(
 						isActive: true,
 					},
 				}),
-			});
+			}, { allowPassingTokenToThirdPartyDomains: true });
 			const json = (await res.json()) as any;
 			const data = json?.data?.newsletterSubscribe;
 			if (data?.errors?.length) {
@@ -148,7 +148,7 @@ export async function setNewsletterActive(
 					query: NEWSLETTER_UNSUBSCRIBE_MUTATION,
 					variables: { email: normalized },
 				}),
-			});
+			}, { allowPassingTokenToThirdPartyDomains: true });
 			const json = (await res.json()) as any;
 			const data = json?.data?.newsletterUnsubscribe;
 			if (data?.errors?.length) {
@@ -187,7 +187,7 @@ export async function changePassword(
 				query: PASSWORD_CHANGE_MUTATION,
 				variables: { oldPassword: trimmedOld, newPassword: trimmedNew },
 			}),
-		});
+		}, { allowPassingTokenToThirdPartyDomains: true });
 		if (!res.ok) {
 			return { success: false, error: "Request failed. Please try again." };
 		}
@@ -236,7 +236,7 @@ export async function updateProfile(
 					input: { firstName: trimmedFirst || null, lastName: trimmedLast || null },
 				},
 			}),
-		});
+		}, { allowPassingTokenToThirdPartyDomains: true });
 		if (!res.ok) return { success: false, error: "Request failed. Please try again." };
 		const json = (await res.json()) as {
 			data?: { accountUpdate?: { user?: unknown; errors?: Array<{ message?: string }> } };
@@ -293,7 +293,7 @@ export async function requestAccountDeletion(
 					channel: channel || null,
 				},
 			}),
-		});
+		}, { allowPassingTokenToThirdPartyDomains: true });
 		if (!res.ok) return { success: false, error: "Request failed. Please try again." };
 		const json = (await res.json()) as {
 			data?: { accountRequestDeletion?: { errors?: Array<{ message?: string }> } };
@@ -348,7 +348,7 @@ export async function requestEmailChange(
 					channel: channel || null,
 				},
 			}),
-		});
+		}, { allowPassingTokenToThirdPartyDomains: true });
 		if (!res.ok) return { success: false, error: "Request failed. Please try again." };
 		const json = (await res.json()) as {
 			data?: { requestEmailChange?: { user?: unknown; errors?: Array<{ message?: string }> } };

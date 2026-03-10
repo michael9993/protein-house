@@ -52,14 +52,15 @@ export async function withCJWebhookAuth(
 
   // --- IP whitelist (log-only behind Cloudflare tunnel) ---
   if (!isIpAllowed(clientIp, CJ_WEBHOOK_IPS)) {
-    logger.warn("IP not in whitelist (allowed — behind tunnel)", { clientIp });
+    logger.debug("IP not in whitelist (allowed — behind tunnel)", { clientIp });
   }
 
   // --- Rate limit ---
   try {
     const rateLimit = await checkRateLimit(clientIp);
     if (!rateLimit.allowed) {
-      logger.warn("Rate limit exceeded", { clientIp, remaining: rateLimit.remaining });
+      // Debug level — CJ sends high-volume stock webhooks, rate limiting is expected
+      logger.debug("Rate limit exceeded", { clientIp, remaining: rateLimit.remaining });
       res.status(429).json({ error: "Too many requests" });
       return;
     }
@@ -73,7 +74,7 @@ export async function withCJWebhookAuth(
   try {
     const expectedSecret = await getRedisConnection().get("dropship:cj-webhook-secret");
     if (expectedSecret && req.query.secret !== expectedSecret) {
-      logger.warn("Invalid webhook secret", { clientIp });
+      logger.debug("Invalid webhook secret", { clientIp });
       res.status(401).json({ error: "Unauthorized" });
       return;
     }

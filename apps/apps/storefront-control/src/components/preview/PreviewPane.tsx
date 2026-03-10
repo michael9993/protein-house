@@ -6,6 +6,7 @@ interface PreviewPaneProps {
   iframeRef: React.RefObject<HTMLIFrameElement>;
   isReady: boolean;
   storefrontUrl: string;
+  channelSlug: string;
   deviceSize: "desktop" | "tablet" | "mobile";
 }
 
@@ -15,7 +16,7 @@ const DEVICE_WIDTHS: Record<PreviewPaneProps["deviceSize"], string> = {
   mobile: "375px",
 };
 
-export function PreviewPane({ iframeRef, isReady, storefrontUrl, deviceSize }: PreviewPaneProps) {
+export function PreviewPane({ iframeRef, isReady, storefrontUrl, channelSlug, deviceSize }: PreviewPaneProps) {
   // Fallback: show iframe after 3s even if postMessage handshake doesn't complete
   const [showFallback, setShowFallback] = useState(false);
   useEffect(() => {
@@ -47,7 +48,7 @@ export function PreviewPane({ iframeRef, isReady, storefrontUrl, deviceSize }: P
         )}
         <iframe
           ref={iframeRef}
-          src={`${storefrontUrl}?preview=1`}
+          src={`${storefrontUrl}/${channelSlug}?preview=1`}
           className={cn("w-full h-full border-0", !showIframe && "hidden")}
           title="Storefront Preview"
           sandbox="allow-scripts allow-same-origin allow-forms allow-popups"

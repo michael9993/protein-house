@@ -53,9 +53,9 @@ export const Logo = () => {
 					<Image
 						src={branding.logo}
 						alt={branding.logoAlt || store.name}
-						width={120}
-						height={32}
-						className="h-8 w-auto object-contain"
+						width={160}
+						height={64}
+						className="h-12 w-auto object-contain"
 						onError={() => setImageError(true)}
 					/>
 				);
@@ -65,7 +65,7 @@ export const Logo = () => {
 				<img
 					src={branding.logo}
 					alt={branding.logoAlt || store.name}
-					className="h-8 w-auto object-contain"
+					className="h-12 w-auto object-contain"
 					onError={() => setImageError(true)}
 				/>
 			);
@@ -73,13 +73,16 @@ export const Logo = () => {
 		return <DefaultLogoIcon />;
 	};
 
+	// Hide store name text when a logo image is displayed (the image already contains the wordmark)
 	const logoContent = (
 		<span
 			className="group/logo flex items-center gap-2 transition-all duration-200 hover:opacity-85"
 			style={{ color: branding.colors.primary }}
 		>
 			{renderLogoImage()}
-			<span className="hidden sm:inline text-lg font-bold tracking-tight">{store.name}</span>
+			{!hasLogoUrl && (
+				<span className="hidden sm:inline text-lg font-bold tracking-tight">{store.name}</span>
+			)}
 		</span>
 	);
 

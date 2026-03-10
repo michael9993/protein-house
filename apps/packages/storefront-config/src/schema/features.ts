@@ -21,4 +21,6 @@ export const FeaturesSchema = z.object({
   instagramFeed: z.boolean(),
   relatedProducts: z.boolean(),
   stockAlerts: z.boolean(),
+  orderTracking: z.boolean(),
+  accountDeletion: z.boolean(),
 });

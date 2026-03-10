@@ -15,10 +15,17 @@ export interface SourcedProduct {
   suggestSellPrice: number;
   weight: number;
   cjProductType: string;
+  cjCategoryId: string;
   cjCategoryName: string;
   logisticsType: string;
   status: number;
   supplierName: string;
+  // Enrichment fields (populated by enrichProducts)
+  categoryPath: string[];          // ["Pet Supplies", "Grooming", "Brushes"]
+  suggestedType: string;           // Auto-suggested product type
+  suggestedCollections: string[];  // Auto-suggested collections
+  seoTitle: string;
+  seoDescription: string;
   variants: Array<{
     vid: string;
     name: string;
@@ -134,6 +141,8 @@ export function generateCSV(products: SourcedProduct[], markup: number, override
     "productType",
     "category",
     "description",
+    "seoTitle",
+    "seoDescription",
     "weight",
     "externalReference",
     "sku",
@@ -214,6 +223,8 @@ export function generateCSV(products: SourcedProduct[], markup: number, override
         isFirstRow ? (oType ?? product.editType) : "",
         isFirstRow ? (oCategory ?? product.editCategory) : "",
         isFirstRow ? description : "",
+        isFirstRow ? (product.seoTitle || "") : "",
+        isFirstRow ? (product.seoDescription || "") : "",
         isFirstRow && product.weight > 0 ? product.weight.toFixed(2) : "",
         isFirstRow ? externalRef : "",
         sku,

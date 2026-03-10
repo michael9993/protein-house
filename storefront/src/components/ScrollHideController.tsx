@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 const HIDE_CLASS = "scroll-hide--hidden";
 const HEADER_SELECTOR = '[data-scroll-hide="header"]';
@@ -19,13 +20,43 @@ const TOP_ZONE_PX = 60;
  * GPU-only transitions (transform) with proper compositor layer isolation.
  */
 export function ScrollHideController() {
+  const pathname = usePathname();
   const stateRef = useRef({
     lastScrollY: 0,
     accumulatedDown: 0,
     accumulatedUp: 0,
     isHidden: false,
     ticking: false,
+    /** Timestamp until which scroll events are ignored (route-change cooldown). */
+    cooldownUntil: 0,
   });
+
+  // Force-show nav and start cooldown — shared by both route change and manual trigger
+  const forceShow = useCallback(() => {
+    const state = stateRef.current;
+    state.isHidden = false;
+    state.accumulatedDown = 0;
+    state.accumulatedUp = 0;
+    state.lastScrollY = window.scrollY;
+    state.cooldownUntil = Date.now() + 400;
+
+    document.querySelector<HTMLElement>(HEADER_SELECTOR)?.classList.remove(HIDE_CLASS);
+    document.querySelector<HTMLElement>(MOBILE_NAV_SELECTOR)?.classList.remove(HIDE_CLASS);
+  }, []);
+
+  // Reset on route change
+  useEffect(() => {
+    forceShow();
+  }, [pathname, forceShow]);
+
+  // Listen for synchronous "force-show-nav" events from drawers/modals.
+  // This fires in the click handler BEFORE Vaul's scroll restoration,
+  // and the cooldown prevents scroll events from re-hiding.
+  useEffect(() => {
+    const handler = () => forceShow();
+    window.addEventListener("force-show-nav", handler);
+    return () => window.removeEventListener("force-show-nav", handler);
+  }, [forceShow]);
 
   useEffect(() => {
     const headerEl = document.querySelector<HTMLElement>(HEADER_SELECTOR);
@@ -48,6 +79,13 @@ export function ScrollHideController() {
 
     const update = () => {
       state.ticking = false;
+
+      // Skip scroll processing during cooldown (route transition settling)
+      if (Date.now() < state.cooldownUntil) {
+        state.lastScrollY = window.scrollY;
+        return;
+      }
+
       const currentY = window.scrollY;
       const delta = currentY - state.lastScrollY;
       state.lastScrollY = currentY;

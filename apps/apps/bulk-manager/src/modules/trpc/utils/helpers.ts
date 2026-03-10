@@ -131,7 +131,7 @@ export function safeParseFloat(value: string | undefined): number | undefined {
 /**
  * Standard import result type
  */
-export type ImportResult = { row: number; success: boolean; error?: string; id?: string };
+export type ImportResult = { row: number; success: boolean; error?: string; id?: string; warning?: string };
 
 /**
  * Standard import response

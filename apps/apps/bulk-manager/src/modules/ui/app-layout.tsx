@@ -1,4 +1,4 @@
-import { Box, Text, PropsWithBox } from "@saleor/macaw-ui";
+import { Box, Text } from "@saleor/macaw-ui";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
@@ -18,7 +18,31 @@ const navItems: NavItem[] = [
   { label: "Orders", href: "/orders", icon: "O" },
   { label: "Vouchers", href: "/vouchers", icon: "V" },
   { label: "Gift Cards", href: "/gift-cards", icon: "G" },
+  { label: "Translations", href: "/translations", icon: "T" },
 ];
+
+// Color palette — matches sales-analytics & storefront-control apps
+const colors = {
+  brand: "#18181B",
+  brandLight: "#3F3F46",
+  surface: "#F9FAFB",
+  surfaceAlt: "#FAFAFA",
+  text: "#111827",
+  textSecondary: "#374151",
+  textMuted: "#6B7280",
+  textLight: "#9CA3AF",
+  border: "#E5E7EB",
+  inputBorder: "#D1D5DB",
+  accent: "#18181B",
+  accentBg: "#F4F4F5",
+  accentBgHover: "#E4E4E7",
+  accentSubtle: "rgba(24, 24, 27, 0.05)",
+  badgeBg: "#F4F4F5",
+  badgeText: "#3F3F46",
+  infoBg: "#F0F9FF",
+  infoBorder: "#BAE6FD",
+  infoText: "#0369A1",
+};
 
 function NavButton({ item, isActive }: { item: NavItem; isActive: boolean }) {
   return (
@@ -30,8 +54,8 @@ function NavButton({ item, isActive }: { item: NavItem; isActive: boolean }) {
         alignItems="center"
         gap={3}
         cursor="pointer"
-        __backgroundColor={isActive ? "rgba(59, 130, 246, 0.1)" : undefined}
-        __borderLeft={isActive ? "3px solid #3b82f6" : "3px solid transparent"}
+        __backgroundColor={isActive ? colors.accentBg : undefined}
+        __borderLeft={isActive ? `3px solid ${colors.brand}` : "3px solid transparent"}
         __transition="all 0.15s ease"
       >
         <Box
@@ -41,8 +65,8 @@ function NavButton({ item, isActive }: { item: NavItem; isActive: boolean }) {
           display="flex"
           alignItems="center"
           justifyContent="center"
-          __backgroundColor={isActive ? "#3b82f6" : "#e5e7eb"}
-          __color={isActive ? "white" : "#6b7280"}
+          __backgroundColor={isActive ? colors.brand : colors.border}
+          __color={isActive ? "white" : colors.textMuted}
           __fontSize="12px"
           __fontWeight="600"
         >
@@ -51,7 +75,7 @@ function NavButton({ item, isActive }: { item: NavItem; isActive: boolean }) {
         <Text
           size={3}
           __fontWeight={isActive ? "600" : "400"}
-          __color={isActive ? "#1e293b" : "#64748b"}
+          __color={isActive ? colors.text : colors.textMuted}
         >
           {item.label}
         </Text>
@@ -70,14 +94,14 @@ export function AppLayout({ children }: { children: ReactNode }) {
       <Box
         __width="220px"
         __minWidth="220px"
-        __borderRight="1px solid #e2e8f0"
+        __borderRight={`1px solid ${colors.border}`}
         paddingRight={4}
       >
         <Box marginBottom={6}>
-          <Text variant="heading" size={5} __fontWeight="700">
+          <Text variant="heading" size={5} __fontWeight="700" __color={colors.text}>
             Bulk Manager
           </Text>
-          <Text size={2} __color="#94a3b8" __display="block" __marginTop="4px">
+          <Text size={2} __color={colors.textLight} __display="block" __marginTop="4px">
             Import, export & batch ops
           </Text>
         </Box>
@@ -104,3 +128,6 @@ export function AppLayout({ children }: { children: ReactNode }) {
     </Box>
   );
 }
+
+// Exported for consistent colors across all bulk-manager pages
+export { colors };

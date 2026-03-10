@@ -1,5 +1,6 @@
 import { Box } from "@saleor/macaw-ui";
 import { useState } from "react";
+import { colors } from "@/modules/ui/app-layout";
 
 interface ExcludeFieldsDropdownProps {
   fields: string[];
@@ -12,13 +13,13 @@ export function ExcludeFieldsDropdown({ fields, excludedFields, onToggle }: Excl
 
   return (
     <Box __position="relative" __minWidth="220px">
-      <label style={{ display: "block", fontSize: "12px", fontWeight: 500, marginBottom: "4px", color: "#475569" }}>
+      <label style={{ display: "block", fontSize: "12px", fontWeight: 500, marginBottom: "4px", color: colors.badgeText }}>
         Exclude fields from import
       </label>
       <Box
         cursor="pointer"
         onClick={() => setOpen(!open)}
-        __border="1px solid #e2e8f0"
+        __border={`1px solid ${colors.border}`}
         __borderRadius="6px"
         __padding="6px 10px"
         __fontSize="13px"
@@ -28,12 +29,12 @@ export function ExcludeFieldsDropdown({ fields, excludedFields, onToggle }: Excl
         alignItems="center"
         __justifyContent="space-between"
       >
-        <span style={{ color: excludedFields.size > 0 ? "#1e293b" : "#94a3b8" }}>
+        <span style={{ color: excludedFields.size > 0 ? colors.text : colors.textLight }}>
           {excludedFields.size > 0
             ? `${excludedFields.size} field${excludedFields.size > 1 ? "s" : ""} excluded`
             : "Select fields to skip..."}
         </span>
-        <span style={{ fontSize: "10px", color: "#94a3b8" }}>&#9660;</span>
+        <span style={{ fontSize: "10px", color: colors.textLight }}>&#9660;</span>
       </Box>
 
       {excludedFields.size > 0 && (
@@ -66,7 +67,7 @@ export function ExcludeFieldsDropdown({ fields, excludedFields, onToggle }: Excl
           __right="0"
           __zIndex="50"
           __backgroundColor="white"
-          __border="1px solid #e2e8f0"
+          __border={`1px solid ${colors.border}`}
           __borderRadius="6px"
           __boxShadow="0 4px 12px rgba(0,0,0,0.1)"
           __maxHeight="240px"
@@ -90,7 +91,7 @@ export function ExcludeFieldsDropdown({ fields, excludedFields, onToggle }: Excl
                 readOnly
                 style={{ width: "14px", height: "14px", accentColor: "#ef4444" }}
               />
-              <span style={{ fontSize: "13px", color: excludedFields.has(field) ? "#991b1b" : "#374151" }}>
+              <span style={{ fontSize: "13px", color: excludedFields.has(field) ? "#991b1b" : colors.textSecondary }}>
                 {field}
               </span>
             </Box>

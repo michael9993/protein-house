@@ -132,7 +132,17 @@
       "Bash(for f in apps/apps/storefront-control/sample-config-import.json apps/apps/storefront-control/sample-config-import-en.json storefront/storefront-cms-config.json)",
       "Bash(sed:*)",
       "Bash(grep data-cd=:*)",
-      "Bash(grep use client\\\\|data-cd\\\\|useComponentStyle\\\\|useComponentClasses\\\\|buildComponentStyle:*)"
+      "Bash(grep use client\\\\|data-cd\\\\|useComponentStyle\\\\|useComponentClasses\\\\|buildComponentStyle:*)",
+      "Bash(pnpm install:*)",
+      "mcp__plugin_serena_serena__list_dir",
+      "Bash(do:*)",
+      "mcp__plugin_serena_serena__read_file",
+      "mcp__plugin_serena_serena__find_file",
+      "mcp__plugin_serena_serena__search_for_pattern",
+      "mcp__plugin_serena_serena__activate_project",
+      "Bash(grep data-cd\\\\|useComponentStyle\\\\|useComponentClasses:*)",
+      "Bash(__NEW_LINE_fe97271b30316720__:*)",
+      "Bash(rm:*)"
     ],
     "deny": [
       "Read(./.env*)",

@@ -1,7 +1,7 @@
 import { Box, Text, Button } from "@saleor/macaw-ui";
 import { useState, useCallback, useMemo } from "react";
 
-import { AppLayout } from "@/modules/ui/app-layout";
+import { AppLayout, colors } from "@/modules/ui/app-layout";
 import { ImportWizard, type ProgressInfo } from "@/modules/ui/import-wizard";
 import { ExportDialog } from "@/modules/ui/export-dialog";
 import { UpsertToggle } from "@/modules/ui/upsert-toggle";
@@ -123,24 +123,24 @@ export default function CategoriesPage() {
         <Text variant="heading" size={6} __fontWeight="700" __display="block" marginBottom={2}>
           Categories
         </Text>
-        <Text size={3} __color="#64748b" __display="block" marginBottom={6}>
+        <Text size={3} __color={colors.textMuted} __display="block" marginBottom={6}>
           Import and export categories in bulk
         </Text>
 
-        <Box display="flex" gap={1} marginBottom={6} __borderBottom="2px solid #e2e8f0">
+        <Box display="flex" gap={1} marginBottom={6} __borderBottom={`2px solid ${colors.border}`}>
           {(["import", "export", "template"] as Tab[]).map((t) => (
             <Box
               key={t}
               padding={3}
               cursor="pointer"
               onClick={() => setTab(t)}
-              __borderBottom={tab === t ? "2px solid #3b82f6" : "2px solid transparent"}
+              __borderBottom={tab === t ? `2px solid ${colors.brand}` : "2px solid transparent"}
               __marginBottom="-2px"
             >
               <Text
                 size={3}
                 __fontWeight={tab === t ? "600" : "400"}
-                __color={tab === t ? "#1e293b" : "#94a3b8"}
+                __color={tab === t ? colors.text : colors.textLight}
                 __textTransform="capitalize"
               >
                 {t}
@@ -181,9 +181,9 @@ export default function CategoriesPage() {
         )}
 
         {tab === "template" && (
-          <Box padding={6} borderRadius={4} __border="1px solid #e2e8f0">
+          <Box padding={6} borderRadius={4} __border={`1px solid ${colors.border}`}>
             <Text variant="heading" size={4} __display="block" marginBottom={4}>Download Import Template</Text>
-            <Text size={2} __color="#64748b" __display="block" marginBottom={4}>
+            <Text size={2} __color={colors.textMuted} __display="block" marginBottom={4}>
               Download a pre-formatted import template (CSV or Excel) with {ALL_TARGET_FIELDS.length} columns — includes field descriptions and sample data.
               Supports parent categories, SEO fields, background images, and metadata.
             </Text>

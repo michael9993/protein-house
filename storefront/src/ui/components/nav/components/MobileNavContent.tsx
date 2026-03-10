@@ -53,7 +53,7 @@ function RootLevel({
 		categories: content.navbar?.categoriesLabel ?? "Categories",
 		collections: content.navbar?.collectionsLabel ?? "Collections",
 		brands: content.navbar?.brandsLabel ?? "Brands",
-		viewAll: content.navbar?.viewAllProducts ?? "View All Products",
+		viewAll: content.navbar?.viewAllProducts ?? "View Products",
 	};
 
 	const accountHref = isLoggedIn ? "/account" : "/login";

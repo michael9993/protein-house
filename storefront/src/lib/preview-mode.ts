@@ -77,7 +77,10 @@ export function initPreviewMode(): void {
       const path = event.data.payload?.path;
       // Only allow relative paths to prevent open redirect attacks
       if (path && typeof path === "string" && path.startsWith("/")) {
-        window.location.href = path;
+        // Skip navigation if already on the same page (avoids destroying overlay)
+        if (window.location.pathname === path) return;
+        // Preserve ?preview=1 so overlay reinitializes after navigation
+        window.location.href = path + "?preview=1";
       }
     }
 

@@ -30,6 +30,7 @@ const handler = createManifestHandler({
       name: "Dropship Orchestrator",
       permissions: [
         "MANAGE_PRODUCTS",
+        "MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES",
         "MANAGE_ORDERS",
         "MANAGE_APPS",
         "MANAGE_SHIPPING",

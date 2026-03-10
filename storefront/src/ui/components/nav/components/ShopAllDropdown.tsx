@@ -657,7 +657,7 @@ export function ShopAllDropdown({ categories, collections, brands, channel }: Sh
     categories: content.navbar?.categoriesLabel || "Categories",
     collections: content.navbar?.collectionsLabel || "Collections",
     brands: content.navbar?.brandsLabel || "Brands",
-    viewAllProducts: content.navbar?.viewAllProducts || "View All Products",
+    viewAllProducts: content.navbar?.viewAllProducts || "View Products",
     explore: content.navbar?.exploreCategoryLabel || "Explore",
     browseSubcategories: content.navbar?.browseSubcategoriesLabel || "Browse subcategories",
     productLabel: content.navbar?.megaMenuProductLabel || "product",

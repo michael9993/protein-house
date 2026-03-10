@@ -1,5 +1,6 @@
 import { Box, Text } from "@saleor/macaw-ui";
 import type { RowValidationResult } from "../import/validator";
+import { colors } from "@/modules/ui/app-layout";
 
 interface DataPreviewProps {
   rows: Record<string, string>[];
@@ -17,19 +18,19 @@ export function DataPreview({
   const displayRows = rows.slice(0, maxRows);
 
   return (
-    <Box __overflowX="auto" borderRadius={4} __border="1px solid #e2e8f0">
+    <Box __overflowX="auto" borderRadius={4} __border={`1px solid ${colors.border}`}>
       <Box __minWidth="100%" __display="table" __borderCollapse="collapse">
         {/* Header row */}
-        <Box __display="table-header-group" __backgroundColor="#f8fafc">
+        <Box __display="table-header-group" __backgroundColor={colors.surface}>
           <Box __display="table-row">
             {validationResults && (
               <Box
                 __display="table-cell"
                 padding={3}
-                __borderBottom="2px solid #e2e8f0"
+                __borderBottom={`2px solid ${colors.border}`}
                 __fontWeight="600"
                 __fontSize="12px"
-                __color="#64748b"
+                __color={colors.textMuted}
                 __textTransform="uppercase"
                 __width="40px"
               >
@@ -39,10 +40,10 @@ export function DataPreview({
             <Box
               __display="table-cell"
               padding={3}
-              __borderBottom="2px solid #e2e8f0"
+              __borderBottom={`2px solid ${colors.border}`}
               __fontWeight="600"
               __fontSize="12px"
-              __color="#64748b"
+              __color={colors.textMuted}
               __width="40px"
             >
               <Text size={1}>#</Text>
@@ -52,10 +53,10 @@ export function DataPreview({
                 key={header}
                 __display="table-cell"
                 padding={3}
-                __borderBottom="2px solid #e2e8f0"
+                __borderBottom={`2px solid ${colors.border}`}
                 __fontWeight="600"
                 __fontSize="12px"
-                __color="#64748b"
+                __color={colors.textMuted}
                 __textTransform="uppercase"
                 __whiteSpace="nowrap"
               >
@@ -87,7 +88,7 @@ export function DataPreview({
                   <Box
                     __display="table-cell"
                     padding={2}
-                    __borderBottom="1px solid #f1f5f9"
+                    __borderBottom={`1px solid ${colors.badgeBg}`}
                     __textAlign="center"
                   >
                     <Text size={2}>
@@ -98,8 +99,8 @@ export function DataPreview({
                 <Box
                   __display="table-cell"
                   padding={2}
-                  __borderBottom="1px solid #f1f5f9"
-                  __color="#94a3b8"
+                  __borderBottom={`1px solid ${colors.badgeBg}`}
+                  __color={colors.textLight}
                 >
                   <Text size={2}>{idx + 1}</Text>
                 </Box>
@@ -108,7 +109,7 @@ export function DataPreview({
                     key={header}
                     __display="table-cell"
                     padding={2}
-                    __borderBottom="1px solid #f1f5f9"
+                    __borderBottom={`1px solid ${colors.badgeBg}`}
                     __maxWidth="200px"
                     __overflow="hidden"
                     __textOverflow="ellipsis"
@@ -124,8 +125,8 @@ export function DataPreview({
       </Box>
 
       {rows.length > maxRows && (
-        <Box padding={3} __backgroundColor="#f8fafc" __textAlign="center">
-          <Text size={2} __color="#94a3b8">
+        <Box padding={3} __backgroundColor={colors.surface} __textAlign="center">
+          <Text size={2} __color={colors.textLight}>
             Showing {maxRows} of {rows.length} rows
           </Text>
         </Box>

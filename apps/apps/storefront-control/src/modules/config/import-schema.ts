@@ -122,6 +122,13 @@ export interface ConfigDiffEntry {
 }
 
 /**
+ * Sections whose values are "flat records" — keys may contain dots
+ * (e.g., "homepage.hero") and should be compared as atomic objects,
+ * not recursed into by the dot-path traversal.
+ */
+const FLAT_RECORD_SECTIONS = new Set(["componentOverrides", "cardOverrides"]);
+
+/**
  * Compare two configs and return the differences
  */
 export function diffConfigs(
@@ -189,6 +196,18 @@ export function diffConfigs(
       return;
     }
 
+    // Detect flat-record sections: compare each entry as an atomic object
+    const sectionKey = path.split(".").pop() || "";
+    if (FLAT_RECORD_SECTIONS.has(sectionKey)) {
+      compareFlatRecord(
+        currentObj as Record<string, unknown>,
+        incomingObj as Record<string, unknown>,
+        path,
+        section
+      );
+      return;
+    }
+
     const currentRecord = currentObj as Record<string, unknown>;
     const incomingRecord = incomingObj as Record<string, unknown>;
     const allKeys = new Set([...Object.keys(currentRecord), ...Object.keys(incomingRecord)]);
@@ -198,6 +217,34 @@ export function diffConfigs(
       // Determine section from top-level key
       const newSection = path === "" ? key : section;
       compare(currentRecord[key], incomingRecord[key], newPath, newSection);
+    }
+  }
+
+  /**
+   * Compare a flat record whose keys may contain dots (e.g., "homepage.hero").
+   * Each entry is compared as an atomic object (JSON comparison).
+   */
+  function compareFlatRecord(
+    currentRecord: Record<string, unknown>,
+    incomingRecord: Record<string, unknown>,
+    parentPath: string,
+    section: string
+  ): void {
+    const allKeys = new Set([...Object.keys(currentRecord), ...Object.keys(incomingRecord)]);
+    for (const key of allKeys) {
+      // Use bracket notation in path to preserve dot-keys
+      const entryPath = `${parentPath}["${key}"]`;
+      const currentVal = currentRecord[key];
+      const incomingVal = incomingRecord[key];
+      if (JSON.stringify(currentVal) !== JSON.stringify(incomingVal)) {
+        diffs.push({
+          path: entryPath,
+          section,
+          field: key,
+          currentValue: currentVal,
+          newValue: incomingVal,
+        });
+      }
     }
   }
 
@@ -257,8 +304,46 @@ function cloneConfig(config: StorefrontConfig): StorefrontConfig {
   return JSON.parse(JSON.stringify(config)) as StorefrontConfig;
 }
 
+/**
+ * Parse a path string into segments.
+ * Supports dot notation and bracket notation:
+ *   "foo.bar.baz" → ["foo", "bar", "baz"]
+ *   'foo["bar.baz"].qux' → ["foo", "bar.baz", "qux"]
+ */
+function parsePath(path: string): string[] {
+  const parts: string[] = [];
+  let i = 0;
+  while (i < path.length) {
+    if (path[i] === "[") {
+      // Bracket notation: ["key with dots"]
+      const quote = path[i + 1]; // " or '
+      if (quote === '"' || quote === "'") {
+        const end = path.indexOf(`${quote}]`, i + 2);
+        if (end === -1) break;
+        parts.push(path.slice(i + 2, end));
+        i = end + 2; // skip past "]"
+        if (path[i] === ".") i++; // skip trailing dot
+      } else {
+        i++;
+      }
+    } else {
+      // Dot notation: find next dot or bracket
+      let end = i;
+      while (end < path.length && path[end] !== "." && path[end] !== "[") {
+        end++;
+      }
+      if (end > i) {
+        parts.push(path.slice(i, end));
+      }
+      i = end;
+      if (path[i] === ".") i++; // skip dot
+    }
+  }
+  return parts;
+}
+
 function getValueAtPath(source: StorefrontConfig, path: string): unknown {
-  const parts = path.split(".");
+  const parts = parsePath(path);
   let current: unknown = source;
   for (const part of parts) {
     if (current === null || typeof current !== "object") return undefined;
@@ -268,7 +353,7 @@ function getValueAtPath(source: StorefrontConfig, path: string): unknown {
 }
 
 function setValueAtPath(target: StorefrontConfig, path: string, value: unknown): void {
-  const parts = path.split(".");
+  const parts = parsePath(path);
   const lastKey = parts.pop();
   if (!lastKey) return;
   let current: Record<string, unknown> = target as Record<string, unknown>;

@@ -14,16 +14,18 @@ export const SortBy = () => {
 	const filtersText = useFiltersText();
 	const cdStyle = useComponentStyle("plp.sortBy");
 	const cdClasses = useComponentClasses("plp.sortBy");
-	const currentSortValue = searchParams.get("sort") || "name-asc";
+	const currentSortValue = searchParams.get("sort") || "recommended";
 
-	// Build sort options from config text
+	// Build sort options from config text — must match SORT_OPTIONS in filters.ts
 	const sortOptions = useMemo(() => [
-		{ name: filtersText.sortAtoZ, value: "name-asc" },
-		{ name: filtersText.sortZtoA, value: "name-desc" },
+		{ name: filtersText.sortRecommended || "Recommended", value: "recommended" },
 		{ name: filtersText.sortPriceLowHigh, value: "price-asc" },
 		{ name: filtersText.sortPriceHighLow, value: "price-desc" },
 		{ name: filtersText.sortNewest, value: "newest" },
+		{ name: filtersText.sortAtoZ, value: "name-asc" },
+		{ name: filtersText.sortZtoA, value: "name-desc" },
 		{ name: filtersText.sortSale, value: "sale" },
+		{ name: filtersText.sortFastDelivery || "Fastest Delivery", value: "delivery-fast" },
 	], [filtersText]);
 
 	const selectedOption = sortOptions.find((option) => option.value === currentSortValue) || sortOptions[0];
@@ -33,7 +35,7 @@ export const SortBy = () => {
 		newParams.set("sort", value);
 		newParams.delete("cursor");
 		newParams.delete("direction");
-		router.push(`?${newParams.toString()}`);
+		router.replace(`?${newParams.toString()}`, { scroll: false });
 	};
 
 	return (

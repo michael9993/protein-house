@@ -93,7 +93,7 @@ export async function getAccessToken(
   // Check in-memory cache first (avoids hitting rate-limited auth endpoint)
   const cached = getCachedToken(apiKey);
   if (cached) {
-    logger.info("Using cached CJ access token", {
+    logger.debug("Using cached CJ access token", {
       expiresAt: cached.expiresAt.toISOString(),
     });
     return ok(cached);

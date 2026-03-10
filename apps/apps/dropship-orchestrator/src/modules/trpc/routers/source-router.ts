@@ -4,9 +4,10 @@ import { gql } from "graphql-tag";
 
 import { router } from "../trpc-server";
 import { protectedClientProcedure } from "../protected-client-procedure";
-import { uploadProductImage } from "../utils/image-upload";
+import { uploadProductImage, uploadCategoryImage, uploadCollectionImage } from "../utils/image-upload";
 import { createLogger } from "@/logger";
 import { getAccessToken } from "@/modules/suppliers/cj/auth";
+import { fetchAppId, getSupplierCredentials } from "@/modules/lib/metadata-manager";
 import * as cjApi from "@/modules/suppliers/cj/api-client";
 import type {
   CJProductInfo,
@@ -15,6 +16,15 @@ import type {
   CJCategoryFirst,
 } from "@/modules/suppliers/cj/types";
 import { slugify, stripHtml } from "@/modules/source/types";
+import {
+  buildCategoryIndex,
+  resolveCategoryPath,
+  suggestProductType,
+  suggestCollections,
+  generateProductSeo,
+  generateCategorySeo,
+  generateCollectionSeo,
+} from "@/modules/source/cj-category-mapper";
 
 const logger = createLogger("SourceRouter");
 
@@ -339,45 +349,49 @@ interface DynGlobalAttrInfo {
 }
 
 async function getCJCredentials(client: any): Promise<string> {
-  const { data, error } = await client.query(FETCH_APP_METADATA, {}).toPromise();
-
-  if (error || !data?.app) {
-    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to fetch app metadata" });
+  const appId = await fetchAppId(client);
+  if (!appId) {
+    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to resolve app ID" });
   }
 
-  const metadata: Record<string, string> = {};
-  for (const entry of data.app.privateMetadata || []) {
-    metadata[entry.key] = entry.value;
-  }
-
-  const credsRaw = metadata["dropship-creds-cj"];
-  if (!credsRaw) {
+  const creds = await getSupplierCredentials(client, appId, "cj");
+  if (!creds) {
     throw new TRPCError({
       code: "PRECONDITION_FAILED",
       message: "CJ credentials not configured. Go to Suppliers > CJ Dropshipping to set up your API key.",
     });
   }
 
-  let creds: Record<string, string>;
-  try {
-    creds = JSON.parse(credsRaw);
-  } catch {
-    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to parse CJ credentials" });
-  }
-
-  if (!creds.apiKey) {
+  if (!("apiKey" in creds) || !creds.apiKey) {
     throw new TRPCError({
       code: "PRECONDITION_FAILED",
       message: "CJ API key not found in credentials. Please configure it in Suppliers > CJ.",
     });
   }
 
-  return creds.apiKey;
+  return creds.apiKey as string;
 }
 
 function extractIdentifier(line: string): { type: "pid" | "sku"; value: string } | null {
   const trimmed = line.trim();
   if (!trimmed) return null;
+
+  // CJ search URL: extract keyword param and re-parse
+  // e.g. https://cjdropshipping.com/search.html?keyword=CJGD2040116
+  if (trimmed.includes("search.html") && trimmed.includes("keyword=")) {
+    try {
+      const url = new URL(trimmed);
+      const keyword = url.searchParams.get("keyword")?.trim();
+      if (keyword) return extractIdentifier(keyword);
+    } catch {
+      // Not a valid URL, fall through
+    }
+  }
+
+  // CJ product URL: extract PID from slug
+  // e.g. https://cjdropshipping.com/product/pet-brush-p-1561538210651066368.html
+  const urlPidMatch = trimmed.match(/cjdropshipping\.com\/product\/.*-p-(\d{10,25})\.html/i);
+  if (urlPidMatch) return { type: "pid", value: urlPidMatch[1] };
 
   // UUID format: 77501FB4-7146-452E-9889-CDF41697E5CF
   const uuidMatch = trimmed.match(
@@ -385,13 +399,13 @@ function extractIdentifier(line: string): { type: "pid" | "sku"; value: string }
   );
   if (uuidMatch) return { type: "pid", value: uuidMatch[1] };
 
+  // SKU format: CJJSBGBG01517 or CJGD2040116 (alphanumeric CJ SKU, anywhere in string)
+  const skuMatch = trimmed.match(/\b(CJ[A-Z0-9]{6,30})\b/i);
+  if (skuMatch) return { type: "sku", value: skuMatch[1] };
+
   // Numeric ID from CJ URLs: 1005006839284893
   const numericMatch = trimmed.match(/(\d{10,20})/);
   if (numericMatch) return { type: "pid", value: numericMatch[1] };
-
-  // SKU format: CJJSBGBG01517 (alphanumeric CJ SKU)
-  const skuMatch = trimmed.match(/^(CJ[A-Z0-9]{6,30})$/i);
-  if (skuMatch) return { type: "sku", value: skuMatch[1] };
 
   // If it looks like a plain identifier without spaces, try as pid
   if (/^[A-Za-z0-9_-]{5,50}$/.test(trimmed)) return { type: "pid", value: trimmed };
@@ -723,7 +737,8 @@ export const sourceRouter = router({
 
       logger.info("Fetching CJ products", { count: identifiers.length });
 
-      // Fetch each product from CJ API
+      // Fetch products sequentially — CJ free tier allows 1 req/sec,
+      // enforced by the api-client rate limiter.
       const products: Array<{
         pid: string;
         name: string;
@@ -753,7 +768,6 @@ export const sourceRouter = router({
       const errors: Array<{ pid: string; error: string }> = [];
 
       for (const id of identifiers) {
-        // Try pid first
         let result = await cjApi.get<CJProductInfo>(
           "/product/query",
           accessToken,
@@ -778,7 +792,23 @@ export const sourceRouter = router({
         const p = result.value;
 
         const images: string[] = [];
-        if (p.productImage) images.push(p.productImage);
+        if (p.productImage) {
+          // CJ sometimes returns a JSON array string instead of a single URL
+          if (p.productImage.startsWith("[")) {
+            try {
+              const parsed = JSON.parse(p.productImage);
+              if (Array.isArray(parsed)) {
+                for (const url of parsed) {
+                  if (typeof url === "string" && !images.includes(url)) images.push(url);
+                }
+              }
+            } catch {
+              images.push(p.productImage);
+            }
+          } else {
+            images.push(p.productImage);
+          }
+        }
         if (p.productImageSet) {
           for (const imgUrl of p.productImageSet) {
             if (!images.includes(imgUrl)) images.push(imgUrl);
@@ -905,7 +935,7 @@ export const sourceRouter = router({
             weight: Number(v.variantWeight ?? p.productWeight) || 0,
             attributes,
           };
-        });
+          });
 
         // If no variants, create a default from product-level data
         if (variants.length === 0) {
@@ -945,6 +975,77 @@ export const sourceRouter = router({
       });
 
       return { products, errors };
+    }),
+
+  // -------------------------------------------------------------------------
+  // Enrich products with CJ category hierarchy, product type, SEO
+  // -------------------------------------------------------------------------
+  enrichProducts: protectedClientProcedure
+    .input(
+      z.object({
+        products: z.array(
+          z.object({
+            pid: z.string(),
+            cjCategoryId: z.string(),
+            cjCategoryName: z.string(),
+            name: z.string(),
+            materialName: z.string().optional(),
+          }),
+        ),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const apiKey = await getCJCredentials(ctx.apiClient);
+      const authResult = await getAccessToken(apiKey);
+      if (authResult.isErr()) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: `CJ authentication failed: ${authResult.error.message}`,
+        });
+      }
+
+      const accessToken = authResult.value.accessToken;
+
+      // Fetch full CJ category tree and build index
+      const catResult = await cjApi.get<CJCategoryFirst[]>(
+        "/product/getCategory",
+        accessToken,
+      );
+
+      if (catResult.isErr()) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `CJ categories failed: ${catResult.error.message}`,
+        });
+      }
+
+      const categoryIndex = buildCategoryIndex(catResult.value ?? []);
+      logger.info("Built CJ category index", { size: categoryIndex.size });
+
+      // Enrich each product
+      const enriched = input.products.map((p) => {
+        const categoryPath = resolveCategoryPath(
+          p.cjCategoryId,
+          p.cjCategoryName,
+          categoryIndex,
+        );
+        const categoryDisplay = categoryPath.join(" > ");
+        const suggestedType = suggestProductType(categoryPath);
+        const suggestedCols = suggestCollections(categoryPath);
+        const seo = generateProductSeo(p.name, categoryPath, p.materialName);
+
+        return {
+          pid: p.pid,
+          categoryPath,
+          categoryDisplay,
+          suggestedType,
+          suggestedCollections: suggestedCols,
+          seoTitle: seo.title,
+          seoDescription: seo.description,
+        };
+      });
+
+      return { enriched };
     }),
 
   fetchShipping: protectedClientProcedure
@@ -1097,8 +1198,13 @@ export const sourceRouter = router({
         }>;
       }> = [];
 
+      // Query warehouses sequentially to respect CJ rate limit (1 req/sec).
+      // Promise.all defeats the shared rate limiter since all calls read
+      // lastRequestTime simultaneously.
       for (const product of input.products) {
-        const warehouseQueries = CJ_WAREHOUSES.map(async (wh) => {
+        const warehouses: typeof results[number]["warehouses"] = [];
+
+        for (const wh of CJ_WAREHOUSES) {
           try {
             const freightResult = await cjApi.post<CJFreightResult[]>(
               "/logistic/freightCalculate",
@@ -1111,7 +1217,7 @@ export const sourceRouter = router({
             );
 
             if (freightResult.isErr() || !freightResult.value || freightResult.value.length === 0) {
-              return null;
+              continue;
             }
 
             const allOptions = freightResult.value.map((opt) => ({
@@ -1127,22 +1233,17 @@ export const sourceRouter = router({
               parseDaysMin(opt.days) < parseDaysMin(best.days) ? opt : best,
             );
 
-            return {
+            warehouses.push({
               origin: wh.code,
               originLabel: wh.label,
               cheapest,
               fastest,
               allOptions,
-            };
+            });
           } catch {
-            return null;
+            // Non-fatal — skip this warehouse
           }
-        });
-
-        const warehouseResults = await Promise.all(warehouseQueries);
-        const warehouses = warehouseResults.filter(
-          (w): w is NonNullable<typeof w> => w !== null && w.allOptions.length > 0,
-        );
+        }
 
         results.push({ pid: product.pid, warehouses });
       }
@@ -1324,6 +1425,8 @@ export const sourceRouter = router({
             editCategory: z.string(),
             editCollections: z.string(),
             editGender: z.string(),
+            seoTitle: z.string().optional(),
+            seoDescription: z.string().optional(),
             shippingDays: z.string(),
             shippingCarrier: z.string(),
           }),
@@ -1518,7 +1621,7 @@ export const sourceRouter = router({
             const ptInfo = await findProductType(client, typeSlug);
             if (ptInfo) {
               // Re-fetch full details
-              const { data: refetchData } = await client.query(PRODUCT_TYPES_WITH_ATTRS, {}).toPromise();
+              const { data: refetchData } = await client.query(PRODUCT_TYPES_WITH_ATTRS, {}, { requestPolicy: 'network-only' }).toPromise();
               for (const edge of refetchData?.productTypes?.edges ?? []) {
                 if (edge.node.id === ptInfo.id) {
                   registerProductType(edge.node);
@@ -1532,17 +1635,18 @@ export const sourceRouter = router({
         }
       }
 
-      // ── 2c. Pre-fetch ALL categories ───────────────────────────────────────
+      // ── 2c. Pre-fetch ALL categories (with parent + level for hierarchy) ──
       const CATEGORIES_LOOKUP = `
         query CategoriesLookup($after: String) {
           categories(first: 100, after: $after) {
-            edges { node { id name slug } }
+            edges { node { id name slug level parent { id slug } backgroundImage { url } } }
             pageInfo { hasNextPage endCursor }
           }
         }
       `;
 
       const categoryMap = new Map<string, string>(); // name.toLowerCase() / slug → id
+      const categoryHasImage = new Set<string>(); // slug set of categories that have bg images
       {
         let catCursor: string | null = null;
         let catHasMore = true;
@@ -1552,6 +1656,9 @@ export const sourceRouter = router({
             const n = edge.node;
             categoryMap.set(n.name.toLowerCase(), n.id);
             categoryMap.set(n.slug.toLowerCase(), n.id);
+            if (n.backgroundImage?.url) {
+              categoryHasImage.add(n.slug);
+            }
           }
           catHasMore = catData?.categories?.pageInfo?.hasNextPage ?? false;
           catCursor = catData?.categories?.pageInfo?.endCursor ?? null;
@@ -1559,47 +1666,81 @@ export const sourceRouter = router({
       }
       logger.info("Pre-fetched categories", { count: categoryMap.size / 2 });
 
-      // ── 2d. Auto-create missing categories ─────────────────────────────────
-      const CREATE_CATEGORY = `
-        mutation CreateCategory($input: CategoryInput!) {
-          categoryCreate(input: $input) {
+      // ── 2d. Auto-create missing categories (hierarchical) ──────────────────
+      const CREATE_CATEGORY_WITH_PARENT = `
+        mutation CreateCategoryWithParent($input: CategoryInput!, $parent: ID) {
+          categoryCreate(input: $input, parent: $parent) {
             category { id name slug }
             errors { field code message }
           }
         }
       `;
 
-      const neededCategories = new Set<string>();
+      // Collect all unique category paths from products, supporting "L1 > L2 > L3" notation
+      const allCategoryPaths: string[][] = [];
       for (const p of input.products) {
-        if (p.editCategory) neededCategories.add(p.editCategory);
+        if (!p.editCategory) continue;
+        if (p.editCategory.includes(" > ")) {
+          allCategoryPaths.push(p.editCategory.split(" > ").map((s) => s.trim()).filter(Boolean));
+        } else {
+          allCategoryPaths.push([p.editCategory]);
+        }
       }
 
-      for (const catName of neededCategories) {
-        const catSlug = slugify(catName);
-        if (categoryMap.has(catName.toLowerCase()) || categoryMap.has(catSlug)) {
-          continue;
-        }
-        logger.info("Auto-creating category", { name: catName, slug: catSlug });
-        try {
-          const result = await saleorMutate<any>(client, CREATE_CATEGORY, {
-            input: { name: catName, slug: catSlug },
-          }, `Create category "${catName}"`);
-          const node = result.categoryCreate.category;
-          if (node) {
-            categoryMap.set(node.name.toLowerCase(), node.id);
-            categoryMap.set(node.slug.toLowerCase(), node.id);
+      // Deduplicate and sort by depth (shortest first = parents before children)
+      const uniquePathStrs = new Set(allCategoryPaths.map((p) => p.join(" > ")));
+      const sortedPaths = Array.from(uniquePathStrs)
+        .map((s) => s.split(" > "))
+        .sort((a, b) => a.length - b.length);
+
+      // Walk each path top-down, creating missing segments
+      for (const segments of sortedPaths) {
+        let parentId: string | null = null;
+        const parentNames: string[] = [];
+
+        for (let i = 0; i < segments.length; i++) {
+          const segName = segments[i];
+          const segSlug = slugify(segName);
+          const existingId = categoryMap.get(segName.toLowerCase()) || categoryMap.get(segSlug);
+
+          if (existingId) {
+            parentId = existingId;
+            parentNames.push(segName);
+            continue;
           }
-        } catch (catErr: any) {
-          if (catErr.message?.includes("UNIQUE") || catErr.message?.includes("unique") || catErr.message?.includes("already exists")) {
-            // Slug collision — find by slug
-            const existingId = await findBySlug(client, FIND_CATEGORY, catSlug, "Category");
-            if (existingId) {
-              categoryMap.set(catName.toLowerCase(), existingId);
-              categoryMap.set(catSlug, existingId);
+
+          // Create this segment with parent
+          const seo = generateCategorySeo(segName, parentNames);
+          logger.info("Auto-creating category", { name: segName, slug: segSlug, parent: parentId ? "yes" : "root" });
+
+          try {
+            const result = await saleorMutate<any>(client, CREATE_CATEGORY_WITH_PARENT, {
+              input: {
+                name: segName,
+                slug: segSlug,
+                seo: { title: seo.title, description: seo.description },
+              },
+              parent: parentId,
+            }, `Create category "${segName}"`);
+            const node = result.categoryCreate.category;
+            if (node) {
+              categoryMap.set(node.name.toLowerCase(), node.id);
+              categoryMap.set(node.slug.toLowerCase(), node.id);
+              parentId = node.id;
             }
-          } else {
-            logger.error("Failed to create category", { name: catName, error: catErr.message });
+          } catch (catErr: any) {
+            if (catErr.message?.includes("UNIQUE") || catErr.message?.includes("unique") || catErr.message?.includes("already exists")) {
+              const existingId2 = await findBySlug(client, FIND_CATEGORY, segSlug, "Category");
+              if (existingId2) {
+                categoryMap.set(segName.toLowerCase(), existingId2);
+                categoryMap.set(segSlug, existingId2);
+                parentId = existingId2;
+              }
+            } else {
+              logger.error("Failed to create category", { name: segName, error: catErr.message });
+            }
           }
+          parentNames.push(segName);
         }
       }
 
@@ -1607,13 +1748,14 @@ export const sourceRouter = router({
       const COLLECTIONS_LOOKUP = `
         query CollectionsLookup($after: String) {
           collections(first: 100, after: $after) {
-            edges { node { id name slug } }
+            edges { node { id name slug backgroundImage { url } } }
             pageInfo { hasNextPage endCursor }
           }
         }
       `;
 
       const collectionMap = new Map<string, string>(); // name.toLowerCase() / slug → id
+      const collectionHasImage = new Set<string>(); // slug set of collections that have bg images
       {
         let colCursor: string | null = null;
         let colHasMore = true;
@@ -1623,6 +1765,9 @@ export const sourceRouter = router({
             const n = edge.node;
             collectionMap.set(n.name.toLowerCase(), n.id);
             collectionMap.set(n.slug.toLowerCase(), n.id);
+            if (n.backgroundImage?.url) {
+              collectionHasImage.add(n.slug);
+            }
           }
           colHasMore = colData?.collections?.pageInfo?.hasNextPage ?? false;
           colCursor = colData?.collections?.pageInfo?.endCursor ?? null;
@@ -1664,8 +1809,14 @@ export const sourceRouter = router({
         }
         logger.info("Auto-creating collection", { name: colName, slug: colSlug });
         try {
+          const colSeo = generateCollectionSeo(colName);
           const result = await saleorMutate<any>(client, CREATE_COLLECTION, {
-            input: { name: colName, slug: colSlug, isPublished: true },
+            input: {
+              name: colName,
+              slug: colSlug,
+              isPublished: true,
+              seo: { title: colSeo.title, description: colSeo.description },
+            },
           }, `Create collection "${colName}"`);
           const node = result.collectionCreate.collection;
           if (node) {
@@ -1963,12 +2114,13 @@ export const sourceRouter = router({
       }
 
       // ── 2i. Refresh productTypeMap after attribute operations ───────────────
+      // Use network-only to bypass urql document cache (stale after auto-create mutations)
       if (typeAttrAssignments.size > 0 || newlyCreatedAttrSlugs.size > 0) {
         productTypeMap.clear();
         let ptCursor2: string | null = null;
         let ptHasMore2 = true;
         while (ptHasMore2) {
-          const { data: ptData } = await client.query(PRODUCT_TYPES_WITH_ATTRS, { after: ptCursor2 }).toPromise();
+          const { data: ptData } = await client.query(PRODUCT_TYPES_WITH_ATTRS, { after: ptCursor2 }, { requestPolicy: 'network-only' }).toPromise();
           for (const edge of ptData?.productTypes?.edges ?? []) {
             registerProductType(edge.node);
           }
@@ -1983,6 +2135,7 @@ export const sourceRouter = router({
       // =======================================================================
 
       const created: Array<{ id: string; name: string; variantCount: number }> = [];
+      const skipped: Array<{ name: string; existingId: string }> = [];
       const errors: Array<{ name: string; error: string }> = [];
 
       for (const product of input.products) {
@@ -1990,7 +2143,7 @@ export const sourceRouter = router({
           // 2. Check for existing product (upsert by externalReference)
           const extRef = `CJ-${product.pid}`;
           const { data: existingData } = await client
-            .query(FIND_PRODUCT_BY_EXTERNAL_REF, { externalReference: extRef })
+            .query(FIND_PRODUCT_BY_EXTERNAL_REF, { externalReference: extRef }, { requestPolicy: "network-only" })
             .toPromise();
 
           if (existingData?.product?.id) {
@@ -1998,10 +2151,9 @@ export const sourceRouter = router({
               name: product.editName,
               id: existingData.product.id,
             });
-            created.push({
-              id: existingData.product.id,
+            skipped.push({
               name: product.editName,
-              variantCount: 0,
+              existingId: existingData.product.id,
             });
             continue;
           }
@@ -2035,7 +2187,11 @@ export const sourceRouter = router({
           }
 
           // 4. Resolve category from pre-built map (auto-created in pre-processing)
-          const catName = product.editCategory || "uncategorized";
+          // For hierarchical paths ("L1 > L2 > L3"), use the leaf (last segment)
+          const rawCatName = product.editCategory || "uncategorized";
+          const catName = rawCatName.includes(" > ")
+            ? rawCatName.split(" > ").map((s) => s.trim()).filter(Boolean).pop() || rawCatName
+            : rawCatName;
           const catSlug = slugify(catName);
           const categoryId = categoryMap.get(catName.toLowerCase()) || categoryMap.get(catSlug) || null;
 
@@ -2082,6 +2238,14 @@ export const sourceRouter = router({
             externalReference: extRef,
             metadata: publicMetadata,
           };
+
+          // Add SEO if provided
+          if (product.seoTitle || product.seoDescription) {
+            productInput.seo = {
+              title: product.seoTitle || product.editName.substring(0, 60),
+              description: product.seoDescription || "",
+            };
+          }
           // Always include category (Bulk Manager pattern)
           if (categoryId) {
             productInput.category = categoryId;
@@ -2327,7 +2491,80 @@ export const sourceRouter = router({
         }
       }
 
-      return { created, errors };
+      // =======================================================================
+      // POST-IMPORT: Assign images to categories and collections
+      // Uses the first product's image for each category/collection as a default.
+      // =======================================================================
+
+      // Build image candidates from imported products
+      const categoryImageCandidates = new Map<string, string>(); // slug → first product image URL
+      const collectionImageCandidates = new Map<string, string>();
+
+      for (const product of input.products) {
+        const firstImage = product.images[0];
+        if (!firstImage) continue;
+
+        // Category image candidate (use leaf category slug)
+        if (product.editCategory) {
+          const catName = product.editCategory.includes(" > ")
+            ? product.editCategory.split(" > ").pop()!.trim()
+            : product.editCategory;
+          const catSlug = slugify(catName);
+          if (!categoryImageCandidates.has(catSlug)) {
+            categoryImageCandidates.set(catSlug, firstImage);
+          }
+        }
+
+        // Collection image candidates
+        if (product.editCollections) {
+          for (const colName of product.editCollections.split(";").map((s) => s.trim()).filter(Boolean)) {
+            const colSlug = slugify(colName);
+            if (!collectionImageCandidates.has(colSlug)) {
+              collectionImageCandidates.set(colSlug, firstImage);
+            }
+          }
+        }
+      }
+
+      // Upload category images (only for categories without existing images)
+      for (const [catSlug, imageUrl] of categoryImageCandidates) {
+        if (categoryHasImage.has(catSlug)) continue;
+        const catId = categoryMap.get(catSlug);
+        if (!catId) continue;
+        try {
+          const result = await uploadCategoryImage(
+            imageUrl, catId, catSlug, ctx.saleorApiUrl, ctx.appToken,
+          );
+          if (result.success) {
+            logger.info("Category image uploaded", { slug: catSlug });
+          } else {
+            logger.warn("Category image upload failed", { slug: catSlug, error: result.error });
+          }
+        } catch (e: any) {
+          logger.warn("Category image upload error (non-fatal)", { slug: catSlug, error: e.message });
+        }
+      }
+
+      // Upload collection images (only for collections without existing images)
+      for (const [colSlug, imageUrl] of collectionImageCandidates) {
+        if (collectionHasImage.has(colSlug)) continue;
+        const colId = collectionMap.get(colSlug);
+        if (!colId) continue;
+        try {
+          const result = await uploadCollectionImage(
+            imageUrl, colId, colSlug, ctx.saleorApiUrl, ctx.appToken,
+          );
+          if (result.success) {
+            logger.info("Collection image uploaded", { slug: colSlug });
+          } else {
+            logger.warn("Collection image upload failed", { slug: colSlug, error: result.error });
+          }
+        } catch (e: any) {
+          logger.warn("Collection image upload error (non-fatal)", { slug: colSlug, error: e.message });
+        }
+      }
+
+      return { created, skipped, errors };
     }),
 
   // -------------------------------------------------------------------------

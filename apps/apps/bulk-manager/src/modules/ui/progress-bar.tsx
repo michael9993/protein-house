@@ -1,5 +1,6 @@
 import { Box, Text } from "@saleor/macaw-ui";
 import { useState, useEffect, useRef } from "react";
+import { colors } from "@/modules/ui/app-layout";
 
 interface ProgressBarProps {
   progress: number;
@@ -49,14 +50,14 @@ export function ProgressBar({ progress, total, label, processed, currentItem }: 
   return (
     <Box>
       {label && (
-        <Text size={2} __color="#64748b" __display="block" marginBottom={2}>
+        <Text size={2} __color={colors.textMuted} __display="block" marginBottom={2}>
           {label}
         </Text>
       )}
 
       {/* Current item label */}
       {currentItem && percentage < 100 && (
-        <Text size={2} __color="#475569" __display="block" marginBottom={2} __fontStyle="italic">
+        <Text size={2} __color={colors.badgeText} __display="block" marginBottom={2} __fontStyle="italic">
           Processing: {currentItem}
         </Text>
       )}
@@ -65,40 +66,40 @@ export function ProgressBar({ progress, total, label, processed, currentItem }: 
         __width="100%"
         __height="10px"
         borderRadius={4}
-        __backgroundColor="#e5e7eb"
+        __backgroundColor={colors.border}
         __overflow="hidden"
       >
         <Box
           __width={`${percentage}%`}
           __height="100%"
           borderRadius={4}
-          __backgroundColor={percentage >= 100 ? "#22c55e" : "#3b82f6"}
+          __backgroundColor={percentage >= 100 ? "#22c55e" : colors.brand}
           __transition="width 0.3s ease"
         />
       </Box>
 
       <Box display="flex" justifyContent="space-between" marginTop={1}>
         <Box display="flex" gap={3}>
-          <Text size={2} __color="#1e293b" __fontWeight="600">
+          <Text size={2} __color={colors.text} __fontWeight="600">
             {percentage.toFixed(0)}%
           </Text>
           {elapsed > 0 && (
-            <Text size={2} __color="#94a3b8">
+            <Text size={2} __color={colors.textLight}>
               {formatTime(elapsed)} elapsed
             </Text>
           )}
           {eta && (
-            <Text size={2} __color="#94a3b8">
+            <Text size={2} __color={colors.textLight}>
               ~{eta} remaining
             </Text>
           )}
         </Box>
         {total !== undefined && processed !== undefined ? (
-          <Text size={2} __color="#64748b" __fontWeight="500">
+          <Text size={2} __color={colors.textMuted} __fontWeight="500">
             {processed} / {total} items
           </Text>
         ) : total !== undefined ? (
-          <Text size={2} __color="#94a3b8">
+          <Text size={2} __color={colors.textLight}>
             {Math.round((percentage / 100) * total)} / {total} rows
           </Text>
         ) : null}

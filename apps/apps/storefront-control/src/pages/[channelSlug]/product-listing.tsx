@@ -46,13 +46,14 @@ function ProductListingPage() {
 
   const { config, isNotReady, form, onSubmit, saveStatus } = useConfigPage({
     schema: CatalogFormSchema,
-    sections: ["filters", "quickFilters", "features", "relatedProducts", "content"],
+    sections: ["filters", "quickFilters", "features", "relatedProducts", "content", "ui"],
     extractFormData: (c) => ({
       features: c.features,
       filters: c.filters,
       quickFilters: c.quickFilters,
       relatedProducts: c.relatedProducts,
       content: c.content,
+      ui: c.ui,
     }),
   });
 
@@ -132,6 +133,7 @@ function ProductListingPage() {
                 quickFilters: config.quickFilters,
                 relatedProducts: config.relatedProducts,
                 content: config.content,
+                ui: config.ui,
               });
             }
           }}

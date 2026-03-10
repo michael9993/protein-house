@@ -23,7 +23,6 @@ export const categoriesRouter = router({
       // Pre-fetch existing categories for parent resolution AND upsert matching
       const categorySlugMap = new Map<string, string>();
       const categoryNameMap = new Map<string, string>();
-      const categoryRefMap = new Map<string, string>();
       const categoryBgMap = new Map<string, boolean>(); // id -> has background image
       try {
         let hasNext = true;
@@ -31,8 +30,8 @@ export const categoriesRouter = router({
         while (hasNext) {
           const catResult = await ctx.apiClient.query(
             `query CatsList($first: Int!, $after: String) {
-              categories(first: 100, after: $after) {
-                edges { node { id name slug externalReference backgroundImage { url } } }
+              categories(first: $first, after: $after) {
+                edges { node { id name slug backgroundImage { url } } }
                 pageInfo { hasNextPage endCursor }
               }
             }`,
@@ -45,7 +44,6 @@ export const categoriesRouter = router({
           for (const e of edges) {
             categorySlugMap.set(e.node.slug.toLowerCase(), e.node.id);
             categoryNameMap.set(e.node.name.toLowerCase(), e.node.id);
-            if (e.node.externalReference) categoryRefMap.set(e.node.externalReference, e.node.id);
             categoryBgMap.set(e.node.id, !!e.node.backgroundImage?.url);
           }
           hasNext = catResult.data?.categories?.pageInfo?.hasNextPage || false;
@@ -56,7 +54,7 @@ export const categoriesRouter = router({
       }
       console.log(`[Categories Import] Pre-fetched ${categorySlugMap.size} categories for upsert matching`);
       if (input.upsertMode) {
-        console.log(`[Categories Import] Upsert mode ON — matching by slug/externalReference`);
+        console.log(`[Categories Import] Upsert mode ON — matching by slug/name`);
       }
 
       // Map all rows first
@@ -90,11 +88,12 @@ export const categoriesRouter = router({
               ? JSON.stringify({ blocks: [{ type: "paragraph", data: { text: mapped.description } }] })
               : undefined,
             ...(mapped.seoTitle || mapped.seoDescription ? {
-              seoTitle: mapped.seoTitle || undefined,
-              seoDescription: mapped.seoDescription || undefined,
+              seo: {
+                title: mapped.seoTitle || "",
+                description: mapped.seoDescription || "",
+              },
             } : {}),
             ...(mapped.metadata ? { metadata: parseMetadata(mapped.metadata) } : {}),
-            ...(mapped.externalReference ? { externalReference: mapped.externalReference } : {}),
           };
 
           let categoryId: string | undefined;
@@ -102,11 +101,11 @@ export const categoriesRouter = router({
 
           // Upsert: check if category already exists
           if (input.upsertMode) {
-            const existingByRef = mapped.externalReference ? categoryRefMap.get(mapped.externalReference) : undefined;
             const slug = mapped.slug || mapped.name?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
             const existingBySlug = slug ? categorySlugMap.get(slug.toLowerCase()) : undefined;
-            const existingId = existingByRef || existingBySlug;
-            console.log(`[Categories Import] Upsert lookup for "${mapped.name}": slug="${slug}", mappedSlug="${mapped.slug}", existingByRef=${existingByRef}, existingBySlug=${existingBySlug}, existingId=${existingId}`);
+            const existingByName = mapped.name ? categoryNameMap.get(mapped.name.toLowerCase()) : undefined;
+            const existingId = existingBySlug || existingByName;
+            console.log(`[Categories Import] Upsert lookup for "${mapped.name}": slug="${slug}", existingBySlug=${existingBySlug}, existingByName=${existingByName}, existingId=${existingId}`);
 
             if (existingId) {
               hasExistingBg = categoryBgMap.get(existingId) || false;
@@ -176,6 +175,7 @@ export const categoriesRouter = router({
           }
 
           // Upload background image if provided
+          let imageWarning: string | undefined;
           if (categoryId && mapped.backgroundImageUrl && isValidUrl(mapped.backgroundImageUrl)) {
             if (hasExistingBg) {
               console.log(`[Import] Skipping background image for "${mapped.name}" — already has one`);
@@ -186,12 +186,13 @@ export const categoriesRouter = router({
                 mapped.backgroundImageUrl, categoryId, alt, ctx.saleorApiUrl, ctx.appToken
               );
               if (!imgResult.success) {
+                imageWarning = `Image upload failed: ${imgResult.error}`;
                 console.error(`[Import] Background image failed for "${mapped.name}": ${imgResult.error}`);
               }
             }
           }
 
-          results.push({ row: origIdx + 1, success: true, id: categoryId });
+          results.push({ row: origIdx + 1, success: true, id: categoryId, warning: imageWarning });
         } catch (error) {
           results.push({
             row: origIdx + 1,
@@ -222,7 +223,6 @@ export const categoriesRouter = router({
                 name
                 slug
                 description
-                externalReference
                 seoTitle
                 seoDescription
                 parent { id name slug }
@@ -259,7 +259,6 @@ export const categoriesRouter = router({
           name: cat.name,
           slug: cat.slug,
           description: cat.description ? tryParseDescription(cat.description) : "",
-          externalReference: cat.externalReference || "",
           seoTitle: cat.seoTitle || "",
           seoDescription: cat.seoDescription || "",
           parentName: cat.parent?.name || "",

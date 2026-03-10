@@ -309,6 +309,11 @@ export function ProductDetailClient({
     startTransition(async () => {
       const result = await addItemAction(formData);
       if (result.success) {
+        // Close quick-view modal first so the toast is fully interactive
+        // (Vaul's dismissable layer blocks clicks on elements outside the modal)
+        if (mode === "modal") {
+          closeQuickView();
+        }
         setTimeout(() => setAddedToCart(false), 3000);
         addToast(
           content.product.addedToCartButton || "Added to cart",
@@ -318,7 +323,7 @@ export function ProductDetailClient({
             productName={product.name}
             productImage={product.images[0]?.url}
             quantity={quantity}
-            onViewCart={() => { closeQuickView(); openCart(); }}
+            onViewCart={openCart}
             viewCartText={content.product.viewCartLink}
           />,
         );

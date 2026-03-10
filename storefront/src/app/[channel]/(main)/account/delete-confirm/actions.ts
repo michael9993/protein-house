@@ -46,7 +46,7 @@ export async function confirmAccountDeletion(
 				query: ACCOUNT_CONFIRM_DELETION_MUTATION,
 				variables: { token: trimmedToken },
 			}),
-		});
+		}, { allowPassingTokenToThirdPartyDomains: true });
 		if (!res.ok) {
 			return { success: false, error: "Request failed. Please try again." };
 		}

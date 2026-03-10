@@ -1,5 +1,6 @@
 import { Box, Text, Button } from "@saleor/macaw-ui";
 import { useState } from "react";
+import { colors } from "@/modules/ui/app-layout";
 
 interface ExportDialogProps {
   entityLabel: string;
@@ -19,7 +20,7 @@ export function ExportDialog({
   return (
     <Box
       borderRadius={4}
-      __border="1px solid #e2e8f0"
+      __border={`1px solid ${colors.border}`}
       padding={6}
     >
       <Text variant="heading" size={4} __display="block" marginBottom={4}>
@@ -27,7 +28,7 @@ export function ExportDialog({
       </Text>
 
       {totalCount !== undefined && (
-        <Text size={2} __color="#64748b" __display="block" marginBottom={4}>
+        <Text size={2} __color={colors.textMuted} __display="block" marginBottom={4}>
           {totalCount} {entityLabel.toLowerCase()} available for export
         </Text>
       )}
@@ -42,15 +43,15 @@ export function ExportDialog({
             borderRadius={4}
             cursor="pointer"
             onClick={() => setFormat("xlsx")}
-            __border={format === "xlsx" ? "2px solid #3b82f6" : "2px solid #e5e7eb"}
-            __backgroundColor={format === "xlsx" ? "rgba(59, 130, 246, 0.05)" : undefined}
+            __border={format === "xlsx" ? `2px solid ${colors.brand}` : `2px solid ${colors.border}`}
+            __backgroundColor={format === "xlsx" ? colors.accentSubtle : undefined}
             __flex="1"
             __textAlign="center"
           >
             <Text size={3} __fontWeight={format === "xlsx" ? "600" : "400"}>
               Excel (.xlsx)
             </Text>
-            <Text size={1} __color="#94a3b8" __display="block">
+            <Text size={1} __color={colors.textLight} __display="block">
               Formatted, multi-sheet support
             </Text>
           </Box>
@@ -59,15 +60,15 @@ export function ExportDialog({
             borderRadius={4}
             cursor="pointer"
             onClick={() => setFormat("csv")}
-            __border={format === "csv" ? "2px solid #3b82f6" : "2px solid #e5e7eb"}
-            __backgroundColor={format === "csv" ? "rgba(59, 130, 246, 0.05)" : undefined}
+            __border={format === "csv" ? `2px solid ${colors.brand}` : `2px solid ${colors.border}`}
+            __backgroundColor={format === "csv" ? colors.accentSubtle : undefined}
             __flex="1"
             __textAlign="center"
           >
             <Text size={3} __fontWeight={format === "csv" ? "600" : "400"}>
               CSV (.csv)
             </Text>
-            <Text size={1} __color="#94a3b8" __display="block">
+            <Text size={1} __color={colors.textLight} __display="block">
               Universal compatibility
             </Text>
           </Box>

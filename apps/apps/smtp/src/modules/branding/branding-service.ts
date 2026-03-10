@@ -153,9 +153,9 @@ export class BrandingService {
       companyName: "Pawzen",
       companyEmail: "support@pawzen.co",
       companyWebsite: "https://pawzen.co",
-      primaryColor: "#3b3d3f",
-      secondaryColor: "#0A0707",
-      logo: "https://media.easy.co.il/images/UserThumbs/10035528_1752326685636_0.jpg",
+      primaryColor: "#1B2838",
+      secondaryColor: "#C9A962",
+      logo: "https://shop.halacosmetics.org/logo/pawzen-logo-white.png",
     };
   }
 }

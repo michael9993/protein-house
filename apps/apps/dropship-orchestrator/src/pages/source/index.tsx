@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
-import { Download } from "lucide-react";
+import { Download, Square, Truck } from "lucide-react";
 
 import { NavBar } from "@/components/ui/NavBar";
 import { trpcClient } from "@/modules/trpc/trpc-client";
@@ -12,6 +12,7 @@ import { UrlTab } from "@/modules/source/url-tab";
 import { SearchTab } from "@/modules/source/search-tab";
 import { ComboboxInput } from "@/modules/source/combobox-input";
 import { ComboboxMulti } from "@/modules/source/combobox-multi";
+import { CategoryPreview } from "@/modules/source/category-preview";
 
 const inputCls =
   "w-full px-2.5 py-1.5 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20";
@@ -36,11 +37,16 @@ function SourceProducts() {
   const [shippingLoading, setShippingLoading] = useState(false);
   const [warehouseStrategy, setWarehouseStrategy] = useState<"cheapest" | "fastest">("cheapest");
 
+  // ── Override toggles ──
+  const [overrideCategory, setOverrideCategory] = useState(true);
+  const [overrideType, setOverrideType] = useState(true);
+
   // ── Import state ──
+  const importAbortRef = useRef(false);
   const [importProgress, setImportProgress] = useState<{
     total: number;
     done: number;
-    results: Array<{ name: string; status: "ok" | "error"; error?: string }>;
+    results: Array<{ name: string; status: "ok" | "skip" | "error"; error?: string }>;
   } | null>(null);
 
   // ── Fetch Saleor metadata ──
@@ -88,44 +94,68 @@ function SourceProducts() {
     });
   }
 
-  const shippingMutation = trpcClient.source.fetchWarehouseShipping.useMutation({
-    onSuccess: (data) => {
-      setProducts((prev) =>
-        prev.map((p) => {
-          const match = data.results.find((r) => r.pid === p.pid);
-          if (!match || match.warehouses.length === 0) return p;
-          const bestWh = pickBestWarehouse(match.warehouses, warehouseStrategy);
-          const pick = warehouseStrategy === "cheapest" ? bestWh.cheapest : bestWh.fastest;
-          return {
-            ...p,
-            warehouseOptions: match.warehouses,
-            selectedWarehouse: bestWh.origin,
-            shippingCost: pick?.cost ?? null,
-            shippingCarrier: pick?.carrier ?? "",
-            shippingDays: pick?.days ?? "",
-          };
-        }),
-      );
-      setShippingLoading(false);
-    },
-    onError: () => setShippingLoading(false),
-  });
+  const shippingMutation = trpcClient.source.fetchWarehouseShipping.useMutation();
+  const shippingAbortRef = useRef(false);
+  const [shippingProgress, setShippingProgress] = useState<{
+    total: number; done: number; ok: number; failed: number;
+  } | null>(null);
 
-  // Trigger when new products arrive that don't have warehouse options yet
-  useEffect(() => {
+  // Fetch shipping one product at a time to avoid circuit breaker
+  const handleFetchShipping = useCallback(async () => {
     if (products.length === 0 || shippingLoading) return;
     const needsShipping = products.filter((p) => p.warehouseOptions.length === 0);
     if (needsShipping.length === 0) return;
+
+    shippingAbortRef.current = false;
     setShippingLoading(true);
-    shippingMutation.mutate({
-      products: needsShipping.map((p) => ({
-        pid: p.pid,
-        vid: p.variants[0]?.vid ?? "",
-      })),
-      destinationCountry,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [products.length]);
+    setShippingProgress({ total: needsShipping.length, done: 0, ok: 0, failed: 0 });
+
+    let ok = 0;
+    let failed = 0;
+
+    for (let i = 0; i < needsShipping.length; i++) {
+      if (shippingAbortRef.current) break;
+
+      const p = needsShipping[i];
+      try {
+        const data = await shippingMutation.mutateAsync({
+          products: [{ pid: p.pid, vid: p.variants[0]?.vid ?? "" }],
+          destinationCountry,
+        });
+        const match = data.results.find((r) => r.pid === p.pid);
+        if (match && match.warehouses.length > 0) {
+          const bestWh = pickBestWarehouse(match.warehouses, warehouseStrategy);
+          const pick = warehouseStrategy === "cheapest" ? bestWh.cheapest : bestWh.fastest;
+          setProducts((prev) =>
+            prev.map((prod) =>
+              prod.pid === p.pid
+                ? {
+                    ...prod,
+                    warehouseOptions: match.warehouses,
+                    selectedWarehouse: bestWh.origin,
+                    shippingCost: pick?.cost ?? null,
+                    shippingCarrier: pick?.carrier ?? "",
+                    shippingDays: pick?.days ?? "",
+                  }
+                : prod,
+            ),
+          );
+          ok++;
+        } else {
+          failed++;
+        }
+      } catch {
+        failed++;
+      }
+      setShippingProgress({ total: needsShipping.length, done: i + 1, ok, failed });
+    }
+
+    setShippingLoading(false);
+  }, [products, shippingLoading, destinationCountry, warehouseStrategy, shippingMutation]);
+
+  const handleStopShipping = useCallback(() => {
+    shippingAbortRef.current = true;
+  }, []);
 
   // When strategy changes, re-apply warehouse selection from cached options
   useEffect(() => {
@@ -145,6 +175,9 @@ function SourceProducts() {
     );
   }, [warehouseStrategy]);
 
+  // ── Enrichment mutation ──
+  const enrichMutation = trpcClient.source.enrichProducts.useMutation();
+
   // ── Import mutation (used per-product to avoid Cloudflare 524 timeout) ──
   const importMutation = trpcClient.source.importToAura.useMutation();
   const [importing, setImporting] = useState(false);
@@ -158,8 +191,48 @@ function SourceProducts() {
         return [...prev, ...unique];
       });
       if (errors.length > 0) setFetchErrors((prev) => [...prev, ...errors]);
+
+      // Enrich products with CJ category data (non-fatal)
+      // Always run — enrichment populates categoryPath for display even when overrides are active
+      const toEnrich = newProducts.filter((p) => p.cjCategoryId || p.cjCategoryName);
+      if (toEnrich.length > 0) {
+        enrichMutation.mutateAsync({
+          products: toEnrich.map((p) => ({
+            pid: p.pid,
+            cjCategoryId: p.cjCategoryId || "",
+            cjCategoryName: p.cjCategoryName || "",
+            name: p.name,
+          })),
+        }).then((data) => {
+          setProducts((prev) =>
+            prev.map((p) => {
+              const enriched = data.enriched.find((e) => e.pid === p.pid);
+              if (!enriched) return p;
+              return {
+                ...p,
+                categoryPath: enriched.categoryPath,
+                suggestedType: enriched.suggestedType,
+                suggestedCollections: enriched.suggestedCollections,
+                seoTitle: enriched.seoTitle,
+                seoDescription: enriched.seoDescription,
+                // Auto-fill editable fields with enriched values
+                // Use enriched category display if available
+                editCategory: enriched.categoryDisplay || p.editCategory,
+                // Use enriched type unless user has manually changed it from the default
+                editType: enriched.suggestedType || p.editType,
+                // Use enriched collections unless user has manually changed them
+                editCollections: enriched.suggestedCollections.length > 0
+                  ? enriched.suggestedCollections.join(";")
+                  : p.editCollections,
+              };
+            }),
+          );
+        }).catch(() => {
+          // Non-fatal — products still work with manual entry
+        });
+      }
     },
-    [],
+    [enrichMutation],
   );
 
   const updateProduct = useCallback(
@@ -203,13 +276,18 @@ function SourceProducts() {
 
   const handleImport = useCallback(async () => {
     if (products.length === 0 || selectedChannels.length === 0) return;
+    importAbortRef.current = false;
     setImporting(true);
     setImportProgress({ total: products.length, done: 0, results: [] });
 
-    const results: Array<{ name: string; status: "ok" | "error"; error?: string }> = [];
+    const results: Array<{ name: string; status: "ok" | "skip" | "error"; error?: string }> = [];
 
     // Import one product at a time to avoid Cloudflare 524 timeout
     for (let i = 0; i < products.length; i++) {
+      if (importAbortRef.current) {
+        results.push({ name: "—", status: "error", error: "Import stopped by user" });
+        break;
+      }
       const p = products[i];
       try {
         const data = await importMutation.mutateAsync({
@@ -233,10 +311,14 @@ function SourceProducts() {
               shippingDays: v.shippingDays || p.shippingDays,
             })),
             editName: p.editName,
-            editType: defaultType,
-            editCategory: defaultCategory,
-            editCollections: defaultCollections.join(";"),
+            editType: overrideType ? defaultType : (p.editType || defaultType),
+            editCategory: overrideCategory ? defaultCategory : (p.editCategory || defaultCategory),
+            editCollections: overrideCategory
+              ? defaultCollections.join(";")
+              : (p.editCollections || defaultCollections.join(";")),
             editGender: defaultGender,
+            seoTitle: p.seoTitle || undefined,
+            seoDescription: p.seoDescription || undefined,
             shippingDays: p.shippingDays,
             shippingCarrier: p.shippingCarrier,
           }],
@@ -245,6 +327,7 @@ function SourceProducts() {
           ilsRate: hasIlsChannel ? ilsRate : undefined,
         });
         for (const c of data.created) results.push({ name: c.name, status: "ok" });
+        for (const s of data.skipped) results.push({ name: s.name, status: "skip", error: `Already exists (${s.existingId})` });
         for (const e of data.errors) results.push({ name: e.name, status: "error", error: e.error });
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : "Unknown error";
@@ -254,7 +337,11 @@ function SourceProducts() {
     }
 
     setImporting(false);
-  }, [products, selectedChannels, markup, ilsRate, hasIlsChannel, importMutation, defaultType, defaultCategory, defaultGender, defaultCollections]);
+  }, [products, selectedChannels, markup, ilsRate, hasIlsChannel, importMutation, defaultType, defaultCategory, defaultGender, defaultCollections, overrideCategory, overrideType]);
+
+  const handleStopImport = useCallback(() => {
+    importAbortRef.current = true;
+  }, []);
 
   const toggleChannel = (slug: string) => {
     setSelectedChannels((prev) =>
@@ -266,6 +353,7 @@ function SourceProducts() {
 
   const totalVariants = products.reduce((sum, p) => sum + p.variants.length, 0);
   const okCount = importProgress?.results.filter((r) => r.status === "ok").length ?? 0;
+  const skipCount = importProgress?.results.filter((r) => r.status === "skip").length ?? 0;
   const errCount = importProgress?.results.filter((r) => r.status === "error").length ?? 0;
 
   const tabs = [
@@ -330,9 +418,9 @@ function SourceProducts() {
       {/* ── Settings + Products Panel (shown when products exist) ── */}
       {products.length > 0 && (
         <>
-          {/* Settings Panel */}
+          {/* ── Taxonomy & Pricing Panel ── */}
           <div className="rounded-lg border border-border p-4 space-y-4">
-            <h3 className="text-sm font-semibold text-text-primary">Import & CSV Settings</h3>
+            <h3 className="text-sm font-semibold text-text-primary">Taxonomy & Pricing</h3>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {/* Product Type */}
@@ -379,22 +467,6 @@ function SourceProducts() {
                   onChange={(e) => setMarkup(parseFloat(e.target.value) || 1)} />
               </div>
 
-              {/* Ship To */}
-              <div>
-                <label className="block text-xs font-medium text-text-muted mb-1">Ship To</label>
-                <input className={inputCls} value={destinationCountry}
-                  onChange={(e) => setDestinationCountry(e.target.value.toUpperCase())} placeholder="IL" maxLength={2} />
-              </div>
-
-              {/* Warehouse Strategy */}
-              <div>
-                <label className="block text-xs font-medium text-text-muted mb-1">Warehouse Priority</label>
-                <select className={selectCls} value={warehouseStrategy} onChange={(e) => setWarehouseStrategy(e.target.value as "cheapest" | "fastest")}>
-                  <option value="cheapest">Cheapest Shipping</option>
-                  <option value="fastest">Fastest Delivery</option>
-                </select>
-              </div>
-
               {/* ILS Rate */}
               {hasIlsChannel && (
                 <div>
@@ -403,6 +475,32 @@ function SourceProducts() {
                     onChange={(e) => setIlsRate(parseFloat(e.target.value) || 3.6)} />
                 </div>
               )}
+            </div>
+
+            {/* Override toggles */}
+            <div className="flex flex-wrap gap-4">
+              <label className="flex items-center gap-2 text-xs cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={overrideCategory}
+                  onChange={(e) => setOverrideCategory(e.target.checked)}
+                  className="rounded border-border"
+                />
+                <span className="text-text-muted">
+                  Override category <span className="font-normal">(use global default for all products)</span>
+                </span>
+              </label>
+              <label className="flex items-center gap-2 text-xs cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={overrideType}
+                  onChange={(e) => setOverrideType(e.target.checked)}
+                  className="rounded border-border"
+                />
+                <span className="text-text-muted">
+                  Override product type <span className="font-normal">(use global default for all products)</span>
+                </span>
+              </label>
             </div>
 
             {/* Collections (combobox multi-select) */}
@@ -443,33 +541,134 @@ function SourceProducts() {
                 }) ?? <span className="text-xs text-text-muted">Loading channels...</span>}
               </div>
             </div>
+          </div>
 
-            {/* Action buttons */}
-            <div className="flex justify-between items-center pt-2 border-t border-border">
+          {/* ── Shipping Panel ── */}
+          <div className="rounded-lg border border-border p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-text-primary">Shipping Rates</h3>
+              <div className="flex gap-2">
+                {shippingLoading ? (
+                  <button
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 transition-colors"
+                    onClick={handleStopShipping}
+                  >
+                    <Square size={12} />
+                    Stop ({shippingProgress?.done ?? 0}/{shippingProgress?.total ?? 0})
+                  </button>
+                ) : (
+                  <button
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-border rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                    onClick={handleFetchShipping}
+                    disabled={products.filter((p) => p.warehouseOptions.length === 0).length === 0}
+                  >
+                    <Truck size={12} />
+                    {products.every((p) => p.warehouseOptions.length > 0)
+                      ? "All rates fetched"
+                      : products.some((p) => p.warehouseOptions.length > 0)
+                      ? `Fetch remaining (${products.filter((p) => p.warehouseOptions.length === 0).length})`
+                      : `Fetch rates for ${products.length} products`}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {/* Ship To */}
+              <div>
+                <label className="block text-xs font-medium text-text-muted mb-1">Ship To</label>
+                <input className={inputCls} value={destinationCountry}
+                  onChange={(e) => setDestinationCountry(e.target.value.toUpperCase())} placeholder="IL" maxLength={2}
+                  disabled={shippingLoading} />
+              </div>
+
+              {/* Warehouse Strategy */}
+              <div>
+                <label className="block text-xs font-medium text-text-muted mb-1">Warehouse Priority</label>
+                <select className={selectCls} value={warehouseStrategy}
+                  onChange={(e) => setWarehouseStrategy(e.target.value as "cheapest" | "fastest")}
+                  disabled={shippingLoading}>
+                  <option value="cheapest">Cheapest Shipping</option>
+                  <option value="fastest">Fastest Delivery</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Shipping progress */}
+            {shippingLoading && shippingProgress && (
+              <div className="space-y-1.5">
+                <div className="w-full h-1.5 rounded-full bg-gray-200 overflow-hidden">
+                  <div
+                    className="h-full bg-blue-500 rounded-full transition-all duration-300"
+                    style={{ width: `${((shippingProgress.done / shippingProgress.total) * 100).toFixed(0)}%` }}
+                  />
+                </div>
+                <p className="text-xs text-text-muted">
+                  Fetching {shippingProgress.done}/{shippingProgress.total}...
+                  {shippingProgress.ok > 0 && <span className="text-green-600 ms-2">{shippingProgress.ok} ok</span>}
+                  {shippingProgress.failed > 0 && <span className="text-red-600 ms-2">{shippingProgress.failed} failed</span>}
+                </p>
+              </div>
+            )}
+
+            {/* Shipping results (shown after completion) */}
+            {!shippingLoading && shippingProgress && shippingProgress.done > 0 && (
+              <div className={`flex items-center gap-2 text-xs px-3 py-2 rounded-md ${
+                shippingProgress.failed === 0
+                  ? "bg-green-50 text-green-700 border border-green-200"
+                  : "bg-yellow-50 text-yellow-700 border border-yellow-200"
+              }`}>
+                {shippingProgress.failed === 0 ? (
+                  <span>Shipping rates fetched for {shippingProgress.ok} product(s)</span>
+                ) : (
+                  <span>
+                    {shippingProgress.ok} succeeded, {shippingProgress.failed} failed
+                    {shippingProgress.done < shippingProgress.total && ` (stopped at ${shippingProgress.done}/${shippingProgress.total})`}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* Per-product shipping status summary */}
+            {products.length > 0 && (
+              <div className="flex gap-4 text-xs text-text-muted">
+                <span className="text-green-600">{products.filter((p) => p.warehouseOptions.length > 0).length} with rates</span>
+                <span>{products.filter((p) => p.warehouseOptions.length === 0).length} pending</span>
+              </div>
+            )}
+          </div>
+
+          {/* ── Action Bar ── */}
+          <div className="rounded-lg border border-border p-4 space-y-4">
+            <div className="flex justify-between items-center">
               <span className="text-xs text-text-muted">
                 {products.length} products, {totalVariants} variants | Markup: {markup}x | Margin: ~{((1 - 1 / markup) * 100).toFixed(0)}%
-                {shippingLoading && " | ⏳ Fetching shipping rates..."}
               </span>
               <div className="flex gap-3">
                 <button
                   className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-border rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
                   onClick={handleDownloadCSV}
-                  disabled={shippingLoading}
                 >
                   <Download size={14} />
-                  {shippingLoading ? "Loading rates..." : "Download CSV"}
+                  Download CSV
                 </button>
-                <button
-                  className="px-4 py-1.5 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light disabled:opacity-50 transition-colors"
-                  onClick={handleImport}
-                  disabled={importing || selectedChannels.length === 0 || shippingLoading}
-                >
-                  {importing
-                    ? `Importing ${importProgress?.done ?? 0}/${products.length}...`
-                    : shippingLoading
-                    ? "Fetching shipping rates..."
-                    : `Import ${products.length} to Aura`}
-                </button>
+                {importing ? (
+                  <button
+                    className="flex items-center gap-1.5 px-4 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 transition-colors"
+                    onClick={handleStopImport}
+                  >
+                    <Square size={14} />
+                    Stop Import ({importProgress?.done ?? 0}/{products.length})
+                  </button>
+                ) : (
+                  <button
+                    className="px-4 py-1.5 text-sm font-medium text-white bg-brand rounded-md hover:bg-brand-light disabled:opacity-50 transition-colors"
+                    onClick={handleImport}
+                    disabled={selectedChannels.length === 0}
+                  >
+                    Import {products.length} to Aura
+                  </button>
+                )}
               </div>
             </div>
 
@@ -492,24 +691,31 @@ function SourceProducts() {
             {importProgress && !importing && importProgress.done > 0 && (
               <div className="space-y-2">
                 <p className="text-sm font-medium">
-                  Import complete: {okCount} succeeded, {errCount} failed
+                  Import complete: {okCount} succeeded{skipCount > 0 ? `, ${skipCount} skipped` : ""}{errCount > 0 ? `, ${errCount} failed` : ""}
                 </p>
                 <div className="max-h-[200px] overflow-y-auto divide-y divide-border">
                   {importProgress.results.map((r, i) => (
                     <div key={i} className="flex gap-2 items-center py-1.5 text-sm">
                       <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${
-                        r.status === "ok" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
+                        r.status === "ok" ? "bg-green-50 text-green-700"
+                          : r.status === "skip" ? "bg-blue-50 text-blue-700"
+                          : "bg-red-50 text-red-700"
                       }`}>
-                        {r.status === "ok" ? "OK" : "ERR"}
+                        {r.status === "ok" ? "OK" : r.status === "skip" ? "SKIP" : "ERR"}
                       </span>
                       <span className="truncate">{r.name}</span>
-                      {r.error && <span className="text-xs text-red-700 truncate">{r.error}</span>}
+                      {r.error && <span className={`text-xs truncate ${r.status === "skip" ? "text-blue-600" : "text-red-700"}`}>{r.error}</span>}
                     </div>
                   ))}
                 </div>
               </div>
             )}
           </div>
+
+          {/* Category tree preview */}
+          {!overrideCategory && products.some((p) => p.categoryPath.length > 0) && (
+            <CategoryPreview products={products} />
+          )}
 
           {/* Sourcing table */}
           <SourcingTable

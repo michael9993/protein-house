@@ -5,6 +5,8 @@ import { getSerializableRegistry } from "@/lib/component-registry";
 interface UsePreviewOptions {
   storefrontUrl?: string;
   channelSlug: string;
+  /** Called every time a component is clicked in the preview overlay (fires even for re-clicks on the same component) */
+  onComponentSelected?: (configKey: string) => void;
 }
 
 interface UsePreviewReturn {
@@ -22,12 +24,18 @@ interface UsePreviewReturn {
   onSectionsReordered: string[] | null;
 }
 
-export function usePreview({ storefrontUrl, channelSlug }: UsePreviewOptions): UsePreviewReturn {
+export function usePreview({ storefrontUrl, channelSlug, onComponentSelected }: UsePreviewOptions): UsePreviewReturn {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isReady, setIsReady] = useState(false);
+  const [readyCount, setReadyCount] = useState(0);
   const [selectedFromPreview, setSelectedFromPreview] = useState<string | null>(null);
   const [overlayEnabled, setOverlayEnabledState] = useState(false);
+  const overlayEnabledRef = useRef(false);
   const [onSectionsReordered, setOnSectionsReordered] = useState<string[] | null>(null);
+
+  // Keep callback ref current without re-subscribing message listener
+  const onComponentSelectedRef = useRef(onComponentSelected);
+  onComponentSelectedRef.current = onComponentSelected;
 
   // Listen for messages from storefront
   useEffect(() => {
@@ -35,8 +43,25 @@ export function usePreview({ storefrontUrl, channelSlug }: UsePreviewOptions): U
       const type = event.data?.type;
       if (type === "storefront-control:preview-ready") {
         setIsReady(true);
+        setReadyCount((c) => c + 1);
+        // Re-send overlay state after iframe navigation (overlay reinitializes disabled)
+        setTimeout(() => {
+          const iframe = iframeRef.current?.contentWindow;
+          if (!iframe) return;
+          iframe.postMessage(
+            { type: "storefront-control:overlay-init", payload: { components: getSerializableRegistry() } },
+            "*"
+          );
+          iframe.postMessage(
+            { type: "storefront-control:overlay-toggle", payload: { enabled: overlayEnabledRef.current } },
+            "*"
+          );
+        }, 100);
       } else if (type === "storefront-control:component-selected") {
-        setSelectedFromPreview(event.data.payload.configKey);
+        const configKey = event.data.payload.configKey;
+        setSelectedFromPreview(configKey);
+        // Fire callback on every click (bypasses React state dedup for re-clicks on same component)
+        onComponentSelectedRef.current?.(configKey);
       } else if (type === "storefront-control:sections-reordered") {
         setOnSectionsReordered(event.data.payload.sectionOrder);
       }
@@ -82,6 +107,7 @@ export function usePreview({ storefrontUrl, channelSlug }: UsePreviewOptions): U
 
   const setOverlayEnabled = useCallback((enabled: boolean) => {
     setOverlayEnabledState(enabled);
+    overlayEnabledRef.current = enabled;
     iframeRef.current?.contentWindow?.postMessage(
       { type: "storefront-control:overlay-toggle", payload: { enabled } },
       "*"

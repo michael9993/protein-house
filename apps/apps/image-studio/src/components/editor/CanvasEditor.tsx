@@ -766,7 +766,7 @@ export function CanvasEditor() {
                   onCrop={crop.startCrop}
                   onResetCrop={crop.resetCrop}
                   isImage={crop.isImage}
-                  hasClipPath={crop.hasClipPath}
+                  hasClipPath={crop.hasCrop}
                 />
               ) : rightPanel === "layers" ? (
                 <LayersPanel

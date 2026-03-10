@@ -9,14 +9,13 @@
  *   import { sportsStoreConfig as activeConfig } from './examples/sports-store.config';
  */
 
-import { sportsStoreConfig } from './examples/sports-store.config';
+import { createStoreConfig, defaultStoreConfig } from './store.config';
 
 // ============================================
 // ACTIVE CONFIGURATION
 // ============================================
-// Change this import to switch between store configurations
-// Currently using: Pawzen (configured via Storefront Control)
-export const storeConfig = sportsStoreConfig;
+// Pawzen pet accessories store. Runtime config from Storefront Control API overrides these values.
+export const storeConfig = createStoreConfig('physical', defaultStoreConfig as any);
 
 // ============================================
 // RE-EXPORTS

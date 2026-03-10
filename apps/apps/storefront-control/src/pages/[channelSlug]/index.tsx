@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
 import { type NextPage } from "next";
 import { useRouter } from "next/router";
+import { toast } from "sonner";
 import {
   Check,
   Download,
@@ -121,6 +122,7 @@ const ChannelIndexPage: NextPage = () => {
   const { channelSlug } = router.query as { channelSlug: string };
   const { appBridgeState } = useAppBridge();
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showUpdateConfirm, setShowUpdateConfirm] = useState(false);
 
   const {
     data: config,
@@ -133,11 +135,13 @@ const ChannelIndexPage: NextPage = () => {
 
   const updateSampleMutation = trpcClient.config.updateSampleConfig.useMutation({
     onSuccess: (data) => {
-      alert(data.message);
+      toast.success(data.message);
+      setShowUpdateConfirm(false);
       refetch();
     },
     onError: (error) => {
-      alert(`Failed to update sample config: ${error.message}`);
+      toast.error(`Failed to update sample config: ${error.message}`);
+      setShowUpdateConfirm(false);
     },
   });
 
@@ -148,15 +152,12 @@ const ChannelIndexPage: NextPage = () => {
   }, [config, channelSlug]);
 
   const handleUpdateSample = useCallback(() => {
-    if (
-      config &&
-      window.confirm(
-        `Update the sample config file for "${channelSlug}"? This will overwrite the current sample file with your current configuration.`,
-      )
-    ) {
-      updateSampleMutation.mutate({ channelSlug });
-    }
-  }, [config, channelSlug, updateSampleMutation]);
+    setShowUpdateConfirm(true);
+  }, []);
+
+  const confirmUpdateSample = useCallback(() => {
+    updateSampleMutation.mutate({ channelSlug });
+  }, [channelSlug, updateSampleMutation]);
 
   const handleImportSuccess = useCallback(() => {
     setShowImportModal(false);
@@ -243,6 +244,29 @@ const ChannelIndexPage: NextPage = () => {
                       : "Update Sample Config"}
                   </Button>
                 </div>
+
+                {showUpdateConfirm && (
+                  <div className="flex items-center gap-3 p-3 mt-3 rounded-md border border-yellow-300 bg-yellow-50 text-sm">
+                    <span className="text-yellow-800">
+                      Overwrite the sample config file for <strong>{channelSlug}</strong> with current configuration?
+                    </span>
+                    <Button
+                      size="sm"
+                      onClick={confirmUpdateSample}
+                      disabled={updateSampleMutation.isLoading}
+                    >
+                      {updateSampleMutation.isLoading ? "Updating..." : "Confirm"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setShowUpdateConfirm(false)}
+                      disabled={updateSampleMutation.isLoading}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {/* Channel Snapshot */}

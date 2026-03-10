@@ -36,8 +36,8 @@ import { TrackSearch } from "./TrackSearch";
 // ============================================================================
 
 export const metadata = {
-  title: `All Products | ${storeConfig.store.name}`,
-  description: `Browse all products at ${storeConfig.store.name}. Find the best deals and latest arrivals.`,
+  title: `Products | ${storeConfig.store.name}`,
+  description: `Browse products at ${storeConfig.store.name}. Find the best deals and latest arrivals.`,
 };
 
 // ============================================================================
@@ -719,10 +719,12 @@ export default async function Page(props: {
     }
   }
 
-  const [categoriesForFilterResult, collectionIds, categoriesForQuickFilters] =
+  const [categoriesForFilterResult, collectionIds, saleCollectionIds, categoriesForQuickFilters] =
     await Promise.all([
       fetchCategoriesForFilter(channel),
       getCollectionIdsFromSlugs(adjustedFilters.collections, channel),
+      // Resolve "sale" collection for onSale filter
+      adjustedFilters.onSale ? getCollectionIdsFromSlugs(["sale"], channel) : Promise.resolve([]),
       fetchCategoriesForQuickFilters(channel),
     ]);
   const categoryIds = categoriesForFilterResult.categoryIds(
@@ -735,6 +737,7 @@ export default async function Page(props: {
     filters: adjustedFilters,
     categoryIds,
     collectionIds,
+    saleCollectionIds,
     brandAttributeSlug: brandAttributeSlug ? brandAttributeSlug : undefined,
     sizeAttributeSlug: sizeAttributeSlug ? sizeAttributeSlug : undefined,
     colorAttributeSlug: colorAttributeSlug ? colorAttributeSlug : undefined,

@@ -62,7 +62,6 @@ export const collectionsRouter = router({
 
       // Pre-fetch existing collections for upsert
       const existingBySlug = new Map<string, { id: string; hasBg: boolean }>();
-      const existingByRef = new Map<string, { id: string; hasBg: boolean }>();
       if (input.upsertMode) {
         try {
           let hasNext = true;
@@ -71,7 +70,7 @@ export const collectionsRouter = router({
             const colResult = await ctx.apiClient.query(
               `query CollectionsLookup($after: String) {
                 collections(first: 100, after: $after) {
-                  edges { node { id slug externalReference backgroundImage { url } } }
+                  edges { node { id slug backgroundImage { url } } }
                   pageInfo { hasNextPage endCursor }
                 }
               }`,
@@ -80,7 +79,6 @@ export const collectionsRouter = router({
             for (const e of (colResult.data?.collections?.edges || [])) {
               const info = { id: e.node.id, hasBg: !!e.node.backgroundImage?.url };
               if (e.node.slug) existingBySlug.set(e.node.slug.toLowerCase(), info);
-              if (e.node.externalReference) existingByRef.set(e.node.externalReference, info);
             }
             hasNext = colResult.data?.collections?.pageInfo?.hasNextPage || false;
             after = colResult.data?.collections?.pageInfo?.endCursor;
@@ -115,11 +113,12 @@ export const collectionsRouter = router({
               ? JSON.stringify({ blocks: [{ type: "paragraph", data: { text: mapped.description } }] })
               : undefined,
             ...(mapped.seoTitle || mapped.seoDescription ? {
-              seoTitle: mapped.seoTitle || undefined,
-              seoDescription: mapped.seoDescription || undefined,
+              seo: {
+                title: mapped.seoTitle || "",
+                description: mapped.seoDescription || "",
+              },
             } : {}),
             ...(mapped.metadata ? { metadata: parseMetadata(mapped.metadata) } : {}),
-            ...(mapped.externalReference ? { externalReference: mapped.externalReference } : {}),
           };
 
           let collectionId: string | undefined;
@@ -127,10 +126,8 @@ export const collectionsRouter = router({
 
           // Upsert: check if collection already exists
           if (input.upsertMode) {
-            const byRef = mapped.externalReference ? existingByRef.get(mapped.externalReference) : undefined;
             const slug = mapped.slug || mapped.name?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-            const bySlug = slug ? existingBySlug.get(slug.toLowerCase()) : undefined;
-            const existing = byRef || bySlug;
+            const existing = slug ? existingBySlug.get(slug.toLowerCase()) : undefined;
 
             if (existing) {
               hasExistingBg = existing.hasBg;
@@ -237,6 +234,7 @@ export const collectionsRouter = router({
           }
 
           // Upload background image if provided
+          let imageWarning: string | undefined;
           if (collectionId && mapped.backgroundImageUrl && isValidUrl(mapped.backgroundImageUrl)) {
             if (hasExistingBg) {
               console.log(`[Import] Skipping background image for collection "${mapped.name}" — already has one`);
@@ -247,12 +245,13 @@ export const collectionsRouter = router({
                 mapped.backgroundImageUrl, collectionId, alt, ctx.saleorApiUrl, ctx.appToken
               );
               if (!imgResult.success) {
+                imageWarning = `Image upload failed: ${imgResult.error}`;
                 console.error(`[Import] Background image failed for "${mapped.name}": ${imgResult.error}`);
               }
             }
           }
 
-          results.push({ row: i + 1, success: true, id: collectionId });
+          results.push({ row: i + 1, success: true, id: collectionId, warning: imageWarning });
         } catch (error) {
           results.push({
             row: i + 1,
@@ -284,7 +283,6 @@ export const collectionsRouter = router({
                 name
                 slug
                 description
-                externalReference
                 seoTitle
                 seoDescription
                 backgroundImage { url alt }
@@ -323,7 +321,6 @@ export const collectionsRouter = router({
           name: col.name,
           slug: col.slug,
           description: col.description ? tryParseDescription(col.description) : "",
-          externalReference: col.externalReference || "",
           seoTitle: col.seoTitle || "",
           seoDescription: col.seoDescription || "",
           backgroundImageUrl: col.backgroundImage?.url || "",
