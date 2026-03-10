@@ -22,6 +22,7 @@ SALES_ANALYTICS_APP_PORT=3006
 BULK_MANAGER_APP_PORT=3007
 IMAGE_STUDIO_APP_PORT=3008
 DROPSHIP_APP_PORT=3009
+TAX_MANAGER_APP_PORT=3010
 
 # ============================================================================
 # DATABASE CONFIGURATION
@@ -128,6 +129,7 @@ OTEL_ENABLED=false
 # BULK_MANAGER_APP_TUNNEL_URL=https://bulk.yourdomain.com
 # IMAGE_STUDIO_APP_TUNNEL_URL=https://studio.yourdomain.com
 # DROPSHIP_APP_TUNNEL_URL=https://dropship.yourdomain.com
+# TAX_MANAGER_APP_TUNNEL_URL=https://tax.yourdomain.com
 
 # ============================================================================
 # DASHBOARD CONFIGURATION

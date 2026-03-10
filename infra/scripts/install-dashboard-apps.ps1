@@ -86,6 +86,12 @@ $apps = @(
         AppId = "saleor.app.dropship-orchestrator"
         EnvVar = "DROPSHIP_APP_TUNNEL_URL"
         ManifestPath = "/api/manifest"
+    },
+    @{
+        Name = "Tax Manager"
+        AppId = "saleor.app.tax-manager"
+        EnvVar = "TAX_MANAGER_APP_TUNNEL_URL"
+        ManifestPath = "/api/manifest"
     }
 )
 

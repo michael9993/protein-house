@@ -908,6 +908,45 @@ services:
       retries: 5
       start_period: 60s
 
+  # Tax Manager App - Self-hosted tax calculation engine
+  saleor-tax-manager-app:
+    image: node:22-alpine
+    container_name: saleor-tax-manager-app-dev
+    working_dir: /app
+    command: >
+      sh -c "
+        corepack enable && corepack prepare pnpm@10 --activate &&
+        pnpm install --filter saleor-app-tax-manager... --prefer-offline &&
+        cd apps/tax-manager &&
+        if [ \"$${APPS_MODE:-dev}\" = 'production' ]; then
+          pnpm build && PORT=3000 pnpm start;
+        else
+          PORT=3000 pnpm dev;
+        fi
+      "
+    ports:
+      - "${TAX_MANAGER_APP_PORT:-3010}:3000"
+    environment:
+      - SALEOR_API_URL=http://saleor-api:8000/graphql/
+      - NEXT_PUBLIC_SALEOR_API_URL=${NEXT_PUBLIC_SALEOR_API_URL:-http://localhost:8000/graphql/}
+      - APP_API_BASE_URL=${TAX_MANAGER_APP_TUNNEL_URL:-http://localhost:3010}
+      - APP_IFRAME_BASE_URL=${TAX_MANAGER_APP_TUNNEL_URL:-http://localhost:3010}
+      - APL=file
+      - SECRET_KEY=${APP_SECRET_KEY}
+      - APPS_MODE=${APPS_MODE:-dev}
+      - OTEL_ENABLED=false
+      - NEXT_PUBLIC_SENTRY_DSN=
+    volumes:
+      - ../apps:/app
+      - tax-manager-app-node-modules:/app/node_modules
+      - tax-manager-app-pnpm-store:/root/.local/share/pnpm/store
+    depends_on:
+      saleor-api:
+        condition: service_healthy
+    networks:
+      - saleor-network
+    # Tax Manager app (port 3010) — Self-hosted tax calculation engine
+
 volumes:
   postgres-data:
     driver: local
@@ -962,6 +1001,10 @@ volumes:
   dropship-app-node-modules:
     driver: local
   dropship-app-pnpm-store:
+    driver: local
+  tax-manager-app-node-modules:
+    driver: local
+  tax-manager-app-pnpm-store:
     driver: local
 
 networks:

@@ -1,0 +1,9 @@
+{
+  "extends": "@saleor/typescript-config-apps/base.json",
+  "baseUrl": ".",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}

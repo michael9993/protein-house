@@ -65,6 +65,7 @@ docker compose -f infra/docker-compose.dev.yml ps    # Verify health
 | `saleor-bulk-manager-app-dev` | 3007 | Bulk import/export manager |
 | `saleor-image-studio-app-dev` | 3008 | AI-powered image editor |
 | `saleor-dropship-app-dev` | 3009 | Dropship orchestrator (AliExpress + CJ) |
+| `saleor-tax-manager-app-dev` | 3010 | Self-hosted tax calculation engine |
 | `saleor-postgres-dev` | 5432 | PostgreSQL database |
 | `saleor-redis-dev` | 6379 | Redis cache/broker |
 | `saleor-rembg-dev` | 7000 | AI background removal (Image Studio) |
@@ -158,6 +159,7 @@ docker exec saleor-postgres-dev pg_dump -U saleor saleor > backup.sql  # Backup
 | `apps/apps/bulk-manager/` | `saleor-bulk-manager-app-dev` |
 | `apps/apps/image-studio/` | `saleor-image-studio-app-dev` |
 | `apps/apps/dropship-orchestrator/` | `saleor-dropship-app-dev` |
+| `apps/apps/tax-manager/` | `saleor-tax-manager-app-dev` |
 
 ```bash
 docker compose -f infra/docker-compose.dev.yml restart <container-name>
@@ -546,6 +548,7 @@ These skills MUST be invoked (via the Skill tool) at the start of the correspond
 | bulk-manager | `saleor-bulk-manager-app-dev` | 3007 | CSV/Excel bulk import/export/delete for products, categories, collections, customers, orders, vouchers, gift cards |
 | image-studio | `saleor-image-studio-app-dev` | 3008 | AI-powered image editor with canvas, templates, bg removal, generation, upscaling |
 | dropship-orchestrator | `saleor-dropship-app-dev` | 3009 | Multi-supplier dropshipping middleware (AliExpress + CJ), order forwarding, tracking sync, fraud detection, exception queue |
+| tax-manager | `saleor-tax-manager-app-dev` | 3010 | Self-hosted tax calculation with configurable country/state rates, export zero-rating, preset libraries (IL/EU/US) |
 
 ## Catalog Generator & Store Infrastructure (`scripts/catalog-generator/`)
 
