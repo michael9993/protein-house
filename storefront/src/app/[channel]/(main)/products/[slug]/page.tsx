@@ -331,6 +331,7 @@ export default async function Page(props: {
 							name: a.attribute.translation?.name || a.attribute.name || "",
 							slug: a.attribute.slug || "",
 							inputType: a.attribute.inputType || null,
+							unit: a.attribute.unit || null,
 							visibleInStorefront: true, // Saleor filters to visible-only for anonymous users
 						},
 						values: a.values.map((val: any) => ({

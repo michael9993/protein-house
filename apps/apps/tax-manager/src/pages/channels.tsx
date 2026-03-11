@@ -57,7 +57,7 @@ export default function ChannelsPage() {
           <p className="text-sm text-text-muted">Loading channels...</p>
         ) : (
           <div className="space-y-4">
-            {channels.data?.map((ch) => (
+            {channels.data?.map((ch: any) => (
               <div key={ch.channelSlug} className="border border-border rounded-lg bg-white">
                 <div className="flex items-center justify-between p-4 border-b border-border">
                   <div>
@@ -106,7 +106,7 @@ export default function ChannelsPage() {
                           onChange={(e) => setForm({ ...form, pricesIncludeTax: e.target.checked })}
                           className="rounded"
                         />
-                        Prices include tax (informational)
+                        Prices include tax
                       </label>
                     </div>
 

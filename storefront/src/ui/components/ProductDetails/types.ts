@@ -27,6 +27,8 @@ export interface ProductAttribute {
     name: string;
     slug: string;
     inputType: string | null;
+    /** MeasurementUnitsEnum value for NUMERIC attributes (e.g. "CM", "KG") */
+    unit: string | null;
     /** Saleor filters non-visible attributes for anonymous users, so all returned are visible */
     visibleInStorefront?: boolean;
   };

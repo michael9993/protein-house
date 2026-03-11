@@ -142,7 +142,15 @@
       "mcp__plugin_serena_serena__activate_project",
       "Bash(grep data-cd\\\\|useComponentStyle\\\\|useComponentClasses:*)",
       "Bash(__NEW_LINE_fe97271b30316720__:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(docker compose:*)",
+      "Bash(nslookup tax.halacosmetics.org 2>&1)",
+      "Bash(cloudflared tunnel:*)",
+      "Bash(nslookup -type=CNAME tax.halacosmetics.org 2>&1)",
+      "Bash(find /c/Users/micha/saleor-platform/storefront/src/app/\\\\[channel\\\\]/\\\\\\(main\\\\\\)/products/\\\\[slug\\\\] -type f -name \"*.tsx\")",
+      "Bash(grep -A 15 \"ProductTabs\" /c/Users/micha/saleor-platform/storefront/src/app/[channel]/'\\(main\\)'/products/'[slug]'/ProductDetailClient.tsx | head -30)",
+      "Bash(cat -A \"C:/Users/micha/saleor-platform/storefront/src/app/[channel]/\\(main\\)/products/[slug]/page.tsx\" | sed -n '333,334p')",
+      "Bash(cat -A \"C:/Users/micha/saleor-platform/storefront/src/app/[channel]/\\(main\\)/products/actions.ts\" | sed -n '127,128p')"
     ],
     "deny": [
       "Read(./.env*)",

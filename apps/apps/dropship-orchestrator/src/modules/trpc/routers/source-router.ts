@@ -1560,7 +1560,7 @@ export const sourceRouter = router({
         let ptCursor: string | null = null;
         let ptHasMore = true;
         while (ptHasMore) {
-          const { data: ptData } = await client.query(PRODUCT_TYPES_WITH_ATTRS, { after: ptCursor }).toPromise();
+          const { data: ptData } = await client.query(PRODUCT_TYPES_WITH_ATTRS, { after: ptCursor }, { requestPolicy: 'network-only' }).toPromise();
           for (const edge of ptData?.productTypes?.edges ?? []) {
             registerProductType(edge.node);
           }
@@ -2345,6 +2345,14 @@ export const sourceRouter = router({
               logger.warn(`Variant attr "${name}" (slug: ${attrSlug}) not assigned to product type "${typeName}" — skipping`);
             }
           }
+
+          logger.info("Resolved variant attributes", {
+            product: product.editName,
+            productType: typeName,
+            expected: Array.from(attrNames),
+            resolved: Array.from(attrIdMap.entries()).map(([n, id]) => `${n}=${id}`),
+            ptVariantAttrs: ptInfo.variantAttributes.map((a) => a.slug),
+          });
 
           // 12. Create variants (Bulk Manager pattern: create → pricing → metadata → image)
           let variantCount = 0;

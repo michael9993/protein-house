@@ -110,9 +110,9 @@ export const PRESET_US: PresetFactory = () => [
 ];
 
 export const PRESET_ZERO_TAX: PresetFactory = () => [
-  makeRule("UAE – No VAT", "AE", 0.00),
+  makeRule("UAE VAT", "AE", 0.05),
   makeRule("Hong Kong – No Sales Tax", "HK", 0.00),
-  makeRule("Bahrain – No Sales Tax", "BH", 0.00),
+  makeRule("Bahrain VAT", "BH", 0.10),
   makeRule("Bermuda – No Sales Tax", "BM", 0.00),
 ];
 
@@ -120,7 +120,7 @@ export const PRESETS = {
   israel: { name: "Israel (17% VAT)", factory: PRESET_ISRAEL, count: 1 },
   eu: { name: "EU 27 Countries", factory: PRESET_EU, count: 27 },
   us: { name: "US 50 States + DC", factory: PRESET_US, count: 51 },
-  "zero-tax": { name: "Zero-Tax Jurisdictions", factory: PRESET_ZERO_TAX, count: 4 },
+  "zero-tax": { name: "Other Jurisdictions (UAE, HK, BH, BM)", factory: PRESET_ZERO_TAX, count: 4 },
 } as const;
 
 export type PresetId = keyof typeof PRESETS;

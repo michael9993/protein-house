@@ -1,5 +1,6 @@
 "use client";
 
+import { formatUnit } from "./formatUnit";
 import type { ProductAttribute } from "./types";
 
 interface Props {
@@ -67,7 +68,30 @@ function renderValue(attr: ProductAttribute): React.ReactNode {
     return new Date(val.dateTime).toLocaleString();
   }
 
-  // PLAIN_TEXT, DROPDOWN, MULTISELECT, NUMERIC, REFERENCE, etc.
+  // NUMERIC with unit (e.g., "150 cm", "2.5 kg")
+  if (inputType === "NUMERIC") {
+    const numValue = val.plainText || val.name;
+    const unitLabel = formatUnit(attr.attribute.unit);
+    if (unitLabel) {
+      return `${numValue} ${unitLabel}`;
+    }
+    return numValue || "—";
+  }
+
+  // MULTISELECT — show values as inline badges
+  if (inputType === "MULTISELECT" && attr.values.length > 1) {
+    return (
+      <span className="inline-flex flex-wrap gap-1">
+        {attr.values.map((v) => (
+          <span key={v.id} className="rounded bg-neutral-100 px-2 py-0.5 text-xs">
+            {v.name}
+          </span>
+        ))}
+      </span>
+    );
+  }
+
+  // PLAIN_TEXT, DROPDOWN, REFERENCE, etc.
   if (attr.values.length > 1) {
     return attr.values.map((v) => v.name).join(", ");
   }
@@ -75,8 +99,25 @@ function renderValue(attr: ProductAttribute): React.ReactNode {
   return val.plainText || val.name || "—";
 }
 
+function hasNonEmptyValues(attr: ProductAttribute): boolean {
+  if (attr.values.length === 0) return false;
+  return attr.values.some(
+    (v) =>
+      v.boolean !== null ||
+      v.richText ||
+      v.plainText ||
+      v.name ||
+      v.date ||
+      v.dateTime ||
+      v.file ||
+      v.value,
+  );
+}
+
 export function ProductAttributes({ attributes, noSpecificationsText }: Props) {
-  const visible = attributes.filter((a) => a.attribute.visibleInStorefront);
+  const visible = attributes.filter(
+    (a) => a.attribute.visibleInStorefront && hasNonEmptyValues(a),
+  );
 
   if (visible.length === 0) {
     if (noSpecificationsText) {

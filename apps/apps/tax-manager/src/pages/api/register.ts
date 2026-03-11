@@ -7,7 +7,7 @@ const logger = createLogger("register");
 
 export default createAppRegisterHandler({
   apl: saleorApp.apl,
-  allowedSaleorUrls: [/.*/],
+  allowedSaleorUrls: [(_url: string) => true],
   async onRequestVerified(req, { authData }) {
     logger.info("App registered successfully", {
       saleorApiUrl: authData.saleorApiUrl,

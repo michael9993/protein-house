@@ -45,7 +45,7 @@ export interface ProductDetailPayload {
 		} | null;
 	}>;
 	productAttributes?: Array<{
-		attribute: { id: string; name: string; slug: string; inputType: string | null; visibleInStorefront?: boolean };
+		attribute: { id: string; name: string; slug: string; inputType: string | null; unit: string | null; visibleInStorefront?: boolean };
 		values: Array<{
 			id: string; name: string; slug: string; value: string | null;
 			richText: string | null; plainText: string | null; boolean: boolean | null;
@@ -125,6 +125,7 @@ export async function getProductDetailsForQuickView(
 			name: a.attribute.translation?.name || a.attribute.name || "",
 			slug: a.attribute.slug || "",
 			inputType: a.attribute.inputType || null,
+			unit: a.attribute.unit || null,
 			visibleInStorefront: true, // Saleor filters to visible-only for anonymous users
 		},
 		values: a.values.map((v: any) => ({

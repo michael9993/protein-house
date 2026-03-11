@@ -14,12 +14,12 @@ export default createManifestHandler({
       version: "1.0.0",
       name: "Tax Manager",
       about: "Self-hosted tax calculation engine with configurable country/state rates, export zero-rating, and preset rate libraries for Israel, EU, and US.",
-      permissions: ["HANDLE_TAXES", "MANAGE_APPS"],
+      permissions: ["HANDLE_TAXES", "MANAGE_APPS"] as unknown as AppManifest["permissions"],
       appUrl: iframeBaseUrl,
       configurationUrl: `${iframeBaseUrl}/`,
       tokenTargetUrl: `${apiBaseURL}/api/register`,
-      dataPrivacyUrl: `${iframeBaseUrl}/data-privacy`,
-      supportUrl: `${iframeBaseUrl}/support`,
+      dataPrivacyUrl: `${iframeBaseUrl}/`,
+      supportUrl: `${iframeBaseUrl}/`,
       brand: {
         logo: {
           default: `${apiBaseURL}/logo.png`,

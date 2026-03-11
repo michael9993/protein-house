@@ -1,4 +1,5 @@
-import { verifyJWT } from "@saleor/app-sdk/verify-jwt";
+import { verifyJWT } from "@saleor/app-sdk/auth";
+import { Permission } from "@saleor/app-sdk/types";
 import { TRPCError } from "@trpc/server";
 
 import { saleorApp } from "@/saleor-app";
@@ -36,6 +37,7 @@ const attachAppToken = middleware(async ({ ctx, next }) => {
   return next({
     ctx: {
       ...ctx,
+      appId: authData.appId,
       appToken: authData.token,
       saleorApiUrl: authData.saleorApiUrl,
     },
@@ -52,13 +54,17 @@ const validateClientToken = middleware(async ({ ctx, next, meta }) => {
   if (!ctx.ssr) {
     try {
       await verifyJWT({
-        appId,
+        appId: appId!,
         token,
         saleorApiUrl,
-        requiredPermissions: meta?.requiredClientPermissions ?? ["MANAGE_APPS"],
+        requiredPermissions: (meta?.requiredClientPermissions ?? ["MANAGE_APPS"]) as Permission[],
       });
     } catch (e) {
-      logger.warn("JWT verification failed", { error: e });
+      logger.warn("JWT verification failed", {
+        error: e instanceof Error ? e.message : String(e),
+        appId: appId ?? "undefined",
+        saleorApiUrl,
+      });
       throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid JWT token" });
     }
   }

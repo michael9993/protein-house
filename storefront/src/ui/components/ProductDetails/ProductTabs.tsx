@@ -62,7 +62,20 @@ export function ProductTabs({
   const cdClasses = useComponentClasses("pdp.tabs");
 
   const hasVisibleAttributes = productAttributes.some(
-    (a) => a.attribute.visibleInStorefront
+    (a) =>
+      a.attribute.visibleInStorefront &&
+      a.values.length > 0 &&
+      a.values.some(
+        (v) =>
+          v.boolean !== null ||
+          v.richText ||
+          v.plainText ||
+          v.name ||
+          v.date ||
+          v.dateTime ||
+          v.file ||
+          v.value,
+      ),
   );
 
   const tabs: { id: TabId; label: string }[] = [

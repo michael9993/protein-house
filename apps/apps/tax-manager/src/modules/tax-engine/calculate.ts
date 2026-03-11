@@ -1,13 +1,6 @@
 import { createLogger } from "@/logger";
 import { matchTaxRule } from "./rule-matcher";
-import {
-  TaxBasePayload,
-  CalculateTaxesResponse,
-  MatchedRule,
-  TaxRule,
-  ChannelTaxConfig,
-  TaxManagerConfig,
-} from "./types";
+import { TaxBasePayload, CalculateTaxesResponse, MatchedRule, TaxManagerConfig } from "./types";
 
 const logger = createLogger("tax-engine");
 
@@ -15,7 +8,7 @@ const logger = createLogger("tax-engine");
  * Round to 2 decimal places (currency precision).
  */
 function round2(n: number): number {
-  return Math.round(n * 100) / 100;
+  return Math.round((n + Number.EPSILON) * 100) / 100;
 }
 
 /**

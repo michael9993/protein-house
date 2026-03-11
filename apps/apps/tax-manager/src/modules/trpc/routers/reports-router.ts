@@ -2,28 +2,10 @@ import { z } from "zod";
 
 import { router } from "../trpc-server";
 import { protectedClientProcedure } from "../protected-client-procedure";
-import { TaxManagerConfigSchema, TaxTransactionLogSchema } from "@/modules/tax-engine/schemas";
-import { createLogger } from "@/logger";
-
-const logger = createLogger("reports-router");
-
-const METADATA_KEY = "tax-manager-config";
-const TRANSACTIONS_KEY = "tax-manager-transactions";
-
-async function fetchMetadataByKey(saleorApiUrl: string, appToken: string, key: string) {
-  const query = `query { app { id privateMetadata { key value } } }`;
-  const url = saleorApiUrl.endsWith("/graphql/") ? saleorApiUrl : `${saleorApiUrl}/graphql/`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${appToken}` },
-    body: JSON.stringify({ query }),
-  });
-  const json = await response.json();
-  const appId = json.data?.app?.id;
-  const metadata = json.data?.app?.privateMetadata ?? [];
-  const entry = metadata.find((m: any) => m.key === key);
-  return { appId, value: entry?.value ? JSON.parse(entry.value) : null };
-}
+import { fetchMetadataValue, TRANSACTIONS_KEY } from "../config-repository";
+import { aggregateByMonth } from "@/modules/reporting/aggregator";
+import { generateCsv } from "@/modules/reporting/csv-export";
+import { TaxTransactionLog } from "@/modules/tax-engine/types";
 
 export const reportsRouter = router({
   monthlySummary: protectedClientProcedure
@@ -34,48 +16,39 @@ export const reportsRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const { value: transactions } = await fetchMetadataByKey(
-        ctx.saleorApiUrl,
-        ctx.appToken,
+      const { value: rawTransactions } = await fetchMetadataValue(
+        ctx.saleorApiUrl!,
+        ctx.appToken!,
         TRANSACTIONS_KEY
       );
 
-      if (!transactions || !Array.isArray(transactions)) {
-        return { summary: [], totalNet: 0, totalGross: 0, totalTax: 0, transactionCount: 0 };
+      if (!rawTransactions || !Array.isArray(rawTransactions)) {
+        return {
+          summary: [],
+          totalNet: 0,
+          totalGross: 0,
+          totalTax: 0,
+          transactionCount: 0,
+        };
       }
 
-      const targetMonth = `${input.year}-${String(input.month).padStart(2, "0")}`;
-
-      const filtered = transactions.filter((t: any) => t.timestamp?.startsWith(targetMonth));
-
-      // Group by country
-      const byCountry = new Map<string, { net: number; gross: number; tax: number; count: number; rate: number }>();
-
-      for (const t of filtered) {
-        const key = t.countryCode ?? "UNKNOWN";
-        const existing = byCountry.get(key) ?? { net: 0, gross: 0, tax: 0, count: 0, rate: t.taxRate ?? 0 };
-        existing.net += t.netTotal ?? 0;
-        existing.gross += t.grossTotal ?? 0;
-        existing.tax += t.taxTotal ?? 0;
-        existing.count += 1;
-        byCountry.set(key, existing);
-      }
-
-      const summary = Array.from(byCountry.entries()).map(([country, data]) => ({
-        countryCode: country,
-        netTotal: Math.round(data.net * 100) / 100,
-        grossTotal: Math.round(data.gross * 100) / 100,
-        taxTotal: Math.round(data.tax * 100) / 100,
-        transactionCount: data.count,
-        averageRate: Math.round(data.rate * 10000) / 100,
-      }));
+      const transactions = rawTransactions as TaxTransactionLog[];
+      const result = aggregateByMonth(transactions, input.year, input.month);
 
       return {
-        summary: summary.sort((a, b) => b.taxTotal - a.taxTotal),
-        totalNet: Math.round(filtered.reduce((s: number, t: any) => s + (t.netTotal ?? 0), 0) * 100) / 100,
-        totalGross: Math.round(filtered.reduce((s: number, t: any) => s + (t.grossTotal ?? 0), 0) * 100) / 100,
-        totalTax: Math.round(filtered.reduce((s: number, t: any) => s + (t.taxTotal ?? 0), 0) * 100) / 100,
-        transactionCount: filtered.length,
+        summary: result.rows.map((r) => ({
+          countryCode: r.countryCode,
+          countryArea: r.countryArea,
+          netTotal: r.netTotal,
+          grossTotal: r.grossTotal,
+          taxTotal: r.taxTotal,
+          transactionCount: r.transactionCount,
+          averageRate: r.averageTaxRate,
+        })),
+        totalNet: result.totals.netTotal,
+        totalGross: result.totals.grossTotal,
+        totalTax: result.totals.taxTotal,
+        transactionCount: result.totals.transactionCount,
       };
     }),
 
@@ -87,54 +60,17 @@ export const reportsRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const { value: transactions } = await fetchMetadataByKey(
-        ctx.saleorApiUrl,
-        ctx.appToken,
+      const { value: rawTransactions } = await fetchMetadataValue(
+        ctx.saleorApiUrl!,
+        ctx.appToken!,
         TRANSACTIONS_KEY
       );
 
-      if (!transactions || !Array.isArray(transactions)) {
+      if (!rawTransactions || !Array.isArray(rawTransactions)) {
         return { csv: "No transactions found", filename: "empty.csv" };
       }
 
-      const targetMonth = `${input.year}-${String(input.month).padStart(2, "0")}`;
-      const filtered = transactions.filter((t: any) => t.timestamp?.startsWith(targetMonth));
-
-      const headers = [
-        "Date",
-        "Type",
-        "Channel",
-        "Country",
-        "State",
-        "Currency",
-        "Net Total",
-        "Gross Total",
-        "Tax Amount",
-        "Tax Rate (%)",
-        "Lines",
-        "Rule",
-      ];
-
-      const rows = filtered.map((t: any) => [
-        t.timestamp,
-        t.type,
-        t.channelSlug,
-        t.countryCode,
-        t.countryArea ?? "",
-        t.currency,
-        t.netTotal,
-        t.grossTotal,
-        t.taxTotal,
-        (t.taxRate * 100).toFixed(2),
-        t.linesCount,
-        t.ruleName ?? "Default",
-      ]);
-
-      const csv = [headers.join(","), ...rows.map((r: any[]) => r.join(","))].join("\n");
-
-      return {
-        csv,
-        filename: `tax-report-${input.year}-${String(input.month).padStart(2, "0")}.csv`,
-      };
+      const transactions = rawTransactions as TaxTransactionLog[];
+      return generateCsv(transactions, input.year, input.month);
     }),
 });

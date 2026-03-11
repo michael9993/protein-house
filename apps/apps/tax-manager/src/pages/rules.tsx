@@ -6,8 +6,8 @@ import type { TaxRule } from "@/modules/tax-engine/types";
 
 export default function RulesPage() {
   const rules = trpcClient.rules.list.useQuery();
-  const createRule = trpcClient.rules.create.useMutation({ onSuccess: () => rules.refetch() });
-  const updateRule = trpcClient.rules.update.useMutation({ onSuccess: () => rules.refetch() });
+  const createRule = trpcClient.rules.create.useMutation({ onSuccess: () => { rules.refetch(); resetForm(); } });
+  const updateRule = trpcClient.rules.update.useMutation({ onSuccess: () => { rules.refetch(); resetForm(); } });
   const deleteRule = trpcClient.rules.delete.useMutation({ onSuccess: () => rules.refetch() });
   const toggleRule = trpcClient.rules.toggleEnabled.useMutation({ onSuccess: () => rules.refetch() });
 
@@ -58,7 +58,6 @@ export default function RulesPage() {
     } else {
       createRule.mutate(data);
     }
-    resetForm();
   }
 
   return (

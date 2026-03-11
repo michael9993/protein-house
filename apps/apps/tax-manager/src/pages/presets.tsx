@@ -2,6 +2,7 @@ import { NavBar } from "@/modules/ui/NavBar";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { Package, Plus, Trash2, Check } from "lucide-react";
 import { useState } from "react";
+import type { PresetId } from "@/modules/tax-engine/presets";
 
 export default function PresetsPage() {
   const presets = trpcClient.presets.list.useQuery();
@@ -18,7 +19,7 @@ export default function PresetsPage() {
     israel: "Standard 17% VAT rate for Israel, including shipping tax.",
     eu: "VAT rates for all 27 EU member states (2024 rates).",
     us: "State-level sales tax rates for all 50 US states + DC.",
-    "zero-tax": "Zero-tax jurisdictions: UAE, Hong Kong, Bahrain, Bermuda.",
+    "zero-tax": "Other jurisdictions: UAE (5%), Hong Kong (0%), Bahrain (10%), Bermuda (0%).",
   };
 
   return (
@@ -64,7 +65,7 @@ export default function PresetsPage() {
                 <button
                   onClick={async () => {
                     const result = await applyPreset.mutateAsync({
-                      presetId: preset.id as any,
+                      presetId: preset.id as PresetId,
                       mode: "merge",
                     });
                     setResults((prev) => ({
@@ -81,7 +82,7 @@ export default function PresetsPage() {
                   onClick={async () => {
                     if (confirm(`Remove all rules matching the ${preset.name} preset?`)) {
                       const result = await removePreset.mutateAsync({
-                        presetId: preset.id as any,
+                        presetId: preset.id as PresetId,
                       });
                       setResults((prev) => ({
                         ...prev,

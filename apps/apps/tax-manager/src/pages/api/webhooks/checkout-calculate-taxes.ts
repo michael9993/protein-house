@@ -5,7 +5,7 @@ import { saleorApp } from "@/saleor-app";
 import { createLogger } from "@/logger";
 import { calculateTaxes } from "@/modules/tax-engine/calculate";
 import { TaxBasePayload } from "@/modules/tax-engine/types";
-import { TaxManagerConfigSchema } from "@/modules/tax-engine/schemas";
+import { loadConfigFromMetadata } from "@/modules/trpc/config-repository";
 
 const logger = createLogger("checkout-calculate-taxes");
 
@@ -139,20 +139,3 @@ export default checkoutCalculateTaxesWebhook.createHandler(
   }
 );
 
-function loadConfigFromMetadata(
-  metadata: Array<{ key: string; value: string }>
-): TaxBasePayload extends { recipient: infer R } ? any : never {
-  const entry = metadata.find((m) => m.key === "tax-manager-config");
-
-  if (!entry?.value) {
-    return TaxManagerConfigSchema.parse({});
-  }
-
-  try {
-    const parsed = JSON.parse(entry.value);
-    return TaxManagerConfigSchema.parse(parsed);
-  } catch (e) {
-    logger.warn("Failed to parse tax config from metadata, using defaults", { error: e });
-    return TaxManagerConfigSchema.parse({});
-  }
-}

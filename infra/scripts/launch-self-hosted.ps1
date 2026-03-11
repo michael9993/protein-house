@@ -70,6 +70,7 @@ $urls = @{
     "Bulk Manager App"  = "https://bulk.$domain"
     "Image Studio App"  = "https://studio.$domain"
     "Dropship App"      = "https://dropship.$domain"
+    "Tax Manager App"   = "https://tax.$domain"
 }
 
 # Tunnel URL env vars — injected into .env so containers know their public URLs
@@ -87,6 +88,7 @@ $tunnelEnvVars = @{
     "BULK_MANAGER_APP_TUNNEL_URL"        = "https://bulk.$domain"
     "IMAGE_STUDIO_APP_TUNNEL_URL"        = "https://studio.$domain"
     "DROPSHIP_APP_TUNNEL_URL"            = "https://dropship.$domain"
+    "TAX_MANAGER_APP_TUNNEL_URL"         = "https://tax.$domain"
 }
 
 # Core API URLs that must point to the self-hosted domain
@@ -119,7 +121,8 @@ $appContainers = @(
     @{Name = "Analytics App";       Container = "saleor-sales-analytics-app-dev"},
     @{Name = "Bulk Manager";        Container = "saleor-bulk-manager-app-dev"},
     @{Name = "Image Studio";        Container = "saleor-image-studio-app-dev"},
-    @{Name = "Dropship App";        Container = "saleor-dropship-app-dev"}
+    @{Name = "Dropship App";        Container = "saleor-dropship-app-dev"},
+    @{Name = "Tax Manager App";    Container = "saleor-tax-manager-app-dev"}
 )
 
 # ============================================================================
@@ -283,7 +286,7 @@ function Update-EnvWithTunnelUrls {
     # Ensure ALLOWED_CLIENT_HOSTS includes the self-hosted frontends
     if ($envContent -match "ALLOWED_CLIENT_HOSTS=(.+?)(?:\r?\n|$)") {
         $currentClientHosts = $Matches[1]
-        $selfHostedHosts = "shop.$domain,dash.$domain,stripe.$domain,smtp.$domain,invoices.$domain,control.$domain,newsletter.$domain,analytics.$domain,bulk.$domain,studio.$domain,dropship.$domain"
+        $selfHostedHosts = "shop.$domain,dash.$domain,stripe.$domain,smtp.$domain,invoices.$domain,control.$domain,newsletter.$domain,analytics.$domain,bulk.$domain,studio.$domain,dropship.$domain,tax.$domain"
         if ($currentClientHosts -notmatch [regex]::Escape("shop.$domain")) {
             $newClientHosts = "$currentClientHosts,$selfHostedHosts"
             $envContent = $envContent -replace "ALLOWED_CLIENT_HOSTS=.*", "ALLOWED_CLIENT_HOSTS=$newClientHosts"

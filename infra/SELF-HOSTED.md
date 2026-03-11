@@ -304,6 +304,8 @@ Settings > Windows Update > Active Hours:
 | Analytics App | https://analytics.halacosmetics.org |
 | Bulk Manager App | https://bulk.halacosmetics.org |
 | Image Studio App | https://studio.halacosmetics.org |
+| Dropship App | https://dropship.halacosmetics.org |
+| Tax Manager App | https://tax.halacosmetics.org |
 
 ---
 

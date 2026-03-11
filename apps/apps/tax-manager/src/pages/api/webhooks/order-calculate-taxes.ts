@@ -5,7 +5,7 @@ import { saleorApp } from "@/saleor-app";
 import { createLogger } from "@/logger";
 import { calculateTaxes } from "@/modules/tax-engine/calculate";
 import { TaxBasePayload } from "@/modules/tax-engine/types";
-import { TaxManagerConfigSchema } from "@/modules/tax-engine/schemas";
+import { loadConfigFromMetadata } from "@/modules/trpc/config-repository";
 
 const logger = createLogger("order-calculate-taxes");
 
@@ -90,24 +90,35 @@ export default orderCalculateTaxesWebhook.createHandler(
       linesCount: payload.taxBase.lines.length,
     });
 
+    // 12-second timeout race (Saleor sync webhooks timeout at ~18s)
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Tax calculation timeout")), 12000)
+    );
+
     try {
-      const config = loadConfigFromMetadata(payload.recipient?.privateMetadata ?? []);
+      const result = await Promise.race([
+        (async () => {
+          const config = loadConfigFromMetadata(payload.recipient?.privateMetadata ?? []);
 
-      if (!config.enabled) {
-        const fallback = calculateTaxes({
-          payload,
-          config: { ...config, channels: [] },
-        });
-        return res.status(200).json(fallback.response);
-      }
+          if (!config.enabled) {
+            logger.debug("Tax manager globally disabled, returning zero tax");
+            return calculateTaxes({
+              payload,
+              config: { ...config, channels: [] },
+            });
+          }
 
-      const result = calculateTaxes({ payload, config });
+          return calculateTaxes({ payload, config });
+        })(),
+        timeoutPromise,
+      ]);
 
       logger.info("Order tax calculated", {
         channel: payload.taxBase.channel.slug,
         country: payload.taxBase.address?.country?.code,
         rate: result.matchedRule.taxRate,
         source: result.matchedRule.source,
+        total: result.response.total_gross_amount,
       });
 
       return res.status(200).json(result.response);
@@ -116,6 +127,7 @@ export default orderCalculateTaxesWebhook.createHandler(
         error: error instanceof Error ? error.message : String(error),
       });
 
+      // On any error, return zero tax rather than blocking the order
       const fallback = calculateTaxes({
         payload,
         config: { enabled: false, rules: [], channels: [], logTransactions: false },
@@ -125,17 +137,3 @@ export default orderCalculateTaxesWebhook.createHandler(
     }
   }
 );
-
-function loadConfigFromMetadata(metadata: Array<{ key: string; value: string }>) {
-  const entry = metadata.find((m) => m.key === "tax-manager-config");
-
-  if (!entry?.value) {
-    return TaxManagerConfigSchema.parse({});
-  }
-
-  try {
-    return TaxManagerConfigSchema.parse(JSON.parse(entry.value));
-  } catch {
-    return TaxManagerConfigSchema.parse({});
-  }
-}

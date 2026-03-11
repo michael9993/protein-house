@@ -58,7 +58,9 @@ $containers = @(
     @{Name = "Newsletter App";     Container = "saleor-newsletter-app-dev";         Port = 3005},
     @{Name = "Analytics App";      Container = "saleor-sales-analytics-app-dev";    Port = 3006},
     @{Name = "Bulk Manager App";   Container = "saleor-bulk-manager-app-dev";       Port = 3007},
-    @{Name = "Image Studio App";   Container = "saleor-image-studio-app-dev";       Port = 3008}
+    @{Name = "Image Studio App";   Container = "saleor-image-studio-app-dev";       Port = 3008},
+    @{Name = "Dropship App";      Container = "saleor-dropship-app-dev";           Port = 3009},
+    @{Name = "Tax Manager App";   Container = "saleor-tax-manager-app-dev";        Port = 3010}
 )
 
 $runningCount = 0

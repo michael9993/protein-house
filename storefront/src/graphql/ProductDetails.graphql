@@ -36,6 +36,7 @@ query ProductDetails($slug: String!, $channel: String!, $languageCode: LanguageC
 				translation(languageCode: $languageCode) { name }
 				slug
 				inputType
+				unit
 			}
 			values {
 				id
