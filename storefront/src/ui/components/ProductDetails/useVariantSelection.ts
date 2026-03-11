@@ -69,21 +69,23 @@ export function useVariantSelection({
 }: UseVariantSelectionProps): UseVariantSelectionReturn {
   // 1. Identify selection attribute slugs from product type
   const selectionSlugs = useMemo(() => {
-    let slugs: string[];
-    if (variantSelectionSlugs.length > 0) {
-      slugs = variantSelectionSlugs;
-    } else {
-      // Fallback: infer from variant attributes (only include if at least one variant has values)
-      const slugSet = new Set<string>();
-      for (const v of variants) {
-        if (!v.attributes) continue;
-        for (const attr of v.attributes) {
-          if (attr.values && attr.values.length > 0) {
-            slugSet.add(attr.attribute.slug);
-          }
+    // Collect slugs that actually have values across this product's variants
+    const slugsWithValues = new Set<string>();
+    for (const v of variants) {
+      if (!v.attributes) continue;
+      for (const attr of v.attributes) {
+        if (attr.values && attr.values.length > 0) {
+          slugsWithValues.add(attr.attribute.slug);
         }
       }
-      slugs = Array.from(slugSet);
+    }
+
+    let slugs: string[];
+    if (variantSelectionSlugs.length > 0) {
+      // Use product type order, but filter to only attributes with actual values
+      slugs = variantSelectionSlugs.filter((s) => slugsWithValues.has(s));
+    } else {
+      slugs = Array.from(slugsWithValues);
     }
 
     // Sort: color-like attributes first, then size-like, then alphabetical.
