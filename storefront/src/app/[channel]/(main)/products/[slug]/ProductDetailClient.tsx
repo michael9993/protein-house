@@ -399,38 +399,47 @@ export function ProductDetailClient({
     );
 
   const displayImages = useMemo(() => {
-    // 1. Fully resolved variant with media — highest priority
+    // Base: always show product-level images
+    const base =
+      product.images.length > 0
+        ? [...product.images]
+        : [{ url: "/placeholder-product.jpg", alt: product.name }];
+
+    // Determine variant image to insert as first slide (if any)
+    let variantImage: { url: string; alt: string | null } | null = null;
+
     if (selectedVariant?.media && selectedVariant.media.length > 0) {
-      return selectedVariant.media.map((m) => ({ url: m.url, alt: m.alt }));
-    }
-
-    // 2. Color-only selection — show images from first variant matching selected color
-    //    This lets the gallery update as soon as a color swatch is clicked, without needing size
-    const colorSlugs = ["color", "colour", "color-1"];
-    const selectedColorSlug = Object.keys(selections).find(
-      (slug) => colorSlugs.includes(slug) && selections[slug],
-    );
-
-    if (selectedColorSlug) {
-      const colorValueId = selections[selectedColorSlug];
-      const matchingVariant = product.variants.find((v) => {
-        if (!v.media || v.media.length === 0 || !v.attributes) return false;
-        return v.attributes.some(
-          (attr) =>
-            colorSlugs.includes(attr.attribute.slug) &&
-            attr.values.some((val) => val.id === colorValueId),
-        );
-      });
-
-      if (matchingVariant?.media && matchingVariant.media.length > 0) {
-        return matchingVariant.media.map((m) => ({ url: m.url, alt: m.alt }));
+      variantImage = { url: selectedVariant.media[0].url, alt: selectedVariant.media[0].alt };
+    } else {
+      // Color-only partial selection — find first variant matching selected color
+      const colorSlugs = ["color", "colour", "color-1"];
+      const selectedColorSlug = Object.keys(selections).find(
+        (slug) => colorSlugs.includes(slug) && selections[slug],
+      );
+      if (selectedColorSlug) {
+        const colorValueId = selections[selectedColorSlug];
+        const matchingVariant = product.variants.find((v) => {
+          if (!v.media || v.media.length === 0 || !v.attributes) return false;
+          return v.attributes.some(
+            (attr) =>
+              colorSlugs.includes(attr.attribute.slug) &&
+              attr.values.some((val) => val.id === colorValueId),
+          );
+        });
+        if (matchingVariant?.media?.[0]) {
+          variantImage = {
+            url: matchingVariant.media[0].url,
+            alt: matchingVariant.media[0].alt,
+          };
+        }
       }
     }
 
-    // 3. Fallback to product images
-    return product.images.length > 0
-      ? product.images
-      : [{ url: "/placeholder-product.jpg", alt: product.name }];
+    if (!variantImage) return base;
+
+    // Remove duplicate if variant image already in product images, then insert as first
+    const filtered = base.filter((img) => img.url !== variantImage!.url);
+    return [variantImage, ...filtered];
   }, [selectedVariant, selections, product.variants, product.images, product.name]);
 
   const isModal = mode === "modal";
