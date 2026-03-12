@@ -28,7 +28,6 @@ export function ProductGallery({ images, productName, discountPercent, allowLigh
   const [mainSwiper, setMainSwiper] = useState<SwiperType | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
-  const [zoomScale, setZoomScale] = useState(1);
   const cdStyle = useComponentStyle("pdp.gallery");
   const cdClasses = useComponentClasses("pdp.gallery");
 
@@ -42,10 +41,9 @@ export function ProductGallery({ images, productName, discountPercent, allowLigh
 
   const handleZoomChange = useCallback((_swiper: SwiperType, scale: number) => {
     setIsZoomed(scale > 1);
-    setZoomScale(Math.round(scale * 10) / 10);
   }, []);
 
-  // Scroll wheel zoom control
+  // Scroll wheel toggles zoom in/out (same as double-click)
   useEffect(() => {
     const el = zoomContainerRef.current;
     if (!el || !allowLightbox || !mainSwiper) return;
@@ -54,29 +52,10 @@ export function ProductGallery({ images, productName, discountPercent, allowLigh
       e.preventDefault();
       const zoom = mainSwiper.zoom;
       const currentScale = (zoom as unknown as { scale: number }).scale || 1;
-      const delta = e.deltaY > 0 ? -0.3 : 0.3;
-      const newScale = Math.min(3, Math.max(1, currentScale + delta));
-
-      if (newScale <= 1) {
+      if (e.deltaY < 0 && currentScale <= 1) {
+        zoom.in();
+      } else if (e.deltaY > 0 && currentScale > 1) {
         zoom.out();
-      } else {
-        // Use zoom.in() to enter zoom, then manually adjust scale
-        if (currentScale <= 1) {
-          zoom.in();
-        }
-        // Access the zoom container's transform to set custom scale
-        const slideEl = mainSwiper.slides[mainSwiper.activeIndex];
-        const zoomContainer = slideEl?.querySelector(".swiper-zoom-container") as HTMLElement;
-        if (zoomContainer) {
-          const imageEl = zoomContainer.querySelector("img") as HTMLElement;
-          if (imageEl) {
-            imageEl.style.transform = `translate3d(0px, 0px, 0px) scale(${newScale})`;
-          }
-          // Update internal scale tracking
-          (zoom as unknown as { scale: number }).scale = newScale;
-          setIsZoomed(newScale > 1);
-          setZoomScale(Math.round(newScale * 10) / 10);
-        }
       }
     };
 
@@ -213,18 +192,14 @@ export function ProductGallery({ images, productName, discountPercent, allowLigh
             ))}
           </Swiper>
 
-          {/* Zoom indicator */}
-          {allowLightbox && (
+          {/* Zoom hint */}
+          {allowLightbox && !isZoomed && (
             <div className="absolute bottom-3 end-3 z-10 pointer-events-none">
               <div className="flex items-center gap-1.5 rounded-full bg-black/50 px-2.5 py-1 text-[11px] text-white/80 backdrop-blur-sm">
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
                 </svg>
-                {isZoomed ? (
-                  <span>{zoomScale}x</span>
-                ) : (
-                  <span className="hidden sm:inline">Scroll or double-click to zoom</span>
-                )}
+                <span className="hidden sm:inline">Scroll or double-click to zoom</span>
               </div>
             </div>
           )}
