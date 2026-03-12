@@ -2,6 +2,7 @@
   "name": "pawzen-catalog-generator",
   "version": "1.0.0",
   "description": "Generate product catalog and manage store infrastructure for Pawzen Pet Accessories",
+  "type": "module",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",

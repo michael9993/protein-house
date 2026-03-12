@@ -58,6 +58,39 @@ Checks prerequisites and creates initial configuration.
 
 ---
 
+### `new-store` — Rebrand for a New Store
+
+Interactive wizard that collects store identity and propagates to all config files across the platform.
+
+```powershell
+# Interactive — asks 9 questions
+.\infra\platform.ps1 new-store
+
+# Non-interactive — pass params directly
+.\infra\platform.ps1 new-store -StoreName "My Boutique" -PrimaryColor "#E11D48" -Domain "myboutique.com"
+```
+
+**Parameters:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `-StoreName` | Store display name | "My Awesome Store" |
+| `-PrimaryColor` | Brand color (hex) | "#2563EB" |
+| `-Domain` | Production domain | (empty = localhost only) |
+| `-Tagline` | Store slogan | "Your Perfect Shopping Destination" |
+| `-GtmId` | GTM Container ID | (empty = disabled) |
+| `-Ga4Id` | GA4 Property ID | (empty = disabled) |
+
+**Hydrated files:**
+- `infra/platform.yml` — platform name, domain, store identity section
+- `infra/.env` — domain, store name env vars
+- `apps/apps/storefront-control/sample-config-import*.json` — store name, email, colors
+- `storefront/storefront-cms-config.json` — store identity for all channels
+- `infra/cloudflared-config.yml` — tunnel subdomains (if domain provided)
+- `storefront/src/config/stores/{slug}.config.ts` — TypeScript config
+
+---
+
 ### `up` — Start Platform
 
 Starts Docker containers, waits for health checks, starts tunnels, opens browser.

@@ -145,6 +145,9 @@ APP_MOUNT_URI=/dashboard/
 STATIC_URL=/dashboard/
 # Disable React StrictMode (helps RichTextEditor/Combobox in Docker)
 # VITE_DISABLE_STRICT_MODE=true
+# Store branding (used by Dashboard AI assistant and other Vite-based UIs)
+VITE_STORE_NAME=Aura
+VITE_PLATFORM_NAME=Aura E-Commerce Platform
 # Code inspector for development (true/false)
 ENABLE_CODE_INSPECTOR=false
 
@@ -167,6 +170,9 @@ NEXT_PUBLIC_DEFAULT_CHANNEL=default-channel
 STOREFRONT_CHANNELS=
 # Saleor App Token for server-side operations
 SALEOR_APP_TOKEN=
+
+# External image domains (comma-separated, for Next.js remotePatterns)
+NEXT_PUBLIC_IMAGE_DOMAINS=media.easy.co.il
 
 # GraphQL request timeout and retry configuration
 GRAPHQL_TIMEOUT_MS=30000

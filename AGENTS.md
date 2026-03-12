@@ -117,6 +117,7 @@ docker compose -f infra/docker-compose.dev.yml restart <container-name>
 **Platform CLI (preferred):**
 
 ```powershell
+.\infra\platform.ps1 new-store             # Rebrand for a new store (wizard)
 .\infra\platform.ps1 restart <service>    # Restart a service
 .\infra\platform.ps1 status               # Check all services
 .\infra\platform.ps1 logs <service>       # View logs

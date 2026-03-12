@@ -7,6 +7,7 @@
 #   .\infra\platform.ps1 <command> [options]
 #
 # Commands:
+#   new-store               Rebrand platform for a new store (wizard)
 #   status                  Health dashboard for all services
 #   up                      Start platform (Docker + tunnels)
 #   down                    Stop platform (containers + tunnels)
@@ -55,7 +56,14 @@ param(
     [string]$Email     = "",
     [string]$Password  = "",
     [switch]$SkipDelete,
-    [int]$Lines        = 100
+    [int]$Lines        = 100,
+
+    # New Store options (forwarded to init-new-store.ps1)
+    [string]$StoreName     = "",
+    [string]$PrimaryColor  = "",
+    [string]$Tagline       = "",
+    [string]$GtmId         = "",
+    [string]$Ga4Id         = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -561,6 +569,40 @@ $($ingressLines -join "`n")
     }
 
     # =========================================================================
+    "new-store" {
+        Write-Banner -Title "New Store Setup" -Subtitle "Configure a new store identity"
+
+        # Build params to forward to init-new-store.ps1
+        $storeParams = @{}
+        if ($StoreName)    { $storeParams.StoreName    = $StoreName }
+        if ($PrimaryColor) { $storeParams.PrimaryColor = $PrimaryColor }
+        if ($Domain)       { $storeParams.Domain       = $Domain }
+        if ($Tagline)      { $storeParams.Tagline      = $Tagline }
+        if ($GtmId)        { $storeParams.GtmId        = $GtmId }
+        if ($Ga4Id)        { $storeParams.Ga4Id        = $Ga4Id }
+
+        # Run the store wizard
+        & "$scriptDir\scripts\init-new-store.ps1" @storeParams
+
+        # Run setup-environment.ps1 if .env doesn't exist
+        if (-not (Test-Path $envFile)) {
+            $setupScript = Join-Path $scriptDir "scripts\setup-environment.ps1"
+            if (Test-Path $setupScript) {
+                Write-Step -Current 1 -Total 1 -Message "Setting up environment..."
+                & $setupScript
+            }
+        }
+
+        # Print next steps
+        Write-Host ""
+        Write-Success "Store configured! Next steps:"
+        Write-Info "  1. .\infra\platform.ps1 up              # Start services"
+        Write-Info "  2. .\infra\platform.ps1 install-apps     # Install Saleor apps"
+        Write-Info "  3. Open http://localhost:3000             # View storefront"
+        Write-Host ""
+    }
+
+    # =========================================================================
     "help" {
         Write-Host ""
         Write-Host "Aura E-Commerce Platform CLI" -ForegroundColor Cyan
@@ -569,6 +611,7 @@ $($ingressLines -join "`n")
         Write-Host "Usage: .\infra\platform.ps1 <command> [target] [options]" -ForegroundColor White
         Write-Host ""
         Write-Host "Commands:" -ForegroundColor Yellow
+        Write-Host "  new-store                Rebrand platform for a new store (wizard)"
         Write-Host "  status                   Health dashboard for all services"
         Write-Host "  up                       Start platform (Docker + tunnels)"
         Write-Host "  down                     Stop platform (containers + tunnels)"
@@ -602,6 +645,8 @@ $($ingressLines -join "`n")
         Write-Host "  $keys" -ForegroundColor Gray
         Write-Host ""
         Write-Host "Examples:" -ForegroundColor Yellow
+        Write-Host "  .\infra\platform.ps1 new-store                                  # Interactive wizard"
+        Write-Host "  .\infra\platform.ps1 new-store -StoreName 'Pet Shop' -PrimaryColor '#E11D48'"
         Write-Host "  .\infra\platform.ps1 up"
         Write-Host "  .\infra\platform.ps1 up -Mode selfhosted -SkipTunnel"
         Write-Host "  .\infra\platform.ps1 restart storefront"

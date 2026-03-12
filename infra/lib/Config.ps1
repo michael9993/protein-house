@@ -23,6 +23,7 @@ function Get-PlatformConfig {
         [string]$ConfigPath = ""
     )
 
+    $candidates = @()
     if (-not $ConfigPath) {
         # Auto-detect: look for platform.yml relative to this script
         $scriptDir = $PSScriptRoot
@@ -40,6 +41,8 @@ function Get-PlatformConfig {
                 break
             }
         }
+    } else {
+        $candidates = @($ConfigPath)
     }
 
     if (-not $ConfigPath -or -not (Test-Path $ConfigPath)) {
@@ -217,6 +220,79 @@ function Get-ServiceUrl {
     return $null
 }
 
+function Get-StoreConfig {
+    <#
+    .SYNOPSIS
+    Returns the store identity section from platform.yml.
+    .DESCRIPTION
+    Returns name, slug, tagline, type, email, phone, address, colors, analytics.
+    #>
+    param(
+        [hashtable]$Config = $null
+    )
+
+    if (-not $Config) {
+        $Config = Get-PlatformConfig
+    }
+
+    if (-not $Config.store) {
+        return @{
+            name     = "My Store"
+            slug     = "my-store"
+            tagline  = "Your Perfect Shopping Destination"
+            type     = "physical"
+            email    = "support@example.com"
+            phone    = "+1 (555) 123-4567"
+            colors   = @{ primary = "#2563EB"; secondary = "#1F2937"; accent = "#F59E0B" }
+            analytics = @{ gtm_id = ""; ga4_id = "" }
+        }
+    }
+
+    return $Config.store
+}
+
+function Set-StoreConfig {
+    <#
+    .SYNOPSIS
+    Updates the store section in platform.yml.
+    .DESCRIPTION
+    Reads the YAML, updates the store section, and writes back.
+    #>
+    param(
+        [Parameter(Mandatory)]
+        [hashtable]$StoreData,
+        [string]$ConfigPath = ""
+    )
+
+    if (-not $ConfigPath) {
+        $scriptDir = $PSScriptRoot
+        $infraDir = Split-Path -Parent $scriptDir
+        $ConfigPath = Join-Path $infraDir "platform.yml"
+    }
+
+    if (-not (Test-Path $ConfigPath)) {
+        throw "platform.yml not found at: $ConfigPath"
+    }
+
+    Import-Module powershell-yaml -ErrorAction Stop
+
+    $yamlContent = Get-Content $ConfigPath -Raw
+    $config = ConvertFrom-Yaml $yamlContent -Ordered
+
+    $config.store = $StoreData
+
+    # ConvertTo-Yaml strips comments — prepend the header comment back
+    $yamlHeader = "# ============================================================================`n"
+    $yamlHeader += "# Aura E-Commerce Platform — Service Registry`n"
+    $yamlHeader += "# ============================================================================`n"
+    $yamlHeader += "# Single source of truth for all services, ports, containers, and tunnels.`n"
+    $yamlHeader += "# Used by platform.ps1 and all infra scripts.`n"
+    $yamlHeader += "# ============================================================================`n`n"
+
+    $newYaml = $yamlHeader + (ConvertTo-Yaml $config)
+    [System.IO.File]::WriteAllText($ConfigPath, $newYaml, [System.Text.UTF8Encoding]::new($false))
+}
+
 # Export for dot-sourcing
 Export-ModuleMember -Function @(
     'Get-PlatformConfig',
@@ -225,5 +301,7 @@ Export-ModuleMember -Function @(
     'Get-SaleorApps',
     'Get-HealthCheckServices',
     'Get-BackupConfig',
-    'Get-ServiceUrl'
+    'Get-ServiceUrl',
+    'Get-StoreConfig',
+    'Set-StoreConfig'
 ) -ErrorAction SilentlyContinue

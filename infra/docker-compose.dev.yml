@@ -242,6 +242,9 @@ services:
       VITE_AI_ASSISTANT_ENABLED: ${VITE_AI_ASSISTANT_ENABLED:-}
       VITE_AI_API_KEY: ${VITE_AI_API_KEY:-}
       VITE_AI_MODEL: ${VITE_AI_MODEL:-claude-haiku-4-5-20251001}
+      # Store branding (used by AI assistant, baked at build time)
+      VITE_STORE_NAME: ${VITE_STORE_NAME:-Aura}
+      VITE_PLATFORM_NAME: ${VITE_PLATFORM_NAME:-Aura E-Commerce Platform}
     depends_on:
       saleor-api:
         condition: service_healthy

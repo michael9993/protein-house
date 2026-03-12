@@ -1,13 +1,21 @@
 <#
 .SYNOPSIS
-    Initialize a new store from the Saleor Platform template.
+    Initialize a new store — full hydration wizard for the Saleor Platform.
 
 .DESCRIPTION
-    This script helps you create a new store by:
-    1. Copying the template configuration
-    2. Setting up store-specific settings
-    3. Configuring branding (name, colors, etc.)
-    4. Setting up environment variables
+    Interactive (or non-interactive) wizard that rebrands the entire platform:
+    1. Collects store identity (name, type, color, tagline, email, phone, domain, analytics)
+    2. Hydrates ALL downstream config files so the platform is ready to run
+
+    Hydration targets:
+      - infra/platform.yml          (platform + store sections)
+      - infra/env-template.txt      (PLATFORM_DOMAIN line)
+      - infra/.env                  (PLATFORM_DOMAIN, VITE_STORE_NAME, VITE_PLATFORM_NAME, NEXT_PUBLIC_IMAGE_DOMAINS)
+      - apps/apps/storefront-control/sample-config-import-en.json  (store + branding identity)
+      - apps/apps/storefront-control/sample-config-import.json     (store + branding identity)
+      - storefront/storefront-cms-config.json                      (both channel sub-objects)
+      - cloudflared config (if domain provided)
+      - storefront/src/config/stores/{slug}.config.ts              (bonus TS output)
 
 .PARAMETER StoreName
     The name of your store (e.g., "Shoe Vault", "TechNova")
@@ -18,63 +26,67 @@
 .PARAMETER PrimaryColor
     Primary brand color in hex format (e.g., "#FF4500")
 
+.PARAMETER Tagline
+    Store tagline / slogan
+
+.PARAMETER StoreEmail
+    Support email address
+
+.PARAMETER StorePhone
+    Support phone number
+
+.PARAMETER Domain
+    Production domain (e.g., "mystore.com"). Leave empty for localhost-only dev.
+
+.PARAMETER GtmId
+    Google Tag Manager container ID (e.g., "GTM-XXXXXXX"). Leave empty to disable.
+
+.PARAMETER Ga4Id
+    Google Analytics 4 property ID (e.g., "G-XXXXXXXXXX"). Leave empty to disable.
+
 .EXAMPLE
-    .\init-new-store.ps1 -StoreName "My Sports Store" -StoreType "physical" -PrimaryColor "#FF4500"
+    .\init-new-store.ps1
+    # Interactive wizard
+
+.EXAMPLE
+    .\init-new-store.ps1 -StoreName "Shoe Vault" -StoreType "physical" -PrimaryColor "#FF4500"
+    # Non-interactive with defaults for remaining fields
 #>
 
 param(
-    [Parameter(Mandatory=$false)]
     [string]$StoreName,
-    
-    [Parameter(Mandatory=$false)]
     [ValidateSet("physical", "digital", "food", "services", "mixed")]
     [string]$StoreType,
-    
-    [Parameter(Mandatory=$false)]
     [string]$PrimaryColor,
-    
-    [Parameter(Mandatory=$false)]
+    [string]$Tagline,
     [string]$StoreEmail,
-    
-    [Parameter(Mandatory=$false)]
-    [string]$StorePhone
+    [string]$StorePhone,
+    [string]$Domain,
+    [string]$GtmId,
+    [string]$Ga4Id
 )
+
+# ============================================================================
+# Bootstrap — dot-source shared helpers
+# ============================================================================
+. "$PSScriptRoot\..\lib\Config.ps1"
+. "$PSScriptRoot\..\lib\Display.ps1"
+
+$infraDir = Split-Path -Parent $PSScriptRoot          # infra/
+$repoRoot = Split-Path -Parent $infraDir              # saleor-platform/
 
 # Colors for output
 $colors = @{
     Success = "Green"
     Warning = "Yellow"
-    Error = "Red"
-    Info = "Cyan"
-    Prompt = "Magenta"
+    Error   = "Red"
+    Info    = "Cyan"
+    Prompt  = "Magenta"
 }
 
 function Write-ColorOutput {
     param([string]$Message, [string]$Color = "White")
     Write-Host $Message -ForegroundColor $Color
-}
-
-function Show-Banner {
-    $banner = @"
-
- ███████╗ █████╗ ██╗     ███████╗ ██████╗ ██████╗ 
- ██╔════╝██╔══██╗██║     ██╔════╝██╔═══██╗██╔══██╗
- ███████╗███████║██║     █████╗  ██║   ██║██████╔╝
- ╚════██║██╔══██║██║     ██╔══╝  ██║   ██║██╔══██╗
- ███████║██║  ██║███████╗███████╗╚██████╔╝██║  ██║
- ╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝
-                                                    
- ████████╗███████╗███╗   ███╗██████╗ ██╗      █████╗ ████████╗███████╗
- ╚══██╔══╝██╔════╝████╗ ████║██╔══██╗██║     ██╔══██╗╚══██╔══╝██╔════╝
-    ██║   █████╗  ██╔████╔██║██████╔╝██║     ███████║   ██║   █████╗  
-    ██║   ██╔══╝  ██║╚██╔╝██║██╔═══╝ ██║     ██╔══██║   ██║   ██╔══╝  
-    ██║   ███████╗██║ ╚═╝ ██║██║     ███████╗██║  ██║   ██║   ███████╗
-    ╚═╝   ╚══════╝╚═╝     ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝
-                                                                        
-          🚀 Universal E-Commerce Store Initializer
-"@
-    Write-Host $banner -ForegroundColor Cyan
-    Write-Host ""
 }
 
 function Get-UserInput {
@@ -83,7 +95,7 @@ function Get-UserInput {
         [string]$Default = "",
         [string[]]$ValidOptions = @()
     )
-    
+
     $displayPrompt = $Prompt
     if ($Default) {
         $displayPrompt = "$Prompt [default: $Default]"
@@ -91,19 +103,19 @@ function Get-UserInput {
     if ($ValidOptions.Count -gt 0) {
         $displayPrompt = "$displayPrompt (options: $($ValidOptions -join ', '))"
     }
-    
+
     Write-Host "$displayPrompt`: " -ForegroundColor $colors.Prompt -NoNewline
     $input = Read-Host
-    
+
     if ([string]::IsNullOrWhiteSpace($input)) {
         return $Default
     }
-    
+
     if ($ValidOptions.Count -gt 0 -and $input -notin $ValidOptions) {
         Write-ColorOutput "Invalid option. Please choose from: $($ValidOptions -join ', ')" $colors.Error
         return Get-UserInput -Prompt $Prompt -Default $Default -ValidOptions $ValidOptions
     }
-    
+
     return $input
 }
 
@@ -112,18 +124,44 @@ function Get-StoreSlug {
     return $Name.ToLower() -replace '[^a-z0-9]', '-' -replace '-+', '-' -replace '^-|-$', ''
 }
 
-# Main script
+function Show-Banner {
+    $banner = @"
+
+ ███████╗ █████╗ ██╗     ███████╗ ██████╗ ██████╗
+ ██╔════╝██╔══██╗██║     ██╔════╝██╔═══██╗██╔══██╗
+ ███████╗███████║██║     █████╗  ██║   ██║██████╔╝
+ ╚════██║██╔══██║██║     ██╔══╝  ██║   ██║██╔══██╗
+ ███████║██║  ██║███████╗███████╗╚██████╔╝██║  ██║
+ ╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝
+
+ ████████╗███████╗███╗   ███╗██████╗ ██╗      █████╗ ████████╗███████╗
+ ╚══██╔══╝██╔════╝████╗ ████║██╔══██╗██║     ██╔══██╗╚══██╔══╝██╔════╝
+    ██║   █████╗  ██╔████╔██║██████╔╝██║     ███████║   ██║   █████╗
+    ██║   ██╔══╝  ██║╚██╔╝██║██╔═══╝ ██║     ██╔══██║   ██║   ██╔══╝
+    ██║   ███████╗██║ ╚═╝ ██║██║     ███████╗██║  ██║   ██║   ███████╗
+    ╚═╝   ╚══════╝╚═╝     ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝
+
+          Store Hydration Wizard
+"@
+    Write-Host $banner -ForegroundColor Cyan
+    Write-Host ""
+}
+
+# ============================================================================
+# Interactive wizard
+# ============================================================================
 Clear-Host
 Show-Banner
 
 Write-ColorOutput "Welcome to the Saleor Platform Store Initializer!" $colors.Info
-Write-ColorOutput "This wizard will help you set up a new store configuration.`n" $colors.Info
+Write-ColorOutput "This wizard will rebrand your entire platform in one step.`n" $colors.Info
 
-# Collect store information
+# --- 1. Store Name ---
 if (-not $StoreName) {
     $StoreName = Get-UserInput -Prompt "Store Name" -Default "My Awesome Store"
 }
 
+# --- 2. Store Type ---
 if (-not $StoreType) {
     Write-ColorOutput "`nStore Types:" $colors.Info
     Write-ColorOutput "  physical  - Traditional retail (clothing, electronics, sports gear)" "White"
@@ -135,68 +173,342 @@ if (-not $StoreType) {
     $StoreType = Get-UserInput -Prompt "Store Type" -Default "physical" -ValidOptions @("physical", "digital", "food", "services", "mixed")
 }
 
+# --- 3. Primary Color ---
 if (-not $PrimaryColor) {
     Write-ColorOutput "`nSuggested colors by store type:" $colors.Info
-    Write-ColorOutput "  Sports:      #FF4500 (Orange-Red)" "White"
-    Write-ColorOutput "  Tech:        #3B82F6 (Blue)" "White"
-    Write-ColorOutput "  Food:        #22C55E (Green)" "White"
-    Write-ColorOutput "  Digital:     #8B5CF6 (Purple)" "White"
-    Write-ColorOutput "  Fashion:     #EC4899 (Pink)" "White"
+    Write-ColorOutput "  Sports/Physical: #FF4500 (Orange-Red)" "White"
+    Write-ColorOutput "  Tech/Digital:    #3B82F6 (Blue)" "White"
+    Write-ColorOutput "  Food/Grocery:    #22C55E (Green)" "White"
+    Write-ColorOutput "  Services:        #8B5CF6 (Purple)" "White"
+    Write-ColorOutput "  Fashion:         #EC4899 (Pink)" "White"
     Write-Host ""
     $PrimaryColor = Get-UserInput -Prompt "Primary Brand Color (hex)" -Default "#2563EB"
 }
 
-$StoreTagline = Get-UserInput -Prompt "Store Tagline" -Default "Your Perfect Shopping Destination"
+# --- 4. Tagline ---
+if (-not $Tagline) {
+    $Tagline = Get-UserInput -Prompt "Store Tagline" -Default "Your Perfect Shopping Destination"
+}
 
+# --- 5. Email ---
+$StoreSlug = Get-StoreSlug -Name $StoreName
 if (-not $StoreEmail) {
-    $StoreSlug = Get-StoreSlug -Name $StoreName
     $StoreEmail = Get-UserInput -Prompt "Support Email" -Default "support@$StoreSlug.com"
 }
 
+# --- 6. Phone ---
 if (-not $StorePhone) {
     $StorePhone = Get-UserInput -Prompt "Support Phone" -Default "+1 (555) 123-4567"
 }
 
-# Confirm settings
+# --- 7. Domain ---
+if (-not $PSBoundParameters.ContainsKey('Domain')) {
+    Write-ColorOutput "`nProduction domain (leave empty for localhost-only dev):" $colors.Info
+    $Domain = Get-UserInput -Prompt "Domain (e.g., mystore.com)" -Default ""
+}
+
+# --- 8. GTM Container ID ---
+if (-not $PSBoundParameters.ContainsKey('GtmId')) {
+    $GtmId = Get-UserInput -Prompt "GTM Container ID (e.g., GTM-XXXXXXX, empty to disable)" -Default ""
+}
+
+# --- 9. GA4 Property ID ---
+if (-not $PSBoundParameters.ContainsKey('Ga4Id')) {
+    $Ga4Id = Get-UserInput -Prompt "GA4 Property ID (e.g., G-XXXXXXXXXX, empty to disable)" -Default ""
+}
+
+# ============================================================================
+# Confirmation summary
+# ============================================================================
 Write-Host ""
 Write-ColorOutput "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" $colors.Info
 Write-ColorOutput "  Store Configuration Summary" $colors.Info
 Write-ColorOutput "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" $colors.Info
 Write-Host "  Name:         " -NoNewline; Write-ColorOutput $StoreName $colors.Success
+Write-Host "  Slug:         " -NoNewline; Write-ColorOutput $StoreSlug $colors.Success
 Write-Host "  Type:         " -NoNewline; Write-ColorOutput $StoreType $colors.Success
-Write-Host "  Tagline:      " -NoNewline; Write-ColorOutput $StoreTagline $colors.Success
+Write-Host "  Tagline:      " -NoNewline; Write-ColorOutput $Tagline $colors.Success
 Write-Host "  Color:        " -NoNewline; Write-ColorOutput $PrimaryColor $colors.Success
 Write-Host "  Email:        " -NoNewline; Write-ColorOutput $StoreEmail $colors.Success
 Write-Host "  Phone:        " -NoNewline; Write-ColorOutput $StorePhone $colors.Success
+Write-Host "  Domain:       " -NoNewline; Write-ColorOutput $(if ($Domain) { $Domain } else { "(none - localhost dev)" }) $colors.Success
+Write-Host "  GTM ID:       " -NoNewline; Write-ColorOutput $(if ($GtmId) { $GtmId } else { "(disabled)" }) $colors.Success
+Write-Host "  GA4 ID:       " -NoNewline; Write-ColorOutput $(if ($Ga4Id) { $Ga4Id } else { "(disabled)" }) $colors.Success
 Write-ColorOutput "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" $colors.Info
 Write-Host ""
 
-$confirm = Get-UserInput -Prompt "Create store configuration? (y/n)" -Default "y" -ValidOptions @("y", "n", "yes", "no")
+$confirm = Get-UserInput -Prompt "Hydrate platform with these settings? (y/n)" -Default "y" -ValidOptions @("y", "n", "yes", "no")
 if ($confirm -notmatch "^y") {
     Write-ColorOutput "Operation cancelled." $colors.Warning
     exit 0
 }
 
-# Generate store configuration file
-$StoreSlug = Get-StoreSlug -Name $StoreName
-$ConfigFileName = "$StoreSlug.config.ts"
-$ConfigPath = Join-Path $PSScriptRoot "..\..\storefront\src\config\stores"
+# ============================================================================
+# Hydration — track modified files for final summary
+# ============================================================================
+$modifiedFiles = @()
+$totalSteps = 8
+$currentStep = 0
 
-# Create stores directory if it doesn't exist
+Write-Host ""
+Write-ColorOutput "Hydrating platform files..." $colors.Info
+Write-Host ""
+
+# --------------------------------------------------------------------------
+# 1. platform.yml
+# --------------------------------------------------------------------------
+$currentStep++
+Write-Step -Current $currentStep -Total $totalSteps -Message "Updating infra/platform.yml"
+
+$platformYmlPath = Join-Path $infraDir "platform.yml"
+if (Test-Path $platformYmlPath) {
+    # Ensure powershell-yaml is available
+    if (-not (Get-Module -ListAvailable -Name powershell-yaml)) {
+        Write-Host "  Installing powershell-yaml module..." -ForegroundColor Yellow
+        Install-Module powershell-yaml -Scope CurrentUser -Force -AllowClobber
+    }
+    Import-Module powershell-yaml -ErrorAction Stop
+
+    $yamlContent = Get-Content $platformYmlPath -Raw
+    $config = ConvertFrom-Yaml $yamlContent -Ordered
+
+    # Platform section
+    $config.platform.name = "$StoreName Platform"
+    if ($Domain) {
+        $config.platform.domain = $Domain
+    }
+    $config.platform.tunnel_name = $StoreSlug
+
+    # Store section
+    $config.store.name = $StoreName
+    $config.store.slug = $StoreSlug
+    $config.store.tagline = $Tagline
+    $config.store.type = $StoreType
+    $config.store.email = $StoreEmail
+    $config.store.phone = $StorePhone
+    $config.store.colors.primary = $PrimaryColor
+
+    # Analytics
+    if ($GtmId) { $config.store.analytics.gtm_id = $GtmId } else { $config.store.analytics.gtm_id = "" }
+    if ($Ga4Id) { $config.store.analytics.ga4_id = $Ga4Id } else { $config.store.analytics.ga4_id = "" }
+
+    # ConvertTo-Yaml strips comments — prepend the header comment back
+    $yamlHeader = @"
+# ============================================================================
+# Aura E-Commerce Platform — Service Registry
+# ============================================================================
+# Single source of truth for all services, ports, containers, and tunnels.
+# Used by platform.ps1 and all infra scripts.
+# ============================================================================
+
+"@
+    $newYaml = $yamlHeader + (ConvertTo-Yaml $config)
+    [System.IO.File]::WriteAllText($platformYmlPath, $newYaml, [System.Text.UTF8Encoding]::new($false))
+
+    Write-Success "infra/platform.yml"
+    $modifiedFiles += $platformYmlPath
+} else {
+    Write-Warn "infra/platform.yml not found — skipped"
+}
+
+# --------------------------------------------------------------------------
+# 2. env-template.txt — update PLATFORM_DOMAIN= line
+# --------------------------------------------------------------------------
+$currentStep++
+Write-Step -Current $currentStep -Total $totalSteps -Message "Updating infra/env-template.txt"
+
+$envTemplatePath = Join-Path $infraDir "env-template.txt"
+if (Test-Path $envTemplatePath) {
+    $templateContent = Get-Content $envTemplatePath -Raw
+    if ($Domain) {
+        $templateContent = $templateContent -replace '(?m)^PLATFORM_DOMAIN=.*$', "PLATFORM_DOMAIN=$Domain"
+    }
+    # Also update SMTP_FROM_NAME
+    $templateContent = $templateContent -replace '(?m)^SMTP_FROM_NAME=.*$', "SMTP_FROM_NAME=`"$StoreName`""
+    [System.IO.File]::WriteAllText($envTemplatePath, $templateContent, [System.Text.UTF8Encoding]::new($false))
+
+    Write-Success "infra/env-template.txt"
+    $modifiedFiles += $envTemplatePath
+} else {
+    Write-Warn "infra/env-template.txt not found — skipped"
+}
+
+# --------------------------------------------------------------------------
+# 3. .env (if exists) — update select variables
+# --------------------------------------------------------------------------
+$currentStep++
+Write-Step -Current $currentStep -Total $totalSteps -Message "Updating infra/.env"
+
+$envPath = Join-Path $infraDir ".env"
+if (Test-Path $envPath) {
+    $envContent = Get-Content $envPath -Raw
+
+    # PLATFORM_DOMAIN
+    if ($Domain) {
+        if ($envContent -match '(?m)^PLATFORM_DOMAIN=') {
+            $envContent = $envContent -replace '(?m)^PLATFORM_DOMAIN=.*$', "PLATFORM_DOMAIN=$Domain"
+        } else {
+            $envContent = $envContent.TrimEnd() + "`nPLATFORM_DOMAIN=$Domain`n"
+        }
+    }
+
+    # VITE_STORE_NAME
+    if ($envContent -match '(?m)^VITE_STORE_NAME=') {
+        $envContent = $envContent -replace '(?m)^VITE_STORE_NAME=.*$', "VITE_STORE_NAME=$StoreName"
+    } else {
+        $envContent = $envContent.TrimEnd() + "`nVITE_STORE_NAME=$StoreName`n"
+    }
+
+    # VITE_PLATFORM_NAME
+    if ($envContent -match '(?m)^VITE_PLATFORM_NAME=') {
+        $envContent = $envContent -replace '(?m)^VITE_PLATFORM_NAME=.*$', "VITE_PLATFORM_NAME=$StoreName Platform"
+    } else {
+        $envContent = $envContent.TrimEnd() + "`nVITE_PLATFORM_NAME=$StoreName Platform`n"
+    }
+
+    # SMTP_FROM_NAME
+    $envContent = $envContent -replace '(?m)^SMTP_FROM_NAME=.*$', "SMTP_FROM_NAME=`"$StoreName`""
+
+    # NEXT_PUBLIC_IMAGE_DOMAINS — only update if Domain is set and the line exists
+    if ($Domain -and ($envContent -match '(?m)^NEXT_PUBLIC_IMAGE_DOMAINS=')) {
+        $envContent = $envContent -replace '(?m)^NEXT_PUBLIC_IMAGE_DOMAINS=.*$', "NEXT_PUBLIC_IMAGE_DOMAINS=$Domain"
+    }
+
+    [System.IO.File]::WriteAllText($envPath, $envContent, [System.Text.UTF8Encoding]::new($false))
+
+    Write-Success "infra/.env"
+    $modifiedFiles += $envPath
+} else {
+    Write-Warn "infra/.env not found — skipped (copy env-template.txt to .env first)"
+}
+
+# --------------------------------------------------------------------------
+# 4. sample-config-import-en.json (English / USD)
+# --------------------------------------------------------------------------
+$currentStep++
+Write-Step -Current $currentStep -Total $totalSteps -Message "Updating sample-config-import-en.json"
+
+$sampleEnPath = Join-Path $repoRoot "apps\apps\storefront-control\sample-config-import-en.json"
+if (Test-Path $sampleEnPath) {
+    $jsonEn = Get-Content $sampleEnPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    $jsonEn.config.store.name    = $StoreName
+    $jsonEn.config.store.tagline = $Tagline
+    $jsonEn.config.store.email   = $StoreEmail
+    $jsonEn.config.store.phone   = $StorePhone
+    $jsonEn.config.branding.colors.primary = $PrimaryColor
+    $jsonEn.config.branding.logoAlt        = "$StoreName Logo"
+
+    $jsonStr = $jsonEn | ConvertTo-Json -Depth 30
+    [System.IO.File]::WriteAllText($sampleEnPath, $jsonStr, [System.Text.UTF8Encoding]::new($false))
+
+    Write-Success "sample-config-import-en.json"
+    $modifiedFiles += $sampleEnPath
+} else {
+    Write-Warn "sample-config-import-en.json not found — skipped"
+}
+
+# --------------------------------------------------------------------------
+# 5. sample-config-import.json (Hebrew / ILS)
+# --------------------------------------------------------------------------
+$currentStep++
+Write-Step -Current $currentStep -Total $totalSteps -Message "Updating sample-config-import.json"
+
+$sampleHePath = Join-Path $repoRoot "apps\apps\storefront-control\sample-config-import.json"
+if (Test-Path $sampleHePath) {
+    $jsonHe = Get-Content $sampleHePath -Raw -Encoding UTF8 | ConvertFrom-Json
+    $jsonHe.config.store.name    = $StoreName
+    $jsonHe.config.store.email   = $StoreEmail
+    $jsonHe.config.store.phone   = $StorePhone
+    $jsonHe.config.branding.colors.primary = $PrimaryColor
+    $jsonHe.config.branding.logoAlt        = "$StoreName Logo"
+    # NOTE: tagline is intentionally NOT overwritten in the Hebrew sample —
+    # the Hebrew tagline should be translated manually. Store name, email,
+    # phone, color, and logoAlt are language-neutral so they get updated.
+
+    $jsonStr = $jsonHe | ConvertTo-Json -Depth 30
+    [System.IO.File]::WriteAllText($sampleHePath, $jsonStr, [System.Text.UTF8Encoding]::new($false))
+
+    Write-Success "sample-config-import.json"
+    $modifiedFiles += $sampleHePath
+} else {
+    Write-Warn "sample-config-import.json not found — skipped"
+}
+
+# --------------------------------------------------------------------------
+# 6. storefront/storefront-cms-config.json (both channels)
+# --------------------------------------------------------------------------
+$currentStep++
+Write-Step -Current $currentStep -Total $totalSteps -Message "Updating storefront-cms-config.json"
+
+$cmsConfigPath = Join-Path $repoRoot "storefront\storefront-cms-config.json"
+if (Test-Path $cmsConfigPath) {
+    $cmsJson = Get-Content $cmsConfigPath -Raw -Encoding UTF8 | ConvertFrom-Json
+
+    # Update every channel sub-object
+    foreach ($channelKey in @($cmsJson.channels.PSObject.Properties.Name)) {
+        $ch = $cmsJson.channels.$channelKey
+
+        # store identity
+        $ch.store.name  = $StoreName
+        $ch.store.email = $StoreEmail
+        $ch.store.phone = $StorePhone
+        $ch.store.type  = $StoreType
+
+        # Only overwrite tagline for the English/USD channel;
+        # ILS channel tagline stays (Hebrew translation)
+        if ($channelKey -eq "usd") {
+            $ch.store.tagline = $Tagline
+        }
+
+        # branding
+        $ch.branding.colors.primary = $PrimaryColor
+        $ch.branding.logoAlt        = "$StoreName Logo"
+    }
+
+    $jsonStr = $cmsJson | ConvertTo-Json -Depth 30
+    [System.IO.File]::WriteAllText($cmsConfigPath, $jsonStr, [System.Text.UTF8Encoding]::new($false))
+
+    Write-Success "storefront/storefront-cms-config.json"
+    $modifiedFiles += $cmsConfigPath
+} else {
+    Write-Warn "storefront/storefront-cms-config.json not found — skipped"
+}
+
+# --------------------------------------------------------------------------
+# 7. Cloudflared config (if domain provided)
+# --------------------------------------------------------------------------
+$currentStep++
+Write-Step -Current $currentStep -Total $totalSteps -Message "Cloudflared tunnel config"
+
+if ($Domain) {
+    $platformPs1 = Join-Path $infraDir "platform.ps1"
+    if (Test-Path $platformPs1) {
+        try {
+            & $platformPs1 generate-tunnel-config -Domain $Domain
+            Write-Success "Cloudflared config regenerated for $Domain"
+        } catch {
+            Write-Warn "Cloudflared config generation failed: $_"
+        }
+    } else {
+        Write-Warn "infra/platform.ps1 not found — skipped cloudflared config"
+    }
+} else {
+    Write-Info "No domain provided — skipped cloudflared config"
+}
+
+# --------------------------------------------------------------------------
+# 8. Bonus: TypeScript config in storefront/src/config/stores/
+# --------------------------------------------------------------------------
+$currentStep++
+Write-Step -Current $currentStep -Total $totalSteps -Message "Generating TypeScript store config"
+
+$ConfigFileName = "$StoreSlug.config.ts"
+$ConfigPath = Join-Path $repoRoot "storefront\src\config\stores"
+
 if (-not (Test-Path $ConfigPath)) {
     New-Item -ItemType Directory -Path $ConfigPath -Force | Out-Null
-    Write-ColorOutput "Created stores directory: $ConfigPath" $colors.Info
 }
 
-# Determine which example to base on
-$baseConfig = switch ($StoreType) {
-    "digital" { "digital-store.config" }
-    "food" { "food-store.config" }
-    "services" { "digital-store.config" }  # Services similar to digital
-    default { "sports-store.config" }  # Physical uses sports as base
-}
-
-# Generate the configuration content
 $configContent = @"
 /**
  * $StoreName - Store Configuration
@@ -211,9 +523,9 @@ import { createStoreConfig, StoreConfig } from '../store.config';
 export const ${StoreSlug}Config: StoreConfig = createStoreConfig('$StoreType', {
   store: {
     name: "$StoreName",
-    tagline: "$StoreTagline",
+    tagline: "$Tagline",
     type: "$StoreType",
-    description: "Welcome to $StoreName - $StoreTagline",
+    description: "Welcome to $StoreName - $Tagline",
     email: "$StoreEmail",
     phone: "$StorePhone",
     address: {
@@ -229,7 +541,7 @@ export const ${StoreSlug}Config: StoreConfig = createStoreConfig('$StoreType', {
     logo: "/logo.svg",
     logoAlt: "$StoreName Logo",
     favicon: "/favicon.ico",
-    
+
     colors: {
       primary: "$PrimaryColor",
       secondary: "#1F2937",
@@ -242,13 +554,13 @@ export const ${StoreSlug}Config: StoreConfig = createStoreConfig('$StoreType', {
       warning: "#D97706",
       error: "#DC2626",
     },
-    
+
     typography: {
       fontHeading: "Inter",
       fontBody: "Inter",
       fontMono: "JetBrains Mono",
     },
-    
+
     style: {
       borderRadius: "md",
       buttonStyle: "solid",
@@ -258,16 +570,16 @@ export const ${StoreSlug}Config: StoreConfig = createStoreConfig('$StoreType', {
 
   seo: {
     titleTemplate: "%s | $StoreName",
-    defaultTitle: "$StoreName - $StoreTagline",
-    defaultDescription: "Shop at $StoreName. $StoreTagline",
+    defaultTitle: "$StoreName - $Tagline",
+    defaultDescription: "Shop at $StoreName. $Tagline",
     defaultImage: "/og-image.jpg",
     twitterHandle: null,
   },
 
   integrations: {
     analytics: {
-      googleAnalyticsId: null,
-      googleTagManagerId: null,
+      googleAnalyticsId: $(if ($Ga4Id) { "`"$Ga4Id`"" } else { "null" }),
+      googleTagManagerId: $(if ($GtmId) { "`"$GtmId`"" } else { "null" }),
       facebookPixelId: null,
       hotjarId: null,
     },
@@ -301,71 +613,43 @@ export const ${StoreSlug}Config: StoreConfig = createStoreConfig('$StoreType', {
 export default ${StoreSlug}Config;
 "@
 
-# Write configuration file
 $fullConfigPath = Join-Path $ConfigPath $ConfigFileName
-$configContent | Out-File -FilePath $fullConfigPath -Encoding UTF8
-Write-ColorOutput "`n✅ Created store configuration: $fullConfigPath" $colors.Success
+[System.IO.File]::WriteAllText($fullConfigPath, $configContent, [System.Text.UTF8Encoding]::new($false))
+Write-Success "storefront/src/config/stores/$ConfigFileName"
+$modifiedFiles += $fullConfigPath
 
-# Update the index.ts to use the new config
-$indexPath = Join-Path $PSScriptRoot "..\..\storefront\src\config\index.ts"
-$indexContent = @"
-/**
- * ACTIVE STORE CONFIGURATION
- * ==========================
- * This file exports the active store configuration.
- * 
- * Current Store: $StoreName
- * Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
- */
+# ============================================================================
+# Final summary
+# ============================================================================
+Write-Host ""
+Write-ColorOutput "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" $colors.Success
+Write-ColorOutput "  Store Hydration Complete!" $colors.Success
+Write-ColorOutput "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" $colors.Success
+Write-Host ""
 
-import { ${StoreSlug}Config } from './stores/$StoreSlug.config';
-
-// ============================================
-// ACTIVE CONFIGURATION
-// ============================================
-export const storeConfig = ${StoreSlug}Config;
-
-// ============================================
-// RE-EXPORTS
-// ============================================
-export {
-  type StoreConfig,
-  type StoreType,
-  createStoreConfig,
-  defaultStoreConfig,
-  storeTypePresets,
-  getThemeCSSVariables,
-} from './store.config';
-
-// Export examples for reference
-export * from './examples';
-"@
-
-$indexContent | Out-File -FilePath $indexPath -Encoding UTF8
-Write-ColorOutput "✅ Updated active configuration in index.ts" $colors.Success
-
-# Update SMTP app branding
-$smtpBrandingPath = Join-Path $PSScriptRoot "..\..\apps\apps\smtp\src\modules\smtp\default-templates.ts"
-if (Test-Path $smtpBrandingPath) {
-    Write-ColorOutput "📧 Remember to update email branding in:" $colors.Warning
-    Write-ColorOutput "   $smtpBrandingPath" "White"
-    Write-ColorOutput "   Change COMPANY_NAME, COMPANY_EMAIL, etc." "White"
+Write-ColorOutput "Modified files:" $colors.Info
+foreach ($f in $modifiedFiles) {
+    $relative = $f
+    if ($f.StartsWith($repoRoot)) {
+        $relative = $f.Substring($repoRoot.Length + 1)
+    }
+    Write-Host "  [OK] " -NoNewline -ForegroundColor Green
+    Write-Host $relative
 }
 
-# Final summary
-Write-Host ""
-Write-ColorOutput "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" $colors.Success
-Write-ColorOutput "  🎉 Store Configuration Complete!" $colors.Success
-Write-ColorOutput "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" $colors.Success
 Write-Host ""
 Write-ColorOutput "Next Steps:" $colors.Info
-Write-ColorOutput "  1. Review your config: storefront\src\config\stores\$ConfigFileName" "White"
-Write-ColorOutput "  2. Add your logo:      storefront\public\logo.svg" "White"
-Write-ColorOutput "  3. Add favicon:        storefront\public\favicon.ico" "White"
-Write-ColorOutput "  4. Start the server:   cd storefront && pnpm dev" "White"
-Write-ColorOutput "  5. View your store:    http://localhost:3000" "White"
+Write-ColorOutput "  1. Add your logo:       storefront\public\logo.svg" "White"
+Write-ColorOutput "  2. Add favicon:         storefront\public\favicon.ico" "White"
+if ($Domain) {
+    Write-ColorOutput "  3. Set up DNS:          Point *.$Domain to your Cloudflare tunnel" "White"
+    Write-ColorOutput "  4. Start platform:      .\infra\platform.ps1 up -Mode selfhosted" "White"
+} else {
+    Write-ColorOutput "  3. Start platform:      .\infra\platform.ps1 up" "White"
+    Write-ColorOutput "  4. View your store:     http://localhost:3000" "White"
+}
+Write-ColorOutput "  5. Update Hebrew text:  Edit sample-config-import.json tagline + description" "White"
+Write-ColorOutput "  6. Update email brand:  apps\apps\smtp\src\modules\smtp\default-templates.ts" "White"
 Write-Host ""
-Write-ColorOutput "To switch back to another store, run this script again or" $colors.Info
-Write-ColorOutput "edit storefront\src\config\index.ts" $colors.Info
+Write-ColorOutput "To rebrand again, simply re-run this script with new values." $colors.Info
 Write-Host ""
-

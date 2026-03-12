@@ -74,10 +74,13 @@ const config = {
 			// Public API domain (from NEXT_PUBLIC_SALEOR_API_URL, e.g. api.halacosmetics.org)
 			...apiRemotePatterns,
 			// External product image sources (imported/dropshipped products)
-			{
-				protocol: "https",
-				hostname: "media.easy.co.il",
-			},
+			// Configurable via NEXT_PUBLIC_IMAGE_DOMAINS env var (comma-separated)
+			...(process.env.NEXT_PUBLIC_IMAGE_DOMAINS || "media.easy.co.il")
+				.split(",")
+				.map((h) => ({
+					protocol: "https",
+					hostname: h.trim(),
+				})),
 		],
 		// Disable image optimization in development to avoid Docker localhost issues
 		unoptimized: process.env.NODE_ENV === "development",

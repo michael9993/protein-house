@@ -173,11 +173,7 @@ export default defineConfig(({ command, mode }) => {
         ? [
             "localhost",
             "127.0.0.1",
-            DASHBOARD_TUNNEL_URL, // Current tunnel domain
-            "dash.halacosmetics.org", // Cloudflare tunnel host
-            "dash.halacosmetics.org",
-
-            // Add more tunnel domains here as needed, or use a function pattern
+            DASHBOARD_TUNNEL_URL, // Dynamic tunnel domain from env
           ]
         : undefined,
       // Enable HMR (Hot Module Replacement) for development
@@ -218,9 +214,7 @@ export default defineConfig(({ command, mode }) => {
       allowedHosts: [
         "localhost",
         "127.0.0.1",
-        DASHBOARD_TUNNEL_URL,
-        "dash.halacosmetics.org", // Cloudflare tunnel host
-        "dash.halacosmetics.org",
+        DASHBOARD_TUNNEL_URL, // Dynamic tunnel domain from env
       ],
     },
     define: {

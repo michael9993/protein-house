@@ -84,6 +84,7 @@ All commands use `docker exec`. For an interactive shell, use `docker exec -it <
 ### Platform CLI (`infra/platform.ps1`)
 
 ```powershell
+.\infra\platform.ps1 new-store                 # Rebrand for a new store (wizard)
 .\infra\platform.ps1 status                    # Health dashboard
 .\infra\platform.ps1 up                        # Start platform (Docker + ephemeral tunnels)
 .\infra\platform.ps1 up -Mode selfhosted       # Start with named tunnels
@@ -96,7 +97,23 @@ All commands use `docker exec`. For an interactive shell, use `docker exec -it <
 .\infra\platform.ps1 generate-tunnel-config    # Regenerate cloudflared-config.yml
 ```
 
-Service registry: `infra/platform.yml` — single source of truth for all ports, containers, tunnels.
+Service registry: `infra/platform.yml` — single source of truth for all ports, containers, tunnels, and store identity.
+
+### New Store Setup
+
+Clone the repo and run `platform.ps1 new-store` to rebrand everything for a new store. The wizard collects ~9 inputs and propagates them to all config files. See [QUICKSTART.md](QUICKSTART.md) for full guide.
+
+```powershell
+# Interactive wizard
+.\infra\platform.ps1 new-store
+
+# Non-interactive
+.\infra\platform.ps1 new-store -StoreName "My Store" -PrimaryColor "#E11D48" -Domain "mystore.com"
+```
+
+**Hydration targets**: `platform.yml`, `.env`, both sample config JSONs, `storefront-cms-config.json`, `cloudflared-config.yml`, TS config. Store identity lives in `platform.yml` under `store:` section.
+
+**Catalog templates**: `CATALOG_TEMPLATE=starter npm run generate` (in `scripts/catalog-generator/`) generates a 20-product starter catalog instead of the default Pawzen catalog.
 
 ### Saleor API (saleor/) — Container: `saleor-api-dev`
 

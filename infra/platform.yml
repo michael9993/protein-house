@@ -15,6 +15,25 @@ backup:
   retain: 30
   compress: true
 
+store:
+  name: "Pawzen"
+  slug: "pawzen"
+  tagline: "Premium Pet Care & Accessories"
+  type: "physical"
+  email: "support@halacosmetics.org"
+  phone: "+972 3-123-4567"
+  address:
+    street: "123 Rothschild Blvd"
+    city: "Tel Aviv"
+    country: "Israel"
+  colors:
+    primary: "#2563EB"
+    secondary: "#1F2937"
+    accent: "#F59E0B"
+  analytics:
+    gtm_id: "GTM-PWN35T2R"
+    ga4_id: "G-1X96SJX4SP"
+
 services:
   api:
     port: 8000

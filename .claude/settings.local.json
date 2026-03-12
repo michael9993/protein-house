@@ -153,7 +153,12 @@
       "Bash(cat -A \"C:/Users/micha/saleor-platform/storefront/src/app/[channel]/\\(main\\)/products/actions.ts\" | sed -n '127,128p')",
       "Bash(find storefront/src/app/\\\\[channel\\\\]/\\\\\\(main\\\\\\)/products/\\\\[slug\\\\] -type f | head -10)",
       "Bash(sed -n '475,490p' /c/Users/micha/saleor-platform/storefront/src/app/[channel]/\\\\\\(main\\\\\\)/products/\\\\[slug\\\\]/ProductDetailClient.tsx)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(cd /c/Users/micha/saleor-platform/.worktrees/devops-cleanup && rm -f \\\\\n  infra/scripts/tunnel-api.ps1 \\\\\n  infra/scripts/tunnel-dashboard.ps1 \\\\\n  infra/scripts/tunnel-storefront.ps1 \\\\\n  infra/scripts/tunnel-stripe.ps1 \\\\\n  infra/scripts/tunnel-smtp.ps1 \\\\\n  infra/scripts/tunnel-invoice.ps1 \\\\\n  infra/scripts/tunnel-bulk-manager.ps1 \\\\\n  infra/scripts/tunnel-image-studio.ps1 \\\\\n  infra/scripts/tunnel-dropship.ps1 \\\\\n  infra/scripts/tunnel-tax-manager.ps1 && echo \"Batch 1: Deleted 10 individual tunnel scripts\")",
+      "Bash(cd /c/Users/micha/saleor-platform/.worktrees/devops-cleanup && rm -f \\\\\n  infra/scripts/tunnel-all.ps1 \\\\\n  infra/scripts/tunnel-all-simple.ps1 \\\\\n  infra/scripts/tunnel-all-labeled.ps1 \\\\\n  infra/scripts/tunnel-services.ps1 && echo \"Batch 2: Deleted 4 multi-tunnel scripts\")",
+      "Bash(cd /c/Users/micha/saleor-platform/.worktrees/devops-cleanup && rm -f \\\\\n  infra/scripts/tunnel-all.sh \\\\\n  infra/scripts/tunnel-stripe.sh && echo \"Batch 3: Deleted 2 bash tunnel scripts\")",
+      "Bash(cd /c/Users/micha/saleor-platform/.worktrees/devops-cleanup && rm -f \\\\\n  infra/scripts/install-bulk-manager-app.ps1 \\\\\n  infra/setup-tunnel-urls.ps1 \\\\\n  infra/scripts/setup-stripe-postgres.ps1 \\\\\n  infra/scripts/setup-stripe-env.ps1 && echo \"Batch 4: Deleted 4 superseded setup scripts\")",
+      "Bash(cd /c/Users/micha/saleor-platform/.worktrees/devops-cleanup && rm -f \\\\\n  infra/scripts/activate-openid-plugin.ps1 \\\\\n  infra/scripts/add-stripe-credentials.ps1 && echo \"Batch 5: Deleted 2 one-time scripts\")"
     ],
     "deny": [
       "Read(./.env*)",
