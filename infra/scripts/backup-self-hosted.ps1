@@ -19,11 +19,12 @@
 param(
     [int]$Retain = 30,       # Number of backups to keep
     [switch]$Compress,       # Gzip the backup (requires 7z or gzip)
-    [switch]$Quiet           # Suppress output (for scheduled tasks)
+    [switch]$Quiet,          # Suppress output (for scheduled tasks)
+    [string]$BackupDir = ""  # Override backup directory (default: SALEOR_BACKUP_DIR env var or ~/saleor-backups)
 )
 
 $ErrorActionPreference = "Stop"
-$backupDir = "C:\Users\micha\saleor-backups"
+$backupDir = if ($BackupDir) { $BackupDir } elseif ($env:SALEOR_BACKUP_DIR) { $env:SALEOR_BACKUP_DIR } else { Join-Path $env:USERPROFILE "saleor-backups" }
 $container = "saleor-postgres-dev"
 $timestamp = Get-Date -Format "yyyy-MM-dd_HHmmss"
 $backupFile = Join-Path $backupDir "saleor-$timestamp.sql"

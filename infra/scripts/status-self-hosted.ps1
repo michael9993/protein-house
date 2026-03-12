@@ -9,7 +9,7 @@ $ErrorActionPreference = "SilentlyContinue"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $infraDir = Split-Path -Parent $scriptDir
 
-$domain = "halacosmetics.org"
+$domain = if ($env:PLATFORM_DOMAIN) { $env:PLATFORM_DOMAIN } else { "halacosmetics.org" }
 
 Write-Host ""
 Write-Host "  ========================================" -ForegroundColor Cyan
@@ -181,7 +181,7 @@ Write-Host ""
 
 # ---- Last Backup ----
 Write-Host "  Backups" -ForegroundColor Yellow
-$backupDir = "C:\Users\micha\saleor-backups"
+$backupDir = if ($env:SALEOR_BACKUP_DIR) { $env:SALEOR_BACKUP_DIR } else { Join-Path $env:USERPROFILE "saleor-backups" }
 if (Test-Path $backupDir) {
     $latestBackup = Get-ChildItem $backupDir -Filter "saleor-*.sql*" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
     if ($latestBackup) {

@@ -114,6 +114,14 @@ This project uses Docker Compose for local development. All services run in cont
 docker compose -f infra/docker-compose.dev.yml restart <container-name>
 ```
 
+**Platform CLI (preferred):**
+
+```powershell
+.\infra\platform.ps1 restart <service>    # Restart a service
+.\infra\platform.ps1 status               # Check all services
+.\infra\platform.ps1 logs <service>       # View logs
+```
+
 **View logs:**
 
 ```bash
