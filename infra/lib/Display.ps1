@@ -51,10 +51,10 @@ function Write-Success {
     Write-Host "[OK] $Message" -ForegroundColor Green
 }
 
-function Write-Warning {
+function Write-Warn {
     <#
     .SYNOPSIS
-    Prints a yellow warning message.
+    Prints a yellow warning message. Named Write-Warn to avoid colliding with built-in Write-Warning.
     #>
     param([string]$Message)
     Write-Host "[WARN] $Message" -ForegroundColor Yellow
@@ -180,7 +180,7 @@ Export-ModuleMember -Function @(
     'Write-Banner',
     'Write-Step',
     'Write-Success',
-    'Write-Warning',
+    'Write-Warn',
     'Write-Err',
     'Write-Info',
     'Write-ServiceTable'

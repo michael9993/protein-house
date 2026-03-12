@@ -68,13 +68,13 @@ function Start-Containers {
         [switch]$ForceRecreate
     )
 
-    $args = @("compose", "-f", $ComposeFile, "up", "-d")
+    $dockerArgs = @("compose", "-f", $ComposeFile, "up", "-d")
     if ($ForceRecreate) {
-        $args += "--force-recreate"
+        $dockerArgs += "--force-recreate"
     }
 
     Write-Host "Starting containers ($ComposeFile)..." -ForegroundColor Yellow
-    & docker @args
+    & docker @dockerArgs
     if ($LASTEXITCODE -ne 0) {
         throw "docker compose up failed with exit code $LASTEXITCODE"
     }

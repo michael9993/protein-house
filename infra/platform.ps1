@@ -198,7 +198,7 @@ switch ($Command.ToLower()) {
             try {
                 $cf = Find-Cloudflared
             } catch {
-                Write-Warning "cloudflared not found — skipping tunnels. Install with: winget install Cloudflare.cloudflared"
+                Write-Warn "cloudflared not found — skipping tunnels. Install with: winget install Cloudflare.cloudflared"
                 $cf = $null
             }
 
@@ -208,7 +208,7 @@ switch ($Command.ToLower()) {
                     if (Test-Path $tunnelConfig) {
                         Start-NamedTunnel -CloudflaredCmd $cf -TunnelConfigPath $tunnelConfig | Out-Null
                     } else {
-                        Write-Warning "cloudflared-config.yml not found. Run: platform.ps1 generate-tunnel-config"
+                        Write-Warn "cloudflared-config.yml not found. Run: platform.ps1 generate-tunnel-config"
                     }
                 } else {
                     # Dev mode — ephemeral tunnels for all tunnel-eligible services
@@ -391,14 +391,17 @@ switch ($Command.ToLower()) {
     "codegen" {
         Write-Banner -Title "GraphQL Codegen"
 
+        $sfContainer   = $config.services.storefront.container
+        $dashContainer = $config.services.dashboard.container
+
         Write-Step -Current 1 -Total 2 -Message "Storefront codegen"
-        docker exec saleor-storefront-dev pnpm generate
-        if ($LASTEXITCODE -ne 0) { Write-Warning "Storefront codegen returned errors." }
+        docker exec $sfContainer pnpm generate
+        if ($LASTEXITCODE -ne 0) { Write-Warn "Storefront codegen returned errors." }
         else                      { Write-Success "Storefront codegen done." }
 
         Write-Step -Current 2 -Total 2 -Message "Dashboard codegen"
-        docker exec saleor-dashboard-dev pnpm generate
-        if ($LASTEXITCODE -ne 0) { Write-Warning "Dashboard codegen returned errors." }
+        docker exec $dashContainer pnpm generate
+        if ($LASTEXITCODE -ne 0) { Write-Warn "Dashboard codegen returned errors." }
         else                      { Write-Success "Dashboard codegen done." }
     }
 
@@ -438,7 +441,7 @@ switch ($Command.ToLower()) {
             $cf = Find-Cloudflared
             Write-Success "cloudflared found: $cf"
         } catch {
-            Write-Warning "cloudflared not found. Install with: winget install Cloudflare.cloudflared"
+            Write-Warn "cloudflared not found. Install with: winget install Cloudflare.cloudflared"
         }
 
         # powershell-yaml
@@ -446,7 +449,7 @@ switch ($Command.ToLower()) {
         if (Get-Module -ListAvailable -Name powershell-yaml) {
             Write-Success "powershell-yaml module available"
         } else {
-            Write-Warning "powershell-yaml not found. Installing..."
+            Write-Warn "powershell-yaml not found. Installing..."
             try {
                 Install-Module powershell-yaml -Scope CurrentUser -Force -AllowClobber
                 Write-Success "powershell-yaml installed"
@@ -466,7 +469,7 @@ switch ($Command.ToLower()) {
                 Copy-Item $envTemplate $envFile
                 Write-Success ".env created from .env.example"
             } else {
-                Write-Warning ".env not found and no .env.example template. Run setup-env.ps1 or create manually."
+                Write-Warn ".env not found and no .env.example template. Run setup-env.ps1 or create manually."
             }
         }
 
@@ -480,7 +483,7 @@ switch ($Command.ToLower()) {
                 openssl genrsa -out $rsaKey 2048 2>$null
                 Write-Success "RSA key generated: $rsaKey"
             } else {
-                Write-Warning "openssl not found — cannot generate RSA key. Add it to PATH or generate manually."
+                Write-Warn "openssl not found — cannot generate RSA key. Add it to PATH or generate manually."
             }
         }
 
@@ -488,7 +491,7 @@ switch ($Command.ToLower()) {
         if ($ok) {
             Write-Success "Init complete. Run: platform.ps1 up"
         } else {
-            Write-Warning "Some prerequisites are missing. Resolve the errors above before running 'up'."
+            Write-Warn "Some prerequisites are missing. Resolve the errors above before running 'up'."
         }
     }
 
@@ -540,7 +543,8 @@ switch ($Command.ToLower()) {
 #   Or use:        platform.ps1 up -Mode selfhosted
 
 tunnel: $tunnelName
-credentials-file: $($env:USERPROFILE)\.cloudflared\$tunnelName.json
+# IMPORTANT: Replace <TUNNEL_ID> below with your actual tunnel UUID from 'cloudflared tunnel create'
+credentials-file: $($env:USERPROFILE)\.cloudflared\<TUNNEL_ID>.json
 
 ingress:
 $($ingressLines -join "`n")

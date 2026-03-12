@@ -114,6 +114,8 @@ $envContent = $envContent -replace "NEWSLETTER_APP_URL=.*", "NEWSLETTER_APP_URL=
 $envContent = $envContent -replace "SALES_ANALYTICS_APP_URL=.*", "SALES_ANALYTICS_APP_URL=$analyticsAppUrl"
 $envContent = $envContent -replace "BULK_MANAGER_APP_URL=.*", "BULK_MANAGER_APP_URL=$bulkAppUrl"
 $envContent = $envContent -replace "IMAGE_STUDIO_APP_URL=.*", "IMAGE_STUDIO_APP_URL=$studioAppUrl"
+$envContent = $envContent -replace "DROPSHIP_APP_URL=.*", "DROPSHIP_APP_URL=$dropshipAppUrl"
+$envContent = $envContent -replace "TAX_MANAGER_APP_URL=.*", "TAX_MANAGER_APP_URL=$taxAppUrl"
 # Note: SMTP app URLs are typically not needed in .env as the app reads from Saleor webhooks
 # But we can add them if needed for app-to-app communication
 

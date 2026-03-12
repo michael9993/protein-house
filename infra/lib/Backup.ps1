@@ -30,9 +30,10 @@ function New-DatabaseBackup {
     }
     $dir = $dir -replace "/", "\"
 
-    # Determine compress from config if not explicitly passed
-    if (-not $Compress -and $backupConfig.compress) {
-        $Compress = $backupConfig.compress
+    # Determine compress from config if not explicitly passed via -Compress switch
+    $doCompress = [bool]$Compress
+    if (-not $doCompress -and $backupConfig.compress) {
+        $doCompress = $true
     }
 
     # Postgres container info
@@ -46,7 +47,7 @@ function New-DatabaseBackup {
     }
 
     $timestamp  = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
-    $ext        = if ($Compress) { ".sql.gz" } else { ".sql" }
+    $ext        = if ($doCompress) { ".sql.gz" } else { ".sql" }
     $filename   = "saleor-$timestamp$ext"
     $outputPath = Join-Path $dir $filename
 
@@ -57,7 +58,7 @@ function New-DatabaseBackup {
     }
 
     try {
-        if ($Compress) {
+        if ($doCompress) {
             # pg_dump | gzip piped through docker exec, output captured
             $dumpOutput = docker exec $pgContainer pg_dump -U saleor saleor 2>$null
             if ($LASTEXITCODE -ne 0) {
