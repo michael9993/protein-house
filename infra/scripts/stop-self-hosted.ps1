@@ -39,7 +39,7 @@ if ($Backup) {
     else {
         # Inline backup if script doesn't exist yet
         $timestamp = Get-Date -Format "yyyy-MM-dd_HHmmss"
-        $backupDir = "C:\Users\micha\saleor-backups"
+        $backupDir = if ($env:SALEOR_BACKUP_DIR) { $env:SALEOR_BACKUP_DIR } else { Join-Path $env:USERPROFILE "saleor-backups" }
         if (-not (Test-Path $backupDir)) {
             New-Item -ItemType Directory -Path $backupDir -Force | Out-Null
         }

@@ -2,145 +2,127 @@
 
 ## Overview
 
-Collection of PowerShell and Bash scripts for platform management, database operations, tunneling, and environment setup. Located in `infra/scripts/`.
+Platform management is handled by the **unified CLI** (`infra/platform.ps1`), which replaces the previous collection of individual scripts. The old scripts remain available but are deprecated.
 
 ## Quick Start
 
-**Platform Launch:**
-```powershell
-# Start all Docker containers with health checks
-.\infra\scripts\launch-platform.ps1
-
-# Register apps in Dashboard
-.\infra\scripts\install-dashboard-apps.ps1
-```
-
-**Database Backup/Restore:**
-```bash
-# Backup to file
-./infra/scripts/backup-db.sh > backup-$(date +%Y%m%d).sql
-
-# Restore from backup
-./infra/scripts/restore-db.sh backup-20260215.sql
-```
-
-**Tunneling (for webhooks):**
-```powershell
-# All services with labeled tunnels
-.\infra\scripts\tunnel-all-labeled.ps1
-
-# Individual service
-.\infra\scripts\tunnel-stripe.ps1
-```
-
-## Key Features
-
-- **Platform Management** — Automated startup, health checks, app registration
-- **Database Utilities** — Backup, restore, migration, multi-database init
-- **Cloudflare Tunneling** — Expose local services for external webhooks (Stripe, etc.)
-- **Environment Setup** — RSA key generation, OpenID config, Stripe credentials
-- **Development Tools** — GraphQL codegen, mode switching, diagnostics
-
-## Script Categories
-
-### Platform Management
-
-| Script | Purpose |
-|--------|---------|
-| `launch-platform.ps1` | Start all Docker containers with health checks |
-| `install-dashboard-apps.ps1` | Register all Saleor apps in the Dashboard |
-| `install-bulk-manager-app.ps1` | Register Bulk Manager app separately |
-
-### Database Operations
-
-| Script | Purpose |
-|--------|---------|
-| `init-dev.sh` | Initialize dev environment with migrations |
-| `init-dev-with-postgres.sh` | Initialize with custom Postgres config |
-| `init-multiple-databases.sh` | Set up multiple app databases |
-| `init-stripe-database.sh` | Initialize Stripe app's Postgres database |
-| `wait-for-db-and-migrate.sh` / `.py` | Docker entrypoint: wait for Postgres then migrate |
-| `backup-db.sh` | pg_dump backup to file/S3 |
-| `restore-db.sh` | Restore from pg_dump backup |
-
-### Tunneling (for External Webhooks)
-
-| Script | Purpose |
-|--------|---------|
-| `tunnel-all-labeled.ps1` | Named tunnels for all services (recommended) |
-| `tunnel-all.ps1` / `.sh` | Start Cloudflare tunnels for all services |
-| `tunnel-api.ps1` | API tunnel only |
-| `tunnel-stripe.ps1` / `.sh` | Stripe app tunnel |
-| `tunnel-dashboard.ps1` | Dashboard tunnel |
-| `tunnel-storefront.ps1` | Storefront tunnel |
-| `tunnel-smtp.ps1` | SMTP app tunnel |
-| `tunnel-invoice.ps1` | Invoice app tunnel |
-| `tunnel-bulk-manager.ps1` | Bulk Manager app tunnel |
-| `tunnel-image-studio.ps1` | Image Studio app tunnel |
-
-### Setup & Configuration
-
-| Script | Purpose |
-|--------|---------|
-| `setup-environment.ps1` | Configure environment variables |
-| `generate-rsa-key-for-env.ps1` | Generate RSA keys for JWT webhook signing |
-| `activate-openid-plugin.ps1` | Enable OpenID Connect auth plugin |
-| `add-stripe-credentials.ps1` | Configure Stripe API keys |
-| `setup-stripe-env.ps1` | Set up Stripe environment variables |
-| `setup-stripe-postgres.ps1` | Set up Stripe database |
-| `init-new-store.ps1` / `init-store.mjs` | Initialize a new store channel |
-
-### Utilities
-
-| Script | Purpose |
-|--------|---------|
-| `deploy-prod.sh` | Production deployment script |
-| `run-storefront-codegen.ps1` | GraphQL codegen for storefront |
-| `toggle-storefront-mode.ps1` / `.sh` | Toggle storefront between dev/prod modes |
-| `stripe-dev-prod.sh` | Switch Stripe between dev/prod modes |
-| `compare-files.ps1` | Diff utility for config comparison |
-| `full-diagnostic.ps1` | System health diagnostics |
-
-## Development
-
-**Running Scripts:**
-
-```powershell
-# PowerShell scripts (Windows)
-.\infra\scripts\<script-name>.ps1
-
-# Bash scripts (Linux/macOS or Git Bash on Windows)
-./infra/scripts/<script-name>.sh
-```
-
-**Prerequisites:**
-- Docker Desktop running
-- PowerShell 5.1+ (Windows) or Bash (Linux/macOS)
-- Cloudflare CLI (`cloudflared`) for tunneling scripts
-
-**Common Workflows:**
-
 ```powershell
 # First-time setup
-.\infra\scripts\setup-environment.ps1
-.\infra\scripts\launch-platform.ps1
-.\infra\scripts\install-dashboard-apps.ps1
+.\infra\platform.ps1 init
 
-# Daily development
-docker compose -f infra/docker-compose.dev.yml up -d
-.\infra\scripts\tunnel-stripe.ps1  # If testing webhooks
+# Start platform (Docker + tunnels)
+.\infra\platform.ps1 up
 
-# Database maintenance
-./infra/scripts/backup-db.sh > backups/daily-backup.sql
-./infra/scripts/restore-db.sh backups/daily-backup.sql
+# Check health of all services
+.\infra\platform.ps1 status
 
-# Troubleshooting
-.\infra\scripts\full-diagnostic.ps1
-docker compose -f infra/docker-compose.dev.yml logs -f <container>
+# Install/reinstall Saleor apps in Dashboard
+.\infra\platform.ps1 install-apps
+
+# Stop everything
+.\infra\platform.ps1 down
 ```
+
+## Platform CLI Commands
+
+| Command | Description | Replaces |
+|---------|-------------|----------|
+| `platform.ps1 status` | Health dashboard (containers, tunnel, DB, backups) | `status-self-hosted.ps1` |
+| `platform.ps1 up` | Start platform (Docker + tunnels) | `launch-platform.ps1`, `launch-self-hosted.ps1` |
+| `platform.ps1 up -Mode selfhosted` | Self-hosted launch with named tunnels | `launch-self-hosted.ps1` |
+| `platform.ps1 down` | Stop tunnel + containers | `stop-self-hosted.ps1` |
+| `platform.ps1 restart <service>` | Restart a service | `restart-service.ps1` |
+| `platform.ps1 backup` | Database backup with rotation | `backup-self-hosted.ps1` |
+| `platform.ps1 restore <file>` | Restore database from backup | N/A |
+| `platform.ps1 install-apps` | Register all Saleor apps | `install-dashboard-apps.ps1` |
+| `platform.ps1 tunnels` | Start tunnels only | `launch-platform.ps1` |
+| `platform.ps1 codegen` | Run GraphQL codegen | `run-storefront-codegen.ps1` |
+| `platform.ps1 logs <service>` | Tail container logs | N/A |
+| `platform.ps1 init` | First-time environment setup | `setup-environment.ps1` |
+| `platform.ps1 generate-tunnel-config` | Generate cloudflared-config.yml | N/A |
+
+## Options
+
+```
+-Mode dev|selfhosted    Dev = ephemeral tunnels, selfhosted = named tunnels (default: dev)
+-Domain <domain>        Override domain (default: from platform.yml / PLATFORM_DOMAIN env var)
+-SkipTunnel             Don't start tunnels
+-SkipDocker             Assume containers already running
+-NoBrowser              Don't open browser after launch
+-Compress               Compress database backup (gzip)
+-Retain <n>             Number of backups to keep (default: 30)
+-Quiet                  Suppress output (for scheduled tasks)
+-Lines <n>              Number of log lines to show (default: 100)
+```
+
+## Configuration
+
+All service definitions are in **`infra/platform.yml`** — the single source of truth for:
+- Service ports, containers, and compose service names
+- Tunnel subdomains and env var names
+- Saleor app IDs and manifest paths
+- Backup settings
+
+Environment variables in `infra/.env`:
+- `PLATFORM_DOMAIN` — override domain (default: from platform.yml)
+- `SALEOR_BACKUP_DIR` — override backup directory (default: ~/saleor-backups)
+
+## Architecture
+
+```
+infra/
+├── platform.ps1              # Unified CLI entry point
+├── platform.yml              # Service registry (source of truth)
+├── lib/                      # PowerShell modules
+│   ├── Config.ps1            # YAML config loader
+│   ├── Display.ps1           # Formatted output helpers
+│   ├── Docker.ps1            # Container lifecycle management
+│   ├── Health.ps1            # Health checks and URL reachability
+│   ├── Tunnels.ps1           # Cloudflare tunnel management
+│   ├── EnvManager.ps1        # .env file read/write/propagation
+│   ├── Apps.ps1              # Saleor app installation via GraphQL
+│   └── Backup.ps1            # Database backup/restore/rotation
+├── docker-compose.dev.yml    # Docker services orchestration
+├── cloudflared-config.yml    # Cloudflare tunnel routing (auto-generated)
+├── .env                      # Active environment variables
+├── .env.self-hosted          # Self-hosted environment (secrets, domain URLs)
+└── env-template.txt          # Environment variable template
+```
+
+## Legacy Scripts (Deprecated)
+
+These scripts still work but are superseded by `platform.ps1`:
+
+| Legacy Script | Use Instead |
+|---------------|-------------|
+| `launch-platform.ps1` | `platform.ps1 up` |
+| `launch-self-hosted.ps1` | `platform.ps1 up -Mode selfhosted` |
+| `status-self-hosted.ps1` | `platform.ps1 status` |
+| `stop-self-hosted.ps1` | `platform.ps1 down` |
+| `backup-self-hosted.ps1` | `platform.ps1 backup` |
+| `restart-service.ps1` | `platform.ps1 restart <service>` |
+| `install-dashboard-apps.ps1` | `platform.ps1 install-apps` |
+| `run-storefront-codegen.ps1` | `platform.ps1 codegen` |
+| `setup-environment.ps1` | `platform.ps1 init` |
+
+## Docker Entrypoint Scripts (Not Deprecated)
+
+These bash scripts are used as Docker entrypoints and remain active:
+
+| Script | Purpose |
+|--------|---------|
+| `init-dev.sh` | Docker entrypoint: initialize dev environment |
+| `init-dev-with-postgres.sh` | Docker entrypoint: init with custom Postgres |
+| `init-multiple-databases.sh` | Docker entrypoint: multi-database setup |
+| `init-stripe-database.sh` | Docker entrypoint: Stripe app database |
+| `wait-for-db-and-migrate.sh` / `.py` | Docker entrypoint: wait for DB then migrate |
+| `backup-db.sh` / `restore-db.sh` | Linux production backup/restore |
+| `deploy-prod.sh` | Linux production deployment |
+| `toggle-storefront-mode.ps1` / `.sh` | Toggle storefront dev/prod mode |
 
 ## Related Docs
 
-- **infra/DEPLOY.md** — Production deployment guide
-- **CLAUDE.md** — Docker-first development patterns, container restart rules
-- **AGENTS.md** — Detailed command reference, verification workflows
+- **infra/SELF-HOSTED.md** — Self-hosted deployment guide
+- **infra/platform.yml** — Service registry
+- **CLAUDE.md** — Docker-first development patterns
+- **AGENTS.md** — Agent guidelines and commands

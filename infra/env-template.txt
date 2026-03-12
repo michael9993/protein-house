@@ -245,3 +245,11 @@ SENTRY_AUTH_TOKEN=
 # ============================================================================
 # Encryption key for supplier credentials (uses APP_SECRET_KEY by default)
 # DROPSHIP_SECRET_KEY=
+
+# ============================================================================
+# PLATFORM CONFIGURATION
+# ============================================================================
+# Domain for self-hosted deployment (used by launch/status scripts)
+PLATFORM_DOMAIN=halacosmetics.org
+# Directory for database backups
+SALEOR_BACKUP_DIR=~/saleor-backups

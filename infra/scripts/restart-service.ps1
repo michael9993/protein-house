@@ -8,7 +8,7 @@
 #   .\infra\scripts\restart-service.ps1 api
 #   .\infra\scripts\restart-service.ps1 dashboard
 #   .\infra\scripts\restart-service.ps1 all
-#   .\infra\scripts\restart-service.ps1 apps          # All 8 apps
+#   .\infra\scripts\restart-service.ps1 apps          # All 10 apps
 #   .\infra\scripts\restart-service.ps1 tunnel         # Restart cloudflared
 
 param(
@@ -37,6 +37,8 @@ $serviceMap = @{
     "analytics"   = "saleor-sales-analytics-app"
     "bulk"        = "saleor-bulk-manager-app"
     "studio"      = "saleor-image-studio-app"
+    "dropship"    = "saleor-dropship-app"
+    "tax"         = "saleor-tax-manager-app"
 }
 
 # Container name mapping (for health checks — containers have -dev suffix)
@@ -56,6 +58,8 @@ $containerMap = @{
     "saleor-sales-analytics-app"     = "saleor-sales-analytics-app-dev"
     "saleor-bulk-manager-app"        = "saleor-bulk-manager-app-dev"
     "saleor-image-studio-app"        = "saleor-image-studio-app-dev"
+    "saleor-dropship-app"            = "saleor-dropship-app-dev"
+    "saleor-tax-manager-app"         = "saleor-tax-manager-app-dev"
 }
 
 function Restart-SingleService {
@@ -126,7 +130,7 @@ switch ($Service.ToLower()) {
 
     "apps" {
         Write-Host "  Restarting all apps..." -ForegroundColor Cyan
-        $appKeys = @("stripe", "smtp", "invoices", "control", "newsletter", "analytics", "bulk", "studio")
+        $appKeys = @("stripe", "smtp", "invoices", "control", "newsletter", "analytics", "bulk", "studio", "dropship", "tax")
         foreach ($key in $appKeys) {
             Restart-SingleService -ComposeName $serviceMap[$key] -DisplayName $key
         }

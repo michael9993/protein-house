@@ -81,6 +81,23 @@ docker compose -f infra/docker-compose.dev.yml ps    # Verify health
 
 All commands use `docker exec`. For an interactive shell, use `docker exec -it <container> sh`.
 
+### Platform CLI (`infra/platform.ps1`)
+
+```powershell
+.\infra\platform.ps1 status                    # Health dashboard
+.\infra\platform.ps1 up                        # Start platform (Docker + ephemeral tunnels)
+.\infra\platform.ps1 up -Mode selfhosted       # Start with named tunnels
+.\infra\platform.ps1 down                      # Stop everything
+.\infra\platform.ps1 restart storefront        # Restart a service
+.\infra\platform.ps1 backup -Compress          # Database backup
+.\infra\platform.ps1 install-apps              # Register all Saleor apps
+.\infra\platform.ps1 logs api                  # Tail container logs
+.\infra\platform.ps1 codegen                   # Run GraphQL codegen
+.\infra\platform.ps1 generate-tunnel-config    # Regenerate cloudflared-config.yml
+```
+
+Service registry: `infra/platform.yml` — single source of truth for all ports, containers, tunnels.
+
 ### Saleor API (saleor/) — Container: `saleor-api-dev`
 
 ```bash

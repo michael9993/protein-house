@@ -136,7 +136,7 @@ Edit `infra/.env.self-hosted` and fill in:
 If using a domain other than `halacosmetics.org`, update these files:
 - `infra/.env.self-hosted` - All `*.halacosmetics.org` URLs
 - `infra/cloudflared-config.yml` - All hostname entries
-- `infra/scripts/launch-self-hosted.ps1` - The `$domain` variable and `$urls` hash
+- Set `PLATFORM_DOMAIN` environment variable, or pass `-Domain` to platform.ps1
 
 ---
 
@@ -185,7 +185,7 @@ These limits are generous for a beta/early-stage store.
 
 ### First Launch
 ```powershell
-.\infra\scripts\launch-self-hosted.ps1
+.\infra\platform.ps1 up -Mode selfhosted
 ```
 
 This will:
@@ -200,7 +200,7 @@ This will:
 ### First-Time App Registration
 After the first launch, you need to register all Saleor apps in the Dashboard:
 ```powershell
-.\infra\scripts\install-dashboard-apps.ps1
+.\infra\platform.ps1 install-apps
 ```
 
 This registers all 8 apps (Stripe, SMTP, Invoices, Control, Newsletter, Analytics, Bulk Manager, Image Studio) with their tunnel URLs.
@@ -211,37 +211,32 @@ This registers all 8 apps (Stripe, SMTP, Invoices, Control, Newsletter, Analytic
 
 ### Start Platform
 ```powershell
-.\infra\scripts\launch-self-hosted.ps1
+.\infra\platform.ps1 up -Mode selfhosted
 ```
 
 ### Stop Platform
 ```powershell
-.\infra\scripts\stop-self-hosted.ps1              # Stop tunnel + containers
-.\infra\scripts\stop-self-hosted.ps1 -TunnelOnly   # Stop tunnel, keep containers
-.\infra\scripts\stop-self-hosted.ps1 -Backup        # Backup DB before stopping
-.\infra\scripts\stop-self-hosted.ps1 -RestoreDev    # Restore dev .env after stopping
+.\infra\platform.ps1 down
 ```
 
 ### Check Status
 ```powershell
-.\infra\scripts\status-self-hosted.ps1
+.\infra\platform.ps1 status
 ```
 Shows: container health, tunnel status, CPU/RAM usage, DB size, last backup.
 
 ### Restart a Service
 ```powershell
-.\infra\scripts\restart-service.ps1 storefront     # Restart storefront only
-.\infra\scripts\restart-service.ps1 api            # Restart Saleor API
-.\infra\scripts\restart-service.ps1 all            # Restart everything
-.\infra\scripts\restart-service.ps1 apps           # Restart all 8 apps
-.\infra\scripts\restart-service.ps1 tunnel         # Restart Cloudflare tunnel
+.\infra\platform.ps1 restart storefront     # Restart storefront only
+.\infra\platform.ps1 restart api            # Restart Saleor API
+.\infra\platform.ps1 restart all            # Restart everything
 ```
 
 ### Manual Backup
 ```powershell
-.\infra\scripts\backup-self-hosted.ps1                    # Basic backup
-.\infra\scripts\backup-self-hosted.ps1 -Compress          # Compressed backup
-.\infra\scripts\backup-self-hosted.ps1 -Retain 60         # Keep 60 days
+.\infra\platform.ps1 backup                    # Basic backup
+.\infra\platform.ps1 backup -Compress          # Compressed backup
+.\infra\platform.ps1 backup -Compress -Retain 60   # Compressed, keep 60 days
 ```
 
 Backups are saved to `C:\Users\micha\saleor-backups\`.
@@ -261,7 +256,7 @@ Backups are saved to `C:\Users\micha\saleor-backups\`.
 | General | Run whether user is logged on or not | Check |
 | Triggers | New > Daily | 2:00 AM |
 | Actions | New > Start a program | `powershell.exe` |
-| Actions | Arguments | `-File "C:\Users\micha\saleor-platform\infra\scripts\backup-self-hosted.ps1" -Compress -Quiet` |
+| Actions | Arguments | `-File "C:\Users\micha\saleor-platform\infra\platform.ps1" backup -Compress -Quiet` |
 | Conditions | Start only if on AC power | Check |
 | Settings | If task fails, restart every | 30 minutes, up to 3 times |
 
@@ -334,7 +329,7 @@ docker compose -f infra/docker-compose.dev.yml logs --tail=50 saleor-storefront-
 This means the API's `PUBLIC_URL` doesn't match the URL apps use for webhook verification.
 - Verify `SALEOR_API_TUNNEL_URL` in `.env.self-hosted` matches `api.halacosmetics.org`
 - Verify `RSA_PRIVATE_KEY` is set (both API and Worker must use the same key)
-- Restart API + Worker: `.\infra\scripts\restart-service.ps1 api`
+- Restart API + Worker: `.\infra\platform.ps1 restart api`
 
 ### Storefront shows blank page
 ```powershell
@@ -359,8 +354,9 @@ docker exec saleor-postgres-dev pg_dump -U saleor saleor | wc -l
 
 ### Switching back to development mode
 ```powershell
-.\infra\scripts\stop-self-hosted.ps1 -RestoreDev
-# This restores infra/.env from .env.dev-backup
+.\infra\platform.ps1 down
+# Then manually restore infra/.env from infra/.env.dev-backup
+Copy-Item infra\.env.dev-backup infra\.env
 ```
 
 ---
@@ -388,12 +384,9 @@ Migration effort: ~2-3 hours.
 
 | File | Purpose |
 |------|---------|
-| `infra/.env.self-hosted` | Self-hosted environment variables (secrets, URLs) |
-| `infra/.env.dev-backup` | Backup of dev .env (auto-created by launch script) |
+| `infra/platform.ps1` | Unified platform CLI |
+| `infra/platform.yml` | Service registry (source of truth) |
+| `infra/lib/*.ps1` | CLI module files (8 modules) |
+| `infra/.env.self-hosted` | Self-hosted environment variables |
+| `infra/.env.dev-backup` | Backup of dev .env (auto-created) |
 | `infra/cloudflared-config.yml` | Cloudflare tunnel routing config |
-| `infra/scripts/launch-self-hosted.ps1` | Start everything (Docker + tunnel) |
-| `infra/scripts/stop-self-hosted.ps1` | Stop everything gracefully |
-| `infra/scripts/status-self-hosted.ps1` | Health check dashboard |
-| `infra/scripts/restart-service.ps1` | Restart individual services |
-| `infra/scripts/backup-self-hosted.ps1` | Database backup with rotation |
-| `infra/scripts/install-dashboard-apps.ps1` | Register all apps in Dashboard |

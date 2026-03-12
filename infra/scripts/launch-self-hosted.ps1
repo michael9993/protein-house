@@ -36,7 +36,8 @@ param(
     [switch]$Ephemeral,      # Use ephemeral tunnels instead of named tunnel
     [switch]$NoBrowser,      # Don't open browser after launch
     [switch]$SkipEnvSwap,    # Don't swap .env (use current .env as-is)
-    [switch]$SkipDocker      # Skip Docker start (assume containers are already running)
+    [switch]$SkipDocker,     # Skip Docker start (assume containers are already running)
+    [string]$Domain = ""     # Override domain (default: PLATFORM_DOMAIN env var or halacosmetics.org)
 )
 
 $ErrorActionPreference = "Stop"
@@ -53,7 +54,7 @@ $viteConfigFile = Join-Path $rootDir "dashboard\vite.config.js"
 # ============================================================================
 # DOMAIN & URL CONFIGURATION
 # ============================================================================
-$domain = "halacosmetics.org"
+$domain = if ($Domain) { $Domain } elseif ($env:PLATFORM_DOMAIN) { $env:PLATFORM_DOMAIN } else { "halacosmetics.org" }
 
 # Display URLs (for summary output)
 $urls = @{
