@@ -317,6 +317,14 @@ export function useWhatsAppConfig() {
 }
 
 /**
+ * Get floating action buttons configuration
+ */
+export function useFloatingButtons() {
+  const config = useStoreConfig();
+  return config.ui.floatingButtons;
+}
+
+/**
  * Check if a page is enabled
  */
 export function usePageEnabled(pageName: keyof StoreConfig["pages"]): boolean {

@@ -867,6 +867,13 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       style: "pill",
       icon: "chevron",
     },
+    floatingButtons: {
+      whatsapp: { enabled: true, side: "start", order: 1 },
+      recentlyViewed: { enabled: true, side: "start", order: 2 },
+      wishlist: { enabled: true, side: "start", order: 3 },
+      gap: 0.75,
+      baseOffset: 7,
+    },
   },
 
   content: {

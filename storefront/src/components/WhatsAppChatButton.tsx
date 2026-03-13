@@ -3,21 +3,29 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
-import { useWhatsAppConfig } from "@/providers/StoreConfigProvider";
+import { useWhatsAppConfig, useFloatingButtons } from "@/providers/StoreConfigProvider";
+import { computeFloatingButtonPosition } from "@/lib/floating-buttons";
 
 export function WhatsAppChatButton() {
 	const [mounted, setMounted] = useState(false);
-	const { enabled, phoneNumber, defaultMessage } = useWhatsAppConfig();
+	const { enabled: whatsAppEnabled, phoneNumber, defaultMessage } = useWhatsAppConfig();
+	const fabConfig = useFloatingButtons();
 	const pathname = usePathname();
 
 	const pathParts = (pathname ?? "").split("/").filter(Boolean);
 	const isPDP = pathParts.length >= 3 && pathParts[1] === "products" && pathParts.length === 3;
 
+	const dir = typeof document !== "undefined"
+		? (document.documentElement.getAttribute("dir") as "ltr" | "rtl") || "ltr"
+		: "ltr";
+
+	const pos = computeFloatingButtonPosition("whatsapp", fabConfig, isPDP, dir);
+
 	useEffect(() => {
 		setMounted(true);
 	}, []);
 
-	if (!enabled || !phoneNumber) return null;
+	if (!whatsAppEnabled || !phoneNumber || !pos.enabled) return null;
 
 	const handleClick = () => {
 		const number = phoneNumber.replace(/[^0-9]/g, "");
@@ -30,11 +38,12 @@ export function WhatsAppChatButton() {
 			type="button"
 			onClick={handleClick}
 			aria-label="Chat on WhatsApp"
-			className="fixed left-5 z-[100] flex h-12 w-12 items-center justify-center rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.15)] transition-transform duration-300 hover:scale-110 active:scale-95"
+			className="fixed z-[100] flex h-12 w-12 items-center justify-center rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.15)] transition-transform duration-300 hover:scale-110 active:scale-95"
 			style={{
 				backgroundColor: "#25D366",
 				color: "#fff",
-				bottom: isPDP ? "calc(11rem + env(safe-area-inset-bottom, 0px))" : "calc(7rem + env(safe-area-inset-bottom, 0px))",
+				bottom: pos.bottom,
+				[pos.side]: "1.25rem",
 			}}
 		>
 			<svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">

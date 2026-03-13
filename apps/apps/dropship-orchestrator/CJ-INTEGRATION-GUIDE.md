@@ -36,7 +36,7 @@ http://saleor-dropship-app:3009/api/manifest
 Or use the install script:
 
 ```powershell
-.\infra\scripts\install-dashboard-apps.ps1
+.\infra\platform.ps1 install-apps
 ```
 
 ## 3. Configure CJ Credentials

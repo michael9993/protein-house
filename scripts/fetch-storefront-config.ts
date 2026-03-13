@@ -17,7 +17,7 @@
  *   STOREFRONT_CHANNELS=default,ils,usd \
  *   node scripts/fetch-storefront-config.ts
  * 
- * Output: storefront-cms-config.json (in project root)
+ * Output: storefront/storefront-cms-config.json
  */
 
 import fs from "node:fs";
@@ -114,7 +114,7 @@ async function run() {
     channels,
   };
 
-  const filePath = path.join(process.cwd(), "storefront-cms-config.json");
+  const filePath = path.join(process.cwd(), "storefront", "storefront-cms-config.json");
   fs.writeFileSync(filePath, JSON.stringify(payload, null, 2));
 
   console.log(`[fetch-storefront-config] ✅ Successfully generated ${filePath}`);

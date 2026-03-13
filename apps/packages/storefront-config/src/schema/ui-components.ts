@@ -234,6 +234,31 @@ export const SectionViewAllButtonSchema = z.object({
 });
 
 // ============================================
+// FLOATING ACTION BUTTONS
+// ============================================
+
+export const FloatingButtonIdSchema = z.enum(["whatsapp", "recentlyViewed", "wishlist"]);
+
+export const FloatingButtonItemSchema = z.object({
+  /** Whether this FAB is shown */
+  enabled: z.boolean(),
+  /** Which side of the screen — logical (respects RTL) */
+  side: z.enum(["start", "end"]),
+  /** Stacking order on its side — lower number = closer to bottom */
+  order: z.number().min(1).max(10),
+});
+
+export const FloatingButtonsSchema = z.object({
+  whatsapp: FloatingButtonItemSchema,
+  recentlyViewed: FloatingButtonItemSchema,
+  wishlist: FloatingButtonItemSchema,
+  /** Gap between FABs on the same side in rem */
+  gap: z.number().min(0.5).max(5),
+  /** Base offset from bottom in rem (before PDP extra offset) */
+  baseOffset: z.number().min(1).max(20),
+});
+
+// ============================================
 // FULL UI SCHEMA
 // ============================================
 
@@ -249,4 +274,5 @@ export const UiSchema = z.object({
   filterSidebar: FilterSidebarSchema.optional(),
   cart: CartUiSchema,
   sectionViewAllButton: SectionViewAllButtonSchema,
+  floatingButtons: FloatingButtonsSchema,
 });

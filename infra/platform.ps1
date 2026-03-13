@@ -584,12 +584,13 @@ $($ingressLines -join "`n")
         # Run the store wizard
         & "$scriptDir\scripts\init-new-store.ps1" @storeParams
 
-        # Run setup-environment.ps1 if .env doesn't exist
+        # Create .env from template if it doesn't exist
         if (-not (Test-Path $envFile)) {
-            $setupScript = Join-Path $scriptDir "scripts\setup-environment.ps1"
-            if (Test-Path $setupScript) {
-                Write-Step -Current 1 -Total 1 -Message "Setting up environment..."
-                & $setupScript
+            $templateFile = Join-Path $scriptDir "env-template.txt"
+            if (Test-Path $templateFile) {
+                Write-Step -Current 1 -Total 1 -Message "Creating .env from template..."
+                Copy-Item $templateFile $envFile
+                Write-Info "Created .env from template. Edit infra/.env with your settings."
             }
         }
 

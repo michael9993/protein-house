@@ -27,8 +27,8 @@
 # Usage:
 #   cloudflared tunnel --config infra/cloudflared-config.yml run
 #
-# Or via the launch script:
-#   .\infra\scripts\launch-self-hosted.ps1
+# Or via the platform CLI:
+#   .\infra\platform.ps1 up -Mode selfhosted
 # e3d8f3ef-a6eb-46bc-b8e3-26162dbba0af
 # Replace with your tunnel name (from step 3)
 tunnel: aura-platform

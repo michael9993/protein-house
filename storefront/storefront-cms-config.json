@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-03-09T04:22:53.228Z",
+  "exportedAt": "2026-03-13T01:47:32.497Z",
   "channels": {
     "ils": {
       "version": 110,
@@ -3954,8 +3954,8 @@
       }
     },
     "usd": {
-      "version": 53,
-      "updatedAt": "2026-03-09T04:22:52.117Z",
+      "version": 6,
+      "updatedAt": "2026-03-13T01:47:31.254Z",
       "channelSlug": "usd",
       "store": {
         "name": "Pawzen",
@@ -3963,13 +3963,13 @@
         "type": "physical",
         "description": "Modern, curated pet accessories for dogs and cats. Thoughtfully designed products for your furry family.",
         "email": "support@pawzen.co",
-        "phone": "+1-555-PAWZEN",
+        "phone": "",
         "address": {
-          "street": "123 Main Street",
-          "city": "New York",
-          "state": "NY",
-          "zip": "10001",
-          "country": "United States"
+          "street": "",
+          "city": "",
+          "state": "",
+          "zip": "",
+          "country": ""
         }
       },
       "branding": {
@@ -4044,21 +4044,21 @@
         },
         "shipping": {
           "enabled": true,
-          "freeShippingThreshold": 50,
+          "freeShippingThreshold": 75,
           "showEstimatedDelivery": true,
           "deliverySlots": false,
-          "defaultEstimatedMinDays": 3,
-          "defaultEstimatedMaxDays": 7,
+          "defaultEstimatedMinDays": 7,
+          "defaultEstimatedMaxDays": 20,
           "estimatedDeliveryFormat": "range",
           "priceAdjustment": {
-            "enabled": false,
+            "enabled": true,
             "type": "round_down",
-            "value": 10,
-            "minPrice": 0
+            "value": 1,
+            "minPrice": 5
           },
           "freeShippingRule": {
-            "enabled": false,
-            "cartMinimum": 100,
+            "enabled": true,
+            "cartMinimum": 75,
             "maxMethodPrice": 0,
             "methodNameFilter": ""
           },
@@ -4096,7 +4096,7 @@
       "header": {
         "banner": {
           "enabled": true,
-          "text": "Free shipping on orders over $50 | Premium pet care, delivered",
+          "text": "Free shipping on orders over $75 | Premium pet care, delivered",
           "backgroundColor": "#1B2838",
           "textColor": "#D4B978",
           "useSaleorPromotions": true,
@@ -4198,7 +4198,7 @@
             "showNavDots": true,
             "background": {
               "style": "gradient",
-              "color": "#1B2838",
+              "color": "#ffffff",
               "secondaryColor": "#1E4D3A",
               "gradientDirection": "to-bottom-right"
             }
@@ -4228,7 +4228,7 @@
             }
           },
           "brandGrid": {
-            "enabled": true,
+            "enabled": false,
             "title": "Trusted Brands",
             "subtitle": "Curated from the world's best pet brands",
             "maxBrands": 8,
@@ -4255,6 +4255,7 @@
               "style": "none",
               "color": null,
               "secondaryColor": null,
+              "mixPercentage": 3,
               "patternType": "dots",
               "patternOpacity": 2
             }
@@ -4275,7 +4276,7 @@
             }
           },
           "promotionBanner": {
-            "enabled": true,
+            "enabled": false,
             "badgeText": "Limited Time",
             "title": "Treat Your Pet",
             "highlight": "Up to 25% Off",
@@ -4490,7 +4491,7 @@
       "integrations": {
         "analytics": {
           "googleAnalyticsId": null,
-          "googleTagManagerId": null,
+          "googleTagManagerId": "GTM-PWN35T2R",
           "facebookPixelId": null,
           "hotjarId": null
         },
@@ -4502,7 +4503,7 @@
           "intercomAppId": null,
           "zendeskKey": null,
           "crispWebsiteId": null,
-          "whatsappBusinessNumber": "+972501234567",
+          "whatsappBusinessNumber": "",
           "whatsappDefaultMessage": "Hi! I'd like more information"
         },
         "social": {
@@ -4861,6 +4862,25 @@
         "sectionViewAllButton": {
           "style": "pill",
           "icon": "chevron"
+        },
+        "floatingButtons": {
+          "whatsapp": {
+            "enabled": false,
+            "side": "start",
+            "order": 3
+          },
+          "recentlyViewed": {
+            "enabled": true,
+            "side": "start",
+            "order": 1
+          },
+          "wishlist": {
+            "enabled": true,
+            "side": "start",
+            "order": 2
+          },
+          "gap": 0.75,
+          "baseOffset": 7
         }
       },
       "content": {
@@ -6086,7 +6106,7 @@
       "relatedProducts": {
         "enabled": true,
         "strategy": "category",
-        "maxItems": 8,
+        "maxItems": 10,
         "showOnMobile": true,
         "title": "You May Also Like",
         "subtitle": "Customers also loved these products"

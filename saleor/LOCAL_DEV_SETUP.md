@@ -7,7 +7,7 @@ This guide shows you how to run Saleor locally for development while using Docke
 - **Saleor Core**: Running locally (Python/Django) - you can modify code
 - **PostgreSQL**: Running in Docker (shared with Docker setup)
 - **Redis**: Running in Docker (shared with Docker setup)
-- **Custom Plugins**: In `backend/plugins/` - mounted into local Saleor
+- **Custom Plugins**: In `saleor/plugins/custom/` - mounted into local Saleor
 
 ## Prerequisites
 
@@ -62,13 +62,13 @@ The `.env.local` file is configured to connect to Docker services:
 
 ### Creating Custom Plugins
 
-1. Create plugin in `backend/plugins/my_plugin/`:
+1. Create plugin in `saleor/plugins/custom/my_plugin/`:
 
 ```python
-# backend/plugins/my_plugin/__init__.py
+# saleor/plugins/custom/my_plugin/__init__.py
 from .plugin import MyCustomPlugin
 
-# backend/plugins/my_plugin/plugin.py
+# saleor/plugins/custom/my_plugin/plugin.py
 from saleor.plugins.base_plugin import BasePlugin
 
 class MyCustomPlugin(BasePlugin):
@@ -166,7 +166,7 @@ Make sure virtual environment is activated:
 ## Next Steps
 
 - Start developing your customizations
-- Create plugins in `backend/plugins/`
+- Create plugins in `saleor/plugins/custom/`
 - Modify Saleor core in `saleor/saleor/` as needed
 - Use the same database for consistency
 

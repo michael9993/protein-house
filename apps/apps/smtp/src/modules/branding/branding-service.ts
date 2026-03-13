@@ -6,6 +6,8 @@ export interface BrandingConfig {
   companyName: string;
   companyEmail: string;
   companyWebsite?: string;
+  companyTagline?: string;
+  storefrontUrl?: string;
   primaryColor: string;
   secondaryColor?: string;
   logo?: string;
@@ -123,6 +125,8 @@ export class BrandingService {
         companyName: config.store.name || "Your Store",
         companyEmail: config.store.email || "support@yourstore.com",
         companyWebsite: config.store.website || undefined,
+        companyTagline: config.store.tagline || undefined,
+        storefrontUrl: config.store.website || undefined,
         primaryColor: config.branding.colors?.primary || "#2563EB",
         secondaryColor: config.branding.colors?.secondary || "#1F2937",
         logo: config.branding.logo || undefined,
@@ -150,12 +154,14 @@ export class BrandingService {
    */
   static getDefaultBranding(): BrandingConfig {
     return {
-      companyName: "Pawzen",
-      companyEmail: "support@pawzen.co",
-      companyWebsite: "https://pawzen.co",
-      primaryColor: "#1B2838",
-      secondaryColor: "#C9A962",
-      logo: "https://shop.halacosmetics.org/logo/pawzen-logo-white.png",
+      companyName: process.env.STORE_NAME || "Your Store",
+      companyEmail: process.env.STORE_EMAIL || "support@yourstore.com",
+      companyWebsite: process.env.STOREFRONT_URL || undefined,
+      companyTagline: process.env.STORE_TAGLINE || undefined,
+      storefrontUrl: process.env.STOREFRONT_URL || undefined,
+      primaryColor: process.env.STORE_PRIMARY_COLOR || "#2563EB",
+      secondaryColor: process.env.STORE_SECONDARY_COLOR || "#1F2937",
+      logo: process.env.STORE_LOGO_URL || undefined,
     };
   }
 }

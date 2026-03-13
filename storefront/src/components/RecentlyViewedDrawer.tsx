@@ -8,7 +8,8 @@ import { usePathname } from "next/navigation";
 import { Drawer } from "vaul";
 import { Clock, X, Trash2, Heart } from "lucide-react";
 import { useRecentlyViewed, type RecentlyViewedItem } from "@/lib/recently-viewed";
-import { useFeature, useBranding, useContentConfig, useProductCardConfig, useBadgeStyle, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { useFeature, useBranding, useContentConfig, useProductCardConfig, useBadgeStyle, useComponentStyle, useComponentClasses, useFloatingButtons } from "@/providers/StoreConfigProvider";
+import { computeFloatingButtonPosition } from "@/lib/floating-buttons";
 import { buildComponentStyle } from "@/config";
 import { useWishlist } from "@/lib/wishlist";
 import { useQuickView } from "@/providers/QuickViewProvider";
@@ -392,16 +393,22 @@ export function RecentlyViewedFloatingButton() {
 	const { items } = useRecentlyViewed();
 	const { colors } = useBranding();
 	const pathname = usePathname();
+	const fabConfig = useFloatingButtons();
 
 	// Detect PDP — push FABs up to clear the sticky add-to-cart bar
 	const pathParts = (pathname ?? "").split("/").filter(Boolean);
 	const isPDP = pathParts.length >= 3 && pathParts[1] === "products" && pathParts.length === 3;
 
+	const dir = typeof document !== "undefined"
+		? (document.documentElement.getAttribute("dir") as "ltr" | "rtl") || "ltr"
+		: "ltr";
+	const pos = computeFloatingButtonPosition("recentlyViewed", fabConfig, isPDP, dir);
+
 	useEffect(() => {
 		setMounted(true);
 	}, []);
 
-	if (!enabled || items.length === 0) return null;
+	if (!enabled || items.length === 0 || !pos.enabled) return null;
 
 	const button = (
 		<>
@@ -409,9 +416,10 @@ export function RecentlyViewedFloatingButton() {
 				type="button"
 				onClick={() => setDrawerOpen(true)}
 				aria-label={`Recently viewed (${items.length})`}
-				className="fixed left-5 z-[100] flex h-12 w-12 items-center justify-center rounded-full border border-neutral-200 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.1)] transition-all duration-300 hover:scale-110 hover:shadow-[0_4px_24px_rgba(0,0,0,0.15)] active:scale-95"
+				className="fixed z-[100] flex h-12 w-12 items-center justify-center rounded-full border border-neutral-200 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.1)] transition-all duration-300 hover:scale-110 hover:shadow-[0_4px_24px_rgba(0,0,0,0.15)] active:scale-95"
 				style={{
-					bottom: isPDP ? "15rem" : "11rem",
+					bottom: pos.bottom,
+					[pos.side]: "1.25rem",
 				}}
 			>
 				<Clock className="h-5 w-5" style={{ color: colors.primary }} />

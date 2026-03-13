@@ -111,7 +111,7 @@ saleor-api:
 **90% of customizations can be done via plugins** without touching core:
 
 ```python
-# backend/plugins/my_feature/plugin.py
+# saleor/plugins/custom/my_feature/plugin.py
 from saleor.plugins.base_plugin import BasePlugin
 
 class MyFeaturePlugin(BasePlugin):
@@ -132,7 +132,7 @@ class MyFeaturePlugin(BasePlugin):
 ```yaml
 saleor-api:
   volumes:
-    - ./../backend/plugins:/app/plugins/custom
+    - ./../saleor/plugins/custom:/app/plugins/custom
 ```
 
 ### When You MUST Modify Core
@@ -157,7 +157,7 @@ If you absolutely need to modify core:
 
 **✅ Good approach (plugin):**
 
-- Create `backend/plugins/custom_payment/plugin.py`
+- Create `saleor/plugins/custom/custom_payment/plugin.py`
 - Implement payment gateway interface
 - Works with any Saleor version
 - Easy to maintain
@@ -180,7 +180,7 @@ If you absolutely need to modify core:
 **Start with Docker + Plugins:**
 
 1. Keep current Docker setup
-2. Create custom plugins in `backend/plugins/`
+2. Create custom plugins in `saleor/plugins/custom/`
 3. Only clone locally if you hit a limitation
 
 **Why?**

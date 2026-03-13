@@ -29,9 +29,10 @@ saleor-platform/
 │   └── packages/        # Shared packages (@saleor/apps-storefront-config, apps-logger, apps-ui, etc.)
 ├── scripts/
 │   └── catalog-generator/ # Store infrastructure as code + product catalog generation
-├── infra/               # Docker Compose orchestration & setup scripts
+├── infra/               # Docker Compose orchestration, platform CLI & setup scripts
 ├── PRD.md               # Product requirements (authoritative spec — keep updated)
-└── AGENTS.md            # Agent guidelines (commands, patterns — keep updated)
+├── AGENTS.md            # Agent guidelines (commands, patterns — keep updated)
+└── QUICK-START.md       # Quick start guide for new developers
 ```
 
 Check `.cursorrules` files in each subdirectory for project-specific conventions.
@@ -101,7 +102,7 @@ Service registry: `infra/platform.yml` — single source of truth for all ports,
 
 ### New Store Setup
 
-Clone the repo and run `platform.ps1 new-store` to rebrand everything for a new store. The wizard collects ~9 inputs and propagates them to all config files. See [QUICKSTART.md](QUICKSTART.md) for full guide.
+Clone the repo and run `platform.ps1 new-store` to rebrand everything for a new store. The wizard collects ~9 inputs and propagates them to all config files. See [QUICK-START.md](QUICK-START.md) for full guide.
 
 ```powershell
 # Interactive wizard
@@ -111,7 +112,7 @@ Clone the repo and run `platform.ps1 new-store` to rebrand everything for a new 
 .\infra\platform.ps1 new-store -StoreName "My Store" -PrimaryColor "#E11D48" -Domain "mystore.com"
 ```
 
-**Hydration targets**: `platform.yml`, `.env`, both sample config JSONs, `storefront-cms-config.json`, `cloudflared-config.yml`, TS config. Store identity lives in `platform.yml` under `store:` section.
+**Hydration targets**: `platform.yml`, `.env`, both sample config JSONs, `storefront/storefront-cms-config.json`, `cloudflared-config.yml`, TS config. Store identity lives in `platform.yml` under `store:` section.
 
 **Catalog templates**: `CATALOG_TEMPLATE=starter npm run generate` (in `scripts/catalog-generator/`) generates a 20-product starter catalog instead of the default Pawzen catalog.
 
@@ -275,7 +276,7 @@ Two target markets, routed via `[channel]` parameter in Next.js:
 
 **Shared Config Package**: `@saleor/apps-storefront-config` in `apps/packages/storefront-config/` — 20 domain schema files (2,332 lines), Zod-inferred types, config version migrations. Used by both the Storefront Control admin and the storefront consumer.
 
-**Implementation**: `storefront/src/providers/StoreConfigProvider.tsx` (1,975 lines, 64 exports) manages loading and provides hooks:
+**Implementation**: `storefront/src/providers/StoreConfigProvider.tsx` manages loading and provides hooks:
 - Generic: `useStoreConfig()`, `useConfigSection(key)`, `useHomepageSection(id)`, `useFeature(feature)`
 - Branding: `useBranding()`, `useDesignTokens()`, `useButtonStyle()`, `useBadgeStyle()`
 - Content: `useContentConfig()`, `useFiltersText()`, `useProductDetailText()`, `useOrdersText()`, + 10 more text hooks
@@ -286,54 +287,32 @@ Two target markets, routed via `[channel]` parameter in Next.js:
 
 Real-time updates via custom event `storefront-config-updated`. Preview mode via PostMessage iframe bridge.
 
-### Adding New Configurable Features
+### Adding New Configurable Features (11-File Sync)
 
-When adding any new feature, follow this checklist:
+**All config-related files MUST stay in sync.** A mismatch causes runtime errors, missing fields, or broken admin UI. When adding, renaming, or removing any config field, update ALL relevant files:
 
-1. Add schema in shared package: `apps/packages/storefront-config/src/schema/` (appropriate domain file)
-2. Update shared types: `apps/packages/storefront-config/src/types.ts` (if new top-level section)
-3. Add defaults in `apps/apps/storefront-control/src/modules/config/defaults.ts`
-4. Add admin form validation in `apps/apps/storefront-control/src/modules/config/schema.ts`
-5. Add/update types in `storefront/src/config/store.config.ts`
-6. Create/update React hook in `storefront/src/providers/StoreConfigProvider.tsx`
-7. **CRITICAL: Update BOTH sample config JSONs** — `sample-config-import.json` (Hebrew/ILS) AND `sample-config-import-en.json` (English/USD). These are the development fallback configs and must always have values for every field the storefront reads.
-8. Add UI controls in Storefront Control admin page (if user-facing)
-9. **Update settings search index** — `apps/apps/storefront-control/src/lib/settings-index.ts`. Add entries for new fields so they appear in Cmd+K command palette search. Each entry needs: `page`, `sectionId`, `title`, `description`, `keywords[]`, `category`, and `tab`.
-10. **Update Storefront Control admin page** — If adding a new section or tab, ensure navigation in the appropriate page component (`apps/apps/storefront-control/src/pages/[channelSlug]/`) reflects it.
-11. Update PRD.md, CLAUDE.md, and AGENTS.md if the change is significant.
-12. Restart affected containers (storefront + storefront-control-app at minimum).
+| # | File / Location | What to Do |
+|---|-----------------|------------|
+| 1 | `apps/packages/storefront-config/src/schema/` | Add/update Zod schema (source of truth) |
+| 2 | `apps/packages/storefront-config/src/types.ts` | Update exports (if new top-level section) |
+| 3 | `apps/apps/storefront-control/src/modules/config/defaults.ts` | Add default value |
+| 4 | `apps/apps/storefront-control/src/modules/config/schema.ts` | Add admin form validation |
+| 5 | `storefront/src/config/store.config.ts` | Add storefront-side type/default |
+| 6 | `storefront/src/providers/StoreConfigProvider.tsx` | Create/update React hook |
+| 7 | `apps/apps/storefront-control/sample-config-import.json` | Add Hebrew value (**never empty string**) |
+| 8 | `apps/apps/storefront-control/sample-config-import-en.json` | Add English value |
+| 9 | `apps/apps/storefront-control/src/lib/settings-index.ts` | Add Cmd+K search entry (`page`, `sectionId`, `title`, `description`, `keywords[]`, `category`, `tab`) |
+| 10 | `apps/apps/storefront-control/src/pages/[channelSlug]/` | Add admin UI controls (if user-facing) |
+| 11 | `PRD.md` / `CLAUDE.md` / `AGENTS.md` | Update docs (if significant) |
 
-**Sample Config Rules:**
-- Every content field read by the storefront MUST exist in both sample configs with proper translations
-- Hebrew config: all user-facing text must be in Hebrew, not empty strings
-- English config: all user-facing text must be in English
-- When adding content to `content.productDetail`, `content.homepage`, etc., add to BOTH files
-- Periodically audit for empty strings (`": ""`) in the Hebrew config — these indicate missing translations
+**After changes:** Restart storefront + storefront-control-app containers at minimum.
 
-### Keeping Everything in Sync (Critical)
-
-**All config-related files MUST stay in sync.** A mismatch between any of these causes runtime errors, missing fields, or broken admin UI. When modifying any one file in this list, check whether the others also need updates:
-
-| # | File / Location | What It Contains | When to Update |
-|---|-----------------|------------------|----------------|
-| 1 | `apps/packages/storefront-config/src/schema/` | Zod schema (source of truth for shape) | Any new field, renamed field, or type change |
-| 2 | `apps/packages/storefront-config/src/types.ts` | Exported TypeScript types (Zod-inferred) | New top-level section or re-export change |
-| 3 | `apps/apps/storefront-control/src/modules/config/defaults.ts` | Default values for every field | Any new field (must have a default) |
-| 4 | `apps/apps/storefront-control/src/modules/config/schema.ts` | Admin form validation schema | Any new field the admin form needs to validate |
-| 5 | `storefront/src/config/store.config.ts` | Storefront-side type definitions and defaults | Any new field the storefront reads |
-| 6 | `storefront/src/providers/StoreConfigProvider.tsx` | React hooks that expose config to components | Any new field or section that needs a hook |
-| 7 | `apps/apps/storefront-control/sample-config-import.json` | Hebrew/ILS development fallback | **Every** new content/config field |
-| 8 | `apps/apps/storefront-control/sample-config-import-en.json` | English/USD development fallback | **Every** new content/config field |
-| 9 | `apps/apps/storefront-control/src/lib/settings-index.ts` | Cmd+K search index for admin settings | Any new admin-visible field or section |
-| 10 | `apps/apps/storefront-control/src/pages/[channelSlug]/` | Admin UI pages (forms, tabs, sections) | Any new user-facing config field |
-| 11 | `PRD.md` / `CLAUDE.md` / `AGENTS.md` | Project documentation | Significant feature or architecture changes |
-
-**Sync Enforcement Rules:**
-- Never add a schema field without also adding its default, sample config values, and search index entry.
-- Never add a storefront hook without the corresponding schema field in the shared package.
-- Never add an admin form field without updating the settings search index (so Cmd+K finds it).
-- When renaming a field, update ALL 11 locations — partial renames cause silent breakage.
-- When removing a field, remove from ALL locations and check for dangling references in storefront components.
+**Hard rules:**
+- Never add a schema field without also adding its default, sample config values, and search index entry
+- Never add a storefront hook without the corresponding schema field in the shared package
+- When renaming a field, update ALL 11 locations — partial renames cause silent breakage
+- When removing a field, remove from ALL locations and check for dangling references
+- Both sample configs must have proper translations (Hebrew / English) — audit for empty strings periodically
 
 ```typescript
 // BAD: Hardcoded behavior
@@ -372,24 +351,7 @@ GraphQL definitions: `storefront/src/graphql/HomepageProducts.graphql`
 
 ### Homepage Configurable Sections
 
-12+ configurable sections, each with its own hook and config in Storefront Control:
-
-| Section | Component | Hook |
-|---------|-----------|------|
-| Hero | `Hero.tsx` | `useHeroConfig()` |
-| Trust Strip | `TrustStrip.tsx` | `useTrustStripConfig()` |
-| Marquee | `Marquee.tsx` | `useMarqueeConfig()` |
-| Brand Grid | `BrandGrid.tsx` | `useBrandGridConfig()` |
-| Categories | `Categories.tsx` | `useCategoriesConfig()` |
-| Trending Products | `TrendingProducts.tsx` | `useTrendingConfig()` |
-| Promotion Banner | `PromotionBanner.tsx` | `usePromotionBannerConfig()` |
-| Flash Deals | `FlashDeals.tsx` | `useFlashDealsConfig()` |
-| Collection Mosaic | `CollectionMosaic.tsx` | `useCollectionMosaicConfig()` |
-| Best Sellers | `BestSellersSection.tsx` | `useBestSellersConfig()` |
-| Customer Feedback | `CustomerFeedback.tsx` | `useCustomerFeedbackConfig()` |
-| Newsletter | `NewsletterSignup.tsx` | `useNewsletterSectionConfig()` |
-
-All in `storefront/src/components/home/`. Section order is drag-and-drop configurable via Design page.
+12+ configurable sections in `storefront/src/components/home/`, each with a `use<Section>Config()` hook. Sections: Hero, TrustStrip, Marquee, BrandGrid, Categories, TrendingProducts, PromotionBanner, FlashDeals, CollectionMosaic, BestSellers, CustomerFeedback, Newsletter. Section order is drag-and-drop configurable via the Design page in Storefront Control.
 
 ### Component Designer (Per-Component Style Overrides)
 
@@ -403,7 +365,7 @@ Visual playground in Storefront Control for overriding any storefront component'
 | File | Purpose |
 |------|---------|
 | `apps/packages/storefront-config/src/schema/component-overrides.ts` | Zod schema (19 properties: visual, typography, layout, hover, customClasses) |
-| `apps/apps/storefront-control/src/lib/component-registry.ts` | Runtime registry of 24 customizable components across 7 pages |
+| `apps/apps/storefront-control/src/lib/component-registry.ts` | Runtime registry of customizable components across 7 pages |
 | `apps/apps/storefront-control/src/pages/[channelSlug]/component-designer.tsx` | Admin page: split panel (tree + properties) |
 | `apps/apps/storefront-control/src/components/pages/component-designer/` | ComponentTree, StylePropertiesPanel, PropertyFieldRenderer |
 | `storefront/src/providers/StoreConfigProvider.tsx` | `useComponentStyle(key)` + `useComponentClasses(key)` hooks |
@@ -425,7 +387,7 @@ const cdClasses = useComponentClasses("homepage.hero");
 
 Server components use CSS variables directly (no hooks): `style={{ backgroundColor: 'var(--cd-layout-header-bg, transparent)' }}`.
 
-**Wired Components** (47): All registered components are fully wired via `buildComponentStyle()` helper. Homepage (13): Hero, TrustStrip, Marquee, Categories, TrendingProducts, PromotionBanner, FlashDeals, CollectionMosaic, BestSellers, CustomerFeedback, Newsletter, BrandGrid, HomepageProductCard. Layout (5): Header, Footer, HeaderBanner, MobileBottomNav, SearchDialog. PLP (5): ActiveFiltersTags, StickyQuickFilters, ProductCard, ProductGrid, SortBy. PDP (7): ProductGallery, AddToCart, StickyMobileAddToCart, VariantSelector, QuantitySelector, ProductTabs, RelatedProducts. Cart (2): CartPage, CartDrawer. Checkout (8): CheckoutPage, Summary, PlaceOrder, ContactStep, ShippingStep, DeliveryStep, PaymentStep, OrderConfirmation. Account (5): Dashboard, Orders, Addresses, Wishlist, Settings. Auth (2): Login, ForgotPassword.
+**Wired Components**: 47 components across all pages are fully wired via `buildComponentStyle()` helper. Covers: Homepage, Layout, PLP, PDP, Cart, Checkout, Account, Auth. Each component has a `data-cd="<key>"` attribute for the visual overlay system. See `apps/apps/storefront-control/src/lib/component-registry.ts` for the full registry.
 
 ### Apps Architecture Patterns
 
@@ -483,43 +445,16 @@ export async function addToCart(cartId: string, productId: string) {
   - Page object: `storefront/e2e/pages/checkout-v2.page.ts`
 - Payment integrations: Stripe (`@stripe/react-stripe-js`) and Adyen (`@adyen/adyen-web`)
 
-**Analytics & Consent Architecture:**
-- **Cookie Consent** (`storefront/src/lib/consent.ts`): localStorage-based, per-channel (`aura_cookie_consent_{channel}`), 3 categories (essential always on, analytics + marketing opt-in), configurable expiry. Dispatches `consent-updated` custom event on save.
-- **GA4 Analytics** (`storefront/src/lib/analytics.ts`): All events push to `window.dataLayer`. If no analytics consent, events queue in memory. After consent granted, `flushEventQueue()` sends queued events. Deduplication via `_sentEvents` Set prevents double-firing of `view_item` and `purchase`.
-- **GTM Loader** (`storefront/src/ui/components/GoogleTagManager.tsx`): Loads GTM script (`<Script strategy="afterInteractive">`) only after analytics consent. Listens for `consent-updated` event.
-- **Cookie Banner** (`storefront/src/ui/components/CookieConsent/CookieConsent.tsx`): Accept All / Essential Only / Manage Preferences. All text from `useCookieConsentText()`. Position + expiry from `useCookieConsentConfig()`.
-- **GA4 Events wired at**: `ProductDetailClient.tsx` (view_item + add_to_cart), `CartClient.tsx` (begin_checkout), `OrderConfirmation.tsx` (purchase), `TrackSearch.tsx` (search). Quick view modal fires view_item + add_to_cart via shared ProductDetailClient.
+**Analytics & Consent:**
+- **Cookie Consent** (`storefront/src/lib/consent.ts`): localStorage per-channel, 3 categories (essential/analytics/marketing), dispatches `consent-updated` event
+- **GA4** (`storefront/src/lib/analytics.ts`): Events push to `window.dataLayer`, queue if no consent, deduplication via `_sentEvents` Set
+- **GTM** (`storefront/src/ui/components/GoogleTagManager.tsx`): Loads only after analytics consent
+- **Events**: view_item + add_to_cart (PDP), begin_checkout (cart), purchase (confirmation), search
 - **GTM Container:** `GTM-PWN35T2R` | **GA4 Property:** `G-1X96SJX4SP`
 
-### Dashboard Architecture (D6 Modernization)
+### Dashboard Architecture
 
-The dashboard was modernized from MUI v5 to Tailwind CSS v4 + macaw-ui-next. Key architecture:
-
-**Styling Stack:**
-- Tailwind CSS v4 with `@theme` overrides in `dashboard/src/index.css` — `--spacing: 4px` and `--text-*` variables in px (not rem) because macaw-ui sets `html { font-size: 50.782% }` making 1rem = 8px
-- macaw-ui-next components (Input, Text, Divider, RadioGroup, etc.)
-- Lucide React icons (replaced @mui/icons-material)
-- `cn()` utility in `dashboard/src/utils/cn.ts` for class merging
-
-**Custom Table Components** (`dashboard/src/components/Table/`):
-- `Table`, `TableHead`, `TableBody`, `TableFooter`, `TableRow`, `TableCell` — native HTML `<table>` wrappers with Tailwind styling
-- `TableSectionContext` for automatic `<th>` vs `<td>` rendering
-- `TableCellHeader` — sortable column header with `ArrowSort` icon (24x24px, `w-6 h-6`)
-- `TableRowLink` — wraps data rows in `<Link style={{ all: "inherit", display: "contents" }}>` for clickable rows
-
-**URL Pattern** (`dashboard/src/utils/urls.ts`):
-- `withQs(path, params)` utility — all 26 URL files use this to prevent trailing `?` (React Router v7 rejects `?` in pathname objects)
-- `stringifyQs()` still used for iframe URLs in extensions
-
-**Routing:** React Router v7 with relative paths (all nested routes converted from absolute to relative).
-
-**Key Files:**
-- `dashboard/src/index.css` — Tailwind `@theme` with px overrides, color tokens, root font-size
-- `dashboard/src/components/Table/` — Custom table primitives (6 components + context)
-- `dashboard/src/components/TableCellHeader/` — Sortable header with ArrowSort icon
-- `dashboard/src/components/TableRowLink/` — Clickable table row with Link wrapper
-- `dashboard/src/utils/urls.ts` — `withQs` utility + `stringifyQs` re-export
-- `dashboard/src/utils/cn.ts` — `clsx` + `twMerge` utility
+Modernized from MUI v5 to Tailwind CSS v4 + macaw-ui-next. See `dashboard/CLAUDE.md` for full architecture details, including the font-size compatibility issue (1rem = ~8px), custom table components, `withQs()` URL pattern, and React Router v7 relative routing.
 
 ## Testing Conventions
 
@@ -557,32 +492,32 @@ pnpm test:e2e:ui                       # Playwright interactive UI
 
 **Apps-specific:** Result-based error handling with neverthrow. Branded types with Zod. BaseError subclasses. Repository pattern. Keep webhook handlers thin.
 
-## Mandatory Skill Invocations
+## Claude Code Skill Invocations
 
-These skills MUST be invoked (via the Skill tool) at the start of the corresponding workflow. Do not skip them.
+> These apply only to Claude Code sessions with the superpowers plugin installed.
 
-| Workflow | Skill to Invoke | When |
-|----------|----------------|------|
+| Workflow | Skill | When |
+|----------|-------|------|
 | Planning | `superpowers:writing-plans` | Before writing any implementation plan |
 | Executing Plans | `superpowers:executing-plans` | Before executing an approved plan |
 | Frontend Development | `senior-frontend` | Before any storefront/dashboard UI work |
 | Frontend Design | `frontend-design` | Before creating or redesigning UI components |
-| UI/UX Decisions | `ui-ux-pro-max` | Before making UI/UX design decisions, layout changes, or interaction patterns |
+| UI/UX Decisions | `ui-ux-pro-max` | Before making UI/UX design decisions |
 
 ## Saleor Apps Reference
 
-| App | Container | Port | Purpose |
-|-----|-----------|------|---------|
-| storefront-control | `saleor-storefront-control-app-dev` | 3004 | Page-based CMS admin (11 pages: Homepage, Product Listing, Product Detail, Cart, Checkout, Account, Auth, Layout, Static Pages, Global Design, Component Designer), ComponentBlock UI, shadcn/ui, Cmd+K, live preview |
-| sales-analytics | `saleor-sales-analytics-app-dev` | 3006 | KPIs, charts, Excel export |
-| newsletter | `saleor-newsletter-app-dev` | 3005 | Subscribers, MJML templates, campaigns |
-| stripe | `saleor-stripe-app-dev` | 3002 | Payment processing |
-| smtp | `saleor-smtp-app-dev` | 3001 | Email delivery (fulfillment, invoices, welcome) |
-| invoices | `saleor-invoice-app-dev` | 3003 | PDF invoice generation |
-| bulk-manager | `saleor-bulk-manager-app-dev` | 3007 | CSV/Excel bulk import/export/delete for products, categories, collections, customers, orders, vouchers, gift cards |
-| image-studio | `saleor-image-studio-app-dev` | 3008 | AI-powered image editor with canvas, templates, bg removal, generation, upscaling |
-| dropship-orchestrator | `saleor-dropship-app-dev` | 3009 | Multi-supplier dropshipping middleware (AliExpress + CJ), order forwarding, tracking sync, fraud detection, exception queue |
-| tax-manager | `saleor-tax-manager-app-dev` | 3010 | Self-hosted tax calculation with configurable country/state rates, export zero-rating, preset libraries (IL/EU/US) |
+See Container Map above for ports and container names. See `apps/CLAUDE.md` for app-specific architecture and patterns. App purposes:
+
+- **storefront-control** (3004): Page-based CMS admin (11 pages), ComponentBlock UI, shadcn/ui, Cmd+K, live preview
+- **stripe** (3002): Payment processing
+- **smtp** (3001): Email delivery (fulfillment, invoices, welcome)
+- **invoices** (3003): PDF invoice generation
+- **newsletter** (3005): Subscribers, MJML templates, campaigns
+- **sales-analytics** (3006): KPIs, charts, Excel export
+- **bulk-manager** (3007): CSV/Excel bulk import/export/delete (products, categories, collections, customers, orders, vouchers, gift cards)
+- **image-studio** (3008): AI-powered image editor (Fabric.js canvas, bg removal, upscaling, generation)
+- **dropship-orchestrator** (3009): Multi-supplier dropshipping (AliExpress + CJ), order forwarding, tracking, fraud detection
+- **tax-manager** (3010): Self-hosted tax calculation with country/state rates, export zero-rating
 
 ## Catalog Generator & Store Infrastructure (`scripts/catalog-generator/`)
 
@@ -618,34 +553,86 @@ npm run generate      # Generate product Excel + CSVs
 
 ## Key Configuration Files
 
-| File | Purpose |
-|------|---------|
-| `infra/.env` | Environment variables for all Docker services |
-| `infra/docker-compose.dev.yml` | Docker services orchestration |
-| `storefront/src/config/store.config.ts` | Build-time storefront defaults and types |
-| `storefront/storefront-cms-config.json` | Runtime CMS configuration |
-| `storefront/src/providers/StoreConfigProvider.tsx` | Config context + all config hooks |
-| `storefront/src/lib/graphql.ts` | GraphQL client setup (urql, retries, auth) |
-| `storefront/src/lib/cms.ts` | CMS content structure and metadata schema |
-| `apps/packages/storefront-config/src/schema/component-overrides.ts` | Component Designer Zod schema (ComponentStyleOverride, ComponentOverrides) |
-| `apps/apps/storefront-control/src/lib/component-registry.ts` | Component Designer runtime registry (24 components, 7 pages) |
-| `apps/packages/storefront-config/src/schema/` | Shared Zod config schema (21 files) |
-| `apps/packages/storefront-config/src/types.ts` | Shared TypeScript types (Zod-inferred) |
-| `apps/packages/storefront-config/src/migrations.ts` | Config version migrations |
-| `apps/apps/storefront-control/src/modules/config/schema.ts` | Admin form validation schema (227 lines) |
-| `apps/apps/storefront-control/src/modules/config/defaults.ts` | Default config values (1,665 lines) |
-| `apps/apps/storefront-control/sample-config-import.json` | Hebrew/ILS sample config |
-| `apps/apps/storefront-control/sample-config-import-en.json` | English/USD sample config |
-| `storefront/src/lib/consent.ts` | Cookie consent manager (localStorage, 3 categories, custom events) |
-| `storefront/src/lib/analytics.ts` | GA4 dataLayer events with consent queue + deduplication |
-| `storefront/src/ui/components/CookieConsent/CookieConsent.tsx` | GDPR cookie consent banner (configurable via Storefront Control) |
-| `storefront/src/ui/components/GoogleTagManager.tsx` | Consent-gated GTM script loader |
-| `apps/turbo.json` | Turborepo task pipeline |
-| `saleor/saleor/settings.py` | Django settings and installed apps |
-| `storefront/playwright.config.ts` | Playwright E2E config (Chrome, 60s timeout, traces on failure) |
-| `storefront/e2e/global-setup.ts` | E2E pre-flight checks (storefront + API + test user) |
-| `storefront/e2e/fixtures/graphql-client.ts` | Direct Saleor API client for E2E setup |
-| `storefront/e2e/fixtures/test-data.ts` | Test constants (channel, credentials, Stripe test card) |
+**Infrastructure:**
+- `infra/.env` — Environment variables for all Docker services
+- `infra/docker-compose.dev.yml` — Docker services orchestration
+- `infra/platform.yml` — Service registry (ports, containers, tunnels, store identity)
+
+**Storefront config pipeline** (see "Keeping Everything in Sync" for the full 11-file list):
+- `apps/packages/storefront-config/src/schema/` — Zod schemas (source of truth)
+- `apps/packages/storefront-config/src/types.ts` — Shared TypeScript types
+- `apps/apps/storefront-control/src/modules/config/defaults.ts` — Default values
+- `apps/apps/storefront-control/sample-config-import.json` — Hebrew/ILS dev fallback
+- `apps/apps/storefront-control/sample-config-import-en.json` — English/USD dev fallback
+- `storefront/src/config/store.config.ts` — Storefront-side types and defaults
+- `storefront/src/providers/StoreConfigProvider.tsx` — Config context + all hooks
+
+**Other key files:**
+- `storefront/src/lib/graphql.ts` — urql client (retries, auth, Docker service URLs)
+- `saleor/saleor/settings.py` — Django settings
+- `storefront/playwright.config.ts` — E2E config
+- `storefront/e2e/fixtures/test-data.ts` — Test constants (channel, credentials, Stripe test card)
+
+## Gotchas & Common Mistakes
+
+### Docker & Containers
+- **HMR does NOT work reliably** — Always `docker compose restart` after changes on Windows. Never assume saves are live.
+- **Volume mount changes** require `docker compose up --force-recreate`, not just `restart`
+- **Docker restart uses service names** (e.g., `saleor-bulk-manager-app`), not container names with `-dev` suffix
+- **Catalog generator runs on the HOST** (not Docker) — it connects to Saleor via the API URL in `.env`
+
+### TypeScript & React
+- **`export { X } from` does NOT make X local** — Must also `import { X }` separately to use in the same file
+- **ReactNode return type** — Don't use explicit `: ReactNode` on components used as JSX children (React 18 type compat). Let TS infer.
+- **React.RefObject** — Use `React.RefObject<HTMLElement>` not `React.RefObject<HTMLElement | null>` for DOM refs in JSX
+- **Zod array fields in forms** — Schema `z.array(z.string())` needs `Controller` with join/split logic, not plain `register()`
+
+### Config System
+- **After GraphQL schema changes**: Run `build_schema` in API, then `pnpm generate` in dashboard AND storefront
+- **New configurable features** require updating ALL 11 sync locations (see "Keeping Everything in Sync")
+- **Sample config JSONs**: ALWAYS update BOTH Hebrew AND English — every content field needs proper translations in both
+- **tsconfig paths for Docker**: Shared packages need `"zod": ["./node_modules/zod"]` so zod resolves correctly
+
+### Storefront
+- **RTL**: Always use logical CSS properties (`ms-4` not `ml-4`, `start-0` not `left-0`)
+- **CSS marquee + RTL**: RTL flex reverses copy order, breaking `translateX(-100%)`. Fix: `direction: ltr` on marquee container
+- **ButtonsSchema**: `borderRadius` is on `ButtonsSchema` (parent), not `ButtonVariantSchema` (children). Path: `ui.buttons.borderRadius`
+
+### Apps (Saleor Dashboard Iframe)
+- **macaw-ui Sprinkles crash**: macaw-ui Box/Text in page files crash in iframe. Keep macaw-ui ONLY in `_app.tsx`, use plain HTML primitives elsewhere
+- **AppBridge navigation**: Use `router.push()` with `<button>`, NOT `<Link>` from Next.js — Link fails silently in iframe
+
+### Large File Operations
+- **Large file rewrites**: Use PowerShell scripts with `Get-Content` + line range extraction, not the Write tool (token limits)
+
+## Environment Setup
+
+All environment variables live in `infra/.env`. Key variables:
+
+| Variable | Purpose | Example |
+|----------|---------|---------|
+| `SECRET_KEY` | Django secret key | Random string |
+| `DATABASE_URL` | PostgreSQL connection | `postgres://saleor:saleor@saleor-postgres:5432/saleor` |
+| `ALLOWED_HOSTS` | Django allowed hosts | `localhost,saleor-api` |
+| `DASHBOARD_URL` | Dashboard URL for CORS | `http://localhost:9000` |
+| `STOREFRONT_URL` | Storefront URL for CORS | `http://localhost:3000` |
+| `NEXT_PUBLIC_DEFAULT_CHANNEL` | Default storefront channel | `default-channel` |
+| `NEXT_PUBLIC_SALEOR_API_URL` | Client-side API URL | `http://localhost:8000/graphql/` |
+
+For tunneled/production access, update `ALLOWED_HOSTS`, `DASHBOARD_URL`, `STOREFRONT_URL`, and app `APP_API_BASE_URL` values. Use `platform.ps1 generate-tunnel-config` for cloudflared.
+
+## Troubleshooting
+
+| Problem | Diagnosis | Fix |
+|---------|-----------|-----|
+| Container won't start | `docker compose logs <container>` | Check for port conflicts, missing env vars, or syntax errors |
+| DB connection refused | `docker compose ps saleor-postgres-dev` | Ensure postgres is healthy; run `docker compose restart saleor-postgres-dev` |
+| GraphQL type errors after schema change | Types are stale | Run `build_schema` in API, then `pnpm generate` in dashboard + storefront |
+| "Module not found" in storefront | Shared package not mounted | Check volume mounts in docker-compose; run `docker compose up --force-recreate` |
+| App not appearing in Dashboard | App not registered | Run `platform.ps1 install-apps` or manually register via Dashboard > Apps |
+| Storefront shows fallback config | Storefront Control not reachable | Check `STOREFRONT_CONTROL_APP_URL` env var and app container health |
+| E2E tests fail to connect | Containers not running | Run `docker compose up -d` first; E2E expects `localhost:3000` + `localhost:8000` |
+| Type check passes but runtime crashes | HMR didn't pick up changes | Restart the container (`docker compose restart <container>`) |
 
 ## Important Documentation
 

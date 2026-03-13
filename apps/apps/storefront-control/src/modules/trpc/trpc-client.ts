@@ -21,8 +21,8 @@ export const trpcClient = createTRPCNext<AppRouter>({
             const { token, saleorApiUrl } = appBridgeInstance?.getState() || {};
 
             if (!token || !saleorApiUrl) {
-              console.error("Can't initialize tRPC client before establishing the App Bridge connection");
-              throw new Error("Token and Saleor API URL unknown");
+              console.warn("[tRPC] AppBridge not ready — skipping auth headers");
+              return {};
             }
 
             return {

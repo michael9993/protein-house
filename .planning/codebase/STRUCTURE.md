@@ -252,9 +252,8 @@ saleor-platform/
 │   ├── .env                     # Environment variables
 │   ├── .env.production.example  # Production env template
 │   ├── scripts/                 # Setup scripts
-│   │   ├── launch-platform.ps1  # Windows startup script
-│   │   ├── install-dashboard-apps.ps1 # Dashboard app installer
-│   │   ├── tunnel-image-studio.ps1 # Cloudflare tunnel for image studio
+│   │   ├── init-new-store.ps1   # New store setup wizard
+│   │   ├── toggle-storefront-mode.ps1 # Toggle dev/prod mode
 │   │   └── backup-db.sh         # PostgreSQL backup
 │   └── DEPLOY.md                # Deployment guide
 │

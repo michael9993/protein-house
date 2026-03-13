@@ -10,6 +10,8 @@ import type { TemplateLanguage } from "./configuration/smtp-config-schema";
  * ${COMPANY_NAME}     — Store name
  * ${COMPANY_EMAIL}    — Support email
  * ${COMPANY_WEBSITE}  — Store website URL
+ * ${COMPANY_TAGLINE}  — Store tagline / slogan
+ * ${STOREFRONT_URL}   — Storefront base URL (for links in emails)
  * ${LOGO_URL}         — Store logo image URL
  * ============================================================================
  */
@@ -38,7 +40,7 @@ const footerEn = `
       <mj-column>
         <mj-image src="\${LOGO_URL}" alt="\${COMPANY_NAME}" width="100px" align="center" padding="0 0 12px 0" />
         <mj-text align="center" font-size="12px" color="rgba(255,255,255,0.7)" padding="0 0 8px 0" line-height="1.5">
-          Calm. Curated. Pet Care.
+          \${COMPANY_TAGLINE}
         </mj-text>
         <mj-text align="center" font-size="13px" color="rgba(255,255,255,0.6)" padding="0 0 4px 0">
           Questions? <a href="mailto:\${COMPANY_EMAIL}" style="color: \${SECONDARY_COLOR}; text-decoration: none;">\${COMPANY_EMAIL}</a>
@@ -202,7 +204,7 @@ const footerHe = `
       <mj-column>
         <mj-image src="\${LOGO_URL}" alt="\${COMPANY_NAME}" width="100px" align="center" padding="0 0 12px 0" />
         <mj-text align="center" font-size="12px" color="rgba(255,255,255,0.7)" padding="0 0 8px 0" line-height="1.5">
-          שלווה ואיכות לחיית המחמד
+          \${COMPANY_TAGLINE}
         </mj-text>
         <mj-text align="center" font-size="13px" color="rgba(255,255,255,0.6)" padding="0 0 4px 0">
           שאלות? <a href="mailto:\${COMPANY_EMAIL}" style="color: \${SECONDARY_COLOR}; text-decoration: none;">\${COMPANY_EMAIL}</a>

@@ -302,7 +302,7 @@ Internet → Cloudflare Edge (CDN + SSL + DDoS protection)
 - **DDoS protection** — Cloudflare absorbs attacks
 - **Free** on Cloudflare's free tier
 
-You're already using `cloudflared` for dev tunnels (in `launch-platform.ps1`), so this is familiar.
+You're already using `cloudflared` for dev tunnels (via `platform.ps1 up`), so this is familiar.
 
 ### Realistic Self-Hosting Assessment
 

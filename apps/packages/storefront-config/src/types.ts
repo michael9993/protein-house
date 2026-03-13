@@ -61,6 +61,9 @@ import {
   CtaSchema,
   ComponentStyleOverrideSchema,
   ComponentOverridesSchema,
+  FloatingButtonsSchema,
+  FloatingButtonIdSchema,
+  FloatingButtonItemSchema,
 } from "./schema";
 
 // ============================================
@@ -130,3 +133,6 @@ export type NewsletterConfig = z.infer<typeof NewsletterSectionSchema>;
 export type CtaConfig = z.infer<typeof CtaSchema>;
 export type ComponentStyleOverride = z.infer<typeof ComponentStyleOverrideSchema>;
 export type ComponentOverrides = z.infer<typeof ComponentOverridesSchema>;
+export type FloatingButtonsConfig = z.infer<typeof FloatingButtonsSchema>;
+export type FloatingButtonId = z.infer<typeof FloatingButtonIdSchema>;
+export type FloatingButtonItemConfig = z.infer<typeof FloatingButtonItemSchema>;

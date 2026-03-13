@@ -158,7 +158,18 @@
       "Bash(cd /c/Users/micha/saleor-platform/.worktrees/devops-cleanup && rm -f \\\\\n  infra/scripts/tunnel-all.ps1 \\\\\n  infra/scripts/tunnel-all-simple.ps1 \\\\\n  infra/scripts/tunnel-all-labeled.ps1 \\\\\n  infra/scripts/tunnel-services.ps1 && echo \"Batch 2: Deleted 4 multi-tunnel scripts\")",
       "Bash(cd /c/Users/micha/saleor-platform/.worktrees/devops-cleanup && rm -f \\\\\n  infra/scripts/tunnel-all.sh \\\\\n  infra/scripts/tunnel-stripe.sh && echo \"Batch 3: Deleted 2 bash tunnel scripts\")",
       "Bash(cd /c/Users/micha/saleor-platform/.worktrees/devops-cleanup && rm -f \\\\\n  infra/scripts/install-bulk-manager-app.ps1 \\\\\n  infra/setup-tunnel-urls.ps1 \\\\\n  infra/scripts/setup-stripe-postgres.ps1 \\\\\n  infra/scripts/setup-stripe-env.ps1 && echo \"Batch 4: Deleted 4 superseded setup scripts\")",
-      "Bash(cd /c/Users/micha/saleor-platform/.worktrees/devops-cleanup && rm -f \\\\\n  infra/scripts/activate-openid-plugin.ps1 \\\\\n  infra/scripts/add-stripe-credentials.ps1 && echo \"Batch 5: Deleted 2 one-time scripts\")"
+      "Bash(cd /c/Users/micha/saleor-platform/.worktrees/devops-cleanup && rm -f \\\\\n  infra/scripts/activate-openid-plugin.ps1 \\\\\n  infra/scripts/add-stripe-credentials.ps1 && echo \"Batch 5: Deleted 2 one-time scripts\")",
+      "Bash(find /c/Users/micha/saleor-platform -type f \\\\\\( -name \"*.bak\" -o -name \"*.old\" -o -name \"*.deprecated\" -o -name \"*.tmp\" -o -name \"*TODO*\" -o -name \"*DEPRECATED*\" -o -name \"*UNUSED*\" \\\\\\) 2>/dev/null | head -50)",
+      "mcp__plugin_context-mode_context-mode__ctx_batch_execute",
+      "mcp__plugin_context-mode_context-mode__ctx_execute",
+      "Bash(python --version 2>&1 || py --version 2>&1)",
+      "Bash(set PYTHONIOENCODING=utf-8 && python .claude/skills/ui-ux-pro-max/scripts/search.py \"ecommerce fashion shoes hero creative professional\" --design-system -p \"Aura E-Commerce\" 2>&1)",
+      "Bash(PYTHONIOENCODING=utf-8 python .claude/skills/ui-ux-pro-max/scripts/search.py \"ecommerce fashion shoes hero creative professional\" --design-system -p \"Aura E-Commerce\" 2>&1 | head -120)",
+      "Bash(find /c/Users/micha/saleor-platform/storefront/src/app/\\\\[channel\\\\]/\\\\\\(main\\\\\\) -type f -name \"page.tsx\" | sort)",
+      "Bash(grep -r \"image\\\\|Image\\\\|next/image\" /c/Users/micha/saleor-platform/storefront/src/app/\\\\[channel\\\\]/\\\\\\(main\\\\\\)/products/\\\\[slug\\\\]/ProductDetailClient.tsx -m 5)",
+      "Bash(grep -r \"search\\\\|Search\" /c/Users/micha/saleor-platform/storefront/src/app/\\\\[channel\\\\]/\\\\\\(main\\\\\\)/search -l)",
+      "Bash(grep -r \"wishlist\\\\|Wishlist\" /c/Users/micha/saleor-platform/storefront/src/app/\\\\[channel\\\\]/\\\\\\(main\\\\\\)/account/wishlist -l)",
+      "Bash(PYTHONIOENCODING=utf-8 python .claude/skills/ui-ux-pro-max/scripts/search.py \"ecommerce hero card glassmorphism editorial\" --domain style -n 3 2>&1 | head -40)"
     ],
     "deny": [
       "Read(./.env*)",

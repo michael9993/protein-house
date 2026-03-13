@@ -54,7 +54,7 @@ Add to `infra/.env`:
 ```bash
 SALES_ANALYTICS_APP_PORT=3006
 SALES_ANALYTICS_APP_URL=http://localhost:3006
-# Tunnel URL will be set by launch-platform.ps1
+# Tunnel URL will be set by platform.ps1
 SALES_ANALYTICS_APP_TUNNEL_URL=https://your-tunnel.trycloudflare.com
 ```
 
@@ -71,7 +71,7 @@ docker compose -f infra/docker-compose.dev.yml up -d saleor-sales-analytics-app
 Use the installation script:
 
 ```powershell
-.\infra\scripts\install-dashboard-apps.ps1
+.\infra\platform.ps1 install-apps
 ```
 
 Or manually:

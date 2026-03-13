@@ -279,15 +279,16 @@ The services use volume mounts for hot-reload:
 
 ## Documentation
 
-- [URL Configuration Guide](../docs/URL_CONFIGURATION.md) - Complete URL setup guide
-- [Stripe App Setup](../docs/STRIPE_EXTENSIONS_INSTALL_FIX.md) - Stripe app installation
+- [Platform CLI Reference](scripts/README.md) - Unified CLI commands and options
+- [Self-Hosted Deployment](SELF-HOSTED.md) - Self-hosted deployment guide
+- [Deployment Guide](DEPLOY.md) - Production deployment
 - [Docker Compose Reference](https://docs.docker.com/compose/) - Official Docker Compose docs
 
 ## Support
 
 For issues:
 1. Check logs: `docker compose -f docker-compose.dev.yml logs -f`
-2. Review [URL Configuration Guide](../docs/URL_CONFIGURATION.md)
-3. Try: `.\scripts\sync-tunnel-urls.ps1`
+2. Review [CLAUDE.md](../CLAUDE.md) for Docker-first development patterns
+3. Use `.\platform.ps1 status` to check service health
 4. Restart services: `docker compose -f docker-compose.dev.yml restart`
 

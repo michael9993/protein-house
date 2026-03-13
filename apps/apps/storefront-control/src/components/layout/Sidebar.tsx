@@ -20,7 +20,7 @@ export function Sidebar({ channelSlug, channelName, activePage }: SidebarProps) 
   // Lightweight override count — piggybacks on cached config query
   const { data: config } = trpcClient.config.getConfig.useQuery(
     { channelSlug },
-    { staleTime: 60_000 }
+    { staleTime: 5 * 60_000, retry: 1, enabled: !!channelSlug }
   );
   const overrideCount = useMemo(() => {
     const overrides = config?.componentOverrides;

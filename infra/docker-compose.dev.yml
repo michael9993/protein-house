@@ -60,7 +60,8 @@ services:
       - ../saleor/manage.py:/app/manage.py
       - saleor-media:/app/media
       # Mount custom plugins if they exist
-      - ../backend/plugins:/app/plugins/custom:ro
+      # Custom plugins go in saleor/plugins/custom/
+      # - ../saleor/plugins/custom:/app/plugins/custom:ro
       # Mount migration scripts
       # - ./scripts/wait-for-db-and-migrate.sh:/app/scripts/wait-for-db-and-migrate.sh:ro
       # - ./scripts/wait-for-db-and-migrate.py:/app/scripts/wait-for-db-and-migrate.py:ro
@@ -143,7 +144,8 @@ services:
       - ../saleor/manage.py:/app/manage.py
       - saleor-media:/app/media
       # Mount custom plugins
-      - ../backend/plugins:/app/plugins/custom:ro
+      # Custom plugins go in saleor/plugins/custom/
+      # - ../saleor/plugins/custom:/app/plugins/custom:ro
     env_file:
       - .env
     environment:
@@ -184,7 +186,8 @@ services:
       # Mount local Saleor code
       - ../saleor:/app
       # Mount custom plugins
-      - ../backend/plugins:/app/plugins/custom:ro
+      # Custom plugins go in saleor/plugins/custom/
+      # - ../saleor/plugins/custom:/app/plugins/custom:ro
     env_file:
       - .env
     environment:
@@ -381,6 +384,12 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       # Secret key for encrypting app metadata - MUST match Newsletter app
       SECRET_KEY: ${APP_SECRET_KEY}
+      # Storefront Control URL for fetching branding (Docker internal)
+      STOREFRONT_CONTROL_APP_INTERNAL_URL: http://saleor-storefront-control-app:3000
+      # Fallback store branding (used if Storefront Control unreachable)
+      STORE_NAME: ${STORE_NAME:-Your Store}
+      STORE_EMAIL: ${STORE_EMAIL:-support@yourstore.com}
+      STOREFRONT_URL: ${STOREFRONT_URL:-http://localhost:3000}
       # Disable OpenTelemetry/Sentry in development
       OTEL_ENABLED: ${OTEL_ENABLED:-false}
       NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}

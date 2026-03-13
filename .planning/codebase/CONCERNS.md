@@ -245,7 +245,7 @@
 **Problem:** Several files have examples with hardcoded secrets or use environment variables without validation.
 
 **Files:**
-- `docs/JWT_TOKEN_ISSUER_FIX.md` — Contains example tunnel URLs (non-secret, but patterns)
+- (deleted) `docs/JWT_TOKEN_ISSUER_FIX.md` — Contained example tunnel URLs (non-secret, but patterns)
 - `infra/.env` — Actual env file (should be `.gitignore`d, appears to be present)
 - `.env.example` files throughout — Correct, but verify no actual values committed
 
@@ -445,7 +445,7 @@ saleor-api-dev:
 
 **Impact:** **MEDIUM** — Auth bugs could lock users out or expose data.
 
-**Recommendation:** Document custom auth approach in `docs/AUTHENTICATION.md` or CLAUDE.md section 5.
+**Recommendation:** Document custom auth approach in CLAUDE.md.
 
 ---
 

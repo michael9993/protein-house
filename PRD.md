@@ -2,8 +2,8 @@
 
 ## Aura E-Commerce Platform
 
-**Version:** 1.8.0
-**Last Updated:** February 25, 2026
+**Version:** 1.9.0
+**Last Updated:** March 12, 2026
 **Status:** Active Development
 **Document Owner:** Development Team
 
@@ -80,7 +80,7 @@ Aura is a fully-featured, enterprise-grade, multi-tenant e-commerce platform bui
 ```
 saleor-platform/
 ├── saleor/                    # Django/GraphQL Backend (Python 3.12)
-├── dashboard/                 # Admin Dashboard (React 18 + Vite)
+├── dashboard/                 # Admin Dashboard (React 18 + Vite + Tailwind CSS v4)
 ├── storefront/               # Customer-Facing Storefront (Next.js 16, React 19)
 ├── apps/                     # Saleor Apps Monorepo (Turborepo)
 │   ├── apps/
@@ -90,14 +90,22 @@ saleor-platform/
 │   │   ├── smtp/                 # Email Notifications
 │   │   ├── invoices/             # PDF Invoice Generation
 │   │   ├── newsletter/           # Newsletter & Campaigns
-│   │   └── sales-analytics/      # Sales Analytics Dashboard
+│   │   ├── sales-analytics/      # Sales Analytics Dashboard
+│   │   ├── image-studio/         # AI-Powered Image Editor
+│   │   ├── dropship-orchestrator/ # AliExpress + CJ Dropshipping
+│   │   └── tax-manager/          # Self-Hosted Tax Calculation
 │   └── packages/
 │       └── storefront-config/    # Shared config schema & types (@saleor/apps-storefront-config)
-├── infra/                    # Docker Compose & Infrastructure
-│   └── docker-compose.dev.yml    # Main development orchestration
+├── scripts/
+│   └── catalog-generator/        # Store infrastructure as code + product catalog generation
+├── infra/                    # Docker Compose, Platform CLI & setup scripts
+│   ├── platform.ps1              # Unified CLI entry point
+│   ├── platform.yml              # Service registry (source of truth)
+│   └── docker-compose.dev.yml    # Docker services orchestration
 ├── PRD.md                    # This document (keep updated!)
 ├── CLAUDE.md                 # Claude Code guidelines (keep updated!)
-└── AGENTS.md                 # Agent guidelines (keep updated!)
+├── AGENTS.md                 # Agent guidelines (keep updated!)
+└── QUICK-START.md            # Quick start guide for new developers
 ```
 
 ### 2.2 Project Goals
@@ -269,6 +277,11 @@ const price = formatPrice(product.pricing);
 │  │ (Payments) │ │ (Email)    │ │ App       │ │ App        │ │ Analytics  │  │
 │  └────────────┘ └────────────┘ └───────────┘ └────────────┘ └────────────┘  │
 │                                                                              │
+│  ┌────────────────────────────────────────────────────────────────────────┐   │
+│  │                        Tax Manager App                                │   │
+│  │  Self-hosted tax calculation with country/state rates, preset libs   │   │
+│  └────────────────────────────────────────────────────────────────────────┘  │
+│                                                                              │
 │  ┌────────────────────────────────────┐  ┌────────────────────────────────┐  │
 │  │       Bulk Manager App             │  │  Shared Config Package         │  │
 │  │  Import/Export: Products,          │  │  @saleor/apps-storefront-config│  │
@@ -286,7 +299,8 @@ const price = formatPrice(product.pricing);
 │                                                                              │
 │  ┌─────────────────────────────────────────────────────────────────────────┐ │
 │  │                     Storefront Control App (CMS)                        │ │
-│  │         Theme | Features | Content | Filters | SEO | Sections           │ │
+│  │  Page-based CMS (11 pages): Homepage, PLP, PDP, Cart, Checkout,       │ │
+│  │  Account, Auth, Layout, Static Pages, Global Design, Component Dsnr   │ │
 │  └─────────────────────────────────────────────────────────────────────────┘ │
 │                                                                              │
 ├──────────────────────────────────────────────────────────────────────────────┤
@@ -399,6 +413,7 @@ All development happens inside Docker containers. **Never run npm/pnpm/npx direc
 | `saleor-bulk-manager-app-dev`       | 3007 | Bulk import/export       |
 | `saleor-image-studio-app-dev`      | 3008 | AI image editor          |
 | `saleor-dropship-app-dev`          | 3009 | Dropship orchestrator    |
+| `saleor-tax-manager-app-dev`       | 3010 | Tax calculation engine   |
 | `saleor-rembg-dev`                 | 7000 | AI background removal    |
 | `saleor-esrgan-dev`                | 7001 | AI image upscaling       |
 
@@ -456,12 +471,17 @@ storefront/src/
 │       │   ├── categories/  # Category pages
 │       │   ├── cart/        # Shopping cart
 │       │   ├── account/     # User account
-│       │   └── checkout/    # Checkout flow
-│       └── checkout/        # Checkout layout
+│       │   └── search/      # Search results
+│       └── checkout/        # Checkout layout (routes to checkout-v2)
+├── checkout-v2/             # Accordion checkout (App Router, React Hook Form + Zod)
+│   ├── _actions/            # 11 server actions (create, update, complete checkout)
+│   ├── _components/         # Step components (Contact, Shipping, Delivery, Payment)
+│   └── confirmation/        # Order confirmation page
 ├── ui/                      # UI Components
 │   └── components/          # Reusable components
 ├── providers/               # React Context providers
 ├── lib/                     # Utilities & helpers
+│   └── checkout/            # Shared checkout modules (GraphQL types, hooks, utils)
 ├── graphql/                 # GraphQL queries/mutations
 ├── gql/                     # Generated GraphQL types
 └── config/                  # Static configuration files
@@ -475,8 +495,8 @@ storefront/src/
 | `/products`          | `ProductsGrid.tsx`         | Product listing with filters                   |
 | `/products/[slug]`   | `ProductDetailClient.tsx`  | Product detail page                            |
 | `/categories/[slug]` | `CategoryProductsGrid.tsx` | Category product listing                       |
-| `/cart`              | `CartPage.tsx`             | Shopping cart                                  |
-| `/checkout`          | Checkout flow              | Multi-step checkout                            |
+| `/cart`              | `CartPage.tsx`             | Shopping cart (drawer + page mode)             |
+| `/checkout`          | Checkout V2 (accordion)    | Single-page accordion: Contact → Shipping → Delivery → Payment |
 | `/account`           | Account dashboard          | User orders, addresses, settings               |
 | `/login`             | `LoginClient.tsx`          | Authentication                                 |
 
@@ -552,13 +572,12 @@ The Storefront Control App is a Saleor App that acts as a CMS for the storefront
 │  ┌─────────────────────────────────────────┐                                │
 │  │ Storefront Control App (Port 3004)       │                                │
 │  │ ─────────────────────────────────────── │                                │
-│  │ • 6-Section Admin: Store, Design, Pages,  │                                │
-│  │   Commerce, Content, Integrations         │                                │
+│  │ • Page-Based CMS (11 pages like Shopify)  │                                │
+│  │ • Component Designer (47 wired components)│                                │
 │  │ • shadcn/ui + Tailwind CSS + Radix UI    │                                │
 │  │ • Cmd+K Command Palette + Search         │                                │
-│  │ • Live Preview (PostMessage bridge)       │                                │
-│  │ • Homepage Section Drag & Drop           │                                │
-│  │ • Content Editor (6 sub-tabs)            │                                │
+│  │ • Live Preview (PostMessage iframe bridge)│                                │
+│  │ • Homepage Section Drag & Drop + Reorder │                                │
 │  └──────────────┬──────────────────────────┘                                │
 │                 │                                                            │
 │                 │ Saves config via App Metadata API                          │
@@ -587,7 +606,6 @@ The Storefront Control App is a Saleor App that acts as a CMS for the storefront
 │  │ ────────────────────────────────────── │   (if API unavailable)         │
 │  │ • sample-config-import.json (Hebrew)   │                                 │
 │  │ • sample-config-import-en.json (English)│                                │
-│  │ • storefront-cms-config.json (runtime) │                                 │
 │  └────────────────────────────────────────┘                                 │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -825,21 +843,26 @@ Saleor Apps can extend the dashboard via:
 **Container:** `saleor-storefront-control-app-dev`
 **Port:** 3004
 
-**Admin UI (Redesigned):**
+**Admin UI (Page-Based CMS — Shopify Theme Editor pattern):**
 
-| Section | Page | Purpose |
-|---------|------|---------|
-| Store | `store.tsx` | Store info, name, description, legal links |
-| Design | `design.tsx` | Colors (10 tokens), typography, logos, card styles, homepage section ordering (drag & drop) |
-| Pages | `pages-config.tsx` | Landing page SEO, layout configuration |
-| Commerce | `commerce.tsx` | Currency, shipping, tax, filters, quick filters, promo popup |
-| Content | `content/` (6 tabs) | Global text, Shop text, Catalog text, Page text, Checkout text, Account text |
-| Integrations | `integrations.tsx` | Newsletter, SMTP, Stripe, social links |
+| Page | File | Purpose |
+|------|------|---------|
+| Homepage | `homepage.tsx` | Hero, sections, section ordering (drag & drop) |
+| Product Listing | `product-listing.tsx` | Grid layout, filters, quick filters, sort options |
+| Product Detail | `product-detail.tsx` | Gallery, variants, tabs, related products |
+| Cart | `cart.tsx` | Cart drawer, promo codes, free shipping bar |
+| Checkout | `checkout.tsx` | Checkout steps, payment, confirmation |
+| Account | `account.tsx` | Dashboard, orders, addresses, wishlist, settings |
+| Auth Pages | `auth-pages.tsx` | Login, register, forgot password |
+| Layout | `layout.tsx` | Header, footer, mobile nav, cookie consent |
+| Static Pages | `static-pages.tsx` | About, contact, FAQ, legal pages |
+| Global Design | `global.tsx` | Colors (10 tokens), typography, logos, buttons, badges, dark mode |
+| Component Designer | `component-designer.tsx` | Per-component visual style overrides |
 
 **Tech Stack:** shadcn/ui (19 primitives) + Radix UI + Tailwind CSS + React Hook Form + @dnd-kit
-**Features:** Cmd+K command palette, live preview (PostMessage iframe bridge), `useConfigPage` hook for form boilerplate elimination
+**Features:** Cmd+K command palette with settings search, live preview (PostMessage iframe bridge), `useConfigPage` hook for form boilerplate elimination, PAGE_REGISTRY for page→config mapping, ComponentBlock UI (collapsible cards with icon/title/toggle)
 
-**Component Designer:** Visual playground for per-component style overrides. Split-panel UI: component tree (24 components across 7 pages) + dynamic property editor (19 CSS properties: colors, typography, spacing, hover, custom Tailwind classes). Generates CSS custom properties (`--cd-{key}-{prop}`) for instant live preview without React re-renders. Cascade: Component override > Page config > Global branding. Features: "Copy style from..." to duplicate overrides between components, override count badge in sidebar nav.
+**Component Designer:** Visual playground for per-component style overrides. Split-panel UI: component tree (48 components across 7 pages) + dynamic property editor (19 CSS properties: colors, typography, spacing, hover, custom Tailwind classes). Generates CSS custom properties (`--cd-{key}-{prop}`) for instant live preview without React re-renders. Cascade: Component override > Page config > Global branding. Features: "Copy style from..." to duplicate overrides between components, override count badge in sidebar nav, click-to-edit visual overlay with hover highlights and drag-and-drop section reorder.
 
 **Shared Config Package:** `@saleor/apps-storefront-config` — 21 domain schema files, Zod-inferred types, config migrations. Used by both the admin app and the storefront.
 
@@ -1071,6 +1094,21 @@ npm run generate      # Product Excel + CSVs
 
 **UI Note**: Uses plain HTML primitives (`src/components/ui/primitives.tsx`) instead of macaw-ui Box/Text/Button — macaw-ui Sprinkles crash in Saleor Dashboard iframe. ThemeProvider/ThemeSynchronizer kept in `_app.tsx` only.
 
+### 9.11 Tax Manager App
+
+**Purpose**: Self-hosted tax calculation engine that replaces external tax services (AvaTax, TaxJar). Configurable country/state tax rates with preset libraries for common jurisdictions.
+
+**Container**: `saleor-tax-manager-app-dev` | **Port**: 3010
+
+**Key Features**:
+- **Tax Rate Configuration**: Per-country and per-state/province tax rates with effective dates
+- **Preset Libraries**: Pre-built tax rate templates for Israel (17% VAT), EU (country-specific VAT), and US (state sales tax)
+- **Export Zero-Rating**: Automatic 0% tax for export orders (shipping address outside taxable jurisdiction)
+- **Tax Class Support**: Maps Saleor tax classes to different rate schedules (standard, reduced, zero-rated)
+- **Channel-Aware**: Different tax configurations per sales channel
+
+**Permissions**: MANAGE_APPS, HANDLE_TAXES
+
 ---
 
 ## 10. Feature Specifications
@@ -1166,19 +1204,30 @@ relatedProducts: {
 **Cart Features:**
 
 - Drawer (slide-out) or page mode
-- Quantity adjustment
-- Promo code / voucher support
+- Quantity adjustment with inline controls
+- Promo code / voucher support with validation
 - Free shipping progress bar
-- Save for later
+- Save for later / wishlist integration
 - Selection-based checkout
 
-**Checkout Flow:**
+**Checkout V2 Architecture** (`storefront/src/checkout-v2/`):
 
-1. Contact information (email)
-2. Shipping address
-3. Delivery method
-4. Payment (Stripe)
-5. Order confirmation
+Single-page accordion checkout built with App Router, React Hook Form + Zod validation, `useReducer` + Context state management.
+
+| Step | ID | Component | Description |
+|------|----|-----------|-------------|
+| 0 | Contact | `ContactStep` | Email + optional password for deferred registration |
+| 1 | Shipping | `ShippingStep` | Address form with country/region autocomplete |
+| 2 | Delivery | `DeliveryStep` | Shipping method selection with rates |
+| 3 | Payment | `PaymentStep` | Stripe Elements integration, places order |
+
+- **Server Actions**: 11 actions in `_actions/` (createCheckout, updateEmail, setShippingAddress, setDeliveryMethod, completeCheckout, etc.)
+- **Deferred Registration**: Account creation happens AFTER order placement (conversion-first). Password stored in `pendingAccount` context, `registerAccount` called post-`completeCheckout`.
+- **Payment**: Stripe (`@stripe/react-stripe-js`) and Adyen (`@adyen/adyen-web`) integrations
+- **Order Confirmation**: `confirmation/` with OrderSummary, OrderNextSteps, purchase GA4 event
+- **RTL Support**: Full RTL layout with logical CSS properties
+- **Shared Modules**: `storefront/src/lib/checkout/` (GraphQL types, `useCheckoutText`, `UserContext`, country data, address utils)
+- **E2E Tests**: `storefront/e2e/checkout-v2.spec.ts` — 6 tests (guest checkout, step locking, auth, CJ display, promo UX, RTL)
 
 ---
 
@@ -1240,17 +1289,40 @@ All UI text is configurable per-channel via Storefront Control:
 > Never run `npm`, `pnpm`, `npx`, or `python` directly on the host machine.
 > Always use `docker exec` to run commands inside the appropriate container.
 
-### 12.1 Starting the Development Environment
+### 12.1 Platform CLI
+
+All platform management goes through `.\infra\platform.ps1`:
+
+```powershell
+.\infra\platform.ps1 status                    # Health dashboard
+.\infra\platform.ps1 up                        # Start platform (Docker + tunnels)
+.\infra\platform.ps1 up -Mode selfhosted       # Start with named tunnels
+.\infra\platform.ps1 down                      # Stop everything
+.\infra\platform.ps1 restart <service>         # Restart a service
+.\infra\platform.ps1 backup -Compress          # Database backup
+.\infra\platform.ps1 install-apps              # Register all Saleor apps
+.\infra\platform.ps1 logs <service>            # Tail container logs
+.\infra\platform.ps1 codegen                   # Run GraphQL codegen
+.\infra\platform.ps1 new-store                 # Rebrand for a new store
+.\infra\platform.ps1 generate-tunnel-config    # Regenerate cloudflared-config.yml
+```
+
+Service registry: `infra/platform.yml` — single source of truth for all ports, containers, tunnels, and store identity.
+
+### 12.2 Starting the Development Environment
 
 ```bash
 # Navigate to project root
 cd saleor-platform
 
-# Start all services
+# Start all services (via Platform CLI)
+.\infra\platform.ps1 up
+
+# Or directly with Docker Compose
 docker compose -f infra/docker-compose.dev.yml up -d
 
-# Wait for all services to be healthy
-docker compose -f infra/docker-compose.dev.yml ps
+# Verify health
+.\infra\platform.ps1 status
 
 # Access applications:
 # - Storefront: http://localhost:3000
@@ -1258,7 +1330,7 @@ docker compose -f infra/docker-compose.dev.yml ps
 # - GraphQL Playground: http://localhost:8000/graphql/
 ```
 
-### 12.2 Storefront Commands
+### 12.3 Storefront Commands
 
 **Container:** `saleor-storefront-dev`
 
@@ -1285,7 +1357,7 @@ docker exec -it saleor-storefront-dev pnpm generate
 docker exec -it saleor-storefront-dev sh
 ```
 
-### 12.3 Dashboard Commands
+### 12.4 Dashboard Commands
 
 **Container:** `saleor-dashboard-dev`
 
@@ -1312,7 +1384,7 @@ docker exec -it saleor-dashboard-dev pnpm generate
 docker exec -it saleor-dashboard-dev pnpm test
 ```
 
-### 12.4 Apps Monorepo Commands
+### 12.5 Apps Monorepo Commands
 
 **Container:** `saleor-storefront-control-app-dev` (or other app containers)
 
@@ -1344,7 +1416,7 @@ docker exec -it saleor-stripe-app-dev pnpm install
 docker exec -it saleor-stripe-app-dev pnpm dev
 ```
 
-### 12.5 Saleor API (Python/Django) Commands
+### 12.6 Saleor API (Python/Django) Commands
 
 **Container:** `saleor-api-dev`
 
@@ -1374,7 +1446,7 @@ docker exec -it saleor-api-dev python manage.py shell
 docker exec -it saleor-api-dev bash
 ```
 
-### 12.6 Database Commands
+### 12.7 Database Commands
 
 **Container:** `saleor-postgres-dev`
 
@@ -1389,7 +1461,7 @@ docker exec saleor-postgres-dev pg_dump -U saleor saleor > backup.sql
 docker exec -i saleor-postgres-dev psql -U saleor saleor < backup.sql
 ```
 
-### 12.7 Container Restart Guidelines
+### 12.8 Container Restart Guidelines
 
 | Change Location                 | Container(s) to Restart                                       |
 | ------------------------------- | ------------------------------------------------------------- |
@@ -1406,6 +1478,7 @@ docker exec -i saleor-postgres-dev psql -U saleor saleor < backup.sql
 | `apps/apps/bulk-manager/`       | `saleor-bulk-manager-app-dev`                                 |
 | `apps/apps/image-studio/`      | `saleor-image-studio-app-dev`                                 |
 | `apps/apps/dropship-orchestrator/` | `saleor-dropship-app-dev`                                 |
+| `apps/apps/tax-manager/`        | `saleor-tax-manager-app-dev`                                |
 
 **Restart command:**
 
@@ -1413,7 +1486,7 @@ docker exec -i saleor-postgres-dev psql -U saleor saleor < backup.sql
 docker compose -f infra/docker-compose.dev.yml restart <container-name>
 ```
 
-### 12.8 Viewing Logs
+### 12.9 Viewing Logs
 
 ```bash
 # All containers
@@ -1426,7 +1499,7 @@ docker compose -f infra/docker-compose.dev.yml logs -f saleor-storefront-dev
 docker compose -f infra/docker-compose.dev.yml logs --tail=100 saleor-api-dev
 ```
 
-### 12.9 Code Style Guidelines
+### 12.10 Code Style Guidelines
 
 #### TypeScript/React
 
@@ -1673,7 +1746,14 @@ SMTP_HOST=smtp.example.com
 | ------------------------------ | --------------------------------------- | --------------------------- |
 | `PRD.md` (this file)           | Complete project specification          | Monthly / Major releases    |
 | `AGENTS.md`                    | AI agent guidelines, commands, patterns | With every workflow change  |
+| `CLAUDE.md`                    | Project instructions for Claude Code    | With architecture changes   |
+| `QUICK-START.md`               | Getting started guide (clone → run)     | With setup changes          |
+| `infra/PLATFORM-CLI.md`        | Platform CLI reference guide            | With CLI changes            |
+| `infra/DEPLOY.md`              | Production deployment guide             | With deployment changes     |
+| `infra/DEPLOYMENT-OPTIONS.md`  | Deployment architecture options         | With infrastructure changes |
 | `infra/docker-compose.dev.yml` | Service definitions                     | With infrastructure changes |
+| `infra/platform.yml`           | Service registry (single source of truth) | With service changes      |
+| `IMPROVEMENT-ROADMAP.md`       | Prioritized improvement roadmap         | Monthly                     |
 
 ### E. Version History
 
@@ -1687,12 +1767,14 @@ SMTP_HOST=smtp.example.com
 | 1.5.0   | 2026-02-20 | Documentation audit: Updated tech stack versions (Next.js 16, React 19.2, Tailwind 4.1, Zustand 5, URQL 5), added Dropship Orchestrator app (section 9.10), added missing containers (Image Studio, Dropship, rembg, esrgan), updated architecture diagram |
 | 1.6.0   | 2026-02-21 | Phase 0 pre-launch blockers: Added GA4/GTM analytics integration (consent-gated, 5 e-commerce events), GDPR cookie consent banner (3 categories, configurable via Storefront Control), Google Ads conversion tracking. Updated security section with cookie consent compliance. |
 | 1.7.0   | 2026-02-22 | Added E2E testing section (16): 23 Playwright tests across 5 critical flows (cart, checkout, auth, search, account). Page object pattern, cookie injection auth, global setup. Updated TOC. |
+| 1.8.0   | 2026-03-04 | Checkout V2 complete (Phases 0-6): Single-page accordion checkout with server actions, deferred registration, Stripe/Adyen integration. Page-based CMS refurbish (11 pages like Shopify Theme Editor). Component Designer with 47 wired components and visual overlay. |
+| 1.9.0   | 2026-03-12 | Major cleanup: Deleted ~161 stale files (~24,500 lines), removed deprecated scripts (superseded by platform.ps1), dissolved backend/ directory (moved docs to saleor/). Added Tax Manager App (section 9.11), Platform CLI section (12.1). Updated architecture diagram, Checkout V2 details, directory structure, Appendix D documentation table. |
 
 ---
 
 **Document Classification:** Internal Use  
 **Review Cycle:** Monthly  
-**Next Review:** March 2026
+**Next Review:** April 2026
 
 ---
 

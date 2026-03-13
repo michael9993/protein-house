@@ -1,221 +1,175 @@
-# Saleor Platform - Quick Start Guide
+# Aura E-Commerce Platform - Quick Start Guide
 
-## 🚀 Get Started in 3 Steps
+## Prerequisites
 
-### Step 1: Configure Environment
+- **Docker Desktop** (with Docker Compose v2)
+- **Git**
+- **PowerShell** (Windows) or **pwsh** (macOS/Linux)
+- **Node.js >= 22** and **pnpm >= 10** (for host-side scripts only)
 
-```powershell
-cd infra
-.\scripts\setup-environment.ps1
+## Step 1: Clone the Repository
+
+```bash
+git clone --recurse-submodules https://github.com/michael9993/saleor-platform.git
+cd saleor-platform
 ```
 
-**Or manually**:
+> The `--recurse-submodules` flag ensures `saleor/`, `dashboard/`, and `storefront/` submodules are cloned.
+
+## Step 2: Configure for Your Store
 
 ```powershell
-copy .env.example .env
-# Edit .env with your Stripe keys
+.\infra\platform.ps1 new-store
 ```
 
-### Step 2: Start Services
+This interactive wizard collects ~9 inputs (store name, domain, colors, etc.) and propagates them across all config files. For non-interactive setup:
 
 ```powershell
-docker compose -f docker-compose.dev.yml up -d
+.\infra\platform.ps1 new-store -StoreName "My Store" -PrimaryColor "#E11D48" -Domain "mystore.com"
 ```
 
-### Step 3: Access Services
+Or manually copy the env template:
 
-- **Saleor API**: http://localhost:8000/graphql/
-- **Dashboard**: http://localhost:9000
-- **Storefront**: http://localhost:3000
-- **Stripe App**: http://localhost:3002
+```powershell
+copy infra\env-template.txt infra\.env
+# Edit infra/.env with your settings
+```
 
-## 📋 Required Configuration
+## Step 3: Start the Platform
 
-### Minimum Required
+```powershell
+.\infra\platform.ps1 up
+```
+
+Or directly with Docker Compose:
+
+```bash
+docker compose -f infra/docker-compose.dev.yml up -d
+docker compose -f infra/docker-compose.dev.yml ps    # Verify health
+```
+
+## Step 4: Install Saleor Apps
+
+```powershell
+.\infra\platform.ps1 install-apps
+```
+
+This registers all apps in the Saleor Dashboard automatically.
+
+## Step 5: Access Services
+
+| Service | URL | Port |
+|---------|-----|------|
+| **Storefront** | http://localhost:3000 | 3000 |
+| **Dashboard** | http://localhost:9000 | 9000 |
+| **Saleor API** | http://localhost:8000/graphql/ | 8000 |
+
+## Platform Services
+
+### Core Infrastructure
+
+| Container | Port | Purpose |
+|-----------|------|---------|
+| `saleor-api-dev` | 8000 | Saleor GraphQL API |
+| `saleor-worker-dev` | - | Celery background worker |
+| `saleor-scheduler-dev` | - | Celery beat scheduler |
+| `saleor-dashboard-dev` | 9000 | Admin dashboard |
+| `saleor-storefront-dev` | 3000 | Customer storefront |
+| `saleor-postgres-dev` | 5432 | PostgreSQL database |
+| `saleor-redis-dev` | 6379 | Redis cache/broker |
+
+### Saleor Apps
+
+| App | Container | Port | Purpose |
+|-----|-----------|------|---------|
+| Storefront Control | `saleor-storefront-control-app-dev` | 3004 | CMS configuration & live preview |
+| SMTP | `saleor-smtp-app-dev` | 3001 | Email notifications |
+| Stripe | `saleor-stripe-app-dev` | 3002 | Payment processing |
+| Invoices | `saleor-invoice-app-dev` | 3003 | PDF invoice generation |
+| Newsletter | `saleor-newsletter-app-dev` | 3005 | Subscriber management & campaigns |
+| Sales Analytics | `saleor-sales-analytics-app-dev` | 3006 | KPIs, charts, Excel export |
+| Bulk Manager | `saleor-bulk-manager-app-dev` | 3007 | Bulk import/export/delete |
+| Image Studio | `saleor-image-studio-app-dev` | 3008 | AI-powered image editor |
+| Dropship Orchestrator | `saleor-dropship-app-dev` | 3009 | AliExpress + CJ dropshipping |
+| Tax Manager | `saleor-tax-manager-app-dev` | 3010 | Self-hosted tax calculation |
+
+### AI Services (Image Studio)
+
+| Container | Port | Purpose |
+|-----------|------|---------|
+| `saleor-rembg-dev` | 7000 | AI background removal |
+| `saleor-esrgan-dev` | 7001 | AI image upscaling |
+
+## Platform CLI Commands
+
+All platform management goes through `.\infra\platform.ps1`:
+
+```powershell
+.\infra\platform.ps1 status                    # Health dashboard
+.\infra\platform.ps1 up                        # Start platform (Docker + tunnels)
+.\infra\platform.ps1 up -Mode selfhosted       # Start with named tunnels
+.\infra\platform.ps1 down                      # Stop everything
+.\infra\platform.ps1 restart <service>         # Restart a service
+.\infra\platform.ps1 backup -Compress          # Database backup
+.\infra\platform.ps1 install-apps              # Register all Saleor apps
+.\infra\platform.ps1 logs <service>            # Tail container logs
+.\infra\platform.ps1 codegen                   # Run GraphQL codegen
+.\infra\platform.ps1 new-store                 # Rebrand for a new store
+.\infra\platform.ps1 generate-tunnel-config    # Regenerate cloudflared-config.yml
+```
+
+## Required Configuration
+
+### Minimum (infra/.env)
 
 ```env
-# In infra/.env
 STRIPE_PUBLISHABLE_KEY=pk_test_...
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 ```
 
-### With Tunnels (For Webhooks)
+### With Tunnels (for webhooks & external access)
 
 ```env
-# In infra/.env
 SALEOR_API_TUNNEL_URL=https://your-api.trycloudflare.com
 STRIPE_APP_TUNNEL_URL=https://your-stripe.trycloudflare.com
 ```
 
-## 🔧 Common Commands
+Use `.\infra\platform.ps1 up` to auto-start ephemeral tunnels, or `.\infra\platform.ps1 up -Mode selfhosted` for named tunnels.
 
-### Start Services
-
-```powershell
-docker compose -f docker-compose.dev.yml up -d
-```
-
-### Stop Services
-
-```powershell
-docker compose -f docker-compose.dev.yml down
-```
-
-### Restart a Service
-
-```powershell
-docker compose -f docker-compose.dev.yml restart saleor-api
-```
-
-### View Logs
-
-```powershell
-docker compose -f docker-compose.dev.yml logs -f saleor-stripe-app
-```
-
-### Check Service Status
-
-```powershell
-docker compose -f docker-compose.dev.yml ps
-```
-
-## 🌐 Setting Up Tunnels
-
-### Start Tunnels
-
-**Required (for webhooks)**:
-
-```powershell
-# Terminal 1: API tunnel
-cloudflared tunnel --url localhost:8000
-
-# Terminal 2: Stripe app tunnel
-cloudflared tunnel --url localhost:3002
-```
-
-**Optional (for external access to frontends)**:
-
-```powershell
-# Terminal 3: Dashboard tunnel (optional)
-cloudflared tunnel --url localhost:9000
-
-# Terminal 4: Storefront tunnel (optional)
-cloudflared tunnel --url localhost:3000
-```
-
-### Update Configuration
-
-```powershell
-# Add tunnel URLs to infra/.env
-
-# Required for webhooks:
-SALEOR_API_TUNNEL_URL=https://abc123.trycloudflare.com
-STRIPE_APP_TUNNEL_URL=https://def456.trycloudflare.com
-
-# Optional for external frontend access:
-DASHBOARD_TUNNEL_URL=https://ghi789.trycloudflare.com
-STOREFRONT_TUNNEL_URL=https://jkl012.trycloudflare.com
-```
-
-### Restart Services
-
-```powershell
-docker compose -f docker-compose.dev.yml restart saleor-api saleor-stripe-app
-```
-
-## 💳 Installing Stripe App
-
-1. Open Dashboard: http://localhost:9000
-2. Go to **Apps** → **Install App**
-3. Enter manifest URL:
-   - Localhost: `http://localhost:3002/api/manifest`
-   - Tunnel: `https://your-stripe-app.trycloudflare.com/api/manifest`
-4. Copy the app token
-5. Add to `infra/.env`: `STRIPE_APP_TOKEN=your-token`
-6. Restart: `docker compose -f docker-compose.dev.yml restart saleor-stripe-app`
-
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### Webhook 401 Errors
 
-**Problem**: Payment webhooks failing with 401
-
-**Fix**:
-
-1. Set `SALEOR_API_TUNNEL_URL` in `.env`
-2. Restart Saleor API
-3. Reinstall Stripe app
-4. See: `infra/CRITICAL-JWT-FIX.md`
+1. Set `SALEOR_API_TUNNEL_URL` in `infra/.env`
+2. Restart Saleor API: `.\infra\platform.ps1 restart api`
+3. Reinstall apps: `.\infra\platform.ps1 install-apps`
 
 ### Can't Connect to API
 
-**Problem**: Dashboard/Storefront can't reach API
+1. Verify `ALLOWED_GRAPHQL_ORIGINS=*` in `infra/.env`
+2. Check API status: `.\infra\platform.ps1 status`
+3. View logs: `.\infra\platform.ps1 logs api`
 
-**Fix**:
+### Container Won't Start
 
-1. Verify `ALLOWED_GRAPHQL_ORIGINS=*` in API
-2. Check API is running: `docker compose -f docker-compose.dev.yml ps saleor-api`
-3. Test API: `curl http://localhost:8000/graphql/`
+1. Check logs: `.\infra\platform.ps1 logs <service>`
+2. Rebuild: `docker compose -f infra/docker-compose.dev.yml up -d --build <service>`
+3. Check disk space: Docker Desktop may need more resources
 
-### Stripe Payments Not Working
+## Documentation
 
-**Problem**: Payments fail or hang
+- **Architecture & Commands**: `CLAUDE.md`
+- **Product Requirements**: `PRD.md`
+- **Platform CLI Reference**: `infra/scripts/README.md`
+- **Self-Hosted Deployment**: `infra/SELF-HOSTED.md`
+- **Production Deployment**: `infra/DEPLOY.md`
+- **Catalog Generator**: `scripts/catalog-generator/SETUP.md`
 
-**Fix**:
+## Next Steps
 
-1. Verify Stripe keys in `.env`
-2. Check Stripe webhook secret
-3. Use tunnel URLs for external webhooks
-4. Check logs: `docker compose -f docker-compose.dev.yml logs -f saleor-stripe-app`
-
-## 📚 Documentation
-
-- **Complete Guide**: `infra/CONFIGURATION.md` (16 pages)
-- **JWT Fix**: `infra/CRITICAL-JWT-FIX.md`
-- **Summary**: `UNIFIED-CONFIGURATION-SUMMARY.md`
-- **Setup Script**: `infra/scripts/setup-environment.ps1`
-
-## 🎯 Environment Variables Quick Reference
-
-| Variable                 | Purpose           | Example                            |
-| ------------------------ | ----------------- | ---------------------------------- |
-| `SALEOR_API_TUNNEL_URL`  | API public URL    | `https://api.trycloudflare.com`    |
-| `STRIPE_APP_TUNNEL_URL`  | Stripe app URL    | `https://stripe.trycloudflare.com` |
-| `STRIPE_PUBLISHABLE_KEY` | Stripe public key | `pk_test_...`                      |
-| `STRIPE_SECRET_KEY`      | Stripe secret     | `sk_test_...`                      |
-| `STRIPE_WEBHOOK_SECRET`  | Webhook secret    | `whsec_...`                        |
-| `STRIPE_APP_TOKEN`       | App auth token    | (from Dashboard)                   |
-
-**Important**:
-
-- Use **base URLs** (no `/graphql/` for API tunnel)
-- Restart services after changing `.env`
-- Reinstall apps after changing API URL
-
-## ✨ Features
-
-✅ **Unified Configuration** - One `.env` file for everything  
-✅ **No Hardcoded Values** - All secrets in environment  
-✅ **Tunnel Support** - Works with Cloudflare, ngrok, etc.  
-✅ **Self-Hosted** - No dependency on Saleor Cloud  
-✅ **Automated Setup** - Interactive configuration script  
-✅ **Complete Docs** - Comprehensive guides included
-
-## 🆘 Getting Help
-
-- **Saleor Discord**: https://saleor.io/discord
-- **Saleor Docs**: https://docs.saleor.io/
-- **Saleor GitHub**: https://github.com/saleor/saleor
-
-## 🎉 Next Steps
-
-1. ✅ Configure environment (`.env`)
-2. ✅ Start services (`docker compose up`)
-3. ✅ Install Stripe app (Dashboard)
-4. ✅ Test payment (Storefront)
-5. ✅ Read full docs (`CONFIGURATION.md`)
-
----
-
-**Ready to build amazing e-commerce experiences!** 🚀
+1. Create admin user: `docker exec -it saleor-api-dev python manage.py createsuperuser`
+2. Log into Dashboard at http://localhost:9000
+3. Configure Storefront Control app for your branding
+4. Set up Stripe keys for payment processing
+5. Generate product catalog: `cd scripts/catalog-generator && npm run setup`

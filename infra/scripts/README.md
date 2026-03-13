@@ -2,7 +2,7 @@
 
 ## Overview
 
-Platform management is handled by the **unified CLI** (`infra/platform.ps1`), which replaces the previous collection of individual scripts. The old scripts remain available but are deprecated.
+Platform management is handled by the **unified CLI** (`infra/platform.ps1`), which replaced the previous collection of individual scripts. The legacy scripts have been deleted.
 
 ## Quick Start
 
@@ -89,12 +89,12 @@ infra/
 └── env-template.txt          # Environment variable template
 ```
 
-## Legacy Scripts (Deprecated)
+## Legacy Scripts (Removed)
 
-These scripts still work but are superseded by `platform.ps1`:
+The following legacy scripts were deleted after the `platform.ps1` migration was complete:
 
-| Legacy Script | Use Instead |
-|---------------|-------------|
+| Deleted Script | Replaced By |
+|----------------|-------------|
 | `launch-platform.ps1` | `platform.ps1 up` |
 | `launch-self-hosted.ps1` | `platform.ps1 up -Mode selfhosted` |
 | `status-self-hosted.ps1` | `platform.ps1 status` |

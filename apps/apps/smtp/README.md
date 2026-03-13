@@ -71,7 +71,7 @@ ngrok http localhost:3000
 
 To configure the app you need an SMTP server. You can run it locally using Docker.
 
-1. In the terminal navigate to [devcontainer for the app](../../.devcontainer/smtp/) and run `docker-compose up mailpit`
+1. Start the SMTP app container: `docker compose -f infra/docker-compose.dev.yml up -d saleor-smtp-app`
 2. The Mailpit server is now running, here are the server details that you need to configure the app:
 
 - Host: localhost

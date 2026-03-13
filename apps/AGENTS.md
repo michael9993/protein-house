@@ -2,69 +2,83 @@
 
 ## Project Structure
 
-**Monorepo Architecture**: This is a Turborepo-managed monorepo containing Saleor Apps built with Next.js, TypeScript, and modern development tooling.
+**Monorepo Architecture**: Turborepo-managed monorepo with PNPM workspaces.
 
-- `/apps/` - Individual Saleor applications (AvaTax, CMS, Klaviyo, Products Feed, Search, Segment, SMTP, Stripe, NP Atobarai)
-- `/packages/` - Shared libraries and utilities (domain, errors, logger, otel, UI components, etc.)
-- `/templates/` - App templates for new development
-- Uses PNPM workspaces with workspace dependencies via `workspace:*`
+- `/apps/` — Individual Saleor applications (10 custom apps)
+- `/packages/` — Shared libraries (`@saleor/apps-storefront-config`, apps-logger, apps-ui, apps-errors, etc.)
+- Uses `workspace:*` dependencies
 
-**Domain-Driven Design**: Each app follows modular architecture:
+### Your Apps
 
-- `src/modules/` - Domain-specific business logic modules
-- `src/app/api/` - Next.js App Router API routes (webhooks)
-- `src/pages/` - Legacy Pages Router for some apps
-- Business logic encapsulated in domain entities and use cases
+| App | Directory | Port | Stack |
+|-----|-----------|------|-------|
+| storefront-control | `apps/storefront-control/` | 3004 | Next.js Pages Router, tRPC, shadcn/ui, Tailwind |
+| stripe | `apps/stripe/` | 3002 | Next.js, tRPC, Stripe SDK |
+| smtp | `apps/smtp/` | 3001 | Next.js, Handlebars templates |
+| invoices | `apps/invoices/` | 3003 | Next.js, PDF generation |
+| newsletter | `apps/newsletter/` | 3005 | Next.js, tRPC, MJML templates |
+| sales-analytics | `apps/sales-analytics/` | 3006 | Next.js, tRPC, Recharts, Excel export |
+| bulk-manager | `apps/bulk-manager/` | 3007 | Next.js, tRPC, CSV/Excel parsing |
+| image-studio | `apps/image-studio/` | 3008 | Next.js, tRPC, Fabric.js v6, Sharp |
+| dropship-orchestrator | `apps/dropship-orchestrator/` | 3009 | Next.js, tRPC, BullMQ, ioredis |
+| tax-manager | `apps/tax-manager/` | 3010 | Next.js, tRPC |
 
 ## Essential Commands
 
-**Development**:
+All commands run inside Docker containers (`docker exec`), not on the host.
 
-- `pnpm dev` - Start all apps in development mode
-- `pnpm --filter <app-name> dev` - Start specific app (e.g., `pnpm --filter saleor-app-avatax dev`)
-- `pnpm dev:debug` - Start with debug logging (app-level)
+```bash
+# Development (replace <container> with the app's container name)
+docker exec -it <container> pnpm dev
+docker exec -it <container> pnpm build       # Build + type check
+docker exec -it <container> pnpm lint
 
-**Building & Type Checking**:
+# Turborepo (from apps/ root, inside any app container)
+docker exec -it <container> pnpm turbo run build
+docker exec -it <container> pnpm turbo run lint
 
-- `pnpm build` - Build all apps and packages
-- `pnpm check-types` - Type check all projects
-- `tsc --noEmit` - Type check specific app (run in app directory)
+# GraphQL codegen (after schema changes)
+docker exec -it <container> pnpm generate
+```
 
-**Testing**:
-
-- `pnpm test:ci` - Run unit tests for all projects
-- `vitest --project units` - Run unit tests for specific app
-- `vitest --project e2e` - Run E2E tests for specific app
-- `pnpm e2e` - Run E2E tests (app-level)
-
-**Linting & Formatting**:
-
-- `pnpm lint` - Lint all projects
-- `pnpm lint:fix` - Auto-fix linting issues
-- `pnpm format` - Format all code with Prettier
-- `eslint .` - Lint specific app (run in app directory)
-
-**Code Generation**:
-
-- `pnpm generate` - Generate GraphQL types for all projects
-- `pnpm run generate:app` - Generate app-specific GraphQL types
-- `pnpm run generate:e2e` - Generate E2E test GraphQL types
+Container names follow the pattern `saleor-<app-name>-app-dev` (e.g., `saleor-storefront-control-app-dev`, `saleor-bulk-manager-app-dev`).
 
 ## Architecture Patterns
 
-**Result-Based Error Handling**: Uses `neverthrow` library extensively. Functions return `Result<T, E>` instead of throwing exceptions:
+### Domain-Driven Modular Structure
 
-- Test success: `result._unsafeUnwrap()`
-- Test errors: `result._unsafeUnwrapErr()`
+```
+apps/<app-name>/src/
+├── modules/          # Domain-specific business logic
+│   └── <domain>/     # e.g., trpc/, config/, webhooks/
+├── pages/            # Next.js Pages Router
+│   └── [channelSlug]/ # Per-channel admin pages
+├── components/       # React components
+│   ├── pages/        # Page-level components
+│   └── ui/           # Shared UI primitives
+├── lib/              # Utilities, registries, helpers
+└── app/api/          # Webhooks (App Router routes)
+```
 
-**Branded Types with Zod**: Follow ADR 0002 for type safety on primitives:
+### Result-Based Error Handling
+
+Uses `neverthrow` — functions return `Result<T, E>` instead of throwing:
+
+```typescript
+// Testing neverthrow results
+result._unsafeUnwrap()    // Assert success, get value
+result._unsafeUnwrapErr() // Assert error, get error
+```
+
+### Branded Types with Zod
+
+Follow ADR 0002 (`apps/adr/`) for type-safe primitives:
 
 ```typescript
 const saleorApiUrlSchema = z.string().url().endsWith("/graphql/").brand("SaleorApiUrl");
-export const createSaleorApiUrl = (raw: string) => saleorApiUrlSchema.parse(raw);
 ```
 
-**Error Classes**: Use `BaseError.subclass()` pattern from `@saleor/apps-errors`:
+### Error Classes
 
 ```typescript
 static ValidationError = BaseError.subclass("ValidationError", {
@@ -72,58 +86,82 @@ static ValidationError = BaseError.subclass("ValidationError", {
 });
 ```
 
-**Repository Pattern**: Data access through repository interfaces, typically backed by DynamoDB via `@saleor/dynamo-config-repository`.
+### Shared Config Package
 
-**Use Cases**: Webhook handlers delegate to use case classes that contain business logic. Use cases extend `BaseUseCase` for shared config loading patterns.
+`@saleor/apps-storefront-config` in `packages/storefront-config/` — Zod schemas, inferred types, and config version migrations shared between Storefront Control admin and the storefront consumer.
 
-## Key Technologies
+## UI Patterns
 
-**Frontend**: Next.js (App Router + Pages Router), React, TypeScript, Macaw UI, React Hook Form with Zod resolvers
+### Storefront Control (Primary Admin App)
 
-**Backend**: tRPC for type-safe API layer, GraphQL with code generation, Webhook handling
+- **UI Stack**: shadcn/ui + Radix primitives + Tailwind CSS
+- **Navigation**: `useRouter().push()` with `<button>` elements — **never** `<Link>` from Next.js (fails silently in Saleor Dashboard iframe)
+- **Page pattern**: ComponentBlock cards (collapsible, icon + title + toggle), tab navigation
+- **Config hooks**: `useConfigPage()` eliminates boilerplate (loading, saving, dirty state)
+- **Cmd+K**: Command palette powered by settings search index (`src/lib/settings-index.ts`)
 
-**Database**: DynamoDB for configuration storage, repositories for data access
+### Plain HTML Primitives (All Apps)
 
-**Testing**: Vitest with workspace configuration, React Testing Library, PactumJS for E2E tests
+macaw-ui Box/Text/Button imported in **page-level files** crash inside the Saleor Dashboard iframe (`TypeError: Cannot read properties of undefined (reading 'defaultClass')`). Root cause: vanilla-extract Sprinkles initialization order with ThemeSynchronizer's `setTheme()`.
 
-**Observability**: OpenTelemetry instrumentation, Sentry error tracking, structured logging with contextual loggers
+**Fix**: Keep ThemeProvider/ThemeSynchronizer in `_app.tsx` only. In all page files, use plain HTML primitives from `src/components/ui/primitives.tsx`.
 
-**Tooling**: Turborepo, PNPM workspaces, ESLint with custom configs, Prettier
+## Gotchas
 
-## Testing Conventions
+- **AppBridge iframe navigation**: Use `router.push()` with `<button>`, NOT `<Link>` from Next.js
+- **macaw-ui in pages**: Only safe in `_app.tsx` — crashes in page files when loaded in iframe
+- **Zod array fields in forms**: Schema `z.array(z.string())` needs `Controller` with join/split logic, not plain `register()` which treats arrays as strings
+- **Docker restart**: Use service name `saleor-bulk-manager-app` (not container name with `-dev`)
+- **macaw-ui type errors**: Pre-existing `__borderLeft` issue with `tsc --noEmit`; dev server works fine
 
-**Unit Tests**: Located in `src/**/*.test.ts`, use Vitest with jsdom environment
-**E2E Tests**: Located in `e2e/**/*.spec.ts`, use PactumJS for API testing
-**Setup**: Apps use `src/setup-tests.ts` for unit test setup, `e2e/setup.ts` for E2E setup
-**Mocking**: Mock objects in `src/__tests__/mocks/`, use `vi.spyOn()` for method spying
+## Testing
 
-## Integration Points
+- **Vitest** with workspace config
+- Unit tests: `src/**/*.test.ts`
+- E2E: `vitest --project e2e`
+- Mocks: `src/__tests__/mocks/`
 
-**Saleor Integration**: Apps receive webhooks at `/api/webhooks/saleor/`, use webhook definitions in `webhooks.ts` for registration
+## Turborepo Pipeline
 
-**External APIs**: Payment providers (Stripe, NP Atobarai), tax services (AvaTax), CMS systems, etc. wrapped in domain-specific client classes
+Turborepo manages task dependencies across apps and packages. Defined in `apps/turbo.json`:
 
-**Configuration**: Apps store configuration in DynamoDB, access via repository pattern with app metadata management
+- `build` depends on `^build` (packages build first, then apps)
+- `lint` and `test` run independently per package
+- `generate` runs GraphQL codegen per app
 
-## Development Workflow
+When a shared package changes (e.g., `@saleor/apps-storefront-config`), all dependent apps rebuild automatically.
 
-1. **Environment Setup**: Each app has `.env.example` - copy to `.env.local` with required values
-2. **Schema Generation**: Run `pnpm generate` after GraphQL schema changes
-3. **Type Safety**: All apps use strict TypeScript - ensure no `any` types
-4. **Testing**: Write unit tests alongside features, E2E tests for critical workflows
-5. **Linting**: Code must pass ESLint rules including custom app-specific rules like `n/no-process-env`
-6. **Changeset**: Functional changes, like new features or fixes should have changeset attached. Do not attach it if code changes do not have visible impact to the user, like refactor. To run changeset: 
-    - Execute `pnpm changeset add` from root directory
-    - Select affected app(s) or package(s)
-    - If many changes applied in single commit, create multiple changesets
-    - Ensure changeset has a good value, describing what was the actual change. It should be less technical than the commit. Best if it has before/after described.
+## Environment Setup
 
-## App-Specific Notes
+Apps receive environment via Docker Compose (`infra/docker-compose.dev.yml`). Key variables:
 
-- **AvaTax**: Tax calculation service with comprehensive E2E testing suite
-- **Stripe**: Payment processing with transaction handling use cases
-- **Search**: Algolia integration with webhook-driven product indexing
-- **SMTP**: Email service with template management
-- **CMS**: Content management system integration with bulk sync capabilities
+- `APL=file` — App Permission List storage (file-based in dev)
+- `APP_API_BASE_URL` — Public URL for webhook registration (cloudflared tunnel or localhost)
+- `NEXT_PUBLIC_SALEOR_HOST_URL` — Saleor API URL (e.g., `http://localhost:8000`)
+- `SECRET_KEY` — App secret for Saleor authentication
 
-Run commands from the root directory for global operations, or from individual app directories for app-specific tasks.
+App-specific env vars are defined per-service in `docker-compose.dev.yml`. When adding a new env var, update both the compose file and `infra/.env`.
+
+## Adding a New App
+
+1. Create directory in `apps/apps/<app-name>/`
+2. Copy structure from an existing app (e.g., `tax-manager` for simple, `storefront-control` for complex)
+3. Add service to `infra/docker-compose.dev.yml` (container, port, volumes, env)
+4. Add to `infra/platform.yml` service registry (port, container, tunnel)
+5. Add to root CLAUDE.md Container Map
+6. Register with Saleor via `platform.ps1 install-apps` or manual manifest registration
+
+## Debugging Tips
+
+- **Check container logs**: `docker compose -f infra/docker-compose.dev.yml logs --tail=100 <container>`
+- **tRPC errors**: Check browser Network tab for `/api/trpc/*` calls — error details in response body
+- **Webhook issues**: Check Saleor Dashboard > Apps > [App] > Webhooks for delivery status
+- **macaw-ui crash**: If you see `Cannot read properties of undefined (reading 'defaultClass')`, you're importing macaw-ui components in a page file — move to `_app.tsx` or use plain HTML primitives
+- **Build fails in container**: Try `docker exec -it <container> pnpm install` first (deps may be stale after volume mount changes)
+- **Config not loading**: Verify app is registered in Saleor and has correct permissions. Check `APL` storage file.
+
+## Key References
+
+- **ADRs**: `apps/adr/` — Architecture Decision Records
+- **Copilot instructions**: `apps/.github/copilot-instructions.md`
+- **Shared config schema**: `packages/storefront-config/src/schema/` (21 domain files)

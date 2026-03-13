@@ -11,12 +11,14 @@ const logger = createLogger("TemplateBrandingProcessor");
 export class TemplateBrandingProcessor {
   // Default values that might be hardcoded in templates
   private static readonly DEFAULT_VALUES = {
-    PRIMARY_COLOR: "#1B2838",
-    SECONDARY_COLOR: "#C9A962",
-    COMPANY_NAME: "Pawzen",
-    COMPANY_EMAIL: "support@pawzen.co",
-    COMPANY_WEBSITE: "https://pawzen.co",
-    LOGO_URL: "https://shop.halacosmetics.org/logo/pawzen-logo-white.png",
+    PRIMARY_COLOR: "#2563EB",
+    SECONDARY_COLOR: "#1F2937",
+    COMPANY_NAME: "Your Store",
+    COMPANY_EMAIL: "support@yourstore.com",
+    COMPANY_WEBSITE: "#",
+    COMPANY_TAGLINE: "",
+    STOREFRONT_URL: "#",
+    LOGO_URL: "",
   };
 
   /**
@@ -70,6 +72,16 @@ export class TemplateBrandingProcessor {
       replacements++;
 
       return branding.logo || this.DEFAULT_VALUES.LOGO_URL;
+    });
+    processed = processed.replace(/\$\{COMPANY_TAGLINE\}/g, () => {
+      replacements++;
+
+      return branding.companyTagline || this.DEFAULT_VALUES.COMPANY_TAGLINE;
+    });
+    processed = processed.replace(/\$\{STOREFRONT_URL\}/g, () => {
+      replacements++;
+
+      return branding.storefrontUrl || branding.companyWebsite || this.DEFAULT_VALUES.STOREFRONT_URL;
     });
 
     /*
@@ -198,6 +210,8 @@ export class TemplateBrandingProcessor {
         companyName: branding.companyName,
         companyEmail: branding.companyEmail,
         companyWebsite: branding.companyWebsite,
+        companyTagline: branding.companyTagline,
+        storefrontUrl: branding.storefrontUrl,
         primaryColor: branding.primaryColor,
         secondaryColor: branding.secondaryColor,
         logo: branding.logo,
