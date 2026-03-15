@@ -6,6 +6,7 @@ import {
   ButtonStyleSchema,
   CardShadowSchema,
   HeroTypeSchema,
+  HeroLayoutSchema,
   TimeFormatSchema,
   DirectionSchema,
   FontSizeSchema,
@@ -76,6 +77,7 @@ export type BorderRadius = z.infer<typeof BorderRadiusSchema>;
 export type ButtonStyle = z.infer<typeof ButtonStyleSchema>;
 export type CardShadow = z.infer<typeof CardShadowSchema>;
 export type HeroType = z.infer<typeof HeroTypeSchema>;
+export type HeroLayout = z.infer<typeof HeroLayoutSchema>;
 export type TimeFormat = z.infer<typeof TimeFormatSchema>;
 export type Direction = z.infer<typeof DirectionSchema>;
 export type FontSize = z.infer<typeof FontSizeSchema>;

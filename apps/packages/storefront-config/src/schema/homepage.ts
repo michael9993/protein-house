@@ -21,13 +21,32 @@ export const HeroSlideSchema = z.object({
   ctaLink: z.string(),
 });
 
+export const HeroLayoutSchema = z.enum(["split", "centered"]);
+
 export const HeroSectionSchema = z.object({
   enabled: z.boolean(),
   type: HeroTypeSchema,
+  layout: HeroLayoutSchema.optional(),
   title: z.string(),
   subtitle: z.string(),
   ctaText: z.string(),
   ctaLink: z.string(),
+  // Secondary CTA
+  showSecondaryButton: z.boolean().optional(),
+  secondaryCtaText: z.string().optional(),
+  secondaryCtaLink: z.string().optional(),
+  // Tagline chip
+  showTagline: z.boolean().optional(),
+  taglineText: z.string().optional(),
+  // Stats row
+  showStats: z.boolean().optional(),
+  stat1Value: z.string().optional(),
+  stat1Label: z.string().optional(),
+  stat2Value: z.string().optional(),
+  stat2Label: z.string().optional(),
+  stat3Value: z.string().optional(),
+  stat3Label: z.string().optional(),
+  // Existing fields
   badgeText: z.string().nullable().optional(),
   imageUrl: z.string().nullable(),
   videoUrl: z.string().nullable(),

@@ -18,4 +18,6 @@ export const StoreSchema = z.object({
   email: z.string().email("Invalid email"),
   phone: z.string(),
   address: AddressSchema.optional(),
+  businessRegistrationNumber: z.string().optional(),
+  taxId: z.string().optional(),
 });

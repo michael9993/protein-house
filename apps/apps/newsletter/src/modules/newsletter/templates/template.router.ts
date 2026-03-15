@@ -184,6 +184,9 @@ export const templateRouter = router({
                           "https://newsletter-app.example.com";
         const previewUnsubscribeUrl = `${appBaseUrl}/api/newsletter/unsubscribe/PREVIEW_TOKEN`;
 
+        // Fetch branding from Storefront Control (single source of truth)
+        const branding = await fetchStoreBranding(ctx.saleorApiUrl!, "default-channel");
+
         // Default sample data for preview
         const defaultSampleData = {
           firstName: "John",
@@ -191,13 +194,15 @@ export const templateRouter = router({
           email: "john.doe@example.com",
           // This is a preview URL - actual URLs are generated per-subscriber at send time
           unsubscribeUrl: previewUnsubscribeUrl,
-          companyName: "My Store",
-          companyEmail: "support@mystore.com",
-          companyWebsite: "https://mystore.com",
-          companyLogo: "https://placehold.co/180x44/1F2937/ffffff?text=LOGO",
-          companyAddress: "Your City, Country",
-          primaryColor: "#2563EB",
-          secondaryColor: "#1F2937",
+          companyName: branding.store.name,
+          companyEmail: branding.store.email,
+          companyWebsite: process.env.STOREFRONT_URL || "",
+          companyLogo: branding.branding.logo,
+          companyAddress: branding.store.address
+            ? [branding.store.address.street, branding.store.address.city, branding.store.address.country].filter(Boolean).join(", ")
+            : "",
+          primaryColor: branding.branding.colors.primary,
+          secondaryColor: branding.branding.colors.secondary,
           productsTitle: "Top Picks",
           productsSubtitle: "Hand-picked deals we think you'll love.",
           products: [

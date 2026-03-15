@@ -93,6 +93,10 @@ All commands use `docker exec`. For an interactive shell, use `docker exec -it <
 .\infra\platform.ps1 restart storefront        # Restart a service
 .\infra\platform.ps1 backup -Compress          # Database backup
 .\infra\platform.ps1 install-apps              # Register all Saleor apps
+.\infra\platform.ps1 install-apps -Include "smtp","stripe"  # Install specific apps only
+.\infra\platform.ps1 install-apps -Exclude "newsletter"     # Install all except specific apps
+.\infra\platform.ps1 install-apps -SkipDelete               # Don't delete existing apps first
+.\infra\platform.ps1 cleanup-apps             # Remove duplicate app installations
 .\infra\platform.ps1 logs api                  # Tail container logs
 .\infra\platform.ps1 codegen                   # Run GraphQL codegen
 .\infra\platform.ps1 generate-tunnel-config    # Regenerate cloudflared-config.yml
@@ -500,9 +504,20 @@ pnpm test:e2e:ui                       # Playwright interactive UI
 |----------|-------|------|
 | Planning | `superpowers:writing-plans` | Before writing any implementation plan |
 | Executing Plans | `superpowers:executing-plans` | Before executing an approved plan |
+| Brainstorming | `brainstorming` | Before any creative work — features, components, new functionality |
 | Frontend Development | `senior-frontend` | Before any storefront/dashboard UI work |
 | Frontend Design | `frontend-design` | Before creating or redesigning UI components |
 | UI/UX Decisions | `ui-ux-pro-max` | Before making UI/UX design decisions |
+| Backend Work | `senior-backend` | Before API, Django, or GraphQL backend changes |
+| E-Commerce Logic | `ecommerce-expert` | Before checkout, cart, pricing, or conversion decisions |
+| Saleor API | `saleor-api-skill` | When writing GraphQL queries/mutations or looking up Saleor API types |
+| SEO | `seo-optimizer` | Before SEO-related changes (meta tags, structured data, sitemap) |
+| Security Review | `senior-security` | Before auth, payment, or sensitive data handling changes |
+| DevOps | `senior-devops` | Before Docker, CI/CD, deployment, or infrastructure changes |
+| Code Review | `superpowers:requesting-code-review` | After completing a feature or before merging |
+| Debugging | `superpowers:systematic-debugging` | When encountering bugs or test failures |
+| Verification | `superpowers:verification-before-completion` | Before claiming work is complete or creating PRs |
+| React Best Practices | `react-best-practices` | When writing or refactoring React/Next.js components |
 
 ## Saleor Apps Reference
 
@@ -578,7 +593,7 @@ npm run generate      # Generate product Excel + CSVs
 ### Docker & Containers
 - **HMR does NOT work reliably** — Always `docker compose restart` after changes on Windows. Never assume saves are live.
 - **Volume mount changes** require `docker compose up --force-recreate`, not just `restart`
-- **Docker restart uses service names** (e.g., `saleor-bulk-manager-app`), not container names with `-dev` suffix
+- **Docker restart uses service names** (e.g., `saleor-api`, `saleor-storefront`, `saleor-bulk-manager-app`), NOT container names with `-dev` suffix (e.g., NOT `saleor-api-dev`). `docker exec` uses container names (`-dev`), but `docker compose restart` uses service names (no `-dev`)
 - **Catalog generator runs on the HOST** (not Docker) — it connects to Saleor via the API URL in `.env`
 
 ### TypeScript & React
@@ -618,6 +633,9 @@ All environment variables live in `infra/.env`. Key variables:
 | `STOREFRONT_URL` | Storefront URL for CORS | `http://localhost:3000` |
 | `NEXT_PUBLIC_DEFAULT_CHANNEL` | Default storefront channel | `default-channel` |
 | `NEXT_PUBLIC_SALEOR_API_URL` | Client-side API URL | `http://localhost:8000/graphql/` |
+| `DEFAULT_FROM_EMAIL` | Transactional email sender | `noreply@yourdomain.com` |
+| `CONTACT_EMAIL` | Contact form notifications recipient | `support@yourdomain.com` |
+| `DASHBOARD_TUNNEL_URL` | Dashboard tunnel URL (for Vite allowedHosts) | `https://dash.yourdomain.com` |
 
 For tunneled/production access, update `ALLOWED_HOSTS`, `DASHBOARD_URL`, `STOREFRONT_URL`, and app `APP_API_BASE_URL` values. Use `platform.ps1 generate-tunnel-config` for cloudflared.
 
@@ -630,7 +648,11 @@ For tunneled/production access, update `ALLOWED_HOSTS`, `DASHBOARD_URL`, `STOREF
 | GraphQL type errors after schema change | Types are stale | Run `build_schema` in API, then `pnpm generate` in dashboard + storefront |
 | "Module not found" in storefront | Shared package not mounted | Check volume mounts in docker-compose; run `docker compose up --force-recreate` |
 | App not appearing in Dashboard | App not registered | Run `platform.ps1 install-apps` or manually register via Dashboard > Apps |
+| App install fails "already installed" | Duplicate apps in DB | Run `platform.ps1 cleanup-apps` or `manage.py cleanup_apps` to remove duplicates |
+| App has no permissions | `appInstall` sent empty permissions array | Run `manage.py cleanup_apps` to set correct manifest permissions |
 | Storefront shows fallback config | Storefront Control not reachable | Check `STOREFRONT_CONTROL_APP_URL` env var and app container health |
+| Dashboard "Blocked request" on tunnel | `DASHBOARD_TUNNEL_URL` not set or has protocol | Set `DASHBOARD_TUNNEL_URL=https://dash.yourdomain.com` in `.env`; Vite strips protocol automatically |
+| Contact form emails go to wrong address | `CONTACT_EMAIL` not set | Add `CONTACT_EMAIL=support@yourdomain.com` to `.env` and restart API |
 | E2E tests fail to connect | Containers not running | Run `docker compose up -d` first; E2E expects `localhost:3000` + `localhost:8000` |
 | Type check passes but runtime crashes | HMR didn't pick up changes | Restart the container (`docker compose restart <container>`) |
 

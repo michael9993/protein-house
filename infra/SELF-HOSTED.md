@@ -16,7 +16,7 @@ Your PC (Docker Desktop)
   |-- 8 Apps (Stripe, SMTP, Invoices, Control, Newsletter, Analytics, Bulk Manager, Image Studio)
 ```
 
-**Domain:** halacosmetics.org (or your own domain)
+**Domain:** pawzenpets.shop (or your own domain)
 **Cost:** $0/month (domain ~$10/year)
 
 ---
@@ -38,7 +38,7 @@ Your PC (Docker Desktop)
 
 ### 1.2 Add Your Domain
 1. In Cloudflare Dashboard, click **Add a site**
-2. Enter your domain (e.g., `halacosmetics.org`)
+2. Enter your domain (e.g., `pawzenpets.shop`)
 3. Select **Free plan**
 4. Cloudflare will scan existing DNS records
 5. Update your domain registrar's nameservers to the ones Cloudflare provides
@@ -133,8 +133,8 @@ Edit `infra/.env.self-hosted` and fill in:
 6. **SALEOR_APP_TOKEN** - Generate via Saleor Dashboard > Configuration > Service Accounts
 
 ### 3.2 Domain Substitution
-If using a domain other than `halacosmetics.org`, update these files:
-- `infra/.env.self-hosted` - All `*.halacosmetics.org` URLs
+If using a domain other than `pawzenpets.shop`, update these files:
+- `infra/.env.self-hosted` - All `*.pawzenpets.shop` URLs
 - `infra/cloudflared-config.yml` - All hostname entries
 - Set `PLATFORM_DOMAIN` environment variable, or pass `-Domain` to platform.ps1
 
@@ -288,19 +288,19 @@ Settings > Windows Update > Active Hours:
 
 | Service | URL |
 |---------|-----|
-| Storefront | https://shop.halacosmetics.org |
-| Dashboard | https://dash.halacosmetics.org |
-| GraphQL API | https://api.halacosmetics.org/graphql/ |
-| Stripe App | https://stripe.halacosmetics.org |
-| SMTP App | https://smtp.halacosmetics.org |
-| Invoice App | https://invoices.halacosmetics.org |
-| Control App | https://control.halacosmetics.org |
-| Newsletter App | https://newsletter.halacosmetics.org |
-| Analytics App | https://analytics.halacosmetics.org |
-| Bulk Manager App | https://bulk.halacosmetics.org |
-| Image Studio App | https://studio.halacosmetics.org |
-| Dropship App | https://dropship.halacosmetics.org |
-| Tax Manager App | https://tax.halacosmetics.org |
+| Storefront | https://shop.pawzenpets.shop |
+| Dashboard | https://dash.pawzenpets.shop |
+| GraphQL API | https://api.pawzenpets.shop/graphql/ |
+| Stripe App | https://stripe.pawzenpets.shop |
+| SMTP App | https://smtp.pawzenpets.shop |
+| Invoice App | https://invoices.pawzenpets.shop |
+| Control App | https://control.pawzenpets.shop |
+| Newsletter App | https://newsletter.pawzenpets.shop |
+| Analytics App | https://analytics.pawzenpets.shop |
+| Bulk Manager App | https://bulk.pawzenpets.shop |
+| Image Studio App | https://studio.pawzenpets.shop |
+| Dropship App | https://dropship.pawzenpets.shop |
+| Tax Manager App | https://tax.pawzenpets.shop |
 
 ---
 
@@ -327,7 +327,7 @@ docker compose -f infra/docker-compose.dev.yml logs --tail=50 saleor-storefront-
 
 ### Apps return 401 SIGNATURE_VERIFICATION_FAILED
 This means the API's `PUBLIC_URL` doesn't match the URL apps use for webhook verification.
-- Verify `SALEOR_API_TUNNEL_URL` in `.env.self-hosted` matches `api.halacosmetics.org`
+- Verify `SALEOR_API_TUNNEL_URL` in `.env.self-hosted` matches `api.pawzenpets.shop`
 - Verify `RSA_PRIVATE_KEY` is set (both API and Worker must use the same key)
 - Restart API + Worker: `.\infra\platform.ps1 restart api`
 

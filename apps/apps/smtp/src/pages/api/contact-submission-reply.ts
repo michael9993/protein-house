@@ -107,12 +107,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       reply_subject: reply_subject || `Re: ${submission.subject}`,
     };
 
+    // Contact replies should come from support@ (not noreply@) so customers can reply back
+    const supportEmail = process.env.CONTACT_EMAIL || process.env.STORE_EMAIL || undefined;
+
     const result = await useCase.sendEventMessages({
       channelSlug: submission.channel_slug,
       event: "CONTACT_SUBMISSION_REPLY",
       payload: emailPayload,
       recipientEmail: submission.email,
       saleorApiUrl: authData.saleorApiUrl,
+      senderEmailOverride: supportEmail,
     });
 
     return result.match(

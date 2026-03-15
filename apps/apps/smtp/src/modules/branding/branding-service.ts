@@ -120,16 +120,41 @@ export class BrandingService {
         return this.getDefaultBranding();
       }
 
+      // Resolve the storefront base URL for absolute paths
+      const storefrontBaseUrl = process.env.STOREFRONT_URL
+        || config.store.website
+        || undefined;
+
+      // Use email-specific logo (white variant for dark headers), fall back to regular logo
+      let logoPath = config.branding.emailLogo || config.branding.logo || undefined;
+
+      // If no email logo configured, try the -white variant of the regular logo
+      if (!config.branding.emailLogo && logoPath) {
+        const ext = logoPath.lastIndexOf(".");
+        if (ext > 0) {
+          const whitePath = `${logoPath.substring(0, ext)}-white${logoPath.substring(ext)}`;
+          logoPath = whitePath;
+          logger.debug("Using white logo variant for email", { logoPath });
+        }
+      }
+
+      // Resolve logo to absolute URL (email clients can't handle relative paths)
+      let logoUrl = logoPath;
+      if (logoUrl && logoUrl.startsWith("/") && storefrontBaseUrl) {
+        logoUrl = `${storefrontBaseUrl.replace(/\/$/, "")}${logoUrl}`;
+        logger.debug("Resolved relative logo URL to absolute", { logoUrl });
+      }
+
       // Extract branding from storefront-control config
       const branding: BrandingConfig = {
         companyName: config.store.name || "Your Store",
         companyEmail: config.store.email || "support@yourstore.com",
         companyWebsite: config.store.website || undefined,
         companyTagline: config.store.tagline || undefined,
-        storefrontUrl: config.store.website || undefined,
+        storefrontUrl: storefrontBaseUrl,
         primaryColor: config.branding.colors?.primary || "#2563EB",
         secondaryColor: config.branding.colors?.secondary || "#1F2937",
-        logo: config.branding.logo || undefined,
+        logo: logoUrl,
       };
 
       logger.info("Successfully fetched branding from storefront-control", {
@@ -154,13 +179,13 @@ export class BrandingService {
    */
   static getDefaultBranding(): BrandingConfig {
     return {
-      companyName: process.env.STORE_NAME || "Your Store",
-      companyEmail: process.env.STORE_EMAIL || "support@yourstore.com",
+      companyName: process.env.STORE_NAME || "Pawzen",
+      companyEmail: process.env.STORE_EMAIL || "support@pawzenpets.shop",
       companyWebsite: process.env.STOREFRONT_URL || undefined,
       companyTagline: process.env.STORE_TAGLINE || undefined,
       storefrontUrl: process.env.STOREFRONT_URL || undefined,
-      primaryColor: process.env.STORE_PRIMARY_COLOR || "#2563EB",
-      secondaryColor: process.env.STORE_SECONDARY_COLOR || "#1F2937",
+      primaryColor: process.env.STORE_PRIMARY_COLOR || "#1B2838",
+      secondaryColor: process.env.STORE_SECONDARY_COLOR || "#C9A962",
       logo: process.env.STORE_LOGO_URL || undefined,
     };
   }

@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { generateInvoicePdf } from "../../../lib/generate-invoice-pdf";
+import { fetchInvoiceBranding } from "../../../lib/branding-service";
 import { storePdfToFile } from "../../../lib/upload-invoice";
 
 // GraphQL query to fetch order details
@@ -9,7 +10,13 @@ const FetchOrderDetailsQuery = `
       id
       number
       created
+      channel {
+        slug
+      }
       billingAddress {
+        firstName
+        lastName
+        companyName
         streetAddress1
         streetAddress2
         city
@@ -20,6 +27,9 @@ const FetchOrderDetailsQuery = `
         }
       }
       shippingAddress {
+        firstName
+        lastName
+        companyName
         streetAddress1
         streetAddress2
         city
@@ -53,12 +63,24 @@ const FetchOrderDetailsQuery = `
           currency
         }
       }
+      shippingPrice {
+        gross {
+          amount
+          currency
+        }
+      }
       total {
         gross {
           amount
           currency
         }
         tax {
+          amount
+          currency
+        }
+      }
+      discounts {
+        amount {
           amount
           currency
         }
@@ -142,15 +164,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       number: invoiceNumber,
     };
 
+    // Fetch branding from Storefront Control
+    const channelSlug = order.channel?.slug || "default-channel";
+    const branding = await fetchInvoiceBranding(saleorApiUrl, channelSlug);
+
+    // Sum discounts
+    const totalDiscount = (order.discounts || []).reduce(
+      (sum: number, d: { amount: { amount: number } }) => sum + (d.amount?.amount || 0),
+      0,
+    );
+    const discountCurrency = order.discounts?.[0]?.amount?.currency || order.total.gross.currency;
+
     // Generate PDF
     console.log("Generating PDF for invoice:", invoice);
-    
+
     const pdfBuffer = await generateInvoicePdf({
       invoice,
       order: {
         ...order,
         tax: order.total?.tax || null,
+        discount: totalDiscount > 0 ? { amount: totalDiscount, currency: discountCurrency } : undefined,
       },
+      branding,
     });
 
     // Store for future downloads

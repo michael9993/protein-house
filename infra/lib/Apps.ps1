@@ -20,14 +20,14 @@ function Get-AuthToken {
         [string]$Password
     )
 
-    $mutation = @"
-mutation TokenAuth(\$email: String!, \$password: String!) {
-  tokenCreate(email: \$email, password: \$password) {
+    $mutation = @'
+mutation TokenAuth($email: String!, $password: String!) {
+  tokenCreate(email: $email, password: $password) {
     token
     errors { field message }
   }
 }
-"@
+'@
 
     $result = Invoke-GraphQL -GraphQLUrl $GraphQLUrl -Token "" -Query $mutation `
         -Variables @{ email = $Email; password = $Password }
@@ -125,9 +125,9 @@ function Install-SaleorApp {
     Write-Host "  Installing $AppName..." -ForegroundColor Yellow
     Write-Host "    Manifest: $ManifestUrl" -ForegroundColor Gray
 
-    $mutation = @"
-mutation AppInstall(\$input: AppInstallInput!) {
-  appInstall(input: \$input) {
+    $mutation = @'
+mutation AppInstall($input: AppInstallInput!) {
+  appInstall(input: $input) {
     appInstallation {
       id
       appName
@@ -142,15 +142,16 @@ mutation AppInstall(\$input: AppInstallInput!) {
     }
   }
 }
-"@
+'@
 
-    $variables = @{
-        input = @{
-            manifestUrl = $ManifestUrl
-            appName     = $AppName
-            permissions = $Permissions
-        }
+    $input = @{
+        manifestUrl = $ManifestUrl
+        appName     = $AppName
     }
+    if ($Permissions.Count -gt 0) {
+        $input.permissions = $Permissions
+    }
+    $variables = @{ input = $input }
 
     $result = Invoke-GraphQL -GraphQLUrl $GraphQLUrl -Token $Token `
         -Query $mutation -Variables $variables
@@ -167,7 +168,7 @@ mutation AppInstall(\$input: AppInstallInput!) {
         return $install.appInstallation
     }
 
-    Write-Host "  [WARN] $AppName: no installation object returned." -ForegroundColor Yellow
+    Write-Host "  [WARN] ${AppName}: no installation object returned." -ForegroundColor Yellow
     return $null
 }
 
@@ -182,14 +183,14 @@ function Remove-SaleorApp {
         [string]$AppId
     )
 
-    $mutation = @"
-mutation AppDelete(\$id: ID!) {
-  appDelete(id: \$id) {
+    $mutation = @'
+mutation AppDelete($id: ID!) {
+  appDelete(id: $id) {
     app { id name }
     errors { field message }
   }
 }
-"@
+'@
 
     $result = Invoke-GraphQL -GraphQLUrl $GraphQLUrl -Token $Token `
         -Query $mutation -Variables @{ id = $AppId }
@@ -200,6 +201,62 @@ mutation AppDelete(\$id: ID!) {
         Write-Host "  [WARN] Failed to delete app $AppId : $errMsg" -ForegroundColor Yellow
     } else {
         Write-Host "  [OK] Removed app: $($del.app.name)" -ForegroundColor Green
+    }
+}
+
+function Remove-DuplicateApps {
+    <#
+    .SYNOPSIS
+    Removes duplicate app installations, keeping only the latest (highest DB id) per identifier.
+    #>
+    param(
+        [string]$GraphQLUrl,
+        [string]$Token
+    )
+
+    $rawApps = Get-ExistingApps -GraphQLUrl $GraphQLUrl -Token $Token
+    # Force into array
+    $apps = @($rawApps)
+    Write-Host "Found $($apps.Count) installed app(s)." -ForegroundColor Yellow
+
+    if ($apps.Count -eq 0) {
+        Write-Host "No apps found." -ForegroundColor Gray
+        return
+    }
+
+    # Group by identifier
+    $groups = @{}
+    foreach ($app in $apps) {
+        $key = if ($app.identifier) { $app.identifier } else { $app.name }
+        if (-not $groups.ContainsKey($key)) { $groups[$key] = [System.Collections.ArrayList]::new() }
+        $null = $groups[$key].Add($app)
+    }
+
+    $totalRemoved = 0
+    foreach ($key in $groups.Keys) {
+        $dupes = $groups[$key]
+        if ($dupes.Count -le 1) { continue }
+
+        # Decode DB id from base64 global ID (format: "QXBwOjM1" = "App:35")
+        $sorted = $dupes | Sort-Object {
+            $decoded = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($_.id))
+            [int]($decoded -split ':')[-1]
+        } -Descending
+        $keep = $sorted[0]
+        $toDelete = @($sorted | Select-Object -Skip 1)
+
+        Write-Host "  $key — keeping '$($keep.name)' (id: $($keep.id)), removing $($toDelete.Count) duplicate(s)" -ForegroundColor Cyan
+        foreach ($app in $toDelete) {
+            Remove-SaleorApp -GraphQLUrl $GraphQLUrl -Token $Token -AppId $app.id
+            $totalRemoved++
+        }
+    }
+
+    Write-Host ""
+    if ($totalRemoved -gt 0) {
+        Write-Host "[OK] Removed $totalRemoved duplicate app(s)." -ForegroundColor Green
+    } else {
+        Write-Host "[OK] No duplicates found." -ForegroundColor Green
     }
 }
 
@@ -215,7 +272,9 @@ function Install-AllApps {
         [string]$Email,
         [string]$Password,
         [switch]$SkipDelete,
-        [string]$EnvPath = ""
+        [string]$EnvPath = "",
+        [string[]]$Exclude = @(),
+        [string[]]$Include = @()
     )
 
     # Resolve API URL
@@ -255,6 +314,35 @@ function Install-AllApps {
     foreach ($key in $appServices.Keys) {
         $svc = $appServices[$key]
         $current++
+
+        # Include filter — if set, only matching apps are installed
+        if ($Include.Count -gt 0) {
+            $match = $false
+            foreach ($inc in $Include) {
+                if ($key -like "*$inc*" -or $svc.description -like "*$inc*" -or $svc.app_id -like "*$inc*") {
+                    $match = $true; break
+                }
+            }
+            if (-not $match) {
+                Write-Host "[$current/$total] SKIP $($svc.description) (not included)" -ForegroundColor DarkGray
+                continue
+            }
+        }
+
+        # Skip excluded apps (match by service key or description, case-insensitive)
+        if ($Exclude.Count -gt 0) {
+            $skip = $false
+            foreach ($ex in $Exclude) {
+                if ($key -like "*$ex*" -or $svc.description -like "*$ex*" -or $svc.app_id -like "*$ex*") {
+                    $skip = $true; break
+                }
+            }
+            if ($skip) {
+                Write-Host "[$current/$total] SKIP $($svc.description) (excluded)" -ForegroundColor DarkGray
+                continue
+            }
+        }
+
         Write-Host "[$current/$total] $($svc.description)" -ForegroundColor Cyan
 
         # Build manifest URL — prefer tunnel URL, fall back to localhost
@@ -290,11 +378,4 @@ function Install-AllApps {
     Write-Host "Note: Some apps install asynchronously. Check the Dashboard > Apps section to verify." -ForegroundColor Gray
 }
 
-Export-ModuleMember -Function @(
-    'Get-AuthToken',
-    'Invoke-GraphQL',
-    'Get-ExistingApps',
-    'Install-SaleorApp',
-    'Remove-SaleorApp',
-    'Install-AllApps'
-) -ErrorAction SilentlyContinue
+# Functions are auto-exported when dot-sourced (Export-ModuleMember removed — only valid in .psm1)

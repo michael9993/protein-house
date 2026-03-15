@@ -64,6 +64,8 @@ export class SendEventMessagesUseCase {
     channelSlug,
     attachments,
     branding,
+    senderEmailOverride,
+    senderNameOverride,
   }: {
     config: SmtpConfiguration;
     event: MessageEventTypes;
@@ -76,6 +78,8 @@ export class SendEventMessagesUseCase {
       contentType?: string;
     }>;
     branding?: import("../../branding/branding-service").BrandingConfig;
+    senderEmailOverride?: string;
+    senderNameOverride?: string;
   }) {
     const eventSettings = config.events.find((e) => e.eventType === event);
 
@@ -161,8 +165,8 @@ export class SendEventMessagesUseCase {
       recipientEmail: recipientEmail,
       bodyTemplate: processedBodyTemplate,
       subjectTemplate: processedSubjectTemplate,
-      senderEmail: config.senderEmail,
-      senderName: config.senderName,
+      senderEmail: senderEmailOverride || config.senderEmail,
+      senderName: senderNameOverride || config.senderName,
     });
 
     if (preparedEmailResult.isErr()) {
@@ -239,6 +243,8 @@ export class SendEventMessagesUseCase {
     channelSlug,
     attachments,
     saleorApiUrl,
+    senderEmailOverride,
+    senderNameOverride,
   }: {
     channelSlug: string;
     payload: unknown;
@@ -250,6 +256,10 @@ export class SendEventMessagesUseCase {
       contentType?: string;
     }>;
     saleorApiUrl?: string;
+    /** Override the global sender email for this specific event (e.g., support@ for contact replies) */
+    senderEmailOverride?: string;
+    /** Override the global sender name for this specific event */
+    senderNameOverride?: string;
   }): Promise<Result<unknown, Array<InstanceType<typeof SendEventMessagesUseCase.BaseError>>>> {
     this.logger.info("Calling sendEventMessages", { channelSlug, event });
 
@@ -324,6 +334,8 @@ export class SendEventMessagesUseCase {
           channelSlug,
           attachments,
           branding,
+          senderEmailOverride,
+          senderNameOverride,
         }),
       ),
     );

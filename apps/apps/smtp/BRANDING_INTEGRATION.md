@@ -19,6 +19,9 @@ The following variables in email templates are automatically replaced with value
 - `${COMPANY_NAME}` → `store.name` (e.g., "Shoe Vault")
 - `${COMPANY_EMAIL}` → `store.email` (e.g., "support@shoevault.com")
 - `${COMPANY_WEBSITE}` → `store.website` (if available)
+- `${COMPANY_TAGLINE}` → `store.tagline` (optional, e.g., "Shoes for the Whole Family")
+- `${STOREFRONT_URL}` → `store.website` (for email action links, falls back to `${COMPANY_WEBSITE}`)
+- `${LOGO_URL}` → `branding.logo` (store logo image URL)
 
 ## Configuration
 
@@ -27,15 +30,26 @@ The following variables in email templates are automatically replaced with value
 You can optionally set the storefront-control URL via environment variable:
 
 ```bash
+# Storefront Control URL (for fetching branding at email-send time)
 STOREFRONT_CONTROL_URL=http://storefront-control:3000
-# OR
+# OR (Docker internal)
 STOREFRONT_CONTROL_APP_INTERNAL_URL=http://saleor-storefront-control-app:3000
+
+# Fallback store branding (used if Storefront Control is unreachable)
+STORE_NAME=Your Store
+STORE_EMAIL=support@yourstore.com
+STORE_TAGLINE=Your store tagline
+STOREFRONT_URL=https://yourstore.com
+STORE_PRIMARY_COLOR=#2563EB
+STORE_SECONDARY_COLOR=#1F2937
+STORE_LOGO_URL=https://yourstore.com/logo.png
 ```
 
-If not set, the app will:
+If `STOREFRONT_CONTROL_URL` / `STOREFRONT_CONTROL_APP_INTERNAL_URL` is not set, the app will:
 1. Try to use Docker internal service name (`saleor-storefront-control-app:3000`) in development
 2. Try to construct URL from Saleor API URL
-3. Fall back to default branding if all else fails
+3. Fall back to env-var-driven defaults (`STORE_NAME`, `STORE_EMAIL`, etc.)
+4. Fall back to generic "Your Store" defaults if env vars are also not set
 
 ## Files Modified
 
@@ -107,7 +121,7 @@ If branding fetch fails, the app will:
 - Continue with default branding values
 - Still send the email successfully
 
-Default values are defined in `BrandingService.getDefaultBranding()`.
+Default values are read from environment variables (`STORE_NAME`, `STORE_EMAIL`, etc.) and defined in `BrandingService.getDefaultBranding()`.
 
 ## Benefits
 

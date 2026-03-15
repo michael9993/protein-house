@@ -56,6 +56,8 @@ param(
     [string]$Email     = "",
     [string]$Password  = "",
     [switch]$SkipDelete,
+    [string[]]$Exclude = @(),
+    [string[]]$Include = @(),
     [int]$Lines        = 100,
 
     # New Store options (forwarded to init-new-store.ps1)
@@ -356,8 +358,31 @@ switch ($Command.ToLower()) {
             EnvPath  = $envFile
         }
         if ($SkipDelete) { $installParams.SkipDelete = $true }
+        if ($Exclude.Count -gt 0) { $installParams.Exclude = $Exclude }
+        if ($Include.Count -gt 0) { $installParams.Include = $Include }
 
         Install-AllApps @installParams
+    }
+
+    # =========================================================================
+    "cleanup-apps" {
+        Write-Banner -Title "Cleanup Duplicate Apps"
+
+        if (-not $Email) {
+            $Email = Read-Host "Admin email"
+        }
+        if (-not $Password) {
+            $securePass = Read-Host "Admin password" -AsSecureString
+            $bstr       = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePass)
+            $Password   = [Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+        }
+
+        $apiUrl = "http://localhost:$($config.services.api.port)/graphql/"
+        Write-Host "Connecting to Saleor API at $apiUrl..." -ForegroundColor Yellow
+        $token = Get-AuthToken -GraphQLUrl $apiUrl -Email $Email -Password $Password
+        Write-Host "[OK] Authenticated." -ForegroundColor Green
+
+        Remove-DuplicateApps -GraphQLUrl $apiUrl -Token $token
     }
 
     # =========================================================================

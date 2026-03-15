@@ -23,16 +23,14 @@ class ContactSubmissionEmailService:
 
     @classmethod
     def get_store_email(cls) -> Optional[str]:
-        """Get the store's email address from site settings."""
+        """Get the store's contact/support email address."""
         try:
             site_settings = SiteSettings.objects.first()
-            if site_settings:
-                return site_settings.default_mail_sender_name or getattr(
-                    settings, "DEFAULT_FROM_EMAIL", None
-                )
+            if site_settings and site_settings.default_mail_sender_address:
+                return site_settings.default_mail_sender_address
         except Exception as e:
             logger.warning(f"Error getting store email: {e}")
-        return getattr(settings, "DEFAULT_FROM_EMAIL", None)
+        return getattr(settings, "CONTACT_EMAIL", getattr(settings, "DEFAULT_FROM_EMAIL", "noreply@yourstore.com"))
 
     @classmethod
     def send_notification_email(cls, submission: ContactSubmission) -> bool:
@@ -86,7 +84,13 @@ You can view and manage this submission in the Saleor dashboard.
                     use_ssl=email_settings.get("EMAIL_USE_SSL", False),
                 )
 
-            from_email = email_settings.get("EMAIL_FROM") or store_email
+            # Use CONTACT_FROM_EMAIL for contact notifications, fall back to CONTACT_EMAIL, then SMTP sender
+            from_email = (
+                getattr(settings, "CONTACT_FROM_EMAIL", None)
+                or getattr(settings, "CONTACT_EMAIL", None)
+                or email_settings.get("EMAIL_FROM")
+                or store_email
+            )
 
             email = EmailMessage(
                 subject=subject,
@@ -176,7 +180,7 @@ Best regards,
         try:
             # Try to find the SMTP app
             smtp_app = App.objects.filter(
-                identifier__icontains="smtp",
+                identifier="saleor.app.smtp",
                 is_active=True,
                 removed_at__isnull=True
             ).first()

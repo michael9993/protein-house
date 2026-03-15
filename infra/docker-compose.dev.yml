@@ -436,6 +436,12 @@ services:
       INVOICE_APP_URL: ${INVOICE_APP_URL}
       INVOICE_APP_API_BASE_URL: ${INVOICE_APP_API_BASE_URL}
       APP_API_BASE_URL: ${INVOICE_APP_URL}
+      # Storefront Control URL for fetching branding (Docker internal)
+      STOREFRONT_CONTROL_APP_INTERNAL_URL: http://saleor-storefront-control-app:3000
+      # Fallback store branding (used if Storefront Control unreachable)
+      STORE_NAME: ${STORE_NAME:-Your Store}
+      STORE_EMAIL: ${STORE_EMAIL:-support@yourstore.com}
+      STOREFRONT_URL: ${STOREFRONT_URL:-http://localhost:3000}
       NODE_ENV: ${NODE_ENV:-development}
       # Disable OpenTelemetry/Sentry in development
       OTEL_ENABLED: ${OTEL_ENABLED:-false}
@@ -619,6 +625,10 @@ services:
       APL: ${APL:-file}
       # Secret key for encrypting app metadata
       SECRET_KEY: ${APP_SECRET_KEY}
+      # Storefront Control URL for fetching branding (Docker internal)
+      STOREFRONT_CONTROL_APP_INTERNAL_URL: http://saleor-storefront-control-app:3000
+      # Fallback store branding
+      STOREFRONT_URL: ${STOREFRONT_URL:-http://localhost:3000}
       NODE_ENV: ${NODE_ENV:-development}
       # Image storage (local for dev, s3 for production)
       NEWSLETTER_IMAGE_STORAGE: ${NEWSLETTER_IMAGE_STORAGE:-local}
@@ -627,10 +637,7 @@ services:
       # Disable OpenTelemetry/Sentry in development
       OTEL_ENABLED: ${OTEL_ENABLED:-false}
       NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
-      # Storefront Control app URL for fetching branding (Docker internal network)
-      STOREFRONT_CONTROL_APP_INTERNAL_URL: http://saleor-storefront-control-app:3000
       # Storefront URL for unsubscribe links (use tunnel URL for external access)
-      STOREFRONT_URL: ${NEXT_PUBLIC_STOREFRONT_URL}
       STOREFRONT_TUNNEL_URL: ${STOREFRONT_TUNNEL_URL:-${NEXT_PUBLIC_STOREFRONT_URL}}
       APPS_MODE: ${APPS_MODE:-dev}
       # SMTP configuration (fallback if SMTP app metadata not available)

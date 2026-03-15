@@ -240,6 +240,7 @@ export function FooterClient({ menuItems, channel }: FooterClientPropsWithChanne
 		termsOfService: { enabled: true, url: "/pages/terms-of-service" },
 		shippingPolicy: { enabled: true, url: "/pages/shipping-policy" },
 		returnPolicy: { enabled: true, url: "/pages/return-policy" },
+		accessibilityStatement: { enabled: true, url: "/pages/accessibility" },
 	};
 
 	const legalLinks = {
@@ -267,6 +268,11 @@ export function FooterClient({ menuItems, channel }: FooterClientPropsWithChanne
 			enabled: footerConfig.legalLinks?.returnPolicy?.enabled ?? defaultLegalLinks.returnPolicy.enabled,
 			url: footerConfig.legalLinks?.returnPolicy?.url ?? defaultLegalLinks.returnPolicy.url,
 			text: footerText.returnPolicyLink || "Return Policy", // Text from storefront-control content
+		},
+		accessibilityStatement: {
+			enabled: footerConfig.legalLinks?.accessibilityStatement?.enabled ?? defaultLegalLinks.accessibilityStatement.enabled,
+			url: footerConfig.legalLinks?.accessibilityStatement?.url ?? defaultLegalLinks.accessibilityStatement.url,
+			text: (footerText as Record<string, string>).accessibilityLink || "Accessibility",
 		},
 	};
 
@@ -483,10 +489,32 @@ export function FooterClient({ menuItems, channel }: FooterClientPropsWithChanne
 								{legalLinks.returnPolicy.text}
 							</LinkWithChannel>
 						)}
+						{legalLinks.accessibilityStatement.enabled && (
+							<LinkWithChannel href={legalLinks.accessibilityStatement.url} className="hover:text-white">
+								{legalLinks.accessibilityStatement.text}
+							</LinkWithChannel>
+						)}
 					</div>
-					<p className="text-sm text-white/60">
-						{copyrightText}
-					</p>
+					<div className="flex flex-col items-center gap-1 sm:flex-row sm:justify-between">
+						<p className="text-sm text-white/60">
+							{copyrightText}
+						</p>
+						{footerConfig.showVatStatement !== false && footerConfig.vatStatement && (
+							<p className="text-xs text-white/50">
+								{footerConfig.vatStatement}
+							</p>
+						)}
+					</div>
+					{footerConfig.showBusinessInfo !== false && (store?.businessRegistrationNumber || store?.taxId) && (
+						<div className="mt-2 flex flex-wrap justify-center gap-x-4 text-xs text-white/40">
+							{store.businessRegistrationNumber && (
+								<span>Reg. #{store.businessRegistrationNumber}</span>
+							)}
+							{store.taxId && (
+								<span>Tax ID: {store.taxId}</span>
+							)}
+						</div>
+					)}
 				</div>
 			</div>
 		</footer>

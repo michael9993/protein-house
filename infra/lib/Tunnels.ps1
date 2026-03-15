@@ -169,10 +169,4 @@ function Stop-AllTunnels {
     }
 }
 
-Export-ModuleMember -Function @(
-    'Find-Cloudflared',
-    'Get-TunnelUrl',
-    'Start-EphemeralTunnel',
-    'Start-NamedTunnel',
-    'Stop-AllTunnels'
-) -ErrorAction SilentlyContinue
+# Functions are auto-exported when dot-sourced (Export-ModuleMember removed — only valid in .psm1)

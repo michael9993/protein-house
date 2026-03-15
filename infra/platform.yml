@@ -6,9 +6,9 @@
 # ============================================================================
 
 platform:
-  name: "Aura E-Commerce"
-  domain: "halacosmetics.org"
-  tunnel_name: "aura-platform"
+  name: "Pawzen E-Commerce"
+  domain: "pawzenpets.shop"
+  tunnel_name: "pawzen-platform"
 
 backup:
   directory: "~/saleor-backups"
@@ -20,16 +20,16 @@ store:
   slug: "pawzen"
   tagline: "Premium Pet Care & Accessories"
   type: "physical"
-  email: "support@halacosmetics.org"
-  phone: "+972 3-123-4567"
+  email: "support@pawzenpets.shop"
+  phone: ""
   address:
-    street: "123 Rothschild Blvd"
-    city: "Tel Aviv"
+    street: ""
+    city: ""
     country: "Israel"
   colors:
-    primary: "#2563EB"
-    secondary: "#1F2937"
-    accent: "#F59E0B"
+    primary: "#1B2838"
+    secondary: "#1E4D3A"
+    accent: "#C9A962"
   analytics:
     gtm_id: "GTM-PWN35T2R"
     ga4_id: "G-1X96SJX4SP"
@@ -93,7 +93,7 @@ services:
     compose_service: "saleor-stripe-app"
     subdomain: "stripe"
     tunnel_env_var: "STRIPE_APP_TUNNEL_URL"
-    app_id: "saleor.app.stripe"
+    app_id: "stripe"
     app_manifest_path: "/api/manifest"
     description: "Stripe Payment App"
 
@@ -173,7 +173,7 @@ services:
     compose_service: "saleor-dropship-app"
     subdomain: "dropship"
     tunnel_env_var: "DROPSHIP_APP_TUNNEL_URL"
-    app_id: "saleor.app.dropship"
+    app_id: "saleor.app.dropship-orchestrator"
     app_manifest_path: "/api/manifest"
     description: "Dropship Orchestrator App"
 

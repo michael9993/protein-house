@@ -146,7 +146,7 @@ export default async function RootLayout(props: {
 	const resolvedLocale = storeConfig.localization?.defaultLocale || 'en-US';
 
 	// Build sitewide JSON-LD (Organization + WebSite with SearchAction)
-	const siteUrl = process.env.NEXT_PUBLIC_STOREFRONT_URL || `https://shops.halacosmetics.org`;
+	const siteUrl = process.env.NEXT_PUBLIC_STOREFRONT_URL || `https://pawzenpets.shop`;
 	const socialLinks = [
 		storeConfig.integrations?.social?.facebook,
 		storeConfig.integrations?.social?.instagram,

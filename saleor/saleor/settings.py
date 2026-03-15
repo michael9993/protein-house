@@ -209,8 +209,12 @@ if ENABLE_SSL:
     SECURE_SSL_REDIRECT = get_bool_from_env("SECURE_SSL_REDIRECT", not DEBUG)
 
 DEFAULT_FROM_EMAIL: str = os.environ.get(
-    "DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "noreply@example.com"
+    "DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "noreply@pawzenpets.shop"
 )
+
+# Contact form: who receives notifications and what address replies come from
+CONTACT_EMAIL: str = os.environ.get("CONTACT_EMAIL", "support@pawzenpets.shop")
+CONTACT_FROM_EMAIL: str = os.environ.get("CONTACT_FROM_EMAIL", CONTACT_EMAIL)
 
 MEDIA_ROOT: str = os.path.join(PROJECT_ROOT, "media")
 MEDIA_URL: str = os.environ.get("MEDIA_URL", "/media/")

@@ -71,7 +71,7 @@ const config = {
 			{
 				hostname: "**.saleor.cloud",
 			},
-			// Public API domain (from NEXT_PUBLIC_SALEOR_API_URL, e.g. api.halacosmetics.org)
+			// Public API domain (from NEXT_PUBLIC_SALEOR_API_URL, e.g. api.pawzenpets.shop)
 			...apiRemotePatterns,
 			// External product image sources (imported/dropshipped products)
 			// Configurable via NEXT_PUBLIC_IMAGE_DOMAINS env var (comma-separated)

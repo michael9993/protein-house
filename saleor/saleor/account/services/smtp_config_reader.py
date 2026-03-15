@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class SmtpConfigReader:
     """Read SMTP configuration from SMTP app metadata."""
 
-    SMTP_APP_IDENTIFIER = "smtp"
+    SMTP_APP_IDENTIFIER = "saleor.app.smtp"
     METADATA_KEY = "smtp-config"
 
     @classmethod
@@ -24,7 +24,9 @@ class SmtpConfigReader:
         """Get the SMTP app instance."""
         try:
             return App.objects.filter(
-                identifier=cls.SMTP_APP_IDENTIFIER, is_active=True, is_installed=True
+                identifier=cls.SMTP_APP_IDENTIFIER,
+                is_active=True,
+                removed_at__isnull=True,
             ).first()
         except Exception as e:
             logger.warning(f"Error fetching SMTP app: {e}")

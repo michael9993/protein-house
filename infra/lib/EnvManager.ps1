@@ -277,11 +277,4 @@ function Switch-EnvMode {
     }
 }
 
-Export-ModuleMember -Function @(
-    'Read-EnvFile',
-    'Write-EnvFile',
-    'Set-EnvValue',
-    'Get-EnvValue',
-    'Update-TunnelUrls',
-    'Switch-EnvMode'
-) -ErrorAction SilentlyContinue
+# Functions are auto-exported when dot-sourced (Export-ModuleMember removed — only valid in .psm1)

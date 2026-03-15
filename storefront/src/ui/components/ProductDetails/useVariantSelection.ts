@@ -243,13 +243,18 @@ export function useVariantSelection({
             const vMap = variantIndex.get(vId);
             if (!vMap) continue;
 
-            // Only check selections for attributes BEFORE this one in the order
+            // Only check selections for attributes BEFORE this one in the order.
+            // If the variant doesn't have a given attribute at all, skip that check —
+            // the variant simply doesn't use that dimension (e.g. color-only variant
+            // in a product type that also defines size).
             let priorMatch = true;
             for (let j = 0; j < attrIndex; j++) {
               const priorSlug = orderedSlugs[j];
               const priorValue = selections[priorSlug];
               if (!priorValue) continue;
-              if (vMap.get(priorSlug) !== priorValue) {
+              const variantValue = vMap.get(priorSlug);
+              if (variantValue === undefined) continue; // variant doesn't have this attr — skip
+              if (variantValue !== priorValue) {
                 priorMatch = false;
                 break;
               }
@@ -327,7 +332,8 @@ export function useVariantSelection({
           const attrInfo = attrMeta.get(slug);
           if (!attrInfo) continue;
 
-          // Find available options for this attribute given current selections + the just-set value
+          // Find available options for this attribute given current selections + the just-set value.
+          // Skip attributes the variant doesn't carry (e.g. color-only variant has no size).
           const availableValueIds: string[] = [];
           for (const [vId] of attrInfo.valuesMap.entries()) {
             const candidateIds = valueLookup.get(`${slug}:${vId}`);
@@ -339,7 +345,9 @@ export function useVariantSelection({
               let allMatch = true;
               for (const [otherSlug, otherVal] of Object.entries(next)) {
                 if (otherSlug === slug || !otherVal) continue;
-                if (vMap.get(otherSlug) !== otherVal) {
+                const variantValue = vMap.get(otherSlug);
+                if (variantValue === undefined) continue; // variant doesn't have this attr
+                if (variantValue !== otherVal) {
                   allMatch = false;
                   break;
                 }
@@ -366,23 +374,41 @@ export function useVariantSelection({
     [selectionSlugs, attrMeta, variantIndex, valueLookup, variantsById]
   );
 
-  // 6. Resolve selected variant
+  // 6. Resolve selected variant.
+  //    A variant matches when every attribute it actually has is selected and matches.
+  //    Attributes the variant doesn't carry are skipped (e.g. color-only variant in
+  //    a product type that also defines size).
   const selectedVariant = useMemo((): EnrichedVariant | null => {
-    // All selection attributes must have a value
-    for (const slug of selectionSlugs) {
-      if (!selections[slug]) return null;
-    }
+    // At least one selection must be made
+    const hasAnySelection = selectionSlugs.some((s) => selections[s]);
+    if (!hasAnySelection) return null;
 
-    // Find variant matching all selections
     for (const v of variants) {
       const vMap = variantIndex.get(v.id);
       if (!vMap) continue;
+
       let matches = true;
-      for (const [slug, valueId] of Object.entries(selections)) {
-        if (!valueId) { matches = false; break; }
-        if (vMap.get(slug) !== valueId) { matches = false; break; }
+      let matchedDimensions = 0;
+
+      for (const slug of selectionSlugs) {
+        const variantValue = vMap.get(slug);
+        const selectedValue = selections[slug];
+
+        if (variantValue === undefined) {
+          // Variant doesn't have this attribute — skip dimension
+          continue;
+        }
+
+        // Variant has this attribute: it MUST be selected and match
+        if (!selectedValue || variantValue !== selectedValue) {
+          matches = false;
+          break;
+        }
+        matchedDimensions++;
       }
-      if (matches) return v;
+
+      // Must have matched at least the attributes this variant actually has
+      if (matches && matchedDimensions === vMap.size) return v;
     }
 
     return null;

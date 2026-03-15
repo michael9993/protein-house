@@ -76,9 +76,12 @@ function Start-Containers {
     Write-Host "Starting containers ($ComposeFile)..." -ForegroundColor Yellow
     & docker @dockerArgs
     if ($LASTEXITCODE -ne 0) {
-        throw "docker compose up failed with exit code $LASTEXITCODE"
+        # docker compose up -d can exit 1 if a healthcheck is still pending (slow build).
+        # Warn instead of aborting — the caller can wait for health separately.
+        Write-Host "[WARN] docker compose up exited with code $LASTEXITCODE (some containers may still be starting)." -ForegroundColor Yellow
+    } else {
+        Write-Host "[OK] Containers started." -ForegroundColor Green
     }
-    Write-Host "[OK] Containers started." -ForegroundColor Green
 }
 
 function Stop-Containers {
@@ -132,20 +135,15 @@ function Get-ContainerStatus {
             return "not-found"
         }
         $state = $state.Trim()
-        return switch ($state) {
+        $result = switch ($state) {
             "running" { "running" }
             "exited"  { "stopped" }
             default   { $state }
         }
+        return $result
     } catch {
         return "not-found"
     }
 }
 
-Export-ModuleMember -Function @(
-    'Test-DockerRunning',
-    'Start-Containers',
-    'Stop-Containers',
-    'Restart-Container',
-    'Get-ContainerStatus'
-) -ErrorAction SilentlyContinue
+# Functions are auto-exported when dot-sourced (Export-ModuleMember removed — only valid in .psm1)

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-03-13T01:47:32.497Z",
+  "exportedAt": "2026-03-14T01:44:34.279Z",
   "channels": {
     "ils": {
       "version": 110,
@@ -3954,15 +3954,15 @@
       }
     },
     "usd": {
-      "version": 6,
-      "updatedAt": "2026-03-13T01:47:31.254Z",
+      "version": 2,
+      "updatedAt": "2026-03-14T01:44:33.265Z",
       "channelSlug": "usd",
       "store": {
         "name": "Pawzen",
         "tagline": "Calm. Curated. Pet Care.",
         "type": "physical",
         "description": "Modern, curated pet accessories for dogs and cats. Thoughtfully designed products for your furry family.",
-        "email": "support@pawzen.co",
+        "email": "support@pawzenpets.shop",
         "phone": "",
         "address": {
           "street": "",
@@ -4044,11 +4044,11 @@
         },
         "shipping": {
           "enabled": true,
-          "freeShippingThreshold": 75,
+          "freeShippingThreshold": 100,
           "showEstimatedDelivery": true,
           "deliverySlots": false,
           "defaultEstimatedMinDays": 7,
-          "defaultEstimatedMaxDays": 20,
+          "defaultEstimatedMaxDays": 30,
           "estimatedDeliveryFormat": "range",
           "priceAdjustment": {
             "enabled": true,
@@ -4058,7 +4058,7 @@
           },
           "freeShippingRule": {
             "enabled": true,
-            "cartMinimum": 75,
+            "cartMinimum": 100,
             "maxMethodPrice": 0,
             "methodNameFilter": ""
           },
@@ -4096,13 +4096,28 @@
       "header": {
         "banner": {
           "enabled": true,
-          "text": "Free shipping on orders over $75 | Premium pet care, delivered",
+          "text": "Free shipping on orders over $100 | Premium pet care, delivered",
           "backgroundColor": "#1B2838",
           "textColor": "#D4B978",
           "useSaleorPromotions": true,
           "useSaleorVouchers": true,
-          "items": [],
-          "manualItems": [],
+          "items": [
+            {
+              "id": "manual-1773375829913",
+              "name": "Currently shipping costs in the middle east are high",
+              "description": null,
+              "link": null,
+              "icon": null
+            }
+          ],
+          "manualItems": [
+            {
+              "id": "manual-1773375829913",
+              "text": "Currently shipping costs in the middle east are high",
+              "link": null,
+              "icon": null
+            }
+          ],
           "autoScrollIntervalSeconds": 5,
           "useGradient": true,
           "gradientFrom": "#1B2838",
@@ -4183,10 +4198,23 @@
           "hero": {
             "enabled": true,
             "type": "image",
+            "layout": "split",
             "title": "Welcome to Pawzen",
             "subtitle": "Modern, curated accessories for dogs & cats. Designed with love, delivered with care.",
             "ctaText": "Shop Now",
             "ctaLink": "/products",
+            "showSecondaryButton": true,
+            "secondaryCtaText": "Explore Our Deals",
+            "secondaryCtaLink": "/products?sale=true",
+            "showTagline": true,
+            "taglineText": "New Collection",
+            "showStats": false,
+            "stat1Value": "",
+            "stat1Label": "",
+            "stat2Value": "",
+            "stat2Label": "",
+            "stat3Value": "",
+            "stat3Label": "",
             "badgeText": "New Collection",
             "imageUrl": null,
             "videoUrl": null,
@@ -4206,7 +4234,7 @@
           "trustStrip": {
             "enabled": true,
             "freeShippingText": "Pet-Safe Materials",
-            "easyReturnsText": "Free Shipping Over $50",
+            "easyReturnsText": "Free Shipping Over $100 for selected countries",
             "secureCheckoutText": "24/7 Support",
             "supportText": "30-Day Returns",
             "background": {
@@ -4219,7 +4247,7 @@
           "marquee": {
             "enabled": true,
             "text": "🐾 New arrivals weekly • Free shipping over $50 • Premium pet accessories • Vet-approved products • 30-day easy returns 🐾",
-            "speedSeconds": 40,
+            "speedSeconds": 50,
             "textColor": "#D4B978",
             "background": {
               "style": "solid",
@@ -5472,7 +5500,7 @@
           "priceUpToLabel": "Up to"
         },
         "productDetail": {
-          "freeShipping": "Free Shipping",
+          "freeShipping": "Included in Free Shipping",
           "securePayment": "Secure Payment",
           "easyReturns": "Easy Returns",
           "descriptionTab": "Description",
@@ -5534,7 +5562,7 @@
           "businessDaysLabel": "business days",
           "trackOrderLabel": "Track your order",
           "shippingEstimatedDelivery": "Estimated delivery: {days} business days",
-          "shippingFreeLabel": "Free Shipping",
+          "shippingFreeLabel": "Included in Free Shipping",
           "shippingProcessingTime": "Processing time: 1-3 business days",
           "shippingTrackingNotice": "You'll receive tracking information via email once your order ships",
           "shippingWarehouseNotice": "This item ships from our international fulfillment center",
@@ -6106,7 +6134,7 @@
       "relatedProducts": {
         "enabled": true,
         "strategy": "category",
-        "maxItems": 10,
+        "maxItems": 12,
         "showOnMobile": true,
         "title": "You May Also Like",
         "subtitle": "Customers also loved these products"

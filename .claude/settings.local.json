@@ -169,7 +169,18 @@
       "Bash(grep -r \"image\\\\|Image\\\\|next/image\" /c/Users/micha/saleor-platform/storefront/src/app/\\\\[channel\\\\]/\\\\\\(main\\\\\\)/products/\\\\[slug\\\\]/ProductDetailClient.tsx -m 5)",
       "Bash(grep -r \"search\\\\|Search\" /c/Users/micha/saleor-platform/storefront/src/app/\\\\[channel\\\\]/\\\\\\(main\\\\\\)/search -l)",
       "Bash(grep -r \"wishlist\\\\|Wishlist\" /c/Users/micha/saleor-platform/storefront/src/app/\\\\[channel\\\\]/\\\\\\(main\\\\\\)/account/wishlist -l)",
-      "Bash(PYTHONIOENCODING=utf-8 python .claude/skills/ui-ux-pro-max/scripts/search.py \"ecommerce hero card glassmorphism editorial\" --domain style -n 3 2>&1 | head -40)"
+      "Bash(PYTHONIOENCODING=utf-8 python .claude/skills/ui-ux-pro-max/scripts/search.py \"ecommerce hero card glassmorphism editorial\" --domain style -n 3 2>&1 | head -40)",
+      "Bash(grep -r \"contact\\\\|Contact\" /c/Users/micha/saleor-platform/storefront/src/app/\\\\[channel\\\\]/\\\\\\(main\\\\\\)/contact/ContactPage.tsx -A 5 | head -50)",
+      "Bash(grep -r \"promo\\\\|Promo\\\\|coupon\\\\|discount\" /c/Users/micha/saleor-platform/storefront/src/app/\\\\[channel\\\\]/\\\\\\(main\\\\\\)/cart/CartClient.tsx -m 5)",
+      "Bash(ls -la /c/Users/micha/saleor-platform/storefront/src/app/\\\\[channel\\\\]/\\\\\\(main\\\\\\)/products/page.tsx)",
+      "Bash(grep -r \"JSON.LD\\\\|schema\\\\|@context\\\\|ld+json\" /c/Users/micha/saleor-platform/storefront/src/app/\\\\[channel\\\\]/\\\\\\(main\\\\\\)/products/\\\\[slug\\\\] -i | head -10)",
+      "Bash(grep -r \"faq\\\\|FAQ\\\\|track.*order\\\\|Track.*order\" /c/Users/micha/saleor-platform/storefront/src/app/\\\\[channel\\\\]/\\\\\\(main\\\\\\) --include=\"*.tsx\" -l)",
+      "mcp__plugin_context-mode_context-mode__ctx_search",
+      "Bash(PYTHONIOENCODING=utf-8 python .claude/skills/ui-ux-pro-max/scripts/search.py \"ecommerce universal clean minimal light product showcase\" --design-system -p \"Universal Store\" 2>&1 | head -50)",
+      "mcp__plugin_context-mode_context-mode__ctx_execute_file",
+      "Bash(find /c/Users/micha/saleor-platform/storefront/src/app/\\\\[channel\\\\]/\\\\\\(main\\\\\\) -type d -name \"*\" | sort)",
+      "Bash(cp -r C:/Users/micha/saleor-platform/.claude/skills/* C:/Users/micha/.claude/skills/)",
+      "Bash(cd C:/Users/micha/saleor-platform/.claude/skills && for d in api-integration-specialist brainstorming canvas-design code-reviewer excel-analysis frontend-design mobile-design react-best-practices senior-architect senior-backend senior-data-scientist senior-devops senior-frontend senior-fullstack senior-prompt-engineer senior-security seo-optimizer skill-creator theme-factory ui-design-system ui-ux-pro-max ux-researcher-designer webapp-testing writing-plans xlsx; do rm -rf \"$d\"; done)"
     ],
     "deny": [
       "Read(./.env*)",

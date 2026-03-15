@@ -45,25 +45,25 @@ const AVAILABLE_VARIABLES: Variable[] = [
   {
     name: "{{companyName}}",
     description: "Company name from storefront-control",
-    example: "My Store",
+    example: "Your Store",
     category: "branding",
   },
   {
     name: "{{companyLogo}}",
     description: "Company logo URL from storefront-control",
-    example: "https://example.com/logo.png",
+    example: "https://yourstore.com/logo.png",
     category: "branding",
   },
   {
     name: "{{companyEmail}}",
     description: "Company email from storefront-control",
-    example: "support@mystore.com",
+    example: "support@yourstore.com",
     category: "branding",
   },
   {
     name: "{{companyWebsite}}",
     description: "Company website from storefront-control",
-    example: "https://mystore.com",
+    example: "https://yourstore.com",
     category: "branding",
   },
   {

@@ -293,15 +293,4 @@ function Set-StoreConfig {
     [System.IO.File]::WriteAllText($ConfigPath, $newYaml, [System.Text.UTF8Encoding]::new($false))
 }
 
-# Export for dot-sourcing
-Export-ModuleMember -Function @(
-    'Get-PlatformConfig',
-    'Get-Services',
-    'Get-TunnelServices',
-    'Get-SaleorApps',
-    'Get-HealthCheckServices',
-    'Get-BackupConfig',
-    'Get-ServiceUrl',
-    'Get-StoreConfig',
-    'Set-StoreConfig'
-) -ErrorAction SilentlyContinue
+# Functions are auto-exported when dot-sourced (Export-ModuleMember removed — only valid in .psm1)

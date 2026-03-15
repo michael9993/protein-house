@@ -16,6 +16,7 @@ import {
     fetchSmtpConfigurationFromApp,
     convertSmtpConfigToEmailSenderFormat,
 } from "./smtp-config-fetcher";
+import { fetchStoreBranding } from "../templates/branding-fetcher";
 
 const logger = createLogger("CampaignWorker");
 
@@ -404,6 +405,9 @@ async function processCampaignJob(job: Job<CampaignJobData>): Promise<void> {
             "system"
         );
 
+        // Fetch branding from Storefront Control for this channel (single source of truth)
+        const branding = await fetchStoreBranding(saleorApiUrl, channelSlug || "default-channel");
+
         // Track actual sent/failed counts for recipients that match the channel
         // This ensures counts reflect only subscribers that should have received emails
         actualSentCount = 0;
@@ -484,14 +488,16 @@ async function processCampaignJob(job: Job<CampaignJobData>): Promise<void> {
                     // Prepare template data - merge saved preview data with subscriber-specific data
                     // Subscriber data (firstName, lastName, email, unsubscribeUrl) override saved data
                     const templateData = {
-                        // Default values (fallback)
-                        companyName: "My Store",
-                        companyEmail: "support@mystore.com",
-                        companyWebsite: "https://mystore.com",
-                        companyLogo: "",
-                        companyAddress: "",
-                        primaryColor: "#2563EB",
-                        secondaryColor: "#1F2937",
+                        // Branding from Storefront Control (single source of truth)
+                        companyName: branding.store.name,
+                        companyEmail: branding.store.email,
+                        companyWebsite: process.env.STOREFRONT_URL || "",
+                        companyLogo: branding.branding.logo,
+                        companyAddress: branding.store.address
+                            ? [branding.store.address.street, branding.store.address.city, branding.store.address.country].filter(Boolean).join(", ")
+                            : "",
+                        primaryColor: branding.branding.colors.primary,
+                        secondaryColor: branding.branding.colors.secondary,
                         subject: template.subject,
                         // Default products section
                         productsTitle: "Top Picks",

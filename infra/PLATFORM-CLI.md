@@ -271,15 +271,45 @@ Authenticates with the Saleor API and installs all 11 apps defined in `platform.
 
 # Skip deleting existing installations first
 .\infra\platform.ps1 install-apps -SkipDelete
+
+# Install only specific apps (partial match on key, description, or app_id)
+.\infra\platform.ps1 install-apps -Include "smtp","stripe"
+
+# Install all except specific apps
+.\infra\platform.ps1 install-apps -Exclude "newsletter","dropship"
+
+# Combine: install only smtp, skip deletion
+.\infra\platform.ps1 install-apps -Include "smtp" -SkipDelete
 ```
 
 **What it does per app:**
 1. Reads tunnel URL from `.env` (falls back to `http://localhost:<port>`)
 2. Deletes any existing installation with the same `app_id` (unless `-SkipDelete`)
-3. Calls `appInstall` mutation with the manifest URL
+3. Calls `appInstall` mutation with the manifest URL (permissions auto-granted from manifest)
+
+**Filtering:** `-Include` and `-Exclude` match case-insensitively against the service key, description, or `app_id` using partial match (e.g., `"smtp"` matches `saleor.app.smtp`). `-Include` takes priority — if set, only matching apps are processed. `-Exclude` then filters from that set.
 
 **Apps installed** (from `platform.yml`):
 Stripe, SMTP, Invoices, Storefront Control, Newsletter, Sales Analytics, Bulk Manager, Image Studio, Dropship Orchestrator, Tax Manager
+
+---
+
+### `cleanup-apps` — Remove Duplicate Apps
+
+Authenticates with the Saleor API and removes duplicate app installations (keeps the latest per identifier).
+
+```powershell
+.\infra\platform.ps1 cleanup-apps
+```
+
+For deeper cleanup (including permission fixes), use the Django management command:
+
+```bash
+docker exec saleor-api-dev python manage.py cleanup_apps           # Cleanup + fix permissions
+docker exec saleor-api-dev python manage.py cleanup_apps --dry-run  # Preview only
+docker exec saleor-api-dev python manage.py cleanup_apps --skip-permissions  # Only remove duplicates
+docker exec saleor-api-dev python manage.py cleanup_apps --skip-cleanup      # Only fix permissions
+```
 
 ---
 
@@ -347,6 +377,8 @@ Auto-generates `infra/cloudflared-config.yml` from `platform.yml` services.
 | `-Email` | install-apps | (prompts) | Admin email |
 | `-Password` | install-apps | (prompts) | Admin password |
 | `-SkipDelete` | install-apps | `$false` | Don't delete existing apps |
+| `-Include` | install-apps | (all) | Only install matching apps (partial match) |
+| `-Exclude` | install-apps | (none) | Skip matching apps (partial match) |
 | `-Lines` | logs | 100 | Lines to tail |
 
 ---
@@ -360,7 +392,7 @@ The single source of truth for all services. Located at `infra/platform.yml`.
 ```yaml
 platform:
   name: "Aura E-Commerce"
-  domain: "halacosmetics.org"       # Default domain for self-hosted mode
+  domain: "pawzenpets.shop"       # Default domain for self-hosted mode
   tunnel_name: "aura-platform"      # Cloudflare tunnel name
 
 backup:
@@ -394,7 +426,7 @@ Set in `infra/.env` or as system environment variables:
 
 | Variable | Purpose | Default |
 |----------|---------|---------|
-| `PLATFORM_DOMAIN` | Override domain from platform.yml | `halacosmetics.org` |
+| `PLATFORM_DOMAIN` | Override domain from platform.yml | `pawzenpets.shop` |
 | `SALEOR_BACKUP_DIR` | Override backup directory | `~/saleor-backups` |
 | `SALEOR_API_TUNNEL_URL` | API tunnel URL (auto-set by `up`) | — |
 | `STOREFRONT_TUNNEL_URL` | Storefront tunnel URL | — |

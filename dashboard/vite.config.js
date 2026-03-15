@@ -94,6 +94,10 @@ export default defineConfig(({ command, mode }) => {
   } = env;
 
   const base = STATIC_URL ?? "/";
+  // Strip protocol from tunnel URL for Vite allowedHosts (needs hostname only)
+  const dashboardTunnelHost = DASHBOARD_TUNNEL_URL
+    ? DASHBOARD_TUNNEL_URL.replace(/^https?:\/\//, "")
+    : "";
   const featureFlagsEnvs = Object.fromEntries(
     Object.entries(env).filter(([flagKey]) => flagKey.startsWith("FF_")),
   );
@@ -169,13 +173,11 @@ export default defineConfig(({ command, mode }) => {
       // 1. allowedHosts: true (may have bugs in some versions)
       // 2. Plugin to bypass host check (see bypassHostCheckPlugin above)
       // 3. If still blocked, explicitly add the domain to this array
-      allowedHosts: isDev
-        ? [
+      allowedHosts: [
             "localhost",
             "127.0.0.1",
-            DASHBOARD_TUNNEL_URL, // Dynamic tunnel domain from env
-          ]
-        : undefined,
+            dashboardTunnelHost, // hostname only, e.g. dash.pawzenpets.shop
+          ].filter(Boolean),
       // Enable HMR (Hot Module Replacement) for development
       // When using tunnel URLs, HMR needs to use the tunnel host, not localhost
       // Cloudflare tunnels forward HTTPS to HTTP, so we need to handle this carefully
@@ -214,8 +216,8 @@ export default defineConfig(({ command, mode }) => {
       allowedHosts: [
         "localhost",
         "127.0.0.1",
-        DASHBOARD_TUNNEL_URL, // Dynamic tunnel domain from env
-      ],
+        dashboardTunnelHost, // hostname only, e.g. dash.pawzenpets.shop
+      ].filter(Boolean),
     },
     define: {
       ...globals,

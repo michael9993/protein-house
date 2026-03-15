@@ -4,13 +4,14 @@ import { useFooterConfig, useFooterText, useStoreConfig } from "@/providers/Stor
 import { PolicyContentBlock } from "./PolicyContentBlock";
 import type { StoreConfig } from "@/config/store.config";
 
-type PolicyKey = "returnPolicy" | "shippingPolicy" | "privacyPolicy" | "termsOfService";
+type PolicyKey = "returnPolicy" | "shippingPolicy" | "privacyPolicy" | "termsOfService" | "accessibility";
 
 const FALLBACK_TITLE_KEY: Record<PolicyKey, keyof NonNullable<ReturnType<typeof useFooterText>>> = {
   returnPolicy: "returnPolicyLink",
   shippingPolicy: "shippingLink",
   privacyPolicy: "privacyPolicyLink",
   termsOfService: "termsOfServiceLink",
+  accessibility: "privacyPolicyLink", // fallback only — actual title from config
 };
 
 const POLICY_TO_PAGE_KEY: Record<PolicyKey, keyof StoreConfig["pages"]> = {
@@ -18,6 +19,7 @@ const POLICY_TO_PAGE_KEY: Record<PolicyKey, keyof StoreConfig["pages"]> = {
   shippingPolicy: "shippingPolicy",
   privacyPolicy: "privacyPolicy",
   termsOfService: "termsOfService",
+  accessibility: "privacyPolicy", // accessibility uses same page display pattern
 };
 
 /**

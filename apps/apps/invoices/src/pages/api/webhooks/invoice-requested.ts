@@ -10,6 +10,7 @@ import { createLogger } from "../../../logger";
 import { loggerContext } from "../../../logger-context";
 import { generateInvoicePdf } from "../../../lib/generate-invoice-pdf";
 import { uploadInvoiceToSaleor } from "../../../lib/upload-invoice";
+import { fetchInvoiceBranding } from "../../../lib/branding-service";
 import { createInstrumentedGraphqlClient } from "../../../lib/create-instrumented-graphql-client";
 import { invoiceRequestedWebhookDefinition } from "./invoice-requested-definition";
 
@@ -23,6 +24,9 @@ const FetchOrderDetailsQuery = gql`
         slug
       }
       billingAddress {
+        firstName
+        lastName
+        companyName
         streetAddress1
         streetAddress2
         city
@@ -33,6 +37,9 @@ const FetchOrderDetailsQuery = gql`
         }
       }
       shippingAddress {
+        firstName
+        lastName
+        companyName
         streetAddress1
         streetAddress2
         city
@@ -66,12 +73,24 @@ const FetchOrderDetailsQuery = gql`
           currency
         }
       }
+      shippingPrice {
+        gross {
+          amount
+          currency
+        }
+      }
       total {
         gross {
           amount
           currency
         }
         tax {
+          amount
+          currency
+        }
+      }
+      discounts {
+        amount {
           amount
           currency
         }
@@ -138,7 +157,16 @@ const handler: NextJsWebhookHandler<InvoiceRequestedWebhookPayloadFragment> = as
     
     const completeOrder = orderData.order;
     
-    loggerContext.set(ObservabilityAttributes.CHANNEL_SLUG, completeOrder.channel?.slug || "default");
+    const channelSlug = completeOrder.channel?.slug || "default";
+    loggerContext.set(ObservabilityAttributes.CHANNEL_SLUG, channelSlug);
+
+    // Fetch branding from Storefront Control (single source of truth)
+    const branding = await fetchInvoiceBranding(authData.saleorApiUrl, channelSlug);
+    logger.info("Fetched invoice branding", {
+      companyName: branding.companyName,
+      primaryColor: branding.primaryColor,
+      hasLogo: !!branding.logo,
+    });
 
     // Generate PDF invoice
     logger.info("Generating PDF invoice", {
@@ -147,9 +175,21 @@ const handler: NextJsWebhookHandler<InvoiceRequestedWebhookPayloadFragment> = as
       orderNumber: completeOrder.number,
     });
 
+    // Sum all discounts into a single amount for the invoice
+    const totalDiscount = (completeOrder.discounts || []).reduce(
+      (sum: number, d: { amount: { amount: number } }) => sum + (d.amount?.amount || 0),
+      0,
+    );
+    const discountCurrency =
+      completeOrder.discounts?.[0]?.amount?.currency || completeOrder.total.gross.currency;
+
     const pdfBuffer = await generateInvoicePdf({
       invoice,
-      order: completeOrder,
+      order: {
+        ...completeOrder,
+        discount: totalDiscount > 0 ? { amount: totalDiscount, currency: discountCurrency } : undefined,
+      },
+      branding,
     });
 
     // Upload PDF to Saleor and update invoice

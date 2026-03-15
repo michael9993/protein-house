@@ -80,6 +80,10 @@ export function VariantSelector({
           ? getLabel(attr.attributeName)
           : attr.attributeName;
 
+        // Hide attribute if all its options are hidden (no variant uses it for current selection)
+        const allHidden = attr.options.every((o) => o.status === "hidden");
+        if (allHidden) return null;
+
         return (
           <div key={attr.attributeId}>
             <div className="mb-3 flex items-center justify-between">

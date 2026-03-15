@@ -11,10 +11,10 @@ const logger = createLogger("TemplateBrandingProcessor");
 export class TemplateBrandingProcessor {
   // Default values that might be hardcoded in templates
   private static readonly DEFAULT_VALUES = {
-    PRIMARY_COLOR: "#2563EB",
-    SECONDARY_COLOR: "#1F2937",
-    COMPANY_NAME: "Your Store",
-    COMPANY_EMAIL: "support@yourstore.com",
+    PRIMARY_COLOR: "#1B2838",
+    SECONDARY_COLOR: "#C9A962",
+    COMPANY_NAME: "Pawzen",
+    COMPANY_EMAIL: "support@pawzenpets.shop",
     COMPANY_WEBSITE: "#",
     COMPANY_TAGLINE: "",
     STOREFRONT_URL: "#",
@@ -173,6 +173,32 @@ export class TemplateBrandingProcessor {
           replacements++;
           logger.debug("Replaced primary color in style color attribute");
         }
+      }
+    }
+
+    /*
+     * Always replace legacy hardcoded logo/domain URLs from previous deployments.
+     * These may be baked into saved templates in the database, even if ${LOGO_URL}
+     * variable replacements already happened above (templates can have a mix).
+     */
+    const LEGACY_URLS = [
+      "https://shop.halacosmetics.org/logo/pawzen-logo-white.png",
+      "https://shop.halacosmetics.org",
+    ];
+
+    for (const legacyUrl of LEGACY_URLS) {
+      if (processed.includes(legacyUrl)) {
+        const replacement = legacyUrl.includes("/logo/")
+          ? (branding.logo || this.DEFAULT_VALUES.LOGO_URL)
+          : (branding.companyWebsite || branding.storefrontUrl || this.DEFAULT_VALUES.COMPANY_WEBSITE);
+
+        processed = processed.replace(
+          new RegExp(this.escapeRegex(legacyUrl), "g"),
+          replacement,
+        );
+        replacements++;
+
+        logger.debug("Replaced legacy URL", { from: legacyUrl, to: replacement });
       }
     }
 

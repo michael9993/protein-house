@@ -105,6 +105,7 @@ export function HomepageSectionsTab({
 }: HomepageSectionsTabProps) {
   const heroEnabled = watch("homepage.sections.hero.enabled");
   const heroType = watch("homepage.sections.hero.type");
+  const heroShowStats = watch("homepage.sections.hero.showStats");
   const marqueeEnabled = watch("homepage.sections.marquee.enabled");
   const trustStripEnabled = watch("homepage.sections.trustStrip.enabled");
   const brandGridEnabled = watch("homepage.sections.brandGrid.enabled");
@@ -186,6 +187,118 @@ export function HomepageSectionsTab({
                 placeholder="/products"
               />
             </FieldGroup>
+
+            <FormSelect<HomepageFormData>
+              label="Layout"
+              name="homepage.sections.hero.layout"
+              control={control}
+              options={[
+                { value: "split", label: "Split (Text Left, Cards Right)" },
+                { value: "centered", label: "Centered (Text Top, Cards Below)" },
+              ]}
+              description="Choose the hero section layout style"
+            />
+
+            <FieldGroup columns={2}>
+              <FormField<HomepageFormData>
+                label="Tagline Text"
+                name="homepage.sections.hero.taglineText"
+                register={register}
+                errors={errors}
+                placeholder="New Season"
+                description="Small chip text above the headline"
+              />
+              <FormSwitch<HomepageFormData>
+                label="Show Tagline"
+                name="homepage.sections.hero.showTagline"
+                control={control}
+              />
+            </FieldGroup>
+
+            <FieldGroup columns={2}>
+              <FormField<HomepageFormData>
+                label="Secondary Button Text"
+                name="homepage.sections.hero.secondaryCtaText"
+                register={register}
+                errors={errors}
+                placeholder="Explore Our Deals"
+              />
+              <FormField<HomepageFormData>
+                label="Secondary Button Link"
+                name="homepage.sections.hero.secondaryCtaLink"
+                register={register}
+                errors={errors}
+                placeholder="/products?sale=true"
+              />
+            </FieldGroup>
+
+            <FormSwitch<HomepageFormData>
+              label="Show Secondary Button"
+              name="homepage.sections.hero.showSecondaryButton"
+              control={control}
+              description="Toggle the secondary CTA button"
+            />
+
+            <FormSwitch<HomepageFormData>
+              label="Show Stats Row"
+              name="homepage.sections.hero.showStats"
+              control={control}
+              description="Display custom statistics below the hero text"
+            />
+
+            {heroShowStats && (
+              <div className="space-y-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+                <p className="text-xs font-medium text-neutral-500">Configure up to 3 stat items (leave empty to hide)</p>
+                <FieldGroup columns={2}>
+                  <FormField<HomepageFormData>
+                    label="Stat 1 Value"
+                    name="homepage.sections.hero.stat1Value"
+                    register={register}
+                    errors={errors}
+                    placeholder="50+"
+                  />
+                  <FormField<HomepageFormData>
+                    label="Stat 1 Label"
+                    name="homepage.sections.hero.stat1Label"
+                    register={register}
+                    errors={errors}
+                    placeholder="Brands"
+                  />
+                </FieldGroup>
+                <FieldGroup columns={2}>
+                  <FormField<HomepageFormData>
+                    label="Stat 2 Value"
+                    name="homepage.sections.hero.stat2Value"
+                    register={register}
+                    errors={errors}
+                    placeholder="1000+"
+                  />
+                  <FormField<HomepageFormData>
+                    label="Stat 2 Label"
+                    name="homepage.sections.hero.stat2Label"
+                    register={register}
+                    errors={errors}
+                    placeholder="Products"
+                  />
+                </FieldGroup>
+                <FieldGroup columns={2}>
+                  <FormField<HomepageFormData>
+                    label="Stat 3 Value"
+                    name="homepage.sections.hero.stat3Value"
+                    register={register}
+                    errors={errors}
+                    placeholder="4.8"
+                  />
+                  <FormField<HomepageFormData>
+                    label="Stat 3 Label"
+                    name="homepage.sections.hero.stat3Label"
+                    register={register}
+                    errors={errors}
+                    placeholder="Rating"
+                  />
+                </FieldGroup>
+              </div>
+            )}
 
             <SectionBackgroundFields sectionKey="hero" register={register} control={control} watch={watch} errors={errors} />
 

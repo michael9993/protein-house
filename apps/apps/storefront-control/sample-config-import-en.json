@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-03-13T01:47:31.592Z",
+  "exportedAt": "2026-03-14T01:44:33.539Z",
   "channelSlug": "usd",
   "config": {
-    "version": 6,
-    "updatedAt": "2026-03-13T01:47:31.254Z",
+    "version": 2,
+    "updatedAt": "2026-03-14T01:44:33.265Z",
     "channelSlug": "usd",
     "store": {
       "name": "Pawzen",
       "tagline": "Calm. Curated. Pet Care.",
       "type": "physical",
       "description": "Modern, curated pet accessories for dogs and cats. Thoughtfully designed products for your furry family.",
-      "email": "support@pawzen.co",
+      "email": "support@pawzenpets.shop",
       "phone": "",
       "address": {
         "street": "",
@@ -19,7 +19,9 @@
         "state": "",
         "zip": "",
         "country": ""
-      }
+      },
+      "businessRegistrationNumber": "",
+      "taxId": ""
     },
     "branding": {
       "logo": "/logo/pawzen-logo.png",
@@ -93,11 +95,11 @@
       },
       "shipping": {
         "enabled": true,
-        "freeShippingThreshold": 75,
+        "freeShippingThreshold": 100,
         "showEstimatedDelivery": true,
         "deliverySlots": false,
         "defaultEstimatedMinDays": 7,
-        "defaultEstimatedMaxDays": 20,
+        "defaultEstimatedMaxDays": 30,
         "estimatedDeliveryFormat": "range",
         "priceAdjustment": {
           "enabled": true,
@@ -107,7 +109,7 @@
         },
         "freeShippingRule": {
           "enabled": true,
-          "cartMinimum": 75,
+          "cartMinimum": 100,
           "maxMethodPrice": 0,
           "methodNameFilter": ""
         },
@@ -145,13 +147,20 @@
     "header": {
       "banner": {
         "enabled": true,
-        "text": "Free shipping on orders over $75 | Premium pet care, delivered",
+        "text": "Free shipping on orders over $100 | Premium pet care, delivered",
         "backgroundColor": "#1B2838",
         "textColor": "#D4B978",
         "useSaleorPromotions": true,
         "useSaleorVouchers": true,
         "items": [],
-        "manualItems": [],
+        "manualItems": [
+          {
+            "id": "manual-1773375829913",
+            "text": "Currently shipping costs in the middle east are high",
+            "link": null,
+            "icon": null
+          }
+        ],
         "autoScrollIntervalSeconds": 5,
         "useGradient": true,
         "gradientFrom": "#1B2838",
@@ -203,6 +212,10 @@
         "returnPolicy": {
           "enabled": true,
           "url": "/pages/return-policy"
+        },
+        "accessibilityStatement": {
+          "enabled": true,
+          "url": "/pages/accessibility"
         }
       },
       "returnPolicyPageTitle": "Returns & Exchanges Policy",
@@ -225,17 +238,36 @@
       "termsOfServiceContent": "## Terms of Service — Pawzen\n\n1. Please read these terms carefully before using our store.\n2. By browsing or purchasing from Pawzen, you agree to these terms.\n3. All prices include applicable taxes unless stated otherwise.\n4. Product images are for illustration purposes. Minor color variations may occur.\n\n## Purchasing\n\nPawzen offers pet accessories at fixed prices, subject to availability. Add items to your cart and complete checkout with your details and payment information.\n\n## Exchanges\n\n1. Products may be exchanged within 30 days of receipt if unused and in original packaging.\n2. Contact support@pawzen.co to initiate an exchange.\n3. Return shipping is at the customer's expense.\n4. Replacement items ship free of charge once we receive your return.\n\n## Returns & Refunds\n\n1. Returns accepted within 30 days of receipt for unused items in original packaging.\n2. Contact support@pawzen.co to initiate a return.\n3. Return shipping is at the customer's expense.\n4. Refunds cover product cost only (shipping is non-refundable).\n5. Refunds processed within 5 business days via original payment method.\n\n## Order Cancellation\n\n1. Orders may be cancelled before shipment by emailing support@pawzen.co.\n2. After shipment, follow the returns procedure above.\n3. Pawzen may cancel orders due to pricing errors, stock issues, or suspected fraud.\n\n## Shipping\n\n1. Orders are dispatched within 2 business days of payment confirmation.\n2. Pawzen is not responsible for carrier delays beyond our control.\n3. Delivery estimates refer to business days only.\n\n## Warranty\n\n1. Products are warranted against manufacturing defects only.\n2. Warranty does not cover normal wear and tear, misuse, or damage caused by pets.\n3. Proof of purchase is required for warranty claims.\n\n## Customer Service\n\nFor questions or support, contact us at support@pawzen.co.\n\n## General\n\n1. All content on the site (graphics, design, trademarks, logos) is the exclusive property of Pawzen.\n2. Pawzen is not liable for indirect or consequential damages from site use.\n3. Content may not be reproduced without prior written consent from Pawzen.",
       "termsOfServiceDefaultContent": "By using our services, you agree to our terms and conditions. Please read carefully before purchasing.",
       "termsOfServiceFooter": "",
-      "policyPageEmptyMessage": "This policy page has not been configured yet."
+      "policyPageEmptyMessage": "This policy page has not been configured yet.",
+      "accessibilityPageTitle": "Accessibility Statement",
+      "accessibilityHeader": "Accessibility Statement",
+      "accessibilityContent": "At Pawzen, we are committed to making our website accessible to all users, including people with disabilities, in accordance with the Israeli Equal Rights for Persons with Disabilities Law (5768/2008) and accessibility regulations.\n\nWe strive to conform to WCAG 2.1 Level AA standards.\n\nSteps we have taken:\n- Adapted the site for assistive technologies\n- Sufficient color contrast throughout\n- Full keyboard navigation support\n- Alternative text for all images\n- Hierarchical heading structure\n- Full RTL (right-to-left) support\n\nIf you encounter any accessibility issues on our site, please contact us:\nEmail: support@pawzenpets.shop\nPhone: 04-9502222\n\nWe welcome your feedback and are committed to improving accessibility.",
+      "vatStatement": "All prices include 18% VAT",
+      "showVatStatement": true,
+      "showBusinessInfo": true
     },
     "homepage": {
       "sections": {
         "hero": {
           "enabled": true,
           "type": "image",
+          "layout": "split",
           "title": "Welcome to Pawzen",
           "subtitle": "Modern, curated accessories for dogs & cats. Designed with love, delivered with care.",
           "ctaText": "Shop Now",
           "ctaLink": "/products",
+          "showSecondaryButton": true,
+          "secondaryCtaText": "Explore Our Deals",
+          "secondaryCtaLink": "/products?sale=true",
+          "showTagline": true,
+          "taglineText": "New Collection",
+          "showStats": false,
+          "stat1Value": "",
+          "stat1Label": "",
+          "stat2Value": "",
+          "stat2Label": "",
+          "stat3Value": "",
+          "stat3Label": "",
           "badgeText": "New Collection",
           "imageUrl": null,
           "videoUrl": null,
@@ -255,7 +287,7 @@
         "trustStrip": {
           "enabled": true,
           "freeShippingText": "Pet-Safe Materials",
-          "easyReturnsText": "Free Shipping Over $50",
+          "easyReturnsText": "Free Shipping Over $100 for selected countries",
           "secureCheckoutText": "24/7 Support",
           "supportText": "30-Day Returns",
           "background": {
@@ -268,7 +300,7 @@
         "marquee": {
           "enabled": true,
           "text": "🐾 New arrivals weekly • Free shipping over $50 • Premium pet accessories • Vet-approved products • 30-day easy returns 🐾",
-          "speedSeconds": 40,
+          "speedSeconds": 50,
           "textColor": "#D4B978",
           "background": {
             "style": "solid",
@@ -1521,7 +1553,7 @@
         "priceUpToLabel": "Up to"
       },
       "productDetail": {
-        "freeShipping": "Free Shipping",
+        "freeShipping": "Included in Free Shipping",
         "securePayment": "Secure Payment",
         "easyReturns": "Easy Returns",
         "descriptionTab": "Description",
@@ -1583,7 +1615,7 @@
         "businessDaysLabel": "business days",
         "trackOrderLabel": "Track your order",
         "shippingEstimatedDelivery": "Estimated delivery: {days} business days",
-        "shippingFreeLabel": "Free Shipping",
+        "shippingFreeLabel": "Included in Free Shipping",
         "shippingProcessingTime": "Processing time: 1-3 business days",
         "shippingTrackingNotice": "You'll receive tracking information via email once your order ships",
         "shippingWarehouseNotice": "This item ships from our international fulfillment center",
@@ -2155,7 +2187,7 @@
     "relatedProducts": {
       "enabled": true,
       "strategy": "category",
-      "maxItems": 10,
+      "maxItems": 12,
       "showOnMobile": true,
       "title": "You May Also Like",
       "subtitle": "Customers also loved these products"

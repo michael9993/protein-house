@@ -1,7 +1,7 @@
 # ========================================
 # Cloudflare Named Tunnel Configuration
 # ========================================
-# Domain: halacosmetics.org
+# Domain: pawzenpets.shop
 #
 # Prerequisites:
 #   1. Install cloudflared: winget install Cloudflare.cloudflared
@@ -9,19 +9,19 @@
 #   3. Create tunnel: cloudflared tunnel create aura-platform
 #   4. Copy the tunnel ID from the output and update this file
 #   5. Create CNAME DNS records in Cloudflare Dashboard:
-#      - shop.halacosmetics.org   → <tunnel-id>.cfargotunnel.com (proxied)
-#      - api.halacosmetics.org    → <tunnel-id>.cfargotunnel.com (proxied)
-#      - dash.halacosmetics.org   → <tunnel-id>.cfargotunnel.com (proxied)
-#      - stripe.halacosmetics.org → <tunnel-id>.cfargotunnel.com (proxied)
-#      - smtp.halacosmetics.org   → <tunnel-id>.cfargotunnel.com (proxied)
-#      - invoices.halacosmetics.org → <tunnel-id>.cfargotunnel.com (proxied)
-#      - control.halacosmetics.org  → <tunnel-id>.cfargotunnel.com (proxied)
-#      - newsletter.halacosmetics.org → <tunnel-id>.cfargotunnel.com (proxied)
-#      - analytics.halacosmetics.org  → <tunnel-id>.cfargotunnel.com (proxied)
-#      - bulk.halacosmetics.org     → <tunnel-id>.cfargotunnel.com (proxied)
-#      - studio.halacosmetics.org   → <tunnel-id>.cfargotunnel.com (proxied)
-#      - dropship.halacosmetics.org → <tunnel-id>.cfargotunnel.com (proxied)
-#      - tax.halacosmetics.org      → <tunnel-id>.cfargotunnel.com (proxied)
+#      - shop.pawzenpets.shop   → <tunnel-id>.cfargotunnel.com (proxied)
+#      - api.pawzenpets.shop    → <tunnel-id>.cfargotunnel.com (proxied)
+#      - dash.pawzenpets.shop   → <tunnel-id>.cfargotunnel.com (proxied)
+#      - stripe.pawzenpets.shop → <tunnel-id>.cfargotunnel.com (proxied)
+#      - smtp.pawzenpets.shop   → <tunnel-id>.cfargotunnel.com (proxied)
+#      - invoices.pawzenpets.shop → <tunnel-id>.cfargotunnel.com (proxied)
+#      - control.pawzenpets.shop  → <tunnel-id>.cfargotunnel.com (proxied)
+#      - newsletter.pawzenpets.shop → <tunnel-id>.cfargotunnel.com (proxied)
+#      - analytics.pawzenpets.shop  → <tunnel-id>.cfargotunnel.com (proxied)
+#      - bulk.pawzenpets.shop     → <tunnel-id>.cfargotunnel.com (proxied)
+#      - studio.pawzenpets.shop   → <tunnel-id>.cfargotunnel.com (proxied)
+#      - dropship.pawzenpets.shop → <tunnel-id>.cfargotunnel.com (proxied)
+#      - tax.pawzenpets.shop      → <tunnel-id>.cfargotunnel.com (proxied)
 #   6. Run: cloudflared tunnel --config infra/cloudflared-config.yml run
 #
 # Usage:
@@ -31,72 +31,72 @@
 #   .\infra\platform.ps1 up -Mode selfhosted
 # e3d8f3ef-a6eb-46bc-b8e3-26162dbba0af
 # Replace with your tunnel name (from step 3)
-tunnel: aura-platform
+tunnel: pawzen-platform
 
 # Replace <TUNNEL_ID> with the UUID from `cloudflared tunnel create` output
 # The credentials file is auto-created at this path during `cloudflared tunnel create`
-credentials-file: C:\Users\micha\.cloudflared\e3d8f3ef-a6eb-46bc-b8e3-26162dbba0af.json
+credentials-file: C:\Users\micha\.cloudflared\9dfe4ba3-a2ee-4bd4-a648-22986cd7db97.json
 
 ingress:
   # Storefront (Next.js) — primary customer-facing site
-  - hostname: shop.halacosmetics.org
+  - hostname: pawzenpets.shop
     service: http://localhost:3000
     originRequest:
       connectTimeout: 30s
       noTLSVerify: true
 
   # Saleor GraphQL API
-  - hostname: api.halacosmetics.org
+  - hostname: api.pawzenpets.shop
     service: http://localhost:8000
     originRequest:
       connectTimeout: 30s
       noTLSVerify: true
 
   # Admin Dashboard (Vite preview server)
-  - hostname: dash.halacosmetics.org
+  - hostname: dash.pawzenpets.shop
     service: http://localhost:9000
     originRequest:
       connectTimeout: 30s
       noTLSVerify: true
 
   # Stripe Payment App
-  - hostname: stripe.halacosmetics.org
+  - hostname: stripe.pawzenpets.shop
     service: http://localhost:3002
 
   # SMTP Email App
-  - hostname: smtp.halacosmetics.org
+  - hostname: smtp.pawzenpets.shop
     service: http://localhost:3001
 
   # Invoice PDF App
-  - hostname: invoices.halacosmetics.org
+  - hostname: invoices.pawzenpets.shop
     service: http://localhost:3003
 
   # Storefront Control (CMS) App
-  - hostname: control.halacosmetics.org
+  - hostname: control.pawzenpets.shop
     service: http://localhost:3004
 
   # Newsletter App
-  - hostname: newsletter.halacosmetics.org
+  - hostname: newsletter.pawzenpets.shop
     service: http://localhost:3005
 
   # Sales Analytics App
-  - hostname: analytics.halacosmetics.org
+  - hostname: analytics.pawzenpets.shop
     service: http://localhost:3006
 
   # Bulk Manager App
-  - hostname: bulk.halacosmetics.org
+  - hostname: bulk.pawzenpets.shop
     service: http://localhost:3007
 
   # Image Studio App
-  - hostname: studio.halacosmetics.org
+  - hostname: studio.pawzenpets.shop
     service: http://localhost:3008
 
   # Dropship Orchestrator App
-  - hostname: dropship.halacosmetics.org
+  - hostname: dropship.pawzenpets.shop
     service: http://localhost:3009
 
   # Tax Manager App
-  - hostname: tax.halacosmetics.org
+  - hostname: tax.pawzenpets.shop
     service: http://127.0.0.1:3010
 
   # Catch-all — return 404 for unmatched hostnames

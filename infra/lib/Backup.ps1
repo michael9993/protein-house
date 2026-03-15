@@ -215,8 +215,4 @@ function Get-BackupHistory {
     return $backups
 }
 
-Export-ModuleMember -Function @(
-    'New-DatabaseBackup',
-    'Restore-Database',
-    'Get-BackupHistory'
-) -ErrorAction SilentlyContinue
+# Functions are auto-exported when dot-sourced (Export-ModuleMember removed — only valid in .psm1)

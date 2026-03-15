@@ -176,12 +176,4 @@ function Write-ServiceTable {
     Write-Host ""
 }
 
-Export-ModuleMember -Function @(
-    'Write-Banner',
-    'Write-Step',
-    'Write-Success',
-    'Write-Warn',
-    'Write-Err',
-    'Write-Info',
-    'Write-ServiceTable'
-) -ErrorAction SilentlyContinue
+# Functions are auto-exported when dot-sourced (Export-ModuleMember removed — only valid in .psm1)

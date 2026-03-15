@@ -128,8 +128,4 @@ function Get-AllServiceHealth {
     return $results
 }
 
-Export-ModuleMember -Function @(
-    'Wait-ForHealthy',
-    'Test-UrlReachable',
-    'Get-AllServiceHealth'
-) -ErrorAction SilentlyContinue
+# Functions are auto-exported when dot-sourced (Export-ModuleMember removed — only valid in .psm1)

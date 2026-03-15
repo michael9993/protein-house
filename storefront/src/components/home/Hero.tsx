@@ -10,7 +10,7 @@ import { formatMoney } from "@/lib/utils";
 import { t } from "@/lib/language";
 import { useBranding, useStoreInfo, useHeroConfig, useContentConfig, useBadgeStyle, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { buildComponentStyle } from "@/config";
-import { buildProductUrl, buildProductsUrl, withChannel } from "@/lib/urls";
+import { buildProductUrl, withChannel } from "@/lib/urls";
 import {
   getProductImage,
   getProductAlt,
@@ -35,7 +35,8 @@ interface HeroProps {
   newArrivals: readonly ProductListItemFragment[];
   bestSellers: readonly ProductListItemFragment[];
   heroBanner?: HeroBannerConfig | null;
-  brandCount: number;
+  /** @deprecated Stats are now configurable via Storefront Control */
+  brandCount?: number;
 }
 
 // Hand of cards - 9 cards visible with 4 depth layers, center prominent
@@ -71,7 +72,7 @@ const DEFAULT_AUTO_ROTATE_MS = 4000;
  * Hero - Premium stacked card deck hero section
  * Configurable via Storefront Control.
  */
-export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount }: HeroProps) {
+export function Hero({ channel, newArrivals, bestSellers, heroBanner }: HeroProps) {
   const { colors } = useBranding();
   const storeInfo = useStoreInfo();
   const config = useHeroConfig();
@@ -83,11 +84,22 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
   const cdClasses = useComponentClasses("homepage.hero");
 
   // Config values with fallbacks
-  // Note: Current config only has enabled and type. Extended properties use defaults.
   const enabled = config?.enabled ?? true;
   const autoRotateSeconds = config?.autoRotateSeconds ?? 4;
   const showProgressBar = config?.showProgressBar ?? true;
   const showNavDots = config?.showNavDots ?? true;
+  const layout = config?.layout ?? "split";
+  const showSecondaryButton = config?.showSecondaryButton ?? true;
+  const secondaryCtaText = config?.secondaryCtaText || "Explore Our Deals";
+  const secondaryCtaLink = config?.secondaryCtaLink || "/products?sale=true";
+  const showTagline = config?.showTagline ?? true;
+  const taglineText = config?.taglineText || storeInfo.tagline || "New season";
+  const showStats = config?.showStats ?? false;
+  const stats = [
+    { value: config?.stat1Value, label: config?.stat1Label },
+    { value: config?.stat2Value, label: config?.stat2Label },
+    { value: config?.stat3Value, label: config?.stat3Label },
+  ].filter((s) => s.value && s.label) as { value: string; label: string }[];
 
   // Hide if disabled
   if (!enabled) return null;
@@ -96,10 +108,6 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
 
   // Get translated content from config
   const homepageContent = contentConfig.homepage;
-  const exploreBrandsText = homepageContent.exploreBrandsButton || "Explore brands";
-  const brandsLabel = homepageContent.brandsStatLabel || "Brands";
-  const stylesLabel = homepageContent.stylesStatLabel || "Styles";
-  const ratingLabel = homepageContent.ratingStatLabel || "Rating";
   const defaultTitle = homepageContent.heroDefaultTitle || "Multi-brand performance";
   const defaultSubtitle = homepageContent.heroDefaultSubtitle || "Performance footwear and sportswear curated from the world's most trusted labels.";
 
@@ -243,21 +251,27 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
       />
 
       <div className="relative mx-auto max-w-[var(--design-container-max)] px-5 pb-12 pt-10 sm:px-6 lg:px-12 lg:pb-20 lg:pt-16">
-        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-16">
+        <div className={`grid gap-8 ${
+          layout === "centered"
+            ? "lg:grid-cols-1 lg:gap-10"
+            : "lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-16"
+        }`}>
 
           {/* Text Column */}
-          <div className="order-1 lg:order-1">
+          <div className={`order-1 lg:order-1 ${layout === "centered" ? "mx-auto max-w-2xl text-center" : ""}`}>
             {/* Tagline chip */}
-            <div className="inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/10 px-4 py-1.5 backdrop-blur-sm">
-              <span
-                className="h-2 w-2 animate-pulse rounded-full"
-                style={{ backgroundColor: colors.accent }}
-                aria-hidden="true"
-              />
-              <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/80">
-                {storeInfo.tagline || "New season"}
-              </span>
-            </div>
+            {showTagline && (
+              <div className="inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/10 px-4 py-1.5 backdrop-blur-sm">
+                <span
+                  className="h-2 w-2 animate-pulse rounded-full"
+                  style={{ backgroundColor: colors.accent }}
+                  aria-hidden="true"
+                />
+                <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/80">
+                  {taglineText}
+                </span>
+              </div>
+            )}
 
             {/* Title with gradient accent */}
             <h1 className="mt-6 text-[2.5rem] font-black uppercase leading-[0.92] tracking-tighter text-white sm:text-5xl md:text-6xl lg:text-7xl">
@@ -270,12 +284,12 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
               </span>
             </h1>
 
-            <p className="mt-5 max-w-lg text-sm font-medium leading-relaxed text-white/60 sm:text-base md:text-lg">
+            <p className={`mt-5 max-w-lg text-sm font-medium leading-relaxed text-white/60 sm:text-base md:text-lg ${layout === "centered" ? "mx-auto" : ""}`}>
               {subtitle}
             </p>
 
             {/* CTAs */}
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className={`mt-8 flex flex-wrap items-center gap-3 ${layout === "centered" ? "justify-center" : ""}`}>
               <Link
                 href={withChannel(channel, ctaLink)}
                 className="group inline-flex items-center gap-2.5 rounded-full px-7 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-2xl"
@@ -288,28 +302,29 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner, brandCount
                   aria-hidden="true"
                 />
               </Link>
-              <Link
-                href={withChannel(channel, buildProductsUrl())}
-                className="rounded-full border border-white/20 bg-white/5 px-6 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-white/90 backdrop-blur-sm transition hover:border-white/40 hover:bg-white/10"
-              >
-                {exploreBrandsText}
-              </Link>
+              {showSecondaryButton && (
+                <Link
+                  href={withChannel(channel, secondaryCtaLink)}
+                  className="rounded-full border border-white/20 bg-white/5 px-6 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-white/90 backdrop-blur-sm transition hover:border-white/40 hover:bg-white/10"
+                >
+                  {secondaryCtaText}
+                </Link>
+              )}
             </div>
 
-            {/* Stats row - desktop only (API-derived data) */}
-            <div className="mt-10 hidden items-center gap-8 lg:flex">
-              {[
-                { value: `${brandCount}+`, label: brandsLabel },
-                { value: `${deckCards.length * 50}+`, label: stylesLabel },
-              ].map((stat) => (
-                <div key={stat.label}>
-                  <div className="text-2xl font-black text-white">{stat.value}</div>
-                  <div className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.25em] text-white/40">
-                    {stat.label}
+            {/* Stats row - desktop only (configurable via Storefront Control) */}
+            {showStats && stats.length > 0 && (
+              <div className={`mt-10 hidden items-center gap-8 lg:flex ${layout === "centered" ? "justify-center" : ""}`}>
+                {stats.map((stat) => (
+                  <div key={stat.label}>
+                    <div className="text-2xl font-black text-white">{stat.value}</div>
+                    <div className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.25em] text-white/40">
+                      {stat.label}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Card Column */}

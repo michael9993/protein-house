@@ -148,6 +148,24 @@ export async function fetchStoreBranding(
         channelSlug 
       });
 
+      // Use email-specific logo (white variant for dark headers), fall back to regular logo
+      const storefrontBaseUrl = process.env.STOREFRONT_URL || "";
+      let logoPath = config.branding?.emailLogo || config.branding?.logo || DEFAULT_BRANDING.branding.logo;
+
+      // If no email logo configured, try the -white variant of the regular logo
+      if (!config.branding?.emailLogo && logoPath) {
+        const ext = logoPath.lastIndexOf(".");
+        if (ext > 0) {
+          logoPath = `${logoPath.substring(0, ext)}-white${logoPath.substring(ext)}`;
+        }
+      }
+
+      // Resolve to absolute URL (email clients can't handle relative paths)
+      let logoUrl = logoPath;
+      if (logoUrl && logoUrl.startsWith("/") && storefrontBaseUrl) {
+        logoUrl = `${storefrontBaseUrl.replace(/\/$/, "")}${logoUrl}`;
+      }
+
       return {
         store: {
           name: config.store?.name || DEFAULT_BRANDING.store.name,
@@ -157,7 +175,7 @@ export async function fetchStoreBranding(
           address: config.store?.address || DEFAULT_BRANDING.store.address,
         },
         branding: {
-          logo: config.branding?.logo || DEFAULT_BRANDING.branding.logo,
+          logo: logoUrl,
           logoAlt: config.branding?.logoAlt || DEFAULT_BRANDING.branding.logoAlt,
           colors: {
             primary: config.branding?.colors?.primary || DEFAULT_BRANDING.branding.colors.primary,

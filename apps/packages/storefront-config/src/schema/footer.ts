@@ -18,6 +18,7 @@ export const FooterSchema = z.object({
     termsOfService: LegalLinkSchema,
     shippingPolicy: LegalLinkSchema,
     returnPolicy: LegalLinkSchema,
+    accessibilityStatement: LegalLinkSchema,
   }).optional(),
   // Policy page content
   returnPolicyPageTitle: z.string().optional(),
@@ -41,4 +42,13 @@ export const FooterSchema = z.object({
   termsOfServiceDefaultContent: z.string().optional(),
   termsOfServiceFooter: z.string().optional(),
   policyPageEmptyMessage: z.string().optional(),
+  // Accessibility statement page
+  accessibilityPageTitle: z.string().optional(),
+  accessibilityHeader: z.string().optional(),
+  accessibilityContent: z.string().optional(),
+  // VAT/Tax footer statement
+  vatStatement: z.string().optional(),
+  showVatStatement: z.boolean().default(true),
+  // Business info footer display
+  showBusinessInfo: z.boolean().default(true),
 });
