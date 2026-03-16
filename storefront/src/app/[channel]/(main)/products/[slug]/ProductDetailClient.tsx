@@ -38,6 +38,8 @@ import { useInViewport } from "@/hooks/useInViewport";
 import type { EnrichedVariant, ProductAttribute } from "@/ui/components/ProductDetails";
 import { SizeGuideModal } from "@/ui/components/SizeGuideModal";
 import { trackViewItem, trackAddToCart } from "@/lib/analytics";
+import { trackMetaViewContent, trackMetaAddToCart } from "@/lib/meta-pixel-events";
+import { trackTikTokViewContent, trackTikTokAddToCart } from "@/lib/tiktok-pixel-events";
 
 const EMPTY_VARIANT_SELECTION_SLUGS: string[] = [];
 
@@ -176,6 +178,24 @@ export function ProductDetailClient({
         item_brand: brand,
         item_category: product.category ?? undefined,
         price: product.priceAmount,
+        currency: product.priceCurrency,
+      });
+
+      // Meta Pixel ViewContent
+      trackMetaViewContent({
+        content_ids: [product.id],
+        content_name: product.name,
+        content_type: "product",
+        value: product.priceAmount,
+        currency: product.priceCurrency,
+      });
+
+      // TikTok Pixel ViewContent
+      trackTikTokViewContent({
+        content_id: product.id,
+        content_name: product.name,
+        content_type: "product",
+        value: product.priceAmount,
         currency: product.priceCurrency,
       });
     }
@@ -341,6 +361,26 @@ export function ProductDetailClient({
             },
             quantity,
           );
+
+          // Meta Pixel AddToCart
+          trackMetaAddToCart({
+            content_ids: [selectedVariant?.id || product.id],
+            content_name: product.name,
+            content_type: "product",
+            value: product.priceAmount * quantity,
+            currency: product.priceCurrency,
+            num_items: quantity,
+          });
+
+          // TikTok Pixel AddToCart
+          trackTikTokAddToCart({
+            content_id: selectedVariant?.id || product.id,
+            content_name: product.name,
+            content_type: "product",
+            value: product.priceAmount * quantity,
+            currency: product.priceCurrency,
+            quantity,
+          });
         }
       } else {
         setAddedToCart(false);

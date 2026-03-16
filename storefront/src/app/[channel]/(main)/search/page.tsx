@@ -10,7 +10,7 @@ import { storeConfig } from "@/config";
 import { SearchProductsGrid } from "./SearchProductsGrid";
 
 export const metadata = {
-	title: `Search | ${storeConfig.store.name}`,
+	title: "Search",
 	description: `Search products at ${storeConfig.store.name}`,
 };
 

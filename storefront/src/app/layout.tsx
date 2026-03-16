@@ -49,6 +49,7 @@ export const metadata: Metadata = {
 		? new URL(process.env.NEXT_PUBLIC_STOREFRONT_URL)
 		: undefined,
 	openGraph: {
+		type: "website",
 		title: storeConfig.seo.defaultTitle,
 		description: storeConfig.seo.defaultDescription,
 		images: [storeConfig.seo.defaultImage],

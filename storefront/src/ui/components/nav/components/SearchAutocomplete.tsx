@@ -3,12 +3,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { SearchIcon, XIcon, ClockIcon } from "lucide-react";
+import { SearchIcon, ClockIcon, FolderIcon, TagIcon } from "lucide-react";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { useContentConfig, useBranding } from "@/providers/StoreConfigProvider";
-import { buildProductUrl, buildProductsUrl, withChannel } from "@/lib/urls";
+import { buildProductUrl, buildProductsUrl, buildCategoryUrl, buildCollectionUrl, withChannel } from "@/lib/urls";
 import { formatMoneyRange } from "@/lib/utils";
-import { type ProductListItemFragment } from "@/gql/graphql";
 
 interface SearchAutocompleteProps {
   query: string;
@@ -27,15 +26,33 @@ interface SearchSuggestion {
   href: string;
 }
 
+interface SearchApiResponse {
+  products?: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    thumbnail?: { url: string };
+    pricing?: {
+      priceRange?: {
+        start?: { gross: { amount: number; currency: string } };
+        stop?: { gross: { amount: number; currency: string } };
+      };
+    };
+  }>;
+  categories?: Array<{ name: string; slug: string; score: number }>;
+  collections?: Array<{ name: string; slug: string; score: number }>;
+  didYouMean?: string | null;
+}
+
 const RECENT_SEARCHES_KEY = "storefront_recent_searches";
 const MAX_RECENT_SEARCHES = 5;
 
-export function SearchAutocomplete({ 
-  query, 
-  channel, 
-  isOpen, 
-  onClose, 
-  onSelect 
+export function SearchAutocomplete({
+  query,
+  channel,
+  isOpen,
+  onClose,
+  onSelect
 }: SearchAutocompleteProps) {
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -83,23 +100,42 @@ export function SearchAutocomplete({
 
     const fetchSuggestions = async () => {
       try {
-        // Use API route for client-side search
         const response = await fetch(`/api/search-suggestions?query=${encodeURIComponent(query)}&channel=${encodeURIComponent(channel)}&limit=5`);
-        
+
         if (!response.ok) {
           throw new Error("Failed to fetch suggestions");
         }
 
-        const data = (await response.json()) as { products?: unknown[]; didYouMean?: string | null };
+        const data = (await response.json()) as SearchApiResponse;
 
         if (cancelled) return;
 
-        // Set "did you mean?" suggestion from the enhanced search
         setDidYouMean(data.didYouMean ?? null);
 
-        const productSuggestions: SearchSuggestion[] = (data.products || []).map((product: any) => {
-          // Safely format price range - handle missing currency
-          // Pricing structure: pricing.priceRange.start.gross and pricing.priceRange.stop.gross
+        const allSuggestions: SearchSuggestion[] = [];
+
+        // Add category matches first (they're high-signal navigational suggestions)
+        for (const cat of data.categories || []) {
+          allSuggestions.push({
+            type: "category",
+            id: `cat-${cat.slug}`,
+            title: cat.name,
+            href: buildCategoryUrl(cat.slug),
+          });
+        }
+
+        // Add collection matches
+        for (const col of data.collections || []) {
+          allSuggestions.push({
+            type: "collection",
+            id: `col-${col.slug}`,
+            title: col.name,
+            href: buildCollectionUrl(col.slug),
+          });
+        }
+
+        // Add product matches
+        for (const product of data.products || []) {
           let subtitle: string | undefined;
           if (product.pricing?.priceRange?.start?.gross && product.pricing?.priceRange?.stop?.gross) {
             try {
@@ -107,23 +143,22 @@ export function SearchAutocomplete({
                 start: product.pricing.priceRange.start.gross,
                 stop: product.pricing.priceRange.stop.gross,
               }) ?? undefined;
-            } catch (error) {
-              // If currency is missing, skip subtitle
-              console.warn("Failed to format price range:", error);
+            } catch {
+              // Skip subtitle if currency is missing
             }
           }
 
-          return {
-            type: "product" as const,
+          allSuggestions.push({
+            type: "product",
             id: product.id,
             title: product.name,
             subtitle,
             image: product.thumbnail?.url,
             href: buildProductUrl(product.slug),
-          };
-        });
+          });
+        }
 
-        setSuggestions(productSuggestions);
+        setSuggestions(allSuggestions);
       } catch (error) {
         console.error("Failed to fetch search suggestions:", error);
         if (!cancelled) {
@@ -141,6 +176,7 @@ export function SearchAutocomplete({
       cancelled = true;
       clearTimeout(debounceTimer);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- content.navbar is stable config, not a reactive dep
   }, [query, channel, isOpen]);
 
   // Show recent searches when query is empty
@@ -151,7 +187,7 @@ export function SearchAutocomplete({
         type: "recent" as const,
         id: `recent-${search}`,
         title: search,
-        href: buildProductsUrl({ search }), // products page with search filter
+        href: buildProductsUrl({ search }),
       }));
       setSuggestions(recentSuggestions);
     }
@@ -164,7 +200,7 @@ export function SearchAutocomplete({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        setSelectedIndex((prev) => 
+        setSelectedIndex((prev) =>
           prev < suggestions.length - 1 ? prev + 1 : prev
         );
       } else if (e.key === "ArrowUp") {
@@ -208,7 +244,6 @@ export function SearchAutocomplete({
     if (suggestion.type === "recent" || suggestion.type === "product") {
       saveRecentSearch(query);
     }
-    // Include channel in the URL for router.push
     const fullHref = withChannel(channel, suggestion.href);
     onSelect(fullHref);
     router.push(fullHref);
@@ -226,6 +261,14 @@ export function SearchAutocomplete({
 
   const hasSuggestions = suggestions.length > 0;
   const showRecentSearches = !query.trim() && hasSuggestions;
+
+  // Group suggestions by type for rendering
+  const categorySuggestions = suggestions.filter((s) => s.type === "category" || s.type === "collection");
+  const productSuggestions = suggestions.filter((s) => s.type === "product");
+  const recentSuggestions = suggestions.filter((s) => s.type === "recent");
+
+  // Flat list for keyboard navigation index mapping
+  const flatSuggestions = [...categorySuggestions, ...productSuggestions, ...recentSuggestions];
 
   return (
     <div
@@ -269,6 +312,7 @@ export function SearchAutocomplete({
 
       {!isLoading && hasSuggestions && (
         <div className="py-2">
+          {/* Recent searches header */}
           {showRecentSearches && (
             <div className="mb-2 flex items-center justify-between border-b border-neutral-100 px-4 py-2">
               <div className="flex items-center gap-2 text-xs font-medium text-neutral-500">
@@ -284,52 +328,120 @@ export function SearchAutocomplete({
             </div>
           )}
 
-          <ul className="divide-y divide-neutral-100">
-            {suggestions.map((suggestion, index) => (
-              <li key={suggestion.id}>
-                <button
-                  onClick={() => handleSelect(suggestion)}
-                  className={`w-full px-4 py-3 text-left transition-colors ${
-                    index === selectedIndex
-                      ? "bg-neutral-50"
-                      : "hover:bg-neutral-50"
-                  }`}
-                  style={
-                    index === selectedIndex
-                      ? { backgroundColor: `${branding.colors.primary}10` }
-                      : undefined
-                  }
-                >
-                  <div className="flex items-center gap-3">
-                    {suggestion.image && (
-                      <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-md bg-neutral-100">
-                        <Image
-                          src={suggestion.image}
-                          alt={suggestion.title}
-                          fill
-                          className="object-cover"
-                          sizes="48px"
-                        />
-                      </div>
-                    )}
-                    {suggestion.type === "recent" && !suggestion.image && (
-                      <ClockIcon className="h-5 w-5 flex-shrink-0 text-neutral-400" />
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-medium text-neutral-900">
-                        {suggestion.title}
-                      </div>
-                      {suggestion.subtitle && (
-                        <div className="mt-0.5 text-xs text-neutral-500">
-                          {suggestion.subtitle}
+          {/* Category & Collection suggestions */}
+          {categorySuggestions.length > 0 && (
+            <div>
+              <div className="px-4 pb-1 pt-2 text-xs font-medium uppercase tracking-wider text-neutral-400">
+                {content.navbar?.categoriesLabel ?? "Categories"}
+              </div>
+              <ul>
+                {categorySuggestions.map((suggestion) => {
+                  const flatIndex = flatSuggestions.indexOf(suggestion);
+                  return (
+                    <li key={suggestion.id}>
+                      <button
+                        onClick={() => handleSelect(suggestion)}
+                        className={`w-full px-4 py-2.5 text-left transition-colors ${
+                          flatIndex === selectedIndex ? "bg-neutral-50" : "hover:bg-neutral-50"
+                        }`}
+                        style={flatIndex === selectedIndex ? { backgroundColor: `${branding.colors.primary}10` } : undefined}
+                      >
+                        <div className="flex items-center gap-3">
+                          {suggestion.type === "category" ? (
+                            <FolderIcon className="h-4 w-4 flex-shrink-0 text-neutral-400" />
+                          ) : (
+                            <TagIcon className="h-4 w-4 flex-shrink-0 text-neutral-400" />
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <span className="text-sm font-medium text-neutral-900">{suggestion.title}</span>
+                            <span className="ms-2 text-xs text-neutral-400">
+                              {suggestion.type === "category"
+                                ? (content.navbar?.categoriesLabel ?? "Category")
+                                : (content.navbar?.collectionsLabel ?? "Collection")}
+                            </span>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  </div>
-                </button>
-              </li>
-            ))}
-          </ul>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+
+          {/* Product suggestions */}
+          {productSuggestions.length > 0 && (
+            <div>
+              {categorySuggestions.length > 0 && (
+                <div className="px-4 pb-1 pt-2 text-xs font-medium uppercase tracking-wider text-neutral-400">
+                  {"Products"}
+                </div>
+              )}
+              <ul className="divide-y divide-neutral-100">
+                {productSuggestions.map((suggestion) => {
+                  const flatIndex = flatSuggestions.indexOf(suggestion);
+                  return (
+                    <li key={suggestion.id}>
+                      <button
+                        onClick={() => handleSelect(suggestion)}
+                        className={`w-full px-4 py-3 text-left transition-colors ${
+                          flatIndex === selectedIndex ? "bg-neutral-50" : "hover:bg-neutral-50"
+                        }`}
+                        style={flatIndex === selectedIndex ? { backgroundColor: `${branding.colors.primary}10` } : undefined}
+                      >
+                        <div className="flex items-center gap-3">
+                          {suggestion.image && (
+                            <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-md bg-neutral-100">
+                              <Image
+                                src={suggestion.image}
+                                alt={suggestion.title}
+                                fill
+                                className="object-cover"
+                                sizes="48px"
+                              />
+                            </div>
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <div className="text-sm font-medium text-neutral-900">{suggestion.title}</div>
+                            {suggestion.subtitle && (
+                              <div className="mt-0.5 text-xs text-neutral-500">{suggestion.subtitle}</div>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+
+          {/* Recent searches */}
+          {recentSuggestions.length > 0 && (
+            <ul className="divide-y divide-neutral-100">
+              {recentSuggestions.map((suggestion) => {
+                const flatIndex = flatSuggestions.indexOf(suggestion);
+                return (
+                  <li key={suggestion.id}>
+                    <button
+                      onClick={() => handleSelect(suggestion)}
+                      className={`w-full px-4 py-3 text-left transition-colors ${
+                        flatIndex === selectedIndex ? "bg-neutral-50" : "hover:bg-neutral-50"
+                      }`}
+                      style={flatIndex === selectedIndex ? { backgroundColor: `${branding.colors.primary}10` } : undefined}
+                    >
+                      <div className="flex items-center gap-3">
+                        <ClockIcon className="h-5 w-5 flex-shrink-0 text-neutral-400" />
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-medium text-neutral-900">{suggestion.title}</div>
+                        </div>
+                      </div>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
 
           {query.trim().length >= 2 && (
             <div className="border-t border-neutral-100 px-4 py-3">

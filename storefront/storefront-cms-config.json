@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-03-16T07:54:00.215Z",
+  "exportedAt": "2026-03-16T12:54:09.764Z",
   "channels": {
     "ils": {
       "version": 110,
@@ -536,6 +536,7 @@
           "googleAnalyticsId": null,
           "googleTagManagerId": "GTM-PWN35T2R",
           "facebookPixelId": null,
+          "tiktokPixelId": null,
           "hotjarId": null
         },
         "marketing": {
@@ -2829,6 +2830,7 @@
           "googleAnalyticsId": null,
           "googleTagManagerId": null,
           "facebookPixelId": null,
+          "tiktokPixelId": null,
           "hotjarId": null
         },
         "marketing": {
@@ -3954,8 +3956,8 @@
       }
     },
     "usd": {
-      "version": 33,
-      "updatedAt": "2026-03-16T07:53:57.504Z",
+      "version": 35,
+      "updatedAt": "2026-03-16T12:54:08.541Z",
       "channelSlug": "usd",
       "store": {
         "name": "Pawzen",
@@ -4550,7 +4552,8 @@
         "analytics": {
           "googleAnalyticsId": null,
           "googleTagManagerId": "GTM-PWN35T2R",
-          "facebookPixelId": null,
+          "facebookPixelId": "875010108901112",
+          "tiktokPixelId": "D6RVQBRC77UFCQ8RON8G",
           "hotjarId": null
         },
         "marketing": {
@@ -7157,6 +7160,7 @@
           "googleAnalyticsId": null,
           "googleTagManagerId": "GTM-PWN35T2R",
           "facebookPixelId": null,
+          "tiktokPixelId": null,
           "hotjarId": null
         },
         "marketing": {

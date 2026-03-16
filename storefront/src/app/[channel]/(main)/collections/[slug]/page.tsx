@@ -28,7 +28,7 @@ export const generateMetadata = async (
 
   const translatedName = collection?.translation?.name || collection?.name;
   return {
-    title: `${translatedName || "Collection"} | ${storeConfig.store.name}`,
+    title: translatedName || "Collection",
     description: collection?.translation?.seoDescription || collection?.seoDescription || collection?.translation?.description || collection?.description || `Shop ${translatedName} collection at ${storeConfig.store.name}`,
     // Add canonical URL pointing to the unified products page
     alternates: {

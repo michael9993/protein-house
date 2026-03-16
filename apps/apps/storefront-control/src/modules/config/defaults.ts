@@ -568,6 +568,7 @@ const getFallbackDefaultConfig = (channelSlug: string): StorefrontConfig => ({
       googleAnalyticsId: null,
       googleTagManagerId: null,
       facebookPixelId: null,
+      tiktokPixelId: null,
       hotjarId: null,
     },
     marketing: {

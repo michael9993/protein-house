@@ -1,6 +1,7 @@
 # Requires $languageCode: LanguageCodeEnum! in parent query
 fragment VariantDetails on ProductVariant {
 	id
+	sku
 	name
 	translation(languageCode: $languageCode) { name }
 	quantityAvailable

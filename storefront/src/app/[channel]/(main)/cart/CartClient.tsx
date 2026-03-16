@@ -9,6 +9,8 @@ import { formatMoney, getHrefForVariant } from "@/lib/utils";
 import { useBranding, useEcommerceSettings, useContentConfig, useButtonStyle, useBadgeStyle, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { buildComponentStyle } from "@/config";
 import { trackBeginCheckout } from "@/lib/analytics";
+import { trackMetaInitiateCheckout } from "@/lib/meta-pixel-events";
+import { trackTikTokPlaceAnOrder } from "@/lib/tiktok-pixel-events";
 import { getProductShippingEstimate, formatEstimate } from "@/lib/shipping";
 import { mapPromoCodeError } from "@/lib/checkout/promo-error-map";
 
@@ -499,6 +501,22 @@ export function CartClient({
           quantity: l.quantity,
         })),
         coupon: cart.voucherCode || undefined,
+      });
+
+      // Meta Pixel InitiateCheckout
+      trackMetaInitiateCheckout({
+        content_ids: selectedLines.map((l) => l.variant.id),
+        value: selectedLines.reduce((sum, l) => sum + l.totalPrice.gross.amount, 0),
+        currency: firstCurrency,
+        num_items: selectedLines.reduce((sum, l) => sum + l.quantity, 0),
+      });
+
+      // TikTok Pixel PlaceAnOrder
+      trackTikTokPlaceAnOrder({
+        content_id: cart.id,
+        content_type: "product",
+        value: selectedLines.reduce((sum, l) => sum + l.totalPrice.gross.amount, 0),
+        currency: firstCurrency,
       });
     }
 

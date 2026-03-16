@@ -12,7 +12,7 @@ import {
 } from "@/app/cart-actions";
 
 export const metadata = {
-	title: `Shopping Cart | ${storeConfig.store.name}`,
+	title: "Shopping Cart",
 	description: "Review your shopping cart",
 	robots: { index: false, follow: false },
 };

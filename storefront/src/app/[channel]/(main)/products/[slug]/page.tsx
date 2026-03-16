@@ -49,11 +49,13 @@ export async function generateMetadata(
 	const baseUrl = process.env.NEXT_PUBLIC_STOREFRONT_URL || "";
 	const productPath = `/products/${encodeURIComponent(params.slug)}`;
 
+	const currentPrice = product.pricing?.priceRange?.start?.gross;
+
 	return {
-		title: `${translatedName} | ${storeConfig.store.name}`,
+		title: translatedName,
 		description: product.translation?.seoDescription || product.seoDescription || productNameAndVariant,
 		alternates: {
-			canonical: baseUrl ? baseUrl + productPath : undefined,
+			canonical: baseUrl ? `${baseUrl}/${params.channel}${productPath}` : undefined,
 			languages: baseUrl
 				? {
 						"he-IL": `${baseUrl}/ils${productPath}`,
@@ -63,6 +65,7 @@ export async function generateMetadata(
 		},
 		openGraph: product.thumbnail
 			? {
+					type: "website" as const,
 					images: [
 						{
 							url: product.thumbnail.url,
@@ -71,6 +74,18 @@ export async function generateMetadata(
 					],
 				}
 			: null,
+		twitter: {
+			card: "summary_large_image",
+			title: productNameAndVariant,
+			description: product.translation?.seoDescription || product.seoDescription || productNameAndVariant,
+			...(product.thumbnail ? { images: [product.thumbnail.url] } : {}),
+		},
+		other: {
+			...(currentPrice ? {
+				"product:price:amount": currentPrice.amount.toString(),
+				"product:price:currency": currentPrice.currency,
+			} : {}),
+		},
 	};
 }
 
@@ -193,7 +208,11 @@ export default async function Page(props: {
 		image: product.thumbnail?.url,
 		brand: { "@type": "Brand", name: brandName },
 		...(product.category ? { category: product.category.translation?.name || product.category.name } : {}),
-		...(selectedVariant?.id ? { sku: selectedVariant.id } : {}),
+		...(selectedVariant?.sku
+			? { sku: selectedVariant.sku }
+			: product.variants?.[0]?.sku
+				? { sku: product.variants[0].sku }
+				: {}),
 		...(rating && reviewCount > 0
 			? {
 					aggregateRating: {

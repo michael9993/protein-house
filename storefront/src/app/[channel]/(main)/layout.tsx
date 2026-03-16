@@ -25,6 +25,8 @@ import { WishlistFloatingButton } from "@/components/WishlistDrawer";
 import { QuickViewWrapper } from "./QuickViewWrapper";
 import { CookieConsent } from "@/ui/components/CookieConsent";
 import { GoogleTagManager } from "@/ui/components/GoogleTagManager";
+import { MetaPixel } from "@/ui/components/MetaPixel";
+import { TikTokPixel } from "@/ui/components/TikTokPixel";
 import { WebVitalsReporter } from "@/ui/components/WebVitalsReporter";
 
 /**
@@ -161,22 +163,35 @@ export default async function RootLayout(props: {
 		"@type": "Organization",
 		name: storeConfig.store?.name || "Aura Store",
 		url: siteUrl,
-		logo: storeConfig.branding?.logo || undefined,
-		image: storeConfig.seo?.defaultImage || storeConfig.branding?.logo || undefined,
+		logo: (() => {
+			const l = storeConfig.branding?.logo;
+			if (!l) return undefined;
+			return l.startsWith("http") ? l : siteUrl + l;
+		})(),
+		image: (() => {
+			const img = storeConfig.seo?.defaultImage || storeConfig.branding?.logo;
+			if (!img) return undefined;
+			return img.startsWith("http") ? img : siteUrl + img;
+		})(),
 		description: storeConfig.store?.description || storeConfig.seo?.defaultDescription || undefined,
 		email: storeConfig.store?.email || undefined,
 		telephone: storeConfig.store?.phone || undefined,
 		...(socialLinks.length > 0 ? { sameAs: socialLinks } : {}),
-		...(storeConfig.store?.address ? {
-			address: {
-				"@type": "PostalAddress",
-				streetAddress: storeConfig.store.address.street,
-				addressLocality: storeConfig.store.address.city,
-				addressRegion: storeConfig.store.address.state,
-				postalCode: storeConfig.store.address.zip,
-				addressCountry: storeConfig.store.address.country,
-			},
-		} : {}),
+		...(() => {
+			const addr = storeConfig.store?.address;
+			const hasAddress = addr && (addr.street || addr.city || addr.country);
+			if (!hasAddress) return {};
+			return {
+				address: {
+					"@type": "PostalAddress",
+					...(addr.street ? { streetAddress: addr.street } : {}),
+					...(addr.city ? { addressLocality: addr.city } : {}),
+					...(addr.state ? { addressRegion: addr.state } : {}),
+					...(addr.zip ? { postalCode: addr.zip } : {}),
+					...(addr.country ? { addressCountry: addr.country } : {}),
+				},
+			};
+		})(),
 	};
 
 	const websiteJsonLd = {
@@ -220,6 +235,10 @@ export default async function RootLayout(props: {
 				<QuickViewWrapper channel={channel}>
 				{/* GA4/GTM — loads only after analytics consent */}
 				<GoogleTagManager channel={channel} />
+				{/* Meta Pixel (Facebook/Instagram) — loads only after marketing consent */}
+				<MetaPixel channel={channel} />
+				{/* TikTok Pixel — loads only after marketing consent */}
+				<TikTokPixel channel={channel} />
 				{/* Core Web Vitals — sends LCP/INP/CLS/FCP/TTFB to GA4 */}
 				<WebVitalsReporter />
 				{/* Client-side direction setter - backup and for dynamic updates */}

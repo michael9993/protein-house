@@ -37,6 +37,13 @@ export function IntegrationsToolsTab({ register, errors }: GlobalTabProps) {
             placeholder="XXXXXXXXXXXXXXX"
           />
           <FormField<GlobalFormData>
+            label="TikTok Pixel ID"
+            name="integrations.analytics.tiktokPixelId"
+            register={register}
+            errors={errors}
+            placeholder="XXXXXXXXXXXXXXX"
+          />
+          <FormField<GlobalFormData>
             label="Hotjar ID"
             name="integrations.analytics.hotjarId"
             register={register}

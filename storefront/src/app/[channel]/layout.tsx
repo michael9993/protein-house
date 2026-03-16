@@ -98,9 +98,7 @@ export default async function ChannelLayout({
 	// This prevents issues where currency codes (like "usd") are used instead of channel slugs
 	if (!validSlugs.includes(channel)) {
 		const defaultChannel = validSlugs[0] || DefaultChannelSlug;
-		// Redirect to default channel homepage
-		// Note: We redirect to homepage rather than preserving path to avoid complexity
-		// Users can navigate from there if needed
+		// Redirect to default channel, preserving the rest of the path
 		redirect(`/${defaultChannel}`);
 	}
 	

@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { GetOrderForConfirmationQuery } from "@/gql/graphql";
 import { trackPurchase } from "@/lib/analytics";
+import { trackMetaPurchase } from "@/lib/meta-pixel-events";
+import { trackTikTokCompletePayment } from "@/lib/tiktok-pixel-events";
 import { saleorAuthClient } from "@/ui/components/AuthProvider";
 import { registerAccount } from "@/checkout-v2/_actions/register-account";
 import { useAutoCartCleanup } from "@/checkout-v2/hooks/useCartCleanup";
@@ -57,6 +59,23 @@ function OrderConfirmationInner({ order, channel }: Omit<Props, "checkoutText">)
 				currency: line.unitPrice.gross.currency,
 				quantity: line.quantity,
 			})),
+		});
+
+		// Meta Pixel Purchase
+		trackMetaPurchase({
+			content_ids: order.lines.map((line) => line.id),
+			content_name: `Order ${order.number}`,
+			value: order.total.gross.amount,
+			currency: order.total.gross.currency,
+			num_items: order.lines.reduce((sum, line) => sum + line.quantity, 0),
+		});
+
+		// TikTok Pixel CompletePayment
+		trackTikTokCompletePayment({
+			content_id: order.number,
+			content_type: "product",
+			value: order.total.gross.amount,
+			currency: order.total.gross.currency,
 		});
 	}, [order]);
 

@@ -3,7 +3,7 @@ import { AboutPage } from "./AboutPage";
 import { getCMSPage } from "@/lib/cms";
 
 export const metadata = {
-  title: `About Us | ${storeConfig.store.name}`,
+  title: "About Us",
   description: `Learn about ${storeConfig.store.name} - ${storeConfig.store.tagline}`,
 };
 

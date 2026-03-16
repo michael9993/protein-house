@@ -10,6 +10,7 @@ import { executeGraphQL } from "@/lib/graphql";
 import { getLanguageCodeForChannel } from "@/lib/language";
 import { storeConfig, DEFAULT_FILTERS_TEXT } from "@/config";
 import { fetchStorefrontConfig } from "@/lib/storefront-control";
+import { enhanceSearchQuery } from "@/lib/search/query-enhancer";
 import { ProductFiltersWrapper } from "./ProductFiltersWrapper";
 import { QuickFilters } from "./QuickFilters";
 import { ScrollToTopButton } from "./ScrollToTopButton";
@@ -36,7 +37,7 @@ import { TrackSearch } from "./TrackSearch";
 // ============================================================================
 
 export const metadata = {
-  title: `Products | ${storeConfig.store.name}`,
+  title: "Products",
   description: `Browse products at ${storeConfig.store.name}. Find the best deals and latest arrivals.`,
 };
 
@@ -672,13 +673,23 @@ export default async function Page(props: {
     curParams
   );
   const clearSearchHref = filters.search
-    ? `/${channel}/products${clearSearchParams.toString() ? `?${clearSearchParams.toString()}` : ""}`
+    ? `/products${clearSearchParams.toString() ? `?${clearSearchParams.toString()}` : ""}`
     : null;
+
+  // Enhance search query with fuzzy matching, typo correction, and category detection
+  let enhancedSearch: { corrected: string; categorySlug?: string; collectionSlug?: string; alternatives: string[] } | null = null;
+  if (filters.search) {
+    enhancedSearch = await enhanceSearchQuery(filters.search, channel, languageCode);
+  }
 
   // Handle special sort options
   let adjustedFilters = { ...filters };
   if (sortValue && (sortValue as any) === "sale") {
     adjustedFilters.onSale = true;
+  }
+  // Apply the enhanced/corrected search term
+  if (enhancedSearch && enhancedSearch.corrected !== filters.search) {
+    adjustedFilters = { ...adjustedFilters, search: enhancedSearch.corrected };
   }
 
   const sortVariables = buildGraphQLSort(sortValue);
@@ -784,10 +795,76 @@ export default async function Page(props: {
     }),
   ]);
 
-  const productCount = products?.totalCount || 0;
-  const initialProducts = products?.edges.map(({ node }) => node) || [];
-  const hasNextPage = products?.pageInfo.hasNextPage || false;
-  const endCursor = products?.pageInfo.endCursor || null;
+  let productCount = products?.totalCount || 0;
+  let initialProducts = products?.edges.map(({ node }) => node) || [];
+  let hasNextPage = products?.pageInfo.hasNextPage || false;
+  let endCursor = products?.pageInfo.endCursor || null;
+
+  // Smart fallback: if text search returned 0 results and the query enhancer
+  // detected a matching category or collection, retry with those as filters.
+  // This makes "pet nests" find products in the "Pet Nests" category even though
+  // Saleor's text search only matches product names/descriptions.
+  if (productCount === 0 && adjustedFilters.search && enhancedSearch) {
+    const fallbackCategorySlugs = enhancedSearch.categorySlug ? [enhancedSearch.categorySlug] : [];
+    const fallbackCollectionSlugs = enhancedSearch.collectionSlug ? [enhancedSearch.collectionSlug] : [];
+    const hasSmartFallback = fallbackCategorySlugs.length > 0 || fallbackCollectionSlugs.length > 0;
+
+    // Also try alternatives (stemmed/fuzzy variants) as text search
+    let altProducts: typeof products = null;
+    if (!hasSmartFallback && enhancedSearch.alternatives.length > 0) {
+      for (const alt of enhancedSearch.alternatives) {
+        if (alt === adjustedFilters.search) continue;
+        const altResult = await executeGraphQL(ProductListFilteredDocument, {
+          variables: {
+            first: 24, channel, languageCode, sortBy: sortVariables,
+            filter: graphqlFilter, search: alt,
+          },
+          revalidate: 10,
+        });
+        if ((altResult.products?.totalCount || 0) > 0) {
+          altProducts = altResult.products;
+          break;
+        }
+      }
+    }
+
+    if (hasSmartFallback) {
+      // Retry with category/collection filters instead of text search
+      const fallbackCategoryIds = categoriesForFilterResult.categoryIds(fallbackCategorySlugs);
+      const fallbackCollectionIds = fallbackCollectionSlugs.length > 0
+        ? await getCollectionIdsFromSlugs(fallbackCollectionSlugs, channel)
+        : [];
+
+      const fallbackFilter = buildGraphQLFilter({
+        filters: { ...adjustedFilters, search: undefined, categories: fallbackCategorySlugs, collections: fallbackCollectionSlugs },
+        categoryIds: [...categoryIds, ...fallbackCategoryIds],
+        collectionIds: [...collectionIds, ...fallbackCollectionIds],
+        saleCollectionIds,
+        brandAttributeSlug: brandAttributeSlug ? brandAttributeSlug : undefined,
+        sizeAttributeSlug: sizeAttributeSlug ? sizeAttributeSlug : undefined,
+        colorAttributeSlug: colorAttributeSlug ? colorAttributeSlug : undefined,
+      });
+
+      const fallbackResult = await executeGraphQL(ProductListFilteredDocument, {
+        variables: {
+          first: 24, channel, languageCode, sortBy: sortVariables,
+          filter: fallbackFilter,
+        },
+        revalidate: 10,
+      });
+      if ((fallbackResult.products?.totalCount || 0) > 0) {
+        productCount = fallbackResult.products?.totalCount || 0;
+        initialProducts = fallbackResult.products?.edges.map(({ node }) => node) || [];
+        hasNextPage = fallbackResult.products?.pageInfo.hasNextPage || false;
+        endCursor = fallbackResult.products?.pageInfo.endCursor || null;
+      }
+    } else if (altProducts) {
+      productCount = altProducts.totalCount || 0;
+      initialProducts = altProducts.edges.map(({ node }) => node) || [];
+      hasNextPage = altProducts.pageInfo.hasNextPage || false;
+      endCursor = altProducts.pageInfo.endCursor || null;
+    }
+  }
 
   // Compute stable price bounds from the two edge-price queries (not from filtered results)
   const allBoundProducts = [

@@ -1,12 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { StoreConfigContext } from "@/providers/StoreConfigProvider";
 import { storeConfig, DEFAULT_NOT_FOUND_TEXT } from "@/config";
 
+/**
+ * Extract the channel slug from the current URL path.
+ * URLs follow the pattern /{channel}/... so the channel is the first segment.
+ * Falls back to the default channel env var.
+ */
+function useChannel(): string {
+  return useMemo(() => {
+    if (typeof window === "undefined") {
+      return process.env.NEXT_PUBLIC_DEFAULT_CHANNEL || "default-channel";
+    }
+    const segments = window.location.pathname.split("/").filter(Boolean);
+    // The first segment is the channel (e.g., "usd", "default-channel")
+    return segments[0] || process.env.NEXT_PUBLIC_DEFAULT_CHANNEL || "default-channel";
+  }, []);
+}
+
 export function NotFoundClient() {
   const contextConfig = useContext(StoreConfigContext);
+  const channel = useChannel();
   const primary =
     contextConfig?.branding?.colors?.primary || storeConfig.branding.colors.primary;
   const notFoundText = contextConfig?.content?.notFound || DEFAULT_NOT_FOUND_TEXT;
@@ -20,6 +37,9 @@ export function NotFoundClient() {
     (notFoundText as Record<string, string>).aboutUsLinkText || "About Us";
   const contactLabel =
     (notFoundText as Record<string, string>).contactLinkText || "Contact";
+
+  /** Prefix a relative path with the channel */
+  const ch = (path: string) => `/${channel}${path}`;
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-white px-6">
@@ -48,7 +68,7 @@ export function NotFoundClient() {
         {/* Action buttons */}
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Link
-            href="/"
+            href={ch("/")}
             className="inline-flex items-center gap-2 rounded-full px-8 py-3 text-xs font-bold uppercase tracking-[0.2em] text-white transition-opacity hover:opacity-90"
             style={{ backgroundColor: primary }}
           >
@@ -68,7 +88,7 @@ export function NotFoundClient() {
             {notFoundText.backToHomeButton}
           </Link>
           <Link
-            href="/products"
+            href={ch("/products")}
             className="inline-flex items-center gap-2 rounded-full border-2 px-8 py-3 text-xs font-bold uppercase tracking-[0.2em] transition-colors hover:bg-neutral-50"
             style={{ borderColor: primary, color: primary }}
           >
@@ -96,25 +116,25 @@ export function NotFoundClient() {
           </p>
           <div className="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2">
             <Link
-              href="/categories"
+              href={ch("/products")}
               className="text-sm font-medium text-neutral-700 underline-offset-2 hover:underline"
             >
               {categoriesLabel}
             </Link>
             <Link
-              href="/collections"
+              href={ch("/products")}
               className="text-sm font-medium text-neutral-700 underline-offset-2 hover:underline"
             >
               {collectionsLabel}
             </Link>
             <Link
-              href="/about"
+              href={ch("/about")}
               className="text-sm font-medium text-neutral-700 underline-offset-2 hover:underline"
             >
               {aboutUsLabel}
             </Link>
             <Link
-              href="/contact"
+              href={ch("/contact")}
               className="text-sm font-medium text-neutral-700 underline-offset-2 hover:underline"
             >
               {contactLabel}

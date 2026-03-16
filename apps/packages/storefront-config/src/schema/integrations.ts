@@ -4,6 +4,7 @@ export const AnalyticsIntegrationsSchema = z.object({
   googleAnalyticsId: z.string().nullable(),
   googleTagManagerId: z.string().nullable(),
   facebookPixelId: z.string().nullable(),
+  tiktokPixelId: z.string().nullable(),
   hotjarId: z.string().nullable(),
 });
 
