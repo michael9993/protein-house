@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { useStoreConfig, useBranding, useStoreInfo, useContactText } from "@/providers/StoreConfigProvider";
+import { useStoreConfig, useBranding, useStoreInfo, useContactText, useFooterConfig } from "@/providers/StoreConfigProvider";
 
 // Social icons map (same as FooterClient)
 const socialIcons: Record<string, React.ReactElement> = {
@@ -46,6 +46,7 @@ export function ContactPage() {
   const brandingConfig = useBranding();
   const storeInfo = useStoreInfo();
   const contactText = useContactText();
+  const footerConfig = useFooterConfig();
   const [formState, setFormState] = useState({
     name: "",
     email: "",
@@ -127,7 +128,7 @@ export function ContactPage() {
       ];
 
   const contactMethods = [
-    {
+    ...(footerConfig.showFooterEmail !== false ? [{
       icon: (
         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -136,8 +137,8 @@ export function ContactPage() {
       label: contactText.emailLabel,
       value: store.email,
       href: `mailto:${store.email}`,
-    },
-    {
+    }] : []),
+    ...(footerConfig.showFooterPhone !== false ? [{
       icon: (
         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -146,8 +147,8 @@ export function ContactPage() {
       label: contactText.phoneLabel,
       value: store.phone,
       href: `tel:${store.phone}`,
-    },
-    {
+    }] : []),
+    ...(footerConfig.showFooterAddress !== false ? [{
       icon: (
         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -155,13 +156,13 @@ export function ContactPage() {
         </svg>
       ),
       label: contactText.addressLabel,
-      value: store.address 
+      value: store.address
         ? `${store.address.street}, ${store.address.city}, ${store.address.state} ${store.address.zip}`
         : "Address not available",
-      href: store.address 
+      href: store.address
         ? `https://maps.google.com/?q=${encodeURIComponent(`${store.address.street}, ${store.address.city}, ${store.address.state} ${store.address.zip}`)}`
         : "#",
-    },
+    }] : []),
   ];
 
   return (
@@ -213,9 +214,10 @@ export function ContactPage() {
       </section>
 
       {/* Contact Methods */}
+      {contactMethods.length > 0 && (
       <section className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-8 md:grid-cols-3">
+          <div className={`grid gap-8 ${contactMethods.length === 1 ? "md:grid-cols-1 max-w-md mx-auto" : contactMethods.length === 2 ? "md:grid-cols-2 max-w-2xl mx-auto" : "md:grid-cols-3"}`}>
             {contactMethods.map((method) => (
               <a
                 key={method.label}
@@ -256,6 +258,7 @@ export function ContactPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Contact Form & FAQs */}
       <section className="py-16" style={{ backgroundColor: branding.colors.surface }}>

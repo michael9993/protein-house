@@ -3,7 +3,7 @@ import {
   CustomerServiceFilterKeys,
   CustomerServiceListFilterOpts,
 } from "@dashboard/customers/components/CustomerServiceListPage";
-import { ContactSubmissionFilterInput } from "@dashboard/graphql";
+import { ContactSubmissionFilterInput, ContactSubmissionStatusEnum } from "@dashboard/graphql";
 
 import {
   createFilterTabUtils,
@@ -39,7 +39,7 @@ export function getFilterVariables(
   defaultChannelSlug?: string | null,
 ): ContactSubmissionFilterInput {
   return {
-    status: params.status ? { eq: params.status } : undefined,
+    status: params.status ? (params.status as ContactSubmissionStatusEnum) : undefined,
     channel: params.channel || defaultChannelSlug || undefined,
     createdAt: getGteLteVariables({
       gte: params.createdFrom,
@@ -57,12 +57,12 @@ export function getFilterQueryParam(
   switch (name) {
     case CustomerServiceFilterKeys.status:
       return {
-        [CustomerServiceListUrlFiltersEnum.status]: filter.value as string,
+        [CustomerServiceListUrlFiltersEnum.status]: (filter.value?.[0] ?? "") as string,
       };
 
     case CustomerServiceFilterKeys.channel:
       return {
-        [CustomerServiceListUrlFiltersEnum.channel]: filter.value as string,
+        [CustomerServiceListUrlFiltersEnum.channel]: (filter.value?.[0] ?? "") as string,
       };
 
     case CustomerServiceFilterKeys.created:

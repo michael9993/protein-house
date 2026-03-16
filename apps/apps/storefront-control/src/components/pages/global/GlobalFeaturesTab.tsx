@@ -24,6 +24,7 @@ const FAB_ITEMS = [
   { id: "whatsapp" as const, label: "WhatsApp", icon: MessageCircle },
   { id: "recentlyViewed" as const, label: "Recently Viewed", icon: Clock },
   { id: "wishlist" as const, label: "Wishlist", icon: Heart },
+  { id: "scrollToTop" as const, label: "Scroll to Top", icon: ArrowUp },
 ] as const;
 
 export function GlobalFeaturesTab({ control }: GlobalTabProps) {
@@ -73,19 +74,6 @@ export function GlobalFeaturesTab({ control }: GlobalTabProps) {
             description="Bundle products together"
             icon={<Package className="h-5 w-5" />}
             comingSoon
-          />
-        </div>
-      </FormSection>
-
-      {/* UI Features */}
-      <FormSection title="UI" description="Global UI feature toggles">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <FeatureCard
-            name="features.scrollToTop"
-            control={control}
-            title="Scroll to Top"
-            description="Floating scroll button"
-            icon={<ArrowUp className="h-5 w-5" />}
           />
         </div>
       </FormSection>

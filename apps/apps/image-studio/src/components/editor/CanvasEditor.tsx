@@ -67,6 +67,7 @@ export function CanvasEditor() {
   const draftPromptShown = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
+  const initialFitDone = useRef(false);
 
   const {
     canvas,
@@ -327,8 +328,8 @@ export function CanvasEditor() {
       duplicate: duplicateSelected,
       bringForward,
       sendBackward,
-      zoomIn: () => setZoomLevel(zoom + 0.1),
-      zoomOut: () => setZoomLevel(zoom - 0.1),
+      zoomIn: () => setZoomLevel(zoom * 1.2),
+      zoomOut: () => setZoomLevel(zoom / 1.2),
       zoomReset: () => setZoomLevel(1),
       save: handleSaveProject,
       exportImage: () => setShowExport(true),
@@ -482,15 +483,38 @@ export function CanvasEditor() {
     };
   }, [canvas, eyedropperTarget, sampleColor, selectedObject]);
 
-  // Auto-fit canvas zoom when container resizes (panel toggle, window resize)
+  // Resize canvas on container change; zoom-to-fit only on first render,
+  // then preserve viewport center (so panel toggles don't reset your view)
   useEffect(() => {
     const container = canvasContainerRef.current;
     if (!container || !canvas) return;
 
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0];
-      if (entry) {
-        zoomToFit(entry.contentRect.width, entry.contentRect.height);
+      if (!entry) return;
+      const { width: newW, height: newH } = entry.contentRect;
+      if (newW === 0 || newH === 0) return;
+
+      if (!initialFitDone.current) {
+        // First render: zoom-to-fit the document
+        zoomToFit(newW, newH);
+        initialFitDone.current = true;
+      } else {
+        // Subsequent resizes: keep the same scene-space center in view
+        const oldW = canvas.getWidth();
+        const oldH = canvas.getHeight();
+        const vpt = canvas.viewportTransform;
+        if (!vpt) return;
+        const currentZoom = vpt[0];
+        // Calculate what scene-space point is at viewport center
+        const centerSceneX = (oldW / 2 - vpt[4]) / currentZoom;
+        const centerSceneY = (oldH / 2 - vpt[5]) / currentZoom;
+        // Resize canvas element, then re-pan to keep that point centered
+        canvas.setDimensions({ width: newW, height: newH });
+        vpt[4] = newW / 2 - centerSceneX * currentZoom;
+        vpt[5] = newH / 2 - centerSceneY * currentZoom;
+        canvas.setViewportTransform(vpt);
+        canvas.renderAll();
       }
     });
 
@@ -531,9 +555,10 @@ export function CanvasEditor() {
         canvasHeight={canvasHeight}
         onUndo={undo}
         onRedo={redo}
-        onZoomIn={() => setZoomLevel(zoom + 0.1)}
-        onZoomOut={() => setZoomLevel(zoom - 0.1)}
+        onZoomIn={() => setZoomLevel(zoom * 1.2)}
+        onZoomOut={() => setZoomLevel(zoom / 1.2)}
         onZoomReset={() => setZoomLevel(1)}
+        onSetZoom={setZoomLevel}
         onExport={() => setShowExport(true)}
         onSaveToSaleor={handleSaveToSaleor}
         onClear={clearCanvas}
@@ -682,7 +707,7 @@ export function CanvasEditor() {
         )}
 
         {/* Canvas Area — canvas element fills this container via zoomToFit */}
-        <div ref={canvasContainerRef} className="flex-1 overflow-hidden relative">
+        <div ref={canvasContainerRef} className="flex-1 overflow-hidden relative" onAuxClick={(e) => e.preventDefault()}>
           <canvas id={CANVAS_ID} />
           {!crop.isCropping && (
             <FloatingTextToolbar selectedObject={selectedObject} canvas={canvas} />

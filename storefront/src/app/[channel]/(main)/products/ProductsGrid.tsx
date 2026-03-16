@@ -61,12 +61,10 @@ export function ProductsGrid({
   const [hasNextPage, setHasNextPage] = useState(initialHasNextPage);
   const [endCursor, setEndCursor] = useState(initialEndCursor);
   const [isLoading, setIsLoading] = useState(false);
-  const [isFiltering, setIsFiltering] = useState(false);
   const [displayProducts, setDisplayProducts] =
     useState<ProductListItemFragment[]>(initialProducts);
   const loaderRef = useRef<HTMLDivElement>(null);
-  const prevFiltersRef = useRef<string>(JSON.stringify(filters));
-  const prevSortRef = useRef<string>(JSON.stringify(sortBy));
+  const prevInitialRef = useRef(initialProducts);
 
   // Display mode state - use external prop if provided, otherwise use internal hook
   const [internalDisplayMode, setInternalDisplayMode] = useDisplayMode(4);
@@ -78,96 +76,66 @@ export function ProductsGrid({
   const cdStyle = useComponentStyle("plp.productGrid");
   const cdClasses = useComponentClasses("plp.productGrid");
 
-  // Detect filter/sort changes
+  // Reset when server returns new initial products (filter/sort changed)
   useEffect(() => {
-    const currentFiltersStr = JSON.stringify(filters);
-    const currentSortStr = JSON.stringify(sortBy);
-
-    const filtersChanged = prevFiltersRef.current !== currentFiltersStr;
-    const sortChanged = prevSortRef.current !== currentSortStr;
-
-    if (filtersChanged || sortChanged) {
-      setIsFiltering(true);
-      prevFiltersRef.current = currentFiltersStr;
-      prevSortRef.current = currentSortStr;
-
+    if (prevInitialRef.current !== initialProducts) {
+      prevInitialRef.current = initialProducts;
       setProducts(initialProducts);
       setHasNextPage(initialHasNextPage);
       setEndCursor(initialEndCursor);
-
-      const timer = setTimeout(() => {
-        setIsFiltering(false);
-      }, 350);
-
-      return () => clearTimeout(timer);
+      // Scroll to top of grid so user sees new results immediately
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
-  }, [filters, sortBy, initialProducts, initialHasNextPage, initialEndCursor]);
+  }, [initialProducts, initialHasNextPage, initialEndCursor]);
 
-  // Client-side filtering
+  // Client-side filtering (inStock, onSale, rating are not server-filterable)
   useEffect(() => {
-    if (!isFiltering) {
-      let filtered = products.filter((product) => {
-        if (filters.inStock) {
-          const hasStock =
-            product.variants?.some(
-              (v) => v.quantityAvailable && v.quantityAvailable > 0
-            ) ?? true;
-          if (!hasStock) return false;
+    let filtered = products.filter((product) => {
+      if (filters.inStock) {
+        const hasStock =
+          product.variants?.some(
+            (v) => v.quantityAvailable && v.quantityAvailable > 0
+          ) ?? true;
+        if (!hasStock) return false;
+      }
+
+      if (filters.onSale) {
+        const currentPrice =
+          product.pricing?.priceRange?.start?.gross?.amount;
+        const originalPrice =
+          product.pricing?.priceRangeUndiscounted?.start?.gross?.amount;
+        if (!currentPrice || !originalPrice || currentPrice >= originalPrice)
+          return false;
+      }
+
+      if (filters.rating !== undefined && filters.rating !== null) {
+        const productRating = (product as any).rating;
+        if (productRating === null || productRating === undefined) {
+          return false;
         }
-
-        if (filters.onSale) {
-          const currentPrice =
-            product.pricing?.priceRange?.start?.gross?.amount;
-          const originalPrice =
-            product.pricing?.priceRangeUndiscounted?.start?.gross?.amount;
-          if (!currentPrice || !originalPrice || currentPrice >= originalPrice)
-            return false;
-        }
-
-        if (filters.rating !== undefined && filters.rating !== null) {
-          const productRating = (product as any).rating;
-          if (productRating === null || productRating === undefined) {
-            return false;
-          }
-          if (Math.round(productRating) < filters.rating) {
-            return false;
-          }
-        }
-
-        return true;
-      });
-
-      // Apply "sale" sort filter
-      if (typeof window !== "undefined") {
-        const urlParams = new URLSearchParams(window.location.search);
-        const sortValue = urlParams.get("sort");
-        if (sortValue === "sale") {
-          filtered = filtered.filter((product) => {
-            const currentPrice =
-              product.pricing?.priceRange?.start?.gross?.amount;
-            const originalPrice =
-              product.pricing?.priceRangeUndiscounted?.start?.gross?.amount;
-            return (
-              currentPrice && originalPrice && currentPrice < originalPrice
-            );
-          });
-        }
-
-        // Client-side sort by delivery speed (metadata-based, can't be done server-side)
-        if (sortValue === "delivery-fast") {
-          filtered = [...filtered].sort((a, b) => {
-            const estA = getProductShippingEstimate((a as any).metadata);
-            const estB = getProductShippingEstimate((b as any).metadata);
-            const daysA = estA?.maxDays ?? 999;
-            const daysB = estB?.maxDays ?? 999;
-            return daysA - daysB;
-          });
+        if (Math.round(productRating) < filters.rating) {
+          return false;
         }
       }
 
-      setDisplayProducts(filtered);
+      return true;
+    });
+
+    // Client-side sort by delivery speed (metadata-based, can't be done server-side)
+    const sortField = sortBy?.field;
+    const isSaleSort = !sortField && filters.onSale;
+    if (isSaleSort) {
+      filtered = filtered.filter((product) => {
+        const currentPrice =
+          product.pricing?.priceRange?.start?.gross?.amount;
+        const originalPrice =
+          product.pricing?.priceRangeUndiscounted?.start?.gross?.amount;
+        return currentPrice && originalPrice && currentPrice < originalPrice;
+      });
     }
-  }, [products, filters, isFiltering, sortBy]);
+
+    setDisplayProducts(filtered);
+  }, [products, filters, sortBy]);
 
   const loadMore = useCallback(async () => {
     if (isLoading || !hasNextPage || !endCursor) return;
@@ -260,7 +228,7 @@ export function ProductsGrid({
   const hasFilters = checkActiveFilters(filters);
 
   // Empty State
-  if (displayProducts.length === 0 && !isLoading && !isFiltering) {
+  if (displayProducts.length === 0 && !isLoading) {
     return (
       <>
         <DesignStyles />
@@ -304,38 +272,13 @@ export function ProductsGrid({
         </div>
       )}
 
-      {/* Loading Overlay for Filtering */}
-      {isFiltering && (
-        <div
-          className="relative mb-8 overflow-hidden rounded-3xl p-16"
-          style={{
-            background: `linear-gradient(135deg, ${branding.colors.primary}08, ${branding.colors.secondary}05)`,
-          }}
-        >
-          <div className="flex flex-col items-center justify-center gap-5">
-            <div className="relative">
-              <div
-                className="h-14 w-14 animate-spin rounded-full border-4 border-t-transparent"
-                style={{ borderColor: `${branding.colors.primary}20`, borderTopColor: branding.colors.primary }}
-              />
-            </div>
-            <p className="text-sm font-bold uppercase tracking-widest text-neutral-500">
-              {filtersText.filteringProducts}
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Product Grid - Dynamic Layout */}
       <div
         data-cd="plp-productGrid"
-        className={`grid ${getGridClasses(displayMode)} ${getGapClasses(displayMode)} ${
-          !isFiltering ? "v7-grid-enter" : ""
-        } ${cdClasses}`}
+        className={`grid ${getGridClasses(displayMode)} ${getGapClasses(displayMode)} v7-grid-enter ${cdClasses}`}
         style={buildComponentStyle("plp.productGrid", cdStyle)}
       >
-        {!isFiltering &&
-          displayProducts.map((product, index) => (
+        {displayProducts.map((product, index) => (
             <ProductCard
               key={product.id}
               product={product}
@@ -345,15 +288,8 @@ export function ProductsGrid({
             />
           ))}
 
-        {/* Loading skeletons during filtering */}
-        {isFiltering &&
-          Array.from({ length: 8 }).map((_, i) => (
-            <ProductCardSkeleton key={`skeleton-${i}`} displayMode={displayMode} />
-          ))}
-
         {/* Loading skeletons for pagination */}
         {isLoading &&
-          !isFiltering &&
           Array.from({ length: 4 }).map((_, i) => (
             <ProductCardSkeleton key={`pagination-skeleton-${i}`} displayMode={displayMode} />
           ))}
@@ -364,7 +300,7 @@ export function ProductsGrid({
         ref={loaderRef}
         className="mt-10 flex items-center justify-center py-8"
       >
-        {isLoading && !isFiltering && (
+        {isLoading && (
           <div className="flex items-center gap-3">
             <Loader2
               className="h-6 w-6 animate-spin"
@@ -378,7 +314,7 @@ export function ProductsGrid({
         {!hasNextPage &&
           displayProducts.length > 0 &&
           !isLoading &&
-          !isFiltering && (
+          (
             <div className="text-center">
               <div
                 className="mx-auto mb-4 h-1 w-16 rounded-full"

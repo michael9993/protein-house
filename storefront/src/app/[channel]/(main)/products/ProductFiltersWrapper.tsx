@@ -573,19 +573,19 @@ async function fetchColors(apiUrl: string, channel: string): Promise<Color[]> {
           if (attrName === "color" || attrName === "colour" || attrSlug === "color" || attrSlug === "colour") {
             if (attr.values && attr.values.length > 0) {
               attr.values.forEach((value: any) => {
-                const colorId = value.id || value.slug || value.name;
-                const colorName = value.translation?.name || value.name;
+                // Dedup by slug (not id — Saleor gives each variant value a unique id)
                 const colorSlug = value.slug || value.name.toLowerCase().replace(/\s+/g, "-");
-                
-                if (!colorsMap.has(colorId)) {
-                  colorsMap.set(colorId, {
-                    id: colorId,
+                const colorName = value.translation?.name || value.name;
+
+                if (!colorsMap.has(colorSlug)) {
+                  colorsMap.set(colorSlug, {
+                    id: value.id || colorSlug,
                     name: colorName,
                     slug: colorSlug,
                     count: 0,
                   });
                 }
-                colorsMap.get(colorId)!.count++;
+                colorsMap.get(colorSlug)!.count++;
               });
             }
           }

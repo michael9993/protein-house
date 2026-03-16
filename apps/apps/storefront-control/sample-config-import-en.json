@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-03-14T01:44:33.539Z",
+  "exportedAt": "2026-03-16T07:53:57.997Z",
   "channelSlug": "usd",
   "config": {
-    "version": 2,
-    "updatedAt": "2026-03-14T01:44:33.265Z",
+    "version": 33,
+    "updatedAt": "2026-03-16T07:53:57.504Z",
     "channelSlug": "usd",
     "store": {
       "name": "Pawzen",
@@ -152,11 +152,32 @@
         "textColor": "#D4B978",
         "useSaleorPromotions": true,
         "useSaleorVouchers": true,
-        "items": [],
+        "items": [
+          {
+            "id": "manual-1773375829913",
+            "name": "Currently shipping costs in the middle east are high",
+            "description": null,
+            "link": "",
+            "icon": null
+          },
+          {
+            "id": "manual-1773548036215",
+            "name": "Free shipping on orders over $100 | Premium pet care, delivered",
+            "description": null,
+            "link": null,
+            "icon": null
+          }
+        ],
         "manualItems": [
           {
             "id": "manual-1773375829913",
             "text": "Currently shipping costs in the middle east are high",
+            "link": "",
+            "icon": null
+          },
+          {
+            "id": "manual-1773548036215",
+            "text": "Free shipping on orders over $100 | Premium pet care, delivered",
             "link": null,
             "icon": null
           }
@@ -189,6 +210,10 @@
       "showNewsletter": true,
       "showSocialLinks": true,
       "showContactInfo": true,
+      "showFooterEmail": true,
+      "showFooterPhone": false,
+      "showFooterAddress": false,
+      "showFooterContactButton": true,
       "showMenu": true,
       "showBrand": true,
       "copyrightText": "© 2026 Pawzen. All rights reserved.",
@@ -220,12 +245,12 @@
       },
       "returnPolicyPageTitle": "Returns & Exchanges Policy",
       "returnPolicyHeader": "Return Policy",
-      "returnPolicyContent": "## Returns & Exchanges — Pawzen\n\n### Product Exchange\n\n1. To exchange a product, contact us at support@pawzen.co within 30 days of receipt.\n2. The product must be unused and in its original packaging.\n3. Return shipping is at the customer's expense.\n4. Once we receive the returned item, we'll ship the replacement product free of charge.\n\nProducts returned without original packaging, used, or damaged will not be exchanged or refunded.\n\n### Product Return & Refund\n\n1. To return a product, email support@pawzen.co within 30 days of receipt.\n2. The product must be unused and in its original packaging.\n3. Return shipping is at the customer's expense.\n4. Refunds are for product cost only (shipping fees are non-refundable).\n5. Refunds are processed within 5 business days of receiving the returned item, using the original payment method.\n\n### Order Cancellation\n\n1. Orders can be cancelled before shipment by emailing support@pawzen.co.\n2. If the order has already shipped, follow the return procedure above.\n3. Pawzen reserves the right to cancel orders in cases of pricing errors, stock issues, or suspected fraud.",
+      "returnPolicyContent": "## Returns & Exchanges — Pawzen\n\n### Product Exchange\n\n1. To exchange a product, contact us at support@pawzenpets.shop within 30 days of receipt.\n2. The product must be unused and in its original packaging.\n3. Return shipping is at the customer's expense.\n4. Once we receive the returned item, we'll ship the replacement product free of charge.\n\nProducts returned without original packaging, used, or damaged will not be exchanged or refunded.\n\n### Product Return & Refund\n\n1. To return a product, email support@pawzenpets.shop within 30 days of receipt.\n2. The product must be unused and in its original packaging.\n3. Return shipping is at the customer's expense.\n4. Refunds are for product cost only (shipping fees are non-refundable).\n5. Refunds are processed within 5 business days of receiving the returned item, using the original payment method.\n\n### Order Cancellation\n\n1. Orders can be cancelled before shipment by emailing support@pawzenpets.shop.\n2. If the order has already shipped, follow the return procedure above.\n3. Pawzen reserves the right to cancel orders in cases of pricing errors, stock issues, or suspected fraud.",
       "returnPolicyDefaultContent": "We accept returns within 30 days of purchase. Items must be in original condition with tags attached.",
       "returnPolicyFooter": "",
       "shippingPolicyPageTitle": "Shipping Policy",
       "shippingPolicyHeader": "Shipping Policy",
-      "shippingPolicyContent": "## Shipping Policy — Pawzen\n\n1. Select your preferred shipping method at checkout. Shipping costs will be added to the product price.\n\n2. Packages are dispatched within 2 business days of placing your order.\n\n3. Standard Shipping: $9.99 (7-15 business days).\n\n4. Express Shipping: $24.99 (3-7 business days).\n\n5. Free Shipping on orders over $50 (10-21 business days).\n\n6. A tracking number and SMS/email notification will be sent once your order ships.\n\n7. Pawzen is not responsible for delays caused by the shipping carrier or customs.\n\nFor shipping inquiries, contact us at support@pawzen.co.",
+      "shippingPolicyContent": "## Shipping Policy — Pawzen\n\n1. Select your preferred shipping method at checkout. Shipping costs will be added to the product price.\n\n2. Packages are dispatched within 2 business days of placing your order.\n\n3. Standard Shipping: $9.99 (7-15 business days).\n\n4. Express Shipping: $24.99 (3-7 business days).\n\n5. Free Shipping on orders over $100 (10-21 business days).\n\n6. A tracking number and SMS/email notification will be sent once your order ships.\n\n7. Pawzen is not responsible for delays caused by the shipping carrier or customs.\n\nFor shipping inquiries, contact us at support@pawzenpets.shop",
       "shippingPolicyDefaultContent": "We offer free standard shipping on orders over $50. Express shipping available at checkout.",
       "shippingPolicyFooter": "",
       "privacyPolicyPageTitle": "Privacy Policy",
@@ -235,7 +260,7 @@
       "privacyPolicyFooter": "",
       "termsOfServicePageTitle": "Terms of Service",
       "termsOfServiceHeader": "Terms of Service",
-      "termsOfServiceContent": "## Terms of Service — Pawzen\n\n1. Please read these terms carefully before using our store.\n2. By browsing or purchasing from Pawzen, you agree to these terms.\n3. All prices include applicable taxes unless stated otherwise.\n4. Product images are for illustration purposes. Minor color variations may occur.\n\n## Purchasing\n\nPawzen offers pet accessories at fixed prices, subject to availability. Add items to your cart and complete checkout with your details and payment information.\n\n## Exchanges\n\n1. Products may be exchanged within 30 days of receipt if unused and in original packaging.\n2. Contact support@pawzen.co to initiate an exchange.\n3. Return shipping is at the customer's expense.\n4. Replacement items ship free of charge once we receive your return.\n\n## Returns & Refunds\n\n1. Returns accepted within 30 days of receipt for unused items in original packaging.\n2. Contact support@pawzen.co to initiate a return.\n3. Return shipping is at the customer's expense.\n4. Refunds cover product cost only (shipping is non-refundable).\n5. Refunds processed within 5 business days via original payment method.\n\n## Order Cancellation\n\n1. Orders may be cancelled before shipment by emailing support@pawzen.co.\n2. After shipment, follow the returns procedure above.\n3. Pawzen may cancel orders due to pricing errors, stock issues, or suspected fraud.\n\n## Shipping\n\n1. Orders are dispatched within 2 business days of payment confirmation.\n2. Pawzen is not responsible for carrier delays beyond our control.\n3. Delivery estimates refer to business days only.\n\n## Warranty\n\n1. Products are warranted against manufacturing defects only.\n2. Warranty does not cover normal wear and tear, misuse, or damage caused by pets.\n3. Proof of purchase is required for warranty claims.\n\n## Customer Service\n\nFor questions or support, contact us at support@pawzen.co.\n\n## General\n\n1. All content on the site (graphics, design, trademarks, logos) is the exclusive property of Pawzen.\n2. Pawzen is not liable for indirect or consequential damages from site use.\n3. Content may not be reproduced without prior written consent from Pawzen.",
+      "termsOfServiceContent": "## Terms of Service — Pawzen\n\n1. Please read these terms carefully before using our store.\n2. By browsing or purchasing from Pawzen, you agree to these terms.\n3. All prices include applicable taxes unless stated otherwise.\n4. Product images are for illustration purposes. Minor color variations may occur.\n\n## Purchasing\n\nPawzen offers pet accessories at fixed prices, subject to availability. Add items to your cart and complete checkout with your details and payment information.\n\n## Exchanges\n\n1. Products may be exchanged within 30 days of receipt if unused and in original packaging.\n2. Contact support@pawzen.co to initiate an exchange.\n3. Return shipping is at the customer's expense.\n4. Replacement items ship free of charge once we receive your return.\n\n## Returns & Refunds\n\n1. Returns accepted within 30 days of receipt for unused items in original packaging.\n2. Contact support@pawzenpets.shop to initiate a return.\n3. Return shipping is at the customer's expense.\n4. Refunds cover product cost only (shipping is non-refundable).\n5. Refunds processed within 5 business days via original payment method.\n\n## Order Cancellation\n\n1. Orders may be cancelled before shipment by emailing support@pawzenpets.shop.\n2. After shipment, follow the returns procedure above.\n3. Pawzen may cancel orders due to pricing errors, stock issues, or suspected fraud.\n\n## Shipping\n\n1. Orders are dispatched within 2 business days of payment confirmation.\n2. Pawzen is not responsible for carrier delays beyond our control.\n3. Delivery estimates refer to business days only.\n\n## Warranty\n\n1. Products are warranted against manufacturing defects only.\n2. Warranty does not cover normal wear and tear, misuse, or damage caused by pets.\n3. Proof of purchase is required for warranty claims.\n\n## Customer Service\n\nFor questions or support, contact us at support@pawzenpets.shop.\n\n## General\n\n1. All content on the site (graphics, design, trademarks, logos) is the exclusive property of Pawzen.\n2. Pawzen is not liable for indirect or consequential damages from site use.\n3. Content may not be reproduced without prior written consent from Pawzen.",
       "termsOfServiceDefaultContent": "By using our services, you agree to our terms and conditions. Please read carefully before purchasing.",
       "termsOfServiceFooter": "",
       "policyPageEmptyMessage": "This policy page has not been configured yet.",
@@ -250,8 +275,8 @@
       "sections": {
         "hero": {
           "enabled": true,
-          "type": "image",
-          "layout": "split",
+          "type": "video",
+          "layout": "centered",
           "title": "Welcome to Pawzen",
           "subtitle": "Modern, curated accessories for dogs & cats. Designed with love, delivered with care.",
           "ctaText": "Shop Now",
@@ -272,15 +297,15 @@
           "imageUrl": null,
           "videoUrl": null,
           "slides": [],
-          "overlayOpacity": 45,
+          "overlayOpacity": 0,
           "textAlignment": "center",
           "autoRotateSeconds": 5,
           "showProgressBar": true,
           "showNavDots": true,
           "background": {
-            "style": "gradient",
+            "style": "none",
             "color": "#ffffff",
-            "secondaryColor": "#1E4D3A",
+            "secondaryColor": "#000000",
             "gradientDirection": "to-bottom-right"
           }
         },
@@ -564,6 +589,7 @@
       "termsOfService": true,
       "shippingPolicy": true,
       "returnPolicy": true,
+      "accessibility": false,
       "forgotPassword": true,
       "resetPassword": true,
       "verifyEmail": true,
@@ -604,8 +630,8 @@
     "seo": {
       "titleTemplate": "%s | Pawzen",
       "defaultTitle": "Pawzen — Modern Pet Accessories for Dogs & Cats",
-      "defaultDescription": "Discover thoughtfully designed pet accessories. Premium toys, beds, feeders & more for dogs and cats. Free shipping over $50.",
-      "defaultImage": "/og-image.jpg",
+      "defaultDescription": "Discover thoughtfully designed pet accessories. Premium toys, beds, feeders & more for dogs and cats. Free shipping over $100.",
+      "defaultImage": "https://pawzenpets.shop/logo/pawzen-logo.png",
       "twitterHandle": "@pawzen"
     },
     "localization": {
@@ -644,7 +670,7 @@
         "enabled": true
       },
       "colorFilter": {
-        "enabled": true
+        "enabled": false
       },
       "categoryFilter": {
         "enabled": true
@@ -653,7 +679,7 @@
         "enabled": true
       },
       "stockFilter": {
-        "enabled": true
+        "enabled": false
       }
     },
     "quickFilters": {
@@ -664,6 +690,7 @@
       "categoryLimit": 20,
       "collectionLimit": 20,
       "brandLimit": 20,
+      "imageSource": "product",
       "style": {
         "cardWidth": 160,
         "cardHeight": 220,
@@ -948,17 +975,22 @@
         "whatsapp": {
           "enabled": false,
           "side": "start",
-          "order": 3
+          "order": 4
         },
         "recentlyViewed": {
           "enabled": true,
-          "side": "start",
-          "order": 1
+          "side": "end",
+          "order": 2
         },
         "wishlist": {
           "enabled": true,
-          "side": "start",
-          "order": 2
+          "side": "end",
+          "order": 3
+        },
+        "scrollToTop": {
+          "enabled": true,
+          "side": "end",
+          "order": 1
         },
         "gap": 0.75,
         "baseOffset": 7
@@ -2262,12 +2294,19 @@
     },
     "componentOverrides": {
       "homepage.hero": {
-        "backgroundColor": "#111D2B",
+        "backgroundColor": "#191f24",
         "textColor": "#FFFFFF",
+        "backgroundStyle": "radial-gradient",
+        "backgroundSecondaryColor": "#0F1419",
+        "gradientDirection": "to-bottom-right",
         "fontFamily": "heading",
         "fontSize": "5xl",
         "fontWeight": "bold",
-        "padding": "6rem 2rem"
+        "padding": "0.5rem",
+        "margin": "0",
+        "gap": "0.25rem",
+        "hoverBackgroundColor": "#0F1419",
+        "hoverShadow": "none"
       },
       "homepage.trustStrip": {
         "backgroundColor": "#FBF9F6",

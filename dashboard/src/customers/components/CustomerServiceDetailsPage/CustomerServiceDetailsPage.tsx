@@ -55,21 +55,11 @@ const getStatusColorType = (status: string): "info" | "warning" | "success" | "e
 const StatusBadge = ({ status, label }: { status: string; label: string }) => {
   const { theme: currentTheme } = useTheme();
   const statusColorType = getStatusColorType(status);
-  
-  console.log("StatusBadge - statusColorType:", statusColorType);
-  console.log("StatusBadge - currentTheme:", currentTheme);
-  
   const colors = getStatusColor({
     status: statusColorType,
     currentTheme,
   });
-  
-  console.log("StatusBadge - colors:", colors);
-  console.log("StatusBadge - colors.base:", colors.base);
-  console.log("StatusBadge - colors.border:", colors.border);
-  console.log("StatusBadge - colors.text:", colors.text);
-  
-  // Use a plain div to avoid any theme token issues
+
   return (
     <div
       style={{
@@ -107,23 +97,6 @@ export const CustomerServiceDetailsPage = ({
   const [replyMessage, setReplyMessage] = useState("");
   const [replySubject, setReplySubject] = useState("");
 
-  console.log("CustomerServiceDetailsPage - replyMessage:", replyMessage);
-  console.log("CustomerServiceDetailsPage - replySubject:", replySubject);
-  console.log("CustomerServiceDetailsPage - replyState:", replyState);
-
-  console.log("CustomerServiceDetailsPage - submission:", submission);
-  console.log("CustomerServiceDetailsPage - loading:", loading);
-  console.log("CustomerServiceDetailsPage - submission?.status:", submission?.status);
-  
-  if (submission?.status) {
-    const statusColorType = getStatusColorType(submission.status);
-    console.log("CustomerServiceDetailsPage - statusColorType:", statusColorType);
-    console.log("CustomerServiceDetailsPage - statusColorType type:", typeof statusColorType);
-  }
-
-  // Log component render to track when defaultClass error might occur
-  console.log("CustomerServiceDetailsPage - Rendering component, loading:", loading, "hasSubmission:", !!submission);
-
   if (loading) {
     return (
       <>
@@ -146,8 +119,6 @@ export const CustomerServiceDetailsPage = ({
     );
   }
 
-  console.log("CustomerServiceDetailsPage - About to render main content");
-  
   return (
     <>
       <TopNav
@@ -166,18 +137,15 @@ export const CustomerServiceDetailsPage = ({
       <Box padding={6}>
         <DashboardCard>
           <Box padding={6}>
-            {console.log("CustomerServiceDetailsPage - Rendering DashboardCard content")}
             <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom={4}>
               <div style={{ fontSize: 16, fontWeight: 600 }}>
                 {intl.formatMessage({ id: "submissionDetails", defaultMessage: "Submission Details" })}
               </div>
-              {submission.status ? (
+              {submission.status && (
                 <StatusBadge
                   status={submission.status}
                   label={getStatusLabel(submission.status, intl)}
                 />
-              ) : (
-                console.warn("No status found in submission:", submission) || null
               )}
             </Box>
 
@@ -302,14 +270,10 @@ export const CustomerServiceDetailsPage = ({
                     onClick={() => {
                       const trimmedMessage = replyMessage.trim();
                       const trimmedSubject = replySubject.trim();
-                      console.log("CustomerServiceDetailsPage - Sending reply, message length:", trimmedMessage.length);
-                      console.log("CustomerServiceDetailsPage - Reply subject:", trimmedSubject || "Using default");
                       if (trimmedMessage.length >= 10) {
                         onReply(trimmedMessage, trimmedSubject || undefined);
                         setReplyMessage("");
                         setReplySubject("");
-                      } else {
-                        console.warn("CustomerServiceDetailsPage - Reply message too short:", trimmedMessage.length);
                       }
                     }}
                     disabled={replyState === "loading" || replyMessage.trim().length < 10}

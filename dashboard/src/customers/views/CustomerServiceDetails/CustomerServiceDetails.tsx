@@ -1,11 +1,10 @@
 import ActionDialog from "@dashboard/components/ActionDialog";
 import { WindowTitle } from "@dashboard/components/WindowTitle";
-import { useContactSubmissionDeleteMutation, useContactSubmissionDetailsQuery, useContactSubmissionReplyMutation, useContactSubmissionUpdateStatusMutation } from "@dashboard/graphql";
+import { ContactSubmissionStatusEnum, useContactSubmissionDeleteMutation, useContactSubmissionDetailsQuery, useContactSubmissionReplyMutation, useContactSubmissionUpdateStatusMutation } from "@dashboard/graphql";
 import useNavigator from "@dashboard/hooks/useNavigator";
 import useNotifier from "@dashboard/hooks/useNotifier";
 import { commonMessages, sectionNames } from "@dashboard/intl";
 import createDialogActionHandlers from "@dashboard/utils/handlers/dialogActionHandlers";
-import { mapNodeToChoice } from "@dashboard/utils/maps";
 import { useIntl } from "react-intl";
 
 import CustomerServiceDetailsPage from "../../components/CustomerServiceDetailsPage";
@@ -55,12 +54,8 @@ const CustomerServiceDetails = ({ id, params }: CustomerServiceDetailsProps) => 
 
   const [replyToSubmission, replyOpts] = useContactSubmissionReplyMutation({
     onCompleted: data => {
-      console.log("CustomerServiceDetails - Reply mutation completed");
-      console.log("CustomerServiceDetails - Reply data:", data);
-      console.log("CustomerServiceDetails - Reply errors:", data.contactSubmissionReply?.errors);
-      
-      if (data.contactSubmissionReply?.errors.length === 0) {
-        console.log("CustomerServiceDetails - Reply sent successfully");
+      const errors = data.contactSubmissionReply?.errors;
+      if (!errors || errors.length === 0) {
         notify({
           status: "success",
           text: intl.formatMessage({
@@ -70,7 +65,6 @@ const CustomerServiceDetails = ({ id, params }: CustomerServiceDetailsProps) => 
         });
         refetch();
       } else {
-        console.error("CustomerServiceDetails - Reply failed with errors:", data.contactSubmissionReply?.errors);
         notify({
           status: "error",
           text: intl.formatMessage({
@@ -79,9 +73,6 @@ const CustomerServiceDetails = ({ id, params }: CustomerServiceDetailsProps) => 
           }),
         });
       }
-    },
-    onError: error => {
-      console.error("CustomerServiceDetails - Reply mutation error:", error);
     },
   });
 
@@ -94,7 +85,7 @@ const CustomerServiceDetails = ({ id, params }: CustomerServiceDetailsProps) => 
     updateStatus({
       variables: {
         id,
-        status: status as any,
+        status: status as ContactSubmissionStatusEnum,
       },
     });
   };

@@ -1,7 +1,9 @@
 import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
 import { OrderDirection, ProductOrderField, SearchProductsDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { getLanguageCodeForChannel } from "@/lib/language";
+import { enhanceSearchQuery } from "@/lib/search/query-enhancer";
 import { Breadcrumbs } from "@/ui/components/Breadcrumbs";
 import { SortBy } from "@/ui/components/SortBy";
 import { storeConfig } from "@/config";
@@ -21,6 +23,7 @@ export default async function Page(props: {
 		maxPrice?: string | string[];
 		inStock?: string | string[];
 		onSale?: string | string[];
+		exact?: string | string[];
 	}>;
 	params: Promise<{ channel: string }>;
 }) {
@@ -41,24 +44,55 @@ export default async function Page(props: {
 	}
 
 	const languageCode = getLanguageCodeForChannel(params.channel);
+	const isExact = searchParams.exact === "1";
+
+	// Enhance the query (typo correction, stemming) unless user forced exact search
+	const enhanced = isExact
+		? { original: searchValue, corrected: searchValue, alternatives: [] as string[], didYouMean: undefined }
+		: await enhanceSearchQuery(searchValue, params.channel, languageCode);
+
 	const { products } = await executeGraphQL(SearchProductsDocument, {
 		variables: {
-			search: searchValue,
+			search: enhanced.corrected,
 			channel: params.channel,
 			languageCode,
 			sortBy: ProductOrderField.Rating,
 			sortDirection: OrderDirection.Asc,
-			first: 50, // Load more for search
+			first: 50,
 		},
 		revalidate: 60,
 	});
 
-	if (!products) {
+	// If corrected query returned no results, try alternatives
+	let finalProducts = products;
+	if ((!products || products.totalCount === 0) && enhanced.alternatives.length > 0) {
+		for (const alt of enhanced.alternatives) {
+			const altResult = await executeGraphQL(SearchProductsDocument, {
+				variables: {
+					search: alt,
+					channel: params.channel,
+					languageCode,
+					sortBy: ProductOrderField.Rating,
+					sortDirection: OrderDirection.Asc,
+					first: 50,
+				},
+				revalidate: 60,
+			});
+			if (altResult.products && (altResult.products.totalCount ?? 0) > 0) {
+				finalProducts = altResult.products;
+				break;
+			}
+		}
+	}
+
+	if (!finalProducts) {
 		notFound();
 	}
 
-	const productList = products.edges.map((e) => e.node);
-	const productCount = products.totalCount || productList.length;
+	const productList = finalProducts.edges.map((e) => e.node);
+	const productCount = finalProducts.totalCount || productList.length;
+	const didYouMean = enhanced.didYouMean;
+	const wasAutoCorrected = enhanced.corrected !== searchValue && productCount > 0;
 
 	// Parse filter params
 	const minPrice = searchParams.minPrice 
@@ -88,11 +122,38 @@ export default async function Page(props: {
 						Search Results
 					</h1>
 					<p className="mt-1 text-base text-neutral-600 sm:mt-2">
-						{productCount > 0 
-							? `Found ${productCount} ${productCount === 1 ? "result" : "results"} for "${searchValue}"`
+						{productCount > 0
+							? `Found ${productCount} ${productCount === 1 ? "result" : "results"} for "${wasAutoCorrected ? enhanced.corrected : searchValue}"`
 							: `No results found for "${searchValue}"`
 						}
 					</p>
+
+					{/* "Did you mean?" / auto-correction banner */}
+					{wasAutoCorrected && didYouMean && (
+						<div className="mt-3 rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-800">
+							Showing results for <strong className="font-semibold">{enhanced.corrected}</strong>.{" "}
+							<Link
+								href={`/${params.channel}/search?query=${encodeURIComponent(searchValue)}&exact=1`}
+								className="font-medium underline hover:text-blue-600"
+							>
+								Search instead for &quot;{searchValue}&quot;
+							</Link>
+						</div>
+					)}
+
+					{/* Suggestion when no results and we have a correction */}
+					{productCount === 0 && didYouMean && !wasAutoCorrected && (
+						<div className="mt-3 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
+							Did you mean{" "}
+							<Link
+								href={`/${params.channel}/search?query=${encodeURIComponent(didYouMean)}`}
+								className="font-semibold underline hover:text-amber-600"
+							>
+								{didYouMean}
+							</Link>
+							?
+						</div>
+					)}
 				</div>
 
 				{productCount > 0 && (

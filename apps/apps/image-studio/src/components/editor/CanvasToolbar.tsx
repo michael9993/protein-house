@@ -1,4 +1,16 @@
+import { useState } from "react";
 import { getAspectRatioLabel } from "./utils/canvasPresets";
+
+const ZOOM_PRESETS = [
+  { value: 0.25, label: "25%" },
+  { value: 0.5, label: "50%" },
+  { value: 0.75, label: "75%" },
+  { value: 1, label: "100%" },
+  { value: 1.5, label: "150%" },
+  { value: 2, label: "200%" },
+  { value: 3, label: "300%" },
+  { value: 4, label: "400%" },
+];
 
 interface CanvasToolbarProps {
   canUndo: boolean;
@@ -20,6 +32,7 @@ interface CanvasToolbarProps {
   onToggleLeftPanel?: () => void;
   onToggleRightPanel?: () => void;
   onZoomToFit?: () => void;
+  onSetZoom?: (level: number) => void;
   hasPlaceholders?: boolean;
   onFillProduct?: () => void;
   onCodeExport?: () => void;
@@ -52,6 +65,7 @@ export function CanvasToolbar({
   onToggleLeftPanel,
   onToggleRightPanel,
   onZoomToFit,
+  onSetZoom,
   hasPlaceholders,
   onFillProduct,
   onCodeExport,
@@ -63,6 +77,8 @@ export function CanvasToolbar({
   onSaveProject,
   onOpenProjects,
 }: CanvasToolbarProps) {
+  const [showZoomMenu, setShowZoomMenu] = useState(false);
+
   return (
     <div className="flex items-center justify-between border-b bg-background px-3 py-1.5 overflow-x-auto">
       <div className="flex items-center gap-1 shrink-0">
@@ -108,29 +124,66 @@ export function CanvasToolbar({
         <div className="w-px h-5 bg-border mx-1" />
 
         {/* Zoom */}
-        <ToolbarButton onClick={onZoomOut} title="Zoom Out">
+        <ToolbarButton onClick={onZoomOut} title="Zoom Out (Ctrl+-)">
           <MinusIcon />
         </ToolbarButton>
-        <button
-          onClick={onZoomReset}
-          className="px-2 py-1 text-xs text-muted-foreground hover:text-foreground min-w-[3rem] text-center"
-          title="Reset Zoom"
-        >
-          {Math.round(zoom * 100)}%
-        </button>
-        <ToolbarButton onClick={onZoomIn} title="Zoom In">
+        <div className="relative">
+          <button
+            onClick={() => setShowZoomMenu(!showZoomMenu)}
+            className="px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent rounded min-w-[3.5rem] text-center"
+            title="Click for zoom presets"
+          >
+            {Math.round(zoom * 100)}%
+            <ChevronDownIcon />
+          </button>
+          {showZoomMenu && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowZoomMenu(false)} />
+              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 bg-popover border rounded-md shadow-lg py-1 z-50 min-w-[130px]">
+                {ZOOM_PRESETS.map((preset) => (
+                  <button
+                    key={preset.value}
+                    onClick={() => {
+                      onSetZoom?.(preset.value);
+                      setShowZoomMenu(false);
+                    }}
+                    className={`w-full px-3 py-1.5 text-xs text-left hover:bg-accent ${
+                      Math.abs(zoom - preset.value) < 0.05 ? "font-semibold text-primary" : "text-popover-foreground"
+                    }`}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+                {onZoomToFit && (
+                  <>
+                    <div className="h-px bg-border my-1" />
+                    <button
+                      onClick={() => {
+                        onZoomToFit();
+                        setShowZoomMenu(false);
+                      }}
+                      className="w-full px-3 py-1.5 text-xs text-left hover:bg-accent text-popover-foreground"
+                    >
+                      Fit to Canvas
+                    </button>
+                  </>
+                )}
+                <button
+                  onClick={() => {
+                    onZoomReset();
+                    setShowZoomMenu(false);
+                  }}
+                  className="w-full px-3 py-1.5 text-xs text-left hover:bg-accent text-popover-foreground"
+                >
+                  Reset (100%)
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+        <ToolbarButton onClick={onZoomIn} title="Zoom In (Ctrl+=)">
           <PlusIcon />
         </ToolbarButton>
-
-        {onZoomToFit && (
-          <button
-            onClick={onZoomToFit}
-            className="px-1.5 py-1 text-[10px] text-muted-foreground hover:text-foreground hover:bg-accent rounded"
-            title="Zoom to Fit"
-          >
-            Fit
-          </button>
-        )}
 
         {canvasWidth && canvasHeight && onCanvasResize && (
           <>
@@ -381,6 +434,14 @@ function FolderIcon() {
   return (
     <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
+    </svg>
+  );
+}
+
+function ChevronDownIcon() {
+  return (
+    <svg className="inline-block h-3 w-3 ml-0.5 -mr-0.5 opacity-60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m6 9 6 6 6-6" />
     </svg>
   );
 }

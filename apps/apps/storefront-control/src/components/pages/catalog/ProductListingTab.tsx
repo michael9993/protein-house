@@ -43,6 +43,12 @@ const SHADOW_OPTIONS = [
   { value: "lg", label: "Large" },
 ];
 
+const IMAGE_SOURCE_OPTIONS = [
+  { value: "auto", label: "Auto (best available)" },
+  { value: "original", label: "Original Image (category/collection)" },
+  { value: "product", label: "Product Images (auto-scroll)" },
+];
+
 export function ProductListingTab({ control, register, watch }: CatalogTabProps) {
   const filtersEnabled = watch("filters.enabled");
   const quickFiltersEnabled = watch("quickFilters.enabled");
@@ -137,6 +143,14 @@ export function ProductListingTab({ control, register, watch }: CatalogTabProps)
                 control={control}
               />
             </FieldGroup>
+
+            <FormSelect<CatalogFormData>
+              label="Card Image Source"
+              name="quickFilters.imageSource"
+              control={control}
+              options={IMAGE_SOURCE_OPTIONS}
+              description="Which image to display on filter cards. Auto uses the original category/collection image if available, otherwise scrolls through product images. Falls back safely if one source has no images."
+            />
 
             <FieldGroup columns={3}>
               <FormField<CatalogFormData>

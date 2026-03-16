@@ -84,6 +84,8 @@ export const QuickFiltersStyleSchema = z.object({
   }).optional(),
 });
 
+export const QuickFiltersImageSourceSchema = z.enum(["auto", "original", "product"]);
+
 export const QuickFiltersSchema = z.object({
   enabled: z.boolean(),
   showCategories: z.boolean(),
@@ -92,5 +94,6 @@ export const QuickFiltersSchema = z.object({
   categoryLimit: z.number().min(1).max(20),
   collectionLimit: z.number().min(1).max(20),
   brandLimit: z.number().min(1).max(20),
+  imageSource: QuickFiltersImageSourceSchema.optional(),
   style: QuickFiltersStyleSchema.optional(),
 });

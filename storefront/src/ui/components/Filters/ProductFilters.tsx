@@ -702,20 +702,33 @@ export function MobileFilterDrawer({
   const filtersText = useFiltersText();
   const fsConfig = useFilterSidebarConfig();
 
+  // Lock body scroll when drawer is open — MUST be before early return (hooks rule)
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 lg:hidden">
+    <div className="fixed inset-0 z-[60] lg:hidden">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Drawer */}
-      <div className="fixed inset-y-0 start-0 flex w-full max-w-xs flex-col bg-white shadow-xl">
+      {/* Drawer — uses dvh for reliable mobile height */}
+      <div
+        className="fixed start-0 top-0 flex w-full max-w-xs flex-col bg-white shadow-xl"
+        style={{ height: "100dvh" }}
+      >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-4">
+        <div className="flex h-14 flex-none items-center justify-between border-b border-neutral-200 px-4">
           <h2 className="text-lg font-semibold text-neutral-900">{filtersText.sectionTitle}</h2>
           <button
             onClick={onClose}
@@ -727,13 +740,13 @@ export function MobileFilterDrawer({
           </button>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto px-4 py-4">
+        {/* Content — scrollable area between header and footer */}
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4">
           {children}
         </div>
 
-        {/* Footer */}
-        <div className="border-t border-neutral-200 px-4 py-4">
+        {/* Footer — extra bottom padding to clear mobile bottom nav */}
+        <div className="flex-none border-t border-neutral-200 px-4 py-4 pb-[max(8rem,calc(7rem+env(safe-area-inset-bottom)))]">
           <button
             onClick={onClose}
             className="w-full rounded-lg py-3 text-sm font-semibold"

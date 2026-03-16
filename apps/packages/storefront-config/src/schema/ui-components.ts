@@ -237,7 +237,7 @@ export const SectionViewAllButtonSchema = z.object({
 // FLOATING ACTION BUTTONS
 // ============================================
 
-export const FloatingButtonIdSchema = z.enum(["whatsapp", "recentlyViewed", "wishlist"]);
+export const FloatingButtonIdSchema = z.enum(["whatsapp", "recentlyViewed", "wishlist", "scrollToTop"]);
 
 export const FloatingButtonItemSchema = z.object({
   /** Whether this FAB is shown */
@@ -252,6 +252,7 @@ export const FloatingButtonsSchema = z.object({
   whatsapp: FloatingButtonItemSchema,
   recentlyViewed: FloatingButtonItemSchema,
   wishlist: FloatingButtonItemSchema,
+  scrollToTop: FloatingButtonItemSchema,
   /** Gap between FABs on the same side in rem */
   gap: z.number().min(0.5).max(5),
   /** Base offset from bottom in rem (before PDP extra offset) */

@@ -4,12 +4,13 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { useWhatsAppConfig, useFloatingButtons } from "@/providers/StoreConfigProvider";
-import { computeFloatingButtonPosition } from "@/lib/floating-buttons";
+import { computeFloatingButtonPosition, useHiddenFabIds } from "@/lib/floating-buttons";
 
 export function WhatsAppChatButton() {
 	const [mounted, setMounted] = useState(false);
 	const { enabled: whatsAppEnabled, phoneNumber, defaultMessage } = useWhatsAppConfig();
 	const fabConfig = useFloatingButtons();
+	const hiddenIds = useHiddenFabIds();
 	const pathname = usePathname();
 
 	const pathParts = (pathname ?? "").split("/").filter(Boolean);
@@ -19,7 +20,7 @@ export function WhatsAppChatButton() {
 		? (document.documentElement.getAttribute("dir") as "ltr" | "rtl") || "ltr"
 		: "ltr";
 
-	const pos = computeFloatingButtonPosition("whatsapp", fabConfig, isPDP, dir);
+	const pos = computeFloatingButtonPosition("whatsapp", fabConfig, isPDP, dir, hiddenIds);
 
 	useEffect(() => {
 		setMounted(true);
@@ -38,7 +39,7 @@ export function WhatsAppChatButton() {
 			type="button"
 			onClick={handleClick}
 			aria-label="Chat on WhatsApp"
-			className="fixed z-[100] flex h-12 w-12 items-center justify-center rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.15)] transition-transform duration-300 hover:scale-110 active:scale-95"
+			className="fixed z-[100] flex h-12 w-12 items-center justify-center rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.15)] transition-[transform,bottom] duration-300 hover:scale-110 active:scale-95"
 			style={{
 				backgroundColor: "#25D366",
 				color: "#fff",

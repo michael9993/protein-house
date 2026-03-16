@@ -971,6 +971,7 @@ body {
   user-select: none;
   color-adjust: exact;
   background-image: none !important;
+  outline: none !important;
 }
 
 .styled-checkbox {
@@ -1008,8 +1009,13 @@ body {
 }
 
 .styled-checkbox:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px white, 0 0 0 4px var(--cb-checked-bg, #171717);
+  outline: none !important;
+  box-shadow: 0 0 0 1.5px white, 0 0 0 3px var(--cb-checked-bg, #171717);
+}
+
+.styled-checkbox:focus:not(:focus-visible) {
+  outline: none !important;
+  box-shadow: none;
 }
 
 /* Indeterminate state */

@@ -12,11 +12,14 @@ import { orderListUrl } from "@dashboard/orders/urls";
 import { productAddUrl } from "@dashboard/products/urls";
 import { Box, Text } from "@saleor/macaw-ui-next";
 import {
+  AppWindow,
   BarChart3,
+  Calculator,
+  CreditCard,
   Database,
+  FileText,
   ImagePlus,
   LayoutGrid,
-  Mail,
   Newspaper,
   Plus,
   Send,
@@ -59,15 +62,21 @@ const actions = [
   },
 ];
 
-const appMeta: Record<string, { icon: LucideIcon; order: number }> = {
-  "Storefront Control": { icon: Sliders, order: 1 },
-  "Sales Analytics": { icon: BarChart3, order: 2 },
-  "Bulk Manager": { icon: Database, order: 3 },
-  "Image Studio": { icon: ImagePlus, order: 4 },
-  "Newsletter Management": { icon: Newspaper, order: 5 },
-  "SMTP": { icon: Send, order: 6 },
-  "Dropship Orchestrator": { icon: Truck, order: 7 },
+// Known app icons — apps not listed here still show with a fallback icon
+const appIcons: Record<string, LucideIcon> = {
+  "Storefront Control": Sliders,
+  "Sales Analytics": BarChart3,
+  "Bulk Manager": Database,
+  "Image Studio": ImagePlus,
+  "Newsletter Management": Newspaper,
+  "SMTP": Send,
+  "Dropship Orchestrator": Truck,
+  "Stripe": CreditCard,
+  "Invoices": FileText,
+  "Tax Manager": Calculator,
 };
+
+const getAppIcon = (name: string): LucideIcon => appIcons[name] ?? AppWindow;
 
 export const QuickActions = ({ userPermissions }: QuickActionsProps) => {
   const { data: appsData } = useInstalledAppsListQuery({
@@ -80,12 +89,8 @@ export const QuickActions = ({ userPermissions }: QuickActionsProps) => {
 
   const installedApps = (appsData?.apps?.edges ?? [])
     .map(edge => edge.node)
-    .filter(app => app.isActive && app.name && app.name in appMeta)
-    .sort((a, b) => {
-      const orderA = appMeta[a.name!]?.order ?? 99;
-      const orderB = appMeta[b.name!]?.order ?? 99;
-      return orderA - orderB;
-    });
+    .filter(app => app.isActive && app.name)
+    .sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""));
 
   return (
     <Box display="flex" flexDirection="column" gap={5}>
@@ -117,8 +122,7 @@ export const QuickActions = ({ userPermissions }: QuickActionsProps) => {
           </Text>
           <Box display="flex" gap={3} flexWrap="wrap">
             {installedApps.map(app => {
-              const meta = appMeta[app.name!];
-              const Icon = meta.icon;
+              const Icon = getAppIcon(app.name!);
               return (
                 <Button
                   key={app.id}

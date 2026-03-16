@@ -148,7 +148,7 @@ function LayoutConfigPage() {
             forceMount
             className={activeTab !== "footer" ? "hidden" : "space-y-6"}
           >
-            <FooterTab register={register} control={control} errors={errors} />
+            <FooterTab register={register} control={control} errors={errors} watch={watch} />
           </TabsContent>
 
           {/* Text Tab */}
@@ -491,9 +491,11 @@ interface FooterTabProps {
   register: UseFormRegister<LayoutFormData>;
   control: Control<LayoutFormData>;
   errors: FieldErrors<LayoutFormData>;
+  watch?: UseFormWatch<LayoutFormData>;
 }
 
-function FooterTab({ register, control, errors }: FooterTabProps) {
+function FooterTab({ register, control, errors, watch }: FooterTabProps) {
+  const showContactInfo = watch?.("footer.showContactInfo") ?? true;
   return (
     <>
       <ComponentBlock
@@ -520,6 +522,34 @@ function FooterTab({ register, control, errors }: FooterTabProps) {
           control={control}
           description="Show email, phone, and address"
         />
+        {showContactInfo && (
+          <div className="ms-6 space-y-3 border-s-2 border-neutral-200 ps-4">
+            <FormSwitch<LayoutFormData>
+              label="Show Email"
+              name="footer.showFooterEmail"
+              control={control}
+              description="Display email address in contact section"
+            />
+            <FormSwitch<LayoutFormData>
+              label="Show Phone"
+              name="footer.showFooterPhone"
+              control={control}
+              description="Display phone number in contact section"
+            />
+            <FormSwitch<LayoutFormData>
+              label="Show Address"
+              name="footer.showFooterAddress"
+              control={control}
+              description="Display physical address in contact section"
+            />
+            <FormSwitch<LayoutFormData>
+              label="Show Contact Us Button"
+              name="footer.showFooterContactButton"
+              control={control}
+              description="Display the Contact Us button"
+            />
+          </div>
+        )}
         <FormSwitch<LayoutFormData>
           label="Show Newsletter"
           name="footer.showNewsletter"

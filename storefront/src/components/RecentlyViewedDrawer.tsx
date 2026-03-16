@@ -9,7 +9,7 @@ import { Drawer } from "vaul";
 import { Clock, X, Trash2, Heart } from "lucide-react";
 import { useRecentlyViewed, type RecentlyViewedItem } from "@/lib/recently-viewed";
 import { useFeature, useBranding, useContentConfig, useProductCardConfig, useBadgeStyle, useComponentStyle, useComponentClasses, useFloatingButtons } from "@/providers/StoreConfigProvider";
-import { computeFloatingButtonPosition } from "@/lib/floating-buttons";
+import { computeFloatingButtonPosition, useHiddenFabIds } from "@/lib/floating-buttons";
 import { buildComponentStyle } from "@/config";
 import { useWishlist } from "@/lib/wishlist";
 import { useQuickView } from "@/providers/QuickViewProvider";
@@ -402,7 +402,8 @@ export function RecentlyViewedFloatingButton() {
 	const dir = typeof document !== "undefined"
 		? (document.documentElement.getAttribute("dir") as "ltr" | "rtl") || "ltr"
 		: "ltr";
-	const pos = computeFloatingButtonPosition("recentlyViewed", fabConfig, isPDP, dir);
+	const hiddenIds = useHiddenFabIds();
+	const pos = computeFloatingButtonPosition("recentlyViewed", fabConfig, isPDP, dir, hiddenIds);
 
 	useEffect(() => {
 		setMounted(true);

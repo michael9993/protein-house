@@ -47,6 +47,7 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
   const canvasRef = useRef<fabric.Canvas | null>(null);
   const clipboardRef = useRef<fabric.FabricObject | null>(null);
   const isPanningRef = useRef(false);
+  const middleClickPanRef = useRef(false);
   const panStartRef = useRef<{ x: number; y: number } | null>(null);
   const [selectedObject, setSelectedObject] = useState<fabric.FabricObject | null>(null);
   const [zoom, setZoom] = useState(1);
@@ -441,17 +442,13 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     if (!canvas) return;
 
     const clamped = Math.max(0.1, Math.min(5, newZoom));
-    // Canvas element is container-sized; center the document within it
-    const elW = canvas.getWidth();
-    const elH = canvas.getHeight();
-    const docW = canvasDimensions.width * clamped;
-    const docH = canvasDimensions.height * clamped;
-    const panX = (elW - docW) / 2;
-    const panY = (elH - docH) / 2;
-    canvas.setViewportTransform([clamped, 0, 0, clamped, panX, panY]);
+    // Zoom centered on viewport center (Figma-style — keeps your view stable)
+    const centerX = canvas.getWidth() / 2;
+    const centerY = canvas.getHeight() / 2;
+    canvas.zoomToPoint({ x: centerX, y: centerY }, clamped);
     canvas.renderAll();
     setZoom(clamped);
-  }, [canvasDimensions]);
+  }, []);
 
   const exportCanvas = useCallback(
     (format: "png" | "jpeg" | "webp" = "png", quality = 1, transparentBg = false): string | null => {
@@ -881,19 +878,29 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     });
   }, []);
 
-  // Set up pan mouse handlers once canvas is ready
+  // Set up pan (spacebar + middle-click), scroll-to-pan, and Ctrl+scroll zoom
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const onMouseDown = (opt: fabric.TEvent<MouseEvent>) => {
+      // Middle-click: initiate temporary pan
+      if (opt.e.button === 1) {
+        middleClickPanRef.current = true;
+        panStartRef.current = { x: opt.e.clientX, y: opt.e.clientY };
+        canvas.defaultCursor = "grabbing";
+        opt.e.preventDefault();
+        return;
+      }
+      // Spacebar pan mode (left-click drag)
       if (!isPanningRef.current) return;
       canvas.defaultCursor = "grabbing";
       panStartRef.current = { x: opt.e.clientX, y: opt.e.clientY };
     };
 
     const onMouseMove = (opt: fabric.TEvent<MouseEvent>) => {
-      if (!isPanningRef.current || !panStartRef.current) return;
+      if (!panStartRef.current) return;
+      if (!isPanningRef.current && !middleClickPanRef.current) return;
       const vpt = canvas.viewportTransform;
       if (!vpt) return;
       vpt[4] += opt.e.clientX - panStartRef.current.x;
@@ -903,19 +910,51 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
     };
 
     const onMouseUp = () => {
+      if (middleClickPanRef.current) {
+        middleClickPanRef.current = false;
+        panStartRef.current = null;
+        canvas.defaultCursor = "default";
+        return;
+      }
       if (!isPanningRef.current) return;
       canvas.defaultCursor = "grab";
       panStartRef.current = null;
     };
 
+    const onWheel = (opt: any) => {
+      const e = opt.e as WheelEvent;
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (e.ctrlKey || e.metaKey) {
+        // Ctrl+Scroll = Zoom centered on cursor position
+        const currentZoom = canvas.getZoom();
+        const zoomFactor = 0.999 ** e.deltaY;
+        const newZoom = Math.max(0.1, Math.min(5, currentZoom * zoomFactor));
+        canvas.zoomToPoint({ x: e.offsetX, y: e.offsetY }, newZoom);
+        canvas.renderAll();
+        setZoom(newZoom);
+      } else {
+        // Plain scroll = Pan (infinite canvas navigation)
+        const vpt = canvas.viewportTransform;
+        if (!vpt) return;
+        vpt[4] -= e.deltaX;
+        vpt[5] -= e.deltaY;
+        canvas.setViewportTransform(vpt);
+        canvas.renderAll();
+      }
+    };
+
     canvas.on("mouse:down", onMouseDown as any);
     canvas.on("mouse:move", onMouseMove as any);
     canvas.on("mouse:up", onMouseUp as any);
+    canvas.on("mouse:wheel", onWheel);
 
     return () => {
       canvas.off("mouse:down", onMouseDown as any);
       canvas.off("mouse:move", onMouseMove as any);
       canvas.off("mouse:up", onMouseUp as any);
+      canvas.off("mouse:wheel", onWheel);
     };
   }, [canvasRef.current]);
 

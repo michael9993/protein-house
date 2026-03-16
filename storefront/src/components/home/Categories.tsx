@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, X } from "lucide-react";
 import { useBranding, useContentConfig, useCategoriesConfig, useDesignTokens, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { buildComponentStyle } from "@/config";
 import { buildCategoryUrl, buildCategoryUrlFromChildren, buildProductsUrl, withChannel } from "@/lib/urls";
@@ -234,80 +235,143 @@ function ImageLayer({
 }
 
 /* ------------------------------------------------------------------ */
-/*  RevealContent — subcategory pills shown between the split halves  */
+/*  SubcategoryBottomSheet — mobile-only modal for subcategory pills  */
 /* ------------------------------------------------------------------ */
-function RevealContent({
+function SubcategoryBottomSheet({
   category,
   subcategories,
   channel,
   accent,
   viewCategoryText,
+  onClose,
 }: {
   category: DashboardCategory;
   subcategories: DashboardCategoryChild[];
   channel: string;
   accent: string;
   viewCategoryText: string;
+  onClose: () => void;
 }) {
-  return (
-    <div className="split-content">
-      {/* Dark grey base */}
-      <div className="absolute inset-0 bg-neutral-800" aria-hidden="true" />
+  const [visible, setVisible] = useState(false);
+  const image = category.image || category.featuredImage;
 
-      {/* Subtle accent pattern */}
+  const handleClose = useCallback(() => {
+    setVisible(false);
+    setTimeout(onClose, 300);
+  }, [onClose]);
+
+  // Animate in on mount + escape key
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    requestAnimationFrame(() => setVisible(true));
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") handleClose(); };
+    document.addEventListener("keydown", onKey);
+    return () => { document.body.style.overflow = ""; document.removeEventListener("keydown", onKey); };
+  }, [handleClose]);
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[9999] flex items-end justify-center lg:items-center lg:p-6"
+      onClick={handleClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${category.name} subcategories`}
+    >
+      {/* Backdrop */}
       <div
-        className="absolute inset-0 opacity-30"
-        style={{
-          background: `radial-gradient(ellipse at 30% 50%, ${accent}25 0%, transparent 70%)`,
-        }}
-        aria-hidden="true"
+        className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
+          visible ? "opacity-100" : "opacity-0"
+        }`}
       />
 
-      <div className="relative flex h-full flex-col items-center justify-center px-5 py-4 sm:px-6">
-        {/* Category name */}
-        <div className="split-content-header text-center">
-          <h3 className="text-sm font-black uppercase tracking-widest text-white/50">
-            {category.name}
-          </h3>
-          <div
-            className="mx-auto mt-1.5 h-[2px] w-8 rounded-full"
-            style={{ backgroundColor: accent }}
-          />
+      {/* Sheet — bottom on mobile, centered on desktop */}
+      <div
+        className={`relative w-full max-w-lg transform transition-all duration-300 ease-out lg:rounded-2xl lg:shadow-2xl ${
+          visible
+            ? "translate-y-0 scale-100 opacity-100"
+            : "translate-y-full scale-95 opacity-0 lg:translate-y-8"
+        }`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Category image header */}
+        <div className="relative h-40 w-full overflow-hidden rounded-t-2xl lg:h-48">
+          {image ? (
+            <Image
+              src={image}
+              alt={category.imageAlt || category.name}
+              fill
+              className="object-cover"
+              sizes="100vw"
+            />
+          ) : (
+            <div
+              className="absolute inset-0"
+              style={{ background: `linear-gradient(135deg, ${accent}40 0%, ${accent} 100%)` }}
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+
+          {/* Close button */}
+          <button
+            onClick={handleClose}
+            className="absolute end-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm transition-colors hover:bg-black/60"
+            aria-label="Close"
+          >
+            <X size={16} />
+          </button>
+
+          {/* Category name */}
+          <div className="absolute inset-x-0 bottom-0 p-5">
+            <h3 className="text-xl font-black uppercase tracking-tight text-white">
+              {category.name}
+            </h3>
+            <p className="mt-0.5 text-xs font-medium text-white/60">
+              {subcategories.length} {viewCategoryText.toLowerCase() === "view all" ? "subcategories" : viewCategoryText}
+            </p>
+          </div>
         </div>
 
-        {/* Subcategory pills — centered */}
-        <div className="mt-4 flex flex-wrap justify-center gap-2">
-          {subcategories.slice(0, 8).map((child, i) => (
-            <Link
-              key={child.id}
-              data-pill={i}
-              href={withChannel(channel, buildCategoryUrl(child.slug))}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-sm transition-all duration-200 hover:border-white/40 hover:bg-white/20"
-              onClick={(e) => e.stopPropagation()}
-              style={{ opacity: 0 }}
-            >
-              {child.name}
-              <span className="text-[10px] font-normal text-white/40">
-                {child.productCount}
-              </span>
-            </Link>
-          ))}
-        </div>
+        {/* Subcategory list */}
+        <div className="max-h-[50vh] overflow-y-auto bg-white px-5 py-5">
+          <div className="flex flex-wrap gap-2.5">
+            {subcategories.map((child) => (
+              <Link
+                key={child.id}
+                href={withChannel(channel, buildCategoryUrl(child.slug))}
+                className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-sm font-semibold text-neutral-800 transition-all duration-200 active:scale-95"
+                style={{
+                  borderColor: `${accent}30`,
+                }}
+                onClick={handleClose}
+              >
+                {child.name}
+                <span
+                  className="rounded-full px-1.5 py-0.5 text-[10px] font-bold text-white"
+                  style={{ backgroundColor: accent }}
+                >
+                  {child.productCount}
+                </span>
+              </Link>
+            ))}
+          </div>
 
-        {/* View All button */}
-        <div className="split-content-cta mt-4">
+          {/* View All button */}
           <Link
             href={getCategoryHref(channel, category)}
-            className="inline-flex items-center gap-2 rounded-full px-5 py-2 text-[11px] font-bold uppercase tracking-[0.15em] text-white transition-all duration-200 hover:brightness-110"
+            className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold uppercase tracking-wider text-white transition-all duration-200 active:scale-[0.98]"
             style={{ backgroundColor: accent }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={handleClose}
           >
             {viewCategoryText}
-            <ChevronRight size={12} className="rtl:rotate-180" aria-hidden="true" />
+            <ChevronRight size={14} className="rtl:rotate-180" aria-hidden="true" />
           </Link>
         </div>
+
+        {/* Safe area for notch devices */}
+        <div className="bg-white pb-[env(safe-area-inset-bottom)] lg:rounded-b-2xl" />
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -333,7 +397,7 @@ function SplitCard({
   subcategoriesLabel: string;
   viewCategoryText: string;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [showMobileSheet, setShowMobileSheet] = useState(false);
   const filteredChildren = category.children?.filter((c) => c.productCount > 0) ?? [];
   const hasChildren = showSubcategories && filteredChildren.length > 0;
 
@@ -359,40 +423,36 @@ function SplitCard({
     );
   }
 
-  // Has children → split-reveal card
+  // Has children → tap opens subcategory modal
   return (
-    <div
-      className={`relative h-full w-full cursor-pointer overflow-hidden rounded-3xl border border-neutral-200 bg-neutral-800 shadow-sm transition-shadow duration-300 hover:shadow-2xl ${isOpen ? "split-card-open" : ""}`}
-      onClick={() => setIsOpen((prev) => !prev)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          setIsOpen((prev) => !prev);
-        }
-      }}
-      role="button"
-      tabIndex={0}
-      aria-label={`${category.name} — ${isOpen ? "close" : "explore subcategories"}`}
-    >
-      {/* Content revealed between the split (z-2, behind image halves) */}
-      <RevealContent
-        category={category}
-        subcategories={filteredChildren}
-        channel={channel}
-        accent={accent}
-        viewCategoryText={viewCategoryText}
-      />
-
-      {/* Left half of image — slides left when open */}
-      <div className="split-left">
+    <>
+      <div
+        className="relative h-full w-full cursor-pointer overflow-hidden rounded-3xl border border-neutral-200 bg-neutral-800 shadow-sm transition-shadow duration-300 hover:shadow-2xl"
+        onClick={() => setShowMobileSheet(true)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setShowMobileSheet(true);
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label={`${category.name} — explore subcategories`}
+      >
         <ImageLayer {...imageLayerProps} />
       </div>
 
-      {/* Right half of image — slides right when open */}
-      <div className="split-right">
-        <ImageLayer {...imageLayerProps} />
-      </div>
-    </div>
+      {showMobileSheet && (
+        <SubcategoryBottomSheet
+          category={category}
+          subcategories={filteredChildren}
+          channel={channel}
+          accent={accent}
+          viewCategoryText={viewCategoryText}
+          onClose={() => setShowMobileSheet(false)}
+        />
+      )}
+    </>
   );
 }
 

@@ -14,6 +14,7 @@ import {
   ToggleLeft,
   MessageSquare,
   AlertTriangle,
+  Accessibility,
 } from "lucide-react";
 
 import { AppShell } from "@/components/layout/AppShell";
@@ -25,15 +26,16 @@ import { FeatureCard } from "@/components/shared/FeatureCard";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useConfigPage } from "@/hooks/useConfigPage";
-import { PagesSchema, ContentSchema } from "@/modules/config/schema";
+import { PagesSchema, ContentSchema, FooterSchema } from "@/modules/config/schema";
 
 // ---------------------------------------------------------------------------
-// Form schema & types (same as other-pages)
+// Form schema & types
 // ---------------------------------------------------------------------------
 
 const StaticPagesFormSchema = z.object({
   pages: PagesSchema,
   content: ContentSchema,
+  footer: FooterSchema,
 });
 
 type StaticPagesFormData = z.infer<typeof StaticPagesFormSchema>;
@@ -51,6 +53,7 @@ interface TabProps {
 
 const TABS = [
   { id: "toggles", label: "Page Toggles", icon: ToggleLeft },
+  { id: "legal", label: "Legal Content", icon: Scale },
   { id: "contact", label: "Contact & FAQ", icon: MessageSquare },
   { id: "errors", label: "Error Pages", icon: AlertTriangle },
 ] as const;
@@ -95,8 +98,54 @@ function PageTogglesTab({ control }: TabProps) {
           <FeatureCard icon={<Scale className="h-5 w-5" />} title="Terms of Service" description="Terms and conditions" name="pages.termsOfService" control={control} />
           <FeatureCard icon={<Scale className="h-5 w-5" />} title="Shipping Policy" description="Shipping information" name="pages.shippingPolicy" control={control} />
           <FeatureCard icon={<Scale className="h-5 w-5" />} title="Return Policy" description="Returns and refunds" name="pages.returnPolicy" control={control} />
+          <FeatureCard icon={<Accessibility className="h-5 w-5" />} title="Accessibility" description="Accessibility statement" name="pages.accessibility" control={control} />
         </div>
       </div>
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Legal Content Tab
+// ---------------------------------------------------------------------------
+
+function LegalContentTab({ register, errors }: TabProps) {
+  return (
+    <>
+      <FormSection title="Privacy Policy" description="Edit your privacy policy content (supports markdown: ## headings, * bullets, **bold**)">
+        <FormField<StaticPagesFormData> label="Page Title" name="footer.privacyPolicyPageTitle" register={register} errors={errors} placeholder="Privacy Policy" />
+        <FormField<StaticPagesFormData> label="Header" name="footer.privacyPolicyHeader" register={register} errors={errors} placeholder="Optional header text" />
+        <FormField<StaticPagesFormData> label="Content" name="footer.privacyPolicyContent" register={register} errors={errors} as="textarea" rows={12} placeholder="Your privacy policy content..." />
+      </FormSection>
+
+      <FormSection title="Terms of Service" description="Edit your terms of service content">
+        <FormField<StaticPagesFormData> label="Page Title" name="footer.termsOfServicePageTitle" register={register} errors={errors} placeholder="Terms of Service" />
+        <FormField<StaticPagesFormData> label="Header" name="footer.termsOfServiceHeader" register={register} errors={errors} placeholder="Optional header text" />
+        <FormField<StaticPagesFormData> label="Content" name="footer.termsOfServiceContent" register={register} errors={errors} as="textarea" rows={12} placeholder="Your terms of service content..." />
+      </FormSection>
+
+      <FormSection title="Shipping Policy" description="Edit your shipping policy content">
+        <FormField<StaticPagesFormData> label="Page Title" name="footer.shippingPolicyPageTitle" register={register} errors={errors} placeholder="Shipping Policy" />
+        <FormField<StaticPagesFormData> label="Header" name="footer.shippingPolicyHeader" register={register} errors={errors} placeholder="Optional header text" />
+        <FormField<StaticPagesFormData> label="Content" name="footer.shippingPolicyContent" register={register} errors={errors} as="textarea" rows={12} placeholder="Your shipping policy content..." />
+      </FormSection>
+
+      <FormSection title="Return Policy" description="Edit your return and refund policy content">
+        <FormField<StaticPagesFormData> label="Page Title" name="footer.returnPolicyPageTitle" register={register} errors={errors} placeholder="Return Policy" />
+        <FormField<StaticPagesFormData> label="Header" name="footer.returnPolicyHeader" register={register} errors={errors} placeholder="Optional header text" />
+        <FormField<StaticPagesFormData> label="Content" name="footer.returnPolicyContent" register={register} errors={errors} as="textarea" rows={12} placeholder="Your return policy content..." />
+      </FormSection>
+
+      <FormSection title="Accessibility Statement" description="Edit your accessibility statement (required by Israeli law)">
+        <FormField<StaticPagesFormData> label="Page Title" name="footer.accessibilityPageTitle" register={register} errors={errors} placeholder="Accessibility Statement" />
+        <FormField<StaticPagesFormData> label="Header" name="footer.accessibilityHeader" register={register} errors={errors} placeholder="Optional header text" />
+        <FormField<StaticPagesFormData> label="Content" name="footer.accessibilityContent" register={register} errors={errors} as="textarea" rows={12} placeholder="Your accessibility statement content..." />
+      </FormSection>
+
+      <FormSection title="Footer Legal" description="VAT statement and empty policy fallback">
+        <FormField<StaticPagesFormData> label="VAT Statement" name="footer.vatStatement" register={register} errors={errors} placeholder="All prices include 18% VAT" />
+        <FormField<StaticPagesFormData> label="Empty Policy Message" name="footer.policyPageEmptyMessage" register={register} errors={errors} placeholder="This policy has not been configured yet." />
+      </FormSection>
     </>
   );
 }
@@ -196,10 +245,11 @@ function StaticPagesPage() {
 
   const { config, isNotReady, form, onSubmit, saveStatus } = useConfigPage({
     schema: StaticPagesFormSchema,
-    sections: ["pages", "content"],
+    sections: ["pages", "content", "footer"],
     extractFormData: (c) => ({
       pages: c.pages,
       content: c.content,
+      footer: c.footer,
     }),
   });
 
@@ -245,6 +295,10 @@ function StaticPagesPage() {
             <PageTogglesTab control={control} register={register} errors={errors} watch={watch} />
           </TabsContent>
 
+          <TabsContent value="legal" forceMount className={activeTab !== "legal" ? "hidden" : "space-y-6"}>
+            <LegalContentTab control={control} register={register} errors={errors} watch={watch} />
+          </TabsContent>
+
           <TabsContent value="contact" forceMount className={activeTab !== "contact" ? "hidden" : "space-y-6"}>
             <ContactFaqTab control={control} register={register} errors={errors} watch={watch} />
           </TabsContent>
@@ -259,7 +313,7 @@ function StaticPagesPage() {
           saveStatus={saveStatus}
           onReset={() => {
             if (config) {
-              form.reset({ pages: config.pages, content: config.content });
+              form.reset({ pages: config.pages, content: config.content, footer: config.footer });
             }
           }}
           onSubmit={handleSubmit(onSubmit)}

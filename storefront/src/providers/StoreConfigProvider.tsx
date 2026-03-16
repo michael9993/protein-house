@@ -354,6 +354,7 @@ const DEFAULT_QUICK_FILTERS_CONFIG = {
   categoryLimit: 8,
   collectionLimit: 6,
   brandLimit: 6,
+  imageSource: "auto" as const,
 } as const;
 
 /**
@@ -407,8 +408,14 @@ const DEFAULT_FOOTER_CONFIG = {
   showBrand: true,
   showMenu: true,
   showContactInfo: true,
+  showFooterEmail: true,
+  showFooterPhone: true,
+  showFooterAddress: true,
+  showFooterContactButton: true,
   showNewsletter: true,
   showSocialLinks: true,
+  showVatStatement: false,
+  showBusinessInfo: false,
   copyrightText: null,
   legalLinks: {
     trackOrder: {
@@ -430,6 +437,10 @@ const DEFAULT_FOOTER_CONFIG = {
     returnPolicy: {
       enabled: true,
       url: "/pages/return-policy",
+    },
+    accessibilityStatement: {
+      enabled: false,
+      url: "/pages/accessibility",
     },
   },
 } as const;
@@ -487,6 +498,18 @@ export function useFooterConfig(): NonNullable<StoreConfig["footer"]> {
     if (Object.prototype.hasOwnProperty.call(config.footer, 'showSocialLinks')) {
       merged.showSocialLinks = !!config.footer.showSocialLinks; // Convert to boolean, preserving false
     }
+    if (Object.prototype.hasOwnProperty.call(config.footer, 'showFooterEmail')) {
+      merged.showFooterEmail = !!config.footer.showFooterEmail;
+    }
+    if (Object.prototype.hasOwnProperty.call(config.footer, 'showFooterPhone')) {
+      merged.showFooterPhone = !!config.footer.showFooterPhone;
+    }
+    if (Object.prototype.hasOwnProperty.call(config.footer, 'showFooterAddress')) {
+      merged.showFooterAddress = !!config.footer.showFooterAddress;
+    }
+    if (Object.prototype.hasOwnProperty.call(config.footer, 'showFooterContactButton')) {
+      merged.showFooterContactButton = !!config.footer.showFooterContactButton;
+    }
     if (config.footer.copyrightText !== undefined) {
       merged.copyrightText = config.footer.copyrightText;
     }
@@ -525,6 +548,10 @@ export function useFooterConfig(): NonNullable<StoreConfig["footer"]> {
         returnPolicy: {
           ...DEFAULT_FOOTER_CONFIG.legalLinks.returnPolicy,
           ...config.footer.legalLinks.returnPolicy,
+        },
+        accessibilityStatement: {
+          ...DEFAULT_FOOTER_CONFIG.legalLinks.accessibilityStatement,
+          ...config.footer.legalLinks.accessibilityStatement,
         },
       };
     }

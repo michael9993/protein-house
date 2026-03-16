@@ -1,12 +1,8 @@
 import { FilterElement, IFilter } from "@dashboard/components/Filter/types";
-import { FilterOpts, MinMax } from "@dashboard/components/Filter/types";
 import { hasPermissions } from "@dashboard/components/RequirePermissions";
-import { PermissionEnum, UserFragment } from "@dashboard/graphql";
-import { createDateField } from "@dashboard/utils/filters/fields";
-import { createOptionsField } from "@dashboard/utils/filters/fields";
+import { UserFragment } from "@dashboard/graphql";
+import { createDateField, createOptionsField } from "@dashboard/utils/filters/fields";
 import { defineMessages, IntlShape } from "react-intl";
-
-import { CustomerServiceListFilterOpts } from "./CustomerServiceListPage";
 
 export enum CustomerServiceFilterKeys {
   status = "status",
@@ -15,9 +11,9 @@ export enum CustomerServiceFilterKeys {
 }
 
 export interface CustomerServiceListFilterOpts {
-  status: FilterOpts<string>;
-  channel: FilterOpts<string>;
-  created: FilterOpts<MinMax>;
+  status: { active: boolean; value: string };
+  channel: { active: boolean; value: string };
+  created: { active: boolean; value: { min: string; max: string } };
 }
 
 const messages = defineMessages({
@@ -65,7 +61,7 @@ export function createFilterStructure(
         intl.formatMessage(messages.channel),
         opts.channel.value ? [opts.channel.value] : [],
         false,
-        [], // Will be populated dynamically from available channels
+        [], // Channel is auto-applied from the global channel selector (useAppChannel)
       ),
       active: opts.channel.active,
     },

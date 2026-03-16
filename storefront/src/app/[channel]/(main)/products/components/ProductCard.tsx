@@ -473,7 +473,10 @@ export function ProductCard({
             </div>
           )}
 
-          {/* Price Row */}
+          {/* Delivery Estimate Badge — above price so it doesn't shift the button position */}
+          <CardDeliveryBadge metadata={product.metadata} compact={isCompactMode} />
+
+          {/* Price Row — mt-auto pins to card bottom so the button is always in the same spot */}
           <div className={`mt-auto flex items-end justify-between gap-2 ${
             isCompactMode ? "pt-2" : "pt-3 sm:pt-4"
           }`}>
@@ -520,7 +523,7 @@ export function ProductCard({
             <button
               type="button"
               onClick={handleQuickView}
-              className={`flex items-center justify-center rounded-full shadow-lg sm:hidden ${
+              className={`flex shrink-0 items-center justify-center rounded-full shadow-lg sm:hidden ${
                 isCompactMode ? "h-9 w-9" : "h-10 w-10"
               }`}
               style={{
@@ -537,7 +540,7 @@ export function ProductCard({
               <button
                 type="button"
                 onClick={handleQuickView}
-                className="hidden h-10 items-center justify-center gap-2 rounded-full px-5 text-xs font-bold uppercase tracking-wide text-white shadow-lg sm:flex"
+                className="hidden h-10 shrink-0 items-center justify-center gap-2 rounded-full px-5 text-xs font-bold uppercase tracking-wide text-white shadow-lg sm:flex"
                 style={{
                   backgroundColor: branding.colors.primary,
                 }}
@@ -547,9 +550,6 @@ export function ProductCard({
               </button>
             )}
           </div>
-
-          {/* Delivery Estimate Badge */}
-          <CardDeliveryBadge metadata={product.metadata} compact={isCompactMode} />
         </div>
       </LinkWithChannel>
     </article>

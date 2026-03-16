@@ -248,10 +248,17 @@ export function QuickFilters({
   /*  Image rotation                                                   */
   /* ---------------------------------------------------------------- */
 
+  const imageSource = (quickFiltersConfig as { imageSource?: string }).imageSource ?? "auto";
+
   useEffect(() => {
     const intervals: ReturnType<typeof setInterval>[] = [];
     allItems.forEach((item) => {
-      if (item.productImages && item.productImages.length > 1) {
+      // Only set up rotation for items that will actually display product images
+      const willShowProducts =
+        imageSource === "product"
+          ? true // product mode always prefers product images
+          : !item.backgroundImage; // auto/original: only rotate if no original image exists
+      if (willShowProducts && item.productImages && item.productImages.length > 1) {
         const imageCount = item.productImages.length;
         const interval = setInterval(() => {
           setCurrentImageIndices((prev: Record<string, number>) => ({
@@ -264,7 +271,7 @@ export function QuickFilters({
     });
     return () => intervals.forEach(clearInterval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allItemIds]);
+  }, [allItemIds, imageSource]);
 
   /* ---------------------------------------------------------------- */
   /*  Scroll logic                                                     */
@@ -394,14 +401,29 @@ export function QuickFilters({
   };
 
   const getItemImage = (item: QuickFilterItem) => {
+    if (imageSource === "product") {
+      // Prefer product images (with rotation), fallback to original
+      if (item.productImages && item.productImages.length > 0) {
+        const currentIndex = currentImageIndices[item.id] || 0;
+        return item.productImages[currentIndex];
+      }
+      return item.backgroundImage ?? null;
+    }
+    // "original" or "auto": prefer original, fallback to product images
+    if (item.backgroundImage) return item.backgroundImage;
     if (item.productImages && item.productImages.length > 0) {
       const currentIndex = currentImageIndices[item.id] || 0;
       return item.productImages[currentIndex];
     }
-    if (item.backgroundImage) {
-      return item.backgroundImage;
-    }
     return null;
+  };
+
+  /** Whether this item should render the multi-image crossfade effect */
+  const shouldRotateImages = (item: QuickFilterItem): boolean => {
+    if (!item.productImages || item.productImages.length <= 1) return false;
+    if (imageSource === "product") return true;
+    // auto/original: only rotate if no original image (fallback to products)
+    return !item.backgroundImage;
   };
 
   /* ---------------------------------------------------------------- */
@@ -413,7 +435,7 @@ export function QuickFilters({
   const CardButton = ({ item }: { item: QuickFilterItem }) => {
     const active = isActive(item);
     const image = getItemImage(item);
-    const hasMultipleImages = item.productImages && item.productImages.length > 1;
+    const hasMultipleImages = shouldRotateImages(item);
 
     return (
       <button

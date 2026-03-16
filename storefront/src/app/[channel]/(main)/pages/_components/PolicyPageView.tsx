@@ -19,7 +19,7 @@ const POLICY_TO_PAGE_KEY: Record<PolicyKey, keyof StoreConfig["pages"]> = {
   shippingPolicy: "shippingPolicy",
   privacyPolicy: "privacyPolicy",
   termsOfService: "termsOfService",
-  accessibility: "privacyPolicy", // accessibility uses same page display pattern
+  accessibility: "accessibility",
 };
 
 /**

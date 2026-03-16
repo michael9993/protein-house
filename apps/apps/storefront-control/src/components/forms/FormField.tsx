@@ -8,6 +8,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 interface FormFieldProps<T extends FieldValues> {
   label: string;
@@ -15,6 +16,8 @@ interface FormFieldProps<T extends FieldValues> {
   register: UseFormRegister<T>;
   errors?: FieldErrors<T>;
   type?: "text" | "email" | "number" | "url";
+  as?: "input" | "textarea";
+  rows?: number;
   placeholder?: string;
   description?: string;
   required?: boolean;
@@ -55,6 +58,8 @@ export function FormField<T extends FieldValues>({
   register,
   errors,
   type = "text",
+  as = "input",
+  rows = 6,
   placeholder,
   description,
   required,
@@ -68,13 +73,23 @@ export function FormField<T extends FieldValues>({
         {label}
         {required && <span className="ms-1 text-destructive">*</span>}
       </Label>
-      <Input
-        id={name}
-        type={type}
-        placeholder={placeholder}
-        {...register(name, { valueAsNumber: type === "number" })}
-        className={cn(errorMessage && "border-destructive")}
-      />
+      {as === "textarea" ? (
+        <Textarea
+          id={name}
+          rows={rows}
+          placeholder={placeholder}
+          {...register(name)}
+          className={cn(errorMessage && "border-destructive")}
+        />
+      ) : (
+        <Input
+          id={name}
+          type={type}
+          placeholder={placeholder}
+          {...register(name, { valueAsNumber: type === "number" })}
+          className={cn(errorMessage && "border-destructive")}
+        />
+      )}
       {description && !errorMessage && (
         <p className="text-xs text-muted-foreground">{description}</p>
       )}

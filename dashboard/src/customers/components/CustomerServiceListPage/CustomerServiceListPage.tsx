@@ -49,8 +49,8 @@ const CustomerServiceListPage = ({
   const intl = useIntl();
   const navigate = useNavigator();
   const [isFilterPresetOpen, setFilterPresetOpen] = useState(false);
-  const { data: userPermissions } = useUserPermissions();
-  const filterStructure = createFilterStructure(intl, filterOpts, userPermissions?.user?.userPermissions || []);
+  const userPermissions = useUserPermissions();
+  const filterStructure = createFilterStructure(intl, filterOpts, userPermissions ?? []);
 
   return (
     <>

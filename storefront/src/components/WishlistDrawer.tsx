@@ -9,7 +9,7 @@ import { Drawer } from "vaul";
 import { Heart, X, Trash2 } from "lucide-react";
 import { useWishlist, type WishlistItem } from "@/lib/wishlist";
 import { useFeature, useBranding, useContentConfig, useProductCardConfig, useComponentStyle, useComponentClasses, useFloatingButtons } from "@/providers/StoreConfigProvider";
-import { computeFloatingButtonPosition } from "@/lib/floating-buttons";
+import { computeFloatingButtonPosition, useHiddenFabIds } from "@/lib/floating-buttons";
 import { buildComponentStyle } from "@/config";
 import { useQuickView } from "@/providers/QuickViewProvider";
 import { ShareButton } from "@/ui/components/ProductSharing";
@@ -315,7 +315,8 @@ export function WishlistFloatingButton({ channel }: { channel: string }) {
 	const dir = typeof document !== "undefined"
 		? (document.documentElement.getAttribute("dir") as "ltr" | "rtl") || "ltr"
 		: "ltr";
-	const pos = computeFloatingButtonPosition("wishlist", fabConfig, isPDP, dir);
+	const hiddenIds = useHiddenFabIds();
+	const pos = computeFloatingButtonPosition("wishlist", fabConfig, isPDP, dir, hiddenIds);
 
 	useEffect(() => {
 		setMounted(true);

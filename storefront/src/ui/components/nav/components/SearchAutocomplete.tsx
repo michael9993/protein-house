@@ -40,6 +40,7 @@ export function SearchAutocomplete({
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [didYouMean, setDidYouMean] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const content = useContentConfig();
@@ -73,6 +74,7 @@ export function SearchAutocomplete({
   useEffect(() => {
     if (!isOpen || !query.trim() || query.length < 2) {
       setSuggestions([]);
+      setDidYouMean(null);
       return;
     }
 
@@ -88,9 +90,12 @@ export function SearchAutocomplete({
           throw new Error("Failed to fetch suggestions");
         }
 
-        const data = (await response.json()) as { products?: unknown[] };
+        const data = (await response.json()) as { products?: unknown[]; didYouMean?: string | null };
 
         if (cancelled) return;
+
+        // Set "did you mean?" suggestion from the enhanced search
+        setDidYouMean(data.didYouMean ?? null);
 
         const productSuggestions: SearchSuggestion[] = (data.products || []).map((product: any) => {
           // Safely format price range - handle missing currency
@@ -237,6 +242,28 @@ export function SearchAutocomplete({
       {!isLoading && !hasSuggestions && query.trim().length >= 2 && (
         <div className="p-8 text-center text-sm text-neutral-500">
           {(content.filters?.noResultsMessage ?? "No products found").replace(/\{query\}/gi, query.trim())}
+        </div>
+      )}
+
+      {/* "Did you mean?" suggestion */}
+      {!isLoading && didYouMean && query.trim().length >= 2 && (
+        <div className="border-b border-neutral-100 px-4 py-2.5">
+          <button
+            onClick={() => {
+              const searchUrl = withChannel(channel, buildProductsUrl({ search: didYouMean }));
+              saveRecentSearch(didYouMean);
+              onSelect(searchUrl);
+              router.push(searchUrl);
+              onClose();
+            }}
+            className="text-sm text-neutral-600 hover:text-neutral-900"
+          >
+            Did you mean{" "}
+            <span className="font-semibold" style={{ color: branding.colors.primary }}>
+              {didYouMean}
+            </span>
+            ?
+          </button>
         </div>
       )}
 

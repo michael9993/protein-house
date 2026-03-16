@@ -180,7 +180,9 @@
       "mcp__plugin_context-mode_context-mode__ctx_execute_file",
       "Bash(find /c/Users/micha/saleor-platform/storefront/src/app/\\\\[channel\\\\]/\\\\\\(main\\\\\\) -type d -name \"*\" | sort)",
       "Bash(cp -r C:/Users/micha/saleor-platform/.claude/skills/* C:/Users/micha/.claude/skills/)",
-      "Bash(cd C:/Users/micha/saleor-platform/.claude/skills && for d in api-integration-specialist brainstorming canvas-design code-reviewer excel-analysis frontend-design mobile-design react-best-practices senior-architect senior-backend senior-data-scientist senior-devops senior-frontend senior-fullstack senior-prompt-engineer senior-security seo-optimizer skill-creator theme-factory ui-design-system ui-ux-pro-max ux-researcher-designer webapp-testing writing-plans xlsx; do rm -rf \"$d\"; done)"
+      "Bash(cd C:/Users/micha/saleor-platform/.claude/skills && for d in api-integration-specialist brainstorming canvas-design code-reviewer excel-analysis frontend-design mobile-design react-best-practices senior-architect senior-backend senior-data-scientist senior-devops senior-frontend senior-fullstack senior-prompt-engineer senior-security seo-optimizer skill-creator theme-factory ui-design-system ui-ux-pro-max ux-researcher-designer webapp-testing writing-plans xlsx; do rm -rf \"$d\"; done)",
+      "mcp__plugin_context-mode_context-mode__ctx_index",
+      "mcp__plugin_context-mode_context-mode__ctx_fetch_and_index"
     ],
     "deny": [
       "Read(./.env*)",

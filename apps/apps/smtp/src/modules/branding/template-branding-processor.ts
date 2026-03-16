@@ -181,9 +181,8 @@ export class TemplateBrandingProcessor {
      * These may be baked into saved templates in the database, even if ${LOGO_URL}
      * variable replacements already happened above (templates can have a mix).
      */
-    const LEGACY_URLS = [
-      "https://shop.halacosmetics.org/logo/pawzen-logo-white.png",
-      "https://shop.halacosmetics.org",
+    const LEGACY_URLS: string[] = [
+      // Add legacy URLs here if migrating from an old domain
     ];
 
     for (const legacyUrl of LEGACY_URLS) {

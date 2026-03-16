@@ -9,6 +9,7 @@ export const PagesSchema = z.object({
   termsOfService: z.boolean(),
   shippingPolicy: z.boolean(),
   returnPolicy: z.boolean(),
+  accessibility: z.boolean(),
   forgotPassword: z.boolean(),
   resetPassword: z.boolean(),
   verifyEmail: z.boolean(),
