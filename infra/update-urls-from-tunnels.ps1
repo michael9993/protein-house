@@ -42,6 +42,7 @@ $tunnelBulkUrl = ""
 $tunnelStudioUrl = ""
 $tunnelDropshipUrl = ""
 $tunnelTaxUrl = ""
+$tunnelPaypalUrl = ""
 
 if ($envContent -match "STOREFRONT_CONTROL_APP_TUNNEL_URL=(.+?)(?:\r?\n|$)") {
     $tunnelControlUrl = $matches[1].Trim()
@@ -64,6 +65,9 @@ if ($envContent -match "DROPSHIP_APP_TUNNEL_URL=(.+?)(?:\r?\n|$)") {
 if ($envContent -match "TAX_MANAGER_APP_TUNNEL_URL=(.+?)(?:\r?\n|$)") {
     $tunnelTaxUrl = $matches[1].Trim()
 }
+if ($envContent -match "PAYPAL_APP_TUNNEL_URL=(.+?)(?:\r?\n|$)") {
+    $tunnelPaypalUrl = $matches[1].Trim()
+}
 
 # Get ports
 $apiPort = if ($envContent -match "SALEOR_API_PORT=(\d+)") { $matches[1] } else { "8000" }
@@ -80,6 +84,7 @@ $bulkPort = if ($envContent -match "BULK_MANAGER_APP_PORT=(\d+)") { $matches[1] 
 $studioPort = if ($envContent -match "IMAGE_STUDIO_APP_PORT=(\d+)") { $matches[1] } else { "3008" }
 $dropshipPort = if ($envContent -match "DROPSHIP_APP_PORT=(\d+)") { $matches[1] } else { "3009" }
 $taxPort = if ($envContent -match "TAX_MANAGER_APP_PORT=(\d+)") { $matches[1] } else { "3010" }
+$paypalPort = if ($envContent -match "PAYPAL_APP_PORT=(\d+)") { $matches[1] } else { "3011" }
 
 # Build URLs (use tunnel if set, otherwise localhost)
 $apiUrl = if ($tunnelApiUrl) { "$tunnelApiUrl/graphql/" } else { "http://localhost:$apiPort/graphql/" }
@@ -97,6 +102,7 @@ $bulkAppUrl = if ($tunnelBulkUrl) { $tunnelBulkUrl } else { "http://localhost:$b
 $studioAppUrl = if ($tunnelStudioUrl) { $tunnelStudioUrl } else { "http://localhost:$studioPort" }
 $dropshipAppUrl = if ($tunnelDropshipUrl) { $tunnelDropshipUrl } else { "http://localhost:$dropshipPort" }
 $taxAppUrl = if ($tunnelTaxUrl) { $tunnelTaxUrl } else { "http://localhost:$taxPort" }
+$paypalAppUrl = if ($tunnelPaypalUrl) { $tunnelPaypalUrl } else { "http://localhost:$paypalPort" }
 
 # Update URLs in .env
 $envContent = $envContent -replace "PUBLIC_URL=.*", "PUBLIC_URL=$publicUrl"
@@ -116,6 +122,8 @@ $envContent = $envContent -replace "BULK_MANAGER_APP_URL=.*", "BULK_MANAGER_APP_
 $envContent = $envContent -replace "IMAGE_STUDIO_APP_URL=.*", "IMAGE_STUDIO_APP_URL=$studioAppUrl"
 $envContent = $envContent -replace "DROPSHIP_APP_URL=.*", "DROPSHIP_APP_URL=$dropshipAppUrl"
 $envContent = $envContent -replace "TAX_MANAGER_APP_URL=.*", "TAX_MANAGER_APP_URL=$taxAppUrl"
+$envContent = $envContent -replace "PAYPAL_APP_URL=.*", "PAYPAL_APP_URL=$paypalAppUrl"
+$envContent = $envContent -replace "PAYPAL_APP_API_BASE_URL=.*", "PAYPAL_APP_API_BASE_URL=$paypalAppUrl"
 # Note: SMTP app URLs are typically not needed in .env as the app reads from Saleor webhooks
 # But we can add them if needed for app-to-app communication
 
@@ -212,6 +220,13 @@ if ($tunnelTaxUrl -and $tunnelTaxUrl -match "\.trycloudflare\.com") {
     }
     catch {}
 }
+if ($tunnelPaypalUrl -and $tunnelPaypalUrl -match "\.trycloudflare\.com") {
+    try {
+        $domain = ([System.Uri]$tunnelPaypalUrl).Host
+        if ($domain -and $domain -notin $tunnelDomains) { $tunnelDomains += $domain }
+    }
+    catch {}
+}
 
 # Update ALLOWED_HOSTS - add all tunnel domains
 if ($tunnelDomains.Count -gt 0) {
@@ -268,6 +283,7 @@ Write-Host "Bulk Manager URL: $bulkAppUrl" -ForegroundColor Cyan
 Write-Host "Image Studio URL: $studioAppUrl" -ForegroundColor Cyan
 Write-Host "Dropship App URL: $dropshipAppUrl" -ForegroundColor Cyan
 Write-Host "Tax Manager URL: $taxAppUrl" -ForegroundColor Cyan
+Write-Host "PayPal App URL: $paypalAppUrl" -ForegroundColor Cyan
 if ($tunnelDomains.Count -gt 0) {
     Write-Host "`nAdded tunnel domains to ALLOWED_HOSTS and ALLOWED_CLIENT_HOSTS:" -ForegroundColor Yellow
     foreach ($domain in $tunnelDomains) {

@@ -351,7 +351,9 @@ function Install-AllApps {
             $baseUrl = $envValues[$svc.tunnel_env_var]
         }
         if (-not $baseUrl -and $svc.port) {
-            $baseUrl = "http://localhost:$($svc.port)"
+            # host.docker.internal resolves to the host from inside Docker containers
+            # The Saleor worker (inside Docker) fetches the manifest, so localhost won't work
+            $baseUrl = "http://host.docker.internal:$($svc.port)"
         }
         if (-not $baseUrl) {
             Write-Host "  [SKIP] No URL available for $key." -ForegroundColor Gray
@@ -369,8 +371,16 @@ function Install-AllApps {
             }
         }
 
+        # Read permissions from platform.yml if defined
+        $appPermissions = @()
+        if ($svc.permissions -and $svc.permissions.Count -gt 0) {
+            $appPermissions = @($svc.permissions)
+            Write-Host "    Permissions: $($appPermissions -join ', ')" -ForegroundColor Gray
+        }
+
         Install-SaleorApp -GraphQLUrl $apiUrl -Token $token `
-            -ManifestUrl $manifestUrl -AppName $svc.description
+            -ManifestUrl $manifestUrl -AppName $svc.description `
+            -Permissions $appPermissions
     }
 
     Write-Host ""

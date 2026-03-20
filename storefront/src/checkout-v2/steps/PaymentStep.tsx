@@ -1,348 +1,16 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { loadStripe, type StripeElementsOptions } from "@stripe/stripe-js";
-import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useMemo } from "react";
 import { useCheckoutState } from "@/checkout-v2/CheckoutStateProvider";
 import { useCheckoutText } from "@/checkout-v2/hooks/useCheckoutText";
-import { useCheckoutCompleteRedirect } from "@/checkout-v2/hooks/useCheckoutCompleteRedirect";
-import { LoadingOverlay } from "@/checkout-v2/components/LoadingOverlay";
-import { PlaceOrderButton } from "@/checkout-v2/summary/PlaceOrderButton";
 import { initializePaymentGateway } from "@/checkout-v2/_actions/initialize-payment-gateway";
-import { initializeTransaction } from "@/checkout-v2/_actions/initialize-transaction";
-import { processTransaction } from "@/checkout-v2/_actions/process-transaction";
-import { completeCheckout } from "@/checkout-v2/_actions/complete-checkout";
-import { updateCheckoutMetadata } from "@/checkout-v2/_actions/update-checkout-metadata";
-import { useEcommerceSettings, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { buildComponentStyle } from "@/config";
-import { adjustShippingPrice, type ShippingPriceAdjustment } from "@/checkout-v2/utils/adjustShippingPrice";
+import { StripePaymentForm } from "./StripePaymentForm";
+import { PayPalPaymentForm } from "./PayPalPaymentForm";
 
 // ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/** Retry an async operation with exponential backoff on Stripe frame errors */
-async function withFrameRetry<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {
-	for (let attempt = 0; attempt < maxRetries; attempt++) {
-		try {
-			return await fn();
-		} catch (error: unknown) {
-			const msg = error instanceof Error ? error.message : "";
-			const isFrameError = msg.includes("Frame not initialized") || msg.includes("frame");
-			if (!isFrameError || attempt === maxRetries - 1) throw error;
-			await new Promise((r) => setTimeout(r, 300 * Math.pow(2, attempt)));
-		}
-	}
-	throw new Error("Stripe submit failed after retries");
-}
-
-const PAYMENT_TIMEOUT_MS = 60_000;
-
-const getStripeLocale = (channelSlug?: string): string => {
-	const localeMap: Record<string, string> = {
-		ils: "he",
-		usd: "en",
-		eur: "en",
-		gbp: "en",
-	};
-	return localeMap[channelSlug?.toLowerCase() ?? ""] ?? "en";
-};
-
-// ---------------------------------------------------------------------------
-// Inner form — inside <Elements> provider
-// ---------------------------------------------------------------------------
-
-interface StripeCheckoutFormProps {
-	checkoutId: string;
-	gatewayId: string;
-	checkoutAmount: number;
-	channel: string;
-}
-
-function StripeCheckoutForm({
-	checkoutId,
-	gatewayId,
-	checkoutAmount,
-	channel,
-}: StripeCheckoutFormProps) {
-	const stripe = useStripe();
-	const elements = useElements();
-	const router = useRouter();
-	const t = useCheckoutText();
-	const { state: checkoutState } = useCheckoutState();
-	const ecommerce = useEcommerceSettings();
-
-	const [isLoading, setIsLoading] = useState(false);
-	const [paymentSucceeded, setPaymentSucceeded] = useState(false);
-	const [elementsReady, setElementsReady] = useState(false);
-	const [errors, setErrors] = useState<string[]>([]);
-	const initializedRef = useRef(false);
-
-	// Handle return from Stripe redirect (3DS / PayPal)
-	useCheckoutCompleteRedirect({ checkoutId, channel });
-
-	// Mark elements ready after brief init delay
-	useEffect(() => {
-		if (elements && stripe && !initializedRef.current) {
-			initializedRef.current = true;
-			const timer = setTimeout(() => setElementsReady(true), 100);
-			return () => clearTimeout(timer);
-		}
-		if ((!elements || !stripe) && initializedRef.current) {
-			initializedRef.current = false;
-			setElementsReady(false);
-		}
-	}, [elements, stripe]);
-
-	const paymentElementOptions = useMemo(
-		() => ({
-			layout: "tabs" as const,
-			wallets: { applePay: "auto" as const, googlePay: "auto" as const },
-		}),
-		[],
-	);
-
-	const handlePayment = useCallback(async () => {
-		setErrors([]);
-
-		if (!stripe || !elements) {
-			setErrors([t.paymentSystemUnavailableError ?? "Payment system is not available. Please try again."]);
-			return;
-		}
-
-		setIsLoading(true);
-
-		const timeoutId = setTimeout(() => {
-			setIsLoading(false);
-			setErrors([t.paymentTimeoutError ?? "Payment timed out. Please try again."]);
-		}, PAYMENT_TIMEOUT_MS);
-
-		try {
-			// 1. Validate Stripe form client-side
-			let submitResult;
-			try {
-				submitResult = await withFrameRetry(() => elements.submit());
-			} catch {
-				setErrors([t.paymentFormNotReadyError ?? "Payment form is not ready. Please refresh and try again."]);
-				clearTimeout(timeoutId);
-				setIsLoading(false);
-				return;
-			}
-
-			if (submitResult.error) {
-				setErrors([submitResult.error.message ?? t.paymentValidationFailedError ?? "Payment validation failed"]);
-				clearTimeout(timeoutId);
-				setIsLoading(false);
-				return;
-			}
-
-			// Normalize payment method — Stripe Link uses "card" flow
-			let paymentMethod = (submitResult as { selectedPaymentMethod?: string }).selectedPaymentMethod;
-			if (paymentMethod === "link") paymentMethod = "card";
-
-			// 2. Initialize transaction in Saleor
-			const initResult = await initializeTransaction(checkoutId, {
-				gatewayId,
-				paymentMethod: paymentMethod ?? "card",
-				amount: checkoutAmount,
-			});
-
-			if (initResult.errors.length > 0) {
-				setErrors(initResult.errors.map((e) => e.message ?? "Transaction initialization failed"));
-				clearTimeout(timeoutId);
-				setIsLoading(false);
-				return;
-			}
-
-			const transactionId = initResult.transactionId;
-			if (!transactionId) {
-				setErrors([t.transactionCreationFailedError ?? "Transaction could not be created. Please try again."]);
-				clearTimeout(timeoutId);
-				setIsLoading(false);
-				return;
-			}
-
-			// 3. Extract Stripe client secret from transaction data
-			let data: Record<string, unknown> = {};
-			if (typeof initResult.data === "string") {
-				try {
-					data = JSON.parse(initResult.data) as Record<string, unknown>;
-				} catch {
-					setErrors([t.invalidPaymentDataError ?? "Invalid payment data received. Please try again."]);
-					clearTimeout(timeoutId);
-					setIsLoading(false);
-					return;
-				}
-			} else if (initResult.data && typeof initResult.data === "object") {
-				data = initResult.data as Record<string, unknown>;
-			}
-
-			const pi = data.paymentIntent as Record<string, unknown> | undefined;
-			const clientSecret =
-				(pi?.stripeClientSecret as string | undefined) ??
-				(pi?.clientSecret as string | undefined) ??
-				(data.stripeClientSecret as string | undefined) ??
-				(data.clientSecret as string | undefined);
-
-			if (!clientSecret) {
-				console.error("[PaymentStep] Missing Stripe client secret", { data });
-				setErrors([t.paymentInitIncompleteError ?? "Payment initialization incomplete. Please try again."]);
-				clearTimeout(timeoutId);
-				setIsLoading(false);
-				return;
-			}
-
-			// Store for redirect flow (3DS / PayPal)
-			sessionStorage.setItem("transactionId", transactionId);
-
-			// Build Stripe return URL
-			const returnUrl = `${window.location.origin}${window.location.pathname}?checkout=${checkoutId}&transaction=${transactionId}&processingPayment=true`;
-
-			// 4. Confirm payment with Stripe
-			let confirmResult;
-			try {
-				confirmResult = await withFrameRetry(() =>
-					stripe.confirmPayment({
-						elements,
-						clientSecret,
-						confirmParams: { return_url: returnUrl },
-					}),
-				);
-			} catch {
-				setErrors([t.paymentConfirmationFailedError ?? "Payment confirmation failed. Please try again."]);
-				clearTimeout(timeoutId);
-				setIsLoading(false);
-				return;
-			}
-
-			const { error: confirmError } = confirmResult;
-
-			if (confirmError) {
-				clearTimeout(timeoutId);
-				setIsLoading(false);
-				if (confirmError.type === "card_error" || confirmError.type === "validation_error") {
-					setErrors([confirmError.message ?? t.paymentFailedError ?? "Payment failed"]);
-				} else {
-					setErrors([t.unexpectedPaymentError ?? "An unexpected error occurred with your payment"]);
-				}
-				return;
-			}
-
-			// 5. Payment succeeded without redirect — sync Saleor
-			const processResult = await processTransaction(transactionId);
-			if (processResult.errors.length > 0) {
-				setErrors([t.paymentSuccessOrderFailedError ?? "Payment succeeded but order processing failed. Please contact support."]);
-				clearTimeout(timeoutId);
-				setIsLoading(false);
-				return;
-			}
-
-			sessionStorage.removeItem("transactionId");
-
-			// 5.5 Set shipping metadata on checkout (carries to order)
-			try {
-				const co = checkoutState.checkout;
-				const originalShipping = co?.shippingPrice?.gross?.amount ?? 0;
-				const shippingCurrency = co?.shippingPrice?.gross?.currency ?? "";
-				const priceAdj = ecommerce?.shipping?.priceAdjustment as ShippingPriceAdjustment | undefined;
-				const adjustedShipping = adjustShippingPrice(originalShipping, priceAdj);
-				const selectedMethodId = (co?.deliveryMethod as { id: string } | null)?.id;
-				const selectedMethod = selectedMethodId
-					? co?.shippingMethods?.find((m) => m.id === selectedMethodId)
-					: null;
-
-				await updateCheckoutMetadata(checkoutId, [
-					{ key: "shipping.originalCost", value: String(originalShipping) },
-					{ key: "shipping.displayCost", value: String(adjustedShipping) },
-					{ key: "shipping.currency", value: shippingCurrency },
-					{ key: "shipping.wasFree", value: String(originalShipping === 0) },
-					{ key: "shipping.methodName", value: selectedMethod?.name ?? "" },
-				]);
-			} catch (metaErr) {
-				// Non-blocking — order should still complete even if metadata fails
-				console.warn("[PaymentStep] Failed to set shipping metadata:", metaErr);
-			}
-
-			// 6. Complete the checkout
-			const completeResult = await completeCheckout(checkoutId);
-			if (completeResult.errors.length > 0) {
-				setErrors([t.paymentSuccessOrderFailedError ?? "Payment succeeded but order could not be placed. Please contact support."]);
-				clearTimeout(timeoutId);
-				setIsLoading(false);
-				return;
-			}
-
-			clearTimeout(timeoutId);
-
-			if (completeResult.orderId) {
-				// Lock the UI to the loader — never let the form re-appear during navigation
-				// Account creation (if requested) happens on the confirmation page
-				setPaymentSucceeded(true);
-				router.replace(`/${channel}/checkout?order=${completeResult.orderId}`);
-			}
-		} catch (error) {
-			clearTimeout(timeoutId);
-			console.error("[PaymentStep] Unexpected error:", error);
-			setErrors(["An unexpected error occurred during payment"]);
-			setIsLoading(false);
-		}
-	}, [checkoutId, checkoutAmount, channel, elements, gatewayId, router, stripe, t, checkoutState.checkout, ecommerce]);
-
-	// If payment succeeded, show only the loader until navigation completes
-	if (paymentSucceeded) {
-		return <LoadingOverlay message={t.processingOrderText ?? "Processing your order…"} subtitle={t.doNotClosePageText} />;
-	}
-
-	if (!stripe || !elements) {
-		return (
-			<div className="flex items-center justify-center py-8">
-				<div className="flex flex-col items-center gap-3 text-center">
-					<MiniSpinner />
-					<p className="text-sm text-neutral-500">
-						{t.initializingPaymentText ?? "Initializing payment system…"}
-					</p>
-				</div>
-			</div>
-		);
-	}
-
-	return (
-		<div className="space-y-4">
-			{errors.length > 0 && (
-				<div role="alert" className="rounded-md border border-error-200 bg-error-50 px-4 py-3">
-					{errors.map((msg, i) => (
-						<p key={i} className="text-sm text-error-700">
-							{msg}
-						</p>
-					))}
-				</div>
-			)}
-
-			{/* Stable container prevents Stripe iframe from re-laying out when
-			    other checkout sections (e.g. summary toggle) change page height */}
-			<div style={{ contain: "layout", willChange: "auto" }}>
-				<PaymentElement
-					options={paymentElementOptions}
-					onReady={() => setElementsReady(true)}
-				/>
-			</div>
-
-			<PlaceOrderButton
-				onSubmit={handlePayment}
-				isLoading={isLoading}
-				disabled={!elementsReady}
-			/>
-
-			{isLoading && (
-				<LoadingOverlay message={t.processingOrderText ?? "Processing your payment…"} subtitle={t.doNotClosePageText} />
-			)}
-		</div>
-	);
-}
-
-// ---------------------------------------------------------------------------
-// Gateway loader + Elements provider
+// Types
 // ---------------------------------------------------------------------------
 
 interface PaymentStepProps {
@@ -350,10 +18,14 @@ interface PaymentStepProps {
 	channel: string;
 }
 
-interface GatewayConfig {
-	id: string;
-	publishableKey: string | null;
-}
+type DetectedProvider =
+	| { type: "stripe"; gatewayId: string; publishableKey: string }
+	| { type: "paypal"; gatewayId: string; paypalClientId: string; paypalEnvironment: "SANDBOX" | "LIVE"; paypalIntent: "capture" | "authorize" }
+	| null;
+
+// ---------------------------------------------------------------------------
+// Gateway loader + provider detection
+// ---------------------------------------------------------------------------
 
 export function PaymentStep({ checkoutId, channel }: PaymentStepProps) {
 	const cdStyle = useComponentStyle("checkout.paymentStep");
@@ -362,16 +34,11 @@ export function PaymentStep({ checkoutId, channel }: PaymentStepProps) {
 	const checkout = state.checkout;
 	const t = useCheckoutText();
 
-	const [gatewayConfig, setGatewayConfig] = useState<GatewayConfig | null>(null);
+	const [provider, setProvider] = useState<DetectedProvider>(null);
 	const [loadError, setLoadError] = useState<string | null>(null);
 	const [initializing, setInitializing] = useState(true);
 
-	const stripeLocale = useMemo(
-		() => getStripeLocale(checkout?.channel?.slug),
-		[checkout?.channel?.slug],
-	);
-
-	// Initialize payment gateways on mount
+	// Initialize payment gateways on mount — detect which provider is configured
 	useEffect(() => {
 		if (!checkoutId) return;
 
@@ -395,27 +62,63 @@ export function PaymentStep({ checkoutId, channel }: PaymentStepProps) {
 					return;
 				}
 
-				const stripeConfig =
-					configs.find(
-						(c) => c.id.includes("stripe") || c.id.includes("app.stripe"),
-					) ?? configs[0];
+				// Check for PayPal config first, then Stripe
+				const paypalConfig = configs.find(
+					(c) => c.id.includes("paypal") || c.id.includes("app.payment.paypal"),
+				);
+				const stripeConfig = configs.find(
+					(c) => c.id.includes("stripe") || c.id.includes("app.stripe"),
+				);
+
+				// Prefer PayPal if both are configured (user can change this)
+				const selectedConfig = paypalConfig ?? stripeConfig ?? configs[0];
 
 				let parsedData: Record<string, unknown> = {};
-				if (stripeConfig.data) {
+				if (selectedConfig.data) {
 					try {
 						parsedData =
-							typeof stripeConfig.data === "string"
-								? (JSON.parse(stripeConfig.data) as Record<string, unknown>)
-								: (stripeConfig.data as Record<string, unknown>);
+							typeof selectedConfig.data === "string"
+								? (JSON.parse(selectedConfig.data) as Record<string, unknown>)
+								: (selectedConfig.data as Record<string, unknown>);
 					} catch {
 						// ignore
 					}
 				}
 
-				const publishableKey =
-					(parsedData.stripePublishableKey as string | undefined) ?? null;
+				// Detect provider type from response data
+				const paypalClientId = parsedData.paypalClientId as string | undefined;
+				const paypalEnvironment = parsedData.paypalEnvironment as string | undefined;
+				const stripePublishableKey = parsedData.stripePublishableKey as string | undefined;
 
-				setGatewayConfig({ id: stripeConfig.id, publishableKey });
+				if (paypalClientId) {
+					const paypalIntent = parsedData.paypalIntent as string | undefined;
+					setProvider({
+						type: "paypal",
+						gatewayId: selectedConfig.id,
+						paypalClientId,
+						paypalEnvironment: (paypalEnvironment === "LIVE" ? "LIVE" : "SANDBOX") as "SANDBOX" | "LIVE",
+						paypalIntent: (paypalIntent === "authorize" ? "authorize" : "capture") as "capture" | "authorize",
+					});
+				} else if (stripePublishableKey) {
+					setProvider({
+						type: "stripe",
+						gatewayId: selectedConfig.id,
+						publishableKey: stripePublishableKey,
+					});
+				} else {
+					// Unknown provider — try to use as Stripe (backward compatible)
+					const fallbackKey =
+						(parsedData.publishableKey as string | undefined) ?? null;
+					if (fallbackKey) {
+						setProvider({
+							type: "stripe",
+							gatewayId: selectedConfig.id,
+							publishableKey: fallbackKey,
+						});
+					} else {
+						setLoadError("Payment configuration is missing. Please contact support.");
+					}
+				}
 			} catch (err) {
 				if (isMounted) {
 					console.error("[PaymentStep] Gateway init error:", err);
@@ -431,32 +134,6 @@ export function PaymentStep({ checkoutId, channel }: PaymentStepProps) {
 			isMounted = false;
 		};
 	}, [checkoutId]);
-
-	// Build Stripe instance only when publishable key is known
-	const stripePromise = useMemo(() => {
-		if (!gatewayConfig?.publishableKey) return null;
-		return loadStripe(gatewayConfig.publishableKey, {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			locale: stripeLocale as any,
-		});
-	}, [gatewayConfig?.publishableKey, stripeLocale]);
-
-	const amount = checkout?.totalPrice
-		? Math.round(checkout.totalPrice.gross.amount * 100)
-		: 0;
-	const currency = checkout?.totalPrice?.gross.currency?.toLowerCase() ?? "usd";
-
-	const stripeOptions: StripeElementsOptions = useMemo(
-		() => ({
-			mode: "payment" as const,
-			amount,
-			currency,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			locale: stripeLocale as any,
-			appearance: { theme: "stripe" as const },
-		}),
-		[amount, currency, stripeLocale],
-	);
 
 	if (initializing) {
 		return (
@@ -479,7 +156,7 @@ export function PaymentStep({ checkoutId, channel }: PaymentStepProps) {
 		);
 	}
 
-	if (!stripePromise) {
+	if (!provider) {
 		return (
 			<div className="rounded-md border border-warning-200 bg-warning-50 px-4 py-3">
 				<p className="text-sm text-warning-700">
@@ -499,18 +176,26 @@ export function PaymentStep({ checkoutId, channel }: PaymentStepProps) {
 
 	return (
 		<div data-cd="checkout-paymentStep" className={cdClasses} style={{ ...buildComponentStyle("checkout.paymentStep", cdStyle) }}>
-			<Elements
-				key={`stripe-${gatewayConfig?.publishableKey}-${stripeLocale}`}
-				options={stripeOptions}
-				stripe={stripePromise}
-			>
-				<StripeCheckoutForm
+			{provider.type === "stripe" && (
+				<StripePaymentForm
 					checkoutId={checkoutId}
-					gatewayId={gatewayConfig?.id ?? "stripe"}
-					checkoutAmount={checkout.totalPrice.gross.amount}
 					channel={channel}
+					gatewayId={provider.gatewayId}
+					publishableKey={provider.publishableKey}
+					checkout={checkout}
 				/>
-			</Elements>
+			)}
+			{provider.type === "paypal" && (
+				<PayPalPaymentForm
+					checkoutId={checkoutId}
+					channel={channel}
+					gatewayId={provider.gatewayId}
+					paypalClientId={provider.paypalClientId}
+					paypalEnvironment={provider.paypalEnvironment}
+					paypalIntent={provider.paypalIntent}
+					checkout={checkout}
+				/>
+			)}
 		</div>
 	);
 }

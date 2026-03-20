@@ -23,6 +23,7 @@
     "@hookform/resolvers": "5.2.2",
     "@saleor/auth-sdk": "1.0.3",
     "@sentry/nextjs": "10.38.0",
+    "@paypal/react-paypal-js": "^8.7.0",
     "@stripe/react-stripe-js": "3.7.0",
     "@stripe/stripe-js": "7.3.0",
     "@urql/core": "6.0.1",

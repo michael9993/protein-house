@@ -22,6 +22,7 @@
 #      - studio.pawzenpets.shop   → <tunnel-id>.cfargotunnel.com (proxied)
 #      - dropship.pawzenpets.shop → <tunnel-id>.cfargotunnel.com (proxied)
 #      - tax.pawzenpets.shop      → <tunnel-id>.cfargotunnel.com (proxied)
+#      - ext1.pawzenpets.shop             → <tunnel-id>.cfargotunnel.com (proxied)
 #   6. Run: cloudflared tunnel --config infra/cloudflared-config.yml run
 #
 # Usage:
@@ -35,7 +36,7 @@ tunnel: pawzen-platform
 
 # Replace <TUNNEL_ID> with the UUID from `cloudflared tunnel create` output
 # The credentials file is auto-created at this path during `cloudflared tunnel create`
-credentials-file: C:\Users\micha\.cloudflared\9dfe4ba3-a2ee-4bd4-a648-22986cd7db97.json
+credentials-file: C:\Users\micha\.cloudflared\73d5c224-a2f2-43b4-a577-5e10ab50dfeb.json
 
 ingress:
   # Storefront (Next.js) — primary customer-facing site
@@ -98,6 +99,10 @@ ingress:
   # Tax Manager App
   - hostname: tax.pawzenpets.shop
     service: http://127.0.0.1:3010
+
+  # PayPal Payment App
+  - hostname: ext1.pawzenpets.shop
+    service: http://localhost:3011
 
   # Catch-all — return 404 for unmatched hostnames
   - service: http_status:404

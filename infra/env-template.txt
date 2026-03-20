@@ -23,6 +23,7 @@ BULK_MANAGER_APP_PORT=3007
 IMAGE_STUDIO_APP_PORT=3008
 DROPSHIP_APP_PORT=3009
 TAX_MANAGER_APP_PORT=3010
+PAYPAL_APP_PORT=3011
 
 # ============================================================================
 # DATABASE CONFIGURATION
@@ -131,6 +132,7 @@ OTEL_ENABLED=false
 # IMAGE_STUDIO_APP_TUNNEL_URL=https://studio.yourdomain.com
 # DROPSHIP_APP_TUNNEL_URL=https://dropship.yourdomain.com
 # TAX_MANAGER_APP_TUNNEL_URL=https://tax.yourdomain.com
+# PAYPAL_APP_TUNNEL_URL=https://ext1.yourdomain.com
 
 # ============================================================================
 # DASHBOARD CONFIGURATION
@@ -204,6 +206,8 @@ NEWSLETTER_APP_URL=http://localhost:3005
 SALES_ANALYTICS_APP_URL=http://localhost:3006
 BULK_MANAGER_APP_URL=http://localhost:3007
 IMAGE_STUDIO_APP_URL=http://localhost:3008
+PAYPAL_APP_URL=http://localhost:3011
+PAYPAL_APP_API_BASE_URL=http://localhost:3011
 # Auto-update sample config on save (storefront control)
 AUTO_UPDATE_SAMPLE_CONFIG=true
 

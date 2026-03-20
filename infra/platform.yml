@@ -95,6 +95,8 @@ services:
     tunnel_env_var: "STRIPE_APP_TUNNEL_URL"
     app_id: "stripe"
     app_manifest_path: "/api/manifest"
+    permissions:
+      - "HANDLE_PAYMENTS"
     description: "Stripe Payment App"
 
   smtp:
@@ -105,6 +107,10 @@ services:
     tunnel_env_var: "SMTP_APP_TUNNEL_URL"
     app_id: "saleor.app.smtp"
     app_manifest_path: "/api/manifest"
+    permissions:
+      - "MANAGE_ORDERS"
+      - "MANAGE_USERS"
+      - "MANAGE_GIFT_CARD"
     description: "SMTP Email App"
 
   invoices:
@@ -115,6 +121,8 @@ services:
     tunnel_env_var: "INVOICE_APP_TUNNEL_URL"
     app_id: "saleor.app.invoices"
     app_manifest_path: "/api/manifest"
+    permissions:
+      - "MANAGE_ORDERS"
     description: "PDF Invoice App"
 
   control:
@@ -125,6 +133,9 @@ services:
     tunnel_env_var: "STOREFRONT_CONTROL_APP_TUNNEL_URL"
     app_id: "saleor.app.storefront-control"
     app_manifest_path: "/api/manifest"
+    permissions:
+      - "MANAGE_APPS"
+      - "MANAGE_DISCOUNTS"
     description: "Storefront Control CMS App"
 
   newsletter:
@@ -135,6 +146,9 @@ services:
     tunnel_env_var: "NEWSLETTER_APP_TUNNEL_URL"
     app_id: "saleor.app.newsletter"
     app_manifest_path: "/api/manifest"
+    permissions:
+      - "MANAGE_APPS"
+      - "MANAGE_USERS"
     description: "Newsletter App"
 
   analytics:
@@ -145,6 +159,10 @@ services:
     tunnel_env_var: "SALES_ANALYTICS_APP_TUNNEL_URL"
     app_id: "saleor.app.sales-analytics"
     app_manifest_path: "/api/manifest"
+    permissions:
+      - "MANAGE_ORDERS"
+      - "MANAGE_PRODUCTS"
+      - "MANAGE_CHANNELS"
     description: "Sales Analytics App"
 
   bulk:
@@ -155,6 +173,17 @@ services:
     tunnel_env_var: "BULK_MANAGER_APP_TUNNEL_URL"
     app_id: "saleor.app.bulk-manager"
     app_manifest_path: "/api/manifest"
+    permissions:
+      - "MANAGE_PRODUCTS"
+      - "MANAGE_ORDERS"
+      - "MANAGE_USERS"
+      - "MANAGE_APPS"
+      - "MANAGE_DISCOUNTS"
+      - "MANAGE_GIFT_CARD"
+      - "MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES"
+      - "MANAGE_PAGES"
+      - "MANAGE_PAGE_TYPES_AND_ATTRIBUTES"
+      - "MANAGE_TRANSLATIONS"
     description: "Bulk Import/Export Manager"
 
   studio:
@@ -165,6 +194,9 @@ services:
     tunnel_env_var: "IMAGE_STUDIO_APP_TUNNEL_URL"
     app_id: "saleor.app.image-studio"
     app_manifest_path: "/api/manifest"
+    permissions:
+      - "MANAGE_PRODUCTS"
+      - "MANAGE_APPS"
     description: "AI Image Studio App"
 
   dropship:
@@ -175,6 +207,14 @@ services:
     tunnel_env_var: "DROPSHIP_APP_TUNNEL_URL"
     app_id: "saleor.app.dropship-orchestrator"
     app_manifest_path: "/api/manifest"
+    permissions:
+      - "MANAGE_PRODUCTS"
+      - "MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES"
+      - "MANAGE_ORDERS"
+      - "MANAGE_APPS"
+      - "MANAGE_SHIPPING"
+      - "MANAGE_CHECKOUTS"
+      - "MANAGE_CHANNELS"
     description: "Dropship Orchestrator App"
 
   tax:
@@ -185,4 +225,19 @@ services:
     tunnel_env_var: "TAX_MANAGER_APP_TUNNEL_URL"
     app_id: "saleor.app.tax-manager"
     app_manifest_path: "/api/manifest"
+    permissions:
+      - "HANDLE_TAXES"
+      - "MANAGE_APPS"
     description: "Tax Manager App"
+
+  paypal:
+    port: 3011
+    container: "saleor-paypal-app-dev"
+    compose_service: "saleor-paypal-app"
+    subdomain: "ext1"
+    tunnel_env_var: "PAYPAL_APP_TUNNEL_URL"
+    app_id: "saleor.app.payment.paypal"
+    app_manifest_path: "/api/manifest"
+    permissions:
+      - "HANDLE_PAYMENTS"
+    description: "PayPal Payment App"

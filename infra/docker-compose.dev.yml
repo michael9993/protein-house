@@ -979,6 +979,70 @@ services:
       retries: 5
       start_period: 60s
 
+  # PayPal Payment App - PayPal Commerce payments (cards + PayPal)
+  saleor-paypal-app:
+    image: node:22-alpine
+    container_name: saleor-paypal-app-dev
+    working_dir: /app
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-payment-paypal... --prefer-offline && cd apps/paypal && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    env_file:
+      - .env
+    ports:
+      - "${PAYPAL_APP_PORT:-3011}:3000"
+    volumes:
+      - ..\apps:/app
+      - paypal-app-node-modules:/app/node_modules
+      - paypal-app-pnpm-store:/root/.local/share/pnpm/store
+    environment:
+      SALEOR_API_URL: ${SALEOR_API_URL}
+      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+
+      # PayPal API keys - From .env
+      PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID}
+      PAYPAL_SECRET_KEY: ${PAYPAL_SECRET_KEY}
+
+      # App configuration — same pattern as Stripe
+      APP_ID: paypal
+      APP_NAME: PayPal
+      APP_ENV: ${NODE_ENV:-development}
+      APP_URL: ${PAYPAL_APP_URL}
+      APP_IFRAME_BASE_URL: ${PAYPAL_APP_URL}
+      APP_API_BASE_URL: ${PAYPAL_APP_API_BASE_URL}
+      NODE_ENV: ${NODE_ENV:-development}
+
+      # App Encryption Key - From .env
+      SECRET_KEY: ${APP_SECRET_KEY}
+      MANIFEST_APP_ID: saleor.app.payment.paypal
+
+      # Disable instrumentation features in development
+      OTEL_ENABLED: ${OTEL_ENABLED:-false}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+
+      # Next.js
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      # Set APPS_MODE=production in .env to run production build in container
+      APPS_MODE: ${APPS_MODE:-dev}
+    depends_on:
+      saleor-api:
+        condition: service_healthy
+    networks:
+      - saleor-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
 volumes:
   postgres-data:
     driver: local
@@ -1037,6 +1101,10 @@ volumes:
   tax-manager-app-node-modules:
     driver: local
   tax-manager-app-pnpm-store:
+    driver: local
+  paypal-app-node-modules:
+    driver: local
+  paypal-app-pnpm-store:
     driver: local
 
 networks:
