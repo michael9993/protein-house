@@ -486,10 +486,10 @@ export function ProductCard({
                   <span className={`font-medium text-neutral-400 line-through ${
                     isCompactMode ? "text-[10px] sm:text-xs" : "text-xs"
                   }`}>
-                    {formatMoney(
-                      product.pricing.priceRangeUndiscounted.start.gross.amount,
-                      product.pricing.priceRangeUndiscounted.start.gross.currency
-                    )}
+                    {formatMoneyRange({
+                      start: product.pricing.priceRangeUndiscounted.start.gross,
+                      stop: product.pricing.priceRangeUndiscounted.stop?.gross,
+                    })}
                   </span>
                 )}
               <span className="v7-price relative">

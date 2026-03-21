@@ -1,4 +1,6 @@
 
+import { compose } from "@saleor/apps-shared/compose";
+
 import { appContextContainer } from "@/lib/app-context";
 import { BaseError } from "@/lib/errors";
 import { createLogger } from "@/lib/logger";
@@ -7,6 +9,7 @@ import { createSaleorApiUrl } from "@/modules/saleor/saleor-api-url";
 import { PayPalApiClient } from "@/modules/paypal/paypal-api-client";
 import { createPayPalOrderId } from "@/modules/paypal/paypal-order-id";
 import { createPayPalMoney, parsePayPalAmount } from "@/modules/paypal/paypal-money";
+import { generatePayPalOrderUrl } from "@/modules/paypal/generate-paypal-dashboard-urls";
 import { UnhandledErrorResponse } from "@/app/api/webhooks/saleor/saleor-webhook-responses";
 
 import { withRecipientVerification } from "../with-recipient-verification";
@@ -53,10 +56,14 @@ const handler = transactionRefundRequestedWebhookDefinition.createHandler(
         return Response.json({ result: "REFUND_FAILURE", message: "Invalid PayPal order ID" });
       }
 
-      const sandboxClient = new PayPalApiClient({ clientId: config.clientId, clientSecret: config.clientSecret, environment: "SANDBOX" });
-      const sandboxValid = await sandboxClient.validateCredentials();
-      const environment = sandboxValid.isOk() ? "SANDBOX" : "LIVE";
-      const client = new PayPalApiClient({ clientId: config.clientId, clientSecret: config.clientSecret, environment });
+      const client = new PayPalApiClient({
+        clientId: config.clientId,
+        clientSecret: config.clientSecret,
+        environment: config.environment,
+      });
+
+      const isSandbox = config.environment === "SANDBOX";
+      const externalUrl = generatePayPalOrderUrl(pspReference, isSandbox);
 
       // Get order to find capture ID
       const orderResult = await client.getOrder(orderIdResult.value);
@@ -79,7 +86,7 @@ const handler = transactionRefundRequestedWebhookDefinition.createHandler(
 
       // Refund — partial if amount provided, full otherwise
       const refundAmount = event.action.amount;
-      const refundCurrency = event.action.currency ?? capture.amount.currency_code;
+      const refundCurrency = event.action.currency ?? capture.amount?.currency_code ?? "USD";
 
       const paypalRefundAmount = refundAmount
         ? createPayPalMoney(refundAmount, refundCurrency)
@@ -97,7 +104,7 @@ const handler = transactionRefundRequestedWebhookDefinition.createHandler(
       }
 
       const refund = refundResult.value;
-      const refundedAmount = parsePayPalAmount(refund.amount.value);
+      const refundedAmount = refund.amount?.value ? parsePayPalAmount(refund.amount.value) : event.action.amount;
 
       logger.info("Refund processed", {
         refundId: refund.id,
@@ -110,19 +117,29 @@ const handler = transactionRefundRequestedWebhookDefinition.createHandler(
           result: "REFUND_SUCCESS",
           pspReference: refund.id,
           amount: refundedAmount,
+          externalUrl,
           message: "Refund processed successfully",
         });
       }
 
-      // Pending refund — use async flow
+      // Pending refund — Saleor only supports REFUND_SUCCESS/REFUND_FAILURE,
+      // so record it as success (PayPal will complete asynchronously)
       return Response.json({
+        result: "REFUND_SUCCESS",
         pspReference: refund.id,
+        amount: refundedAmount,
+        externalUrl,
+        message: "Refund pending — PayPal will complete asynchronously",
       });
     } catch (error) {
       logger.error("Unhandled error", { error });
-      return new UnhandledErrorResponse(appContextContainer.getContextValue(), BaseError.normalize(error)).getResponse();
+      return Response.json({
+        result: "REFUND_FAILURE",
+        pspReference: ctx.payload?.transaction?.pspReference ?? "unknown",
+        message: error instanceof Error ? error.message : "Internal error",
+      });
     }
   }),
 );
 
-export const POST = handler;
+export const POST = compose(appContextContainer.wrapRequest)(handler);

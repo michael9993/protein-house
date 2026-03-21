@@ -147,7 +147,7 @@
     "header": {
       "banner": {
         "enabled": true,
-        "text": "Free shipping on orders over $100 | Premium pet care, delivered",
+        "text": "Free shipping on orders over {freeShippingThreshold} | Premium pet care, delivered",
         "backgroundColor": "#1B2838",
         "textColor": "#D4B978",
         "useSaleorPromotions": true,
@@ -162,7 +162,7 @@
           },
           {
             "id": "manual-1773548036215",
-            "name": "Free shipping on orders over $100 | Premium pet care, delivered",
+            "name": "Free shipping on orders over {freeShippingThreshold} | Premium pet care, delivered",
             "description": null,
             "link": null,
             "icon": null
@@ -177,7 +177,7 @@
           },
           {
             "id": "manual-1773548036215",
-            "text": "Free shipping on orders over $100 | Premium pet care, delivered",
+            "text": "Free shipping on orders over {freeShippingThreshold} | Premium pet care, delivered",
             "link": null,
             "icon": null
           }
@@ -312,7 +312,7 @@
         "trustStrip": {
           "enabled": true,
           "freeShippingText": "Pet-Safe Materials",
-          "easyReturnsText": "Free Shipping Over $100 for selected countries",
+          "easyReturnsText": "Free Shipping Over {freeShippingThreshold} for selected countries",
           "secureCheckoutText": "24/7 Support",
           "supportText": "30-Day Returns",
           "background": {
@@ -324,7 +324,7 @@
         },
         "marquee": {
           "enabled": true,
-          "text": "🐾 New arrivals weekly • Free shipping over $50 • Premium pet accessories • Vet-approved products • 30-day easy returns 🐾",
+          "text": "🐾 New arrivals weekly • Free shipping over {freeShippingThreshold} • Premium pet accessories • Vet-approved products • 30-day easy returns 🐾",
           "speedSeconds": 50,
           "textColor": "#D4B978",
           "background": {
@@ -631,7 +631,7 @@
     "seo": {
       "titleTemplate": "%s | Pawzen",
       "defaultTitle": "Pawzen — Modern Pet Accessories for Dogs & Cats",
-      "defaultDescription": "Discover thoughtfully designed pet accessories. Premium toys, beds, feeders & more for dogs and cats. Free shipping over $100.",
+      "defaultDescription": "Discover thoughtfully designed pet accessories. Premium toys, beds, feeders & more for dogs and cats. Free shipping over {freeShippingThreshold}.",
       "defaultImage": "https://pawzenpets.shop/logo/pawzen-logo.png",
       "twitterHandle": "@pawzen"
     },

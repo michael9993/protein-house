@@ -102,3 +102,32 @@ export type PayPalCaptureStatus =
   | "FAILED";
 
 export type PayPalRefundStatus = "CANCELLED" | "FAILED" | "PENDING" | "COMPLETED";
+
+/** PayPal Webhook Notification types */
+
+export interface PayPalWebhookEvent {
+  id: string;
+  event_type: string;
+  event_version: string;
+  create_time: string;
+  resource_type: string;
+  resource_version: string;
+  summary: string;
+  resource: Record<string, unknown>;
+  links: PayPalLink[];
+}
+
+export interface PayPalWebhookListResponse {
+  webhooks: PayPalWebhookInfo[];
+}
+
+export interface PayPalWebhookInfo {
+  id: string;
+  url: string;
+  event_types: Array<{ name: string }>;
+  links: PayPalLink[];
+}
+
+export interface PayPalWebhookVerifyResponse {
+  verification_status: "SUCCESS" | "FAILURE";
+}

@@ -1,4 +1,6 @@
 
+import { compose } from "@saleor/apps-shared/compose";
+
 import {
   AppIsNotConfiguredResponse,
   BrokenAppResponse,
@@ -118,4 +120,4 @@ const handler = paymentGatewayInitializeSessionWebhookDefinition.createHandler(
   }),
 );
 
-export const POST = handler;
+export const POST = compose(appContextContainer.wrapRequest)(handler);

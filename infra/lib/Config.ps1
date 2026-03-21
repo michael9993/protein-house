@@ -1,5 +1,5 @@
-# ============================================================================
-# Config.ps1 — Platform Configuration Loader
+﻿# ============================================================================
+# Config.ps1 -- Platform Configuration Loader
 # ============================================================================
 # Reads platform.yml and provides helper functions for all platform scripts.
 #
@@ -281,9 +281,9 @@ function Set-StoreConfig {
 
     $config.store = $StoreData
 
-    # ConvertTo-Yaml strips comments — prepend the header comment back
+    # ConvertTo-Yaml strips comments -- prepend the header comment back
     $yamlHeader = "# ============================================================================`n"
-    $yamlHeader += "# Aura E-Commerce Platform — Service Registry`n"
+    $yamlHeader += "# Aura E-Commerce Platform -- Service Registry`n"
     $yamlHeader += "# ============================================================================`n"
     $yamlHeader += "# Single source of truth for all services, ports, containers, and tunnels.`n"
     $yamlHeader += "# Used by platform.ps1 and all infra scripts.`n"
@@ -293,4 +293,4 @@ function Set-StoreConfig {
     [System.IO.File]::WriteAllText($ConfigPath, $newYaml, [System.Text.UTF8Encoding]::new($false))
 }
 
-# Functions are auto-exported when dot-sourced (Export-ModuleMember removed — only valid in .psm1)
+# Functions are auto-exported when dot-sourced (Export-ModuleMember removed -- only valid in .psm1)

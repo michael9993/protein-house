@@ -4,7 +4,8 @@ import { gql } from "graphql-tag";
 
 import { router } from "../trpc-server";
 import { protectedClientProcedure } from "../protected-client-procedure";
-import { QUEUE_NAMES, getRedisConnection } from "@/modules/jobs/queues";
+import { QUEUE_NAMES, getRedisConnection, stockSyncQueue } from "@/modules/jobs/queues";
+import { ensureSchedulerStarted } from "@/modules/jobs/scheduler-init";
 
 const FETCH_APP_METADATA = gql`
   query FetchDashboardMetadata {
@@ -181,5 +182,24 @@ export const dashboardRouter = router({
           .map((s) => ({ type: "warning" as const, message: `${s.name} token expiring soon` })),
       ],
     };
+  }),
+
+  triggerStockSync: protectedClientProcedure.mutation(async ({ ctx }) => {
+    // Ensure workers are running (they only start on app register or ORDER_PAID webhook)
+    await ensureSchedulerStarted();
+
+    const activeCount = await stockSyncQueue.getActiveCount();
+    const waitingCount = await stockSyncQueue.getWaitingCount();
+
+    if (activeCount > 0 || waitingCount > 0) {
+      return { success: false, message: "Stock sync is already running or queued" };
+    }
+
+    await stockSyncQueue.add("manual-stock-sync", {
+      saleorApiUrl: ctx.saleorApiUrl,
+      appToken: ctx.appToken,
+    });
+
+    return { success: true, message: "Stock sync job queued" };
   }),
 });

@@ -1,5 +1,5 @@
-# ============================================================================
-# Display.ps1 — Formatted Output Helpers
+﻿# ============================================================================
+# Display.ps1 -- Formatted Output Helpers
 # ============================================================================
 # Provides consistent, colored console output for all platform scripts.
 #
@@ -87,7 +87,7 @@ function Write-ServiceTable {
     .PARAMETER Config
     Full platform config hashtable (for domain, etc.).
     .PARAMETER Mode
-    "dev" or "selfhosted" — determines whether to show tunnel URLs.
+    "dev" or "selfhosted" -- determines whether to show tunnel URLs.
     #>
     param(
         [hashtable]$Services,
@@ -176,4 +176,4 @@ function Write-ServiceTable {
     Write-Host ""
 }
 
-# Functions are auto-exported when dot-sourced (Export-ModuleMember removed — only valid in .psm1)
+# Functions are auto-exported when dot-sourced (Export-ModuleMember removed -- only valid in .psm1)

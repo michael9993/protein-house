@@ -1,5 +1,5 @@
-# ============================================================================
-# Docker.ps1 — Docker Container Management
+﻿# ============================================================================
+# Docker.ps1 -- Docker Container Management
 # ============================================================================
 # Functions for starting, stopping, and querying Docker containers.
 #
@@ -77,7 +77,7 @@ function Start-Containers {
     & docker @dockerArgs
     if ($LASTEXITCODE -ne 0) {
         # docker compose up -d can exit 1 if a healthcheck is still pending (slow build).
-        # Warn instead of aborting — the caller can wait for health separately.
+        # Warn instead of aborting -- the caller can wait for health separately.
         Write-Host "[WARN] docker compose up exited with code $LASTEXITCODE (some containers may still be starting)." -ForegroundColor Yellow
     } else {
         Write-Host "[OK] Containers started." -ForegroundColor Green
@@ -146,4 +146,4 @@ function Get-ContainerStatus {
     }
 }
 
-# Functions are auto-exported when dot-sourced (Export-ModuleMember removed — only valid in .psm1)
+# Functions are auto-exported when dot-sourced (Export-ModuleMember removed -- only valid in .psm1)

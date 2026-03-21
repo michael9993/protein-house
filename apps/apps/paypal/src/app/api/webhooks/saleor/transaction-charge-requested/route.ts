@@ -1,4 +1,6 @@
 
+import { compose } from "@saleor/apps-shared/compose";
+
 import {
   AppIsNotConfiguredResponse,
   BrokenAppResponse,
@@ -13,6 +15,7 @@ import { createSaleorApiUrl } from "@/modules/saleor/saleor-api-url";
 import { PayPalApiClient } from "@/modules/paypal/paypal-api-client";
 import { createPayPalOrderId } from "@/modules/paypal/paypal-order-id";
 import { parsePayPalAmount } from "@/modules/paypal/paypal-money";
+import { generatePayPalOrderUrl } from "@/modules/paypal/generate-paypal-dashboard-urls";
 
 import { withRecipientVerification } from "../with-recipient-verification";
 import { transactionChargeRequestedWebhookDefinition } from "./webhook-definition";
@@ -59,12 +62,71 @@ const handler = transactionChargeRequestedWebhookDefinition.createHandler(
         return Response.json({ result: "CHARGE_FAILURE", message: "Invalid PayPal order ID" });
       }
 
-      const sandboxClient = new PayPalApiClient({ clientId: config.clientId, clientSecret: config.clientSecret, environment: "SANDBOX" });
-      const sandboxValid = await sandboxClient.validateCredentials();
-      const environment = sandboxValid.isOk() ? "SANDBOX" : "LIVE";
+      const client = new PayPalApiClient({
+        clientId: config.clientId,
+        clientSecret: config.clientSecret,
+        environment: config.environment,
+      });
 
-      const client = new PayPalApiClient({ clientId: config.clientId, clientSecret: config.clientSecret, environment });
+      const isSandbox = config.environment === "SANDBOX";
+      const externalUrl = generatePayPalOrderUrl(pspReference, isSandbox);
 
+      // Get the order to determine intent (AUTHORIZE vs CAPTURE)
+      const orderResult = await client.getOrder(orderIdResult.value);
+      if (orderResult.isErr()) {
+        return Response.json({
+          result: "CHARGE_FAILURE",
+          pspReference,
+          message: `Failed to get order: ${orderResult.error.publicMessage}`,
+          actions: ["CHARGE"],
+        });
+      }
+
+      const order = orderResult.value;
+
+      if (order.intent === "AUTHORIZE") {
+        // AUTHORIZE flow: capture the authorization (not the order)
+        const auth = order.purchase_units?.[0]?.payments?.authorizations?.[0];
+        if (!auth?.id) {
+          return Response.json({
+            result: "CHARGE_FAILURE",
+            pspReference,
+            message: "No authorization found on this order",
+            actions: ["CHARGE"],
+          });
+        }
+
+        const captureAmount = event.action.amount
+          ? { value: String(event.action.amount), currency_code: event.action.currency ?? auth.amount.currency_code }
+          : undefined;
+
+        const captureResult = await client.captureAuthorization(auth.id, captureAmount);
+        if (captureResult.isErr()) {
+          return Response.json({
+            result: "CHARGE_FAILURE",
+            pspReference,
+            message: `Capture authorization failed: ${captureResult.error.publicMessage}`,
+            actions: ["CHARGE"],
+          });
+        }
+
+        const capturedAuth = captureResult.value;
+        const capture = capturedAuth.purchase_units?.[0]?.payments?.captures?.[0];
+        const amount = capture ? parsePayPalAmount(capture.amount.value) : event.action.amount;
+
+        logger.info("Authorization captured successfully", { pspReference, authId: auth.id, amount });
+
+        return Response.json({
+          result: "CHARGE_SUCCESS",
+          pspReference,
+          amount,
+          externalUrl,
+          message: "Authorization captured successfully",
+          actions: ["REFUND"],
+        });
+      }
+
+      // CAPTURE flow: capture the order directly
       const captureResult = await client.captureOrder(orderIdResult.value);
 
       if (captureResult.isErr()) {
@@ -83,6 +145,7 @@ const handler = transactionChargeRequestedWebhookDefinition.createHandler(
         result: "CHARGE_SUCCESS",
         pspReference,
         amount,
+        externalUrl,
         message: "Payment captured successfully",
         actions: ["REFUND"],
       });
@@ -93,4 +156,4 @@ const handler = transactionChargeRequestedWebhookDefinition.createHandler(
   }),
 );
 
-export const POST = handler;
+export const POST = compose(appContextContainer.wrapRequest)(handler);

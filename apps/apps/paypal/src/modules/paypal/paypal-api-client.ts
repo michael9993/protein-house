@@ -12,6 +12,9 @@ import {
   PayPalErrorResponse,
   PayPalRefund,
   PayPalAmount,
+  PayPalWebhookInfo,
+  PayPalWebhookListResponse,
+  PayPalWebhookVerifyResponse,
 } from "./types";
 
 const logger = createLogger("PayPalApiClient");
@@ -129,18 +132,29 @@ export class PayPalApiClient {
           // ignore parse error
         }
 
+        const detailsStr = errorData?.details?.map(
+          (d) => `${d.field}: ${d.issue} (${d.description})`,
+        ).join("; ");
+
         logger.error("PayPal API error", {
           method,
           path,
           status: response.status,
-          error: errorData,
+          errorName: errorData?.name,
+          errorMessage: errorData?.message,
+          errorDetails: detailsStr,
+          debugId: errorData?.debug_id,
         });
 
+        const fullMessage = detailsStr
+          ? `${errorData?.message}: ${detailsStr}`
+          : errorData?.message ?? `PayPal API returned ${response.status}`;
+
         return err(
-          new PayPalApiError(errorData?.message ?? `PayPal API returned ${response.status}`, {
+          new PayPalApiError(fullMessage, {
             props: {
               publicCode: errorData?.name ?? "API_ERROR",
-              publicMessage: errorData?.message ?? "PayPal request failed",
+              publicMessage: fullMessage,
             },
           }),
         );
@@ -260,6 +274,88 @@ export class PayPalApiClient {
       "POST",
       `/v2/payments/authorizations/${authorizationId}/void`,
       {},
+    );
+  }
+
+  /**
+   * Capture an authorized payment.
+   * PayPal REST v2: POST /v2/payments/authorizations/{authorization_id}/capture
+   */
+  async captureAuthorization(
+    authorizationId: string,
+    amount?: PayPalAmount,
+  ): Promise<Result<PayPalOrder, PayPalApiError>> {
+    const body = amount ? { amount } : {};
+    return this.request<PayPalOrder>(
+      "POST",
+      `/v2/payments/authorizations/${authorizationId}/capture`,
+      body,
+    );
+  }
+
+  /**
+   * Get refund details by ID.
+   * PayPal REST v2: GET /v2/payments/refunds/{refund_id}
+   */
+  async getRefund(refundId: string): Promise<Result<PayPalRefund, PayPalApiError>> {
+    return this.request<PayPalRefund>("GET", `/v2/payments/refunds/${refundId}`);
+  }
+
+  /**
+   * Create a webhook subscription.
+   * PayPal REST v1: POST /v1/notifications/webhooks
+   */
+  async createWebhook(
+    url: string,
+    eventTypes: string[],
+  ): Promise<Result<PayPalWebhookInfo, PayPalApiError>> {
+    return this.request<PayPalWebhookInfo>("POST", "/v1/notifications/webhooks", {
+      url,
+      event_types: eventTypes.map((name) => ({ name })),
+    });
+  }
+
+  /**
+   * Delete a webhook subscription.
+   * PayPal REST v1: DELETE /v1/notifications/webhooks/{webhook_id}
+   */
+  async deleteWebhook(webhookId: string): Promise<Result<void, PayPalApiError>> {
+    return this.request<void>("DELETE", `/v1/notifications/webhooks/${webhookId}`);
+  }
+
+  /**
+   * List all webhook subscriptions.
+   * PayPal REST v1: GET /v1/notifications/webhooks
+   */
+  async listWebhooks(): Promise<Result<PayPalWebhookListResponse, PayPalApiError>> {
+    return this.request<PayPalWebhookListResponse>("GET", "/v1/notifications/webhooks");
+  }
+
+  /**
+   * Verify a webhook event signature via PayPal API.
+   * PayPal REST v1: POST /v1/notifications/verify-webhook-signature
+   */
+  async verifyWebhookSignature(args: {
+    webhookId: string;
+    transmissionId: string;
+    transmissionTime: string;
+    certUrl: string;
+    authAlgo: string;
+    transmissionSig: string;
+    webhookEvent: unknown;
+  }): Promise<Result<PayPalWebhookVerifyResponse, PayPalApiError>> {
+    return this.request<PayPalWebhookVerifyResponse>(
+      "POST",
+      "/v1/notifications/verify-webhook-signature",
+      {
+        webhook_id: args.webhookId,
+        transmission_id: args.transmissionId,
+        transmission_time: args.transmissionTime,
+        cert_url: args.certUrl,
+        auth_algo: args.authAlgo,
+        transmission_sig: args.transmissionSig,
+        webhook_event: args.webhookEvent,
+      },
     );
   }
 

@@ -89,9 +89,9 @@ export const Logo = () => {
 	// Always link to channel homepage
 	if (pathname === homeUrl) {
 		return (
-			<h1 className="flex items-center" aria-label="homepage">
+			<div className="flex items-center" aria-label="homepage">
 				{logoContent}
-			</h1>
+			</div>
 		);
 	}
 	

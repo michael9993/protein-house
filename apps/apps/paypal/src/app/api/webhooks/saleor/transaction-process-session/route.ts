@@ -1,4 +1,6 @@
 
+import { compose } from "@saleor/apps-shared/compose";
+
 import {
   AppIsNotConfiguredResponse,
   BrokenAppResponse,
@@ -13,6 +15,7 @@ import { createSaleorApiUrl } from "@/modules/saleor/saleor-api-url";
 import { PayPalApiClient } from "@/modules/paypal/paypal-api-client";
 import { createPayPalOrderId } from "@/modules/paypal/paypal-order-id";
 import { parsePayPalAmount } from "@/modules/paypal/paypal-money";
+import { generatePayPalOrderUrl } from "@/modules/paypal/generate-paypal-dashboard-urls";
 
 import { withRecipientVerification } from "../with-recipient-verification";
 import { transactionProcessSessionWebhookDefinition } from "./webhook-definition";
@@ -82,20 +85,14 @@ const handler = transactionProcessSessionWebhookDefinition.createHandler(
         });
       }
 
-      // Determine environment
-      const sandboxClient = new PayPalApiClient({
-        clientId: config.clientId,
-        clientSecret: config.clientSecret,
-        environment: "SANDBOX",
-      });
-      const sandboxValid = await sandboxClient.validateCredentials();
-      const environment = sandboxValid.isOk() ? "SANDBOX" : "LIVE";
-
       const client = new PayPalApiClient({
         clientId: config.clientId,
         clientSecret: config.clientSecret,
-        environment,
+        environment: config.environment,
       });
+
+      const isSandbox = config.environment === "SANDBOX";
+      const externalUrl = generatePayPalOrderUrl(pspReference, isSandbox);
 
       // First, get the order to check its status
       const getOrderResult = await client.getOrder(orderIdResult.value);
@@ -112,6 +109,10 @@ const handler = transactionProcessSessionWebhookDefinition.createHandler(
 
       const isAuthorizeIntent = order.intent === "AUTHORIZE";
 
+      // Extract payment method details for Saleor
+      const payerEmail = order.payer?.email_address;
+      const paymentMethodName = payerEmail ? `PayPal (${payerEmail})` : "PayPal";
+
       // If order is already COMPLETED, return success based on intent
       if (order.status === "COMPLETED") {
         if (isAuthorizeIntent) {
@@ -123,7 +124,8 @@ const handler = transactionProcessSessionWebhookDefinition.createHandler(
             result: "AUTHORIZATION_SUCCESS",
             pspReference,
             amount,
-            message: "Payment authorized successfully",
+            externalUrl,
+            message: paymentMethodName,
             actions: ["CHARGE", "CANCEL"],
           });
         }
@@ -136,7 +138,8 @@ const handler = transactionProcessSessionWebhookDefinition.createHandler(
           result: "CHARGE_SUCCESS",
           pspReference,
           amount,
-          message: "Payment captured successfully",
+          externalUrl,
+          message: paymentMethodName,
           actions: ["REFUND"],
         });
       }
@@ -173,7 +176,8 @@ const handler = transactionProcessSessionWebhookDefinition.createHandler(
             result: "AUTHORIZATION_SUCCESS",
             pspReference,
             amount,
-            message: "Payment authorized successfully",
+            externalUrl,
+            message: paymentMethodName,
             actions: ["CHARGE", "CANCEL"],
           });
         }
@@ -216,7 +220,8 @@ const handler = transactionProcessSessionWebhookDefinition.createHandler(
           result: "CHARGE_SUCCESS",
           pspReference,
           amount,
-          message: "Payment captured successfully",
+          externalUrl,
+          message: paymentMethodName,
           actions: ["REFUND"],
         });
       }
@@ -237,4 +242,4 @@ const handler = transactionProcessSessionWebhookDefinition.createHandler(
   }),
 );
 
-export const POST = handler;
+export const POST = compose(appContextContainer.wrapRequest)(handler);

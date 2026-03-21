@@ -1,5 +1,5 @@
-# ============================================================================
-# Tunnels.ps1 — Cloudflare Tunnel Management
+﻿# ============================================================================
+# Tunnels.ps1 -- Cloudflare Tunnel Management
 # ============================================================================
 # Handles both ephemeral (trycloudflare.com) and named tunnel modes.
 #
@@ -169,4 +169,4 @@ function Stop-AllTunnels {
     }
 }
 
-# Functions are auto-exported when dot-sourced (Export-ModuleMember removed — only valid in .psm1)
+# Functions are auto-exported when dot-sourced (Export-ModuleMember removed -- only valid in .psm1)

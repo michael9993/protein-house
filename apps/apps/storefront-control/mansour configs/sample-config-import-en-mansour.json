@@ -143,7 +143,7 @@
     "header": {
       "banner": {
         "enabled": true,
-        "text": "Free shipping on orders over $75!",
+        "text": "Free shipping on orders over {freeShippingThreshold}!",
         "backgroundColor": "#1a1a2e",
         "textColor": null,
         "useSaleorPromotions": false,
@@ -234,7 +234,7 @@
         },
         "marquee": {
           "enabled": true,
-          "text": "Free shipping on all orders over $100! • Shop the new collection now • Limited time offer",
+          "text": "Free shipping on all orders over {freeShippingThreshold}! • Shop the new collection now • Limited time offer",
           "speedSeconds": 20,
           "textColor": null,
           "background": {
@@ -355,7 +355,7 @@
         },
         "trustStrip": {
           "enabled": true,
-          "freeShippingText": "Free shipping on orders over $75",
+          "freeShippingText": "Free shipping on orders over {freeShippingThreshold}",
           "easyReturnsText": "Easy returns",
           "secureCheckoutText": "Secure checkout",
           "supportText": "24/7 support",
@@ -564,7 +564,7 @@
     "seo": {
       "titleTemplate": "%s | Mansour Shoes",
       "defaultTitle": "Mansour Shoes - Shoes for the Whole Family",
-      "defaultDescription": "Leading shoe store. Free shipping on orders over $75. Sports shoes, running shoes, and shoes for the whole family.",
+      "defaultDescription": "Leading shoe store. Free shipping on orders over {freeShippingThreshold}. Sports shoes, running shoes, and shoes for the whole family.",
       "defaultImage": "/og-image.jpg",
       "twitterHandle": null
     },

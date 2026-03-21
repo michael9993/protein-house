@@ -8,7 +8,7 @@ import {
   useComponentClasses,
 } from "@/providers/StoreConfigProvider";
 import { buildComponentStyle } from "@/config";
-import { hasAnyConsent, saveConsent } from "@/lib/consent";
+import { hasAnyConsent, getConsentState, saveConsent } from "@/lib/consent";
 
 type View = "banner" | "preferences";
 
@@ -46,8 +46,14 @@ export function CookieConsent({ channel }: { channel: string }) {
   }, [config.enabled, channel]);
 
   // Allow re-opening cookie preferences from other parts of the app (e.g. account settings)
+  // Pre-populate checkboxes with current consent state so users see what they previously selected
   useEffect(() => {
     function handleOpenSettings() {
+      const current = getConsentState(channel);
+      if (current?.categories) {
+        setAnalyticsChecked(current.categories.analytics ?? false);
+        setMarketingChecked(current.categories.marketing ?? false);
+      }
       setVisible(true);
       setView("preferences");
     }
@@ -55,7 +61,7 @@ export function CookieConsent({ channel }: { channel: string }) {
     return () => {
       window.removeEventListener("open-cookie-settings", handleOpenSettings);
     };
-  }, []);
+  }, [channel]);
 
   const handleAcceptAll = useCallback(() => {
     const categories = { analytics: true, marketing: true };
@@ -102,7 +108,14 @@ export function CookieConsent({ channel }: { channel: string }) {
             channel={channel}
             onAcceptAll={handleAcceptAll}
             onRejectAll={handleRejectAll}
-            onManage={() => setView("preferences")}
+            onManage={() => {
+              const current = getConsentState(channel);
+              if (current?.categories) {
+                setAnalyticsChecked(current.categories.analytics ?? false);
+                setMarketingChecked(current.categories.marketing ?? false);
+              }
+              setView("preferences");
+            }}
           />
         ) : (
           <PreferencesView

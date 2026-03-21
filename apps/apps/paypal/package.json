@@ -37,6 +37,7 @@
     "modern-errors-serialize": "catalog:",
     "neverthrow": "catalog:",
     "next": "catalog:",
+    "postgres": "^3.4.4",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-hook-form": "catalog:",

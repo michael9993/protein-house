@@ -4,6 +4,7 @@ import { Truck, RotateCcw, ShieldCheck, Headphones } from "lucide-react";
 import { useBranding, useEcommerceSettings, useTrustStripConfig, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { buildComponentStyle } from "@/config";
 import { formatMoney } from "@/lib/utils";
+import { interpolateConfigText, buildConfigVars } from "@/lib/interpolate-config";
 
 /**
  * TrustStrip - Display trust indicators (shipping, returns, security, support)
@@ -24,13 +25,15 @@ export function TrustStrip() {
 
   const threshold = ecommerce.shipping?.freeShippingThreshold;
   const currency = ecommerce.currency?.default ?? "USD";
+  const configVars = buildConfigVars(ecommerce);
 
-  // Generate shipping text: config override > dynamic threshold > generic fallback
+  // Generate shipping text: config override (with interpolation) > dynamic threshold > generic fallback
   const defaultShippingText = threshold
     ? `Free shipping over ${formatMoney(threshold, currency)}`
     : "Free shipping available";
 
-  const freeShippingText = config?.freeShippingText ?? defaultShippingText;
+  const rawText = config?.freeShippingText ?? defaultShippingText;
+  const freeShippingText = interpolateConfigText(rawText, configVars);
   const easyReturnsText = config?.easyReturnsText ?? "Easy returns";
   const secureCheckoutText = config?.secureCheckoutText ?? "Secure checkout";
   const supportText = config?.supportText ?? "24/7 support";

@@ -1,5 +1,5 @@
-# ============================================================================
-# Health.ps1 — Service Health Checking
+﻿# ============================================================================
+# Health.ps1 -- Service Health Checking
 # ============================================================================
 # Functions to wait for containers to become healthy and test URL reachability.
 #
@@ -39,7 +39,7 @@ function Wait-ForHealthy {
                         Write-Host "  [WARN] $ContainerName reported unhealthy." -ForegroundColor Yellow
                         return $false
                     }
-                    # still starting — fall through to wait
+                    # still starting -- fall through to wait
                 } else {
                     Write-Host "  [OK] $ContainerName is running." -ForegroundColor Green
                     return $true
@@ -128,4 +128,4 @@ function Get-AllServiceHealth {
     return $results
 }
 
-# Functions are auto-exported when dot-sourced (Export-ModuleMember removed — only valid in .psm1)
+# Functions are auto-exported when dot-sourced (Export-ModuleMember removed -- only valid in .psm1)

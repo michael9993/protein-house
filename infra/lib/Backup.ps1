@@ -1,5 +1,5 @@
-# ============================================================================
-# Backup.ps1 — Database Backup and Restore
+﻿# ============================================================================
+# Backup.ps1 -- Database Backup and Restore
 # ============================================================================
 # pg_dump-based backup/restore via the postgres container.
 # Supports optional gzip compression and automatic rotation.
@@ -107,7 +107,7 @@ function Restore-Database {
     <#
     .SYNOPSIS
     Restores the Saleor database from a .sql or .sql.gz backup file.
-    DROPS the existing database and recreates it — use with care.
+    DROPS the existing database and recreates it -- use with care.
     #>
     param(
         [string]$BackupFile
@@ -215,4 +215,4 @@ function Get-BackupHistory {
     return $backups
 }
 
-# Functions are auto-exported when dot-sourced (Export-ModuleMember removed — only valid in .psm1)
+# Functions are auto-exported when dot-sourced (Export-ModuleMember removed -- only valid in .psm1)

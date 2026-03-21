@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback, type Dispatch, type SetStateAction } from "react";
 import Link from "next/link";
-import { useBranding, useHeaderConfig, useStoreConfig, useNavbarText, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
+import { useBranding, useHeaderConfig, useStoreConfig, useEcommerceSettings, useNavbarText, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { buildComponentStyle } from "@/config";
+import { interpolateConfigText, buildConfigVars } from "@/lib/interpolate-config";
 
 const DEFAULT_INTERVAL_SECONDS = 6;
 const DISMISS_STORAGE_PREFIX = "banner-dismissed-";
@@ -26,7 +27,9 @@ export function HeaderBanner({ channel }: { channel?: string }) {
 	const branding = useBranding();
 	const headerConfig = useHeaderConfig();
 	const config = useStoreConfig();
+	const ecommerce = useEcommerceSettings();
 	const navbarText = useNavbarText();
+	const configVars = buildConfigVars(ecommerce);
 	const cdStyle = useComponentStyle("layout.headerBanner");
 	const cdClasses = useComponentClasses("layout.headerBanner");
 
@@ -103,6 +106,7 @@ export function HeaderBanner({ channel }: { channel?: string }) {
 				dismissAriaLabel={navbarText.bannerDismissAriaLabel || "Dismiss banner"}
 				prevAriaLabel={navbarText.bannerPrevAriaLabel || "Previous banner"}
 				nextAriaLabel={navbarText.bannerNextAriaLabel || "Next banner"}
+				configVars={configVars}
 			/>
 		);
 	}
@@ -115,7 +119,7 @@ export function HeaderBanner({ channel }: { channel?: string }) {
 				style={backgroundStyle}
 			>
 				<div className="mx-auto flex max-w-7xl min-h-[calc(2rem-1.5px)] items-center justify-center gap-2 px-4">
-					<span>{singleText}</span>
+					<span>{interpolateConfigText(singleText, configVars)}</span>
 				</div>
 				{dismissible && (
 					<button
@@ -150,6 +154,7 @@ interface HeaderBannerCarouselProps {
 	dismissAriaLabel: string;
 	prevAriaLabel: string;
 	nextAriaLabel: string;
+	configVars: Record<string, string>;
 }
 
 function HeaderBannerCarousel({
@@ -165,6 +170,7 @@ function HeaderBannerCarousel({
 	dismissAriaLabel,
 	prevAriaLabel,
 	nextAriaLabel,
+	configVars,
 }: HeaderBannerCarouselProps) {
 	const cdStyle = useComponentStyle("layout.headerBanner");
 	const cdClasses = useComponentClasses("layout.headerBanner");
@@ -185,10 +191,11 @@ function HeaderBannerCarousel({
 	if (!current) return null;
 
 	// Promotions: displayText = description. Vouchers: displayText = name. Manual: name only.
-	const mainText =
+	const rawText =
 		current.displayText?.trim() ||
 		(current.description && current.description.trim()) ||
 		current.name;
+	const mainText = interpolateConfigText(rawText, configVars);
 
 	const content = (
 		<>

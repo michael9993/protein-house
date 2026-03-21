@@ -1,5 +1,5 @@
-# ============================================================================
-# Apps.ps1 — Saleor App Installation via GraphQL
+﻿# ============================================================================
+# Apps.ps1 -- Saleor App Installation via GraphQL
 # ============================================================================
 # Authenticates against the Saleor API and installs/reinstalls Saleor apps.
 #
@@ -208,10 +208,13 @@ function Remove-DuplicateApps {
     <#
     .SYNOPSIS
     Removes duplicate app installations, keeping only the latest (highest DB id) per identifier.
+    When Config is provided (parsed platform.yml), also removes stale apps that match known
+    service names but have different identifiers (catches old installs with active webhooks).
     #>
     param(
         [string]$GraphQLUrl,
-        [string]$Token
+        [string]$Token,
+        $Config = $null
     )
 
     $rawApps = Get-ExistingApps -GraphQLUrl $GraphQLUrl -Token $Token
@@ -245,18 +248,50 @@ function Remove-DuplicateApps {
         $keep = $sorted[0]
         $toDelete = @($sorted | Select-Object -Skip 1)
 
-        Write-Host "  $key — keeping '$($keep.name)' (id: $($keep.id)), removing $($toDelete.Count) duplicate(s)" -ForegroundColor Cyan
+        Write-Host "  $key -- keeping '$($keep.name)' (id: $($keep.id)), removing $($toDelete.Count) duplicate(s)" -ForegroundColor Cyan
         foreach ($app in $toDelete) {
             Remove-SaleorApp -GraphQLUrl $GraphQLUrl -Token $Token -AppId $app.id
             $totalRemoved++
         }
     }
 
+    # Second pass: if Config provided, find stale apps matching known service names
+    # but with different identifiers (e.g., old installs whose webhooks are still active)
+    if ($null -ne $Config) {
+        Write-Host ""
+        Write-Host "Checking for stale apps by service name..." -ForegroundColor Yellow
+        foreach ($svcKey in $Config.services.Keys) {
+            $svc = $Config.services[$svcKey]
+            if (-not $svc.app_id) { continue }
+
+            # Find ALL apps matching either identifier or name for this service
+            $svcAppId = $svc.app_id
+            $svcDesc = $svc.description
+            $matches = @($apps | Where-Object { $_.identifier -eq $svcAppId -or $_.name -ieq $svcDesc })
+            if ($matches.Count -le 1) { continue }
+
+            # Sort by decoded DB ID descending, keep only the latest
+            $sorted = $matches | Sort-Object {
+                $decoded = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($_.id))
+                [int]($decoded -split ':')[-1]
+            } -Descending
+            $keep = $sorted[0]
+            $stale = @($sorted | Select-Object -Skip 1)
+
+            Write-Host "  $svcDesc - keeping (id: $($keep.id)), removing $($stale.Count) stale install(s)" -ForegroundColor Cyan
+            foreach ($app in $stale) {
+                Write-Host "    Removing stale '$($app.name)' (id: $($app.id), identifier: $($app.identifier))" -ForegroundColor Gray
+                Remove-SaleorApp -GraphQLUrl $GraphQLUrl -Token $Token -AppId $app.id
+                $totalRemoved++
+            }
+        }
+    }
+
     Write-Host ""
     if ($totalRemoved -gt 0) {
-        Write-Host "[OK] Removed $totalRemoved duplicate app(s)." -ForegroundColor Green
+        Write-Host "[OK] Removed $totalRemoved duplicate/stale app(s)." -ForegroundColor Green
     } else {
-        Write-Host "[OK] No duplicates found." -ForegroundColor Green
+        Write-Host "[OK] No duplicates or stale apps found." -ForegroundColor Green
     }
 }
 
@@ -315,7 +350,7 @@ function Install-AllApps {
         $svc = $appServices[$key]
         $current++
 
-        # Include filter — if set, only matching apps are installed
+        # Include filter -- if set, only matching apps are installed
         if ($Include.Count -gt 0) {
             $match = $false
             foreach ($inc in $Include) {
@@ -345,14 +380,11 @@ function Install-AllApps {
 
         Write-Host "[$current/$total] $($svc.description)" -ForegroundColor Cyan
 
-        # Build manifest URL — prefer tunnel URL, fall back to localhost
+        # Build manifest URL -- Saleor API (inside Docker) fetches the manifest
+        # Use host.docker.internal (resolves to host machine from Docker containers)
+        # Tunnel URLs fail when ISP does SSL inspection (e.g., Bezeq)
         $baseUrl = $null
-        if ($svc.tunnel_env_var -and $envValues.ContainsKey($svc.tunnel_env_var)) {
-            $baseUrl = $envValues[$svc.tunnel_env_var]
-        }
-        if (-not $baseUrl -and $svc.port) {
-            # host.docker.internal resolves to the host from inside Docker containers
-            # The Saleor worker (inside Docker) fetches the manifest, so localhost won't work
+        if ($svc.port) {
             $baseUrl = "http://host.docker.internal:$($svc.port)"
         }
         if (-not $baseUrl) {
@@ -362,11 +394,15 @@ function Install-AllApps {
 
         $manifestUrl = "$baseUrl$($svc.app_manifest_path)"
 
-        # Delete existing if found
+        # Delete existing if found -- match by identifier OR name (catches stale installs
+        # with different identifiers whose webhooks are still active)
         if (-not $SkipDelete) {
-            $existing = $existingApps | Where-Object { $_.identifier -eq $svc.app_id }
+            $existing = $existingApps | Where-Object {
+                $_.identifier -eq $svc.app_id -or
+                $_.name -ieq $svc.description
+            }
             foreach ($app in $existing) {
-                Write-Host "  Removing existing installation (id: $($app.id))..." -ForegroundColor Gray
+                Write-Host "  Removing existing installation '$($app.name)' (id: $($app.id), identifier: $($app.identifier))..." -ForegroundColor Gray
                 Remove-SaleorApp -GraphQLUrl $apiUrl -Token $token -AppId $app.id
             }
         }
@@ -388,4 +424,4 @@ function Install-AllApps {
     Write-Host "Note: Some apps install asynchronously. Check the Dashboard > Apps section to verify." -ForegroundColor Gray
 }
 
-# Functions are auto-exported when dot-sourced (Export-ModuleMember removed — only valid in .psm1)
+# Functions are auto-exported when dot-sourced (Export-ModuleMember removed -- only valid in .psm1)

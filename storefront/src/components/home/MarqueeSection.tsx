@@ -1,18 +1,22 @@
 "use client";
 
 import React from "react";
-import { useHomepageConfig, useStoreConfig } from "@/providers/StoreConfigProvider";
+import { useHomepageConfig, useStoreConfig, useEcommerceSettings } from "@/providers/StoreConfigProvider";
+import { interpolateConfigText, buildConfigVars } from "@/lib/interpolate-config";
 import { generateSectionBackground, type SectionBackgroundConfig } from "@/lib/section-backgrounds";
 
 export const MarqueeSection = () => {
   const { sections } = useHomepageConfig();
   const { branding } = useStoreConfig();
+  const ecommerce = useEcommerceSettings();
+  const configVars = buildConfigVars(ecommerce);
   const config = sections.marquee;
 
   if (!config?.enabled) return null;
 
-  // Default values
-  const text = config.text || "Free Shipping | Easy Returns";
+  // Default values — interpolate {freeShippingThreshold} placeholder
+  const rawText = config.text || "Free Shipping | Easy Returns";
+  const text = interpolateConfigText(rawText, configVars);
   const speed = config.speedSeconds || 20;
   const textColor = config.textColor || "inherit";
   

@@ -4,7 +4,7 @@
 
 **Monorepo Architecture**: Turborepo-managed monorepo with PNPM workspaces.
 
-- `/apps/` — Individual Saleor applications (10 custom apps)
+- `/apps/` — Individual Saleor applications (11 custom apps)
 - `/packages/` — Shared libraries (`@saleor/apps-storefront-config`, apps-logger, apps-ui, apps-errors, etc.)
 - Uses `workspace:*` dependencies
 
@@ -22,6 +22,7 @@
 | image-studio | `apps/image-studio/` | 3008 | Next.js, tRPC, Fabric.js v6, Sharp |
 | dropship-orchestrator | `apps/dropship-orchestrator/` | 3009 | Next.js, tRPC, BullMQ, ioredis |
 | tax-manager | `apps/tax-manager/` | 3010 | Next.js, tRPC |
+| paypal | `apps/paypal/` | 3011 | Next.js, tRPC, PayPal REST v2 |
 
 ## Essential Commands
 

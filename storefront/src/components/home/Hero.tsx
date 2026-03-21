@@ -112,7 +112,7 @@ export function Hero({ channel, newArrivals, bestSellers, heroBanner }: HeroProp
   const defaultSubtitle = homepageContent.heroDefaultSubtitle || "Performance footwear and sportswear curated from the world's most trusted labels.";
 
   // Priority: heroBanner > content config > store name fallback
-  const title = heroBanner?.title || `${storeName} ${defaultTitle}`;
+  const title = heroBanner?.title || defaultTitle;
   const subtitle = heroBanner?.subtitle || defaultSubtitle;
   const ctaText = heroBanner?.ctaText || homepageContent.heroCtaText || "Shop new arrivals";
   const ctaLink = heroBanner?.ctaLink || "/products";

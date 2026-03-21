@@ -143,7 +143,7 @@
       "header": {
         "banner": {
           "enabled": true,
-          "text": "משלוח חינם מעל ⪡200 | אביזרים איכותיים למחמד שלך",
+          "text": "משלוח חינם מעל {freeShippingThreshold} | אביזרים איכותיים למחמד שלך",
           "backgroundColor": "#1B2838",
           "textColor": "#D4B978",
           "useSaleorPromotions": true,
@@ -253,7 +253,7 @@
           "trustStrip": {
             "enabled": true,
             "freeShippingText": "חומרים בטוחים לחיות מחמד",
-            "easyReturnsText": "משלוח חינם מעל ⪡200",
+            "easyReturnsText": "משלוח חינם מעל {freeShippingThreshold}",
             "secureCheckoutText": "תמיכה 24/7",
             "supportText": "החזרות תוך 30 יום",
             "background": {
@@ -265,7 +265,7 @@
           },
           "marquee": {
             "enabled": true,
-            "text": "🐾 מוצרים חדשים כל שבוע • משלוח חינם מעל ⪡200 • אביזרים איכותיים למחמד • מאושרי וטרינר • החזרות תוך 30 יום 🐾",
+            "text": "🐾 מוצרים חדשים כל שבוע • משלוח חינם מעל {freeShippingThreshold} • אביזרים איכותיים למחמד • מאושרי וטרינר • החזרות תוך 30 יום 🐾",
             "speedSeconds": 45,
             "textColor": "#fff",
             "background": {
@@ -535,8 +535,8 @@
         "analytics": {
           "googleAnalyticsId": null,
           "googleTagManagerId": "GTM-PWN35T2R",
-          "facebookPixelId": null,
-          "tiktokPixelId": null,
+          "facebookPixelId": "875010108901112",
+          "tiktokPixelId": "D6RVQBRC77UFCQ8RON8G",
           "hotjarId": null
         },
         "marketing": {
@@ -567,7 +567,7 @@
       "seo": {
         "titleTemplate": "%s | Pawzen",
         "defaultTitle": "Pawzen — אביזרים מודרניים לכלבים וחתולים",
-        "defaultDescription": "גלו אביזרים מעוצבים לחיות מחמד. צעצועים, מיטות, מזינים ועוד לכלבים וחתולים. משלוח חינם מעל ⪡200.",
+        "defaultDescription": "גלו אביזרים מעוצבים לחיות מחמד. צעצועים, מיטות, מזינים ועוד לכלבים וחתולים. משלוח חינם מעל {freeShippingThreshold}.",
         "defaultImage": "/og-image.jpg",
         "twitterHandle": "@pawzen"
       },
@@ -1142,8 +1142,8 @@
           "brandsStatLabel": "מותגים",
           "stylesStatLabel": "סגנונות",
           "ratingStatLabel": "דירוג",
-          "heroDefaultTitle": "ברוכים הבאים ל-Pawzen",
-          "heroDefaultSubtitle": "אביזרים מודרניים ומעוצבים לכלבים וחתולים",
+          "heroDefaultTitle": "אביזרים מובחרים לחיות מחמד",
+          "heroDefaultSubtitle": "צעצועים, מיטות, טיפוח וציוד חוץ לכלבים וחתולים. משלוח חינם בהזמנות מעל ₪200.",
           "watchVideoButton": "צפה בסרטון",
           "shopNowButton": "קנה עכשיו",
           "exploreText": "גלה",
@@ -1994,7 +1994,7 @@
                 },
                 {
                   "question": "Do you offer free shipping?",
-                  "answer": "Yes! We offer free standard shipping on all orders over $75."
+                  "answer": "Yes! We offer free standard shipping on all orders over {freeShippingThreshold}."
                 },
                 {
                   "question": "Can I track my order?",
@@ -2638,7 +2638,7 @@
       "header": {
         "banner": {
           "enabled": true,
-          "text": "Free shipping on orders over $50!",
+          "text": "Free shipping on orders over {freeShippingThreshold}!",
           "backgroundColor": null,
           "textColor": null
         },
@@ -2828,9 +2828,9 @@
       "integrations": {
         "analytics": {
           "googleAnalyticsId": null,
-          "googleTagManagerId": null,
-          "facebookPixelId": null,
-          "tiktokPixelId": null,
+          "googleTagManagerId": "GTM-PWN35T2R",
+          "facebookPixelId": "875010108901112",
+          "tiktokPixelId": "D6RVQBRC77UFCQ8RON8G",
           "hotjarId": null
         },
         "marketing": {
@@ -2854,7 +2854,7 @@
       "seo": {
         "titleTemplate": "%s | Pawzen",
         "defaultTitle": "Pawzen - Modern Pet Accessories for Dogs & Cats",
-        "defaultDescription": "Modern, curated pet accessories for dogs and cats. Free shipping on orders over $50. Thoughtfully designed products for your furry family.",
+        "defaultDescription": "Modern, curated pet accessories for dogs and cats. Free shipping on orders over {freeShippingThreshold}. Thoughtfully designed products for your furry family.",
         "defaultImage": "/og-image.jpg",
         "twitterHandle": null
       },
@@ -3605,7 +3605,7 @@
           "hoursAgo": "{count} hours ago",
           "daysAgo": "{count} days ago",
           "freeStandardShippingTitle": "Free Standard Shipping",
-          "freeStandardShippingDescription": "For orders over $75. Delivery within 5-7 business days.",
+          "freeStandardShippingDescription": "For orders over {freeShippingThreshold}. Delivery within 5-7 business days.",
           "expressShippingTitle": "Express Shipping",
           "expressShippingDescription": "{price}. Delivery within 2-3 business days.",
           "loadingReviews": "Loading reviews...",
@@ -4100,7 +4100,7 @@
       "header": {
         "banner": {
           "enabled": true,
-          "text": "Free shipping on orders over $100 | Premium pet care, delivered",
+          "text": "Free shipping on orders over {freeShippingThreshold} | Premium pet care, delivered",
           "backgroundColor": "#1B2838",
           "textColor": "#D4B978",
           "useSaleorPromotions": true,
@@ -4115,7 +4115,7 @@
             },
             {
               "id": "manual-1773548036215",
-              "name": "Free shipping on orders over $100 | Premium pet care, delivered",
+              "name": "Free shipping on orders over {freeShippingThreshold} | Premium pet care, delivered",
               "description": null,
               "link": null,
               "icon": null
@@ -4130,7 +4130,7 @@
             },
             {
               "id": "manual-1773548036215",
-              "text": "Free shipping on orders over $100 | Premium pet care, delivered",
+              "text": "Free shipping on orders over {freeShippingThreshold} | Premium pet care, delivered",
               "link": null,
               "icon": null
             }
@@ -4203,8 +4203,8 @@
         "returnPolicyFooter": "",
         "shippingPolicyPageTitle": "Shipping Policy",
         "shippingPolicyHeader": "Shipping Policy",
-        "shippingPolicyContent": "## Shipping Policy — Pawzen\n\n1. Select your preferred shipping method at checkout. Shipping costs will be added to the product price.\n\n2. Packages are dispatched within 2 business days of placing your order.\n\n3. Standard Shipping: $9.99 (7-15 business days).\n\n4. Express Shipping: $24.99 (3-7 business days).\n\n5. Free Shipping on orders over $100 (10-21 business days).\n\n6. A tracking number and SMS/email notification will be sent once your order ships.\n\n7. Pawzen is not responsible for delays caused by the shipping carrier or customs.\n\nFor shipping inquiries, contact us at support@pawzenpets.shop",
-        "shippingPolicyDefaultContent": "We offer free standard shipping on orders over $50. Express shipping available at checkout.",
+        "shippingPolicyContent": "## Shipping Policy — Pawzen\n\n1. Select your preferred shipping method at checkout. Shipping costs will be added to the product price.\n\n2. Packages are dispatched within 2 business days of placing your order.\n\n3. Standard Shipping: $9.99 (7-15 business days).\n\n4. Express Shipping: $24.99 (3-7 business days).\n\n5. Free Shipping on orders over {freeShippingThreshold} (10-21 business days).\n\n6. A tracking number and SMS/email notification will be sent once your order ships.\n\n7. Pawzen is not responsible for delays caused by the shipping carrier or customs.\n\nFor shipping inquiries, contact us at support@pawzenpets.shop",
+        "shippingPolicyDefaultContent": "We offer free standard shipping on orders over {freeShippingThreshold}. Express shipping available at checkout.",
         "shippingPolicyFooter": "",
         "privacyPolicyPageTitle": "Privacy Policy",
         "privacyPolicyHeader": "Privacy Policy",
@@ -4265,7 +4265,7 @@
           "trustStrip": {
             "enabled": true,
             "freeShippingText": "Pet-Safe Materials",
-            "easyReturnsText": "Free Shipping Over $100 for selected countries",
+            "easyReturnsText": "Free Shipping Over {freeShippingThreshold} for selected countries",
             "secureCheckoutText": "24/7 Support",
             "supportText": "30-Day Returns",
             "background": {
@@ -4277,7 +4277,7 @@
           },
           "marquee": {
             "enabled": true,
-            "text": "🐾 New arrivals weekly • Free shipping over $50 • Premium pet accessories • Vet-approved products • 30-day easy returns 🐾",
+            "text": "🐾 New arrivals weekly • Free shipping over {freeShippingThreshold} • Premium pet accessories • Vet-approved products • 30-day easy returns 🐾",
             "speedSeconds": 50,
             "textColor": "#D4B978",
             "background": {
@@ -4584,7 +4584,7 @@
       "seo": {
         "titleTemplate": "%s | Pawzen",
         "defaultTitle": "Pawzen — Modern Pet Accessories for Dogs & Cats",
-        "defaultDescription": "Discover thoughtfully designed pet accessories. Premium toys, beds, feeders & more for dogs and cats. Free shipping over $100.",
+        "defaultDescription": "Discover thoughtfully designed pet accessories. Premium toys, beds, feeders & more for dogs and cats. Free shipping over {freeShippingThreshold}.",
         "defaultImage": "https://pawzenpets.shop/logo/pawzen-logo.png",
         "twitterHandle": "@pawzen"
       },
@@ -5200,8 +5200,8 @@
           "brandsStatLabel": "Brands",
           "stylesStatLabel": "Styles",
           "ratingStatLabel": "Rating",
-          "heroDefaultTitle": "Welcome to Pawzen",
-          "heroDefaultSubtitle": "Modern, curated accessories for dogs & cats. Designed with love, delivered with care.",
+          "heroDefaultTitle": "Premium Pet Accessories",
+          "heroDefaultSubtitle": "Curated toys, beds, grooming & outdoor gear for dogs and cats. Free shipping on orders over {freeShippingThreshold}.",
           "watchVideoButton": "Watch Video",
           "shopNowButton": "Shop Now",
           "exploreText": "Explore",
@@ -5593,7 +5593,7 @@
           "hoursAgo": "{count} hours ago",
           "daysAgo": "{count} days ago",
           "freeStandardShippingTitle": "Free Standard Shipping",
-          "freeStandardShippingDescription": "For orders over $75. Delivery within 5-7 business days.",
+          "freeStandardShippingDescription": "For orders over {freeShippingThreshold}. Delivery within 5-7 business days.",
           "expressShippingTitle": "Express Shipping",
           "expressShippingDescription": "{price}. Delivery within 2-3 business days.",
           "deliveryEstimateLabel": "Ships in {days} business days",
@@ -6053,7 +6053,7 @@
                 },
                 {
                   "question": "Do you offer free shipping?",
-                  "answer": "Yes! We offer free standard shipping on all orders over $50."
+                  "answer": "Yes! We offer free standard shipping on all orders over {freeShippingThreshold}."
                 },
                 {
                   "question": "Can I track my order?",
@@ -6737,7 +6737,7 @@
       "header": {
         "banner": {
           "enabled": true,
-          "text": "Free shipping on orders over $50!",
+          "text": "Free shipping on orders over {freeShippingThreshold}!",
           "backgroundColor": "",
           "textColor": null,
           "useSaleorPromotions": true,
@@ -6861,7 +6861,7 @@
           "trustStrip": {
             "enabled": true,
             "freeShippingText": "Pet-safe materials",
-            "easyReturnsText": "Free shipping over $50",
+            "easyReturnsText": "Free shipping over {freeShippingThreshold}",
             "secureCheckoutText": "24/7 support",
             "supportText": "30-day returns",
             "background": {
@@ -6872,7 +6872,7 @@
           },
           "marquee": {
             "enabled": true,
-            "text": "Free shipping over $50! • New pet accessories just arrived • Pet-safe & premium quality",
+            "text": "Free shipping over {freeShippingThreshold}! • New pet accessories just arrived • Pet-safe & premium quality",
             "speedSeconds": 20,
             "textColor": null,
             "background": {
@@ -7159,8 +7159,8 @@
         "analytics": {
           "googleAnalyticsId": null,
           "googleTagManagerId": "GTM-PWN35T2R",
-          "facebookPixelId": null,
-          "tiktokPixelId": null,
+          "facebookPixelId": "875010108901112",
+          "tiktokPixelId": "D6RVQBRC77UFCQ8RON8G",
           "hotjarId": null
         },
         "marketing": {
@@ -7191,7 +7191,7 @@
       "seo": {
         "titleTemplate": "%s | Pawzen",
         "defaultTitle": "Pawzen - Modern Pet Accessories for Dogs & Cats",
-        "defaultDescription": "Modern, curated pet accessories for dogs and cats. Free shipping on orders over $50. Thoughtfully designed products for your furry family.",
+        "defaultDescription": "Modern, curated pet accessories for dogs and cats. Free shipping on orders over {freeShippingThreshold}. Thoughtfully designed products for your furry family.",
         "defaultImage": "/og-image.jpg",
         "twitterHandle": null
       },
@@ -8046,7 +8046,7 @@
           "hoursAgo": "{count} hours ago",
           "daysAgo": "{count} days ago",
           "freeStandardShippingTitle": "Free Standard Shipping",
-          "freeStandardShippingDescription": "For orders over $75. Delivery within 5-7 business days.",
+          "freeStandardShippingDescription": "For orders over {freeShippingThreshold}. Delivery within 5-7 business days.",
           "expressShippingTitle": "Express Shipping",
           "expressShippingDescription": "{price}. Delivery within 2-3 business days.",
           "loadingReviews": "Loading reviews...",

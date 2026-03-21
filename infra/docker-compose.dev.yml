@@ -1005,14 +1005,20 @@ services:
       APP_ID: paypal
       APP_NAME: PayPal
       APP_ENV: ${NODE_ENV:-development}
-      APP_URL: ${PAYPAL_APP_URL}
-      APP_IFRAME_BASE_URL: ${PAYPAL_APP_URL}
-      APP_API_BASE_URL: ${PAYPAL_APP_API_BASE_URL}
+      # Tunnel URL for iframe (browser) + Docker internal for webhooks (Saleor API)
+      APP_URL: ${PAYPAL_APP_TUNNEL_URL:-http://host.docker.internal:${PAYPAL_APP_PORT:-3011}}
+      APP_IFRAME_BASE_URL: ${PAYPAL_APP_TUNNEL_URL:-http://host.docker.internal:${PAYPAL_APP_PORT:-3011}}
+      APP_API_BASE_URL: http://saleor-paypal-app:3000
+      # Public HTTPS URL for PayPal webhook registration (PayPal → tunnel → app)
+      PAYPAL_WEBHOOK_BASE_URL: ${PAYPAL_APP_TUNNEL_URL:-}
       NODE_ENV: ${NODE_ENV:-development}
 
       # App Encryption Key - From .env
       SECRET_KEY: ${APP_SECRET_KEY}
       MANIFEST_APP_ID: saleor.app.payment.paypal
+
+      # PostgresAPL — uses same DB as Saleor (auth_data table is app-specific)
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-saleor}
 
       # Disable instrumentation features in development
       OTEL_ENABLED: ${OTEL_ENABLED:-false}
@@ -1025,6 +1031,8 @@ services:
       APPS_MODE: ${APPS_MODE:-dev}
     depends_on:
       saleor-api:
+        condition: service_healthy
+      postgres:
         condition: service_healthy
     networks:
       - saleor-network

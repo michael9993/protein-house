@@ -147,7 +147,7 @@
     "header": {
       "banner": {
         "enabled": true,
-        "text": "משלוח חינם מעל ⪡200 | אביזרים איכותיים למחמד שלך",
+        "text": "משלוח חינם מעל {freeShippingThreshold} | אביזרים איכותיים למחמד שלך",
         "backgroundColor": "#1B2838",
         "textColor": "#D4B978",
         "useSaleorPromotions": true,
@@ -284,7 +284,7 @@
         "trustStrip": {
           "enabled": true,
           "freeShippingText": "חומרים בטוחים לחיות מחמד",
-          "easyReturnsText": "משלוח חינם מעל ⪡200",
+          "easyReturnsText": "משלוח חינם מעל {freeShippingThreshold}",
           "secureCheckoutText": "תמיכה 24/7",
           "supportText": "החזרות תוך 30 יום",
           "background": {
@@ -296,7 +296,7 @@
         },
         "marquee": {
           "enabled": true,
-          "text": "🐾 מוצרים חדשים כל שבוע • משלוח חינם מעל ⪡200 • אביזרים איכותיים למחמד • מאושרי וטרינר • החזרות תוך 30 יום 🐾",
+          "text": "🐾 מוצרים חדשים כל שבוע • משלוח חינם מעל {freeShippingThreshold} • אביזרים איכותיים למחמד • מאושרי וטרינר • החזרות תוך 30 יום 🐾",
           "speedSeconds": 45,
           "textColor": "#fff",
           "background": {
@@ -599,7 +599,7 @@
     "seo": {
       "titleTemplate": "%s | Pawzen",
       "defaultTitle": "Pawzen — אביזרים מודרניים לכלבים וחתולים",
-      "defaultDescription": "גלו אביזרים מעוצבים לחיות מחמד. צעצועים, מיטות, מזינים ועוד לכלבים וחתולים. משלוח חינם מעל ⪡200.",
+      "defaultDescription": "גלו אביזרים מעוצבים לחיות מחמד. צעצועים, מיטות, מזינים ועוד לכלבים וחתולים. משלוח חינם מעל {freeShippingThreshold}.",
       "defaultImage": "/og-image.jpg",
       "twitterHandle": "@pawzen"
     },

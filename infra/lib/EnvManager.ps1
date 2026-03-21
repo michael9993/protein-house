@@ -1,5 +1,5 @@
-# ============================================================================
-# EnvManager.ps1 — Environment File Management
+﻿# ============================================================================
+# EnvManager.ps1 -- Environment File Management
 # ============================================================================
 # Read, write, and update .env files. Handles tunnel URL injection and
 # mode switching between dev and self-hosted configurations.
@@ -153,6 +153,7 @@ function Update-TunnelUrls {
     $studioTunnel     = $TunnelUrls["IMAGE_STUDIO_APP_TUNNEL_URL"]
     $dropshipTunnel   = $TunnelUrls["DROPSHIP_APP_TUNNEL_URL"]
     $taxTunnel        = $TunnelUrls["TAX_MANAGER_APP_TUNNEL_URL"]
+    $paypalTunnel     = $TunnelUrls["PAYPAL_APP_TUNNEL_URL"]
 
     if ($apiTunnel) {
         $apiUrl = "$apiTunnel/graphql/"
@@ -193,6 +194,10 @@ function Update-TunnelUrls {
     }
     if ($taxTunnel) {
         $updates["TAX_MANAGER_APP_URL"] = $taxTunnel
+    }
+    if ($paypalTunnel) {
+        $updates["PAYPAL_APP_URL"]          = $paypalTunnel
+        $updates["PAYPAL_APP_API_BASE_URL"] = $paypalTunnel
     }
 
     # Collect tunnel domains for ALLOWED_HOSTS
@@ -254,7 +259,7 @@ function Switch-EnvMode {
     switch ($Mode.ToLower()) {
         "selfhosted" {
             if (-not (Test-Path $selfHostedEnv)) {
-                throw ".env.self-hosted not found at $selfHostedEnv — cannot switch to self-hosted mode."
+                throw ".env.self-hosted not found at $selfHostedEnv -- cannot switch to self-hosted mode."
             }
             if (Test-Path $envFile) {
                 Copy-Item $envFile $devBackup -Force
@@ -265,7 +270,7 @@ function Switch-EnvMode {
         }
         "dev" {
             if (-not (Test-Path $devBackup)) {
-                Write-Host "[WARN] No .env.dev-backup found — nothing to restore." -ForegroundColor Yellow
+                Write-Host "[WARN] No .env.dev-backup found -- nothing to restore." -ForegroundColor Yellow
                 return
             }
             Copy-Item $devBackup $envFile -Force
@@ -277,4 +282,4 @@ function Switch-EnvMode {
     }
 }
 
-# Functions are auto-exported when dot-sourced (Export-ModuleMember removed — only valid in .psm1)
+# Functions are auto-exported when dot-sourced (Export-ModuleMember removed -- only valid in .psm1)

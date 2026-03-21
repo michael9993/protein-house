@@ -30,6 +30,8 @@ interface FilePayPalConfig {
   clientId: string;
   clientSecret: string; // encrypted
   label: string;
+  environment?: "SANDBOX" | "LIVE"; // optional for backward compat with existing config files
+  webhookId?: string; // PayPal webhook subscription ID
 }
 
 export class FileAppConfigRepo implements AppConfigRepo {
@@ -67,28 +69,35 @@ export class FileAppConfigRepo implements AppConfigRepo {
     storageKey: string,
     access: BaseAccessPattern,
   ): FileConfigData {
+    // Exact match first
     let data = allData[storageKey];
+    if (data) return data;
 
-    if (!data) {
-      const saleorApiUrlStr = access.saleorApiUrl.toString();
-      const matchingKey = Object.keys(allData).find((key) =>
-        key.startsWith(saleorApiUrlStr + ":"),
-      );
-      if (matchingKey) data = allData[matchingKey];
+    // Fallback: find an entry with matching URL that has actual configs
+    // (skip entries from old app IDs that have empty configs)
+    const saleorApiUrlStr = access.saleorApiUrl.toString();
+    const urlMatch = Object.keys(allData).find((key) => {
+      if (!key.startsWith(saleorApiUrlStr + ":")) return false;
+      const entry = allData[key];
+      return Object.keys(entry.configs).length > 0;
+    });
+    if (urlMatch) return allData[urlMatch];
+
+    // Fallback: find an entry with matching appId that has actual configs
+    const appIdMatch = Object.keys(allData).find((key) => {
+      if (!key.endsWith(":" + access.appId)) return false;
+      const entry = allData[key];
+      return Object.keys(entry.configs).length > 0;
+    });
+    if (appIdMatch) return allData[appIdMatch];
+
+    // Last resort: use single entry only if it has configs
+    if (Object.keys(allData).length === 1) {
+      const entry = allData[Object.keys(allData)[0]];
+      if (Object.keys(entry.configs).length > 0) return entry;
     }
 
-    if (!data) {
-      const matchingKey = Object.keys(allData).find((key) =>
-        key.endsWith(":" + access.appId),
-      );
-      if (matchingKey) data = allData[matchingKey];
-    }
-
-    if (!data && Object.keys(allData).length === 1) {
-      data = allData[Object.keys(allData)[0]];
-    }
-
-    return data || { configs: {}, mappings: {} };
+    return { configs: {}, mappings: {} };
   }
 
   async getRootConfig(
@@ -116,6 +125,8 @@ export class FileAppConfigRepo implements AppConfigRepo {
             id: fileConfig.configId,
             clientId: clientIdResult.value,
             clientSecret: clientSecretResult.value,
+            environment: fileConfig.environment ?? "SANDBOX",
+            webhookId: fileConfig.webhookId,
           });
 
           if (configResult.isOk()) {
@@ -175,16 +186,43 @@ export class FileAppConfigRepo implements AppConfigRepo {
     try {
       const storageKey = this.getStorageKey(args.saleorApiUrl, args.appId);
       const allData = await this.readConfigFile();
-      const data = allData[storageKey] || { configs: {}, mappings: {} };
+
+      // If no data exists for the current key, migrate from old app ID entries
+      // This preserves credentials across app reinstalls (new app ID, same URL)
+      let data = allData[storageKey];
+      if (!data) {
+        const saleorUrlPrefix = args.saleorApiUrl.toString() + ":";
+        const oldKey = Object.keys(allData).find(
+          (key) => key !== storageKey && key.startsWith(saleorUrlPrefix) && Object.keys(allData[key].configs).length > 0,
+        );
+        if (oldKey) {
+          logger.info("Migrating config from old app ID to new", { oldKey, newKey: storageKey });
+          data = allData[oldKey];
+          delete allData[oldKey]; // Move, not copy
+        } else {
+          data = { configs: {}, mappings: {} };
+        }
+      }
 
       data.configs[args.config.id] = {
         configId: args.config.id,
         clientId: String(args.config.clientId),
         clientSecret: this.encryptor.encrypt(String(args.config.clientSecret)),
         label: args.config.name,
+        environment: args.config.environment,
+        webhookId: args.config.webhookId,
       };
 
       allData[storageKey] = data;
+
+      // Clean up empty entries from old app IDs (leftover after explicit "Remove" clicks)
+      const saleorUrlPrefix = args.saleorApiUrl.toString() + ":";
+      for (const key of Object.keys(allData)) {
+        if (key !== storageKey && key.startsWith(saleorUrlPrefix) && Object.keys(allData[key].configs).length === 0) {
+          delete allData[key];
+        }
+      }
+
       await this.writeConfigFile(allData);
       return ok(null);
     } catch (error) {

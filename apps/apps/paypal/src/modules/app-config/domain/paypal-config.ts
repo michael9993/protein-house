@@ -11,6 +11,8 @@ export class PayPalConfig {
   readonly id: string;
   readonly clientId: PayPalClientId;
   readonly clientSecret: PayPalClientSecret;
+  readonly environment: PayPalEnv;
+  readonly webhookId?: string;
 
   static ValidationError = BaseError.subclass("ValidationError", {
     props: {
@@ -23,25 +25,15 @@ export class PayPalConfig {
     id: string;
     clientId: PayPalClientId;
     clientSecret: PayPalClientSecret;
+    environment: PayPalEnv;
+    webhookId?: string;
   }) {
     this.name = props.name;
     this.id = props.id;
     this.clientId = props.clientId;
     this.clientSecret = props.clientSecret;
-  }
-
-  /**
-   * Detect PayPal environment from client ID.
-   * Sandbox client IDs typically start with certain patterns,
-   * but the most reliable check is if it was registered at sandbox.paypal.com.
-   * We store environment explicitly from user selection.
-   */
-  getPayPalEnvValue(): PayPalEnv {
-    // PayPal sandbox client IDs typically start with "A" and are longer
-    // However, the most reliable way is checking if credentials work against sandbox
-    // For now, we just store it as SANDBOX if the ID contains "sandbox" patterns
-    // The actual environment is validated during config creation
-    return "SANDBOX";
+    this.environment = props.environment;
+    this.webhookId = props.webhookId;
   }
 
   static create(args: {
@@ -49,6 +41,8 @@ export class PayPalConfig {
     id: string;
     clientId: PayPalClientId;
     clientSecret: PayPalClientSecret;
+    environment?: PayPalEnv;
+    webhookId?: string;
   }): Result<PayPalConfig, InstanceType<typeof PayPalConfig.ValidationError>> {
     if (args.name.length === 0) {
       return err(new PayPalConfig.ValidationError("Config name cannot be empty"));
@@ -64,6 +58,8 @@ export class PayPalConfig {
         id: args.id,
         clientId: args.clientId,
         clientSecret: args.clientSecret,
+        environment: args.environment ?? "SANDBOX",
+        webhookId: args.webhookId,
       }),
     );
   }
@@ -74,6 +70,7 @@ export type PayPalFrontendConfigSerializedFields = {
   readonly id: string;
   readonly clientId: string;
   readonly maskedClientSecret: string;
+  readonly environment: PayPalEnv;
 };
 
 /**
@@ -84,12 +81,14 @@ export class PayPalFrontendConfig implements PayPalFrontendConfigSerializedField
   readonly id: string;
   readonly clientId: string;
   readonly maskedClientSecret: string;
+  readonly environment: PayPalEnv;
 
   private constructor(fields: PayPalFrontendConfigSerializedFields) {
     this.name = fields.name;
     this.id = fields.id;
     this.clientId = fields.clientId;
     this.maskedClientSecret = fields.maskedClientSecret;
+    this.environment = fields.environment;
   }
 
   private static getMaskedValue(secret: string) {
@@ -103,6 +102,7 @@ export class PayPalFrontendConfig implements PayPalFrontendConfigSerializedField
       id: config.id,
       clientId: String(config.clientId),
       maskedClientSecret: this.getMaskedValue(String(config.clientSecret)),
+      environment: config.environment,
     });
   }
 

@@ -329,10 +329,10 @@ export function ProductCard({ product, loading = "lazy", priority = false }: Pro
                   className={`${fontSizeMap[ts?.originalPrice?.fontSize || "sm"]} ${fontWeightMap[ts?.originalPrice?.fontWeight || "normal"]} line-through ${!ts?.originalPrice?.color ? "text-neutral-400" : ""}`}
                   style={ts?.originalPrice?.color ? { color: ts.originalPrice.color } : undefined}
                 >
-                  {formatMoney(
-                    product.pricing.priceRangeUndiscounted.start.gross.amount,
-                    product.pricing.priceRangeUndiscounted.start.gross.currency
-                  )}
+                  {formatMoneyRange({
+                    start: product.pricing.priceRangeUndiscounted.start.gross,
+                    stop: product.pricing.priceRangeUndiscounted.stop?.gross,
+                  })}
                 </span>
               )}
             </div>

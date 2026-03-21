@@ -1,4 +1,6 @@
 
+import { compose } from "@saleor/apps-shared/compose";
+
 import { appContextContainer } from "@/lib/app-context";
 import { BaseError } from "@/lib/errors";
 import { createLogger } from "@/lib/logger";
@@ -45,10 +47,11 @@ const handler = transactionCancelationRequestedWebhookDefinition.createHandler(
         return Response.json({ result: "CANCEL_FAILURE", message: "Invalid PayPal order ID" });
       }
 
-      const sandboxClient = new PayPalApiClient({ clientId: config.clientId, clientSecret: config.clientSecret, environment: "SANDBOX" });
-      const sandboxValid = await sandboxClient.validateCredentials();
-      const environment = sandboxValid.isOk() ? "SANDBOX" : "LIVE";
-      const client = new PayPalApiClient({ clientId: config.clientId, clientSecret: config.clientSecret, environment });
+      const client = new PayPalApiClient({
+        clientId: config.clientId,
+        clientSecret: config.clientSecret,
+        environment: config.environment,
+      });
 
       // Get order status — if CREATED or APPROVED but not captured, it's effectively voided
       const orderResult = await client.getOrder(orderIdResult.value);
@@ -85,4 +88,4 @@ const handler = transactionCancelationRequestedWebhookDefinition.createHandler(
   }),
 );
 
-export const POST = handler;
+export const POST = compose(appContextContainer.wrapRequest)(handler);

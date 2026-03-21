@@ -2,8 +2,13 @@ import { TRPCError } from "@trpc/server";
 import { Result } from "neverthrow";
 import { z } from "zod";
 
+import { createLogger } from "@/lib/logger";
 import { createSaleorApiUrl } from "@/modules/saleor/saleor-api-url";
+import { PayPalApiClient } from "@/modules/paypal/paypal-api-client";
+import { deletePayPalWebhook } from "@/modules/paypal/paypal-webhook-manager";
 import { protectedClientProcedure } from "@/modules/trpc/protected-client-procedure";
+
+const logger = createLogger("RemovePayPalConfig");
 
 export class RemovePayPalConfigTrpcHandler {
   baseProcedure = protectedClientProcedure;
@@ -35,6 +40,23 @@ export class RemovePayPalConfigTrpcHandler {
 
         if (!configToRemove) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Config not found." });
+        }
+
+        // Delete PayPal webhook if one was registered
+        if (configToRemove.webhookId) {
+          const client = new PayPalApiClient({
+            clientId: configToRemove.clientId,
+            clientSecret: configToRemove.clientSecret,
+            environment: configToRemove.environment,
+          });
+          const webhookDeleteResult = await deletePayPalWebhook(client, configToRemove.webhookId);
+          if (webhookDeleteResult.isErr()) {
+            // Non-fatal — continue with config removal even if webhook deletion fails
+            logger.warn("Failed to delete PayPal webhook, continuing with config removal", {
+              webhookId: configToRemove.webhookId,
+              error: webhookDeleteResult.error.message,
+            });
+          }
         }
 
         // Unbind all channels

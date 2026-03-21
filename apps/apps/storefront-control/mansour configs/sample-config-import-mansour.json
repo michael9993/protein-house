@@ -143,7 +143,7 @@
     "header": {
       "banner": {
         "enabled": true,
-        "text": "משלוח חינם בהזמנות מעל ₪200!",
+        "text": "משלוח חינם בהזמנות מעל {freeShippingThreshold}!",
         "backgroundColor": "#000000",
         "textColor": "#fff",
         "useSaleorPromotions": true,
@@ -151,7 +151,7 @@
         "items": [
           {
             "id": "manual-1769994856696",
-            "name": "משלוח חינם עם קנייה מעל ₪200",
+            "name": "משלוח חינם עם קנייה מעל {freeShippingThreshold}",
             "description": null,
             "link": null,
             "icon": null
@@ -174,7 +174,7 @@
         "manualItems": [
           {
             "id": "manual-1769994856696",
-            "text": "משלוח חינם עם קנייה מעל ₪200",
+            "text": "משלוח חינם עם קנייה מעל {freeShippingThreshold}",
             "link": null,
             "icon": null
           }
@@ -276,7 +276,7 @@
         },
         "trustStrip": {
           "enabled": true,
-          "freeShippingText": "משלוח חינם בהזמנות מעל 200 ₪",
+          "freeShippingText": "משלוח חינם בהזמנות מעל {freeShippingThreshold}",
           "easyReturnsText": "החזרות קלות",
           "secureCheckoutText": "תשלום מאובטח",
           "supportText": "תמיכה 24/7",
@@ -288,7 +288,7 @@
         },
         "marquee": {
           "enabled": true,
-          "text": "משלוח חינם בהזמנות מעל 200 ₪! • קולקציה חדשה בחנות",
+          "text": "משלוח חינם בהזמנות מעל {freeShippingThreshold}! • קולקציה חדשה בחנות",
           "speedSeconds": 45,
           "textColor": "#fff",
           "background": {
@@ -588,7 +588,7 @@
     "seo": {
       "titleTemplate": "%s | Mansour Shoes",
       "defaultTitle": "מנצור נעליים - נעליים לכל המשפחה",
-      "defaultDescription": "חנות נעליים מובילה בשפרעם. משלוח חינם בהזמנות מעל ₪300. נעלי ספורט, נעלי ריצה ונעליים לכל המשפחה.",
+      "defaultDescription": "חנות נעליים מובילה בשפרעם. משלוח חינם בהזמנות מעל {freeShippingThreshold}. נעלי ספורט, נעלי ריצה ונעליים לכל המשפחה.",
       "defaultImage": "/og-image.jpg",
       "twitterHandle": null
     },

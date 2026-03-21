@@ -74,7 +74,13 @@ function formatQueueName(name: string): string {
 function DashboardOverview() {
   const router = useRouter();
   const { data, isLoading, error } = trpcClient.dashboard.overview.useQuery();
-  const { data: jobStats } = trpcClient.dashboard.getJobStats.useQuery();
+  const { data: jobStats, refetch: refetchJobs } = trpcClient.dashboard.getJobStats.useQuery();
+  const triggerStockSync = trpcClient.dashboard.triggerStockSync.useMutation({
+    onSuccess: () => {
+      // Refetch job stats after a short delay to show the queued job
+      setTimeout(() => refetchJobs(), 1500);
+    },
+  });
 
   if (isLoading) {
     return (
@@ -277,7 +283,7 @@ function DashboardOverview() {
             {/* Header */}
             <div
               className="grid gap-2 px-4 py-2 bg-gray-50 rounded-lg"
-              style={{ gridTemplateColumns: "1fr 80px 80px 80px 80px 160px" }}
+              style={{ gridTemplateColumns: "1fr 80px 80px 80px 80px 160px 90px" }}
             >
               <span className="text-xs text-text-muted">Queue</span>
               <span className="text-xs text-text-muted">Active</span>
@@ -285,12 +291,13 @@ function DashboardOverview() {
               <span className="text-xs text-text-muted">Completed</span>
               <span className="text-xs text-text-muted">Failed</span>
               <span className="text-xs text-text-muted">Last Run</span>
+              <span className="text-xs text-text-muted"></span>
             </div>
             {Object.entries(jobStats).map(([name, stats]) => (
               <div
                 key={name}
                 className="grid gap-2 px-4 py-3 border border-border rounded-lg items-center"
-                style={{ gridTemplateColumns: "1fr 80px 80px 80px 80px 160px" }}
+                style={{ gridTemplateColumns: "1fr 80px 80px 80px 80px 160px 90px" }}
               >
                 <div className="flex gap-2 items-center">
                   <span className={`inline-block w-2 h-2 rounded-full ${
@@ -309,9 +316,25 @@ function DashboardOverview() {
                 <span className="text-xs text-text-muted">
                   {stats.lastRun ? new Date(stats.lastRun).toLocaleString() : "--"}
                 </span>
+                <div>
+                  {name === "STOCK_SYNC" && (
+                    <button
+                      className="px-2.5 py-1 text-xs font-medium border border-border rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                      disabled={triggerStockSync.isLoading || stats.active > 0}
+                      onClick={() => triggerStockSync.mutate()}
+                    >
+                      {triggerStockSync.isLoading ? "Syncing..." : stats.active > 0 ? "Running" : "Sync Now"}
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
+          {triggerStockSync.data && (
+            <p className={`mt-2 text-xs ${triggerStockSync.data.success ? "text-green-700" : "text-yellow-700"}`}>
+              {triggerStockSync.data.message}
+            </p>
+          )}
         </div>
       )}
 

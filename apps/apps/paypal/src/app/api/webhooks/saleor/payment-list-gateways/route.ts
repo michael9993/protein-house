@@ -1,4 +1,6 @@
 
+import { compose } from "@saleor/apps-shared/compose";
+
 import { appContextContainer } from "@/lib/app-context";
 import { createLogger } from "@/lib/logger";
 import { appConfigRepoImpl } from "@/modules/app-config/repositories/app-config-repo-impl";
@@ -69,4 +71,4 @@ const handler = paymentListGatewaysWebhookDefinition.createHandler(
   }),
 );
 
-export const POST = handler;
+export const POST = compose(appContextContainer.wrapRequest)(handler);
