@@ -1147,12 +1147,16 @@ class Checkout(SyncWebhookControlContextModelObjectType[models.Checkout]):
 
     @staticmethod
     def resolve_channel(root: SyncWebhookControlContext[models.Checkout], info):
+        if root.node is None:
+            return None
         return ChannelByIdLoader(info.context).load(root.node.channel_id)
 
     @staticmethod
     def resolve_id(
         root: SyncWebhookControlContext[models.Checkout], _info: ResolveInfo
     ):
+        if root.node is None:
+            return None
         return graphene.Node.to_global_id("Checkout", root.node.pk)
 
     @staticmethod

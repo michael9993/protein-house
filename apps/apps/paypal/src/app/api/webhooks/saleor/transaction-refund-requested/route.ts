@@ -17,14 +17,21 @@ const logger = createLogger("TRANSACTION_REFUND_REQUESTED");
 const handler = transactionRefundRequestedWebhookDefinition.createHandler(
   withRecipientVerification(async (_req, ctx) => {
     try {
+      logger.info("Refund webhook received", {
+        payload: JSON.stringify(ctx.payload).slice(0, 500),
+      });
+
       const saleorApiUrlResult = createSaleorApiUrl(ctx.authData.saleorApiUrl);
       if (saleorApiUrlResult.isErr()) {
+        logger.error("Malformed saleorApiUrl");
         return Response.json({ result: "REFUND_FAILURE", message: "Malformed request" });
       }
 
       const event = ctx.payload;
-      const channelId = event.transaction?.checkout?.channel?.id ?? event.transaction?.order?.channel?.id;
+      const channelId = event.sourceObject?.channel?.id ?? event.transaction?.checkout?.channel?.id ?? event.transaction?.order?.channel?.id;
       const pspReference = event.transaction?.pspReference;
+
+      logger.info("Refund context", { channelId, pspReference });
 
       if (!channelId || !pspReference) {
         return Response.json({ result: "REFUND_FAILURE", message: "Missing channel or pspReference" });
