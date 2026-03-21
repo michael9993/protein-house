@@ -28,7 +28,7 @@ const handler = transactionChargeRequestedWebhookDefinition.createHandler(
       }
 
       const event = ctx.payload;
-      const channelId = event.transaction?.checkout?.channel?.id ?? event.transaction?.order?.channel?.id;
+      const channelId = event.sourceObject?.channel?.id ?? event.transaction?.checkout?.channel?.id ?? event.transaction?.order?.channel?.id;
 
       if (!channelId) {
         return new AppIsNotConfiguredResponse(appContextContainer.getContextValue()).getResponse();

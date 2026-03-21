@@ -33,6 +33,7 @@ const handler = transactionProcessSessionWebhookDefinition.createHandler(
 
       const event = ctx.payload;
       const channelId =
+        event.sourceObject?.channel?.id ??
         event.transaction?.checkout?.channel?.id ??
         event.transaction?.order?.channel?.id ??
         undefined;

@@ -22,7 +22,7 @@ const handler = transactionCancelationRequestedWebhookDefinition.createHandler(
       }
 
       const event = ctx.payload;
-      const channelId = event.transaction?.checkout?.channel?.id ?? event.transaction?.order?.channel?.id;
+      const channelId = event.sourceObject?.channel?.id ?? event.transaction?.checkout?.channel?.id ?? event.transaction?.order?.channel?.id;
       const pspReference = event.transaction?.pspReference;
 
       if (!channelId || !pspReference) {

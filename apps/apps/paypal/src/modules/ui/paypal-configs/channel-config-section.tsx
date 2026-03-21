@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useRouter } from "next/router";
 
 import { trpcClient } from "@/modules/trpc/trpc-client";
@@ -5,10 +6,16 @@ import { trpcClient } from "@/modules/trpc/trpc-client";
 export function ChannelConfigSection() {
   const router = useRouter();
   const utils = trpcClient.useUtils();
+  const [removingId, setRemovingId] = useState<string | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const { data, isLoading } = trpcClient.appConfig.getPayPalConfigsList.useQuery();
   const { mutate: removeConfig } = trpcClient.appConfig.removePayPalConfig.useMutation({
-    onSuccess: () => {
-      void utils.appConfig.getPayPalConfigsList.invalidate();
+    onSuccess: async () => {
+      await utils.appConfig.getPayPalConfigsList.refetch();
+      setRemovingId(null);
+    },
+    onError: () => {
+      setRemovingId(null);
     },
   });
 
@@ -42,24 +49,61 @@ export function ChannelConfigSection() {
                 Secret: {config.maskedClientSecret}
               </p>
             </div>
-            <button
-              onClick={() => {
-                if (confirm("Remove this PayPal configuration?")) {
-                  removeConfig({ configId: config.id });
-                }
-              }}
-              style={{
-                padding: "6px 12px",
-                background: "transparent",
-                border: "1px solid #dc2626",
-                borderRadius: "4px",
-                color: "#dc2626",
-                fontSize: "12px",
-                cursor: "pointer",
-              }}
-            >
-              Remove
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              {confirmingId === config.id ? (
+                <>
+                  <span style={{ fontSize: "12px", color: "#dc2626" }}>Delete?</span>
+                  <button
+                    onClick={() => {
+                      setConfirmingId(null);
+                      setRemovingId(config.id);
+                      removeConfig({ configId: config.id });
+                    }}
+                    style={{
+                      padding: "4px 10px",
+                      background: "#dc2626",
+                      border: "none",
+                      borderRadius: "4px",
+                      color: "white",
+                      fontSize: "12px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Yes
+                  </button>
+                  <button
+                    onClick={() => setConfirmingId(null)}
+                    style={{
+                      padding: "4px 10px",
+                      background: "transparent",
+                      border: "1px solid #d1d5db",
+                      borderRadius: "4px",
+                      color: "#6b7280",
+                      fontSize: "12px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    No
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setConfirmingId(config.id)}
+                  disabled={removingId === config.id}
+                  style={{
+                    padding: "6px 12px",
+                    background: "transparent",
+                    border: `1px solid ${removingId === config.id ? "#9ca3af" : "#dc2626"}`,
+                    borderRadius: "4px",
+                    color: removingId === config.id ? "#9ca3af" : "#dc2626",
+                    fontSize: "12px",
+                    cursor: removingId === config.id ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {removingId === config.id ? "Removing..." : "Remove"}
+                </button>
+              )}
+            </div>
           </div>
         ))
       ) : (

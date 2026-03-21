@@ -1,17 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import {
-	PayPalScriptProvider,
-	PayPalButtons,
-	PayPalCardFieldsProvider,
-	PayPalCardFieldsForm,
-	PayPalNumberField,
-	PayPalExpiryField,
-	PayPalCVVField,
-	PayPalNameField,
-	usePayPalCardFields,
-} from "@paypal/react-paypal-js";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { useRouter } from "next/navigation";
 import { useCheckoutState } from "@/checkout-v2/CheckoutStateProvider";
 import { useCheckoutText } from "@/checkout-v2/hooks/useCheckoutText";
@@ -172,6 +162,12 @@ export function PayPalPaymentForm({
 				if (completeResult.orderId) {
 					setPaymentSucceeded(true);
 					router.replace(`/${channel}/checkout?order=${completeResult.orderId}`);
+				} else {
+					setErrors([
+						t.paymentSuccessOrderFailedError ??
+							"Payment succeeded but order could not be finalized. Please contact support.",
+					]);
+					setIsProcessing(false);
 				}
 			} catch (error) {
 				console.error("[PayPalPaymentForm] onApprove error:", error);
@@ -214,10 +210,6 @@ export function PayPalPaymentForm({
 	}
 
 	const currency = checkout.totalPrice.gross.currency?.toUpperCase() ?? "USD";
-	const formattedAmount = new Intl.NumberFormat(undefined, {
-		style: "currency",
-		currency,
-	}).format(checkoutAmount);
 
 	return (
 		<div className="space-y-4">
@@ -236,10 +228,8 @@ export function PayPalPaymentForm({
 					clientId: paypalClientId,
 					currency,
 					intent: paypalIntent,
-					components: "buttons,card-fields",
 				}}
 			>
-				{/* PayPal wallet button */}
 				<PayPalButtons
 					style={{
 						layout: "vertical",
@@ -254,31 +244,6 @@ export function PayPalPaymentForm({
 					onCancel={onCancel}
 					disabled={isProcessing}
 				/>
-
-				{/* Divider */}
-				<div className="relative my-4">
-					<div className="absolute inset-0 flex items-center">
-						<div className="w-full border-t border-neutral-200" />
-					</div>
-					<div className="relative flex justify-center text-xs uppercase">
-						<span className="bg-white px-3 text-neutral-400">
-							or pay with card
-						</span>
-					</div>
-				</div>
-
-				{/* Card fields */}
-				<PayPalCardFieldsProvider
-					createOrder={createOrder}
-					onApprove={onApprove}
-					onError={onError}
-				>
-					<CardFieldsForm
-						isProcessing={isProcessing}
-						setIsProcessing={setIsProcessing}
-						formattedAmount={formattedAmount}
-					/>
-				</PayPalCardFieldsProvider>
 			</PayPalScriptProvider>
 
 			{isProcessing && (
@@ -287,96 +252,6 @@ export function PayPalPaymentForm({
 					subtitle={t.doNotClosePageText}
 				/>
 			)}
-		</div>
-	);
-}
-
-// ---------------------------------------------------------------------------
-// Card Fields Form (must be a child of PayPalCardFieldsProvider)
-// ---------------------------------------------------------------------------
-
-interface CardFieldsFormProps {
-	isProcessing: boolean;
-	setIsProcessing: (v: boolean) => void;
-	formattedAmount: string;
-}
-
-function CardFieldsForm({ isProcessing, setIsProcessing, formattedAmount }: CardFieldsFormProps) {
-	const { cardFieldsForm } = usePayPalCardFields();
-
-	const handleSubmit = useCallback(async () => {
-		if (!cardFieldsForm) return;
-
-		setIsProcessing(true);
-		try {
-			await cardFieldsForm.submit();
-		} catch {
-			setIsProcessing(false);
-		}
-	}, [cardFieldsForm, setIsProcessing]);
-
-	const fieldStyle = {
-		input: {
-			"font-size": "14px",
-			"font-family": "system-ui, -apple-system, sans-serif",
-			color: "#171717",
-			padding: "0 12px",
-		},
-		"input::placeholder": {
-			color: "#a3a3a3",
-		},
-	};
-
-	return (
-		<div className="space-y-3">
-			<div>
-				<label className="mb-1 block text-xs font-medium text-neutral-600">
-					Cardholder Name
-				</label>
-				<div className="overflow-hidden rounded-md border border-neutral-300 focus-within:border-neutral-500 focus-within:ring-1 focus-within:ring-neutral-500">
-					<PayPalNameField style={fieldStyle} />
-				</div>
-			</div>
-
-			<div>
-				<label className="mb-1 block text-xs font-medium text-neutral-600">
-					Card Number
-				</label>
-				<div className="overflow-hidden rounded-md border border-neutral-300 focus-within:border-neutral-500 focus-within:ring-1 focus-within:ring-neutral-500">
-					<PayPalNumberField style={fieldStyle} />
-				</div>
-			</div>
-
-			<div className="grid grid-cols-2 gap-3">
-				<div>
-					<label className="mb-1 block text-xs font-medium text-neutral-600">
-						Expiry Date
-					</label>
-					<div className="overflow-hidden rounded-md border border-neutral-300 focus-within:border-neutral-500 focus-within:ring-1 focus-within:ring-neutral-500">
-						<PayPalExpiryField style={fieldStyle} />
-					</div>
-				</div>
-				<div>
-					<label className="mb-1 block text-xs font-medium text-neutral-600">
-						CVV
-					</label>
-					<div className="overflow-hidden rounded-md border border-neutral-300 focus-within:border-neutral-500 focus-within:ring-1 focus-within:ring-neutral-500">
-						<PayPalCVVField style={fieldStyle} />
-					</div>
-				</div>
-			</div>
-
-			<button
-				type="button"
-				onClick={handleSubmit}
-				disabled={isProcessing}
-				className="w-full rounded-md px-4 py-3 text-sm font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-				style={{
-					backgroundColor: "var(--store-primary, #171717)",
-				}}
-			>
-				{isProcessing ? "Processing…" : `Pay ${formattedAmount}`}
-			</button>
 		</div>
 	);
 }

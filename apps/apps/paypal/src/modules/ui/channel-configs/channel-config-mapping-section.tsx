@@ -1,14 +1,18 @@
+import { useState } from "react";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 
 export function ChannelConfigMappingSection() {
   const utils = trpcClient.useUtils();
+  const [savedChannelId, setSavedChannelId] = useState<string | null>(null);
   const { data: channels, isLoading: channelsLoading } =
     trpcClient.appConfig.fetchChannels.useQuery();
   const { data, isLoading: configsLoading } =
     trpcClient.appConfig.getPayPalConfigsList.useQuery();
   const { mutate: updateMapping } = trpcClient.appConfig.updateMapping.useMutation({
-    onSuccess: () => {
-      void utils.appConfig.getPayPalConfigsList.invalidate();
+    onSuccess: async (_data, variables) => {
+      await utils.appConfig.getPayPalConfigsList.refetch();
+      setSavedChannelId(variables.channelId);
+      setTimeout(() => setSavedChannelId(null), 2000);
     },
   });
 
@@ -51,29 +55,34 @@ export function ChannelConfigMappingSection() {
               {channel.slug} — {channel.currencyCode}
             </p>
           </div>
-          <select
-            value={channelMappings[channel.id] ?? ""}
-            onChange={(e) => {
-              const configId = e.target.value;
-              if (configId) {
-                updateMapping({ configId, channelId: channel.id });
-              }
-            }}
-            style={{
-              padding: "6px 12px",
-              border: "1px solid #d1d5db",
-              borderRadius: "4px",
-              fontSize: "14px",
-              minWidth: "200px",
-            }}
-          >
-            <option value="">Not configured</option>
-            {configs.map((config) => (
-              <option key={config.id} value={config.id}>
-                {config.name}
-              </option>
-            ))}
-          </select>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <select
+              value={channelMappings[channel.id] ?? ""}
+              onChange={(e) => {
+                const configId = e.target.value;
+                if (configId) {
+                  updateMapping({ configId, channelId: channel.id });
+                }
+              }}
+              style={{
+                padding: "6px 12px",
+                border: "1px solid #d1d5db",
+                borderRadius: "4px",
+                fontSize: "14px",
+                minWidth: "200px",
+              }}
+            >
+              <option value="">Not configured</option>
+              {configs.map((config) => (
+                <option key={config.id} value={config.id}>
+                  {config.name}
+                </option>
+              ))}
+            </select>
+            {savedChannelId === channel.id && (
+              <span style={{ color: "#16a34a", fontSize: "12px", fontWeight: 600 }}>Saved</span>
+            )}
+          </div>
         </div>
       ))}
     </div>

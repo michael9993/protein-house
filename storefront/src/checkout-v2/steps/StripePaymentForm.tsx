@@ -94,6 +94,9 @@ function StripeCheckoutForm({
 		() => ({
 			layout: "tabs" as const,
 			wallets: { applePay: "auto" as const, googlePay: "auto" as const },
+			fields: {
+				billingDetails: { address: "never" as const },
+			},
 		}),
 		[],
 	);

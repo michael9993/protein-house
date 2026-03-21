@@ -200,6 +200,9 @@ export class PayPalApiClient {
           amount: args.amount,
         },
       ],
+      application_context: {
+        shipping_preference: "NO_SHIPPING",
+      },
       ...(args.payer ? { payer: args.payer } : {}),
     });
   }

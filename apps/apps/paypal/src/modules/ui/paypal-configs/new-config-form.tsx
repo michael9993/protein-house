@@ -17,8 +17,8 @@ export function NewPayPalConfigForm() {
   const router = useRouter();
   const utils = trpcClient.useUtils();
   const { mutate, isLoading, error } = trpcClient.appConfig.saveNewPayPalConfig.useMutation({
-    onSuccess: () => {
-      void utils.appConfig.getPayPalConfigsList.invalidate();
+    onSuccess: async () => {
+      await utils.appConfig.getPayPalConfigsList.refetch();
       router.push("/config");
     },
   });
