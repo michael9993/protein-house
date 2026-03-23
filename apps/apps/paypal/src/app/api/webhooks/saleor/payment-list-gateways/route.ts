@@ -3,6 +3,8 @@ import { compose } from "@saleor/apps-shared/compose";
 
 import { appContextContainer } from "@/lib/app-context";
 import { createLogger } from "@/lib/logger";
+import { withLoggerContext } from "@/lib/logger-context";
+import { captureException, withSpanAttributes } from "@/lib/observability";
 import { appConfigRepoImpl } from "@/modules/app-config/repositories/app-config-repo-impl";
 import { createSaleorApiUrl } from "@/modules/saleor/saleor-api-url";
 
@@ -17,6 +19,7 @@ const handler = paymentListGatewaysWebhookDefinition.createHandler(
       const saleorApiUrlResult = createSaleorApiUrl(ctx.authData.saleorApiUrl);
 
       if (saleorApiUrlResult.isErr()) {
+        captureException(saleorApiUrlResult.error);
         return Response.json([]);
       }
 
@@ -65,10 +68,15 @@ const handler = paymentListGatewaysWebhookDefinition.createHandler(
         },
       ]);
     } catch (error) {
+      captureException(error);
       logger.error("Unhandled error in payment-list-gateways", { error });
       return Response.json([]);
     }
   }),
 );
 
-export const POST = compose(appContextContainer.wrapRequest)(handler);
+export const POST = compose(
+  withLoggerContext,
+  appContextContainer.wrapRequest,
+  withSpanAttributes,
+)(handler);

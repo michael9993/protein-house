@@ -10,6 +10,12 @@ import {
 import { appContextContainer } from "@/lib/app-context";
 import { BaseError } from "@/lib/errors";
 import { createLogger } from "@/lib/logger";
+import { withLoggerContext } from "@/lib/logger-context";
+import {
+  captureException,
+  setObservabilitySourceObjectId,
+  withSpanAttributes,
+} from "@/lib/observability";
 import { appConfigRepoImpl } from "@/modules/app-config/repositories/app-config-repo-impl";
 import { createSaleorApiUrl } from "@/modules/saleor/saleor-api-url";
 import { PayPalApiClient } from "@/modules/paypal/paypal-api-client";
@@ -22,9 +28,12 @@ const logger = createLogger("PAYMENT_GATEWAY_INITIALIZE_SESSION");
 const handler = paymentGatewayInitializeSessionWebhookDefinition.createHandler(
   withRecipientVerification(async (_req, ctx) => {
     try {
+      setObservabilitySourceObjectId(ctx.payload.sourceObject);
+
       const saleorApiUrlResult = createSaleorApiUrl(ctx.authData.saleorApiUrl);
 
       if (saleorApiUrlResult.isErr()) {
+        captureException(saleorApiUrlResult.error);
         return new MalformedRequestResponse(
           appContextContainer.getContextValue(),
           saleorApiUrlResult.error,
@@ -111,6 +120,7 @@ const handler = paymentGatewayInitializeSessionWebhookDefinition.createHandler(
         },
       });
     } catch (error) {
+      captureException(error);
       logger.error("Unhandled error", { error });
       return new UnhandledErrorResponse(
         appContextContainer.getContextValue(),
@@ -120,4 +130,8 @@ const handler = paymentGatewayInitializeSessionWebhookDefinition.createHandler(
   }),
 );
 
-export const POST = compose(appContextContainer.wrapRequest)(handler);
+export const POST = compose(
+  withLoggerContext,
+  appContextContainer.wrapRequest,
+  withSpanAttributes,
+)(handler);

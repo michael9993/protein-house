@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-03-16T12:54:08.858Z",
+  "exportedAt": "2026-03-23T00:45:07.828Z",
   "channelSlug": "usd",
   "config": {
-    "version": 35,
-    "updatedAt": "2026-03-16T12:54:08.541Z",
+    "version": 42,
+    "updatedAt": "2026-03-23T00:45:06.906Z",
     "channelSlug": "usd",
     "store": {
       "name": "Pawzen",
@@ -95,7 +95,7 @@
       },
       "shipping": {
         "enabled": true,
-        "freeShippingThreshold": 100,
+        "freeShippingThreshold": 75,
         "showEstimatedDelivery": true,
         "deliverySlots": false,
         "defaultEstimatedMinDays": 7,
@@ -109,7 +109,7 @@
         },
         "freeShippingRule": {
           "enabled": true,
-          "cartMinimum": 100,
+          "cartMinimum": 75,
           "maxMethodPrice": 0,
           "methodNameFilter": ""
         },
@@ -147,22 +147,15 @@
     "header": {
       "banner": {
         "enabled": true,
-        "text": "Free shipping on orders over {freeShippingThreshold} | Premium pet care, delivered",
+        "text": "Free shipping on orders over $75 | Premium pet care, delivered",
         "backgroundColor": "#1B2838",
         "textColor": "#D4B978",
         "useSaleorPromotions": true,
         "useSaleorVouchers": true,
         "items": [
           {
-            "id": "manual-1773375829913",
-            "name": "Currently shipping costs in the middle east are high",
-            "description": null,
-            "link": "",
-            "icon": null
-          },
-          {
             "id": "manual-1773548036215",
-            "name": "Free shipping on orders over {freeShippingThreshold} | Premium pet care, delivered",
+            "name": "Free shipping on orders over $75 | Premium pet care, delivered",
             "description": null,
             "link": null,
             "icon": null
@@ -170,14 +163,8 @@
         ],
         "manualItems": [
           {
-            "id": "manual-1773375829913",
-            "text": "Currently shipping costs in the middle east are high",
-            "link": "",
-            "icon": null
-          },
-          {
             "id": "manual-1773548036215",
-            "text": "Free shipping on orders over {freeShippingThreshold} | Premium pet care, delivered",
+            "text": "Free shipping on orders over $75 | Premium pet care, delivered",
             "link": null,
             "icon": null
           }
@@ -250,7 +237,7 @@
       "returnPolicyFooter": "",
       "shippingPolicyPageTitle": "Shipping Policy",
       "shippingPolicyHeader": "Shipping Policy",
-      "shippingPolicyContent": "## Shipping Policy — Pawzen\n\n1. Select your preferred shipping method at checkout. Shipping costs will be added to the product price.\n\n2. Packages are dispatched within 2 business days of placing your order.\n\n3. Standard Shipping: $9.99 (7-15 business days).\n\n4. Express Shipping: $24.99 (3-7 business days).\n\n5. Free Shipping on orders over $100 (10-21 business days).\n\n6. A tracking number and SMS/email notification will be sent once your order ships.\n\n7. Pawzen is not responsible for delays caused by the shipping carrier or customs.\n\nFor shipping inquiries, contact us at support@pawzenpets.shop",
+      "shippingPolicyContent": "## Shipping Policy — Pawzen\n\n1. Select your preferred shipping method at checkout. Shipping costs will be added to the product price.\n\n2. Packages are dispatched within 2 business days of placing your order.\n\n3. Standard Shipping: $9.99 (7-30 business days).\n\n4. Express Shipping: $24.99 (3-7 business days).\n\n5. Free Shipping on orders over $75 (10-21 business days).\n\n6. A tracking number and SMS/email notification will be sent once your order ships.\n\n7. Pawzen is not responsible for delays caused by the shipping carrier or customs.\n\nFor shipping inquiries, contact us at support@pawzenpets.shop",
       "shippingPolicyDefaultContent": "We offer free standard shipping on orders over $50. Express shipping available at checkout.",
       "shippingPolicyFooter": "",
       "privacyPolicyPageTitle": "Privacy Policy",
@@ -312,7 +299,7 @@
         "trustStrip": {
           "enabled": true,
           "freeShippingText": "Pet-Safe Materials",
-          "easyReturnsText": "Free Shipping Over {freeShippingThreshold} for selected countries",
+          "easyReturnsText": "Free Shipping Over $100 for selected countries",
           "secureCheckoutText": "24/7 Support",
           "supportText": "30-Day Returns",
           "background": {
@@ -324,7 +311,7 @@
         },
         "marquee": {
           "enabled": true,
-          "text": "🐾 New arrivals weekly • Free shipping over {freeShippingThreshold} • Premium pet accessories • Vet-approved products • 30-day easy returns 🐾",
+          "text": "🐾 New arrivals weekly • Free shipping over $50 • Premium pet accessories • Vet-approved products • 30-day easy returns 🐾",
           "speedSeconds": 50,
           "textColor": "#D4B978",
           "background": {
@@ -616,7 +603,7 @@
       },
       "social": {
         "facebook": "https://facebook.com/pawzen",
-        "instagram": "https://instagram.com/pawzen.co",
+        "instagram": "https://instagram.com/pawzen",
         "twitter": null,
         "youtube": null,
         "tiktok": "https://tiktok.com/@pawzen",
@@ -631,7 +618,7 @@
     "seo": {
       "titleTemplate": "%s | Pawzen",
       "defaultTitle": "Pawzen — Modern Pet Accessories for Dogs & Cats",
-      "defaultDescription": "Discover thoughtfully designed pet accessories. Premium toys, beds, feeders & more for dogs and cats. Free shipping over {freeShippingThreshold}.",
+      "defaultDescription": "Discover thoughtfully designed pet accessories. Premium toys, beds, feeders & more for dogs and cats. Free shipping over $100.",
       "defaultImage": "https://pawzenpets.shop/logo/pawzen-logo.png",
       "twitterHandle": "@pawzen"
     },

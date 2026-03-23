@@ -518,6 +518,7 @@ export function useFooterConfig(): NonNullable<StoreConfig["footer"]> {
       "shippingPolicyPageTitle", "shippingPolicyHeader", "shippingPolicyContent", "shippingPolicyDefaultContent", "shippingPolicyFooter",
       "privacyPolicyPageTitle", "privacyPolicyHeader", "privacyPolicyContent", "privacyPolicyDefaultContent", "privacyPolicyFooter",
       "termsOfServicePageTitle", "termsOfServiceHeader", "termsOfServiceContent", "termsOfServiceDefaultContent", "termsOfServiceFooter",
+      "accessibilityPageTitle", "accessibilityHeader", "accessibilityContent", "accessibilityDefaultContent", "accessibilityFooter",
       "policyPageEmptyMessage",
     ] as const;
     for (const field of policyFields) {

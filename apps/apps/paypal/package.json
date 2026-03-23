@@ -13,7 +13,9 @@
     "generate:app-graphql-types": "graphql-codegen",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "start": "next start"
+    "start": "next start",
+    "test": "vitest",
+    "test:unit": "vitest run"
   },
   "config": {
     "saleor": {
@@ -65,6 +67,9 @@
     "graphql-config": "5.0.3",
     "graphql-tag": "catalog:",
     "tsx": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vite": "^5.4.21",
+    "vite-tsconfig-paths": "catalog:",
+    "vitest": "^2.1.9"
   }
 }

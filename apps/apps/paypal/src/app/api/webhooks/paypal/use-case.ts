@@ -9,7 +9,9 @@ import { PayPalApiClient } from "@/modules/paypal/paypal-api-client";
 import { mapPayPalRefundStatus } from "@/modules/paypal/paypal-refund-status";
 import { reportTransactionEvent } from "@/modules/saleor/transaction-event-reporter";
 import { parsePayPalAmount } from "@/modules/paypal/paypal-money";
+import { generatePayPalOrderUrl } from "@/modules/paypal/generate-paypal-dashboard-urls";
 import { PayPalWebhookEvent, PayPalRefund } from "@/modules/paypal/types";
+import { transactionRecorder } from "@/modules/transactions-recording";
 import { WebhookParams } from "./webhook-params";
 
 const logger = createLogger("PayPalWebhookUseCase");
@@ -103,13 +105,17 @@ export async function handlePayPalWebhook(args: {
     event.event_type === "PAYMENT.CAPTURE.REVERSED" ||
     event.event_type === "PAYMENT.CAPTURE.DENIED"
   ) {
-    return handleRefundEvent(event, saleorClient);
+    return handleRefundEvent(event, saleorClient, { environment: config.environment });
   }
 
   if (event.event_type === "PAYMENT.CAPTURE.COMPLETED") {
-    logger.info("Capture completed event acknowledged", {
-      resourceId: (event.resource as { id?: string }).id,
+    const captureResource = event.resource as { id?: string; amount?: { value: string; currency_code: string } };
+    logger.info("Capture completed event from PayPal", {
+      captureId: captureResource.id,
+      amount: captureResource.amount?.value,
     });
+    // Capture events from PayPal confirm charges already initiated from our side.
+    // Saleor already knows about these since we report CHARGE_SUCCESS synchronously.
     return ok({ message: "Capture completed acknowledged" });
   }
 
@@ -120,8 +126,13 @@ export async function handlePayPalWebhook(args: {
 async function handleRefundEvent(
   event: PayPalWebhookEvent,
   saleorClient: ReturnType<typeof createClient>,
+  config: { environment: "SANDBOX" | "LIVE" },
 ): Promise<Result<{ message: string }, { status: number; message: string }>> {
-  const resource = event.resource as Partial<PayPalRefund> & { id?: string; sale_id?: string };
+  const resource = event.resource as Partial<PayPalRefund> & {
+    id?: string;
+    sale_id?: string;
+    links?: Array<{ href: string; rel: string }>;
+  };
   const refundId = resource.id;
   const status = (resource.status ?? "COMPLETED") as PayPalRefund["status"];
   const amount = resource.amount?.value ? parsePayPalAmount(resource.amount.value) : 0;
@@ -135,29 +146,92 @@ async function handleRefundEvent(
 
   const mapping = mapPayPalRefundStatus(status);
 
-  // PayPal refund events include the refund ID as resource.id
-  // We previously stored the refund ID as pspReference in Saleor when we initiated the refund.
-  // Saleor's transactionEventReport needs the transaction ID — we look it up by the original
-  // capture's parent order ID which was stored as the transaction's pspReference.
-  //
-  // For now, we log the event and report it. The transactionId lookup requires querying
-  // Saleor's transactions — we use the refund ID as pspReference which Saleor matches
-  // against existing transaction events.
+  // Look up the Saleor transactionId from our recorded transactions.
+  // Strategy: extract capture ID from the refund's "up" link, then find the CHARGE recording.
+  let saleorTransactionId: string | undefined;
 
-  logger.info("Refund status update from PayPal", {
+  // First, try to extract capture ID from PayPal's links (most reliable)
+  const captureLink = resource.links?.find((l) => l.rel === "up");
+  if (captureLink) {
+    const captureMatch = captureLink.href.match(/captures\/([A-Z0-9]+)/);
+    if (captureMatch) {
+      const captureId = captureMatch[1];
+      logger.info("Extracted capture ID from refund links", { captureId, refundId });
+      try {
+        const byCapture = await transactionRecorder.getByPaypalCaptureId(captureId);
+        if (byCapture.length > 0) {
+          saleorTransactionId = byCapture[0].saleorTransactionId;
+          logger.info("Found Saleor transaction via capture ID", { captureId, saleorTransactionId });
+        }
+      } catch (e) {
+        logger.warn("Failed capture ID lookup", { captureId, error: e });
+      }
+    }
+  }
+
+  // Fallback: try looking up by refund ID (if we recorded a refund event earlier)
+  if (!saleorTransactionId) {
+    try {
+      const recorded = await transactionRecorder.getByPaypalOrderId(refundId);
+      if (recorded.length > 0) {
+        saleorTransactionId = recorded[0].saleorTransactionId;
+      }
+    } catch (e) {
+      logger.warn("Failed refund ID lookup", { refundId, error: e });
+    }
+  }
+
+  if (!saleorTransactionId) {
+    logger.warn("Cannot find Saleor transactionId for refund — event acknowledged but not reported", {
+      refundId,
+      status,
+    });
+    return ok({
+      message: `Refund ${refundId} status: ${status} — no matching Saleor transaction found`,
+    });
+  }
+
+  const isSandbox = config.environment === "SANDBOX";
+  const externalUrl = generatePayPalOrderUrl(refundId, isSandbox);
+
+  logger.info("Reporting refund status to Saleor", {
     refundId,
     status,
+    saleorTransactionId,
     saleorEventType: mapping.type,
     amount,
-    eventType: event.event_type,
   });
 
-  // We need the Saleor transactionId to report. PayPal doesn't include it.
-  // The refund ID was stored as pspReference on the REFUND_SUCCESS event we sent earlier.
-  // For full integration, we'd query Saleor for transactions matching this refund's capture.
-  // For now, log the event — the sync refund response already reported REFUND_SUCCESS.
+  const reportResult = await reportTransactionEvent(saleorClient, {
+    transactionId: saleorTransactionId,
+    type: mapping.type as any,
+    message: mapping.message,
+    pspReference: refundId,
+    amount,
+    time: new Date().toISOString(),
+    availableActions: mapping.availableActions as any[],
+    externalUrl,
+  });
+
+  if (reportResult.isErr()) {
+    logger.error("Failed to report refund to Saleor", {
+      error: reportResult.error.message,
+      refundId,
+      saleorTransactionId,
+    });
+    return ok({
+      message: `Refund ${refundId} acknowledged but Saleor report failed: ${reportResult.error.message}`,
+    });
+  }
+
+  const { alreadyProcessed } = reportResult.value;
+  logger.info("Refund reported to Saleor", {
+    refundId,
+    status,
+    alreadyProcessed,
+  });
 
   return ok({
-    message: `Refund ${refundId} status: ${status} (${mapping.type})`,
+    message: `Refund ${refundId} status: ${status} → reported to Saleor (${mapping.type})${alreadyProcessed ? " [already processed]" : ""}`,
   });
 }

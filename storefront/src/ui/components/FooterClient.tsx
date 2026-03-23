@@ -14,6 +14,7 @@ import {
 	useContentConfig,
 	useComponentStyle,
 	useComponentClasses,
+	useStoreConfig,
 } from "@/providers/StoreConfigProvider";
 import { buildComponentStyle } from "@/config";
 import { useNewsletterState } from "@/hooks/useNewsletterState";
@@ -275,6 +276,14 @@ export function FooterClient({ menuItems, channel }: FooterClientPropsWithChanne
 			text: (footerText as Record<string, string>).accessibilityLink || "Accessibility",
 		},
 	};
+
+	// Sync with pages.* toggles — if a page is disabled, hide its footer link too
+	const { pages } = useStoreConfig();
+	if (!pages.privacyPolicy) legalLinks.privacyPolicy.enabled = false;
+	if (!pages.termsOfService) legalLinks.termsOfService.enabled = false;
+	if (!pages.shippingPolicy) legalLinks.shippingPolicy.enabled = false;
+	if (!pages.returnPolicy) legalLinks.returnPolicy.enabled = false;
+	if (!pages.accessibility) legalLinks.accessibilityStatement.enabled = false;
 
 	// Check if we have a valid logo URL from config
 	const hasLogoUrl = branding.logo && 

@@ -4,6 +4,13 @@ import { compose } from "@saleor/apps-shared/compose";
 import { appContextContainer } from "@/lib/app-context";
 import { BaseError } from "@/lib/errors";
 import { createLogger } from "@/lib/logger";
+import { withLoggerContext } from "@/lib/logger-context";
+import {
+  captureException,
+  setObservabilityPayPalContext,
+  setObservabilitySourceObjectId,
+  withSpanAttributes,
+} from "@/lib/observability";
 import { appConfigRepoImpl } from "@/modules/app-config/repositories/app-config-repo-impl";
 import { createSaleorApiUrl } from "@/modules/saleor/saleor-api-url";
 import { PayPalApiClient } from "@/modules/paypal/paypal-api-client";
@@ -18,13 +25,23 @@ const logger = createLogger("TRANSACTION_CANCELATION_REQUESTED");
 const handler = transactionCancelationRequestedWebhookDefinition.createHandler(
   withRecipientVerification(async (_req, ctx) => {
     try {
+      // TransactionCancelationRequested has no sourceObject; extract from transaction
+      const sourceCheckout = ctx.payload.transaction?.checkout;
+      const sourceOrder = ctx.payload.transaction?.order;
+      if (sourceCheckout) {
+        setObservabilitySourceObjectId({ __typename: "Checkout", id: sourceCheckout.id });
+      } else if (sourceOrder) {
+        setObservabilitySourceObjectId({ __typename: "Order", id: sourceOrder.id });
+      }
+
       const saleorApiUrlResult = createSaleorApiUrl(ctx.authData.saleorApiUrl);
       if (saleorApiUrlResult.isErr()) {
+        captureException(saleorApiUrlResult.error);
         return Response.json({ result: "CANCEL_FAILURE", message: "Malformed request" });
       }
 
       const event = ctx.payload;
-      const channelId = event.sourceObject?.channel?.id ?? event.transaction?.checkout?.channel?.id ?? event.transaction?.order?.channel?.id;
+      const channelId = event.transaction?.checkout?.channel?.id ?? event.transaction?.order?.channel?.id;
       const pspReference = event.transaction?.pspReference;
 
       if (!channelId || !pspReference) {
@@ -51,6 +68,12 @@ const handler = transactionCancelationRequestedWebhookDefinition.createHandler(
         clientId: config.clientId,
         clientSecret: config.clientSecret,
         environment: config.environment,
+      });
+
+      setObservabilityPayPalContext({
+        paypalOrderId: pspReference,
+        paypalEnvironment: config.environment,
+        pspReference,
       });
 
       // Get order status — if CREATED or APPROVED but not captured, it's effectively voided
@@ -82,10 +105,15 @@ const handler = transactionCancelationRequestedWebhookDefinition.createHandler(
         message: `Cannot cancel order in ${order.status} status`,
       });
     } catch (error) {
+      captureException(error);
       logger.error("Unhandled error", { error });
       return new UnhandledErrorResponse(appContextContainer.getContextValue(), BaseError.normalize(error)).getResponse();
     }
   }),
 );
 
-export const POST = compose(appContextContainer.wrapRequest)(handler);
+export const POST = compose(
+  withLoggerContext,
+  appContextContainer.wrapRequest,
+  withSpanAttributes,
+)(handler);
