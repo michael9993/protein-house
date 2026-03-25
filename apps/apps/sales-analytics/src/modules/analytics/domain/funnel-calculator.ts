@@ -1,6 +1,6 @@
 import { Result, ok, err } from "neverthrow";
 
-import type { OrderAnalyticsFragment } from "../../../../generated/graphql";
+import { type OrderAnalyticsFragment, OrderStatus } from "../../../../generated/graphql";
 import { AnalyticsCalculationError } from "./analytics-calculator";
 
 export interface FunnelStage {
@@ -24,6 +24,8 @@ export interface FunnelData {
  * 3. Not Cancelled — orders that weren't cancelled
  * 4. Shipped (PARTIALLY_FULFILLED + FULFILLED + returned) — at least partially shipped
  * 5. Completed (FULFILLED only) — fully delivered, no returns
+ *
+ * Orders should already be filtered by status before calling this.
  */
 export function calculateFunnelData(
   orders: OrderAnalyticsFragment[],
@@ -37,18 +39,25 @@ export function calculateFunnelData(
     const total = filtered.length;
 
     const confirmed = filtered.filter(
-      (o) => o.status !== "DRAFT" && o.status !== "UNCONFIRMED"
+      (o) => o.status !== OrderStatus.Draft && o.status !== OrderStatus.Unconfirmed
     ).length;
 
     const notCancelled = filtered.filter(
-      (o) => o.status !== "CANCELED" && o.status !== "DRAFT" && o.status !== "UNCONFIRMED"
+      (o) =>
+        o.status !== OrderStatus.Canceled &&
+        o.status !== OrderStatus.Draft &&
+        o.status !== OrderStatus.Unconfirmed
     ).length;
 
-    const shipped = filtered.filter((o) =>
-      ["PARTIALLY_FULFILLED", "FULFILLED", "PARTIALLY_RETURNED", "RETURNED"].includes(o.status)
-    ).length;
+    const shippedStatuses: OrderStatus[] = [
+      OrderStatus.PartiallyFulfilled,
+      OrderStatus.Fulfilled,
+      OrderStatus.PartiallyReturned,
+      OrderStatus.Returned,
+    ];
+    const shipped = filtered.filter((o) => shippedStatuses.includes(o.status)).length;
 
-    const completed = filtered.filter((o) => o.status === "FULFILLED").length;
+    const completed = filtered.filter((o) => o.status === OrderStatus.Fulfilled).length;
 
     const stages: FunnelStage[] = [
       {

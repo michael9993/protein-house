@@ -47,7 +47,7 @@ async function fetchCollectionsForNav(channel: string): Promise<Array<{ id: stri
 				variables: { channel, languageCode: getLanguageCodeForChannel(channel) },
 			}),
 			cache: "force-cache",
-			next: { revalidate: 60 * 60 }, // Revalidate every hour
+			next: { revalidate: 300 }, // Revalidate every 5 minutes
 		});
 
 		if (!response.ok) {
@@ -126,7 +126,7 @@ async function fetchBrandsForNav(channel: string): Promise<Array<{ id: string; n
 				variables: { languageCode: getLanguageCodeForChannel(channel) },
 			}),
 			cache: "force-cache",
-			next: { revalidate: 60 * 60 }, // Revalidate every hour
+			next: { revalidate: 300 }, // Revalidate every 5 minutes
 		});
 
 		if (!response.ok) {
@@ -201,7 +201,7 @@ export async function getNavData(channel: string): Promise<MobileNavData> {
 	const [categoriesData, collectionsData, brandsData] = await Promise.all([
 		executeGraphQL(CategoriesForNavDocument, {
 			variables: { channel, first: 10, languageCode },
-			revalidate: 60 * 60,
+			revalidate: 300,
 		}).catch(() => ({ categories: null })),
 		fetchCollectionsForNav(channel),
 		fetchBrandsForNav(channel),
@@ -222,8 +222,8 @@ export const NavLinks = async ({ channel, navData: providedNavData }: { channel:
 	} else {
 		const languageCode = getLanguageCodeForChannel(channel);
 		const [navLinks, categoriesData, collectionsData, brandsData, dynamicConfig] = await Promise.all([
-			executeGraphQL(MenuGetBySlugDocument, { variables: { slug: "navbar", channel, languageCode }, revalidate: 60 * 60 * 24 }),
-			executeGraphQL(CategoriesForNavDocument, { variables: { channel, first: 10, languageCode }, revalidate: 60 * 60 }).catch(() => ({ categories: null })),
+			executeGraphQL(MenuGetBySlugDocument, { variables: { slug: "navbar", channel, languageCode }, revalidate: 3600 }),
+			executeGraphQL(CategoriesForNavDocument, { variables: { channel, first: 10, languageCode }, revalidate: 300 }).catch(() => ({ categories: null })),
 			fetchCollectionsForNav(channel),
 			fetchBrandsForNav(channel),
 			fetchStorefrontConfig(channel).catch(() => null),

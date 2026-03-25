@@ -34,7 +34,8 @@ export function GoogleTagManager({ channel }: { channel: string }) {
     return () => window.removeEventListener("consent-updated", handler);
   }, [channel]);
 
-  if (!gtmId || !consentGranted) return null;
+  // Validate GTM ID format to prevent script injection via config
+  if (!gtmId || !consentGranted || !/^GTM-[A-Z0-9]+$/i.test(gtmId)) return null;
 
   return (
     <Script

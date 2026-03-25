@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { timingSafeEqual } from "node:crypto";
 
 import { createLogger } from "@/lib/logger";
 
@@ -12,10 +13,18 @@ const logger = createLogger("PollPendingRefunds");
  * Checks any refunds that were returned as PENDING and queries PayPal for updates.
  */
 export async function GET(request: NextRequest) {
-  // Simple auth: check for a secret header to prevent unauthorized polling
-  const authHeader = request.headers.get("x-poll-secret");
+  // Auth: require a secret header to prevent unauthorized polling
   const expectedSecret = process.env.POLL_SECRET;
-  if (expectedSecret && authHeader !== expectedSecret) {
+  if (!expectedSecret) {
+    logger.error("POLL_SECRET environment variable is not configured");
+    return Response.json({ error: "Endpoint not configured" }, { status: 500 });
+  }
+
+  const authHeader = request.headers.get("x-poll-secret") ?? "";
+  // Use timing-safe comparison to prevent timing attacks
+  const a = Buffer.from(authHeader);
+  const b = Buffer.from(expectedSecret);
+  if (a.byteLength !== b.byteLength || !timingSafeEqual(a, b)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 

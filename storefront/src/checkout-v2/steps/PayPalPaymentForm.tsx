@@ -14,6 +14,50 @@ import { useEcommerceSettings } from "@/providers/StoreConfigProvider";
 import { adjustShippingPrice, type ShippingPriceAdjustment } from "@/checkout-v2/utils/adjustShippingPrice";
 
 // ---------------------------------------------------------------------------
+// Payment error code → config key mapping
+// ---------------------------------------------------------------------------
+
+type CheckoutTextKey =
+	| "cardDeclinedError"
+	| "cardExpiredError"
+	| "insufficientFundsError"
+	| "invalidCardError"
+	| "transactionRefusedError"
+	| "verificationRequiredError"
+	| "paymentNotApprovedError"
+	| "paypalTemporaryError"
+	| "genericPaymentDeclineError";
+
+const errorCodeToConfigKey: [string, CheckoutTextKey][] = [
+	["INSTRUMENT_DECLINED", "cardDeclinedError"],
+	["GENERIC_DECLINE", "cardDeclinedError"],
+	["CARD_EXPIRED", "cardExpiredError"],
+	["EXPIRED_CARD", "cardExpiredError"],
+	["INSUFFICIENT_FUNDS", "insufficientFundsError"],
+	["INVALID_OR_RESTRICTED_CARD", "invalidCardError"],
+	["INVALID_ACCOUNT", "invalidCardError"],
+	["CVV2_FAILURE", "invalidCardError"],
+	["TRANSACTION_REFUSED", "transactionRefusedError"],
+	["DO_NOT_HONOR", "transactionRefusedError"],
+	["SUSPECTED_FRAUD", "transactionRefusedError"],
+	["LOST_OR_STOLEN", "transactionRefusedError"],
+	["PAYER_ACTION_REQUIRED", "verificationRequiredError"],
+	["ORDER_NOT_APPROVED", "paymentNotApprovedError"],
+	["INTERNAL_SERVER_ERROR", "paypalTemporaryError"],
+];
+
+/** Map a raw PayPal/processor error message to a config-driven translated message */
+function mapPaymentError(rawMessage: string, t: { [K in CheckoutTextKey]?: string } & { genericPaymentDeclineError?: string; paymentFailedError?: string }): string {
+	const upper = rawMessage.toUpperCase();
+	for (const [code, key] of errorCodeToConfigKey) {
+		if (upper.includes(code)) {
+			return t[key] ?? t.genericPaymentDeclineError ?? rawMessage;
+		}
+	}
+	return t.genericPaymentDeclineError ?? t.paymentFailedError ?? rawMessage;
+}
+
+// ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
@@ -116,10 +160,17 @@ export function PayPalPaymentForm({
 				});
 
 				if (processResult.errors.length > 0) {
-					setErrors([
-						t.paymentSuccessOrderFailedError ??
-							"Payment approved but processing failed. Please contact support.",
-					]);
+					const rawMsg = processResult.errors[0]?.message || "";
+					setErrors([mapPaymentError(rawMsg, t)]);
+					setIsProcessing(false);
+					return;
+				}
+
+				// Check if the payment app returned a failure (e.g., CHARGE_FAILURE)
+				const eventType = processResult.eventType ?? "";
+				if (eventType.includes("FAILURE") || eventType.includes("failure")) {
+					const rawMsg = processResult.eventMessage || "";
+					setErrors([mapPaymentError(rawMsg, t)]);
 					setIsProcessing(false);
 					return;
 				}
@@ -181,7 +232,7 @@ export function PayPalPaymentForm({
 	const onError = useCallback(
 		(err: Record<string, unknown>) => {
 			console.error("[PayPalPaymentForm] PayPal SDK error:", err);
-			setErrors([t.unexpectedPaymentError ?? "An error occurred with PayPal. Please try again."]);
+			setErrors([mapPaymentError(String(err?.message ?? ""), t)]);
 			setIsProcessing(false);
 		},
 		[t],

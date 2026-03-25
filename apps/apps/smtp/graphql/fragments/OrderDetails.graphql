@@ -233,4 +233,21 @@ fragment OrderDetails on Order {
   displayGrossPrices
   isShippingRequired
   shippingMethodName
+  grantedRefunds {
+    id
+    createdAt
+    amount {
+      amount
+      currency
+    }
+    reason
+  }
+  totalCaptured {
+    amount
+    currency
+  }
+  totalCharged {
+    amount
+    currency
+  }
 }

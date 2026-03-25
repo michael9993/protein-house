@@ -26,6 +26,31 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+function ChargeStatusBadge({ status }: { status: string }) {
+  const colorMap: Record<string, string> = {
+    FULL: "bg-emerald-50 text-emerald-700",
+    PARTIAL: "bg-blue-50 text-blue-700",
+    NONE: "bg-gray-100 text-gray-600",
+    REFUNDED: "bg-red-50 text-red-700",
+    PARTIALLY_REFUNDED: "bg-orange-50 text-orange-700",
+    OVERCHARGED: "bg-yellow-50 text-yellow-700",
+  };
+  const labelMap: Record<string, string> = {
+    FULL: "Fully Charged",
+    PARTIAL: "Partially Charged",
+    NONE: "Not Charged",
+    REFUNDED: "Refunded",
+    PARTIALLY_REFUNDED: "Partially Refunded",
+    OVERCHARGED: "Overcharged",
+  };
+  const colors = colorMap[status] || "bg-gray-100 text-gray-600";
+  return (
+    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${colors}`}>
+      {labelMap[status] || formatStatus(status)}
+    </span>
+  );
+}
+
 export function RecentOrdersTable({ orders, isLoading }: OrdersTableProps) {
   if (isLoading) {
     return (
@@ -59,7 +84,9 @@ export function RecentOrdersTable({ orders, isLoading }: OrdersTableProps) {
               <th className="pb-2 text-left font-semibold text-text-muted">Date</th>
               <th className="pb-2 text-left font-semibold text-text-muted">Customer</th>
               <th className="pb-2 text-left font-semibold text-text-muted">Status</th>
+              <th className="pb-2 text-left font-semibold text-text-muted">Payment</th>
               <th className="pb-2 text-right font-semibold text-text-muted">Total</th>
+              <th className="pb-2 text-right font-semibold text-text-muted">Refund</th>
             </tr>
           </thead>
           <tbody>
@@ -78,8 +105,20 @@ export function RecentOrdersTable({ orders, isLoading }: OrdersTableProps) {
                 <td className="py-2.5">
                   <StatusBadge status={order.status} />
                 </td>
+                <td className="py-2.5">
+                  <ChargeStatusBadge status={order.chargeStatus} />
+                </td>
                 <td className="py-2.5 text-right font-semibold text-text-primary">
                   {formatCurrency(order.total.amount, order.total.currency)}
+                </td>
+                <td className="py-2.5 text-right text-sm">
+                  {order.refundAmount > 0 ? (
+                    <span className="text-red-600 font-medium">
+                      -{formatCurrency(order.refundAmount, order.total.currency)}
+                    </span>
+                  ) : (
+                    <span className="text-text-muted">—</span>
+                  )}
                 </td>
               </tr>
             ))}

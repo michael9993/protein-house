@@ -89,10 +89,14 @@ export function KPICardsGrid({ kpis, profitability, currency, isLoading }: KPICa
 
   const kpiCards: (KPICardType & { key: string })[] = [
     { key: "gmv", ...kpis.gmv },
+    { key: "netRevenue", ...kpis.netRevenue },
     { key: "totalOrders", ...kpis.totalOrders },
     { key: "aov", ...kpis.averageOrderValue },
     { key: "itemsSold", ...kpis.itemsSold },
     { key: "customers", ...kpis.uniqueCustomers },
+    { key: "totalRefunds", ...kpis.totalRefunds },
+    { key: "refundRate", ...kpis.refundRate },
+    { key: "cancellationRate", ...kpis.cancellationRate },
   ];
 
   if (profitability && profitability.cogsAvailable && currency) {

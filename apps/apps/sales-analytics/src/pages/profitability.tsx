@@ -21,12 +21,16 @@ import {
 import { DateRangePicker, QuickDateSelect } from "@/modules/ui/components/date-range-picker";
 import { ChannelSelector } from "@/modules/ui/components/channel-selector";
 import { OrderTypeSelector } from "@/modules/ui/components/order-type-selector";
+import { StatusFilter } from "@/modules/ui/components/status-filter";
+import { ChargeStatusFilter } from "@/modules/ui/components/charge-status-filter";
 import { AutoRefreshToggle, useAutoRefresh } from "@/modules/ui/components/auto-refresh-toggle";
 import { ChartCard } from "@/modules/ui/components/chart-card";
 import { ChartTooltip } from "@/modules/ui/components/chart-tooltip";
 import { getTimeRangeFromPreset, type TimeRange } from "@/modules/analytics/domain/time-range";
 import { formatCurrency, formatCompactNumber } from "@/modules/analytics/domain/money";
 import type { OrderTypeFilter } from "@/modules/analytics/domain/kpi-types";
+import { DEFAULT_INCLUDED_STATUSES } from "@/modules/analytics/domain/kpi-types";
+import { OrderStatus, OrderChargeStatusEnum } from "../../generated/graphql";
 
 const REFRESH_INTERVAL = 30_000;
 
@@ -74,6 +78,8 @@ export default function ProfitabilityPage() {
   const [dateRange, setDateRange] = useState<TimeRange>(() => getTimeRangeFromPreset("last30days"));
   const [channelSlug, setChannelSlug] = useState<string | undefined>(undefined);
   const [orderType, setOrderType] = useState<OrderTypeFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<OrderStatus[]>([...DEFAULT_INCLUDED_STATUSES]);
+  const [chargeStatusFilter, setChargeStatusFilter] = useState<OrderChargeStatusEnum[]>([]);
 
   const channelsQuery = trpcClient.channels.list.useQuery(undefined, {
     enabled: !!appBridgeState?.ready,
@@ -106,8 +112,10 @@ export default function ProfitabilityPage() {
       dateTo: dateRange.to,
       currency,
       orderType,
+      statusFilter,
+      chargeStatusFilter: chargeStatusFilter.length > 0 ? chargeStatusFilter : undefined,
     }),
-    [effectiveChannelSlug, dateRange.from, dateRange.to, currency, orderType],
+    [effectiveChannelSlug, dateRange.from, dateRange.to, currency, orderType, statusFilter, chargeStatusFilter],
   );
 
   const refetchInterval = autoRefresh.enabled ? REFRESH_INTERVAL : false;
@@ -152,6 +160,8 @@ export default function ProfitabilityPage() {
               onToggle={autoRefresh.toggle}
               lastUpdated={autoRefresh.lastUpdated}
             />
+            <StatusFilter value={statusFilter} onChange={setStatusFilter} />
+            <ChargeStatusFilter value={chargeStatusFilter} onChange={setChargeStatusFilter} />
             <OrderTypeSelector value={orderType} onChange={setOrderType} />
             <ChannelSelector
               channels={channelsQuery.data ?? []}
@@ -180,9 +190,10 @@ export default function ProfitabilityPage() {
         ) : data ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             <SummaryCard label="Gross Revenue" value={formatCurrency(data.grossRevenue, resolvedCurrency)} />
+            <SummaryCard label="Refunds" value={formatCurrency(data.refunds, resolvedCurrency)} negative />
+            <SummaryCard label="Net Revenue" value={formatCurrency(data.netRevenue, resolvedCurrency)} />
             <SummaryCard label="COGS" value={formatCurrency(data.cogs, resolvedCurrency)} negative />
             <SummaryCard label="Gross Profit" value={formatCurrency(data.grossProfit, resolvedCurrency)} highlight />
-            <SummaryCard label="Net Revenue" value={formatCurrency(data.netRevenue, resolvedCurrency)} />
             <SummaryCard label="Margin" value={`${data.marginPercent.toFixed(1)}%`} highlight />
           </div>
         ) : null}
@@ -222,6 +233,7 @@ export default function ProfitabilityPage() {
                 />
                 <Area type="monotone" dataKey="revenue" stroke="#6366f1" fill="#6366f1" fillOpacity={0.1} name="Revenue" />
                 <Area type="monotone" dataKey="cogs" stroke="#ef4444" fill="#ef4444" fillOpacity={0.1} name="COGS" />
+                <Area type="monotone" dataKey="refunds" stroke="#f97316" fill="#f97316" fillOpacity={0.1} name="Refunds" />
                 <Area type="monotone" dataKey="profit" stroke="#22c55e" fill="#22c55e" fillOpacity={0.1} name="Profit" />
               </AreaChart>
             </ResponsiveContainer>
@@ -242,10 +254,11 @@ export default function ProfitabilityPage() {
               <tbody>
                 <PnlRow label="Gross Revenue" value={data.grossRevenue} currency={resolvedCurrency} />
                 <PnlRow label="Shipping Revenue" value={data.shippingRevenue} currency={resolvedCurrency} indent />
+                <PnlRow label="Refunds" value={-data.refunds} currency={resolvedCurrency} negative />
+                <PnlRow label="Net Revenue" value={data.netRevenue} currency={resolvedCurrency} bold />
                 <PnlRow label="Cost of Goods (COGS)" value={-data.cogs} currency={resolvedCurrency} negative />
                 <PnlRow label="Discounts" value={-data.discounts} currency={resolvedCurrency} negative />
                 <PnlRow label="Gross Profit" value={data.grossProfit} currency={resolvedCurrency} bold />
-                <PnlRow label="Net Revenue" value={data.netRevenue} currency={resolvedCurrency} bold />
                 <PnlRow label="Margin" value={data.marginPercent} isPercent bold />
               </tbody>
             </table>

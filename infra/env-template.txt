@@ -37,6 +37,13 @@ POSTGRES_DB=saleor
 DB_CONN_MAX_AGE=60
 
 # ============================================================================
+# ADMIN CREDENTIALS (for test/utility scripts — NOT committed to source control)
+# ============================================================================
+AURA_ADMIN_EMAIL=your-admin@example.com
+AURA_ADMIN_PASSWORD=
+AURA_API_URL=http://localhost:8000/graphql/
+
+# ============================================================================
 # SALEOR API CONFIGURATION
 # ============================================================================
 # Django Secret Key - Generate a random string (REQUIRED for production)
@@ -165,8 +172,11 @@ NEXT_PUBLIC_SALEOR_API_URL=http://localhost:8000/graphql/
 # SERVER-SIDE API URL — used inside Docker containers (SSR, server components)
 # Should use Docker service name for direct container-to-container communication
 SALEOR_API_URL=http://saleor-api:8000/graphql/
-# Public storefront URL
+# Public storefront URL (used by frontends)
 NEXT_PUBLIC_STOREFRONT_URL=http://localhost:3000
+# Storefront URL for Saleor backend (abandoned checkout recovery emails)
+# In production, set to your public storefront URL (e.g., https://shop.yourdomain.com)
+STOREFRONT_URL=http://localhost:3000
 # Default channel slug
 NEXT_PUBLIC_DEFAULT_CHANNEL=default-channel
 # Comma-separated channel slugs for config fetching (e.g., "ils,usd")

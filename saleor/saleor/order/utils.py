@@ -1046,30 +1046,50 @@ def remove_discount_from_order_line(order_line: OrderLine, order: "Order"):
         OrderLine.objects.bulk_update(lines, ["base_unit_price_amount"])
 
 
-def update_order_charge_status(order: Order, granted_refund_amount: Decimal):
+def update_order_charge_status(
+    order: Order,
+    granted_refund_amount: Decimal,
+    order_transactions: Iterable["TransactionItem"] | None = None,
+):
     """Update the current charge status for the order.
 
-    We treat the order as overcharged when the charged amount is bigger that
-    order.total - order granted refund
-    We treat the order as fully charged when the charged amount is equal to
-    order.total - order granted refund.
-    We treat the order as partially charged when the charged amount covers only part of
-    the order.total - order granted refund
-    We treat the order as not charged when the charged amount is 0.
+    charged_value = NET retained (Saleor subtracts refunds from it).
+    total_charged_amount = sum of charged_value across transactions.
+
+    FULL: net == order total (fully paid, no refunds)
+    PARTIALLY_REFUNDED: 0 < net < order total AND refunds exist
+    PARTIAL: 0 < net < order total AND no refunds (partial payment)
+    REFUNDED: net <= 0 AND refunds exist (fully refunded)
+    NONE: net <= 0 AND no refunds (never charged)
+    OVERCHARGED: net > order total
     """
     total_charged = order.total_charged_amount or Decimal(0)
     total_charged = quantize_price(total_charged, order.currency)
 
-    current_total_gross = order.total_gross_amount - granted_refund_amount
-    current_total_gross = max(current_total_gross, Decimal(0))
-    current_total_gross = quantize_price(current_total_gross, order.currency)
+    order_total = order.total_gross_amount
+    order_total = max(order_total, Decimal(0))
+    order_total = quantize_price(order_total, order.currency)
 
-    if total_charged == current_total_gross:
+    # Check if any refunds occurred (from transactions or grants)
+    total_refunded = Decimal(0)
+    if order_transactions is not None:
+        total_refunded = sum(
+            [tr.refunded_value for tr in order_transactions], Decimal(0)
+        )
+    has_refunds = total_refunded > 0 or granted_refund_amount > 0
+
+    if total_charged == order_total:
         order.charge_status = OrderChargeStatus.FULL
     elif total_charged <= Decimal(0):
-        order.charge_status = OrderChargeStatus.NONE
-    elif total_charged < current_total_gross:
-        order.charge_status = OrderChargeStatus.PARTIAL
+        if has_refunds:
+            order.charge_status = OrderChargeStatus.REFUNDED
+        else:
+            order.charge_status = OrderChargeStatus.NONE
+    elif total_charged < order_total:
+        if has_refunds:
+            order.charge_status = OrderChargeStatus.PARTIALLY_REFUNDED
+        else:
+            order.charge_status = OrderChargeStatus.PARTIAL
     else:
         order.charge_status = OrderChargeStatus.OVERCHARGED
 
@@ -1079,6 +1099,8 @@ def _update_order_total_charged(
     order_payments: QuerySet["Payment"],
     order_transactions: Iterable["TransactionItem"],
 ):
+    # charged_value already reflects NET (Saleor subtracts refunds from it).
+    # So total_charged_amount = NET amount currently retained by merchant.
     order.total_charged_amount = sum(
         [p.captured_amount for p in order_payments], Decimal(0)
     )
@@ -1101,10 +1123,12 @@ def update_order_charge_data(
     granted_refund_amount = sum(
         [refund.amount.amount for refund in order_granted_refunds], Decimal(0)
     )
+    # Materialize queryset so both functions can iterate it
+    transactions_list = list(order_transactions)
     _update_order_total_charged(
-        order, order_payments=order_payments, order_transactions=order_transactions
+        order, order_payments=order_payments, order_transactions=transactions_list
     )
-    update_order_charge_status(order, granted_refund_amount)
+    update_order_charge_status(order, granted_refund_amount, transactions_list)
     if with_save:
         order.save(
             update_fields=["total_charged_amount", "charge_status", "updated_at"]
@@ -1127,25 +1151,28 @@ def _update_order_total_authorized(
 def update_order_authorize_status(order: Order, granted_refund_amount: Decimal):
     """Update the current authorize status for the order.
 
-    The order is fully authorized when total_authorized or total_charged funds
-    cover the order.total - order granted refunds
-    The order is partially authorized when total_authorized or total_charged
-    funds cover only part of the order.total - order granted refunds
-    The order is not authorized when total_authorized and total_charged funds are 0.
+    Compare total authorized + charged against the full order total.
+    Since charged_value already accounts for refunds (reduced by REFUND_SUCCESS events),
+    we compare directly against order total without subtracting grants.
+
+    FULL: covered == order total (or order total is 0)
+    PARTIAL: 0 < covered < order total
+    NONE: covered == 0
     """
     total_covered = (
         order.total_authorized_amount + order.total_charged_amount
     ) or Decimal(0)
     total_covered = quantize_price(total_covered, order.currency)
-    current_total_gross = order.total_gross_amount - granted_refund_amount
-    current_total_gross = max(current_total_gross, Decimal(0))
-    current_total_gross = quantize_price(current_total_gross, order.currency)
+
+    order_total = order.total_gross_amount
+    order_total = max(order_total, Decimal(0))
+    order_total = quantize_price(order_total, order.currency)
 
     if total_covered == Decimal(0) and order.total.gross.amount == Decimal(0):
         order.authorize_status = OrderAuthorizeStatus.FULL
     elif total_covered == Decimal(0):
         order.authorize_status = OrderAuthorizeStatus.NONE
-    elif total_covered >= current_total_gross:
+    elif total_covered >= order_total:
         order.authorize_status = OrderAuthorizeStatus.FULL
     else:
         order.authorize_status = OrderAuthorizeStatus.PARTIAL

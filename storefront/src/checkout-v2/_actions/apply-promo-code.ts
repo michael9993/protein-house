@@ -18,6 +18,14 @@ export async function applyPromoCode(
 	checkoutId: string,
 	promoCode: string,
 ): Promise<ApplyPromoCodeResult> {
+	// Defense-in-depth: validate inputs before sending to GraphQL
+	if (!checkoutId || typeof checkoutId !== "string" || checkoutId.length > 512) {
+		return { checkout: null, errors: [{ field: "checkoutId", message: "Invalid checkout ID", code: "INVALID" }] };
+	}
+	if (!promoCode || typeof promoCode !== "string" || promoCode.length > 100) {
+		return { checkout: null, errors: [{ field: "promoCode", message: "Invalid promo code", code: "INVALID" }] };
+	}
+
 	const result = await executeGraphQL(CheckoutAddPromoCodeDocument, {
 		variables: {
 			checkoutId,

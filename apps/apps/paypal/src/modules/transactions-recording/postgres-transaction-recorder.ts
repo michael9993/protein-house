@@ -9,6 +9,7 @@ const logger = createLogger("PostgresTransactionRecorder");
 interface PaypalTransactionRow {
   id: number;
   saleor_transaction_id: string;
+  saleor_order_id: string | null;
   paypal_order_id: string;
   paypal_capture_id: string | null;
   paypal_refund_id: string | null;
@@ -33,6 +34,7 @@ async function ensureTable(): Promise<void> {
     CREATE TABLE IF NOT EXISTS paypal_transactions (
       id SERIAL PRIMARY KEY,
       saleor_transaction_id TEXT NOT NULL,
+      saleor_order_id TEXT,
       paypal_order_id TEXT NOT NULL,
       paypal_capture_id TEXT,
       paypal_refund_id TEXT,
@@ -58,6 +60,12 @@ async function ensureTable(): Promise<void> {
     ON paypal_transactions (saleor_transaction_id)
   `;
 
+  // Add saleor_order_id column if it doesn't exist (migration for existing tables)
+  await sql`
+    ALTER TABLE paypal_transactions
+    ADD COLUMN IF NOT EXISTS saleor_order_id TEXT
+  `.catch(() => { /* column may already exist */ });
+
   tableInitialized = true;
   logger.info("PostgreSQL table initialized (paypal_transactions)");
 }
@@ -66,6 +74,7 @@ function rowToTransaction(row: PaypalTransactionRow): RecordedTransaction {
   return {
     id: String(row.id),
     saleorTransactionId: row.saleor_transaction_id,
+    saleorOrderId: row.saleor_order_id ?? undefined,
     paypalOrderId: row.paypal_order_id,
     paypalCaptureId: row.paypal_capture_id ?? undefined,
     paypalRefundId: row.paypal_refund_id ?? undefined,
@@ -95,6 +104,7 @@ export class PostgresTransactionRecorder implements TransactionRecorder {
     await sql`
       INSERT INTO paypal_transactions (
         saleor_transaction_id,
+        saleor_order_id,
         paypal_order_id,
         paypal_capture_id,
         paypal_refund_id,
@@ -107,6 +117,7 @@ export class PostgresTransactionRecorder implements TransactionRecorder {
         metadata
       ) VALUES (
         ${transaction.saleorTransactionId},
+        ${transaction.saleorOrderId ?? null},
         ${transaction.paypalOrderId},
         ${transaction.paypalCaptureId ?? null},
         ${transaction.paypalRefundId ?? null},

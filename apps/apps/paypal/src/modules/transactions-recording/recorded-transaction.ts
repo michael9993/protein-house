@@ -5,6 +5,7 @@ export type PayPalEnvironment = "SANDBOX" | "LIVE";
 export interface RecordedTransaction {
   id?: string;
   saleorTransactionId: string;
+  saleorOrderId?: string;
   paypalOrderId: string;
   paypalCaptureId?: string;
   paypalRefundId?: string;

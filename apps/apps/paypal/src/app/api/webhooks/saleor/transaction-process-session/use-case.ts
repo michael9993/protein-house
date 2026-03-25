@@ -147,6 +147,7 @@ export class TransactionProcessSessionUseCase {
           // Fire-and-forget: record authorization
           transactionRecorder.record({
             saleorTransactionId: event.transaction?.id ?? pspReference,
+            saleorOrderId: event.transaction?.order?.id ?? event.transaction?.checkout?.id,
             paypalOrderId: pspReference,
             type: "AUTHORIZATION",
             status: "SUCCESS",
@@ -173,6 +174,7 @@ export class TransactionProcessSessionUseCase {
         // Fire-and-forget: record charge
         transactionRecorder.record({
           saleorTransactionId: event.transaction?.id ?? pspReference,
+          saleorOrderId: event.transaction?.order?.id ?? event.transaction?.checkout?.id,
           paypalOrderId: pspReference,
           paypalCaptureId: capture?.id ?? undefined,
           type: "CHARGE",
@@ -224,6 +226,7 @@ export class TransactionProcessSessionUseCase {
           // Fire-and-forget: record authorization
           transactionRecorder.record({
             saleorTransactionId: event.transaction?.id ?? pspReference,
+            saleorOrderId: event.transaction?.order?.id ?? event.transaction?.checkout?.id,
             paypalOrderId: pspReference,
             type: "AUTHORIZATION",
             status: "SUCCESS",
@@ -281,6 +284,7 @@ export class TransactionProcessSessionUseCase {
         // Fire-and-forget: record charge
         transactionRecorder.record({
           saleorTransactionId: event.transaction?.id ?? pspReference,
+          saleorOrderId: event.transaction?.order?.id ?? event.transaction?.checkout?.id,
           paypalOrderId: pspReference,
           paypalCaptureId: capture.id,
           type: "CHARGE",

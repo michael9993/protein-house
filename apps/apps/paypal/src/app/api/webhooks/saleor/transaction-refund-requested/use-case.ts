@@ -126,10 +126,73 @@ export class TransactionRefundRequestedUseCase {
       const refundResult = await client.refundCapture(capture.id, paypalRefundAmount);
 
       if (refundResult.isErr()) {
+        const errorMsg = refundResult.error.publicMessage ?? refundResult.error.message;
+
+        // PayPal returns 422 UNPROCESSABLE_ENTITY with detail "CAPTURE_FULLY_REFUNDED"
+        // when the capture was already refunded (e.g., via PayPal UI). Treat as success.
+        if (errorMsg.includes("CAPTURE_FULLY_REFUNDED")) {
+          logger.info("Capture already fully refunded on PayPal — reporting as success", {
+            pspReference,
+            captureId: capture.id,
+          });
+
+          transactionRecorder.record({
+            saleorTransactionId: event.transaction?.id ?? pspReference,
+            saleorOrderId: event.transaction?.order?.id ?? event.transaction?.checkout?.id,
+            paypalOrderId: pspReference,
+            paypalCaptureId: capture.id,
+            type: "REFUND",
+            status: "SUCCESS",
+            amount: refundAmount ?? 0,
+            currency: refundCurrency,
+            environment: config.environment,
+            metadata: { alreadyRefundedOnPayPal: true },
+          }).catch((e) => logger.error("Failed to record transaction", { error: e }));
+
+          return Response.json({
+            result: "REFUND_SUCCESS",
+            pspReference,
+            amount: refundAmount,
+            externalUrl,
+            message: "Already refunded on PayPal",
+          });
+        }
+
+        // PayPal returns 422 when capture doesn't exist or was voided
+        if (errorMsg.includes("CAPTURE_NOT_FOUND") || errorMsg.includes("INVALID_RESOURCE_ID")) {
+          logger.warn("Capture not found on PayPal", { pspReference, captureId: capture.id });
+          return Response.json({
+            result: "REFUND_FAILURE",
+            pspReference,
+            message: "Capture not found on PayPal — it may have been voided",
+          });
+        }
+
+        // PayPal rejects partial refund on some captures
+        if (errorMsg.includes("PARTIAL_REFUND_NOT_ALLOWED")) {
+          logger.warn("Partial refund not allowed", { pspReference, amount: refundAmount });
+          return Response.json({
+            result: "REFUND_FAILURE",
+            pspReference,
+            message: "PayPal does not allow partial refunds on this capture. Try a full refund.",
+            actions: ["REFUND"],
+          });
+        }
+
+        // Max refund attempts exceeded
+        if (errorMsg.includes("MAX_NUMBER_OF_REFUNDS_EXCEEDED")) {
+          logger.warn("Max refund attempts exceeded", { pspReference });
+          return Response.json({
+            result: "REFUND_FAILURE",
+            pspReference,
+            message: "Maximum number of refund attempts exceeded on PayPal",
+          });
+        }
+
         return Response.json({
           result: "REFUND_FAILURE",
           pspReference,
-          message: `Refund failed: ${refundResult.error.publicMessage}`,
+          message: `Refund failed: ${errorMsg}`,
           actions: ["REFUND"],
         });
       }
@@ -147,6 +210,7 @@ export class TransactionRefundRequestedUseCase {
         // Fire-and-forget: record completed refund
         transactionRecorder.record({
           saleorTransactionId: event.transaction?.id ?? pspReference,
+          saleorOrderId: event.transaction?.order?.id ?? event.transaction?.checkout?.id,
           paypalOrderId: pspReference,
           paypalCaptureId: capture.id,
           paypalRefundId: refund.id,
@@ -171,6 +235,7 @@ export class TransactionRefundRequestedUseCase {
       // Fire-and-forget: record pending refund
       transactionRecorder.record({
         saleorTransactionId: event.transaction?.id ?? pspReference,
+        saleorOrderId: event.transaction?.order?.id ?? event.transaction?.checkout?.id,
         paypalOrderId: pspReference,
         paypalCaptureId: capture.id,
         paypalRefundId: refund.id,

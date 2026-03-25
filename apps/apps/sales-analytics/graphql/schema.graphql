@@ -12616,6 +12616,8 @@ enum OrderChargeStatusEnum @doc(category: "Orders") {
   PARTIAL
   FULL
   OVERCHARGED
+  PARTIALLY_REFUNDED
+  REFUNDED
 }
 
 """Represents a payment of a given type."""

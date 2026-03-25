@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-03-23T00:45:10.698Z",
+  "exportedAt": "2026-03-23T23:33:47.115Z",
   "channels": {
     "ils": {
       "version": 110,
@@ -3956,8 +3956,8 @@
       }
     },
     "usd": {
-      "version": 42,
-      "updatedAt": "2026-03-23T00:45:06.906Z",
+      "version": 43,
+      "updatedAt": "2026-03-23T23:33:45.718Z",
       "channelSlug": "usd",
       "store": {
         "name": "Pawzen",
@@ -4252,7 +4252,7 @@
           "trustStrip": {
             "enabled": true,
             "freeShippingText": "Pet-Safe Materials",
-            "easyReturnsText": "Free Shipping Over $100 for selected countries",
+            "easyReturnsText": "Free Shipping Over $75 for selected countries",
             "secureCheckoutText": "24/7 Support",
             "supportText": "30-Day Returns",
             "background": {

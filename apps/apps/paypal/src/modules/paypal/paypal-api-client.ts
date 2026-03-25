@@ -19,6 +19,38 @@ import {
 
 const logger = createLogger("PayPalApiClient");
 
+/** Map PayPal error codes to user-friendly messages shown in the storefront/dashboard */
+function getUserFriendlyPayPalError(issueCode: string, fallback: string): string {
+  const messages: Record<string, string> = {
+    // Payment declined
+    INSTRUMENT_DECLINED: "Your payment method was declined. Please try a different payment method.",
+    TRANSACTION_REFUSED: "This transaction was refused. Please try a different payment method.",
+    PAYER_ACTION_REQUIRED: "Additional verification is required. Please complete the verification step.",
+    ORDER_NOT_APPROVED: "The payment was not approved. Please try again and complete the approval.",
+    DUPLICATE_INVOICE_ID: "This payment has already been processed.",
+    PAYER_CANNOT_PAY: "This PayPal account cannot complete this payment. Please try a different payment method.",
+    PAYER_ACCOUNT_RESTRICTED: "This PayPal account is restricted. Please contact PayPal support.",
+    PAYER_ACCOUNT_LOCKED_OR_CLOSED: "This PayPal account is locked or closed. Please use a different account.",
+
+    // Card-specific
+    CARD_EXPIRED: "Your card has expired. Please use a different card.",
+    CARD_CLOSED: "This card account has been closed. Please use a different card.",
+    INSUFFICIENT_FUNDS: "Insufficient funds. Please use a different payment method.",
+    MAX_NUMBER_OF_PAYMENT_ATTEMPTS_EXCEEDED: "Too many payment attempts. Please wait and try again later.",
+
+    // Refund errors
+    CAPTURE_FULLY_REFUNDED: "This payment has already been fully refunded.",
+    CAPTURE_NOT_COMPLETED: "The payment has not been completed yet and cannot be refunded.",
+    PARTIAL_REFUND_NOT_ALLOWED: "Partial refunds are not allowed for this payment.",
+
+    // Server/system
+    INTERNAL_SERVER_ERROR: "PayPal is experiencing temporary issues. Please try again in a few minutes.",
+    UNPROCESSABLE_ENTITY: "PayPal could not process this request. Please try again.",
+  };
+
+  return messages[issueCode] ?? fallback;
+}
+
 interface CachedToken {
   accessToken: string;
   expiresAt: number;
@@ -92,12 +124,19 @@ export class PayPalApiClient {
 
       return ok(data.access_token);
     } catch (error) {
-      logger.error("PayPal auth request failed", { error });
+      logger.error("PayPal auth request failed", {
+        error: error instanceof Error ? error.message : JSON.stringify(error),
+        baseUrl: this.baseUrl,
+        environment: this.environment,
+      });
       return err(
-        new PayPalApiError("PayPal authentication request failed", {
-          cause: error,
-          props: { publicCode: "AUTH_REQUEST_FAILED" },
-        }),
+        new PayPalApiError(
+          `PayPal authentication failed (${this.environment}): ${error instanceof Error ? error.message : "Network error"}`,
+          {
+            cause: error,
+            props: { publicCode: "AUTH_REQUEST_FAILED", publicMessage: "PayPal authentication failed — check credentials and network" },
+          },
+        ),
       );
     }
   }
@@ -117,6 +156,18 @@ export class PayPalApiClient {
         Authorization: `Bearer ${tokenResult.value}`,
         "Content-Type": "application/json",
       };
+
+      // Negative testing: set PAYPAL_MOCK_RESPONSE env var to simulate errors
+      // e.g., PAYPAL_MOCK_RESPONSE=INSTRUMENT_DECLINED
+      // Only applies to capture/refund paths — not order creation (so checkout can proceed)
+      const mockResponse = process.env.PAYPAL_MOCK_RESPONSE;
+      const isMockablePath = path.includes("/capture") || path.includes("/refund") || path.includes("/authorize");
+      if (mockResponse && this.environment === "SANDBOX" && isMockablePath) {
+        logger.warn("Negative testing: injecting mock response", { mockResponse, path });
+        headers["PayPal-Mock-Response"] = JSON.stringify({
+          mock_application_codes: mockResponse,
+        });
+      }
 
       const response = await fetch(`${this.baseUrl}${path}`, {
         method,
@@ -150,11 +201,15 @@ export class PayPalApiClient {
           ? `${errorData?.message}: ${detailsStr}`
           : errorData?.message ?? `PayPal API returned ${response.status}`;
 
+        // Extract the specific issue code from details (e.g., INSTRUMENT_DECLINED)
+        const issueCode = errorData?.details?.[0]?.issue ?? errorData?.name ?? "API_ERROR";
+        const userFriendlyMessage = getUserFriendlyPayPalError(issueCode, fullMessage);
+
         return err(
           new PayPalApiError(fullMessage, {
             props: {
-              publicCode: errorData?.name ?? "API_ERROR",
-              publicMessage: fullMessage,
+              publicCode: issueCode,
+              publicMessage: userFriendlyMessage,
             },
           }),
         );

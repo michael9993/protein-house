@@ -524,12 +524,19 @@ const enOrderRefunded = `<mjml>
           Refund Processed
         </mj-text>
         <mj-text font-size="15px" color="#374151" padding-bottom="20px">
-          Your refund for order <strong>#{{order.number}}</strong> has been processed. Please allow 5–10 business days for funds to appear.
+          A refund of <strong>{{refundSummary.thisRefundAmount}} {{refundSummary.thisRefundCurrency}}</strong> for order <strong>#{{order.number}}</strong> has been processed. Please allow 5–10 business days for funds to appear in your account.
         </mj-text>
         <mj-text padding="16px" container-background-color="#F9FAFB" css-class="info-box">
           <div class="detail-row"><strong>Order:</strong> <span class="accent">#{{order.number}}</span></div>
-          <div class="detail-row"><strong>Status:</strong> <span style="color: #DC2626; font-weight: 600;">Refunded</span></div>
-          <div class="detail-row"><strong>Amount:</strong> {{order.total.gross.amount}} {{order.total.gross.currency}}</div>
+          <div class="detail-row"><strong>Refund Amount:</strong> <span style="color: #DC2626; font-weight: 600;">{{refundSummary.thisRefundAmount}} {{refundSummary.thisRefundCurrency}}</span></div>
+          {{#if refundSummary.thisRefundReason}}
+          <div class="detail-row"><strong>Reason:</strong> {{refundSummary.thisRefundReason}}</div>
+          {{/if}}
+          <div class="detail-row"><strong>Order Total:</strong> {{order.total.gross.amount}} {{order.total.gross.currency}}</div>
+          <div class="detail-row"><strong>Total Refunded:</strong> {{refundSummary.totalRefunded}} {{refundSummary.currency}}</div>
+          {{#if refundSummary.isPartialRefund}}
+          <div class="detail-row"><strong>Outstanding Balance:</strong> {{refundSummary.outstandingBalance}} {{refundSummary.currency}}</div>
+          {{/if}}
         </mj-text>
         <mj-text font-size="13px" color="#6B7280" padding-top="16px">
           If you have any questions about this refund, please don't hesitate to contact us.
@@ -1101,12 +1108,19 @@ const heOrderRefunded = `<mjml>
           ההחזר בוצע
         </mj-text>
         <mj-text font-size="15px" color="#374151" padding-bottom="20px">
-          ההחזר עבור הזמנה <strong>#{{order.number}}</strong> בוצע. אנא המתינו 5–10 ימי עסקים עד שהכספים יופיעו בחשבונכם.
+          החזר בסך <strong>{{refundSummary.thisRefundAmount}} {{refundSummary.thisRefundCurrency}}</strong> עבור הזמנה <strong>#{{order.number}}</strong> בוצע. אנא המתינו 5–10 ימי עסקים עד שהכספים יופיעו בחשבונכם.
         </mj-text>
         <mj-text padding="16px" container-background-color="#F9FAFB" css-class="info-box">
           <div class="detail-row"><strong>הזמנה:</strong> <span class="accent">#{{order.number}}</span></div>
-          <div class="detail-row"><strong>סטטוס:</strong> <span style="color: #DC2626; font-weight: 600;">הוחזר</span></div>
-          <div class="detail-row"><strong>סכום:</strong> {{order.total.gross.amount}} {{order.total.gross.currency}}</div>
+          <div class="detail-row"><strong>סכום ההחזר:</strong> <span style="color: #DC2626; font-weight: 600;">{{refundSummary.thisRefundAmount}} {{refundSummary.thisRefundCurrency}}</span></div>
+          {{#if refundSummary.thisRefundReason}}
+          <div class="detail-row"><strong>סיבה:</strong> {{refundSummary.thisRefundReason}}</div>
+          {{/if}}
+          <div class="detail-row"><strong>סה"כ הזמנה:</strong> {{order.total.gross.amount}} {{order.total.gross.currency}}</div>
+          <div class="detail-row"><strong>סה"כ הוחזר:</strong> {{refundSummary.totalRefunded}} {{refundSummary.currency}}</div>
+          {{#if refundSummary.isPartialRefund}}
+          <div class="detail-row"><strong>יתרה לתשלום:</strong> {{refundSummary.outstandingBalance}} {{refundSummary.currency}}</div>
+          {{/if}}
         </mj-text>
         <mj-text font-size="13px" color="#6B7280" padding-top="16px">
           אם יש לכם שאלות לגבי ההחזר, אל תהססו ליצור איתנו קשר.

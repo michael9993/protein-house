@@ -34,7 +34,7 @@ export async function generateMetadata(
 			channel: params.channel,
 			languageCode,
 		},
-		revalidate: 60,
+		revalidate: 30,
 	});
 
 	if (!product) {
@@ -91,7 +91,7 @@ export async function generateMetadata(
 
 export async function generateStaticParams({ params }: { params: { channel: string } }) {
 	const { products } = await executeGraphQL(ProductListDocument, {
-		revalidate: 60,
+		revalidate: 30,
 		variables: { first: 20, channel: params.channel, languageCode: getLanguageCodeForChannel(params.channel) },
 		withAuth: false,
 	});
@@ -112,7 +112,7 @@ export default async function Page(props: {
 			channel: params.channel,
 			languageCode,
 		},
-		revalidate: 60,
+		revalidate: 30,
 	});
 
 	if (!product) {

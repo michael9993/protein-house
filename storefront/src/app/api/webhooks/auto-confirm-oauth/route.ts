@@ -19,33 +19,36 @@ export async function POST(request: NextRequest) {
 	try {
 		const rawBody = await request.text();
 
-		// Verify webhook signature if secret is configured
+		// Verify webhook signature — REQUIRED for security
 		const webhookSecret = process.env.SALEOR_WEBHOOK_SECRET;
-		if (webhookSecret) {
-			const signature = request.headers.get("saleor-signature") || request.headers.get("x-saleor-signature") || "";
-			if (!signature) {
-				console.error("[Auto-Confirm Webhook] Missing signature header");
-				return NextResponse.json({ error: "Missing signature" }, { status: 401 });
-			}
+		if (!webhookSecret) {
+			console.error("[Auto-Confirm Webhook] SALEOR_WEBHOOK_SECRET not configured — rejecting request");
+			return NextResponse.json({ error: "Webhook secret not configured" }, { status: 500 });
+		}
 
-			// Saleor signs webhooks with HMAC-SHA256
-			const encoder = new TextEncoder();
-			const key = await crypto.subtle.importKey(
-				"raw",
-				encoder.encode(webhookSecret),
-				{ name: "HMAC", hash: "SHA-256" },
-				false,
-				["sign"],
-			);
-			const signatureBuffer = await crypto.subtle.sign("HMAC", key, encoder.encode(rawBody));
-			const expectedSignature = Array.from(new Uint8Array(signatureBuffer))
-				.map((b) => b.toString(16).padStart(2, "0"))
-				.join("");
+		const signature = request.headers.get("saleor-signature") || request.headers.get("x-saleor-signature") || "";
+		if (!signature) {
+			console.error("[Auto-Confirm Webhook] Missing signature header");
+			return NextResponse.json({ error: "Missing signature" }, { status: 401 });
+		}
 
-			if (signature !== expectedSignature) {
-				console.error("[Auto-Confirm Webhook] Invalid signature");
-				return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
-			}
+		// Saleor signs webhooks with HMAC-SHA256
+		const encoder = new TextEncoder();
+		const key = await crypto.subtle.importKey(
+			"raw",
+			encoder.encode(webhookSecret),
+			{ name: "HMAC", hash: "SHA-256" },
+			false,
+			["sign"],
+		);
+		const signatureBuffer = await crypto.subtle.sign("HMAC", key, encoder.encode(rawBody));
+		const expectedSignature = Array.from(new Uint8Array(signatureBuffer))
+			.map((b) => b.toString(16).padStart(2, "0"))
+			.join("");
+
+		if (signature !== expectedSignature) {
+			console.error("[Auto-Confirm Webhook] Invalid signature");
+			return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
 		}
 
 		const payload = JSON.parse(rawBody) as any;

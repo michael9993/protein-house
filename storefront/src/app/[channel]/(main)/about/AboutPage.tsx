@@ -1,5 +1,6 @@
 "use client";
 
+import xss from "xss";
 import { useStoreConfig } from "@/providers/StoreConfigProvider";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { type CMSPage } from "@/lib/cms";
@@ -122,7 +123,7 @@ export function AboutPage({ cmsContent }: AboutPageProps) {
           {cmsContent?.content && (
             <div 
               className="prose prose-invert mt-8 max-w-3xl"
-              dangerouslySetInnerHTML={{ __html: cmsContent.content }}
+              dangerouslySetInnerHTML={{ __html: xss(cmsContent.content) }}
             />
           )}
         </div>

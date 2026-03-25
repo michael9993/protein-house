@@ -1,0 +1,18 @@
+mutation OrderGrantRefundCreate($orderId: ID!, $input: OrderGrantRefundCreateInput!) {
+  orderGrantRefundCreate(id: $orderId, input: $input) {
+    grantedRefund {
+      id
+      amount {
+        amount
+        currency
+      }
+      status
+      reason
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}

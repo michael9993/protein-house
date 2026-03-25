@@ -22,7 +22,8 @@ export function MetaPixel({ channel }: { channel: string }) {
 		return () => window.removeEventListener("consent-updated", handler);
 	}, [channel]);
 
-	if (!pixelId || !consentGranted) return null;
+	// Validate pixel ID format to prevent script injection via config
+	if (!pixelId || !consentGranted || !/^\d+$/.test(pixelId)) return null;
 
 	return (
 		<Script

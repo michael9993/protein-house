@@ -112,7 +112,7 @@ async function fetchBrandAttributeValues(channel: string): Promise<FeaturedBrand
 				`,
 				variables: { languageCode: getLanguageCodeForChannel(channel) },
 			}),
-			next: { revalidate: 60 * 60 },
+			next: { revalidate: 300 },
 		});
 
 		if (!response.ok) return [];
@@ -161,6 +161,10 @@ export default async function Page(
 	const languageCode = getLanguageCodeForChannel(channel);
 
 	// Fetch all data in parallel for better performance
+	// Tiered caching strategy:
+	// - Product queries: revalidate 0 (always fresh — prices/stock change frequently)
+	// - Metadata queries (categories, collections): revalidate 300 (5 min — rarely change)
+	// - Brand attributes: revalidate 3600 (1 hr — very stable)
 	const [
 		featuredData,
 		newArrivalsCollectionData,
@@ -178,45 +182,45 @@ export default async function Page(
 	] = await Promise.all([
 		executeGraphQL(ProductListByCollectionDocument, {
 			variables: { slug: homepageCollections.featured, channel, languageCode },
-			revalidate: 30,
+			revalidate: 0,
 		}).catch(() => ({ collection: null })),
 
 		executeGraphQL(ProductListByCollectionDocument, {
 			variables: { slug: homepageCollections.newArrivals, channel, languageCode },
-			revalidate: 30,
+			revalidate: 0,
 		}).catch(() => ({ collection: null })),
 
 		executeGraphQL(ProductListByCollectionDocument, {
 			variables: { slug: homepageCollections.bestSellers, channel, languageCode },
-			revalidate: 30,
+			revalidate: 0,
 		}).catch(() => ({ collection: null })),
 
 		executeGraphQL(ProductListByCollectionDocument, {
 			variables: { slug: homepageCollections.sale, channel, languageCode },
-			revalidate: 30,
+			revalidate: 0,
 		}).catch(() => ({ collection: null })),
 
 		// Data-driven: newest products by creation date (New Arrivals fallback)
 		executeGraphQL(ProductsNewestDocument, {
 			variables: { channel, first: newArrivalsLimit, languageCode },
-			revalidate: 30,
+			revalidate: 0,
 		}).catch(() => ({ products: null })),
 
 		// Data-driven: top-rated products (Best Sellers fallback; Saleor has no "sold count" in API)
 		executeGraphQL(ProductsTopRatedDocument, {
 			variables: { channel, first: bestSellersLimit, languageCode },
-			revalidate: 30,
+			revalidate: 0,
 		}).catch(() => ({ products: null })),
 
 		executeGraphQL(CategoriesForHomepageDocument, {
 			variables: { channel, first: 8, languageCode },
-			revalidate: 30,
+			revalidate: 300,
 		}).catch(() => ({ categories: null })),
 
 		// Collections for CollectionMosaic section
 		executeGraphQL(CollectionsListDocument, {
 			variables: { channel, first: 20, languageCode },
-			revalidate: 30,
+			revalidate: 300,
 		}).catch(() => ({ collections: null })),
 
 		getHeroBannerConfig(channel),

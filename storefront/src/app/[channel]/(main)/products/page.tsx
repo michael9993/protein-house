@@ -769,7 +769,7 @@ export default async function Page(props: {
         filter: graphqlFilter,
         search: adjustedFilters.search || undefined,
       },
-      revalidate: 10,
+      revalidate: 0,
     }),
     fetchCollectionsForQuickFilters(channel),
     // Cheapest product — GLOBAL (no filter) so bounds stay stable
@@ -819,7 +819,7 @@ export default async function Page(props: {
             first: 24, channel, languageCode, sortBy: sortVariables,
             filter: graphqlFilter, search: alt,
           },
-          revalidate: 10,
+          revalidate: 0,
         });
         if ((altResult.products?.totalCount || 0) > 0) {
           altProducts = altResult.products;
@@ -850,7 +850,7 @@ export default async function Page(props: {
           first: 24, channel, languageCode, sortBy: sortVariables,
           filter: fallbackFilter,
         },
-        revalidate: 10,
+        revalidate: 0,
       });
       if ((fallbackResult.products?.totalCount || 0) > 0) {
         productCount = fallbackResult.products?.totalCount || 0;

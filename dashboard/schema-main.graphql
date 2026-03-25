@@ -1747,6 +1747,16 @@ type Query {
   ): ContactSubmission @doc(category: "Users")
 
   """
+  Look up a newsletter subscription by ID.
+  
+  Requires one of the following permissions: MANAGE_USERS.
+  """
+  newsletterSubscription(
+    """ID of the newsletter subscription."""
+    id: ID!
+  ): NewsletterSubscription @doc(category: "Users")
+
+  """
   List of contact form submissions.
   
   Requires one of the following permissions: MANAGE_CONTACT_SUBMISSIONS.
@@ -1788,6 +1798,55 @@ type Query {
     """
     last: Int
   ): ContactSubmissionCountableConnection @doc(category: "Users")
+
+  """
+  List of newsletter subscriptions.
+  
+  Requires one of the following permissions: MANAGE_USERS.
+  """
+  newsletterSubscriptions(
+    """Filtering options for newsletter subscriptions."""
+    filter: NewsletterSubscriptionFilterInput @deprecated(reason: "Use `where` filter instead.")
+
+    """
+    Where filtering options for newsletter subscriptions.
+    
+    Added in Saleor 3.22.
+    """
+    where: NewsletterSubscriptionWhereInput
+
+    """Sort newsletter subscriptions."""
+    sortBy: NewsletterSubscriptionSortingInput
+
+    """
+    Search newsletter subscriptions by email.
+    
+    Added in Saleor 3.22.
+    """
+    search: String
+
+    """Return the elements in the list that come before the specified cursor."""
+    before: String
+
+    """Return the elements in the list that come after the specified cursor."""
+    after: String
+
+    """
+    Retrieve the first n elements from the list. Note that the system only allows fetching a maximum of 100 objects in a single query.
+    """
+    first: Int
+
+    """
+    Retrieve the last n elements from the list. Note that the system only allows fetching a maximum of 100 objects in a single query.
+    """
+    last: Int
+  ): NewsletterSubscriptionCountableConnection @doc(category: "Users")
+
+  """Newsletter subscription status for the authenticated user's email."""
+  newsletterSubscriptionStatus(
+    """Email address (must match authenticated user's email)."""
+    email: String!
+  ): NewsletterSubscriptionStatus @doc(category: "Users")
   _entities(representations: [_Any]): [_Entity]
   _service: _Service
 }
@@ -10680,6 +10739,8 @@ enum OrderChargeStatusEnum @doc(category: "Orders") {
   PARTIAL
   FULL
   OVERCHARGED
+  PARTIALLY_REFUNDED
+  REFUNDED
 }
 
 """Represents a payment of a given type."""
@@ -15321,6 +15382,33 @@ enum ContactSubmissionStatusEnum @doc(category: "Users") {
   ARCHIVED
 }
 
+"""Represents a newsletter subscription."""
+type NewsletterSubscription implements Node @doc(category: "Users") {
+  """The ID of the newsletter subscription."""
+  id: ID!
+
+  """Subscriber email address."""
+  email: String!
+
+  """User account if subscribed while logged in."""
+  user: User
+
+  """Channel where the subscription was made."""
+  channel: Channel
+
+  """Whether the subscription is active."""
+  isActive: Boolean!
+
+  """When the subscription was created."""
+  subscribedAt: DateTime!
+
+  """When the subscription was unsubscribed."""
+  unsubscribedAt: DateTime
+
+  """Where the subscription came from (e.g., 'homepage', 'checkout')."""
+  source: String
+}
+
 type ContactSubmissionCountableConnection @doc(category: "Users") {
   """Pagination data for this connection."""
   pageInfo: PageInfo!
@@ -15384,6 +15472,84 @@ enum ContactSubmissionSortField @doc(category: "Users") {
 
   """Sort contact submissions by status."""
   STATUS
+}
+
+type NewsletterSubscriptionCountableConnection @doc(category: "Users") {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+  edges: [NewsletterSubscriptionCountableEdge!]!
+
+  """A total count of items in the collection."""
+  totalCount: Int
+}
+
+type NewsletterSubscriptionCountableEdge @doc(category: "Users") {
+  """The item at the end of the edge."""
+  node: NewsletterSubscription!
+
+  """A cursor for use in pagination."""
+  cursor: String!
+}
+
+input NewsletterSubscriptionFilterInput @doc(category: "Users") {
+  """Filter by active status."""
+  isActive: Boolean
+
+  """Filter by subscription source."""
+  source: String
+
+  """Filter by channel slug."""
+  channel: String
+
+  """Filter by subscription date range."""
+  subscribedAt: DateTimeRangeInput
+
+  """Search by email address."""
+  search: String
+  metadata: [MetadataFilter!]
+
+  """Filter by ids."""
+  ids: [ID!]
+}
+
+input NewsletterSubscriptionWhereInput @doc(category: "Users") {
+  """Filter by metadata fields."""
+  metadata: MetadataFilterInput
+  ids: [ID!]
+
+  """List of conditions that must be met."""
+  AND: [NewsletterSubscriptionWhereInput!]
+
+  """A list of conditions of which at least one must be met."""
+  OR: [NewsletterSubscriptionWhereInput!]
+}
+
+input NewsletterSubscriptionSortingInput @doc(category: "Users") {
+  """Specifies the direction in which to sort newsletter subscriptions."""
+  direction: OrderDirection!
+
+  """Sort newsletter subscriptions by the selected field."""
+  field: NewsletterSubscriptionSortField!
+}
+
+enum NewsletterSubscriptionSortField @doc(category: "Users") {
+  """Sort newsletter subscriptions by subscribed at."""
+  SUBSCRIBED_AT
+
+  """Sort newsletter subscriptions by email."""
+  EMAIL
+
+  """Sort newsletter subscriptions by unsubscribed at."""
+  UNSUBSCRIBED_AT
+}
+
+"""Newsletter subscription status for the authenticated user's email."""
+type NewsletterSubscriptionStatus {
+  """Whether the subscription is active."""
+  isActive: Boolean!
+
+  """Subscriber email address."""
+  email: String!
 }
 
 type Mutation {
@@ -18860,6 +19026,14 @@ type Mutation {
   ): CheckoutLinesUpdate @doc(category: "Checkout") @webhookEventsInfo(asyncEvents: [CHECKOUT_UPDATED], syncEvents: [])
 
   """
+  Validate a signed recovery token from an abandoned cart email and return the associated checkout. The token is validated for authenticity and expiry (7 days).
+  """
+  checkoutRecover(
+    """Signed recovery token from the abandoned cart email."""
+    token: String!
+  ): CheckoutRecover @doc(category: "Checkout")
+
+  """
   Remove a gift card or a voucher from a checkout.
   
   Triggers the following webhook events:
@@ -19843,14 +20017,29 @@ type Mutation {
     token: String!
   ): AccountDelete @doc(category: "Users") @webhookEventsInfo(asyncEvents: [ACCOUNT_DELETED], syncEvents: [])
 
-  """Subscribe an email address to the newsletter."""
+  """
+  Subscribe an email address to the newsletter.
+  
+  Triggers the following webhook events:
+  - NOTIFY_USER (async): A notification for newsletter subscription.
+  """
   newsletterSubscribe(
+    """Channel slug where the subscription was made."""
+    channel: String
+
     """Email address to subscribe to the newsletter."""
     email: String!
 
-    """Source of the subscription (e.g., 'homepage', 'checkout')."""
+    """
+    If false, add to subscriber list as inactive (e.g. on registration). User can activate later via settings or newsletter form.
+    """
+    isActive: Boolean = true
+
+    """
+    Source of the subscription (e.g., 'homepage', 'checkout', 'registration').
+    """
     source: String
-  ): NewsletterSubscribe @doc(category: "Users")
+  ): NewsletterSubscribe @doc(category: "Users") @webhookEventsInfo(asyncEvents: [NOTIFY_USER], syncEvents: [])
 
   """Unsubscribe an email address from the newsletter."""
   newsletterUnsubscribe(
@@ -28993,6 +29182,16 @@ input CheckoutLineUpdateInput @doc(category: "Checkout") {
 }
 
 """
+Validate a signed recovery token from an abandoned cart email and return the associated checkout. The token is validated for authenticity and expiry (7 days).
+"""
+type CheckoutRecover @doc(category: "Checkout") {
+  """The recovered checkout."""
+  checkout: Checkout
+  checkoutErrors: [CheckoutError!]! @deprecated(reason: "Use `errors` field instead.")
+  errors: [CheckoutError!]!
+}
+
+"""
 Remove a gift card or a voucher from a checkout.
 
 Triggers the following webhook events:
@@ -30997,13 +31196,21 @@ type AccountDelete @doc(category: "Users") @webhookEventsInfo(asyncEvents: [ACCO
   user: User
 }
 
-"""Subscribe an email address to the newsletter."""
-type NewsletterSubscribe @doc(category: "Users") {
+"""
+Subscribe an email address to the newsletter.
+
+Triggers the following webhook events:
+- NOTIFY_USER (async): A notification for newsletter subscription.
+"""
+type NewsletterSubscribe @doc(category: "Users") @webhookEventsInfo(asyncEvents: [NOTIFY_USER], syncEvents: []) {
   """Whether the subscription was successful."""
   subscribed: Boolean
 
-  """Whether the email was already subscribed."""
+  """Whether the email was already actively subscribed."""
   alreadySubscribed: Boolean
+
+  """Whether an inactive subscription was reactivated."""
+  wasReactivated: Boolean
   accountErrors: [AccountError!]! @deprecated(reason: "Use `errors` field instead.")
   errors: [AccountError!]!
 }

@@ -70,10 +70,11 @@ export async function withCJWebhookAuth(
     });
   }
 
-  // --- Webhook secret verification ---
+  // --- Webhook secret verification (via header, not query string) ---
   try {
     const expectedSecret = await getRedisConnection().get("dropship:cj-webhook-secret");
-    if (expectedSecret && req.query.secret !== expectedSecret) {
+    const providedSecret = req.headers["x-cj-webhook-secret"] as string | undefined;
+    if (expectedSecret && providedSecret !== expectedSecret) {
       logger.debug("Invalid webhook secret", { clientIp });
       res.status(401).json({ error: "Unauthorized" });
       return;

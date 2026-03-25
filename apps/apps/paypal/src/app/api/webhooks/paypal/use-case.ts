@@ -202,6 +202,15 @@ async function handleRefundEvent(
     amount,
   });
 
+  // Report the transaction event to Saleor.
+  // Note: External refunds (from PayPal UI) only create transaction events,
+  // NOT granted refunds. Saleor's Dashboard "outstanding balance" may show
+  // a negative value for external refunds — this is a known Saleor limitation.
+  // The actual payment accounting (charged_value - refunded_value) is always correct.
+  // Attempting to create OrderGrantedRefund from webhooks causes issues:
+  // - Grants stay in DRAFT status (Saleor only links events to grants via transactionRequestAction)
+  // - Duplicate webhooks from PayPal create duplicate grants
+  // - Amount validation fails if transaction charged_value already decreased
   const reportResult = await reportTransactionEvent(saleorClient, {
     transactionId: saleorTransactionId,
     type: mapping.type as any,
@@ -225,6 +234,7 @@ async function handleRefundEvent(
   }
 
   const { alreadyProcessed } = reportResult.value;
+
   logger.info("Refund reported to Saleor", {
     refundId,
     status,

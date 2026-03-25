@@ -150,6 +150,7 @@ export class TransactionChargeRequestedUseCase {
         // Fire-and-forget: record charge (authorization capture)
         transactionRecorder.record({
           saleorTransactionId: event.transaction?.id ?? pspReference,
+          saleorOrderId: event.transaction?.order?.id ?? event.transaction?.checkout?.id,
           paypalOrderId: pspReference,
           paypalCaptureId: capture?.id ?? undefined,
           type: "CHARGE",
@@ -188,6 +189,7 @@ export class TransactionChargeRequestedUseCase {
       // Fire-and-forget: record charge (direct capture)
       transactionRecorder.record({
         saleorTransactionId: event.transaction?.id ?? pspReference,
+        saleorOrderId: event.transaction?.order?.id ?? event.transaction?.checkout?.id,
         paypalOrderId: pspReference,
         paypalCaptureId: capture?.id ?? undefined,
         type: "CHARGE",

@@ -16,7 +16,13 @@ export const createSettingsManager = (
   client: Pick<Client, "query" | "mutation">,
   appId: string
 ): SettingsManager => {
-  const secretKey = process.env.SECRET_KEY || "dev-secret-key-change-in-production";
+  const secretKey = process.env.SECRET_KEY;
+  if (!secretKey) {
+    throw new Error(
+      "SECRET_KEY environment variable is required for encrypted metadata. " +
+      "Set it in infra/.env or your deployment environment."
+    );
+  }
   const metadataManagerFactory = new EncryptedMetadataManagerFactory(secretKey);
   return metadataManagerFactory.create(client, appId);
 };

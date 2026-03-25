@@ -256,6 +256,7 @@
       "MenuItem",
       "MenuItemTranslatableContent",
       "MenuItemTranslation",
+      "NewsletterSubscription",
       "Order",
       "OrderDiscount",
       "OrderEvent",

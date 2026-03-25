@@ -1,7 +1,12 @@
 import { Result, ok, err } from "neverthrow";
 import { format, parseISO, startOfDay, startOfWeek, startOfMonth } from "date-fns";
 
-import type { OrderAnalyticsFragment } from "../../../../generated/graphql";
+import {
+  type OrderAnalyticsFragment,
+  OrderStatus,
+  OrderGrantedRefundStatusEnum,
+  OrderChargeStatusEnum,
+} from "../../../../generated/graphql";
 import type {
   DashboardKPIs,
   KPITrend,
@@ -28,6 +33,66 @@ export class AnalyticsCalculationError extends Error {
     this.name = "AnalyticsCalculationError";
   }
 }
+
+// ─── Status & Refund Helpers ────────────────────────────────────────────────
+
+/**
+ * Filter orders by included statuses (client-side).
+ * If no filter provided, returns all orders.
+ */
+export function filterOrdersByStatus(
+  orders: OrderAnalyticsFragment[],
+  includedStatuses?: OrderStatus[]
+): OrderAnalyticsFragment[] {
+  if (!includedStatuses || includedStatuses.length === 0) return orders;
+  return orders.filter((o) => includedStatuses.includes(o.status));
+}
+
+/**
+ * Filter orders by charge status (client-side).
+ * Uses chargeStatus (OrderChargeStatusEnum) which includes refund statuses
+ * (REFUNDED, PARTIALLY_REFUNDED) — matches Dashboard behavior.
+ * If no filter provided, returns all orders.
+ */
+export function filterOrdersByChargeStatus(
+  orders: OrderAnalyticsFragment[],
+  includedStatuses?: OrderChargeStatusEnum[]
+): OrderAnalyticsFragment[] {
+  if (!includedStatuses || includedStatuses.length === 0) return orders;
+  return orders.filter((o) => includedStatuses.includes(o.chargeStatus));
+}
+
+/**
+ * Get the total refunded amount for an order.
+ * Uses Saleor's `totalRefunded` field (actual money returned to customer via transactions).
+ * Falls back to summing successful grantedRefunds if totalRefunded is not available.
+ */
+export function getOrderRefundAmount(order: OrderAnalyticsFragment): number {
+  // Primary: use totalRefunded (reflects actual transaction refunds)
+  if (order.totalRefunded && order.totalRefunded.amount > 0) {
+    return order.totalRefunded.amount;
+  }
+
+  // Fallback: sum successful grantedRefunds
+  return (order.grantedRefunds ?? [])
+    .filter((r) => r.status === OrderGrantedRefundStatusEnum.Success)
+    .reduce((sum, r) => sum + r.amount.amount, 0);
+}
+
+/**
+ * Whether an order has any refund (partial or full).
+ * Checks both totalRefunded and grantedRefunds.
+ */
+export function hasSuccessfulRefund(order: OrderAnalyticsFragment): boolean {
+  if (order.totalRefunded && order.totalRefunded.amount > 0) {
+    return true;
+  }
+  return (order.grantedRefunds ?? []).some(
+    (r) => r.status === OrderGrantedRefundStatusEnum.Success
+  );
+}
+
+// ─── Currency Detection ─────────────────────────────────────────────────────
 
 /**
  * Detect currencies in orders and return currency information
@@ -70,6 +135,8 @@ export function detectCurrencies(orders: OrderAnalyticsFragment[]): CurrencyInfo
   };
 }
 
+// ─── Order Filtering ────────────────────────────────────────────────────────
+
 /**
  * Filter orders by currency
  */
@@ -108,6 +175,8 @@ export function filterOrdersByType(
   return orders.filter((o) => !isDropshipOrder(o));
 }
 
+// ─── Trend Calculation ──────────────────────────────────────────────────────
+
 /**
  * Calculate the trend between two values
  */
@@ -134,9 +203,76 @@ function calculateTrend(current: number, previous: number): KPITrend {
   };
 }
 
+// ─── KPI Helpers ────────────────────────────────────────────────────────────
+
+interface KPIRawValues {
+  gmv: number;
+  netRevenue: number;
+  totalRefunds: number;
+  refundRate: number;
+  cancellationRate: number;
+  totalOrders: number;
+  aov: number;
+  itemsSold: number;
+  uniqueCustomers: number;
+}
+
+function computeRawKPIs(orders: OrderAnalyticsFragment[]): KPIRawValues {
+  const totalOrders = orders.length;
+
+  const gmv = orders.reduce((sum, o) => sum + o.total.gross.amount, 0);
+
+  const canceledOrders = orders.filter((o) => o.status === OrderStatus.Canceled);
+  const nonCanceledOrders = orders.filter((o) => o.status !== OrderStatus.Canceled);
+
+  const canceledTotal = canceledOrders.reduce((sum, o) => sum + o.total.gross.amount, 0);
+
+  // Only count refunds from non-canceled orders to avoid double-subtraction
+  // (canceled orders already have their full total removed)
+  const totalRefunds = nonCanceledOrders.reduce((sum, o) => sum + getOrderRefundAmount(o), 0);
+
+  const netRevenue = gmv - totalRefunds - canceledTotal;
+
+  // Refund rate: % of non-canceled orders that had refunds (partial or full)
+  const ordersWithRefund = nonCanceledOrders.filter(hasSuccessfulRefund).length;
+  const nonCanceledCount = nonCanceledOrders.length;
+  const refundRate = nonCanceledCount > 0 ? (ordersWithRefund / nonCanceledCount) * 100 : 0;
+
+  const cancellationRate = totalOrders > 0 ? (canceledOrders.length / totalOrders) * 100 : 0;
+
+  // AOV based on net revenue and non-canceled orders
+  const aov = nonCanceledCount > 0 ? netRevenue / nonCanceledCount : 0;
+
+  // Items sold excludes canceled orders
+  const itemsSold = orders
+    .filter((o) => o.status !== OrderStatus.Canceled)
+    .reduce((sum, o) => sum + o.lines.reduce((ls, l) => ls + l.quantity, 0), 0);
+
+  // Unique customers from non-canceled orders
+  const uniqueCustomers = new Set(
+    orders
+      .filter((o) => o.status !== OrderStatus.Canceled && o.user)
+      .map((o) => o.user!.id)
+  ).size;
+
+  return {
+    gmv,
+    netRevenue,
+    totalRefunds,
+    refundRate,
+    cancellationRate,
+    totalOrders,
+    aov,
+    itemsSold,
+    uniqueCustomers,
+  };
+}
+
+// ─── Main KPIs ──────────────────────────────────────────────────────────────
+
 /**
- * Calculate all KPIs from order data
- * Only includes orders in the specified currency to avoid mixing currencies
+ * Calculate all KPIs from order data.
+ * Orders should already be filtered by status before calling this.
  */
 export function calculateKPIs(
   orders: OrderAnalyticsFragment[],
@@ -144,64 +280,66 @@ export function calculateKPIs(
   currency: string
 ): Result<DashboardKPIs, AnalyticsCalculationError> {
   try {
-    // Filter orders to only include those in the specified currency
     const filteredOrders = filterOrdersByCurrency(orders, currency);
     const filteredPreviousOrders = filterOrdersByCurrency(previousPeriodOrders, currency);
 
-    // Current period calculations (only for the specified currency)
-    const gmv = filteredOrders.reduce((sum, o) => sum + o.total.gross.amount, 0);
-    const totalOrders = filteredOrders.length;
-    const aov = totalOrders > 0 ? gmv / totalOrders : 0;
-    const itemsSold = filteredOrders.reduce(
-      (sum, o) => sum + o.lines.reduce((lineSum, l) => lineSum + l.quantity, 0),
-      0
-    );
-    const uniqueCustomers = new Set(
-      filteredOrders.filter((o) => o.user).map((o) => o.user!.id)
-    ).size;
-
-    // Previous period calculations (only for the specified currency)
-    const prevGmv = filteredPreviousOrders.reduce((sum, o) => sum + o.total.gross.amount, 0);
-    const prevTotalOrders = filteredPreviousOrders.length;
-    const prevAov = prevTotalOrders > 0 ? prevGmv / prevTotalOrders : 0;
-    const prevItemsSold = filteredPreviousOrders.reduce(
-      (sum, o) => sum + o.lines.reduce((lineSum, l) => lineSum + l.quantity, 0),
-      0
-    );
-    const prevUniqueCustomers = new Set(
-      filteredPreviousOrders.filter((o) => o.user).map((o) => o.user!.id)
-    ).size;
+    const current = computeRawKPIs(filteredOrders);
+    const prev = computeRawKPIs(filteredPreviousOrders);
 
     return ok({
       gmv: {
         label: "Gross Revenue",
-        value: formatCurrency(gmv, currency),
-        trend: calculateTrend(gmv, prevGmv),
-        previousValue: formatCurrency(prevGmv, currency),
+        value: formatCurrency(current.gmv, currency),
+        trend: calculateTrend(current.gmv, prev.gmv),
+        previousValue: formatCurrency(prev.gmv, currency),
+      },
+      netRevenue: {
+        label: "Net Revenue",
+        value: formatCurrency(current.netRevenue, currency),
+        trend: calculateTrend(current.netRevenue, prev.netRevenue),
+        previousValue: formatCurrency(prev.netRevenue, currency),
+      },
+      totalRefunds: {
+        label: "Total Refunds",
+        value: formatCurrency(current.totalRefunds, currency),
+        trend: calculateTrend(current.totalRefunds, prev.totalRefunds),
+        previousValue: formatCurrency(prev.totalRefunds, currency),
+      },
+      refundRate: {
+        label: "Refund Rate",
+        value: `${current.refundRate.toFixed(1)}%`,
+        trend: calculateTrend(current.refundRate, prev.refundRate),
+        previousValue: `${prev.refundRate.toFixed(1)}%`,
+      },
+      cancellationRate: {
+        label: "Cancellation Rate",
+        value: `${current.cancellationRate.toFixed(1)}%`,
+        trend: calculateTrend(current.cancellationRate, prev.cancellationRate),
+        previousValue: `${prev.cancellationRate.toFixed(1)}%`,
       },
       totalOrders: {
         label: "Total Orders",
-        value: formatCompactNumber(totalOrders),
-        trend: calculateTrend(totalOrders, prevTotalOrders),
-        previousValue: formatCompactNumber(prevTotalOrders),
+        value: formatCompactNumber(current.totalOrders),
+        trend: calculateTrend(current.totalOrders, prev.totalOrders),
+        previousValue: formatCompactNumber(prev.totalOrders),
       },
       averageOrderValue: {
         label: "Avg Order Value",
-        value: formatCurrency(aov, currency),
-        trend: calculateTrend(aov, prevAov),
-        previousValue: formatCurrency(prevAov, currency),
+        value: formatCurrency(current.aov, currency),
+        trend: calculateTrend(current.aov, prev.aov),
+        previousValue: formatCurrency(prev.aov, currency),
       },
       itemsSold: {
         label: "Items Sold",
-        value: formatCompactNumber(itemsSold),
-        trend: calculateTrend(itemsSold, prevItemsSold),
-        previousValue: formatCompactNumber(prevItemsSold),
+        value: formatCompactNumber(current.itemsSold),
+        trend: calculateTrend(current.itemsSold, prev.itemsSold),
+        previousValue: formatCompactNumber(prev.itemsSold),
       },
       uniqueCustomers: {
         label: "Unique Customers",
-        value: formatCompactNumber(uniqueCustomers),
-        trend: calculateTrend(uniqueCustomers, prevUniqueCustomers),
-        previousValue: formatCompactNumber(prevUniqueCustomers),
+        value: formatCompactNumber(current.uniqueCustomers),
+        trend: calculateTrend(current.uniqueCustomers, prev.uniqueCustomers),
+        previousValue: formatCompactNumber(prev.uniqueCustomers),
       },
     });
   } catch (error) {
@@ -209,9 +347,11 @@ export function calculateKPIs(
   }
 }
 
+// ─── Top Products ───────────────────────────────────────────────────────────
+
 /**
- * Calculate top products by revenue
- * Only includes orders in the specified currency
+ * Calculate top products by revenue.
+ * Excludes canceled orders from rankings.
  */
 export function calculateTopProducts(
   orders: OrderAnalyticsFragment[],
@@ -219,8 +359,9 @@ export function calculateTopProducts(
   limit: number = 10
 ): Result<TopProduct[], AnalyticsCalculationError> {
   try {
-    // Filter orders to only include those in the specified currency
-    const filteredOrders = filterOrdersByCurrency(orders, currency);
+    const filteredOrders = filterOrdersByCurrency(orders, currency).filter(
+      (o) => o.status !== OrderStatus.Canceled
+    );
 
     const productMap = new Map<
       string,
@@ -254,9 +395,11 @@ export function calculateTopProducts(
   }
 }
 
+// ─── Top Categories ─────────────────────────────────────────────────────────
+
 /**
- * Calculate top categories by revenue
- * Only includes orders in the specified currency
+ * Calculate top categories by revenue.
+ * Excludes canceled orders from rankings.
  */
 export function calculateTopCategories(
   orders: OrderAnalyticsFragment[],
@@ -264,8 +407,9 @@ export function calculateTopCategories(
   limit: number = 10
 ): Result<CategoryData[], AnalyticsCalculationError> {
   try {
-    // Filter orders to only include those in the specified currency
-    const filteredOrders = filterOrdersByCurrency(orders, currency);
+    const filteredOrders = filterOrdersByCurrency(orders, currency).filter(
+      (o) => o.status !== OrderStatus.Canceled
+    );
 
     const categoryMap = new Map<string, number>();
 
@@ -288,9 +432,11 @@ export function calculateTopCategories(
   }
 }
 
+// ─── Revenue Over Time ──────────────────────────────────────────────────────
+
 /**
- * Calculate revenue over time for charts
- * Only includes orders in the specified currency
+ * Calculate revenue over time for charts.
+ * Includes GMV, net revenue, and refunds per time bucket.
  */
 export function calculateRevenueOverTime(
   orders: OrderAnalyticsFragment[],
@@ -298,10 +444,12 @@ export function calculateRevenueOverTime(
   granularity: Granularity
 ): Result<RevenueDataPoint[], AnalyticsCalculationError> {
   try {
-    // Filter orders to only include those in the specified currency
     const filteredOrders = filterOrdersByCurrency(orders, currency);
 
-    const dataMap = new Map<string, { revenue: number; orders: number }>();
+    const dataMap = new Map<
+      string,
+      { revenue: number; netRevenue: number; refunds: number; orders: number }
+    >();
 
     for (const order of filteredOrders) {
       const orderDate = parseISO(order.created);
@@ -319,19 +467,34 @@ export function calculateRevenueOverTime(
           break;
       }
 
-      const existing = dataMap.get(dateKey) || { revenue: 0, orders: 0 };
+      const isCanceled = order.status === OrderStatus.Canceled;
+      const orderGross = order.total.gross.amount;
+      // Only count refunds from non-canceled orders (canceled orders are fully excluded)
+      const refundAmount = isCanceled ? 0 : getOrderRefundAmount(order);
+
+      const existing = dataMap.get(dateKey) || {
+        revenue: 0,
+        netRevenue: 0,
+        refunds: 0,
+        orders: 0,
+      };
+
       dataMap.set(dateKey, {
-        revenue: existing.revenue + order.total.gross.amount,
+        revenue: existing.revenue + orderGross,
+        netRevenue:
+          existing.netRevenue + (isCanceled ? 0 : orderGross - refundAmount),
+        refunds: existing.refunds + refundAmount,
         orders: existing.orders + 1,
       });
     }
 
-    // Sort by date
     const sortedData = Array.from(dataMap.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([date, data]) => ({
         date,
         revenue: data.revenue,
+        netRevenue: data.netRevenue,
+        refunds: data.refunds,
         orders: data.orders,
       }));
 
@@ -340,6 +503,8 @@ export function calculateRevenueOverTime(
     return err(new AnalyticsCalculationError("Failed to calculate revenue over time", error));
   }
 }
+
+// ─── Product Performance ────────────────────────────────────────────────────
 
 /**
  * Product performance data with daily revenue for sparkline
@@ -353,14 +518,17 @@ export interface ProductPerformance {
 }
 
 /**
- * Calculate product performance with daily revenue series for sparklines
+ * Calculate product performance with daily revenue series for sparklines.
+ * Excludes canceled orders.
  */
 export function calculateProductPerformance(
   orders: OrderAnalyticsFragment[],
   currency: string
 ): Result<ProductPerformance[], AnalyticsCalculationError> {
   try {
-    const filteredOrders = filterOrdersByCurrency(orders, currency);
+    const filteredOrders = filterOrdersByCurrency(orders, currency).filter(
+      (o) => o.status !== OrderStatus.Canceled
+    );
 
     const productMap = new Map<
       string,
@@ -412,8 +580,11 @@ export function calculateProductPerformance(
   }
 }
 
+// ─── Recent Orders ──────────────────────────────────────────────────────────
+
 /**
- * Format orders for the recent orders table
+ * Format orders for the recent orders table.
+ * Includes charge status and refund amount for each order.
  */
 export function formatRecentOrders(
   orders: OrderAnalyticsFragment[],
@@ -430,6 +601,8 @@ export function formatRecentOrders(
         currency: order.total.gross.currency,
       },
       status: order.status,
+      chargeStatus: order.chargeStatus,
+      refundAmount: getOrderRefundAmount(order),
     }));
 
     return ok(recentOrders);

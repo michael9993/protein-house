@@ -292,12 +292,16 @@ class OrderChargeStatus:
     PARTIAL = "partial"
     FULL = "full"
     OVERCHARGED = "overcharged"
+    PARTIALLY_REFUNDED = "partially_refunded"
+    REFUNDED = "refunded"
 
     CHOICES = [
         (NONE, "The order is not charged."),
         (PARTIAL, "The order is partially charged"),
         (FULL, "The order is fully charged"),
         (OVERCHARGED, "The order is overcharged"),
+        (PARTIALLY_REFUNDED, "The order is partially refunded"),
+        (REFUNDED, "The order is fully refunded"),
     ]
 
 

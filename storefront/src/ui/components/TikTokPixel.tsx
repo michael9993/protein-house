@@ -22,7 +22,8 @@ export function TikTokPixel({ channel }: { channel: string }) {
 		return () => window.removeEventListener("consent-updated", handler);
 	}, [channel]);
 
-	if (!pixelId || !consentGranted) return null;
+	// Validate pixel ID format to prevent script injection via config
+	if (!pixelId || !consentGranted || !/^[A-Z0-9]+$/i.test(pixelId)) return null;
 
 	return (
 		<Script

@@ -35,6 +35,38 @@ export const OrderPaymentStatusPill = ({ order, className }: OrderPaymentStatusP
     );
   }
 
+  if (order.chargeStatus === OrderChargeStatusEnum.REFUNDED) {
+    return (
+      <Pill
+        key="refunded"
+        label={intl.formatMessage({
+          defaultMessage: "Refunded",
+          id: "refunded-pill",
+          description: "charge status",
+        })}
+        color="neutral"
+        style={{ alignSelf: "flex-end" }}
+        className={className}
+      />
+    );
+  }
+
+  if (order.chargeStatus === OrderChargeStatusEnum.PARTIALLY_REFUNDED) {
+    return (
+      <Pill
+        key="partially-refunded"
+        label={intl.formatMessage({
+          defaultMessage: "Partially refunded",
+          id: "partially-refunded-pill",
+          description: "charge status",
+        })}
+        color="attention"
+        style={{ alignSelf: "flex-end" }}
+        className={className}
+      />
+    );
+  }
+
   return (
     <Pill
       key={payment.status}

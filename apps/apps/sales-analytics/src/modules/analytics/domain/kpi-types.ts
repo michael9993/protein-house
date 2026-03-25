@@ -1,4 +1,23 @@
 import { z } from "zod";
+import { OrderStatus, OrderGrantedRefundStatusEnum, OrderChargeStatusEnum } from "../../../../generated/graphql";
+
+// Re-export for convenience
+export { OrderStatus, OrderGrantedRefundStatusEnum, OrderChargeStatusEnum };
+
+/**
+ * Default statuses included in analytics (excludes DRAFT + EXPIRED — not real orders)
+ */
+export const DEFAULT_INCLUDED_STATUSES: OrderStatus[] = [
+  OrderStatus.Unconfirmed,
+  OrderStatus.Unfulfilled,
+  OrderStatus.PartiallyFulfilled,
+  OrderStatus.Fulfilled,
+  OrderStatus.PartiallyReturned,
+  OrderStatus.Returned,
+  OrderStatus.Canceled,
+];
+
+export const ALL_ORDER_STATUSES: OrderStatus[] = Object.values(OrderStatus);
 
 /**
  * Money schema for type-safe currency handling
@@ -40,6 +59,10 @@ export type KPICard = z.infer<typeof KPICardSchema>;
  */
 export const DashboardKPIsSchema = z.object({
   gmv: KPICardSchema,
+  netRevenue: KPICardSchema,
+  totalRefunds: KPICardSchema,
+  refundRate: KPICardSchema,
+  cancellationRate: KPICardSchema,
   totalOrders: KPICardSchema,
   averageOrderValue: KPICardSchema,
   itemsSold: KPICardSchema,
@@ -53,6 +76,8 @@ export type DashboardKPIs = z.infer<typeof DashboardKPIsSchema>;
 export const RevenueDataPointSchema = z.object({
   date: z.string(),
   revenue: z.number(),
+  netRevenue: z.number(),
+  refunds: z.number(),
   orders: z.number(),
 });
 export type RevenueDataPoint = z.infer<typeof RevenueDataPointSchema>;
@@ -86,6 +111,8 @@ export const RecentOrderSchema = z.object({
   customer: z.string(),
   total: MoneySchema,
   status: z.string(),
+  chargeStatus: z.string(),
+  refundAmount: z.number(),
 });
 export type RecentOrder = z.infer<typeof RecentOrderSchema>;
 
@@ -114,6 +141,7 @@ export const ProfitabilityDataSchema = z.object({
   cogs: z.number(),
   cogsAvailable: z.boolean(),
   discounts: z.number(),
+  refunds: z.number(),
   grossProfit: z.number(),
   netRevenue: z.number(),
   marginPercent: z.number(),
@@ -130,6 +158,7 @@ export const ProfitabilityDataPointSchema = z.object({
   date: z.string(),
   revenue: z.number(),
   cogs: z.number(),
+  refunds: z.number(),
   profit: z.number(),
 });
 export type ProfitabilityDataPoint = z.infer<typeof ProfitabilityDataPointSchema>;

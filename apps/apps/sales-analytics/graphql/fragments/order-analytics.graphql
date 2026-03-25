@@ -3,6 +3,23 @@ fragment OrderAnalytics on Order {
   number
   created
   status
+  chargeStatus
+  paymentStatus
+  paymentStatusDisplay
+  totalRefunded {
+    ...Money
+  }
+  totalGrantedRefund {
+    ...Money
+  }
+  grantedRefunds {
+    id
+    amount {
+      ...Money
+    }
+    reason
+    status
+  }
   total {
     gross {
       ...Money

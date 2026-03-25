@@ -125,6 +125,24 @@ export const transformChargedStatus = (status: OrderChargeStatusEnum, intl: Intl
         }),
         status: StatusType.WARNING,
       };
+    case OrderChargeStatusEnum.REFUNDED:
+      return {
+        localized: intl.formatMessage({
+          defaultMessage: "Refunded",
+          id: "refunded-charged-status",
+          description: "refunded order status",
+        }),
+        status: StatusType.NEUTRAL,
+      };
+    case OrderChargeStatusEnum.PARTIALLY_REFUNDED:
+      return {
+        localized: intl.formatMessage({
+          defaultMessage: "Partially refunded",
+          id: "partially-refunded-charged-status",
+          description: "partially refunded order status",
+        }),
+        status: StatusType.WARNING,
+      };
     default:
       return {
         localized: status,

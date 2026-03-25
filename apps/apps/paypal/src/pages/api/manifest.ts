@@ -20,7 +20,7 @@ export default createManifestHandler({
       name: process.env.APP_NAME ?? "PayPal",
       about:
         "App that allows merchants to accept online payments using PayPal Commerce Platform, supporting PayPal, credit/debit cards, and local payment methods.",
-      permissions: ["HANDLE_PAYMENTS"] as unknown as AppManifest["permissions"],
+      permissions: ["HANDLE_PAYMENTS", "MANAGE_ORDERS"] as unknown as AppManifest["permissions"],
       appUrl: iframeBaseUrl,
       configurationUrl: `${iframeBaseUrl}/`,
       tokenTargetUrl: `${apiBaseUrl}/api/register`,

@@ -240,4 +240,5 @@ services:
     app_manifest_path: "/api/manifest"
     permissions:
       - "HANDLE_PAYMENTS"
+      - "MANAGE_ORDERS"
     description: "PayPal Payment App"

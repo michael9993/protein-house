@@ -102,7 +102,7 @@ export async function fetchOrdersForAnalytics(
       }
 
       hasNextPage = orders.pageInfo.hasNextPage;
-      cursor = orders.pageInfo.endCursor;
+      cursor = orders.pageInfo.endCursor ?? null;
     }
 
     return ok(allOrders);

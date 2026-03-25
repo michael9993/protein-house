@@ -2308,13 +2308,20 @@ class Order(SyncWebhookControlContextModelObjectType[ModelObjectType[models.Orde
                 [granted_refund.amount for granted_refund in granted_refunds],
                 zero_money(order.currency),
             )
-            total_charged = prices.Money(Decimal(0), order.currency)
 
+            total_charged = prices.Money(Decimal(0), order.currency)
+            total_refunded = prices.Money(Decimal(0), order.currency)
             for transaction in transactions:
                 total_charged += transaction.amount_charged
                 total_charged += transaction.amount_charge_pending
-            order_granted_refunds_difference = order.total.gross - total_granted_refund
-            return total_charged - order_granted_refunds_difference
+                total_refunded += transaction.amount_refunded
+
+            # Use the higher of granted refunds vs actual refunded amount.
+            # This covers both Dashboard refunds (which create grants) and
+            # external refunds (PayPal webhook, which only create events).
+            effective_refund = max(total_granted_refund, total_refunded)
+            order_after_refund = order.total.gross - effective_refund
+            return total_charged - order_after_refund
 
         granted_refunds = OrderGrantedRefundsByOrderIdLoader(info.context).load(
             order.id

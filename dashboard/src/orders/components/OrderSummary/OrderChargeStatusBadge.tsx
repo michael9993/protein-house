@@ -1,6 +1,6 @@
 import { Pill } from "@dashboard/components/Pill";
 import { OrderChargeStatusEnum } from "@dashboard/graphql";
-import { BanknoteIcon } from "lucide-react";
+import { BanknoteIcon, RotateCcwIcon } from "lucide-react";
 import { useIntl } from "react-intl";
 
 interface OrderChargeStatusBadgeProps {
@@ -17,7 +17,7 @@ export const OrderChargeStatusBadge = ({ status }: OrderChargeStatusBadgeProps) 
           color="success"
           icon={<BanknoteIcon size={16} />}
           label={intl.formatMessage({
-            defaultMessage: "Fully charged",
+            defaultMessage: "Fully paid",
             id: "Ynjq+C",
           })}
         />
@@ -34,13 +34,47 @@ export const OrderChargeStatusBadge = ({ status }: OrderChargeStatusBadgeProps) 
         />
       );
 
+    case OrderChargeStatusEnum.REFUNDED:
+      return (
+        <Pill
+          color="neutral"
+          icon={<RotateCcwIcon size={16} />}
+          label={intl.formatMessage({
+            defaultMessage: "Refunded",
+            id: "refunded-status",
+          })}
+        />
+      );
+
+    case OrderChargeStatusEnum.PARTIALLY_REFUNDED:
+      return (
+        <Pill
+          color="attention"
+          icon={<RotateCcwIcon size={16} />}
+          label={intl.formatMessage({
+            defaultMessage: "Partially refunded",
+            id: "partially-refunded-status",
+          })}
+        />
+      );
+
     case OrderChargeStatusEnum.PARTIAL:
+      return (
+        <Pill
+          color="attention"
+          label={intl.formatMessage({
+            defaultMessage: "Partially paid",
+            id: "partially-paid-status",
+          })}
+        />
+      );
+
     case OrderChargeStatusEnum.NONE:
       return (
         <Pill
           color="neutral"
           label={intl.formatMessage({
-            defaultMessage: "Not fully charged",
+            defaultMessage: "Unpaid",
             id: "X9tptP",
           })}
         />

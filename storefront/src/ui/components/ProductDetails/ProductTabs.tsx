@@ -1,5 +1,6 @@
 "use client";
 
+import xss from "xss";
 import { useState } from "react";
 import type { ProductAttribute } from "./types";
 import { ProductAttributes } from "./ProductAttributes";
@@ -123,7 +124,7 @@ export function ProductTabs({
         {activeTab === "description" && (
           <div className="prose prose-sm max-w-none text-neutral-600">
             {description ? (
-              <div dangerouslySetInnerHTML={{ __html: description }} />
+              <div dangerouslySetInnerHTML={{ __html: xss(description) }} />
             ) : (
               <p>{text.noDescriptionAvailable}</p>
             )}

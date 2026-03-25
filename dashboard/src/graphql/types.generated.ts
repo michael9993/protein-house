@@ -3891,6 +3891,48 @@ export enum NavigationType {
   SECONDARY = 'SECONDARY'
 }
 
+export type NewsletterSubscriptionFilterInput = {
+  /** Filter by channel slug. */
+  channel?: InputMaybe<Scalars['String']['input']>;
+  /** Filter by ids. */
+  ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+  /** Filter by active status. */
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  metadata?: InputMaybe<Array<MetadataFilter>>;
+  /** Search by email address. */
+  search?: InputMaybe<Scalars['String']['input']>;
+  /** Filter by subscription source. */
+  source?: InputMaybe<Scalars['String']['input']>;
+  /** Filter by subscription date range. */
+  subscribedAt?: InputMaybe<DateTimeRangeInput>;
+};
+
+export enum NewsletterSubscriptionSortField {
+  /** Sort newsletter subscriptions by email. */
+  EMAIL = 'EMAIL',
+  /** Sort newsletter subscriptions by subscribed at. */
+  SUBSCRIBED_AT = 'SUBSCRIBED_AT',
+  /** Sort newsletter subscriptions by unsubscribed at. */
+  UNSUBSCRIBED_AT = 'UNSUBSCRIBED_AT'
+}
+
+export type NewsletterSubscriptionSortingInput = {
+  /** Specifies the direction in which to sort newsletter subscriptions. */
+  direction: OrderDirection;
+  /** Sort newsletter subscriptions by the selected field. */
+  field: NewsletterSubscriptionSortField;
+};
+
+export type NewsletterSubscriptionWhereInput = {
+  /** List of conditions that must be met. */
+  AND?: InputMaybe<Array<NewsletterSubscriptionWhereInput>>;
+  /** A list of conditions of which at least one must be met. */
+  OR?: InputMaybe<Array<NewsletterSubscriptionWhereInput>>;
+  ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+  /** Filter by metadata fields. */
+  metadata?: InputMaybe<MetadataFilterInput>;
+};
+
 export enum OrderAction {
   /** Represents the capture action. */
   CAPTURE = 'CAPTURE',
@@ -4228,7 +4270,9 @@ export enum OrderChargeStatusEnum {
   FULL = 'FULL',
   NONE = 'NONE',
   OVERCHARGED = 'OVERCHARGED',
-  PARTIAL = 'PARTIAL'
+  PARTIAL = 'PARTIAL',
+  PARTIALLY_REFUNDED = 'PARTIALLY_REFUNDED',
+  REFUNDED = 'REFUNDED'
 }
 
 /** Filter by charge status. */

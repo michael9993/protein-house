@@ -128,6 +128,26 @@ export async function exportAnalyticsToExcel(data: ExportData): Promise<void> {
         data.kpis.uniqueCustomers.value,
         data.kpis.uniqueCustomers.trend ? `${data.kpis.uniqueCustomers.trend.direction === "up" ? "↑" : data.kpis.uniqueCustomers.trend.direction === "down" ? "↓" : "→"} ${data.kpis.uniqueCustomers.trend.value}%` : "-"
       ],
+      [
+        data.kpis.netRevenue.label,
+        data.kpis.netRevenue.value,
+        data.kpis.netRevenue.trend ? `${data.kpis.netRevenue.trend.direction === "up" ? "↑" : data.kpis.netRevenue.trend.direction === "down" ? "↓" : "→"} ${data.kpis.netRevenue.trend.value}%` : "-"
+      ],
+      [
+        data.kpis.totalRefunds.label,
+        data.kpis.totalRefunds.value,
+        data.kpis.totalRefunds.trend ? `${data.kpis.totalRefunds.trend.direction === "up" ? "↑" : data.kpis.totalRefunds.trend.direction === "down" ? "↓" : "→"} ${data.kpis.totalRefunds.trend.value}%` : "-"
+      ],
+      [
+        data.kpis.refundRate.label,
+        data.kpis.refundRate.value,
+        data.kpis.refundRate.trend ? `${data.kpis.refundRate.trend.direction === "up" ? "↑" : data.kpis.refundRate.trend.direction === "down" ? "↓" : "→"} ${data.kpis.refundRate.trend.value}%` : "-"
+      ],
+      [
+        data.kpis.cancellationRate.label,
+        data.kpis.cancellationRate.value,
+        data.kpis.cancellationRate.trend ? `${data.kpis.cancellationRate.trend.direction === "up" ? "↑" : data.kpis.cancellationRate.trend.direction === "down" ? "↓" : "→"} ${data.kpis.cancellationRate.trend.value}%` : "-"
+      ],
     );
 
     const kpisSheet = XLSX.utils.aoa_to_sheet(kpisData);
@@ -139,10 +159,12 @@ export async function exportAnalyticsToExcel(data: ExportData): Promise<void> {
   // Sheet 2: Revenue Over Time
   if (data.revenueOverTime && data.revenueOverTime.length > 0) {
     const revenueData = [
-      ["Date", "Revenue", "Orders"],
+      ["Date", "Gross Revenue", "Net Revenue", "Refunds", "Orders"],
       ...data.revenueOverTime.map((point) => [
         format(new Date(point.date), "PP"),
         point.revenue,
+        point.netRevenue,
+        point.refunds,
         point.orders,
       ]),
     ];
@@ -248,30 +270,38 @@ export async function exportAnalyticsToExcel(data: ExportData): Promise<void> {
   // Sheet 6: All Orders
   if (data.allOrders && data.allOrders.length > 0) {
     const ordersData = [
-      ["Order Number", "Date", "Customer", "Total", "Status"],
+      ["Order Number", "Date", "Customer", "Total", "Status", "Charge Status", "Refund Amount"],
       ...data.allOrders.map((order) => [
         order.number,
         format(new Date(order.date), "PP"),
         order.customer,
         order.total.amount,
         order.status,
+        order.chargeStatus,
+        order.refundAmount,
       ]),
     ];
 
     const ordersSheet = XLSX.utils.aoa_to_sheet(ordersData);
-    
-    // Format currency column
+
+    // Format currency columns (Total = col 3, Refund = col 6)
     const range = XLSX.utils.decode_range(ordersSheet["!ref"] || "A1");
     for (let R = 1; R <= range.e.r; R++) {
-      const cellAddress = XLSX.utils.encode_cell({ c: 3, r: R });
-      if (ordersSheet[cellAddress] && data.allOrders[R - 1]) {
+      if (data.allOrders[R - 1]) {
         const currency = data.allOrders[R - 1].total.currency;
-        ordersSheet[cellAddress].z = `"${currency}" #,##0.00`;
+        const totalCell = XLSX.utils.encode_cell({ c: 3, r: R });
+        if (ordersSheet[totalCell]) {
+          ordersSheet[totalCell].z = `"${currency}" #,##0.00`;
+        }
+        const refundCell = XLSX.utils.encode_cell({ c: 6, r: R });
+        if (ordersSheet[refundCell]) {
+          ordersSheet[refundCell].z = `"${currency}" #,##0.00`;
+        }
       }
     }
-    
+
     applyWorksheetStyling(ordersSheet, 0, XLSX);
-    setColumnWidths(ordersSheet, [18, 18, 30, 18, 15]);
+    setColumnWidths(ordersSheet, [18, 18, 30, 18, 18, 20, 18]);
     XLSX.utils.book_append_sheet(workbook, ordersSheet, "All Orders");
   }
 

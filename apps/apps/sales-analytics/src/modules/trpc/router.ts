@@ -17,20 +17,42 @@ import {
   formatRecentOrders,
   detectCurrencies,
   filterOrdersByType,
+  filterOrdersByStatus,
+  filterOrdersByChargeStatus,
 } from "../analytics/domain/analytics-calculator";
 import { getPreviousPeriod, getOptimalGranularity } from "../analytics/domain/time-range";
 import type { Granularity } from "../analytics/domain/time-range";
 import { calculateFunnelData } from "../analytics/domain/funnel-calculator";
 import { calculateProfitability, calculateProfitabilityOverTime } from "../analytics/domain/profitability-calculator";
-import { OrderTypeFilterSchema } from "../analytics/domain/kpi-types";
-import type { OrderAnalyticsFragment } from "../../../generated/graphql";
+import { OrderTypeFilterSchema, DEFAULT_INCLUDED_STATUSES } from "../analytics/domain/kpi-types";
+import { type OrderAnalyticsFragment, OrderStatus, OrderChargeStatusEnum } from "../../../generated/graphql";
 
 const logger = createLogger("analytics-router");
+
+/** Zod schemas for filter inputs */
+const StatusFilterSchema = z.array(z.nativeEnum(OrderStatus)).optional();
+const ChargeStatusFilterSchema = z.array(z.nativeEnum(OrderChargeStatusEnum)).optional();
 
 function resolveCurrency(orders: OrderAnalyticsFragment[], inputCurrency?: string) {
   const currencyInfo = detectCurrencies(orders);
   const currency = inputCurrency || currencyInfo.primaryCurrency || "USD";
   return { currency, currencyInfo };
+}
+
+/**
+ * Apply order type, status, and charge status filters.
+ * Defaults to DEFAULT_INCLUDED_STATUSES if no status filter provided.
+ */
+function applyFilters(
+  orders: OrderAnalyticsFragment[],
+  orderType: z.infer<typeof OrderTypeFilterSchema>,
+  statusFilter?: OrderStatus[],
+  chargeStatusFilter?: OrderChargeStatusEnum[]
+): OrderAnalyticsFragment[] {
+  let filtered = filterOrdersByType(orders, orderType);
+  filtered = filterOrdersByStatus(filtered, statusFilter ?? DEFAULT_INCLUDED_STATUSES);
+  filtered = filterOrdersByChargeStatus(filtered, chargeStatusFilter);
+  return filtered;
 }
 
 /**
@@ -48,6 +70,8 @@ export const analyticsRouter = router({
         dateTo: z.string(),
         currency: z.string().optional(),
         orderType: OrderTypeFilterSchema.default("all"),
+        statusFilter: StatusFilterSchema,
+        chargeStatusFilter: ChargeStatusFilterSchema,
       })
     )
     .query(async ({ ctx, input }) => {
@@ -66,7 +90,7 @@ export const analyticsRouter = router({
         });
       }
 
-      const orders = filterOrdersByType(ordersResult.value, input.orderType);
+      const orders = applyFilters(ordersResult.value, input.orderType, input.statusFilter, input.chargeStatusFilter);
       const { currency, currencyInfo } = resolveCurrency(orders, input.currency);
 
       // Fetch previous period for comparison
@@ -82,7 +106,7 @@ export const analyticsRouter = router({
       });
 
       const previousOrders = previousOrdersResult.isOk()
-        ? filterOrdersByType(previousOrdersResult.value, input.orderType)
+        ? applyFilters(previousOrdersResult.value, input.orderType, input.statusFilter, input.chargeStatusFilter)
         : [];
 
       const kpisResult = calculateKPIs(orders, previousOrders, currency);
@@ -113,6 +137,8 @@ export const analyticsRouter = router({
         limit: z.number().default(10),
         currency: z.string().optional(),
         orderType: OrderTypeFilterSchema.default("all"),
+        statusFilter: StatusFilterSchema,
+        chargeStatusFilter: ChargeStatusFilterSchema,
       })
     )
     .query(async ({ ctx, input }) => {
@@ -131,7 +157,7 @@ export const analyticsRouter = router({
         });
       }
 
-      const orders = filterOrdersByType(ordersResult.value, input.orderType);
+      const orders = applyFilters(ordersResult.value, input.orderType, input.statusFilter, input.chargeStatusFilter);
       const { currency } = resolveCurrency(orders, input.currency);
 
       const productsResult = calculateTopProducts(orders, currency, input.limit);
@@ -158,6 +184,8 @@ export const analyticsRouter = router({
         granularity: z.enum(["day", "week", "month"]).optional(),
         currency: z.string().optional(),
         orderType: OrderTypeFilterSchema.default("all"),
+        statusFilter: StatusFilterSchema,
+        chargeStatusFilter: ChargeStatusFilterSchema,
       })
     )
     .query(async ({ ctx, input }) => {
@@ -176,7 +204,7 @@ export const analyticsRouter = router({
         });
       }
 
-      const orders = filterOrdersByType(ordersResult.value, input.orderType);
+      const orders = applyFilters(ordersResult.value, input.orderType, input.statusFilter, input.chargeStatusFilter);
       const { currency } = resolveCurrency(orders, input.currency);
 
       const granularity: Granularity =
@@ -206,6 +234,8 @@ export const analyticsRouter = router({
         limit: z.number().default(10),
         currency: z.string().optional(),
         orderType: OrderTypeFilterSchema.default("all"),
+        statusFilter: StatusFilterSchema,
+        chargeStatusFilter: ChargeStatusFilterSchema,
       })
     )
     .query(async ({ ctx, input }) => {
@@ -224,7 +254,7 @@ export const analyticsRouter = router({
         });
       }
 
-      const orders = filterOrdersByType(ordersResult.value, input.orderType);
+      const orders = applyFilters(ordersResult.value, input.orderType, input.statusFilter, input.chargeStatusFilter);
       const { currency } = resolveCurrency(orders, input.currency);
 
       const categoriesResult = calculateTopCategories(orders, currency, input.limit);
@@ -250,6 +280,8 @@ export const analyticsRouter = router({
         dateTo: z.string(),
         limit: z.number().default(10),
         orderType: OrderTypeFilterSchema.default("all"),
+        statusFilter: StatusFilterSchema,
+        chargeStatusFilter: ChargeStatusFilterSchema,
       })
     )
     .query(async ({ ctx, input }) => {
@@ -269,7 +301,7 @@ export const analyticsRouter = router({
         });
       }
 
-      const orders = filterOrdersByType(ordersResult.value, input.orderType);
+      const orders = applyFilters(ordersResult.value, input.orderType, input.statusFilter, input.chargeStatusFilter);
       const recentOrdersResult = formatRecentOrders(orders, input.limit);
 
       if (recentOrdersResult.isErr()) {
@@ -293,6 +325,8 @@ export const analyticsRouter = router({
         dateTo: z.string(),
         currency: z.string().optional(),
         orderType: OrderTypeFilterSchema.default("all"),
+        statusFilter: StatusFilterSchema,
+        chargeStatusFilter: ChargeStatusFilterSchema,
       })
     )
     .query(async ({ ctx, input }) => {
@@ -309,7 +343,7 @@ export const analyticsRouter = router({
         });
       }
 
-      const orders = filterOrdersByType(ordersResult.value, input.orderType);
+      const orders = applyFilters(ordersResult.value, input.orderType, input.statusFilter, input.chargeStatusFilter);
       const { currency } = resolveCurrency(orders, input.currency);
 
       const performanceResult = calculateProductPerformance(orders, currency);
@@ -334,6 +368,8 @@ export const analyticsRouter = router({
         dateFrom: z.string(),
         dateTo: z.string(),
         orderType: OrderTypeFilterSchema.default("all"),
+        statusFilter: StatusFilterSchema,
+        chargeStatusFilter: ChargeStatusFilterSchema,
       })
     )
     .query(async ({ ctx, input }) => {
@@ -352,7 +388,7 @@ export const analyticsRouter = router({
         });
       }
 
-      const orders = filterOrdersByType(ordersResult.value, input.orderType);
+      const orders = applyFilters(ordersResult.value, input.orderType, input.statusFilter, input.chargeStatusFilter);
       const allOrdersResult = formatRecentOrders(orders, orders.length);
 
       if (allOrdersResult.isErr()) {
@@ -376,6 +412,8 @@ export const analyticsRouter = router({
         dateTo: z.string(),
         currency: z.string().optional(),
         orderType: OrderTypeFilterSchema.default("all"),
+        statusFilter: StatusFilterSchema,
+        chargeStatusFilter: ChargeStatusFilterSchema,
       })
     )
     .query(async ({ ctx, input }) => {
@@ -392,7 +430,7 @@ export const analyticsRouter = router({
         });
       }
 
-      const orders = filterOrdersByType(ordersResult.value, input.orderType);
+      const orders = applyFilters(ordersResult.value, input.orderType, input.statusFilter, input.chargeStatusFilter);
       const { currency } = resolveCurrency(orders, input.currency);
 
       const funnelResult = calculateFunnelData(orders, currency);
@@ -418,6 +456,8 @@ export const analyticsRouter = router({
         dateTo: z.string(),
         currency: z.string().optional(),
         orderType: OrderTypeFilterSchema.default("all"),
+        statusFilter: StatusFilterSchema,
+        chargeStatusFilter: ChargeStatusFilterSchema,
       })
     )
     .query(async ({ ctx, input }) => {
@@ -433,7 +473,7 @@ export const analyticsRouter = router({
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: ordersResult.error.message });
       }
 
-      const orders = filterOrdersByType(ordersResult.value, input.orderType);
+      const orders = applyFilters(ordersResult.value, input.orderType, input.statusFilter, input.chargeStatusFilter);
       const { currency } = resolveCurrency(orders, input.currency);
 
       const result = calculateProfitability(orders, currency, input.channelSlug);
@@ -456,6 +496,8 @@ export const analyticsRouter = router({
         granularity: z.enum(["day", "week", "month"]).optional(),
         currency: z.string().optional(),
         orderType: OrderTypeFilterSchema.default("all"),
+        statusFilter: StatusFilterSchema,
+        chargeStatusFilter: ChargeStatusFilterSchema,
       })
     )
     .query(async ({ ctx, input }) => {
@@ -471,7 +513,7 @@ export const analyticsRouter = router({
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: ordersResult.error.message });
       }
 
-      const orders = filterOrdersByType(ordersResult.value, input.orderType);
+      const orders = applyFilters(ordersResult.value, input.orderType, input.statusFilter, input.chargeStatusFilter);
       const { currency } = resolveCurrency(orders, input.currency);
       const granularity: Granularity = input.granularity ?? getOptimalGranularity({ from: input.dateFrom, to: input.dateTo });
 

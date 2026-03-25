@@ -1,8 +1,8 @@
 import { Result, ok, err } from "neverthrow";
 import { format, parseISO, startOfDay, startOfWeek, startOfMonth } from "date-fns";
 
-import type { OrderAnalyticsFragment } from "../../../../generated/graphql";
-import { AnalyticsCalculationError } from "./analytics-calculator";
+import { type OrderAnalyticsFragment, OrderStatus } from "../../../../generated/graphql";
+import { AnalyticsCalculationError, getOrderRefundAmount } from "./analytics-calculator";
 import type { ProfitabilityData, ProfitabilityDataPoint } from "./kpi-types";
 import type { Granularity } from "./time-range";
 
@@ -55,6 +55,8 @@ function resolveLineCost(
 
 /**
  * Calculate profitability P&L from orders.
+ * Excludes canceled orders from all calculations.
+ * Subtracts refunds from net revenue.
  */
 export function calculateProfitability(
   orders: OrderAnalyticsFragment[],
@@ -62,18 +64,23 @@ export function calculateProfitability(
   channelSlug?: string
 ): Result<ProfitabilityData, AnalyticsCalculationError> {
   try {
-    const filtered = orders.filter((o) => o.total.gross.currency === currency);
+    // Filter by currency and exclude canceled orders from P&L
+    const filtered = orders
+      .filter((o) => o.total.gross.currency === currency)
+      .filter((o) => o.status !== OrderStatus.Canceled);
 
     let grossRevenue = 0;
     let shippingRevenue = 0;
     let cogs = 0;
     let discountsTotal = 0;
+    let refundsTotal = 0;
     let linesWithCost = 0;
     let linesTotal = 0;
 
     for (const order of filtered) {
       grossRevenue += order.total.gross.amount;
       shippingRevenue += order.shippingPrice?.gross?.amount ?? 0;
+      refundsTotal += getOrderRefundAmount(order);
 
       for (const discount of order.discounts ?? []) {
         discountsTotal += discount.amount.amount;
@@ -89,9 +96,12 @@ export function calculateProfitability(
       }
     }
 
-    const grossProfit = grossRevenue - cogs;
-    const netRevenue = grossRevenue - cogs - discountsTotal;
-    const marginPercent = grossRevenue > 0 ? (grossProfit / grossRevenue) * 100 : 0;
+    // Net Revenue = what was actually collected (gross minus refunds)
+    const netRevenue = grossRevenue - refundsTotal;
+    // Gross Profit = net revenue minus costs and discounts
+    const grossProfit = netRevenue - cogs - discountsTotal;
+    // Margin based on net revenue (what was actually collected)
+    const marginPercent = netRevenue > 0 ? (grossProfit / netRevenue) * 100 : 0;
 
     return ok({
       grossRevenue,
@@ -99,6 +109,7 @@ export function calculateProfitability(
       cogs,
       cogsAvailable: linesWithCost > 0,
       discounts: discountsTotal,
+      refunds: refundsTotal,
       grossProfit,
       netRevenue,
       marginPercent,
@@ -113,6 +124,7 @@ export function calculateProfitability(
 
 /**
  * Calculate profitability over time for charts.
+ * Excludes canceled orders. Includes refunds per time bucket.
  */
 export function calculateProfitabilityOverTime(
   orders: OrderAnalyticsFragment[],
@@ -121,9 +133,11 @@ export function calculateProfitabilityOverTime(
   channelSlug?: string
 ): Result<ProfitabilityDataPoint[], AnalyticsCalculationError> {
   try {
-    const filtered = orders.filter((o) => o.total.gross.currency === currency);
+    const filtered = orders
+      .filter((o) => o.total.gross.currency === currency)
+      .filter((o) => o.status !== OrderStatus.Canceled);
 
-    const dataMap = new Map<string, { revenue: number; cogs: number }>();
+    const dataMap = new Map<string, { revenue: number; cogs: number; refunds: number }>();
 
     for (const order of filtered) {
       const orderDate = parseISO(order.created);
@@ -141,8 +155,9 @@ export function calculateProfitabilityOverTime(
           break;
       }
 
-      const existing = dataMap.get(dateKey) || { revenue: 0, cogs: 0 };
+      const existing = dataMap.get(dateKey) || { revenue: 0, cogs: 0, refunds: 0 };
       existing.revenue += order.total.gross.amount;
+      existing.refunds += getOrderRefundAmount(order);
 
       for (const line of order.lines) {
         const unitCost = resolveLineCost(line, channelSlug);
@@ -156,12 +171,16 @@ export function calculateProfitabilityOverTime(
 
     const result = Array.from(dataMap.entries())
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, data]) => ({
-        date,
-        revenue: data.revenue,
-        cogs: data.cogs,
-        profit: data.revenue - data.cogs,
-      }));
+      .map(([date, data]) => {
+        const netRev = data.revenue - data.refunds;
+        return {
+          date,
+          revenue: netRev,
+          cogs: data.cogs,
+          refunds: data.refunds,
+          profit: netRev - data.cogs,
+        };
+      });
 
     return ok(result);
   } catch (error) {

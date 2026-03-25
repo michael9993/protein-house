@@ -107,7 +107,18 @@ export interface CheckoutTextConfig {
 	paymentFailedError?: string;
 	unexpectedPaymentError?: string;
 	paymentSuccessOrderFailedError?: string;
-	
+
+	// Payment Decline / Error Messages
+	cardDeclinedError?: string;
+	cardExpiredError?: string;
+	insufficientFundsError?: string;
+	invalidCardError?: string;
+	transactionRefusedError?: string;
+	verificationRequiredError?: string;
+	paymentNotApprovedError?: string;
+	paypalTemporaryError?: string;
+	genericPaymentDeclineError?: string;
+
 	// Order Summary Section
 	orderSummaryTitle?: string;
 	itemsCountSingular?: string;
@@ -396,7 +407,18 @@ const defaultCheckoutText: CheckoutTextConfig = {
 	paymentFailedError: "Payment failed",
 	unexpectedPaymentError: "An unexpected error occurred with your payment",
 	paymentSuccessOrderFailedError: "Payment was successful but order processing failed. Please contact support.",
-	
+
+	// Payment Decline / Error Messages
+	cardDeclinedError: "Your payment method was declined. Please try a different payment method.",
+	cardExpiredError: "Your card has expired. Please use a different card.",
+	insufficientFundsError: "Insufficient funds. Please use a different payment method.",
+	invalidCardError: "Invalid card number. Please check your card details and try again.",
+	transactionRefusedError: "This transaction was refused. Please try a different payment method.",
+	verificationRequiredError: "Additional verification is required. Please complete the verification step.",
+	paymentNotApprovedError: "The payment was not approved. Please try again.",
+	paypalTemporaryError: "PayPal is experiencing temporary issues. Please try again in a few minutes.",
+	genericPaymentDeclineError: "Payment failed. Please try again or use a different payment method.",
+
 	// Order Summary Section
 	orderSummaryTitle: "Order Summary",
 	itemsCountSingular: "1 item",

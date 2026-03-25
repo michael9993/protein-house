@@ -18,11 +18,15 @@ import { RecentOrdersTable } from "@/modules/ui/components/orders-table";
 import { DateRangePicker, QuickDateSelect } from "@/modules/ui/components/date-range-picker";
 import { ChannelSelector } from "@/modules/ui/components/channel-selector";
 import { OrderTypeSelector } from "@/modules/ui/components/order-type-selector";
+import { StatusFilter } from "@/modules/ui/components/status-filter";
+import { ChargeStatusFilter } from "@/modules/ui/components/charge-status-filter";
 import { ExportButton } from "@/modules/ui/components/export-button";
 import { AutoRefreshToggle, useAutoRefresh } from "@/modules/ui/components/auto-refresh-toggle";
 import { getTimeRangeFromPreset, type TimeRange } from "@/modules/analytics/domain/time-range";
 import { exportAnalyticsToExcel } from "@/modules/ui/utils/export-analytics";
 import type { OrderTypeFilter } from "@/modules/analytics/domain/kpi-types";
+import { DEFAULT_INCLUDED_STATUSES } from "@/modules/analytics/domain/kpi-types";
+import { OrderStatus, OrderChargeStatusEnum } from "../../generated/graphql";
 
 const REFRESH_INTERVAL = 30_000;
 
@@ -47,6 +51,8 @@ export default function IndexPage() {
   const [dateRange, setDateRange] = useState<TimeRange>(() => getTimeRangeFromPreset("last30days"));
   const [channelSlug, setChannelSlug] = useState<string | undefined>(undefined);
   const [orderType, setOrderType] = useState<OrderTypeFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<OrderStatus[]>([...DEFAULT_INCLUDED_STATUSES]);
+  const [chargeStatusFilter, setChargeStatusFilter] = useState<OrderChargeStatusEnum[]>([]);
 
   // Fetch channels
   const channelsQuery = trpcClient.channels.list.useQuery(undefined, {
@@ -86,8 +92,10 @@ export default function IndexPage() {
       dateTo: dateRange.to,
       currency,
       orderType,
+      statusFilter,
+      chargeStatusFilter: chargeStatusFilter.length > 0 ? chargeStatusFilter : undefined,
     }),
-    [effectiveChannelSlug, dateRange.from, dateRange.to, currency, orderType],
+    [effectiveChannelSlug, dateRange.from, dateRange.to, currency, orderType, statusFilter, chargeStatusFilter],
   );
 
   // Shared query options with auto-refresh
@@ -176,6 +184,8 @@ export default function IndexPage() {
               onToggle={autoRefresh.toggle}
               lastUpdated={autoRefresh.lastUpdated}
             />
+            <StatusFilter value={statusFilter} onChange={setStatusFilter} />
+            <ChargeStatusFilter value={chargeStatusFilter} onChange={setChargeStatusFilter} />
             <OrderTypeSelector value={orderType} onChange={setOrderType} />
             <ChannelSelector
               channels={channelsQuery.data ?? []}
@@ -198,12 +208,14 @@ export default function IndexPage() {
                     channelSlug: effectiveChannelSlug,
                     dateFrom: dateRange.from,
                     dateTo: dateRange.to,
+                    statusFilter,
                   }),
                   utils.analytics.getProductPerformance.fetch({
                     channelSlug: effectiveChannelSlug!,
                     dateFrom: dateRange.from,
                     dateTo: dateRange.to,
                     currency,
+                    statusFilter,
                   }),
                 ]);
                 await exportAnalyticsToExcel({
@@ -255,6 +267,10 @@ export default function IndexPage() {
             <KPICardsGrid
               kpis={{
                 gmv: { label: "Gross Revenue", value: "$0.00" },
+                netRevenue: { label: "Net Revenue", value: "$0.00" },
+                totalRefunds: { label: "Total Refunds", value: "$0.00" },
+                refundRate: { label: "Refund Rate", value: "0.0%" },
+                cancellationRate: { label: "Cancellation Rate", value: "0.0%" },
                 totalOrders: { label: "Total Orders", value: "0" },
                 averageOrderValue: { label: "Avg Order Value", value: "$0.00" },
                 itemsSold: { label: "Items Sold", value: "0" },

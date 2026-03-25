@@ -147,6 +147,12 @@ DATABASES = {
     ),
 }
 
+if not DEBUG and not os.environ.get("DATABASE_URL"):
+    raise ImproperlyConfigured(
+        "DATABASE_URL environment variable is required in production. "
+        "Using default credentials is not safe for production deployments."
+    )
+
 DATABASE_ROUTERS = ["saleor.core.db_routers.PrimaryReplicaRouter"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
@@ -209,11 +215,11 @@ if ENABLE_SSL:
     SECURE_SSL_REDIRECT = get_bool_from_env("SECURE_SSL_REDIRECT", not DEBUG)
 
 DEFAULT_FROM_EMAIL: str = os.environ.get(
-    "DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "noreply@pawzenpets.shop"
+    "DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "noreply@example.com"
 )
 
 # Contact form: who receives notifications and what address replies come from
-CONTACT_EMAIL: str = os.environ.get("CONTACT_EMAIL", "support@pawzenpets.shop")
+CONTACT_EMAIL: str = os.environ.get("CONTACT_EMAIL", "support@example.com")
 CONTACT_FROM_EMAIL: str = os.environ.get("CONTACT_FROM_EMAIL", CONTACT_EMAIL)
 
 MEDIA_ROOT: str = os.path.join(PROJECT_ROOT, "media")
@@ -282,10 +288,22 @@ if not SECRET_KEY and DEBUG:
         "SECRET_KEY not configured, using a random temporary key.", stacklevel=1
     )
     SECRET_KEY = get_random_secret_key()
+elif not SECRET_KEY:
+    raise ImproperlyConfigured(
+        "SECRET_KEY environment variable is required in production. "
+        "Generate one with: python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'"
+    )
 
 _raw = os.environ.get("RSA_PRIVATE_KEY", None)
 RSA_PRIVATE_KEY = (_raw.replace("\\n", "\n") if _raw else None)
 RSA_PRIVATE_PASSWORD = os.environ.get("RSA_PRIVATE_PASSWORD", None)
+
+if not DEBUG and not RSA_PRIVATE_KEY:
+    warnings.warn(
+        "RSA_PRIVATE_KEY not set — webhook signature verification will not work. "
+        "Generate one with: openssl genrsa 2048",
+        stacklevel=1,
+    )
 JWT_MANAGER_PATH = os.environ.get(
     "JWT_MANAGER_PATH", "saleor.core.jwt_manager.JWTManager"
 )

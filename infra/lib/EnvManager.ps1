@@ -165,6 +165,7 @@ function Update-TunnelUrls {
     }
     if ($storefrontTunnel) {
         $updates["NEXT_PUBLIC_STOREFRONT_URL"] = $storefrontTunnel
+        $updates["STOREFRONT_URL"]             = $storefrontTunnel
     }
     if ($stripeTunnel) {
         $updates["STRIPE_APP_URL"]          = $stripeTunnel

@@ -452,7 +452,18 @@ export const CheckoutTextSchema = z.object({
   unexpectedPaymentError: z.string().optional(),  // "An unexpected error occurred..."
   paymentSuccessOrderFailedError: z.string().optional(), // "Payment was successful but order processing failed..."
 
-  // Order Summary Section  
+  // Payment Decline / Error Messages (shown to customer)
+  cardDeclinedError: z.string().optional(),           // "Your payment method was declined..."
+  cardExpiredError: z.string().optional(),             // "Your card has expired..."
+  insufficientFundsError: z.string().optional(),       // "Insufficient funds..."
+  invalidCardError: z.string().optional(),             // "Invalid card number..."
+  transactionRefusedError: z.string().optional(),      // "This transaction was refused..."
+  verificationRequiredError: z.string().optional(),    // "Additional verification is required..."
+  paymentNotApprovedError: z.string().optional(),      // "The payment was not approved..."
+  paypalTemporaryError: z.string().optional(),         // "PayPal is experiencing temporary issues..."
+  genericPaymentDeclineError: z.string().optional(),   // "Payment failed. Please try again..."
+
+  // Order Summary Section
   orderSummaryTitle: z.string().optional(),       // "Order Summary"
   itemsCountSingular: z.string().optional(),      // "1 item"
   itemsCountPlural: z.string().optional(),        // "{count} items"

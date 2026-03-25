@@ -154,7 +154,11 @@ function getStatusCellContent(
   return readonlyTextCell("-");
 }
 
-const higherPriorityChargeStatuses = [OrderChargeStatusEnum.OVERCHARGED];
+const higherPriorityChargeStatuses = [
+  OrderChargeStatusEnum.OVERCHARGED,
+  OrderChargeStatusEnum.REFUNDED,
+  OrderChargeStatusEnum.PARTIALLY_REFUNDED,
+];
 
 export function getPaymentCellContent(
   intl: IntlShape,

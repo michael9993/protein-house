@@ -1,5 +1,6 @@
 "use client";
 
+import xss from "xss";
 import { formatUnit } from "./formatUnit";
 import type { ProductAttribute } from "./types";
 
@@ -55,7 +56,7 @@ function renderValue(attr: ProductAttribute): React.ReactNode {
     return (
       <div
         className="prose prose-sm max-w-none"
-        dangerouslySetInnerHTML={{ __html: val.richText }}
+        dangerouslySetInnerHTML={{ __html: xss(val.richText) }}
       />
     );
   }

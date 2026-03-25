@@ -13,7 +13,6 @@ const config: IGraphQLConfig = {
                 "typescript",
                 "typescript-operations",
                 "typed-document-node",
-                "typescript-urql",
               ],
               config: {
                 strictScalars: true,
@@ -31,6 +30,7 @@ const config: IGraphQLConfig = {
                   UUID: "string",
                   Upload: "unknown",
                   WeightScalar: "string",
+                  Hour: "number",
                   _Any: "unknown",
                 },
               },

@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-03-23T00:45:07.828Z",
+  "exportedAt": "2026-03-23T23:33:46.072Z",
   "channelSlug": "usd",
   "config": {
-    "version": 42,
-    "updatedAt": "2026-03-23T00:45:06.906Z",
+    "version": 43,
+    "updatedAt": "2026-03-23T23:33:45.718Z",
     "channelSlug": "usd",
     "store": {
       "name": "Pawzen",
@@ -299,7 +299,7 @@
         "trustStrip": {
           "enabled": true,
           "freeShippingText": "Pet-Safe Materials",
-          "easyReturnsText": "Free Shipping Over $100 for selected countries",
+          "easyReturnsText": "Free Shipping Over $75 for selected countries",
           "secureCheckoutText": "24/7 Support",
           "supportText": "30-Day Returns",
           "background": {
@@ -1362,6 +1362,15 @@
         "paymentFailedError": "Payment failed",
         "unexpectedPaymentError": "An unexpected error occurred with your payment",
         "paymentSuccessOrderFailedError": "Payment was successful but order processing failed. Please contact support.",
+        "cardDeclinedError": "Your payment method was declined. Please try a different payment method.",
+        "cardExpiredError": "Your card has expired. Please use a different card.",
+        "insufficientFundsError": "Insufficient funds. Please use a different payment method.",
+        "invalidCardError": "Invalid card number. Please check your card details and try again.",
+        "transactionRefusedError": "This transaction was refused. Please try a different payment method.",
+        "verificationRequiredError": "Additional verification is required. Please complete the verification step.",
+        "paymentNotApprovedError": "The payment was not approved. Please try again.",
+        "paypalTemporaryError": "PayPal is experiencing temporary issues. Please try again in a few minutes.",
+        "genericPaymentDeclineError": "Payment failed. Please try again or use a different payment method.",
         "orderSummaryTitle": "Order Summary",
         "itemsCountSingular": "1 item",
         "itemsCountPlural": "{count} items",

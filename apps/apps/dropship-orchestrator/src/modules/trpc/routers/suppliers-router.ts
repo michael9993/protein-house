@@ -269,10 +269,12 @@ export const suppliersRouter = router({
       // Generate a webhook secret for authentication
       const webhookSecret = crypto.randomUUID();
 
+      // Secret is verified via x-cj-webhook-secret header (stored in Redis),
+      // NOT passed as a query parameter to avoid leaking in logs/referrers
       const urls = {
-        order: `${baseUrl}/api/webhooks/cj/order?secret=${webhookSecret}`,
-        logistics: `${baseUrl}/api/webhooks/cj/logistics?secret=${webhookSecret}`,
-        stock: `${baseUrl}/api/webhooks/cj/stock?secret=${webhookSecret}`,
+        order: `${baseUrl}/api/webhooks/cj/order`,
+        logistics: `${baseUrl}/api/webhooks/cj/logistics`,
+        stock: `${baseUrl}/api/webhooks/cj/stock`,
       };
 
       logger.info("Registering CJ webhooks", { baseUrl });

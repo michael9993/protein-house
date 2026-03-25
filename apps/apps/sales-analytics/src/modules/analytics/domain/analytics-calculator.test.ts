@@ -7,7 +7,12 @@ import {
   formatRecentOrders,
   detectCurrencies,
 } from "./analytics-calculator";
-import type { OrderAnalyticsFragment } from "../../../../generated/graphql";
+import {
+  type OrderAnalyticsFragment,
+  OrderStatus,
+  OrderChargeStatusEnum,
+  OrderGrantedRefundStatusEnum,
+} from "../../../../generated/graphql";
 
 // Mock order data for testing
 const createMockOrder = (
@@ -15,14 +20,21 @@ const createMockOrder = (
   total: number,
   currency: string,
   created: string,
-  lines: Array<{ productName: string; quantity: number; totalPrice: number }>
+  lines: Array<{ productName: string; quantity: number; totalPrice: number }>,
+  overrides?: Partial<Pick<OrderAnalyticsFragment, "status" | "chargeStatus" | "paymentStatus" | "paymentStatusDisplay" | "totalRefunded" | "totalGrantedRefund" | "grantedRefunds">>
 ): OrderAnalyticsFragment => {
   return {
     __typename: "Order",
     id,
     number: `ORD-${id.slice(-4)}`,
     created,
-    status: "FULFILLED",
+    status: overrides?.status ?? OrderStatus.Fulfilled,
+    chargeStatus: overrides?.chargeStatus ?? OrderChargeStatusEnum.Full,
+    paymentStatus: overrides?.paymentStatus ?? ("FULLY_CHARGED" as any),
+    paymentStatusDisplay: overrides?.paymentStatusDisplay ?? "Fully charged",
+    totalRefunded: overrides?.totalRefunded ?? { __typename: "Money", amount: 0, currency },
+    totalGrantedRefund: overrides?.totalGrantedRefund ?? { __typename: "Money", amount: 0, currency },
+    grantedRefunds: overrides?.grantedRefunds ?? [],
     total: {
       __typename: "TaxedMoney",
       gross: { __typename: "Money", amount: total, currency },

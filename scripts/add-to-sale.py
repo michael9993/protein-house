@@ -1,7 +1,10 @@
-import json, urllib.request, sys
+import json, urllib.request, sys, os
 
-EMAIL = 'michaelzaher1993@gmail.com'
-PASSWORD = 'Mazzam123'
+EMAIL = os.environ.get('AURA_ADMIN_EMAIL', 'admin@example.com')
+PASSWORD = os.environ.get('AURA_ADMIN_PASSWORD', '')
+if not PASSWORD:
+    print("ERROR: Set AURA_ADMIN_PASSWORD environment variable (see infra/.env.self-hosted)")
+    sys.exit(1)
 SALE_COLLECTION = 'Q29sbGVjdGlvbjozOA=='
 
 def gql(q, token=None, variables=None):

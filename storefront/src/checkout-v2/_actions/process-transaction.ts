@@ -6,6 +6,8 @@ import { TransactionProcessDocument } from "@/gql/graphql";
 interface ProcessTransactionResult {
 	transactionId: string | null;
 	data: unknown;
+	eventMessage: string | null;
+	eventType: string | null;
 	errors: { field: string | null; message: string | null; code: string }[];
 }
 
@@ -31,6 +33,8 @@ export async function processTransaction(
 	return {
 		transactionId: tp?.transaction?.id ?? null,
 		data: tp?.data ?? null,
+		eventMessage: tp?.transactionEvent?.message ?? null,
+		eventType: tp?.transactionEvent?.type ?? null,
 		errors,
 	};
 }

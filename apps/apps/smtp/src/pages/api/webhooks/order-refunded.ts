@@ -77,6 +77,37 @@ const handler: NextJsWebhookHandler<OrderRefundedWebhookPayloadFragment> = async
 
   loggerContext.set(ObservabilityAttributes.CHANNEL_SLUG, channel);
 
+  // Compute refund summary for the email template
+  // Uses max(grantedRefunds, actualRefunded) to handle both Dashboard and external refunds
+  const grantedRefunds = order.grantedRefunds ?? [];
+  const latestRefund = grantedRefunds[grantedRefunds.length - 1];
+  const orderTotal = order.total.gross.amount;
+  const currency = order.total.gross.currency;
+
+  const totalGranted = grantedRefunds.reduce((sum, r) => sum + r.amount.amount, 0);
+  // totalCharged is NET (charged - refunded by Saleor). Actual refunded = orderTotal - totalCharged.
+  const totalCharged = (order as any).totalCharged?.amount ?? (order as any).totalCaptured?.amount ?? orderTotal;
+  const actualRefunded = Math.max(0, orderTotal - totalCharged);
+  // Use whichever is higher — covers both grant-based and external refunds
+  const totalRefunded = Math.max(totalGranted, actualRefunded);
+  const outstandingBalance = Math.max(0, orderTotal - totalRefunded);
+
+  // Determine this refund amount: from latest grant, or calculate from the difference
+  const thisRefundAmount = latestRefund?.amount.amount
+    ?? (actualRefunded > 0 ? Math.round(actualRefunded * 100) / 100 : 0);
+
+  const refundSummary = {
+    thisRefundAmount,
+    thisRefundCurrency: latestRefund?.amount.currency ?? currency,
+    thisRefundReason: latestRefund?.reason ?? "",
+    totalRefunded: Math.round(totalRefunded * 100) / 100,
+    outstandingBalance: Math.round(outstandingBalance * 100) / 100,
+    currency,
+    refundCount: grantedRefunds.length || (actualRefunded > 0 ? 1 : 0),
+    isFullRefund: outstandingBalance === 0,
+    isPartialRefund: outstandingBalance > 0,
+  };
+
   const useCase = useCaseFactory.createFromAuthData(authData);
 
   try {
@@ -84,7 +115,7 @@ const handler: NextJsWebhookHandler<OrderRefundedWebhookPayloadFragment> = async
       .sendEventMessages({
         channelSlug: channel,
         event: "ORDER_REFUNDED",
-        payload: { order: payload.order },
+        payload: { order: payload.order, refundSummary },
         recipientEmail,
         saleorApiUrl: authData.saleorApiUrl,
       })

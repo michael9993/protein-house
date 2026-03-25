@@ -162,6 +162,8 @@ services:
       RSA_PRIVATE_PASSWORD: ${RSA_PRIVATE_PASSWORD:-}
       DEBUG: ${DEBUG}
       PUBLIC_URL: ${SALEOR_API_TUNNEL_URL:-${PUBLIC_URL:-http://localhost:8000}}
+      # Storefront URL for abandoned checkout recovery emails
+      STOREFRONT_URL: ${STOREFRONT_URL:-${NEXT_PUBLIC_STOREFRONT_URL:-http://localhost:3000}}
       # Allow Docker internal IPs for webhooks
       HTTP_IP_FILTER_ENABLED: "False"
     depends_on:
