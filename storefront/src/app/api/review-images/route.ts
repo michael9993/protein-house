@@ -9,6 +9,15 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_IMAGE_DIMENSION = 1200; // Max width/height
 const QUALITY = 80; // JPEG quality (0-100)
 
+/** Explicit allowlist of accepted image MIME types — prevents upload of SVG (XSS vector), BMP bombs, etc. */
+const ALLOWED_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/avif",
+]);
+
 export async function POST(request: NextRequest) {
   const { allowed, resetAt } = normalLimiter(getClientIp(request));
   if (!allowed) return rateLimitResponse(resetAt);
@@ -24,10 +33,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file type
-    if (!file.type.startsWith("image/")) {
+    // Validate file type against explicit allowlist (blocks SVG XSS, BMP bombs, etc.)
+    if (!ALLOWED_MIME_TYPES.has(file.type)) {
       return NextResponse.json(
-        { error: "File must be an image" },
+        { error: "Unsupported image format. Allowed: JPEG, PNG, WebP, GIF, AVIF" },
         { status: 400 }
       );
     }

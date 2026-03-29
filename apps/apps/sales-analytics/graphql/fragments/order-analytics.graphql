@@ -86,6 +86,14 @@ fragment OrderAnalytics on Order {
       }
     }
   }
+  metadata {
+    key
+    value
+  }
+  privateMetadata {
+    key
+    value
+  }
   user {
     id
     email

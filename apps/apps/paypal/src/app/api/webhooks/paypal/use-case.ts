@@ -16,6 +16,22 @@ import { WebhookParams } from "./webhook-params";
 
 const logger = createLogger("PayPalWebhookUseCase");
 
+/**
+ * Idempotency: track processed webhook event IDs to prevent duplicate processing.
+ * PayPal may redeliver webhooks — without dedup, we could report duplicate refunds to Saleor.
+ * Uses in-memory Map with 1-hour TTL. For multi-instance deployments, move to Redis.
+ */
+const processedEvents = new Map<string, number>();
+const DEDUP_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+// Sweep expired entries every 10 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, timestamp] of processedEvents) {
+    if (now - timestamp > DEDUP_TTL_MS) processedEvents.delete(key);
+  }
+}, 10 * 60 * 1000).unref?.();
+
 export async function handlePayPalWebhook(args: {
   rawBody: string;
   headers: Record<string, string>;
@@ -90,6 +106,12 @@ export async function handlePayPalWebhook(args: {
     resourceType: event.resource_type,
   });
 
+  // 4b. Idempotency check — skip already-processed events
+  if (event.id && processedEvents.has(event.id)) {
+    logger.info("Duplicate webhook event — skipping", { eventId: event.id });
+    return ok({ message: `Event ${event.id} already processed` });
+  }
+
   // 5. Create Saleor GraphQL client
   const saleorClient = createClient({
     url: webhookParams.saleorApiUrl,
@@ -99,16 +121,16 @@ export async function handlePayPalWebhook(args: {
     },
   });
 
-  // 6. Route by event type
+  // 6. Route by event type and mark as processed on success
+  let result: Result<{ message: string }, { status: number; message: string }>;
+
   if (
     event.event_type === "PAYMENT.CAPTURE.REFUNDED" ||
     event.event_type === "PAYMENT.CAPTURE.REVERSED" ||
     event.event_type === "PAYMENT.CAPTURE.DENIED"
   ) {
-    return handleRefundEvent(event, saleorClient, { environment: config.environment });
-  }
-
-  if (event.event_type === "PAYMENT.CAPTURE.COMPLETED") {
+    result = await handleRefundEvent(event, saleorClient, { environment: config.environment });
+  } else if (event.event_type === "PAYMENT.CAPTURE.COMPLETED") {
     const captureResource = event.resource as { id?: string; amount?: { value: string; currency_code: string } };
     logger.info("Capture completed event from PayPal", {
       captureId: captureResource.id,
@@ -116,11 +138,18 @@ export async function handlePayPalWebhook(args: {
     });
     // Capture events from PayPal confirm charges already initiated from our side.
     // Saleor already knows about these since we report CHARGE_SUCCESS synchronously.
-    return ok({ message: "Capture completed acknowledged" });
+    result = ok({ message: "Capture completed acknowledged" });
+  } else {
+    logger.info("Unhandled PayPal event type, acknowledging", { eventType: event.event_type });
+    result = ok({ message: `Event ${event.event_type} acknowledged` });
   }
 
-  logger.info("Unhandled PayPal event type, acknowledging", { eventType: event.event_type });
-  return ok({ message: `Event ${event.event_type} acknowledged` });
+  // Mark event as processed after successful handling (idempotency)
+  if (result.isOk() && event.id) {
+    processedEvents.set(event.id, Date.now());
+  }
+
+  return result;
 }
 
 async function handleRefundEvent(

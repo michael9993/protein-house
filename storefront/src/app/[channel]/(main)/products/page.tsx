@@ -13,7 +13,6 @@ import { fetchStorefrontConfig } from "@/lib/storefront-control";
 import { enhanceSearchQuery } from "@/lib/search/query-enhancer";
 import { ProductFiltersWrapper } from "./ProductFiltersWrapper";
 import { QuickFilters } from "./QuickFilters";
-import { ScrollToTopButton } from "./ScrollToTopButton";
 import { DesignStyles } from "./DesignStyles";
 import { ProductsContent } from "./ProductsContent";
 import {
@@ -762,7 +761,7 @@ export default async function Page(props: {
   ] = await Promise.all([
     executeGraphQL(ProductListFilteredDocument, {
       variables: {
-        first: 24,
+        first: 36,
         channel,
         languageCode,
         sortBy: sortVariables,
@@ -973,8 +972,6 @@ export default async function Page(props: {
             </div>
           </div>
         </div>
-        {/* Mobile scroll-to-top */}
-        <ScrollToTopButton />
       </div>
     </>
   );

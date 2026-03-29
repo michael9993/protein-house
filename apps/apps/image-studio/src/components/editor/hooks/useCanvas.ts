@@ -451,9 +451,27 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
   }, []);
 
   const exportCanvas = useCallback(
-    (format: "png" | "jpeg" | "webp" = "png", quality = 1, transparentBg = false): string | null => {
+    (
+      options?: {
+        format?: "png" | "jpeg" | "webp";
+        quality?: number;
+        transparentBg?: boolean;
+        multiplier?: number;
+      }
+    ): string | null => {
       const canvas = canvasRef.current;
       if (!canvas) return null;
+
+      const format = options?.format ?? "png";
+      const quality = options?.quality ?? 1;
+      const transparentBg = options?.transparentBg ?? false;
+      const multiplier = options?.multiplier ?? 1;
+
+      // Safety: browser canvas limit is ~16384px per dimension
+      const maxDim = Math.max(canvasDimensions.width, canvasDimensions.height) * multiplier;
+      const safeMultiplier = maxDim > 16384
+        ? Math.floor(16384 / Math.max(canvasDimensions.width, canvasDimensions.height))
+        : multiplier;
 
       // Save current state (canvas element is container-sized)
       const savedW = canvas.getWidth();
@@ -483,7 +501,11 @@ export function useCanvas(canvasElId: string, options: UseCanvasOptions = {}) {
 
       canvas.renderAll();
 
-      const dataUrl = canvas.toDataURL({ format, quality, multiplier: 1 });
+      const dataUrl = canvas.toDataURL({
+        format,
+        quality,
+        multiplier: Math.max(1, safeMultiplier),
+      });
 
       // Restore everything
       canvas.backgroundColor = savedBg;

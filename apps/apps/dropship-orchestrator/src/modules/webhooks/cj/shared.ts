@@ -71,13 +71,17 @@ export async function withCJWebhookAuth(
   }
 
   // --- Webhook secret verification (via header, not query string) ---
+  // CJ does not support custom auth headers — only verify if the header is actually provided.
+  // Security is handled by Cloudflare tunnel + IP whitelist.
   try {
-    const expectedSecret = await getRedisConnection().get("dropship:cj-webhook-secret");
     const providedSecret = req.headers["x-cj-webhook-secret"] as string | undefined;
-    if (expectedSecret && providedSecret !== expectedSecret) {
-      logger.debug("Invalid webhook secret", { clientIp });
-      res.status(401).json({ error: "Unauthorized" });
-      return;
+    if (providedSecret) {
+      const expectedSecret = await getRedisConnection().get("dropship:cj-webhook-secret");
+      if (expectedSecret && providedSecret !== expectedSecret) {
+        logger.debug("Invalid webhook secret", { clientIp });
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
     }
   } catch (error) {
     logger.warn("Secret check failed — allowing request", {

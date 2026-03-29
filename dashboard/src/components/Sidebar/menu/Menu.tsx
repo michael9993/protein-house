@@ -4,12 +4,16 @@ import { Shortcusts } from "../shortcuts";
 import { useMenuStructure } from "./hooks/useMenuStructure";
 import { MenuItem } from "./Item";
 
-export const Menu = () => {
+interface MenuProps {
+  collapsed?: boolean;
+}
+
+export const Menu = ({ collapsed }: MenuProps) => {
   const menuStructure = useMenuStructure();
 
   return (
     <Box
-      padding={3}
+      padding={collapsed ? 1.5 : 3}
       overflowY="auto"
       className="hide-scrollbar"
       display="flex"
@@ -18,11 +22,11 @@ export const Menu = () => {
     >
       <List as="ol" display="grid" gap={1} data-test-id="menu-list">
         {menuStructure.map(menuItem => (
-          <MenuItem menuItem={menuItem} key={menuItem.id} />
+          <MenuItem menuItem={menuItem} key={menuItem.id} collapsed={collapsed} />
         ))}
       </List>
 
-      <Shortcusts />
+      {!collapsed && <Shortcusts />}
     </Box>
   );
 };

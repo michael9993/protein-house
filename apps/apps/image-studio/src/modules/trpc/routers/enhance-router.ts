@@ -81,7 +81,7 @@ export const enhanceRouter = router({
     .input(
       z.object({
         imageBase64: z.string(),
-        format: z.enum(["png", "jpeg", "webp"]),
+        format: z.enum(["png", "jpeg", "webp", "avif"]),
         quality: z.number().min(1).max(100).default(85),
       })
     )
@@ -90,12 +90,14 @@ export const enhanceRouter = router({
         const buffer = base64ToBuffer(input.imageBase64);
         let pipeline = sharp(buffer);
 
-        const mimeMap = { png: "image/png", jpeg: "image/jpeg", webp: "image/webp" } as const;
+        const mimeMap = { png: "image/png", jpeg: "image/jpeg", webp: "image/webp", avif: "image/avif" } as const;
 
         if (input.format === "png") {
           pipeline = pipeline.png();
         } else if (input.format === "jpeg") {
           pipeline = pipeline.jpeg({ quality: input.quality });
+        } else if (input.format === "avif") {
+          pipeline = pipeline.avif({ quality: input.quality });
         } else {
           pipeline = pipeline.webp({ quality: input.quality });
         }

@@ -8,6 +8,7 @@ import { useBranding, useStoreInfo, useContentConfig, useComponentStyle, useComp
 import { buildComponentStyle } from "@/config";
 import { loginAction, registerAction } from "./actions";
 import { getOAuthUrl } from "./oauth-actions";
+import { isInAppBrowser } from "@/lib/webview";
 
 interface LoginClientProps {
 	channel: string;
@@ -465,6 +466,8 @@ function SocialLoginButton({
 			// Validate URL before redirecting
 			if (result.url && typeof result.url === "string" && result.url.startsWith("http")) {
 				// Store final redirect so the OAuth callback sends user to the right place
+				// Use cookie (survives WebView redirect) + sessionStorage (legacy fallback)
+				try { document.cookie = `oauth_redirect=${encodeURIComponent(finalRedirectUrl)}; path=/; max-age=300; SameSite=Lax`; } catch {}
 				try { sessionStorage.setItem("oauth_redirect", finalRedirectUrl); } catch {}
 				// Redirect to OAuth provider (via Saleor)
 				window.location.href = result.url;
@@ -503,6 +506,11 @@ function SocialLoginButton({
 	};
 
 	const providerInfo = providers[provider];
+
+	// OAuth is blocked in Instagram/Facebook in-app browsers — hide the button
+	if (typeof window !== "undefined" && isInAppBrowser()) {
+		return null;
+	}
 
 	return (
 		<button

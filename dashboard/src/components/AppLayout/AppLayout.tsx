@@ -7,19 +7,21 @@ import { DevModePanel } from "../DevModePanel/DevModePanel";
 import NavigatorSearch from "../NavigatorSearch";
 import { useSavebarRef } from "../Savebar/SavebarRefContext";
 import { Sidebar } from "../Sidebar";
-import { SidebarProvider } from "../Sidebar/SidebarContext";
+import { SidebarProvider, useSidebarCollapseShortcut } from "../Sidebar/SidebarContext";
 
 interface AppLayoutProps {
   children: React.ReactNode;
   fullSize?: boolean;
 }
 
-const AppLayout = ({ children }: AppLayoutProps) => {
+const AppLayoutInner = ({ children }: AppLayoutProps) => {
   const { setAnchor } = useSavebarRef();
   const [appState] = useAppState();
 
+  useSidebarCollapseShortcut();
+
   return (
-    <SidebarProvider>
+    <>
       <DevModePanel />
       <NavigatorSearch />
 
@@ -58,6 +60,14 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         </Box>
       </Box>
       <AiAssistant />
+    </>
+  );
+};
+
+const AppLayout = ({ children }: AppLayoutProps) => {
+  return (
+    <SidebarProvider>
+      <AppLayoutInner>{children}</AppLayoutInner>
     </SidebarProvider>
   );
 };

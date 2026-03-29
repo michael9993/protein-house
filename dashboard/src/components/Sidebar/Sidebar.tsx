@@ -5,14 +5,18 @@ import { SidebarContent } from "./Content";
 import classes from "./Sidebar.module.css";
 import { useSidebarBreakpointContext } from "./SidebarContext";
 
+const SIDEBAR_WIDTH_EXPANDED = "260px";
+const SIDEBAR_WIDTH_COLLAPSED = "56px";
+
 export const Sidebar = () => {
-  const { breakpoint } = useSidebarBreakpointContext();
+  const { breakpoint, collapsed } = useSidebarBreakpointContext();
+  const sidebarWidth = collapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED;
 
   if (breakpoint === "wide") {
     return (
       <>
         <div className={classes.fullSidebarWide}>
-          <Box __width="260px" height="100%">
+          <Box __width={sidebarWidth} height="100%" className={classes.sidebarTransition}>
             <SidebarContent />
           </Box>
         </div>
@@ -33,9 +37,9 @@ export const Sidebar = () => {
               backgroundColor="default2"
               data-test-id="sidebar-drawer-content"
               paddingTop={0}
-              __width="260px"
+              __width={SIDEBAR_WIDTH_EXPANDED}
             >
-              <SidebarContent />
+              <SidebarContent forceExpanded />
             </Drawer.Content>
           </Drawer>
         </div>
@@ -46,9 +50,10 @@ export const Sidebar = () => {
   return (
     <>
       <Box
-        __width="260px"
+        __width={sidebarWidth}
         display={{ mobile: "none", tablet: "none", desktop: "block" }}
         height="100%"
+        className={classes.sidebarTransition}
       >
         <SidebarContent />
       </Box>
@@ -69,9 +74,9 @@ export const Sidebar = () => {
             backgroundColor="default2"
             data-test-id="sidebar-drawer-content"
             paddingTop={0}
-            __width="260px"
+            __width={SIDEBAR_WIDTH_EXPANDED}
           >
-            <SidebarContent />
+            <SidebarContent forceExpanded />
           </Drawer.Content>
         </Drawer>
       </Box>

@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { useWhatsAppConfig, useFloatingButtons } from "@/providers/StoreConfigProvider";
 import { computeFloatingButtonPosition, useHiddenFabIds } from "@/lib/floating-buttons";
+import { openUrl } from "@/lib/webview";
 
 export function WhatsAppChatButton() {
 	const [mounted, setMounted] = useState(false);
@@ -31,7 +32,7 @@ export function WhatsAppChatButton() {
 	const handleClick = () => {
 		const number = phoneNumber.replace(/[^0-9]/g, "");
 		const message = encodeURIComponent(defaultMessage || "");
-		window.open(`https://wa.me/${number}?text=${message}`, "_blank", "noopener,noreferrer");
+		openUrl(`https://wa.me/${number}?text=${message}`);
 	};
 
 	const button = (

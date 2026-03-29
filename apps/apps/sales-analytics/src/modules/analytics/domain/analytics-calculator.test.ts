@@ -79,6 +79,8 @@ const createMockOrder = (
         },
       },
     })),
+    metadata: [],
+    privateMetadata: [],
     user: {
       __typename: "User",
       id: `user-${id}`,

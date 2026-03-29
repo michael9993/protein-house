@@ -5,17 +5,18 @@ import { SidebarMenuItem } from "./types";
 
 interface Props {
   menuItem: SidebarMenuItem;
+  collapsed?: boolean;
 }
 
 export const MenuItem = (props: Props) => {
-  const { menuItem } = props;
+  const { menuItem, collapsed } = props;
 
   switch (menuItem.type) {
     case "item":
-      return <SingleItem {...props} />;
+      return <SingleItem menuItem={menuItem} collapsed={collapsed} />;
     case "itemGroup":
-      return <ItemGroup {...props} />;
+      return <ItemGroup menuItem={menuItem} collapsed={collapsed} />;
     case "divider":
-      return <Divider menuItem={menuItem} />;
+      return collapsed ? null : <Divider menuItem={menuItem} />;
   }
 };

@@ -25,6 +25,12 @@ infra/.env.backup
 !**/.env.template
 !**/.env.*.example
 !**/.env.*.template
+# Social publisher
+scripts/.instagram-publish-status.json
+scripts/social-publisher/.publish-status.json
+scripts/social-publisher/.env
+scripts/social-publisher/posts.json
+
 # Python
 __pycache__/
 *.py[cod]

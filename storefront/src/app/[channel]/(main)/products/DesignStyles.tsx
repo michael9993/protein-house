@@ -253,18 +253,10 @@ export function DesignStyles() {
          TEXT EFFECTS
          ============================ */
 
-      /* Product name hover underline - Athletic style */
+      /* Product name hover underline - disabled */
       .v7-name-underline {
         position: relative;
         display: inline;
-        background: linear-gradient(var(--v7-primary), var(--v7-primary)) no-repeat;
-        background-size: 0% 3px;
-        background-position: left bottom;
-        transition: background-size 0.35s var(--v7-ease-out-expo);
-      }
-
-      .v7-card:hover .v7-name-underline {
-        background-size: 100% 3px;
       }
 
       /* ============================

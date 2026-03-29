@@ -10,6 +10,7 @@ import type { NextRequest } from "next/server";
  */
 
 const DEFAULT_CHANNEL = process.env.NEXT_PUBLIC_DEFAULT_CHANNEL || "default-channel";
+const COMING_SOON = process.env.NEXT_PUBLIC_COMING_SOON === "true";
 
 // Known storefront page segments that should be prefixed with a channel.
 // If the first path segment matches one of these, we know the channel is missing.
@@ -45,6 +46,13 @@ export function middleware(request: NextRequest) {
     pathname.includes(".")
   ) {
     return NextResponse.next();
+  }
+
+  // Coming Soon gate — redirect everything except /coming-soon itself
+  if (COMING_SOON && pathname !== "/coming-soon") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/coming-soon";
+    return NextResponse.redirect(url, 302);
   }
 
   // Get the first path segment

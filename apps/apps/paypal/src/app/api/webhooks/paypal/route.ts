@@ -1,12 +1,25 @@
 import { NextRequest } from "next/server";
 
 import { createLogger } from "@/lib/logger";
+import { webhookLimiter, getClientIp } from "@/lib/rate-limit";
 import { parseWebhookParams } from "./webhook-params";
 import { handlePayPalWebhook } from "./use-case";
 
 const logger = createLogger("PayPalWebhookRoute");
 
 export async function POST(request: NextRequest) {
+  // Rate limit webhook requests to prevent flooding
+  const clientIp = getClientIp(request);
+  const { allowed, resetAt } = webhookLimiter(clientIp);
+  if (!allowed) {
+    logger.warn("Webhook rate limited", { clientIp });
+    const retryAfter = Math.ceil((resetAt - Date.now()) / 1000);
+    return Response.json(
+      { error: "Too many requests" },
+      { status: 429, headers: { "Retry-After": String(Math.max(retryAfter, 1)) } },
+    );
+  }
+
   try {
     // Parse webhook params from URL query string
     const paramsResult = parseWebhookParams(request.url);

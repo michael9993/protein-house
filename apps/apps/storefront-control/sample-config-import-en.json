@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-03-23T23:33:46.072Z",
+  "exportedAt": "2026-03-27T05:34:41.752Z",
   "channelSlug": "usd",
   "config": {
-    "version": 43,
-    "updatedAt": "2026-03-23T23:33:45.718Z",
+    "version": 49,
+    "updatedAt": "2026-03-27T05:34:41.417Z",
     "channelSlug": "usd",
     "store": {
       "name": "Pawzen",
@@ -265,7 +265,7 @@
           "type": "video",
           "layout": "centered",
           "title": "Welcome to Pawzen",
-          "subtitle": "Modern, curated accessories for dogs & cats. Designed with love, delivered with care.",
+          "subtitle": "Modern, curated accessories for dogs & cats. Selected with love, delivered with care.",
           "ctaText": "Shop Now",
           "ctaLink": "/products",
           "showSecondaryButton": true,
@@ -311,8 +311,8 @@
         },
         "marquee": {
           "enabled": true,
-          "text": "🐾 New arrivals weekly • Free shipping over $50 • Premium pet accessories • Vet-approved products • 30-day easy returns 🐾",
-          "speedSeconds": 50,
+          "text": "🐾 New arrivals weekly • Free shipping over $75 • Premium pet accessories • Vet-approved products • 30-day easy returns 🐾",
+          "speedSeconds": 80,
           "textColor": "#D4B978",
           "background": {
             "style": "solid",
@@ -602,8 +602,8 @@
         "whatsappDefaultMessage": "Hi! I'd like more information"
       },
       "social": {
-        "facebook": "https://facebook.com/pawzen",
-        "instagram": "https://instagram.com/pawzen",
+        "facebook": "https://www.facebook.com/profile.php?id=61579690091826",
+        "instagram": "https://www.instagram.com/pawzenpets.shop/",
         "twitter": null,
         "youtube": null,
         "tiktok": "https://tiktok.com/@pawzen",
@@ -1565,7 +1565,7 @@
         "quickAddButton": "Quick Add",
         "scrollLeftAriaLabel": "Scroll left",
         "scrollRightAriaLabel": "Scroll right",
-        "checkOutOurProducts": "Check Out Our Products",
+        "checkOutOurProducts": "Check Out Our Catalog",
         "minimumRating": "Minimum Rating",
         "starsAndUp": "{count} stars and up",
         "starAndUp": "1 star and up",

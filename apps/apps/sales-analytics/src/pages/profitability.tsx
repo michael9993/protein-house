@@ -43,7 +43,6 @@ function PnlRow({
   value,
   currency,
   isPercent,
-  negative,
   bold,
   indent,
 }: {
@@ -51,7 +50,6 @@ function PnlRow({
   value: number;
   currency?: string;
   isPercent?: boolean;
-  negative?: boolean;
   bold?: boolean;
   indent?: boolean;
 }) {
@@ -61,10 +59,20 @@ function PnlRow({
       ? formatCurrency(value, currency)
       : value.toFixed(2);
 
+  // Auto-color: red for negative values, green for positive bold values
+  let valueColor = "text-text-muted";
+  if (value < 0) {
+    valueColor = "text-red-600";
+  } else if (value > 0 && bold) {
+    valueColor = "text-emerald-600";
+  } else if (bold) {
+    valueColor = "text-text-primary";
+  }
+
   return (
     <tr className={`border-b border-border/50 ${bold ? "font-semibold" : ""}`}>
       <td className={`py-2.5 text-text-primary ${indent ? "pl-6" : ""}`}>{label}</td>
-      <td className={`py-2.5 text-right ${negative ? "text-red-600" : bold ? "text-text-primary" : "text-text-muted"}`}>
+      <td className={`py-2.5 text-right ${valueColor}`}>
         {formattedValue}
       </td>
     </tr>
@@ -188,11 +196,9 @@ export default function ProfitabilityPage() {
             ))}
           </div>
         ) : data ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <SummaryCard label="Gross Revenue" value={formatCurrency(data.grossRevenue, resolvedCurrency)} />
-            <SummaryCard label="Refunds" value={formatCurrency(data.refunds, resolvedCurrency)} negative />
             <SummaryCard label="Net Revenue" value={formatCurrency(data.netRevenue, resolvedCurrency)} />
-            <SummaryCard label="COGS" value={formatCurrency(data.cogs, resolvedCurrency)} negative />
             <SummaryCard label="Gross Profit" value={formatCurrency(data.grossProfit, resolvedCurrency)} highlight />
             <SummaryCard label="Margin" value={`${data.marginPercent.toFixed(1)}%`} highlight />
           </div>
@@ -253,11 +259,16 @@ export default function ProfitabilityPage() {
             <table className="w-full text-sm">
               <tbody>
                 <PnlRow label="Gross Revenue" value={data.grossRevenue} currency={resolvedCurrency} />
-                <PnlRow label="Shipping Revenue" value={data.shippingRevenue} currency={resolvedCurrency} indent />
-                <PnlRow label="Refunds" value={-data.refunds} currency={resolvedCurrency} negative />
-                <PnlRow label="Net Revenue" value={data.netRevenue} currency={resolvedCurrency} bold />
-                <PnlRow label="Cost of Goods (COGS)" value={-data.cogs} currency={resolvedCurrency} negative />
-                <PnlRow label="Discounts" value={-data.discounts} currency={resolvedCurrency} negative />
+                <PnlRow label="Shipping (customer paid)" value={-data.shippingRevenue} currency={resolvedCurrency} indent />
+                <PnlRow label="Refunds" value={-data.refunds} currency={resolvedCurrency} />
+                <PnlRow label="Net Revenue (Product)" value={data.netRevenue} currency={resolvedCurrency} bold />
+                <PnlRow label="Cost of Goods (COGS)" value={-data.cogs} currency={resolvedCurrency} />
+                <PnlRow label="Discounts" value={-data.discounts} currency={resolvedCurrency} />
+                <PnlRow label={`Shipping Cost (actual)`} value={-data.shippingCost} currency={resolvedCurrency} />
+                {data.shippingSubsidy > 0 && (
+                  <PnlRow label="↳ Shipping Subsidy (absorbed)" value={-data.shippingSubsidy} currency={resolvedCurrency} indent />
+                )}
+                <PnlRow label="Payment Fees (est. 3.4% + $0.30)" value={-data.paymentFees} currency={resolvedCurrency} />
                 <PnlRow label="Gross Profit" value={data.grossProfit} currency={resolvedCurrency} bold />
                 <PnlRow label="Margin" value={data.marginPercent} isPercent bold />
               </tbody>
@@ -283,11 +294,13 @@ function SummaryCard({
   negative?: boolean;
   highlight?: boolean;
 }) {
+  // Detect if value starts with - for auto-coloring
+  const isNegativeValue = negative || value.startsWith("-");
   return (
     <div className="rounded-xl border border-border bg-white p-4 shadow-sm">
       <p className="text-sm font-medium text-text-muted">{label}</p>
       <p className={`mt-1 text-lg sm:text-2xl font-bold ${
-        negative ? "text-red-600" : highlight ? "text-emerald-600" : "text-text-primary"
+        isNegativeValue ? "text-red-600" : highlight ? "text-emerald-600" : "text-text-primary"
       }`}>
         {value}
       </p>

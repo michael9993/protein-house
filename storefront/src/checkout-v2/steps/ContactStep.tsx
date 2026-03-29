@@ -16,6 +16,7 @@ import { STEP_CONTACT, STEP_SHIPPING } from "../types";
 import { StyledCheckbox } from "@/ui/components/StyledCheckbox";
 import { useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { buildComponentStyle } from "@/config";
+import { isInAppBrowser } from "@/lib/webview";
 
 // ---------------------------------------------------------------------------
 // GoogleSignInButton — reusable Google OAuth trigger
@@ -30,6 +31,11 @@ function GoogleSignInButton({
 }) {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+
+	// OAuth is blocked in Instagram/Facebook in-app browsers
+	if (typeof window !== "undefined" && isInAppBrowser()) {
+		return null;
+	}
 
 	async function handleClick() {
 		setLoading(true);
@@ -47,6 +53,8 @@ function GoogleSignInButton({
 			}
 			if (result.url) {
 				// Store the current checkout URL so the OAuth callback redirects back here
+				// Use cookie (survives WebView redirect) + sessionStorage (legacy fallback)
+				try { document.cookie = `oauth_redirect=${encodeURIComponent(window.location.href)}; path=/; max-age=300; SameSite=Lax`; } catch {}
 				try { sessionStorage.setItem("oauth_redirect", window.location.href); } catch {}
 				window.location.href = result.url;
 			}

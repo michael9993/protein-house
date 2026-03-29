@@ -166,6 +166,8 @@ services:
       STOREFRONT_URL: ${STOREFRONT_URL:-${NEXT_PUBLIC_STOREFRONT_URL:-http://localhost:3000}}
       # Allow Docker internal IPs for webhooks
       HTTP_IP_FILTER_ENABLED: "False"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       postgres:
         condition: service_healthy
@@ -391,6 +393,7 @@ services:
       # Fallback store branding (used if Storefront Control unreachable)
       STORE_NAME: ${STORE_NAME:-Your Store}
       STORE_EMAIL: ${STORE_EMAIL:-support@yourstore.com}
+      CONTACT_EMAIL: ${CONTACT_EMAIL:-${STORE_EMAIL:-support@yourstore.com}}
       STOREFRONT_URL: ${STOREFRONT_URL:-http://localhost:3000}
       # Disable OpenTelemetry/Sentry in development
       OTEL_ENABLED: ${OTEL_ENABLED:-false}
@@ -808,6 +811,8 @@ services:
       REMBG_URL: http://saleor-rembg:7000
       ESRGAN_URL: http://saleor-esrgan:7001
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      STABILITY_API_KEY: ${STABILITY_API_KEY:-}
     depends_on:
       saleor-api:
         condition: service_healthy

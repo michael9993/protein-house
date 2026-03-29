@@ -7,6 +7,7 @@ import { ChannelPickerWrapper } from "./nav/components/ChannelPickerWrapper";
 import { HeaderBanner } from "./HeaderBanner";
 import { HeaderStoreName } from "./HeaderStoreName";
 import { SearchBar } from "./nav/components/SearchBar";
+import { MobileSaleButton } from "./nav/components/MobileSaleButton";
 import type { MobileNavData } from "./nav/components/NavLinksClient";
 
 export function Header({ channel, navData, isLoggedIn }: { channel: string; navData?: MobileNavData; isLoggedIn?: boolean }) {
@@ -46,6 +47,7 @@ export function Header({ channel, navData, isLoggedIn }: { channel: string; navD
 								</div>
 								{/* Mobile Actions */}
 								<div className="flex md:hidden items-center gap-1.5">
+									<MobileSaleButton />
 									<ChannelPickerWrapper />
 									<Nav channel={channel} navData={navData} isLoggedIn={isLoggedIn} />
 								</div>

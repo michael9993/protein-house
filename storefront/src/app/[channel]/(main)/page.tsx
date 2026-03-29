@@ -11,7 +11,6 @@ import { storeConfig } from "@/config";
 import { HomePage } from "./HomePage";
 import { homepageCollections, getHeroBannerConfig, getTestimonials, getFeaturedBrands, getBrandLogos } from "@/lib/cms";
 import { CartRestoreTrigger } from "./CartRestoreTrigger";
-import { ScrollToTopButton } from "./products/ScrollToTopButton";
 import { deriveBrandSlug } from "@/components/home/utils";
 import type { FeaturedBrand } from "@/lib/cms";
 
@@ -314,8 +313,6 @@ export default async function Page(
 				brandLogos={Object.fromEntries(brandLogosMap)}
 				collections={collections}
 			/>
-			{/* Floating scroll-to-top (controlled by storefront-control Features > Scroll to Top) */}
-			<ScrollToTopButton />
 		</>
 	);
 }

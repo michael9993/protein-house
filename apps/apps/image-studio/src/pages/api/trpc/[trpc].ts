@@ -8,7 +8,7 @@ import { createTrpcContext } from "../../../modules/trpc/trpc-context";
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: "20mb",
+      sizeLimit: "50mb",
     },
   },
 };

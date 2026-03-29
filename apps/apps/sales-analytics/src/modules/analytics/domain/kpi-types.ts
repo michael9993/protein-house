@@ -138,10 +138,13 @@ export type OrderTypeFilter = z.infer<typeof OrderTypeFilterSchema>;
 export const ProfitabilityDataSchema = z.object({
   grossRevenue: z.number(),
   shippingRevenue: z.number(),
+  shippingCost: z.number(),
   cogs: z.number(),
   cogsAvailable: z.boolean(),
   discounts: z.number(),
   refunds: z.number(),
+  shippingSubsidy: z.number(),
+  paymentFees: z.number(),
   grossProfit: z.number(),
   netRevenue: z.number(),
   marginPercent: z.number(),

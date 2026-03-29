@@ -250,7 +250,7 @@ export const CustomerServiceDetailsPage = ({
                   <Input
                     value={replySubject}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReplySubject(e.target.value)}
-                    placeholder={intl.formatMessage({ id: "replySubjectPlaceholder", defaultMessage: "Leave empty to use 'Re: {original subject}'" }, { subject: submission.subject })}
+                    placeholder={intl.formatMessage({ id: "replySubjectPlaceholder", defaultMessage: "Leave empty to use 'Re: {subject}'" }, { subject: submission.subject })}
                   />
                 </Box>
                 <Box>

@@ -564,7 +564,9 @@ export const ordersRouter = router({
     .input(z.object({ orderIds: z.array(z.string()).min(1) }))
     .mutation(async ({ ctx, input }) => {
       logger.info("Bulk cancel orders", { count: input.orderIds.length });
-      const results: Array<{ id: string; success: boolean; error?: string }> = [];
+      const results: Array<{ id: string; success: boolean; supplierCancelled?: boolean; error?: string }> = [];
+
+      const appId = await fetchAppId(ctx.apiClient);
 
       for (const orderId of input.orderIds) {
         try {
@@ -589,6 +591,37 @@ export const ordersRouter = router({
             try { existingMeta = JSON.parse(existingEntry.value); } catch { /* empty */ }
           }
 
+          // Attempt supplier cancellation if order was forwarded
+          let supplierCancelled = false;
+          const parsed = parseDropshipMeta(data.order.metadata);
+
+          if (parsed?.supplierOrderId && parsed.supplier && appId) {
+            const adapter = supplierRegistry.getAdapter(parsed.supplier);
+
+            if (adapter) {
+              const creds = await getSupplierCredentials(ctx.apiClient, appId, parsed.supplier);
+
+              if (creds) {
+                const authToken: AuthToken = {
+                  accessToken: creds.accessToken ?? "",
+                  expiresAt: creds.tokenExpiresAt ? new Date(creds.tokenExpiresAt) : new Date(Date.now() + 86400_000),
+                  refreshToken: ("refreshToken" in creds ? creds.refreshToken : undefined) as string | undefined,
+                };
+
+                const cancelResult = await adapter.cancelOrder(parsed.supplierOrderId, authToken);
+                supplierCancelled = cancelResult.isOk();
+
+                if (!cancelResult.isOk()) {
+                  logger.warn("Bulk cancel: supplier cancel failed", {
+                    orderId,
+                    supplier: parsed.supplier,
+                    error: cancelResult.error.message,
+                  });
+                }
+              }
+            }
+          }
+
           const UPDATE_META = gql`
             mutation UpdateOrderMetaBulkCancel($id: ID!, $input: [MetadataInput!]!) {
               updateMetadata(id: $id, input: $input) {
@@ -608,13 +641,14 @@ export const ordersRouter = router({
                     ...existingMeta,
                     status: "cancelled",
                     cancelledAt: new Date().toISOString(),
+                    supplierCancelled,
                   }),
                 },
               ],
             })
             .toPromise();
 
-          results.push({ id: orderId, success: true });
+          results.push({ id: orderId, success: true, supplierCancelled });
         } catch (err: any) {
           results.push({ id: orderId, success: false, error: err.message ?? "Unknown error" });
         }

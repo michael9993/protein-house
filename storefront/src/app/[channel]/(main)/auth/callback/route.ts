@@ -102,10 +102,21 @@ function oauthRedirectHtml(fallbackUrl: string): string {
 <script>
 (function(){
   var dest;
+  // Try cookie first (works in WebViews where sessionStorage is cleared)
   try {
-    dest = sessionStorage.getItem("oauth_redirect");
-    sessionStorage.removeItem("oauth_redirect");
+    var m = document.cookie.match(/(?:^|;\\s*)oauth_redirect=([^;]*)/);
+    if (m && m[1]) {
+      dest = decodeURIComponent(m[1]);
+      document.cookie = "oauth_redirect=; path=/; max-age=0";
+    }
   } catch(e){}
+  // Fallback to sessionStorage (legacy)
+  if (!dest) {
+    try {
+      dest = sessionStorage.getItem("oauth_redirect");
+      sessionStorage.removeItem("oauth_redirect");
+    } catch(e){}
+  }
   if (!dest) dest = ${JSON.stringify(fallbackUrl)};
   // Append cache-busters so the page reloads with fresh auth state
   var url = new URL(dest, location.origin);

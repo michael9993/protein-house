@@ -10,7 +10,7 @@ import { createLogger } from "@/logger";
 import { logAuditEvent } from "@/modules/audit/audit-logger";
 import { classifyOrderLines } from "@/modules/webhooks/order-paid/order-classifier";
 import { supplierRegistry } from "@/modules/suppliers/registry";
-import { fetchAppId, getSupplierCredentials } from "@/modules/lib/metadata-manager";
+import { fetchAppId, getSupplierCredentials, atomicCheckAndIncrementDailySpend, getDropshipConfig } from "@/modules/lib/metadata-manager";
 import type { AuthToken, SupplierOrderRequest } from "@/modules/suppliers/types";
 
 const logger = createLogger("ExceptionsRouter");
@@ -199,6 +199,18 @@ async function forwardApprovedOrder(
   }
 
   const order = data.order;
+
+  // Guard: prevent duplicate forwarding if order was already forwarded
+  const existingDropshipEntry = (order.metadata || []).find((m: any) => m.key === "dropship");
+  if (existingDropshipEntry) {
+    try {
+      const existingMeta = JSON.parse(existingDropshipEntry.value);
+      if (existingMeta.status === "forwarded" && existingMeta.suppliers && Object.keys(existingMeta.suppliers).length > 0) {
+        return { forwarded: 0, errors: ["Order already forwarded — cannot forward again (duplicate prevention)"] };
+      }
+    } catch { /* proceed if metadata is corrupted */ }
+  }
+
   const classified = classifyOrderLines(order.lines);
 
   if (classified.dropship.size === 0) {
@@ -209,6 +221,30 @@ async function forwardApprovedOrder(
 
   if (!appId) {
     return { forwarded: 0, errors: ["Cannot resolve app ID"] };
+  }
+
+  // Estimate total cost for daily spend check
+  let estimatedCost = 0;
+  for (const [, group] of classified.dropship.entries()) {
+    for (let i = 0; i < group.lines.length; i++) {
+      const costMeta = group.metadata[i];
+      estimatedCost += (costMeta.costPrice ?? 0) * group.lines[i].quantity;
+    }
+  }
+
+  // Check daily spend limit (admin approved, but still enforce budget awareness)
+  // Load dropship config to get the daily spend limit
+  if (estimatedCost > 0) {
+    const config = await getDropshipConfig(client, appId);
+    const dailyLimit = config?.dailySpendLimit ?? 0;
+
+    if (dailyLimit > 0) {
+      const spendResult = await atomicCheckAndIncrementDailySpend(estimatedCost, dailyLimit);
+      if (!spendResult.allowed) {
+        errors.push(`Daily spend limit would be exceeded (current: $${(spendResult.newTotal - estimatedCost).toFixed(2)}, limit: $${dailyLimit.toFixed(2)}, order cost: $${estimatedCost.toFixed(2)}). Increase the daily limit or wait until tomorrow.`);
+        return { forwarded: 0, errors };
+      }
+    }
   }
 
   const supplierOrders: Record<string, string> = {};

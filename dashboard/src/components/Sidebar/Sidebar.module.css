@@ -1,3 +1,7 @@
+.sidebarTransition {
+  transition: width 200ms ease-in-out;
+}
+
 .fullSidebarWide {
   height: 100%;
   display: none;

@@ -10,8 +10,8 @@ import { initializeTransaction } from "@/checkout-v2/_actions/initialize-transac
 import { processTransaction } from "@/checkout-v2/_actions/process-transaction";
 import { completeCheckout } from "@/checkout-v2/_actions/complete-checkout";
 import { updateCheckoutMetadata } from "@/checkout-v2/_actions/update-checkout-metadata";
-import { useEcommerceSettings } from "@/providers/StoreConfigProvider";
-import { adjustShippingPrice, type ShippingPriceAdjustment } from "@/checkout-v2/utils/adjustShippingPrice";
+
+
 
 // ---------------------------------------------------------------------------
 // Payment error code → config key mapping
@@ -92,7 +92,7 @@ export function PayPalPaymentForm({
 	const router = useRouter();
 	const t = useCheckoutText();
 	const { state: checkoutState } = useCheckoutState();
-	const ecommerce = useEcommerceSettings();
+
 
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [paymentSucceeded, setPaymentSucceeded] = useState(false);
@@ -178,21 +178,33 @@ export function PayPalPaymentForm({
 				// Set shipping metadata
 				try {
 					const co = checkoutState.checkout ?? checkout;
-					const originalShipping = co?.shippingPrice?.gross?.amount ?? 0;
+					const saleorShipping = co?.shippingPrice?.gross?.amount ?? 0;
 					const shippingCurrency = co?.shippingPrice?.gross?.currency ?? "";
-					const priceAdj = ecommerce?.shipping?.priceAdjustment as ShippingPriceAdjustment | undefined;
-					const adjustedShipping = adjustShippingPrice(originalShipping, priceAdj);
 					const selectedMethodId = (co?.deliveryMethod as { id: string } | null)?.id;
 					const selectedMethod = selectedMethodId
 						? co?.shippingMethods?.find((m: { id: string }) => m.id === selectedMethodId)
 						: null;
+					const methodName = selectedMethod?.name ?? "";
+
+					// Look up the real CJ cost from dropship.shippingOriginalPrices metadata
+					const coMeta = (co as { metadata?: Array<{ key: string; value: string }> })?.metadata ?? [];
+					const origPricesRaw = coMeta.find((m: { key: string }) => m.key === "dropship.shippingOriginalPrices")?.value;
+					let realOriginalCost = saleorShipping;
+					if (origPricesRaw && methodName) {
+						try {
+							const prices = JSON.parse(origPricesRaw) as Record<string, number>;
+							if (prices[methodName] !== undefined) {
+								realOriginalCost = prices[methodName];
+							}
+						} catch { /* use saleor price as fallback */ }
+					}
 
 					await updateCheckoutMetadata(checkoutId, [
-						{ key: "shipping.originalCost", value: String(originalShipping) },
-						{ key: "shipping.displayCost", value: String(adjustedShipping) },
+						{ key: "shipping.originalCost", value: realOriginalCost.toFixed(2) },
+						{ key: "shipping.displayCost", value: saleorShipping.toFixed(2) },
 						{ key: "shipping.currency", value: shippingCurrency },
-						{ key: "shipping.wasFree", value: String(originalShipping === 0) },
-						{ key: "shipping.methodName", value: selectedMethod?.name ?? "" },
+						{ key: "shipping.wasFree", value: String(saleorShipping === 0) },
+						{ key: "shipping.methodName", value: methodName },
 					]);
 				} catch (metaErr) {
 					console.warn("[PayPalPaymentForm] Failed to set shipping metadata:", metaErr);
@@ -226,7 +238,7 @@ export function PayPalPaymentForm({
 				setIsProcessing(false);
 			}
 		},
-		[checkoutId, channel, checkout, checkoutState.checkout, ecommerce, router, t],
+		[checkoutId, channel, checkout, checkoutState.checkout, router, t],
 	);
 
 	const onError = useCallback(

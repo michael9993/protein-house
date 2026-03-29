@@ -4,6 +4,7 @@ import { productsRouter } from "./routers/products-router";
 import { mediaRouter } from "./routers/media-router";
 import { aiRouter } from "./routers/ai-router";
 import { enhanceRouter } from "./routers/enhance-router";
+import { exportRouter } from "./routers/export-router";
 
 export const appRouter = router({
   healthCheck: protectedClientProcedure.query(() => {
@@ -13,6 +14,7 @@ export const appRouter = router({
   media: mediaRouter,
   ai: aiRouter,
   enhance: enhanceRouter,
+  export: exportRouter,
 });
 
 export type AppRouter = typeof appRouter;

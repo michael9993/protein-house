@@ -3,8 +3,17 @@ import { TRPCError } from "@trpc/server";
 import { router } from "../trpc-server";
 import { protectedClientProcedure } from "../protected-client-procedure";
 import { removeBackground, checkRembgHealth } from "../../ai/rembg-client";
-import { generateImage, editImage, isGenerationConfigured } from "../../ai/together-client";
+import { isGenerationConfigured } from "../../ai/together-client";
 import { upscaleImage, checkEsrganHealth } from "../../ai/esrgan-client";
+import { getProvider, getDefaultProvider, getAvailableModelInfos } from "../../ai/provider-registry";
+
+const aiOptionsSchema = z.object({
+  negativePrompt: z.string().max(500).optional(),
+  seed: z.number().int().optional(),
+  stylePreset: z.string().optional(),
+  thinkingLevel: z.enum(["none", "low", "medium", "high"]).optional(),
+  aspectRatio: z.string().optional(),
+}).optional();
 
 // In-memory job store for async upscaling (avoids Cloudflare 100s timeout)
 interface UpscaleJob {
@@ -40,16 +49,41 @@ export const aiRouter = router({
       return { resultBase64: result.resultBase64 };
     }),
 
+  getAvailableModels: protectedClientProcedure.query(() => {
+    return { models: getAvailableModelInfos() };
+  }),
+
   generateBackground: protectedClientProcedure
     .input(
       z.object({
         prompt: z.string().min(1).max(500),
         width: z.number().min(256).max(1440).default(1024),
         height: z.number().min(256).max(1440).default(1024),
+        modelId: z.string().optional(),
+        options: aiOptionsSchema,
       })
     )
     .mutation(async ({ input }) => {
-      const result = await generateImage(input.prompt, input.width, input.height);
+      const provider = input.modelId
+        ? getProvider(input.modelId)
+        : getDefaultProvider();
+
+      if (!provider) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: input.modelId
+            ? `Model "${input.modelId}" not available. Check API key configuration.`
+            : "No AI providers configured. Set GEMINI_API_KEY, OPENAI_API_KEY, or STABILITY_API_KEY.",
+        });
+      }
+
+      const result = await provider.generateImage({
+        prompt: input.prompt,
+        width: input.width,
+        height: input.height,
+        ...input.options,
+      });
+
       if (!result.success) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -134,10 +168,36 @@ export const aiRouter = router({
       z.object({
         imageBase64: z.string(),
         prompt: z.string().min(1).max(1000),
+        modelId: z.string().optional(),
+        mask: z.string().optional(),
+        editType: z.enum(["general", "inpaint", "style-transfer"]).optional(),
+        strength: z.number().min(0).max(1).optional(),
+        options: aiOptionsSchema,
       })
     )
     .mutation(async ({ input }) => {
-      const result = await editImage(input.imageBase64, input.prompt);
+      const provider = input.modelId
+        ? getProvider(input.modelId)
+        : getDefaultProvider();
+
+      if (!provider) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: input.modelId
+            ? `Model "${input.modelId}" not available. Check API key configuration.`
+            : "No AI providers configured. Set GEMINI_API_KEY, OPENAI_API_KEY, or STABILITY_API_KEY.",
+        });
+      }
+
+      const result = await provider.editImage({
+        imageBase64: input.imageBase64,
+        prompt: input.prompt,
+        mask: input.mask,
+        editType: input.editType,
+        strength: input.strength,
+        ...input.options,
+      });
+
       if (!result.success) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",

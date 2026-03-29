@@ -7,14 +7,23 @@ interface UpscalePanelProps {
   onResult: (resultBase64: string) => void;
 }
 
-const MAX_INPUT_SIZE = 1024;
 const POLL_INTERVAL = 3000;
 
+type QualityMode = "fast" | "standard" | "full";
+
+const QUALITY_MODES: { id: QualityMode; label: string; maxSize: number | null; description: string }[] = [
+  { id: "fast", label: "Fast", maxSize: 1024, description: "Max 1024px input, ~30s" },
+  { id: "standard", label: "Standard", maxSize: 2048, description: "Max 2048px input, ~60s" },
+  { id: "full", label: "Full Quality", maxSize: null, description: "Original resolution, 2-5 min" },
+];
+
 /**
- * Downscale image to max dimension before sending to ESRGAN.
- * Reduces CPU processing time from minutes to seconds.
+ * Optionally downscale image before sending to ESRGAN.
+ * In "full" quality mode, no downscaling occurs — the ESRGAN server handles
+ * large images via 256px tile processing.
  */
-function downscaleBase64(base64: string, maxSize: number): Promise<string> {
+function downscaleBase64(base64: string, maxSize: number | null): Promise<string> {
+  if (maxSize === null) return Promise.resolve(base64);
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
@@ -47,6 +56,7 @@ export function UpscalePanel({
   onResult,
 }: UpscalePanelProps) {
   const [scale, setScale] = useState<"2" | "3" | "4">("2");
+  const [qualityMode, setQualityMode] = useState<QualityMode>("standard");
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState("");
@@ -121,8 +131,8 @@ export function UpscalePanel({
     setProgress("Preparing image...");
 
     try {
-      // Downscale large images to reduce ESRGAN processing time
-      const optimized = await downscaleBase64(base64, MAX_INPUT_SIZE);
+      const selectedMode = QUALITY_MODES.find((m) => m.id === qualityMode)!;
+      const optimized = await downscaleBase64(base64, selectedMode.maxSize);
 
       setProgress("Starting upscale...");
       const { jobId } = await startMutation.mutateAsync({
@@ -177,6 +187,34 @@ export function UpscalePanel({
         </div>
       </div>
 
+      {/* Quality Mode */}
+      <div>
+        <label className="text-[10px] text-muted-foreground">Quality Mode</label>
+        <div className="flex gap-1.5 mt-1">
+          {QUALITY_MODES.map((mode) => (
+            <button
+              key={mode.id}
+              onClick={() => setQualityMode(mode.id)}
+              disabled={isProcessing}
+              className={`flex-1 py-1.5 text-[10px] rounded-md border transition-colors ${
+                qualityMode === mode.id
+                  ? "border-primary bg-primary/5 font-medium"
+                  : "hover:bg-accent"
+              }`}
+              title={mode.description}
+            >
+              {mode.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {qualityMode === "full" && (
+        <p className="text-[10px] text-amber-500">
+          Full Quality sends the original resolution to ESRGAN. Processing may take 2-5 minutes for large images.
+        </p>
+      )}
+
       <button
         onClick={isProcessing ? handleCancel : handleUpscale}
         className={`w-full px-3 py-2 text-sm rounded-md ${
@@ -193,8 +231,15 @@ export function UpscalePanel({
       )}
 
       <p className="text-[10px] text-muted-foreground">
-        Images are pre-scaled to max {MAX_INPUT_SIZE}px before processing.
-        {scale === "2" ? " ~30s" : scale === "3" ? " ~60s" : " ~90s"} typical.
+        {qualityMode === "full"
+          ? "Original resolution preserved. Processing time depends on image size."
+          : `Images pre-scaled to max ${QUALITY_MODES.find((m) => m.id === qualityMode)!.maxSize}px before processing.`}
+        {qualityMode === "fast"
+          ? scale === "2" ? " ~30s" : scale === "3" ? " ~60s" : " ~90s"
+          : qualityMode === "standard"
+            ? scale === "2" ? " ~60s" : scale === "3" ? " ~120s" : " ~180s"
+            : ""}
+        {" typical."}
       </p>
 
       {error && (

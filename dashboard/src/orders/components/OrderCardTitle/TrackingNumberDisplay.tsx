@@ -1,9 +1,30 @@
 import { useClipboard } from "@dashboard/hooks/useClipboard";
 import { Box, Button, Text } from "@saleor/macaw-ui-next";
+import { ExternalLinkIcon } from "lucide-react";
 import { useState } from "react";
 import { useIntl } from "react-intl";
 
 import { ClipboardCopyIcon } from "./ClipboardCopyIcon";
+
+function getTrackingUrl(trackingNumber: string): string | null {
+  const num = trackingNumber.trim().toUpperCase();
+
+  if (num.startsWith("1Z")) {
+    return `https://www.ups.com/track?tracknum=${encodeURIComponent(trackingNumber)}`;
+  }
+  if (/^\d{12,22}$/.test(num)) {
+    return `https://www.fedex.com/fedextrack/?trknbr=${encodeURIComponent(trackingNumber)}`;
+  }
+  if (/^(94|93|92|94)\d{18,}$/.test(num) || /^\d{20,22}$/.test(num)) {
+    return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${encodeURIComponent(trackingNumber)}`;
+  }
+  if (/^\d{10}$/.test(num) || num.startsWith("JD")) {
+    return `https://www.dhl.com/en/express/tracking.html?AWB=${encodeURIComponent(trackingNumber)}`;
+  }
+
+  // CJ Packet, ePacket, YunExpress, and other international carriers — use 17Track universal
+  return `https://t.17track.net/en#nums=${encodeURIComponent(trackingNumber)}`;
+}
 
 interface TrackingNumberDisplayProps {
   trackingNumber: string;
@@ -14,7 +35,8 @@ export const TrackingNumberDisplay = ({
 }: TrackingNumberDisplayProps): JSX.Element => {
   const intl = useIntl();
   const [copied, copy] = useClipboard();
-  const [showCopyButton, setShowCopyButton] = useState(false);
+  const [showActions, setShowActions] = useState(false);
+  const trackingUrl = getTrackingUrl(trackingNumber);
 
   return (
     <>
@@ -25,14 +47,14 @@ export const TrackingNumberDisplay = ({
         display="flex"
         alignItems="center"
         gap={1}
-        onMouseEnter={() => setShowCopyButton(true)}
-        onMouseLeave={() => setShowCopyButton(false)}
+        onMouseEnter={() => setShowActions(true)}
+        onMouseLeave={() => setShowActions(false)}
       >
         <Text
           color="default2"
           size={2}
-          onFocus={() => setShowCopyButton(true)}
-          onBlur={() => setShowCopyButton(false)}
+          onFocus={() => setShowActions(true)}
+          onBlur={() => setShowActions(false)}
         >
           {intl.formatMessage(
             {
@@ -48,7 +70,7 @@ export const TrackingNumberDisplay = ({
             },
           )}
         </Text>
-        <Box __opacity={showCopyButton ? 1 : 0} pointerEvents={showCopyButton ? "auto" : "none"}>
+        <Box __opacity={showActions ? 1 : 0} pointerEvents={showActions ? "auto" : "none"} display="flex" gap={0.5}>
           <Button
             variant="tertiary"
             size="small"
@@ -59,6 +81,18 @@ export const TrackingNumberDisplay = ({
               id: "0KVj6r",
             })}
           />
+          {trackingUrl && (
+            <Button
+              variant="tertiary"
+              size="small"
+              icon={<ExternalLinkIcon size={16} />}
+              onClick={() => window.open(trackingUrl, "_blank", "noopener,noreferrer")}
+              aria-label={intl.formatMessage({
+                defaultMessage: "Track shipment",
+                id: "dRq+Bj",
+              })}
+            />
+          )}
         </Box>
       </Box>
     </>

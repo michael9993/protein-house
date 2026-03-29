@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { formatMoney } from "@/lib/utils";
 import { useOrdersText, useComponentStyle, useComponentClasses } from "@/providers/StoreConfigProvider";
 import { buildComponentStyle } from "@/config";
+import { downloadUrl } from "@/lib/webview";
 
 interface OrderLine {
 	id: string;
@@ -304,7 +305,7 @@ export function OrdersListClient({ orders, channel, statusColors, primaryColor }
 				if (data.invoice?.url) {
 					// Invoice is ready - download it immediately
 					showToast("Invoice generated successfully! Opening download...", "success");
-					window.open(data.invoice.url, "_blank");
+					downloadUrl(data.invoice.url, "invoice.pdf");
 					setInvoiceModalOrder(null);
 				} else if (data.pending) {
 					// Invoice is being generated - poll for completion
@@ -340,7 +341,7 @@ export function OrdersListClient({ orders, channel, statusColors, primaryColor }
 
 			if (data.success && data.invoice?.url) {
 				showToast("Invoice ready! Opening download...", "success");
-				window.open(data.invoice.url, "_blank");
+				downloadUrl(data.invoice.url, "invoice.pdf");
 				setInvoiceModalOrder(null);
 				router.refresh(); // Refresh to update the UI
 			} else if (data.pending) {

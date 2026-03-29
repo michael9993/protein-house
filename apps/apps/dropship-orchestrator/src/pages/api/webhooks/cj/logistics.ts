@@ -13,22 +13,45 @@ const logger = createLogger("webhook:cj:logistics");
 // Payload validation
 // ---------------------------------------------------------------------------
 
+// CJ sends various payload shapes — accept both documented and observed formats
 const CJLogisticsWebhookPayloadSchema = z.object({
-  messageId: z.string().min(1),
-  type: z.literal("LOGISTICS"),
+  messageId: z.string().optional().default(""),
+  // CJ may send "LOGISTICS", "logistics_update", or other variants
+  type: z.string().optional(),
   messageType: z.string().optional(),
+  // Params may be nested or flat depending on CJ's webhook version
   params: z.object({
-    cjOrderId: z.string().min(1),
+    cjOrderId: z.string().optional(),
+    orderId: z.string().optional(),        // CJ sometimes uses orderId instead of cjOrderId
+    orderNum: z.string().optional(),       // CJ sometimes uses orderNum
     orderNumber: z.string().optional(),
-    trackNumber: z.string().min(1),
+    trackNumber: z.string().optional(),
+    trackingNumber: z.string().optional(), // CJ sometimes uses trackingNumber
     trackingUrl: z.string().nullable().optional(),
     logisticName: z.string().optional(),
+    logisticsName: z.string().optional(),  // CJ sometimes uses logisticsName
     logisticsStatus: z.string().optional(),
+    status: z.string().optional(),         // CJ sometimes uses flat status
     updateDate: z.string().optional(),
-  }),
+  }).optional(),
+  // CJ v2 may send data at top level instead of nested in params
+  orderId: z.string().optional(),
+  trackNumber: z.string().optional(),
+  trackingNumber: z.string().optional(),
+  logisticName: z.string().optional(),
 });
 
-type CJLogisticsWebhookPayload = z.infer<typeof CJLogisticsWebhookPayloadSchema>;
+// Payload type used after normalization (not directly from Zod — we normalize CJ's varying formats)
+type NormalizedLogisticsPayload = {
+  messageId: string;
+  params: {
+    cjOrderId: string;
+    trackNumber: string;
+    trackingUrl: string;
+    logisticName: string;
+    logisticsStatus: string;
+  };
+};
 
 // ---------------------------------------------------------------------------
 // GraphQL
@@ -138,22 +161,59 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const parseResult = CJLogisticsWebhookPayloadSchema.safeParse(req.body);
 
   if (req.method === "POST" && !parseResult.success) {
-    logger.warn("CJ logistics webhook: invalid payload", {
+    // Log the raw body so we can see what CJ actually sends
+    logger.warn("CJ logistics webhook: parse failed — attempting raw extraction", {
       errors: parseResult.error?.flatten().fieldErrors,
+      rawKeys: req.body ? Object.keys(req.body) : [],
     });
-    res.status(200).json({ success: true, message: "Invalid payload — acknowledged" });
+  }
+
+  const parsed = parseResult.success ? parseResult.data : null;
+
+  // Normalize CJ's varying field names into a consistent shape
+  const normalizedCjOrderId =
+    parsed?.params?.cjOrderId ?? parsed?.params?.orderId ?? parsed?.orderId ?? "";
+  const normalizedTrackNumber =
+    parsed?.params?.trackNumber ?? parsed?.params?.trackingNumber ?? parsed?.trackNumber ?? parsed?.trackingNumber ?? "";
+  const normalizedLogisticName =
+    parsed?.params?.logisticName ?? parsed?.params?.logisticsName ?? parsed?.logisticName ?? "";
+  const normalizedTrackingUrl =
+    parsed?.params?.trackingUrl ?? "";
+  const normalizedLogisticsStatus =
+    parsed?.params?.logisticsStatus ?? parsed?.params?.status ?? "";
+  const normalizedMessageId = parsed?.messageId ?? "";
+
+  // If we still can't extract the essentials, try raw body as last resort
+  const rawBody = req.body as Record<string, unknown> | undefined;
+  const finalCjOrderId = normalizedCjOrderId || String(rawBody?.orderId ?? rawBody?.cjOrderId ?? rawBody?.orderNum ?? "");
+  const finalTrackNumber = normalizedTrackNumber || String(rawBody?.trackNumber ?? rawBody?.trackingNumber ?? rawBody?.tracking_number ?? "");
+  const finalLogisticName = normalizedLogisticName || String(rawBody?.logisticName ?? rawBody?.logisticsName ?? rawBody?.carrier ?? "");
+
+  if (!finalCjOrderId && !finalTrackNumber) {
+    logger.warn("CJ logistics webhook: could not extract orderId or trackNumber from any format", {
+      rawKeys: rawBody ? Object.keys(rawBody) : [],
+    });
+    res.status(200).json({ success: true, message: "Unrecognized payload — acknowledged" });
     return;
   }
 
-  const payload: CJLogisticsWebhookPayload | undefined = parseResult.success ? parseResult.data : undefined;
+  // Build a normalized payload for the rest of the handler
+  const payload = {
+    messageId: normalizedMessageId,
+    params: {
+      cjOrderId: finalCjOrderId,
+      trackNumber: finalTrackNumber,
+      trackingUrl: normalizedTrackingUrl,
+      logisticName: finalLogisticName,
+      logisticsStatus: normalizedLogisticsStatus,
+    },
+  };
 
   await withCJWebhookAuth(
     req,
     res,
-    { messageId: payload?.messageId ?? "", dedupTtl: 86400, loggerName: "webhook:cj:logistics" },
+    { messageId: payload.messageId, dedupTtl: 86400, loggerName: "webhook:cj:logistics" },
     async ({ client, startTime }) => {
-      if (!payload) return;
-
       logger.info("CJ logistics webhook received", {
         messageId: payload.messageId,
         cjOrderId: payload.params.cjOrderId,

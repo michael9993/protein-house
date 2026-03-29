@@ -16,7 +16,8 @@ import type { Granularity } from "./time-range";
  */
 function resolveLineCost(
   line: OrderAnalyticsFragment["lines"][number],
-  channelSlug: string | undefined
+  channelSlug: string | undefined,
+  orderCurrency: string
 ): number | null {
   const listings = line.variant?.channelListings ?? [];
 
@@ -28,10 +29,13 @@ function resolveLineCost(
     }
   }
 
-  // 2. Fallback: first listing with a costPrice
-  const anyListing = listings.find((l) => l.costPrice);
-  if (anyListing?.costPrice) {
-    return anyListing.costPrice.amount;
+  // 2. Fallback: first listing with costPrice IN THE SAME CURRENCY
+  // Without currency check, ILS costs get treated as USD (e.g., ₪67 → $67)
+  const sameCurrencyListing = listings.find(
+    (l) => l.costPrice && l.costPrice.currency === orderCurrency
+  );
+  if (sameCurrencyListing?.costPrice) {
+    return sameCurrencyListing.costPrice.amount;
   }
 
   // 3. Try dropship.costPrice from product privateMetadata
@@ -53,10 +57,64 @@ function resolveLineCost(
   return null;
 }
 
+/** PayPal fee structure: percentage + fixed fee per transaction */
+const PAYPAL_FEE_PERCENT = 0.034; // 3.40%
+const PAYPAL_FEE_FIXED = 0.30; // $0.30 per transaction
+
+/**
+ * Get a metadata value from order metadata (public first, then private).
+ * Shipping data (shipping.*, dropship.*) is in public metadata.
+ * Product cost data (dropship.costPrice) is in private metadata.
+ */
+function getOrderMeta(order: OrderAnalyticsFragment, key: string): string | null {
+  // Check public metadata first (where shipping/checkout data lives)
+  const pubMeta = order.metadata?.find((m) => m.key === key);
+  if (pubMeta?.value) return pubMeta.value;
+  // Fallback to private metadata
+  const privMeta = order.privateMetadata?.find((m) => m.key === key);
+  return privMeta?.value ?? null;
+}
+
+/**
+ * Calculate the actual CJ shipping cost for an order from metadata.
+ * Returns the real supplier cost, or null if no dropship metadata.
+ */
+function getActualShippingCost(order: OrderAnalyticsFragment): number | null {
+  const methodName = getOrderMeta(order, "shipping.methodName");
+  const originalPricesRaw = getOrderMeta(order, "dropship.shippingOriginalPrices");
+
+  if (methodName && originalPricesRaw) {
+    try {
+      const prices = JSON.parse(originalPricesRaw) as Record<string, number>;
+      if (prices[methodName] !== undefined) {
+        return prices[methodName];
+      }
+    } catch { /* ignore parse errors */ }
+  }
+
+  // Fallback: try shipping.originalCost
+  const originalCost = getOrderMeta(order, "shipping.originalCost");
+  if (originalCost) {
+    const parsed = parseFloat(originalCost);
+    if (!isNaN(parsed)) return parsed;
+  }
+
+  return null;
+}
+
+/**
+ * Estimate PayPal transaction fee for an order.
+ * PayPal charges ~3.49% + $0.49 per transaction.
+ */
+function estimatePayPalFee(orderTotal: number): number {
+  if (orderTotal <= 0) return 0;
+  return orderTotal * PAYPAL_FEE_PERCENT + PAYPAL_FEE_FIXED;
+}
+
 /**
  * Calculate profitability P&L from orders.
  * Excludes canceled orders from all calculations.
- * Subtracts refunds from net revenue.
+ * Subtracts refunds, shipping subsidy, and payment fees from profit.
  */
 export function calculateProfitability(
   orders: OrderAnalyticsFragment[],
@@ -71,16 +129,33 @@ export function calculateProfitability(
 
     let grossRevenue = 0;
     let shippingRevenue = 0;
+    let shippingCost = 0;
     let cogs = 0;
     let discountsTotal = 0;
     let refundsTotal = 0;
+    let shippingSubsidy = 0;
+    let paymentFees = 0;
     let linesWithCost = 0;
     let linesTotal = 0;
 
     for (const order of filtered) {
       grossRevenue += order.total.gross.amount;
-      shippingRevenue += order.shippingPrice?.gross?.amount ?? 0;
+      const customerPaidShipping = order.shippingPrice?.gross?.amount ?? 0;
+      shippingRevenue += customerPaidShipping;
       refundsTotal += getOrderRefundAmount(order);
+
+      // Actual CJ shipping cost vs what customer paid
+      const actualCost = getActualShippingCost(order);
+      if (actualCost !== null) {
+        shippingCost += actualCost;
+        const subsidy = actualCost - customerPaidShipping;
+        if (subsidy > 0) shippingSubsidy += subsidy;
+      } else {
+        shippingCost += customerPaidShipping; // fallback: assume cost = customer paid
+      }
+
+      // Payment processing fees (estimated)
+      paymentFees += estimatePayPalFee(order.total.gross.amount);
 
       for (const discount of order.discounts ?? []) {
         discountsTotal += discount.amount.amount;
@@ -88,7 +163,7 @@ export function calculateProfitability(
 
       for (const line of order.lines) {
         linesTotal += 1;
-        const unitCost = resolveLineCost(line, channelSlug);
+        const unitCost = resolveLineCost(line, channelSlug, currency);
         if (unitCost !== null) {
           cogs += unitCost * line.quantity;
           linesWithCost += 1;
@@ -96,20 +171,23 @@ export function calculateProfitability(
       }
     }
 
-    // Net Revenue = what was actually collected (gross minus refunds)
-    const netRevenue = grossRevenue - refundsTotal;
-    // Gross Profit = net revenue minus costs and discounts
-    const grossProfit = netRevenue - cogs - discountsTotal;
+    // Net Revenue = what was actually collected (gross minus refunds and shipping)
+    const netRevenue = grossRevenue - refundsTotal - shippingRevenue;
+    // Gross Profit = net revenue minus all costs
+    const grossProfit = netRevenue - cogs - discountsTotal - shippingSubsidy - paymentFees;
     // Margin based on net revenue (what was actually collected)
     const marginPercent = netRevenue > 0 ? (grossProfit / netRevenue) * 100 : 0;
 
     return ok({
       grossRevenue,
       shippingRevenue,
+      shippingCost,
       cogs,
       cogsAvailable: linesWithCost > 0,
       discounts: discountsTotal,
       refunds: refundsTotal,
+      shippingSubsidy,
+      paymentFees,
       grossProfit,
       netRevenue,
       marginPercent,
@@ -137,7 +215,7 @@ export function calculateProfitabilityOverTime(
       .filter((o) => o.total.gross.currency === currency)
       .filter((o) => o.status !== OrderStatus.Canceled);
 
-    const dataMap = new Map<string, { revenue: number; cogs: number; refunds: number }>();
+    const dataMap = new Map<string, { revenue: number; shipping: number; cogs: number; refunds: number }>();
 
     for (const order of filtered) {
       const orderDate = parseISO(order.created);
@@ -155,12 +233,13 @@ export function calculateProfitabilityOverTime(
           break;
       }
 
-      const existing = dataMap.get(dateKey) || { revenue: 0, cogs: 0, refunds: 0 };
+      const existing = dataMap.get(dateKey) || { revenue: 0, shipping: 0, cogs: 0, refunds: 0 };
       existing.revenue += order.total.gross.amount;
+      existing.shipping += order.shippingPrice?.gross?.amount ?? 0;
       existing.refunds += getOrderRefundAmount(order);
 
       for (const line of order.lines) {
-        const unitCost = resolveLineCost(line, channelSlug);
+        const unitCost = resolveLineCost(line, channelSlug, currency);
         if (unitCost !== null) {
           existing.cogs += unitCost * line.quantity;
         }
@@ -172,7 +251,7 @@ export function calculateProfitabilityOverTime(
     const result = Array.from(dataMap.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([date, data]) => {
-        const netRev = data.revenue - data.refunds;
+        const netRev = data.revenue - data.refunds - data.shipping;
         return {
           date,
           revenue: netRev,

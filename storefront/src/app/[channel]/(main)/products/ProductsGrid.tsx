@@ -66,6 +66,15 @@ export function ProductsGrid({
   const loaderRef = useRef<HTMLDivElement>(null);
   const prevInitialRef = useRef(initialProducts);
 
+  // Prefetch cache — fetch the next page before the user scrolls to the bottom
+  const prefetchedRef = useRef<{
+    cursor: string;
+    products: ProductListItemFragment[];
+    hasNextPage: boolean;
+    endCursor: string | null;
+  } | null>(null);
+  const prefetchingRef = useRef(false);
+
   // Display mode state - use external prop if provided, otherwise use internal hook
   const [internalDisplayMode, setInternalDisplayMode] = useDisplayMode(4);
   const displayMode = externalDisplayMode ?? internalDisplayMode;
@@ -137,76 +146,134 @@ export function ProductsGrid({
     setDisplayProducts(filtered);
   }, [products, filters, sortBy]);
 
+  const fetchProducts = useCallback(async (cursor: string) => {
+    const apiUrl = process.env.NEXT_PUBLIC_SALEOR_API_URL;
+    if (!apiUrl) throw new Error("API URL not configured");
+
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: `
+          query ProductListMore($first: Int!, $after: String!, $channel: String!, $sortBy: ProductOrder, $languageCode: LanguageCodeEnum!) {
+            products(first: $first, after: $after, channel: $channel, sortBy: $sortBy) {
+              totalCount
+              edges {
+                node {
+                  id
+                  name
+                  translation(languageCode: $languageCode) { name }
+                  slug
+                  created
+                  pricing {
+                    priceRange {
+                      start { gross { amount, currency } }
+                      stop { gross { amount, currency } }
+                    }
+                    priceRangeUndiscounted {
+                      start { gross { amount, currency } }
+                      stop { gross { amount, currency } }
+                    }
+                  }
+                  category { id, name, translation(languageCode: $languageCode) { name }, slug }
+                  thumbnail(size: 1024, format: WEBP) { url, alt }
+                  media { url, alt }
+                  variants { id, quantityAvailable }
+                  attributes {
+                    attribute { id, name, translation(languageCode: $languageCode) { name }, slug }
+                    values { id, name, translation(languageCode: $languageCode) { name }, slug, file { url } }
+                  }
+                  collections { id, name, translation(languageCode: $languageCode) { name }, slug }
+                  rating
+                }
+                cursor
+              }
+              pageInfo { hasNextPage, endCursor }
+            }
+          }
+        `,
+        variables: { first: 24, after: cursor, channel, sortBy, languageCode: getLanguageCodeForChannel(channel) },
+      }),
+    });
+
+    const { data } = (await response.json()) as { data?: any };
+    return data?.products ?? null;
+  }, [channel, sortBy]);
+
+  // Prefetch the next page in the background
+  const prefetchNext = useCallback(async (cursor: string | null) => {
+    if (!cursor || prefetchingRef.current) return;
+    if (prefetchedRef.current?.cursor === cursor) return; // Already prefetched this cursor
+
+    prefetchingRef.current = true;
+    try {
+      const result = await fetchProducts(cursor);
+      if (result) {
+        prefetchedRef.current = {
+          cursor,
+          products: result.edges.map((edge: any) => edge.node),
+          hasNextPage: result.pageInfo.hasNextPage,
+          endCursor: result.pageInfo.endCursor,
+        };
+      }
+    } catch {
+      // Prefetch failures are silent — loadMore will retry
+    } finally {
+      prefetchingRef.current = false;
+    }
+  }, [fetchProducts]);
+
   const loadMore = useCallback(async () => {
     if (isLoading || !hasNextPage || !endCursor) return;
 
+    // Check if we have prefetched data for this cursor
+    if (prefetchedRef.current?.cursor === endCursor) {
+      const cached = prefetchedRef.current;
+      prefetchedRef.current = null;
+      setProducts((prev) => [...prev, ...cached.products]);
+      setHasNextPage(cached.hasNextPage);
+      setEndCursor(cached.endCursor);
+      // Immediately start prefetching the NEXT page
+      if (cached.hasNextPage && cached.endCursor) {
+        prefetchNext(cached.endCursor);
+      }
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_SALEOR_API_URL;
-      if (!apiUrl) throw new Error("API URL not configured");
-
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          query: `
-            query ProductListMore($first: Int!, $after: String!, $channel: String!, $sortBy: ProductOrder, $languageCode: LanguageCodeEnum!) {
-              products(first: $first, after: $after, channel: $channel, sortBy: $sortBy) {
-                totalCount
-                edges {
-                  node {
-                    id
-                    name
-                    translation(languageCode: $languageCode) { name }
-                    slug
-                    created
-                    pricing {
-                      priceRange {
-                        start { gross { amount, currency } }
-                        stop { gross { amount, currency } }
-                      }
-                      priceRangeUndiscounted {
-                        start { gross { amount, currency } }
-                        stop { gross { amount, currency } }
-                      }
-                    }
-                    category { id, name, translation(languageCode: $languageCode) { name }, slug }
-                    thumbnail(size: 1024, format: WEBP) { url, alt }
-                    media { url, alt }
-                    variants { id, quantityAvailable }
-                    attributes {
-                      attribute { id, name, translation(languageCode: $languageCode) { name }, slug }
-                      values { id, name, translation(languageCode: $languageCode) { name }, slug, file { url } }
-                    }
-                    collections { id, name, translation(languageCode: $languageCode) { name }, slug }
-                    rating
-                  }
-                  cursor
-                }
-                pageInfo { hasNextPage, endCursor }
-              }
-            }
-          `,
-          variables: { first: 12, after: endCursor, channel, sortBy, languageCode: getLanguageCodeForChannel(channel) },
-        }),
-      });
-
-      const { data } = (await response.json()) as { data?: any };
-
-      if (data?.products) {
-        const newProducts = data.products.edges.map((edge: any) => edge.node);
+      const result = await fetchProducts(endCursor);
+      if (result) {
+        const newProducts = result.edges.map((edge: any) => edge.node);
         setProducts((prev) => [...prev, ...newProducts]);
-        setHasNextPage(data.products.pageInfo.hasNextPage);
-        setEndCursor(data.products.pageInfo.endCursor);
+        setHasNextPage(result.pageInfo.hasNextPage);
+        setEndCursor(result.pageInfo.endCursor);
+        // Start prefetching next page
+        if (result.pageInfo.hasNextPage && result.pageInfo.endCursor) {
+          prefetchNext(result.pageInfo.endCursor);
+        }
       }
     } catch (error) {
       console.error("Failed to load more products:", error);
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading, hasNextPage, endCursor, channel, sortBy]);
+  }, [isLoading, hasNextPage, endCursor, fetchProducts, prefetchNext]);
 
-  // Intersection Observer
+  // Prefetch next page as soon as current page renders
+  useEffect(() => {
+    if (hasNextPage && endCursor && !prefetchedRef.current) {
+      prefetchNext(endCursor);
+    }
+  }, [hasNextPage, endCursor, prefetchNext]);
+
+  // Clear prefetch cache on filter/sort change
+  useEffect(() => {
+    prefetchedRef.current = null;
+    prefetchingRef.current = false;
+  }, [initialProducts]);
+
+  // Intersection Observer — trigger well before user reaches the bottom
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -214,7 +281,7 @@ export function ProductsGrid({
           loadMore();
         }
       },
-      { threshold: 0.1, rootMargin: "400px" }
+      { threshold: 0.1, rootMargin: "800px" }
     );
 
     const currentLoader = loaderRef.current;
@@ -290,7 +357,7 @@ export function ProductsGrid({
 
         {/* Loading skeletons for pagination */}
         {isLoading &&
-          Array.from({ length: 4 }).map((_, i) => (
+          Array.from({ length: displayMode === 1 ? 3 : 8 }).map((_, i) => (
             <ProductCardSkeleton key={`pagination-skeleton-${i}`} displayMode={displayMode} />
           ))}
       </div>

@@ -1,6 +1,6 @@
 import { extensionMountPoints } from "@dashboard/extensions/extensionMountPoints";
 import { useExtensions } from "@dashboard/extensions/hooks/useExtensions";
-import { Box, List, sprinkles, Text } from "@saleor/macaw-ui-next";
+import { Box, List, sprinkles, Text, Tooltip } from "@saleor/macaw-ui-next";
 import { Link } from "react-router";
 
 import { SidebarMenuItem } from "./types";
@@ -8,9 +8,10 @@ import { getMenuItemExtension, isMenuActive } from "./utils";
 
 interface Props {
   menuItem: SidebarMenuItem;
+  collapsed?: boolean;
 }
 
-export const SingleItem = ({ menuItem }: Props) => {
+export const SingleItem = ({ menuItem, collapsed }: Props) => {
   const extensions = useExtensions(extensionMountPoints.NAVIGATION_SIDEBAR);
   const active = isMenuActive(location.pathname, menuItem);
   const handleMenuItemClick = () => {
@@ -25,10 +26,10 @@ export const SingleItem = ({ menuItem }: Props) => {
     }
   };
 
-  return (
+  const item = (
     <List.Item
       borderRadius={3}
-      paddingX={2}
+      paddingX={collapsed ? 0 : 2}
       active={active}
       onClick={handleMenuItemClick}
       data-test-id={`menu-item-label-${menuItem.id}`}
@@ -45,22 +46,39 @@ export const SingleItem = ({ menuItem }: Props) => {
         <Box
           className={sprinkles({
             paddingY: 1.5,
-            gap: 3,
+            gap: collapsed ? 0 : 3,
             display: "flex",
             alignItems: "center",
           })}
+          justifyContent={collapsed ? "center" : undefined}
         >
           {menuItem.icon}
-          <Text size={3} fontWeight="medium">
-            {menuItem.label}
-          </Text>
+          {!collapsed && (
+            <Text size={3} fontWeight="medium">
+              {menuItem.label}
+            </Text>
+          )}
         </Box>
       </Link>
-      {menuItem.endAdornment && (
+      {!collapsed && menuItem.endAdornment && (
         <Box position="absolute" right={2} zIndex={"3"}>
           {menuItem.endAdornment}
         </Box>
       )}
     </List.Item>
   );
+
+  if (collapsed) {
+    return (
+      <Tooltip>
+        <Tooltip.Trigger>{item}</Tooltip.Trigger>
+        <Tooltip.Content side="right">
+          <Tooltip.Arrow />
+          {menuItem.label}
+        </Tooltip.Content>
+      </Tooltip>
+    );
+  }
+
+  return item;
 };

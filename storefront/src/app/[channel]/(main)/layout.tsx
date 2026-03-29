@@ -22,6 +22,7 @@ import { RecentlyViewedProvider } from "@/lib/recently-viewed";
 import { WishlistProvider } from "@/lib/wishlist";
 import { RecentlyViewedFloatingButton } from "@/components/RecentlyViewedDrawer";
 import { WishlistFloatingButton } from "@/components/WishlistDrawer";
+import { ScrollToTopButton } from "./products/ScrollToTopButton";
 import { QuickViewWrapper } from "./QuickViewWrapper";
 import { CookieConsent } from "@/ui/components/CookieConsent";
 import { GoogleTagManager } from "@/ui/components/GoogleTagManager";
@@ -257,6 +258,7 @@ export default async function RootLayout(props: {
 			<WhatsAppChatButton />
 			<WishlistFloatingButton channel={channel} />
 			<RecentlyViewedFloatingButton />
+			<ScrollToTopButton />
 			{/* Cookie Consent Banner — GDPR/Israeli Privacy Law */}
 			<CookieConsent channel={channel} />
 			{/* Promotion Popup - only renders client-side if there are active sales */}

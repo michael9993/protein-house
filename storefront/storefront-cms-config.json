@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-03-23T23:33:47.115Z",
+  "exportedAt": "2026-03-27T05:34:42.451Z",
   "channels": {
     "ils": {
       "version": 110,
@@ -3956,8 +3956,8 @@
       }
     },
     "usd": {
-      "version": 43,
-      "updatedAt": "2026-03-23T23:33:45.718Z",
+      "version": 49,
+      "updatedAt": "2026-03-27T05:34:41.417Z",
       "channelSlug": "usd",
       "store": {
         "name": "Pawzen",
@@ -4218,7 +4218,7 @@
             "type": "video",
             "layout": "centered",
             "title": "Welcome to Pawzen",
-            "subtitle": "Modern, curated accessories for dogs & cats. Designed with love, delivered with care.",
+            "subtitle": "Modern, curated accessories for dogs & cats. Selected with love, delivered with care.",
             "ctaText": "Shop Now",
             "ctaLink": "/products",
             "showSecondaryButton": true,
@@ -4264,8 +4264,8 @@
           },
           "marquee": {
             "enabled": true,
-            "text": "🐾 New arrivals weekly • Free shipping over $50 • Premium pet accessories • Vet-approved products • 30-day easy returns 🐾",
-            "speedSeconds": 50,
+            "text": "🐾 New arrivals weekly • Free shipping over $75 • Premium pet accessories • Vet-approved products • 30-day easy returns 🐾",
+            "speedSeconds": 80,
             "textColor": "#D4B978",
             "background": {
               "style": "solid",
@@ -4555,8 +4555,8 @@
           "whatsappDefaultMessage": "Hi! I'd like more information"
         },
         "social": {
-          "facebook": "https://facebook.com/pawzen",
-          "instagram": "https://instagram.com/pawzen",
+          "facebook": "https://www.facebook.com/profile.php?id=61579690091826",
+          "instagram": "https://www.instagram.com/pawzenpets.shop/",
           "twitter": null,
           "youtube": null,
           "tiktok": "https://tiktok.com/@pawzen",
@@ -5315,6 +5315,15 @@
           "paymentFailedError": "Payment failed",
           "unexpectedPaymentError": "An unexpected error occurred with your payment",
           "paymentSuccessOrderFailedError": "Payment was successful but order processing failed. Please contact support.",
+          "cardDeclinedError": "Your payment method was declined. Please try a different payment method.",
+          "cardExpiredError": "Your card has expired. Please use a different card.",
+          "insufficientFundsError": "Insufficient funds. Please use a different payment method.",
+          "invalidCardError": "Invalid card number. Please check your card details and try again.",
+          "transactionRefusedError": "This transaction was refused. Please try a different payment method.",
+          "verificationRequiredError": "Additional verification is required. Please complete the verification step.",
+          "paymentNotApprovedError": "The payment was not approved. Please try again.",
+          "paypalTemporaryError": "PayPal is experiencing temporary issues. Please try again in a few minutes.",
+          "genericPaymentDeclineError": "Payment failed. Please try again or use a different payment method.",
           "orderSummaryTitle": "Order Summary",
           "itemsCountSingular": "1 item",
           "itemsCountPlural": "{count} items",
@@ -5509,7 +5518,7 @@
           "quickAddButton": "Quick Add",
           "scrollLeftAriaLabel": "Scroll left",
           "scrollRightAriaLabel": "Scroll right",
-          "checkOutOurProducts": "Check Out Our Products",
+          "checkOutOurProducts": "Check Out Our Catalog",
           "minimumRating": "Minimum Rating",
           "starsAndUp": "{count} stars and up",
           "starAndUp": "1 star and up",

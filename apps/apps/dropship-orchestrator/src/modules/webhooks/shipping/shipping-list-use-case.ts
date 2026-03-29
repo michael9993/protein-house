@@ -14,6 +14,42 @@ import { classifyCheckout, type CheckoutLine } from "./checkout-classifier";
 const logger = createLogger("ShippingListUseCase");
 
 // ---------------------------------------------------------------------------
+// In-memory credential cache (avoids repeated Saleor metadata API calls)
+// Saleor fires shipping webhooks multiple times per checkout interaction.
+// Without caching, each call races to fetch credentials and most timeout.
+// TTL of 5 minutes is safe — credentials change only on manual rotation.
+// ---------------------------------------------------------------------------
+let cachedCreds: { data: Awaited<ReturnType<typeof getSupplierCredentials>>; expiresAt: number } | null = null;
+let cachedAppId: { data: string; expiresAt: number } | null = null;
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+async function getCachedAppId(client: Client): Promise<string | null> {
+  if (cachedAppId && Date.now() < cachedAppId.expiresAt) {
+    return cachedAppId.data;
+  }
+  const appId = await fetchAppId(client);
+  if (appId) {
+    cachedAppId = { data: appId, expiresAt: Date.now() + CACHE_TTL_MS };
+  }
+  return appId;
+}
+
+async function getCachedCredentials(
+  client: Client,
+  appId: string,
+  supplierId: string,
+): Promise<Awaited<ReturnType<typeof getSupplierCredentials>>> {
+  if (cachedCreds && Date.now() < cachedCreds.expiresAt) {
+    return cachedCreds.data;
+  }
+  const creds = await getSupplierCredentials(client, appId, supplierId);
+  if (creds) {
+    cachedCreds = { data: creds, expiresAt: Date.now() + CACHE_TTL_MS };
+  }
+  return creds;
+}
+
+// ---------------------------------------------------------------------------
 // GraphQL — fetch variant private metadata for CJ vid
 // ---------------------------------------------------------------------------
 
@@ -137,17 +173,17 @@ export async function handleShippingList(
     return EMPTY;
   }
 
-  // 2. Get app ID + CJ credentials
-  const appId = await fetchAppId(client);
+  // 2. Get app ID + CJ credentials (cached to avoid repeated metadata API calls)
+  const appId = await getCachedAppId(client);
   if (!appId) {
     return EMPTY;
   }
 
-  // Fetch credentials from encrypted metadata with timeout protection
+  // Fetch credentials with timeout protection + in-memory cache
   let creds: Awaited<ReturnType<typeof getSupplierCredentials>> = null;
   try {
     creds = await Promise.race([
-      getSupplierCredentials(client, appId, "cj"),
+      getCachedCredentials(client, appId, "cj"),
       new Promise<null>((resolve) =>
         setTimeout(() => {
           logger.warn("getSupplierCredentials timed out after 5s");

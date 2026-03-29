@@ -8,22 +8,24 @@ import { MobileAccountButtonClient } from "./MobileAccountButtonClient";
 
 import { useState, useEffect } from "react";
 
-export function MobileBottomNavContent({ 
-  channel, 
-  pathname: _pathname, 
-  isHome, 
-  isProducts, 
-  isCart, 
+export function MobileBottomNavContent({
+  channel,
+  pathname: _pathname,
+  isHome,
+  isProducts,
+  isCart,
   isAccount,
   isLoggedIn = false,
-}: { 
-  channel: string; 
+  shopQuery = "",
+}: {
+  channel: string;
   pathname: string;
   isHome: boolean;
   isProducts: boolean;
   isCart: boolean;
   isAccount: boolean;
   isLoggedIn?: boolean;
+  shopQuery?: string;
 }) {
   const branding = useBranding();
   const content = useContentConfig();
@@ -129,9 +131,9 @@ export function MobileBottomNavContent({
           <span className={`text-[11px] font-semibold leading-tight transition-colors ${isHome ? "text-white" : ""}`}>{navbarText.homeLabel}</span>
         </LinkWithChannel>
 
-        {/* Shop All */}
+        {/* Shop All — preserves current filters (e.g. sale) when already on PLP */}
         <LinkWithChannel
-          href="/products"
+          href={`/products${shopQuery}`}
           className={isProducts ? "group flex flex-col items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 transition-all duration-300 hover:scale-105 active:scale-95" : "group flex flex-col items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 transition-all duration-300 hover:scale-105 active:scale-95 hover:bg-neutral-100/50"}
           style={{
             backgroundColor: isProducts ? branding.colors.primary : "transparent",

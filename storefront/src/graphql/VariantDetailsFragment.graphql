@@ -7,6 +7,10 @@ fragment VariantDetails on ProductVariant {
 	quantityAvailable
 	trackInventory
 	quantityLimitPerCustomer
+	metadata {
+		key
+		value
+	}
 	media {
 		id
 		url(size: 1024)

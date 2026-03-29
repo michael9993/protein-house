@@ -52,13 +52,13 @@ export async function GET(request: NextRequest) {
 
 		const checkout = result.checkoutRecover?.checkout;
 		if (checkout?.id) {
-			const shouldUseHttps =
-				process.env.NEXT_PUBLIC_STOREFRONT_URL?.startsWith("https") ||
-				!!process.env.NEXT_PUBLIC_VERCEL_URL;
+			const proto = request.headers.get("x-forwarded-proto") || "http";
+			const isHttps = proto === "https";
 			const cookieName = `checkoutId-${channel}`;
 			(await cookies()).set(cookieName, checkout.id, {
+				path: "/",
 				sameSite: "lax",
-				secure: shouldUseHttps,
+				secure: isHttps,
 			});
 			return NextResponse.redirect(new URL(`/${channel}/cart`, baseUrl));
 		}

@@ -38,6 +38,8 @@ import { CodeExportDialog } from "./CodeExportDialog";
 import { useComponentStorage } from "@/modules/components/useComponentStorage";
 import { useProjects } from "@/modules/projects/useProjects";
 import type { Project } from "@/modules/projects/types";
+import { trpcClient } from "@/modules/trpc/trpc-client";
+import type { ExportFormat } from "@/modules/export/types";
 
 const CANVAS_ID = "image-studio-canvas";
 
@@ -247,7 +249,7 @@ export function CanvasEditor() {
 
   // Generate a document-only thumbnail (not the workspace)
   const generateThumbnail = useCallback((): string => {
-    const full = exportCanvas("png", 0.8);
+    const full = exportCanvas({ format: "png", quality: 0.8 });
     if (!full) return "";
     // Downscale by creating a small canvas
     try {
@@ -405,12 +407,13 @@ export function CanvasEditor() {
   }, [imageUrlInput, addImage]);
 
   const handleExport = useCallback(
-    (format: "png" | "jpeg" | "webp", quality: number, transparentBg?: boolean) => {
-      const dataUrl = exportCanvas(format, quality, transparentBg);
+    (format: "png" | "jpeg" | "webp", quality: number, transparentBg?: boolean, multiplier?: number) => {
+      const dataUrl = exportCanvas({ format, quality, transparentBg, multiplier });
       if (!dataUrl) return;
       const a = document.createElement("a");
       a.href = dataUrl;
-      a.download = `image-studio-export.${format === "jpeg" ? "jpg" : format}`;
+      const suffix = multiplier && multiplier > 1 ? `@${multiplier}x` : "";
+      a.download = `image-studio-export${suffix}.${format === "jpeg" ? "jpg" : format}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -419,8 +422,99 @@ export function CanvasEditor() {
     [exportCanvas]
   );
 
+  const serverExportMutation = trpcClient.export.processExport.useMutation();
+
+  const handleServerExport = useCallback(
+    async (options: {
+      format: ExportFormat;
+      quality: number;
+      multiplier: number;
+      transparentBg: boolean;
+      dpi?: number;
+      customWidth?: number;
+      customHeight?: number;
+    }) => {
+      // Get high-res source from canvas
+      const sourceFormat = options.format === "avif" ? "png" : options.format;
+      const dataUrl = exportCanvas({
+        format: sourceFormat as "png" | "jpeg" | "webp",
+        quality: 1,
+        transparentBg: options.transparentBg,
+        multiplier: options.multiplier,
+      });
+      if (!dataUrl) return;
+
+      try {
+        const result = await serverExportMutation.mutateAsync({
+          imageBase64: dataUrl,
+          format: options.format,
+          quality: options.quality,
+          width: options.customWidth,
+          height: options.customHeight,
+          dpi: options.dpi,
+        });
+
+        const a = document.createElement("a");
+        a.href = result.resultBase64;
+        const ext = options.format === "jpeg" ? "jpg" : options.format;
+        a.download = `image-studio-export.${ext}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setShowExport(false);
+      } catch (err) {
+        console.error("Server export failed:", err);
+      }
+    },
+    [exportCanvas, serverExportMutation]
+  );
+
+  const batchExportMutation = trpcClient.export.batchExport.useMutation();
+
+  const handleBatchExport = useCallback(
+    async (specs: { label: string; suffix: string; format: ExportFormat; quality: number; width?: number; height?: number; dpi?: number }[]) => {
+      // Get highest-res source
+      const dataUrl = exportCanvas({ format: "png", quality: 1, multiplier: 2 });
+      if (!dataUrl) return;
+
+      try {
+        const result = await batchExportMutation.mutateAsync({
+          imageBase64: dataUrl,
+          specs: specs.map((s) => ({
+            label: s.label,
+            suffix: s.suffix,
+            format: s.format,
+            quality: s.quality,
+            width: s.width,
+            height: s.height,
+            dpi: s.dpi,
+          })),
+        });
+
+        // Download each file with a small delay to avoid browser blocking
+        for (let i = 0; i < result.results.length; i++) {
+          const file = result.results[i];
+          const a = document.createElement("a");
+          a.href = file.resultBase64;
+          const ext = file.format === "jpeg" ? "jpg" : file.format;
+          a.download = `image-studio${file.suffix}.${ext}`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          if (i < result.results.length - 1) {
+            await new Promise((r) => setTimeout(r, 200));
+          }
+        }
+        setShowExport(false);
+      } catch (err) {
+        console.error("Batch export failed:", err);
+      }
+    },
+    [exportCanvas, batchExportMutation]
+  );
+
   const handleSaveToSaleor = useCallback(() => {
-    const dataUrl = exportCanvas("png", 1);
+    const dataUrl = exportCanvas({ format: "png", quality: 1 });
     if (!dataUrl) return;
     setSaveBase64(dataUrl);
     setSaveFormat("png");
@@ -938,7 +1032,11 @@ export function CanvasEditor() {
       {/* Export Dialog */}
       {showExport && (
         <ExportDialog
+          canvasWidth={canvasWidth}
+          canvasHeight={canvasHeight}
           onExport={handleExport}
+          onServerExport={handleServerExport}
+          onBatchExport={handleBatchExport}
           onClose={() => setShowExport(false)}
         />
       )}

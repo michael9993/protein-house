@@ -1,6 +1,10 @@
 import { useState, useCallback } from "react";
 import { trpcClient } from "@/modules/trpc/trpc-client";
 import { AIProcessingOverlay } from "./AIProcessingOverlay";
+import { ModelSelector } from "./ModelSelector";
+import { ThinkingLevelControl } from "./ThinkingLevelControl";
+import { AdvancedOptionsPanel } from "./AdvancedOptionsPanel";
+import type { ThinkingLevel } from "@/modules/ai/types";
 
 interface BackgroundGenerationPanelProps {
   onResult: (resultBase64: string) => void;
@@ -15,6 +19,8 @@ const PROMPT_SUGGESTIONS = [
   "Gradient pastel background, minimalist",
   "Outdoor scene with soft bokeh, golden hour",
   "Modern interior with neutral tones",
+  "Dark moody texture, product spotlight",
+  "Concrete surface, industrial minimalism",
 ];
 
 export function BackgroundGenerationPanel({
@@ -24,6 +30,15 @@ export function BackgroundGenerationPanel({
 }: BackgroundGenerationPanelProps) {
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [modelId, setModelId] = useState("");
+  const [thinkingLevel, setThinkingLevel] = useState<ThinkingLevel>("none");
+  const [negativePrompt, setNegativePrompt] = useState("");
+  const [seed, setSeed] = useState("");
+  const [stylePreset, setStylePreset] = useState("");
+  const [aspectRatio, setAspectRatio] = useState("");
+
+  const { data: modelsData } = trpcClient.ai.getAvailableModels.useQuery();
+  const selectedModel = modelsData?.models.find((m) => m.id === modelId) ?? modelsData?.models[0] ?? null;
 
   const mutation = trpcClient.ai.generateBackground.useMutation({
     onSuccess: (data) => {
@@ -43,8 +58,16 @@ export function BackgroundGenerationPanel({
       prompt: prompt.trim(),
       width: Math.min(canvasWidth, 1440),
       height: Math.min(canvasHeight, 1440),
+      modelId: modelId || undefined,
+      options: {
+        negativePrompt: negativePrompt || undefined,
+        seed: seed ? parseInt(seed) : undefined,
+        stylePreset: stylePreset || undefined,
+        thinkingLevel: thinkingLevel !== "none" ? thinkingLevel : undefined,
+        aspectRatio: aspectRatio || undefined,
+      },
     });
-  }, [prompt, canvasWidth, canvasHeight, mutation]);
+  }, [prompt, canvasWidth, canvasHeight, modelId, negativePrompt, seed, stylePreset, thinkingLevel, aspectRatio, mutation]);
 
   return (
     <div className="space-y-3">
@@ -55,12 +78,39 @@ export function BackgroundGenerationPanel({
         </p>
       </div>
 
+      <ModelSelector
+        value={modelId}
+        onChange={setModelId}
+        disabled={mutation.isLoading}
+      />
+
+      {selectedModel?.capabilities.supportsThinking && (
+        <ThinkingLevelControl
+          value={thinkingLevel}
+          onChange={setThinkingLevel}
+          disabled={mutation.isLoading}
+        />
+      )}
+
       <textarea
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
         placeholder="Describe the background..."
         rows={3}
         className="w-full px-2.5 py-2 text-xs rounded-md border bg-background resize-none"
+      />
+
+      <AdvancedOptionsPanel
+        capabilities={selectedModel?.capabilities ?? null}
+        negativePrompt={negativePrompt}
+        onNegativePromptChange={setNegativePrompt}
+        seed={seed}
+        onSeedChange={setSeed}
+        stylePreset={stylePreset}
+        onStylePresetChange={setStylePreset}
+        aspectRatio={aspectRatio}
+        onAspectRatioChange={setAspectRatio}
+        disabled={mutation.isLoading}
       />
 
       <button
