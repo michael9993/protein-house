@@ -68,12 +68,19 @@ export function mapTrackingInfo(data: CJTrackingData): TrackingInfo {
     }
   }
 
+  const rawTrackNumber = data.trackNumber ?? "";
+  const isCjNumber = /^CJ/i.test(rawTrackNumber);
+
   return {
-    trackingNumber: data.trackNumber ?? "",
+    // Primary tracking number: prefer last-mile for customer-facing use
+    trackingNumber: rawTrackNumber,
     carrier: data.logisticName ?? "Unknown",
     trackingUrl: data.logisticUrl || undefined,
     status,
     events,
+    // Classify the tracking number
+    cjTrackingNumber: isCjNumber ? rawTrackNumber : undefined,
+    lastMileTrackingNumber: isCjNumber ? undefined : rawTrackNumber || undefined,
   };
 }
 

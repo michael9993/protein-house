@@ -291,6 +291,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return;
       }
 
+      // --- Classify tracking number: CJ cross-border vs last-mile ---
+      const incomingTrackNumber = payload.params.trackNumber;
+      const isCjNumber = /^CJ/i.test(incomingTrackNumber);
+
+      // Preserve both tracking numbers across webhook updates
+      const existingCjTracking = (existingMeta.cjTrackingNumber as string) || "";
+      const existingLastMile = (existingMeta.lastMileTrackingNumber as string) || "";
+
+      const cjTrackingNumber = isCjNumber
+        ? incomingTrackNumber
+        : existingCjTracking;
+      const lastMileTrackingNumber = isCjNumber
+        ? existingLastMile
+        : incomingTrackNumber;
+
+      // Customer-facing tracking: prefer last-mile (doesn't reveal CJ supply chain)
+      const customerTrackingNumber = lastMileTrackingNumber || cjTrackingNumber || incomingTrackNumber;
+
       // --- Build shipments array (split-shipment support) ---
       const existingShipments: Array<{
         trackingNumber: string;
@@ -317,12 +335,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Check if this tracking number already exists
       const alreadyExists = existingShipments.some(
-        (s) => s.trackingNumber === payload.params.trackNumber,
+        (s) => s.trackingNumber === incomingTrackNumber,
       );
 
       if (!alreadyExists) {
         existingShipments.push({
-          trackingNumber: payload.params.trackNumber,
+          trackingNumber: incomingTrackNumber,
           carrier: payload.params.logisticName ?? "",
           trackingUrl: payload.params.trackingUrl ?? "",
           status: payload.params.logisticsStatus ?? "shipped",
@@ -330,6 +348,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       // --- Create Saleor Fulfillment (only for new tracking numbers) ---
+      // Use customer-facing tracking number (last-mile preferred)
       if (!alreadyExists) {
         try {
           const { data: warehouseData } = await client
@@ -356,7 +375,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                   orderId: matchedOrder.id,
                   input: {
                     lines: fulfillmentLines,
-                    trackingNumber: payload.params.trackNumber,
+                    trackingNumber: customerTrackingNumber,
                     notifyCustomer: true,
                   },
                 })
@@ -376,7 +395,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 logger.info("Fulfillment created", {
                   orderId: matchedOrder.id,
                   fulfillmentId: fulfillmentData?.orderFulfill?.fulfillments?.[0]?.id,
-                  trackingNumber: payload.params.trackNumber,
+                  trackingNumber: customerTrackingNumber,
+                  cjTrackingNumber,
+                  lastMileTrackingNumber,
                 });
               }
             }
@@ -390,7 +411,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       } else {
         logger.info("Tracking number already processed — skipping fulfillment", {
           orderId: matchedOrder.id,
-          trackingNumber: payload.params.trackNumber,
+          trackingNumber: incomingTrackNumber,
         });
       }
 
@@ -398,10 +419,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const updatedMeta = {
         ...existingMeta,
         status: "shipped",
-        // Keep flat fields for backward compat (set to latest)
-        trackingNumber: payload.params.trackNumber,
-        trackingUrl: payload.params.trackingUrl ?? "",
-        carrier: payload.params.logisticName ?? "",
+        // Customer-facing tracking (last-mile preferred)
+        trackingNumber: customerTrackingNumber,
+        trackingUrl: payload.params.trackingUrl ?? existingMeta.trackingUrl ?? "",
+        carrier: payload.params.logisticName ?? existingMeta.carrier ?? "",
+        // Dual tracking: store both for admin visibility
+        cjTrackingNumber,
+        lastMileTrackingNumber,
         shipments: existingShipments,
         shippedAt: new Date().toISOString(),
       };

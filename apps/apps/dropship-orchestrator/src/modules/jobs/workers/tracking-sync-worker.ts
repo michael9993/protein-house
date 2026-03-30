@@ -282,6 +282,16 @@ async function processTrackingSync(job: Job<TrackingSyncJobData>): Promise<void>
           if (trackingResult.isOk()) {
             const tracking: TrackingInfo = trackingResult.value;
 
+            // --- Dual tracking: classify CJ cross-border vs last-mile ---
+            const existingCjTracking = (order.dropshipMeta?.cjTrackingNumber as string) || "";
+            const existingLastMile = (order.dropshipMeta?.lastMileTrackingNumber as string) || "";
+
+            const cjTrackingNumber = tracking.cjTrackingNumber || existingCjTracking;
+            const lastMileTrackingNumber = tracking.lastMileTrackingNumber || existingLastMile;
+
+            // Customer-facing: prefer last-mile (hides CJ supply chain)
+            const customerTrackingNumber = lastMileTrackingNumber || cjTrackingNumber || tracking.trackingNumber;
+
             // Create Saleor fulfillment if we have a tracking number and no existing fulfillment
             if (tracking.trackingNumber && !order.hasFulfillment && warehouseId) {
               const fulfillmentLines = order.lines
@@ -297,7 +307,7 @@ async function processTrackingSync(job: Job<TrackingSyncJobData>): Promise<void>
                     orderId: order.saleorOrderId,
                     input: {
                       lines: fulfillmentLines,
-                      trackingNumber: tracking.trackingNumber,
+                      trackingNumber: customerTrackingNumber,
                       notifyCustomer: true,
                     },
                   })
@@ -311,13 +321,15 @@ async function processTrackingSync(job: Job<TrackingSyncJobData>): Promise<void>
                 } else {
                   logger.info("Fulfillment created during tracking sync", {
                     saleorOrderId: order.saleorOrderId,
-                    trackingNumber: tracking.trackingNumber,
+                    trackingNumber: customerTrackingNumber,
+                    cjTrackingNumber,
+                    lastMileTrackingNumber,
                   });
                 }
               }
             }
 
-            // Update metadata
+            // Update metadata with dual tracking
             const newStatus = status === "DELIVERED" ? "delivered" : "shipped";
 
             await client
@@ -329,9 +341,11 @@ async function processTrackingSync(job: Job<TrackingSyncJobData>): Promise<void>
                     value: JSON.stringify({
                       ...order.dropshipMeta,
                       status: newStatus,
-                      trackingNumber: tracking.trackingNumber,
+                      trackingNumber: customerTrackingNumber,
                       trackingUrl: tracking.trackingUrl ?? "",
                       carrier: tracking.carrier,
+                      cjTrackingNumber,
+                      lastMileTrackingNumber,
                       shippedAt: new Date().toISOString(),
                     }),
                   },
@@ -343,9 +357,11 @@ async function processTrackingSync(job: Job<TrackingSyncJobData>): Promise<void>
               type: "tracking_synced",
               supplierId,
               orderId: order.saleorOrderId,
-              action: `Tracking synced: ${tracking.trackingNumber} (${tracking.carrier})`,
+              action: `Tracking synced: ${customerTrackingNumber} (${tracking.carrier})`,
               response: {
-                trackingNumber: tracking.trackingNumber,
+                trackingNumber: customerTrackingNumber,
+                cjTrackingNumber,
+                lastMileTrackingNumber,
                 carrier: tracking.carrier,
                 status: newStatus,
               },
@@ -355,7 +371,9 @@ async function processTrackingSync(job: Job<TrackingSyncJobData>): Promise<void>
 
             logger.info("Tracking synced", {
               saleorOrderId: order.saleorOrderId,
-              trackingNumber: tracking.trackingNumber,
+              trackingNumber: customerTrackingNumber,
+              cjTrackingNumber,
+              lastMileTrackingNumber,
               newStatus,
             });
           } else {

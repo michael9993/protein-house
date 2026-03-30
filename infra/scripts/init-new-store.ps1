@@ -124,6 +124,32 @@ function Get-StoreSlug {
     return $Name.ToLower() -replace '[^a-z0-9]', '-' -replace '-+', '-' -replace '^-|-$', ''
 }
 
+# ============================================================================
+# Input Validation
+# ============================================================================
+function Test-EmailFormat([string]$Value) {
+    return $Value -match '^[^@\s]+@[^@\s]+\.[^@\s]+$'
+}
+
+function Test-HexColor([string]$Value) {
+    return $Value -match '^#[0-9A-Fa-f]{6}$'
+}
+
+function Test-DomainFormat([string]$Value) {
+    if (-not $Value) { return $true }  # Empty is valid (optional)
+    return $Value -match '^[a-z0-9]([a-z0-9\-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9\-]*[a-z0-9])?)*\.[a-z]{2,}$'
+}
+
+function Test-GtmId([string]$Value) {
+    if (-not $Value) { return $true }  # Empty is valid (optional)
+    return $Value -match '^GTM-[A-Z0-9]+$'
+}
+
+function Test-Ga4Id([string]$Value) {
+    if (-not $Value) { return $true }  # Empty is valid (optional)
+    return $Value -match '^G-[A-Z0-9]+$'
+}
+
 function Show-Banner {
     $banner = @"
 
@@ -182,7 +208,13 @@ if (-not $PrimaryColor) {
     Write-ColorOutput "  Services:        #8B5CF6 (Purple)" "White"
     Write-ColorOutput "  Fashion:         #EC4899 (Pink)" "White"
     Write-Host ""
-    $PrimaryColor = Get-UserInput -Prompt "Primary Brand Color (hex)" -Default "#2563EB"
+    do {
+        $PrimaryColor = Get-UserInput -Prompt "Primary Brand Color (hex)" -Default "#2563EB"
+        if (-not (Test-HexColor $PrimaryColor)) {
+            Write-ColorOutput "  Invalid hex color format. Expected format: #RRGGBB (e.g., #FF4500). Please try again." $colors.Warning
+            $PrimaryColor = ""
+        }
+    } while (-not $PrimaryColor)
 }
 
 # --- 4. Tagline ---
@@ -193,7 +225,13 @@ if (-not $Tagline) {
 # --- 5. Email ---
 $StoreSlug = Get-StoreSlug -Name $StoreName
 if (-not $StoreEmail) {
-    $StoreEmail = Get-UserInput -Prompt "Support Email" -Default "support@$StoreSlug.com"
+    do {
+        $StoreEmail = Get-UserInput -Prompt "Support Email" -Default "support@$StoreSlug.com"
+        if (-not (Test-EmailFormat $StoreEmail)) {
+            Write-ColorOutput "  Invalid email format. Please try again." $colors.Warning
+            $StoreEmail = ""
+        }
+    } while (-not $StoreEmail)
 }
 
 # --- 6. Phone ---
@@ -204,17 +242,52 @@ if (-not $StorePhone) {
 # --- 7. Domain ---
 if (-not $PSBoundParameters.ContainsKey('Domain')) {
     Write-ColorOutput "`nProduction domain (leave empty for localhost-only dev):" $colors.Info
-    $Domain = Get-UserInput -Prompt "Domain (e.g., mystore.com)" -Default ""
+    do {
+        $Domain = Get-UserInput -Prompt "Domain (e.g., mystore.com)" -Default ""
+        if (-not (Test-DomainFormat $Domain)) {
+            Write-ColorOutput "  Invalid domain format. Expected format: mystore.com. Please try again." $colors.Warning
+            $Domain = $null
+        }
+    } while ($null -eq $Domain)
 }
 
 # --- 8. GTM Container ID ---
 if (-not $PSBoundParameters.ContainsKey('GtmId')) {
-    $GtmId = Get-UserInput -Prompt "GTM Container ID (e.g., GTM-XXXXXXX, empty to disable)" -Default ""
+    do {
+        $GtmId = Get-UserInput -Prompt "GTM Container ID (e.g., GTM-XXXXXXX, empty to disable)" -Default ""
+        if (-not (Test-GtmId $GtmId)) {
+            Write-ColorOutput "  Invalid GTM ID format. Expected format: GTM-XXXXXXX. Please try again." $colors.Warning
+            $GtmId = $null
+        }
+    } while ($null -eq $GtmId)
 }
 
 # --- 9. GA4 Property ID ---
 if (-not $PSBoundParameters.ContainsKey('Ga4Id')) {
-    $Ga4Id = Get-UserInput -Prompt "GA4 Property ID (e.g., G-XXXXXXXXXX, empty to disable)" -Default ""
+    do {
+        $Ga4Id = Get-UserInput -Prompt "GA4 Property ID (e.g., G-XXXXXXXXXX, empty to disable)" -Default ""
+        if (-not (Test-Ga4Id $Ga4Id)) {
+            Write-ColorOutput "  Invalid GA4 ID format. Expected format: G-XXXXXXXXXX. Please try again." $colors.Warning
+            $Ga4Id = $null
+        }
+    } while ($null -eq $Ga4Id)
+}
+
+# --- 10. Admin credentials (optional — defaults used for dev) ---
+$AdminEmail = ""
+$AdminPassword = ""
+$envPath = Join-Path (Split-Path $PSScriptRoot -Parent) ".env"
+if (Test-Path $envPath) {
+    # Read current values
+    $currentEmail = (Select-String -Path $envPath -Pattern "^AURA_ADMIN_EMAIL=(.*)$" | ForEach-Object { $_.Matches.Groups[1].Value })
+    $currentPass  = (Select-String -Path $envPath -Pattern "^AURA_ADMIN_PASSWORD=(.*)$" | ForEach-Object { $_.Matches.Groups[1].Value })
+
+    # Only prompt if values are still defaults
+    if (-not $currentEmail -or $currentEmail -eq "admin@localhost" -or $currentEmail -match "__.*__") {
+        Write-ColorOutput "`nAdmin account (for Dashboard login):" $colors.Info
+        $AdminEmail = Get-UserInput -Prompt "Admin Email" -Default $StoreEmail
+        $AdminPassword = Get-UserInput -Prompt "Admin Password" -Default "admin"
+    }
 }
 
 # ============================================================================
@@ -234,6 +307,10 @@ Write-Host "  Phone:        " -NoNewline; Write-ColorOutput $StorePhone $colors.
 Write-Host "  Domain:       " -NoNewline; Write-ColorOutput $(if ($Domain) { $Domain } else { "(none - localhost dev)" }) $colors.Success
 Write-Host "  GTM ID:       " -NoNewline; Write-ColorOutput $(if ($GtmId) { $GtmId } else { "(disabled)" }) $colors.Success
 Write-Host "  GA4 ID:       " -NoNewline; Write-ColorOutput $(if ($Ga4Id) { $Ga4Id } else { "(disabled)" }) $colors.Success
+if ($AdminEmail) {
+    Write-Host "  Admin Email:  " -NoNewline; Write-ColorOutput $AdminEmail $colors.Success
+    Write-Host "  Admin Pass:   " -NoNewline; Write-ColorOutput "********" $colors.Success
+}
 Write-ColorOutput "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" $colors.Info
 Write-Host ""
 
@@ -372,6 +449,20 @@ if (Test-Path $envPath) {
     # NEXT_PUBLIC_IMAGE_DOMAINS — only update if Domain is set and the line exists
     if ($Domain -and ($envContent -match '(?m)^NEXT_PUBLIC_IMAGE_DOMAINS=')) {
         $envContent = $envContent -replace '(?m)^NEXT_PUBLIC_IMAGE_DOMAINS=.*$', "NEXT_PUBLIC_IMAGE_DOMAINS=$Domain"
+    }
+
+    # DEFAULT_FROM_EMAIL and CONTACT_EMAIL — update if Domain is set
+    if ($Domain) {
+        $envContent = $envContent -replace '(?m)^DEFAULT_FROM_EMAIL=.*$', "DEFAULT_FROM_EMAIL=noreply@$Domain"
+        $envContent = $envContent -replace '(?m)^CONTACT_EMAIL=.*$', "CONTACT_EMAIL=$StoreEmail"
+    }
+
+    # Admin credentials — only update if collected and different from defaults
+    if ($AdminEmail -and $AdminEmail -ne "admin@localhost") {
+        $envContent = $envContent -replace '(?m)^AURA_ADMIN_EMAIL=.*$', "AURA_ADMIN_EMAIL=$AdminEmail"
+    }
+    if ($AdminPassword -and $AdminPassword -ne "admin") {
+        $envContent = $envContent -replace '(?m)^AURA_ADMIN_PASSWORD=.*$', "AURA_ADMIN_PASSWORD=$AdminPassword"
     }
 
     [System.IO.File]::WriteAllText($envPath, $envContent, [System.Text.UTF8Encoding]::new($false))
@@ -529,11 +620,11 @@ export const ${StoreSlug}Config: StoreConfig = createStoreConfig('$StoreType', {
     email: "$StoreEmail",
     phone: "$StorePhone",
     address: {
-      street: "123 Main Street",
-      city: "New York",
-      state: "NY",
-      zip: "10001",
-      country: "United States",
+      street: "",
+      city: "",
+      state: "",
+      zip: "",
+      country: "",
     },
   },
 

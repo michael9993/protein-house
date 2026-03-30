@@ -818,13 +818,20 @@ export async function handleOrderPaid(
   if (forwarded.length > 0) {
     const supplierOrders: Record<string, string> = {};
     const listedCostPrices: Record<string, number> = {};
-    let totalCost = 0;
 
     for (const f of forwarded) {
       supplierOrders[f.supplierId] = f.supplierOrderId;
-      listedCostPrices[f.supplierOrderId] = f.cost;
-      totalCost += f.cost;
+      // Use product metadata cost price (pre-calculated) instead of supplier response cost
+      // CJ returns cost: 0 at order creation time (deferred pricing model)
+      const supplierGroup = classified.dropship.get(f.supplierId);
+      const metadataCost = supplierGroup
+        ? supplierGroup.metadata.reduce((sum, meta) => sum + meta.costPrice, 0)
+        : f.cost;
+      listedCostPrices[f.supplierOrderId] = metadataCost;
     }
+
+    // Use totalDropshipCost (calculated from product metadata) — accurate at order time
+    const totalCost = totalDropshipCost;
 
     const metaResult = await client
       .mutation(UPDATE_ORDER_METADATA, {

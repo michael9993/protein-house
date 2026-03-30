@@ -192,14 +192,57 @@ function OrderDetail() {
                 <span className="text-sm text-text-muted">Supplier Order ID</span>
                 <span className="text-sm font-medium">{dropship.supplierOrderId || "--"}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-text-muted">Tracking Number</span>
-                <span className="text-sm font-medium">{dropship.trackingNumber || "--"}</span>
-              </div>
+              {dropship.cjTrackingNumber && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-text-muted">CJ Tracking</span>
+                  <a
+                    href={`https://t.17track.net/en#nums=${dropship.cjTrackingNumber}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-blue-600 hover:underline"
+                  >
+                    {dropship.cjTrackingNumber}
+                  </a>
+                </div>
+              )}
+              {dropship.lastMileTrackingNumber && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-text-muted">Delivery Tracking</span>
+                  <a
+                    href={`https://t.17track.net/en#nums=${dropship.lastMileTrackingNumber}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-blue-600 hover:underline"
+                  >
+                    {dropship.lastMileTrackingNumber}
+                  </a>
+                </div>
+              )}
+              {!dropship.cjTrackingNumber && !dropship.lastMileTrackingNumber && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-text-muted">Tracking Number</span>
+                  <span className="text-sm font-medium">
+                    {dropship.trackingNumber ? (
+                      <a
+                        href={`https://t.17track.net/en#nums=${dropship.trackingNumber}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        {dropship.trackingNumber}
+                      </a>
+                    ) : "--"}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-sm text-text-muted">Supplier Cost</span>
                 <span className="text-sm font-medium">
-                  {dropship.cost != null ? `$${dropship.cost.toFixed(2)}` : "--"}
+                  {dropship.totalCost != null && dropship.totalCost > 0
+                    ? `$${dropship.totalCost.toFixed(2)}`
+                    : dropship.cost != null && dropship.cost > 0
+                      ? `$${dropship.cost.toFixed(2)}`
+                      : "--"}
                 </span>
               </div>
               {dropship.forwardedAt && (

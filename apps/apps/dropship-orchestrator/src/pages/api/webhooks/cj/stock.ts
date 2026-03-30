@@ -9,6 +9,20 @@ import { withCJWebhookAuth } from "@/modules/webhooks/cj/shared";
 const logger = createLogger("webhook:cj:stock");
 
 // ---------------------------------------------------------------------------
+// DISABLED: CJ sends stock webhooks every second, flooding the system.
+// Stock sync is handled by the background polling job (every 4 hours).
+// To re-enable, remove this handler override and the early return below.
+// ---------------------------------------------------------------------------
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Acknowledge immediately without processing — stock is synced via polling job
+  res.status(200).json({ success: true, message: "Stock webhook disabled — using polling" });
+}
+
+// ---------------------------------------------------------------------------
+// Original handler below (kept for reference, not exported)
+// ---------------------------------------------------------------------------
+
 // SKU miss cache — avoids repeated GraphQL lookups for CJ SKUs not in Saleor.
 // CJ sends stock webhooks for every product in the account, most of which
 // aren't imported. Without this cache, each miss triggers 2 GraphQL queries.
@@ -157,7 +171,7 @@ const FETCH_WAREHOUSES = gql`
 // Handler
 // ---------------------------------------------------------------------------
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
+async function _originalHandler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
   const parseResult = CJStockWebhookPayloadSchema.safeParse(req.body);
 
   if (req.method === "POST" && !parseResult.success) {

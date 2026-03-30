@@ -86,12 +86,17 @@ All commands use `docker exec`. For an interactive shell, use `docker exec -it <
 ### Platform CLI (`infra/platform.ps1`)
 
 ```powershell
+.\infra\platform.ps1 setup                     # Full guided setup (init + brand + DB + apps)
+.\infra\platform.ps1 setup -NonInteractive     # Automated setup with defaults
 .\infra\platform.ps1 new-store                 # Rebrand for a new store (wizard)
 .\infra\platform.ps1 status                    # Health dashboard
 .\infra\platform.ps1 up                        # Start platform (Docker + ephemeral tunnels)
 .\infra\platform.ps1 up -Mode selfhosted       # Start with named tunnels
+.\infra\platform.ps1 up -Profile prod          # Start with production compose
 .\infra\platform.ps1 down                      # Stop everything
 .\infra\platform.ps1 restart storefront        # Restart a service
+.\infra\platform.ps1 db-init                   # Initialize DB (migrate + admin + schema)
+.\infra\platform.ps1 db-init -SeedData         # DB init with demo products
 .\infra\platform.ps1 backup -Compress          # Database backup
 .\infra\platform.ps1 install-apps              # Register all Saleor apps
 .\infra\platform.ps1 install-apps -Include "smtp","stripe"  # Install specific apps only
@@ -100,18 +105,25 @@ All commands use `docker exec`. For an interactive shell, use `docker exec -it <
 .\infra\platform.ps1 cleanup-apps             # Remove duplicate app installations
 .\infra\platform.ps1 logs api                  # Tail container logs
 .\infra\platform.ps1 codegen                   # Run GraphQL codegen
+.\infra\platform.ps1 init                      # Prereqs check + .env + secret generation
 .\infra\platform.ps1 generate-tunnel-config    # Regenerate cloudflared-config.yml
 ```
 
 Service registry: `infra/platform.yml` — single source of truth for all ports, containers, tunnels, and store identity.
 
-### New Store Setup
+### New Project Setup
 
-Clone the repo and run `platform.ps1 new-store` to rebrand everything for a new store. The wizard collects ~9 inputs and propagates them to all config files. See [QUICK-START.md](QUICK-START.md) for full guide.
+Clone the repo and run `platform.ps1 setup` for a fully guided setup. Or use individual commands for more control. See [QUICK-START.md](QUICK-START.md) for full guide.
 
 ```powershell
-# Interactive wizard
-.\infra\platform.ps1 new-store
+# Full guided setup (recommended for new projects)
+.\infra\platform.ps1 setup
+
+# Or step by step:
+.\infra\platform.ps1 init                     # Prereqs + .env + secrets
+.\infra\platform.ps1 new-store                # Brand wizard (~10 inputs)
+.\infra\platform.ps1 up                       # Start Docker + tunnels (auto-detects fresh DB)
+.\infra\platform.ps1 install-apps             # Register all Saleor apps
 
 # Non-interactive
 .\infra\platform.ps1 new-store -StoreName "My Store" -PrimaryColor "#E11D48" -Domain "mystore.com"

@@ -100,6 +100,53 @@ const UPDATE_ORDER_METADATA = gql`
   }
 `;
 
+const FETCH_ORDER_LINES = gql`
+  query FetchOrderLinesForFulfillment($id: ID!) {
+    order(id: $id) {
+      status
+      lines {
+        id
+        quantity
+        variant {
+          id
+        }
+      }
+      fulfillments {
+        id
+        status
+      }
+    }
+  }
+`;
+
+const FETCH_WAREHOUSES = gql`
+  query FetchWarehousesForCJOrder($first: Int!) {
+    warehouses(first: $first) {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+`;
+
+const CREATE_FULFILLMENT = gql`
+  mutation CreateFulfillmentFromCJOrder($orderId: ID!, $input: OrderFulfillInput!) {
+    orderFulfill(order: $orderId, input: $input) {
+      fulfillments {
+        id
+        status
+        trackingNumber
+      }
+      errors {
+        field
+        message
+      }
+    }
+  }
+`;
+
 // ---------------------------------------------------------------------------
 // Handler
 // ---------------------------------------------------------------------------
@@ -201,15 +248,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // --- Update order metadata ---
       const newStatus = CJ_STATUS_MAP[payload.params.orderStatus] ?? "forwarded";
 
+      // Dual tracking: classify CJ cross-border vs last-mile
+      const incomingTrack = payload.params.trackNumber ?? "";
+      const isCjNumber = /^CJ/i.test(incomingTrack);
+      const existingCjTracking = (existingMeta.cjTrackingNumber as string) || "";
+      const existingLastMile = (existingMeta.lastMileTrackingNumber as string) || "";
+
+      const cjTrackingNumber = isCjNumber ? incomingTrack : existingCjTracking;
+      const lastMileTrackingNumber = isCjNumber ? existingLastMile : (incomingTrack || existingLastMile);
+      const customerTrackingNumber = lastMileTrackingNumber || cjTrackingNumber || incomingTrack;
+
       const updatedMeta = {
         ...existingMeta,
         status: newStatus,
         lastCjUpdate: payload.params.updateDate ?? new Date().toISOString(),
-        ...(payload.params.trackNumber
+        ...(incomingTrack
           ? {
-              trackingNumber: payload.params.trackNumber,
+              trackingNumber: customerTrackingNumber,
               trackingUrl: payload.params.trackingUrl ?? "",
               carrier: payload.params.logisticName ?? "",
+              cjTrackingNumber,
+              lastMileTrackingNumber,
             }
           : {}),
       };
@@ -220,6 +279,75 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           input: [{ key: "dropship", value: JSON.stringify(updatedMeta) }],
         })
         .toPromise();
+
+      // --- Auto-fulfill when shipped with tracking number ---
+      if (newStatus === "shipped" && customerTrackingNumber) {
+        try {
+          const { data: orderData } = await client
+            .query(FETCH_ORDER_LINES, { id: matchedOrderId })
+            .toPromise();
+
+          const hasFulfillment = (orderData?.order?.fulfillments?.length ?? 0) > 0;
+
+          if (!hasFulfillment && orderData?.order?.lines?.length > 0) {
+            const { data: warehouseData } = await client
+              .query(FETCH_WAREHOUSES, { first: 1 })
+              .toPromise();
+
+            const warehouseId = warehouseData?.warehouses?.edges?.[0]?.node?.id;
+
+            if (warehouseId) {
+              const fulfillmentLines = orderData.order.lines
+                .filter((line: { variant: unknown }) => line.variant !== null)
+                .map((line: { id: string; quantity: number }) => ({
+                  orderLineId: line.id,
+                  stocks: [{ warehouse: warehouseId, quantity: line.quantity }],
+                }));
+
+              if (fulfillmentLines.length > 0) {
+                const { data: fulfillmentData, error: fulfillmentError } = await client
+                  .mutation(CREATE_FULFILLMENT, {
+                    orderId: matchedOrderId,
+                    input: {
+                      lines: fulfillmentLines,
+                      trackingNumber: customerTrackingNumber,
+                      notifyCustomer: true,
+                    },
+                  })
+                  .toPromise();
+
+                if (fulfillmentError) {
+                  logger.error("Failed to create fulfillment from order webhook", {
+                    orderId: matchedOrderId,
+                    error: fulfillmentError.message,
+                  });
+                } else if (fulfillmentData?.orderFulfill?.errors?.length > 0) {
+                  logger.error("Fulfillment mutation errors from order webhook", {
+                    orderId: matchedOrderId,
+                    errors: fulfillmentData.orderFulfill.errors,
+                  });
+                } else {
+                  logger.info("Auto-fulfillment created from CJ order webhook", {
+                    orderId: matchedOrderId,
+                    trackingNumber: customerTrackingNumber,
+                    cjTrackingNumber,
+                    lastMileTrackingNumber,
+                  });
+                }
+              }
+            }
+          } else if (hasFulfillment) {
+            logger.info("Order already fulfilled — skipping auto-fulfillment", {
+              orderId: matchedOrderId,
+            });
+          }
+        } catch (e) {
+          logger.error("Error during auto-fulfillment from order webhook", {
+            orderId: matchedOrderId,
+            error: e instanceof Error ? e.message : String(e),
+          });
+        }
+      }
 
       await logAuditEvent(client, {
         type: "webhook_received",

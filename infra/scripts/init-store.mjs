@@ -118,11 +118,11 @@ export const ${camelName}Config: StoreConfig = createStoreConfig('${config.type}
     email: "${config.email}",
     phone: "${config.phone}",
     address: {
-      street: "123 Main Street",
-      city: "New York",
-      state: "NY",
-      zip: "10001",
-      country: "United States",
+      street: "",
+      city: "",
+      state: "",
+      zip: "",
+      country: "",
     },
   },
 

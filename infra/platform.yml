@@ -9,6 +9,9 @@ platform:
   name: "Pawzen E-Commerce"
   domain: "pawzenpets.shop"
   tunnel_name: "pawzen-platform"
+  compose_files:
+    dev: "docker-compose.dev.yml"
+    prod: "docker-compose.prod.yml"
 
 backup:
   directory: "~/saleor-backups"

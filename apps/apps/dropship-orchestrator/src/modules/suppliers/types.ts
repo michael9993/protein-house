@@ -113,6 +113,10 @@ export interface TrackingInfo {
   trackingUrl?: string;
   status: SupplierOrderStatus;
   events: TrackingEvent[];
+  /** CJ cross-border tracking number (e.g. CJPAQZ...). Present when supplier is CJ. */
+  cjTrackingNumber?: string;
+  /** Last-mile domestic carrier tracking number. Present when CJ hands off to local carrier. */
+  lastMileTrackingNumber?: string;
 }
 
 // ---------------------------------------------------------------------------

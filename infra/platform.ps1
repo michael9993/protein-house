@@ -7,6 +7,7 @@
 #   .\infra\platform.ps1 <command> [options]
 #
 # Commands:
+#   setup                   Full guided setup (init + new-store + db-init + install-apps)
 #   new-store               Rebrand platform for a new store (wizard)
 #   status                  Health dashboard for all services
 #   up                      Start platform (Docker + tunnels)
@@ -15,10 +16,11 @@
 #   backup                  Database backup with rotation
 #   restore <file>          Restore database from backup file
 #   install-apps            Install/reinstall all Saleor apps
+#   db-init                 Initialize database (migrate + admin user + schema)
 #   tunnels                 Start tunnels only (skip Docker)
 #   codegen                 Run GraphQL codegen in all containers
 #   logs <service>          Tail logs for a service
-#   init                    First-time setup checks
+#   init                    First-time setup (prereqs + .env + secrets)
 #   generate-tunnel-config  Generate cloudflared-config.yml from platform.yml
 #   help                    Show this help
 #
@@ -59,6 +61,10 @@ param(
     [string[]]$Exclude = @(),
     [string[]]$Include = @(),
     [int]$Lines        = 100,
+    [switch]$SkipDbInit,
+    [switch]$SeedData,
+    [switch]$NonInteractive,
+    [string]$Profile   = "dev",
 
     # New Store options (forwarded to init-new-store.ps1)
     [string]$StoreName     = "",
@@ -73,8 +79,18 @@ $scriptDir = $PSScriptRoot
 $infraDir  = $scriptDir   # platform.ps1 lives inside infra/
 
 # ---------------------------------------------------------------------------
-# Load modules
+# Load modules (validate all exist before loading)
 # ---------------------------------------------------------------------------
+$requiredLibs = @("Config", "Display", "Docker", "Health", "Tunnels", "EnvManager", "Apps", "Backup")
+foreach ($lib in $requiredLibs) {
+    $libPath = Join-Path $scriptDir "lib\$lib.ps1"
+    if (-not (Test-Path $libPath)) {
+        Write-Host "[ERROR] Missing library: lib/$lib.ps1" -ForegroundColor Red
+        Write-Host "  The platform CLI is incomplete. Re-clone the repository or check your installation." -ForegroundColor Gray
+        exit 1
+    }
+}
+
 . "$scriptDir\lib\Config.ps1"
 . "$scriptDir\lib\Display.ps1"
 . "$scriptDir\lib\Docker.ps1"
@@ -92,7 +108,11 @@ if ($Domain) {
     $config.platform.domain = $Domain
 }
 
-$composeFile = Join-Path $scriptDir "docker-compose.dev.yml"
+$composeFile = if ($Profile -eq "prod") {
+    Join-Path $scriptDir "docker-compose.prod.yml"
+} else {
+    Join-Path $scriptDir "docker-compose.dev.yml"
+}
 $envFile     = Join-Path $scriptDir ".env"
 
 # ---------------------------------------------------------------------------
@@ -136,6 +156,335 @@ function Open-PlatformBrowser {
 switch ($Command.ToLower()) {
 
     # =========================================================================
+    "setup" {
+        Write-Banner -Title "Aura Platform Setup" `
+            -Subtitle "Full guided setup for a new project"
+
+        $setupSteps = @("init", "new_store", "docker_up", "db_init", "tunnels", "apps_installed")
+        $totalSetupSteps = $setupSteps.Count
+        $currentSetupStep = 0
+
+        # ---- Step 1: Init (prereqs + .env + secrets) ----
+        $currentSetupStep++
+        if (Test-SetupStep -InfraDir $infraDir -Step "init") {
+            Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Prerequisites (already done)"
+            Write-Success "Skipping init (already completed)"
+        } else {
+            Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Checking prerequisites & creating .env"
+            # Delegate to init command logic by re-invoking
+            & $PSCommandPath init
+            Set-SetupState -InfraDir $infraDir -Step "init"
+        }
+
+        # ---- Step 2: New Store wizard ----
+        $currentSetupStep++
+        if (Test-SetupStep -InfraDir $infraDir -Step "new_store") {
+            Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Store branding (already done)"
+            Write-Success "Skipping new-store (already completed)"
+        } else {
+            Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Configuring store brand"
+            # Build forwarded params
+            $storeParams = @{}
+            if ($StoreName)    { $storeParams.StoreName    = $StoreName }
+            if ($PrimaryColor) { $storeParams.PrimaryColor = $PrimaryColor }
+            if ($Domain)       { $storeParams.Domain       = $Domain }
+            if ($Tagline)      { $storeParams.Tagline      = $Tagline }
+            if ($GtmId)        { $storeParams.GtmId        = $GtmId }
+            if ($Ga4Id)        { $storeParams.Ga4Id        = $Ga4Id }
+
+            if ($NonInteractive -and -not $StoreName) {
+                Write-Info "Non-interactive mode: using default store name 'My Store'"
+                $storeParams.StoreName = "My Store"
+            }
+
+            & "$scriptDir\scripts\init-new-store.ps1" @storeParams
+            Set-SetupState -InfraDir $infraDir -Step "new_store"
+        }
+
+        # ---- Step 3: Docker up ----
+        $currentSetupStep++
+        Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Starting Docker containers"
+
+        if (-not (Test-DockerRunning -AutoStart)) {
+            Write-Err "Docker is not running. Please start Docker Desktop and re-run setup."
+            exit 1
+        }
+
+        # Switch env mode if selfhosted
+        if ($Mode -eq "selfhosted") {
+            Switch-EnvMode -InfraDir $infraDir -Mode "selfhosted"
+        }
+
+        Start-Containers -ComposeFile $composeFile
+
+        # Wait for core services
+        Write-Info "Waiting for core services (postgres, redis, api)..."
+        $coreOrder = @("postgres", "redis", "api")
+        foreach ($svcKey in $coreOrder) {
+            $svc = $config.services[$svcKey]
+            if ($svc -and $svc.container -and $svc.health_check) {
+                $healthy = Wait-ForHealthy -ContainerName $svc.container -MaxWaitSeconds 180
+                if (-not $healthy) {
+                    Write-Err "$svcKey ($($svc.container)) did not become healthy within 180s."
+                    Write-Info "Check logs: docker compose -f $composeFile logs $($svc.compose_service)"
+                    exit 1
+                }
+                Write-Success "$svcKey is healthy"
+            }
+        }
+        Set-SetupState -InfraDir $infraDir -Step "docker_up"
+
+        # ---- Step 4: Database initialization ----
+        $currentSetupStep++
+        if (Test-SetupStep -InfraDir $infraDir -Step "db_init") {
+            Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Database (already initialized)"
+            Write-Success "Skipping db-init (already completed)"
+        } else {
+            Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Initializing database"
+            & $PSCommandPath db-init -Email $Email -Password $Password
+            Set-SetupState -InfraDir $infraDir -Step "db_init"
+        }
+
+        # ---- Step 5: Tunnels ----
+        $currentSetupStep++
+        if (-not $SkipTunnel) {
+            Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Starting tunnels (mode: $Mode)"
+
+            try {
+                $cf = Find-Cloudflared
+            } catch {
+                Write-Warn "cloudflared not found -- skipping tunnels"
+                $cf = $null
+            }
+
+            if ($cf) {
+                if ($Mode -eq "selfhosted") {
+                    $tunnelConfig = Join-Path $infraDir "cloudflared-config.yml"
+                    if (Test-Path $tunnelConfig) {
+                        Start-NamedTunnel -CloudflaredCmd $cf -TunnelConfigPath $tunnelConfig | Out-Null
+                    } else {
+                        Write-Warn "cloudflared-config.yml not found. Run: platform.ps1 generate-tunnel-config"
+                    }
+                } else {
+                    $tunnelUrls = @{}
+                    $tunnelSvcs = Get-TunnelServices -Config $config
+
+                    foreach ($key in $tunnelSvcs.Keys) {
+                        $svc    = $tunnelSvcs[$key]
+                        $result = Start-EphemeralTunnel -CloudflaredCmd $cf `
+                            -Port $svc.port -ServiceName $key
+                        if ($result.URL -and $svc.tunnel_env_var) {
+                            $tunnelUrls[$svc.tunnel_env_var] = $result.URL
+                        }
+                    }
+
+                    if ($tunnelUrls.Count -gt 0 -and (Test-Path $envFile)) {
+                        Update-TunnelUrls -EnvPath $envFile -TunnelUrls $tunnelUrls
+                        Write-Success "Tunnel URLs written to .env"
+                    }
+                }
+            }
+            Set-SetupState -InfraDir $infraDir -Step "tunnels"
+        } else {
+            Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Tunnels (skipped)"
+        }
+
+        # ---- Step 6: Install Saleor Apps ----
+        $currentSetupStep++
+        if (Test-SetupStep -InfraDir $infraDir -Step "apps_installed") {
+            Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Saleor apps (already installed)"
+            Write-Success "Skipping app install (already completed)"
+        } else {
+            Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Installing Saleor apps"
+
+            # Read admin credentials from .env for app install
+            $appEmail = if ($Email) { $Email } else { Get-EnvValue -Path $envFile -Key "AURA_ADMIN_EMAIL" }
+            $appPass  = if ($Password) { $Password } else { Get-EnvValue -Path $envFile -Key "AURA_ADMIN_PASSWORD" }
+
+            if ($appEmail -and $appPass) {
+                & $PSCommandPath install-apps -Email $appEmail -Password $appPass
+                Set-SetupState -InfraDir $infraDir -Step "apps_installed"
+            } else {
+                Write-Warn "No admin credentials found. Run 'platform.ps1 install-apps -Email <email> -Password <pass>' manually."
+            }
+        }
+
+        # ================================================================
+        # POST-INSTALL CONFIGURATION (interactive prompts)
+        # ================================================================
+        Write-Host ""
+        Write-Banner -Title "Post-Install Configuration" `
+            -Subtitle "Let's configure your store services"
+
+        # ---- Payment: Stripe ----
+        Write-Host ""
+        Write-Host "  PAYMENT PROCESSING (Stripe)" -ForegroundColor Cyan
+        Write-Host "  Stripe handles credit/debit card payments." -ForegroundColor Gray
+        $currentStripeKey = Get-EnvValue -Path $envFile -Key "STRIPE_SECRET_KEY"
+        if ($currentStripeKey) {
+            Write-Success "Stripe keys already configured"
+        } elseif ($NonInteractive) {
+            Write-Info "Skipping Stripe (non-interactive mode). Configure later in infra/.env"
+        } else {
+            $setupStripe = Read-Host "  Do you have Stripe API keys? (y/n, default: n)"
+            if ($setupStripe -match "^y") {
+                Write-Info "  Get test keys from: https://dashboard.stripe.com/test/apikeys"
+                $pk = Read-Host "  Publishable Key (pk_test_...)"
+                $sk = Read-Host "  Secret Key (sk_test_...)"
+                $wh = Read-Host "  Webhook Secret (whsec_..., press Enter to skip)"
+                if ($pk) { Set-EnvValue -Path $envFile -Key "STRIPE_PUBLISHABLE_KEY" -Value $pk }
+                if ($sk) { Set-EnvValue -Path $envFile -Key "STRIPE_SECRET_KEY" -Value $sk }
+                if ($wh) { Set-EnvValue -Path $envFile -Key "STRIPE_WEBHOOK_SECRET" -Value $wh }
+                Write-Success "Stripe keys saved to .env"
+                Write-Info "  Restart Stripe app after setup: platform.ps1 restart saleor-stripe-app"
+            } else {
+                Write-Info "  Skipped. Add keys to infra/.env later (STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY)"
+            }
+        }
+
+        # ---- Payment: PayPal ----
+        Write-Host ""
+        Write-Host "  PAYMENT PROCESSING (PayPal)" -ForegroundColor Cyan
+        Write-Host "  PayPal handles PayPal wallet + card payments." -ForegroundColor Gray
+        if ($NonInteractive) {
+            Write-Info "Skipping PayPal (non-interactive mode)"
+        } else {
+            $setupPaypal = Read-Host "  Do you have PayPal API credentials? (y/n, default: n)"
+            if ($setupPaypal -match "^y") {
+                Write-Info "  PayPal uses file-based config. See: apps/apps/paypal/README.md"
+                Write-Info "  Configure in Dashboard > Apps > PayPal after setup"
+            } else {
+                Write-Info "  Skipped. Configure later via Dashboard > Apps > PayPal"
+            }
+        }
+
+        # ---- Email: SMTP ----
+        Write-Host ""
+        Write-Host "  EMAIL DELIVERY (SMTP)" -ForegroundColor Cyan
+        Write-Host "  Without SMTP, emails print to console only." -ForegroundColor Gray
+        $currentSmtpHost = Get-EnvValue -Path $envFile -Key "SMTP_HOST"
+        if ($currentSmtpHost) {
+            Write-Success "SMTP already configured ($currentSmtpHost)"
+        } elseif ($NonInteractive) {
+            Write-Info "Skipping SMTP (non-interactive mode). Emails will print to console."
+        } else {
+            $setupSmtp = Read-Host "  Do you want to configure email delivery? (y/n, default: n)"
+            if ($setupSmtp -match "^y") {
+                $smtpHost = Read-Host "  SMTP Host (e.g., smtp.gmail.com)"
+                $smtpPort = Read-Host "  SMTP Port (default: 587)"
+                $smtpUser = Read-Host "  SMTP Username (e.g., your-email@gmail.com)"
+                $smtpPass = Read-Host "  SMTP Password (App Password for Gmail)"
+                $smtpFrom = Read-Host "  From Email (e.g., noreply@yourdomain.com)"
+                if (-not $smtpPort) { $smtpPort = "587" }
+                if ($smtpHost) { Set-EnvValue -Path $envFile -Key "SMTP_HOST" -Value $smtpHost }
+                if ($smtpPort) { Set-EnvValue -Path $envFile -Key "SMTP_PORT" -Value $smtpPort }
+                if ($smtpUser) { Set-EnvValue -Path $envFile -Key "SMTP_USER" -Value $smtpUser }
+                if ($smtpPass) { Set-EnvValue -Path $envFile -Key "SMTP_PASSWORD" -Value $smtpPass }
+                if ($smtpFrom) { Set-EnvValue -Path $envFile -Key "SMTP_FROM_EMAIL" -Value $smtpFrom }
+                Write-Success "SMTP settings saved to .env"
+                Write-Info "  Restart SMTP app after setup: platform.ps1 restart saleor-smtp-app"
+            } else {
+                Write-Info "  Skipped. Emails will print to console. Configure later in infra/.env"
+            }
+        }
+
+        # ---- Error Monitoring: Sentry ----
+        Write-Host ""
+        Write-Host "  ERROR MONITORING (Sentry — optional)" -ForegroundColor Cyan
+        $currentSentry = Get-EnvValue -Path $envFile -Key "SENTRY_DSN"
+        if ($currentSentry) {
+            Write-Success "Sentry already configured"
+        } elseif ($NonInteractive) {
+            Write-Info "Skipping Sentry (non-interactive mode)"
+        } else {
+            $setupSentry = Read-Host "  Do you have a Sentry DSN? (y/n, default: n)"
+            if ($setupSentry -match "^y") {
+                $sentryDsn = Read-Host "  Sentry DSN (https://...@ingest.sentry.io/...)"
+                if ($sentryDsn) {
+                    Set-EnvValue -Path $envFile -Key "SENTRY_DSN" -Value $sentryDsn
+                    Set-EnvValue -Path $envFile -Key "NEXT_PUBLIC_SENTRY_DSN" -Value $sentryDsn
+                    Write-Success "Sentry DSN saved to .env"
+                }
+            } else {
+                Write-Info "  Skipped. Free tier at https://sentry.io"
+            }
+        }
+
+        # ---- Store Infrastructure + Catalog ----
+        Write-Host ""
+        Write-Host "  STORE CATALOG (Products, Categories, Shipping)" -ForegroundColor Cyan
+        Write-Host "  Your store is empty — no products, categories, or shipping yet." -ForegroundColor Gray
+
+        $catalogDir = Join-Path (Split-Path $infraDir -Parent) "scripts\catalog-generator"
+        if ($NonInteractive) {
+            Write-Info "Skipping catalog generation (non-interactive mode)"
+            Write-Info "  Run manually: cd scripts/catalog-generator && npm install && npm run setup"
+        } elseif (Test-Path $catalogDir) {
+            $setupCatalog = Read-Host "  Deploy store infrastructure + generate product catalog? (y/n, default: y)"
+            if ($setupCatalog -notmatch "^n") {
+                # Check Node.js is available
+                if (Get-Command "node" -ErrorAction SilentlyContinue) {
+                    Write-Info "Running catalog generator (this may take a few minutes)..."
+                    Push-Location $catalogDir
+                    try {
+                        & npm install --silent 2>$null
+                        & npm run setup
+                        if ($LASTEXITCODE -eq 0) {
+                            Write-Success "Store infrastructure deployed + catalog generated!"
+                            Write-Info "  Import products via Dashboard > Apps > Bulk Manager"
+                        } else {
+                            Write-Warn "Catalog generator had issues. Run manually: cd scripts/catalog-generator && npm run setup"
+                        }
+                    } catch {
+                        Write-Warn "Catalog generator failed: $_"
+                        Write-Info "  Run manually: cd scripts/catalog-generator && npm run setup"
+                    }
+                    Pop-Location
+                } else {
+                    Write-Warn "Node.js not found on host. Install Node.js 22+ and run:"
+                    Write-Info "  cd scripts/catalog-generator && npm install && npm run setup"
+                }
+            } else {
+                Write-Info "  Skipped. Run later: cd scripts/catalog-generator && npm install && npm run setup"
+            }
+        } else {
+            Write-Info "Catalog generator not found at: $catalogDir"
+        }
+
+        # ================================================================
+        # FINAL SUMMARY
+        # ================================================================
+        Write-Host ""
+        Write-Banner -Title "Setup Complete!" -Subtitle "Your platform is ready"
+        Write-Host ""
+        Write-ServiceTable -Services $config.services -Config $config -Mode $Mode
+
+        Write-Host ""
+        Write-Host "  REMAINING MANUAL STEPS:" -ForegroundColor Yellow
+        Write-Host "  ─────────────────────────────────────────────" -ForegroundColor Gray
+        Write-Host "  1. Log into Dashboard: " -NoNewline; Write-Host "http://localhost:9000" -ForegroundColor Cyan
+        Write-Host "  2. Import Storefront Control configs:" -ForegroundColor White
+        Write-Host "     Dashboard > Apps > Storefront Control > Import/Export" -ForegroundColor Gray
+        Write-Host "     - USD channel: apps/apps/storefront-control/sample-config-import-en.json" -ForegroundColor Gray
+        Write-Host "     - ILS channel: apps/apps/storefront-control/sample-config-import.json" -ForegroundColor Gray
+        Write-Host "  3. Import products (if catalog was generated):" -ForegroundColor White
+        Write-Host "     Dashboard > Apps > Bulk Manager > Import Excel" -ForegroundColor Gray
+        Write-Host "  4. Replace logo: storefront/public/logo.svg" -ForegroundColor White
+        Write-Host "  5. Replace favicon: storefront/public/favicon.ico" -ForegroundColor White
+        Write-Host "  ─────────────────────────────────────────────" -ForegroundColor Gray
+        Write-Host ""
+
+        if (-not $NoBrowser) {
+            Write-Info "Opening browser..."
+            Open-PlatformBrowser
+        }
+
+        Write-Host ""
+        Write-Info "Run 'platform.ps1 status' anytime to check service health."
+        Write-Host ""
+    }
+
+    # =========================================================================
     "status" {
         Write-Banner -Title "Aura Platform Status" -Subtitle $config.platform.name
 
@@ -169,6 +518,7 @@ switch ($Command.ToLower()) {
         $total = 5
         if ($SkipDocker)  { $total-- }
         if ($SkipTunnel)  { $total-- }
+        if (-not $SkipDbInit -and -not $SkipDocker) { $total++ }
 
         # Step 1 -- Docker
         if (-not $SkipDocker) {
@@ -200,7 +550,60 @@ switch ($Command.ToLower()) {
             }
         }
 
-        # Step 4 -- Tunnels
+        # Step: Fresh DB detection -- auto-run db-init if needed
+        if (-not $SkipDbInit -and -not $SkipDocker) {
+            $apiContainer = $config.services.api.container
+            if (-not $apiContainer) { $apiContainer = "saleor-api-dev" }
+
+            # Check if migrations are unapplied (fresh database)
+            # Use Select-String to count only migration lines (format: " [ ] 0001_..." or " [X] 0001_...")
+            $migrationCheck = docker exec $apiContainer python manage.py showmigrations --plan 2>$null
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warn "Could not check migration status (API container may still be starting)"
+                $unapplied = 0
+                $total_migrations = 0
+            } else {
+                $migrationLines = $migrationCheck | Where-Object { $_ -match "^\s*\[" }
+                $unapplied = ($migrationLines | Where-Object { $_ -match "^\s*\[ \]" }).Count
+                $total_migrations = ($migrationLines | Measure-Object).Count
+            }
+
+            if ($unapplied -gt 0 -and $total_migrations -gt 0 -and $unapplied -eq $total_migrations) {
+                $step++
+                Write-Step -Current $step -Total $total -Message "Fresh database detected -- initializing"
+                Write-Info "Running migrations and creating admin user..."
+
+                # Delegate to db-init logic inline (avoid recursive script call)
+                $migrated = Invoke-InContainer -ContainerName $apiContainer `
+                    -Command "python manage.py migrate --noinput" `
+                    -Description "Applying migrations"
+                if ($migrated) {
+                    Write-Success "Migrations applied"
+                } else {
+                    Write-Warn "Migration had issues -- run 'platform.ps1 db-init' manually"
+                }
+
+                # Create admin from .env defaults
+                $adminEmail = Get-EnvValue -Path $envFile -Key "AURA_ADMIN_EMAIL"
+                $adminPass  = Get-EnvValue -Path $envFile -Key "AURA_ADMIN_PASSWORD"
+                if ($adminEmail -and $adminPass) {
+                    $null = docker exec -e DJANGO_SUPERUSER_PASSWORD="$adminPass" $apiContainer `
+                        python manage.py createsuperuser --noinput --email "$adminEmail" 2>$null
+                    Write-Success "Admin user created: $adminEmail"
+                }
+
+                # Build schema
+                $null = Invoke-InContainer -ContainerName $apiContainer `
+                    -Command "python manage.py build_schema 2>/dev/null" -Silent
+                Write-Success "GraphQL schema exported"
+            } elseif ($unapplied -gt 0) {
+                $step++
+                Write-Step -Current $step -Total $total -Message "Pending migrations detected ($unapplied unapplied)"
+                Write-Info "Run 'platform.ps1 db-init' to apply migrations"
+            }
+        }
+
+        # Step -- Tunnels
         if (-not $SkipTunnel) {
             $step++
             Write-Step -Current $step -Total $total -Message "Starting tunnels (mode: $Mode)"
@@ -494,6 +897,7 @@ switch ($Command.ToLower()) {
 
         # .env file
         Write-Host "Checking .env file..." -ForegroundColor Yellow
+        $envCreated = $false
         if (Test-Path $envFile) {
             Write-Success ".env file exists"
         } else {
@@ -501,31 +905,201 @@ switch ($Command.ToLower()) {
             if (Test-Path $envTemplate) {
                 Copy-Item $envTemplate $envFile
                 Write-Success ".env created from .env.example"
+                $envCreated = $true
             } else {
-                Write-Warn ".env not found and no .env.example template. Run setup-env.ps1 or create manually."
+                Write-Warn ".env not found and no .env.example template. Create manually from env-template.txt."
             }
         }
 
-        # Generate RSA key for JWT (if openssl is available)
-        Write-Host "Checking RSA key for JWT..." -ForegroundColor Yellow
-        $rsaKey = Join-Path $infraDir "rsa_private_key.pem"
-        if (Test-Path $rsaKey) {
-            Write-Success "RSA key exists: $rsaKey"
-        } else {
-            if (Get-Command "openssl" -ErrorAction SilentlyContinue) {
-                openssl genrsa -out $rsaKey 2048 2>$null
-                Write-Success "RSA key generated: $rsaKey"
+        # --- Auto-generate secrets in .env ---
+        if (Test-Path $envFile) {
+            # Helper: generate cryptographically random hex string
+            function New-RandomHex([int]$Bytes = 32) {
+                $buf = [byte[]]::new($Bytes)
+                [System.Security.Cryptography.RandomNumberGenerator]::Fill($buf)
+                return ($buf | ForEach-Object { $_.ToString("x2") }) -join ""
+            }
+
+            # Helper: check if a value is a placeholder that needs replacing
+            function Test-IsPlaceholder([string]$Value) {
+                if (-not $Value) { return $true }
+                if ($Value -match "^__.*__$") { return $true }
+                if ($Value -match "^changeme") { return $true }
+                return $false
+            }
+
+            # SECRET_KEY
+            Write-Host "Checking SECRET_KEY..." -ForegroundColor Yellow
+            $currentSecret = Get-EnvValue -Path $envFile -Key "SECRET_KEY"
+            if (Test-IsPlaceholder $currentSecret) {
+                $newSecret = New-RandomHex -Bytes 32
+                Set-EnvValue -Path $envFile -Key "SECRET_KEY" -Value $newSecret
+                Write-Success "SECRET_KEY auto-generated (64 hex chars)"
             } else {
-                Write-Warn "openssl not found -- cannot generate RSA key. Add it to PATH or generate manually."
+                Write-Success "SECRET_KEY already set"
+            }
+
+            # APP_SECRET_KEY
+            Write-Host "Checking APP_SECRET_KEY..." -ForegroundColor Yellow
+            $currentAppSecret = Get-EnvValue -Path $envFile -Key "APP_SECRET_KEY"
+            if (Test-IsPlaceholder $currentAppSecret) {
+                $newAppSecret = New-RandomHex -Bytes 32
+                Set-EnvValue -Path $envFile -Key "APP_SECRET_KEY" -Value $newAppSecret
+                Write-Success "APP_SECRET_KEY auto-generated (64 hex chars)"
+            } else {
+                Write-Success "APP_SECRET_KEY already set"
+            }
+
+            # RSA_PRIVATE_KEY (using .NET — no openssl dependency)
+            Write-Host "Checking RSA_PRIVATE_KEY..." -ForegroundColor Yellow
+            $currentRsa = Get-EnvValue -Path $envFile -Key "RSA_PRIVATE_KEY"
+            if (Test-IsPlaceholder $currentRsa) {
+                try {
+                    Add-Type -AssemblyName System.Security 2>$null
+                    $rsa = [System.Security.Cryptography.RSA]::Create(2048)
+                    $privateKeyBytes = $rsa.ExportRSAPrivateKey()
+                    $b64 = [Convert]::ToBase64String($privateKeyBytes)
+                    $pem = "-----BEGIN RSA PRIVATE KEY-----`n"
+                    $offset = 0
+                    while ($offset -lt $b64.Length) {
+                        $lineEnd = [Math]::Min($offset + 64, $b64.Length)
+                        $pem += $b64.Substring($offset, $lineEnd - $offset) + "`n"
+                        $offset = $lineEnd
+                    }
+                    $pem += "-----END RSA PRIVATE KEY-----"
+                    $oneLine = $pem -replace "`r?`n", "\n"
+                    Set-EnvValue -Path $envFile -Key "RSA_PRIVATE_KEY" -Value $oneLine
+                    Write-Success "RSA_PRIVATE_KEY auto-generated (2048-bit, injected into .env)"
+
+                    # Also save .pem file for reference/debugging
+                    $rsaPemFile = Join-Path $infraDir "rsa_private_key.pem"
+                    if (-not (Test-Path $rsaPemFile)) {
+                        $pem -replace "\\n", "`n" | Set-Content $rsaPemFile -NoNewline
+                        Write-Info "  RSA key also saved to: $rsaPemFile"
+                    }
+                } catch {
+                    Write-Warn "Failed to generate RSA key via .NET: $_"
+                    Write-Info "  Generate manually: .\infra\scripts\generate-rsa-key-for-env.ps1"
+                }
+            } else {
+                Write-Success "RSA_PRIVATE_KEY already set"
+            }
+
+            # Print summary of what still needs manual configuration
+            if ($envCreated) {
+                Write-Host ""
+                Write-Info "Auto-configured: SECRET_KEY, APP_SECRET_KEY, RSA_PRIVATE_KEY"
+                Write-Info "Still needs manual setup (optional):"
+                Write-Info "  - Stripe keys:  STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET"
+                Write-Info "  - SMTP:         SMTP_HOST, SMTP_USER, SMTP_PASSWORD (for real email delivery)"
+                Write-Info "  - Sentry:       SENTRY_DSN (for error monitoring)"
+                Write-Info "  - Brand:        Run 'platform.ps1 new-store' to set store name, colors, domain"
             }
         }
 
         Write-Host ""
         if ($ok) {
-            Write-Success "Init complete. Run: platform.ps1 up"
+            Write-Success "Init complete. Next: platform.ps1 new-store (or platform.ps1 setup for full guided flow)"
         } else {
-            Write-Warn "Some prerequisites are missing. Resolve the errors above before running 'up'."
+            Write-Warn "Some prerequisites are missing. Resolve the errors above before continuing."
         }
+    }
+
+    # =========================================================================
+    "db-init" {
+        Write-Banner -Title "Database Initialization" -Subtitle "Migrate, create admin, export schema"
+
+        $apiContainer = $config.services.api.container
+        if (-not $apiContainer) { $apiContainer = "saleor-api-dev" }
+
+        # Step 1: Wait for postgres
+        Write-Step -Current 1 -Total 4 -Message "Waiting for database..."
+        $pgContainer = $config.services.postgres.container
+        if (-not $pgContainer) { $pgContainer = "saleor-postgres-dev" }
+        $pgReady = Wait-ForHealthy -ContainerName $pgContainer -MaxWaitSeconds 60
+        if (-not $pgReady) {
+            Write-Err "PostgreSQL container ($pgContainer) not healthy. Is Docker running?"
+            exit 1
+        }
+        Write-Success "Database is ready"
+
+        # Step 2: Run migrations
+        Write-Step -Current 2 -Total 4 -Message "Running database migrations..."
+        $migrated = Invoke-InContainer -ContainerName $apiContainer `
+            -Command "python manage.py migrate --noinput" `
+            -Description "Applying migrations"
+        if ($migrated) {
+            Write-Success "Migrations applied"
+        } else {
+            Write-Err "Migration failed. Check API container logs: docker compose -f $composeFile logs saleor-api"
+            exit 1
+        }
+
+        # Step 3: Create superuser
+        Write-Step -Current 3 -Total 4 -Message "Creating admin user..."
+        $adminEmail = if ($Email) { $Email } else { Get-EnvValue -Path $envFile -Key "AURA_ADMIN_EMAIL" }
+        $adminPass  = if ($Password) { $Password } else { Get-EnvValue -Path $envFile -Key "AURA_ADMIN_PASSWORD" }
+
+        if (-not $adminEmail -or -not $adminPass -or $adminEmail -eq "admin@localhost") {
+            if (-not $NonInteractive) {
+                Write-Host ""
+                Write-Host "  Admin account setup:" -ForegroundColor Cyan
+                if (-not $adminEmail -or $adminEmail -eq "admin@localhost") {
+                    $input = Read-Host "    Email (default: admin@localhost)"
+                    if ($input) { $adminEmail = $input }
+                    elseif (-not $adminEmail) { $adminEmail = "admin@localhost" }
+                }
+                if (-not $adminPass -or $adminPass -eq "admin") {
+                    $input = Read-Host "    Password (default: admin)"
+                    if ($input) { $adminPass = $input }
+                    elseif (-not $adminPass) { $adminPass = "admin" }
+                }
+            } else {
+                if (-not $adminEmail) { $adminEmail = "admin@localhost" }
+                if (-not $adminPass)  { $adminPass  = "admin" }
+            }
+        }
+
+        # Check if user already exists (escape email for Python string)
+        $safeEmail = $adminEmail -replace "'", "\'"
+        $checkCmd = "from django.contrib.auth import get_user_model; User = get_user_model(); print('EXISTS' if User.objects.filter(email='$safeEmail').exists() else 'MISSING')"
+        $checkOutput = docker exec $apiContainer python manage.py shell -c "$checkCmd" 2>$null
+
+        if ($checkOutput -match "EXISTS") {
+            Write-Success "Admin user '$adminEmail' already exists (skipping)"
+        } else {
+            $createResult = docker exec -e DJANGO_SUPERUSER_PASSWORD="$adminPass" $apiContainer `
+                python manage.py createsuperuser --noinput --email "$adminEmail" 2>&1
+            if ($LASTEXITCODE -eq 0) {
+                Write-Success "Admin user created: $adminEmail"
+            } else {
+                Write-Warn "Could not create admin user (may already exist): $createResult"
+            }
+        }
+
+        # Step 4: Export GraphQL schema
+        Write-Step -Current 4 -Total 4 -Message "Exporting GraphQL schema..."
+        $schemaExported = Invoke-InContainer -ContainerName $apiContainer `
+            -Command "python manage.py build_schema 2>/dev/null" `
+            -Description "Building schema"
+        if ($schemaExported) {
+            Write-Success "GraphQL schema exported"
+        } else {
+            Write-Warn "Schema export had warnings (non-critical)"
+        }
+
+        # Optional: Seed data
+        if ($SeedData) {
+            Write-Host ""
+            Write-Info "Seeding demo data (populatedb)..."
+            Invoke-InContainer -ContainerName $apiContainer `
+                -Command "python manage.py populatedb --createsuperuser" `
+                -Description "Populating database with demo data"
+            Write-Success "Demo data seeded"
+        }
+
+        Write-Host ""
+        Write-Success "Database initialized! Admin: $adminEmail"
     }
 
     # =========================================================================
@@ -585,6 +1159,26 @@ $($ingressLines -join "`n")
 
         $yamlContent | Set-Content $outputPath -Encoding UTF8
         Write-Success "Generated: $outputPath"
+
+        # Attempt to auto-detect tunnel UUID
+        try {
+            $tunnelList = cloudflared tunnel list -o json 2>$null | ConvertFrom-Json
+            $matchedTunnel = $tunnelList | Where-Object { $_.name -eq $tunnelName } | Select-Object -First 1
+            if ($matchedTunnel) {
+                $tunnelId = $matchedTunnel.id
+                $content = Get-Content $outputPath -Raw
+                $content = $content -replace '<TUNNEL_ID>', $tunnelId
+                $content | Set-Content $outputPath -Encoding UTF8
+                Write-Success "Tunnel UUID auto-detected: $tunnelId"
+                Write-Info "Credentials file: $($env:USERPROFILE)\.cloudflared\$tunnelId.json"
+            } else {
+                Write-Warn "Tunnel '$tunnelName' not found. Create it with: cloudflared tunnel create $tunnelName"
+                Write-Info "Then replace <TUNNEL_ID> in cloudflared-config.yml with the UUID"
+            }
+        } catch {
+            Write-Info "Could not auto-detect tunnel UUID. Replace <TUNNEL_ID> manually in cloudflared-config.yml"
+        }
+
         Write-Host ""
         Write-Info "Ingress rules:"
         foreach ($key in $orderedKeys) {
@@ -611,11 +1205,14 @@ $($ingressLines -join "`n")
 
         # Create .env from template if it doesn't exist
         if (-not (Test-Path $envFile)) {
-            $templateFile = Join-Path $scriptDir "env-template.txt"
+            $templateFile = Join-Path $scriptDir ".env.example"
+            if (-not (Test-Path $templateFile)) {
+                $templateFile = Join-Path $scriptDir "env-template.txt"
+            }
             if (Test-Path $templateFile) {
                 Write-Step -Current 1 -Total 1 -Message "Creating .env from template..."
                 Copy-Item $templateFile $envFile
-                Write-Info "Created .env from template. Edit infra/.env with your settings."
+                Write-Info "Created .env from template. Run 'platform.ps1 init' to auto-generate secrets."
             }
         }
 
@@ -637,6 +1234,7 @@ $($ingressLines -join "`n")
         Write-Host "Usage: .\infra\platform.ps1 <command> [target] [options]" -ForegroundColor White
         Write-Host ""
         Write-Host "Commands:" -ForegroundColor Yellow
+        Write-Host "  setup                    Full guided setup (init + brand + DB + apps)" -ForegroundColor White
         Write-Host "  new-store                Rebrand platform for a new store (wizard)"
         Write-Host "  status                   Health dashboard for all services"
         Write-Host "  up                       Start platform (Docker + tunnels)"
@@ -645,24 +1243,29 @@ $($ingressLines -join "`n")
         Write-Host "  backup                   Create database backup with rotation"
         Write-Host "  restore <file>           Restore database from backup file"
         Write-Host "  install-apps             Install/reinstall all Saleor apps"
+        Write-Host "  db-init                  Initialize database (migrate + admin + schema)" -ForegroundColor White
         Write-Host "  tunnels                  Start tunnels only (skip Docker)"
         Write-Host "  codegen                  Run GraphQL codegen (storefront + dashboard)"
         Write-Host "  logs <service>           Tail logs for a service"
-        Write-Host "  init                     First-time setup / prerequisite check"
+        Write-Host "  init                     First-time setup (prereqs + .env + secrets)"
         Write-Host "  generate-tunnel-config   Generate cloudflared-config.yml from platform.yml"
         Write-Host "  help                     Show this help"
         Write-Host ""
         Write-Host "Options:" -ForegroundColor Yellow
         Write-Host "  -Mode <dev|selfhosted>   Environment mode (default: dev)"
+        Write-Host "  -Profile <dev|prod>      Compose profile (default: dev)"
         Write-Host "  -Domain <string>         Override domain from platform.yml"
-        Write-Host "  -SkipTunnel              Skip tunnel startup with 'up'"
+        Write-Host "  -SkipTunnel              Skip tunnel startup with 'up' or 'setup'"
         Write-Host "  -SkipDocker              Skip Docker startup with 'up'"
-        Write-Host "  -NoBrowser               Don't open browser after 'up'"
+        Write-Host "  -SkipDbInit              Skip fresh-DB auto-init with 'up'"
+        Write-Host "  -NoBrowser               Don't open browser after 'up' or 'setup'"
+        Write-Host "  -NonInteractive          Use defaults (no prompts) for 'setup'"
+        Write-Host "  -SeedData                Populate demo data with 'db-init'"
         Write-Host "  -Compress                Gzip-compress backup"
         Write-Host "  -Retain <int>            Backups to retain (default: 30)"
         Write-Host "  -Quiet                   Suppress verbose output"
-        Write-Host "  -Email <string>          Admin email for install-apps"
-        Write-Host "  -Password <string>       Admin password for install-apps"
+        Write-Host "  -Email <string>          Admin email for install-apps / db-init"
+        Write-Host "  -Password <string>       Admin password for install-apps / db-init"
         Write-Host "  -SkipDelete              Skip deleting existing apps before reinstall"
         Write-Host "  -Lines <int>             Log lines to tail (default: 100)"
         Write-Host ""
@@ -671,10 +1274,15 @@ $($ingressLines -join "`n")
         Write-Host "  $keys" -ForegroundColor Gray
         Write-Host ""
         Write-Host "Examples:" -ForegroundColor Yellow
-        Write-Host "  .\infra\platform.ps1 new-store                                  # Interactive wizard"
+        Write-Host "  .\infra\platform.ps1 setup                                      # Full guided setup (recommended for new projects)"
+        Write-Host "  .\infra\platform.ps1 setup -NonInteractive                      # Automated setup with defaults"
+        Write-Host "  .\infra\platform.ps1 new-store                                  # Interactive branding wizard"
         Write-Host "  .\infra\platform.ps1 new-store -StoreName 'Pet Shop' -PrimaryColor '#E11D48'"
         Write-Host "  .\infra\platform.ps1 up"
         Write-Host "  .\infra\platform.ps1 up -Mode selfhosted -SkipTunnel"
+        Write-Host "  .\infra\platform.ps1 up -Profile prod                           # Production compose"
+        Write-Host "  .\infra\platform.ps1 db-init                                    # Initialize DB manually"
+        Write-Host "  .\infra\platform.ps1 db-init -SeedData                          # DB + demo products"
         Write-Host "  .\infra\platform.ps1 restart storefront"
         Write-Host "  .\infra\platform.ps1 backup -Compress"
         Write-Host "  .\infra\platform.ps1 restore ~/saleor-backups/saleor-2026-03-12.sql.gz"

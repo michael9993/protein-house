@@ -293,4 +293,66 @@ function Set-StoreConfig {
     [System.IO.File]::WriteAllText($ConfigPath, $newYaml, [System.Text.UTF8Encoding]::new($false))
 }
 
+# ---------------------------------------------------------------------------
+# Setup state tracking (for idempotent `setup` command)
+# ---------------------------------------------------------------------------
+function Get-SetupState {
+    <#
+    .SYNOPSIS
+    Reads the setup state file (.setup-state.json). Returns a hashtable of completed steps.
+    Returns empty hashtable if file doesn't exist or is corrupt.
+    #>
+    param([string]$InfraDir)
+
+    $stateFile = Join-Path $InfraDir ".setup-state.json"
+    if (Test-Path $stateFile) {
+        try {
+            $json = Get-Content $stateFile -Raw | ConvertFrom-Json
+            $state = @{}
+            foreach ($prop in $json.PSObject.Properties) {
+                $state[$prop.Name] = $prop.Value
+            }
+            return $state
+        } catch {
+            return @{}
+        }
+    }
+    return @{}
+}
+
+function Set-SetupState {
+    <#
+    .SYNOPSIS
+    Updates a step in the setup state file. Creates the file if it doesn't exist.
+    #>
+    param(
+        [string]$InfraDir,
+        [string]$Step,
+        [bool]$Completed = $true
+    )
+
+    $stateFile = Join-Path $InfraDir ".setup-state.json"
+    $state = Get-SetupState -InfraDir $InfraDir
+    $state[$Step] = @{
+        completed = $Completed
+        timestamp = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+    }
+
+    $state | ConvertTo-Json -Depth 3 | Set-Content $stateFile -Encoding UTF8
+}
+
+function Test-SetupStep {
+    <#
+    .SYNOPSIS
+    Returns $true if a setup step has been completed.
+    #>
+    param(
+        [string]$InfraDir,
+        [string]$Step
+    )
+
+    $state = Get-SetupState -InfraDir $InfraDir
+    return ($state.ContainsKey($Step) -and $state[$Step].completed -eq $true)
+}
+
 # Functions are auto-exported when dot-sourced (Export-ModuleMember removed -- only valid in .psm1)

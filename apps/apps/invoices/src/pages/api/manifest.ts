@@ -3,6 +3,7 @@ import { AppManifest } from "@saleor/app-sdk/types";
 import { withSpanAttributes } from "@saleor/apps-otel/src/with-span-attributes";
 
 import packageJson from "../../../package.json";
+import { invoiceRequestedWebhookDefinition } from "./webhooks/invoice-requested-definition";
 
 export default withSpanAttributes(
   createManifestHandler({
@@ -22,6 +23,7 @@ export default withSpanAttributes(
         },
         dataPrivacyUrl: "https://saleor.io/legal/privacy/",
         extensions: [],
+        webhooks: [invoiceRequestedWebhookDefinition.getWebhookManifest(apiBaseURL)],
         homepageUrl: "https://github.com/saleor/apps",
         id: "saleor.app.invoices",
         name: "Invoices",

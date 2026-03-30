@@ -6,19 +6,17 @@ Enterprise-grade, multi-tenant e-commerce platform built on Saleor 3.23. Support
 
 ## Quick Start
 
-**Prerequisites:** Docker, Docker Compose
+**Prerequisites:** Docker Desktop, Git, PowerShell (or `pwsh` on macOS/Linux)
 
-```bash
-# Start all services
-docker compose -f infra/docker-compose.dev.yml up -d
-
-# Verify health
-docker compose -f infra/docker-compose.dev.yml ps
-
-# Initialize (first run only)
-docker exec -it saleor-api-dev python manage.py migrate
-docker exec -it saleor-api-dev python manage.py createsuperuser
+```powershell
+git clone --recurse-submodules https://github.com/michael9993/saleor-platform.git
+cd saleor-platform
+.\infra\platform.ps1 setup      # Full guided setup: prereqs, branding, DB, apps
 ```
+
+This handles everything — `.env` creation, secret generation, store branding, Docker startup, database migrations, admin user creation, and Saleor app installation.
+
+See [QUICK-START.md](QUICK-START.md) for the full guide including step-by-step and self-hosted options.
 
 **Access Points:**
 - Storefront: http://localhost:3000
@@ -42,11 +40,12 @@ saleor-platform/
 ├── dashboard/           # Admin dashboard (React 18 + Vite)
 ├── storefront/          # Customer storefront (Next.js 15, React 19)
 ├── apps/                # Saleor Apps monorepo (Turborepo, TypeScript)
-│   ├── apps/            # 8 active apps (storefront-control, stripe, smtp, etc.)
+│   ├── apps/            # 11 active apps (storefront-control, stripe, smtp, paypal, etc.)
 │   └── packages/        # Shared packages (@saleor/apps-storefront-config, etc.)
 ├── scripts/
 │   └── catalog-generator/ # Store infrastructure as code + product catalog gen
-├── infra/               # Docker Compose orchestration (14 containers)
+├── infra/               # Docker Compose orchestration (18 containers)
+│   ├── platform.ps1     # Platform CLI (setup, up, down, db-init, install-apps, etc.)
 │   └── scripts/         # Platform management, tunneling, database utilities
 ├── PRD.md               # Product requirements (authoritative spec)
 ├── CLAUDE.md            # AI assistant guidelines

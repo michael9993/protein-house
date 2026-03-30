@@ -146,4 +146,34 @@ function Get-ContainerStatus {
     }
 }
 
+function Invoke-InContainer {
+    <#
+    .SYNOPSIS
+    Runs a command inside a Docker container via `docker exec`.
+    Returns $true on success, $false on failure. Writes output to host.
+    Last command output is stored in $global:LastContainerOutput for callers that need it.
+    #>
+    param(
+        [string]$ContainerName,
+        [string]$Command,
+        [string]$Description = "",
+        [switch]$Silent
+    )
+
+    if ($Description -and -not $Silent) {
+        Write-Host "  $Description..." -ForegroundColor Gray
+    }
+
+    $global:LastContainerOutput = $null
+    $output = docker exec $ContainerName sh -c $Command 2>&1
+    $exitCode = $LASTEXITCODE
+    $global:LastContainerOutput = $output
+
+    if (-not $Silent -and $output) {
+        $output | ForEach-Object { Write-Host "    $_" -ForegroundColor Gray }
+    }
+
+    return ($exitCode -eq 0)
+}
+
 # Functions are auto-exported when dot-sourced (Export-ModuleMember removed -- only valid in .psm1)
