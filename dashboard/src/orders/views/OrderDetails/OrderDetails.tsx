@@ -135,13 +135,18 @@ const OrderDetails = ({ id, params }: OrderDetailsProps) => {
           onDraftCancel={orderMessages.handleDraftCancel}
           onOrderMarkAsPaid={orderMessages.handleOrderMarkAsPaid}
           onInvoiceRequest={data => {
-            if (data.invoiceRequest.invoice.status === JobStatusEnum.SUCCESS) {
+            const invoice = data.invoiceRequest?.invoice;
+            if (!invoice) {
+              orderMessages.handleInvoiceGeneratePending(data);
+              return;
+            }
+            if (invoice.status === JobStatusEnum.SUCCESS) {
               orderMessages.handleInvoiceGenerateFinished(data);
             } else {
               orderMessages.handleInvoiceGeneratePending(data);
               queue(Task.INVOICE_GENERATE, {
                 generateInvoice: {
-                  invoiceId: data.invoiceRequest.invoice.id,
+                  invoiceId: invoice.id,
                   orderId: id,
                 },
               });

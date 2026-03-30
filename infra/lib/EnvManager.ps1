@@ -81,7 +81,9 @@ function Write-EnvFile {
         }
     }
 
-    $newLines | Set-Content $Path -Encoding UTF8
+    # Write back preserving line endings (no BOM, CRLF on Windows)
+    $content = ($newLines -join "`r`n") + "`r`n"
+    [System.IO.File]::WriteAllText($Path, $content, [System.Text.UTF8Encoding]::new($false))
 }
 
 function Set-EnvValue {

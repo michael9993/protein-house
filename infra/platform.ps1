@@ -64,6 +64,7 @@ param(
     [switch]$SkipDbInit,
     [switch]$SeedData,
     [switch]$NonInteractive,
+    [switch]$Reset,
     [string]$Profile   = "dev",
 
     # New Store options (forwarded to init-new-store.ps1)
@@ -159,6 +160,23 @@ switch ($Command.ToLower()) {
     "setup" {
         Write-Banner -Title "Aura Platform Setup" `
             -Subtitle "Full guided setup for a new project"
+
+        # Graceful cancellation — don't mark incomplete steps as done
+        $setupCancelled = $false
+        $null = Register-EngineEvent -SourceIdentifier "PowerShell.Exiting" -Action {
+            $script:setupCancelled = $true
+        } -SupportEvent 2>$null
+        trap {
+            Write-Host ""
+            Write-Warn "Setup interrupted. Progress has been saved — re-run 'platform.ps1 setup' to continue."
+            break
+        }
+
+        # Reset state if requested
+        if ($Reset) {
+            Reset-SetupState -InfraDir $infraDir
+            Write-Info "Setup state cleared. Starting fresh."
+        }
 
         $setupSteps = @("init", "new_store", "docker_up", "db_init", "tunnels", "apps_installed")
         $totalSetupSteps = $setupSteps.Count
@@ -1260,6 +1278,7 @@ $($ingressLines -join "`n")
         Write-Host "  -SkipDbInit              Skip fresh-DB auto-init with 'up'"
         Write-Host "  -NoBrowser               Don't open browser after 'up' or 'setup'"
         Write-Host "  -NonInteractive          Use defaults (no prompts) for 'setup'"
+        Write-Host "  -Reset                   Clear setup state and start fresh"
         Write-Host "  -SeedData                Populate demo data with 'db-init'"
         Write-Host "  -Compress                Gzip-compress backup"
         Write-Host "  -Retain <int>            Backups to retain (default: 30)"
@@ -1276,6 +1295,7 @@ $($ingressLines -join "`n")
         Write-Host "Examples:" -ForegroundColor Yellow
         Write-Host "  .\infra\platform.ps1 setup                                      # Full guided setup (recommended for new projects)"
         Write-Host "  .\infra\platform.ps1 setup -NonInteractive                      # Automated setup with defaults"
+        Write-Host "  .\infra\platform.ps1 setup -Reset                               # Clear state and restart setup"
         Write-Host "  .\infra\platform.ps1 new-store                                  # Interactive branding wizard"
         Write-Host "  .\infra\platform.ps1 new-store -StoreName 'Pet Shop' -PrimaryColor '#E11D48'"
         Write-Host "  .\infra\platform.ps1 up"

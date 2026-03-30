@@ -344,15 +344,65 @@ function Set-SetupState {
 function Test-SetupStep {
     <#
     .SYNOPSIS
-    Returns $true if a setup step has been completed.
+    Returns $true if a setup step has been completed AND the result is still valid.
+    Validates critical steps by checking actual system state.
     #>
     param(
         [string]$InfraDir,
-        [string]$Step
+        [string]$Step,
+        [switch]$SkipValidation
     )
 
     $state = Get-SetupState -InfraDir $InfraDir
-    return ($state.ContainsKey($Step) -and $state[$Step].completed -eq $true)
+    if (-not ($state.ContainsKey($Step) -and $state[$Step].completed -eq $true)) {
+        return $false
+    }
+
+    # If caller doesn't want validation, trust the state file
+    if ($SkipValidation) { return $true }
+
+    # Validate critical steps by checking actual state
+    switch ($Step) {
+        "init" {
+            # Verify .env actually exists
+            return (Test-Path (Join-Path $InfraDir ".env"))
+        }
+        "new_store" {
+            # Verify .env has store name (not placeholder)
+            $envFile = Join-Path $InfraDir ".env"
+            if (-not (Test-Path $envFile)) { return $false }
+            $storeName = (Select-String -Path $envFile -Pattern "^VITE_STORE_NAME=(.+)$" | ForEach-Object { $_.Matches.Groups[1].Value })
+            return ($storeName -and $storeName -ne "__SET_BY_WIZARD__")
+        }
+        "docker_up" {
+            # Verify API container is actually running
+            $status = docker ps --filter "name=saleor-api" --format "{{.Status}}" 2>$null
+            return ($status -match "Up")
+        }
+        "db_init" {
+            # Verify API container can reach DB (migrations applied)
+            $check = docker exec saleor-api-dev python manage.py showmigrations --plan 2>$null
+            if ($LASTEXITCODE -ne 0) { return $false }
+            $unapplied = ($check | Where-Object { $_ -match "^\s*\[ \]" }).Count
+            return ($unapplied -eq 0)
+        }
+        default {
+            return $true
+        }
+    }
+}
+
+function Reset-SetupState {
+    <#
+    .SYNOPSIS
+    Removes the setup state file, allowing setup to run fresh.
+    #>
+    param([string]$InfraDir)
+
+    $stateFile = Join-Path $InfraDir ".setup-state.json"
+    if (Test-Path $stateFile) {
+        Remove-Item $stateFile -Force
+    }
 }
 
 # Functions are auto-exported when dot-sourced (Export-ModuleMember removed -- only valid in .psm1)

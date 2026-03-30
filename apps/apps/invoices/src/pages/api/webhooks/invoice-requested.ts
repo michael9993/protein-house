@@ -122,11 +122,12 @@ const handler: NextJsWebhookHandler<InvoiceRequestedWebhookPayloadFragment> = as
   }
   
   // Extract invoice and order from the event data
+  // The subscription returns { invoice: { id, number }, order: { ... } }
   const invoice = {
-    id: eventData.id,
-    number: eventData.number,
+    id: eventData.invoice?.id,
+    number: eventData.invoice?.number,
   };
-  
+
   const order = eventData.order;
 
   if (!invoice?.id || !order) {
