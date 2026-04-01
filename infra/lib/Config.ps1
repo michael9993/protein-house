@@ -376,12 +376,15 @@ function Test-SetupStep {
         }
         "docker_up" {
             # Verify API container is actually running
-            $status = docker ps --filter "name=saleor-api" --format "{{.Status}}" 2>$null
+            $prefix = if ($env:COMPOSE_PREFIX) { $env:COMPOSE_PREFIX } else { "aura" }
+            $status = docker ps --filter "name=$prefix-api" --format "{{.Status}}" 2>$null
             return ($status -match "Up")
         }
         "db_init" {
             # Verify API container can reach DB (migrations applied)
-            $check = docker exec saleor-api-dev python manage.py showmigrations --plan 2>$null
+            $prefix = if ($env:COMPOSE_PREFIX) { $env:COMPOSE_PREFIX } else { "aura" }
+            $apiContainer = "$prefix-api-dev"
+            $check = docker exec $apiContainer python manage.py showmigrations --plan 2>$null
             if ($LASTEXITCODE -ne 0) { return $false }
             $unapplied = ($check | Where-Object { $_ -match "^\s*\[ \]" }).Count
             return ($unapplied -eq 0)

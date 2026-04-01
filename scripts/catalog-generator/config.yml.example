@@ -1,0 +1,130 @@
+# My Store — Saleor Store Infrastructure Configuration (Template)
+# Managed by @saleor/configurator (patched for SINGLE_REFERENCE support)
+#
+# SETUP:
+#   1. Copy this file to config.yml
+#   2. Replace "My Store" with your store name
+#   3. Customize product types and attributes for your business
+#   4. Run: npm run deploy
+#
+# Usage:
+#   npm run introspect  — Pull current state from Saleor
+#   npm run diff        — Preview what would change
+#   npm run deploy      — Apply this config to Saleor
+#
+# This file defines ONLY infrastructure (product types, attributes, warehouses, shipping).
+# Product DATA (stock, pricing, images) is handled by the catalog-generator + Bulk Manager.
+# Categories and collections are created by the Bulk Manager during import.
+
+shop:
+  name: "My Store"
+  includeTaxesInPrices: true
+
+channels:
+  - name: "Israel"
+    slug: ils
+    currencyCode: ILS
+    defaultCountry: IL
+    isActive: true
+  - name: "International"
+    slug: usd
+    currencyCode: USD
+    defaultCountry: US
+    isActive: true
+
+# --- Product Types ---
+# Customize these for your business. The Bulk Manager references these by name.
+# Attributes defined inline — Configurator creates & assigns them to each type.
+#
+# Example product types (replace with your own):
+
+productTypes:
+  - name: "General Product"
+    isShippingRequired: true
+    productAttributes:
+      - name: "Brand"
+        inputType: DROPDOWN
+        values:
+          - name: "Brand A"
+          - name: "Brand B"
+      - name: "Material"
+        inputType: DROPDOWN
+        values:
+          - name: Cotton
+          - name: Synthetic
+          - name: Leather
+    variantAttributes:
+      - name: "Size"
+        inputType: DROPDOWN
+        values:
+          - name: S
+          - name: M
+          - name: L
+          - name: XL
+      - name: "Color"
+        inputType: DROPDOWN
+        values:
+          - name: Black
+          - name: White
+          - name: Blue
+          - name: Red
+
+# --- Warehouses ---
+# Define your fulfillment locations.
+
+warehouses:
+  - name: "Main Warehouse"
+    slug: "main-warehouse"
+    shippingZones:
+      - "Israel Shipping"
+      - "International Shipping"
+    address:
+      streetAddress1: "123 Main St"
+      city: "Tel Aviv"
+      country: IL
+      postalCode: "6100000"
+
+# --- Shipping Zones ---
+# Define shipping zones and methods.
+
+shippingZones:
+  - name: "Israel Shipping"
+    countries:
+      - IL
+    channels:
+      - slug: ils
+    methods:
+      - name: "Standard Shipping"
+        type: PRICE
+        channelListings:
+          - channelSlug: ils
+            price: 25
+            minimumOrderPrice: 0
+      - name: "Free Shipping"
+        type: PRICE
+        channelListings:
+          - channelSlug: ils
+            price: 0
+            minimumOrderPrice: 200
+
+  - name: "International Shipping"
+    countries:
+      - US
+      - GB
+      - DE
+      - FR
+    channels:
+      - slug: usd
+    methods:
+      - name: "Standard International"
+        type: PRICE
+        channelListings:
+          - channelSlug: usd
+            price: 15
+            minimumOrderPrice: 0
+      - name: "Free International Shipping"
+        type: PRICE
+        channelListings:
+          - channelSlug: usd
+            price: 0
+            minimumOrderPrice: 100

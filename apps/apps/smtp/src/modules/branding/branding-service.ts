@@ -179,8 +179,8 @@ export class BrandingService {
    */
   static getDefaultBranding(): BrandingConfig {
     return {
-      companyName: process.env.STORE_NAME || "Pawzen",
-      companyEmail: process.env.STORE_EMAIL || "support@pawzenpets.shop",
+      companyName: process.env.STORE_NAME || process.env.VITE_STORE_NAME || "My Store",
+      companyEmail: process.env.STORE_EMAIL || process.env.CONTACT_EMAIL || process.env.DEFAULT_FROM_EMAIL || "support@example.com",
       companyWebsite: process.env.STOREFRONT_URL || undefined,
       companyTagline: process.env.STORE_TAGLINE || undefined,
       storefrontUrl: process.env.STOREFRONT_URL || undefined,

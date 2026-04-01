@@ -4,7 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Aura E-Commerce Platform — a fully-featured, enterprise-grade, multi-tenant e-commerce platform built on Saleor. Supports multi-channel commerce (Israel ILS/Hebrew/RTL + International USD/English/LTR), CMS-driven configuration, and modular app ecosystem. First client: Mansour Shoes.
+Aura E-Commerce Platform — a fully-featured, enterprise-grade, multi-tenant e-commerce platform built on Saleor. Supports multi-channel commerce (Israel ILS/Hebrew/RTL + International USD/English/LTR), CMS-driven configuration, and modular app ecosystem.
+
+### Cloning for a New Store
+
+This repo is designed to be cloned and rebranded for different stores. See **[CLONE-GUIDE.md](CLONE-GUIDE.md)** for the full step-by-step guide.
+
+**Quick version:** `git clone` -> `platform.ps1 init` -> `platform.ps1 new-store` -> `platform.ps1 up` -> `platform.ps1 install-apps`
+
+**Key concepts:**
+- Docker container names are parameterized via `COMPOSE_PREFIX` env var (default: `aura`). Multiple stores can coexist on the same machine with different prefixes and ports.
+- The `new-store` wizard rebrands platform.yml, .env, sample configs, cloudflared config, and catalog-generator config.
+- Template files (`*.example`) alongside config files show the expected structure for new stores.
+- The repo contains data from the reference store (Pawzen). The wizard overwrites the relevant files during rebranding.
 
 ## Core Design Principles
 
@@ -50,28 +62,30 @@ docker compose -f infra/docker-compose.dev.yml ps    # Verify health
 
 ### Container Map
 
+Container names are parameterized via `COMPOSE_PREFIX` env var (default: `aura`). The table below uses `{prefix}` as placeholder — replace with your `COMPOSE_PREFIX` value (e.g., `aura-api-dev`, `mystore-api-dev`).
+
 | Container | Port | Purpose |
 |-----------|------|---------|
-| `saleor-api-dev` | 8000 | Saleor GraphQL API |
-| `saleor-worker-dev` | - | Celery background worker |
-| `saleor-scheduler-dev` | - | Celery beat scheduler |
-| `saleor-dashboard-dev` | 9000 | Admin dashboard |
-| `saleor-storefront-dev` | 3000 | Customer storefront |
-| `saleor-storefront-control-app-dev` | 3004 | CMS configuration app |
-| `saleor-stripe-app-dev` | 3002 | Stripe payments |
-| `saleor-smtp-app-dev` | 3001 | Email notifications |
-| `saleor-invoice-app-dev` | 3003 | PDF invoices |
-| `saleor-newsletter-app-dev` | 3005 | Newsletter management |
-| `saleor-sales-analytics-app-dev` | 3006 | Sales analytics |
-| `saleor-bulk-manager-app-dev` | 3007 | Bulk import/export manager |
-| `saleor-image-studio-app-dev` | 3008 | AI-powered image editor |
-| `saleor-dropship-app-dev` | 3009 | Dropship orchestrator (AliExpress + CJ) |
-| `saleor-tax-manager-app-dev` | 3010 | Self-hosted tax calculation engine |
-| `saleor-paypal-app-dev` | 3011 | PayPal Commerce payments |
-| `saleor-postgres-dev` | 5432 | PostgreSQL database |
-| `saleor-redis-dev` | 6379 | Redis cache/broker |
-| `saleor-rembg-dev` | 7000 | AI background removal (Image Studio) |
-| `saleor-esrgan-dev` | 7001 | AI image upscaling (Image Studio) |
+| `{prefix}-api-dev` | 8000 | Saleor GraphQL API |
+| `{prefix}-worker-dev` | - | Celery background worker |
+| `{prefix}-scheduler-dev` | - | Celery beat scheduler |
+| `{prefix}-dashboard-dev` | 9000 | Admin dashboard |
+| `{prefix}-storefront-dev` | 3000 | Customer storefront |
+| `{prefix}-storefront-control-app-dev` | 3004 | CMS configuration app |
+| `{prefix}-stripe-app-dev` | 3002 | Stripe payments |
+| `{prefix}-smtp-app-dev` | 3001 | Email notifications |
+| `{prefix}-invoice-app-dev` | 3003 | PDF invoices |
+| `{prefix}-newsletter-app-dev` | 3005 | Newsletter management |
+| `{prefix}-sales-analytics-app-dev` | 3006 | Sales analytics |
+| `{prefix}-bulk-manager-app-dev` | 3007 | Bulk import/export manager |
+| `{prefix}-image-studio-app-dev` | 3008 | AI-powered image editor |
+| `{prefix}-dropship-app-dev` | 3009 | Dropship orchestrator (AliExpress + CJ) |
+| `{prefix}-tax-manager-app-dev` | 3010 | Self-hosted tax calculation engine |
+| `{prefix}-paypal-app-dev` | 3011 | PayPal Commerce payments |
+| `{prefix}-postgres-dev` | 5432 | PostgreSQL database |
+| `{prefix}-redis-dev` | 6379 | Redis cache/broker |
+| `{prefix}-rembg-dev` | 7000 | AI background removal (Image Studio) |
+| `{prefix}-esrgan-dev` | 7001 | AI image upscaling (Image Studio) |
 
 ### Access Points
 
@@ -82,6 +96,8 @@ docker compose -f infra/docker-compose.dev.yml ps    # Verify health
 ## Common Development Commands
 
 All commands use `docker exec`. For an interactive shell, use `docker exec -it <container> sh`.
+
+> **Note:** Command examples below use `saleor-` as the container name prefix (the current deployment). If you cloned this repo for a new store, replace `saleor-` with your `COMPOSE_PREFIX` value (e.g., `aura-api-dev` instead of `saleor-api-dev`).
 
 ### Platform CLI (`infra/platform.ps1`)
 
@@ -194,6 +210,8 @@ docker exec saleor-postgres-dev pg_dump -U saleor saleor > backup.sql  # Backup
 > **DO NOT rely on hot-reload / HMR.** Hot-reload does NOT work reliably in this Docker setup — file watchers inside containers frequently miss host-side file changes, especially on Windows. Always perform a full container restart (`docker compose restart`) after changes. Never assume your changes are live just because you saved the file.
 
 ### Container Restart Map
+
+> Container names below use the current `COMPOSE_PREFIX`. Replace `saleor-` with your prefix if different.
 
 | Change Location | Container(s) to Restart |
 |-----------------|------------------------|
@@ -468,7 +486,8 @@ export async function addToCart(cartId: string, productId: string) {
 - **GA4** (`storefront/src/lib/analytics.ts`): Events push to `window.dataLayer`, queue if no consent, deduplication via `_sentEvents` Set
 - **GTM** (`storefront/src/ui/components/GoogleTagManager.tsx`): Loads only after analytics consent
 - **Events**: view_item + add_to_cart (PDP), begin_checkout (cart), purchase (confirmation), search
-- **GTM Container:** `GTM-PWN35T2R` | **GA4 Property:** `G-1X96SJX4SP`
+- **GTM Container:** Configured per-store via `platform.yml` and Storefront Control app (set during `new-store` wizard)
+- **GA4 Property:** Configured per-store via `platform.yml` and Storefront Control app (set during `new-store` wizard)
 
 ### Dashboard Architecture
 

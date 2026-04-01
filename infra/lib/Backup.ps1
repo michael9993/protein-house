@@ -38,7 +38,10 @@ function New-DatabaseBackup {
 
     # Postgres container info
     $pgContainer = $Config.services.postgres.container
-    if (-not $pgContainer) { $pgContainer = "saleor-postgres-dev" }
+    if (-not $pgContainer) {
+        $prefix = if ($env:COMPOSE_PREFIX) { $env:COMPOSE_PREFIX } else { "aura" }
+        $pgContainer = "$prefix-postgres-dev"
+    }
 
     # Ensure backup dir exists
     if (-not (Test-Path $dir)) {
@@ -125,7 +128,8 @@ function Restore-Database {
         throw "Backup file not found: $BackupFile"
     }
 
-    $pgContainer = "saleor-postgres-dev"
+    $prefix = if ($env:COMPOSE_PREFIX) { $env:COMPOSE_PREFIX } else { "aura" }
+    $pgContainer = "$prefix-postgres-dev"
     $isGz        = $BackupFile.EndsWith(".gz")
 
     Write-Host "Restoring database from: $BackupFile" -ForegroundColor Yellow
@@ -162,7 +166,7 @@ function Restore-Database {
     }
 
     Write-Host "[OK] Database restored from $BackupFile." -ForegroundColor Green
-    Write-Host "Remember to restart saleor-api-dev after restore:" -ForegroundColor Gray
+    Write-Host "Remember to restart the API container after restore:" -ForegroundColor Gray
     Write-Host "  docker compose -f infra/docker-compose.dev.yml restart saleor-api" -ForegroundColor Gray
 }
 

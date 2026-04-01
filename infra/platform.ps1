@@ -571,7 +571,10 @@ switch ($Command.ToLower()) {
         # Step: Fresh DB detection -- auto-run db-init if needed
         if (-not $SkipDbInit -and -not $SkipDocker) {
             $apiContainer = $config.services.api.container
-            if (-not $apiContainer) { $apiContainer = "saleor-api-dev" }
+            if (-not $apiContainer) {
+                $prefix = if ($env:COMPOSE_PREFIX) { $env:COMPOSE_PREFIX } else { "aura" }
+                $apiContainer = "$prefix-api-dev"
+            }
 
             # Check if migrations are unapplied (fresh database)
             # Use Select-String to count only migration lines (format: " [ ] 0001_..." or " [X] 0001_...")
@@ -1028,12 +1031,18 @@ switch ($Command.ToLower()) {
         Write-Banner -Title "Database Initialization" -Subtitle "Migrate, create admin, export schema"
 
         $apiContainer = $config.services.api.container
-        if (-not $apiContainer) { $apiContainer = "saleor-api-dev" }
+        if (-not $apiContainer) {
+            $prefix = if ($env:COMPOSE_PREFIX) { $env:COMPOSE_PREFIX } else { "aura" }
+            $apiContainer = "$prefix-api-dev"
+        }
 
         # Step 1: Wait for postgres
         Write-Step -Current 1 -Total 4 -Message "Waiting for database..."
         $pgContainer = $config.services.postgres.container
-        if (-not $pgContainer) { $pgContainer = "saleor-postgres-dev" }
+        if (-not $pgContainer) {
+            $prefix = if ($env:COMPOSE_PREFIX) { $env:COMPOSE_PREFIX } else { "aura" }
+            $pgContainer = "$prefix-postgres-dev"
+        }
         $pgReady = Wait-ForHealthy -ContainerName $pgContainer -MaxWaitSeconds 60
         if (-not $pgReady) {
             Write-Err "PostgreSQL container ($pgContainer) not healthy. Is Docker running?"

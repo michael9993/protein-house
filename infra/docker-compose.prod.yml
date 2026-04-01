@@ -24,7 +24,7 @@ services:
   # ---------------------------------------------------------------------------
   postgres:
     image: postgres:15-alpine
-    container_name: saleor-postgres-prod
+    container_name: ${COMPOSE_PREFIX:-aura}-postgres-prod
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-saleor}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -51,7 +51,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: saleor-redis-prod
+    container_name: ${COMPOSE_PREFIX:-aura}-redis-prod
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis-data:/data
@@ -79,7 +79,7 @@ services:
     build:
       context: ../saleor
       dockerfile: Dockerfile
-    container_name: saleor-api-prod
+    container_name: ${COMPOSE_PREFIX:-aura}-api-prod
     ports:
       - "127.0.0.1:8000:8000"
     command: >
@@ -139,7 +139,7 @@ services:
     build:
       context: ../saleor
       dockerfile: Dockerfile
-    container_name: saleor-worker-prod
+    container_name: ${COMPOSE_PREFIX:-aura}-worker-prod
     command: >
       celery -A saleor worker
       --app=saleor.celeryconf:app
@@ -175,7 +175,7 @@ services:
     build:
       context: ../saleor
       dockerfile: Dockerfile
-    container_name: saleor-scheduler-prod
+    container_name: ${COMPOSE_PREFIX:-aura}-scheduler-prod
     command: celery -A saleor beat --app=saleor.celeryconf:app --loglevel=info
     environment:
       SECRET_KEY: ${SECRET_KEY}
@@ -211,7 +211,7 @@ services:
         NEXT_PUBLIC_STOREFRONT_URL: ${NEXT_PUBLIC_STOREFRONT_URL}
         NEXT_PUBLIC_DEFAULT_CHANNEL: ${NEXT_PUBLIC_DEFAULT_CHANNEL:-default-channel}
         SALEOR_API_URL: http://saleor-api:8000/graphql/
-    container_name: saleor-storefront-prod
+    container_name: ${COMPOSE_PREFIX:-aura}-storefront-prod
     ports:
       - "127.0.0.1:3000:3000"
     environment:
@@ -247,7 +247,7 @@ services:
         API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
         APP_MOUNT_URI: /dashboard/
         APPS_TUNNEL_URL_KEYWORDS: ${APPS_TUNNEL_URL_KEYWORDS:-}
-    container_name: saleor-dashboard-prod
+    container_name: ${COMPOSE_PREFIX:-aura}-dashboard-prod
     ports:
       - "127.0.0.1:9002:80"
     networks:
@@ -270,7 +270,7 @@ services:
       dockerfile: Dockerfile.prod
       args:
         APP_NAME: stripe
-    container_name: saleor-stripe-app-prod
+    container_name: ${COMPOSE_PREFIX:-aura}-stripe-app-prod
     ports:
       - "127.0.0.1:3002:3000"
     environment:
@@ -304,7 +304,7 @@ services:
       dockerfile: Dockerfile.prod
       args:
         APP_NAME: smtp
-    container_name: saleor-smtp-app-prod
+    container_name: ${COMPOSE_PREFIX:-aura}-smtp-app-prod
     ports:
       - "127.0.0.1:3001:3000"
     environment:
@@ -331,7 +331,7 @@ services:
       dockerfile: Dockerfile.prod
       args:
         APP_NAME: invoices
-    container_name: saleor-invoices-app-prod
+    container_name: ${COMPOSE_PREFIX:-aura}-invoices-app-prod
     ports:
       - "127.0.0.1:3003:3000"
     environment:
@@ -358,7 +358,7 @@ services:
       dockerfile: Dockerfile.prod
       args:
         APP_NAME: storefront-control
-    container_name: saleor-storefront-control-app-prod
+    container_name: ${COMPOSE_PREFIX:-aura}-storefront-control-app-prod
     ports:
       - "127.0.0.1:3004:3000"
     environment:
@@ -385,7 +385,7 @@ services:
       dockerfile: Dockerfile.prod
       args:
         APP_NAME: newsletter
-    container_name: saleor-newsletter-app-prod
+    container_name: ${COMPOSE_PREFIX:-aura}-newsletter-app-prod
     ports:
       - "127.0.0.1:3005:3000"
     environment:
@@ -412,7 +412,7 @@ services:
       dockerfile: Dockerfile.prod
       args:
         APP_NAME: sales-analytics
-    container_name: saleor-sales-analytics-app-prod
+    container_name: ${COMPOSE_PREFIX:-aura}-sales-analytics-app-prod
     ports:
       - "127.0.0.1:3006:3000"
     environment:
@@ -439,7 +439,7 @@ services:
       dockerfile: Dockerfile.prod
       args:
         APP_NAME: bulk-manager
-    container_name: saleor-bulk-manager-app-prod
+    container_name: ${COMPOSE_PREFIX:-aura}-bulk-manager-app-prod
     ports:
       - "127.0.0.1:3007:3000"
     environment:

@@ -369,6 +369,16 @@ if (Test-Path $platformYmlPath) {
     if ($GtmId) { $config.store.analytics.gtm_id = $GtmId } else { $config.store.analytics.gtm_id = "" }
     if ($Ga4Id) { $config.store.analytics.ga4_id = $Ga4Id } else { $config.store.analytics.ga4_id = "" }
 
+    # Update container names with COMPOSE_PREFIX (defaults to store slug)
+    $containerPrefix = $StoreSlug
+    foreach ($svcKey in @($config.services.Keys)) {
+        $svc = $config.services[$svcKey]
+        if ($svc.container) {
+            # Replace any existing prefix (everything before first dash-known-suffix)
+            $svc.container = $svc.container -replace '^[^-]+-', "$containerPrefix-"
+        }
+    }
+
     # ConvertTo-Yaml strips comments — prepend the header comment back
     $yamlHeader = @"
 # ============================================================================
@@ -419,6 +429,20 @@ Write-Step -Current $currentStep -Total $totalSteps -Message "Updating infra/.en
 $envPath = Join-Path $infraDir ".env"
 if (Test-Path $envPath) {
     $envContent = Get-Content $envPath -Raw
+
+    # COMPOSE_PREFIX — Docker container name prefix (derived from store slug)
+    if ($envContent -match '(?m)^COMPOSE_PREFIX=') {
+        $envContent = $envContent -replace '(?m)^COMPOSE_PREFIX=.*$', "COMPOSE_PREFIX=$StoreSlug"
+    } else {
+        $envContent = $envContent.TrimEnd() + "`nCOMPOSE_PREFIX=$StoreSlug`n"
+    }
+
+    # COMPOSE_PROJECT_NAME — Docker volume/network namespace
+    if ($envContent -match '(?m)^COMPOSE_PROJECT_NAME=') {
+        $envContent = $envContent -replace '(?m)^COMPOSE_PROJECT_NAME=.*$', "COMPOSE_PROJECT_NAME=$StoreSlug"
+    } else {
+        $envContent = $envContent.TrimEnd() + "`nCOMPOSE_PROJECT_NAME=$StoreSlug`n"
+    }
 
     # PLATFORM_DOMAIN
     if ($Domain) {
@@ -709,6 +733,19 @@ $fullConfigPath = Join-Path $ConfigPath $ConfigFileName
 Write-Success "storefront/src/config/stores/$ConfigFileName"
 $modifiedFiles += $fullConfigPath
 
+# --------------------------------------------------------------------------
+# Catalog Generator config.yml — update shop name
+# --------------------------------------------------------------------------
+$catalogConfigPath = Join-Path $repoRoot "scripts" "catalog-generator" "config.yml"
+if (Test-Path $catalogConfigPath) {
+    $catalogContent = Get-Content $catalogConfigPath -Raw
+    # Replace the shop name line (YAML format: name: "value")
+    $catalogContent = $catalogContent -replace '(?m)^(\s*name:\s*)"[^"]*"', "`$1`"$StoreName`""
+    [System.IO.File]::WriteAllText($catalogConfigPath, $catalogContent, [System.Text.UTF8Encoding]::new($false))
+    Write-Success "scripts/catalog-generator/config.yml (shop name)"
+    $modifiedFiles += $catalogConfigPath
+}
+
 # ============================================================================
 # Final summary
 # ============================================================================
@@ -729,18 +766,27 @@ foreach ($f in $modifiedFiles) {
 }
 
 Write-Host ""
-Write-ColorOutput "Next Steps:" $colors.Info
-Write-ColorOutput "  1. Add your logo:       storefront\public\logo.svg" "White"
-Write-ColorOutput "  2. Add favicon:         storefront\public\favicon.ico" "White"
-if ($Domain) {
-    Write-ColorOutput "  3. Set up DNS:          Point *.$Domain to your Cloudflare tunnel" "White"
-    Write-ColorOutput "  4. Start platform:      .\infra\platform.ps1 up -Mode selfhosted" "White"
-} else {
-    Write-ColorOutput "  3. Start platform:      .\infra\platform.ps1 up" "White"
-    Write-ColorOutput "  4. View your store:     http://localhost:3000" "White"
-}
-Write-ColorOutput "  5. Update Hebrew text:  Edit sample-config-import.json tagline + description" "White"
-Write-ColorOutput "  6. Update email brand:  apps\apps\smtp\src\modules\smtp\default-templates.ts" "White"
+Write-ColorOutput "Docker prefix: $StoreSlug" $colors.Info
+Write-ColorOutput "  Container names:  $StoreSlug-api-dev, $StoreSlug-storefront-dev, ..." "Gray"
+Write-ColorOutput "  docker exec:      docker exec -it $StoreSlug-api-dev ..." "Gray"
 Write-Host ""
+
+Write-ColorOutput "Next Steps:" $colors.Info
+$stepNum = 1
+Write-ColorOutput "  $stepNum. Add your logo:       storefront\public\logo.svg" "White"; $stepNum++
+Write-ColorOutput "  $stepNum. Add favicon:         storefront\public\favicon.ico" "White"; $stepNum++
+if ($Domain) {
+    Write-ColorOutput "  $stepNum. Set up DNS:          Point *.$Domain to your Cloudflare tunnel" "White"; $stepNum++
+    Write-ColorOutput "  $stepNum. Start platform:      .\infra\platform.ps1 up -Mode selfhosted" "White"; $stepNum++
+} else {
+    Write-ColorOutput "  $stepNum. Start platform:      .\infra\platform.ps1 up" "White"; $stepNum++
+    Write-ColorOutput "  $stepNum. View your store:     http://localhost:3000" "White"; $stepNum++
+}
+Write-ColorOutput "  $stepNum. Install apps:        .\infra\platform.ps1 install-apps" "White"; $stepNum++
+Write-ColorOutput "  $stepNum. Update Hebrew text:  Edit sample-config-import.json tagline + description" "White"; $stepNum++
+Write-ColorOutput "  $stepNum. Catalog setup:       cd scripts\catalog-generator && CATALOG_TEMPLATE=starter npm run generate" "White"; $stepNum++
+Write-ColorOutput "  $stepNum. Payment setup:       Configure Stripe/PayPal keys in Dashboard > Extensions" "White"; $stepNum++
+Write-Host ""
+Write-ColorOutput "Full guide: CLONE-GUIDE.md" $colors.Info
 Write-ColorOutput "To rebrand again, simply re-run this script with new values." $colors.Info
 Write-Host ""

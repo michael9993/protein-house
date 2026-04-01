@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: saleor-postgres-dev
+    container_name: ${COMPOSE_PREFIX:-aura}-postgres-dev
     env_file:
       - .env
     environment:
@@ -25,7 +25,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: saleor-redis-dev
+    container_name: ${COMPOSE_PREFIX:-aura}-redis-dev
     env_file:
       - .env
     ports:
@@ -45,7 +45,7 @@ services:
     build:
       context: ../saleor
       dockerfile: Dockerfile
-    container_name: saleor-api-dev
+    container_name: ${COMPOSE_PREFIX:-aura}-api-dev
     env_file:
       - .env
     # Use uvicorn (ASGI) instead of runserver (WSGI) to enable CORS handler
@@ -136,7 +136,7 @@ services:
     build:
       context: ../saleor
       dockerfile: Dockerfile
-    container_name: saleor-worker-dev
+    container_name: ${COMPOSE_PREFIX:-aura}-worker-dev
     command: celery -A saleor.celeryconf:app worker --loglevel=info
     volumes:
       # Mount only source code (preserves installed packages)
@@ -184,7 +184,7 @@ services:
     build:
       context: ../saleor
       dockerfile: Dockerfile
-    container_name: saleor-scheduler-dev
+    container_name: ${COMPOSE_PREFIX:-aura}-scheduler-dev
     command: celery -A saleor.celeryconf:app beat --loglevel=info
     volumes:
       # Mount local Saleor code
@@ -218,7 +218,7 @@ services:
   saleor-dashboard:
     # Use local Dashboard code - Vite dev server with HMR
     image: node:22-alpine
-    container_name: saleor-dashboard-dev
+    container_name: ${COMPOSE_PREFIX:-aura}-dashboard-dev
     working_dir: /app
     # Dev server: faster startup, HMR support. Use 'pnpm build && pnpm preview' for production testing.
     command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --prefer-offline && pnpm run generate:main && pnpm build && pnpm preview --host 0.0.0.0 --port 9000"
@@ -275,7 +275,7 @@ services:
   saleor-storefront:
     # Use official Saleor Storefront (Next.js 15, React 19)
     image: node:22-alpine
-    container_name: saleor-storefront-dev
+    container_name: ${COMPOSE_PREFIX:-aura}-storefront-dev
     working_dir: /app
     # Install dependencies and start Next.js dev server OR production build
     # Set STOREFRONT_MODE=production in .env to use production build
@@ -365,7 +365,7 @@ services:
   # This app sends emails via SMTP when webhook events are triggered
   saleor-smtp-app:
     image: node:22-alpine
-    container_name: saleor-smtp-app-dev
+    container_name: ${COMPOSE_PREFIX:-aura}-smtp-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
     command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-smtp... --prefer-offline && cd apps/smtp && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && pnpm start; else pnpm dev; fi"
@@ -423,7 +423,7 @@ services:
   # Invoice App - Generates PDF invoices for orders
   saleor-invoice-app:
     image: node:22-alpine
-    container_name: saleor-invoice-app-dev
+    container_name: ${COMPOSE_PREFIX:-aura}-invoice-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
     command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-invoices... --prefer-offline && cd apps/invoices && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run generate && pnpm build && pnpm start; else pnpm dev; fi"
@@ -479,7 +479,7 @@ services:
   saleor-stripe-app:
     # Use Node.js image (same as storefront/dashboard) - no Dockerfile needed
     image: node:22-alpine
-    container_name: saleor-stripe-app-dev
+    container_name: ${COMPOSE_PREFIX:-aura}-stripe-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
     # Must install from monorepo root to get catalog entries and workspace dependencies
@@ -550,7 +550,7 @@ services:
   # Manages: theme, features, homepage sections, filters, quickFilters, SEO per channel
   saleor-storefront-control-app:
     image: node:22-alpine
-    container_name: saleor-storefront-control-app-dev
+    container_name: ${COMPOSE_PREFIX:-aura}-storefront-control-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
     command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-storefront-control... --prefer-offline && cd apps/storefront-control && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
@@ -607,7 +607,7 @@ services:
   # Newsletter App - Manage newsletter subscribers, templates, and campaigns
   saleor-newsletter-app:
     image: node:22-alpine
-    container_name: saleor-newsletter-app-dev
+    container_name: ${COMPOSE_PREFIX:-aura}-newsletter-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
     command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-newsletter... --prefer-offline && cd apps/newsletter && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
@@ -681,7 +681,7 @@ services:
   # Provides: GMV, orders, AOV, top products, category breakdown, revenue charts
   saleor-sales-analytics-app:
     image: node:22-alpine
-    container_name: saleor-sales-analytics-app-dev
+    container_name: ${COMPOSE_PREFIX:-aura}-sales-analytics-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
     command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-sales-analytics... --prefer-offline && cd apps/sales-analytics && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
@@ -733,7 +733,7 @@ services:
   # Manages: CSV/Excel import/export for products, categories, collections, customers, orders, vouchers, gift cards
   saleor-bulk-manager-app:
     image: node:22-alpine
-    container_name: saleor-bulk-manager-app-dev
+    container_name: ${COMPOSE_PREFIX:-aura}-bulk-manager-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
     command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-bulk-manager... --prefer-offline && cd apps/bulk-manager && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
@@ -785,7 +785,7 @@ services:
   # Features: Canvas editor (Fabric.js), background removal (rembg), AI generation (Flux), upscaling (Real-ESRGAN)
   saleor-image-studio-app:
     image: node:22-alpine
-    container_name: saleor-image-studio-app-dev
+    container_name: ${COMPOSE_PREFIX:-aura}-image-studio-app-dev
     working_dir: /app
     command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-image-studio... --prefer-offline && cd apps/image-studio && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
@@ -837,7 +837,7 @@ services:
   # Used by Image Studio for automatic background removal (~2GB memory, first run downloads model ~170MB)
   saleor-rembg:
     image: danielgatis/rembg:latest
-    container_name: saleor-rembg-dev
+    container_name: ${COMPOSE_PREFIX:-aura}-rembg-dev
     command: s --host 0.0.0.0 --port 7000
     ports:
       - "7000:7000"
@@ -860,7 +860,7 @@ services:
     build:
       context: ./esrgan
       dockerfile: Dockerfile
-    container_name: saleor-esrgan-dev
+    container_name: ${COMPOSE_PREFIX:-aura}-esrgan-dev
     ports:
       - "7001:7001"
     deploy:
@@ -880,7 +880,7 @@ services:
   # Manages: AliExpress + CJ Dropshipping order forwarding, tracking sync, fraud detection
   saleor-dropship-app:
     image: node:22-alpine
-    container_name: saleor-dropship-app-dev
+    container_name: ${COMPOSE_PREFIX:-aura}-dropship-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
     command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-dropship-orchestrator... --prefer-offline && cd apps/dropship-orchestrator && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
@@ -938,7 +938,7 @@ services:
   # Provides: configurable country/state tax rates, export zero-rating, preset libraries (IL/EU/US)
   saleor-tax-manager-app:
     image: node:22-alpine
-    container_name: saleor-tax-manager-app-dev
+    container_name: ${COMPOSE_PREFIX:-aura}-tax-manager-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
     command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-tax-manager... --prefer-offline && cd apps/tax-manager && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
@@ -989,7 +989,7 @@ services:
   # PayPal Payment App - PayPal Commerce payments (cards + PayPal)
   saleor-paypal-app:
     image: node:22-alpine
-    container_name: saleor-paypal-app-dev
+    container_name: ${COMPOSE_PREFIX:-aura}-paypal-app-dev
     working_dir: /app
     command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-payment-paypal... --prefer-offline && cd apps/paypal && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
