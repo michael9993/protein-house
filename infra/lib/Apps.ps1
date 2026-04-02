@@ -312,21 +312,21 @@ function Install-AllApps {
         [string[]]$Include = @()
     )
 
-    # Resolve API URL
-    $apiUrl = "http://localhost:8000/graphql/"
-    if ($Config.services.api.port) {
-        $apiUrl = "http://localhost:$($Config.services.api.port)/graphql/"
-    }
-
-    Write-Host "Connecting to Saleor API at $apiUrl..." -ForegroundColor Yellow
-    $token = Get-AuthToken -GraphQLUrl $apiUrl -Email $Email -Password $Password
-    Write-Host "[OK] Authenticated." -ForegroundColor Green
-
-    # Read .env for tunnel URLs
+    # Read .env first (needed for API port and tunnel URLs)
     $envValues = @{}
     if ($EnvPath -and (Test-Path $EnvPath)) {
         $envValues = Read-EnvFile -Path $EnvPath
     }
+
+    # Resolve API URL from env, then config, then default
+    $apiPort = if ($envValues["SALEOR_API_PORT"]) { $envValues["SALEOR_API_PORT"] }
+               elseif ($Config.services.api.port) { $Config.services.api.port }
+               else { "8000" }
+    $apiUrl = "http://localhost:${apiPort}/graphql/"
+
+    Write-Host "Connecting to Saleor API at $apiUrl..." -ForegroundColor Yellow
+    $token = Get-AuthToken -GraphQLUrl $apiUrl -Email $Email -Password $Password
+    Write-Host "[OK] Authenticated." -ForegroundColor Green
 
     # Get existing apps for deletion
     $existingApps = @()
@@ -380,12 +380,15 @@ function Install-AllApps {
 
         Write-Host "[$current/$total] $($svc.description)" -ForegroundColor Cyan
 
-        # Build manifest URL -- Saleor API (inside Docker) fetches the manifest
-        # Use host.docker.internal (resolves to host machine from Docker containers)
-        # Tunnel URLs fail when ISP does SSL inspection (e.g., Bezeq)
+        # Build manifest URL -- priority:
+        # 1. Tunnel URL from .env (via tunnel_env_var in platform.yml)
+        # 2. localhost:PORT fallback (for local-only setups)
         $baseUrl = $null
-        if ($svc.port) {
-            $baseUrl = "http://host.docker.internal:$($svc.port)"
+        if ($svc.tunnel_env_var -and $envValues[$svc.tunnel_env_var]) {
+            $baseUrl = $envValues[$svc.tunnel_env_var].TrimEnd("/")
+        }
+        if (-not $baseUrl -and $svc.port) {
+            $baseUrl = "http://localhost:$($svc.port)"
         }
         if (-not $baseUrl) {
             Write-Host "  [SKIP] No URL available for $key." -ForegroundColor Gray
