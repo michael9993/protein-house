@@ -12,7 +12,7 @@ export async function GET(
 	const pathString = path.join("/");
 	
 	// Use Docker service name for server-side requests
-	const apiBase = process.env.SALEOR_API_URL?.replace("/graphql/", "") || "http://saleor-api:8000";
+	const apiBase = process.env.SALEOR_API_URL?.replace("/graphql/", "") || "http://aura-api:8000";
 	const imageUrl = `${apiBase}/${pathString}${request.nextUrl.search}`;
 
 	try {

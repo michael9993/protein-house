@@ -321,8 +321,8 @@ ls $HOME\.cloudflared\
 ### Container keeps restarting
 ```powershell
 # Check logs for the failing container
-docker compose -f infra/docker-compose.dev.yml logs --tail=50 saleor-api-dev
-docker compose -f infra/docker-compose.dev.yml logs --tail=50 saleor-storefront-dev
+docker compose -f infra/docker-compose.dev.yml logs --tail=50 aura-api
+docker compose -f infra/docker-compose.dev.yml logs --tail=50 aura-storefront
 ```
 
 ### Apps return 401 SIGNATURE_VERIFICATION_FAILED
@@ -337,19 +337,19 @@ This means the API's `PUBLIC_URL` doesn't match the URL apps use for webhook ver
 docker ps | grep storefront
 
 # Check for build errors
-docker compose -f infra/docker-compose.dev.yml logs --tail=100 saleor-storefront-dev
+docker compose -f infra/docker-compose.dev.yml logs --tail=100 aura-storefront
 
 # Verify GraphQL connectivity
-docker exec saleor-storefront-dev wget -qO- http://saleor-api:8000/graphql/ --post-data='{"query":"{shop{name}}"}' --header='Content-Type: application/json'
+docker exec aura-storefront-dev wget -qO- http://aura-api:8000/graphql/ --post-data='{"query":"{shop{name}}"}' --header='Content-Type: application/json'
 ```
 
 ### Database backup is empty or small
 ```powershell
 # Check if PostgreSQL is healthy
-docker exec saleor-postgres-dev pg_isready -U saleor
+docker exec aura-postgres-dev pg_isready -U saleor
 
 # Run manual dump to check
-docker exec saleor-postgres-dev pg_dump -U saleor saleor | wc -l
+docker exec aura-postgres-dev pg_dump -U saleor saleor | wc -l
 ```
 
 ### Switching back to development mode
@@ -370,7 +370,7 @@ When you're ready for proper hosting:
 3. **Copy your project** (or git clone)
 4. **Restore database backup:**
    ```bash
-   cat backup.sql | docker exec -i saleor-postgres-dev psql -U saleor saleor
+   cat backup.sql | docker exec -i aura-postgres-dev psql -U saleor saleor
    ```
 5. **Update DNS** — Point CNAME records to the VPS IP instead of the tunnel
 6. **Set up nginx + certbot** — Use the existing `infra/nginx.conf` as a starting point

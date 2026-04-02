@@ -7,7 +7,7 @@
 # Usage:
 #   . "$PSScriptRoot\lib\Backup.ps1"
 #   New-DatabaseBackup -Config $config -Compress
-#   Restore-Database -BackupFile "~/saleor-backups/saleor-2026-03-12.sql.gz"
+#   Restore-Database -BackupFile "~/aura-backups/aura-2026-03-12.sql.gz"
 # ============================================================================
 
 function New-DatabaseBackup {
@@ -167,7 +167,7 @@ function Restore-Database {
 
     Write-Host "[OK] Database restored from $BackupFile." -ForegroundColor Green
     Write-Host "Remember to restart the API container after restore:" -ForegroundColor Gray
-    Write-Host "  docker compose -f infra/docker-compose.dev.yml restart saleor-api" -ForegroundColor Gray
+    Write-Host "  docker compose -f infra/docker-compose.dev.yml restart aura-api" -ForegroundColor Gray
 }
 
 function Get-BackupHistory {

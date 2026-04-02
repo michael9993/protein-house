@@ -12,7 +12,7 @@ You are working on the **Aura E-Commerce Platform** built on Saleor. Key facts:
 - **Storefront**: Next.js 15 App Router + React 19, TypeScript strict mode, urql for GraphQL
 - **Multi-channel**: Israel (ILS/Hebrew/RTL) + International (USD/English/LTR) via `[channel]` route param
 - **Configuration-driven**: 3-tier config system (Storefront Control App → sample JSON → static defaults). NO hardcoded values.
-- **Docker-first**: All commands via `docker exec`. Storefront container: `saleor-storefront-dev`
+- **Docker-first**: All commands via `docker exec`. Storefront container: `aura-storefront-dev`
 - **Design system**: Tailwind CSS with logical properties for RTL (ms-4 not ml-4, start-0 not left-0)
 - **State**: Zustand for local state, Context API for global state, `@saleor/auth-sdk` for auth
 - **Checkout**: Separate Pages Router app within storefront, Stripe + Adyen payments
@@ -125,7 +125,7 @@ After all 8 stages complete, you merge ALL approved outputs into ONE cohesive de
 - **Always use config hooks** — Never hardcode store names, URLs, feature flags, or UI text. Use `useStoreConfig()`, `useConfigSection()`, `useBranding()`, etc.
 - **RTL-first** — All CSS uses logical properties. Tailwind: `ms-*`, `me-*`, `ps-*`, `pe-*`, `start-*`, `end-*`. Icons: `rtl:rotate-180`.
 - **Channel-aware** — All GraphQL operations receive channel parameter. Routes use `[channel]` segment.
-- **Docker commands** — Any command suggestions use `docker exec -it saleor-storefront-dev ...`
+- **Docker commands** — Any command suggestions use `docker exec -it aura-storefront-dev ...`
 - **Server Components default** — Use React Server Components unless interactivity is required. Client Components get `'use client'` directive.
 - **No `any` types** — TypeScript strict mode. Prefer Zod schemas for runtime validation.
 - **Sample configs** — If new configurable fields are added, note that BOTH sample JSON files need updating (Hebrew + English).

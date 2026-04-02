@@ -19,9 +19,9 @@ Internet → Cloudflare (DNS + optional CDN)
      │  └── apps.yourdomain.com  → :3001-7  │
      │                                      │
      │  Docker Compose (13 containers)      │
-     │  ├── saleor-api         :8000        │
-     │  ├── saleor-worker                   │
-     │  ├── saleor-scheduler                │
+     │  ├── aura-api           :8000        │
+     │  ├── aura-worker                     │
+     │  ├── aura-scheduler                  │
      │  ├── storefront         :3000        │
      │  ├── dashboard          :9002        │
      │  ├── stripe-app         :3002        │
@@ -269,16 +269,16 @@ First time only:
 
 ```bash
 # Run migrations
-docker exec saleor-api-prod python manage.py migrate
+docker exec aura-api-prod python manage.py migrate
 
 # Create superuser
-docker exec -it saleor-api-prod python manage.py createsuperuser
+docker exec -it aura-api-prod python manage.py createsuperuser
 
 # Collect static files
-docker exec saleor-api-prod python manage.py collectstatic --no-input
+docker exec aura-api-prod python manage.py collectstatic --no-input
 
 # Copy static/media to Nginx-accessible path
-docker cp saleor-api-prod:/app/static/. /var/www/saleor/static/
+docker cp aura-api-prod:/app/static/. /var/www/saleor/static/
 ```
 
 ---
@@ -312,10 +312,10 @@ chmod +x /opt/aura-platform/infra/scripts/restore-db.sh
 # Add daily backup cron (2 AM)
 crontab -e
 # Add this line:
-0 2 * * * /opt/aura-platform/infra/scripts/backup-db.sh local saleor-postgres-prod >> /var/log/saleor-backup.log 2>&1
+0 2 * * * /opt/aura-platform/infra/scripts/backup-db.sh local aura-postgres-prod >> /var/log/saleor-backup.log 2>&1
 
 # For S3 backups:
-# 0 2 * * * BACKUP_S3_BUCKET=my-bucket /opt/aura-platform/infra/scripts/backup-db.sh s3 saleor-postgres-prod
+# 0 2 * * * BACKUP_S3_BUCKET=my-bucket /opt/aura-platform/infra/scripts/backup-db.sh s3 aura-postgres-prod
 ```
 
 ---
@@ -349,7 +349,7 @@ docker compose -f infra/docker-compose.prod.yml up -d --build
 docker compose -f infra/docker-compose.prod.yml logs -f
 
 # View specific service
-docker compose -f infra/docker-compose.prod.yml logs -f saleor-api
+docker compose -f infra/docker-compose.prod.yml logs -f aura-api
 
 # Restart a single service
 docker compose -f infra/docker-compose.prod.yml restart storefront
@@ -358,13 +358,13 @@ docker compose -f infra/docker-compose.prod.yml restart storefront
 docker stats
 
 # Run a database backup now
-/opt/aura-platform/infra/scripts/backup-db.sh local saleor-postgres-prod
+/opt/aura-platform/infra/scripts/backup-db.sh local aura-postgres-prod
 
 # Access Django shell
-docker exec -it saleor-api-prod python manage.py shell
+docker exec -it aura-api-prod python manage.py shell
 
 # Access PostgreSQL
-docker exec -it saleor-postgres-prod psql -U saleor -d saleor
+docker exec -it aura-postgres-prod psql -U saleor -d saleor
 ```
 
 ---
@@ -411,6 +411,6 @@ docker system prune -a   # remove unused images/containers
 
 ### Database won't connect
 ```bash
-docker exec saleor-postgres-prod pg_isready -U saleor
+docker exec aura-postgres-prod pg_isready -U saleor
 docker compose -f infra/docker-compose.prod.yml logs postgres
 ```

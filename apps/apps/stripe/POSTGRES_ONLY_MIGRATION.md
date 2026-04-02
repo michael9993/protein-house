@@ -64,7 +64,7 @@ See `src/modules/postgres/migrations/001_initial_schema.sql` for the complete sc
 ### Development (`docker-compose.dev.yml`)
 
 ```yaml
-saleor-stripe-app:
+aura-stripe-app:
   environment:
     DATABASE_URL: postgres://saleor:saleor@postgres:5432/stripe_app
 ```
@@ -72,7 +72,7 @@ saleor-stripe-app:
 ### Production (`docker-compose.prod.yml`)
 
 ```yaml
-saleor-stripe-app:
+aura-stripe-app:
   environment:
     DATABASE_URL: postgres://${POSTGRES_USER:-saleor}:${POSTGRES_PASSWORD}@postgres:5432/stripe_app
 ```
@@ -99,7 +99,7 @@ Or via Docker:
 
 ```powershell
 # Check all tables exist
-docker exec saleor-postgres-dev psql -U saleor -d stripe_app -c "\dt"
+docker exec aura-postgres-dev psql -U saleor -d stripe_app -c "\dt"
 
 # Should show:
 # - auth_data
@@ -148,7 +148,7 @@ pnpm setup-postgres
 
 Verify PostgreSQL is accessible:
 ```bash
-docker exec saleor-postgres-dev psql -U saleor -d stripe_app -c "SELECT 1;"
+docker exec aura-postgres-dev psql -U saleor -d stripe_app -c "SELECT 1;"
 ```
 
 ## Production Deployment

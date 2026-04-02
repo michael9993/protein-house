@@ -52,7 +52,7 @@ pnpm tsx scripts/migrate-to-postgres.ts
 
 ```powershell
 # Check configs in PostgreSQL
-docker exec saleor-postgres-dev psql -U saleor -d stripe_app -c "SELECT config_id, config_name FROM stripe_configs;"
+docker exec aura-postgres-dev psql -U saleor -d stripe_app -c "SELECT config_id, config_name FROM stripe_configs;"
 ```
 
 ## Current Configuration
@@ -77,7 +77,7 @@ APL: file                  # Auth tokens → File (local dev)
 ### Configs not appearing in PostgreSQL
 
 1. Verify `STORAGE_BACKEND=postgres` is set
-2. Check database connection: `docker exec saleor-postgres-dev psql -U saleor -d stripe_app -c "SELECT 1;"`
+2. Check database connection: `docker exec aura-postgres-dev psql -U saleor -d stripe_app -c "SELECT 1;"`
 3. Run migration script if you have file-based configs
 4. Check app logs for PostgreSQL connection errors
 
@@ -85,7 +85,7 @@ APL: file                  # Auth tokens → File (local dev)
 
 1. Ensure PostgreSQL is running and accessible
 2. Verify `DATABASE_URL` is correct
-3. Check that schema exists: `docker exec saleor-postgres-dev psql -U saleor -d stripe_app -c "\dt"`
+3. Check that schema exists: `docker exec aura-postgres-dev psql -U saleor -d stripe_app -c "\dt"`
 4. Review migration script logs for specific errors
 
 ## Files Changed

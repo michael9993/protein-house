@@ -119,12 +119,12 @@ When adding new configuration fields, you MUST update all 11 locations to keep t
 **Build the package:**
 ```bash
 # From monorepo root
-docker exec -it saleor-storefront-control-app-dev pnpm --filter @saleor/apps-storefront-config build
+docker exec -it aura-storefront-control-app-dev pnpm --filter @saleor/apps-storefront-config build
 ```
 
 **Type check:**
 ```bash
-docker exec -it saleor-storefront-control-app-dev pnpm --filter @saleor/apps-storefront-config type-check
+docker exec -it aura-storefront-control-app-dev pnpm --filter @saleor/apps-storefront-config type-check
 ```
 
 **Used by:**

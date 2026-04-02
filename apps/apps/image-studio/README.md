@@ -4,19 +4,19 @@
 
 AI-powered image editor with Fabric.js canvas, Saleor product integration, and advanced AI capabilities including background removal, upscaling, generation, and enhancement.
 
-**Container:** `saleor-image-studio-app-dev` | **Port:** 3008
+**Container:** `aura-image-studio-app-dev` | **Port:** 3008
 
 ## Quick Start
 
 ```bash
 # Start development server
-docker exec -it saleor-image-studio-app-dev pnpm dev
+docker exec -it aura-image-studio-app-dev pnpm dev
 
 # Build for production
-docker exec -it saleor-image-studio-app-dev pnpm build
+docker exec -it aura-image-studio-app-dev pnpm build
 
 # Type check
-docker exec -it saleor-image-studio-app-dev pnpm type-check
+docker exec -it aura-image-studio-app-dev pnpm type-check
 ```
 
 Access at: http://localhost:3008
@@ -100,12 +100,12 @@ src/
 
 **Restart after changes:**
 ```bash
-docker compose -f infra/docker-compose.dev.yml restart saleor-image-studio-app-dev
+docker compose -f infra/docker-compose.dev.yml restart aura-image-studio-app-dev
 ```
 
 **View logs:**
 ```bash
-docker compose -f infra/docker-compose.dev.yml logs -f saleor-image-studio-app-dev
+docker compose -f infra/docker-compose.dev.yml logs -f aura-image-studio-app-dev
 ```
 
 **AI Services Setup:**

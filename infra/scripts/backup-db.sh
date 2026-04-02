@@ -6,7 +6,7 @@
 #   ./backup-db.sh                    # Local backup, dev container
 #   ./backup-db.sh local              # Local backup, dev container
 #   ./backup-db.sh s3                 # S3 backup, dev container
-#   ./backup-db.sh local saleor-postgres-prod  # Local backup, prod container
+#   ./backup-db.sh local aura-postgres-prod  # Local backup, prod container
 #
 # Environment variables (for S3 mode):
 #   BACKUP_S3_BUCKET    - S3 bucket name (required)
@@ -14,13 +14,13 @@
 #   AWS_PROFILE         - AWS CLI profile (optional)
 #
 # Cron example (daily at 2 AM):
-#   0 2 * * * /path/to/backup-db.sh s3 saleor-postgres-prod >> /var/log/saleor-backup.log 2>&1
+#   0 2 * * * /path/to/backup-db.sh s3 aura-postgres-prod >> /var/log/aura-backup.log 2>&1
 
 set -euo pipefail
 
 # Configuration
 MODE="${1:-local}"
-CONTAINER="${2:-saleor-postgres-dev}"
+CONTAINER="${2:-aura-postgres-dev}"
 POSTGRES_USER="${POSTGRES_USER:-saleor}"
 POSTGRES_DB="${POSTGRES_DB:-saleor}"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)

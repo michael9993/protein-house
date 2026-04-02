@@ -86,7 +86,7 @@ export async function fetchStoreBranding(
     // Priority: internal Docker URL > explicit URL > tunnel URL > default
     // In Docker, use the internal service name for direct container-to-container communication
     const storefrontControlUrl = 
-      process.env.STOREFRONT_CONTROL_APP_INTERNAL_URL ||  // Docker internal: http://saleor-storefront-control-app:3000
+      process.env.STOREFRONT_CONTROL_APP_INTERNAL_URL ||  // Docker internal: http://aura-storefront-control-app:3000
       process.env.STOREFRONT_CONTROL_URL || 
       process.env.STOREFRONT_CONTROL_APP_TUNNEL_URL ||    // Tunnel URL for external access
       process.env.STOREFRONT_CONTROL_APP_URL ||           // Public URL

@@ -124,12 +124,12 @@ Main Docker Compose configuration. Uses variables from `.env`.
 |---------|------|-------------|
 | `postgres` | 5432 | PostgreSQL database |
 | `redis` | 6379 | Redis cache |
-| `saleor-api` | 8000 | Saleor GraphQL API |
-| `saleor-worker` | - | Celery background worker |
-| `saleor-scheduler` | - | Celery beat scheduler |
-| `saleor-dashboard` | 9000 | Admin interface |
-| `saleor-storefront` | 3000 | Customer storefront |
-| `saleor-stripe-app` | 3002 | Stripe payment app |
+| `aura-api` | 8000 | Saleor GraphQL API |
+| `aura-worker` | - | Celery background worker |
+| `aura-scheduler` | - | Celery beat scheduler |
+| `aura-dashboard` | 9000 | Admin interface |
+| `aura-storefront` | 3000 | Customer storefront |
+| `aura-stripe-app` | 3002 | Stripe payment app |
 
 ## Common Commands
 
@@ -145,7 +145,7 @@ docker compose -f docker-compose.dev.yml down
 
 ### Restart specific service
 ```powershell
-docker compose -f docker-compose.dev.yml restart saleor-api
+docker compose -f docker-compose.dev.yml restart aura-api
 ```
 
 ### View logs
@@ -154,16 +154,16 @@ docker compose -f docker-compose.dev.yml restart saleor-api
 docker compose -f docker-compose.dev.yml logs -f
 
 # Specific service
-docker compose -f docker-compose.dev.yml logs -f saleor-stripe-app
+docker compose -f docker-compose.dev.yml logs -f aura-stripe-app
 ```
 
 ### Execute command in container
 ```powershell
 # Open shell in Saleor API
-docker compose -f docker-compose.dev.yml exec saleor-api bash
+docker compose -f docker-compose.dev.yml exec aura-api bash
 
 # Run Django management command
-docker compose -f docker-compose.dev.yml exec saleor-api python manage.py migrate
+docker compose -f docker-compose.dev.yml exec aura-api python manage.py migrate
 ```
 
 ### Check service status
@@ -199,7 +199,7 @@ docker compose -f docker-compose.dev.yml up -d
 .\scripts\sync-tunnel-urls.ps1
 
 # Check Stripe app logs
-docker compose -f docker-compose.dev.yml logs -f saleor-stripe-app
+docker compose -f docker-compose.dev.yml logs -f aura-stripe-app
 
 # Verify database
 docker compose -f docker-compose.dev.yml exec postgres psql -U saleor -d stripe_app -c "\dt"
@@ -212,7 +212,7 @@ docker compose -f docker-compose.dev.yml exec postgres psql -U saleor -d stripe_
 docker compose -f docker-compose.dev.yml up -d --force-recreate
 
 # Verify environment in container
-docker compose -f docker-compose.dev.yml exec saleor-stripe-app printenv | grep URL
+docker compose -f docker-compose.dev.yml exec aura-stripe-app printenv | grep URL
 ```
 
 ### Database errors
@@ -225,7 +225,7 @@ docker compose -f docker-compose.dev.yml ps postgres
 docker compose -f docker-compose.dev.yml exec postgres psql -U saleor
 
 # View Saleor API logs
-docker compose -f docker-compose.dev.yml logs saleor-api
+docker compose -f docker-compose.dev.yml logs aura-api
 ```
 
 ## Development Workflow

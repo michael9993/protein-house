@@ -6,7 +6,7 @@ import { TEST_CONFIG } from "./fixtures/test-data";
  *
  * NOTE: In the current dev environment, server-side authentication doesn't work
  * because the JWT issuer (PUBLIC_URL=https://api.halacosmetics.org) doesn't match
- * the internal API URL (http://saleor-api:8000/graphql/). The @saleor/auth-sdk
+ * the internal API URL (http://aura-api:8000/graphql/). The @saleor/auth-sdk
  * refuses to attach the Bearer token when ISS doesn't match the request URL.
  *
  * This means all account pages redirect to /login even with valid cookies.

@@ -59,9 +59,9 @@ Write-Host "✅ Storefront mode changed: $currentMode → $newMode" -ForegroundC
 Write-Host ""
 Write-Host "📝 Next steps:" -ForegroundColor Cyan
 Write-Host "   1. Restart the storefront container:" -ForegroundColor White
-Write-Host "      docker compose -f docker-compose.dev.yml restart saleor-storefront" -ForegroundColor Gray
+Write-Host "      docker compose -f docker-compose.dev.yml restart aura-storefront" -ForegroundColor Gray
 Write-Host ""
 Write-Host "   2. Or rebuild and restart:" -ForegroundColor White
-Write-Host "      docker compose -f docker-compose.dev.yml up -d --build saleor-storefront" -ForegroundColor Gray
+Write-Host "      docker compose -f docker-compose.dev.yml up -d --build aura-storefront" -ForegroundColor Gray
 Write-Host ""
 

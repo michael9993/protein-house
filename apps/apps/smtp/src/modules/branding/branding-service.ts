@@ -31,7 +31,7 @@ export class BrandingService {
 
     // In Docker, try internal service name
     if (process.env.NODE_ENV !== "production" || process.env.DOCKER_ENV) {
-      const dockerInternalUrl = "http://saleor-storefront-control-app:3000";
+      const dockerInternalUrl = "http://aura-storefront-control-app:3000";
 
       logger.debug("Using Docker internal URL for storefront-control", { url: dockerInternalUrl });
 
@@ -43,7 +43,7 @@ export class BrandingService {
       try {
         const url = new URL(saleorApiUrl);
         /*
-         * Replace 'saleor-api' with 'storefront-control' or use same domain.
+         * Replace 'aura-api' with 'storefront-control' or use same domain.
          * This is a heuristic - adjust based on your deployment.
          */
         const baseUrl = `${url.protocol}//${url.host}`;

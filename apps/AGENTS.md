@@ -42,7 +42,7 @@ docker exec -it <container> pnpm turbo run lint
 docker exec -it <container> pnpm generate
 ```
 
-Container names follow the pattern `saleor-<app-name>-app-dev` (e.g., `saleor-storefront-control-app-dev`, `saleor-bulk-manager-app-dev`).
+Container names follow the pattern `aura-<app-name>-app-dev` (e.g., `aura-storefront-control-app-dev`, `aura-bulk-manager-app-dev`). The `aura-` prefix is the default `COMPOSE_PREFIX`; replace with your prefix if different.
 
 ## Architecture Patterns
 
@@ -112,7 +112,7 @@ macaw-ui Box/Text/Button imported in **page-level files** crash inside the Saleo
 - **AppBridge iframe navigation**: Use `router.push()` with `<button>`, NOT `<Link>` from Next.js
 - **macaw-ui in pages**: Only safe in `_app.tsx` — crashes in page files when loaded in iframe
 - **Zod array fields in forms**: Schema `z.array(z.string())` needs `Controller` with join/split logic, not plain `register()` which treats arrays as strings
-- **Docker restart**: Use service name `saleor-bulk-manager-app` (not container name with `-dev`)
+- **Docker restart**: Use service name `aura-bulk-manager-app` (not container name with `-dev`)
 - **macaw-ui type errors**: Pre-existing `__borderLeft` issue with `tsc --noEmit`; dev server works fine
 
 ## Testing

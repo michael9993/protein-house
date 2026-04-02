@@ -354,7 +354,7 @@ switch ($Command.ToLower()) {
                 if ($sk) { Set-EnvValue -Path $envFile -Key "STRIPE_SECRET_KEY" -Value $sk }
                 if ($wh) { Set-EnvValue -Path $envFile -Key "STRIPE_WEBHOOK_SECRET" -Value $wh }
                 Write-Success "Stripe keys saved to .env"
-                Write-Info "  Restart Stripe app after setup: platform.ps1 restart saleor-stripe-app"
+                Write-Info "  Restart Stripe app after setup: platform.ps1 restart aura-stripe-app"
             } else {
                 Write-Info "  Skipped. Add keys to infra/.env later (STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY)"
             }
@@ -400,7 +400,7 @@ switch ($Command.ToLower()) {
                 if ($smtpPass) { Set-EnvValue -Path $envFile -Key "SMTP_PASSWORD" -Value $smtpPass }
                 if ($smtpFrom) { Set-EnvValue -Path $envFile -Key "SMTP_FROM_EMAIL" -Value $smtpFrom }
                 Write-Success "SMTP settings saved to .env"
-                Write-Info "  Restart SMTP app after setup: platform.ps1 restart saleor-smtp-app"
+                Write-Info "  Restart SMTP app after setup: platform.ps1 restart aura-smtp-app"
             } else {
                 Write-Info "  Skipped. Emails will print to console. Configure later in infra/.env"
             }
@@ -1058,7 +1058,7 @@ switch ($Command.ToLower()) {
         if ($migrated) {
             Write-Success "Migrations applied"
         } else {
-            Write-Err "Migration failed. Check API container logs: docker compose -f $composeFile logs saleor-api"
+            Write-Err "Migration failed. Check API container logs: docker compose -f $composeFile logs aura-api"
             exit 1
         }
 
@@ -1314,7 +1314,7 @@ $($ingressLines -join "`n")
         Write-Host "  .\infra\platform.ps1 db-init -SeedData                          # DB + demo products"
         Write-Host "  .\infra\platform.ps1 restart storefront"
         Write-Host "  .\infra\platform.ps1 backup -Compress"
-        Write-Host "  .\infra\platform.ps1 restore ~/saleor-backups/saleor-2026-03-12.sql.gz"
+        Write-Host "  .\infra\platform.ps1 restore ~/aura-backups/aura-2026-03-12.sql.gz"
         Write-Host "  .\infra\platform.ps1 install-apps -Email admin@example.com"
         Write-Host "  .\infra\platform.ps1 logs api"
         Write-Host "  .\infra\platform.ps1 generate-tunnel-config"

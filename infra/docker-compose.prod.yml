@@ -9,7 +9,7 @@
 #
 # Architecture:
 #   Nginx (host-level) → reverse proxy → Docker containers (internal network)
-#   All containers communicate via saleor-network (bridge)
+#   All containers communicate via aura-network (bridge)
 #   No ports exposed to host except via Nginx reverse proxy.
 #
 # Resource totals (minimums):
@@ -38,7 +38,7 @@ services:
       timeout: 10s
       retries: 5
     networks:
-      - saleor-network
+      - aura-network
     restart: always
     deploy:
       resources:
@@ -61,7 +61,7 @@ services:
       timeout: 10s
       retries: 5
     networks:
-      - saleor-network
+      - aura-network
     restart: always
     deploy:
       resources:
@@ -75,7 +75,7 @@ services:
   # ---------------------------------------------------------------------------
   # Saleor Backend (API + Workers)
   # ---------------------------------------------------------------------------
-  saleor-api:
+  aura-api:
     build:
       context: ../saleor
       dockerfile: Dockerfile
@@ -111,14 +111,14 @@ services:
       CSRF_COOKIE_SECURE: "True"
       SECURE_SSL_REDIRECT: "False"
     volumes:
-      - saleor-media:/app/media
+      - aura-media:/app/media
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     restart: always
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/graphql/"]
@@ -135,7 +135,7 @@ services:
           cpus: "1"
           memory: 1G
 
-  saleor-worker:
+  aura-worker:
     build:
       context: ../saleor
       dockerfile: Dockerfile
@@ -155,12 +155,12 @@ services:
       EMAIL_URL: ${EMAIL_URL}
       TIME_ZONE: ${TIME_ZONE:-UTC}
     volumes:
-      - saleor-media:/app/media
+      - aura-media:/app/media
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     restart: always
     deploy:
       resources:
@@ -171,7 +171,7 @@ services:
           cpus: "0.5"
           memory: 512M
 
-  saleor-scheduler:
+  aura-scheduler:
     build:
       context: ../saleor
       dockerfile: Dockerfile
@@ -185,10 +185,10 @@ services:
       CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD}@redis:6379/2
       TIME_ZONE: ${TIME_ZONE:-UTC}
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     restart: always
     deploy:
       resources:
@@ -210,7 +210,7 @@ services:
         NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
         NEXT_PUBLIC_STOREFRONT_URL: ${NEXT_PUBLIC_STOREFRONT_URL}
         NEXT_PUBLIC_DEFAULT_CHANNEL: ${NEXT_PUBLIC_DEFAULT_CHANNEL:-default-channel}
-        SALEOR_API_URL: http://saleor-api:8000/graphql/
+        SALEOR_API_URL: http://aura-api:8000/graphql/
     container_name: ${COMPOSE_PREFIX:-aura}-storefront-prod
     ports:
       - "127.0.0.1:3000:3000"
@@ -219,13 +219,13 @@ services:
       NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
       NEXT_PUBLIC_STOREFRONT_URL: ${NEXT_PUBLIC_STOREFRONT_URL}
       NEXT_PUBLIC_DEFAULT_CHANNEL: ${NEXT_PUBLIC_DEFAULT_CHANNEL:-default-channel}
-      SALEOR_API_URL: http://saleor-api:8000/graphql/
+      SALEOR_API_URL: http://aura-api:8000/graphql/
       SALEOR_WEBHOOK_SECRET: ${WEBHOOK_SECRET_KEY}
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     restart: always
     deploy:
       resources:
@@ -251,7 +251,7 @@ services:
     ports:
       - "127.0.0.1:9002:80"
     networks:
-      - saleor-network
+      - aura-network
     restart: always
     deploy:
       resources:
@@ -276,7 +276,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      SALEOR_API_URL: http://saleor-api:8000/graphql/
+      SALEOR_API_URL: http://aura-api:8000/graphql/
       APP_URL: ${STRIPE_APP_URL}
       SECRET_KEY: ${STRIPE_APP_SECRET_KEY}
       MANIFEST_APP_ID: stripe
@@ -285,12 +285,12 @@ services:
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
       DATABASE_URL: postgres://${POSTGRES_USER:-saleor}:${POSTGRES_PASSWORD}@postgres:5432/stripe_app
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
       postgres:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     restart: always
     deploy:
       resources:
@@ -310,14 +310,14 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      SALEOR_API_URL: http://saleor-api:8000/graphql/
+      SALEOR_API_URL: http://aura-api:8000/graphql/
       APP_URL: ${SMTP_APP_URL}
       SECRET_KEY: ${SMTP_APP_SECRET_KEY}
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     restart: always
     deploy:
       resources:
@@ -337,14 +337,14 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      SALEOR_API_URL: http://saleor-api:8000/graphql/
+      SALEOR_API_URL: http://aura-api:8000/graphql/
       APP_URL: ${INVOICES_APP_URL}
       SECRET_KEY: ${INVOICES_APP_SECRET_KEY}
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     restart: always
     deploy:
       resources:
@@ -364,14 +364,14 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      SALEOR_API_URL: http://saleor-api:8000/graphql/
+      SALEOR_API_URL: http://aura-api:8000/graphql/
       APP_URL: ${STOREFRONT_CONTROL_APP_URL}
       SECRET_KEY: ${STOREFRONT_CONTROL_APP_SECRET_KEY}
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     restart: always
     deploy:
       resources:
@@ -391,14 +391,14 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      SALEOR_API_URL: http://saleor-api:8000/graphql/
+      SALEOR_API_URL: http://aura-api:8000/graphql/
       APP_URL: ${NEWSLETTER_APP_URL}
       SECRET_KEY: ${NEWSLETTER_APP_SECRET_KEY}
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     restart: always
     deploy:
       resources:
@@ -418,14 +418,14 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      SALEOR_API_URL: http://saleor-api:8000/graphql/
+      SALEOR_API_URL: http://aura-api:8000/graphql/
       APP_URL: ${ANALYTICS_APP_URL}
       SECRET_KEY: ${ANALYTICS_APP_SECRET_KEY}
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     restart: always
     deploy:
       resources:
@@ -445,14 +445,14 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      SALEOR_API_URL: http://saleor-api:8000/graphql/
+      SALEOR_API_URL: http://aura-api:8000/graphql/
       APP_URL: ${BULK_MANAGER_APP_URL}
       SECRET_KEY: ${BULK_MANAGER_APP_SECRET_KEY}
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     restart: always
     deploy:
       resources:
@@ -466,9 +466,9 @@ volumes:
     driver: local
   redis-data:
     driver: local
-  saleor-media:
+  aura-media:
     driver: local
 
 networks:
-  saleor-network:
+  aura-network:
     driver: bridge

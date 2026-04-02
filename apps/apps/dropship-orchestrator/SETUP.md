@@ -6,7 +6,7 @@ The Dropship Orchestrator is a standalone Saleor App that acts as middleware bet
 
 **Architecture**: ORDER_PAID webhook → classify lines → fraud check → cost ceiling → forward to supplier → sync tracking → create fulfillment
 
-**Port**: 3009 | **Container**: `saleor-dropship-app-dev`
+**Port**: 3009 | **Container**: `aura-dropship-app-dev`
 
 ---
 
@@ -16,7 +16,7 @@ Before starting, ensure you have:
 
 - [ ] Docker Compose environment running (`docker compose -f infra/docker-compose.dev.yml up -d`)
 - [ ] Saleor API accessible at `http://localhost:8000/graphql/`
-- [ ] Redis running (shared `saleor-redis-dev` container)
+- [ ] Redis running (shared `aura-redis-dev` container)
 - [ ] AliExpress developer account (https://open.aliexpress.com/)
 - [ ] CJ Dropshipping developer account (https://developers.cjdropshipping.com/)
 
@@ -36,7 +36,7 @@ DROPSHIP_APP_TUNNEL_URL=          # Set if using ngrok/cloudflared for external 
 SECRET_KEY=your-secret-key-here
 
 # Redis (already shared with other services)
-REDIS_URL=redis://saleor-redis-dev:6379
+REDIS_URL=redis://aura-redis-dev:6379
 ```
 
 **Production-critical**: The `SECRET_KEY` encrypts supplier API credentials stored in Saleor metadata. Without it, the app will refuse to start in production mode.
@@ -47,10 +47,10 @@ REDIS_URL=redis://saleor-redis-dev:6379
 
 ```bash
 # Start the dropship app container
-docker compose -f infra/docker-compose.dev.yml up -d saleor-dropship-app-dev
+docker compose -f infra/docker-compose.dev.yml up -d aura-dropship-app-dev
 
 # Wait for it to be healthy, then check logs
-docker compose -f infra/docker-compose.dev.yml logs -f saleor-dropship-app-dev
+docker compose -f infra/docker-compose.dev.yml logs -f aura-dropship-app-dev
 
 # Verify it's running
 curl http://localhost:3009/api/manifest
@@ -61,13 +61,13 @@ The manifest endpoint should return JSON with the app name, permissions, and two
 **If the container fails to start:**
 ```bash
 # Install dependencies (first time only)
-docker exec -it saleor-dropship-app-dev pnpm install
+docker exec -it aura-dropship-app-dev pnpm install
 
 # Check for type errors
-docker exec -it saleor-dropship-app-dev pnpm type-check
+docker exec -it aura-dropship-app-dev pnpm type-check
 
 # View full logs
-docker compose -f infra/docker-compose.dev.yml logs --tail=200 saleor-dropship-app-dev
+docker compose -f infra/docker-compose.dev.yml logs --tail=200 aura-dropship-app-dev
 ```
 
 ---
@@ -76,7 +76,7 @@ docker compose -f infra/docker-compose.dev.yml logs --tail=200 saleor-dropship-a
 
 1. Open the Saleor Dashboard: http://localhost:9000
 2. Go to **Apps** > **Install external app**
-3. Enter the manifest URL: `http://saleor-dropship-app-dev:3000/api/manifest`
+3. Enter the manifest URL: `http://aura-dropship-app-dev:3000/api/manifest`
 4. Click **Install**
 
 The app will register and request these permissions:
@@ -224,7 +224,7 @@ You can add custom IPs in the Settings page.
 3. **Pay the order** (Stripe test mode: card `4242 4242 4242 4242`)
 4. **Verify ORDER_PAID fires**: Check app logs
    ```bash
-   docker compose -f infra/docker-compose.dev.yml logs --tail=50 saleor-dropship-app-dev
+   docker compose -f infra/docker-compose.dev.yml logs --tail=50 aura-dropship-app-dev
    ```
 5. **Verify order classified**: Log should show "Classified X lines: Y concrete, Z supplier groups"
 6. **Verify fraud check**: Log should show "Fraud check: score=X, passed=true/false"
@@ -270,10 +270,10 @@ Check the **Exceptions** page — flagged orders should appear for review.
 
 ```bash
 # Real-time logs
-docker compose -f infra/docker-compose.dev.yml logs -f saleor-dropship-app-dev
+docker compose -f infra/docker-compose.dev.yml logs -f aura-dropship-app-dev
 
 # Last 200 lines
-docker compose -f infra/docker-compose.dev.yml logs --tail=200 saleor-dropship-app-dev
+docker compose -f infra/docker-compose.dev.yml logs --tail=200 aura-dropship-app-dev
 ```
 
 ### Check Background Jobs
@@ -282,7 +282,7 @@ Background jobs run on BullMQ with Redis. To inspect:
 
 ```bash
 # Connect to Redis and check queues
-docker exec -it saleor-redis-dev redis-cli
+docker exec -it aura-redis-dev redis-cli
 
 # List all dropship queues
 KEYS dropship:*
@@ -297,7 +297,7 @@ LLEN bull:dropship:tracking-sync:failed
 
 | Problem | Cause | Fix |
 |---------|-------|-----|
-| App won't start | Missing dependencies | `docker exec -it saleor-dropship-app-dev pnpm install` |
+| App won't start | Missing dependencies | `docker exec -it aura-dropship-app-dev pnpm install` |
 | Webhooks not firing | App not registered | Re-register via Dashboard > Apps |
 | Webhooks not firing | Wrong webhook URL | Check `APP_API_BASE_URL` in env |
 | Orders not forwarding | Dropship disabled | Check Settings > "Orchestration Enabled" toggle |
@@ -311,13 +311,13 @@ LLEN bull:dropship:tracking-sync:failed
 
 ```bash
 # Simple restart
-docker compose -f infra/docker-compose.dev.yml restart saleor-dropship-app-dev
+docker compose -f infra/docker-compose.dev.yml restart aura-dropship-app-dev
 
 # Full rebuild (after dependency changes)
-docker compose -f infra/docker-compose.dev.yml up -d --force-recreate saleor-dropship-app-dev
+docker compose -f infra/docker-compose.dev.yml up -d --force-recreate aura-dropship-app-dev
 
 # Check health after restart
-docker compose -f infra/docker-compose.dev.yml ps saleor-dropship-app-dev
+docker compose -f infra/docker-compose.dev.yml ps aura-dropship-app-dev
 ```
 
 ---

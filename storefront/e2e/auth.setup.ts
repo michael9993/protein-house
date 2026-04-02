@@ -9,10 +9,10 @@ const authFile = "e2e/.auth/user.json";
  * Cookie key format: `{saleorApiUrl}+{tokenName}`.
  *
  * The server-side `saleorApiUrl` is the internal Docker URL
- * (http://saleor-api:8000/graphql/) which differs from the public URL.
+ * (http://aura-api:8000/graphql/) which differs from the public URL.
  * We must match the exact prefix the storefront uses.
  */
-const SALEOR_API_URL_INTERNAL = "http://saleor-api:8000/graphql/";
+const SALEOR_API_URL_INTERNAL = "http://aura-api:8000/graphql/";
 const ACCESS_TOKEN_KEY = `${SALEOR_API_URL_INTERNAL}+saleor_auth_access_token`;
 const REFRESH_TOKEN_KEY = `${SALEOR_API_URL_INTERNAL}+saleor_auth_module_refresh_token`;
 const AUTH_STATE_KEY = `${SALEOR_API_URL_INTERNAL}+saleor_auth_module_auth_state`;

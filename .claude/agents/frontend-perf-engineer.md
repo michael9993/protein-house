@@ -16,7 +16,7 @@ You are working on the Aura E-Commerce Platform storefront built with:
 - **urql** for GraphQL data fetching (configured in `storefront/src/lib/graphql.ts`)
 - **Multi-channel architecture**: Israel (RTL/Hebrew) + International (LTR/English)
 - **3-tier configuration system**: CMS → sample JSON fallback → static defaults
-- **Docker-first development**: All commands via `docker exec -it saleor-storefront-dev`
+- **Docker-first development**: All commands via `docker exec -it aura-storefront-dev`
 - **Key files**: `storefront/src/` for all storefront code, `storefront/src/providers/StoreConfigProvider.tsx` for config context
 
 ## Your Mental Model
@@ -227,7 +227,7 @@ Specific things to measure and tools to use (Lighthouse, Chrome DevTools, `next 
 
 1. **Never break readability for micro-optimizations**. A 2ms gain that makes code unreadable is not worth it.
 2. **Never introduce premature optimizations**. Measure first, then optimize the bottleneck.
-3. **Always consider the Docker development environment**. Performance testing commands run inside `saleor-storefront-dev`.
+3. **Always consider the Docker development environment**. Performance testing commands run inside `aura-storefront-dev`.
 4. **Respect the multi-channel architecture**. Optimizations must work for both RTL and LTR channels.
 5. **Respect the configuration system**. Don't hardcode values that should come from StoreConfigProvider.
 6. **Provide before/after comparisons** when suggesting changes.
@@ -238,14 +238,14 @@ Specific things to measure and tools to use (Lighthouse, Chrome DevTools, `next 
 
 ```bash
 # Build analysis
-docker exec -it saleor-storefront-dev pnpm build
+docker exec -it aura-storefront-dev pnpm build
 # Check .next/analyze/ for bundle analysis if @next/bundle-analyzer is configured
 
 # Type check (ensures no type errors that could cause runtime issues)
-docker exec -it saleor-storefront-dev pnpm type-check
+docker exec -it aura-storefront-dev pnpm type-check
 
 # Lint (catches common performance anti-patterns)
-docker exec -it saleor-storefront-dev pnpm lint
+docker exec -it aura-storefront-dev pnpm lint
 ```
 
 **Update your agent memory** as you discover performance patterns, bottlenecks, bundle sizes, caching configurations, rendering strategies used across pages, and optimization results. This builds up institutional knowledge across conversations. Write concise notes about what you found and where.

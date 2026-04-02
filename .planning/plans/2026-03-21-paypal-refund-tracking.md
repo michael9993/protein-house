@@ -134,7 +134,7 @@ export async function reportTransactionEvent(
 
 - [ ] **Step 2: Verify generated GraphQL types exist**
 
-Run: `docker exec saleor-paypal-app-dev sh -c "grep -c 'TransactionEventReportDocument' /app/apps/paypal/generated/graphql.ts"`
+Run: `docker exec aura-paypal-app-dev sh -c "grep -c 'TransactionEventReportDocument' /app/apps/paypal/generated/graphql.ts"`
 Expected: A number > 0 (the mutation is already generated)
 
 - [ ] **Step 3: Commit**
@@ -567,7 +567,7 @@ import { Client, cacheExchange, fetchExchange, createClient } from "urql";
 import { createLogger } from "@/lib/logger";
 import { apl } from "@/lib/saleor-app";
 import { appConfigRepoImpl } from "@/modules/app-config/repositories/app-config-repo-impl";
-import { createSaleorApiUrl } from "@/modules/saleor/saleor-api-url";
+import { createSaleorApiUrl } from "@/modules/saleor/aura-api-url";
 import { PayPalApiClient } from "@/modules/paypal/paypal-api-client";
 import { mapPayPalRefundStatus } from "@/modules/paypal/paypal-refund-status";
 import { reportTransactionEvent } from "@/modules/saleor/transaction-event-reporter";
@@ -869,16 +869,16 @@ git commit -m "feat(paypal): add polling fallback endpoint for pending refunds"
 - [ ] **Step 1: Build the app**
 
 ```bash
-docker compose -f infra/docker-compose.dev.yml restart saleor-paypal-app
+docker compose -f infra/docker-compose.dev.yml restart aura-paypal-app
 # Wait for build to complete (~90s)
-docker compose -f infra/docker-compose.dev.yml logs --tail=5 saleor-paypal-app
+docker compose -f infra/docker-compose.dev.yml logs --tail=5 aura-paypal-app
 ```
 Expected: `Ready in Xms`
 
 - [ ] **Step 2: Verify webhook endpoint responds**
 
 ```bash
-docker exec saleor-api-dev python -c "
+docker exec aura-api-dev python -c "
 import requests
 r = requests.post('http://host.docker.internal:3011/api/webhooks/paypal?saleorApiUrl=https://api.pawzenpets.shop/graphql/&configurationId=test&appId=test',
   headers={'Content-Type': 'application/json'},
@@ -892,7 +892,7 @@ Expected: 401 or 404 (auth data not found — correct behavior)
 - [ ] **Step 3: Verify polling endpoint responds**
 
 ```bash
-docker exec saleor-api-dev python -c "
+docker exec aura-api-dev python -c "
 import requests
 r = requests.get('http://host.docker.internal:3011/api/webhooks/paypal/poll-pending-refunds', timeout=10)
 print(f'Status: {r.status_code}, Body: {r.text[:200]}')

@@ -444,7 +444,7 @@ Follow the 11-file sync checklist in CLAUDE.md:
 2. Add mutations/queries in `saleor/saleor/graphql/{domain}/mutations.ts` or `queries.ts`
 3. Register in `saleor/saleor/graphql/schema/mutations.ts` or `queries.ts`
 4. Add tests in `saleor/tests/{domain}/test_*.py`
-5. Run `docker exec saleor-api-dev python manage.py build_schema` to regenerate
+5. Run `docker exec aura-api-dev python manage.py build_schema` to regenerate
 
 **New Admin Storefront Control Page:**
 

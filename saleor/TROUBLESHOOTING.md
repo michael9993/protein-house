@@ -25,7 +25,7 @@
 2. **Check logs:**
 
    ```powershell
-   docker compose -f infra/docker-compose.dev.yml logs saleor-api --tail=50
+   docker compose -f infra/docker-compose.dev.yml logs aura-api --tail=50
    ```
 
 3. **Verify server started:**
@@ -38,12 +38,12 @@
 4. **Run migrations if needed:**
 
    ```powershell
-   docker compose -f infra/docker-compose.dev.yml exec saleor-api python manage.py migrate
+   docker compose -f infra/docker-compose.dev.yml exec aura-api python manage.py migrate
    ```
 
 5. **Restart the service:**
    ```powershell
-   docker compose -f infra/docker-compose.dev.yml restart saleor-api
+   docker compose -f infra/docker-compose.dev.yml restart aura-api
    ```
 
 ### Healthcheck Failing
@@ -69,7 +69,7 @@
 **Check logs for errors:**
 
 ```powershell
-docker compose -f infra/docker-compose.dev.yml logs saleor-api | Select-String -Pattern "error|Error|exception"
+docker compose -f infra/docker-compose.dev.yml logs aura-api | Select-String -Pattern "error|Error|exception"
 ```
 
 **Common causes:**
@@ -88,18 +88,18 @@ docker compose -f infra/docker-compose.dev.yml logs saleor-api | Select-String -
 1. **Verify volume mount:**
 
    ```powershell
-   docker compose -f infra/docker-compose.dev.yml exec saleor-api ls /app
+   docker compose -f infra/docker-compose.dev.yml exec aura-api ls /app
    ```
 
 2. **Check file permissions:**
 
    ```powershell
-   docker compose -f infra/docker-compose.dev.yml exec saleor-api ls -la /app/manage.py
+   docker compose -f infra/docker-compose.dev.yml exec aura-api ls -la /app/manage.py
    ```
 
 3. **Restart to remount:**
    ```powershell
-   docker compose -f infra/docker-compose.dev.yml restart saleor-api
+   docker compose -f infra/docker-compose.dev.yml restart aura-api
    ```
 
 ### Build Failures
@@ -135,12 +135,12 @@ docker compose -f infra/docker-compose.dev.yml logs saleor-api | Select-String -
 1. **Verify packages installed:**
 
    ```powershell
-   docker compose -f infra/docker-compose.dev.yml exec saleor-api python -c "import django; print(django.get_version())"
+   docker compose -f infra/docker-compose.dev.yml exec aura-api python -c "import django; print(django.get_version())"
    ```
 
 2. **Rebuild image:**
    ```powershell
-   docker compose -f infra/docker-compose.dev.yml build --no-cache saleor-api
+   docker compose -f infra/docker-compose.dev.yml build --no-cache aura-api
    ```
 
 ### Port Already in Use
@@ -173,19 +173,19 @@ docker compose -f infra/docker-compose.dev.yml logs saleor-api | Select-String -
 docker compose -f infra/docker-compose.dev.yml ps
 
 # View API logs
-docker compose -f infra/docker-compose.dev.yml logs saleor-api --tail=50
+docker compose -f infra/docker-compose.dev.yml logs aura-api --tail=50
 
 # Test API from outside
 curl http://localhost:8000/graphql/
 
 # Test API from inside container
-docker compose -f infra/docker-compose.dev.yml exec saleor-api python -c "import socket; s = socket.socket(); s.connect(('127.0.0.1', 8000)); print('Port open')"
+docker compose -f infra/docker-compose.dev.yml exec aura-api python -c "import socket; s = socket.socket(); s.connect(('127.0.0.1', 8000)); print('Port open')"
 
 # Check database connection
-docker compose -f infra/docker-compose.dev.yml exec saleor-api python manage.py check --database default
+docker compose -f infra/docker-compose.dev.yml exec aura-api python manage.py check --database default
 
 # Run migrations
-docker compose -f infra/docker-compose.dev.yml exec saleor-api python manage.py migrate
+docker compose -f infra/docker-compose.dev.yml exec aura-api python manage.py migrate
 
 # Restart everything
 docker compose -f infra/docker-compose.dev.yml restart
@@ -205,5 +205,5 @@ docker compose -f infra/docker-compose.dev.yml restart
 
 4. **Check Docker logs:**
    ```powershell
-   docker logs saleor-api-dev
+   docker logs aura-api-dev
    ```

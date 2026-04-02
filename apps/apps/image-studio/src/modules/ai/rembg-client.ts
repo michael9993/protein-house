@@ -1,9 +1,9 @@
 /**
  * HTTP client for the rembg Docker container (background removal).
- * Expects the container at REMBG_URL (default: http://saleor-rembg:7000).
+ * Expects the container at REMBG_URL (default: http://aura-rembg:7000).
  */
 
-const REMBG_URL = process.env.REMBG_URL || "http://saleor-rembg:7000";
+const REMBG_URL = process.env.REMBG_URL || "http://aura-rembg:7000";
 
 export interface RembgResult {
   success: boolean;

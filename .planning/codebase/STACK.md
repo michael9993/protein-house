@@ -206,23 +206,23 @@
 - Git (version control)
 
 **Docker Services (Development):**
-- saleor-api-dev (port 8000) - GraphQL API
-- saleor-worker-dev - Celery background worker
-- saleor-scheduler-dev - Celery Beat scheduler
-- saleor-postgres-dev (port 5432) - PostgreSQL
-- saleor-redis-dev (port 6379) - Redis cache/broker
-- saleor-dashboard-dev (port 9000) - Admin dashboard
-- saleor-storefront-dev (port 3000) - Customer storefront
-- saleor-smtp-app-dev (port 3001) - Email/SMTP app
-- saleor-stripe-app-dev (port 3002) - Stripe payments
-- saleor-invoice-app-dev (port 3003) - Invoice generation
-- saleor-storefront-control-app-dev (port 3004) - CMS admin
-- saleor-newsletter-app-dev (port 3005) - Newsletter campaigns
-- saleor-sales-analytics-app-dev (port 3006) - Sales analytics
-- saleor-bulk-manager-app-dev (port 3007) - Bulk import/export
-- saleor-image-studio-app-dev (port 3008) - AI image editor
-- saleor-rembg-dev (port 7000) - Background removal AI
-- saleor-esrgan-dev (port 7001) - Image upscaling AI
+- aura-api-dev (port 8000) - GraphQL API
+- aura-worker-dev - Celery background worker
+- aura-scheduler-dev - Celery Beat scheduler
+- aura-postgres-dev (port 5432) - PostgreSQL
+- aura-redis-dev (port 6379) - Redis cache/broker
+- aura-dashboard-dev (port 9000) - Admin dashboard
+- aura-storefront-dev (port 3000) - Customer storefront
+- aura-smtp-app-dev (port 3001) - Email/SMTP app
+- aura-stripe-app-dev (port 3002) - Stripe payments
+- aura-invoice-app-dev (port 3003) - Invoice generation
+- aura-storefront-control-app-dev (port 3004) - CMS admin
+- aura-newsletter-app-dev (port 3005) - Newsletter campaigns
+- aura-sales-analytics-app-dev (port 3006) - Sales analytics
+- aura-bulk-manager-app-dev (port 3007) - Bulk import/export
+- aura-image-studio-app-dev (port 3008) - AI image editor
+- aura-rembg-dev (port 7000) - Background removal AI
+- aura-esrgan-dev (port 7001) - Image upscaling AI
 
 **Production:**
 - Docker or Kubernetes for orchestration

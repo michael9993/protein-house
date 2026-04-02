@@ -4,19 +4,19 @@
 
 Bulk Manager is a comprehensive CSV/Excel import, export, and delete tool for managing Saleor store data at scale. It supports 7 entity types with intelligent field mapping, validation, and bulk operations.
 
-**Container:** `saleor-bulk-manager-app-dev` | **Port:** 3007
+**Container:** `aura-bulk-manager-app-dev` | **Port:** 3007
 
 ## Quick Start
 
 ```bash
 # Start development server
-docker exec -it saleor-bulk-manager-app-dev pnpm dev
+docker exec -it aura-bulk-manager-app-dev pnpm dev
 
 # Build for production
-docker exec -it saleor-bulk-manager-app-dev pnpm build
+docker exec -it aura-bulk-manager-app-dev pnpm build
 
 # Type check
-docker exec -it saleor-bulk-manager-app-dev pnpm type-check
+docker exec -it aura-bulk-manager-app-dev pnpm type-check
 ```
 
 Access at: http://localhost:3007
@@ -82,12 +82,12 @@ src/
 
 **Restart after changes:**
 ```bash
-docker compose -f infra/docker-compose.dev.yml restart saleor-bulk-manager-app-dev
+docker compose -f infra/docker-compose.dev.yml restart aura-bulk-manager-app-dev
 ```
 
 **View logs:**
 ```bash
-docker compose -f infra/docker-compose.dev.yml logs -f saleor-bulk-manager-app-dev
+docker compose -f infra/docker-compose.dev.yml logs -f aura-bulk-manager-app-dev
 ```
 
 **Required permissions:** MANAGE_PRODUCTS, MANAGE_ORDERS, MANAGE_USERS, MANAGE_DISCOUNTS, MANAGE_GIFT_CARD

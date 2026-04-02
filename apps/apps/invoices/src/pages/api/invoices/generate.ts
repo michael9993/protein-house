@@ -116,7 +116,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const saleorApiUrl = process.env.NEXT_PUBLIC_SALEOR_API_URL || "http://saleor-api:8000/graphql/";
+    const saleorApiUrl = process.env.NEXT_PUBLIC_SALEOR_API_URL || "http://aura-api:8000/graphql/";
     
     console.log("Generating invoice for order:", orderId);
     console.log("Saleor API URL:", saleorApiUrl);

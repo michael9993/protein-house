@@ -332,7 +332,7 @@
 
 **Example:**
 ```yaml
-saleor-api-dev:
+aura-api-dev:
   healthcheck:
     test: ["CMD", "curl", "-f", "http://localhost:8000/graphql/"]
     interval: 10s

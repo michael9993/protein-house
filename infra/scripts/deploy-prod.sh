@@ -147,7 +147,7 @@ fi
 
 echo ""
 echo "🔧 Running database migrations..."
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T saleor-api python manage.py migrate
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T aura-api python manage.py migrate
 
 echo ""
 echo "📊 Service Status:"

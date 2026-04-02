@@ -32,7 +32,7 @@ async function triggerConfigWebhook(
     process.env.STOREFRONT_INTERNAL_URL ||
     process.env.STOREFRONT_URL ||
     process.env.NEXT_PUBLIC_STOREFRONT_URL ||
-    "http://saleor-storefront:3000";
+    "http://aura-storefront:3000";
 
   const webhookUrl = `${storefrontUrl}/api/config/refresh`;
 

@@ -107,7 +107,7 @@
 - Purpose: Type-safe, retry-enabled GraphQL queries with server/client awareness
 - Location: `storefront/src/lib/graphql.ts`
 - Pattern: `executeGraphQL<Result, Variables>(operation, { variables, revalidate, withAuth })`
-  - Server-side: Uses `SALEOR_API_URL` (Docker service name `http://saleor-api:8000/graphql/`)
+  - Server-side: Uses `SALEOR_API_URL` (Docker service name `http://aura-api:8000/graphql/`)
   - Client-side: Uses `NEXT_PUBLIC_SALEOR_API_URL` (localhost or tunnel URL)
   - Automatic retry with exponential backoff (4 max retries, 1s * 2^attempt)
   - Auth via `getServerAuthClient()` cookies + optional app tokens

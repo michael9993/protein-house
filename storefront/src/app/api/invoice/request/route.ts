@@ -10,7 +10,7 @@ import { getClientIp, rateLimitResponse, strictLimiter } from "@/lib/rate-limit"
 
 // Use internal Docker network URL for server-to-server communication
 const INVOICES_APP_INTERNAL_URL = process.env.INVOICES_APP_INTERNAL_URL || 
-                                  "http://saleor-invoice-app:3000";
+                                  "http://aura-invoice-app:3000";
 
 // Public URL for client-side downloads (tunnel URL in development)
 const INVOICES_APP_PUBLIC_URL = process.env.INVOICES_APP_URL || 

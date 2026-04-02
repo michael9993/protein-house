@@ -14,7 +14,7 @@ You are working on the Aura E-Commerce Platform built on Saleor. Key technical f
 
 **Storefront** (Next.js 15, React 19, TypeScript):
 - GraphQL client: **urql** configured in `storefront/src/lib/graphql.ts`
-- Server-side rendering with Docker service names (`http://saleor-api:8000/graphql/`)
+- Server-side rendering with Docker service names (`http://aura-api:8000/graphql/`)
 - Retry: 4 max retries with exponential backoff (1s × 2^attempt), 30s timeout
 - Per-operation caching with Next.js revalidation strategies
 - Auth via `@saleor/auth-sdk` cookies

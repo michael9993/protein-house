@@ -159,7 +159,7 @@ This is a Next.js 15 + React 19 storefront with:
 - All configuration driven by Storefront Control app (no hardcoded values)
 - Multi-channel: Hebrew/RTL + English/LTR
 - CSS logical properties required for RTL support
-- All commands run in Docker: `docker exec -it saleor-storefront-dev ...`
+- All commands run in Docker: `docker exec -it aura-storefront-dev ...`
 
 When implementing animations:
 - Define motion tokens as CSS custom properties in the global stylesheet or Tailwind config

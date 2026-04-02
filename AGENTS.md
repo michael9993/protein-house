@@ -24,22 +24,22 @@ This project uses Docker Compose for local development. All services run in cont
 
 ### Main Containers
 
-- **saleor-api** - Django/GraphQL backend (Saleor API)
-- **saleor-worker** - Celery worker for background tasks
-- **saleor-scheduler** - Celery beat scheduler for periodic tasks
-- **saleor-dashboard** - React admin dashboard (Vite + React 18 + Tailwind CSS v4 + macaw-ui-next + Lucide icons)
-- **saleor-storefront** - Next.js storefront
-- **saleor-storefront-control-app** - Storefront control CMS app (page-based admin: 10 pages — Homepage, Product Listing, Product Detail, Cart, Checkout, Account, Auth, Layout, Static Pages, Global Design; ComponentBlock UI; shadcn/ui + Tailwind; Cmd+K; live preview)
-- **saleor-bulk-manager-app** - Bulk import/export manager (products, categories, collections, customers, orders, vouchers, gift cards via CSV/Excel)
-- **saleor-image-studio-app** - AI-powered image editor (Fabric.js canvas, 12 templates, bg removal via rembg, AI generation via Nano Banana/Gemini, upscaling via Real-ESRGAN, Sharp enhancement, save to product)
-- **saleor-dropship-app** - Multi-supplier dropship orchestrator (AliExpress + CJ Dropshipping, auto-forward orders, tracking sync, fraud detection, exception queue, financial safety, admin dashboard)
-- **saleor-stripe-app** - Stripe payment app
-- **saleor-smtp-app** - SMTP email app (handles email notifications, fulfillment, invoices, welcome emails)
-- **saleor-invoice-app** - Invoice generation app (generates PDF invoices for orders)
-- **saleor-newsletter-app** - Newsletter management app (subscribers, templates, campaigns, MJML email templates)
-- **saleor-sales-analytics-app** - Sales analytics dashboard app (KPIs, revenue charts, top products, category breakdown, Excel export)
-- **saleor-postgres** - PostgreSQL database
-- **saleor-redis** - Redis cache/broker
+- **aura-api** - Django/GraphQL backend (Saleor API)
+- **aura-worker** - Celery worker for background tasks
+- **aura-scheduler** - Celery beat scheduler for periodic tasks
+- **aura-dashboard** - React admin dashboard (Vite + React 18 + Tailwind CSS v4 + macaw-ui-next + Lucide icons)
+- **aura-storefront** - Next.js storefront
+- **aura-storefront-control-app** - Storefront control CMS app (page-based admin: 10 pages — Homepage, Product Listing, Product Detail, Cart, Checkout, Account, Auth, Layout, Static Pages, Global Design; ComponentBlock UI; shadcn/ui + Tailwind; Cmd+K; live preview)
+- **aura-bulk-manager-app** - Bulk import/export manager (products, categories, collections, customers, orders, vouchers, gift cards via CSV/Excel)
+- **aura-image-studio-app** - AI-powered image editor (Fabric.js canvas, 12 templates, bg removal via rembg, AI generation via Nano Banana/Gemini, upscaling via Real-ESRGAN, Sharp enhancement, save to product)
+- **aura-dropship-app** - Multi-supplier dropship orchestrator (AliExpress + CJ Dropshipping, auto-forward orders, tracking sync, fraud detection, exception queue, financial safety, admin dashboard)
+- **aura-stripe-app** - Stripe payment app
+- **aura-smtp-app** - SMTP email app (handles email notifications, fulfillment, invoices, welcome emails)
+- **aura-invoice-app** - Invoice generation app (generates PDF invoices for orders)
+- **aura-newsletter-app** - Newsletter management app (subscribers, templates, campaigns, MJML email templates)
+- **aura-sales-analytics-app** - Sales analytics dashboard app (KPIs, revenue charts, top products, category breakdown, Excel export)
+- **aura-postgres** - PostgreSQL database
+- **aura-redis** - Redis cache/broker
 
 ### Container Restart Guidelines
 
@@ -47,52 +47,52 @@ This project uses Docker Compose for local development. All services run in cont
 
 1. **Backend changes (saleor/)**:
 
-   - Schema/model changes: Restart `saleor-api`, `saleor-worker`, `saleor-scheduler`
-   - Code changes only: Restart `saleor-api` (auto-reload may work, but restart ensures consistency)
-   - Migration changes: Restart `saleor-api` after running migrations
+   - Schema/model changes: Restart `aura-api`, `aura-worker`, `aura-scheduler`
+   - Code changes only: Restart `aura-api` (auto-reload may work, but restart ensures consistency)
+   - Migration changes: Restart `aura-api` after running migrations
 
 2. **Dashboard changes (dashboard/)**:
 
-   - Restart `saleor-dashboard-dev`
+   - Restart `aura-dashboard-dev`
    - If GraphQL schema changed: Run `pnpm generate` in dashboard, then restart container
 
 3. **Storefront changes (storefront/)**:
 
-   - Restart `saleor-storefront-dev`
+   - Restart `aura-storefront-dev`
    - If GraphQL schema changed: Run `pnpm generate` in storefront, then restart container
 
 4. **Storefront Control App changes (apps/apps/storefront-control/)**:
 
-   - Restart `saleor-storefront-control-app`
+   - Restart `aura-storefront-control-app`
    - If schema/config structure changed: Update sample config files (see below)
 
 5. **Newsletter App changes (apps/apps/newsletter/)**:
 
-   - Restart `saleor-newsletter-app`
+   - Restart `aura-newsletter-app`
    - If MJML templates or campaign logic changed: Restart required
    - If subscriber management features changed: Restart required
 
 6. **Sales Analytics App changes (apps/apps/sales-analytics/)**:
 
-   - Restart `saleor-sales-analytics-app`
+   - Restart `aura-sales-analytics-app`
    - If tRPC router or analytics calculations changed: Restart required
    - If Excel export functionality changed: Restart required
 
 7. **Bulk Manager App changes (apps/apps/bulk-manager/)**:
 
-   - Restart `saleor-bulk-manager-app` (use service name, not container name with `-dev`)
+   - Restart `aura-bulk-manager-app` (use service name, not container name with `-dev`)
    - If router/import logic changed: Restart required
    - If new entity type added: Update permissions in manifest
 
 8. **Image Studio App changes (apps/apps/image-studio/)**:
 
-   - Restart `saleor-image-studio-app`
+   - Restart `aura-image-studio-app`
    - If tRPC router or AI client changed: Restart required
    - AI services (rembg, esrgan) are separate containers
 
 9. **Dropship Orchestrator changes (apps/apps/dropship-orchestrator/)**:
 
-   - Restart `saleor-dropship-app` (use service name, not container name with `-dev`)
+   - Restart `aura-dropship-app` (use service name, not container name with `-dev`)
    - If supplier adapter or webhook handler changed: Restart required
    - If BullMQ job/worker/scheduler changed: Restart required
    - Depends on Redis for BullMQ job queues
@@ -100,9 +100,9 @@ This project uses Docker Compose for local development. All services run in cont
 10. **Other App changes (apps/apps/\*/)**:
 
    - Restart the corresponding app container:
-     - `saleor-stripe-app` for Stripe app
-     - `saleor-smtp-app` for SMTP app
-     - `saleor-invoice-app` for Invoice app
+     - `aura-stripe-app` for Stripe app
+     - `aura-smtp-app` for SMTP app
+     - `aura-invoice-app` for Invoice app
 
 8. **Database/Redis changes**:
    - Usually no restart needed (data persists in volumes)
@@ -317,7 +317,7 @@ docker compose -f infra/docker-compose.dev.yml ps
 - Multiple Excel sheets: Summary, Revenue Over Time, Top Products, Sales by Category, All Orders
 - Added `getAllOrders` tRPC endpoint for fetching complete order data for export
 
-**Container**: `saleor-sales-analytics-app` (port 3006)
+**Container**: `aura-sales-analytics-app` (port 3006)
 
 ### Newsletter App (`apps/apps/newsletter/`)
 
@@ -332,7 +332,7 @@ docker compose -f infra/docker-compose.dev.yml ps
 - Integration with Storefront Control app for branding
 - Welcome and welcome-back email automation
 
-**Container**: `saleor-newsletter-app` (port 3005)
+**Container**: `aura-newsletter-app` (port 3005)
 
 ### Storefront Control App (`apps/apps/storefront-control/`)
 
@@ -359,7 +359,7 @@ docker compose -f infra/docker-compose.dev.yml ps
 - Hooks: `src/hooks/` (useConfigPage, usePreview)
 - Search: `src/lib/search/` (field-location-map, field-labels, types) + `src/lib/page-registry.ts`
 
-**Container**: `saleor-storefront-control-app` (port 3004)
+**Container**: `aura-storefront-control-app` (port 3004)
 
 ### SMTP App (`apps/apps/smtp/`)
 
@@ -373,7 +373,7 @@ docker compose -f infra/docker-compose.dev.yml ps
 - Welcome emails
 - Integration with Newsletter app
 
-**Container**: `saleor-smtp-app` (port 3001)
+**Container**: `aura-smtp-app` (port 3001)
 
 ### Invoice App (`apps/apps/invoices/`)
 
@@ -385,7 +385,7 @@ docker compose -f infra/docker-compose.dev.yml ps
 - Order invoice management
 - Integration with storefront for invoice downloads
 
-**Container**: `saleor-invoice-app` (port 3003)
+**Container**: `aura-invoice-app` (port 3003)
 
 ### Stripe App (`apps/apps/stripe/`)
 
@@ -397,7 +397,7 @@ docker compose -f infra/docker-compose.dev.yml ps
 - Payment gateway configuration
 - Webhook handling for payment events
 
-**Container**: `saleor-stripe-app` (port configured via STRIPE_APP_PORT)
+**Container**: `aura-stripe-app` (port configured via STRIPE_APP_PORT)
 
 ### Bulk Manager App (`apps/apps/bulk-manager/`)
 
@@ -420,9 +420,9 @@ docker compose -f infra/docker-compose.dev.yml ps
 
 **Permissions**: MANAGE_PRODUCTS, MANAGE_ORDERS, MANAGE_USERS, MANAGE_APPS, MANAGE_DISCOUNTS, MANAGE_GIFT_CARD
 
-**Container**: `saleor-bulk-manager-app-dev` (port 3007)
+**Container**: `aura-bulk-manager-app-dev` (port 3007)
 
-**Restart**: Use service name `saleor-bulk-manager-app` (not container name with `-dev` suffix)
+**Restart**: Use service name `aura-bulk-manager-app` (not container name with `-dev` suffix)
 
 ### Image Studio App (`apps/apps/image-studio/`)
 
@@ -446,14 +446,14 @@ docker compose -f infra/docker-compose.dev.yml ps
 
 **Permissions**: MANAGE_PRODUCTS
 
-**Container**: `saleor-image-studio-app-dev` (port 3008)
+**Container**: `aura-image-studio-app-dev` (port 3008)
 
 **AI Services** (separate containers):
-- rembg: `saleor-rembg-dev` (port 7000) — Background removal, ~2GB memory
-- Real-ESRGAN: `saleor-esrgan-dev` (port 7001) — Image upscaling, ~3GB memory
+- rembg: `aura-rembg-dev` (port 7000) — Background removal, ~2GB memory
+- Real-ESRGAN: `aura-esrgan-dev` (port 7001) — Image upscaling, ~3GB memory
 - Nano Banana / Gemini: External API (Gemini 2.5 Flash Image), requires `GEMINI_API_KEY` (free 50 req/day)
 
-**Restart**: Use service name `saleor-image-studio-app`
+**Restart**: Use service name `aura-image-studio-app`
 
 ### Dropship Orchestrator (`apps/apps/dropship-orchestrator/`)
 
@@ -484,9 +484,9 @@ docker compose -f infra/docker-compose.dev.yml ps
 
 **Permissions**: MANAGE_PRODUCTS, MANAGE_ORDERS, MANAGE_APPS, MANAGE_SHIPPING, MANAGE_CHECKOUTS
 
-**Container**: `saleor-dropship-app-dev` (port 3009). Depends on Redis for BullMQ.
+**Container**: `aura-dropship-app-dev` (port 3009). Depends on Redis for BullMQ.
 
-**Restart**: Use service name `saleor-dropship-app`
+**Restart**: Use service name `aura-dropship-app`
 
 ### Catalog Generator (`scripts/catalog-generator/`)
 

@@ -4,7 +4,7 @@
 #
 # Examples:
 #   ./restore-db.sh ../backups/saleor-backup-20260208_020000.sql.gz
-#   ./restore-db.sh ../backups/saleor-backup-20260208_020000.sql.gz saleor-postgres-prod
+#   ./restore-db.sh ../backups/saleor-backup-20260208_020000.sql.gz aura-postgres-prod
 #   ./restore-db.sh s3://my-bucket/database-backups/saleor-backup-20260208_020000.sql.gz
 #
 # WARNING: This will DROP and recreate all tables in the target database.
@@ -14,7 +14,7 @@ set -euo pipefail
 
 # Configuration
 BACKUP_SOURCE="${1:-}"
-CONTAINER="${2:-saleor-postgres-dev}"
+CONTAINER="${2:-aura-postgres-dev}"
 POSTGRES_USER="${POSTGRES_USER:-saleor}"
 POSTGRES_DB="${POSTGRES_DB:-saleor}"
 
@@ -92,4 +92,4 @@ echo ""
 echo "Restore complete at $(date -Iseconds)"
 echo ""
 echo "IMPORTANT: You should now restart the Saleor API and workers:"
-echo "  docker compose -f infra/docker-compose.prod.yml restart saleor-api saleor-worker saleor-scheduler"
+echo "  docker compose -f infra/docker-compose.prod.yml restart aura-api aura-worker aura-scheduler"

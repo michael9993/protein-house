@@ -58,22 +58,22 @@ saleor-platform/
 
 ```bash
 # Saleor API
-docker exec -it saleor-api-dev python manage.py migrate
-docker exec -it saleor-api-dev python manage.py build_schema
-docker exec -it saleor-api-dev pytest --reuse-db
+docker exec -it aura-api-dev python manage.py migrate
+docker exec -it aura-api-dev python manage.py build_schema
+docker exec -it aura-api-dev pytest --reuse-db
 
 # Storefront
-docker exec -it saleor-storefront-dev pnpm dev
-docker exec -it saleor-storefront-dev pnpm type-check
-docker exec -it saleor-storefront-dev pnpm generate
+docker exec -it aura-storefront-dev pnpm dev
+docker exec -it aura-storefront-dev pnpm type-check
+docker exec -it aura-storefront-dev pnpm generate
 
 # Dashboard
-docker exec -it saleor-dashboard-dev pnpm dev
-docker exec -it saleor-dashboard-dev pnpm build
+docker exec -it aura-dashboard-dev pnpm dev
+docker exec -it aura-dashboard-dev pnpm build
 
 # Apps (example: Storefront Control)
-docker exec -it saleor-storefront-control-app-dev pnpm dev
-docker exec -it saleor-storefront-control-app-dev pnpm build
+docker exec -it aura-storefront-control-app-dev pnpm dev
+docker exec -it aura-storefront-control-app-dev pnpm build
 
 # Container restart after code changes (hot-reload is unreliable)
 docker compose -f infra/docker-compose.dev.yml restart <container-name>
@@ -81,19 +81,19 @@ docker compose -f infra/docker-compose.dev.yml logs -f <container-name>
 ```
 
 **Container Map:**
-- `saleor-api-dev` (8000) — Saleor GraphQL API
-- `saleor-dashboard-dev` (9000) — Admin dashboard
-- `saleor-storefront-dev` (3000) — Customer storefront
-- `saleor-storefront-control-app-dev` (3004) — CMS configuration app
-- `saleor-stripe-app-dev` (3002) — Stripe payments
-- `saleor-smtp-app-dev` (3001) — Email notifications
-- `saleor-invoice-app-dev` (3003) — PDF invoices
-- `saleor-newsletter-app-dev` (3005) — Newsletter management
-- `saleor-sales-analytics-app-dev` (3006) — Sales analytics
-- `saleor-bulk-manager-app-dev` (3007) — Bulk import/export
-- `saleor-image-studio-app-dev` (3008) — AI-powered image editor
-- `saleor-postgres-dev` (5432) — PostgreSQL database
-- `saleor-redis-dev` (6379) — Redis cache/broker
+- `aura-api-dev` (8000) — Saleor GraphQL API
+- `aura-dashboard-dev` (9000) — Admin dashboard
+- `aura-storefront-dev` (3000) — Customer storefront
+- `aura-storefront-control-app-dev` (3004) — CMS configuration app
+- `aura-stripe-app-dev` (3002) — Stripe payments
+- `aura-smtp-app-dev` (3001) — Email notifications
+- `aura-invoice-app-dev` (3003) — PDF invoices
+- `aura-newsletter-app-dev` (3005) — Newsletter management
+- `aura-sales-analytics-app-dev` (3006) — Sales analytics
+- `aura-bulk-manager-app-dev` (3007) — Bulk import/export
+- `aura-image-studio-app-dev` (3008) — AI-powered image editor
+- `aura-postgres-dev` (5432) — PostgreSQL database
+- `aura-redis-dev` (6379) — Redis cache/broker
 
 ## Related Docs
 

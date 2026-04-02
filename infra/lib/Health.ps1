@@ -5,7 +5,7 @@
 #
 # Usage:
 #   . "$PSScriptRoot\lib\Health.ps1"
-#   Wait-ForHealthy -ContainerName "saleor-api-dev"
+#   Wait-ForHealthy -ContainerName "aura-api-dev"
 #   $health = Get-AllServiceHealth -Config $config
 # ============================================================================
 

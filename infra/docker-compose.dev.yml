@@ -21,7 +21,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - saleor-network
+      - aura-network
 
   redis:
     image: redis:7-alpine
@@ -38,9 +38,9 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - saleor-network
+      - aura-network
 
-  saleor-api:
+  aura-api:
     # Use local Saleor code instead of Docker image
     build:
       context: ../saleor
@@ -58,7 +58,7 @@ services:
       # Mount only the source code (not entire /app to preserve installed packages)
       - ../saleor/saleor:/app/saleor
       - ../saleor/manage.py:/app/manage.py
-      - saleor-media:/app/media
+      - aura-media:/app/media
       # Mount custom plugins if they exist
       # Custom plugins go in saleor/plugins/custom/
       # - ../saleor/plugins/custom:/app/plugins/custom:ro
@@ -117,7 +117,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     healthcheck:
       test:
         [
@@ -131,7 +131,7 @@ services:
       retries: 10
       start_period: 240s
 
-  saleor-worker:
+  aura-worker:
     # Use same build as API (local code)
     build:
       context: ../saleor
@@ -142,7 +142,7 @@ services:
       # Mount only source code (preserves installed packages)
       - ../saleor/saleor:/app/saleor
       - ../saleor/manage.py:/app/manage.py
-      - saleor-media:/app/media
+      - aura-media:/app/media
       # Mount custom plugins
       # Custom plugins go in saleor/plugins/custom/
       # - ../saleor/plugins/custom:/app/plugins/custom:ro
@@ -173,13 +173,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     restart: unless-stopped
 
-  saleor-scheduler:
+  aura-scheduler:
     # Use same build as API (local code)
     build:
       context: ../saleor
@@ -209,13 +209,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     restart: unless-stopped
 
-  saleor-dashboard:
+  aura-dashboard:
     # Use local Dashboard code - Vite dev server with HMR
     image: node:22-alpine
     container_name: ${COMPOSE_PREFIX:-aura}-dashboard-dev
@@ -253,10 +253,10 @@ services:
       VITE_STORE_NAME: ${VITE_STORE_NAME:-Aura}
       VITE_PLATFORM_NAME: ${VITE_PLATFORM_NAME:-Aura E-Commerce Platform}
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     healthcheck:
       test:
         [
@@ -272,7 +272,7 @@ services:
       retries: 8
       start_period: 360s
 
-  saleor-storefront:
+  aura-storefront:
     # Use official Saleor Storefront (Next.js 15, React 19)
     image: node:22-alpine
     container_name: ${COMPOSE_PREFIX:-aura}-storefront-dev
@@ -311,11 +311,11 @@ services:
       NEXT_PUBLIC_DEFAULT_CHANNEL: ${NEXT_PUBLIC_DEFAULT_CHANNEL:-}
       SALEOR_APP_TOKEN: ${SALEOR_APP_TOKEN:-}
       # Internal Docker network URL for invoices app (server-to-server)
-      INVOICES_APP_INTERNAL_URL: http://saleor-invoice-app:3000
+      INVOICES_APP_INTERNAL_URL: http://aura-invoice-app:3000
       # Public URL for invoices app (for client downloads)
       INVOICES_APP_URL: ${INVOICE_APP_URL}
       # Internal Docker network URL for storefront control app (server-to-server)
-      STOREFRONT_CONTROL_APP_INTERNAL_URL: http://saleor-storefront-control-app:3000
+      STOREFRONT_CONTROL_APP_INTERNAL_URL: http://aura-storefront-control-app:3000
       # Public URL for storefront control app (for client-side fetches)
       STOREFRONT_CONTROL_APP_URL: ${STOREFRONT_CONTROL_APP_URL}
       # Tunnel URL for storefront control app (prioritized for build-time fetching)
@@ -342,10 +342,10 @@ services:
       NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
       SENTRY_AUTH_TOKEN: ${SENTRY_AUTH_TOKEN:-}
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     healthcheck:
       test:
         [
@@ -363,12 +363,12 @@ services:
 
   # SMTP App - Handles email notifications (fulfillment, invoices, etc.)
   # This app sends emails via SMTP when webhook events are triggered
-  saleor-smtp-app:
+  aura-smtp-app:
     image: node:22-alpine
     container_name: ${COMPOSE_PREFIX:-aura}-smtp-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-smtp... --prefer-offline && cd apps/smtp && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && pnpm start; else pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-smtp... --prefer-offline && cd apps/smtp && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && pnpm start; else pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -389,7 +389,7 @@ services:
       # Secret key for encrypting app metadata - MUST match Newsletter app
       SECRET_KEY: ${APP_SECRET_KEY}
       # Storefront Control URL for fetching branding (Docker internal)
-      STOREFRONT_CONTROL_APP_INTERNAL_URL: http://saleor-storefront-control-app:3000
+      STOREFRONT_CONTROL_APP_INTERNAL_URL: http://aura-storefront-control-app:3000
       # Fallback store branding (used if Storefront Control unreachable)
       STORE_NAME: ${STORE_NAME:-Your Store}
       STORE_EMAIL: ${STORE_EMAIL:-support@yourstore.com}
@@ -401,10 +401,10 @@ services:
       # Set APPS_MODE=production in .env to run production build in container
       APPS_MODE: ${APPS_MODE:-dev}
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     healthcheck:
       test:
         [
@@ -421,12 +421,12 @@ services:
       start_period: 60s
 
   # Invoice App - Generates PDF invoices for orders
-  saleor-invoice-app:
+  aura-invoice-app:
     image: node:22-alpine
     container_name: ${COMPOSE_PREFIX:-aura}-invoice-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-invoices... --prefer-offline && cd apps/invoices && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run generate && pnpm build && pnpm start; else pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-invoices... --prefer-offline && cd apps/invoices && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run generate && pnpm build && pnpm start; else pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -442,7 +442,7 @@ services:
       INVOICE_APP_API_BASE_URL: ${INVOICE_APP_API_BASE_URL}
       APP_API_BASE_URL: ${INVOICE_APP_URL}
       # Storefront Control URL for fetching branding (Docker internal)
-      STOREFRONT_CONTROL_APP_INTERNAL_URL: http://saleor-storefront-control-app:3000
+      STOREFRONT_CONTROL_APP_INTERNAL_URL: http://aura-storefront-control-app:3000
       # Fallback store branding (used if Storefront Control unreachable)
       STORE_NAME: ${STORE_NAME:-Your Store}
       STORE_EMAIL: ${STORE_EMAIL:-support@yourstore.com}
@@ -454,10 +454,10 @@ services:
       # Set APPS_MODE=production in .env to run production build in container
       APPS_MODE: ${APPS_MODE:-dev}
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     healthcheck:
       test:
         [
@@ -476,23 +476,23 @@ services:
   # Stripe App - Saleor Payment App for Stripe
   # First, clone the apps repo: git clone https://github.com/saleor/apps.git (in parent directory)
   # Then create a Saleor App in Dashboard and get the App Token
-  saleor-stripe-app:
+  aura-stripe-app:
     # Use Node.js image (same as storefront/dashboard) - no Dockerfile needed
     image: node:22-alpine
     container_name: ${COMPOSE_PREFIX:-aura}-stripe-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
     # Must install from monorepo root to get catalog entries and workspace dependencies
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-payment-stripe... --prefer-offline && cd apps/stripe && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && pnpm start; else pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-payment-stripe... --prefer-offline && cd apps/stripe && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && pnpm start; else pnpm dev; fi"
     env_file:
       - .env
     ports:
       - "${STRIPE_APP_PORT}:3000" # Different port from storefront (3000) and dashboard (9000)
     volumes:
       # Mount entire apps repository (monorepo root) for catalog support
-      # Apps folder is now inside saleor-platform directory
+      # Apps folder is now inside aura-platform directory
       # Using absolute Windows path (forward slashes work in Docker on Windows)
-      # Note: Update this path if your saleor-platform is in a different location
+      # Note: Update this path if your aura-platform is in a different location
       # Alternative: Use relative path if running from infra/ directory: ../apps:/app
       - ../apps:/app
       # Preserve node_modules at root level (monorepo structure)
@@ -540,20 +540,20 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     restart: unless-stopped
 
   # Storefront Control App - Dashboard extension for managing storefront UI configuration
   # Manages: theme, features, homepage sections, filters, quickFilters, SEO per channel
-  saleor-storefront-control-app:
+  aura-storefront-control-app:
     image: node:22-alpine
     container_name: ${COMPOSE_PREFIX:-aura}-storefront-control-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-storefront-control... --prefer-offline && cd apps/storefront-control && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-storefront-control... --prefer-offline && cd apps/storefront-control && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -569,7 +569,7 @@ services:
       STOREFRONT_CONTROL_APP_URL: ${STOREFRONT_CONTROL_APP_TUNNEL_URL:-${STOREFRONT_CONTROL_APP_URL}}
       APP_API_BASE_URL: ${STOREFRONT_CONTROL_APP_TUNNEL_URL:-${STOREFRONT_CONTROL_APP_URL}}
       # Internal Docker network URL for storefront (for webhooks within Docker network)
-      STOREFRONT_INTERNAL_URL: http://saleor-storefront:3000
+      STOREFRONT_INTERNAL_URL: http://aura-storefront:3000
       # Tunnel URL for storefront (prioritized for webhooks when using tunneling)
       STOREFRONT_TUNNEL_URL: ${STOREFRONT_TUNNEL_URL:-${NEXT_PUBLIC_STOREFRONT_URL}}
       # Public URL for storefront (fallback)
@@ -585,10 +585,10 @@ services:
       # Set APPS_MODE=production in .env to run production build in container
       APPS_MODE: ${APPS_MODE:-dev}
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     healthcheck:
       test:
         [
@@ -605,12 +605,12 @@ services:
       start_period: 60s
 
   # Newsletter App - Manage newsletter subscribers, templates, and campaigns
-  saleor-newsletter-app:
+  aura-newsletter-app:
     image: node:22-alpine
     container_name: ${COMPOSE_PREFIX:-aura}-newsletter-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-newsletter... --prefer-offline && cd apps/newsletter && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-newsletter... --prefer-offline && cd apps/newsletter && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -631,7 +631,7 @@ services:
       # Secret key for encrypting app metadata
       SECRET_KEY: ${APP_SECRET_KEY}
       # Storefront Control URL for fetching branding (Docker internal)
-      STOREFRONT_CONTROL_APP_INTERNAL_URL: http://saleor-storefront-control-app:3000
+      STOREFRONT_CONTROL_APP_INTERNAL_URL: http://aura-storefront-control-app:3000
       # Fallback store branding
       STOREFRONT_URL: ${STOREFRONT_URL:-http://localhost:3000}
       NODE_ENV: ${NODE_ENV:-development}
@@ -654,14 +654,14 @@ services:
       SMTP_FROM_NAME: ${SMTP_FROM_NAME:-}
       SMTP_ENCRYPTION: ${SMTP_ENCRYPTION:-}
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
       redis:
         condition: service_healthy
-      saleor-storefront-control-app:
+      aura-storefront-control-app:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     healthcheck:
       test:
         [
@@ -679,12 +679,12 @@ services:
 
   # Sales Analytics App - Dashboard extension for sales analytics and KPIs
   # Provides: GMV, orders, AOV, top products, category breakdown, revenue charts
-  saleor-sales-analytics-app:
+  aura-sales-analytics-app:
     image: node:22-alpine
     container_name: ${COMPOSE_PREFIX:-aura}-sales-analytics-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-sales-analytics... --prefer-offline && cd apps/sales-analytics && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-sales-analytics... --prefer-offline && cd apps/sales-analytics && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -710,10 +710,10 @@ services:
       NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
       APPS_MODE: ${APPS_MODE:-dev}
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     healthcheck:
       test:
         [
@@ -731,12 +731,12 @@ services:
 
   # Bulk Manager App - Dashboard extension for bulk import/export operations
   # Manages: CSV/Excel import/export for products, categories, collections, customers, orders, vouchers, gift cards
-  saleor-bulk-manager-app:
+  aura-bulk-manager-app:
     image: node:22-alpine
     container_name: ${COMPOSE_PREFIX:-aura}-bulk-manager-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-bulk-manager... --prefer-offline && cd apps/bulk-manager && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-bulk-manager... --prefer-offline && cd apps/bulk-manager && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -762,10 +762,10 @@ services:
       # Set APPS_MODE=production in .env to run production build in container
       APPS_MODE: ${APPS_MODE:-dev}
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     healthcheck:
       test:
         [
@@ -783,11 +783,11 @@ services:
 
   # Image Studio App - AI-powered product image editor
   # Features: Canvas editor (Fabric.js), background removal (rembg), AI generation (Flux), upscaling (Real-ESRGAN)
-  saleor-image-studio-app:
+  aura-image-studio-app:
     image: node:22-alpine
     container_name: ${COMPOSE_PREFIX:-aura}-image-studio-app-dev
     working_dir: /app
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-image-studio... --prefer-offline && cd apps/image-studio && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-image-studio... --prefer-offline && cd apps/image-studio && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -808,16 +808,16 @@ services:
       NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
       APPS_MODE: ${APPS_MODE:-dev}
       # AI Service URLs (internal Docker network)
-      REMBG_URL: http://saleor-rembg:7000
-      ESRGAN_URL: http://saleor-esrgan:7001
+      REMBG_URL: http://aura-rembg:7000
+      ESRGAN_URL: http://aura-esrgan:7001
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       STABILITY_API_KEY: ${STABILITY_API_KEY:-}
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     healthcheck:
       test:
         [
@@ -835,7 +835,7 @@ services:
 
   # rembg - AI Background Removal Service (self-hosted, CPU mode)
   # Used by Image Studio for automatic background removal (~2GB memory, first run downloads model ~170MB)
-  saleor-rembg:
+  aura-rembg:
     image: danielgatis/rembg:latest
     container_name: ${COMPOSE_PREFIX:-aura}-rembg-dev
     command: s --host 0.0.0.0 --port 7000
@@ -846,7 +846,7 @@ services:
         limits:
           memory: 2G
     networks:
-      - saleor-network
+      - aura-network
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:7000/"]
       interval: 30s
@@ -856,7 +856,7 @@ services:
 
   # Real-ESRGAN - AI Image Upscaling Service (self-hosted, CPU mode)
   # Used by Image Studio for 2x/3x/4x image upscaling (~3GB memory, 30-120s per image on CPU)
-  saleor-esrgan:
+  aura-esrgan:
     build:
       context: ./esrgan
       dockerfile: Dockerfile
@@ -868,7 +868,7 @@ services:
         limits:
           memory: 3G
     networks:
-      - saleor-network
+      - aura-network
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:7001/health"]
       interval: 30s
@@ -878,12 +878,12 @@ services:
 
   # Dropship Orchestrator App - Multi-supplier dropshipping management
   # Manages: AliExpress + CJ Dropshipping order forwarding, tracking sync, fraud detection
-  saleor-dropship-app:
+  aura-dropship-app:
     image: node:22-alpine
     container_name: ${COMPOSE_PREFIX:-aura}-dropship-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-dropship-orchestrator... --prefer-offline && cd apps/dropship-orchestrator && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-dropship-orchestrator... --prefer-offline && cd apps/dropship-orchestrator && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -913,12 +913,12 @@ services:
       # Set APPS_MODE=production in .env to run production build in container
       APPS_MODE: ${APPS_MODE:-dev}
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
       redis:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     healthcheck:
       test:
         [
@@ -936,12 +936,12 @@ services:
 
   # Tax Manager App - Self-hosted tax calculation engine
   # Provides: configurable country/state tax rates, export zero-rating, preset libraries (IL/EU/US)
-  saleor-tax-manager-app:
+  aura-tax-manager-app:
     image: node:22-alpine
     container_name: ${COMPOSE_PREFIX:-aura}-tax-manager-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-tax-manager... --prefer-offline && cd apps/tax-manager && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-tax-manager... --prefer-offline && cd apps/tax-manager && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -967,10 +967,10 @@ services:
       NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
       APPS_MODE: ${APPS_MODE:-dev}
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     healthcheck:
       test:
         [
@@ -987,11 +987,11 @@ services:
       start_period: 60s
 
   # PayPal Payment App - PayPal Commerce payments (cards + PayPal)
-  saleor-paypal-app:
+  aura-paypal-app:
     image: node:22-alpine
     container_name: ${COMPOSE_PREFIX:-aura}-paypal-app-dev
     working_dir: /app
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-payment-paypal... --prefer-offline && cd apps/paypal && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-payment-paypal... --prefer-offline && cd apps/paypal && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -1015,7 +1015,7 @@ services:
       # Tunnel URL for iframe (browser) + Docker internal for webhooks (Saleor API)
       APP_URL: ${PAYPAL_APP_TUNNEL_URL:-http://host.docker.internal:${PAYPAL_APP_PORT:-3011}}
       APP_IFRAME_BASE_URL: ${PAYPAL_APP_TUNNEL_URL:-http://host.docker.internal:${PAYPAL_APP_PORT:-3011}}
-      APP_API_BASE_URL: http://saleor-paypal-app:3000
+      APP_API_BASE_URL: http://aura-paypal-app:3000
       # Public HTTPS URL for PayPal webhook registration (PayPal → tunnel → app)
       PAYPAL_WEBHOOK_BASE_URL: ${PAYPAL_APP_TUNNEL_URL:-}
       NODE_ENV: ${NODE_ENV:-development}
@@ -1037,12 +1037,12 @@ services:
       # Set APPS_MODE=production in .env to run production build in container
       APPS_MODE: ${APPS_MODE:-dev}
     depends_on:
-      saleor-api:
+      aura-api:
         condition: service_healthy
       postgres:
         condition: service_healthy
     networks:
-      - saleor-network
+      - aura-network
     healthcheck:
       test:
         [
@@ -1063,7 +1063,7 @@ volumes:
     driver: local
   redis-data:
     driver: local
-  saleor-media:
+  aura-media:
     driver: local
   dashboard-node-modules:
     driver: local
@@ -1123,5 +1123,5 @@ volumes:
     driver: local
 
 networks:
-  saleor-network:
+  aura-network:
     driver: bridge

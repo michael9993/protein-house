@@ -15,14 +15,14 @@ Add these to `infra/.env`:
 ```env
 DROPSHIP_APP_PORT=3009
 SECRET_KEY=<generate with: openssl rand -hex 32>
-REDIS_URL=redis://saleor-redis-dev:6379
+REDIS_URL=redis://aura-redis-dev:6379
 DROPSHIP_APP_TUNNEL_URL=https://your-domain.com  # Public URL for CJ webhooks
 ```
 
 Start the container:
 
 ```bash
-docker compose -f infra/docker-compose.dev.yml up -d saleor-dropship-app-dev
+docker compose -f infra/docker-compose.dev.yml up -d aura-dropship-app-dev
 ```
 
 ## 2. Install the App in Saleor
@@ -30,7 +30,7 @@ docker compose -f infra/docker-compose.dev.yml up -d saleor-dropship-app-dev
 Navigate to **Dashboard > Apps > Install External App** and enter:
 
 ```
-http://saleor-dropship-app:3009/api/manifest
+http://aura-dropship-app:3009/api/manifest
 ```
 
 Or use the install script:

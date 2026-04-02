@@ -28,11 +28,10 @@
       "mcp__playwright-server__browser_navigate",
       "mcp__playwright-server__browser_evaluate",
       "mcp__playwright-server__browser_take_screenshot",
-      "mcp__plugin_telegram_telegram__reply"
+      "mcp__plugin_telegram_telegram__reply",
+      "mcp__playwright-server__browser_snapshot"
     ],
     "deny": [
-      "Read(./.env*)",
-      "Read(./secrets/**)",
       "Bash(rm -rf /)",
       "Bash(rm -rf /*)",
       "Bash(sudo rm -rf:*)",

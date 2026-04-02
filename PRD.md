@@ -397,25 +397,25 @@ All development happens inside Docker containers. **Never run npm/pnpm/npx direc
 
 | Container                           | Port | Description              |
 | ----------------------------------- | ---- | ------------------------ |
-| `saleor-postgres-dev`               | 5432 | PostgreSQL database      |
-| `saleor-redis-dev`                  | 6379 | Redis cache/broker       |
-| `saleor-api-dev`                    | 8000 | Saleor GraphQL API       |
-| `saleor-worker-dev`                 | -    | Celery background worker |
-| `saleor-scheduler-dev`              | -    | Celery beat scheduler    |
-| `saleor-dashboard-dev`              | 9000 | Admin dashboard          |
-| `saleor-storefront-dev`             | 3000 | Customer storefront      |
-| `saleor-storefront-control-app-dev` | 3004 | CMS configuration        |
-| `saleor-stripe-app-dev`             | 3002 | Stripe payments          |
-| `saleor-smtp-app-dev`               | 3001 | Email notifications      |
-| `saleor-invoice-app-dev`            | 3003 | PDF invoices             |
-| `saleor-newsletter-app-dev`         | 3005 | Newsletter management    |
-| `saleor-sales-analytics-app-dev`    | 3006 | Sales analytics          |
-| `saleor-bulk-manager-app-dev`       | 3007 | Bulk import/export       |
-| `saleor-image-studio-app-dev`      | 3008 | AI image editor          |
-| `saleor-dropship-app-dev`          | 3009 | Dropship orchestrator    |
-| `saleor-tax-manager-app-dev`       | 3010 | Tax calculation engine   |
-| `saleor-rembg-dev`                 | 7000 | AI background removal    |
-| `saleor-esrgan-dev`                | 7001 | AI image upscaling       |
+| `aura-postgres-dev`               | 5432 | PostgreSQL database      |
+| `aura-redis-dev`                  | 6379 | Redis cache/broker       |
+| `aura-api-dev`                    | 8000 | Saleor GraphQL API       |
+| `aura-worker-dev`                 | -    | Celery background worker |
+| `aura-scheduler-dev`              | -    | Celery beat scheduler    |
+| `aura-dashboard-dev`              | 9000 | Admin dashboard          |
+| `aura-storefront-dev`             | 3000 | Customer storefront      |
+| `aura-storefront-control-app-dev` | 3004 | CMS configuration        |
+| `aura-stripe-app-dev`             | 3002 | Stripe payments          |
+| `aura-smtp-app-dev`               | 3001 | Email notifications      |
+| `aura-invoice-app-dev`            | 3003 | PDF invoices             |
+| `aura-newsletter-app-dev`         | 3005 | Newsletter management    |
+| `aura-sales-analytics-app-dev`    | 3006 | Sales analytics          |
+| `aura-bulk-manager-app-dev`       | 3007 | Bulk import/export       |
+| `aura-image-studio-app-dev`      | 3008 | AI image editor          |
+| `aura-dropship-app-dev`          | 3009 | Dropship orchestrator    |
+| `aura-tax-manager-app-dev`       | 3010 | Tax calculation engine   |
+| `aura-rembg-dev`                 | 7000 | AI background removal    |
+| `aura-esrgan-dev`                | 7001 | AI image upscaling       |
 
 ### 5.2 Container Dependencies
 
@@ -436,10 +436,10 @@ Redis ──────┤        ├─→ Storefront
 docker compose -f infra/docker-compose.dev.yml up -d
 
 # View logs for a specific container
-docker compose -f infra/docker-compose.dev.yml logs -f saleor-storefront-dev
+docker compose -f infra/docker-compose.dev.yml logs -f aura-storefront-dev
 
 # Restart specific service
-docker compose -f infra/docker-compose.dev.yml restart saleor-storefront-dev
+docker compose -f infra/docker-compose.dev.yml restart aura-storefront-dev
 
 # Check container status
 docker compose -f infra/docker-compose.dev.yml ps
@@ -448,7 +448,7 @@ docker compose -f infra/docker-compose.dev.yml ps
 docker compose -f infra/docker-compose.dev.yml down
 
 # Rebuild a specific container (after Dockerfile changes)
-docker compose -f infra/docker-compose.dev.yml build saleor-storefront-dev
+docker compose -f infra/docker-compose.dev.yml build aura-storefront-dev
 ```
 
 ---
@@ -777,7 +777,7 @@ The following 11 locations form the configuration pipeline. When modifying any o
 3. **Never add an admin form field** without a search index entry — Cmd+K must find every setting.
 4. **When renaming a field**, update ALL 11 locations — partial renames cause silent runtime breakage.
 5. **When removing a field**, remove from ALL locations and search the storefront codebase for dangling references.
-6. **After any config change**, restart both `saleor-storefront-dev` and `saleor-storefront-control-app-dev` containers.
+6. **After any config change**, restart both `aura-storefront-dev` and `aura-storefront-control-app-dev` containers.
 
 ---
 
@@ -788,7 +788,7 @@ The following 11 locations form the configuration pipeline. When modifying any o
 The Saleor Dashboard is a React single-page application built with Vite, providing comprehensive store management capabilities.
 
 **Version:** 3.22.24
-**Container:** `saleor-dashboard-dev`
+**Container:** `aura-dashboard-dev`
 **Port:** 9000
 
 ### 8.2 Dashboard Modernization (D6 Migration)
@@ -840,7 +840,7 @@ Saleor Apps can extend the dashboard via:
 
 **Purpose:** CMS for storefront configuration without code deployments.
 
-**Container:** `saleor-storefront-control-app-dev`
+**Container:** `aura-storefront-control-app-dev`
 **Port:** 3004
 
 **Admin UI (Page-Based CMS — Shopify Theme Editor pattern):**
@@ -872,7 +872,7 @@ See [Section 7](#7-storefront-control-integration) for detailed integration docu
 
 **Purpose:** Payment processing via Stripe.
 
-**Container:** `saleor-stripe-app-dev`  
+**Container:** `aura-stripe-app-dev`  
 **Port:** 3002
 
 **Features:**
@@ -886,7 +886,7 @@ See [Section 7](#7-storefront-control-integration) for detailed integration docu
 
 **Purpose:** Email notifications via SMTP.
 
-**Container:** `saleor-smtp-app-dev`  
+**Container:** `aura-smtp-app-dev`  
 **Port:** 3001
 
 **Features:**
@@ -901,7 +901,7 @@ See [Section 7](#7-storefront-control-integration) for detailed integration docu
 
 **Purpose:** PDF invoice generation.
 
-**Container:** `saleor-invoice-app-dev`  
+**Container:** `aura-invoice-app-dev`  
 **Port:** 3003
 
 **Features:**
@@ -915,7 +915,7 @@ See [Section 7](#7-storefront-control-integration) for detailed integration docu
 
 **Purpose:** Newsletter and email campaign management.
 
-**Container:** `saleor-newsletter-app-dev`  
+**Container:** `aura-newsletter-app-dev`  
 **Port:** 3005
 
 **Features:**
@@ -930,7 +930,7 @@ See [Section 7](#7-storefront-control-integration) for detailed integration docu
 
 **Purpose:** Professional sales analytics dashboard.
 
-**Container:** `saleor-sales-analytics-app-dev`  
+**Container:** `aura-sales-analytics-app-dev`  
 **Port:** 3006
 
 **Features:**
@@ -945,7 +945,7 @@ See [Section 7](#7-storefront-control-integration) for detailed integration docu
 
 **Purpose:** Full store data migration and batch operations tool. Import entire store data from Shopify, WooCommerce, or Magento via CSV/Excel.
 
-**Container:** `saleor-bulk-manager-app-dev`
+**Container:** `aura-bulk-manager-app-dev`
 **Port:** 3007
 
 **Supported Entity Types:**
@@ -1036,7 +1036,7 @@ npm run generate      # Product Excel + CSVs
 
 **Purpose**: AI-powered product image editor embedded in Saleor Dashboard for creating professional e-commerce product images without external design tools.
 
-**Container**: `saleor-image-studio-app-dev` | **Port**: 3008
+**Container**: `aura-image-studio-app-dev` | **Port**: 3008
 
 **Key Features**:
 - **Canvas Editor** (Fabric.js v6): Full image manipulation — add images/text/shapes, select/move/resize/rotate, undo/redo (50-state history), zoom, export PNG/JPEG
@@ -1052,8 +1052,8 @@ npm run generate      # Product Excel + CSVs
 - **Keyboard Shortcuts**: Ctrl+Z/Y, Ctrl+C/V/D, Ctrl+S, Ctrl+E, Ctrl+[/], Del, Escape, zoom controls
 
 **AI Services** (separate Docker containers):
-- `saleor-rembg-dev` (port 7000): danielgatis/rembg, ~2GB memory, CPU-based
-- `saleor-esrgan-dev` (port 7001): Real-ESRGAN wrapper, ~3GB memory, CPU-based
+- `aura-rembg-dev` (port 7000): danielgatis/rembg, ~2GB memory, CPU-based
+- `aura-esrgan-dev` (port 7001): Real-ESRGAN wrapper, ~3GB memory, CPU-based
 - Nano Banana / Gemini (external): Google Gemini 2.5 Flash Image, requires `GEMINI_API_KEY` env var (free 50 req/day)
 
 **Tech Stack**: Next.js (Pages Router), tRPC (4 sub-routers: ai, products, media, enhance), Fabric.js v6, Sharp, idb-keyval, shadcn/ui + Tailwind CSS
@@ -1068,7 +1068,7 @@ npm run generate      # Product Excel + CSVs
 
 **Purpose**: Multi-supplier dropshipping middleware for mixed inventory stores. Auto-forwards dropship-tagged orders to AliExpress/CJ Dropshipping, syncs tracking/fulfillment back to Saleor, with fraud detection, financial safety controls, exception queue, and admin dashboard. Toggleable — when disabled, store operates normally with concrete inventory.
 
-**Container**: `saleor-dropship-app-dev` | **Port**: 3009
+**Container**: `aura-dropship-app-dev` | **Port**: 3009
 
 **Key Features**:
 - **Supplier Adapter Pattern**: Pluggable `SupplierAdapter` interface with `SupplierRegistry` singleton. Two adapters: AliExpress (OAuth, RPC gateway, MD5 signing, polling-based tracking) + CJ Dropshipping (API Key, REST, webhook-based tracking)
@@ -1098,7 +1098,7 @@ npm run generate      # Product Excel + CSVs
 
 **Purpose**: Self-hosted tax calculation engine that replaces external tax services (AvaTax, TaxJar). Configurable country/state tax rates with preset libraries for common jurisdictions.
 
-**Container**: `saleor-tax-manager-app-dev` | **Port**: 3010
+**Container**: `aura-tax-manager-app-dev` | **Port**: 3010
 
 **Key Features**:
 - **Tax Rate Configuration**: Per-country and per-state/province tax rates with effective dates
@@ -1332,153 +1332,153 @@ docker compose -f infra/docker-compose.dev.yml up -d
 
 ### 12.3 Storefront Commands
 
-**Container:** `saleor-storefront-dev`
+**Container:** `aura-storefront-dev`
 
 ```bash
 # Install dependencies
-docker exec -it saleor-storefront-dev pnpm install
+docker exec -it aura-storefront-dev pnpm install
 
 # Run development server (usually auto-started)
-docker exec -it saleor-storefront-dev pnpm dev
+docker exec -it aura-storefront-dev pnpm dev
 
 # Build for production
-docker exec -it saleor-storefront-dev pnpm build
+docker exec -it aura-storefront-dev pnpm build
 
 # Run linter
-docker exec -it saleor-storefront-dev pnpm lint
+docker exec -it aura-storefront-dev pnpm lint
 
 # Run TypeScript type check
-docker exec -it saleor-storefront-dev pnpm type-check
+docker exec -it aura-storefront-dev pnpm type-check
 
 # Generate GraphQL types (after schema changes)
-docker exec -it saleor-storefront-dev pnpm generate
+docker exec -it aura-storefront-dev pnpm generate
 
 # Interactive shell
-docker exec -it saleor-storefront-dev sh
+docker exec -it aura-storefront-dev sh
 ```
 
 ### 12.4 Dashboard Commands
 
-**Container:** `saleor-dashboard-dev`
+**Container:** `aura-dashboard-dev`
 
 ```bash
 # Install dependencies
-docker exec -it saleor-dashboard-dev pnpm install
+docker exec -it aura-dashboard-dev pnpm install
 
 # Run development server
-docker exec -it saleor-dashboard-dev pnpm dev
+docker exec -it aura-dashboard-dev pnpm dev
 
 # Build for production
-docker exec -it saleor-dashboard-dev pnpm build
+docker exec -it aura-dashboard-dev pnpm build
 
 # Run linter
-docker exec -it saleor-dashboard-dev pnpm lint
+docker exec -it aura-dashboard-dev pnpm lint
 
 # Run TypeScript type check
-docker exec -it saleor-dashboard-dev pnpm check-types
+docker exec -it aura-dashboard-dev pnpm check-types
 
 # Generate GraphQL types
-docker exec -it saleor-dashboard-dev pnpm generate
+docker exec -it aura-dashboard-dev pnpm generate
 
 # Run tests
-docker exec -it saleor-dashboard-dev pnpm test
+docker exec -it aura-dashboard-dev pnpm test
 ```
 
 ### 12.5 Apps Monorepo Commands
 
-**Container:** `saleor-storefront-control-app-dev` (or other app containers)
+**Container:** `aura-storefront-control-app-dev` (or other app containers)
 
 ```bash
 # Storefront Control App
-docker exec -it saleor-storefront-control-app-dev pnpm install
-docker exec -it saleor-storefront-control-app-dev pnpm dev
-docker exec -it saleor-storefront-control-app-dev pnpm build
-docker exec -it saleor-storefront-control-app-dev pnpm lint
+docker exec -it aura-storefront-control-app-dev pnpm install
+docker exec -it aura-storefront-control-app-dev pnpm dev
+docker exec -it aura-storefront-control-app-dev pnpm build
+docker exec -it aura-storefront-control-app-dev pnpm lint
 
 # Newsletter App
-docker exec -it saleor-newsletter-app-dev pnpm install
-docker exec -it saleor-newsletter-app-dev pnpm dev
+docker exec -it aura-newsletter-app-dev pnpm install
+docker exec -it aura-newsletter-app-dev pnpm dev
 
 # Sales Analytics App
-docker exec -it saleor-sales-analytics-app-dev pnpm install
-docker exec -it saleor-sales-analytics-app-dev pnpm dev
+docker exec -it aura-sales-analytics-app-dev pnpm install
+docker exec -it aura-sales-analytics-app-dev pnpm dev
 
 # SMTP App
-docker exec -it saleor-smtp-app-dev pnpm install
-docker exec -it saleor-smtp-app-dev pnpm dev
+docker exec -it aura-smtp-app-dev pnpm install
+docker exec -it aura-smtp-app-dev pnpm dev
 
 # Invoice App
-docker exec -it saleor-invoice-app-dev pnpm install
-docker exec -it saleor-invoice-app-dev pnpm dev
+docker exec -it aura-invoice-app-dev pnpm install
+docker exec -it aura-invoice-app-dev pnpm dev
 
 # Stripe App
-docker exec -it saleor-stripe-app-dev pnpm install
-docker exec -it saleor-stripe-app-dev pnpm dev
+docker exec -it aura-stripe-app-dev pnpm install
+docker exec -it aura-stripe-app-dev pnpm dev
 ```
 
 ### 12.6 Saleor API (Python/Django) Commands
 
-**Container:** `saleor-api-dev`
+**Container:** `aura-api-dev`
 
 ```bash
 # Run migrations
-docker exec -it saleor-api-dev python manage.py migrate
+docker exec -it aura-api-dev python manage.py migrate
 
 # Create migrations
-docker exec -it saleor-api-dev python manage.py makemigrations
+docker exec -it aura-api-dev python manage.py makemigrations
 
 # Build GraphQL schema
-docker exec -it saleor-api-dev python manage.py build_schema
+docker exec -it aura-api-dev python manage.py build_schema
 
 # Create superuser
-docker exec -it saleor-api-dev python manage.py createsuperuser
+docker exec -it aura-api-dev python manage.py createsuperuser
 
 # Run tests
-docker exec -it saleor-api-dev pytest --reuse-db
+docker exec -it aura-api-dev pytest --reuse-db
 
 # Run specific test file
-docker exec -it saleor-api-dev pytest --reuse-db saleor/graphql/product/tests/test_product.py
+docker exec -it aura-api-dev pytest --reuse-db saleor/graphql/product/tests/test_product.py
 
 # Interactive Django shell
-docker exec -it saleor-api-dev python manage.py shell
+docker exec -it aura-api-dev python manage.py shell
 
 # Interactive bash shell
-docker exec -it saleor-api-dev bash
+docker exec -it aura-api-dev bash
 ```
 
 ### 12.7 Database Commands
 
-**Container:** `saleor-postgres-dev`
+**Container:** `aura-postgres-dev`
 
 ```bash
 # Connect to PostgreSQL
-docker exec -it saleor-postgres-dev psql -U saleor -d saleor
+docker exec -it aura-postgres-dev psql -U saleor -d saleor
 
 # Backup database
-docker exec saleor-postgres-dev pg_dump -U saleor saleor > backup.sql
+docker exec aura-postgres-dev pg_dump -U saleor saleor > backup.sql
 
 # Restore database
-docker exec -i saleor-postgres-dev psql -U saleor saleor < backup.sql
+docker exec -i aura-postgres-dev psql -U saleor saleor < backup.sql
 ```
 
 ### 12.8 Container Restart Guidelines
 
 | Change Location                 | Container(s) to Restart                                       |
 | ------------------------------- | ------------------------------------------------------------- |
-| `saleor/` (Python code)         | `saleor-api-dev`, `saleor-worker-dev`, `saleor-scheduler-dev` |
-| `saleor/` (migrations)          | Run migrate first, then restart `saleor-api-dev`              |
-| `dashboard/`                    | `saleor-dashboard-dev`                                        |
-| `storefront/`                   | `saleor-storefront-dev`                                       |
-| `apps/apps/storefront-control/` | `saleor-storefront-control-app-dev`                           |
-| `apps/apps/stripe/`             | `saleor-stripe-app-dev`                                       |
-| `apps/apps/smtp/`               | `saleor-smtp-app-dev`                                         |
-| `apps/apps/invoices/`           | `saleor-invoice-app-dev`                                      |
-| `apps/apps/newsletter/`         | `saleor-newsletter-app-dev`                                   |
-| `apps/apps/sales-analytics/`    | `saleor-sales-analytics-app-dev`                              |
-| `apps/apps/bulk-manager/`       | `saleor-bulk-manager-app-dev`                                 |
-| `apps/apps/image-studio/`      | `saleor-image-studio-app-dev`                                 |
-| `apps/apps/dropship-orchestrator/` | `saleor-dropship-app-dev`                                 |
-| `apps/apps/tax-manager/`        | `saleor-tax-manager-app-dev`                                |
+| `saleor/` (Python code)         | `aura-api-dev`, `aura-worker-dev`, `aura-scheduler-dev` |
+| `saleor/` (migrations)          | Run migrate first, then restart `aura-api-dev`              |
+| `dashboard/`                    | `aura-dashboard-dev`                                        |
+| `storefront/`                   | `aura-storefront-dev`                                       |
+| `apps/apps/storefront-control/` | `aura-storefront-control-app-dev`                           |
+| `apps/apps/stripe/`             | `aura-stripe-app-dev`                                       |
+| `apps/apps/smtp/`               | `aura-smtp-app-dev`                                         |
+| `apps/apps/invoices/`           | `aura-invoice-app-dev`                                      |
+| `apps/apps/newsletter/`         | `aura-newsletter-app-dev`                                   |
+| `apps/apps/sales-analytics/`    | `aura-sales-analytics-app-dev`                              |
+| `apps/apps/bulk-manager/`       | `aura-bulk-manager-app-dev`                                 |
+| `apps/apps/image-studio/`      | `aura-image-studio-app-dev`                                 |
+| `apps/apps/dropship-orchestrator/` | `aura-dropship-app-dev`                                 |
+| `apps/apps/tax-manager/`        | `aura-tax-manager-app-dev`                                |
 
 **Restart command:**
 
@@ -1493,10 +1493,10 @@ docker compose -f infra/docker-compose.dev.yml restart <container-name>
 docker compose -f infra/docker-compose.dev.yml logs -f
 
 # Specific container
-docker compose -f infra/docker-compose.dev.yml logs -f saleor-storefront-dev
+docker compose -f infra/docker-compose.dev.yml logs -f aura-storefront-dev
 
 # Last 100 lines
-docker compose -f infra/docker-compose.dev.yml logs --tail=100 saleor-api-dev
+docker compose -f infra/docker-compose.dev.yml logs --tail=100 aura-api-dev
 ```
 
 ### 12.10 Code Style Guidelines
@@ -1786,4 +1786,4 @@ SMTP_HOST=smtp.example.com
 > 4. **Multi-Tenancy**: Assume the code will power multiple stores/brands
 > 5. **Documentation**: Update PRD.md and AGENTS.md when making significant changes
 > 6. **Reusability**: Extract common patterns into hooks/components - DRY principle
-> 7. **Container Names**: Use `-dev` suffix in development (e.g., `saleor-storefront-dev`)
+> 7. **Container Names**: Use `-dev` suffix in development (e.g., `aura-storefront-dev`)

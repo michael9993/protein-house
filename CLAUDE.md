@@ -97,7 +97,7 @@ Container names are parameterized via `COMPOSE_PREFIX` env var (default: `aura`)
 
 All commands use `docker exec`. For an interactive shell, use `docker exec -it <container> sh`.
 
-> **Note:** Command examples below use `saleor-` as the container name prefix (the current deployment). If you cloned this repo for a new store, replace `saleor-` with your `COMPOSE_PREFIX` value (e.g., `aura-api-dev` instead of `saleor-api-dev`).
+> **Note:** Command examples below use `aura-` as the default container name prefix. If you set a different `COMPOSE_PREFIX` in `.env`, replace `aura-` with your prefix value (e.g., `mystore-api-dev` instead of `aura-api-dev`).
 
 ### Platform CLI (`infra/platform.ps1`)
 
@@ -149,58 +149,58 @@ Clone the repo and run `platform.ps1 setup` for a fully guided setup. Or use ind
 
 **Catalog templates**: `CATALOG_TEMPLATE=starter npm run generate` (in `scripts/catalog-generator/`) generates a 20-product starter catalog instead of the default Pawzen catalog.
 
-### Saleor API (saleor/) — Container: `saleor-api-dev`
+### Saleor API (saleor/) — Container: `aura-api-dev`
 
 ```bash
-docker exec -it saleor-api-dev python manage.py migrate           # Run migrations
-docker exec -it saleor-api-dev python manage.py makemigrations     # Create migrations
-docker exec -it saleor-api-dev python manage.py build_schema       # Build GraphQL schema
-docker exec -it saleor-api-dev python manage.py createsuperuser    # Create admin user
-docker exec -it saleor-api-dev pytest --reuse-db                   # All tests
-docker exec -it saleor-api-dev pytest --reuse-db path/to/test.py   # Single file
-docker exec -it saleor-api-dev pytest --reuse-db path/to/test.py -k test_name  # Specific test
-docker exec -it saleor-api-dev ruff check .                        # Lint
-docker exec -it saleor-api-dev mypy saleor                         # Type check
+docker exec -it aura-api-dev python manage.py migrate           # Run migrations
+docker exec -it aura-api-dev python manage.py makemigrations     # Create migrations
+docker exec -it aura-api-dev python manage.py build_schema       # Build GraphQL schema
+docker exec -it aura-api-dev python manage.py createsuperuser    # Create admin user
+docker exec -it aura-api-dev pytest --reuse-db                   # All tests
+docker exec -it aura-api-dev pytest --reuse-db path/to/test.py   # Single file
+docker exec -it aura-api-dev pytest --reuse-db path/to/test.py -k test_name  # Specific test
+docker exec -it aura-api-dev ruff check .                        # Lint
+docker exec -it aura-api-dev mypy saleor                         # Type check
 ```
 
-### Dashboard (dashboard/) — Container: `saleor-dashboard-dev`
+### Dashboard (dashboard/) — Container: `aura-dashboard-dev`
 
 ```bash
-docker exec -it saleor-dashboard-dev pnpm dev           # Start dev server
-docker exec -it saleor-dashboard-dev pnpm build          # Build for production
-docker exec -it saleor-dashboard-dev pnpm generate       # Generate GraphQL types
-docker exec -it saleor-dashboard-dev pnpm test           # Run Jest tests
-docker exec -it saleor-dashboard-dev pnpm test:watch     # Watch mode
-docker exec -it saleor-dashboard-dev pnpm e2e            # Playwright E2E tests
-docker exec -it saleor-dashboard-dev pnpm lint           # ESLint + Prettier
-docker exec -it saleor-dashboard-dev pnpm check-types    # TypeScript type check
+docker exec -it aura-dashboard-dev pnpm dev           # Start dev server
+docker exec -it aura-dashboard-dev pnpm build          # Build for production
+docker exec -it aura-dashboard-dev pnpm generate       # Generate GraphQL types
+docker exec -it aura-dashboard-dev pnpm test           # Run Jest tests
+docker exec -it aura-dashboard-dev pnpm test:watch     # Watch mode
+docker exec -it aura-dashboard-dev pnpm e2e            # Playwright E2E tests
+docker exec -it aura-dashboard-dev pnpm lint           # ESLint + Prettier
+docker exec -it aura-dashboard-dev pnpm check-types    # TypeScript type check
 ```
 
-### Storefront (storefront/) — Container: `saleor-storefront-dev`
+### Storefront (storefront/) — Container: `aura-storefront-dev`
 
 ```bash
-docker exec -it saleor-storefront-dev pnpm dev           # Start dev server
-docker exec -it saleor-storefront-dev pnpm build          # Build for production
-docker exec -it saleor-storefront-dev pnpm generate       # Generate GraphQL types
-docker exec -it saleor-storefront-dev pnpm lint           # Next.js ESLint
-docker exec -it saleor-storefront-dev pnpm type-check     # TypeScript type check
+docker exec -it aura-storefront-dev pnpm dev           # Start dev server
+docker exec -it aura-storefront-dev pnpm build          # Build for production
+docker exec -it aura-storefront-dev pnpm generate       # Generate GraphQL types
+docker exec -it aura-storefront-dev pnpm lint           # Next.js ESLint
+docker exec -it aura-storefront-dev pnpm type-check     # TypeScript type check
 ```
 
 ### Apps Monorepo (apps/) — Per-app containers
 
 ```bash
 # Example with storefront-control app (replace container name for other apps)
-docker exec -it saleor-storefront-control-app-dev pnpm dev
-docker exec -it saleor-storefront-control-app-dev pnpm build
-docker exec -it saleor-storefront-control-app-dev pnpm lint
-docker exec -it saleor-storefront-control-app-dev pnpm test
+docker exec -it aura-storefront-control-app-dev pnpm dev
+docker exec -it aura-storefront-control-app-dev pnpm build
+docker exec -it aura-storefront-control-app-dev pnpm lint
+docker exec -it aura-storefront-control-app-dev pnpm test
 ```
 
-### Database — Container: `saleor-postgres-dev`
+### Database — Container: `aura-postgres-dev`
 
 ```bash
-docker exec -it saleor-postgres-dev psql -U saleor -d saleor      # Connect to DB
-docker exec saleor-postgres-dev pg_dump -U saleor saleor > backup.sql  # Backup
+docker exec -it aura-postgres-dev psql -U saleor -d saleor      # Connect to DB
+docker exec aura-postgres-dev pg_dump -U saleor saleor > backup.sql  # Backup
 ```
 
 ## Container Restart & Verification Guidelines
@@ -211,26 +211,26 @@ docker exec saleor-postgres-dev pg_dump -U saleor saleor > backup.sql  # Backup
 
 ### Container Restart Map
 
-> Container names below use the current `COMPOSE_PREFIX`. Replace `saleor-` with your prefix if different.
+> Container names below use the default `COMPOSE_PREFIX` (`aura`). Replace `aura-` with your prefix if different.
 
 | Change Location | Container(s) to Restart |
 |-----------------|------------------------|
-| `saleor/` (code changes) | `saleor-api-dev` |
-| `saleor/` (schema/models) | `saleor-api-dev`, `saleor-worker-dev`, `saleor-scheduler-dev` |
-| `saleor/` (migrations) | Run migrate first, then restart `saleor-api-dev` |
-| `dashboard/` | `saleor-dashboard-dev` |
-| `storefront/` | `saleor-storefront-dev` |
-| `apps/apps/storefront-control/` | `saleor-storefront-control-app-dev` |
-| `apps/apps/stripe/` | `saleor-stripe-app-dev` |
-| `apps/apps/smtp/` | `saleor-smtp-app-dev` |
-| `apps/apps/invoices/` | `saleor-invoice-app-dev` |
-| `apps/apps/newsletter/` | `saleor-newsletter-app-dev` |
-| `apps/apps/sales-analytics/` | `saleor-sales-analytics-app-dev` |
-| `apps/apps/bulk-manager/` | `saleor-bulk-manager-app-dev` |
-| `apps/apps/image-studio/` | `saleor-image-studio-app-dev` |
-| `apps/apps/dropship-orchestrator/` | `saleor-dropship-app-dev` |
-| `apps/apps/tax-manager/` | `saleor-tax-manager-app-dev` |
-| `apps/apps/paypal/` | `saleor-paypal-app-dev` |
+| `saleor/` (code changes) | `aura-api-dev` |
+| `saleor/` (schema/models) | `aura-api-dev`, `aura-worker-dev`, `aura-scheduler-dev` |
+| `saleor/` (migrations) | Run migrate first, then restart `aura-api-dev` |
+| `dashboard/` | `aura-dashboard-dev` |
+| `storefront/` | `aura-storefront-dev` |
+| `apps/apps/storefront-control/` | `aura-storefront-control-app-dev` |
+| `apps/apps/stripe/` | `aura-stripe-app-dev` |
+| `apps/apps/smtp/` | `aura-smtp-app-dev` |
+| `apps/apps/invoices/` | `aura-invoice-app-dev` |
+| `apps/apps/newsletter/` | `aura-newsletter-app-dev` |
+| `apps/apps/sales-analytics/` | `aura-sales-analytics-app-dev` |
+| `apps/apps/bulk-manager/` | `aura-bulk-manager-app-dev` |
+| `apps/apps/image-studio/` | `aura-image-studio-app-dev` |
+| `apps/apps/dropship-orchestrator/` | `aura-dropship-app-dev` |
+| `apps/apps/tax-manager/` | `aura-tax-manager-app-dev` |
+| `apps/apps/paypal/` | `aura-paypal-app-dev` |
 
 ```bash
 docker compose -f infra/docker-compose.dev.yml restart <container-name>
@@ -240,9 +240,9 @@ docker compose -f infra/docker-compose.dev.yml logs --tail=100 <container> # Las
 
 **If GraphQL schema changed**, regenerate types before restarting frontends:
 ```bash
-docker exec -it saleor-api-dev python manage.py build_schema
-docker exec -it saleor-dashboard-dev pnpm generate
-docker exec -it saleor-storefront-dev pnpm generate
+docker exec -it aura-api-dev python manage.py build_schema
+docker exec -it aura-dashboard-dev pnpm generate
+docker exec -it aura-storefront-dev pnpm generate
 ```
 
 ### Post-Change Verification (Always Do This)
@@ -251,32 +251,32 @@ docker exec -it saleor-storefront-dev pnpm generate
 
 | What Changed | Verification Command | Container |
 |--------------|---------------------|-----------|
-| Storefront code (`storefront/`) | `docker exec saleor-storefront-dev pnpm type-check` | `saleor-storefront-dev` |
-| Storefront code (`storefront/`) | `docker exec saleor-storefront-dev pnpm lint` | `saleor-storefront-dev` |
-| Storefront Control app | `docker exec saleor-storefront-control-app-dev pnpm build` | `saleor-storefront-control-app-dev` |
+| Storefront code (`storefront/`) | `docker exec aura-storefront-dev pnpm type-check` | `aura-storefront-dev` |
+| Storefront code (`storefront/`) | `docker exec aura-storefront-dev pnpm lint` | `aura-storefront-dev` |
+| Storefront Control app | `docker exec aura-storefront-control-app-dev pnpm build` | `aura-storefront-control-app-dev` |
 | Any app in `apps/` | `docker exec <app-container> pnpm build` | Per-app container |
-| Dashboard code | `docker exec saleor-dashboard-dev pnpm check-types` | `saleor-dashboard-dev` |
-| Python backend | `docker exec saleor-api-dev ruff check .` | `saleor-api-dev` |
-| Python backend | `docker exec saleor-api-dev mypy saleor` | `saleor-api-dev` |
+| Dashboard code | `docker exec aura-dashboard-dev pnpm check-types` | `aura-dashboard-dev` |
+| Python backend | `docker exec aura-api-dev ruff check .` | `aura-api-dev` |
+| Python backend | `docker exec aura-api-dev mypy saleor` | `aura-api-dev` |
 
 **Verification workflow after storefront changes:**
 ```bash
 # 1. Restart the container
-docker compose -f infra/docker-compose.dev.yml restart saleor-storefront-dev
+docker compose -f infra/docker-compose.dev.yml restart aura-storefront
 # 2. Wait for dev server to be ready, then type-check
-docker exec saleor-storefront-dev pnpm type-check
+docker exec aura-storefront-dev pnpm type-check
 # 3. Check logs for runtime errors
-docker compose -f infra/docker-compose.dev.yml logs --tail=50 saleor-storefront-dev
+docker compose -f infra/docker-compose.dev.yml logs --tail=50 aura-storefront
 ```
 
 **Verification workflow after Storefront Control app changes:**
 ```bash
 # 1. Restart the container
-docker compose -f infra/docker-compose.dev.yml restart saleor-storefront-control-app-dev
+docker compose -f infra/docker-compose.dev.yml restart aura-storefront-control-app
 # 2. Build to verify no type/compile errors
-docker exec saleor-storefront-control-app-dev pnpm build
+docker exec aura-storefront-control-app-dev pnpm build
 # 3. Check logs
-docker compose -f infra/docker-compose.dev.yml logs --tail=50 saleor-storefront-control-app-dev
+docker compose -f infra/docker-compose.dev.yml logs --tail=50 aura-storefront-control-app
 ```
 
 **When to check logs:** Always check container logs after restart if:
@@ -438,7 +438,7 @@ Apps in `apps/apps/` follow domain-driven design:
 ### GraphQL Integration
 
 **Storefront (urql)** — configured in `storefront/src/lib/graphql.ts`:
-- Server-side rendering with Docker service names (`http://saleor-api:8000/graphql/`)
+- Server-side rendering with Docker service names (`http://aura-api:8000/graphql/`)
 - Retry: 4 max retries with exponential backoff (1s * 2^attempt), 30s timeout
 - Per-operation caching with Next.js revalidation strategies
 - Auth via `@saleor/auth-sdk` cookies
@@ -627,7 +627,7 @@ npm run generate      # Generate product Excel + CSVs
 ### Docker & Containers
 - **HMR does NOT work reliably** — Always `docker compose restart` after changes on Windows. Never assume saves are live.
 - **Volume mount changes** require `docker compose up --force-recreate`, not just `restart`
-- **Docker restart uses service names** (e.g., `saleor-api`, `saleor-storefront`, `saleor-bulk-manager-app`), NOT container names with `-dev` suffix (e.g., NOT `saleor-api-dev`). `docker exec` uses container names (`-dev`), but `docker compose restart` uses service names (no `-dev`)
+- **Docker restart uses service names** (e.g., `aura-api`, `aura-storefront`, `aura-bulk-manager-app`), NOT container names with `-dev` suffix (e.g., NOT `aura-api-dev`). `docker exec` uses container names (`-dev`), but `docker compose restart` uses service names (no `-dev`)
 - **Catalog generator runs on the HOST** (not Docker) — it connects to Saleor via the API URL in `.env`
 
 ### TypeScript & React
@@ -661,8 +661,8 @@ All environment variables live in `infra/.env`. Key variables:
 | Variable | Purpose | Example |
 |----------|---------|---------|
 | `SECRET_KEY` | Django secret key | Random string |
-| `DATABASE_URL` | PostgreSQL connection | `postgres://saleor:saleor@saleor-postgres:5432/saleor` |
-| `ALLOWED_HOSTS` | Django allowed hosts | `localhost,saleor-api` |
+| `DATABASE_URL` | PostgreSQL connection | `postgres://saleor:saleor@aura-postgres:5432/saleor` |
+| `ALLOWED_HOSTS` | Django allowed hosts | `localhost,aura-api` |
 | `DASHBOARD_URL` | Dashboard URL for CORS | `http://localhost:9000` |
 | `STOREFRONT_URL` | Storefront URL for CORS | `http://localhost:3000` |
 | `NEXT_PUBLIC_DEFAULT_CHANNEL` | Default storefront channel | `default-channel` |
@@ -678,7 +678,7 @@ For tunneled/production access, update `ALLOWED_HOSTS`, `DASHBOARD_URL`, `STOREF
 | Problem | Diagnosis | Fix |
 |---------|-----------|-----|
 | Container won't start | `docker compose logs <container>` | Check for port conflicts, missing env vars, or syntax errors |
-| DB connection refused | `docker compose ps saleor-postgres-dev` | Ensure postgres is healthy; run `docker compose restart saleor-postgres-dev` |
+| DB connection refused | `docker compose ps aura-postgres-dev` | Ensure postgres is healthy; run `docker compose restart aura-postgres` |
 | GraphQL type errors after schema change | Types are stale | Run `build_schema` in API, then `pnpm generate` in dashboard + storefront |
 | "Module not found" in storefront | Shared package not mounted | Check volume mounts in docker-compose; run `docker compose up --force-recreate` |
 | App not appearing in Dashboard | App not registered | Run `platform.ps1 install-apps` or manually register via Dashboard > Apps |

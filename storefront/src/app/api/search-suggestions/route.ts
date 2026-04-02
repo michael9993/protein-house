@@ -207,7 +207,7 @@ function findMatchingEntries(
  */
 async function resolveCategoryId(slug: string, channel: string): Promise<string | null> {
   try {
-    const apiUrl = process.env.SALEOR_API_URL || process.env.NEXT_PUBLIC_SALEOR_API_URL || "http://saleor-api:8000/graphql/";
+    const apiUrl = process.env.SALEOR_API_URL || process.env.NEXT_PUBLIC_SALEOR_API_URL || "http://aura-api:8000/graphql/";
     const res = await fetch(apiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

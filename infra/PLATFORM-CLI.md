@@ -305,10 +305,10 @@ Authenticates with the Saleor API and removes duplicate app installations (keeps
 For deeper cleanup (including permission fixes), use the Django management command:
 
 ```bash
-docker exec saleor-api-dev python manage.py cleanup_apps           # Cleanup + fix permissions
-docker exec saleor-api-dev python manage.py cleanup_apps --dry-run  # Preview only
-docker exec saleor-api-dev python manage.py cleanup_apps --skip-permissions  # Only remove duplicates
-docker exec saleor-api-dev python manage.py cleanup_apps --skip-cleanup      # Only fix permissions
+docker exec aura-api-dev python manage.py cleanup_apps           # Cleanup + fix permissions
+docker exec aura-api-dev python manage.py cleanup_apps --dry-run  # Preview only
+docker exec aura-api-dev python manage.py cleanup_apps --skip-permissions  # Only remove duplicates
+docker exec aura-api-dev python manage.py cleanup_apps --skip-cleanup      # Only fix permissions
 ```
 
 ---
@@ -337,7 +337,7 @@ Runs `pnpm generate` in both storefront and dashboard containers.
 
 Run this after any GraphQL schema changes in the API:
 ```powershell
-docker exec saleor-api-dev python manage.py build_schema
+docker exec aura-api-dev python manage.py build_schema
 .\infra\platform.ps1 codegen
 ```
 
@@ -403,8 +403,8 @@ backup:
 services:
   api:
     port: 8000                      # Local port
-    container: "saleor-api-dev"     # Docker container name
-    compose_service: "saleor-api"   # docker-compose service name
+    container: "aura-api-dev"     # Docker container name
+    compose_service: "aura-api"   # docker-compose service name
     subdomain: "api"                # Tunnel subdomain (api.domain.com)
     health_path: "/graphql/"        # Health check endpoint
     health_check: true              # Include in startup health wait
@@ -489,28 +489,28 @@ infra/
 
 | Key | Container | Port | Description |
 |-----|-----------|------|-------------|
-| `api` | saleor-api-dev | 8000 | Saleor GraphQL API |
-| `dashboard` | saleor-dashboard-dev | 9000 | Admin Dashboard |
-| `storefront` | saleor-storefront-dev | 3000 | Customer Storefront |
-| `worker` | saleor-worker-dev | — | Celery background worker |
-| `scheduler` | saleor-scheduler-dev | — | Celery beat scheduler |
-| `postgres` | saleor-postgres-dev | 5432 | PostgreSQL database |
-| `redis` | saleor-redis-dev | 6379 | Redis cache/broker |
+| `api` | aura-api-dev | 8000 | Saleor GraphQL API |
+| `dashboard` | aura-dashboard-dev | 9000 | Admin Dashboard |
+| `storefront` | aura-storefront-dev | 3000 | Customer Storefront |
+| `worker` | aura-worker-dev | — | Celery background worker |
+| `scheduler` | aura-scheduler-dev | — | Celery beat scheduler |
+| `postgres` | aura-postgres-dev | 5432 | PostgreSQL database |
+| `redis` | aura-redis-dev | 6379 | Redis cache/broker |
 
 ### Saleor Apps (11)
 
 | Key | Container | Port | Subdomain | App ID |
 |-----|-----------|------|-----------|--------|
-| `stripe` | saleor-stripe-app-dev | 3002 | stripe | saleor.app.stripe |
-| `smtp` | saleor-smtp-app-dev | 3001 | smtp | saleor.app.smtp |
-| `invoices` | saleor-invoice-app-dev | 3003 | invoices | saleor.app.invoices |
-| `control` | saleor-storefront-control-app-dev | 3004 | control | saleor.app.storefront-control |
-| `newsletter` | saleor-newsletter-app-dev | 3005 | newsletter | saleor.app.newsletter |
-| `analytics` | saleor-sales-analytics-app-dev | 3006 | analytics | saleor.app.sales-analytics |
-| `bulk` | saleor-bulk-manager-app-dev | 3007 | bulk | saleor.app.bulk-manager |
-| `studio` | saleor-image-studio-app-dev | 3008 | studio | saleor.app.image-studio |
-| `dropship` | saleor-dropship-app-dev | 3009 | dropship | saleor.app.dropship |
-| `tax` | saleor-tax-manager-app-dev | 3010 | tax | saleor.app.tax-manager |
+| `stripe` | aura-stripe-app-dev | 3002 | stripe | saleor.app.stripe |
+| `smtp` | aura-smtp-app-dev | 3001 | smtp | saleor.app.smtp |
+| `invoices` | aura-invoice-app-dev | 3003 | invoices | saleor.app.invoices |
+| `control` | aura-storefront-control-app-dev | 3004 | control | saleor.app.storefront-control |
+| `newsletter` | aura-newsletter-app-dev | 3005 | newsletter | saleor.app.newsletter |
+| `analytics` | aura-sales-analytics-app-dev | 3006 | analytics | saleor.app.sales-analytics |
+| `bulk` | aura-bulk-manager-app-dev | 3007 | bulk | saleor.app.bulk-manager |
+| `studio` | aura-image-studio-app-dev | 3008 | studio | saleor.app.image-studio |
+| `dropship` | aura-dropship-app-dev | 3009 | dropship | saleor.app.dropship |
+| `tax` | aura-tax-manager-app-dev | 3010 | tax | saleor.app.tax-manager |
 
 ---
 
@@ -615,7 +615,7 @@ Copy-Item infra\.env.dev-backup infra\.env
 ### After GraphQL Schema Changes
 
 ```powershell
-docker exec saleor-api-dev python manage.py build_schema
+docker exec aura-api-dev python manage.py build_schema
 .\infra\platform.ps1 codegen                 # Runs in storefront + dashboard
 .\infra\platform.ps1 restart storefront
 .\infra\platform.ps1 restart dashboard

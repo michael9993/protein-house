@@ -108,7 +108,7 @@ python manage.py populatedb --createsuperuser
 
 ```powershell
 cd infra
-docker compose -f docker-compose.dev.yml up -d saleor-api
+docker compose -f docker-compose.dev.yml up -d aura-api
 ```
 
 ### Use Local API (For Development)
@@ -121,7 +121,7 @@ cd saleor
 **Note**: Both can't run on port 8000 at the same time. Stop Docker API first:
 
 ```powershell
-docker compose -f infra/docker-compose.dev.yml stop saleor-api
+docker compose -f infra/docker-compose.dev.yml stop aura-api
 ```
 
 ## Benefits of This Setup
@@ -141,7 +141,7 @@ If port 8000 is in use:
 
 ```powershell
 # Stop Docker API
-docker compose -f infra/docker-compose.dev.yml stop saleor-api
+docker compose -f infra/docker-compose.dev.yml stop aura-api
 
 # Or use different port
 python manage.py runserver 0.0.0.0:8001

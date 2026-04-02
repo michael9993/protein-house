@@ -87,12 +87,12 @@ python manage.py runserver
 Modify `docker-compose.dev.yml`:
 
 ```yaml
-saleor-api:
+aura-api:
   image: ghcr.io/saleor/saleor:latest
   volumes:
     # Mount your local Saleor clone
     - ./../saleor:/app
-    - saleor-media:/app/media
+    - aura-media:/app/media
   # Use development server with auto-reload
   command: python manage.py runserver 0.0.0.0:8000
 ```
@@ -130,7 +130,7 @@ class MyFeaturePlugin(BasePlugin):
 **Mount your plugins:**
 
 ```yaml
-saleor-api:
+aura-api:
   volumes:
     - ./../saleor/plugins/custom:/app/plugins/custom
 ```

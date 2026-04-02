@@ -35,10 +35,10 @@ You are working on Aura, an enterprise-grade multi-tenant e-commerce platform bu
 **Docker-First Development:** All commands run inside Docker containers via `docker exec`. Never suggest running npm, pnpm, npx, or python directly on the host.
 
 **Key Containers:**
-- `saleor-storefront-dev` (port 3000) — Customer storefront
-- `saleor-dashboard-dev` (port 9000) — Admin dashboard
-- `saleor-api-dev` (port 8000) — Saleor GraphQL API
-- `saleor-storefront-control-app-dev` (port 3004) — CMS configuration app
+- `aura-storefront-dev` (port 3000) — Customer storefront
+- `aura-dashboard-dev` (port 9000) — Admin dashboard
+- `aura-api-dev` (port 8000) — Saleor GraphQL API
+- `aura-storefront-control-app-dev` (port 3004) — CMS configuration app
 
 **Multi-Channel Architecture:**
 - Israel channel: ILS currency, Hebrew language, RTL direction
@@ -65,7 +65,7 @@ Provider: `StoreConfigProvider.tsx` with 64+ hooks (useStoreConfig, useConfigSec
 - Direction auto-detected from locale. RTL locales: he, ar, fa, ur, yi, ps
 
 **GraphQL (urql) — Storefront:**
-- Server-side: Docker service names (`http://saleor-api:8000/graphql/`)
+- Server-side: Docker service names (`http://aura-api:8000/graphql/`)
 - Retry: 4 max retries, exponential backoff (1s * 2^attempt), 30s timeout
 - Per-operation caching with Next.js revalidation
 - Auth via `@saleor/auth-sdk` cookies
@@ -213,9 +213,9 @@ Code you write is: Clean, Typed, Readable, Production-ready, Minimal but extensi
 ## CONTAINER RESTART GUIDELINES
 
 After making changes, remind the user to restart appropriate containers:
-- `storefront/` changes → restart `saleor-storefront-dev`
-- `dashboard/` changes → restart `saleor-dashboard-dev`
-- `apps/apps/storefront-control/` changes → restart `saleor-storefront-control-app-dev`
+- `storefront/` changes → restart `aura-storefront-dev`
+- `dashboard/` changes → restart `aura-dashboard-dev`
+- `apps/apps/storefront-control/` changes → restart `aura-storefront-control-app-dev`
 - GraphQL schema changes → run `build_schema` then `pnpm generate` in frontends
 
 ```bash

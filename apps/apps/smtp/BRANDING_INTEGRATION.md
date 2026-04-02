@@ -33,7 +33,7 @@ You can optionally set the storefront-control URL via environment variable:
 # Storefront Control URL (for fetching branding at email-send time)
 STOREFRONT_CONTROL_URL=http://storefront-control:3000
 # OR (Docker internal)
-STOREFRONT_CONTROL_APP_INTERNAL_URL=http://saleor-storefront-control-app:3000
+STOREFRONT_CONTROL_APP_INTERNAL_URL=http://aura-storefront-control-app:3000
 
 # Fallback store branding (used if Storefront Control is unreachable)
 STORE_NAME=Your Store
@@ -46,7 +46,7 @@ STORE_LOGO_URL=https://yourstore.com/logo.png
 ```
 
 If `STOREFRONT_CONTROL_URL` / `STOREFRONT_CONTROL_APP_INTERNAL_URL` is not set, the app will:
-1. Try to use Docker internal service name (`saleor-storefront-control-app:3000`) in development
+1. Try to use Docker internal service name (`aura-storefront-control-app:3000`) in development
 2. Try to construct URL from Saleor API URL
 3. Fall back to env-var-driven defaults (`STORE_NAME`, `STORE_EMAIL`, etc.)
 4. Fall back to generic "Your Store" defaults if env vars are also not set
@@ -102,7 +102,7 @@ To test the integration:
 
 1. **Check storefront-control is accessible**:
    ```bash
-   curl http://saleor-storefront-control-app:3000/api/config/default-channel
+   curl http://aura-storefront-control-app:3000/api/config/default-channel
    ```
 
 2. **Check logs** for branding fetch errors:

@@ -9,7 +9,7 @@
   - SDK: `@stripe/stripe-js` (7.3.0), `@stripe/react-stripe-js` (3.7.0)
   - Python: `stripe` (>=3.0.0, <4)
   - Auth: `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` (env vars)
-  - Implementation: `saleor-stripe-app` (App in `apps/apps/stripe/`) + Saleor payment gateway
+  - Implementation: `aura-stripe-app` (App in `apps/apps/stripe/`) + Saleor payment gateway
   - Features: Card payment, saved payment methods, webhook processing
   - Status: Full integration, multi-channel support
 
@@ -37,7 +37,7 @@
   - Status: Fallback option, Newsletter app uses this
 
 - Newsletter App - Email campaign management
-  - Container: `saleor-newsletter-app-dev` (port 3005)
+  - Container: `aura-newsletter-app-dev` (port 3005)
   - Location: `apps/apps/newsletter/`
   - Features: Subscriber management, MJML templates, campaign scheduling
   - Message Queue: Redis via BullMQ for campaign processing
@@ -45,7 +45,7 @@
   - Status: Fully functional
 
 - SMTP App - Email notification relay
-  - Container: `saleor-smtp-app-dev` (port 3001)
+  - Container: `aura-smtp-app-dev` (port 3001)
   - Location: `apps/apps/smtp/`
   - Features: Webhook-driven email for fulfillment, invoices, welcome emails
   - Auth: `APP_SECRET_KEY` for metadata encryption
@@ -64,7 +64,7 @@
 
 **Analytics & Intelligence:**
 - Sales Analytics App - Built-in analytics dashboard
-  - Container: `saleor-sales-analytics-app-dev` (port 3006)
+  - Container: `aura-sales-analytics-app-dev` (port 3006)
   - Location: `apps/apps/sales-analytics/`
   - Features: KPIs, GMV, AOV, revenue charts, top products
   - Status: Fully functional
@@ -249,8 +249,8 @@
 - `SMTP_FROM_EMAIL`, `SMTP_FROM_NAME` - Email sender info
 
 **AI Services (Image Studio):**
-- `REMBG_URL` - Background removal service (http://saleor-rembg:7000 in Docker)
-- `ESRGAN_URL` - Image upscaling service (http://saleor-esrgan:7001 in Docker)
+- `REMBG_URL` - Background removal service (http://aura-rembg:7000 in Docker)
+- `ESRGAN_URL` - Image upscaling service (http://aura-esrgan:7001 in Docker)
 - `GEMINI_API_KEY` - Google Gemini API key for image generation
 
 **Observability:**
@@ -274,32 +274,32 @@
 - Webhook signature verification: HMAC-SHA256 or RSA JWS
 
 **Outgoing Webhooks (From Saleor):**
-- **SMTP App** (`saleor-smtp-app-dev:3001`) - Email event webhooks
+- **SMTP App** (`aura-smtp-app-dev:3001`) - Email event webhooks
   - Events: order.created, order.fulfilled, order.cancelled, fulfillment.created, etc.
   - Endpoint: `/api/webhooks/saleor/`
   - Purpose: Send transactional emails via SMTP
 
-- **Stripe App** (`saleor-stripe-app-dev:3002`) - Payment processing
+- **Stripe App** (`aura-stripe-app-dev:3002`) - Payment processing
   - Events: payment_authorize, payment_capture, payment_refund
   - Endpoint: `/api/webhooks/saleor/`
   - Database: Separate postgres DB for transaction tracking
 
-- **Newsletter App** (`saleor-newsletter-app-dev:3005`) - Newsletter sync
+- **Newsletter App** (`aura-newsletter-app-dev:3005`) - Newsletter sync
   - Events: customer.created, customer.updated
   - Endpoint: `/api/webhooks/saleor/`
   - Queue: BullMQ on Redis for campaign processing
 
-- **Sales Analytics App** (`saleor-sales-analytics-app-dev:3006`)
+- **Sales Analytics App** (`aura-sales-analytics-app-dev:3006`)
   - Events: order.created, order.updated for analytics aggregation
   - Endpoint: `/api/webhooks/saleor/`
 
-- **Bulk Manager App** (`saleor-bulk-manager-app-dev:3007`)
+- **Bulk Manager App** (`aura-bulk-manager-app-dev:3007`)
   - One-way app (no webhooks), import/export only
 
-- **Image Studio App** (`saleor-image-studio-app-dev:3008`)
+- **Image Studio App** (`aura-image-studio-app-dev:3008`)
   - One-way app (no webhooks), image editing only
 
-- **Storefront Control App** (`saleor-storefront-control-app-dev:3004`)
+- **Storefront Control App** (`aura-storefront-control-app-dev:3004`)
   - Webhook: `storefront-config-updated` - Notifies storefront of config changes
   - Implementation: Custom event via PostMessage iframe bridge
 

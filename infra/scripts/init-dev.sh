@@ -98,7 +98,7 @@ docker compose -f "$INFRA_DIR/docker-compose.dev.yml" ps
 
 echo ""
 echo "🔧 Running database migrations..."
-docker compose -f "$INFRA_DIR/docker-compose.dev.yml" exec -T saleor-api python manage.py migrate
+docker compose -f "$INFRA_DIR/docker-compose.dev.yml" exec -T aura-api python manage.py migrate
 
 # Setup Stripe app PostgreSQL database and schema
 echo ""
@@ -108,13 +108,13 @@ docker compose -f "$INFRA_DIR/docker-compose.dev.yml" exec -T postgres psql -U s
 docker compose -f "$INFRA_DIR/docker-compose.dev.yml" exec -T postgres psql -U saleor -d postgres -c "CREATE DATABASE stripe_app;" 2>&1 | grep -v "already exists" || true
 
 # Run Stripe app schema migration if container is running
-if docker compose -f "$INFRA_DIR/docker-compose.dev.yml" ps saleor-stripe-app-dev | grep -q "Up"; then
+if docker compose -f "$INFRA_DIR/docker-compose.dev.yml" ps aura-stripe-app-dev | grep -q "Up"; then
     echo "📋 Running Stripe app database schema migration..."
-    docker compose -f "$INFRA_DIR/docker-compose.dev.yml" exec saleor-stripe-app-dev sh -c "cd /app/apps/stripe && pnpm setup-postgres" 2>&1 || echo "⚠️  Stripe app schema migration will run when container starts"
+    docker compose -f "$INFRA_DIR/docker-compose.dev.yml" exec aura-stripe-app-dev sh -c "cd /app/apps/stripe && pnpm setup-postgres" 2>&1 || echo "⚠️  Stripe app schema migration will run when container starts"
 else
     echo "ℹ️  Stripe app container not running. Schema will be created when you start it."
-    echo "   Run: docker compose -f $INFRA_DIR/docker-compose.dev.yml up -d saleor-stripe-app"
-    echo "   Then: docker compose -f $INFRA_DIR/docker-compose.dev.yml exec saleor-stripe-app-dev sh -c 'cd /app/apps/stripe && pnpm setup-postgres'"
+    echo "   Run: docker compose -f $INFRA_DIR/docker-compose.dev.yml up -d aura-stripe-app"
+    echo "   Then: docker compose -f $INFRA_DIR/docker-compose.dev.yml exec aura-stripe-app-dev sh -c 'cd /app/apps/stripe && pnpm setup-postgres'"
 fi
 
 echo ""
@@ -122,7 +122,7 @@ read -p "Do you want to create a superuser? (y/N): " -n 1 -r
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "👤 Creating superuser..."
-    docker compose -f "$INFRA_DIR/docker-compose.dev.yml" exec saleor-api python manage.py createsuperuser
+    docker compose -f "$INFRA_DIR/docker-compose.dev.yml" exec aura-api python manage.py createsuperuser
 fi
 
 echo ""
@@ -130,7 +130,7 @@ read -p "Do you want to load demo data? (y/N): " -n 1 -r
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "📦 Loading demo data..."
-    docker compose -f "$INFRA_DIR/docker-compose.dev.yml" exec -T saleor-api python manage.py populatedb --createsuperuser
+    docker compose -f "$INFRA_DIR/docker-compose.dev.yml" exec -T aura-api python manage.py populatedb --createsuperuser
 fi
 
 echo ""

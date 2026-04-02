@@ -64,7 +64,7 @@ This guide explains the unified configuration system for the entire Saleor platf
 3. Restart services to pick up new configuration:
 
    ```powershell
-   docker compose -f docker-compose.dev.yml restart saleor-api saleor-stripe-app saleor-dashboard saleor-storefront
+   docker compose -f docker-compose.dev.yml restart aura-api aura-stripe-app aura-dashboard aura-storefront
    ```
 
 4. Configure Stripe webhooks:
@@ -97,7 +97,7 @@ All services reference `SALEOR_API_TUNNEL_URL` for consistency:
 
 - **Tunnel**: `https://your-api-tunnel.trycloudflare.com` (NO `/graphql/` suffix)
 - **Localhost**: `http://localhost:8000` or `http://127.0.0.1:8000`
-- **Docker Internal**: `http://saleor-api:8000` (service name, used by containers)
+- **Docker Internal**: `http://aura-api:8000` (service name, used by containers)
 
 #### Stripe App URL
 
@@ -121,8 +121,8 @@ When using tunnels, Saleor's `PUBLIC_URL` must be set to the tunnel URL (not loc
 
 ### Saleor API (Django/GraphQL Backend)
 
-**Docker Service**: `saleor-api`  
-**Port**: 8000  
+**Docker Service**: `aura-api`
+**Port**: 8000
 **Configuration**: `/saleor/saleor/settings.py`
 
 **Key Environment Variables**:
@@ -133,7 +133,7 @@ PUBLIC_URL=${SALEOR_API_TUNNEL_URL:-http://localhost:8000}
 
 # Security
 SECRET_KEY=your-secret-key
-ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,saleor-api
+ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,aura-api
 ALLOWED_GRAPHQL_ORIGINS=*
 
 # Database
@@ -148,8 +148,8 @@ CELERY_BROKER_URL=redis://redis:6379/1
 
 ### Dashboard (Admin Interface)
 
-**Docker Service**: `saleor-dashboard`  
-**Port**: 9000  
+**Docker Service**: `aura-dashboard`
+**Port**: 9000
 **Framework**: Vite + React
 
 **Key Environment Variables**:
@@ -170,8 +170,8 @@ EXTENSIONS_API_URL=${EXTENSIONS_API_URL:-}
 
 ### Storefront (Customer-Facing Site)
 
-**Docker Service**: `saleor-storefront`  
-**Port**: 3000  
+**Docker Service**: `aura-storefront`
+**Port**: 3000
 **Framework**: Next.js 15 + React 19
 
 **Key Environment Variables**:
@@ -181,7 +181,7 @@ EXTENSIONS_API_URL=${EXTENSIONS_API_URL:-}
 NEXT_PUBLIC_SALEOR_API_URL=${SALEOR_API_TUNNEL_URL:-http://localhost:8000}/graphql/
 
 # Server-side codegen (can use Docker service name when not tunneled)
-SALEOR_API_URL=${SALEOR_API_TUNNEL_URL:-http://saleor-api:8000}/graphql/
+SALEOR_API_URL=${SALEOR_API_TUNNEL_URL:-http://aura-api:8000}/graphql/
 
 # Storefront URL for canonical links
 NEXT_PUBLIC_STOREFRONT_URL=${STOREFRONT_TUNNEL_URL:-http://localhost:3000}
@@ -194,15 +194,15 @@ NEXT_PUBLIC_DEFAULT_CHANNEL=default-channel
 
 ### Stripe Payment App
 
-**Docker Service**: `saleor-stripe-app`  
-**Port**: 3002 (mapped from container port 3000)  
+**Docker Service**: `aura-stripe-app`
+**Port**: 3002 (mapped from container port 3000)
 **Framework**: Next.js + tRPC
 
 **Key Environment Variables**:
 
 ```env
 # Saleor API connection (server-to-server)
-SALEOR_API_URL=${SALEOR_API_TUNNEL_URL:-http://saleor-api:8000}/graphql/
+SALEOR_API_URL=${SALEOR_API_TUNNEL_URL:-http://aura-api:8000}/graphql/
 
 # Public URL for browser/registration
 NEXT_PUBLIC_SALEOR_API_URL=${SALEOR_API_TUNNEL_URL:-http://localhost:8000}/graphql/
@@ -383,7 +383,7 @@ For self-hosted setups:
 **Solution**:
 
 1. Set `SALEOR_API_TUNNEL_URL` in `.env`
-2. Restart Saleor API: `docker compose -f docker-compose.dev.yml restart saleor-api`
+2. Restart Saleor API: `docker compose -f docker-compose.dev.yml restart aura-api`
 3. Reinstall Stripe app in Dashboard
 
 ### Dashboard Can't Connect to API

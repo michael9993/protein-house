@@ -63,7 +63,7 @@ SALES_ANALYTICS_APP_TUNNEL_URL=https://your-tunnel.trycloudflare.com
 The app is already configured in `infra/docker-compose.dev.yml`. Start with:
 
 ```bash
-docker compose -f infra/docker-compose.dev.yml up -d saleor-sales-analytics-app
+docker compose -f infra/docker-compose.dev.yml up -d aura-sales-analytics-app
 ```
 
 ### 5. Install in Dashboard

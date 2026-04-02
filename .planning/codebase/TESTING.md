@@ -20,10 +20,10 @@
   - `fakeredis` — Redis mocking
 - **Run Commands**:
 ```bash
-docker exec -it saleor-api-dev pytest --reuse-db                # All tests with DB reuse
-docker exec -it saleor-api-dev pytest --reuse-db path/test.py   # Single file
-docker exec -it saleor-api-dev pytest --reuse-db -k test_name   # Specific test
-docker exec -it saleor-api-dev pytest --cov=saleor --cov-report=html  # Coverage HTML
+docker exec -it aura-api-dev pytest --reuse-db                # All tests with DB reuse
+docker exec -it aura-api-dev pytest --reuse-db path/test.py   # Single file
+docker exec -it aura-api-dev pytest --reuse-db -k test_name   # Specific test
+docker exec -it aura-api-dev pytest --cov=saleor --cov-report=html  # Coverage HTML
 ```
 
 **Dashboard (dashboard/):**
@@ -37,8 +37,8 @@ docker exec -it saleor-api-dev pytest --cov=saleor --cov-report=html  # Coverage
   - `testUtils/setup.ts` — Global test setup
 - **Run Commands**:
 ```bash
-docker exec -it saleor-dashboard-dev pnpm test           # Watch mode
-docker exec -it saleor-dashboard-dev pnpm test:ci        # Single run for CI
+docker exec -it aura-dashboard-dev pnpm test           # Watch mode
+docker exec -it aura-dashboard-dev pnpm test:ci        # Single run for CI
 ```
 
 **Apps Monorepo:**
@@ -47,10 +47,10 @@ docker exec -it saleor-dashboard-dev pnpm test:ci        # Single run for CI
 - **Workspaces**: Each app defines unit (`units`) and E2E (`e2e`) workspaces
 - **Run Commands**:
 ```bash
-docker exec -it saleor-avatax-app-dev pnpm test           # Watch mode all tests
-docker exec -it saleor-avatax-app-dev pnpm test:ci        # Single run CI
-docker exec -it saleor-avatax-app-dev pnpm test --project units  # Unit tests only
-docker exec -it saleor-avatax-app-dev pnpm test --project e2e    # E2E tests only
+docker exec -it aura-avatax-app-dev pnpm test           # Watch mode all tests
+docker exec -it aura-avatax-app-dev pnpm test:ci        # Single run CI
+docker exec -it aura-avatax-app-dev pnpm test --project units  # Unit tests only
+docker exec -it aura-avatax-app-dev pnpm test --project e2e    # E2E tests only
 ```
 
 **Storefront (storefront/):**
@@ -311,7 +311,7 @@ const testData = {
 
 **Requirements:**
 - **Python (saleor/)**: Coverage tracked, no enforced minimum (see `pytest-cov`)
-  - Run: `docker exec saleor-api-dev pytest --cov=saleor --cov-report=html`
+  - Run: `docker exec aura-api-dev pytest --cov=saleor --cov-report=html`
   - Reports: HTML coverage report in `htmlcov/index.html`
 - **Dashboard**: Coverage configured in `jest.config.js` but not enforced
   - Collect from: `collectCoverageFrom: ["<rootDir>/src/**/*.{ts,tsx}"]`
@@ -322,11 +322,11 @@ const testData = {
 **View Coverage:**
 ```bash
 # Python (HTML report)
-docker exec saleor-api-dev pytest --cov=saleor --cov-report=html
+docker exec aura-api-dev pytest --cov=saleor --cov-report=html
 # Open htmlcov/index.html in browser
 
 # Apps (Vitest)
-docker exec saleor-avatax-app-dev pnpm test:ci --coverage
+docker exec aura-avatax-app-dev pnpm test:ci --coverage
 # HTML in coverage/ directory
 ```
 
@@ -363,9 +363,9 @@ docker exec saleor-avatax-app-dev pnpm test:ci --coverage
     - Uses templates and data interpolation via PactumJS
   - Location: `e2e/**/*.spec.ts`
   - Timeout: 63 seconds (accounts for 21s request timeout × 3 retries + buffer)
-  - Run: `docker exec saleor-avatax-app-dev pnpm test --project e2e`
+  - Run: `docker exec aura-avatax-app-dev pnpm test --project e2e`
 - **Dashboard**: Playwright E2E tests (separate from Jest)
-  - Run: `docker exec saleor-dashboard-dev pnpm e2e`
+  - Run: `docker exec aura-dashboard-dev pnpm e2e`
   - Location: `playwright/` directory (not visible in codebase read)
 
 ## Async Testing

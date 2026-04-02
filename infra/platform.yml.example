@@ -44,7 +44,7 @@ services:
   api:
     port: 8000
     container: "aura-api-dev"
-    compose_service: "saleor-api"
+    compose_service: "aura-api"
     subdomain: "api"
     health_path: "/graphql/"
     health_check: true
@@ -54,7 +54,7 @@ services:
   dashboard:
     port: 9000
     container: "aura-dashboard-dev"
-    compose_service: "saleor-dashboard"
+    compose_service: "aura-dashboard"
     subdomain: "dash"
     health_path: "/"
     tunnel_env_var: "DASHBOARD_TUNNEL_URL"
@@ -63,7 +63,7 @@ services:
   storefront:
     port: 3000
     container: "aura-storefront-dev"
-    compose_service: "saleor-storefront"
+    compose_service: "aura-storefront"
     subdomain: "shop"
     health_path: "/"
     tunnel_env_var: "STOREFRONT_TUNNEL_URL"
@@ -71,12 +71,12 @@ services:
 
   worker:
     container: "aura-worker-dev"
-    compose_service: "saleor-worker"
+    compose_service: "aura-worker"
     description: "Celery background worker"
 
   scheduler:
     container: "aura-scheduler-dev"
-    compose_service: "saleor-scheduler"
+    compose_service: "aura-scheduler"
     description: "Celery beat scheduler"
 
   postgres:
@@ -96,7 +96,7 @@ services:
   stripe:
     port: 3002
     container: "aura-stripe-app-dev"
-    compose_service: "saleor-stripe-app"
+    compose_service: "aura-stripe-app"
     subdomain: "stripe"
     tunnel_env_var: "STRIPE_APP_TUNNEL_URL"
     app_id: "stripe"
@@ -108,7 +108,7 @@ services:
   smtp:
     port: 3001
     container: "aura-smtp-app-dev"
-    compose_service: "saleor-smtp-app"
+    compose_service: "aura-smtp-app"
     subdomain: "smtp"
     tunnel_env_var: "SMTP_APP_TUNNEL_URL"
     app_id: "saleor.app.smtp"
@@ -122,7 +122,7 @@ services:
   invoices:
     port: 3003
     container: "aura-invoice-app-dev"
-    compose_service: "saleor-invoice-app"
+    compose_service: "aura-invoice-app"
     subdomain: "invoices"
     tunnel_env_var: "INVOICE_APP_TUNNEL_URL"
     app_id: "saleor.app.invoices"
@@ -134,7 +134,7 @@ services:
   control:
     port: 3004
     container: "aura-storefront-control-app-dev"
-    compose_service: "saleor-storefront-control-app"
+    compose_service: "aura-storefront-control-app"
     subdomain: "control"
     tunnel_env_var: "STOREFRONT_CONTROL_APP_TUNNEL_URL"
     app_id: "saleor.app.storefront-control"
@@ -147,7 +147,7 @@ services:
   newsletter:
     port: 3005
     container: "aura-newsletter-app-dev"
-    compose_service: "saleor-newsletter-app"
+    compose_service: "aura-newsletter-app"
     subdomain: "newsletter"
     tunnel_env_var: "NEWSLETTER_APP_TUNNEL_URL"
     app_id: "saleor.app.newsletter"
@@ -160,7 +160,7 @@ services:
   analytics:
     port: 3006
     container: "aura-sales-analytics-app-dev"
-    compose_service: "saleor-sales-analytics-app"
+    compose_service: "aura-sales-analytics-app"
     subdomain: "analytics"
     tunnel_env_var: "SALES_ANALYTICS_APP_TUNNEL_URL"
     app_id: "saleor.app.sales-analytics"
@@ -174,7 +174,7 @@ services:
   bulk:
     port: 3007
     container: "aura-bulk-manager-app-dev"
-    compose_service: "saleor-bulk-manager-app"
+    compose_service: "aura-bulk-manager-app"
     subdomain: "bulk"
     tunnel_env_var: "BULK_MANAGER_APP_TUNNEL_URL"
     app_id: "saleor.app.bulk-manager"
@@ -195,7 +195,7 @@ services:
   studio:
     port: 3008
     container: "aura-image-studio-app-dev"
-    compose_service: "saleor-image-studio-app"
+    compose_service: "aura-image-studio-app"
     subdomain: "studio"
     tunnel_env_var: "IMAGE_STUDIO_APP_TUNNEL_URL"
     app_id: "saleor.app.image-studio"
@@ -208,7 +208,7 @@ services:
   dropship:
     port: 3009
     container: "aura-dropship-app-dev"
-    compose_service: "saleor-dropship-app"
+    compose_service: "aura-dropship-app"
     subdomain: "dropship"
     tunnel_env_var: "DROPSHIP_APP_TUNNEL_URL"
     app_id: "saleor.app.dropship-orchestrator"
@@ -226,7 +226,7 @@ services:
   tax:
     port: 3010
     container: "aura-tax-manager-app-dev"
-    compose_service: "saleor-tax-manager-app"
+    compose_service: "aura-tax-manager-app"
     subdomain: "tax"
     tunnel_env_var: "TAX_MANAGER_APP_TUNNEL_URL"
     app_id: "saleor.app.tax-manager"
@@ -239,7 +239,7 @@ services:
   paypal:
     port: 3011
     container: "aura-paypal-app-dev"
-    compose_service: "saleor-paypal-app"
+    compose_service: "aura-paypal-app"
     subdomain: "ext1"
     tunnel_env_var: "PAYPAL_APP_TUNNEL_URL"
     app_id: "saleor.app.payment.paypal"

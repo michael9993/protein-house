@@ -10,11 +10,11 @@ Next.js 16 App Router + React 19 + TypeScript customer-facing storefront. All co
 ## Commands
 
 ```bash
-docker exec -it saleor-storefront-dev pnpm dev          # Start dev server (port 3000)
-docker exec -it saleor-storefront-dev pnpm build         # Production build
-docker exec -it saleor-storefront-dev pnpm generate      # Regenerate GraphQL types
-docker exec -it saleor-storefront-dev pnpm lint          # ESLint (next lint)
-docker exec -it saleor-storefront-dev pnpm type-check    # TypeScript strict check
+docker exec -it aura-storefront-dev pnpm dev          # Start dev server (port 3000)
+docker exec -it aura-storefront-dev pnpm build         # Production build
+docker exec -it aura-storefront-dev pnpm generate      # Regenerate GraphQL types
+docker exec -it aura-storefront-dev pnpm lint          # ESLint (next lint)
+docker exec -it aura-storefront-dev pnpm type-check    # TypeScript strict check
 ```
 
 **E2E tests run on the HOST machine** (not Docker):
@@ -104,7 +104,7 @@ Server components use CSS vars directly: `style={{ backgroundColor: 'var(--cd-la
 
 ### GraphQL
 - Client: urql in `src/lib/graphql.ts`
-- Server-side uses Docker service name: `http://saleor-api:8000/graphql/`
+- Server-side uses Docker service name: `http://aura-api:8000/graphql/`
 - 4 max retries, exponential backoff, 30s timeout
 - Auth: `@saleor/auth-sdk` cookies
 - After schema changes: `pnpm generate` then restart container
@@ -128,7 +128,7 @@ Server components use CSS vars directly: `style={{ backgroundColor: 'var(--cd-la
 
 ## Gotchas
 
-- **HMR unreliable** — Always `docker compose restart saleor-storefront-dev` after changes on Windows
+- **HMR unreliable** — Always `docker compose restart aura-storefront` after changes on Windows
 - **Shared package access** — Docker volume mounts `../apps:/apps:ro`; tsconfig needs `"zod": ["./node_modules/zod"]`
 - **`export { X } from` is NOT local** — Must also `import { X }` to use in the same file
 - **ReactNode return type** — Don't use explicit `: ReactNode` on components used as JSX children (React 18 compat)

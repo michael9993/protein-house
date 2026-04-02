@@ -400,7 +400,7 @@ export function PriceRangeFilter({
                     : undefined
                 }
               >
-                <span>{currencySymbol ? range.label.replace(/(\d+)/g, `${currencySymbol}$1`) : range.label}</span>
+                <span>{currencySymbol ? range.label.replace(/(\d+)/g, (m) => `${currencySymbol}${m}`) : range.label}</span>
                 {isActive && (
                   <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />

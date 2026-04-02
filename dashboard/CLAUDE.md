@@ -10,14 +10,14 @@ React 18 + Vite + TypeScript admin dashboard. All commands run inside Docker.
 ## Commands
 
 ```bash
-docker exec -it saleor-dashboard-dev pnpm dev            # Start dev server (port 9000)
-docker exec -it saleor-dashboard-dev pnpm build           # Production build
-docker exec -it saleor-dashboard-dev pnpm generate        # Regenerate GraphQL types
-docker exec -it saleor-dashboard-dev pnpm check-types     # TypeScript type check
-docker exec -it saleor-dashboard-dev pnpm lint            # ESLint + Prettier
-docker exec -it saleor-dashboard-dev pnpm test            # Jest unit tests
-docker exec -it saleor-dashboard-dev pnpm test:watch      # Watch mode
-docker exec -it saleor-dashboard-dev pnpm e2e             # Playwright E2E tests
+docker exec -it aura-dashboard-dev pnpm dev            # Start dev server (port 9000)
+docker exec -it aura-dashboard-dev pnpm build           # Production build
+docker exec -it aura-dashboard-dev pnpm generate        # Regenerate GraphQL types
+docker exec -it aura-dashboard-dev pnpm check-types     # TypeScript type check
+docker exec -it aura-dashboard-dev pnpm lint            # ESLint + Prettier
+docker exec -it aura-dashboard-dev pnpm test            # Jest unit tests
+docker exec -it aura-dashboard-dev pnpm test:watch      # Watch mode
+docker exec -it aura-dashboard-dev pnpm e2e             # Playwright E2E tests
 ```
 
 ## Directory Structure
@@ -87,8 +87,8 @@ macaw-ui sets `html { font-size: 50.782% }` making **1rem = ~8px**. Tailwind `@t
 
 Two schemas (main + staging). After schema changes:
 ```bash
-docker exec -it saleor-api-dev python manage.py build_schema
-docker exec -it saleor-dashboard-dev pnpm generate
+docker exec -it aura-api-dev python manage.py build_schema
+docker exec -it aura-dashboard-dev pnpm generate
 ```
 
 ## Code Style
@@ -106,7 +106,7 @@ docker exec -it saleor-dashboard-dev pnpm generate
 - **TableRowLink inline style** — Must use `style={{ all: "inherit", display: "contents" }}`, NOT Tailwind classes (CSS generation order issue)
 - **withQs required** — React Router v7 rejects trailing `?` in pathnames. Always use `withQs(path, params)` instead of manual query string building
 - **~140 files still import MUI** — These are active macaw-ui-next dependencies, not migration leftovers. Future D7+ phases will address them
-- **HMR unreliable** — Always restart `saleor-dashboard-dev` after changes on Windows
+- **HMR unreliable** — Always restart `aura-dashboard-dev` after changes on Windows
 
 ## Testing
 

@@ -9,7 +9,7 @@
  *   2. STOREFRONT_CONTROL_APP_URL (public URL)
  *   3. STOREFRONT_CONTROL_URL (generic URL)
  *   4. STOREFRONT_CONTROL_APP_INTERNAL_URL (internal Docker network URL)
- *   5. Default: http://saleor-storefront-control-app:3000
+ *   5. Default: http://aura-storefront-control-app:3000
  * 
  * Usage:
  *   STOREFRONT_CONTROL_APP_TUNNEL_URL=https://your-tunnel-url.com \
@@ -30,7 +30,7 @@ const CONTROL_URL =
   process.env.STOREFRONT_CONTROL_APP_URL || 
   process.env.STOREFRONT_CONTROL_URL || 
   process.env.STOREFRONT_CONTROL_APP_INTERNAL_URL || 
-  "http://saleor-storefront-control-app:3000";
+  "http://aura-storefront-control-app:3000";
 const SALEOR_API_URL = process.env.SALEOR_API_URL || process.env.NEXT_PUBLIC_SALEOR_API_URL;
 const CHANNELS = (process.env.STOREFRONT_CHANNELS || "default").split(",").map((s) => s.trim());
 

@@ -41,7 +41,7 @@ If RichTextEditor or Combobox misbehave (e.g. content disappearing, double-mount
   1. Add `VITE_DISABLE_STRICT_MODE=true` to **infra/.env** (not dashboard/.env).
   2. Rebuild/restart the dashboard container so the build step runs with that env:
      ```bash
-     docker compose -f infra/docker-compose.dev.yml up -d --build saleor-dashboard
+     docker compose -f infra/docker-compose.dev.yml up -d --build aura-dashboard
      ```
      Or restart after changing .env (the container runs install + generate + build on start, so a full restart will rebuild with the new env).
 

@@ -127,36 +127,36 @@ See `infra/SELF-HOSTED.md` for full Cloudflare tunnel setup instructions.
 
 | Container | Port | Purpose |
 |-----------|------|---------|
-| `saleor-api-dev` | 8000 | Saleor GraphQL API |
-| `saleor-worker-dev` | - | Celery background worker |
-| `saleor-scheduler-dev` | - | Celery beat scheduler |
-| `saleor-dashboard-dev` | 9000 | Admin dashboard |
-| `saleor-storefront-dev` | 3000 | Customer storefront |
-| `saleor-postgres-dev` | 5432 | PostgreSQL database |
-| `saleor-redis-dev` | 6379 | Redis cache/broker |
+| `aura-api-dev` | 8000 | Saleor GraphQL API |
+| `aura-worker-dev` | - | Celery background worker |
+| `aura-scheduler-dev` | - | Celery beat scheduler |
+| `aura-dashboard-dev` | 9000 | Admin dashboard |
+| `aura-storefront-dev` | 3000 | Customer storefront |
+| `aura-postgres-dev` | 5432 | PostgreSQL database |
+| `aura-redis-dev` | 6379 | Redis cache/broker |
 
 ### Saleor Apps
 
 | App | Container | Port | Purpose |
 |-----|-----------|------|---------|
-| Storefront Control | `saleor-storefront-control-app-dev` | 3004 | CMS configuration & live preview |
-| SMTP | `saleor-smtp-app-dev` | 3001 | Email notifications |
-| Stripe | `saleor-stripe-app-dev` | 3002 | Payment processing |
-| Invoices | `saleor-invoice-app-dev` | 3003 | PDF invoice generation |
-| Newsletter | `saleor-newsletter-app-dev` | 3005 | Subscriber management & campaigns |
-| Sales Analytics | `saleor-sales-analytics-app-dev` | 3006 | KPIs, charts, Excel export |
-| Bulk Manager | `saleor-bulk-manager-app-dev` | 3007 | Bulk import/export/delete |
-| Image Studio | `saleor-image-studio-app-dev` | 3008 | AI-powered image editor |
-| Dropship Orchestrator | `saleor-dropship-app-dev` | 3009 | AliExpress + CJ dropshipping |
-| Tax Manager | `saleor-tax-manager-app-dev` | 3010 | Self-hosted tax calculation |
-| PayPal | `saleor-paypal-app-dev` | 3011 | PayPal Commerce payments |
+| Storefront Control | `aura-storefront-control-app-dev` | 3004 | CMS configuration & live preview |
+| SMTP | `aura-smtp-app-dev` | 3001 | Email notifications |
+| Stripe | `aura-stripe-app-dev` | 3002 | Payment processing |
+| Invoices | `aura-invoice-app-dev` | 3003 | PDF invoice generation |
+| Newsletter | `aura-newsletter-app-dev` | 3005 | Subscriber management & campaigns |
+| Sales Analytics | `aura-sales-analytics-app-dev` | 3006 | KPIs, charts, Excel export |
+| Bulk Manager | `aura-bulk-manager-app-dev` | 3007 | Bulk import/export/delete |
+| Image Studio | `aura-image-studio-app-dev` | 3008 | AI-powered image editor |
+| Dropship Orchestrator | `aura-dropship-app-dev` | 3009 | AliExpress + CJ dropshipping |
+| Tax Manager | `aura-tax-manager-app-dev` | 3010 | Self-hosted tax calculation |
+| PayPal | `aura-paypal-app-dev` | 3011 | PayPal Commerce payments |
 
 ### AI Services (Image Studio)
 
 | Container | Port | Purpose |
 |-----------|------|---------|
-| `saleor-rembg-dev` | 7000 | AI background removal |
-| `saleor-esrgan-dev` | 7001 | AI image upscaling |
+| `aura-rembg-dev` | 7000 | AI background removal |
+| `aura-esrgan-dev` | 7001 | AI image upscaling |
 
 ## Platform CLI Commands
 
@@ -242,13 +242,13 @@ Then restart the storefront:
    STRIPE_SECRET_KEY=sk_test_...
    STRIPE_WEBHOOK_SECRET=whsec_...
    ```
-3. Restart: `.\infra\platform.ps1 restart saleor-stripe-app`
+3. Restart: `.\infra\platform.ps1 restart aura-stripe-app`
 4. In Dashboard → **Apps** → **Stripe** → configure the payment channels
 
 **PayPal** (optional):
 1. Get API credentials from [PayPal Developer](https://developer.paypal.com/)
 2. The PayPal app uses file-based config — see `apps/apps/paypal/README.md`
-3. Restart: `.\infra\platform.ps1 restart saleor-paypal-app`
+3. Restart: `.\infra\platform.ps1 restart aura-paypal-app`
 
 ### Step F: Configure Email (SMTP)
 
@@ -266,7 +266,7 @@ SMTP_FROM_EMAIL=noreply@yourdomain.com
 
 > **Gmail note**: Use an [App Password](https://myaccount.google.com/apppasswords), not your account password. Gmail overrides the "From" address — configure "Send mail as" alias if needed.
 
-Restart: `.\infra\platform.ps1 restart saleor-smtp-app`
+Restart: `.\infra\platform.ps1 restart aura-smtp-app`
 
 In Dashboard → **Apps** → **SMTP** → enable event templates (order confirmation, shipping, etc.)
 

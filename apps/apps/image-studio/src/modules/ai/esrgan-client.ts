@@ -1,9 +1,9 @@
 /**
  * HTTP client for Real-ESRGAN Docker container (image upscaling).
- * Expects the container at ESRGAN_URL (default: http://saleor-esrgan:7001).
+ * Expects the container at ESRGAN_URL (default: http://aura-esrgan:7001).
  */
 
-const ESRGAN_URL = process.env.ESRGAN_URL || "http://saleor-esrgan:7001";
+const ESRGAN_URL = process.env.ESRGAN_URL || "http://aura-esrgan:7001";
 
 export interface EsrganResult {
   success: boolean;
