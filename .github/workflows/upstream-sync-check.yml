@@ -1,0 +1,57 @@
+name: Check Upstream Updates
+# Runs weekly to notify if the upstream template has new commits.
+# Also available as manual trigger from GitHub Actions UI.
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday at 9am UTC
+  workflow_dispatch:
+
+jobs:
+  check-upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read upstream URL from .aura-sync
+        id: config
+        run: |
+          if [ -f .aura-sync ]; then
+            URL=$(grep 'url:' .aura-sync | head -1 | sed 's/.*"\(.*\)".*/\1/')
+            BRANCH=$(grep 'branch:' .aura-sync | head -1 | sed 's/.*"\(.*\)".*/\1/')
+            echo "url=$URL" >> $GITHUB_OUTPUT
+            echo "branch=${BRANCH:-main}" >> $GITHUB_OUTPUT
+          else
+            echo "url=" >> $GITHUB_OUTPUT
+            echo "branch=main" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Add upstream remote
+        if: steps.config.outputs.url != ''
+        run: git remote add upstream ${{ steps.config.outputs.url }} 2>/dev/null || true
+
+      - name: Fetch upstream
+        if: steps.config.outputs.url != ''
+        run: git fetch upstream ${{ steps.config.outputs.branch }}
+
+      - name: Check for updates
+        if: steps.config.outputs.url != ''
+        run: |
+          BEHIND=$(git rev-list --count HEAD..upstream/${{ steps.config.outputs.branch }})
+          if [ "$BEHIND" -gt "0" ]; then
+            echo "::warning::$BEHIND commits behind upstream. Run: platform.ps1 sync"
+            echo "## Upstream Updates Available" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "This store is **$BEHIND commits** behind the upstream template." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Run \`.\infra\platform.ps1 sync\` to pull platform improvements." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Recent upstream commits:" >> $GITHUB_STEP_SUMMARY
+            git log --oneline HEAD..upstream/${{ steps.config.outputs.branch }} | head -10 >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Already up to date with upstream."
+            echo "## Up to Date" >> $GITHUB_STEP_SUMMARY
+            echo "This store is in sync with the upstream template." >> $GITHUB_STEP_SUMMARY
+          fi

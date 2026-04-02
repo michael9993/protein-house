@@ -1,0 +1,58 @@
+# .aura-sync — Upstream Sync Policy
+# ============================================================================
+# Defines which files sync from the upstream template vs which are protected
+# as store-specific customizations. Used by `platform.ps1 sync` and
+# documented for developers.
+#
+# Three categories:
+#   sync     — Platform code, always pull from upstream
+#   protect  — Store-specific, never overwrite (via .gitattributes merge=ours)
+#   ignore   — Already .gitignored, never in git, never conflict
+# ============================================================================
+
+upstream:
+  url: "https://github.com/michael9993/aura-platform.git"
+  branch: "main"
+
+# Files that ALWAYS sync from upstream (platform improvements, bug fixes)
+sync:
+  - "saleor/**"
+  - "dashboard/**"
+  - "storefront/src/**"
+  - "storefront/e2e/**"
+  - "apps/apps/*/src/**"
+  - "apps/packages/**"
+  - "infra/platform.ps1"
+  - "infra/lib/**"
+  - "infra/scripts/**"
+  - "infra/docker-compose.*.yml"
+  - "infra/*.example"
+  - "*.config.*"
+  - "package.json"
+  - "pnpm-lock.yaml"
+  - ".gitattributes"
+  - ".aura-sync"
+  - "SETUP-GUIDE.md"
+  - "CLONE-GUIDE.md"
+  - "UPGRADE-EXISTING-CLONE.md"
+
+# Files that NEVER sync (store-specific, protected by .gitattributes merge=ours)
+protect:
+  - "apps/apps/storefront-control/sample-config-import*.json"
+  - "storefront/storefront-cms-config.json"
+  - "scripts/catalog-generator/src/config/products.ts"
+  - "scripts/catalog-generator/src/config/categories.ts"
+  - "scripts/catalog-generator/src/config/collections.ts"
+  - "PRD.md"
+  - "SEO-AUDIT-REPORT.md"
+  - "STOREFRONT-AUDIT-SCORECARD.md"
+  - "pnpm-lock.yaml"
+
+# Files already .gitignored (never in git, never conflict)
+gitignored:
+  - "infra/.env"
+  - "infra/platform.yml"
+  - "infra/cloudflared-config.yml"
+  - "scripts/catalog-generator/config.yml"
+  - "**/.saleor-app-auth.json"
+  - "scripts/catalog-generator/output/**"

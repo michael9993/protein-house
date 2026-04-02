@@ -39,3 +39,35 @@
 *.zip binary
 *.tar.gz binary
 
+# ============================================================================
+# Upstream Sync Protection
+# ============================================================================
+# Files marked "merge=ours" KEEP the downstream (store) version during
+# `git merge upstream/main`, preventing upstream from overwriting
+# store-specific customizations.
+#
+# Setup (one-time per clone): git config merge.ours.driver true
+# ============================================================================
+
+# Store-specific sample configs — keep downstream version
+apps/apps/storefront-control/sample-config-import.json merge=ours
+apps/apps/storefront-control/sample-config-import-en.json merge=ours
+storefront/storefront-cms-config.json merge=ours
+
+# Store-specific catalog data
+scripts/catalog-generator/src/config/products.ts merge=ours
+scripts/catalog-generator/src/config/categories.ts merge=ours
+scripts/catalog-generator/src/config/collections.ts merge=ours
+
+# Store-specific documentation (has brand references)
+PRD.md merge=ours
+
+# Store-specific client configs
+apps/apps/storefront-control/mansour\ configs/** merge=ours
+
+# Store-specific audit reports
+SEO-AUDIT-REPORT.md merge=ours
+STOREFRONT-AUDIT-SCORECARD.md merge=ours
+
+# Lockfiles — accept upstream, regenerate locally via pnpm install
+pnpm-lock.yaml merge=ours

@@ -1322,6 +1322,172 @@ $($ingressLines -join "`n")
     }
 
     # =========================================================================
+    "sync" {
+        Write-Banner -Title "Upstream Sync" -Subtitle "Pull platform improvements from template repo"
+
+        $repoRoot = Split-Path -Parent $PSScriptRoot
+        Push-Location $repoRoot
+
+        try {
+            # 1. Read .aura-sync config
+            $syncFile = Join-Path $repoRoot ".aura-sync"
+            if (-not (Test-Path $syncFile)) {
+                Write-Err ".aura-sync not found. Is this a downstream clone?"
+                exit 1
+            }
+
+            # Parse upstream URL from .aura-sync (simple grep, no YAML module needed)
+            $upstreamUrl = (Get-Content $syncFile | Where-Object { $_ -match '^\s+url:' } | Select-Object -First 1) -replace '.*"(.+)".*', '$1'
+            $upstreamBranch = (Get-Content $syncFile | Where-Object { $_ -match '^\s+branch:' } | Select-Object -First 1) -replace '.*"(.+)".*', '$1'
+            if (-not $upstreamBranch) { $upstreamBranch = "main" }
+
+            # 2. Ensure upstream remote exists
+            $remotes = git remote 2>$null
+            if ("upstream" -notin $remotes) {
+                if (-not $upstreamUrl) {
+                    Write-Err "No upstream URL configured in .aura-sync"
+                    exit 1
+                }
+                git remote add upstream $upstreamUrl
+                Write-Success "Added upstream remote: $upstreamUrl"
+            }
+
+            # 3. Ensure merge=ours driver is configured
+            $driver = git config merge.ours.driver 2>$null
+            if ($driver -ne "true") {
+                git config merge.ours.driver true
+                Write-Success "Configured merge=ours driver for store file protection"
+            }
+
+            # 4. Fetch upstream
+            Write-Step -Current 1 -Total 5 -Message "Fetching upstream changes..."
+            git fetch upstream $upstreamBranch 2>$null
+            if ($LASTEXITCODE -ne 0) {
+                Write-Err "Failed to fetch upstream. Check your network connection."
+                exit 1
+            }
+
+            # 5. Check how far behind
+            $behind = git rev-list --count "HEAD..upstream/$upstreamBranch" 2>$null
+            if ($behind -eq 0) {
+                Write-Success "Already up to date with upstream."
+                return
+            }
+            Write-Host "  $behind commits available from upstream" -ForegroundColor Cyan
+            Write-Host ""
+
+            # Show changed files summary
+            Write-Step -Current 2 -Total 5 -Message "Analyzing changes..."
+            git --no-pager diff --stat "HEAD...upstream/$upstreamBranch" 2>$null
+            Write-Host ""
+
+            if ($DryRun) {
+                Write-Host "Dry run -- no changes applied." -ForegroundColor Yellow
+                return
+            }
+
+            # 6. Merge upstream (merge=ours protects store files via .gitattributes)
+            Write-Step -Current 3 -Total 5 -Message "Merging upstream changes..."
+            git merge "upstream/$upstreamBranch" --no-edit 2>$null
+
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warn "Merge conflicts detected. Resolve manually:"
+                git diff --name-only --diff-filter=U 2>$null
+                Write-Host ""
+                Write-Host "After resolving: git add . && git commit" -ForegroundColor Gray
+                return
+            }
+
+            # 7. Detect what changed for post-merge automation
+            $changedFiles = git diff --name-only "HEAD~$behind" HEAD 2>$null
+
+            # 7a. Dependencies changed?
+            $depsChanged = $changedFiles | Where-Object { $_ -match 'package\.json|pnpm-lock\.yaml' }
+            if ($depsChanged) {
+                Write-Step -Current 4 -Total 5 -Message "Post-merge: updating dependencies..."
+                $prefix = if ($env:COMPOSE_PREFIX) { $env:COMPOSE_PREFIX } else { "aura" }
+                docker compose -f "$PSScriptRoot/docker-compose.dev.yml" exec "$prefix-storefront" pnpm install 2>$null
+                docker compose -f "$PSScriptRoot/docker-compose.dev.yml" exec "$prefix-dashboard" pnpm install 2>$null
+            }
+
+            # 7b. Backend changed? Run migrations + codegen
+            $backendChanged = $changedFiles | Where-Object { $_ -match '^saleor/' }
+            if ($backendChanged) {
+                Write-Step -Current 4 -Total 5 -Message "Post-merge: running migrations + codegen..."
+                $apiContainer = $config.services.api.container
+                if ($apiContainer) {
+                    docker exec $apiContainer python manage.py migrate 2>$null
+                    docker exec $apiContainer python manage.py build_schema 2>$null
+                }
+                docker compose -f "$PSScriptRoot/docker-compose.dev.yml" exec aura-storefront pnpm generate 2>$null
+                docker compose -f "$PSScriptRoot/docker-compose.dev.yml" exec aura-dashboard pnpm generate 2>$null
+            }
+
+            # 7c. Check for new env vars in .env.example
+            $envExampleChanged = $changedFiles | Where-Object { $_ -match '\.env\.example$' }
+            if ($envExampleChanged) {
+                $envPath = Join-Path $PSScriptRoot ".env"
+                $examplePath = Join-Path $PSScriptRoot ".env.example"
+                if ((Test-Path $envPath) -and (Test-Path $examplePath)) {
+                    . "$PSScriptRoot\lib\EnvManager.ps1"
+                    $template = Read-EnvFile $examplePath
+                    $local = Read-EnvFile $envPath
+                    $missing = @()
+                    foreach ($key in $template.Keys) {
+                        if (-not $local.ContainsKey($key)) {
+                            $missing += "$key=$($template[$key])"
+                        }
+                    }
+                    if ($missing.Count -gt 0) {
+                        Write-Warn "New environment variables added by upstream ($($missing.Count) vars):"
+                        foreach ($m in $missing) { Write-Host "  + $m" -ForegroundColor Yellow }
+                        Write-Host ""
+                        Write-Host "Add these to your infra/.env file." -ForegroundColor Gray
+                    }
+                }
+            }
+
+            # 7d. Restart containers
+            Write-Step -Current 5 -Total 5 -Message "Post-merge: restarting containers..."
+            $infraChanged = $changedFiles | Where-Object { $_ -match 'Dockerfile|docker-compose|\.env\.example' }
+            $frontendChanged = $changedFiles | Where-Object { $_ -match '^storefront/|^dashboard/' }
+
+            if ($infraChanged) {
+                Write-Host "  Infrastructure changed -- rebuilding containers..." -ForegroundColor Yellow
+                docker compose -f "$PSScriptRoot/docker-compose.dev.yml" up -d --build 2>$null
+            } elseif ($frontendChanged) {
+                Write-Host "  Frontend changed -- rebuilding storefront + dashboard..." -ForegroundColor Yellow
+                docker compose -f "$PSScriptRoot/docker-compose.dev.yml" up -d --build aura-storefront aura-dashboard 2>$null
+            } else {
+                docker compose -f "$PSScriptRoot/docker-compose.dev.yml" restart 2>$null
+            }
+
+            Write-Success "Upstream sync complete! $behind commits merged."
+        } finally {
+            Pop-Location
+        }
+    }
+
+    # =========================================================================
+    "refresh-urls" {
+        Write-Banner -Title "Refresh URLs" -Subtitle "Re-register apps with current tunnel/domain URLs"
+
+        Write-Host "This will delete and re-install all Saleor apps so webhooks" -ForegroundColor Yellow
+        Write-Host "are registered with the current URLs from .env." -ForegroundColor Yellow
+        Write-Host ""
+
+        $confirm = Read-Host "Continue? (y/n)"
+        if ($confirm -ne "y" -and $confirm -ne "yes") {
+            Write-Host "Cancelled." -ForegroundColor Gray
+            return
+        }
+
+        # Reuse existing install-apps logic which already does delete + reinstall
+        Write-Host ""
+        & $PSCommandPath install-apps
+    }
+
+    # =========================================================================
     default {
         Write-Err "Unknown command: '$Command'"
         Write-Host "Run '.\infra\platform.ps1 help' for usage." -ForegroundColor Gray
