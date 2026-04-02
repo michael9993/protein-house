@@ -63,7 +63,7 @@ scripts/catalog-generator/src/config/collections.ts merge=ours
 PRD.md merge=ours
 
 # Store-specific client configs
-apps/apps/storefront-control/mansour\ configs/** merge=ours
+"apps/apps/storefront-control/mansour configs/**" merge=ours
 
 # Store-specific audit reports
 SEO-AUDIT-REPORT.md merge=ours
