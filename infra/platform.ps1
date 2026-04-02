@@ -233,6 +233,42 @@ switch ($Command.ToLower()) {
             Write-Success "Ports are using defaults (all free)"
         }
 
+        # Update all URL-based env vars to use the actual allocated ports
+        $apiPort = $allocatedPorts["SALEOR_API_PORT"]
+        $dashPort = $allocatedPorts["DASHBOARD_PORT"]
+        $sfPort = $allocatedPorts["STOREFRONT_PORT"]
+        $smtpPort = $allocatedPorts["SMTP_APP_PORT"]
+        $stripePort = $allocatedPorts["STRIPE_APP_PORT"]
+        $invoicePort = $allocatedPorts["INVOICE_APP_PORT"]
+        $controlPort = $allocatedPorts["STOREFRONT_CONTROL_APP_PORT"]
+        $newsletterPort = $allocatedPorts["NEWSLETTER_APP_PORT"]
+        $analyticsPort = $allocatedPorts["SALES_ANALYTICS_APP_PORT"]
+        $bulkPort = $allocatedPorts["BULK_MANAGER_APP_PORT"]
+        $studioPort = $allocatedPorts["IMAGE_STUDIO_APP_PORT"]
+        $dropshipPort = $allocatedPorts["DROPSHIP_APP_PORT"]
+        $taxPort = $allocatedPorts["TAX_MANAGER_APP_PORT"]
+        $paypalPort = $allocatedPorts["PAYPAL_APP_PORT"]
+
+        # Core URLs
+        Set-EnvValue -Path $envFile -Key "NEXT_PUBLIC_SALEOR_API_URL" -Value "http://localhost:$apiPort/graphql/"
+        Set-EnvValue -Path $envFile -Key "NEXT_PUBLIC_SALEOR_HOST_URL" -Value "http://localhost:$apiPort"
+        Set-EnvValue -Path $envFile -Key "NEXT_PUBLIC_STOREFRONT_URL" -Value "http://localhost:$sfPort"
+        Set-EnvValue -Path $envFile -Key "PUBLIC_URL" -Value "http://localhost:$apiPort"
+        Set-EnvValue -Path $envFile -Key "AURA_API_URL" -Value "http://localhost:$apiPort/graphql/"
+        Set-EnvValue -Path $envFile -Key "DASHBOARD_URL" -Value "http://localhost:$dashPort"
+        Set-EnvValue -Path $envFile -Key "STOREFRONT_URL" -Value "http://localhost:$sfPort"
+
+        # Dashboard build-time vars
+        Set-EnvValue -Path $envFile -Key "API_URL" -Value "http://localhost:$apiPort/graphql/"
+        Set-EnvValue -Path $envFile -Key "VITE_API_URL" -Value "http://localhost:$apiPort/graphql/"
+
+        # ALLOWED_CLIENT_HOSTS with correct ports
+        Set-EnvValue -Path $envFile -Key "ALLOWED_CLIENT_HOSTS" -Value "localhost:$sfPort,localhost:$dashPort,127.0.0.1:$dashPort"
+        Set-EnvValue -Path $envFile -Key "ALLOWED_GRAPHQL_ORIGINS" -Value "http://localhost:$sfPort,http://localhost:$dashPort"
+        Set-EnvValue -Path $envFile -Key "CSRF_TRUSTED_ORIGINS" -Value "http://localhost:$sfPort,http://localhost:$dashPort"
+
+        Write-Success "URLs updated to match allocated ports"
+
         # ---- Step 3: New Store wizard ----
         $currentSetupStep++
         if (Test-SetupStep -InfraDir $infraDir -Step "new_store") {
