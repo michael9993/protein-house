@@ -808,8 +808,8 @@ services:
       NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
       APPS_MODE: ${APPS_MODE:-dev}
       # AI Service URLs (internal Docker network)
-      REMBG_URL: http://aura-rembg:7000
-      ESRGAN_URL: http://aura-esrgan:7001
+      REMBG_URL: http://aura-rembg:${REMBG_PORT:-7000}
+      ESRGAN_URL: http://aura-esrgan:${ESRGAN_PORT:-7001}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       STABILITY_API_KEY: ${STABILITY_API_KEY:-}
@@ -838,9 +838,9 @@ services:
   aura-rembg:
     image: danielgatis/rembg:latest
     container_name: ${COMPOSE_PREFIX:-aura}-rembg-dev
-    command: s --host 0.0.0.0 --port 7000
+    command: s --host 0.0.0.0 --port ${REMBG_PORT:-7000}
     ports:
-      - "7000:7000"
+      - "${REMBG_PORT:-7000}:${REMBG_PORT:-7000}"
     deploy:
       resources:
         limits:
@@ -848,7 +848,7 @@ services:
     networks:
       - aura-network
     healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:7000/"]
+      test: ["CMD", "curl", "-sf", "http://localhost:${REMBG_PORT:-7000}/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -862,7 +862,7 @@ services:
       dockerfile: Dockerfile
     container_name: ${COMPOSE_PREFIX:-aura}-esrgan-dev
     ports:
-      - "7001:7001"
+      - "${ESRGAN_PORT:-7001}:${ESRGAN_PORT:-7001}"
     deploy:
       resources:
         limits:
@@ -870,7 +870,7 @@ services:
     networks:
       - aura-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:7001/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:${ESRGAN_PORT:-7001}/health"]
       interval: 30s
       timeout: 10s
       retries: 3
