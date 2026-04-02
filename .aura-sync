@@ -46,7 +46,8 @@ protect:
   - "PRD.md"
   - "SEO-AUDIT-REPORT.md"
   - "STOREFRONT-AUDIT-SCORECARD.md"
-  - "pnpm-lock.yaml"
+  - "apps/apps/storefront-control/mansour configs/**"
+  - "**/pnpm-lock.yaml"
 
 # Files already .gitignored (never in git, never conflict)
 gitignored:

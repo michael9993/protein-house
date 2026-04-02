@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 /**
  * Proxy route for images in Docker environment
- * Proxies requests from localhost:8000 to saleor-api:8000
+ * Proxies requests from localhost:8000 to aura-api:8000
  */
 export async function GET(
 	request: NextRequest,

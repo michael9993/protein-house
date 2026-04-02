@@ -70,4 +70,4 @@ SEO-AUDIT-REPORT.md merge=ours
 STOREFRONT-AUDIT-SCORECARD.md merge=ours
 
 # Lockfiles — accept upstream, regenerate locally via pnpm install
-pnpm-lock.yaml merge=ours
+**/pnpm-lock.yaml merge=ours
