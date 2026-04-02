@@ -746,6 +746,23 @@ if (Test-Path $catalogConfigPath) {
     $modifiedFiles += $catalogConfigPath
 }
 
+# --------------------------------------------------------------------------
+# Update CLAUDE.md project overview
+# --------------------------------------------------------------------------
+$claudeMdPath = Join-Path $repoRoot "CLAUDE.md"
+if (Test-Path $claudeMdPath) {
+    $claudeContent = Get-Content $claudeMdPath -Raw
+    # Update the project overview line to mention current store
+    if ($claudeContent -match 'Current store: [^.]+\.') {
+        $claudeContent = $claudeContent -replace 'Current store: [^.]+\.', "Current store: $StoreName."
+    } elseif ($claudeContent -match 'modular app ecosystem\.') {
+        $claudeContent = $claudeContent -replace 'modular app ecosystem\.', "modular app ecosystem. Current store: $StoreName."
+    }
+    [System.IO.File]::WriteAllText($claudeMdPath, $claudeContent, [System.Text.UTF8Encoding]::new($false))
+    Write-Success "CLAUDE.md (project overview)"
+    $modifiedFiles += $claudeMdPath
+}
+
 # ============================================================================
 # Final summary
 # ============================================================================
@@ -787,6 +804,6 @@ Write-ColorOutput "  $stepNum. Update Hebrew text:  Edit sample-config-import.js
 Write-ColorOutput "  $stepNum. Catalog setup:       cd scripts\catalog-generator && CATALOG_TEMPLATE=starter npm run generate" "White"; $stepNum++
 Write-ColorOutput "  $stepNum. Payment setup:       Configure Stripe/PayPal keys in Dashboard > Extensions" "White"; $stepNum++
 Write-Host ""
-Write-ColorOutput "Full guide: CLONE-GUIDE.md" $colors.Info
+Write-ColorOutput "Full guide: SETUP-GUIDE.md | CLONE-GUIDE.md" $colors.Info
 Write-ColorOutput "To rebrand again, simply re-run this script with new values." $colors.Info
 Write-Host ""
