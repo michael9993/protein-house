@@ -64,6 +64,8 @@ eggs/
 lib/
 !infra/lib/
 !storefront/src/lib/
+!apps/apps/*/src/lib/
+!apps/apps/*/src/modules/lib/
 lib64/
 parts/
 sdist/

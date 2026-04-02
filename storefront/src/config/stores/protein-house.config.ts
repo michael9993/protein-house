@@ -8,7 +8,7 @@
 
 import { createStoreConfig, StoreConfig } from '../store.config';
 
-export const protein-houseConfig: StoreConfig = createStoreConfig('physical', {
+export const proteinHouseConfig: StoreConfig = createStoreConfig('physical', {
   store: {
     name: "Protein House",
     tagline: "Premium Sports Nutrition",
@@ -98,4 +98,4 @@ export const protein-houseConfig: StoreConfig = createStoreConfig('physical', {
   },
 });
 
-export default protein-houseConfig;
+export default proteinHouseConfig;

@@ -306,7 +306,7 @@ services:
     environment:
       # All URLs from .env file
       NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
-      SALEOR_API_URL: ${SALEOR_API_URL}
+      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
       NEXT_PUBLIC_STOREFRONT_URL: ${NEXT_PUBLIC_STOREFRONT_URL}
       NEXT_PUBLIC_DEFAULT_CHANNEL: ${NEXT_PUBLIC_DEFAULT_CHANNEL:-}
       SALEOR_APP_TOKEN: ${SALEOR_APP_TOKEN:-}
@@ -378,7 +378,7 @@ services:
       - smtp-app-node-modules:/app/node_modules
       - smtp-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      SALEOR_API_URL: ${SALEOR_API_URL}
+      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
       NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
       STRIPE_APP_URL: ${STRIPE_APP_URL}
       STRIPE_APP_API_BASE_URL: ${STRIPE_APP_API_BASE_URL}
@@ -436,7 +436,7 @@ services:
       - invoice-app-node-modules:/app/node_modules
       - invoice-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      SALEOR_API_URL: ${SALEOR_API_URL}
+      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
       NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
       INVOICE_APP_URL: ${INVOICE_APP_URL}
       INVOICE_APP_API_BASE_URL: ${INVOICE_APP_API_BASE_URL}
@@ -504,7 +504,7 @@ services:
     environment:
       # All configuration from .env file
       # Stripe app uses same API URLs as storefront
-      SALEOR_API_URL: ${SALEOR_API_URL}
+      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
       NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
       SALEOR_APP_TOKEN: ${STRIPE_APP_TOKEN}
 
@@ -563,7 +563,7 @@ services:
       - storefront-control-app-node-modules:/app/node_modules
       - storefront-control-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      SALEOR_API_URL: ${SALEOR_API_URL}
+      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
       NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
       # Use tunnel URL for app registration (Dashboard needs to reach this)
       STOREFRONT_CONTROL_APP_URL: ${STOREFRONT_CONTROL_APP_TUNNEL_URL:-${STOREFRONT_CONTROL_APP_URL}}
@@ -620,7 +620,7 @@ services:
       - newsletter-app-node-modules:/app/node_modules
       - newsletter-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      SALEOR_API_URL: ${SALEOR_API_URL}
+      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
       NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
       # Use tunnel URL for app registration (Dashboard needs to reach this)
       NEWSLETTER_APP_URL: ${NEWSLETTER_APP_TUNNEL_URL:-http://localhost:${NEWSLETTER_APP_PORT:-3005}}
@@ -694,7 +694,7 @@ services:
       - sales-analytics-app-node-modules:/app/node_modules
       - sales-analytics-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      SALEOR_API_URL: ${SALEOR_API_URL}
+      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
       NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
       # Use tunnel URL for app registration (Dashboard needs to reach this)
       SALES_ANALYTICS_APP_URL: ${SALES_ANALYTICS_APP_TUNNEL_URL:-http://localhost:${SALES_ANALYTICS_APP_PORT:-3006}}
@@ -746,7 +746,7 @@ services:
       - bulk-manager-app-node-modules:/app/node_modules
       - bulk-manager-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      SALEOR_API_URL: ${SALEOR_API_URL}
+      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
       NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
       # Use tunnel URL for app registration (Dashboard needs to reach this)
       BULK_MANAGER_APP_URL: ${BULK_MANAGER_APP_TUNNEL_URL:-http://localhost:${BULK_MANAGER_APP_PORT:-3007}}
@@ -797,7 +797,7 @@ services:
       - image-studio-app-node-modules:/app/node_modules
       - image-studio-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      SALEOR_API_URL: ${SALEOR_API_URL}
+      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
       NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
       IMAGE_STUDIO_APP_URL: ${IMAGE_STUDIO_APP_TUNNEL_URL:-http://localhost:${IMAGE_STUDIO_APP_PORT:-3008}}
       APP_API_BASE_URL: ${IMAGE_STUDIO_APP_TUNNEL_URL:-http://localhost:${IMAGE_STUDIO_APP_PORT:-3008}}
@@ -893,7 +893,7 @@ services:
       - dropship-app-node-modules:/app/node_modules
       - dropship-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      SALEOR_API_URL: ${SALEOR_API_URL}
+      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
       NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
       # Docker internal URL for webhooks (Saleor API → app communication)
       DROPSHIP_APP_URL: ${DROPSHIP_APP_TUNNEL_URL:-http://localhost:${DROPSHIP_APP_PORT:-3009}}
@@ -951,7 +951,7 @@ services:
       - tax-manager-app-node-modules:/app/node_modules
       - tax-manager-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      SALEOR_API_URL: ${SALEOR_API_URL}
+      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
       NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
       # Use tunnel URL for app registration (Dashboard needs to reach this)
       TAX_MANAGER_APP_URL: ${TAX_MANAGER_APP_TUNNEL_URL:-http://localhost:${TAX_MANAGER_APP_PORT:-3010}}
@@ -1001,7 +1001,7 @@ services:
       - paypal-app-node-modules:/app/node_modules
       - paypal-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      SALEOR_API_URL: ${SALEOR_API_URL}
+      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
       NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
 
       # PayPal API keys - From .env
