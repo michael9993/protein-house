@@ -368,7 +368,7 @@ services:
     container_name: ${COMPOSE_PREFIX:-aura}-smtp-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-smtp... --prefer-offline && cd apps/smtp && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && pnpm start; else pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-smtp... --prefer-offline && cd apps/smtp && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && pnpm start; else pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -426,7 +426,7 @@ services:
     container_name: ${COMPOSE_PREFIX:-aura}-invoice-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-invoices... --prefer-offline && cd apps/invoices && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run generate && pnpm build && pnpm start; else pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-invoices... --prefer-offline && cd apps/invoices && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run generate && pnpm build && pnpm start; else pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -483,7 +483,7 @@ services:
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
     # Must install from monorepo root to get catalog entries and workspace dependencies
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-payment-stripe... --prefer-offline && cd apps/stripe && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && pnpm start; else pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-payment-stripe... --prefer-offline && cd apps/stripe && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && pnpm start; else pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -553,7 +553,7 @@ services:
     container_name: ${COMPOSE_PREFIX:-aura}-storefront-control-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-storefront-control... --prefer-offline && cd apps/storefront-control && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-storefront-control... --prefer-offline && cd apps/storefront-control && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -610,7 +610,7 @@ services:
     container_name: ${COMPOSE_PREFIX:-aura}-newsletter-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-newsletter... --prefer-offline && cd apps/newsletter && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-newsletter... --prefer-offline && cd apps/newsletter && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -684,7 +684,7 @@ services:
     container_name: ${COMPOSE_PREFIX:-aura}-sales-analytics-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-sales-analytics... --prefer-offline && cd apps/sales-analytics && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-sales-analytics... --prefer-offline && cd apps/sales-analytics && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -736,7 +736,7 @@ services:
     container_name: ${COMPOSE_PREFIX:-aura}-bulk-manager-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-bulk-manager... --prefer-offline && cd apps/bulk-manager && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-bulk-manager... --prefer-offline && cd apps/bulk-manager && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -787,7 +787,7 @@ services:
     image: node:22-alpine
     container_name: ${COMPOSE_PREFIX:-aura}-image-studio-app-dev
     working_dir: /app
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-image-studio... --prefer-offline && cd apps/image-studio && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-image-studio... --prefer-offline && cd apps/image-studio && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -883,7 +883,7 @@ services:
     container_name: ${COMPOSE_PREFIX:-aura}-dropship-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-dropship-orchestrator... --prefer-offline && cd apps/dropship-orchestrator && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-dropship-orchestrator... --prefer-offline && cd apps/dropship-orchestrator && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -941,7 +941,7 @@ services:
     container_name: ${COMPOSE_PREFIX:-aura}-tax-manager-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-tax-manager... --prefer-offline && cd apps/tax-manager && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-tax-manager... --prefer-offline && cd apps/tax-manager && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -991,7 +991,7 @@ services:
     image: node:22-alpine
     container_name: ${COMPOSE_PREFIX:-aura}-paypal-app-dev
     working_dir: /app
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-payment-paypal... --prefer-offline && cd apps/paypal && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-payment-paypal... --prefer-offline && cd apps/paypal && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
