@@ -63,6 +63,7 @@ eggs/
 .eggs/
 lib/
 !infra/lib/
+!storefront/src/lib/
 lib64/
 parts/
 sdist/
