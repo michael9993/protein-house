@@ -7,11 +7,11 @@
     "updatedAt": "2026-03-27T05:34:41.417Z",
     "channelSlug": "usd",
     "store": {
-      "name": "Pawzen",
-      "tagline": "Calm. Curated. Pet Care.",
+      "name": "My Store",
+      "tagline": "Welcome to our store",
       "type": "physical",
       "description": "Modern, curated pet accessories for dogs and cats. Thoughtfully designed products for your furry family.",
-      "email": "support@pawzenpets.shop",
+      "email": "support@mystore.com",
       "phone": "",
       "address": {
         "street": "",
@@ -24,8 +24,8 @@
       "taxId": ""
     },
     "branding": {
-      "logo": "/logo/pawzen-logo.png",
-      "logoAlt": "Pawzen - Modern Pet Accessories",
+      "logo": "",
+      "logoAlt": "My Store",
       "favicon": "/favicon.ico",
       "colors": {
         "primary": "#1B2838",
@@ -203,7 +203,7 @@
       "showFooterContactButton": true,
       "showMenu": true,
       "showBrand": true,
-      "copyrightText": "© 2026 Pawzen. All rights reserved.",
+      "copyrightText": "© 2026 My Store. All rights reserved.",
       "legalLinks": {
         "trackOrder": {
           "enabled": true,
@@ -232,12 +232,12 @@
       },
       "returnPolicyPageTitle": "Returns & Exchanges Policy",
       "returnPolicyHeader": "Return Policy",
-      "returnPolicyContent": "## Returns & Exchanges — Pawzen\n\n### Product Exchange\n\n1. To exchange a product, contact us at support@pawzenpets.shop within 30 days of receipt.\n2. The product must be unused and in its original packaging.\n3. Return shipping is at the customer's expense.\n4. Once we receive the returned item, we'll ship the replacement product free of charge.\n\nProducts returned without original packaging, used, or damaged will not be exchanged or refunded.\n\n### Product Return & Refund\n\n1. To return a product, email support@pawzenpets.shop within 30 days of receipt.\n2. The product must be unused and in its original packaging.\n3. Return shipping is at the customer's expense.\n4. Refunds are for product cost only (shipping fees are non-refundable).\n5. Refunds are processed within 5 business days of receiving the returned item, using the original payment method.\n\n### Order Cancellation\n\n1. Orders can be cancelled before shipment by emailing support@pawzenpets.shop.\n2. If the order has already shipped, follow the return procedure above.\n3. Pawzen reserves the right to cancel orders in cases of pricing errors, stock issues, or suspected fraud.",
+      "returnPolicyContent": "## Returns & Exchanges\n\n### Product Exchange\n\n1. To exchange a product, contact us at support@mystore.com within 30 days of receipt.\n2. The product must be unused and in its original packaging.\n3. Return shipping is at the customer's expense.\n4. Once we receive the returned item, we'll ship the replacement product free of charge.\n\nProducts returned without original packaging, used, or damaged will not be exchanged or refunded.\n\n### Product Return & Refund\n\n1. To return a product, email support@mystore.com within 30 days of receipt.\n2. The product must be unused and in its original packaging.\n3. Return shipping is at the customer's expense.\n4. Refunds are for product cost only (shipping fees are non-refundable).\n5. Refunds are processed within 5 business days of receiving the returned item, using the original payment method.\n\n### Order Cancellation\n\n1. Orders can be cancelled before shipment by emailing support@mystore.com.\n2. If the order has already shipped, follow the return procedure above.\n3. We reserve the right to cancel orders in cases of pricing errors, stock issues, or suspected fraud.",
       "returnPolicyDefaultContent": "We accept returns within 30 days of purchase. Items must be in original condition with tags attached.",
       "returnPolicyFooter": "",
       "shippingPolicyPageTitle": "Shipping Policy",
       "shippingPolicyHeader": "Shipping Policy",
-      "shippingPolicyContent": "## Shipping Policy — Pawzen\n\n1. Select your preferred shipping method at checkout. Shipping costs will be added to the product price.\n\n2. Packages are dispatched within 2 business days of placing your order.\n\n3. Standard Shipping: $9.99 (7-30 business days).\n\n4. Express Shipping: $24.99 (3-7 business days).\n\n5. Free Shipping on orders over $75 (10-21 business days).\n\n6. A tracking number and SMS/email notification will be sent once your order ships.\n\n7. Pawzen is not responsible for delays caused by the shipping carrier or customs.\n\nFor shipping inquiries, contact us at support@pawzenpets.shop",
+      "shippingPolicyContent": "## Shipping Policy\n\n1. Select your preferred shipping method at checkout. Shipping costs will be added to the product price.\n\n2. Packages are dispatched within 2 business days of placing your order.\n\n3. Standard Shipping: $9.99 (7-30 business days).\n\n4. Express Shipping: $24.99 (3-7 business days).\n\n5. Free Shipping on orders over $75 (10-21 business days).\n\n6. A tracking number and SMS/email notification will be sent once your order ships.\n\n7. We are not responsible for delays caused by the shipping carrier or customs.\n\nFor shipping inquiries, contact us at support@mystore.com",
       "shippingPolicyDefaultContent": "We offer free standard shipping on orders over $50. Express shipping available at checkout.",
       "shippingPolicyFooter": "",
       "privacyPolicyPageTitle": "Privacy Policy",
@@ -247,13 +247,13 @@
       "privacyPolicyFooter": "",
       "termsOfServicePageTitle": "Terms of Service",
       "termsOfServiceHeader": "Terms of Service",
-      "termsOfServiceContent": "## Terms of Service — Pawzen\n\n1. Please read these terms carefully before using our store.\n2. By browsing or purchasing from Pawzen, you agree to these terms.\n3. All prices include applicable taxes unless stated otherwise.\n4. Product images are for illustration purposes. Minor color variations may occur.\n\n## Purchasing\n\nPawzen offers pet accessories at fixed prices, subject to availability. Add items to your cart and complete checkout with your details and payment information.\n\n## Exchanges\n\n1. Products may be exchanged within 30 days of receipt if unused and in original packaging.\n2. Contact support@pawzen.co to initiate an exchange.\n3. Return shipping is at the customer's expense.\n4. Replacement items ship free of charge once we receive your return.\n\n## Returns & Refunds\n\n1. Returns accepted within 30 days of receipt for unused items in original packaging.\n2. Contact support@pawzenpets.shop to initiate a return.\n3. Return shipping is at the customer's expense.\n4. Refunds cover product cost only (shipping is non-refundable).\n5. Refunds processed within 5 business days via original payment method.\n\n## Order Cancellation\n\n1. Orders may be cancelled before shipment by emailing support@pawzenpets.shop.\n2. After shipment, follow the returns procedure above.\n3. Pawzen may cancel orders due to pricing errors, stock issues, or suspected fraud.\n\n## Shipping\n\n1. Orders are dispatched within 2 business days of payment confirmation.\n2. Pawzen is not responsible for carrier delays beyond our control.\n3. Delivery estimates refer to business days only.\n\n## Warranty\n\n1. Products are warranted against manufacturing defects only.\n2. Warranty does not cover normal wear and tear, misuse, or damage caused by pets.\n3. Proof of purchase is required for warranty claims.\n\n## Customer Service\n\nFor questions or support, contact us at support@pawzenpets.shop.\n\n## General\n\n1. All content on the site (graphics, design, trademarks, logos) is the exclusive property of Pawzen.\n2. Pawzen is not liable for indirect or consequential damages from site use.\n3. Content may not be reproduced without prior written consent from Pawzen.",
+      "termsOfServiceContent": "## Terms of Service\n\n1. Please read these terms carefully before using our store.\n2. By browsing or purchasing from our store, you agree to these terms.\n3. All prices include applicable taxes unless stated otherwise.\n4. Product images are for illustration purposes. Minor color variations may occur.\n\n## Purchasing\n\nWe offer products at fixed prices, subject to availability. Add items to your cart and complete checkout with your details and payment information.\n\n## Exchanges\n\n1. Products may be exchanged within 30 days of receipt if unused and in original packaging.\n2. Contact support@mystore.com to initiate an exchange.\n3. Return shipping is at the customer's expense.\n4. Replacement items ship free of charge once we receive your return.\n\n## Returns & Refunds\n\n1. Returns accepted within 30 days of receipt for unused items in original packaging.\n2. Contact support@mystore.com to initiate a return.\n3. Return shipping is at the customer's expense.\n4. Refunds cover product cost only (shipping is non-refundable).\n5. Refunds processed within 5 business days via original payment method.\n\n## Order Cancellation\n\n1. Orders may be cancelled before shipment by emailing support@mystore.com.\n2. After shipment, follow the returns procedure above.\n3. We may cancel orders due to pricing errors, stock issues, or suspected fraud.\n\n## Shipping\n\n1. Orders are dispatched within 2 business days of payment confirmation.\n2. We are not responsible for carrier delays beyond our control.\n3. Delivery estimates refer to business days only.\n\n## Warranty\n\n1. Products are warranted against manufacturing defects only.\n2. Warranty does not cover normal wear and tear, misuse, or damage caused by pets.\n3. Proof of purchase is required for warranty claims.\n\n## Customer Service\n\nFor questions or support, contact us at support@mystore.com.\n\n## General\n\n1. All content on the site (graphics, design, trademarks, logos) is the exclusive property of the store owner.\n2. We are not liable for indirect or consequential damages from site use.\n3. Content may not be reproduced without prior written consent.",
       "termsOfServiceDefaultContent": "By using our services, you agree to our terms and conditions. Please read carefully before purchasing.",
       "termsOfServiceFooter": "",
       "policyPageEmptyMessage": "This policy page has not been configured yet.",
       "accessibilityPageTitle": "Accessibility Statement",
       "accessibilityHeader": "Accessibility Statement",
-      "accessibilityContent": "At Pawzen, we are committed to making our website accessible to all users, including people with disabilities, in accordance with the Israeli Equal Rights for Persons with Disabilities Law (5768/2008) and accessibility regulations.\n\nWe strive to conform to WCAG 2.1 Level AA standards.\n\nSteps we have taken:\n- Adapted the site for assistive technologies\n- Sufficient color contrast throughout\n- Full keyboard navigation support\n- Alternative text for all images\n- Hierarchical heading structure\n- Full RTL (right-to-left) support\n\nIf you encounter any accessibility issues on our site, please contact us:\nEmail: support@pawzenpets.shop\nPhone: 04-9502222\n\nWe welcome your feedback and are committed to improving accessibility.",
+      "accessibilityContent": "We are committed to making our website accessible to all users, including people with disabilities, in accordance with applicable accessibility regulations.\n\nWe strive to conform to WCAG 2.1 Level AA standards.\n\nSteps we have taken:\n- Adapted the site for assistive technologies\n- Sufficient color contrast throughout\n- Full keyboard navigation support\n- Alternative text for all images\n- Hierarchical heading structure\n- Full RTL (right-to-left) support\n\nIf you encounter any accessibility issues on our site, please contact us:\nEmail: support@mystore.com\n\nWe welcome your feedback and are committed to improving accessibility.",
       "vatStatement": "All prices include 18% VAT",
       "showVatStatement": true,
       "showBusinessInfo": true
@@ -264,7 +264,7 @@
           "enabled": true,
           "type": "video",
           "layout": "centered",
-          "title": "Welcome to Pawzen",
+          "title": "Welcome to My Store",
           "subtitle": "Modern, curated accessories for dogs & cats. Selected with love, delivered with care.",
           "ctaText": "Shop Now",
           "ctaLink": "/products",
@@ -603,10 +603,10 @@
       },
       "social": {
         "facebook": "https://www.facebook.com/profile.php?id=61579690091826",
-        "instagram": "https://www.instagram.com/pawzenpets.shop/",
+        "instagram": "",
         "twitter": null,
         "youtube": null,
-        "tiktok": "https://tiktok.com/@pawzen",
+        "tiktok": "",
         "pinterest": null
       },
       "cookieConsent": {
@@ -616,11 +616,11 @@
       }
     },
     "seo": {
-      "titleTemplate": "%s | Pawzen",
-      "defaultTitle": "Pawzen — Modern Pet Accessories for Dogs & Cats",
+      "titleTemplate": "%s | My Store",
+      "defaultTitle": "My Store",
       "defaultDescription": "Discover thoughtfully designed pet accessories. Premium toys, beds, feeders & more for dogs and cats. Free shipping over $100.",
-      "defaultImage": "https://pawzenpets.shop/logo/pawzen-logo.png",
-      "twitterHandle": "@pawzen"
+      "defaultImage": "",
+      "twitterHandle": ""
     },
     "localization": {
       "defaultLocale": "en-US",
@@ -730,7 +730,7 @@
     },
     "promoPopup": {
       "enabled": true,
-      "title": "Welcome to Pawzen!",
+      "title": "Welcome!",
       "body": "Enjoy up to 30% off on selected pet accessories. Your pet deserves the best.",
       "badge": "Up to 30% Off",
       "imageUrl": null,
@@ -1234,7 +1234,7 @@
         "brandsStatLabel": "Brands",
         "stylesStatLabel": "Styles",
         "ratingStatLabel": "Rating",
-        "heroDefaultTitle": "Welcome to Pawzen",
+        "heroDefaultTitle": "Welcome to My Store",
         "heroDefaultSubtitle": "Modern, curated accessories for dogs & cats. Designed with love, delivered with care.",
         "watchVideoButton": "Watch Video",
         "shopNowButton": "Shop Now",
@@ -2122,7 +2122,7 @@
               },
               {
                 "question": "How do I return an item?",
-                "answer": "Contact support@pawzen.co to initiate a return. We'll send you a prepaid shipping label via email."
+                "answer": "Contact support.co to initiate a return. We'll send you a prepaid shipping label via email."
               },
               {
                 "question": "Are returns free?",
