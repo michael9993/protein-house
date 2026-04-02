@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Aura E-Commerce Platform — a fully-featured, enterprise-grade, multi-tenant e-commerce platform built on Saleor. Supports multi-channel commerce (Israel ILS/Hebrew/RTL + International USD/English/LTR), CMS-driven configuration, and modular app ecosystem.
+Aura E-Commerce Platform — a fully-featured, enterprise-grade, multi-tenant e-commerce platform built on Saleor. Supports multi-channel commerce (Israel ILS/Hebrew/RTL + International USD/English/LTR), CMS-driven configuration, and modular app ecosystem. Current store: Protein House.
 
 ### Cloning for a New Store
 

@@ -7,12 +7,12 @@
       "updatedAt": "2026-03-08T21:54:24.464Z",
       "channelSlug": "ils",
       "store": {
-        "name": "My Store",
+        "name": "Protein House",
         "tagline": "שלווה ואיכות לחיית המחמד",
         "type": "physical",
         "description": "חנות אונליין לאביזרי חיות מחמד איכותיים לכלבים וחתולים. מוצרים מודרניים ומעוצבים למחמד שלכם.",
-        "email": "support@mystore.com",
-        "phone": "",
+        "email": "support@proteinhouse.com",
+        "phone": "+1 (555) 123-4567",
         "address": {
           "street": "כמאל גונבלאט 2",
           "city": "שפרעם",
@@ -23,10 +23,10 @@
       },
       "branding": {
         "logo": "",
-        "logoAlt": "החנות שלי",
+        "logoAlt": "Protein House Logo",
         "favicon": "/favicon.ico",
         "colors": {
-          "primary": "#1B2838",
+          "primary": "#E11D48",
           "secondary": "#1E4D3A",
           "accent": "#C9A962",
           "background": "#F8F7F5",
@@ -2533,12 +2533,12 @@
       "updatedAt": "2026-01-28T05:08:13.137Z",
       "channelSlug": "usd",
       "store": {
-        "name": "My Store",
+        "name": "Protein House",
         "tagline": "Calm. Curated. Pet Care.",
         "type": "physical",
         "description": "Modern, curated pet accessories for dogs and cats. Thoughtfully designed products for your furry family.",
-        "email": "support@mystore.com",
-        "phone": "+1-555-0123",
+        "email": "support@proteinhouse.com",
+        "phone": "+1 (555) 123-4567",
         "address": {
           "street": "123 Main Street",
           "city": "New York",
@@ -2550,10 +2550,10 @@
       "branding": {
         "logo": "",
         "logoDark": "",
-        "logoAlt": "My Store",
+        "logoAlt": "Protein House Logo",
         "favicon": "/favicon.ico",
         "colors": {
-          "primary": "#1B2838",
+          "primary": "#E11D48",
           "secondary": "#1E4D3A",
           "accent": "#C9A962",
           "background": "#F8F7F5",
@@ -3960,12 +3960,12 @@
       "updatedAt": "2026-04-02T08:24:24.409Z",
       "channelSlug": "usd",
       "store": {
-        "name": "Pawzen",
-        "tagline": "Calm. Curated. Pet Care.",
+        "name": "Protein House",
+        "tagline": "Premium Sports Nutrition",
         "type": "physical",
         "description": "Modern, curated pet accessories for dogs and cats. Thoughtfully designed products for your furry family.",
-        "email": "support@pawzenpets.shop",
-        "phone": "",
+        "email": "support@proteinhouse.com",
+        "phone": "+1 (555) 123-4567",
         "address": {
           "street": "",
           "city": "",
@@ -3978,10 +3978,10 @@
       },
       "branding": {
         "logo": "/logo/pawzen-logo.png",
-        "logoAlt": "Pawzen - Modern Pet Accessories",
+        "logoAlt": "Protein House Logo",
         "favicon": "/favicon.ico",
         "colors": {
-          "primary": "#1B2838",
+          "primary": "#E11D48",
           "secondary": "#1E4D3A",
           "accent": "#C9A962",
           "background": "#F8F7F5",
@@ -6623,15 +6623,15 @@
     },
     "default-channel": {
       "version": 12,
-      "updatedAt": "2026-02-21T17:38:40.860Z",
+      "updatedAt": "2026-02-21T17:38:40.86Z",
       "channelSlug": "default-channel",
       "store": {
-        "name": "My Store",
+        "name": "Protein House",
         "tagline": "Calm. Curated. Pet Care.",
         "type": "physical",
         "description": "Modern, curated pet accessories for dogs and cats. Thoughtfully designed products for your furry family.",
-        "email": "support@mystore.com",
-        "phone": "+1-555-0123",
+        "email": "support@proteinhouse.com",
+        "phone": "+1 (555) 123-4567",
         "address": {
           "street": "123 Main Street",
           "city": "New York",
@@ -6643,10 +6643,10 @@
       "branding": {
         "logo": "",
         "logoDark": "",
-        "logoAlt": "My Store",
+        "logoAlt": "Protein House Logo",
         "favicon": "/favicon.ico",
         "colors": {
-          "primary": "#1B2838",
+          "primary": "#E11D48",
           "secondary": "#1E4D3A",
           "accent": "#C9A962",
           "background": "#F8F7F5",

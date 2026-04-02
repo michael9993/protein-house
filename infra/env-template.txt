@@ -231,7 +231,7 @@ SMTP_ENCRYPTION=TLS
 SMTP_USER=
 SMTP_PASSWORD=
 SMTP_FROM_EMAIL=
-SMTP_FROM_NAME="Your Store Name"
+SMTP_FROM_NAME="Protein House"
 
 # ============================================================================
 # OAUTH (Google Login — optional)
@@ -272,6 +272,6 @@ SENTRY_AUTH_TOKEN=
 # PLATFORM CONFIGURATION
 # ============================================================================
 # Domain for self-hosted deployment (used by launch/status scripts)
-PLATFORM_DOMAIN=pawzenpets.shop
+PLATFORM_DOMAIN=halacosmetics.org
 # Directory for database backups
 SALEOR_BACKUP_DIR=~/saleor-backups

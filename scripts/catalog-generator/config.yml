@@ -11,7 +11,7 @@
 # Categories and collections are created by the Bulk Manager during import.
 
 shop:
-  name: "Pawzen"
+  name: "Protein House"
   includeTaxesInPrices: true
 
 channels:

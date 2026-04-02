@@ -7,12 +7,12 @@
     "updatedAt": "2026-03-08T21:54:24.464Z",
     "channelSlug": "ils",
     "store": {
-      "name": "החנות שלי",
+      "name": "Protein House",
       "tagline": "שלווה ואיכות לחיית המחמד",
       "type": "physical",
       "description": "חנות אונליין לאביזרי חיות מחמד איכותיים לכלבים וחתולים. מוצרים מודרניים ומעוצבים למחמד שלכם.",
-      "email": "support@mystore.com",
-      "phone": "",
+      "email": "support@proteinhouse.com",
+      "phone": "+1 (555) 123-4567",
       "address": {
         "street": "כמאל גונבלאט 2",
         "city": "שפרעם",
@@ -25,10 +25,10 @@
     },
     "branding": {
       "logo": "",
-      "logoAlt": "החנות שלי",
+      "logoAlt": "Protein House Logo",
       "favicon": "/favicon.ico",
       "colors": {
-        "primary": "#1B2838",
+        "primary": "#E11D48",
         "secondary": "#1E4D3A",
         "accent": "#C9A962",
         "background": "#F8F7F5",
@@ -941,10 +941,26 @@
         "icon": "chevron"
       },
       "floatingButtons": {
-        "whatsapp": { "enabled": true, "side": "start", "order": 1 },
-        "recentlyViewed": { "enabled": true, "side": "start", "order": 2 },
-        "wishlist": { "enabled": true, "side": "start", "order": 3 },
-        "scrollToTop": { "enabled": true, "side": "end", "order": 1 },
+        "whatsapp": {
+          "enabled": true,
+          "side": "start",
+          "order": 1
+        },
+        "recentlyViewed": {
+          "enabled": true,
+          "side": "start",
+          "order": 2
+        },
+        "wishlist": {
+          "enabled": true,
+          "side": "start",
+          "order": 3
+        },
+        "scrollToTop": {
+          "enabled": true,
+          "side": "end",
+          "order": 1
+        },
         "gap": 0.75,
         "baseOffset": 7
       }

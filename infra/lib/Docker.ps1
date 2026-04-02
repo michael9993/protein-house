@@ -165,13 +165,29 @@ function Invoke-InContainer {
     }
 
     $global:LastContainerOutput = $null
-    $output = docker exec $ContainerName sh -c $Command 2>&1
-    $exitCode = $LASTEXITCODE
-    $global:LastContainerOutput = $output
+    $outputLines = [System.Collections.Generic.List[string]]::new()
 
-    if (-not $Silent -and $output) {
-        $output | ForEach-Object { Write-Host "    $_" -ForegroundColor Gray }
+    $psi = [System.Diagnostics.ProcessStartInfo]::new()
+    $psi.FileName = "docker"
+    $psi.Arguments = "exec $ContainerName sh -c `"$Command`""
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+    $psi.UseShellExecute = $false
+    $psi.CreateNoWindow = $true
+
+    $proc = [System.Diagnostics.Process]::Start($psi)
+    while (-not $proc.StandardOutput.EndOfStream) {
+        $line = $proc.StandardOutput.ReadLine()
+        $outputLines.Add($line)
+        if (-not $Silent) { Write-Host "    $line" -ForegroundColor Gray }
     }
+    $errOutput = $proc.StandardError.ReadToEnd()
+    if ($errOutput -and -not $Silent) {
+        $errOutput -split "`n" | ForEach-Object { if ($_) { Write-Host "    $_" -ForegroundColor Gray } }
+    }
+    $proc.WaitForExit()
+    $exitCode = $proc.ExitCode
+    $global:LastContainerOutput = $outputLines -join "`n"
 
     return ($exitCode -eq 0)
 }
