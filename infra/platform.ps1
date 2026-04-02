@@ -100,6 +100,7 @@ foreach ($lib in $requiredLibs) {
 . "$scriptDir\lib\EnvManager.ps1"
 . "$scriptDir\lib\Apps.ps1"
 . "$scriptDir\lib\Backup.ps1"
+. "$scriptDir\lib\Ports.ps1"
 
 # ---------------------------------------------------------------------------
 # Load platform config
@@ -178,7 +179,7 @@ switch ($Command.ToLower()) {
             Write-Info "Setup state cleared. Starting fresh."
         }
 
-        $setupSteps = @("init", "new_store", "docker_up", "db_init", "tunnels", "apps_installed")
+        $setupSteps = @("init", "port_check", "new_store", "docker_up", "db_init", "tunnels", "apps_installed")
         $totalSetupSteps = $setupSteps.Count
         $currentSetupStep = 0
 
@@ -194,7 +195,45 @@ switch ($Command.ToLower()) {
             Set-SetupState -InfraDir $infraDir -Step "init"
         }
 
-        # ---- Step 2: New Store wizard ----
+        # ---- Step 2: Port allocation & instance detection ----
+        $currentSetupStep++
+        Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Checking port availability"
+
+        # Warn about existing Aura instances
+        Show-ExistingInstances
+
+        # Find free port block
+        $allocatedPorts = Find-FreePorts
+        Show-PortTable -Ports $allocatedPorts
+
+        if (-not $NonInteractive) {
+            $confirmPorts = Read-Host "  Use these ports? (y/n, default: y)"
+            if ($confirmPorts -match "^n") {
+                $customOffset = Read-Host "  Enter port offset (e.g. 100, 200, 300)"
+                if ($customOffset -match '^\d+$') {
+                    $allocatedPorts = Find-FreePorts -StartOffset ([int]$customOffset)
+                    Show-PortTable -Ports $allocatedPorts
+                }
+            }
+        }
+
+        # Write allocated ports to .env if they differ from defaults
+        $portsChanged = $false
+        foreach ($key in $allocatedPorts.Keys) {
+            $currentVal = Get-EnvValue -Path $envFile -Key $key
+            $newVal = "$($allocatedPorts[$key])"
+            if ($currentVal -ne $newVal) {
+                Set-EnvValue -Path $envFile -Key $key -Value $newVal
+                $portsChanged = $true
+            }
+        }
+        if ($portsChanged) {
+            Write-Success "Port assignments saved to .env"
+        } else {
+            Write-Success "Ports are using defaults (all free)"
+        }
+
+        # ---- Step 3: New Store wizard ----
         $currentSetupStep++
         if (Test-SetupStep -InfraDir $infraDir -Step "new_store") {
             Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Store branding (already done)"
@@ -1276,6 +1315,8 @@ $($ingressLines -join "`n")
         Write-Host "  logs <service>           Tail logs for a service"
         Write-Host "  init                     First-time setup (prereqs + .env + secrets)"
         Write-Host "  generate-tunnel-config   Generate cloudflared-config.yml from platform.yml"
+        Write-Host "  sync                     Pull platform improvements from upstream template"
+        Write-Host "  refresh-urls             Regenerate tunnel URLs and update .env + apps"
         Write-Host "  help                     Show this help"
         Write-Host ""
         Write-Host "Options:" -ForegroundColor Yellow
