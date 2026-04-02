@@ -479,6 +479,63 @@ if (Test-Path $envPath) {
     if ($Domain) {
         $envContent = $envContent -replace '(?m)^DEFAULT_FROM_EMAIL=.*$', "DEFAULT_FROM_EMAIL=noreply@$Domain"
         $envContent = $envContent -replace '(?m)^CONTACT_EMAIL=.*$', "CONTACT_EMAIL=$StoreEmail"
+
+        # ALLOWED_HOSTS — add domain so Django accepts requests
+        if ($envContent -match '(?m)^ALLOWED_HOSTS=(.*)$') {
+            $currentHosts = $Matches[1]
+            if ($currentHosts -notmatch [regex]::Escape($Domain)) {
+                $envContent = $envContent -replace '(?m)^ALLOWED_HOSTS=.*$', "ALLOWED_HOSTS=$currentHosts,$Domain,api.$Domain"
+            }
+        }
+
+        # ALLOWED_CLIENT_HOSTS — add domain for CORS
+        if ($envContent -match '(?m)^ALLOWED_CLIENT_HOSTS=(.*)$') {
+            $currentClients = $Matches[1]
+            if ($currentClients -notmatch [regex]::Escape($Domain)) {
+                $envContent = $envContent -replace '(?m)^ALLOWED_CLIENT_HOSTS=.*$', "ALLOWED_CLIENT_HOSTS=$currentClients,$Domain,dash.$Domain"
+            }
+        }
+
+        # ALLOWED_GRAPHQL_ORIGINS — add domain
+        if ($envContent -match '(?m)^ALLOWED_GRAPHQL_ORIGINS=(.*)$') {
+            $currentOrigins = $Matches[1]
+            if ($currentOrigins -notmatch [regex]::Escape($Domain)) {
+                $envContent = $envContent -replace '(?m)^ALLOWED_GRAPHQL_ORIGINS=.*$', "ALLOWED_GRAPHQL_ORIGINS=$currentOrigins,https://$Domain,https://dash.$Domain"
+            }
+        }
+
+        # CSRF_TRUSTED_ORIGINS — add domain
+        if ($envContent -match '(?m)^CSRF_TRUSTED_ORIGINS=(.*)$') {
+            $currentCsrf = $Matches[1]
+            if ($currentCsrf -notmatch [regex]::Escape($Domain)) {
+                $envContent = $envContent -replace '(?m)^CSRF_TRUSTED_ORIGINS=.*$', "CSRF_TRUSTED_ORIGINS=$currentCsrf,https://api.$Domain,https://dash.$Domain,https://$Domain"
+            }
+        }
+
+        # PUBLIC_URL — set to the API domain
+        $envContent = $envContent -replace '(?m)^PUBLIC_URL=.*$', "PUBLIC_URL=https://api.$Domain"
+
+        # Public-facing URLs
+        $envContent = $envContent -replace '(?m)^NEXT_PUBLIC_SALEOR_API_URL=.*$', "NEXT_PUBLIC_SALEOR_API_URL=https://api.$Domain/graphql/"
+        $envContent = $envContent -replace '(?m)^NEXT_PUBLIC_STOREFRONT_URL=.*$', "NEXT_PUBLIC_STOREFRONT_URL=https://$Domain"
+        $envContent = $envContent -replace '(?m)^DASHBOARD_URL=.*$', "DASHBOARD_URL=https://dash.$Domain"
+        $envContent = $envContent -replace '(?m)^STOREFRONT_URL=.*$', "STOREFRONT_URL=https://$Domain"
+
+        # Tunnel URLs — set from domain subdomains
+        $envContent = $envContent -replace '(?m)^SALEOR_API_TUNNEL_URL=.*$', "SALEOR_API_TUNNEL_URL=https://api.$Domain"
+        $envContent = $envContent -replace '(?m)^DASHBOARD_TUNNEL_URL=.*$', "DASHBOARD_TUNNEL_URL=https://dash.$Domain"
+        $envContent = $envContent -replace '(?m)^STOREFRONT_TUNNEL_URL=.*$', "STOREFRONT_TUNNEL_URL=https://$Domain"
+        $envContent = $envContent -replace '(?m)^STRIPE_APP_TUNNEL_URL=.*$', "STRIPE_APP_TUNNEL_URL=https://stripe.$Domain"
+        $envContent = $envContent -replace '(?m)^SMTP_APP_TUNNEL_URL=.*$', "SMTP_APP_TUNNEL_URL=https://smtp.$Domain"
+        $envContent = $envContent -replace '(?m)^INVOICE_APP_TUNNEL_URL=.*$', "INVOICE_APP_TUNNEL_URL=https://invoices.$Domain"
+        $envContent = $envContent -replace '(?m)^STOREFRONT_CONTROL_APP_TUNNEL_URL=.*$', "STOREFRONT_CONTROL_APP_TUNNEL_URL=https://control.$Domain"
+        $envContent = $envContent -replace '(?m)^NEWSLETTER_APP_TUNNEL_URL=.*$', "NEWSLETTER_APP_TUNNEL_URL=https://newsletter.$Domain"
+        $envContent = $envContent -replace '(?m)^SALES_ANALYTICS_APP_TUNNEL_URL=.*$', "SALES_ANALYTICS_APP_TUNNEL_URL=https://analytics.$Domain"
+        $envContent = $envContent -replace '(?m)^BULK_MANAGER_APP_TUNNEL_URL=.*$', "BULK_MANAGER_APP_TUNNEL_URL=https://bulk.$Domain"
+        $envContent = $envContent -replace '(?m)^IMAGE_STUDIO_APP_TUNNEL_URL=.*$', "IMAGE_STUDIO_APP_TUNNEL_URL=https://studio.$Domain"
+        $envContent = $envContent -replace '(?m)^DROPSHIP_APP_TUNNEL_URL=.*$', "DROPSHIP_APP_TUNNEL_URL=https://dropship.$Domain"
+        $envContent = $envContent -replace '(?m)^TAX_MANAGER_APP_TUNNEL_URL=.*$', "TAX_MANAGER_APP_TUNNEL_URL=https://tax.$Domain"
+        $envContent = $envContent -replace '(?m)^PAYPAL_APP_TUNNEL_URL=.*$', "PAYPAL_APP_TUNNEL_URL=https://ext1.$Domain"
     }
 
     # Admin credentials — only update if collected and different from defaults

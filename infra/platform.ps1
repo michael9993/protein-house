@@ -233,6 +233,42 @@ switch ($Command.ToLower()) {
             Write-Success "Ports are using defaults (all free)"
         }
 
+        # Update all URL-based env vars to use the actual allocated ports
+        $apiPort = $allocatedPorts["SALEOR_API_PORT"]
+        $dashPort = $allocatedPorts["DASHBOARD_PORT"]
+        $sfPort = $allocatedPorts["STOREFRONT_PORT"]
+        $smtpPort = $allocatedPorts["SMTP_APP_PORT"]
+        $stripePort = $allocatedPorts["STRIPE_APP_PORT"]
+        $invoicePort = $allocatedPorts["INVOICE_APP_PORT"]
+        $controlPort = $allocatedPorts["STOREFRONT_CONTROL_APP_PORT"]
+        $newsletterPort = $allocatedPorts["NEWSLETTER_APP_PORT"]
+        $analyticsPort = $allocatedPorts["SALES_ANALYTICS_APP_PORT"]
+        $bulkPort = $allocatedPorts["BULK_MANAGER_APP_PORT"]
+        $studioPort = $allocatedPorts["IMAGE_STUDIO_APP_PORT"]
+        $dropshipPort = $allocatedPorts["DROPSHIP_APP_PORT"]
+        $taxPort = $allocatedPorts["TAX_MANAGER_APP_PORT"]
+        $paypalPort = $allocatedPorts["PAYPAL_APP_PORT"]
+
+        # Core URLs
+        Set-EnvValue -Path $envFile -Key "NEXT_PUBLIC_SALEOR_API_URL" -Value "http://localhost:$apiPort/graphql/"
+        Set-EnvValue -Path $envFile -Key "NEXT_PUBLIC_SALEOR_HOST_URL" -Value "http://localhost:$apiPort"
+        Set-EnvValue -Path $envFile -Key "NEXT_PUBLIC_STOREFRONT_URL" -Value "http://localhost:$sfPort"
+        Set-EnvValue -Path $envFile -Key "PUBLIC_URL" -Value "http://localhost:$apiPort"
+        Set-EnvValue -Path $envFile -Key "AURA_API_URL" -Value "http://localhost:$apiPort/graphql/"
+        Set-EnvValue -Path $envFile -Key "DASHBOARD_URL" -Value "http://localhost:$dashPort"
+        Set-EnvValue -Path $envFile -Key "STOREFRONT_URL" -Value "http://localhost:$sfPort"
+
+        # Dashboard build-time vars
+        Set-EnvValue -Path $envFile -Key "API_URL" -Value "http://localhost:$apiPort/graphql/"
+        Set-EnvValue -Path $envFile -Key "VITE_API_URL" -Value "http://localhost:$apiPort/graphql/"
+
+        # ALLOWED_CLIENT_HOSTS with correct ports
+        Set-EnvValue -Path $envFile -Key "ALLOWED_CLIENT_HOSTS" -Value "localhost:$sfPort,localhost:$dashPort,127.0.0.1:$dashPort"
+        Set-EnvValue -Path $envFile -Key "ALLOWED_GRAPHQL_ORIGINS" -Value "http://localhost:$sfPort,http://localhost:$dashPort"
+        Set-EnvValue -Path $envFile -Key "CSRF_TRUSTED_ORIGINS" -Value "http://localhost:$sfPort,http://localhost:$dashPort"
+
+        Write-Success "URLs updated to match allocated ports"
+
         # ---- Step 3: New Store wizard ----
         $currentSetupStep++
         if (Test-SetupStep -InfraDir $infraDir -Step "new_store") {
@@ -315,12 +351,18 @@ switch ($Command.ToLower()) {
             }
 
             if ($cf) {
-                if ($Mode -eq "selfhosted") {
+                # Determine tunnel mode: custom domain → named tunnel, no domain → ephemeral
+                $hasDomain = $config.platform.domain -and $config.platform.domain -ne "" -and $config.platform.domain -ne "__SET_BY_WIZARD__"
+                $useNamedTunnel = $hasDomain -or ($Mode -eq "selfhosted")
+
+                if ($useNamedTunnel) {
                     $tunnelConfig = Join-Path $infraDir "cloudflared-config.yml"
                     if (Test-Path $tunnelConfig) {
                         Start-NamedTunnel -CloudflaredCmd $cf -TunnelConfigPath $tunnelConfig | Out-Null
                     } else {
-                        Write-Warn "cloudflared-config.yml not found. Run: platform.ps1 generate-tunnel-config"
+                        Write-Warn "Domain '$($config.platform.domain)' configured but cloudflared-config.yml not found."
+                        Write-Warn "Run: platform.ps1 generate-tunnel-config"
+                        Write-Warn "Skipping tunnels — your store will only be accessible via localhost."
                     }
                 } else {
                     $tunnelUrls = @{}
@@ -482,6 +524,45 @@ switch ($Command.ToLower()) {
                 # Check Node.js is available
                 if (Get-Command "node" -ErrorAction SilentlyContinue) {
                     Write-Info "Running catalog generator (this may take a few minutes)..."
+
+                    # Create catalog-generator .env with API URL and token
+                    $catalogEnvPath = Join-Path $catalogDir ".env"
+                    $apiPort = if ($env:SALEOR_API_PORT) { $env:SALEOR_API_PORT } else { "8000" }
+                    $saleorUrl = "http://localhost:$apiPort/graphql/"
+
+                    # Generate an API token for the catalog generator
+                    $adminEmail = $env:AURA_ADMIN_EMAIL
+                    $adminPassword = $env:AURA_ADMIN_PASSWORD
+                    if (-not $adminEmail) {
+                        . "$infraDir\lib\EnvManager.ps1"
+                        $envVars = Read-EnvFile (Join-Path $infraDir ".env")
+                        $adminEmail = $envVars["AURA_ADMIN_EMAIL"]
+                        $adminPassword = $envVars["AURA_ADMIN_PASSWORD"]
+                        $apiPort = $envVars["SALEOR_API_PORT"]
+                        if ($apiPort) { $saleorUrl = "http://localhost:$apiPort/graphql/" }
+                    }
+
+                    $saleorToken = ""
+                    if ($adminEmail -and $adminPassword) {
+                        Write-Info "  Generating API token for catalog generator..."
+                        try {
+                            $tokenQuery = '{"query":"mutation { tokenCreate(email: \"' + $adminEmail + '\", password: \"' + $adminPassword + '\") { token errors { field message } } }"}'
+                            $tokenResult = Invoke-RestMethod -Uri $saleorUrl -Method Post -ContentType "application/json" -Body $tokenQuery -ErrorAction Stop
+                            $saleorToken = $tokenResult.data.tokenCreate.token
+                            if ($saleorToken) {
+                                Write-Success "  API token generated"
+                            } else {
+                                Write-Warn "  Could not generate token. Set SALEOR_TOKEN manually in scripts/catalog-generator/.env"
+                            }
+                        } catch {
+                            Write-Warn "  Could not reach API for token. Set SALEOR_TOKEN manually in scripts/catalog-generator/.env"
+                        }
+                    }
+
+                    $catalogEnvContent = "SALEOR_URL=$saleorUrl`nSALEOR_TOKEN=$saleorToken`n"
+                    [System.IO.File]::WriteAllText($catalogEnvPath, $catalogEnvContent, [System.Text.UTF8Encoding]::new($false))
+                    Write-Info "  Created scripts/catalog-generator/.env"
+
                     Push-Location $catalogDir
                     try {
                         & npm install --silent 2>$null
