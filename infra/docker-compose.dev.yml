@@ -49,11 +49,11 @@ services:
     env_file:
       - .env
     # Use uvicorn (ASGI) instead of runserver (WSGI) to enable CORS handler
-    # Port is set via environment variable SALEOR_API_PORT from .env
-    command: sh -c "uvicorn saleor.asgi:application --host 0.0.0.0 --port $${SALEOR_API_PORT} --reload --lifespan off"
+    # Port is set via environment variable AURA_API_PORT from .env
+    command: sh -c "uvicorn saleor.asgi:application --host 0.0.0.0 --port $${AURA_API_PORT} --reload --lifespan off"
     # command: python /app/scripts/wait-for-db-and-migrate.py
     ports:
-      - "${SALEOR_API_PORT}:${SALEOR_API_PORT}"
+      - "${AURA_API_PORT}:${AURA_API_PORT}"
     volumes:
       # Mount only the source code (not entire /app to preserve installed packages)
       - ../saleor/saleor:/app/saleor
@@ -100,14 +100,26 @@ services:
       TIME_ZONE: ${TIME_ZONE}
 
       # API Port (used by uvicorn command)
-      SALEOR_API_PORT: ${SALEOR_API_PORT}
+      AURA_API_PORT: ${AURA_API_PORT}
 
       # Public URL - Used for JWT token issuer URL (webhook signature verification).
-      # When using tunnels, set SALEOR_API_TUNNEL_URL so PUBLIC_URL matches; otherwise apps return 401 SIGNATURE_VERIFICATION_FAILED.
-      PUBLIC_URL: ${SALEOR_API_TUNNEL_URL:-${PUBLIC_URL:-http://localhost:8000}}
+      # When using tunnels, set AURA_API_TUNNEL_URL so PUBLIC_URL matches; otherwise apps return 401 SIGNATURE_VERIFICATION_FAILED.
+      PUBLIC_URL: ${AURA_API_TUNNEL_URL:-${PUBLIC_URL:-http://localhost:8000}}
 
       # GraphQL Playground - disable in production
       GRAPHQL_PLAYGROUND_ENABLED: ${GRAPHQL_PLAYGROUND_ENABLED:-True}
+
+      # CSRF trusted origins (selfhosted tunnel domains)
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-}
+
+      # Dashboard URL for CORS
+      DASHBOARD_URL: ${DASHBOARD_URL:-}
+
+      # Storefront URL for abandoned cart recovery emails
+      STOREFRONT_URL: ${STOREFRONT_URL:-${NEXT_PUBLIC_STOREFRONT_URL:-http://localhost:3000}}
+
+      # Disable SSL redirect — Cloudflare handles TLS termination
+      SECURE_SSL_REDIRECT: ${SECURE_SSL_REDIRECT:-True}
 
       # Allow Docker internal IPs for webhooks (sync webhooks use Docker service names)
       HTTP_IP_FILTER_ENABLED: "False"
@@ -124,7 +136,7 @@ services:
           "CMD",
           "python",
           "-c",
-          "import socket, os; port = int(os.environ.get('SALEOR_API_PORT')); s = socket.socket(); s.settimeout(2); result = s.connect_ex(('127.0.0.1', port)); s.close(); exit(0 if result == 0 else 1)",
+          "import socket, os; port = int(os.environ.get('AURA_API_PORT')); s = socket.socket(); s.settimeout(2); result = s.connect_ex(('127.0.0.1', port)); s.close(); exit(0 if result == 0 else 1)",
         ]
       interval: 10s
       timeout: 5s
@@ -161,7 +173,7 @@ services:
       RSA_PRIVATE_KEY: ${RSA_PRIVATE_KEY:-}
       RSA_PRIVATE_PASSWORD: ${RSA_PRIVATE_PASSWORD:-}
       DEBUG: ${DEBUG}
-      PUBLIC_URL: ${SALEOR_API_TUNNEL_URL:-${PUBLIC_URL:-http://localhost:8000}}
+      PUBLIC_URL: ${AURA_API_TUNNEL_URL:-${PUBLIC_URL:-http://localhost:8000}}
       # Storefront URL for abandoned checkout recovery emails
       STOREFRONT_URL: ${STOREFRONT_URL:-${NEXT_PUBLIC_STOREFRONT_URL:-http://localhost:3000}}
       # Allow Docker internal IPs for webhooks
@@ -203,7 +215,7 @@ services:
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
       TIME_ZONE: ${TIME_ZONE}
       DEBUG: ${DEBUG}
-      PUBLIC_URL: ${SALEOR_API_TUNNEL_URL:-${PUBLIC_URL:-http://localhost:8000}}
+      PUBLIC_URL: ${AURA_API_TUNNEL_URL:-${PUBLIC_URL:-http://localhost:8000}}
     depends_on:
       postgres:
         condition: service_healthy
@@ -281,11 +293,11 @@ services:
     # Set STOREFRONT_MODE=production in .env to use production build
     # Set STOREFRONT_MODE=dev (or leave unset) to use dev server
     # Generate GraphQL types before starting dev server or building
-    # Codegen will use SALEOR_API_URL (Docker service name) for server-side operations
+    # Codegen will use AURA_API_URL (Docker service name) for server-side operations
     # Only install if node_modules doesn't exist or package.json changed (pnpm handles this automatically)
     # Optionally generate storefront config fallback file if env vars are set
     # Uses tunnel URL if available (for tunneling setups), otherwise falls back to internal/public URLs
-    command: sh -c "corepack enable && corepack prepare pnpm@9.6.0 --activate && unset NODE_ENV && pnpm install --prefer-offline && echo '🔍 Generating GraphQL types...' && pnpm run generate && if [ -f ../scripts/fetch-storefront-config.ts ] && [ -n \"$${SALEOR_API_URL}\" ] && [ -n \"$${STOREFRONT_CHANNELS}\" ]; then echo '🔍 Generating storefront config fallback (using tunnel URL if available)...' && cd .. && export STOREFRONT_CONTROL_APP_TUNNEL_URL=\"$${STOREFRONT_CONTROL_APP_TUNNEL_URL}\" && export STOREFRONT_CONTROL_APP_URL=\"$${STOREFRONT_CONTROL_APP_URL}\" && node scripts/fetch-storefront-config.ts || echo '⚠️  Config generation failed, continuing...' && cd storefront; fi && if [ \"$${STOREFRONT_MODE:-dev}\" = \"production\" ]; then echo '🔍 Building production...' && export NODE_ENV=production && pnpm run build && echo 'Starting production server...' && pnpm run start; else echo 'Starting dev server...' && export NODE_ENV=development && pnpm run dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@9.6.0 --activate && unset NODE_ENV && pnpm install --prefer-offline && echo '🔍 Generating GraphQL types...' && pnpm run generate && if [ -f ../scripts/fetch-storefront-config.ts ] && [ -n \"$${AURA_API_URL}\" ] && [ -n \"$${STOREFRONT_CHANNELS}\" ]; then echo '🔍 Generating storefront config fallback (using tunnel URL if available)...' && cd .. && export STOREFRONT_CONTROL_APP_TUNNEL_URL=\"$${STOREFRONT_CONTROL_APP_TUNNEL_URL}\" && export STOREFRONT_CONTROL_APP_URL=\"$${STOREFRONT_CONTROL_APP_URL}\" && node scripts/fetch-storefront-config.ts || echo '⚠️  Config generation failed, continuing...' && cd storefront; fi && if [ \"$${STOREFRONT_MODE:-dev}\" = \"production\" ]; then echo '🔍 Building production...' && export NODE_ENV=production && pnpm run build && echo 'Starting production server...' && pnpm run start; else echo 'Starting dev server...' && export NODE_ENV=development && pnpm run dev; fi"
     env_file:
       - .env
     ports:
@@ -305,11 +317,14 @@ services:
       - storefront-pnpm-store:/root/.local/share/pnpm/store
     environment:
       # All URLs from .env file
-      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
-      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
+      NEXT_PUBLIC_AURA_API_URL: ${NEXT_PUBLIC_AURA_API_URL}
+      AURA_API_URL: http://aura-api:${AURA_API_PORT}/graphql/
+      # Legacy aliases — codegen + runtime code still reference SALEOR_API_URL
+      SALEOR_API_URL: http://aura-api:${AURA_API_PORT}/graphql/
+      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_AURA_API_URL}
       NEXT_PUBLIC_STOREFRONT_URL: ${NEXT_PUBLIC_STOREFRONT_URL}
       NEXT_PUBLIC_DEFAULT_CHANNEL: ${NEXT_PUBLIC_DEFAULT_CHANNEL:-}
-      SALEOR_APP_TOKEN: ${SALEOR_APP_TOKEN:-}
+      AURA_APP_TOKEN: ${AURA_APP_TOKEN:-}
       # Internal Docker network URL for invoices app (server-to-server)
       INVOICES_APP_INTERNAL_URL: http://aura-invoice-app:3000
       # Public URL for invoices app (for client downloads)
@@ -335,7 +350,7 @@ services:
       # NODE_ENV is set dynamically in the command based on STOREFRONT_MODE
       STOREFRONT_MODE: ${STOREFRONT_MODE:-dev}
       # Next.js
-      PORT: ${STOREFRONT_PORT}
+      PORT: 3000
       HOSTNAME: 0.0.0.0
       # Sentry error monitoring (set in .env or .env.self-hosted)
       SENTRY_DSN: ${SENTRY_DSN:-}
@@ -354,7 +369,7 @@ services:
           "--quiet",
           "--tries=1",
           "--spider",
-          "http://localhost:${STOREFRONT_PORT}",
+          "http://localhost:3000",
         ]
       interval: 30s
       timeout: 10s
@@ -368,7 +383,7 @@ services:
     container_name: ${COMPOSE_PREFIX:-aura}-smtp-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-smtp... --prefer-offline && cd apps/smtp && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && pnpm start; else pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-smtp... --prefer-offline && cd apps/smtp && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && pnpm start; else pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -378,8 +393,8 @@ services:
       - smtp-app-node-modules:/app/node_modules
       - smtp-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
-      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+      AURA_API_URL: http://aura-api:${AURA_API_PORT}/graphql/
+      NEXT_PUBLIC_AURA_API_URL: ${NEXT_PUBLIC_AURA_API_URL}
       STRIPE_APP_URL: ${STRIPE_APP_URL}
       STRIPE_APP_API_BASE_URL: ${STRIPE_APP_API_BASE_URL}
       # SMTP App base URL for webhook registration (use tunnel URL for external access)
@@ -426,7 +441,7 @@ services:
     container_name: ${COMPOSE_PREFIX:-aura}-invoice-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-invoices... --prefer-offline && cd apps/invoices && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run generate && pnpm build && pnpm start; else pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-invoices... --prefer-offline && cd apps/invoices && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm run generate && pnpm build && pnpm start; else pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -436,8 +451,8 @@ services:
       - invoice-app-node-modules:/app/node_modules
       - invoice-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
-      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+      AURA_API_URL: http://aura-api:${AURA_API_PORT}/graphql/
+      NEXT_PUBLIC_AURA_API_URL: ${NEXT_PUBLIC_AURA_API_URL}
       INVOICE_APP_URL: ${INVOICE_APP_URL}
       INVOICE_APP_API_BASE_URL: ${INVOICE_APP_API_BASE_URL}
       APP_API_BASE_URL: ${INVOICE_APP_URL}
@@ -483,7 +498,7 @@ services:
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
     # Must install from monorepo root to get catalog entries and workspace dependencies
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-payment-stripe... --prefer-offline && cd apps/stripe && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && pnpm start; else pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-payment-stripe... --prefer-offline && cd apps/stripe && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && pnpm start; else pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -504,9 +519,9 @@ services:
     environment:
       # All configuration from .env file
       # Stripe app uses same API URLs as storefront
-      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
-      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
-      SALEOR_APP_TOKEN: ${STRIPE_APP_TOKEN}
+      AURA_API_URL: http://aura-api:${AURA_API_PORT}/graphql/
+      NEXT_PUBLIC_AURA_API_URL: ${NEXT_PUBLIC_AURA_API_URL}
+      AURA_APP_TOKEN: ${STRIPE_APP_TOKEN}
 
       # Stripe API keys - From .env
       STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
@@ -553,7 +568,7 @@ services:
     container_name: ${COMPOSE_PREFIX:-aura}-storefront-control-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-storefront-control... --prefer-offline && cd apps/storefront-control && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-storefront-control... --prefer-offline && cd apps/storefront-control && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -563,8 +578,8 @@ services:
       - storefront-control-app-node-modules:/app/node_modules
       - storefront-control-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
-      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+      AURA_API_URL: http://aura-api:${AURA_API_PORT}/graphql/
+      NEXT_PUBLIC_AURA_API_URL: ${NEXT_PUBLIC_AURA_API_URL}
       # Use tunnel URL for app registration (Dashboard needs to reach this)
       STOREFRONT_CONTROL_APP_URL: ${STOREFRONT_CONTROL_APP_TUNNEL_URL:-${STOREFRONT_CONTROL_APP_URL}}
       APP_API_BASE_URL: ${STOREFRONT_CONTROL_APP_TUNNEL_URL:-${STOREFRONT_CONTROL_APP_URL}}
@@ -610,7 +625,7 @@ services:
     container_name: ${COMPOSE_PREFIX:-aura}-newsletter-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-newsletter... --prefer-offline && cd apps/newsletter && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-newsletter... --prefer-offline && cd apps/newsletter && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -620,8 +635,8 @@ services:
       - newsletter-app-node-modules:/app/node_modules
       - newsletter-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
-      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+      AURA_API_URL: http://aura-api:${AURA_API_PORT}/graphql/
+      NEXT_PUBLIC_AURA_API_URL: ${NEXT_PUBLIC_AURA_API_URL}
       # Use tunnel URL for app registration (Dashboard needs to reach this)
       NEWSLETTER_APP_URL: ${NEWSLETTER_APP_TUNNEL_URL:-http://localhost:${NEWSLETTER_APP_PORT:-3005}}
       APP_API_BASE_URL: ${NEWSLETTER_APP_TUNNEL_URL:-http://localhost:${NEWSLETTER_APP_PORT:-3005}}
@@ -684,7 +699,7 @@ services:
     container_name: ${COMPOSE_PREFIX:-aura}-sales-analytics-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-sales-analytics... --prefer-offline && cd apps/sales-analytics && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-sales-analytics... --prefer-offline && cd apps/sales-analytics && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -694,8 +709,8 @@ services:
       - sales-analytics-app-node-modules:/app/node_modules
       - sales-analytics-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
-      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+      AURA_API_URL: http://aura-api:${AURA_API_PORT}/graphql/
+      NEXT_PUBLIC_AURA_API_URL: ${NEXT_PUBLIC_AURA_API_URL}
       # Use tunnel URL for app registration (Dashboard needs to reach this)
       SALES_ANALYTICS_APP_URL: ${SALES_ANALYTICS_APP_TUNNEL_URL:-http://localhost:${SALES_ANALYTICS_APP_PORT:-3006}}
       APP_API_BASE_URL: ${SALES_ANALYTICS_APP_TUNNEL_URL:-http://localhost:${SALES_ANALYTICS_APP_PORT:-3006}}
@@ -736,7 +751,7 @@ services:
     container_name: ${COMPOSE_PREFIX:-aura}-bulk-manager-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-bulk-manager... --prefer-offline && cd apps/bulk-manager && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-bulk-manager... --prefer-offline && cd apps/bulk-manager && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -746,8 +761,8 @@ services:
       - bulk-manager-app-node-modules:/app/node_modules
       - bulk-manager-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
-      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+      AURA_API_URL: http://aura-api:${AURA_API_PORT}/graphql/
+      NEXT_PUBLIC_AURA_API_URL: ${NEXT_PUBLIC_AURA_API_URL}
       # Use tunnel URL for app registration (Dashboard needs to reach this)
       BULK_MANAGER_APP_URL: ${BULK_MANAGER_APP_TUNNEL_URL:-http://localhost:${BULK_MANAGER_APP_PORT:-3007}}
       APP_API_BASE_URL: ${BULK_MANAGER_APP_TUNNEL_URL:-http://localhost:${BULK_MANAGER_APP_PORT:-3007}}
@@ -787,7 +802,7 @@ services:
     image: node:22-alpine
     container_name: ${COMPOSE_PREFIX:-aura}-image-studio-app-dev
     working_dir: /app
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-image-studio... --prefer-offline && cd apps/image-studio && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-image-studio... --prefer-offline && cd apps/image-studio && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -797,8 +812,8 @@ services:
       - image-studio-app-node-modules:/app/node_modules
       - image-studio-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
-      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+      AURA_API_URL: http://aura-api:${AURA_API_PORT}/graphql/
+      NEXT_PUBLIC_AURA_API_URL: ${NEXT_PUBLIC_AURA_API_URL}
       IMAGE_STUDIO_APP_URL: ${IMAGE_STUDIO_APP_TUNNEL_URL:-http://localhost:${IMAGE_STUDIO_APP_PORT:-3008}}
       APP_API_BASE_URL: ${IMAGE_STUDIO_APP_TUNNEL_URL:-http://localhost:${IMAGE_STUDIO_APP_PORT:-3008}}
       APL: ${APL:-file}
@@ -883,18 +898,18 @@ services:
     container_name: ${COMPOSE_PREFIX:-aura}-dropship-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-dropship-orchestrator... --prefer-offline && cd apps/dropship-orchestrator && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-dropship-orchestrator... --prefer-offline && cd apps/dropship-orchestrator && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
       - "${DROPSHIP_APP_PORT:-3009}:3000"
     volumes:
-      - ..\apps:/app
+      - ../apps:/app
       - dropship-app-node-modules:/app/node_modules
       - dropship-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
-      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+      AURA_API_URL: http://aura-api:${AURA_API_PORT}/graphql/
+      NEXT_PUBLIC_AURA_API_URL: ${NEXT_PUBLIC_AURA_API_URL}
       # Docker internal URL for webhooks (Saleor API → app communication)
       DROPSHIP_APP_URL: ${DROPSHIP_APP_TUNNEL_URL:-http://localhost:${DROPSHIP_APP_PORT:-3009}}
       APP_API_BASE_URL: ${DROPSHIP_APP_TUNNEL_URL:-http://localhost:${DROPSHIP_APP_PORT:-3009}}
@@ -941,7 +956,7 @@ services:
     container_name: ${COMPOSE_PREFIX:-aura}-tax-manager-app-dev
     working_dir: /app
     # APPS_MODE=production: build then start; APPS_MODE=dev (default): dev server
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-tax-manager... --prefer-offline && cd apps/tax-manager && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-tax-manager... --prefer-offline && cd apps/tax-manager && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -951,8 +966,8 @@ services:
       - tax-manager-app-node-modules:/app/node_modules
       - tax-manager-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
-      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+      AURA_API_URL: http://aura-api:${AURA_API_PORT}/graphql/
+      NEXT_PUBLIC_AURA_API_URL: ${NEXT_PUBLIC_AURA_API_URL}
       # Use tunnel URL for app registration (Dashboard needs to reach this)
       TAX_MANAGER_APP_URL: ${TAX_MANAGER_APP_TUNNEL_URL:-http://localhost:${TAX_MANAGER_APP_PORT:-3010}}
       APP_API_BASE_URL: ${TAX_MANAGER_APP_TUNNEL_URL:-http://localhost:${TAX_MANAGER_APP_PORT:-3010}}
@@ -991,7 +1006,7 @@ services:
     image: node:22-alpine
     container_name: ${COMPOSE_PREFIX:-aura}-paypal-app-dev
     working_dir: /app
-    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter saleor-app-payment-paypal... --prefer-offline && cd apps/paypal && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
+    command: sh -c "corepack enable && corepack prepare pnpm@10 --activate && pnpm install --filter aura-app-payment-paypal... --prefer-offline && cd apps/paypal && if [ \"$${APPS_MODE:-dev}\" = \"production\" ]; then pnpm build && PORT=3000 pnpm start; else PORT=3000 pnpm dev; fi"
     env_file:
       - .env
     ports:
@@ -1001,8 +1016,8 @@ services:
       - paypal-app-node-modules:/app/node_modules
       - paypal-app-pnpm-store:/root/.local/share/pnpm/store
     environment:
-      SALEOR_API_URL: http://aura-api:${SALEOR_API_PORT}/graphql/
-      NEXT_PUBLIC_SALEOR_API_URL: ${NEXT_PUBLIC_SALEOR_API_URL}
+      AURA_API_URL: http://aura-api:${AURA_API_PORT}/graphql/
+      NEXT_PUBLIC_AURA_API_URL: ${NEXT_PUBLIC_AURA_API_URL}
 
       # PayPal API keys - From .env
       PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID}
@@ -1022,10 +1037,10 @@ services:
 
       # App Encryption Key - From .env
       SECRET_KEY: ${APP_SECRET_KEY}
-      MANIFEST_APP_ID: saleor.app.payment.paypal
+      MANIFEST_APP_ID: aura.app.payment.paypal
 
       # PostgresAPL — uses same DB as Saleor (auth_data table is app-specific)
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-saleor}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-aura}
 
       # Disable instrumentation features in development
       OTEL_ENABLED: ${OTEL_ENABLED:-false}
@@ -1051,7 +1066,7 @@ services:
           "--quiet",
           "--tries=1",
           "--spider",
-          "http://localhost:3000",
+          "http://localhost:3100",
         ]
       interval: 30s
       timeout: 10s

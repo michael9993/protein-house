@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "saleor-app-payment-paypal",
+  "name": "aura-app-payment-paypal",
   "version": "1.0.0",
   "private": true,
   "type": "module",

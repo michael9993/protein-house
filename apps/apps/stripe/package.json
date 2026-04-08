@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "saleor-app-payment-stripe",
+  "name": "aura-app-payment-stripe",
   "version": "2.3.6",
   "private": true,
   "type": "module",

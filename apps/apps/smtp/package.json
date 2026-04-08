@@ -1,5 +1,5 @@
 {
-  "name": "saleor-app-smtp",
+  "name": "aura-app-smtp",
   "version": "1.4.1",
   "private": true,
   "type": "module",

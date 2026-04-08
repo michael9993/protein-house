@@ -47,37 +47,37 @@ param(
     [string]$Target = "",
 
     # Options
-    [string]$Mode      = "dev",
-    [string]$Domain    = "",
+    [string]$Mode = "dev",
+    [string]$Domain = "",
     [switch]$SkipTunnel,
     [switch]$SkipDocker,
     [switch]$NoBrowser,
     [switch]$Compress,
-    [int]$Retain       = 0,
+    [int]$Retain = 0,
     [switch]$Quiet,
-    [string]$Email     = "",
-    [string]$Password  = "",
+    [string]$Email = "",
+    [string]$Password = "",
     [switch]$SkipDelete,
     [string[]]$Exclude = @(),
     [string[]]$Include = @(),
-    [int]$Lines        = 100,
+    [int]$Lines = 100,
     [switch]$SkipDbInit,
     [switch]$SeedData,
     [switch]$NonInteractive,
     [switch]$Reset,
-    [string]$Profile   = "dev",
+    [string]$Profile = "dev",
 
     # New Store options (forwarded to init-new-store.ps1)
-    [string]$StoreName     = "",
-    [string]$PrimaryColor  = "",
-    [string]$Tagline       = "",
-    [string]$GtmId         = "",
-    [string]$Ga4Id         = ""
+    [string]$StoreName = "",
+    [string]$PrimaryColor = "",
+    [string]$Tagline = "",
+    [string]$GtmId = "",
+    [string]$Ga4Id = ""
 )
 
 $ErrorActionPreference = "Stop"
 $scriptDir = $PSScriptRoot
-$infraDir  = $scriptDir   # platform.ps1 lives inside infra/
+$infraDir = $scriptDir   # platform.ps1 lives inside infra/
 
 # ---------------------------------------------------------------------------
 # Load modules (validate all exist before loading)
@@ -112,10 +112,11 @@ if ($Domain) {
 
 $composeFile = if ($Profile -eq "prod") {
     Join-Path $scriptDir "docker-compose.prod.yml"
-} else {
+}
+else {
     Join-Path $scriptDir "docker-compose.dev.yml"
 }
-$envFile     = Join-Path $scriptDir ".env"
+$envFile = Join-Path $scriptDir ".env"
 
 # ---------------------------------------------------------------------------
 # Helper: resolve compose service name for a given service key
@@ -135,8 +136,8 @@ function Resolve-ComposeService {
 # Helper: open browser to storefront + dashboard
 # ---------------------------------------------------------------------------
 function Open-PlatformBrowser {
-    $storefrontUrl = "http://localhost:3000"
-    $dashboardUrl  = "http://localhost:9000"
+    $storefrontUrl = "http://localhost:3100"
+    $dashboardUrl = "http://localhost:9100"
 
     if ($config.services.storefront.tunnel_env_var) {
         $tu = [System.Environment]::GetEnvironmentVariable($config.services.storefront.tunnel_env_var)
@@ -188,7 +189,8 @@ switch ($Command.ToLower()) {
         if (Test-SetupStep -InfraDir $infraDir -Step "init") {
             Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Prerequisites (already done)"
             Write-Success "Skipping init (already completed)"
-        } else {
+        }
+        else {
             Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Checking prerequisites & creating .env"
             # Delegate to init command logic by re-invoking
             & $PSCommandPath init
@@ -229,12 +231,13 @@ switch ($Command.ToLower()) {
         }
         if ($portsChanged) {
             Write-Success "Port assignments saved to .env"
-        } else {
+        }
+        else {
             Write-Success "Ports are using defaults (all free)"
         }
 
         # Update all URL-based env vars to use the actual allocated ports
-        $apiPort = $allocatedPorts["SALEOR_API_PORT"]
+        $apiPort = $allocatedPorts["AURA_API_PORT"]
         $dashPort = $allocatedPorts["DASHBOARD_PORT"]
         $sfPort = $allocatedPorts["STOREFRONT_PORT"]
         $smtpPort = $allocatedPorts["SMTP_APP_PORT"]
@@ -250,8 +253,8 @@ switch ($Command.ToLower()) {
         $paypalPort = $allocatedPorts["PAYPAL_APP_PORT"]
 
         # Core URLs
-        Set-EnvValue -Path $envFile -Key "NEXT_PUBLIC_SALEOR_API_URL" -Value "http://localhost:$apiPort/graphql/"
-        Set-EnvValue -Path $envFile -Key "NEXT_PUBLIC_SALEOR_HOST_URL" -Value "http://localhost:$apiPort"
+        Set-EnvValue -Path $envFile -Key "NEXT_PUBLIC_AURA_API_URL" -Value "http://localhost:$apiPort/graphql/"
+        Set-EnvValue -Path $envFile -Key "NEXT_PUBLIC_AURA_HOST_URL" -Value "http://localhost:$apiPort"
         Set-EnvValue -Path $envFile -Key "NEXT_PUBLIC_STOREFRONT_URL" -Value "http://localhost:$sfPort"
         Set-EnvValue -Path $envFile -Key "PUBLIC_URL" -Value "http://localhost:$apiPort"
         Set-EnvValue -Path $envFile -Key "AURA_API_URL" -Value "http://localhost:$apiPort/graphql/"
@@ -274,16 +277,17 @@ switch ($Command.ToLower()) {
         if (Test-SetupStep -InfraDir $infraDir -Step "new_store") {
             Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Store branding (already done)"
             Write-Success "Skipping new-store (already completed)"
-        } else {
+        }
+        else {
             Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Configuring store brand"
             # Build forwarded params
             $storeParams = @{}
-            if ($StoreName)    { $storeParams.StoreName    = $StoreName }
+            if ($StoreName) { $storeParams.StoreName = $StoreName }
             if ($PrimaryColor) { $storeParams.PrimaryColor = $PrimaryColor }
-            if ($Domain)       { $storeParams.Domain       = $Domain }
-            if ($Tagline)      { $storeParams.Tagline      = $Tagline }
-            if ($GtmId)        { $storeParams.GtmId        = $GtmId }
-            if ($Ga4Id)        { $storeParams.Ga4Id        = $Ga4Id }
+            if ($Domain) { $storeParams.Domain = $Domain }
+            if ($Tagline) { $storeParams.Tagline = $Tagline }
+            if ($GtmId) { $storeParams.GtmId = $GtmId }
+            if ($Ga4Id) { $storeParams.Ga4Id = $Ga4Id }
 
             if ($NonInteractive -and -not $StoreName) {
                 Write-Info "Non-interactive mode: using default store name 'My Store'"
@@ -332,7 +336,8 @@ switch ($Command.ToLower()) {
         if (Test-SetupStep -InfraDir $infraDir -Step "db_init") {
             Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Database (already initialized)"
             Write-Success "Skipping db-init (already completed)"
-        } else {
+        }
+        else {
             Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Initializing database"
             & $PSCommandPath db-init -Email $Email -Password $Password
             Set-SetupState -InfraDir $infraDir -Step "db_init"
@@ -345,7 +350,8 @@ switch ($Command.ToLower()) {
 
             try {
                 $cf = Find-Cloudflared
-            } catch {
+            }
+            catch {
                 Write-Warn "cloudflared not found -- skipping tunnels"
                 $cf = $null
             }
@@ -359,17 +365,19 @@ switch ($Command.ToLower()) {
                     $tunnelConfig = Join-Path $infraDir "cloudflared-config.yml"
                     if (Test-Path $tunnelConfig) {
                         Start-NamedTunnel -CloudflaredCmd $cf -TunnelConfigPath $tunnelConfig | Out-Null
-                    } else {
+                    }
+                    else {
                         Write-Warn "Domain '$($config.platform.domain)' configured but cloudflared-config.yml not found."
                         Write-Warn "Run: platform.ps1 generate-tunnel-config"
                         Write-Warn "Skipping tunnels — your store will only be accessible via localhost."
                     }
-                } else {
+                }
+                else {
                     $tunnelUrls = @{}
                     $tunnelSvcs = Get-TunnelServices -Config $config
 
                     foreach ($key in $tunnelSvcs.Keys) {
-                        $svc    = $tunnelSvcs[$key]
+                        $svc = $tunnelSvcs[$key]
                         $result = Start-EphemeralTunnel -CloudflaredCmd $cf `
                             -Port $svc.port -ServiceName $key
                         if ($result.URL -and $svc.tunnel_env_var) {
@@ -384,7 +392,8 @@ switch ($Command.ToLower()) {
                 }
             }
             Set-SetupState -InfraDir $infraDir -Step "tunnels"
-        } else {
+        }
+        else {
             Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Tunnels (skipped)"
         }
 
@@ -393,17 +402,19 @@ switch ($Command.ToLower()) {
         if (Test-SetupStep -InfraDir $infraDir -Step "apps_installed") {
             Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Saleor apps (already installed)"
             Write-Success "Skipping app install (already completed)"
-        } else {
+        }
+        else {
             Write-Step -Current $currentSetupStep -Total $totalSetupSteps -Message "Installing Saleor apps"
 
             # Read admin credentials from .env for app install
             $appEmail = if ($Email) { $Email } else { Get-EnvValue -Path $envFile -Key "AURA_ADMIN_EMAIL" }
-            $appPass  = if ($Password) { $Password } else { Get-EnvValue -Path $envFile -Key "AURA_ADMIN_PASSWORD" }
+            $appPass = if ($Password) { $Password } else { Get-EnvValue -Path $envFile -Key "AURA_ADMIN_PASSWORD" }
 
             if ($appEmail -and $appPass) {
                 & $PSCommandPath install-apps -Email $appEmail -Password $appPass
                 Set-SetupState -InfraDir $infraDir -Step "apps_installed"
-            } else {
+            }
+            else {
                 Write-Warn "No admin credentials found. Run 'platform.ps1 install-apps -Email <email> -Password <pass>' manually."
             }
         }
@@ -422,9 +433,11 @@ switch ($Command.ToLower()) {
         $currentStripeKey = Get-EnvValue -Path $envFile -Key "STRIPE_SECRET_KEY"
         if ($currentStripeKey) {
             Write-Success "Stripe keys already configured"
-        } elseif ($NonInteractive) {
+        }
+        elseif ($NonInteractive) {
             Write-Info "Skipping Stripe (non-interactive mode). Configure later in infra/.env"
-        } else {
+        }
+        else {
             $setupStripe = Read-Host "  Do you have Stripe API keys? (y/n, default: n)"
             if ($setupStripe -match "^y") {
                 Write-Info "  Get test keys from: https://dashboard.stripe.com/test/apikeys"
@@ -436,7 +449,8 @@ switch ($Command.ToLower()) {
                 if ($wh) { Set-EnvValue -Path $envFile -Key "STRIPE_WEBHOOK_SECRET" -Value $wh }
                 Write-Success "Stripe keys saved to .env"
                 Write-Info "  Restart Stripe app after setup: platform.ps1 restart aura-stripe-app"
-            } else {
+            }
+            else {
                 Write-Info "  Skipped. Add keys to infra/.env later (STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY)"
             }
         }
@@ -447,12 +461,14 @@ switch ($Command.ToLower()) {
         Write-Host "  PayPal handles PayPal wallet + card payments." -ForegroundColor Gray
         if ($NonInteractive) {
             Write-Info "Skipping PayPal (non-interactive mode)"
-        } else {
+        }
+        else {
             $setupPaypal = Read-Host "  Do you have PayPal API credentials? (y/n, default: n)"
             if ($setupPaypal -match "^y") {
                 Write-Info "  PayPal uses file-based config. See: apps/apps/paypal/README.md"
                 Write-Info "  Configure in Dashboard > Apps > PayPal after setup"
-            } else {
+            }
+            else {
                 Write-Info "  Skipped. Configure later via Dashboard > Apps > PayPal"
             }
         }
@@ -464,9 +480,11 @@ switch ($Command.ToLower()) {
         $currentSmtpHost = Get-EnvValue -Path $envFile -Key "SMTP_HOST"
         if ($currentSmtpHost) {
             Write-Success "SMTP already configured ($currentSmtpHost)"
-        } elseif ($NonInteractive) {
+        }
+        elseif ($NonInteractive) {
             Write-Info "Skipping SMTP (non-interactive mode). Emails will print to console."
-        } else {
+        }
+        else {
             $setupSmtp = Read-Host "  Do you want to configure email delivery? (y/n, default: n)"
             if ($setupSmtp -match "^y") {
                 $smtpHost = Read-Host "  SMTP Host (e.g., smtp.gmail.com)"
@@ -482,7 +500,8 @@ switch ($Command.ToLower()) {
                 if ($smtpFrom) { Set-EnvValue -Path $envFile -Key "SMTP_FROM_EMAIL" -Value $smtpFrom }
                 Write-Success "SMTP settings saved to .env"
                 Write-Info "  Restart SMTP app after setup: platform.ps1 restart aura-smtp-app"
-            } else {
+            }
+            else {
                 Write-Info "  Skipped. Emails will print to console. Configure later in infra/.env"
             }
         }
@@ -493,9 +512,11 @@ switch ($Command.ToLower()) {
         $currentSentry = Get-EnvValue -Path $envFile -Key "SENTRY_DSN"
         if ($currentSentry) {
             Write-Success "Sentry already configured"
-        } elseif ($NonInteractive) {
+        }
+        elseif ($NonInteractive) {
             Write-Info "Skipping Sentry (non-interactive mode)"
-        } else {
+        }
+        else {
             $setupSentry = Read-Host "  Do you have a Sentry DSN? (y/n, default: n)"
             if ($setupSentry -match "^y") {
                 $sentryDsn = Read-Host "  Sentry DSN (https://...@ingest.sentry.io/...)"
@@ -504,7 +525,8 @@ switch ($Command.ToLower()) {
                     Set-EnvValue -Path $envFile -Key "NEXT_PUBLIC_SENTRY_DSN" -Value $sentryDsn
                     Write-Success "Sentry DSN saved to .env"
                 }
-            } else {
+            }
+            else {
                 Write-Info "  Skipped. Free tier at https://sentry.io"
             }
         }
@@ -518,7 +540,8 @@ switch ($Command.ToLower()) {
         if ($NonInteractive) {
             Write-Info "Skipping catalog generation (non-interactive mode)"
             Write-Info "  Run manually: cd scripts/catalog-generator && npm install && npm run setup"
-        } elseif (Test-Path $catalogDir) {
+        }
+        elseif (Test-Path $catalogDir) {
             $setupCatalog = Read-Host "  Deploy store infrastructure + generate product catalog? (y/n, default: y)"
             if ($setupCatalog -notmatch "^n") {
                 # Check Node.js is available
@@ -527,8 +550,8 @@ switch ($Command.ToLower()) {
 
                     # Create catalog-generator .env with API URL and token
                     $catalogEnvPath = Join-Path $catalogDir ".env"
-                    $apiPort = if ($env:SALEOR_API_PORT) { $env:SALEOR_API_PORT } else { "8000" }
-                    $saleorUrl = "http://localhost:$apiPort/graphql/"
+                    $apiPort = if ($env:AURA_API_PORT) { $env:AURA_API_PORT } else { "8000" }
+                    $AuraUrl = "http://localhost:$apiPort/graphql/"
 
                     # Generate an API token for the catalog generator
                     $adminEmail = $env:AURA_ADMIN_EMAIL
@@ -538,28 +561,30 @@ switch ($Command.ToLower()) {
                         $envVars = Read-EnvFile (Join-Path $infraDir ".env")
                         $adminEmail = $envVars["AURA_ADMIN_EMAIL"]
                         $adminPassword = $envVars["AURA_ADMIN_PASSWORD"]
-                        $apiPort = $envVars["SALEOR_API_PORT"]
-                        if ($apiPort) { $saleorUrl = "http://localhost:$apiPort/graphql/" }
+                        $apiPort = $envVars["AURA_API_PORT"]
+                        if ($apiPort) { $AuraUrl = "http://localhost:$apiPort/graphql/" }
                     }
 
-                    $saleorToken = ""
+                    $AuraToken = ""
                     if ($adminEmail -and $adminPassword) {
                         Write-Info "  Generating API token for catalog generator..."
                         try {
                             $tokenQuery = '{"query":"mutation { tokenCreate(email: \"' + $adminEmail + '\", password: \"' + $adminPassword + '\") { token errors { field message } } }"}'
-                            $tokenResult = Invoke-RestMethod -Uri $saleorUrl -Method Post -ContentType "application/json" -Body $tokenQuery -ErrorAction Stop
-                            $saleorToken = $tokenResult.data.tokenCreate.token
-                            if ($saleorToken) {
+                            $tokenResult = Invoke-RestMethod -Uri $AuraUrl -Method Post -ContentType "application/json" -Body $tokenQuery -ErrorAction Stop
+                            $AuraToken = $tokenResult.data.tokenCreate.token
+                            if ($AuraToken) {
                                 Write-Success "  API token generated"
-                            } else {
-                                Write-Warn "  Could not generate token. Set SALEOR_TOKEN manually in scripts/catalog-generator/.env"
                             }
-                        } catch {
-                            Write-Warn "  Could not reach API for token. Set SALEOR_TOKEN manually in scripts/catalog-generator/.env"
+                            else {
+                                Write-Warn "  Could not generate token. Set AURA_TOKEN manually in scripts/catalog-generator/.env"
+                            }
+                        }
+                        catch {
+                            Write-Warn "  Could not reach API for token. Set AURA_TOKEN manually in scripts/catalog-generator/.env"
                         }
                     }
 
-                    $catalogEnvContent = "SALEOR_URL=$saleorUrl`nSALEOR_TOKEN=$saleorToken`n"
+                    $catalogEnvContent = "AURA_URL=$AuraUrl`nAURA_TOKEN=$AuraToken`n"
                     [System.IO.File]::WriteAllText($catalogEnvPath, $catalogEnvContent, [System.Text.UTF8Encoding]::new($false))
                     Write-Info "  Created scripts/catalog-generator/.env"
 
@@ -570,22 +595,27 @@ switch ($Command.ToLower()) {
                         if ($LASTEXITCODE -eq 0) {
                             Write-Success "Store infrastructure deployed + catalog generated!"
                             Write-Info "  Import products via Dashboard > Apps > Bulk Manager"
-                        } else {
+                        }
+                        else {
                             Write-Warn "Catalog generator had issues. Run manually: cd scripts/catalog-generator && npm run setup"
                         }
-                    } catch {
+                    }
+                    catch {
                         Write-Warn "Catalog generator failed: $_"
                         Write-Info "  Run manually: cd scripts/catalog-generator && npm run setup"
                     }
                     Pop-Location
-                } else {
+                }
+                else {
                     Write-Warn "Node.js not found on host. Install Node.js 22+ and run:"
                     Write-Info "  cd scripts/catalog-generator && npm install && npm run setup"
                 }
-            } else {
+            }
+            else {
                 Write-Info "  Skipped. Run later: cd scripts/catalog-generator && npm install && npm run setup"
             }
-        } else {
+        }
+        else {
             Write-Info "Catalog generator not found at: $catalogDir"
         }
 
@@ -600,7 +630,7 @@ switch ($Command.ToLower()) {
         Write-Host ""
         Write-Host "  REMAINING MANUAL STEPS:" -ForegroundColor Yellow
         Write-Host "  ─────────────────────────────────────────────" -ForegroundColor Gray
-        Write-Host "  1. Log into Dashboard: " -NoNewline; Write-Host "http://localhost:9000" -ForegroundColor Cyan
+        Write-Host "  1. Log into Dashboard: " -NoNewline; Write-Host "http://localhost:9100" -ForegroundColor Cyan
         Write-Host "  2. Import Storefront Control configs:" -ForegroundColor White
         Write-Host "     Dashboard > Apps > Storefront Control > Import/Export" -ForegroundColor Gray
         Write-Host "     - USD channel: apps/apps/storefront-control/sample-config-import-en.json" -ForegroundColor Gray
@@ -630,7 +660,8 @@ switch ($Command.ToLower()) {
         $dockerOk = Test-DockerRunning
         if ($dockerOk) {
             Write-Success "Docker is running"
-        } else {
+        }
+        else {
             Write-Err "Docker is NOT running"
         }
 
@@ -641,9 +672,10 @@ switch ($Command.ToLower()) {
         $backups = Get-BackupHistory -Config $config
         if ($backups.Count -gt 0) {
             $latest = $backups[0]
-            $age    = (Get-Date) - $latest.LastWriteTime
+            $age = (Get-Date) - $latest.LastWriteTime
             Write-Info "Latest backup: $($latest.Name) ($([math]::Round($age.TotalHours, 1))h ago)"
-        } else {
+        }
+        else {
             Write-Info "No backups found."
         }
     }
@@ -652,10 +684,10 @@ switch ($Command.ToLower()) {
     "up" {
         Write-Banner -Title "Starting Aura Platform" -Subtitle "Mode: $Mode"
 
-        $step  = 0
+        $step = 0
         $total = 5
-        if ($SkipDocker)  { $total-- }
-        if ($SkipTunnel)  { $total-- }
+        if ($SkipDocker) { $total-- }
+        if ($SkipTunnel) { $total-- }
         if (-not $SkipDbInit -and -not $SkipDocker) { $total++ }
 
         # Step 1 -- Docker
@@ -703,7 +735,8 @@ switch ($Command.ToLower()) {
                 Write-Warn "Could not check migration status (API container may still be starting)"
                 $unapplied = 0
                 $total_migrations = 0
-            } else {
+            }
+            else {
                 $migrationLines = $migrationCheck | Where-Object { $_ -match "^\s*\[" }
                 $unapplied = ($migrationLines | Where-Object { $_ -match "^\s*\[ \]" }).Count
                 $total_migrations = ($migrationLines | Measure-Object).Count
@@ -720,13 +753,14 @@ switch ($Command.ToLower()) {
                     -Description "Applying migrations"
                 if ($migrated) {
                     Write-Success "Migrations applied"
-                } else {
+                }
+                else {
                     Write-Warn "Migration had issues -- run 'platform.ps1 db-init' manually"
                 }
 
                 # Create admin from .env defaults
                 $adminEmail = Get-EnvValue -Path $envFile -Key "AURA_ADMIN_EMAIL"
-                $adminPass  = Get-EnvValue -Path $envFile -Key "AURA_ADMIN_PASSWORD"
+                $adminPass = Get-EnvValue -Path $envFile -Key "AURA_ADMIN_PASSWORD"
                 if ($adminEmail -and $adminPass) {
                     $null = docker exec -e DJANGO_SUPERUSER_PASSWORD="$adminPass" $apiContainer `
                         python manage.py createsuperuser --noinput --email "$adminEmail" 2>$null
@@ -737,7 +771,8 @@ switch ($Command.ToLower()) {
                 $null = Invoke-InContainer -ContainerName $apiContainer `
                     -Command "python manage.py build_schema 2>/dev/null" -Silent
                 Write-Success "GraphQL schema exported"
-            } elseif ($unapplied -gt 0) {
+            }
+            elseif ($unapplied -gt 0) {
                 $step++
                 Write-Step -Current $step -Total $total -Message "Pending migrations detected ($unapplied unapplied)"
                 Write-Info "Run 'platform.ps1 db-init' to apply migrations"
@@ -751,7 +786,8 @@ switch ($Command.ToLower()) {
 
             try {
                 $cf = Find-Cloudflared
-            } catch {
+            }
+            catch {
                 Write-Warn "cloudflared not found -- skipping tunnels. Install with: winget install Cloudflare.cloudflared"
                 $cf = $null
             }
@@ -761,16 +797,18 @@ switch ($Command.ToLower()) {
                     $tunnelConfig = Join-Path $infraDir "cloudflared-config.yml"
                     if (Test-Path $tunnelConfig) {
                         Start-NamedTunnel -CloudflaredCmd $cf -TunnelConfigPath $tunnelConfig | Out-Null
-                    } else {
+                    }
+                    else {
                         Write-Warn "cloudflared-config.yml not found. Run: platform.ps1 generate-tunnel-config"
                     }
-                } else {
+                }
+                else {
                     # Dev mode -- ephemeral tunnels for all tunnel-eligible services
                     $tunnelUrls = @{}
                     $tunnelSvcs = Get-TunnelServices -Config $config
 
                     foreach ($key in $tunnelSvcs.Keys) {
-                        $svc    = $tunnelSvcs[$key]
+                        $svc = $tunnelSvcs[$key]
                         $result = Start-EphemeralTunnel -CloudflaredCmd $cf `
                             -Port $svc.port -ServiceName $key
 
@@ -846,7 +884,8 @@ switch ($Command.ToLower()) {
                 $svc = $config.services[$Target]
                 if ($svc) {
                     Restart-Container -ComposeFile $composeFile -ServiceName $svc.compose_service
-                } else {
+                }
+                else {
                     # Try direct compose service name
                     Restart-Container -ComposeFile $composeFile -ServiceName $Target
                 }
@@ -859,8 +898,8 @@ switch ($Command.ToLower()) {
         Write-Banner -Title "Database Backup"
 
         $params = @{ Config = $config }
-        if ($Compress)    { $params.Compress = $true }
-        if ($Quiet)       { $params.Quiet    = $true }
+        if ($Compress) { $params.Compress = $true }
+        if ($Quiet) { $params.Quiet = $true }
 
         # Override retain if specified
         if ($Retain -gt 0) {
@@ -891,8 +930,8 @@ switch ($Command.ToLower()) {
         }
         if (-not $Password) {
             $securePass = Read-Host "Admin password" -AsSecureString
-            $bstr       = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePass)
-            $Password   = [Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+            $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePass)
+            $Password = [Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
         }
 
         $installParams = @{
@@ -917,8 +956,8 @@ switch ($Command.ToLower()) {
         }
         if (-not $Password) {
             $securePass = Read-Host "Admin password" -AsSecureString
-            $bstr       = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePass)
-            $Password   = [Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+            $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePass)
+            $Password = [Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
         }
 
         $apiUrl = "http://localhost:$($config.services.api.port)/graphql/"
@@ -935,7 +974,8 @@ switch ($Command.ToLower()) {
 
         try {
             $cf = Find-Cloudflared
-        } catch {
+        }
+        catch {
             Write-Err $_
             exit 1
         }
@@ -943,12 +983,13 @@ switch ($Command.ToLower()) {
         if ($Mode -eq "selfhosted") {
             $tunnelConfig = Join-Path $infraDir "cloudflared-config.yml"
             Start-NamedTunnel -CloudflaredCmd $cf -TunnelConfigPath $tunnelConfig | Out-Null
-        } else {
+        }
+        else {
             $tunnelUrls = @{}
             $tunnelSvcs = Get-TunnelServices -Config $config
 
             foreach ($key in $tunnelSvcs.Keys) {
-                $svc    = $tunnelSvcs[$key]
+                $svc = $tunnelSvcs[$key]
                 $result = Start-EphemeralTunnel -CloudflaredCmd $cf `
                     -Port $svc.port -ServiceName $key
 
@@ -968,18 +1009,18 @@ switch ($Command.ToLower()) {
     "codegen" {
         Write-Banner -Title "GraphQL Codegen"
 
-        $sfContainer   = $config.services.storefront.container
+        $sfContainer = $config.services.storefront.container
         $dashContainer = $config.services.dashboard.container
 
         Write-Step -Current 1 -Total 2 -Message "Storefront codegen"
         docker exec $sfContainer pnpm generate
         if ($LASTEXITCODE -ne 0) { Write-Warn "Storefront codegen returned errors." }
-        else                      { Write-Success "Storefront codegen done." }
+        else { Write-Success "Storefront codegen done." }
 
         Write-Step -Current 2 -Total 2 -Message "Dashboard codegen"
         docker exec $dashContainer pnpm generate
         if ($LASTEXITCODE -ne 0) { Write-Warn "Dashboard codegen returned errors." }
-        else                      { Write-Success "Dashboard codegen done." }
+        else { Write-Success "Dashboard codegen done." }
     }
 
     # =========================================================================
@@ -1007,7 +1048,8 @@ switch ($Command.ToLower()) {
         Write-Host "Checking Docker..." -ForegroundColor Yellow
         if (Get-Command "docker" -ErrorAction SilentlyContinue) {
             Write-Success "docker found"
-        } else {
+        }
+        else {
             Write-Err "docker not found. Install Docker Desktop from https://www.docker.com/products/docker-desktop/"
             $ok = $false
         }
@@ -1017,7 +1059,8 @@ switch ($Command.ToLower()) {
         try {
             $cf = Find-Cloudflared
             Write-Success "cloudflared found: $cf"
-        } catch {
+        }
+        catch {
             Write-Warn "cloudflared not found. Install with: winget install Cloudflare.cloudflared"
         }
 
@@ -1025,12 +1068,14 @@ switch ($Command.ToLower()) {
         Write-Host "Checking powershell-yaml..." -ForegroundColor Yellow
         if (Get-Module -ListAvailable -Name powershell-yaml) {
             Write-Success "powershell-yaml module available"
-        } else {
+        }
+        else {
             Write-Warn "powershell-yaml not found. Installing..."
             try {
                 Install-Module powershell-yaml -Scope CurrentUser -Force -AllowClobber
                 Write-Success "powershell-yaml installed"
-            } catch {
+            }
+            catch {
                 Write-Err "Failed to install powershell-yaml: $_"
                 $ok = $false
             }
@@ -1041,13 +1086,15 @@ switch ($Command.ToLower()) {
         $envCreated = $false
         if (Test-Path $envFile) {
             Write-Success ".env file exists"
-        } else {
+        }
+        else {
             $envTemplate = Join-Path $infraDir ".env.example"
             if (Test-Path $envTemplate) {
                 Copy-Item $envTemplate $envFile
                 Write-Success ".env created from .env.example"
                 $envCreated = $true
-            } else {
+            }
+            else {
                 Write-Warn ".env not found and no .env.example template. Create manually from env-template.txt."
             }
         }
@@ -1076,7 +1123,8 @@ switch ($Command.ToLower()) {
                 $newSecret = New-RandomHex -Bytes 32
                 Set-EnvValue -Path $envFile -Key "SECRET_KEY" -Value $newSecret
                 Write-Success "SECRET_KEY auto-generated (64 hex chars)"
-            } else {
+            }
+            else {
                 Write-Success "SECRET_KEY already set"
             }
 
@@ -1087,7 +1135,8 @@ switch ($Command.ToLower()) {
                 $newAppSecret = New-RandomHex -Bytes 32
                 Set-EnvValue -Path $envFile -Key "APP_SECRET_KEY" -Value $newAppSecret
                 Write-Success "APP_SECRET_KEY auto-generated (64 hex chars)"
-            } else {
+            }
+            else {
                 Write-Success "APP_SECRET_KEY already set"
             }
 
@@ -1118,11 +1167,13 @@ switch ($Command.ToLower()) {
                         $pem -replace "\\n", "`n" | Set-Content $rsaPemFile -NoNewline
                         Write-Info "  RSA key also saved to: $rsaPemFile"
                     }
-                } catch {
+                }
+                catch {
                     Write-Warn "Failed to generate RSA key via .NET: $_"
                     Write-Info "  Generate manually: .\infra\scripts\generate-rsa-key-for-env.ps1"
                 }
-            } else {
+            }
+            else {
                 Write-Success "RSA_PRIVATE_KEY already set"
             }
 
@@ -1141,7 +1192,8 @@ switch ($Command.ToLower()) {
         Write-Host ""
         if ($ok) {
             Write-Success "Init complete. Next: platform.ps1 new-store (or platform.ps1 setup for full guided flow)"
-        } else {
+        }
+        else {
             Write-Warn "Some prerequisites are missing. Resolve the errors above before continuing."
         }
     }
@@ -1177,7 +1229,8 @@ switch ($Command.ToLower()) {
             -Description "Applying migrations"
         if ($migrated) {
             Write-Success "Migrations applied"
-        } else {
+        }
+        else {
             Write-Err "Migration failed. Check API container logs: docker compose -f $composeFile logs aura-api"
             exit 1
         }
@@ -1185,7 +1238,7 @@ switch ($Command.ToLower()) {
         # Step 3: Create superuser
         Write-Step -Current 3 -Total 4 -Message "Creating admin user..."
         $adminEmail = if ($Email) { $Email } else { Get-EnvValue -Path $envFile -Key "AURA_ADMIN_EMAIL" }
-        $adminPass  = if ($Password) { $Password } else { Get-EnvValue -Path $envFile -Key "AURA_ADMIN_PASSWORD" }
+        $adminPass = if ($Password) { $Password } else { Get-EnvValue -Path $envFile -Key "AURA_ADMIN_PASSWORD" }
 
         if (-not $adminEmail -or -not $adminPass -or $adminEmail -eq "admin@localhost") {
             if (-not $NonInteractive) {
@@ -1201,9 +1254,10 @@ switch ($Command.ToLower()) {
                     if ($input) { $adminPass = $input }
                     elseif (-not $adminPass) { $adminPass = "admin" }
                 }
-            } else {
+            }
+            else {
                 if (-not $adminEmail) { $adminEmail = "admin@localhost" }
-                if (-not $adminPass)  { $adminPass  = "admin" }
+                if (-not $adminPass) { $adminPass = "admin" }
             }
         }
 
@@ -1214,12 +1268,14 @@ switch ($Command.ToLower()) {
 
         if ($checkOutput -match "EXISTS") {
             Write-Success "Admin user '$adminEmail' already exists (skipping)"
-        } else {
+        }
+        else {
             $createResult = docker exec -e DJANGO_SUPERUSER_PASSWORD="$adminPass" $apiContainer `
                 python manage.py createsuperuser --noinput --email "$adminEmail" 2>&1
             if ($LASTEXITCODE -eq 0) {
                 Write-Success "Admin user created: $adminEmail"
-            } else {
+            }
+            else {
                 Write-Warn "Could not create admin user (may already exist): $createResult"
             }
         }
@@ -1231,7 +1287,8 @@ switch ($Command.ToLower()) {
             -Description "Building schema"
         if ($schemaExported) {
             Write-Success "GraphQL schema exported"
-        } else {
+        }
+        else {
             Write-Warn "Schema export had warnings (non-critical)"
         }
 
@@ -1255,16 +1312,16 @@ switch ($Command.ToLower()) {
             -Subtitle "Domain: $($config.platform.domain)"
 
         $tunnelName = $config.platform.tunnel_name
-        $domain     = $config.platform.domain
+        $domain = $config.platform.domain
         $outputPath = Join-Path $infraDir "cloudflared-config.yml"
 
         # Build ingress rules for all services with a subdomain
         $ingressLines = @()
-        $tunnelSvcs   = Get-TunnelServices -Config $config
+        $tunnelSvcs = Get-TunnelServices -Config $config
 
         # Deterministic order: api, dashboard, storefront first, then apps
         $orderPreference = @("api", "dashboard", "storefront", "stripe", "smtp", "invoices",
-                             "control", "newsletter", "analytics", "bulk", "studio", "dropship", "tax")
+            "control", "newsletter", "analytics", "bulk", "studio", "dropship", "tax")
 
         $orderedKeys = @()
         foreach ($k in $orderPreference) {
@@ -1318,11 +1375,13 @@ $($ingressLines -join "`n")
                 $content | Set-Content $outputPath -Encoding UTF8
                 Write-Success "Tunnel UUID auto-detected: $tunnelId"
                 Write-Info "Credentials file: $($env:USERPROFILE)\.cloudflared\$tunnelId.json"
-            } else {
+            }
+            else {
                 Write-Warn "Tunnel '$tunnelName' not found. Create it with: cloudflared tunnel create $tunnelName"
                 Write-Info "Then replace <TUNNEL_ID> in cloudflared-config.yml with the UUID"
             }
-        } catch {
+        }
+        catch {
             Write-Info "Could not auto-detect tunnel UUID. Replace <TUNNEL_ID> manually in cloudflared-config.yml"
         }
 
@@ -1340,12 +1399,12 @@ $($ingressLines -join "`n")
 
         # Build params to forward to init-new-store.ps1
         $storeParams = @{}
-        if ($StoreName)    { $storeParams.StoreName    = $StoreName }
+        if ($StoreName) { $storeParams.StoreName = $StoreName }
         if ($PrimaryColor) { $storeParams.PrimaryColor = $PrimaryColor }
-        if ($Domain)       { $storeParams.Domain       = $Domain }
-        if ($Tagline)      { $storeParams.Tagline      = $Tagline }
-        if ($GtmId)        { $storeParams.GtmId        = $GtmId }
-        if ($Ga4Id)        { $storeParams.Ga4Id        = $Ga4Id }
+        if ($Domain) { $storeParams.Domain = $Domain }
+        if ($Tagline) { $storeParams.Tagline = $Tagline }
+        if ($GtmId) { $storeParams.GtmId = $GtmId }
+        if ($Ga4Id) { $storeParams.Ga4Id = $Ga4Id }
 
         # Run the store wizard
         & "$scriptDir\scripts\init-new-store.ps1" @storeParams
@@ -1368,7 +1427,7 @@ $($ingressLines -join "`n")
         Write-Success "Store configured! Next steps:"
         Write-Info "  1. .\infra\platform.ps1 up              # Start services"
         Write-Info "  2. .\infra\platform.ps1 install-apps     # Install Saleor apps"
-        Write-Info "  3. Open http://localhost:3000             # View storefront"
+        Write-Info "  3. Open http://localhost:3100             # View storefront"
         Write-Host ""
     }
 
@@ -1533,7 +1592,7 @@ $($ingressLines -join "`n")
             }
 
             # 7b. Backend changed? Run migrations + codegen
-            $backendChanged = $changedFiles | Where-Object { $_ -match '^saleor/' }
+            $backendChanged = $changedFiles | Where-Object { $_ -match '^Aura/' }
             if ($backendChanged) {
                 Write-Step -Current 4 -Total 5 -Message "Post-merge: running migrations + codegen..."
                 $apiContainer = $config.services.api.container
@@ -1577,15 +1636,18 @@ $($ingressLines -join "`n")
             if ($infraChanged) {
                 Write-Host "  Infrastructure changed -- rebuilding containers..." -ForegroundColor Yellow
                 docker compose -f "$PSScriptRoot/docker-compose.dev.yml" up -d --build 2>$null
-            } elseif ($frontendChanged) {
+            }
+            elseif ($frontendChanged) {
                 Write-Host "  Frontend changed -- rebuilding storefront + dashboard..." -ForegroundColor Yellow
                 docker compose -f "$PSScriptRoot/docker-compose.dev.yml" up -d --build aura-storefront aura-dashboard 2>$null
-            } else {
+            }
+            else {
                 docker compose -f "$PSScriptRoot/docker-compose.dev.yml" restart 2>$null
             }
 
             Write-Success "Upstream sync complete! $behind commits merged."
-        } finally {
+        }
+        finally {
             Pop-Location
         }
     }
