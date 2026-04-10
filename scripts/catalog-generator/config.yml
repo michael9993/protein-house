@@ -1,4 +1,4 @@
-# Pawzen — Saleor Store Infrastructure Configuration
+# Protein House — Saleor Store Infrastructure Configuration
 # Managed by @saleor/configurator (patched for SINGLE_REFERENCE support)
 #
 # Usage:
@@ -31,219 +31,464 @@ channels:
 # Attributes defined inline — Configurator creates & assigns them to each type.
 
 productTypes:
-  - name: "Pet Toys & Enrichment"
+  - name: "Protein Powder"
     isShippingRequired: true
     productAttributes:
-      - name: "Pet Type"
+      - name: "Brand"
         inputType: DROPDOWN
         values:
-          - name: Dog
-          - name: Cat
-          - name: Both
-      - name: "Material"
+          - name: Optimum Nutrition
+          - name: MuscleTech
+          - name: BSN
+          - name: Dymatize
+          - name: Cellucor
+          - name: MyProtein
+          - name: Ghost
+          - name: BioTechUSA
+          - name: Scitec Nutrition
+          - name: Rule 1
+      - name: "Product Form"
         inputType: DROPDOWN
         values:
-          - name: Rubber
-          - name: Plush
-          - name: Rope
-          - name: Plastic
-          - name: Natural
-      - name: "Toy Category"
+          - name: Powder
+          - name: Ready-to-Drink
+      - name: "Protein Source"
         inputType: DROPDOWN
         values:
-          - name: Chew
-          - name: Interactive
-          - name: Fetch
-          - name: Puzzle
-          - name: Comfort
+          - name: Whey Concentrate
+          - name: Whey Isolate
+          - name: Whey Blend
+          - name: Casein
+          - name: Plant/Vegan
+          - name: Mass Gainer
+      - name: "Dietary Tags"
+        inputType: DROPDOWN
+        values:
+          - name: Vegan
+          - name: Gluten-Free
+          - name: Dairy-Free
+          - name: Sugar-Free
+          - name: Keto-Friendly
+          - name: Non-GMO
+      - name: "Goal"
+        inputType: DROPDOWN
+        values:
+          - name: Muscle Building
+          - name: Weight Loss
+          - name: Recovery
+          - name: General Health
+    variantAttributes:
+      - name: "Flavor"
+        inputType: DROPDOWN
+        values:
+          - name: Double Rich Chocolate
+          - name: Vanilla Ice Cream
+          - name: Strawberry
+          - name: Cookies & Cream
+          - name: Birthday Cake
+          - name: Chocolate Peanut Butter
+          - name: Mocha
+          - name: Banana
+          - name: Rocky Road
+          - name: Chocolate Mint
+          - name: French Vanilla
+          - name: Cinnamon Roll
+          - name: Salted Caramel
+          - name: Blueberry Muffin
+          - name: Chocolate Brownie
+          - name: Vanilla Bean
+          - name: Peanut Butter Cookie
+          - name: Coffee
+          - name: Unflavored
+          - name: Fruit Punch
+      - name: "Size"
+        inputType: DROPDOWN
+        values:
+          - name: 1lb / 454g
+          - name: 2lb / 908g
+          - name: 5lb / 2.27kg
+          - name: 10lb / 4.54kg
+
+  - name: "Pre-Workout"
+    isShippingRequired: true
+    productAttributes:
+      - name: "Brand"
+        inputType: DROPDOWN
+        values:
+          - name: Optimum Nutrition
+          - name: MuscleTech
+          - name: BSN
+          - name: Dymatize
+          - name: Cellucor
+          - name: MyProtein
+          - name: Ghost
+          - name: BioTechUSA
+          - name: Scitec Nutrition
+          - name: Rule 1
+      - name: "Stim Level"
+        inputType: DROPDOWN
+        values:
+          - name: Stim-Free
+          - name: Moderate
+          - name: High Stim
+      - name: "Dietary Tags"
+        inputType: DROPDOWN
+        values:
+          - name: Vegan
+          - name: Gluten-Free
+          - name: Dairy-Free
+          - name: Sugar-Free
+          - name: Keto-Friendly
+          - name: Non-GMO
+      - name: "Goal"
+        inputType: DROPDOWN
+        values:
+          - name: Energy
+          - name: Pump
+          - name: Endurance
+          - name: Focus
+    variantAttributes:
+      - name: "Flavor"
+        inputType: DROPDOWN
+        values:
+          - name: Blue Raspberry
+          - name: Fruit Punch
+          - name: Watermelon
+          - name: Green Apple
+          - name: Cherry Limeade
+          - name: Grape
+          - name: Orange Mango
+          - name: Tropical Punch
+          - name: Lemon Lime
+          - name: Pink Lemonade
+          - name: Sour Gummy
+          - name: Unflavored
+      - name: "Size"
+        inputType: DROPDOWN
+        values:
+          - name: 20 Servings
+          - name: 30 Servings
+          - name: 60 Servings
+
+  - name: "Creatine"
+    isShippingRequired: true
+    productAttributes:
+      - name: "Brand"
+        inputType: DROPDOWN
+        values:
+          - name: Optimum Nutrition
+          - name: MuscleTech
+          - name: BSN
+          - name: Dymatize
+          - name: Cellucor
+          - name: MyProtein
+          - name: Ghost
+          - name: BioTechUSA
+          - name: Scitec Nutrition
+          - name: Rule 1
+      - name: "Creatine Type"
+        inputType: DROPDOWN
+        values:
+          - name: Monohydrate
+          - name: HCL
+          - name: Blend
+          - name: Buffered
+      - name: "Dietary Tags"
+        inputType: DROPDOWN
+        values:
+          - name: Vegan
+          - name: Gluten-Free
+          - name: Dairy-Free
+          - name: Sugar-Free
+          - name: Keto-Friendly
+          - name: Non-GMO
+    variantAttributes:
+      - name: "Flavor"
+        inputType: DROPDOWN
+        values:
+          - name: Unflavored
+          - name: Fruit Punch
+          - name: Blue Raspberry
+          - name: Lemon Lime
+          - name: Grape
+          - name: Watermelon
+      - name: "Size"
+        inputType: DROPDOWN
+        values:
+          - name: 150g
+          - name: 300g
+          - name: 500g
+          - name: 1kg
+
+  - name: "Amino Acids"
+    isShippingRequired: true
+    productAttributes:
+      - name: "Brand"
+        inputType: DROPDOWN
+        values:
+          - name: Optimum Nutrition
+          - name: MuscleTech
+          - name: BSN
+          - name: Dymatize
+          - name: Cellucor
+          - name: MyProtein
+          - name: Ghost
+          - name: BioTechUSA
+          - name: Scitec Nutrition
+          - name: Rule 1
+      - name: "Amino Type"
+        inputType: DROPDOWN
+        values:
+          - name: BCAA
+          - name: EAA
+          - name: Glutamine
+          - name: L-Carnitine
+          - name: Beta-Alanine
+      - name: "Dietary Tags"
+        inputType: DROPDOWN
+        values:
+          - name: Vegan
+          - name: Gluten-Free
+          - name: Dairy-Free
+          - name: Sugar-Free
+          - name: Keto-Friendly
+          - name: Non-GMO
+      - name: "Goal"
+        inputType: DROPDOWN
+        values:
+          - name: Muscle Building
+          - name: Weight Loss
+          - name: Recovery
+          - name: General Health
+    variantAttributes:
+      - name: "Flavor"
+        inputType: DROPDOWN
+        values:
+          - name: Blue Raspberry
+          - name: Fruit Punch
+          - name: Watermelon
+          - name: Green Apple
+          - name: Cherry Limeade
+          - name: Grape
+          - name: Orange Mango
+          - name: Tropical Punch
+          - name: Lemon Lime
+          - name: Unflavored
+      - name: "Size"
+        inputType: DROPDOWN
+        values:
+          - name: 30 Servings
+          - name: 60 Servings
+          - name: 90 Servings
+
+  - name: "Vitamins & Minerals"
+    isShippingRequired: true
+    productAttributes:
+      - name: "Brand"
+        inputType: DROPDOWN
+        values:
+          - name: Optimum Nutrition
+          - name: MuscleTech
+          - name: BSN
+          - name: Dymatize
+          - name: Cellucor
+          - name: MyProtein
+          - name: Ghost
+          - name: BioTechUSA
+          - name: Scitec Nutrition
+          - name: Rule 1
+      - name: "Product Form"
+        inputType: DROPDOWN
+        values:
+          - name: Capsule
+          - name: Tablet
+          - name: Softgel
+          - name: Gummy
+          - name: Liquid
+      - name: "Dietary Tags"
+        inputType: DROPDOWN
+        values:
+          - name: Vegan
+          - name: Gluten-Free
+          - name: Dairy-Free
+          - name: Sugar-Free
+          - name: Keto-Friendly
+          - name: Non-GMO
     variantAttributes:
       - name: "Size"
         inputType: DROPDOWN
         values:
-          - name: Small
-          - name: Medium
-          - name: Large
-      - name: "Color"
-        inputType: DROPDOWN
-        values:
-          - name: Red
-          - name: Blue
-          - name: Green
-          - name: Orange
-          - name: Yellow
-          - name: Pink
-          - name: Brown
-          - name: Grey
-          - name: Black
-          - name: White
+          - name: 30ct
+          - name: 60ct
+          - name: 90ct
+          - name: 120ct
+          - name: 180ct
+          - name: 240ct
 
-  - name: "Pet Feeding & Hydration"
+  - name: "Fat Burner"
     isShippingRequired: true
     productAttributes:
-      - name: "Pet Type"
+      - name: "Brand"
         inputType: DROPDOWN
         values:
-          - name: Dog
-          - name: Cat
-          - name: Both
+          - name: Optimum Nutrition
+          - name: MuscleTech
+          - name: BSN
+          - name: Dymatize
+          - name: Cellucor
+          - name: MyProtein
+          - name: Ghost
+          - name: BioTechUSA
+          - name: Scitec Nutrition
+          - name: Rule 1
+      - name: "Stim Level"
+        inputType: DROPDOWN
+        values:
+          - name: Stim-Free
+          - name: Moderate
+          - name: High Stim
+      - name: "Dietary Tags"
+        inputType: DROPDOWN
+        values:
+          - name: Vegan
+          - name: Gluten-Free
+          - name: Dairy-Free
+          - name: Sugar-Free
+          - name: Keto-Friendly
+          - name: Non-GMO
+    variantAttributes:
+      - name: "Size"
+        inputType: DROPDOWN
+        values:
+          - name: 30ct
+          - name: 60ct
+          - name: 90ct
+          - name: 120ct
+
+  - name: "Functional Food"
+    isShippingRequired: true
+    productAttributes:
+      - name: "Brand"
+        inputType: DROPDOWN
+        values:
+          - name: Optimum Nutrition
+          - name: MuscleTech
+          - name: BSN
+          - name: Dymatize
+          - name: Cellucor
+          - name: MyProtein
+          - name: Ghost
+          - name: BioTechUSA
+          - name: Scitec Nutrition
+          - name: Rule 1
+      - name: "Product Form"
+        inputType: DROPDOWN
+        values:
+          - name: Bar
+          - name: Snack
+          - name: Spread
+          - name: Baking Mix
+          - name: Ready-to-Drink
+      - name: "Dietary Tags"
+        inputType: DROPDOWN
+        values:
+          - name: Vegan
+          - name: Gluten-Free
+          - name: Dairy-Free
+          - name: Sugar-Free
+          - name: Keto-Friendly
+          - name: Non-GMO
+    variantAttributes:
+      - name: "Flavor"
+        inputType: DROPDOWN
+        values:
+          - name: Chocolate
+          - name: Vanilla
+          - name: Peanut Butter
+          - name: Cookies & Cream
+          - name: Birthday Cake
+          - name: Strawberry
+          - name: Caramel
+          - name: Cinnamon
+          - name: Lemon
+          - name: Mixed Berry
+      - name: "Pack Size"
+        inputType: DROPDOWN
+        values:
+          - name: Single
+          - name: Box of 6
+          - name: Box of 12
+          - name: Box of 24
+
+  - name: "Accessories"
+    isShippingRequired: true
+    productAttributes:
+      - name: "Brand"
+        inputType: DROPDOWN
+        values:
+          - name: Optimum Nutrition
+          - name: MuscleTech
+          - name: BSN
+          - name: Dymatize
+          - name: Cellucor
+          - name: MyProtein
+          - name: Ghost
+          - name: BioTechUSA
+          - name: Scitec Nutrition
+          - name: Rule 1
       - name: "Material"
         inputType: DROPDOWN
         values:
+          - name: BPA-Free Plastic
           - name: Stainless Steel
-          - name: Ceramic
-          - name: Plastic
           - name: Silicone
-      - name: "Feeding Type"
-        inputType: DROPDOWN
-        values:
-          - name: Bowl
-          - name: Fountain
-          - name: Slow Feeder
-          - name: Auto Feeder
-          - name: Travel Bowl
-    variantAttributes:
-      - name: "Size"
-        inputType: DROPDOWN
-        values:
-          - name: Small
-          - name: Medium
-          - name: Large
-      - name: "Color"
-        inputType: DROPDOWN
-        values:
-          - name: Red
-          - name: Blue
-          - name: Green
-          - name: Orange
-          - name: Yellow
-          - name: Pink
-          - name: Brown
-          - name: Grey
-          - name: Black
-          - name: White
-
-  - name: "Pet Comfort & Living"
-    isShippingRequired: true
-    productAttributes:
-      - name: "Pet Type"
-        inputType: DROPDOWN
-        values:
-          - name: Dog
-          - name: Cat
-          - name: Both
-      - name: "Material"
-        inputType: DROPDOWN
-        values:
-          - name: Fleece
-          - name: Canvas
-          - name: Memory Foam
-          - name: Wood
-          - name: Fabric
-      - name: "Comfort Type"
-        inputType: DROPDOWN
-        values:
-          - name: Bed
-          - name: Blanket
-          - name: House
-          - name: Carrier
-          - name: Clothing
-          - name: Hammock
-    variantAttributes:
-      - name: "Size"
-        inputType: DROPDOWN
-        values:
-          - name: XS
-          - name: S
-          - name: M
-          - name: L
-          - name: XL
-          - name: XXL
-      - name: "Color"
-        inputType: DROPDOWN
-        values:
-          - name: Red
-          - name: Blue
-          - name: Green
-          - name: Orange
-          - name: Yellow
-          - name: Pink
-          - name: Brown
-          - name: Grey
-          - name: Black
-          - name: White
-
-  - name: "Pet Care & Accessories"
-    isShippingRequired: true
-    productAttributes:
-      - name: "Pet Type"
-        inputType: DROPDOWN
-        values:
-          - name: Dog
-          - name: Cat
-          - name: Both
-      - name: "Material"
-        inputType: DROPDOWN
-        values:
           - name: Nylon
-          - name: Leather
-          - name: Stainless Steel
-          - name: Plastic
-          - name: Silicone
           - name: Rubber
       - name: "Accessory Type"
         inputType: DROPDOWN
         values:
-          - name: Collar
-          - name: Leash
-          - name: Harness
-          - name: Grooming Tool
-          - name: Health
-          - name: Training
-          - name: ID Tag
+          - name: Shaker Bottle
+          - name: Gym Bag
+          - name: Lifting Straps
+          - name: Lifting Belt
+          - name: Resistance Band
+          - name: Pill Box
     variantAttributes:
-      - name: "Size"
-        inputType: DROPDOWN
-        values:
-          - name: XS
-          - name: S
-          - name: M
-          - name: L
-          - name: XL
       - name: "Color"
         inputType: DROPDOWN
         values:
+          - name: Black
           - name: Red
           - name: Blue
           - name: Green
-          - name: Orange
-          - name: Yellow
           - name: Pink
-          - name: Brown
-          - name: Grey
-          - name: Black
           - name: White
+          - name: Gray
+      - name: "Size"
+        inputType: DROPDOWN
+        values:
+          - name: Small
+          - name: Medium
+          - name: Large
+          - name: One Size
 
 # --- Warehouses ---
-# Maps to stock:Pawzen Israel Warehouse and stock:Pawzen International Warehouse columns in the product Excel.
+# Maps to stock columns in the product Excel.
 
 warehouses:
-  - name: "Pawzen Israel Warehouse"
-    slug: pawzen-israel-warehouse
+  - name: "Protein House Israel"
+    slug: protein-israel
     address:
       streetAddress1: "Industrial Zone"
-      city: "Sakhnin"
-      countryArea: "North District"
-      postalCode: "20173"
+      city: "Haifa"
       country: IL
     shippingZones:
       - "Israel Domestic"
-  - name: "Pawzen International Warehouse"
-    slug: pawzen-international-warehouse
+  - name: "International Warehouse"
+    slug: protein-intl
     address:
-      streetAddress1: "123 Commerce Blvd"
+      streetAddress1: "Logistics Center"
       city: "New York"
-      countryArea: "NY"
-      postalCode: "10001"
       country: US
     shippingZones:
       - "International"
@@ -260,23 +505,23 @@ shippingZones:
       - name: "Standard Delivery"
         type: PRICE
         minimumDeliveryDays: 3
-        maximumDeliveryDays: 7
+        maximumDeliveryDays: 5
         channelListings:
           - channel: ils
-            price: 19.90
+            price: 29.90
             minimumOrderPrice: 0
       - name: "Express Delivery"
         type: PRICE
         minimumDeliveryDays: 1
-        maximumDeliveryDays: 3
+        maximumDeliveryDays: 2
         channelListings:
           - channel: ils
-            price: 39.90
+            price: 49.90
             minimumOrderPrice: 0
       - name: "Free Shipping"
         type: PRICE
-        minimumDeliveryDays: 5
-        maximumDeliveryDays: 10
+        minimumDeliveryDays: 3
+        maximumDeliveryDays: 7
         channelListings:
           - channel: ils
             price: 0
@@ -284,18 +529,13 @@ shippingZones:
   - name: "International"
     countries:
       - US
-      - GB
-      - DE
-      - FR
-      - CA
-      - AU
     channels:
       - usd
     shippingMethods:
       - name: "Standard International"
         type: PRICE
         minimumDeliveryDays: 7
-        maximumDeliveryDays: 15
+        maximumDeliveryDays: 14
         channelListings:
           - channel: usd
             price: 9.99
@@ -303,7 +543,7 @@ shippingZones:
       - name: "Express International"
         type: PRICE
         minimumDeliveryDays: 3
-        maximumDeliveryDays: 7
+        maximumDeliveryDays: 5
         channelListings:
           - channel: usd
             price: 24.99

@@ -1,38 +1,41 @@
-// Pet product images organized by category
+// Supplement & fitness product images for Protein House
 export const IMAGE_URLS = [
-  // Pet Toys
-  "https://images.unsplash.com/photo-1535294435445-d7249524ef2e?w=800",
-  "https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=800",
-  "https://images.unsplash.com/photo-1601758174114-e711c0cbaa69?w=800",
-  "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800",
-  "https://images.unsplash.com/photo-1583511655826-05700d52f4d9?w=800",
-  // Pet Feeding
-  "https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=800",
-  "https://images.unsplash.com/photo-1600804340584-c7db2eacf0bf?w=800",
-  "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=800",
-  "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800",
-  "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=800",
-  // Pet Comfort (beds, blankets)
-  "https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?w=800",
-  "https://images.unsplash.com/photo-1560807707-8cc77767d783?w=800",
-  "https://images.unsplash.com/photo-1615497001839-b0a0eac3274c?w=800",
-  "https://images.unsplash.com/photo-1588943211346-0908a1fb0b01?w=800",
-  "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800",
-  // Pet Care (grooming, accessories)
-  "https://images.unsplash.com/photo-1581888227599-779811939961?w=800",
-  "https://images.unsplash.com/photo-1587764379873-97837921fd44?w=800",
-  "https://images.unsplash.com/photo-1591946614720-90a587da4a36?w=800",
-  "https://images.unsplash.com/photo-1623387641168-d9803ddd3f35?w=800",
-  "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=800",
-  // General pets
-  "https://images.unsplash.com/photo-1450778869180-cfe0f76f8e8a?w=800",
-  "https://images.unsplash.com/photo-1592194996308-7b43878e84a6?w=800",
-  "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800",
-  "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=800",
-  "https://images.unsplash.com/photo-1587402092301-725e37c70fd8?w=800",
-  "https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=800",
-  "https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=800",
-  "https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?w=800",
+  // Protein powder / whey
+  "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=800",
+  "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800",
+  "https://images.unsplash.com/photo-1579722820308-d74e571900a9?w=800",
+  "https://images.unsplash.com/photo-1616279969856-759f316a5ac1?w=800",
+  "https://images.unsplash.com/photo-1627467959547-215b1a09bb85?w=800",
+  // Pre-workout / energy
+  "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800",
+  "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800",
+  "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=800",
+  "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
+  "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=800",
+  // Gym / strength training
+  "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800",
+  "https://images.unsplash.com/photo-1546519638405-a2b83c0ea5e6?w=800",
+  "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=800",
+  "https://images.unsplash.com/photo-1540496905036-5937c10647cc?w=800",
+  "https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=800",
+  // Shakers / bottles / nutrition
+  "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=800",
+  "https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=800",
+  "https://images.unsplash.com/photo-1561731216-c3a4d99437d5?w=800",
+  "https://images.unsplash.com/photo-1546483875-ad9014c88eba?w=800",
+  "https://images.unsplash.com/photo-1600423115367-87ea7661688f?w=800",
+  // Creatine / amino acids / capsules
+  "https://images.unsplash.com/photo-1584952811565-c4c4032931e0?w=800",
+  "https://images.unsplash.com/photo-1587552132039-6e474d2bdc3c?w=800",
+  "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800",
+  "https://images.unsplash.com/photo-1567722066597-a6c3f5deade0?w=800",
+  "https://images.unsplash.com/photo-1580086319619-3ed498161c77?w=800",
+  // Fitness lifestyle / healthy food
+  "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800",
+  "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=800",
+  "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800",
+  "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800",
+  "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800",
 ];
 
 export function getRandomImages(count: number = 5): string[] {

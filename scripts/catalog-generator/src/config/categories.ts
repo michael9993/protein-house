@@ -1,15 +1,11 @@
-// Template router — selects catalog data based on CATALOG_TEMPLATE env var.
-// Usage:
-//   npm run generate                         → Pawzen catalog (default)
-//   CATALOG_TEMPLATE=starter npm run generate → Starter catalog
+export type { Category } from "./templates/protein-house/categories";
 
-// Re-export types from pawzen (the canonical interface definition)
-export type { Category } from "./templates/pawzen/categories";
-
-const template = process.env.CATALOG_TEMPLATE || "pawzen";
+const template = process.env.CATALOG_TEMPLATE || "protein-house";
 
 const mod = template === "starter"
   ? await import("./templates/starter/categories")
-  : await import("./templates/pawzen/categories");
+  : template === "pawzen"
+  ? await import("./templates/pawzen/categories")
+  : await import("./templates/protein-house/categories");
 
 export const CATEGORIES = mod.CATEGORIES;

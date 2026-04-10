@@ -1,0 +1,1728 @@
+{
+  "_meta": {
+    "title": "Sports Supplements E-Commerce Product Taxonomy",
+    "version": "1.0.0",
+    "created": "2026-03-30",
+    "sources": [
+      "Bodybuilding.com",
+      "GNC.com",
+      "iHerb.com",
+      "Amazon.com",
+      "MuscleAndStrength.com",
+      "OptimumNutrition.com",
+      "MyProtein.com"
+    ],
+    "notes": "Production-ready taxonomy for a sports supplements e-commerce store. All data verified against live retailer catalogs as of March 2026."
+  },
+
+  "categoryHierarchy": {
+    "1_protein": {
+      "name": "Protein",
+      "slug": "protein",
+      "description": "Protein powders, bars, and ready-to-drink supplements for muscle building and recovery.",
+      "subcategories": {
+        "1_1_whey_protein": {
+          "name": "Whey Protein",
+          "slug": "whey-protein",
+          "subSubcategories": [
+            { "name": "Whey Protein Isolate", "slug": "whey-protein-isolate" },
+            { "name": "Whey Protein Concentrate", "slug": "whey-protein-concentrate" },
+            { "name": "Whey Protein Hydrolysate", "slug": "whey-protein-hydrolysate" },
+            { "name": "Whey Protein Blends", "slug": "whey-protein-blends" },
+            { "name": "Naturally Flavored Whey", "slug": "naturally-flavored-whey" },
+            { "name": "Grass-Fed Whey", "slug": "grass-fed-whey" }
+          ]
+        },
+        "1_2_plant_protein": {
+          "name": "Plant-Based Protein",
+          "slug": "plant-based-protein",
+          "subSubcategories": [
+            { "name": "Pea Protein", "slug": "pea-protein" },
+            { "name": "Rice Protein", "slug": "rice-protein" },
+            { "name": "Soy Protein", "slug": "soy-protein" },
+            { "name": "Hemp Protein", "slug": "hemp-protein" },
+            { "name": "Plant Protein Blends", "slug": "plant-protein-blends" },
+            { "name": "Organic Plant Protein", "slug": "organic-plant-protein" }
+          ]
+        },
+        "1_3_casein_protein": {
+          "name": "Casein Protein",
+          "slug": "casein-protein",
+          "subSubcategories": [
+            { "name": "Micellar Casein", "slug": "micellar-casein" },
+            { "name": "Casein Blends", "slug": "casein-blends" }
+          ]
+        },
+        "1_4_mass_gainers": {
+          "name": "Mass Gainers",
+          "slug": "mass-gainers",
+          "subSubcategories": [
+            { "name": "1000+ Calorie Gainers", "slug": "1000-calorie-gainers" },
+            { "name": "500-800 Calorie Gainers", "slug": "500-800-calorie-gainers" },
+            { "name": "Lean Gainers", "slug": "lean-gainers" }
+          ]
+        },
+        "1_5_protein_bars_snacks": {
+          "name": "Protein Bars & Snacks",
+          "slug": "protein-bars-snacks",
+          "subSubcategories": [
+            { "name": "Protein Bars", "slug": "protein-bars" },
+            { "name": "Protein Cookies", "slug": "protein-cookies" },
+            { "name": "Protein Chips & Crisps", "slug": "protein-chips" },
+            { "name": "Protein Brownies & Bites", "slug": "protein-brownies-bites" }
+          ]
+        },
+        "1_6_rtd_protein": {
+          "name": "Ready-to-Drink Protein",
+          "slug": "ready-to-drink-protein",
+          "subSubcategories": [
+            { "name": "Protein Shakes", "slug": "protein-shakes" },
+            { "name": "Protein Water", "slug": "protein-water" }
+          ]
+        },
+        "1_7_beef_protein": {
+          "name": "Beef Protein",
+          "slug": "beef-protein",
+          "subSubcategories": []
+        },
+        "1_8_egg_protein": {
+          "name": "Egg Protein",
+          "slug": "egg-protein",
+          "subSubcategories": []
+        },
+        "1_9_multi_protein_blends": {
+          "name": "Multi-Protein Blends",
+          "slug": "multi-protein-blends",
+          "subSubcategories": [
+            { "name": "Extended Release Protein", "slug": "extended-release-protein" },
+            { "name": "Meal Replacement Protein", "slug": "meal-replacement-protein" }
+          ]
+        },
+        "1_10_collagen_protein": {
+          "name": "Collagen Protein",
+          "slug": "collagen-protein",
+          "subSubcategories": [
+            { "name": "Multi Collagen", "slug": "multi-collagen" },
+            { "name": "Marine Collagen", "slug": "marine-collagen" },
+            { "name": "Bone Broth Protein", "slug": "bone-broth-protein" }
+          ]
+        }
+      }
+    },
+
+    "2_pre_workout": {
+      "name": "Pre-Workout",
+      "slug": "pre-workout",
+      "description": "Formulas for energy, focus, pump, and performance before training.",
+      "subcategories": {
+        "2_1_high_stimulant": {
+          "name": "High Stimulant Pre-Workout",
+          "slug": "high-stimulant-pre-workout",
+          "subSubcategories": [
+            { "name": "Extreme Energy Pre-Workout", "slug": "extreme-energy-pre-workout" },
+            { "name": "Hardcore Pre-Workout", "slug": "hardcore-pre-workout" }
+          ]
+        },
+        "2_2_moderate_stimulant": {
+          "name": "Moderate Stimulant Pre-Workout",
+          "slug": "moderate-stimulant-pre-workout",
+          "subSubcategories": []
+        },
+        "2_3_stimulant_free": {
+          "name": "Stimulant-Free Pre-Workout",
+          "slug": "stimulant-free-pre-workout",
+          "subSubcategories": []
+        },
+        "2_4_pump_pre_workout": {
+          "name": "Pump Pre-Workout",
+          "slug": "pump-pre-workout",
+          "subSubcategories": []
+        },
+        "2_5_fat_loss_pre_workout": {
+          "name": "Fat-Loss Pre-Workout",
+          "slug": "fat-loss-pre-workout",
+          "subSubcategories": []
+        },
+        "2_6_creatine_free_pre_workout": {
+          "name": "Creatine-Free Pre-Workout",
+          "slug": "creatine-free-pre-workout",
+          "subSubcategories": []
+        },
+        "2_7_pre_workout_for_women": {
+          "name": "Pre-Workout for Women",
+          "slug": "pre-workout-for-women",
+          "subSubcategories": []
+        }
+      }
+    },
+
+    "3_creatine": {
+      "name": "Creatine",
+      "slug": "creatine",
+      "description": "Creatine supplements for strength, power output, and muscle volumization.",
+      "subcategories": {
+        "3_1_creatine_monohydrate": {
+          "name": "Creatine Monohydrate",
+          "slug": "creatine-monohydrate",
+          "subSubcategories": [
+            { "name": "Micronized Creatine", "slug": "micronized-creatine" },
+            { "name": "Creatine Powder", "slug": "creatine-powder" },
+            { "name": "Creatine Capsules", "slug": "creatine-capsules" }
+          ]
+        },
+        "3_2_creatine_hcl": {
+          "name": "Creatine HCL",
+          "slug": "creatine-hcl",
+          "subSubcategories": []
+        },
+        "3_3_creatine_blends": {
+          "name": "Creatine Blends",
+          "slug": "creatine-blends",
+          "subSubcategories": []
+        },
+        "3_4_creatine_gummies_chews": {
+          "name": "Creatine Gummies & Chews",
+          "slug": "creatine-gummies-chews",
+          "subSubcategories": []
+        },
+        "3_5_buffered_kre_alkalyn": {
+          "name": "Buffered Creatine (Kre-Alkalyn)",
+          "slug": "buffered-creatine-kre-alkalyn",
+          "subSubcategories": []
+        }
+      }
+    },
+
+    "4_amino_acids": {
+      "name": "Amino Acids",
+      "slug": "amino-acids",
+      "description": "BCAAs, EAAs, and individual amino acid supplements for recovery and performance.",
+      "subcategories": {
+        "4_1_bcaas": {
+          "name": "BCAAs (Branched-Chain Amino Acids)",
+          "slug": "bcaas",
+          "subSubcategories": [
+            { "name": "BCAA Powder", "slug": "bcaa-powder" },
+            { "name": "BCAA Capsules", "slug": "bcaa-capsules" },
+            { "name": "BCAA Blends", "slug": "bcaa-blends" }
+          ]
+        },
+        "4_2_eaas": {
+          "name": "EAAs (Essential Amino Acids)",
+          "slug": "eaas",
+          "subSubcategories": []
+        },
+        "4_3_glutamine": {
+          "name": "Glutamine",
+          "slug": "glutamine",
+          "subSubcategories": []
+        },
+        "4_4_arginine": {
+          "name": "Arginine",
+          "slug": "arginine",
+          "subSubcategories": []
+        },
+        "4_5_citrulline": {
+          "name": "Citrulline / Citrulline Malate",
+          "slug": "citrulline",
+          "subSubcategories": []
+        },
+        "4_6_beta_alanine": {
+          "name": "Beta-Alanine",
+          "slug": "beta-alanine",
+          "subSubcategories": []
+        },
+        "4_7_carnitine": {
+          "name": "L-Carnitine",
+          "slug": "l-carnitine",
+          "subSubcategories": []
+        },
+        "4_8_taurine": {
+          "name": "Taurine",
+          "slug": "taurine",
+          "subSubcategories": []
+        },
+        "4_9_hma_hmb": {
+          "name": "HMB",
+          "slug": "hmb",
+          "subSubcategories": []
+        }
+      }
+    },
+
+    "5_fat_loss": {
+      "name": "Fat Burners & Weight Management",
+      "slug": "fat-burners-weight-management",
+      "description": "Thermogenics, metabolism boosters, appetite suppressants, and weight management support.",
+      "subcategories": {
+        "5_1_thermogenics": {
+          "name": "Thermogenics",
+          "slug": "thermogenics",
+          "subSubcategories": [
+            { "name": "Stimulant Thermogenics", "slug": "stimulant-thermogenics" },
+            { "name": "Stimulant-Free Fat Burners", "slug": "stimulant-free-fat-burners" }
+          ]
+        },
+        "5_2_appetite_suppressants": {
+          "name": "Appetite Suppressants",
+          "slug": "appetite-suppressants",
+          "subSubcategories": []
+        },
+        "5_3_cla": {
+          "name": "CLA (Conjugated Linoleic Acid)",
+          "slug": "cla",
+          "subSubcategories": []
+        },
+        "5_4_carnitine_fat_loss": {
+          "name": "L-Carnitine (Fat Metabolism)",
+          "slug": "l-carnitine-fat-loss",
+          "subSubcategories": [
+            { "name": "Liquid L-Carnitine", "slug": "liquid-l-carnitine" },
+            { "name": "Acetyl L-Carnitine", "slug": "acetyl-l-carnitine" }
+          ]
+        },
+        "5_5_diuretics": {
+          "name": "Diuretics & Water Loss",
+          "slug": "diuretics-water-loss",
+          "subSubcategories": []
+        },
+        "5_6_fat_burners_women": {
+          "name": "Fat Burners for Women",
+          "slug": "fat-burners-for-women",
+          "subSubcategories": []
+        },
+        "5_7_meal_replacements": {
+          "name": "Meal Replacement Shakes",
+          "slug": "meal-replacement-shakes",
+          "subSubcategories": []
+        },
+        "5_8_keto_support": {
+          "name": "Keto Support",
+          "slug": "keto-support",
+          "subSubcategories": [
+            { "name": "MCT Oil", "slug": "mct-oil" },
+            { "name": "Exogenous Ketones", "slug": "exogenous-ketones" }
+          ]
+        }
+      }
+    },
+
+    "6_performance_endurance": {
+      "name": "Performance & Endurance",
+      "slug": "performance-endurance",
+      "description": "Intra-workout, endurance, nitric oxide, and performance-enhancing supplements.",
+      "subcategories": {
+        "6_1_intra_workout": {
+          "name": "Intra-Workout",
+          "slug": "intra-workout",
+          "subSubcategories": [
+            { "name": "Intra-Workout Carbs", "slug": "intra-workout-carbs" },
+            { "name": "Intra-Workout Amino Blends", "slug": "intra-workout-amino-blends" }
+          ]
+        },
+        "6_2_nitric_oxide": {
+          "name": "Nitric Oxide Boosters",
+          "slug": "nitric-oxide-boosters",
+          "subSubcategories": []
+        },
+        "6_3_electrolytes_hydration": {
+          "name": "Electrolytes & Hydration",
+          "slug": "electrolytes-hydration",
+          "subSubcategories": [
+            { "name": "Electrolyte Powder", "slug": "electrolyte-powder" },
+            { "name": "Electrolyte Tablets", "slug": "electrolyte-tablets" },
+            { "name": "Sports Drinks", "slug": "sports-drinks" }
+          ]
+        },
+        "6_4_carbohydrates": {
+          "name": "Carbohydrate Supplements",
+          "slug": "carbohydrate-supplements",
+          "subSubcategories": [
+            { "name": "Dextrose", "slug": "dextrose" },
+            { "name": "Cyclic Dextrin", "slug": "cyclic-dextrin" },
+            { "name": "Waxy Maize", "slug": "waxy-maize" }
+          ]
+        },
+        "6_5_energy_boosters": {
+          "name": "Energy Boosters",
+          "slug": "energy-boosters",
+          "subSubcategories": [
+            { "name": "Caffeine Supplements", "slug": "caffeine-supplements" },
+            { "name": "Energy Drinks", "slug": "energy-drinks" },
+            { "name": "Energy Gels & Chews", "slug": "energy-gels-chews" }
+          ]
+        },
+        "6_6_endurance": {
+          "name": "Endurance Supplements",
+          "slug": "endurance-supplements",
+          "subSubcategories": []
+        }
+      }
+    },
+
+    "7_recovery": {
+      "name": "Recovery & Post-Workout",
+      "slug": "recovery-post-workout",
+      "description": "Supplements designed to accelerate recovery, reduce soreness, and support repair.",
+      "subcategories": {
+        "7_1_post_workout_formulas": {
+          "name": "Post-Workout Formulas",
+          "slug": "post-workout-formulas",
+          "subSubcategories": []
+        },
+        "7_2_glutamine_recovery": {
+          "name": "Glutamine for Recovery",
+          "slug": "glutamine-recovery",
+          "subSubcategories": []
+        },
+        "7_3_joint_support": {
+          "name": "Joint Support",
+          "slug": "joint-support",
+          "subSubcategories": [
+            { "name": "Glucosamine & Chondroitin", "slug": "glucosamine-chondroitin" },
+            { "name": "MSM", "slug": "msm" },
+            { "name": "Turmeric & Curcumin", "slug": "turmeric-curcumin" },
+            { "name": "Collagen for Joints", "slug": "collagen-for-joints" }
+          ]
+        },
+        "7_4_sleep_recovery": {
+          "name": "Sleep & Recovery",
+          "slug": "sleep-recovery",
+          "subSubcategories": [
+            { "name": "ZMA", "slug": "zma" },
+            { "name": "Melatonin", "slug": "melatonin" },
+            { "name": "Magnesium", "slug": "magnesium" },
+            { "name": "GABA", "slug": "gaba" }
+          ]
+        },
+        "7_5_muscle_recovery": {
+          "name": "Muscle Recovery Supplements",
+          "slug": "muscle-recovery",
+          "subSubcategories": []
+        }
+      }
+    },
+
+    "8_testosterone_hormone": {
+      "name": "Testosterone & Hormone Support",
+      "slug": "testosterone-hormone-support",
+      "description": "Natural testosterone boosters, hormone optimization, and male performance supplements.",
+      "subcategories": {
+        "8_1_testosterone_boosters": {
+          "name": "Testosterone Boosters",
+          "slug": "testosterone-boosters",
+          "subSubcategories": [
+            { "name": "Testosterone Blends", "slug": "testosterone-blends" },
+            { "name": "D-Aspartic Acid (DAA)", "slug": "d-aspartic-acid" },
+            { "name": "Turkesterone / Ecdysteroids", "slug": "turkesterone-ecdysteroids" }
+          ]
+        },
+        "8_2_estrogen_blockers": {
+          "name": "Estrogen Blockers / Anti-Estrogen",
+          "slug": "estrogen-blockers",
+          "subSubcategories": []
+        },
+        "8_3_growth_hormone": {
+          "name": "Growth Hormone Support",
+          "slug": "growth-hormone-support",
+          "subSubcategories": []
+        },
+        "8_4_anabolic_amplifiers": {
+          "name": "Anabolic Amplifiers",
+          "slug": "anabolic-amplifiers",
+          "subSubcategories": []
+        }
+      }
+    },
+
+    "9_vitamins_health": {
+      "name": "Vitamins & General Health",
+      "slug": "vitamins-general-health",
+      "description": "Multivitamins, minerals, and general wellness supplements for active individuals.",
+      "subcategories": {
+        "9_1_multivitamins": {
+          "name": "Multivitamins",
+          "slug": "multivitamins",
+          "subSubcategories": [
+            { "name": "Sports Multivitamins", "slug": "sports-multivitamins" },
+            { "name": "Men's Multivitamins", "slug": "mens-multivitamins" },
+            { "name": "Women's Multivitamins", "slug": "womens-multivitamins" },
+            { "name": "Vitapak Programs", "slug": "vitapak-programs" }
+          ]
+        },
+        "9_2_fish_oil_omegas": {
+          "name": "Fish Oil & Omega-3s",
+          "slug": "fish-oil-omega-3s",
+          "subSubcategories": [
+            { "name": "Fish Oil Capsules", "slug": "fish-oil-capsules" },
+            { "name": "Krill Oil", "slug": "krill-oil" },
+            { "name": "Vegan Omega-3", "slug": "vegan-omega-3" }
+          ]
+        },
+        "9_3_vitamin_d": {
+          "name": "Vitamin D",
+          "slug": "vitamin-d",
+          "subSubcategories": []
+        },
+        "9_4_vitamin_c": {
+          "name": "Vitamin C",
+          "slug": "vitamin-c",
+          "subSubcategories": []
+        },
+        "9_5_zinc_magnesium": {
+          "name": "Zinc & Magnesium",
+          "slug": "zinc-magnesium",
+          "subSubcategories": []
+        },
+        "9_6_digestive_health": {
+          "name": "Digestive Health & Probiotics",
+          "slug": "digestive-health-probiotics",
+          "subSubcategories": []
+        },
+        "9_7_immune_support": {
+          "name": "Immune Support",
+          "slug": "immune-support",
+          "subSubcategories": []
+        },
+        "9_8_greens_superfoods": {
+          "name": "Greens & Superfoods",
+          "slug": "greens-superfoods",
+          "subSubcategories": [
+            { "name": "Greens Powders", "slug": "greens-powders" },
+            { "name": "Superfood Blends", "slug": "superfood-blends" },
+            { "name": "Spirulina & Chlorella", "slug": "spirulina-chlorella" }
+          ]
+        },
+        "9_9_antioxidants": {
+          "name": "Antioxidants",
+          "slug": "antioxidants",
+          "subSubcategories": []
+        },
+        "9_10_fiber": {
+          "name": "Fiber Supplements",
+          "slug": "fiber-supplements",
+          "subSubcategories": []
+        }
+      }
+    },
+
+    "10_functional_foods": {
+      "name": "Functional Foods & Drinks",
+      "slug": "functional-foods-drinks",
+      "description": "Healthy snacks, nut butters, sugar-free options, and performance-oriented food items.",
+      "subcategories": {
+        "10_1_nut_butters": {
+          "name": "Nut Butters & Spreads",
+          "slug": "nut-butters-spreads",
+          "subSubcategories": [
+            { "name": "Peanut Butter", "slug": "peanut-butter" },
+            { "name": "Almond Butter", "slug": "almond-butter" }
+          ]
+        },
+        "10_2_healthy_snacks": {
+          "name": "Healthy Snacks",
+          "slug": "healthy-snacks",
+          "subSubcategories": [
+            { "name": "Jerky & Meat Snacks", "slug": "jerky-meat-snacks" },
+            { "name": "Trail Mix & Nuts", "slug": "trail-mix-nuts" },
+            { "name": "Rice Cakes & Crackers", "slug": "rice-cakes-crackers" }
+          ]
+        },
+        "10_3_baking_cooking": {
+          "name": "Baking & Cooking",
+          "slug": "baking-cooking",
+          "subSubcategories": [
+            { "name": "Protein Pancake Mix", "slug": "protein-pancake-mix" },
+            { "name": "Sugar-Free Syrups & Sauces", "slug": "sugar-free-syrups-sauces" },
+            { "name": "Oats & Grains", "slug": "oats-grains" }
+          ]
+        },
+        "10_4_beverages": {
+          "name": "Performance Beverages",
+          "slug": "performance-beverages",
+          "subSubcategories": [
+            { "name": "Energy Drinks", "slug": "energy-drinks-cans" },
+            { "name": "Amino Energy Drinks", "slug": "amino-energy-drinks" },
+            { "name": "Sugar-Free Drinks", "slug": "sugar-free-drinks" }
+          ]
+        }
+      }
+    },
+
+    "11_stacks_bundles": {
+      "name": "Supplement Stacks & Bundles",
+      "slug": "stacks-bundles",
+      "description": "Pre-built supplement combinations designed for specific goals.",
+      "subcategories": {
+        "11_1_muscle_building_stacks": {
+          "name": "Muscle Building Stacks",
+          "slug": "muscle-building-stacks",
+          "subSubcategories": []
+        },
+        "11_2_fat_loss_stacks": {
+          "name": "Fat Loss Stacks",
+          "slug": "fat-loss-stacks",
+          "subSubcategories": []
+        },
+        "11_3_strength_stacks": {
+          "name": "Strength & Power Stacks",
+          "slug": "strength-power-stacks",
+          "subSubcategories": []
+        },
+        "11_4_beginner_stacks": {
+          "name": "Beginner Stacks",
+          "slug": "beginner-stacks",
+          "subSubcategories": []
+        },
+        "11_5_advanced_stacks": {
+          "name": "Advanced Stacks",
+          "slug": "advanced-stacks",
+          "subSubcategories": []
+        },
+        "11_6_value_bundles": {
+          "name": "Value Bundles",
+          "slug": "value-bundles",
+          "subSubcategories": []
+        }
+      }
+    },
+
+    "12_accessories": {
+      "name": "Accessories & Gear",
+      "slug": "accessories-gear",
+      "description": "Shaker bottles, gym bags, lifting accessories, and apparel.",
+      "subcategories": {
+        "12_1_shaker_bottles": {
+          "name": "Shaker Bottles",
+          "slug": "shaker-bottles",
+          "subSubcategories": [
+            { "name": "Classic Shakers", "slug": "classic-shakers" },
+            { "name": "Electric Shakers", "slug": "electric-shakers" },
+            { "name": "Cycling Bottles", "slug": "cycling-bottles" }
+          ]
+        },
+        "12_2_lifting_accessories": {
+          "name": "Lifting Accessories",
+          "slug": "lifting-accessories",
+          "subSubcategories": [
+            { "name": "Wrist Straps & Wraps", "slug": "wrist-straps-wraps" },
+            { "name": "Lifting Straps", "slug": "lifting-straps" },
+            { "name": "Lifting Belts", "slug": "lifting-belts" },
+            { "name": "Knee Sleeves & Wraps", "slug": "knee-sleeves-wraps" },
+            { "name": "Dip Belts", "slug": "dip-belts" },
+            { "name": "Lifting Gloves", "slug": "lifting-gloves" }
+          ]
+        },
+        "12_3_gym_bags": {
+          "name": "Gym Bags",
+          "slug": "gym-bags",
+          "subSubcategories": []
+        },
+        "12_4_apparel": {
+          "name": "Apparel",
+          "slug": "apparel",
+          "subSubcategories": [
+            { "name": "T-Shirts", "slug": "t-shirts" },
+            { "name": "Tank Tops & Stringers", "slug": "tank-tops-stringers" },
+            { "name": "Joggers & Shorts", "slug": "joggers-shorts" },
+            { "name": "Hoodies", "slug": "hoodies" }
+          ]
+        },
+        "12_5_pill_boxes_organizers": {
+          "name": "Pill Boxes & Organizers",
+          "slug": "pill-boxes-organizers",
+          "subSubcategories": []
+        }
+      }
+    }
+  },
+
+  "productTypesWithAttributes": {
+    "whey_protein_powder": {
+      "productType": "Whey Protein Powder",
+      "category": "Protein > Whey Protein",
+      "variantAttributes": {
+        "sizes": ["1 lb (454g)", "2 lbs (907g)", "2.2 lbs (1 kg)", "3 lbs (1.36 kg)", "5 lbs (2.27 kg)", "10 lbs (4.54 kg)"],
+        "flavors": "See flavorLibrary section"
+      },
+      "keyAttributes": {
+        "proteinPerServing": "20g - 30g",
+        "servingsPerContainer": "14 - 150",
+        "proteinSource": ["Whey Concentrate", "Whey Isolate", "Whey Hydrolysate", "Blend"],
+        "sweetener": ["Sucralose", "Stevia", "Acesulfame-K", "Monk Fruit", "None (Unflavored)"],
+        "additionalIngredients": ["Digestive Enzymes", "Probiotics", "Added BCAAs", "Added Glutamine"]
+      },
+      "typicalPriceRangesUSD": {
+        "1lb": "$15 - $30",
+        "2lb": "$25 - $50",
+        "5lb": "$45 - $100",
+        "10lb": "$80 - $170",
+        "premiumIsolate5lb": "$55 - $120"
+      },
+      "commonBrands": [
+        "Optimum Nutrition",
+        "Dymatize",
+        "MuscleTech",
+        "BSN",
+        "MyProtein",
+        "Ghost",
+        "Cellucor",
+        "Rule 1",
+        "Nutrex",
+        "AllMax",
+        "Mutant",
+        "California Gold Nutrition",
+        "Isopure",
+        "Bodybuilding.com Signature"
+      ]
+    },
+
+    "plant_protein_powder": {
+      "productType": "Plant-Based Protein Powder",
+      "category": "Protein > Plant-Based Protein",
+      "variantAttributes": {
+        "sizes": ["1 lb (454g)", "2 lbs (907g)", "2.2 lbs (1 kg)", "5 lbs (2.27 kg)"],
+        "flavors": "Subset of flavorLibrary (primarily Chocolate, Vanilla, Peanut Butter, Berry, Unflavored)"
+      },
+      "keyAttributes": {
+        "proteinPerServing": "18g - 30g",
+        "proteinSources": ["Pea Protein Isolate", "Brown Rice Protein", "Hemp Protein", "Soy Protein Isolate", "Multi-Plant Blend"],
+        "organic": true,
+        "additionalIngredients": ["Flaxseed", "Chia Seed", "Digestive Enzymes", "Probiotics", "Greens Blend"]
+      },
+      "typicalPriceRangesUSD": {
+        "1lb": "$18 - $35",
+        "2lb": "$28 - $55",
+        "5lb": "$50 - $90"
+      },
+      "commonBrands": [
+        "Orgain",
+        "Vega",
+        "Garden of Life",
+        "KOS",
+        "Sunwarrior",
+        "PlantFusion",
+        "California Gold Nutrition",
+        "Ghost Vegan",
+        "Optimum Nutrition Gold Standard Plant"
+      ]
+    },
+
+    "casein_protein_powder": {
+      "productType": "Casein Protein Powder",
+      "category": "Protein > Casein Protein",
+      "variantAttributes": {
+        "sizes": ["2 lbs (907g)", "4 lbs (1.81 kg)"],
+        "flavors": "Typically: Chocolate, Vanilla, Cookies & Cream, Strawberry"
+      },
+      "typicalPriceRangesUSD": {
+        "2lb": "$30 - $50",
+        "4lb": "$50 - $75"
+      },
+      "commonBrands": ["Optimum Nutrition", "Dymatize", "Rule 1", "MuscleTech", "Kaged"]
+    },
+
+    "mass_gainer": {
+      "productType": "Mass Gainer",
+      "category": "Protein > Mass Gainers",
+      "variantAttributes": {
+        "sizes": ["5 lbs (2.27 kg)", "6 lbs (2.72 kg)", "8 lbs (3.63 kg)", "12 lbs (5.44 kg)"],
+        "flavors": "Typically: Chocolate, Vanilla, Strawberry, Banana, Cookies & Cream"
+      },
+      "keyAttributes": {
+        "caloriesPerServing": "500 - 1250",
+        "proteinPerServing": "30g - 60g",
+        "carbsPerServing": "100g - 250g"
+      },
+      "typicalPriceRangesUSD": {
+        "5-6lb": "$30 - $55",
+        "12lb": "$55 - $95"
+      },
+      "commonBrands": ["Optimum Nutrition Serious Mass", "Dymatize Super Mass Gainer", "BSN True Mass", "Mutant Mass", "MuscleTech Mass-Tech"]
+    },
+
+    "protein_bar": {
+      "productType": "Protein Bar",
+      "category": "Protein > Protein Bars & Snacks",
+      "variantAttributes": {
+        "packCounts": ["Single Bar", "Box of 6", "Box of 12", "Box of 24"],
+        "flavors": "Wide range: Chocolate Chip Cookie Dough, Cookies & Cream, Birthday Cake, Peanut Butter, S'mores, etc."
+      },
+      "keyAttributes": {
+        "proteinPerBar": "15g - 30g",
+        "calories": "170 - 350",
+        "fiber": "3g - 15g",
+        "sugar": "0g - 10g"
+      },
+      "typicalPriceRangesUSD": {
+        "singleBar": "$2.50 - $4.00",
+        "boxOf12": "$22 - $38"
+      },
+      "commonBrands": ["Quest", "ONE Bar", "Barebells", "RXBAR", "Built Bar", "MusclePharm", "BSN", "Robert Irvine FitCrunch"]
+    },
+
+    "pre_workout_powder": {
+      "productType": "Pre-Workout Powder",
+      "category": "Pre-Workout",
+      "variantAttributes": {
+        "sizes": ["20 Servings", "25 Servings", "30 Servings", "40 Servings", "50 Servings", "60 Servings"],
+        "flavors": "See flavorLibrary - especially fruit, candy, and ice flavors"
+      },
+      "keyAttributes": {
+        "caffeinePerServing": "0mg (stim-free) | 150mg-200mg (moderate) | 250mg-400mg+ (high stim)",
+        "keyIngredients": [
+          "Caffeine Anhydrous",
+          "Beta-Alanine",
+          "L-Citrulline / Citrulline Malate",
+          "Creatine Monohydrate",
+          "L-Tyrosine / N-Acetyl L-Tyrosine",
+          "Alpha-GPC",
+          "Betaine Anhydrous",
+          "Taurine",
+          "B Vitamins",
+          "Nitric Oxide Precursors"
+        ]
+      },
+      "typicalPriceRangesUSD": {
+        "20-30servings": "$25 - $50",
+        "40-60servings": "$40 - $65",
+        "premiumFormulas": "$45 - $70"
+      },
+      "commonBrands": [
+        "Cellucor C4",
+        "Ghost Legend",
+        "Gorilla Mind",
+        "Transparent Labs BULK",
+        "JNX Sports The Curse",
+        "Redcon1 Total War",
+        "Raw Nutrition",
+        "Ryse",
+        "3D Energy",
+        "Bucked Up",
+        "ProSupps Mr. Hyde",
+        "EHP Labs OxyShred"
+      ]
+    },
+
+    "creatine_powder": {
+      "productType": "Creatine Powder",
+      "category": "Creatine",
+      "variantAttributes": {
+        "sizes": ["100g", "250g (0.55 lb)", "300g", "500g (1.1 lb)", "1000g (2.2 lb)", "5000g (11 lb)"],
+        "flavors": "Mostly Unflavored; flavored options: Fruit Punch, Blue Raspberry, Lemon Lime"
+      },
+      "keyAttributes": {
+        "creatineType": ["Monohydrate", "Micronized Monohydrate", "HCL", "Buffered (Kre-Alkalyn)", "Creatine Blend"],
+        "servingSize": "3g - 5g",
+        "purity": "99.9% Creapure (premium) or standard"
+      },
+      "typicalPriceRangesUSD": {
+        "250-300g": "$10 - $20",
+        "500g": "$15 - $30",
+        "1000g": "$25 - $50"
+      },
+      "commonBrands": [
+        "Optimum Nutrition",
+        "BulkSupplements",
+        "MuscleTech",
+        "Thorne (Creapure)",
+        "Kaged",
+        "Transparent Labs",
+        "GNC Pro Performance",
+        "Mutant",
+        "AllMax"
+      ]
+    },
+
+    "bcaa_eaa_powder": {
+      "productType": "BCAA / EAA Powder",
+      "category": "Amino Acids > BCAAs / EAAs",
+      "variantAttributes": {
+        "sizes": ["20 Servings", "30 Servings", "50 Servings", "65 Servings", "90 Servings"],
+        "flavors": "See flavorLibrary - especially fruit and candy flavors"
+      },
+      "keyAttributes": {
+        "bcaaRatio": "2:1:1 (Leucine:Isoleucine:Valine) most common; also 4:1:1, 8:1:1",
+        "totalAminosPerServing": "5g - 14g",
+        "additionalIngredients": ["Electrolytes", "Glutamine", "Vitamin B6", "Coconut Water Powder"]
+      },
+      "typicalPriceRangesUSD": {
+        "30servings": "$18 - $35",
+        "65-90servings": "$25 - $50"
+      },
+      "commonBrands": ["Xtend (Scivation)", "Optimum Nutrition Amino Energy", "EVL Nutrition", "MusclePharm", "Ghost Amino", "Kaged"]
+    },
+
+    "fat_burner_capsules": {
+      "productType": "Fat Burner / Thermogenic",
+      "category": "Fat Burners & Weight Management",
+      "variantAttributes": {
+        "capsuleCounts": ["60 Capsules", "90 Capsules", "120 Capsules", "150 Capsules"]
+      },
+      "keyAttributes": {
+        "keyIngredients": [
+          "Caffeine",
+          "Green Tea Extract (EGCG)",
+          "L-Carnitine",
+          "CLA",
+          "Cayenne Pepper Extract / Capsaicin",
+          "Yohimbine",
+          "Garcinia Cambogia",
+          "Chromium Picolinate",
+          "Grains of Paradise",
+          "Forskolin"
+        ]
+      },
+      "typicalPriceRangesUSD": {
+        "60caps": "$20 - $40",
+        "120caps": "$30 - $60"
+      },
+      "commonBrands": ["EHP Labs OxyShred", "Jacked Factory Burn-XT", "Cellucor SuperHD", "MuscleTech Hydroxycut", "Transparent Labs PhysiqueSeries", "Nutrex Lipo-6", "RSP Nutrition QuadraLean"]
+    },
+
+    "testosterone_booster": {
+      "productType": "Natural Testosterone Booster",
+      "category": "Testosterone & Hormone Support",
+      "variantAttributes": {
+        "capsuleCounts": ["60 Capsules", "90 Capsules", "120 Capsules"]
+      },
+      "keyAttributes": {
+        "keyIngredients": [
+          "D-Aspartic Acid",
+          "Fenugreek Extract",
+          "Tribulus Terrestris",
+          "Ashwagandha (KSM-66)",
+          "Tongkat Ali",
+          "Zinc",
+          "Vitamin D3",
+          "Boron",
+          "DIM",
+          "Turkesterone"
+        ]
+      },
+      "typicalPriceRangesUSD": {
+        "30daySupply": "$25 - $60",
+        "premium": "$40 - $80"
+      },
+      "commonBrands": ["Nugenix", "Force Factor", "MuscleTech AlphaTest", "Animal Test", "EVL TEST", "RSP Prime-T", "GAT Sport Testrol"]
+    },
+
+    "multivitamin": {
+      "productType": "Sports Multivitamin",
+      "category": "Vitamins & General Health > Multivitamins",
+      "variantAttributes": {
+        "counts": ["60 Tablets", "90 Tablets", "120 Tablets", "150 Tablets", "180 Tablets", "240 Tablets"],
+        "forms": ["Tablets", "Capsules", "Gummies", "Softgels", "Vitapak (daily packs)"]
+      },
+      "typicalPriceRangesUSD": {
+        "60-90count": "$15 - $30",
+        "120-240count": "$25 - $55",
+        "vitapak30day": "$30 - $70"
+      },
+      "commonBrands": ["Optimum Nutrition Opti-Men / Opti-Women", "GNC Mega Men / Women's Ultra Mega", "Animal Pak", "MuscleTech Platinum Multivitamin", "Controlled Labs Orange Triad"]
+    },
+
+    "greens_powder": {
+      "productType": "Greens / Superfood Powder",
+      "category": "Vitamins & General Health > Greens & Superfoods",
+      "variantAttributes": {
+        "sizes": ["30 Servings", "60 Servings"],
+        "flavors": "Typically: Original Green, Berry, Lemon, Mint, Unflavored"
+      },
+      "typicalPriceRangesUSD": {
+        "30servings": "$25 - $55",
+        "premium30servings": "$50 - $99"
+      },
+      "commonBrands": ["AG1 (Athletic Greens)", "Ghost Greens", "Jocko Greens", "Optimum Nutrition Gold Standard Greens", "Transparent Labs Prebiotic Greens", "Amazing Grass"]
+    },
+
+    "electrolyte_powder": {
+      "productType": "Electrolyte / Hydration Powder",
+      "category": "Performance & Endurance > Electrolytes & Hydration",
+      "variantAttributes": {
+        "sizes": ["16 Sticks", "20 Servings", "30 Servings", "60 Servings"],
+        "flavors": "Fruit flavors: Lemon Lime, Orange, Watermelon, Grape, Mixed Berry"
+      },
+      "typicalPriceRangesUSD": {
+        "16-20servings": "$12 - $25",
+        "30-60servings": "$18 - $40"
+      },
+      "commonBrands": ["LMNT", "Liquid IV", "Nuun", "Drip Drop", "Ultima Replenisher", "BioSteel"]
+    }
+  },
+
+  "standardSizesAndWeights": {
+    "proteinPowders": {
+      "commonSizes": [
+        { "label": "Sample / Trial", "weight": "1-2 servings", "metric": "30-60g" },
+        { "label": "Small", "weight": "1 lb", "metric": "454g" },
+        { "label": "Medium-Small", "weight": "1.5 lbs", "metric": "680g" },
+        { "label": "Medium", "weight": "2 lbs", "metric": "907g" },
+        { "label": "Standard", "weight": "2.2 lbs", "metric": "1 kg" },
+        { "label": "Large", "weight": "3 lbs", "metric": "1.36 kg" },
+        { "label": "Family-Standard", "weight": "4 lbs", "metric": "1.81 kg" },
+        { "label": "Best Value", "weight": "5 lbs", "metric": "2.27 kg" },
+        { "label": "Bulk", "weight": "10 lbs", "metric": "4.54 kg" }
+      ],
+      "mostPopular": ["2 lbs", "5 lbs"]
+    },
+    "massGainers": {
+      "commonSizes": [
+        { "label": "Standard", "weight": "5-6 lbs", "metric": "2.27-2.72 kg" },
+        { "label": "Large", "weight": "8 lbs", "metric": "3.63 kg" },
+        { "label": "Bulk", "weight": "12 lbs", "metric": "5.44 kg" }
+      ]
+    },
+    "capsuleProducts": {
+      "commonCounts": [30, 60, 90, 100, 120, 150, 180, 200, 240, 360],
+      "typicalServingsPerDay": "1-4 capsules",
+      "categories": {
+        "fatBurners": [60, 90, 120],
+        "testBoosters": [60, 90, 120],
+        "multivitamins": [60, 90, 120, 150, 180, 240],
+        "fishOil": [60, 90, 120, 180, 200],
+        "jointSupport": [60, 90, 120, 180],
+        "digestiveEnzymes": [30, 60, 90, 120]
+      }
+    },
+    "powderedSupplements": {
+      "preWorkout": {
+        "commonServings": [20, 25, 30, 40, 50, 60],
+        "typicalWeight": "200g - 500g"
+      },
+      "creatine": {
+        "commonSizes": ["100g", "250g", "300g (60 servings)", "500g (100 servings)", "1000g (200 servings)"],
+        "mostPopular": "500g"
+      },
+      "bcaaEaa": {
+        "commonServings": [20, 30, 50, 65, 90],
+        "typicalWeight": "200g - 1000g"
+      },
+      "greens": {
+        "commonServings": [30, 60],
+        "typicalWeight": "150g - 360g"
+      },
+      "electrolytes": {
+        "commonFormats": ["Individual stick packs (box of 12-30)", "Tub (20-60 servings)", "Tablets (10-20 per tube)"]
+      }
+    },
+    "liquidProducts": {
+      "rtdShakes": ["11 fl oz (325ml)", "14 fl oz (414ml)", "17 fl oz (500ml)"],
+      "rtdPackCounts": ["Pack of 4", "Pack of 12", "Pack of 24"],
+      "liquidCarnitine": ["16 fl oz (473ml)", "32 fl oz (946ml)"],
+      "liquidAminos": ["16 fl oz (473ml)", "32 fl oz (946ml)"],
+      "energyDrinks": ["12 fl oz (355ml)", "16 fl oz (473ml)"],
+      "energyDrinkPackCounts": ["Pack of 12", "Pack of 24"]
+    },
+    "barProducts": {
+      "singleBarWeight": "40g - 90g (most common: 60g)",
+      "packCounts": ["Single bar", "Box of 4", "Box of 6", "Box of 12", "Box of 24"],
+      "mostPopular": "Box of 12"
+    }
+  },
+
+  "flavorLibrary": {
+    "chocolate": [
+      "Chocolate",
+      "Double Rich Chocolate",
+      "Milk Chocolate",
+      "Dark Chocolate",
+      "Chocolate Fudge",
+      "Chocolate Fudge Brownie",
+      "Chocolate Brownie",
+      "Triple Chocolate",
+      "Chocolate Peanut Butter",
+      "Chocolate Peanut Butter Cup",
+      "Chocolate Hazelnut",
+      "Chocolate Coconut",
+      "Chocolate Milkshake",
+      "Chocolate Mint",
+      "Mint Chocolate Chip",
+      "Chocolate Caramel",
+      "Salted Chocolate Caramel",
+      "Mocha Chocolate",
+      "Chocolate Malt",
+      "Mexican Chocolate",
+      "Chocolate Cake Batter",
+      "Death by Chocolate",
+      "Extreme Milk Chocolate",
+      "Chocolate Cookie Crumble",
+      "White Chocolate",
+      "White Chocolate Raspberry"
+    ],
+    "vanilla": [
+      "Vanilla",
+      "French Vanilla",
+      "Vanilla Ice Cream",
+      "Vanilla Creme",
+      "French Vanilla Creme",
+      "Vanilla Bean",
+      "Madagascar Vanilla",
+      "Very Vanilla",
+      "Vanilla Milkshake",
+      "Vanilla Caramel",
+      "Vanilla Chai",
+      "Vanilla Custard",
+      "Creamy Vanilla"
+    ],
+    "fruit": [
+      "Strawberry",
+      "Strawberries & Cream",
+      "Strawberry Banana",
+      "Strawberry Milkshake",
+      "Strawberry Watermelon",
+      "Banana",
+      "Banana Cream",
+      "Banana Nut Bread",
+      "Blueberry",
+      "Blueberry Muffin",
+      "Blueberry Lemonade",
+      "Raspberry",
+      "Mixed Berry",
+      "Berry Blast",
+      "Tropical Fruit",
+      "Tropical Dragonfruit",
+      "Mango",
+      "Mango Pineapple",
+      "Peach",
+      "Peach Mango",
+      "Peach Ring",
+      "Watermelon",
+      "Sour Watermelon",
+      "Grape",
+      "Concord Grape",
+      "Cherry",
+      "Cherry Limeade",
+      "Orange",
+      "Orange Creamsicle",
+      "Orange Mango",
+      "Fruit Punch",
+      "Lemon",
+      "Lemon Lime",
+      "Lemonade",
+      "Pink Lemonade",
+      "Pineapple",
+      "Coconut",
+      "Lime",
+      "Kiwi Strawberry",
+      "Cranberry",
+      "Apple",
+      "Green Apple",
+      "Sour Apple"
+    ],
+    "dessert": [
+      "Cookies & Cream",
+      "Birthday Cake",
+      "Birthday Cake Batter",
+      "Cake Batter",
+      "Cinnamon Roll",
+      "Cinnamon Toast Crunch",
+      "Cinnamon Swirl",
+      "S'mores",
+      "Salted Caramel",
+      "Caramel Toffee",
+      "Butterscotch",
+      "Butter Pecan",
+      "Butter Pecan Ice Cream",
+      "Peanut Butter",
+      "Peanut Butter Cookie",
+      "Peanut Butter & Jelly",
+      "Cookie Dough",
+      "Chocolate Chip Cookie Dough",
+      "Maple Donut",
+      "Glazed Donut",
+      "Key Lime Pie",
+      "Lemon Meringue Pie",
+      "Apple Pie",
+      "Pumpkin Pie",
+      "Pumpkin Spice",
+      "Toasted Marshmallow",
+      "Marshmallow Crunch",
+      "Tiramisu",
+      "Cheesecake",
+      "Strawberry Cheesecake",
+      "Rocky Road",
+      "Neapolitan",
+      "Root Beer Float",
+      "Snickerdoodle"
+    ],
+    "coffee_tea": [
+      "Coffee",
+      "Mocha Cappuccino",
+      "Iced Coffee",
+      "Cafe Latte",
+      "Sweet Cream Cold Brew",
+      "Espresso",
+      "Caramel Macchiato",
+      "Matcha",
+      "Chai Latte",
+      "Green Tea"
+    ],
+    "cereal_collab": [
+      "Fruity Cereal",
+      "Fruity Pebbles",
+      "Cocoa Pebbles",
+      "Lucky Charms Cereal Milk",
+      "Cocoa Puffs Cereal Milk",
+      "Trix Cereal Milk",
+      "Cinnamon Toast Crunch",
+      "Count Chocula",
+      "Fruity Crunch"
+    ],
+    "candy_novelty": [
+      "Blue Raspberry",
+      "Sour Blue Raspberry",
+      "Cotton Candy",
+      "Gummy Bear",
+      "Sour Gummy Bear",
+      "Rainbow Candy",
+      "Swedish Fish",
+      "Sour Patch Watermelon",
+      "Jolly Rancher",
+      "Warheads Sour",
+      "Bubble Gum",
+      "Snow Cone",
+      "Arctic Snow Cone",
+      "Nerd Clusters",
+      "Peach Ring",
+      "Red White & Blue Pop"
+    ],
+    "breakfast": [
+      "French Toast",
+      "French Toast Sticks",
+      "Pancake & Maple Syrup",
+      "Blueberry Pancake",
+      "Oatmeal Cookie",
+      "Honey Granola",
+      "Cereal Milk"
+    ],
+    "hostess_brand_collabs": [
+      "Hostess Cupcake",
+      "Hostess Twinkies",
+      "Little Debbie Pumpkin Spice Rolls",
+      "Chips Ahoy",
+      "Oreo",
+      "Nutter Butter"
+    ],
+    "savory_specialty": [
+      "Sea Salt",
+      "Peppermint",
+      "Peppermint Mocha",
+      "Eggnog"
+    ],
+    "unflavored": [
+      "Unflavored",
+      "Natural / No Flavor Added"
+    ]
+  },
+
+  "dietaryCertificationTags": {
+    "dietaryRestrictions": [
+      { "tag": "Vegan", "slug": "vegan", "description": "Contains no animal-derived ingredients" },
+      { "tag": "Vegetarian", "slug": "vegetarian", "description": "No meat-derived ingredients; may contain dairy/eggs" },
+      { "tag": "Gluten-Free", "slug": "gluten-free", "description": "Does not contain gluten or wheat-based ingredients" },
+      { "tag": "Dairy-Free", "slug": "dairy-free", "description": "Contains no milk or dairy derivatives" },
+      { "tag": "Soy-Free", "slug": "soy-free", "description": "Contains no soy or soy lecithin" },
+      { "tag": "Egg-Free", "slug": "egg-free", "description": "Contains no egg-derived ingredients" },
+      { "tag": "Nut-Free", "slug": "nut-free", "description": "Contains no tree nuts or peanuts" },
+      { "tag": "Lactose-Free", "slug": "lactose-free", "description": "Suitable for those with lactose intolerance" }
+    ],
+    "certifications": [
+      { "tag": "Non-GMO", "slug": "non-gmo", "description": "Not derived from genetically modified organisms" },
+      { "tag": "Non-GMO Project Verified", "slug": "non-gmo-project-verified", "description": "Verified by the Non-GMO Project" },
+      { "tag": "USDA Organic", "slug": "usda-organic", "description": "Certified organic by USDA standards" },
+      { "tag": "Halal", "slug": "halal", "description": "Compliant with Islamic dietary laws" },
+      { "tag": "Kosher", "slug": "kosher", "description": "Certified kosher" },
+      { "tag": "NSF Certified for Sport", "slug": "nsf-certified-sport", "description": "Tested and certified free of banned substances by NSF International" },
+      { "tag": "Informed Sport Certified", "slug": "informed-sport", "description": "Tested by LGC for banned substances under WADA prohibited list" },
+      { "tag": "Informed Choice Certified", "slug": "informed-choice", "description": "Batch-tested for banned substances by LGC" },
+      { "tag": "USP Verified", "slug": "usp-verified", "description": "Verified by U.S. Pharmacopeia for purity, potency, and quality" },
+      { "tag": "GMP Certified", "slug": "gmp-certified", "description": "Manufactured under Good Manufacturing Practices" },
+      { "tag": "cGMP Compliant", "slug": "cgmp-compliant", "description": "Current Good Manufacturing Practices compliant facility" },
+      { "tag": "BSCG Certified Drug Free", "slug": "bscg-certified", "description": "Certified by Banned Substances Control Group" }
+    ],
+    "nutritionalTags": [
+      { "tag": "Sugar-Free", "slug": "sugar-free", "description": "Contains 0g sugar per serving" },
+      { "tag": "Zero Carb", "slug": "zero-carb", "description": "Contains 0g carbohydrates per serving" },
+      { "tag": "Low Carb", "slug": "low-carb", "description": "5g or fewer carbs per serving" },
+      { "tag": "Low Calorie", "slug": "low-calorie", "description": "Under 120 calories per serving" },
+      { "tag": "Low Fat", "slug": "low-fat", "description": "Under 3g fat per serving" },
+      { "tag": "High Protein", "slug": "high-protein", "description": "20g+ protein per serving" },
+      { "tag": "No Artificial Flavors", "slug": "no-artificial-flavors", "description": "Uses only natural flavorings" },
+      { "tag": "No Artificial Colors", "slug": "no-artificial-colors", "description": "Free from synthetic dyes" },
+      { "tag": "No Artificial Sweeteners", "slug": "no-artificial-sweeteners", "description": "Sweetened only with natural sweeteners (stevia, monk fruit)" },
+      { "tag": "Naturally Sweetened", "slug": "naturally-sweetened", "description": "Uses stevia, monk fruit, or other natural sweeteners" }
+    ],
+    "lifestyleTags": [
+      { "tag": "Keto-Friendly", "slug": "keto-friendly", "description": "Low carb, high fat compatible with ketogenic diet" },
+      { "tag": "Paleo-Friendly", "slug": "paleo-friendly", "description": "Compatible with paleo dietary guidelines" },
+      { "tag": "Whole30 Approved", "slug": "whole30-approved", "description": "Meets Whole30 program guidelines" },
+      { "tag": "Grass-Fed", "slug": "grass-fed", "description": "Derived from grass-fed cattle" },
+      { "tag": "rBST/rBGH Free", "slug": "rbst-free", "description": "From cows not treated with growth hormones" },
+      { "tag": "Cold-Processed", "slug": "cold-processed", "description": "Processed at low temperatures to preserve nutrients" }
+    ]
+  },
+
+  "goalBasedCollections": {
+    "primaryGoals": [
+      {
+        "name": "Muscle Building",
+        "slug": "muscle-building",
+        "description": "Supplements to support muscle growth, strength, and mass gains.",
+        "typicalProducts": ["Whey Protein", "Creatine", "Mass Gainer", "Pre-Workout", "BCAAs/EAAs", "Testosterone Booster"],
+        "suggestedStack": ["Whey Protein 5lb", "Creatine Monohydrate 500g", "Pre-Workout 30 servings", "Multivitamin"]
+      },
+      {
+        "name": "Weight Loss / Fat Burning",
+        "slug": "weight-loss",
+        "description": "Supplements to support fat loss, metabolism, and body composition.",
+        "typicalProducts": ["Thermogenic Fat Burner", "L-Carnitine", "CLA", "Whey Protein Isolate", "Fat-Loss Pre-Workout", "Greens Powder"],
+        "suggestedStack": ["Whey Isolate 2lb", "Thermogenic 60 caps", "L-Carnitine Liquid", "Greens Powder"]
+      },
+      {
+        "name": "Recovery & Repair",
+        "slug": "recovery",
+        "description": "Supplements to accelerate recovery, reduce soreness, and support sleep.",
+        "typicalProducts": ["BCAAs/EAAs", "Glutamine", "Casein Protein", "ZMA", "Joint Support", "Magnesium"],
+        "suggestedStack": ["Casein Protein 2lb", "BCAAs 30 servings", "ZMA 90 caps", "Fish Oil"]
+      },
+      {
+        "name": "Endurance & Stamina",
+        "slug": "endurance",
+        "description": "For runners, cyclists, triathletes, and endurance athletes.",
+        "typicalProducts": ["Electrolytes", "Carbohydrate Supplements", "BCAAs", "Energy Gels", "Beta-Alanine", "Iron"],
+        "suggestedStack": ["Electrolyte Powder", "BCAAs 30 servings", "Energy Gels Box of 24", "Multivitamin"]
+      },
+      {
+        "name": "General Health & Wellness",
+        "slug": "general-health",
+        "description": "Foundational supplements for overall health and daily nutrition.",
+        "typicalProducts": ["Multivitamin", "Fish Oil", "Vitamin D", "Probiotics", "Greens Powder", "Collagen"],
+        "suggestedStack": ["Sports Multivitamin", "Fish Oil 120 caps", "Vitamin D3 5000IU", "Greens Powder"]
+      },
+      {
+        "name": "Strength & Power",
+        "slug": "strength-power",
+        "description": "For powerlifters, strongmen, and maximal strength athletes.",
+        "typicalProducts": ["Creatine", "Pre-Workout (High Stim)", "Beta-Alanine", "Citrulline", "Protein", "Testosterone Booster"],
+        "suggestedStack": ["Creatine 1000g", "High-Stim Pre-Workout", "Whey Protein 5lb", "Joint Support"]
+      },
+      {
+        "name": "Lean Muscle / Body Recomposition",
+        "slug": "lean-muscle",
+        "description": "For building lean muscle while minimizing fat gain.",
+        "typicalProducts": ["Whey Protein Isolate", "Creatine", "CLA", "L-Carnitine", "Pre-Workout", "EAAs"],
+        "suggestedStack": ["Whey Isolate 5lb", "Creatine 500g", "CLA 90 caps", "Pre-Workout"]
+      }
+    ],
+    "experienceLevel": [
+      {
+        "name": "Beginner Essentials",
+        "slug": "beginner-essentials",
+        "description": "The fundamental supplements for those just starting their fitness journey.",
+        "suggestedProducts": ["Whey Protein (2lb or 5lb)", "Creatine Monohydrate", "Multivitamin", "Shaker Bottle"],
+        "priceRange": "$60 - $100"
+      },
+      {
+        "name": "Intermediate Stack",
+        "slug": "intermediate-stack",
+        "description": "Additional supplements for training progression after 6-12 months.",
+        "suggestedProducts": ["Whey Protein 5lb", "Creatine", "Pre-Workout", "BCAAs/EAAs", "Multivitamin", "Fish Oil"],
+        "priceRange": "$120 - $200"
+      },
+      {
+        "name": "Advanced / Competition Prep",
+        "slug": "advanced-competition-prep",
+        "description": "Comprehensive supplement regimen for serious athletes and competitors.",
+        "suggestedProducts": ["Whey Isolate", "Casein", "Creatine", "Pre-Workout", "EAAs", "Fat Burner", "CLA", "L-Carnitine", "Multivitamin", "Joint Support", "Digestive Enzymes", "ZMA"],
+        "priceRange": "$250 - $500+"
+      }
+    ],
+    "activityBased": [
+      { "name": "CrossFit", "slug": "crossfit", "keyProducts": ["Pre-Workout", "BCAAs", "Protein", "Creatine", "Electrolytes"] },
+      { "name": "Bodybuilding", "slug": "bodybuilding", "keyProducts": ["Whey Protein", "Casein", "Creatine", "Pre-Workout", "Test Booster", "Fat Burner", "BCAAs"] },
+      { "name": "Powerlifting", "slug": "powerlifting", "keyProducts": ["Creatine", "High-Stim Pre-Workout", "Protein", "Joint Support", "Smelling Salts"] },
+      { "name": "Running / Cardio", "slug": "running-cardio", "keyProducts": ["Electrolytes", "BCAAs", "Energy Gels", "Protein", "Iron"] },
+      { "name": "Yoga / Pilates / Light Fitness", "slug": "yoga-light-fitness", "keyProducts": ["Plant Protein", "Collagen", "Greens", "Magnesium", "Multivitamin"] },
+      { "name": "MMA / Combat Sports", "slug": "mma-combat-sports", "keyProducts": ["Pre-Workout", "BCAAs", "Protein", "Electrolytes", "Joint Support", "Weight Management"] }
+    ]
+  },
+
+  "brandLandscape": {
+    "tier1_major": [
+      {
+        "name": "Optimum Nutrition (ON)",
+        "country": "USA",
+        "flagship": "Gold Standard 100% Whey",
+        "categories": ["Protein", "Creatine", "Pre-Workout", "Amino Acids", "Vitamins", "Mass Gainers"],
+        "pricePosition": "Mid-Premium",
+        "notes": "Industry standard; #1 selling whey protein globally. Owned by Glanbia."
+      },
+      {
+        "name": "MuscleTech",
+        "country": "USA/Canada",
+        "flagship": "Nitro-Tech Whey Protein",
+        "categories": ["Protein", "Creatine", "Pre-Workout", "Fat Burners", "Test Boosters", "Mass Gainers"],
+        "pricePosition": "Mid",
+        "notes": "Research-driven brand. Strong in Walmart/mass retail distribution."
+      },
+      {
+        "name": "BSN",
+        "country": "USA",
+        "flagship": "Syntha-6",
+        "categories": ["Protein", "Pre-Workout", "Amino Acids", "Mass Gainers"],
+        "pricePosition": "Mid",
+        "notes": "Known for taste-focused protein blends. Owned by Glanbia."
+      },
+      {
+        "name": "Dymatize",
+        "country": "USA",
+        "flagship": "ISO100 Hydrolyzed Whey Isolate",
+        "categories": ["Protein", "Pre-Workout", "BCAAs", "Creatine", "Mass Gainers"],
+        "pricePosition": "Mid-Premium",
+        "notes": "Premium isolate brand. Owned by BellRing Brands."
+      },
+      {
+        "name": "Cellucor / Xtend",
+        "country": "USA",
+        "flagship": "C4 Pre-Workout / Xtend BCAAs",
+        "categories": ["Pre-Workout", "BCAAs", "Protein", "Fat Burners"],
+        "pricePosition": "Mid",
+        "notes": "#1 selling pre-workout brand (C4). Nutrabolt parent company."
+      },
+      {
+        "name": "MyProtein",
+        "country": "UK",
+        "flagship": "Impact Whey Protein",
+        "categories": ["Protein", "Pre-Workout", "Creatine", "Amino Acids", "Vitamins", "Snacks", "Apparel"],
+        "pricePosition": "Budget-Mid",
+        "notes": "Largest online sports nutrition brand in Europe. Owned by THG."
+      },
+      {
+        "name": "Ghost",
+        "country": "USA",
+        "flagship": "Ghost Whey (licensed flavors)",
+        "categories": ["Protein", "Pre-Workout", "Amino Acids", "Greens", "Energy Drinks"],
+        "pricePosition": "Premium",
+        "notes": "Lifestyle brand known for cereal/candy brand collaborations (Lucky Charms, Oreo, Chips Ahoy). Rapidly growing."
+      },
+      {
+        "name": "Redcon1",
+        "country": "USA",
+        "flagship": "Total War Pre-Workout",
+        "categories": ["Pre-Workout", "Protein", "Fat Burners", "Mass Gainers", "Vitamins"],
+        "pricePosition": "Mid",
+        "notes": "Military-themed brand. Strong social media presence."
+      },
+      {
+        "name": "Transparent Labs",
+        "country": "USA",
+        "flagship": "BULK Pre-Workout",
+        "categories": ["Pre-Workout", "Protein", "Creatine", "Fat Burners", "Vitamins", "Greens"],
+        "pricePosition": "Premium",
+        "notes": "Known for fully transparent labels, no proprietary blends. Clinically dosed."
+      },
+      {
+        "name": "Kaged",
+        "country": "USA",
+        "flagship": "Pre-Kaged Pre-Workout",
+        "categories": ["Pre-Workout", "Protein", "Creatine", "BCAAs", "Multivitamins"],
+        "pricePosition": "Premium",
+        "notes": "Founded by Kris Gethin. Informed Sport certified, clinically dosed."
+      }
+    ],
+    "tier2_popular": [
+      {
+        "name": "Gorilla Mind",
+        "country": "USA",
+        "flagship": "Gorilla Mode Pre-Workout",
+        "categories": ["Pre-Workout", "Protein", "Creatine", "Nootropics", "Fat Burners"],
+        "pricePosition": "Mid-Premium",
+        "notes": "Founded by Derek (More Plates More Dates). Huge doses per serving."
+      },
+      {
+        "name": "Ryse",
+        "country": "USA",
+        "flagship": "Loaded Protein / Godzilla Pre-Workout",
+        "categories": ["Protein", "Pre-Workout", "Creatine", "Energy Drinks"],
+        "pricePosition": "Premium",
+        "notes": "Licensed flavors (Ring Pop, Skippy PB, Kool-Aid). Lifestyle brand."
+      },
+      {
+        "name": "EHP Labs",
+        "country": "Australia",
+        "flagship": "OxyShred Thermogenic",
+        "categories": ["Fat Burners", "Pre-Workout", "Protein", "Greens"],
+        "pricePosition": "Premium",
+        "notes": "#1 selling fat burner brand. Also popular in energy drink space."
+      },
+      {
+        "name": "Raw Nutrition",
+        "country": "USA",
+        "flagship": "Thavage Pre-Workout",
+        "categories": ["Pre-Workout", "Protein", "Mass Gainers", "EAAs"],
+        "pricePosition": "Mid-Premium",
+        "notes": "Founded by Chris Bumstead (Classic Physique Mr. Olympia). CBUM line."
+      },
+      {
+        "name": "Rule 1 (R1)",
+        "country": "USA",
+        "flagship": "R1 Protein / R1 Casein",
+        "categories": ["Protein", "Pre-Workout", "BCAAs", "Creatine"],
+        "pricePosition": "Mid",
+        "notes": "Founded by former ON executives. Focus on clean, high-quality formulas."
+      },
+      {
+        "name": "Nutrex Research",
+        "country": "USA",
+        "flagship": "Lipo-6 / 100% Whey",
+        "categories": ["Fat Burners", "Protein", "Pre-Workout", "Amino Acids"],
+        "pricePosition": "Budget-Mid",
+        "notes": "Strong budget option. Known for Lipo-6 fat burner line."
+      },
+      {
+        "name": "AllMax Nutrition",
+        "country": "Canada",
+        "flagship": "IsoFlex / Classic AllWhey",
+        "categories": ["Protein", "Creatine", "Pre-Workout", "BCAAs"],
+        "pricePosition": "Mid",
+        "notes": "Canadian brand with strong quality reputation."
+      },
+      {
+        "name": "Mutant",
+        "country": "Canada",
+        "flagship": "Mutant Mass / Mutant Whey",
+        "categories": ["Mass Gainers", "Protein", "Pre-Workout", "Creatine"],
+        "pricePosition": "Budget-Mid",
+        "notes": "Known for mass gainers. Hardcore gym branding."
+      },
+      {
+        "name": "JNX Sports",
+        "country": "USA",
+        "flagship": "The Curse Pre-Workout",
+        "categories": ["Pre-Workout", "Protein"],
+        "pricePosition": "Budget",
+        "notes": "Budget pre-workout favorite."
+      },
+      {
+        "name": "ProSupps",
+        "country": "USA",
+        "flagship": "Mr. Hyde Pre-Workout / HydroBCAA",
+        "categories": ["Pre-Workout", "BCAAs", "Protein", "Fat Burners"],
+        "pricePosition": "Mid",
+        "notes": "Known for Mr. Hyde high-stim pre-workout."
+      }
+    ],
+    "tier3_specialty_and_budget": [
+      { "name": "BulkSupplements.com", "country": "USA", "focus": "Raw bulk ingredients (no flavoring)", "pricePosition": "Budget" },
+      { "name": "NOW Sports", "country": "USA", "focus": "Clean natural supplements, amino acids", "pricePosition": "Budget-Mid" },
+      { "name": "California Gold Nutrition (iHerb)", "country": "USA", "focus": "Whey Isolate, Plant Protein at great value", "pricePosition": "Budget" },
+      { "name": "Isopure (Nature's Best)", "country": "USA", "focus": "Zero-carb whey isolate", "pricePosition": "Mid-Premium" },
+      { "name": "Quest Nutrition", "country": "USA", "focus": "Protein bars, cookies, snacks", "pricePosition": "Mid-Premium" },
+      { "name": "Barebells", "country": "Sweden", "focus": "Premium protein bars", "pricePosition": "Premium" },
+      { "name": "Animal (Universal Nutrition)", "country": "USA", "focus": "Hardcore supplements, Pak multivitamins", "pricePosition": "Mid" },
+      { "name": "GAT Sport", "country": "USA", "focus": "Pre-workout, test boosters", "pricePosition": "Mid" },
+      { "name": "Garden of Life", "country": "USA", "focus": "Organic plant protein, probiotics", "pricePosition": "Premium" },
+      { "name": "Orgain", "country": "USA", "focus": "Organic plant protein, meal replacements", "pricePosition": "Mid-Premium" }
+    ],
+    "israeliMiddleEasternBrands": [
+      {
+        "name": "BioTechUSA",
+        "country": "Hungary (popular in Israel/Middle East)",
+        "categories": ["Protein", "Pre-Workout", "Creatine", "Vitamins", "Snacks"],
+        "notes": "Very popular in Israel and across the Middle East. Wide distribution."
+      },
+      {
+        "name": "Scitec Nutrition",
+        "country": "Hungary (popular in Israel/Middle East)",
+        "categories": ["Protein", "Pre-Workout", "Amino Acids", "Mass Gainers"],
+        "notes": "Strong presence in Israeli supplement stores."
+      },
+      {
+        "name": "Olimp Sport Nutrition",
+        "country": "Poland (popular in Middle East)",
+        "categories": ["Protein", "Creatine", "Pre-Workout", "Amino Acids"],
+        "notes": "European brand with Middle East distribution."
+      },
+      {
+        "name": "Life (Life Supplements / Life Pro)",
+        "country": "Israel",
+        "categories": ["Protein", "Pre-Workout", "Vitamins"],
+        "notes": "Israeli domestic brand available in local supplement shops."
+      },
+      {
+        "name": "Amino Z",
+        "country": "Israel/Australia",
+        "categories": ["Protein", "Pre-Workout", "Amino Acids"],
+        "notes": "Online supplement retailer with own-brand products."
+      },
+      {
+        "name": "Iron Supplements (Iron Supp)",
+        "country": "Israel",
+        "categories": ["Protein", "Pre-Workout"],
+        "notes": "Israeli brand sold in local gym stores and online."
+      },
+      {
+        "name": "Super Effect",
+        "country": "Israel",
+        "categories": ["Protein", "Pre-Workout", "Mass Gainers", "Amino Acids"],
+        "notes": "Popular Israeli brand with competitive pricing."
+      },
+      {
+        "name": "FitPro",
+        "country": "Israel",
+        "categories": ["Protein Bars", "Protein Snacks"],
+        "notes": "Israeli protein snack brand."
+      }
+    ]
+  },
+
+  "seasonalTrendingCollections": {
+    "seasonal": [
+      {
+        "name": "Summer Shred Collection",
+        "slug": "summer-shred",
+        "timing": "March - June",
+        "description": "Get lean for summer. Focus on fat burning, lean protein, and definition.",
+        "featuredProducts": ["Thermogenic Fat Burners", "Whey Protein Isolate", "L-Carnitine", "CLA", "Fat-Loss Pre-Workout", "Diuretics", "Greens Powder"],
+        "suggestedBundle": {
+          "name": "Summer Shred Stack",
+          "products": ["Whey Isolate 5lb", "OxyShred or similar thermogenic", "L-Carnitine Liquid", "Pre-Workout (Fat Loss)"],
+          "priceRange": "$100 - $160"
+        }
+      },
+      {
+        "name": "New Year Resolution Bundle",
+        "slug": "new-year-resolution",
+        "timing": "December - February",
+        "description": "Starter packs for new gym-goers. Simple, approachable products.",
+        "featuredProducts": ["Beginner Protein (2lb)", "Multivitamin", "Shaker Bottle", "Creatine", "Pre-Workout (moderate stim)"],
+        "suggestedBundle": {
+          "name": "New Year Starter Pack",
+          "products": ["Whey Protein 2lb", "Creatine 300g", "Multivitamin 60 tabs", "Shaker Bottle"],
+          "priceRange": "$50 - $80"
+        }
+      },
+      {
+        "name": "Fall Bulk Season",
+        "slug": "fall-bulk",
+        "timing": "September - November",
+        "description": "Mass gaining season. Heavy on calories, protein, and strength supplements.",
+        "featuredProducts": ["Mass Gainers", "Whey Protein 5-10lb", "Creatine", "High-Stim Pre-Workout", "Test Boosters", "Joint Support"],
+        "suggestedBundle": {
+          "name": "Bulk Season Stack",
+          "products": ["Mass Gainer 12lb", "Creatine 1000g", "Pre-Workout 60 servings", "Whey Protein 5lb"],
+          "priceRange": "$120 - $200"
+        }
+      },
+      {
+        "name": "Competition Prep Package",
+        "slug": "competition-prep",
+        "timing": "Year-round (peaks March-May, Sept-Nov)",
+        "description": "Advanced stack for bodybuilding, physique, and figure competitors.",
+        "featuredProducts": ["Whey Isolate", "Casein", "Fat Burner", "CLA", "L-Carnitine", "Diuretic", "EAAs", "Multivitamin", "Joint Support", "Digestive Enzymes", "ZMA"],
+        "suggestedBundle": {
+          "name": "Comp Prep Complete Stack",
+          "products": ["Whey Isolate 5lb", "Casein 2lb", "Thermogenic 120 caps", "L-Carnitine Liquid", "EAAs 60 servings", "Digestive Enzymes", "ZMA"],
+          "priceRange": "$200 - $350"
+        }
+      },
+      {
+        "name": "Back to School / Fall Fitness",
+        "slug": "back-to-school-fitness",
+        "timing": "August - September",
+        "description": "Value-oriented packs for students and young athletes.",
+        "featuredProducts": ["Budget Whey Protein", "Creatine", "Pre-Workout", "Protein Bars (bulk)"],
+        "suggestedBundle": {
+          "name": "Student Fitness Pack",
+          "products": ["Whey Protein 5lb (budget brand)", "Creatine 500g", "Pre-Workout 30 servings"],
+          "priceRange": "$60 - $100"
+        }
+      },
+      {
+        "name": "Holiday Gift Sets",
+        "slug": "holiday-gift-sets",
+        "timing": "November - December",
+        "description": "Gift-ready supplement bundles and sampler packs.",
+        "featuredProducts": ["Sampler Boxes", "Shaker + Protein Combos", "Gift Cards", "Limited Edition Flavors"],
+        "suggestedBundle": {
+          "name": "Holiday Fitness Gift Box",
+          "products": ["Premium Protein 2lb", "Shaker Bottle", "Protein Bar Box", "Sample Packs"],
+          "priceRange": "$40 - $80"
+        }
+      }
+    ],
+    "trendingCategories2026": [
+      {
+        "name": "Creatine for Everyone",
+        "description": "Creatine has gone mainstream beyond bodybuilders - women, older adults, and general health consumers. New formats: gummies, chews, liquid, pre-mixed."
+      },
+      {
+        "name": "Collab / Licensed Flavors",
+        "description": "Brand collabs (Ghost x Lucky Charms, Ryse x Ring Pop, etc.) driving discovery and social media virality."
+      },
+      {
+        "name": "Greens & Gut Health",
+        "description": "Greens powders, prebiotics, probiotics, and digestive health supplements surging in popularity."
+      },
+      {
+        "name": "Turkesterone & Natural Anabolics",
+        "description": "Ecdysteroids and plant-based anabolic alternatives trending among natty lifters."
+      },
+      {
+        "name": "Ready-to-Drink & Convenience Formats",
+        "description": "RTD protein shakes, canned energy drinks with aminos, and single-serve packets growing rapidly."
+      },
+      {
+        "name": "Women's Sports Nutrition",
+        "description": "Dedicated women's lines - lower calorie protein, iron-fortified, collagen-enriched, hormone-supportive formulas."
+      },
+      {
+        "name": "Clean Label / Transparency",
+        "description": "Consumers demanding fully disclosed labels, no proprietary blends, third-party testing (NSF/Informed Sport)."
+      },
+      {
+        "name": "Creatine Gummies & Chews",
+        "description": "New form factor making creatine more palatable and convenient. GNC and others launching dedicated lines."
+      },
+      {
+        "name": "Nootropics & Cognitive Performance",
+        "description": "Alpha-GPC, Lion's Mane, L-Theanine combinations for focus during training."
+      },
+      {
+        "name": "Hydration & Electrolyte Market Explosion",
+        "description": "LMNT, Liquid IV, and sports-specific electrolyte brands growing 50%+ year over year."
+      }
+    ]
+  },
+
+  "seoKeywordMapping": {
+    "highVolumeSearchTerms": [
+      "whey protein",
+      "pre workout",
+      "creatine",
+      "protein powder",
+      "bcaa",
+      "mass gainer",
+      "fat burner",
+      "protein bars",
+      "whey isolate",
+      "plant protein",
+      "sports supplements",
+      "gym supplements",
+      "workout supplements",
+      "best protein powder",
+      "best pre workout",
+      "creatine monohydrate",
+      "casein protein",
+      "amino acids",
+      "l-carnitine",
+      "greens powder",
+      "electrolyte powder",
+      "testosterone booster",
+      "vegan protein powder",
+      "sugar free protein",
+      "keto protein powder"
+    ]
+  }
+}

@@ -7,9 +7,9 @@
   "scripts": {
     "build": "tsc",
     "start": "tsx src/index.ts",
-    "generate": "tsx src/excel-generator.ts && tsx src/csv-generator.ts",
-    "generate:en": "tsx src/excel-generator.ts en && tsx src/csv-generator.ts en",
-    "generate:he": "tsx src/excel-generator.ts he && tsx src/csv-generator.ts he",
+    "generate": "tsx src/excel-generator.ts en",
+    "generate:en": "tsx src/excel-generator.ts en",
+    "generate:he": "tsx src/excel-generator.ts he",
     "introspect": "tsx src/run-configurator.ts introspect",
     "diff": "tsx src/run-configurator.ts diff",
     "deploy": "tsx src/run-configurator.ts deploy",

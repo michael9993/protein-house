@@ -157,15 +157,25 @@ function Start-NamedTunnel {
 function Stop-AllTunnels {
     <#
     .SYNOPSIS
-    Kills all running cloudflared processes on the system.
+    Kills only the cloudflared process(es) belonging to THIS project (protein-house tunnel).
+    Uses command-line matching so Pawzen or other tunnels running simultaneously are NOT affected.
     #>
-    $procs = Get-Process -Name "cloudflared" -ErrorAction SilentlyContinue
-    if ($procs) {
-        Write-Host "Stopping $($procs.Count) cloudflared process(es)..." -ForegroundColor Yellow
-        $procs | Stop-Process -Force -ErrorAction SilentlyContinue
-        Write-Host "[OK] All cloudflared tunnels stopped." -ForegroundColor Green
-    } else {
+    $ourMarker = "cloudflared-config.yml"   # unique path fragment in our tunnel's command line
+    $allCf = Get-CimInstance Win32_Process -Filter "Name='cloudflared.exe'" -ErrorAction SilentlyContinue
+    if (-not $allCf) {
         Write-Host "No cloudflared processes found." -ForegroundColor Gray
+        return
+    }
+
+    $ours = $allCf | Where-Object { $_.CommandLine -like "*$ourMarker*" }
+    if ($ours) {
+        Write-Host "Stopping $(@($ours).Count) protein-house cloudflared process(es)..." -ForegroundColor Yellow
+        foreach ($p in $ours) {
+            Stop-Process -Id $p.ProcessId -Force -ErrorAction SilentlyContinue
+        }
+        Write-Host "[OK] protein-house tunnel stopped." -ForegroundColor Green
+    } else {
+        Write-Host "No protein-house cloudflared tunnel found running." -ForegroundColor Gray
     }
 }
 

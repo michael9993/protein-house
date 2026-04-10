@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-04-02T08:24:28.538Z",
+  "exportedAt": "2026-04-10T02:02:40.499Z",
   "channels": {
     "ils": {
       "version": 110,
@@ -6622,50 +6622,51 @@
       }
     },
     "default-channel": {
-      "version": 12,
-      "updatedAt": "2026-02-21T17:38:40.86Z",
+      "version": 6,
+      "updatedAt": "2026-04-10T02:02:38.140Z",
       "channelSlug": "default-channel",
       "store": {
-        "name": "Protein House",
-        "tagline": "Calm. Curated. Pet Care.",
+        "name": "Protien House",
+        "tagline": "Welcome to Protien house",
         "type": "physical",
-        "description": "Modern, curated pet accessories for dogs and cats. Thoughtfully designed products for your furry family.",
-        "email": "support@proteinhouse.com",
+        "description": "Modern, curated sports supplements for athletes and fitness enthusiasts. Thoughtfully designed products for your fitness goals.",
+        "email": "support@protien-house.com",
         "phone": "+1 (555) 123-4567",
         "address": {
-          "street": "123 Main Street",
-          "city": "New York",
-          "state": "NY",
-          "zip": "10001",
-          "country": "United States"
-        }
+          "street": "",
+          "city": "",
+          "state": "",
+          "zip": "",
+          "country": ""
+        },
+        "businessRegistrationNumber": "",
+        "taxId": ""
       },
       "branding": {
-        "logo": "",
-        "logoDark": "",
-        "logoAlt": "Protein House Logo",
+        "logo": "/logo/protein-house-logo.png",
+        "logoAlt": "Protien House Logo",
         "favicon": "/favicon.ico",
         "colors": {
-          "primary": "#E11D48",
-          "secondary": "#1E4D3A",
-          "accent": "#C9A962",
-          "background": "#F8F7F5",
-          "surface": "#EDEAE5",
-          "text": "#0F1419",
-          "textMuted": "#7A756E",
-          "success": "#1E4D3A",
-          "warning": "#C9A962",
-          "error": "#8B3A3A"
+          "primary": "#0A0A0D",
+          "secondary": "#B8922E",
+          "accent": "#D4AA4A",
+          "background": "#050507",
+          "surface": "#0D0D10",
+          "text": "#E2DDD0",
+          "textMuted": "#52525C",
+          "success": "#22C55E",
+          "warning": "#B8922E",
+          "error": "#B84040"
         },
         "typography": {
-          "fontHeading": "Inter",
-          "fontBody": "Inter",
+          "fontHeading": "Barlow Condensed",
+          "fontBody": "DM Sans",
           "fontMono": "JetBrains Mono",
           "fontSize": {
-            "h1": "2xl",
-            "h2": "xl",
-            "h3": "lg",
-            "h4": "base",
+            "h1": "5xl",
+            "h2": "4xl",
+            "h3": "2xl",
+            "h4": "xl",
             "body": "base",
             "small": "sm",
             "button": "base",
@@ -6673,9 +6674,9 @@
           }
         },
         "style": {
-          "borderRadius": "md",
+          "borderRadius": "sm",
           "buttonStyle": "solid",
-          "cardShadow": "sm"
+          "cardShadow": "none"
         }
       },
       "features": {
@@ -6693,12 +6694,14 @@
         "productBundles": false,
         "newsletter": true,
         "promotionalBanners": true,
-        "abandonedCartEmails": false,
-        "socialLogin": false,
+        "abandonedCartEmails": true,
+        "socialLogin": true,
         "shareButtons": true,
         "instagramFeed": false,
         "relatedProducts": true,
-        "stockAlerts": true
+        "stockAlerts": true,
+        "orderTracking": true,
+        "accountDeletion": true
       },
       "ecommerce": {
         "currency": {
@@ -6711,9 +6714,39 @@
         },
         "shipping": {
           "enabled": true,
-          "freeShippingThreshold": 50,
+          "freeShippingThreshold": 75,
           "showEstimatedDelivery": true,
-          "deliverySlots": false
+          "deliverySlots": false,
+          "defaultEstimatedMinDays": 7,
+          "defaultEstimatedMaxDays": 30,
+          "estimatedDeliveryFormat": "range",
+          "priceAdjustment": {
+            "enabled": true,
+            "type": "round_down",
+            "value": 1,
+            "minPrice": 5
+          },
+          "freeShippingRule": {
+            "enabled": true,
+            "cartMinimum": 75,
+            "maxMethodPrice": 0,
+            "methodNameFilter": ""
+          },
+          "discountRule": {
+            "enabled": false,
+            "cartMinimum": 50,
+            "type": "percentage",
+            "value": 10,
+            "maxMethodPrice": 0,
+            "minPrice": 0,
+            "methodNameFilter": ""
+          },
+          "showOriginalPrice": true,
+          "dropship": {
+            "marginProtectionEnabled": false,
+            "marginThreshold": 15,
+            "trackOriginalPrices": true
+          }
         },
         "tax": {
           "showPricesWithTax": false,
@@ -6733,22 +6766,15 @@
       "header": {
         "banner": {
           "enabled": true,
-          "text": "Free shipping on orders over {freeShippingThreshold}!",
-          "backgroundColor": "",
-          "textColor": null,
+          "text": "Free shipping on orders over $75 | Premium sports nutrition, delivered",
+          "backgroundColor": "#0A0A0D",
+          "textColor": "#B8922E",
           "useSaleorPromotions": true,
-          "useSaleorVouchers": false,
+          "useSaleorVouchers": true,
           "items": [
             {
-              "id": "manual-1771612156864",
-              "name": "i like it alot",
-              "description": null,
-              "link": null,
-              "icon": ""
-            },
-            {
-              "id": "manual-1771612160916",
-              "name": "Free shipping for life yes!",
+              "id": "manual-1773548036215",
+              "name": "Free shipping on orders over $75 | Premium sports nutrition, delivered",
               "description": null,
               "link": null,
               "icon": null
@@ -6756,49 +6782,47 @@
           ],
           "manualItems": [
             {
-              "id": "manual-1771612156864",
-              "text": "i like it alot",
-              "link": null,
-              "icon": ""
-            },
-            {
-              "id": "manual-1771612160916",
-              "text": "Free shipping for life yes!",
+              "id": "manual-1773548036215",
+              "text": "Free shipping on orders over $75 | Premium sports nutrition, delivered",
               "link": null,
               "icon": null
             }
           ],
-          "autoScrollIntervalSeconds": 6,
+          "autoScrollIntervalSeconds": 5,
           "useGradient": true,
-          "gradientFrom": "#000000",
-          "gradientTo": "#6b7280",
+          "gradientFrom": "#050507",
+          "gradientTo": "#0D0D10",
           "gradientStops": [
             {
-              "color": "#000000",
-              "position": 3
+              "color": "#050507",
+              "position": 0
             },
             {
-              "color": "#000000",
-              "position": 52
+              "color": "#0D0D10",
+              "position": 50
             },
             {
-              "color": "#000000",
+              "color": "#050507",
               "position": 100
             }
           ],
-          "gradientAngle": 254,
+          "gradientAngle": 90,
           "dismissible": false
         },
-        "showStoreName": true,
+        "showStoreName": false,
         "logoPosition": "left"
       },
       "footer": {
         "showNewsletter": true,
         "showSocialLinks": true,
         "showContactInfo": true,
+        "showFooterEmail": true,
+        "showFooterPhone": false,
+        "showFooterAddress": false,
+        "showFooterContactButton": true,
         "showMenu": true,
         "showBrand": true,
-        "copyrightText": "© 2026 My Store. All rights reserved.",
+        "copyrightText": "© 2026 Protein House. All rights reserved.",
         "legalLinks": {
           "trackOrder": {
             "enabled": true,
@@ -6819,82 +6843,122 @@
           "returnPolicy": {
             "enabled": true,
             "url": "/pages/return-policy"
+          },
+          "accessibilityStatement": {
+            "enabled": true,
+            "url": "/pages/accessibility"
           }
         },
         "returnPolicyPageTitle": "Returns & Exchanges Policy",
-        "returnPolicyContent": "## Product exchange\n\n1. To exchange a product, contact customer service via email at support@mystore.com.\n2. To exchange a product, send it back to the business (new and in original packaging only) within 14 days of receipt.\n3. The customer will ship the product at their own expense using one of the methods listed below.\n4. After the store receives the product, a replacement product of the customer's choice will be sent free of charge to a pickup point.\n\nProducts returned without original packaging, used or damaged will not be exchanged or refunded!\n** Wrap the package in plastic or paper. Do not stick labels or write on the original box!\n\nThere are 2 ways to send the product and complete an exchange:\n\nRegistered mail to the address we provide via WhatsApp. (Postage is 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nHome exchange at 49 ILS: A courier comes to your home with the replacement product to complete the exchange on the spot. 49 ILS paid in advance.\n\nIf the customer chooses to exchange for a more expensive product they will pay the difference in advance via a link sent by email or WhatsApp. If the product is cheaper, the customer will receive a refund for the difference by the same payment method.\n\nRefund for a price difference will be made within 3 business days after the returned product reaches the warehouse and is found to be in good and unused condition!\n\nA second exchange shipment is at the customer's expense!\n\n## Product return and refund\n\nTo return a product, contact customer service via email at support@mystore.com.\n\nReturns are allowed within 14 days of receipt only if the product is new, in original packaging and unused.\n\nReturn shipping is at the customer's expense.\n\nThe refund is for products only and does not include the delivery cost paid at purchase!\n\nThe refund will be made by the same payment method within 5 business days of the product reaching the store.\n\nYou may return products in one of the following ways:\n\nRegistered mail to the address we provide via WhatsApp.\n\nCourier at 40 ILS: A courier comes to your home, collects the product and returns it to us. After the product reaches us with the courier we will process your refund. You may pay the delivery cost directly to the courier or pay us online in advance by credit card via a link we send you.",
+        "returnPolicyHeader": "Return Policy",
+        "returnPolicyContent": "## Returns & Exchanges — Protein House\n\n### Product Exchange\n\n1. To exchange a product, contact us at support@proteinhouse.co.il within 30 days of receipt.\n2. The product must be unused and in its original packaging.\n3. Return shipping is at the customer's expense.\n4. Once we receive the returned item, we'll ship the replacement product free of charge.\n\nProducts returned without original packaging, used, or damaged will not be exchanged or refunded.\n\n### Product Return & Refund\n\n1. To return a product, email support@proteinhouse.co.il within 30 days of receipt.\n2. The product must be unused and in its original packaging.\n3. Return shipping is at the customer's expense.\n4. Refunds are for product cost only (shipping fees are non-refundable).\n5. Refunds are processed within 5 business days of receiving the returned item, using the original payment method.\n\n### Order Cancellation\n\n1. Orders can be cancelled before shipment by emailing support@proteinhouse.co.il.\n2. If the order has already shipped, follow the return procedure above.\n3. Protein House reserves the right to cancel orders in cases of pricing errors, stock issues, or suspected fraud.",
+        "returnPolicyDefaultContent": "We accept returns within 30 days of purchase. Items must be in original condition with tags attached.",
+        "returnPolicyFooter": "",
         "shippingPolicyPageTitle": "Shipping Policy",
-        "shippingPolicyContent": "## Shipping Policy\n\n1. The customer will choose the type of delivery they want in the shopping cart and the delivery cost will be added to the product price.\n2. Delivery will be carried out by an external shipping company \"our shipping partner\".\n3. The package will be sent within 1 business day of placing the order.\n4. Delivery time is 3-5 business days from handover to the courier.\n5. For \"pickup point\" delivery, the package will be sent to the pickup point closest to the address provided by the customer. \"our partner\" has hundreds of pickup points across the country. When the package arrives at the destination, an SMS with all details will be sent to the customer.\n6. For home delivery, the package will be sent to the address provided by the customer.\n7. Home delivery cost charged by the shipping company to the online store ranges from 40 ILS to 60 ILS depending on the area. The higher price is for \"special areas\" as defined by \"our partner\" shipping company — for the list of special areas click here.\n8. Pickup point delivery cost is 20 ILS for all areas.\n9. All delivery costs that the customer is asked to pay are subsidised and discounted by the store, with the customer paying part of the delivery cost as specified in sections 8 and 9.",
+        "shippingPolicyHeader": "Shipping Policy",
+        "shippingPolicyContent": "## Shipping Policy — Protein House\n\n1. Select your preferred shipping method at checkout. Shipping costs will be added to the product price.\n\n2. Packages are dispatched within 2 business days of placing your order.\n\n3. Standard Shipping: $9.99 (7-30 business days).\n\n4. Express Shipping: $24.99 (3-7 business days).\n\n5. Free Shipping on orders over $75 (10-21 business days).\n\n6. A tracking number and SMS/email notification will be sent once your order ships.\n\n7. Protein House is not responsible for delays caused by the shipping carrier or customs.\n\nFor shipping inquiries, contact us at support@proteinhouse.co.il",
+        "shippingPolicyDefaultContent": "We offer free standard shipping on orders over $50. Express shipping available at checkout.",
+        "shippingPolicyFooter": "",
         "privacyPolicyPageTitle": "Privacy Policy",
+        "privacyPolicyHeader": "Privacy Policy",
         "privacyPolicyContent": "## Privacy Policy\n\n1. Principles\n\nThis policy explains how we collect, store, use and share personal information on this website (\"the Site\").\n\"Personal information\" and \"processing\" are as defined in the Privacy Protection Law, as amended.\n\n2. Types of information we collect\n\n2.1 Identifying and contact details: name, email, phone, shipping/billing address.\n2.2 Order and payment details (payment details are processed by licensed payment processors; the Site does not store full card details).\n2.3 Technical and usage data: IP address, device/cookie IDs, pages viewed, purchases, site activity.\n2.4 Marketing preferences and correspondence.\n\n3. How we collect information\n\n3.1 Directly from you when you register, place an order or contact us.\n3.2 Automatically via cookies and similar technologies.\n3.3 From third parties: Google Analytics; we may use Facebook (Meta) and TikTok for measurement, personalisation and targeted advertising.\n\n4. Cookies and measurement tools\n\n4.1 The Site uses cookies and pixels of Google Analytics, and may use pixels of Facebook and TikTok for analysis, measurement, improving user experience and targeted marketing.\n4.2 You can manage or delete cookies in your browser and change preferences in the site cookie manager (if available).\n4.3 Third parties may set their own cookies and receive usage data (e.g. IP/advertising ID/purchase events) per their policies. We recommend reviewing those policies.\n4.4 This policy distinguishes between data provided with prior knowledge and data collected via tracking, and clarifies purposes and use by third parties.\n\n5. Purposes of processing\n\n5.1 Account and order management; customer support.\n5.2 Legal and contractual obligations (invoicing, tax).\n5.3 Security, fraud prevention and risk management.\n5.4 Usage analysis and site and product improvement.\n5.5 Marketing and tailored offers (in line with your preferences and applicable law).\n\n6. Sharing with third parties\n\n6.1 Service providers acting as processors: payments, logistics/shipping, email systems, cloud and hosting infrastructure.\n6.2 The store platform \"istores\" — information is stored and processed on the istores platform used to operate the store (\"processor\").\n6.3 Measurement/advertising tools: Google Analytics; possibly Facebook and TikTok, as set out in section 4.\n6.4 Authorities or enforcement as required by law; transfer in the context of permitted business restructuring.\n\n7. Transfer and storage outside Israel\n\nSome information is stored on servers of providers outside Israel. Transfers will be made in accordance with applicable legal requirements.\n\n8. Information security\n\nWe take organisational, technical and physical measures to protect information, in accordance with the law and the Privacy Protection (Information Security) Regulations, 2017.\n\n9. Data retention\n\nWe retain information as long as necessary for the purposes for which it was collected, for contractual/legal obligations and to protect our rights, and thereafter delete or anonymise where possible.\n\n10. Your rights\n\n10.1 Right to access your personal data and receive a copy.\n10.2 Right to correct or delete inaccurate or incomplete data; notice of correction/deletion will be given to those who received the information from us as required by law.\n10.3 Withdrawal of consent for processing based on consent — where feasible and in a reasonable manner.\n\n11. Deleting your account or data – how to request\n\n11.1 You may delete your account or request deletion of data in one of the following ways:\n\nLog in to your account and select the deletion request option;\n\nContact the site owner using the contact details published on the site.\n\n11.2 Deletion will be carried out after we confirm receipt of the request and compliance with legal conditions (including data we are required to retain by law).\n\n12. Data Protection Officer (DPO)\n\nIf we are required to appoint a Data Protection Officer under amendment 13, the Officer's details and contact information will be published on the site.\n\n13. Minors\n\nThe Site is not intended for independent use by minors under 18. If we receive notice that a minor has provided information without parental/guardian consent, we will take steps to remove it.\n\n14. Policy updates\n\nWe may update this policy from time to time. The current version will be published on the site and take effect as of the date of publication.",
+        "privacyPolicyDefaultContent": "We respect your privacy and protect your personal information. Read our full privacy policy for details.",
+        "privacyPolicyFooter": "",
         "termsOfServicePageTitle": "Terms of Service",
-        "termsOfServiceContent": "## Store Terms\n\n1. You are asked to read these terms in full and carefully, as a precondition to the agreement between the parties.\n2. The store is for purchasing products by users on the internet in Israel. Purchasers must be 18 or over, have an email address on the internet in Israel and an address in Israel, and hold a valid credit card in Israel.\n3. A precondition for the validity of a purchase is approval by the credit card company for the transaction.\n4. Browsing the store and/or purchasing the product and/or service offered for sale constitutes your agreement to accept and act in accordance with these terms. Therefore, if you do not agree to any term, you are asked not to use the store.\n6. The price includes VAT unless stated otherwise.\n7. There may be colour differences between the image displayed and the actual product. Such differences are due to camera type, display, screen colour settings and different screen types, etc.\n\n## Purchasing products\n\nThe site offers a limited quantity of products at a fixed price. The sale will be conducted on the following terms:\n\n1. The store will display a list of products including all details about the product or service offered for sale and the price as set in advance; sale is subject to stock.\n2. After adding the desired products to the \"shopping cart\", the buyer will proceed on the \"shopping cart\" page to \"confirm purchase\" and there complete their details, after which the online purchase process is complete.\n\n## Card verification\n\nThe business may require the customer to verify their credit card by sending a selfie of the cardholder showing ID and the credit card to the business WhatsApp number. In such a case, the name on the credit card must match the name on the ID.\nIf there is no match or the customer refuses to verify, the business may cancel the transaction.\n\n## Product exchange\n\n1. To exchange a product, send it back to the business (new and in original packaging only) within 14 days of receipt.\n2. The customer will ship the product at their own expense using one of the methods listed below.\n3. After the store receives the product, a replacement product of the customer's choice will be sent free of charge to a pickup point.\n\nProducts returned without original packaging, used or damaged will not be exchanged or refunded!\n** Wrap the package in plastic or paper. Do not stick labels or write on the original box!\n\nThere are 2 ways to send the product and complete an exchange:\n\nRegistered mail to the address we provide via WhatsApp. (Postage is 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nHome exchange at 49 ILS: A courier comes to your home with the replacement product to complete the exchange on the spot. 49 ILS paid in advance.\n\nIf the customer chooses to exchange for a more expensive product they will pay the difference in advance via a link sent by email or WhatsApp. If the product is cheaper, the customer will receive a refund for the difference by the same payment method.\n\nRefund for a price difference will be made within 3 business days after the returned product reaches the warehouse and is found to be in good and unused condition!\n\nA second exchange shipment is at the customer's expense!\n\n## Product return and refund\n\nTo return a product, contact customer service via email at support@mystore.com.\n\nReturns are allowed within 14 days of receipt only if the product is new, in original packaging and unused.\n\nReturn shipping is at the customer's expense.\n\nThe refund is for products only and does not include the delivery cost paid at purchase!\n\nThe refund will be made by the same payment method within 3 business days of the product reaching the store.\n\nYou may return products in one of the following ways:\n\nRegistered mail to the address we provide via WhatsApp. (Postage 15–20 ILS). Once the package reaches us we will send the product you wanted to a pickup point free of charge.\n\nCourier pickup at 39 ILS: A courier comes to your home, collects the product and returns it to us. After the product reaches us with the courier we will send you a replacement to a pickup point (not to your home): 39 ILS paid in advance.\n\n## Order cancellation\n\n1. In general the customer may cancel the transaction* subject to the Consumer Protection Law, 1981 (the Law: http://www.consumers.org.il/category/deal-annulment-regulations).\n2. A product purchase may be cancelled before it is sent. Cancellation must be made only by notice sent via email to support@mystore.com.\n3. If the product has not been sent, the order will be cancelled and a refund will be made.\n4. If the customer requests cancellation after the product has been sent, they must receive it and then return the product according to the \"Product return and refund\" procedure above. It is agreed that the customer will return the product in its packaging, unused, intact and without damage or defect of any kind. After the product reaches the store, a refund will be made for the product and will not include delivery cost.\n5. The store may cancel a transaction or sale in whole or in part in the following cases:\n\nA clerical error, whether in the product price or description.\n\nForce majeure, act of war, hostility, terrorism, epidemic and/or anything else that prevents the proper continuation of the sale.\n\nThe product is defective.\n\nThe product is out of stock.\n\nSuspected fraud.\n\n6. Notice of cancellation of the sale will be given to buyers by phone and/or email to the address provided on the registration page.\n\n*Cases in which a transaction cannot be cancelled: http://www.consumers.org.il/category/cases-for-no-annulment-rights\n\n## Product supply\n\n1. The store will deliver the product ordered on the site for shipment within two business days at most after approval of the transaction by the credit card company.\n2. The store and/or suppliers are not responsible for delay in supplying the product in cases outside their control. Delivery delays are the responsibility of the shipping company.\n3. Product and/or service supply times as indicated on the product page refer only to business days (Sun–Thu, excluding Friday, Saturday, holiday eves and holidays).\n\n## Shipping\n\n1. The customer will choose the type of delivery they want in the shopping cart and the delivery cost will be added to the product price.\n2. Delivery will be carried out by an external shipping company \"our shipping partner\".\n3. The package will be sent within 1 business day of placing the order.\n4. Delivery time is 3-5 business days from handover to the courier.\n5. For \"pickup point\" delivery, the package will be sent to the pickup point closest to the address provided by the customer. \"our partner\" has hundreds of pickup points across the country. When the package arrives at the destination, an SMS with all details will be sent to the customer.\n6. For home delivery, the package will be sent to the address provided by the customer.\n7. Home delivery cost charged by the shipping company to the online store ranges from 40 ILS to 60 ILS depending on the area. The higher price is for \"special areas\" as defined by \"our partner\" shipping company — for the list of special areas click here.\n8. Pickup point delivery cost is 20 ILS for all areas.\n9. All delivery costs that the customer is asked to pay are subsidised and discounted by the store, with the customer paying part of the delivery cost as specified in sections 8 and 9.\n\n## Warranty\n\n1. Warranty on products is provided by the importer or manufacturer.\n2. Warranty is given for defects in the manufacturing process or materials.\n3. If the product is damaged due to a manufacturing defect, it will be replaced or repaired.\n4. Warranty does not apply in the following cases:\n\n4.1 The product was used for a purpose other than its intended use (e.g. using a cat toy for a large dog).\n4.2 The product was damaged intentionally or by an external cause during use.\n4.3 Scratches, scuffs, peeling or tears resulting from wear.\n4.4 The product was cleaned in a manner not recommended by the manufacturer.\n4.5 The garment was washed not according to the manufacturer's instructions (if it is a clothing product).\n4.6 Wear, tear, odour and discomfort after use of the product are not considered manufacturing defects and are not covered by warranty.\n4.7 Damage caused by negligent or improper use.\n\n5. Warranty on the product is given only upon presentation of a purchase invoice and within a reasonable time.\n6. Warranty on the product is given at the physical store operating the online store.\n7. The store undertakes to send the product for warranty inspection to the importer or manufacturer and to have it repaired within 14 working days in case of a defect in materials or the manufacturing process, subject to reasonable use of the product.\n8. After completion of the repair, the customer may choose to collect the product from the store or request delivery to them at a cost of 30 ILS to their account.\n\n## Customer service\n\nFor any question or enquiry regarding the products displayed on the site, including information on correct use of the product and details and enquiries about the store and its operations, you may contact us:\n\nEmail: support@mystore.com\n\nEmail: support@mystore.com\n\n## General\n\n1. The images displayed on the site are for illustration only and do not bind the store. There may be colour differences between the image and the actual product, due to display level, screen types, etc.\n2. The store and/or anyone on its behalf will not be liable for any direct, indirect, consequential or special damage caused to the user or a third party as a result of use of the site.\n3. The store is not responsible for the assembly and/or installation of products purchased on the site, and such responsibility lies with the customer.\n4. Icons (ICONS), any information and/or display on the site, including graphics, design, text, trademarks and logos including their editing and display on the site, are the exclusive property of the store.\n5. Content on the site may not be copied, reproduced, distributed, published or used in any other way unless prior written consent has been given by the store.",
-        "policyPageEmptyMessage": "This policy page has not been configured yet."
+        "termsOfServiceHeader": "Terms of Service",
+        "termsOfServiceContent": "## Terms of Service — Protein House\n\n1. Please read these terms carefully before using our store.\n2. By browsing or purchasing from Protein House, you agree to these terms.\n3. All prices include applicable taxes unless stated otherwise.\n4. Product images are for illustration purposes. Minor color variations may occur.\n\n## Purchasing\n\nProtein House offers sports supplements at fixed prices, subject to availability. Add items to your cart and complete checkout with your details and payment information.\n\n## Exchanges\n\n1. Products may be exchanged within 30 days of receipt if unused and in original packaging.\n2. Contact support@proteinhouse.co to initiate an exchange.\n3. Return shipping is at the customer's expense.\n4. Replacement items ship free of charge once we receive your return.\n\n## Returns & Refunds\n\n1. Returns accepted within 30 days of receipt for unused items in original packaging.\n2. Contact support@proteinhouse.co.il to initiate a return.\n3. Return shipping is at the customer's expense.\n4. Refunds cover product cost only (shipping is non-refundable).\n5. Refunds processed within 5 business days via original payment method.\n\n## Order Cancellation\n\n1. Orders may be cancelled before shipment by emailing support@proteinhouse.co.il.\n2. After shipment, follow the returns procedure above.\n3. Protein House may cancel orders due to pricing errors, stock issues, or suspected fraud.\n\n## Shipping\n\n1. Orders are dispatched within 2 business days of payment confirmation.\n2. Protein House is not responsible for carrier delays beyond our control.\n3. Delivery estimates refer to business days only.\n\n## Warranty\n\n1. Products are warranted against manufacturing defects only.\n2. Warranty does not cover normal wear and tear, misuse, or damage caused by misuse.\n3. Proof of purchase is required for warranty claims.\n\n## Customer Service\n\nFor questions or support, contact us at support@proteinhouse.co.il.\n\n## General\n\n1. All content on the site (graphics, design, trademarks, logos) is the exclusive property of Protein House.\n2. Protein House is not liable for indirect or consequential damages from site use.\n3. Content may not be reproduced without prior written consent from Protein House.",
+        "termsOfServiceDefaultContent": "By using our services, you agree to our terms and conditions. Please read carefully before purchasing.",
+        "termsOfServiceFooter": "",
+        "policyPageEmptyMessage": "This policy page has not been configured yet.",
+        "accessibilityPageTitle": "Accessibility Statement",
+        "accessibilityHeader": "Accessibility Statement",
+        "accessibilityContent": "At Protein House, we are committed to making our website accessible to all users, including people with disabilities, in accordance with the Israeli Equal Rights for Persons with Disabilities Law (5768/2008) and accessibility regulations.\n\nWe strive to conform to WCAG 2.1 Level AA standards.\n\nSteps we have taken:\n- Adapted the site for assistive technologies\n- Sufficient color contrast throughout\n- Full keyboard navigation support\n- Alternative text for all images\n- Hierarchical heading structure\n- Full RTL (right-to-left) support\n\nIf you encounter any accessibility issues on our site, please contact us:\nEmail: support@proteinhouse.co.il\nPhone: 04-9502222\n\nWe welcome your feedback and are committed to improving accessibility.",
+        "vatStatement": "All prices include 18% VAT",
+        "showVatStatement": true,
+        "showBusinessInfo": true
       },
       "homepage": {
         "sections": {
           "hero": {
             "enabled": true,
-            "type": "image",
-            "title": "Welcome to My Store",
-            "subtitle": "Modern, curated pet accessories for dogs & cats",
+            "type": "video",
+            "layout": "centered",
+            "title": "Welcome to Protein House",
+            "subtitle": "Modern, curated accessories for dogs & cats. Selected with love, delivered with care.",
             "ctaText": "Shop Now",
             "ctaLink": "/products",
-            "badgeText": "New Season Collection",
+            "showSecondaryButton": true,
+            "secondaryCtaText": "Explore Our Deals",
+            "secondaryCtaLink": "/products?sale=true",
+            "showTagline": true,
+            "taglineText": "New Collection",
+            "showStats": false,
+            "stat1Value": "",
+            "stat1Label": "",
+            "stat2Value": "",
+            "stat2Label": "",
+            "stat3Value": "",
+            "stat3Label": "",
+            "badgeText": "New Collection",
             "imageUrl": null,
             "videoUrl": null,
-            "overlayOpacity": 40,
+            "slides": [],
+            "overlayOpacity": 0,
             "textAlignment": "center",
-            "autoRotateSeconds": 4,
+            "autoRotateSeconds": 5,
             "showProgressBar": true,
             "showNavDots": true,
             "background": {
-              "style": "solid",
-              "color": "#0a0a0a",
-              "secondaryColor": null
+              "style": "none",
+              "color": "#ffffff",
+              "secondaryColor": "#000000",
+              "gradientDirection": "to-bottom-right"
             }
           },
           "trustStrip": {
             "enabled": true,
-            "freeShippingText": "Pet-safe materials",
-            "easyReturnsText": "Free shipping over {freeShippingThreshold}",
-            "secureCheckoutText": "24/7 support",
-            "supportText": "30-day returns",
+            "freeShippingText": "Pet-Safe Materials",
+            "easyReturnsText": "Free Shipping Over $75 for selected countries",
+            "secureCheckoutText": "24/7 Support",
+            "supportText": "30-Day Returns",
             "background": {
               "style": "solid",
-              "color": "#f9fafb",
-              "secondaryColor": null
+              "color": "#0D0D10",
+              "secondaryColor": "#050507",
+              "mixPercentage": 6
             }
           },
           "marquee": {
             "enabled": true,
-            "text": "Free shipping over {freeShippingThreshold}! • New pet accessories just arrived • Pet-safe & premium quality",
-            "speedSeconds": 20,
-            "textColor": null,
+            "text": "NEW ARRIVALS WEEKLY  •  FREE SHIPPING OVER $75  •  PREMIUM SPORTS NUTRITION  •  ELITE PERFORMANCE SUPPLEMENTS  •  30-DAY EASY RETURNS",
+            "speedSeconds": 80,
+            "textColor": "#B8922E",
             "background": {
               "style": "solid",
-              "color": "#0a0a0a",
+              "color": "#0D0D10",
               "secondaryColor": null
             }
           },
           "brandGrid": {
-            "enabled": true,
-            "title": "Top Brands",
-            "subtitle": "Curated from the best performance labels",
+            "enabled": false,
+            "title": "Trusted Brands",
+            "subtitle": "Curated from the world's best pet brands",
             "maxBrands": 8,
             "showLogos": true,
             "layout": "grid",
             "background": {
-              "style": "color-mix",
+              "style": "mesh",
               "color": null,
               "secondaryColor": null,
-              "mixPercentage": 4
+              "animationSpeed": "slow",
+              "meshOpacity": 6,
+              "meshGrade": "warm"
             }
           },
           "categories": {
             "enabled": true,
             "title": "Shop by Category",
-            "subtitle": "Find what you're looking for",
+            "subtitle": "Everything your pet needs, beautifully organized",
             "maxCategories": 6,
             "showProductCount": true,
             "showSubcategories": true,
@@ -6902,31 +6966,35 @@
             "background": {
               "style": "none",
               "color": null,
-              "secondaryColor": null
+              "secondaryColor": null,
+              "mixPercentage": 3,
+              "patternType": "dots",
+              "patternOpacity": 2
             }
           },
           "trending": {
             "enabled": true,
             "title": "New Arrivals",
-            "subtitle": "Just landed in store",
+            "subtitle": "Fresh finds for your fitness goals",
             "collectionSlug": "new-arrivals",
             "fallbackToNewest": true,
             "maxProducts": 8,
             "layout": "grid",
             "background": {
-              "style": "none",
-              "color": null,
-              "secondaryColor": null
+              "style": "color-mix",
+              "color": "#B8922E",
+              "secondaryColor": "#050507",
+              "mixPercentage": 6
             }
           },
           "promotionBanner": {
-            "enabled": true,
-            "badgeText": "Special Offer",
-            "title": "Don't miss out",
-            "highlight": "Up to 25% off",
-            "description": "Premium pet accessories for dogs and cats. Limited time collection.",
+            "enabled": false,
+            "badgeText": "Limited Time",
+            "title": "Treat Your Pet",
+            "highlight": "Up to 25% Off",
+            "description": "Premium accessories for athletes and fitness enthusiasts. Because they deserve the best.",
             "primaryCta": {
-              "text": "Shop Sale Items",
+              "text": "Shop Sale",
               "link": "/products?collection=sale"
             },
             "secondaryCta": {
@@ -6936,28 +7004,30 @@
             "autoDetectDiscount": true,
             "background": {
               "style": "gradient",
-              "color": null,
-              "secondaryColor": null,
+              "color": "#0A0A0D",
+              "secondaryColor": "#160F03",
               "gradientDirection": "to-bottom-right"
             }
           },
           "flashDeals": {
             "enabled": true,
             "title": "Flash Deals",
-            "subtitle": "Limited time offers",
-            "badgeTemplate": "Up to {discount}% OFF",
+            "subtitle": "Limited time offers on popular items",
+            "badgeTemplate": "Save {discount}%",
             "collectionSlug": "sale",
             "maxProducts": 8,
             "background": {
-              "style": "none",
-              "color": null,
-              "secondaryColor": null
+              "style": "glass",
+              "color": "#D4AA4A",
+              "secondaryColor": null,
+              "glassBlur": 8,
+              "glassOpacity": 5
             }
           },
           "collectionMosaic": {
             "enabled": true,
-            "title": "Shop by Collection",
-            "subtitle": "Curated for you",
+            "title": "Curated Collections",
+            "subtitle": "Hand-picked selections for every pet parent",
             "maxCollections": 5,
             "excludeSlugs": [
               "hero-banner",
@@ -6969,51 +7039,53 @@
               "style": "mesh",
               "color": null,
               "secondaryColor": null,
-              "meshOpacity": 10,
-              "meshGrade": "light"
+              "meshOpacity": 8,
+              "meshGrade": "cool"
             }
           },
           "bestSellers": {
             "enabled": true,
-            "title": null,
-            "subtitle": null,
+            "title": "Best Sellers",
+            "subtitle": "Loved by pet parents everywhere",
             "collectionSlug": "best-sellers",
             "fallbackToTopRated": true,
             "maxProducts": 8,
             "layout": "horizontal-scroll",
             "background": {
               "style": "color-mix",
-              "color": null,
-              "secondaryColor": null,
-              "mixPercentage": 8
+              "color": "#B8922E",
+              "secondaryColor": "#050507",
+              "mixPercentage": 5
             }
           },
           "customerFeedback": {
             "enabled": true,
-            "title": "Customer Feedback",
-            "subtitle": "Verified community reviews across our multi-brand lineup",
+            "title": "Happy Pet Parents",
+            "subtitle": "Real stories from our community",
             "maxReviews": 3,
             "minRating": 4,
             "showProductName": true,
             "background": {
-              "style": "none",
+              "style": "pattern",
               "color": null,
-              "secondaryColor": null
+              "secondaryColor": null,
+              "patternType": "dots",
+              "patternOpacity": 3
             },
-            "starColor": "#FFD700",
-            "starEmptyColor": null
+            "starColor": "#B8922E",
+            "starEmptyColor": "#1C1C1F"
           },
           "newsletter": {
             "enabled": true,
-            "title": null,
-            "subtitle": null,
-            "buttonText": null,
-            "placeholder": null,
+            "title": "Join the Pack",
+            "subtitle": "Get tips, tricks & exclusive offers for your performance",
+            "buttonText": "Subscribe",
+            "placeholder": "your@email.com",
             "layout": "stacked",
             "background": {
               "style": "gradient",
-              "color": null,
-              "secondaryColor": null,
+              "color": "#0A0A0D",
+              "secondaryColor": "#110E06",
               "gradientDirection": "to-bottom"
             }
           },
@@ -7026,29 +7098,27 @@
             }
           },
           "featuredCategories": {
-            "enabled": true,
+            "enabled": false,
             "limit": 6,
             "background": {
-              "style": "color-mix",
+              "style": "none",
               "color": null,
-              "secondaryColor": null,
-              "mixPercentage": 8
+              "secondaryColor": null
             }
           },
           "newArrivals": {
-            "enabled": true,
+            "enabled": false,
             "limit": 8,
             "background": {
-              "style": "color-mix",
+              "style": "none",
               "color": null,
-              "secondaryColor": null,
-              "mixPercentage": 8
+              "secondaryColor": null
             }
           },
           "feature": {
-            "enabled": true,
+            "enabled": false,
             "title": "Featured Collection",
-            "description": "Discover our hand-picked selection of premium products designed for your lifestyle.",
+            "description": "Discover our hand-picked selection of premium products.",
             "imageUrl": null,
             "imagePosition": "left",
             "ctaText": "Shop Now",
@@ -7060,64 +7130,43 @@
             }
           },
           "onSale": {
-            "enabled": true,
+            "enabled": false,
             "limit": 4,
             "background": {
-              "style": "color-mix",
+              "style": "none",
               "color": null,
-              "secondaryColor": null,
-              "mixPercentage": 8
+              "secondaryColor": null
             }
           },
           "featuredBrands": {
             "enabled": false,
             "background": {
-              "style": "color-mix",
+              "style": "none",
               "color": null,
-              "secondaryColor": null,
-              "mixPercentage": 8
+              "secondaryColor": null
             }
           },
           "testimonials": {
-            "enabled": true,
+            "enabled": false,
             "background": {
-              "style": "color-mix",
+              "style": "none",
               "color": null,
-              "secondaryColor": null,
-              "mixPercentage": 8
+              "secondaryColor": null
             },
             "starColor": "#FFD700",
             "starEmptyColor": null,
             "starSize": "base",
             "loadingReviewsText": null,
             "verifiedPurchaseLabel": null,
-            "customerLabel": null,
-            "card": {
-              "backgroundColor": null,
-              "borderColor": null,
-              "borderRadius": null,
-              "padding": null,
-              "shadow": null,
-              "hoverShadow": null,
-              "hoverTransform": null
-            },
-            "trustBadges": {
-              "showAverageRating": true,
-              "showCustomerCount": true,
-              "showSatisfactionRate": true,
-              "showOrdersDelivered": true,
-              "borderColor": null,
-              "textColor": null
-            }
+            "customerLabel": null
           },
           "instagramFeed": {
             "enabled": false,
             "username": null,
             "background": {
-              "style": "color-mix",
+              "style": "none",
               "color": null,
-              "secondaryColor": null,
-              "mixPercentage": 8
+              "secondaryColor": null
             }
           }
         },
@@ -7125,16 +7174,16 @@
           "hero",
           "trustStrip",
           "marquee",
-          "brandGrid",
           "categories",
           "trending",
+          "brandGrid",
           "promotionBanner",
           "flashDeals",
           "collectionMosaic",
           "bestSellers",
           "customerFeedback",
-          "newsletter",
-          "recentlyViewed"
+          "recentlyViewed",
+          "newsletter"
         ]
       },
       "pages": {
@@ -7146,6 +7195,7 @@
         "termsOfService": true,
         "shippingPolicy": true,
         "returnPolicy": true,
+        "accessibility": false,
         "forgotPassword": true,
         "resetPassword": true,
         "verifyEmail": true,
@@ -7167,15 +7217,15 @@
           "intercomAppId": null,
           "zendeskKey": null,
           "crispWebsiteId": null,
-          "whatsappBusinessNumber": "+972501234567",
+          "whatsappBusinessNumber": "",
           "whatsappDefaultMessage": "Hi! I'd like more information"
         },
         "social": {
-          "facebook": null,
-          "instagram": "",
+          "facebook": "https://www.facebook.com/profile.php?id=61579690091826",
+          "instagram": "https://www.instagram.com/proteinhouse.co.il/",
           "twitter": null,
           "youtube": null,
-          "tiktok": null,
+          "tiktok": "https://tiktok.com/@proteinhouse",
           "pinterest": null
         },
         "cookieConsent": {
@@ -7185,11 +7235,11 @@
         }
       },
       "seo": {
-        "titleTemplate": "%s | My Store",
-        "defaultTitle": "My Store",
-        "defaultDescription": "Modern, curated pet accessories for dogs and cats. Free shipping on orders over {freeShippingThreshold}. Thoughtfully designed products for your furry family.",
-        "defaultImage": "/og-image.jpg",
-        "twitterHandle": null
+        "titleTemplate": "%s | Protein House",
+        "defaultTitle": "Protein House — Premium Sports Nutrition for Dogs & Cats",
+        "defaultDescription": "Discover thoughtfully designed sports supplements. Premium toys, beds, feeders & more for athletes and fitness enthusiasts. Free shipping over $100.",
+        "defaultImage": "https://proteinhouse.co.il/logo/protein-house-logo.png",
+        "twitterHandle": "@proteinhouse"
       },
       "localization": {
         "defaultLocale": "en-US",
@@ -7227,7 +7277,7 @@
           "enabled": true
         },
         "colorFilter": {
-          "enabled": true
+          "enabled": false
         },
         "categoryFilter": {
           "enabled": true
@@ -7236,7 +7286,7 @@
           "enabled": true
         },
         "stockFilter": {
-          "enabled": true
+          "enabled": false
         }
       },
       "quickFilters": {
@@ -7244,9 +7294,10 @@
         "showCategories": true,
         "showCollections": true,
         "showBrands": true,
-        "categoryLimit": 8,
-        "collectionLimit": 6,
-        "brandLimit": 6,
+        "categoryLimit": 20,
+        "collectionLimit": 20,
+        "brandLimit": 20,
+        "imageSource": "product",
         "style": {
           "cardWidth": 160,
           "cardHeight": 220,
@@ -7258,13 +7309,27 @@
           "titleColor": null,
           "valueColor": null,
           "activeValueColor": null,
+          "cardBackgroundColor": null,
+          "cardBorderColor": null,
+          "cardBorderRadius": "sm",
+          "cardActiveBorderColor": null,
+          "cardActiveBgColor": null,
+          "cardActiveTextColor": null,
+          "cardTextStripBg": null,
+          "cardHoverBorderColor": null,
+          "cardHoverShadow": "md",
+          "sectionTitleColor": null,
+          "arrowBackgroundColor": null,
+          "arrowIconColor": null,
+          "groupLabelColor": null,
+          "checkBadgeColor": null,
           "shopAllButtonBackgroundColor": null,
           "shopAllButtonTextColor": null,
           "shopAllButtonHoverBackgroundColor": null,
           "shopAllButtonBorderColor": null,
           "navbarMode": {
-            "buttonPaddingX": 14,
-            "buttonPaddingY": 6,
+            "buttonPaddingX": 16,
+            "buttonPaddingY": 8,
             "buttonFontSize": "xs",
             "buttonFontWeight": "semibold",
             "buttonBorderRadius": "full",
@@ -7276,24 +7341,24 @@
             "separatorHeight": 24,
             "containerPaddingY": 10,
             "backgroundColor": null,
-            "borderTopColor": null,
-            "borderBottomColor": null,
+            "borderTopColor": "#1C1C1F",
+            "borderBottomColor": "#1C1C1F",
             "shadowColor": null
           }
         }
       },
       "promoPopup": {
         "enabled": true,
-        "title": "Special Offer!",
-        "body": "Up to 30% off on selected pet accessories. Don't miss out!",
+        "title": "Welcome to Protein House!",
+        "body": "Enjoy up to 30% off on selected sports supplements. Your pet deserves the best.",
         "badge": "Up to 30% Off",
         "imageUrl": null,
         "backgroundImageUrl": null,
-        "ctaText": "View Offers",
+        "ctaText": "Shop Deals",
         "ctaLink": "/products?onSale=true",
         "itemsOnSaleText": "{count} {count, plural, =1 {item} other {items}} on sale",
         "maybeLaterText": "Maybe later",
-        "delaySeconds": 2,
+        "delaySeconds": 3,
         "showOncePerSession": false,
         "ttlHours": 24,
         "excludeCheckout": true,
@@ -7302,75 +7367,75 @@
       },
       "ui": {
         "buttons": {
-          "borderRadius": "md",
+          "borderRadius": "lg",
           "primary": {
-            "backgroundColor": null,
-            "textColor": null,
-            "hoverBackgroundColor": null,
+            "backgroundColor": "#B8922E",
+            "textColor": "#FFFFFF",
+            "hoverBackgroundColor": "#243447",
             "borderColor": null
           },
           "secondary": {
-            "backgroundColor": null,
-            "textColor": null,
-            "hoverBackgroundColor": null,
+            "backgroundColor": "#F59E0B",
+            "textColor": "#B8922E",
+            "hoverBackgroundColor": "#B89545",
             "borderColor": null
           },
           "outline": {
-            "backgroundColor": null,
-            "textColor": null,
-            "hoverBackgroundColor": null,
-            "borderColor": null
+            "backgroundColor": "transparent",
+            "textColor": "#B8922E",
+            "hoverBackgroundColor": "#F3F0EB",
+            "borderColor": "#B8922E"
           },
           "danger": {
-            "backgroundColor": null,
-            "textColor": null,
-            "hoverBackgroundColor": null,
+            "backgroundColor": "#8B3A3A",
+            "textColor": "#FFFFFF",
+            "hoverBackgroundColor": "#7A3030",
             "borderColor": null
           }
         },
         "badges": {
           "sale": {
-            "backgroundColor": "#DC2626",
+            "backgroundColor": "#8B3A3A",
             "textColor": "#FFFFFF",
             "borderRadius": "sm"
           },
           "new": {
-            "backgroundColor": "#059669",
+            "backgroundColor": "#0F172A",
             "textColor": "#FFFFFF",
             "borderRadius": "sm"
           },
           "outOfStock": {
-            "backgroundColor": "#6B7280",
+            "backgroundColor": "#7A756E",
             "textColor": "#FFFFFF",
             "borderRadius": "sm"
           },
           "lowStock": {
-            "backgroundColor": "#D97706",
-            "textColor": "#FFFFFF",
+            "backgroundColor": "#F59E0B",
+            "textColor": "#B8922E",
             "borderRadius": "sm"
           },
           "discount": {
-            "backgroundColor": "#DC2626",
+            "backgroundColor": "#8B3A3A",
             "textColor": "#FFFFFF",
             "borderRadius": "full"
           },
           "featured": {
-            "backgroundColor": "#E78F21",
-            "textColor": "#FFFFFF",
+            "backgroundColor": "#F59E0B",
+            "textColor": "#B8922E",
             "borderRadius": "sm"
           }
         },
         "inputs": {
-          "borderRadius": "md",
-          "borderColor": null,
-          "focusBorderColor": null,
-          "focusRingColor": null,
-          "backgroundColor": null,
-          "placeholderColor": null
+          "borderRadius": "lg",
+          "borderColor": "#1C1C1F",
+          "focusBorderColor": "#B8922E",
+          "focusRingColor": "#F59E0B",
+          "backgroundColor": "#FFFFFF",
+          "placeholderColor": "#7A756E"
         },
         "checkbox": {
-          "checkedBackgroundColor": null,
-          "borderRadius": "sm"
+          "checkedBackgroundColor": "#B8922E",
+          "borderRadius": "md"
         },
         "productCard": {
           "borderRadius": "lg",
@@ -7384,91 +7449,124 @@
           "badgePosition": "top-start",
           "showBrandLabel": true,
           "showRating": true,
-          "imageFit": "cover"
+          "imageFit": "cover",
+          "textStyles": {
+            "name": {
+              "fontSize": "sm",
+              "fontWeight": "semibold",
+              "color": null
+            },
+            "price": {
+              "fontSize": "base",
+              "fontWeight": "bold",
+              "color": "#B8922E"
+            },
+            "originalPrice": {
+              "fontSize": "sm",
+              "fontWeight": "normal",
+              "color": "#7A756E"
+            },
+            "reviewCount": {
+              "fontSize": "xs",
+              "fontWeight": "normal",
+              "color": "#7A756E"
+            }
+          },
+          "showPrice": true,
+          "showOriginalPrice": true,
+          "showCategory": true,
+          "showDeliveryEstimate": true,
+          "showShareButton": true,
+          "showDiscountBadge": true,
+          "showOutOfStockBadge": true,
+          "showLowStockBadge": true,
+          "showNewBadge": true,
+          "titleMaxLines": 2,
+          "contentAlignment": "start"
         },
         "toasts": {
           "position": "bottom-right",
-          "borderRadius": "md",
+          "borderRadius": "lg",
           "success": {
-            "backgroundColor": null,
-            "textColor": null,
-            "iconColor": null
+            "backgroundColor": "#0F172A",
+            "textColor": "#FFFFFF",
+            "iconColor": "#FFFFFF"
           },
           "error": {
-            "backgroundColor": null,
-            "textColor": null,
-            "iconColor": null
+            "backgroundColor": "#8B3A3A",
+            "textColor": "#FFFFFF",
+            "iconColor": "#FFFFFF"
           },
           "warning": {
-            "backgroundColor": null,
-            "textColor": null,
-            "iconColor": null
+            "backgroundColor": "#F59E0B",
+            "textColor": "#B8922E",
+            "iconColor": "#B8922E"
           },
           "info": {
-            "backgroundColor": null,
-            "textColor": null,
-            "iconColor": null
+            "backgroundColor": "#B8922E",
+            "textColor": "#FFFFFF",
+            "iconColor": "#FFFFFF"
           }
         },
         "icons": {
           "style": "outline",
-          "defaultColor": null,
-          "activeColor": null
+          "defaultColor": "#7A756E",
+          "activeColor": "#B8922E"
         },
         "activeFiltersTags": {
-          "containerBackgroundColor": null,
-          "containerBorderColor": null,
+          "containerBackgroundColor": "#FBF9F6",
+          "containerBorderColor": "#1C1C1F",
           "containerBorderRadius": "lg",
           "containerPadding": 16,
           "containerShadow": "sm",
           "titleFontSize": "sm",
           "titleFontWeight": "semibold",
-          "titleColor": null,
+          "titleColor": "#0F1419",
           "clearAllButtonFontSize": "xs",
           "clearAllButtonFontWeight": "medium",
-          "clearAllButtonColor": null,
-          "clearAllButtonHoverColor": null,
-          "tagBackgroundColor": null,
-          "tagBorderColor": null,
-          "tagTextColor": null,
-          "tagHoverBackgroundColor": null,
-          "tagHoverBorderColor": null,
+          "clearAllButtonColor": "#8B3A3A",
+          "clearAllButtonHoverColor": "#7A3030",
+          "tagBackgroundColor": "#B8922E",
+          "tagBorderColor": "#B8922E",
+          "tagTextColor": "#FFFFFF",
+          "tagHoverBackgroundColor": "#243447",
+          "tagHoverBorderColor": "#243447",
           "tagBorderRadius": "full",
-          "tagPaddingX": 12,
+          "tagPaddingX": 14,
           "tagPaddingY": 6,
           "tagFontSize": "xs",
           "tagFontWeight": "medium",
           "tagGap": 8,
           "removeButtonSize": 16,
-          "removeButtonColor": null,
-          "removeButtonHoverBackgroundColor": null,
-          "removeButtonHoverColor": null,
+          "removeButtonColor": "#FFFFFF",
+          "removeButtonHoverBackgroundColor": "#111D2B",
+          "removeButtonHoverColor": "#FFFFFF",
           "removeButtonBorderRadius": "full"
         },
         "filterSidebar": {
-          "checkboxAccentColor": null,
-          "sectionTitleFontSize": "xs",
-          "sectionTitleFontWeight": "semibold",
-          "sectionTitleColor": null,
-          "sectionTitleHoverColor": null,
-          "chevronColor": null,
-          "chevronHoverColor": null,
+          "checkboxAccentColor": "#F59E0B",
+          "sectionTitleFontSize": "sm",
+          "sectionTitleFontWeight": "bold",
+          "sectionTitleColor": "#0F1419",
+          "sectionTitleHoverColor": "#B8922E",
+          "chevronColor": "#7A756E",
+          "chevronHoverColor": "#B8922E",
           "itemTextFontSize": "xs",
-          "itemTextColor": null,
-          "itemCountColor": null,
-          "sizeChipSelectedBg": null,
-          "sizeChipSelectedText": null,
-          "sizeChipSelectedBorder": null,
-          "clearAllButtonBg": null,
-          "clearAllButtonText": null,
-          "clearAllButtonBorder": null,
-          "clearAllButtonHoverBg": null,
-          "clearAllButtonHoverText": null,
-          "priceInputFocusRingColor": null,
-          "priceQuickButtonActiveBg": null,
-          "priceQuickButtonActiveText": null,
-          "mobileShowResultsBg": null,
-          "mobileShowResultsText": null
+          "itemTextColor": "#0F1419",
+          "itemCountColor": "#7A756E",
+          "sizeChipSelectedBg": "#B8922E",
+          "sizeChipSelectedText": "#FFFFFF",
+          "sizeChipSelectedBorder": "#B8922E",
+          "clearAllButtonBg": "transparent",
+          "clearAllButtonText": "#8B3A3A",
+          "clearAllButtonBorder": "#8B3A3A",
+          "clearAllButtonHoverBg": "#8B3A3A",
+          "clearAllButtonHoverText": "#FFFFFF",
+          "priceInputFocusRingColor": "#F59E0B",
+          "priceQuickButtonActiveBg": "#B8922E",
+          "priceQuickButtonActiveText": "#FFFFFF",
+          "mobileShowResultsBg": "#B8922E",
+          "mobileShowResultsText": "#FFFFFF"
         },
         "cart": {
           "displayMode": "drawer",
@@ -7479,6 +7577,30 @@
         "sectionViewAllButton": {
           "style": "pill",
           "icon": "chevron"
+        },
+        "floatingButtons": {
+          "whatsapp": {
+            "enabled": false,
+            "side": "start",
+            "order": 4
+          },
+          "recentlyViewed": {
+            "enabled": true,
+            "side": "end",
+            "order": 2
+          },
+          "wishlist": {
+            "enabled": true,
+            "side": "end",
+            "order": 3
+          },
+          "scrollToTop": {
+            "enabled": true,
+            "side": "end",
+            "order": 1
+          },
+          "gap": 0.75,
+          "baseOffset": 7
         }
       },
       "content": {
@@ -7496,9 +7618,12 @@
           "freeShippingThresholdReached": "You've unlocked free shipping!",
           "addXMoreForFreeShipping": "Add {amount} more for free shipping!",
           "unlockedFreeShipping": "You've unlocked free shipping!",
+          "freeShippingSelectMethods": "You may qualify for free shipping on select methods",
           "saveForLaterButton": "Save for Later",
           "moveToCartButton": "Move to Cart",
           "deleteButton": "Delete",
+          "removeButton": "Remove",
+          "removingText": "Removing",
           "itemSingular": "item",
           "itemPlural": "items",
           "orderSummaryTitle": "Order Summary",
@@ -7517,6 +7642,7 @@
           "promoCodeLabel": "Promo Code",
           "promoCodePlaceholder": "Enter code",
           "promoCodeApplyButton": "Apply",
+          "eligibleForFreeShipping": "Eligible for free shipping",
           "subtotalLabel": "Subtotal",
           "subtotalLabelWithCount": "Subtotal ({count} items)",
           "shippingLabel": "Shipping",
@@ -7526,6 +7652,8 @@
           "selectItemsButton": "Select Items",
           "preparingCheckout": "Preparing...",
           "loadingCheckout": "Loading...",
+          "originalSubtotalLabel": "Subtotal",
+          "discountedSubtotalLabel": "Discounted subtotal",
           "secureCheckoutText": "Secure Checkout",
           "sslEncryptedText": "SSL Encrypted",
           "acceptedPaymentMethods": "Accepted Payment Methods",
@@ -7533,9 +7661,19 @@
           "itemsSavedForLater": "{count} item(s) saved for later",
           "viewCartButton": "View Full Cart",
           "shippingNote": "Shipping and taxes calculated at checkout",
+          "youSaveLabel": "You save",
           "giftLabel": "Gift",
           "giftAddedMessage": "A free gift has been added to your cart.",
-          "giftRemoveHint": "(You can remove it)"
+          "giftRemoveHint": "(You can remove it)",
+          "deliverySummaryLabel": "All items arrive within {days} business days",
+          "promoCodeVoucherNotApplicableError": "This voucher is not applicable to your order",
+          "promoCodeGiftCardNotApplicableError": "This gift card is not applicable",
+          "promoCodeNotFoundError": "Code not found. Please check and try again",
+          "promoCodeInvalidError": "Invalid code",
+          "promoCodeGenericError": "Could not apply code. Please try again",
+          "promoCodeAppliedSuccess": "Promo code applied!",
+          "promoCodeRemovedSuccess": "Promo code removed",
+          "promoCodeRemoveError": "Failed to remove code"
         },
         "product": {
           "addToCartButton": "Add to Cart",
@@ -7554,7 +7692,11 @@
           "viewCartLink": "View Cart →",
           "quickAddButton": "Quick add",
           "viewFullPageLink": "View full page",
-          "loadingProductText": "Loading product..."
+          "loadingProductText": "Loading product...",
+          "productDetailsTitle": "Product Details",
+          "closeButton": "Close",
+          "productNotFoundText": "Product not found",
+          "errorLoadingProductText": "Failed to load product"
         },
         "account": {
           "signInTitle": "Welcome Back",
@@ -7656,8 +7798,8 @@
         },
         "general": {
           "searchPlaceholder": "Search products...",
-          "newsletterTitle": "Subscribe to Our Newsletter",
-          "newsletterDescription": "Get updates on new products and offers",
+          "newsletterTitle": "Join the Pack",
+          "newsletterDescription": "Get sports nutrition tips, exclusive offers & new product alerts",
           "newsletterButton": "Subscribe",
           "newsletterSuccess": "Thanks for subscribing!",
           "newsletterPlaceholder": "Enter your email",
@@ -7692,8 +7834,8 @@
           "subcategoriesLabel": "Subcategories",
           "viewCategoryButton": "View All",
           "productsLabel": "products",
-          "brandsTitle": "Leading Brands",
-          "brandsSubtitle": "Shop from your favorite brands",
+          "brandsTitle": "Trusted Brands",
+          "brandsSubtitle": "Shop from the world's best pet brands",
           "testimonialsTitle": "What Our Customers Say",
           "testimonialsSubtitle": "Real reviews from real customers",
           "averageRatingLabel": "Average Rating",
@@ -7711,8 +7853,8 @@
           "brandsStatLabel": "Brands",
           "stylesStatLabel": "Styles",
           "ratingStatLabel": "Rating",
-          "heroDefaultTitle": "Multi-brand performance",
-          "heroDefaultSubtitle": "Performance footwear and sportswear curated from the world's most trusted labels.",
+          "heroDefaultTitle": "Welcome to Protein House",
+          "heroDefaultSubtitle": "Modern, curated accessories for dogs & cats. Designed with love, delivered with care.",
           "watchVideoButton": "Watch Video",
           "shopNowButton": "Shop Now",
           "exploreText": "Explore",
@@ -7747,7 +7889,7 @@
           "dontMissOutTitle": "Don't miss out",
           "shopSaleItemsButton": "Shop Sale Items",
           "allProductsButton": "Products",
-          "promoDescriptionFallback": "Premium pet accessories for dogs and cats. Limited time collection.",
+          "promoDescriptionFallback": "Premium sports supplements for your fitness goals. Limited time collection.",
           "recentlyViewedSubLabel": "Your History",
           "recentlyViewedTitle": "Recently Viewed",
           "recentlyViewedSubtitle": "Products you've looked at recently"
@@ -7778,6 +7920,8 @@
           "addressLine2Label": "Street address (continue)",
           "cityLabel": "City",
           "countryLabel": "Country",
+          "countryPlaceholder": "Search country...",
+          "noCountryFound": "No country found",
           "stateLabel": "State",
           "postalCodeLabel": "Postal code",
           "phoneLabel": "Phone number",
@@ -7793,10 +7937,31 @@
           "billingAddressTitle": "Billing Address",
           "billingAddressSubtitle": "For your invoice",
           "useSameAsShipping": "Use shipping address as billing address",
+          "noShippingToCountry": "Sorry, we don't currently ship to {country}. Please use a different shipping address.",
+          "useSavedAddressButton": "Use a saved address",
           "deliveryMethodsTitle": "Delivery methods",
+          "deliveryMethodsSubtitle": "Choose shipping speed",
+          "noShippingMethodsAvailable": "No shipping methods available for this address",
           "businessDaysText": "{min}-{max} business days",
           "freeShippingLabel": "Free",
+          "deliveryFreeShippingUnlocked": "Free shipping applied!",
+          "deliveryFreeShippingNudge": "You've unlocked free shipping! Select {methodName} to save {amount}",
+          "deliveryAddMoreForFreeShipping": "Add {amount} more for free shipping",
+          "deliveryFreeShippingSelectMethods": "Free shipping is available on select delivery methods",
+          "shippingSavingsMessage": "You saved {amount} on shipping!",
           "noDeliveryMethodsText": "No delivery methods available",
+          "fetchingShippingRates": "Calculating shipping rates...",
+          "updatingShippingRates": "Updating shipping rates for new address...",
+          "calculateShippingButton": "Calculate Shipping Rates",
+          "calculatingShippingText": "Calculating shipping rates...",
+          "recalculateRatesButton": "Recalculate",
+          "addressChangedNotice": "Shipping address changed since last calculation",
+          "shippingFetchErrorText": "Could not fetch shipping rates",
+          "shippingFetchErrorHint": "Please verify your shipping address is correct and try again.",
+          "noShippingMethodsHint": "Please check that your address details are correct, or try a different address.",
+          "tryAgainButton": "Try Again",
+          "shippingAddressDetected": "Shipping address detected",
+          "calculateShippingHint": "Click below to see available shipping options and pricing for your address.",
           "freeShippingVoucherNotApplicable": "Free shipping voucher is not applicable with this delivery method. Choose a free shipping method to use your voucher.",
           "freeShippingAppliedWithMethod": "Free shipping applied with this method.",
           "paymentTitle": "Payment",
@@ -7812,9 +7977,19 @@
           "invalidPaymentDataError": "Invalid payment data received. Please try again.",
           "paymentInitIncompleteError": "Payment initialization incomplete. Please try again.",
           "paymentConfirmationFailedError": "Payment confirmation failed. Please try again.",
+          "paymentTimeoutError": "Payment timed out. Please try again.",
           "paymentFailedError": "Payment failed",
           "unexpectedPaymentError": "An unexpected error occurred with your payment",
           "paymentSuccessOrderFailedError": "Payment was successful but order processing failed. Please contact support.",
+          "cardDeclinedError": "Your payment method was declined. Please try a different payment method.",
+          "cardExpiredError": "Your card has expired. Please use a different card.",
+          "insufficientFundsError": "Insufficient funds. Please use a different payment method.",
+          "invalidCardError": "Invalid card number. Please check your card details and try again.",
+          "transactionRefusedError": "This transaction was refused. Please try a different payment method.",
+          "verificationRequiredError": "Additional verification is required. Please complete the verification step.",
+          "paymentNotApprovedError": "The payment was not approved. Please try again.",
+          "paypalTemporaryError": "PayPal is experiencing temporary issues. Please try again in a few minutes.",
+          "genericPaymentDeclineError": "Payment failed. Please try again or use a different payment method.",
           "orderSummaryTitle": "Order Summary",
           "itemsCountSingular": "1 item",
           "itemsCountPlural": "{count} items",
@@ -7827,7 +8002,16 @@
           "removePromoButton": "Remove",
           "oneVoucherPerOrderHint": "One voucher per order. Gift cards can be combined.",
           "replaceVoucherConfirm": "Only one voucher can be used per order. Applying this code will replace {code}. Continue?",
+          "eligibleForFreeShipping": "Eligible for free shipping",
           "giftCardLabel": "Gift card",
+          "promoCodeVoucherNotApplicableError": "This voucher is not applicable to your order",
+          "promoCodeGiftCardNotApplicableError": "This gift card is not applicable",
+          "promoCodeNotFoundError": "Code not found. Please check and try again",
+          "promoCodeInvalidError": "Invalid code",
+          "promoCodeGenericError": "Could not apply code. Please try again",
+          "promoCodeAppliedSuccess": "Promo code applied!",
+          "promoCodeRemovedSuccess": "Promo code removed",
+          "promoCodeRemoveError": "Failed to remove code",
           "subtotalLabel": "Subtotal",
           "shippingLabel": "Shipping",
           "taxLabel": "Tax",
@@ -7841,6 +8025,7 @@
           "placeOrder": "Place Order",
           "placeOrderButton": "Place Order",
           "processingOrderText": "Processing your order...",
+          "doNotClosePageText": "Please do not close this page",
           "agreementText": "By placing this order, you agree to our",
           "almostDoneText": "Almost done…",
           "orderConfirmation": "Order Confirmation",
@@ -7865,6 +8050,8 @@
           "deliveryMessage": "Your order will arrive at your doorstep!",
           "printReceiptButton": "Print Receipt",
           "thankYouPurchaseMessage": "Thank you for your purchase! If you have any questions, please contact our support team.",
+          "accountCreatedTitle": "Account Created",
+          "accountCreatedDescription": "Your account has been set up with your shipping address saved. Sign in anytime with your email and password.",
           "orderDetailsTitle": "Order Details",
           "contactLabel": "Contact",
           "authorizedStatus": "Authorized",
@@ -7879,6 +8066,7 @@
           "invalidEmailError": "Please enter a valid email",
           "invalidPhoneError": "Please enter a valid phone number",
           "selectDeliveryMethodError": "Please select a delivery method",
+          "deliveryMethodUnavailable": "Your selected shipping method is no longer available for the current cart. Please choose another.",
           "selectPaymentMethodError": "Please select a payment method",
           "noCheckoutFoundTitle": "No checkout found",
           "noCheckoutFoundMessage": "It looks like you haven't started a checkout yet. Add some items to your cart first.",
@@ -7909,13 +8097,34 @@
           "contactDetailsTitle": "Contact details",
           "createAccountLabel": "I want to create account",
           "passwordMinChars": "Password (minimum 8 characters)",
+          "resetPasswordTitle": "Reset Password",
+          "rememberedPasswordText": "Remembered your password?",
+          "provideNewPasswordText": "Provide a new password",
+          "noSavedAddressesText": "No saved addresses",
+          "voucherLabel": "Voucher",
+          "giftCardMaskedLabel": "Gift card ending in {last4}",
+          "emptyCartTitle": "Your cart is empty",
+          "emptyCartMessage": "You haven't added any items to your cart yet.",
+          "browseProductsButton": "Browse Products",
+          "goToHomepageButton": "Go to Homepage",
+          "needHelpText": "Need help?",
+          "freeShippingBadge": "Free Shipping",
+          "easyReturnsBadge": "Easy Returns",
+          "securePaymentBadge": "Secure Payment",
+          "orderNotFoundTitle": "Order not found",
+          "orderNotFoundMessage": "We couldn't find your order. Please check the order number and try again.",
           "sslEncryptionText": "Secure 256-bit SSL encryption",
           "privacyPolicy": "Privacy Policy",
-          "termsOfService": "Terms of Service",
+          "termsOfService": "By placing your order, you agree to our terms and conditions and privacy policy",
           "securityNote": "Protected by SSL encryption • Your payment details are secure",
           "privacyPolicyLinkText": "Privacy Policy",
           "termsOfServiceLinkText": "Terms of Service",
-          "sslEncryptionMessage": "Protected by SSL encryption • Your payment details are secure"
+          "sslEncryptionMessage": "Protected by SSL encryption • Your payment details are secure",
+          "continueButtonText": "Continue",
+          "emptyCartConfirmTitle": "Remove last item?",
+          "emptyCartConfirmMessage": "This will empty your cart and take you back to the store.",
+          "emptyCartConfirmButton": "Empty cart",
+          "emptyCartCancelButton": "Keep shopping"
         },
         "filters": {
           "sectionTitle": "Filters",
@@ -7945,12 +8154,14 @@
           "colorPlural": "colors",
           "sizeSingular": "size",
           "sizePlural": "sizes",
+          "sortRecommended": "Recommended",
           "sortAtoZ": "A to Z",
           "sortZtoA": "Z to A",
           "sortPriceLowHigh": "Price: Low to High",
           "sortPriceHighLow": "Price: High to Low",
           "sortNewest": "Newest",
           "sortSale": "Sale",
+          "sortFastDelivery": "Fastest Delivery",
           "noProductsTitle": "No products found",
           "noProductsWithFilters": "Try adjusting your filters",
           "noProductsEmpty": "Check back later for new products",
@@ -7959,21 +8170,21 @@
           "seenAllProducts": "You've seen all {count} products",
           "tryAdjustingFilters": "Try adjusting your filters for more results",
           "searchPlaceholder": "Search products",
-          "searchClearAriaLabel": "",
-          "searchInputAriaLabel": "",
+          "searchClearAriaLabel": "Clear search",
+          "searchInputAriaLabel": "Search products",
           "searchProductsTitle": "Search Products",
           "searchResultsTitle": "Search Results",
           "resultsCountText": "Found {count} results",
           "noResultsMessage": "No results found for \"{query}\"",
           "resultsText": "results",
-          "itemsAvailable": "items available",
+          "itemsAvailable": "items",
           "productsPageTitle": "Products",
           "discoverProducts": "Discover Products",
           "shopAllButton": "Shop All",
           "quickAddButton": "Quick Add",
           "scrollLeftAriaLabel": "Scroll left",
           "scrollRightAriaLabel": "Scroll right",
-          "checkOutOurProducts": "Check Out Our Products",
+          "checkOutOurProducts": "Check Out Our Catalog",
           "minimumRating": "Minimum Rating",
           "starsAndUp": "{count} stars and up",
           "starAndUp": "1 star and up",
@@ -7985,10 +8196,12 @@
           "clearPriceFilter": "Clear",
           "applyPriceFilter": "Apply",
           "priceUnderLabel": "Under",
-          "priceAboveLabel": "+"
+          "priceAboveLabel": "+",
+          "priceFromLabel": "From",
+          "priceUpToLabel": "Up to"
         },
         "productDetail": {
-          "freeShipping": "Free Shipping",
+          "freeShipping": "Included in Free Shipping",
           "securePayment": "Secure Payment",
           "easyReturns": "Easy Returns",
           "descriptionTab": "Description",
@@ -8042,9 +8255,21 @@
           "hoursAgo": "{count} hours ago",
           "daysAgo": "{count} days ago",
           "freeStandardShippingTitle": "Free Standard Shipping",
-          "freeStandardShippingDescription": "For orders over {freeShippingThreshold}. Delivery within 5-7 business days.",
+          "freeStandardShippingDescription": "For orders over $75. Delivery within 5-7 business days.",
           "expressShippingTitle": "Express Shipping",
           "expressShippingDescription": "{price}. Delivery within 2-3 business days.",
+          "deliveryEstimateLabel": "Ships in {days} business days",
+          "estimatedDeliveryPrefix": "Estimated delivery",
+          "businessDaysLabel": "business days",
+          "trackOrderLabel": "Track your order",
+          "shippingEstimatedDelivery": "Estimated delivery: {days} business days",
+          "shippingFreeLabel": "Included in Free Shipping",
+          "shippingProcessingTime": "Processing time: 1-3 business days",
+          "shippingTrackingNotice": "You'll receive tracking information via email once your order ships",
+          "shippingWarehouseNotice": "This item ships from our international fulfillment center",
+          "shippingReturnPolicyNote": "Returns accepted within 30 days of delivery",
+          "shippingCarrierLabel": "Carrier: {carrier}",
+          "shippingExtendedReturnNote": "Please note: return shipping for international items may take additional time",
           "loadingReviews": "Loading reviews...",
           "reviewCountText": "{count} reviews",
           "noReviewsMatchFilters": "No reviews match your filters.",
@@ -8079,12 +8304,12 @@
           "sizeGuideSubtitle": "Find your perfect fit",
           "sizeGuideDogsTab": "Dogs",
           "sizeGuideCatsTab": "Cats",
-          "sizeGuideCollarsCategory": "Collars & Harnesses",
           "sizeGuideHowToMeasure": "How to Measure",
           "sizeGuideMeasureTip": "Stand on a piece of paper with your heel against a wall. Mark the longest toe and measure the distance in centimeters. Compare with the CM column above.",
           "sizeGuideProTip": "Pro Tip: Measure your feet in the evening when they're at their largest. If you're between sizes, go up half a size for the most comfortable fit.",
-          "sizeGuideBedCategory": "Beds",
           "sizeGuideClothingCategory": "Clothing",
+          "sizeGuideCollarsCategory": "Collars & Harnesses",
+          "sizeGuideBedCategory": "Beds",
           "sizeGuideClothingMeasureTip": "Use a soft measuring tape. For chest, measure around the fullest part. For waist, measure at the natural waistline (above belly button). Keep the tape snug but not tight.",
           "sizeGuideClothingProTip": "Pro Tip: If you're between sizes, size up for a relaxed fit or size down for a snug fit. Check the fabric composition — stretchy materials are more forgiving.",
           "specificationsTab": "Specifications",
@@ -8261,15 +8486,15 @@
           "faqs": [
             {
               "question": "What are your shipping times?",
-              "answer": "Most orders ship within 24 hours. Standard delivery takes 3-5 business days, and express delivery takes 1-2 business days."
+              "answer": "Standard shipping takes 3-7 business days. Express shipping is available for 1-3 business day delivery. International orders typically take 7-15 business days."
             },
             {
-              "question": "Do you offer international shipping?",
-              "answer": "Yes! We ship worldwide. International delivery typically takes 7-14 business days depending on the destination."
+              "question": "Are your products safe for pets?",
+              "answer": "Absolutely! All our products are made from pet-safe, non-toxic materials. We work with veterinarians to ensure every item meets safety standards."
             },
             {
               "question": "What is your return policy?",
-              "answer": "We offer a 30-day return policy on all unused items in original packaging. Returns are free within the continental US."
+              "answer": "We offer a 30-day return policy on all unused items in their original packaging. If your pet doesn't love it, we'll make it right."
             }
           ],
           "viewAllFaqs": "View All FAQs",
@@ -8288,13 +8513,20 @@
           "billingAddress": "Billing Address",
           "savedAddress": "Saved Address",
           "setAsDefault": "Set as Default",
+          "setAsDefaultShipping": "Set as Default Shipping",
+          "setAsDefaultBilling": "Set as Default Billing",
           "noAddresses": "No addresses saved",
           "noAddressesMessage": "Add your first address to speed up checkout",
           "noAddressesCheckoutMessage": "Your shipping and billing addresses will be saved here when you complete checkout.",
           "addNewAddressTitle": "Add New Address",
           "addAddressDescription": "Adding new addresses requires going through checkout. Your addresses will be automatically saved when you complete a purchase.",
           "editButton": "Edit",
+          "editAddressTitle": "Edit Address",
           "deleteButton": "Delete",
+          "deleteConfirmTitle": "Delete address?",
+          "deleteConfirmMessage": "This address will be permanently removed from your account.",
+          "saving": "Saving…",
+          "saveChanges": "Save changes",
           "continueShoppingButton": "Continue Shopping",
           "startShopping": "Start Shopping",
           "cancel": "Cancel"
@@ -8374,14 +8606,24 @@
         "navbar": {
           "selectChannel": "Select Channel/Currency",
           "searchPlaceholder": "Search...",
-          "searchClearAriaLabel": "",
-          "searchInputAriaLabel": "",
+          "searchClearAriaLabel": "Clear search",
+          "searchInputAriaLabel": "Search products",
           "bannerDismissAriaLabel": "Dismiss banner",
           "bannerPrevAriaLabel": "Previous banner",
           "bannerNextAriaLabel": "Next banner",
           "viewAllResultsFor": "View all results for",
           "recentlySearchedLabel": "Recent Searches",
           "recentSearchesClearLabel": "Clear",
+          "popularSearchesLabel": "Popular Searches",
+          "popularSearchTerms": [
+            "Dog Toys",
+            "Cat Toys",
+            "Beds & Blankets",
+            "Sale"
+          ],
+          "noResultsText": "No products found",
+          "noResultsHint": "Try searching with different keywords",
+          "searchForText": "Search for",
           "cartLabel": "Cart",
           "accountLabel": "Account",
           "menuLabel": "Menu",
@@ -8444,45 +8686,604 @@
           "marketingDescription": "Used for targeted advertising and remarketing.",
           "savePreferencesButton": "Save Preferences",
           "policyLinkText": "Cookie Policy"
+        },
+        "pagination": {
+          "previousButton": "Previous",
+          "nextButton": "Next",
+          "pageLabel": "Page {current} of {total}"
+        },
+        "faq": {
+          "heroTitle": "How Can We Help?",
+          "heroDescription": "Find answers to frequently asked questions about orders, shipping, returns, and more.",
+          "searchPlaceholder": "Search for answers...",
+          "categoriesLabel": "Categories",
+          "resultsLabel": "{count} result(s) for \"{query}\"",
+          "noResultsText": "No results found. Try a different search term or",
+          "contactUsLink": "contact us",
+          "stillHaveQuestionsTitle": "Still Have Questions?",
+          "stillHaveQuestionsDescription": "Our support team is available 24/7 to help you out.",
+          "contactUsButton": "Contact Us",
+          "callUsButton": "Call Us",
+          "categories": [
+            {
+              "name": "Orders & Shipping",
+              "icon": "📦",
+              "items": [
+                {
+                  "question": "How long does shipping take?",
+                  "answer": "Standard shipping takes 3-7 business days. Express shipping is available for 1-3 business day delivery. International orders typically arrive within 7-15 business days."
+                },
+                {
+                  "question": "Do you offer free shipping?",
+                  "answer": "Yes! We offer free standard shipping on all orders over $50."
+                },
+                {
+                  "question": "Can I track my order?",
+                  "answer": "Once your order ships, you'll receive an email with tracking information. You can also track your order in your account dashboard."
+                },
+                {
+                  "question": "Do you ship internationally?",
+                  "answer": "Yes, we ship to most countries worldwide. Shipping rates and delivery times vary by location."
+                },
+                {
+                  "question": "Can I change or cancel my order?",
+                  "answer": "You can modify or cancel your order within 1 hour of placing it. After that, orders enter processing and cannot be changed."
+                }
+              ]
+            },
+            {
+              "name": "Returns & Exchanges",
+              "icon": "🔄",
+              "items": [
+                {
+                  "question": "What is your return policy?",
+                  "answer": "We offer a 30-day return policy on all unused items in their original packaging. If your pet doesn't love it, we'll make it right."
+                },
+                {
+                  "question": "How do I return an item?",
+                  "answer": "Contact support@proteinhouse.co to initiate a return. We'll send you a prepaid shipping label via email."
+                },
+                {
+                  "question": "Are returns free?",
+                  "answer": "Returns within the US are free. For international returns, customers are responsible for return shipping costs."
+                },
+                {
+                  "question": "How long do refunds take?",
+                  "answer": "Once we receive your return, please allow 3-5 business days for inspection. Refunds may take an additional 5-10 business days to appear."
+                }
+              ]
+            },
+            {
+              "name": "Products & Safety",
+              "icon": "🐾",
+              "items": [
+                {
+                  "question": "Are your products safe for pets?",
+                  "answer": "Absolutely! All our products are made from pet-safe, non-toxic materials. We work with veterinarians to ensure every item meets safety standards."
+                },
+                {
+                  "question": "How do I choose the right size?",
+                  "answer": "Each product page includes a detailed size guide. Measure your pet and compare with our size charts for the best fit."
+                },
+                {
+                  "question": "Do you offer product warranties?",
+                  "answer": "Yes! Most products come with a manufacturer warranty against defects. Details are on individual product pages."
+                },
+                {
+                  "question": "Can I get notified when an item is back in stock?",
+                  "answer": "Yes! On any sold-out product page, you'll find a 'Notify Me' button."
+                }
+              ]
+            },
+            {
+              "name": "Payment & Security",
+              "icon": "🔒",
+              "items": [
+                {
+                  "question": "What payment methods do you accept?",
+                  "answer": "We accept all major credit cards, PayPal, Apple Pay, Google Pay, and gift cards."
+                },
+                {
+                  "question": "Is my payment information secure?",
+                  "answer": "We use industry-standard SSL encryption. All payments are processed through secure, PCI-compliant processors."
+                },
+                {
+                  "question": "Do you offer gift cards?",
+                  "answer": "Yes! Gift cards are available in various amounts and make perfect gifts for pet parents."
+                }
+              ]
+            },
+            {
+              "name": "Account",
+              "icon": "👤",
+              "items": [
+                {
+                  "question": "Do I need an account to order?",
+                  "answer": "No, you can checkout as a guest. However, creating an account lets you track orders, save addresses, and manage your wishlist."
+                },
+                {
+                  "question": "How do I reset my password?",
+                  "answer": "Click 'Sign In' then 'Forgot Password'. Enter your email and we'll send you a reset link."
+                }
+              ]
+            }
+          ]
         }
       },
       "darkMode": {
         "enabled": false,
         "auto": true,
         "colors": {
-          "background": "#0F172A",
-          "surface": "#1E293B",
-          "text": "#F8FAFC",
-          "textMuted": "#94A3B8",
-          "border": "#334155",
-          "primary": "#1B2838",
-          "secondary": "#F59E0B",
-          "accent": "#F59E0B"
+          "background": "#0D1117",
+          "surface": "#161B22",
+          "text": "#F0F0F0",
+          "textMuted": "#8B949E",
+          "border": "#30363D",
+          "primary": "#F59E0B",
+          "secondary": "#2A6B51",
+          "accent": "#D4B978"
         }
       },
       "storefront": {
         "cart": {
           "displayMode": "drawer",
-          "drawerSide": "right"
+          "drawerSide": "right",
+          "showDeleteText": false,
+          "showSaveForLater": false
         }
       },
       "relatedProducts": {
         "enabled": true,
         "strategy": "category",
-        "maxItems": 8,
+        "maxItems": 12,
         "showOnMobile": true,
         "title": "You May Also Like",
-        "subtitle": "Customers also viewed these products"
+        "subtitle": "Customers also loved these products"
       },
       "design": {
         "animations": {
-          "preset": "moderate"
+          "preset": "moderate",
+          "carouselCycleSeconds": 5,
+          "toastDurationMs": 4000
         },
         "spacing": {
-          "sectionPaddingY": "normal"
+          "sectionPaddingY": "spacious"
         },
         "grid": {
-          "productColumns": {}
+          "productColumns": {
+            "sm": 2,
+            "md": 3,
+            "lg": 4,
+            "xl": 4
+          },
+          "productGap": "normal"
+        },
+        "statusColors": {
+          "success": "#0F172A",
+          "warning": "#F59E0B",
+          "error": "#8B3A3A",
+          "info": "#B8922E"
+        }
+      },
+      "checkoutUi": {
+        "accordion": {
+          "completedStepColor": "#0F172A",
+          "activeStepColor": "#B8922E"
+        },
+        "confirmation": {
+          "showTimeline": true,
+          "showPrintReceipt": true
+        },
+        "progressBar": {
+          "completedColor": "#0F172A",
+          "activeColor": "#B8922E"
+        }
+      },
+      "cardOverrides": {
+        "plp": {
+          "showWishlistButton": true,
+          "showAddToCart": true,
+          "showBrandLabel": true,
+          "showRating": true,
+          "showPrice": true,
+          "showOriginalPrice": true,
+          "showShareButton": true,
+          "showDiscountBadge": true,
+          "showOutOfStockBadge": true,
+          "showLowStockBadge": true,
+          "showNewBadge": true,
+          "titleMaxLines": 2
+        },
+        "relatedProducts": {},
+        "recentlyViewed": {},
+        "wishlistDrawer": {},
+        "productGrid": {
+          "showWishlistButton": true,
+          "showAddToCart": true,
+          "showBrandLabel": true,
+          "showRating": true,
+          "showPrice": true,
+          "showOriginalPrice": true,
+          "showShareButton": true,
+          "titleMaxLines": 2
+        }
+      },
+      "componentOverrides": {
+        "homepage.hero": {
+          "backgroundColor": "#191f24",
+          "textColor": "#FFFFFF",
+          "backgroundStyle": "radial-gradient",
+          "backgroundSecondaryColor": "#0F1419",
+          "gradientDirection": "to-bottom-right",
+          "fontFamily": "heading",
+          "fontSize": "5xl",
+          "fontWeight": "bold",
+          "padding": "0.5rem",
+          "margin": "0",
+          "gap": "0.25rem",
+          "hoverBackgroundColor": "#0F1419",
+          "hoverShadow": "none"
+        },
+        "homepage.trustStrip": {
+          "backgroundColor": "#FBF9F6",
+          "textColor": "#0F172A",
+          "fontSize": "sm",
+          "fontWeight": "semibold",
+          "padding": "1rem 0"
+        },
+        "homepage.marquee": {
+          "backgroundColor": "#B8922E",
+          "textColor": "#D4B978",
+          "fontSize": "sm",
+          "fontWeight": "semibold"
+        },
+        "homepage.categories": {
+          "textColor": "#0F1419",
+          "fontFamily": "heading",
+          "fontSize": "3xl",
+          "fontWeight": "bold"
+        },
+        "homepage.trending": {
+          "textColor": "#0F1419",
+          "fontFamily": "heading",
+          "fontSize": "2xl",
+          "fontWeight": "bold"
+        },
+        "homepage.promotionBanner": {
+          "backgroundColor": "#B8922E",
+          "textColor": "#FFFFFF",
+          "borderRadius": "lg",
+          "fontFamily": "heading",
+          "fontSize": "3xl",
+          "fontWeight": "bold",
+          "padding": "4rem 2rem"
+        },
+        "homepage.flashDeals": {
+          "textColor": "#0F1419",
+          "fontFamily": "heading",
+          "fontSize": "2xl",
+          "fontWeight": "bold"
+        },
+        "homepage.collectionMosaic": {
+          "textColor": "#0F1419",
+          "fontFamily": "heading",
+          "fontSize": "2xl",
+          "fontWeight": "bold"
+        },
+        "homepage.bestSellers": {
+          "textColor": "#0F1419",
+          "fontFamily": "heading",
+          "fontSize": "2xl",
+          "fontWeight": "bold"
+        },
+        "homepage.customerFeedback": {
+          "textColor": "#0F1419",
+          "fontFamily": "heading",
+          "fontSize": "2xl",
+          "fontWeight": "bold"
+        },
+        "homepage.newsletter": {
+          "backgroundColor": "#B8922E",
+          "textColor": "#FFFFFF",
+          "borderRadius": "lg",
+          "fontFamily": "heading",
+          "fontSize": "2xl",
+          "fontWeight": "bold",
+          "padding": "4rem 2rem"
+        },
+        "homepage.brandGrid": {
+          "textColor": "#0F1419",
+          "fontFamily": "heading",
+          "fontSize": "2xl",
+          "fontWeight": "bold"
+        },
+        "homepage.productCard": {
+          "borderRadius": "lg",
+          "shadow": "md",
+          "fontSize": "sm",
+          "fontWeight": "semibold",
+          "hoverBackgroundColor": "#FBF9F6",
+          "hoverShadow": "lg"
+        },
+        "layout.header": {
+          "backgroundColor": "#",
+          "textColor": "#0F1419",
+          "borderColor": "#1C1C1F",
+          "shadow": "sm",
+          "fontSize": "sm",
+          "fontWeight": "medium"
+        },
+        "layout.headerBanner": {
+          "backgroundColor": "#B8922E",
+          "textColor": "#D4B978",
+          "fontSize": "xs",
+          "fontWeight": "medium"
+        },
+        "layout.footer": {
+          "backgroundColor": "#B8922E",
+          "textColor": "#FFFFFF",
+          "borderColor": "#243447",
+          "fontSize": "sm",
+          "padding": "4rem 2rem"
+        },
+        "layout.mobileBottomNav": {
+          "backgroundColor": "#FFFFFF",
+          "textColor": "#7A756E",
+          "borderColor": "#1C1C1F",
+          "shadow": "lg",
+          "fontSize": "xs"
+        },
+        "layout.searchDialog": {
+          "backgroundColor": "#FFFFFF",
+          "textColor": "#0F1419",
+          "borderColor": "#1C1C1F",
+          "borderRadius": "lg",
+          "shadow": "lg"
+        },
+        "plp.filterSidebar": {
+          "backgroundColor": "#FFFFFF",
+          "borderColor": "#1C1C1F",
+          "borderRadius": "lg",
+          "fontSize": "sm"
+        },
+        "plp.productCard": {
+          "borderRadius": "sm",
+          "shadow": "sm",
+          "fontSize": "sm",
+          "fontWeight": "bold",
+          "textTransform": "capitalize",
+          "hoverBackgroundColor": "#FBF9F6",
+          "hoverTextColor": "#131315",
+          "hoverShadow": "lg"
+        },
+        "plp.productGrid": {
+          "gap": "1.25rem"
+        },
+        "plp.activeFiltersTags": {
+          "backgroundColor": "#FBF9F6",
+          "borderColor": "#1C1C1F",
+          "borderRadius": "lg",
+          "shadow": "sm",
+          "fontSize": "xs"
+        },
+        "plp.quickFilters": {
+          "backgroundColor": "#FFFFFF",
+          "borderColor": "#1C1C1F",
+          "shadow": "sm",
+          "fontSize": "xs",
+          "fontWeight": "semibold"
+        },
+        "plp.sortBy": {
+          "textColor": "#0F1419",
+          "fontSize": "sm",
+          "fontWeight": "medium"
+        },
+        "pdp.gallery": {
+          "borderRadius": "lg",
+          "shadow": "sm"
+        },
+        "pdp.addToCart": {
+          "backgroundColor": "#B8922E",
+          "textColor": "#FFFFFF",
+          "borderRadius": "lg",
+          "fontSize": "base",
+          "fontWeight": "bold",
+          "padding": "0.875rem 2rem",
+          "hoverBackgroundColor": "#243447"
+        },
+        "pdp.stickyAddToCart": {
+          "backgroundColor": "#FFFFFF",
+          "borderColor": "#1C1C1F",
+          "shadow": "lg",
+          "padding": "0.75rem 1rem"
+        },
+        "pdp.variantSelector": {
+          "borderColor": "#1C1C1F",
+          "borderRadius": "md",
+          "fontSize": "sm",
+          "fontWeight": "medium"
+        },
+        "pdp.quantitySelector": {
+          "borderColor": "#1C1C1F",
+          "borderRadius": "md",
+          "fontWeight": "semibold"
+        },
+        "pdp.tabs": {
+          "textColor": "#0F1419",
+          "borderColor": "#1C1C1F",
+          "fontSize": "sm",
+          "fontWeight": "medium"
+        },
+        "pdp.relatedProducts": {
+          "textColor": "#0F1419",
+          "fontFamily": "heading",
+          "fontSize": "xl",
+          "fontWeight": "bold",
+          "padding": "3rem 0"
+        },
+        "cart.page": {
+          "backgroundColor": "#131315",
+          "textColor": "#0F1419",
+          "padding": "2rem 0"
+        },
+        "cart.drawer": {
+          "backgroundColor": "#FFFFFF",
+          "textColor": "#0F1419",
+          "borderColor": "#1C1C1F",
+          "shadow": "lg"
+        },
+        "checkout.page": {
+          "backgroundColor": "#131315",
+          "textColor": "#0F1419"
+        },
+        "checkout.summary": {
+          "backgroundColor": "#FFFFFF",
+          "borderColor": "#1C1C1F",
+          "borderRadius": "lg",
+          "shadow": "sm",
+          "padding": "1.5rem"
+        },
+        "checkout.placeOrder": {
+          "backgroundColor": "#B8922E",
+          "textColor": "#FFFFFF",
+          "borderRadius": "lg",
+          "fontSize": "base",
+          "fontWeight": "bold",
+          "padding": "1rem 2rem",
+          "hoverBackgroundColor": "#243447"
+        },
+        "checkout.contactStep": {
+          "backgroundColor": "#FFFFFF",
+          "borderColor": "#1C1C1F",
+          "borderRadius": "lg",
+          "shadow": "sm"
+        },
+        "checkout.shippingStep": {
+          "backgroundColor": "#FFFFFF",
+          "borderColor": "#1C1C1F",
+          "borderRadius": "lg",
+          "shadow": "sm"
+        },
+        "checkout.deliveryStep": {
+          "backgroundColor": "#FFFFFF",
+          "borderColor": "#1C1C1F",
+          "borderRadius": "lg",
+          "shadow": "sm"
+        },
+        "checkout.paymentStep": {
+          "backgroundColor": "#FFFFFF",
+          "borderColor": "#1C1C1F",
+          "borderRadius": "lg",
+          "shadow": "sm"
+        },
+        "checkout.confirmation": {
+          "backgroundColor": "#131315",
+          "textColor": "#0F1419",
+          "borderRadius": "lg"
+        },
+        "account.dashboard": {
+          "backgroundColor": "#131315",
+          "textColor": "#0F1419"
+        },
+        "account.orders": {
+          "backgroundColor": "#FFFFFF",
+          "borderColor": "#1C1C1F",
+          "borderRadius": "lg",
+          "shadow": "sm"
+        },
+        "account.addresses": {
+          "backgroundColor": "#FFFFFF",
+          "borderColor": "#1C1C1F",
+          "borderRadius": "lg",
+          "shadow": "sm"
+        },
+        "account.wishlist": {
+          "backgroundColor": "#FFFFFF",
+          "borderColor": "#1C1C1F",
+          "borderRadius": "lg",
+          "shadow": "sm"
+        },
+        "account.settings": {
+          "backgroundColor": "#FFFFFF",
+          "borderColor": "#1C1C1F",
+          "borderRadius": "lg",
+          "shadow": "sm"
+        },
+        "auth.login": {
+          "backgroundColor": "#FFFFFF",
+          "textColor": "#0F1419",
+          "borderColor": "#1C1C1F",
+          "borderRadius": "lg",
+          "shadow": "md",
+          "padding": "2.5rem"
+        },
+        "auth.forgotPassword": {
+          "backgroundColor": "#FFFFFF",
+          "textColor": "#0F1419",
+          "borderColor": "#1C1C1F",
+          "borderRadius": "lg",
+          "shadow": "md",
+          "padding": "2.5rem"
+        },
+        "ui.productCard": {
+          "borderRadius": "lg",
+          "shadow": "sm",
+          "fontSize": "sm",
+          "fontWeight": "semibold",
+          "hoverShadow": "lg"
+        },
+        "ui.badges": {
+          "borderRadius": "md",
+          "fontSize": "xs",
+          "fontWeight": "bold",
+          "textTransform": "uppercase"
+        },
+        "ui.imageOverlay": {
+          "backgroundColor": "rgba(0,0,0,0.4)",
+          "borderRadius": "lg"
+        },
+        "plp.stickyQuickFilters": {
+          "backgroundColor": "#FFFFFF",
+          "borderColor": "#1C1C1F",
+          "shadow": "sm",
+          "fontSize": "xs",
+          "fontWeight": "semibold"
+        },
+        "pdp.productGallery": {
+          "borderRadius": "lg",
+          "shadow": "sm"
+        },
+        "pdp.stickyMobileAddToCart": {
+          "backgroundColor": "#FFFFFF",
+          "borderColor": "#1C1C1F",
+          "shadow": "lg",
+          "padding": "0.75rem 1rem"
+        },
+        "pdp.productTabs": {
+          "textColor": "#0F1419",
+          "borderColor": "#1C1C1F",
+          "fontSize": "sm",
+          "fontWeight": "medium"
+        },
+        "cart.cartPage": {
+          "backgroundColor": "#131315",
+          "textColor": "#0F1419",
+          "padding": "2rem 0"
+        },
+        "cart.cartDrawer": {
+          "backgroundColor": "#FFFFFF",
+          "textColor": "#0F1419",
+          "borderColor": "#1C1C1F",
+          "shadow": "lg"
+        },
+        "checkout.checkoutPage": {
+          "backgroundColor": "#131315",
+          "textColor": "#0F1419"
+        },
+        "checkout.orderConfirmation": {
+          "backgroundColor": "#131315",
+          "textColor": "#0F1419",
+          "borderRadius": "lg"
         }
       }
     }
